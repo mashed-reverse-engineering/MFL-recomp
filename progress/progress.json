@@ -1,0 +1,80 @@
+{
+ "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
+ "functions": {
+  "game": 2557,
+  "game_bytes": 638747,
+  "game_named": 2459,
+  "named": 4694,
+  "total": 6364
+ },
+ "published_source": {
+  "by_module": {
+   "ai": 5,
+   "audio": 5,
+   "batch4": 20,
+   "car": 31,
+   "career": 3,
+   "course": 43,
+   "effects": 37,
+   "geometry": 12,
+   "keep_batch10": 1,
+   "keep_batch15": 1,
+   "keep_batch17": 2,
+   "keep_batch18": 2,
+   "keep_batch19": 3,
+   "keep_batch20": 5,
+   "keep_batch22": 1,
+   "keep_batch24": 1,
+   "keep_batch25": 1,
+   "keep_batch26": 1,
+   "keep_batch27": 2,
+   "keep_batch28": 1,
+   "keep_batch5": 2,
+   "keep_batch9": 1,
+   "keep_game_misc": 1,
+   "keep_misc3": 1,
+   "keep_race_flow": 1,
+   "lua": 8,
+   "misc": 12,
+   "physics": 11,
+   "player": 21,
+   "race": 27,
+   "render": 28,
+   "system": 24,
+   "ui": 24,
+   "vehicle": 26,
+   "weapons": 17
+  },
+  "by_status": {
+   "DIFFERENT": 38,
+   "MATCH": 343
+  }
+ },
+ "replaced_in_pipeline": {
+  "agent": {
+   "bytes": 8703,
+   "functions": 135,
+   "verified_bytes_identical": 135
+  },
+  "bridge": {
+   "bytes": 11292,
+   "functions": 92,
+   "verified_bytes_identical": 0
+  },
+  "hand": {
+   "bytes": 14744,
+   "functions": 381,
+   "verified_bytes_identical": 344
+  },
+  "tier1": {
+   "bytes": 17690,
+   "functions": 398,
+   "verified_bytes_identical": 398
+  },
+  "tier2": {
+   "bytes": 45407,
+   "functions": 321,
+   "verified_bytes_identical": 0
+  }
+ }
+}

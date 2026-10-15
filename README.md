@@ -12,7 +12,14 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 ## Progress
 
 <!-- progress:start -->
-Progress numbers will appear here once the first source drop is published.
+| | Functions | Share |
+|---|---:|---:|
+| Application functions (VA < 0x4B0000) | 2557 | |
+| ...with a real (non auto) name | 2459 | 96% |
+| Hand-written C in `src/` (this repository) | 381 | 15% |
+| ...byte identical to the original (`MATCH`) | 343 | |
+| Replaced by recompiled C in the whole pipeline (all tiers, not yet published) | 1327 | 52% |
+| ...verified byte identical (relocations checked) | 877 | |
 <!-- progress:end -->
 
 ## Contents
