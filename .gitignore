@@ -1,0 +1,22 @@
+# game / SDK / compiler files are never part of this repository
+game/
+toolchain/
+output/
+*.exe
+*.dll
+*.obj
+*.lib
+*.pdb
+*.fidb
+*.gdt
+*.gdt_CParser.out
+*.bin
+*.piz
+*.iso
+*.xiso
+*.whl
+ghidra_types.h
+__pycache__/
+*.pyc
+*.best.c
+*.bak*
