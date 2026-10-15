@@ -1,0 +1,34 @@
+# PlayerStatRecord: per player statistics of the current race (race), of the race just finished (result) and the running totals (total); 4 players each
+struct,PlayerStatRecord,0x138
+field,0x00,i32,place,"finishing place (0 based in the race table, 1 based in the result table)"
+field,0x08,i32,turbo_skill_score,"'Turbo Skills': +200 per turbo skill (spin or long reverse) in player_stats_update"
+field,0x0c,i32,turbo_skill_kind,"last skill: 1 = steering spin, 2 = reversing"
+field,0x10,i32,turbo_skill_timer,"3000 ticks display timer of the last skill"
+field,0x9c,i32,contact_ticks,"counts ticks in contact with another car"
+field,0xa0,i32,aggression,"'Aggression': rams where the other car is a human player (event 0x3FF03)"
+field,0xa4,i32,kills,"'Kills': credited to the last hitter when a car dies within 4500 ticks of the hit"
+field,0xa8,i32,unforced_errors,"'Unforced Errors': deaths without a recent hitter"
+field,0xac,i32,death_handled,"set once the death of the car has been scored"
+field,0xf0,i32,wall_hits,"'Cleanest Drive': number of wall hits (event 3), lower is better (default 100000 in the ranking)"
+field,0xf4,i32,crowns,"'Crowns' (kind 0; ai_stats_log prints it as number of crowns); no writer in the application code, 0 in event type 4"
+field,0xf8,i32,pants,"number of pants (kind 1, the NOT USED text); never written"
+field,0xfc,i32,turbo_used,"'Turbo Skills' (kind 2): turbo charge consumed, added by player_stat_add_turbo_used when the turbo charge is spent"
+field,0x100,f32,turn_start_angle,"heading when a steering spin started"
+field,0x104,i32,turn_state,"0 idle, 1 turning left, 2 turning right"
+field,0x108,i32,reverse_ticks,"ticks spent braking while moving backwards (skill at 9001 ticks)"
+field,0x10c,i32[4],last_collision_time,"g_race_clock_b of the last car to car collision with each other player"
+field,0x11c,f32[4],collision_speed,"relative speed of the last collision with each other player"
+field,0x12c,i32,last_hit_by,"1000 + id of the car that hit this car last"
+field,0x130,i32,last_hit_time,"g_race_clock_b of that hit"
+field,0x134,i32,other_is_human,"set by the collision handler when the other car is a human player"
+apply,0x8c8ae0,PlayerStatRecord,4
+apply,0x8c8fc0,PlayerStatRecord,4
+apply,0x8c94a0,PlayerStatRecord,4
+# MenuRecord: frontend menu stack / page table, indexed by g_menu_current (stack) or page index + 1 (page definitions)
+struct,MenuRecord,0x40
+field,0x00,u32,item_list,"pointer to the item list of the page (entries end with a 0xFFxxxxxx terminator)"
+field,0x04,i32,page_id,"frontend page id (0x13 options, 0x21 race menu ...)"
+field,0x08,i32,selected,"selected entry, -1 none"
+field,0x0c,i32[12],entry_enabled,"per entry enabled flag, set by menu_page_update_entry_states"
+field,0x3c,i32,entry_count,"number of entries"
+apply,0x69d2e0,MenuRecord,14

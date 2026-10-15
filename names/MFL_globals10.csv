@@ -1,0 +1,12 @@
+# address,name,comment  (more frontend menu state from menu_update; apply with RenameFns.java)
+0069d690,@g_menu_event_column,"selected career grid column 0..0x11 (maps to g_event_type in event_type_from_menu_choice)"
+0069d1ec,@g_menu_screen_id,"id of the frontend screen being shown (0x21 race menu, 1 ...)"
+0069cfa8,@g_menu_player_count_index,"selected player count entry 0..3 (inferred)"
+0069cfa4,@g_menu_game_mode_choice,"selected multiplayer game mode entry 0..2 (inferred)"
+0069d21c,@g_menu_multiplayer_kind,"0 single, 1 two player (cfa8 == 2), 2 other multiplayer (inferred)"
+0069cfb4,@g_menu_player_team_choice,"team picked for each extra player (3 dwords: 69cfb4 / b8 / bc), 0 = none"
+0069cfb8,@g_menu_player_team_choice_1,"second dword of g_menu_player_team_choice"
+0069cfbc,@g_menu_player_team_choice_2,"third dword of g_menu_player_team_choice"
+0069cfc8,@g_menu_team_mode_choice,"team mode toggle, g_team_mode = value ^ 1 when starting"
+0069ca28,@g_menu_controller_vehicle,"vehicle chosen per controller (12 byte records)"
+0069d668,@g_menu_player0_team_choice,"team choice + 1 of player 0 (0 = none)"

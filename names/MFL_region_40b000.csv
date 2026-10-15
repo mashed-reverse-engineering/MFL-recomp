@@ -1,0 +1,61 @@
+# address,name,comment  (MFL.exe 0x40b000-0x40e760: save UI callbacks, round scores, effects, event log, race setup; names marked inferred come from the call pattern; apply with RenameFns.java)
+0040b000,gamesave_poll_status,"Lua stub query then status change handling (message_close) for the save state machines"
+0040b050,gamesave_message_show_pending,"shows message 0x293 once when g_pending flag 0x8D8BFC is set"
+0040bf20,gamesave_cb_save_state,"handler for the manual save state variable 0x8D8BF0"
+0040bfb0,gamesave_cb_load_state,"handler for the load state variable 0x8D8BEC"
+0040bfe0,gamesave_cb_boot_state,"handler for the boot check state variable 0x8D8BE8"
+0040c050,gamesave_cb_autosave_state,"handler for the autosave state variable 0x8D8BF4"
+0040c0c0,gamesave_cb_dispatch_a,"switch on the active save operation 0x8D8BE4"
+0040c200,gamesave_cb_dispatch_b,
+0040c250,gamesave_update,"(dt): runs the state machine of the active save operation (called from menu_update)"
+0040c2a0,nop_a,
+0040c2b0,nop_b,
+0040c2c0,gamesave_set_autosave_enabled,"0x8D8C0C = value (autosave_request only acts when it is set)"
+0040c2d0,car_scale_velocity,"(car, factor): reads the velocity, multiplies it and writes it back"
+0040c320,car_push_from_matrix,"(car, a, b): velocity change along the car's matrix axes scaled by 360 (inferred)"
+0040c7e0,round_scores_reset,"sets the three per player change tables at 0x8D8B60 to -1000 (0xFFFFFC18)"
+0040c820,player_add_points,"(see util names)"
+0040c9a0,player_get_points_change,"0x8D8B80[player]"
+0040c9b0,player_get_points_change_visual,"0x8D8B60[player]"
+0040c9c0,player_add_wins,"(player, n): 0x8D8B50[player] += n (index > 3: 0x8D8B5C)"
+0040c9f0,players_get_wins,"(out[4]): wins per player, -1 for absent players (g_player_table < 0)"
+0040cad0,players_get_points,"(out[4]): player_points, -100 for absent players"
+0040cbb0,players_get_stat_8b90,"(out[4]): 0x8D8B90 table, -100 for absent players"
+0040cc40,player_get_stat_8b90,"0x8D8B90[player]"
+0040cc50,player_get_wins,"0x8D8B50[player]"
+0040cca0,get_competitor_count,"2 in team mode (unless game mode 2), else the player count"
+0040cd50,player_get_stat,"(player, kind): 0 -> 0x8D8B90 table, 1 -> 0x8D8BC0 table, ..."
+0040cdb0,round_stats_reset,"clears the per player round statistics (0x8D8BA0 / 0x8D8BB0 tables)"
+0040ce30,score_target_a,"first score threshold: 12 (4 players) or 8 players otherwise, 8 in team mode (inferred)"
+0040ce80,score_target_b,"second score threshold: 10 (4 players) or 7 in team mode (inferred)"
+0040ced0,players_reached_target,"(out[4]): flag when player_points >= score_target_b"
+0040cf10,players_have_zero_points,"(out[4]): flag when player_points == 0"
+0040d000,cars_inactive_flags,"(out[4]): 1 for cars that are not active"
+0040d040,material_set_envmap,"RpMatFX env map effect for materials with a texture, else no effect"
+0040d080,clump_set_envmap,"applies material_set_envmap to every material of the geometry"
+0040d0b0,atomic_set_envmap,"wrapper of clump_set_envmap"
+0040d0d0,find_texture_dict_b,"RwTexDictionaryFindNamedTexture in the dictionary at 0x652DD8"
+0040d0f0,find_texture_dict_c,"dictionary at 0x652DDC"
+0040d110,find_texture_dict_d,"dictionary at 0x652DE0"
+0040d270,effects_init,"initialises the particle / effect subsystems (many particle systems)"
+0040d2e0,effects_reset,"resets the particle systems between races"
+0040d340,effects_render,"renders the particle systems when 0x652DD4 is set"
+0040d3a0,event_log_dispatch,"(index): plays the effects and sounds for one event log entry (switch on the event type: 3 world collision, ...)"
+0040de10,event_log_flush_new,"processes the entries added since the last call (up to g_event_log_head)"
+0040def0,color_code_to_index,"maps 0xFFA08080 -> 7, 0xFF1A3380 -> ... (the car colour constants) to a small index"
+0040e590,effects_update_frame,"advances the effects each frame (0x652DD0 frame counter, particles, event log, effects)"
+0040e610,race_setup_use_0,"g_race_setup = race_setup_struct_0()"
+0040e620,race_setup_use_1,
+0040e630,race_setup_use_2,
+0040e640,race_setup_use_3,
+0040e650,race_setup_use_4,
+0040e660,race_setup_use_5,"also advances the float at 0x7EF758 by 1.0"
+0040e680,race_setup_get_course,"(index): the course entry of a race setup slot"
+0040e6f0,course_unload_current,"unequips all weapons, resets and unloads the current course"
+0040e730,course_load_from_setup,"(setup, index): course_open_and_run_scripts(*entry) and FUN_0048a610"
+00429630,race_setup_struct_0,
+00429620,race_setup_struct_1,
+00429640,race_setup_struct_2,
+00429650,race_setup_struct_3,
+00429660,race_setup_struct_4,
+00429670,race_setup_struct_5,

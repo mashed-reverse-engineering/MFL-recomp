@@ -1,0 +1,2 @@
+0042a420,course_token_list_base,"returns the base pointer of the course token list (used by the course_token_list_* helpers)"
+0042b2e0,course_world_ray_hit_light_forward,"forwards to course_world_ray_hit_light_sample on g_course_world"

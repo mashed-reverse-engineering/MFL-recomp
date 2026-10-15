@@ -1,0 +1,4 @@
+00410040,race_course_loaded_event_get,"returns g_race_course_loaded_event"
+0040af60,gamesave_set_result_code,"stores g_gamesave_result_code"
+00406290,scene_select_timer_clear,"clears g_scene_select_timer"
+00410050,race_course_loaded_event_clear,"clears g_race_course_loaded_event"

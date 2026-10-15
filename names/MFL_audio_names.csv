@@ -1,0 +1,13 @@
+# address,name,comment  (MFL.exe sound engine helpers: positional sound effect voices; names marked inferred come from the call pattern; apply with RenameFns.java)
+004726a0,sfx_play_at,"(effect, position*): when g_app_state is 3, starts every voice of the effect (table g_sfx_table: +0 first voice, +4 count) at the position with frequency 22050.0 (0x46AC4400) unless an effect 0x20 special case applies"
+00472890,sfx_play_voice_at,"(effect, position*, voice index): same for a single voice of an effect"
+00469cb0,sfx_move_playing_voice,"(effect, position*, voice index): updates the position of a voice that is already playing (flag 2)"
+00469ac0,voice_set_position_from_car,"(voice, car): voice position = the car's current matrix position (12 callers)"
+004727a0,sfx_play_group_at,"(group, position* or null): starts the voices of a g_sound_groups record (+0x80 first voice, +0x84 count)"
+00472520,sfx_play_group_voice_at,"(?, position*, group): starts two voices of a group with a pitch ramp (inferred)"
+00472340,sfx_play_player_set_at,"(?, position*): starts four voices of the set at 0x618C98 + 4 with a pitch ramp (inferred)"
+00469a60,voice_set_two_params,"(voice, value, a, b): two FUN_005b8c70 calls on the voice's stream object (inferred)"
+00469c50,sound_resume_streams,"restarts the streams that were stopped (inferred)"
+006ad210,@g_voices,"table of sound voices (pointer + float per entry, stride 8); voice +0x34 flags (2 = playing), +0x3C frequency, +0x58..+0x60 position, +0x30 audio object"
+006187f8,@g_sfx_table,"sound effect table, stride 0x94: +0 first voice index, +4 voice count"
+008bd7b0,@g_sound_groups,"pointer to sound group records of 0x90 bytes (+0x80 first voice, +0x84 count, +0x6B0 voice for the pitch ramp variant)"

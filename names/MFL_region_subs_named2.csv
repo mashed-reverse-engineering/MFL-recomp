@@ -1,0 +1,5 @@
+# address,name,comment  (more former _sub_ placeholders renamed by role; apply with RenameFns.java)
+0043a2c0,training_hint_labels_update,"shows world text hints such as 'KEEP GOING!' (text 0x318) next to the player with hud_label_add_world_text, depending on the distance to player 1 and the car modes"
+0042d9f0,time_trial_default_record_a,"(track, out fraction, out seconds, out minutes): default record time of a track (the first table, a different value when g_game_state.mirror_mode is set)"
+0042df90,time_trial_default_record_b,"(track, out fraction, out seconds, out minutes): second default time table, same output layout, starts from 9:59.99"
+004388e0,menu_button_prompts_build,"(page, ...): fills the 0x34 byte button / prompt entries at 0x8C80A0 for the current frontend page (Continue / Back icons)"

@@ -1,0 +1,5 @@
+007e8b64,@g_event_log_args,"EventLogArgs[256] ring buffer entry (parallel to g_event_log_type/time/param)"
+007eab64,@g_event_log_data,"EventLogData[256] 0x40 byte payload per event"
+00653040,@g_trails,"TrailSlot[6]"
+0088a860,@g_spring_nodes,"SpringNode[20 rows x 23 columns], index row*23+col"
+00651960,@g_fx_slots,"FxSlot[10] ring (g_fx_spawn_651aac)"

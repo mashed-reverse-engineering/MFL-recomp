@@ -1,0 +1,68 @@
+# address,name,comment  (MFL.exe 0x416fb0-0x421000: AI bot helpers and the HUD panel systems; names marked inferred come from the call pattern and the panel loader that precedes them; apply with RenameFns.java)
+00416fb0,ai_bot_weapon_logic,"(bot): decides about picking / using a weapon unless the race phase is 10 or 0xB (inferred)"
+00417b70,ai_find_leader_a,"scans the players when player_distance_get(bot) is 0 (inferred)"
+00417ce0,ai_find_leader_b,"variant of ai_find_leader_a"
+00417d50,ai_player0_distance_is_zero,"player_distance_get(0) == 0"
+00417d70,ai_bot_stuck_check,"per bot timers (0x8C9B40 stride 0x78) with g_tick_count and the car speed (inferred)"
+004183b0,ai_bot_set_timer_30000,"0x8C9B2C[bot] = 30000"
+00418870,ai_bot_obstacle_ahead,"inferred: tests the point 2 forward vectors ahead of the car"
+00418990,ai_steer_towards_point,"(car, x, z): normalised direction from the car to (x, z) in the XZ plane"
+00418d60,ai_route_target_for_car,"(bot, out, car): ai_nearest_route_point from the car position with the per bot hint"
+00418db0,ai_bot_set_field_24,"0x8C9B24[bot * 0x78] = value"
+00419f70,ai_bot_set_cooldown_b4,"0x8C9B1C[bot] = 0xB4 - 0xB4 * ftol(x)"
+00419fa0,ai_get_float_8c9980,"float at 0x8C9980"
+00419fb0,ai_bot_set_cooldown_78,"0x8C9B1C[bot] = 0x78 - 0x78 * ftol(x), flag 0x8C9B20 = 1"
+00419ff0,ai_bot_get_flag_20,"0x8C9B20[bot * 0x78]"
+0041a000,ai_bot_clear_flag_20,
+0041a370,ai_get_counter,"float at 0x8C9EC0 + index * 4 (the per player countdown used by game_mode_end_check)"
+0041b980,marker_particles_update_a,"race phase 6: FUN_0041d200 when FUN_004353e0() (markers enabled)"
+0041b9a0,marker_particles_update_b,"race phase 6: FUN_0041c510 when markers enabled"
+0041bf10,marker_particles_render,"particles_render(0x6586E8)"
+0041bf20,marker_particles_destroy,"particles_destroy(0x6586E8)"
+0041d450,btb_panel_destroy,"RpClumpDestroy(0x658B40) (BTBPanel.dff, inferred)"
+0041d480,btb_panel_slot_init,"(slot, clump): 0xC4 byte slot at 0x658B50, colour 0x80C8C8C8"
+0041d520,btb_panel_slot_set_matrix,"(slot, matrix*): copies 16 floats"
+0041d580,btb_panel_slot_set_position,
+0041d5d0,btb_panel_slot_set_scale,
+0041d630,btb_panel_slot_set_value,
+0041d650,btb_panel_slot_update,
+0041d8c0,btb_panel_slot_render,"calls the clump object's method +0x48 when visible"
+0041d930,btb_panel_slot_set_visible,
+0041d9e0,btb_panel_render_all,"btb_panel_slot_render for slots 0 and 1"
+0041da00,btb_panel_destroy_extra,"RpClumpDestroy(0x658CD8)"
+0041da30,btb_panel_set_visible_all,
+0041de30,score_panel_entry_init,"per player entry of the panel.txd score panel: bit mask from the team table, colour 0xFF323232"
+0041dea0,score_panel_entry_reset,"entry scale / offsets from the table at 0x603ED4"
+0041dfd0,score_panel_entry_update,"player_get_points vs score_target_a: scale / show the icons"
+0041e3c0,score_panel_entry_render,"calls the clump methods (+0x48) of the entry"
+0041e4c0,score_panel_entry_destroy,"RpClumpDestroy(entry +0x5C)"
+0041e550,score_panel_init,"player count, max_points_a = score_target_a, score_panel_entry_init for every entry (0x658DF0, stride 0x74)"
+0041e5a0,score_panel_reset_entries,"score_panel_entry_reset for every entry"
+0041e5c0,score_panel_update,"players_reached_target / points / zero points / inactive flags then the entry updates"
+0041e6b0,score_panel_render,"entries that are enabled"
+0041e6e0,score_panel_destroy,
+0041efa0,team_panel_reset,"clears 0x10 bytes per entry (0x658FD8, stride 0x16C)"
+0041f110,team_panel_update,"players_reached_target then team_panel_entry_update"
+0041f140,team_panel_render,
+0041f160,team_panel_destroy,
+0041e820,team_panel_entry_update,
+0041ecd0,team_panel_entry_render,
+0041ef30,team_panel_entry_destroy,
+0041f400,kc_panel_entry_init,"KC panel entry (0x659340, stride 0x114)"
+0041f490,kc_panel_entry_update,
+0041fa20,kc_panel_entry_render,
+0041fb80,kc_panel_entry_destroy,
+0041fc00,kc_panel_init,"player count, max_points_b = score_target_a, entry init"
+0041fcd0,kc_panel_update,"players_reached_target / points / zero points"
+0041fd40,kc_panel_render,
+0041fd70,kc_panel_destroy,
+0041fe80,endpoint_panel_entry_update,"endpoint panel entry (0x6597B8, stride 0x160)"
+00420490,endpoint_panel_entry_render,
+00420750,endpoint_panel_entry_destroy,
+004207b0,endpoint_panel_reset,
+004208b0,endpoint_panel_update,
+004208f0,endpoint_panel_render,
+00420910,endpoint_panel_destroy,
+00420b00,team_endpoint_panel_destroy,"RpClumpDestroy(0x659A9C)"
+00420fa0,stopclock_render,"renders the stop clock clump when 0x659B08 is set"
+00420f40,stopclock_destroy,"RpClumpDestroy(0x659B00)"

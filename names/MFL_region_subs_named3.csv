@@ -1,0 +1,4 @@
+# address,name,comment  (more former _sub_ placeholders renamed by role; apply with RenameFns.java)
+00499320,fx_ring_update,"updates the 256 entry fx marker ring filled by fx_ring_add_point: finds the 4 nearest points to the camera and emits particles from them"
+00424e50,vehicle_smoke_emitters_spawn,"spawns smoke emitters at +/-0.4 side offsets of the vehicle (from its local matrix and velocity) with a random size"
+004837d0,ui_draw_curved_wipe,"screen transition: two bars with a curved edge (circle of radius 90 via sqrt) sliding by the position parameter, alpha from g_gfx_89de00 / g_gfx_89ddfc"

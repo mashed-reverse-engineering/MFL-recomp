@@ -1,0 +1,26 @@
+# address,name,comment  (MFL.exe: powerup pick-ups placed by the course Lua scripts; apply with RenameFns.java)
+00464c30,powerup_place,"(position float[3], type) -> index or -1; rejects positions too close to an existing one; type 0x15 (chaos) only in variant 2; max 25 slots"
+00464dd0,powerup_set_respawn_time,"(index, seconds) default 120.0"
+00464d50,powerup_set_enabled,"(index, enable): disabled = state 3; enabling sets state 1 again"
+00464a20,powerups_reset_all,sets every placed powerup back to available (state 1) at its spawn position
+00464aa0,powerups_clear,resets the 25 slots and the count (called when a course is loaded)
+004644a0,powerups_init,"loads PowerUpIcons.txd and IconCube.dff once per slot, creates the glow particle system"
+00464580,powerups_destroy,destroys the 25 clumps and the particle system
+00464940,powerups_render,renders the available powerups that are in front of the camera and close enough
+00464e30,powerups_update,"per frame: glow particles for available ones; for taken ones the respawn countdown (state 2 -> 1, random type for special slots)"
+00464330,powerup_icon_texture,"icon texture for a type id (2 flamethrower, 6/0xC/0xD mine, 7 mortar, 9 machinegun, 0xA depthcharge, 0xB missile, 0x10 flamethrower, 0x11 shotgun, 0x12 flare, 0x13 oil, 0x15 chaos, 0x16 airstrike)"
+00464620,powerup_collision_callback,"trigger sphere callback (event type 7, owner = the Powerup slot): a car (id 0xFF00 + index) touching an available powerup takes it: state 2, timer = respawn time, pick-up fx, player_equip_weapon_by_index(car, type), sound 0x1C; if the car already has a weapon the powerup is bounced instead; outside phase 6 it is only consumed"
+004645c0,powerup_pickup_fx,spawns 10 icon particles of the powerup type at the pick-up position
+00464870,powerup_move_and_spin,"per frame for available powerups: velocity added to the position, damped, rotation about its axis; slows down toward a rest position"
+004682a0,player_has_weapon,"nonzero when the player (car index) already carries a weapon, so a pick-up is refused"
+00496850,trigger_sphere_register,"registers a collision trigger (position, radius 0.5, type 7, callback, owner) that is tested against the cars"
+004c7150,lua_gettop,Lua 4 C API: number of values on the stack ((top - base) >> 4)
+004c7180,lua_index2adr,Lua 4: stack index to TObject address
+004c7220,lua_tonumber,Lua 4 C API: returns the number at a stack index as double (0 if not convertible)
+006a8bc0,@g_powerups,25 x 0x50 byte slots (struct Powerup)
+006a93d0,@g_powerup_count,number of placed powerups
+006a93d4,@g_powerup_icons_txd,PowerUpIcons.txd
+006a9390,@g_powerup_glow,particle system used for the glow of the pick-ups
+006f2adc,@g_lua_current_pos,float[3] set by Set_Current_Position
+006299dc,@g_lua_current_type,set by Set_Current_Type
+006299e0,@g_lua_current_respawn,set by Set_Current_Respawn_Time

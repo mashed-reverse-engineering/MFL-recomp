@@ -1,0 +1,331 @@
+# struct specs for ApplyStructs.java (MFL.exe). Layouts: MashedFormats/mashed_config.py, FORMATS.md
+struct,VideoCfg,0x200
+field,0x000,u32,version,5 on save
+field,0x004,char[80],subsystem,RwSubSystemInfo name
+field,0x104,char[64],mode_name
+field,0x184,u32,subsystem_index
+field,0x188,u32,mode_index
+field,0x18C,u32,width
+field,0x190,u32,height
+field,0x194,u32,depth
+field,0x198,u32,fullscreen
+field,0x19C,u32,no_multitexture,checkbox checked when 0
+field,0x1A0,u32,no_dynamic_shadows,checkbox checked when 0
+field,0x1A4,u32,trilinear,checkbox checked when not 0
+field,0x1A8,u32,no_env_effects,checkbox checked when 0
+apply,007712f8,VideoCfg
+
+struct,ControllerCfg,0x200
+field,0x000,u32,version,6
+field,0x004,char[260],name
+field,0x108,u32[13],bindings,accelerate brake fire drop menu_select menu_back pause menu_next insult left right up down
+field,0x13C,u32,device,0 none 1 gamepad 2 keyboard
+field,0x140,u32,joystick
+apply,007e7740,ControllerCfg,4
+
+struct,WeaponSlot,0xB4
+field,0x20,f32[3],aim_vector,passed to the fire callbacks (shot direction / velocity)
+field,0x30,f32[3],muzzle_position,sound / effect position
+field,0xA8,u32,descriptor,pointer into weapon_descriptors (0 = no weapon)
+field,0xAC,u32,state,pointer to the weapon's per player state
+field,0xB0,u32,player,player index
+apply,008bed20,WeaponSlot,4
+
+struct,MachinegunState,0x48
+field,0x00,u32,slot,owning WeaponSlot
+field,0x04,f32,cooldown,0.0585 s after a shot
+field,0x08,u32,clump,GatlingGun.dff
+field,0x0C,u32,active
+field,0x10,i32,ammo,50 on equip (HUD gauge = ammo * constant)
+field,0x14,u32,fired
+field,0x18,f32,spin
+apply,006a60d0,MachinegunState,4
+
+struct,PlayerSlot,0x10
+field,0x00,i32,controller,"index of the controller / PlayerInput record, -1 = no player in this slot"
+field,0x04,i32,state,"-1 / 0 / 1 / 2: set to -1 for unused slots when an event starts (0 = human?)"
+field,0x08,i32,team,"team / colour index (1 << team is the mask used by the HUD panels)"
+field,0x0C,i32,extra
+apply,007f01fc,PlayerSlot,4
+apply,008c8000,RwIm2DVertex,4
+
+struct,PlayerInput,0x4C
+field,0x00,u8,left,"strength 0..255 of the left direction (mirrored mode swaps left and right)"
+field,0x01,u8,right
+field,0x02,u8,up
+field,0x03,u8,down
+field,0x04,u8,accelerate
+field,0x05,u8,brake
+field,0x07,u8,fire,"fire power-up (menu: next stat)"
+field,0x08,u8,drop,drop power-up
+field,0x09,u8,pause
+field,0x0A,u8,menu_select
+field,0x0B,u8,menu_back
+field,0x0C,u8[4],direction_flags,"0xFF while left / right / up / down is held"
+field,0x11,u8,menu_next
+field,0x13,u8,fire_copy
+field,0x14,f32,analog_x,"gamepad stick (negated y in +0x18); for the keyboard derived from the direction bytes"
+field,0x18,f32,analog_y
+field,0x20,u32,rumble_request,"set to 1 together with the three values below (player_rumble / input_player_rumble_set); the input backend consumes it"
+field,0x24,u32,rumble_enabled,"per player setting stored in the save (GameState.player_bytes); player_rumble / input_player_rumble_set do nothing when 0"
+field,0x2C,u32,rumble_duration,"third argument of player_rumble (2, 10, 0x1e)"
+field,0x30,u32,rumble_motor,"second argument of player_rumble (1..3)"
+field,0x34,u32,rumble_strength,"fourth argument of player_rumble (0x80 / 0xff)"
+field,0x3F,u8,insult
+apply,007ef820,PlayerInput,12
+apply,007efce0,PlayerInput,12
+
+# RwGlobalsRelease: now the real SDK struct, scripts/ApplyRwGlobals.java (the 0x200 placeholder is gone)
+
+struct,AiRoute,0x204
+field,0x000,f32[128],points,"64 (x, z) pairs"
+field,0x200,i32,count
+
+struct,AiData,0x11884
+field,0x00000,i16[16384],grid,"[128][128] tile index per 8 unit cell, -1 = none"
+field,0x08000,u8[32768],tile_pool,"512 tiles of 8 x 8 danger data bytes, 0xFF = empty"
+field,0x10000,i32,tiles_used
+field,0x10004,u8[6192],routes,"4 sets (race, inside, slow, cheat lines) x 3 slots of AiRoute"
+field,0x11834,u8[80],bot_state,"runtime state of the 4 bots, saved by accident"
+apply,007f0284,AiData
+
+struct,CourseEntry,0x48
+field,0x00,char[16],name,"training superg arctic rouabout sands sandsnow warzone forest egypt storm storm_R dump highway neustein city NT1 NT1_S AngelS Dem DemR HighwayN SuperG_N KEYS KEYS01 Egypt_R neust_R forest_R Tierra_N"
+field,0x10,u32,course_id,"also used as course id + 1000 when mirrored"
+field,0x14,u32[13],callbacks,"cb0 = post load (world), cb12 (+0x44) = world setup before creation; 0x50B5E0 = nothing to do"
+apply,00603fc8,CourseEntry,28
+
+struct,CourseFiles,0x3AE0
+field,0x0000,char[64],texture_dictionary,Texture_Dictionary_Filename
+field,0x0040,char[256],sky_files,"Sky_Filename, 4 x 0x40"
+field,0x0140,char[64],world_bsp,World_Bsp_Filename
+field,0x0180,char[64],collision_bsp,Collision_Bsp_Filename
+field,0x0280,char[64],hoppy_bsp,Hoppy_Bsp_Filename
+field,0x0380,char[1024],object_bsp_files,"Object_Bsp_Filename, 16 x 0x40"
+field,0x0980,char[8192],clump_files,"Clump_Filename, 128 x 0x40"
+field,0x2980,char[64],occluder,Occluder_Filename
+field,0x0780,char[64],ai_bsp,AI_Bsp_Filename
+field,0x0880,char[64],ai_data,AI_Data_Filename
+field,0x29C0,char[1088],mts_files,"Mts_Filename, 17 x 0x40"
+field,0x2E00,char[1024],spline_files,"Spline_Filename, 16 x 0x40"
+field,0x3200,char[64],camera_anim,Camera_Anim_Filename
+field,0x3240,char[512],general_anim_files,"General_Anim_Filename, 8 x 0x40"
+field,0x3440,char[512],powerup_files,"Powerup_Filename, 8 x 0x40"
+field,0x3640,char[64],lights,Lights_Filename
+field,0x3680,char[32],texture_a_name,looked up in the course texture dictionary
+field,0x36A0,char[32],texture_b_name
+field,0x36C0,char[512],uva_files,"UVA_Filename, 8 x 0x40"
+field,0x38C0,char[512],copter_files,"SetCopter, 8 x 0x40"
+field,0x3AC0,i32[8],copter_ids,SetCopter second argument
+applyptr,006f2ae8,CourseFiles
+apply,00665138,CourseFiles
+
+struct,CourseCounts,0xD20
+field,0x004,i32,object_bsp_count
+field,0x008,i32,clump_count
+field,0x00C,i32,mts_count
+field,0x010,i32,spline_count
+field,0x014,i32,general_anim_count
+field,0x000,i32,course_id,set by the game before COURSE.LUA runs (the Course_Id Lua function is a no-op)
+field,0x018,i32,ai_bsp_count,"AI_Bsp_Filename sets it to 1"
+field,0x01C,i32,collision_bsp_count,"Collision_Bsp_Filename sets it to 1"
+field,0x020,i32,hoppy_bsp_count
+field,0x02C,u8[64],clump_mts_pairs,"16 x {u8 clump, u8 mts, u16 0xFFFF}"
+field,0x06C,i32,clump_mts_pair_count
+field,0x070,u8[192],clump_anims,"SetClumpAnim records (12 bytes: +0 u8, +1 u8, +0x8 int)"
+field,0x0D0,i32,clump_anim_count
+field,0x0D4,u32[128],clump_exclude_from_world,Clump_Exclude_From_World flags
+field,0x2D4,u32[640],clump_fade,"ClumpFade records, 128 x 5 dwords: enable, a, b, ?, float"
+field,0xCD4,i32,powerup_file_count
+field,0xCD8,f32[4],ambient_rgba,Ambient_RGB (alpha 1.0)
+field,0xCE8,u8[4],fog_color,Setup_Fog r g b (a = 255)
+field,0xCEC,f32[2],fog_range,Setup_Fog first two arguments
+field,0xCF4,u8[4],fog_color_modified,Modify_Fog r g b
+field,0xCF8,f32[2],fog_modify_a,Modify_Fog
+field,0xD00,f32,fog_modify_b
+field,0xD04,f32[2],vehicle_shininess_range
+field,0xD0C,f32,shine_scale
+field,0xD10,f32,shadow_scale
+field,0xD14,i32,uva_count
+field,0xD18,i32,copter_count
+applyptr,006f2aec,CourseCounts
+apply,00664418,CourseCounts
+
+struct,CourseWorld,0xCA50
+field,0x0000,u8[49152],mts_matrices,"16 matrix lists of 0x30 RwMatrix (0xC00 bytes each) loaded from Mts_Filename"
+field,0xC000,i32[16],mts_matrix_counts
+field,0xC040,u32[16],object_bsp_worlds,Object_Bsp_Filename worlds
+field,0xC080,u32[4],ai_worlds,AI_Bsp_Filename world(s)
+field,0xC090,u32[4],collision_bsps,"invisible collision worlds (entries 1..3 default to entry 0)"
+field,0xC0A0,u32[4],hoppy_bsps
+field,0xC0B0,u32[16],splines,Spline_Filename resources
+field,0xC0F0,u32[4],sky_clumps,Sky_Filename clumps
+field,0xC110,u32[128],clumps,Clump_Filename clumps
+field,0xC310,u32[4],sky_atomics
+field,0xC530,u32[16],object_bsp_loaded
+field,0xC5B0,u32[128],clump_loaded
+field,0xC9B0,u32[8],general_anims
+field,0xC9D0,u32,texture_dictionary
+field,0xC9D4,u32,world,RpWorld of World_Bsp_Filename
+field,0xC9D8,u32,occluder_clump
+field,0xC9DC,u32,lights_clump
+field,0xC9E0,u32,ambient_light
+field,0xC9E4,u32,directional_light
+field,0xC9E8,u32,pvs_enabled
+field,0xC9EC,u32,pvs_data
+field,0xC9F0,u32,camera_anim
+field,0xC9F4,f32[3],fog_a
+field,0xCA00,f32[3],fog_b
+field,0xCA10,u32,texture_a
+field,0xCA14,u32,texture_b
+field,0xCA18,u32[8],uva_dicts
+field,0xCA38,i32,flag_outdoor,"0 for event types 0 6 8 0xC 0xE 0xF 0x10 0x19 0x1A 0x24, else 1"
+apply,00668c18,CourseWorld
+
+struct,CourseLap,0x16300
+field,0x159C0,i32[512],lap_lines,"Lap_Line: segment number; -1 = Lap_Line_End, 0x100 = Lap_Line_Change"
+field,0x161C0,u32[33],safe_start_lines,"Safe_Start_Lines pairs of u16"
+field,0x16240,i32,ai_polygon_count,set by ai_polygons_build (AI polygon records of 0x4C bytes start at +0xC1CC)
+field,0x16244,i32,lap_variations
+field,0x16248,i32,safe_start_count
+field,0x1624C,i32[16],split_sectors,"Split_Sector(index, value)"
+applyptr,006f2af8,CourseLap
+apply,00675668,CourseLap
+
+struct,RwpObjectDesc,0x110
+field,0x000,i32,shape,"1 box, 2 cylinder, 3 sphere, 4 capsule (0 unused)"
+field,0x004,char[64],label,RWP_Object label
+field,0x044,char[64],dff,RWP_Object clump file
+field,0x084,char[64],mts,RWP_Object matrix list file
+field,0x0C4,f32[3],box_dimensions,RWP_Object_Box
+field,0x0D0,f32[2],cylinder,RWP_Object_Cylinder
+field,0x0D8,f32[2],capsule,RWP_Object_Capsule
+field,0x0E0,f32,sphere_radius,RWP_Object_Sphere
+field,0x0E4,f32,property_d,RWP_Object_Properties 4th value
+field,0x0E8,f32[3],centre_of_mass_offset,RWP_Object_CentreOfMassOffset
+field,0x0F4,f32,property_b,RWP_Object_Properties 2nd value
+field,0x0F8,f32,property_c,RWP_Object_Properties 3rd value
+field,0x0FC,f32,property_a,RWP_Object_Properties 1st value
+field,0x100,i32,material,RWP_Object_Properties last value (e.g. RUBBER)
+field,0x104,i32,base_label,RWP_Object_BaseLabel
+field,0x108,f32,shatter_velocity,RWP_Object_ShatterVel (default 8.0)
+apply,00888640,RwpObjectDesc,32
+
+struct,Trigger,0x8C
+field,0x00,f32[4],position_radius,x y z radius
+field,0x10,u32,type,7 powerup 0xB rocket 0x19 explosion
+field,0x14,u32,owner,object the callback works on
+field,0x18,u32,flags
+field,0x1C,u32,callback,(trigger, other) called for every overlap
+field,0x20,u16,index
+field,0x24,u32[16],cells,grid cells the trigger was entered into
+field,0x64,u32,cell_count
+apply,007106e0,Trigger,300
+
+struct,ExplosionEntry,0x24
+field,0x00,f32,damage,multiplied by the distance falloff
+field,0x04,f32,push_horizontal
+field,0x08,f32,push_vertical
+field,0x0C,i32,frames,total number of frames the explosion stays active
+field,0x10,i32,frames_left,decremented each frame while a type 0x19 trigger sphere is registered
+field,0x14,f32[4],position_radius,x y z and the radius
+apply,006a4c28,ExplosionEntry,100
+
+struct,Powerup,0x50
+field,0x00,u32,clump,RpClump of IconCube.dff
+field,0x18,f32,respawn_time,seconds (default 120.0)
+field,0x1C,f32,respawn_timer
+field,0x20,u32,state,0 unused 1 available 2 taken (respawning) 3 disabled
+field,0x24,i32,type
+field,0x28,u32,special,set for the random (0x15) slot
+field,0x2C,f32[3],position
+field,0x38,f32[3],spawn_position
+apply,006a8bc0,Powerup,25
+
+struct,ContactPoint,0x40
+field,0x00,i32,triangle,collision triangle currently touched (-1 none); 18 per car: 4 wheels, 8 corners, 6 derived body points
+field,0x10,f32,lever_arm,distance from the centre of mass * 3.6 (car_init_dynamics)
+
+struct,Wheel,0xC4
+field,0x84,i32,contact_triangle,-1 after car_spawn
+field,0x00,i32,state,2 after car_init_dynamics
+field,0x04,f32,pos_x,wheel position in car space: +-0.601 (front wheels z +1.083, rear wheels z -1.146)
+field,0x08,f32,pos_y,0.397
+field,0x0C,f32,pos_z
+field,0x10,f32,pos_length,length of the position vector (used for the inertia sum)
+field,0x14,f32,pos_y_copy,copy of pos_y
+field,0x24,f32,handling_scale,g_car_handling_scale from the handling table
+field,0x28,f32,const_34,34.0
+field,0x30,i32,in_contact,non-zero while the wheel touches a surface; car_wheel_get_field_30, gates the surface colour effects in the per car update
+field,0x3C,i32,spin_rate,integer factor of the wheel rotation per tick (the update multiplies it with dt and adds it to the wheel angle at +0x220 of the vehicle)
+field,0x88,i32,surface_color,RGBA colour of the touched track triangle: selects the surface effect (-0xff0001 stop checks, -0xfcfcfd slow, -0xff01 push, -0xe5cc80 boost); live: 0xffc88080 on the start grid
+field,0x2C,f32,contact_distance,"10.0 reset every car_wheel_contact_update; distance of the wheel to the track triangle (>= 0.02 counts as lifted, < -0.005 as sunk), copied along with contact_triangle when contacts are shifted"
+field,0x98,f32[3],contact_normal,"normal of the touched triangle, (0 1 0) after car_reset_state; summed over the wheels in contact by car_wheel_contact_update"
+field,0xA4,f32,load,"weight carried by the wheel: mass / wheels_in_contact * g plus the clamped acceleration term, 0 without contact (car_apply_forces)"
+
+struct,Car,0xD04
+field,0x000,u32,index
+field,0x004,u32,active
+field,0x008,i32,vehicle_id,set by car_set_field_8 (menu vehicle choice)
+field,0x014,u32,rwp_object,non-zero while the car is simulated by the physics library (car_enter_rwp_mode)
+field,0x144,f32[3],velocity_input,velocity added by car_add_velocity / set by car_set_field_144 (the trainer writes it to flip or push a car); verified live: float vector, 0 at rest
+field,0xD00,u32,is_bot,0 for the human player, 1 for AI cars (verified in a live race; MashedTrainer PLAYER_BOT)
+field,0x154,f32,speed_scale,set by ai_update_speed_scaling (rubber band factor)
+field,0x010,u32,controls_disabled
+field,0x018,i32,rwp_timer,"countdown in ms: 600 set by car_enter_rwp_mode, decremented by cars_step, 0 in car_reset_state"
+field,0x020,u32[6],effect_level,"0..100 per effect kind 1..6 (car_set_field_set); decays by dt when effect_hold reaches 0 (cars_update_timers); 0x28 / 0x2C / 0x34 scale throttle and force in car_update_drivetrain / car_apply_forces"
+field,0x038,f32[6],effect_hold,"ms the matching effect_level is held before it decays"
+field,0x060,f32[12],wheel_points,"4 wheel points x 3 floats, the start of the 18 point table (see bounds_points)"
+field,0x138,f32[3],rwp_body_offset,"offset between the car matrix origin and the physics body origin; translated by it when entering RWP mode and in rwp_world_step_forward"
+field,0x050,f32,mass,1000.0 by default
+field,0x054,f32,time_step_const,0.001
+field,0x058,f32,inertia_sum
+field,0x05C,f32,inertia_inverse
+field,0x090,f32[24],bounds_points,8 box corners; NOTE the 18 point table read by car_get_bounds_point starts at +0x60 (4 wheel points at +0x60, these 8 corners at +0x90, 6 derived points at +0xF0), 12 bytes per point
+field,0x928,f32[32],matrices,2 x RwMatrix (double buffer)
+field,0xF0,f32[18],body_points,6 derived points (edge midpoints / thirds of the box), filled by car_set_bounds
+field,0x15C,f32[3],com_offset,centre of mass offset (0 by default)
+field,0x168,Wheel[4],wheels,4 wheel records of 0xC4 bytes (front left / right, rear left / right)
+field,0x478,f32[6],handling_params,copied from g_car_init_6292c8..dc
+field,0x498,f32,handling_c4,40000.0 default (g_car_init_6292c4)
+field,0x490,i32,gear,"index into the per gear speed table of car_update_drivetrain, changes by 1 per shift"
+field,0x494,i32,gear_shift_timer,"+-3000 set on a shift, counts down to 0 (car_update_drivetrain)"
+field,0x49C,f32,handling_c0,g_car_init_6292c0
+field,0x4A0,f32,wheel_extent,1.05 * largest wheel distance in metres
+field,0x4AC,ContactPoint[17],contacts,first 17 of the 18 records (stride 0x40; the 18th overlaps the matrices at 0x928)
+field,0x4A4,f32,bounds_radius,1.05 * largest body point distance
+field,0x9A8,u32,matrix_current
+field,0x9AC,u32,matrix_previous
+field,0x9B0,f32[3],velocity
+field,0x9BC,f32[3],angular_velocity,"axis * rate: car_update_drivetrain adds torque * inertia_inverse * dt, RwMatrixRotate axis, zeroed by car_reset_state / car_enter_rwp_mode / car_air_control"
+field,0x9E0,f32,wheels_in_contact,"number of wheels with in_contact == 1 as float (4.0 = all, set by car_wheel_contact_update, reset value 4.0)"
+field,0x9E8,f32,angular_speed,"length of angular_velocity"
+field,0x9C8,f32[3],up,unit vector (0 1 0) of the car's up axis (live, both cars); dotted with a track triangle normal > 0.3 in the wheel contact test
+field,0x9D4,f32[3],forward,unit vector (0 0 1) transformed by the current matrix
+field,0x9E4,f32,speed
+field,0x9F0,u32,mode,2 halves the velocity every step; 0 and 1 are logged as event 6
+field,0x9F4,u32,mode2
+field,0xAF4,f32[3],field_af4
+field,0xAD0,i32,velocity_history_index,"0 / 1 toggled by car_apply_forces"
+field,0xAD4,f32[6],velocity_history,"2 samples x 3 floats of the velocity, the acceleration is the difference of both * dt (car_apply_forces)",read by car_get_field_af4 (vehicle steering / lean animation)
+field,0xB00,f32[3],field_b00,read by car_get_field_b00
+field,0xB0C,i32,field_b0c,car_get_field_b0c
+field,0xB10,i32,field_b10,counter changed by car_add_field_b10
+field,0xBF4,i32,turbo_charge,0..3000: +2 dt while accelerate > 160, -dt every update (race_phase_5_update_sub_47b870)
+field,0xBF8,i32,turbo_state,1 / 2 set when the charge is used up (race_phase_5_update_sub_47b800)
+field,0xBFC,i32[32],contact_key,32 slot table of the wheel contact cache: value compared with triangle +0x34 by car_wheel_contact_find_index (0x477130), written by car_set_wheel_contact
+field,0xC7C,i32[32],contact_valid,flag per slot of contact_key (0 = slot unused); +0xBFC..+0xCFC
+apply,008b06e0,Car,16
+
+struct,GameState,0xB64
+field,0x000,u32[270],progress,[15 rows][18 columns] 0 locked 1 open 2 done
+field,0x438,i32[75],records,[15][5] -1 empty
+field,0x7BC,u32[45],best_minutes
+field,0x870,u32[45],best_seconds
+field,0x924,f32[45],best_fraction
+field,0x9D8,u8[270],enabled,[15][18] 1 = selectable
+field,0xB00,u32[5],option_sliders
+field,0xB2C,u32[5],option_flags
+field,0xB54,u32,mirror_mode,course id + 1000
+field,0xB58,u8[12],player_bytes
+apply,007eebc0,GameState

@@ -1,0 +1,11 @@
+# address,name,comment  (frontend menu state named from menu_update; apply with RenameFns.java)
+0069d1e4,@g_menu_fade_alpha,"frontend fade alpha 0..0xFF (states 1 / 2 fade in / out)"
+0069d1e8,@g_menu_next_page,"page entered when the fade in ends (menu_page_enter)"
+0069d6a8,@g_menu_select_pressed,"set for the frame in which a menu entry was selected"
+0069caec,@g_menu_start_race_requested,"non-zero: leave the frontend (g_frontend_state = 4) and start the chosen event"
+0069cf90,@g_menu_powerup_set,"0..2 selected by the event kind / options; read by ui_fn_4353c0 (course powerup layout, inferred)"
+0069cf94,@g_menu_markers_enabled,"read by ui_fn_4353e0 to enable the hud panels / markers (inferred); loaded from table 0x664360 for career events"
+0069cfa0,@g_menu_selected_vehicle,"vehicle chosen for player 0 (car_set_field_8(0, value))"
+0069d2d0,@g_menu_career_race_active,"set when a career event was started from the menu; menu_fn_442550 unlocks the next entry when it is non-zero"
+0069ca18,@g_menu_select_flash,"float 1.0 -> 0 selection flash timer (decreases by 0.04 per frame)"
+0069d6b8,@g_menu_volume_applied,"last menu music volume applied to the sound engine"

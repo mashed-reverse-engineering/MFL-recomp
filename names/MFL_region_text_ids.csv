@@ -1,0 +1,10 @@
+# address,name,comment  (frontend functions renamed from the text ids they draw; strings in output/MFL_strings_english.txt; apply with RenameFns.java)
+0043d9e0,menu_draw_event_select,"draws the event / game mode descriptions (Time Trial, Battle Game, ... texts 37 / 239 / 285 ...)"
+004408c0,menu_draw_event_descriptions,"Power Ups / Hold the Flag / The Fugitive descriptions (texts 89, 592, 326)"
+00441c80,menu_draw_skill_level_select,"skill levels Rookie / Amateur / Pro / Elite (texts 215, 214, 213, 230)"
+004420a0,menu_draw_team_select,"Team 1 / Team 2 panel (texts 162, 163)"
+004356b0,menu_draw_controller_help,"controller sharing help texts (585, 586, 642, 643)"
+0042e6c0,race_lose_banner_draw,"'You Lose!' banner (text 258)"
+0042ed70,race_winner_banner_draw,"'Winner' banner with Continue prompt (texts 231, 46)"
+0042efb0,race_status_messages_draw,"'Car is wrecked', 'Time Trial Abandoned', 'Fugitive has lapped you!' (texts 598, 599, 534 ...)"
+00431350,menu_draw_training_prompt,"'Training' title and Continue / Back prompt (texts 689, 688)"

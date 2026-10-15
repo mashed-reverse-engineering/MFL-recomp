@@ -1,0 +1,8 @@
+# address,name,comment  (frontend panel draw functions, named after the panel state flag they test; apply with RenameFns.java)
+00435100,menu_panel_draw_69c9b8,"draws the panel whose fade state is g_menu_panel_state_69c9b8 (fade counter 69c9bc): item list with Arrow sprite"
+00435420,menu_panel_draw_69c9e0,"panel with state flag g_menu_panel_state_69c9e0 (fade counter 69c9e4)"
+004356b0,menu_panel_draw_69c9e8,"panel with state flag g_menu_panel_state_69c9e8 (fade counter 69c9ec)"
+00436c00,menu_panel_draw_69ca08,"panel with state flag g_menu_panel_state_69ca08 (fade counter 69ca0c)"
+00436e70,menu_panel_draw_69ca10,"panel with state flag g_menu_panel_state_69ca10 (fade counter 69ca14)"
+004370e0,menu_panel_draw_69ca00,"panel with state flag g_menu_panel_state_69ca00 (fade counter 69ca04)"
+00437340,menu_panel_draw_69c9f0,"panel with state flag g_menu_panel_state_69c9f0 (fade counter 69c9f4)"

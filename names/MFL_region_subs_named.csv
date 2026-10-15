@@ -1,0 +1,8 @@
+# address,name,comment  (former <caller>_sub_<addr> placeholders renamed by role; apply with RenameFns.java)
+00445180,training_mode_update,"Training mode: builds the per lesson text id tables (texts 0x2D6.. 0x312: brake, steering, battle mode, handbrake, weapon lessons) and runs the lesson state machine"
+00431790,training_powerups_setup,"powerups_clear and places 20 powerups with a 10 second respawn (training layout)"
+0041c9e0,hudpanel_marker_update,"per frame update of one player marker: position relative to the camera, scale and orientation"
+0041c0e0,hudpanel_marker_place,"builds the matrices of a player marker (translate / scale / rotate) and applies them to its frame"
+004a49c0,joypad_device_setup,"DirectInput joypad: creates the device, sets data format, axis ranges and dead zones (1.5 KB)"
+00443900,menu_panel_fades_update,"steps the fade state of the frontend panels (g_menu_panel_state_*) once per frame"
+004390a0,menu_controller_input_update,"reads the directional / select inputs of the controllers for the frontend menu pages"

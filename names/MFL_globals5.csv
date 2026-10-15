@@ -1,0 +1,10 @@
+# address,name,comment  (AI editor state; apply with RenameFns.java)
+007f023c,@g_ai_editor_mode,"AI editor mode 0..6 (4 = run / test the route)"
+007f024c,@g_ai_editor_menu_cursor,"selected entry of the AI editor menu (range depends on the mode)"
+007f0278,@g_ai_editor_brush,"paint brush value: low 2 bits 0..3, upper bits step by 4 (max 0x7F)"
+007f0250,@g_ai_editor_route_set,"which of the 4 AI route arrays is edited (0..3)"
+007f0254,@g_ai_editor_route_index,"index of the edited route in the route set (0x204 byte records)"
+007f0258,@g_ai_editor_step_flag_a,"set by ai_editor for one frame (single step request)"
+007f025c,@g_ai_editor_step_flag_b,"single step request flag"
+007f0260,@g_ai_editor_step_counter,"frame counter while the editor runs the car"
+0069d100,@g_tutorial_state_69d100,"tutorial state cleared by tutorial_state_reset"

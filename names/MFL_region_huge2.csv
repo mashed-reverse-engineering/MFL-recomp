@@ -1,0 +1,13 @@
+# address,name,comment  (huge former placeholders, batch 2)
+00475100,course_height_grid_sample_with_normal,"samples the ground height of the 25x25 height grid (bilinear over two triangles) and optionally writes the normal"
+0047a850,car_auto_steer_assist_step,"when the player gives no steering input steers the car matrix toward the route heading (fx_wander_target, limit by speed)"
+00480480,course_moving_platforms_update,"per platform object follows its spline (tween), pushes the physics body by velocity and clamps lateral offset"
+00483d90,build_info_display_draw_wave_grid,"draws the animated sine wave distorted tile grid of the build info backdrop"
+00485b80,smoke_emitter_update,"per emitter: spawns particles near the camera, sets size/colour from the age and draws the four puffs"
+00493600,rwp_objects_cull_and_register_triggers,"per physics object tests camera distance/frustum and registers trigger spheres, updates debris expiry"
+00493ca0,rwp_collision_mesh_to_geometry,"converts the Rwp collision mesh (strips/vertex tables) to an RpGeometry with normals and uv"
+00497070,smplfzx_object_bounds_update,"computes the world AABB of an object from the local box and matrix plus margin 2*param+0.005"
+00498a40,fx_trail_batches_update,"per slot ages the trails, shifts the position history and writes the 4-point particle batch with fading alpha"
+0049af20,fx_ptank_b_lock_and_fill,"locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices per entry)"
+0049b330,fx_ptank_a_lock_and_fill,"locks ptank atomic a and writes the per-entry particles (position, size by style, colour, uv)"
+0049b9c0,fx_ribbon_flush_spline,"smooths the ribbon points with Catmull-Rom and writes the segments into the vertex batch"

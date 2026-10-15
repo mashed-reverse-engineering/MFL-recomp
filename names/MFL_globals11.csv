@@ -1,0 +1,3 @@
+# address,name,comment  (tutorial / info strip page tables read by tutorial_text_update; apply with RenameFns.java)
+0060aeec,@g_tutorial_pages_event,"14 pointers to page lists used for events other than types 0..2 (page chosen by g_tutorial_page_index); a list is {opcode, args...} terminated by -1: 1 = draw text id, 2 / 3 = statistic ranking of a kind (player_stat_get_by_kind), 5 = other text"
+0060af44,@g_tutorial_pages_basic,"2 pointers to page lists used for event types 0..2 (same list format)"

@@ -1,0 +1,30 @@
+# address,name,comment  (MFL.exe: vehicle module 0x479000-0x480000; apply with RenameFns.java)
+004797b0,car_set_bounds,fills the 8 corner points (+0x90) and the derived edge/face points of a car from its min/max box
+00479b30,car_init_dynamics,"default suspension/tyre/wheel values; looks up the handling table at 0x6292F0 by vehicle id (mass 1000.0 at +0x50)"
+0047a100,car_reset_state,zeroes the run time state of one car slot (called by car_spawn)
+0047bb00,car_world_collision_query,transforms the wheel anchors and a bounding sphere by the current matrix and runs RpCollisionWorldForAllIntersections
+0047bf00,car_apply_forces,per car: wheel anchor positions; speed factor from the proximity of other cars (catch-up style) and distance warning; adds gravity; wheel grip/drag forces
+0047e640,car_collision_impulse,resolves a hit at a contact point: updates the velocity at +0x9B0 and returns the impulse
+0047eb50,car_spawn,"places a car: (car, x, y, z, heading): both matrices translated and rotated, contacts updated, car_reset_state"
+0047f030,cars_update_all,"for the 16 car slots: car_integrate_step + car_wheel_contact_update + car vs car sphere tests, retries; swaps the matrix double buffer"
+00478090,car_world_collision_test,transforms the 18 collision points of the car by its matrix and tests them against the world (logs event 3); returns 1 on a hit
+004783e0,car_car_collision,"(other car, step) car vs car response used by cars_update_all"
+0047f300,cars_step,"physics driver per game tick: race time limit, ranking of the players, then chunks of <= 50 ticks: car_update for every slot, speed lengths, sub-steps of <= 25 ticks of cars_update_all"
+0047ed00,car_update,"per car and step: the left / right input bytes (0 and 1 of PlayerInput) become the steering input (+0x1A8/+0x26C, history ring of 16) scaled by the car's steering factor (+0x190) and the speed; then car_apply_forces, FUN_00475be0 (drivetrain), FUN_00476f70 (air control)"
+00409eb0,player_rank_key,float used to sort the 4 players (g_rank_order)
+00435400,race_length_setting,0..2 -> time limit 900000 / 1800000 / 3600000 game ticks (3000 per second = 5 / 10 / 20 minutes)
+004758e0,cars_update_timers,counts down the per car timers and logs event 7
+0047bca0,car_log_event_6,logs event type 6 for a car in state 0 or 1
+0040fdc0,race_get_phase,returns g_race_phase
+004b2b48,_ftol,compiler float to int conversion
+007ef800,@g_time_limit_ticks,race time limit in game ticks (3000 per second: 900000 = 5 minutes); see race_length_setting
+008bd7a0,@g_rank_order,int[4] player indices sorted by player_rank_key
+007e7f60,@g_event_log_head,next slot of the 256 entry event ring buffer
+007e7f64,@g_event_log_type,u32[256] event type (1 car hit; 3 world collision with 16 words of data; 6; 7)
+007e8364,@g_event_log_time,u32[256] time stamp
+007e8764,@g_event_log_param,u32[256] 0xFF00 + car index
+0047b520,car_current_matrix,pointer to the current matrix of a car
+00475890,car_hit_by_leader,called when the leader car touches the car in game mode 1
+008b06e0,@player_car,"16 x 0xD04 (the game uses 4 players but the code loops over 16 slots); see struct Car"
+00801b1c,@g_gravity_vector,xyz of the gravity direction used by car_apply_forces (0x801B28 = scale)
+006292f0,@car_handling_table,"records of 5 dwords (vehicle id, ...) searched by car_init_dynamics"

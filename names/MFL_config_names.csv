@@ -1,0 +1,56 @@
+# address,name,comment  (MFL.exe: settings files, save game, replay buffer, career state; apply with RenameFns.java)
+004a8580,video_cfg_path,returns "videocfg.bin"
+004a85c0,video_cfg_load,fread 0x200 bytes into g_video_cfg
+004a8620,video_cfg_save,fwrite 0x200 bytes from g_video_cfg
+004a8b10,video_cfg_apply_selection,copies the chosen adapter/mode (name, width, height, depth, fullscreen flag) into g_video_cfg and sets version 5
+004a8bd0,video_dialog_init,fills the Select Video Mode dialog (4 performance checkboxes)
+004a9070,video_select_and_set_mode,loads videocfg.bin or shows the dialog then RwEngineSetSubSystem/SetVideoMode
+004a6e00,controller_cfg_path,formats "contcfg%d.bin"
+004a6e20,controller_cfg_load,fread 0x200 bytes into g_controller_cfg[n]
+004a6ea0,controller_cfg_save,fwrite 0x200 bytes from g_controller_cfg[n]
+004a8180,controller_cfg_init,builds the defaults for 4 controllers (gamepads first then the keyboard) then loads contcfg files that still match the device; optionally shows the dialog
+004a7f10,controller_cfg_edit,Reconfigure Controller dialog (saves on OK)
+004a77d0,controller_dialog_init,fills the Reconfigure Controller dialog
+004a6f80,controller_action_pressed,tests one binding slot of a controller (gamepad button / analog axis / keyboard scancode)
+004a70c0,controller_present,device type of controller n is not none
+004a5680,controller_poll_player,builds the per-player input state from the bindings
+00405cf0,gamesave_load,reads gamesave.bin (0x42334 bytes) into g_savegame
+00405df0,gamesave_write,writes g_savegame to gamesave.bin
+00405e20,gamesave_exists,file exists check for gamesave.bin
+00405d80,gamesave_gather,live state -> g_savegame (sets 0xDEADBEEF; copies the replay buffer and the 0xB64 byte game state block)
+00405d20,gamesave_apply,g_savegame -> live state (replay buffer and game state block)
+004c3b70,stream_read_file,RwStreamOpen(file name) + RwStreamRead(size)
+004c3bb0,stream_write_file,RwStreamOpen(write) + RwStreamWrite(size)
+0040af20,autosave_request,prints starting autosave and arms the autosave state machine
+0040b080,gamesave_load_menu_state,state machine for the boot-time save check (memory-card style states from the console builds)
+0040b410,autosave_state_machine,state machine that writes gamesave.bin
+0040b6b0,gamesave_load_state_machine,state machine that reads gamesave.bin
+0040b920,gamesave_format_state_machine,state machine for the format step
+00413900,replay_buffer_alloc,allocates the ghost buffer; its size (0x4178C) must equal the sum of the track times * 7.5 frames
+00413a10,replay_buffer_free
+00413d10,replay_save_at_race_end,writes ReplayN.rep and requests an autosave
+00414320,replay_begin_race,sizes and creates the recording buffer for the course (course id +1000 when mirrored)
+00413880,current_course_id_with_mirror,course id (+1000 in mirrored mode)
+004a1890,game_state_reset,clears the run time state and sets the default career progress (open/locked flags)
+00429680,best_times_init_defaults,fills the 3 x 45 best time tables (9 min 59.xx s)
+0042eaf0,best_time_store,stores the current race time in the best time tables
+0042eb70,best_time_store_previous
+0042ec00,best_time_load_current
+00435810,career_event_won,marks a career cell done (2) and unlocks the next ones; requests an autosave
+00434290,career_flag_enabled,tests the byte table g_enabled_flags
+00434440,career_flag_clear,clears one entry of g_enabled_flags
+004357e0,career_record_ptr,address of the 5 dword record of a course
+007712f8,@g_video_cfg,videocfg.bin image (0x200 bytes)
+007e7740,@g_controller_cfg,4 x contcfg image (0x200 bytes each)
+00801b40,@g_savegame,gamesave.bin image (0x42334 bytes)
+007eebc0,@g_game_state,0xB64 byte game state block saved in gamesave.bin
+008d8b08,@g_replay_buffer,pointer to the 0x4178C byte ghost buffer
+008d8b0c,@g_replay_buffer_size
+007ef714,@g_mirror_mode,when set the course id is +1000
+007ef37c,@g_best_minutes,u32[45]
+007ef430,@g_best_seconds,u32[45]
+007ef4e4,@g_best_fraction,f32[45]
+007ef598,@g_enabled_flags,u8[15][18]
+008432d0,@g_savegame_state,game state block inside g_savegame (0xB64 bytes)
+00801b44,@g_savegame_replay,replay buffer inside g_savegame (0x4178C bytes)
+007ef844,@g_player_input,per-player input state, stride 0x4c, 12 entries

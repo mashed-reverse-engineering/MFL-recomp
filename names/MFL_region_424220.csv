@@ -1,0 +1,57 @@
+# address,name,comment  (MFL.exe 0x424220-0x42b000: damage smoke, skid / shadow systems, AI editor state, course accessors; apply with RenameFns.java)
+004246c0,car_damage_smoke_destroy,"particles_destroy(0x65AA88)"
+00424690,car_damage_smoke_render,"renders the damage smoke particles with z write off"
+00424230,car_damage_smoke_choose,"chooses the smoke emitter parameters from the total damage (below 12.5 uses 0x78 / 0xDC)"
+004243e0,car_damage_smoke_update,"per car: emits smoke particles for the damaged front / back (inferred)"
+004246d0,car_damage_update_all,"calls the per car damage update (0x424000) for every car_damage record"
+00424000,car_damage_update,"counts the damage event timer of one record down"
+00426630,player_stats_clear_a,"clears 0x138 dwords at 0x8C8AE0"
+00426650,player_stats_clear_b,"clears 0x138 dwords at 0x8C94A0"
+00426670,ai_random_name_index,"for AI slots (slot type != 1) picks a random value 0..300 (inferred)"
+00426bb0,ai_editor_paint_input,"AI editor: menu select with the paint tool paints the cell under the cursor (ai_paint_cell)"
+00426de0,ai_editor_cursor_move,"AI editor: cursor movement"
+00426e90,ai_editor_brush_select,"AI editor: changes the brush value (g_game_7f0278 & 3) with the input bytes"
+00427670,ai_editor_update,"runs the three AI editor input handlers when player slot 3 is the editor slot"
+00427690,player_stat_get_8c8c0c,"0x8C8C0C[player * 0x138]"
+004276b0,player_stat_get_a,"0 in event type 4, else a per player statistic"
+004276d0,player_stat_get_b,
+004276f0,player_stat_get_c,
+00427710,player_stat_get_d,
+00427730,player_stat_get_team_e,"per player value, or the team sum in team mode (0x8C90BC)"
+004277b0,player_stat_get_team_f,"0x8C9060"
+00427830,player_stat_get_e,
+004278c0,player_stat_get_team_g,"0x8C90B0"
+00427940,player_stat_get_f,
+004279d0,player_stat_get_team_h,"0x8C959C"
+00427a50,player_stat_get_team_i,"0x8C9540"
+00427ad0,player_stat_get_g,
+00427b60,player_stat_get_team_j,"0x8C9590"
+00427be0,player_stat_get_h,
+00427c70,player_stat_get_team_k,"team mode: sums over the players of the team (0x8C8FC0)"
+00427d30,player_stat_get_team_l,"0x8C94A0"
+00427de0,player_stat_get_by_kind,"(player, kind): switch over the statistic kinds"
+00428420,player_stats_copy_to_totals,"copies the per race statistic tables into the totals (0x8C90B4 / 0x8C9060 ...)"
+00428490,player_stats_accumulate,"adds the per race values to the running totals (0x8C9540 / 0x8C9594 ...)"
+00429b00,vehicle_slots_clear,"clears 8 records of 0x50 bytes at 0x8C88A0"
+00429b60,vehicle_slots_clear_flags,
+00429c20,vehicle_slot_set,"(slot, value): 0x8C88A4[slot * 0x50] = value, 0x8C88A0 = 0"
+0042a110,course_destroy_extra_clumps,"destroys the clumps of the table at 0x8C8860"
+0042a140,course_texture_dictionary_destroy,"RwTexDictionaryDestroy(0x664414)"
+0042a150,course_get_object_record,"(index): address of the 0x14 byte record at 0x8C8894 + index * 0x14"
+0042a300,course_apply_clip_planes,"near / far clip plane of the main camera from the course (0x8C8840 / 0x8C8844)"
+0042a3b0,course_get_world_object,"returns &g_course_world"
+0042a3f0,course_get_rpworld,"g_course_world.world"
+0042a400,course_get_collision_bsp,"g_course_world.collision_bsps[0]"
+0042a410,course_get_ai_world,"g_course_world.ai_worlds[0]"
+0042a430,course_get_ambient_light,"g_course_world.ambient_light"
+0042a440,course_get_directional_light,"g_course_world.directional_light"
+0042a450,course_is_outdoor,"g_course_world.flag_outdoor"
+0042a460,course_get_light_position,"address of the directional light frame position"
+00425d00,geometry_transform_points,"allocates and transforms the vertices of a clump's geometry by its LTM (inferred)"
+00425dc0,bbox_init,"bounding box initialised to +/- FLT_MAX"
+00425e00,noise_hash,"integer hash used by the noise functions of the skid / dirt systems"
+00425e50,interp_cosine,"(a, b, t): cosine interpolation"
+0042aae0,course_set_split_sector_6,"g_course_lap_data.split_sectors[6] = value"
+0042aba0,course_set_split_sector_7,"g_course_lap_data.split_sectors[7] = value (camera in the collision world flag)"
+0042ab20,course_camera_add_to_collision_world,"adds the camera to the collision world when the course is loaded and the flag is set"
+0042ab60,course_camera_remove_from_collision_world,

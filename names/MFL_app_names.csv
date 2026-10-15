@@ -1,0 +1,100 @@
+# address,name,comment  (MFL.exe application code named from the strings a function uses; apply with RenameFns.java)
+00401000,load_cup_model,loads cup.dff
+00401f80,load_map_model,loads map_%d.dff
+00403d80,log_d3d_texture_caps,logs the D3DPTEXTURECAPS / D3DDEVCAPS2 flags of the video card
+004042a0,load_bomb_model,loads Bomb.dff
+00405e50,spline_tween_a,"error string: tween is less than 0.0f"
+00484c40,spline_tween_b,"error string: tween is less than 0.0f"
+00408c60,load_copter_models,"Copters/ ... %s%s%s.dff, smoke"
+0040ab40,led_load,"toastart/common/led/LE%d.LED (the LED format in MashedFormats)"
+0040ae80,loading_start_log,logs Load start
+0040d150,load_sfx_piz_assets,"d:\toastart\common\sfx.piz: fx.txd badges.txd TrackImages.txd"
+0040e530,load_shine_texture,
+0040eb10,course_instancing_debug,"instancing / saving course debug output"
+004100b0,course_load_time_log,logs how long a course took to load
+00410f10,round_end_check,"logs car reset, score, cars remaining, loser/winner (game mode end of round logic)"
+00413b50,time_trial_intermediate_log,"time trial recording error and intermediate (split) times"
+00413dd0,replay_time_compare_log,"ReplayTime / SplitTime comparison output"
+004144d0,load_lazer_model,lazer.dff
+0041d070,load_smoke_texture,
+0041d0e0,load_weapon_hud_assets,"shockwave, crosshair, crosshair2, exocet.dff"
+0041d260,load_btb_panel,"BTBPanel.dff (beat the bomb panel)"
+0041d950,load_ghost_model,ghost.dff
+0041e4d0,load_panel_txd,"panel.txd with panel0 panel1 panel2"
+0041ef40,load_team_panels,team0panel team1panel
+0041f180,load_kc_panel,KCPanel.dff
+0041fb90,load_endpoint_panel,endpointpanel.txd/.dff
+00420760,load_team_endpoint_panel,teameppanel.dff
+00420930,load_start_lights,startlights.dff
+00420fc0,load_stopclock,stopclock2.dff
+00421b90,load_car_shadow,car_shadow
+00422410,load_shuriken,Shuriken
+004231b0,vehicle_model_path,"toastart/vehicles/ prefix"
+00425450,load_debris_model,debris0.dff
+00425740,load_groundbeam,GroundBeam
+00426ff0,ai_load,"AI%d.AI loader (the AI format in MashedFormats)"
+00427120,ai_open_piz,"d:\ToastArt\Common\ai.piz"
+004286f0,ai_stats_log,"prints cleanest line, number of pants, crowns, turbo etc per racing line"
+00429bc0,atomic_lookup_error,"No such atomic as %d"
+00429c70,load_copters_txd,
+00429cc0,game_open_perm_piz,"d:\ToastArt\common\perm.piz"
+00429cd0,load_copter_model,JetRanger
+0042a470,course_list_scan,"scans ToastArt/tracks"
+0042a7f0,ktc_script_load,KTCScript.lua
+0042a980,powerup_scripts_load,"powerups.lua / powerups_gold.lua and powerups_gold.dff"
+0042b390,instancing_clump_log,
+0042b450,course_open_and_run_scripts,"opens the course piz, runs COURSE.LUA and LAPDATA.LUA"
+0042ba20,dat_load_language,"english.dat french.dat German.dat Spanish.dat (the DAT string tables)"
+0042c9e0,speaker_mode_names,"DTSScreen MashedFullyLoaded proLogicII DolbyDig"
+0042d0a0,build_info_display_a,"build time 12:38:08 Jun 30 2005"
+0042d280,build_info_display_b,"build time 12:38:08 Jun 30 2005"
+0042e420,time_trial_time_log,
+00434150,medal_asset_names,"TurboT NightT TimeTrial BronzeMedal"
+00435040,team_color_names,"NFLRed NFLBluejay NFLMelon NFLGold"
+00436550,options_menu_draw,"draws the option sliders and selector with Arrow sprites"
+0043abd0,frontend_screen_draw,"8570 byte frontend / menu screen routine (%s%d%s%s%s%s)"
+0044a040,gsd_load,"Boid%d.gsd loader (the GSD format in MashedFormats)"
+0044e4d0,ai_debug_lines_draw,"draws race lines, inside lines, slow lines, cheat lines"
+00453cb0,load_headlight,Headlight
+00457620,load_shadow_models,barrel_shad crane_shad
+004650e0,load_headlight_lazer,
+004679a0,powerups_load_models,"PowerUpModels.txd and powerups_all.lua"
+00469430,sound_load_perm_dict,"toastaudio\pc\audio\pcdics\PERMDICT.RWS"
+0046ed30,sound_language_path,"pcdics\english french italian"
+0046efd0,sound_card_info_log,"MAX voices / useSoftware flag"
+0046f130,sound_load_course,"loads the course sound dictionaries"
+004733c0,sound_stuff_init,
+0047fb10,load_ingame_font,InGameFont.txd
+004860c0,load_smoke_particle,
+00487480,load_shockwave_models,"shockwave.dff hemisphere.dff"
+00488230,clump_load_logged,"loaded clump %s length = %d, version = %x"
+004882b0,course_error_exit,"Exiting due to course error %d"
+00488710,ai_polygons_build,"(lap data, AI world): builds the AI polygon records (0x4C bytes each, count at CourseLap +0x16240) from the AI BSP triangles, logs Number of AI polygons is %d"
+0048b4e0,course_script_run,"(file name, CourseFiles, course id): runs COURSE.LUA, which fills the CourseFiles / CourseCounts blocks"
+0048b5b0,lapdata_script_run,"(file name, CourseLap): runs LAPDATA.LUA"
+00665138,@g_course_files_data,"static CourseFiles instance (g_course_files points here)"
+00664418,@g_course_counts_data,"static CourseCounts instance (+0 = course id, set before the scripts run)"
+00668c18,@g_course_world,"the runtime course object (CourseWorld): loaded worlds, clumps, lights, splines, animations"
+00675668,@g_course_lap_data,"static CourseLap instance"
+00488da0,course_destroy,"World Destroyed / TextureDictionary Destroyed"
+004893e0,course_create_from_description,"Creating course from description: texdic, world BSP, clumps, UVA, splines, ..."
+00496e40,smplfzx_retire,"SmplFzx: Retiring object"
+00499ae0,load_scorch_decal,scorch
+0049d1e0,load_waterfall_fx,"wfall shockwave"
+0049fe00,load_tri_model,Tri.dff
+0049ff00,particle_emit_textured,"tritex particle emitter"
+004a03e0,line_rain_error,
+004a29d0,texture_read_log,"Reading texture %s"
+004a3a20,video_texture_graph_create,"DirectShow graph with TEXTURERENDERER (movie textures)"
+004a3d80,d3dx_texture_create,
+004a4330,shader_version_log,"VertexShaderVersion / PixelShaderVersion"
+004a4680,dinput_create,"Creating DInput object"
+004a46d0,dinput_release_object,
+004a4fd0,dinput_release_device,
+004a5190,joypads_search,"Searching for joypads / Found %d joypad(s)"
+004a54c0,dinput_release_keyboard,
+004a55e0,log_open_write,"mashed.log"
+004a84d0,log_timestamp,
+004a8670,video_mode_name_format,"[Fullscreen] [Window] [Interlaced] [Flicker Free Interlaced]"
+004a94d0,os_version_log,
+004a9c90,app_window_title_init,"Drive to Survive [D3D9] [Release] (MFL still carries the old title)"

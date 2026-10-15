@@ -1,0 +1,24 @@
+# second pass (names the decompiler shows after ApplyStructs.java): function address,current name,new name
+00405d20,puVar1,save_src
+00405d20,pGVar2,state_dst
+00405d20,puVar3,replay_dst
+00405d20,src,replay_src
+00405d80,pbVar1,player_input_byte
+00405d80,pGVar2,state_src
+00405d80,puVar3,replay_src
+00405d80,puVar4,save_dst
+00405d80,puVar5,replay_dst
+004a1890,puVar1,player_input
+004a1890,iVar2,row_offset
+004a1890,iVar3,column
+004a1890,piVar4,record
+004a8180,uVar4,joystick_count
+004a8180,uVar11,controller_index
+004a8180,puVar10,binding_ptr
+004a8180,pCVar7,slot
+004a8180,pCVar8,copy_ptr
+004a8180,iVar14,word_count
+004a8180,local_20c,saved_name
+004a6f80,pCVar2,cfg
+004a6f80,uVar3,binding
+004a6f80,uVar1,joystick

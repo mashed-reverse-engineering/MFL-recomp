@@ -1,0 +1,8 @@
+# typed parameters (apply with RenameVars.java; type column: struct name from /Mashed, trailing * = pointer)
+004893e0,param_1,world,CourseWorld*
+004893e0,param_2,files,CourseFiles*
+004893e0,param_3,counts,CourseCounts*
+00488da0,param_1,world,CourseWorld*
+00488da0,param_2,counts,CourseCounts*
+0042b450,param_1,course_id
+00488710,param_1,lap,CourseLap*

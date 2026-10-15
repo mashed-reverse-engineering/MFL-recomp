@@ -1,0 +1,4 @@
+00435410,menu_bot_skill_b_get,"returns g_menu_bot_skill_b"
+004379a0,menu_event_course_index_get,"returns g_menu_event_course_index"
+004379b0,menu_bot_skill_a_get,"returns g_menu_bot_skill_a"
+00437f10,training_lesson_get,"returns g_training_lesson"

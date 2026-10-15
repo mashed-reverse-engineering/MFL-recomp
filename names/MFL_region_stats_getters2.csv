@@ -1,0 +1,9 @@
+# address,name,comment  (statistic getters renamed after the inferred statistic kinds; apply with RenameFns.java)
+004276b0,player_stat_get_turbo_skills,"kind 0 (inferred 'Turbo Skills'): result table +0xF4, 0 in event type 4"
+004276d0,player_stat_get_unused_f8,"kind 1 (the NOT USED text): result table +0xF8"
+004276f0,player_stat_get_turbo_skills_total,"total table +0xF4"
+00427710,player_stat_get_unused_f8_total,"total table +0xF8"
+00427730,player_stat_get_crowns_team,"kind 2 (inferred 'Crowns'): result table +0xFC, summed over the team"
+004279d0,player_stat_get_crowns_total_team,"total table +0xFC (team sum)"
+00426670,player_stat_add_crowns,"(player, amount): g_player_stats_race[player].crowns += amount (car pickup state code, inferred crowns)"
+004286f0,player_stats_debug_log,"no callers found: clears the per race counters of every player and prints 'cleanest line' / 'number of pants' / 'number of crowns' lines (old debug code)"

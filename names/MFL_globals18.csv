@@ -1,0 +1,11 @@
+# address,name,comment  (AI difficulty / rubber banding globals)
+008c9980,@g_ai_skill,"AI skill 0..10 (float): career table value + bias, 9/5 in special events; set by ai_bot_skill"
+008c9984,@g_ai_last_active_player,"index of the last active human player (-1 none), set by ai_bots_assign_slots"
+008c9988,@g_ai_catchup_class,"0/1/2 class of the human lead (2 when the camera car is active or in the tutorial event); picks the skill score step 2/1/3"
+008c9998,@g_ai_counter_9998,"cleared by ai_bots_clear_stats (purpose not yet traced)"
+008c999c,@g_ai_skill_bias,"float bias added with 0.5 weight to the skill; +-0.5 per race (race_ai_slot_assign_or_adjust)"
+008c99a0,@g_ai_skill_score,"float accumulating +3/+2/+1 (human last) or -1/-2/-3 per race by g_ai_catchup_class"
+008c99a4,@g_ai_career_skill_table,"45 dwords: per career cell skill, initial values from 0x6089B0 (ai_bots_clear_stats)"
+008c9a40,@g_ai_career_counter_table,"45 dwords cleared with the skill table (per career cell counter)"
+008c9eb0,@g_ai_leader_slots,"4 floats: player indices that reached progress >= 3 in order (-1 empty)"
+008c9ec0,@g_ai_player_counters,"4 floats: per player progress counter = lap/sector + 0.01*progress (ai_get_counter)"

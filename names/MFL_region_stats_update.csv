@@ -1,0 +1,4 @@
+# address,name,comment  (player statistics update code; apply with RenameFns.java)
+00428e30,player_stats_update,"(dt) per frame: turbo skills (steering spin, long reverse), aggression (ram of a human car), kills / unforced errors when a car dies, writes events 0x3FF01..0x3FF04 to the event log"
+004266c0,race_events_process_log,"walks the event log ring of this tick: type 3 wall hit (wall_hits++, rumble, rwp mode at high speed), type 4 car to car collision (last_hit_by, collision_speed), types 6 / 8 / 9 / 10 effects"
+00426670,player_stat_add_fc,"(player, amount): g_player_stats_race[player].stat_fc += amount (used by the car pickup state code)"

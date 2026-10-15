@@ -1,0 +1,22 @@
+# AiBotRecord: per player AI/catch-up record (4 at 0x8C9AE0, stride 0x78); filled by ai_bots_randomise, used by ai_drive_*, ai_catchup_bot_state_update, ai_bot_stage_state_update
+struct,AiBotRecord,0x78
+field,0x00,i32,base_value,"value copied from the table at 0x603A84 (per bot) by ai_bots_randomise"
+field,0x04,i32,catchup_cycles,"incremented every 10000 catch-up ticks (ai_catchup_bot_state_update)"
+field,0x08,i32,catchup_ticks,"ticks accumulated while the human player is far ahead"
+field,0x0c,i32,stage,"stage of the AI stage state machine (0..2), ai_bot_stage_state_update"
+field,0x10,i32,stage_counter,"counter inside the stage (wraps at 3)"
+field,0x1c,i32,target_valid,"1 once ai_find_target_b chose a target car, 0 when it is dropped"
+field,0x20,i32,target_car,"car index of the chosen target (car_get_forward argument)"
+field,0x24,i32,leader_far_ms,"ms the human player has been further than 2.5 away (ai_find_leader_a returns 1 after 72000)"
+field,0x28,f32,leader_distance,"player_distance_get to the human player (type 1 slot), read by ai_drive_* (> 4, > 6)"
+field,0x38,i32,start_random,"random start value from the table at 0x603950 (ai_bots_randomise)"
+field,0x3c,i32,cooldown_timer,"ms countdown (ai_bot_set_cooldown_b4 / _78 set it, ai_bot_update decrements by g_tick_count)"
+field,0x40,i32,cooldown_flag,"1 set by ai_bot_set_cooldown_78, cleared by ai_bot_clear_flag_20, read by ai_bot_get_flag_20"
+field,0x44,i32,active,"non zero when the bot is active (ai_bot_stage_state_update)"
+field,0x48,i32,flag_48,"set to 1 while the bot is active"
+field,0x60,i32,weapon_held_ms,"ms the current weapon has been held (ai_bot_stuck_check adds g_tick_count, ai_drive_* reset it to 0)"
+field,0x64,i32,fire_delay,"ms countdown before the AI may fire again (3000 / 6000 / 9000 / 0x2ee set by ai_bot_stuck_check)"
+field,0x68,i32,must_fire,"set to 1 when weapon_held_ms > 60000: the AI fires regardless of the distance checks"
+field,0x6c,i32,burst_active,"weapon 9: 1 while the AI holds fire until weapon_effect_get_slot_value_b becomes non zero"
+field,0x70,i32,state_70,"compared with 10 in ai_bot_course_0x21_target_check"
+apply,0x8c9ae0,AiBotRecord,4

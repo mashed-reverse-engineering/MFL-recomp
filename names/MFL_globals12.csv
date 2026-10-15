@@ -1,0 +1,6 @@
+# address,name,comment  (car handling table globals read by car_init_dynamics; apply with RenameFns.java)
+006292f0,@car_handling_table,"handling records of 5 dwords {course / event key, param b8, param c4, handling_scale * 1000, speed_scale * 1000}, terminated by -1"
+006292ec,@g_car_default_speed_scale,"speed scale of the cars (1.5 default, replaced by the table value / 1000): becomes Car.speed_scale"
+006292e0,@g_car_handling_scale,"handling scale (1.0 default, table value / 1000): written to Wheel.handling_scale"
+006292b8,@g_car_handling_param_b8,"100.0 default, from the handling table"
+006292c4,@g_car_handling_param_c4,"40000.0 default, from the handling table: Car.handling_c4"

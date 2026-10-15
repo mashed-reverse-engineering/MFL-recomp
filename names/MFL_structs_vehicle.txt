@@ -1,0 +1,23 @@
+# VehicleRecord: per player render vehicle record (table at 0x659F00, stride 0x2AC; accessors vehicle_get_* / vehicle_set_* at 0x421E20..0x423210, byte-matched in ghidra/recomp/vehicles_stats.c)
+struct,VehicleRecord,0x2ac
+field,0x000,i32[140],part_frames,"part frame handles indexed by part id (vehicle_part_frame(v, part) = [v*0xab + part])"
+field,0x230,f32[6],matrix6,"6 floats copied by vehicle_get_matrix"
+field,0x248,f32[4],local_sphere,"x y z radius copied from the clump bounding sphere (vehicle_strip_clump_to_body_parts), read by vehicle_get_position_148"
+field,0x258,f32[4],world_sphere,"x y z radius: the centre is the frame position written by vehicle_setup_references, used by vehicle_register_trigger_sphere, hud_marker_get_distance and the shadow camera"
+field,0x270,i32,clump_part_count,"count returned by the clump part scan in vehicle_load (loop bound)"
+field,0x278,u32,envmap_texture,"RwTexture found by name for RpMatFXMaterialSetEnvMapTexture"
+field,0x27c,u32,envmap_frame,"RwFrame handle (g_game_659d60[v]) for RpMatFXMaterialSetEnvMapFrame"
+field,0x280,f32,envmap_angle,"environment map rotation, advanced by vehicle_setup_references from the car velocity"
+field,0x290,i32,index,"slot index 0..3 set by vehicle_load; the car index for car_get_* and (g_tick_number & 3) selects the frame of the ground probe"
+field,0x29c,u32,render_camera,"RwCamera set by vehicle_render, read by hud_marker_get_distance"
+field,0x2a0,u32,shadow_camera,"RwCamera of the shadow pass (RwCameraClear in vehicle_shadow_camera_render_setup)"
+field,0x2a4,u32,shadow_frame,"frame of shadow_camera"
+field,0x2a8,u32,shadow_texture,"texture g_game_659d74 used for the shadow"
+field,0x268,i32,object,"vehicle object (field +0x80 read by vehicle_get_object_field_80)"
+field,0x26c,i32,frame,"vehicle frame / clump handle (vehicle_get_frame_16c, matrix at +0x4/+0x10)"
+field,0x274,f32,half_scale,"vehicle_set_scale: scale * 0.5, sets flag 2"
+field,0x284,f32,size_factor,"vehicle_get_float_184"
+field,0x28c,i32,field_28c,"vehicle_get_field_18c"
+field,0x294,u32,flags,"bit 1 scale set, 8 active, 0x10/0x20 front/back flags, 0x400 flag_400"
+field,0x298,i32,field_298,"vehicle_set_field_198 (0 stored as 1)"
+apply,0x659f00,VehicleRecord,4

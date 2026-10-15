@@ -1,0 +1,4 @@
+# address,name,comment  (PlayerStatRecord tables; apply after MFL_structs_stats.txt)
+008c8ae0,@g_player_stats_race,"PlayerStatRecord[4]: statistics of the race in progress (cleared by player_stats_clear_a)"
+008c8fc0,@g_player_stats_result,"PlayerStatRecord[4]: copy of the finished race (player_stats_copy_to_totals), place + 1"
+008c94a0,@g_player_stats_total,"PlayerStatRecord[4]: running totals over the races (player_stats_accumulate, cleared by player_stats_clear_b)"

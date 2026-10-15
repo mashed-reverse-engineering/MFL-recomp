@@ -1,0 +1,53 @@
+# Frontend menu item list opcodes and action ids (dwords as signed ints appear in the decompile, e.g. 0xFF040000 = -0xFC0000).
+# Opcodes (see g_menu_page_item_lists / g_menu_page_NN_*):
+0xFF000000  title            arg: text id of the page title
+0xFF020000  x                arg: x position
+0xFF030000  y                arg: y position
+0xFF040000  text item        arg: text id (-1 = no text, e.g. generated entry)
+0xFF050000  value item       arg: option value shown with the item
+0xFF060000  end entry
+0xFF070000  end of list
+0xFF080000  item count/mode  arg: count of entries
+0xFF090000..0xFF120000  footer buttons (back/select/pause hints)
+0xFF140000  action           arg: action id (below)
+# Action ids (page, item text):
+0xFF150000 Continue (pause menu, page 0)
+0xFF1D0000 player colour select action (page 4)
+0xFF1E0000 Restart Race (page 0)
+0xFF1F0000 Quit Race (page 0)
+0xFF200000 Quit Game (page 0)
+0xFF240000 race results action (page 5)
+0xFF260000 challenge select (pages 6, 7, 14)
+0xFF2C0000 Standard Play (page 3)
+0xFF2E0000 Team Play (pages 3, 9)
+0xFF300000 / 0xFF310000 page 10 entries (unused)
+0xFF370000 Host New Game (page 11)
+0xFF380000 Join Existing Game (page 11)
+0xFF390000 join game address entry (page 13)
+0xFF3A0000 lobby (page 12)
+0xFF3B0000 ability select (page 15)
+0xFF3C0000 team select (page 16)
+0xFF3D0000 Challenge Cup (page 2)
+0xFF420000 Play Game (pages 18, 24)
+0xFF430000 Sound (options, page 8)
+0xFF440000 Load Game (page 37)
+0xFF450000 Music / SFX / Insults Volume sliders (page 19)
+0xFF470000 Save Game (pages 21, 37)
+0xFF490000 Continue (in-race options, page 21)
+0xFF4A0000 Retry (page 21)
+0xFF4B0000 page 22 (blank title)
+0xFF4C0000 Transmission Interrupted pages (20, 23)
+0xFF4D0000 Quick Battle (page 34)
+0xFF4F0000 Mashed title page (25)
+0xFF500000 Options (pages 0, 1)
+0xFF710000 Standard Controls (page 29)
+0xFF720000 Share Controllers (page 29)
+0xFF730000 Gamma Correction (page 8)
+0xFF800000 Exit To Windows (page 1)
+0xFF810000 Power Ups / Game Length / Extra Opponents (page 18)
+0xFF820000 Bonus Features (page 1)
+0xFF830000 Autosave (page 37)
+0xFF850000 Turbo Tournament (page 2)
+0xFF860000 Ice Tournament (page 2)
+0xFF870000 Night Tournament (page 2)
+0xFF880000 Training (page 2)

@@ -1,0 +1,3 @@
+0045d590,course_zone_contains_matrix_in_zone_6a2888,"course_zone_contains_matrix on the zone record at g_course_6a2888"
+004a41c0,gamma_apply_via_device_scaled,"gamma_apply_via_device(2*x + 0.5, arg)"
+004a6da0,camera_view_params_pack,"packs the +0x70/+0x74 fields of a camera into an 8 dword structure (zeroing the rest)"

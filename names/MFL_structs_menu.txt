@@ -1,0 +1,13 @@
+# MenuItemAnim: one animated frontend menu item slot (30 slots at 0x8C80A0, cleared by menu_table_clear_b, filled by menu_page_enter, advanced by menu_items_animate_update, drawn by frontend_draw)
+struct,MenuItemAnim,0x34
+field,0x00,i32,item_id,"menu item id (0xFF...0000 style codes, -0x1000000 = frame slot, 0 = unused)"
+field,0x04,i32,state,"0 appearing, 1 idle, 2 disappearing, 0x1000 finished"
+field,0x0c,u32,colour,"RGBA bytes (set to 0xFFFFFFFF in menu_page_enter)"
+field,0x10,i32,anim_counter,"animation counter (0x1FF = finished, 400 limit while appearing)"
+field,0x14,f32,scale,"text scale (0.6 default)"
+field,0x18,f32,x,"x position (64.0 default)"
+field,0x1c,f32,y,"y position (48.0 default; menu_item_y_position + row * 0x1e)"
+field,0x24,i32,param,"item parameter (0 default)"
+field,0x28,i32,ref_a,"slot 0 only: result of menu_item_list_find_index_a for the first lookup"
+field,0x2c,i32,ref_b,"slot 0 only: result of the second lookup"
+apply,0x8c80a0,MenuItemAnim,30

@@ -1,0 +1,11 @@
+# address,name,comment  (MFL.exe mid size functions named by reading them; apply with RenameFns.java)
+0040fbf0,race_get_focus_player,"(out player, out ?): active car with mode 0 selected by position, used for camera / AI focus (inferred)"
+00416e20,point_project_onto_line_2d,"(?, line p1, line p2, point, ?, out): perpendicular projection of a point onto the line through two points"
+0041b810,race_mark_ai_slots,"sets slot type 2 for the active cars 1..3 in the race / battle event types (inferred)"
+0042cc80,ui_draw_texture_640,"(tex, x, y, w, h, align, flag): textured quad in 640x480 layout through draw_textured_quad_uv"
+0042cdd0,ui_draw_texture_640_default,"ui_draw_texture_640 with flag 0"
+00434a40,ui_camera_update_view_rect,"computes the viewport rectangle of the secondary frontend camera from the screen size"
+00434e60,ui_draw_framed_rect,"(x, y, w, h): filled rect with a 2 pixel border made from draw_rect calls"
+0045bdd0,draw_textured_quad_uv,"(tex, x, y, w, h, colour, uv[4]): fills g_im2d_vertices with the uv rectangle and draws the quad"
+00494520,replay_buffer_record_frame,"(buffer, matrix, value, index): stores position, quaternion and value of one replay record"
+004a7120,controller_dialog_set_item_texts,"fills the controller dialog items 0x411.. with language dependent strings"

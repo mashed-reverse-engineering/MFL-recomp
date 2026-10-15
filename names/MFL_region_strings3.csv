@@ -1,0 +1,13 @@
+# address,name,comment  (MFL.exe: weapon asset loaders and screens named from model / script strings (fnidx pass 3); apply with RenameFns.java)
+0043abd0,results_screen_draw,"large draw function with team colours, points, wins and stats ('%s%d%s%s%s%s')"
+0044e4d0,ai_debug_draw_lines,"debug draw of 'race lines', 'inside lines' and 'slow lines' of the AI grid"
+0045e480,mortar_load_assets,"'smoke' texture, mortar.dff and MortarRound.dff"
+004607b0,flashunit_load_assets,"flashunit.dff and lensflare-fs8 texture, flash particles"
+00460d40,missile_load_assets,"MissileLauncher.dff + smoke trail particles"
+00462350,gatling_load_models,"'flash' texture and GatlingGun.dff"
+00463350,oil_load_assets,"oilShine texture and oilslicker.dff"
+004640a0,mine_load_assets,"MineDropper.dff, Mine.dff and the lens flare"
+004650e0,headlight_lazer_init,"Headlight texture, lazer.dff"
+00466530,flamethrower_load_assets,"FlameThrower.dff and its particle systems"
+004679a0,powerups_load_assets,"PowerUpModels.txd and powerups_all.lua, then every weapon's load callback"
+0046f130,sound_load_course_audio,"'loading course' toastaudio\pc\audio bank for the course"

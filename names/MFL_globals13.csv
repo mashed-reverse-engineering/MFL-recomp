@@ -1,0 +1,13 @@
+# address,name,comment  (gamesave state machine globals; apply with RenameFns.java)
+008d8be4,@g_gamesave_operation,"active save operation: 0 idle, 1 load/format, 2 (status wait), 3 save, 4 autosave, 5 delete, 6 close (dispatched by gamesave_update/gamesave_cb_dispatch_a)"
+008d8be0,@g_gamesave_previous_operation,"operation before the delete request (gamesave_request_delete stores g_gamesave_operation here)"
+008d8be8,@g_gamesave_format_step,"step of the load/format operation (1 start, 0xC format request, 2 status change, 3 done, 6/7/8/0xb callbacks)"
+008d8bec,@g_gamesave_load_step,"step of gamesave_load_state_machine: 0 poll, 1 wait load status, 2 check, 3 start, 4 loading, 5 result message, 6 done, 7 error"
+008d8bf0,@g_gamesave_save_step,"step of the save state machine (1 wait status, 2 check, 3 request, 5/6/7/8/9/0xA/0xB/0xC callbacks)"
+008d8bf4,@g_autosave_step,"step of the autosave state machine (0 idle, 1 start, 2 status change, 6..10 callbacks)"
+008d8bf8,@g_gamesave_delete_step,"step of the delete request (1 requested, 2 status change, 8 failed)"
+008d8c00,@g_gamesave_result_code,"result of the last load/save: 0 ok, 1 no file, 3/4 error (selects the message string 0x1c1/0x1bf/0x1be/0x1c0)"
+008d8c08,@g_gamesave_wait_timer,"seconds waited while loading ('Waiting for time to elapse')"
+008d8c0c,@g_gamesave_flag_c0c,"cleared by load/format requests"
+008d8c10,@g_gamesave_status_poll_count,"counts polls without status change; cleared by every request"
+008d8c14,@g_gamesave_load_failed,"set to 1 when the load result is the default error, cleared when a load starts"

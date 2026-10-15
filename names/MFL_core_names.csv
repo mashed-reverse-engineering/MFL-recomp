@@ -1,0 +1,40 @@
+# address,name,comment  (MFL.exe: application start-up and main loop; apply with RenameFns.java)
+004a1710,app_run,boot sequence: hardware init; game_state_reset; engine start; assets; main loop; AppDestroy; tidy up
+004a15b0,app_main_loop,called after the assets are loaded
+004a2b50,renderware_engine_start,RwEngineInit; RtFSManagerOpen; HardwareInstallFileSystem; attach plugins; RwEngineOpen; set video mode; RwEngineStart
+004a1b20,main_loop_init,resets the quit flag and frame counters; state = 1; creates the global RwMatrix
+004a1d80,app_state_transitions,switch on g_app_state (1..7): decides the next state (e.g. 3 = race running)
+004a20d0,input_update,calls input_poll
+004a5930,input_poll,
+004a20e0,game_update,per state simulation; runs the fixed step game_tick(50) until the frame time is used up
+004a2240,game_render,RwCameraClear; per state scene render and 2D overlay; RwCameraShowRaster; per-frame counters
+004a1a70,debug_keys_and_profile,reads two debug keys and averages the frame time over 60 frames
+004a41f0,timer_ticks,QueryPerformanceCounter scaled to 3000000 ticks per second (3000 per millisecond)
+004a2880,frame_delta_quantize,rounds the frame time (game ticks, 3000 per second) to a multiple of 50 ticks (50/100/150/200) -> g_frame_ticks and g_frame_seconds
+004a9300,pump_windows_messages,PeekMessage loop; returns true on WM_QUIT (0x12)
+004136d0,game_tick,fixed simulation step; called with 50 ticks (1/60 s) per iteration
+0040fdd0,race_set_phase,sets g_race_phase and stamps the phase start time (g_race_phase_start)
+00411dd0,race_update_common,per tick work shared by all race phases (ESI = ticks): sim time; weapons_update_frame; effects; clamps total time at 0xF731400
+004123a0,race_phase_3_update,phase 3: counts g_phase_timer down from 100000 (x 0x44c / 60 per tick) then enters phase 4 (12000)
+00412470,race_phase_4_update,phase 4: waits for the countdown then changes phase
+00410de0,race_update_cameras,sets up the cameras of the 4 players (split screen aware)
+00421e20,vehicle_set_active,sets/clears flag 8 in the 0x2AC byte vehicle record of a player
+0068b8f8,@g_race_phase_arg,argument passed to the phase 5/6 notification calls
+00652f68,@g_race_phase,1 race setup ("start of race") 2 intro 3 and 4 countdown 6 racing (input live; also 10 and 0xb) 7 race clocks stopped 10 end (replay saved) 0xb post race; events are only logged in phases > 5
+006037c0,@g_phase_timer,countdown used by race phases 3 and 4
+007ef7d4,@g_race_time_ticks,total race time in 1/3000 s ticks
+007ef7dc,@g_race_clock_a,advanced by the ticks of every race update (not in phase 7)
+007ef7e0,@g_race_clock_b,advanced by the ticks of every race update (not in phase 7)
+007ef7f0,@g_tick_count,ticks of the current step
+007ef7f4,@g_tick_seconds,current step in seconds
+007ef804,@g_tick_number,counts game_tick calls (reset at race start)
+007e7f40,@g_scratch_matrix,RwMatrixCreate() in main_loop_init
+0076e7f4,@g_app_state,1..7; 3 = race running (4 = menu overlay)
+007ef7e8,@g_frame_ticks,frame time in game ticks (3000 per second) quantised to multiples of 50 (1/60 s)
+007ef7ec,@g_frame_seconds,g_frame_ticks converted to seconds
+00843e7c,@g_quit_requested,loop ends when set
+0076e7e8,@g_sleep_remainder,leftover ticks carried between frames
+004a5530,log_print,debug log (string only)
+004a5550,log_printf,debug log (format and arguments)
+00493040,physics_scenario_objects_init,builds the RWP boxes/cylinders from the Lua RWP_Object definitions ("making box"; "making cylinder")
+00409f60,grid_position,computes a position/heading for one of the cars of the race ("Invalid number of cars in race"; "Invalid position")

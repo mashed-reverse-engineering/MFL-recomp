@@ -1,0 +1,90 @@
+# address,name,comment  (MFL.exe, Mashed Fully Loaded). Names by role, derived from the decompilation.
+004c67c0,piz_fs_create,Registers the PIZ file system (vtable: open/close/read/seek/eof/exists)
+004c6790,piz_set_progress_callback
+004c66f0,piz_open_archive_bool
+004c6ac0,piz_open_archive,Reads header + file table (0x80 byte entries; table buffer 0x8000 bytes = 256 files)
+004c6890,piz_open_file,CreateFileA unbuffered+overlapped (or stdio on non-PC platforms)
+004c68f0,piz_close_file
+004c6920,piz_close_archive,restores the previous default file system
+004c6960,piz_read_sectors
+004c6a70,piz_find_entry_size,stricmp scan of the table; returns entry+0x78 (size)
+004c6ca0,piz_fill_cache,0x20000 byte read window
+004c6d10,piz_align_down
+004c6c80,piz_note_result
+004c6d20,piz_fs_exists
+004c6d80,piz_fs_open,matches name with stricmp; hash at entry+0x7c is never read
+004c6e50,piz_fs_read
+004c7060,piz_fs_seek
+004c70f0,piz_fs_close
+004c7120,piz_fs_eof
+004a43d0,game_open_piz,"Opening piz file %s"
+004a4440,game_close_piz
+004a4720,game_register_native_filesystems,RtFS native file system for current dir + one per drive; sets the default FS
+0046ec40,game_register_root_filesystem
+00403450,game_path_to_8_3_upper,drops drive letter; dirs and names max 8 letters; total max 0x31
+0042f620,game_content_exists_prefixed,tries pc/ xbox/ ps2/ gamecube/ prefixes
+0042f6e0,game_content_find,"Searching piz for %s": pc/ then raw then xbox/ ps2/ gamecube/
+00403030,game_init_filesystem_and_assets,"Setting up PIZ file system"
+004d2f10,RwEngineGetVersion_like,mov eax 0x37002; ret (RenderWare 3.7.0.2)
+# ---- trainer cross-check (weapons, car state, camera); see MashedTrainer/doc/TrainerAnalysis.md ----
+00467960,weapon_find_descriptor,esi = weapon type id; linear search of weapon_descriptors (0x40 stride; count at weapon_descriptor_count); returns descriptor or 0
+00467980,player_unequip_weapon,esi = player weapon struct; calls descriptor+0x10 then zeroes +0xA8/+0xAC; NO null check on +0xA8 (crashes if no weapon)
+00467e60,player_equip_weapon,cdecl (player weapon struct*; weapon type id); stores descriptor at +0xA8 and descriptor+4 result at +0xAC; NO null check on the descriptor (crashes for unknown id)
+00467ed0,player_equip_weapon_by_index,cdecl (player index; weapon type id) -> player_equip_weapon
+00467eb0,player_has_no_weapon
+00467a60,weapons_update_frame,per-frame weapon update for the 4 players + descriptor callbacks
+00467d90,weapons_unequip_all_a
+00467df0,weapons_unequip_all_b
+0044fa30,camera_update,per-viewport camera: zoom (clamped to 10.0) -> tilt/height/distance; trainer patches its float operands
+0047cb60,car_integrate_step,applies velocity and rotation to the car RwMatrix (old matrix in edi -> new in ebx) then MatrixOrthoNormalize
+0047d840,car_wheel_contact_update,uses the current matrix = player_car + 0x928 + 0x40 * [player_car+0x9AC]; RpCollisionWorldForAllIntersections
+0044bf20,distances_update,per-player horizontal distance to the leader * 0.8 -> distance_to_leader[4]
+0044c140,player_distance_warning,returns 1 in race mode when distance_to_leader[p] > 7.0 (trainer warning threshold patch at 0044c16b)
+0044c180,player_distance_get
+004131d0,game_mode_end_check,switch on game_mode; contains the compare against [008c7e00]==10.0 patched by the trainer 'max distance' (008c7e00 has no static writer)
+00423fe0,damage_add_clamped,adds to damage[] and clamps to 50.0 (operand 00423fec and immediate 00423ffa are patched by the trainer)
+0046f5c0,soundengine_create_race_streams,sets race_audio_active=1 (trainer uses it as 'game active')
+00461bc0,weapon_machinegun_equip,type 0x09; returns &machinegun_state[player] (0x6A60D0 stride 0x48)
+0045f6d0,weapon_drum_equip,type 0x0A; state 0x6A5C60 stride 0x2C
+004609a0,weapon_rocket_equip,type 0x0B; state 0x6A5FF0 stride 0x2C
+00463690,weapon_mines_equip,type 0x0C; state 0x6A8AF8 stride 0x18
+00466640,weapon_flamethrower_equip,type 0x10; state 0x6A9588 stride 0x68
+00467080,weapon_shotgun_equip,type 0x11; state 0x6AAB80 stride 0x24
+00460370,weapon_flashbang_equip,type 0x12; state 0x6A5D78 stride 0x14
+004629e0,weapon_oil_equip,type 0x13; state 0x6A7C78 stride 0x10
+0045e970,weapon_mortar_equip,type 0x07; state 0x6A29B8 stride 0x1C
+0060dc20,@weapon_descriptors,9 entries x 0x40: +0 type id (9 a b c 10 11 12 13 7); +4 equip(player); +0x10 unequip(player); +0x1C/+0x2C/+0x30/+0x3C per-frame callbacks
+0060de60,@weapon_descriptor_count,= 9
+008bed20,@player_weapon_slots,4 x 0xB4; +0xA8 descriptor ptr (non-null = weapon equipped); +0xAC equip result = pointer into the weapon's state array; +0xB0 player index
+008b06e0,@player_car,4 x 0xD04; +0 index; +4 alive?; +0x10 controls disabled; +0x144 velocity; +0x194 wheels (4 x 0xC4); +0x928 matrix[2] (RwMatrix 0x40 each; +0x30 pos); +0x9A8 next matrix idx; +0x9AC current matrix idx; +0x9B0 direction; +0xD00 bot flag
+008d8b30,@player_count
+008d8b40,@player_points,int[4]; +0x20 visual change (008d8b60); +0x40 change (008d8b80)
+008c7e40,@distance_to_leader,float[4]
+008c7e30,@leader_index
+0065a9e8,@car_damage,4 x 0x28: +0 front,+4 back,+8 hood,+0xC trunk,+0x10/+0x14 glass
+00658de4,@max_points_a,written once by 0041e550
+00659338,@max_points_b,written once by 0041fc00
+006ae110,@race_audio_active,1 while race audio streams exist (cleared on pause/exit)
+007ef7b8,@game_mode,switch value used by 004131d0 / 0044c140 (4,5,7,8,9,10 seen)
+0069d028,@player_color_id,3 x 0xC
+005dd620,@float_10_0,shared constant (88 refs): camera zoom limit / normaliser
+005de290,@float_50_0,shared constant (20 refs): max damage, camera tilt factor
+005ddb14,@float_7_0,shared constant (22 refs): distance warning threshold
+005ddb18,@float_0_8,shared constant (40 refs): camera height factor, distance scale
+005dd41c,@float_5_0,shared constant (49 refs)
+005dd330,@float_1_0,shared constant (906 refs)
+0045081a,!,trainer: zoom limit operand (fcomp)
+00450956,!,trainer: zoom limit operand (fcomp)
+0045099f,!,trainer: zoom limit operand (fcomp)
+0045082b,!,trainer: zoom limit immediate 10.0
+00450967,!,trainer: zoom limit immediate 10.0
+0045097a,!,trainer: zoom limit immediate 10.0
+004509b0,!,trainer: zoom limit immediate 10.0
+00450aec,!,trainer: camera tilt operand (50.0)
+00450bba,!,trainer: camera height factor operand (0.8)
+00450bc0,!,trainer: camera height divider operand (5.0)
+00450bc6,!,trainer: camera height add operand (1.0)
+0044c16b,!,trainer: distance warning operand (7.0)
+0041340d,!,trainer: max distance operand (compared for equality with [008c7e00])
+00423fec,!,trainer: max damage operand (50.0)
+00423ffa,!,trainer: max damage immediate (0x42480000 = 50.0)

@@ -1,0 +1,9 @@
+# address,name,comment  (sound / camera globals named from their users; apply with RenameFns.java)
+008d98bc,@g_sound_player_count,"number of players, set by sound_frame_begin"
+006ad080,@g_sound_mute_when_multiplayer,"when set, the race ambience voices are not updated if more than one player is active"
+00617948,@g_sound_master_fade,"master fade 0..1, moved by sound_master_fade_towards"
+006ad8ac,@g_sound_music_fade,"music fade level, stepped by sound_music_fade_step"
+0061a168,@g_sound_music_voice,"voice index of the music stream (never stopped by sound_voices_stop_all_but_music)"
+006ae108,@g_sound_streams_enabled,"stream playback is available"
+006ae10c,@g_sound_streams_paused,"set while the streams are paused by sound_streams_pause"
+00801b2c,@g_camera_fov_factor,"field of view factor given to the race camera (0.75, or 0.5625 when the option at game state +0xAFC is set)"

@@ -1,0 +1,37 @@
+# address,name,comment  (MFL.exe course callback dispatch: one jump stub per CourseEntry slot; apply with RenameFns.java after MFL_course_names.csv)
+00421aa0,course_select,"(course id): selects the CourseEntry for the id (course_table_select with the +1000 mirror handling)"
+004219a0,course_call_cb0,"jmp [entry+0x14]: post load, called by course_open_and_run_scripts"
+004219b0,course_call_cb1,"jmp [entry+0x18]: per frame update, called by course_update"
+004219c0,course_call_cb2,"jmp [entry+0x1C]: called by course_render"
+004219d0,course_call_cb3,"jmp [entry+0x20]: called by course_render"
+004219e0,course_call_cb4,"jmp [entry+0x24]: called by course_race_start"
+004219f0,course_call_cb5,"jmp [entry+0x28]: called by course_unload before the world is destroyed"
+00421a00,course_call_cb6,"jmp [entry+0x2C]"
+00421a10,course_call_cb7,"jmp [entry+0x30]"
+00421a20,course_call_cb8,"jmp [entry+0x34]"
+00421a30,course_call_cb9,"jmp [entry+0x38]"
+00421a40,course_call_cb10,"jmp [entry+0x3C]"
+00421a50,course_call_cb11,"jmp [entry+0x40]"
+00421a60,course_call_world_setup,"jmp [entry+0x44] (cb12), before the world is created"
+00421ac0,course_has_cb0,"[entry+0x14] != 0"
+00421ad0,course_has_cb1,
+00421ae0,course_has_cb2,
+00421af0,course_has_cb3,
+00421b00,course_has_cb4,
+00421b10,course_has_cb5,
+00421b20,course_has_cb6,
+00421b30,course_has_cb7,
+00421b40,course_has_cb8,
+00421b50,course_has_cb9,
+00421b60,course_has_cb10,
+00421b70,course_has_cb11,
+0042af80,course_update,"(course id, dt): camera/lights/particles then cb1 and the per frame course objects"
+0042b7a0,course_render,"(course id): hides fog stages, renders the sky and world pieces; cb3 (or the default sky) and cb2"
+0042a3c0,course_race_start,"cb4 when present, sets 0x6095BC"
+0042b030,course_unload,"(course id): cb5, then course_destroy and the per-course resets"
+0042b140,course_hook6,"cb6 when present"
+0042b120,course_hook7,"cb7(world) when present, then FUN_00492e00"
+0042b180,course_hook8,"cb8 when present"
+0042b160,course_hook9,"cb9 when present"
+0042aaf0,course_hook10,"cb10 when the course is loaded (split_sectors[8] != 0)"
+0042b1a0,course_hook11,"cb11 when present"

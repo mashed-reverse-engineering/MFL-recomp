@@ -1,0 +1,10 @@
+# address,name,comment  (statistic getters renamed after the final field names; apply with RenameFns.java)
+004276b0,player_stat_get_crowns,"kind 0 'Crowns': result table +0xF4, 0 in event type 4"
+004276d0,player_stat_get_pants,"kind 1 (NOT USED text): result table +0xF8"
+004276f0,player_stat_get_crowns_total,"total table +0xF4"
+00427710,player_stat_get_pants_total,"total table +0xF8"
+00427730,player_stat_get_turbo_used_team,"kind 2 'Turbo Skills': result table +0xFC, summed over the team"
+004279d0,player_stat_get_turbo_used_total_team,"total table +0xFC (team sum, 'Turbo Skills Overall')"
+00426670,player_stat_add_turbo_used,"(player, amount): g_player_stats_race[player].turbo_used += amount (called when the turbo charge is spent)"
+0047b800,car_turbo_spend,"(car): if the turbo charge is above 1000 spends it (state 2), else converts the charge (state 1, +1000); adds the used charge to the player's turbo_used statistic"
+0047b870,car_turbo_charge_update,"(car, dt): turbo_charge += 2 * dt while the accelerate input is above 160, then -= dt, clamped to 0..3000"

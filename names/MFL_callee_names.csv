@@ -1,0 +1,18 @@
+# address,name,comment  (MFL.exe): FUN_ callees named from their disassembly + callers (tools/callee_protos.py); RenameFns.java input
+004c66a0,mem_zero,memset(dst; 0; size) wrapper (calls 004c6660 = memset)
+0058c8a0,rwp_owner_object_get,reads [*(g_7daa18) + owner]: physics object attached to a frame / clump (plugin data)
+004c3f60,clump_first_atomic,RpClumpForAllAtomics with callback 004c4040 (stores the atomic; returns NULL = stop)
+004c45e0,rp_random_float_range,lo + (hi - lo) * (RpRandom() & 0x7fffffff) / 2^31; callers pass float bit patterns
+004c7260,lua_tostring,Lua 4: lua_index2adr; converts numbers; returns TString data (+0x14) or NULL
+005543d0,rw_first_field,returns *(int *)p (COMDAT folded getter; e.g. rwSListGetBegin)
+004c3f90,clump_get_atomics,RpClumpForAllAtomics with callback 004c4200: fills the array (NULL = count only); returns the count
+004b3284,acos,CRT acos (the _CIacos body; argument on the stack)
+004f4920,clump_get_world,reads [*(g_rp_7d52a4) + clump] (clump extension offset)
+0056b1d0,rwp_world_set_bit_5c,(world; object; on): sets / clears bit [object+0x20] in the bitset [world+0x5c]
+004c45c0,rp_random_int_range,RpRandom() % (hi - lo + 1) + lo
+004c4de0,world_intersect_line,copies a 24 byte RwLine into an RpIntersection (type 1) and calls RpCollisionWorldForAllIntersections with callback 004c4cc0 ?
+004c5360,atomic_set_render_flag,RwObject.flags bit 4 (rpATOMICRENDER) set / cleared
+004c3d80,texdict_load_file,RwStreamOpen(file; read) + RwStreamFindChunk(0x23 texdict) + read ?
+0056b220,rwp_world_set_bit_60_64,(world; object; on): sets bit [object+0x20] in [world+0x64] (on) or [world+0x60] ?
+005b8c40,sound_stream_state,returns [handle + 0xd6c]
+005543e0,rw_second_field,returns ((int *)p)[1]

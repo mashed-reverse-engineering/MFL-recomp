@@ -1,0 +1,9 @@
+# address,name,comment  (MFL.exe larger functions named by reading them (inferred); apply with RenameFns.java)
+0041a490,ai_update_speed_scaling,"per player: car speed factor (car_set_field_154) from the progress / lead of the cars, rubber banding for modes 4 / 9"
+00438580,menu_page_update_entry_states,"(page): enables / disables the entries of a menu page from the career progress, player count and options"
+00456b20,course_rotating_object_update,"(object, ticks): animates a rotating object (sin / cos offsets, frame rotate) and re-registers its trigger"
+00465470,weapon_find_targets_in_cone,"(slot, pos, range, cone angle, dir): collects cars and fx objects inside the cone for homing / aiming"
+0046e5c0,sound_surface_ambience_lookup,"(course id, surface colour, out a, out b): maps the colour code under the car to the ambience indices"
+00484180,ui_draw_sprite_oriented,"(tex, x, y, w, h, colour, ?, orientation 1..7, ...): textured quad with orientation dependent uv layout"
+0048a0c0,spring_grid_build,"builds the 23 x 20 point grid with masses, rest positions and the spring link table (inferred)"
+0049cd60,fx_spawn_burst,"(pos, count, velocity or random, colour, ?, life): spawns coloured particles with random direction"

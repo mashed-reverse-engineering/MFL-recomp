@@ -1,0 +1,9 @@
+# address,name,comment  (MFL.exe globals named from how they are used; names set with @ are data labels; apply with RenameFns.java after AutoNameGlobals)
+005e64a4,@k_f_0,"float 0.0 (about 1200 references: the compiler's shared zero constant)"
+0062c5d8,@__security_cookie,"MSVC /GS stack cookie"
+0076e874,@g_language_offset,"added to a string table id (LoadString) to select the language: english 0, french 1, german 2, spanish 3, italian 4"
+0069cc40,@g_team_mode,"non-zero in team play (is_team_mode)"
+0069cbd0,@g_menu_current,"index of the active frontend menu (selects the record at 0x69D2E0, stride 0x40)"
+008c87c0,@g_course_piz_path,"static path buffer of the course piz that course_open_and_run_scripts builds"
+007f01fc,@g_player_slots,"4 x PlayerSlot (controller, state, team)"
+008c8000,@g_im2d_vertices,"4 RwIm2DVertex filled by draw_rect / draw_sprite and sent with fpIm2DRenderPrimitive"

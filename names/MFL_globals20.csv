@@ -1,0 +1,6 @@
+# address,name,comment  (menu option globals and their getters)
+0069cf98,@g_menu_bot_skill_a,"bot skill choice 0..4 for events 6..8 (ai_bot_skill uses value * 2.5)"
+0069cfac,@g_menu_bot_skill_b,"bot skill choice for events 0xB..0xD (value * 2.5), default 1"
+0069cfb0,@g_menu_event_course_index,"selected course/record index for events 0xB..0xD and the 6..8 group, default 0"
+0069cf9c,@g_menu_race_length_choice,"0..2 race length (5/10/20 minutes), read by race_length_setting"
+008c8078,@g_training_lesson,"current training lesson index (5 = special case in ai_bot_skill, 0 resets the page)"

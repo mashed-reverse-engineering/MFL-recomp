@@ -1,0 +1,7 @@
+# address,name,comment  (tutorial / event info page globals, from tutorial_state_reset and tutorial_text_update)
+0069d100,@g_tutorial_line_count,"number of entries written to the page line table (1 per text, 2 per player stat pair)"
+0069d104,@g_tutorial_display_ticks,"display time of the page, set to 0x8E8 when the lines are built"
+0069d108,@g_tutorial_line_entries,"line table (0x14 dwords): text id at +0, value/second text id at +4 of each entry (interleaved)"
+0069d158,@g_tutorial_line_width,"summed text width of the lines plus 8 px gaps, used to centre the line"
+0069d160,@g_tutorial_reset_requested,"non zero: tutorial_state_reset runs on the next tutorial_text_update"
+0069d014,@g_tutorial_ranked_players,"4 player ids ordered by the page's stat kind (player_stat_get_by_kind output)"

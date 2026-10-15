@@ -1,0 +1,11 @@
+# address,name,comment  (MFL.exe larger functions named by reading their code (inferred where marked); apply with RenameFns.java)
+00432f20,credits_draw,"scrolling text table (string id, x, ?, start time) drawn with the time offset (inferred: credits screen)"
+00433d40,credits_update_draw,"advances g_hud_69d0fc by the frame ticks while the credits menu page is shown and calls credits_draw"
+0048a610,spring_grid_init,"creates the matrix and resets the spring grid constants (23 x 23 point grid, inferred)"
+0048a680,spring_grid_prepare,"clears the 23 x 23 grid forces and normalises the wind direction (inferred)"
+0048a9e0,spring_grid_update,"integrates velocity / position of the 23 x 23 grid points with the frame step (inferred)"
+0048b030,spring_grid_render,"scales the grid positions by 0.1 and renders them with Im3D (inferred)"
+00494760,replay_buffer_interpolate_frame,"interpolates the replay record frames with slerp / hermite for a given time"
+00499dc0,shadow_project_to_ground,"projects points along the directional light onto the collision triangles (inferred)"
+00497930,fx_ptank_particles_update,"locks the PTank, steps the pool particles and unlocks"
+004393f0,menu_draw_controller_select,"controller / team select panel with keyboard icon and team colour names (inferred)"
