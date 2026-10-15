@@ -231,6 +231,7 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
     code, rel, fsn, fval = co.function(sym)
     code = bytearray(code.rstrip(b"\xcc") if rel else code.rstrip(b"\x90\xcc"))
     if own: lits = bytearray(); lit_at = {}
+    adp, tail = {}, bytearray()      # static naked F_r adapters of the same object (bridgegen.gen_adapter): code appended behind the function; they call the ORIGINAL callee address, which is stubbed (register inputs recorded like on the original side)
     for off, rt, si, add in rel:
         if off + 4 > len(code): continue
         n, sval, sn = co.syms[si]; un = cmpfn._undecorate(n)
@@ -238,6 +239,11 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
             nm = cmpfn._undecorate(n[6:]); t = tb.iat.get(nm) or tb.iat.get(nm.lstrip("_"))
             if t is None: raise Unresolved("import " + n)
         elif extra and un in extra: t = extra[un] + add
+        elif un.endswith("_r") and sn > 0 and (co.secs[sn - 1][4] & 0x20) and not (sn == fsn and sval == fval):
+            if un not in adp:
+                tail += b"\0" * ((-len(tail)) % 16); adp[un] = base + ((len(code) + 15) & ~15) + len(tail)
+                ac, _ = our_code(obj, un, adp[un], extra, lits, lit_at); tail += ac
+            t = adp[un] + add
         elif sn == fsn and sn > 0: t = base + (sval - fval) + add
         elif sn > 0 and not (co.secs[sn - 1][4] & 0x20) and (n.startswith(("??_C@", "_real@", "__real@", "__xmm@", "$S")) or (un not in tb.sym and "_" + un not in tb.sym)):
             sz, sp = co.secs[sn - 1][0], co.secs[sn - 1][1]; key = (sn, sval + add)
@@ -249,6 +255,7 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
             if not vas: raise Unresolved("symbol " + n)
             t = sorted(vas)[0] + add
         struct.pack_into("<I", code, off, u32(t if rt == 6 else t - (base + off + 4)))
+    if tail: code += b"\0" * ((-len(code)) % 16) + tail
     return bytes(code), bytes(lits)
 
 
@@ -299,7 +306,8 @@ def callee_info(va):
     cv = tb.convfix.get(name); stdc = (cv == "stdcall") if cv else (sg and sg[0] == "__stdcall")
     pop = ret_n if ret_n is not None else (sg[1] * 4 if sg and stdc else 0)
     n = None; o = tb.oslots.get(va); os_n = o[0] if o and not o[4] else 0
-    if dc and dc[1].strip() not in ("", "void"): n = sum(2 if re.search(r"\bdouble\b", p) and "*" not in p else 1 for p in dc[1].split(","))      # a double argument is two dwords
+    if regs and (dc or sg) and va in tb.reg and tb.reg[va][0]: n = len(stack) or pop // 4      # register callee: the declaration / signature list the register inputs as parameters too (`f(undefined4 p0, undefined4 p1)` for eax|edx): only the stack arguments count
+    elif dc and dc[1].strip() not in ("", "void"): n = sum(2 if re.search(r"\bdouble\b", p) and "*" not in p else 1 for p in dc[1].split(","))      # a double argument is two dwords
     elif sg and sg[0] != "unknown": n = sg[1]
     elif stack: n = len(stack)
     elif pop: n = pop // 4

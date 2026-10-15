@@ -282,7 +282,7 @@ def lint(path, n):
     t = open(path, errors="replace").read(); out = []
     for f in defectlint.Lint(os.path.relpath(path, G), t, _LINT[0]).run(): out.append("defectlint class %s %s line %s: %s" % (f["cls"], f["sev"], f["line"], f.get("note") or f.get("text")))
     for k, fn, ln in cheatgrep.scan(path):
-        if k == "asm" and fn.endswith("_r"): continue      # bridgegen F_r call adapters (naked, generated)
+        if k == "asm" and (fn.endswith("_r") or re.search(r"__declspec\(naked\) .*\b\w+_r\(", "\n".join(t.split("\n")[max(0, ln - 12):ln]))): continue      # bridgegen F_r call adapters (naked, generated; static ones are not seen as functions by rawaddr: fn is empty)
         out.append("cheatgrep %s line %d in %s" % (k, ln, fn or "-"))
     return out
 
@@ -437,7 +437,7 @@ def main():
     for n, src in ok2:
         if n in res: continue
         probs = lint(src, n); body = open(src, errors="replace").read()
-        rc = [c for c in set(re.findall(r"\b(\w+) ?\(", body)) if c in rg and c != n]
+        rc = [c for c in set(re.findall(r"\b(\w+) ?\(", re.sub(r"^extern void \w+\(void\);$", "", body, flags=re.M))) if c in rg and c != n]      # the F_r adapters' own `extern void F(void);` is no plain call
         if rc: probs.append("register callee called plain: " + ",".join("%s@%s regs %s" % (c, rg[c][0], rg[c][1]) for c in rc))
         if probs: put(n, "lint", "LINT", "\n".join(probs), "cheat" if probs[0].startswith("cheatgrep") else "lint", src); continue
         passed.append((n, src))

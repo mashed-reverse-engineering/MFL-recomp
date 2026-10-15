@@ -146,6 +146,8 @@ if PLAIN:
     _ad = sorted(a_ for a_, _ in _bl.values()); _nx = {a_: _ad[i_ + 1] if i_ + 1 < len(_ad) else a_ + 0x400 for i_, a_ in enumerate(_ad)}
     for _n in bg.adapter_ok(_bl, _sg, _ri, _man, _nx): ADAPT[_n] = bg.analyse(_n, _bl, _sg, _ri, _man, _nx)[0]
     if os.environ.get("AC_SYNTH", "1") == "1": ADAPT.update({n_: f_ for n_, f_ in bg.synth_adapters(_bl, _ri, {})[0].items() if n_ not in ADAPT})      # register callees without a decompiled signature: F_r from regsigs.csv (as usercall_adapters.py)
+    for _n, _f in ADAPT.items():      # the decompiled prototype says `void` for a register callee whose result travels in eax and a caller uses (`iVar1 = f(x)`): the naked F_r leaves eax alone, so `int` is free
+        if _f["ret"] == "void": ADAPT[_n] = dict(_f, ret="int")      # a caller may use the value (`v = f(x)`: eax after the call; ret_regs does not always list it): the naked F_r returns whatever eax the callee left, `int` costs nothing
     NOADAPT = {c_ for c_, (r_, _) in _ri.items() if r_.strip("|") and c_ not in ADAPT}      # register callees without adapter: their callers stay out
 ONLY = {l_.split()[0] for l_ in open(os.environ["AC_ONLY"]) if l_.strip()} if os.environ.get("AC_ONLY") else None      # AC_ONLY=<file with function names>: compile just these (subset runs, tools/tier2_census.py reruns)
 funcs, funcs_all = [], []
@@ -162,7 +164,7 @@ for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", tex
     if PLAIN and called_ & NOADAPT: continue
     if (ONLY is None or n in ONLY) and n not in have and n not in regin and not unsafe and int(lo, 16) <= a <= int(hi, 16) and not (rf_ - allow_) and "LAB_" not in body:
         if X87: body = re.sub(r"\b(fsin|fcos|fpatan|ABS)\(", lambda m_: X87_NAME[m_.group(1)] + "(", body)      # before fix_body: `x87_sin(x); v = _ftol();` becomes `v = (int)x87_sin(x);`
-        if PLAIN: body = re.sub(r"\b(%s)\(" % "|".join(map(re.escape, called_ & set(ADAPT))), r"\1_r(", body) if called_ & set(ADAPT) else body
+        if PLAIN: body = re.sub(r"\b(%s)(\s*)\(" % "|".join(map(re.escape, called_ & set(ADAPT))), r"\1_r\2(", body)      # the decompiler may break the line between name and `(` if called_ & set(ADAPT) else body
         funcs.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
 
 

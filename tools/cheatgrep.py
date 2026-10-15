@@ -25,11 +25,22 @@ def allow():
                 if len(q) < 2: sys.exit("cheat_allow.txt: '%s' has no reason" % q[0])
                 a[q[0]] = q[1].strip()
     return a
+def adapter_spans(m):
+    sp = []
+    for x in re.finditer(r"(?:static\s+)?__declspec\s*\(\s*naked\s*\)[^{;]*?\b\w+_r\s*\([^)]*\)\s*\{", m):
+        d, i = 1, x.end()
+        while i < len(m) and d:
+            d += (m[i] == "{") - (m[i] == "}"); i += 1
+        sp.append((x.start(), i))
+    return sp
 def scan(path):
     t = open(path, errors="surrogateescape").read(); m = rawaddr.mask(t); fs = rawaddr.functions(m); out = []
     def fn(pos): return next((f[0] for f in fs if f[1] <= pos < f[2]), "")
+    ad = adapter_spans(m)      # generated call adapters for register-input callees (`static __declspec(naked) ... F_r(...)`, the register-callee route): their __asm is by design, not a cheat
     for k, rx in PAT:
-        for x in rx.finditer(m): out.append((k, fn(x.start()), m[:x.start()].count("\n") + 1))
+        for x in rx.finditer(m):
+            if k == "asm" and any(a <= x.start() < b for a, b in ad): continue
+            out.append((k, fn(x.start()), m[:x.start()].count("\n") + 1))
     for x in re.finditer(r"\bvolatile\b", m):
         if fn(x.start()): out.append(("volatile", fn(x.start()), m[:x.start()].count("\n") + 1))
     for x in ARR.finditer(m):
