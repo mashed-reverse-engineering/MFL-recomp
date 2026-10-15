@@ -1,0 +1,396 @@
+# file, symbol, VA, flags, status   (checked with ghidra/tools/cmpfn.py)
+misc_np.c vec3_multiply_components 405ab0 /O2 MATCH
+misc_np.c degrees_to_radians 484760 /O2 MATCH
+misc_np.c dot_product_2d_clamped 482030 /O2 MATCH
+(none) dot_product_3d_clamped 482070 /O2 DIFFERENT original adds a1*b1 + a0*b0 first, then a2*b2; six operand orders tried, cl always loads a2 first or in another order
+car_np.c car_get_velocity 47b6e0 /O2
+car_np.c car_set_mode 47ac60 /O2
+car_np.c car_get_controls_disabled 47a7f0 /O2
+car_np.c car_set_controls_disabled 47a810 /O2
+car_np.c car_get_field_b10 47a750 /O2
+car_np.c car_add_field_b10 47a780 /O2
+car_np.c car_get_field_bf8 47a7b0 /O2
+car_np.c car_get_field_bf4 47a7d0 /O2
+car_np.c car_set_field_8 47bc80 /O2
+car_np.c car_get_field_8 47bc60 /O2
+car_np.c car_set_field_154 47be10 /O2
+car_np.c car_get_field_b0c 47b720 /O2
+car_np.c car_get_field_af4 47a340 /O2
+system_np.c gamesave_request_load_slot1 40ae30 /O2
+system_np.c gamesave_request_format 40ae50 /O2
+system_np.c gamesave_request_save_a 40aeb0 /O2
+system_np.c gamesave_request_save_b 40aed0 /O2
+system_np.c gamesave_request_delete 40aef0 /O2
+render_np.c scene_object_select_clear 406270 /O2
+career_np.c career_event_won_set_course_state 42fb20 /O2
+player_np.c player_record_get_8d8ca8 408e80 /O2
+ui_np.c menu_powerup_set_for_event 4353c0 /O2
+(none) menu_markers_enabled_for_event 4353e0 /O2 DIFFERENT near match, only add eax,-18 vs sub eax,0x12 encoding differs (game_globals.c)
+ui_np.c menu_page_for_game_mode 42fb80 /O2
+car_np.c car_wheel_get_field_3c 47a3c0 /O2
+car_np.c car_wheel_get_field_88_a 47b360 /O2
+car_np.c car_wheel_get_field_88_b 47b3a0 /O2
+car_np.c car_wheel_get_field_30 47b3e0 /O2
+car_np.c car_get_vec3_9c8 47b780 /O2
+car_np.c car_set_wheel_contact 47a470 /O2
+course_np.c course_banner_state_clear 42e940 /O2
+race_np.c intro_banner_set_active 42e960 /O2
+misc_np.c language_offset_store 42ba10 /O2
+weapons_np.c weapon_slot_6a5d24_get 460360 /O2
+weapons_np.c rocket_slot_6a6000_get 461620 /O2
+course_np.c course_event_icon_lookup_a 42fb40 /O2
+course_np.c course_event_icon_lookup_b 42fbb0 /O2
+(none) triangle_normal_cross 487ee0 /O2 DIFFERENT gfx_misc.c: same instruction mix, but the original keeps three stack temporaries (sub esp,0xc) and a different evaluation order; RwV3dNormalize must be declared returning float
+(none) matrix_is_valid_small 482220 /O2 DIFFERENT gfx_misc.c: the original puts the shared 'return 0' block right after the first test and later tests jump back to it; nested ifs, early returns and && all give forward jumps
+render_np.c gfx_set_params_6c5188 486890 /O2
+render_np.c gfx_set_vec3_6f2aa8 48a660 /O2
+ai_np.c ai_grid_cell_lookup 41a020 /O2
+system_np.c gamesave_exists 405e20 /O2
+effects_np.c fx_objects_all_exploded 406cf0 /O2
+race_np.c intro_banner_get_flag 40f710 /O2
+race_np.c intro_banner_get_value 40f7e0 /O2
+race_np.c race_setup_slot_used 40fe20 /O2
+race_np.c race_setup_set_slot_type 40ff40 /O2
+effects_np.c trail_get_value 4146a0 /O2
+misc_np.c noise_lookup 4166b0 /O2
+course_np.c course_select 421aa0 /O2
+vehicle_np.c vehicle_is_active 422070 /O2
+vehicle_np.c vehicle_get_object_field_80 422050 /O2
+vehicle_np.c vehicle_part_frame 422280 /O2
+keep_game_misc.c attract_timer_reset 403860 /O2
+geometry_np.c line_exceptions_clear 40ac10 /O2
+ui_np.c btb_panel_slot_set_value 41d630 /O2
+ui_np.c btb_panel_slot_set_visible 41d930 /O2
+misc_np.c endpoint_panel_clear 420990 /O2
+(none) car_damage_sum_front_back 423f80 /O2 DIFFERENT game_misc2.c: orig loads the first float with fld [eax*8+A] and reaches the second through lea eax,[eax*8+B] + fadd [eax+4]; cl keeps one shl eax,3
+car_np.c car_damage_get_front 423fa0 /O2
+car_np.c car_damage_get_back 423fc0 /O2
+(none) damage_add_clamped 423fe0 /O2 DIFFERENT original is a register convention with a plain ret (caller pops the stack float), not reproducible without whole-program optimisation
+player_np.c player_distance_get 44c180 /O2
+geometry_np.c spatial_grid_clear 474910 /O2
+geometry_np.c spatial_grid_get 474ac0 /O2
+geometry_np.c spatial_grid_set 474ba0 /O2
+(none) array_find_index 468450 /O2 DIFFERENT game_misc2.c: only the register assignment order differs (ecx=array loaded before esi=key)
+misc_np.c event_type_is_race_basic 434bc0 /O2
+system_np.c message_close 4316f0 /O2
+ui_np.c menu_reset_scroll 42fcb0 /O2
+vehicle_np.c vehicle_slot_set 429c20 /O2
+misc_np.c split_sectors_reset 42b1e0 /O2
+(none) course_get_record_point 42b210 /O2 DIFFERENT game_misc2.c: same lea count, different association of the constant (orig lea eax,[ecx+edx*4+0x681840])
+player_np.c player_add_wins 40c9c0 /O2
+vehicle_np.c vehicle_set_active 421e20 /O2
+vehicle_np.c vehicle_set_field_198 421fe0 /O2
+vehicle_np.c vehicle_set_flag_400 422010 /O2
+vehicle_np.c vehicle_get_flags_10 422150 /O2
+vehicle_np.c vehicle_get_flag_400 422190 /O2
+vehicle_np.c vehicle_get_float_184 4221c0 /O2
+vehicle_np.c vehicle_get_frame_16c 422380 /O2
+vehicle_np.c vehicle_get_field_18c 4223e0 /O2
+vehicle_np.c vehicle_get_active_flag 422400 /O2
+vehicle_np.c vehicle_set_scale 423210 /O2
+player_np.c player_stat_get_crowns 4276b0 /O2
+player_np.c player_stat_get_pants 4276d0 /O2
+player_np.c player_stat_get_crowns_total 4276f0 /O2
+player_np.c player_stat_get_pants_total 427710 /O2
+race_np.c round_points_clamp_to_limits 40cfa0 /O2
+player_np.c players_have_zero_points 40cf10 /O2
+(none) round_scores_reset 40c7e0 /O2 DIFFERENT round_stats.c: orig stores b60,b64,b68 via eax, b80,b84,b88 via ecx (mov ecx,eax), then b6c,b8c via eax; plain, chained and array forms all use eax only
+player_np.c player_get_stat 40cd50 /O2
+weapons_np.c weapon_flashbang_is_finished 4603c0 /O2
+weapons_np.c weapon_flashbang_ammo_fraction 460400 /O2
+weapons_np.c weapon_machinegun_is_finished 4622c0 /O2
+weapons_np.c weapon_machinegun_ammo_fraction 462330 /O2
+weapons_np.c weapon_drum_is_finished 463710 /O2
+weapons_np.c weapon_drum_unequip 463730 /O2
+weapons_np.c weapon_flashbang_unequip 4603e0 /O2
+weapons_np.c weapon_shotgun_unequip 467110 /O2
+weapons_np.c weapon_shotgun_is_finished 4670e0 /O2
+weapons_np.c powerup_set_respawn_time 464dd0 /O2
+(none) powerup_set_enabled 464d50 /O2 DIFFERENT weapons.c: orig tests index with test eax,eax and stores the float zeros as immediates; cl hoists xor ecx,ecx for both the compare and the stores
+ui_np.c ui_set_triple 4364c0 /O2
+car_np.c car_get_field_b00 47a380 /O2
+car_np.c car_get_bounds_point 479ae0 /O2
+player_np.c player_slots_count_active 436520 /O2
+ui_np.c menu_is_page_13_selected_1 437e80 /O2
+ui_np.c ui_menu_reset 431710 /O2
+effects_np.c trail_set_param 4162f0 /O2
+effects_np.c trail_reset 4165a0 /O2
+render_np.c camera_records_clear 44ba50 /O2
+(none) scene_object_select_set 406240 /O2 DIFFERENT misc3.c: orig stores timer (ecx=0), object (eax), param in that order; cl reorders
+(none) scene_object_select_is_active 4062a0 /O2 DIFFERENT misc3.c: branch layout of the float compare differs
+effects_np.c fx_find_index_by_rwp_id 408aa0 /O2
+race_np.c round_time_accumulate 40cc70 /O2
+race_np.c replay_best_get_split_time 413ad0 /O2
+misc_np.c current_course_id_with_mirror 413880 /O2
+keep_misc3.c cars_inactive_flags 40d000 /O2
+career_np.c career_event_slot_table 4169f0 /O2
+system_np.c gamesave_cb_load_state 40bfb0 /O2
+ui_np.c btb_panel_slot_set_position 41d580 /O2
+ui_np.c btb_panel_slot_set_scale 41d5d0 /O2
+(none) trail_get_triple 414760 /O2 DIFFERENT panels.c: orig materialises lea eax,[edx*4+base] once and loads through it; cl folds the base into each load
+misc_np.c hudpanel_render_all_slots 41bd90 /O2
+effects_np.c trail_clumps_call_update 4146c0 /O2
+batch4.c cup_find_entry 401eb0 /O2
+batch4.c cup_scene_render_with_overlay 402830 /O2
+batch4.c clump_from_geometry_a 402b90 /O2
+batch4.c clump_from_geometry_b 402ee0 /O2
+batch4.c attract_timer_init 403830 /O2
+batch4.c movie_texture_open 403f20 /O2
+batch4.c movie_texture_release 403f40 /O2
+batch4.c load_bomb_model 4042a0 /O2
+batch4.c atomic_clear_plugin_flag_1 405ca0 /O2
+batch4.c clump_clear_atomic_plugin_flag_1 405cd0 /O2
+batch4.c gamesave_load 405cf0 /O2
+batch4.c gamesave_write 405df0 /O2
+batch4.c object_set_pipeline_7c_forward 4065a0 /O2
+batch4.c fx_object_timer_subtract_by_id 406d40 /O2
+batch4.c fx_render_all 407590 /O2
+batch4.c fx_object_get_rwp_id 4089e0 /O2
+(none) fx_object_get_sphere 408a10 /O2 DIFFERENT batch4.c: orig copies the position through edi/esi with the out pointer duplicated in esi; cl keeps one pointer
+batch4.c fx_object_get_position 408a60 /O2
+batch4.c fx_object_get_matrix_ptr 408a80 /O2
+batch4.c player_record_get_value 408e60 /O2
+batch4.c player_record_get_8d8ca0 408ea0 /O2
+course.c course_token_list_contains 408fd0 /O2 DIFFERENT register allocation / operand order only
+course.c course_token_list_count_entries 4091d0 /O2 DIFFERENT register allocation / operand order only
+course.c course_token_list_entry_start 40a8a0 /O2 DIFFERENT register allocation / operand order only
+system.c loading_start_log 40ae80 /O2
+system.c autosave_request 40af20 /O2
+system.c gamesave_ui_load_done 40af70 /O2
+system.c gamesave_ui_save_done 40afa0 /O2
+system.c gamesave_ui_autosave_done 40afc0 /O2
+system.c gamesave_ui_format_done 40afe0 /O2
+keep_batch5.c ktc_add_pickup 406b90 /O2 DIFFERENT register allocation / operand order only
+effects.c fx_arm_weapon_slots 407db0 /O2 DIFFERENT register allocation / operand order only
+player.c player_route_get_record_ptr 409f50 /O2
+player.c player_records_clear_all 408ec0 /O2
+keep_batch5.c crown_render 404fc0 /O2
+race.c race_setup_get_course 40e680 /O2
+race.c race_setup_get_slot_type 40ff20 /O2
+keep_race_flow.c race_get_last_active_player 40ff70 /O2 DIFFERENT compare operand forms / register allocation (behaviour checked by regress.sh)
+race.c round_find_winner 40ffc0 /O2 DIFFERENT compare operand forms / register allocation (behaviour checked by regress.sh)
+race.c race_begin_countdown 410020 /O2
+race.c race_set_phase 40fdd0 /O2 MATCH
+race.c race_finish 410060 /O2
+race.c race_get_course_id 410090 /O2
+course.c course_load_time_report 410dc0 /O2
+race.c race_phase_9_update 412d10 /O2
+race.c race_restart 412d60 /O2
+race.c race_phase_6_update 413680 /O2
+race.c replay_free_buffers 413a30 /O2
+race.c replay_get_split_time 413a80 /O2
+race.c replay_current_get_split_time 413b10 /O2
+race.c replay_records_reset 413cb0 /O2 DIFFERENT compare operand forms / register allocation (behaviour checked by regress.sh)
+race.c race_cup_scene_update_players_if_event 40f6a0 /O2 DIFFERENT compare operand forms / register allocation (behaviour checked by regress.sh)
+race.c race_phase_5_6_render_by_event 40f940 /O2 DIFFERENT compare operand forms / register allocation (behaviour checked by regress.sh)
+course.c course_token_list_skip_to_entry 40a8d0 /O2 DIFFERENT register allocation (cl keeps the walking pointer in edi, original in eax)
+geometry.c line_exceptions_resolve_index 409210 /O2 DIFFERENT register allocation / compare operand forms
+ai.c ai_bot_set_timer_30000 4183b0 /O2 MATCH
+ai.c ai_bot_set_field_24 418db0 /O2 MATCH
+ai.c ai_bot_clear_flag_20 41a000 /O2 MATCH
+ui.c btb_panel_render_all 41d9e0 /O2 MATCH
+ui.c btb_panel_set_visible_all 41da30 /O2 MATCH
+race.c race_event_has_panel 4146f0 /O2 DIFFERENT jump table layout (original has no index byte table)
+vehicle.c vehicle_get_position_148 4220c0 /O2 MATCH
+vehicle.c vehicle_get_position_158 4220f0 /O2 MATCH
+vehicle.c vehicle_get_matrix_body 422120 /O2 DIFFERENT register allocation (edx instead of eax for the frame pointer)
+vehicle.c vehicle_part_matrix 4222a0 /O2 DIFFERENT register allocation
+vehicle.c vehicle_get_matrix_ltm_b 4222e0 /O2 MATCH
+vehicle.c vehicle_get_matrix_local 422320 /O2 MATCH
+vehicle.c vehicle_part_ltm 422350 /O2 DIFFERENT register allocation
+vehicle.c vehicle_part_id_has_damage_model 422440 /O2 MATCH
+car.c car_damage_smoke_reset 4241b0 /O2 MATCH
+race.c time_clear_current 42e9e0 /O2 MATCH
+ui.c ui_clear_cbe8 431a30 /O2 MATCH
+system.c controllers_count_present 431a50 /O2 MATCH
+system.c message_show_controller_missing 431ae0 /O2 MATCH
+system.c frontend_world_destroy 431b00 /O2 MATCH
+ui.c menu_is_page_13_selected_2 437eb0 /O2 MATCH
+system.c message_is_controller_missing_shown 437ee0 /O2 MATCH
+misc.c screen_shake_add 437f60 /O2 MATCH
+course.c course_dem_state_reset 452ea0 /O2 MATCH
+career.c career_record_ptr 4357e0 /O2 MATCH
+keep_batch9.c menu_set_car_8c7460_and_reset 44c560 /O2 MATCH
+ui.c menu_table_clear_a 432d20 /O2 DIFFERENT loop base register is &selected instead of &page_id (same stores)
+keep_batch10.c course_get_car_body_position 455750 /O2 MATCH
+course.c course_object_is_inactive 459130 /O2 MATCH
+course.c course_race_phase_hook 4584c0 /O2 MATCH
+course.c course_tierra_n_rotating_object_update 4577c0 /O2 MATCH
+course.c course_set_lod 459090 /O2 MATCH
+course.c course_object_get_position 459100 /O2 MATCH
+weapons.c weapon_rocket_is_finished 460ca0 /O2 MATCH
+car.c car_deactivate 47a640 /O2 MATCH
+car.c car_is_active 47a830 /O2 MATCH
+car.c car_get_mode 47ac30 /O2 MATCH
+car.c car_get_speed 47b750 /O2 MATCH
+car.c car_set_field_144 47b7c0 /O2 MATCH
+ui.c hud_labels_clear 47fe10 /O2 MATCH
+ui.c hud_label_find_free 47fed0 /O2 MATCH
+course.c course_object_pair_add 474340 /O2 MATCH
+geometry.c get_viewport_camera 475730 /O2 MATCH
+render.c aux_camera_get_position 475760 /O2 MATCH
+geometry.c get_viewport_camera_matrix 4757a0 /O2 MATCH
+render.c aux_camera_get_matrix 475860 /O2 MATCH
+car.c car_current_matrix 47b520 /O2 MATCH
+render.c atomic_plugin_set_flags 4817d0 /O2 MATCH
+render.c gfx_frame_counters_rotate 480e50 /O2 MATCH
+ui.c text_page_reset_line 480130 /O2 MATCH
+player.c player_marker_get_colour 481e80 /O2 MATCH
+player.c player_marker_set_clump 481ea0 /O2 MATCH
+render.c atomic_plugin_set_radius_squared 481790 /O2 MATCH
+render.c object_set_pipeline_6c 481a60 /O2 DIFFERENT register allocation (eax/ecx swapped)
+render.c object_set_pipeline_7c 481a80 /O2 DIFFERENT register allocation (eax/ecx swapped)
+render.c object_set_pipeline_08 481aa0 /O2 DIFFERENT register allocation (eax/ecx swapped)
+render.c material_plugin_construct 481b70 /O2 DIFFERENT register allocation (ecx/eax swapped)
+ui.c text_page_next 480150 /O2 MATCH
+render.c gfx_set_fx_matrix 486860 /O2 MATCH
+render.c gfx_set_params_6c5124 4868d0 /O2 MATCH
+geometry.c random_int_range 482010 /O2 MATCH
+effects.c particles_set_position 4867f0 /O2 DIFFERENT load/store scheduling of the 3 copied words
+effects.c particles_set_size 486820 /O2 DIFFERENT load/store scheduling
+effects.c particles_set_color 486840 /O2 DIFFERENT default pointer kept in a register
+render.c object_set_flag_4 484680 /O2 DIFFERENT register allocation (byte ops through movzx in the original)
+render.c material_flag_4_set 484630 /O2 DIFFERENT register allocation
+effects.c effect_pool_set_field_14 487e80 /O2 MATCH
+effects.c effect_pool_set_field_1c 487ea0 /O2 MATCH
+render.c table_clear_eb8 488d60 /O2 MATCH
+render.c table_clear_328f 488d70 /O2 MATCH
+physics.c rwp_object_set_radius_squared 48e390 /O2 MATCH
+physics.c rwp_object_set_user_data 48e3b0 /O2 MATCH
+physics.c rwp_object_get_user_data 48e3d0 /O2 MATCH
+physics.c rwp_object_get_id 48e3f0 /O2 MATCH
+physics.c rwp_object_find_index_by_id 48e410 /O2 MATCH
+physics.c rwp_object_get_type 48e450 /O2 MATCH
+physics.c rwp_object_set_flag 48e6c0 /O2 MATCH
+physics.c rwp_object_get_handle 48e6d0 /O2 DIFFERENT block order (original puts the table load after the return 0)
+lua.c lua_Lap_Line_End 48bc60 /O2 MATCH
+lua.c lua_Lap_Line_Change 48bc80 /O2 MATCH
+lua.c lua_init 48ce30 /O2 MATCH
+keep_batch15.c lua_Place_Powerup 48c6e0 /O2 MATCH
+render.c viewport_get_field_702254 495c10 /O2 MATCH
+render.c viewport_get_camera 495c30 /O2 MATCH
+render.c world_sector_list_clear 495e10 /O2 MATCH
+misc.c triggers_get_array 4967d0 /O2 MATCH
+physics.c physics_buffer_destroy 495590 /O2 MATCH
+physics.c rw_free_with_inner_buffer 495c90 /O2 MATCH
+physics.c smplfzx_get_object 496ea0 /O2 MATCH
+render.c atomic_bbox_calculate_from_geometry 496fc0 /O2 MATCH
+render.c pool_stack_pop_index 497750 /O2 DIFFERENT register allocation (pool in eax, index in ecx in the original)
+effects.c fx_pool_destroy 4978b0 /O2 MATCH
+effects.c fx_atomics_render 4982b0 /O2 MATCH
+effects.c fx_slot_release 49a980 /O2 MATCH
+effects.c fx_slot_set_field_b8 49af00 /O2 MATCH
+effects.c fx_particles_destroy_two 498e20 /O2 MATCH
+keep_batch17.c fx_particles_render_two 499a40 /O2 MATCH
+effects.c fx_render 498330 /O2 MATCH
+keep_batch17.c fx_render_additive_overlay 4982d0 /O2 MATCH
+keep_batch18.c trail_particles_render 4165d0 /O2 MATCH
+keep_batch18.c car_damage_smoke_render 424690 /O2 MATCH
+course.c course_storm_cb10 4589b0 /O2 MATCH
+course.c course_sandsnow_cb10 4585f0 /O2 MATCH
+effects.c fx_ptank_render_a 49b6b0 /O2 MATCH
+effects.c ptank_atomic_render 48e300 /O2 MATCH
+keep_batch19.c vehicle_particles_render 421ca0 /O2 MATCH
+course.c course_neustein_cb10 4556f0 /O2 MATCH
+course.c course_objects_render 4577e0 /O2 MATCH
+keep_batch19.c weapon_particles_render 463270 /O2 MATCH
+effects.c fx_system_render_no_zwrite 49c0f0 /O2 MATCH
+course.c course_warzone_cb10 45e000 /O2 MATCH
+keep_batch19.c particles_render_all_no_zwrite 485900 /O2 DIFFERENT lea vs add for the particle block address
+keep_batch20.c course_superg_cb2 45c0e0 /O2 MATCH
+keep_batch20.c clumps_render_all_886024 4a0370 /O2 MATCH
+keep_batch20.c rain_render 4a07d0 /O2 MATCH
+keep_batch20.c course_arctic_cb2 452a20 /O2 MATCH
+keep_batch20.c weapon_slots_render_all 465f80 /O2 DIFFERENT loop pointer register allocation
+effects.c fx_systems_render 498d70 /O2 DIFFERENT loop pointer register allocation
+weapons.c weapon_effect_get_slot_record 465f60 /O2 MATCH
+weapons.c weapon_flamethrower_is_finished 466710 /O2 MATCH
+weapons.c weapon_shotgun_free_assets 467150 /O2 MATCH
+weapons.c weapon_shotgun_fire 467570 /O2 MATCH
+player.c player_status_set 467890 /O2 MATCH
+player.c player_get_weapon_id 4678b0 /O2 MATCH
+player.c player_has_no_weapon 467eb0 /O2 MATCH
+audio.c voice_queue_slot_release 4687c0 /O2 MATCH
+audio.c voice_queue_slots_clear 4687d0 /O2 MATCH
+audio.c voice_queue_slot_alloc 468790 /O2 MATCH
+keep_batch22.c car_is_playable 468a20 /O2 MATCH
+audio.c sound_music_for_menu_page 46e570 /O2 MATCH
+course.c course_object_lists_reset 4741f0 /O2 MATCH
+course.c course_objects_render_all 474850 /O2 MATCH
+car.c car_wheel_contact_find_index 477130 /O2 MATCH
+player.c players_same_team_state 468a60 /O2 DIFFERENT block order of the early false return
+audio.c sound_allowed_for_pair 468a90 /O2 DIFFERENT compare operand forms
+ui.c wstring_length_skip 480020 /O2 DIFFERENT register allocation
+ui.c wstring_from_bytes 47fad0 /O2 DIFFERENT register allocation of the copy counter
+effects.c fx_style_init_a 49f440 /O2 MATCH
+effects.c fx_style_init_b 49f470 /O2 MATCH
+effects.c fx_style_init_c 49f4a0 /O2 MATCH
+effects.c fx_style_init_d 49f4d0 /O2 MATCH
+effects.c fx_style_init_e 49f590 /O2 MATCH
+effects.c fx_style_init_f 49f5d0 /O2 MATCH
+effects.c fx_style_init_g 49f600 /O2 MATCH
+effects.c fx_style_init_h 49f640 /O2 MATCH
+effects.c fx_style_init_i 49f680 /O2 MATCH
+ui.c ui_colour_a_set 4a04e0 /O2 MATCH
+ui.c ui_colour_b_set 4a0510 /O2 MATCH
+lua.c lua_RainSetPosition_impl 4a0540 /O2 MATCH
+lua.c lua_RainSetScale_impl 4a0580 /O2 MATCH
+lua.c lua_RainSetCameraScale_impl 4a05a0 /O2 MATCH
+lua.c lua_RainSetDirection_impl 4a05c0 /O2 MATCH
+effects.c fx_clumps_destroy 49feb0 /O2 MATCH
+render.c materials_clear_textures_88602c 49fee0 /O2 MATCH
+effects.c fx_clump_slots_clear 4a03b0 /O2 MATCH
+effects.c fx_ptank_buffers_destroy 4a1490 /O2 MATCH
+effects.c fx_ptank_render 4a14d0 /O2 MATCH
+effects.c rain_slots_clear 4a0ef0 /O2 DIFFERENT SIB byte order only ([ecx+eax] vs [eax+ecx])
+geometry.c find_texture_dict_b 40d0d0 /O2 MATCH
+geometry.c find_texture_dict_c 40d0f0 /O2 MATCH
+geometry.c find_texture_dict_d 40d110 /O2 MATCH
+geometry.c find_texture_a 40d130 /O2 MATCH
+system.c gamesave_message_show_pending 40b050 /O2 MATCH
+render.c atomic_set_envmap 40d0b0 /O2 MATCH
+race.c replay_buffer_free 413a10 /O2 MATCH
+keep_batch25.c camera_restore 40f900 /O2 MATCH
+vehicle.c vehicle_prepare_clear_660568 425ce0 /O2 MATCH
+vehicle.c vehicle_render_state_set_6614e4 4265c0 /O2 MATCH
+vehicle.c vehicle_render_state_set_6614e8 426610 /O2 MATCH
+vehicle.c vehicle_render_state_set_colour 4265e0 /O2 MATCH
+player.c player_stats_clear_a 426630 /O2 MATCH
+player.c player_stats_clear_b 426650 /O2 MATCH
+player.c player_get_last_hit_by 427690 /O2 MATCH
+course.c course_camera_add_to_collision_world 42ab20 /O2 MATCH
+course.c course_camera_remove_from_collision_world 42ab60 /O2 MATCH
+course.c course_get_lap_line 42b0e0 /O2 MATCH
+keep_batch26.c bbox_init 425dc0 /O2 MATCH
+ai.c ai_clear 4271a0 /O2 MATCH
+course.c course_get_object_record 42a150 /O2 MATCH
+course.c course_destroy_extra_clumps 42a110 /O2 MATCH
+course.c course_sky_atomic_destroy 44a020 /O2 MATCH
+render.c camera_hud_update 44c5a0 /O2 MATCH
+render.c camera_frame_ui 451c80 /O2 MATCH
+course.c course_atomics_destroy_6a07c4 4535a0 /O2 MATCH
+course.c course_keys_cb5 454300 /O2 MATCH
+course.c course_nt1_s_cb5 454440 /O2 MATCH
+course.c course_sandsnow_cb5 458610 /O2 MATCH
+course.c course_neustein_cb5 455710 /O2 MATCH
+course.c course_rouabout_cb3 458c90 /O2 MATCH
+keep_batch27.c camera_records_warmup 451c50 /O2 MATCH
+keep_batch27.c viewport_camera_sync_to_main 452b90 /O2 DIFFERENT stack cleanup after the first call (add esp,4) is scheduled differently
+course.c course_atomics_destroy_3 45c790 /O2 MATCH
+course.c course_atomics_flags_clear 45c7c0 /O2 MATCH
+course.c course_atomics_render_3 45c7f0 /O2 MATCH
+course.c course_effect_destroy 45d890 /O2 MATCH
+keep_batch28.c course_clump_render_with_physics 45d560 /O2 MATCH
+course.c course_warzone_cb7 45dee0 /O2 MATCH
+ui_np.c menu_item_y_position 42fe50 /O2 MATCH
+system.c game_set_option_flags 4a1860 /O2 MATCH
+system.c app_get_two_size_pairs 4a34b0 /O2 MATCH
+system.c input_player_rumble_set 4a16e0 /O2 MATCH
+effects.c rain_buffers_alloc_once 4a0aa0 /O2 MATCH
+lua.c lua_RainEnable 4a0ac0 /O2 MATCH
+system.c app_enter_frontend 4a29a0 /O2 MATCH
+keep_batch24.c rain_buffers_init_colours 4a0600 /O2 MATCH
+system.c dinput_release_object 4a46d0 /O2 DIFFERENT stack cleanup of the first call merged into the later add esp
+course.c course_object_render_6a1f28_b 4558d0 /O2 MATCH
+course.c course_object_destroy_frames_6a1f28 4558e0 /O2 MATCH
+course.c course_tierra_n_cb10 458de0 /O2 MATCH

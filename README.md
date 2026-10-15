@@ -22,10 +22,11 @@ Progress numbers will appear here once the first source drop is published.
 | `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by the scripts below. |
 | `scripts/` | Ghidra headless scripts (`RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`, ...). |
 | `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
+| `src/` | Recompiled game code in C: one file per module, `manifest.txt` lists every function with its address and verification status. 42 of 49 files pass `gcc -m32 -fsyntax-only`; the others use MSVC inline `__asm`. |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
 | `docs/` | Building, naming workflow, toolchain, legal note. |
 
-The recompiled source (`src/`) and a progress dashboard follow in later commits.
+A progress dashboard follows in a later commit.
 
 ## Naming data
 
