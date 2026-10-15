@@ -12,14 +12,28 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 ## Progress
 
 <!-- progress:start -->
-| | Functions | Share |
-|---|---:|---:|
-| Application functions (VA < 0x4B0000) | 2557 | |
-| ...with a real (non auto) name | 2459 | 96% |
-| Hand-written C in `src/` (this repository) | 381 | 15% |
-| ...byte identical to the original (`MATCH`) | 343 | |
-| Replaced by recompiled C in the whole pipeline (all tiers, not yet published) | 1327 | 52% |
-| ...verified byte identical (relocations checked) | 877 | |
+**2,557 application functions** (VA < 0x4B0000, the rest is linked library code)
+
+| Stage | Functions | Progress |
+|---|---:|:---|
+| Named | 2,459 | `███████████████████░` 96% |
+| Replaced by recompiled C (all tiers) | 1,327 | `██████████░░░░░░░░░░` 52% |
+| ...verified byte identical | 877 | `███████░░░░░░░░░░░░░` 34% |
+| ...share of the code bytes | 97,836 B | `███░░░░░░░░░░░░░░░░░` 15% |
+| Published in `src/` | 381 | `███░░░░░░░░░░░░░░░░░` 15% |
+| ...byte identical (`MATCH`) | 343 | `███░░░░░░░░░░░░░░░░░` 13% |
+
+<details><summary>By tier (whole pipeline)</summary>
+
+| Tier | Functions | Code bytes | Verified byte identical |
+|---|---:|---:|---:|
+| agent | 135 | 8,703 | 135 |
+| bridge | 92 | 11,292 | 0 |
+| hand | 381 | 14,744 | 344 |
+| tier1 | 398 | 17,690 | 398 |
+| tier2 | 321 | 45,407 | 0 |
+
+</details>
 <!-- progress:end -->
 
 ## Contents
@@ -32,8 +46,6 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | `src/` | Recompiled game code in C: one file per module, `manifest.txt` lists every function with its address and verification status. 42 of 49 files pass `gcc -m32 -fsyntax-only`; the others use MSVC inline `__asm`. |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
 | `docs/` | Building, naming workflow, toolchain, legal note. |
-
-A progress dashboard follows in a later commit.
 
 ## Naming data
 

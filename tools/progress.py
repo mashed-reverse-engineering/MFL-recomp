@@ -37,18 +37,28 @@ def compute():
             "published_source": {"by_status": dict(man), "by_module": dict(sorted(by_mod.items()))},
             "replaced_in_pipeline": rep}
 
+def bar(n, d, w=20):
+    k = round(w * n / d) if d else 0
+    return "`%s%s` %.0f%%" % ("█" * k, "░" * (w - k), 100 * n / d if d else 0)
+
 def table(j):
     f, m = j["functions"], j["published_source"]["by_status"]
-    pub = sum(m.values()); rep = j["replaced_in_pipeline"]
-    out = ["| | Functions | Share |", "|---|---:|---:|",
-           "| Application functions (VA < 0x4B0000) | %d | |" % f["game"],
-           "| ...with a real (non auto) name | %d | %.0f%% |" % (f["game_named"], 100 * f["game_named"] / f["game"]),
-           "| Hand-written C in `src/` (this repository) | %d | %.0f%% |" % (pub, 100 * pub / f["game"]),
-           "| ...byte identical to the original (`MATCH`) | %d | |" % m.get("MATCH", 0)]
+    pub = sum(m.values()); rep = j["replaced_in_pipeline"]; g = f["game"]
+    out = ["**%s application functions** (VA < 0x4B0000, the rest is linked library code)\n" % format(g, ","),
+           "| Stage | Functions | Progress |", "|---|---:|:---|",
+           "| Named | %s | %s |" % (format(f["game_named"], ","), bar(f["game_named"], g))]
     if rep:
         tot = sum(t["functions"] for t in rep.values()); ver = sum(t["verified_bytes_identical"] for t in rep.values())
-        out += ["| Replaced by recompiled C in the whole pipeline (all tiers, not yet published) | %d | %.0f%% |" % (tot, 100 * tot / f["game"]),
-                "| ...verified byte identical (relocations checked) | %d | |" % ver]
+        rb = sum(t["bytes"] for t in rep.values())
+        out += ["| Replaced by recompiled C (all tiers) | %s | %s |" % (format(tot, ","), bar(tot, g)),
+                "| ...verified byte identical | %s | %s |" % (format(ver, ","), bar(ver, g)),
+                "| ...share of the code bytes | %s B | %s |" % (format(rb, ","), bar(rb, f["game_bytes"]))]
+    out.append("| Published in `src/` | %s | %s |" % (format(pub, ","), bar(pub, g)))
+    out.append("| ...byte identical (`MATCH`) | %s | %s |" % (format(m.get("MATCH", 0), ","), bar(m.get("MATCH", 0), g)))
+    if rep:
+        out += ["", "<details><summary>By tier (whole pipeline)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]
+        out += ["| %s | %d | %s | %d |" % (k, t["functions"], format(t["bytes"], ","), t["verified_bytes_identical"]) for k, t in rep.items()]
+        out.append("\n</details>")
     return "\n".join(out)
 
 def run(check, readme):
@@ -65,8 +75,9 @@ def run(check, readme):
 
 def self_test():
     assert AUTO.match("FUN_00401000") and AUTO.match("thunk_FUN_1") and not AUTO.match("car_update")
-    j = {"functions": {"game": 10, "game_named": 5}, "published_source": {"by_status": {"MATCH": 2, "NEAR": 1}}, "replaced_in_pipeline": {}}
-    assert "| 3 | 30% |" in table(j) and "| 2 | |" in table(j); print("self-test ok")
+    assert bar(5, 10) == "`" + "█" * 10 + "░" * 10 + "` 50%" and bar(0, 0).endswith("0%")
+    j = {"functions": {"game": 10, "game_named": 5, "game_bytes": 100}, "published_source": {"by_status": {"MATCH": 2, "NEAR": 1}}, "replaced_in_pipeline": {}}
+    assert "| 3 |" in table(j) and "30%" in table(j); print("self-test ok")
 
 if __name__ == "__main__":
     a = sys.argv[1:]
