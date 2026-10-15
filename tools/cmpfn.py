@@ -78,8 +78,9 @@ def _undecorate(n):      # as tools/overlay.py
 def _symtab():
     if not _SYMS:
         R = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src")
-        for f in ("symbols.txt", "aliases.txt"):
-            for l in open(os.path.join(R, f)):
+        ov = os.environ.get("T2_OVERLAY_DIR")      # tools/t2_auto.py run overlay: aliases of that run (read in addition to src/aliases.txt)
+        for f in ("symbols.txt", "aliases.txt") + (("@" + os.path.join(ov, "aliases.txt"),) if ov and os.path.exists(os.path.join(ov, "aliases.txt")) else ()):
+            for l in open(f[1:] if f[0] == "@" else os.path.join(R, f)):
                 p = l.split()
                 if len(p) == 2:
                     try: _SYMS.setdefault(p[0], set()).add(int(p[1], 16))

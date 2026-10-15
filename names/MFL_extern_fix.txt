@@ -33,3 +33,4 @@ extern char UNK_00453860[];
 extern char PTR_g_ai_data_tile_pool_32124__005dfdf4[];
 extern char PTR_g_data_6e0049_005e219c[];
 extern char PTR_g_data_720043_0064bed0[];
+extern char s_more_soundstuff_006179f0[];

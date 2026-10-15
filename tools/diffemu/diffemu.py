@@ -17,7 +17,9 @@ import core
 from core import ROOT, T, sha
 
 OUT = os.path.join(ROOT, "output")
-RESULTS, CACHE, DIFFDIR = (os.path.join(OUT, f) for f in ("diffemu_results.csv", "diffemu_cache.csv", "diffemu_diffs"))
+DOUT = os.environ.get("DIFFEMU_OUT") or OUT      # DIFFEMU_OUT=<dir>: results / cache / diffs of this process go there (tools/t2_auto.py runs); the object cache (~/.cache, content addressed) stays shared
+os.makedirs(DOUT, exist_ok=True)
+RESULTS, CACHE, DIFFDIR = (os.path.join(DOUT, f) for f in ("diffemu_results.csv", "diffemu_cache.csv", "diffemu_diffs"))
 OBJCACHE = os.environ.get("DIFFEMU_OBJ", os.path.expanduser("~/.cache/mfl_diffemu_obj"))
 FLAGS = ["/nologo", "/c", "/Gy", "/O2", "/Ob0"]      # as build_overlay.py plus /Ob0: a callee defined in the same chunk is called (hooked at its original address like every callee), not inlined; the original calls it, and the call trace must be comparable
 COLS = ["name", "va", "verdict", "cases", "coverage_orig", "coverage_ours", "note"]

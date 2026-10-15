@@ -3,7 +3,7 @@
 Idea from decomp.wtf (per-function brief + accumulated attempt notes): a later agent reads `show <fn>` first and does not repeat a failed lever; `tried <fn>` prints the number of attempts (agents stop after 4 without progress).
 outcome: MATCH | EQUAL | DIFF | NO | NOTE."""
 import os, sys, time
-D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "output", "attempts"); os.makedirs(D, exist_ok=True)
+D = os.environ.get("ATTEMPTS_DIR") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "output", "attempts"); os.makedirs(D, exist_ok=True)      # ATTEMPTS_DIR: tools/t2_auto.py run dir
 a = sys.argv[1:]
 if len(a) >= 3 and a[0] == "add":
     fn, out, note = a[1], a[2], " ".join(a[3:])

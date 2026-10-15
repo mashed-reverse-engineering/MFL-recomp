@@ -629,7 +629,7 @@ def files_of(args):
 
 
 def main():
-    a = sys.argv[1:]; ref = None; out_csv = os.path.join(G, "output", "defectlint.csv"); quiet = False
+    a = sys.argv[1:]; ref = None; out_csv = os.environ.get("DEFECTLINT_OUT") or os.path.join(G, "output", "defectlint.csv"); quiet = False
     if "--ref" in a: i = a.index("--ref"); ref = a[i + 1]; del a[i:i + 2]; out_csv = os.path.join(os.environ.get("TMPDIR", "/tmp/claude-%d" % os.getuid()), "defectlint_ref.csv")
     a_all = "--all" in a
     if a_all: a.remove("--all")

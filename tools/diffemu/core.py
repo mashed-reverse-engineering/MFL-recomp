@@ -98,7 +98,8 @@ class Tables:
                         try: s.structs[p[1]] = int(p[2], 0)
                         except ValueError: pass
         s.hash = sha(*[open(os.path.join(ROOT, "output", f), "rb").read() for f in ("regsigs.csv", "sigs.txt", "decls.h", "fnsizes.txt")],
-                     open(os.path.join(ROOT, "names", "MFL_import_protos.txt"), "rb").read(), open(os.path.join(ROOT, "names", "MFL_conv_fix.txt"), "rb").read(), *[open(os.path.join(ROOT, "output", f), "rb").read() for f in ("call_pushmin.txt", "cdecl_args.txt")], open(os.path.join(ROOT, "names", "MFL_lib_protos.txt"), "rb").read() if os.path.exists(os.path.join(ROOT, "names", "MFL_lib_protos.txt")) else b"", *[open(os.path.join(ROOT, "src", f), "rb").read() for f in ("symbols.txt", "aliases.txt")])
+                     open(os.path.join(ROOT, "names", "MFL_import_protos.txt"), "rb").read(), open(os.path.join(ROOT, "names", "MFL_conv_fix.txt"), "rb").read(), *[open(os.path.join(ROOT, "output", f), "rb").read() for f in ("call_pushmin.txt", "cdecl_args.txt")], open(os.path.join(ROOT, "names", "MFL_lib_protos.txt"), "rb").read() if os.path.exists(os.path.join(ROOT, "names", "MFL_lib_protos.txt")) else b"", *[open(os.path.join(ROOT, "src", f), "rb").read() for f in ("symbols.txt", "aliases.txt")],
+                     *[open(p, "rb").read() for p in [os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), "aliases.txt")] if os.path.exists(p)])
 
 _T = []
 def T():

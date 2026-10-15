@@ -49,7 +49,7 @@ if "callees" in FIX_RULES:
             if len(p_) >= 2 and not l_.startswith("#"): CALLEE_NAME["FUN_" + p_[0]] = p_[1]
     if os.path.exists(_pp):
         _pv = {}
-        for _pf in (_pp, os.path.join(HERE, "..", "names", "MFL_callee_protos_auto.txt")):      # the second: tools/callee_auto.py (t2_auto.py), exact-confidence only
+        for _pf in (_pp, os.path.join(HERE, "..", "names", "MFL_callee_protos_auto.txt"), os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), "MFL_callee_protos_auto.txt")):      # the third: the overlay of a t2_auto run      # the second: tools/callee_auto.py (t2_auto.py), exact-confidence only
           if not os.path.exists(_pf): continue
           for l_ in open(_pf):
             m_ = re.match(r"/\*([0-9a-f]{8})\*/ extern ", l_)
@@ -61,7 +61,9 @@ _CNRE = re.compile(r"\b(" + "|".join(sorted(CALLEE_NAME)) + r")\b") if CALLEE_NA
 
 EXTRA_DECL = []
 _xp = os.path.join(HERE, "..", "names", "MFL_extern_fix.txt")
-if "externs" in FIX_RULES and os.path.exists(_xp): EXTRA_DECL = [l_.rstrip("\n") for l_ in open(_xp) if l_.strip() and not l_.startswith("#")]
+if "externs" in FIX_RULES:
+    for _xf in (_xp, os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), "MFL_extern_fix.txt")):      # the second: the overlay of a t2_auto run
+        if os.path.exists(_xf): EXTRA_DECL += [l_.rstrip("\n") for l_ in open(_xf) if l_.strip() and not l_.startswith("#") and l_.rstrip("\n") not in EXTRA_DECL]
 # functions that pop their own arguments (`ret N`, tools/stdcall_scan.py) but are declared without __stdcall: the C would add `add esp,N` after the call
 STD = {}
 _sp = os.path.join(HERE, "..", "output", "stdcall.txt")
@@ -143,6 +145,7 @@ if PLAIN:
     _bl, _sg, _ri, _man = bg.load()
     _ad = sorted(a_ for a_, _ in _bl.values()); _nx = {a_: _ad[i_ + 1] if i_ + 1 < len(_ad) else a_ + 0x400 for i_, a_ in enumerate(_ad)}
     for _n in bg.adapter_ok(_bl, _sg, _ri, _man, _nx): ADAPT[_n] = bg.analyse(_n, _bl, _sg, _ri, _man, _nx)[0]
+    if os.environ.get("AC_SYNTH", "1") == "1": ADAPT.update({n_: f_ for n_, f_ in bg.synth_adapters(_bl, _ri, {})[0].items() if n_ not in ADAPT})      # register callees without a decompiled signature: F_r from regsigs.csv (as usercall_adapters.py)
     NOADAPT = {c_ for c_, (r_, _) in _ri.items() if r_.strip("|") and c_ not in ADAPT}      # register callees without adapter: their callers stay out
 ONLY = {l_.split()[0] for l_ in open(os.environ["AC_ONLY"]) if l_.strip()} if os.environ.get("AC_ONLY") else None      # AC_ONLY=<file with function names>: compile just these (subset runs, tools/tier2_census.py reruns)
 funcs, funcs_all = [], []

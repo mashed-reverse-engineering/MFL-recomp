@@ -13,13 +13,16 @@ for f in sys.argv[1:]:
         m = re.search(r"C2065 '(\w+)' : undeclared identifier", l)
         if m: want.setdefault(m.group(1), set()).add(l.split("\t")[0])
 sym = {}
-for f in ("symbols.txt", "aliases.txt"):
-    for l in open(P("src", f)):
+for f in [P("src", "symbols.txt"), P("src", "aliases.txt")] + ([os.path.join(os.environ["T2_OVERLAY_DIR"], "aliases.txt")] if os.environ.get("T2_OVERLAY_DIR") and os.path.exists(os.path.join(os.environ["T2_OVERLAY_DIR"], "aliases.txt")) else []):
+    for l in open(f):
         p = l.split()
         if len(p) == 2: sym[p[0]] = p[1]
 enums = {l.split(",")[1] for l in open(P("names", "MFL_enums.txt")) if l.startswith("enum,")}
-fixp = P("names", "MFL_extern_fix.txt")
+OV = os.environ.get("T2_OVERLAY_DIR")      # t2_auto run: new declarations / aliases go to <dir>/MFL_extern_fix.txt / aliases.txt (the shared files are only read)
+fixp = os.path.join(OV, "MFL_extern_fix.txt") if OV else P("names", "MFL_extern_fix.txt"); alp = os.path.join(OV, "aliases.txt") if OV else P("src", "aliases.txt")
+if OV: os.makedirs(OV, exist_ok=True)
 have = set(open(fixp).read().split("\n")) if os.path.exists(fixp) else set()
+if OV: have |= set(open(P("names", "MFL_extern_fix.txt")).read().split("\n"))
 new, al, rep = [], [], []
 for x in sorted(want):
     if x == "sbyte": new.append("typedef signed char sbyte;")
@@ -34,5 +37,5 @@ if new:
         if not os.path.exists(fixp) or os.path.getsize(fixp) == 0: o.write("# declarations for identifiers the Ghidra export lacks (tools/undeclared_fix.py); autocompile.py emits the ones a chunk uses\n")
         o.write("\n".join(new) + "\n")
 if al:
-    with open(P("src", "aliases.txt"), "a") as o: o.write("\n".join(al) + "\n")
+    with open(alp, "a") as o: o.write("\n".join(al) + "\n")
 print("declared %d (%d new, %d aliases added); not fixable: %s" % (len(want) - len(rep), len(new), len(al), " ".join(rep)))

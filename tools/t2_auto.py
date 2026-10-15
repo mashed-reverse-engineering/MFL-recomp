@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""t2_auto.py [NAMES_FILE | --census CLASS] [--max N] [--text FILE] [--cases N] [--no-candidates] [--force]
+"""t2_auto.py [NAMES_FILE | --census CLASS] [--max N] [--text FILE] [--cases N] [--no-candidates] [--force] [--run DIR]
+t2_auto.py --publish DIR      (coordinator only: merges a finished run into the shared files, see below)
+ISOLATED: a run writes ONLY below DIR (default output/t2_auto/runs/<YYYYmmdd_HHMMSS>, gitignored): results.csv summary.txt failures/<name>.md candidates/an_hk_<n>.c (numbered from 1) + names.txt
+attempts/<name>.md overlay/ (extra externs / aliases / callee protos, T2_OVERLAY_DIR, read by autocompile / callee_auto / cmpfn / rawaddr in addition to the shared files) diffemu/ (DIFFEMU_OUT: results, cache, diffs)
+and uses its own compile container mfl_t2_<run id> (removed at the end).  The shared files are only read.  --publish DIR copies a finished run into output/t2_auto_results.csv (merge by name),
+output/t2_auto_summary.txt, output/tier2_candidates2 (renumbered to the next free an_hk_<n>, names.txt appended), names/MFL_extern_fix.txt, src/aliases.txt, names/MFL_callee_protos_auto.txt,
+output/t2_failures, output/attempts.  Functions already defined in src/*.c, bridges, tier1, automatch*, automatch_agent, automatch_near never enter the pool.
 Scripted tier 2 candidate pipeline: a pool of functions goes through generate -> compile -> diffemu -> lint -> ptrcast re-verify without an LLM; only the failures need one.
 Default pool: output/t2_auto/pool.txt (rows `bytes name va ...`, the batch 5 pool of 613 wave 0/1 functions <= 700 B); NAMES_FILE = such a file or one name per line;
 --census CLASS = names of output/tier2_census.csv with that blocker; --text FILE = another decompilation (same `// ==== name @ va` format; a Ghidra export of FUN_ functions, default
@@ -14,18 +20,29 @@ Stages (one CSV row per function, output/t2_auto_results.csv):
 Pass = candidate: output/tier2_candidates2/an_hk_<n>.c (+ names.txt line, batches of <= 40 numbered consecutively), NOT installed.
 Failure = output/t2_failures/<name>.md (<= 40 lines, for one small Haiku task).  Summary: output/t2_auto_summary.txt."""
 import os, sys
+if "--publish" in sys.argv:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import t2_publish; sys.exit(t2_publish.main(sys.argv[sys.argv.index("--publish") + 1]))
 try: import unicorn
 except ImportError:
     py = os.environ.get("DIFFEMU_PY") or os.path.expanduser("~/.cache/mfl_diffemu_venv/bin/python"); os.execv(py, [py] + sys.argv)
-import collections, csv, glob, json, re, shutil, struct, subprocess, tempfile, time
+import atexit, collections, csv, glob, json, re, shutil, struct, subprocess, tempfile, time
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [HERE, os.path.join(HERE, "diffemu")]
-os.environ.setdefault("VC7_CONTAINER", "ac")
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr
 P = lambda *a: os.path.join(G, *a)
-W = P("output", "t2_auto"); FILES = os.path.join(W, "files"); FAILS = P("output", "t2_failures"); CAND = P("output", "tier2_candidates2")
+# the run directory and everything that depends on it must be set before core / diffemu / cmpfn are imported (they read the environment at import)
+_a = sys.argv[1:]
+RUN = os.path.abspath(_a[_a.index("--run") + 1]) if "--run" in _a else P("output", "t2_auto", "runs", time.strftime("%Y%m%d_%H%M%S"))
+RUNID = re.sub(r"[^A-Za-z0-9_.-]", "_", os.path.basename(RUN.rstrip("/")))
+os.makedirs(RUN, exist_ok=True)
+os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.path.join(RUN, "diffemu"), DEFECTLINT_OUT=os.path.join(RUN, "defectlint.csv"), ATTEMPTS_DIR=os.path.join(RUN, "attempts"), VC7_CONTAINER="t2_" + RUNID)
+os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
+def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
+atexit.register(_rm_container)
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr
+W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
+SHARED_CAND = P("output", "tier2_candidates2")
 NAMED = P("output", "named", "MFL_app_named.c")
 SYNC = lambda s: re.sub(r"\W", "_", s)[:40]
 
@@ -98,6 +115,17 @@ def fix_round(body, errs):
     if re.search(r"C2143|C2059|C2146", errs): b = hoist(b)
     return b
 
+# ------------------------------------------------------------------------------------------------------------- already defined by hand / installed code
+_DEF = set()
+def defined_elsewhere():
+    """names with a definition in hand written src/*.c, bridges, tier1, automatch, automatch_agent, automatch_near (definitions scanned, not the ledger): `f_c` of a bridge and its naked `f` count as `f`"""
+    if not _DEF:
+        for pat in ("src/*.c", "src/bridges/*.c", "src/tier1/*.c", "src/automatch/*.c", "src/automatch_agent/*.c", "src/automatch_near/*.c"):
+            for f in glob.glob(P(pat)):
+                _DEF.update(core.defs(f)); _DEF.update(re.findall(r"__declspec\(naked\)[\w \*]*?\b(\w+)\(", open(f, errors="replace").read()))
+        _DEF.update(n[:-2] for n in list(_DEF) if n.endswith("_c"))
+    return _DEF
+
 # ------------------------------------------------------------------------------------------------------------- selection
 def load_funcs(path):
     t = open(path, errors="replace").read(); f = {}
@@ -109,8 +137,8 @@ def select(a):
         c = a[a.index("--census") + 1]
         rows = [(int(r["size"]), r["name"], r["va"]) for r in csv.DictReader(open(P("output", "tier2_census.csv"))) if r["blocker"] == c]
     else:
-        pos = [x for i, x in enumerate(a) if not x.startswith("--") and (i == 0 or a[i - 1] not in ("--max", "--text", "--cases"))]
-        for l in open(pos[0] if pos else os.path.join(W, "pool.txt")):
+        pos = [x for i, x in enumerate(a) if not x.startswith("--") and (i == 0 or a[i - 1] not in ("--max", "--text", "--cases", "--run"))]
+        for l in open(pos[0] if pos else POOL):
             p = l.split()
             if len(p) >= 3 and p[0].isdigit(): rows.append((int(p[0]), p[1], p[2]))
             elif p: rows.append((0, p[0], ""))
@@ -138,7 +166,7 @@ def skip_class(n, body, regin, have, ok_protos):
 def run_ac(tag, text, names):
     d = os.path.join(W, tag); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
     nf = os.path.join(d, "names.txt"); open(nf, "w").write("".join(n + "\n" for n in names))
-    env = dict(os.environ, AC_ONLY=nf, AC_FIX="all", AC_JOBS="3", AC_TEXT=text)
+    env = dict(os.environ, AC_ONLY=nf, AC_FIX="all", AC_JOBS="3", AC_TEXT=text, AC_PLAIN="1")      # AC_PLAIN: calls of register callees go through the static F_r adapters (called plain they diverge in diffemu: 38 of the 124 call-trace-count DIFFs of the whole pool run)
     r = subprocess.run([sys.executable, os.path.join(HERE, "autocompile.py"), d, P("output", "decls.h"), "0", "ffffffff", "1"], env=env, capture_output=True, text=True)
     open(os.path.join(d, "log.txt"), "w").write(r.stdout + r.stderr)
     failed = dict(l.rstrip("\n").split("\t", 1) for l in open(os.path.join(d, "failed.txt")) if "\t" in l) if os.path.exists(os.path.join(d, "failed.txt")) else {}
@@ -165,9 +193,6 @@ def stdcall_def(n, va, body):
 
 def generate(names, funcs, text_path):
     """-> (status {name: (ok, file, err, rounds)}); round 0 proactive fixes, then error driven rounds on the failures only"""
-    bk = os.path.join(W, "backup"); os.makedirs(bk, exist_ok=True)      # undeclared_fix.py appends to these two files
-    for f_ in (P("names", "MFL_extern_fix.txt"), P("src", "aliases.txt")):
-        if os.path.exists(f_) and not os.path.exists(os.path.join(bk, os.path.basename(f_))): shutil.copy(f_, os.path.join(bk, os.path.basename(f_)))
     status = {}; todo = list(names); errs = {n: "" for n in names}; cur = {n: funcs[n][1] for n in names}
     for rnd in range(3):
         if not todo: break
@@ -220,10 +245,13 @@ def dgroup(txt):
 CACHE = os.path.join(W, "cache.jsonl")
 def load_cache():
     c = {}
-    if os.path.exists(CACHE):
-        for l in open(CACHE):
-            try: r = json.loads(l); c[r["key"]] = r["row"]
-            except Exception: pass
+    for cf in (P("output", "t2_auto", "cache.jsonl"), CACHE):      # the shared cache (earlier runs, content addressed) is only read
+        if os.path.exists(cf):
+            for l in open(cf):
+                try:
+                    r = json.loads(l)
+                    if cf == CACHE or r["row"]["verdict"] == "EQUAL": c[r["key"]] = r["row"]      # a shared DIFF row has no diff text in this run's dir
+                except Exception: pass
     return c
 def run_diffemu(items, cases, force):
     """items: [(name, src, obj, objkey)] -> {name: row}"""
@@ -235,7 +263,7 @@ def run_diffemu(items, cases, force):
     print("diffemu: %d functions, %d cached" % (len(items), len(items) - len(todo)), flush=True)
     if todo:
         keys = {t[0]: t[6] for t in todo}
-        with Pool(min(3, len(todo))) as p, open(CACHE, "a") as cf:
+        with Pool(min(int(os.environ.get("T2_JOBS", "3")), len(todo))) as p, open(CACHE, "a") as cf:
             for row in p.imap_unordered(diffemu.job, [t[:6] for t in todo]):
                 res[row["name"]] = row; cf.write(json.dumps(dict(key=keys[row["name"]], row=row)) + "\n"); cf.flush()
                 print("  %-9s %-40s %s cases %s cov %s/%s" % (row["verdict"], row["name"], "", row["cases"], row["coverage_orig"], row["coverage_ours"]), flush=True)
@@ -253,7 +281,9 @@ def lint(path, n):
         defectlint.ENABLED.update(l.strip() for l in open(P("src", "bridges", "enabled.txt")))
     t = open(path, errors="replace").read(); out = []
     for f in defectlint.Lint(os.path.relpath(path, G), t, _LINT[0]).run(): out.append("defectlint class %s %s line %s: %s" % (f["cls"], f["sev"], f["line"], f.get("note") or f.get("text")))
-    for k, fn, ln in cheatgrep.scan(path): out.append("cheatgrep %s line %d in %s" % (k, ln, fn or "-"))
+    for k, fn, ln in cheatgrep.scan(path):
+        if k == "asm" and fn.endswith("_r"): continue      # bridgegen F_r call adapters (naked, generated)
+        out.append("cheatgrep %s line %d in %s" % (k, ln, fn or "-"))
     return out
 
 # ------------------------------------------------------------------------------------------------------------- failure files
@@ -322,10 +352,12 @@ def write_failure(n, va, size, stage, cls, detail, path):
     L.append("Recurring fixes for this class:"); L += ["  %d. %s" % (i + 1, h) for i, h in enumerate(hints_for(cls)[:3])]
     L.append("Rules: change ONLY this function, keep its name; no __asm/#pragma/volatile/raw addresses; no git; no Ghidra / game runs; report EQUAL or the new first divergence.")
     os.makedirs(FAILS, exist_ok=True); open(os.path.join(FAILS, n + ".md"), "w").write("\n".join(L[:40]) + "\n")
+    os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)      # attempts note of the run (tools/attempts.py format), merged by --publish
+    with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as f: f.write("%s | t2_auto | NO | %s: %s\n" % (time.strftime("%F %H:%M"), cls, " ".join(detail.split())[:200]))
 
 # ------------------------------------------------------------------------------------------------------------- main
 def main():
-    a = sys.argv[1:]; os.makedirs(FILES, exist_ok=True); os.makedirs(W, exist_ok=True)
+    a = sys.argv[1:]; os.makedirs(FILES, exist_ok=True); os.makedirs(CAND, exist_ok=True); os.makedirs(FAILS, exist_ok=True)
     cases = int(a[a.index("--cases") + 1]) if "--cases" in a else 100; force = "--force" in a
     text_path = a[a.index("--text") + 1] if "--text" in a else NAMED
     rows = select(a); funcs = load_funcs(text_path); sym = core.T().sym
@@ -340,16 +372,17 @@ def main():
     regin = {r["name"]: r["reg_inputs"].strip("|") for r in csv.DictReader(open(P("output", "reginputs.csv"))) if r["reg_inputs"].strip("|")}
     have = {l.split()[1] for l in open(P("src", "manifest.txt")) if len(l.split()) > 3 and l.split()[0] not in ("#", "(none)")}
     import callee_auto      # exact prototypes for the unprototyped FUN_ callees of the pool (names/MFL_callee_protos_auto.txt)
-    ap, WHY_ = callee_auto.build(funcs); callee_auto.save(ap); WHY.update(WHY_)
+    ap, WHY_ = callee_auto.build(funcs); callee_auto.save(ap); WHY.update(WHY_)      # T2_OVERLAY_DIR: into this run's overlay
     protos = {"FUN_" + v for v in callee_auto.protoed()}
     first = {}
     for l in open(P("src", "symbols.txt")):
         p = l.split()
         if len(p) == 2: first.setdefault(p[0], []).append(p[1])
-    done = {l.strip() for l in open(os.path.join(CAND, "names.txt"))}
-    todo = []; nodec = []
+    done = {l.strip() for l in open(os.path.join(SHARED_CAND, "names.txt"))}
+    todo = []; nodec = []; dfd = defined_elsewhere()
     for _, n, _v in rows:
         if n in done: put(n, "done", "ALREADY-CANDIDATE", "already in output/tier2_candidates2/names.txt", "done"); continue
+        if n in dfd: put(n, "done", "ALREADY-DEFINED", "defined in hand written / installed C (src/*.c, bridges, tier1, automatch*, automatch_agent, automatch_near)", "done"); continue
         if n not in funcs: put(n, "gen", "NO-DECOMPILATION", "no Ghidra C for this function in %s (FUN_ functions are not exported)" % os.path.basename(text_path), "gen-skip:no-decomp"); nodec.append(n); continue
         sc = skip_class(n, funcs[n][1], regin, have, protos)
         if sc: put(n, "gen", "SKIP", sc[1], sc[0]); continue
@@ -409,15 +442,15 @@ def main():
         if probs: put(n, "lint", "LINT", "\n".join(probs), "cheat" if probs[0].startswith("cheatgrep") else "lint", src); continue
         passed.append((n, src))
     # --- candidates
-    nxt = max([int(m.group(1)) for f in os.listdir(CAND) if (m := re.match(r"an_hk_(\d+)\.c$", f))] + [0]) + 1
-    batches = []
+    nxt = 1; batches = []; names_txt = []
+    for n, src in list(passed):      # candidate whose function is defined elsewhere (hand written / installed / another candidate): dropped with a note
+        dup = n in defined_elsewhere() or n in done
+        if dup: passed.remove((n, src)); put(n, "done", "ALREADY-DEFINED", "dropped at the candidate stage: %s is defined elsewhere" % n, "done", src)
     if "--no-candidates" not in a:
-        names_txt = open(os.path.join(CAND, "names.txt")).read().rstrip("\n").split("\n")
-        assert len(names_txt) == nxt - 1, "names.txt has %d lines, files go to %d" % (len(names_txt), nxt - 1)
-        for i, (n, src) in enumerate(sorted(passed, key=lambda x: va_of.get(x[0], ""))):
+        for i, (n, src) in enumerate(sorted(passed, key=lambda x: va_of.get(x[0], ""))):      # numbering local to the run; --publish renumbers
             shutil.copy(src, os.path.join(CAND, "an_hk_%03d.c" % (nxt + i))); names_txt.append(n)
             put(n, "pass", "PASS", "an_hk_%03d.c" % (nxt + i), "pass", src)
-        open(os.path.join(CAND, "names.txt"), "w").write("\n".join(names_txt) + "\n")
+        open(os.path.join(CAND, "names.txt"), "w").write("".join(n + "\n" for n in names_txt))
         batches = [(nxt + i, min(nxt + i + 39, nxt + len(passed) - 1)) for i in range(0, len(passed), 40)]
     else:
         for n, src in passed: put(n, "pass", "PASS", "(not copied)", "pass", src)
@@ -425,7 +458,7 @@ def main():
     for n, r in res.items():
         if r["stage"] not in ("pass", "done") and r["cls"] != "gen-skip:no-decomp": write_failure(n, r["va"], r["bytes"], r["stage"], r["cls"], r["detail"], os.path.join(G, r["file"]) if r["file"] else "")
     out = sorted(res.values(), key=lambda r: -int(r["bytes"]))
-    with open(P("output", "t2_auto_results.csv"), "w", newline="") as f:
+    with open(os.path.join(RUN, "results.csv"), "w", newline="") as f:
         w = csv.DictWriter(f, ["name", "va", "bytes", "stage", "verdict", "detail", "cls", "file"]); w.writeheader(); w.writerows(out)
     summarize(out, batches)
 
@@ -446,6 +479,6 @@ def summarize(out, batches):
     fl = [r for r in out if r["stage"] not in ("pass", "done") and r["cls"] in COST]
     L.append("20 most promising failures for a Haiku agent (bytes / estimated cost, class cost table in t2_auto.py):")
     for r in sorted(fl, key=lambda r: -int(r["bytes"]) / COST[r["cls"]])[:20]: L.append("  %-40s %4s B %-26s %s" % (r["name"], r["bytes"], r["cls"], r["detail"][:90]))
-    open(P("output", "t2_auto_summary.txt"), "w").write("\n".join(L) + "\n"); print("\n".join(L))
+    open(os.path.join(RUN, "summary.txt"), "w").write("\n".join(L) + "\n"); print("\n".join(L))
 
 if __name__ == "__main__": main()

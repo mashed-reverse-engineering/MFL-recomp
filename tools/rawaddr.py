@@ -23,7 +23,8 @@ LO, HI, DATA0 = data_range()
 AUTO = re.compile(r"^(g_data|g_physics|g_game|g_rec|g_ai_f|g_ftol_tbl|DAT|PTR|s|u|f|d|p)_|_[0-9a-f]{6}$")
 def load():
     syms = {}; byaddr = collections.defaultdict(list)
-    for f in (os.path.join(R, "symbols.txt"), os.path.join(R, "aliases.txt")):
+    ov = os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), "aliases.txt")      # tools/t2_auto.py run overlay
+    for f in (os.path.join(R, "symbols.txt"), os.path.join(R, "aliases.txt")) + ((ov,) if os.path.exists(ov) else ()):
         for l in open(f):
             q = l.split()
             if len(q) == 2 and re.fullmatch(r"[A-Za-z_]\w*", q[0]):
