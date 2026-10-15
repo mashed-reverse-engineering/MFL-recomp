@@ -21,9 +21,11 @@ Progress numbers will appear here once the first source drop is published.
 |---|---|
 | `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by the scripts below. |
 | `scripts/` | Ghidra headless scripts (`RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`, ...). |
-| `docs/` | Building, naming workflow, legal note. |
+| `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
+| `data/` | Small address tables the tools read (function sizes, library symbol tables). |
+| `docs/` | Building, naming workflow, toolchain, legal note. |
 
-More (tooling, recompiled source, progress dashboard) will follow in later commits.
+The recompiled source (`src/`) and a progress dashboard follow in later commits.
 
 ## Naming data
 

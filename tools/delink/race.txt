@@ -1,0 +1,26 @@
+wait 20
+shot title
+key Return
+wait 3
+key Return
+wait 3
+shot menu
+key Return
+wait 2
+key Down Down Return
+wait 2
+key Return
+wait 2
+key Return
+wait 2
+key Return
+wait 2
+key Return
+wait 2
+key Return
+wait 18
+shot race1
+hold Up 6
+shot race2
+wait 10
+shot race3
