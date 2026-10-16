@@ -249,12 +249,12 @@ class Lint:
             kl, nl = self.atom(lv, env) if not lv.startswith("*(float") else ("F", lv)
             kr, nr = self.atom(rhs, env)
             if kl == "F" and kr == "L" and re.match(r"^0[xX][0-9a-fA-F]{7,8}$", rhs.strip("uUlL")) and int(rhs.rstrip("uUlL"), 16) >= 0x1000000:
-                self.add(2, "high", line, fn, nl, st, "int literal %s assigned to float `%s`: converts, does not copy the bit pattern" % (rhs, nl))
+                self.hints.append(("flit", line, lv, [rhs.rstrip("uUlL")])); self.add(2, "high", line, fn, nl, st, "int literal %s assigned to float `%s`: converts, does not copy the bit pattern" % (rhs, nl))
             elif kl in "UP?S" and not lv.startswith("*(float") and re.search(r"\[", lv) and kl in "US":
                 ifloat = re.match(r"^\(\s*(?:float|double)\s*\)", rhs) or kr == "F" and nr != "(cast)" and not re.match(r"^-?\d+$", rhs) \
                     or re.search(r"\(\s*int\s*\)\s*\(?.*?(\(\s*float\s*\)|\bf[A-Z]?Var\d|\bfVar|\bRVar)", rhs)
                 if ifloat and not re.match(r"^\(\s*(int|uint)\s*\)\s*[\w\.]+$", rhs): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float value stored into the dword object `%s` by conversion (use *(float *)&...)" % nl)
-                elif re.match(r"^\(\s*int\s*\)\s*\w+(\.\w+)*\.[xyz]\s*$", rhs) or (re.match(r"^\(\s*int\s*\)\s*(\w+(\.\w+)*)\s*$", rhs) and kr == "?" and self.is_float_name(rhs, env)): self.add(2, "high", line, fn, nl, st, "float stored into the dword object `%s` by conversion" % nl)
+                elif re.match(r"^\(\s*int\s*\)\s*\w+(\.\w+)*\.[xyz]\s*$", rhs) or (re.match(r"^\(\s*int\s*\)\s*(\w+(\.\w+)*)\s*$", rhs) and kr == "?" and self.is_float_name(rhs, env)): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float stored into the dword object `%s` by conversion" % nl)
         for m in re.finditer(r"\(\s*(?:float|RwReal)\s*\)\s*((?:\(\s*&\s*\w+\s*\)|\w+)\s*\[[^\]]*\]|\w+)", st):
             k, n = self.atom(m.group(1), env)
             if k in "US" and "[" in m.group(1) and not re.search(r"\[\s*[a-z]?Var\d*\s*\]|\[\s*(i|j|k)\s*\]", m.group(1)) or k == "U" and "[" in m.group(1): self.hints.append(("fcast", line, m.group(0), [m.group(1)])); self.add(2, "medium", line, fn, n, st, "(float) of the dword element %s converts (fild); a float kept in a dword object needs *(float *)&..." % m.group(1))
@@ -282,6 +282,7 @@ class Lint:
                 pk = self.tkind(base_type(re.sub(r"\w+$", "", p.strip())) if re.search(r"\s\w+$", p.strip()) else base_type(p))
                 ak, an = self.atom(a, env)
                 fl = (ak == "F" and an != "(cast)") or re.match(r"^\s*\(\s*float\s*\)", a)
+                if fl and re.fullmatch(r"\s*[\w.]+\s*", a) and re.search(r"\b(?:float|RwReal|double)\s+%s\s*\[" % re.escape(a.strip().split(".")[-1]), self.t): fl = False      # a float ARRAY decays to a pointer: not a float argument
                 if pk in "UuS" and fl and "*" not in p and not re.match(r"^\s*\(\s*(int|uint)\s*\)", a):
                     self.hints.append(("fbits", line, f, [a.strip()]))
                     self.add(4, "high", line, fn, f, st, "float argument `%s` for the integer parameter `%s` of %s: the compiler emits _ftol" % (a.strip(), p.strip(), f))

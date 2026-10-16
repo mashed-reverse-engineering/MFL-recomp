@@ -321,7 +321,18 @@ def img_read(a, n): return IMG[a - BASE:a - BASE + n]
 
 # ---------------------------------------------------------------------------------------------------------- stubs
 class Callee:
-    def __init__(s, va, name, pop, nargs, regs, ret, known=True, infer=False): s.va, s.name, s.pop, s.nargs, s.regs, s.ret, s.known, s.infer = va, name, pop, nargs, regs, ret, known, infer
+    def __init__(s, va, name, pop, nargs, regs, ret, known=True, infer=False): s.va, s.name, s.pop, s.nargs, s.regs, s.ret, s.known, s.infer = va, name, pop, nargs, regs, ret, known, infer; s.lim = []
+
+SDK_SZ = {"RwV3d": 12, "RwV2d": 8, "RwMatrix": 64, "RwRGBA": 4, "RwSphere": 16, "RwBBox": 24, "RwLine": 24, "RwPlane": 16, "RwTexCoords": 8, "RwSurfaceProperties": 12}
+def ptr_limits(params):
+    """per argument dword: the size in words of the object a typed pointer parameter points to (`struct RwV3d *` = 3), else 0 = unknown / an array.  The frame window (FRAMEWIN) must not look behind
+    such an object: RwV3dNormalize(&RStack_18, ..) only reads / writes 12 bytes, the 3 floats declared behind the vector are other locals (course_city_cb1 was a false 'frame object' DIFF)"""
+    out = []
+    for p in params:
+        m = re.match(r"^(?:const\s+)?(?:struct\s+)?(\w+)\s*\*\s*\w*$", p.strip())
+        sz = (SDK_SZ.get(m.group(1)) or T().structs.get(m.group(1))) if m else None
+        out += [((sz + 3) // 4 if sz else 0)] * (2 if re.search(r"\bdouble\b", p) and "*" not in p else 1)
+    return out
 
 _RP = {}
 def orig_ret_pops(va):
@@ -362,6 +373,11 @@ def float_returners():
                     if ins.mnemonic.startswith("f") and ins.mnemonic not in ("fnstsw", "fnstcw", "fldcw", "fwait", "fnclex", "fninit"):
                         if ins.mnemonic in _FCONS and "st(" not in ins.op_str: _FRET[t] = _FRET.get(t, 0) + 1
                         break
+        for va in [k for k, v in _FRET.items() if k and v == 1]:      # a single call site may consume a value that was on the stack BEFORE the call: the callee itself must end like a float returner
+            ok = False; ins = list(CS.disasm(img_read(va, 0x300), va))
+            for i, x in enumerate(ins):
+                if x.mnemonic in ("ret", "retn") and any(q.mnemonic.startswith("f") and q.mnemonic not in ("fnstsw", "fstp", "fwait") or q.mnemonic == "call" for q in ins[max(0, i - 4):i]): ok = True
+            if not ok: del _FRET[va]
     return _FRET
 
 def callee_info(va):
@@ -379,8 +395,119 @@ def callee_info(va):
     elif stack: n = len(stack)
     elif pop: n = pop // 4
     elif (va in tb.gt or os_n) and not (regs and not stack): n = max(tb.gt.get(va, 0), os_n)      # `()` declaration: the count comes from the original call sites (and the stack slots the callee's own body reads, output/orig_stackargs.txt, when exact: no address taken / lost esp), so the boundary call compares its argument VALUES too
+    if o and o[2] and o[3] and not (regs and va in tb.reg):      # tail-forwarding callee (rewrites a slot, then `jmp target`: clump_load_by_name(name) -> 4c3bf0(name', out, out)): the target reads the other slots of the CALLER's frame, so the boundary call compares the target's slot count (a declaration with fewer parameters hid `clump_load_by_name(name, 0, &rdata)`: oil_load_assets crashed the game, diffemu EQUAL)
+        tn = max([o[0], o[3]] + [tb.oslots[t][0] for t in o[2] if t in tb.oslots])
+        if tn > (n or 0): n = tn
     rt = (dc[0] if dc else (sg[2] if sg else "")).split()
-    return Callee(va, name, pop, min(n or 0, 12), [r for r in regs if r in REGS], "f" if any(x in ("float", "double", "float10", "RwReal") for x in rt) or (float_returners().get(va) and va not in real_helpers() and all(x in ("", "undefined", "undefined4", "void", "unknown", "__cdecl", "__stdcall") for x in rt)) else "i", known=n is not None or va not in tb.reg, infer=n is None and not pop)
+    c = Callee(va, name, pop, min(n or 0, 12), [r for r in regs if r in REGS], "f" if any(x in ("float", "double", "float10", "RwReal") for x in rt) or (float_returners().get(va) and va not in real_helpers() and all(x in ("", "undefined", "undefined4", "void", "unknown", "__cdecl", "__stdcall") for x in rt)) else "i", known=n is not None or va not in tb.reg, infer=n is None and not pop)
+    if dc and dc[1].strip() not in ("", "void") and not (regs and va in tb.reg) and re.fullmatch(r"_?(?:RwV[23]d(?!Transform)\w*(?<!s)|RwFrame(?:Translate|Scale|Rotate|SetIdentity|Transform))", name): c.lim = ptr_limits(split_params(dc[1]))      # single object functions only: vector / vertex ARRAY functions (RwV3dTransformVectors, RwIm3D*) really read behind the first element
+    return c
+
+def split_params(s):
+    out, d, cur = [], 0, ""
+    for ch in s:
+        d += {"(": 1, ")": -1}.get(ch, 0)
+        if ch == "," and d == 0: out.append(cur); cur = ""
+        else: cur += ch
+    return out + [cur] if cur.strip() else out
+
+def region(v):
+    """region class of an address, for messages: stack | arg window | literal | .rdata | .data | .bss | code | null | heap"""
+    if v < 0x1000: return "null/small"
+    if isstack(v): return "stack"
+    if ARGBUF <= v < ARGBUF + 0x40000: return "arg window"
+    if SCR <= v < SCR + 0x10000: return "literal (.rdata)"
+    if OURS <= v < OURS + 0x10000: return "code"
+    if BASE <= v < IMGEND:
+        for s_ in pe.sections:
+            if BASE + s_.VirtualAddress <= v < BASE + s_.VirtualAddress + max(s_.Misc_VirtualSize, s_.SizeOfRawData):
+                n_ = s_.Name.rstrip(b"\0").decode(errors="replace"); return n_ if n_ not in (".text",) else "code"
+        return "image"
+    return "heap/wild"
+def isro_ptr(v): return v >= 0x1000 and (isro(v) or SCR <= v < SCR + 0x10000)
+
+_WT = {}
+_MEMW = {"mov", "add", "sub", "and", "or", "xor", "inc", "dec", "neg", "not", "shl", "shr", "sar", "rol", "ror", "adc", "sbb", "xchg", "bts", "btr", "btc", "cmpxchg", "xadd"}
+def writes_through(va, depth=4):
+    """frozenset of the stack argument indexes k of the ORIGINAL function at va whose pointer value it (or a function it passes the pointer on to, or tail-jumps to, up to `depth` levels) stores through:
+    linear sweep of the body, esp delta + register / stack slot tags `argument k` (mov r,[esp+..], push, lea/add/mov r,r), a store `mov [r+d], x` / `rep stos` with r tagged, a direct call whose own writes_through
+    contains the pushed slot.  Flow insensitive (a tag survives a join): an over-approximation that only feeds the read-only-destination check of the callee stub (Machine._callee)"""
+    key = (va, depth)
+    if key in _WT: return _WT[key]
+    _WT[key] = frozenset(); res = set()
+    if depth <= 0: return _WT[key]
+    lo, hi = va, va + min(T().size.get(va, 0x200) or 0x200, 0x600)
+    tag, slots, off, bp, a, dmap = {}, {}, 0, None, lo, {}      # dmap: esp delta at the targets of the jumps seen so far (the sweep continues behind a `ret` with the delta of the branch target)
+    R = {CX.X86_REG_EAX: "eax", CX.X86_REG_ECX: "ecx", CX.X86_REG_EDX: "edx", CX.X86_REG_EBX: "ebx", CX.X86_REG_ESI: "esi", CX.X86_REG_EDI: "edi", CX.X86_REG_EBP: "ebp", CX.X86_REG_ESP: "esp"}
+    def slot_of(op):
+        mm = op.mem
+        if mm.index or mm.segment: return None
+        b = R.get(mm.base)
+        if b == "esp": return off + mm.disp
+        if b == "ebp" and bp is not None: return bp + mm.disp
+        return None
+    while a < hi:
+        ins = next(CS.disasm(img_read(a, 16), a, 1), None)
+        if ins is None: a += 1; continue
+        if ins.address in dmap: off = dmap[ins.address]
+        a += ins.size; mn = ins.mnemonic; ops = ins.operands; done = False
+        if (mn == "jmp" or mn.startswith("j")) and ops and ops[0].type == CX.X86_OP_IMM: dmap.setdefault(ops[0].imm & 0xffffffff, off)
+        if mn.startswith("rep") or mn.startswith(("stos", "movs")):
+            if ("stos" in mn or "movs" in mn) and tag.get("edi"): res.add(tag["edi"][1])
+        for k_, op in enumerate(ops):      # a store through a tagged base register
+            if op.type == CX.X86_OP_MEM and op.access & 2:
+                b = R.get(op.mem.base)
+                if b not in (None, "esp", "ebp") and tag.get(b) and tag[b][0] == "a": res.add(tag[b][1])
+                elif b == "ebp" and bp is None and tag.get("ebp") and tag["ebp"][0] == "a": res.add(tag["ebp"][1])
+        if mn == "push" and ops:
+            off -= 4; op = ops[0]
+            slots[off] = (tag.get(R.get(op.reg)) if op.type == CX.X86_OP_REG else (slots.get(slot_of(op)) or (("a", (slot_of(op) - 4) // 4) if (slot_of(op) or 0) >= 4 and slot_of(op) % 4 == 0 else None)) if op.type == CX.X86_OP_MEM else None); done = True
+        elif mn == "pop" and ops and ops[0].type == CX.X86_OP_REG:
+            tag[R.get(ops[0].reg)] = slots.get(off); off += 4; done = True
+        elif mn == "mov" and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and R.get(ops[0].reg):
+            d_ = R[ops[0].reg]; s_ = ops[1]
+            if d_ == "ebp" and s_.type == CX.X86_OP_REG and R.get(s_.reg) == "esp": bp = off; tag.pop("ebp", None)
+            elif d_ == "esp": pass
+            elif s_.type == CX.X86_OP_REG: tag[d_] = tag.get(R.get(s_.reg))
+            elif s_.type == CX.X86_OP_MEM:
+                sl = slot_of(s_); tag[d_] = (slots.get(sl) or (("a", (sl - 4) // 4) if sl is not None and sl >= 4 and sl % 4 == 0 else None)) if sl is not None else None
+            else: tag[d_] = None
+            done = True
+        elif mn == "mov" and len(ops) == 2 and ops[0].type == CX.X86_OP_MEM:
+            sl = slot_of(ops[0])
+            if sl is not None: slots[sl] = tag.get(R.get(ops[1].reg)) if ops[1].type == CX.X86_OP_REG else None
+            done = True
+        elif mn == "lea" and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and R.get(ops[0].reg):
+            b = R.get(ops[1].mem.base); tag[R[ops[0].reg]] = tag.get(b) if b not in (None, "esp", "ebp") and not ops[1].mem.index else None; done = True
+        elif mn in ("add", "sub") and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and R.get(ops[0].reg) == "esp" and ops[1].type == CX.X86_OP_IMM:
+            off += ops[1].imm if mn == "add" else -ops[1].imm; done = True
+        elif mn in ("add", "sub") and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and ops[1].type == CX.X86_OP_IMM: done = True      # reg +- imm keeps the tag (pointer arithmetic)
+        elif mn == "call" and ops:
+            if ops[0].type == CX.X86_OP_IMM:
+                t = ops[0].imm & 0xffffffff
+                if BASE <= t < IMGEND:
+                    for j in writes_through(t, depth - 1):
+                        tg = slots.get(off + 4 * j)
+                        if tg and tg[0] == "a": res.add(tg[1])
+                    pp = orig_ret_pops(t); 
+                    if len(pp) == 1: off += next(iter(pp))
+            for r_ in ("eax", "ecx", "edx"): tag.pop(r_, None)
+            done = True
+        elif mn == "jmp" and ops and ops[0].type == CX.X86_OP_IMM:
+            t = ops[0].imm & 0xffffffff
+            if not (lo <= t < hi) and BASE <= t < IMGEND:      # tail jump: the target sees OUR frame slots (rewritten ones carry their new tag)
+                for j in writes_through(t, depth - 1):
+                    tg = slots.get(4 + 4 * j, ("a", j))
+                    if tg and tg[0] == "a": res.add(tg[1])
+            done = True
+        elif mn in ("ret", "retn", "nop") or mn.startswith("j") or mn in ("cmp", "test"): done = True
+        if not done:
+            try: _, wr = ins.regs_access()
+            except Exception: wr = ()
+            for r_ in wr:
+                if R.get(r_): tag.pop(R[r_], None)
+    _WT[key] = frozenset(res)
+    return _WT[key]
 
 NORETURN = {"exit", "_exit", "abort", "ExitProcess", "_amsg_exit", "longjmp", "_fatal_error", "quick_exit"}      # a stubbed noreturn callee ends the case (the code behind the call is dead in the real program)
 
@@ -399,7 +526,7 @@ def import_stubs():
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
-        m.sw, m.frames, m.sp0 = set(), [], 0; m.patch = {}; m.reads = None; m.small = False
+        m.sw, m.frames, m.sp0, m.rowrite = set(), [], 0, []; m.patch = {}; m.reads = None; m.small = False
         m.seed, m.mode, m.wild, m.trace, m.writes, m.cnt, m.islots, m.stub, m.wildfn = seed, mode, 0, [], [], {}, islots, {}, wildfn
         uc = m.uc = Uc(UC_ARCH_X86, UC_MODE_32)
         for a, n in ((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000)): uc.mem_map(a, n)
@@ -490,6 +617,12 @@ class Machine:
             args = struct.unpack("<%dI" % len(nat), bytes(uc.mem_read(sp + 4, 4 * len(nat)))) if m.ours else tuple(uc.reg_read(REGS[t]) if t in REGS else struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * int(t[1:]), 4)))[0] for t in nat)
             m.trace.append((c.name, tuple(m.norm(a) for a in args), ()))
         else: m.trace.append((c.name, tuple(m.norm(a) for a in args), tuple(m.norm(uc.reg_read(REGS[r])) for r in c.regs)))
+        for k in writes_through(c.va):      # the ORIGINAL callee stores through its argument k: a destination in read-only memory (.rdata string / literal / code) is a write the stub must not hide (our code passed a string address instead of the buffer / NULL: oil_load_assets)
+            a = struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * k, 4)))[0] if k < 12 else 0
+            if isro_ptr(a):
+                m.rowrite.append((c.name, k, region(a))); m.writes.append((a, 4))
+                try: uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, "ro", k), 16) % 61))
+                except UcError: pass
         h = int(sha(c.va, i, m.seed), 16); r = h >> 8
         outs = args
         if c.infer:      # no declared arguments (`f()`): the caller's `add esp, N` after the call tells how many words it pushed (used for the out parameters only, never compared: a compiler may batch the adds)
@@ -501,7 +634,7 @@ class Machine:
         for k, a in enumerate(outs):      # frame window: what the ORIGINAL callee would read behind a pointer to a local (a frame object whose members the callee walks: clump_has_uv_anim {flag, callback, flag pointer} passed as &callback)
             if isstack(a):
                 snap = []
-                nxt = min([(b - a) // 4 for b in outs if isstack(b) and b > a] + [FRAMEWIN])      # another pointer argument into the stack starts a separate object (RtIntersectionLineTriangle(&start, &delta, ..))
+                nxt = min([(b - a) // 4 for b in outs if isstack(b) and b > a] + [FRAMEWIN] + ([c.lim[k]] if k < len(c.lim) and c.lim[k] else []))      # typed pointer parameter: the window ends with the object (ptr_limits)      # another pointer argument into the stack starts a separate object (RtIntersectionLineTriangle(&start, &delta, ..))
                 for j in range(nxt):
                     w = a + 4 * j
                     if w + 4 > m.sp0 or not isstack(w): break      # the return address / arguments of the function itself are shared by the two sides
@@ -716,6 +849,9 @@ def compare(fn, mo, ro, mu, ru):
     if a != b:
         k = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
         d.append("call trace differs at call %d (orig %d calls, ours %d): orig %s ours %s" % (k, len(a), len(b), a[k] if k < len(a) else "-", b[k] if k < len(b) else "-"))
+    if mo.rowrite != mu.rowrite:
+        x = [t for t in mu.rowrite if t not in mo.rowrite] or [t for t in mo.rowrite if t not in mu.rowrite]
+        d.append("callee %s stores through argument %d pointing into read-only memory (%s) in %s only (the stub writes through destination pointers: orig %s ours %s)" % (x[0][0], x[0][1], x[0][2], "ours" if x[0] in mu.rowrite else "the original", mo.rowrite[:2], mu.rowrite[:2]))
     if len(mo.frames) == len(mu.frames):      # frame windows behind pointer arguments into the stack (the stubbed callee never dereferences them, the original callee does)
         for n, (fo, fu) in enumerate(zip(mo.frames, mu.frames)):
             if fo[:2] != fu[:2]: break
