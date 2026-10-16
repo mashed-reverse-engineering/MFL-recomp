@@ -218,6 +218,7 @@ btb_panel_slot_set_position,0041d580,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa
 btb_panel_slot_set_scale,0041d5d0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 btb_panel_slot_set_value,0041d630,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 btb_panel_slot_set_visible,0041d930,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+build_info_draw_page_0,0042cf10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 build_info_set_page,0042c9d0,tier1,bytes,bytes-reloc,2941170d6d5d,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 build_info_textures_destroy,0042ca50,tier1,bytes,bytes-reloc,37f19a2bb9a0,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 camera_apply_matrix,0044bee0,agent,bytes-standalone+d4f8a46bedae,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -309,6 +310,7 @@ career_row_for_event,0047be30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,
 career_row_title_string_id,00434580,tier1,bytes,bytes-reloc,d29a3b7854e0,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 career_time_under_target,00435f30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,0.83,0,0
 cars_inactive_flags,0040d000,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+cars_update_per_frame_setup,0040f550,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,0.92,0,0
 clump_check_atomics_lookup,00429c40,tier1,bytes,bytes-reloc,f2504afef2a1,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 clump_clear_atomic_plugin_flag_1,00405cd0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 clump_for_all_materials,004848b0,tier1,bytes,bytes-reloc,9f1e876660d1,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -395,6 +397,7 @@ course_get_safe_start_count,0042b0d0,tier1,bytes,bytes-reloc,fa29cb48353e,b755b2
 course_get_shadow_scale,0042b300,tier1,bytes,bytes-reloc,b5ba0e323786,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_get_split_sector_8,0042b0b0,tier1,bytes,bytes-reloc,72bce4a3965a,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_get_world_object,0042a3b0,tier1,bytes,bytes-reloc,bfa9bfc80776,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+course_grid_buffers_free,00475510,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,184,1.00,0,0
 course_has_cb0,00421ac0,tier1,bytes,bytes-reloc,1411bf55dc49,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_has_cb1,00421ad0,tier1,bytes,bytes-reloc,09f974dfc571,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_has_cb10,00421b60,tier1,bytes,bytes-reloc,f9170e43d88d,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -433,6 +436,7 @@ course_nt1_cb1,00455960,tier1,bytes,bytes-reloc,a1278b496a54,b755b2423d8b,c6efa2
 course_nt1_cb5,00455a10,agent,bytes-standalone+c9e853ca90ad,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_nt1_s_cb5,00454440,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_object_destroy_frames_6a1f28,004558e0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+course_object_get_float_16c,00459160,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 course_object_get_position,00459100,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_object_id_register,00474930,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_object_is_inactive,00459130,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -444,6 +448,7 @@ course_objects_destroy_atomics,00474880,agent,bytes-standalone+3f560f2c43bc,byte
 course_objects_render,004577e0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_objects_render_all,00474850,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_objects_reset_physics,00459e50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+course_objects_reset_transforms,004747b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,188,1.00,0,0
 course_particle_timers_reset,00453980,tier1,bytes,bytes-reloc,7e0efc00cf57,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_physics_objects_reset,00455370,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 course_physics_objects_reset_thunk,00455610,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
@@ -463,6 +468,7 @@ course_sandsnow_cb10,004585f0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5
 course_sandsnow_cb2,00458570,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 course_sandsnow_cb5,00458610,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_sandsnow_destroy_frames,004584a0,tier1,bytes,bytes-reloc,22f7b673cec5,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+course_script_run,0048b4e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 course_select,00421aa0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_set_lod,00459090,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_set_split_sector_6,0042aae0,tier1,bytes,bytes-reloc,ecbc34add892,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -498,6 +504,7 @@ course_unload_atomics_6ae24c,00473a50,tier1,bytes,bytes-reloc,dc1e84f60978,b755b
 course_unload_current,0040e6f0,tier1,bytes,bytes-reloc,bd5a815dc6aa,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_warzone_cb10,0045e000,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_warzone_cb2,0045df40,tier1,bytes,bytes-reloc,14969a34ed00,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+course_warzone_cb5,0045e060,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 course_warzone_cb7,0045dee0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_world_instance_for_viewport,0042b3f0,agent,bytes-standalone+1291dec795cf,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 course_world_uva_dicts_set_ranks,0042a6d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
@@ -514,6 +521,7 @@ cup_scene_destroy_clumps,00401ee0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,d
 cup_scene_destroy_lights,004014d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 cup_scene_draw_team_overlay,004015b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,adafed1b7810,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 cup_scene_place_object,004016c0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a37caa8d6bde,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+cup_scene_render,00401d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 cup_scene_render_with_overlay,00402830,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 current_course_id,0042b110,tier1,bytes,bytes-reloc,8896a4ce54ba,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 current_course_id_with_mirror,00413880,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -535,6 +543,7 @@ debris_slot_list_update_visible,00424d40,tier1,bytes,bytes-reloc,0f6e409dd329,b7
 debris_slots_init_for_vehicle,00424cd0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 debris_slots_init_from_atomics,00424bc0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 debris_update_twice,004256e0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+debug_keys_and_profile,004a1a70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,0.89,0,0
 degrees_to_radians,00484760,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 dialog_controller_device_changed,004a70e0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 dinput_init,004a4700,agent,bytes-standalone+989ebae32aa2,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -617,6 +626,7 @@ fx_object_get_rwp_id,004089e0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5
 fx_object_timer_subtract_by_id,00406d40,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 fx_objects_all_exploded,00406cf0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 fx_objects_clear,0049c920,tier1,bytes,bytes-reloc,c5601df24687,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+fx_objects_reset,00408810,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,191,1.00,0,0
 fx_particles_destroy_two,00498e20,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 fx_particles_render_two,00499a40,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 fx_pool_alloc_particle,004978d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
@@ -634,6 +644,7 @@ fx_ptank_render_b,0049b700,tier1,bytes,bytes-reloc,2e2e3211f84e,b755b2423d8b,c6e
 fx_render,00498330,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 fx_render_additive_overlay,004982d0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 fx_render_all,00407590,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+fx_render_all_and_highlight,00408740,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,191,1.00,0,0
 fx_ring_add_point,00498f40,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,b5e75b2f26b6,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 fx_ring_clear,00499a80,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,928782fb0e40,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 fx_slot_release,0049a980,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -737,6 +748,7 @@ hudpanel_endpoint_659a78_clear,004208a0,tier1,bytes,bytes-reloc,e2252f0959f4,b75
 hudpanel_fuel_meter_update,0041f200,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 hudpanel_marker_calc_pixel_ray,0041ba50,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 hudpanel_marker_ray_cast,0041bbb0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+hudpanel_markers_render_all,0041c510,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 hudpanel_render_all_slots,0041bd90,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 hudpanel_render_group,0041f350,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 hudpanel_render_if_loaded,0041f380,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
@@ -821,8 +833,10 @@ lua_RWP_Object_Sphere,0048c3e0,agent,bytes-standalone+c1a4ce8cc440,bytes-reloc,-
 lua_RainEnable,004a0ac0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 lua_RainSetCameraScale,004a0d30,agent,bytes-standalone+1462662c4ffd,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 lua_RainSetCameraScale_impl,004a05a0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+lua_RainSetDirection,004a0d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 lua_RainSetDirection_impl,004a05c0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 lua_RainSetHeadColour,004a0ae0,agent,bytes-standalone+5194f7aa4e09,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+lua_RainSetPosition,004a0c20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 lua_RainSetPosition_impl,004a0540,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 lua_RainSetScale,004a0cd0,agent,bytes-standalone+fb97dc4cb6d4,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 lua_RainSetScale_impl,004a0580,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -941,6 +955,7 @@ particle_batch_set_uv_a,0049b910,tier2,compiled+diffemu-EQUAL+shadow-never,diffe
 particle_batch_set_uv_b_c,0049b960,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 particle_emitters_update_all,00486170,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 particle_pool_add,004855b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+particle_pool_counts_reset,00485610,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,189,1.00,0,0
 particle_pools_init,00485560,tier1,bytes,bytes-reloc,640c53c36ab6,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 particle_pools_update_and_draw,004857e0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,cf20b94ddafa,b755b2423d8b,c6efa2ab35b5,159,0.40,0,0
 particle_slot_call_render_method,0049c8f0,agent,bytes-standalone+c060342d10a0,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -1042,6 +1057,8 @@ pool_push,00497770,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,76558b46435a,b
 pool_stack_pop_index,00497750,hand,registers-only,static,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 powerup_icon_texture,00464330,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,0.93,0,0
 powerup_pickup_fx,004645c0,agent,bytes-standalone+f2cd286a34c7,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
+powerup_place,00464c30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,184,0.85,0,0
+powerup_random_weapon_type,00464b30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 powerup_set_respawn_time,00464dd0,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 powerups_clear,00464aa0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,bd9eaf21c2ba,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 powerups_destroy,00464580,tier1,bytes,bytes-reloc,aefe5fb23628,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -1072,6 +1089,7 @@ race_get_race_setup,0040f080,tier1,bytes,bytes-reloc,43c752bd952b,b755b2423d8b,c
 race_get_setup_index,0040fbe0,tier1,bytes,bytes-reloc,508456496739,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 race_length_setting,00435400,tier1,bytes,bytes-reloc,6eb8bd9d6211,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 race_lose_banner_draw,0042e6c0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,04f2882b2032,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+race_mark_ai_slots,0041b810,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,0.91,0,0
 race_phase_5_6_render_by_event,0040f940,hand,near-regress-only,static,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 race_phase_6_update,00413680,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 race_phase_9_update,00412d10,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -1356,7 +1374,9 @@ vehicle_tyre_marks_render,004263f0,tier2,compiled+diffemu-EQUAL+shadow-never,dif
 vehicles_any_active,0040e6a0,agent,bytes-standalone+c7d9dc744517,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 vehicles_prepare_all,00423110,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 video_cfg_apply_selection,004a8b10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+video_cfg_load,004a85c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 video_cfg_path,004a8580,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,aab5a31e7ff9,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+video_cfg_save,004a8620,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 video_dialog_free,004a87d0,tier1,bytes,bytes-reloc,9714256f156f,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 video_dialog_mode_changed,004a8990,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 video_dialog_subsystem_changed,004a8de0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -1376,6 +1396,7 @@ viewport_get_camera,00495c30,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,
 viewport_get_field_702254,00495c10,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 viewport_raster_create,00495b60,agent,bytes-standalone+07fbeda9974a,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 viewport_raster_destroy,00495bc0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,15e7aa9fe093,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
+voice_queue_add,00468ac0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,200,1.00,0,0
 voice_queue_assign_slot,00468690,agent,bytes-standalone+94edb6c529d5,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 voice_queue_clear_players_when_phase_2,00468bf0,tier1,bytes,bytes-reloc,bd894fecfe1e,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 voice_queue_final_lines,00469210,tier1,bytes,bytes-reloc,1ac6db83ea58,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
@@ -1478,6 +1499,10 @@ weapon_shotgun_unequip,00467110,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35
 weapon_slot_6a5d24_get,00460360,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 weapon_slots_render_all,00465f80,hand,near-regress-only,static,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 weapon_stack_collect_types,004684c0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,2f8e4774e306,b755b2423d8b,c6efa2ab35b5,50,0.67,0,0
+weapons_effects_destroy_all,004677c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,24,1.00,0,0
+weapons_effects_render_all,00467820,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,137,1.00,0,0
+weapons_race_start_dispatch,00467d50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,26,1.00,0,0
+weapons_unequip_all_a,00467d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,b755b2423d8b,c6efa2ab35b5,29,1.00,0,0
 window_destroy,004a9810,tier1,bytes,bytes-reloc,ae28468a48e2,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 window_show,004a9360,tier1,bytes,bytes-reloc,6ce0a1d43ea6,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0
 world_sector_list_clear,00495e10,hand,bytes,bytes-reloc,-,b755b2423d8b,c6efa2ab35b5,0,0.00,0,0

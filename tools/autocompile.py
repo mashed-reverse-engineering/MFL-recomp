@@ -126,6 +126,7 @@ def fix_body(b):
     """the decompiler shows `f(x); v = _ftol();` for a call returning a double that is truncated (the value travels in st(0)): write `v = (int)f(x);`
     (compiles to the same call + _ftol, but the C version no longer pops st(0) after the call: 25 lua_* functions differed by one `fstp st(0)`)"""
     b = ptr_locals(strip_underscores(b))
+    b = re.sub(r"^(\s*\w+:)[ \t]*\n(\s*\})", r"\1;\n\2", b, flags=re.M)      # a label directly before `}` is not C (Ghidra emits it at the end of a block): `LAB_x:;`
     if "idxscale" in FIX_RULES:      # `(&g + i * 4)` is a BYTE offset in Ghidra's output (g was 1 byte there), but once global_widths widened g to 4 bytes C scales it by 4 again: 11 near misses (shl 4 vs [eax*4+g])
         b = re.sub(r"\(&(g_\w+) \+ ", r"((char *)&\1 + ", b)
     if "subpiece" in FIX_RULES: b = subpiece(b)
@@ -162,9 +163,9 @@ for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", tex
     allow_ = ({r_ for r_ in rf_ if r_.startswith("reg_e")} if PLAIN else set()) | ({"fsin", "fcos", "fpatan", "ABS"} & rf_ if X87 else set())
     called_ = set(re.findall(r"\b(\w+) ?\(", flat)) - {n}
     if PLAIN and called_ & NOADAPT: continue
-    if (ONLY is None or n in ONLY) and n not in have and n not in regin and not unsafe and int(lo, 16) <= a <= int(hi, 16) and not (rf_ - allow_) and "LAB_" not in body:
+    if (ONLY is None or n in ONLY) and n not in have and n not in regin and not unsafe and int(lo, 16) <= a <= int(hi, 16) and not (rf_ - allow_):
         if X87: body = re.sub(r"\b(fsin|fcos|fpatan|ABS)\(", lambda m_: X87_NAME[m_.group(1)] + "(", body)      # before fix_body: `x87_sin(x); v = _ftol();` becomes `v = (int)x87_sin(x);`
-        if PLAIN: body = re.sub(r"\b(%s)(\s*)\(" % "|".join(map(re.escape, called_ & set(ADAPT))), r"\1_r\2(", body)      # the decompiler may break the line between name and `(` if called_ & set(ADAPT) else body
+        if PLAIN and called_ & set(ADAPT): body = re.sub(r"\b(%s)(\s*)\(" % "|".join(map(re.escape, called_ & set(ADAPT))), r"\1_r\2(", body)      # the decompiler may break the line between name and `(` ; guard: an empty alternation would rewrite every `(`
         funcs.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
 
 

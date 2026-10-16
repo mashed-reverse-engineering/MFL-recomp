@@ -23,6 +23,10 @@ FLT_T = {"float", "double", "float10", "RwReal", "FLOAT", "longdouble"}
 KW = {"if", "while", "for", "return", "else", "switch", "sizeof", "do", "case", "goto"}
 
 
+def exact_slots(va, k):
+    """the ORIGINAL body reads exactly k stack argument slots (orig_stackargs.txt row without tail / addr / dyn / ijmp / w<N> flags): fewer pending pushes than the callers' minimum are then batched `add esp` cleanups, not missing arguments (2026-10-16)"""
+    o = ORIG.get(va)
+    return bool(o) and o[0] == k and not o[2] and not (o[3] & {"dyn", "addr", "ijmp"}) and not any(re.match(r"w\d", x) for x in o[3])
 def strip_comments(t):
     def blank(m): return re.sub(r"[^\n]", " ", m.group(0))
     t = re.sub(r"/\*.*?\*/", blank, t, flags=re.S)
@@ -84,6 +88,7 @@ class Lint:
         self.glob = dict(gdecl)           # file externs override decls.h
         self.protos = {}                  # name -> (nparams or None for (), [types], va)
         self.finds = []
+        self.hints = []                   # mechanical fixes for tools/t2_postfix.py: (kind, line, symbol / function, [argument texts])
         self.parse_top()
 
     # ---- declarations
@@ -232,6 +237,7 @@ class Lint:
             if (ka == "U" and kb in "LS") or (kb == "U" and ka in "LS"):
                 u = na if ka == "U" else nb
                 where = "local" if u.split("[")[0].lstrip("*") in env else "global"
+                self.hints.append(("sgn", line, u, []))
                 self.add(1, "high" if where == "global" else "medium", line, fn, u, st, "%s `%s` is undefined4 (unsigned compare); the original may be signed: needs (int)" % (where, u))
         # class 2
         for m in re.finditer(r"(?<![\w.])(\d+\.\d*(?:[eE]-?\d+)|\d+[eE]-\d+)[fF]?\b", st):
@@ -247,11 +253,11 @@ class Lint:
             elif kl in "UP?S" and not lv.startswith("*(float") and re.search(r"\[", lv) and kl in "US":
                 ifloat = re.match(r"^\(\s*(?:float|double)\s*\)", rhs) or kr == "F" and nr != "(cast)" and not re.match(r"^-?\d+$", rhs) \
                     or re.search(r"\(\s*int\s*\)\s*\(?.*?(\(\s*float\s*\)|\bf[A-Z]?Var\d|\bfVar|\bRVar)", rhs)
-                if ifloat and not re.match(r"^\(\s*(int|uint)\s*\)\s*[\w\.]+$", rhs): self.add(2, "high", line, fn, nl, st, "float value stored into the dword object `%s` by conversion (use *(float *)&...)" % nl)
+                if ifloat and not re.match(r"^\(\s*(int|uint)\s*\)\s*[\w\.]+$", rhs): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float value stored into the dword object `%s` by conversion (use *(float *)&...)" % nl)
                 elif re.match(r"^\(\s*int\s*\)\s*\w+(\.\w+)*\.[xyz]\s*$", rhs) or (re.match(r"^\(\s*int\s*\)\s*(\w+(\.\w+)*)\s*$", rhs) and kr == "?" and self.is_float_name(rhs, env)): self.add(2, "high", line, fn, nl, st, "float stored into the dword object `%s` by conversion" % nl)
         for m in re.finditer(r"\(\s*(?:float|RwReal)\s*\)\s*((?:\(\s*&\s*\w+\s*\)|\w+)\s*\[[^\]]*\]|\w+)", st):
             k, n = self.atom(m.group(1), env)
-            if k in "US" and "[" in m.group(1) and not re.search(r"\[\s*[a-z]?Var\d*\s*\]|\[\s*(i|j|k)\s*\]", m.group(1)) or k == "U" and "[" in m.group(1): self.add(2, "medium", line, fn, n, st, "(float) of the dword element %s converts (fild); a float kept in a dword object needs *(float *)&..." % m.group(1))
+            if k in "US" and "[" in m.group(1) and not re.search(r"\[\s*[a-z]?Var\d*\s*\]|\[\s*(i|j|k)\s*\]", m.group(1)) or k == "U" and "[" in m.group(1): self.hints.append(("fcast", line, m.group(0), [m.group(1)])); self.add(2, "medium", line, fn, n, st, "(float) of the dword element %s converts (fild); a float kept in a dword object needs *(float *)&..." % m.group(1))
             elif k == "U" and n in self.glob and self.glob[n] == "undefined4" and n not in env and "[" not in m.group(1) and not re.search(r"\(\s*float\s*\)\s*" + re.escape(n) + r"\s*[\*/]", st) and False: pass
         # class 4
         for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\(", st):
@@ -263,10 +269,13 @@ class Lint:
             if j < 0: continue
             args = split_args(st[m.end():j])
             if n is None:
-                if any(self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a) for a in args):
+                fa = [a for a in args if self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a)]
+                if fa:
+                    self.hints.append(("fbits", line, f, [a.strip() for a in fa]))
                     self.add(4, "high", line, fn, f, st, "float argument passed to `%s()` (no prototype): pushed as double" % f)
                 continue
             if len(args) != n and not (n == 0 and not args):
+                if len(args) > n > 0: self.hints.append(("dropextra", line, f, [n]))
                 self.add(4, "high", line, fn, f, st, "%s called with %d argument(s), prototype has %d" % (f, len(args), n))
                 continue
             for a, p in zip(args, ptypes):
@@ -274,6 +283,7 @@ class Lint:
                 ak, an = self.atom(a, env)
                 fl = (ak == "F" and an != "(cast)") or re.match(r"^\s*\(\s*float\s*\)", a)
                 if pk in "UuS" and fl and "*" not in p and not re.match(r"^\s*\(\s*(int|uint)\s*\)", a):
+                    self.hints.append(("fbits", line, f, [a.strip()]))
                     self.add(4, "high", line, fn, f, st, "float argument `%s` for the integer parameter `%s` of %s: the compiler emits _ftol" % (a.strip(), p.strip(), f))
 
     def vtable_calls(self, st):
@@ -362,7 +372,7 @@ class Lint:
             k = len([a for a in split_args(st[m.end():j]) if a.strip()])
             if va in GT and GT[va] != k:
                 self.add(8, "high", line, fn, f, st, "`%s` is declared `()`; called with %d argument(s), the original callers pass %d (cdecl_args.txt / stdcall.txt)" % (f, k, GT[va]))
-            elif va in PMALL and k < PMALL[va][0]:
+            elif va in PMALL and k < PMALL[va][0] and not exact_slots(va, k):
                 self.add(8, "high" if PMALL[va][1] >= 3 else "medium", line, fn, f, st, "`%s` is declared `()`; called with %d argument(s), every original call site (%d) has >= %d pushes pending (call_pushmin.txt)" % (f, k, PMALL[va][1], PMALL[va][0]))
 
     def check_calleearity(self, fn, line, st):
@@ -495,7 +505,7 @@ class Lint:
         used = {f for f in self.protos if re.search(r"(?<![\w])%s\s*\(" % re.escape(f), "\n".join(l for l in self.t.split("\n") if not re.match(r"\s*extern\b", l)))}
         for f, (n, ps, va, rt, line) in self.protos.items():
             if f not in used: continue      # an unused extern cannot change the code
-            if va and n is not None and va in PM and n < PM[va] and va not in GT and not re.search(r"printf", f):
+            if va and n is not None and va in PM and n < PM[va] and va not in GT and not re.search(r"printf", f) and not exact_slots(va, n):
                 self.add(4, "high", line, f, f, self.raw.split("\n")[line - 1], "prototype has %d parameter(s) but every original call site has >= %d pushes pending (call_pushmin.txt): an argument is missing" % (n, PM[va]))
         # file level: a prototype with a different parameter count than output/cdecl_args.txt / stdcall.txt
         for f, (n, ps, va, rt, line) in self.protos.items():

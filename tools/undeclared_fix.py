@@ -27,7 +27,7 @@ new, al, rep = [], [], []
 for x in sorted(want):
     if x == "sbyte": new.append("typedef signed char sbyte;")
     elif x in enums: new.append("typedef int %s;" % x)
-    elif re.search(r"(?:^|_)([0-9a-f]{8})$", x) and re.match(r"(?:PTR_|s_|UNK_|DAT_|u_|switchD_)", x) and not x.startswith("switchD_"):
+    elif re.search(r"(?:^|_)([0-9a-f]{8})$", x) and re.match(r"(?:PTR_|s_|UNK_|DAT_|u_|LAB_|switchD_)", x) and not x.startswith("switchD_"):
         new.append("extern char %s[];" % x)
         if x not in sym: al.append("%s %s" % (x, re.search(r"([0-9a-f]{8})$", x).group(1)))
     else: rep.append(x)

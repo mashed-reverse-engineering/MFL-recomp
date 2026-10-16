@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
 NAMED = P("output", "named", "MFL_app_named.c")
@@ -153,7 +153,6 @@ def skip_class(n, body, regin, have, ok_protos):
     if n in have: return "gen-skip:manifest-C", "hand written C exists"
     if n in regin: return "gen-skip:usercall", "register inputs " + regin[n]
     if rf: return ("gen-skip:plain-regcallee", ",".join(sorted(rf))[:80]) if all(r.startswith("reg_e") for r in rf) else ("gen-skip:x87-intrinsic" if rf <= {"fsin", "fcos", "fpatan", "ABS"} else "gen-skip:usercall", ",".join(sorted(rf))[:80])
-    if "LAB_" in body: return "gen-skip:label", "goto / jump table"
     un = sorted({c for c in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat) if c not in ok_protos})
     if un:
         rg = [c for c in un if WHY.get(c) == "regin"]
@@ -396,7 +395,17 @@ def main():
     items = []; srcs = {}
     for n in todo:
         ok, f, err, rnd = st[n]
-        if f: shutil.copy(f, os.path.join(FILES, n + ".c")); srcs[n] = os.path.join(FILES, n + ".c")
+        if f:
+            shutil.copy(f, os.path.join(FILES, n + ".c")); srcs[n] = os.path.join(FILES, n + ".c")
+            try: pk = t2_postfix.fix(srcs[n])      # float bit copies, signed compares, enum defines (tools/t2_postfix.py)
+            except Exception as ex: pk = []; print("postfix %s: %s" % (n, ex))
+            if pk and not ok:      # a compile error may be gone now (enum names)
+                o_, k_, e_ = compile_one(srcs[n])
+                if not e_: st[n] = ok = True, f, "", rnd
+            if pk:
+                print("postfix %s: %s" % (n, ",".join(sorted(set(pk)))), flush=True)
+                os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)      # attempts note (tools/attempts.py format)
+                with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as af: af.write("%s | t2_postfix | NOTE | scripted text fixes applied before compile: %s\n" % (time.strftime("%F %H:%M"), ",".join(sorted(set(pk)))))
         if not ok: put(n, "gen", "COMPILE-ERROR", err, cclass(err), srcs.get(n, "")); continue
     # --- compile with the diffemu flags
     cand = [n for n in todo if st[n][0]]
