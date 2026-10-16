@@ -832,9 +832,10 @@ def compare(fn, mo, ro, mu, ru):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""
     d = []; sg = fn.sig
     if ro["exited"] != ru["exited"]: d.append("noreturn callee (exit): original %s, ours %s" % (ro["exited"], ru["exited"]))
-    if ro["exited"] and ru["exited"]: ro = dict(ro, esp=0, eax=0, edx=0, fptop=0, st0=None, saved=ru["saved"]); ru = dict(ru, esp=0, eax=0, edx=0, fptop=0, st0=None)
+    exited = ro["exited"] and ru["exited"]
+    if exited: ro = dict(ro, esp=0, eax=0, edx=0, fptop=0, st0=None, saved=ru["saved"]); ru = dict(ru, esp=0, eax=0, edx=0, fptop=0, st0=None)
     if getattr(fn, "espok", None):
-        if not fn.espok(ro["esp"], ru["esp"]): d.append("esp delta orig %d ours %d (not a plain cdecl / stdcall return)" % (ro["esp"], ru["esp"]))
+        if not exited and not fn.espok(ro["esp"], ru["esp"]): d.append("esp delta orig %d ours %d (not a plain cdecl / stdcall return)" % (ro["esp"], ru["esp"]))
     elif ro["esp"] != ru["esp"]: d.append("esp delta orig %d ours %d (ret N)" % (ro["esp"], ru["esp"]))
     for nm, a, b in zip(("ebx", "esi", "edi", "ebp"), ro["saved"], ru["saved"]):
         if a != b and nm not in getattr(fn, "skipsaved", ()):      # cluster root: a register INPUT the original does not preserve (the entry thunk of a bridge restores it)

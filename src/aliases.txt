@@ -1531,3 +1531,5 @@ _g_physics_000000 00000000
 _rpUVAnimDictSchema 0063a38c
 _rwD3D9LastFVFUsed 0062e760
 _RwD3D9RasterExtOffset 00947144
+RxNodeDefinitionGetD3D9AtomicAllInOne 005003b0
+RxNodeDefinitionGetD3D9WorldSectorAllInOne 005009c0
