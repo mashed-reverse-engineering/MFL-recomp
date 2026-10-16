@@ -646,7 +646,9 @@ class Machine:
         for k, a in enumerate(outs):      # out parameters: a dword behind every pointer to a local gets a deterministic value (else it is frame garbage, different in the two builds)
             if isstack(a): uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, k), 16) % 61))
         if c.ret == "f": uc.mem_write(FPSRC, struct.pack("<d", ((h >> 4) % 4000 - 2000) / 8.0))
-        uc.reg_write(UC_X86_REG_EAX, (0, 1, r % 3, r % 50, r % 6, r % 256, r % 10, 2)[h % 8] if m.small else (0, 1, u32(-1), r % 50, r % 6, r % 256, u32(r * 2654435761), u32(r))[h % 8])      # m.small: retry_case, a loop bound returned by a stubbed callee
+        w_ = RETWANT.get(c.va)
+        if w_ and not m.small and m.seed % 3 == 2 and (h >> 3) % 3 != 0: uc.reg_write(UC_X86_REG_EAX, w_[(h >> 12) % len(w_)])      # compare-guided result (see ret_wants)
+        else: uc.reg_write(UC_X86_REG_EAX, (0, 1, r % 3, r % 50, r % 6, r % 256, r % 10, 2)[h % 8] if m.small else (0, 1, u32(-1), r % 50, r % 6, r % 256, u32(r * 2654435761), u32(r))[h % 8])      # m.small: retry_case, a loop bound returned by a stubbed callee
         uc.reg_write(UC_X86_REG_EDX, u32(h >> 20)); uc.reg_write(UC_X86_REG_ECX, u32(h >> 12))
         uc.reg_write(UC_X86_REG_EIP, m.stubaddr(0 if nat and m.ours else c.pop, c.ret == "f"))
 
@@ -761,6 +763,57 @@ class Case:
     def describe(c): return "seed %d mode %d fill %s args %s%s" % (c.seed, c.mode, c.fill if isinstance(c.fill, str) else hex(c.fill), [hex(a) if isinstance(a, int) else a for a in c.args], (" loop-bound patch %s" % {hex(a): v for a, v in c.patch.items()} if c.patch else "") + (" small stub returns" if c.small else ""))
 
 FILLS = (0xA5, 0x00, 0xFF, "rand")
+
+def cmp_targets(fn):
+    """(addr, value) of the globals the ORIGINAL compares against an immediate: `cmp [abs], imm` and `mov r, [abs]` followed within 4 instructions by `cmp r, imm` (g_input_mode == 0x1000, mode switches).
+    Random memory never hits these (coverage 0.3 of menu_left_pressed_any); evaluate() pokes 1-3 of them into a third of the cases (patch, applied to BOTH sides = just another input)."""
+    if not hasattr(fn, "_cmpt"):
+        out = []; a = fn.va; last = {}      # last: register -> (address, instruction index of the load)
+        n = 0
+        while a < fn.hi and n < 4000:
+            ins = next(CS.disasm(img_read(a, 16), a, 1), None)
+            if ins is None: a += 1; continue
+            a += ins.size; n += 1; ops = ins.operands
+            def absmem(o): return o.type == CX.X86_OP_MEM and o.mem.base == 0 and o.mem.index == 0 and BASE <= o.mem.disp < IMGEND
+            if ins.mnemonic == "mov" and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and absmem(ops[1]) and ops[1].size == 4: last[ops[0].reg] = (ops[1].mem.disp, n)
+            elif ins.mnemonic == "cmp" and len(ops) == 2 and ops[1].type == CX.X86_OP_IMM:
+                if absmem(ops[0]): out.append((ops[0].mem.disp, u32(ops[1].imm)))
+                elif ops[0].type == CX.X86_OP_REG and ops[0].reg in last and n - last[ops[0].reg][1] <= 4 and ops[0].size == 4: out.append((last[ops[0].reg][0], u32(ops[1].imm)))
+        fn._cmpt = sorted(set(out))
+    return fn._cmpt
+
+RETWANT = {}      # callee va -> immediates the ORIGINAL compares its result with (set by evaluate() for the function under test, one function at a time per process)
+def ret_wants(fn):
+    """{callee va: [imm..]}: `call f` followed within 4 instructions by `cmp eax, imm` / `sub eax, imm` (switch on a result): the stub returns these values in some cases"""
+    if not hasattr(fn, "_retw"):
+        out = {}; a = fn.va; n = 0; cur = None; since = 0
+        while a < fn.hi and n < 4000:
+            ins = next(CS.disasm(img_read(a, 16), a, 1), None)
+            if ins is None: a += 1; continue
+            a += ins.size; n += 1; ops = ins.operands; since += 1
+            if ins.mnemonic == "call" and ops and ops[0].type == CX.X86_OP_IMM: cur = ops[0].imm; since = 0
+            elif cur is not None and since <= 4 and ins.mnemonic in ("cmp", "sub") and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and ops[0].reg in (CX.X86_REG_EAX, CX.X86_REG_AL) and ops[1].type == CX.X86_OP_IMM:
+                v = u32(ops[1].imm) & (0xff if ops[0].reg == CX.X86_REG_AL else 0xffffffff)
+                if v not in out.setdefault(cur, []): out[cur].append(v)
+                cur = None
+        fn._retw = out
+    return fn._retw
+
+def cmp_offsets(fn):
+    """(disp, value, size) of `cmp [reg+disp], imm` (reg not esp / ebp, no index, 0 <= disp < 0x400): the field of a structure behind a pointer argument; evaluate() writes the value at that offset of the argument windows"""
+    if not hasattr(fn, "_cmpo"):
+        out = []; a = fn.va; n = 0; last = {}
+        okm = lambda o: o.type == CX.X86_OP_MEM and o.mem.base not in (0, CX.X86_REG_ESP, CX.X86_REG_EBP) and o.mem.index == 0 and 0 <= o.mem.disp < 0x400 and o.size in (1, 2, 4)
+        while a < fn.hi and n < 4000:
+            ins = next(CS.disasm(img_read(a, 16), a, 1), None)
+            if ins is None: a += 1; continue
+            a += ins.size; n += 1; ops = ins.operands
+            if ins.mnemonic == "mov" and len(ops) == 2 and ops[0].type == CX.X86_OP_REG and okm(ops[1]) and ops[1].size == 4: last[ops[0].reg] = (ops[1].mem.disp, n)      # mov eax, [edx+0x10] ... cmp eax, 0xb
+            elif ins.mnemonic == "cmp" and len(ops) == 2 and ops[1].type == CX.X86_OP_IMM:
+                if okm(ops[0]): out.append((ops[0].mem.disp, ops[1].imm & ((1 << 8 * ops[0].size) - 1), ops[0].size))
+                elif ops[0].type == CX.X86_OP_REG and ops[0].reg in last and n - last[ops[0].reg][1] <= 6 and ops[0].size == 4: out.append((last[ops[0].reg][0], u32(ops[1].imm), 4))
+        fn._cmpo = sorted(set(out))
+    return fn._cmpo
 
 def gen_cases(sig, n, k, seed0=0):
     """n argument sets x k memory seeds.  all-small-int signatures (1-2 arguments): the boundary values come first (cartesian); pointers get memory windows (struct sized when

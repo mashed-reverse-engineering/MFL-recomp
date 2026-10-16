@@ -94,3 +94,6 @@ extern int _rwD3D9LastFVFUsed;
 extern char s_spanish__005dfa18[];
 extern int _g_physics_000000;
 extern int _rwD3D9LastVertexDeclarationUsed;
+extern char LAB_00494320[];
+extern char LAB_00494360[];
+extern char LAB_00499120[];

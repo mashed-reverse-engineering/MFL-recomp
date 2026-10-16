@@ -4,6 +4,7 @@ diffemu.py <name ...> | --all-tier2 | --candidates | --names FILE | --src FILE.c
 Differential emulation: our compiled function (src/automatch_near chunk, output/tier2_candidates, tier 1 / agent sources) against the ORIGINAL bytes of MFL.exe, both in Unicorn
 with identical seeded memory and stubbed callees (README "diffemu").  Verdict per function: EQUAL | DIFF | INCONCLUSIVE; output/diffemu_results.csv, cache output/diffemu_cache.csv.
 Exit code 1 when a DIFF is found."""
+import random
 import os, sys
 try: import unicorn
 except ImportError:      # the packages live in a venv: python3 -m venv ~/.cache/mfl_diffemu_venv; ~/.cache/mfl_diffemu_venv/bin/pip install unicorn==2.1.4 capstone pefile
@@ -71,7 +72,17 @@ def make_fn(name, src, obj):
 def evaluate(fn, cases, seeds, budget=90, first_diff_stop=True):
     """run the cases of fn; -> dict(verdict, cases, skipped Counter, diff (case, descriptions), coverage)"""
     t0 = time.time(); ok = 0; skip = Counter(); diff = None
+    tg = core.cmp_targets(fn); core.RETWANT.clear(); core.RETWANT.update(core.ret_wants(fn))
     for c in core.gen_cases(fn.sig, cases, seeds):
+        if tg and c.seed % 3 == 1 and not c.patch:      # compare-guided input: some globals the original tests against immediates take those values (both sides)
+            r_ = random.Random(c.seed ^ 0x9e3779b9); c.patch = {a_: v_ for a_, v_ in r_.sample(tg, min(len(tg), r_.randint(1, 3)))}
+        to = core.cmp_offsets(fn)
+        if to and c.wins and c.seed % 3 != 0:      # structure fields behind pointer arguments the original compares with an immediate (`cmp [esi+0x18], 2`): written into the windows (both sides)
+            r_ = random.Random(c.seed ^ 0x7f4a7c15); ws = [[a_, bytearray(b_)] for a_, b_ in c.wins]
+            for d_, v_, sz_ in r_.sample(to, min(len(to), r_.randint(1, 3))):
+                w_ = r_.choice(ws)
+                if d_ + sz_ <= len(w_[1]): w_[1][d_:d_ + sz_] = v_.to_bytes(sz_, "little")
+            c.wins = [(a_, bytes(b_)) for a_, b_ in ws]
         if time.time() - t0 > budget: skip["TIME_BUDGET"] += 1; break
         st, x = core.run_case(fn, c)
         if st == "equal": ok += 1

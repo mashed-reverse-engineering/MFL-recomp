@@ -79,9 +79,16 @@ def floatptr(b):
     fl = set(re.findall(r"\b(?:float|RwReal) (\w+)\s*[;,)]", b)); fp = set(re.findall(r"\b(?:float|RwReal) \*+(\w+)\s*[;,)=\[]", b))
     def r(m):
         t, x = m.group(1), m.group(2); base = re.match(r"\*?(\w+)", x).group(1)
-        ok = (x.startswith("*") and base in fp) or (re.fullmatch(r"\w+\[[^\]]+\]", x) and base in fp) or (x == base and base in fl)
+        ok = (x.startswith("*") and base in fp) or (re.fullmatch(r"\w+\[[^\]]+\]", x) and base in fp) or (x == base and base in fl) or ("." in x and "[" in x)
         return "*(%s*)&%s" % (t, x) if ok else m.group(0)
-    return re.sub(r"\(((?:\w+ )*\w+ \*+)\)(\*?\w+(?:\[[^\]\[]+\])?)(?![\w\[(])", r, b)
+    return re.sub(r"\(((?:\w+ )*\w+ \*+)\)(\*?\w+(?:\[[^\]\[]+\])?(?:\.\w+)?)(?![\w\[(])", r, b)
+def ptrfloat(b):
+    """C2440: a float slot Ghidra typed `float *pfStack_54` that only ever receives `(float *)(float expression)` and is read back as `(float)x.pfStack_54` (never dereferenced) is a float."""
+    for m in list(re.finditer(r"\bfloat \*(\w+);", b)):
+        n = m.group(1)
+        if re.search(r"\*\s*\w*\.?%s\b|\b%s\s*\[|%s->" % (n, n, n), b.replace(m.group(0), "")) or not re.search(r"\(float\)(?:\w+\.)?%s\b" % n, b): continue
+        b = re.sub(r"\bfloat \*%s;" % n, "float %s;" % n, b); b = re.sub(r"(\b%s = )\(float \*\)" % n, r"\1", b); b = re.sub(r"\(float\)((?:\w+\.)?%s)\b" % n, r"\1", b)
+    return b
 def valcall(b):
     """C2120: `v = (**(code **)(p + 4))(x);` / `(*(code *)p)(x)` used as a value: the callee returns int, `code` is void"""
     return re.sub(r"(?:(?<=[=,!<>&|+\-] )|(?<=\())\(\*(\*?)\(code (\*+)\)", lambda m: "(*%s(int (%s)())" % (m.group(1), m.group(2)), b)
@@ -122,7 +129,8 @@ def hoist(b):
 def fix_round(body, errs):
     """errs: first error text of the last attempt ('' = proactive round 0)"""
     b = t2_postfix.isnan(denormal(intbits(strayassign(body))))
-    if "C2440" in errs: b = floatptr(b)
+    if "C2440" in errs: b = ptrfloat(floatptr(b))
+    if "C2036" in errs: b = re.sub(r"\(&(PTR_\w+)\)\[", r"((undefined4 *)\1)[", b)      # extern char PTR_x[] (jump table of code addresses) indexed through `&PTR_x`: pointer to an array of unknown size
     if "C2120" in errs: b = valcall(b)
     if re.search(r"C2143|C2059|C2146|C2106", errs): b = hoist(strayassign(b))
     m = re.search(r"C2065 '(\w+)' : undeclared", errs)
@@ -228,7 +236,14 @@ def stdcall_def(n, va, body):
 def generate(names, funcs, text_path):
     """-> (status {name: (ok, file, err, rounds)}); round 0 proactive fixes, then error driven rounds on the failures only"""
     status = {}; todo = list(names); errs = {n: "" for n in names}; cur = {n: funcs[n][1] for n in names}
-    for rnd in range(6):      # autocompile reports ONE error per function: a body with several undeclared names (s_german__.., s_spanish__.. ) needs one round each
+    lab = {}      # `&LAB_00494320` = address of code that is no function (callback, thunk target): declare it before the first round (autocompile does not compile, the later compile stage cannot retry)
+    for n in names:
+        for x in re.findall(r"&\s*(LAB_[0-9a-f]{8})\b", cur[n]):
+            if not re.search(r"^\s*%s:|goto %s;" % (x, x), cur[n], re.M): lab.setdefault(n, set()).add(x)
+    if lab:
+        ff = os.path.join(W, "failed_lab.txt"); open(ff, "w").write("".join("%s\tf.c(1) : error C2065 '%s' : undeclared identifier\n" % (n, x) for n, xs in lab.items() for x in sorted(xs)))
+        subprocess.run([sys.executable, os.path.join(HERE, "undeclared_fix.py"), ff], capture_output=True)
+    for rnd in range(12):      # autocompile reports ONE error per function: a body with several undeclared names (s_german__.., s_spanish__.. ) needs one round each
         if not todo: break
         txt = os.path.join(W, "text_r%d.c" % rnd)
         with open(txt, "w") as f:

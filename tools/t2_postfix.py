@@ -333,6 +333,17 @@ def pushmin_slots(va):
         pm = {l.split()[0]: int(l.split()[1]) for l in open(os.path.join(G, "output", "call_pushmin.txt")) if len(l.split()) >= 2}
         for va_, (sl, _, fl) in orig().items(): _PMK[va_] = min(max(sl, tail_true(va_)), pm.get(va_, 0))      # a tail-forwarder really takes its target's slots
     return _PMK.get(va, 0)
+def stale_locals(t, nm):
+    """locals of function nm (plain declarations `type name;` at the top) that are never assigned, never address-taken, never indexed / member-accessed: only read (passed on)"""
+    h = re.search(r"^[A-Za-z_][^;{}]*?\b%s\s*\([^)]*\)\s*\{" % re.escape(nm), t, re.M)
+    if not h: return set()
+    body = t[h.end():]; out = set()
+    for m in re.finditer(r"^  (?:undefined\d?|int|uint|float|RwReal|char|uchar|short|ushort|byte|bool) (\w+);", body, re.M):
+        v = m.group(1); rest = body[:m.start()] + " " * (m.end() - m.start()) + body[m.end():]
+        if not re.search(r"\b%s\b" % v, rest): continue
+        if re.search(r"(?<![\w.])%s\s*(?:[-+*/|&^]|<<|>>)?=(?!=)|&\s*%s\b|\b%s\s*(?:\[|\.|->|\+\+|--)|(?:\+\+|--)\s*%s\b" % (v, v, v, v), rest): continue
+        out.add(v)
+    return out
 def argsite(t, nm):
     """-> (new text, number of calls filled): `f()` / `f_r(a)` whose original call site pushes / loads more arguments than Ghidra printed. Each missing argument comes from the original call site (asm_sites): an immediate, a global, a local / parameter slot (Ghidra's local_N), the result variable of the call just before (`v = P(..); f()` with eax pushed), or the C argument another call site of f passes for the same asm value. All or nothing per call; diffemu verifies."""
     ext = {}      # callee name -> (va, regs, nstack)
@@ -370,6 +381,9 @@ def argsite(t, nm):
         k = pushmin_slots(ext[n][0])
         if k and not ext[n][1] and ext[n][2] == 0 and n not in want_t and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((?:void)?\);" % (ext[n][0], re.escape(n)), t, re.M) and max(len(a) for _, _, a in cs) <= k and min(len(a) for _, _, a in cs) < k: want[n] = k      # mixed argument counts: the complete calls stay, the short ones get the rest
     need = {n for n, cs in calls.items() if any(len(a) < want[n] for _, _, a in cs)}
+    uninit = stale_locals(t, nm)      # kind `stalearg`: a local nobody assigns passed as an argument (Ghidra lost the definition: a parameter of the caller read after a `mov edx, [esp+..]`): the argument comes from the original call site
+    stale = {n for n, cs in calls.items() if uninit and any(a_ in uninit for _, _, a in cs for a_ in a)}
+    need |= stale
     if not need: return t, 0
     sites = asm_sites(nm, {ext[n][0] for n in calls})
     if not sites: return t, 0
@@ -395,6 +409,13 @@ def argsite(t, nm):
         if canon is None: continue
         if any(len(a) >= tot and re.fullmatch(r"0x[0-9a-f]+|\d+", a[j]) and canon[i2][j].startswith("I:") and int(a[j], 0) != int(canon[i2][j][2:], 0) for i2, (_, _, a) in enumerate(cs) for j in range(tot)): continue      # the order of the C calls differs from the original's
         for i, (p, close, args) in enumerate(cs):
+            if len(args) >= tot and n in stale:
+                al_, _c = _args(t, p + len(n)); _XP.update(tail=bool(ss[i].get("tail")), own=ow[0], max=0, ret=lambda c, p=p: retvar(c, p))
+                for j, a in enumerate(args[:tot]):
+                    if a in uninit and j < len(canon[i]) and not canon[i][j].startswith(("R:", "?")):
+                        x = _cname(canon[i][j], t, glob, names, nm)
+                        if x and x != a: edits.append((al_[j][0] + len(t[al_[j][0]:al_[j][1]]) - len(t[al_[j][0]:al_[j][1]].lstrip()), al_[j][1] - (len(t[al_[j][0]:al_[j][1]]) - len(t[al_[j][0]:al_[j][1]].rstrip())), x)); done += 1
+                continue
             if len(args) >= tot: continue
             new = []; _XP.update(tail=bool(ss[i].get("tail")), own=ow[0], max=0, ret=lambda c, p=p: retvar(c, p))
             for j in range(len(args), tot):
@@ -663,6 +684,31 @@ def frame_fix(t, flagged):
         return r or m.group(0)
     t2 = re.sub(r"^\{\n.*?^\}\n", f, t, flags=re.M | re.S)
     return t2, n
+_DECL = {}
+def addrarith(t):
+    """kind `addrarith` (REAL): `(&g + i * 4)` / `(&g)[i]` of a scalar extern that autocompile widened (undefined4) while Ghidra's type (output/decls.h) is 1 byte: the pointer arithmetic scaled by the wrong element size -> `((undefined *)&g)`."""
+    if not _DECL:
+        for l in open(os.path.join(G, "output", "decls.h"), errors="replace"):
+            m = re.match(r"/\*\w+\*/ extern ([\w ]+?)\s+(\w+)(\[.*?\])?;", l)
+            if m and not m.group(3): _DECL[m.group(2)] = m.group(1)
+    n = [0]
+    def r(m):
+        g = m.group(1); e = re.search(r"^/\*\w+\*/ extern ([\w ]+?)\s+%s;" % g, t, re.M)
+        if e and _DECL.get(g) in ("undefined", "char", "byte", "uchar") and e.group(1) != _DECL[g]: n[0] += 1; return "((%s *)&%s)" % (_DECL[g], g)
+        return m.group(0)
+    return re.sub(r"&(\w+)(?=\s*\+|\)\[)", r, t), n[0]
+def intvar(t):
+    """kind `intvar` (REAL): Ghidra typed an INTEGER local (loop counter in ebx) float because one callee takes it as a float-ish argument: `v = (float)((int)v + 1)`, `*(int *)&v`, `v = 0.0;`.  A local / frame member that occurs as `(float)((int)v ..)` becomes `int`; the conversions around it go away."""
+    n = 0
+    for v in sorted(set(re.findall(r"\(float\)\(\(int\)([A-Za-z_][\w.]*)\b", t))):
+        b = re.escape(v.split(".")[-1]); e = re.escape(v)
+        d = re.findall(r"\b(?:float|RwReal)(\s+)%s(?=\s*;)" % b, t)
+        if len(d) != 1 or re.search(r"\b(?:float|RwReal|double)\s+\**%s\s*\[" % b, t): continue
+        t = re.sub(r"\b(?:float|RwReal)(\s+%s\s*;)" % b, r"int\1", t)
+        t = re.sub(r"\(float\)(\((?:[^()]|\([^()]*\))*\(int\)%s\b(?:[^()]|\([^()]*\))*\))" % e, r"\1", t)
+        t = re.sub(r"\*\(int \*\)&%s\b" % e, v, t); t = re.sub(r"\(int\)%s\b" % e, v, t)
+        t = re.sub(r"\b%s = (-?\d+)\.0f?;" % e, r"%s = \1;" % v, t); n += 1
+    return t, n
 def fix(path):
     """edits that touch the same line go in successive rounds (lint again after each)"""
     ks = []
@@ -674,6 +720,10 @@ def fix(path):
     if t2 != t: open(path, "w").write(t2); ks.append("headjoin")
     t3 = isnan(re.sub(r"\.s\.(LowPart|HighPart)\b", r".\1", t2))      # kind `member`: Ghidra's LARGE_INTEGER has `.s.LowPart` (newer SDK), our header has the flat union-less struct
     if t3 != t2: open(path, "w").write(t3); ks.append("member/isnan")
+    t3, an_ = addrarith(t3)
+    if an_: open(path, "w").write(t3); ks.append("addrarith")
+    t3, iv_ = intvar(t3)
+    if iv_: open(path, "w").write(t3); ks.append("intvar")
     t4 = re.sub(r"^/\*[0-9a-f]{8}\*/ extern [^;\n]*?\b(\w+)\([^;\n]*\);\n", lambda m: "" if len(re.findall(r"\b%s\b" % re.escape(m.group(1)), re.sub(r"/\*.*?\*/", "", t3, flags=re.S))) == 1 else m.group(0), t3, flags=re.M)      # kind `unused`: an extern nobody calls (autocompile declares names that only occur in the comment; defectlint then flags `start`)
     if t4 != t3: open(path, "w").write(t4); ks.append("unused")
     for _ in range(3):
