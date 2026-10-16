@@ -145,6 +145,17 @@ def select(a):
     if "--max" in a: rows = rows[:int(a[a.index("--max") + 1])]
     return rows
 
+_NOAD = []
+def noadapt():
+    """register callees without an F_r adapter (the set autocompile.py computes for AC_PLAIN)"""
+    if not _NOAD:
+        sys.path.insert(0, HERE); import bridgegen as bg
+        bl, sg, ri, man = bg.load(); ad = sorted(a for a, _ in bl.values()); nx = {a: ad[i + 1] if i + 1 < len(ad) else a + 0x400 for i, a in enumerate(ad)}
+        ok = set(bg.adapter_ok(bl, sg, ri, man, nx)) | set(bg.synth_adapters(bl, ri, {})[0])
+        _NOAD.append({c for c, (r, _) in ri.items() if r.strip("|") and c not in ok})
+    return _NOAD[0]
+def _callee_names():
+    return {"FUN_" + p[0]: p[1] for p in (l.rstrip("\n").split(",", 2) for l in open(P("names", "MFL_callee_names.csv")) if not l.startswith("#")) if len(p) >= 2}
 WHY = {}      # FUN_ callee -> why tools/callee_auto.py could not write an exact prototype
 def skip_class(n, body, regin, have, ok_protos):
     """reasons autocompile.py drops a function without trying (and tier2_census.py names them): -> (class, detail) or None"""
@@ -152,6 +163,12 @@ def skip_class(n, body, regin, have, ok_protos):
     flat = re.sub(r"\s+", " ", body); rf = set(REG.findall(body))
     if n in have: return "gen-skip:manifest-C", "hand written C exists"
     if n in regin: return "gen-skip:usercall", "register inputs " + regin[n]
+    if re.search(r"\breg_e", body.split("{", 1)[0]): return "gen-skip:usercall", "register parameter in its own definition (a register-convention function: plain C cannot be called with it)"
+    if rf and all(r.startswith("reg_e") for r in rf):      # reg_e?? locals = arguments of register callees: generated through the F_r adapters (autocompile AC_PLAIN) unless a callee has none
+        na = noadapt(); cn = _callee_names()
+        miss = sorted({cn.get(c, c) for c in re.findall(r"\b(\w+) ?\(", flat)} & na - {n})
+        if miss: return "gen-skip:plain-regcallee-noadapter", "no F_r adapter for " + ",".join(miss)[:150]
+        rf = set()
     if rf: return ("gen-skip:plain-regcallee", ",".join(sorted(rf))[:80]) if all(r.startswith("reg_e") for r in rf) else ("gen-skip:x87-intrinsic" if rf <= {"fsin", "fcos", "fpatan", "ABS"} else "gen-skip:usercall", ",".join(sorted(rf))[:80])
     un = sorted({c for c in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat) if c not in ok_protos})
     if un:

@@ -105,7 +105,7 @@ def tail_true(va):
     if not o or o[1] == ["-"] or not any(re.fullmatch(r"w\d+", f) for f in o[2]): return 0
     ts = [orig().get(t) for t in o[1]]
     return max([o[0]] + [x[0] for x in ts if x]) if all(ts) else 0
-def tailfwd(t):
+def tailfwd(t, nm=None):
     """-> (new text, n fixed)"""
     ext = {}
     for m in re.finditer(r"^/\*([0-9a-f]{8})\*/ extern ([^;]*?\b)(\w+)\(([^)]*)\);", t, re.M):
@@ -130,6 +130,14 @@ def tailfwd(t):
                 edits.append((al2[d - 1][1], al2[d + k - 1][1], ""))
                 fixed.add(n); used.add(p)
             break
+    # no stale arguments to take back: every call of the original pushes the same constants (immediates / addresses)
+    left = {n for p, n in calls if n in todo and p not in used}
+    ca = orig_const_args(nm, {ext[n][0] for n in left}) if left and nm else {}
+    for p, n in calls:
+        a = ca.get(ext[n][0]) if n in left and p not in used else None
+        if a and len(a) == todo[n]:
+            al, close = _args(t, p + len(n))
+            if len(al) == ext[n][1]: edits.append((close, close, "".join(", " + x for x in a[len(al):]))); fixed.add(n); used.add(p)
     if not edits: return t, 0
     for n in fixed:
         m = ext[n][2]; k = todo[n]; ps = m.group(4); a, b = m.span(4)
@@ -165,7 +173,7 @@ def merge_fn(body, flagged, maxgap=8):
     if not todo: return None
     edits = []; names = {}
     for k, c in enumerate(todo):
-        v = "frame" if k == 0 else "frame%d" % (k + 1); top = c[0]["off"]; mem = []
+        v = ("frame" if not re.search(r"\bframe\b", body) else "frame_obj") + ("" if k == 0 else str(k + 1)); top = c[0]["off"]; mem = []
         for i, s in enumerate(c):
             if (top - s["off"]) % s["al"]: return None
             if i: 
@@ -179,7 +187,7 @@ def merge_fn(body, flagged, maxgap=8):
 def sub_names(body, names):
     # do not rewrite the member declarations inside the struct blocks
     out = []; pos = 0
-    for m in re.finditer(r"  struct \{\n.*?\n  \} frame\d*;\n", body, re.S):
+    for m in re.finditer(r"  struct \{\n.*?\n  \} frame(?:_obj)?\d*;\n", body, re.S):
         out.append(re.sub(r"(?<![\w.])(%s)\b" % "|".join(map(re.escape, names)), lambda q: "%s.%s" % (names[q.group(1)], q.group(1)), body[pos:m.start()])); out.append(m.group(0)); pos = m.end()
     out.append(re.sub(r"(?<![\w.])(%s)\b" % "|".join(map(re.escape, names)), lambda q: "%s.%s" % (names[q.group(1)], q.group(1)), body[pos:]))
     return "".join(out)
@@ -206,7 +214,7 @@ def fix(path):
 def _fix1(path):
     import defectlint
     t = open(path, errors="replace").read(); defectlint.load_gt()
-    t, tn = tailfwd(t)
+    t, tn = tailfwd(t, os.path.basename(path)[:-2])
     if tn: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()
     L = defectlint.Lint(os.path.relpath(path, G), t, fix.gd); fnd = L.run()

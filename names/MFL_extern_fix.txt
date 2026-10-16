@@ -72,3 +72,4 @@ extern char LAB_004a6a60[];
 extern char LAB_0053da80[];
 extern char s_fff_fff_fff__0062ab1c[];
 extern char s_french__005dfa38[];
+extern char PTR_g_ai_data_tile_pool_32124__00629f88[];
