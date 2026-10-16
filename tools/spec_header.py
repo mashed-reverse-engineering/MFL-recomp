@@ -47,7 +47,11 @@ def patch(st):
         while j < len(lines) and free(lines[j]) and free(lines[j])[0] == end and end < off + sz: end += free(lines[j])[1]; j += 1
         if end < off + sz: log.append("skip %s.%s +0x%x..0x%x: bytes not free" % (st, name, off, off + sz)); continue
         start = free(lines[i])[0]; ind = re.match(r"\s*", lines[i]).group(0)
-        lines[i:j] = gap(ind, start, off - start) + [ind + decl(t, name)[:-1] + ";" + cmt(c)] + gap(ind, off + sz, end - off - sz)
+        fm = re.match(r"\s*undefined(\d?) field_0x([0-9a-f]+);", lines[i])
+        if fm and j == i + 1 and start == off and (int(fm.group(1) or 1)) == sz:      # keep the old placeholder name usable by existing sources: anonymous union {named; field_0xNN;}
+            lines[i:j] = [ind + "union { " + decl(t, name) + " undefined%s field_0x%s; };" % (fm.group(1), fm.group(2)) + cmt(c)]
+        else:
+            lines[i:j] = gap(ind, start, off - start) + [ind + decl(t, name)[:-1] + ";" + cmt(c)] + gap(ind, off + sz, end - off - sz)
         log.append("add %s.%s +0x%x" % (st, name, off))
     text = text[:m.start(2)] + "\n".join(lines) + text[m.end(2):]
 def emit(st):

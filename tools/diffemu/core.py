@@ -156,6 +156,10 @@ DEF = re.compile(r"^(?!extern|/\*|typedef|static)([A-Za-z_][\w \*]*?)\b(\w+)\((.
 def defs(path):
     """{function: (definition text, signature match)} of a C file"""
     L = open(path, errors="replace").read().split("\n"); out = {}; i = 0
+    for k in range(len(L) - 1, 0, -1):      # Ghidra layout `undefined4 __cdecl` / `name` / `(args)`: return type, name and parameter list may sit on separate lines; joined into one logical line (was: KeyError for ~60 t2_auto functions)
+        a = L[k - 1]
+        if re.match(r"^[A-Za-z_][\w \*]*[\w\*]$", a) and not re.match(r"^(extern|typedef|static|return|else|do|goto|case)\b", a):
+            if re.match(r"^\s*\(", L[k]) or re.match(r"^[A-Za-z_]\w*\(", L[k]): L[k - 1:k + 1] = [a + (L[k].lstrip() if L[k].lstrip().startswith("(") else " " + L[k])]
     while i < len(L):
         n_ = 1      # rule `sigjoin`: a signature split over several lines (`f(int a,` / `int b)`) is joined into one logical line
         if re.match(r"^(?!extern|/\*|typedef|static)[A-Za-z_][\w \*]*?\b\w+\(", L[i]) and L[i].count("(") > L[i].count(")"):
@@ -223,6 +227,21 @@ class Coff:
 
 class Unresolved(Exception): pass
 
+_LS = {}
+def libsyms():
+    """name -> address of output/*_libsyms.csv (rw_libsyms, crt_libsyms ...)"""
+    if not _LS:
+        import glob
+        for fn in sorted(glob.glob(os.path.join(ROOT, "output", "*_libsyms.csv"))):
+            for l in open(fn):
+                q = l.strip().split(",")
+                if len(q) >= 2 and q[1] != "00000000":
+                    try: _LS.setdefault(q[0], int(q[1], 16))
+                    except ValueError: pass
+    return _LS
+
+def impstub(name): return IMPSTUB + 16 * sorted(T().iat).index(name)
+
 def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
     """-> (code relocated for OURS, literal / static blob for SCR, relocation targets): relocations resolved like cmpfn.reloc_targets (symbols.txt + aliases.txt, IAT, jump tables
     inside the function, literals / constants / file local data copied to SCR).  Raises Unresolved.
@@ -252,8 +271,11 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
             t = lit_at[key]
         else:
             vas = tb.sym.get(un) or tb.sym.get("_" + un)
-            if not vas: raise Unresolved("symbol " + n)
-            t = sorted(vas)[0] + add
+            if vas: t = sorted(vas)[0] + add
+            elif (fm := re.fullmatch(r"_?func_0x([0-9a-f]{8})", n)): t = int(fm.group(1), 16) + add      # decompiler name of an unnamed function: the address is the name (build_overlay.py does the same); stubbed like every callee
+            elif (lv := libsyms().get(n) or libsyms().get(un) or libsyms().get("_" + un)): t = lv + add      # SDK library / CRT symbol (output/*_libsyms.csv: derived from the relocations of byte matched library functions): the original's address
+            elif un in tb.iat: t = impstub(un) + add      # direct `call _WaitForSingleObject@8` of an import: the same import stub the original's `call [IAT]` reaches (name + arguments traced identically on both sides)
+            else: raise Unresolved("symbol " + n)
         struct.pack_into("<I", code, off, u32(t if rt == 6 else t - (base + off + 4)))
     if tail: code += b"\0" * ((-len(code)) % 16) + tail
     return bytes(code), bytes(lits)
@@ -299,12 +321,32 @@ def img_read(a, n): return IMG[a - BASE:a - BASE + n]
 class Callee:
     def __init__(s, va, name, pop, nargs, regs, ret, known=True, infer=False): s.va, s.name, s.pop, s.nargs, s.regs, s.ret, s.known, s.infer = va, name, pop, nargs, regs, ret, known, infer
 
+_RP = {}
+def orig_ret_pops(va):
+    """set of `ret N` values (0 = plain ret) of the ORIGINAL function at va by recursive descent over its bytes; empty when no ret was reached"""
+    if va not in _RP:
+        lo, hi = va, va + T().size.get(va, 0x400); todo = [va]; seen = set(); pops = set()
+        while todo:
+            a = todo.pop()
+            while lo <= a < hi and a not in seen:
+                ins = next(CS.disasm(img_read(a, 16), a, 1), None)
+                if ins is None: break
+                seen.add(a); g = ins.groups; op = ins.operands[0] if ins.operands else None
+                if CX.X86_GRP_RET in g: pops.add(op.imm if op is not None and op.type == CX.X86_OP_IMM else 0); break
+                if CX.X86_GRP_JUMP in g:
+                    if op is not None and op.type == CX.X86_OP_IMM: todo.append(op.imm & 0xffffffff)
+                    if ins.mnemonic == "jmp": break
+                a += ins.size
+        _RP[va] = pops
+    return _RP[va]
+
 def callee_info(va):
     """convention of a callee: ret N (output/regsigs.csv), number of stack arguments (declaration > sigs.txt > regsigs types > ret N / 4), register inputs, float return"""
     tb = T(); name = tb.rev.get(va, "FUN_%08x" % va)
     regs, ret_n, stack = tb.reg.get(va, ([], None, [])); sg = tb.sig.get(va); dc = tb.decl.get(va)
     cv = tb.convfix.get(name); stdc = (cv == "stdcall") if cv else (sg and sg[0] == "__stdcall")
     pop = ret_n if ret_n is not None else (sg[1] * 4 if sg and stdc else 0)
+    if ret_n is None and pop and not cv and orig_ret_pops(va) == {0}: pop = 0      # Ghidra says __stdcall, the original body only has plain `ret` (the caller cleans up: platform_init `add esp, 8` behind controller_dialog_run): the stub must not pop either, else the caller's frame is wrecked
     n = None; o = tb.oslots.get(va); os_n = o[0] if o and not o[4] else 0
     if regs and (dc or sg) and va in tb.reg and tb.reg[va][0]: n = len(stack) or pop // 4      # register callee: the declaration / signature list the register inputs as parameters too (`f(undefined4 p0, undefined4 p1)` for eax|edx): only the stack arguments count
     elif dc and dc[1].strip() not in ("", "void"): n = sum(2 if re.search(r"\bdouble\b", p) and "*" not in p else 1 for p in dc[1].split(","))      # a double argument is two dwords
@@ -332,7 +374,7 @@ def import_stubs():
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
-        m.sw, m.frames, m.sp0 = set(), [], 0
+        m.sw, m.frames, m.sp0 = set(), [], 0; m.patch = {}; m.reads = None
         m.seed, m.mode, m.wild, m.trace, m.writes, m.cnt, m.islots, m.stub, m.wildfn = seed, mode, 0, [], [], {}, islots, {}, wildfn
         uc = m.uc = Uc(UC_ARCH_X86, UC_MODE_32)
         for a, n in ((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000)): uc.mem_map(a, n)
@@ -369,14 +411,23 @@ class Machine:
             uc.mem_write(p, b"\xc3" * 0x1000); uc.hook_add(UC_HOOK_CODE, m._indirect, begin=p, end=p + 0xfff); return True
         try: uc.mem_map(p, 0x1000)
         except UcError: return False
-        uc.mem_write(p, m.page(p)); return True
+        uc.mem_write(p, m.page(p))
+        for a, v in m.patch.items():      # loop-bound retry (core.retry_case): dwords of this page that the case overrides
+            if a & ~0xfff == p: uc.mem_write(a, struct.pack("<I", v))
+        return True
+
+    def poke(m, a, v):
+        """override one dword of the input memory (same patch on both sides = just another input)"""
+        try: m.uc.mem_write(a, struct.pack("<I", v))
+        except UcError:
+            if m._unmapped(m.uc, UC_MEM_WRITE_UNMAPPED, a, 4, 0, None): m.uc.mem_write(a, struct.pack("<I", v))
 
     indirect = True; ours = False; indargs = True
 
     def _indirect(m, uc, addr, size, ud):
         sp = uc.reg_read(UC_X86_REG_ESP); ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]; n = 0
         try:
-            ins = next(CS.disasm(bytes(uc.mem_read(ra, 8)), ra, 1), None)
+            ins = next(CS.disasm(m.read(ra, 8), ra, 1), None)
             if ins and ins.mnemonic == "add" and ins.op_str.startswith("esp, "): n = min(int(ins.op_str[5:], 0) // 4, 8)
         except (UcError, ValueError): pass
         args = struct.unpack("<%dI" % n, bytes(uc.mem_read(sp + 4, 4 * n))) if n and m.indargs else ()      # cluster mode: the argument count read from the caller's `add esp` is unreliable (batched cleanup), the target address (random per object) identifies the call
@@ -415,7 +466,7 @@ class Machine:
         h = int(sha(c.va, i, m.seed), 16); r = h >> 8
         outs = args
         if c.infer:      # no declared arguments (`f()`): the caller's `add esp, N` after the call tells how many words it pushed (used for the out parameters only, never compared: a compiler may batch the adds)
-            ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]; code = bytes(uc.mem_read(ra, 40))
+            ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]; code = m.read(ra, 40)      # m.read maps the next code page lazily (a plain mem_read across a page boundary raised READ_UNMAPPED: UNMAPPED 200 of four functions)
             for ins in CS.disasm(code, ra):      # the compiler may schedule a few instructions between the call and `add esp, N`
                 if ins.mnemonic == "add" and ins.op_str.startswith("esp, "):
                     k = min(int(ins.op_str[5:], 0) // 4, 6); outs = struct.unpack("<%dI" % k, bytes(uc.mem_read(sp + 4, 4 * k))); break
@@ -438,7 +489,7 @@ class Machine:
         uc.reg_write(UC_X86_REG_EDX, u32(h >> 20)); uc.reg_write(UC_X86_REG_ECX, u32(h >> 12))
         uc.reg_write(UC_X86_REG_EIP, m.stubaddr(0 if nat and m.ours else c.pop, c.ret == "f"))
 
-    def run(m, entry, args, regs, fill, lo, hi):
+    def run(m, entry, args, regs, fill, lo, hi, count=MAXINS):
         """call entry (stack arguments `args`, initial registers `regs`, stack pre-fill bytes) until it returns to RET; dict of everything that is compared"""
         uc = m.uc; sp = STACK + STK - 0x200
         uc.mem_write(STACK, fill)
@@ -448,7 +499,7 @@ class Machine:
         uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)
         err = None
         t0 = time.time()
-        try: uc.emu_start(entry, RET, timeout=2000000, count=MAXINS)
+        try: uc.emu_start(entry, RET, timeout=2000000, count=count)
         except UcError as e: err = e
         slow = time.time() - t0 >= 1.9      # wall clock timeout of the emulator (a loaded machine), not a loop: never a DIFF
         eip = uc.reg_read(UC_X86_REG_EIP); r = dict(done=((eip == RET or m.exited) and err is None), exited=m.exited, err=err, eip=eip, wild=m.wild)
@@ -545,8 +596,8 @@ def window(rnd, size, text, struct_fn=None):
     return defloat(bytes(b))
 
 class Case:
-    def __init__(c, seed, mode, fill, args, regs, wins): c.seed, c.mode, c.fill, c.args, c.regs, c.wins = seed, mode, fill, args, regs, wins
-    def describe(c): return "seed %d mode %d fill %s args %s" % (c.seed, c.mode, c.fill if isinstance(c.fill, str) else hex(c.fill), [hex(a) if isinstance(a, int) else a for a in c.args])
+    def __init__(c, seed, mode, fill, args, regs, wins): c.seed, c.mode, c.fill, c.args, c.regs, c.wins, c.patch = seed, mode, fill, args, regs, wins, {}
+    def describe(c): return "seed %d mode %d fill %s args %s%s" % (c.seed, c.mode, c.fill if isinstance(c.fill, str) else hex(c.fill), [hex(a) if isinstance(a, int) else a for a in c.args], " loop-bound patch %s" % {hex(a): v for a, v in c.patch.items()} if c.patch else "")
 
 FILLS = (0xA5, 0x00, 0xFF, "rand")
 
@@ -578,9 +629,11 @@ def gen_cases(sig, n, k, seed0=0):
 # ---------------------------------------------------------------------------------------------------------- run + compare
 INIT = {"eax": 0, "ecx": 0, "edx": 0, "ebx": 0x12345678, "esi": 0x23456789, "edi": 0x34567890, "ebp": 0x456789ab}
 
-def side(fn, case, ours):
+def side(fn, case, ours, count=MAXINS):
     m = Machine(case.seed, case.mode, fn.lits if ours else b"", fn.callees, fn.imports, fn.islots); m.ours = ours; m.indargs = not getattr(fn, "noindargs", False)
     for a, b in case.wins: m.uc.mem_write(a, b)
+    m.patch = case.patch
+    for a, v in case.patch.items(): m.poke(a, v)
     args, cregs = fn.mapcase(case, ours) if getattr(fn, "mapcase", None) else (case.args, case.regs)      # cluster mode: register arguments of the original, stack arguments of ours
     if getattr(fn, "pushn", 0) > len(args): args = list(args) + [int(sha(case.seed, "pad", i), 16) % 61 + (0x1000 if ours else 0) for i in range(len(args), fn.pushn)]      # a dropped stack argument: the stack slots the ORIGINAL callers push / its body reads are seeded beyond the declared parameters; OUR side gets different values there, so a C definition that declares fewer parameters (an undeclared slot reaches a callee through a tail jump, or the call drops it) differs at the stubbed callee
     r = random.Random(case.seed ^ 0xabcdef); regs = dict(INIT, eax=r.getrandbits(32), ecx=r.getrandbits(32), edx=r.getrandbits(32)); regs.update(cregs)
@@ -588,8 +641,8 @@ def side(fn, case, ours):
     if ours:
         code = bytearray(fn.code)
         if fn.mutate: code[fn.mutate[0]] = fn.mutate[1]
-        m.uc.mem_write(OURS, bytes(code)); res = m.run(getattr(fn, "oentry", OURS), args, regs, fill, OURS, OURS + len(code))
-    else: res = m.run(fn.va, args, regs, fill, getattr(fn, "olo", fn.va), fn.hi)
+        m.uc.mem_write(OURS, bytes(code)); res = m.run(getattr(fn, "oentry", OURS), args, regs, fill, OURS, OURS + len(code), count)
+    else: res = m.run(fn.va, args, regs, fill, getattr(fn, "olo", fn.va), fn.hi, count)
     return m, res
 
 def covered(leaders, blocks): return {a for a in leaders if any(b <= a < b + s for b, s in blocks.items())} if blocks else set()
@@ -649,9 +702,72 @@ def compare(fn, mo, ro, mu, ru):
         if diffs: d.append("memory: %d bytes differ: %s" % (len(diffs), ", ".join("%08x %02x/%02x" % x for x in diffs[:10])))
     return d
 
+LOOPY = ("LOOP", "WILD_LOOP", "TIMEOUT")
+PATCHES = [(v, k) for k in (4, 16, 64) for v in (0, 1, 2, 4)]      # (dword value, number of candidate addresses)
+
+def probe_reads(fn, case):
+    """addresses of the dwords the ORIGINAL reads (first read order) in the first MAXINS instructions of the runaway case that hold large values: loop counts / list heads read from random memory"""
+    seen = {}
+    def rd(uc, access, addr, size, val, ud):
+        if size == 4 and addr not in seen and not isstack(addr) and not (OURS <= addr < IMPSTUB + 0x10000) and not isro(addr): seen[addr] = None
+    m = Machine(case.seed, case.mode, b"", fn.callees, fn.imports, fn.islots); m.ours = False; m.indargs = not getattr(fn, "noindargs", False)
+    for a, b in case.wins: m.uc.mem_write(a, b)
+    m.uc.hook_add(UC_HOOK_MEM_READ, rd)
+    r = random.Random(case.seed ^ 0xabcdef); regs = dict(INIT, eax=r.getrandbits(32), ecx=r.getrandbits(32), edx=r.getrandbits(32)); regs.update(case.regs)
+    fill = defloat(r.randbytes(STK - 0x200) if case.fill == "rand" else bytes([case.fill]) * (STK - 0x200))
+    args = list(case.args)
+    if getattr(fn, "pushn", 0) > len(args): args += [int(sha(case.seed, "pad", i), 16) % 61 for i in range(len(args), fn.pushn)]
+    m.run(fn.va, args, regs, fill, fn.va, fn.hi)
+    allr = [a for a in seen if (a & 0xfff) <= 0xffc]
+    return allr, [a for a in allr if struct.unpack("<I", m.read(a, 4))[0] > 64]
+
+def sentinels(fn):
+    """dword immediates (|v| >= 0x100) the ORIGINAL compares against (cmp / test), first 6 in address order: list terminators (`cmp [edx+eax*4], 0xff040000`)"""
+    if not hasattr(fn, "_sent"):
+        out = []; a = fn.va
+        while a < fn.hi and len(out) < 6:
+            ins = next(CS.disasm(img_read(a, 16), a, 1), None)
+            if ins is None: a += 1; continue
+            a += ins.size
+            if ins.mnemonic == "cmp":
+                for op in ins.operands:
+                    if op.type == CX.X86_OP_IMM and abs(op.imm) >= 0x100 and u32(op.imm) not in out: out.append(u32(op.imm))
+        fn._sent = out
+    return fn._sent
+
+def retry_case(fn, case, mo, ro):
+    """a runaway case of the ORIGINAL (loop count / list head read from random memory): the same case with the large dwords the original read set to 0 / 1 / 2 / 4 (patch applied to BOTH sides: it is only a
+    different input, the comparison stays real).  -> (case, mo, ro) of the first variant where the original returns, or None"""
+    try: allr, cand = probe_reads(fn, case)
+    except Exception: return None
+    def mk(patch):
+        c2 = Case(case.seed, case.mode, case.fill, case.args, case.regs, case.wins); c2.patch = patch; return c2
+    def tryit(patch):
+        c2 = mk(patch)
+        if side(fn, c2, False, 40000)[1]["done"]:      # cheap trial, then the full run
+            mo, ro = side(fn, c2, False)
+            if ro["done"]: return c2, mo, ro
+    pats = [("L", v, k) for v, k in PATCHES if cand and not (k > 4 and len(cand) <= k // 4)]
+    sents = sentinels(fn)      # sentinel terminated list walk: every m-th dword read from the k-th on becomes a terminator the original compares against (all of them, or cycling through them)
+    pats += [("S", m_, k0, tuple(vals)) for m_ in (1, 2, 3, 5, 8) for k0 in (2, 3, 4) for vals in [[x] for x in sents] + ([sents] if len(sents) > 1 else [])]
+    def build(p_):
+        if p_[0] == "L": return {a: p_[1] for a in cand[:p_[2]]}
+        _, m_, k0, vals = p_
+        return {allr[k0 + j * m_]: vals[j % len(vals)] for j in range(16) if k0 + j * m_ < len(allr)} if k0 < len(allr) else {}
+    last = getattr(fn, "_pat", None)      # the pattern that bounded the previous runaway case first (same function, same loop)
+    for p_ in ([last] if last in pats else []) + [x for x in pats if x != last]:
+        patch = build(p_)
+        r = tryit(patch) if patch else None
+        if r: fn._pat = p_; return r
+    return None
+
 def run_case(fn, case):
     """-> ('skip', cause) | ('equal', None) | ('diff', [descriptions]); updates the coverage sets"""
     mo, ro = side(fn, case, False)
+    if not ro["done"] and ro["cause"] in LOOPY and getattr(fn, "retries", 0) < 24:
+        rr = retry_case(fn, case, mo, ro)
+        if rr is None: fn.retries = getattr(fn, "retries", 0) + 1      # a function whose runaway cases cannot be bounded stops paying for the retries
+        else: case.patch, mo, ro = rr[0].patch, rr[1], rr[2]; fn.patched = getattr(fn, "patched", 0) + 1
     if not ro["done"]: return "skip", ro["cause"]
     fn.cov_o |= covered(fn.leaders_o, mo.blocks)
     mu, ru = side(fn, case, True)

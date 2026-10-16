@@ -86,6 +86,7 @@ def row_of(name, va, r, fn=None, extra=""):
     notes = list(fn.notes) if fn else []
     if r["diff"]:
         c, d = r["diff"]; notes.append("first diff %s: %s" % (c.describe()[:120], " | ".join(d)[:260]))
+    if fn and getattr(fn, "patched", 0): notes.append("%d cases with loop-bound patch (large dwords the original reads set to 0/1/2/4 on both sides)" % fn.patched)
     if r["skip"]: notes.append("skipped %d: %s" % (sum(r["skip"].values()), ", ".join("%s %d" % kv for kv in r["skip"].most_common(4))))
     if r["verdict"] == "EQUAL" and r["cov_o"] < 0.6: notes.append("LOW COVERAGE of the original")
     if extra: notes.insert(0, extra)
