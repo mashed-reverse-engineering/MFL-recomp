@@ -9,6 +9,8 @@
   enum   names of names/MFL_enums.txt used but not defined (C2065: COURSE_ANGELS, WEAPON_MINE ...): `#define NAME value` below the includes.
   argfill  `f()` (Ghidra dropped the arguments: unprototyped / K&R callee) where EVERY call of f in the original function pushes the same constants (immediates / addresses): `f(c1, c2)`.
   tailfwd  callee that rewrites its stack argument and tail-jumps (orig_stackargs flag wN) so it really takes the tail target's slot count, but the extern has fewer: the extern gets the real parameter count, the call gets the stale extra arguments Ghidra attached to the NEXT call back (`mem_zero(&g, n, str, 0, 0)` after `f(str)`).
+  fret  callee that the ORIGINAL call sites read from ST0 (fstp / fmul after the call) but the text declares int / undefined / void / not at all: extern float (diffemu core.float_returners).
+  scalararr  `p = &g_x;` of a scalar extern followed by p[k] / p + k / p++: the extern becomes an array (the optimiser dropped the fill loops of scalar globals).
   isnan  Ghidra's `NAN(x)` -> `((x) != (x))` (the prelude's NAN is the constant; also applied by t2_auto.fix_round before generation).
   argsite  `f()` / `f_r(a)` with fewer arguments than the callee takes (C2198; Ghidra dropped them: K&R / register callee): simulation of the ORIGINAL function's call sites (asm_sites: pushes, register definitions, esp-relative slots) gives each missing argument as an immediate, a global, a parameter / local_N slot, the result variable of the call just before, or the C argument another call site passes for the same asm value; all or nothing per call.
   varargs  a call with more arguments than the extern has, whose callee takes the address of its argument area (orig_stackargs flag addr, slots == declared): the extern becomes variadic (`, ...`).
@@ -186,6 +188,16 @@ def _canon(o, regs, d):
         def sp(q): return "S%d" % (d + (int(q.group(1).replace("+", ""), 16) if q.group(1) else 0))
         return "M:[" + re.sub(r"\besp([+-]0x[0-9a-f]+)?", sp, m.group(1)) + "]"
     return None
+def _FTOLV():
+    import cmpfn
+    return set(cmpfn._symtab().get("_ftol", ())) | set(cmpfn._symtab().get("__ftol", ()))
+_FRVS = []
+def _FRV():
+    """addresses (hex) of callees the original reads ST0 from (diffemu core.float_returners); empty when core is not importable"""
+    if not _FRVS:
+        try: import core; _FRVS.append({"%08x" % k for k in core.float_returners()})
+        except Exception: _FRVS.append(set())
+    return _FRVS[0]
 def asm_sites(nm, vas):
     """-> {va: [site, ...]} (address order, straight-line simulation) of the calls of `vas` in the ORIGINAL function nm; site = dict(addr, stack=[canon, ..] top of stack first (up to 8), regs={reg: canon}, prev=(callee va of the last call, its address)); None when the stack does not balance at a `ret` (unknown stdcall callee)"""
     import subprocess, reginputs2 as R
@@ -207,7 +219,7 @@ def asm_sites(nm, vas):
     single = {r: w[0] for r, w in wr.items() if len(w) == 1 and w[0][1]}
     back = {int(ar, 16) for a, (op, ar) in ins.items() if op.startswith("j") and re.fullmatch(r"0x[0-9a-f]+", ar) and int(ar, 16) <= a}
     def run(single):
-        late = {}; snaps = {}; fall = True
+        late = {}; snaps = {}; fall = True; fp = []; fsn = {}      # fp: symbolic x87 stack (tools/t2_x87.py), None = unknown
         mem, regs, d, out, prev, ok, dmap, cont = {}, {}, 0, {}, None, True, {}, True      # mem: entry relative stack slot -> canonical value; dmap: esp delta at jump targets
         dbp = [0, False]      # esp delta at `mov ebp, esp`, stack aligned (`and esp, -16`: entry relative slots are meaningless)
         def slot(o): return mem.get(o) or ("M:[S%d]" % o if o > 0 else "?")
@@ -216,15 +228,20 @@ def asm_sites(nm, vas):
             if a in tg:      # control flow join: registers all incoming forward edges agree on (a loop head, target of a backward jump, keeps nothing)
                 cand = snaps.get(a, []) + ([regs] if fall else [])
                 regs = {} if a in back or not cand else {r: v for r, v in cand[0].items() if v is not None and all(c.get(r) == v for c in cand)}
+                fc = fsn.get(a, []) + ([fp] if fall else [])
+                fp = fc[0] if fc and all(x is not None and x == fc[0] for x in fc) and a not in back else (fp if a in back and fp == [] else None)
             fall = True
             for r_, (wa, wc) in single.items():
                 if a > wa and r_ not in regs: regs[r_] = wc
             if a in dmap: d = dmap[a]
             ops = split_args(ar)
             if op.startswith("j") and ops and re.fullmatch(r"0x[0-9a-f]+", ops[0]):
-                t_ = int(ops[0], 16); dmap.setdefault(t_, d); snaps.setdefault(t_, []).append(dict(regs))
+                t_ = int(ops[0], 16); dmap.setdefault(t_, d); snaps.setdefault(t_, []).append(dict(regs)); fsn.setdefault(t_, []).append(None if fp is None else list(fp))
                 if op == "jmp": fall = False
                 if op == "jmp" and not (lo <= t_ < lo + sz) and t_ in vas_i: out.setdefault("%08x" % t_, []).append(dict(addr=a, stack=[slot(d + 4 + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, tail=True, al=dbp[1]))
+            if op[0] == "f" and op != "fnstsw":
+                import t2_x87 as X
+                fp = X.step(op, ops, fp, regs, d, mem, lambda o_, d_=d: _canon(o_, regs, d_), None)
             if op == "push" and ops:
                 d -= 4; mem[d] = _canon(ops[0], regs, d + 4) or "?"
             elif op == "pop" and ops: d += 4; regs.pop(ops[0], None)
@@ -236,11 +253,15 @@ def asm_sites(nm, vas):
             elif op == "call":
                 m = re.fullmatch(r"0x([0-9a-f]+)", ar)
                 va = "%08x" % int(m.group(1), 16) if m else None
-                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1]))
+                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1], fp=None if fp is None else list(fp)))
                 k = _STD.get(va, 0) if va else 0
                 d += k * 4
                 regs = {r: v for r, v in regs.items() if r not in ("eax", "ecx", "edx")}
                 if va: regs["eax"] = "ret:" + va
+                if va and int(va, 16) in _FTOLV():      # __ftol: pops ST0 (a tree), eax = (int) of it; other float returners make the stack unknown
+                    if fp: regs["eax"] = "T:%d" % fp[-1]; fp = fp[:-1]
+                    else: fp = None
+                elif va and fp is not None and va in _FRV(): fp = None
                 prev = (va, a)
             elif op in ("ret", "retn"):
                 fall = False
@@ -338,10 +359,10 @@ def argsite(t, nm):
     ow = orig().get("%08x" % _FN[nm][0], (0, [], [])) if nm in _FN else (0, [], [])
     tails = {tv: int(f[1:]) for tv in ow[1] for f in ",".join(ow[2]).split(",") if re.fullmatch(r"w\d+", f)}      # tail-jump targets and the number of frame arguments the original rewrites before the `jmp`
     for n in calls:
-        if ext[n][0] in tails and not ext[n][1] and ext[n][2] == 0 and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(\);" % (ext[n][0], re.escape(n)), t, re.M): want[n] = tails[ext[n][0]]; want_t.add(n)      # `f();` K&R extern: the call is the tail jump (arguments = the rewritten frame slots)
+        if ext[n][0] in tails and not ext[n][1] and ext[n][2] == 0 and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((?:void)?\);" % (ext[n][0], re.escape(n)), t, re.M): want[n] = max(tails[ext[n][0]], (orig().get(ext[n][0]) or (0,))[0]); want_t.add(n)      # `f();` K&R extern: the call is the tail jump (arguments = the rewritten frame slots)
     for n, cs in calls.items():      # `f()` K&R extern called with fewer arguments than the original reads / pushes: the calls get them, the extern stays unprototyped
         k = pushmin_slots(ext[n][0])
-        if k and not ext[n][1] and ext[n][2] == 0 and n not in want_t and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(\);" % (ext[n][0], re.escape(n)), t, re.M) and len({len(a) for _, _, a in cs}) == 1 and len(cs[0][2]) < k: want[n] = k
+        if k and not ext[n][1] and ext[n][2] == 0 and n not in want_t and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((?:void)?\);" % (ext[n][0], re.escape(n)), t, re.M) and len({len(a) for _, _, a in cs}) == 1 and len(cs[0][2]) < k: want[n] = k
     need = {n for n, cs in calls.items() if any(len(a) < want[n] for _, _, a in cs)}
     if not need: return t, 0
     sites = asm_sites(nm, {ext[n][0] for n in calls})
@@ -379,6 +400,9 @@ def argsite(t, nm):
                 new.append(x)
             else:
                 edits.append((close, close, "".join((", " if args or q else "") + x for q, x in enumerate(new)))); done += 1; xmax = max(xmax, _XP["max"])
+        if n not in grow and len(edits) > e0:      # a `(void)` extern that now gets arguments stays unprototyped `()` (too many actual parameters otherwise)
+            mv = re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((void)\);" % (ext[n][0], re.escape(n)), t, re.M)
+            if mv: edits.append((mv.start(1), mv.end(1), ""))
         if n in grow:
             if done and len([e for e in edits[e0:] if e[0] == e[1]]) == len(cs):
                 m = re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(([^)]*)\);" % (ext[n][0], re.escape(n)), t, re.M); edits.append((m.end(1), m.end(1), "".join(", undefined4 p%d" % j for j in range(ext[n][2], tot))))
@@ -437,6 +461,134 @@ def sub_names(body, names):
         out.append(re.sub(r"(?<![\w.])(%s)\b" % "|".join(map(re.escape, names)), lambda q: "%s.%s" % (names[q.group(1)], q.group(1)), body[pos:m.start()])); out.append(m.group(0)); pos = m.end()
     out.append(re.sub(r"(?<![\w.])(%s)\b" % "|".join(map(re.escape, names)), lambda q: "%s.%s" % (names[q.group(1)], q.group(1)), body[pos:]))
     return "".join(out)
+_STALE = {}
+def stale_regs():
+    """va -> parameter count of sigs.txt functions that carry a `reg_e??` register parameter (Ghidra project signature made from the first, over-inclusive reginputs) although output/regsigs.csv
+    (the strict register inputs) has no row: the register parameter does not exist, its argument is a stale value (voice_set_volume(reg_eax, idx, vol), 17 DIFF functions)"""
+    if not _STALE:
+        import csv
+        reg = {r["addr"] for r in csv.DictReader(open(os.path.join(G, "output", "regsigs.csv")))}
+        for l in open(os.path.join(G, "output", "sigs.txt")):
+            q = l.rstrip("\n").split("|")
+            if len(q) >= 7 and re.search(r"(?:^|;)[^;]*:reg_e\w\w:", q[5]) and q[1] not in reg: _STALE[q[1]] = len([x for x in q[5].split(";") if x])
+    return _STALE
+def stalereg(t):
+    """kind `stalereg`: extern of a stale-register function loses its first (register) parameter, every call in the text loses its first argument (only calls that pass exactly the old count).  -> (text, n)"""
+    n = 0; st = stale_regs()
+    for m in list(re.finditer(r"^/\*([0-9a-f]{8})\*/ extern ([^;\n]*?)\b(\w+)\(([^;\n]*)\);\n", t, re.M)):
+        va, nm = m.group(1), m.group(3)
+        if va not in st: continue
+        ps = [x.strip() for x in m.group(4).split(",")] if m.group(4).strip() not in ("", "void") else []
+        if len(ps) != st[va] or not ps: continue      # K&R `()` or already corrected
+        new_ext = "/*%s*/ extern %s%s(%s);\n" % (va, m.group(2), nm, ", ".join(ps[1:]) or "void")
+        t = t.replace(m.group(0), new_ext, 1); k = 0; pos = 0
+        while True:
+            c = re.compile(r"(?<![\w.>])%s\s*\(" % re.escape(nm)).search(t, pos)
+            if not c: break
+            pos = c.end(); ls = t.rfind("\n", 0, c.start()) + 1
+            if t[ls:c.start()].lstrip().startswith(("extern", "/*", "*")) or re.match(r"\s*(?:\w+ )+\**$", t[ls:c.start()]) and t[ls:c.start()].strip() and not t[ls:c.start()].strip().startswith(("return", "else")): continue      # a definition head
+            al, close = _args(t, c.end() - 1)
+            if len(al) == len(ps) and t[al[0][0]:al[0][1]].strip():
+                t = t[:al[0][0]] + (t[al[1][0]:] if len(al) > 1 else t[al[0][1]:]); k += 1; pos = c.start() + 1
+        n += 1
+    return t, n
+PRIM = r"(?:undefined[124]?|int|uint|short|ushort|char|uchar|byte|word|dword|float|bool)"
+def scalararr(t):
+    """kind `scalararr` (REAL, not a harness limit): `p = &g_x;` with `extern undefined4 g_x;` (a SCALAR) followed by `p[k]` / `p + k` / `*p++` walks over an array: the compiler believes the loop writes only the scalar and drops it
+    when g_x is stored afterwards (scene_tables_clear: the 0x28 dword fill of g_scene_tables_651198 vanished; 17+ memory-write / call-trace DIFFs take `&g_` pointers).  The extern becomes `T g_x[0x1000]`,
+    `&g_x` -> `g_x`, other uses `g_x` -> `g_x[0]`.  -> (text, number of globals converted)"""
+    n = 0
+    for m in list(re.finditer(r"\b(\w+) = &(g_\w+);", t)):
+        pv, g = m.group(1), m.group(2)
+        d = re.search(r"^(/\*[0-9a-f]{8}\*/ extern %s) %s;\n" % (PRIM, re.escape(g)), t, re.M)
+        if not d: continue
+        rest = t[m.end():]
+        if not re.search(r"\b%s\s*\[|\b%s\s*[-+]|\b%s\s*=\s*%s\s*[-+]|\*\s*%s\s*\+\+|\b%s\s*\+\+" % ((re.escape(pv),) * 6), rest): continue
+        decl = d.group(1) + " %s[0x1000];\n" % g
+        t = t.replace(d.group(0), "\0DECL\0", 1)
+        t = re.sub(r"&\s*%s\b(?!\s*\[)" % re.escape(g), "\0ARR\0", t)
+        t = re.sub(r"(?<![\w.])%s\b(?!\s*\[)" % re.escape(g), g + "[0]", t)
+        t = t.replace("\0ARR\0", g).replace("\0DECL\0", decl, 1); n += 1
+    return t, n
+_SECT = []
+def _rodata(va):
+    """the bytes at va when it lies in a NON-writable section of MFL.exe (float constants), else None"""
+    import struct, cmpfn
+    if not _SECT:
+        d = open(cmpfn.EXE, "rb").read(0x1000); e = struct.unpack_from("<I", d, 0x3C)[0]; ns = struct.unpack_from("<H", d, e + 6)[0]; osz = struct.unpack_from("<H", d, e + 20)[0]
+        base = struct.unpack_from("<I", d, e + 24 + 28)[0]
+        for i in range(ns):
+            o = e + 24 + osz + i * 40; vs, vaa, rs, rp = struct.unpack_from("<IIII", d, o + 8); ch = struct.unpack_from("<I", d, o + 36)[0]
+            _SECT.append((base + vaa, base + vaa + max(vs, rs), ch))
+    for lo, hi, ch in _SECT:
+        if lo <= va < hi: return cmpfn.exe_bytes(va, 8) if not ch & 0x80000000 else None
+    return None
+def ftol(t, nm):
+    """kind `ftol`: `_ftol()` (Ghidra lost the x87 expression feeding `call __ftol`) -> `((int)(expr))` with expr recovered from the ORIGINAL function by the symbolic x87 stack of asm_sites (tools/t2_x87.py);
+    all or nothing per function (the n-th `_ftol()` of the text is the n-th call __ftol of the original).  -> (text, number of calls rewritten)"""
+    occ = [m for m in re.finditer(r"(?<![\w.>])_ftol2?\(\s*\)", t) if not t[t.rfind("\n", 0, m.start()) + 1:m.start()].lstrip().startswith(("extern", "/*"))]
+    if not occ: return t, 0
+    import cmpfn, struct, t2_x87 as X
+    fv = _FTOLV()
+    if not fv: return t, 0
+    sites = asm_sites(nm, {"%08x" % v for v in fv})
+    if not sites: return t, 0
+    ss = [x for v in fv for x in sites.get("%08x" % v, [])]; ss.sort(key=lambda x: x["addr"])
+    if len(ss) != len(occ) or any(not x.get("fp") for x in ss): return t, 0
+    glob = {}
+    for m in re.finditer(r"^/\*([0-9a-f]{8})\*/ extern [^;(]*?\b(\w+)\s*(?:\[[^\]]*\])?;", t, re.M): glob[m.group(1)] = m.group(2)
+    rev = {}
+    for n_, vs in cmpfn._symtab().items():
+        for v in vs: rev.setdefault("%08x" % v, n_)
+    add = {}
+    def isflt(x): return re.search(r"\b(?:float|RwReal)\s+(?:\w+\s*,\s*)*%s\b" % re.escape(x), t) is not None
+    def leaf(c, kind):
+        mm = re.fullmatch(r"M:ds:0x([0-9a-f]+)", c)
+        if mm:
+            va = int(mm.group(1), 16); ro = _rodata(va)
+            if ro is not None and kind in ("f", "d"):
+                v = struct.unpack("<f", ro[:4])[0] if kind == "f" else struct.unpack("<d", ro[:8])[0]
+                return X.lit(v, kind)
+            if mm.group(1).rjust(8, "0") not in glob:
+                n_ = rev.get(mm.group(1).rjust(8, "0"))
+                if not n_ or not re.fullmatch(r"[A-Za-z_]\w*", n_): return "(*(%s *)0x%s)" % ({"f": "float", "d": "double"}.get(kind, "int"), mm.group(1))
+                glob[mm.group(1).rjust(8, "0")] = n_; add[n_] = "/*%s*/ extern %s %s;\n" % (mm.group(1).rjust(8, "0"), {"f": "float", "d": "double"}.get(kind, "int"), n_)
+        _XP.update(tail=False, own=0, max=0, ret=None)
+        x = _cname(c, t, glob, {}, nm)
+        if x is None: return None
+        if kind in ("f", "d"):
+            ty = "float" if kind == "f" else "double"
+            if re.fullmatch(r"[A-Za-z_]\w*(?:\.\w+)*", x): return x if isflt(x) and kind == "f" else "*(%s *)&%s" % (ty, x)
+            if x.startswith("*(int *)"): return "*(%s *)%s" % (ty, x[len("*(int *)"):])
+            if x.startswith("*(undefined4 *)"): return "*(%s *)%s" % (ty, x[len("*(undefined4 *)"):])
+            return "*(%s *)&%s" % (ty, x)
+        return "(short)%s" % x if kind == "i2" else x
+    rep = []
+    for m, x in zip(occ, ss):
+        e = X.render(x["fp"][-1], leaf)
+        if not e: return t, 0
+        rep.append((m.start(), m.end(), "((int)%s)" % (e if e.startswith("(") else "(%s)" % e)))
+    for st, en, x in sorted(rep, reverse=True): t = t[:st] + x + t[en:]
+    if add:
+        inc = list(re.finditer(r'^(#include .*|/\*[0-9a-f]{8}\*/ extern .*)\n', t, re.M)); p = inc[-1].end() if inc else 0
+        t = t[:p] + "".join(add.values()) + t[p:]
+    return t, len(rep)
+def fret(t):
+    """kind `fret`: a callee whose ORIGINAL call sites consume ST0 (core.float_returners: `call f; fstp [esp]`) but that the text declares int / undefined / void (or not at all: `func_0x004757e0(0)`)
+    returns a float: the extern becomes `float` (else C converts EAX with fild and never pops ST0).  -> (text, number of changes)"""
+    try: import core
+    except Exception: return t, 0
+    fr = {k: v for k, v in core.float_returners().items() if k not in core.real_helpers()}; n = 0
+    def retype(m):
+        nonlocal n
+        if int(m.group(2), 16) in fr and m.group(3) in ("int", "uint", "undefined4", "undefined", "void", "long", "ulong", "dword"): n += 1; return "%sextern float %s" % (m.group(1), m.group(4))
+        return m.group(0)
+    t = re.sub(r"^(/\*([0-9a-f]{8})\*/ )extern (\w+) ((?:__\w+ )?\w+\()", lambda m: retype(m), t, flags=re.M)
+    for m in sorted({m.group(1) for m in re.finditer(r"(?<![\w])(func_0x[0-9a-f]{8})\s*\(", t)}):
+        if int(m[7:], 16) in fr and not re.search(r"extern [^;\n]*\b%s\(" % m, t):
+            inc = list(re.finditer(r'^(#include .*|/\*[0-9a-f]{8}\*/ extern .*)\n', t, re.M)); p = inc[-1].end() if inc else 0
+            t = t[:p] + "extern float %s();\n" % m + t[p:]; n += 1
+    return t, n
 def frame_fix(t, flagged):
     n = 0
     def f(m):
@@ -451,6 +603,8 @@ def fix(path):
     ks = []
     t = open(path, errors="replace").read()      # Ghidra wraps a long definition head (`undefined4 * __cdecl\nname(a,`): diffemu / core.defs need the name on the type's line
     t2 = re.sub(r"^((?!extern|static)[A-Za-z_][\w \*]*(?:__cdecl|__stdcall|__fastcall))[ \t]*\n(\w+\()", r"\1 \2", t, flags=re.M)
+    t2b = re.sub(r"^((?!extern|static|return|else|typedef)[A-Za-z_][\w \*]*)\n([A-Za-z_]\w*)\n[ \t]+\(", r"\1 \2(", t2, flags=re.M)      # `void __cdecl` / `name` / `    (params` (long signatures): defectlint.functions() skipped these functions entirely = no lint hint at all
+    t2 = t2b
     if t2 != t: open(path, "w").write(t2); ks.append("headjoin")
     t3 = isnan(re.sub(r"\.s\.(LowPart|HighPart)\b", r".\1", t2))      # kind `member`: Ghidra's LARGE_INTEGER has `.s.LowPart` (newer SDK), our header has the flat union-less struct
     if t3 != t2: open(path, "w").write(t3); ks.append("member/isnan")
@@ -466,10 +620,14 @@ def _fix1(path):
     t = open(path, errors="replace").read(); defectlint.load_gt()
     t, tn = tailfwd(t, os.path.basename(path)[:-2])
     t, an = argsite(t, os.path.basename(path)[:-2])
-    if tn or an: open(path, "w").write(t)
+    t, fn = fret(t)
+    t, xn = ftol(t, os.path.basename(path)[:-2]); fn += xn
+    t, sn = stalereg(t)
+    t, cn = scalararr(t)
+    if tn or an or fn or sn or cn: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()
     L = defectlint.Lint(os.path.relpath(path, G), t, fix.gd); fnd = L.run()
-    kinds = ["tailfwd"] * tn + ["argsite"] * an; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
+    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["scalararr"] * cn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
     for l in ln: off.append(off[-1] + len(l) + 1)
     edits = []      # (start, end, new)
     for k, line, sym, args in L.hints:

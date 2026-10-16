@@ -1,6 +1,6 @@
 #!/bin/bash
 # gate.sh [--dry-run] <kind> [names...]   the checks of ROADMAP "When to run which game check", nothing more.
-#   kind: readability | tier1 | header | infra | tier2 | bridge | milestone
+#   kind: readability | tier1 | header | infra | tier2 | bridge | cluster | milestone
 #   names: functions touched (tier2 / bridge / tier1); tier2 without names = the functions tools/shadow_cache.py says changed. '@file' = names from a file.
 #   readability  check_all.sh
 #   tier1        check_all + course 0 crash smoke
@@ -8,6 +8,7 @@
 #   infra        check_all + union sweep, 15 courses (courses_par, P=2 x PAR=2 = 4 games; every game start takes one of 4 global slots, tools/wine-run/gameslot.sh; an INVALID course is repeated once with PAR=1; timeouts scale with load/4) + DRIVE=31 on courses 0,3
 #   tier2        check_all + diffemu of the names (when tools/diffemu/diffemu.py exists; DIFF fails, INCONCLUSIVE warns) + targeted courses (tools/fn_courses.py) + DRIVE=31 courses 0,3 + shadow of the names (race, targeted courses; recorded in the shadow cache) + EARLY shadow, course 0
 #   bridge       check_all + shadow of the bridges (BRIDGE_ENABLED=names, --shadow, course 0 + targeted courses) + targeted courses
+#   cluster      check_all (4th strict build with --clusters) + targeted courses + DRIVE=31 courses 0,3 of a build with --clusters (names = cluster names = roots; none = all enabled in src/clusters/enabled.txt); no shadow (a cluster has no original-vs-C shadow), diffemu --cluster is the conformance proof
 #   milestone    check_all + full sweep RUNS=2 with --count (refreshes output/fn_courses.csv) + DRIVE=31 sweep + win/lose (DRIVE=33 / 65) crash-only + full tier 2 shadow
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
@@ -16,7 +17,7 @@ export LC_ALL=C
 T=$(dirname "$(readlink -f "$0")"); R=$T/..; W=$T/wine-run
 DRY=; [ "$1" = --dry-run ] && { DRY=1; shift; }
 KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat "${x:1}")) || NAMES+=("$x"); done
-case $KIND in readability|tier1|header|infra|tier2|bridge|milestone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
+case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 CRASH="RUNS=1 SHOTS_RUNS=0 THRESH=100000 COUNT= COURSE_TIMEOUT=300"      # COUNT= : no coverage counters unless a step wants them
@@ -24,6 +25,13 @@ declare -a PLAN; est=0
 step() { PLAN+=("$1|$2|$3"); est=$(awk "BEGIN{print $est+$2}"); }      # label | minutes | command (run with eval)
 [ $KIND = bridge ] && [ ${#NAMES[@]} = 0 ] && { echo "bridge needs the bridge names"; exit 2; }
 # ---- course lists
+if [ $KIND = cluster ]; then      # names = cluster roots; the course lists use their entries; only those clusters are built in
+  [ ${#NAMES[@]} = 0 ] && NAMES=($(grep -v '^#' $R/src/clusters/enabled.txt)); [ ${#NAMES[@]} = 0 ] && { echo "cluster: nothing enabled / no names"; exit 2; }
+  export CLUSTER_ENABLED=$(IFS=,; echo "${NAMES[*]}"); EXTRA="$EXTRA --clusters"; ENT=($(python3 $T/cluster_install.py --entries "${NAMES[@]}")) || exit 2
+  CL=$(python3 $T/fn_courses.py "${ENT[@]}" 2>/dev/null || echo "0 3"); [ -n "$CL" ] || CL="0 3"
+  [ -n "${CLUSTER_COURSES:-}" ] && CL="$CLUSTER_COURSES"      # e.g. CLUSTER_COURSES="$(seq -s' ' 0 14)": the entries of most clusters run in few courses (fn_courses.csv is missing, the default is 0 3)
+  [ -n "${CLUSTER_COUNT:-}" ] && CRASH="${CRASH/COUNT= /COUNT=--count }"      # CLUSTER_COUNT=1: coverage counters, never_executed.txt of the targeted step lists the entries no course ran
+fi
 if [ $KIND = tier2 -o $KIND = bridge ]; then
   if [ ${#NAMES[@]} = 0 -a $KIND = tier2 ]; then NAMES=($(python3 $T/shadow_cache.py changed)); echo "no names given: ${#NAMES[@]} tier 2 functions changed since the shadow cache"; fi
   CL=$(python3 $T/fn_courses.py "${NAMES[@]}" || echo "0 3"); [ -n "$CL" ] || CL="0 3"      # fn_courses notes (no course executes X) go to stderr; table missing -> courses 0 and 3
@@ -44,6 +52,8 @@ case $KIND in
              [ "${GATE_EARLY:-0}" = 1 ] && step "shadow EARLY course 0" 2.5 "shadow early '0' $NF";;
   bridge)    step "bridge shadow (course $CL)" $(awk "BEGIN{print 2+0.7*$(nc $CL)}") "bridgeshadow '$CL' ${NAMES[*]}"
              step "targeted courses ($CL)" $(awk "BEGIN{print 0.6*$(nc $CL)}") "courses targeted '$CL' $CRASH";;
+  cluster)   step "targeted courses ($CL), clusters ${NAMES[*]}" $(awk "BEGIN{print 0.6*$(nc $CL)}") "courses targeted '$CL' $CRASH"
+             step "DRIVE=31 courses 0,3" 1.4 "courses drive31 '0 3' $CRASH DRIVE=31";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
              step "fn_courses refresh" 0.1 "python3 $T/fn_courses.py build $D/full"
              step "DRIVE=31 sweep" 6 "sweep drive31 0 14 $CRASH DRIVE=31"

@@ -16,6 +16,50 @@ def copy_hdr(h, work):
     shutil.copy(h, work)
 
 
+def cl_strip(text, names):
+    """text without the top-level DEFINITIONS (not prototypes) of `names`: a cluster owns its entries, the older tier 2 / tier 1 / bridge-stub definitions of the same functions are dropped from the build copy (the files on disk stay)"""
+    for n in names:
+        while True:
+            m = re.search(r"^(?!extern|static|typedef)(?:__declspec\(naked\) )?[A-Za-z_][\w \t\*]*?\b%s\s*\([^;{}]*\)\s*\{" % re.escape(n), text, re.M)
+            if not m: break
+            i, depth = m.end(), 1
+            while depth and i < len(text):
+                depth += (text[i] == "{") - (text[i] == "}"); i += 1
+            text = text[:m.start()] + "/* %s: replaced by its cluster (src/clusters) */" % n + text[i:]
+    return text
+
+
+def cl_verify(out, entries, thunks):
+    """every cluster entry (and thunk) must be defined by the overlay and patched with `jmp new` at its original address; the original must have room for the 5 bytes"""
+    import struct
+    mp = {l.split()[0]: int(l.split()[1], 16) for l in open(out + ".map") if len(l.split()) == 2}
+    sizes = {l.split()[1]: int(l.split()[2]) for l in open(os.path.join(HERE, "..", "output", "fnsizes.txt")) if len(l.split()) == 3}
+    syms = {l.split()[0]: int(l.split()[1], 16) for l in open(os.path.join(RECOMP, "symbols.txt")) if len(l.split()) == 2}
+    exe = open(out, "rb").read()
+    e = struct.unpack_from("<I", exe, 0x3C)[0]
+    nsec, osz = struct.unpack_from("<H", exe, e + 6)[0], struct.unpack_from("<H", exe, e + 20)[0]
+    secs = [struct.unpack_from("<IIII", exe, e + 24 + osz + k * 40 + 8) for k in range(nsec)]      # vsize, rva, rawsize, rawptr
+    bad = []
+    for n in entries:
+        if n not in mp or n not in syms: bad.append("%s: not defined by the overlay / no original address" % n); continue
+        if sizes.get(n, 0) < 5: bad.append("%s: original has %s bytes, no room for the jmp" % (n, sizes.get(n))); continue
+        rva = syms[n] - 0x400000
+        for vs, va, rs, rp in secs:
+            if va <= rva < va + max(vs, rs):
+                o = rp + rva - va; break
+        tgt = (syms[n] + 5 + struct.unpack_from("<i", exe, o + 1)[0]) & 0xFFFFFFFF if exe[o] == 0xE9 else None
+        if tgt is not None and tgt != mp[n]:      # --count: the jmp goes to a counter thunk `pushfd; inc [cnt]; popfd; jmp new`
+            r_ = tgt - 0x400000
+            for vs, va, rs, rp in secs:
+                if va <= r_ < va + max(vs, rs) and exe[rp + r_ - va:rp + r_ - va + 3] == b"\x9c\xff\x05":
+                    tgt = (tgt + 13 + struct.unpack_from("<i", exe, rp + r_ - va + 9)[0]) & 0xFFFFFFFF
+        if tgt != mp[n]: bad.append("%s: original entry is not patched with a jmp to the cluster code" % n)
+    for n in thunks:
+        if n + "_n" not in mp: bad.append("%s_n (natural root) not defined" % n)
+    if bad: sys.exit("cluster check failed:\n  " + "\n  ".join(bad))
+    print("cluster check: %d entries patched with a jmp to their cluster code, %d entry thunks" % (len(entries), len(thunks)), file=sys.stderr)
+
+
 def main():
     out = sys.argv[1]
     sym = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else os.path.join(RECOMP, "symbols.txt")
@@ -49,6 +93,18 @@ def main():
             if os.environ.get("T2_SHADOW_DIR") and "--shadow" not in extra and not os.path.exists(os.path.join(t2dir, "an_shadow_rt.c")): srcs.append(os.path.join(RECOMP, "harness_shadow", "shadow.c"))
             for h in glob.glob(os.path.join(t2dir, "*.h")):
                 copy_hdr(h, work)
+        cl_files, cl_entries = [], set()
+        if "--clusters" in extra:        # src/clusters: tools/cluster_install.py output (natural C of a usercall root + its callers, entry thunk of the root); enabled.txt or CLUSTER_ENABLED=a,b
+            en_ = os.environ.get("CLUSTER_ENABLED")
+            en_ = [x for x in en_.split(",") if x] if en_ is not None else [l.strip() for l in open(os.path.join(RECOMP, "clusters", "enabled.txt")) if l.strip() and not l.startswith("#")]
+            for n_ in en_:
+                f_ = os.path.join(RECOMP, "clusters", "cl_%s.c" % n_)
+                cl_files.append(f_); cl_entries |= set(open(f_).readline().split(":", 1)[1].split())
+            if "--bridges" in extra:
+                bad_ = sorted(cl_entries & set(l.strip() for l in open(os.path.join(RECOMP, "bridges", "enabled.txt")) if l.strip()))
+                if os.environ.get("BRIDGE_ENABLED") is not None: bad_ = sorted(cl_entries & set(os.environ["BRIDGE_ENABLED"].split(",")))
+                if bad_: sys.exit("cluster entries that are ENABLED bridges (two implementations): " + " ".join(bad_))
+            srcs += cl_files
         if "--bridges" in extra and "--shadow" not in extra:         # (--shadow replaces src/bridges by src/bridges_shadow: same file names) src/bridges: tools/bridgegen.py output (register functions: C implementation + naked stub), opt-in
             srcs += sorted(glob.glob(os.path.join(RECOMP, "bridges", "*.c")))
             for h in glob.glob(os.path.join(RECOMP, "bridges", "*.h")):
@@ -63,6 +119,7 @@ def main():
                 txt = re.sub(r"#define BR_(\w+) \1_c", lambda m: m.group(0) if m.group(1) in keep else "#define BR_%s %s_r" % (m.group(1), m.group(1)), txt)
                 open(sel, "w").write(txt)
                 off = [m for m in re.findall(r"#define BR_(\w+) \w+_r", txt)]      # disabled bridges: leave the original function unpatched
+                off = [x for x in off if x not in cl_entries]      # a disabled bridge stub of a cluster root is stripped below, the cluster thunk is patched in
                 if off: extra += ["--skip", ",".join(off)]
         if "--shadow" in extra:          # src/bridges_shadow (bridgegen.py --shadow) + the shadow test runtime: every bridged function compares the original with the C version
             srcs += sorted(glob.glob(os.path.join(RECOMP, "bridges_shadow", "*.c"))) + [os.path.join(RECOMP, "harness_shadow", "shadow.c")]
@@ -74,7 +131,7 @@ def main():
                 if off: extra += ["--skip", ",".join(off)]
         if "--conftest" in extra:        # src/harness_conf: conformance test runtime + generated table (tools/conftest_gen.py), see tools/wine-run/conftest.sh
             srcs += sorted(glob.glob(os.path.join(RECOMP, "harness_conf", "*.c")))
-        extra = [x for x in extra if x not in ("--no-auto", "--auto", "--bridges", "--shadow", "--conftest", "--automatch", "--automatch-near")]
+        extra = [x for x in extra if x not in ("--no-auto", "--auto", "--bridges", "--shadow", "--conftest", "--automatch", "--automatch-near", "--clusters")]
         if "--harness" in extra:    # test hooks (src/harness/*.c) for deterministic runs; the call-site hooks are passed on
             extra = [x for x in extra if x != "--harness"]
             srcs += sorted(glob.glob(os.path.join(RECOMP, "harness", "*.c")))
@@ -107,7 +164,10 @@ def main():
             if os.path.exists(os.path.join(work, nm)):
                 sys.exit("two sources with the same file name %s (they would overwrite each other in the compile directory and poison the object cache)" % nm)
             shutil.copy(c, os.path.join(work, nm))
-            key = hashlib.sha1(open(c, "rb").read() + hdr.digest() + " ".join(flags).encode()).hexdigest()
+            if cl_entries and c not in cl_files:
+                t_ = open(c, errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in cl_entries if re.search(r"\b%s\b" % n_, t_)])
+                if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + " ".join(flags).encode()).hexdigest()
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
@@ -173,6 +233,7 @@ def main():
         if "--no-patch" in extra and harness_fns:   # a control must still run the harness functions that replace game functions (timer_ticks)
             extra = [x for x in extra if x != "--no-patch"] + ["--replace", ",".join(sorted(set(harness_fns)))]
         subprocess.run([sys.executable, os.path.join(HERE, "overlay.py"), EXE, out, merged, "--pad", os.environ.get("SECTION_PAD", "0x20000")] + extra + objs, check=True)
+        if cl_entries and "--no-patch" not in extra: cl_verify(out, sorted(cl_entries), [n for f_ in cl_files for n in [os.path.basename(f_)[3:-2]] if os.path.exists(f_) and ("%s_n" % n) in open(f_).read()])
         try:      # build provenance (idea from REA: every result names the identity of its inputs): <out>.build.json
             import json, time
             sha = lambda b: hashlib.sha1(b).hexdigest()[:12]

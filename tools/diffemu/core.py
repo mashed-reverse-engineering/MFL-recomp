@@ -52,9 +52,11 @@ class Tables:
         for r in csv.DictReader(open(os.path.join(ROOT, "output", "regsigs.csv"))):
             s.reg[int(r["addr"], 16)] = ([x for x in r["regs"].split("|") if x], int(r["ret_n"] or 0), [x for x in r["stack"].split(";") if x])
         s.sig = {}      # va -> (conv, stack dwords, return type)
+        s.stale = set()      # sigs.txt carries a `reg_e??` parameter that output/regsigs.csv does not know: the decls.h parameter list has one parameter too many (the stack words are the real arguments)
         for l in open(os.path.join(ROOT, "output", "sigs.txt")):
             p = l.rstrip("\n").split("|")
             if len(p) >= 7:
+                if re.search(r"(?:^|;)[^;]*:reg_e\w\w:", p[5]) and int(p[1], 16) not in s.reg: s.stale.add(int(p[1], 16))
                 n = sum(int(x.split(":")[-1]) for x in p[5].split(";") if "Stack" in x); s.sig[int(p[1], 16)] = (p[2], (n + 3) // 4, p[3])
         s.decl = {}     # va -> (return type, parameter text)
         for l in open(os.path.join(ROOT, "output", "decls.h")):
@@ -340,6 +342,28 @@ def orig_ret_pops(va):
         _RP[va] = pops
     return _RP[va]
 
+_FRET = {}
+_FCONS = ("fst", "fstp", "fmul", "fadd", "fsub", "fsubr", "fdiv", "fdivr", "fcom", "fcomp", "fabs", "fchs", "fsqrt", "fist", "fistp", "fucom", "fucomp", "fimul")
+def float_returners():
+    """va -> number of ORIGINAL call sites whose first x87 instruction (<= 6 instructions, no call / jump between) consumes ST0 with a memory operand or alone (fstp [m], fmul [m], fchs ...):
+    the callee returns a float in ST0 although Ghidra typed it int / undefined (course_angels_cb1: `call 4757e0; fstp [esp]`); without it the stub left no value for the fstp = a false x87 stack DIFF"""
+    if not _FRET:
+        _FRET[0] = 0
+        for s in pe.sections:
+            if not s.Characteristics & 0x20000000: continue
+            lo = BASE + s.VirtualAddress; d = IMG[s.VirtualAddress:s.VirtualAddress + max(s.Misc_VirtualSize, s.SizeOfRawData)]
+            for m in re.finditer(rb"\xe8", d):
+                a = lo + m.start(); t = (a + 5 + struct.unpack_from("<i", d, m.start() + 1)[0]) & 0xffffffff if m.start() + 5 <= len(d) else 0
+                if not (lo <= t < lo + len(d)): continue
+                n = 0
+                for ins in CS.disasm(d[m.start() + 5:m.start() + 5 + 40], a + 5):
+                    n += 1
+                    if n > 6 or ins.mnemonic in ("call", "ret", "retn") or ins.mnemonic.startswith("j"): break
+                    if ins.mnemonic.startswith("f") and ins.mnemonic not in ("fnstsw", "fnstcw", "fldcw", "fwait", "fnclex", "fninit"):
+                        if ins.mnemonic in _FCONS and "st(" not in ins.op_str: _FRET[t] = _FRET.get(t, 0) + 1
+                        break
+    return _FRET
+
 def callee_info(va):
     """convention of a callee: ret N (output/regsigs.csv), number of stack arguments (declaration > sigs.txt > regsigs types > ret N / 4), register inputs, float return"""
     tb = T(); name = tb.rev.get(va, "FUN_%08x" % va)
@@ -349,13 +373,14 @@ def callee_info(va):
     if ret_n is None and pop and not cv and orig_ret_pops(va) == {0}: pop = 0      # Ghidra says __stdcall, the original body only has plain `ret` (the caller cleans up: platform_init `add esp, 8` behind controller_dialog_run): the stub must not pop either, else the caller's frame is wrecked
     n = None; o = tb.oslots.get(va); os_n = o[0] if o and not o[4] else 0
     if regs and (dc or sg) and va in tb.reg and tb.reg[va][0]: n = len(stack) or pop // 4      # register callee: the declaration / signature list the register inputs as parameters too (`f(undefined4 p0, undefined4 p1)` for eax|edx): only the stack arguments count
+    elif va in tb.stale and sg: n = sg[1]
     elif dc and dc[1].strip() not in ("", "void"): n = sum(2 if re.search(r"\bdouble\b", p) and "*" not in p else 1 for p in dc[1].split(","))      # a double argument is two dwords
     elif sg and sg[0] != "unknown": n = sg[1]
     elif stack: n = len(stack)
     elif pop: n = pop // 4
     elif (va in tb.gt or os_n) and not (regs and not stack): n = max(tb.gt.get(va, 0), os_n)      # `()` declaration: the count comes from the original call sites (and the stack slots the callee's own body reads, output/orig_stackargs.txt, when exact: no address taken / lost esp), so the boundary call compares its argument VALUES too
     rt = (dc[0] if dc else (sg[2] if sg else "")).split()
-    return Callee(va, name, pop, min(n or 0, 12), [r for r in regs if r in REGS], "f" if any(x in ("float", "double", "float10") for x in rt) else "i", known=n is not None or va not in tb.reg, infer=n is None and not pop)
+    return Callee(va, name, pop, min(n or 0, 12), [r for r in regs if r in REGS], "f" if any(x in ("float", "double", "float10", "RwReal") for x in rt) or (float_returners().get(va) and va not in real_helpers() and all(x in ("", "undefined", "undefined4", "void", "unknown", "__cdecl", "__stdcall") for x in rt)) else "i", known=n is not None or va not in tb.reg, infer=n is None and not pop)
 
 NORETURN = {"exit", "_exit", "abort", "ExitProcess", "_amsg_exit", "longjmp", "_fatal_error", "quick_exit"}      # a stubbed noreturn callee ends the case (the code behind the call is dead in the real program)
 

@@ -417,7 +417,8 @@ class Lint:
                 continue
             ctx = re.search(r"([\w]+)\s*\(([^;]*)$", pre + m.group(0)) # inside a call argument list?
             stored = re.search(r"=\s*(\([^)]*\)\s*)?$", pre)
-            incall = bool(ctx) and ctx.group(1) not in KW and pre.count("(") > pre.count(")")
+            ps_ = re.split(r"[;{}]", pre)[-1]      # parentheses of the CURRENT statement only (the 120 character window can start inside an earlier one: `...(param_1 + 0x38);` left a stray `)` and hid trigger_sphere_register(&local_8c))
+            incall = bool(ctx) and ctx.group(1) not in KW and ps_.count("(") > ps_.count(")")
             if not (incall or stored) or (x, "nb") in flagged: continue
             if sty.get(x) not in SCALAR: continue          # a struct / array local (RwV3d, RwMatrix, ..): the whole object is passed, its members are contiguous by construction
             ox = loc[x]

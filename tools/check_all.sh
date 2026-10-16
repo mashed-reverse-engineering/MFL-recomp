@@ -13,14 +13,16 @@ python3 $T/defectlint.py --quiet 2>&1 | grep "^defectlint:" | sed 's/^/WARNING /
 python3 $T/portcheck.py --quiet 2>&1 | tail -2 | sed 's/^/WARNING /'; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "portcheck: a class grew past the baseline (output/portcheck.csv, README 'Portability gate')"; exit 1; }
 # the three strict builds are independent: run them side by side (BUILD_PAR=1 for the old serial order; compile jobs inside build_overlay are already parallel, the default is 1 because concurrent builds poisoned ~/.cache/mfl_objcache; make the cache writes atomic before raising it)
 i=0; PIDS=()
-for flags in "" "--automatch --bridges" "--automatch --automatch-near --bridges"; do
+FL=("" "--automatch --bridges" "--automatch --automatch-near --bridges")
+[ -s $T/../src/clusters/enabled.txt ] && FL+=("--automatch --automatch-near --bridges --clusters")      # installed clusters (tools/cluster_install.py): a 4th strict build, only when some are enabled
+for flags in "${FL[@]}"; do
   i=$((i+1)); mkdir -p $W/b$i
   ( echo "build [$flags]:"; python3 $T/build_overlay.py $W/b$i/b.exe $flags 2>&1 | grep -E "relocation check|RELCHECK |rror|more than one" | cut -c1-160; [ ${PIPESTATUS[0]} -eq 0 ] || echo "FAILED build $i" ) > $W/b$i.log 2>&1 &
   PIDS+=($!)
   if [ ${#PIDS[@]} -ge ${BUILD_PAR:-1} ]; then wait ${PIDS[0]}; PIDS=("${PIDS[@]:1}"); fi
 done
 wait
-cat $W/b1.log $W/b2.log $W/b3.log; grep -q "^FAILED" $W/b?.log && { echo FAILED; exit 1; }
+cat $W/b?.log; grep -q "^FAILED" $W/b?.log && { echo FAILED; exit 1; }
 python3 $T/declcheck.py > $W/declcheck.txt; [ $? -eq 0 ] || { grep HARD $W/declcheck.txt; echo "declcheck: hard mismatches"; exit 1; }
 echo "declcheck clean"
 python3 $T/agent_verify.py > $W/agent_verify.txt 2>&1; tail -1 $W/agent_verify.txt      # before the ledger: the ledger reads its evidence
