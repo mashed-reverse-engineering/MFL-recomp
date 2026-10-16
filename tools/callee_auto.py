@@ -24,6 +24,29 @@ def split_args(s):
         else: cur += ch
     if cur.strip(): out.append(cur.strip())
     return out
+_FP = {}
+def float_protos():
+    """callee name / FUN_va -> parameter type list, from output/decls.h, names/MFL_callee_protos*.txt and this run's overlay (tools/py)"""
+    if not _FP:
+        for f in (P("output", "decls.h"), P("names", "MFL_callee_protos.txt"), P("names", "MFL_callee_protos_auto.txt"), AUTO):
+            if not os.path.exists(f): continue
+            for l in open(f, errors="replace"):
+                m = re.match(r"(?:/\*([0-9a-f]{8})\*/ )?extern [^()]*?(\w+)\(([^()]*)\);", l)
+                if not m: continue
+                ps = [] if m.group(3).strip() in ("", "void") else split_args(m.group(3))
+                _FP[m.group(2)] = ps
+                if m.group(1): _FP["FUN_" + m.group(1)] = ps
+    return _FP
+def float_literal_ok(c, x):
+    """a call with float literal arguments is fine when the callee's prototype is known and each such parameter is float / double (the literal is then converted exactly as in the original; `f()` / int parameters would make an 8 byte double or a wrong int)"""
+    lit = re.compile(r"(?<![\w.])\d+\.\d+(?![\w.])")
+    if not lit.search(x): return True
+    ps = float_protos().get(c)
+    if ps is None or any(p.strip() == "..." for p in ps): return False
+    for k, a in enumerate(split_args(x)):
+        if not lit.search(a): continue
+        if re.search(r"\w\s*\(", a) or k >= len(ps) or not re.match(r"(?:const )?(?:float|double|RwReal)\s*\w*$", ps[k].strip()): return False
+    return True
 def sites_of(funcs):
     S = collections.defaultdict(list)       # va -> [(args, floatvars-of-caller, cast_float_result)]
     for n, (_, body) in funcs.items():
@@ -57,7 +80,7 @@ def build(funcs):
         if "st0" in rr and not cf and "eax" not in rr: why[nm] = "st0 result without a float caller"; continue
         ty = []; bad = False
         for k in range(n):
-            ks = {("float" if re.search(r"\((?:float|double)\)", a[k]) or a[k] in fv else "int") for a, fv, _ in ss if len(a) == n}
+            ks = {("float" if re.search(r"\((?:float|double)\)", a[k]) or a[k] in fv or re.fullmatch(r"-?\d+\.\d+f?", a[k]) else "int") for a, fv, _ in ss if len(a) == n}
             if not ks: bad = True; break
             if len(ks) > 1: bad = True; break
             ty.append(ks.pop())

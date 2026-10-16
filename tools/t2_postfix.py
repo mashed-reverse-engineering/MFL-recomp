@@ -206,6 +206,8 @@ def fix(path):
     t = open(path, errors="replace").read()      # Ghidra wraps a long definition head (`undefined4 * __cdecl\nname(a,`): diffemu / core.defs need the name on the type's line
     t2 = re.sub(r"^((?!extern|static)[A-Za-z_][\w \*]*(?:__cdecl|__stdcall|__fastcall))[ \t]*\n(\w+\()", r"\1 \2", t, flags=re.M)
     if t2 != t: open(path, "w").write(t2); ks.append("headjoin")
+    t3 = re.sub(r"\.s\.(LowPart|HighPart)\b", r".\1", t2)      # kind `member`: Ghidra's LARGE_INTEGER has `.s.LowPart` (newer SDK), our header has the flat union-less struct
+    if t3 != t2: open(path, "w").write(t3); ks.append("member")
     for _ in range(3):
         k = _fix1(path)
         if not k: break

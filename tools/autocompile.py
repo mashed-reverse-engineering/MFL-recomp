@@ -11,6 +11,8 @@ chunk = int(sys.argv[5]) if len(sys.argv) > 5 else 40
 import shutil
 for _h in ("ghidra_types.h", "prelude.h"):      # always the CURRENT headers (a copy in the work dir from an older round hid fields added since: 94 wave-0 "compile failures" of the first census)
     _src = os.path.join(HERE, "..", "src", "auto", _h)
+    _ov = os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), _h)      # t2_auto: header patched with the newer struct specs (tools/spec_header.py)
+    if os.path.exists(_ov): _src = _ov
     if os.path.exists(_src) and (not os.path.exists(os.path.join(work, _h)) or open(_src, "rb").read() != open(os.path.join(work, _h), "rb").read()): os.makedirs(work, exist_ok=True); shutil.copy(_src, os.path.join(work, _h)); print("refreshed", _h, file=sys.stderr)
 text = open(os.environ.get("AC_TEXT") or os.path.join(HERE, "..", "output", "named", "MFL_app_named.c"), errors="replace").read()      # AC_TEXT=<file>: another decompilation (tools/t2_auto.py: bodies with scripted fixes / a Ghidra export of FUN_ functions)
 REG = re.compile(r"\b(reg_e(?:ax|bx|cx|dx|si|di|bp)|in_[A-Z]{2,3}|unaff_[A-Za-z]+|extraout_\w+|stack0x\w+|param_\d+_00\w+|unaff_retaddr|[iu]?Stack[0-9a-f]{8}|in_stack_\w+|POPCOUNT|SBORROW\d|CARRY\d|halt_baddata|ABS|fpatan|fsin|fcos|fptan|fyl2x|f2xm1)\b")
@@ -137,6 +139,7 @@ def fix_body(b):
 # AC_X87=1: also take functions whose only pseudo variables are fsin / fcos / fpatan / ABS (x87 instructions the original executes inline): written as CRT calls sin / cos / atan2 / fabs
 # (equal behaviour for in-range arguments, never the same bytes: tier 2 candidates only; atan2 / fabs may have no address in symbols.txt: the census build drops such functions).  Both are opt-in: the default flow and its results are unchanged.
 PLAIN, X87 = os.environ.get("AC_PLAIN") == "1", os.environ.get("AC_X87") == "1"
+if PLAIN: sys.path.insert(0, HERE); from callee_auto import float_literal_ok as _fl_ok
 X87_NAME = {"fsin": "sin", "fcos": "cos", "ABS": "fabs", "fpatan": "atan2"}      # CRT calls (no inline asm: tools/cheatgrep.py): fpatan(st1, st0) = atan2(st1, st0); the original is the inline x87 instruction
 X87_PROTO = {"sin": "double sin(double);", "cos": "double cos(double);", "fabs": "double fabs(double);", "atan2": "double atan2(double, double);"}
 ADAPT = {}      # register function -> bridgegen description (F_r adapters)
@@ -157,7 +160,7 @@ for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", tex
     if _CNRE: body = _CNRE.sub(lambda m_: CALLEE_NAME[m_.group(1)], body)
     flat = re.sub(r"\s+", " ", body)
     unsafe = any(c_ not in CALLEE_OK for c_ in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat)) or any(      # unprototyped calls: unknown callee signature, float literals become 8 byte doubles
-        re.search(r"(?<![\w.])\d+\.\d+(?![\w.])", a) and c not in ("if", "while", "for", "switch", "sizeof", "return") for c, a in re.findall(r"\b(\w+) ?\(([^;{}]*)\);", flat))
+        re.search(r"(?<![\w.])\d+\.\d+(?![\w.])", a) and c not in ("if", "while", "for", "switch", "sizeof", "return") and not (PLAIN and _fl_ok(c, a)) for c, a in re.findall(r"\b(\w+) ?\(([^;{}]*)\);", flat))      # t2_auto (AC_PLAIN): a float literal is fine where the callee prototype has float / double there (tools/callee_auto.py float_literal_ok)
     rf_ = set(REG.findall(body))
     funcs_all.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
     allow_ = ({r_ for r_ in rf_ if r_.startswith("reg_e")} if PLAIN else set()) | ({"fsin", "fcos", "fpatan", "ABS"} & rf_ if X87 else set())
@@ -229,7 +232,7 @@ def build(fs, path, retype=None):
     seen_decl = set()
     if "unkbyte10" in used: out.append("typedef double unkbyte10;")      # Ghidra's type for an x87 value of unknown width (st0 return of the fsin helpers)
     for l in EXTRA_DECL:      # names/MFL_extern_fix.txt (tools/undeclared_fix.py)
-        m = re.search(r"(\w+)(?:\[\])?;$", l)
+        m = re.search(r"(\w+)(?:\[\d*\])?;$", l)
         if m and m.group(1) in used and m.group(1) not in defined and m.group(1) not in seen_decl: seen_decl.add(m.group(1)); out.append(l)
     for l in decl_lines:
         m = re.search(r"extern [^;]*?([A-Za-z_]\w*)(\(|\s*\[|;)", l)

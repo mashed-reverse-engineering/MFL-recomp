@@ -40,7 +40,8 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto
+HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
 NAMED = P("output", "named", "MFL_app_named.c")
@@ -77,7 +78,7 @@ _TYPES = None
 def typenames():
     global _TYPES
     if _TYPES is None:
-        t = open(P("src", "auto", "ghidra_types.h"), errors="replace").read() + open(P("src", "auto", "prelude.h"), errors="replace").read()
+        t = open(HDR if os.path.exists(HDR) else P("src", "auto", "ghidra_types.h"), errors="replace").read() + open(P("src", "auto", "prelude.h"), errors="replace").read()
         _TYPES = set(re.findall(r"typedef [^;{]*?\b(\w+)(?:\[\d+\])?\s*;", t)) | set(re.findall(r"\}\s*(\w+)\s*;", t)) | set(re.findall(r"\bstruct (\w+)", t)) | {"int", "uint", "char", "short", "long", "float", "double", "unsigned", "byte", "ushort", "ulong"}
     return _TYPES
 def hoist(b):
@@ -169,13 +170,15 @@ def skip_class(n, body, regin, have, ok_protos):
         miss = sorted({cn.get(c, c) for c in re.findall(r"\b(\w+) ?\(", flat)} & na - {n})
         if miss: return "gen-skip:plain-regcallee-noadapter", "no F_r adapter for " + ",".join(miss)[:150]
         rf = set()
+    if re.search(r"\bswitchD_\w+::", body): return "gen-skip:switch-table", "jump table data referenced as switchD_xxx::switchdataD_xxx (not expressible in C)"
     if rf: return ("gen-skip:plain-regcallee", ",".join(sorted(rf))[:80]) if all(r.startswith("reg_e") for r in rf) else ("gen-skip:x87-intrinsic" if rf <= {"fsin", "fcos", "fpatan", "ABS"} else "gen-skip:usercall", ",".join(sorted(rf))[:80])
     un = sorted({c for c in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat) if c not in ok_protos})
     if un:
         rg = [c for c in un if WHY.get(c) == "regin"]
         if rg: return "gen-skip:regin-callee", "register-input callee " + ",".join(rg)[:80]
         return "gen-skip:unproto-callee", ";".join("%s(%s)" % (c, WHY.get(c, "?")) for c in un)[:200]
-    if any(re.search(r"(?<![\w.])\d+\.\d+(?![\w.])", x) and c not in ("if", "while", "for", "switch", "sizeof", "return") for c, x in re.findall(r"\b(\w+) ?\(([^;{}]*)\);", flat)): return "gen-skip:float-literal-call", "float literal passed through unprototyped call"
+    bad = [c for c, x in re.findall(r"\b(\w+) ?\(([^;{}]*)\);", flat) if c not in ("if", "while", "for", "switch", "sizeof", "return") and not callee_auto.float_literal_ok(c, x)]
+    if bad: return "gen-skip:float-literal-call", "float literal passed to a callee without a float parameter there: " + ",".join(sorted(set(bad)))[:120]
     return None
 
 # ------------------------------------------------------------------------------------------------------------- generate (autocompile rounds)
@@ -216,6 +219,9 @@ def generate(names, funcs, text_path):
         with open(txt, "w") as f:
             for n in todo:
                 cur[n] = stdcall_def(n, funcs[n][0], fix_round(cur[n], errs[n])); f.write("// ==== %s @ %s\n%s\n" % (n, funcs[n][0], cur[n]))
+        if rnd and any("C2039" in errs[n] and "field_0x" in errs[n] for n in todo):      # `field_0xNN` of a struct whose bytes are `_gap_` padding: split out of the gap, in this run's header copy (tools/struct_gaps.py)
+            ff = os.path.join(W, "failed_g%d.txt" % (rnd - 1)); open(ff, "w").write("".join("%s\t%s\n" % (n, errs[n]) for n in todo))
+            subprocess.run([sys.executable, os.path.join(HERE, "struct_gaps.py"), ff, HDR], capture_output=True)
         if rnd and any("C2065" in errs[n] for n in todo):      # data names without a declaration -> names/MFL_extern_fix.txt (+ src/aliases.txt), additive and idempotent
             ff = os.path.join(W, "failed_r%d.txt" % (rnd - 1)); open(ff, "w").write("".join("%s\t%s\n" % (n, errs[n]) for n in todo))
             subprocess.run([sys.executable, os.path.join(HERE, "undeclared_fix.py"), ff], capture_output=True)
@@ -407,8 +413,21 @@ def main():
     open(os.path.join(W, "need_decomp.txt"), "w").write("".join("%s %s %s\n" % (va_of[n], size.get(n, 0), n) for n in nodec))
     print("pool %d: %d without decompilation, %d skipped, %d to generate" % (len(rows), len(nodec), sum(1 for r in res.values() if r["verdict"] == "SKIP"), len(todo)), flush=True)
     # --- generate
+    subprocess.run([sys.executable, os.path.join(HERE, "spec_header.py"), P("src", "auto", "ghidra_types.h"), HDR], capture_output=True)      # struct specs newer than the exported header (autocompile reads it from the overlay)
+    # arrays of structs of the struct specs whose symbol decls.h still declares as a scalar (`extern undefined4 g_voices;`): the named C indexes them (`g_voices[i].voice`) -> override declaration in the overlay
+    dec = open(P("output", "decls.h"), errors="replace").read(); fx = os.path.join(W, "overlay", "MFL_extern_fix.txt"); ov = []; nm_at = collections.defaultdict(list)
+    for l_ in open(P("src", "symbols.txt")):
+        q = l_.split()
+        if len(q) == 2: nm_at[int(q[1], 16)].append(q[0])
+    for f_ in glob.glob(P("names", "MFL_structs*.txt")):
+        for l_ in open(f_):
+            q = l_.strip().split(",")
+            if q[0] == "apply" and len(q) >= 4 and int(q[3]) > 1:
+                ov += ["extern struct %s %s[%s];" % (q[2], nm, q[3]) for nm in nm_at[int(q[1], 16)] if re.search(r"extern (?:undefined4|undefined|int|uint) %s;" % nm, dec)]
+    have_ = open(fx).read() if os.path.exists(fx) else ""
+    if [l_ for l_ in ov if l_ not in have_]: open(fx, "a").write("".join(l_ + "\n" for l_ in ov if l_ not in have_))
     st = generate(todo, funcs, text_path) if todo else {}
-    for h in ("ghidra_types.h", "prelude.h"): shutil.copy(P("src", "auto", h), os.path.join(FILES, h))
+    shutil.copy(HDR, os.path.join(FILES, "ghidra_types.h")); shutil.copy(P("src", "auto", "prelude.h"), os.path.join(FILES, "prelude.h"))
     items = []; srcs = {}
     for n in todo:
         ok, f, err, rnd = st[n]
