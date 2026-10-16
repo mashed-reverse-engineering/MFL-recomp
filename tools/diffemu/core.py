@@ -374,7 +374,7 @@ def import_stubs():
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
-        m.sw, m.frames, m.sp0 = set(), [], 0; m.patch = {}; m.reads = None
+        m.sw, m.frames, m.sp0 = set(), [], 0; m.patch = {}; m.reads = None; m.small = False
         m.seed, m.mode, m.wild, m.trace, m.writes, m.cnt, m.islots, m.stub, m.wildfn = seed, mode, 0, [], [], {}, islots, {}, wildfn
         uc = m.uc = Uc(UC_ARCH_X86, UC_MODE_32)
         for a, n in ((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000)): uc.mem_map(a, n)
@@ -454,7 +454,9 @@ class Machine:
         return v
 
     def _callee(m, uc, addr, size, ud):
-        c = m.hooked[addr]; sp = uc.reg_read(UC_X86_REG_ESP); i = m.cnt[addr] = m.cnt.get(addr, -1) + 1
+        c = m.hooked.get(addr)
+        if c is None: m._indirect(uc, addr, size, ud); return      # a wild jump into the middle of the import stub area (the bytes there are `ret`): a stubbed indirect call like any other
+        sp = uc.reg_read(UC_X86_REG_ESP); i = m.cnt[addr] = m.cnt.get(addr, -1) + 1
         if c.name in NORETURN:
             m.trace.append((c.name, tuple(m.norm(a) for a in struct.unpack("<%dI" % min(c.nargs, 4), bytes(uc.mem_read(sp + 4, 4 * min(c.nargs, 4))))), ())); m.exited = True; uc.emu_stop(); return
         args = struct.unpack("<%dI" % c.nargs, bytes(uc.mem_read(sp + 4, 4 * c.nargs))) if c.nargs else ()
@@ -485,7 +487,7 @@ class Machine:
         for k, a in enumerate(outs):      # out parameters: a dword behind every pointer to a local gets a deterministic value (else it is frame garbage, different in the two builds)
             if isstack(a): uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, k), 16) % 61))
         if c.ret == "f": uc.mem_write(FPSRC, struct.pack("<d", ((h >> 4) % 4000 - 2000) / 8.0))
-        uc.reg_write(UC_X86_REG_EAX, (0, 1, u32(-1), r % 50, r % 6, r % 256, u32(r * 2654435761), u32(r))[h % 8])
+        uc.reg_write(UC_X86_REG_EAX, (0, 1, r % 3, r % 50, r % 6, r % 256, r % 10, 2)[h % 8] if m.small else (0, 1, u32(-1), r % 50, r % 6, r % 256, u32(r * 2654435761), u32(r))[h % 8])      # m.small: retry_case, a loop bound returned by a stubbed callee
         uc.reg_write(UC_X86_REG_EDX, u32(h >> 20)); uc.reg_write(UC_X86_REG_ECX, u32(h >> 12))
         uc.reg_write(UC_X86_REG_EIP, m.stubaddr(0 if nat and m.ours else c.pop, c.ret == "f"))
 
@@ -496,7 +498,7 @@ class Machine:
         uc.mem_write(sp, struct.pack("<%dI" % (1 + len(args)), RET, *[u32(x) for x in args]))
         for r, v in regs.items(): uc.reg_write(REGS[r], u32(v))
         uc.reg_write(UC_X86_REG_ESP, sp); m.blocks = {}; m.exited = False; m.sp0 = sp
-        uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)
+        if count >= MAXINS: uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)      # trial runs of retry_case need no coverage
         err = None
         t0 = time.time()
         try: uc.emu_start(entry, RET, timeout=2000000, count=count)
@@ -596,8 +598,8 @@ def window(rnd, size, text, struct_fn=None):
     return defloat(bytes(b))
 
 class Case:
-    def __init__(c, seed, mode, fill, args, regs, wins): c.seed, c.mode, c.fill, c.args, c.regs, c.wins, c.patch = seed, mode, fill, args, regs, wins, {}
-    def describe(c): return "seed %d mode %d fill %s args %s%s" % (c.seed, c.mode, c.fill if isinstance(c.fill, str) else hex(c.fill), [hex(a) if isinstance(a, int) else a for a in c.args], " loop-bound patch %s" % {hex(a): v for a, v in c.patch.items()} if c.patch else "")
+    def __init__(c, seed, mode, fill, args, regs, wins): c.seed, c.mode, c.fill, c.args, c.regs, c.wins, c.patch, c.small = seed, mode, fill, args, regs, wins, {}, False
+    def describe(c): return "seed %d mode %d fill %s args %s%s" % (c.seed, c.mode, c.fill if isinstance(c.fill, str) else hex(c.fill), [hex(a) if isinstance(a, int) else a for a in c.args], (" loop-bound patch %s" % {hex(a): v for a, v in c.patch.items()} if c.patch else "") + (" small stub returns" if c.small else ""))
 
 FILLS = (0xA5, 0x00, 0xFF, "rand")
 
@@ -629,15 +631,22 @@ def gen_cases(sig, n, k, seed0=0):
 # ---------------------------------------------------------------------------------------------------------- run + compare
 INIT = {"eax": 0, "ecx": 0, "edx": 0, "ebx": 0x12345678, "esi": 0x23456789, "edi": 0x34567890, "ebp": 0x456789ab}
 
+_FILLS = {}
+def _fill(f, r):
+    if f != "rand":
+        if f not in _FILLS: _FILLS[f] = defloat(bytes([f]) * (STK - 0x200))
+        return _FILLS[f]
+    return defloat(r.randbytes(STK - 0x200))
+
 def side(fn, case, ours, count=MAXINS):
     m = Machine(case.seed, case.mode, fn.lits if ours else b"", fn.callees, fn.imports, fn.islots); m.ours = ours; m.indargs = not getattr(fn, "noindargs", False)
     for a, b in case.wins: m.uc.mem_write(a, b)
-    m.patch = case.patch
+    m.patch = case.patch; m.small = case.small
     for a, v in case.patch.items(): m.poke(a, v)
     args, cregs = fn.mapcase(case, ours) if getattr(fn, "mapcase", None) else (case.args, case.regs)      # cluster mode: register arguments of the original, stack arguments of ours
     if getattr(fn, "pushn", 0) > len(args): args = list(args) + [int(sha(case.seed, "pad", i), 16) % 61 + (0x1000 if ours else 0) for i in range(len(args), fn.pushn)]      # a dropped stack argument: the stack slots the ORIGINAL callers push / its body reads are seeded beyond the declared parameters; OUR side gets different values there, so a C definition that declares fewer parameters (an undeclared slot reaches a callee through a tail jump, or the call drops it) differs at the stubbed callee
     r = random.Random(case.seed ^ 0xabcdef); regs = dict(INIT, eax=r.getrandbits(32), ecx=r.getrandbits(32), edx=r.getrandbits(32)); regs.update(cregs)
-    fill = defloat(r.randbytes(STK - 0x200) if case.fill == "rand" else bytes([case.fill]) * (STK - 0x200))      # uninitialised locals read as floats: no NaN (0xFF fill) whose compare differs between `a < b` and `!(a >= b)` code
+    fill = _fill(case.fill, r)      # uninitialised locals read as floats: no NaN (0xFF fill) whose compare differs between `a < b` and `!(a >= b)` code
     if ours:
         code = bytearray(fn.code)
         if fn.mutate: code[fn.mutate[0]] = fn.mutate[1]
@@ -717,7 +726,7 @@ def probe_reads(fn, case):
     fill = defloat(r.randbytes(STK - 0x200) if case.fill == "rand" else bytes([case.fill]) * (STK - 0x200))
     args = list(case.args)
     if getattr(fn, "pushn", 0) > len(args): args += [int(sha(case.seed, "pad", i), 16) % 61 for i in range(len(args), fn.pushn)]
-    m.run(fn.va, args, regs, fill, fn.va, fn.hi)
+    m.run(fn.va, args, regs, fill, fn.va, fn.hi, 8000)      # only the first reads matter (list heads, counts, the first cells of a walk)
     allr = [a for a in seen if (a & 0xfff) <= 0xffc]
     return allr, [a for a in allr if struct.unpack("<I", m.read(a, 4))[0] > 64]
 
@@ -740,34 +749,36 @@ def retry_case(fn, case, mo, ro):
     different input, the comparison stays real).  -> (case, mo, ro) of the first variant where the original returns, or None"""
     try: allr, cand = probe_reads(fn, case)
     except Exception: return None
-    def mk(patch):
-        c2 = Case(case.seed, case.mode, case.fill, case.args, case.regs, case.wins); c2.patch = patch; return c2
-    def tryit(patch):
-        c2 = mk(patch)
-        if side(fn, c2, False, 40000)[1]["done"]:      # cheap trial, then the full run
+    def tryit(patch, small=False):
+        c2 = Case(case.seed, case.mode, case.fill, case.args, case.regs, case.wins); c2.patch = patch; c2.small = small
+        if side(fn, c2, False, 12000)[1]["done"]:      # cheap trial, then the full run
             mo, ro = side(fn, c2, False)
             if ro["done"]: return c2, mo, ro
-    pats = [("L", v, k) for v, k in PATCHES if cand and not (k > 4 and len(cand) <= k // 4)]
+    pats = [("R",)] + [("L", v, k) for v, k in PATCHES if cand and not (k > 4 and len(cand) <= k // 4)]
     sents = sentinels(fn)      # sentinel terminated list walk: every m-th dword read from the k-th on becomes a terminator the original compares against (all of them, or cycling through them)
     pats += [("S", m_, k0, tuple(vals)) for m_ in (1, 2, 3, 5, 8) for k0 in (2, 3, 4) for vals in [[x] for x in sents] + ([sents] if len(sents) > 1 else [])]
     def build(p_):
+        if p_[0] == "R": return {-1: 0}
         if p_[0] == "L": return {a: p_[1] for a in cand[:p_[2]]}
         _, m_, k0, vals = p_
         return {allr[k0 + j * m_]: vals[j % len(vals)] for j in range(16) if k0 + j * m_ < len(allr)} if k0 < len(allr) else {}
     last = getattr(fn, "_pat", None)      # the pattern that bounded the previous runaway case first (same function, same loop)
+    t0 = time.time()
     for p_ in ([last] if last in pats else []) + [x for x in pats if x != last]:
+        if time.time() - t0 > 6: break      # ponytail: 6 s per runaway case, a loop this stubborn needs a hand written seed
         patch = build(p_)
-        r = tryit(patch) if patch else None
+        r = (tryit({}, True) if p_[0] == "R" else tryit(patch)) if patch else None
         if r: fn._pat = p_; return r
     return None
 
 def run_case(fn, case):
     """-> ('skip', cause) | ('equal', None) | ('diff', [descriptions]); updates the coverage sets"""
-    mo, ro = side(fn, case, False)
-    if not ro["done"] and ro["cause"] in LOOPY and getattr(fn, "retries", 0) < 24:
+    mo, ro = side(fn, case, False, MAXINS if getattr(fn, "runaways", 0) < 3 else MAXINS // 7)      # a function that already ran away three times: the next runaways are cut earlier (a 300000 instruction run with a stubbed loop counter costs the 2 s wall clock)
+    if not ro["done"] and ro["cause"] in LOOPY: fn.runaways = getattr(fn, "runaways", 0) + 1
+    if not ro["done"] and ro["cause"] in LOOPY and getattr(fn, "retries", 0) < 6:
         rr = retry_case(fn, case, mo, ro)
         if rr is None: fn.retries = getattr(fn, "retries", 0) + 1      # a function whose runaway cases cannot be bounded stops paying for the retries
-        else: case.patch, mo, ro = rr[0].patch, rr[1], rr[2]; fn.patched = getattr(fn, "patched", 0) + 1
+        else: case.patch, case.small, mo, ro = rr[0].patch, rr[0].small, rr[1], rr[2]; fn.retries = 0; fn.patched = getattr(fn, "patched", 0) + 1
     if not ro["done"]: return "skip", ro["cause"]
     fn.cov_o |= covered(fn.leaders_o, mo.blocks)
     mu, ru = side(fn, case, True)

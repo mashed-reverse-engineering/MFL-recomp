@@ -9,6 +9,10 @@
   enum   names of names/MFL_enums.txt used but not defined (C2065: COURSE_ANGELS, WEAPON_MINE ...): `#define NAME value` below the includes.
   argfill  `f()` (Ghidra dropped the arguments: unprototyped / K&R callee) where EVERY call of f in the original function pushes the same constants (immediates / addresses): `f(c1, c2)`.
   tailfwd  callee that rewrites its stack argument and tail-jumps (orig_stackargs flag wN) so it really takes the tail target's slot count, but the extern has fewer: the extern gets the real parameter count, the call gets the stale extra arguments Ghidra attached to the NEXT call back (`mem_zero(&g, n, str, 0, 0)` after `f(str)`).
+  isnan  Ghidra's `NAN(x)` -> `((x) != (x))` (the prelude's NAN is the constant; also applied by t2_auto.fix_round before generation).
+  argsite  `f()` / `f_r(a)` with fewer arguments than the callee takes (C2198; Ghidra dropped them: K&R / register callee): simulation of the ORIGINAL function's call sites (asm_sites: pushes, register definitions, esp-relative slots) gives each missing argument as an immediate, a global, a parameter / local_N slot, the result variable of the call just before, or the C argument another call site passes for the same asm value; all or nothing per call.
+  varargs  a call with more arguments than the extern has, whose callee takes the address of its argument area (orig_stackargs flag addr, slots == declared): the extern becomes variadic (`, ...`).
+  unused  an extern prototype whose name occurs nowhere else in the file is dropped (autocompile also declares names that only appear in the comment: `start` of course_lap_line_find_index -> a false "register callee called plain").
   headjoin  a definition head Ghidra wrapped after the calling convention (`T * __cdecl` / newline / `name(`) is joined (core.defs matches one line).
   frame  defectlint class 9: the cluster of stack-slot locals (local_N / uStack_N / auStack_N, gaps <= 8 bytes, known sizes) around a flagged slot becomes ONE struct local `frame` with the Ghidra offsets (padding members for gaps); uses are renamed `frame.local_N`.
 fix(path) -> list of applied fix kinds (file rewritten in place)."""
@@ -44,6 +48,14 @@ def _args(t, i):
         elif c == "," and d == 1: out.append((st, j)); st = j + 1
         j += 1
     return out, -1
+def isnan(t):
+    """Ghidra's `NAN(x)` (x is NaN) next to the prelude's object-like NAN constant: -> `((x) != (x))`"""
+    while True:
+        m = re.search(r"(?<![\w.>])NAN\(", t)
+        if not m: return t
+        al, close = _args(t, m.end() - 1)
+        if close < 0 or len(al) != 1: return t
+        a = t[al[0][0]:al[0][1]].strip(); t = t[:m.start()] + "((%s) != (%s))" % (a, a) + t[close + 1:]
 _FN = {}; _STD = {}
 def orig_const_args(name, va_callees):
     """-> {callee va: tuple of constant argument texts} for callees whose every call site in the ORIGINAL function `name` pushes the same immediates (count from `add esp,N` / stdcall ret N / slots read)"""
@@ -145,6 +157,240 @@ def tailfwd(t, nm=None):
     for s, e, x in sorted(edits, reverse=True): t = t[:s] + x + t[e:]
     return t, len(fixed)
 
+# ---- argsite: arguments Ghidra dropped at a call (`f()` / `f_r()`), recovered from the original call sites
+_RV = {}
+def reg_va(name):
+    """original function address of a register callee `name` (output/reginputs.csv)"""
+    if not _RV:
+        import csv
+        for r in csv.reader(open(os.path.join(G, "output", "reginputs.csv"))):
+            if len(r) > 2: _RV.setdefault(r[0], r[1])
+    return _RV.get(name)
+_RG = ("eax", "ecx", "edx", "ebx", "esi", "edi", "ebp")
+def _canon(o, regs, d):
+    """operand text -> canonical value string: I:<imm> | A:<lea addr> | M:<mem> | R:<opaque reg> | ret:<callee va> (esp relative addresses become entry relative S<k>)"""
+    o = re.sub(r"^(?:dword |byte |word )?ptr ", "", o.strip())
+    if re.fullmatch(r"0x[0-9a-f]+|\d+", o): return "I:" + o
+    if o in _RG: return regs.get(o) or "R:" + o
+    if o.startswith("ds:"): return "M:" + o
+    m = re.fullmatch(r"\[(\w+)(?:\+0x([0-9a-f]+))?\]", o)
+    c0 = regs.get(m.group(1)) if m and m.group(1) in _RG else None
+    if c0 and c0.startswith("A:[S"):      # [reg] with reg = &slot: the slot (or the next ones)
+        k0 = re.fullmatch(r"A:\[S(-?\d+)\]", c0)
+        if k0: return "M:[S%d]" % (int(k0.group(1)) + (int(m.group(2), 16) if m.group(2) else 0))
+    if c0 and c0.startswith(("M:", "M*:", "ret:")): return "M*:%s|%d" % (c0, int(m.group(2), 16) if m.group(2) else 0)
+    mx = re.fullmatch(r"\[(\w+)\*(\d)\+0x([0-9a-f]+)\]", o)      # [idx*scale + global]: element idx of the table at that address
+    if mx and mx.group(1) in _RG and regs.get(mx.group(1)) and not regs[mx.group(1)].startswith(("R:", "?")): return "X:%s|%s|%08x" % (regs[mx.group(1)], mx.group(2), int(mx.group(3), 16))
+    m = re.fullmatch(r"\[(.*)\]", o)
+    if m:
+        def sp(q): return "S%d" % (d + (int(q.group(1).replace("+", ""), 16) if q.group(1) else 0))
+        return "M:[" + re.sub(r"\besp([+-]0x[0-9a-f]+)?", sp, m.group(1)) + "]"
+    return None
+def asm_sites(nm, vas):
+    """-> {va: [site, ...]} (address order, straight-line simulation) of the calls of `vas` in the ORIGINAL function nm; site = dict(addr, stack=[canon, ..] top of stack first (up to 8), regs={reg: canon}, prev=(callee va of the last call, its address)); None when the stack does not balance at a `ret` (unknown stdcall callee)"""
+    import subprocess, reginputs2 as R
+    orig_const_args(nm, set())          # fills _FN / _STD
+    if nm not in _FN: return None
+    lo, sz = _FN[nm]
+    o = subprocess.run(["objdump", "-w", "-M", "intel", "-D", "--no-show-raw-insn", "--start-address=0x%x" % lo, "--stop-address=0x%x" % (lo + sz), R.EXE], capture_output=True, text=True).stdout
+    ins, order = R.parse_objdump(o)
+    vas_i = {int(v, 16) for v in vas}
+    tg = {int(a, 16) for op, a in ins.values() if op.startswith("j") and re.fullmatch(r"0x[0-9a-f]+", a)}
+    single = {}      # callee saved register written exactly once in the function, by an immediate (xor r,r / mov r,imm): its value at every later point
+    wr = {}
+    for a in order:
+        op, ar = ins[a]; ops = split_args(ar)
+        if not ops or op in ("cmp", "test", "push", "pop") or op.startswith("j") or op == "call": continue
+        r = __import__("reginputs2").FULL.get(ops[0], "x")
+        if r in ("ebx", "esi", "edi", "ebp"):
+            wr.setdefault(r, []).append((a, "I:0x0" if op in ("xor", "sub") and len(ops) == 2 and ops[0] == ops[1] else ("I:" + ops[1] if op == "mov" and len(ops) == 2 and re.fullmatch(r"0x[0-9a-f]+", ops[1]) else None)))
+    single = {r: w[0] for r, w in wr.items() if len(w) == 1 and w[0][1]}
+    back = {int(ar, 16) for a, (op, ar) in ins.items() if op.startswith("j") and re.fullmatch(r"0x[0-9a-f]+", ar) and int(ar, 16) <= a}
+    def run(single):
+        late = {}; snaps = {}; fall = True
+        mem, regs, d, out, prev, ok, dmap, cont = {}, {}, 0, {}, None, True, {}, True      # mem: entry relative stack slot -> canonical value; dmap: esp delta at jump targets
+        dbp = [0, False]      # esp delta at `mov ebp, esp`, stack aligned (`and esp, -16`: entry relative slots are meaningless)
+        def slot(o): return mem.get(o) or ("M:[S%d]" % o if o > 0 else "?")
+        for a in order:
+            op, ar = ins[a]
+            if a in tg:      # control flow join: registers all incoming forward edges agree on (a loop head, target of a backward jump, keeps nothing)
+                cand = snaps.get(a, []) + ([regs] if fall else [])
+                regs = {} if a in back or not cand else {r: v for r, v in cand[0].items() if v is not None and all(c.get(r) == v for c in cand)}
+            fall = True
+            for r_, (wa, wc) in single.items():
+                if a > wa and r_ not in regs: regs[r_] = wc
+            if a in dmap: d = dmap[a]
+            ops = split_args(ar)
+            if op.startswith("j") and ops and re.fullmatch(r"0x[0-9a-f]+", ops[0]):
+                t_ = int(ops[0], 16); dmap.setdefault(t_, d); snaps.setdefault(t_, []).append(dict(regs))
+                if op == "jmp": fall = False
+                if op == "jmp" and not (lo <= t_ < lo + sz) and t_ in vas_i: out.setdefault("%08x" % t_, []).append(dict(addr=a, stack=[slot(d + 4 + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, tail=True, al=dbp[1]))
+            if op == "push" and ops:
+                d -= 4; mem[d] = _canon(ops[0], regs, d + 4) or "?"
+            elif op == "pop" and ops: d += 4; regs.pop(ops[0], None)
+            elif op == "mov" and ops == ["ebp", "esp"]: dbp[0] = d; regs["ebp"] = None
+            elif op == "mov" and ops == ["esp", "ebp"]: d = dbp[0]
+            elif op == "and" and ops and ops[0] == "esp": dbp[1] = True
+            elif op in ("add", "sub") and ops and ops[0] == "esp" and len(ops) == 2 and re.fullmatch(r"0x[0-9a-f]+", ops[1]):
+                n = int(ops[1], 16); d += n if op == "add" else -n
+            elif op == "call":
+                m = re.fullmatch(r"0x([0-9a-f]+)", ar)
+                va = "%08x" % int(m.group(1), 16) if m else None
+                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1]))
+                k = _STD.get(va, 0) if va else 0
+                d += k * 4
+                regs = {r: v for r, v in regs.items() if r not in ("eax", "ecx", "edx")}
+                if va: regs["eax"] = "ret:" + va
+                prev = (va, a)
+            elif op in ("ret", "retn"):
+                fall = False
+                if d != 0: ok = False; DBG.append((a, d))
+            elif op == "mov" and len(ops) == 2 and ops[0] in _RG:
+                regs[ops[0]] = _canon(ops[1], regs, d)
+                if ops[0] in sc and regs[ops[0]] and not regs[ops[0]].startswith(("R:", "?", "ret:")): late[ops[0]] = (a, regs[ops[0]])
+            elif op == "mov" and len(ops) == 2 and re.fullmatch(r"(?:dword ptr )?\[esp(?:\+0x[0-9a-f]+)?\]", ops[0]):
+                mem[d + (int(re.search(r"\+0x([0-9a-f]+)", ops[0]).group(1), 16) if "+" in ops[0] else 0)] = _canon(ops[1], regs, d) or "?"
+            elif op == "lea" and len(ops) == 2 and ops[0] in _RG:
+                c = _canon(ops[1], regs, d); regs[ops[0]] = "A:" + c[2:] if c and c.startswith("M:") else None
+            elif op in ("xor", "sub") and len(ops) == 2 and ops[0] == ops[1] and ops[0] in _RG: regs[ops[0]] = "I:0x0"
+            elif ops and op not in ("cmp", "test", "push") and __import__("reginputs2").FULL.get(ops[0], "x") in _RG: regs[__import__("reginputs2").FULL[ops[0]]] = None
+            elif op in ("fnstsw", "cdq"): regs.pop("eax" if op == "fnstsw" else "edx", None)
+        return out, ok, late
+    sc = {r for r, w in wr.items() if len(w) == 1}      # written once (mov): its value after that point, whatever the control flow
+    out, ok, late = run(single)
+    if late: out, ok, _ = run({**late, **single})
+    return out if ok else None
+def split_args(a): return [x.strip() for x in re.split(r",(?![^\[]*\])", a)] if a else []
+_XP = dict(tail=False, own=0, max=0)
+def _cname(c, t, vas, cn, nm):
+    """canonical value -> C expression in text t, or None"""
+    if c is None or c.startswith(("R:", "?")): return None
+    if c.startswith("I:"): return c[2:]
+    if c.startswith("ret:"): return _XP["ret"](c) if _XP.get("ret") else None
+    if c.startswith("M*:"):
+        i, n_ = c[3:].rsplit("|", 1); x = _cname(i, t, vas, cn, nm)
+        if not x: return None
+        if re.fullmatch(r"\w+", x) and re.search(r"^\s*(?:int|uint|undefined4)\s+(?:\w+\s*,\s*)*%s\b" % re.escape(x), t, re.M) or x.startswith(("*(int *)(", "*(undefined4 *)(", "*(uint *)(")): return "*(int *)(%s + 0x%x)" % (x, int(n_))      # Ghidra's own form for an int-typed base
+        return "*(int *)((char *)%s + %s)" % (x, n_)
+    if c.startswith("X:"):
+        i, sc, ad = c[2:].rsplit("|", 2); x = _cname(i, t, vas, cn, nm); g = vas.get(ad)
+        return "(&%s)[%s]" % (g, x) if x and g and sc == "4" else None
+    k, v = c[0], c[2:]
+    m = re.fullmatch(r"ds:0x([0-9a-f]+)", v)
+    if m and k in "MA":
+        g = vas.get("%08x" % int(m.group(1), 16))
+        if not g: return None
+        return g if k == "M" else "&" + g
+    m = re.fullmatch(r"\[S(-?\d+)\]", v)
+    if m and k in "MA":
+        s = int(m.group(1))
+        if s > 0 and s % 4 == 0 and k == "M":
+            h = re.search(r"^[A-Za-z_][^;{}]*?\b%s\s*\(([^)]*)\)\s*\{" % re.escape(nm), t, re.M)
+            ps = [re.findall(r"\w+", p)[-1] for p in h.group(1).split(",") if re.findall(r"\w+", p)] if h and h.group(1).strip() not in ("", "void") else []
+            if 0 < s // 4 <= len(ps): return ps[s // 4 - 1]
+            if _XP["tail"] and s // 4 <= 8 and len(ps) == _XP["own"]: _XP["max"] = max(_XP["max"], s // 4); return "unused%d" % (s // 4)      # tail forwarding passes the caller's frame on: the slots behind our parameters become (unused) parameters of the definition
+            return None
+        if s < 0:
+            ns = set(re.findall(r"(?<![\w.])((?:frame\w*\.)?(?:local|[a-zA-Z]+Stack)_%x)\b" % -s, t))
+            ns = {x for x in ns if "." in x or not any(y.endswith("." + x) for y in ns)}      # the struct member declaration `local_c;` next to its uses `frame.local_c`
+            if len(ns) != 1: return None
+            n = ns.pop()
+            if re.search(r"\b%s\s*\[" % re.escape(n.split(".")[-1]), t): return n if k == "A" else n + "[0]"
+            return ("&" + n) if k == "A" else n
+    return None
+DBG = []      # (address, esp delta) of the `ret`s where asm_sites lost the stack balance (debugging)
+_PMK = {}
+def pushmin_slots(va):
+    """min(stack slots the original reads, pushes pending at every call site) of the callee at va: what a prototype must have at least (0 if unknown / no consensus)"""
+    if not _PMK:
+        pm = {l.split()[0]: int(l.split()[1]) for l in open(os.path.join(G, "output", "call_pushmin.txt")) if len(l.split()) >= 2}
+        for va_, (sl, _, fl) in orig().items(): _PMK[va_] = min(max(sl, tail_true(va_)), pm.get(va_, 0))      # a tail-forwarder really takes its target's slots
+    return _PMK.get(va, 0)
+def argsite(t, nm):
+    """-> (new text, number of calls filled): `f()` / `f_r(a)` whose original call site pushes / loads more arguments than Ghidra printed. Each missing argument comes from the original call site (asm_sites): an immediate, a global, a local / parameter slot (Ghidra's local_N), the result variable of the call just before (`v = P(..); f()` with eax pushed), or the C argument another call site of f passes for the same asm value. All or nothing per call; diffemu verifies."""
+    ext = {}      # callee name -> (va, regs, nstack)
+    for m in re.finditer(r"^/\*([0-9a-f]{8})\*/ extern [^;]*?\b(\w+)\(([^)]*)\);", t, re.M):
+        ps = m.group(3).strip(); ext[m.group(2)] = (m.group(1), [], 0 if ps in ("", "void") else ps.count(",") + 1)
+    for m in re.finditer(r"^static [^;]*?\b(\w+)_r\(([^)]*)\);", t, re.M):
+        va = reg_va(m.group(1)); ps = [p.strip() for p in m.group(2).split(",") if p.strip() and p.strip() != "void"]
+        if va: ext[m.group(1) + "_r"] = (va, [p.split("reg_")[1].strip() for p in ps if "reg_" in p], sum(1 for p in ps if "reg_" not in p))
+    if not ext: return t, 0
+    glob = {}
+    for m in re.finditer(r"^/\*([0-9a-f]{8})\*/ extern (?:undefined4|int|uint|float|[\w ]+ \*|\w+ \*) (\w+);", t, re.M): glob[m.group(1)] = m.group(2)
+    names = {v[0]: n for n, v in ext.items()}
+    calls = {}
+    for m in re.finditer(r"(?<![\w.>])(\w+)\(", t):
+        n = m.group(1)
+        if n not in ext or n == nm: continue
+        ls = t.rfind("\n", 0, m.start()) + 1
+        if t[ls:m.start()].lstrip().startswith(("extern", "/*", "*", "static", "__declspec")) : continue
+        if t[ls:m.start()].strip() == "" and t.startswith("{", m.start()) : continue
+        al, close = _args(t, m.end() - 1)
+        if close < 0: continue
+        args = [t[s:e].strip() for s, e in al if t[s:e].strip()]
+        calls.setdefault(n, []).append((m.start(), close, args))
+    want = {n: len(ext[n][1]) + ext[n][2] for n in calls}
+    grow = set()      # the extern itself has fewer parameters than the original reads AND every caller pushes (orig_stackargs slots, call_pushmin): the extern grows
+    for n, cs in calls.items():
+        k = pushmin_slots(ext[n][0])
+        if k and not ext[n][1] and 0 < ext[n][2] < k and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\([^.)]+\);" % (ext[n][0], re.escape(n)), t, re.M) and all(len(a) == ext[n][2] for _, _, a in cs): want[n] = k; grow.add(n)
+    want_t = set(); orig_const_args(nm, set())          # fills _FN / _STD
+    ow = orig().get("%08x" % _FN[nm][0], (0, [], [])) if nm in _FN else (0, [], [])
+    tails = {tv: int(f[1:]) for tv in ow[1] for f in ",".join(ow[2]).split(",") if re.fullmatch(r"w\d+", f)}      # tail-jump targets and the number of frame arguments the original rewrites before the `jmp`
+    for n in calls:
+        if ext[n][0] in tails and not ext[n][1] and ext[n][2] == 0 and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(\);" % (ext[n][0], re.escape(n)), t, re.M): want[n] = tails[ext[n][0]]; want_t.add(n)      # `f();` K&R extern: the call is the tail jump (arguments = the rewritten frame slots)
+    for n, cs in calls.items():      # `f()` K&R extern called with fewer arguments than the original reads / pushes: the calls get them, the extern stays unprototyped
+        k = pushmin_slots(ext[n][0])
+        if k and not ext[n][1] and ext[n][2] == 0 and n not in want_t and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(\);" % (ext[n][0], re.escape(n)), t, re.M) and len({len(a) for _, _, a in cs}) == 1 and len(cs[0][2]) < k: want[n] = k
+    need = {n for n, cs in calls.items() if any(len(a) < want[n] for _, _, a in cs)}
+    if not need: return t, 0
+    sites = asm_sites(nm, {ext[n][0] for n in calls})
+    if not sites: return t, 0
+    def canon_of(n):
+        va, rg, ns = ext[n]; tot = want[n]; ns = tot - len(rg); cs = calls[n]; ss = sites.get(va, [])
+        if len(ss) != len(cs) or ns > 8: return None
+        return [[("?" if s.get("al") and "[S" in (s["regs"].get(r) or "") else (s["regs"].get(r) or "R:" + r)) for r in rg] + [("?" if s.get("al") and "[S" in x else x) for x in s["stack"][:ns]] for s in ss]
+    def retvar(c, p):      # "ret:<callee va>": the variable the call just before assigned (`v = P(..); f()`)
+        pn = names.get(c[4:])
+        if not pn: return None
+        pre = t[max(0, p - 700):p]; mm = list(re.finditer(r"([\w.]+)\s*=\s*(?:\([\w \*]+\)\s*)?%s\(" % re.escape(pn), pre))
+        return mm[-1].group(1) if mm and not re.search(r"\b%s\s*=[^=]" % re.escape(mm[-1].group(1)), pre[mm[-1].end():]) else None
+    pool = []      # (position, canonical asm value, C text) of the arguments Ghidra did print, at every call of every callee: the same asm value elsewhere in the function has the same C expression
+    for n2 in calls:
+        c2 = canon_of(n2)
+        for i, (pp, _, a2) in enumerate(calls[n2] if c2 else []):
+            for j, a in enumerate(a2[:len(c2[i])]):
+                if not c2[i][j].startswith(("R:", "?", "I:")) and not re.search(r"[\w\]]\s*\(|[^=!<>]=[^=]|\+\+|--", a): pool.append((pp, c2[i][j], a))
+    edits = []; done = 0; xmax = 0
+    for n in need:
+        va, rg, ns = ext[n]; tot = want[n]; ns = tot - len(rg); cs = calls[n]; ss = sites.get(va, []); e0 = len(edits)
+        canon = canon_of(n)
+        if canon is None: continue
+        if any(len(a) >= tot and re.fullmatch(r"0x[0-9a-f]+|\d+", a[j]) and canon[i2][j].startswith("I:") and int(a[j], 0) != int(canon[i2][j][2:], 0) for i2, (_, _, a) in enumerate(cs) for j in range(tot)): continue      # the order of the C calls differs from the original's
+        for i, (p, close, args) in enumerate(cs):
+            if len(args) >= tot: continue
+            new = []; _XP.update(tail=bool(ss[i].get("tail")), own=ow[0], max=0, ret=lambda c, p=p: retvar(c, p))
+            for j in range(len(args), tot):
+                c = canon[i][j]; x = _cname(c, t, glob, names, nm)
+                if x is None:      # the argument another call of f passes for the same asm value
+                    cands = sorted((abs(pp - p), a) for pp, cc, a in pool if cc == c and pp != p)
+                    if cands: x = cands[0][1]
+                if x is None: break
+                new.append(x)
+            else:
+                edits.append((close, close, "".join((", " if args or q else "") + x for q, x in enumerate(new)))); done += 1; xmax = max(xmax, _XP["max"])
+        if n in grow:
+            if done and len([e for e in edits[e0:] if e[0] == e[1]]) == len(cs):
+                m = re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(([^)]*)\);" % (ext[n][0], re.escape(n)), t, re.M); edits.append((m.end(1), m.end(1), "".join(", undefined4 p%d" % j for j in range(ext[n][2], tot))))
+            else: del edits[e0:]
+    if xmax:      # definition head: parameters up to unused<xmax>
+        h = re.search(r"^[A-Za-z_][^;{}]*?\b%s\s*\(([^)]*)\)\s*\{" % re.escape(nm), t, re.M)
+        if not h: return t, 0
+        ps = [p_ for p_ in h.group(1).split(",") if p_.strip() and p_.strip() != "void"]
+        edits.append((h.start(1), h.end(1), ",".join(ps + [" undefined4 unused%d" % q for q in range(len(ps) + 1, xmax + 1)]).lstrip()))
+    for s, e, x in sorted(edits, reverse=True): t = t[:s] + x + t[e:]
+    return t, done
+
 # class 9 frame merge
 FES = {"undefined":1,"undefined1":1,"undefined2":2,"undefined4":4,"undefined8":8,"char":1,"uchar":1,"byte":1,"short":2,"ushort":2,"int":4,"uint":4,"long":4,"ulong":4,"float":4,"RwReal":4,"double":8,"bool":1,"BOOL":4,"code":4,
       "RwV3d":12,"RwV2d":8,"RwRGBA":4,"RwMatrix":64,"RwSphere":16,"RwBBox":24,"RwLine":24,"RwPlane":16}
@@ -206,8 +452,10 @@ def fix(path):
     t = open(path, errors="replace").read()      # Ghidra wraps a long definition head (`undefined4 * __cdecl\nname(a,`): diffemu / core.defs need the name on the type's line
     t2 = re.sub(r"^((?!extern|static)[A-Za-z_][\w \*]*(?:__cdecl|__stdcall|__fastcall))[ \t]*\n(\w+\()", r"\1 \2", t, flags=re.M)
     if t2 != t: open(path, "w").write(t2); ks.append("headjoin")
-    t3 = re.sub(r"\.s\.(LowPart|HighPart)\b", r".\1", t2)      # kind `member`: Ghidra's LARGE_INTEGER has `.s.LowPart` (newer SDK), our header has the flat union-less struct
-    if t3 != t2: open(path, "w").write(t3); ks.append("member")
+    t3 = isnan(re.sub(r"\.s\.(LowPart|HighPart)\b", r".\1", t2))      # kind `member`: Ghidra's LARGE_INTEGER has `.s.LowPart` (newer SDK), our header has the flat union-less struct
+    if t3 != t2: open(path, "w").write(t3); ks.append("member/isnan")
+    t4 = re.sub(r"^/\*[0-9a-f]{8}\*/ extern [^;\n]*?\b(\w+)\([^;\n]*\);\n", lambda m: "" if len(re.findall(r"\b%s\b" % re.escape(m.group(1)), re.sub(r"/\*.*?\*/", "", t3, flags=re.S))) == 1 else m.group(0), t3, flags=re.M)      # kind `unused`: an extern nobody calls (autocompile declares names that only occur in the comment; defectlint then flags `start`)
+    if t4 != t3: open(path, "w").write(t4); ks.append("unused")
     for _ in range(3):
         k = _fix1(path)
         if not k: break
@@ -217,10 +465,11 @@ def _fix1(path):
     import defectlint
     t = open(path, errors="replace").read(); defectlint.load_gt()
     t, tn = tailfwd(t, os.path.basename(path)[:-2])
-    if tn: open(path, "w").write(t)
+    t, an = argsite(t, os.path.basename(path)[:-2])
+    if tn or an: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()
     L = defectlint.Lint(os.path.relpath(path, G), t, fix.gd); fnd = L.run()
-    kinds = ["tailfwd"] * tn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
+    kinds = ["tailfwd"] * tn + ["argsite"] * an; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
     for l in ln: off.append(off[-1] + len(l) + 1)
     edits = []      # (start, end, new)
     for k, line, sym, args in L.hints:
@@ -244,6 +493,9 @@ def _fix1(path):
             al, close = _args(t, m.end() - 1); n = args[0]
             if len(al) > n and orig_slots(ext_va(t, sym)) == n and all(re.fullmatch(r"\s*[\w.]+\s*", t[s:e]) for s, e in al[n:]):
                 edits.append((al[n - 1][1], close, "")); kinds.append("dropextra")
+            elif len(al) > n and "addr" in (orig().get(ext_va(t, sym) or "", (0, [], []))[2]) and orig()[ext_va(t, sym)][0] == n:      # the original takes the address of its argument area: a variadic function (RxLockedPipeAddFragment(pipe, idx, def, ..., NULL))
+                d = re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\(([^)]*)\);" % (ext_va(t, sym), re.escape(sym)), t, re.M)
+                if d and "..." not in d.group(1) and not any(e[0] == d.end(1) for e in edits): edits.append((d.end(1), d.end(1), ", ...")); kinds.append("varargs")
         elif k == "sgn":
             u = re.escape(sym); a, b = off[line - 1], off[line]
             seg = t[a:b]

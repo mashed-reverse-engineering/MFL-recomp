@@ -110,10 +110,14 @@ def hoist(b):
     return "\n".join(o)
 def fix_round(body, errs):
     """errs: first error text of the last attempt ('' = proactive round 0)"""
-    b = denormal(intbits(body))
+    b = t2_postfix.isnan(denormal(intbits(body)))
     if "C2440" in errs: b = floatptr(b)
     if "C2120" in errs: b = valcall(b)
     if re.search(r"C2143|C2059|C2146", errs): b = hoist(b)
+    m = re.search(r"C2065 '(\w+)' : undeclared", errs)
+    if m and m.group(1) in t2_postfix.enums():      # an enum constant the header lacks (COURSE_ARCTIC): define every enum name the body uses (the compiler reports one per round)
+        ds = "".join("#define %s (%s)\n" % (k, v) for k, v in t2_postfix.enums().items() if re.search(r"\b%s\b" % k, b) and not re.search(r"#define\s+%s\b" % k, b))
+        b = ds + b
     return b
 
 # ------------------------------------------------------------------------------------------------------------- already defined by hand / installed code
@@ -213,7 +217,7 @@ def stdcall_def(n, va, body):
 def generate(names, funcs, text_path):
     """-> (status {name: (ok, file, err, rounds)}); round 0 proactive fixes, then error driven rounds on the failures only"""
     status = {}; todo = list(names); errs = {n: "" for n in names}; cur = {n: funcs[n][1] for n in names}
-    for rnd in range(3):
+    for rnd in range(6):      # autocompile reports ONE error per function: a body with several undeclared names (s_german__.., s_spanish__.. ) needs one round each
         if not todo: break
         txt = os.path.join(W, "text_r%d.c" % rnd)
         with open(txt, "w") as f:
@@ -438,6 +442,7 @@ def main():
             if pk and not ok:      # a compile error may be gone now (enum names)
                 o_, k_, e_ = compile_one(srcs[n])
                 if not e_: st[n] = ok = True, f, "", rnd
+                else: err = e_      # the error after the scripted fixes (not the stale gen error)
             if pk:
                 print("postfix %s: %s" % (n, ",".join(sorted(set(pk)))), flush=True)
                 os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)      # attempts note (tools/attempts.py format)

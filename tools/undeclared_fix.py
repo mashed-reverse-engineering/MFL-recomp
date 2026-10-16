@@ -2,6 +2,7 @@
 """undeclared_fix.py <failed.txt>...: C2065 `'X' : undeclared identifier` in autocompile failures -> declarations that autocompile.py emits from names/MFL_extern_fix.txt (additive, idempotent).
   X is an enum of names/MFL_enums.txt used as a type (`CourseId`, `WeaponId`; the header predates the enums)   -> `typedef int X;`
   X is an address named data blob (`PTR_..._005df7f0`, `s_..._00617970`, `UNK_005df51c`, `DAT_...`)            -> `extern char X[];` (+ `X <va>` in src/aliases.txt when no symbol exists: the suffix is the address)
+  X is a leading-underscore RW library data symbol of output/rw_libsyms.csv (`_rpUVAnimDictSchema`, `_rwD3D9LastFVFUsed`) -> `extern int X;`
   X is a symbol / alias without a declaration (`g_x`)                                                           -> `extern struct S g_x[N];` when its address is an `apply,<addr>,S,N` array of the struct specs, else only reported
 Prints one line per name; the rest stays an error.  Usage: undeclared_fix.py failed.txt [more failed.txt]"""
 import os, re, sys
@@ -23,6 +24,7 @@ for _f in glob.glob(P("names", "MFL_structs*.txt")):
     for l in open(_f):
         p = l.strip().split(",")
         if p[0] == "apply" and len(p) >= 4 and int(p[3]) > 1: APPLY[int(p[1], 16)] = (p[2], int(p[3]))
+LIBDATA = {l.split(",")[0][1:] for l in open(P("output", "rw_libsyms.csv")) if l.startswith("__") and l.split(",")[-1].strip() == "data"} if os.path.exists(P("output", "rw_libsyms.csv")) else set()      # RW library data (C name = symbol minus one underscore: `_rwD3D9LastFVFUsed`)
 enums = {l.split(",")[1] for l in open(P("names", "MFL_enums.txt")) if l.startswith("enum,")}
 OV = os.environ.get("T2_OVERLAY_DIR")      # t2_auto run: new declarations / aliases go to <dir>/MFL_extern_fix.txt / aliases.txt (the shared files are only read)
 fixp = os.path.join(OV, "MFL_extern_fix.txt") if OV else P("names", "MFL_extern_fix.txt"); alp = os.path.join(OV, "aliases.txt") if OV else P("src", "aliases.txt")
@@ -37,6 +39,8 @@ for x in sorted(want):
         new.append("extern char %s[];" % x)
         if x not in sym: al.append("%s %s" % (x, re.search(r"([0-9a-f]{8})$", x).group(1)))
     elif x in sym and int(sym[x], 16) in APPLY: new.append("extern struct %s %s[%d];" % (*APPLY[int(sym[x], 16)][:1], x, APPLY[int(sym[x], 16)][1]))      # g_x named at the start of an array of structs (names/MFL_structs*.txt `apply`); the struct comes from tools/spec_header.py
+    elif x.startswith("_") and x in LIBDATA: new.append("extern int %s;" % x)      # RW library data symbol (the library defines it, the type only has to fit the use: scalar or `&x` to a void *)
+    elif x.startswith("_") and x[1:] in sym and re.match(r"g_\w+$", x[1:]): new.append("extern int %s;" % x); al += [] if x in sym else ["%s %s" % (x, sym[x[1:]])]      # Ghidra prints a global at a low / null address with a leading underscore (`_g_physics_000000 = 0;` = the deliberate write to address 0)
     else: rep.append(x)
 new = [n for n in new if n not in have]
 if new:

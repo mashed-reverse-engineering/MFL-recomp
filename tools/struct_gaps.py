@@ -20,13 +20,13 @@ for st, offs in sorted(need.items()):
         g = None
         for gm in re.finditer(r"^(\s*)char _gap_([0-9a-f]+)\[(\d+)\];", body, re.M):
             x, n = int(gm.group(2), 16), int(gm.group(3))
-            if x <= off < x + n and off + 4 <= x + n: g = (gm, x, n); break
+            if x <= off < x + n: g = (gm, x, n); break      # a gap shorter than 4 bytes behind OFF gets a narrower field (ai_bot_update: PlayerInput +6, 1 byte)
         if not g: print("no gap for %s +0x%x" % (st, off)); continue
         gm, x, n = g
-        new = []
+        new = []; w = 4 if off + 4 <= x + n else (2 if off + 2 <= x + n else 1); ft = {4: "undefined4", 2: "undefined2", 1: "undefined1"}[w]
         if off > x: new.append("%schar _gap_%x[%d];" % (gm.group(1), x, off - x))
-        new.append("%sundefined4 field_0x%x;" % (gm.group(1), off))
-        if x + n > off + 4: new.append("%schar _gap_%x[%d];" % (gm.group(1), off + 4, x + n - off - 4))
+        new.append("%s%s field_0x%x;" % (gm.group(1), ft, off))
+        if x + n > off + w: new.append("%schar _gap_%x[%d];" % (gm.group(1), off + w, x + n - off - w))
         body = body[:gm.start()] + "\n".join(new) + body[gm.end():]; done += 1
     text = text[:m.start(2)] + body + text[m.end(2):]
 open(hdr, "w").write(text)
