@@ -116,6 +116,7 @@ def ptr_locals(b):
             ls = b.rfind("\n", 0, first.start()) + 1
             indent = re.match(r"\s*", b[ls:]).group(0)
             if b[ls:first.start()].strip(): continue          # the first use is inside a larger expression: leave it
+            if not re.search(r"[;{}:]\s*$", b[:ls]) and b[:ls].strip(): continue      # first use on a continuation line of a multi-line expression (`if (a <=\n g[i].f)`): the declaration would land inside it (C2106)
             pv = "p_%s" % idx
             b = b[:ls] + "%s%s *%s = &%s[%s];\n" % (indent, typ, pv, name, idx) + re.sub(pat, pv + "->", b[ls:])
             # a declaration in the middle of a block is not C89: move it to the top of the function

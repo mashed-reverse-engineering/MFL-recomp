@@ -58,7 +58,18 @@ def denormal(b):
         return n if n and abs(struct.unpack("f", struct.pack("I", n & 0xffffffff))[0] - v) <= abs(v) * 1e-3 else None
     E = r"(\*?\w+(?:->\w+|\.\w+|\[[^\]\[]+\])*)"; L = r"(-?\d\.\d+e-\d\d)"
     b = re.sub(E + r" (==|!=|<=|>=|<|>) " + L + r"(?![\w.])", lambda m: "*(int *)&%s %s %d" % (m.group(1), m.group(2), k(m.group(3))) if k(m.group(3)) is not None and not m.group(1).startswith("(") else m.group(0), b)
+    b = re.sub(r"\bcase (-?\d\.\d+(?:e-\d\d)?):", lambda m: "case %d:" % (k(m.group(1)) if k(m.group(1)) is not None else int(float(m.group(1)))), b)      # `case 1.4013e-45:` in a switch on an undefined4 / float object (C2052): the dword
     return re.sub(r"^(\s*)" + E + r" = " + L + r";", lambda m: "%s*(int *)&%s = %d;" % (m.group(1), m.group(2), k(m.group(3))) if k(m.group(3)) is not None else m.group(0), b, flags=re.M)
+def strayassign(b):
+    """Ghidra prints a statement inside a multi-line expression (`if (a <=\n p = &x[i];\n p->f) {`): the assignment moves in front of the statement the expression belongs to"""
+    L = b.split("\n"); i = 1
+    while i < len(L):
+        if re.fullmatch(r"\s*\w+ = [^;\n(]*;", L[i]) and re.search(r"(?:<=|>=|<|>|==|!=|&&|\|\||[-+*/&|(,=])$", L[i - 1].rstrip()):
+            k = i - 1
+            while k > 0 and not re.search(r"[;{}]$", L[k - 1].rstrip()): k -= 1
+            a = L.pop(i); L.insert(k, re.match(r"\s*", L[k]).group(0) + a.strip())
+        i += 1
+    return "\n".join(L)
 def intbits(b):
     """`fvar = 0x3f800000;` (a float local gets an int bit pattern): copy the bits"""
     fl = set(re.findall(r"\b(?:float|RwReal) (\w+);", b))
@@ -110,10 +121,10 @@ def hoist(b):
     return "\n".join(o)
 def fix_round(body, errs):
     """errs: first error text of the last attempt ('' = proactive round 0)"""
-    b = t2_postfix.isnan(denormal(intbits(body)))
+    b = t2_postfix.isnan(denormal(intbits(strayassign(body))))
     if "C2440" in errs: b = floatptr(b)
     if "C2120" in errs: b = valcall(b)
-    if re.search(r"C2143|C2059|C2146", errs): b = hoist(b)
+    if re.search(r"C2143|C2059|C2146|C2106", errs): b = hoist(strayassign(b))
     m = re.search(r"C2065 '(\w+)' : undeclared", errs)
     if m and m.group(1) in t2_postfix.enums():      # an enum constant the header lacks (COURSE_ARCTIC): define every enum name the body uses (the compiler reports one per round)
         ds = "".join("#define %s (%s)\n" % (k, v) for k, v in t2_postfix.enums().items() if re.search(r"\b%s\b" % k, b) and not re.search(r"#define\s+%s\b" % k, b))
