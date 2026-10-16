@@ -181,12 +181,21 @@ def noadapt():
 def _callee_names():
     return {"FUN_" + p[0]: p[1] for p in (l.rstrip("\n").split(",", 2) for l in open(P("names", "MFL_callee_names.csv")) if not l.startswith("#")) if len(p) >= 2}
 WHY = {}      # FUN_ callee -> why tools/callee_auto.py could not write an exact prototype
+_FNS = {}
+def _fnsize():
+    if not _FNS:
+        for l in open(P("output", "fnsizes.txt")):
+            q = l.split()
+            if len(q) == 3: _FNS[q[1]] = int(q[2])
+    return _FNS
 def skip_class(n, body, regin, have, ok_protos):
     """reasons autocompile.py drops a function without trying (and tier2_census.py names them): -> (class, detail) or None"""
     REG = re.compile(r"\b(reg_e(?:ax|bx|cx|dx|si|di|bp)|in_[A-Z]{2,3}|unaff_[A-Za-z]+|extraout_\w+|stack0x\w+|param_\d+_00\w+|unaff_retaddr|[iu]?Stack[0-9a-f]{8}|in_stack_\w+|POPCOUNT|SBORROW\d|CARRY\d|halt_baddata|ABS|fpatan|fsin|fcos|fptan|fyl2x|f2xm1)\b")
     flat = re.sub(r"\s+", " ", body); rf = set(REG.findall(body))
     if n in have: return "gen-skip:manifest-C", "hand written C exists"
     if n in regin: return "gen-skip:usercall", "register inputs " + regin[n]
+    sz = _fnsize().get(n)
+    if sz and len(body.splitlines()) > 40 + sz // 2: return "gen-skip:text-mismatch", "%d lines of decompile text for %d bytes (Ghidra function boundary swallowed a neighbouring body: gamesave_update, trail_update_00414f00)" % (len(body.splitlines()), sz)
     if re.search(r"\breg_e", body.split("{", 1)[0]): return "gen-skip:usercall", "register parameter in its own definition (a register-convention function: plain C cannot be called with it)"
     if rf and all(r.startswith("reg_e") for r in rf):      # reg_e?? locals = arguments of register callees: generated through the F_r adapters (autocompile AC_PLAIN) unless a callee has none
         na = noadapt(); cn = _callee_names()

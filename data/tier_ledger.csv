@@ -1314,6 +1314,7 @@ rwp_raster_pair_create,00495a20,tier2,compiled+diffemu-EQUAL+shadow-never,diffem
 rwp_trigger_groups_resolve_indices,004802a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,c545e8f10efc,addbc4615123,133,0.76,0,0
 rwp_world_callback_a,00494300,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,c545e8f10efc,addbc4615123,200,1.00,0,0
 rwp_world_clear_arena,004943c0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,1c57d875ec6b,c545e8f10efc,addbc4615123,194,0.67,0,0
+rwp_world_create_once,004912f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,c545e8f10efc,addbc4615123,200,0.80,0,0
 rwp_world_current_activate,00424a90,bridge,enabled-list (game + shadow test results not recorded per function),none,-,c545e8f10efc,addbc4615123,0,0.00,0,0
 rwp_world_current_activate_b,004553f0,agent,bytes-standalone+5796d83f3306,bytes-reloc,8b27f7cd5c79,c545e8f10efc,addbc4615123,0,0.00,0,0
 rwp_world_destroy,00490f30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,c545e8f10efc,addbc4615123,200,1.00,0,0

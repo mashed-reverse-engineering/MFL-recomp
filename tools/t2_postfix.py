@@ -188,6 +188,9 @@ def _canon(o, regs, d):
         def sp(q): return "S%d" % (d + (int(q.group(1).replace("+", ""), 16) if q.group(1) else 0))
         return "M:[" + re.sub(r"\besp([+-]0x[0-9a-f]+)?", sp, m.group(1)) + "]"
     return None
+def _CHK():
+    import cmpfn
+    return set(cmpfn._symtab().get("__chkstk", ())) | set(cmpfn._symtab().get("_chkstk", ()))
 def _FTOLV():
     import cmpfn
     return set(cmpfn._symtab().get("_ftol", ())) | set(cmpfn._symtab().get("__ftol", ()))
@@ -228,6 +231,9 @@ def asm_sites(nm, vas):
             if a in tg:      # control flow join: registers all incoming forward edges agree on (a loop head, target of a backward jump, keeps nothing)
                 cand = snaps.get(a, []) + ([regs] if fall else [])
                 regs = {} if a in back or not cand else {r: v for r, v in cand[0].items() if v is not None and all(c.get(r) == v for c in cand)}
+                if a not in back and cand and fall and snaps.get(a):      # `if (!p) p = q;` (test; jne L; mov r,[slot]; L:): Ghidra assigns the parameter variable, so the join value is the value of the jump edge (a parameter slot) when every incoming value is a stack parameter
+                    for r, v in snaps[a][0].items():
+                        if r not in regs and v and v.startswith("M:[S") and all((c.get(r) or "").startswith("M:[S") for c in cand): regs[r] = v
                 fc = fsn.get(a, []) + ([fp] if fall else [])
                 if a in back: fp = fp if fp == [] else None
                 elif not fc or any(x is None or len(x) != len(fc[0]) for x in fc): fp = None
@@ -260,6 +266,7 @@ def asm_sites(nm, vas):
                 if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1], fp=None if fp is None else list(fp)))
                 k = _STD.get(va, 0) if va else 0
                 d += k * 4
+                if va and int(va, 16) in _CHK() and (regs.get("eax") or "").startswith("I:"): d -= int(regs["eax"][2:], 16)      # __chkstk(eax = frame size) allocates the frame: esp relative slots shift (vehicle_*_collect_triangles, 0x1080 bytes)
                 regs = {r: v for r, v in regs.items() if r not in ("eax", "ecx", "edx")}
                 if va: regs["eax"] = "ret:" + va
                 if va and int(va, 16) in _FTOLV():      # __ftol: pops ST0 (a tree), eax = (int) of it; other float returners make the stack unknown
@@ -497,7 +504,7 @@ def stale_regs():
         reg = {r["addr"] for r in csv.DictReader(open(os.path.join(G, "output", "regsigs.csv")))}
         for l in open(os.path.join(G, "output", "sigs.txt")):
             q = l.rstrip("\n").split("|")
-            if len(q) >= 7 and re.search(r"(?:^|;)[^;]*:reg_e\w\w:", q[5]) and q[1] not in reg: _STALE[q[1]] = len([x for x in q[5].split(";") if x])
+            if len(q) >= 7 and re.search(r"(?:^|;)[^;]*:reg_e\w\w:", q[5]) and q[1] not in reg: _STALE[q[1]] = (len([x for x in q[5].split(";") if x]), len([x for x in q[5].split(";") if x and ":reg_e" in x]))
     return _STALE
 def stalereg(t):
     """kind `stalereg`: extern of a stale-register function loses its first (register) parameter, every call in the text loses its first argument (only calls that pass exactly the old count).  -> (text, n)"""
@@ -506,8 +513,9 @@ def stalereg(t):
         va, nm = m.group(1), m.group(3)
         if va not in st: continue
         ps = [x.strip() for x in m.group(4).split(",")] if m.group(4).strip() not in ("", "void") else []
-        if len(ps) != st[va] or not ps: continue      # K&R `()` or already corrected
-        new_ext = "/*%s*/ extern %s%s(%s);\n" % (va, m.group(2), nm, ", ".join(ps[1:]) or "void")
+        tot, nreg = st[va]; k0 = len(ps) - (tot - nreg)      # stale leading parameters still in the text (all nreg, or fewer when the export already lost some: draw_sprite_uv 13 of 14, 12 stack)
+        if not ps or not 0 < k0 <= nreg: continue      # K&R `()` or already corrected
+        new_ext = "/*%s*/ extern %s%s(%s);\n" % (va, m.group(2), nm, ", ".join(ps[k0:]) or "void")
         t = t.replace(m.group(0), new_ext, 1); k = 0; pos = 0
         while True:
             c = re.compile(r"(?<![\w.>])%s\s*\(" % re.escape(nm)).search(t, pos)
@@ -516,7 +524,7 @@ def stalereg(t):
             if t[ls:c.start()].lstrip().startswith(("extern", "/*", "*")) or re.match(r"\s*(?:\w+ )+\**$", t[ls:c.start()]) and t[ls:c.start()].strip() and not t[ls:c.start()].strip().startswith(("return", "else")): continue      # a definition head
             al, close = _args(t, c.end() - 1)
             if len(al) == len(ps) and t[al[0][0]:al[0][1]].strip():
-                t = t[:al[0][0]] + (t[al[1][0]:] if len(al) > 1 else t[al[0][1]:]); k += 1; pos = c.start() + 1
+                t = t[:al[0][0]] + (t[al[k0][0]:] if len(al) > k0 else t[al[-1][1]:]); k += 1; pos = c.start() + 1
         n += 1
     return t, n
 PRIM = r"(?:undefined[124]?|int|uint|short|ushort|char|uchar|byte|word|dword|float|bool)"
