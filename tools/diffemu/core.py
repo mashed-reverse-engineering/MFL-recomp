@@ -371,7 +371,8 @@ def float_returners():
                     n += 1
                     if n > 6 or ins.mnemonic in ("call", "ret", "retn") or ins.mnemonic.startswith("j"): break
                     if ins.mnemonic.startswith("f") and ins.mnemonic not in ("fnstsw", "fnstcw", "fldcw", "fwait", "fnclex", "fninit"):
-                        if ins.mnemonic in _FCONS and "st(" not in ins.op_str: _FRET[t] = _FRET.get(t, 0) + 1
+                        if ins.mnemonic in _FCONS and ("st(" not in ins.op_str or (ins.mnemonic == "fstp" and ins.op_str == "st(0)")):      # `fstp st(0)` = the result is popped unused (rwp_objects_create_*_group: call 56bf10; fstp st(0))
+                            _FRET[t] = _FRET.get(t, 0) + 1
                         break
         for va in [k for k, v in _FRET.items() if k and v == 1]:      # a single call site may consume a value that was on the stack BEFORE the call: the callee itself must end like a float returner
             ok = False; ins = list(CS.disasm(img_read(va, 0x300), va))

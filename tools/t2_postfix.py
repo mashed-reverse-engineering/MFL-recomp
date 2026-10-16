@@ -517,6 +517,43 @@ def scalararr(t):
         t = t.replace("\0ARR\0", g).replace("\0DECL\0", decl, 1); n += 1
     return t, n
 _SECT = []
+def pushfwd(t):
+    """kind `pushfwd` (REAL): `v = f(a, s1, s2, s3); g(v);` where f really takes len(declared) < len(args) stack slots and g reads 1 + 3 slots (output/orig_stackargs.txt): the compiler pushed the arguments of g
+    BEFORE the call of f (push 2; push -1; push esi; push a; call f; add esp,4; push eax; call g; add esp,16); Ghidra attached them to f.  -> `g(f(a), s1, s2, s3)`-equivalent `v = f(a); g(v, s1, s2, s3);`, the extern of g gets the slots.  -> (text, n)"""
+    n = 0
+    for m in re.finditer(r"^([ \t]*)(\w+) = (\w+)\(([^;\n]*)\);[ \t]*\n[ \t]*(\w+)\(\2\);", t, re.M):
+        f, g = m.group(3), m.group(5)
+        fe = re.search(r"^/\*([0-9a-f]{8})\*/ extern [^;\n]*?\b%s\(([^)]*)\);" % re.escape(f), t, re.M)
+        ge = re.search(r"^(/\*([0-9a-f]{8})\*/ extern [^;\n]*?\b%s\()([^)]*)(\);)" % re.escape(g), t, re.M)
+        if not fe or not ge: continue
+        fk = fe.group(2).strip(); fn = 0 if fk in ("", "void") else fk.count(",") + 1
+        al = split_args(m.group(4)); gs = orig_slots(ge.group(2)); gk = ge.group(3).strip(); gn = 0 if gk in ("", "void") else gk.count(",") + 1
+        if gn != 1 or not gs or fn < 1 or orig_slots(fe.group(1)) != fn or len(al) - fn != gs - 1 or not all(re.fullmatch(r"\s*[\w.\-]+\s*", a) for a in al[fn:]): continue
+        t = t[:m.start()] + "%s%s = %s(%s);\n%s%s(%s);" % (m.group(1), m.group(2), f, ", ".join(al[:fn]), m.group(1), g, ", ".join([m.group(2)] + [a.strip() for a in al[fn:]])) + t[m.end():]
+        return pushfwd(t.replace(ge.group(0), ge.group(1) + ", ".join("undefined4 p%d" % i for i in range(gs)) + ge.group(4), 1))[0], 1 + n
+    return t, n
+_RI = {}
+def fastcall(t, nm):
+    """kind `fastcall` (REAL): Ghidra typed a stack-argument cdecl function `__fastcall f(undefined4 param_1, ...)` (a `push ecx` slot read as ECX): output/reginputs.csv has no register input and orig_stackargs
+    reads exactly (parameters - 1) slots.  The first parameter goes, `__fastcall` becomes `__cdecl`, its only use `g(param_1)` becomes `g()`.  -> (text, n)"""
+    if not _RI:
+        import csv
+        for r in csv.DictReader(open(os.path.join(G, "output", "reginputs.csv"))): _RI[r["name"]] = r["reg_inputs"]
+    m = re.search(r"^(\w[\w \*]*?)__fastcall (%s)\(undefined4 param_1(?:,([^)]*))?\)" % re.escape(nm), t, re.M)
+    if not m or _RI.get(nm, "x") != "": return t, 0
+    orig_const_args(nm, set())
+    if nm not in _FN or orig_slots("%08x" % _FN[nm][0]) != (len(m.group(3).split(",")) if m.group(3) else 0) or len(re.findall(r"\bparam_1\b", t)) != 2: return t, 0
+    t = t[:m.start()] + "%s__cdecl %s(%s)" % (m.group(1), nm, (m.group(3) or "void").strip()) + t[m.end():]
+    return re.sub(r"\((param_1)\)", "()", t, count=1), 1
+def istore(t):
+    """kind `istore` (REAL): `p[2] = (RwReal)(<integer bit expression>);` converts the integer to float; the original stores the bits (packed colour) -> `*(uint *)&p[2] = <expr>;`"""
+    n = 0
+    def r(m):
+        nonlocal n
+        e = m.group(3)
+        if "float10" in e or not re.search(r"<<|>>|&", e): return m.group(0)
+        n += 1; return "%s*(uint *)&%s = %s;" % (m.group(1), m.group(2), e)
+    return re.sub(r"^([ \t]*)([\w\[\]\.\->\*]+) = \(RwReal\)\(((?:[^;]|\n)*?)\);", r, t, flags=re.M), n
 def _rodata(va):
     """the bytes at va when it lies in a NON-writable section of MFL.exe (float constants), else None"""
     import struct, cmpfn
@@ -632,6 +669,7 @@ def fix(path):
     t = open(path, errors="replace").read()      # Ghidra wraps a long definition head (`undefined4 * __cdecl\nname(a,`): diffemu / core.defs need the name on the type's line
     t2 = re.sub(r"^((?!extern|static)[A-Za-z_][\w \*]*(?:__cdecl|__stdcall|__fastcall))[ \t]*\n(\w+\()", r"\1 \2", t, flags=re.M)
     t2b = re.sub(r"^((?!extern|static|return|else|typedef)[A-Za-z_][\w \*]*)\n([A-Za-z_]\w*)\n[ \t]+\(", r"\1 \2(", t2, flags=re.M)      # `void __cdecl` / `name` / `    (params` (long signatures): defectlint.functions() skipped these functions entirely = no lint hint at all
+    t2b = re.sub(r"^((?!extern|static|return|else|typedef)[A-Za-z_][\w \*]*[\w\*])[ \t]*\n[ \t]+(\([^;{}\n]*(?:\n[ \t]+[^;{}\n]*)?\))[ \t]*\n\s*\{", r"\1\2\n{", t2b, flags=re.M)      # `void name` / `    (int param_1,..)` / `{`: the 2-line wrapped head (defectlint.functions() needs the `(` on the line of the name)
     t2 = t2b
     if t2 != t: open(path, "w").write(t2); ks.append("headjoin")
     t3 = isnan(re.sub(r"\.s\.(LowPart|HighPart)\b", r".\1", t2))      # kind `member`: Ghidra's LARGE_INTEGER has `.s.LowPart` (newer SDK), our header has the flat union-less struct
@@ -652,10 +690,11 @@ def _fix1(path):
     t, xn = ftol(t, os.path.basename(path)[:-2]); fn += xn
     t, sn = stalereg(t)
     t, cn = scalararr(t)
-    if tn or an or fn or sn or cn: open(path, "w").write(t)
+    t, fcn = fastcall(t, os.path.basename(path)[:-2]); t, isn = istore(t); t, pfn = pushfwd(t); isn += pfn
+    if tn or an or fn or sn or cn or fcn or isn: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()
     L = defectlint.Lint(os.path.relpath(path, G), t, fix.gd); fnd = L.run()
-    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["scalararr"] * cn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
+    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["scalararr"] * cn + ["fastcall"] * fcn + ["istore"] * isn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
     for l in ln: off.append(off[-1] + len(l) + 1)
     edits = []      # (start, end, new)
     for k, line, sym, args in L.hints:
@@ -671,12 +710,12 @@ def _fix1(path):
             if ix >= 0 and not any(e[0] <= ix < e[1] for e in edits if e[1] > e[0]): edits.append((ix, ix + len(sym), "*(float *)&" + args[0])); kinds.append("fcast")
         elif k == "flit":      # g_float = 0xbf800000; converts the integer: the original stores the bit pattern = the float literal (hint from defectlint class 2)
             import t2_x87 as X, struct
-            a, b = off[line - 1], off[line]; seg = t[a:b]; v = int(args[0], 16)
+            a, b = off[line - 1], off[line]; lb = re.match(r"[ \t]*LAB_\w+:\s*", t[a:]); a += lb.end() if lb else 0; b = max(b, stmt_end(t, a) + 1) if lb else b; seg = t[a:b]; v = int(args[0], 16)      # a statement behind a `LAB_x:` label starts on the label's line
             f = struct.unpack("<f", struct.pack("<I", v & 0xffffffff))[0]; lt = X.lit(f, "f")
             n = re.sub(r"=\s*%s\s*;" % re.escape(args[0]), "= %s;" % lt, seg) if lt else seg
             if n != seg and not any(e[0] == a for e in edits): edits.append((a, b, n)); kinds.append("flit")
         elif k == "fstore":     # dword object = (int)(float expr): the original stores the float bits
-            a, b = off[line - 1], off[line]; seg = t[a:b]
+            a, b = off[line - 1], off[line]; lb = re.match(r"[ \t]*LAB_\w+:\s*", t[a:]); a += lb.end() if lb else 0; b = max(b, stmt_end(t, a) + 1) if lb else b; seg = t[a:b]
             m = re.match(r"^(\s*)(.+?) = (?:\(int\))?(.*);\n?$", seg)      # explicit `(int)` or the implicit conversion `param_1[10] = fVar2;`
             if m and not m.group(2).startswith("*(float") and not any(e[0] == a for e in edits): edits.append((a, b, "%s*(float *)&%s = %s;\n" % (m.group(1), m.group(2), m.group(3)))); kinds.append("fstore")
         elif k == "dropextra":      # f(a, b, stale1, stale2) where f takes n parameters (orig_stackargs reads n, no flags): Ghidra keeps the dead pushes as arguments

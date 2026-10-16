@@ -155,6 +155,37 @@ class Lint:
         if b in FLT_T: return "F"
         return "?"
 
+    _FM = None
+    def float_members(self):
+        """member names that are float / double / RwReal in EVERY struct of src/auto/ghidra_types.h that has a member of that name (scalar members only)"""
+        if Lint._FM is None:
+            fl, other = set(), set()
+            for l in open(os.path.join(G, "src", "auto", "ghidra_types.h"), errors="replace"):
+                m = re.match(r"^\s+(?:const\s+)?([A-Za-z_]\w*(?:\s*\*+)?)\s+\**(\w+)(\[[^\]]*\])?;", l)
+                if not m: continue
+                (fl if m.group(1) in FLT_T else other).add(m.group(2) + ("[]" if m.group(3) else ""))
+            Lint._FM = fl - other - {x.rstrip("[]") for x in other}
+        return Lint._FM
+    def fexpr(self, a, env):
+        """True when `a` is a float VALUE built from float operands: `g_tab[i].radius`, `p->x * k_f_0_1`, `a + b` (every operand a float atom / float struct member / literal, at least one float)"""
+        a = a.strip()
+        while a.startswith("(") and a.endswith(")") and balanced_after(a, 0) == len(a) - 1: a = a[1:-1].strip()
+        parts, d, cur = [], 0, ""
+        for c in a:
+            if c in "([": d += 1
+            elif c in ")]": d -= 1
+            if d == 0 and c in "*/+-" and cur.strip(): parts.append(cur); cur = ""; continue
+            cur += c
+        parts.append(cur); fl = False
+        for q in parts:
+            q = q.strip()
+            if not q: return False
+            m = re.search(r"(?:\.|->)(\w+)(\[[^\]]*\])?$", q)
+            if m and re.match(r"^[\w\[\]\.\->]+$", q) and m.group(1) + ("[]" if m.group(2) else "") in self.float_members(): fl = True; continue
+            k, n = self.atom(q, env)
+            if k == "F" and n != "(cast)": fl = True
+            elif k != "L": return False
+        return fl
     def atom(self, s, env):
         """-> (kind, name) of a simple operand; kind in L literal, U undefined4 object, u unsigned, S signed, F float, P pointer, ? unknown, C cast-protected"""
         s = s.strip()
@@ -242,6 +273,7 @@ class Lint:
         # class 2
         for m in re.finditer(r"(?<![\w.])(\d+\.\d*(?:[eE]-?\d+)|\d+[eE]-\d+)[fF]?\b", st):
             if 0 < abs(float(m.group(1))) < 1e-30: self.add(2, "high", line, fn, m.group(1), st, "denormal float literal %s: an integer bit pattern (counter / flags) read as a float" % m.group(1))
+        st = re.sub(r"^LAB_\w+:\s*", "", st)      # a statement behind a `LAB_x:` label (goto target)
         m = re.match(r"^(?:\w+\s+)?(.+?)\s*=\s*(.+)$", st, flags=re.S)
         if m and "==" not in st[:st.find("=") + 2] and not re.match(r"^(if|while|for|return)\b", st):
             lv, rhs = m.group(1).strip(), m.group(2).strip()
@@ -251,7 +283,7 @@ class Lint:
             if kl == "F" and kr == "L" and re.match(r"^0[xX][0-9a-fA-F]{7,8}$", rhs.strip("uUlL")) and int(rhs.rstrip("uUlL"), 16) >= 0x1000000:
                 self.hints.append(("flit", line, lv, [rhs.rstrip("uUlL")])); self.add(2, "high", line, fn, nl, st, "int literal %s assigned to float `%s`: converts, does not copy the bit pattern" % (rhs, nl))
             elif kl in "UP?S" and not lv.startswith("*(float") and re.search(r"\[", lv) and kl in "US":
-                ifloat = re.match(r"^\(\s*(?:float|double)\s*\)", rhs) or kr == "F" and nr != "(cast)" and not re.match(r"^-?\d+$", rhs) \
+                ifloat = re.match(r"^\(\s*(?:float|double)\s*\)", rhs) or (kr == "F" and nr != "(cast)" or kr == "?" and self.fexpr(rhs, env)) and not re.match(r"^-?\d+$", rhs) \
                     or re.search(r"\(\s*int\s*\)\s*\(?.*?(\(\s*float\s*\)|\bf[A-Z]?Var\d|\bfVar|\bRVar)", rhs)
                 if ifloat and not re.match(r"^\(\s*(int|uint)\s*\)\s*[\w\.]+$", rhs): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float value stored into the dword object `%s` by conversion (use *(float *)&...)" % nl)
                 elif re.match(r"^\(\s*int\s*\)\s*\w+(\.\w+)*\.[xyz]\s*$", rhs) or (re.match(r"^\(\s*int\s*\)\s*(\w+(\.\w+)*)\s*$", rhs) and kr == "?" and self.is_float_name(rhs, env)): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float stored into the dword object `%s` by conversion" % nl)
@@ -281,7 +313,7 @@ class Lint:
             for a, p in zip(args, ptypes):
                 pk = self.tkind(base_type(re.sub(r"\w+$", "", p.strip())) if re.search(r"\s\w+$", p.strip()) else base_type(p))
                 ak, an = self.atom(a, env)
-                fl = (ak == "F" and an != "(cast)") or re.match(r"^\s*\(\s*float\s*\)", a)
+                fl = (ak == "F" and an != "(cast)") or re.match(r"^\s*\(\s*float\s*\)", a) or self.fexpr(a, env)
                 if fl and re.fullmatch(r"\s*[\w.]+\s*", a) and re.search(r"\b(?:float|RwReal|double)\s+%s\s*\[" % re.escape(a.strip().split(".")[-1]), self.t): fl = False      # a float ARRAY decays to a pointer: not a float argument
                 if pk in "UuS" and fl and "*" not in p and not re.match(r"^\s*\(\s*(int|uint)\s*\)", a):
                     self.hints.append(("fbits", line, f, [a.strip()]))
