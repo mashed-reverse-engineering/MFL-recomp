@@ -30,7 +30,7 @@ def layout(obj, names):
         lay[n] = (pos, size); pos = (pos + size + 15) & ~15
         for off, rt, si, add in rel:
             nm, sval, sn = co.syms[si]; un = core.cmpfn._undecorate(nm)
-            if sn > 0 and co.secs[sn - 1][4] & 0x20 and un not in lay and (un in names or (un not in tb.sym and "_" + un not in tb.sym)): todo.append(un)
+            if sn > 0 and sn != fsn and co.secs[sn - 1][4] & 0x20 and un not in lay and (un in names or (un not in tb.sym and "_" + un not in tb.sym)): todo.append(un)
     return lay
 
 def words(cls): return 2 if cls in ("d", "ll") else 1
