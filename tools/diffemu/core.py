@@ -535,6 +535,7 @@ def import_stubs():
 
 
 # ---------------------------------------------------------------------------------------------------------- the emulator
+SNAP = None      # set by seed.py
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
@@ -575,7 +576,7 @@ class Machine:
             uc.mem_write(p, b"\xc3" * 0x1000); uc.hook_add(UC_HOOK_CODE, m._indirect, begin=p, end=p + 0xfff); return True
         try: uc.mem_map(p, 0x1000)
         except UcError: return False
-        uc.mem_write(p, m.page(p))
+        uc.mem_write(p, SNAP(p, m.page(p), m.seed) if SNAP else m.page(p))      # seed.py: game-state snapshot pages
         for a, v in m.patch.items():      # loop-bound retry (core.retry_case): dwords of this page that the case overrides
             if a & ~0xfff == p: uc.mem_write(a, struct.pack("<I", v))
         return True

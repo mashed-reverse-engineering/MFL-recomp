@@ -830,7 +830,8 @@ _FL = r"(?:float|RwReal|float10|double)"
 def bitcopy(t, nm):
     """kind `bitcopy` (REAL): Ghidra shows a bit copy as a conversion.  Decided from the ORIGINAL asm: a conversion is fistp / call __ftol / fild, a bit copy is mov.
     (a) `p[k] = (int)<float expr>;` / `p[k] = fVar;` with a dword p[k]: more such conversions in the text than the original has fistp / __ftol -> `*(float *)&p[k] = <float expr>;`
-    (b) `(float)p[k]` of a dword element: more int->float casts in the text than the original has fild -> `*(float *)&p[k]`.  -> (text, number of changes)"""
+    (b) `(float)p[k]` of a dword element: more int->float casts in the text than the original has fild -> `*(float *)&p[k]`.
+    (c) `(int)p[k]` of an element of a float array when the original has no fistp / __ftol at all -> `*(int *)&p[k]`.  -> (text, number of changes)"""
     oc = orig_conv(nm)
     if oc is None: return t, 0
     nf2i, ni2f = oc
@@ -859,6 +860,11 @@ def bitcopy(t, nm):
         for m in reversed(loads):
             if ni2f and allcasts - len(loads) >= ni2f and False: break
             t = t[:m.start()] + "*(float *)&%s" % m.group(1) + t[m.end():]; n += 1
+    if nf2i == 0:      # (c) the original converts nothing to int (no fistp / __ftol): `(int)p[k]` of an element of a float array is a plain integer load
+        fp_ = set(re.findall(r"\b(?:float|RwReal)\s*\*\s*(\w+)", body))
+        for m in reversed(list(re.finditer(r"\(\s*(?:int|uint|undefined4)\s*\)\s*((\w+)\[[^\[\]\n]+\])", t))):
+            if m.group(2) in fp_:
+                t = t[:m.start()] + "*(int *)&%s" % m.group(1) + t[m.end():]; n += 1
     return t, n
 def errfix(path, err, comp):
     """kind `fptrarg` (REAL): Ghidra keeps pointers / integers in a `float *` / `RwReal *` array (the optimiser reuses one register for several types): `f(p[0x16])` with f taking a pointer / int -> `f(*(T *)&p[0x16])`.

@@ -557,6 +557,7 @@ def main():
     for n, src, o, k in items:
         r = dres[n]
         if r["verdict"] != "DIFF" or re.search(r"call trace differs|x87 stack|ours does not return|\beax orig|\bebx orig|\besi orig", diff_text(n) + r["note"]): continue
+        if not t2_round.oneulp(diff_text(n) + r["note"]): continue
         df = t2_round.deficit(n, o); print("round? %s deficit %s" % (n, df), flush=True)
         if not df or df <= 0: continue
         t0 = open(src, errors="replace").read(); won = False

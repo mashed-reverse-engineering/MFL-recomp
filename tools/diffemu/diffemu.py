@@ -14,7 +14,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import core
+import core, seed
 from core import ROOT, T, sha
 
 OUT = os.path.join(ROOT, "output")
@@ -24,7 +24,7 @@ RESULTS, CACHE, DIFFDIR = (os.path.join(DOUT, f) for f in ("diffemu_results.csv"
 OBJCACHE = os.environ.get("DIFFEMU_OBJ", os.path.expanduser("~/.cache/mfl_diffemu_obj"))
 FLAGS = ["/nologo", "/c", "/Gy", "/O2", "/Ob0"]      # as build_overlay.py plus /Ob0: a callee defined in the same chunk is called (hooked at its original address like every callee), not inlined; the original calls it, and the call trace must be comparable
 COLS = ["name", "va", "verdict", "cases", "coverage_orig", "coverage_ours", "note"]
-TOOLHASH = sha(*[open(os.path.join(core.HERE, f), "rb").read() for f in ("core.py", "diffemu.py")], open(os.path.join(core.TOOLS, "cmpfn.py"), "rb").read())
+TOOLHASH = sha(*[open(os.path.join(core.HERE, f), "rb").read() for f in ("core.py", "diffemu.py", "seed.py")], open(os.path.join(core.TOOLS, "cmpfn.py"), "rb").read())
 MIN_CASES = 20
 
 
@@ -75,6 +75,7 @@ def evaluate(fn, cases, seeds, budget=90, first_diff_stop=True):
     """run the cases of fn; -> dict(verdict, cases, skipped Counter, diff (case, descriptions), coverage)"""
     t0 = time.time(); ok = 0; skip = Counter(); diff = None
     tg = core.cmp_targets(fn); core.RETWANT.clear(); core.RETWANT.update(core.ret_wants(fn))
+    G = seed.Guide(fn)      # seed.py: coverage-guided struct-shape mutation of the cases while the coverage of the original is low
     for c in core.gen_cases(fn.sig, cases, seeds):
         if tg and c.seed % 3 == 1 and not c.patch:      # compare-guided input: some globals the original tests against immediates take those values (both sides)
             r_ = random.Random(c.seed ^ 0x9e3779b9); c.patch = {a_: v_ for a_, v_ in r_.sample(tg, min(len(tg), r_.randint(1, 3)))}
@@ -86,7 +87,8 @@ def evaluate(fn, cases, seeds, budget=90, first_diff_stop=True):
                 if d_ + sz_ <= len(w_[1]): w_[1][d_:d_ + sz_] = v_.to_bytes(sz_, "little")
             c.wins = [(a_, bytes(b_)) for a_, b_ in ws]
         if time.time() - t0 > budget: skip["TIME_BUDGET"] += 1; break
-        st, x = core.run_case(fn, c)
+        c = G.prep(c); n0 = len(fn.cov_o)
+        st, x = core.run_case(fn, c); G.feed(c, len(fn.cov_o) > n0)
         if st == "equal": ok += 1
         elif st == "skip": skip[x] += 1
         else:

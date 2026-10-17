@@ -16,13 +16,25 @@ def deficit(name, obj):
         ours = subprocess.run(["objdump", "-d", "-M", "intel", "--no-show-raw-insn", obj], capture_output=True, text=True).stdout
         return _count(o) - _count(ours)
     except Exception as ex: print("t2_round.deficit %s: %s" % (name, ex), flush=True); return None
+def oneulp(txt):
+    """True when the first diffemu difference looks like a rounding difference: a frame word `orig [x] ours [y]` with |x - y| <= 2, or memory bytes at a word's LOW byte that differ by <= 3 (no call trace / register difference is checked here)"""
+    for m in re.finditer(r"orig \[([-\d, ]+)\] ours \[([-\d, ]+)\]", txt):
+        for a, b in zip(m.group(1).split(","), m.group(2).split(",")):
+            try:
+                if a.strip() != b.strip() and abs(int(a) - int(b)) <= 2: return True
+            except ValueError: pass
+    mm = re.search(r"memory: \d+ bytes differ: ([^|\n]*)", txt)
+    if mm:
+        bs = re.findall(r"([0-9a-f]{8}) ([0-9a-f]{2})/([0-9a-f]{2})", mm.group(1))
+        return bool(bs) and all(int(a, 16) % 4 == 0 and abs(int(x, 16) - int(y, 16)) <= 3 for a, x, y in bs)
+    return False
 def _terms(e):
     """top level +/- terms of the expression e -> [(start, end)] (offsets into e)"""
     out, d, st = [], 0, 0
     for i, c in enumerate(e):
         if c in "([": d += 1
         elif c in ")]": d -= 1
-        elif d == 0 and c in "+-" and i > 0 and e[:i].strip() and e[:i].rstrip()[-1] not in "*/+-(<>=!&|,%" and not (c == "-" and e[i - 1] == ">"):
+        elif d == 0 and c in "+-" and i > 0 and e[:i].strip() and e[:i].rstrip()[-1] not in "*/+-(<>=!&|,%" and not (c == "-" and e[i + 1:i + 2] == ">"):
             out.append((st, i)); st = i + 1
     out.append((st, len(e))); return out
 def _top_ops(s, ops="*/"):
