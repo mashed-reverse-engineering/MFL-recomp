@@ -62,8 +62,11 @@ class Cluster:
         f = Fn.__new__(Fn); tb = T(); va = c.vas[name]
         f.name, f.va, f.sig, f.notes = name, va, sig, []; f.hi = max(v + c.sz[n] for n, v in c.vas.items()); f.olo = min(c.vas.values())
         f.code, f.lits, f.oentry = c.code, c.lits, OURS + c.lay[name][0]
-        f.leaders_o, f.leaders_u, f.imports, f.islots, f.callees = c.leaders_o, c.leaders_u, c.imports, c.islots, c.callees
-        f.cov_o, f.cov_u, f.mutate, f.noindargs = c.cov_o, c.cov_u, None, True; f.regin = tb.reg.get(va, ([], 0, []))[0]; f.retn = tb.reg.get(va, ([], 0, []))[1]
+        f.imports, f.islots, f.callees = c.imports, c.islots, c.callees
+        # coverage per entry: only the blocks of THIS function (the span between root and caller holds other functions: root coverage 0.1 for a cluster whose caller is far away)
+        o, z = OURS + c.lay[name][0], OURS + c.lay[name][0] + c.lay[name][1]
+        f.leaders_o = {a for a in c.leaders_o if va <= a < va + c.sz[name]}; f.leaders_u = {a for a in c.leaders_u if o <= a < z}
+        f.cov_o, f.cov_u, f.mutate, f.noindargs = set(), set(), None, True; f.regin = tb.reg.get(va, ([], 0, []))[0]; f.retn = tb.reg.get(va, ([], 0, []))[1]
         if name == c.spec["root"]:
             order = c.spec["order"]; nw = sum(words(p[0]) for p in sig.params)
             if len(order) != len(sig.params): raise ValueError("%s: order has %d tokens, the natural prototype %d parameters" % (name, len(order), len(sig.params)))
