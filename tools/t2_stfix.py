@@ -39,10 +39,12 @@ def arity(path, name, finds):
     def add(sig, n, m):
         ps = [] if sig.strip() in ("", "void") else [x.strip() for x in sig.split(",")]
         if len(ps) != n: return None
-        return ", ".join(ps + ["undefined4 param_%d" % (i + 1) for i in range(n, m)])
+        return ", ".join(ps + ["undefined4 st_arg%d" % (i + 1) for i in range(n, m)])
     for f in finds:
         m = re.search(r"prototype has (\d+) parameter\(s\), the original callers pass (\d+)", f) or re.search(r"definition declares (\d+) parameter\(s\) but the original reads / rewrites (\d+) stack", f)
-        if m and int(m.group(2)) > int(m.group(1)) and int(m.group(2)) <= 8:
+        ln = re.search(r"line (\d+)", f); src = t.split("\n")[int(ln.group(1)) - 1] if ln and int(ln.group(1)) <= len(t.split("\n")) else ""
+        own = "definition declares" in f or (re.search(r"\b%s\(" % re.escape(name), src) and not src.lstrip().startswith(("extern", "/*")))
+        if m and int(m.group(2)) > int(m.group(1)) and int(m.group(2)) <= 8 and own:      # only the function's OWN definition line (the finding may be about a callee prototype on another line)
             r = re.search(r"^((?:[\w ]+\*? ?)?\b%s\()([^)]*)(\))" % re.escape(name), t, re.M) or re.search(r"^(\w[\w \*]*\n%s\()([^)]*)(\))" % re.escape(name), t, re.M)
             if r:
                 ns = add(re.sub(r"\s+", " ", r.group(2)), int(m.group(1)), int(m.group(2)))

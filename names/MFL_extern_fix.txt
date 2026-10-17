@@ -115,3 +115,5 @@ extern char PTR_s_Egypt1_00608390[];
 extern char PTR_s_Neustein1_006083b8[];
 extern char PTR_s_Tierra_PiedraNight1_006083e0[];
 extern char PTR_s_Training1_00608228[];
+extern char LAB_005db5b0[];
+extern char LAB_005db728[];

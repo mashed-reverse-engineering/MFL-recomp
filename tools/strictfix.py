@@ -36,7 +36,7 @@ def fix(path, warns):
     for ln, ws in warns.items():
         if ln - 1 >= len(starts): continue
         lo = starts[max(ln - 3, 0)]; hi = starts[min(ln + 2, len(starts) - 1)]
-        ptr_to_int = any(re.search(r"'(?:int|uint|undefined4|undefined)' differs in levels of indirection from '[^']*(?:\[|\*)", w) for w in ws)
+        ptr_to_int = any(re.search(r"'(?:int|uint|undefined4|undefined)' differs in levels of indirection from '(?:[^']*(?:\[|\*)[^']*|\w*[Cc]all[Bb]ack)'", w) for w in ws)
         for c in re.finditer(r"(?<![\w.>])(\w+)\s*\(", t[lo:hi]):
             nm = c.group(1)
             if nm not in pr: continue
@@ -53,7 +53,7 @@ def fix(path, warns):
                 if re.match(r"\(\s*%s\s*\)" % re.escape(ty), a) or ty in ("float", "double", "RwReal"): continue
                 if re.fullmatch(r"\w+", a) and any("from 'int (__cdecl *)()'" in w_ for w_ in ws) and re.fullmatch(r"Rp\w+CallBack|Rw\w+CallBack|\w+Callback|\w+CB", ty): new = "(%s)%s" % (ty, a)      # a K&R function passed as a callback typedef
                 elif "*" in ty and not ty.startswith("const char"): new = "(%s)%s" % (ty, a if re.fullmatch(r"[\w.>\[\]&-]+|\*?\w+", a) else "(" + a + ")")
-                elif ptr_to_int and ty in ("int", "uint", "undefined4") and ((re.fullmatch(r"&?[\w.>\[\]-]+", a) and not re.fullmatch(r"\w+\[[^\]]*\]", a) and ("&" in a or "." in a or "frame" in a or a.startswith(("auStack", "local_")) or re.search(r"^  [\w ]+ \*\s*%s;|^(?:/\*\w+\*/ )?extern [\w ]+ \*\s*%s;|[(,]\s*[\w ]+ \*\s*%s\s*[,)]" % ((re.escape(a),) * 3), t, re.M))) or re.fullmatch(r"&\w+(?: [-+*] (?:\w+|0x[0-9a-f]+))+", a)):
+                elif ptr_to_int and ty in ("int", "uint", "undefined4") and ((re.fullmatch(r"&?[\w.>\[\]-]+", a) and not re.fullmatch(r"\w+\[[^\]]*\]", a) and ("&" in a or "." in a or "frame" in a or a.startswith(("auStack", "local_")) or re.search(r"^  [\w ]+ \*\s*%s;|^(?:/\*\w+\*/ )?extern [\w ]+ \*\s*%s;|[(,]\s*[\w ]+ \*\s*%s\s*[,)]|[(,]\s*\w*[Cc]all[Bb]ack\s+%s\s*[,)]" % ((re.escape(a),) * 4), t, re.M))) or re.fullmatch(r"&\w+(?: [-+*] (?:\w+|0x[0-9a-f]+))+", a) or re.fullmatch(r'"(?:[^"\\]|\\.)*"', a)):
                     if " " in a: a = "(" + a + ")"      # `&g + i * 0x114`: the cast covers the whole address expression
                     if nm.endswith("_r") and re.search(r"^static [^;\n]*\b%s\(" % nm, t, re.M):
                         retype.add((nm, ptext)); new = "(void *)" + a
