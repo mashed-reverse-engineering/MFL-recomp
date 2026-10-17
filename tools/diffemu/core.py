@@ -321,6 +321,16 @@ def img_read(a, n): return IMG[a - BASE:a - BASE + n]
 
 
 # ---------------------------------------------------------------------------------------------------------- stubs
+_KEEP = {}
+def keeps_reg(va, reg):
+    """True when the original function at va provably never writes reg (ecx / edx), see tools/pseudofix.py may_write; any failure = False (the stub clobbers it as before)"""
+    k = (va, reg)
+    if k not in _KEEP:
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+            import pseudofix; _KEEP[k] = not pseudofix.may_write("%08x" % va, reg)
+        except Exception: _KEEP[k] = False
+    return _KEEP[k]
 class Callee:
     def __init__(s, va, name, pop, nargs, regs, ret, known=True, infer=False): s.va, s.name, s.pop, s.nargs, s.regs, s.ret, s.known, s.infer = va, name, pop, nargs, regs, ret, known, infer; s.lim = []
 
@@ -650,7 +660,8 @@ class Machine:
         w_ = RETWANT.get(c.va)
         if w_ and not m.small and m.seed % 3 == 2 and (h >> 3) % 3 != 0: uc.reg_write(UC_X86_REG_EAX, w_[(h >> 12) % len(w_)])      # compare-guided result (see ret_wants)
         else: uc.reg_write(UC_X86_REG_EAX, (0, 1, r % 3, r % 50, r % 6, r % 256, r % 10, 2)[h % 8] if m.small else (0, 1, u32(-1), r % 50, r % 6, r % 256, u32(r * 2654435761), u32(r))[h % 8])      # m.small: retry_case, a loop bound returned by a stubbed callee
-        uc.reg_write(UC_X86_REG_EDX, u32(h >> 20)); uc.reg_write(UC_X86_REG_ECX, u32(h >> 12))
+        if not keeps_reg(c.va, "edx"): uc.reg_write(UC_X86_REG_EDX, u32(h >> 20))      # a callee that never writes ecx / edx (tools/pseudofix.may_write over its bytes) leaves the caller's value: the ORIGINAL keeps loop counters there (powerups_set_all_enabled)
+        if not keeps_reg(c.va, "ecx"): uc.reg_write(UC_X86_REG_ECX, u32(h >> 12))
         uc.reg_write(UC_X86_REG_EIP, m.stubaddr(0 if nat and m.ours else c.pop, c.ret == "f"))
 
     def run(m, entry, args, regs, fill, lo, hi, count=MAXINS):

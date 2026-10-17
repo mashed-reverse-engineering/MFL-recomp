@@ -713,6 +713,14 @@ def fret(t):
         if int(m[7:], 16) in fr and not re.search(r"extern [^;\n]*\b%s\(" % m, t):
             inc = list(re.finditer(r'^(#include .*|/\*[0-9a-f]{8}\*/ extern .*)\n', t, re.M)); p = inc[-1].end() if inc else 0
             t = t[:p] + "extern float %s();\n" % m + t[p:]; n += 1
+    try:      # a callee with NO extern line at all (autocompile omits `extern undefined f();`): implicit int too
+        import cmpfn
+        st = cmpfn._symtab(); body = re.sub(r"/\*.*?\*/", "", t, flags=re.S)
+        for nm_ in sorted({m.group(1) for m in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\s*\(", body)}):
+            if nm_ in st and len(st[nm_]) == 1 and next(iter(st[nm_])) in fr and not re.search(r"\b[\w\*]+\s+(?:__\w+\s+)?\**%s\s*\(" % re.escape(nm_), body):
+                inc = list(re.finditer(r'^(#include .*|/\*[0-9a-f]{8}\*/ extern .*)\n', t, re.M)); p_ = inc[-1].end() if inc else 0
+                t = t[:p_] + "/*%08x*/ extern float %s();\n" % (next(iter(st[nm_])), nm_) + t[p_:]; n += 1
+    except Exception: pass
     return t, n
 def stmt_end(t, a):
     """end offset of the statement that starts at a: the first `;` / `{` outside parentheses (at most 900 characters)"""
@@ -805,6 +813,88 @@ def arityfix(t):
         ps = ps[:k] + ["int"] * (k - len(ps))
         t = t[:m.start()] + m.group(1) + (", ".join(ps) or "void") + ");" + t[m.end():]; n += 1
     return t, n
+def orig_conv(nm):
+    """-> (f2i, i2f) conversions in the ORIGINAL function nm: calls of __ftol + fistp / fist, and fild; None when unknown.  A bit copy of a float is `mov`, a conversion is fistp / fild."""
+    try:
+        import core
+        orig_const_args(nm, set())
+        if nm not in _FN: return None
+        lo, sz = _FN[nm]; fv = _FTOLV(); a = i = 0
+        for x in core.CS.disasm(core.img_read(lo, sz), lo):
+            if x.mnemonic == "call" and x.op_str.startswith("0x") and int(x.op_str, 16) in fv: a += 1
+            elif x.mnemonic in ("fistp", "fist"): a += 1
+            elif x.mnemonic == "fild": i += 1
+        return a, i
+    except Exception: return None
+_FL = r"(?:float|RwReal|float10|double)"
+def bitcopy(t, nm):
+    """kind `bitcopy` (REAL): Ghidra shows a bit copy as a conversion.  Decided from the ORIGINAL asm: a conversion is fistp / call __ftol / fild, a bit copy is mov.
+    (a) `p[k] = (int)<float expr>;` / `p[k] = fVar;` with a dword p[k]: more such conversions in the text than the original has fistp / __ftol -> `*(float *)&p[k] = <float expr>;`
+    (b) `(float)p[k]` of a dword element: more int->float casts in the text than the original has fild -> `*(float *)&p[k]`.  -> (text, number of changes)"""
+    oc = orig_conv(nm)
+    if oc is None: return t, 0
+    nf2i, ni2f = oc
+    body = re.sub(r"/\*.*?\*/", "", t, flags=re.S)
+    fl = set(re.findall(r"\b%s\s+(\w+)\s*[;,=)\[]" % _FL, body)) | set(re.findall(r"\bextern %s\s+(\w+)" % _FL, t))
+    fl |= set(re.findall(r"(?<!\*)\b[fR]Var\d*\b", body)) - set(re.findall(r"\*\s*([fR]Var\d*)\b", body))
+    def floaty(e):
+        e = re.sub(r"\(\s*(?:int|uint|short|ushort|undefined4|char)\s*\)\s*\(?\s*(?:%s)\s*\)?" % "|".join(map(re.escape, fl)) if fl else r"$^", "", e) if False else e
+        return bool(re.search(r"\(\s*%s\s*\)|\bk_f_\w+|\bfloat_\w+|\b\d+\.\d*|\.(?:x|y|z)\b" % _FL, e) or any(re.search(r"(?<![\w.])%s\b" % re.escape(v), e) for v in fl))
+    ptr_int = set(re.findall(r"\b(?:int|uint|undefined4|undefined)\s*\*\s*(\w+)", body)) | set(re.findall(r"\bextern (?:int|uint|undefined4)\s+(\w+)\s*\[", t))
+    stores = []
+    for m in re.finditer(r"^([ \t]*)(\w+\[[^\[\]\n]+\]) = (\((?:int|uint|undefined4)\))?([^;\n]+);", t, re.M):
+        base = m.group(2).split("[")[0]
+        if base in ptr_int and base not in fl and floaty(m.group(4)) and (m.group(3) or re.fullmatch(r"\w+", m.group(4).strip())):
+            if m.group(3) and not re.fullmatch(r"\w+|\(.*\)", m.group(4).strip()) and not re.search(r"[*/+-]", m.group(4)): continue
+            stores.append(m)
+    others = len(re.findall(r"\(\s*(?:int|uint|short)\s*\)", body)) - len(stores)      # remaining explicit conversions (upper bound of the real ones)
+    n = 0
+    if stores and nf2i - max(0, min(others, nf2i)) < len(stores) or (stores and nf2i == 0):
+        for m in reversed(stores):
+            e = m.group(4).strip()
+            t = t[:m.start()] + "%s*(float *)&%s = %s;" % (m.group(1), m.group(2), e) + t[m.end():]; n += 1
+    loads = [m for m in re.finditer(r"\(\s*(?:float|RwReal)\s*\)\s*((\w+)\[[^\[\]\n]+\])", t) if m.group(2) in ptr_int and m.group(2) not in fl]
+    allcasts = len(re.findall(r"\(\s*%s\s*\)" % _FL, body))
+    if loads and (ni2f == 0 or allcasts > ni2f):
+        for m in reversed(loads):
+            if ni2f and allcasts - len(loads) >= ni2f and False: break
+            t = t[:m.start()] + "*(float *)&%s" % m.group(1) + t[m.end():]; n += 1
+    return t, n
+def errfix(path, err, comp):
+    """kind `fptrarg` (REAL): Ghidra keeps pointers / integers in a `float *` / `RwReal *` array (the optimiser reuses one register for several types): `f(p[0x16])` with f taking a pointer / int -> `f(*(T *)&p[0x16])`.
+    Driven by the compiler's errors (C2440 `cannot convert from 'RwReal' to 'T'`, C2172 `actual parameter is not a pointer : parameter N`): the candidate arguments of the failing statement that index a float pointer are tried one at a time, the first that removes the error stays.  comp(path) -> error text.  -> number of edits"""
+    t = open(path, errors="replace").read(); n = 0
+    fp = set(re.findall(r"\b(?:float|RwReal)\s*\*\s*(\w+)", t)) | set(re.findall(r"\b(?:float|RwReal)\s*\*\s*\*?\s*(\w+)\s*[,)]", t))
+    if not fp: return 0
+    for m in re.finditer(r"f\.c\((\d+)\) : error C(2440|2172): ([^;]*)", err):
+        L = int(m.group(1)); msg = m.group(3)
+        mt = re.search(r"'function' : cannot convert from '(?:RwReal|float)' to '([^']+)'", msg); mp = re.search(r"actual parameter is not a pointer : parameter (\d+)", msg)
+        if not mt and not mp: continue
+        if mt: ty = mt.group(1).strip(); cast = "*(%s *)&" % ty if "*" not in ty else "*(%s *)&" % ty      # `T *` -> *(T * *)&x
+        else: cast = "*(void **)&"
+        ls = t.split("\n"); a = max(0, L - 3); b = min(len(ls), L + 2)
+        off = len("\n".join(ls[:a])) + (1 if a else 0); win = "\n".join(ls[a:b])
+        cands = []
+        for c in re.finditer(r"(?<=[(,])(\s*)((\w+)\[[^\[\]]+\]|\*(\w+))(?=\s*[,)])", win):
+            base = c.group(3) or c.group(4)
+            if base in fp: cands.append((off + c.start(2), off + c.end(2), c.group(2)))
+        if mp:
+            k = int(mp.group(1)) - 1
+            sel = []
+            for cm in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\s*\(", win):
+                al, close = _args(win, cm.end() - 1)
+                if len(al) > k:
+                    s_, e_ = al[k]
+                    for c in cands:
+                        if off + s_ <= c[0] and c[1] <= off + e_ and win[s_:e_].strip() == c[2]: sel.append(c)
+            cands = sel
+        for s_, e_, x in cands:
+            nt = t[:s_] + cast + x + t[e_:]
+            open(path, "w").write(nt); e2 = comp(path)
+            if "f.c(%d) : error C%s" % (L, m.group(2)) not in e2: t = nt; n += 1; break
+            open(path, "w").write(t)
+        if n: break      # line numbers moved: the caller recompiles for the next error
+    return n
 def fix(path):
     """edits that touch the same line go in successive rounds (lint again after each)"""
     ks = []
@@ -841,11 +931,12 @@ def _fix1(path):
     t, sn = stalereg(t)
     t, hn = hoist(t, os.path.basename(path)[:-2])
     t, cn = scalararr(t)
+    t, bcn = bitcopy(t, os.path.basename(path)[:-2])
     t, fcn = fastcall(t, os.path.basename(path)[:-2]); t, isn = istore(t); t, pfn = pushfwd(t); isn += pfn
-    if tn or an or fn or sn or hn or cn or fcn or isn: open(path, "w").write(t)
+    if tn or an or fn or sn or hn or cn or fcn or isn or bcn: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()
     L = defectlint.Lint(os.path.relpath(path, G), t, fix.gd); fnd = L.run()
-    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["hoist"] * hn + ["scalararr"] * cn + ["fastcall"] * fcn + ["istore"] * isn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
+    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["hoist"] * hn + ["scalararr"] * cn + ["fastcall"] * fcn + ["istore"] * isn + ["bitcopy"] * bcn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
     for l in ln: off.append(off[-1] + len(l) + 1)
     edits = []      # (start, end, new)
     for k, line, sym, args in L.hints:

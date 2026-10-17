@@ -49,8 +49,9 @@ def fix(path, warns):
                 a = t[s:e].strip()
                 if not a or re.fullmatch(r"-?(?:0x[0-9a-f]+|\d+)[uUlL]*|\(void \*\)0|NULL", a): continue
                 if re.match(r"\(\s*%s\s*\)" % re.escape(ty), a) or ty in ("float", "double", "RwReal"): continue
-                if "*" in ty and not ty.startswith("const char"): new = "(%s)%s" % (ty, a if re.fullmatch(r"[\w.>\[\]&-]+|\*?\w+", a) else "(" + a + ")")
-                elif ptr_to_int and ty in ("int", "uint", "undefined4") and re.fullmatch(r"&?[\w.>\[\]-]+", a) and not re.fullmatch(r"\w+\[[^\]]*\]", a) and ("&" in a or "." in a or "frame" in a or a.startswith(("auStack", "local_"))):
+                if re.fullmatch(r"\w+", a) and any("from 'int (__cdecl *)()'" in w_ for w_ in ws) and re.fullmatch(r"Rp\w+CallBack|Rw\w+CallBack|\w+Callback|\w+CB", ty): new = "(%s)%s" % (ty, a)      # a K&R function passed as a callback typedef
+                elif "*" in ty and not ty.startswith("const char"): new = "(%s)%s" % (ty, a if re.fullmatch(r"[\w.>\[\]&-]+|\*?\w+", a) else "(" + a + ")")
+                elif ptr_to_int and ty in ("int", "uint", "undefined4") and re.fullmatch(r"&?[\w.>\[\]-]+", a) and not re.fullmatch(r"\w+\[[^\]]*\]", a) and ("&" in a or "." in a or "frame" in a or a.startswith(("auStack", "local_")) or re.search(r"^  [\w ]+ \*\s*%s;" % re.escape(a), t, re.M)):
                     if nm.endswith("_r") and re.search(r"^static [^;\n]*\b%s\(" % nm, t, re.M):
                         retype.add((nm, ptext)); new = "(void *)" + a
                     else: new = "(%s)%s" % (ty, a)
@@ -59,6 +60,11 @@ def fix(path, warns):
     lines = t.split("\n"); asg = 0
     for ln, ws in warns.items():      # `p = expr;` with a pointer of another type: C4133 '=' : incompatible types - from 'A' to 'B' / C4047 '=' : 'B' differs in levels of indirection from 'A'
         for w in ws:
+            mi = re.search(r"'=' : '(undefined4|uint|int|undefined)' differs in levels of indirection from '[^']*\*'", w)
+            if mi and ln - 1 < len(lines):      # integer object = pointer expression: the object keeps its (Ghidra untyped) type, the value is cast
+                r = re.match(r"^(\s*)([\w.>\[\]*()-]+) = (\([^()]*\*\)[^;]*);$", lines[ln - 1])
+                if r: lines[ln - 1] = "%s%s = (%s)%s;" % (r.group(1), r.group(2), mi.group(1), "(" + r.group(3) + ")" if not re.fullmatch(r"\([^()]*\)[\w.>\[\]&-]+", r.group(3)) else r.group(3)); asg += 1
+                continue
             m = re.search(r"'=' : incompatible types - from '[^']*' to '([^']*)'", w) or re.search(r"'=' : '([^']*)' differs in levels of indirection from", w)
             if not m or ln - 1 >= len(lines): continue
             ty = m.group(1).strip()

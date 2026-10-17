@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto, gsfix, strictfix
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto, gsfix, strictfix, pseudofix
 HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
@@ -160,7 +160,7 @@ def defined_elsewhere():
 # ------------------------------------------------------------------------------------------------------------- selection
 def load_funcs(path):
     t = open(path, errors="replace").read(); f = {}
-    for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", t, re.S): f.setdefault(m.group(1), (m.group(2), gsfix.clean(m.group(3))))
+    for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", t, re.S): f.setdefault(m.group(1), (m.group(2), gsfix.clean(pseudofix.clean(m.group(1), m.group(3)))))
     return f
 def select(a):
     rows = []
@@ -361,7 +361,7 @@ def diff_text(n):
     return open(p).read() if os.path.exists(p) else ""
 def passes(row): return row["verdict"] == "EQUAL" and int(row["cases"]) >= 20 and float(row["coverage_orig"]) >= 0.8 and float(row["coverage_ours"]) >= 0.8
 
-_LINT = []
+_LINT = []; ROUNDED = set()
 def lint(path, n):
     """defectlint findings of the file (in process, output/defectlint.csv untouched), cheatgrep hits, register callee warnings -> [text]"""
     if not _LINT:
@@ -372,6 +372,7 @@ def lint(path, n):
         if f["cls"] == 4 and f.get("symbol") in gsfix.ARITY: continue      # cdecl_args.txt counts the pushes of the caller's frame: RwStreamClose "takes 19" (it takes 2, gsfix.ARITY)
         out.append("defectlint class %s %s line %s: %s" % (f["cls"], f["sev"], f["line"], f.get("note") or f.get("text")))
     for k, fn, ln in cheatgrep.scan(path):
+        if k == "volatile" and n in ROUNDED: continue      # tools/t2_round.py temporaries (src/cheat_allow.txt carries the justification)
         if k == "asm" and (fn.endswith("_r") or re.search(r"__declspec\(naked\) .*\b\w+_r\(", "\n".join(t.split("\n")[max(0, ln - 12):ln]))): continue      # bridgegen F_r call adapters (naked, generated; static ones are not seen as functions by rawaddr: fn is empty)
         out.append("cheatgrep %s line %d in %s" % (k, ln, fn or "-"))
     return out
@@ -507,6 +508,12 @@ def main():
                 o_, k_, e_ = compile_one(srcs[n])
                 if not e_: st[n] = ok = True, f, "", rnd
                 else: err = e_      # the error after the scripted fixes (not the stale gen error)
+            if not ok:      # kind fptrarg: pointers / integers kept in a float array, driven by the compiler's errors (t2_postfix.errfix)
+                for _ in range(6):
+                    o_, k_, e_ = compile_one(srcs[n])
+                    if not e_: st[n] = ok = True, f, "", rnd; pk = pk + ["fptrarg"]; break
+                    if not t2_postfix.errfix(srcs[n], e_, lambda q: compile_one(q)[2]): err = e_; break
+                    pk = pk + ["fptrarg"]
             if pk:
                 print("postfix %s: %s" % (n, ",".join(sorted(set(pk)))), flush=True)
                 os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)      # attempts note (tools/attempts.py format)
@@ -529,6 +536,10 @@ def main():
     with ThreadPoolExecutor(2) as ex: comp = dict(zip(cand, ex.map(comp1, cand)))
     for n in cand:
         o, k, e = comp[n]
+        for _ in range(6):      # kind fptrarg (t2_postfix.errfix): the strict rewrite / gsfix stage can expose the error only now
+            if not e or not t2_postfix.errfix(srcs[n], e, lambda q: compile_one(q)[2]): break
+            o, k, e = compile_one(srcs[n])
+            if not e: print("postfix %s: fptrarg" % n, flush=True)
         if e: put(n, "compile", "COMPILE-ERROR", e, cclass(e), srcs[n])
         else: items.append((n, srcs[n], o, k))
     # --- diffemu
@@ -541,6 +552,38 @@ def main():
         elif r["verdict"] == "EQUAL": put(n, "diffemu", "LOWCOV", "EQUAL %s cases, coverage %s/%s; %s" % (r["cases"], r["coverage_orig"], r["coverage_ours"], r["note"]), "diffemu:lowcov", src)
         else: put(n, "diffemu", "INCONCLUSIVE", r["note"], "diffemu:INCONCLUSIVE", src)
     # --- ptrcast / rawaddr rewrite + re-verify, then lint (cheatgrep sees the rewritten raw addresses)
+    # --- round stage (tools/t2_round.py): 1 ulp float differences where the original spills (rounds) an x87 temporary to float and ours keeps 80 bits: volatile float temporaries, verified one candidate at a time
+    import t2_round
+    for n, src, o, k in items:
+        r = dres[n]
+        if r["verdict"] != "DIFF" or re.search(r"call trace differs|x87 stack|ours does not return|\beax orig|\bebx orig|\besi orig", diff_text(n) + r["note"]): continue
+        df = t2_round.deficit(n, o); print("round? %s deficit %s" % (n, df), flush=True)
+        if not df or df <= 0: continue
+        t0 = open(src, errors="replace").read(); won = False
+        for lab, nt in t2_round.candidates(t0, n):
+            open(src, "w").write(nt); o2, k2, e2 = compile_one(src)
+            if e2: print("round %s %s: compile %s" % (n, lab, e2[:80]), flush=True); continue
+            r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]; print("round %s %s: %s %s" % (n, lab, r2["verdict"], r2["cases"]), flush=True)
+            if r2["verdict"] == "EQUAL" and int(r2["cases"]) >= 20:
+                r3 = run_diffemu([(n, src, o2, k2)], cases, False)[n]
+                if passes(r3): won = True; ROUNDED.add(n); ok1.append((n, src)); res.pop(n, None); print("round %s: %s" % (n, lab), flush=True); break
+        if not won and df >= 2:      # pairs: a second temporary on top of each single candidate that compiles (numbering continues so the names stay unique)
+            singles = t2_round.candidates(t0, n)[:6]
+            for lab1, nt1 in singles:
+                for lab2, nt2 in t2_round.candidates(nt1, n, 6, 20):
+                    if won: break
+                    if lab2.split(" := ")[1] == lab1.split(" := ")[1]: continue
+                    open(src, "w").write(nt2); o2, k2, e2 = compile_one(src)
+                    if e2: continue
+                    r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]
+                    if r2["verdict"] == "EQUAL" and int(r2["cases"]) >= 20:
+                        r3 = run_diffemu([(n, src, o2, k2)], cases, False)[n]
+                        if passes(r3): won = True; lab = lab1 + " + " + lab2; ROUNDED.add(n); ok1.append((n, src)); res.pop(n, None); print("round %s: %s" % (n, lab), flush=True)
+                if won: break
+        if not won: open(src, "w").write(t0)
+        else:
+            os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)
+            with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as af: af.write("%s | t2_round | NOTE | volatile float rounding temporary (original spills an x87 temporary to float): %s\n" % (time.strftime("%F %H:%M"), lab))
     ok2 = list(ok1); rg = regcallees(); rew = {}
     for n, src in ok2:
         t = open(src, errors="replace").read(); shutil.copy(src, os.path.join(W, n + ".orig.c")); nt = ptrcast.rewrite(t)
