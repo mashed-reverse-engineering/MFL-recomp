@@ -17,6 +17,13 @@
   unused  an extern prototype whose name occurs nowhere else in the file is dropped (autocompile also declares names that only appear in the comment: `start` of course_lap_line_find_index -> a false "register callee called plain").
   headjoin  a definition head Ghidra wrapped after the calling convention (`T * __cdecl` / newline / `name(`) is joined (core.defs matches one line).
   frame  defectlint class 9: the cluster of stack-slot locals (local_N / uStack_N / auStack_N, gaps <= 8 bytes, known sizes) around a flagged slot becomes ONE struct local `frame` with the Ghidra offsets (padding members for gaps); uses are renamed `frame.local_N`.
+  crtcall  (2026-10-18, diffemu call-trace class ct) a CRT math function the original really CALLS (`call acos`) that cl /O2 expands as an intrinsic (`_CIacos`): the extern is renamed FUN_<va>; float locals feeding it become double (the original passes the unrounded x87 value).
+  flitarg  integer hex literal (the float's bits) passed to a `float` parameter -> float literal.   fmulmem  `(float)(*(uint *)((char *)&g + k))` where the original has no fild -> `*(float *)((char *)&g + k)`.
+  printfargs  (argsite) printf-like call with fewer arguments than the conversions of its constant format consume: filled from the original call site.   thunk  original = single `jmp target`: `T f(params) { return target(params); }`.
+  intaddr  `f(((int)&g))` for a pointer parameter -> `(T)&g`.   fparam  `float param_N` read as pointer / int (`(int)param_N`) while the original has no float->int conversion -> `*(int *)&param_N`.   fcastfield  `(RwReal)g.field[3]` of a dword array member, no fild in the original.
+  retry stage (t2_postfix.retry / tailtrial, called by t2_auto for candidates that DIFF in the call trace and kept only when the full verification passes): floatproto (K&R callee whose original call sites store floats into argument slots, output/callsite_floats.txt
+  from tools/callsite_floats.py, gets a prototype with float parameters; fbits bit copies of those arguments become plain float arguments), ptrdata (`extern char PTR_x[];` -> `char *PTR_x`: the label holds a pointer), x87ret (original leaves one x87 value at ret:
+  `void` -> `float` returning the last floating point local), tailtrial (original ends with `jmp target`, Ghidra printed the target's body inline: the last k statements become `target(params);`, k = 1..8, each verified).
 fix(path) -> list of applied fix kinds (file rewritten in place)."""
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -342,7 +349,7 @@ def asm_sites(nm, vas):
                 va = "%08x" % int(m.group(1), 16) if m else None
                 if va: CALLS.setdefault(va, set()).add(a)
                 cargs_ = [slot(d + 4 * j) for j in range(8)]
-                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1], fp=None if fp is None else list(fp), dead=eax_dead(a)))
+                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1], eb=bool(ebpf and dbp[2]), fp=None if fp is None else list(fp), dead=eax_dead(a)))
                 k = _STD.get(va, 0) if va else 0
                 d += k * 4
                 if va and int(va, 16) in _CHK() and (regs.get("eax") or "").startswith("I:"): d -= int(regs["eax"][2:], 16)      # __chkstk(eax = frame size) allocates the frame: esp relative slots shift (vehicle_*_collect_triangles, 0x1080 bytes)
@@ -396,6 +403,9 @@ def _cname(c, t, vas, cn, nm):
     if c is None or c.startswith(("R:", "?")): return None
     if c.startswith("I:"): return c[2:]
     if c.startswith("ret:"): return _XP["ret"](c) if _XP.get("ret") else None
+    if c.startswith("S#") and c[2:].isdigit() and int(c[2:]) < len(SYM):      # integer arithmetic on known operands (asm_sites SYM): `edx = [esp+4]; add edx, 0x10` -> (param_1 + 0x10)
+        op_, a_, b_ = SYM[int(c[2:])]; xa, xb = _cname(a_, t, vas, cn, nm), _cname(b_, t, vas, cn, nm)
+        return "(%s %s %s)" % (xa, "+" if op_ == "add" else "-", xb) if xa and xb and op_ in ("add", "sub") else None
     if c.startswith("M*:"):
         i, n_ = c[3:].rsplit("|", 1); x = _cname(i, t, vas, cn, nm)
         if not x: return None
@@ -513,6 +523,7 @@ def argsite(t, nm):
         k = pushmin_slots(ext[n][0])
         if not k and not ext[n][1] and ext[n][2] == 0 and all(not a for _, _, a in cs): k = min((orig().get(ext[n][0]) or (0,))[0], 8)      # kind `krslots`: no consensus among the callers, but the callee reads k slots and this function's call sites all push them (asm_sites '?' = nothing pushed, the arguments stay out)
         if k and not ext[n][1] and ext[n][2] == 0 and n not in want_t and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((?:void)?\);" % (ext[n][0], re.escape(n)), t, re.M) and max(len(a) for _, _, a in cs) <= k and min(len(a) for _, _, a in cs) < k: want[n] = k      # mixed argument counts: the complete calls stay, the short ones get the rest
+    for n_ in {q[0] for q in pneed}: want[n_] = max(want[n_], max(v for q, v in pneed.items() if q[0] == n_))      # the K&R blocks above may have lowered it to the pushmin
     need = {n for n, cs in calls.items() if any(len(a) < want[n] for _, _, a in cs)}
     uninit = stale_locals(t, nm)      # kind `stalearg`: a local nobody assigns passed as an argument (Ghidra lost the definition: a parameter of the caller read after a `mov edx, [esp+..]`): the argument comes from the original call site
     stale = {n for n, cs in calls.items() if uninit and any(a_ in uninit for _, _, a in cs for a_ in a)}
@@ -523,7 +534,8 @@ def argsite(t, nm):
     def canon_of(n):
         va, rg, ns = ext[n]; tot = want[n]; ns = tot - len(rg); cs = calls[n]; ss = sites.get(va, [])
         if len(ss) != len(cs) or ns > 8: return None
-        return [[("?" if s.get("al") and "[S" in (s["regs"].get(r) or "") else (s["regs"].get(r) or "R:" + r)) for r in rg] + [("?" if s.get("al") and "[S" in x else x) for x in s["stack"][:ns]] for s in ss]
+        okp = lambda s_, x: s_.get("eb") and re.fullmatch(r"[MA]:\[S-?\d+\]", x or "")      # aligned frame (`and esp, -8`) with ebp as frame pointer: a parameter slot loaded through ebp is exact
+        return [[("?" if s.get("al") and "[S" in (s["regs"].get(r) or "") and not okp(s, s["regs"].get(r)) else (s["regs"].get(r) or "R:" + r)) for r in rg] + [("?" if s.get("al") and "[S" in x and not okp(s, x) else x) for x in s["stack"][:ns]] for s in ss]
     def retvar(c, p):      # "ret:<callee va>": the variable the call just before assigned (`v = P(..); f()`)
         pn = names.get(c[4:])
         if not pn: return None
@@ -1151,12 +1163,40 @@ def floatproto(t):
                 if x != a.strip(): edits.append((a0, a1, " " + x if a.startswith(" ") else x))
         for a0, a1, x in sorted(edits, reverse=True): t = t[:a0] + x + t[a1:]
     return t, n
-def retry(path):
-    """second chance fixes for a candidate that still DIFFs (call trace): applied on a copy by t2_auto, kept only when diffemu is EQUAL.  -> list of kinds"""
-    t = open(path, errors="replace").read(); t2, n = floatproto(t); t2, n2 = ptrdata(t2)
-    if not n and not n2: return []
-    open(path, "w").write(t2); ks = ["floatproto"] * (n > 0) + ["ptrdata"] * (n2 > 0) + fix(path) + fix(path)
-    t3 = open(path, errors="replace").read(); t3 = re.sub(r"^  float (fbits\d+);\n", lambda m: "" if len(re.findall(r"\b%s\b" % m.group(1), t3)) == 1 else m.group(0), t3, flags=re.M); open(path, "w").write(t3); return ks      # twice: argsite inserts constants that flitarg then turns into float literals
+def retry(path, diff="", mode="full"):
+    """second chance fixes for a candidate that still DIFFs (call trace): applied on a copy by t2_auto, kept only when diffemu is EQUAL.  -> list of kinds (empty: nothing to try).
+    mode "fexpr": ONLY the bit copies (DL_FEXPR=1 while fix() runs: defectlint also wraps float typed ARITHMETIC passed to a K&R callee in an fbits bit copy, `draw_rect(0, g + k_f_80, ..)`); callees whose original sites push the float
+    through integer registers (random_range in fx_buffers_alloc) need this and NOT a float prototype.  mode "full": floatproto / ptrdata / x87ret / adapterfloat first, then the same fix() rounds."""
+    t = open(path, errors="replace").read(); n = n2 = n3 = n4 = 0; t2 = t
+    if mode == "full":
+        t2, n = floatproto(t); t2, n2 = ptrdata(t2)
+        if "x87 stack top orig 1 ours 0" in diff: t2, n3 = x87ret(t2, os.path.basename(path)[:-2])
+        t2, n4 = adapterfloat(t2)
+    if t2 != t: open(path, "w").write(t2)
+    os.environ["DL_FEXPR"] = "1"
+    try: ks = ["floatproto"] * (n > 0) + ["ptrdata"] * (n2 > 0) + ["x87ret"] * (n3 > 0) + ["adapterfloat"] * (n4 > 0) + fix(path) + fix(path)
+    finally: os.environ.pop("DL_FEXPR", None)
+    if open(path, errors="replace").read() == t: return []
+    t3 = open(path, errors="replace").read(); t3 = re.sub(r"^  float (fbits\d+);\n", lambda m: "" if len(re.findall(r"\b%s\b" % m.group(1), t3)) == 1 else m.group(0), t3, flags=re.M); open(path, "w").write(t3); return ks
+def adapterfloat(t):
+    """kind `adapterfloat` (REAL, retry stage): a static register adapter `F_r(.., float param_2, ..)` (naked asm, forwards the raw stack dwords) called with an INTEGER dword expression (`*(undefined4 *)(p + -0x14)`): C converts it to float, the original pushes the dword.
+    The parameter becomes `undefined4` (prototype and definition).  -> (text, n)"""
+    n = 0
+    for m in list(re.finditer(r"^static int (\w+_r)\(([^)]*)\);", t, re.M)):
+        ps = [p_.strip() for p_ in m.group(2).split(",")]; fix_ = []
+        for i, p_ in enumerate(ps):
+            if not re.fullmatch(r"float \w+", p_): continue
+            for c in re.finditer(r"(?<![\w.>])%s\(" % re.escape(m.group(1)), t):
+                ls = t.rfind("\n", 0, c.start()) + 1
+                if t[ls:c.start()].lstrip().startswith(("static", "__declspec", "extern", "/*")): continue
+                al, _ = _args(t, c.end() - 1)
+                if i < len(al) and re.match(r"\s*\*\(undefined4 \*\)", t[al[i][0]:al[i][1]]): fix_.append(i); break
+        if not fix_: continue
+        for i in fix_: ps[i] = ps[i].replace("float ", "undefined4 ", 1)
+        new_ps = ", ".join(ps)
+        t = t.replace("(" + m.group(2) + ")", "(" + new_ps + ")")      # prototype and the naked definition carry the same list
+        n += len(fix_)
+    return t, n
 def ptrdata(t):
     """kind `ptrdata` (REAL): Ghidra's `PTR_<label>_<addr>` data labels hold a POINTER (to a string / table); `extern char PTR_x[];` makes the code pass the address of the variable instead of its content (texdict_load_named_*: `.tex` suffix)  -> `extern char *PTR_x;`"""
     return re.subn(r"^(extern )char (PTR_\w+)\[\];", r"\1char *\2;", t, flags=re.M)
@@ -1195,6 +1235,133 @@ def fparam(t, nm):
         body, k = re.subn(r"\((int|uint)\)%s\b(?!\s*[\[.])" % p, r"*(\1 *)&%s" % p, body); n += k
         body, k = re.subn(r"\(((?:struct )?\w+ \*)\)%s\b(?![\w\[.])" % p, r"*(\1*)&%s" % p, body); n += k
     return head + body, n
+def intaddr(t):
+    """kind `intaddr`: `f(((int)&g), ..)` for a parameter declared as a pointer (`texdict_load_file(char *, ..)`): the int cast of the address fails the strict build (C4047) -> `(T)&g`.  -> (text, n)"""
+    import strictfix
+    pr = strictfix.protos(t); edits = []
+    for nm, ps in pr.items():
+        if not any("*" in ty for ty, _ in ps): continue
+        for c in re.finditer(r"(?<![\w.>])%s\(" % re.escape(nm), t):
+            ls = t.rfind("\n", 0, c.start()) + 1
+            if t[ls:c.start()].lstrip().startswith(("extern", "static", "/*", "*")): continue
+            al, _ = _args(t, c.end() - 1)
+            if len(al) != len(ps): continue
+            for (a0, a1), (ty, _) in zip(al, ps):
+                m = re.fullmatch(r"(\s*)\(?\(int\)(&[\w.\[\]>-]+)\)?(\s*)", t[a0:a1])
+                if m and "*" in ty and not ty.startswith("const char"): edits.append((a0, a1, "%s(%s)%s%s" % (m.group(1), ty, m.group(2), m.group(3))))
+    for a0, a1, x in sorted(set(edits), reverse=True): t = t[:a0] + x + t[a1:]
+    return t, len(set(edits))
+def x87ret(t, nm):
+    """kind `x87ret` (REAL, retry stage): the ORIGINAL leaves one value on the x87 stack at `ret` (diffemu `x87 stack top orig 7 ours 0`) = the function returns a float in ST0, Ghidra printed `void` / no value:
+    `void f(..)` becomes `float f(..)`, the final `return;` returns the last assigned floating point local, the other `return;` statements `return 0.0f;`.  -> (text, n)"""
+    h = re.search(r"^void (?:__cdecl )?%s\s*\(" % re.escape(nm), t, re.M)
+    if not h: return t, 0
+    m = re.search(r"\n  return;\n\}\s*$", t)
+    if not m: return t, 0
+    fl = set(re.findall(r"^  (?:float10|double|float|RwReal) (\w+);", t, re.M)) | set(re.findall(r"^  (?:float10|double|float|RwReal) (?:\w+, )*(\w+);", t, re.M))
+    last = None
+    for a in re.finditer(r"(?<![\w.>])(\w+) = ", t[h.end():m.start()]):
+        if a.group(1) in fl: last = a.group(1)
+    if not last: return t, 0
+    head = t[:h.end()].replace("void ", "float ", 1) if False else t[:h.start()] + "float" + t[h.start() + 4:h.end()]
+    body = re.sub(r"\breturn;", "return 0.0f;", t[h.end():m.start()])
+    return head + body + "\n  return %s;\n}\n" % last, 1
+def thunkfix(t, nm):
+    """kind `thunk` (REAL): the ORIGINAL function is a single `jmp target` (a thunk / tail forwarder), Ghidra printed the target's body.  -> the definition becomes `T nm(params) { return target(params); }` (the target extern K&R with its address comment;
+    as many parameters as the target reads: the thunk passes the caller's frame on).  -> (text, n)"""
+    try:
+        import core
+        orig_const_args(nm, set())
+        if nm not in _FN: return t, 0
+        lo, sz = _FN[nm]
+        ins = list(core.CS.disasm(core.img_read(lo, 16), lo, 1))
+        if sz > 6 or not ins or ins[0].mnemonic != "jmp" or not re.fullmatch(r"0x[0-9a-f]+", ins[0].op_str): return t, 0
+        tv = int(ins[0].op_str, 16); ci = core.callee_info(tv)
+    except Exception: return t, 0
+    h = re.search(r"^([A-Za-z_][\w \*]*?)\b%s\s*\(([^)]*)\)\s*\{" % re.escape(nm), t, re.M)
+    if not h or tv not in core.T().rev and False: return t, 0
+    tn = core.T().rev.get(tv, "FUN_%08x" % tv)
+    ps = [p_.strip() for p_ in h.group(2).split(",") if p_.strip() and p_.strip() != "void"]
+    ps += ["undefined4 unused%d" % (i + 1) for i in range(len(ps), ci.nargs)]
+    names = [re.findall(r"\w+", p_)[-1] for p_ in ps]
+    rt = h.group(1).strip(); void = re.fullmatch(r"(?:void\s*)(?:__cdecl)?", rt) is not None
+    inc = "".join(m.group(0) for m in re.finditer(r"^#include .*\n", t, re.M))
+    call = "%s(%s)" % (tn, ", ".join(names))
+    return inc + "/*%08x*/ extern int %s();\n\n%s %s(%s)\n\n{\n  %s%s;\n}\n" % (tv, tn, rt, nm, ", ".join(ps) or "void", "" if void else "return ", call), 1
+def fcastfield(t, nm, hdr):
+    """kind `fcastfield` (REAL): `(RwReal)g_x.field[3]` of a dword (int / uint / undefined4) array member while the ORIGINAL function has no `fild` at all (it pushes / loads the dword as a float: bit copy) -> `*(float *)&g_x.field[3]`.  hdr = text of ghidra_types.h.  -> (text, n)"""
+    ms = list(re.finditer(r"\((?:float|RwReal)\)\s*(\w+(?:\.\w+)+\[[^\]]+\])", t))
+    if not ms: return t, 0
+    c = orig_conv(nm)
+    if c is None or c[1]: return t, 0
+    n = 0
+    for m in reversed(ms):
+        f = re.search(r"\.(\w+)\[[^\]]+\]$", m.group(1)).group(1)
+        if re.search(r"^\s*(?:int|uint|undefined4|dword|ulong|long)\s+%s\[\d+\];" % f, hdr, re.M) and len(re.findall(r"^\s*\w[\w ]*\s+%s\[\d+\];" % f, hdr, re.M)) == 1:
+            t = t[:m.start()] + "*(float *)&" + m.group(1) + t[m.end():]; n += 1
+    return t, n
+def _stmts(body):
+    """top level statements of a function body text -> [(start, end)] (offsets in body); blocks `if (..) {..} else {..}` / `do {..} while (..);` are one statement"""
+    out = []; i = 0; n = len(body)
+    while i < n:
+        while i < n and body[i] in " \t\r\n": i += 1
+        if i >= n: break
+        st = i; d = 0; p = 0
+        while i < n:
+            c = body[i]
+            if c == "(": p += 1
+            elif c == ")": p -= 1
+            elif c == "{": d += 1
+            elif c == "}":
+                d -= 1
+                if d == 0 and p == 0:
+                    j = i + 1
+                    while j < n and body[j] in " \t\r\n": j += 1
+                    if re.match(r"else\b|while\b", body[j:]):
+                        i = j; continue
+                    i += 1; break
+            elif c == ";" and d == 0 and p == 0: i += 1; break
+            i += 1
+        out.append((st, i))
+    return out
+def tail_target(nm):
+    """-> (address, name) when the ORIGINAL function ends with a `jmp` to another function (tail call; Ghidra often prints the target's body inline), else None"""
+    try:
+        import core
+        orig_const_args(nm, set())
+        if nm not in _FN: return None
+        lo, sz = _FN[nm]; ins = list(core.CS.disasm(core.img_read(lo, sz), lo))
+        if not ins or ins[-1].mnemonic != "jmp" or not re.fullmatch(r"0x[0-9a-f]+", ins[-1].op_str): return None
+        tv = int(ins[-1].op_str, 16)
+        if lo <= tv < lo + sz or tv not in core.T().rev: return None
+        nmv = core.T().rev[tv]
+        return None if nmv.startswith(("__security", "_security")) else (tv, nmv)
+    except Exception: return None
+def tailtrial(t, nm, maxk=8):
+    """kind `tailtrial` (REAL, retry stage): the ORIGINAL ends with a tail `jmp target` and Ghidra printed the target's body inline (course_superg_cb5: `RpAtomicDestroy(g); RwFrameDestroy(f)` = course_sky_atomic_destroy()).  Candidates: the last k statements
+    (k = 1..maxk, before the final `return;`) replaced by the call `target(params);`; each verified by diffemu (t2_auto).  -> [(label, text)]"""
+    tt = tail_target(nm)
+    if not tt: return []
+    h = re.search(r"^([A-Za-z_][\w \*]*?)\b%s\s*\(([^)]*)\)\s*\{" % re.escape(nm), t, re.M)
+    if not h: return []
+    import core
+    tv, tn = tt; ci = core.callee_info(tv)
+    ps = [p_.strip() for p_ in h.group(2).split(",") if p_.strip() and p_.strip() != "void"]
+    extra = ["undefined4 unused%d" % (i + 1) for i in range(len(ps), ci.nargs)]
+    names = [re.findall(r"\w+", p_)[-1] for p_ in ps + extra]
+    end = t.rfind("}")
+    body = t[h.end():end]; st = _stmts(body)
+    if not st: return []
+    last_ret = re.fullmatch(r"return\s*;", body[st[-1][0]:st[-1][1]].strip()) is not None
+    core_st = st[:-1] if last_ret else st
+    out = []
+    ext = "" if re.search(r"extern [^;\n]*\b%s\(" % re.escape(tn), t) else "/*%08x*/ extern int %s();\n" % (tv, tn)
+    for k in range(1, min(maxk, len(core_st)) + 1):
+        cut = core_st[-k][0]
+        if any(re.match(r"\s*(?:[A-Za-z_][\w ]*[ \*])\w+(?:\[\d+\])?;\s*$", body[a:b]) for a, b in core_st[-k:]): break      # the removed statements must not be declarations
+        nb = body[:cut] + "%s(%s);\n  return;\n" % (tn, ", ".join(names[:ci.nargs])) if last_ret else body[:cut] + "%s(%s);\n" % (tn, ", ".join(names[:ci.nargs]))
+        out.append(("tail%d" % k, (t[:h.start()] + ext + t[h.start():h.start(2)] + (", ".join(ps + extra) or "void") + t[h.end(2):h.end()] + nb + t[end:])))
+    return out
 def sdkproto(t):
     """kind `sdkproto` (REAL): a library callee declared K&R (`extern int Rt2dFontFlow();`) or not at all (implicit int) whose SDK prototype has float parameters: the call promotes the floats to doubles (2 dwords, wrong stack layout, 21 text-draw DIFFs).
     The extern gets the SDK prototype (pointers void *).  -> (text, n)"""
@@ -1325,6 +1492,14 @@ def fix(path):
     if iv_: open(path, "w").write(t3); ks.append("intvar")
     t3, ar_ = arityfix(t3)
     if ar_: open(path, "w").write(t3); ks.append("arity")
+    t3, th_ = thunkfix(t3, os.path.basename(path)[:-2])
+    if th_: open(path, "w").write(t3); ks.append("thunk")
+    try: hdr_ = open(os.path.join(os.path.dirname(path), "ghidra_types.h"), errors="replace").read()
+    except OSError: hdr_ = ""
+    t3, fc_ = fcastfield(t3, os.path.basename(path)[:-2], hdr_)
+    if fc_: open(path, "w").write(t3); ks.append("fcastfield")
+    t3, ia_ = intaddr(t3)
+    if ia_: open(path, "w").write(t3); ks.append("intaddr")
     t3, fp_ = fparam(t3, os.path.basename(path)[:-2])
     if fp_: open(path, "w").write(t3); ks.append("fparam")
     t3, fl_ = flitarg(t3)

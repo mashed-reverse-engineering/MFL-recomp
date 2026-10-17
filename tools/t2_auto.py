@@ -453,6 +453,9 @@ def main():
     cases = int(a[a.index("--cases") + 1]) if "--cases" in a else 100; force = "--force" in a
     text_path = a[a.index("--text") + 1] if "--text" in a else NAMED
     rows = select(a); funcs = load_funcs(text_path); sym = core.T().sym
+    for x_ in ("need_decomp.c", "cluster_decomp.c", "more_decomp.c"):      # Ghidra exports (DecompList.java) of FUN_/gap_ functions the named file lacks
+        if os.path.exists(P("output", "t2_auto", x_)):
+            for k_, v_ in load_funcs(P("output", "t2_auto", x_)).items(): funcs.setdefault(k_, v_)
     fsz = {}
     for l in open(P("output", "fnsizes.txt")):
         q = l.split()
@@ -537,7 +540,12 @@ def main():
     for n in cand:      # own-arity / callee-prototype arity findings of defectlint (class 4 / 10): `undefined4 param_N` for the dropped trailing stack arguments (tools/t2_stfix.py)
         try:
             fl = [x for x in lint(srcs[n], n) if x.startswith(("defectlint class 4", "defectlint class 10"))]
-            if fl and t2_stfix.arity(srcs[n], n, fl): print("stfix %s: arity" % n, flush=True)
+            if fl and t2_stfix.arity(srcs[n], n, fl):
+                print("stfix %s: arity" % n, flush=True)
+                try:      # the new parameters are names the call arguments can refer to now (argsite: `ptank_set_blend_modes((st_arg1 + 0x10), unused2, ..)`)
+                    pk2 = t2_postfix.fix(srcs[n])
+                    if pk2: print("postfix %s (after arity): %s" % (n, ",".join(sorted(set(pk2)))), flush=True)
+                except Exception as ex_: print("postfix %s (after arity): %s" % (n, ex_), flush=True)
         except Exception as ex_: print("stfix %s: %s" % (n, ex_), flush=True)
     with ThreadPoolExecutor(2) as ex: comp = dict(zip(cand, ex.map(comp1, cand)))
     for n in cand:
@@ -595,19 +603,36 @@ def main():
     done1 = {n_ for n_, _ in ok1}
     for n, src, o, k in items:
         r = dres[n]
-        if n in done1 or r["verdict"] != "DIFF" or "call trace differs" not in diff_text(n) + r["note"]: continue
-        t0 = open(src, errors="replace").read()
-        try: kinds = t2_postfix.retry(src)
-        except Exception as ex_: kinds = []; print("retry %s: %s" % (n, ex_), flush=True)
-        won = False
-        if kinds:
+        dtx = diff_text(n) + r["note"]
+        if n in done1 or r["verdict"] != "DIFF" or not re.search(r"call trace differs|x87 stack top orig 1 ours 0", dtx): continue
+        t0 = open(src, errors="replace").read(); won = False; kinds = []
+        for mode in ("fexpr", "full"):      # fexpr: bit copies of float arithmetic only; full: float prototypes etc. (the callee's original sites decide which one is right)
+            open(src, "w").write(t0)
+            try: kinds = t2_postfix.retry(src, dtx, mode)
+            except Exception as ex_: kinds = []; print("retry %s: %s" % (n, ex_), flush=True)
+            if not kinds: continue
+            try:      # own-arity findings again (the retry changed prototypes / the tail-forwarded parameters)
+                fl = [x for x in lint(src, n) if x.startswith(("defectlint class 4", "defectlint class 10"))]
+                if fl and t2_stfix.arity(src, n, fl): kinds.append("stfix-arity")
+            except Exception as ex_: print("stfix %s: %s" % (n, ex_), flush=True)
             o2, k2, e2 = comp1(n)
             if not e2:
-                r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]; print("retry %s %s: %s %s" % (n, ",".join(kinds), r2["verdict"], r2["cases"]), flush=True)
+                r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]; print("retry %s %s %s: %s %s" % (n, mode, ",".join(kinds), r2["verdict"], r2["cases"]), flush=True)
                 if r2["verdict"] == "EQUAL" and int(r2["cases"]) >= 20:
                     r3 = run_diffemu([(n, src, o2, k2)], cases, False)[n]
-                    if passes(r3): won = True; ok1.append((n, src)); res.pop(n, None); print("retry %s: %s" % (n, ",".join(kinds)), flush=True)
-            else: print("retry %s: compile %s" % (n, e2[:80]), flush=True)
+                    if passes(r3): won = True; ok1.append((n, src)); res.pop(n, None); print("retry %s: %s" % (n, ",".join(kinds)), flush=True); break
+            else: print("retry %s %s: compile %s" % (n, mode, e2[:80]), flush=True)
+        if not won: open(src, "w").write(t0)
+        if not won and "call trace differs" in dtx:      # kind tailtrial: the original ends with `jmp target`, Ghidra printed the target's body inline: the last k statements become the call, verified one k at a time
+            try: tcs = t2_postfix.tailtrial(t0, n)
+            except Exception as ex_: tcs = []; print("tailtrial %s: %s" % (n, ex_), flush=True)
+            for lab, nt in tcs:
+                open(src, "w").write(nt); o2, k2, e2 = comp1(n)
+                if e2: continue
+                r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]; print("tailtrial %s %s: %s %s" % (n, lab, r2["verdict"], r2["cases"]), flush=True)
+                if r2["verdict"] == "EQUAL" and int(r2["cases"]) >= 20:
+                    r3 = run_diffemu([(n, src, o2, k2)], cases, False)[n]
+                    if passes(r3): won = True; kinds = [lab, "tailtrial"]; ok1.append((n, src)); res.pop(n, None); print("retry %s: %s" % (n, ",".join(kinds)), flush=True); break
         if not won: open(src, "w").write(t0)
         else:
             os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)
@@ -633,10 +658,21 @@ def main():
     passed = []
     for n, src in ok2:
         if n in res: continue
-        probs = lint(src, n); body = open(src, errors="replace").read()
+        probs = lint(src, n); se = strict_one(src) if not probs else ""
+        if (probs and all(x.startswith(("defectlint class 4", "defectlint class 10")) for x in probs)) or se:      # repair pass: unused trailing parameters (stfix arity) / casts for the strict build change no code; verified again by diffemu
+            tb_ = open(src, errors="replace").read()
+            try:
+                if probs: t2_stfix.arity(src, n, probs)
+                if se: strict_one(src, True)
+                if open(src, errors="replace").read() != tb_:
+                    o_, k_, e_ = compile_one(src); r_ = run_diffemu([(n, src, o_, k_)], cases, False)[n] if not e_ else None
+                    if r_ is not None and passes(r_): print("lint repair %s: ok" % n, flush=True); probs = lint(src, n); se = strict_one(src) if not probs else ""
+                    else: open(src, "w").write(tb_)
+            except Exception as ex_: print("lint repair %s: %s" % (n, ex_), flush=True); open(src, "w").write(tb_)
+        body = open(src, errors="replace").read()
         rc = [c for c in set(re.findall(r"\b(\w+) ?\(", re.sub(r"^extern void \w+\(void\);$", "", body, flags=re.M))) if c in rg and c != n]      # the F_r adapters' own `extern void F(void);` is no plain call
         if rc: probs.append("register callee called plain: " + ",".join("%s@%s regs %s" % (c, rg[c][0], rg[c][1]) for c in rc))
-        if not probs and (se := strict_one(src)): probs.append("strict build: " + se)
+        if se: probs.append("strict build: " + se)
         if probs: put(n, "lint", "LINT", "\n".join(probs), "cheat" if probs[0].startswith("cheatgrep") else "lint", src); continue
         passed.append((n, src))
     # --- candidates

@@ -287,7 +287,7 @@ class Lint:
                     or re.search(r"\(\s*int\s*\)\s*\(?.*?(\(\s*float\s*\)|\bf[A-Z]?Var\d|\bfVar|\bRVar)", rhs)
                 if ifloat and not re.match(r"^\(\s*(int|uint)\s*\)\s*[\w\.]+$", rhs): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float value stored into the dword object `%s` by conversion (use *(float *)&...)" % nl)
                 elif re.match(r"^\(\s*int\s*\)\s*\w+(\.\w+)*\.[xyz]\s*$", rhs) or (re.match(r"^\(\s*int\s*\)\s*(\w+(\.\w+)*)\s*$", rhs) and kr == "?" and self.is_float_name(rhs, env)): self.hints.append(("fstore", line, lv, [rhs])); self.add(2, "high", line, fn, nl, st, "float stored into the dword object `%s` by conversion" % nl)
-        for m in re.finditer(r"\(\s*(?:float|RwReal)\s*\)\s*((?:\(\s*&\s*\w+\s*\)|\w+)\s*\[[^\]]*\]|\w+)", st):
+        for m in re.finditer(r"\(\s*(?:float|RwReal)\s*\)\s*((?:\(\s*&\s*\w+\s*\)|[\w.]+)\s*\[[^\]]*\]|\w+)", st):
             k, n = self.atom(m.group(1), env)
             if k in "US" and "[" in m.group(1) and not re.search(r"\[\s*[a-z]?Var\d*\s*\]|\[\s*(i|j|k)\s*\]", m.group(1)) or k == "U" and "[" in m.group(1): self.hints.append(("fcast", line, m.group(0), [m.group(1)])); self.add(2, "medium", line, fn, n, st, "(float) of the dword element %s converts (fild); a float kept in a dword object needs *(float *)&..." % m.group(1))
             elif k == "U" and n in self.glob and self.glob[n] == "undefined4" and n not in env and "[" not in m.group(1) and not re.search(r"\(\s*float\s*\)\s*" + re.escape(n) + r"\s*[\*/]", st) and False: pass
@@ -301,7 +301,7 @@ class Lint:
             if j < 0: continue
             args = split_args(st[m.end():j])
             if n is None:
-                fa = [a for a in args if self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a) or (not re.fullmatch(r"\s*[\w.]+\s*", a) and self.fexpr(a, env))]      # float typed arithmetic (`g + k_f_80`) too
+                fa = [a for a in args if self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a) or (os.environ.get("DL_FEXPR") and not re.fullmatch(r"\s*[\w.]+\s*", a) and self.fexpr(a, env))]      # float typed arithmetic (`g + k_f_80`) too: ONLY when DL_FEXPR is set (t2_postfix.retry): installed code passes such expressions to K&R callees that really take a double (sound_volume_to_directsound_db)
                 if fa:
                     self.hints.append(("fbits", line, f, [a.strip() for a in fa]))
                     self.add(4, "high", line, fn, f, st, "float argument passed to `%s()` (no prototype): pushed as double" % f)

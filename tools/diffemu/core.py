@@ -426,6 +426,9 @@ def callee_info(va):
     if o and o[2] and o[3] and not (regs and va in tb.reg):      # tail-forwarding callee (rewrites a slot, then `jmp target`: clump_load_by_name(name) -> 4c3bf0(name', out, out)): the target reads the other slots of the CALLER's frame, so the boundary call compares the target's slot count (a declaration with fewer parameters hid `clump_load_by_name(name, 0, &rdata)`: oil_load_assets crashed the game, diffemu EQUAL)
         tn = max([o[0], o[3]] + [tb.oslots[t][0] for t in o[2] if t in tb.oslots])
         if tn > (n or 0): n = tn
+    try:
+        import gsfix; n = gsfix.ARITY.get(name, n)      # library callees whose Ghidra signature swallowed the caller's frame (RwStreamClose: 17 parameters, really 2): comparing 12 stack words compared frame garbage
+    except ImportError: pass
     rt = (dc[0] if dc else (sg[2] if sg else "")).split()
     c = Callee(va, name, pop, min(n or 0, 12), [r for r in regs if r in REGS], "f" if any(x in ("float", "double", "float10", "RwReal") for x in rt) or (float_returners().get(va) and va not in real_helpers() and all(x in ("", "undefined", "undefined4", "void", "unknown", "__cdecl", "__stdcall") for x in rt)) else "i", known=n is not None or va not in tb.reg, infer=n is None and not pop)
     if dc and dc[1].strip() not in ("", "void") and not (regs and va in tb.reg) and re.fullmatch(r"_?(?:RwV[23]d(?!Transform)\w*(?<!s)|RwFrame(?:Translate|Scale|Rotate|SetIdentity|Transform))", name): c.lim = ptr_limits(split_params(dc[1]))      # single object functions only: vector / vertex ARRAY functions (RwV3dTransformVectors, RwIm3D*) really read behind the first element
@@ -537,6 +540,7 @@ def writes_through(va, depth=4):
     _WT[key] = frozenset(res)
     return _WT[key]
 
+PRINTF = {"debug_printf": 0, "log_printf": 0, "printf": 0, "sprintf": 1, "wsprintfA": 1, "fprintf": 1, "_snprintf": 2}      # callee name -> index of the format argument
 NORETURN = {"exit", "_exit", "abort", "ExitProcess", "_amsg_exit", "longjmp", "_fatal_error", "quick_exit"}      # a stubbed noreturn callee ends the case (the code behind the call is dead in the real program)
 
 REGS = {"eax": UC_X86_REG_EAX, "ecx": UC_X86_REG_ECX, "edx": UC_X86_REG_EDX, "ebx": UC_X86_REG_EBX, "esi": UC_X86_REG_ESI, "edi": UC_X86_REG_EDI, "ebp": UC_X86_REG_EBP}
@@ -641,6 +645,15 @@ class Machine:
         if c.name in NORETURN:
             m.trace.append((c.name, tuple(m.norm(a) for a in struct.unpack("<%dI" % min(c.nargs, 4), bytes(uc.mem_read(sp + 4, 4 * min(c.nargs, 4))))), ())); m.exited = True; uc.emu_stop(); return
         args = struct.unpack("<%dI" % c.nargs, bytes(uc.mem_read(sp + 4, 4 * c.nargs))) if c.nargs else ()
+        pf = PRINTF.get(c.name)
+        if pf is not None and len(args) > pf:      # printf-like: the arguments are the format and what its conversions consume (not a fixed count: the words behind are frame garbage that differs between the two builds)
+            try:
+                fmt = m.read(args[pf], 200).split(b"\0")[0].decode("latin1")
+                k = 0
+                for mm in re.finditer(r"%(?:%|[-+ #0]*(\*|\d+)?(?:\.(\*|\d+))?(hh|h|ll|l|I64|L|w)?([a-zA-Z]))", fmt):
+                    if mm.group(0) != "%%": k += 1 + (mm.group(1) == "*") + (mm.group(2) == "*") + (mm.group(3) in ("ll", "I64") or mm.group(4) in "fgeEGaA")
+                n_ = min(pf + 1 + k, 12); args = struct.unpack("<%dI" % n_, bytes(uc.mem_read(sp + 4, 4 * n_)))
+            except (UcError, struct.error): pass
         nat = getattr(c, "natural", None)      # cluster mode: a callee outside the cluster that is already natural C: arguments in registers / stack slots of the original, all on the stack on our side
         if nat:
             args = struct.unpack("<%dI" % len(nat), bytes(uc.mem_read(sp + 4, 4 * len(nat)))) if m.ours else tuple(uc.reg_read(REGS[t]) if t in REGS else struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * int(t[1:]), 4)))[0] for t in nat)
