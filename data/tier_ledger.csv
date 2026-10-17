@@ -149,6 +149,7 @@ ai_editor_cursor_move,00426de0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu
 ai_editor_paint_input,00426bb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 ai_editor_update,00427670,tier1,bytes,bytes-reloc,6617f34fd2f9,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 ai_erase_cell,0041a170,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,039851f71035,cc9492f35972,a5fd27972ad0,200,0.96,1,0
+ai_find_leader_a,00417b70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.23,0,0
 ai_find_leader_b,00417ce0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.12,0,0
 ai_ftol_noop_wrapper,0041a380,agent,bytes-standalone+ba44872a49ea,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 ai_get_counter,0041a370,agent,bytes-standalone+59a5b31e0682,bytes-reloc,f34429a61089,cc9492f35972,a5fd27972ad0,0,0.00,0,0
@@ -356,6 +357,7 @@ course_active_objects_count,0042a160,tier1,bytes,bytes-reloc,9a1ba39fdb74,cc9492
 course_angels_cb0,00451cb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 course_angels_cb1,00451ce0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 course_arctic_camera_relative_update,00452bc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
+course_arctic_cb10,00452430,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 course_arctic_cb2,00452a20,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 course_arctic_cb3_object_init,004524e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 course_arctic_cb4,00452c90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
@@ -1223,6 +1225,7 @@ race_get_race_setup,0040f080,tier1,bytes,bytes-reloc,43c752bd952b,cc9492f35972,a
 race_get_setup_index,0040fbe0,tier1,bytes,bytes-reloc,508456496739,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 race_length_setting,00435400,tier1,bytes,bytes-reloc,6eb8bd9d6211,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 race_load_common_assets,0040d150,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
+race_load_course,0040eb10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 race_lose_banner_draw,0042e6c0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,71e5630fa866,cc9492f35972,a5fd27972ad0,200,1.00,1,0
 race_mark_ai_slots,0041b810,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 race_phase_4_update,00412470,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
@@ -1378,6 +1381,7 @@ sound_ambience_course_8_19,0046a960,tier2,compiled+diffemu-EQUAL+shadow-never,di
 sound_ambience_course_9_22,0046c470,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 sound_ambience_course_c_26,0046dd30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 sound_ambience_course_f_24,00471bc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.94,0,0
+sound_bomb_countdown_voices,0046fc20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.42,0,0
 sound_car_engine_start,00470b00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 sound_car_mode_2_voice,00470ec0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 sound_ducking_values_decay,004689a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.83,0,0
@@ -1559,6 +1563,7 @@ vehicle_part_ltm,00422350,hand,near-regress-only,static,-,cc9492f35972,a5fd27972
 vehicle_part_matrix,004222a0,hand,near-regress-only,static,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 vehicle_particles_render,00421ca0,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 vehicle_prepare_clear_660568,00425ce0,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
+vehicle_prepare_parts,00421d50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 vehicle_prepare_parts_0,0040e9d0,tier1,bytes,bytes-reloc,b7afb7fbd4b7,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 vehicle_render_state_clear,00426580,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 vehicle_render_state_init,00425ee0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0

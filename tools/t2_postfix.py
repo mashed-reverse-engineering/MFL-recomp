@@ -582,7 +582,7 @@ def hoist(t, nm):
     ps = {re.findall(r"\w+", p)[-1] for p in h.group(1).split(",") if re.findall(r"\w+", p)}
     ex = set(re.findall(r"^/\*[0-9a-f]{8}\*/ extern [^;(]*?\b(\w+)(?:\[\w*\])*;", t[:h.start()], re.M))
     body = t[h.end():]; ins = None; n = 0
-    for m in re.finditer(r"^  (?:[A-Za-z_][\w ]*?[ \*])(\w+);[ \t]*\n", body, re.M):
+    for m in re.finditer(r"^  (?:[A-Za-z_][\w ]*?[ \*]+)(\w+);[ \t]*\n", body, re.M):
         v = m.group(1); ins = m.end()
         rest = body[ins:]
         asg = list(re.finditer(r"^([ \t]{4,})%s = ([^;=\n]+);[ \t]*\n" % v, rest, re.M))
@@ -604,9 +604,9 @@ def hoist(t, nm):
         outside = [u for u in re.finditer(r"(?<![\w.])%s\b" % v, rest) if (u.start() < s or u.start() >= e) and u.start() != a.start() + len(a.group(1))]
         if not outside: continue
         stmt = "  %s = %s;\n" % (v, a.group(2).strip())
-        dm = re.match(r"(?:(?:  [A-Za-z_][\w ]*?[ \*]\w+(?:\[\w+\])*(?: = [^;\n]+)?;|[ \t]*)[ \t]*\n)*", body)      # the declaration block (C89: statements after it)
+        dm = re.compile(r"^[ \t]*\n", re.M).search(body, m.end())      # Ghidra ends the declaration block with a blank line (C89: statements after it)
+        if not dm: continue
         ins = dm.end()
-        while ins > 0 and body[ins - 1] == "\n" and body[:ins].endswith("\n\n") and body[:ins - 1].endswith("\n") and False: ins -= 1
         rest = body[:a.start() + (len(body) - len(rest))] + body[a.end() + (len(body) - len(rest)):]; body = rest[:ins] + stmt + rest[ins:]; n += 1
         break
     return (t[:h.end()] + body, n) if n else (t, 0)
