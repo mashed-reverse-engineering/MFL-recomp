@@ -503,9 +503,13 @@ def stale_regs():
     if not _STALE:
         import csv
         reg = {r["addr"] for r in csv.DictReader(open(os.path.join(G, "output", "regsigs.csv")))}
+        for r in csv.DictReader(open(os.path.join(G, "output", "sigs_regfix.csv"))):
+            if r["addr"] not in reg: _STALE.setdefault(r["addr"], [0, 0]); _STALE[r["addr"]][1] += 1      # reg_ parameters sig_regcheck.py dropped from sigs.txt: old total = stack count + dropped
+        for a, v in list(_STALE.items()): _STALE[a] = tuple(v)
         for l in open(os.path.join(G, "output", "sigs.txt")):
             q = l.rstrip("\n").split("|")
-            if len(q) >= 7 and re.search(r"(?:^|;)[^;]*:reg_e\w\w:", q[5]) and q[1] not in reg: _STALE[q[1]] = (len([x for x in q[5].split(";") if x]), len([x for x in q[5].split(";") if x and ":reg_e" in x]))
+            if q[1:2] and q[1] in _STALE and len(q) >= 7: _STALE[q[1]] = (len([x for x in q[5].split(";") if x]) + _STALE[q[1]][1], _STALE[q[1]][1])
+            elif len(q) >= 7 and re.search(r"(?:^|;)[^;]*:reg_e\w\w:", q[5]) and q[1] not in reg: _STALE[q[1]] = (len([x for x in q[5].split(";") if x]), len([x for x in q[5].split(";") if x and ":reg_e" in x]))
     return _STALE
 def stalereg(t):
     """kind `stalereg`: extern of a stale-register function loses its first (register) parameter, every call in the text loses its first argument (only calls that pass exactly the old count).  -> (text, n)"""
@@ -753,6 +757,54 @@ def intvar(t):
         t = re.sub(r"\*\(int \*\)&%s\b" % e, v, t); t = re.sub(r"\(int\)%s\b" % e, v, t)
         t = re.sub(r"\b%s = (-?\d+)\.0f?;" % e, r"%s = \1;" % v, t); n += 1
     return t, n
+_SDK = {}
+def sdk_protos():
+    """name -> (return type, [param types]) of the RenderWare SDK prototypes (toolchain/rwsdk/include/d3d9) with a float / RwReal parameter; pointers are `void *`, enum types (`...Type`) int (as tools/lib_protos.py)"""
+    if not _SDK:
+        H = os.path.join(G, "toolchain", "rwsdk", "include", "d3d9")
+        OK = {"void", "int", "char", "short", "float", "double", "unsigned", "long", "RwInt32", "RwBool", "RwReal", "RwUInt32", "RwInt16", "RwUInt16", "RwUInt8", "RwInt8", "RwChar", "const", "RwFixed", "size_t"}
+        for f in sorted(os.listdir(H)):
+            if not f.endswith(".h"): continue
+            t = re.sub(r"/\*.*?\*/|//[^\n]*", " ", open(os.path.join(H, f), errors="replace").read(), flags=re.S); t = re.sub(r"^\s*#.*(?:\\\n.*)*$", " ", t, flags=re.M)
+            for m in re.finditer(r"(?:^|(?<=[;}]))\s*(?:extern\s+)?((?:const\s+)?[A-Za-z_]\w*(?:\s*\*+\s*|\s+)(?:\*\s*)*)(\w+)\s*\(([^()]*)\)\s*;", t):
+                n, rt, ps = m.group(2), " ".join(m.group(1).split()), " ".join(m.group(3).split()); out = []
+                if n in _SDK or ps in ("", "void"): continue
+                for a in ps.split(","):
+                    a = " ".join(a.split()); ws = a.split(); ty = " ".join(ws[:-1]) if len(ws) > 1 else ws[0]
+                    if "(" in a or "..." in a: out = None; break
+                    if "*" in a: out.append("void *")
+                    elif ty.endswith("Type") and not set(ty.split()) <= OK: out.append("int")
+                    elif set(ty.split()) <= OK: out.append(ty)
+                    else: out = None; break
+                if out is None or not any(x in ("float", "RwReal", "double") for x in out): continue
+                if "*" in rt: _SDK[n] = ("void *", out)
+                elif set(rt.replace("const", "").split()) <= OK: _SDK[n] = (rt.strip(), out)
+    return _SDK
+def sdkproto(t):
+    """kind `sdkproto` (REAL): a library callee declared K&R (`extern int Rt2dFontFlow();`) or not at all (implicit int) whose SDK prototype has float parameters: the call promotes the floats to doubles (2 dwords, wrong stack layout, 21 text-draw DIFFs).
+    The extern gets the SDK prototype (pointers void *).  -> (text, n)"""
+    n = 0; body = re.sub(r"/\*.*?\*/", "", t, flags=re.S)
+    for nm, (rt, ps) in sdk_protos().items():
+        if not re.search(r"(?<![\w.>])%s\s*\(" % nm, body): continue
+        pr = "extern %s __cdecl %s(%s);" % (rt, nm, ", ".join("%s p%d" % (x, i) for i, x in enumerate(ps)))
+        m = re.search(r"^(/\*[0-9a-f]{8}\*/ )?extern [^;\n]*?\b%s\(\);" % nm, t, re.M)
+        if m: t = t[:m.start()] + (m.group(1) or "") + pr + t[m.end():]; n += 1
+        elif not re.search(r"^[^\n]*extern [^;\n]*\b%s\(" % nm, t, re.M):
+            inc = list(re.finditer(r"^#include .*\n", t, re.M)); p = inc[-1].end() if inc else 0
+            t = t[:p] + pr + "\n" + t[p:]; n += 1
+    return t, n
+def arityfix(t):
+    """kind `arity`: extern of a callee whose Ghidra signature swallowed its caller's frame (tools/gsfix.py ARITY: RwStreamClose with 17 parameters) or whose import prototype is wrong (gsfix.WIN32: GetDlgItem(int x5), names/MFL_import_protos.txt
+    votes pushes) gets its real parameter count.  -> (text, n)"""
+    import gsfix; n = 0
+    for nm, k in list(gsfix.ARITY.items()) + list(gsfix.WIN32.items()):
+        m = re.search(r"^((?:/\*[0-9a-f]{8}\*/ )?extern [^;\n]*?\b%s\()([^;\n]*)\);" % nm, t, re.M)
+        if not m: continue
+        ps = [] if m.group(2).strip() in ("", "void") else [x.strip() for x in m.group(2).split(",")]
+        if len(ps) == k: continue
+        ps = ps[:k] + ["int"] * (k - len(ps))
+        t = t[:m.start()] + m.group(1) + (", ".join(ps) or "void") + ");" + t[m.end():]; n += 1
+    return t, n
 def fix(path):
     """edits that touch the same line go in successive rounds (lint again after each)"""
     ks = []
@@ -768,6 +820,10 @@ def fix(path):
     if an_: open(path, "w").write(t3); ks.append("addrarith")
     t3, iv_ = intvar(t3)
     if iv_: open(path, "w").write(t3); ks.append("intvar")
+    t3, ar_ = arityfix(t3)
+    if ar_: open(path, "w").write(t3); ks.append("arity")
+    t3, sp_ = sdkproto(t3)
+    if sp_: open(path, "w").write(t3); ks.append("sdkproto")
     t4 = re.sub(r"^/\*[0-9a-f]{8}\*/ extern [^;\n]*?\b(\w+)\([^;\n]*\);\n", lambda m: "" if len(re.findall(r"\b%s\b" % re.escape(m.group(1)), re.sub(r"/\*.*?\*/", "", t3, flags=re.S))) == 1 else m.group(0), t3, flags=re.M)      # kind `unused`: an extern nobody calls (autocompile declares names that only occur in the comment; defectlint then flags `start`)
     if t4 != t3: open(path, "w").write(t4); ks.append("unused")
     for _ in range(3):

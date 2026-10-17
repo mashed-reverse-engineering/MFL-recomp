@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto, gsfix
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto, gsfix, strictfix
 HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
@@ -126,12 +126,19 @@ def hoist(b):
             if out[i] is not None: o.append(out[i])
         else: o.append(l)
     return "\n".join(o)
+def floatcmp(b):
+    """Ghidra prints x87 compares as `a < b != (a == b)` (= a <= b) and `a < b == (a == b)` (= a > b... neither less nor equal); the XOR / equality of the two flags is the plain compare"""
+    O = r"(\w+(?:(?:->|\.)\w+)*|\(\w+\))"
+    b = re.sub(O + r" < " + O + r" != \(\1 == \2\)", r"\1 <= \2", b)
+    b = re.sub(O + r" < " + O + r" == \(\1 == \2\)", r"\1 > \2", b)
+    b = re.sub(O + r" > " + O + r" != \(\1 == \2\)", r"\1 >= \2", b)
+    return b
 def fix_round(body, errs):
     """errs: first error text of the last attempt ('' = proactive round 0)"""
-    b = t2_postfix.isnan(denormal(intbits(strayassign(body))))
+    b = t2_postfix.isnan(denormal(intbits(strayassign(floatcmp(body)))))
     if "C2440" in errs: b = ptrfloat(floatptr(b))
     if "C2036" in errs: b = re.sub(r"\(&(PTR_\w+)\)\[", r"((undefined4 *)\1)[", b)      # extern char PTR_x[] (jump table of code addresses) indexed through `&PTR_x`: pointer to an array of unknown size
-    if "C2120" in errs: b = valcall(b)
+    b = valcall(b)      # proactive: a statement call is not preceded by `= ` / `(`, only value uses change
     if re.search(r"C2143|C2059|C2146|C2106", errs): b = hoist(strayassign(b))
     m = re.search(r"C2065 '(\w+)' : undeclared", errs)
     if m and m.group(1) in t2_postfix.enums():      # an enum constant the header lacks (COURSE_ARCTIC): define every enum name the body uses (the compiler reports one per round)
@@ -153,7 +160,7 @@ def defined_elsewhere():
 # ------------------------------------------------------------------------------------------------------------- selection
 def load_funcs(path):
     t = open(path, errors="replace").read(); f = {}
-    for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", t, re.S): f.setdefault(m.group(1), (m.group(2), gsfix.strip(m.group(3))))
+    for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", t, re.S): f.setdefault(m.group(1), (m.group(2), gsfix.clean(m.group(3))))
     return f
 def select(a):
     rows = []
@@ -203,6 +210,7 @@ def skip_class(n, body, regin, have, ok_protos):
         if miss: return "gen-skip:plain-regcallee-noadapter", "no F_r adapter for " + ",".join(miss)[:150]
         rf = set()
     if re.search(r"\bswitchD_\w+::", body): return "gen-skip:switch-table", "jump table data referenced as switchD_xxx::switchdataD_xxx (not expressible in C)"
+    rf -= {"fsin", "fcos", "fpatan", "ABS"}      # x87 intrinsics: autocompile AC_X87 writes them as sin / cos / atan2 / fabs with #pragma intrinsic (cl emits the same inline fsin / fcos / fpatan / fabs)
     if rf: return ("gen-skip:plain-regcallee", ",".join(sorted(rf))[:80]) if all(r.startswith("reg_e") for r in rf) else ("gen-skip:x87-intrinsic" if rf <= {"fsin", "fcos", "fpatan", "ABS"} else "gen-skip:usercall", ",".join(sorted(rf))[:80])
     un = sorted({c for c in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat) if c not in ok_protos})
     if un:
@@ -217,7 +225,7 @@ def skip_class(n, body, regin, have, ok_protos):
 def run_ac(tag, text, names):
     d = os.path.join(W, tag); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
     nf = os.path.join(d, "names.txt"); open(nf, "w").write("".join(n + "\n" for n in names))
-    env = dict(os.environ, AC_ONLY=nf, AC_FIX="all", AC_JOBS="3", AC_TEXT=text, AC_PLAIN="1")      # AC_PLAIN: calls of register callees go through the static F_r adapters (called plain they diverge in diffemu: 38 of the 124 call-trace-count DIFFs of the whole pool run)
+    env = dict(os.environ, AC_ONLY=nf, AC_FIX="all", AC_JOBS="3", AC_TEXT=text, AC_PLAIN="1", AC_X87="1")      # AC_PLAIN: calls of register callees go through the static F_r adapters (called plain they diverge in diffemu: 38 of the 124 call-trace-count DIFFs of the whole pool run)
     r = subprocess.run([sys.executable, os.path.join(HERE, "autocompile.py"), d, P("output", "decls.h"), "0", "ffffffff", "1"], env=env, capture_output=True, text=True)
     open(os.path.join(d, "log.txt"), "w").write(r.stdout + r.stderr)
     failed = dict(l.rstrip("\n").split("\t", 1) for l in open(os.path.join(d, "failed.txt")) if "\t" in l) if os.path.exists(os.path.join(d, "failed.txt")) else {}
@@ -292,6 +300,25 @@ def compile_one(src):
         errs = [l.strip() for l in out.splitlines() if re.search(r"error C\d+|fatal error", l)]
         return None, None, "; ".join(errs[:3])[:400] or str(e)[:300]
 
+def strict_out(src):
+    """cl output (warnings level 3) of the file with the diffemu flags (object discarded)"""
+    d = os.path.dirname(src); w = tempfile.mkdtemp(prefix="t2s_", dir=core.cmpfn.WORKROOT)
+    try:
+        for x in os.listdir(d):
+            if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
+        shutil.copy(src, os.path.join(w, "f.c"))
+        r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + diffemu.FLAGS + ["/W3"] + (["/GS"] if gsfix.GS_MARK in open(src).read() else []) + ["f.c"], capture_output=True, text=True, timeout=300)
+        return r.stdout + r.stderr
+    finally: shutil.rmtree(w, ignore_errors=True)
+def strict_one(src, fixit=False):
+    """the main gate's strict build rejects C4047 / C4022 / C4024 / C4133 (pointer level / type mismatches of arguments; round 1: candidates passed diffemu but failed there).
+    -> '' when clean, else the first warnings; fixit: up to 3 rounds of casts to the parameter types (tools/strictfix.py) first"""
+    for rnd in range(4 if fixit else 1):
+        w = strictfix.parse(strict_out(src))
+        if not w: return ""
+        if not fixit or rnd == 3 or not strictfix.fix(src, w): break
+    return "; ".join("f.c(%d) : %s" % (k, v[0][:110]) for k, v in sorted(w.items())[:3])
+
 def dgroup(txt):
     """defect class guess of a diffemu divergence"""
     if "call trace differs" in txt:
@@ -341,7 +368,9 @@ def lint(path, n):
         defectlint.load_gt(); _LINT.append(defectlint.load_decls())
         defectlint.ENABLED.update(l.strip() for l in open(P("src", "bridges", "enabled.txt")))
     t = open(path, errors="replace").read(); out = []
-    for f in defectlint.Lint(os.path.relpath(path, G), t, _LINT[0]).run(): out.append("defectlint class %s %s line %s: %s" % (f["cls"], f["sev"], f["line"], f.get("note") or f.get("text")))
+    for f in defectlint.Lint(os.path.relpath(path, G), t, _LINT[0]).run():
+        if f["cls"] == 4 and f.get("symbol") in gsfix.ARITY: continue      # cdecl_args.txt counts the pushes of the caller's frame: RwStreamClose "takes 19" (it takes 2, gsfix.ARITY)
+        out.append("defectlint class %s %s line %s: %s" % (f["cls"], f["sev"], f["line"], f.get("note") or f.get("text")))
     for k, fn, ln in cheatgrep.scan(path):
         if k == "asm" and (fn.endswith("_r") or re.search(r"__declspec\(naked\) .*\b\w+_r\(", "\n".join(t.split("\n")[max(0, ln - 12):ln]))): continue      # bridgegen F_r call adapters (naked, generated; static ones are not seen as functions by rawaddr: fn is empty)
         out.append("cheatgrep %s line %d in %s" % (k, ln, fn or "-"))
@@ -485,7 +514,19 @@ def main():
         if not ok: put(n, "gen", "COMPILE-ERROR", err, cclass(err), srcs.get(n, "")); continue
     # --- compile with the diffemu flags
     cand = [n for n in todo if st[n][0]]
-    with ThreadPoolExecutor(3) as ex: comp = dict(zip(cand, ex.map(lambda n: compile_one(srcs[n]), cand)))
+    def comp1(n):
+        r = compile_one(srcs[n])
+        if r[2]: return r
+        t0 = open(srcs[n], errors="replace").read()
+        if gsfix.GS_MARK in t0:      # the buffer is split into scalars / small members: cl /GS emits no cookie check (or lays the frame out differently from the original: several buffers)
+            t1 = gsfix.gsbuf(t0)
+            if t1 != t0:
+                open(srcs[n], "w").write(t1); r1 = compile_one(srcs[n])
+                if r1[2] or b"__security_check_cookie" not in open(r1[0], "rb").read(): open(srcs[n], "w").write(t0)      # no gain: back
+                else: r = r1
+        t0 = open(srcs[n], errors="replace").read(); strict_one(srcs[n], True)      # casts to the parameter types so that the strict build accepts the file
+        return compile_one(srcs[n]) if open(srcs[n], errors="replace").read() != t0 else r
+    with ThreadPoolExecutor(2) as ex: comp = dict(zip(cand, ex.map(comp1, cand)))
     for n in cand:
         o, k, e = comp[n]
         if e: put(n, "compile", "COMPILE-ERROR", e, cclass(e), srcs[n])
@@ -508,7 +549,7 @@ def main():
         rew[n] = open(src, errors="replace").read() != t
     chg = [(n, src) for n, src in ok2 if rew[n]]
     items2 = []
-    with ThreadPoolExecutor(3) as ex: comp2 = dict(zip([n for n, _ in chg], ex.map(lambda x: compile_one(x[1]), chg)))
+    with ThreadPoolExecutor(2) as ex: comp2 = dict(zip([n for n, _ in chg], ex.map(lambda x: compile_one(x[1]), chg)))
     d2 = {}
     for n, src in chg:
         o, k, e = comp2[n]
@@ -524,6 +565,7 @@ def main():
         probs = lint(src, n); body = open(src, errors="replace").read()
         rc = [c for c in set(re.findall(r"\b(\w+) ?\(", re.sub(r"^extern void \w+\(void\);$", "", body, flags=re.M))) if c in rg and c != n]      # the F_r adapters' own `extern void F(void);` is no plain call
         if rc: probs.append("register callee called plain: " + ",".join("%s@%s regs %s" % (c, rg[c][0], rg[c][1]) for c in rc))
+        if not probs and (se := strict_one(src)): probs.append("strict build: " + se)
         if probs: put(n, "lint", "LINT", "\n".join(probs), "cheat" if probs[0].startswith("cheatgrep") else "lint", src); continue
         passed.append((n, src))
     # --- candidates

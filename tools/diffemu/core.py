@@ -53,6 +53,7 @@ class Tables:
             s.reg[int(r["addr"], 16)] = ([x for x in r["regs"].split("|") if x], int(r["ret_n"] or 0), [x for x in r["stack"].split(";") if x])
         s.sig = {}      # va -> (conv, stack dwords, return type)
         s.stale = set()      # sigs.txt carries a `reg_e??` parameter that output/regsigs.csv does not know: the decls.h parameter list has one parameter too many (the stack words are the real arguments)
+        for r in csv.DictReader(open(os.path.join(ROOT, "output", "sigs_regfix.csv"))): s.stale.update([int(r["addr"], 16)] if int(r["addr"], 16) not in s.reg else [])      # reg_ parameters tools/sig_regcheck.py dropped from sigs.txt (decls.h, the Ghidra export, still lists them)
         for l in open(os.path.join(ROOT, "output", "sigs.txt")):
             p = l.rstrip("\n").split("|")
             if len(p) >= 7:
@@ -120,7 +121,7 @@ def real_helpers():
 
 # ---------------------------------------------------------------------------------------------------------- C signatures
 SCAL = {"int": "i4", "uint": "i4", "long": "i4", "ulong": "i4", "dword": "i4", "undefined4": "i4", "short": "i2", "ushort": "i2", "word": "i2", "undefined2": "i2", "wchar16": "i2",
-        "wchar_t": "i2", "char": "i1", "uchar": "i1", "byte": "i1", "bool": "i1", "undefined": "i1", "undefined1": "i1", "float": "f", "double": "d", "float10": "d",
+        "wchar_t": "i2", "char": "i1", "uchar": "i1", "byte": "i1", "bool": "i1", "undefined": "i1", "undefined1": "i1", "float": "f", "double": "d", "float10": "d", "unkbyte10": "d",
         "longlong": "ll", "ulonglong": "ll", "undefined8": "ll", "__int64": "ll", "void": "v"}
 _TD = {}
 

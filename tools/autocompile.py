@@ -141,6 +141,29 @@ def fix_body(b):
 # AC_X87=1: also take functions whose only pseudo variables are fsin / fcos / fpatan / ABS (x87 instructions the original executes inline): written as CRT calls sin / cos / atan2 / fabs
 # (equal behaviour for in-range arguments, never the same bytes: tier 2 candidates only; atan2 / fabs may have no address in symbols.txt: the census build drops such functions).  Both are opt-in: the default flow and its results are unchanged.
 PLAIN, X87 = os.environ.get("AC_PLAIN") == "1", os.environ.get("AC_X87") == "1"
+def dconst(body):
+    """AC_X87: Ghidra types a double constant of the original as the float `k_f_*` at its address (`(float10)_k_f_0_5de1f0`); the original reads 8 bytes there (fadd QWORD PTR ds:..): write the double literal"""
+    import struct
+    names = {}
+    for l_ in decl_lines:
+        if m_ := re.match(r"/\*([0-9a-f]{8})\*/ extern (?:float|undefined) ((?:k_f_|float_)\w+);", l_): names.setdefault(m_.group(2), set()).add(m_.group(1))
+    names = {n_: next(iter(v_)) for n_, v_ in names.items() if len(v_) == 1}      # a name declared at several addresses (k_f_0) is ambiguous: left alone
+    use = {n_ for n_ in re.findall(r"\b_?((?:k_f_|float_)\w+)\b", body) if n_ in names}
+    if not use: return body
+    if "q" not in DCONST:
+        dis = subprocess.run(["objdump", "-d", "-M", "intel", "--start-address=0x401000", "--stop-address=0x5d7000", os.path.join(HERE, "..", "game", "MFL.exe")], capture_output=True, text=True).stdout
+        DCONST["q"] = {int(m_.group(1), 16) for m_ in re.finditer(r"\b(?:fld|fadd|fsub|fsubr|fmul|fdiv|fdivr|fcom|fcomp)\s+QWORD PTR ds:0x([0-9a-f]+)", dis)}
+        d_ = open(os.path.join(HERE, "..", "game", "MFL.exe"), "rb").read(); e_ = struct.unpack_from("<I", d_, 0x3C)[0]; base_ = struct.unpack_from("<I", d_, e_ + 52)[0]
+        DCONST["secs"] = [struct.unpack_from("<IIII", d_, e_ + 24 + struct.unpack_from("<H", d_, e_ + 20)[0] + i_ * 40 + 8) + (base_,) for i_ in range(struct.unpack_from("<H", d_, e_ + 6)[0])]; DCONST["d"] = d_
+    for n_ in sorted(use):
+        va = int(names[n_], 16)
+        if va not in DCONST["q"]: continue
+        for vs, rva, rs, ro, base_ in DCONST["secs"]:
+            if rva <= va - base_ < rva + rs:
+                v = struct.unpack_from("<d", DCONST["d"], ro + va - base_ - rva)[0]
+                if v == v and abs(v) != float("inf"): body = re.sub(r"\(float10\)_?%s\b" % n_, lambda m_: "(float10)(%r)" % v, body)
+    return body
+DCONST = {}
 if PLAIN: sys.path.insert(0, HERE); from callee_auto import float_literal_ok as _fl_ok
 X87_NAME = {"fsin": "sin", "fcos": "cos", "ABS": "fabs", "fpatan": "atan2"}      # CRT calls (no inline asm: tools/cheatgrep.py): fpatan(st1, st0) = atan2(st1, st0); the original is the inline x87 instruction
 X87_PROTO = {"sin": "double sin(double);", "cos": "double cos(double);", "fabs": "double fabs(double);", "atan2": "double atan2(double, double);"}
@@ -169,6 +192,7 @@ for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", tex
     called_ = set(re.findall(r"\b(\w+) ?\(", flat)) - {n}
     if PLAIN and called_ & NOADAPT: continue
     if (ONLY is None or n in ONLY) and n not in have and n not in regin and not unsafe and int(lo, 16) <= a <= int(hi, 16) and not (rf_ - allow_):
+        if X87: body = dconst(re.sub(r"\(float\)(g_game_state\.option_sliders\[\w+\])", r"*(float *)&\1", body))      # option_sliders is typed uint in ghidra_types.h, the slider values are floats (Ghidra's (float)u is a bit copy)
         if X87: body = re.sub(r"\b(fsin|fcos|fpatan|ABS)\(", lambda m_: X87_NAME[m_.group(1)] + "(", body)      # before fix_body: `x87_sin(x); v = _ftol();` becomes `v = (int)x87_sin(x);`
         if PLAIN and called_ & set(ADAPT): body = re.sub(r"\b(%s)(\s*)\(" % "|".join(map(re.escape, called_ & set(ADAPT))), r"\1_r\2(", body)      # the decompiler may break the line between name and `(` ; guard: an empty alternation would rewrite every `(`
         funcs.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
@@ -243,7 +267,7 @@ def build(fs, path, retype=None):
         seen_decl.add(m.group(1))
         out.append(re.sub(r"extern (?:undefined4|undefined|int|uint) (\w+);", lambda mm: "extern %s%s;" % (retype[mm.group(1)], mm.group(1)), l) if retype and (m2_ := re.search(r"extern (?:undefined4|undefined|int|uint) (\w+);", l)) and m2_.group(1) in retype else l)
     lines_of = {}
-    for k in sorted(v for v in X87_NAME.values() if X87 and re.search(r"\b%s\(" % v, " ".join(b for _, _, b in fs))): out.append("extern " + X87_PROTO[k])
+    for k in sorted(v for v in X87_NAME.values() if X87 and re.search(r"\b%s\(" % v, " ".join(b for _, _, b in fs))): out.append("extern " + X87_PROTO[k])      # /O2 makes cl emit the inline x87 instruction (fsin / fcos / fpatan / fabs) for these, as the original; no #pragma needed (cheatgrep)
     if PLAIN:
         for n_ in sorted(n_ for n_ in ADAPT if n_ + "_r" in used and n_ not in defined):
             out.append("static %s;" % bg.proto_of(ADAPT[n_], n_ + "_r")); out.append("extern void %s(void);" % n_); out.append(bg.gen_adapter(ADAPT[n_]))
