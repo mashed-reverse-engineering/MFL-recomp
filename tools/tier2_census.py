@@ -33,7 +33,7 @@ REG = re.compile(r"\b(reg_e(?:ax|bx|cx|dx|si|di|bp)|in_[A-Z]{2,3}|unaff_[A-Za-z]
 text = open(os.path.join(G, "output", "named", "MFL_app_named.c"), errors="replace").read()
 funcs = {}
 for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", text, re.S):
-    funcs.setdefault(m.group(1), (m.group(2), m.group(3)))
+    funcs.setdefault(m.group(1), (m.group(2), __import__("gsfix").strip(m.group(3))))
 ok = {}
 if os.path.exists(os.path.join(ac, "addrs.txt")):
     for l in open(os.path.join(ac, "addrs.txt")): n, a = l.split(); ok[n] = a

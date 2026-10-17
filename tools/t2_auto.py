@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto, gsfix
 HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
@@ -153,7 +153,7 @@ def defined_elsewhere():
 # ------------------------------------------------------------------------------------------------------------- selection
 def load_funcs(path):
     t = open(path, errors="replace").read(); f = {}
-    for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", t, re.S): f.setdefault(m.group(1), (m.group(2), m.group(3)))
+    for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", t, re.S): f.setdefault(m.group(1), (m.group(2), gsfix.strip(m.group(3))))
     return f
 def select(a):
     rows = []
@@ -286,7 +286,7 @@ def compile_one(src):
             for x in os.listdir(d):
                 if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
             shutil.copy(src, os.path.join(w, "f.c"))
-            r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + diffemu.FLAGS + ["f.c"], capture_output=True, text=True, timeout=300)
+            r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + diffemu.FLAGS + (["/GS"] if gsfix.GS_MARK in open(src).read() else []) + ["f.c"], capture_output=True, text=True, timeout=300)
             out = r.stdout + r.stderr
         finally: shutil.rmtree(w, ignore_errors=True)
         errs = [l.strip() for l in out.splitlines() if re.search(r"error C\d+|fatal error", l)]

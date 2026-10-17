@@ -6,6 +6,7 @@ one translation unit) and <workdir>/failed.txt (function, first error)."""
 import os, re, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE); import gsfix
 work, decls, lo, hi = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 chunk = int(sys.argv[5]) if len(sys.argv) > 5 else 40
 import shutil
@@ -157,7 +158,7 @@ if PLAIN:
 ONLY = {l_.split()[0] for l_ in open(os.environ["AC_ONLY"]) if l_.strip()} if os.environ.get("AC_ONLY") else None      # AC_ONLY=<file with function names>: compile just these (subset runs, tools/tier2_census.py reruns)
 funcs, funcs_all = [], []
 for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", text, re.S):
-    n, a, body = m.group(1), int(m.group(2), 16), m.group(3)
+    n, a, body = m.group(1), int(m.group(2), 16), gsfix.strip(m.group(3))      # /GS cookie statements dropped, marker added (tools/gsfix.py)
     if _CNRE: body = _CNRE.sub(lambda m_: CALLEE_NAME[m_.group(1)], body)
     flat = re.sub(r"\s+", " ", body)
     unsafe = any(c_ not in CALLEE_OK for c_ in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat)) or any(      # unprototyped calls: unknown callee signature, float literals become 8 byte doubles

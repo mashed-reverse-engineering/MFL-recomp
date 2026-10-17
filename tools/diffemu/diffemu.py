@@ -43,7 +43,9 @@ def index():
 def compile_obj(src):
     """object of a whole C file (headers next to it), cached by source + headers + flags (like build_overlay.py)"""
     d = os.path.dirname(src); h = sha(*[open(os.path.join(d, x), "rb").read() for x in sorted(os.listdir(d)) if x.endswith(".h")])
-    key = sha(open(src, "rb").read(), h, " ".join(FLAGS)); obj = os.path.join(OBJCACHE, key + ".obj")
+    gs = [] if b"compile: /GS" not in open(src, "rb").read() else ["/GS"]      # per-file opt-in for /GS stack-cookie functions (tools/gsfix.py)
+    FLAGS_ = FLAGS + gs
+    key = sha(open(src, "rb").read(), h, " ".join(FLAGS_)); obj = os.path.join(OBJCACHE, key + ".obj")
     if os.path.exists(obj): return obj, key
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True)
     w = tempfile.mkdtemp(prefix="dx_", dir=core.cmpfn.WORKROOT)
@@ -51,7 +53,7 @@ def compile_obj(src):
         for x in os.listdir(d):
             if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
         shutil.copy(src, os.path.join(w, "f.c"))
-        r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS + ["f.c"], capture_output=True, text=True, timeout=300)
+        r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS_ + ["f.c"], capture_output=True, text=True, timeout=300)
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error: " + (r.stdout + r.stderr)[-300:])
         shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp"); os.replace(obj + ".tmp", obj)      # atomic
     finally: shutil.rmtree(w, ignore_errors=True)

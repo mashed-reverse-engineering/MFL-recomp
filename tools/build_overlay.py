@@ -156,7 +156,7 @@ def main():
             hdr.update(open(h, "rb").read())
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
-        todo, keyed = [], []
+        todo, keyed = [], []; gs_files = set()
         for c in srcs:
             nm = os.path.basename(c)
             if nm in skip:
@@ -164,10 +164,11 @@ def main():
             if os.path.exists(os.path.join(work, nm)):
                 sys.exit("two sources with the same file name %s (they would overwrite each other in the compile directory and poison the object cache)" % nm)
             shutil.copy(c, os.path.join(work, nm))
+            if b"compile: /GS" in open(c, "rb").read(): gs_files.add(nm)      # /GS stack-cookie functions (tools/gsfix.py): this file alone gets cl /GS
             if cl_entries and c not in cl_files:
                 t_ = open(c, errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in cl_entries if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + " ".join(flags).encode()).hexdigest()
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + " ".join(flags + (["/GS"] if nm in gs_files else [])).encode()).hexdigest()
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
@@ -175,7 +176,7 @@ def main():
             # one container, several wine cl processes in parallel (same prefix/wineserver); 1 file per cl would waste the 8 s start per process
             njobs = min(len(todo), int(os.environ.get("JOBS", os.cpu_count() or 1)))
             chunks = [todo[i::njobs] for i in range(njobs)]
-            cmd = " ".join("wine cl.exe %s %s &" % (" ".join(flags), " ".join(c)) for c in chunks) + " wait"
+            cmd = " ".join("wine cl.exe %s %s &" % (" ".join(flags + (["/GS"] if g else [])), " ".join(f_)) for c in chunks for g in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g)]] if f_) + " wait"
             r = subprocess.run([os.path.join(HERE, "vc7.sh"), work, cmd], capture_output=True, text=True, env=dict(os.environ, VC7_SHELL="1"))
             for nm in todo:
                 o = os.path.join(work, nm[:-2] + ".obj")
