@@ -1,0 +1,14 @@
+# Struct,field,ctype: int-like header fields that are only used as pointers (same 4 bytes on x86; the port needs real pointers).  Applied by tools/spec_header.py, idempotent.
+MachinegunState,clump,void *
+MachinegunState,slot,char *
+Powerup,clump,char *
+FxSlot,clump,void *
+RwGlobalsRelease,curCamera,void *
+VehicleRecord,frame,char *
+VehicleRecord,render_camera,char *
+WeaponSlot,descriptor,char *
+WeaponSlot,state,char *
+CourseWorld,world,void *
+CourseWorld,directional_light,char *
+CourseWorld,texture_dictionary,void *
+MenuRecord,item_list,char *

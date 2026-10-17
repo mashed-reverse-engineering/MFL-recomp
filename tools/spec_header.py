@@ -75,5 +75,14 @@ for st in spec:
 if new:
     text = text.rstrip("\n") + "\n\n/* structs of names/MFL_structs*.txt that the exported header lacks (tools/spec_header.py) */\n" + "".join("typedef struct %s %s;\n" % (s, s) for s in new) + "\n" + "\n\n".join(emit(s) for s in new) + "\n"
     log += ["new struct " + s for s in new]
+# pointer retypes: names/MFL_ptr_fields.txt `Struct,field,ctype` (same 4 byte size on x86; the port needs real pointers).  Only int-like fields are touched; idempotent.
+for l in (open(os.path.join(G, "names", "MFL_ptr_fields.txt")) if os.path.exists(os.path.join(G, "names", "MFL_ptr_fields.txt")) else []):
+    l = l.split("#")[0].strip()
+    if not l: continue
+    st, fl, ct = [x.strip() for x in l.split(",", 2)]
+    m = re.search(r"(struct %s \{\n)(.*?)(\n\};)" % re.escape(st), text, re.S)
+    if not m: log.append("ptr skip %s: no struct" % st); continue
+    body, n = re.subn(r"\b(?:uint|int|undefined4|ulong) (%s);" % re.escape(fl), lambda mm: ct + ("" if ct.endswith("*") else " ") + fl + ";", m.group(2), count=1)
+    if n: text = text[:m.start(2)] + body + text[m.end(2):]; log.append("ptr %s.%s -> %s" % (st, fl, ct))
 open(sys.argv[2], "w").write(text)
 print("\n".join(log) or "nothing to do")
