@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""cluster_auto.py [ROOTS_FILE | --all | --calib] [--max N] [--maxbytes B] [--maxmembers K] [--run DIR] [--cases N] [--plan] [--batch N]
+"""cluster_auto.py [ROOTS_FILE | --all | --calib | --root-only] [--max N] [--maxbytes B] [--maxmembers K] [--run DIR] [--cases N] [--plan] [--batch N]
 Scripted cluster production (like t2_auto.py for tier 2): for usercall ROOTS (register convention function + its not-yet-C callers, output/callgraph_clusters.csv) it
   (a) takes the Ghidra text of every member from output/named/MFL_app_named.c (the root keeps the parameters Ghidra gave it, `reg_eax` becomes the natural parameter `in_eax`;
       the register inputs of output/reginputs.csv / the stack types of output/regsigs.csv correct the signature: lost registers / surplus Ghidra registers are fixed in the root
@@ -85,6 +85,14 @@ def root_signature(root, body):
         else:
             t = p[:nm.start()].strip(); kept.append((p, n, "stack", sw, t)); sw += words(t)
     miss = [r for r in R if r not in seen]
+    cc = re.search(r"__(fastcall|thiscall)", m.group("ret"))
+    if cc and miss:      # Ghidra's fastcall / thiscall: the first named stack-kind parameter(s) ARE ecx (edx)
+        sk = [j for j, k in enumerate(kept) if k[2] == "stack"]
+        for j, rg in zip(sk, ["ecx", "edx"][:2 if cc.group(1) == "fastcall" else 1]):
+            if rg in miss: kept[j] = (kept[j][0], kept[j][1], "reg", rg, kept[j][4]); miss.remove(rg)
+        sw = 0
+        for q, k in enumerate(kept):
+            if k[2] == "stack": kept[q] = (k[0], k[1], "stack", sw, k[4]); sw += words(k[4])
     if len(miss) == 1:      # a register parameter that the project renamed (`VehicleRecord *vehicle_record`, storage EAX): the first named parameter in front of the stack ones
         for j, k in enumerate(kept):
             if k[2] == "stack" and not re.fullmatch(r"param_\d+", k[1]):
@@ -106,6 +114,7 @@ def root_signature(root, body):
             kept.insert(pos, (ty + ("" if ty.endswith("*") else " ") + "in_" + r, "in_" + r, "reg", r, ty))
             ins.append((pos, "lost_" + r)); miss.remove(r); subst.append((pn, "in_" + r, dm.group(0) if dm else None))
     if miss: raise Fail("sig:lost-register", "Ghidra signature lacks register input(s) %s" % ",".join(miss))
+    if not stk and sw and sw * 4 == int(RI.get(root, {}).get("ret_n", 0) or 0): stk = ["?"] * sw      # regsigs has no types for the stack slots; ret N and Ghidra's count agree
     if sw != len(stk): raise Fail("sig:stack-mismatch", "Ghidra has %d stack dwords (%s), regsigs.csv %d (%s)" % (sw, "; ".join(k[4] for k in kept if k[2] == "stack"), len(stk), ";".join(stk)))
     order = [k[3] if k[2] == "reg" else "s%d" % k[3] for k in kept]
     rest = body[:m.start()] + "%s %s(%s)%s{" % (re.sub(r"\s*__(?:cdecl|stdcall|fastcall|thiscall)\s*", " ", m.group("ret")).strip(), root, ", ".join(k[0] for k in kept) or "void", m.group("tail")) + body[m.end():]
@@ -149,7 +158,8 @@ def plan(root, members, funcs, protos, regin_all, have):
     return dict(texts=texts, order=order, kept=kept, ret=ret, proto=proto + " /* CLX */", shorts=shorts, new=new)
 
 def skip_member(m, root, body, protos, regin_all, have):
-    return T2.skip_class(m, body, {}, have, protos)
+    pr = protos | ({"FUN_" + n[4:] for n in ADAPT_DESC if n.startswith("FUN_")} if "--root-only" in A else set())      # root-only: a register callee with a bridgegen adapter becomes a natural extern + stub option @regs
+    return T2.skip_class(m, body, {}, have, pr)
 
 # ------------------------------------------------------------------------------------------------------------- chunk -> member text
 def natural_callees(text):
@@ -210,7 +220,7 @@ def run_cluster_diffemu(root, specfile, cases):
     return list(csv.DictReader(open(os.path.join(os.path.dirname(specfile), "results.csv"))))
 TMO = 900
 
-def clusters_now():
+def clusters_now(root_only=False):
     """output/callgraph_clusters.csv is stale (regsigs_old.csv, 266 usercall functions; reginputs2 made it 680): tools/callgraph.py recomputed in memory with the CURRENT regsigs.csv,
     without the entries of installed clusters (src/clusters/enabled.txt).  -> [dict(root, members, bytes)]"""
     import bisect
@@ -240,22 +250,24 @@ def clusters_now():
     out = []
     for i, s in game.items():
         if s != "orig" or los[i] not in usercall: continue
-        mem = [i] + sorted(c for c in callers[i] if game.get(c) == "orig")
+        if root_only and los[i] >= 0x4B0000: continue      # --root-only: app region only
+        mem = [i] + ([] if root_only else sorted(c for c in callers[i] if game.get(c) == "orig"))
         out.append(dict(root=items[i]["name"], members=" ".join(items[m]["name"] for m in mem), bytes=sum(his[m] - los[m] for m in mem)))
     return out
 
 def select():
-    rows = clusters_now()
+    rows = clusters_now("--root-only" in A)
     inst = set(open(P("src", "clusters", "enabled.txt")).read().split())
     pil = set()
     for f in glob.glob(P("output", "cluster_pilot*", "clusters.txt")):
         pil |= {l.split("|")[0].strip() for l in open(f) if l[0] != "#" and "|" in l}
-    pos = [x for i, x in enumerate(A) if not x.startswith("--") and (i == 0 or A[i - 1] not in ("--run", "--max", "--maxbytes", "--maxmembers", "--cases", "--batch"))]
+    pos = [x for i, x in enumerate(A) if not x.startswith("--") and (i == 0 or A[i - 1] not in ("--run", "--max", "--maxbytes", "--maxmembers", "--cases", "--batch", "--dump-missing", "--text"))]
     if pos and os.path.exists(pos[0]): want = [l.split()[0] for l in open(pos[0]) if l.strip()]; rows = [r for r in rows if r["root"] in want]
     elif pos: rows = [r for r in rows if r["root"] in pos]
     elif "--calib" in A:
         allr = [dict(root=r["root"], members=r["members"], bytes=r["bytes"]) for r in csv.DictReader(open(P("output", "callgraph_clusters.csv")))]
         rows = [r for r in allr if r["root"] in inst][:int(opt("--max", 12))]
+    elif "--root-only" in A: rows = [r for r in rows if r["root"] not in inst]      # every uninstalled app-region usercall function = its own single-entry cluster (callers stay original and call the entry thunk)
     else: rows = [r for r in rows if r["root"] not in inst and r["root"] not in pil]
     rows.sort(key=lambda r: int(r["bytes"]))
     mb, mm = int(opt("--maxbytes", 10 ** 9)), int(opt("--maxmembers", 10 ** 9))
@@ -270,7 +282,7 @@ def main():
     for x in [P("output", "t2_auto", "need_decomp.c")] + [A[i + 1] for i, v in enumerate(A) if v == "--text"]:      # extra Ghidra exports (DecompList.java) for the FUN_/gap_ functions the named file lacks
         if os.path.exists(x):
             for k, v in T2.load_funcs(x).items(): funcs.setdefault(k, v)
-    for k in [k for k in rows_names(rows) if k not in funcs and ("FUN_" + k[4:]) in funcs and k.startswith("gap_")]: funcs[k] = funcs["FUN_" + k[4:]]      # Ghidra names a created gap function FUN_<va>
+    for k in [k for k in rows_names(rows) if k not in funcs and k.startswith("gap_") and ("FUN_" + k[4:].zfill(8)) in funcs]: funcs[k] = (funcs["FUN_" + k[4:].zfill(8)][0], re.sub(r"\bFUN_%s\b" % k[4:].zfill(8), k, funcs["FUN_" + k[4:].zfill(8)][1]))      # Ghidra names a created gap function FUN_<va>
     if "--dump-missing" in A:
         sy = core.T().sym; out = {}
         for k in rows_names(rows):
@@ -420,7 +432,7 @@ def finish(root, r, p, st, put, specs, cases, gf):
     if probs: verdict = "EQUAL-LINT"; stage = "lint"
     elif low: stage = "lowcov"
     else: names_pass.append(root)
-    put(root, r, stage, verdict, "pass" if stage == "pass" else ("lint" if probs else "diffemu:lowcov"), "; ".join(probs)[:250] if probs else ("low coverage: " + ",".join(x["name"] for x in low)), secs=secs, entries=len(mem))
+    put(root, r, stage, verdict, "pass" if stage == "pass" else ("lint" if probs else "diffemu:lowcov"), "; ".join(probs)[:250] if probs else ("low coverage: " + ",".join(x["name"] for x in low) if low else ""), secs=secs, entries=len(mem))
 
 class StageFail(Fail):
     def __init__(s, stage, cls, detail, rows=None, secs=""): super().__init__(cls, detail); s.stage = stage; s.rows = rows; s.secs = secs

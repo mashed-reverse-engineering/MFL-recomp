@@ -447,6 +447,28 @@ def stale_locals(t, nm):
         if re.search(r"(?<![\w.])%s\s*(?:[-+*/|&^]|<<|>>)?=(?!=)|&\s*%s\b|\b%s\s*(?:\[|\.|->|\+\+|--)|(?:\+\+|--)\s*%s\b" % (v, v, v, v), rest): continue
         out.add(v)
     return out
+_PF = {"debug_printf", "log_printf", "sprintf", "printf", "FID_conflict__wprintf", "_snprintf", "wsprintfA", "fprintf"}
+def fmt_dwords(fmt):
+    """stack dwords the conversions of printf format fmt consume, None when a floating point conversion is present (doubles are two dwords of x87 stores: not recovered)"""
+    n = 0
+    for m in re.finditer(r"%(?:%|[-+ #0]*(\*|\d+)?(?:\.(\*|\d+))?(hh|h|ll|l|I64|L|w)?([a-zA-Z]))", fmt):
+        if m.group(0) == "%%": continue
+        if m.group(4) in "fgeEGaA": return None
+        n += 1 + (m.group(1) == "*") + (m.group(2) == "*") + (m.group(3) in ("ll", "I64"))
+    return n
+def pf_need(args):
+    """total argument count (format + conversions) of a printf-like call whose first argument is a string literal or the address of one in the image; None when unknown"""
+    if not args: return None
+    a = args[0].strip(); m = re.fullmatch(r'"((?:[^"\\]|\\.)*)"', a)
+    if m: f = m.group(1)
+    elif re.fullmatch(r"0x[0-9a-f]{5,8}", a):
+        import core
+        b = core.img_read(int(a, 16), 400)
+        if len(b) < 2 or int(a, 16) < 0x400000: return None
+        f = b.split(b"\0")[0].decode("latin1")
+    else: return None
+    k = fmt_dwords(f)
+    return None if k is None else 1 + k
 def argsite(t, nm):
     """-> (new text, number of calls filled): `f()` / `f_r(a)` whose original call site pushes / loads more arguments than Ghidra printed. Each missing argument comes from the original call site (asm_sites): an immediate, a global, a local / parameter slot (Ghidra's local_N), the result variable of the call just before (`v = P(..); f()` with eax pushed), or the C argument another call site of f passes for the same asm value. All or nothing per call; diffemu verifies."""
     ext = {}      # callee name -> (va, regs, nstack)
@@ -471,6 +493,13 @@ def argsite(t, nm):
         args = [t[s:e].strip() for s, e in al if t[s:e].strip()]
         calls.setdefault(n, []).append((m.start(), close, args))
     want = {n: len(ext[n][1]) + ext[n][2] for n in calls}
+    pneed = {}      # kind `printfargs`: printf-like callee whose call prints fewer arguments than the conversions of its (constant) format string consume: the original pushes them
+    for n in calls:
+        if n in _PF and not ext[n][1] and ext[n][2] <= 1:
+            for i, (_, _, a) in enumerate(calls[n]):
+                k = pf_need(a)
+                if k and k > len(a) and k <= 8: pneed[(n, i)] = k
+            if any(q[0] == n for q in pneed): want[n] = max(want[n], max(v for q, v in pneed.items() if q[0] == n))
     grow = set()      # the extern itself has fewer parameters than the original reads AND every caller pushes (orig_stackargs slots, call_pushmin): the extern grows
     for n, cs in calls.items():
         k = pushmin_slots(ext[n][0])
@@ -513,6 +542,7 @@ def argsite(t, nm):
         if canon is None: continue
         if any(len(a) >= tot and re.fullmatch(r"0x[0-9a-f]+|\d+", a[j]) and canon[i2][j].startswith("I:") and int(a[j], 0) != int(canon[i2][j][2:], 0) for i2, (_, _, a) in enumerate(cs) for j in range(tot)): continue      # the order of the C calls differs from the original's
         for i, (p, close, args) in enumerate(cs):
+            tot = pneed.get((n, i), len(args)) if n in _PF and any(q[0] == n for q in pneed) else want[n]      # printf-like: each call has its own count
             if len(args) >= tot and n in stale:
                 al_, _c = _args(t, p + len(n)); _XP.update(tail=bool(ss[i].get("tail")), own=ow[0], max=0, ret=lambda c, p=p: retvar(c, p))
                 for j, a in enumerate(args[:tot]):
@@ -1050,6 +1080,121 @@ def sdk_protos():
                 if "*" in rt: _SDK[n] = ("void *", out)
                 elif set(rt.replace("const", "").split()) <= OK: _SDK[n] = (rt.strip(), out)
     return _SDK
+_INTR = {"acos", "asin", "atan", "cosh", "sinh", "tanh", "tan", "exp", "log", "log10", "pow", "fmod", "sqrt", "floor", "ceil"}
+def crtcall(t):
+    """kind `crtcall` (REAL): a CRT math function the ORIGINAL really calls (`call acos`) but cl /O2 expands as an intrinsic (`_CIacos`, no call): the extern gets the address name FUN_<va>, so the call stays a call.  -> (text, n)"""
+    n = 0
+    for m in list(re.finditer(r"^/\*([0-9a-f]{8})\*/ extern [^;\n]*?\b(\w+)\(", t, re.M)):
+        if m.group(2) in _INTR and re.search(r"\b%s\b" % m.group(2), t[m.end():]):
+            t = re.sub(r"\b%s\b(?=\s*\()" % m.group(2), "FUN_" + m.group(1), t); n += 1
+            vs = set(re.findall(r"FUN_%s\(\(double\)(\w+)\)" % m.group(1), t))      # the original passes the unrounded x87 value (fstp qword), a float variable would round it: the variable and the plain float locals it is copied from become double
+            while True:
+                more = {r for v in vs for r in re.findall(r"\b%s = (\w+)[;,)]" % v, t) if re.search(r"^  float %s;" % r, t, re.M)} - vs
+                if not more: break
+                vs |= more
+            for v in vs: t = re.sub(r"^(  )float (%s;)" % v, r"\1double \2", t, flags=re.M)
+    return t, n
+def flitarg(t):
+    """kind `flitarg` (REAL): an integer hex literal (the float's bit pattern, `FUN_005b7300(h,4,1,0x46ac4400)`) passed to a float parameter of the extern: C converts the integer (1.18e9), the original pushes the bits -> the float literal.  -> (text, n)"""
+    import t2_x87 as X, struct
+    n = 0; edits = []
+    for m in re.finditer(r"^(?:/\*[0-9a-f]{8}\*/ )?extern [^;\n]*?\b(\w+)\(([^;\n]*)\);", t, re.M):
+        ps = [p_.strip() for p_ in m.group(2).split(",")]
+        fl = [i for i, p_ in enumerate(ps) if re.match(r"(?:float|RwReal)\s+\w*$", p_)]
+        if not fl: continue
+        for c in re.finditer(r"(?<![\w.>])%s\(" % re.escape(m.group(1)), t):
+            ls = t.rfind("\n", 0, c.start()) + 1
+            if t[ls:c.start()].lstrip().startswith(("extern", "/*", "*")) or c.start() == m.start(1): continue
+            al, _ = _args(t, c.end() - 1)
+            for i in fl:
+                if i < len(al):
+                    a = t[al[i][0]:al[i][1]]; mm = re.fullmatch(r"(\s*)(0x[0-9a-f]{5,8})(\s*)", a)
+                    if mm:
+                        v = struct.unpack("<f", struct.pack("<I", int(mm.group(2), 16)))[0]; lt = X.lit(v, "f")
+                        if lt: edits.append((al[i][0], al[i][1], mm.group(1) + lt + mm.group(3))); n += 1
+    for a, b, x in sorted(set(edits), reverse=True): t = t[:a] + x + t[b:]
+    return t, n
+def fmulmem(t, nm):
+    """kind `fmulmem` (REAL): `(float)(*(uint *)((char *)&g + k))` (Ghidra types the float constant behind a string label as uint and converts) while the ORIGINAL function has no `fild`: it multiplies by the dword as a float -> `*(float *)((char *)&g + k)`.  -> (text, n)"""
+    if not re.search(r"\(float\)\(\*\(uint \*\)\(\(char \*\)&\w+ \+ \d+\)\)", t): return t, 0
+    c = orig_conv(nm)
+    if c is None or c[1]: return t, 0
+    return re.subn(r"\(float\)\(\*\(uint \*\)\(\(char \*\)&(\w+) \+ (\d+)\)\)", r"*(float *)((char *)&\1 + \2)", t)
+_CSF = {}
+def callsite_floats():
+    """va -> {position: kinds} of output/callsite_floats.txt (tools/callsite_floats.py): argument positions where some original call site stores a float (f) / double (d) into the argument slot"""
+    if not _CSF:
+        for l in open(os.path.join(G, "output", "callsite_floats.txt")):
+            p = l.split()
+            if len(p) == 3: _CSF[p[0]] = {int(re.match(r"\d+", x).group()): x[len(re.match(r"\d+", x).group()):] for x in p[2].split(",")}
+    return _CSF
+def floatproto(t):
+    """kind `floatproto` (REAL, retry stage only: a candidate that is a call trace DIFF): a K&R `extern f();` whose original call sites store floats into argument slots (callsite_floats) gets a prototype with `float` at those positions
+    (C promotes a float argument of an unprototyped call to double = 2 dwords, ui_rt2d_text_draw / voice_set_volume ...), `undefined4` elsewhere, as many parameters as the callee reads (core.callee_info).  -> (text, n)"""
+    import core
+    n = 0; cf = callsite_floats()
+    for m in list(re.finditer(r"^/\*([0-9a-f]{8})\*/ extern ([^;\n(]*?)\b(\w+)\(\);", t, re.M)):
+        fl = cf.get(m.group(1))
+        if not fl or not re.search(r"(?<![\w.>])%s\(" % m.group(3), t[m.end():]): continue
+        k = core.callee_info(int(m.group(1), 16)).nargs; ps = []; j = 0
+        if not k or any(c == "d" for c in fl.values()): continue      # double parameters: Ghidra's own prototype is right when it has one
+        while j < k: ps.append("%s p%d" % ("float" if fl.get(j) == "f" else "undefined4", j)); j += 1
+        t = t.replace(m.group(0), "/*%s*/ extern %s%s(%s);" % (m.group(1), m.group(2), m.group(3), ", ".join(ps)), 1); n += 1
+        edits = []
+        for c in re.finditer(r"(?<![\w.>])%s\(" % re.escape(m.group(3)), t):      # the float bit copies of the K&R era (`(fbits1 = expr, *(int *)&fbits1)`, `*(int *)&x`) are plain float arguments now
+            ls = t.rfind("\n", 0, c.start()) + 1
+            if t[ls:c.start()].lstrip().startswith(("extern", "/*", "*")): continue
+            al, _ = _args(t, c.end() - 1)
+            for j, (a0, a1) in enumerate(al):
+                if fl.get(j) != "f": continue
+                a = t[a0:a1]; x = re.sub(r"\(fbits\d+ = (.*), \*\(int \*\)&fbits\d+\)", r"\1", a.strip()); x = re.sub(r"^\*\(int \*\)&(?=[\w.\[\]>-]+$)", "", x)
+                if x != a.strip(): edits.append((a0, a1, " " + x if a.startswith(" ") else x))
+        for a0, a1, x in sorted(edits, reverse=True): t = t[:a0] + x + t[a1:]
+    return t, n
+def retry(path):
+    """second chance fixes for a candidate that still DIFFs (call trace): applied on a copy by t2_auto, kept only when diffemu is EQUAL.  -> list of kinds"""
+    t = open(path, errors="replace").read(); t2, n = floatproto(t); t2, n2 = ptrdata(t2)
+    if not n and not n2: return []
+    open(path, "w").write(t2); ks = ["floatproto"] * (n > 0) + ["ptrdata"] * (n2 > 0) + fix(path) + fix(path)
+    t3 = open(path, errors="replace").read(); t3 = re.sub(r"^  float (fbits\d+);\n", lambda m: "" if len(re.findall(r"\b%s\b" % m.group(1), t3)) == 1 else m.group(0), t3, flags=re.M); open(path, "w").write(t3); return ks      # twice: argsite inserts constants that flitarg then turns into float literals
+def ptrdata(t):
+    """kind `ptrdata` (REAL): Ghidra's `PTR_<label>_<addr>` data labels hold a POINTER (to a string / table); `extern char PTR_x[];` makes the code pass the address of the variable instead of its content (texdict_load_named_*: `.tex` suffix)  -> `extern char *PTR_x;`"""
+    return re.subn(r"^(extern )char (PTR_\w+)\[\];", r"\1char *\2;", t, flags=re.M)
+def slot_reads(nm):
+    """-> {parameter index (1 = first stack argument): [integer reads, float reads]} of the ORIGINAL function nm: operands `[esp+k]` with the esp delta of a straight line simulation (push / pop / add / sub esp, ret N of known callees ignored); a read is a float read for fld / fadd / fcom ... (fild is an integer read), writes are not counted"""
+    try:
+        import core
+        orig_const_args(nm, set())
+        if nm not in _FN: return None
+        lo, sz = _FN[nm]; d = 0; out = {}
+        for x in core.CS.disasm(core.img_read(lo, sz), lo):
+            mn, o = x.mnemonic, x.op_str
+            m = re.search(r"\[esp(?: \+ (0x[0-9a-f]+|\d+))?\]", o)
+            store = mn.startswith(("fst", "fist")) or (mn == "mov" and o.startswith(("dword ptr [", "[")))
+            if m and mn != "lea" and not store:
+                off = int(m.group(1) or "0", 0) - d
+                if off >= 4 and off % 4 == 0: out.setdefault(off // 4, [0, 0])[1 if mn.startswith("f") and mn != "fild" else 0] += 1
+            if mn == "push": d += 4
+            elif mn == "pop": d -= 4
+            elif mn == "add" and re.fullmatch(r"esp, (?:0x[0-9a-f]+|\d+)", o): d -= int(o[5:], 0)
+            elif mn == "sub" and re.fullmatch(r"esp, (?:0x[0-9a-f]+|\d+)", o): d += int(o[5:], 0)
+        return {k - 0: v for k, v in out.items()}
+    except Exception: return None
+def fparam(t, nm):
+    """kind `fparam` (REAL): a parameter Ghidra typed `float` (the slot is also reused for a float later) that the code reads as a pointer / integer: `(int)param_1`, `(uint)param_1`, `(T *)param_1` convert (cl emits _ftol), the ORIGINAL copies the dword and has no float->int conversion at all
+    -> the integer reads become bit reads `*(int *)&param_1`.  -> (text, n)"""
+    h = re.search(r"^[A-Za-z_][^;{}]*?\b%s\s*\(([^)]*)\)\s*\{" % re.escape(nm), t, re.M)
+    if not h: return t, 0
+    ps = [m.group(1) for m in re.finditer(r"\bfloat (param_\d+)\b", h.group(1))]
+    if not ps: return t, 0
+    c = orig_conv(nm); sr = slot_reads(nm) or {}; allp = [q for q in re.findall(r"\b(?:\w+(?: \*+)?\s+\**)(param_\d+)\b", h.group(1))]
+    n = 0; head, body = t[:h.end()], t[h.end():]
+    for p in ps:
+        j = int(p[6:]); r = sr.get(j, [0, 0])
+        if not ((c is not None and not c[0]) or (r[0] and not r[1])): continue      # the original has float->int conversions elsewhere: only a slot that is never read as a float qualifies
+        body, k = re.subn(r"\((int|uint)\)%s\b(?!\s*[\[.])" % p, r"*(\1 *)&%s" % p, body); n += k
+        body, k = re.subn(r"\(((?:struct )?\w+ \*)\)%s\b(?![\w\[.])" % p, r"*(\1*)&%s" % p, body); n += k
+    return head + body, n
 def sdkproto(t):
     """kind `sdkproto` (REAL): a library callee declared K&R (`extern int Rt2dFontFlow();`) or not at all (implicit int) whose SDK prototype has float parameters: the call promotes the floats to doubles (2 dwords, wrong stack layout, 21 text-draw DIFFs).
     The extern gets the SDK prototype (pointers void *).  -> (text, n)"""
@@ -1180,6 +1325,14 @@ def fix(path):
     if iv_: open(path, "w").write(t3); ks.append("intvar")
     t3, ar_ = arityfix(t3)
     if ar_: open(path, "w").write(t3); ks.append("arity")
+    t3, fp_ = fparam(t3, os.path.basename(path)[:-2])
+    if fp_: open(path, "w").write(t3); ks.append("fparam")
+    t3, fl_ = flitarg(t3)
+    if fl_: open(path, "w").write(t3); ks.append("flitarg")
+    t3, fm_ = fmulmem(t3, os.path.basename(path)[:-2])
+    if fm_: open(path, "w").write(t3); ks.append("fmulmem")
+    t3, cc_ = crtcall(t3)
+    if cc_: open(path, "w").write(t3); ks.append("crtcall")
     t3, sp_ = sdkproto(t3)
     if sp_: open(path, "w").write(t3); ks.append("sdkproto")
     t4 = re.sub(r"^/\*[0-9a-f]{8}\*/ extern [^;\n]*?\b(\w+)\([^;\n]*\);\n", lambda m: "" if len(re.findall(r"\b%s\b" % re.escape(m.group(1)), re.sub(r"/\*.*?\*/", "", t3, flags=re.S))) == 1 else m.group(0), t3, flags=re.M)      # kind `unused`: an extern nobody calls (autocompile declares names that only occur in the comment; defectlint then flags `start`)

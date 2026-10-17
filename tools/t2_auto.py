@@ -591,6 +591,27 @@ def main():
         else:
             os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)
             with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as af: af.write("%s | t2_round | NOTE | volatile float rounding temporary (original spills an x87 temporary to float): %s\n" % (time.strftime("%F %H:%M"), lab))
+    # --- retry stage (t2_postfix.retry): second chance fixes for call trace DIFFs (float prototypes of K&R callees ...), kept only when the full verification passes
+    done1 = {n_ for n_, _ in ok1}
+    for n, src, o, k in items:
+        r = dres[n]
+        if n in done1 or r["verdict"] != "DIFF" or "call trace differs" not in diff_text(n) + r["note"]: continue
+        t0 = open(src, errors="replace").read()
+        try: kinds = t2_postfix.retry(src)
+        except Exception as ex_: kinds = []; print("retry %s: %s" % (n, ex_), flush=True)
+        won = False
+        if kinds:
+            o2, k2, e2 = comp1(n)
+            if not e2:
+                r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]; print("retry %s %s: %s %s" % (n, ",".join(kinds), r2["verdict"], r2["cases"]), flush=True)
+                if r2["verdict"] == "EQUAL" and int(r2["cases"]) >= 20:
+                    r3 = run_diffemu([(n, src, o2, k2)], cases, False)[n]
+                    if passes(r3): won = True; ok1.append((n, src)); res.pop(n, None); print("retry %s: %s" % (n, ",".join(kinds)), flush=True)
+            else: print("retry %s: compile %s" % (n, e2[:80]), flush=True)
+        if not won: open(src, "w").write(t0)
+        else:
+            os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)
+            with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as af: af.write("%s | t2_postfix.retry | NOTE | second chance fixes: %s\n" % (time.strftime("%F %H:%M"), ",".join(kinds)))
     ok2 = list(ok1); rg = regcallees(); rew = {}
     for n, src in ok2:
         t = open(src, errors="replace").read(); shutil.copy(src, os.path.join(W, n + ".orig.c")); nt = ptrcast.rewrite(t)

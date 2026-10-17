@@ -930,6 +930,9 @@ def compare(fn, mo, ro, mu, ru):
         if ro["eax"] & mask != ru["eax"] & mask: d.append("eax orig %08x ours %08x" % (ro["eax"], ru["eax"]))
         if sg.ret == "ll" and ro["edx"] != ru["edx"]: d.append("edx orig %08x ours %08x" % (ro["edx"], ru["edx"]))
     a = [t for t in ro["trace"]]; b = [t for t in ru["trace"]]
+    if a != b and len(a) == len(b):      # indirect calls: the argument count is read from the `add esp` behind the call (_indirect), a batched cleanup (`push 0; push esi; call [eax+0x108]` ... one `add esp, 8` later) hides it on one side: the common prefix decides
+        for i, (x, y) in enumerate(zip(a, b)):
+            if x != y and x[0] == y[0] and x[0].startswith("indirect ") and x[2] == y[2] and (x[1][:len(y[1])] == y[1] or y[1][:len(x[1])] == x[1]): a[i] = b[i] = (x[0], x[1][:min(len(x[1]), len(y[1]))], x[2])
     if a != b:
         k = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
         d.append("call trace differs at call %d (orig %d calls, ours %d): orig %s ours %s" % (k, len(a), len(b), a[k] if k < len(a) else "-", b[k] if k < len(b) else "-"))

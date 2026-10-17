@@ -301,7 +301,7 @@ class Lint:
             if j < 0: continue
             args = split_args(st[m.end():j])
             if n is None:
-                fa = [a for a in args if self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a)]
+                fa = [a for a in args if self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a) or (not re.fullmatch(r"\s*[\w.]+\s*", a) and self.fexpr(a, env))]      # float typed arithmetic (`g + k_f_80`) too
                 if fa:
                     self.hints.append(("fbits", line, f, [a.strip() for a in fa]))
                     self.add(4, "high", line, fn, f, st, "float argument passed to `%s()` (no prototype): pushed as double" % f)
