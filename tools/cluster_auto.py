@@ -263,11 +263,22 @@ def select():
     if "--max" in A and "--calib" not in A: rows = rows[:int(opt("--max", 0))]
     return rows
 
+def rows_names(rows): return sorted({m for r in rows for m in r['members'].split()} | {r['root'] for r in rows})
+
 def main():
     rows = select(); funcs = T2.load_funcs(T2.NAMED); load_adapters()
     for x in [P("output", "t2_auto", "need_decomp.c")] + [A[i + 1] for i, v in enumerate(A) if v == "--text"]:      # extra Ghidra exports (DecompList.java) for the FUN_/gap_ functions the named file lacks
         if os.path.exists(x):
             for k, v in T2.load_funcs(x).items(): funcs.setdefault(k, v)
+    for k in [k for k in rows_names(rows) if k not in funcs and ("FUN_" + k[4:]) in funcs and k.startswith("gap_")]: funcs[k] = funcs["FUN_" + k[4:]]      # Ghidra names a created gap function FUN_<va>
+    if "--dump-missing" in A:
+        sy = core.T().sym; out = {}
+        for k in rows_names(rows):
+            if k in funcs: continue
+            m = re.search(r"(?:^|[_@])([0-9a-f]{6,8})$", k) if k not in sy else None
+            v = "%08x" % min(sy[k]) if k in sy else (m.group(1).zfill(8) if m else None)
+            if v: out[v] = k
+        open(opt("--dump-missing", ""), "w").write("".join("%s %s\n" % kv for kv in out.items())); return
     regin_all = {n: v["reg_inputs"].strip("|") for n, v in RI.items() if v["reg_inputs"].strip("|")}
     have = {l.split()[1] for l in open(P("src", "manifest.txt")) if len(l.split()) > 3 and l.split()[0] not in ("#", "(none)")}
     import callee_auto

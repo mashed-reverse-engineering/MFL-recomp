@@ -581,7 +581,7 @@ class Machine:
         sp = uc.reg_read(UC_X86_REG_ESP); ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]; n = 0
         try:
             ins = next(CS.disasm(m.read(ra, 8), ra, 1), None)
-            if ins and ins.mnemonic == "add" and ins.op_str.startswith("esp, "): n = min(int(ins.op_str[5:], 0) // 4, 8)
+            if ins and ins.mnemonic == "add" and ins.op_str.startswith("esp, "): n = min(int(ins.op_str[5:], 0) // 4, 2)      # <= 2: batched cleanup (one `add esp` for several calls) makes the count differ between orig and ours; the render-state / loader pointers take 2
         except (UcError, ValueError): pass
         args = struct.unpack("<%dI" % n, bytes(uc.mem_read(sp + 4, 4 * n))) if n and m.indargs else ()      # cluster mode: the argument count read from the caller's `add esp` is unreliable (batched cleanup), the target address (random per object) identifies the call
         m.trace.append(("indirect %08x" % addr, tuple(m.norm(a) for a in args), ()))

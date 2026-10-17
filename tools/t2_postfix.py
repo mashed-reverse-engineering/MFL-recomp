@@ -386,6 +386,7 @@ def argsite(t, nm):
         if ext[n][0] in tails and not ext[n][1] and ext[n][2] == 0 and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((?:void)?\);" % (ext[n][0], re.escape(n)), t, re.M): want[n] = max(tails[ext[n][0]], (orig().get(ext[n][0]) or (0,))[0]); want_t.add(n)      # `f();` K&R extern: the call is the tail jump (arguments = the rewritten frame slots)
     for n, cs in calls.items():      # `f()` K&R extern called with fewer arguments than the original reads / pushes: the calls get them, the extern stays unprototyped
         k = pushmin_slots(ext[n][0])
+        if not k and not ext[n][1] and ext[n][2] == 0 and all(not a for _, _, a in cs): k = min((orig().get(ext[n][0]) or (0,))[0], 8)      # kind `krslots`: no consensus among the callers, but the callee reads k slots and this function's call sites all push them (asm_sites '?' = nothing pushed, the arguments stay out)
         if k and not ext[n][1] and ext[n][2] == 0 and n not in want_t and re.search(r"^/\*%s\*/ extern [^;\n]*\b%s\((?:void)?\);" % (ext[n][0], re.escape(n)), t, re.M) and max(len(a) for _, _, a in cs) <= k and min(len(a) for _, _, a in cs) < k: want[n] = k      # mixed argument counts: the complete calls stay, the short ones get the rest
     need = {n for n, cs in calls.items() if any(len(a) < want[n] for _, _, a in cs)}
     uninit = stale_locals(t, nm)      # kind `stalearg`: a local nobody assigns passed as an argument (Ghidra lost the definition: a parameter of the caller read after a `mov edx, [esp+..]`): the argument comes from the original call site
@@ -408,7 +409,7 @@ def argsite(t, nm):
         c2 = canon_of(n2)
         for i, (pp, _, a2) in enumerate(calls[n2] if c2 else []):
             for j, a in enumerate(a2[:len(c2[i])]):
-                if not c2[i][j].startswith(("R:", "?", "I:")) and not re.search(r"[\w\]]\s*\(|[^=!<>]=[^=]|\+\+|--", a): pool.append((pp, c2[i][j], a))
+                if (not c2[i][j].startswith(("R:", "?", "I:")) or c2[i][j] in ("R:esi", "R:edi", "R:ebx", "R:ebp")) and not re.search(r"[\w\]]\s*\(|[^=!<>]=[^=]|\+\+|--", a): pool.append((pp, c2[i][j], a))
     edits = []; done = 0; xmax = 0
     for n in need:
         va, rg, ns = ext[n]; tot = want[n]; ns = tot - len(rg); cs = calls[n]; ss = sites.get(va, []); e0 = len(edits)
@@ -574,6 +575,41 @@ def fastcall(t, nm):
     if nm not in _FN or orig_slots("%08x" % _FN[nm][0]) != (len(m.group(3).split(",")) if m.group(3) else 0) or len(re.findall(r"\bparam_1\b", t)) != 2: return t, 0
     t = t[:m.start()] + "%s__cdecl %s(%s)" % (m.group(1), nm, (m.group(3) or "void").strip()) + t[m.end():]
     return re.sub(r"\((param_1)\)", "()", t, count=1), 1
+def hoist(t, nm):
+    """kind `hoist`: a local assigned exactly once, by a pure expression (parameters, extern globals, numbers, & [] + - *), inside a nested block but also read outside that block (Ghidra printed the assignment where the register is first used; the original computed it before the branch): the assignment moves to the top of the function."""
+    h = re.search(r"^[A-Za-z_][^;{}]*?\b%s\s*\(([^)]*)\)\s*\{[ \t]*\n?" % re.escape(nm), t, re.M)
+    if not h: return t, 0
+    ps = {re.findall(r"\w+", p)[-1] for p in h.group(1).split(",") if re.findall(r"\w+", p)}
+    ex = set(re.findall(r"^/\*[0-9a-f]{8}\*/ extern [^;(]*?\b(\w+)(?:\[\w*\])*;", t[:h.start()], re.M))
+    body = t[h.end():]; ins = None; n = 0
+    for m in re.finditer(r"^  (?:[A-Za-z_][\w ]*?[ \*])(\w+);[ \t]*\n", body, re.M):
+        v = m.group(1); ins = m.end()
+        rest = body[ins:]
+        asg = list(re.finditer(r"^([ \t]{4,})%s = ([^;=\n]+);[ \t]*\n" % v, rest, re.M))
+        if len(asg) != 1 or len(re.findall(r"(?<![\w.>])%s\s*(?:[-+*/|&^]|<<|>>)?=(?!=)" % v, rest)) != 1: continue
+        a = asg[0]
+        if re.search(r"\(|\+\+|--|->|\.", a.group(2)) and not re.fullmatch(r"[^(]*", a.group(2)): continue
+        ids = set(re.findall(r"[A-Za-z_]\w*", re.sub(r"\b0x[0-9a-fA-F]+\b|\((?:u?int|char|undefined\d?|float|[A-Za-z_]\w* ?\*+) ?\)", "", a.group(2))))
+        if not ids or not ids <= (ps | ex) or any(re.search(r"(?<![\w.>])%s\s*(?:[-+*/|&^]|<<|>>)?=(?!=)" % q, rest) for q in ids & ps): continue
+        d = 0; s = a.start()
+        while s > 0:
+            s -= 1
+            if rest[s] == "}": d += 1
+            elif rest[s] == "{":
+                if d == 0: break
+                d -= 1
+        d = 1; e = a.end()
+        while e < len(rest) and d:
+            d += (rest[e] == "{") - (rest[e] == "}"); e += 1
+        outside = [u for u in re.finditer(r"(?<![\w.])%s\b" % v, rest) if (u.start() < s or u.start() >= e) and u.start() != a.start() + len(a.group(1))]
+        if not outside: continue
+        stmt = "  %s = %s;\n" % (v, a.group(2).strip())
+        dm = re.match(r"(?:(?:  [A-Za-z_][\w ]*?[ \*]\w+(?:\[\w+\])*(?: = [^;\n]+)?;|[ \t]*)[ \t]*\n)*", body)      # the declaration block (C89: statements after it)
+        ins = dm.end()
+        while ins > 0 and body[ins - 1] == "\n" and body[:ins].endswith("\n\n") and body[:ins - 1].endswith("\n") and False: ins -= 1
+        rest = body[:a.start() + (len(body) - len(rest))] + body[a.end() + (len(body) - len(rest)):]; body = rest[:ins] + stmt + rest[ins:]; n += 1
+        break
+    return (t[:h.end()] + body, n) if n else (t, 0)
 def istore(t):
     """kind `istore` (REAL): `p[2] = (RwReal)(<integer bit expression>);` converts the integer to float; the original stores the bits (packed colour) -> `*(uint *)&p[2] = <expr>;`"""
     n = 0
@@ -747,12 +783,13 @@ def _fix1(path):
     t, fn = fret(t)
     t, xn = ftol(t, os.path.basename(path)[:-2]); fn += xn
     t, sn = stalereg(t)
+    t, hn = hoist(t, os.path.basename(path)[:-2])
     t, cn = scalararr(t)
     t, fcn = fastcall(t, os.path.basename(path)[:-2]); t, isn = istore(t); t, pfn = pushfwd(t); isn += pfn
-    if tn or an or fn or sn or cn or fcn or isn: open(path, "w").write(t)
+    if tn or an or fn or sn or hn or cn or fcn or isn: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()
     L = defectlint.Lint(os.path.relpath(path, G), t, fix.gd); fnd = L.run()
-    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["scalararr"] * cn + ["fastcall"] * fcn + ["istore"] * isn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
+    kinds = ["tailfwd"] * tn + ["argsite"] * an + ["fret"] * fn + ["stalereg"] * sn + ["hoist"] * hn + ["scalararr"] * cn + ["fastcall"] * fcn + ["istore"] * isn; ctr = [len(re.findall(r'\bfloat fbits\d+;', t))]; ln = t.split("\n"); off = [0]
     for l in ln: off.append(off[-1] + len(l) + 1)
     edits = []      # (start, end, new)
     for k, line, sym, args in L.hints:
