@@ -41,3 +41,18 @@ a missing declaration (typo, define placed below its first use), an array member
 (`(0x10)` vs unsigned), a struct member access instead of a cast, a retyped local, a renamed name that collides with a global/macro, a `#define` that clashes with a header name.
 Work in 3-4 rounds (1: locals/params renames, 2: constants, 3: comments + struct members), checking each; if a round fails twice, drop that round's idea and finish with what was SAME.
 Edit only `work.c`. Never touch `before.c`, the headers or other files. One file at a time. When done print one line: `DONE <function> <renames> <constants> <struct-members>`.
+
+## Semantic traps seen in the 2026-10 audit (readable_check cannot see these)
+- **Enum values come from the header, not from memory.** Before naming a D3D/RenderWare constant, look it up: `D3DTS_TEXTURE0` is 16 (17 = `D3DTS_TEXTURE1`), `D3DTSS_TCI_CAMERASPACENORMAL` is 0x10000 (0x20000 = `CAMERASPACEPOSITION`,
+  0x30000 = `...REFLECTIONVECTOR`). If you cannot verify a value, name it by role (`TEXCOORD_GEN_MODE`) and write `(inferred)`; never borrow a name from a nearby constant.
+- **Verify every number you write into a comment.** Convert float bit patterns (`0x46ac4400` is 22050.0f, not 400.0f or 22016.0f) and hex strides before you quote them. A define name that embeds a number (`..._400_BITS`, `FIELD_420`) must match its value.
+- **Read the boolean, then name the constant.** `if (mute && players >= 2 && id == X) skip` means X is the effect that IS muted, not an "exempt" one. For every `a || b || id != X` gate, say out loud which id is affected before you call it `EXEMPT`/`EXCEPT`.
+- **One offset, one meaning, one name.** If the same struct offset or the same value already has a name in another file (grep `automatch_near` for the offset), reuse that name or write why it differs. Known clash: voice record `+0x3c` is a playback FREQUENCY
+  (default 22050.0f, jittered/added to in the sound code), not a "range"/"falloff distance"; `g_input_mode == 0x1000` is the menu mode (names/MFL_globals2.csv), not `DIRECT`.
+- **Do not reuse a flag name across namespaces.** `PTANK_FLAG_*` is used both for the setup feature mask (0x200, 0x1000) and for the plugin flag word (0x8000, 0x100000); use `PTANK_FEATURE_*` vs `PTANK_PLUGIN_FLAG_*`.
+- **Inclusive random ranges.** `rp_random_int_range(0, N)` / `random_int_range(0, N)` is inclusive: it has N+1 outcomes. "1 in N", "N entries", "gives 128..255" must be checked against that (`(0,0x1e)` is 1 in 31; `(0,2)` is 3 entries).
+- **Squared distances.** `dx*dx+dy*dy+dz*dz < k` compares to a squared radius; say "radius sqrt(k)" or "squared distance below k", not "within the radius k".
+- **Do not trust the old header string.** The existing `"..."` summary above a function is often stale (copied from a former function name). If your reading of the body disagrees, replace it and keep the old text only inside a `(was: ...)` note.
+- **Do not name a thing after the global that holds it.** `g_ai_659b04` holds `clump->frame` (a RwFrame), not an AI handle; read the producer (`*(clump + 4)`) before calling it anything.
+- **Do not label code a bug unless you checked the original bytes.** "integer division, fraction is always 0" may be a decompiler artifact (idiv vs fdiv); write `(inferred, check disassembly)`.
+- **Same name, different file, different value is a smell** (`SLOT_TYPE_REPEAT` for a weapon-chain value, `COLOUR_WHITE` 0xffffff vs 0xffffffff, `CURRENT_INPUTS_OFFSET` +/-0x4c0): prefix with the domain (`WEAPON_CHAIN_REPEAT`) and keep sign conventions identical.
