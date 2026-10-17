@@ -187,13 +187,13 @@ for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", tex
     unsafe = any(c_ not in CALLEE_OK for c_ in re.findall(r"\b(FUN_[0-9a-f]{8}) ?\(", flat)) or any(      # unprototyped calls: unknown callee signature, float literals become 8 byte doubles
         re.search(r"(?<![\w.])\d+\.\d+(?![\w.])", a) and c not in ("if", "while", "for", "switch", "sizeof", "return") and not (PLAIN and _fl_ok(c, a)) for c, a in re.findall(r"\b(\w+) ?\(([^;{}]*)\);", flat))      # t2_auto (AC_PLAIN): a float literal is fine where the callee prototype has float / double there (tools/callee_auto.py float_literal_ok)
     rf_ = set(REG.findall(body))
+    if X87: body = dconst(re.sub(r"\(float\)(g_game_state\.option_sliders\[\w+\])", r"*(float *)&\1", body))      # option_sliders is typed uint in ghidra_types.h, the slider values are floats (Ghidra's (float)u is a bit copy)
+    if X87: body = re.sub(r"\b(fsin|fcos|fpatan|ABS)\(", lambda m_: X87_NAME[m_.group(1)] + "(", body)      # before fix_body: `x87_sin(x); v = _ftol();` becomes `v = (int)x87_sin(x);`
     funcs_all.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
     allow_ = ({r_ for r_ in rf_ if r_.startswith("reg_e")} if PLAIN else set()) | ({"fsin", "fcos", "fpatan", "ABS"} & rf_ if X87 else set())
     called_ = set(re.findall(r"\b(\w+) ?\(", flat)) - {n}
     if PLAIN and called_ & NOADAPT: continue
     if (ONLY is None or n in ONLY) and n not in have and n not in regin and not unsafe and int(lo, 16) <= a <= int(hi, 16) and not (rf_ - allow_):
-        if X87: body = dconst(re.sub(r"\(float\)(g_game_state\.option_sliders\[\w+\])", r"*(float *)&\1", body))      # option_sliders is typed uint in ghidra_types.h, the slider values are floats (Ghidra's (float)u is a bit copy)
-        if X87: body = re.sub(r"\b(fsin|fcos|fpatan|ABS)\(", lambda m_: X87_NAME[m_.group(1)] + "(", body)      # before fix_body: `x87_sin(x); v = _ftol();` becomes `v = (int)x87_sin(x);`
         if PLAIN and called_ & set(ADAPT): body = re.sub(r"\b(%s)(\s*)\(" % "|".join(map(re.escape, called_ & set(ADAPT))), r"\1_r\2(", body)      # the decompiler may break the line between name and `(` ; guard: an empty alternation would rewrite every `(`
         funcs.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
 

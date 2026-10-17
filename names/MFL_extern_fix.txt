@@ -106,3 +106,4 @@ extern char LAB_004a8e60[];
 extern char PTR_g_course_lap_data_field6145_0x1801_005ddeb8[];
 extern char PTR_g_data_736579_005df3cc[];
 extern char PTR_g_rtdict_load_5de918_00609a0c[];
+extern char LAB_00463a50[];

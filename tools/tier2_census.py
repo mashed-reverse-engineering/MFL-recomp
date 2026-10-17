@@ -53,7 +53,7 @@ sys.path.insert(0, HERE)
 _bl, _sg, _ri, _man = bg.load()
 _ad = sorted(a for a, _ in _bl.values()); _nx = {a: _ad[i + 1] if i + 1 < len(_ad) else a + 0x400 for i, a in enumerate(_ad)}
 ADAPTER = bg.adapter_ok(_bl, _sg, _ri, _man, _nx)
-X87 = {"ABS", "fpatan", "fsin", "fcos"}      # x87 intrinsics that tools/autocompile.py AC_X87=1 writes as inline-asm helpers
+X87 = {"ABS", "fpatan", "fsin", "fcos"}      # x87 intrinsics that tools/autocompile.py AC_X87=1 writes as sin / cos / atan2 / fabs calls (cl /O2 compiles them to the same inline x87 instruction; t2_auto no longer skips them)
 
 def regcallee(body):
     return sorted({n for n in set(re.findall(r"\b([A-Za-z_]\w*)\s*\(", body)) if n in regin})
