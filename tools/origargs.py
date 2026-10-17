@@ -7,7 +7,7 @@ addr = the address of an argument slot is taken (the extent is unknown).  Used b
 import csv, os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import reginputs2 as R
-G = R.G; OUT = os.path.join(G, "output", "orig_stackargs.txt")
+G = R.G; OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(G, "output", "orig_stackargs.txt")
 MEM = re.compile(r"(?:(byte|word|dword|qword|tbyte|xmmword) ptr )?(?:[a-z]s:)?\[(esp|ebp)(?:([+-])0x([0-9a-f]+))?\]")
 
 
@@ -59,6 +59,8 @@ def analyse(lo, hi, ins, entries, retn_of, tbl):
             elif op == "leave":
                 if ed is None: flags.add("dyn"); break
                 d = ed - 4; ed = None
+            elif op == "and" and q[:1] == ["esp"] and ed is not None:
+                d = -0x8000      # `and esp,-8` behind `push ebp; mov ebp,esp`: esp-relative operands are locals from here on (the huge negative depth keeps them out of the argument slots), the [ebp+8+4k] arguments stay exact (ai_drive_a: 4 arguments were "dyn", 0 slots, and ai_bot_update called it with none)
             elif q[:1] == ["esp"] and op in ("mov", "lea", "and", "xchg"): flags.add("dyn"); break
             elif op in ("mov", "lea", "xchg") and q[:1] == ["ebp"]: ed = None
             elif op == "call":

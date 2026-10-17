@@ -38,6 +38,13 @@ def isstack(v): return STACK <= v < STACK + STK
 def isro(v): return BASE <= v < IMGEND and not any(a <= v < z for a, z in WSEC)
 
 
+def _out(name):
+    """output/<name>, or $MFL_OUTPUT_OVERRIDE/<name> when that exists (try regenerated data without touching the live files)"""
+    o = os.environ.get("MFL_OUTPUT_OVERRIDE")
+    if o and os.path.exists(os.path.join(o, name)): return os.path.join(o, name)
+    return os.path.join(ROOT, "output", name)
+
+
 # ---------------------------------------------------------------------------------------------------------- data tables
 class Tables:
     def __init__(s):
@@ -51,6 +58,11 @@ class Tables:
         s.reg = {}      # va -> (register inputs, ret N, stack types)
         for r in csv.DictReader(open(os.path.join(ROOT, "output", "regsigs.csv"))):
             s.reg[int(r["addr"], 16)] = ([x for x in r["regs"].split("|") if x], int(r["ret_n"] or 0), [x for x in r["stack"].split(";") if x])
+        try:      # register inputs of call targets INSIDE a multi-function gap_ item (tools/interior_reginputs.py; regsigs.csv has no row: course_city_cb7 lost `mov esi,1` before func_0x00455dd0)
+            for r in csv.DictReader(open(_out("reginputs_interior.csv"))):
+                a = int(r["addr"], 16)
+                if a not in s.reg: s.reg[a] = ([x for x in r["regs"].split("|") if x], int(r["ret_n"] or 0), [])
+        except OSError: pass
         s.sig = {}      # va -> (conv, stack dwords, return type)
         s.stale = set()      # sigs.txt carries a `reg_e??` parameter that output/regsigs.csv does not know: the decls.h parameter list has one parameter too many (the stack words are the real arguments)
         for r in csv.DictReader(open(os.path.join(ROOT, "output", "sigs_regfix.csv"))): s.stale.update([int(r["addr"], 16)] if int(r["addr"], 16) not in s.reg else [])      # reg_ parameters tools/sig_regcheck.py dropped from sigs.txt (decls.h, the Ghidra export, still lists them)
@@ -81,9 +93,9 @@ class Tables:
             except OSError: pass
         s.oslots = {}   # va -> (stack slots the ORIGINAL body reads / rewrites, ret N, tail-jump targets, w<N> rewritten-slot count): output/orig_stackargs.txt (tools/origargs.py)
         try:
-            for l in open(os.path.join(ROOT, "output", "orig_stackargs.txt")):
+            for l in open(_out("orig_stackargs.txt")):
                 q = l.split()
-                s.oslots[int(q[0], 16)] = (int(q[1]), int(q[2]), [] if q[3] == "-" else [int(x, 16) for x in q[3].split(",")], max([int(x[1:]) for x in q[4].split(",") if re.fullmatch(r"w\d+", x)] or [0]), bool({"addr", "dyn"} & set(q[4].split(","))))
+                s.oslots[int(q[0], 16)] = (int(q[1]), int(q[2]), [] if q[3] == "-" else [int(x, 16) for x in q[3].split(",")], max([int(x[1:]) for x in q[4].split(",") if re.fullmatch(r"w\d+", x)] or [0]), bool({"dyn"} & set(q[4].split(","))), q[1] == "0" and q[2] == "0" and q[4] == "-" and q[3] == "-")      # [5] = exact0: the body provably never touches a stack slot (no dyn/addr/ijmp/w flag, no tail jump, plain ret): the call-site push count is compiler scheduling only (race_lose_banner_draw: intro_banner_get_x() is called with the next call's hoisted pushes live). Only `dyn` (untracked esp) makes the slot count unusable: `addr` (an argument's address is taken) keeps it a proven lower bound (ai_drive_a: 3 of 4 slots, the call without arguments was invisible while it was ignored)
         except OSError: pass
         s.proto = {}    # import name -> number of arguments
         for l in open(os.path.join(ROOT, "names", "MFL_import_protos.txt")):
@@ -101,6 +113,7 @@ class Tables:
                         try: s.structs[p[1]] = int(p[2], 0)
                         except ValueError: pass
         s.hash = sha(*[open(os.path.join(ROOT, "output", f), "rb").read() for f in ("regsigs.csv", "sigs.txt", "decls.h", "fnsizes.txt")],
+                     *[open(_out(f), "rb").read() for f in ("orig_stackargs.txt", "reginputs_interior.csv") if os.path.exists(_out(f))],      # the callee tables below are part of the verdict cache key
                      open(os.path.join(ROOT, "names", "MFL_import_protos.txt"), "rb").read(), open(os.path.join(ROOT, "names", "MFL_conv_fix.txt"), "rb").read(), *[open(os.path.join(ROOT, "output", f), "rb").read() for f in ("call_pushmin.txt", "cdecl_args.txt")], open(os.path.join(ROOT, "names", "MFL_lib_protos.txt"), "rb").read() if os.path.exists(os.path.join(ROOT, "names", "MFL_lib_protos.txt")) else b"", *[open(os.path.join(ROOT, "src", f), "rb").read() for f in ("symbols.txt", "aliases.txt")],
                      *[open(p, "rb").read() for p in [os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), "aliases.txt")] if os.path.exists(p)])
 
@@ -401,11 +414,14 @@ def callee_info(va):
     if ret_n is None and pop and not cv and orig_ret_pops(va) == {0}: pop = 0      # Ghidra says __stdcall, the original body only has plain `ret` (the caller cleans up: platform_init `add esp, 8` behind controller_dialog_run): the stub must not pop either, else the caller's frame is wrecked
     n = None; o = tb.oslots.get(va); os_n = o[0] if o and not o[4] else 0
     if regs and (dc or sg) and va in tb.reg and tb.reg[va][0]: n = len(stack) or pop // 4      # register callee: the declaration / signature list the register inputs as parameters too (`f(undefined4 p0, undefined4 p1)` for eax|edx): only the stack arguments count
+    if n is not None and regs and va in tb.reg and os_n > n: n = os_n      # register callee whose regsigs.csv row lists no / fewer stack types than the body reads (rx_pipeline_set_render_callback: callback at [esp+4], read after a call): the boundary call compares those slots too
+    if n is not None: pass
     elif va in tb.stale and sg: n = sg[1]
     elif dc and dc[1].strip() not in ("", "void"): n = sum(2 if re.search(r"\bdouble\b", p) and "*" not in p else 1 for p in dc[1].split(","))      # a double argument is two dwords
     elif sg and sg[0] != "unknown": n = sg[1]
     elif stack: n = len(stack)
     elif pop: n = pop // 4
+    elif o and o[5] and o[0] == 0 and not regs: n = 0      # exact0 body (see oslots): no argument can be observed, whatever the call sites push
     elif (va in tb.gt or os_n) and not (regs and not stack): n = max(tb.gt.get(va, 0), os_n)      # `()` declaration: the count comes from the original call sites (and the stack slots the callee's own body reads, output/orig_stackargs.txt, when exact: no address taken / lost esp), so the boundary call compares its argument VALUES too
     if o and o[2] and o[3] and not (regs and va in tb.reg):      # tail-forwarding callee (rewrites a slot, then `jmp target`: clump_load_by_name(name) -> 4c3bf0(name', out, out)): the target reads the other slots of the CALLER's frame, so the boundary call compares the target's slot count (a declaration with fewer parameters hid `clump_load_by_name(name, 0, &rdata)`: oil_load_assets crashed the game, diffemu EQUAL)
         tn = max([o[0], o[3]] + [tb.oslots[t][0] for t in o[2] if t in tb.oslots])

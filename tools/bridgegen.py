@@ -147,6 +147,16 @@ def reads_stack_args(code):
     return False
 
 
+_OSL = {}
+def oslots():
+    """va -> (stack slots the original reads, ret N, flags) from output/orig_stackargs.txt (tools/origargs.py); `-` flags = exact, `addr` (address of an argument taken) = lower bound only"""
+    if not _OSL:
+        for l in open(os.path.join(ROOT, "output", "orig_stackargs.txt")):
+            q = l.split()
+            if len(q) >= 5: _OSL[int(q[0], 16)] = (int(q[1]), int(q[2]), q[4] if q[4] != "-" else "-")
+    return _OSL
+
+
 def synth_adapters(blocks, regin, regfuncs):
     """F_r adapters for register callees without a usable decompiled signature (output/sigs.txt has no parameters, regsigs.csv may have empty stack types): the registers are the reginputs.csv inputs (all `int`),
     the stack parameters the regsigs.csv types (unknown = none, checked against ret N and the first instructions of the original).  -> (added {name: f}, rejected {name: reason}); regfuncs is extended"""
@@ -163,6 +173,10 @@ def synth_adapters(blocks, regin, regfuncs):
         if not regs or any(q not in REGS32.values() for q in regs) or len(set(regs)) != len(regs): rej[n] = "registers " + r["regs"]; continue
         stk = [t for t in r["stack"].split(";") if t]
         ret_n = int(r["ret_n"])
+        o = oslots().get(int(r["addr"], 16))
+        if o and o[0] > max(len(stk), ret_n // 4):      # the ORIGINAL body reads more stack slots than regsigs.csv lists (rx_pipeline_set_render_callback: eax, edx + callback at [esp+4] read AFTER a call, past reads_stack_args' straight line prefix: the adapter pushed no callback, the game wrote through 1)
+            if o[1] or o[2] != "-": rej[n] = "reads %d stack slots, regsigs knows %d, flags %s" % (o[0], len(stk), o[2]); continue
+            stk = stk + ["int"] * (o[0] - len(stk))
         if ret_n and ret_n != 4 * len(stk): rej[n] = "ret %d but %d known stack parameters" % (ret_n, len(stk)); continue
         a = int(r["addr"], 16); i = addrs.index(a)
         nxt = addrs[i + 1] if i + 1 < len(addrs) else a + 0x40
