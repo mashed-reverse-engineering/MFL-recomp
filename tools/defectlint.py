@@ -557,11 +557,14 @@ def gen_pushmin():
     A cdecl / stdcall callee with n arguments has at least n pending pushes at EVERY call site, so a prototype with fewer parameters than min_pushes (>= 3 sites) lost an argument
     (the diffemu clump_set_flag_on_atomics(clump, flag) case: declared with one parameter, every caller pushes two)."""
     out = subprocess.run(["objdump", "-d", "-M", "intel", "--start-address=0x401000", "--stop-address=0x5d7000", EXE], capture_output=True, text=True).stdout.split("\n")
-    mn, cnt, p = {}, {}, 0
+    mn, cnt, p = {}, {}, 0; fs = {int(l.split()[0], 16) for l in open(os.path.join(G, "output", "fnsizes.txt")) if l.split()}; pro = True
     for l in out:
-        m = re.match(r"\s*[0-9a-f]+:\t[0-9a-f ]+\t(\S+)\s*(.*)$", l)
+        m = re.match(r"\s*([0-9a-f]+):\t[0-9a-f ]+\t(\S+)\s*(.*)$", l)
         if not m: continue
-        op, rest = m.group(1), m.group(2).strip()
+        if int(m.group(1), 16) in fs: pro = True; p = 0
+        op, rest = m.group(2), m.group(3).strip()
+        if pro and op == "push" and rest in ("esi", "edi", "ebx", "ebp"): continue      # saved registers of the prologue are no arguments (as in gen_indirect)
+        if op != "nop": pro = False
         if op == "push": p += 1
         elif op == "pop": p = max(0, p - 1)
         elif op == "add" and rest.startswith("esp,"):
@@ -573,8 +576,9 @@ def gen_pushmin():
                 a = t.group(1); mn[a] = min(mn.get(a, 99), p); cnt[a] = cnt.get(a, 0) + 1
             p = 0
         elif op.startswith("j") or op.startswith("ret") or op == "leave": p = 0
-    with open(PUSHMIN, "w") as f:
+    with open(PUSHMIN + ".tmp", "w") as f:
         for a in sorted(mn): f.write("%08x %d %d\n" % (int(a, 16), mn[a], cnt[a]))
+    os.replace(PUSHMIN + ".tmp", PUSHMIN)
 
 
 INDIRECT = os.path.join(G, "output", "call_indirect.txt")

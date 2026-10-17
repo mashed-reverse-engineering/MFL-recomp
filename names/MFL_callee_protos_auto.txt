@@ -237,3 +237,4 @@
 /*00432e20*/ extern int ui_camera_set_viewport(void);
 /*0048d540*/ extern int course_collision_object_build(undefined4 param_1, int param_2);
 /*00496850*/ extern int trigger_sphere_register(float *param_1);
+/*004aa200*/ extern int __cdecl FUN_004aa200(int a1, int a2);

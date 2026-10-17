@@ -22,7 +22,7 @@ def _args(t, i):
     return None, -1
 def protos(t):
     """name -> [(param type, param text)] of the `extern`/`static` prototypes of the file"""
-    out = {}
+    out = {}; t = re.sub(r"__declspec\((?:dllimport|dllexport)\) ?", "", t)      # `extern __declspec(dllimport) int __stdcall F(int);`: the parenthesis hid the prototype
     for m in re.finditer(r"^(?:/\*[0-9a-f]{8}\*/ )?(?:extern|static) [^;\n(]*?\b(\w+)\(([^;\n]*)\);", t, re.M):
         ps = [p.strip() for p in m.group(2).split(",")] if m.group(2).strip() not in ("", "void") else []
         out[m.group(1)] = [(re.sub(r"\s*\b\w+$", "", p).strip() if re.search(r"[\s*]\w+$", p) else p, p) for p in ps]
@@ -36,7 +36,7 @@ def fix(path, warns):
     for ln, ws in warns.items():
         if ln - 1 >= len(starts): continue
         lo = starts[max(ln - 3, 0)]; hi = starts[min(ln + 2, len(starts) - 1)]
-        ptr_to_int = any(re.search(r"'int' differs in levels of indirection from '[^']*(?:\[|\*)", w) for w in ws)
+        ptr_to_int = any(re.search(r"'(?:int|uint|undefined4|undefined)' differs in levels of indirection from '[^']*(?:\[|\*)", w) for w in ws)
         for c in re.finditer(r"(?<![\w.>])(\w+)\s*\(", t[lo:hi]):
             nm = c.group(1)
             if nm not in pr: continue
@@ -48,10 +48,13 @@ def fix(path, warns):
             for (s, e), (ty, ptext) in zip(al, pr[nm]):
                 a = t[s:e].strip()
                 if not a or re.fullmatch(r"-?(?:0x[0-9a-f]+|\d+)[uUlL]*|\(void \*\)0|NULL", a): continue
+                if ty in ("int", "uint", "undefined4") and re.fullmatch(r"\((?:HWND|HANDLE|HINSTANCE|LPVOID|LPCSTR|\w+ \*)\)(?:0x0|0)", a):      # a null pointer cast passed to an int parameter: plain 0
+                    edits.append((s, e, " " * (len(t[s:e]) - len(t[s:e].lstrip())) + "0")); continue
                 if re.match(r"\(\s*%s\s*\)" % re.escape(ty), a) or ty in ("float", "double", "RwReal"): continue
                 if re.fullmatch(r"\w+", a) and any("from 'int (__cdecl *)()'" in w_ for w_ in ws) and re.fullmatch(r"Rp\w+CallBack|Rw\w+CallBack|\w+Callback|\w+CB", ty): new = "(%s)%s" % (ty, a)      # a K&R function passed as a callback typedef
                 elif "*" in ty and not ty.startswith("const char"): new = "(%s)%s" % (ty, a if re.fullmatch(r"[\w.>\[\]&-]+|\*?\w+", a) else "(" + a + ")")
-                elif ptr_to_int and ty in ("int", "uint", "undefined4") and re.fullmatch(r"&?[\w.>\[\]-]+", a) and not re.fullmatch(r"\w+\[[^\]]*\]", a) and ("&" in a or "." in a or "frame" in a or a.startswith(("auStack", "local_")) or re.search(r"^  [\w ]+ \*\s*%s;" % re.escape(a), t, re.M)):
+                elif ptr_to_int and ty in ("int", "uint", "undefined4") and ((re.fullmatch(r"&?[\w.>\[\]-]+", a) and not re.fullmatch(r"\w+\[[^\]]*\]", a) and ("&" in a or "." in a or "frame" in a or a.startswith(("auStack", "local_")) or re.search(r"^  [\w ]+ \*\s*%s;|^(?:/\*\w+\*/ )?extern [\w ]+ \*\s*%s;|[(,]\s*[\w ]+ \*\s*%s\s*[,)]" % ((re.escape(a),) * 3), t, re.M))) or re.fullmatch(r"&\w+(?: [-+*] (?:\w+|0x[0-9a-f]+))+", a)):
+                    if " " in a: a = "(" + a + ")"      # `&g + i * 0x114`: the cast covers the whole address expression
                     if nm.endswith("_r") and re.search(r"^static [^;\n]*\b%s\(" % nm, t, re.M):
                         retype.add((nm, ptext)); new = "(void *)" + a
                     else: new = "(%s)%s" % (ty, a)
@@ -60,6 +63,10 @@ def fix(path, warns):
     lines = t.split("\n"); asg = 0
     for ln, ws in warns.items():      # `p = expr;` with a pointer of another type: C4133 '=' : incompatible types - from 'A' to 'B' / C4047 '=' : 'B' differs in levels of indirection from 'A'
         for w in ws:
+            if re.search(r"'(?:!=|==)' : '(?:undefined4|uint|int|undefined)' differs in levels of indirection from '[^']*\*'", w) and ln - 1 < len(lines):      # integer object compared with a null pointer cast: plain 0
+                l2 = re.sub(r"(?<=[=!]= )\(\w[\w ]*\*\)(?:0x0|0)\b", "0", lines[ln - 1])
+                if l2 != lines[ln - 1]: lines[ln - 1] = l2; asg += 1
+                continue
             mi = re.search(r"'=' : '(undefined4|uint|int|undefined)' differs in levels of indirection from '[^']*\*'", w)
             if mi and ln - 1 < len(lines):      # integer object = pointer expression: the object keeps its (Ghidra untyped) type, the value is cast
                 r = re.match(r"^(\s*)([\w.>\[\]*()-]+) = (\([^()]*\*\)[^;]*);$", lines[ln - 1])

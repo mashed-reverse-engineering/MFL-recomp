@@ -169,9 +169,15 @@ def reg_va(name):
             if len(r) > 2: _RV.setdefault(r[0], r[1])
     return _RV.get(name)
 _RG = ("eax", "ecx", "edx", "ebx", "esi", "edi", "ebp")
+SYM = []      # S#<n>: (op, canon, canon) integer arithmetic results of asm_sites registers
+CARGS = {}      # call address -> canonical values of the stack words at the call (arguments), last asm_sites run
+AFTER = {}      # call address -> symbolic x87 stack after the call (last asm_sites run)
+CALLS = {}      # callee va -> addresses of its calls in the last asm_sites run
+XFAIL = []      # (address, op, operands, depth) where the symbolic x87 stack of the last asm_sites run was lost
+EV = []      # (index canon, multiplier, table address) of the scaled-index operands _canon saw in the last asm_sites run: maps an opaque index register to the C variable that indexes the same table in the text
 def _canon(o, regs, d):
     """operand text -> canonical value string: I:<imm> | A:<lea addr> | M:<mem> | R:<opaque reg> | ret:<callee va> (esp relative addresses become entry relative S<k>)"""
-    o = re.sub(r"^(?:dword |byte |word )?ptr ", "", o.strip())
+    o = re.sub(r"^(?:[dq]word |byte |word |tbyte )?ptr ", "", o.strip())
     if re.fullmatch(r"0x[0-9a-f]+|\d+", o): return "I:" + o
     if o in _RG: return regs.get(o) or "R:" + o
     if o.startswith("ds:"): return "M:" + o
@@ -183,6 +189,10 @@ def _canon(o, regs, d):
     if c0 and c0.startswith(("M:", "M*:", "ret:")): return "M*:%s|%d" % (c0, int(m.group(2), 16) if m.group(2) else 0)
     mx = re.fullmatch(r"\[(\w+)\*(\d)\+0x([0-9a-f]+)\]", o)      # [idx*scale + global]: element idx of the table at that address
     if mx and mx.group(1) in _RG and regs.get(mx.group(1)) and not regs[mx.group(1)].startswith(("R:", "?")): return "X:%s|%s|%08x" % (regs[mx.group(1)], mx.group(2), int(mx.group(3), 16))
+    if mx and mx.group(1) in _RG and not regs.get(mx.group(1)): EV.append(("R:" + mx.group(1), int(mx.group(2)), int(mx.group(3), 16))); return "X:R:%s|%s|%08x" % (mx.group(1), mx.group(2), int(mx.group(3), 16))      # opaque index register (a C loop variable): t2_x87fb maps it to the C variable
+    my = re.fullmatch(r"\[(\w+)\+0x([0-9a-f]+)\]", o)      # [reg*stride + global] (reg = idx << k / idx * n, kept as H:<idx>|<stride>): element idx of a table of structs
+    if my and my.group(1) in _RG and (regs.get(my.group(1)) or "").startswith("H:") and int(my.group(2), 16) >= 0x400000:
+        hi, hm = regs[my.group(1)][2:].rsplit("|", 1); EV.append((hi, int(hm), int(my.group(2), 16))); return "Y:%s|%s|%08x" % (hi, hm, int(my.group(2), 16))
     m = re.fullmatch(r"\[(.*)\]", o)
     if m:
         def sp(q): return "S%d" % (d + (int(q.group(1).replace("+", ""), 16) if q.group(1) else 0))
@@ -204,6 +214,7 @@ def _FRV():
 def asm_sites(nm, vas):
     """-> {va: [site, ...]} (address order, straight-line simulation) of the calls of `vas` in the ORIGINAL function nm; site = dict(addr, stack=[canon, ..] top of stack first (up to 8), regs={reg: canon}, prev=(callee va of the last call, its address)); None when the stack does not balance at a `ret` (unknown stdcall callee)"""
     import subprocess, reginputs2 as R
+    EV.clear(); XFAIL.clear(); CALLS.clear(); AFTER.clear(); CARGS.clear(); SYM.clear()
     orig_const_args(nm, set())          # fills _FN / _STD
     if nm not in _FN: return None
     lo, sz = _FN[nm]
@@ -211,6 +222,18 @@ def asm_sites(nm, vas):
     ins, order = R.parse_objdump(o)
     vas_i = {int(v, 16) for v in vas}
     tg = {int(a, 16) for op, a in ins.values() if op.startswith("j") and re.fullmatch(r"0x[0-9a-f]+", a)}
+    jt = {}      # address of a `jmp [idx*4 + table]` -> its case targets (dwords of the table that point into the function): the switch cases are join points
+    import cmpfn as _cf
+    for a_, (op_, ar_) in ins.items():
+        mj = re.fullmatch(r"(?:dword ptr )?\[\w+\*4\+0x([0-9a-f]+)\]", ar_) if op_ == "jmp" else None
+        if mj:
+            tv = int(mj.group(1), 16); ts = []
+            while len(ts) < 256:
+                b_ = _cf.exe_bytes(tv + 4 * len(ts), 4)
+                v_ = __import__("struct").unpack("<I", b_)[0] if b_ and len(b_) >= 4 else 0
+                if not (lo <= v_ < lo + sz): break
+                ts.append(v_)
+            if ts: jt[a_] = ts; tg.update(ts)
     single = {}      # callee saved register written exactly once in the function, by an immediate (xor r,r / mov r,imm): its value at every later point
     wr = {}
     for a in order:
@@ -220,12 +243,33 @@ def asm_sites(nm, vas):
         if r in ("ebx", "esi", "edi", "ebp"):
             wr.setdefault(r, []).append((a, "I:0x0" if op in ("xor", "sub") and len(ops) == 2 and ops[0] == ops[1] else ("I:" + ops[1] if op == "mov" and len(ops) == 2 and re.fullmatch(r"0x[0-9a-f]+", ops[1]) else None)))
     single = {r: w[0] for r, w in wr.items() if len(w) == 1 and w[0][1]}
+    ebpf = len(wr.get("ebp", [])) == 1 and ins[wr["ebp"][0][0]] == ("mov", "ebp,esp")      # ebp is a pure frame pointer
+    def eax_dead(a0):
+        """True when the eax set by the call at a0 is overwritten before it is read (straight line scan; a branch, ret or an unknown instruction counts as a read)"""
+        i = order.index(a0)
+        for a in order[i + 1:i + 40]:
+            op, ar = ins[a]; ops = split_args(ar)
+            if op.startswith("j") or op in ("ret", "retn", "cdq", "cwde", "xlat", "fnstsw", "stosd", "movsd", "cmpsd", "scasd", "lodsd", "rep", "mul", "imul", "div", "idiv") or a in tg: return False
+            rd = " ".join(ops[1:] if op in ("mov", "lea", "movzx", "movsx", "pop") else ops)
+            if op == "call": return True
+            if re.search(r"\b(eax|ax|al|ah)\b", rd) or (op not in ("mov", "lea", "movzx", "movsx", "pop", "xor", "sub") and ops and re.fullmatch(r"eax|ax|al|ah", ops[0])): return False
+            if ops and re.fullmatch(r"eax", ops[0]) and (op in ("mov", "lea", "movzx", "movsx", "pop") or (op in ("xor", "sub") and ops[0] == ops[1])): return True
+        return False
     back = {int(ar, 16) for a, (op, ar) in ins.items() if op.startswith("j") and re.fullmatch(r"0x[0-9a-f]+", ar) and int(ar, 16) <= a}
     def run(single):
-        late = {}; snaps = {}; fall = True; fp = []; fsn = {}      # fp: symbolic x87 stack (tools/t2_x87.py), None = unknown
+        late = {}; snaps = {}; msn = {}; fall = True; fp = []; fsn = {}      # fp: symbolic x87 stack (tools/t2_x87.py), None = unknown
         mem, regs, d, out, prev, ok, dmap, cont = {}, {}, 0, {}, None, True, {}, True      # mem: entry relative stack slot -> canonical value; dmap: esp delta at jump targets
-        dbp = [0, False]      # esp delta at `mov ebp, esp`, stack aligned (`and esp, -16`: entry relative slots are meaningless)
+        dbp = [0, False, False]      # esp delta at `mov ebp, esp`, stack aligned (`and esp, -16`: entry relative slots are meaningless)
         def slot(o): return mem.get(o) or ("M:[S%d]" % o if o > 0 else "?")
+        def eb(o_):      # [ebp +- k] of an ebp frame (mov ebp, esp is the only write of ebp): the entry relative slot, written esp relative for _canon
+            def f_(m_):
+                k_ = (int(m_.group(2), 16) * (1 if m_.group(1) == "+" else -1)) if m_.group(1) else 0
+                return "[esp%s0x%x]" % ("+" if dbp[0] + k_ - d >= 0 else "-", abs(dbp[0] + k_ - d))
+            return re.sub(r"\[ebp(?:([+-])0x([0-9a-f]+))?\]", f_, o_) if ebpf and dbp[2] and "[ebp" in o_ else o_
+        def memsub(c):      # a stack slot this function stored a value into: that value
+            ms = re.fullmatch(r"M:\[S(-?\d+)\]", c or ""); v = mem.get(int(ms.group(1))) if ms else None
+            return v if v and v.startswith(("ret:", "M:", "M*:", "I:", "X:", "Y:", "T:")) else c
+        pc = (); flg = None; cnt = [0]      # pc: path condition (tuple of conditions, t2_x87.mkcond) of the current point; flg: flag state of the last compare
         for a in order:
             op, ar = ins[a]
             if a in tg:      # control flow join: registers all incoming forward edges agree on (a loop head, target of a backward jump, keeps nothing)
@@ -234,28 +278,61 @@ def asm_sites(nm, vas):
                 if a not in back and cand and fall and snaps.get(a):      # `if (!p) p = q;` (test; jne L; mov r,[slot]; L:): Ghidra assigns the parameter variable, so the join value is the value of the jump edge (a parameter slot) when every incoming value is a stack parameter
                     for r, v in snaps[a][0].items():
                         if r not in regs and v and v.startswith("M:[S") and all((c.get(r) or "").startswith("M:[S") for c in cand): regs[r] = v
-                fc = fsn.get(a, []) + ([fp] if fall else [])
-                if a in back: fp = fp if fp == [] else None
+                mc_ = msn.get(a, []) + ([dict(mem)] if fall else [])      # stack slot values: only what every incoming path agrees on (a loop head keeps nothing)
+                nm_ = {} if a in back or not mc_ else {k_: v_ for k_, v_ in mc_[0].items() if all(c_.get(k_) == v_ for c_ in mc_)}
+                mem.clear(); mem.update(nm_)
+                L = fsn.get(a, []) + ([(fp, pc)] if fall else []); fc = [x[0] for x in L]; flg = None
+                pcs = [x[1] for x in L]; k_ = 0
+                while pcs and all(len(q) > k_ for q in pcs) and all(q[k_] == pcs[0][k_] for q in pcs): k_ += 1
+                pc = tuple(pcs[0][:k_]) if pcs and a not in back else pc      # the conditions every incoming path shares
+                if a in back:      # loop head: values live across the loop are opaque (a loop-carried x87 value), the depth of the fall-in path is kept
+                    import t2_x87 as X
+                    fp = None if fp is None else ([] if not fp else [X.mk(("u", 0)) for _ in fp])
                 elif not fc or any(x is None or len(x) != len(fc[0]) for x in fc): fp = None
                 else:      # same depth: positions that differ between the incoming paths become an opaque value (a clamp `if (x > c) x = c` leaves the stack below untouched)
                     import t2_x87 as X
-                    fp = [fc[0][i] if all(x[i] == fc[0][i] for x in fc) else X.mk(("u", 0)) for i in range(len(fc[0]))]
+                    X.RODATA[0] = _rodata
+                    def jn(i):
+                        if all(x[i] == fc[0][i] for x in fc): return fc[0][i]
+                        j_ = X.join([x[i] for x in fc])
+                        if X.TREES[j_] != ("u", 0): return j_
+                        v_ = X.sel([(x[i], q[k_:]) for x, q in zip(fc, pcs)])
+                        return v_ if v_ is not None else j_
+                    fp = [jn(i) for i in range(len(fc[0]))]
             fall = True
             for r_, (wa, wc) in single.items():
                 if a > wa and r_ not in regs: regs[r_] = wc
             if a in dmap: d = dmap[a]
-            ops = split_args(ar)
+            ops = split_args(eb(ar))
+            if a in jt:      # switch: every case is a jump edge from here
+                import t2_x87 as X
+                for t_ in jt[a]:
+                    cnt[0] += 1; dmap.setdefault(t_, d); snaps.setdefault(t_, []).append(dict(regs)); msn.setdefault(t_, []).append(dict(mem)); fsn.setdefault(t_, []).append((None if fp is None else list(fp), pc + (("?", cnt[0]),)))
+                fall = False
             if op.startswith("j") and ops and re.fullmatch(r"0x[0-9a-f]+", ops[0]):
-                t_ = int(ops[0], 16); dmap.setdefault(t_, d); snaps.setdefault(t_, []).append(dict(regs)); fsn.setdefault(t_, []).append(None if fp is None else list(fp))
+                import t2_x87 as X
+                cnd = None if op == "jmp" else (X.mkcond(op, flg) or ("?", cnt.__setitem__(0, cnt[0] + 1) or cnt[0]))
+                t_ = int(ops[0], 16); dmap.setdefault(t_, d); snaps.setdefault(t_, []).append(dict(regs)); msn.setdefault(t_, []).append(dict(mem)); fsn.setdefault(t_, []).append((None if fp is None else list(fp), pc + ((cnd,) if cnd else ())))
+                if cnd: pc = pc + (X.negate(cnd),)
                 if op == "jmp": fall = False
                 if op == "jmp" and not (lo <= t_ < lo + sz) and t_ in vas_i: out.setdefault("%08x" % t_, []).append(dict(addr=a, stack=[slot(d + 4 + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, tail=True, al=dbp[1]))
+            if op == "test" and len(ops) == 2 and ops[0] == "ah" and re.fullmatch(r"0x[0-9a-f]+", ops[1]): flg = ("ahm", int(ops[1], 16), flg[1]) if flg and flg[0] == "sw" else None
+            elif op == "cmp" and len(ops) == 2: flg = ("icmp", memsub(_canon(eb(ops[0]), regs, d)), memsub(_canon(eb(ops[1]), regs, d)))
+            elif op == "test" and len(ops) == 2 and ops[0] == ops[1]: flg = ("itest", memsub(_canon(eb(ops[0]), regs, d)))
+            elif op == "fnstsw": flg = ("sw", flg[1]) if flg and flg[0] == "fc" else None
+            elif op == "sahf": flg = ("sahf", flg[1]) if flg and flg[0] == "sw" else None
+            elif op in ("add", "sub", "and", "or", "xor", "inc", "dec", "neg", "shl", "shr", "sar", "sal", "rol", "ror", "adc", "sbb", "imul", "mul", "call", "test"): flg = None
+            if op in ("fcom", "fcomp", "fcompp", "fucom", "fucomp", "fucompp", "ftst", "ficom", "ficomp"):
+                import t2_x87 as X
+                co_ = X.cmp_operands(op, ops, fp, lambda o_, d_=d: _canon(eb(o_), regs, d_), mem) if fp is not None else None; flg = ("fc", co_) if co_ else None
             if op[0] == "f" and op != "fnstsw":
                 import t2_x87 as X
-                fp = X.step(op, ops, fp, regs, d, mem, lambda o_, d_=d: _canon(o_, regs, d_), None)
+                fp0 = fp; fp = X.step(op, ops, fp, regs, d, mem, lambda o_, d_=d: _canon(eb(o_), regs, d_), None)
+                if fp is None and fp0 is not None: XFAIL.append((a, op, ar, len(fp0)))
             if op == "push" and ops:
                 d -= 4; mem[d] = _canon(ops[0], regs, d + 4) or "?"
             elif op == "pop" and ops: d += 4; regs.pop(ops[0], None)
-            elif op == "mov" and ops == ["ebp", "esp"]: dbp[0] = d; regs["ebp"] = None
+            elif op == "mov" and ops == ["ebp", "esp"]: dbp[0] = d; dbp[2] = True; regs["ebp"] = None
             elif op == "mov" and ops == ["esp", "ebp"]: d = dbp[0]
             elif op == "and" and ops and ops[0] == "esp": dbp[1] = True
             elif op in ("add", "sub") and ops and ops[0] == "esp" and len(ops) == 2 and re.fullmatch(r"0x[0-9a-f]+", ops[1]):
@@ -263,7 +340,9 @@ def asm_sites(nm, vas):
             elif op == "call":
                 m = re.fullmatch(r"0x([0-9a-f]+)", ar)
                 va = "%08x" % int(m.group(1), 16) if m else None
-                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1], fp=None if fp is None else list(fp)))
+                if va: CALLS.setdefault(va, set()).add(a)
+                cargs_ = [slot(d + 4 * j) for j in range(8)]
+                if va in vas: out.setdefault(va, []).append(dict(addr=a, stack=[slot(d + 4 * j) for j in range(8)], regs=dict(regs), prev=prev, al=dbp[1], fp=None if fp is None else list(fp), dead=eax_dead(a)))
                 k = _STD.get(va, 0) if va else 0
                 d += k * 4
                 if va and int(va, 16) in _CHK() and (regs.get("eax") or "").startswith("I:"): d -= int(regs["eax"][2:], 16)      # __chkstk(eax = frame size) allocates the frame: esp relative slots shift (vehicle_*_collect_triangles, 0x1080 bytes)
@@ -274,7 +353,9 @@ def asm_sites(nm, vas):
                     else: fp = None
                 elif va and fp is not None and va in _FRV():
                     import t2_x87 as X
-                    fp = fp + [X.mk(("u", va))]      # a float result of an unknown call: renders to nothing, but `fstp st(0)` after it is fine
+                    fp = fp + [X.mk(("u", va, a))]      # a float result of an unknown call: renders to nothing, but `fstp st(0)` after it is fine
+                AFTER[a] = None if fp is None else list(fp)
+                CARGS[a] = cargs_
                 prev = (va, a)
             elif op in ("ret", "retn"):
                 fall = False
@@ -284,9 +365,23 @@ def asm_sites(nm, vas):
                 if ops[0] in sc and regs[ops[0]] and not regs[ops[0]].startswith(("R:", "?", "ret:")): late[ops[0]] = (a, regs[ops[0]])
             elif op == "mov" and len(ops) == 2 and re.fullmatch(r"(?:dword ptr )?\[esp(?:\+0x[0-9a-f]+)?\]", ops[0]):
                 mem[d + (int(re.search(r"\+0x([0-9a-f]+)", ops[0]).group(1), 16) if "+" in ops[0] else 0)] = _canon(ops[1], regs, d) or "?"
+            elif op == "lea" and len(ops) == 2 and ops[0] in _RG and (re.fullmatch(r"\[(e\w\w)\+(e\w\w)\*(\d)\]", ops[1]) and ops[1][1:4] == ops[1][5:8] or re.fullmatch(r"\[(e\w\w)\*(\d)\]", ops[1])) and (regs.get(ops[1][1:4]) or "R:" + ops[1][1:4]).startswith(("R:", "M:", "H:")):
+                # lea r, [x + x*k] / [x*k]: scaled index like shl / imul
+                src_ = regs.get(ops[1][1:4]) or "R:" + ops[1][1:4]; mu_ = int(ops[1][-2]) + (1 if "+" in ops[1] else 0)
+                mh_ = re.fullmatch(r"H:(.*)\|(\d+)", src_)
+                regs[ops[0]] = "H:%s|%d" % ((mh_.group(1), int(mh_.group(2)) * mu_) if mh_ else (src_, mu_))
             elif op == "lea" and len(ops) == 2 and ops[0] in _RG:
                 c = _canon(ops[1], regs, d); regs[ops[0]] = "A:" + c[2:] if c and c.startswith("M:") else None
+            elif op in ("movsx", "movzx") and len(ops) == 2 and ops[0] in _RG and (regs.get(__import__("reginputs2").FULL.get(ops[1], ops[1])) or "").startswith("ret:"): regs[ops[0]] = regs[__import__("reginputs2").FULL.get(ops[1], ops[1])]      # widening of a call result: the C variable holds the (already extended) value
             elif op in ("xor", "sub") and len(ops) == 2 and ops[0] == ops[1] and ops[0] in _RG: regs[ops[0]] = "I:0x0"
+            elif ((op == "shl" and len(ops) == 2) or (op == "imul" and len(ops) in (2, 3))) and ops[0] in _RG and re.fullmatch(r"0x[0-9a-f]+|\d+", ops[-1]) and (len(ops) < 3 or ops[1] in _RG):
+                # scaled index (shl r, k / imul r, [r2,] n): H:<index canon>|<multiplier>
+                src = ops[1] if len(ops) == 3 else ops[0]; c_ = regs.get(src) or "R:" + src
+                mu = (1 << int(ops[-1], 0)) if op == "shl" else int(ops[-1], 0)
+                mh = re.fullmatch(r"H:(.*)\|(\d+)", c_)
+                regs[ops[0]] = ("H:%s|%d" % (mh.group(1), int(mh.group(2)) * mu) if mh else "H:%s|%d" % (c_, mu)) if mh or c_.startswith(("R:", "M:")) else None
+            elif op in ("add", "sub") and len(ops) == 2 and ops[0] in _RG and (regs.get(ops[0]) or "R:" + ops[0])[:2] != "R:" and (_canon(eb(ops[1]), regs, d) or "?")[:1] not in ("?", "R"):
+                SYM.append((op, regs.get(ops[0]), _canon(eb(ops[1]), regs, d))); regs[ops[0]] = "S#%d" % (len(SYM) - 1)      # integer arithmetic on known operands: a C int expression for conditions / indices
             elif ops and op not in ("cmp", "test", "push") and __import__("reginputs2").FULL.get(ops[0], "x") in _RG: regs[__import__("reginputs2").FULL[ops[0]]] = None
             elif op in ("fnstsw", "cdq"): regs.pop("eax" if op == "fnstsw" else "edx", None)
         return out, ok, late
@@ -322,6 +417,7 @@ def _cname(c, t, vas, cn, nm):
             h = re.search(r"^[A-Za-z_][^;{}]*?\b%s\s*\(([^)]*)\)\s*\{" % re.escape(nm), t, re.M)
             ps = [re.findall(r"\w+", p)[-1] for p in h.group(1).split(",") if re.findall(r"\w+", p)] if h and h.group(1).strip() not in ("", "void") else []
             if 0 < s // 4 <= len(ps): return ps[s // 4 - 1]
+            if _XP.get("grow") and nm in _FN and s // 4 <= (orig_slots("%08x" % _FN[nm][0]) or 0): _XP["gmax"] = max(_XP.get("gmax", 0), s // 4); return "param_%d" % (s // 4)      # Ghidra's signature has fewer parameters than the original reads: the definition grows (ftol)
             if _XP["tail"] and s // 4 <= 8 and len(ps) == _XP["own"]: _XP["max"] = max(_XP["max"], s // 4); return "unused%d" % (s // 4)      # tail forwarding passes the caller's frame on: the slots behind our parameters become (unused) parameters of the definition
             return None
         if s < 0:
@@ -635,19 +731,47 @@ def _rodata(va):
     for lo, hi, ch in _SECT:
         if lo <= va < hi: return cmpfn.exe_bytes(va, 8) if not ch & 0x80000000 else None
     return None
+FWHY = []
+def _tdump(i):
+    import t2_x87 as X
+    t = X.TREES[i]; return "(%s %s)" % (t[0], " ".join(_tdump(a) if isinstance(a, int) and t[0] in ("op", "neg", "abs", "sqrt") and (t[0] != "op" or True) and not (t[0] == "op" and a is t[1]) else str(a) for a in t[1:]))
+FAIL = {}
 def ftol(t, nm):
+    try:
+        FAIL.clear(); import t2_x87 as X0; X0.FALLBACK.clear(); r = _ftol(t, nm, None)
+        if r[1] > 0 and X0.FALLBACK:      # spill slots rendered by the stored expression: look for the C variable (it may have been assigned since)
+            import t2_unify
+            b = t2_unify.bind(t, nm, [], FAIL["trees"], X0.TREES, FAIL["leaf0"]) if FAIL.get("trees") else {}
+            b = {k: v for k, v in b.items() if k in set(X0.FALLBACK)}
+            if b: FAIL.clear(); X0.FALLBACK.clear(); r = _ftol(t, nm, b)
+        elif r[1] == 0 and FAIL.get("leaves"):      # operands without a C name (register / spill slot variables): named by the C expression Ghidra printed for the same computation (t2_unify)
+            import t2_unify, t2_x87 as X
+            b = t2_unify.bind(t, nm, FAIL["leaves"], FAIL["trees"], X.TREES, FAIL["leaf0"])
+            if b: FAIL.clear(); r = _ftol(t, nm, b)
+        return r
+    finally: _XP["grow"] = False
+def _ftol(t, nm, bound):
     """kind `ftol`: `_ftol()` (Ghidra lost the x87 expression feeding `call __ftol`) -> `((int)(expr))` with expr recovered from the ORIGINAL function by the symbolic x87 stack of asm_sites (tools/t2_x87.py);
-    all or nothing per function (the n-th `_ftol()` of the text is the n-th call __ftol of the original).  -> (text, number of calls rewritten)"""
+    all or nothing per function (the n-th `_ftol()` of the text is the n-th call __ftol of the original).  -> (text, number of calls rewritten)
+    2026-10-17: the same pass writes the x87 STACK SURVIVORS (`extraout_ST0` / `extraout_ST1`: a value left on the x87 stack across an `_ftol` or float returning call; the k-th entry behind the nearest preceding call of the text)
+    as the recovered expression; operands without a C name (index registers `[edx+0x7eab64]` after `shl`: `*(float *)((char *)&g + i * 64)` with i found by the other scaled operands of the same register, pointer registers:
+    call arguments / sibling operands named by tools/t2_unify.py from the C expression Ghidra printed for the same computation, spilled temporaries) are named by those evidence; joins become `sel` ternaries / float temps,
+    the int result of an `_ftol` that is read again becomes an int temp `ftN`, a `(f1 = ..)` call result a float temp `fcN`; the definition grows `int param_N` when the original reads more stack words than Ghidra's signature has."""
     t0 = t
     occ = [m for m in re.finditer(r"(?<![\w.>])_ftol2?\(\s*\)", t) if not t[t.rfind("\n", 0, m.start()) + 1:m.start()].lstrip().startswith(("extern", "/*"))]
-    if not occ: return t, 0
+    names_x = sorted(set(re.findall(r"\bextraout_ST\d(?:_\d+)?\b", t)))      # x87 stack survivors (Ghidra: a value left on the x87 stack across a call)
+    if not occ and not names_x: return t, 0
     import cmpfn, struct, t2_x87 as X
     fv = _FTOLV()
     if not fv: return t, 0
-    sites = asm_sites(nm, {"%08x" % v for v in fv})
-    if not sites: return t, 0
+    tr0 = len(X.TREES); sites = asm_sites(nm, {"%08x" % v for v in fv})
+    if sites is None or (not sites and occ): return t, 0
     ss = [x for v in fv for x in sites.get("%08x" % v, [])]; ss.sort(key=lambda x: x["addr"])
-    if len(ss) != len(occ) or any(not x.get("fp") for x in ss): return t, 0
+    if len(ss) > len(occ) and sum(1 for x in ss if not x.get("dead")) == len(occ): ss = [x for x in ss if not x.get("dead")]      # `_ftol();` whose result is dead: the statement is gone from the text
+    if len(ss) > len(occ):      # `x = f(..); (int)x` with a float returning f: kind fret already made the conversion visible
+        ss2 = [x for x in ss if not (x.get("fp") and X.TREES[x["fp"][-1]][0] == "u" and X.TREES[x["fp"][-1]][1])]
+        if len(ss2) == len(occ): ss = ss2
+    if occ and (len(ss) != len(occ) or any(not x.get("fp") for x in ss)): FWHY[:] = ["sites %d/%d fp-unknown %d" % (len(ss), len(occ), sum(1 for x in ss if not x.get("fp")))]; return t, 0
     glob = {}
     for m in re.finditer(r"^/\*([0-9a-f]{8})\*/ extern [^;(]*?\b(\w+)\s*(?:\[[^\]]*\])?;", t, re.M): glob[m.group(1)] = m.group(2)
     rev = {}
@@ -655,14 +779,93 @@ def ftol(t, nm):
         for v in vs: rev.setdefault("%08x" % v, n_)
     add = {}
     def isflt(x): return add.get(x, "").startswith("/*") and " float " in add[x] or re.search(r"\b(?:float|RwReal)\s+(?:\w+\s*,\s*)*%s\b" % re.escape(x), t) is not None
+    curpos = [0]
+    def retvar2(c):      # "ret:<callee va>": the C variable the nearest preceding `v = callee(..)` assigned (and nothing reassigned since)
+        pn = glob.get(c[4:]) or rev.get(c[4:])
+        if not pn: return None
+        pre = t[:curpos[0]]; mm = list(re.finditer(r"([A-Za-z_][\w.]*)\s*=\s*(?:\([\w \*]+\)\s*)?%s\(" % re.escape(pn), pre))
+        return mm[-1].group(1) if mm and not re.search(r"\b%s\s*(?:[-+*/|&^]|<<|>>)?=[^=]" % re.escape(mm[-1].group(1)), pre[mm[-1].end():]) else None
+    tsite = {}; used_t = set()
+    for i_, x_ in enumerate(ss):
+        if x_.get("fp"): tsite.setdefault(x_["fp"][-1], i_)
     calls = {}      # float temp name -> (statement start, end, callee name, args): `name(args);` whose result the expression uses
+    _XP["gmax"] = 0; ev = list(EV); n2v = {}
+    for n_, vs in cmpfn._symtab().items():
+        for v in vs: n2v.setdefault(n_, "%08x" % v)
+    for a_, n_ in glob.items(): n2v.setdefault(n_, a_)
+    regbase = {}      # opaque register -> ("ptr", C variable) from the call arguments, ("lv", C lvalue, offset) from a named [reg+off] operand
+    cl_ = [m for m in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\(", t) if not t[t.rfind("\n", 0, m.start()) + 1:m.start()].lstrip().startswith(("extern", "/*", "*")) and n2v.get(m.group(1)) and "%08x" % int(n2v[m.group(1)], 16) in CALLS]
+    for cn_ in {m.group(1) for m in cl_}:
+        same_ = [m for m in cl_ if m.group(1) == cn_]; allc_ = sorted(CALLS["%08x" % int(n2v[cn_], 16)])
+        if len(same_) != len(allc_): continue
+        for m_, a_ in zip(same_, allc_):
+            al_, cl2_ = _args(t, m_.end() - 1)
+            for j_, (s_, e_) in enumerate(al_):
+                cv_ = (CARGS.get(a_) or [None] * 8)[j_] if j_ < 8 else None
+                if cv_ and cv_.startswith("R:") and re.fullmatch(r"[A-Za-z_]\w*", t[s_:e_].strip()): regbase.setdefault(cv_[2:], set()).add(("ptr", t[s_:e_].strip(), 0))
+    for c_, b_ in (bound or {}).items():
+        mm_ = re.fullmatch(r"M:\[(e\w\w)(?:([+-])0x([0-9a-f]+))?\]", c_)
+        if mm_ and re.fullmatch(r"[\w.\->\[\]\*]+", b_): regbase.setdefault(mm_.group(1), set()).add(("lv", b_, (int(mm_.group(3), 16) * (-1 if mm_.group(2) == "-" else 1)) if mm_.group(3) else 0))
+    def idxvar(inner):
+        """C text of an index canon: an opaque register is the C variable that indexes the same table in the text (evidence: other scaled operands of the same register)"""
+        if not inner.startswith("R:"):
+            _XP.update(tail=False, own=0, max=0, ret=retvar2, grow=True); return _cname(inner, t, glob, {}, nm)
+        vs = set()
+        for ic, mu, ad in ev:
+            if ic != inner: continue
+            for m_ in re.finditer(r"\(&(\w+)\)\[(\w+)\]|\b([A-Za-z_]\w*)\[(\w+)\]", t):
+                n_, v_ = (m_.group(1), m_.group(2)) if m_.group(1) else (m_.group(3), m_.group(4))
+                b_ = n2v.get(n_)
+                if b_ and 0 <= ad - int(b_, 16) < (0x1000 if mu > 4 else 1) and not v_.isdigit() and v_ not in n2v: vs.add(v_)
+        return vs.pop() if len(vs) == 1 else None
     def leaf(c, kind):
-        if c.startswith("U:"):
-            nmc = glob.get(c[2:]) or rev.get(c[2:])
+        if bound and c in bound and kind in ("f", "d", "i4", "i2"):
+            b_ = bound[c]; return b_ if kind in ("i4", "i2") or re.fullmatch(r"[\w.\->\[\]\*() ]+", b_) else None
+        mr_ = re.fullmatch(r"M:\[(e\w\w)(?:([+-])0x([0-9a-f]+))?\]", c)
+        rb_ = regbase.get(mr_.group(1), set()) if mr_ else set()
+        rb_ = rb_ if len(rb_) == 1 else {min((x for x in rb_ if x[0] == "lv"), key=lambda x: (len(x[1]), x))} if any(x[0] == "lv" for x in rb_) else {min(rb_, key=lambda x: (len(x[1]), x))} if len({x[1] for x in rb_}) == 1 else set()      # several named views of the same register: the shortest lvalue (all of them describe the same address)
+        if mr_ and kind in ("f", "d", "i4") and len(rb_) == 1:
+            how_, v_, o1_ = next(iter(rb_)); off_ = (int(mr_.group(3), 16) * (-1 if mr_.group(2) == "-" else 1)) if mr_.group(3) else 0
+            ty_ = {"f": "float", "d": "double", "i4": "int"}[kind]
+            if how_ == "ptr": return "*(%s *)((char *)%s %s 0x%x)" % (ty_, v_, "-" if off_ < 0 else "+", abs(off_)) if off_ else "*(%s *)%s" % (ty_, v_)
+            return "*(%s *)((char *)&%s %s 0x%x)" % (ty_, v_, "-" if off_ - o1_ < 0 else "+", abs(off_ - o1_)) if off_ != o1_ else "*(%s *)&%s" % (ty_, v_)
+        if c.startswith("S#"):
+            op_, c1_, c2_ = SYM[int(c[2:])]; a_, b_ = leaf(c1_, "i4"), leaf(c2_, "i4")
+            return "(%s %s %s)" % (a_, "+" if op_ == "add" else "-", b_) if a_ and b_ and kind in ("i4", "i2") else None
+        if c.startswith("T:"):      # int result of an earlier _ftol kept in a stack slot / register
+            if int(c[2:]) in tsite: used_t.add(int(c[2:])); return "ft%d" % (tsite[int(c[2:])] + 1)
+            e_ = X.render(int(c[2:]), leaf)
+            return "((int)%s)" % (e_ if e_.startswith("(") else "(%s)" % e_) if e_ else None
+        mxy = re.fullmatch(r"([XY]):(.*)\|(\d+)\|([0-9a-f]{8})", c)
+        if mxy and kind in ("f", "d", "i4", "i2"):      # table element [index * stride + address]
+            ix = idxvar(mxy.group(2))
+            if not ix: return None
+            ad = mxy.group(4); nmg = glob.get(ad) or next((n_ for n_, v_ in n2v.items() if v_ == ad and re.search(r"\b%s\b" % re.escape(n_), t)), None)      # a name of that address the text (or its header-less externs) already uses
+            base = "&%s" % nmg if nmg and re.fullmatch(r"[A-Za-z_]\w*", nmg) else "0x%s" % ad.lstrip("0")
+            ty = {"f": "float", "d": "double", "i4": "int", "i2": "short"}[kind]
+            if not nmg and mxy.group(1) == "Y" and int(mxy.group(3)) >= 8:      # inside an element of a struct array the text indexes (`g_ai_bots[param_2].field_0x14`): the member address of that element
+                for n_, e_ in sorted({(m_.group(1), m_.group(2)) for m_ in re.finditer(r"\b([A-Za-z_]\w*)\[(\w+)\]", t)}):
+                    b_ = n2v.get(n_)
+                    if b_ and 0 <= int(ad, 16) - int(b_, 16) < int(mxy.group(3)) and e_ == ix:
+                        return "*(%s *)((char *)&%s[%s] + 0x%x)" % (ty, n_, ix, int(ad, 16) - int(b_, 16)) if int(ad, 16) != int(b_, 16) else "*(%s *)&%s[%s]" % (ty, n_, ix)
+            if nmg and mxy.group(1) == "X" and mxy.group(3) == str(4 if kind != "d" else 8): return "((%s *)%s)[%s]" % (ty, base, ix)
+            return "*(%s *)((char *)%s + %s * %s)" % (ty, base, ix, mxy.group(3))
+        if c.startswith("U:"):      # float result of the call at address ad (callee va): the n-th call of that name in the text
+            va_, _, ad_ = c[2:].partition("@")
+            nmc = glob.get(va_) or rev.get(va_)
             if not nmc: return None
-            ms = [m for m in re.finditer(r"^([ \t]*)%s(\([^;\n]*\));[ \t]*$" % re.escape(nmc), t, re.M)]
-            if len(ms) != 1: return None
-            v = "fc%d" % (len(calls) + 1); calls[v] = (ms[0].start(), ms[0].end(), ms[0].group(1), nmc, ms[0].group(2)); return v
+            allc = sorted(CALLS.get(va_, ()))
+            occ_ = [m for m in re.finditer(r"(?<![\w.>])%s\(" % re.escape(nmc), t) if not t[t.rfind("\n", 0, m.start()) + 1:m.start()].lstrip().startswith(("extern", "/*", "*"))]
+            if not ad_ or int(ad_) not in allc or len(allc) != len(occ_): return None
+            m0 = occ_[allc.index(int(ad_))]; ls_ = t.rfind("\n", 0, m0.start()) + 1; ind = t[ls_:m0.start()]
+            _, close = _args(t, m0.end() - 1)
+            if close < 0 or not t[close + 1:].startswith(";"): return None
+            if ind.strip() == "":      # standalone `f(args);`
+                for v_, (st_, en_, in_, n_, ar_) in calls.items():
+                    if st_ == ls_: return v_
+                v = "fc%d" % (len(calls) + 1); calls[v] = (ls_, close + 2, ind, nmc, t[m0.end() - 1:close + 1]); return v
+            mv = re.fullmatch(r"(\s*)(\w+) = (?:\((?:float10|float|double|RwReal)\))?", ind)      # `fVar = (float10)f(args);`: the variable holds the result
+            return mv.group(2) if mv and isflt(mv.group(2)) or mv and re.search(r"\bfloat10\s+%s\b" % re.escape(mv.group(2)), t) else None
         mm = re.fullmatch(r"M:ds:0x([0-9a-f]+)", c)
         if mm:
             va = int(mm.group(1), 16); ro = _rodata(va)
@@ -673,7 +876,7 @@ def ftol(t, nm):
                 n_ = rev.get(mm.group(1).rjust(8, "0"))
                 if not n_ or not re.fullmatch(r"[A-Za-z_]\w*", n_): return "(*(%s *)0x%s)" % ({"f": "float", "d": "double"}.get(kind, "int"), mm.group(1))
                 glob[mm.group(1).rjust(8, "0")] = n_; add[n_] = "/*%s*/ extern %s %s;\n" % (mm.group(1).rjust(8, "0"), {"f": "float", "d": "double"}.get(kind, "int"), n_)
-        _XP.update(tail=False, own=0, max=0, ret=None)
+        _XP.update(tail=False, own=0, max=0, ret=retvar2, grow=True)
         x = _cname(c, t, glob, {}, nm)
         if x is None: return None
         if kind in ("f", "d"):
@@ -683,20 +886,79 @@ def ftol(t, nm):
             if x.startswith("*(undefined4 *)"): return "*(%s *)%s" % (ty, x[len("*(undefined4 *)"):])
             return "*(%s *)&%s" % (ty, x)
         return "(short)%s" % x if kind == "i2" else x
-    rep = []
+    leaf0 = leaf; lf_ = []; surv = []
+    def leaf(c, kind):
+        r_ = leaf0(c, kind)
+        if r_ is None: lf_.append(c)
+        return r_
+    rep = []; fe = []
+    ftmp = []
+    def newname(): ftmp.append("fv%d" % (len(ftmp) + 1)); return ftmp[-1]
     for m, x in zip(occ, ss):
-        e = X.render(x["fp"][-1], leaf)
-        if not e: return t, 0
-        rep.append((m.start(), m.end(), "((int)%s)" % (e if e.startswith("(") else "(%s)" % e)))
+        curpos[0] = m.start(); ls_ = t.rfind("\n", 0, m.start()) + 1; pm_ = re.fullmatch(r"([ \t]*)(?:[\w.\[\]>\-\*]+ = )?", t[ls_:m.start()])
+        stmt = pm_ and re.match(r"[ \t]*;[ \t]*(?:\n|$)", t[m.end():])      # a statement of its own: shared subexpressions can be assigned to float temps in front of it
+        e, asg = X.render_cse(x["fp"][-1], leaf, newname) if stmt else (X.render(x["fp"][-1], leaf), [])
+        if not e:      # the legacy reading of autocompile (`f(x); v = _ftol();` = `v = (int)f(x)`) when f returns a float
+            pv = re.search(r"([ \t]*)(\w+)\(([^;\n]*)\);[ \t]*\n$", t[:ls_]); lv = re.fullmatch(r"[ \t]*(\w+) = ", t[ls_:m.start()])
+            va_ = n2v.get(pv.group(2)) if pv else None
+            if pv and lv and va_ and "%08x" % int(va_, 16) in _FRV() and re.match(r"[ \t]*;", t[m.end():]):
+                rep.append((pv.start(), m.end(), "%s%s = (int)%s(%s)" % (pv.group(1), lv.group(1), pv.group(2), pv.group(3)))); continue
+            FWHY[:] = ["render leaf %s" % (lf_[-1:] or _tdump(x["fp"][-1]))]; FAIL.update(leaves=list(dict.fromkeys(lf_)), trees=list(range(tr0, len(X.TREES))), leaf0=leaf0); return t, 0
+        if asg: rep.append((ls_, ls_, "".join("%s%s = %s;\n" % (pm_.group(1), n_, a_) for n_, a_ in asg)))
+        fe.append((m, x["fp"][-1], "((int)%s)" % (e if e.startswith("(") else "(%s)" % e)))
+    for m, tid, e in fe:
+        if tid in used_t:      # its int result is read again later (stored in a stack slot / register): a temp
+            nmv = "ft%d" % (tsite[tid] + 1); ls_ = t.rfind("\n", 0, m.start()) + 1
+            rep.append((m.start(), m.end(), ("%s = %s" if t[ls_:m.start()].strip() == "" and re.match(r"\s*;", t[m.end():]) else "(%s = %s)") % (nmv, e)))
+        else: rep.append((m.start(), m.end(), e))
+    if names_x:      # each use of extraout_STk is the k-th stack entry behind the nearest preceding call of the text (an `_ftol()` pops its input, the survivors stay)
+        cl = [m for m in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\(", t) if not t[t.rfind("\n", 0, m.start()) + 1:m.start()].lstrip().startswith(("extern", "/*", "*")) and n2v.get(m.group(1)) and "%08x" % int(n2v[m.group(1)], 16) in CALLS]
+        for nx in names_x:
+            uses = [m for m in re.finditer(r"\b%s\b" % nx, t) if not re.match(r"[ \t]*(?:float10|unkbyte10|double|float)\s+%s;" % nx, t[t.rfind("\n", 0, m.start()) + 1:])]
+            if not uses: continue
+            curpos[0] = uses[0].start(); k = int(nx[len("extraout_ST")]); pre = [c for c in cl if c.start() < uses[0].start() and _args(t, c.end() - 1)[1] < uses[0].start()]      # calls that are complete before the first use (not the call the use is an argument of)
+            if not pre: FWHY[:] = ["no call before " + nx]; return t0, 0
+            c = pre[-1]; va_ = n2v[c.group(1)]; allc = sorted(CALLS["%08x" % int(va_, 16)] - (set() if len(ss) == len([x for v in fv for x in sites.get("%08x" % v, [])]) else {x["addr"] for v in fv for x in sites.get("%08x" % v, []) if x.get("dead")})); same = [m for m in cl if m.group(1) == c.group(1)]
+            fp_ = AFTER.get(allc[same.index(c)]) if len(allc) == len(same) else None
+            if not fp_ or len(fp_) <= k: FWHY[:] = ["survivor %s: depth %s after %s" % (nx, None if fp_ is None else len(fp_), c.group(1))]; return t0, 0
+            surv.append(fp_[-1 - k])
+            us0 = uses[0]; ls0 = t.rfind("\n", 0, us0.start()) + 1
+            if all(re.fullmatch(r"[ \t]*[\w.\[\]>\-\*]+ = ", t[t.rfind("\n", 0, u_.start()) + 1:u_.start()]) and re.match(r"[ \t]*;", t[u_.end():]) for u_ in uses) and len(uses) == 1:
+                e, asg = X.render_cse(fp_[-1 - k], leaf, newname)      # the survivor is the whole right hand side of a statement: shared subexpressions become float temps in front of it
+                if e and asg: rep.append((ls0, ls0, "".join("%s%s = %s;\n" % (re.match(r"[ \t]*", t[ls0:]).group(0), n_, a_) for n_, a_ in asg)))
+            else: e = X.render(fp_[-1 - k], leaf)
+            if not e: FWHY[:] = ["render %s %s" % (nx, _tdump(fp_[-1 - k]))]; FAIL.update(leaves=list(dict.fromkeys(lf_)), trees=list(range(tr0, len(X.TREES))), leaf0=leaf0); return t0, 0
+            for m in uses: rep.append((m.start(), m.end(), e if e.startswith("(") else "(%s)" % e))
+            for m in re.finditer(r"^[ \t]*(?:float10|unkbyte10|double|float) %s;[ \t]*\n" % nx, t, re.M): rep.append((m.start(), m.end(), ""))
+    if _XP.get("gmax"):      # widen the definition: `int param_N` for the stack parameters the expressions read
+        h = re.search(r"^([A-Za-z_][^;{}]*?\b%s\s*\()([^)]*)(\)\s*\{)" % re.escape(nm), t, re.M)
+        if not h: return t0, 0
+        ps = [p_.strip() for p_ in h.group(2).split(",") if p_.strip() and p_.strip() != "void"]
+        if len(ps) < _XP["gmax"]: rep.append((h.start(2), h.end(2), ",".join(ps + ["int param_%d" % j for j in range(len(ps) + 1, _XP["gmax"] + 1)])))
     for v, (st, en, ind, nmc, ar) in calls.items(): rep.append((st, en, "%s%s = %s%s;" % (ind, v, nmc, ar)))
     for st, en, x in sorted(rep, reverse=True): t = t[:st] + x + t[en:]
-    if calls:
+    for v in list(calls):      # `fcN = f(args); v = ((int)fcN);` (the _ftol consumes the result of the call right before): `v = (int)f(args);`
+        mm = re.search(r"^([ \t]*)%s = (\w+\([^;\n]*\));[ \t]*\n[ \t]*([\w.\[\]>\-]+) = \(\(int\)\(?%s\)?\);" % (v, v), t, re.M)
+        if mm and len(re.findall(r"\b%s\b" % v, t)) == 2: t = t[:mm.start()] + "%s%s = (int)%s;" % (mm.group(1), mm.group(3), mm.group(2)) + t[mm.end():]; del calls[v]
+    if calls or used_t or ftmp:
         mb = re.search(r"^\{[ \t]*\n", t, re.M)
         if not mb: return t0, 0
-        t = t[:mb.end()] + "".join("  float %s;\n" % v for v in calls) + t[mb.end():]
+        t = t[:mb.end()] + "".join("  float %s;\n" % v for v in list(calls) + ftmp) + "".join("  int ft%d;\n" % (tsite[i_] + 1) for i_ in sorted(used_t)) + t[mb.end():]
+    for fn_, pr_ in (("sin", "double sin(double);"), ("cos", "double cos(double);"), ("fabs", "double fabs(double);"), ("sqrt", "double sqrt(double);"), ("atan2", "double atan2(double, double);")):      # inline x87 (cl /O2 /Oi)
+        if any(re.search(r"\b%s\(" % fn_, x[2]) for x in rep) and not re.search(r"\b%s\(|extern [^;]*\b%s\b" % (fn_, fn_), t0.replace("__nothing", "")): add[fn_] = "extern %s\n" % pr_
     if add:
         inc = list(re.finditer(r'^(#include .*|/\*[0-9a-f]{8}\*/ extern .*)\n', t, re.M)); p = inc[-1].end() if inc else 0
         t = t[:p] + "".join(add.values()) + t[p:]
+    FAIL.update(trees=list(range(tr0, len(X.TREES))), leaf0=leaf0)
+    h = re.search(r"^([A-Za-z_][^;{}]*?\b%s\s*\()([^)]*)(\)\s*\{)" % re.escape(nm), t, re.M)
+    if h:      # an integer parameter Ghidra never used that the recovered expressions dereference (`(char *)param_1 + 8`): a pointer
+        body0 = t0[h.end():] if re.search(r"^([A-Za-z_][^;{}]*?\b%s\s*\()([^)]*)(\)\s*\{)" % re.escape(nm), t0, re.M) else ""
+        hd = h.group(2); nh = hd
+        for pm in re.finditer(r"\b(?:undefined4|int|uint) (param_\d+)\b", hd):
+            v = pm.group(1)
+            if not re.search(r"\b%s\b" % v, body0) and re.search(r"\(char \*\)%s\b" % v, t[h.end():]) and len(re.findall(r"\b%s\b" % v, t[h.end():])) == len(re.findall(r"\(char \*\)%s\b" % v, t[h.end():])):
+                nh = nh.replace(pm.group(0), "void *" + v)
+        if nh != hd: t = t[:h.start(2)] + nh + t[h.end(2):]
     return t, len(rep)
 def fret(t):
     """kind `fret`: a callee whose ORIGINAL call sites consume ST0 (core.float_returners: `call f; fstp [esp]`) but that the text declares int / undefined / void (or not at all: `func_0x004757e0(0)`)

@@ -134,7 +134,11 @@ def fix_body(b):
     if "idxscale" in FIX_RULES:      # `(&g + i * 4)` is a BYTE offset in Ghidra's output (g was 1 byte there), but once global_widths widened g to 4 bytes C scales it by 4 again: 11 near misses (shl 4 vs [eax*4+g])
         b = re.sub(r"\(&(g_\w+) \+ ", r"((char *)&\1 + ", b)
     if "subpiece" in FIX_RULES: b = subpiece(b)
-    return re.sub(r"^(\s*)(\w+)\(([^;\n]*)\);\n\s*(\w+) = _ftol\(\);", lambda m: "%s%s = (int)%s(%s);" % (m.group(1), m.group(4), m.group(2), m.group(3)), b, flags=re.M)
+    return re.sub(r"^(\s*)(\w+)\(([^;\n]*)\);\n\s*(\w+) = _ftol\(\);", lambda m: "%s%s = (int)%s(%s);" % (m.group(1), m.group(4), m.group(2), m.group(3)) if _frname(m.group(2)) else m.group(0), b, flags=re.M)
+
+def _frname(n):
+    """AC_X87 (t2_auto): `f(x); v = _ftol();` only means `v = (int)f(x)` when the _ftol consumes the float result f leaves in st(0); with a survivor below / another expression it is wrong (noise_sample_row, weapon_flamethrower_update): left to t2_postfix kind `ftol`, which reads the original asm"""
+    return not os.environ.get("AC_X87")      # t2_postfix kind `ftol` decides per site from the original asm (and falls back to this form when it cannot render the expression)
 
 # AC_PLAIN=1: also take cdecl functions whose only pseudo registers are `reg_e??` LOCALS (Ghidra's name for a local passed in a register to a callee with register parameters, tools/tier2_census.py class
 # plain-regcallee): the calls to register functions go through the F_r call adapters of tools/bridgegen.py (emitted into the chunk, static), nothing else changes.
@@ -190,7 +194,7 @@ for m in re.finditer(r"// ==== (\S+) @ ([0-9a-f]+)\n(.*?)(?=\n// ==== |\Z)", tex
     if X87: body = dconst(re.sub(r"\(float\)(g_game_state\.option_sliders\[\w+\])", r"*(float *)&\1", body))      # option_sliders is typed uint in ghidra_types.h, the slider values are floats (Ghidra's (float)u is a bit copy)
     if X87: body = re.sub(r"\b(fsin|fcos|fpatan|ABS)\(", lambda m_: X87_NAME[m_.group(1)] + "(", body)      # before fix_body: `x87_sin(x); v = _ftol();` becomes `v = (int)x87_sin(x);`
     funcs_all.append((n, a, fix_body(body.replace("__thiscall", "__fastcall"))))
-    allow_ = ({r_ for r_ in rf_ if r_.startswith("reg_e")} if PLAIN else set()) | ({"fsin", "fcos", "fpatan", "ABS"} & rf_ if X87 else set())
+    allow_ = ({r_ for r_ in rf_ if r_.startswith("reg_e")} if PLAIN else set()) | ({"fsin", "fcos", "fpatan", "ABS"} & rf_ if X87 else set()) | ({r_ for r_ in rf_ if re.fullmatch(r"extraout_ST\d(?:_\d+)?", r_)} if X87 else set())      # x87 stack survivors: t2_postfix kind `ftol` (survivors) rewrites them
     called_ = set(re.findall(r"\b(\w+) ?\(", flat)) - {n}
     if PLAIN and called_ & NOADAPT: continue
     if (ONLY is None or n in ONLY) and n not in have and n not in regin and not unsafe and int(lo, 16) <= a <= int(hi, 16) and not (rf_ - allow_):

@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_postfix, callee_auto, gsfix, strictfix, pseudofix
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_stfix, t2_postfix, callee_auto, gsfix, strictfix, pseudofix
 HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
@@ -199,6 +199,7 @@ def skip_class(n, body, regin, have, ok_protos):
     """reasons autocompile.py drops a function without trying (and tier2_census.py names them): -> (class, detail) or None"""
     REG = re.compile(r"\b(reg_e(?:ax|bx|cx|dx|si|di|bp)|in_[A-Z]{2,3}|unaff_[A-Za-z]+|extraout_\w+|stack0x\w+|param_\d+_00\w+|unaff_retaddr|[iu]?Stack[0-9a-f]{8}|in_stack_\w+|POPCOUNT|SBORROW\d|CARRY\d|halt_baddata|ABS|fpatan|fsin|fcos|fptan|fyl2x|f2xm1)\b")
     flat = re.sub(r"\s+", " ", body); rf = set(REG.findall(body))
+    rf -= {r for r in rf if re.fullmatch(r"extraout_ST\d(?:_\d+)?", r)}      # x87 stack survivors (value left on the x87 stack across an `_ftol` / call): t2_postfix kind `ftol` writes the expression; unresolved ones stay uninitialised = diffemu DIFF
     if n in have: return "gen-skip:manifest-C", "hand written C exists"
     if n in regin: return "gen-skip:usercall", "register inputs " + regin[n]
     sz = _fnsize().get(n)
@@ -512,7 +513,7 @@ def main():
                 for _ in range(6):
                     o_, k_, e_ = compile_one(srcs[n])
                     if not e_: st[n] = ok = True, f, "", rnd; pk = pk + ["fptrarg"]; break
-                    if not t2_postfix.errfix(srcs[n], e_, lambda q: compile_one(q)[2]): err = e_; break
+                    if not (t2_postfix.errfix(srcs[n], e_, lambda q: compile_one(q)[2]) or t2_stfix.fix(srcs[n], e_)): err = e_; break
                     pk = pk + ["fptrarg"]
             if pk:
                 print("postfix %s: %s" % (n, ",".join(sorted(set(pk)))), flush=True)
@@ -533,11 +534,16 @@ def main():
                 else: r = r1
         t0 = open(srcs[n], errors="replace").read(); strict_one(srcs[n], True)      # casts to the parameter types so that the strict build accepts the file
         return compile_one(srcs[n]) if open(srcs[n], errors="replace").read() != t0 else r
+    for n in cand:      # own-arity / callee-prototype arity findings of defectlint (class 4 / 10): `undefined4 param_N` for the dropped trailing stack arguments (tools/t2_stfix.py)
+        try:
+            fl = [x for x in lint(srcs[n], n) if x.startswith(("defectlint class 4", "defectlint class 10"))]
+            if fl and t2_stfix.arity(srcs[n], n, fl): print("stfix %s: arity" % n, flush=True)
+        except Exception as ex_: print("stfix %s: %s" % (n, ex_), flush=True)
     with ThreadPoolExecutor(2) as ex: comp = dict(zip(cand, ex.map(comp1, cand)))
     for n in cand:
         o, k, e = comp[n]
         for _ in range(6):      # kind fptrarg (t2_postfix.errfix): the strict rewrite / gsfix stage can expose the error only now
-            if not e or not t2_postfix.errfix(srcs[n], e, lambda q: compile_one(q)[2]): break
+            if not e or not (t2_postfix.errfix(srcs[n], e, lambda q: compile_one(q)[2]) or t2_stfix.fix(srcs[n], e)): break
             o, k, e = compile_one(srcs[n])
             if not e: print("postfix %s: fptrarg" % n, flush=True)
         if e: put(n, "compile", "COMPILE-ERROR", e, cclass(e), srcs[n])
