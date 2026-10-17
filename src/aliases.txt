@@ -1533,3 +1533,4 @@ _rwD3D9LastFVFUsed 0062e760
 _RwD3D9RasterExtOffset 00947144
 RxNodeDefinitionGetD3D9AtomicAllInOne 005003b0
 RxNodeDefinitionGetD3D9WorldSectorAllInOne 005009c0
+pow 004b2c30

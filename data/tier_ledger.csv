@@ -111,7 +111,7 @@ FUN_005c4340,005c4340,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492
 FUN_005c43a0,005c43a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 FUN_005c4440,005c4440,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 FUN_005c4590,005c4590,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.80,0,0
-FUN_005c4610,005c4610,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,67,0.88,0,0
+FUN_005c4610,005c4610,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,62,0.88,0,0
 FUN_005c7080,005c7080,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,72,0.00,0,0
 FUN_005c7150,005c7150,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 FUN_005c7200,005c7200,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
@@ -447,7 +447,7 @@ course_has_cb7,00421b30,tier1,bytes,bytes-reloc,bc1970aa4d66,cc9492f35972,a5fd27
 course_has_cb8,00421b40,tier1,bytes,bytes-reloc,0d6cb858cf98,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 course_has_cb9,00421b50,tier1,bytes,bytes-reloc,de954dc6fff0,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 course_has_world_setup,00421b80,tier1,bytes,bytes-reloc,fca07aee1dd5,cc9492f35972,a5fd27972ad0,0,0.00,0,0
-course_highway_cb2,00459560,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,147,1.00,0,0
+course_highway_cb2,00459560,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,146,1.00,0,0
 course_highway_cb5,004596e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,133,0.90,0,0
 course_highway_lod_atomic_scale_by_index,00459460,bridge,enabled-list (game + shadow test results not recorded per function),none,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 course_highway_lod_objects_setup,004592a0,bridge,enabled-list (game + shadow test results not recorded per function),none,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
@@ -1303,7 +1303,7 @@ rwp_object_get_type,0048e450,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,
 rwp_object_get_user_data,0048e3d0,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 rwp_object_sample_and_lock,00494230,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.83,0,0
 rwp_object_set_active,00492d10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.83,0,0
-rwp_object_set_contact_params,00494290,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,a480420c2dc6,cc9492f35972,a5fd27972ad0,35,1.00,1,0
+rwp_object_set_contact_params,00494290,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,a480420c2dc6,cc9492f35972,a5fd27972ad0,42,1.00,1,0
 rwp_object_set_enabled,0048e4f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.92,0,0
 rwp_object_set_flag,0048e6c0,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 rwp_object_set_matrix,0048e720,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
@@ -1421,7 +1421,7 @@ sphere_vs_box_test,0049cb60,bridge,enabled-list (game + shadow test results not 
 spline_get_length,00482270,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.89,0,0
 spline_object_register_trigger_sphere,00457010,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 split_sectors_reset,0042b1e0,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
-spring_grid_prepare,0048a680,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,cc9492f35972,a5fd27972ad0,16,1.00,0,0
+spring_grid_prepare,0048a680,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,45,1.00,0,0
 spring_grid_reset_constants,0048a060,agent,bytes-standalone+6b462ef6d54a,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 sprite_slot_destroy_atomic_44,00487450,bridge,enabled-list (game + shadow test results not recorded per function),none,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 sprite_slots_clear,00487620,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
@@ -1729,12 +1729,12 @@ weapon_shotgun_unequip,00467110,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972a
 weapon_slot_6a5d24_get,00460360,hand,bytes,bytes-reloc,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 weapon_slots_6a9424_clear,004653b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,1.00,0,0
 weapon_slots_render_all,00465f80,hand,near-regress-only,static,-,cc9492f35972,a5fd27972ad0,0,0.00,0,0
-weapon_stack_collect_types,004684c0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,c36dad6bbd61,cc9492f35972,a5fd27972ad0,99,0.67,1,0
-weapons_effects_destroy_all,004677c0,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,cc9492f35972,a5fd27972ad0,19,0.29,0,0
+weapon_stack_collect_types,004684c0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,c36dad6bbd61,cc9492f35972,a5fd27972ad0,88,0.67,1,0
+weapons_effects_destroy_all,004677c0,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,cc9492f35972,a5fd27972ad0,17,0.29,0,0
 weapons_effects_render_all,00467820,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,141,1.00,0,0
-weapons_race_start_dispatch,00467d50,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,cc9492f35972,a5fd27972ad0,18,0.57,0,0
-weapons_reset_all_dispatch,00467860,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,25,0.40,0,0
-weapons_unequip_all_a,00467d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,24,1.00,0,0
+weapons_race_start_dispatch,00467d50,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,cc9492f35972,a5fd27972ad0,19,0.57,0,0
+weapons_reset_all_dispatch,00467860,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,26,0.40,0,0
+weapons_unequip_all_a,00467d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,30,1.00,0,0
 window_create,004a9c90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,cc9492f35972,a5fd27972ad0,200,0.88,0,0
 window_destroy,004a9810,tier1,bytes,bytes-reloc,ae28468a48e2,cc9492f35972,a5fd27972ad0,0,0.00,0,0
 window_show,004a9360,tier1,bytes,bytes-reloc,6ce0a1d43ea6,cc9492f35972,a5fd27972ad0,0,0.00,0,0
