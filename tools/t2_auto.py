@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_mwfix, t2_stfix, t2_postfix, callee_auto, gsfix, strictfix, pseudofix
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_mwfix, t2_stfix, t2_postfix, t2_hand, callee_auto, gsfix, strictfix, pseudofix
 HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
@@ -637,6 +637,25 @@ def main():
         else:
             os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)
             with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as af: af.write("%s | t2_postfix.retry | NOTE | second chance fixes: %s\n" % (time.strftime("%F %H:%M"), ",".join(kinds)))
+    # --- hand stage (tools/t2_hand.py search): kinds learnt from the hand repaired functions (implicit int/float conversions, signed compares, frame pad, FUN_ aliases ...), all verified like the retry stage
+    done1 = {n_ for n_, _ in ok1}
+    for n, src, o, k in items:
+        r = dres[n]
+        if n in done1 or r["verdict"] != "DIFF": continue
+        t0 = open(src, errors="replace").read()
+        def hcheck(nt, n=n, src=src):
+            open(src, "w").write(nt); o2, k2, e2 = comp1(n)
+            if e2: return False
+            r2 = run_diffemu([(n, src, o2, k2)], min(cases, 150), True)[n]
+            if r2["verdict"] == "EQUAL" and int(r2["cases"]) >= 20: return passes(run_diffemu([(n, src, o2, k2)], cases, False)[n])
+            return False
+        try: hr = t2_hand.search(t0, n, {"src": src, "dtx": diff_text(n) + r["note"]}, hcheck)
+        except Exception as ex_: hr = None; print("t2_hand %s: %s" % (n, ex_), flush=True)
+        if hr:
+            ok1.append((n, src)); res.pop(n, None); print("hand %s: %s" % (n, ",".join(hr[0])), flush=True)
+            os.makedirs(os.environ["ATTEMPTS_DIR"], exist_ok=True)
+            with open(os.path.join(os.environ["ATTEMPTS_DIR"], n + ".md"), "a") as af: af.write("%s | t2_hand | NOTE | text kinds learnt from hand repairs: %s\n" % (time.strftime("%F %H:%M"), ",".join(hr[0])))
+        else: open(src, "w").write(t0)
     ok2 = list(ok1); rg = regcallees(); rew = {}
     for n, src in ok2:
         t = open(src, errors="replace").read(); shutil.copy(src, os.path.join(W, n + ".orig.c")); nt = ptrcast.rewrite(t)

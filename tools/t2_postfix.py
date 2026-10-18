@@ -1519,6 +1519,8 @@ def fix(path):
     if sp_: open(path, "w").write(t3); ks.append("sdkproto")
     t4 = re.sub(r"^/\*[0-9a-f]{8}\*/ extern [^;\n]*?\b(\w+)\([^;\n]*\);\n", lambda m: "" if len(re.findall(r"\b%s\b" % re.escape(m.group(1)), re.sub(r"/\*.*?\*/", "", t3, flags=re.S))) == 1 else m.group(0), t3, flags=re.M)      # kind `unused`: an extern nobody calls (autocompile declares names that only occur in the comment; defectlint then flags `start`)
     if t4 != t3: open(path, "w").write(t4); ks.append("unused")
+    try: import t2_hand; ks += t2_hand.fix(path)      # kinds k0 / loopbound / nanlit: learnt from the hand repaired functions
+    except Exception as ex_: print("t2_hand.fix %s: %s" % (path, ex_), flush=True)
     for _ in range(3):
         k = _fix1(path)
         if not k: break

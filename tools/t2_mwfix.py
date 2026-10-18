@@ -11,6 +11,7 @@ def fix(path, err):
             t2 = re.sub(r"^((?:/\*[0-9a-f]{8}\*/ )?extern) (?:undefined4 \*|int |uint |undefined4 )%s;" % g, r"\1 int (__cdecl *%s)();" % g, t, flags=re.M)
             if t2 != t: t = t2; n += 1
     if n: open(path, "w").write(t)
+    import t2_hand; n += t2_hand.stalefield(path, err)      # kind stalefield: field_0xNN no longer in the header
     return n
 
 def gbitcopy(t, nm):
