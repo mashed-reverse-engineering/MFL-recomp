@@ -9,6 +9,8 @@ echo "manifest:"; python3 $T/cmpfn.py --manifest $T/../src/manifest.txt 2>&1 | t
 python3 $T/rawaddr.py --quiet 2>&1 | tail -1 | sed 's/^/WARNING /'
 # diffemu defect classes (unsigned compare of undefined4, float/int bit confusion, _ftol() without argument, wrong prototypes) in installed tier 2 / enabled bridges / candidates: warning only (output/defectlint.csv)
 python3 $T/defectlint.py --quiet 2>&1 | grep "^defectlint:" | sed 's/^/WARNING /'
+# stack / call-boundary blind spots of diffemu (frame overflow by a callee's store extent, stack address in a value slot, calls with fewer arguments than the callee's original reads, interior register callees, float literals, cluster register+stack arity): installed code only, warning (output/stack_lint.csv, README 'stack_lint')
+python3 $T/stack_lint.py --csv $W/stack_lint.csv src/automatch_near src/clusters src/bridges src/tier1 2>&1 | grep -E "^stack_lint:|^recomp.*: [A-H][0-9]? \(" | head -12 | sed 's/^/WARNING /'
 # portability gate v0 (AArch64 LP64 / Switch): pointer<->int casts, x87 / asm, strides; fails only when a class count grows past output/portcheck_baseline.txt (`portcheck.py --update-baseline` is the only writer)
 python3 $T/portcheck.py --quiet 2>&1 | tail -2 | sed 's/^/WARNING /'; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "portcheck: a class grew past the baseline (output/portcheck.csv, README 'Portability gate')"; exit 1; }
 # the three strict builds are independent: run them side by side (BUILD_PAR=1 for the old serial order; compile jobs inside build_overlay are already parallel, the default is 1 because concurrent builds poisoned ~/.cache/mfl_objcache; make the cache writes atomic before raising it)

@@ -60,6 +60,7 @@ case $KIND in
              step "DRIVE=31 sweep" 6 "sweep drive31 0 14 $CRASH DRIVE=31"
              step "win crash-only (DRIVE=33, courses 0,3,7)" 2 "courses win '0 3 7' $CRASH DRIVE=33"
              step "lose crash-only (DRIVE=65, courses 0,3,7)" 2 "courses lose '0 3 7' $CRASH DRIVE=65"
+             step "AI scenarios (cup rows 0 7 10 12 13)" 15 "scen_check cup '0:1 7:1 10:1 12:2 13:2'"
              step "full tier 2 shadow, all courses" 10 "shadow race '$(seq -s' ' 0 14)' -";;
 esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
@@ -84,6 +85,11 @@ sweep() {         # sweep <tag> <a> <b> [ENV=..]...: courses_par.sh P=2 (2 x PAR
   wait $CHILD; CHILD=; cat $D/$tag.log | cut -c1-200
   ! failcheck $D/$tag.log
 }
+scen_check() {   # scen_check <scenario> '<row>:<right> ...': tools/wine-run/scenario.sh runs on the shipped build; a Wine crash of the overlay (control clean) fails.  AI route-following (cup 'Race Game' events) was not reached by any course sweep: ai_find_target_b crashed there while every other gate passed (2026-10-18)
+  local sc=$1 spec rc=0 row right out; for spec in $2; do row=${spec%%:*}; right=${spec##*:}
+    out=$(SCEN_ROW=$row SCEN_RIGHT=$right NOGDB=1 SCEN_TAG=g$$ SCEN_OUT=$D/scen $W/scenario.sh $sc 2>&1 | grep -E '^(ctrl|ovl)'); echo "scenario $sc row $row right $right: $(echo $out | tr '\n' ' ')"
+    echo "$out" | grep -q '^ovl : clean' || rc=1; done; return $rc
+}
 shadow() {        # shadow <race|early> '<courses>' <names file|->: shadowgen2 --changed (tier 2 cache), build with T2_SHADOW_DIR, merge the logs; DIFF = fail; race results go to the cache
   local mode=$1 list=$2 nf=$3 g=$D/shadow_$mode a=()
   [ "$nf" != - ] && a=($nf); [ "$nf" != - -a $mode = race ] && a+=(--changed)      # EARLY re-tests the named functions regardless of the cache (the race step has just recorded them)
@@ -105,7 +111,7 @@ bridgeshadow() {  # bridgeshadow '<courses>' names...: the bridged functions as 
   local f ok=0; for f in $D/bridge_shadow/c*/out_ovl_1/shadowlog.bin; do python3 $W/shadow_report.py $f $R/src/bridges_shadow/shadow_names.txt | tee -a $D/bridge_shadow/report.txt | grep -iE "diff" | grep -E "$(IFS='|'; echo "$*")" && ok=1; done
   [ $ok = 0 ]
 }
-export -f courses sweep shadow diffemu bridgeshadow failcheck nc; export T R W D CRASH EXTRA
+export -f courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
 i=0
 for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"
   echo "=== [$(date +%H:%M)] step $i/${#PLAN[@]}: $l"

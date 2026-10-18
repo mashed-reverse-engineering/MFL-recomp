@@ -771,7 +771,7 @@ class Machine:
         uc.mem_write(sp, struct.pack("<%dI" % (1 + len(args)), RET, *[u32(x) for x in args]))
         for r, v in regs.items(): uc.reg_write(REGS[r], u32(v))
         uc.reg_write(UC_X86_REG_ESP, sp); m.blocks = {}; m.exited = False; m.sp0 = sp
-        if count >= MAXINS: uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)      # trial runs of retry_case need no coverage
+        if count >= MAXINS // 7: uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)      # only the 12000 instruction trial runs of retry_case need no coverage (the hook used to stop after 3 runaway cases: count MAXINS // 7 > coverage ~0.4 whatever the case count)
         err = None
         t0 = time.time()
         try: uc.emu_start(entry, RET, timeout=2000000, count=count)

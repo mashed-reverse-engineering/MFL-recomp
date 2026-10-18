@@ -79,11 +79,12 @@ def indirect_pops(va, size, read=None, ours=False):
             if m in ("call", "jmp", "ret", "pop", "cmp", "test", "leave") or m.startswith("j") or (m in ("add", "sub") and ins[j].op_str.startswith("esp")): break
             j -= 1
         win = ins[j + 1:k]; n = 0
+        cm_ = re.match(r"dword ptr \[(e[a-d]x|e[sd]i|ebp)[ +\]]", i.op_str); cb_ = cm_.group(1) if cm_ else None      # `mov ecx, [edi]; push edi; call [ecx+N]`: the pushed register is the COM `this` (its vtable is loaded from it), not a register save
         for q in range(j + 1, k):
             x = ins[q]
             if x.mnemonic != "push": continue
             r = x.op_str
-            if r in ("ebx", "esi", "edi", "ebp") and not any(wr_(y, r) for y in ins[j + 1:q]) and any(wr_(y, r) and y.mnemonic != "pop" for y in ins[q + 1:]) and any(y.mnemonic == "pop" and y.op_str == r for y in ins[q + 1:]): continue      # `push esi ... mov esi, ... pop esi`: a register save (esi is written afterwards, restored later), not an argument
+            if r in ("ebx", "esi", "edi", "ebp") and not (cb_ and any(y.mnemonic == "mov" and y.op_str.startswith(cb_ + ", dword ptr [" + r + "]") for y in ins[max(0, k - 8):q])) and not any(wr_(y, r) for y in ins[j + 1:q]) and any(wr_(y, r) and y.mnemonic != "pop" for y in ins[q + 1:]) and any(y.mnemonic == "pop" and y.op_str == r for y in ins[q + 1:]): continue      # `push esi ... mov esi, ... pop esi`: a register save (esi is written afterwards, restored later), not an argument
             n += 1
         for x in reversed(win):      # which ecx is it: the `this` register or a temporary
             if x.mnemonic == "push" and x.op_str == "ecx": pe = True
