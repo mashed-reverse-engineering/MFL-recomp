@@ -167,7 +167,7 @@ ai_route_target_for_car,00418d60,tier1,bytes,bytes-reloc,03046b10873a,11404e1744
 alloc_zeroed,004846b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 anim_set_callback,0045ca00,tier1,bytes,bytes-reloc,46a2f0478811,11404e1744d7,600cb522b622,0,0.00,0,0
 anim_stop,0045cff0,tier1,bytes,bytes-reloc,8e6c971192b6,11404e1744d7,600cb522b622,0,0.00,0,0
-anim_update_hierarchy,0045ca10,tier2,compiled+shadow-never,static,-,11404e1744d7,600cb522b622,0,0.00,0,0
+anim_update_hierarchy,0045ca10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 app_counters_clear,004a9dc0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,ec0c5d6d8ee3,11404e1744d7,600cb522b622,200,1.00,1,0
 app_enter_frontend,004a29a0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 app_error_message_box,004a3420,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
@@ -271,7 +271,7 @@ camera_records_warmup,00451c50,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b62
 camera_restore,0040f900,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 camera_set_default_view_window,004a2210,agent,bytes-standalone+fcb39e534c51,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 camera_set_from_record,0044a840,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
-camera_shake_decay,0045c9c0,tier2,compiled+shadow-never,static,-,11404e1744d7,600cb522b622,0,0.00,0,0
+camera_shake_decay,0045c9c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 camera_sky_destroy_thunk,00451d00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 camera_update_view_window,0044a410,tier1,bytes,bytes-reloc,39ffb9f27084,11404e1744d7,600cb522b622,0,0.00,0,0
 camera_view_matrix_from_frame,004a6bf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
@@ -553,7 +553,7 @@ course_sands_cb2,0045bc70,agent,bytes-standalone+0c056e102ae9,bytes-reloc,-,1140
 course_sands_cb5,0045bda0,agent,bytes-standalone+ca1d113d1d7e,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 course_sands_cb6,0045b780,tier1,bytes,bytes-reloc,54b493c931ac,11404e1744d7,600cb522b622,0,0.00,0,0
 course_sandsnow_cb0,004584e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
-course_sandsnow_cb1,00458530,tier2,compiled+shadow-never,static,-,11404e1744d7,600cb522b622,0,0.00,0,0
+course_sandsnow_cb1,00458530,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 course_sandsnow_cb10,004585f0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 course_sandsnow_cb2,00458570,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 course_sandsnow_cb5,00458610,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
@@ -1515,7 +1515,7 @@ spatial_grid_get,00474ac0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0
 spatial_grid_set,00474ba0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 speaker_mode_names,0042c9e0,tier1,bytes,bytes-reloc,f9f92f66ae05,11404e1744d7,600cb522b622,0,0.00,0,0
 sphere_plane_side,00488140,agent,bytes-standalone+cf961709cd75,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
-sphere_vs_box_test,0049cb60,tier2,compiled+diffemu-STALE+shadow-never,static,-,11404e1744d7,600cb522b622,0,0.00,1,0
+sphere_vs_box_test,0049cb60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 spline_get_length,00482270,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,0.89,0,0
 spline_object_register_trigger_sphere,00457010,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 split_sectors_reset,0042b1e0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
