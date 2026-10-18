@@ -145,6 +145,7 @@ ai_bot_set_timer_30000,004183b0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b6
 ai_bot_skill,00416af0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 ai_bot_state_reset,00416ac0,agent,bytes-standalone+93ca96694832,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 ai_bot_stuck_check,00417d70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,0.13,0,0
+ai_bot_update,0041b4e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,0.78,0,0
 ai_bot_weapon_logic,00416fb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 ai_bots_assign_slots,00416d40,agent,bytes-standalone+5512697e6521,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 ai_bots_clear_stats,00416c40,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,71e5b009d636,11404e1744d7,600cb522b622,200,1.00,1,0
@@ -333,6 +334,7 @@ car_hit_by_leader,00475890,tier1,bytes,bytes-reloc,7b376bae5300,11404e1744d7,600
 car_is_active,0047a830,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 car_is_playable,00468a20,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 car_kill,00426b40,tier1,bytes,bytes-reloc,50d636dece5f,11404e1744d7,600cb522b622,0,0.00,0,0
+car_log_event_6,0047bca0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 car_push_from_matrix,0040c320,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 car_reset_full,0047a620,tier1,bytes,bytes-reloc,c6ba008bef16,11404e1744d7,600cb522b622,0,0.00,0,0
 car_reset_physics,00491d70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
@@ -567,6 +569,7 @@ course_rouabout_cb1,00457f80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-
 course_rouabout_cb12,004575f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 course_rouabout_cb2,00458280,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 course_rouabout_cb3,00458c90,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
+course_rouabout_cb7,00457f60,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,11404e1744d7,600cb522b622,0,0.00,0,0
 course_sands_cb0,0045bf60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 course_sands_cb1,0045bc20,agent,bytes-standalone+aff1f40062b3,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 course_sands_cb2,0045bc70,agent,bytes-standalone+0c056e102ae9,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0

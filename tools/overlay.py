@@ -172,10 +172,6 @@ def main():
             blob += ob.d[s["ptr"]:s["ptr"] + s["size"]]
     CAP = 4096
     thunk_off = None
-    if count:
-        align(16)
-        thunk_off = len(blob)
-        blob += b"\xCC" * (16 * CAP)
     align(16)
     bss_start = len(blob)
     off_in_bss = 0
@@ -195,10 +191,6 @@ def main():
                 commons[s["name"]] = bss_start + off_in_bss
                 off_in_bss += s["value"]
     cnt_off = None
-    if count:
-        off_in_bss = (off_in_bss + 15) // 16 * 16
-        cnt_off = bss_start + off_in_bss
-        off_in_bss += 4 * CAP
     total_vsize = bss_start + off_in_bss
 
     # stubs `jmp [IAT slot]` for imported functions the objects call directly (_Name@N)
@@ -228,9 +220,16 @@ def main():
             placed[k2] = v2 + shift
     for nm2, v2 in list(commons.items()):
         commons[nm2] = v2 + shift
-    if cnt_off is not None:
-        cnt_off += shift       # the counter table lives in the bss too: without this it overlapped the last common variables whenever import stubs were added (bridge builds)
     total_vsize += shift
+    if count:      # the counter thunks and the table go BEHIND the bss (which becomes file backed zeros): every real function and variable keeps the address it has in a build without --count.
+        # (Before, the thunks sat in front of the bss and moved the data of the replaced code by 80 KB: a count build had another layout than the same build without --count.)
+        blob += b"\0" * (total_vsize - len(blob))
+        align(16)
+        thunk_off = len(blob)
+        blob += b"\xCC" * (16 * CAP)
+        cnt_off = len(blob)
+        blob += b"\0" * (4 * CAP)
+        total_vsize = len(blob)
     # defined external symbols -> new VA
     defined = {}
     defsec = {}

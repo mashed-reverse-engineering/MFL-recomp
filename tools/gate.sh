@@ -20,6 +20,7 @@ KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat 
 case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
+[ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)
 CRASH="RUNS=1 SHOTS_RUNS=0 THRESH=100000 COUNT= COURSE_TIMEOUT=300"      # COUNT= : no coverage counters unless a step wants them
 declare -a PLAN; est=0
 step() { PLAN+=("$1|$2|$3"); est=$(awk "BEGIN{print $est+$2}"); }      # label | minutes | command (run with eval)
