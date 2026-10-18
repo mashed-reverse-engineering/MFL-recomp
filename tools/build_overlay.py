@@ -34,7 +34,18 @@ def cl_verify(out, entries, thunks):
     import struct
     mp = {l.split()[0]: int(l.split()[1], 16) for l in open(out + ".map") if len(l.split()) == 2}
     sizes = {l.split()[1]: int(l.split()[2]) for l in open(os.path.join(HERE, "..", "output", "fnsizes.txt")) if len(l.split()) == 3}
+    for f_ in glob.glob(os.path.join(HERE, "..", "output", "cluster_pilot*", "fnsizes_extra.txt")):      # sizes of gap_ items that fnsizes.txt lacks (cluster_install reads the same files)
+        for l_ in open(f_):
+            p_ = l_.split()
+            if len(p_) == 3 and p_[1] not in sizes: sizes[p_[1]] = int(p_[2])
     syms = {l.split()[0]: int(l.split()[1], 16) for l in open(os.path.join(RECOMP, "symbols.txt")) if len(l.split()) == 2}
+    _al = os.path.join(RECOMP, "aliases.txt")      # gap_<va> entries (unnamed items) are known by src/aliases.txt only
+    if os.path.exists(_al):
+        for l_ in open(_al):
+            p_ = l_.split()
+            if len(p_) == 2 and p_[0] not in syms:
+                try: syms[p_[0]] = int(p_[1], 16)
+                except ValueError: pass
     exe = open(out, "rb").read()
     e = struct.unpack_from("<I", exe, 0x3C)[0]
     nsec, osz = struct.unpack_from("<H", exe, e + 6)[0], struct.unpack_from("<H", exe, e + 20)[0]

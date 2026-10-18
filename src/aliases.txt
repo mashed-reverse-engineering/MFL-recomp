@@ -1536,3 +1536,15 @@ RxNodeDefinitionGetD3D9WorldSectorAllInOne 005009c0
 pow 004b2c30
 rwD3D9SetPixelShader 004db230
 FUN_004b2f90 004b2f90
+gap_4acfc0 004acfc0
+gap_4aef90 004aef90
+gap_4ac7f0 004ac7f0
+gap_4aede0 004aede0
+gap_4ac6c0 004ac6c0
+gap_4adfb0 004adfb0
+gap_459f00 00459f00
+gap_454020 00454020
+gap_4ace00 004ace00
+gap_4ad010 004ad010
+gap_453aa0 00453aa0
+gap_4af5c0 004af5c0
