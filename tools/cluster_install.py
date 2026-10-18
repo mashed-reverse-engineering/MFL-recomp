@@ -59,6 +59,11 @@ def install(c, force):
     for l in open(os.path.join(G, "output", "fnsizes.txt")):
         q = l.split()
         if len(q) == 3: fs[q[1]] = (int(q[0], 16), int(q[2]))
+    try:      # <cluster dir>/fnsizes_extra.txt (`va name size`, true function size): entries fnsizes.txt does not list (gap_ items: output/callgraph_waves.csv bytes are the size of the whole gap item)
+        for l in open(os.path.join(c["dir"], "fnsizes_extra.txt")):
+            q = l.split()
+            if len(q) == 3: fs[q[1]] = (int(q[0], 16), int(q[2]))
+    except OSError: pass
     v = verdicts(c["dir"])
     bad = [e for e in c["entries"] if v.get(e) != "EQUAL"]
     if bad and not force: sys.exit("%s: not EQUAL in %s/results.csv: %s" % (c["root"], c["dir"], " ".join(bad)))
@@ -135,7 +140,8 @@ def main():
         print(" ".join(e for n in a[a.index("--entries") + 1:] for e in entries_of(n))); return
     if "--remove" in a:
         rm = set(a[a.index("--remove") + 1:])
-        open(EN, "w").write("".join(n + "\n" for n in enabled() if n not in rm))
+        keep_ = [n for n in enabled() if n not in rm]      # read BEFORE the file is truncated (open(EN, "w") first emptied the list)
+        open(EN, "w").write("".join(n + "\n" for n in keep_))
         for n in rm:
             if os.path.exists(os.path.join(CL, "cl_%s.c" % n)): os.unlink(os.path.join(CL, "cl_%s.c" % n))
         return

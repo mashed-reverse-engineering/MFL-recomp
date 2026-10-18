@@ -13,7 +13,7 @@ except ImportError:
 import csv, re
 HERE = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(HERE, ".."))
 sys.path[:0] = [HERE, os.path.join(HERE, "diffemu")]
-import core, diffemu
+import core, diffemu, cluster
 from capstone import x86_const as X
 RUN = os.path.abspath(sys.argv[1]); want = sys.argv[2:]
 CS = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32); CS.detail = True
@@ -50,6 +50,10 @@ def analyse(read, base, lo, hi, ours):
             if m == "push" and ops[0].type == X.X86_OP_REG and R32.get(ins.reg_name(ops[0].reg)) in CSAVED:
                 pushed.add(R32[ins.reg_name(ops[0].reg)]); R = set()      # a save, not an input
             if m == "pop": R = set()
+            if m == "mov" and len(ops) == 2 and ops[0].type == ops[1].type == X.X86_OP_REG and ops[0].reg == ops[1].reg: R = set(); W = set()      # `mov edi, edi`: the compiler's two byte nop
+            if m == "push" and a == lo and ops[0].type == X.X86_OP_REG: R = set()      # `push ecx` as the first instruction: the compiler's one dword stack slot, not a use of ecx
+            if m == "or" and len(ops) == 2 and ops[0].type == X.X86_OP_REG and ops[1].type == X.X86_OP_IMM and (ops[1].imm & 0xffffffff) == 0xffffffff: R = set()      # `or ebp, -1`: sets the register to -1
+            if m == "lea" and len(ops) == 2 and ops[1].type == X.X86_OP_MEM and ops[0].type == X.X86_OP_REG and ops[1].mem.base == ops[0].reg and not ops[1].mem.index and not ops[1].mem.disp: R = set(); W = set()      # `lea ebx, [ebx]`: alignment padding the compiler emits, not a use of ebx
             # memory operands: stack slots
             for o in ops:
                 if o.type == X.X86_OP_MEM:
@@ -124,7 +128,7 @@ out = []
 for root in roots:
     why = []
     try:
-        p = rows[root]; order = p[3].split(); va = min(tb.sym[root]); sz = tb.size.get(va, 0x400)
+        p = rows[root]; order = p[3].split(); va = cluster.entry_va(tb, root); sz = tb.size.get(va) or cluster.entry_size(root, va)
         o = analyse(core.img_read, 0, va, va + sz, False)
         regtok = {t for t in order if not re.fullmatch(r"s\d+", t)}; stk = [int(t[1:]) for t in order if re.fullmatch(r"s\d+", t)]
         src = open(os.path.join(RUN, "c", p[1]), errors="replace").read()
