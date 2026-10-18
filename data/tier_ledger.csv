@@ -1157,6 +1157,7 @@ message_show,004311b0,tier1,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00
 message_show_controller_missing,00431ae0,hand,bytes,bytes-reloc,-,11404e1744d7,600cb522b622,0,0.00,0,0
 message_show_now,00431130,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 mine_load_assets,004640a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
+missile_load_assets,00460d40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,199,1.00,0,0
 mortar_load_assets,0045e480,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,600cb522b622,200,1.00,0,0
 movie_guid_compare,004a3155,bridge,enabled-list (game + shadow test results not recorded per function),none,-,11404e1744d7,600cb522b622,0,0.00,0,0
 movie_poll_and_set_surface,004a39e0,tier1,bytes,bytes-reloc,962f53c05968,11404e1744d7,600cb522b622,0,0.00,0,0
