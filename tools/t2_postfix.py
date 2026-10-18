@@ -790,6 +790,12 @@ def ftol(t, nm):
             import t2_unify, t2_x87 as X
             b = t2_unify.bind(t, nm, FAIL["leaves"], FAIL["trees"], X.TREES, FAIL["leaf0"])
             if b: FAIL.clear(); r = _ftol(t, nm, b)
+        if r[1] == 0 and FAIL.get("leaves") and any(re.fullmatch(r"M:\[e\w\w[-+]0x[0-9a-f]+\]", l_) for l_ in FAIL["leaves"]):
+            import t2_mwfix; sv = t2_mwfix.stepvar(t)
+            if sv:
+                _XP["step"] = sv; FAIL.clear()
+                try: r = _ftol(t, nm, None)
+                finally: _XP["step"] = None
         return r
     finally: _XP["grow"] = False
 def _ftol(t, nm, bound):
@@ -865,6 +871,7 @@ def _ftol(t, nm, bound):
             b_ = bound[c]; return b_ if kind in ("i4", "i2") or re.fullmatch(r"[\w.\->\[\]\*() ]+", b_) else None
         mr_ = re.fullmatch(r"M:\[(e\w\w)(?:([+-])0x([0-9a-f]+))?\]", c)
         rb_ = regbase.get(mr_.group(1), set()) if mr_ else set()
+        if mr_ and not rb_ and _XP.get("step"): rb_ = {("ptr", _XP["step"], 0)}      # kind `ftol` retry (t2_mwfix.stepvar): the only pointer the text steps through a loop is the opaque register
         rb_ = rb_ if len(rb_) == 1 else {min((x for x in rb_ if x[0] == "lv"), key=lambda x: (len(x[1]), x))} if any(x[0] == "lv" for x in rb_) else {min(rb_, key=lambda x: (len(x[1]), x))} if len({x[1] for x in rb_}) == 1 else set()      # several named views of the same register: the shortest lvalue (all of them describe the same address)
         if mr_ and kind in ("f", "d", "i4") and len(rb_) == 1:
             how_, v_, o1_ = next(iter(rb_)); off_ = (int(mr_.group(3), 16) * (-1 if mr_.group(2) == "-" else 1)) if mr_.group(3) else 0
@@ -1528,6 +1535,8 @@ def _fix1(path):
     t, hn = hoist(t, os.path.basename(path)[:-2])
     t, cn = scalararr(t)
     t, bcn = bitcopy(t, os.path.basename(path)[:-2])
+    import t2_mwfix; t, gbn = t2_mwfix.gbitcopy(t, os.path.basename(path)[:-2]); bcn += gbn; t, gbn = t2_mwfix.u2f(t, os.path.basename(path)[:-2]); bcn += gbn
+    t, gbn = t2_mwfix.ptrtab(t); bcn += gbn
     t, fcn = fastcall(t, os.path.basename(path)[:-2]); t, isn = istore(t); t, pfn = pushfwd(t); isn += pfn
     if tn or an or fn or sn or hn or cn or fcn or isn or bcn: open(path, "w").write(t)
     if not hasattr(fix, "gd"): fix.gd = defectlint.load_decls()

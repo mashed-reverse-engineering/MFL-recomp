@@ -1534,3 +1534,4 @@ _RwD3D9RasterExtOffset 00947144
 RxNodeDefinitionGetD3D9AtomicAllInOne 005003b0
 RxNodeDefinitionGetD3D9WorldSectorAllInOne 005009c0
 pow 004b2c30
+rwD3D9SetPixelShader 004db230

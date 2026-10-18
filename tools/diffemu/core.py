@@ -254,6 +254,11 @@ def libsyms():
                 if len(q) >= 2 and q[1] != "00000000":
                     try: _LS.setdefault(q[0], int(q[1], 16))
                     except ValueError: pass
+        try:      # RW library functions the byte matcher found (output/rw_libmatch.csv `va,name,..`) that rw_libsyms.csv (relocation derived) lacks: _rwD3D9SetVertexShaderConstant
+            for l in open(os.path.join(ROOT, "output", "rw_libmatch.csv")):
+                q = l.split(",")
+                if len(q) >= 2 and re.fullmatch(r"[0-9a-f]{8}", q[0]) and re.fullmatch(r"\w+", q[1]): _LS.setdefault("_" + q[1], int(q[0], 16))
+        except (OSError, ValueError): pass
     return _LS
 
 def impstub(name): return IMPSTUB + 16 * sorted(T().iat).index(name)
@@ -288,7 +293,7 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
         else:
             vas = tb.sym.get(un) or tb.sym.get("_" + un)
             if vas: t = sorted(vas)[0] + add
-            elif (fm := re.fullmatch(r"_?func_0x([0-9a-f]{8})", n)): t = int(fm.group(1), 16) + add      # decompiler name of an unnamed function: the address is the name (build_overlay.py does the same); stubbed like every callee
+            elif (fm := re.fullmatch(r"_?(?:func_0x|FUN_)([0-9a-f]{8})", n)): t = int(fm.group(1), 16) + add      # decompiler name of an unnamed function: the address is the name (build_overlay.py does the same); stubbed like every callee
             elif (lv := libsyms().get(n) or libsyms().get(un) or libsyms().get("_" + un)): t = lv + add      # SDK library / CRT symbol (output/*_libsyms.csv: derived from the relocations of byte matched library functions): the original's address
             elif un in tb.iat: t = impstub(un) + add      # direct `call _WaitForSingleObject@8` of an import: the same import stub the original's `call [IAT]` reaches (name + arguments traced identically on both sides)
             else: raise Unresolved("symbol " + n)
@@ -357,6 +362,70 @@ def ptr_limits(params):
         sz = (SDK_SZ.get(m.group(1)) or T().structs.get(m.group(1))) if m else None
         out += [((sz + 3) // 4 if sz else 0)] * (2 if re.search(r"\bdouble\b", p) and "*" not in p else 1)
     return out
+
+_AL = {}
+def asm_limits(va, nargs):
+    """per stack argument: the size in words that the ORIGINAL callee reads / writes through the pointer it loads from that argument slot (0 = unknown).  Linear scan of the callee body: `mov r,[esp+4+4k]`
+    makes r an alias; every `[r+disp]` access (no index register) extends the object to disp+size; anything else that touches an alias (copy to memory, push, arithmetic, lea, passing it in
+    eax / ecx / edx to a call, an indexed access) gives up for that argument (unknown = the full FRAMEWIN).  Used for callees without a typed prototype (grid_position -> dot_product_2d_clamped: reads
+    2 words of the vector, the window compared 8)"""
+    key = (va, nargs)
+    if key in _AL: return _AL[key]
+    BAD = 1 << 30; ext = [0] * nargs; al = {}; d = 0; ebp_d = None; out = [0] * nargs
+    sz = T().size.get(va, 0x400); name = lambda r: CS.reg_name(r)
+    try:
+        for ins in CS.disasm(img_read(va, sz), va):
+            mn = ins.mnemonic; ops = ins.operands; mems = [o for o in ops if o.type == CX.X86_OP_MEM]
+            if mn in ("ret", "retn"): d = 0; continue
+            if mn in ("and", "leave") and ops and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == "esp": ext = [BAD] * nargs; break
+            slot = None
+            for o in mems:
+                b = name(o.mem.base) if o.mem.base else ""; x = o.mem.index
+                if b == "esp" or (b == "ebp" and ebp_d is not None):
+                    off = o.mem.disp - (d if b == "esp" else ebp_d)
+                    if x == 0 and off >= 4 and (off - 4) % 4 == 0 and (off - 4) // 4 < nargs: slot = (off - 4) // 4
+                    continue
+                if b in al:
+                    k = al[b]
+                    if x: ext[k] = BAD
+                    else: ext[k] = max(ext[k], o.mem.disp + max(o.size, 1))
+                elif x and name(x) in al: ext[al[name(x)]] = BAD
+            # the alias registers that this instruction reads / writes outside memory operands
+            rd, wr = ins.regs_access(); rn = {name(r) for r in rd}; wn = {name(r) for r in wr}
+            membase = {name(o.mem.base) for o in mems if o.mem.base} | {name(o.mem.index) for o in mems if o.mem.index}
+            if slot is not None:
+                if mn == "mov" and ops[0].type == CX.X86_OP_REG and ops[0].size == 4 and ops[1].type == CX.X86_OP_MEM:
+                    al[name(ops[0].reg)] = slot; continue
+                if mn in ("fld", "fild", "fadd", "fmul", "fsub", "fdiv", "fcom", "fcomp", "fsubr", "fdivr", "cmp", "test"): pass      # value use of the argument (not a pointer use)
+                else: ext[slot] = BAD
+            direct = ops[0].type == CX.X86_OP_IMM if ops else False
+            if mn == "call":
+                if direct and BASE <= ops[0].imm < IMGEND:
+                    try: d -= callee_info(ops[0].imm).pop
+                    except Exception: pass
+                elif not direct:      # indirect call (the pointer may be the call target or a register argument)
+                    for r in [r for r in al if r in rn]: ext[al.pop(r)] = BAD
+                for r in ("eax", "ecx", "edx"):
+                    if r in al: ext[al[r]] = BAD
+                    al.pop(r, None)
+                continue
+            if mn == "jmp" and direct and not (va <= ops[0].imm < va + sz): ext = [BAD] * nargs; break
+            if mn == "push": d += 4
+            elif mn == "pop": d -= 4
+            elif mn == "sub" and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == "esp" and ops[1].type == CX.X86_OP_IMM: d += ops[1].imm
+            elif mn == "add" and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == "esp" and ops[1].type == CX.X86_OP_IMM: d -= ops[1].imm
+            elif mn == "mov" and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == "ebp" and ops[1].type == CX.X86_OP_REG and name(ops[1].reg) == "esp": ebp_d = d
+            for r in [r for r in al if r in rn and r not in membase]:      # an alias used outside a memory operand
+                if mn in ("test", "cmp"): continue
+                if mn == "mov" and ops[0].type == CX.X86_OP_REG and ops[1].type == CX.X86_OP_REG and name(ops[1].reg) == r: al[name(ops[0].reg)] = al[r]; continue
+                ext[al[r]] = BAD
+            for r in wn:      # a register overwritten: no longer the pointer (derived pointers gave up above)
+                if r in al and r in rn and r not in membase and mn not in ("test", "cmp"): ext[al.pop(r)] = BAD
+                elif r in al and not (mn == "mov" and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == r and ops[1].type == CX.X86_OP_REG and name(ops[1].reg) in al): 
+                    if r in rn and r in membase or r not in rn: al.pop(r, None)
+    except Exception: return _AL.setdefault(key, [0] * nargs)
+    out = [0 if e >= BAD or e <= 0 else (e + 3) // 4 for e in ext]
+    return _AL.setdefault(key, out)
 
 _RP = {}
 def orig_ret_pops(va):
@@ -432,6 +501,7 @@ def callee_info(va):
     rt = (dc[0] if dc else (sg[2] if sg else "")).split()
     c = Callee(va, name, pop, min(n or 0, 12), [r for r in regs if r in REGS], "f" if any(x in ("float", "double", "float10", "RwReal") for x in rt) or (float_returners().get(va) and va not in real_helpers() and all(x in ("", "undefined", "undefined4", "void", "unknown", "__cdecl", "__stdcall") for x in rt)) else "i", known=n is not None or va not in tb.reg, infer=n is None and not pop)
     if dc and dc[1].strip() not in ("", "void") and not (regs and va in tb.reg) and re.fullmatch(r"_?(?:RwV[23]d(?!Transform)\w*(?<!s)|RwFrame(?:Translate|Scale|Rotate|SetIdentity|Transform))", name): c.lim = ptr_limits(split_params(dc[1]))      # single object functions only: vector / vertex ARRAY functions (RwV3dTransformVectors, RwIm3D*) really read behind the first element
+    if not c.lim and not regs and c.nargs: c.lim = asm_limits(va, c.nargs)      # no typed prototype: the extent the original callee's asm reads through each pointer argument
     return c
 
 def split_params(s):

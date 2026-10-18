@@ -40,7 +40,7 @@ os.environ.update(T2_OVERLAY_DIR=os.path.join(RUN, "overlay"), DIFFEMU_OUT=os.pa
 os.makedirs(os.environ["T2_OVERLAY_DIR"], exist_ok=True)
 def _rm_container(): subprocess.run(["docker", "rm", "-f", "mfl_t2_" + RUNID], capture_output=True)      # exactly this run's container
 atexit.register(_rm_container)
-import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_stfix, t2_postfix, callee_auto, gsfix, strictfix, pseudofix
+import core, diffemu, defectlint, cheatgrep, ptrcast, rawaddr, t2_mwfix, t2_stfix, t2_postfix, callee_auto, gsfix, strictfix, pseudofix
 HDR = os.path.join(RUN, "overlay", "ghidra_types.h")
 W = RUN; FILES = os.path.join(W, "files"); FAILS = os.path.join(RUN, "failures"); CAND = os.path.join(RUN, "candidates"); POOL = P("output", "t2_auto", "pool.txt")
 SHARED_CAND = P("output", "tier2_candidates2")
@@ -516,7 +516,7 @@ def main():
                 for _ in range(6):
                     o_, k_, e_ = compile_one(srcs[n])
                     if not e_: st[n] = ok = True, f, "", rnd; pk = pk + ["fptrarg"]; break
-                    if not (t2_postfix.errfix(srcs[n], e_, lambda q: compile_one(q)[2]) or t2_stfix.fix(srcs[n], e_)): err = e_; break
+                    if not (t2_postfix.errfix(srcs[n], e_, lambda q: compile_one(q)[2]) or t2_stfix.fix(srcs[n], e_) or t2_mwfix.fix(srcs[n], e_)): err = e_; break
                     pk = pk + ["fptrarg"]
             if pk:
                 print("postfix %s: %s" % (n, ",".join(sorted(set(pk)))), flush=True)
@@ -551,7 +551,7 @@ def main():
     for n in cand:
         o, k, e = comp[n]
         for _ in range(6):      # kind fptrarg (t2_postfix.errfix): the strict rewrite / gsfix stage can expose the error only now
-            if not e or not (t2_postfix.errfix(srcs[n], e, lambda q: compile_one(q)[2]) or t2_stfix.fix(srcs[n], e)): break
+            if not e or not (t2_postfix.errfix(srcs[n], e, lambda q: compile_one(q)[2]) or t2_stfix.fix(srcs[n], e) or t2_mwfix.fix(srcs[n], e)): break
             o, k, e = compile_one(srcs[n])
             if not e: print("postfix %s: fptrarg" % n, flush=True)
         if e: put(n, "compile", "COMPILE-ERROR", e, cclass(e), srcs[n])
