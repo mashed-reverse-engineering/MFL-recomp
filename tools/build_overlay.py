@@ -64,6 +64,9 @@ def main():
     out = sys.argv[1]
     sym = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else os.path.join(RECOMP, "symbols.txt")
     extra = sys.argv[3:] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else sys.argv[2:]
+    _en_b = {l.strip() for l in open(os.path.join(RECOMP, "bridges", "enabled.txt")) if l.strip()} if os.path.exists(os.path.join(RECOMP, "bridges", "enabled.txt")) else set()
+    _nn = os.path.join(RECOMP, "automatch_near_names.txt")
+    t2near_off = {l.split()[1] for l in open(_nn) if len(l.split()) >= 2} - _en_b if os.path.exists(_nn) else set()
     skip = set()
     p = os.path.join(RECOMP, "skip_build.txt")
     if os.path.exists(p):
@@ -167,6 +170,9 @@ def main():
             if b"compile: /GS" in open(c, "rb").read(): gs_files.add(nm)      # /GS stack-cookie functions (tools/gsfix.py): this file alone gets cl /GS
             if cl_entries and c not in cl_files:
                 t_ = open(c, errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in cl_entries if re.search(r"\b%s\b" % n_, t_)])
+                if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
+            if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
+                t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
             key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + " ".join(flags + (["/GS"] if nm in gs_files else [])).encode()).hexdigest()
             keyed.append((nm, os.path.join(cache, key + ".obj")))

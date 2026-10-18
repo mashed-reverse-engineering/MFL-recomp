@@ -57,8 +57,8 @@
    "verified_bytes_identical": 135
   },
   "bridge": {
-   "bytes": 6403,
-   "functions": 40,
+   "bytes": 1643,
+   "functions": 4,
    "verified_bytes_identical": 0
   },
   "hand": {
@@ -72,8 +72,8 @@
    "verified_bytes_identical": 398
   },
   "tier2": {
-   "bytes": 180255,
-   "functions": 932,
+   "bytes": 180609,
+   "functions": 936,
    "verified_bytes_identical": 0
   }
  }
