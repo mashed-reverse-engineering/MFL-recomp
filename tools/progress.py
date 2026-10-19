@@ -31,11 +31,17 @@ def compute():
             t = tiers[r["tier"]]; t["functions"] += 1; t["bytes"] += size.get(int(r["va"], 16), 0)
             t["verified_bytes_identical"] += r["authority"] == "bytes-reloc"
     rep = {t: dict(c) for t, c in sorted(tiers.items())}
+    cl = {"functions": 0, "bytes": 0}                    # register-argument clusters (natural-C body + generated entry thunk), behaviour verified
+    p = find("clusters_enabled.txt") or os.path.join(G, "src", "clusters", "enabled.txt")
+    if os.path.exists(p):
+        by_name = {n: sz for _, n, sz in fn}
+        for n in (l.strip() for l in open(p)):
+            if n: cl["functions"] += 1; cl["bytes"] += by_name.get(n, 0)
     return {"exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
             "functions": {"total": len(fn), "game": len(game), "named": named(fn), "game_named": named(game),
                           "game_bytes": sum(s for _, _, s in game)},
             "published_source": {"by_status": dict(man), "by_module": dict(sorted(by_mod.items()))},
-            "replaced_in_pipeline": rep}
+            "replaced_in_pipeline": rep, "clusters": cl}
 
 def bar(n, d, w=20):
     k = round(w * n / d) if d else 0
@@ -53,6 +59,12 @@ def table(j):
         out += ["| Replaced by recompiled C (all tiers) | %s | %s |" % (format(tot, ","), bar(tot, g)),
                 "| ...verified byte identical | %s | %s |" % (format(ver, ","), bar(ver, g)),
                 "| ...share of the code bytes | %s B | %s |" % (format(rb, ","), bar(rb, f["game_bytes"]))]
+    t2 = rep.get("tier2") if rep else None
+    if t2:
+        out.append("| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | %s | %s |" % (format(t2["functions"], ","), bar(t2["functions"], g)))
+    cl = j.get("clusters")
+    if cl and cl["functions"]:
+        out.append("| ...of these register-argument clusters | %s | %s |" % (format(cl["functions"], ","), bar(cl["functions"], g)))
     out.append("| Published in `src/` | %s | %s |" % (format(pub, ","), bar(pub, g)))
     out.append("| ...byte identical (`MATCH`) | %s | %s |" % (format(m.get("MATCH", 0), ","), bar(m.get("MATCH", 0), g)))
     if rep:
