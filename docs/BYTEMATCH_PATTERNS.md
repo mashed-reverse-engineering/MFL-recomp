@@ -116,3 +116,43 @@ Recognise by: orig has `mov esi|edi|eax,IMM` right before a call to a function w
 ## Generic lessons
 1. Many "diffs" in the triage are stale: 13 of the 41 functions already compile byte-identical (+reloc check) from the installed source. Re-run cmpfn on the candidate list before spending effort.
 2. A cheap scripted sweep that would have caught A/E/F/G: for each near function, try (a) inline single-use call temps, (b) add unused parameters to the call that precedes them, (c) collapse `X=Y-K; Y=X` loops, (d) `return <last pointer param>` for REGALLOC-only diffs.
+
+## Round C
+Metric: cmpfn.check (reloc-masked) via <scratch>; scratch copies src/w_<name>.c; merged home files fix/an_*.c (git merge-file per home).
+
+1. Switch case-block order = asm block order (gamesave_cb_save_state, medal_asset_names; 2)
+   asm: same code, case blocks laid out in a different sequence; `default:` that shares a tail with `case 5:` -> put `default:` body first and let it fall into `case 5:`.
+   edit: reorder the C `case` groups to the order of the blocks in the original (jump-table targets sorted by address). Also `999 < x` -> `x >= 1000` (cmp 0x3e8; jl).
+2. Struct assignment instead of member-wise copies (atomic_world_bbox_update, smplfzx_object_init_bounds; 2)
+   asm: `lea eax,[esi+0xc]; mov ecx,[eax]; ... [eax+4] ... [eax+8]` (3 dword copy through a pointer). edit: `world_inf = bbox->inf;` / `*(RwV3d*)(dst) = *(RwV3d*)(src)`.
+   Same with a local 4-float struct typedef (explosion_queue: `*(Vec4F*)dst = *(Vec4F*)src`). Also swap two local-pointer init statements to fix eax/ecx swaps.
+3. Float-typed stores of constants (7: team_colour_table_init_4, sound_spline_create_b, app_counters_clear, ...; ui_colour_a_default partly)
+   asm: original `mov dword [x],0x3f800000` / `mov dword [x],0` immediates; ours hoists repeated int constants/zero into a register (`xor eax,eax` + reg stores, `mov ecx,IMM`).
+   edit: store through float: `*(float*)&g = 1.0f;` / `= 0.0f;` or make the local table `float t[12]` with float literals (cl does not CSE float immediates). Script: f32.py converts hex bit patterns to shortest float literal.
+4. Record base pointer + field offsets (ktc_new_copter 23 fields, weapon_oil_equip; same as Round B pattern B)
+   edit: `char *rec = (char*)&BASE_SYMBOL + idx*SIZE;` then `*(T*)(rec + (field_va - BASE_va))`. Script converts `(&g_x_XXXXXX)[idx*N]` -> rec offsets.
+5. `v->field |= X` / `&= ~X` through a record pointer (vehicle_set_flag_1000/10/40; 3)
+   asm: orig reloads `[eax+0x294]` before each branch, ours kept a `new_flags` temp (CSE). edit: `struct R *v=&tbl[i]; if(on) v->flags |= F; else v->flags &= ~F;` (no temps, `on != 0` first = `je clear` layout).
+6. Early if/else restructure + last `return a+b` -> accumulate (player_stat_get_*_team/total; 5)
+   asm: team test `je` jumps to a solo block placed AFTER the team code; last team term `add eax,[mem]` not `mov ecx,[mem]; add eax,ecx`.
+   edit: `if (is_team_mode() != 0) { ...; agg = agg + x[3]; return agg; } return solo;` -- i.e. no `x = is_team_mode()` temp, last branch assigns instead of `return a+b`.
+7. lua_tonumber double -> float local without float10 (lua_RainSetDirection, lua_RWP_Object_Box/Capsule; 3)
+   asm: orig `call lua_tonumber; fstp dword [mem]` directly; ours float10 temp + qword spill. edit: `desc->f = (float)lua_tonumber(...)` (no float10 local), or `float x = (float)lua_tonumber(..)`.
+8. Compare through the memory lvalue, no float10 temp (noise_table_init, sound_ducking_values_decay; 2)
+   asm: `fcom dword [k]; test ah,5; jp` / `fcomp [k]; test ah,0x41; jne` on the value just stored; ours `fld [k]; fld st(1); fcompp`.
+   edit: `*e = (float)random(); if (*e < k) *e = 0; else if (*e > one) *e = 1;`  and for Ghidra's `(a<b)==(a==b)` NaN idioms: `x > k` (jne after test 0x41), `x <= k` (jp after test 0x41).
+9. Single-use call temp inlined (nested call args) (best_time_store; same as Round B A)
+   asm: `lea esi,[eax+eax*2]` after FIRST call (row*3) before the second call. edit: `arr[get_row()*3 + get_menu()] = ...` (no `row = get_row(); menu = get_menu();` temps).
+10. Uninitialised/dead argument = live register (attract_timer_update)
+   asm: `push eax` (value left in eax by the preceding test) where Ghidra shows `f(0)`. edit: pass the variable that was last in eax (`message_state` which was tested ==0) instead of a literal 0.
+   + `if (flag != 0) {A} else {B}` order = `je B` layout; zero loop becomes `rep stos` with `int *p; for(n=0x98;n;n--) *p++ = 0;`.
+11. Callee prototype has Ghidra phantom parameters (app_state_frontend_frame: video_mode_name_format(p0,p1) -> (p0); car_damage_at_world_point: 11 params -> 3)
+   asm: `add esp,N` smaller than the declared param count; the pushes of the extra args are missing in the original. edit: shrink the extern prototype to the real count and drop the garbage args (check callers in the same file).
+12. Matrix `flags |= X` statement position (camera_save; 1; hudpanel_load_indicator_update partially)
+   asm: `mov [esp+x],esi` (the flags store) sits right before the first call, after the 12 element stores. edit: move `m.flags = m.flags | X;` to after `pos.x = 0.0;` (last init statement).
+
+## Improved but not identical (notes)
+- hermite_interpolate 50->2: float literals instead of k_f_* (pattern 4 of Round A); remaining: orig loads `mov eax,[esp+0xc]` before `fld t`.
+- vec3_is_valid_small 39->4, career_time_under_target 65->6, lua_Physics_Scenario_Trigger_Add_Objects 28->8: need exact source expression shape: cl's operand load order is independent of the left-assoc term order (tried all 6 permutations); `lea` vs `add` for `&sym+idx*stride` base pointers not reachable (folded).
+- hudpanel_fuel_meter_update 20->4 (scheduling of a float load across arg pushes), training_text_box_c 21->6 (two byte[4] colour locals: store order differs), car_get_velocity_any_mode 29->19, vector_normalize_copy 21->10, hsv_phase_to_rgb 41->17 (`fld k; fsub st,st(1)` vs `fsubr [k]`), hudpanel_load_indicator_update (register-input callees at the tail: unreachable).
+- Not fixable here: ai_bot_weapon_logic (orig shrink-wraps `push esi` after an early return 0), register-argument callees (weapon_mines_fire, course_city_cb5 tail jmp), loop IV rebase (weapon_mines_course_33_update), menu_select_pressed_any / menu_event_column_is_special (different branch structure, not tried beyond reading), round_stats_reset (three alternating zero registers eax/ecx/edx, unknown source).
