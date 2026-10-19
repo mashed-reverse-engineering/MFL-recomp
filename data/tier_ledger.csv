@@ -1748,6 +1748,7 @@ vehicle_set_flag_1000,00421ed0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,18
 vehicle_set_flag_40,00421f30,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,6ceac83479ff,11404e1744d7,4c54594cf977,200,0.94,0,1
 vehicle_set_flag_400,00422010,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 vehicle_set_scale,00423210,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
+vehicle_setup_references,004237d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,0.93,0,0
 vehicle_skidmarks_render,00425b20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,198,1.00,0,0
 vehicle_slot_set,00429c20,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 vehicle_slots_clear,00429b00,agent,bytes-standalone+94ac8c9a5781,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
