@@ -21,7 +21,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...verified byte identical | 1,307 | `██████████░░░░░░░░░░` 51% |
 | ...share of the code bytes | 254,624 B | `████████░░░░░░░░░░░░` 40% |
 | ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 566 | `████░░░░░░░░░░░░░░░░` 22% |
-| ...of these register-argument clusters | 255 | `██░░░░░░░░░░░░░░░░░░` 10% |
+| ...of these register-argument clusters | 329 | `███░░░░░░░░░░░░░░░░░` 13% |
 | Published in `src/` | 381 | `███░░░░░░░░░░░░░░░░░` 15% |
 | ...byte identical (`MATCH`) | 343 | `███░░░░░░░░░░░░░░░░░` 13% |
 
