@@ -59,8 +59,8 @@ void course_object_distance_table_build(void)
       do {
         slot_used = race_setup_slot_used(vehicle);
         /* slot in use, vehicle y <= 1.0, and vehicle x within 1.0 of this object's x: append to its list */
-        if (((slot_used != 0) && (frame.y <= float_1_0)) &&
-           (fabs(frame.x - *(float *)((char *)((undefined *)&g_course_8c3fc0) + (frame.outer + frame.inner) * 4)) < float_1_0)) {
+        if (((slot_used != 0) && !(frame.y > float_1_0)) &&
+           ((float)fabs(frame.x - *(float *)((char *)((undefined *)&g_course_8c3fc0) + (frame.outer + frame.inner) * 4)) < float_1_0)) {
           object_rec = (char *)&g_course_highway_8c4478 + OBJECT_TABLE_HEADER_SIZE + (frame.outer + frame.inner) * OBJECT_RECORD_SIZE;
           /* append after the current entries: entry index = record count */
           entry = (int *)(object_rec + *(int *)(object_rec + OBJECT_COUNT_OFFSET) * OBJECT_ENTRY_SIZE);

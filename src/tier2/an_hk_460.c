@@ -24,12 +24,12 @@ void load_smoke_texture(void)
 {
   RwTexture *smoke_texture;
   struct {
-    undefined4 local_8;
-    undefined4 local_4;
+    float local_8;
+    float local_4;
   } smoke_size;
 
-  smoke_size.local_8 = SMOKE_SIZE_FLOAT_BITS;
-  smoke_size.local_4 = SMOKE_SIZE_FLOAT_BITS;
+  smoke_size.local_8 = 0.35f;
+  smoke_size.local_4 = 0.35f;
   mem_zero(&g_load_6586e8,PTANK_BUFFER_SIZE);
   smoke_texture = (RwTexture *)find_texture_dict_b("smoke");
   particle_system_setup_ptank((uint *)&g_load_6586e8,SMOKE_PTANK_TYPE,SMOKE_PARTICLE_COUNT,smoke_texture);

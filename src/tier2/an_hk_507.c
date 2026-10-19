@@ -15,17 +15,11 @@ extern char UNK_005df51c[];
 void course_nt1_s_cb0(char *course_state)
 
 {
-  RwTexture *smoke_texture;
-  int sky_scale;
-  undefined4 sky_offset;
 
   func_0x00455770(course_state);
   g_course_nt1_8c5720 = func_0x004849e0(&UNK_005df51c,*(undefined4 *)(course_state + 0xc9d0));
   /* Sky atomic: "smoke" texture, scale 1.0f and offset -2.0f as float bit patterns (inferred) */
-  sky_offset = FLOAT_BITS_NEG_TWO;
-  sky_scale = FLOAT_BITS_ONE;
-  smoke_texture = (RwTexture *)find_texture_dict_b("smoke");
-  course_sky_atomic_create(smoke_texture,sky_scale,sky_offset);
+  course_sky_atomic_create(find_texture_dict_b("smoke"),FLOAT_BITS_ONE,FLOAT_BITS_NEG_TWO);
   return;
 }
 

@@ -28,7 +28,7 @@
 void course_world_uva_dicts_set_ranks(char *course_world,char *clump_table)
 
 {
-  bool in_range;
+  int in_range;
   int scratch;
   uint rank_key;
   undefined4 *clump_slot;
@@ -53,23 +53,23 @@ void course_world_uva_dicts_set_ranks(char *course_world,char *clump_table)
   counter = CLUMP_COUNT;
   do {
     if (clump_range_hi[-2] != 0) {
-      in_range = false;
+      in_range = 0;
       clump_clear_atomic_plugin_flag_1((RpClump *)*clump_slot);
       scratch = clump_range_hi[-1];
       /* (inferred) in_range = some car's rank key is within [scratch (lo), *clump_range_hi (hi)] */
-      if ((scratch <= (int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 0])) &&
+      if (((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 0]) >= scratch) &&
          ((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 0]) <= *clump_range_hi)) {
-        in_range = true;
+        in_range = 1;
       }
-      if ((scratch <= (int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 1])) &&
+      if (((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 1]) >= scratch) &&
          ((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 1]) <= *clump_range_hi)) {
-        in_range = true;
+        in_range = 1;
       }
-      if ((scratch <= (int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 2])) &&
+      if (((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 2]) >= scratch) &&
          ((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 2]) <= *clump_range_hi)) {
-        in_range = true;
+        in_range = 1;
       }
-      if (((scratch <= (int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 3])) &&
+      if ((((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 3]) >= scratch) &&
           ((int)(g_course_world.uva_dicts[RANK_KEY_SLOT_BASE + 3]) <= *clump_range_hi)) || (in_range)) {
         clump_for_all_atomics_with_camera_matrix((RpClump *)*clump_slot);
       }

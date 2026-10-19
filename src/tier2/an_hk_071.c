@@ -13,16 +13,14 @@
  */
 
 undefined4 debris_model_get_first_clump(undefined4 debris_model)
-
 {
   char *owner_object;
-
+  undefined4 r = 0;
   owner_object = rwp_owner_object_get(debris_model);
-  /* no owner object, or no clump table: no clump */
   if ((owner_object != 0) && (*(undefined4 **)(owner_object + OWNER_CLUMP_TABLE_OFFSET) != (undefined4 *)0x0)) {
-    return **(undefined4 **)(owner_object + OWNER_CLUMP_TABLE_OFFSET);
+    r = **(undefined4 **)(owner_object + OWNER_CLUMP_TABLE_OFFSET);
   }
-  return 0;
+  return r;
 }
 
 

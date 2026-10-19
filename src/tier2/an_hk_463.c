@@ -21,26 +21,21 @@
 /* KCPanel.dff */
 
 void load_kc_panel(void)
-
 {
   int clump;
-  char *panel_name;
-  undefined4 load_arg1;
-  undefined4 load_arg2;
+  RwRGBA colour;
 
-  load_arg2 = 0;
-  load_arg1 = 0;
-  panel_name = "KCPanel.dff";
-  /* Load the panel model; the two extra load arguments are passed as 0. */
-  clump = clump_load_by_name("KCPanel.dff",load_arg1,load_arg2);
-  /* Zero the load block before handing it to FUN_004c52f0 (inferred: sets up the load). */
+  colour.red = 0x32;
+  colour.green = 0x32;
+  colour.blue = 0x32;
+  colour.alpha = 0xff;
+  clump = clump_load_by_name("KCPanel.dff",0,0);
   mem_zero(&g_load_6592c4,KC_PANEL_LOAD_SIZE);
+  g_hudpanel_6592d4 = clump;
   g_hudpanel_6592d8 = *(undefined4 *)(clump + 4);
   g_hudpanel_6592dc = 1;
-  g_hudpanel_6592d4 = clump;
   FUN_004c52f0(clump,&g_load_6592c4,4,0,0);
-  /* Set the panel colour (opaque dark grey) on the colour field reached through g_hudpanel_6592c8 (inferred). */
-  *(undefined4 *)(**(int **)(*(char **)(g_hudpanel_6592c8 + 0x18) + 0x20) + 4) = KC_PANEL_COLOUR;
+  *(undefined4 *)(**(int **)(*(char **)(g_hudpanel_6592c8 + 0x18) + 0x20) + 4) = *(undefined4 *)&colour;
   return;
 }
 

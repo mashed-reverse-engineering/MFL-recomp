@@ -16,13 +16,13 @@ undefined4 sphere_vs_box_test(float *box,float *sphere)
 
 {
   /* centre inside the box on all three axes: already overlapping, skip the radius test */
-  if (sphere[0] < box[3] || !(sphere[0] <= box[0]) ||
-      sphere[1] < box[4] || !(sphere[1] <= box[1]) ||
-      sphere[2] < box[5] || !(sphere[2] <= box[2])) {
+  if (!(sphere[0] >= box[3]) || !(sphere[0] <= box[0]) ||
+      !(sphere[1] >= box[4]) || !(sphere[1] <= box[1]) ||
+      !(sphere[2] >= box[5]) || !(sphere[2] <= box[2])) {
     /* outside the box: reject unless the centre is within radius of it on every axis */
-    if (sphere[3] + sphere[0] < box[3] || !(sphere[0] - sphere[3] <= box[0]) ||
-        sphere[3] + sphere[1] < box[4] || !(sphere[1] - sphere[3] <= box[1]) ||
-        sphere[3] + sphere[2] < box[5] || !(sphere[2] - sphere[3] <= box[2])) {
+    if (!(sphere[3] + sphere[0] >= box[3]) || !(sphere[0] - sphere[3] <= box[0]) ||
+        !(sphere[3] + sphere[1] >= box[4]) || !(sphere[1] - sphere[3] <= box[1]) ||
+        !(sphere[3] + sphere[2] >= box[5]) || !(sphere[2] - sphere[3] <= box[2])) {
       return 0;
     }
   }

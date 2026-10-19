@@ -1,13 +1,13 @@
 #include "mfl_tier2.h"
 /*004693c0*/ extern int sound_streams_pause();
 /*00469400*/ extern int sound_streams_resume();
-/*00473550*/ extern undefined __cdecl sound_frame_begin(undefined4 p0, undefined4 p1);
+/*00473550*/ extern undefined __cdecl sound_frame_begin(undefined4 p0);
 /*004a41f0*/ extern int timer_ticks();
 /*004a5b50*/ extern int __cdecl joypad_get_field_770fe8(undefined4 p0);
 /*0062ad30*/ extern undefined4 g_debug_keys_62ad30;
 /*0076e804*/ extern undefined4 g_debug_keys_76e804;
-/*0076e808*/ extern undefined4 g_debug_keys_76e808;
-/*0076e820*/ extern undefined4 g_debug_keys_76e820;
+/*0076e808*/ extern int g_debug_keys_76e808;
+/*0076e820*/ extern int g_debug_keys_76e820;
 
 #define PROFILE_FRAMES (60)
 #define JOYPAD_FIELD_ARM_KEY (3) /* inferred: pressing it arms the debug flag */
@@ -30,7 +30,6 @@ void debug_keys_and_profile(void)
 {
   int frame_start_ticks;
   int result;
-  undefined4 zero_arg;
 
   /* sample the timer, then read the arm key */
   frame_start_ticks = timer_ticks();
@@ -41,20 +40,14 @@ void debug_keys_and_profile(void)
   }
   /* cancel key not held: step the sound if armed */
   result = joypad_get_field_770fe8(JOYPAD_FIELD_CANCEL_KEY);
-  if (result == 0) {
-    /* armed: pause streams, run one sound frame, resume (inferred) */
-    if (g_debug_keys_62ad30 != 0) {
-      zero_arg = 0;
-      sound_streams_pause(0x0);
-      sound_frame_begin(0,zero_arg);
-      sound_streams_resume();
-    }
-  }
-  else {
-    /* cancel key held: disarm */
+  if (result != 0) {
     g_debug_keys_62ad30 = 0;
   }
-  /* accumulate this frame's elapsed ticks; on the last frame of the window, publish the average */
+  else if (g_debug_keys_62ad30 != 0) {
+    sound_streams_pause(0x0);
+    sound_frame_begin(0);
+    sound_streams_resume();
+  }
   result = timer_ticks();
   g_debug_keys_76e820 = g_debug_keys_76e820 + (result - frame_start_ticks);
   g_debug_keys_76e804 = g_debug_keys_76e804 + 1;

@@ -16,12 +16,14 @@ undefined4 __stdcall FUN_004ae050(char *obj, undefined4 wait_arg, undefined4 *ou
 
 {
   int callee_result;
+  int handle;
 
   if (out_value == (undefined4 *)0x0) {
     return HRESULT_E_POINTER;
   }
   /* call the wait routine; the value is copied out in both branches */
-  callee_result = FUN_004b1470(*(undefined4 *)(obj + OBJ_HANDLE_OFFSET),wait_arg,0,0,0);
+  handle = *(undefined4 *)(obj + OBJ_HANDLE_OFFSET);
+  callee_result = FUN_004b1470(handle,wait_arg,0,0,0);
   if (callee_result == CALLEE_RESULT_TIMEOUT) {
     *out_value = *(undefined4 *)(obj + OBJ_VALUE_OFFSET);
     return RESULT_TIMEOUT_STATUS;

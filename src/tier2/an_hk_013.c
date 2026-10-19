@@ -106,7 +106,7 @@
 /* "(capacity): allocates a 0xC byte pool header" */
 
 /* TIER2: validated 2026-10-19 authority=shadow */
-undefined4 * __cdecl pool_create(uint capacity)
+undefined4 * __cdecl pool_create(unsigned short capacity)
 {
   undefined4 *pool;
   void *slots;

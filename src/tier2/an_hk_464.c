@@ -33,8 +33,8 @@ void load_start_lights(void)
   startlights_name = "startlights.dff";
   startlights_clump = clump_load_by_name("startlights.dff",uVar3,uVar4);
   mem_zero(&g_load_659a7c,LOAD_LIGHTS_BLOCK_SIZE);
-  g_hudpanel_659aa0 = *(undefined4 *)(startlights_clump + 4);
   g_load_659a9c = startlights_clump;
+  g_hudpanel_659aa0 = *(undefined4 *)(startlights_clump + 4);
   FUN_004c52f0(startlights_clump,&g_load_659a7c,8,0,0);
   light_slot = &g_load_659a7c;
   /* walk the light slots up to g_load_start_659a94, initialising each (inferred) */

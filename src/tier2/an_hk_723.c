@@ -36,7 +36,7 @@ void sound_stop_all_and_release(void)
   if (g_sound_6ae09c != 0) {
     /* for each of the g_sound_6ad8a4 active voices: FUN_005b6a80(voice, 0) (inferred: stop) */
     index = 0;
-    if (g_sound_6ad8a4 != 0) {
+    if (g_sound_6ad8a4 > 0) {
       do {
         FUN_005b6a80(g_voices[index].voice,0);
         index = index + 1;
@@ -44,7 +44,7 @@ void sound_stop_all_and_release(void)
     }
     /* for each of the g_sound_6ad8a8 entries in g_sound_6ad118: thunk_FUN_005bc0a0 (inferred: release) */
     index = 0;
-    if (g_sound_6ad8a8 != 0) {
+    if (g_sound_6ad8a8 > 0) {
       do {
         thunk_FUN_005bc0a0((&g_sound_6ad118)[index]);
         index = index + 1;
@@ -61,7 +61,7 @@ void sound_stop_all_and_release(void)
   FUN_005b77f0();
   /* for each of the g_sound_6ae0c0 entries in g_sound_6ad8f0: FUN_005baf80(entry, 0, 0) */
   index = 0;
-  if (g_sound_6ae0c0 != 0) {
+  if (g_sound_6ae0c0 > 0) {
     do {
       FUN_005baf80((&g_sound_6ad8f0)[index],0,0);
       index = index + 1;

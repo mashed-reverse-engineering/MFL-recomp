@@ -30,6 +30,7 @@ void rwp_object_set_matrix(int object_index,RwMatrix *transform)
 
 {
   int world;
+  ushort bit_index;
   RwMatrix *matrix;
   char *owner_object;
   undefined4 aux_result;
@@ -38,9 +39,9 @@ void rwp_object_set_matrix(int object_index,RwMatrix *transform)
   owner_object = rwp_owner_object_get((&g_rw_6fab78)[object_index]);
   world = *(int *)(owner_object + OWNER_WORLD_OFFSET);
   /* if the world has a bit set for this object, notify it before the update */
-  if ((world != 0) &&
-     ((*(uint *)(*(char **)(world + WORLD_BITSET_OFFSET) + (uint)(*(ushort *)(owner_object + OWNER_BITSET_INDEX_OFFSET) >> BITSET_WORD_SHIFT) * 4) &
-      1 << ((byte)*(ushort *)(owner_object + OWNER_BITSET_INDEX_OFFSET) & BITSET_BIT_MASK)) != 0)) {
+  if ((world != 0) && (bit_index = *(ushort *)(owner_object + OWNER_BITSET_INDEX_OFFSET),
+     ((*(uint *)(*(char **)(world + WORLD_BITSET_OFFSET) + (uint)(bit_index >> BITSET_WORD_SHIFT) * 4) &
+      1 << (bit_index & BITSET_BIT_MASK)) != 0))) {
     FUN_0056b3b0(world,owner_object);
   }
   matrix = *(RwMatrix **)(*(char **)(owner_object + OWNER_FRAME_OFFSET) + 8);

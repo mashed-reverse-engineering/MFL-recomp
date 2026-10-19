@@ -16,15 +16,10 @@
 MachinegunState * weapon_machinegun_equip(WeaponSlot *weapon_slot)
 
 {
-  RpWorld *world;
-  RpClump *clump;
-
   weapon_effect_slot_activate(weapon_slot->player);
   MachinegunState_ARRAY_006a60d0[weapon_slot->player].slot = (uint)weapon_slot;
-  clump = (RpClump *)MachinegunState_ARRAY_006a60d0[weapon_slot->player].clump;
   /* add the gun clump to the current course's world */
-  world = (RpWorld *)course_get_rpworld_00467e90();
-  RpWorldAddClump(world,clump);
+  RpWorldAddClump((RpWorld *)course_get_rpworld_00467e90(),(RpClump *)MachinegunState_ARRAY_006a60d0[weapon_slot->player].clump);
   /* flag 1 on the clump's atomics (inferred: makes the gun render) */
   clump_set_flag_on_atomics((RpClump *)MachinegunState_ARRAY_006a60d0[weapon_slot->player].clump, 0x1);
   /* reset the per-player state for a fresh gun */

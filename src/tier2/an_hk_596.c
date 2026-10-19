@@ -54,9 +54,7 @@ void __cdecl sfx_play_group_voice_at(undefined4 *position,int group)
       /* Only a voice that is not in use is taken. */
       if ((*(byte *)(voice + VOICE_FLAGS_OFS) & VOICE_FLAG_IN_USE) == 0) {
         /* Copy the position into the voice record. */
-        *(undefined4 *)(voice + VOICE_POS_X_OFS) = *position;
-        *(undefined4 *)(voice + VOICE_POS_Y_OFS) = position[1];
-        *(undefined4 *)(voice + VOICE_POS_Z_OFS) = position[2];
+        *(RwV3d *)(voice + VOICE_POS_X_OFS) = *(RwV3d *)position;
         sample_handle = *(int *)(g_voices[app_state].voice + VOICE_HANDLE_OFS);
         if (sample_handle != 0) {
           FUN_005b72a0(sample_handle,0,1,position);

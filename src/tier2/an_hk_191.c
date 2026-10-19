@@ -22,12 +22,13 @@ undefined4 __stdcall FUN_004b0580(char *stream, uint size)
   int current_state;
 
   /* Query the sub-object's state through its vtable and compare with the expected value */
-  current_state = (**(int (**)())(**(int **)(stream + STREAM_OBJECT_OFS) + VTABLE_STATE_SLOT_OFS))();
+  int *obj = *(int **)(stream + STREAM_OBJECT_OFS);
+  current_state = (*(int (__fastcall **)(int *))(*obj + VTABLE_STATE_SLOT_OFS))(obj);
   if (current_state != *(int *)(stream + STREAM_EXPECTED_OFS)) {
     return ERR_STATE_MISMATCH;
   }
   /* Not enough room left between cursor and end: report it without moving the cursor */
-  if ((uint)(*(int *)(stream + STREAM_END_OFS) - *(int *)(stream + STREAM_CURSOR_OFS)) < size) {
+  if (size > (uint)(*(int *)(stream + STREAM_END_OFS) - *(int *)(stream + STREAM_CURSOR_OFS))) {
     return 1;
   }
   /* Advance the cursor past the reserved bytes */

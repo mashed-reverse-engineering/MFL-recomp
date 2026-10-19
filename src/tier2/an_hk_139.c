@@ -11,7 +11,7 @@ undefined4 __cdecl FUN_005b9fa0(char *callbacks,uint count)
   uint index;
 
   index = 0;
-  if (count != 0) {
+  if (count > 0) {
     /* walk the table: call each entry and bail out on the first failure (inferred) */
     do {
       result = (**(int (**)())(callbacks + index * 4))();

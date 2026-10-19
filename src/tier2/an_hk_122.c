@@ -8,16 +8,14 @@
  * Returns the atomic's geometry (RpGeometry *), or 0 if the clump has no atomics.
  */
 undefined4 __cdecl FUN_004c4020(undefined4 clump)
-
 {
   RpAtomic *atomic;
-
-  /* first atomic of the clump, or 0 if none */
+  undefined4 g = 0;
   atomic = clump_first_atomic(clump);
   if (atomic != 0) {
-    return RpAtomic_geometry(atomic);
+    g = RpAtomic_geometry(atomic);
   }
-  return 0;
+  return g;
 }
 
 

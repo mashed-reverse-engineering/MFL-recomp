@@ -20,12 +20,16 @@
 /* TIER2: unvalidated 2026-10-19 authority=static */
 void __cdecl fx_ptank_atomic_b_create(RwTexture *texture)
 {
-  uint *plugin_flags;
   RpMorphTarget *morph_target;
   RwFrame *frame;
+  RwSphere sphere;
 
   /* new frame for the atomic, then create the atomic itself */
   frame = RwFrameCreate();
+  sphere.center.x = 0.0;
+  sphere.center.y = 0.0;
+  sphere.center.z = 0.0;
+  sphere.radius = 10.0;
   g_fx_ptank_atomic_b = (RpAtomic *)RpPTankAtomicCreate(PTANK_PARTICLE_COUNT,0x10000087,0);
   /* plugin data: src and dst blend factors */
   *(undefined4 *)
@@ -33,21 +37,14 @@ void __cdecl fx_ptank_atomic_b_create(RwTexture *texture)
   *(undefined4 *)
    (*(int *)(&RpAtomic_object_object_type(g_fx_ptank_atomic_b) + g_ptank_plugin_offset) + 0xa8) = D3DBLEND_ONE;
   /* set two bits in the plugin flag word at +0x40 (meanings unknown) */
-  plugin_flags = (uint *)(*(int *)(&RpAtomic_object_object_type(g_fx_ptank_atomic_b) + g_ptank_plugin_offset) +
-                   0x40);
-  *plugin_flags = *plugin_flags | 0x10000000;
-  plugin_flags = (uint *)(*(int *)(&RpAtomic_object_object_type(g_fx_ptank_atomic_b) + g_ptank_plugin_offset) +
-                   0x40);
-  *plugin_flags = *plugin_flags | 0x800000;
+  *(uint *)(*(int *)(&RpAtomic_object_object_type(g_fx_ptank_atomic_b) + g_ptank_plugin_offset) + 0x40) |= 0x10000000;
+  *(uint *)(*(int *)(&RpAtomic_object_object_type(g_fx_ptank_atomic_b) + g_ptank_plugin_offset) + 0x40) |= 0x800000;
   *(undefined4 *)(*(char **)(&RpAtomic_object_object_type(g_fx_ptank_atomic_b) + g_ptank_plugin_offset) + 4)
        = 0x200;
   /* attach the frame, then set the morph target's bounding sphere: centre at origin, radius 10 */
   RpAtomicSetFrame(g_fx_ptank_atomic_b,frame);
   morph_target = RpGeometry_morphTarget(RpAtomic_geometry(g_fx_ptank_atomic_b));
-  (RpMorphTarget_boundingSphere(morph_target)).center.x = 0.0;
-  (RpMorphTarget_boundingSphere(morph_target)).center.y = 0.0;
-  (RpMorphTarget_boundingSphere(morph_target)).center.z = 0.0;
-  (RpMorphTarget_boundingSphere(morph_target)).radius = 10.0;
+  RpMorphTarget_boundingSphere(morph_target) = sphere;
   /* optional texture: set its addressing byte to 2 (clamp, inferred), then apply it to the first material */
   if (texture != (RwTexture *)0x0) {
     *(undefined1 *)&RwTexture_filterAddressing(texture) = 2;

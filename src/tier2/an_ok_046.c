@@ -307,39 +307,24 @@ extern void weapon_flamethrower_free_assets(void);
 undefined4 * weapon_flamethrower_equip(WeaponSlot *slot)
 {
   uint player;
-  RpWorld *world;
   RwMatrix *ltm;
-  int record_offset;
-  undefined4 *record;
+  char *rec;
   RwFrame *frame;
-  RpClump *clump;
-  undefined4 voice_flag;
-  RwV3d voice_pos;       /* sfx_play_voice_at reads 3 floats through the pointer: one object (separate locals lose the dead stores) */
+  RwV3d voice_pos;
 
-  /* reset this player's fx grid, mark the record active and remember the weapon slot */
   player = slot->player;
-  record_offset = player * WEAPON_FLAME_RECORD_STRIDE;
-  record = (undefined4 *)((char *)&g_weapon_6a9588 + record_offset);
-  weapon_fx_grid_clear(record);
-  clump = (RpClump *)(&g_weapon_flamethrower_6a95a8)[player * FLAME_CLUMP_STRIDE_DWORDS];
-  *record = 1;
-  *(WeaponSlot **)((char *)&g_weapon_flamethrower_6a958c + record_offset) = slot;
-  /* add the flame clump to the course world */
-  world = (RpWorld *)course_get_rpworld_00467e90();
-  RpWorldAddClump(world,clump);
-  /* set the clump's atomics flag (1 = on), then init the float field of the record */
-  clump = (RpClump *)(&g_weapon_flamethrower_6a95a8)[player * FLAME_CLUMP_STRIDE_DWORDS];
-  voice_flag = 1;
-  clump_set_flag_on_atomics(clump,1);
-  *(undefined4 *)((char *)&g_weapon_flamethrower_6a9590 + record_offset) = FLAME_FLOAT_0_02_BITS;
-  frame = *(RwFrame **)(*(char **)((char *)&g_weapon_flamethrower_6a95ac + record_offset) + 4);
-  /* copy the frame's world position into voice_pos, then play the voice there */
+  rec = (char *)&g_weapon_6a9588 + player * WEAPON_FLAME_RECORD_STRIDE;
+  weapon_fx_grid_clear(rec);
+  *(undefined4 *)rec = 1;
+  *(WeaponSlot **)(rec + 4) = slot;
+  RpWorldAddClump((RpWorld *)course_get_rpworld_00467e90(),*(RpClump **)(rec + 0x20));
+  clump_set_flag_on_atomics(*(RpClump **)(rec + 0x20),1);
+  *(undefined4 *)(rec + 8) = FLAME_FLOAT_0_02_BITS;
+  frame = *(RwFrame **)(*(char **)(rec + 0x24) + 4);
   ltm = RwFrameGetLTM(frame);
-  voice_pos.x = (ltm->pos).x;
-  voice_pos.y = (ltm->pos).y;
-  voice_pos.z = (ltm->pos).z;
-  sfx_play_voice_at(SFX_VOICE_FLAMETHROWER,&voice_pos,slot->player,frame,clump,voice_flag);
-  return record;
+  voice_pos = ltm->pos;
+  sfx_play_voice_at(SFX_VOICE_FLAMETHROWER,&voice_pos,slot->player);
+  return (undefined4 *)rec;
 }
 
 

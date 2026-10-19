@@ -29,14 +29,14 @@ void FUN_005bf4e0(uint multiplier,uint multiplicand,uint *result_hi_out,uint *re
      which is handled after the loop. */
   for (; (multiplier & HIGHER_BITS_MASK) != 0; multiplier = multiplier >> 1) {
     mcand_hi = mcand_hi << 1;
-    if ((int)multiplicand < 0) {
+    if ((multiplicand & 0x80000000) != 0) {
       mcand_hi = mcand_hi | 1;
       multiplicand = multiplicand & LIMB_MASK;
     }
     if ((multiplier & 1) != 0) {
       lo_sum = lo_sum + multiplicand;
       hi_sum = hi_sum + mcand_hi;
-      if ((int)lo_sum < 0) {
+      if ((lo_sum & 0x80000000) != 0) {
         hi_sum = hi_sum + 1;
         lo_sum = lo_sum & LIMB_MASK;
       }
@@ -45,14 +45,14 @@ void FUN_005bf4e0(uint multiplier,uint multiplicand,uint *result_hi_out,uint *re
   }
   /* Last multiplier bit (same step as the loop body, without the shift). */
   mcand_hi = mcand_hi << 1;
-  if ((int)multiplicand < 0) {
+  if ((multiplicand & 0x80000000) != 0) {
     mcand_hi = mcand_hi | 1;
     multiplicand = multiplicand & LIMB_MASK;
   }
   if ((multiplier & 1) != 0) {
     lo_sum = lo_sum + multiplicand;
     hi_sum = hi_sum + mcand_hi;
-    if ((int)lo_sum < 0) {
+    if ((lo_sum & 0x80000000) != 0) {
       hi_sum = hi_sum + 1;
       lo_sum = lo_sum & LIMB_MASK;
     }

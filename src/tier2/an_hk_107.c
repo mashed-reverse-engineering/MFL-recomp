@@ -32,8 +32,8 @@ int FUN_004c52f0(undefined4 clump,char *out_atomics,char *unused_param_3,undefin
     do {
       atomic = atomics[i];
       slot = FUN_004c52b0(atomic,param_4,param_5);
-      i = i + 1;
       *(undefined4 *)(out_atomics + slot * 4) = atomic;
+      i = i + 1;
     } while (i < atomic_count);
   }
   return atomic_count;

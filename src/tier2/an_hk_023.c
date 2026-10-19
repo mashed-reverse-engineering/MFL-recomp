@@ -33,10 +33,10 @@ void camera_create_b(char *world)
   RwV3d *translation;
   RwV3d up_axis;
 
-  g_camera_8c5910 = *(int *)(world + WORLD_CLUMP_C128_OFFSET);
   up_axis.x = 0.0;
   up_axis.y = 1.0;
   up_axis.z = 0.0;
+  g_camera_8c5910 = *(int *)(world + WORLD_CLUMP_C128_OFFSET);
   RwFrameSetIdentity(*(RwFrame **)(g_camera_8c5910 + CAMERA_FRAME_OFFSET));
   /* fill the slots after the camera pointer, one call per slot (inferred) */
   slot = &g_course_8c5914;
@@ -44,7 +44,7 @@ void camera_create_b(char *world)
     slot_value = FUN_004f6bf0(g_camera_8c5910);
     *slot = slot_value;
     slot = slot + 1;
-  } while (slot < (undefined4 *)&g_camera_8c5920);
+  } while ((int)slot < (int)&g_camera_8c5920);
   /* per camera: identity, rotate about up_axis, then translate (inferred) */
   translation = (RwV3d *)&g_course_60d738;
   byte_offset = 0;
@@ -56,6 +56,6 @@ void camera_create_b(char *world)
                      rwCOMBINEPOSTCONCAT);
     translation = translation + 1;
     byte_offset = byte_offset + 4;
-  } while (translation < (RwV3d *)&g_course_60d768);
+  } while ((int)translation < (int)&g_course_60d768);
   return;
 }

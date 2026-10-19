@@ -16,17 +16,15 @@
 /* GroundBeam */
 
 void __cdecl load_groundbeam(int slot_index)
-
 {
   bool texture_dict_missing;
+  char *rec = (char *)&g_game_65c8f8 + slot_index * GROUNDBEAM_SLOT_SIZE;
 
   /* clear the whole slot record */
-  mem_zero((char *)&g_game_65c8f8 + slot_index * GROUNDBEAM_SLOT_SIZE,GROUNDBEAM_SLOT_SIZE);
-  /* remember whether the shared texture dictionary is still unloaded (checked after the stores below) */
+  mem_zero(rec,GROUNDBEAM_SLOT_SIZE);
   texture_dict_missing = g_game_660568 == 0;
-  /* (inferred) record field 0 holds the slot index */
-  *(int *)((char *)&g_load_groundbeam_65d808 + slot_index * GROUNDBEAM_SLOT_SIZE) = slot_index;
-  /* first load: look up the GroundBeam texture dictionary */
+  /* (inferred) record field 0xf10 (= g_load_groundbeam_65d808 - g_game_65c8f8) holds the slot index */
+  *(int *)(rec + 0xf10) = slot_index;
   if (texture_dict_missing) {
     g_game_660568 = find_texture_dict_b("GroundBeam");
   }

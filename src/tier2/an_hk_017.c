@@ -287,32 +287,32 @@ void course_marker_positions_init(char *course_state)
 {
   g_course_6a2784 = 0;
   /* sentinel triple (inferred): -1.0, -1.0, 0 */
-  *(undefined4 *)&g_course_6a26c4 = FLOAT_MINUS_ONE_BITS;
-  g_course_6a26c0 = FLOAT_MINUS_ONE_BITS;
+  *(float *)&g_course_6a26c4 = -1.0f;
+  *(float *)&g_course_6a26c0 = -1.0f;
   g_course_6a26c8 = 0;
   /* second sentinel triple (inferred): -1.0, -1.0, 0 */
-  *(undefined4 *)&g_course_6a2724 = FLOAT_MINUS_ONE_BITS;
-  g_course_6a2720 = FLOAT_MINUS_ONE_BITS;
+  *(float *)&g_course_6a2724 = -1.0f;
+  *(float *)&g_course_6a2720 = -1.0f;
   g_course_6a2728 = 0;
   /* position triples (x, y, z) (inferred) */
-  g_course_6a26fc = 0xc170978d;
-  g_course_6a2700 = 0x409dc28f;
-  g_course_6a2704 = 0x42689ba6;
-  g_course_6a2708 = 0xc16fa5e3;
-  g_course_6a270c = 0x409dc28f;
-  g_course_6a2710 = 0x426476c9;
-  g_course_6a2714 = 0xc16ec083;
-  g_course_6a2718 = 0x409dc28f;
-  g_course_6a271c = 0x426079db;
-  g_course_6a275c = 0xc1480c4a;
-  g_course_6a2760 = 0x409dc28f;
-  g_course_6a2764 = 0x42610000;
-  g_course_6a2768 = 0xc148f1aa;
-  g_course_6a276c = 0x409dc28f;
-  g_course_6a2770 = 0x4264fcee;
-  g_course_6a2774 = 0xc149e354;
-  g_course_6a2778 = 0x409dc28f;
-  g_course_6a277c = 0x426521cb;
+  *(float *)&g_course_6a26fc = -15.037f;
+  *(float *)&g_course_6a2700 = 4.93f;
+  *(float *)&g_course_6a2704 = 58.152f;
+  *(float *)&g_course_6a2708 = -14.978f;
+  *(float *)&g_course_6a270c = 4.93f;
+  *(float *)&g_course_6a2710 = 57.116f;
+  *(float *)&g_course_6a2714 = -14.922f;
+  *(float *)&g_course_6a2718 = 4.93f;
+  *(float *)&g_course_6a271c = 56.119f;
+  *(float *)&g_course_6a275c = -12.503f;
+  *(float *)&g_course_6a2760 = 4.93f;
+  *(float *)&g_course_6a2764 = 56.25f;
+  *(float *)&g_course_6a2768 = -12.559f;
+  *(float *)&g_course_6a276c = 4.93f;
+  *(float *)&g_course_6a2770 = 57.247f;
+  *(float *)&g_course_6a2774 = -12.618f;
+  *(float *)&g_course_6a2778 = 4.93f;
+  *(float *)&g_course_6a277c = 57.283f;
   /* player markers: player 0 enabled, players 1-3 disabled; each gets its clump */
   player_marker_set_enabled(0,1);
   player_marker_set_clump(0,*(undefined4 *)(course_state + PLAYER_0_MARKER_CLUMP_OFFSET));

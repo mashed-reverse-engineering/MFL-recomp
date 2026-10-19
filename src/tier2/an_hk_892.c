@@ -34,12 +34,8 @@ RwStream * atomic_plugin_stream_read(RwStream *stream,char *unused_arg,int dest_
     return (RwStream *)0x0;
   }
   /* Copy the six words after the 8-byte header into the destination slot. */
-  *(undefined4 *)(dest + 8) = frame.word_08;
-  *(undefined4 *)(dest + 0xc) = frame.word_0c;
-  *(undefined4 *)(dest + 0x10) = frame.word_10;
-  *(undefined4 *)(dest + 0x14) = frame.word_14;
-  *(undefined4 *)(dest + 0x18) = frame.word_18;
-  *(undefined4 *)(dest + 0x1c) = frame.word_1c;
+  *(RwV3d *)(dest + 8) = *(RwV3d *)&frame.word_08;
+  *(RwV3d *)(dest + 0x14) = *(RwV3d *)&frame.word_14;
   return stream;
 }
 

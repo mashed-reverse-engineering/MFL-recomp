@@ -11,10 +11,10 @@ undefined4 __stdcall FUN_004af0f0(char *ctx)
   undefined4 value;
 
   /* first cached value: vtable slot 0x14 of ctx->object (inferred) */
-  value = (**(int (**)())(**(int **)(ctx + 0xc) + 0x14))();
+  value = (*(int (__fastcall **)(int))(**(int **)(ctx + 0xc) + 0x14))(*(int *)(ctx + 0xc));
   *(undefined4 *)(ctx + 0x10) = value;
   /* second cached value: vtable slot 0x18 of ctx->object (inferred) */
-  value = (**(int (**)())(**(int **)(ctx + 0xc) + 0x18))();
+  value = (*(int (__fastcall **)(int))(**(int **)(ctx + 0xc) + 0x18))(*(int *)(ctx + 0xc));
   *(undefined4 *)(ctx + 8) = value;
   *(undefined4 *)(ctx + 4) = 0;
   return 0;

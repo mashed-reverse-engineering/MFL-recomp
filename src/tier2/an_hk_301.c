@@ -21,28 +21,23 @@
  */
 
 undefined4 lua_RWP_Object(char *lua_state)
-
 {
-  RwStringFunctions *string_funcs;
   int arg_count;
-  int object_offset;
+  char *rec;
   RwChar *src;
+  vecStrcpyFunc *strcpy_slot;
 
-  /* name -> record +0x4 (inferred) */
   arg_count = lua_gettop(lua_state);
-  object_offset = (int)lua_tonumber(lua_state,arg_count + -3);
-  object_offset = object_offset * RWP_OBJECT_STRIDE;
-  string_funcs = &RwGlobalsRelease_stringFuncs(RwEngineInstance);
+  rec = (char *)&g_rwp_objects + (int)lua_tonumber(lua_state,arg_count + -3) * RWP_OBJECT_STRIDE;
+  strcpy_slot = &RwStringFunctions_vecStrcpy(&RwGlobalsRelease_stringFuncs(RwEngineInstance));
   src = (RwChar *)lua_tostring(lua_state,arg_count + -2);
-  (*RwStringFunctions_vecStrcpy(string_funcs))((RwChar *)(object_offset + ((LONG_PTR)&g_rwp_objects + 0x4)),src);
-  /* dff path (inferred) */
-  string_funcs = &RwGlobalsRelease_stringFuncs(RwEngineInstance);
+  (*strcpy_slot)((RwChar *)(rec + 4),src);
+  strcpy_slot = &RwStringFunctions_vecStrcpy(&RwGlobalsRelease_stringFuncs(RwEngineInstance));
   src = (RwChar *)lua_tostring(lua_state,arg_count + -1);
-  (*RwStringFunctions_vecStrcpy(string_funcs))((RwChar *)(object_offset + ((LONG_PTR)&g_rwp_objects_0__dff_0_)),src);
-  /* mts path (inferred) */
-  string_funcs = &RwGlobalsRelease_stringFuncs(RwEngineInstance);
+  (*strcpy_slot)((RwChar *)(rec + 0x44),src);
+  strcpy_slot = &RwStringFunctions_vecStrcpy(&RwGlobalsRelease_stringFuncs(RwEngineInstance));
   src = (RwChar *)lua_tostring(lua_state,arg_count);
-  (*RwStringFunctions_vecStrcpy(string_funcs))((RwChar *)(object_offset + ((LONG_PTR)&g_rwp_objects_0__mts_0_)),src);
+  (*strcpy_slot)((RwChar *)(rec + 0x84),src);
   return 0;
 }
 

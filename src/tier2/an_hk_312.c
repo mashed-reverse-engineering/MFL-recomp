@@ -20,11 +20,14 @@ undefined4 rwp_object_get_matrix(int object_index)
 {
   int owner_object;
 
-  if ((-1 < object_index) && (object_index < RW_OBJECT_TABLE_SIZE)) {
-    owner_object = rwp_owner_object_get((&g_rw_6fab78)[object_index]);
-    return *(undefined4 *)(*(char **)(owner_object + 0x10) + 8);
+  if (object_index < 0) {
+    return 0;
   }
-  return 0;
+  if (object_index >= RW_OBJECT_TABLE_SIZE) {
+    return 0;
+  }
+  owner_object = rwp_owner_object_get((&g_rw_6fab78)[object_index]);
+  return *(undefined4 *)(*(char **)(owner_object + 0x10) + 8);
 }
 
 

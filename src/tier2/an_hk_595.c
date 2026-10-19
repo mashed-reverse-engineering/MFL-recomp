@@ -51,9 +51,7 @@ void __cdecl sfx_play_player_set_at(undefined4 *position)
       /* Free voice (IN_USE flag clear): start it. voices_left is reused here to
        * hold the emitter handle until the set-rate call. */
       if ((*(byte *)(voice + VOICE_FLAGS_OFF) & VOICE_FLAG_IN_USE) == 0) {
-        *(undefined4 *)(voice + VOICE_POS_X_OFF) = *position;
-        *(undefined4 *)(voice + VOICE_POS_Y_OFF) = position[1];
-        *(undefined4 *)(voice + VOICE_POS_Z_OFF) = position[2];
+        *(RwV3d *)(voice + VOICE_POS_X_OFF) = *(RwV3d *)position;
         emitter = *(int *)(g_voices[slot_index].voice + VOICE_EMITTER_OFF);
         if (emitter != 0) {
           FUN_005b72a0(emitter,0,1,position);

@@ -21,17 +21,13 @@ extern char UNK_005df51c[];
 void course_sands_cb0(char *game_state)
 
 {
-  RwCamera *viewport_camera;
   int fog_camera;
   undefined4 first_atomic;
-  RwReal farClip;
 
   g_course_sands_8bf088 = func_0x004849e0(&UNK_005df51c,*(undefined4 *)(game_state + 0xc9d0));
   /* init block (inferred): set far clip and fog plane on the viewport camera, then set option flags */
   if (*(float *)(game_state + 0xc9f8) == *(float *)(game_state + 0xc9fc)) {
-    farClip = FAR_CLIP_DISTANCE;
-    viewport_camera = (RwCamera *)get_viewport_camera(0);
-    RwCameraSetFarClipPlane(viewport_camera,farClip);
+    RwCameraSetFarClipPlane((RwCamera *)get_viewport_camera(0),FAR_CLIP_DISTANCE);
     fog_camera = get_viewport_camera(0);
     *(undefined4 *)(fog_camera + 0x88) = FOG_PLANE_180_BITS;
     get_viewport_camera(0);

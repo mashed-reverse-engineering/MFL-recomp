@@ -15,6 +15,7 @@
    Parameters: course_id = course id passed to vehicle_model_path;
    unused_param_2 = never read or written by the decompiled body (inferred: check disassembly).
    Returns nothing: the stripped path lives only in the local buffer. */
+/* compile: /GS */
 void __cdecl course_model_path_copy(undefined4 course_id,char *unused_param_2)
 
 {
@@ -23,10 +24,10 @@ void __cdecl course_model_path_copy(undefined4 course_id,char *unused_param_2)
   char *dst;
   char path_buf [PATH_BUF_SIZE];
 
-  dst = path_buf;
   /* Call with no visible effect on the result (inferred: setup or lock, name unknown). */
   FUN_00560d00();
   src = (char *)vehicle_model_path(course_id);
+  dst = path_buf;
   /* Copy the string byte by byte, including the terminating NUL. */
   do {
     ch = *src;

@@ -13,7 +13,7 @@ extern char PTR_g_course_lap_data_field6152_0x1808_005e0be4[];
    and the png format (texture_read_png_logged, RtPNGImageWrite). Takes no parameters.
    Returns true only if both registrations succeed; stops after the first failure (inferred). */
 
-bool rw_register_image_formats(void)
+int rw_register_image_formats(void)
 
 {
   RwBool registered;
@@ -23,7 +23,7 @@ bool rw_register_image_formats(void)
                     ((RwChar *)&PTR_g_data_706d62_005e0be8,texture_read_log,
                      (RwImageCallBackWrite)&LAB_0053da80);
   if (registered == 0) {
-    return false;
+    return registered;
   }
   /* png format: second registration; its result is the return value */
   registered = RwImageRegisterImageFormat

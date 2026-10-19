@@ -345,3 +345,53 @@ fx_explosion_systems_init (cursor IV rebasing, cl folds the first iteration cons
 ## Round G (/GS)
 
 - Functions with the /* compile: /GS */ marker must be checked with check_one.py <file> <fn> /O2 /GS --va=0x...; cmpfn alone does not read the marker (batch F's 'gs-cookie' failures were false).
+
+## Round E
+
+Result: 60 byte-identical (cmpfn incl. relocation targets, all diffemu EQUAL, files spliced onto the live automatch_near files: fix/*.c, 60 files),
+40 not attempted beyond a look (naked `_r` register-argument adapters), 164 failed (best partial diffs in RESULT.csv), 5 skipped (already in recomp/tier1).
+Tools: t.py (cmpfn + asm diff), ap.py (replace snippets + check), fn.py (replace one function from stdin), fc.py (fastcall symbol), hill*.py / auto*.py (scripted sweeps; they found nothing on their own),
+splice.py (3-way merge onto live), run_de.sh (diffemu), final.py (RESULT.csv).  Notes per function in RESULT.notes.csv.
+NB: `/* compile: /GS */` marker needed for stack-cookie functions (t.py honours it).
+
+1. (C again) setter that loads param 0 first: return the object pointer param (FUN_00571830).
+2. Zero-initialised result variable: `r = 0; if (p) r = f(p); return r;` gives `xor esi,esi ... mov eax,esi` shape (FUN_004c4020, debris_model_get_first_clump).
+3. `if (count != 0)` on uint with `jbe` in the original: write `if (count > 0)` (FUN_005b9fa0).
+4. Local struct whose members hold address-of values: member init statement order = store order (atomic_set_material_alpha_value).
+5. `-(uint)(x != 0) & (uint)p` -> `x != 0 ? p : 0` (single neg/sbb/and) (FUN_005c9380).
+6. `bool` return type emits `mov al,cl`; original `mov eax,ecx`: return int (lua_run_buffer_ok).
+7. Wrapper `void f(){g(h());}` -> return the callee value (pop ecx vs add esp,4) (rx_pipeline_create_for_node_5009c0).
+8. unsigned/int sign test: original 'test r,r; jns' = (x & 0x80000000) != 0 in source (FUN_005bf4e0). Compare operand order: 'a <= *p' -> '*p >= a' (FUN_005bcf00).
+9. Vtable call with 'mov ecx,[x]; mov eax,[ecx]; call [eax+N]' (this in ecx): cast the slot to a __fastcall function pointer taking the object and pass it (FUN_004b0580).
+10. Range check 'if (a && b) {body} return 0' -> 'if (!a) return 0; if (!b) return 0; body' with SEPARATE ifs (a||b is merged by cl) (rwp_object_get_matrix).
+11. Phantom call args again (pattern 14 R-D): add esp,N smaller than pushes: shrink prototype (texture_read_log).
+12. Float argument loaded as `*(float*)(p+off)` directly becomes `mov eax,[..]; push eax`; the original `fld [..]; ... fstp [esp]` needs a float local (`RwReal t = *(RwReal*)(p+off); f(.., t)`) (anim_update_hierarchy).
+13. `bool f(){ ..; if (r==0) return false; ..}` where orig returns the dead eax (0): int return type and `return r;` (rw_register_image_formats). (bool also yields `xor al,al`/`mov al,cl`.)
+14. Call temps (smoke texture, scale, offset locals) -> inline: f(find("smoke"), 1.0f bits, -2.0f bits) (course_nt1_s_cb0).
+15. 'x & 0xffff' on a uint param where orig has movzx r,word [esp+N]: declare the param unsigned short (pool_create).
+16. Loop counter increment statement position decides whether cl hoists 'inc' above the call: put 'i = i + 1' last (FUN_004c52f0).
+17. Local record passed by pointer is bigger than the declared fields (original 'sub esp,0x8c' vs ours 0x20): add 'char pad[N]' to the local struct; RwV3d struct assignment for xyz copy (trigger_register_object_type8).
+18. /GS stack-cookie functions: the file needs the '/* compile: /GS */' marker (tools/gsfix.py) or cl emits no cookie; then source order of 'dst = buf' decides the register (course_model_path_copy). Other candidates: functions with a char[] local whose original starts with 'mov eax,ds:___security_cookie'.
+19. Fastcall caller whose first call has 'push ecx' (stack alloc) then 'call' with ecx still holding the own arg: callee is __fastcall(arg) too; declare `extern int __fastcall f(undefined4)` and call `f(arg)`; ours had pushed the arg (race_ai_slot_assign_or_adjust). Name for cmpfn: @name@4.
+20. 'g = g + k' / 'g = g - k' in two branches where the original loads g BEFORE the test: `float b = g; if (c) b = b + k; else b = b - k; g = b;`, and the branch condition polarity is the else/then layout ('!= 0' first) (race_ai_slot_assign_or_adjust).
+21. Loop 'p < (T*)&end_symbol' compiles to unsigned jb; original has signed jl: compare as '(int)p < (int)&end' (camera_create_b). Also stores order: init the locals first, then the global store.
+22. NaN-form compare 'a <= k' gives 'test ah,0x41; jp' but orig 'je': write '!(a > k)'. A double expression (fabs()) compared with a float global gives fld k; fcompp, orig 'fcomp [k]': cast the double to (float) (course_object_distance_table_build).
+23. In '||' chains of float compares 'a < b' gives 'test ah,5; jnp'; orig 'test ah,1; jne' = '!(a >= b)' (sphere_vs_box_test).
+24. Bounding sphere/vec literal block assigned field-wise through a macro lvalue: build a local RwSphere right after the first call and assign the struct (16-byte copy through ptr); 'p=&f; *p = *p | X' -> '*(uint*)(addr) |= X' gives 'or [mem],imm' (fx_ptank_atomic_b_create).
+25. switch(x){case k: v="str"; break; ...} followed by f(a,b,v): original has 'push "str"; jmp common_pushes_and_call' = each case contains the full call (cl cross-jumps the identical tail): write the call in every case (game_content_exists_prefixed).
+26. 'string_funcs = &stringFuncs; (*vec(string_funcs))(..)' folded wrong: orig keeps the slot pointer in a register (engine+0xcc): 'slot = &RwStringFunctions_vecStrcpy(&RwGlobalsRelease_stringFuncs(RwEngineInstance)); (*slot)(a,b)' (lua_RWP_Object).
+27. 'if (c) v = a; else v = b; f(v)' with float constants: original has the call duplicated per branch ('push imm; jmp common'): write 'if (!c) f(b); else f(a);' - polarity follows 'je ..; push b; jmp' (sound_car_engine_start).
+28. A position read at frame+0x40 in a loop: original hoists 'add edi,0x10' = pointer to the frame's embedded RwMatrix; write 'm=(RwMatrix*)(frame+0x10)' once and '&m->pos' (course_arctic_camera_relative_update).
+29. Groups of consecutive dword copies: RwV3d (3) / RtQuat (4) struct assignment through the same pointers; 'idx < field' written 'field > idx' (replay_buffer_record_frame).
+30. Register roles ecx/eax swapped in a pointer-walking function: the original advances the PARAMETER itself (param in ecx, 'mov eax,ecx' copy kept as the return value): modify the param and keep 'start = param' (FUN_005bf940).
+31. 'f(*(p+off), param)' -> 'h = *(p+off); f(h, param)' swaps which operand takes the first-loaded register (FUN_004ae050); try it on every eax/ecx 'REGISTERS' near-miss.
+32. bool locals (byte regs 'xor bl,bl') -> int flags (edi): the original uses int variables; operand order 'lo <= x' -> 'x >= lo' (course_world_uva_dicts_set_ranks).
+33. Bitset test `(*(uint*)(tbl + (idx16 >> 5)*4) & 1 << (idx16 & 0x1f))` with idx16 = *(ushort*)(obj+0x20): the original loads the ushort ONCE (single movzx): keep it in a `ushort bit_index` local assigned by a comma expression inside the condition `(world != 0) && (bit_index = *(ushort*)(..), (..))` (rwp_object_set_matrix, rwp_object_set_rotation_degrees, debris_apply_velocity_a).
+34. Record tables: `char *rec = (char *)&g_<record base symbol> + idx*STRIDE;` then `*(T*)(rec + off)`; the base symbol must be the record start (weapon_rocket_unequip g_rocket_state, weapon_mortar_equip g_weapon_6a29b8, weapon_flamethrower_equip g_weapon_6a9588, load_groundbeam g_game_65c8f8, lua_RWP_Object g_rwp_objects). Stores written in the ORIGINAL order, nested calls inline (`f(g(), rec->x)`), phantom trailing call args dropped (sfx_play_voice_at 3 args, object_set_flag_4 2 args).
+35. Constants stored through int/hex immediates get hoisted into a register (`mov eax,0x3f800000` once): store through the float lvalue with float literals (`*(float*)&g = 1.0f`, local float members): course_marker_positions_init (28 immediates), load_smoke_texture, debris_apply_velocity_a (zero floats avoid the zero register ebx).
+36. Zero-init local float/int frame members + `if (p == 0) p = &local` : with `float` members and 0.0f the compare becomes `test edi,edi` (debris_apply_velocity_a).
+37. Signed vs unsigned globals: `undefined4` division/compare gives mul/shr + jb; original is signed (imul/sar, jl): declare the extern global `int` (debug_keys_and_profile).
+
+Lint notes for the review (tools/defectlint.py on fix/): class 1 `signed` flags `if (g_x > 0)` on undefined4 globals in sound_stop_all_and_release (intended: orig is unsigned jbe, same semantics as != 0);
+class 4 `proto` flags the shrunk prototypes FUN_0056e340 (1 vs 3), sound_frame_begin (1 vs 2), RtBMPImageRead (1 vs 4): the dossier counted args from deferred `add esp`; the bytes are identical (pushes of earlier calls stay on the stack);
+class 6 `vtable_conv` flags FUN_004af0f0 (`__fastcall` slot call: callee takes this in ecx, no stack args).  declcheck.py / cheatgrep.py: no new findings.

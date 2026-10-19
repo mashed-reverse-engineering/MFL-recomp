@@ -6,31 +6,28 @@
    whose only '.' is the first character also returns `path`. Empty input is not handled;
    the backward scan runs past the start of the buffer. */
 char * FUN_005bf940(char *path)
-
 {
   char *next;
   char ch;
-  char *cursor;
+  char *start;
 
+  start = path;
   ch = *path;
-  cursor = path;
-  /* Walk forward to the terminating NUL; cursor ends on it. */
   while (ch != '\0') {
-    next = cursor + 1;
-    cursor = cursor + 1;
+    next = path + 1;
+    path = path + 1;
     ch = *next;
   }
-  ch = *cursor;
-  /* Walk backward from the NUL looking for the last '.'; stop when cursor reaches path. */
+  ch = *path;
   while( true ) {
     if (ch == '.') {
-      return cursor + 1;
+      return path + 1;
     }
-    cursor = cursor + -1;
-    if (cursor == path) break;
-    ch = *cursor;
+    path = path + -1;
+    if (path == start) break;
+    ch = *path;
   }
-  return path;
+  return start;
 }
 
 

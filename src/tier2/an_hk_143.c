@@ -16,7 +16,7 @@ undefined4 __cdecl FUN_005bcf00(undefined4 *rule,uint *entry)
 
   /* tag bytes must match and entry[0] must lie in [rule[2], rule[3]] */
   if ((((*(char *)((char *)entry + 0xd) == *(char *)((char *)rule + 5)) &&
-       ((char)entry[3] == *(char *)(rule + 1))) && ((uint)rule[2] <= *entry)) &&
+       ((char)entry[3] == *(char *)(rule + 1))) && (*entry >= (uint)rule[2])) &&
      (*entry <= (uint)rule[3])) {
     /* callee must report 0, and the flag bit must agree between rule and entry */
     callee_result = FUN_005be600(entry[1],*rule);

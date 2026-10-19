@@ -33,7 +33,7 @@ void sound_car_engine_start(int car_index)
   } frame;
 
   /* skip entirely if sound is muted in multiplayer and there are 2+ players */
-  if ((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) {
+  if ((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count <= 1)) {
     voice_slot = g_sound_frame_61a040 + car_index;
     voice_set_volume(voice_slot,0.0);
     /* only cars with the pending-start flag set continue */
@@ -41,7 +41,7 @@ void sound_car_engine_start(int car_index)
       car_get_speed(frame.speed_out,car_index);
       car_get_int_from_float_field(&frame.car_int_field,car_index);
       /* only start the engine voice when the car's int field is positive (inferred: speed/gear) */
-      if (0 < frame.car_int_field) {
+      if (frame.car_int_field >= 1) {
         voice_set_position_from_car(voice_slot,car_index);
         /* make sure the voice record's flag bit 1 is set (inferred: voice is active) */
         if ((*(byte *)(g_voices[voice_slot].voice + 0x34) & 2) == 0) {
@@ -55,13 +55,12 @@ void sound_car_engine_start(int car_index)
         }
         /* volume is 0.45 in race phase 6, silent otherwise (inferred: phase 6 = racing) */
         race_phase = race_get_phase();
-        if (race_phase == 6) {
-          engine_volume = 0.45;
+        if (race_phase != 6) {
+          voice_set_volume(voice_slot,0.0f);
         }
         else {
-          engine_volume = 0.0;
+          voice_set_volume(voice_slot,0.45f);
         }
-        voice_set_volume(voice_slot,engine_volume);
         /* clear the pending-start flag for this car */
         *(undefined4 *)((char *)&g_sound_6ae130 + car_index * 4) = 0;
       }

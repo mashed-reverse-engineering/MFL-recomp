@@ -17,7 +17,7 @@ uint __cdecl FUN_005c9380(undefined4 *obj,undefined4 id,undefined4 kind)
   *(undefined2 *)(obj + 2) = 0;
   *(undefined2 *)((char *)obj + 10) = 0;
   init_result = FUN_005c4340(obj + 3,1,1);
-  return -(uint)(init_result != 0) & (uint)obj;
+  return init_result != 0 ? (uint)obj : 0;
 }
 
 

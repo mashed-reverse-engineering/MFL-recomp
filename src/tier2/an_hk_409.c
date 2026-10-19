@@ -17,8 +17,8 @@ undefined4 __cdecl atomic_set_material_alpha_value(undefined4 atomic,undefined4 
     undefined4 *local_4;
   } material_cb_ctx;
 
-  material_cb_ctx.local_4 = &alpha;
   material_cb_ctx.local_8 = &LAB_00484990;
+  material_cb_ctx.local_4 = &alpha;
   geometry_for_all_materials_cb(atomic,&material_cb_ctx.local_8);
   return atomic;
 }

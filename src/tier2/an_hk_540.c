@@ -18,28 +18,19 @@
  * weapon_slot: slot whose ->player index selects the per-player entries.
  * Returns nothing.
  */
+extern char g_rocket_state[];
 void weapon_rocket_unequip(WeaponSlot *weapon_slot)
-
 {
   uint player_index;
-  RpWorld *world;
-  RpClump *rocket_clump;
-  undefined4 object_flags;
+  char *rec;
 
   player_index = weapon_slot->player;
+  rec = (char *)&g_rocket_state + player_index * PLAYER_ROCKET_STATE_SIZE;
   weapon_effect_slot_clear(player_index);
-
-  /* Take the player's rocket clump out of the course world. */
-  rocket_clump = (RpClump *)(&g_weapon_6a6008)[player_index * PLAYER_CLUMP_SLOT_WORDS];
-  world = (RpWorld *)course_get_rpworld_00467e90();
-  RpWorldRemoveClump(world,rocket_clump);
-
-  /* Clear the flag on the clump's atomics and reset the rocket state (inferred). */
-  rocket_clump = (RpClump *)(&g_weapon_6a6008)[player_index * PLAYER_CLUMP_SLOT_WORDS];
-  object_flags = 0;
-  clump_set_flag_on_atomics(rocket_clump, 0x0);
-  object_set_flag_4(*(undefined4 *)((char *)&g_weapon_rocket_6a6010 + player_index * PLAYER_ROCKET_STATE_SIZE),0,rocket_clump,object_flags);
-  *(undefined4 *)((char *)&g_weapon_rocket_6a5ff4 + player_index * PLAYER_ROCKET_STATE_SIZE) = 0;
+  RpWorldRemoveClump((RpWorld *)course_get_rpworld_00467e90(),*(RpClump **)(rec + 0x18));
+  clump_set_flag_on_atomics(*(RpClump **)(rec + 0x18), 0x0);
+  object_set_flag_4(*(undefined4 *)(rec + 0x20),0);
+  *(undefined4 *)(rec + 4) = 0;
   return;
 }
 

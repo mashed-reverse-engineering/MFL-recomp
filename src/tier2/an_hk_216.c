@@ -2,7 +2,7 @@
 /*00416a30*/ extern int career_cell_index();
 /*00416d40*/ extern int ai_bots_assign_slots();
 /*00427d20*/ extern int game_get_game_8c8ae0();
-/*00434bb0*/ extern int get_event_type();
+/*00434bb0*/ extern int __fastcall get_event_type(undefined4);
 /*005dd340*/ extern float k_f_0_5;
 /*005ddc28*/ extern float k_f_0;
 /*007ef7b0*/ extern undefined4 g_car_7ef7b0;
@@ -27,6 +27,7 @@ void __fastcall race_ai_slot_assign_or_adjust(undefined4 event_arg)
 
 {
   int event_type;
+  float bias;
 
   /* event types 0,1,2,6,7,8,0xb,0xc,0xd,0x11,0x12 are excluded */
   event_type = get_event_type(event_arg);
@@ -38,12 +39,14 @@ void __fastcall race_ai_slot_assign_or_adjust(undefined4 event_arg)
     /* race-style game modes (4, 5, 8, 9, 10; inferred): nudge the skill bias by a fixed step */
     if (((game_mode == 4) || (((game_mode == 9 || (game_mode == 5)) || (game_mode == 8)))) ||
        (game_mode == 10)) {
-      if (g_car_7ef7b0 == 0) {
-        g_ai_skill_bias = g_ai_skill_bias - k_f_0_5;
+      bias = g_ai_skill_bias;
+      if (g_car_7ef7b0 != 0) {
+        bias = bias + k_f_0_5;
       }
       else {
-        g_ai_skill_bias = g_ai_skill_bias + k_f_0_5;
+        bias = bias - k_f_0_5;
       }
+      g_ai_skill_bias = bias;
     }
     else {
       /* other modes: assign bot slots, then fold the accumulated score into the bias

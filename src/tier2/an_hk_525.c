@@ -17,6 +17,7 @@ void rwp_object_set_rotation_degrees
                (int param_1,int param_2,RwReal param_3,RwReal param_4,RwReal param_5)
 
 {
+  ushort bit_index;
   int iVar1;
   RwMatrix *matrix;
   char *iVar2;
@@ -32,8 +33,7 @@ void rwp_object_set_rotation_degrees
   iVar2 = rwp_owner_object_get((&g_rw_6fd498)[param_1]);
   iVar1 = *(int *)(iVar2 + 0x24);
   if (iVar1 != 0) {
-    if ((*(uint *)(*(char **)(iVar1 + 0x60) + (uint)(*(ushort *)(iVar2 + 0x20) >> 5) * 4) &
-        1 << ((byte)*(ushort *)(iVar2 + 0x20) & 0x1f)) != 0) {
+    if ((*(uint *)(*(char **)(iVar1 + 0x60) + (uint)((bit_index = *(ushort *)(iVar2 + 0x20)) >> 5) * 4) & 1 << (bit_index & 0x1f)) != 0) {
       FUN_0056b3b0(iVar1,iVar2);
     }
   }

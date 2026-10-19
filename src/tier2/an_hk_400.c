@@ -18,29 +18,29 @@
 void debris_apply_velocity_a(undefined4 body_handle,undefined4 *velocity)
 
 {
+  ushort bit_index;
   undefined4 *dst;
   int world;
   int *desc;
   char *obj;
   struct {
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    float local_c;
+    float local_8;
+    float local_4;
   } frame;
 
-  frame.local_c = 0;
-  frame.local_8 = 0;
-  frame.local_4 = 0;
+  frame.local_c = 0.0f;
+  frame.local_8 = 0.0f;
+  frame.local_4 = 0.0f;
   if (velocity == (undefined4 *)0x0) {
-    velocity = &frame.local_c;
+    velocity = (undefined4 *)&frame.local_c;
   }
   obj = rwp_owner_object_get(body_handle);
   world = *(int *)(obj + 0x24);
   /* If the world exists and the object's bit is already set in the world's
      flag table (inferred), skip the FUN_0056b300 call. */
   if (world != 0) {
-    if ((*(uint *)(*(char **)(world + 0x60) + (uint)(*(ushort *)(obj + 0x20) >> 5) * 4) &
-        1 << ((byte)*(ushort *)(obj + 0x20) & 0x1f)) != 0) goto LAB_004248e8;
+    if ((*(uint *)(*(char **)(world + 0x60) + (uint)((bit_index = *(ushort *)(obj + 0x20)) >> 5) * 4) & 1 << (bit_index & 0x1f)) != 0) goto LAB_004248e8;
   }
   FUN_0056b300(world,obj);
 LAB_004248e8:
@@ -49,9 +49,7 @@ LAB_004248e8:
   desc = *(int **)(*(char **)(obj + 0x10) + 4);
   dst = (undefined4 *)(*(char **)(*(char **)(*desc + 0x10) + 8) + 0x10 + desc[1] * 0x20);
   /* Copy the three velocity components into the record. */
-  *dst = *velocity;
-  dst[1] = velocity[1];
-  dst[2] = velocity[2];
+  *(RwV3d *)dst = *(RwV3d *)velocity;
   /* Set bit 1 for this object in the world (meaning of the bit: inferred). */
   rwp_world_set_bit_5c(*(undefined4 *)(obj + 0x24),obj,1);
   return;

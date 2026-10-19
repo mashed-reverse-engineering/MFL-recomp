@@ -24,14 +24,13 @@ void trigger_register_object_type8(int object)
     int object;
     undefined4 reserved;
     undefined1 *extra_data;
+    char pad[0x6c];
   } frame;
 
   /* object->(+8 pointer)->(+4 field) is the object's frame; take its LTM (the world transform) */
   frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(object + 8) + 4));
   /* sphere centre = translation part of the frame's LTM */
-  frame.pos_x = (frame_ltm->pos).x;
-  frame.pos_y = (frame_ltm->pos).y;
-  frame.pos_z = (frame_ltm->pos).z;
+  *(RwV3d *)&frame.pos_x = frame_ltm->pos;
   /* fixed radius and type 8 for this trigger kind */
   frame.radius = TRIGGER_SPHERE_RADIUS_BITS;
   frame.trigger_type = TRIGGER_TYPE_OBJECT;

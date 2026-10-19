@@ -23,6 +23,7 @@ void course_arctic_camera_relative_update(char *state_base)
 {
   RwFrame *frame;
   char *viewport_camera;
+  RwMatrix *cam_mtx;
   int *slot;
   int slots_left;
   struct {
@@ -33,6 +34,7 @@ void course_arctic_camera_relative_update(char *state_base)
 
   viewport_camera = viewport_get_camera(0);
   viewport_camera = *(char **)(viewport_camera + 4);
+  cam_mtx = (RwMatrix *)(viewport_camera + 0x10);
   frame_obj.origin.x = 0.0;
   frame_obj.origin.y = 0.0;
   frame_obj.origin.z = 0.0;
@@ -53,7 +55,7 @@ void course_arctic_camera_relative_update(char *state_base)
       RwFrameTranslate(frame,&frame_obj.origin,rwCOMBINEREPLACE);
       RwFrameRotate(frame,&frame_obj.x_axis,FLIP_ANGLE_DEG,rwCOMBINEPRECONCAT);
       RwFrameRotate(frame,&frame_obj.y_axis,FLIP_ANGLE_DEG,rwCOMBINEPOSTCONCAT);
-      RwFrameTranslate(frame,(RwV3d *)(viewport_camera + CAMERA_POS_OFFSET),rwCOMBINEPOSTCONCAT);
+      RwFrameTranslate(frame,&cam_mtx->pos,rwCOMBINEPOSTCONCAT);
     }
     slot = slot + 1;
     slots_left = slots_left + -1;

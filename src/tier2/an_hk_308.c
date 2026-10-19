@@ -13,7 +13,7 @@
  *   result_code - optional out pointer (may be NULL); receives the raw status returned by FUN_004c7c00
  * Returns true when the status is 0 (success).
  */
-bool lua_run_buffer_ok(undefined4 buffer,undefined4 buffer_size,int *result_code)
+int lua_run_buffer_ok(undefined4 buffer,undefined4 buffer_size,int *result_code)
 
 {
   int status;

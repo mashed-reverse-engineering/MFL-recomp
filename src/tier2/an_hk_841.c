@@ -14,8 +14,9 @@
 undefined4 anim_update_hierarchy(undefined4 return_value,char *anim_owner)
 
 {
+  RwReal t = *(RwReal *)(anim_owner + 0x44);
   RtAnimInterpolatorSubAnimTime
-            (RpHAnimHierarchy_currentAnim((*(RpHAnimHierarchy **)(anim_owner + 0x50))),*(RwReal *)(anim_owner + 0x44));
+            (RpHAnimHierarchy_currentAnim((*(RpHAnimHierarchy **)(anim_owner + 0x50))),t);
   RpHAnimHierarchyUpdateMatrices(*(RpHAnimHierarchy **)(anim_owner + 0x50));
   *(undefined4 *)(anim_owner + 0x48) = 5;
   return return_value;

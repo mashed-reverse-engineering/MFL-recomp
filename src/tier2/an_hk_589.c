@@ -15,7 +15,7 @@
 undefined4 * __cdecl node_create_from_two_vectors(char *owner,undefined4 *vec_a,undefined4 *vec_b)
 
 {
-  float inv_scale;
+  float inv_scale, s;
   undefined4 *node;
 
   node = RwMalloc(NODE_SIZE,0);
@@ -24,7 +24,8 @@ undefined4 * __cdecl node_create_from_two_vectors(char *owner,undefined4 *vec_a,
     *node = *vec_b;
     node[1] = vec_b[1];
     node[2] = *vec_a;
-    inv_scale = float_1_0 / *(float *)(owner + OWNER_SCALE_OFFSET);
+    s = *(float *)(owner + OWNER_SCALE_OFFSET);
+    inv_scale = float_1_0 / s;
     node[4] = 0;
     node[5] = 0;
     *(float *)&node[3] = inv_scale;

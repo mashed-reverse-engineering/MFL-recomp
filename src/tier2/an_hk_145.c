@@ -14,6 +14,7 @@ undefined4 * FUN_005bda80(int key)
 {
   int cmp_result;
   undefined4 *node;
+  undefined4 *entry;
 
   /* Null key never matches: bail out early */
   if (key == 0) {
@@ -24,9 +25,10 @@ undefined4 * FUN_005bda80(int key)
   if ((undefined4 **)g_data_7db7ec != &g_data_7db7ec) {
     /* Walk the list, comparing each entry against key */
     do {
-      cmp_result = FUN_005be600(node[ENTRY_FROM_NODE_WORDS],key);
+      entry = node + ENTRY_FROM_NODE_WORDS;
+      cmp_result = FUN_005be600(*entry,key);
       if (cmp_result == 0) {
-        return node + ENTRY_FROM_NODE_WORDS;
+        return entry;
       }
       node = (undefined4 *)*node;
     } while ((undefined4 **)node != &g_data_7db7ec);

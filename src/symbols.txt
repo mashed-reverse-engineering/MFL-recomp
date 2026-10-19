@@ -231,7 +231,6 @@ score_target_b 0040ce80
 players_reached_target 0040ced0
 players_have_zero_points 0040cf10
 players_max_points 0040cf40
-LAB_0040cf61 0040cf61
 round_points_clamp_to_limits 0040cfa0
 cars_inactive_flags 0040d000
 material_set_envmap 0040d040
