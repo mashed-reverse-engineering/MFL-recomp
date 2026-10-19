@@ -5747,6 +5747,8 @@ g_hudpanel_659aa4 00659aa4
 g_hudpanel_659aa8 00659aa8
 g_current_course_entry 00659d04
 g_game_659d50 00659d50
+g_game_659d60 00659d60
+g_game_659d74 00659d74
 g_vehicle_table 00659f00
 g_game_65a168 0065a168
 g_game_65a194 0065a194
