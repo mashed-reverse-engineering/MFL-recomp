@@ -15,7 +15,7 @@
 /* compile: /GS */
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
 /* "RwTexDictionaryFindNamedTexture('keyboard')" */
-/* TIER2: unvalidated 2026-10-19 authority=diffemu */
+/* TIER2: validated 2026-10-19 authority=diffemu */
 void __cdecl ui_keyboard_icon_find(int param_1,float param_2,float param_3,undefined4 param_4,int param_5)
 {
   struct RwTexture *tex;

@@ -210,6 +210,7 @@ car_push_from_matrix 0040c320
 car_apply_speed_boost_along_forward 0040c3c0
 car_wobble_tilt_update 0040c480
 course_editor_read_vec_chunk 0040c620
+LAB_0040c65d 0040c65d
 round_setup_limits 0040c710
 round_scores_reset 0040c7e0
 player_add_points 0040c820
@@ -256,6 +257,8 @@ event_log_flush_new 0040de10
 color_code_to_index 0040def0
 skid_mark_spawn_from_wheel 0040e000
 cars_exhaust_and_damage_fx_update 0040e1c0
+LAB_0040e42d 0040e42d
+LAB_0040e434 0040e434
 course_slots_active_count 0040e520
 load_shine_texture 0040e530
 effects_update_frame 0040e590
@@ -814,6 +817,9 @@ ai_load 00427120
 ai_clear 004271a0
 ai_editor 004271e0
 switchD 004271ef
+LAB_00427417 00427417
+LAB_004274f6 004274f6
+LAB_0042759f 0042759f
 ai_editor_update 00427670
 player_get_last_hit_by 00427690
 player_stat_get_crowns 004276b0
@@ -839,6 +845,8 @@ default 004283bd
 player_stats_copy_to_totals 00428420
 player_stats_accumulate 00428490
 player_stats_debug_log 004286f0
+LAB_00428785 00428785
+LAB_0042878d 0042878d
 cars_step_race_phase_and_respawn 00428a20
 LAB_00428da3 00428da3
 player_stats_update 00428e30
@@ -1240,6 +1248,7 @@ menu_controller_input_update 004390a0
 menu_draw_controller_select 004393f0
 message_box_draw 00439d40
 switchD 00439fc7
+LAB_0043a0e6 0043a0e6
 race_end_check_points 0043a160
 LAB_0043a1b5 0043a1b5
 LAB_0043a1e5 0043a1e5
@@ -1257,6 +1266,9 @@ LAB_0043ce61 0043ce61
 LAB_0043ce7f 0043ce7f
 menu_layout_build_a 0043cee0
 menu_layout_draw_b 0043d1e0
+LAB_0043d357 0043d357
+LAB_0043d5dc 0043d5dc
+LAB_0043d730 0043d730
 menu_event_is_selectable 0043d7b0
 menu_draw_event_select 0043d9e0
 switchD 0043dbb5
@@ -1603,6 +1615,7 @@ rocket_fly_straight 00460f50
 rocket_fly_homing 00461030
 rocket_explode 00461270
 rocket_hit_callback 00461370
+LAB_00461442 00461442
 rocket_slot_6a6000_get 00461620
 rocket_update_launcher 00461630
 LAB_004616d1 004616d1
@@ -1979,6 +1992,7 @@ car_get_mode 0047ac30
 car_set_mode 0047ac60
 car_get_int_from_float_field 0047ac90
 car_wheels_vs_triangles 0047acc0
+LAB_0047b30d 0047b30d
 car_wheel_get_field_88_a 0047b360
 car_wheel_get_field_88_b 0047b3a0
 car_wheel_get_field_30 0047b3e0
@@ -2406,6 +2420,7 @@ world_render_count_sectors 00495e70
 world_render_with_sector_callback 00496000
 particle_system_set_current 004960e0
 switchD 0049613d
+LAB_004961bf 004961bf
 PTR_caseD_4_00496308_1 00496309
 trigger_grid_build_visible_cells 00496330
 trigger_sphere_add_to_world 004965b0
@@ -2570,6 +2585,7 @@ tri_model_load 0049fe00
 fx_clumps_destroy 0049feb0
 materials_clear_textures_88602c 0049fee0
 particle_emit_textured 0049ff00
+LAB_004a0037 004a0037
 rain_splash_update 004a0260
 clumps_render_all_886024 004a0370
 fx_clump_slots_clear 004a03b0
@@ -2779,8 +2795,10 @@ dialog_controller_device_changed 004a70e0
 controller_dialog_set_item_texts 004a7120
 controller_dialog_start_key_capture 004a7780
 controller_dialog_init 004a77d0
+LAB_004a7c40 004a7c40
 switchD 004a7c7e
 controller_dialog_close 004a7f10
+LAB_004a7fd0 004a7fd0
 switchD 004a80d8
 default 004a8139
 controller_dialog_run 004a8180
@@ -2844,6 +2862,7 @@ FUN_004aca50 004aca50
 FUN_004acb00 004acb00
 FUN_004acb70 004acb70
 FUN_004acbb0 004acbb0
+FUN_004acca0 004acca0
 FUN_004acde0 004acde0
 FUN_004aced0 004aced0
 FUN_004acee0 004acee0
@@ -2870,6 +2889,7 @@ FUN_004aead0 004aead0
 FUN_004aeb00 004aeb00
 FUN_004aeb20 004aeb20
 FUN_004aedc0 004aedc0
+FUN_004aee20 004aee20
 FUN_004aef40 004aef40
 FUN_004aefb0 004aefb0
 FUN_004af120 004af120
@@ -3366,6 +3386,7 @@ FUN_004c3eb0 004c3eb0
 FUN_004c40c0 004c40c0
 FUN_004c40f0 004c40f0
 FUN_004c4120 004c4120
+FUN_004c4180 004c4180
 FUN_004c4280 004c4280
 FUN_004c42f0 004c42f0
 FUN_004c4460 004c4460
@@ -3373,6 +3394,7 @@ FUN_004c4620 004c4620
 FUN_004c4720 004c4720
 FUN_004c48b0 004c48b0
 FUN_004c4c30 004c4c30
+FUN_004c4c70 004c4c70
 FUN_004c4e20 004c4e20
 FUN_004c4f90 004c4f90
 FUN_004c51a0 004c51a0
@@ -3386,6 +3408,7 @@ thunk_FUN_00561060 004c5470
 FUN_004c5860 004c5860
 FUN_004c5b10 004c5b10
 FUN_004c5c40 004c5c40
+FUN_004c6210 004c6210
 FUN_004c65d0 004c65d0
 FUN_004c6600 004c6600
 FUN_004c66a0 004c66a0
@@ -5419,6 +5442,7 @@ _rwSListGetEnd 005d60f0
 RpCollSectorBBoxItInit 005d6100
 RpCollSectorBBoxItFindNextEntries 005d6280
 __aullshr 005db510
+LAB_005db5b0 005db5b0
 _rwIntelx86AsmV3dTransformPoints 005dc000
 _rwIntelx86AsmV3dTransformVectors 005dc07f
 _rwIntelx86AsmV3dTransformPoint 005dc0ef
@@ -5621,6 +5645,7 @@ k_f_3_0en4 005de418
 k_f_17_5 005de41c
 k_f_12_5 005de420
 k_f_n1_0842022en19 005de428
+k_f_6_2831855 005de430
 k_f_n0_25 005de47c
 k_f_n0_4 005de480
 k_f_0_02 005de490
@@ -5769,6 +5794,7 @@ k_f_420 005df30c
 k_f_400 005df310
 s_333_Lap_frames_005df368 005df368
 s_Lap_frames_005df368_4 005df36c
+PTR_g_data_736579_005df3cc 005df3cc
 k_f_18 005df448
 k_f_0_006135742 005df44c
 k_f_0_003067871 005df450
@@ -5821,6 +5847,7 @@ k_f_0_7692308 005df724
 k_f_720 005df738
 g_weapon_drum_5df73c 005df73c
 k_f_4_8780486en5 005df774
+g_rocket_hit_5df77c 005df77c
 k_f_4_0616837en31 005df780
 s_missile_dff_005df786_2 005df788
 k_f_n0_2 005df7b8
@@ -6154,9 +6181,12 @@ g_course_5fb0b8 005fb0b8
 g_skydome_follow_5fb15c 005fb15c
 g_skydome_follow_5fb160 005fb160
 g_skydome_follow_5fb164 005fb164
+g_course_update_603578 00603578
 g_phase_timer 006037c0
 g_round_find_6037c4 006037c4
 g_trail_603920 00603920
+g_trail_render_603924 00603924
+g_trail_render_603928 00603928
 g_hud_player_60392c 0060392c
 g_ai_bots_603950 00603950
 g_ai_bots_603954 00603954
@@ -6192,10 +6222,13 @@ g_vehicle_load_607868 00607868
 g_menu_texture_607adc 00607adc
 g_menu_texture_607ae0 00607ae0
 PTR_s_Training1_00607d00 00607d00
+g_menu_layout_607e68 00607e68
+g_menu_layout_608138 00608138
 PTR_s_Training1_00608228 00608228
 PTR_s_Egypt1_00608390 00608390
 PTR_s_Neustein1_006083b8 006083b8
 PTR_s_Tierra_PiedraNight1_006083e0 006083e0
+g_menu_layout_608408 00608408
 g_menu_draw_608790 00608790
 g_ai_bots_6089b0 006089b0
 g_career_event_608a68 00608a68
@@ -6320,6 +6353,7 @@ weapon_descriptors 0060dc20
 weapon_descriptor_update_callbacks 0060dc3c
 PTR_nop_stub_0060dc48 0060dc48
 PTR_nop_stub_0060dc4c 0060dc4c
+g_weapons_update_60dc5c 0060dc5c
 weapon_descriptor_count 0060de60
 g_weapon_610dfc 00610dfc
 g_sound_frame_611418 00611418
@@ -6402,6 +6436,7 @@ g_gfx_62946c 0062946c
 g_gfx_62947c 0062947c
 g_particle_system_62949c 0062949c
 g_particle_system_6294a0 006294a0
+g_gfx_6294a4 006294a4
 g_gfx_6294a8 006294a8
 g_gfx_6299d8 006299d8
 g_lua_current_type 006299dc
@@ -6468,6 +6503,12 @@ g_game_set_62ad2e 0062ad2e
 g_app_62ad34 0062ad34
 g_app_62ad38 0062ad38
 g_app_62ad50 0062ad50
+g_controller_dialog_62ad88 0062ad88
+g_controller_dialog_62b188 0062b188
+g_controller_dialog_62b588 0062b588
+g_controller_dialog_62b988 0062b988
+g_controller_dialog_62bd88 0062bd88
+g_controller_dialog_62c188 0062c188
 g_app_62c5c8 0062c5c8
 g_app_62c5cc 0062c5cc
 g_app_62c5d0 0062c5d0
@@ -6493,6 +6534,11 @@ g_data_64a998 0064a998
 g_data_64a99c 0064a99c
 g_data_64aa00 0064aa00
 g_data_64aa20 0064aa20
+g_cup_scene_64cb04 0064cb04
+g_cup_scene_64cb08 0064cb08
+g_cup_scene_64cb0c 0064cb0c
+g_cup_scene_64cb10 0064cb10
+g_cup_scene_64cb14 0064cb14
 g_cup_64cbbc 0064cbbc
 g_cup_64cbc0 0064cbc0
 g_cup_64cbd4 0064cbd4
@@ -6522,7 +6568,9 @@ g_scene_64d8b4 0064d8b4
 g_attract_timer_64d8b8 0064d8b8
 g_hud_flash_64d8bc 0064d8bc
 g_app_64d8c0 0064d8c0
+g_log_64d8c4 0064d8c4
 g_movie_64d8c8 0064d8c8
+g_hud_bomb_64d8d0 0064d8d0
 g_course_64d8d8 0064d8d8
 g_bomb_64d8dc 0064d8dc
 g_bomb_64d8e0 0064d8e0
@@ -6610,6 +6658,7 @@ g_course_update_652d20 00652d20
 g_course_update_652d24 00652d24
 g_course_update_652d28 00652d28
 g_course_update_652d2c 00652d2c
+g_course_update_652db8 00652db8
 g_round_652dbc 00652dbc
 g_effects_reset_652dc0 00652dc0
 g_effects_reset_652dc4 00652dc4
@@ -6890,11 +6939,13 @@ g_game_6614e8 006614e8
 g_vehicle_render_6614ec 006614ec
 g_game_6614f0 006614f0
 g_game_6642f0 006642f0
+g_ai_editor_6642f8 006642f8
 g_ai_editor_6642fc 006642fc
 g_ai_editor_664300 00664300
 g_ai_editor_664304 00664304
 g_ai_editor_664308 00664308
 g_ai_editor_66430c 0066430c
+g_ai_editor_664310 00664310
 g_ai_editor_664314 00664314
 g_ai_editor_664318 00664318
 g_ai_editor_66431c 0066431c
@@ -7030,6 +7081,7 @@ g_ui_69cbec 0069cbec
 g_message_box_69cc1c 0069cc1c
 g_ui_69cc2c 0069cc2c
 g_ui_69cc2e 0069cc2e
+g_menu_layout_69cc30 0069cc30
 g_app_state_69cc34 0069cc34
 g_message_show_69cc38 0069cc38
 g_team_mode 0069cc40
@@ -7123,6 +7175,7 @@ g_sky_atomic 006a06e0
 g_camera_record_6a06ec 006a06ec
 g_camera_record_6a06f0 006a06f0
 g_camera_record_6a06f8 006a06f8
+g_course_arctic_6a0770 006a0770
 g_course_dem_6a07ac 006a07ac
 g_course_dem_6a07b0 006a07b0
 g_course_dem_6a07b4 006a07b4
@@ -7566,6 +7619,9 @@ g_gfx_6c33c8 006c33c8
 g_physics_scenario_count 006c3d98
 g_text_pages_6c3d9c 006c3d9c
 g_gfx_6c3da0 006c3da0
+g_gfx_render_6c3da4 006c3da4
+g_gfx_render_6c3da8 006c3da8
+g_gfx_render_6c3dac 006c3dac
 g_gfx_6c3ea0 006c3ea0
 g_gfx_frame_6c3ea4 006c3ea4
 g_gfx_6c3eac 006c3eac
@@ -7768,11 +7824,18 @@ g_physics_702a90 00702a90
 g_physics_702a94 00702a94
 g_physics_702a98 00702a98
 g_world_sector_702aa0 00702aa0
+g_particle_system_702ea0 00702ea0
+g_particle_system_702ea8 00702ea8
 g_physics_7032a8 007032a8
 g_physics_7036b0 007036b0
 g_physics_7036b4 007036b4
+g_particle_system_7036bc 007036bc
 g_physics_7036c0 007036c0
 g_particles_7036c4 007036c4
+g_particle_system_7036d0 007036d0
+g_particle_system_7036d4 007036d4
+g_particle_system_7036d8 007036d8
+g_particle_system_7036dc 007036dc
 g_trigger_sphere_7036e0 007036e0
 g_trigger_sphere_703890 00703890
 g_trigger_sphere_7106d8 007106d8
@@ -7947,10 +8010,15 @@ g_fx_ptank_76df18 0076df18
 g_particles_76df24 0076df24
 g_fx_ptank_76df28 0076df28
 g_fx_ptank_76df2c 0076df2c
+g_effects_update_76df34 0076df34
+g_effects_update_76df35 0076df35
+g_effects_update_76df36 0076df36
+g_effects_update_76df37 0076df37
 g_effects_update_76df38 0076df38
 g_effects_update_76df48 0076df48
 g_effects_update_76df4c 0076df4c
 g_effects_update_76df50 0076df50
+g_effects_update_76df54 0076df54
 g_effects_update_76df58 0076df58
 g_effects_update_76df60 0076df60
 g_effects_update_76df64 0076df64
@@ -8045,6 +8113,7 @@ g_joypad_get_76f128 0076f128
 g_app_770f60 00770f60
 g_app_770f64 00770f64
 g_app_770f68 00770f68
+g_app_770f70 00770f70
 g_log_770f74 00770f74
 g_app_770fb4 00770fb4
 g_app_770fe8 00770fe8
@@ -8055,8 +8124,18 @@ g_d3d9_shaders_77103c 0077103c
 g_app_771048 00771048
 g_app_771054 00771054
 g_app_771058 00771058
+g_controller_dialog_771188 00771188
+g_controller_dialog_77118c 0077118c
+g_controller_dialog_771190 00771190
+g_controller_dialog_771194 00771194
+g_controller_dialog_771198 00771198
+g_controller_dialog_77119c 0077119c
+g_controller_dialog_7711a0 007711a0
+g_controller_dialog_7711a4 007711a4
 g_app_7711c4 007711c4
 g_controller_cfg_7711d4 007711d4
+g_controller_dialog_7711e8 007711e8
+g_controller_dialog_771208 00771208
 g_app_77120c 0077120c
 g_app_77122c 0077122c
 g_video_cfg_7712d8 007712d8
@@ -8145,7 +8224,9 @@ g_event_log_head 007e7f60
 g_event_log_type 007e7f64
 g_event_log_time 007e8364
 g_event_log_param 007e8764
+g_ai_7eeb64 007eeb64
 g_race_7eeb88 007eeb88
+g_race_7eebb4 007eebb4
 g_game_state 007eebc0
 g_game_state_progress_1_ 007eebc4
 g_game_state_progress_2_ 007eebc8
@@ -8443,6 +8524,7 @@ g_car_init_7ef764 007ef764
 g_car_init_7ef768 007ef768
 g_car_init_7ef76c 007ef76c
 g_ai_bot_7ef770 007ef770
+g_effects_update_7ef784 007ef784
 g_camera_shake 007ef7ac
 g_car_7ef7b0 007ef7b0
 g_hud_7ef7b4 007ef7b4
@@ -8672,7 +8754,14 @@ g_ai_editor_route_index 007f0254
 g_ai_editor_step_flag_a 007f0258
 g_ai_editor_step_flag_b 007f025c
 g_ai_editor_step_counter 007f0260
+g_ai_debug_7f0264 007f0264
+g_ai_debug_7f0268 007f0268
+g_ai_debug_7f026c 007f026c
+g_ai_debug_7f0270 007f0270
+g_ai_debug_7f0274 007f0274
 g_ai_editor_brush 007f0278
+g_ai_debug_7f027c 007f027c
+g_ai_7f0280 007f0280
 g_ai_data 007f0284
 g_ai_data_grid_2_ 007f0288
 g_ai_data_tile_pool_0_ 007f8284
@@ -8748,6 +8837,17 @@ g_fx_buffers_886014 00886014
 g_app_886020 00886020
 g_app_886024 00886024
 g_particles_88602c 0088602c
+g_effects_update_886030 00886030
+g_effects_update_886034 00886034
+g_effects_update_886038 00886038
+g_effects_update_88603c 0088603c
+g_effects_update_886044 00886044
+g_effects_update_886048 00886048
+g_effects_update_886054 00886054
+g_effects_update_886058 00886058
+g_effects_update_88605c 0088605c
+g_effects_update_886060 00886060
+g_effects_update_88606c 0088606c
 g_app_886980 00886980
 g_app_886984 00886984
 g_course_unload_88698c 0088698c
@@ -9198,9 +9298,11 @@ g_car_8bd760 008bd760
 g_car_8bd764 008bd764
 g_car_8bd778 008bd778
 g_car_8bd784 008bd784
+g_car_8bd790 008bd790
 g_car_8bd794 008bd794
 g_rank_order 008bd7a0
 g_sound_groups 008bd7b0
+g_sound_8bd7b4 008bd7b4
 g_sound_frame_8bd7b8 008bd7b8
 g_weapon_ai_8bd7bc 008bd7bc
 g_weapon_ai_8bdcc0 008bdcc0
@@ -9399,6 +9501,7 @@ g_car_8c807c 008c807c
 g_menu_8c8090 008c8090
 g_menu_item_anims 008c80a0
 g_hud_8c86bc 008c86bc
+g_menu_layout_8c86c0 008c86c0
 g_car_8c86c4 008c86c4
 g_car_8c86c8 008c86c8
 g_course_8c86d0 008c86d0

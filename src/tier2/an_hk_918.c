@@ -18,7 +18,7 @@
 /* WARNING: Enum "RwVideoModeFlag": Some values do not have unique names */
 /* "'RWTEXDICTIONARY': video mode info and aux camera setup" */
 
-/* TIER2: unvalidated 2026-10-19 authority=diffemu */
+/* TIER2: validated 2026-10-19 authority=diffemu */
 void video_init_main_camera(void)
 {
   undefined4 uVar2;
