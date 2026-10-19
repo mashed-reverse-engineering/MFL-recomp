@@ -524,7 +524,7 @@ course_lap_line_find_index,0040a830,tier2,compiled+diffemu-EQUAL+shadow-never,di
 course_list_scan,0042a470,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,b86738428062,11404e1744d7,4c54594cf977,200,0.93,0,1
 course_load_from_setup,0040e730,tier1,bytes,bytes-reloc,0e64f03ecfda,11404e1744d7,4c54594cf977,0,0.00,0,0
 course_load_time_report,00410dc0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
-course_marker_positions_init,0045b510,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,0195c08c2e97,11404e1744d7,4c54594cf977,200,1.00,0,1
+course_marker_positions_init,0045b510,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,0195c08c2e97,11404e1744d7,4c54594cf977,200,1.00,0,0
 course_materials_fixup,00406970,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 course_model_path_copy,0040eac0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,33,1.00,0,0
 course_neustein_cb1,00455620,agent,bytes-standalone+e9076ad03a7a,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
@@ -1602,7 +1602,7 @@ texdict_load_named_c,0042f9a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,
 texdict_load_named_d,0042fa10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 text_draw_box,0042c110,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 text_draw_plain,0042c540,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
-text_page_add_string_id,00480190,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,27ed6eeabef9,11404e1744d7,4c54594cf977,200,1.00,0,1
+text_page_add_string_id,00480190,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,27ed6eeabef9,11404e1744d7,4c54594cf977,200,1.00,0,0
 text_page_next,00480150,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 text_page_reset_line,00480130,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 text_pages_clear,00480230,tier1,bytes,bytes-reloc,6fa0208efa5e,11404e1744d7,4c54594cf977,0,0.00,0,0
