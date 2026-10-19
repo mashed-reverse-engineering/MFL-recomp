@@ -156,3 +156,115 @@ Metric: cmpfn.check (reloc-masked) via <scratch>; scratch copies src/w_<name>.c;
 - vec3_is_valid_small 39->4, career_time_under_target 65->6, lua_Physics_Scenario_Trigger_Add_Objects 28->8: need exact source expression shape: cl's operand load order is independent of the left-assoc term order (tried all 6 permutations); `lea` vs `add` for `&sym+idx*stride` base pointers not reachable (folded).
 - hudpanel_fuel_meter_update 20->4 (scheduling of a float load across arg pushes), training_text_box_c 21->6 (two byte[4] colour locals: store order differs), car_get_velocity_any_mode 29->19, vector_normalize_copy 21->10, hsv_phase_to_rgb 41->17 (`fld k; fsub st,st(1)` vs `fsubr [k]`), hudpanel_load_indicator_update (register-input callees at the tail: unreachable).
 - Not fixable here: ai_bot_weapon_logic (orig shrink-wraps `push esi` after an early return 0), register-argument callees (weapon_mines_fire, course_city_cb5 tail jmp), loop IV rebase (weapon_mines_course_33_update), menu_select_pressed_any / menu_event_column_is_special (different branch structure, not tried beyond reading), round_stats_reset (three alternating zero registers eax/ecx/edx, unknown source).
+
+## Round D
+
+Targets: <scratch> (82 functions, 11-48 differing lines). Scratch: <scratch> (src/ working copies, fix/ = full-file replacements
+spliced into the CURRENT recomp/automatch_near files (byte-identical, diffemu EQUAL), fix_improved/ = partial progress, RESULT.csv).  Tools: t.py (cmpfn + asm diff), rf.py (replace one function and check), splice.py, regress.py.
+NOTE: recomp/automatch_near/*.c changes underneath (another agent / gate): never copy a stale scratch file back, re-run splice.py against the installed file.
+
+Result: 41 of 82 byte-identical (all diffemu EQUAL), 12 improved (fix_improved/, near/ has the function snippets), 29 unchanged.  "(n: names)" below = functions fixed by that edit.
+
+## New patterns (asm symptom -> source edit)
+
+1. Early `return` block instead of nested if (1: viewport_raster_destroy)
+   asm: original has `pop edi; xor eax,eax; pop esi; ret` duplicated after an early `jne`/`je`, ours has one shared tail and `je` to the end.
+   fix: nested `if (a) { if (b) {...; return 1;} } return 0;` -> flat `if (!a) return 0; if (!b) return 0; ...; return 1;` (and `VAL < x` -> `x >= VAL+1` for the cmp 4 / jb form).
+
+2. if-chain on 0/1/2 -> switch (2: atomic_lookup_error, voice_queue_select_tables)
+   asm: original `mov eax,[arg]; sub eax,0; je A; dec eax; je B; dec eax; je C; default` (or `dec eax; je ...`), ours `cmp eax,1; jne ...; cmp eax,2`.
+   fix: `switch (x) { case 0: ... break; case 1: ...; default: }`; the case ORDER in the source is the code layout order (event_type_from_menu_choice: `case 5` moved behind `case 8`
+   so its block is emitted after case 8; the jump table is unchanged).
+
+3. Loop copy of 6/12/16 dwords -> struct assignment (rep movs) (4: vehicle_get_matrix, material_plugin_stream_read, + wip btb_panel_slot_set_matrix, particle_system_set_matrix_table)
+   asm: original `mov ecx,N; rep movs`; ours a dword loop `mov esi,[ecx]; mov [eax],esi; add ...; dec edx; jne`.
+   fix: `typedef struct { undefined4 d[N]; } DwN;  *(DwN *)dst = *(DwN *)src;`.  3-dword vectors: `*translation = matrix.pos;` / `to_origin = frame->modelling.pos;` (RwV3d assignment) gives
+   the `mov edx,[ecx]; mov [esp+4],edx ...` through-a-pointer copy.  Hand-written clear loops -> `memset` (see 9).
+
+4. Record base symbol + char* + nested call (B again) (vehicle_get_matrix, weapon_machinegun_unequip, weapon_flamethrower_unequip, btb_panel_slot_render, lua_Physics_Scenario_Create_Trigger, fx_ring_add_point, text_page_add_string_id)
+   asm: original has ONE base register per record (`lea esi,[eax+eax*8]; lea esi,[esi*8+SYM]`, `mov [esi+0x10],3`), ours folds the displacement into every access (`[esi*4+SYM+off]`) or recomputes imul.
+   fix: `char *rec = (char *)&g_BASE + idx*STRIDE;` then `*(T*)(rec+off)`.  The BASE symbol must be the record start (recomp/symbols.txt has e.g. g_physics_scenarios 0x89de20 for the
+   lua scenario slots, add the `extern` if the TU lacks it).  A second counter that lives in the same record is `*(int *)(rec + 0x2428)` (not a separate global).
+
+5. Single-use temporaries around calls (A again) (weapon_machinegun_unequip, best_time_store_previous, course_arctic_cb3, course_apply_clip_planes, race_lose_banner (wip))
+   asm: original pushes the other args first and calls the inner function last (`push 0x2; push 1.0f; push color; push 60.0f; call get_x; fadd`), ours calls first into a temp.
+   fix: inline the call into the argument list; for index expressions `arr[get_row()*3 + get_slot()]` write the calls inside the subscript (the `*3` of the first call is then done BEFORE the second call).
+
+6. lua_* wrappers: drop `float10 value` and the index temp (5: lua_RWP_Object_Cylinder/CentreOfMassOffset/Properties, lua_RainSetPosition, lua_Physics_Scenario_Create_Trigger)
+   asm: register roles differ (state edi / count ebx / record esi in the original), ours has an extra `mov ebx,eax` and `add esp,0x1c` after the last fstp.
+   fix: `obj = &g_rwp_objects[(int)lua_tonumber(L, n-2)];` (no `object_index` temp), `obj->f = (float)lua_tonumber(L, n);` directly (no `value = (float10)...; obj->f = (float)value`).
+   RainSetPosition: six `float xmin = (float)lua_tonumber(...)` locals, then `impl(*(int *)&xmin, ...)`.
+
+7. Packed RGBA constant -> RwRGBA locals built from byte stores (3 + 1 wip: training_text_box_a/b, course_training_cb1, race_lose_banner_draw)
+   asm: original `mov al,0xd8; mov [esp+..],al ...; mov esi,[esp+0xc]; push esi` (colour assembled from byte stores, loaded as a dword), ours `push 0xff000000`.
+   fix: `RwRGBA c; c.red=..; c.green=..; c.blue=..; c.alpha=..;` and pass `*(int *)&c`.  Order matters for which byte register is reused: initialise the colour that has the
+   non-zero bytes FIRST completely (all four fields), then the other one.  A colour that lives in an overwritten parameter slot: `((RwRGBA *)&param_1)->red = 0x6c` (course_training_cb1).
+
+8. float/double return type of the callee decides fcom m32 vs fld+fcompp (2: ai_find_leader_b, course_arctic_cb3; also dot_product_3d_clamped partially)
+   asm: original `call f; fcomp DWORD PTR [k]` (compare straight against the float global), ours `call f; fld [k]; fcompp`.
+   fix: declare the callee `extern float f();` instead of `double` (player_distance_get, random_range) and compare the float result directly with the float global (`f() > k_f_0_9`, no float10 casts);
+   in the same spirit float arithmetic (`float dot = a*b + ...` instead of float10 casts) gives `fcom m32` in dot_product_3d_clamped.
+
+9. memset intrinsic for hand-written clear loops (1: rwp_world_clear_arena)
+   asm: original `rep stos DWORD; mov ecx,esi; and ecx,3; rep stos BYTE` ; ours a counted store loop.
+   fix: `extern void *__cdecl memset(void *, int, unsigned int); #pragma intrinsic(memset)` and `memset(ptr, 0, count*stride)` (inline expansion at /O2).
+
+10. `%` computed as multiply (1: ui_compare_sign)
+   asm: original `imul edx,edx,0x1770; sub ...` (magic-multiply division, remainder by subtraction), ours `idiv`.
+   fix: compute `q = a / C; r = a - q * C;` explicitly instead of `a % C` next to `a / C` (cl then uses idiv for the pair).
+
+11. Narrow (byte) globals passed to a callee: `xor eax,eax; mov al,[g]` (1: course_apply_clip_planes)
+   asm: original `xor eax,eax; mov al,ds:g; push eax`, ours `movzx eax,BYTE PTR g`.
+   fix: give the callee a prototype with `unsigned char` parameters (`extern int game_set_option_flags(unsigned char, unsigned char, unsigned char);`).
+
+12. float-typed parameter whose value is copied twice (1: weapon_particle_spark_emit)
+   asm: original `mov ecx,eax` before the second store of the parameter, ours stores eax twice.
+   fix: declare the parameter and the 2-element destination as `float` (`float size; float size_pair[2];`), stack ABI unchanged.
+
+13. float constant arithmetic written as literal / float expression (3: spline_get_length, course_rotating_object_integrate, + frame_rotate (wip))
+   asm: original `fld [var]; fmul [k]` / `fld [t]; fadd [k]` (variable first), ours `fld [k]; fmul [var]`.
+   fix (Round A #4 again): `var * 0.99f`, `t + 0.001f` (literal; cmpfn compares the rdata constant by value).  For `<=` loops written as `a < b != (a == b)` use `while (t <= 1.0f)`.
+   Hex constants stored through `undefined4` fields (sound_spline_create_a: 33 immediates hoisted into eax) become immediates again when written as float literals in an RwV3d[11].
+
+14. Ghidra junk call arguments / wrong prototypes (1: race_load_common_assets, + weapon_flamethrower_unequip)
+   asm: original pushes fewer arguments; ours has runs of `push 0` (`load_cup_model(a,b,c,...)` with nine unused locals, `texdict_load_named_b(..)` fine, `fx_dust_create_default(100,h,name)`,
+   `object_set_flag_4(x,0,clump,flag)`).  Count the `add esp,N` against the pushes; fix the prototype (K&R `extern int f();` accepts anything, so the junk compiled) and delete the unused locals.
+
+15. Chained condition tests of a float field as int (weapon_flamethrower_course_33_update)
+   asm: original `mov eax,[esi+0x30]; test eax,eax; je` (field != 0 tested as an int), ours `fld; fcomp QWORD; test ah,0x44`.
+   fix: `*(int *)&translation[4].x != 0` instead of `translation[4].x != 0.0`.  Also `flags = m.flags | 0x20003; ...stores...; m.flags = flags;` keeps the `or` early and the store late.
+
+16. Single induction pointer with post-increment offsets (G again) (weapon_rocket_course_33_update)
+   fix: `active = p[-0x1e]; p = p + -0x1b; if (active) {... p[0] ...; *(V3 *)(p - 0x14) = *(V3 *)(frame + 0x30);} } while (p != END)`: read the flag BEFORE decrementing, use the post-decrement offsets
+   after, struct copy for the 3 floats.
+
+17. Global loaded before the branch (cup_scene_render, + pattern 5/8 together)
+   asm: original `mov eax,ds:RwEngineInstance` and `mov eax,[eax]` (curCamera) are done before the `cmp esi,-1; je`, ours loads them inside the taken branch.
+   fix: `cam = RwEngineInstance->curCamera;` as a statement right before the `if (car_index != NO_CAR)` (after the other stores), use `cam` inside.  Same function: the float10 temp
+   `car_value` is replaced by `vehicle_get_float_184(car) <= threshold` with `extern float vehicle_get_float_184();` (pattern 8), the viewport camera calls are inlined as arguments (pattern 5).
+
+18. Branch-specific arguments feeding ONE call (phi variable + tail duplication) (lua_ExpObj_Clump_Mts_Pair, players_get_wins/compare-order below)
+   asm: original has two identical-looking call sequences with `xor eax,eax; push eax` for the constant argument and the earlier results parked in ebx/ebp, ours has two calls with `push 0`.
+   fix: `if (n == 2) { a = f(1); b = f(n); c = 0; } else { a = ...; b = ...; c = f(n); }  g(b, a, c); return 0;`  (c is a phi, so the 0 is not folded into a push; cl duplicates the small tail itself).
+   The `n` in `f(n)` for the second argument is the variable (not the folded constant 2): once the join is shared cl no longer propagates the branch condition.
+
+19. Operand order of a compare decides the load order (players_get_wins)
+   asm: original loads `wins[pos+1]` first (eax) then `wins[pos]` (edx), `cmp edx,eax`; ours loads wins[pos] first.
+   fix: `next = wins[pos + 1]; if (wins[pos] < next) { cur = wins[pos]; wins[pos] = next; wins[pos+1] = cur; ... }` (temp for the right operand first; a temp for the left operand changed the register allocation).
+   The out_order[] swap through `out_order + (wins - ...)` pointer arithmetic of the Ghidra source is just `out_order[pos]` / `out_order[pos+1]`; cl rebuilds the same `lea esi,[ebx-wins]` form.
+
+20. then/else order = code layout; return inside the else-chain breaks it (5: player_stat_get_kills/turbo_used_team/unforced_errors/aggression_total_team/wall_hits_total_team)
+   asm: original `call is_team_mode; test eax,eax; mov ecx,[esp+4]; je SOLO_AT_END ... team code ... ret`, the player index is loaded once before the branch and the solo arm
+   (`imul ecx,ecx,0x138; mov eax,[ecx+X]`) sits behind the team arm sharing the final `ret`.  Ours put the solo arm first (`if (v == 0) {solo} else {team}`) and the team arm had its own `return v + stat3`.
+   fix: `if (v != 0) { team...; if (...) v = v + stat3; } else { v = solo; } return v;`  i.e. TEAM FIRST, no `return` inside the arms.  Scripted (ps_tr.py): applies to every
+   Ghidra `if (x == 0) { x = A; } else { ... return x + B; } return x;` shape.
+
+## Not fixed in this round (reason, closest edit)
+- Register-argument callees / `_r` adapters (menu_options_defaults_reset, weapon_drum_fire, fx_explosion_spawn, powerups_*): same as Round B #H.
+- Pointer IV rebasing (ai_bots_reset: the dword store of 0x3e8 is right, base is 4 higher than the original; weapon_fx_grid_clear: cl moves `sub eax,0x34` to the loop bottom, the
+  original keeps it on top; weapon_*_clear_effects: only the `lea esp,[esp+0]` loop-alignment pad differs; fx_styles_init_all).
+- menu_back/pause_pressed_any: loops match as `do { ... } while (p < END)` (END = symbol+1, byte pointer), but the original pushes esi/edi before the input-mode test (prologue not shrink-wrapped).
+- Operand-order / scheduling near-misses: frame_rotate_around_own_origin (struct copy + `* -1.0f` literal ok, fmul/mov interleave differs), car_push_from_matrix (all instructions right, one fmul vs push scheduled
+  one slot apart), dot_product_3d_clamped (float arithmetic + fcom m32 ok, `mov ecx,[esp+8]` vs first fld order), pool/particle_system_set_matrix_table (`[ecx+eax]` vs `[eax+ecx]` SIB order of an
+  `atomic->4 + g_plugin_offset` expression is canonicalised by cl), ptank_set_size (size pointer in ecx vs eax), btb_panel_slot_set_matrix (flags RMW `or [mem]` vs load/or/store; zero-register compare is automatic).
+- Struct-ish jump-table/branch layout: get_competitor_count (goto-shared blocks A..D are right, the count-3 dispatcher shares the count-2 chain in the original but not in ours), frontend_enter_menu (tail `jmp`).
