@@ -381,6 +381,7 @@ replay_current_get_split_time 00413b10
 race_time_trial_record 00413b50
 replay_records_reset 00413cb0
 replay_load_compare 00413dd0
+LAB_00413f8a 00413f8a
 time_trial_record_step 00414050
 ghost_render 00414250
 ghost_update 004142e0
@@ -893,6 +894,7 @@ copters_load 0042a7b0
 course_run_ktc_script 0042a7f0
 course_place_powerups_from_clump 0042a910
 course_load_powerups_gold 0042a980
+LAB_0042aac5 0042aac5
 course_set_split_sector_6 0042aae0
 course_hook10 0042aaf0
 course_camera_add_to_collision_world 0042ab20
@@ -1099,9 +1101,15 @@ LAB_00431ed0 00431ed0
 LAB_00431f35 00431f35
 team_names_string_build 00432060
 tutorial_text_update 00432200
+LAB_004322cd 004322cd
 switchD 004322dc
+LAB_00432313 00432313
+LAB_00432624 00432624
+LAB_00432894 00432894
 default 00432898
+LAB_004328e0 004328e0
 switchD 0043292b
+LAB_00432ab5 00432ab5
 ui_format_number_string 00432b50
 ui_compare_sign 00432bc0
 ui_get_menu_69cc48 00432c50
@@ -1996,6 +2004,7 @@ LAB_0047b30d 0047b30d
 car_wheel_get_field_88_a 0047b360
 car_wheel_get_field_88_b 0047b3a0
 car_wheel_get_field_30 0047b3e0
+LAB_0047b420 0047b420
 car_probe_ground_distance 0047b480
 car_current_matrix 0047b520
 car_set_matrices_from_floats 0047b550
@@ -2552,8 +2561,11 @@ switchD 0049d420
 default 0049d456
 fx_explosion_spawn_ring 0049d610
 fx_smoke_puffs_update 0049d820
+LAB_0049d830 0049d830
 switchD 0049d87d
 default 0049d8ac
+LAB_0049d8b5 0049d8b5
+LAB_0049d9f7 0049d9f7
 fx_floating_text_spawn 0049da30
 LAB_0049db62 0049db62
 fx_floating_text_update 0049dba0
@@ -2957,6 +2969,7 @@ __copysign 004b38d6
 finite 004b38f7
 _fpclass 004b390c
 _CIasin 004b39b0
+FUN_004b39c4 004b39c4
 start 004b39cd
 _strncmp 004b3a80
 strtok 004b3ab9
@@ -5355,6 +5368,7 @@ FUN_005c7200 005c7200
 switchD 005c8049
 default 005c80a8
 switchD 005cbd97
+FUN_005cc2a0 005cc2a0
 FUN_005cc2e0 005cc2e0
 FUN_005cc300 005cc300
 FUN_005cc950 005cc950
@@ -5859,6 +5873,8 @@ k_f_81 005df7e4
 k_f_n0_02 005df7e8
 k_f_0_014285714 005df7ec
 PTR_g_data_6c696f_005df7f0 005df7f0
+g_powerups_update_5df830 005df830
+g_powerups_update_5df834 005df834
 k_f_1 005df838
 k_f_1_0en6 005df83c
 k_f_800 005df8c4
@@ -5954,6 +5970,8 @@ k_f_0_002232143 005dfdfc
 k_f_416 005dfe00
 k_f_8100 005dfe08
 k_f_4_8828125en4 005dfe0c
+k_f_n1_5707964 005dfe18
+k_f_0_999999 005dfe1c
 k_f_0_003921569 005dff00
 k_f_1_5259022en5 005e0418
 g_piz_5e0450 005e0450
@@ -6014,6 +6032,8 @@ g_d3d9_shaders_5e1920 005e1920
 g_d3d9_shaders_5e1980 005e1980
 g_d3d9_shaders_5e19f0 005e19f0
 k_f_0_0028 005e1a5c
+g_dinput_keyboard_5e1e54 005e1e54
+g_dinput_keyboard_5e1ecc 005e1ecc
 g_dinput_create_5e1f6c 005e1f6c
 g_data_5e20ec 005e20ec
 g_data_5e20f0 005e20f0
@@ -6184,6 +6204,8 @@ g_skydome_follow_5fb164 005fb164
 g_course_update_603578 00603578
 g_phase_timer 006037c0
 g_round_find_6037c4 006037c4
+g_replay_6037c8 006037c8
+g_replay_6037d0 006037d0
 g_trail_603920 00603920
 g_trail_render_603924 00603924
 g_trail_render_603928 00603928
@@ -6293,6 +6315,8 @@ g_menu_page_30_gamma_correction 0060abb0
 g_menu_page_20_transmission_interrupted 0060ac08
 g_menu_page_23_transmission_interrupted 0060ac58
 g_menu_page_item_lists 0060aca8
+g_menu_60ad5c 0060ad5c
+g_menu_60ad60 0060ad60
 g_tutorial_state_60ad64 0060ad64
 g_tutorial_state_60ad80 0060ad80
 g_tutorial_state_60ad9c 0060ad9c
@@ -6349,6 +6373,7 @@ g_weapon_drum_60da34 0060da34
 g_rocket_update_60da40 0060da40
 g_rocket_update_60da44 0060da44
 g_mine_load_60da4c 0060da4c
+g_powerup_60dac0 0060dac0
 weapon_descriptors 0060dc20
 weapon_descriptor_update_callbacks 0060dc3c
 PTR_nop_stub_0060dc48 0060dc48
@@ -6373,6 +6398,7 @@ g_sfx_table 006187f8
 g_sound_6187fc 006187fc
 g_sound_car_618808 00618808
 g_sound_618c98 00618c98
+g_sound_play_618d2c 00618d2c
 g_sound_frame_619010 00619010
 g_sound_frame_6190a4 006190a4
 g_sound_frame_619138 00619138
@@ -6381,6 +6407,7 @@ g_sound_619ba0 00619ba0
 g_bomb_update_619c34 00619c34
 g_bomb_update_619cc8 00619cc8
 g_sound_frame_619df0 00619df0
+g_sound_frame_619e84 00619e84
 g_sound_frame_619fac 00619fac
 g_sound_music_voice 0061a168
 s_skid_on_tarmac_0061a9ef_1 0061a9f0
@@ -6412,6 +6439,7 @@ g_sound_car_62923c 0062923c
 g_sound_car_629240 00629240
 g_sound_car_629244 00629244
 g_sound_car_629248 00629248
+g_sound_play_62925c 0062925c
 g_car_handling_param_b8 006292b8
 g_car_init_6292c0 006292c0
 g_car_handling_param_c4 006292c4
@@ -6422,6 +6450,7 @@ g_car_init_6292d4 006292d4
 g_car_init_6292d8 006292d8
 g_car_init_6292dc 006292dc
 g_car_handling_scale 006292e0
+g_race_update_6292e4 006292e4
 g_car_apply_6292e8 006292e8
 g_car_default_speed_scale 006292ec
 car_handling_table 006292f0
@@ -6473,6 +6502,8 @@ g_fx_slot_62ab6c 0062ab6c
 g_fx_slot_62ab7c 0062ab7c
 g_fx_slot_62ab8c 0062ab8c
 g_fx_slot_62abb0 0062abb0
+g_event_log_62ac0c 0062ac0c
+g_event_log_62ac10 0062ac10
 g_app_62ac2c 0062ac2c
 g_app_62ac30 0062ac30
 g_app_62ac34 0062ac34
@@ -6692,6 +6723,7 @@ g_replay_652f80 00652f80
 g_ghost_652f84 00652f84
 g_replay_652f88 00652f88
 g_replay_652f8c 00652f8c
+g_replay_652f90 00652f90
 g_time_652f94 00652f94
 g_replay_652f98 00652f98
 g_time_trial_652f9c 00652f9c
@@ -7042,6 +7074,7 @@ g_menu_panel_state_69c980 0069c980
 g_menu_panel_state_69c988 0069c988
 g_menu_panel_state_69c990 0069c990
 g_menu_panel_state_69c998 0069c998
+g_frontend_69c99c 0069c99c
 g_menu_panel_state_69c9a0 0069c9a0
 g_menu_panel_state_69c9a8 0069c9a8
 g_menu_panel_state_69c9b0 0069c9b0
@@ -7056,6 +7089,7 @@ g_hud_69c9ec 0069c9ec
 g_menu_panel_state_69c9f0 0069c9f0
 g_menu_panel_state_69c9f8 0069c9f8
 g_menu_panel_state_69ca00 0069ca00
+g_menu_69ca04 0069ca04
 g_menu_panel_state_69ca08 0069ca08
 g_menu_panel_state_69ca10 0069ca10
 g_menu_select_flash 0069ca18
@@ -7132,6 +7166,7 @@ g_credits_update_69d0fc 0069d0fc
 g_tutorial_line_count 0069d100
 g_tutorial_display_ticks 0069d104
 g_tutorial_line_entries 0069d108
+g_tutorial_69d10c 0069d10c
 g_tutorial_line_width 0069d158
 g_tutorial_69d15c 0069d15c
 g_tutorial_reset_requested 0069d160
@@ -7150,6 +7185,7 @@ g_message_69d248 0069d248
 g_menu_69d24c 0069d24c
 g_app_state_69d284 0069d284
 g_menu_69d290 0069d290
+g_tutorial_69d2a8 0069d2a8
 g_app_state_69d2c4 0069d2c4
 g_tutorial_69d2c8 0069d2c8
 g_menu_state_69d2cc 0069d2cc
@@ -7159,6 +7195,7 @@ g_ui_69d2dc 0069d2dc
 g_menu_records 0069d2e0
 g_hud_69d664 0069d664
 g_menu_player0_team_choice 0069d668
+g_tutorial_69d67c 0069d67c
 g_career_row 0069d688
 g_menu_event_column 0069d690
 g_ui_69d698 0069d698
@@ -7176,6 +7213,8 @@ g_camera_record_6a06ec 006a06ec
 g_camera_record_6a06f0 006a06f0
 g_camera_record_6a06f8 006a06f8
 g_course_arctic_6a0770 006a0770
+g_course_arctic_6a0774 006a0774
+g_course_arctic_6a0778 006a0778
 g_course_dem_6a07ac 006a07ac
 g_course_dem_6a07b0 006a07b0
 g_course_dem_6a07b4 006a07b4
@@ -7547,6 +7586,7 @@ g_sound_ambience_6ae0ac 006ae0ac
 g_sound_6ae0b0 006ae0b0
 g_sound_6ae0b4 006ae0b4
 g_sound_6ae0b8 006ae0b8
+g_sound_6ae0bc 006ae0bc
 g_sound_frame_6ae0c4 006ae0c4
 g_sound_frame_6ae0c8 006ae0c8
 g_sound_frame_6ae0cc 006ae0cc
@@ -7997,14 +8037,24 @@ g_particles_76beb0 0076beb0
 g_particles_76bec0 0076bec0
 g_particles_76bfc0 0076bfc0
 g_particles_76bfc4 0076bfc4
+g_particles_76bfc8 0076bfc8
+g_particles_76bfcc 0076bfcc
+g_particles_76bfd0 0076bfd0
+g_particles_76bfd4 0076bfd4
+g_particles_76bfd8 0076bfd8
 g_particles_76bfdc 0076bfdc
+g_particles_76bfe0 0076bfe0
 g_load_76bfe8 0076bfe8
 g_load_76bfec 0076bfec
 g_particles_76c4e0 0076c4e0
 g_fx_slots_76c4e4 0076c4e4
+g_fx_slots_76c4e8 0076c4e8
+g_effects_update_76c4fc 0076c4fc
 g_fx_slots_76c504 0076c504
 g_particles_76c508 0076c508
+g_fx_systems_76c50c 0076c50c
 g_particles_76dee0 0076dee0
+g_event_log_76df00 0076df00
 g_fx_slots_76df04 0076df04
 g_fx_ptank_76df18 0076df18
 g_particles_76df24 0076df24
@@ -8113,6 +8163,7 @@ g_joypad_get_76f128 0076f128
 g_app_770f60 00770f60
 g_app_770f64 00770f64
 g_app_770f68 00770f68
+g_dinput_keyboard_770f6c 00770f6c
 g_app_770f70 00770f70
 g_log_770f74 00770f74
 g_app_770fb4 00770fb4
@@ -9429,7 +9480,13 @@ g_course_spline_8c5608 008c5608
 g_course_nt1_8c5720 008c5720
 g_course_keys_8c5724 008c5724
 g_course_dump_8c5728 008c5728
+g_course_arctic_8c5730 008c5730
+g_course_arctic_8c5734 008c5734
+g_course_arctic_8c5738 008c5738
+g_course_arctic_8c573c 008c573c
+g_course_arctic_8c5740 008c5740
 g_course_arctic_8c5840 008c5840
+g_course_arctic_8c5844 008c5844
 g_course_arctic_8c58a4 008c58a4
 g_course_arctic_8c590c 008c590c
 g_car_8c5928 008c5928

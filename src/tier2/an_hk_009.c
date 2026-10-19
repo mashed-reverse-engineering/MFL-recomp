@@ -125,8 +125,8 @@ extern undefined1 s_tracks_005de634[];
  *   ext_name:      suffix piece, appended with no separator when non-empty (inferred).
  *   unused_5..7:   never read.
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
-undefined4 * __cdecl course_list_scan(int use_backslash,char *dir_name,char *sub_name,char *ext_name,char *unused_5, char *unused_6,char *unused_7)
+/* TIER2: unvalidated 2026-10-19 authority=diffemu */
+undefined4 * __cdecl course_list_scan(int use_backslash,char *dir_name,char *sub_name,char *ext_name)
 {
   char ch;
   undefined2 tracks_tail;
