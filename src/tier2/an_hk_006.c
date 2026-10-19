@@ -97,7 +97,7 @@
  * argb:           colour as 0xAARRGGBB (inferred).
  * Returns nothing. Leaves cull mode and blend state changed (inferred).
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-19 authority=shadow */
 void gfx_draw_triangle_2d(float ref_x0,float ref_y0,float ref_x1,float ref_y1,float ref_x2,float ref_y2, uint argb)
 {
   float screen_x0;

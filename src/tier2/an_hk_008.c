@@ -94,7 +94,7 @@
  * linear_filter: 0 = nearest texture filter, non-zero = linear (inferred)
  * UVs are the default 0..1 corners, z = zBufferNear, rhw = 1.
  * Side effect: sets the cull, texture, vertex alpha and blend render states, nothing is restored. */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-19 authority=shadow */
 void draw_sprite(undefined4 *texture,float x,float y,float width,float height, uint colour,int linear_filter)
 {
   RwGlobalsRelease *engine;

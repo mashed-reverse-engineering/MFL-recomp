@@ -29,7 +29,6 @@
 /*0049c8f0*/ extern int particle_slot_call_render_method();
 /*004a5d70*/ extern int object_render();
 /*004a5da0*/ extern int object_destroy_frames();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
 /*004b4ba7*/ extern int entry();
 /*004b5a47*/ extern int positive();
 /*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *p0);
@@ -90,96 +89,38 @@
 /*008bf084*/ extern undefined4 g_course_training_8bf084;
 /*008bf088*/ extern undefined4 g_course_sands_8bf088;
 /*008d8b30*/ extern undefined4 player_count;
-/* course_sands_cb1 */
 
 extern void course_sands_cb1(char *param_1,char *param_2);
 
 
-/* course_sands_cb2 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-
 extern void course_sands_cb2(char *param_1);
 
-
-/* course_sands_cb5 */
 
 extern void course_sands_cb5(char *param_1);
 
 
-/* course_superg_cb1 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-
 extern void course_superg_cb1(void);
 
-
-/* course_superg_cb4 */
 
 extern void course_superg_cb4(char *param_1);
 
 
-/* course_training_cb1 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-
 extern void course_training_cb1(char *param_1,char *param_2);
 
-
-/* course_training_cb2 */
 
 extern void course_training_cb2(char *param_1);
 
 
-/* course_training_cb10 */
-
 extern void course_training_cb10(char *param_1);
 
-
-/* course_particle_init_random */
-
-/* "initialises one particle (colour 0xffc0c0c0, flags 0x1120) with random velocity" */
 
 extern void __cdecl course_particle_init_random(undefined4 *param_1);
 
 
-/* anim_set_callback */
-
-/* "stores the callback at +0xC4" */
-
 extern void anim_set_callback(char *param_1,char *param_2);
 
 
-/* course_zone_players_transform_update */
-
-/* "per player: inverts the zone matrix and transforms the car matrix into zone space" */
-
 extern void course_zone_players_transform_update(char *param_1);
-
-
-/* object_debug_print */
-
-/* "debug print of name / pos / matrix (wprintf)" */
-
-/* Prints one object's debug block with wprintf: a "%s" line, then the pos, at, up and right
-   rows of the matrix. Parameters: name (inferred: the string for the %s line; this decompile
-   never reads it, so the %s gets no argument), matrix (float[16] in RwMatrix layout: right at
-   [0..2], up at [4..6], at at [8..10], pos at [12..14]). Returns nothing. */
-/* TIER2: unvalidated 2026-10-19 authority=static */
-void object_debug_print(undefined4 name,float *matrix)
-{
-  FID_conflict__wprintf("%s\n",name);
-  FID_conflict__wprintf
-            ("pos    (%f, %f, %f)\n",(double)matrix[0xc],(double)matrix[0xd],(double)matrix[0xe])
-  ;
-  FID_conflict__wprintf
-            ("at     (%f, %f, %f)\n",(double)matrix[8],(double)matrix[9],(double)matrix[10]);
-  FID_conflict__wprintf
-            ("up     (%f, %f, %f)\n",(double)matrix[4],(double)matrix[5],(double)matrix[6]);
-  FID_conflict__wprintf
-            ("right  (%f, %f, %f)\n\n",(double)*matrix,(double)matrix[1],(double)matrix[2]);
-  return;
-}
 
 
 /* course_zone_contains_matrix */
@@ -274,7 +215,6 @@ extern void weapon_mortar_clear_effects(void);
 extern void weapon_mortar_reset_all(void);
 
 #define EXPLOSION_QUEUE_LAST (99) /* last index of the g_explosion_queue ring (100 entries) */
-#define EXPLOSION_DECAL_SIZE (0x3f99999a) /* float 1.2 bit pattern passed to explosion_decal (inferred: decal size) */
 
 
 /* explosion_queue */
@@ -289,33 +229,7 @@ extern void weapon_mortar_reset_all(void);
 
 /* TIER2: unvalidated 2026-10-17 authority=diffemu */
 typedef struct Vec4F { float v[4]; } Vec4F;
-void explosion_queue(float *position,float damage,float push_horizontal,float push_vertical,int frames)
-{
-  struct ExplosionEntry *explosion;
-  int ring_index;
-  float *dst;
-  float *src;
-
-  /* advance the ring index, wrapping back to slot 0 after the last entry */
-  ring_index = g_explosion_queue_6a5a38;
-  if ((int)g_explosion_queue_6a5a38 >= 100) {      /* diffemu: undefined4 global, the original compares signed (jl) */
-    ring_index = 0;
-  }
-  explosion = g_explosion_queue + ring_index;
-  g_explosion_queue_6a5a38 = ring_index + 1;
-  if (explosion != (ExplosionEntry *)0x0) {
-    /* fill the slot: both countdowns start at frames, the position block is copied as is */
-    explosion->damage = damage;
-    explosion->push_horizontal = push_horizontal;
-    explosion->push_vertical = push_vertical;
-    explosion->frames = frames;
-    explosion->frames_left = frames;
-    *(Vec4F *)explosion->position_radius = *(Vec4F *)position;
-    sfx_play_player_set_at(position);
-    explosion_decal(position,EXPLOSION_DECAL_SIZE);
-  }
-  return;
-}
+extern void explosion_queue(float *position,float damage,float push_horizontal,float push_vertical,int frames);
 
 
 /* explosion_queue_clear_frames */
@@ -432,6 +346,5 @@ extern float10 weapon_drum_ammo_fraction(WeaponSlot *param_1);
 /* weapon_drum_free_assets */
 
 extern void weapon_drum_free_assets(void);
-
 
 

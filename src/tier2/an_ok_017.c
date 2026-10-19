@@ -99,7 +99,7 @@ extern void game_open_perm_piz(void);
  * about its up vector, then moved back by the same offset.
  * obj: object whose RwFrame pointer is at +4 (inferred). angle: passed to RwFrameRotate. */
 
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=shadow */
 void frame_rotate_around_own_origin(char *obj,RwReal angle)
 {
   RwFrame *frame;

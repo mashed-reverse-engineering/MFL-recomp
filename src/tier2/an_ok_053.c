@@ -5,7 +5,6 @@
 /*004b38f7*/ extern int finite();
 /*004d18d0*/ extern struct RwBBox * RwBBoxCalculate(struct RwBBox *p0, struct RwV3d *p1, RwInt32 p2);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004dbe70*/ extern RwUInt32 RwStreamRead(struct RwStream *p0, void *p1, RwUInt32 p2);
 /*004dbfc0*/ extern struct RwStream * RwStreamWrite(struct RwStream *p0, void *p1, RwUInt32 p2);
 /*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
 /*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
@@ -187,20 +186,7 @@ uint atomic_plugin_stream_write(RwStream *stream,undefined4 param_2,char *plugin
 
 /* TIER2: validated 2026-10-18 authority=diffemu */
 typedef struct { undefined4 d[12]; } Dw12m;
-RwStream * material_plugin_stream_read(RwStream *stream,undefined4 param_2,char *plugin_offset)
-{
-  RwUInt32 bytes_read;
-  undefined4 *dst;
-  undefined4 buffer [MATERIAL_PLUGIN_DWORDS];
-
-  dst = (undefined4 *)(g_app_89de04 + plugin_offset);
-  bytes_read = RwStreamRead(stream,buffer,MATERIAL_PLUGIN_STREAM_SIZE);
-  if (bytes_read != MATERIAL_PLUGIN_STREAM_SIZE) {
-    return (RwStream *)0x0;
-  }
-  *(Dw12m *)dst = *(Dw12m *)buffer;
-  return stream;
-}
+extern RwStream * material_plugin_stream_read(RwStream *stream,undefined4 param_2,char *plugin_offset);
 
 
 /* material_plugin_stream_write */
@@ -372,6 +358,5 @@ extern int __cdecl geometry_for_all_materials_cb(char *param_1,undefined4 *param
 /* "RpClumpForAllAtomics with geometry_for_all_materials_cb" */
 
 extern RpClump * clump_for_all_materials(RpClump *clump,void *pData);
-
 
 

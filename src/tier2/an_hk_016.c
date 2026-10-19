@@ -15,7 +15,7 @@
    cull mode and fog enable, submits g_trail_8d8b00 quads (4 verts, 6 indices each) as an
    indexed tri list, then restores the saved states. Does nothing when g_trail_8d8b00 is 0.
    Takes no parameters, returns nothing. The trail texture is g_trail_65315c (NULL = no texture). */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=shadow */
 void trail_particles_render_setup(void)
 {
   void *saved_cull_mode;

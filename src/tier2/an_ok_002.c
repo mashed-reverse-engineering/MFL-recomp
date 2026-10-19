@@ -4,7 +4,6 @@
 /*00409eb0*/ extern double player_rank_key();
 /*0040fdc0*/ extern int race_get_phase();
 /*0040fe00*/ extern double race_get_time_seconds();
-/*0040fe50*/ extern int team_color_rgba();
 /*004146a0*/ extern int trail_get_value();
 /*00414760*/ extern undefined __cdecl trail_get_triple(undefined4 p0, undefined4 p1, undefined4 p2);
 /*00414f00*/ extern int trail_update_00414f00();
@@ -15,7 +14,6 @@
 /*00421d10*/ extern int game_set_65a9b8_607624();
 /*00421d30*/ extern int game_set_65a9c0_65a9c4();
 /*00421fe0*/ extern int vehicle_set_field_198();
-/*004220f0*/ extern int vehicle_get_position_158();
 /*004221c0*/ extern double vehicle_get_float_184();
 /*00422350*/ extern int vehicle_part_ltm();
 /*00423c90*/ extern undefined __cdecl vehicle_render(int p0, struct RwCamera *p1);
@@ -29,7 +27,6 @@
 /*00430b20*/ extern int frontend_stub_return_0_b();
 /*00430b50*/ extern int ui_input_mode_menu();
 /*00431a20*/ extern int ui_get_message_state();
-/*00434bb0*/ extern int get_event_type();
 /*00435040*/ extern int team_color_names();
 /*00439040*/ extern int frontend_enter_race_menu();
 /*00446310*/ extern int quick_race_defaults_set();
@@ -40,7 +37,6 @@
 /*0046fc20*/ extern int sound_bomb_countdown_voices();
 /*00475730*/ extern int get_viewport_camera();
 /*004757a0*/ extern void * get_viewport_camera_matrix();
-/*0047ffe0*/ extern int hud_label_add_from_bytes();
 /*00481fc0*/ extern int gfx_set_89ddfc();
 /*00481fd0*/ extern double random_range();
 /*004866b0*/ extern int fx_emitter_spawn_a_default();
@@ -57,7 +53,6 @@
 /*00492b20*/ extern int car_apply_rwp_impulse();
 /*00498f40*/ extern int fx_ring_add_point();
 /*004a2990*/ extern int app_state_set_1();
-/*004b2a60*/ extern int sprintf();
 /*004b2b48*/ extern int _ftol();
 /*004b2f90*/ extern double floor();
 /*004b4ba7*/ extern int entry();
@@ -82,7 +77,6 @@
 /*004f8e30*/ extern struct RpGeometry * RpGeometryCreate(RwInt32 p0, RwInt32 p1, RwUInt32 p2);
 /*0050b5e0*/ extern int nop_stub();
 /*005dd330*/ extern float float_1_0;
-/*005dd344*/ extern undefined g_cup_scene_5dd344;
 /*005dd354*/ extern float k_f_637_5;
 /*005dd358*/ extern float k_f_1800;
 /*005dd35c*/ extern float k_f_n1_4;
@@ -147,7 +141,6 @@
 /*00651240*/ extern undefined4 g_scene_selected_object;
 /*00651244*/ extern float g_scene_select_timer;
 /*00651248*/ extern undefined4 g_scene_select_param;
-/*00651250*/ extern undefined g_scene_651250;
 /*00651260*/ extern undefined4 g_fx_651260;
 /*00651264*/ extern undefined4 g_fx_651264;
 /*00651298*/ extern undefined4 g_fx_651298;
@@ -175,11 +168,9 @@
 /*00651330*/ extern undefined4 g_fx_651330;
 /*00651334*/ extern undefined4 g_fx_651334;
 /*00651338*/ extern undefined4 g_fx_651338;
-/*00651aa0*/ extern undefined4 g_fx_object_count;
 /*00651aa8*/ extern undefined4 g_fx_651aa8;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*007ef7b0*/ extern undefined4 g_car_7ef7b0;
-/*007ef7b8*/ extern undefined4 game_mode;
 /*007ef7c8*/ extern undefined4 g_bomb_7ef7c8;
 /*007ef7cc*/ extern float g_course_7ef7cc;
 /*007ef7ec*/ extern float g_frame_seconds;
@@ -195,70 +186,10 @@ extern void cup_scene_camera_attach(void);
 
 #define NO_SLOT (-1)                /* slot_index value for "no player in this slot" (inferred) */
 #define COLOUR_CHANNEL_MAX (0xff)   /* full intensity of one RGBA byte */
-#define LABEL_POS_X (0x43a00000)    /* float 320.0 as bits: screen_pos[0] (inferred: screen centre at 640x480) */
-#define LABEL_POS_Y (0x43700000)    /* float 240.0 as bits: screen_pos[1] */
-#define LABEL_FLOAT_3_0 (0x40400000) /* float 3.0 as bits: last-but-one argument of hud_label_add_from_bytes */
-#define LABEL_FLOAT_2_0 (0x40000000) /* float 2.0 as bits: last argument of hud_label_add_from_bytes */
 #define RANDOM_MIN_BITS (0xbf800000) /* float -1.0 as bits: lower bound of random_range */
 #define RANDOM_MAX_BITS (0x3f800000) /* float 1.0 as bits: upper bound of random_range */
 #define MATRIX_FLOAT_COUNT (0x10)    /* floats in a 4x4 RwMatrix, copied one by one */
 #define COLOUR_CHANNEL_RANGE (0x100) /* one past COLOUR_CHANNEL_MAX: clamp limit for an int colour value */
-
-
-/* cup_scene_draw_team_overlay */
-
-/* "inferred: colours per event type, team overlay of the cup screen" */
-
-/* TIER2: unvalidated 2026-10-11 authority=diffemu */
-/*
- * Draws the team-coloured label over the player in slot_index on the cup screen (inferred).
- * Parameters: unused_arg is never read; slot_index indexes g_player_slots, NO_SLOT = nothing to draw.
- * Returns nothing. Draws only when the event type is not 0, 1 or 2 (inferred) and game_mode is 0.
- */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-void __cdecl cup_scene_draw_team_overlay(undefined4 unused_arg,int slot_index)
-{
-  int event_type;
-  undefined1 team_rgba [4];      /* RGBA colour, RGBA colour, 2 floats: each is read through a pointer as a whole */
-  undefined1 white_rgba [4];
-  undefined4 screen_pos [2];
-  undefined1 pos_radius [16];
-
-  /* defaults: white label colour, opaque red team colour (replaced by team_color_rgba), label position */
-  white_rgba[0] = COLOUR_CHANNEL_MAX;
-  white_rgba[1] = COLOUR_CHANNEL_MAX;
-  white_rgba[2] = COLOUR_CHANNEL_MAX;
-  white_rgba[3] = COLOUR_CHANNEL_MAX;
-  team_rgba[0] = COLOUR_CHANNEL_MAX;
-  team_rgba[1] = 0;
-  team_rgba[2] = 0;
-  team_rgba[3] = COLOUR_CHANNEL_MAX;
-  screen_pos[0] = LABEL_POS_X;
-  screen_pos[1] = LABEL_POS_Y;
-  /* nested checks: slot must be real; event type must be none of 0, 1, 2 (meaning unknown); game_mode must be 0 */
-  if (slot_index != NO_SLOT) {
-    event_type = get_event_type();
-    if (event_type != 0) {
-      event_type = get_event_type();
-      if (event_type != 1) {
-        event_type = get_event_type();
-        if ((event_type != 2) && (game_mode == 0)) {
-          /* fetch the slot's position and radius, then its team colour */
-          vehicle_get_position_158(slot_index,pos_radius);
-          team_color_rgba(g_player_slots[slot_index].team,team_rgba);
-          /* the label is drawn three times with identical arguments (kept as in the original) */
-          hud_label_add_from_bytes
-                    (&g_cup_scene_5dd344,screen_pos,white_rgba,team_rgba,LABEL_FLOAT_3_0,LABEL_FLOAT_2_0);
-          hud_label_add_from_bytes
-                    (&g_cup_scene_5dd344,screen_pos,white_rgba,team_rgba,LABEL_FLOAT_3_0,LABEL_FLOAT_2_0);
-          hud_label_add_from_bytes
-                    (&g_cup_scene_5dd344,screen_pos,white_rgba,team_rgba,LABEL_FLOAT_3_0,LABEL_FLOAT_2_0);
-        }
-      }
-    }
-  }
-  return;
-}
 
 
 /* cup_scene_place_object */
@@ -272,7 +203,7 @@ void __cdecl cup_scene_draw_team_overlay(undefined4 unused_arg,int slot_index)
  * slot_index indexes g_player_slots, NO_SLOT = nothing to place. Returns nothing.
  */
 
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=static */
 void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
 {
   RwReal *camera_src;
@@ -492,13 +423,8 @@ extern float10 scene_get_bomb_5fb0a8(void);
 
 extern void bomb_update(void);
 
-#define TRAINING_STRING_F2 (0xf2)
-#define TRAINING_STRING_232 (0x232)
-#define TRAINING_STRING_233 (0x233)
 #define TEXT_SHADOW_RGBA (0xff000000)  /* black, drawn first (inferred) */
 #define TEXT_FILL_RGBA (0xc8ffffff)    /* white at alpha 0xc8, drawn on top (inferred) */
-#define TRAINING_STRING_22F (0x22f)
-#define TRAINING_STRING_230 (0x230)
 #define TEXT_FILL_ALT_RGBA (0xc800d8d8)  /* second fill colour, used by training_text_box_b only (inferred) */
 #define TRAINING_STRING_234 (0x234)
 #define TRAINING_STRING_F6 (0xf6)
@@ -514,35 +440,7 @@ extern void bomb_update(void);
 #define TEXT_BOX_SCALE (0x3f4ccccd)          /* float 0.8: last argument, alpha / scale (inferred) */
 
 
-/* training_text_box_b */
-
-/* "two text_draw_box layers of strings 0x22F / 0x230 (tutorial subtitles)" */
-
-/* Draws the two tutorial subtitle boxes of the training screen (TRAINING_STRING_22F, TRAINING_STRING_230).
-   Each box is drawn twice: a black copy offset by (+3, +3) that reads as a drop shadow (inferred),
-   then the fill copy at the base position. The fill colour differs from training_text_box_a (inferred: highlight colour).
-   Takes no parameters, returns nothing. */
-
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-void training_text_box_b(void)
-{
-  RwRGBA alt;
-  RwRGBA shadow;
-
-  alt.red = 0xd8;
-  alt.green = 0xd8;
-  alt.blue = 0;
-  alt.alpha = 0xc8;
-  shadow.red = 0;
-  shadow.green = 0;
-  shadow.blue = 0;
-  shadow.alpha = 0xff;
-  text_draw_box(TRAINING_STRING_22F,0x42f60000,0x42a60000,0x43c80000,0x42a00000,*(int *)&shadow,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_22F,0x42f00000,0x42a00000,0x43c80000,0x42a00000,*(int *)&alt,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_230,0x42f60000,0x430f0000,0x43c80000,0x42a00000,*(int *)&shadow,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_230,0x42f00000,0x430c0000,0x43c80000,0x42a00000,*(int *)&alt,0x3f4ccccd);
-  return;
-}
+extern void training_text_box_b(void);
 
 
 /* training_text_box_c */
@@ -558,39 +456,6 @@ void training_text_box_c(void)
 {
   text_draw_box(TRAINING_STRING_234,0x42f60000,0x42a60000,0x43c80000,0x42a00000,TEXT_SHADOW_RGBA,0x3f4ccccd);
   text_draw_box(TRAINING_STRING_234,0x42f00000,0x42a00000,0x43c80000,0x42a00000,TEXT_FILL_RGBA,0x3f4ccccd);
-  return;
-}
-
-
-/* training_text_box_a */
-
-/* "strings 0xF2 / 0x232 / 0x233" */
-
-/* Draws the three tutorial text boxes of the training screen (TRAINING_STRING_F2, _232, _233).
-   Each box is drawn twice: a black copy offset by (+3, +3) that reads as a drop shadow (inferred),
-   then the white copy at the base position. The 7th argument (0.8f) is passed unchanged (inferred: alpha / scale).
-   Takes no parameters, returns nothing. */
-
-/* TIER2: unvalidated 2026-10-16 authority=diffemu */
-void training_text_box_a(void)
-{
-  RwRGBA shadow;
-  RwRGBA fill;
-
-  fill.red = 0xff;
-  fill.green = 0xff;
-  fill.blue = 0xff;
-  fill.alpha = 0xc8;
-  shadow.red = 0;
-  shadow.green = 0;
-  shadow.blue = 0;
-  shadow.alpha = 0xff;
-  text_draw_box(TRAINING_STRING_F2,0x42f60000,0x42a60000,0x43c80000,0x42a00000,*(int *)&shadow,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_F2,0x42f00000,0x42a00000,0x43c80000,0x42a00000,*(int *)&fill,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_232,0x42f60000,0x42e20000,0x43c80000,0x42a00000,*(int *)&shadow,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_232,0x42f00000,0x42dc0000,0x43c80000,0x42a00000,*(int *)&fill,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_233,0x42f60000,0x430f0000,0x43c80000,0x42a00000,*(int *)&shadow,0x3f4ccccd);
-  text_draw_box(TRAINING_STRING_233,0x42f00000,0x430c0000,0x43c80000,0x42a00000,*(int *)&fill,0x3f4ccccd);
   return;
 }
 
@@ -669,74 +534,6 @@ extern void scene_select_timer_clear(void);
 extern undefined4 scene_object_select_is_active(void);
 
 #define FX_RECORD_DWORDS (0x3b)          /* dwords per fx object record (stride of the g_fx_* arrays) */
-#define FX_RECORD_SIZE (0xec)            /* bytes per fx object record: FX_RECORD_DWORDS * 4 */
-#define FX_TIMER_START (0x42c80000)      /* float 100.0: initial +0x5C timer (inferred) */
-
-
-/* ktc_new_copter */
-
-/* "(name, args, count): helper of the Lua KTC_NewCopter" */
-
-/* Appends one fx object record to the table at g_scene_651250 (records are FX_RECORD_SIZE bytes)
-   and returns its index. The record gets fixed defaults; the caller's values are:
-   name: printed into the record's name buffer at +0x00 with sprintf, so it is used as the
-         format string (inferred from the single-argument call);
-   args: count dwords copied to the record starting at +0xB4;
-   count: number of dwords taken from args (0 = none), stored at +0xB0.
-   Returns the index of the new record (the old g_fx_object_count), then increments the count. */
-
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-int ktc_new_copter(undefined4 name,char *args,int count)
-{
-  undefined4 *dst;
-  int object_index;
-  char *rec;
-  int i;
-
-  object_index = g_fx_object_count;
-  rec = (char *)&g_scene_651250 + g_fx_object_count * FX_RECORD_SIZE;
-  i = 0;
-  /* name buffer of the new record */
-  sprintf(rec,name);
-  /* clear the leading fields */
-  *(undefined4 *)(rec + 0xd0) = 0;
-  *(undefined4 *)(rec + 0x5c) = FX_TIMER_START;
-  *(undefined4 *)(rec + 0x14) = 0;
-  /* copy count dwords from args into the record's data area, one per iteration */
-  if (0 < count) {
-    dst = (undefined4 *)(rec + 0xb4);
-    do {
-      *dst = *(undefined4 *)(args + i * 4);
-      i = i + 1;
-      dst = dst + 1;
-    } while (i < count);
-  }
-  *(undefined4 *)(rec + 0xb0) = count;
-  *(undefined4 *)(rec + 0xcc) = 0;
-  *(undefined4 *)(rec + 0xe4) = 0;
-  *(undefined4 *)(rec + 0xe0) = 0;
-  *(undefined4 *)(rec + 0xdc) = 0;
-  *(undefined4 *)(rec + 0xd4) = 0;
-  *(undefined4 *)(rec + 0x48) = 0;
-  *(undefined4 *)(rec + 0xa4) = 0;
-  *(undefined4 *)(rec + 0xa8) = 0;
-  *(undefined4 *)(rec + 0xac) = 0;
-  *(undefined4 *)(rec + 0x6c) = 0;
-  *(undefined4 *)(rec + 0x68) = 0;
-  /* float defaults as bit patterns (field meanings not known, inferred from the values) */
-  *(undefined4 *)(rec + 0xd8) = 0x3f800000;
-  *(undefined4 *)(rec + 0xe8) = 0x3f733333;
-  *(undefined4 *)(rec + 0x70) = 0x3f19999a;
-  *(undefined4 *)(rec + 0x74) = 0x3fb33333;
-  *(undefined4 *)(rec + 0x78) = 0x3d4ccccd;
-  *(undefined4 *)(rec + 0x94) = 0x3db851ec;
-  *(undefined4 *)(rec + 0x98) = 0x41200000;
-  *(undefined4 *)(rec + 0x9c) = 0x3dcccccd;
-  *(undefined4 *)(rec + 0xa0) = 0x3e4ccccd;
-  object_index = g_fx_object_count;
-  g_fx_object_count = g_fx_object_count + 1;
-  return object_index;
-}
 
 
 /* fx_object_timer_subtract */
@@ -788,6 +585,5 @@ extern int course_token_list_find_entry(char *param_1);
    the wrong-way counter at +0xA8 when negative" */
 
 extern void player_route_progress_update(char *param_1,char *param_2);
-
 
 

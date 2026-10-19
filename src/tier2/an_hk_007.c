@@ -129,7 +129,7 @@
    uv: {u0, v0, u1, v1} texture rectangle, one value per corner (inferred from the assignments below).
    No return value. */
 
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=shadow */
 void draw_textured_quad_uv(void *texture_raster,float x,float y,float width,float height,uint colour, RwReal *uv)
 {
   RwGlobalsRelease *engine;

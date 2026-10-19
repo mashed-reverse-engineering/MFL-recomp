@@ -28,7 +28,7 @@
  * Sets render states (cull off, no texture, vertex alpha on, src alpha /
  * inverse src alpha blend) and leaves them set. Returns nothing.
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-19 authority=shadow */
 void gfx_draw_rect_2d_gradient_b(float x,float y,float width,float height,uint colour_primary,uint colour_secondary)
 {
   volatile float scaled_height;

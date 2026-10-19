@@ -114,7 +114,7 @@
  * The sample is written only if sample_index is below the threshold at +0x170 or nothing was
  * recorded yet (inferred). +0x170 is incremented on every call (inferred).
  */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=static */
 void replay_buffer_record_frame(char *buffer,RwMatrix *matrix,undefined4 value,int sample_index)
 {
   char *next_record;

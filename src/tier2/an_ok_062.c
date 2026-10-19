@@ -15,7 +15,6 @@
 /*00496ea0*/ extern int __cdecl smplfzx_get_object(undefined4 p0);
 /*00496ee0*/ extern int smplfzx_current_object_get_field(undefined4 p0);
 /*00496fc0*/ extern undefined __cdecl atomic_bbox_calculate_from_geometry(struct RwBBox *p0, int p1);
-/*00497070*/ extern int smplfzx_object_bounds_update();
 /*00497750*/ extern int pool_stack_pop_index();
 /*00497820*/ extern int __cdecl pool_create(undefined4 p0);
 /*00498770*/ extern int vehicle_part_position_by_index();
@@ -32,16 +31,13 @@
 /*0049bd50*/ extern int fx_system_flush();
 /*004a8420*/ extern int debug_printf();
 /*004b2b48*/ extern int _ftol();
-/*004b322b*/ extern __declspec(noreturn) void __cdecl exit(int);
 /*004b4ba7*/ extern int entry();
 /*004d1990*/ extern struct RwBBox * RwBBoxInitialize(struct RwBBox *p0, struct RwV3d *p1);
 /*004d19d0*/ extern struct RwBBox * RwBBoxAddPoint(struct RwBBox *p0, struct RwV3d *p1);
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005dd330*/ extern float float_1_0;
-/*005dd338*/ extern float k_f_0_01;
 /*005dd628*/ extern float k_f_0_25;
 /*005dd7e4*/ extern float k_f_0_03;
-/*005dd9c4*/ extern float k_f_0_15;
 /*005ddc1c*/ extern float k_f_0_33333334;
 /*005ddc28*/ extern float k_f_0;
 /*005e07f0*/ extern float k_f_0_80999994;
@@ -69,7 +65,6 @@
 /*00752184*/ extern undefined g_particles_752184;
 /*007521c0*/ extern undefined g_sound_7521c0;
 /*00752200*/ extern undefined1 g_particles_752200;
-/*00752230*/ extern undefined4 g_sound_752230;
 /*00752234*/ extern undefined4 g_sound_752234;
 /*00752238*/ extern undefined4 g_sound_752238;
 /*0075223c*/ extern undefined4 g_sound_75223c;
@@ -124,150 +119,19 @@ extern undefined4 smplfzx_object_get_position(char *param_1,undefined4 *param_2)
 extern void atomic_world_bbox_update(char *param_1,RwBBox *boundBox);
 
 /* object field offsets (from the obj pointer); bbox layout inferred from the copies below */
-#define OBJ_BBOX_MIN_X (0x438)
 #define OBJ_BBOX_MIN_Y (0x43c)
 #define OBJ_BBOX_MIN_Z (0x440)
-#define OBJ_BBOX_MAX_X (0x444)
 #define OBJ_BBOX_MAX_Y (0x448)
 #define OBJ_BBOX_MAX_Z (0x44c)
-#define OBJ_FIELD_420 (0x420)
-#define OBJ_FIELD_424 (0x424)
-#define OBJ_FIELD_428 (0x428)
-#define OBJ_FIELD_42C (0x42c)
-#define OBJ_FIELD_430 (0x430)
-#define OBJ_FIELD_434 (0x434)
-#define OBJ_LIMIT_A (0x470) /* radius * 0.25, capped at 0.01 */
-#define OBJ_LIMIT_B (0x46c) /* radius / 3, capped at 0.15 */
-#define OBJ_RADIUS (0x468)
-#define OBJ_FIELD_474 (0x474)
-#define OBJ_EXTRA_VALUE (0x478) /* the extra_value argument; meaning unknown */
-#define OBJ_ROW_FLAG_END (0x3a0) /* end of the per-row flag dwords */
-#define OBJ_ROW_DWORD_END (0x340) /* end of the per-row dword table (16 dwords per row) */
-#define OBJ_ROW_SHORT_END (0x120) /* end of the per-row short table (16 shorts per row) */
-
-/* table sizes and sentinels */
-#define ROW_COUNT (8)
-#define ROW_CELLS (0x10)
-#define SLOT_UNUSED (0xffff)
-
-/* float bit patterns stored as integers: 0.5f, 0.01f, 0.15f */
-#define FLOAT_0_5_BITS (0x3f000000)
-#define FLOAT_0_01_BITS (0x3c23d70a)
-#define FLOAT_0_15_BITS (0x3e19999a)
-
-/* exit code passed when a pool header has a negative count (inferred) */
-#define POOL_CORRUPT_EXIT_CODE (0xffffffd6)
 
 
-/* smplfzx_object_init_bounds */
+extern undefined4 pool_push(int *pool,undefined4 value);
 
-/* "stores bbox, sets radius dependent limits (0.01/0.15 caps) and clears the cell tables" */
-/* Sets up an smplfzx object: copies the bbox into the object (min xyz, then max xyz; inferred),
-   stores radius and extra_value, and computes two radius dependent limits:
-   OBJ_LIMIT_A = min(radius * 0.25, 0.01) and OBJ_LIMIT_B = min(radius / 3, 0.15).
-   Then clears ROW_COUNT rows of cells (ROW_CELLS dwords and shorts each; inferred meaning).
-   Returns obj. Note: the flag store in the row loop hits the fixed slot OBJ_ROW_FLAG_END every
-   pass, not row_flag_cursor (kept as in the original, possibly a bug). */
-
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-int smplfzx_object_init_bounds(undefined4 *bbox,float radius,undefined4 extra_value,char *obj)
-{
-  float scaled;
-  undefined4 *cell_dword;
-  undefined2 *cell_short;
-  int cells_left;
-  undefined4 *row_dword_cursor;
-  undefined2 *row_short_cursor;
-  undefined4 *row_flag_cursor;
-  int rows_left;
-
-  *(undefined4 *)(obj + OBJ_EXTRA_VALUE) = extra_value;
-  *(RwV3d *)(obj + OBJ_BBOX_MAX_X) = *(RwV3d *)(bbox + 3);
-  *(RwV3d *)(obj + OBJ_BBOX_MIN_X) = *(RwV3d *)bbox;
-  smplfzx_object_bounds_update(obj,FLOAT_0_5_BITS);
-  scaled = radius * 0.25f;
-  *(float *)(obj + OBJ_LIMIT_A) = scaled;
-  if (scaled > k_f_0_01) {
-    *(undefined4 *)(obj + OBJ_LIMIT_A) = FLOAT_0_01_BITS;
-  }
-  scaled = radius * 0.33333334f;
-  *(float *)(obj + OBJ_LIMIT_B) = scaled;
-  if (scaled > k_f_0_15) {
-    *(undefined4 *)(obj + OBJ_LIMIT_B) = FLOAT_0_15_BITS;
-  }
-  *(float *)(obj + OBJ_RADIUS) = radius;
-  *(undefined4 *)(obj + OBJ_FIELD_474) = 0;
-  *(undefined4 *)(obj + OBJ_FIELD_428) = 0;
-  *(undefined4 *)(obj + OBJ_FIELD_424) = 0;
-  *(undefined4 *)(obj + OBJ_FIELD_420) = 0;
-  *(undefined4 *)(obj + OBJ_FIELD_434) = 0;
-  *(undefined4 *)(obj + OBJ_FIELD_430) = 0;
-  *(undefined4 *)(obj + OBJ_FIELD_42C) = 0;
-  row_flag_cursor = (undefined4 *)(obj + OBJ_ROW_FLAG_END);
-  row_dword_cursor = (undefined4 *)(obj + OBJ_ROW_DWORD_END);
-  row_short_cursor = (undefined2 *)(obj + OBJ_ROW_SHORT_END);
-  rows_left = ROW_COUNT;      /* diffemu: was `param_2 = 1.12104e-44` (the counter lived in the float parameter's stack slot) */
-  /* one pass per row: clear the row's flag dword, step the dword and short row cursors down one row,
-     then clear each cell of the row (dword to 0, short to SLOT_UNUSED) */
-  do {
-    row_flag_cursor = row_flag_cursor + -1;
-    row_dword_cursor = row_dword_cursor + -ROW_CELLS;
-    *row_flag_cursor = 0;
-    row_short_cursor = row_short_cursor + -ROW_CELLS;
-    *(undefined4 *)(obj + OBJ_ROW_FLAG_END) = 0;
-    cells_left = ROW_CELLS;
-    cell_short = row_short_cursor;
-    cell_dword = row_dword_cursor;
-    do {
-      cell_dword = cell_dword + -1;
-      cell_short = cell_short + -1;
-      cells_left = cells_left + -1;
-      *cell_dword = 0;
-      *cell_short = SLOT_UNUSED;
-    } while (cells_left != 0);
-    rows_left = rows_left + -1;
-  } while (rows_left != 0);
-  return obj;
-}
-
-
-/* vec3_make_from_param */
-
-/* "(src, x, out): out = {x, src+4, 0}" */
 
 extern void vec3_make_from_param(char *param_1,char *param_2,undefined4 *param_3);
 
 
-/* pool_list_unlink */
-
-/* "unlinks the node with key param_2 from the pool's list" */
-
 extern undefined4 __cdecl pool_list_unlink(short *param_1,int param_2,char *param_3,char *param_4);
-
-
-/* pool_push */
-
-/* "(pool, value): appends to the pool, returns 0 when full" */
-/* Appends value to the end of the pool. Pool layout (inferred from the accesses): pool[0] is the
-   number of entries in use, pool[1] the capacity, pool[2] the pointer to the dword entries.
-   Returns 1 when stored, 0 when the pool is full. */
-
-/* TIER2: validated 2026-10-18 authority=diffemu */
-undefined4 pool_push(int *pool,undefined4 value)
-{
-  int count;
-
-  count = *pool;
-  if (!(count < pool[1])) {
-    return 0;
-  }
-  if (count < 0) {
-    exit(POOL_CORRUPT_EXIT_CODE);
-  }
-  *(undefined4 *)(pool[2] + count * 4) = value;
-  *pool = *pool + 1;
-  return 1;
-}
 
 
 /* pool_clear */
@@ -425,8 +289,6 @@ void effects_reset_four_systems(void)
 #define RING_BITMAP_BIT_MASK (7)
 #define RING_ENTRY_COUNT (0x100)
 /* float bit patterns passed to random_range: 0.6f, 1.3f */
-#define FLOAT_0_6_BITS (0x3f19999a)
-#define FLOAT_1_3_BITS (0x3fa66666)
 
 
 /* fx_ring_add_point */
@@ -439,29 +301,7 @@ void effects_reset_four_systems(void)
 
 /* TIER2: unvalidated 2026-10-17 authority=diffemu */
 typedef struct { undefined4 a, b, c; } V3x;
-void fx_ring_add_point(undefined4 *pos,undefined4 value)
-{
-  char *rec;
-  float10 scale;
-
-  if ((int)g_particles_759630 >= RING_LAST_INDEX + 1) {
-    g_particles_759630 = 0;
-  }
-  rec = (char *)&g_sound_752230 + g_particles_759630 * 0x74;
-  *(undefined4 **)(rec + 0x70) = pos;
-  *(undefined4 *)(rec + 0x6c) = 0;
-  *(undefined4 *)(rec + 0x68) = 1;
-  *(V3x *)rec = *(V3x *)pos;
-  *(undefined4 *)(rec + 0x14) = value;
-  *(undefined4 *)(rec + 0xc) = 0;
-  scale = (float10)random_range(FLOAT_0_6_BITS,FLOAT_1_3_BITS);
-  *(float *)(rec + 0x18) = (float)scale;
-  *(undefined4 *)(rec + 0x1c) = 0;
-  (&g_particles_752200)[(int)g_particles_759630 >> RING_BITMAP_BYTE_SHIFT] =
-       (&g_particles_752200)[(int)g_particles_759630 >> RING_BITMAP_BYTE_SHIFT] | '\x01' << ((int)g_particles_759630 & RING_BITMAP_BIT_MASK);
-  g_particles_759630 = g_particles_759630 + 1;
-  return;
-}
+extern void fx_ring_add_point(undefined4 *pos,undefined4 value);
 
 
 /* fx_spawn_from_matrix_2 */
@@ -575,6 +415,5 @@ extern undefined4 RpPTankAtomicLock_00545d10(char *param_1,int *param_2,char *pa
 /* RpPTankAtomicUnlock_00545f20 */
 
 extern void RpPTankAtomicUnlock_00545f20(char *param_1);
-
 
 

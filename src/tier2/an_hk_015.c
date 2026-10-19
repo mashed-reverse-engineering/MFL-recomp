@@ -17,7 +17,7 @@
 /* Creates the global particle-tank atomic g_fx_ptank_atomic_b (SRCALPHA/ONE blend, 10-unit bounding sphere at the origin).
  * texture: texture for its material; may be NULL, in which case the material keeps no texture.
  * Returns nothing; the result is stored in g_fx_ptank_atomic_b. (inferred) */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=static */
 void __cdecl fx_ptank_atomic_b_create(RwTexture *texture)
 {
   uint *plugin_flags;

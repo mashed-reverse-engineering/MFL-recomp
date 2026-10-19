@@ -389,7 +389,7 @@ extern void __cdecl weapon_flame_push_cars(char *param_1,char *param_2,char *par
  * record whose active flag is set (flag 0x24 bytes before the record, inferred), calls the slot-0x48 method of the
  * record's object (inferred: draw/clear the effect).
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=static */
 void weapon_flamethrower_clear_effects(void)
 {
   int *active_flag;
@@ -496,7 +496,7 @@ extern float10 weapon_shotgun_ammo_fraction(WeaponSlot *param_1);
  * second object set) calls the slot-0x48 method of both of its objects (inferred: draw/clear the effect),
  * then turns depth writes back on. Takes no parameters, returns nothing.
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: unvalidated 2026-10-19 authority=static */
 void weapon_shotgun_clear_effects(void)
 {
   int *record;

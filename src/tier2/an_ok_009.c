@@ -26,7 +26,6 @@
 /*00427d20*/ extern int game_get_game_8c8ae0();
 /*00434bb0*/ extern int get_event_type();
 /*004353e0*/ extern int menu_markers_enabled_for_event();
-/*00435f10*/ extern int get_career_row();
 /*0044c140*/ extern int __cdecl player_distance_warning(undefined4 p0);
 /*0044c180*/ extern double player_distance_get();
 /*0044d1f0*/ extern undefined ai_grid_cell_lookup_0044d1f0(undefined4 p0);
@@ -228,39 +227,6 @@ float noise_value(undefined4 row,float x)
   value_right = noise_sample_row(row,(float)(x_cell + 1));
   value_left = noise_sample_row(row,(float)x_cell);
   return noise_interp_cos(value_left,value_right,x);
-}
-
-
-/* number of career cells per career row, one per event type (inferred) */
-#define CAREER_CELLS_PER_ROW (3)
-
-
-/* career_cell_index */
-
-/* "(row * 3) + type offset (type 4: +1, 5: +2)" */
-
-/* Returns the career cell index of the current event: the current career row times
-   CAREER_CELLS_PER_ROW, plus an offset of 1 for event type 4 and 2 for event type 5
-   (other types use the row base). Takes no parameters. */
-
-/* TIER2: unvalidated 2026-10-19 authority=static */
-int career_cell_index(void)
-{
-  int career_row;
-  int event_type;
-  int zero;
-
-  /* row base: the career row of the current event, scaled to its first cell */
-  career_row = get_career_row();
-  career_row = career_row * CAREER_CELLS_PER_ROW;
-  event_type = get_event_type();
-  zero = 0;
-  if (event_type == 4) {
-    zero = 1;
-  } else if (event_type == 5) {
-    zero = 2;
-  }
-  return zero + career_row;
 }
 
 
@@ -560,6 +526,5 @@ extern void marker_particles_update_b(void);
 /* "RpClumpDestroy for the marker clumps from 0x658490 (0x54 byte stride) and the 0x658300 slots" */
 
 extern void hudpanel_clumps_destroy(void);
-
 
 

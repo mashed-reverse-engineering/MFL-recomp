@@ -23,7 +23,7 @@
  * Sets the render states it needs (no culling, no texture, vertex alpha on, alpha blending)
  * and returns nothing.
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-19 authority=shadow */
 void gfx_draw_rect_2d_gradient_rgb(float x,float y,float width,float height,uint rgba)
 {
   volatile float height_px;

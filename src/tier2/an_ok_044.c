@@ -31,17 +31,10 @@
 /*0047b520*/ extern int car_current_matrix();
 /*0047b6e0*/ extern int car_get_velocity();
 /*0047b7c0*/ extern int car_set_field_144();
-/*00481fd0*/ extern double random_range();
-/*00482010*/ extern int random_int_range();
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
 /*00484680*/ extern int object_set_flag_4();
-/*004846e0*/ extern int point_lerp_to_aux_camera();
 /*00486710*/ extern int particles_destroy();
-/*004867f0*/ extern int particles_set_position();
-/*00486820*/ extern int particles_set_size();
-/*00486840*/ extern int particles_set_color();
 /*00486880*/ extern int gfx_set_gfx_6c50c8(float p0);      /* defectlint: was `()`: the float was pushed as a double */
-/*00486b50*/ extern int particles_add();
 /*00486c40*/ extern int particles_flush();
 /*00486ef0*/ extern int particles_render();
 /*0049c0f0*/ extern int fx_system_render_no_zwrite();
@@ -78,14 +71,12 @@
 /*006a5d84*/ extern undefined4 g_weapon_flashbang_6a5d84;
 /*006a5d88*/ extern char *g_weapon_6a5d88;
 /*006a5dc8*/ extern undefined4 g_weapon_6a5dc8;
-/*006a5e2c*/ extern undefined4 g_weapon_6a5e2c;
 /*006a5e34*/ extern undefined g_weapon_rocket_6a5e34;
 /*006a5e38*/ extern undefined4 g_weapon_rocket_6a5e38;
 /*006a5ff4*/ extern undefined g_weapon_rocket_6a5ff4;
 /*006a5ff8*/ extern undefined g_weapon_6a5ff8;
 /*006a6008*/ extern undefined4 g_weapon_6a6008;
 /*006a6010*/ extern undefined g_weapon_rocket_6a6010;
-/*006a6048*/ extern undefined g_weapon_rocket_6a6048;
 /*006a6050*/ extern undefined g_weapon_rocket_6a6050;
 /*006a60d0*/ extern struct MachinegunState MachinegunState_ARRAY_006a60d0[4];
 /*006a61f0*/ extern undefined g_weapon_6a61f0;
@@ -94,7 +85,6 @@
 /*006a6234*/ extern undefined g_weapon_machinegun_6a6234;
 /*006a6280*/ extern undefined4 g_weapon_oil_6a6280;
 /*006a7c38*/ extern undefined g_weapon_6a7c38;
-/*006a7c78*/ extern char *g_weapon_6a7c78;
 /*006a7c7c*/ extern undefined4 g_weapon_6a7c7c;
 /*006a7c80*/ extern undefined4 g_weapon_oil_6a7c80;
 /*006a7c84*/ extern char *g_weapon_6a7c84;
@@ -126,11 +116,6 @@
 #define MACHINEGUN_STATE_DWORDS (0x12)  /* sizeof(struct MachinegunState) = 0x48 bytes */
 #define MINE_RECORD_DWORDS (0x1b)       /* mine record stride: 0x6C bytes */
 #define MINE_RECORDS_END (((int)&g_weapon_mines_6a8b10))     /* end address of the mine record array */
-#define SPARK_GREY_RANGE (0x80)         /* random_int_range upper bound; grey = -1 - r gives 127..255 (inclusive range, inferred) */
-#define SPARK_MAX_COUNT (0x80)          /* cap on the spark counter g_weapon_6a6230 (inferred) */
-#define SPARK_ALPHA (0xff)              /* alpha byte of the colour word */
-#define SPARK_LERP_FRACTION (0x3dcccccd) /* float 0.1: how far the spark moves toward the aux camera (inferred) */
-#define SPARK_ANGLE_RANGE (0x43b40000)  /* float 360.0: upper bound of the random angle (inferred) */
 #define MINE_EQUIP_RECORD_BYTES (0x18)  /* stride of the equip record array at 0x6A8AF8 */
 #define MINE_EQUIP_RECORD_DWORDS (6)    /* the same stride in dwords */
 #define MINE_EQUIP_RECORDS_END (((LONG_PTR)&g_weapon_6a8b68)) /* end address of the equip record array */
@@ -139,14 +124,11 @@
 #define FLASHBANG_RECORD_DWORDS (5)     /* flashbang record stride in dwords */
 #define FLASHBANG_RECORD_BYTES (0x14)   /* the same stride in bytes */
 #define FLASHBANG_RECORDS_END (((LONG_PTR)&g_weapon_flashbang_6a5dd4)) /* end address of the flashbang record array */
-#define ROCKET_RECORD_DWORDS (0x1b)     /* rocket record stride: 0x6C bytes (inferred from the loop step) */
 #define ROCKET_ACTIVE_DWORD (-0x1e)     /* in-use flag, dword index from record_end (record base + 0x1b - 0x1e) (inferred) */
 #define ROCKET_POS_X_DWORD (-0x2f)      /* stored position x, dword index from record_end (inferred) */
 #define ROCKET_POS_Y_DWORD (-0x2e)      /* stored position y, dword index from record_end (inferred) */
 #define ROCKET_POS_Z_DWORD (-0x2d)      /* stored position z, dword index from record_end (inferred) */
 #define OIL_RECORD_DWORDS (4)           /* oil equip record stride in dwords (state at 0x6A7C78) */
-#define OIL_RECORD_BYTES (0x10)         /* the same stride in bytes */
-#define OIL_FULL_AMMO_BITS (0x3f800000) /* float 1.0 bits written to the record on equip: full ammo (inferred) */
 #define SLOT_FLAG_BIT_MASK (7)          /* bit index within one flag byte of g_weapon_6a7d28 (8 slots per byte) */
 #define SLOT_FLAG_BYTE_SHIFT (3)        /* slot index >> 3 selects the flag byte */
 #define OIL_WATER_BOX_END (((LONG_PTR)&g_weapon_oil_6a7c80))    /* end address of the oil water box array (start of g_weapon_oil_6a7c80) (inferred) */
@@ -285,74 +267,13 @@ extern void weapon_rocket_free_assets(void);
  * Only records whose in-use flag is set are updated (inferred). */
 /* TIER2: validated 2026-10-18 authority=diffemu */
 typedef struct { int a, b, c; } V3y;
-void weapon_rocket_course_33_update(void)
-{
-  char *frame;
-  int *p;
-  int active;
+extern void weapon_rocket_course_33_update(void);
 
-  p = (int *)&g_weapon_rocket_6a6048;
-  do {
-    active = p[-0x1e];
-    p = p + -ROCKET_RECORD_DWORDS;
-    if (active != 0) {
-      frame = *(char **)(*p + 4) + 0x10;
-      course_zone_contains_matrix_in_zone_6a2888(frame,frame);
-      *(V3y *)(p - 0x14) = *(V3y *)(frame + 0x30);
-    }
-  } while (p != &g_weapon_6a5e2c);
-  return;
-}
-
-
-/* weapon_rocket_clear_effects */
 
 extern void weapon_rocket_clear_effects(void);
 
 
-/* weapon_rocket_reset_all */
-
 extern void weapon_rocket_reset_all(void);
-
-
-/* weapon_particle_spark_emit */
-
-/* "(pos, size): random grey spark particle moving toward the aux camera" */
-
-/* TIER2: unvalidated 2026-10-11 authority=diffemu */
-/* Emits one random grey spark particle at pos, moving toward the aux camera (inferred).
- * pos is the spark's world position; size is written to both floats of the size pair
- * (width and height). Does nothing once the spark counter g_weapon_6a6230 has reached
- * SPARK_MAX_COUNT. Returns nothing. */
-/* TIER2: unvalidated 2026-10-16 authority=diffemu */
-void weapon_particle_spark_emit(undefined4 pos,float size)
-{
-  char grey;
-  float10 angle;
-  float size_pair [2];
-  undefined1 lerped_pos [12];
-  RwRGBA color;
-
-  size_pair[0] = size;
-  size_pair[1] = size;
-  grey = random_int_range(0,SPARK_GREY_RANGE);
-  if ((int)g_weapon_6a6230 < SPARK_MAX_COUNT) {
-    grey = -1 - grey;
-    color.red = grey;
-    color.green = grey;
-    color.blue = grey;
-    color.alpha = SPARK_ALPHA;
-    particles_set_color(&color);
-    particles_set_size(size_pair);
-    point_lerp_to_aux_camera(pos,lerped_pos,SPARK_LERP_FRACTION);
-    particles_set_position(lerped_pos);
-    angle = (float10)random_range(0,SPARK_ANGLE_RANGE);
-    gfx_set_gfx_6c50c8((float)angle);
-    particles_add(&g_weapon_6a61f0);
-    g_weapon_6a6230 = g_weapon_6a6230 + 1;
-  }
-  return;
-}
 
 
 /* weapon_machinegun_unequip */
@@ -403,32 +324,7 @@ void weapon_machinegun_clear_effects(void)
 }
 
 
-/* weapon_oil_free_assets */
-
 extern void weapon_oil_free_assets(void);
-
-
-/* weapon_oil_equip */
-
-/* type 0x13; state 0x6A7C78 stride 0x10 */
-
-/* Equips the oil weapon for the player that owns weapon slot (returns the player's oil record, undefined4 *).
- * The record is indexed by slot->player (stride OIL_RECORD_BYTES): the slot pointer is stored in it,
- * its first dword is set to full ammo (1.0f, inferred), its clump is added to the course world, the
- * clump's atomics get flag 1, and the record's active dword is set (inferred). */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-undefined4 * weapon_oil_equip(WeaponSlot *slot)
-{
-  char *rec;
-
-  rec = (char *)&g_weapon_6a7c78 + slot->player * OIL_RECORD_BYTES;
-  *(WeaponSlot **)(rec + 8) = slot;
-  *(undefined4 *)rec = OIL_FULL_AMMO_BITS;
-  RpWorldAddClump((RpWorld *)course_get_rpworld_00467e90(),*(RpClump **)(rec + 0xc));
-  clump_set_flag_on_atomics(*(RpClump **)(rec + 0xc),1);
-  *(undefined4 *)(rec + 4) = 1;
-  return (undefined4 *)rec;
-}
 
 
 /* weapon_oil_is_finished */
@@ -441,8 +337,6 @@ extern undefined4 weapon_oil_is_finished(WeaponSlot *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 extern float10 weapon_oil_ammo_fraction(WeaponSlot *param_1);
-
-
 
 
 /* weapon_oil_course_2_update */
@@ -617,6 +511,5 @@ extern void weapon_mines_update(void);
 /* "clears every 0x18 dword record from 0x6A8AF8 to 0x6A8B58" */
 
 extern void weapon_effects_clear_6a8af8(void);
-
 
 

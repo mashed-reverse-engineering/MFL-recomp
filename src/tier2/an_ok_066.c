@@ -1,5 +1,4 @@
 #include "mfl_tier2.h"
-extern __declspec(dllimport) int __stdcall MultiByteToWideChar(int, int, int, int, int, int);
 extern __declspec(dllimport) int __stdcall ShowCursor(int);
 extern __declspec(dllimport) int __stdcall Sleep(int);
 /*00403030*/ extern int app_boot_init();
@@ -624,72 +623,22 @@ void app_frame_timing(void)
 }
 
 
-/* cursor_show_if_windowed */
-
-/* "ShowCursor(1) when app_fn_4a8860() != 0" */
-
 extern undefined4 cursor_show_if_windowed(void);
 
-
-/* app_flag_76e7f8_set */
-
-/* "g_app_76e7f8 = 1" */
 
 extern void app_flag_76e7f8_set(void);
 
 
-/* app_flag_76e7fc_set */
-
-/* "g_app_76e7fc = 1" */
-
 extern void app_flag_76e7fc_set(void);
 
-
-/* app_state_set_1 */
-
-/* "g_app_state = 1" */
 
 extern void app_state_set_1(void);
 
 
-/* texture_read_log */
-
-/* "Reading texture %s" */
-
 extern void texture_read_log(char *param_1);
 
 
-/* texture_read_png_logged */
-
-/* "logs 'Reading texture %s' and RtPNGImageRead" */
-
 extern void texture_read_png_logged(char *param_1);
-
-/* MultiByteToWideChar cbMultiByte: source string is NUL-terminated, length is computed by the API */
-#define MB_SRC_NUL_TERMINATED (-1)
-
-
-/* multibyte_to_wide_checked */
-
-/* "MultiByteToWideChar wrapper (dst, src, n, codepage), null dst safe" */
-
-/* TIER2: unvalidated 2026-10-11 authority=diffemu */
-/*
- * Converts the NUL-terminated multibyte string src to UTF-16 in dst using code_page.
- * dst_chars is the capacity of dst in wide characters (inferred).
- * Returns dst, or NULL if dst is NULL. dst is set to an empty string before conversion.
- */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-LPWSTR __stdcall multibyte_to_wide_checked(LPWSTR dst,LPCSTR src,int dst_chars,UINT code_page)
-{
-  /* null dst: nothing to write into, return NULL (inferred) */
-  if (dst == (LPWSTR)0x0) {
-    return (LPWSTR)0x0;
-  }
-  *dst = L'\0';
-  MultiByteToWideChar(code_page,0,src,MB_SRC_NUL_TERMINATED,dst,dst_chars);
-  return dst;
-}
 
 
 /* app_get_app_76e890_3490 */
@@ -719,6 +668,5 @@ extern undefined4 app_get_app_76e8a4(void);
 /* "screen quad with uv rect and colour using the movie/video texture in the viewport" */
 
 extern void video_draw_textured_quad (char *param_1,float *param_2,float *param_3,undefined1 *param_4,void *param_5, char *param_6,char *param_7);
-
 
 

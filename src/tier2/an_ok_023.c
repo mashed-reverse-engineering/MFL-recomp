@@ -37,7 +37,6 @@
 /*0069d2d0*/ extern undefined4 g_menu_career_race_active;
 /*0069d2e0*/ extern struct MenuRecord g_menu_records[14];
 /*0069d688*/ extern undefined4 g_career_row;
-/*0069d690*/ extern undefined4 g_menu_event_column;
 /*0069d69c*/ extern undefined4 g_ui_69d69c;
 /*0069d6a8*/ extern undefined4 g_menu_select_pressed;
 /*0069d6ac*/ extern undefined4 g_message_69d6ac;
@@ -51,116 +50,27 @@
 /*008c8734*/ extern undefined4 g_ui_camera_8c8734;
 /*008c8738*/ extern undefined4 g_ui_camera_8c8738;
 /*008c873c*/ extern undefined4 g_ui_camera_8c873c;
-/* medal_asset_names */
 
-/* "TurboT NightT TimeTrial BronzeMedal" */
 
 extern undefined4 medal_asset_names(char *param_1);
 
 
-/* career_row_title_string_id */
-
-/* "(row or -1): string id of the event title for the current event type" */
-
 extern int __cdecl career_row_title_string_id(char *param_1);
 
-
-/* is_team_mode */
-
-/* "returns the flag at 0x69CC40 (team play)" */
 
 extern undefined4 is_team_mode(void);
 
 
-/* get_second_camera */
-
-/* "returns the camera pointer at 0x69D69C used in split screen" */
-
 extern undefined4 get_second_camera(void);
 
-
-/* ui_get_8c8730 */
-
-/* "returns &g_ui_8c8730" */
 
 extern undefined * ui_get_8c8730(void);
 
 
-/* ui_camera_update_view_rect */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "computes the viewport rectangle of the secondary frontend camera from the screen size" */
-
 extern undefined4 ui_camera_update_view_rect(void);
 
 
-/* get_event_type */
-
-/* "returns g_event_type (the column of the career grid, 0..0x11; 0x11 is a special variant)" */
-
 extern undefined4 get_event_type(void);
-
-
-/* event_type_from_menu_choice */
-
-/* Copies the career menu's event column (g_menu_event_column, 0..0x11) into g_event_type.
-   Columns 0-8 and 0xb-0x11 map to the same event type value; columns 9, 0xa and anything
-   above 0x11 match no case and leave g_event_type unchanged. */
-
-/* TIER2: validated 2026-10-18 authority=diffemu */
-void event_type_from_menu_choice(void)
-{
-  switch(g_menu_event_column) {
-  case 0:
-    g_event_type = 0;
-    return;
-  case 1:
-    g_event_type = 1;
-    return;
-  case 2:
-    g_event_type = 2;
-    return;
-  case 3:
-    g_event_type = 3;
-    return;
-  case 4:
-    g_event_type = 4;
-    return;
-  case 6:
-    g_event_type = 6;
-    return;
-  case 7:
-    g_event_type = 7;
-    return;
-  case 8:
-    g_event_type = 8;
-    return;
-  case 5:
-    g_event_type = 5;
-    return;
-  case 0xb:
-    g_event_type = 0xb;
-    return;
-  case 0xc:
-    g_event_type = 0xc;
-    return;
-  case 0xd:
-    g_event_type = 0xd;
-    return;
-  case 0xe:
-    g_event_type = 0xe;
-    return;
-  case 0xf:
-    g_event_type = 0xf;
-    return;
-  case 0x10:
-    g_event_type = 0x10;
-    return;
-  case 0x11:
-    g_event_type = 0x11;
-  }
-  return;
-}
 
 
 /* ui_get_menu_69d6a8 */
@@ -430,6 +340,5 @@ extern void menu_set_69cfc4(char *param_1);
 /* "g_game_state.option_sliders[4]" */
 
 extern uint option_get_slider_4(void);
-
 
 

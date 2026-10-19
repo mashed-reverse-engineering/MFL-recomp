@@ -78,7 +78,6 @@
 /*007596a4*/ extern undefined4 g_particles_7596a4;
 /*00759700*/ extern undefined4 g_fx_system_759700;
 /*00759708*/ extern undefined g_particles_759708;
-/*00759760*/ extern undefined4 g_particles_759760;
 /*0075bfa8*/ extern undefined g_particles_75bfa8;
 /*0075bfac*/ extern undefined g_particles_75bfac;
 /*0075bfb0*/ extern undefined g_particles_75bfb0;
@@ -93,7 +92,6 @@
 /*0075bfd4*/ extern undefined g_particles_75bfd4;
 /*0075bfd8*/ extern undefined g_particles_75bfd8;
 /*0075bfdc*/ extern undefined g_particles_75bfdc;
-/*0075c000*/ extern undefined g_particles_75c000;
 /*0075cda8*/ extern undefined g_particles_75cda8;
 /*0075cdb8*/ extern undefined4 g_particles_75cdb8;
 /*0075cdbc*/ extern undefined g_particles_75cdbc;
@@ -129,53 +127,15 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /*008869cc*/ extern undefined4 g_particles_8869cc;
 /*008885a0*/ extern undefined4 g_particles_8885a0;
-/* fx_ptank_b_lock_and_fill */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices
-   per entry)" */
 
 extern void __cdecl fx_ptank_b_lock_and_fill(char *param_1,char *param_2);
 
 
-/* fx_ptank_a_lock_and_fill */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "locks ptank atomic a and writes the per-entry particles (position, size by style, colour, uv)"
-    */
-
 extern void fx_ptank_a_lock_and_fill(char *param_1);
 
 
-/* fx_ptank_render_b */
-
-/* "renders g_particles_75969c" */
-
 extern void fx_ptank_render_b(void);
-
-#define FX_SLOT_WORDS (0x1a)
-
-
-/* fx_slots_clear */
-
-/* "clears every 0x68 byte slot from 0x75C000" */
-
-/* Resets the fx slot table that starts at 0x75C000 and runs down to 0x759760 (160 slots of
-   FX_SLOT_WORDS words). Takes no parameters, returns nothing. For each slot it sets the first
-   word to 1 (inferred: an in use flag) and zeroes the word just below the slot. */
-/* TIER2: unvalidated 2026-10-19 authority=static */
-void fx_slots_clear(void)
-{
-  undefined4 *slot;
-
-  slot = (undefined4 *)&g_particles_75c000;
-  do {
-    slot = slot + -FX_SLOT_WORDS;
-    slot[-1] = 0;
-    *slot = 1;
-  } while (slot != &g_particles_759760);
-  return;
-}
 
 
 /* particles_alloc_system */
@@ -526,6 +486,5 @@ void rain_drops_update(void)
   }
   return;
 }
-
 
 

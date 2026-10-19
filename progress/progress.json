@@ -71,13 +71,13 @@
    "verified_bytes_identical": 344
   },
   "tier1": {
-   "bytes": 17690,
-   "functions": 398,
-   "verified_bytes_identical": 398
+   "bytes": 46392,
+   "functions": 721,
+   "verified_bytes_identical": 721
   },
   "tier2": {
-   "bytes": 211844,
-   "functions": 996,
+   "bytes": 183142,
+   "functions": 673,
    "verified_bytes_identical": 0
   }
  }

@@ -8,7 +8,6 @@
 /*0048cea0*/ extern int __cdecl lua_run_piz_script(undefined4 p0, undefined4 p1);
 /*00490400*/ extern undefined __cdecl rwp_world_step_pipeline(undefined4 p0, undefined4 p1);
 /*00495a20*/ extern int __cdecl rwp_raster_pair_create(undefined4 *p0, RwInt32 p1, RwInt32 p2, uint p3);
-/*00495af0*/ extern undefined __cdecl rwp_camera_destroy_frame(void *p0, struct RwTexture *p1);
 /*00496620*/ extern int __cdecl trigger_sphere_register_in_grid(undefined4 p0);
 /*00496940*/ extern int triggers_update();
 /*00496ad0*/ extern int triggers_sort_axis();
@@ -84,8 +83,6 @@
 /*006fd418*/ extern undefined4 g_physics_6fd418;
 /*00701c94*/ extern int g_rw_701c94;
 /*00701c98*/ extern int g_physics_701c98;
-/*00702244*/ extern undefined g_physics_702244;
-/*00702254*/ extern undefined g_physics_702254;
 /*00703890*/ extern undefined4 g_trigger_sphere_703890;
 /*007106d8*/ extern undefined4 g_trigger_sphere_7106d8;
 /*007106e0*/ extern struct Trigger g_triggers[300];
@@ -278,53 +275,7 @@ int rwp_object_set_contact_params(int object,undefined4 *value)
 }
 
 
-#define ARENA_SLOT_SIZE (0x24)
-#define ARENA_SLOT_DWORDS (9)
-#define ARENA_SLOT_LINK_OFFSET (0x1c)
-#define ARENA_EXTRA_SLOTS (2)
 #define ARENA_DWORD_COUNT_MASK (0x3fffffff)
-
-
-/* rwp_world_clear_arena */
-
-/* "clears the working arena and rebuilds the per-body pointers" */
-
-/* Clears the working arena of world and rebuilds its slot ring (inferred from the loops).
-   world: owner whose arena is reset. Its arena buffer is at +0x14, the head slot at +0x18,
-   the cursor at +0x1c, the tail at +0x20, and the slot count at +0x16c.
-   Zeroes (count + ARENA_EXTRA_SLOTS) slots, links count slots through their +0x1c field
-   (ARENA_SLOT_LINK_OFFSET) into a ring closed on the head, then clears +0x168, +0x170, +0x194
-   and sets +0x198 to 1 (meaning inferred). Returns nothing. */
-
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-extern void *__cdecl memset(void *, int, unsigned int);
-#pragma intrinsic(memset)
-void rwp_world_clear_arena(char *world)
-{
-  int slot;
-
-  *(undefined4 **)(world + 0x18) = *(undefined4 **)(world + 0x14);
-  memset(*(void **)(world + 0x14), 0, (*(int *)(world + 0x16c) + ARENA_EXTRA_SLOTS) * ARENA_SLOT_DWORDS * 4);
-  slot = *(int *)(world + 0x18);
-  *(int *)(world + 0x1c) = slot;
-  *(int *)(slot + ARENA_SLOT_LINK_OFFSET) = slot + ARENA_SLOT_SIZE;
-  slot = 0;
-  if (0 < *(int *)(world + 0x16c)) {
-    do {
-      *(int *)(*(char **)(world + 0x1c) + ARENA_SLOT_LINK_OFFSET) = *(int *)(world + 0x1c) + ARENA_SLOT_SIZE;
-      *(undefined4 *)(world + 0x1c) = *(undefined4 *)(*(char **)(world + 0x1c) + ARENA_SLOT_LINK_OFFSET);
-      slot = slot + 1;
-    } while (slot < *(int *)(world + 0x16c));
-  }
-  *(int *)(world + 0x20) = *(int *)(world + 0x1c);
-  *(undefined4 *)(*(char **)(world + 0x1c) + ARENA_SLOT_LINK_OFFSET) = *(undefined4 *)(world + 0x18);
-  *(undefined4 *)(world + 0x168) = 0;
-  *(undefined4 *)(world + 0x170) = 0;
-  *(undefined4 *)(world + 0x194) = 0;
-  *(undefined4 *)(world + 0x198) = 1;
-  *(undefined4 *)(world + 0x1c) = *(undefined4 *)(world + 0x18);
-  return;
-}
 
 
 /* physics_buffer_size */
@@ -374,57 +325,13 @@ void hermite_interpolate(float t,float *out,float *prev_point,float *start_point
 }
 
 
-/* physics_buffer_rewind */
-
-/* "+0x1C = +0x18" */
-
 extern void __cdecl physics_buffer_rewind(char *param_1);
 
-
-/* replay_record_save_frame */
-
-/* "copies a 0x67 dword record and its array into the record list" */
 
 extern undefined4 replay_record_save_frame(int *param_1,undefined4 *param_2);
 
 
-/* viewport_raster_create */
-
-/* "(index 0..3, w, h, flags): creates the raster pair of a viewport" */
-
 extern bool viewport_raster_create(char *param_1,RwInt32 width,RwInt32 height,char *param_4);
-
-#define VIEWPORT_LAST_INDEX (3)
-
-
-/* viewport_raster_destroy */
-
-/* "(index 0..3): destroys the raster pair" */
-
-/* Destroys the raster pair of one viewport (viewport_index: 0..VIEWPORT_LAST_INDEX).
-   The frame lives in the g_physics_702244 slot and the texture in the g_physics_702254 slot,
-   both 4-byte entries per viewport. Returns 1 if the pair was destroyed, 0 otherwise. */
-
-/* TIER2: unvalidated 2026-10-16 authority=diffemu */
-undefined4 viewport_raster_destroy(uint viewport_index)
-{
-  RwTexture *texture;
-
-  if (viewport_index >= VIEWPORT_LAST_INDEX + 1) {
-    return 0;
-  }
-  if (*(void **)((char *)&g_physics_702244 + viewport_index * 4) == (void *)0x0) {
-    return 0;
-  }
-  texture = *(RwTexture **)((char *)&g_physics_702254 + viewport_index * 4);
-  if (texture == (RwTexture *)0x0) {
-    return 0;
-  }
-  rwp_camera_destroy_frame(*(void **)((char *)&g_physics_702244 + viewport_index * 4),texture);
-  *(undefined4 *)((char *)&g_physics_702244 + viewport_index * 4) = 0;
-  *(undefined4 *)((char *)&g_physics_702254 + viewport_index * 4) = 0;
-  return 1;
-}
 
 
 /* trigger_grid_build_visible_cells */
@@ -512,6 +419,5 @@ extern undefined4 particles_lookup_by_key(char *param_1);
 /* "pops a pool slot, computes the world bbox of the atomic and initialises the smplfzx object" */
 
 extern int __cdecl smplfzx_object_create_from_atomic (RpAtomic *atomic,undefined4 *param_2,undefined4 *param_3,char *param_4,char *param_5, char *param_6);
-
 
 
