@@ -719,3 +719,14 @@
 00413dd0 replay_load_compare hk_9221.c
 00432200 tutorial_text_update hk_9223.c
 0047a850 car_auto_steer_assist_step hk_9224.c
+004aebd0 FUN_004aebd0 hk_9301.c
+00469c50 sound_resume_streams hk_9302.c
+00493600 rwp_objects_cull_and_register_triggers hk_9303.c
+004a3000 timer_select_implementation hk_9304.c
+004a9420 resource_load hk_9305.c
+00471ff0 sound_stream_start_if_idle hk_9306.c
+004ac600 FUN_004ac600 hk_9307.c
+004ac4f0 FUN_004ac4f0 hk_9308.c
+004aefa0 thunk_FUN_004b27b0 hk_9309.c
+004af740 FUN_004af740 hk_9310.c
+004ae9e0 thunk_FUN_004af9c0 hk_9311.c

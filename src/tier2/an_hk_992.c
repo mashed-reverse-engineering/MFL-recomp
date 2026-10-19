@@ -7,7 +7,7 @@
 /*004c6210*/ extern int __cdecl FUN_004c6210(int a1, int a2);
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*00702a98*/ extern int (__cdecl *g_physics_702a98)();
-/*00702ea0*/ extern undefined4 g_particle_system_702ea0;
+/*00702ea0*/ extern int g_particle_system_702ea0;
 /*00702ea8*/ extern undefined4 g_particle_system_702ea8;
 /*007032a8*/ extern undefined4 g_physics_7032a8;
 /*007036bc*/ extern undefined4 g_particle_system_7036bc;
@@ -15,8 +15,8 @@
 /*007036c4*/ extern undefined4 g_particles_7036c4;
 /*007036d0*/ extern undefined4 g_particle_system_7036d0;
 /*007036d4*/ extern undefined4 g_particle_system_7036d4;
-/*007036d8*/ extern undefined4 g_particle_system_7036d8;
-/*007036dc*/ extern undefined4 g_particle_system_7036dc;
+/*007036d8*/ extern int g_particle_system_7036d8;
+/*007036dc*/ extern int g_particle_system_7036dc;
 static void world_render_with_sector_callback_r(int reg_eax, int stk0);
 extern void world_render_with_sector_callback(void);
 static void world_render_count_sectors_r(int reg_esi, int stk0);

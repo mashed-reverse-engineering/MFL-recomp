@@ -24,7 +24,7 @@
 /* slot: index into the per-object global arrays (g_rw_6fab78 = object handle, g_rw_6fcdd8 = flags, g_rw_6fa4b0 = object id, g_rw_6fa190 = per-slot limit on dist_sq).
    unused_arg: never read. Returns nothing. */
 
-void __cdecl rwp_object_debris_expire_check(int slot,char *unused_arg)
+void __cdecl rwp_object_debris_expire_check(int slot)
 
 {
   char *object_handle;

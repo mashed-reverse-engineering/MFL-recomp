@@ -112,6 +112,7 @@ fx_object_get_sphere 00408a10
 fx_object_get_position 00408a60
 fx_object_get_matrix_ptr 00408a80
 fx_find_index_by_rwp_id 00408aa0
+LAB_00408ad0 00408ad0
 fx_current_object_get_float 00408c40
 load_copter_models 00408c60
 player_record_get_value 00408e60
@@ -2682,6 +2683,8 @@ rw_engine_init 004a2b50
 rw_engine_stop_close_term 004a2d00
 rw_set_value_at_root_plus_947144 004a2d20
 app_parse_command_line 004a2d40
+LAB_004a2f70 004a2f70
+LAB_004a2ff0 004a2ff0
 timer_select_implementation 004a3000
 multibyte_to_wide_checked 004a3070
 movie_renderer_construct 004a30b0
@@ -2858,11 +2861,13 @@ FUN_004aa740 004aa740
 FUN_004aa970 004aa970
 d3d9_shaders_create 004aa9e0
 DirectInput8Create 004ab220
+FUN_004ac4f0 004ac4f0
 FUN_004ac540 004ac540
 FUN_004ac5b0 004ac5b0
 FUN_004ac5c0 004ac5c0
 FUN_004ac5d0 004ac5d0
 critical_section_leave 004ac5f0
+FUN_004ac600 004ac600
 FUN_004ac670 004ac670
 FUN_004ac690 004ac690
 FUN_004ac6b0 004ac6b0
@@ -2912,10 +2917,12 @@ FUN_004aead0 004aead0
 FUN_004aeb00 004aeb00
 FUN_004aeb20 004aeb20
 FUN_004aeb90 004aeb90
+FUN_004aebd0 004aebd0
 FUN_004aedc0 004aedc0
 FUN_004aee20 004aee20
 FUN_004aee70 004aee70
 FUN_004aef40 004aef40
+thunk_FUN_004b27b0 004aefa0
 FUN_004aefb0 004aefb0
 FUN_004af0c0 004af0c0
 FUN_004af120 004af120
@@ -2923,6 +2930,7 @@ FUN_004af1f0 004af1f0
 FUN_004af210 004af210
 FUN_004af330 004af330
 FUN_004af3e0 004af3e0
+FUN_004af740 004af740
 FUN_004af9c0 004af9c0
 FUN_004afb80 004afb80
 FUN_004afbc0 004afbc0
@@ -2932,9 +2940,12 @@ FUN_004b00b0 004b00b0
 FUN_004b0d90 004b0d90
 FUN_004b0df0 004b0df0
 FUN_004b0f00 004b0f00
+FUN_004b0f50 004b0f50
+FUN_004b0fb0 004b0fb0
 FUN_004b1060 004b1060
 FUN_004b1080 004b1080
 FUN_004b10c0 004b10c0
+FUN_004b1100 004b1100
 timeSetEvent 004b1680
 FUN_004b20a0 004b20a0
 FUN_004b2210 004b2210
@@ -5356,6 +5367,9 @@ FUN_005b72a0 005b72a0
 FUN_005b72d0 005b72d0
 FUN_005b7300 005b7300
 FUN_005b7330 005b7330
+FUN_005b8980 005b8980
+FUN_005b8c00 005b8c00
+FUN_005b8c40 005b8c40
 FUN_005b8c50 005b8c50
 FUN_005b8c60 005b8c60
 fileno 005bb6b0
@@ -5558,6 +5572,7 @@ s_ACFX_CFXBLEND_005ddabc_1 005ddabd
 k_f_360 005ddacc
 k_f_180 005ddad0
 k_f_90 005ddad4
+g_effects_update_5ddad8 005ddad8
 g_load_copter_5ddae0 005ddae0
 k_f_57_29578 005ddaec
 k_f_1_0en5 005ddaf0
@@ -5629,6 +5644,7 @@ k_f_31 005de1b8
 k_f_0_25_5de1bc 005de1bc
 k_f_1_25 005de1d0
 k_f_0_7854 005de1d4
+k_f_0_7853982 005de1d8
 k_f_0_06 005de1e0
 k_f_0_5de1e8 005de1e8
 k_f_0_5de1f0 005de1f0
@@ -6063,8 +6079,12 @@ k_f_0_0028 005e1a5c
 g_dinput_keyboard_5e1e54 005e1e54
 g_dinput_keyboard_5e1ecc 005e1ecc
 g_dinput_create_5e1f6c 005e1f6c
+g_data_5e1fdc 005e1fdc
+g_data_5e1fec 005e1fec
 g_data_5e201c 005e201c
 g_data_5e203c 005e203c
+g_data_5e204c 005e204c
+g_video_5e209c 005e209c
 g_data_5e20ec 005e20ec
 g_data_5e20f0 005e20f0
 g_data_5e20f4 005e20f4
@@ -6086,6 +6106,7 @@ PTR_LAB_005e238c 005e238c
 PTR_LAB_005e23a0 005e23a0
 PTR_LAB_005e2464 005e2464
 PTR_LAB_005e2484 005e2484
+g_data_5e2624 005e2624
 s_IsProcessorFeaturePresent_005e2a16_2 005e2a18
 k_d_1 005e3670
 k_d_1_442694902420044 005e4290
@@ -6572,6 +6593,7 @@ g_game_set_62ad2e 0062ad2e
 g_app_62ad34 0062ad34
 g_app_62ad38 0062ad38
 g_app_62ad50 0062ad50
+PTR_timer_select_implementation_0062ad54 0062ad54
 g_controller_dialog_62ad88 0062ad88
 g_controller_dialog_62b188 0062b188
 g_controller_dialog_62b588 0062b588
@@ -7637,6 +7659,7 @@ g_sound_frame_6ae0c8 006ae0c8
 g_sound_frame_6ae0cc 006ae0cc
 g_sound_frame_6ae0d0 006ae0d0
 g_sound_car_6ae0d4 006ae0d4
+g_sound_6ae0e4 006ae0e4
 g_sound_frame_6ae100 006ae100
 g_sound_endpoint_cue_state 006ae104
 g_sound_streams_enabled 006ae108
@@ -7904,6 +7927,7 @@ g_rw_6fd0f8 006fd0f8
 g_physics_6fd418 006fd418
 g_rw_6fd498 006fd498
 g_rw_6fd4a8 006fd4a8
+g_effects_update_6fe770 006fe770
 g_rw_6fea90 006fea90
 g_rw_701c94 00701c94
 g_physics_701c98 00701c98

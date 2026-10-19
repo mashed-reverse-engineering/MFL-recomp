@@ -37,6 +37,7 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
   float fVar12;
   float fVar13;
   float fVar14;
+  uint uMark;
   float fVar15;
   undefined4 uVar16;
   int race_phase;
@@ -79,19 +80,19 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
           fVar13 = local_8c[-1];
           fVar14 = *local_8c;
           fVar15 = local_8c[1];
-          if ((k_f_0 <= (fVar13 - fVar1) * param_2[0x1b] +
-                        (fVar14 - fVar2) * param_2[0x1c] + (fVar15 - fVar3) * param_2[0x1d]) &&
-             (k_f_0 <= (fVar13 - fVar4) * param_2[0x1e] +
-                       (fVar14 - fVar5) * param_2[0x1f] + (fVar15 - fVar6) * param_2[0x20])) {
-            if ((k_f_0 <= (fVar13 - fVar7) * param_2[0x21] +
-                          (fVar14 - fVar8) * param_2[0x22] + (fVar15 - fVar9) * param_2[0x23]) &&
-               (((fVar13 = (fVar13 - fVar7) * fVar10 +
-                           (fVar14 - fVar8) * fVar11 + (fVar15 - fVar9) * fVar12,
-                 k_f_n0_25 <= fVar13 && (fVar13 < k_f_0_25)) &&
-                (k_f_0_3 < fVar10 * *(float *)&param_1[0x272] +
-                           fVar11 * *(float *)&param_1[0x273] + fVar12 * *(float *)&param_1[0x274])))) {
-              fVar14 = param_2[0xd];
-              if (fVar14 == -1.7147562e+38) {
+          if ((k_f_0 <= (fVar15 - fVar3) * param_2[0x1d] +
+                        (fVar14 - fVar2) * param_2[0x1c] + (fVar13 - fVar1) * param_2[0x1b]) &&
+             (k_f_0 <= (fVar15 - fVar6) * param_2[0x20] +
+                       (fVar14 - fVar5) * param_2[0x1f] + (fVar13 - fVar4) * param_2[0x1e])) {
+            if ((k_f_0 <= (fVar15 - fVar9) * param_2[0x23] +
+                          (fVar14 - fVar8) * param_2[0x22] + (fVar13 - fVar7) * param_2[0x21]) &&
+               (!((fVar13 = (fVar15 - fVar9) * fVar12 +
+                           (fVar14 - fVar8) * fVar11 + (fVar13 - fVar7) * fVar10) < k_f_n0_25) &&
+                 (fVar13 < k_f_0_25) &&
+                (k_f_0_3 < fVar12 * *(float *)&param_1[0x274] +
+                           fVar11 * *(float *)&param_1[0x273] + fVar10 * *(float *)&param_1[0x272]))) {
+              uMark = *(uint *)&param_2[0xd];
+              if (uMark == 0xff010101) {
                 if (((((param_1[0x27c] == 0) &&
                       (race_phase = race_get_phase(), uVar16 = g_last_frame_ticks, race_phase != 1))
                      && (race_phase != 2)) && ((race_phase != 3 && (race_phase != 4)))) &&
@@ -129,7 +130,7 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                   *local_90 = fVar13;
                   local_90[0x16] = param_2[0xc];
                   local_90[0x17] = param_2[0xd];
-                  if (fVar14 == -1.7014636e+38) {
+                  if (uMark == 0xff0000ff) {
                     if (((((param_1[0x27c] == 0) || (param_1[0x27c] == 1)) &&
                          ((race_phase = race_get_phase(), uVar16 = g_last_frame_ticks,
                           race_phase != 1 && ((race_phase != 2 && (race_phase != 3)))))) &&
@@ -155,7 +156,7 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                       goto LAB_0047b30d;
                     }
                   }
-                  else if (((((param_1[0x27c] == 1) && (fVar14 != -NAN)) && (0x32 < param_1[0x27d]))
+                  else if (((((param_1[0x27c] == 1) && (uMark != 0xffff0080)) && (0x32 < param_1[0x27d]))
                            && ((race_phase = race_get_phase(), uVar16 = g_last_frame_ticks,
                                race_phase != 1 && (race_phase != 2)))) &&
                           ((race_phase != 3 && ((race_phase != 4 && (race_phase != 5)))))) {

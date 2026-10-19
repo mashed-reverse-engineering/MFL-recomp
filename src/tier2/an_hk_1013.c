@@ -28,6 +28,9 @@
 void menu_layout_draw_b(int param_1,int param_2)
 
 {
+  float fbits1;
+  float fbits2;
+  float fbits3;
   undefined4 uVar1;
   bool bVar2;
   uint uVar3;
@@ -147,11 +150,11 @@ LAB_0043d357:
     frame.local_60 = param_1 << 0x18;
     frame2.local_50 = frame2.local_50 - k_f_2;
     frame2.local_4c = frame2.local_4c - k_f_2;
-    draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x40000000,frame2.local_44 + k_f_4,frame.local_60);
+    draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x40000000,(fbits1 = frame2.local_44 + k_f_4, *(int *)&fbits1),frame.local_60);
     draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x43890000,0x40000000,frame.local_60);
     frame2.local_4c = frame2.local_4c + k_f_182;
     draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x43890000,0x40000000,frame.local_60);
-    draw_rect(frame2.local_50 + k_f_272,frame2.local_4c - k_f_182,0x40000000,0x43360000,frame.local_60);
+    draw_rect((fbits2 = frame2.local_50 + k_f_272, *(int *)&fbits2),(fbits3 = frame2.local_4c - k_f_182, *(int *)&fbits3),0x40000000,0x43360000,frame.local_60);
   }
   frame2.local_50 = 330.0;
   frame2.local_4c = 100.0;

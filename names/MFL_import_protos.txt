@@ -93,7 +93,7 @@ extern __declspec(dllimport) int __stdcall LeaveCriticalSection(int);
 extern __declspec(dllimport) int __stdcall LoadBitmapA(int);
 extern __declspec(dllimport) int __stdcall LoadCursorA(int, int);
 extern __declspec(dllimport) int __stdcall LoadLibraryA(int);
-extern __declspec(dllimport) int __stdcall LoadResource(int, int, int);
+extern __declspec(dllimport) int __stdcall LoadResource(int, int);
 extern __declspec(dllimport) int __stdcall LockResource(int);
 extern __declspec(dllimport) int __stdcall MapViewOfFile(int, int, int, int, int);
 extern __declspec(dllimport) int __stdcall MessageBoxA(int, int, int, int);

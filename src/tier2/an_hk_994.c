@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 /*00405d80*/ extern int gamesave_gather();
 /*00405df0*/ extern int gamesave_write();
+/*0040afc0*/ extern void __cdecl gamesave_ui_autosave_done(int result_code);      /* step = 5, result code, closes the message */
 /*00405e20*/ extern int __cdecl gamesave_exists(undefined4 p0);
 /*00405e40*/ extern int stub_return_zero();
 /*0040af60*/ extern int gamesave_set_result_code();
@@ -106,31 +107,24 @@ void gamesave_autosave_state_machine(float delta_time)
   }
   iVar1 = stub_return_one(0);
   if (iVar1 == 0) {
-    *(int *)&delta_time = 1;
+    gamesave_ui_autosave_done(1);
+    return;
   }
-  else {
-    iVar1 = stub_return_zero();
-    if (iVar1 != 0) {
-      g_autosave_step = 9;
-      return;
-    }
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
-      *(int *)&delta_time = 3;
-    }
-    else {
-      iVar1 = stub_return_one(0);
-      if ((iVar1 != 0) || (iVar1 = gamesave_exists(0), iVar1 != 0)) {
-        g_autosave_step = 3;
-        return;
-      }
-      *(int *)&delta_time = 2;
-    }
+  iVar1 = stub_return_zero();
+  if (iVar1 != 0) {
+    g_autosave_step = 9;
+    return;
   }
-  g_autosave_step = 5;
-  g_gamesave_result_code = delta_time;
-  message_close();
+  iVar1 = stub_return_one(0);
+  if (iVar1 == 0) {
+    gamesave_ui_autosave_done(3);
+    return;
+  }
+  iVar1 = stub_return_one(0);
+  if ((iVar1 != 0) || (iVar1 = gamesave_exists(0), iVar1 != 0)) {
+    g_autosave_step = 3;
+    return;
+  }
+  gamesave_ui_autosave_done(2);
   return;
 }
-
-
