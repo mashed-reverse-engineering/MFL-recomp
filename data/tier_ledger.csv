@@ -653,7 +653,7 @@ cup_scene_destroy_clumps,00401ee0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,d
 cup_scene_destroy_lights,004014d0,tier1,bytes,bytes-reloc,4b7ecc430fc9,11404e1744d7,4c54594cf977,0,0.00,0,0
 cup_scene_draw_team_overlay,004015b0,tier1,bytes,bytes-reloc,17ecc9159660,11404e1744d7,4c54594cf977,0,0.00,0,0
 cup_scene_load_models,00402f40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
-cup_scene_place_object,004016c0,tier2,compiled+diffemu-STALE+shadow-STALE,static,7d2d54c35b20,11404e1744d7,4c54594cf977,0,0.00,1,0
+cup_scene_place_object,004016c0,tier2,compiled+diffemu-STALE+shadow-UNTESTED,static,7d2d54c35b20,11404e1744d7,4c54594cf977,0,0.00,1,0
 cup_scene_render,00401d90,tier1,bytes,bytes-reloc,f29dd5f0e86e,11404e1744d7,4c54594cf977,0,0.00,0,0
 cup_scene_render_with_overlay,00402830,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 cup_scene_setup_lights,004026f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
@@ -1819,7 +1819,7 @@ weapon_effects_clear_6a8af8,00464060,tier2,compiled+diffemu-EQUAL+shadow-never,d
 weapon_effects_destroy_6a9458,00465200,tier1,bytes,bytes-reloc,d20e63088c7d,11404e1744d7,4c54594cf977,0,0.00,0,0
 weapon_flame_push_cars,004667d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,0.94,0,0
 weapon_flamethrower_ammo_fraction,00466790,agent,bytes-standalone+b93e52e57004,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
-weapon_flamethrower_clear_effects,00466a30,tier2,compiled+diffemu-STALE+shadow-STALE,static,3b4eee61fb1c,11404e1744d7,4c54594cf977,0,0.00,1,0
+weapon_flamethrower_clear_effects,00466a30,tier2,compiled+diffemu-STALE+shadow-OK,shadow,3b4eee61fb1c,11404e1744d7,4c54594cf977,0,0.00,1,0
 weapon_flamethrower_course_33_update,00466bf0,tier1,bytes,bytes-reloc,f3813bc2fac7,11404e1744d7,4c54594cf977,0,0.00,0,0
 weapon_flamethrower_equip,00466640,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,d32a9478ccdf,11404e1744d7,4c54594cf977,200,1.00,0,0
 weapon_flamethrower_fire,004666d0,agent,bytes-standalone+12456e647bd6,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
@@ -1888,7 +1888,7 @@ weapon_rocket_reset_all,00461b50,tier1,bytes,bytes-reloc,6e18f5fd61c9,11404e1744
 weapon_rocket_spin_update,00460a40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 weapon_rocket_unequip,00460cd0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 weapon_shotgun_ammo_fraction,00467130,tier1,bytes,bytes-reloc,59000d8c69dc,11404e1744d7,4c54594cf977,0,0.00,0,0
-weapon_shotgun_clear_effects,00467180,tier2,compiled+diffemu-STALE+shadow-STALE,static,aa1f656da729,11404e1744d7,4c54594cf977,0,0.00,1,0
+weapon_shotgun_clear_effects,00467180,tier2,compiled+diffemu-STALE+shadow-OK,shadow,aa1f656da729,11404e1744d7,4c54594cf977,0,0.00,1,0
 weapon_shotgun_equip,00467080,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a86822b9aecd,11404e1744d7,4c54594cf977,200,1.00,0,0
 weapon_shotgun_fire,00467570,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 weapon_shotgun_fire_shot,00467200,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
