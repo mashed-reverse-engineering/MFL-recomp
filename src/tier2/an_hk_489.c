@@ -28,12 +28,12 @@ void __cdecl weapon_rocket_spin_update(char *rocket)
 
   /* the frame hangs off the object at ROCKET_OWNER_PTR_OFF (+4) */
   frame = *(RwFrame **)(*(char **)(rocket + ROCKET_OWNER_PTR_OFF) + 4);
-  *(float *)(rocket + ROCKET_SPIN_ANGLE_OFF) = *(float *)(rocket + ROCKET_SPIN_ANGLE_OFF) + float_1_0;
+  *(float *)(rocket + ROCKET_SPIN_ANGLE_OFF) = *(float *)(rocket + ROCKET_SPIN_ANGLE_OFF) + 1.0f;
   RwFrameRotate(frame,(RwV3d *)&g_weapon_62ac80,ROCKET_SPIN_DEG,rwCOMBINEPRECONCAT);
   timer = *(float *)(rocket + ROCKET_TIMER_OFF) - g_tick_seconds;
   *(float *)(rocket + ROCKET_TIMER_OFF) = timer;
   /* timer expired: clear it and the state field */
-  if (timer < k_f_0 != (timer == k_f_0)) {
+  if (timer <= k_f_0) {
     *(undefined4 *)(rocket + ROCKET_TIMER_OFF) = 0;
     *(undefined4 *)(rocket + ROCKET_STATE_OFF) = 0;
   }

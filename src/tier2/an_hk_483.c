@@ -25,40 +25,17 @@ extern struct TrailSlot g_trails[6];
 void trail_clumps_create(void)
 
 {
-  RpAtomic *first_atomic;
   uint created_object;
   uint *slot_object_b;
   int clump_id;
-  undefined *master_clump_ref;
-  float zero_offset; /* 0.0 in both calls (inferred: position offset) */
-  undefined4 scratch; /* float bits for the create call, then the master clump */
-  undefined4 float_arg_b; /* float bits passed to create (inferred: scale) */
-  undefined4 float_arg_c; /* float bits passed to create (inferred: scale) */
-  undefined4 float_arg_d; /* float bits passed to create (inferred: scale) */
-  int call_id;
 
   slot_object_b = &g_trails[0].object_b;
   clump_id = TRAIL_CLUMP_ID_BASE;
   /* one pass per trail slot: two clumps, object_a then object_b */
   do {
-    float_arg_c = 0x40400000;
-    float_arg_b = 0x3f7ff972;
-    scratch = 0x3dcccccd;
-    zero_offset = 0.0;
-    master_clump_ref = &g_trail_clumps_5de16c;
-    call_id = clump_id;
-    first_atomic = (RpAtomic *)clump_first_atomic(g_trail_653148);
-    created_object = rwp_object_create_from_atomic(first_atomic,master_clump_ref,zero_offset,scratch,float_arg_b,float_arg_c,call_id);
-    scratch = g_trail_653148;
-    call_id = clump_id + 1;
-    float_arg_d = 0x40400000;
-    float_arg_c = 0x3f7ff972;
-    float_arg_b = 0x3dcccccd;
-    zero_offset = 0.0;
-    master_clump_ref = &g_trail_clumps_5de16c;
+    created_object = rwp_object_create_from_atomic((RpAtomic *)clump_first_atomic(g_trail_653148),&g_trail_clumps_5de16c,0.0f,0x3dcccccd,0x3f7ff972,0x40400000,clump_id);
     slot_object_b[-1] = created_object;
-    first_atomic = (RpAtomic *)clump_first_atomic(scratch);
-    created_object = rwp_object_create_from_atomic(first_atomic,master_clump_ref,zero_offset,float_arg_b,float_arg_c,float_arg_d,call_id);
+    created_object = rwp_object_create_from_atomic((RpAtomic *)clump_first_atomic(g_trail_653148),&g_trail_clumps_5de16c,0.0f,0x3dcccccd,0x3f7ff972,0x40400000,clump_id + 1);
     *slot_object_b = created_object;
     rwp_object_set_radius_squared(slot_object_b[-1],TRAIL_RADIUS_SQUARED_BITS);
     rwp_object_set_radius_squared(*slot_object_b,TRAIL_RADIUS_SQUARED_BITS);

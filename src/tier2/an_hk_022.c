@@ -32,11 +32,11 @@ void camera_create_a(char *world_record)
   RwV3d up_axis;
 
   /* the course camera; its frame is at CAMERA_FRAME_OFFSET */
-  g_camera_8c5920 = *(int *)(world_record + WORLD_RECORD_CLUMP_C11C_OFFSET);
   /* up vector (0, 1, 0) used as the rotation axis */
   up_axis.x = 0.0;
   up_axis.y = 1.0;
   up_axis.z = 0.0;
+  g_camera_8c5920 = *(int *)(world_record + WORLD_RECORD_CLUMP_C11C_OFFSET);
   RwFrameSetIdentity(*(RwFrame **)(g_camera_8c5920 + CAMERA_FRAME_OFFSET));
   g_course_8c5924 = FUN_004f6bf0(g_camera_8c5920);
   translation = (RwV3d *)&g_course_60d718;
@@ -52,6 +52,6 @@ void camera_create_a(char *world_record)
                      rwCOMBINEPOSTCONCAT);
     translation = translation + 1;
     slot_offset = slot_offset + 4;
-  } while (translation < (RwV3d *)&g_course_60d730);
+  } while ((LONG_PTR)translation < (LONG_PTR)&g_course_60d730);
   return;
 }

@@ -1795,8 +1795,6 @@ sound_music_fade_step 00469b20
 switchD 00469b29
 default 00469b5e
 sound_music_fade_step_b 00469bb0
-LAB_00469be1 00469be1
-LAB_00469c1d 00469c1d
 sound_resume_streams 00469c50
 sfx_move_playing_voice 00469cb0
 sound_get_8d9960 00469d20
@@ -1806,7 +1804,6 @@ sound_master_fade_towards 00469f40
 sound_master_fade_to_default 00469f90
 player_voice_progress_gap_check 00469fc0
 sound_stop_all_voices_and_streams 0046a010
-LAB_0046a077 0046a077
 voice_set_volume 0046a0c0
 sound_spline_create_a 0046a130
 sound_spline_create_b 0046a270

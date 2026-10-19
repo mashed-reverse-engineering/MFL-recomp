@@ -17,8 +17,9 @@ uint FUN_005bf0e0(int size,RwUInt32 hints)
 
   raw = RwMalloc(size + SLOT_SIZE,hints);
   /* on success: round up to a 4-byte boundary and stash the raw pointer below it */
-  if (raw != (void *)0x0) {
-    aligned = (int)raw + 4U & ALIGN4_MASK;
+  if (0 < (uint)raw) {
+    aligned = ((uint)raw + 4U) / 4U;
+    aligned = aligned * 4U;
     *(void **)(aligned - SLOT_SIZE) = raw;
     return aligned;
   }

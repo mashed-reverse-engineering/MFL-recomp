@@ -49,9 +49,7 @@ void __cdecl sound_voices_set_position_start(undefined4 *position,char *unused_a
       /* skip voices that have VOICE_FLAG_SKIP_POSITION set */
       if ((*(byte *)(voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_SKIP_POSITION) == 0) {
         /* copy the position into the voice record, then hand it to the handle (inferred: 3D position) */
-        *(undefined4 *)(voice + VOICE_POSITION_X_OFFSET) = *position;
-        *(undefined4 *)(voice + VOICE_POSITION_Y_OFFSET) = position[1];
-        *(undefined4 *)(voice + VOICE_POSITION_Z_OFFSET) = position[2];
+        *(RwV3d *)(voice + VOICE_POSITION_X_OFFSET) = *(RwV3d *)position;
         voice_handle = *(int *)(g_voices[slot_index].voice + VOICE_HANDLE_OFFSET);
         if (voice_handle != 0) {
           FUN_005b72a0(voice_handle,0,1,(undefined4)position);

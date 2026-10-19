@@ -22,19 +22,14 @@ extern double sin(double);
 void random_unit_vector(float *out)
 
 {
-  /* reused: first z, then the angle, then sin(angle) */
-  float10 value;
-  float10 cos_angle;
-  RwReal xy_radius;
+  float angle;
+  float10 xy_radius;
 
-  value = (float10)rp_random_float_range(UNIT_Z_MIN_BITS,UNIT_Z_MAX_BITS);
-  out[2] = (float)value;
-  value = (float10)rp_random_float_range(0,ANGLE_MAX_BITS);
+  out[2] = (float)rp_random_float_range(UNIT_Z_MIN_BITS,UNIT_Z_MAX_BITS);
+  angle = (float)rp_random_float_range(0,ANGLE_MAX_BITS);
   xy_radius = _rwSqrt(float_1_0 - out[2] * out[2]);
-  cos_angle = (float10)cos((float10)(float)value);
-  *out = (float)(cos_angle * (float10)xy_radius);
-  value = (float10)sin((float10)(float)value);
-  out[1] = (float)(value * (float10)xy_radius);
+  *out = (float)(cos(angle) * xy_radius);
+  out[1] = (float)(sin(angle) * xy_radius);
   return;
 }
 

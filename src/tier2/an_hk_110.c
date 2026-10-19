@@ -27,7 +27,7 @@ undefined4 piz_fs_exists(char *param_1,char *search_name)
 
   g_piz_fs_8deec0 = g_piz_fs_8deec0 + 1;
   entry_index = 0;
-  if (g_piz_8df008 != 0) {
+  if (0 < (uint)g_piz_8df008) {
     /* Walk the table entry by entry, comparing each name with search_name. */
     entry_name = (char *)&g_piz_93f120;
     do {

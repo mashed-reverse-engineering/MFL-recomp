@@ -19,23 +19,28 @@
 void spring_grid_init(void)
 
 {
+  RwMatrix *m;
+  uint f;
+
   spring_grid_reset_constants();
-  g_spring_grid_6f2ab4 = RwMatrixCreate();
+  m = RwMatrixCreate();
 
   /* identity matrix: basis vectors right = X, up = Y, at = Z, and pos = origin */
-  (g_spring_grid_6f2ab4->at).z = 1.0;
-  (g_spring_grid_6f2ab4->up).y = 1.0;
-  (g_spring_grid_6f2ab4->right).x = 1.0;
-  (g_spring_grid_6f2ab4->up).x = 0.0;
-  (g_spring_grid_6f2ab4->right).z = 0.0;
-  (g_spring_grid_6f2ab4->right).y = 0.0;
-  (g_spring_grid_6f2ab4->at).y = 0.0;
-  (g_spring_grid_6f2ab4->at).x = 0.0;
-  (g_spring_grid_6f2ab4->up).z = 0.0;
-  (g_spring_grid_6f2ab4->pos).z = 0.0;
-  (g_spring_grid_6f2ab4->pos).y = 0.0;
-  (g_spring_grid_6f2ab4->pos).x = 0.0;
-  g_spring_grid_6f2ab4->flags = g_spring_grid_6f2ab4->flags | RW_MATRIX_FLAGS_IDENTITY_ORTHONORMAL;
+  (m->at).z = 1.0;
+  (m->up).y = 1.0;
+  (m->right).x = 1.0;
+  (m->up).x = 0.0;
+  (m->right).z = 0.0;
+  (m->right).y = 0.0;
+  (m->at).y = 0.0;
+  (m->at).x = 0.0;
+  (m->up).z = 0.0;
+  (m->pos).z = 0.0;
+  (m->pos).y = 0.0;
+  (m->pos).x = 0.0;
+  f = m->flags | RW_MATRIX_FLAGS_IDENTITY_ORTHONORMAL;
+  g_spring_grid_6f2ab4 = m;
+  m->flags = f;
   spring_grid_build();
   return;
 }

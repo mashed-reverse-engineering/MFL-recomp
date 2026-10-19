@@ -25,20 +25,20 @@ void rwp_object_set_in_world(int slot_index,int add_to_world)
   undefined4 physics_world;
 
   /* valid slot with a handle */
-  if (((-1 < slot_index) && (slot_index < WORLD_OBJECT_SLOTS)) && ((&g_rw_6fab78)[slot_index] != 0)) {
+  if (((slot_index >= 0) && (slot_index < WORLD_OBJECT_SLOTS)) && ((&g_rw_6fab78)[slot_index] != 0)) {
     physics_object = rwp_owner_object_get((&g_rw_6fab78)[slot_index]);
     physics_world = rw_first_field((int *)g_rw_701c9c);
-    if (add_to_world == 0) {
-      /* remove: only if currently in the world */
-      if (*(int *)(physics_object + PHYSICS_OBJECT_WORLD_LINK_OFFSET) != 0) {
-        FUN_0056a4b0(physics_world,physics_object);
+    if (add_to_world != 0) {
+      /* add: only if not already in the world */
+      if (*(int *)(physics_object + PHYSICS_OBJECT_WORLD_LINK_OFFSET) == 0) {
+        *(uint *)(physics_object + PHYSICS_OBJECT_FLAGS_OFFSET) = *(uint *)(physics_object + PHYSICS_OBJECT_FLAGS_OFFSET) & 0xfffffff3;
+        FUN_0056a210(physics_world,physics_object,0xffffffff,7);
+        return;
       }
     }
-    /* add: only if not already in the world */
-    else if (*(int *)(physics_object + PHYSICS_OBJECT_WORLD_LINK_OFFSET) == 0) {
-      *(uint *)(physics_object + PHYSICS_OBJECT_FLAGS_OFFSET) = *(uint *)(physics_object + PHYSICS_OBJECT_FLAGS_OFFSET) & 0xfffffff3;
-      FUN_0056a210(physics_world,physics_object,0xffffffff,7);
-      return;
+    /* remove: only if currently in the world */
+    else if (*(int *)(physics_object + PHYSICS_OBJECT_WORLD_LINK_OFFSET) != 0) {
+      FUN_0056a4b0(physics_world,physics_object);
     }
   }
   return;

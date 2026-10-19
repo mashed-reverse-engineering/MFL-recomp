@@ -26,9 +26,7 @@ void __cdecl course_active_object_get_info(int object_index,undefined4 *out_xyzr
   RpAtomic *atomic;
 
   if (((&g_game_8c88a4)[object_index * OBJECT_SLOT_WORDS] != 0) && ((&g_course_8c8860)[object_index * OBJECT_SLOT_WORDS] != 0)) {
-    *out_xyzr = (&g_course_8c8894)[object_index * OBJECT_SLOT_WORDS];
-    out_xyzr[1] = (&g_game_8c8898)[object_index * OBJECT_SLOT_WORDS];
-    out_xyzr[2] = (&g_game_8c889c)[object_index * OBJECT_SLOT_WORDS];
+    *(RwV3d *)out_xyzr = *(RwV3d *)&(&g_course_8c8894)[object_index * OBJECT_SLOT_WORDS];
     atomic_addr = clump_first_atomic((&g_course_8c8860)[object_index * OBJECT_SLOT_WORDS]);
     /* If bit 2 of the atomic's interpolator flags is set, resync its interpolated
        bounding sphere before the radius is read (inferred). */

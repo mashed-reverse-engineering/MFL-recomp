@@ -31,7 +31,7 @@ undefined4 * __cdecl pool_alloc_slot(ushort *pool,undefined4 value,char *param_3
   ushort slot_index;
 
   slot_index = pool[1];
-  if (slot_index <= *pool) {
+  if (*pool >= slot_index) {
     return (undefined4 *)0x0;
   }
   /* scan down from the capacity for a slot whose in-use flag is 0 (inferred) */
@@ -41,7 +41,7 @@ undefined4 * __cdecl pool_alloc_slot(ushort *pool,undefined4 value,char *param_3
       if (*(int *)(*(char **)(pool + 8) + (uint)slot_index * 4) == 0) goto LAB_00497639;
     } while (slot_index != 0);
   }
-  slot_index = SLOT_INDEX_NOT_FOUND;
+  slot_index = slot_index + SLOT_INDEX_NOT_FOUND;
 LAB_00497639:
   slot = (undefined4 *)(*(char **)(pool + 6) + (uint)slot_index * POOL_SLOT_STRIDE);
   *(undefined4 *)(*(char **)(pool + 8) + (uint)slot_index * 4) = 1;

@@ -25,7 +25,7 @@ void __cdecl fx_object_update_frame(int *fx_object_ptr,undefined4 fade_fraction)
 {
   RwFrame *frame;
   int *fx_object;
-  undefined1 alpha;
+  RwRGBA col;
   int fx_emitter;
   RwV3d direction;
 
@@ -37,9 +37,11 @@ void __cdecl fx_object_update_frame(int *fx_object_ptr,undefined4 fade_fraction)
   fx_emitter = FUN_004c40c0(*fx_object_ptr);
   /* emitter present: store white with alpha = ALPHA_MAX * (1 - fade_fraction) in its +4 slot */
   if (fx_emitter != 0) {
-    alpha = ((int)(ALPHA_MAX - (*(float *)&fade_fraction * ALPHA_MAX)));
-    fx_object_ptr = (int *)CONCAT13(alpha,RGB_WHITE);
-    *(int **)(fx_emitter + 4) = fx_object_ptr;
+    col.red = 0xff;
+    col.green = 0xff;
+    col.blue = 0xff;
+    col.alpha = ((int)(ALPHA_MAX - (*(float *)&fade_fraction * ALPHA_MAX)));
+    *(int *)(fx_emitter + 4) = *(int *)&col;
   }
   fx_object_break_into_particles(*fx_object,0);
   return;

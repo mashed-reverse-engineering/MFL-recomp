@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0042fce0*/ extern int menu_fade_overlay_draw(void);
+/*0042fce0*/ extern int menu_fade_overlay_draw();
 /*0069d1e4*/ extern undefined4 g_menu_fade_alpha;
 /*008c8074*/ extern undefined4 g_menu_8c8074;
 #define MENU_SCROLL_MAX (0x1ff)
@@ -21,10 +21,10 @@ void menu_scroll_clamp(void)
 
 {
   undefined4 saved_fade_alpha;
+  undefined4 alpha;
 
-  saved_fade_alpha = g_menu_fade_alpha;
   /* scroll value at or below 0: reset to top and stop */
-  if ((int)g_menu_8c8074 < 1) {
+  if ((int)g_menu_8c8074 <= 0) {
     g_menu_8c8074 = 0;
     return;
   }
@@ -32,12 +32,14 @@ void menu_scroll_clamp(void)
   if (MENU_SCROLL_MAX < (int)g_menu_8c8074) {
     g_menu_8c8074 = MENU_SCROLL_MAX;
   }
-  g_menu_fade_alpha = g_menu_8c8074;
+  saved_fade_alpha = g_menu_fade_alpha;
+  alpha = g_menu_8c8074;
   /* clamp the fade alpha to MENU_FADE_ALPHA_MAX before drawing */
-  if (MENU_FADE_ALPHA_MAX < (int)g_menu_8c8074) {
-    g_menu_fade_alpha = MENU_FADE_ALPHA_MAX;
+  if (MENU_FADE_ALPHA_MAX < (int)alpha) {
+    alpha = MENU_FADE_ALPHA_MAX;
   }
-  menu_fade_overlay_draw();
+  g_menu_fade_alpha = alpha;
+  menu_fade_overlay_draw(0);
   /* put back the caller's fade alpha, then advance the scroll value by one step */
   g_menu_fade_alpha = saved_fade_alpha;
   g_menu_8c8074 = g_menu_8c8074 + -MENU_SCROLL_STEP;

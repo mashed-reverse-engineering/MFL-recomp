@@ -21,33 +21,16 @@
 void camera_world_attach(void)
 
 {
-  RwCamera *viewport_camera;
-  RpWorld *world;
-  undefined4 camera;
-  int update_started;
-  RpClump *clump;
-  code *callback;
-  undefined4 *filter_data;
   undefined4 filter_state;
 
   filter_state = 0;
-  viewport_camera = (RwCamera *)get_viewport_camera(0);
-  world = (RpWorld *)course_get_rpworld();
-  RpWorldAddCamera(world,viewport_camera);
-  camera = get_viewport_camera(0);
-  update_started = RwCameraBeginUpdate(camera);
-  filter_data = &filter_state;
+  RpWorldAddCamera((RpWorld *)course_get_rpworld(),(RwCamera *)get_viewport_camera(0));
   /* (inferred) run the atomic filter over the clump only if the update began */
-  if (update_started != 0) {
-    callback = atomic_instance_filter;
-    clump = (RpClump *)vehicle_get_frame_16c(0);
-    RpClumpForAllAtomics(clump,callback,filter_data);
-    camera = get_viewport_camera(0);
-    RwCameraEndUpdate(camera);
+  if (RwCameraBeginUpdate(get_viewport_camera(0)) != 0) {
+    RpClumpForAllAtomics((RpClump *)vehicle_get_frame_16c(0),atomic_instance_filter,&filter_state);
+    RwCameraEndUpdate(get_viewport_camera(0));
   }
   /* detach the camera from the world again */
-  viewport_camera = (RwCamera *)get_viewport_camera(0);
-  world = (RpWorld *)course_get_rpworld();
-  RpWorldRemoveCamera(world,viewport_camera);
+  RpWorldRemoveCamera((RpWorld *)course_get_rpworld(),(RwCamera *)get_viewport_camera(0));
   return;
 }

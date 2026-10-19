@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0044ef80*/ extern double camera_get_8c7e0c(void);
 /*004568d0*/ extern int course_quad_render_a(undefined4 p0);
-/*004569f0*/ extern undefined __cdecl course_quad_render_b(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004569f0*/ extern undefined __cdecl course_quad_render_b(undefined4 p0);
 /*004577e0*/ extern int course_objects_render();
 /*0049c8f0*/ extern int particle_slot_call_render_method();
 /*004a5d70*/ extern int object_render();
@@ -76,9 +76,9 @@ void course_rouabout_cb2(char *course_state)
     RpClumpRender(*(RpClump **)(course_state + 0xc128));
   }
   /* only when the camera value lies strictly between k_f_35 and k_f_49 (inferred range check) */
-  if ((k_f_35 < camera_value) && (camera_value < k_f_49)) {
+  if ((camera_value > k_f_35) && (camera_value < k_f_49)) {
     course_quad_render_a(&g_course_8c53e0);
-    course_quad_render_b(&g_course_8c53e0,&g_course_8c53e0,*(undefined4 *)&camera_value);
+    course_quad_render_b(&g_course_8c53e0);
     course_objects_render();
     return;
   }

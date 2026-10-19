@@ -42,19 +42,19 @@ void sound_stop_all_voices_and_streams(void)
        only when the handle differs from g_game_6ad084[channel] (inferred: that entry is
        a handle the game keeps alive). */
     channel = 0;
-    if (g_sound_6ae098 != 0) {
+    if (0 < (uint)g_sound_6ae098) {
       do {
-        if ((int)channel < 1) {
+        if ((int)channel > 0) {
           current = (&g_sound_6ad088)[channel];
-LAB_0046a077:
-          thunk_FUN_005bc0a0(current);
+          if (current != (&g_game_6ad084)[channel]) {
+            thunk_FUN_005bc0a0(current);
+          }
         }
         else {
-          current = (&g_sound_6ad088)[channel];
-          if (current != (&g_game_6ad084)[channel]) goto LAB_0046a077;
+          thunk_FUN_005bc0a0((&g_sound_6ad088)[channel]);
         }
         channel = channel + 1;
-      } while ((int)channel < (int)g_sound_6ae098);
+      } while (channel < (uint)g_sound_6ae098);
     }
     FUN_005b81c0(g_sound_6ad1f8);
     g_sound_6ad1f8 = 0;

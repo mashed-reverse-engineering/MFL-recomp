@@ -29,13 +29,13 @@ void course_smoke_particles_create(void)
 {
   RwTexture *texture_dict;
   struct {
-    undefined4 local_8;
-    undefined4 local_4;
+    float local_8;
+    float local_4;
   } particle_size;
 
   /* Size pair: both fields copied from the same global (inferred). */
-  particle_size.local_8 = g_course_smoke_60d8a8;
-  particle_size.local_4 = g_course_smoke_60d8a8;
+  particle_size.local_8 = *(float *)&g_course_smoke_60d8a8;
+  particle_size.local_4 = *(float *)&g_course_smoke_60d8a8;
   /* Clear the whole tank before setting it up. */
   mem_zero(&g_course_smoke_6a07d8,PARTICLE_TANK_SIZE);
   /* Look up the "smoke" texture dictionary entry and create the tank. */

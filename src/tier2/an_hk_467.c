@@ -40,11 +40,13 @@
  *   colour:        stored into the state field at g_game_6614e8 (colour from param).
  * Returns nothing. Also caches the directional light pointer in g_game_6642f0 on first use.
  */
+typedef struct { undefined4 d[4]; } Dw4;
 void __cdecl vehicle_render_state_init(int vehicle_index,undefined4 *init_vec4,undefined4 colour)
 
 {
   undefined4 saved_607868;
   int state_offset;
+  char *rec;
   bool need_directional_light;
   struct {
     undefined1 position [12];
@@ -52,28 +54,25 @@ void __cdecl vehicle_render_state_init(int vehicle_index,undefined4 *init_vec4,u
   } frame;
 
   /* byte offset of this vehicle's render state; the same variable is reused below for the light pointer */
-  state_offset = vehicle_index * VEHICLE_RENDER_STATE_SIZE;
+  rec = (char *)&g_game_6605a0 + vehicle_index * VEHICLE_RENDER_STATE_SIZE;
   /* zero the whole state, then store the index and the initial fields */
-  mem_zero((char *)&g_game_6605a0 + state_offset,VEHICLE_RENDER_STATE_SIZE);
-  *(int *)((char *)&g_vehicle_load_6614dc + state_offset) = vehicle_index;
-  *(undefined4 *)((char *)&g_game_6614a0 + state_offset) = *init_vec4;
-  *(undefined4 *)((char *)&g_game_6614a4 + state_offset) = init_vec4[1];
-  *(undefined4 *)((char *)&g_game_6614a8 + state_offset) = init_vec4[2];
+  mem_zero(rec,VEHICLE_RENDER_STATE_SIZE);
+  *(int *)(rec + 0xf3c) = vehicle_index;
   saved_607868 = g_vehicle_load_607868;
-  *(undefined4 *)((char *)&g_game_6614ac + state_offset) = init_vec4[3];
-  *(undefined4 *)((char *)&g_vehicle_load_6614cc + state_offset) = FLOAT_HALF_BITS;
-  *(undefined4 *)((char *)&g_vehicle_load_6614d4 + state_offset) = FLOAT_HALF_BITS;
-  *(undefined4 *)((char *)&g_game_6614d8 + state_offset) = saved_607868;
-  *(undefined4 *)((char *)&g_game_6614e4 + state_offset) = 0;
-  *(undefined4 *)((char *)&g_vehicle_load_6614c0 + state_offset) = FLOAT_NEG_1_8_BITS;
-  *(undefined4 *)((char *)&g_vehicle_load_6614c4 + state_offset) = FLOAT_ONE_BITS;
-  *(undefined4 *)((char *)&g_vehicle_load_6614c8 + state_offset) = FLOAT_NEG_0_85_BITS;
-  *(undefined4 *)((char *)&g_vehicle_load_6614d0 + state_offset) = 0;
-  *(undefined4 *)((char *)&g_game_6614e8 + state_offset) = colour;
+  *(Dw4 *)(rec + 0xf00) = *(Dw4 *)init_vec4;
+  *(undefined4 *)(rec + 0xf2c) = FLOAT_HALF_BITS;
+  *(undefined4 *)(rec + 0xf34) = FLOAT_HALF_BITS;
+  *(undefined4 *)(rec + 0xf38) = saved_607868;
+  *(undefined4 *)(rec + 0xf44) = 0;
+  *(undefined4 *)(rec + 0xf20) = FLOAT_NEG_1_8_BITS;
+  *(undefined4 *)(rec + 0xf24) = FLOAT_ONE_BITS;
+  *(undefined4 *)(rec + 0xf28) = FLOAT_NEG_0_85_BITS;
+  *(undefined4 *)(rec + 0xf30) = 0;
+  *(undefined4 *)(rec + 0xf48) = colour;
   /* fetch the vehicle position; its 4th word goes into the state (meaning unknown) */
   vehicle_get_position_148(vehicle_index,frame.position);
   need_directional_light = g_game_6642f0 == 0;
-  *(undefined4 *)((char *)&g_game_6614f0 + state_offset) = frame.position_w;
+  *(undefined4 *)(rec + 0xf50) = frame.position_w;
   /* first call only: look up the course's directional light and cache its field at +4 */
   if (need_directional_light) {
     state_offset = course_get_directional_light();

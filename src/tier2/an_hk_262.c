@@ -26,7 +26,7 @@ undefined4 sound_streams_are_idle(void)
 
   handle_ptr = &g_sound_stream_handles;
   /* walk the handle table, one 4-byte slot per iteration */
-  while( true ) {
+  do {
     /* empty slot: nothing more to check */
     if (*handle_ptr == 0) {
       return 1;
@@ -43,13 +43,12 @@ undefined4 sound_streams_are_idle(void)
     }
     /* stream state check: a playing stream ends the walk (inferred) */
     state = sound_stream_state(*handle_ptr);
-    if (state == SOUND_STREAM_PLAYING) break;
-    handle_ptr = handle_ptr + 1;
-    if (((LONG_PTR)&g_sound_6ae080 + STREAM_HANDLE_TABLE_LAST_OFS) < (LONG_PTR)handle_ptr) {
-      return 0;
+    if (state == SOUND_STREAM_PLAYING) {
+      return 1;
     }
-  }
-  return 1;
+    handle_ptr = handle_ptr + 1;
+  } while ((LONG_PTR)handle_ptr < ((LONG_PTR)&g_sound_6ae080 + STREAM_HANDLE_TABLE_LAST_OFS + 1));
+  return 0;
 }
 
 

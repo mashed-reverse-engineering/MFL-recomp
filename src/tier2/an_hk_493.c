@@ -32,22 +32,23 @@ undefined4 material_plugin_register(void)
   plugin_offset = RwEngineRegisterPlugin
                     (0,MATERIAL_PLUGIN_ID,(RwPluginObjectConstructor)&LAB_00481b30,
                      (RwPluginObjectDestructor)&LAB_00481ac0);
-  if (-1 < plugin_offset) {
-    g_app_89de04 = RpMaterialRegisterPlugin
-                             (MATERIAL_PLUGIN_SIZE,MATERIAL_PLUGIN_ID,material_plugin_construct,FUN_0053eac0,
-                              material_plugin_copy);
-    /* Stream chunk handlers for the material plugin. */
-    plugin_offset = RpMaterialRegisterPluginStream
-                      (MATERIAL_PLUGIN_ID,material_plugin_stream_read,material_plugin_stream_write,
-                       (RwPluginDataChunkGetSizeCallBack)&LAB_00481b90);
-    /* Both registrations must return the same plugin offset. (inferred) */
-    if (g_app_89de04 == plugin_offset) {
-      /* Install the clear callback for the plugin. (inferred) */
-      FUN_004f82c0(MATERIAL_PLUGIN_ID,material_plugin_clear_12);
-      return 1;
-    }
+  if (plugin_offset < 0) {
+    return 0;
   }
-  return 0;
+  g_app_89de04 = RpMaterialRegisterPlugin
+                           (MATERIAL_PLUGIN_SIZE,MATERIAL_PLUGIN_ID,material_plugin_construct,FUN_0053eac0,
+                            material_plugin_copy);
+  /* Stream chunk handlers for the material plugin. */
+  plugin_offset = RpMaterialRegisterPluginStream
+                    (MATERIAL_PLUGIN_ID,material_plugin_stream_read,material_plugin_stream_write,
+                     (RwPluginDataChunkGetSizeCallBack)&LAB_00481b90);
+  /* Both registrations must return the same plugin offset. (inferred) */
+  if (g_app_89de04 != plugin_offset) {
+    return 0;
+  }
+  /* Install the clear callback for the plugin. (inferred) */
+  FUN_004f82c0(MATERIAL_PLUGIN_ID,material_plugin_clear_12);
+  return 1;
 }
 
 

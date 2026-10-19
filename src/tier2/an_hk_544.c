@@ -18,22 +18,20 @@
 void weapon_oil_unequip(WeaponSlot *weapon_slot)
 
 {
-  uint player_index;
+  char *rec;
   RpWorld *world;
   RpClump *clump;
-  undefined4 zero;
 
   /* the player's per-player record: +0 and +4 are zeroed, +0xc holds the clump pointer (inferred) */
-  player_index = weapon_slot->player;
-  clump = (RpClump *)(&g_weapon_6a7c84)[player_index * PLAYER_RECORD_DWORDS];
-  zero = 0;
-  (&g_weapon_6a7c7c)[player_index * PLAYER_RECORD_DWORDS] = 0;
-  *(undefined4 *)((char *)&g_weapon_6a7c78 + player_index * PLAYER_RECORD_SIZE) = 0;
+  rec = (char *)&g_weapon_6a7c78 + weapon_slot->player * PLAYER_RECORD_SIZE;
+  clump = *(RpClump **)(rec + 0xc);
+  *(undefined4 *)(rec + 4) = 0;
+  *(undefined4 *)rec = 0;
   clump_set_flag_on_atomics(clump, 0x0);
   /* remove the clump from its world, if it has one */
-  world = (RpWorld *)clump_get_world((&g_weapon_6a7c84)[player_index * PLAYER_RECORD_DWORDS]);
+  world = (RpWorld *)clump_get_world(*(undefined4 *)(rec + 0xc));
   if (world != (RpWorld *)0x0) {
-    RpWorldRemoveClump(world,(RpClump *)(&g_weapon_6a7c84)[player_index * PLAYER_RECORD_DWORDS]);
+    RpWorldRemoveClump(world,*(RpClump **)(rec + 0xc));
   }
   return;
 }

@@ -8,22 +8,15 @@
 void FUN_004c4720(float *out,float *start,float *end,float t)
 
 {
-  float delta_x;
-  float delta_y;
-  float delta_z;
-
   *out = *end - *start;
   out[1] = end[1] - start[1];
   out[2] = end[2] - start[2];
-  delta_x = *out;
-  *out = t * delta_x;
-  delta_y = out[1];
-  out[1] = t * delta_y;
-  delta_z = out[2];
-  out[2] = t * delta_z;
-  *out = t * delta_x + *start;
-  out[1] = t * delta_y + start[1];
-  out[2] = t * delta_z + start[2];
+  *out = t * *out;
+  out[1] = t * out[1];
+  out[2] = t * out[2];
+  *out = *out + *start;
+  out[1] = out[1] + start[1];
+  out[2] = out[2] + start[2];
   return;
 }
 

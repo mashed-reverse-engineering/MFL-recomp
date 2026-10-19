@@ -28,22 +28,37 @@ void cup_scene_update_light_colour(void)
 {
   int light_block;
   int event_type;
+  RwRGBA colour_event_3;
+  RwRGBA colour_event_4;
+  RwRGBA colour_default;
 
   /* camera value negated and scaled into g_cup_64cbd0 (meaning unknown) */
   g_cup_64cbd0 = (float)(-(int)g_camera_7ef7d8) * k_f_0_01;
   light_block = FUN_004c4050(g_cup_64cbc0);
+  colour_event_3.red = 0xd8;
+  colour_event_3.green = 0x66;
+  colour_event_3.blue = 0x0a;
+  colour_event_3.alpha = 0xff;
+  colour_event_4.red = 0xf0;
+  colour_event_4.green = 0xf0;
+  colour_event_4.blue = 0xf5;
+  colour_event_4.alpha = 0xff;
+  colour_default.red = 0xff;
+  colour_default.green = 0xc5;
+  colour_default.blue = 0x14;
+  colour_default.alpha = 0xff;
   /* event type 3: blue colour */
   event_type = get_event_type();
   if (event_type == 3) {
-    *(undefined4 *)(light_block + LIGHT_BLOCK_COLOUR_OFFSET) = CUP_LIGHT_COLOUR_EVENT_3;
+    *(int *)(light_block + LIGHT_BLOCK_COLOUR_OFFSET) = *(int *)&colour_event_3;
     return;
   }
   event_type = get_event_type();
   if (event_type == 4) {
-    *(undefined4 *)(light_block + LIGHT_BLOCK_COLOUR_OFFSET) = CUP_LIGHT_COLOUR_EVENT_4;
+    *(int *)(light_block + LIGHT_BLOCK_COLOUR_OFFSET) = *(int *)&colour_event_4;
     return;
   }
-  *(undefined4 *)(light_block + LIGHT_BLOCK_COLOUR_OFFSET) = CUP_LIGHT_COLOUR_DEFAULT;
+  *(int *)(light_block + LIGHT_BLOCK_COLOUR_OFFSET) = *(int *)&colour_default;
   return;
 }
 

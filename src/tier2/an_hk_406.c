@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00469b20*/ extern int sound_music_fade_step();
 /*004a3490*/ extern int __cdecl app_get_app_76e890_3490(undefined4 p0);
-/*004a3930*/ extern int sound_volume_to_directsound_db();
+/*004a3930*/ extern int __cdecl sound_volume_to_directsound_db(float v);
 /*005dd330*/ extern float float_1_0;
 /*005dd374*/ extern float k_f_0_2;
 /*005ddc28*/ extern float k_f_0;
@@ -27,25 +27,25 @@ void sound_music_fade_step_b(int step_dir)
 {
   int app_status;
 
-  /* step down (0); step up (1) jumps into the clamp below */
-  if (step_dir == 0) {
+  /* step down (0) or up (1); 2 mutes; anything else only clamps */
+  switch (step_dir) {
+  case 0:
     g_sound_6ad8dc = g_sound_6ad8dc - k_f_0_2;
-LAB_00469be1:
-    if (float_1_0 < g_sound_6ad8dc) {
-      g_sound_6ad8dc = 1.0;
-      goto LAB_00469c1d;
-    }
-    if (k_f_0 <= g_sound_6ad8dc) goto LAB_00469c1d;
+    break;
+  case 1:
+    g_sound_6ad8dc = g_sound_6ad8dc + k_f_0_2;
+    break;
+  case 2:
+    g_sound_6ad8dc = 0.0;
+    goto push_level;
   }
-  else {
-    if (step_dir == 1) {
-      g_sound_6ad8dc = g_sound_6ad8dc + k_f_0_2;
-      goto LAB_00469be1;
-    }
-    if (step_dir != 2) goto LAB_00469be1;
+  if (g_sound_6ad8dc > float_1_0) {
+    g_sound_6ad8dc = 1.0;
   }
-  g_sound_6ad8dc = 0.0;
-LAB_00469c1d:
+  else if (g_sound_6ad8dc < k_f_0) {
+    g_sound_6ad8dc = 0.0;
+  }
+push_level:
   /* only push the level to the sound layer when the app status is non-zero */
   app_status = app_get_app_76e890_3490(0);
   if (app_status != 0) {

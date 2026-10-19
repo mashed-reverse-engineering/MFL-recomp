@@ -15,7 +15,7 @@ uint FUN_005c4340(undefined4 *semaphore_out,LONG initial_count,LONG max_count)
   /* security attributes and name are NULL: default security, unnamed semaphore */
   semaphore = CreateSemaphoreA((LPSECURITY_ATTRIBUTES)0x0,initial_count,max_count,(LPCSTR)0x0);
   *semaphore_out = semaphore;
-  return -(uint)(semaphore != (HANDLE)0x0) & (uint)semaphore_out;
+  return (semaphore != (HANDLE)0x0 ? 0xffffffffU : 0U) & (uint)semaphore_out;
 }
 
 

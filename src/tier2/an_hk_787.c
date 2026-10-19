@@ -3,6 +3,7 @@
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
+/*007ef840*/ extern char g_player_inputs_0__field23_0x20;
 
 /* race phase in which rumble is sent (inferred: only phase that passes the gate) */
 #define RUMBLE_RACE_PHASE (6)
@@ -24,6 +25,7 @@ void player_rumble(int slot,uint motor,uint duration,uint strength)
 
 {
   int scratch;
+  char *rec;
 
   /* slot type must be 1 (meaning of type 1 not in dossier) */
   scratch = race_setup_get_slot_type(slot);
@@ -34,11 +36,12 @@ void player_rumble(int slot,uint motor,uint duration,uint strength)
       /* scratch is now the PlayerInput index of this slot's controller */
       scratch = g_player_slots[slot].controller;
       /* controller must have rumble enabled; then write the request */
-      if (g_player_inputs[scratch].rumble_enabled != 0) {
-        g_player_inputs[scratch].rumble_motor = motor;
-        g_player_inputs[scratch].rumble_request = 1;
-        g_player_inputs[scratch].rumble_duration = duration;
-        g_player_inputs[scratch].rumble_strength = strength;
+      rec = &g_player_inputs_0__field23_0x20 + scratch * 0x4c;
+      if (*(uint *)(rec + 4) != 0) {
+        *(uint *)(rec + 0x10) = motor;
+        *(uint *)rec = 1;
+        *(uint *)(rec + 0xc) = duration;
+        *(uint *)(rec + 0x14) = strength;
       }
     }
   }

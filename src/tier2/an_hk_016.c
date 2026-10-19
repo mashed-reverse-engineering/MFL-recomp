@@ -24,12 +24,12 @@ void trail_particles_render_setup(void)
   /* skip when there are no trail quads to draw (count inferred) */
   if (g_trail_8d8b00 != 0) {
     /* bind the trail texture raster, or NULL when the texture is not loaded */
-    if (g_trail_65315c == (undefined4 *)0x0) {
-      RwRenderStateSet(rwRENDERSTATETEXTURERASTER,(void *)0x0);
-    }
-    else {
+    if (g_trail_65315c != (undefined4 *)0x0) {
       RwRenderStateSet
                 (rwRENDERSTATETEXTURERASTER,*(void **)g_trail_65315c);
+    }
+    else {
+      RwRenderStateSet(rwRENDERSTATETEXTURERASTER,(void *)0x0);
     }
     /* blended, depth-tested, depth-write-off, no fog: particles are drawn alpha-blended and do not occlude */
     RwRenderStateSet(rwRENDERSTATETEXTUREFILTER,(void *)rwFILTERLINEAR);

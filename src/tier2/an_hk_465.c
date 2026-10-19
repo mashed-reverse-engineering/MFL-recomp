@@ -30,6 +30,7 @@ void stopclock_load(void)
 
 {
   int panel_entry;
+  RwRGBA col;
   int clump;
   undefined *stopclock_state_ptr;
   undefined4 load_arg_1;
@@ -40,9 +41,9 @@ void stopclock_load(void)
   stopclock_state_ptr = &g_stopclock_load_5de3ac;
   clump = clump_load_by_name("RacePanel.dff",load_arg_1,load_arg_2);
   mem_zero(&g_hudpanel_659ac0,HUDPANEL_BYTES);
+  g_stopclock_659b00 = clump;
   g_ai_659b04 = *(undefined4 *)(clump + 4);
   g_stopclock_659b08 = 1;
-  g_stopclock_659b00 = clump;
   FUN_004c52f0(clump,&g_hudpanel_659ac0,0x10,0,0);
   /* walk every hud panel slot; only the clock slot gets the extra setup */
   clump = 0;
@@ -50,8 +51,12 @@ void stopclock_load(void)
     panel_entry = (&g_hudpanel_659ac0)[clump];
     /* clock slot: FUN_004c5410 setup, then set the colour (inferred) */
     if (clump == CLOCK_PANEL_INDEX) {
+      col.red = 0x32;
+      col.green = 0x32;
+      col.blue = 0x32;
+      col.alpha = 0xff;
       FUN_004c5410(panel_entry,0x40,1);
-      *(undefined4 *)(**(int **)(*(char **)(panel_entry + 0x18) + 0x20) + 4) = CLOCK_COLOUR;
+      *(int *)(**(int **)(*(char **)(panel_entry + 0x18) + 0x20) + 4) = *(int *)&col;
     }
     clump = clump + 1;
   } while (clump < HUDPANEL_SLOT_COUNT);

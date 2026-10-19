@@ -29,23 +29,25 @@ undefined4 atomic_plugin_register(void)
 
   register_result = RwEngineRegisterPlugin(ATOMIC_PLUGIN_DATA_SIZE,ATOMIC_PLUGIN_ID,FUN_0053eac0,FUN_0053eac0);
   /* Engine plugin registered (negative result = failure): register the atomic extension */
-  if (-1 < register_result) {
-    g_gfx_89de0c = RpAtomicRegisterPlugin
-                             (ATOMIC_PLUGIN_DATA_SIZE,ATOMIC_PLUGIN_ID,atomic_plugin_construct,FUN_0053eac0,
-                              atomic_plugin_copy);
-    /* Extension registered (g_gfx_89de0c holds its plugin id): register the stream chunk handlers */
-    if (-1 < (int)g_gfx_89de0c) {
-      register_result = RpAtomicRegisterPluginStream
-                        (ATOMIC_PLUGIN_ID,atomic_plugin_stream_read,atomic_plugin_stream_write,
-                         (RwPluginDataChunkGetSizeCallBack)&LAB_004818c0);
-      /* Stream plugin must return the same id as the extension; then call FUN_004f7f10 (inferred: post-register hook) */
-      if (g_gfx_89de0c == register_result) {
-        FUN_004f7f10(ATOMIC_PLUGIN_ID,&LAB_004819a0);
-        return 1;
-      }
-    }
+  if (register_result < 0) {
+    return 0;
   }
-  return 0;
+  g_gfx_89de0c = RpAtomicRegisterPlugin
+                           (ATOMIC_PLUGIN_DATA_SIZE,ATOMIC_PLUGIN_ID,atomic_plugin_construct,FUN_0053eac0,
+                            atomic_plugin_copy);
+  /* Extension registered (g_gfx_89de0c holds its plugin id): register the stream chunk handlers */
+  if ((int)g_gfx_89de0c < 0) {
+    return 0;
+  }
+  register_result = RpAtomicRegisterPluginStream
+                    (ATOMIC_PLUGIN_ID,atomic_plugin_stream_read,atomic_plugin_stream_write,
+                     (RwPluginDataChunkGetSizeCallBack)&LAB_004818c0);
+  /* Stream plugin must return the same id as the extension; then call FUN_004f7f10 (inferred: post-register hook) */
+  if (g_gfx_89de0c != register_result) {
+    return 0;
+  }
+  FUN_004f7f10(ATOMIC_PLUGIN_ID,&LAB_004819a0);
+  return 1;
 }
 
 

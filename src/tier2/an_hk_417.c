@@ -70,7 +70,12 @@ undefined4 window_create(HINSTANCE hinstance,char *unused_arg,char *app_name)
   window_rect.top = 0;
   window_rect.right = app_get_app_62c5c8();
   window_rect.bottom = app_get_app_62c5cc();
-  AdjustWindowRect(&window_rect,WINDOW_STYLE_OVERLAPPED,(uint)(wc.lpszMenuName != (LPCSTR)0x0));
+  if (wc.lpszMenuName != (LPCSTR)0x0) {
+    AdjustWindowRect(&window_rect,WINDOW_STYLE_OVERLAPPED,1);
+  }
+  else {
+    AdjustWindowRect(&window_rect,WINDOW_STYLE_OVERLAPPED,0);
+  }
   /* create at default position (CREATE_USE_DEFAULT) with the expanded size; remember the handle in g_app_7e7704 */
   g_app_7e7704 = CreateWindowExA(0,"DtS","Drive to Survive [D3D9] [Release]",WINDOW_STYLE_OVERLAPPED,-CREATE_USE_DEFAULT,
                                  -CREATE_USE_DEFAULT,window_rect.right - window_rect.left,

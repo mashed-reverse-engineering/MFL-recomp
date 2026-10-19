@@ -15,7 +15,7 @@ bool piz_fs_eof(char *piz_fs)
   /* bump the global call counter */
   g_piz_fs_8deed4 = g_piz_fs_8deed4 + 1;
   /* compare sub-object position against the limit (inferred) */
-  return *(uint *)(*(char **)(piz_fs + PIZ_FS_SUB_PTR_OFS) + PIZ_FS_SUB_POS_OFS) <= *(uint *)(piz_fs + PIZ_FS_LIMIT_OFS);
+  return *(uint *)(piz_fs + PIZ_FS_LIMIT_OFS) >= *(uint *)(*(char **)(piz_fs + PIZ_FS_SUB_PTR_OFS) + PIZ_FS_SUB_POS_OFS);
 }
 
 

@@ -268,3 +268,76 @@ Result: 41 of 82 byte-identical (all diffemu EQUAL), 12 improved (fix_improved/,
   one slot apart), dot_product_3d_clamped (float arithmetic + fcom m32 ok, `mov ecx,[esp+8]` vs first fld order), pool/particle_system_set_matrix_table (`[ecx+eax]` vs `[eax+ecx]` SIB order of an
   `atomic->4 + g_plugin_offset` expression is canonicalised by cl), ptank_set_size (size pointer in ecx vs eax), btb_panel_slot_set_matrix (flags RMW `or [mem]` vs load/or/store; zero-register compare is automatic).
 - Struct-ish jump-table/branch layout: get_competitor_count (goto-shared blocks A..D are right, the count-3 dispatcher shares the count-2 chain in the original but not in ours), frontend_enter_menu (tail `jmp`).
+
+## Round F
+
+Tools (scratch <scratch>): all.py / metric.py (batch cmpfn + diff-line metric over bm_f.txt), sh.sh (source + asm diff of one function), ours.sh (objdump -dr of our obj),
+f32.py (rdata float -> shortest literal), auto.py / inl.py / swp.py (cheap automatic transform sweeps: compare flips, single-use call inlining, adjacent store swaps; no full match came out of them, hand work did),
+splice.sh (3-way splice onto the live files).
+Classification of the 221 failures: 39 register-argument callees (`_r` adapters), 18 need the /GS security cookie (`xor eax,[esp+N]` against 0x62c5d8, arrays on the stack), 3 tail jmp, rest scheduling / regalloc.
+
+### New patterns (asm symptom -> source edit)
+
+1. Count guard of a loop is unsigned: original `test ecx,ecx; jbe` (FUN_005c2180, FUN_005c21e0, piz_fs_exists), ours `je`.
+   fix: `if (0 < *(uint *)(...))` / `if (0 < (uint)g)` instead of `!= 0` / `(int)` compare. Same for the loop test `channel < (uint)g` (jb vs jl).
+
+2. `-(uint)(x != 0) & (uint)p` idiom (FUN_005c4340): original `neg eax; sbb eax,eax; and eax,ecx`, ours `setne/neg/and`.
+   fix: `(x != 0 ? 0xffffffffU : 0U) & (uint)p` (or `x ? p : 0`).
+
+3. Early-return chain instead of nested ifs (atomic_plugin_register, material_plugin_register): original has ONE shared `return 0` block right behind the checks.
+   fix: `if (a < 0) return 0; ...; if (g != r) return 0; post(); return 1;` instead of `if (a>=0) { if (..) { if (g==r) {...; return 1;} } } return 0;`.
+   NOT reproducible: rw_plugins_attach / joypad_get_axis_info (return-0 block laid out first, backward jumps); cl normalises goto/label tricks.
+
+4. `x / 4U` then `* 4U` in two statements (FUN_005bf0e0): `((raw + 4) >> 2) << 2` and `& ~3` fold into `and`; `aligned = (raw + 4U) / 4U; aligned = aligned * 4U;` gives `shr 2; shl 2`.
+   (also `if (0 < (uint)raw)` for `test; jbe`.)
+
+5. If/else arm order decides the layout (rwp_object_set_in_world): write the arm the original falls into FIRST: `if (add != 0) {add...} else if (link != 0) {remove}`.
+   `while(true)` with the bound check at the bottom -> `do { ...; return 1 inside } while (p < END); return 0;` (sound_streams_are_idle).
+   `x >= 0` instead of `-1 < x`; `object_id <= 200` instead of `< 201`.
+
+6. Phantom call arguments / wrong prototype: texture_read_png_logged (RtPNGImageRead(p0..p3) -> 1 arg), course_rouabout_cb2 (course_quad_render_b 3 args -> 1),
+   course_sandsnow_cb1 (float arg stored into the pushed slot: `void __cdecl f(float)` and `f2(get_matrix(0), g(0))`, `float10` local for the int->float conversion),
+   sound_music_fade_step_b (`extern int __cdecl f(float)` gives `push ecx; fstp [esp]` instead of the double spill).
+   A callee result that is returned: `int` instead of void (rx_pipeline_create_for_node_5003b0; FUN_004b1140 returns len, which also keeps the indexed form).
+
+7. Nested call as argument, other args pushed first (camera_world_attach, trail_clumps_create, screen_clear_black): `RpWorldAddCamera(course_get_rpworld(), get_viewport_camera(0))`, no temps;
+   delete the Ghidra junk locals (zero_offset / float_arg_b.. in trail_clumps_create: pass 0.0f, 0x3dcccccd.. directly).
+
+8. Record base symbol + char* record (player_rumble: base symbol g_player_inputs_0__field23_0x20 = 0x7ef840; weapon_oil_unequip; vehicle_render_state_init):
+   `char *rec = (char *)&SYM + idx * STRIDE;` then `*(T *)(rec + off)`; the base must be the symbol at the `add reg, IMM` constant (look it up in symbols.txt). Do not leave a use of the old offset variable.
+
+9. Struct copies (cl emits rep movs / register-pair copies): `typedef struct { undefined4 d[N]; } DwN; *(DwN *)dst = *(DwN *)src;` (FUN_004c6740 N=0x102b, voice_queue_add N=10, vehicle_render_state_init N=4);
+   3 floats: `*(RwV3d *)dst = *(RwV3d *)src;` (course_active_object_get_info, course_zone_read_frame_state, sound_voices_set_position_start).
+   Read through a local pointer first: `sub = frame + 0x40; ... *(float *)(sub + 0x30)` reproduces `lea eax,[eax+0x40]` + `[eax+0x30]` (course_zone_read_frame_state, with the `360.0f` literal).
+
+10. Colour as RwRGBA bytes (fx_object_update_frame, stopclock_load, cup_scene_update_light_colour): `RwRGBA c; c.red=..; c.green=..; c.blue=..; c.alpha=..; *(int *)&c`.
+    The byte stores must be written BEFORE the call that precedes the use of the colour (stopclock_load: colour built, then FUN_004c5410, then the store). Three colours = three locals initialised in the order of the original stores.
+
+11. Store order = asm order for global stores around a call result (load_btb_panel, stopclock_load: `g_clump = clump;` first, then the field copies; camera_create_a: up-vector locals first, then `g_camera = ...`).
+    A global that points at a freshly created object: `m = RwMatrixCreate(); ...stores through m...; f = m->flags | X; g_ptr = m; m->flags = f;` (spring_grid_init) instead of re-reading the global.
+
+12. float typed copies (course_smoke_particles_create): `float local_8, local_4` copied from `*(float *)&g` gives the `mov ecx,eax` second register for the second store.
+    `float10 xy_radius` local (random_unit_vector) keeps the sqrt result on the x87 stack across both fmuls; `float angle` local + `cos(angle)`.
+
+13. Compare operand order / float compares: `g > float_1_0` not `float_1_0 < g` (sound_music_fade_step); `(timer <= k_f_0)` not the NaN idiom and `1.0f` literal as the first operand (weapon_rocket_spin_update);
+    `piz_fs_eof`: write `limit >= pos` (limit loaded first).
+
+14. Dead param slot is reused by cl for an address-taken local (btb_panel_slot_init): the 4-byte colour local lands in the param slot (no `push ecx`), unreachable by reordering; keep in mind when an original has `push ecx` for a small local.
+
+15. Boolean argument `(uint)(x != 0)` (window_create AdjustWindowRect): the original duplicates the call: `if (x != 0) f(...,1); else f(...,0);` (no setne).
+
+16. Constant 0 argument that is also the result (line_exceptions_load): the original keeps a zero register for `RwStreamClose(stream, 0)` and `return 0`:
+    `int result = 0; ... RwStreamClose(stream, (void *)result); result = 1; ... return result;` (same value; cl then keeps the zero in edi).
+
+17. sound_stop_all_voices_and_streams: `if (c > 0) { x = t[c]; if (x != t2[c]) f(x); } else f(t[c]);` (reload in the else arm gives `mov ecx,[esi*4+X]; push ecx`) instead of a goto-shared tail.
+
+### Tried, not fixable by C edits here
+FUN_005c1eb0 / FUN_005b72d0 / FUN_005b7330 (callee argument evaluation order: movzx word before the extra arg load), noise_interp_cos / noise_sample_row (x87 stack kept across calls, cl spills),
+voice_queue_advance_timers ([esi+ecx] SIB order), effect_slot_alloc (zero register kept for `return 0`), FUN_0056f900 / FUN_0056f3a0 / FUN_0056f0d0 (`and eax,0x4100` compare form: RenderWare SDK code built with other flags),
+course_collision_objects_build (store of a call result delayed past an argument load), geometry_transform_points (cursor assigned inside the if changes register allocation), FUN_005c1dc0 (node/state register swap; list-tail fixed: `head_slot = list + 0xc; *node_slot = *head_slot`),
+fx_explosion_systems_init (cursor IV rebasing, cl folds the first iteration constant), course_script_run (float constant stores hoisted into a register), FUN_005b6730 (switch block order).
+
+### Not fixable (reason)
+- register-argument callees (39): car_damage_update_all, hudpanel_slots_clear, the team/endpoint/debris/machinegun `*_clear/_render/_update_all` loops, player_equip_weapon, weapon_*_hook_2c, sector_table_clear, ... need the cluster/usercall mechanism.
+- /GS cookie (18): ai_file_name, led_file_name, load_copter_model, build_info_draw_page_*, ... need the security cookie prologue.
+- tail jmp: texdict_load_named_b / _d.

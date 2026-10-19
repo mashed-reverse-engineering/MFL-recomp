@@ -21,28 +21,22 @@ undefined4 line_exceptions_load(void)
   RwUInt32 chunk_size;
   RwUInt32 chunk_version;
   RwStream *stream;
-  RwBool chunk_found;
-  RwStream *stream_copy;
-  undefined4 *exceptions_table;
-  RwUInt32 chunk_size_copy;
+  int result;
 
+  result = 0;
   led_file_name(1);
   stream = RwStreamOpen(rwSTREAMFILENAME,rwSTREAMREAD,&g_led_file_name);
   /* File opened: look for the line exception chunk (chunk_size / chunk_version are its length and version, inferred). */
   if (stream != (RwStream *)0x0) {
-    chunk_found = RwStreamFindChunk(stream,LINE_EXCEPTIONS_CHUNK_ID,(RwUInt32 *)&chunk_size,
-                              (RwUInt32 *)&chunk_version);
-    /* Chunk found: read its payload straight into the table, then close the stream. */
-    if (chunk_found != 0) {
-      exceptions_table = &g_line_exceptions;
-      stream_copy = stream;
-      chunk_size_copy = chunk_size;
+    if (RwStreamFindChunk(stream,LINE_EXCEPTIONS_CHUNK_ID,(RwUInt32 *)&chunk_size,
+                              (RwUInt32 *)&chunk_version) != 0) {
+      /* Chunk found: read its payload straight into the table, then close the stream. */
       RwStreamRead(stream,&g_line_exceptions,chunk_size);
-      RwStreamClose(stream,(void *)0x0);
-      return 1;
+      RwStreamClose(stream,(void *)result); /* result is still 0 here: the NULL argument */
+      result = 1;
     }
   }
-  return 0;
+  return result;
 }
 
 

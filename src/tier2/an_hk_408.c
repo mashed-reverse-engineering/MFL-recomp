@@ -16,8 +16,8 @@ RpClump * __cdecl clump_for_all_materials_uv_anim(RpClump *clump,undefined4 user
     undefined4 *local_4;
   } frame;
   
-  frame.local_4 = &user_data;
   frame.local_8 = &LAB_00484850;
+  frame.local_4 = &user_data;
   clump_for_all_materials(clump,&frame.local_8);
   return clump;
 }

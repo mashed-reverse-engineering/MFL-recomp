@@ -27,7 +27,7 @@ uint FUN_005c21e0(char *owner,RwChar *name)
 
   table = *(char **)(owner + NAME_TABLE_PTR_OFFSET);
   index = 0;
-  if (*(int *)(table + NAME_TABLE_COUNT_OFFSET) != 0) {
+  if (0 < *(uint *)(table + NAME_TABLE_COUNT_OFFSET)) {
     entry_offset = 0;
     /* walk the entries: each entry is NAME_TABLE_ENTRY_SIZE bytes, name pointer at +4 */
     do {

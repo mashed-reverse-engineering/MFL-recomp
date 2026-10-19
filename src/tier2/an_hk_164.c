@@ -25,7 +25,7 @@ uint FUN_005c2180(char *owner,undefined4 context)
   cur = *(char **)(owner + OWNER_LIST_OFFSET);
   index = 0;
   /* walk the entries while index < entry count; the header is re-read each pass */
-  if (*(int *)(cur + LIST_COUNT_OFFSET) != 0) {
+  if (0 < *(uint *)(cur + LIST_COUNT_OFFSET)) {
     entry_offset = 0;
     do {
       /* load entry at index; skip null slots, otherwise stop when the callee returns 0 */

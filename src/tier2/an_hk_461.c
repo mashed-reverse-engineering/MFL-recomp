@@ -36,9 +36,9 @@ void load_btb_panel(void)
   /* Load the clump; both extra arguments are 0 (callee parameters unnamed). */
   clump = clump_load_by_name("BTBPanel.dff",clump_load_arg1,clump_load_arg2);
   mem_zero(&g_load_658b30,BTB_LOAD_STATE_SIZE);
+  g_btb_658b40 = clump;
   g_hudpanel_658b44 = *(undefined4 *)(clump + 4);
   g_hudpanel_658b48 = 1;
-  g_btb_658b40 = clump;
   FUN_004c52f0(clump,&g_load_658b30,4,0,0);
   /* Loop over BTB_LOOP_COUNT slots (inferred); `clump` is reused as the loop index here.
      Slot 1 gets a call to FUN_004c5410 with g_hudpanel_658b34. */

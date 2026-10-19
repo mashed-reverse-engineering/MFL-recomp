@@ -2,6 +2,8 @@
 /*004757a0*/ extern int get_viewport_camera_matrix();
 /*005dda20*/ extern float k_f_4_2949673e9;
 extern float func_0x004757e0();
+extern void __cdecl func_0x0045bad0(float f);
+extern void __cdecl func_0x00449c40(int m, float f);
 /* course_sandsnow_cb1 */
 
 /* WARNING: Unknown calling convention */
@@ -15,21 +17,16 @@ extern float func_0x004757e0();
 void course_sandsnow_cb1(char *unused_context,int raw_value)
 
 {
-  float camera_value_bits;
-  float value_f;
-  undefined4 camera_matrix;
-  float10 camera_value;
+  float10 value_f;
 
   /* Unsigned-to-float conversion: negative raw values are shifted up by 2^32. */
-  value_f = (float)raw_value;
+  value_f = (float10)raw_value;
   if (raw_value < 0) {
-    value_f = value_f + k_f_4_2949673e9;
+    value_f = value_f + (float10)k_f_4_2949673e9;
   }
-  func_0x0045bad0(value_f);
-  /* Camera float is passed to get_viewport_camera_matrix as its raw bit pattern. */
-  camera_value = (float10)func_0x004757e0(0);
-  camera_matrix = get_viewport_camera_matrix(0,(camera_value_bits = (float)camera_value, *(int *)&camera_value_bits));
-  func_0x00449c40(camera_matrix);
+  func_0x0045bad0((float)value_f);
+  /* The camera float is the second argument of func_0x00449c40 (Ghidra attached it to get_viewport_camera_matrix). */
+  func_0x00449c40(get_viewport_camera_matrix(0),func_0x004757e0(0));
   return;
 }
 

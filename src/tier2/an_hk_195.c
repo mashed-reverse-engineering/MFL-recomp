@@ -4,7 +4,7 @@
 /* Walks a zero-terminated 16-bit (wchar_t-style) string and counts its characters
  * (inferred). wstr: the string. The count is left in len and is not returned:
  * the function returns void. */
-void __stdcall FUN_004b1140(char *wstr)
+int __stdcall FUN_004b1140(char *wstr)
 
 {
   int len;
@@ -13,8 +13,8 @@ void __stdcall FUN_004b1140(char *wstr)
   len = -1;
   do {
     len = len + 1;
-  } while (*(short *)(wstr + len * 2) != 0);
-  return;
+  } while (((short *)wstr)[len] != 0);
+  return len;
 }
 
 

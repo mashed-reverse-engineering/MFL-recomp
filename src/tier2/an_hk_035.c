@@ -38,7 +38,7 @@ void __cdecl rwp_object_destroy(int object_id)
   RpWorld *world;
   
   active_owner = rw_first_field(g_rw_701c9c);
-  if ((-1 < object_id) && (object_id < PHYSICS_OBJECT_COUNT)) {
+  if ((object_id >= 0) && (object_id <= 200)) {
     if ((&g_rw_6fab78)[object_id] != 0) {
       /* Release the owner body; if it is the active owner, drop it from active_owner first. */
       owner = rwp_owner_object_get((&g_rw_6fab78)[object_id]);
