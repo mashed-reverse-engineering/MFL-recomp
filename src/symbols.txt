@@ -79,6 +79,7 @@ scene_object_select_is_active 004062a0
 camera_path_update 004062d0
 camera_path_get_point 004063b0
 object_set_pipeline_7c_forward 004065a0
+world_for_all_materials_cb_406910 00406950
 course_materials_fixup 00406970
 LAB_004069c0 004069c0
 skydome_follow_camera 004069f0
@@ -1442,6 +1443,7 @@ course_rouabout_cb3 00458c90
 course_tierra_n_cb2 00458cb0
 course_tierra_n_cb10 00458de0
 course_tierra_n_cb5 00458df0
+SUB_00458f80 00458f80
 course_forest_cb0 00458fe0
 course_forest_cb1 00459010
 course_forest_cb2 00459040
@@ -2101,8 +2103,10 @@ geometry_for_all_materials_cb 00484890
 clump_for_all_materials 004848b0
 clump_has_uv_anim 004848d0
 clump_for_all_materials_uv_anim 00484910
+SUB_00484960 00484960
 atomic_set_material_alpha_value 004849b0
 pool_list_destroy 00484ad0
+SUB_00484b20 00484b20
 particle_spawn_at_weapon_pos 00484b60
 fatal_assert_loop 00484c20
 spline_tween_b 00484c40
@@ -2502,6 +2506,7 @@ fx_slot_table_clear 0049c260
 fx_snow_ptank_create 0049c280
 particles_emit_random 0049c520
 fx_snow_ptank_update 0049c5f0
+SUB_0049c880 0049c880
 particle_slot_call_render_method 0049c8f0
 fx_objects_clear 0049c920
 fx_object_apply_transform 0049c950
@@ -2858,6 +2863,8 @@ FUN_004af210 004af210
 FUN_004af9c0 004af9c0
 FUN_004afb80 004afb80
 FUN_004afbc0 004afbc0
+FUN_004afe30 004afe30
+FUN_004afe60 004afe60
 FUN_004b00b0 004b00b0
 FUN_004b0df0 004b0df0
 FUN_004b0f00 004b0f00
@@ -7975,7 +7982,14 @@ g_app_76e890 0076e890
 g_app_76e894 0076e894
 g_d3dx_76e898 0076e898
 g_d3dx_76e89c 0076e89c
+g_app_76e8a0 0076e8a0
 g_app_76e8a4 0076e8a4
+g_app_76e8ac 0076e8ac
+g_movie_renderer_76e8b0 0076e8b0
+g_movie_renderer_76e8b4 0076e8b4
+g_movie_renderer_76e8b8 0076e8b8
+g_movie_renderer_76e8bc 0076e8bc
+g_movie_renderer_76e8c0 0076e8c0
 g_app_76e8dc 0076e8dc
 g_app_76e8e0 0076e8e0
 g_video_select_76ece8 0076ece8
@@ -8673,6 +8687,7 @@ g_camera_fov_factor 00801b2c
 g_savegame 00801b40
 g_savegame_replay 00801b44
 g_savegame_state 008432d0
+g_gamesave_843dc8 00843dc8
 g_quit_requested 00843e7c
 g_course_843e80 00843e80
 g_collision_triangles 00843ea0

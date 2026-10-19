@@ -7,7 +7,7 @@ Writes output/delink_sdk/ownership.csv (lo,hi,section,owner,what): code by funct
 that did not match: unmatched library code, the split must replace or identify it), data by the anchored member sections and commons;
 interface_<lib>.txt: every library symbol the game references (count, kind; NONSYMBOL = a static / interior target with no external name: blocker)
 and the reverse direction (library code / data that references game addresses: callbacks, hooks).  ~5 s."""
-import bisect, collections, configparser, csv, fnmatch, glob, os, struct, sys
+import bisect, collections, configparser, csv, fnmatch, glob, os, re, struct, sys
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..", "..")); O = os.path.join(G, "output")
 cfg = configparser.ConfigParser(); cfg.read(os.path.join(H, "libs.cfg"))
 OUT = os.path.join(O, "delink_sdk")
@@ -24,14 +24,29 @@ for lib in cfg.sections():
 
 # ---- code: functions and their owner
 fns = sorted((int(l.split()[0], 16), int(l.split()[2]), l.split()[1]) for l in open(os.path.join(O, "fnsizes.txt")))
-cand = collections.defaultdict(set); lname = {}; lsize = {}; amb = set()
+cand = collections.defaultdict(set); lname = {}; lsize = {}; amb = set(); uniq = collections.defaultdict(list)
 for f in ("rw_libmatch.csv", "crt_libmatch.csv"):
     for r in csv.reader(open(os.path.join(O, f))):
         a = int(r[0], 16)
         if r[2] in memlib:
             cand[a].add(memlib[r[2]]); lsize[a] = int(r[3])
-            if r[4] == "": lname[(a, memlib[r[2]])] = (r[1], r[2])      # only a unique match names the member
+            if r[4] == "": uniq[(a, memlib[r[2]])].append((r[1], r[2]))      # byte match without "N candidates": names the member (below: several identical ones in one lib are resolved by callees)
             else: amb.add(a)                                            # identical code in several members: lib known, member not ("<lib>?")
+# Several members of one lib match the same bytes (relocations are wildcarded: printf / wprintf, sopen / wsopen, fsopen / wfsopen, ctime / wctime...).  The old
+# "last one wins" made the game's char _sopen the wide _wsopen (splitting wopen.obj then broke fopen: the CRT hang of 2026-10-11).  Now: a wide variant (wopen,
+# wfopen, wprintf, wctime, fwprintf, wcstol ...) is taken only when a rel32 callee of the function is uniquely a wide member, else the narrow ones; if more than one
+# candidate is left (ctime / ctime64) the function stays ambiguous ("<lib>?", never split).
+XB = open(os.path.normpath(os.path.join(G, "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe")), "rb").read()
+iswide = lambda m: bool(re.match(r"^(w|fw)(?!rite|in)", m.split("\\")[-1]))
+unamem = {a_: {m for _, m in v} for (a_, _), v in uniq.items() if len(v) == 1}      # address -> member of a unique (single candidate) match
+for (a, lib), v in sorted(uniq.items()):
+    if len({m for _, m in v}) == 1 or lib != "crt": lname[(a, lib)] = v[-1]; continue      # other libs: unchanged (last one wins; the RW split is verified with it)
+    callee = set()
+    for i in range(a - 0x400000, a - 0x400000 + max(lsize.get(a, 0) - 4, 0)):
+        if XB[i] == 0xE8: callee |= unamem.get((0x400000 + i + 5 + struct.unpack_from("<i", XB, i + 1)[0]) & 0xFFFFFFFF, set())
+    keep = [c for c in v if iswide(c[1])] if any(iswide(m) for m in callee) else [c for c in v if not iswide(c[1])]
+    if len(keep) == 1: lname[(a, lib)] = keep[0]
+    else: amb.add(a); print("ownership: %x ambiguous between %s: stays \"%s?\"" % (a, " ".join(m.split("\\")[-1] for _, m in keep), lib), file=sys.stderr)
 # every byte matched lib function start is a function, even where Ghidra has one function over several (its size then ends at the next start)
 have = {a for a, _, _ in fns}
 fns = sorted([(a, max(n, lsize.get(a, 0)), nm) for a, n, nm in fns] + [(a, lsize[a], "lib_%x" % a) for a in lsize if a >= 0x4b0000 and a not in have])   # lib size incl. its switch tables

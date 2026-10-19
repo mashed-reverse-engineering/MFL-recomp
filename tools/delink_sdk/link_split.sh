@@ -3,7 +3,7 @@
 # LIB_LUA / LIB_QHULL = source: Lua 4.0 / qhull 2002.1 rebuilt from upstream source replace the exe's bytes (plan_srclib.py); LIBS_SRC limits what is built.
 # Per library of tools/delink_sdk/libs.cfg a variant switch: LIB_RW=sdk (split the planned RW members out, link the SDK objects with their own
 # data) | original (keep the delinked original bytes); VARIANTS=1 also splits members whose game functions are another source revision of the
-# SDK function (the SDK version replaces them); LIB_CRT=libcmt|original (default original: the libcmt split is not working yet).  RUN=1: race course 0.
+# SDK function (the SDK version replaces them); LIB_CRT=libcmt|original (default original; libcmt = 178 members, 15/15 courses crash-only since the ownership.py fix of 2026-10-19 (wide / narrow variants), see CHANGES).  RUN=1: race course 0.
 # Steps: ownership.py (owner table, interface lists, lib names) -> rw_overlay_prep.py (member objects) -> plan_split.py (splittable members)
 # -> link_ours.sh with EXTRA_OBJS + mkobj --drop-members.  ONLY=<file of member keys> restricts the plan (bisecting).
 set -e

@@ -163,3 +163,5 @@ extern __declspec(dllimport) int __stdcall timeEndPeriod(int);
 extern __declspec(dllimport) int __stdcall timeGetTime(void);
 extern __declspec(dllimport) int __stdcall timeKillEvent(int);
 extern __declspec(dllimport) int __stdcall timer_select_implementation(void);
+extern __declspec(dllimport) int __stdcall EnterCriticalSection(int);
+extern __declspec(dllimport) int __stdcall LoadStringA(int, unsigned int, char *, int);
