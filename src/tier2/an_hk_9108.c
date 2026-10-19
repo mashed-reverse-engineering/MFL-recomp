@@ -6,7 +6,7 @@
 
 /* "(path, buffer, size): RwStreamOpen, RwStreamRead, RwStreamClose" */
 
-/* TIER2: unvalidated 2026-10-19 authority=static */
+/* TIER2: validated 2026-10-19 authority=diffemu */
 undefined4 __cdecl file_read_into_buffer(void *path, void *buffer, RwUInt32 length)
 {
   RwStream *stream;

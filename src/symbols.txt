@@ -168,6 +168,10 @@ gamesave_message_show_pending 0040b050
 gamesave_load_menu_state 0040b080
 switchD 0040b08e
 default 0040b121
+LAB_0040b1cc 0040b1cc
+LAB_0040b27c 0040b27c
+LAB_0040b36e 0040b36e
+LAB_0040b376 0040b376
 gamesave_autosave_state_machine 0040b410
 switchD 0040b41e
 default 0040b4ca
@@ -329,6 +333,8 @@ switchD 0041048e
 default 00410500
 course_load_time_report 00410dc0
 race_update_cameras 00410de0
+LAB_00410e4e 00410e4e
+LAB_00410e6b 00410e6b
 race_battle_mode_update 00410f10
 race_update_by_event_type 00411cc0
 switchD 00411d00
@@ -993,6 +999,7 @@ rtdict_load_named 0042f8f0
 texdict_load_named_c 0042f9a0
 texdict_load_named_d 0042fa10
 course_content_path_build 0042fa80
+race_load_course_0042fad0 0042fad0
 game_state_get_2812 0042fae0
 camera_fov_factor_set_wide 0042faf0
 career_event_won_set_course_state 0042fb20
@@ -1354,6 +1361,7 @@ course_atomics_destroy_6a07c4 004535a0
 course_dump_cb0 004535e0
 course_dump_cb1 00453730
 course_dump_cb2 00453740
+course_atomics_destroy_6a07c4_004537e0 004537e0
 course_egypt_cb12 004538d0
 course_egypt_cb7 00453900
 course_egypt_cb2 00453960
@@ -1361,6 +1369,7 @@ course_particle_timers_reset 00453980
 course_smoke_particles_render 00453a80
 course_smoke_particles_destroy 00453a90
 course_smoke_particles_create 00453c30
+course_smoke_particles_create_00453ca0 00453ca0
 load_headlight 00453cb0
 course_shadow_particles_render 00453fb0
 course_car_shadow_particles_create 00453ff0
@@ -1891,6 +1900,8 @@ sound_stop_all_and_release 00473450
 sound_frame_begin 00473550
 switchD 00473597
 switchD 00473754
+LAB_00473958 00473958
+LAB_00473980 00473980
 default 0047398c
 sound_update 00473a40
 course_unload_atomics_6ae24c 00473a50
@@ -2028,6 +2039,7 @@ course_moving_platforms_update 00480480
 rwp_trigger_group_advance_and_fire 004807c0
 gfx_groups_reset 004809f0
 physics_scenarios_reset 00480af0
+physics_scenarios_reset_00480bb0 00480bb0
 rwp_trigger_groups_update 00480bc0
 gfx_frame_counters_rotate 00480e50
 gfx_render_state_probe 00480e70
@@ -2833,6 +2845,9 @@ FUN_004acb00 004acb00
 FUN_004acb70 004acb70
 FUN_004acbb0 004acbb0
 FUN_004acde0 004acde0
+FUN_004aced0 004aced0
+FUN_004acee0 004acee0
+FUN_004acef0 004acef0
 FUN_004acf00 004acf00
 FUN_004acfd0 004acfd0
 FUN_004acff0 004acff0
@@ -3347,6 +3362,7 @@ FUN_004c3bf0 004c3bf0
 FUN_004c3d20 004c3d20
 FUN_004c3de0 004c3de0
 FUN_004c3e40 004c3e40
+FUN_004c3eb0 004c3eb0
 FUN_004c40c0 004c40c0
 FUN_004c40f0 004c40f0
 FUN_004c4120 004c4120
@@ -3358,6 +3374,7 @@ FUN_004c4720 004c4720
 FUN_004c48b0 004c48b0
 FUN_004c4c30 004c4c30
 FUN_004c4e20 004c4e20
+FUN_004c4f90 004c4f90
 FUN_004c51a0 004c51a0
 FUN_004c52b0 004c52b0
 FUN_004c52f0 004c52f0
@@ -5282,6 +5299,8 @@ FUN_005b72a0 005b72a0
 FUN_005b72d0 005b72d0
 FUN_005b7300 005b7300
 FUN_005b7330 005b7330
+FUN_005b8c50 005b8c50
+FUN_005b8c60 005b8c60
 fileno 005bb6b0
 FUN_005bcc50 005bcc50
 FUN_005be600 005be600
@@ -5642,6 +5661,9 @@ k_f_48000 005de8f8
 k_f_68 005de8fc
 k_f_52 005de900
 k_f_480 005de904
+g_ui_keyboard_5de98c 005de98c
+g_ui_keyboard_5de990 005de990
+s_keyboard_005de998 005de998
 s_oard_005de998_4 005de99c
 s__005de998_8 005de9a0
 k_f_48 005de9a4
@@ -6308,6 +6330,7 @@ g_sound_frame_615778 00615778
 g_sound_frame_616850 00616850
 g_sound_global_fade 00617940
 g_sound_master_fade 00617948
+g_sound_frame_61794c 0061794c
 s_soundstuff_00617970 00617970
 s_more_soundstuff_006179f0 006179f0
 g_sound_flag_617af0 00617af0
@@ -6486,6 +6509,7 @@ g_cup_scene_64cc28 0064cc28
 g_cup_scene_64cc38 0064cc38
 g_cup_64d880 0064d880
 g_cup_scene_64d884 0064d884
+g_app_64d888 0064d888
 g_game_64d88c 0064d88c
 g_load_64d890 0064d890
 g_course_64d894 0064d894
@@ -6610,6 +6634,7 @@ g_camera_652e8c 00652e8c
 g_camera_save_652e90 00652e90
 g_race_652f58 00652f58
 g_race_652f5c 00652f5c
+g_race_652f64 00652f64
 g_race_phase 00652f68
 g_race_update_652f74 00652f74
 g_race_render_652f78 00652f78
@@ -7469,18 +7494,30 @@ g_sound_ambience_6ae0ac 006ae0ac
 g_sound_6ae0b0 006ae0b0
 g_sound_6ae0b4 006ae0b4
 g_sound_6ae0b8 006ae0b8
+g_sound_frame_6ae0c4 006ae0c4
+g_sound_frame_6ae0c8 006ae0c8
+g_sound_frame_6ae0cc 006ae0cc
+g_sound_frame_6ae0d0 006ae0d0
 g_sound_car_6ae0d4 006ae0d4
 g_sound_frame_6ae100 006ae100
 g_sound_endpoint_cue_state 006ae104
 g_sound_streams_enabled 006ae108
 g_sound_streams_paused 006ae10c
 race_audio_active 006ae110
+g_sound_frame_6ae114 006ae114
+g_sound_frame_6ae118 006ae118
+g_sound_frame_6ae11c 006ae11c
 g_sound_6ae130 006ae130
+g_sound_frame_6ae140 006ae140
+g_sound_frame_6ae144 006ae144
+g_sound_frame_6ae148 006ae148
+g_sound_frame_6ae14c 006ae14c
 g_bomb_update_6ae154 006ae154
 g_bomb_update_6ae158 006ae158
 g_sound_car_6ae15c 006ae15c
 g_sound_car_6ae17c 006ae17c
 g_sound_car_6ae18c 006ae18c
+g_sound_frame_6ae190 006ae190
 g_sound_ambience_6ae1a8 006ae1a8
 g_sound_ambience_6ae1e4 006ae1e4
 g_course_unload_6ae24c 006ae24c
@@ -7946,6 +7983,7 @@ g_app_76e5a8 0076e5a8
 g_app_76e5ac 0076e5ac
 g_app_76e7e4 0076e7e4
 g_sleep_remainder 0076e7e8
+g_car_76e7ec 0076e7ec
 g_hud_76e7f0 0076e7f0
 g_app_state 0076e7f4
 g_app_76e7f8 0076e7f8
@@ -9163,6 +9201,7 @@ g_car_8bd784 008bd784
 g_car_8bd794 008bd794
 g_rank_order 008bd7a0
 g_sound_groups 008bd7b0
+g_sound_frame_8bd7b8 008bd7b8
 g_weapon_ai_8bd7bc 008bd7bc
 g_weapon_ai_8bdcc0 008bdcc0
 g_weapon_ai_8be1dc 008be1dc
@@ -9547,6 +9586,7 @@ g_sound_8d9960 008d9960
 g_sound_stuff_8d9964 008d9964
 g_sound_stuff_8d9968 008d9968
 g_sound_stuff_8d996c 008d996c
+g_sound_frame_8d9970 008d9970
 g_piz_8dae40 008dae40
 Rsrc_Dialog_65_809 0094dcf0
 Rsrc_Dialog_67_809 0094df58

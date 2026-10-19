@@ -457,6 +457,7 @@ extern char g_game_state_records_3_[];
 
 /* "false for event 0xE, else depends on ui_fn_435ec0 (event type is a career event)" */
 
+/* TIER2: validated 2026-10-19 authority=diffemu */
 bool __cdecl menu_event_is_selectable(int param_1)
 {
   int iVar1;
