@@ -374,9 +374,12 @@ def asm_limits(va, nargs):
     BAD = 1 << 30; ext = [0] * nargs; al = {}; d = 0; ebp_d = None; out = [0] * nargs
     sz = T().size.get(va, 0x400); name = lambda r: CS.reg_name(r)
     try:
+        jt = {}; reach = True      # alias registers at the branch targets: the code behind a `ret` / `jmp` starts with the aliases of the jump that reaches it (`mov eax,[esp+4]; test eax,eax; jne L; mov eax,imm; ret; L: mov ecx,[eax]`: particles_set_color read 1 word, the scan saw none)
         for ins in CS.disasm(img_read(va, sz), va):
             mn = ins.mnemonic; ops = ins.operands; mems = [o for o in ops if o.type == CX.X86_OP_MEM]
-            if mn in ("ret", "retn"): d = 0; continue
+            if ins.address in jt: al = {**jt.pop(ins.address), **al} if reach else dict(jt.pop(ins.address)); reach = True
+            if ops and ops[0].type == CX.X86_OP_IMM and (mn == "jmp" or CX.X86_GRP_JUMP in ins.groups) and ins.address < ops[0].imm < va + sz: jt[ops[0].imm] = {**jt.get(ops[0].imm, {}), **al}
+            if mn in ("ret", "retn"): d = 0; reach = False; continue
             if mn in ("and", "leave") and ops and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == "esp": ext = [BAD] * nargs; break
             slot = None
             for o in mems:
@@ -410,6 +413,7 @@ def asm_limits(va, nargs):
                     al.pop(r, None)
                 continue
             if mn == "jmp" and direct and not (va <= ops[0].imm < va + sz): ext = [BAD] * nargs; break
+            if mn == "jmp": reach = False
             if mn == "push": d += 4
             elif mn == "pop": d -= 4
             elif mn == "sub" and ops[0].type == CX.X86_OP_REG and name(ops[0].reg) == "esp" and ops[1].type == CX.X86_OP_IMM: d += ops[1].imm
@@ -749,7 +753,7 @@ class Machine:
                 nxt = min([(b - a) // 4 for b in outs if isstack(b) and b > a] + [FRAMEWIN] + ([c.lim[k]] if k < len(c.lim) and c.lim[k] else []))      # typed pointer parameter: the window ends with the object (ptr_limits)      # another pointer argument into the stack starts a separate object (RtIntersectionLineTriangle(&start, &delta, ..))
                 for j in range(nxt):
                     w = a + 4 * j
-                    if w + 4 > m.sp0 or not isstack(w): break      # the return address / arguments of the function itself are shared by the two sides
+                    if not isstack(w) or (w + 4 > m.sp0 and (w & ~3) not in m.sw): break      # the return address / arguments of the function itself are shared by the two sides (unless the function wrote them: a frame object compiled into its own argument slot, cluster weapon_flashbang_flare_particles)
                     if (w & ~3) in m.sw:
                         v = struct.unpack("<I", bytes(uc.mem_read(w, 4)))[0]; snap.append((j, ("S", v - a) if isstack(v) else m.norm(v)))
                 m.frames.append((c.name, k, tuple(snap)))

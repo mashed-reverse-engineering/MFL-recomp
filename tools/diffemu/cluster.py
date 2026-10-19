@@ -12,6 +12,10 @@ Spec file (output/cluster_pilot/clusters.txt), one line per cluster:  root | fil
 #    `(*(int (__fastcall **)(int *self, int unused_edx, int arg))(*self + N))(self, 0, arg)` / `__stdcall` pointer types.  Calls into the image / the stack / wild data pages are stubbed.
 #  - fs:[0] (SEH frame setup of the original) goes to a scratch word (patch_fs): a C file needs no EH frame; `dllimport` externs of the file give imports without a prototype their argument count
 #  - <spec dir>/frame_allow.txt (frame objects among C++ EH words), keeps_regs.txt (callee leaves ecx / edx alone though its jump table hides that): same lines as src/diffemu_frame_allow.txt
+# Re-verification round (2026-10-19, 16 clusters had flipped to DIFF / INCONCLUSIVE; none of these touches the cache key except the two core.py edits):
+#  - real helpers (_ftol ...) run for real: the whole-image code hook of _run_w treated their instructions as a call into the void (`indirect 004b2b48`), leaving the x87 value on the stack (dead-temp "memory: 2 bytes differ" at FPOUT)
+#  - indirect_pops: look 40 instructions ahead for the batched `add esp` (was 9: `push eax; call [eax+0x48]` x5, `add esp, 0x14` = cdecl, not 4 popped dwords per call), and `add esp, F + 4m` behind `sub esp, F` cleans the pending arguments too
+#  - a prototype of the cluster file for an import beats names/MFL_import_protos.txt (GetDlgItem: 5 there, really 2); the literal pool / argument windows are data (a call into them is stubbed); the original sees our code bytes as data (a pointer that wraps into OURS read zeros there)
 #  - coverage guidance (seed.py) is on: float constants of the code, switch selectors 0..40, fields tested against zero cleared together; x87 stub results / float out parameters from small pools
 import os, re, struct
 import core
@@ -70,6 +74,7 @@ def indirect_pops(va, size, read=None, ours=False):
         if i.mnemonic == "push" or (i.mnemonic == "mov" and "fs:" in i.op_str): pro = k + 1
         else: break
     out = {}
+    frame = next((int(i.op_str[5:], 0) for i in ins[:8] if i.mnemonic == "sub" and re.fullmatch(r"esp, (?:0x[0-9a-f]+|\d+)", i.op_str)), 0)      # `sub esp, F` of the prologue
     wr_ = lambda y, r: y.mnemonic in ("mov", "lea", "xor", "movzx", "movsx", "pop") and y.op_str.split(",")[0] == r
     for k, i in enumerate(ins):
         if i.mnemonic != "call" or not ("[" in i.op_str or i.op_str in ("eax", "ecx", "edx", "ebx", "esi", "edi", "ebp")) or i.op_str.startswith("dword ptr [0x"): continue
@@ -90,12 +95,14 @@ def indirect_pops(va, size, read=None, ours=False):
             if x.mnemonic == "push" and x.op_str == "ecx": pe = True
             if not dec and x.mnemonic in ("mov", "lea", "xor", "movzx", "movsx") and x.op_str.split(",")[0] == "ecx": dec = True; tc = not pe
         q = k + 1; run = 0      # `add esp, K` behind the call (before the next jump / return / pop; `run` = dwords pushed after this call that a later `add esp` may clean up first: batched cleanup) = cdecl; else the callee (stdcall / thiscall / __fastcall pointer type) pops the pushed arguments
-        while q < min(len(ins), k + 9) and not (ins[q].mnemonic in ("jmp", "ret", "pop", "leave") or ins[q].mnemonic.startswith("j")):
+        while q < min(len(ins), k + 40) and not (ins[q].mnemonic in ("jmp", "ret", "pop", "leave") or ins[q].mnemonic.startswith("j")):
             if ins[q].mnemonic == "push": run += 1
             if ins[q].mnemonic == "add" and ins[q].op_str.startswith("esp"):
                 kk = int(ins[q].op_str.split(",")[1], 0) // 4
                 if run < kk <= 24: n = 0; break      # (a bigger `add esp` is the frame teardown)
-                if kk > 24: break
+                if kk > 24:      # the frame teardown: `sub esp, F` at the entry; `add esp, F + 4 * m` (m >= the pending argument dwords) cleans the arguments too = cdecl (`push 2; push 7; call [eax+0x20]; add esp, 0xa8` after `sub esp, 0xa0`)
+                    if frame and 4 * kk - frame >= 4 * n > 0: n = 0
+                    break
                 run -= kk
             q += 1
         if "[ecx" in i.op_str: tc = False      # `mov ecx,[eax]; call [ecx+N]`: ecx is the vtable pointer, `this` is elsewhere (stdcall COM method)
@@ -141,7 +148,7 @@ class Cluster:
         for m_ in re.finditer(r"extern\s+__declspec\(dllimport\)\s+[^;(]*?\b(\w+)\s*\(([^)]*)\)", open(spec["file"]).read()):
             n_ = 0 if m_.group(2).strip() in ("", "void") else m_.group(2).count(",") + 1
             for ci in c.imports.values():
-                if ci.name == m_.group(1) and not ci.known: ci.pop, ci.nargs, ci.known = 4 * n_, n_, True
+                if ci.name == m_.group(1) and (not ci.known or m_.group(2).strip()): ci.pop, ci.nargs, ci.known = 4 * n_, n_, True      # a prototype in the file beats names/MFL_import_protos.txt (GetDlgItem: 5 there, really 2: the votes of the pushes before the IAT call)
         for t in sorted((ext_o | ext_u) - real - member_vas):
             if core.BASE <= t < core.IMGEND and not tb.rev.get(t, "").startswith("LAB_"):
                 ci = core.callee_info(t)
@@ -214,19 +221,33 @@ def _cmp_w(fn, mo, ro, mu, ru):
     return _cmp(fn, mo, ro, mu, ru)
 core.compare = _cmp_w
 core.side, core.Machine._indirect = _side_w, _ind_w
+_HR = []
+def _helper_ranges():
+    """address ranges of core.real_helpers() (_ftol, 64 bit arithmetic, _CIsin ...) and the image code they jump / call into (_pow_pentium4 ...): their instructions are real code, never a call into the void"""
+    if not _HR:
+        tb = T(); todo = sorted(core.real_helpers()); seen = set()
+        while todo:
+            h = todo.pop()
+            if h in seen: continue
+            seen.add(h); z = h + (tb.size.get(h) or 0x100); _HR.append((h, z))
+            todo += [t for t in core.scan(core.img_read, h, h, z)[1] if core.BASE <= t < core.IMGEND and t not in seen]
+    return _HR
 _run = core.Machine.run
 def _run_w(m, entry, args, regs, fill, lo, hi, count=core.MAXINS):
     """an indirect call into the image (a data pointer that happens to hold a code address) would run unrelated original code, unbalancing the stack of the thiscall: stub it like a call into the void"""
     from unicorn import UC_HOOK_CODE
     from unicorn.x86_const import UC_X86_REG_ESP, UC_X86_REG_EIP
     def cb(uc, addr, size, ud):
-        if addr in m.hooked or addr == entry: return
+        if addr in m.hooked or addr == entry or any(a_ <= addr < z_ for a_, z_ in _helper_ranges()): return      # (real helpers run for real: _ftol ...)
         _ind(m, uc, addr, size, ud)      # the unpatched stub: trace entry + result
         sp = uc.reg_read(UC_X86_REG_ESP); ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]
         n = getattr(_CUR[0], "indpop_u" if m.ours else "indpop", {}).get(ra, (0, 0))[0] if _CUR else 0
         uc.reg_write(UC_X86_REG_ESP, sp + 4 + 4 * n); uc.reg_write(UC_X86_REG_EIP, ra)
+    m.uc.hook_add(UC_HOOK_CODE, cb, begin=core.OURS + 0x10000, end=core.STUBS - 1)      # the literal pool and the argument windows (ARGBUF) are data: a call into them is a call through a data pointer (wild pages are mapped read / write only by _unm_w)
     for b, e in (((core.BASE, core.IMGEND - 1),) if m.ours else ((core.BASE, lo - 1), (hi + 0x40, core.IMGEND - 1))) + ((core.STACK, core.STACK + core.STK - 1),):      # (the stack holds data, never code)
         if e > b: m.uc.hook_add(UC_HOOK_CODE, cb, begin=b, end=e)
+    if not m.ours and _CUR:      # our compiled code is DATA to the original: a pointer that wraps into [OURS, OURS+len) (esi = ARGBUF 0x72000000 + 4 * 0xBF800000, a float -1.0 pattern in an index) reads the same bytes on both sides
+        m.uc.mem_write(core.OURS, _CUR[0].code[:0x10000])
     return _run(m, entry, args, regs, fill, lo, hi, count)
 core.Machine.run = _run_w
 
