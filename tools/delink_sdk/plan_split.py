@@ -77,6 +77,8 @@ def users(path, secnos):                   # functions of the object that refere
             if si in sy and sy[si][1] in secnos and (k + 1) in fnof: out.add(fnof[k + 1].lstrip("_"))
     return out
 pre = []; open(os.path.join(OUT, "blockers.txt"), "w").close()
+for m in sorted(objof):      # libs.cfg nosplit: members whose static data our C objects reference by address (g_* of src/automatch_agent) stay in the image
+    if any(fnmatch.fnmatch(m, x) for x in cfg[LIB].get("nosplit", "").split()): pre.append(m); open(os.path.join(OUT, "blockers.txt"), "a").write("nosplit (libs.cfg): drop %s\n" % m)
 for m in sorted(objof):
     if m in unanch:
         u = users(objof[m], unanch[m]) & {x.lstrip("_") for x in ambn.get(m, ())}

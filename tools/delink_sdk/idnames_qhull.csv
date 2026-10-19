@@ -1,0 +1,8 @@
+# addr,name,confidence: exe qhull functions that are not byte identical to the upstream build, identified by instruction-mnemonic similarity + callee sets (callmatch.py)
+0058cc40,fprintf,game (qh_fprintf replacement, fp is a small int tag)
+0059fd30,qh_errexit,size 571 vs 569
+00593b30,qh_setsize,prints the qh_setsize internal error
+0059f6a0,qh_memfree,mnemonic 0.83
+0059f730,qh_memfreeshort,mnemonic 0.80
+005935c0,qh_setindex,mnemonic 0.87
+005b5eb0,qh_setfeasible,io.c: called by qh_new_qhull between qh_initflags and qh_sethalfspace_all, uses qh_strtod

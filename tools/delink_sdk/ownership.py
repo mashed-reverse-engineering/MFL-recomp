@@ -351,3 +351,7 @@ with open(os.path.join(OUT, "lib_names.txt"), "w") as f:
             if b in ("ext", "common"):
                 u = nm[1:] if nm.startswith("_") else nm
                 if u not in seen: seen.add(u); f.write("%s %08x\n" % (u, a))
+# libs.cfg `alias = name=addr ...`: game code that a source built library calls under a library name (the game's own fprintf replacement for qhull)
+with open(os.path.join(OUT, "lib_names.txt"), "a") as f:
+    for lib in cfg.sections():
+        for a in cfg[lib].get("alias", "").split(): f.write("%s %s\n" % tuple(a.split("=")))

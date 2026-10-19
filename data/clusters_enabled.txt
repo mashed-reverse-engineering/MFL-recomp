@@ -258,12 +258,9 @@ hudpanel_markers_update_all_slots
 debris_update_all_vehicles_twice
 endpoint_panel_destroy
 team_panel_destroy
-score_panel_render
-smplfzx_retire_object
 joypads_release_all
 score_panel_init
 weapon_effects_clear_6a8af8
-kc_panel_init
 sprite_slots_clear
 weapon_effects_clear_6a7c78
 vehicle_model_path
@@ -275,16 +272,13 @@ kc_panel_update
 hudpanel_slot_init_player_b
 weapon_drum_update
 text_width
-aux_camera_setup
 debris_vehicle_destroy_all
 debris_slot_release_by_clump
 fx_emitter_spawn_a
 fx_emitter_spawn_c
 ui_text_draw_a
 event_log_flush_new
-weapon_mortar_update
 score_panel_update
-effect_sprites_render_all
 weapon_shotgun_update
 vehicle_setup_references
 car_damage_update_all
@@ -295,7 +289,6 @@ team_panel_render
 machinegun_states_clear
 player_equip_weapon
 weapon_drum_hook_2c
-score_panel_destroy
 debris_cull_update_all_vehicles
 weapon_mines_hook_2c
 team_panel_update

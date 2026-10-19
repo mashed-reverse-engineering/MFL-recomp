@@ -1,0 +1,4 @@
+# addr,name,why: exe Lua functions that are not byte identical to the upstream build, identified by mnemonic similarity + callee sets
+004c7610,lua_close,mnemonic 0.70 between errormessage and luaD_init (lstate.c)
+004c7390,lua_pushcclosure,5 byte jmp to luaV_Cclosure
+004cfc10,luaK_code2,callee set (callmatch)
