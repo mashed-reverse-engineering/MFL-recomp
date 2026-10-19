@@ -368,7 +368,7 @@ car_wheel_get_field_88_a,0047b360,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594c
 car_wheel_get_field_88_b,0047b3a0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 car_world_collision_query,0047bb00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 car_world_collision_test,00478090,bridge,enabled-list (game + shadow test results not recorded per function),none,-,11404e1744d7,4c54594cf977,0,0.00,0,0
-career_cell_index,00416a30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,345210b19d73,11404e1744d7,4c54594cf977,200,0.80,0,0
+career_cell_index,00416a30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,f93e05affe9b,11404e1744d7,4c54594cf977,200,0.80,0,0
 career_event_has_entry,004362c0,tier1,bytes,bytes-reloc,3aff7c20c5a5,11404e1744d7,4c54594cf977,0,0.00,0,0
 career_event_slot_table,004169f0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 career_event_won_set_course_state,0042fb20,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
@@ -524,7 +524,7 @@ course_lap_line_find_index,0040a830,tier2,compiled+diffemu-EQUAL+shadow-never,di
 course_list_scan,0042a470,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,b86738428062,11404e1744d7,4c54594cf977,200,0.93,0,1
 course_load_from_setup,0040e730,tier1,bytes,bytes-reloc,0e64f03ecfda,11404e1744d7,4c54594cf977,0,0.00,0,0
 course_load_time_report,00410dc0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
-course_marker_positions_init,0045b510,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,0195c08c2e97,11404e1744d7,4c54594cf977,200,1.00,0,1
+course_marker_positions_init,0045b510,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,0195c08c2e97,11404e1744d7,4c54594cf977,200,1.00,0,0
 course_materials_fixup,00406970,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 course_model_path_copy,0040eac0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,33,1.00,0,0
 course_neustein_cb1,00455620,agent,bytes-standalone+e9076ad03a7a,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
@@ -810,7 +810,7 @@ fx_slot_find_free,0049a9b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,1
 fx_slot_release,0049a980,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 fx_slot_set_field_b8,0049af00,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 fx_slot_table_clear,0049c260,tier1,bytes,bytes-reloc,20384c3c7af7,11404e1744d7,4c54594cf977,0,0.00,0,0
-fx_slots_clear,0049b750,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,a1c112005a09,11404e1744d7,4c54594cf977,200,1.00,0,1
+fx_slots_clear,0049b750,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,eec1a78ab375,11404e1744d7,4c54594cf977,200,1.00,0,1
 fx_slots_clear_8,0049df50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 fx_smoke_particle_spawn_grey,0049fcf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 fx_smoke_particle_spawn_tinted,0049fd50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
@@ -1173,7 +1173,7 @@ noise_value,00416760,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,5eca0b853205
 nop_a,0040c2a0,tier1,bytes,bytes-reloc,77e857d804bd,11404e1744d7,4c54594cf977,0,0.00,0,0
 nop_b,0040c2b0,tier1,bytes,bytes-reloc,dd634dd2739e,11404e1744d7,4c54594cf977,0,0.00,0,0
 object_atomic_create,004a5df0,agent,bytes-standalone+293fa5cc63d1,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
-object_debug_print,0045cc10,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,d96e8e08de8e,11404e1744d7,4c54594cf977,200,1.00,0,1
+object_debug_print,0045cc10,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,0d00f38bb984,11404e1744d7,4c54594cf977,200,1.00,0,1
 object_destroy_frames,004a5da0,tier1,bytes,bytes-reloc,d1cc3d9524ab,11404e1744d7,4c54594cf977,0,0.00,0,0
 object_frame_set_transform,004a5cf0,tier1,bytes,bytes-reloc,8db16c48d042,11404e1744d7,4c54594cf977,0,0.00,0,0
 object_frames_create,004a5c20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
@@ -1602,7 +1602,7 @@ texdict_load_named_c,0042f9a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,
 texdict_load_named_d,0042fa10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 text_draw_box,0042c110,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 text_draw_plain,0042c540,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
-text_page_add_string_id,00480190,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,27ed6eeabef9,11404e1744d7,4c54594cf977,200,1.00,0,1
+text_page_add_string_id,00480190,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,27ed6eeabef9,11404e1744d7,4c54594cf977,200,1.00,0,0
 text_page_next,00480150,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 text_page_reset_line,00480130,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 text_pages_clear,00480230,tier1,bytes,bytes-reloc,6fa0208efa5e,11404e1744d7,4c54594cf977,0,0.00,0,0
