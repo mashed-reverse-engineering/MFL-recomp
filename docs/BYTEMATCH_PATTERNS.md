@@ -341,3 +341,7 @@ fx_explosion_systems_init (cursor IV rebasing, cl folds the first iteration cons
 - register-argument callees (39): car_damage_update_all, hudpanel_slots_clear, the team/endpoint/debris/machinegun `*_clear/_render/_update_all` loops, player_equip_weapon, weapon_*_hook_2c, sector_table_clear, ... need the cluster/usercall mechanism.
 - /GS cookie (18): ai_file_name, led_file_name, load_copter_model, build_info_draw_page_*, ... need the security cookie prologue.
 - tail jmp: texdict_load_named_b / _d.
+
+## Round G (/GS)
+
+- Functions with the /* compile: /GS */ marker must be checked with check_one.py <file> <fn> /O2 /GS --va=0x...; cmpfn alone does not read the marker (batch F's 'gs-cookie' failures were false).

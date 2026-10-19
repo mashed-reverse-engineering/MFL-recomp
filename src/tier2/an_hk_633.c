@@ -64,7 +64,7 @@ undefined4 load_copter_model(char *model_name)
     }
     else {
       slot_index = __stricmp(model_name,"CivHuey");
-      free_slot[MODEL_SLOT_KIND] = (-(uint)(slot_index != 0) & 0xfffffffd) + 2;
+      free_slot[MODEL_SLOT_KIND] = (slot_index != 0) ? -1 : 2;
     }
   }
   RwTexDictionarySetCurrent((RwTexDictionary *)0x0);

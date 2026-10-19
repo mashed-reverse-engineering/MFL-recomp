@@ -87,8 +87,7 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
       }
       clear_flags = (rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
       clear_color = &frame.m.local_88;
-      viewport_cam = (RwCamera *)get_viewport_camera(0);
-      RwCameraClear(viewport_cam,clear_color,clear_flags);
+      RwCameraClear((RwCamera *)get_viewport_camera(0),clear_color,clear_flags);
       /* Format the build date/time stamp into the local buffer (local_84); nothing later in this function reads it (inferred). */
       sprintf(frame.m.local_84,&g_build_info_5de894,"Jun 30 2005","12:38:08");
       camera_handle = get_viewport_camera(0);
@@ -97,8 +96,7 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
       if (status != 0) {
         /* camera_handle is reused as the float 1.0f bit pattern for the width call. */
         camera_handle = 0x3f800000;
-        last_toast_t = _strrchr(s_Toast_Toast_Toast_Toast_Toast_To_006099b0,TOAST_SEARCH_CHAR);
-        ui_rt2d_text_width(last_toast_t,camera_handle);
+        ui_rt2d_text_width(_strrchr(s_Toast_Toast_Toast_Toast_Toast_To_006099b0,TOAST_SEARCH_CHAR),camera_handle);
         RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)rwCULLMODECULLNONE);
         build_info_draw_page_0();
         ui_draw_pulsing_texture(PULSE_TEXTURE_X,PULSE_TEXTURE_Y,1.0);
@@ -116,8 +114,7 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
   frame.m.local_8c.green = '\0';
   frame.m.local_8c.blue = '\0';
   frame.m.local_8c.alpha = 0xff;
-  viewport_cam = (RwCamera *)get_viewport_camera(0);
-  RwCameraClear(viewport_cam,clear_color,clear_flags);
+  RwCameraClear((RwCamera *)get_viewport_camera(0),clear_color,clear_flags);
   camera_handle = get_viewport_camera(0);
   status = RwCameraBeginUpdate(camera_handle);
   if (status != 0) {
@@ -129,8 +126,7 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
 LAB_0042d249:
   show_flags = rwRASTERFLIPWAITVSYNC;
   raster = (void *)0x0;
-  viewport_cam = (RwCamera *)get_viewport_camera(0);
-  RwCameraShowRaster(viewport_cam,raster,show_flags);
+  RwCameraShowRaster((RwCamera *)get_viewport_camera(0),raster,show_flags);
   return;
 }
 

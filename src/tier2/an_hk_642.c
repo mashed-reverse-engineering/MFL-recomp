@@ -25,71 +25,42 @@ void __cdecl course_ribbons_render(CourseLap *course)
   void *transformed;
   RwReal *polygon_floats;
   int polygon_index;
-  RwImVertexIndex line_indices [RIBBON_INDEX_COUNT];
-  RwIm3DVertex im3d_verts;
-  RwReal pt3_x;
-  RwReal pt3_y;
-  RwReal pt3_z;
-  undefined4 colour_1;
-  RwReal pt4_x;
-  RwReal pt4_y;
-  RwReal pt4_z;
-  undefined4 colour_2;
-  RwReal pt5_x;
-  RwReal pt5_y;
-  RwReal pt5_z;
-  undefined4 colour_3;
-  RwReal pt1_x;
-  RwReal pt1_y;
-  RwReal pt1_z;
-  undefined4 colour_4;
-  float sum_x;
-  float sum_y;
-  float sum_z;
-  undefined4 colour_5;
+  RwImVertexIndex line_indices [RIBBON_INDEX_COUNT] = {0,1,1,2,2,3,4,5};
+  RwIm3DVertex v[RIBBON_VERTEX_COUNT];
 
-  line_indices[1] = 1;
-  line_indices[2] = 1;
-  line_indices[3] = 2;
-  line_indices[4] = 2;
-  line_indices[0] = 0;
-  line_indices[5] = 3;
-  line_indices[6] = 4;
-  line_indices[7] = 5;
   polygon_index = 0;
-  if (0 < course->ai_polygon_count) {
+  if (polygon_index < course->ai_polygon_count) {
     polygon_floats = (RwReal *)((char *)course + AI_POLYGON_DATA_OFFSET);
     /* one pass per AI polygon record; polygon_floats starts at AI_POLYGON_DATA_OFFSET and steps by one record.
        Points: [-4..-2] -> pt1_*, sum_* = [-7..-5] + [-4..-2], [-1..1] -> im3d_verts position,
        [2..4] -> pt3_*, [5..7] -> pt4_*, [8..10] -> pt5_*. The point roles are (inferred). */
     do {
-      im3d_verts.objVertex.x = polygon_floats[-1];
-      sum_x = polygon_floats[-7] + polygon_floats[-4];
-      im3d_verts.objVertex.y = *polygon_floats;
-      im3d_verts.objVertex.z = polygon_floats[1];
-      pt3_x = polygon_floats[2];
-      sum_y = polygon_floats[-6] + polygon_floats[-3];
-      pt3_y = polygon_floats[3];
-      pt3_z = polygon_floats[4];
-      pt4_x = polygon_floats[5];
-      sum_z = polygon_floats[-5] + polygon_floats[-2];
-      pt4_y = polygon_floats[6];
-      pt4_z = polygon_floats[7];
-      pt5_x = polygon_floats[8];
-      pt5_y = polygon_floats[9];
-      pt5_z = polygon_floats[10];
-      pt1_x = polygon_floats[-4];
-      pt1_y = polygon_floats[-3];
-      pt1_z = polygon_floats[-2];
-      /* vertex colours (ARGB); im3d_verts.color is the first vertex, colour_1..colour_5 the others (inferred order) */
-      im3d_verts.color = 0xff40ff40;
-      colour_1 = 0xff4040ff;
-      colour_2 = 0xffffff40;
-      colour_3 = 0xff40ffff;
-      colour_4 = 0xff000000;
-      colour_5 = 0xffffffff;
+      v[5].objVertex.x = polygon_floats[-7] + polygon_floats[-4];
+      v[0].objVertex.x = polygon_floats[-1];
+      v[0].objVertex.y = polygon_floats[0];
+      v[0].objVertex.z = polygon_floats[1];
+      v[1].objVertex.x = polygon_floats[2];
+      v[5].objVertex.y = polygon_floats[-6] + polygon_floats[-3];
+      v[1].objVertex.y = polygon_floats[3];
+      v[1].objVertex.z = polygon_floats[4];
+      v[2].objVertex.x = polygon_floats[5];
+      v[5].objVertex.z = polygon_floats[-5] + polygon_floats[-2];
+      v[2].objVertex.y = polygon_floats[6];
+      v[2].objVertex.z = polygon_floats[7];
+      v[3].objVertex.x = polygon_floats[8];
+      v[3].objVertex.y = polygon_floats[9];
+      v[3].objVertex.z = polygon_floats[10];
+      v[4].objVertex.x = polygon_floats[-4];
+      v[4].objVertex.y = polygon_floats[-3];
+      v[4].objVertex.z = polygon_floats[-2];
+      v[0].color = 0xff40ff40;
+      v[1].color = 0xff4040ff;
+      v[2].color = 0xffffff40;
+      v[3].color = 0xff40ffff;
+      v[4].color = 0xff000000;
+      v[5].color = 0xffffffff;
       RwRenderStateSet(rwRENDERSTATETEXTURERASTER,(void *)0x0);
-      transformed = RwIm3DTransform(&im3d_verts,RIBBON_VERTEX_COUNT,(RwMatrix *)0x0,rwIM3D_ALLOPAQUE);
+      transformed = RwIm3DTransform(v,RIBBON_VERTEX_COUNT,(RwMatrix *)0x0,rwIM3D_ALLOPAQUE);
       /* draw only when the transform returned a vertex buffer (inferred: NULL means the vertices were rejected) */
       if (transformed != (void *)0x0) {
         RwIm3DRenderIndexedPrimitive(rwPRIMTYPELINELIST,line_indices,RIBBON_INDEX_COUNT);

@@ -37,8 +37,9 @@ void __cdecl build_info_draw_page_1(char *unused_1,char *unused_2)
   RwInt32 clear_mode;
   RwUInt32 show_flags;
   union {
-    char raw_bytes[132];
+    char raw_bytes[136];
     struct {
+      RwRGBA white_rgba;
       RwRGBA clear_rgba;
       undefined1 text_buf [128];
     } m;
@@ -47,14 +48,17 @@ void __cdecl build_info_draw_page_1(char *unused_1,char *unused_2)
   result = course_get_dat_69ba20();
   if (result != 0) {
     /* clear the viewport to opaque black */
+    frame.m.white_rgba.red = ALPHA_OPAQUE;
+    frame.m.white_rgba.green = ALPHA_OPAQUE;
+    frame.m.white_rgba.blue = ALPHA_OPAQUE;
+    frame.m.white_rgba.alpha = ALPHA_OPAQUE;
     frame.m.clear_rgba.alpha = ALPHA_OPAQUE;
     clear_mode = CAMERA_CLEAR_IMAGE_AND_Z;
     clear_colour = &frame.m.clear_rgba;
     frame.m.clear_rgba.red = '\0';
     frame.m.clear_rgba.green = '\0';
     frame.m.clear_rgba.blue = '\0';
-    viewport_cam = (RwCamera *)get_viewport_camera(0);
-    RwCameraClear(viewport_cam,clear_colour,clear_mode);
+    RwCameraClear((RwCamera *)get_viewport_camera(0),clear_colour,clear_mode);
     /* format the build date/time into text_buf (never drawn below, inferred) */
     sprintf(frame.m.text_buf,&g_build_info_5de894,"Jun 30 2005","12:38:08");
     camera = get_viewport_camera(0);
@@ -64,19 +68,17 @@ void __cdecl build_info_draw_page_1(char *unused_1,char *unused_2)
       /* camera is reused here as the 1.0f (0x3f800000) scale argument */
       camera = 0x3f800000;
       /* width of the string tail from its last 'T'; the result is not used (inferred: measurement only) */
-      toast_last_word = _strrchr(s_Toast_Toast_Toast_Toast_Toast_To_006099b0,TOAST_SEARCH_CHAR);
-      ui_rt2d_text_width(toast_last_word,camera);
+      ui_rt2d_text_width(_strrchr(s_Toast_Toast_Toast_Toast_Toast_To_006099b0,TOAST_SEARCH_CHAR),camera);
       ui_draw_texture_640_default(g_hud_76e7f0,0x43a00000,0x43820000,0x43f00000,0x43700000,2);
       ui_draw_pulsing_texture(0x20,-0x20,1.0);
-      ui_rt2d_text_draw(0x227,0x44110000,0x430c0000,0xffffffff,0x3f400000,1);
+      ui_rt2d_text_draw(0x227,0x44110000,0x430c0000,*(undefined4 *)&frame.m.white_rgba,0x3f400000,1);
       camera = get_viewport_camera(0);
       RwCameraEndUpdate(camera);
     }
     /* present the frame; NULL device window = default target (inferred) */
     show_flags = 1;
     device_window = (void *)0x0;
-    viewport_cam = (RwCamera *)get_viewport_camera(0);
-    RwCameraShowRaster(viewport_cam,device_window,show_flags);
+    RwCameraShowRaster((RwCamera *)get_viewport_camera(0),device_window,show_flags);
   }
   return;
 }
