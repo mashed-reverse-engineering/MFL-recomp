@@ -84,3 +84,10 @@ Lesson: the in-game gates found latent bugs that diffemu missed, in three famili
 | DIFF stack delta / return value | 3 | 630 |
 
 Notes: the usercall pool overlaps the clusters that are not installed yet (`output/callgraph_clusters.csv`); "label / goto" is no gate of its own any more. Tier 2 unlocks still open from `output/remaining_plan.md`: sigs regeneration without bogus `reg_` parameters (enabler), multi-root clusters (draw_sprite_uv, voice_set_volume), callee register returns in ecx / edx in the diffemu stubs, a smarter input generator for LOWCOV / INCONCLUSIVE. `output/remaining_plan.md` itself is the 2026-10-17 12:37 version and was not rewritten.
+
+## Final hours (2026-10-19)
+
+- Weak-EQUAL evidence pass (hand-written inputs, 122 functions + 255 cluster entries): no cluster DIFF; two tier-2 defects found and fixed (`camera_editor_setup_parallel` NaN branch order, `spring_grid_prepare` 1-ulp x87 reassociation).
+- NaN-order audit of float `<=`/`>=` compiles: nine more functions rewritten to the original branch form (ordered values unchanged).
+- Milestone gate (8 steps incl. AI route-following scenarios) passes with all of the above installed and published.
+- Open: `car_update_drivetrain`, `trail_particle_add`, `course_collision_edges_build` (stack-layout/harness class), `car_car_collision`, `car_wheel_contact_update` (need hand-written clusters), `camera_follow_update` (EQUAL, coverage 0.64, needs spec + cheat_allow).
