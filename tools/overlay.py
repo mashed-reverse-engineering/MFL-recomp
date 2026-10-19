@@ -453,6 +453,7 @@ def main():
             if ta[0] is not None and ta[0] == tb[0]: return True
             if ours in const_at and orig in const_at and bytes_at(ours, const_at[ours]) == bytes_at(orig, const_at[orig]) and const_at[ours] == const_at[orig]: return True      # the same float / double constant stored twice in the original data
             if new_va <= ours < new_va + len(blob) and same_literal(ours, orig, new_of_name.get(ours, "")): return True      # a literal WE placed (string / float pool); two original addresses must be equal
+            if ctx[0] <= ours < ctx[1] and ctx[2] <= orig < ctx[3] and ours - ctx[0] == orig - ctx[2]: return True      # a reference into the function itself at the same offset (switch jump table entry -> case label, the table address): the bytes compared equal, so it is the same place
             return same_table(ours, orig, *ctx)
         reorder_ok = set()
         wl = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "relcheck_whitelist.txt")      # functions whose fields use the same addresses in another order, verified by hand

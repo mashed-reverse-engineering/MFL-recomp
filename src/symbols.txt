@@ -186,6 +186,7 @@ gamesave_format_state_machine 0040b920
 switchD 0040b941
 switchD 0040bb20
 default 0040bb7f
+LAB_0040bbd0 0040bbd0
 switchD 0040bbde
 switchD 0040bcf4
 default 0040becd

@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /* FUN_004af740 */
-/* TIER2: unvalidated 2026-10-19 authority=static */
+/* TIER2: unvalidated 2026-10-19 authority=diffemu */
 int __stdcall FUN_004af740(int *param_1)
 {
   int iVar1;

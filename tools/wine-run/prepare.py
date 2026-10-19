@@ -4,6 +4,8 @@ Usage: prepare.py <install dir (the one with App_Executables)> <target dir> [exe
 - copies the install (the game writes mashed.log / videocfg.bin / saves next to the exe, so never run the original),
 - patches the copy of MFL.exe so the DirectShow movie code is skipped (Wine has no mpeg decoder in the image):
     0x4A44A0 video_play_loop -> ret, 0x4A3A20 movie_renderer_create -> return 0x80004005, 0x4A3930 sound_volume_to_directsound_db -> ret, 0x4A39A0 movie_stop -> ret, 0x4A3860 movie_renderer_release -> ret
+  An overlay exe (overlay.py) has `jmp <C replacement>` at a replaced entry: the stub is then written at the jump target as well (followed through the
+  --count counter thunk), so the C callers that call the C function directly hit the stub too (movie_stop_b -> C movie_stop crashed on the NULL graph g_app_76e8ac),
 - VIDEO_QUALITY=low|high (env) sets the quality checkboxes of videocfg.bin (default: the dialog defaults),
 - writes videocfg.bin for window mode 640x480x32 (mode 0, fullscreen=1/mode 2 also works in Xvfb 640x480x24).
 The VA -> file offset mapping of MFL.exe .text is VA - 0x400000."""
@@ -11,6 +13,26 @@ import os, shutil, struct, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "MashedFormats"))
 import mashed_config as mc
+
+def recomp_sites(data, va):
+    """the C replacement of the function at va in an overlay exe: the entry is `jmp` into the .recomp section, possibly via a --count thunk
+    `pushfd; inc [cnt]; popfd; jmp new` (13 bytes); [] for an original function"""
+    e = struct.unpack_from("<I", data, 0x3C)[0]; ns, osz = struct.unpack_from("<H", data, e + 6)[0], struct.unpack_from("<H", data, e + 20)[0]
+    sec = {}
+    for k in range(ns):
+        h = e + 24 + osz + k * 40
+        vs, rva, rs, rp = struct.unpack_from("<IIII", data, h + 8)
+        sec[bytes(data[h:h + 8]).rstrip(b"\0")] = (0x400000 + rva, rs, rp)
+    if b".recomp" not in sec or data[va - 0x400000] != 0xE9: return []
+    lo, rs, rp = sec[b".recomp"]
+    t = (va + 5 + struct.unpack_from("<i", data, va - 0x400000 + 1)[0]) & 0xFFFFFFFF
+    if not lo <= t < lo + rs: return []
+    o = rp + t - lo
+    if data[o:o + 3] == b"\x9c\xff\x05" and data[o + 8] == 0xE9:      # coverage counter thunk: the function is behind it
+        t = (t + 13 + struct.unpack_from("<i", data, o + 9)[0]) & 0xFFFFFFFF
+        if not lo <= t < lo + rs: return []
+    return [rp + t - lo]
+
 
 PATCHES = [(0x4A44A0, b"\xC3"), (0x4A3A20, bytes.fromhex("B805400080C3")), (0x4A3930, b"\xC3"), (0x4A39A0, b"\xC3"), (0x4A3860, b"\xC3")]
 
@@ -34,8 +56,8 @@ def main(src, dst, exe_src=None):
     exe = os.path.join(dst, "App_Executables", "MFL.exe")
     data = bytearray(open(exe_src or exe, "rb").read())
     for va, code in PATCHES:
-        off = va - 0x400000
-        data[off:off + len(code)] = code
+        for off in recomp_sites(data, va) + [va - 0x400000]:      # the C replacement first (found through the entry jmp), then the entry itself
+            data[off:off + len(code)] = code
     os.unlink(exe)
     open(exe, "wb").write(data)
     os.chmod(exe, 0o644)

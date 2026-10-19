@@ -945,6 +945,7 @@ gamesave_apply,00405d20,tier2,compiled+diffemu-DIFF+shadow-never,static,-,11404e
 gamesave_autosave_state_machine,0040b410,tier2,compiled+diffemu-DIFF+shadow-never,static,-,11404e1744d7,4c54594cf977,238,0.59,0,0
 gamesave_cb_autosave_state,0040c050,agent,bytes-standalone+21e76ce6324d,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamesave_cb_boot_state,0040bfe0,agent,bytes-standalone+1298ccad643f,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
+gamesave_cb_dispatch_a,0040c0c0,tier2,compiled+shadow-never,static,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamesave_cb_load_state,0040bfb0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamesave_cb_save_state,0040bf20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,0.62,0,0
 gamesave_exists,00405e20,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
@@ -966,6 +967,7 @@ gamesave_ui_autosave_done,0040afc0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594
 gamesave_ui_format_done,0040afe0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamesave_ui_load_done,0040af70,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamesave_ui_save_done,0040afa0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
+gamesave_update,0040c250,tier2,compiled+shadow-never,static,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamesave_write,00405df0,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 gamma_apply_via_device_scaled,004a41c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
 gatling_load_models,00462350,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4c54594cf977,200,1.00,0,0
@@ -1269,6 +1271,7 @@ movie_present_frame,004041f0,tier2,compiled+shadow-never,static,-,11404e1744d7,4
 movie_renderer_poll,004a37f0,tier2,compiled+shadow-never,static,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 movie_renderer_release,004a3860,tier2,compiled+diffemu-DIFF+shadow-never,static,-,11404e1744d7,4c54594cf977,0,0.50,0,0
 movie_stop,004a39a0,tier2,compiled+shadow-never,static,-,11404e1744d7,4c54594cf977,0,0.00,0,0
+movie_stop_b,004a4060,tier2,compiled+shadow-never,static,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 movie_texture_open,00403f20,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 movie_texture_release,00403f40,hand,bytes,bytes-reloc,-,11404e1744d7,4c54594cf977,0,0.00,0,0
 multibyte_to_wide_checked,004a3070,tier1,bytes,bytes-reloc,4b64c5204245,11404e1744d7,4c54594cf977,0,0.00,0,0

@@ -76,8 +76,8 @@
    "verified_bytes_identical": 828
   },
   "tier2": {
-   "bytes": 221552,
-   "functions": 726,
+   "bytes": 221695,
+   "functions": 729,
    "verified_bytes_identical": 0
   }
  }

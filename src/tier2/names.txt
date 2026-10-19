@@ -730,3 +730,6 @@
 004aefa0 thunk_FUN_004b27b0 hk_9309.c
 004af740 FUN_004af740 hk_9310.c
 004ae9e0 thunk_FUN_004af9c0 hk_9311.c
+0040c0c0 gamesave_cb_dispatch_a hk_921.c
+0040c250 gamesave_update hk_926.c
+004a4060 movie_stop_b hk_951.c
