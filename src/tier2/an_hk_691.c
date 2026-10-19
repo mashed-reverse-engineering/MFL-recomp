@@ -21,7 +21,7 @@
  *    and 2 (red and blue for 0xAARRGGBB input) (inferred).
  *  Left edge (vertices 0, 2) uses colour_left, right edge (vertices 1, 3) uses colour_right.
  *  Fills g_im2d_vertices and submits it as a triangle strip. */
-/* TIER2: validated 2026-10-19 authority=shadow */
+/* TIER2: validated 2026-10-19 authority=diffemu */
 void gfx_draw_rect_2d_gradient_a(float left,float top,float width,float height,uint colour_left,uint colour_right)
 {
   volatile float height_px;

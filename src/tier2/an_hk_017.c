@@ -14,8 +14,6 @@ extern char UNK_005df51c[];
 /*00475730*/ extern int get_viewport_camera();
 /*004757a0*/ extern int get_viewport_camera_matrix();
 /*004817b0*/ extern int atomic_plugin_get_bbox();
-/*00481ea0*/ extern int player_marker_set_clump();
-/*00481ee0*/ extern int player_marker_set_enabled();
 /*00481fd0*/ extern double random_range();
 /*00482270*/ extern undefined __stdcall spline_get_length(struct RpSpline *p0);
 /*004848b0*/ extern undefined __cdecl clump_for_all_materials(struct RpClump *p0, void *p1);
@@ -68,38 +66,13 @@ extern char UNK_005df51c[];
 /*006a2664*/ extern undefined4 g_course_tierra_6a2664;
 /*006a2680*/ extern undefined4 g_course_objects_6a2680;
 /*006a26b8*/ extern undefined4 g_course_set_6a26b8;
-/*006a26c0*/ extern undefined4 g_course_6a26c0;
-/*006a26c4*/ extern float g_course_6a26c4;
-/*006a26c8*/ extern undefined4 g_course_6a26c8;
 /*006a26cc*/ extern undefined4 g_course_clumps_6a26cc;
 /*006a26d0*/ extern undefined4 g_course_clumps_6a26d0;
 /*006a26d4*/ extern undefined4 g_course_clumps_6a26d4;
-/*006a26fc*/ extern undefined4 g_course_6a26fc;
-/*006a2700*/ extern undefined4 g_course_6a2700;
-/*006a2704*/ extern undefined4 g_course_6a2704;
-/*006a2708*/ extern undefined4 g_course_6a2708;
-/*006a270c*/ extern undefined4 g_course_6a270c;
-/*006a2710*/ extern undefined4 g_course_6a2710;
-/*006a2714*/ extern undefined4 g_course_6a2714;
-/*006a2718*/ extern undefined4 g_course_6a2718;
-/*006a271c*/ extern undefined4 g_course_6a271c;
-/*006a2720*/ extern undefined4 g_course_6a2720;
-/*006a2724*/ extern float g_course_6a2724;
-/*006a2728*/ extern undefined4 g_course_6a2728;
 /*006a272c*/ extern undefined4 g_course_clumps_6a272c;
 /*006a2730*/ extern undefined4 g_course_clumps_6a2730;
 /*006a2734*/ extern undefined4 g_course_clumps_6a2734;
-/*006a275c*/ extern undefined4 g_course_6a275c;
-/*006a2760*/ extern undefined4 g_course_6a2760;
-/*006a2764*/ extern undefined4 g_course_6a2764;
-/*006a2768*/ extern undefined4 g_course_6a2768;
-/*006a276c*/ extern undefined4 g_course_6a276c;
-/*006a2770*/ extern undefined4 g_course_6a2770;
-/*006a2774*/ extern undefined4 g_course_6a2774;
-/*006a2778*/ extern undefined4 g_course_6a2778;
-/*006a277c*/ extern undefined4 g_course_6a277c;
 /*006a2780*/ extern undefined4 g_course_sands_6a2780;
-/*006a2784*/ extern undefined4 g_course_6a2784;
 /*006a2794*/ extern float g_course_superg_6a2794;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*008bf084*/ extern undefined4 g_course_training_8bf084;
@@ -130,200 +103,70 @@ extern char UNK_005df51c[];
 /*008c5500*/ extern undefined g_course_spline_8c5500;
 /*008c8000*/ extern RwIm2DVertex g_im2d_vertices[4];
 /*008d8b30*/ extern undefined4 player_count;
-/* course_sandsnow_cb2 */
 
 extern void course_sandsnow_cb2(char *param_1);
 
 
-/* course_storm_cb0 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-
 extern void course_storm_cb0(char *param_1);
 
-
-/* course_storm_cb2 */
 
 extern void course_storm_cb2(char *param_1);
 
 
-/* course_storm_cb5 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-
 extern void course_storm_cb5(void);
 
-
-/* course_tierra_n_cb0 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 extern void course_tierra_n_cb0(char *param_1);
 
 
-/* course_tierra_n_cb6 */
-
 extern void course_tierra_n_cb6(void);
 
-
-/* course_tierra_n_cb7 */
 
 extern void course_tierra_n_cb7(void);
 
 
-/* course_tierra_n_cb1 */
-
 extern void course_tierra_n_cb1(char *param_1,char *param_2);
 
-
-/* course_tierra_n_cb2 */
 
 extern void course_tierra_n_cb2(char *param_1);
 
 
-/* course_tierra_n_cb5 */
-
 extern void course_tierra_n_cb5(void);
 
-
-/* course_forest_cb0 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 extern void course_forest_cb0(char *param_1);
 
 
-/* course_forest_cb1 */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-
 extern RpClump * course_forest_cb1(char *param_1,char *param_2);
 
-
-/* course_forest_cb2 */
 
 extern void course_forest_cb2(char *param_1);
 
 
-/* course_c26_stub_return_0 */
-
-/* "returns without work" */
-
 extern undefined4 course_c26_stub_return_0(void);
 
-
-/* course_object_get_float_16c */
-
-/* "(index): float of the object record" */
 
 extern float10 course_object_get_float_16c(char *param_1);
 
 
-/* course_c26_checkpoint_scale_value */
-
-/* "a float table entry * 1/6" */
-
 extern float10 course_c26_checkpoint_scale_value(char *param_1);
 
-
-/* course_object_offsets_init */
-
-/* "fills the table of 80 float offsets (10, 35, 60 ... 235 then pairs) used to place the course
-   objects" */
 
 extern void course_object_offsets_init(void);
 
 
-/* course_objects_reset_physics */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "clears the 10 object records per group and parks their physics objects" */
-
 extern void course_objects_reset_physics(void);
 
-
-/* trigger_cb_mark_hit_bit */
-
-/* "type 0x15 trigger vs a car id (0xFF00..0xFF07): sets the bit of the object index in the bitmask
-   at 0x6A26A4" */
 
 extern void trigger_cb_mark_hit_bit(char *param_1,char *param_2);
 
 
-/* course_highway_cb6 */
-
-/* WARNING: Removing unreachable block (ram,0x004590b5) */
-
 extern void course_highway_cb6(void);
 
 
-/* course_object_offsets_init_b */
-
-/* "duplicate of course_object_offsets_init" */
-
 extern void course_object_offsets_init_b(void);
 
-/* IEEE-754 bits of -1.0f */
 #define FLOAT_MINUS_ONE_BITS (0xbf800000)
-/* byte offsets in course_state of the clump pointer for each player marker (inferred) */
-#define PLAYER_0_MARKER_CLUMP_OFFSET (0xc160)
-#define PLAYER_1_MARKER_CLUMP_OFFSET (0xc158)
-#define PLAYER_2_MARKER_CLUMP_OFFSET (0xc15c)
-#define PLAYER_3_MARKER_CLUMP_OFFSET (0xc12c)
-
-
-/* course_marker_positions_init */
-
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "initialises six marker position triples and enables the four player markers with their clumps"
-    */
-
-/* TIER2: unvalidated 2026-10-11 authority=diffemu */
-/* Sets up the course marker data: clears g_course_6a2784, writes the position
-   triples (inferred: two (-1, -1, 0) sentinel triples, then six float triples)
-   and enables the four player markers, each bound to its clump from course_state. */
-/* TIER2: validated 2026-10-18 authority=diffemu */
-void course_marker_positions_init(char *course_state)
-{
-  g_course_6a2784 = 0;
-  /* sentinel triple (inferred): -1.0, -1.0, 0 */
-  *(float *)&g_course_6a26c4 = -1.0f;
-  *(float *)&g_course_6a26c0 = -1.0f;
-  g_course_6a26c8 = 0;
-  /* second sentinel triple (inferred): -1.0, -1.0, 0 */
-  *(float *)&g_course_6a2724 = -1.0f;
-  *(float *)&g_course_6a2720 = -1.0f;
-  g_course_6a2728 = 0;
-  /* position triples (x, y, z) (inferred) */
-  *(float *)&g_course_6a26fc = -15.037f;
-  *(float *)&g_course_6a2700 = 4.93f;
-  *(float *)&g_course_6a2704 = 58.152f;
-  *(float *)&g_course_6a2708 = -14.978f;
-  *(float *)&g_course_6a270c = 4.93f;
-  *(float *)&g_course_6a2710 = 57.116f;
-  *(float *)&g_course_6a2714 = -14.922f;
-  *(float *)&g_course_6a2718 = 4.93f;
-  *(float *)&g_course_6a271c = 56.119f;
-  *(float *)&g_course_6a275c = -12.503f;
-  *(float *)&g_course_6a2760 = 4.93f;
-  *(float *)&g_course_6a2764 = 56.25f;
-  *(float *)&g_course_6a2768 = -12.559f;
-  *(float *)&g_course_6a276c = 4.93f;
-  *(float *)&g_course_6a2770 = 57.247f;
-  *(float *)&g_course_6a2774 = -12.618f;
-  *(float *)&g_course_6a2778 = 4.93f;
-  *(float *)&g_course_6a277c = 57.283f;
-  /* player markers: player 0 enabled, players 1-3 disabled; each gets its clump */
-  player_marker_set_enabled(0,1);
-  player_marker_set_clump(0,*(undefined4 *)(course_state + PLAYER_0_MARKER_CLUMP_OFFSET));
-  player_marker_set_enabled(1,0);
-  player_marker_set_clump(1,*(undefined4 *)(course_state + PLAYER_1_MARKER_CLUMP_OFFSET));
-  player_marker_set_enabled(2,0);
-  player_marker_set_clump(2,*(undefined4 *)(course_state + PLAYER_2_MARKER_CLUMP_OFFSET));
-  player_marker_set_enabled(3,0);
-  player_marker_set_clump(3,*(undefined4 *)(course_state + PLAYER_3_MARKER_CLUMP_OFFSET));
-  return;
-}
 
 
 /* course_clumps_destroy */
@@ -390,6 +233,5 @@ extern void course_training_cb2(char *param_1);
 /* course_training_cb10 */
 
 extern void course_training_cb10(char *param_1);
-
 
 

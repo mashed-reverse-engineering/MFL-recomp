@@ -19,7 +19,6 @@
 /*0049bd90*/ extern int fx_system_destroy();
 /*0049bdd0*/ extern int fx_system_render();
 /*0049ff00*/ extern undefined __cdecl particle_emit_textured(float *p0, undefined4 *p1, int p2, int p3, struct RwTexture *p4, float p5, float *p6);
-/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d4e40*/ extern RwBool RwMatrixDestroy(RwMatrix *p0);
@@ -288,44 +287,9 @@ extern void weapon_flamethrower_free_assets(void);
 #define WEAPON_FLAME_RECORD_STRIDE (0x68)     /* bytes per player's flame record */
 #define FLAME_CLUMP_STRIDE_DWORDS (0x1a)      /* dwords per player's clump slot: 0x68 bytes */
 #define SFX_VOICE_FLAMETHROWER (0x16)         /* voice id passed to sfx_play_voice_at (inferred) */
-#define FLAME_FLOAT_0_02_BITS (0x3ca3d70a)    /* IEEE bits of float 0.02f, stored into the record (inferred use) */
 
 
-/* weapon_flamethrower_equip */
-
-/* type 0x10; state 0x6A9588 stride 0x68 */
-
-/* TIER2: unvalidated 2026-10-11 authority=diffemu */
-
-/*
- * Equips the flamethrower for the player in slot->player: clears that player's flame fx records, marks the
- * record active, attaches the flame clump to the course world and plays the flame voice at the flame frame's
- * position (inferred). Parameter: slot (WeaponSlot *). Returns the player's flame record (undefined4 *,
- * first dword = active flag, record + 4 = slot, record + 8 = float 0.02f).
- */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
-undefined4 * weapon_flamethrower_equip(WeaponSlot *slot)
-{
-  uint player;
-  RwMatrix *ltm;
-  char *rec;
-  RwFrame *frame;
-  RwV3d voice_pos;
-
-  player = slot->player;
-  rec = (char *)&g_weapon_6a9588 + player * WEAPON_FLAME_RECORD_STRIDE;
-  weapon_fx_grid_clear(rec);
-  *(undefined4 *)rec = 1;
-  *(WeaponSlot **)(rec + 4) = slot;
-  RpWorldAddClump((RpWorld *)course_get_rpworld_00467e90(),*(RpClump **)(rec + 0x20));
-  clump_set_flag_on_atomics(*(RpClump **)(rec + 0x20),1);
-  *(undefined4 *)(rec + 8) = FLAME_FLOAT_0_02_BITS;
-  frame = *(RwFrame **)(*(char **)(rec + 0x24) + 4);
-  ltm = RwFrameGetLTM(frame);
-  voice_pos = ltm->pos;
-  sfx_play_voice_at(SFX_VOICE_FLAMETHROWER,&voice_pos,slot->player);
-  return (undefined4 *)rec;
-}
+extern undefined4 * weapon_flamethrower_equip(WeaponSlot *slot);
 
 
 /* weapon_flamethrower_unequip */
@@ -374,7 +338,7 @@ extern void __cdecl weapon_flame_push_cars(char *param_1,char *param_2,char *par
  * record whose active flag is set (flag 0x24 bytes before the record, inferred), calls the slot-0x48 method of the
  * record's object (inferred: draw/clear the effect).
  */
-/* TIER2: unvalidated 2026-10-19 authority=static */
+/* TIER2: unvalidated 2026-10-19 authority=shadow */
 void weapon_flamethrower_clear_effects(void)
 {
   int *active_flag;
@@ -481,7 +445,7 @@ extern float10 weapon_shotgun_ammo_fraction(WeaponSlot *param_1);
  * second object set) calls the slot-0x48 method of both of its objects (inferred: draw/clear the effect),
  * then turns depth writes back on. Takes no parameters, returns nothing.
  */
-/* TIER2: unvalidated 2026-10-19 authority=static */
+/* TIER2: unvalidated 2026-10-19 authority=shadow */
 void weapon_shotgun_clear_effects(void)
 {
   int *record;
@@ -522,6 +486,5 @@ extern uint course_get_rpworld_00467e90(void);
 /* "return g_rw_801b14;" */
 
 extern undefined4 weapon_get_rw_801b14(void);
-
 
 

@@ -203,7 +203,7 @@ extern void cup_scene_camera_attach(void);
  * slot_index indexes g_player_slots, NO_SLOT = nothing to place. Returns nothing.
  */
 
-/* TIER2: unvalidated 2026-10-19 authority=static */
+/* TIER2: unvalidated 2026-10-19 authority=diffemu */
 void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
 {
   RwReal *camera_src;

@@ -6,13 +6,6 @@
  * dst: destination buffer, must hold PIZ_DWORD_COUNT words; NULL is ignored. Returns nothing. */
 
 typedef struct { undefined4 d[0x102b]; } Dw102b;
-void FUN_004c6740(undefined4 *dst)
-
-{
-  if (dst != (undefined4 *)0x0) {
-    *(Dw102b *)dst = *(Dw102b *)&g_piz_8dae40;
-  }
-  return;
-}
+extern void FUN_004c6740(undefined4 *dst);
 
 
