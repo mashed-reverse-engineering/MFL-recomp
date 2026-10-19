@@ -186,7 +186,6 @@ gamesave_format_state_machine 0040b920
 switchD 0040b941
 switchD 0040bb20
 default 0040bb7f
-LAB_0040bbd0 0040bbd0
 switchD 0040bbde
 switchD 0040bcf4
 default 0040becd
@@ -1011,7 +1010,6 @@ rtdict_load_named 0042f8f0
 texdict_load_named_c 0042f9a0
 texdict_load_named_d 0042fa10
 course_content_path_build 0042fa80
-race_load_course_0042fad0 0042fad0
 game_state_get_2812 0042fae0
 camera_fov_factor_set_wide 0042faf0
 career_event_won_set_course_state 0042fb20
@@ -1383,7 +1381,6 @@ course_atomics_destroy_6a07c4 004535a0
 course_dump_cb0 004535e0
 course_dump_cb1 00453730
 course_dump_cb2 00453740
-course_atomics_destroy_6a07c4_004537e0 004537e0
 course_egypt_cb12 004538d0
 course_egypt_cb7 00453900
 course_egypt_cb2 00453960
@@ -1391,7 +1388,6 @@ course_particle_timers_reset 00453980
 course_smoke_particles_render 00453a80
 course_smoke_particles_destroy 00453a90
 course_smoke_particles_create 00453c30
-course_smoke_particles_create_00453ca0 00453ca0
 load_headlight 00453cb0
 course_shadow_particles_render 00453fb0
 course_car_shadow_particles_create 00453ff0
@@ -1475,7 +1471,6 @@ course_rouabout_cb3 00458c90
 course_tierra_n_cb2 00458cb0
 course_tierra_n_cb10 00458de0
 course_tierra_n_cb5 00458df0
-SUB_00458f80 00458f80
 course_forest_cb0 00458fe0
 course_forest_cb1 00459010
 course_forest_cb2 00459040
@@ -2065,7 +2060,6 @@ course_moving_platforms_update 00480480
 rwp_trigger_group_advance_and_fire 004807c0
 gfx_groups_reset 004809f0
 physics_scenarios_reset 00480af0
-physics_scenarios_reset_00480bb0 00480bb0
 rwp_trigger_groups_update 00480bc0
 gfx_frame_counters_rotate 00480e50
 gfx_render_state_probe 00480e70
@@ -2545,7 +2539,6 @@ fx_slot_table_clear 0049c260
 fx_snow_ptank_create 0049c280
 particles_emit_random 0049c520
 fx_snow_ptank_update 0049c5f0
-SUB_0049c880 0049c880
 particle_slot_call_render_method 0049c8f0
 fx_objects_clear 0049c920
 fx_object_apply_transform 0049c950
@@ -2684,8 +2677,6 @@ rw_engine_init 004a2b50
 rw_engine_stop_close_term 004a2d00
 rw_set_value_at_root_plus_947144 004a2d20
 app_parse_command_line 004a2d40
-LAB_004a2f70 004a2f70
-LAB_004a2ff0 004a2ff0
 timer_select_implementation 004a3000
 multibyte_to_wide_checked 004a3070
 movie_renderer_construct 004a30b0
@@ -2888,9 +2879,6 @@ FUN_004acc00 004acc00
 FUN_004acca0 004acca0
 FUN_004acd40 004acd40
 FUN_004acde0 004acde0
-FUN_004aced0 004aced0
-FUN_004acee0 004acee0
-FUN_004acef0 004acef0
 FUN_004acf00 004acf00
 FUN_004acfd0 004acfd0
 FUN_004acff0 004acff0
@@ -3428,7 +3416,6 @@ FUN_004c3bf0 004c3bf0
 FUN_004c3d20 004c3d20
 FUN_004c3de0 004c3de0
 FUN_004c3e40 004c3e40
-FUN_004c3eb0 004c3eb0
 FUN_004c40c0 004c40c0
 FUN_004c40f0 004c40f0
 FUN_004c4120 004c4120
@@ -3442,7 +3429,6 @@ FUN_004c48b0 004c48b0
 FUN_004c4c30 004c4c30
 FUN_004c4c70 004c4c70
 FUN_004c4e20 004c4e20
-FUN_004c4f90 004c4f90
 FUN_004c51a0 004c51a0
 FUN_004c52b0 004c52b0
 FUN_004c52f0 004c52f0
@@ -6077,8 +6063,6 @@ g_d3d9_shaders_5e1920 005e1920
 g_d3d9_shaders_5e1980 005e1980
 g_d3d9_shaders_5e19f0 005e19f0
 k_f_0_0028 005e1a5c
-g_dinput_keyboard_5e1e54 005e1e54
-g_dinput_keyboard_5e1ecc 005e1ecc
 g_dinput_create_5e1f6c 005e1f6c
 g_data_5e1fdc 005e1fdc
 g_data_5e1fec 005e1fec
@@ -7660,7 +7644,6 @@ g_sound_frame_6ae0c8 006ae0c8
 g_sound_frame_6ae0cc 006ae0cc
 g_sound_frame_6ae0d0 006ae0d0
 g_sound_car_6ae0d4 006ae0d4
-g_sound_6ae0e4 006ae0e4
 g_sound_frame_6ae100 006ae100
 g_sound_endpoint_cue_state 006ae104
 g_sound_streams_enabled 006ae108
@@ -8218,14 +8201,9 @@ g_app_76e890 0076e890
 g_app_76e894 0076e894
 g_d3dx_76e898 0076e898
 g_d3dx_76e89c 0076e89c
-g_app_76e8a0 0076e8a0
 g_app_76e8a4 0076e8a4
-g_app_76e8ac 0076e8ac
-g_movie_renderer_76e8b0 0076e8b0
 g_movie_renderer_76e8b4 0076e8b4
 g_movie_renderer_76e8b8 0076e8b8
-g_movie_renderer_76e8bc 0076e8bc
-g_movie_renderer_76e8c0 0076e8c0
 g_app_76e8dc 0076e8dc
 g_app_76e8e0 0076e8e0
 g_video_select_76ece8 0076ece8
@@ -8243,7 +8221,6 @@ g_joypad_get_76f128 0076f128
 g_app_770f60 00770f60
 g_app_770f64 00770f64
 g_app_770f68 00770f68
-g_dinput_keyboard_770f6c 00770f6c
 g_app_770f70 00770f70
 g_log_770f74 00770f74
 g_app_770fb4 00770fb4
