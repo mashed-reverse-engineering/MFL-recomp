@@ -91,3 +91,10 @@ Notes: the usercall pool overlaps the clusters that are not installed yet (`outp
 - NaN-order audit of float `<=`/`>=` compiles: nine more functions rewritten to the original branch form (ordered values unchanged).
 - Milestone gate (8 steps incl. AI route-following scenarios) passes with all of the above installed and published.
 - Open: `car_update_drivetrain`, `trail_particle_add`, `course_collision_edges_build` (stack-layout/harness class), `car_car_collision`, `car_wheel_contact_update` (need hand-written clusters), `camera_follow_update` (EQUAL, coverage 0.64, needs spec + cheat_allow).
+
+## Byte-match campaign (2026-10-19)
+
+- Source edits made ~430 tier-2 functions byte-identical to the original; 430 of them were promoted to tier 1 (`recomp/tier1/<fn>.c`): tier 1 398 -> 828, tier 2 996 -> 566.
+- Recurring edit patterns are catalogued in `BYTEMATCH_PATTERNS.md` (noreturn exit, nested calls instead of temps, record-base symbols, store order, float-literal and compare forms, /GS marker handling, struct copies).
+- Stays tier 2 by construction: jump-table functions (overlay relocation check), register-argument callees (cluster route), loop induction-pointer rebasing, scheduling-only diffs.
+- Public export now includes `src/tier2` and `src/clusters` with the curated header `mfl_tier2.h`.
