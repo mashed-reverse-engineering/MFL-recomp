@@ -1549,3 +1549,6 @@ gap_4ad010 004ad010
 gap_453aa0 00453aa0
 gap_4af5c0 004af5c0
 _allmul 004b4210
+g_storm_cells 008c4c20
+g_warzone_matrix_a 006a2848
+g_warzone_matrix_b 006a27f0

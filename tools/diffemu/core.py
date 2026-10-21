@@ -636,7 +636,7 @@ class Machine:
         m.sw, m.frames, m.sp0, m.rowrite = set(), [], 0, []; m.patch = {}; m.reads = None; m.small = False
         m.seed, m.mode, m.wild, m.trace, m.writes, m.cnt, m.islots, m.stub, m.wildfn = seed, mode, 0, [], [], {}, islots, {}, wildfn
         uc = m.uc = Uc(UC_ARCH_X86, UC_MODE_32)
-        for a, n in ((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000)): uc.mem_map(a, n)
+        for a, n in sorted(((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000))): uc.mem_map(a, n)      # ascending: with RET (0x7f000000) mapped before ARGBUF / OURS Unicorn 2.1.4 re-executes the first store into ARGBUF after a memory hook and loses the flags (cmp; mov [eax], imm; ja took the wrong branch: time_trial_default_record_b)
         if lits: uc.mem_write(SCR, lits)
         uc.mem_write(IMPSTUB, b"\xc3" * 0x10000)
         m.hooked = dict(imports); m.hooked.update(callees)
