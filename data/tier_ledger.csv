@@ -1026,6 +1026,7 @@ hermite_interpolate,00494630,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-
 hsv_phase_to_rgb,00493b90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,0.92,0,0
 hud_bomb_timer_text,00404b30,tier2,compiled+shadow-never,static,-,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 hud_flash_text,00403890,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,1.00,0,0
+hud_flash_text_overlay,00403930,tier1,bytes,bytes-reloc,38f1bda585ed,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 hud_game_vars_clear,00421150,tier1,bytes,bytes-reloc,a80060682c9f,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 hud_get_8c8798,0042d9e0,agent,bytes-standalone+202686ec50b8,bytes-reloc,-,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 hud_label_add_from_dat_string,004800e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,1.00,0,0
@@ -1689,6 +1690,7 @@ sound_car_engine_start,00470b00,tier1,bytes,bytes-reloc,dfbcfe6e7a8b,11404e1744d
 sound_car_engine_update,0046fe90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,0.93,0,0
 sound_car_landing_voice,00470da0,tier1,bytes,bytes-reloc,08b4a3af1ea9,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 sound_car_mode_2_voice,00470ec0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,1.00,0,0
+sound_car_voices_mute,004704c0,tier1,bytes,bytes-reloc,a530dfc5b71f,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 sound_ducking_adjust_by_event,004687f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,0.87,0,0
 sound_ducking_values_decay,004689a0,tier1,bytes,bytes-reloc,bfbc7300bce2,11404e1744d7,6ecfdff8154f,0,0.00,0,0
 sound_endpoint_panel_progress_cues,0046f740,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,6ecfdff8154f,200,0.27,0,0
