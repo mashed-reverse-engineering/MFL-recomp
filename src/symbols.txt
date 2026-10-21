@@ -7281,7 +7281,10 @@ g_menu_up_69d6bc 0069d6bc
 g_menu_down_69d6c0 0069d6c0
 g_menu_left_69d6c4 0069d6c4
 g_menu_right_69d6c8 0069d6c8
+g_data_69d6dc 0069d6dc
 g_sky_atomic 006a06e0
+g_course_sky_6a06e4 006a06e4
+g_course_sky_6a06e8 006a06e8
 g_camera_record_6a06ec 006a06ec
 g_camera_record_6a06f0 006a06f0
 g_camera_record_6a06f8 006a06f8
@@ -7354,6 +7357,7 @@ g_course_clumps_6a2730 006a2730
 g_course_clumps_6a2734 006a2734
 g_course_sands_6a2780 006a2780
 g_course_superg_6a2794 006a2794
+g_course_warzone_6a27a0 006a27a0
 g_course_atomics_6a27e8 006a27e8
 g_course_atomics_6a2830 006a2830
 g_course_atomics_6a2834 006a2834
@@ -8187,6 +8191,7 @@ g_app_76e5a0 0076e5a0
 g_rain_update_76e5a4 0076e5a4
 g_app_76e5a8 0076e5a8
 g_app_76e5ac 0076e5ac
+g_rain_ptank_76e5b0 0076e5b0
 g_app_76e7e4 0076e7e4
 g_sleep_remainder 0076e7e8
 g_car_76e7ec 0076e7ec
@@ -9485,6 +9490,8 @@ player_weapon_slots_1__field98_0x78 008bee4c
 player_weapon_slots_1__descriptor 008bee7c
 g_weapons_8beff0 008beff0
 g_weapon_8bf000 008bf000
+g_course_warzone_8bf040 008bf040
+g_course_warzone_8bf044 008bf044
 g_car_8bf050 008bf050
 g_course_warzone_8bf060 008bf060
 g_course_8bf080 008bf080
@@ -9608,6 +9615,7 @@ g_input_8c7e5a 008c7e5a
 g_input_8c7e5b 008c7e5b
 g_controller_poll_8c7e5c 008c7e5c
 g_distances_8c7e60 008c7e60
+g_course_sky_8c7eb0 008c7eb0
 g_ui_8c7fc0 008c7fc0
 g_ui_8c7fc4 008c7fc4
 g_ui_8c7fc8 008c7fc8

@@ -657,6 +657,7 @@ course_set_split_sector_6,0042aae0,tier1,bytes,bytes-reloc,ecbc34add892,11404e17
 course_set_split_sector_7,0042aba0,tier1,bytes,bytes-reloc,2f429b0e633a,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_shadow_particles_render,00453fb0,tier1,bytes,bytes-reloc,4610cfb4f9a9,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_signs_render_visible,0042a0b0,tier1,bytes,bytes-reloc,2a39c87b7478,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
+course_sky_atomic_create,00449700,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 course_sky_atomic_destroy,0044a020,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_sky_atomic_render,0044a010,tier1,bytes,bytes-reloc,c15b4ab1f659,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_sky_clumps_render,0042b2a0,tier1,bytes,bytes-reloc,c331145776a7,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
@@ -702,6 +703,7 @@ course_unload_current,0040e6f0,tier1,bytes,bytes-reloc,bd5a815dc6aa,11404e1744d7
 course_update_frame,0042af80,tier1,bytes,bytes-reloc,9a621b970bb4,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_uv_anim_update,0042abb0,tier1,bytes,bytes-reloc,6a9cfbee694f,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_uv_anims_update,0042ac30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
+course_warzone_cb0,0045dc20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,198,0.78,0,0
 course_warzone_cb10,0045e000,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_warzone_cb2,0045df40,tier1,bytes,bytes-reloc,14969a34ed00,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 course_warzone_cb5,0045e060,tier1,bytes,bytes-reloc,5df1b842d737,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
@@ -887,6 +889,7 @@ fx_pool_destroy,004978b0,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.
 fx_ptank_atomic_b_create,0049ac10,tier1,bytes,bytes-reloc,cc4b6fda4bae,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 fx_ptank_atomic_destroy,0049f400,tier1,bytes,bytes-reloc,5fcbd4ead984,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 fx_ptank_atomics_create,0049ad40,tier1,bytes,bytes-reloc,336dc5b10c2d,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
+fx_ptank_b_lock_and_fill,0049af20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 fx_ptank_buffers_destroy,004a1490,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 fx_ptank_create,0049e000,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 fx_ptank_destroy,0049b710,tier1,bytes,bytes-reloc,2a977bbad329,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
@@ -911,6 +914,7 @@ fx_slots_clear_8,0049df50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11
 fx_smoke_particle_spawn_grey,0049fcf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 fx_smoke_particle_spawn_tinted,0049fd50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 fx_smoke_puffs_update,0049d820,tier2,compiled+shadow-never,static,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
+fx_snow_ptank_create,0049c280,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 fx_spawn_burst_default_scale,0049d060,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 fx_spawn_burst_spread,0049d090,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,72,1.00,0,0
 fx_spawn_from_matrix_2,00499100,tier1,bytes,bytes-reloc,e2650e0bc27d,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
@@ -1376,6 +1380,7 @@ particles_slot_set_vectors,0049c1a0,tier2,compiled+diffemu-EQUAL+shadow-never,di
 pause_input_update,00403b30,agent,bytes-standalone+638f2667f09a,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 physics_body_get_position,00490c10,tier1,bytes,bytes-reloc,018098702236,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 physics_body_get_velocity,00490c60,tier1,bytes,bytes-reloc,26b87e35aefe,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
+physics_buffer_create,00494480,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,72,1.00,0,0
 physics_buffer_destroy,00495590,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 physics_buffer_rewind,00495580,tier1,bytes,bytes-reloc,aced5833b91f,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 physics_buffer_size,00494460,tier1,bytes,bytes-reloc,c34383f2a2f8,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
@@ -1547,6 +1552,7 @@ rain_buffers_alloc_once,004a0aa0,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4
 rain_buffers_init_colours,004a0600,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 rain_drops_update,004a0660,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,5e0fed203a4d,11404e1744d7,4574c8fd4fd2,199,1.00,0,1
 rain_drops_update_and_respawn,004a07c0,tier1,bytes,bytes-reloc,aaa8d1ba2b59,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
+rain_ptank_create,004a0f20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 rain_render,004a07d0,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 rain_slots_clear,004a0ef0,hand,registers-only,static,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 rain_splash_add,004a0e40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0

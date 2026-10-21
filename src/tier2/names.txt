@@ -700,3 +700,9 @@
 00420760 load_team_endpoint_panel hk_9412.c
 00469a30 sound_voices_stop_all_but_music hk_9413.c
 00425710 debris_update_visible_all_vehicles_b hk_9414.c
+0045dc20 course_warzone_cb0 hk_9490.c
+00494480 physics_buffer_create hk_9491.c
+004a0f20 rain_ptank_create hk_9492.c
+0049c280 fx_snow_ptank_create hk_9493.c
+0049af20 fx_ptank_b_lock_and_fill hk_9494.c
+00449700 course_sky_atomic_create hk_9495.c
