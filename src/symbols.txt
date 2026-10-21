@@ -306,8 +306,11 @@ PTR_caseD_6_0040f988_1 0040f989
 hud_render_by_event_and_mode 0040f9c0
 switchD 0040f9f2
 switchD 0040fa1d
+LAB_0040fa58 0040fa58
 switchD 0040fa80
 switchD 0040fab4
+LAB_0040fb20 0040fb20
+LAB_0040fb29 0040fb29
 race_set_setup_index 0040fbd0
 race_get_setup_index 0040fbe0
 race_get_focus_player 0040fbf0
@@ -1243,6 +1246,8 @@ controller_missing_message_update 00438220
 menu_items_animate_update 00438340
 menu_page_update_entry_states 00438580
 switchD 004385ba
+LAB_0043872d 0043872d
+LAB_004387b7 004387b7
 PTR_caseD_4_00438850_3 00438853
 menu_scroll_clamp 00438880
 menu_button_prompts_build 004388e0
@@ -1874,6 +1879,8 @@ soundengine_create_race_streams 0046f5c0
 sound_streams_destroy 0046f6b0
 sound_endpoint_panel_progress_cues 0046f740
 switchD 0046f783
+LAB_0046f7eb 0046f7eb
+LAB_0046f8d8 0046f8d8
 default 0046f914
 sound_ambient_pitch_randomise 0046f940
 sound_menu_voices_trigger 0046f9e0
@@ -2892,6 +2899,8 @@ FUN_004ad120 004ad120
 FUN_004ad150 004ad150
 FUN_004ad190 004ad190
 FUN_004ad1c0 004ad1c0
+FUN_004ad8f0 004ad8f0
+FUN_004ad970 004ad970
 FUN_004ad9e0 004ad9e0
 FUN_004adc00 004adc00
 FUN_004adc90 004adc90
@@ -5361,6 +5370,7 @@ FUN_005b72d0 005b72d0
 FUN_005b7300 005b7300
 FUN_005b7330 005b7330
 FUN_005b8980 005b8980
+FUN_005b8a40 005b8a40
 FUN_005b8c00 005b8c00
 FUN_005b8c40 005b8c40
 FUN_005b8c50 005b8c50
@@ -6457,7 +6467,9 @@ g_sound_play_618d2c 00618d2c
 g_sound_frame_619010 00619010
 g_sound_frame_6190a4 006190a4
 g_sound_frame_619138 00619138
+g_sound_frame_6191cc 006191cc
 g_sound_frame_61966c 0061966c
+g_sound_frame_619700 00619700
 g_sound_619ba0 00619ba0
 g_bomb_update_619c34 00619c34
 g_bomb_update_619cc8 00619cc8
@@ -6495,6 +6507,7 @@ g_sound_car_629240 00629240
 g_sound_car_629244 00629244
 g_sound_car_629248 00629248
 g_sound_play_62925c 0062925c
+g_sound_frame_629260 00629260
 g_car_handling_param_b8 006292b8
 g_car_init_6292c0 006292c0
 g_car_handling_param_c4 006292c4
@@ -7655,6 +7668,7 @@ g_sound_frame_6ae0c8 006ae0c8
 g_sound_frame_6ae0cc 006ae0cc
 g_sound_frame_6ae0d0 006ae0d0
 g_sound_car_6ae0d4 006ae0d4
+g_sound_6ae0e4 006ae0e4
 g_sound_frame_6ae100 006ae100
 g_sound_endpoint_cue_state 006ae104
 g_sound_streams_enabled 006ae108
@@ -9629,6 +9643,10 @@ g_car_8c8070 008c8070
 g_menu_8c8074 008c8074
 g_training_lesson 008c8078
 g_car_8c807c 008c807c
+g_menu_8c8080 008c8080
+g_menu_8c8084 008c8084
+g_menu_page_8c8088 008c8088
+g_menu_page_8c808c 008c808c
 g_menu_8c8090 008c8090
 g_menu_item_anims 008c80a0
 g_hud_8c86bc 008c86bc

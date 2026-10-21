@@ -683,3 +683,15 @@
 0042efb0 race_status_messages_draw hk_9483.c
 00484b60 particle_spawn_at_weapon_pos hk_9484.c
 0049bf00 fx_ribbon_add_point hk_9485.c
+00434290 career_flag_enabled hk_9421.c
+00437f90 menu_career_row_next hk_9422.c
+00437cd0 frontend_pause_input_poll hk_9423.c
+004720c0 voice_queue_play_pending hk_9424.c
+00409130 line_exceptions_find_value hk_9425.c
+00409040 line_exceptions_find_index_a hk_9426.c
+004976b0 pool_list_unlink hk_9427.c
+004ad970 FUN_004ad970 hk_9428.c
+004ad8f0 FUN_004ad8f0 hk_9429.c
+0040f9c0 hud_render_by_event_and_mode hk_9430.c
+0046f740 sound_endpoint_panel_progress_cues hk_9431.c
+00438580 menu_page_update_entry_states hk_9432.c

@@ -643,6 +643,7 @@ class Machine:
         uc.hook_add(UC_HOOK_MEM_UNMAPPED, m._unmapped); uc.hook_add(UC_HOOK_MEM_WRITE, m._write)
         for a in callees: uc.hook_add(UC_HOOK_CODE, m._callee, begin=a, end=a)
         uc.hook_add(UC_HOOK_CODE, m._callee, begin=IMPSTUB, end=IMPSTUB + 0x10000)
+        m.nullcall = False; uc.hook_add(UC_HOOK_CODE, m._nullcode, begin=0, end=0xfff)      # code in the null page: a call through a pointer the function zeroed itself (malloc stub returned a small value, rep stos cleared the table): garbage execution, the case is skipped (NULLCALL)
 
     def page(m, p):
         r = random.Random(p * 2654435761 ^ m.seed * 40503 ^ 0x5bd1e995)
@@ -692,6 +693,9 @@ class Machine:
         args = struct.unpack("<%dI" % n, bytes(uc.mem_read(sp + 4, 4 * n))) if n and m.indargs else ()      # cluster mode: the argument count read from the caller's `add esp` is unreliable (batched cleanup), the target address (random per object) identifies the call
         m.trace.append(("indirect %08x" % addr, tuple(m.norm(a) for a in args), ()))
         h = int(sha("ind", addr, len(m.trace), m.seed), 16); uc.reg_write(UC_X86_REG_EAX, (0, 1, h % 50, u32(h))[h % 4]); uc.reg_write(UC_X86_REG_EDX, u32(h >> 20))
+
+    def _nullcode(m, uc, addr, size, ud):
+        m.nullcall = True; uc.emu_stop()
 
     def _write(m, uc, access, addr, size, val, ud):
         if isstack(addr): m.sw.add(addr & ~3)      # stack words the function itself wrote (frame windows below: residue of an earlier frame is never compared)
@@ -783,7 +787,8 @@ class Machine:
         slow = time.time() - t0 >= 1.9      # wall clock timeout of the emulator (a loaded machine), not a loop: never a DIFF
         eip = uc.reg_read(UC_X86_REG_EIP); r = dict(done=((eip == RET or m.exited) and err is None), exited=m.exited, err=err, eip=eip, wild=m.wild)
         if not r["done"]:
-            if err is None: c = "LOOP"
+            if m.nullcall: c = "NULLCALL"
+            elif err is None: c = "LOOP"
             elif err.errno == UC_ERR_FETCH_UNMAPPED: c = "INDIRECT_CALL"
             elif err.errno == UC_ERR_EXCEPTION: c = "EXCEPTION"
             elif err.errno in (UC_ERR_READ_UNMAPPED, UC_ERR_WRITE_UNMAPPED): c = "UNMAPPED"

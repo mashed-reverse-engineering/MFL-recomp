@@ -17,10 +17,10 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,459 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers) | 2,104 | `████████████████░░░░` 82% |
+| Replaced by recompiled C (all tiers) | 2,116 | `█████████████████░░░` 83% |
 | ...verified byte identical | 1,384 | `███████████░░░░░░░░░` 54% |
-| ...share of the code bytes | 317,406 B | `██████████░░░░░░░░░░` 50% |
-| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 679 | `█████░░░░░░░░░░░░░░░` 27% |
+| ...share of the code bytes | 321,130 B | `██████████░░░░░░░░░░` 50% |
+| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 691 | `█████░░░░░░░░░░░░░░░` 27% |
 | ...of these register-argument clusters | 377 | `███░░░░░░░░░░░░░░░░░` 15% |
 | Published in `src/` | 381 | `███░░░░░░░░░░░░░░░░░` 15% |
 | ...byte identical (`MATCH`) | 343 | `███░░░░░░░░░░░░░░░░░` 13% |
@@ -33,7 +33,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | bridge | 4 | 1,643 | 0 |
 | hand | 381 | 14,744 | 344 |
 | tier1 | 905 | 67,917 | 905 |
-| tier2 | 679 | 224,399 | 0 |
+| tier2 | 691 | 228,123 | 0 |
 
 </details>
 <!-- progress:end -->

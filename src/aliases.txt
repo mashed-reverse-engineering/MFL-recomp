@@ -1552,3 +1552,4 @@ _allmul 004b4210
 g_storm_cells 008c4c20
 g_warzone_matrix_a 006a2848
 g_warzone_matrix_b 006a27f0
+_alldiv 004b4160
