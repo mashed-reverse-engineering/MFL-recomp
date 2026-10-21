@@ -870,6 +870,7 @@ game_open_perm_piz 00429cc0
 load_copter_model 00429cd0
 frame_rotate_around_own_origin 00429dd0
 course_animated_objects_update 00429e80
+LAB_00429fcb 00429fcb
 course_signs_render_visible 0042a0b0
 course_destroy_extra_clumps 0042a110
 course_texture_dictionary_destroy 0042a140
@@ -999,6 +1000,9 @@ intro_banner_start_cup 0042ed10
 race_winner_banner_draw 0042ed70
 race_status_messages_draw 0042efb0
 switchD 0042f1f7
+LAB_0042f22a 0042f22a
+LAB_0042f370 0042f370
+LAB_0042f393 0042f393
 game_content_exists_prefixed 0042f620
 switchD 0042f62a
 default 0042f690
@@ -2348,6 +2352,7 @@ rwp_object_set_matrix 0048e720
 rwp_object_set_rotation_degrees 0048e7e0
 rwp_objects_destroy_all_cars 0048e8d0
 rwp_cars_setup_bodies_from_bounds 0048e960
+LAB_0048ebbc 0048ebbc
 rwp_car_collision_response 0048ebf0
 rwp_collision_update 0048f4a0
 rwp_world_step_pipeline 00490400
@@ -2375,6 +2380,7 @@ car_reset_physics 00491d70
 car_apply_throttle_force 00491f10
 rwp_car_apply_forces 00492100
 switchD 0049213f
+LAB_004929af 004929af
 default 00492ab8
 rwp_atomics_render 00492af0
 car_apply_rwp_impulse 00492b20
@@ -6008,6 +6014,10 @@ k_f_1_5259022en5 005e0418
 g_piz_5e0450 005e0450
 k_f_2_0en4 005e0454
 k_f_n6_5 005e04d8
+k_f_n0_22222222 005e04dc
+k_f_0_22222222 005e04e0
+k_f_n0_11111111 005e04e4
+k_f_0_11111111 005e04e8
 k_f_n6_6666666en4 005e04ec
 k_f_2_938736en36 005e0698
 k_f_1_78 005e069c
@@ -6308,6 +6318,7 @@ g_race_setup_6091f8 006091f8
 g_race_setup_6092c8 006092c8
 g_race_setup_609398 00609398
 g_race_setup_609468 00609468
+g_race_update_609550 00609550
 g_course_race_6095bc 006095bc
 g_course_update_6095c0 006095c0
 g_course_update_6095c4 006095c4

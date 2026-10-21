@@ -677,3 +677,9 @@
 004aefa0 thunk_FUN_004b27b0 hk_9309.c
 004af740 FUN_004af740 hk_9310.c
 004ae9e0 thunk_FUN_004af9c0 hk_9311.c
+00429e80 course_animated_objects_update hk_9480.c
+0048e960 rwp_cars_setup_bodies_from_bounds hk_9481.c
+00492100 rwp_car_apply_forces hk_9482.c
+0042efb0 race_status_messages_draw hk_9483.c
+00484b60 particle_spawn_at_weapon_pos hk_9484.c
+0049bf00 fx_ribbon_add_point hk_9485.c
