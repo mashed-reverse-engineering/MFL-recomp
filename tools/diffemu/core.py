@@ -764,6 +764,14 @@ class Machine:
                 if os.environ.get("FRAMEDBG"): sys.stderr.write("FRAME %s\n" % (("ours" if m.ours else "orig", c.name, k, hex(a), hex(sp), hex(m.sp0), snap, [hex(x) for x in outs]),))
         for k, a in enumerate(outs):      # out parameters: a dword behind every pointer to a local gets a deterministic value (else it is frame garbage, different in the two builds)
             if isstack(a): uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, k), 16) % 61))
+        for nm_, nw_ in OUTWORDS.items():      # callees that fill a whole record behind a pointer to a local: the generic single out-word leaves the rest as frame garbage that differs between the two builds
+            if c.name.startswith(nm_):
+                for k, a in enumerate(args):
+                    if isstack(a):
+                        for j in range(nw_):
+                            if isstack(a + 4 * j) and a + 4 * j + 4 <= m.sp0 - 0x0: uc.mem_write(a + 4 * j, struct.pack("<I", int(sha(c.va, i, m.seed, k, j), 16) % 61))
+        if c.name.startswith("RpPTankAtomicLock") and len(args) > 1 and isstack(args[1]):      # RpPTankLockStruct {data, stride}: a real buffer in the compared argument area (the generic out-parameter value would be a small integer: the stores of the function went to addresses 0..60, order dependent and different in the two builds)
+            uc.mem_write(args[1], struct.pack("<II", ARGBUF + 0x10000 + 0x2000 * (i % 6), 0x20 + 4 * (i % 4)))
         if c.ret == "f": uc.mem_write(FPSRC, struct.pack("<d", ((h >> 4) % 4000 - 2000) / 8.0))
         w_ = RETWANT.get(c.va)
         if w_ and not m.small and m.seed % 3 == 2 and (h >> 3) % 3 != 0: uc.reg_write(UC_X86_REG_EAX, w_[(h >> 12) % len(w_)])      # compare-guided result (see ret_wants)
@@ -1051,6 +1059,7 @@ def compare(fn, mo, ro, mu, ru):
         if diffs: d.append("memory: %d bytes differ: %s" % (len(diffs), ", ".join("%08x %02x/%02x" % x for x in diffs[:10])))
     return d
 
+OUTWORDS = {"world_intersect_line": 8, "car_get_velocity_any_mode": 3, "FUN_005ba5c0": 16}      # record sizes in words (hit record / velocity vector / sound caps)
 LOOPY = ("LOOP", "WILD_LOOP", "TIMEOUT")
 PATCHES = [(v, k) for k in (4, 16, 64) for v in (0, 1, 2, 4)]      # (dword value, number of candidate addresses)
 

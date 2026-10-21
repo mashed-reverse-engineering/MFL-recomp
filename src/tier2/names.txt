@@ -695,3 +695,8 @@
 0040f9c0 hud_render_by_event_and_mode hk_9430.c
 0046f740 sound_endpoint_panel_progress_cues hk_9431.c
 00438580 menu_page_update_entry_states hk_9432.c
+00427120 ai_load hk_9405.c
+004270b0 ai_save hk_9409.c
+00420760 load_team_endpoint_panel hk_9412.c
+00469a30 sound_voices_stop_all_but_music hk_9413.c
+00425710 debris_update_visible_all_vehicles_b hk_9414.c
