@@ -566,6 +566,7 @@ course_highway_cb11,0045a9a0,tier1,bytes,bytes-reloc,2216444c9fc1,11404e1744d7,a
 course_highway_cb2,00459560,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,147,1.00,0,0
 course_highway_cb5,004596e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,133,1.00,0,0
 course_highway_cb6,0045a010,tier1,bytes,bytes-reloc,2f23765692d5,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
+course_highway_hit_spawn_fx,004591b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,200,1.00,0,0
 course_highway_physics_objects_create,0045aa00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,200,1.00,0,0
 course_hook10,0042aaf0,agent,bytes-standalone+de4496fa5432,bytes-reloc,-,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 course_hook11,0042b1a0,tier1,bytes,bytes-reloc,3c1986aa3c93,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
@@ -1671,6 +1672,7 @@ screen_shake_add,00437f60,hand,bytes,bytes-reloc,-,11404e1744d7,a3bd4dc7bca4,0,0
 screen_shake_set,00437f50,tier1,bytes,bytes-reloc,69cdf8707a25,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 screen_width,00430ab0,tier1,bytes,bytes-reloc,686b5b8e5b8a,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 sector_table_clear,00495d30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,200,1.00,0,0
+sfx_move_playing_voice,00469cb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,200,1.00,0,0
 sfx_play_at,004726a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,200,0.94,0,0
 sfx_play_group_at,004727a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,a3bd4dc7bca4,200,1.00,0,0
 sfx_play_group_voice_at,00472520,tier1,bytes,bytes-reloc,e0f257aa7aae,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
@@ -2005,6 +2007,7 @@ voice_queue_slot_alloc,00468790,hand,bytes,bytes-reloc,-,11404e1744d7,a3bd4dc7bc
 voice_queue_slot_release,004687c0,hand,bytes,bytes-reloc,-,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 voice_queue_slots_clear,004687d0,hand,bytes,bytes-reloc,-,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 voice_queue_tables_clear,004683f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,2af13b318937,11404e1744d7,a3bd4dc7bca4,200,1.00,0,1
+voice_set_position_from_car,00469ac0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,d8a4f0be0bae,11404e1744d7,a3bd4dc7bca4,200,1.00,0,1
 voice_set_two_params,00469a60,tier1,bytes,bytes-reloc,fb313a351b13,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 weapon_6a5e2c_get_clump,004608c0,tier1,bytes,bytes-reloc,f9488674a97d,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0
 weapon_drum_ammo_fraction,0045f7b0,tier1,bytes,bytes-reloc,046898c6c738,11404e1744d7,a3bd4dc7bca4,0,0.00,0,0

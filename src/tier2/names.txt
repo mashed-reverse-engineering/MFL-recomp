@@ -707,3 +707,6 @@
 0049af20 fx_ptank_b_lock_and_fill hk_9494.c
 00449700 course_sky_atomic_create hk_9495.c
 00483d90 build_info_display_draw_wave_grid hk_9496.c
+004591b0 course_highway_hit_spawn_fx hk_9401.c
+00469cb0 sfx_move_playing_voice hk_9408.c
+00469ac0 voice_set_position_from_car hk_9410.c
