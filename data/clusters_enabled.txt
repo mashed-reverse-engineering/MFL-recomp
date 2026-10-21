@@ -413,3 +413,6 @@ hudpanel_marker_place
 world_render_with_sector_callback
 course_object_atomic_register
 course_object_pair_build_clump
+menu_panel_fades_update
+career_event_won
+car_car_collision
