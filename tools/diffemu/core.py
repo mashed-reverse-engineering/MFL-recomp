@@ -1059,7 +1059,7 @@ def compare(fn, mo, ro, mu, ru):
         if diffs: d.append("memory: %d bytes differ: %s" % (len(diffs), ", ".join("%08x %02x/%02x" % x for x in diffs[:10])))
     return d
 
-OUTWORDS = {"world_intersect_line": 8, "car_get_velocity_any_mode": 3, "FUN_005ba5c0": 16}      # record sizes in words (hit record / velocity vector / sound caps)
+OUTWORDS = {"RwV3dTransformPoints": 9, "RwV3dTransformVectors": 3, "world_intersect_line": 8, "car_get_velocity_any_mode": 3, "FUN_005ba5c0": 16}      # record sizes in words (hit record / velocity vector / sound caps)
 LOOPY = ("LOOP", "WILD_LOOP", "TIMEOUT")
 PATCHES = [(v, k) for k in (4, 16, 64) for v in (0, 1, 2, 4)]      # (dword value, number of candidate addresses)
 

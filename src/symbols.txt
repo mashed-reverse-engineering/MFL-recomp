@@ -510,6 +510,7 @@ hudpanel_particle_slot_spawn 0041bf30
 hudpanel_slot_attach_clump 0041c070
 hudpanel_counters_clear 0041c0d0
 hudpanel_marker_place 0041c0e0
+LAB_0041c171 0041c171
 switchD 0041c199
 default 0041c1ba
 hudpanel_render_parts_if_active 0041c460
@@ -1257,7 +1258,10 @@ switchD 00438a61
 switchD 00438ac0
 switchD 00438b52
 switchD 00438bd9
+LAB_00438bfa 00438bfa
 switchD 00438c6c
+LAB_00438c83 00438c83
+LAB_00438cb5 00438cb5
 switchD 00438d36
 frontend_enter_menu 00438f50
 frontend_enter_race_menu 00439040
@@ -1945,6 +1949,7 @@ course_unload_atomics_6ae24c 00473a50
 sound_get_6af57c 00473aa0
 course_object_pair_counts_clear 00473ab0
 course_bbox_transform_and_test 00473ac0
+LAB_00473d50 00473d50
 switchD 00473d7e
 PTR_caseD_15_00473ff0_1 00473ff1
 course_object_atomic_register 00474010
@@ -2444,6 +2449,7 @@ world_sector_list_add 00495de0
 world_sector_list_clear 00495e10
 LAB_00495e30 00495e30
 world_render_count_sectors 00495e70
+LAB_00495ec0 00495ec0
 world_render_with_sector_callback 00496000
 particle_system_set_current 004960e0
 switchD 0049613d
@@ -3477,6 +3483,7 @@ FUN_004c5860 004c5860
 FUN_004c5b10 004c5b10
 FUN_004c5c40 004c5c40
 FUN_004c6210 004c6210
+FUN_004c6310 004c6310
 FUN_004c65d0 004c65d0
 FUN_004c6600 004c6600
 FUN_004c66a0 004c66a0
@@ -4160,6 +4167,7 @@ RpWorldSectorGetWorld 004f56f0
 RpWorldRender 004f5780
 RpWorldDestroy 004f5820
 RpWorldSetSectorRenderCallBack 004f5940
+FUN_004f5960 004f5960
 RpWorldCreate 004f5970
 RpWorldInstance 004f5d10
 RpWorldForAllClumps 004f5d90
@@ -5565,6 +5573,7 @@ k_f_n127 005dd630
 k_f_2 005dd634
 k_f_0_03 005dd7e4
 k_f_60 005dd7e8
+k_f_0_99899995 005dd7ec
 k_f_30 005dd7f0
 k_f_80 005dd7f4
 k_f_110 005dd7f8
@@ -5710,6 +5719,7 @@ k_f_57_295776 005de274
 k_f_n12 005de278
 k_f_1_5707964 005de27c
 k_f_1_3333334 005de280
+k_f_1_1111112 005de284
 k_f_1_125 005de288
 k_f_0_015 005de28c
 float_50_0 005de290
@@ -6302,6 +6312,7 @@ g_ai_find_603b90 00603b90
 g_hudpanel_slot_603e68 00603e68
 g_hudpanel_603e80 00603e80
 g_hudpanel_603e84 00603e84
+g_marker_particles_603ea4 00603ea4
 g_hudpanel_particles_603ed0 00603ed0
 g_score_panel_603ed4 00603ed4
 g_score_panel_603ed8 00603ed8
@@ -7744,6 +7755,7 @@ g_car_6af5c0 006af5c0
 g_car_6af5e0 006af5e0
 g_car_6af5e4 006af5e4
 g_lua_expobj_6af5e8 006af5e8
+g_car_6af658 006af658
 g_car_6af6e4 006af6e4
 g_car_6af6ec 006af6ec
 g_car_6c2658 006c2658
@@ -7994,11 +8006,14 @@ g_world_sector_702aa0 00702aa0
 g_particle_system_702ea0 00702ea0
 g_particle_system_702ea8 00702ea8
 g_physics_7032a8 007032a8
+g_particle_system_7032b0 007032b0
 g_physics_7036b0 007036b0
 g_physics_7036b4 007036b4
+g_particle_system_7036b8 007036b8
 g_particle_system_7036bc 007036bc
 g_physics_7036c0 007036c0
 g_particles_7036c4 007036c4
+g_particle_system_7036cc 007036cc
 g_particle_system_7036d0 007036d0
 g_particle_system_7036d4 007036d4
 g_particle_system_7036d8 007036d8

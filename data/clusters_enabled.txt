@@ -407,3 +407,9 @@ gfx_draw_movie_rect_2d
 race_time_trial_update
 options_menu_draw
 car_wheel_contact_update
+menu_button_prompts_build
+hud_message_slide
+hudpanel_marker_place
+world_render_with_sector_callback
+course_object_atomic_register
+course_object_pair_build_clump
