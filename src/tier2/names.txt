@@ -706,3 +706,4 @@
 0049c280 fx_snow_ptank_create hk_9493.c
 0049af20 fx_ptank_b_lock_and_fill hk_9494.c
 00449700 course_sky_atomic_create hk_9495.c
+00483d90 build_info_display_draw_wave_grid hk_9496.c

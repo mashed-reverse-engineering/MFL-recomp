@@ -284,6 +284,7 @@ btb_panel_slot_set_value,0041d630,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd
 btb_panel_slot_set_visible,0041d930,hand,bytes,bytes-reloc,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 btb_panel_slot_update,0041d650,tier2,compiled+shadow-never,static,-,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 build_info_display_draw_frame,0042d3c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
+build_info_display_draw_wave_grid,00483d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 build_info_draw_page_0,0042cf10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,11404e1744d7,4574c8fd4fd2,200,1.00,0,0
 build_info_draw_page_0_0042d0a0,0042d0a0,tier1,bytes,bytes-reloc,7ec6b911474c,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
 build_info_draw_page_1,0042d280,tier1,bytes,bytes-reloc,97df1ac9d67e,11404e1744d7,4574c8fd4fd2,0,0.00,0,0
