@@ -710,3 +710,11 @@
 004591b0 course_highway_hit_spawn_fx hk_9401.c
 00469cb0 sfx_move_playing_voice hk_9408.c
 00469ac0 voice_set_position_from_car hk_9410.c
+0046e5c0 sound_surface_ambience_lookup hk_9433.c
+00467fd0 course_surface_id_is_active_check hk_9434.c
+004266c0 race_events_process_log hk_9435.c
+00470750 sound_surface_roll_voices_update hk_9436.c
+004715b0 sound_ambience_course_2_6_a hk_9437.c
+0046b790 sound_ambience_course_11_14 hk_9438.c
+0046b170 sound_ambience_course_1_1e hk_9439.c
+00469430 sound_load_perm_dict hk_9440.c

@@ -5395,12 +5395,17 @@ qh_printvridge 005b5e20
 FUN_005b6730 005b6730
 switchD 005b674a
 PTR_caseD_3_005b67b0_3 005b67b3
+FUN_005b68e0 005b68e0
 FUN_005b6a40 005b6a40
 FUN_005b6a80 005b6a80
 FUN_005b72a0 005b72a0
 FUN_005b72d0 005b72d0
 FUN_005b7300 005b7300
 FUN_005b7330 005b7330
+FUN_005b7650 005b7650
+FUN_005b7fb0 005b7fb0
+FUN_005b8000 005b8000
+FUN_005b82b0 005b82b0
 FUN_005b8980 005b8980
 FUN_005b8a40 005b8a40
 FUN_005b8c00 005b8c00
@@ -5437,6 +5442,7 @@ FUN_005c7150 005c7150
 FUN_005c7200 005c7200
 switchD 005c8049
 default 005c80a8
+FUN_005c98e0 005c98e0
 switchD 005cbd97
 FUN_005cc2a0 005cc2a0
 FUN_005cc2e0 005cc2e0
@@ -5970,6 +5976,7 @@ k_f_n15 005df998
 k_f_22050 005df99c
 k_f_3_14 005df9a0
 k_f_184 005df9a4
+k_f_0_5df9b0 005df9b0
 k_f_112_1 005df9c8
 k_f_15050 005df9cc
 k_f_15000 005df9d0
@@ -5996,6 +6003,7 @@ k_f_4_71 005dfcc8
 k_f_5000 005dfccc
 k_f_2_2222222en4 005dfcd0
 k_f_1_8181818en4 005dfcd4
+k_f_0_5dfcd8 005dfcd8
 k_f_n3_689349e19 005dfce0
 k_f_0_55 005dfce8
 k_f_n27 005dfcec
@@ -6495,6 +6503,7 @@ s_soundstuff_00617970 00617970
 s_more_soundstuff_006179f0 006179f0
 g_sound_flag_617af0 00617af0
 g_sound_language_618478 00618478
+g_sound_load_618778 00618778
 g_sfx_table 006187f8
 g_sound_6187fc 006187fc
 g_sound_car_618808 00618808
@@ -6544,6 +6553,7 @@ g_sound_car_629244 00629244
 g_sound_car_629248 00629248
 g_sound_play_62925c 0062925c
 g_sound_frame_629260 00629260
+g_sound_ambience_629278 00629278
 g_car_handling_param_b8 006292b8
 g_car_init_6292c0 006292c0
 g_car_handling_param_c4 006292c4
@@ -7685,6 +7695,7 @@ g_weapon_6aaf74 006aaf74
 g_weapon_fx_6ab194 006ab194
 g_sound_ambience_6ad07c 006ad07c
 g_sound_mute_when_multiplayer 006ad080
+g_sound_6ad118 006ad118
 g_sound_6ad1e4 006ad1e4
 g_sound_6ad1e8 006ad1e8
 g_sound_frame_6ad1ec 006ad1ec
@@ -7695,6 +7706,8 @@ g_sound_frame_6ad200 006ad200
 g_sound_frame_6ad204 006ad204
 g_sound_frame_6ad208 006ad208
 g_voices 006ad210
+g_sound_6ad8a4 006ad8a4
+g_sound_6ad8a8 006ad8a8
 g_sound_music_fade 006ad8ac
 g_sound_frame_6ad8b4 006ad8b4
 g_sound_6ad8dc 006ad8dc
@@ -7702,10 +7715,12 @@ g_sound_ambience_6ad8e0 006ad8e0
 g_sound_ambience_6ad8e4 006ad8e4
 g_sound_ambience_6ad8e8 006ad8e8
 g_sound_6ad8ec 006ad8ec
+g_sound_6ad8f0 006ad8f0
 g_sound_6adcf0 006adcf0
 g_sound_frame_6adcf4 006adcf4
 g_sound_6add78 006add78
 g_sound_stream_handles 006ae07c
+g_sound_6ae09c 006ae09c
 g_sound_ambience_6ae0a0 006ae0a0
 g_sound_ambience_6ae0a4 006ae0a4
 g_sound_ambience_6ae0a8 006ae0a8
@@ -7714,6 +7729,7 @@ g_sound_6ae0b0 006ae0b0
 g_sound_6ae0b4 006ae0b4
 g_sound_6ae0b8 006ae0b8
 g_sound_6ae0bc 006ae0bc
+g_sound_6ae0c0 006ae0c0
 g_sound_frame_6ae0c4 006ae0c4
 g_sound_frame_6ae0c8 006ae0c8
 g_sound_frame_6ae0cc 006ae0cc
@@ -7745,6 +7761,9 @@ g_sound_ambience_6ae1a8 006ae1a8
 g_sound_ambience_6ae1bc 006ae1bc
 g_sound_ambience_6ae1c0 006ae1c0
 g_sound_ambience_6ae1c4 006ae1c4
+g_sound_ambience_6ae1c8 006ae1c8
+g_sound_ambience_6ae1cc 006ae1cc
+g_sound_ambience_6ae1d0 006ae1d0
 g_sound_ambience_6ae1dc 006ae1dc
 g_sound_ambience_6ae1e0 006ae1e0
 g_sound_ambience_6ae1e4 006ae1e4
@@ -8374,6 +8393,8 @@ g_data_771aac 00771aac
 RwEngineInstance 007d2128
 g_d3d9_device 007d2240
 g_ptank_plugin_offset 007da6bc
+g_sound_7dabe8 007dabe8
+g_sound_7dabec 007dabec
 g_app_7e7700 007e7700
 g_app_7e7704 007e7704
 g_pump_windows_7e7720 007e7720
