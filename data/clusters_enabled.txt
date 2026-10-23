@@ -580,3 +580,4 @@ rwp_world_register_callbacks_cb_494360
 course_highway_cb1_sub_453c20
 game_fn_4360b5
 course_helper_449c40_sub_416850
+course_neustein_cb1_sub_454970

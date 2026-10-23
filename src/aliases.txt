@@ -2289,3 +2289,4 @@ g_neustein_corners 006a1cc8
 g_highway_objects 008bf140
 g_highway_scales 008c3f60
 _CIatan 004b3610
+g_neustein_state 006a1878
