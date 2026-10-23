@@ -571,3 +571,6 @@ cars_step
 race_course_loaded
 camera_update
 ai_route_debug_draw
+shadow_project_to_ground_00499dc0_cb_499cc0
+rwp_cars_update
+fx_trajectory_solve
