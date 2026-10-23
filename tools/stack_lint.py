@@ -309,6 +309,9 @@ class Finder:
             if pr and i < len(pr[1]):      # typed pointer parameter: the callee takes the whole object
                 q = re.match(r"^(?:const\s+)?(?:struct\s+)?(\w+)\s*\*+\s*\w*$", pr[1][i].strip())
                 if q and q.group(1) in SZ and q.group(1) not in OPAQUE: rd = max(rd, SZ[q.group(1)])
+            if fr:      # M memberoverflow (N-verify 2026-10-23): the store leaves the MEMBER (into a neighbouring member or struct padding) though the struct has room; legal only when the original's frame is contiguous there (allow-list src/stacklint_allow.txt, class M)
+                mo, ms = frames[fr[0]][1][fr[1]][:2]; mrem = mo + ms - fr[2]
+                if 0 < wr and mrem < wr <= top: self.add("M", "low", line, fn, f, st, "memberoverflow: `%s` writes %d bytes through argument %d but the member %s.%s has %d left (struct has %d): the store lands in the neighbouring members / padding (callee asm 0x%s)" % (f, wr, i, fr[0], fr[1], mrem, top, va))
             if wr > top: self.add("A", "high", line, fn, f, st, "frameoverflow: `%s` writes %d bytes through argument %d but only %d bytes are left %s (callee asm 0x%s): it overwrites the saved registers / return address" % (f, wr, i, top, what, va))
             elif rd > top: self.add("A", "medium", line, fn, f, st, "frameoverflow: `%s` accesses %d bytes through argument %d but only %d bytes are left %s (callee asm 0x%s%s)" % (f, rd, i, top, what, va, "" if wr == 0 else ", writes %d" % wr))
 
@@ -443,7 +446,7 @@ def main():
     rows.sort(key=lambda r: (r["cls"], r["file"], r["line"]))
     with open(out_csv, "w", newline="") as fh:
         w = csv.DictWriter(fh, ["cls", "sev", "file", "line", "function", "symbol", "text", "note"], extrasaction="ignore"); w.writeheader(); w.writerows(rows)
-    names = "A B C D2 E F G H".split()
+    names = "A B C D2 E F G H M".split()
     print("stack_lint: %d finding(s) (%s)  -> %s" % (len(rows), ", ".join("%s %d" % (c, sum(1 for r in rows if r["cls"] == c)) for c in names), os.path.relpath(out_csv, G)))
     if not quiet:
         for r in rows: print("%s:%s: %s (%s) %s: %s" % (r["file"], r["line"], r["cls"], r["sev"], r["function"], r["note"]))

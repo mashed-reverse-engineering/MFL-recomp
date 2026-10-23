@@ -76,7 +76,21 @@ def evaluate(fn, cases, seeds, budget=90, first_diff_stop=True):
     t0 = time.time(); ok = 0; skip = Counter(); diff = None
     tg = core.cmp_targets(fn); core.RETWANT.clear(); core.RETWANT.update(core.ret_wants(fn))
     G = seed.Guide(fn)      # seed.py: coverage-guided struct-shape mutation of the cases while the coverage of the original is low
-    for c in core.gen_cases(fn.sig, cases, seeds):
+    SPEC = os.environ.get("DIFFEMU_SPECIALS")      # N-verify 2026-10-23: second pass of NaN / Inf / -0 / denormal words in the pointer windows (both sides): the `<` against NaN branch form (car_damage_update: the original takes `test ah,1; jne` = skip for unordered, C `x < k` is false) shows only when random bits happen to form a NaN
+    def _cases():
+        base = core.gen_cases(fn.sig, cases, seeds)
+        for c in base: yield c
+        if SPEC:
+            import copy
+            for c in base:
+                if not c.wins or c.seed % 3: continue
+                r_ = random.Random(c.seed ^ 0x51f15e); c2 = copy.copy(c); ws = [[a_, bytearray(b_)] for a_, b_ in c.wins]
+                for _ in range(r_.randint(1, 3)):
+                    w_ = r_.choice(ws)
+                    if len(w_[1]) >= 4:
+                        o_ = r_.randrange(len(w_[1]) // 4) * 4; w_[1][o_:o_ + 4] = r_.choice((0x7fc00000, 0xffc00000, 0x7f800000, 0xff800000, 0x80000000, 0x00000001, 0x7f7fffff)).to_bytes(4, "little")
+                c2.wins = [(a_, bytes(b_)) for a_, b_ in ws]; yield c2
+    for c in _cases():
         if tg and c.seed % 3 == 1 and not c.patch:      # compare-guided input: some globals the original tests against immediates take those values (both sides)
             r_ = random.Random(c.seed ^ 0x9e3779b9); c.patch = {a_: v_ for a_, v_ in r_.sample(tg, min(len(tg), r_.randint(1, 3)))}
         to = core.cmp_offsets(fn)

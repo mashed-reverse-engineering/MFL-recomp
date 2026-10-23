@@ -39,7 +39,7 @@ void car_damage_update_n(CarDamage *rec)
     }
     frame.damage = rec->damage[0];
     car_set_field_set(rec->car, 5, (int)frame.damage, -1.0f);
-    if (rec->hit[0] != 0 || frame.damage < k_f_17_5) {
+    if (rec->hit[0] != 0 || !(frame.damage >= k_f_17_5)) {
         if (rec->smoke[0] == 0 && float_10_0 <= frame.damage) {
             rec->smoke[0] = 1;
         }
@@ -56,7 +56,7 @@ void car_damage_update_n(CarDamage *rec)
     }
     frame.damage = rec->damage[1];
     car_set_field_set(rec->car, 4, (int)frame.damage, -1.0f);
-    if (rec->hit[1] != 0 || frame.damage < k_f_17_5) {
+    if (rec->hit[1] != 0 || !(frame.damage >= k_f_17_5)) {
         if (rec->smoke[1] == 0 && float_10_0 <= frame.damage) {
             rec->smoke[1] = 1;
         }

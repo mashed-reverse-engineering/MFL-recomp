@@ -1042,8 +1042,11 @@ def side(fn, case, ours, count=MAXINS):
 def covered(leaders, blocks): return {a for a in leaders if any(b <= a < b + s for b, s in blocks.items())} if blocks else set()
 
 _FA = []
+class _NoAllow(set):
+    def add(self, x): pass
 def frame_allow():
-    """src/diffemu_frame_allow.txt: `function callee argindex reason`"""
+    """src/diffemu_frame_allow.txt: `function callee argindex reason`.  DIFFEMU_NOSTEER=1: empty (audit: do the allow lists hide a real difference?)"""
+    if not _FA and os.environ.get("DIFFEMU_NOSTEER"): _FA.append(_NoAllow())
     if not _FA:
         s = set()
         try:

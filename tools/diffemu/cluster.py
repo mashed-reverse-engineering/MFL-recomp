@@ -363,6 +363,7 @@ core.keeps_reg = _keeps_w
 _init0 = Cluster.__init__
 def _init_w(c, spec, obj, srcdefs):
     try:
+        if os.environ.get("DIFFEMU_NOSTEER"): raise OSError
         for l_ in open(os.path.join(os.path.dirname(spec["file"]), "keeps_regs.txt")):
             q_ = l_.split()
             if len(q_) >= 2 and not l_.startswith("#"):

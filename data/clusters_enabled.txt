@@ -562,3 +562,8 @@ window_create_cb_4a9830
 rwp_collision_update
 rwp_car_collision_response
 race_battle_mode_update
+weapon_find_targets_in_cone
+fx_update_effects
+fx_ring_update
+rwp_world_initialize
+ai_nearest_route_point
