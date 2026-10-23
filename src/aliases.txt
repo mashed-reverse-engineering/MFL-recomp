@@ -2290,3 +2290,9 @@ g_highway_objects 008bf140
 g_highway_scales 008c3f60
 _CIatan 004b3610
 g_neustein_state 006a1878
+g_sky_emitter 0069d6d0
+g_sky_particles 0069d6e0
+g_sky_offsets 0069e6e0
+g_sky_drift 0069f6e0
+g_sky_colour_ramp 008c7ec0
+rwframe_plugin_object_get 00544440
