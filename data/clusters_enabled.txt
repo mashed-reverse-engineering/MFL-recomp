@@ -569,3 +569,5 @@ rwp_world_initialize
 ai_nearest_route_point
 cars_step
 race_course_loaded
+camera_update
+ai_route_debug_draw
