@@ -19,9 +19,9 @@ void fx_decal_stamp_matrix(RwMatrix *source, float scale, int count)
   double random_z;
 
   matrix = *source;
-  if (k_f_0_05 <= (matrix.pos.z - g_particles_752228) * (matrix.pos.z - g_particles_752228) +
+  if (!((matrix.pos.z - g_particles_752228) * (matrix.pos.z - g_particles_752228) +
                   (matrix.pos.x - g_particles_752220) * (matrix.pos.x - g_particles_752220) +
-                  (matrix.pos.y - g_particles_752224) * (matrix.pos.y - g_particles_752224)) {
+                  (matrix.pos.y - g_particles_752224) * (matrix.pos.y - g_particles_752224) < k_f_0_05)) {
     g_particles_752220 = matrix.pos.x;
     g_particles_752224 = matrix.pos.y;
     g_particles_752228 = matrix.pos.z;

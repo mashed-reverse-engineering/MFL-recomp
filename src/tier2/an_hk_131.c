@@ -18,7 +18,7 @@ void __cdecl FUN_0056f900(float *bounds,float *point)
 
 {
   /* X: if the lower bound is at or below point.x, only the upper bound can grow; otherwise lower it to point.x */
-  if (bounds[BOUNDS_MIN_X] <= *point) {
+  if (!(bounds[BOUNDS_MIN_X] > *point)) {      /* `<=` is also taken for NaN in the original (and eax,0x4100; jne) */
     if (*bounds < *point) {
       *bounds = *point;
     }
@@ -27,7 +27,7 @@ void __cdecl FUN_0056f900(float *bounds,float *point)
     bounds[BOUNDS_MIN_X] = *point;
   }
   /* Y: same rule as X */
-  if (bounds[BOUNDS_MIN_Y] <= point[1]) {
+  if (!(bounds[BOUNDS_MIN_Y] > point[1])) {
     if (bounds[BOUNDS_MAX_Y] < point[1]) {
       bounds[BOUNDS_MAX_Y] = point[1];
     }

@@ -33,7 +33,7 @@ void __cdecl FUN_0056f450(float *result,float *box_a,float *box_b)
   }
   result[6] = value;
   /* component 0: larger of the two */
-  if (*box_a < *box_b) {
+  if (!(*box_a >= *box_b)) {
     value = *box_b;
   }
   else {

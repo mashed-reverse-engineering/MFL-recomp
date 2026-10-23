@@ -43,7 +43,7 @@ void FUN_0056f3a0(float *merged_box,float *box_a,float *box_b)
   }
   *merged_box = chosen;
   /* min corner, y (inferred) */
-  if (box_b[1] < box_a[1]) {
+  if (!(box_b[1] >= box_a[1])) {
     chosen = box_b[1];
   }
   else {
