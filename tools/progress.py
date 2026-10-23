@@ -37,11 +37,23 @@ def compute():
         by_name = {n: sz for _, n, sz in fn}
         for n in (l.strip() for l in open(p)):
             if n: cl["functions"] += 1; cl["bytes"] += by_name.get(n, 0)
+    pub = {"tier2_files": 0, "tier2_functions": 0, "cluster_files": 0, "cluster_functions": 0}     # published verified sources (public repo: src/tier2, src/clusters)
+    for sub, k in (("tier2", "tier2"), ("clusters", "cluster")):
+        d = next((x for x in (os.path.join(G, "src", sub), os.path.join(G, "src", "automatch_near" if sub == "tier2" else "clusters")) if os.path.isdir(x)), None)
+        fs = [f for f in os.listdir(d) if re.match(r"(an|cl)_.*\.c$", f)] if d else []
+        pub[k + "_files"] = len(fs)
+        if k == "tier2":
+            nm = os.path.join(G, "src", "tier2", "names.txt")
+            if os.path.exists(nm): pub[k + "_functions"] = sum(1 for l in open(nm) if len(l.split()) >= 3 and "an_" + l.split()[2] in fs)
+        else:
+            for f in fs:
+                m = re.search(r"^// cluster-entries: (.*)$", open(os.path.join(d, f), errors="replace").read(), re.M)
+                pub[k + "_functions"] += len(m.group(1).split(",")) if m else 0
     return {"exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
             "functions": {"total": len(fn), "game": len(game), "named": named(fn), "game_named": named(game),
                           "game_bytes": sum(s for _, _, s in game)},
             "published_source": {"by_status": dict(man), "by_module": dict(sorted(by_mod.items()))},
-            "replaced_in_pipeline": rep, "clusters": cl}
+            "replaced_in_pipeline": rep, "clusters": cl, "published_verified": pub}
 
 def bar(n, d, w=20):
     k = round(w * n / d) if d else 0
@@ -65,8 +77,15 @@ def table(j):
     cl = j.get("clusters")
     if cl and cl["functions"]:
         out.append("| ...of these register-argument clusters | %s | %s |" % (format(cl["functions"], ","), bar(cl["functions"], g)))
-    out.append("| Published in `src/` | %s | %s |" % (format(pub, ","), bar(pub, g)))
+    pv = j.get("published_verified")
+    tp = pub + (pv["tier2_functions"] + pv["cluster_functions"] if pv else 0)
+    out.append("| **Published in this repo** (`src/`: hand-written + `src/tier2` + `src/clusters`) | %s | %s |" % (format(tp, ","), bar(tp, g)))
+    out.append("| ...hand-written, `src/*.c` (`manifest.txt`) | %s | %s |" % (format(pub, ","), bar(pub, g)))
     out.append("| ...byte identical (`MATCH`) | %s | %s |" % (format(m.get("MATCH", 0), ","), bar(m.get("MATCH", 0), g)))
+    if pv:
+        out.append("| ...tier 2, `src/tier2` (%d files) | %s | %s |" % (pv["tier2_files"], format(pv["tier2_functions"], ","), bar(pv["tier2_functions"], g)))
+        out.append("| ...clusters, `src/clusters` (%d files) | %s | %s |" % (pv["cluster_files"], format(pv["cluster_functions"], ","), bar(pv["cluster_functions"], g)))
+    out += ["", "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. Tier 1 / most automatch sources still use the decompiler's type dump and are not published (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 2 and cluster code is behaviour verified, not byte identical.", ""]
     if rep:
         out += ["", "<details><summary>By tier (whole pipeline)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]
         out += ["| %s | %d | %s | %d |" % (k, t["functions"], format(t["bytes"], ","), t["verified_bytes_identical"]) for k, t in rep.items()]

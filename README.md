@@ -22,8 +22,14 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...share of the code bytes | 339,631 B | `██████████░░░░░░░░░░` 50% |
 | ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 1,070 | `████████░░░░░░░░░░░░` 38% |
 | ...of these register-argument clusters | 622 | `████░░░░░░░░░░░░░░░░` 22% |
-| Published in `src/` | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
+| **Published in this repo** (`src/`: hand-written + `src/tier2` + `src/clusters`) | 1,536 | `███████████░░░░░░░░░` 55% |
+| ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...byte identical (`MATCH`) | 343 | `██░░░░░░░░░░░░░░░░░░` 12% |
+| ...tier 2, `src/tier2` (681 files) | 735 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...clusters, `src/clusters` (420 files) | 420 | `███░░░░░░░░░░░░░░░░░` 15% |
+
+*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. Tier 1 / most automatch sources still use the decompiler's type dump and are not published (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 2 and cluster code is behaviour verified, not byte identical.
+
 
 <details><summary>By tier (whole pipeline)</summary>
 
@@ -45,9 +51,9 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by the scripts below. |
 | `scripts/` | Ghidra headless scripts (`RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`, ...). |
 | `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
-| `src/` | Recompiled game code in C: one file per module, `manifest.txt` lists every function with its address and verification status. 42 of 49 files pass `gcc -m32 -fsyntax-only`; the others use MSVC inline `__asm`. |
+| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. How "verified" is established and where it stops: [docs/VERIFICATION.md](docs/VERIFICATION.md). |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
-| `docs/` | Building, naming workflow, toolchain, legal note. |
+| `docs/` | Building, naming workflow, toolchain, verification, enum constants, legal note. |
 
 ## Naming data
 

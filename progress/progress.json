@@ -54,6 +54,12 @@
    "MATCH": 343
   }
  },
+ "published_verified": {
+  "cluster_files": 420,
+  "cluster_functions": 420,
+  "tier2_files": 681,
+  "tier2_functions": 735
+ },
  "replaced_in_pipeline": {
   "agent": {
    "bytes": 8703,

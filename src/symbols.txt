@@ -761,7 +761,6 @@ car_damage_smoke_choose 00424230
 car_damage_smoke_spawn 00424290
 car_damage_smoke_update 004243e0
 car_damage_smoke_render 00424690
-car_damage_smoke_destroy_004246c0 004246c0
 car_damage_update_all 004246d0
 car_set_damage 004246f0
 car_damage_at_local_point 00424710
@@ -2919,7 +2918,6 @@ switchD 004a9bab
 window_create 004a9c90
 app_counters_clear 004a9dc0
 d3d9_draw_with_transform 004a9e70
-FUN_004aa200 004aa200
 FUN_004aa220 004aa220
 FUN_004aa250 004aa250
 FUN_004aa280 004aa280
@@ -3552,7 +3550,6 @@ piz_set_progress_callback_004c6790 004c66e0
 piz_open_archive_bool 004c66f0
 thunk_FUN_004c6a60 004c6720
 piz_find_entry_size_004c6a70 004c6730
-FUN_004c6740 004c6740
 piz_set_progress_callback_004c6790 004c6790
 piz_fs_create_004c67c0 004c67c0
 piz_open_file 004c6890
@@ -3761,7 +3758,6 @@ RwCameraClear 004d1d40
 RwCameraShowRaster 004d1d70
 RwCameraSetProjection 004d1da0
 RwCameraSetViewWindow 004d1e10
-FUN_004d1e80 004d1e80
 RwCameraCreate 004d1ec0
 CameraBuildPerspClipPlanes 004d2110
 CameraBuildParallelClipPlanes 004d27b0
@@ -5179,7 +5175,6 @@ RtBaryGetTransform 00569610
 RwCameraCalcPixelRay 005698c0
 FUN_0056a210 0056a210
 FUN_0056a4b0 0056a4b0
-FUN_0056a710 0056a710
 FUN_0056b100 0056b100
 FUN_0056b300 0056b300
 FUN_0056b3b0 0056b3b0
@@ -5206,7 +5201,6 @@ FUN_0056e3b0 0056e3b0
 FUN_0056e400 0056e400
 FUN_0056e5b0 0056e5b0
 FUN_0056e7c0 0056e7c0
-FUN_0056e8c0 0056e8c0
 FUN_0056f080 0056f080
 FUN_0056f0d0 0056f0d0
 FUN_0056f3a0 0056f3a0
@@ -6779,7 +6773,6 @@ g_game_set_62ad2e 0062ad2e
 g_app_62ad34 0062ad34
 g_app_62ad38 0062ad38
 g_app_62ad50 0062ad50
-PTR_timer_select_implementation_0062ad54 0062ad54
 g_controller_dialog_62ad88 0062ad88
 g_controller_dialog_62b188 0062b188
 g_controller_dialog_62b588 0062b588
@@ -7184,16 +7177,7 @@ g_car_damage_65a9f4 0065a9f4
 g_car_damage_65aa88 0065aa88
 g_car_damage_65aa94 0065aa94
 g_car_damage_65aac8 0065aac8
-g_car_damage_65aacc 0065aacc
-g_car_damage_65aad0 0065aad0
-g_car_damage_65aad4 0065aad4
-g_car_damage_65aad8 0065aad8
-g_car_damage_65aadc 0065aadc
-g_car_damage_65aae0 0065aae0
 g_car_damage_65aae4 0065aae4
-g_car_damage_65aae8 0065aae8
-g_car_damage_65aaec 0065aaec
-g_car_damage_65aaf0 0065aaf0
 g_car_damage_65c0c8 0065c0c8
 g_game_65c0d0 0065c0d0
 g_car_damage_65c0e4 0065c0e4
@@ -7573,7 +7557,6 @@ g_course_tierra_6a265c 006a265c
 g_course_tierra_6a2660 006a2660
 g_course_tierra_6a2664 006a2664
 g_course_highway_6a267c 006a267c
-g_course_objects_6a2680 006a2680
 g_course_highway_6a2684 006a2684
 g_course_highway_6a2690 006a2690
 g_course_highway_6a2694 006a2694
@@ -8605,7 +8588,6 @@ g_app_7e7700 007e7700
 g_app_7e7704 007e7704
 g_pump_windows_7e7720 007e7720
 g_pump_windows_7e7724 007e7724
-g_window_destroy_7e7728 007e7728
 g_controller_cfg 007e7740
 g_controller_cfg_0__name_0_ 007e7744
 g_controller_cfg_0__name_1_ 007e7745
@@ -9868,7 +9850,6 @@ g_course_highway_8c4798 008c4798
 g_course_highway_8c479c 008c479c
 g_course_highway_8c47a0 008c47a0
 g_course_8c47cc 008c47cc
-g_course_objects_8c47d4 008c47d4
 g_course_forest_8c4b08 008c4b08
 g_course_tierra_8c4b20 008c4b20
 g_course_storm_8c5280 008c5280
@@ -10049,8 +10030,6 @@ g_course_8c8858 008c8858
 g_course_8c8860 008c8860
 g_course_8c8864 008c8864
 g_course_8c8894 008c8894
-g_game_8c8898 008c8898
-g_game_8c889c 008c889c
 g_game_8c88a0 008c88a0
 g_game_8c88a4 008c88a4
 g_course_8c88b0 008c88b0
@@ -10211,7 +10190,6 @@ g_sound_stuff_8d996c 008d996c
 g_sound_frame_8d9970 008d9970
 g_app_boot_8d9974 008d9974
 g_app_boot_8d9978 008d9978
-g_piz_8dae40 008dae40
 g_rw_947144 00947144
 Rsrc_Dialog_65_809 0094dcf0
 Rsrc_Dialog_67_809 0094df58
