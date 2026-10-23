@@ -42,9 +42,9 @@ void effect_sprite_spawn(int param_1,undefined4 *param_2,undefined4 *param_3,und
     param_3 = (undefined4 *)&g_gfx_6294a4;
   }
   if ((g_gfx_6c5e10 == (float *)0x0) ||
-     (k_f_25 <= (g_gfx_6c5e10[2] - *(float *)&param_2[0xe]) * (g_gfx_6c5e10[2] - *(float *)&param_2[0xe]) +
+     !((g_gfx_6c5e10[2] - *(float *)&param_2[0xe]) * (g_gfx_6c5e10[2] - *(float *)&param_2[0xe]) +
                 (*g_gfx_6c5e10 - *(float *)&param_2[0xc]) * (*g_gfx_6c5e10 - *(float *)&param_2[0xc]) +
-                (g_gfx_6c5e10[1] - *(float *)&param_2[0xd]) * (g_gfx_6c5e10[1] - *(float *)&param_2[0xd])))
+                (g_gfx_6c5e10[1] - *(float *)&param_2[0xd]) * (g_gfx_6c5e10[1] - *(float *)&param_2[0xd]) < k_f_25))
   {
     iVar1 = 0;
     if (param_1 == 0) {

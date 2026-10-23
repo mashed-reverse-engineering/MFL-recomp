@@ -119,7 +119,7 @@ void gamesave_format_state_machine(float delta_time)
     g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;
     return;
   }
-  if (g_gamesave_wait_timer <= float_1_0) {
+  if (!(g_gamesave_wait_timer > float_1_0)) {
     gamesave_poll_status(*(int *)&delta_time);
     FID_conflict__wprintf("Waiting for time to elapse\n");
     g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;

@@ -879,7 +879,7 @@ effect_pool_init,00487ec0,tier1,bytes,bytes-reloc,409fa50e11d1,126ee480af92,8412
 effect_pool_set_field_14,00487e80,hand,bytes,bytes-reloc,-,126ee480af92,84121e733ee7,0,0.00,0,0
 effect_pool_set_field_1c,00487ea0,hand,bytes,bytes-reloc,-,126ee480af92,84121e733ee7,0,0.00,0,0
 effect_slot_alloc,00487be0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,2a33f84fa0c9,126ee480af92,84121e733ee7,200,0.80,0,1
-effect_sprite_spawn,00487670,tier2,compiled+shadow-never,static,-,126ee480af92,84121e733ee7,0,0.00,0,0
+effect_sprite_spawn,00487670,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,84121e733ee7,200,0.68,0,0
 effect_sprites_render_all,004877e0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,-,126ee480af92,84121e733ee7,200,0.93,1,0
 effect_sprites_update_all,00487760,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,-,126ee480af92,84121e733ee7,200,1.00,1,0
 effect_trail_add_point,00487c60,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,810c3e8ea621,126ee480af92,84121e733ee7,200,1.00,0,1
@@ -1060,7 +1060,7 @@ gamesave_cb_dispatch_a,0040c0c0,tier1,bytes,bytes-reloc,4c86596c2358,126ee480af9
 gamesave_cb_load_state,0040bfb0,hand,bytes,bytes-reloc,-,126ee480af92,84121e733ee7,0,0.00,0,0
 gamesave_cb_save_state,0040bf20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,84121e733ee7,200,0.62,0,0
 gamesave_exists,00405e20,hand,bytes,bytes-reloc,-,126ee480af92,84121e733ee7,0,0.00,0,0
-gamesave_format_state_machine,0040b920,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,84121e733ee7,800,0.76,0,0
+gamesave_format_state_machine,0040b920,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,84121e733ee7,200,0.68,0,0
 gamesave_gather,00405d80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,84121e733ee7,200,1.00,0,0
 gamesave_load,00405cf0,hand,bytes,bytes-reloc,-,126ee480af92,84121e733ee7,0,0.00,0,0
 gamesave_load_menu_state,0040b080,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,84121e733ee7,800,0.70,0,0
