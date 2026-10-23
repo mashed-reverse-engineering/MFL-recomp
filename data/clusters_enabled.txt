@@ -567,3 +567,5 @@ fx_update_effects
 fx_ring_update
 rwp_world_initialize
 ai_nearest_route_point
+cars_step
+race_course_loaded
