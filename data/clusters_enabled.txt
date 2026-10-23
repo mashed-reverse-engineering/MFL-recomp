@@ -574,3 +574,9 @@ ai_route_debug_draw
 shadow_project_to_ground_00499dc0_cb_499cc0
 rwp_cars_update
 fx_trajectory_solve
+course_city_cb1_sub_455e60
+course_warzone_cb2_sub_45d9f0
+rwp_world_register_callbacks_cb_494360
+course_highway_cb1_sub_453c20
+game_fn_4360b5
+course_helper_449c40_sub_416850
