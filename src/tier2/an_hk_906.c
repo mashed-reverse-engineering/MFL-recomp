@@ -123,7 +123,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
   int iVar4;
   undefined4 uVar5;
   int event_type;
-  float10 fVar6;
+  double fVar6;
   int iVar7;
   int aiStack_30 [4];
   undefined4 auStack_20 [4];
@@ -134,16 +134,16 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
   }
   g_sound_player_count = get_player_count();
   g_sound_frame_8d9970 = current_course_id();
-  fVar6 = (float10)option_get_volume_1();
+  fVar6 = (double)option_get_volume_1();
   g_sound_frame_6adcf4 = (float)fVar6;
   sound_listener_update();
   app_state = get_app_state();
   switch(app_state) {
-  case 0:
+  case APP_STATE_NONE:
     sound_music_fade_step_b(2);
     sound_music_fade_step(1);
     break;
-  case 1:
+  case APP_STATE_MAIN_LOOP_INIT:
     event_type = message_is_controller_missing_shown();
     if (event_type != 0) {
       g_sound_frame_6adcf4 = 0.0;
@@ -173,9 +173,9 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     g_sound_frame_6ae118 = 0;
     g_sound_frame_6ae11c = 1;
     break;
-  case 2:
+  case APP_STATE_COURSE_LOADED:
     event_type = get_event_type();
-    if (event_type != 0x12) {
+    if (event_type != EVENT_QUICK_RACE) {
       if (g_sound_frame_6ae11c == 1) {
         sound_streams_destroy();
       }
@@ -187,13 +187,13 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
       sound_music_fade_step(1);
     }
     goto LAB_00473980;
-  case 3:
-  case 7:
+  case APP_STATE_RACE:
+  case APP_STATE_RACE_MESSAGE:
     event_type = sound_music_state_update();
     if (event_type == 0) {
       sound_master_fade_to_default();
     }
-    fVar6 = (float10)option_get_volume_2();
+    fVar6 = (double)option_get_volume_2();
     g_sound_frame_61794c = (float)fVar6;
     event_type = message_is_controller_missing_shown();
     if (event_type != 0) {
@@ -303,7 +303,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     g_sound_frame_6ae148 = 0;
     g_sound_frame_6ae14c = 0;
     break;
-  case 4:
+  case APP_STATE_MENU:
     event_type = message_is_controller_missing_shown();
     if (event_type != 0) {
       g_sound_frame_6adcf4 = 0.0;
@@ -325,7 +325,7 @@ LAB_00473958:
     sound_master_fade_towards(0.0);
     sound_music_fade_step(0);
     break;
-  case 5:
+  case APP_STATE_FRONTEND:
     g_sound_frame_6ae0c4 = 0;
     g_sound_frame_6ae0c8 = 0;
     g_sound_frame_6ae0cc = 0;
@@ -333,22 +333,22 @@ LAB_00473958:
     sound_resume_streams();
     event_type = 0;
     do {
-      slot_used = *(int *)((int)&g_sound_stream_handles + event_type);
+      slot_used = *(int *)((char *)&g_sound_stream_handles + event_type);
       if ((slot_used != 0) && (g_sound_frame_6ae118 != 0)) {
-        iVar4 = sound_stream_state(*(undefined4 *)((int)&g_sound_stream_handles + event_type));
-        app_state = *(undefined4 *)((int)&g_sound_stream_handles + event_type);
+        iVar4 = sound_stream_state(*(undefined4 *)((char *)&g_sound_stream_handles + event_type));
+        app_state = *(undefined4 *)((char *)&g_sound_stream_handles + event_type);
         *(int *)((int)aiStack_30 + event_type) = iVar4;
-        uVar5 = FUN_005b8c50(*(undefined4 *)((int)&g_sound_stream_handles + event_type));
+        uVar5 = FUN_005b8c50(*(undefined4 *)((char *)&g_sound_stream_handles + event_type));
         *(undefined4 *)((int)auStack_20 + event_type) = uVar5;
-        app_state = FUN_005b8c60(*(undefined4 *)((int)&g_sound_stream_handles + event_type),
+        app_state = FUN_005b8c60(*(undefined4 *)((char *)&g_sound_stream_handles + event_type),
                                  app_state,slot_used);
         *(undefined4 *)((int)auStack_10 + event_type) = app_state;
         if (iVar4 == 3) {
-          *(int *)((int)&g_sound_frame_6ae140 + event_type) =
-               *(int *)((int)&g_sound_frame_6ae140 + event_type) + 1;
+          *(int *)((char *)&g_sound_frame_6ae140 + event_type) =
+               *(int *)((char *)&g_sound_frame_6ae140 + event_type) + 1;
         }
         else {
-          *(undefined4 *)((int)&g_sound_frame_6ae140 + event_type) = 0;
+          *(undefined4 *)((char *)&g_sound_frame_6ae140 + event_type) = 0;
         }
       }
       event_type = event_type + 4;
@@ -372,7 +372,7 @@ LAB_00473958:
     sound_master_fade_towards(0.0);
     sound_music_fade_step(0);
     break;
-  case 6:
+  case APP_STATE_RACE_START:
     sound_music_fade_step_b(2);
     ui_state_is_5();
 LAB_00473980:

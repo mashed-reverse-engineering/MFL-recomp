@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*004a48e0*/ extern int app_get_app_770f64();
-/*004a48f0*/ extern int __cdecl joypad_get_axis_info(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
-/*004a5250*/ extern int __cdecl keyboard_state_to_bits(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004a48f0*/ extern int __cdecl joypad_get_axis_info(undefined4 p0, undefined4 p1, void *p2, undefined4 p3, void *p4);
+/*004a5250*/ extern int __cdecl keyboard_state_to_bits(void *p0, void *p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*007711c4*/ extern undefined g_app_7711c4[0x1000];
 /*0077120c*/ extern undefined g_app_77120c[0x1000];
@@ -34,7 +34,7 @@ void joypads_poll_axes_and_keyboard(void)
     out_ptr = g_app_77120c;
     joypad_word_out = g_app_7711c4;
     do {
-      joypad_get_axis_info(joypad_index,0,(undefined4)out_ptr,0,(undefined4)joypad_word_out);
+      joypad_get_axis_info(joypad_index,0,out_ptr,0,joypad_word_out);
       joypad_index = joypad_index + 1;
       joypad_word_out = joypad_word_out + JOYPAD_WORD_STRIDE;
       out_ptr = out_ptr + JOYPAD_AXIS_STRIDE;
@@ -43,8 +43,8 @@ void joypads_poll_axes_and_keyboard(void)
   /* keyboard: zero the buffer, then fill it (out_ptr is reused here as the keyboard buffer pointer) */
   keyboard_bits_size = KEYBOARD_BITS_SIZE;
   out_ptr = &g_app_77122c;
-  mem_zero((void *)(((int)&g_app_77122c)), KEYBOARD_BITS_SIZE);
-  keyboard_state_to_bits((undefined4)&g_app_77122c,(undefined4)out_ptr,keyboard_bits_size);
+  mem_zero((void *)(((char *)&g_app_77122c)), KEYBOARD_BITS_SIZE);
+  keyboard_state_to_bits(&g_app_77122c,out_ptr,keyboard_bits_size);
   return;
 }
 

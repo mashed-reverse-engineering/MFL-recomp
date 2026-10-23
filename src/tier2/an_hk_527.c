@@ -28,7 +28,7 @@ particles_slot_set_vectors
   undefined4 uVar2;
   int iVar3;
   
-  iVar1 = *(int *)((char *)&g_particles_75cda8 + param_1 * 4);
+  iVar1 = ((int *)&g_particles_75cda8)[param_1];
   if (0xf < iVar1) {
     return 0;
   }
@@ -46,7 +46,7 @@ particles_slot_set_vectors
   *(undefined4 *)((char *)&g_particles_75bfd0 + iVar3) = *param_2;
   *(undefined4 *)((char *)&g_particles_75bfd4 + iVar3) = param_2[1];
   uVar2 = param_2[2];
-  *(int *)((char *)&g_particles_75cda8 + param_1 * 4) = iVar1 + 1;
+  ((int *)&g_particles_75cda8)[param_1] = iVar1 + 1;
   *(undefined4 *)((char *)&g_particles_75bfd8 + iVar3) = uVar2;
   *(undefined4 *)((char *)&g_particles_75bfdc + iVar3) = param_3;
   return 1;

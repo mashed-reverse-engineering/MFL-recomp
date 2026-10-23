@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0042bd00*/ extern int dat_get_string();
+/*0042bd00*/ extern char *dat_get_string();
 /*004b2a60*/ extern int sprintf();
 /*005dd330*/ extern float float_1_0;
 /*005dda24*/ extern float k_f_0_75;
@@ -30,8 +30,8 @@
 void tutorial_text_format_ratio(int count_a,int count_b,undefined4 string_id,int clamp_zero_counts)
 
 {
-  float10 shown_ratio;
-  float10 ratio_b_over_a;
+  double shown_ratio;
+  double ratio_b_over_a;
   bool both_one;
   int tmp_a;
   int tmp_b;

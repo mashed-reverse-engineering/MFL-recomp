@@ -23,7 +23,7 @@ void __cdecl car_apply_speed_boost_along_forward(undefined4 car,char *unused_arg
 {
   float boost_scale;
   struct {
-    int matrix;
+    char *matrix;
     float horizontal_speed;
     RwV2d horizontal_vel;
     RwReal vel_x;

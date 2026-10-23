@@ -99,7 +99,7 @@ void course_city_cb1(void)
   int slot_offset;
   int *fx_slot_ptr;
   bool tick_is_even;
-  float10 rand_value;
+  double rand_value;
   RwV3d dir;
   RwV3d pos;
   RwV3d fx_pos;
@@ -120,9 +120,9 @@ void course_city_cb1(void)
     func_0x00455ee0_r(&pos);
   }
   /* random unit vector in the xz plane, scaled and offset from the base point */
-  rand_value = (float10)random_range(FLOAT_BITS_NEG_ONE,FLOAT_BITS_ONE);
+  rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_BITS_ONE);
   dir.x = (RwReal)rand_value;
-  rand_value = (float10)random_range(FLOAT_BITS_NEG_ONE,FLOAT_BITS_ONE);
+  rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_BITS_ONE);
   dir.z = (RwReal)rand_value;
   RwV3dNormalize(&dir,&dir);
   dir.x = dir.x * k_f_0_4;

@@ -2,6 +2,7 @@
 /*0042a420*/ extern int *course_token_list_base(void);
 /* line_exceptions_find_value */
 /* "same token walk, returns the value following the id" */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 int line_exceptions_find_value(int id, int start)
 {
   int *list;

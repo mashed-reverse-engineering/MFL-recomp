@@ -228,7 +228,7 @@ extern struct FxObject g_fx_objects[]; /* 0x651250, stride 0xEC */
 int fx_object_get_sphere(int i, int *out)
 {
     struct FxObject *o = &g_fx_objects[i];
-    int *pos = (int *)(*(int *)(o->node + 4) + 0x40);
+    int *pos = (int *)(*(char **)(o->node + 4) + 0x40);
     int z;
     out[0] = pos[0];
     out[1] = pos[1];

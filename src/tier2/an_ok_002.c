@@ -203,14 +203,14 @@ extern void cup_scene_camera_attach(void);
  * slot_index indexes g_player_slots, NO_SLOT = nothing to place. Returns nothing.
  */
 
-/* TIER2: unvalidated 2026-10-19 authority=diffemu */
+/* TIER2: unvalidated 2026-10-22 authority=diffemu */
 void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
 {
   RwReal *camera_src;
   undefined4 team_texture;
   int alpha_byte;
   RwMatrix *matrix_cursor;
-  float10 scratch;
+  double scratch;
   float random_z;
   float side_offset;
   RwReal rotate_degrees;
@@ -246,10 +246,10 @@ void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
     spawn_dy = object_matrix.right.y * side_offset + object_matrix.up.y * k_f_n1_4 + object_matrix.at.y * k_f_1_9;
     spawn_dz = object_matrix.right.z * side_offset + object_matrix.up.z * k_f_n1_4 + object_matrix.at.z * k_f_1_9;
     /* random tilt: two random values in -1..1 scale the at axis (inferred); the third goes to the 3rd argument of gfx_set_vec3_6f2aa8 */
-    scratch = (float10)random_range(RANDOM_MIN_BITS,RANDOM_MAX_BITS);
-    random_z = (float)(scratch * (float10)object_matrix.at.z);      /* the original stores this in a stack slot that gfx_set_vec3_6f2aa8 reads as its 3rd argument */
-    scratch = (float10)random_range(RANDOM_MIN_BITS,RANDOM_MAX_BITS);
-    gfx_set_vec3_6f2aa8((float)(scratch * (float10)object_matrix.at.x),0,random_z);
+    scratch = (double)random_range(RANDOM_MIN_BITS,RANDOM_MAX_BITS);
+    random_z = (float)(scratch * (double)object_matrix.at.z);      /* the original stores this in a stack slot that gfx_set_vec3_6f2aa8 reads as its 3rd argument */
+    scratch = (double)random_range(RANDOM_MIN_BITS,RANDOM_MAX_BITS);
+    gfx_set_vec3_6f2aa8((float)(scratch * (double)object_matrix.at.x),0,random_z);
     RwMatrixRotate(&object_matrix,&object_matrix.up,rotate_degrees,rwCOMBINEPOSTCONCAT);
     translation.x = translation.x * k_f_n1 + spawn_dx;
     translation.y = translation.y * k_f_n1 + spawn_dy;
@@ -257,12 +257,12 @@ void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
     RwMatrixTranslate(&object_matrix,&translation,rwCOMBINEPOSTCONCAT);
     /* the spring grid is rebuilt when more than k_f_1800 seconds have passed since g_cup_scene_64cbe0 (inferred) */
     if (g_cup_scene_64cbdc == 0) {
-      scratch = (float10)race_get_time_seconds();
+      scratch = (double)race_get_time_seconds();
       g_cup_scene_64cbe0 = (float)scratch;
       g_cup_scene_64cbdc = 1;
     }
-    scratch = (float10)race_get_time_seconds();
-    if ((float10)k_f_1800 < scratch - (float10)g_cup_scene_64cbe0) {
+    scratch = (double)race_get_time_seconds();
+    if ((double)k_f_1800 < scratch - (double)g_cup_scene_64cbe0) {
       spring_grid_reset_constants();
       spring_grid_build();
       g_cup_scene_64cbdc = 0;
@@ -410,9 +410,9 @@ extern void __cdecl pause_input_update(float param_1);
 
 /* scene_get_bomb_5fb0a8 */
 
-/* "return (float10)g_bomb_5fb0a8;" */
+/* "return (double)g_bomb_5fb0a8;" */
 
-extern float10 scene_get_bomb_5fb0a8(void);
+extern double scene_get_bomb_5fb0a8(void);
 
 
 /* bomb_update */
@@ -502,7 +502,7 @@ extern void scene_tables_clear(void);
 /* "(box min/max, point): per axis distance to the nearer side, vec3_multiply_components squares,
    returns the max" */
 
-extern float10 __cdecl aabb_max_axis_distance_to_point (float *param_1,float *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8,char *param_9, char *param_10,char *param_11,char *param_12);
+extern double __cdecl aabb_max_axis_distance_to_point (float *param_1,float *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8,char *param_9, char *param_10,char *param_11,char *param_12);
 
 
 /* stub_return_zero */
@@ -569,7 +569,7 @@ extern bool __cdecl fx_object_get_sphere(char *param_1,undefined4 *param_2);
 
 /* "float at +0x1C of the current fx record" */
 
-extern float10 fx_current_object_get_float(void);
+extern double fx_current_object_get_float(void);
 
 
 /* course_token_list_find_entry */

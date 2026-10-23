@@ -24,7 +24,7 @@ extern float float_1_0;
  * Any NULL argument falls back to its default. Render states are set, used, then restored.
  * Returns nothing.
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void FUN_004c5860(char *camera, float *rect_min, float *rect_max, unsigned char *rgba, int texture, int *uv_min, int *uv_max)
 {
   int quad_buf[41];
@@ -104,8 +104,8 @@ void FUN_004c5860(char *camera, float *rect_min, float *rect_max, unsigned char 
     (*(code **)(RwEngineInstance + RWENGINE_SET_RENDER_STATE_FN))(RS_VERTEX_ALPHA_ENABLE, 1);
   }
   /* Draw the quad as two triangles: (0,1,2) and (2,3,0). */
-  (*(code **)(RwEngineInstance + RWENGINE_DRAW_TRIANGLE_FN))((int)&quad_buf[13], QUAD_VERTEX_COUNT, 0, 1, 2);
-  (*(code **)(RwEngineInstance + RWENGINE_DRAW_TRIANGLE_FN))((int)&quad_buf[13], QUAD_VERTEX_COUNT, 2, 3, 0);
+  (*(code **)(RwEngineInstance + RWENGINE_DRAW_TRIANGLE_FN))((char *)&quad_buf[13], QUAD_VERTEX_COUNT, 0, 1, 2);
+  (*(code **)(RwEngineInstance + RWENGINE_DRAW_TRIANGLE_FN))((char *)&quad_buf[13], QUAD_VERTEX_COUNT, 2, 3, 0);
   /* Restore vertex alpha off and Gouraud shading (inferred). */
   if (rgba[3] != ALPHA_OPAQUE) {
     (*(code **)(RwEngineInstance + RWENGINE_SET_RENDER_STATE_FN))(RS_VERTEX_ALPHA_ENABLE, 0);

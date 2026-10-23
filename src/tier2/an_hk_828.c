@@ -88,7 +88,7 @@ void weapon_shotgun_update(void)
       }
     }
     slot = slot + SLOT_WORDS;
-  } while ((int)slot < ((int)&g_weapon_shotgun_6aac30));
+  } while ((char *)slot < ((char *)&g_weapon_shotgun_6aac30));
   return;
 }
 

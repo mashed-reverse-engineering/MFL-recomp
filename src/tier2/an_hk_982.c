@@ -48,7 +48,7 @@ void effect_sprite_spawn(int param_1,undefined4 *param_2,undefined4 *param_3,und
   {
     iVar1 = 0;
     if (param_1 == 0) {
-      while ((*(byte *)((int)&g_gfx_6c57b0 + (iVar1 >> 3)) & (byte)(1 << ((byte)iVar1 & 7))) != 0) {
+      while ((*(byte *)((char *)&g_gfx_6c57b0 + (iVar1 >> 3)) & (byte)(1 << ((byte)iVar1 & 7))) != 0) {
         iVar1 = iVar1 + 1;
         if (0xf < iVar1) {
           return;
@@ -61,7 +61,7 @@ void effect_sprite_spawn(int param_1,undefined4 *param_2,undefined4 *param_3,und
         return;
       }
       iVar1 = 0;
-      while ((*(byte *)((int)&g_gfx_6c51a8 + (iVar1 >> 3)) & (byte)(1 << ((byte)iVar1 & 7))) != 0) {
+      while ((*(byte *)((char *)&g_gfx_6c51a8 + (iVar1 >> 3)) & (byte)(1 << ((byte)iVar1 & 7))) != 0) {
         iVar1 = iVar1 + 1;
         if (0xf < iVar1) {
           return;

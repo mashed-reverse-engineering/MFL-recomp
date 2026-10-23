@@ -3,8 +3,8 @@ extern void * __cdecl Rt2dFontShow(void * p0, void * p1, RwReal p2, void * p3, v
 /*005632e0*/ extern int Rt2dCTMPush();
 /*00564b10*/ extern int Rt2dBrushSetRGBA();
 /*005de81c*/ extern float k_f_0_0708;
-/*0069ba0c*/ extern undefined4 g_ui_font;
-/*0069ba10*/ extern undefined4 g_ui_text_brush;
+/*0069ba0c*/ extern char *g_ui_font;
+/*0069ba10*/ extern char *g_ui_text_brush;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 #define TEXT_WIDE_BUF_BYTES (1024)
 static int ui_rt2d_text_x_offset_r(void *reg_edi, void *reg_esi, float stk0, float stk1, int stk2, float stk3);
@@ -51,7 +51,7 @@ __declspec(naked) int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ec
    x_offset_mode: passed to ui_rt2d_text_x_offset, which adjusts the start position (inferred: alignment).
    Returns nothing. */
 
-void text_draw_plain(undefined4 text,float x,float y,undefined4 colour,float scale
+void text_draw_plain(char *text,float x,float y,undefined4 colour,float scale
                     ,int x_offset_mode)
 
 {

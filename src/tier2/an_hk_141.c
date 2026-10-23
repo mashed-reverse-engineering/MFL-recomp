@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*005be600*/ extern int __cdecl FUN_005be600(int a1, int a2);
+/*005be600*/ extern int __cdecl FUN_005be600(int a1, void *a2);
 /*005f7914*/ extern undefined g_data_5f7914;
 /*005f7924*/ extern undefined g_data_5f7924;
 /*005f7934*/ extern undefined g_data_5f7934;

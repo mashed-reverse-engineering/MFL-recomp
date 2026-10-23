@@ -36,24 +36,24 @@ undefined4 __cdecl race_course_record_for_event(char *record_table,int entry_ind
   mismatch_found = 0;
   /* events 0xB, 0xC, 0xD: the course comes from the menu, not from entry_index */
   event_or_team = get_event_type();
-  if (event_or_team == 0xb) {
+  if (event_or_team == EVENT_QUICK_RACE_11) {
 LAB_0040e7a8:
     record_value = menu_event_course_index_get();
     record_value = *(int *)(*(char **)(record_table + 4 + record_value * 4) + 4);
   }
   else {
     event_or_team = get_event_type();
-    if (event_or_team == 0xc) goto LAB_0040e7a8;
+    if (event_or_team == EVENT_QUICK_RACE_12) goto LAB_0040e7a8;
     event_or_team = get_event_type();
-    if (event_or_team == 0xd) goto LAB_0040e7a8;
+    if (event_or_team == EVENT_QUICK_RACE_13) goto LAB_0040e7a8;
   }
   /* events 6, 7, 8: the course comes from the menu as well */
   event_or_team = get_event_type();
-  if (event_or_team != 6) {
+  if (event_or_team != EVENT_MULTIPLAYER_6) {
     event_or_team = get_event_type();
-    if (event_or_team != 7) {
+    if (event_or_team != EVENT_MULTIPLAYER_7) {
       event_or_team = get_event_type();
-      if (event_or_team != 8) goto LAB_0040e7fe;
+      if (event_or_team != EVENT_MULTIPLAYER_8) goto LAB_0040e7fe;
     }
   }
   record_value = menu_event_course_index_get();
@@ -63,7 +63,7 @@ LAB_0040e7fe:
   record_value = record_value / RECORD_GROUP_STRIDE;
   /* event 0xE: group forced to 12 (inferred) */
   event_or_team = get_event_type();
-  if (event_or_team == 0xe) {
+  if (event_or_team == EVENT_TURBO_TOURNAMENT) {
     record_value = 0xc;
   }
   /* loop over the 4 player slots: team_ptr walks g_player_slots[i].team (16-byte stride);
@@ -87,7 +87,7 @@ LAB_0040e842:
     }
     team_ptr = team_ptr + 4;
     slot = slot + 1;
-    if (((int)&g_ai_editor_view_origin_x + 0x3) < (int)team_ptr) {
+    if (((char *)&g_ai_editor_view_origin_x + 0x3) < (char *)team_ptr) {
       return mismatch_found;
     }
   } while( true );

@@ -400,8 +400,8 @@ void frontend_enter_menu(undefined4 next_page)
   if (g_frontend_state == 0) {
     g_frontend_state = 1;
     /* normal case: cursor back to 0. Special case (else): event 0x11 with page 6 in record 4 or 5 steps back one (inferred) */
-    if ((((int)g_menu_current < 1) || (g_event_type != 0x11)) ||
-       ((g_menu_records[4].page_id != 6 && (g_menu_records[5].page_id != 6)))) {
+    if ((((int)g_menu_current < 1) || (g_event_type != EVENT_TRAINING)) ||
+       ((g_menu_records[4].page_id != MENU_PAGE_CHALLENGE_SELECT_A && (g_menu_records[5].page_id != MENU_PAGE_CHALLENGE_SELECT_A)))) {
       g_menu_69ca1c = 0;
       g_menu_current = 0;
       g_menu_start_race_requested = 0;
@@ -550,7 +550,7 @@ extern undefined4 __cdecl player_distance_warning(char *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float g_camera_8c7e00" */
 
-extern float10 camera_get_8c7e00(void);
+extern double camera_get_8c7e00(void);
 
 
 /* camera_get_car_8c747c */
@@ -587,7 +587,7 @@ extern void camera_path_sample(char *param_1,char *param_2,float param_3,float *
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float g_camera_8c7e0c" */
 
-extern float10 camera_get_8c7e0c(void);
+extern double camera_get_8c7e0c(void);
 
 
 /* camera_records_update_all */

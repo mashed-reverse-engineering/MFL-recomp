@@ -20,7 +20,7 @@ undefined4 plane_classify_point(float *plane,float *point,RwReal *out_distance)
 
 {
   undefined4 result;
-  float10 proj_x_ext;
+  double proj_x_ext;
   struct {
     RwV3d proj;
     RwV3d diff;
@@ -29,13 +29,13 @@ undefined4 plane_classify_point(float *plane,float *point,RwReal *out_distance)
 
   frame.d = plane[0] * point[0] + plane[1] * point[1] + plane[2] * point[2] + plane[3];
   /* Project point onto the plane (point - d * normal) and measure the offset.
-     The x component is kept in extended precision (float10) for the difference. */
+     The x component is kept in extended precision (double) for the difference. */
   if (out_distance != (RwReal *)0x0) {
     frame.proj = *(RwV3d *)point;
-    proj_x_ext = (float10)(-frame.d) * plane[0] + frame.proj.x;
+    proj_x_ext = (double)(-frame.d) * plane[0] + frame.proj.x;
     frame.proj.y = (-frame.d) * plane[1] + frame.proj.y;
     frame.proj.z = (-frame.d) * plane[2] + frame.proj.z;
-    frame.diff.x = (float)((float10)point[0] - proj_x_ext);
+    frame.diff.x = (float)((double)point[0] - proj_x_ext);
     frame.diff.y = point[1] - frame.proj.y;
     frame.diff.z = point[2] - frame.proj.z;
     *out_distance = RwV3dLength(&frame.diff);

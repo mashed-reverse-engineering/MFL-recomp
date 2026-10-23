@@ -15,13 +15,13 @@ undefined4 lua_Vehicle_Shininess_Range(char *L)
 {
   CourseCounts *counts;
   int arg_count;
-  float10 range_min;
-  float10 range_max;
+  double range_min;
+  double range_max;
 
   /* the two values are the top two stack entries (inferred from lua_gettop - 1 and lua_gettop) */
   arg_count = lua_gettop(L);
-  range_min = (float10)lua_tonumber(L,arg_count + -1);
-  range_max = (float10)lua_tonumber(L,arg_count);
+  range_min = (double)lua_tonumber(L,arg_count + -1);
+  range_max = (double)lua_tonumber(L,arg_count);
   counts = g_course_counts;
   g_course_counts->vehicle_shininess_range[0] = (float)range_min;
   counts->vehicle_shininess_range[1] = (float)range_max;

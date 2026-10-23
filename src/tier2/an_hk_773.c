@@ -80,7 +80,7 @@ void sound_car_engine_update(int car_index)
   uint car_inactive;
   undefined4 fx_result;
   int scratch_int;
-  float10 wave_level;
+  double wave_level;
   struct {
     float smoothed_freq;
     undefined1 pad_14[4];
@@ -91,7 +91,7 @@ void sound_car_engine_update(int car_index)
   } frame;
   
   voice_index = vehicle_get_object_field_80(car_index);
-  wave_level = (float10)car_damage_sum_front_back(car_index);
+  wave_level = (double)car_damage_sum_front_back(car_index);
   frame.damage_sum = (float)wave_level;
   car_inactive = car_is_active(car_index);
   car_inactive = car_inactive ^ 1;
@@ -123,9 +123,9 @@ LAB_0046ff1d:
     g_sound_car_629244 = ENGINE_FREQ_BASE_HIGH;
   }
   /* random jitter on the base frequency (wave_level is reused as scratch here) */
-  wave_level = (float10)random_range(0,FREQ_JITTER_WIDE);
-  prev_freq = *(float *)((char *)&g_sound_car_6ae0d4 + car_index * 4);
-  g_sound_car_629244 = (float)(wave_level + (float10)g_sound_car_629244);
+  wave_level = (double)random_range(0,FREQ_JITTER_WIDE);
+  prev_freq = ((float *)&g_sound_car_6ae0d4)[car_index];
+  g_sound_car_629244 = (float)(wave_level + (double)g_sound_car_629244);
   frame.car_index_f = (float)car_index;
   voice_base_freq = (float)car_index * k_f_200 + *(float *)&(&g_sound_car_618808)[g_sound_car_6ae18c * CAR_CLASS_TABLE_STRIDE];
   voice_index = (&g_sfx_table)[g_sound_car_6ae18c * CAR_CLASS_TABLE_STRIDE] + car_index;
@@ -143,59 +143,59 @@ LAB_0046ff1d:
   car_get_speed(&frame.car_speed,car_index);
   car_get_int_from_float_field(&frame.car_int_field,car_index);
   /* per-car engine state machine: state in g_sound_car_6ae17c, phase index in g_sound_car_6ae15c (inferred names); engine_freq is the output */
-  switch(*(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4)) {
+  switch(((undefined4 *)&g_sound_car_6ae17c)[car_index]) {
   case 0:
-    if ((*(float *)((char *)&g_sound_car_6291ec + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4) <=
+    if ((*(float *)((char *)&g_sound_car_6291ec + ((int *)&g_sound_car_6ae15c)[car_index] * 4) <=
          *engine_freq) && (g_player_inputs[g_player_slots[car_index].controller].accelerate != 0)) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 1;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 1;
     }
-    if (*engine_freq < *(float *)((char *)&g_sound_car_629228 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4))
+    if (*engine_freq < *(float *)((char *)&g_sound_car_629228 + ((int *)&g_sound_car_6ae15c)[car_index] * 4))
     {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 2;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 2;
     }
     if (frame.car_speed < k_f_100) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 3;
-      *(undefined4 *)((char *)&g_sound_car_6ae15c + car_index * 4) = 0;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 3;
+      ((undefined4 *)&g_sound_car_6ae15c)[car_index] = 0;
     }
     if (frame.car_int_field != 4) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 4;
-      *(undefined4 *)((char *)&g_sound_car_6ae15c + car_index * 4) = 0;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 4;
+      ((undefined4 *)&g_sound_car_6ae15c)[car_index] = 0;
     }
-    wave_level = (float10)random_range(0,FREQ_JITTER_NARROW);
-    phase_value = *(float *)((char *)&g_sound_car_629248 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4);
+    wave_level = (double)random_range(0,FREQ_JITTER_NARROW);
+    phase_value = *(float *)((char *)&g_sound_car_629248 + ((int *)&g_sound_car_6ae15c)[car_index] * 4);
     *(undefined4 *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) = 0;
-    *engine_freq = (float)((float10)frame.car_speed * (float10)phase_value + wave_level + (float10)k_f_1000);
+    *engine_freq = (float)((double)frame.car_speed * (double)phase_value + wave_level + (double)k_f_1000);
     break;
   case 1:
-    if (*engine_freq < *(float *)((char *)&g_sound_car_629200 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4)
+    if (*engine_freq < *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4)
         != (*engine_freq ==
-           *(float *)((char *)&g_sound_car_629200 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4))) {
-      scratch_int = *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) + 1;
-      *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) = scratch_int;
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 0;
+           *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4))) {
+      scratch_int = ((int *)&g_sound_car_6ae15c)[car_index] + 1;
+      ((int *)&g_sound_car_6ae15c)[car_index] = scratch_int;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;
       if (ENGINE_PHASE_LAST < scratch_int) {
-        *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 0;
-        *(undefined4 *)((char *)&g_sound_car_6ae15c + car_index * 4) = 0;
+        ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;
+        ((undefined4 *)&g_sound_car_6ae15c)[car_index] = 0;
       }
     }
-    phase_value = *(float *)((char *)&g_sound_car_629200 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4);
+    phase_value = *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4);
     *(undefined4 *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) = 1;
     *engine_freq = phase_value;
     break;
   case 2:
-    if (*(float *)((char *)&g_sound_car_629214 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4) <= *engine_freq
+    if (*(float *)((char *)&g_sound_car_629214 + ((int *)&g_sound_car_6ae15c)[car_index] * 4) <= *engine_freq
        ) {
-      *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) = *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) + -1
+      ((int *)&g_sound_car_6ae15c)[car_index] = ((int *)&g_sound_car_6ae15c)[car_index] + -1
       ;
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 0;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;
     }
-    phase_value = *(float *)((char *)&g_sound_car_629214 + *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4);
+    phase_value = *(float *)((char *)&g_sound_car_629214 + ((int *)&g_sound_car_6ae15c)[car_index] * 4);
     *(undefined4 *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) = 2;
     *engine_freq = phase_value;
     break;
   case 3:
     if (k_f_100 < frame.car_speed) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 0;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;
     }
     scratch_int = race_get_phase();
     if (((g_player_inputs[g_player_slots[car_index].controller].accelerate == 0) || (car_inactive != 0))
@@ -208,10 +208,10 @@ LAB_0046ff1d:
     break;
   case 4:
     if (frame.car_int_field == 4) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 0;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;
     }
     if (car_inactive != 0) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = ENGINE_STATE_HOLD;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = ENGINE_STATE_HOLD;
     }
     g_sound_car_629240 = ENGINE_FREQ_CAP;
     *engine_freq = g_sound_car_6291b0 + g_sound_car_6291b0 + *engine_freq;
@@ -219,9 +219,9 @@ LAB_0046ff1d:
   default:
     *engine_freq = 0.0;
     *(undefined4 *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) = 0;
-    *(undefined4 *)((char *)&g_sound_car_6ae15c + car_index * 4) = 0;
+    ((undefined4 *)&g_sound_car_6ae15c)[car_index] = 0;
     if (car_inactive == 0) {
-      *(undefined4 *)((char *)&g_sound_car_6ae17c + car_index * 4) = 0;
+      ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;
     }
   }
   /* clamp engine_freq to [g_sound_car_629244 (floor), g_sound_car_629240 (cap)] */
@@ -233,8 +233,8 @@ LAB_0046ff1d:
   }
   /* smoothed_freq: engine_freq nudged by a per-phase step, offset by prev_freq (inferred) */
   frame.smoothed_freq = *engine_freq;
-  scratch_int = *(int *)((char *)&g_sound_car_6ae15c + car_index * 4) * 4;
-  if (*(int *)((char *)&g_sound_car_6ae17c + car_index * 4) == 2) {
+  scratch_int = ((int *)&g_sound_car_6ae15c)[car_index] * 4;
+  if (((int *)&g_sound_car_6ae17c)[car_index] == 2) {
     if (*(float *)((char *)&g_sound_car_6291d8 + scratch_int) < *engine_freq - prev_freq) {
       frame.smoothed_freq = *(float *)((char *)&g_sound_car_6291d8 + scratch_int);
       goto LAB_004702b5;
@@ -250,23 +250,23 @@ LAB_004702b5:
   }
   /* wave_level: sine of (smoothed_freq - 1000) scaled by k_f_1_1111111en4, then WAVE_GAIN / WAVE_BIAS (inferred),
      plus 1% of damage_sum when damage is above k_f_0 */
-  wave_level = (float10)k_f_1000;
+  wave_level = (double)k_f_1000;
   *engine_freq = frame.smoothed_freq;
-  wave_level = (float10)sin(((float10)frame.smoothed_freq - wave_level) * (float10)k_f_1_1111111en4);
-  wave_level = wave_level * (float10)(WAVE_GAIN) - (float10)(WAVE_BIAS);
+  wave_level = (double)sin(((double)frame.smoothed_freq - wave_level) * (double)k_f_1_1111111en4);
+  wave_level = wave_level * (double)(WAVE_GAIN) - (double)(WAVE_BIAS);
   if (k_f_0 < frame.damage_sum) {
-    wave_level = (float10)frame.damage_sum * (float10)k_f_0_01 + wave_level;
+    wave_level = (double)frame.damage_sum * (double)k_f_0_01 + wave_level;
   }
   /* mode 0 (g_sound_8d9960 == 0): wave_level below WAVE_LEVEL_FLOOR is lifted to it, otherwise capped at 1.0.
      As written this looks like it always lands on one of those two values; check disassembly (inferred) */
   if (*(int *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) == 0) {
-    if (wave_level < (float10)(WAVE_LEVEL_FLOOR)) {
-      wave_level = (float10)(WAVE_LEVEL_FLOOR);
+    if (wave_level < (double)(WAVE_LEVEL_FLOOR)) {
+      wave_level = (double)(WAVE_LEVEL_FLOOR);
       goto LAB_00470356;
     }
-    if (wave_level <= (float10)float_1_0) goto LAB_00470356;
+    if (wave_level <= (double)float_1_0) goto LAB_00470356;
   }
-  wave_level = (float10)float_1_0;
+  wave_level = (double)float_1_0;
 LAB_00470356:
   if (g_sound_car_62923c != 0) {
     if (*(int *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) == 0) {
@@ -275,8 +275,8 @@ LAB_00470356:
     }
     else {
       voice_set_volume(voice_index + VOICE_SECOND_OFFSET,
-                       (float)(wave_level * (float10)k_f_0_35 +
-                              (float10)*(float *)&(&g_sound_car_6291a0)[g_sound_car_6ae18c]));
+                       (float)(wave_level * (double)k_f_0_35 +
+                              (double)*(float *)&(&g_sound_car_6291a0)[g_sound_car_6ae18c]));
     }
   }
   /* voice record +0x3c is the playback frequency: engine_freq * 3.5 (k_f_3_5) + voice_base_freq;

@@ -38,11 +38,11 @@ void race_winner_banner_draw(int continue_prompt_active)
 {
   float top_box_bottom_y;
   float bottom_box_y;
-  float10 slide_offset;
+  double slide_offset;
 
   if (continue_prompt_active != 0) {
     /* Title with a shadow copy, z-write off for the boxes. */
-    slide_offset = (float10)intro_banner_slide_y();
+    slide_offset = (double)intro_banner_slide_y();
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
     ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset + k_f_3,373.0f,COLOUR_ARGB_BLACK,1.2f,1);
     ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset,370.0f,COLOUR_ARGB_WHITE,1.2f,1);
@@ -68,9 +68,9 @@ void race_winner_banner_draw(int continue_prompt_active)
     return;
   }
   /* Intro phase (inferred): title shadow at y 63, white title at y 60. */
-  slide_offset = (float10)intro_banner_get_x(0x427c0000,0xff000000,0x3f99999a,2);
-  ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)(slide_offset + (float10)k_f_3), 63.0f, COLOUR_ARGB_BLACK, 1.2f, 0x2);
-  slide_offset = (float10)intro_banner_get_x(0x42700000,0xffffffff,0x3f99999a,2);
+  slide_offset = (double)intro_banner_get_x(0x427c0000,0xff000000,0x3f99999a,2);
+  ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)(slide_offset + (double)k_f_3), 63.0f, COLOUR_ARGB_BLACK, 1.2f, 0x2);
+  slide_offset = (double)intro_banner_get_x(0x42700000,0xffffffff,0x3f99999a,2);
   ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset, 60.0f, COLOUR_ARGB_WHITE, 1.2f, 0x2);
   return;
 }

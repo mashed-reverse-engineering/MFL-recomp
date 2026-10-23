@@ -84,7 +84,7 @@ void sound_event_log_process(void)
         break;
       case 0xc:
         /* Sets the per-voice flag word g_sound_6ae130[voice_id] (inferred). */
-        *(undefined4 *)((char *)&g_sound_6ae130 + voice_id * 4) = 1;
+        ((undefined4 *)&g_sound_6ae130)[voice_id] = 1;
       }
     }
     else {

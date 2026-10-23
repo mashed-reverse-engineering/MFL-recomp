@@ -1,10 +1,10 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
-/*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
+/*0042f780*/ extern char *__cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c6600*/ extern void FUN_004c6600(undefined4 p0, undefined4 p1);
+/*004c6600*/ extern void FUN_004c6600(void *p0, undefined4 p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004d1160*/ extern struct RwFrame * RwFrameAddChild(struct RwFrame *p0, struct RwFrame *p1);
 /*004f6ae0*/ extern struct RpAtomic * RpAtomicClone(struct RpAtomic *p0);

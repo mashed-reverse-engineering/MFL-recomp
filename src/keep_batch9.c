@@ -28,6 +28,6 @@ extern void menu_event_0x11_reset_page(int);
 void menu_set_car_8c7460_and_reset(int v)
 {
     g_car_8c7460 = v;
-    if (get_event_type() == 0x11 && v == 0)
+    if (get_event_type() == EVENT_TRAINING && v == 0)
         menu_event_0x11_reset_page(0);
 }

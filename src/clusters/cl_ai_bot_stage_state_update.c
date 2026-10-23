@@ -26,7 +26,7 @@ void ai_bot_stage_state_update(int bot)
   int next;
   int tick;
 
-  if (get_event_type() == 0x11) {
+  if (get_event_type() == EVENT_TRAINING) {
     if (training_lesson_get() == 0) {
       g_ai_bots[bot].stage = 0;
       g_ai_bots[bot].stage_counter = 0;

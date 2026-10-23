@@ -21,12 +21,12 @@ void hud_bomb_timer_text(void)
 
 {
   float fVar1;
-  float10 fVar2;
+  double fVar2;
   float local_4;
   
   local_4 = 60.0;
-  fVar2 = (float10)ai_get_counter(0);
-  if (fVar2 <= (float10)k_f_2) {
+  fVar2 = (double)ai_get_counter(0);
+  if (fVar2 <= (double)k_f_2) {
     g_hud_bomb_64d8d0 = 0.0;
   }
   else {

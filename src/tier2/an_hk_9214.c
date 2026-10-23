@@ -36,7 +36,7 @@ void fx_smoke_puffs_update(void)
   int iVar5;
   uint uVar6;
   int iVar7;
-  float10 fVar8;
+  double fVar8;
   struct {
     undefined4 local_18;
     float local_14;
@@ -110,7 +110,7 @@ LAB_0049d8b5:
   iVar5 = uVar6 - 1;
   iVar7 = iVar5 * 0x34;
   frame.local_18 = *(undefined4 *)((char *)&g_particles_76c4e0 + iVar7 + 0x18);
-  fVar8 = (float10)sin((float10)*(float *)&(&g_fx_slots_76c504)[iVar5 * 0xd] * (float10)k_f_3_1415927);
+  fVar8 = (double)sin((double)*(float *)&(&g_fx_slots_76c504)[iVar5 * 0xd] * (double)k_f_3_1415927);
   fVar1 = g_tick_seconds + *(float *)&(&g_particles_76c508)[iVar5 * 0xd];
   *(float *)&(&g_particles_76c508)[iVar5 * 0xd] = fVar1;
   *(float *)&(&g_fx_slots_76c504)[iVar5 * 0xd] = fVar1;
@@ -118,13 +118,13 @@ LAB_0049d8b5:
             *(float *)&(&g_particles_76c4e0)[iVar5 * 0xd];
   frame.local_4 = *(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x14) * fVar1 * *(float *)((char *)&g_fx_systems_76c50c + iVar7) +
             *(float *)&(&g_fx_slots_76c4e8)[iVar5 * 0xd];
-  frame.local_8 = (float)(fVar8 * (float10)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x30) +
-                   (float10)*(float *)&(&g_fx_slots_76c4e4)[iVar5 * 0xd]);
+  frame.local_8 = (float)(fVar8 * (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x30) +
+                   (double)*(float *)&(&g_fx_slots_76c4e4)[iVar5 * 0xd]);
   if (fVar1 <= float_1_0) {
-    fVar8 = fVar8 * (float10)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
-    fVar8 = fVar8 + fVar8 + (float10)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
+    fVar8 = fVar8 * (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
+    fVar8 = fVar8 + fVar8 + (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
     frame.local_10 = (float)fVar8;
-    frame.local_14 = (float)(fVar8 * (float10)k_f_0_75);
+    frame.local_14 = (float)(fVar8 * (double)k_f_0_75);
     cVar4 = ((int)(((fVar1 * fVar1) * fVar1) * 255.0f));
     frame.local_18 = CONCAT13(-1 - cVar4,(undefined3)frame.local_18);
     point_lerp_to_aux_camera(&frame.local_c,&frame.local_c,0x3d4ccccd);

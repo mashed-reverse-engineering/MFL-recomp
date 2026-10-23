@@ -20,7 +20,6 @@
 /*008c9eb8*/ extern float g_car_8c9eb8;
 /*008c9ebc*/ extern float g_car_8c9ebc;
 
-#define EVENT_TYPE_TRAINING (0x11) /* (inferred) the branch that calls training_lesson_get() */
 #define BOT_SKILL_MAX (10.0)
 #define TRAINING_BOT_SKILL (5.0)
 #define AI_NO_ACTIVE_PLAYER (0xffffffff)
@@ -35,7 +34,7 @@
  * Takes no parameters and returns nothing.
  * Base value: career table entry for career_cell_index(), plus g_ai_skill_bias * 0.5.
  * Overrides by event type: 0xE..0x10 -> 9.0; 6..8 -> menu_bot_skill_a * 2.5; 0xB..0xD -> menu_bot_skill_b * 2.5.
- * Result is clamped to 0 (below k_f_0) or BOT_SKILL_MAX (above it), then training (EVENT_TYPE_TRAINING)
+ * Result is clamped to 0 (below k_f_0) or BOT_SKILL_MAX (above it), then training (EVENT_TRAINING)
  * stores 9.0 when training_lesson_get() == 5 and TRAINING_BOT_SKILL otherwise.
  */
 void __cdecl ai_bot_skill(void)
@@ -49,21 +48,21 @@ void __cdecl ai_bot_skill(void)
   bot_skill = (float)(int)(&g_ai_career_skill_table)[event_type];
   /* event types 0xE..0x10 always use 9.0 */
   event_type = get_event_type();
-  if (((event_type == 0xe) || (event_type = get_event_type(), event_type == 0xf)) ||
+  if (((event_type == EVENT_TURBO_TOURNAMENT) || (event_type = get_event_type(), event_type == 0xf)) ||
      (event_type = get_event_type(), event_type == 0x10)) {
     bot_skill = k_f_9;
   }
   bot_skill = g_ai_skill_bias * k_f_0_5 + bot_skill;
   /* event types 6..8: skill from menu_bot_skill_a, scaled by 2.5 */
   event_type = get_event_type();
-  if (((event_type == 6) || (event_type = get_event_type(), event_type == 7)) ||
+  if (((event_type == EVENT_MULTIPLAYER_6) || (event_type = get_event_type(), event_type == 7)) ||
      (event_type = get_event_type(), event_type == 8)) {
     event_type = menu_bot_skill_a_get();
     bot_skill = (float)event_type * k_f_2_5;
   }
   /* event types 0xB..0xD: skill from menu_bot_skill_b, scaled by 2.5 */
   event_type = get_event_type();
-  if (((event_type == 0xb) || (event_type = get_event_type(), event_type == 0xc)) ||
+  if (((event_type == EVENT_QUICK_RACE_11) || (event_type = get_event_type(), event_type == 0xc)) ||
      (event_type = get_event_type(), event_type == 0xd)) {
     event_type = menu_bot_skill_b_get();
     bot_skill = (float)event_type * k_f_2_5;
@@ -79,7 +78,7 @@ void __cdecl ai_bot_skill(void)
   }
   /* training: lesson 5 keeps 9.0, other lessons use TRAINING_BOT_SKILL */
   event_type = get_event_type();
-  if (event_type == EVENT_TYPE_TRAINING) {
+  if (event_type == EVENT_TRAINING) {
     bot_skill = TRAINING_BOT_SKILL;
     event_type = training_lesson_get();
     g_ai_skill = k_f_9;

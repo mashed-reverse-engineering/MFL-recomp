@@ -46,11 +46,11 @@ void fx_snow_ptank_create(int param_1,RwTexture *param_2)
   frame_obj.local_4 = 0x3f800000;
   frame_obj.local_28 = 0x3dcccccd;
   frame_obj.local_24 = 0x3dcccccd;
-  if (*(int *)((char *)&g_particles_75cdec + param_1 * 4) == 0) {
+  if (((int *)&g_particles_75cdec)[param_1] == 0) {
     pvVar2 = RwMalloc(0x4000,0);
     *(void **)((char *)&g_particles_75cdec + param_1 * 4) = pvVar2;
   }
-  if (*(int *)((char *)&g_particles_75cdcc + param_1 * 4) == 0) {
+  if (((int *)&g_particles_75cdcc)[param_1] == 0) {
     frame_obj.local_20 = 0;
     frame_obj.local_1c = 0;
     frame_obj.local_18 = 0;
@@ -58,38 +58,38 @@ void fx_snow_ptank_create(int param_1,RwTexture *param_2)
     g_particles_75cddc = param_2;
     iVar3 = RpPTankAtomicCreate(0x200,0x80007,0);
     iVar4 = g_ptank_plugin_offset;
-    *(int *)((char *)&g_particles_75cdcc + param_1 * 4) = iVar3;
-    *(undefined4 *)(*(int *)(iVar3 + iVar4) + 0xa4) = 5;
+    ((int *)&g_particles_75cdcc)[param_1] = iVar3;
+    *(undefined4 *)(*(char **)(iVar3 + iVar4) + 0xa4) = 5;
     *(undefined4 *)
-     (*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4)) + 0xa8) = 6;
-    puVar1 = (uint *)(*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4))
+     (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4)) + 0xa8) = 6;
+    puVar1 = (uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4))
                      + 0x40);
     *puVar1 = *puVar1 | 0x10000000;
-    puVar1 = (uint *)(*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4))
+    puVar1 = (uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4))
                      + 0x40);
     *puVar1 = *puVar1 | 0x800000;
     *(undefined4 *)
-     (*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4)) + 4) = 0x200;
+     (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4)) + 4) = 0x200;
     RpAtomicSetFrame(*(RpAtomic **)((char *)&g_particles_75cdcc + param_1 * 4),frame);
-    iVar4 = *(int *)(*(int *)(*(int *)((char *)&g_particles_75cdcc + param_1 * 4) + 0x18) + 0x5c);
+    iVar4 = *(int *)(*(char **)(*(char **)((char *)&g_particles_75cdcc + param_1 * 4) + 0x18) + 0x5c);
     *(undefined4 *)(iVar4 + 4) = frame_obj.local_20;
     *(undefined4 *)(iVar4 + 8) = frame_obj.local_1c;
     *(undefined4 *)(iVar4 + 0xc) = frame_obj.local_18;
     *(undefined4 *)(iVar4 + 0x10) = frame_obj.local_14;
     *(undefined4 *)
-     (*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4)) + 0xac) = 1;
-    iVar4 = *(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4));
+     (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4)) + 0xac) = 1;
+    iVar4 = *(int *)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4));
     *(undefined4 *)(iVar4 + 0xd8) = frame_obj.local_10;
     *(undefined4 *)(iVar4 + 0xdc) = frame_obj.local_c;
     *(undefined4 *)(iVar4 + 0xe0) = frame_obj.local_8;
     *(undefined4 *)(iVar4 + 0xe4) = frame_obj.local_4;
-    *(uint *)(*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4)) + 0x40)
-         = *(uint *)(*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4)) +
+    *(uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4)) + 0x40)
+         = *(uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4)) +
                     0x40) | 0x80000;
-    iVar4 = *(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4));
+    iVar4 = *(int *)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4));
     *(undefined4 *)(iVar4 + 0xb8) = frame_obj.local_28;
     *(undefined4 *)(iVar4 + 0xbc) = frame_obj.local_24;
-    puVar1 = (uint *)(*(int *)(g_ptank_plugin_offset + *(int *)((char *)&g_particles_75cdcc + param_1 * 4))
+    puVar1 = (uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + param_1 * 4))
                      + 0x40);
     *puVar1 = *puVar1 | 0x4000;
     texture = g_particles_75cddc;
@@ -98,10 +98,10 @@ void fx_snow_ptank_create(int param_1,RwTexture *param_2)
       RpMaterialSetTexture
                 ((RpMaterial *)
                  **(undefined4 **)
-                   (*(int *)(*(int *)((char *)&g_particles_75cdcc + param_1 * 4) + 0x18) + 0x20),texture);
+                   (*(char **)(*(char **)((char *)&g_particles_75cdcc + param_1 * 4) + 0x18) + 0x20),texture);
     }
     RpPTankAtomicLock_00545d10
-              (*(undefined4 *)((char *)&g_particles_75cdcc + param_1 * 4),&frame_obj.puStack_30,2,0x40000000);
+              (((undefined4 *)&g_particles_75cdcc)[param_1],&frame_obj.puStack_30,2,0x40000000);
     iVar4 = 0x200;
     do {
       *frame_obj.puStack_30 = 0xff;
@@ -112,7 +112,7 @@ void fx_snow_ptank_create(int param_1,RwTexture *param_2)
       iVar4 = iVar4 + -1;
     } while (iVar4 != 0);
   }
-  *(undefined4 *)((char *)&g_particles_75cda8 + param_1 * 4) = 0;
+  ((undefined4 *)&g_particles_75cda8)[param_1] = 0;
   fx_slot_table_clear(param_1);
   return;
 }

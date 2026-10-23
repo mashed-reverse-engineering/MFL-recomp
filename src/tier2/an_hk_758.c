@@ -39,14 +39,14 @@ void distances_update(void)
   int other_player;
   int back_player;
   int leader_player;
-  float10 progress_value;
+  double progress_value;
   RwReal horizontal_distance;
   struct {
     int player_index;
     int front_player;
     float progress_a;
     float progress_b;
-    int matrix_ptr;
+    char *matrix_ptr;
     int front_mode;
     int mode_a;
     undefined1 mode_a_extra[4];
@@ -64,9 +64,9 @@ void distances_update(void)
   frame.player_index = 4;
   /* the two focus players and their lap progress */
   race_get_focus_player(&frame.player_index,&frame.front_player);
-  progress_value = (float10)player_progress_b(frame.player_index);
+  progress_value = (double)player_progress_b(frame.player_index);
   frame.progress_a = (float)progress_value;
-  progress_value = (float10)player_progress_b(frame.front_player);
+  progress_value = (double)player_progress_b(frame.front_player);
   frame.progress_b = (float)progress_value;
   /* start/finish wrap (inferred): if one car is just past the line (< 20) and the other is near the end (> 80),
      subtract a full lap (100) from the one near the end so it compares as behind */

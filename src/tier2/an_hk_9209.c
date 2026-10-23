@@ -28,7 +28,7 @@ void __cdecl sound_play_impact_voice(int param_1,int param_2,int param_3,float p
   float fVar2;
   int player;
   float speed_b;
-  float10 fVar5;
+  double fVar5;
 
   player = param_2;
   if ((((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count <= 1)) &&
@@ -56,12 +56,12 @@ void __cdecl sound_play_impact_voice(int param_1,int param_2,int param_3,float p
       g_sound_play_62925c = 1.0;
     }
     FUN_005b6a40(g_voices[iVar1].voice,1);
-    fVar5 = (float10)random_range(0,0x4509d000);
-    *(float *)(g_voices[iVar1].voice + 0x3c) = (float)(fVar5 + (float10)k_f_22050);
+    fVar5 = (double)random_range(0,0x4509d000);
+    *(float *)(g_voices[iVar1].voice + 0x3c) = (float)(fVar5 + (double)k_f_22050);
     if (*(int *)(g_voices[iVar1].voice + 0x30) != 0) {
-      fVar5 = (float10)random_range(0,0x4509d000);
+      fVar5 = (double)random_range(0,0x4509d000);
       FUN_005b7300(*(undefined4 *)(g_voices[iVar1].voice + 0x30),4,1,
-                   (float)(fVar5 + (float10)k_f_22050));
+                   (float)(fVar5 + (double)k_f_22050));
     }
     voice_set_volume(iVar1,g_sound_play_62925c);
   }

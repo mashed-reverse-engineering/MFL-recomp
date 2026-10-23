@@ -95,14 +95,14 @@ void weapons_update_frame(void)
     *(float *)(slot + SLOT_MOVE_B) = *(float *)(slot + SLOT_POSITION_B) - old_b[0];
     *(float *)(slot + SLOT_MOVE_B + 4) = *(float *)(slot + SLOT_POSITION_B + 4) - old_b[1];
     *(float *)(slot + SLOT_MOVE_B + 8) = *(float *)(slot + SLOT_POSITION_B + 8) - old_b[2];
-    if ((race_phase == 6) && (*(int *)((char *)&g_player_status + slot_index * 4) != 4)) {
-      if (*(int *)((char *)&g_player_status + slot_index * 4) == 2) {
-        *(int *)((char *)&g_player_status + slot_index * 4) = 3;
+    if ((race_phase == 6) && (((int *)&g_player_status)[slot_index] != 4)) {
+      if (((int *)&g_player_status)[slot_index] == 2) {
+        ((int *)&g_player_status)[slot_index] = 3;
         if (*(int *)(slot + SLOT_DESCRIPTOR) != 0) {
           player_unequip_weapon_r((int)slot);
         }
       }
-      else if (*(int *)((char *)&g_player_status + slot_index * 4) != 3) {
+      else if (((int *)&g_player_status)[slot_index] != 3) {
         if (*(int *)(slot + SLOT_ARMED) != 0) {
           /* probe the world from the body position: a miss unequips the weapon and spawns an emitter */
           *(undefined4 *)(slot + SLOT_AIM) = *(undefined4 *)(slot + SLOT_POSITION);

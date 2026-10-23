@@ -50,7 +50,7 @@ void btb_panel_slot_update(int param_1)
   if (*(int *)((char *)&g_btb_panel_658c10 + iVar5) != 0) {
     RwFrameTransform(*(RwFrame **)((char *)&g_btb_panel_658c00 + iVar5),
                      (RwMatrix *)((char *)&g_btb_panel_658b50 + iVar5),rwCOMBINEREPLACE);
-    pRVar1 = *(RwFrame **)(*(int *)((char *)&g_btb_panel_658ba0 + iVar5) + 4);
+    pRVar1 = *(RwFrame **)(*(char **)((char *)&g_btb_panel_658ba0 + iVar5) + 4);
     RwFrameRotate(pRVar1,&frame.local_c,*(RwReal *)((char *)&g_btb_panel_658bf8 + iVar5),rwCOMBINEREPLACE);
     RwFrameRotate(pRVar1,&frame.local_18,*(RwReal *)((char *)&g_btb_panel_658bf4 + iVar5),rwCOMBINEPOSTCONCAT);
     RwFrameRotate(pRVar1,&frame.local_24,*(RwReal *)((char *)&g_btb_panel_658bf0 + iVar5),rwCOMBINEPOSTCONCAT);
@@ -64,7 +64,7 @@ void btb_panel_slot_update(int param_1)
       iVar4 = iVar4 + -1;
     } while (iVar4 != 0);
     if (*(int *)((char *)&g_btb_panel_658b90 + iVar5) != 0) {
-      iVar4 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658b90 + iVar5) + 0x18) + 0x20);
+      iVar4 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658b90 + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar4 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);
@@ -72,7 +72,7 @@ void btb_panel_slot_update(int param_1)
       *(int *)(iVar4 + 4) = param_1;
     }
     if (*(int *)((char *)&g_btb_panel_658b94 + iVar5) != 0) {
-      iVar4 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658b94 + iVar5) + 0x18) + 0x20);
+      iVar4 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658b94 + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar4 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);
@@ -80,7 +80,7 @@ void btb_panel_slot_update(int param_1)
       *(int *)(iVar4 + 4) = param_1;
     }
     if (*(int *)((char *)&g_btb_panel_658b98 + iVar5) != 0) {
-      iVar4 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658b98 + iVar5) + 0x18) + 0x20);
+      iVar4 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658b98 + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar4 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);
@@ -88,7 +88,7 @@ void btb_panel_slot_update(int param_1)
       *(int *)(iVar4 + 4) = param_1;
     }
     if (*(int *)((char *)&g_btb_panel_658b9c + iVar5) != 0) {
-      iVar4 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658b9c + iVar5) + 0x18) + 0x20);
+      iVar4 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658b9c + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar4 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);
@@ -96,7 +96,7 @@ void btb_panel_slot_update(int param_1)
       *(int *)(iVar4 + 4) = param_1;
     }
     if (*(int *)((char *)&g_btb_panel_658ba0 + iVar5) != 0) {
-      iVar4 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658ba0 + iVar5) + 0x18) + 0x20);
+      iVar4 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658ba0 + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar4 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);
@@ -104,7 +104,7 @@ void btb_panel_slot_update(int param_1)
       *(int *)(iVar4 + 4) = param_1;
     }
     if (*(int *)((char *)&g_btb_panel_658ba4 + iVar5) != 0) {
-      iVar4 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658ba4 + iVar5) + 0x18) + 0x20);
+      iVar4 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658ba4 + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar4 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);
@@ -112,7 +112,7 @@ void btb_panel_slot_update(int param_1)
       *(int *)(iVar4 + 4) = param_1;
     }
     if (*(int *)((char *)&g_btb_panel_658ba8 + iVar5) != 0) {
-      iVar5 = **(int **)(*(int *)(*(int *)((char *)&g_btb_panel_658ba8 + iVar5) + 0x18) + 0x20);
+      iVar5 = **(int **)(*(char **)(*(char **)((char *)&g_btb_panel_658ba8 + iVar5) + 0x18) + 0x20);
       uVar2 = *(undefined4 *)(iVar5 + 4);
       uVar3 = ((int)(*(float *)(slot_base + 0xbc) * 255.0f));
       param_1 = (param_1 & 0xff000000) | ((uint)((undefined3)uVar2) & 0xffffff);

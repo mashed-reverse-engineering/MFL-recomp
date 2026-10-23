@@ -45,16 +45,16 @@ LAB_00438106:
     /* default column for this event type: 3 or 6 from the flag, overridden by the
        event type ranges below (inferred) */
     result = (-(uint)(saved_menu_69cc44 != 0) & 3) + 3;
-    if (((g_event_type == 0xb) || (g_event_type == 0xc)) || (g_event_type == 0xd)) {
+    if (((g_event_type == EVENT_QUICK_RACE_11) || (g_event_type == EVENT_QUICK_RACE_12)) || (g_event_type == EVENT_QUICK_RACE_13)) {
       result = 0xb;
     }
-    if (((g_event_type == 0) || (g_event_type == 1)) || (g_event_type == 2)) {
+    if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
       result = 0;
     }
     /* target column: the event type itself for most types, else the default above (inferred) */
     target_column = g_event_type;
-    if (((g_event_type != 0xe) && (g_event_type != 0xf)) &&
-       ((g_event_type != 0x10 && (target_column = result, g_event_type == 0x11)))) {
+    if (((g_event_type != EVENT_TURBO_TOURNAMENT) && (g_event_type != EVENT_ICE_TOURNAMENT)) &&
+       ((g_event_type != EVENT_NIGHT_TOURNAMENT && (target_column = result, g_event_type == EVENT_TRAINING)))) {
       target_column = g_event_type;
     }
     if (column == target_column) {

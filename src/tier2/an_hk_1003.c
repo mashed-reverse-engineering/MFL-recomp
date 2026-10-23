@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00416e20*/ extern int __cdecl point_project_onto_line_2d(int car_index, float *a, float *b, float *c, float scale, float *out);
-/*00416fb0*/ extern int __cdecl ai_bot_weapon_logic(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5);
+/*00416fb0*/ extern int __cdecl ai_bot_weapon_logic(undefined4 p0, void *p1, void *p2, void *p3, undefined4 p4, void *p5);
 /*004220f0*/ extern int vehicle_get_position_158();
 /*0044c180*/ extern double player_distance_get();
 /*0047b520*/ extern int car_current_matrix();
@@ -19,7 +19,7 @@
 
 /* "scans the trigger array for type 7 boxes the car is in and projects a target onto the line" */
 
-undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 param_1,char *param_2,char *param_3,undefined4 param_4)
 
 {
   float fbits1;
@@ -30,11 +30,11 @@ undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 param_1,undefined4 
   float *pfVar3;
   float *pfVar4;
   float *pfVar5;
-  float10 fVar6;
+  double fVar6;
   RwReal RVar7;
   struct {
     float local_68;
-    int local_64;
+    char *local_64;
     int local_60;
     int local_5c;
     float local_58;
@@ -107,9 +107,9 @@ joined_r0x00417a28:
               iVar2 = point_project_onto_line_2d(param_4,(float *)&frame.local_50,(float *)param_2,&frame.local_58,frame.local_68 + k_f_0_5,(float *)param_3);
               goto joined_r0x00417a28;
             }
-            fVar6 = (float10)player_distance_get(param_4);
+            fVar6 = (double)player_distance_get(param_4);
             if (((fVar6 == k_f_0) &&
-                (iVar2 = ai_bot_weapon_logic(param_4,(undefined4)&frame.local_50,param_2,(undefined4)&frame.local_58,(fbits1 = frame.local_68 + k_f_0_5, *(int *)&fbits1),
+                (iVar2 = ai_bot_weapon_logic(param_4,&frame.local_50,param_2,&frame.local_58,(fbits1 = frame.local_68 + k_f_0_5, *(int *)&fbits1),
                                              param_3), iVar2 != 0)) &&
                ((fVar1 = *(float *)(frame.local_64 + 0x34) - pfVar3[-2], k_f_n0_75 < fVar1 &&
                 (fVar1 < k_f_0_75)))) {

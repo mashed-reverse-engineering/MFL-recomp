@@ -79,7 +79,7 @@ extern char LAB_00408ef0[];
  * Returns nothing. Does work only when car_get_mode(player_index) returns 0 (inferred).
  * Route, checkpoint and split state is kept in the player record; the globals are not renamed.
  */
-void __cdecl player_time_update(int car,undefined4 collision_world,int player_index)
+void __cdecl player_time_update(char *car,undefined4 collision_world,int player_index)
 
 {
   /* tmp_int, tmp_int_b, tmp_u32 and tmp_float are reused for several values; see the block comments */
@@ -218,7 +218,7 @@ void __cdecl player_time_update(int car,undefined4 collision_world,int player_in
       player_route_progress_update(player,car);
       tmp_int = *(int *)((char *)&g_player_8d8ca0 + player_offset);
       if ((-1 < tmp_int) && (tmp_int < MAX_AI_POLYGONS)) {
-        *(undefined1 *)(tmp_int + POLYGON_FLAGS_OFFSET + (int)player) = 1;
+        *(undefined1 *)(tmp_int + POLYGON_FLAGS_OFFSET + (char *)player) = 1;
       }
       /* coverage: while the progress fraction (8d8d48) is below float_1_0, count the AI polygons
          flagged as visited (tmp_int_b) and clear each flag as it is read */

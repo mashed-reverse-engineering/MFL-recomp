@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0042bd00*/ extern int dat_get_string();
+/*0042bd00*/ extern char *dat_get_string();
 /*005632e0*/ extern int Rt2dCTMPush();
 /*00564b10*/ extern int Rt2dBrushSetRGBA();
 /*00566060*/ extern void * __cdecl Rt2dFontFlow(void * p0, void * p1, RwReal p2, void * p3, int p4, void * p5);
@@ -9,8 +9,8 @@
 /*005de81c*/ extern float k_f_0_0708;
 /*0069ba00*/ extern float g_ui_layout_scale_x;
 /*0069ba04*/ extern float g_ui_layout_scale_y;
-/*0069ba0c*/ extern undefined4 g_ui_font;
-/*0069ba10*/ extern undefined4 g_ui_text_brush;
+/*0069ba0c*/ extern char *g_ui_font;
+/*0069ba10*/ extern char *g_ui_text_brush;
 static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
 extern void ui_rt2d_text_map_special_chars(void);
 #define TEXT_BUF_SIZE (512)
@@ -43,7 +43,7 @@ void text_draw_box(undefined4 string_id,float x,float y,float width,float height
                   undefined4 colour_rgba,float text_scale)
 
 {
-  undefined4 text;
+  char *text;
   union {
     char raw_bytes[528];
     struct {

@@ -1,8 +1,8 @@
 #include "mfl_tier2.h"
 /*0041da30*/ extern int btb_panel_set_visible_all();
-/*0041dd80*/ extern undefined __cdecl time_trial_panel_update(undefined4 p0, undefined4 p1);
+/*0041dd80*/ extern undefined __cdecl time_trial_panel_update(void *p0, void *p1);
 /*00434bb0*/ extern int get_event_type();
-/*00494760*/ extern undefined __cdecl replay_buffer_interpolate_frame(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00494760*/ extern undefined __cdecl replay_buffer_interpolate_frame(undefined4 p0, void *p1, undefined4 p2);
 /*00652f84*/ extern undefined4 g_ghost_652f84;
 /*00652f88*/ extern undefined4 g_replay_652f88;
 /*00652f94*/ extern undefined4 g_time_652f94;
@@ -116,14 +116,14 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
     frame.local_50 = 0;
     /* Interpolate the ghost and replay frames at the stored time, then update the panel */
     if (g_ghost_652f84 != 0) {
-      replay_buffer_interpolate_frame(g_ghost_652f84,(undefined4)&frame.local_80,g_time_652f94);
+      replay_buffer_interpolate_frame(g_ghost_652f84,&frame.local_80,g_time_652f94);
     }
     if (g_replay_652f88 != 0) {
-      replay_buffer_interpolate_frame(g_replay_652f88,(undefined4)&frame.local_40,g_time_652f94);
+      replay_buffer_interpolate_frame(g_replay_652f88,&frame.local_40,g_time_652f94);
     }
     panel_state = &frame.local_88;
     btb_panel_set_visible_all(&frame.local_88);
-    time_trial_panel_update((undefined4)&frame.local_90,(undefined4)panel_state);
+    time_trial_panel_update(&frame.local_90,panel_state);
   }
   return;
 }

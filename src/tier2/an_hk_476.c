@@ -1,10 +1,10 @@
 #include "mfl_tier2.h"
 /*00467ea0*/ extern int weapon_get_rw_801b14();
-/*004682c0*/ extern int __cdecl rocket_surface_hit_test(undefined4 p0, undefined4 p1);
+/*004682c0*/ extern int __cdecl rocket_surface_hit_test(void *p0, void *p1);
 /*00499100*/ extern int fx_spawn_from_matrix_2();
-/*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
+/*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
+/*004c51a0*/ extern void FUN_004c51a0(void *p0, void *p1, void *p2);
 /*005dd628*/ extern float k_f_0_25;
 /*005ddafc*/ extern float k_f_0_05;
 /* explosion_decal */

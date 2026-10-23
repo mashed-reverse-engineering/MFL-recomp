@@ -5,7 +5,7 @@
 /*00451dc0*/ extern int camera_create_b();
 /*00475730*/ extern int get_viewport_camera();
 /*00495b60*/ extern undefined __cdecl viewport_raster_create(uint p0, RwInt32 p1, RwInt32 p2, uint p3);
-/*00495c10*/ extern int viewport_get_field_702254();
+/*00495c10*/ extern char *viewport_get_field_702254();
 /*0049a9b0*/ extern int fx_slot_find_free();
 /*004a0e40*/ extern int rain_splash_add();
 /*004a0f20*/ extern int rain_ptank_create();
@@ -62,7 +62,7 @@ void course_arctic_cb0(int param_1)
   world_for_all_materials_cb_406910(*(RpWorld **)(param_1 + 0xc9d4),texture_dict);
   camera_create_a(param_1);
   camera_create_b(param_1);
-  RwFrameSetIdentity(*(RwFrame **)(*(int *)(param_1 + 0xc118) + 4));
+  RwFrameSetIdentity(*(RwFrame **)(*(char **)(param_1 + 0xc118) + 4));
   g_course_arctic_8c5840 = *(RpClump **)(param_1 + 0xc118);
   RStack_24.x = 0.0;
   RStack_24.y = -4.1;
@@ -91,7 +91,7 @@ void course_arctic_cb0(int param_1)
     RStack_24.z = -150.0;
     iVar2 = 5;
     do {
-      RwFrameTranslate(*(RwFrame **)((int)(&g_course_arctic_8c5840)[iVar4] + 4),&RStack_24,
+      RwFrameTranslate(*(RwFrame **)((char *)(&g_course_arctic_8c5840)[iVar4] + 4),&RStack_24,
                        rwCOMBINEREPLACE);
       RStack_24.z = RStack_24.z + k_f_60;
       iVar4 = iVar4 + 1;

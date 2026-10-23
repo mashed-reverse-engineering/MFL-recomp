@@ -42,7 +42,7 @@
 /*0049f400*/ extern int fx_ptank_atomic_destroy();
 /*004a5d70*/ extern int object_render();
 /*004a5da0*/ extern int object_destroy_frames();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b322b*/ extern int exit();
 /*004b4ba7*/ extern int entry();
 /*004b5a47*/ extern int positive();

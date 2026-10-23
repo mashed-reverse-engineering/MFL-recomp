@@ -7,7 +7,7 @@
 /*00435fb0*/ extern int ui_get_menu_69d2d0();
 /*00494460*/ extern int physics_buffer_size();
 /*00494480*/ extern int physics_buffer_create();
-/*00495860*/ extern int __cdecl replay_buffer_create_from_stream(undefined4 p0, undefined4 p1);
+/*00495860*/ extern int __cdecl replay_buffer_create_from_stream(void *p0, undefined4 p1);
 /*004a8420*/ extern int __cdecl debug_printf(const char *fmt, ...);
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(const char *p0, ...);
 typedef int (__cdecl *rwSprintfFn)(RwChar *, const RwChar *, ...);
@@ -69,7 +69,7 @@ void replay_create_buffer(int course_id)
       status = ui_get_menu_69d2d0();
       if (status == 0) {
         course_id_2 = current_course_id_with_mirror();
-        g_replay_652f80 = replay_buffer_create_from_stream((undefined4)&g_replay_buffer,course_id_2);
+        g_replay_652f80 = replay_buffer_create_from_stream(&g_replay_buffer,course_id_2);
       }
       if (g_replay_652f80 == 0) {
         g_replay_652fa4 = 0;

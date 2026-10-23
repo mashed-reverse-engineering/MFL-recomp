@@ -41,7 +41,7 @@ void career_event_won(void)
   int all_done;
   int event;
 
-  if (g_event_type == 0xe || g_event_type == 0xf || g_event_type == 0x10) {
+  if (g_event_type == EVENT_TURBO_TOURNAMENT || g_event_type == EVENT_ICE_TOURNAMENT || g_event_type == EVENT_NIGHT_TOURNAMENT) {
     if (intro_banner_get_value() != 0) {
       event = g_event_type;
       n = g_event_type + g_career_row * 0x12;
@@ -66,9 +66,9 @@ void career_event_won(void)
       autosave_request();
       return;
     }
-  } else if (g_event_type == 3 || g_event_type == 4 || g_event_type == 5) {
+  } else if (g_event_type == EVENT_CUP_3 || g_event_type == EVENT_CUP_4 || g_event_type == EVENT_CUP_5) {
     if (intro_banner_get_value() != 0) {
-      if (g_event_type == 3) {
+      if (g_event_type == EVENT_CUP_3) {
         row_bytes = g_career_row * 0x48;
         if (g_game_state.progress[g_career_row * 0x12 + 3] != 2) {
           state = 0;
@@ -113,7 +113,7 @@ void career_event_won(void)
           autosave_request();
           return;
         }
-      } else if (g_event_type == 4) {
+      } else if (g_event_type == EVENT_CUP_4) {
         row_bytes = g_career_row * 0x48;
         if (g_game_state.progress[g_career_row * 0x12 + 4] != 2) {
           state = 0;
@@ -146,7 +146,7 @@ void career_event_won(void)
           autosave_request();
           return;
         }
-      } else if (g_event_type == 5) {
+      } else if (g_event_type == EVENT_CUP_5) {
         row_bytes = g_career_row * 0x48;
         if (g_game_state.progress[g_career_row * 0x12 + 5] != 2) {
           state = 0;

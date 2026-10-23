@@ -29,7 +29,7 @@ void kc_panel_entry_init_n(KcPanelEntry *entry)
     entry->is_extra = 0;
     flags = 1u << (g_player_slots[entry->player_index].team & 31);
     entry->flags = flags;
-    if (g_kc_panel_659304 > 3 && is_team_mode() == 0 && game_mode != 1 && game_mode != 2) {
+    if (g_kc_panel_659304 > 3 && is_team_mode() == 0 && game_mode != GAME_MODE_HOLD_THE_FLAG && game_mode != GAME_MODE_HARE_AND_HOUNDS) {
         flags |= 0x800;
     } else {
         flags |= 0x400;

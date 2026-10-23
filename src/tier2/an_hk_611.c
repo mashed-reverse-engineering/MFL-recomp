@@ -54,7 +54,6 @@
 #define FPS_WINDOW_STEPS (1000) /* (inferred) length of the frame-count window, in steps */
 #define MENU_ID_THRESHOLD (199) /* (inferred) menu id above which the overlay flag is set */
 #define CLEAR_ALPHA_OPAQUE (0xff)
-#define EVENT_TRAINING_PROMPT (0x11) /* (inferred) from menu_draw_training_prompt */
 #define FRAMERATE_SAMPLE_STRIDE (0x44) /* bytes per framerate sample slot */
 /* app_state_menu_render */
 
@@ -112,11 +111,11 @@ undefined4 app_state_menu_render(void)
   }
   /* State 6: overlay flag is set while the menu id is above MENU_ID_THRESHOLD
      (inferred), and the flag also forces the menu clear colour below. */
-  if (g_app_state == 6) {
+  if (g_app_state == APP_STATE_RACE_START) {
     last_result = menu_get_69d1e4();
     g_app_state_76e854 = (uint)(MENU_ID_THRESHOLD < last_result);
   }
-  if (((g_app_state == 2) || (g_app_state == 1)) || (g_app_state_76e854 != 0)) {
+  if (((g_app_state == APP_STATE_COURSE_LOADED) || (g_app_state == APP_STATE_MAIN_LOOP_INIT)) || (g_app_state_76e854 != 0)) {
     clear_color_ptr = &frame.clear_color;
   }
   /* Clear the viewport camera (image and Z). Colour: opaque black for the menu states,
@@ -128,7 +127,7 @@ undefined4 app_state_menu_render(void)
   switch(g_app_state) {
   /* State 1: frontend menu. Draws into the viewport camera; when the menu id is 3 and
      the view rect is ready, also renders the second camera for race start. */
-  case 1:
+  case APP_STATE_MAIN_LOOP_INIT:
     last_result = ui_get_menu_69d1ec();
     if ((last_result == 1) &&
        ((check_result = ui_state_is_5(), check_result != 0 || (check_result = ui_state_is_0(), check_result != 0)))) {
@@ -179,12 +178,12 @@ undefined4 app_state_menu_render(void)
       viewport_cam = 0xffffffff;
     }
     goto LAB_004a26d6;
-  case 2:
+  case APP_STATE_COURSE_LOADED:
     g_app_state_76e854 = 4;
     break;
   /* States 3 and 7: in-race render (course camera, race viewport, HUD, training prompt). */
-  case 3:
-  case 7:
+  case APP_STATE_RACE:
+  case APP_STATE_RACE_MESSAGE:
     if (g_app_state_76e854 == 0) {
       course_race_start();
       cam = (RwCamera *)get_viewport_camera(0);
@@ -222,7 +221,7 @@ undefined4 app_state_menu_render(void)
       cam = (RwCamera *)get_viewport_camera(0);
       course_camera_remove_from_collision_world(cam);
       last_result = get_event_type();
-      if (last_result == EVENT_TRAINING_PROMPT) {
+      if (last_result == EVENT_TRAINING) {
         viewport_cam = get_viewport_camera(0);
         last_result = RwCameraBeginUpdate(viewport_cam);
         if (last_result != 0) {
@@ -231,9 +230,9 @@ undefined4 app_state_menu_render(void)
           RwCameraEndUpdate(viewport_cam);
         }
       }
-      if (g_app_state != 7) break;
+      if (g_app_state != APP_STATE_RACE_MESSAGE) break;
     }
-    else if (g_app_state != 7) {
+    else if (g_app_state != APP_STATE_RACE_MESSAGE) {
       g_app_state_76e854 = g_app_state_76e854 - 1;
       break;
     }
@@ -242,7 +241,7 @@ undefined4 app_state_menu_render(void)
     if (last_result == 0) break;
     goto LAB_004a26d0;
   /* State 4: frontend page, plus the options menu when the menu id is 0x20. */
-  case 4:
+  case APP_STATE_MENU:
     camera_set_default_view_window();
     viewport_cam = get_viewport_camera(0);
     last_result = RwCameraBeginUpdate(viewport_cam);
@@ -260,8 +259,8 @@ LAB_004a26d6:
     RwCameraEndUpdate(viewport_cam);
     break;
   /* States 5 and 6: in-race render with the frontend drawn on top (inferred). */
-  case 5:
-  case 6:
+  case APP_STATE_FRONTEND:
+  case APP_STATE_RACE_START:
     if (g_app_state_76e854 == 0) {
       cam = (RwCamera *)get_viewport_camera(0);
       course_camera_add_to_collision_world(cam);

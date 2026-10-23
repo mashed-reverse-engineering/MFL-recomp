@@ -183,7 +183,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
                 (*(int *)((LONG_PTR)player_car[0].effect_level + other_offset + -0x10) == 1)))) {
               own_pos = car->matrices + player_car[frame.car_index].matrix_current * 0x10 + 0xc;
               other_pos = (float *)(*(int *)((LONG_PTR)player_car[0].velocity + other_offset + -8) * 0x40 +
-                                 ((int)&player_car_0__matrices_12_) + other_offset);
+                                 ((char *)&player_car_0__matrices_12_) + other_offset);
               collision_range = (*(float *)((LONG_PTR)player_car[0].contacts + other_offset + -8) +
                       player_car[frame.car_index].bounds_radius) * k_f_0_75;
               /* bounding sphere test: squared distance of the two car positions against
@@ -199,7 +199,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
                 retry_count = retry_count + 1;
                 no_collision = false;
                 /* in game mode 1 a hit involving the race leader (g_cars_7ef7bc) is reported */
-                if (((game_mode == 1) && (g_cars_7ef7c4 == 0)) &&
+                if (((game_mode == GAME_MODE_HOLD_THE_FLAG) && (g_cars_7ef7c4 == 0)) &&
                    ((collided = other_index, frame.car_index == g_cars_7ef7bc ||
                     (collided = frame.car_index, other_index == g_cars_7ef7bc)))) {
                   car_hit_by_leader(collided);

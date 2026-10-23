@@ -45,6 +45,7 @@ typedef void *(*RwCallocFunc)(size_t, size_t, RwUInt32);
 
 /* Loads the permanent wave dictionary PERMDICT.RWS, creates the device channels and all voices, then assigns
    voice_count consecutive voices to every permanent wave (wave, loop flag, parameter 3). */
+/* TIER2: validated 2026-10-21 authority=diffemu */
 void sound_load_perm_dict(void)
 {
   char unused[16];      /* the /GS cookie of the original: a local buffer the release build optimised away */

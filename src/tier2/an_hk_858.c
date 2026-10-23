@@ -2,13 +2,13 @@
 /*00409eb0*/ extern double player_rank_key();
 /*0040fdc0*/ extern int race_get_phase();
 /*004146a0*/ extern int trail_get_value();
-/*00414760*/ extern undefined __cdecl trail_get_triple(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00414760*/ extern undefined __cdecl trail_get_triple(void *p0, undefined4 p1, void *p2);
 /*00414f00*/ extern int trail_update_00414f00();
-/*00422350*/ extern int vehicle_part_ltm();
+/*00422350*/ extern char *vehicle_part_ltm();
 /*004246f0*/ extern int car_set_damage();
 /*00426b40*/ extern int car_kill();
 /*0046fc20*/ extern int sound_bomb_countdown_voices();
-/*00475730*/ extern int get_viewport_camera();
+/*00475730*/ extern char *get_viewport_camera();
 /*004866b0*/ extern int fx_emitter_spawn_a_default();
 /*0048e3b0*/ extern int rwp_object_set_user_data();
 /*0048e3d0*/ extern int rwp_object_get_user_data();
@@ -61,7 +61,7 @@ void bomb_update(void)
 
 {
   bool any_outside_frustum;
-  int part_matrix;
+  char *part_matrix;
   int race_phase;
   undefined4 trail_object;
   uint user_data;
@@ -69,7 +69,7 @@ void bomb_update(void)
   RwFrustumTestResult frustum_result;
   int *trigger;
   float *part_position;
-  float10 counter_value;
+  double counter_value;
   RwSphere *sphere;
   /* frame: copy of the bomb mount position (pos_x..pos_z) and a blast sphere (sphere) */
   struct {
@@ -97,17 +97,17 @@ void bomb_update(void)
   sound_bomb_countdown_voices(2,*(int *)&g_bomb_5fb0a8);
   /* When the ai counter differs from the value stored in g_bomb_5fb0b0, clear the trigger hit
      flags and store the new counter (inferred: new race or restart). */
-  counter_value = (float10)ai_get_counter(0);
-  counter_value = (float10)FUN_004b2f90((double)counter_value);
-  if ((float10)(int)g_bomb_5fb0b0 != counter_value) {
+  counter_value = (double)ai_get_counter(0);
+  counter_value = (double)FUN_004b2f90((double)counter_value);
+  if ((double)(int)g_bomb_5fb0b0 != counter_value) {
     g_bomb_64d8e0 = 0;
     g_course_64d8f4 = 0;
     g_bomb_update_64d908 = 0;
     g_bomb_update_64d91c = 0;
     g_bomb_update_64d930 = 0;
     g_bomb_update_64d944 = 0;
-    counter_value = (float10)ai_get_counter(0x0);
-    counter_value = (float10)FUN_004b2f90((double)counter_value);
+    counter_value = (double)ai_get_counter(0x0);
+    counter_value = (double)FUN_004b2f90((double)counter_value);
     g_bomb_5fb0b0 = (int)counter_value;
   }
   /* Active flag of trigger 0 (its word [2]): counter > 0. */
@@ -144,8 +144,8 @@ void bomb_update(void)
   trigger = g_bomb_64d8dc;
   do {
     if ((trigger[2] != 0) && (trigger[1] == 0)) {
-      counter_value = (float10)player_rank_key(0x0);
-      if (((float10)*trigger <= counter_value) && (counter_value < (float10)float_1_0 + (float10)*trigger)) {
+      counter_value = (double)player_rank_key(0x0);
+      if (((double)*trigger <= counter_value) && (counter_value < (double)float_1_0 + (double)*trigger)) {
         g_course_7ef7cc = g_course_7ef7cc + *(float *)&trigger[-1];
         trigger[1] = 1;
         trigger[3] = TRIGGER_HIT_VALUE_BITS;
@@ -161,7 +161,7 @@ void bomb_update(void)
       trail_object = trail_get_value(part_matrix, race_phase);
       user_data = rwp_object_get_user_data(trail_object);
       if ((user_data & TRAIL_FLAG_CULL_TEST) != 0) {
-        trail_get_triple(part_matrix,race_phase,(undefined4)&frame.sphere);
+        trail_get_triple(part_matrix,race_phase,&frame.sphere);
         sphere = &frame.sphere;
         frame.sphere.radius = 0.2;
         camera = (RwCamera *)get_viewport_camera(0);

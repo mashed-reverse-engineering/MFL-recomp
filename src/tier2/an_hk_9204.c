@@ -9,7 +9,7 @@ extern char LAB_0047b420[];
 /* "(x, y, z, world): collision ray 3 units up / down, returns the distance to the ground minus 3"
     */
 
-float10 car_probe_ground_distance(float param_1,float param_2,float param_3,int param_4)
+double car_probe_ground_distance(float param_1,float param_2,float param_3,char *param_4)
 
 {
   struct {
@@ -32,7 +32,7 @@ float10 car_probe_ground_distance(float param_1,float param_2,float param_3,int 
   param_1 = 6.0f;      /* the out value reuses the x parameter slot */
   RpCollisionWorldForAllIntersections(*(undefined4 *)(param_4 + 8),&ray,&LAB_0047b420,&param_1);
   if (param_1 != k_f_6) {
-    return (float10)param_1 - (float10)k_f_3;
+    return (double)param_1 - (double)k_f_3;
   }
-  return k_f_0 - (float10)k_f_3;
+  return k_f_0 - (double)k_f_3;
 }

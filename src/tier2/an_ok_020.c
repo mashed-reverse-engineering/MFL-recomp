@@ -31,7 +31,7 @@
 /*004a1880*/ extern int game_get_62ad2c();
 /*004a5550*/ extern int log_printf();
 /*004a5930*/ extern int joypads_poll_frame();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b4ba7*/ extern int entry();
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -105,7 +105,7 @@ extern void course_sky_clumps_render(void);
 extern void __cdecl course_world_ray_hit_light_forward(char *param_1,char *param_2,char *param_3);
 
 
-extern float10 course_get_shadow_scale(void);
+extern double course_get_shadow_scale(void);
 
 
 extern RpAtomic * atomic_log_not_instancing(RpAtomic *atomic,int *param_2);
@@ -194,7 +194,7 @@ extern void store_u32(undefined4 *param_1,char *param_2);
 
 /* "float g_hud_8c8798" */
 
-extern float10 hud_get_8c8798(void);
+extern double hud_get_8c8798(void);
 
 
 /* time_trial_default_record_a */
@@ -220,16 +220,16 @@ extern void time_trial_default_record_b (char *param_1,undefined4 *param_2,undef
 
 #define TEXT_YOU_LOSE (0x102)
 
-/* TIER2: unvalidated 2026-10-16 authority=diffemu */
+/* TIER2: unvalidated 2026-10-22 authority=diffemu */
 void race_lose_banner_draw(void)
 {
-  float10 banner_x;
+  double banner_x;
   
   /* shadow pass: black, x = banner_x + k_f_3, y = 63.0 */
-  banner_x = (float10)intro_banner_get_x();
-  ui_rt2d_text_draw(TEXT_YOU_LOSE,(float)(banner_x + (float10)k_f_3),63.0f,0xff000000,1.0f,2);
+  banner_x = (double)intro_banner_get_x();
+  ui_rt2d_text_draw(TEXT_YOU_LOSE,(float)(banner_x + (double)k_f_3),63.0f,0xff000000,1.0f,2);
   /* main pass: colour 0xff0000ff at the base x, y = 60.0 */
-  banner_x = (float10)intro_banner_get_x();
+  banner_x = (double)intro_banner_get_x();
   ui_rt2d_text_draw(TEXT_YOU_LOSE,(float)banner_x,60.0f,0xff0000ff,1.0f,2);
   return;
 }
@@ -240,7 +240,7 @@ void race_lose_banner_draw(void)
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(t): 470 - (1 - min(t,30)/30) * 500, vertical slide of the intro banner" */
 
-extern float10 __fastcall intro_banner_slide_y(char *param_1);
+extern double __fastcall intro_banner_slide_y(char *param_1);
 
 
 /* course_get_course_8c879c */
@@ -285,7 +285,7 @@ extern void best_time_store_previous(void);
 
 /* "(index): fraction of the time slot" */
 
-extern float10 time_get_fraction(char *param_1);
+extern double time_get_fraction(char *param_1);
 
 
 /* time_get_minutes */

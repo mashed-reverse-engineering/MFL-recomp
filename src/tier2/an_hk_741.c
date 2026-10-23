@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 typedef int CourseId;
 /*0042b110*/ extern int current_course_id();
-/*0045d620*/ extern int course_get_matrix_pos_6a291c();
+/*0045d620*/ extern char *course_get_matrix_pos_6a291c();
 /*0045e0d0*/ extern int __cdecl course_get_8bf050(undefined4 p0);
 /*0045e0e0*/ extern double course_get_6a2950();
 /*0047b520*/ extern int car_current_matrix();
@@ -35,9 +35,9 @@ void ai_bot_course_0x21_target_check(uint bot_index,char *ai_out)
   int bot_ok;
   float *course_pos;
   undefined4 speed_result;
-  float10 course_metric;
+  double course_metric;
   struct {
-    int car_matrix_ptr;
+    char *car_matrix_ptr;
     float speed;
     float drift_angle;
     RwV3d offset;
@@ -46,7 +46,7 @@ void ai_bot_course_0x21_target_check(uint bot_index,char *ai_out)
   /* Gate: right course, course metric small enough, bot not in state 10, bot_ok set */
   course_id = current_course_id();
   if ((((course_id == COURSE_WARZONE) &&
-       (course_metric = (float10)course_get_6a2950(), course_metric <= (float10)k_f_30)) &&
+       (course_metric = (double)course_get_6a2950(), course_metric <= (double)k_f_30)) &&
       (g_ai_bots[bot_index].state_70 != 10)) && (bot_ok = course_get_8bf050(bot_index), bot_ok != 0)) {
     course_pos = (float *)course_get_matrix_pos_6a291c();
     speed_result = car_get_speed(&probe.speed,bot_index);

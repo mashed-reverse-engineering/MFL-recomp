@@ -29,7 +29,7 @@ int geometry_transform_points(int atomic,RwBBox *boundBox)
   RwMatrix local_transform;
 
   numPoints = *(int *)(*(char **)(atomic + 0x18) + 0x14);
-  vertex_cursor = *(RwV3d **)(*(char **)(*(int *)(atomic + 0x18) + 0x5c) + 0x14);
+  vertex_cursor = *(RwV3d **)(*(char **)(*(char **)(atomic + 0x18) + 0x5c) + 0x14);
   transformed_points = RwMalloc(numPoints * RWV3D_SIZE,0);
   frame_ltm = RwFrameGetLTM(*(RwFrame **)(atomic + 4));
   parent_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(atomic + 0x3c) + 4));

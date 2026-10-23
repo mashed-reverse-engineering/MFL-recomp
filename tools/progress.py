@@ -28,7 +28,7 @@ def compute():
     p = find("tier_ledger.csv")
     if p:
         for r in csv.DictReader(open(p)):
-            t = tiers[r["tier"]]; t["functions"] += 1; t["bytes"] += size.get(int(r["va"], 16), 0)
+            t = tiers[r["tier"]]; t["functions"] += 1; t["bytes"] += (size.get(int(r["va"], 16), 0) if re.fullmatch(r"[0-9a-fA-F]+", r["va"]) else 0)
             t["verified_bytes_identical"] += r["authority"] == "bytes-reloc"
     rep = {t: dict(c) for t, c in sorted(tiers.items())}
     cl = {"functions": 0, "bytes": 0}                    # register-argument clusters (natural-C body + generated entry thunk), behaviour verified

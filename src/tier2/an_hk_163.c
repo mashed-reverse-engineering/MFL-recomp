@@ -7,7 +7,7 @@
  * Returns nothing.
  */
 
-void __cdecl FUN_005c1ff0(int obj_b,undefined4 value_b,int obj_a,undefined4 value_a)
+void __cdecl FUN_005c1ff0(char *obj_b,undefined4 value_b,char *obj_a,undefined4 value_a)
 
 {
   char *handler;

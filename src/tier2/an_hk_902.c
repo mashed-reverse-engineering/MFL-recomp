@@ -1,23 +1,23 @@
 #include "mfl_tier2.h"
 typedef int CourseId;
-/*00409f50*/ extern int player_route_get_record_ptr();
+/*00409f50*/ extern char *player_route_get_record_ptr();
 /*0040fdc0*/ extern int race_get_phase();
-/*004170a0*/ extern int __cdecl ai_find_target_a(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6);
-/*004173e0*/ extern int __cdecl ai_catchup_bot_state_update(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*004175c0*/ extern int __cdecl ai_find_target_c(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*00417780*/ extern int __cdecl ai_trigger_zone_target_for_car(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*00417a50*/ extern int __cdecl ai_hazard_target_for_car(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004170a0*/ extern int __cdecl ai_find_target_a(undefined4 p0, void *p1, void *p2, undefined4 p3, undefined4 p4, void *p5, undefined4 p6);
+/*004173e0*/ extern int __cdecl ai_catchup_bot_state_update(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*004175c0*/ extern int __cdecl ai_find_target_c(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*00417780*/ extern int __cdecl ai_trigger_zone_target_for_car(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*00417a50*/ extern int __cdecl ai_hazard_target_for_car(undefined4 p0, void *p1, void *p2, undefined4 p3);
 /*00417b70*/ extern int __cdecl ai_find_leader_a(undefined4 p0);
-/*00417c30*/ extern int __cdecl ai_cell_is_value2(undefined4 p0, undefined4 p1);
-/*00417d70*/ extern int __cdecl ai_bot_stuck_check(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
-/*004183d0*/ extern int __cdecl ai_find_target_b(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*00417c30*/ extern int __cdecl ai_cell_is_value2(void *p0, undefined4 p1);
+/*00417d70*/ extern int __cdecl ai_bot_stuck_check(undefined4 p0, void *p1, void *p2, undefined4 p3, undefined4 p4);
+/*004183d0*/ extern int __cdecl ai_find_target_b(undefined4 p0, void *p1, void *p2, undefined4 p3);
 /*00418870*/ extern int __cdecl ai_bot_obstacle_ahead(undefined4 p0);
 /*00418990*/ extern double ai_steer_towards_point();
-/*00418be0*/ extern int __cdecl ai_target_check(undefined4 p0, undefined4 p1);
+/*00418be0*/ extern int __cdecl ai_target_check(void *p0, void *p1);
 /*00418d60*/ extern int ai_route_target_for_car();
 /*0042b110*/ extern int current_course_id();
 /*0044c540*/ extern int camera_get_car_8c747c();
-/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, void *p1, undefined4 p2, void *p3, undefined4 p4);
 /*0047b520*/ extern int car_current_matrix();
 /*0047b590*/ extern int car_get_forward();
 /*0047b720*/ extern int car_get_field_b0c();
@@ -103,7 +103,7 @@ void __cdecl ai_drive_a(undefined4 ai_ctx,int car_index,undefined1 *controls,und
     float speed;
     float car_field_b0c;
     int race_phase;
-    int car_matrix;
+    char *car_matrix;
     uint candidate_a;
     undefined4 candidate_b;
     uint target_a;
@@ -122,7 +122,7 @@ void __cdecl ai_drive_a(undefined4 ai_ctx,int car_index,undefined1 *controls,und
   frame.car_pos_x = *(undefined4 *)(frame.car_matrix + 0x30);
   frame.car_pos_z = *(undefined4 *)(frame.car_matrix + 0x38);
   /* Angle to the route point; folded into 0..180 degrees. */
-  ai_route_closest_point_search(ai_ctx, (undefined4)&frame.car_pos_x, 0x41200000, (undefined4)&frame.route_angle, 0x0);
+  ai_route_closest_point_search(ai_ctx, &frame.car_pos_x, 0x41200000, &frame.route_angle, 0x0);
   if (k_f_180 < frame.route_angle) {
     frame.route_angle = k_f_360 - frame.route_angle;
   }
@@ -132,15 +132,15 @@ void __cdecl ai_drive_a(undefined4 ai_ctx,int car_index,undefined1 *controls,und
   ai_route_target_for_car(ai_ctx, &frame.target_a, car_index);
   frame.target_mode = 0;
   /* Target selection: find_target_a, then b, then c, then the trigger zone; each sets target_mode. */
-  result = ai_find_target_a(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index,arg_scratch,(undefined4)target_ptr,result);
-  if ((result == 0) || (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a), result == 0)) {
-    result = ai_find_target_b(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index);
+  result = ai_find_target_a(ai_ctx,&frame.target_a,&frame.candidate_a,car_index,arg_scratch,target_ptr,result);
+  if ((result == 0) || (result = ai_target_check(&frame.car_pos_x,&frame.candidate_a), result == 0)) {
+    result = ai_find_target_b(ai_ctx,&frame.target_a,&frame.candidate_a,car_index);
     if ((result == 0) ||
-       ((result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a), result == 0 ||
+       ((result = ai_target_check(&frame.car_pos_x,&frame.candidate_a), result == 0 ||
         (result = ai_bot_obstacle_ahead(car_index), result != 0)))) {
-      result = ai_find_target_c(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index);
+      result = ai_find_target_c(ai_ctx,&frame.target_a,&frame.candidate_a,car_index);
       if (result == 1) {
-        result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a);
+        result = ai_target_check(&frame.car_pos_x,&frame.candidate_a);
         if (result == 0) goto LAB_00418f37;
 LAB_00418f66:
         frame.target_a = frame.candidate_a;
@@ -154,19 +154,19 @@ LAB_00418f66:
           return;
         }
 LAB_00418f37:
-        result = ai_trigger_zone_target_for_car(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index);
+        result = ai_trigger_zone_target_for_car(ai_ctx,&frame.target_a,&frame.candidate_a,car_index);
         if (result == 1) {
-          result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a);
+          result = ai_target_check(&frame.car_pos_x,&frame.candidate_a);
           if (result != 0) goto LAB_00418f66;
         }
         else if ((result == 2) &&
-                (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a), result != 0)) {
+                (result = ai_target_check(&frame.car_pos_x,&frame.candidate_a), result != 0)) {
           frame.target_a = frame.candidate_a;
           frame.target_b = frame.candidate_b;
           frame.target_mode = STEER_MODE_TRIGGER_ZONE;
           goto LAB_00418fe2;
         }
-        result = ai_cell_is_value2((undefined4)&frame.car_pos_x,car_index);
+        result = ai_cell_is_value2(&frame.car_pos_x,car_index);
         if (result == 1) {
           frame.target_mode = STEER_MODE_CELL_VALUE2;
         }
@@ -187,7 +187,7 @@ LAB_00418fe2:
   /* Warzone hazard override. */
   current_course = current_course_id();
   if ((current_course == COURSE_WARZONE) &&
-     (result = ai_hazard_target_for_car(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index), result != 0)) {
+     (result = ai_hazard_target_for_car(ai_ctx,&frame.target_a,&frame.candidate_a,car_index), result != 0)) {
     frame.target_a = frame.candidate_a;
     frame.target_b = frame.candidate_b;
     frame.target_mode = STEER_MODE_HAZARD;
@@ -195,8 +195,8 @@ LAB_00418fe2:
   /* Race phase 6 with no camera car (inferred): catch-up, leader and stuck fallbacks, weapon timers. */
   if ((frame.race_phase == 6) && (result = camera_get_car_8c747c(), result == 0)) {
     if (frame.target_mode == 0) {
-      result = ai_catchup_bot_state_update(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index);
-      if ((result != 0) && (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a), result != 0)) {
+      result = ai_catchup_bot_state_update(ai_ctx,&frame.target_a,&frame.candidate_a,car_index);
+      if ((result != 0) && (result = ai_target_check(&frame.car_pos_x,&frame.candidate_a), result != 0)) {
         controls[5] = 0xff;
         *controls = 0;
         controls[1] = 0;
@@ -214,8 +214,8 @@ LAB_00418fe2:
     }
     else {
       arg_scratch = (undefined4)(int)frame.route_angle;
-      result = ai_bot_stuck_check(ai_ctx,(undefined4)&frame.target_a,(undefined4)&frame.candidate_a,car_index,arg_scratch);
-      if ((result != 0) && (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_a), result != 0)) {
+      result = ai_bot_stuck_check(ai_ctx,&frame.target_a,&frame.candidate_a,car_index,arg_scratch);
+      if ((result != 0) && (result = ai_target_check(&frame.car_pos_x,&frame.candidate_a), result != 0)) {
         frame.target_mode = STEER_MODE_STUCK;
       }
     }
@@ -223,9 +223,9 @@ LAB_00418fe2:
   /* Record the chosen mode, then steer towards the target point. */
   bot = &g_ai_bots[car_index];
   bot->state_70 = frame.target_mode;
-  steer_angle = (float10)ai_steer_towards_point(car_index,frame.target_a,frame.target_b);
+  steer_angle = (double)ai_steer_towards_point(car_index,frame.target_a,frame.target_b);
   frame.steer_angle_f = (float)steer_angle;
-  prev_steer = (float10)k_f_0;
+  prev_steer = (double)k_f_0;
   bot_state = (float *)(g_ai_data.bot_state + car_index * BOT_STATE_STRIDE);
   /* Left turn (angle below 180): strength = steer * speed * 0.003, capped at 255. If the last turn was
    * on the right, it waits for the 200 ms hold first; the else branch fades controls[1] meanwhile. */
@@ -233,18 +233,18 @@ LAB_00418fe2:
     prev_value = bot_state[3];
     bot_state[2] = 360.0f;
     if (prev_value < frame.steer_angle_f) {
-      prev_steer = (float10)prev_value;
+      prev_steer = (double)prev_value;
     }
     bot_state[3] = frame.steer_angle_f;
     if (float_1_0 < frame.steer_angle_f) {
       if ((*(int *)((char *)bot + BOT_TURN_SIDE_OFFSET) == 1) ||
          (result = g_race_clock_a - *(int *)&bot->field_0x30, 199 < result)) {
-        control_value = (float10)frame.steer_angle_f * (float10)frame.speed * (float10)k_f_0_003;
+        control_value = (double)frame.steer_angle_f * (double)frame.speed * (double)k_f_0_003;
         if ((frame.target_mode == 0) && (k_f_20 < frame.route_angle)) {
-          control_value = control_value * ((float10)frame.route_angle * (float10)k_f_0_05);
+          control_value = control_value * ((double)frame.route_angle * (double)k_f_0_05);
         }
         if (k_f_255 < control_value) {
-          control_value = (float10)k_f_255;
+          control_value = (double)k_f_255;
         }
         controls[0] = (undefined1)(int)control_value;
         *(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET) = (int)control_value;
@@ -253,7 +253,7 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_a = 200 - result;
-        controls[1] = (undefined1)(int)((float10)frame.candidate_a * (float10)k_f_0_005 * (float10)*(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET));
+        controls[1] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET));
       }
     }
   }
@@ -262,18 +262,18 @@ LAB_00418fe2:
     prev_value = bot_state[2];
     bot_state[3] = 0.0f;
     if (frame.steer_angle_f < prev_value) {
-      prev_steer = (float10)k_f_360 - (float10)prev_value;
+      prev_steer = (double)k_f_360 - (double)prev_value;
     }
     bot_state[2] = frame.steer_angle_f;
     if (frame.steer_angle_f < k_f_359) {
       if ((*(int *)((char *)bot + BOT_TURN_SIDE_OFFSET) == 2) ||
          (result = g_race_clock_a - *(int *)&bot->field_0x30, 199 < result)) {
-        control_value = ((float10)k_f_360 - (float10)frame.steer_angle_f) * (float10)frame.speed * (float10)k_f_0_003;
+        control_value = ((double)k_f_360 - (double)frame.steer_angle_f) * (double)frame.speed * (double)k_f_0_003;
         if ((frame.target_mode == 0) && (k_f_20 < frame.route_angle)) {
-          control_value = control_value * ((float10)frame.route_angle * (float10)k_f_0_05);
+          control_value = control_value * ((double)frame.route_angle * (double)k_f_0_05);
         }
         if (k_f_255 < control_value) {
-          control_value = (float10)k_f_255;
+          control_value = (double)k_f_255;
         }
         controls[1] = (undefined1)(int)control_value;
         *(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET) = (int)control_value;
@@ -282,7 +282,7 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_a = 200 - result;
-        controls[0] = (undefined1)(int)((float10)frame.candidate_a * (float10)k_f_0_005 * (float10)*(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET));
+        controls[0] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET));
       }
     }
   }
@@ -298,12 +298,12 @@ LAB_00418fe2:
     controls[4] = 0;
     controls[5] = 0xff;
   }
-  if ((steer_angle < (float10)k_f_180) && ((float10)k_f_30 < steer_angle)) {
+  if ((steer_angle < (double)k_f_180) && ((double)k_f_30 < steer_angle)) {
     controls[4] = 0xff;
     controls[5] = 0xff;
     controls[0] = 0xff;
   }
-  if (((float10)k_f_180 < steer_angle) && (steer_angle < (float10)k_f_330)) {
+  if (((double)k_f_180 < steer_angle) && (steer_angle < (double)k_f_330)) {
     controls[4] = 0xff;
     controls[5] = 0xff;
     controls[1] = 0xff;
@@ -364,7 +364,7 @@ LAB_00419560:
   /* Catch-up class 1 scales controls[4] by k_f_0_4. */
   if (g_ai_catchup_class == 1) {
     frame.candidate_a = (uint)(byte)controls[4];
-    controls[4] = (undefined1)(int)((float10)frame.candidate_a * (float10)k_f_0_4);
+    controls[4] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_4);
   }
   /* Race phases other than 5, 6, 9, 10, 11 clear controls[4] and [5]. */
   if ((((frame.race_phase != 6) && (frame.race_phase != 5)) && (frame.race_phase != 9)) &&

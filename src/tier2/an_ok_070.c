@@ -28,7 +28,7 @@ extern __declspec(dllimport) int __stdcall WaitMessage(void);
 /*0062c5cc*/ extern undefined4 g_app_62c5cc;
 /*0064d894*/ extern undefined4 g_course_64d894;
 /*0076e898*/ extern undefined4 g_d3dx_76e898;
-/*0076ece8*/ extern undefined4 g_video_select_76ece8;
+/*0076ece8*/ extern char *g_video_select_76ece8;
 /*00770fe8*/ extern undefined4 g_app_770fe8;
 /*00771030*/ extern undefined4 g_app_771030;
 /*00771034*/ extern undefined4 g_app_771034;

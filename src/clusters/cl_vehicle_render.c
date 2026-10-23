@@ -53,7 +53,7 @@ void vehicle_render(int vehicle_index, RwCamera *camera)
   int part;
 
   vehicle = &g_vehicle_table[vehicle_index];
-  if ((vehicle->flags & 8) == 0) {
+  if ((vehicle->flags & VEHICLE_FLAG_ACTIVE) == 0) {
     return;
   }
   if (RwCameraFrustumTestSphere(camera, (RwSphere *)vehicle->world_sphere) == rwSPHEREOUTSIDE) {
@@ -98,8 +98,8 @@ void vehicle_render(int vehicle_index, RwCamera *camera)
     RpLightSetColor((RpLight *)g_particles_659d70, &scaled);
   }
   RpClumpRender((RpClump *)vehicle->frame);
-  if ((vehicle->flags & 0x400) == 0) {
-    if ((vehicle->flags & 0x30) == 0 && (vehicle->flags & 0x3000) == 0) {
+  if ((vehicle->flags & VEHICLE_FLAG_400) == 0) {
+    if ((vehicle->flags & (VEHICLE_FLAG_FRONT | VEHICLE_FLAG_BACK)) == 0 && (vehicle->flags & (VEHICLE_FLAG_1000 | VEHICLE_FLAG_2000)) == 0) {
       part = vehicle->part_frames[0x4c];
     } else {
       part = vehicle->part_frames[0x4d];
@@ -114,7 +114,7 @@ void vehicle_render(int vehicle_index, RwCamera *camera)
   if (g_game_64d88c == 0) {
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void *)0);
     if (course_is_outdoor() == 0) {
-      if ((vehicle->flags & 0x10) == 0 && g_particles_60761c != 0 && (vehicle->flags & 0x40) != 0) {
+      if ((vehicle->flags & VEHICLE_FLAG_FRONT) == 0 && g_particles_60761c != 0 && (vehicle->flags & VEHICLE_FLAG_40) != 0) {
         vehicle_skidmarks_render(vehicle_index);
       }
     } else if (g_particles_607620 != 0) {

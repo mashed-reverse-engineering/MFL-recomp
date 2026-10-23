@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004d1a50*/ extern RwBool __cdecl RwBBoxContainsPoint(struct RwBBox *p0, struct RwV3d *p1);
-/*00557860*/ extern int __cdecl RtIntersectionLineTriangle(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5);
+/*00557860*/ extern int __cdecl RtIntersectionLineTriangle(void *p0, void *p1, void *p2, void *p3, void *p4, void *p5);
 /*005dd374*/ extern float k_f_0_2;
 /*006a2168*/ extern undefined4 g_course_6a2168;
 /*006a23e0*/ extern undefined g_course_6a23e0;

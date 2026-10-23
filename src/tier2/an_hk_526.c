@@ -2,9 +2,9 @@
 /*004d0f70*/ extern struct RwFrame * RwFrameUpdateObjects(struct RwFrame *p0);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
-/*0056e5b0*/ extern void FUN_0056e5b0(undefined4 p0, undefined4 p1);
-/*0058c8a0*/ extern int rwp_owner_object_get(int p0);
+/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
+/*0056e5b0*/ extern void FUN_0056e5b0(void *p0, undefined4 p1);
+/*0058c8a0*/ extern char *rwp_owner_object_get(int p0);
 /*005dd364*/ extern float k_f_n1;
 /*006fd498*/ extern undefined4 g_rw_6fd498;
 /*008b06e0*/ extern struct Car player_car[16];
@@ -21,7 +21,7 @@ car_set_physics_matrix
 
 {
   RwMatrix *matrix;
-  int iVar1;
+  char *iVar1;
   int iVar2;
   RwMatrix *pRVar3;
   RwMatrix *pRVar4;

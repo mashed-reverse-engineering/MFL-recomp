@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0041d580*/ extern undefined __cdecl btb_panel_slot_set_position(undefined4 p0, undefined4 p1);
+/*0041d580*/ extern undefined __cdecl btb_panel_slot_set_position(undefined4 p0, void *p1);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005ddc28*/ extern float k_f_0;
 /*005de2f8*/ extern float k_f_n90;
@@ -61,11 +61,11 @@ void __cdecl time_trial_panel_step_part_a(char *car_matrix_array,char *unused_ar
     *slot_out = 0;
     slot_out[1] = 0;
     *(float *)&slot_out[2] = frame.side_dot * dist_to_car * k_f_n90;
-    btb_panel_slot_set_position(slot_index,(undefined4)slot_out);
+    btb_panel_slot_set_position(slot_index,slot_out);
     panel_pos = panel_pos + PANEL_POINT_STRIDE;
     slot_index = slot_index + 1;
     slot_out = slot_out + OUT_SLOT_WORDS;
-  } while ((int)panel_pos < ((int)&g_time_trial_658dcc));
+  } while ((char *)panel_pos < ((char *)&g_time_trial_658dcc));
   return;
 }
 

@@ -133,7 +133,7 @@ LAB_004688de:
     row = row + 1;
     row_base = row_base + DUCK_MATRIX_SIZE;
     /* Stop after the last of the 36 cells (last byte 0x8f = 36 * 4 - 1). */
-    if ((int)&g_weapon_8be720 + DUCK_TABLE_LAST_BYTE < (int)cell_ptr) {
+    if ((char *)&g_weapon_8be720 + DUCK_TABLE_LAST_BYTE < (char *)cell_ptr) {
       return;
     }
   } while( true );

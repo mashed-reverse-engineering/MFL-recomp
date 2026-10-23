@@ -15,15 +15,15 @@ void vehicle_marker_icon_select_n(VehicleRecord *vehicle)
     int variant = 0;
     int icon = 0x3b;
 
-    if ((flags & 0x400) != 0) {
+    if ((flags & VEHICLE_FLAG_400) != 0) {
         icon = 0x40;
-    } else if ((flags & 0x10) != 0 && (flags & 0x20) != 0) {
+    } else if ((flags & VEHICLE_FLAG_FRONT) != 0 && (flags & VEHICLE_FLAG_BACK) != 0) {
         variant = 3;
         icon = 0x3e;
-    } else if ((flags & 0x10) != 0) {
+    } else if ((flags & VEHICLE_FLAG_FRONT) != 0) {
         variant = 1;
         icon = 0x3c;
-    } else if ((flags & 0x20) != 0) {
+    } else if ((flags & VEHICLE_FLAG_BACK) != 0) {
         variant = 2;
         icon = 0x3d;
     }

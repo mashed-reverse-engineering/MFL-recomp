@@ -49,7 +49,7 @@ void effect_pool_set_field_14(int i, int v)
 // FUNCTION: MFL 0x00487ea0
 void effect_pool_set_field_1c(int i, int v)
 {
-    *(int *)(i * 0x2c0 + ((int)&g_gfx_6c5e18 + 0x4)) = v;
+    *(int *)(i * 0x2c0 + ((char *)&g_gfx_6c5e18 + 0x4)) = v;
 }
 
 // FUNCTION: MFL 0x004978b0

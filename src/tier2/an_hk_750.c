@@ -17,8 +17,6 @@
 /*00434a10*/ extern int is_team_mode();
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /*008d8b30*/ extern undefined4 player_count;
-/*007f0240*/ extern char g_ai_editor_view_origin_x[];
-/*007f023c*/ extern char g_ai_editor_mode[];
 
 /* stat kinds (stat_kind): each names the player_stat_get_* callee its case calls */
 #define STAT_CROWNS (0)
@@ -54,25 +52,21 @@
 void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascending)
 
 {
-  int swap_offset; /* byte offset of the pair being swapped in player_order */
-  undefined4 tmp_next_player;
-  undefined4 tmp_player;
-  int *slot_state_ptr;
+  int tmp_next_player;
+  int tmp_player;
   int current_value; /* slot state (team sums), then the value being sorted */
   int *stat_ptr;
   PlayerSlot *slot_ptr;
-  int out_minus_stats; /* byte distance from stat_values to player_order; also is_team_mode() at the end */
   int player_idx; /* loop index over slots and sort passes; also the is_team_mode() flag and team 0 sum */
   int stat_value; /* per-slot stat; also the team 1 sum and get_player_count() */
   int stat_values [4];
 
   /* one loop per stat kind: stat_values[i] = callee(i) for slots with a controller, else the no-player value;
-     player_order[i] = i. Loops end at &g_ai_editor_mode, the end of g_player_slots */
+     player_order[i] = i. Loops end after the 4 slots of g_player_slots */
   switch(stat_kind) {
   case STAT_CROWNS:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -81,15 +75,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_crowns(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_PANTS:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -98,15 +91,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_pants(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_TURBO_USED_TEAM:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -115,15 +107,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_turbo_used_team(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_AGGRESSION_TEAM:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -132,15 +123,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_aggression_team(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_KILLS:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -149,15 +139,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_kills(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_WALL_HITS_TEAM:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_WALL_HITS_VALUE;
@@ -166,15 +155,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_wall_hits_team(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_UNFORCED_ERRORS:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -183,15 +171,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_unforced_errors(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_CROWNS_TOTAL:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -200,15 +187,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_crowns_total(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_PANTS_TOTAL:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -217,15 +203,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_pants_total(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_TURBO_USED_TOTAL_TEAM:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -234,15 +219,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_turbo_used_total_team(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_AGGRESSION_TOTAL_TEAM:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -251,15 +235,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_aggression_total_team(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_KILLS_TOTAL:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -268,15 +251,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_kills_total(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_WALL_HITS_TOTAL_TEAM:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_WALL_HITS_VALUE;
@@ -285,15 +267,14 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_wall_hits_total_team(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   case STAT_UNFORCED_ERRORS_TOTAL:
     player_idx = 0;
     slot_ptr = g_player_slots;
-    out_minus_stats = (int)player_order - (int)stat_values;
     do {
       if (slot_ptr->controller == -1) {
         stat_values[player_idx] = NO_PLAYER_STAT_VALUE;
@@ -302,10 +283,10 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
         stat_value = player_stat_get_unforced_errors_total(player_idx);
         stat_values[player_idx] = stat_value;
       }
-      *(int *)((int)stat_values + out_minus_stats + player_idx * 4) = player_idx;
+      player_order[player_idx] = player_idx;
       slot_ptr = slot_ptr + 1;
       player_idx = player_idx + 1;
-    } while ((int)slot_ptr < ((int)&g_ai_editor_mode));
+    } while (slot_ptr < g_player_slots + 4);
     break;
   default:
     /* unknown kind: identity order */
@@ -345,19 +326,19 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
     if (g_player_slots[3].state == 1) {
       stat_value = stat_value + stat_values[3];
     }
+    slot_ptr = g_player_slots;
     stat_ptr = stat_values;
-    slot_state_ptr = &g_player_slots[0].state;
     do {
-      current_value = *slot_state_ptr;
+      current_value = slot_ptr->state;
       if (current_value == 0) {
         *stat_ptr = player_idx;
       }
       if (current_value == 1) {
         *stat_ptr = stat_value;
       }
-      slot_state_ptr = slot_state_ptr + 4;
+      slot_ptr = slot_ptr + 1;
       stat_ptr = stat_ptr + 1;
-    } while ((int)slot_state_ptr < ((int)&g_ai_editor_view_origin_x));
+    } while (slot_ptr < g_player_slots + 4);
   }
   /* bubble sort of player_order (through stat_values), one pass per player; passes use get_player_count() */
   player_idx = 0;
@@ -373,12 +354,11 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
             current_value = stat_values[stat_value];
             if (current_value < stat_values[stat_value + 1]) {
               stat_values[stat_value] = stat_values[stat_value + 1];
-              swap_offset = out_minus_stats + stat_value * 4;
-              tmp_next_player = *(undefined4 *)((int)stat_values + swap_offset + 4);
+              tmp_next_player = player_order[stat_value + 1];
               stat_values[stat_value + 1] = current_value;
-              tmp_player = *(undefined4 *)((int)stat_values + swap_offset);
-              *(undefined4 *)((int)stat_values + swap_offset) = tmp_next_player;
-              *(undefined4 *)((int)stat_values + swap_offset + 4) = tmp_player;
+              tmp_player = player_order[stat_value];
+              player_order[stat_value] = tmp_next_player;
+              player_order[stat_value + 1] = tmp_player;
             }
             stat_value = stat_value + 1;
             current_value = get_player_count();
@@ -400,12 +380,11 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
             current_value = stat_values[stat_value];
             if (stat_values[stat_value + 1] < current_value) {
               stat_values[stat_value] = stat_values[stat_value + 1];
-              swap_offset = out_minus_stats + stat_value * 4;
-              tmp_next_player = *(undefined4 *)((int)stat_values + swap_offset + 4);
+              tmp_next_player = player_order[stat_value + 1];
               stat_values[stat_value + 1] = current_value;
-              tmp_player = *(undefined4 *)((int)stat_values + swap_offset);
-              *(undefined4 *)((int)stat_values + swap_offset) = tmp_next_player;
-              *(undefined4 *)((int)stat_values + swap_offset + 4) = tmp_player;
+              tmp_player = player_order[stat_value];
+              player_order[stat_value] = tmp_next_player;
+              player_order[stat_value + 1] = tmp_player;
             }
             stat_value = stat_value + 1;
             current_value = get_player_count();
@@ -418,8 +397,8 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
   }
   /* team mode: keep player_order[0] and player_order[1] on different teams (slot state), and if the first three
      share a team, take player_order[3] (inferred) */
-  out_minus_stats = is_team_mode();
-  if (out_minus_stats != 0) {
+  player_idx = is_team_mode();
+  if (player_idx != 0) {
     if (g_player_slots[*player_order].state == g_player_slots[player_order[1]].state) {
       player_order[1] = player_order[2];
     }

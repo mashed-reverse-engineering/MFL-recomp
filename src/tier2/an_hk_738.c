@@ -3,7 +3,7 @@
 /*0047ac30*/ extern int car_get_mode();
 /*0047b520*/ extern int car_current_matrix();
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*008d8b14*/ extern undefined4 g_race_setup;
+/*008d8b14*/ extern char *g_race_setup;
 #define RACE_SETUP_SLOT_FIRST (0xb8)
 #define RACE_SETUP_SLOT_END (200)
 #define RACE_SETUP_SLOT_STRIDE (4)
@@ -33,7 +33,7 @@ void race_get_focus_player(int *out_player,int *out_ref_car)
   struct {
     int best_ref_car;
     int car_mode;
-    int car_matrix;
+    char *car_matrix;
     RwReal best_distance;
     int ref_slot_offset;
     undefined1 car_mode_extra [4];

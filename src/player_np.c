@@ -70,7 +70,7 @@ void player_add_wins(int player, int amount)
 // FUNCTION: MFL 0x004276b0
 int player_stat_get_crowns(int p)
 {
-    if (get_event_type() == 4)
+    if (get_event_type() == EVENT_CUP_4)
         return 0;
     return g_player_stats_result[p].crowns;
 }
@@ -78,7 +78,7 @@ int player_stat_get_crowns(int p)
 // FUNCTION: MFL 0x004276d0
 int player_stat_get_pants(int p)
 {
-    if (get_event_type() == 4)
+    if (get_event_type() == EVENT_CUP_4)
         return 0;
     return g_player_stats_result[p].pants;
 }
@@ -86,7 +86,7 @@ int player_stat_get_pants(int p)
 // FUNCTION: MFL 0x004276f0
 int player_stat_get_crowns_total(int p)
 {
-    if (get_event_type() == 4)
+    if (get_event_type() == EVENT_CUP_4)
         return 0;
     return g_player_stats_total[p].crowns;
 }
@@ -94,7 +94,7 @@ int player_stat_get_crowns_total(int p)
 // FUNCTION: MFL 0x00427710
 int player_stat_get_pants_total(int p)
 {
-    if (get_event_type() == 4)
+    if (get_event_type() == EVENT_CUP_4)
         return 0;
     return g_player_stats_total[p].pants;
 }

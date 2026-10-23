@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00496f10*/ extern int __cdecl smplfzx_check_active(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00496f10*/ extern int __cdecl smplfzx_check_active(undefined4 p0, void *p1, undefined4 p2);
 /*004a8420*/ extern int debug_printf();
 static int smplfzx_retire_r(int reg_esi);
 extern void smplfzx_retire(void);
@@ -38,8 +38,8 @@ void __cdecl smplfzx_retire_object(uint object_id,char *unused_param_2)
 
   message_text = "SmplFzx Retiring : %d\n";
   masked_object_id = object_id & OBJECT_ID_MASK;
-  debug_printf(((int)&s_SmplFzx_Retiring____d_005e0788), object_id & OBJECT_ID_MASK);
-  active_result = smplfzx_check_active(object_id & OBJECT_ID_MASK,(undefined4)message_text,masked_object_id);
+  debug_printf(((char *)&s_SmplFzx_Retiring____d_005e0788), object_id & OBJECT_ID_MASK);
+  active_result = smplfzx_check_active(object_id & OBJECT_ID_MASK,message_text,masked_object_id);
   smplfzx_retire_r(active_result);
   return;
 }

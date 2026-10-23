@@ -4,8 +4,8 @@
 /*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
 /*004d5640*/ extern struct RwV3d * RwV3dTransformPoint(struct RwV3d *p0, struct RwV3d *p1, RwMatrix *p2);
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*0056f080*/ extern int FUN_0056f080(undefined4 p0);
-/*0056f3a0*/ extern void FUN_0056f3a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056f080*/ extern int FUN_0056f080(void *p0);
+/*0056f3a0*/ extern void FUN_0056f3a0(void *p0, void *p1, void *p2);
 /*005dd340*/ extern float k_f_0_5;
 /* course_bbox_transform_and_test */
 
@@ -111,12 +111,12 @@ undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *param_2,RwR
   frame.local_68 = frame.local_118.inf.z;
   frame.local_7c = frame.local_118.sup.y;
   frame.local_78 = frame.local_118.sup.z;
-  iVar2 = FUN_0056f080((undefined4)&frame.local_a0);
+  iVar2 = FUN_0056f080(&frame.local_a0);
   if (iVar2 != 0) {
-    iVar2 = FUN_0056f080((undefined4)&frame.local_80);
+    iVar2 = FUN_0056f080(&frame.local_80);
     if (iVar2 != 0) {
-      FUN_0056f3a0((undefined4)&frame.local_60,(undefined4)&frame.local_a0,(undefined4)&frame.local_80);
-      iVar2 = FUN_0056f080((undefined4)&frame.local_60);
+      FUN_0056f3a0(&frame.local_60,&frame.local_a0,&frame.local_80);
+      iVar2 = FUN_0056f080(&frame.local_60);
       if (iVar2 != 0) {
         param_5->x = (frame.local_50 + frame.local_60) * k_f_0_5;
         param_5->y = (frame.local_4c + frame.local_5c) * k_f_0_5;

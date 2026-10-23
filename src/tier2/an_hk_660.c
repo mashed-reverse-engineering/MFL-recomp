@@ -1,12 +1,12 @@
 #include "mfl_tier2.h"
 extern void * __cdecl Rt2dFontShow(void * p0, void * p1, RwReal p2, void * p3, void * p4);
-/*0042bd00*/ extern int dat_get_string();
+/*0042bd00*/ extern char *dat_get_string();
 /*00562d20*/ extern int Rt2dCTMSetIdentity();
 /*005632e0*/ extern int Rt2dCTMPush();
 /*00564b10*/ extern int Rt2dBrushSetRGBA();
 /*005de81c*/ extern float k_f_0_0708;
-/*0069ba0c*/ extern undefined4 g_ui_font;
-/*0069ba10*/ extern undefined4 g_ui_text_brush;
+/*0069ba0c*/ extern char *g_ui_font;
+/*0069ba10*/ extern char *g_ui_text_brush;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*008c86d0*/ extern undefined4 g_course_8c86d0;
 #define ALPHA_OPAQUE (0xff)
@@ -64,7 +64,7 @@ __declspec(naked) int ui_rt2d_text_x_offset_r(void *reg_edi, void *reg_esi, floa
 void ui_text_draw_fade_alpha(undefined4 string_id,float x,float y,uint rgb,float scale,
                int align,int alpha)
 {
-  undefined4 text_ptr;
+  char *text_ptr;
   byte alpha_byte;
   union {
     char gs_buf[268];

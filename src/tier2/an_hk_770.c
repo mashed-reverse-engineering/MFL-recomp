@@ -27,7 +27,7 @@ void voice_queue_advance_timers(void)
 {
   int entries;
   int table_index;
-  int entry_offset;
+  char *entry_offset;
   int entry_index;
 
   table_index = 0;

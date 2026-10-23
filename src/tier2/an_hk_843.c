@@ -1,14 +1,14 @@
 #include "mfl_tier2.h"
 extern struct TrailSlot g_trails[6];
 /*004146f0*/ extern int race_event_has_panel();
-/*0042b200*/ extern int course_get_68b8b4_ptr();
-/*0042b210*/ extern int course_get_record_point();
-/*00467ea0*/ extern int weapon_get_rw_801b14();
+/*0042b200*/ extern char *course_get_68b8b4_ptr();
+/*0042b210*/ extern char *course_get_record_point();
+/*00467ea0*/ extern char *weapon_get_rw_801b14();
 /*0048e650*/ extern int rwp_object_set_in_world();
 /*0048e720*/ extern undefined __cdecl rwp_object_set_matrix(int p0, RwMatrix *p1);
 /*00492d10*/ extern int rwp_object_set_active();
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c4460*/ extern void FUN_004c4460(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c42f0*/ extern void FUN_004c42f0(void *p0, void *p1, void *p2);
+/*004c4460*/ extern void FUN_004c4460(void *p0, void *p1, void *p2);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -47,7 +47,7 @@ void trail_update(void)
   uint object_a_handle;
   RwFrame *frame;
   float *point_ptr;
-  undefined4 world_ptr;
+  char *world_ptr;
   int scratch;
   int trail_index;
   RwReal trail_length;
@@ -68,7 +68,7 @@ void trail_update(void)
     float record_y;
     undefined1 pad_58[4];
     int enabled_trail_count;
-    int course_record_table;
+    char *course_record_table;
     RwV3d trail_delta;
     undefined1 intersection_buf [56];
     float local_8;
@@ -164,7 +164,7 @@ void trail_update(void)
       point_ptr = &g_trails[trail_index].w08;
       RwFrameTranslate(frame,(RwV3d *)point_ptr,rwCOMBINEREPLACE);
       end_point_ptr = &g_trails[trail_index].w14;
-      FUN_004c42f0((undefined4)frame,(undefined4)end_point_ptr,(undefined4)&g_car_62ac74);
+      FUN_004c42f0(frame,end_point_ptr,&g_car_62ac74);
       RwFrameScale(frame,(RwV3d *)&g_trail_603920,rwCOMBINEPRECONCAT);
       /* trail length = |start - end|, stored as a float in w20 */
       frame_obj.trail_delta.x = *point_ptr - *end_point_ptr;
@@ -188,7 +188,7 @@ void trail_update(void)
       frame_obj.trail_matrix.pos.x = 0.0;
       /* object_a matrix: identity at the start point, oriented by FUN_004c4460 (inferred), then set on object_a */
       RwMatrixTranslate(&frame_obj.trail_matrix,(RwV3d *)point_ptr,rwCOMBINEREPLACE);
-      FUN_004c4460((undefined4)&frame_obj.trail_matrix,(undefined4)end_point_ptr,(undefined4)&g_car_62ac74);
+      FUN_004c4460(&frame_obj.trail_matrix,end_point_ptr,&g_car_62ac74);
       rwp_object_set_matrix(g_trails[trail_index].object_a,&frame_obj.trail_matrix);
       /* save object_a position in g_trail_652fb0 (scratch = byte offset of this slot's row) */
       scratch = frame_obj.saved_trail_index * TRAIL_POS_STRIDE;
@@ -209,7 +209,7 @@ void trail_update(void)
       frame_obj.trail_matrix.pos.y = 0.0;
       frame_obj.trail_matrix.pos.x = 0.0;
       RwMatrixTranslate(&frame_obj.trail_matrix,(RwV3d *)end_point_ptr,rwCOMBINEREPLACE);
-      FUN_004c4460((undefined4)&frame_obj.trail_matrix,(undefined4)point_ptr,(undefined4)&g_car_62ac74);
+      FUN_004c4460(&frame_obj.trail_matrix,point_ptr,&g_car_62ac74);
       /* object_b matrix: same construction at the end point, set on object_b, position saved to g_trail_update_652fbc */
       rwp_object_set_matrix(g_trails[trail_index].object_b,&frame_obj.trail_matrix);
       *(RwReal *)((char *)&g_trail_update_652fbc + scratch) = frame_obj.trail_matrix.pos.x;

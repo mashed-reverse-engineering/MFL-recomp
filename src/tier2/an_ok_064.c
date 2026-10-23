@@ -295,10 +295,11 @@ extern void fx_systems_render_all(void);
 /* "RwTextureDestroy(g_particles_76df24)" */
 
 extern void fx_texture_destroy(void);
+extern char g_fx_ptank_76df2c[];
 
 #define FX_STYLE_COUNT (0x11)
 #define FX_STYLE_RECORD_SIZE (0x44)
-#define FX_STYLE_TABLE_BASE (0x76df30)
+#define FX_STYLE_TABLE_BASE (((int)&g_fx_ptank_76df2c + 0x4))
 
 
 /* fx_styles_init_all */
@@ -307,7 +308,7 @@ extern void fx_texture_destroy(void);
 /* "initialises the 17 fx style records (0x44 bytes) with the common defaults and the per type style
    init" */
 
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void fx_styles_init_all(void)
 {
   int record_offset;
@@ -322,7 +323,7 @@ void fx_styles_init_all(void)
     record_index = style_no + -1;
     record_offset = record_index * FX_STYLE_RECORD_SIZE;
     *(undefined4 *)((char *)&g_effects_update_76df58 + record_offset) = 0x3eb33333;
-    *(undefined4 *)(record_offset + 0x76df5c) = 0x3eb33333;
+    *(undefined4 *)(record_offset + ((char *)&g_effects_update_76df58 + 0x4)) = 0x3eb33333;
     *(undefined4 *)((char *)&g_effects_update_76df60 + record_offset) = 1;
     *(undefined4 *)((char *)&g_effects_update_76df68 + record_offset) = 0x19;
     *(undefined4 *)((char *)&g_effects_update_76df6c + record_offset) = 0x3f800000;

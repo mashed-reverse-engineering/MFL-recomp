@@ -4,7 +4,7 @@
 /*0048e650*/ extern int rwp_object_set_in_world();
 /*00492d10*/ extern int rwp_object_set_active();
 /*0049c9a0*/ extern int fx_object_break_into_particles();
-/*0058c8a0*/ extern int rwp_owner_object_get(int p0);
+/*0058c8a0*/ extern char *rwp_owner_object_get(void *p0);
 /*005ddaf0*/ extern float k_f_1_0en5;
 /*005ddb60*/ extern float k_f_n8;
 /*005de25c*/ extern float k_f_0_005;
@@ -30,7 +30,7 @@ void __cdecl rwp_object_debris_expire_check(int slot)
   char *object_handle;
   int *pos_ref;
   float dist_sq;
-  int owner;
+  char *owner;
   float *pos_entry;
   struct {
     float local_1c;
@@ -57,7 +57,7 @@ void __cdecl rwp_object_debris_expire_check(int slot)
       (&g_rw_6fcdd8)[slot] = (&g_rw_6fcdd8)[slot] | FLAG_MOVED_TOO_FAR;
     }
     /* expired: dist_sq above this slot's limit (g_rw_6fa190), or y below -8 */
-    if ((*(float *)((char *)&g_rw_6fa190 + slot * 4) < dist_sq) || (burst_pos.local_18 < k_f_n8)) {
+    if ((((float *)&g_rw_6fa190)[slot] < dist_sq) || (burst_pos.local_18 < k_f_n8)) {
       /* scale the position down for the burst particles */
       burst_pos.local_1c = burst_pos.local_1c * k_f_0_005;
       burst_pos.local_18 = burst_pos.local_18 * k_f_0_005;

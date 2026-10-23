@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
-/*0044c550*/ extern int camera_get_8c7470();
-/*004757a0*/ extern int get_viewport_camera_matrix();
+/*0044c550*/ extern char *camera_get_8c7470();
+/*004757a0*/ extern char *get_viewport_camera_matrix();
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd414*/ extern float k_f_4_5;
 /*005ddc28*/ extern float k_f_0;
@@ -8,7 +8,7 @@
 /*005e06e0*/ extern float k_f_2_25_5e06e0;
 /*005e06e4*/ extern float k_f_0_93;
 /*00703890*/ extern undefined4 g_trigger_sphere_703890[0x1000];
-/*007106d8*/ extern undefined4 g_trigger_sphere_7106d8;
+/*007106d8*/ extern char *g_trigger_sphere_7106d8;
 /*0071aafc*/ extern undefined4 g_particles_71aafc;
 
 #define GRID_HALF_CELLS (5)
@@ -40,7 +40,7 @@ void trigger_grid_build_visible_cells(void)
   float cam_z;
   float row_x;
   float half_extent;
-  int view_matrix;
+  char *view_matrix;
   float *cam_pos;
   float *min_x;
   float *center_y;
@@ -68,7 +68,7 @@ void trigger_grid_build_visible_cells(void)
   row_cells = g_trigger_sphere_703890;
   scan.row = GRID_HALF_CELLS;
   /* Cache the camera position pointer in the global; the normalise branch reloads it from there. */
-  g_trigger_sphere_7106d8 = (undefined4)cam_pos;
+  g_trigger_sphere_7106d8 = (char *)cam_pos;
   /* Outer loop: one pass per grid row (row = 5 down to -5, along x). */
   do {
     scan.flag_m1 = row_cells + -1;

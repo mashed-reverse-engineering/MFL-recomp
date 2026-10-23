@@ -91,7 +91,7 @@ char * game_path_to_8_3_upper(char *out_path,char *in_path)
         pos = pos + 1;
       } while (ch != '\0');
       /* directory name too long: report it and fail */
-      if (DIR_NAME_MAX < (uint)((int)pos - (int)(cursor + 1))) {
+      if (DIR_NAME_MAX < (uint)((char *)pos - (char *)(cursor + 1))) {
         debug_printf("Directory names must have no more than %d letters\n",DIR_NAME_MAX);
         cursor = dir_slots + dir_idx * DIR_SLOT_SIZE;
         do {
@@ -99,7 +99,7 @@ char * game_path_to_8_3_upper(char *out_path,char *in_path)
           cursor = cursor + 1;
         } while (ch != '\0');
         debug_printf("[%s] has %d\n",dir_slots + dir_idx * DIR_SLOT_SIZE,
-                     (int)cursor - (int)(dir_slots + dir_idx * DIR_SLOT_SIZE + 1));
+                     (char *)cursor - (char *)(dir_slots + dir_idx * DIR_SLOT_SIZE + 1));
         return (char *)0x0;
       }
     }
@@ -116,7 +116,7 @@ char * game_path_to_8_3_upper(char *out_path,char *in_path)
     cursor = cursor + 1;
   } while (ch != '\0');
   /* base name must fit in BASE_NAME_MAX letters (the `< 9`) */
-  if ((uint)((int)cursor - (int)((scratch_path + SCRATCH_BASE_OFS) + 1)) < 9) {
+  if ((uint)((char *)cursor - (int)((scratch_path + SCRATCH_BASE_OFS) + 1)) < 9) {
     sprintf(scratch_path,&g_game_5dd618,pos + 1);
     /* a ':' in the input (drive path) means the first slot holds g_game_5dd5a2 and the
        separator is '\'; otherwise '/' (inferred) */
@@ -271,7 +271,7 @@ LAB_0040364f:
       ch = *cursor;
       cursor = cursor + 1;
     } while (ch != '\0');
-    count = (int)cursor - (int)scratch_path;
+    count = (char *)cursor - (char *)scratch_path;
     cursor = out_path + -1;
     do {
       pos = cursor + 1;
@@ -309,7 +309,7 @@ LAB_0040364f:
       cursor = (dir_slots + 56);
       do {
         ch = *cursor;
-        cursor[(int)out_path - (int)(dir_slots + 56)] = ch;
+        cursor[(char *)out_path - (char *)(dir_slots + 56)] = ch;
         cursor = cursor + 1;
       } while (ch != '\0');
     }
@@ -319,7 +319,7 @@ LAB_0040364f:
       ch = *cursor;
       cursor = cursor + 1;
     } while (ch != '\0');
-    if (OUTPUT_PATH_MAX < (uint)((int)cursor - (int)(out_path + 1))) {
+    if (OUTPUT_PATH_MAX < (uint)((char *)cursor - (char *)(out_path + 1))) {
       debug_printf("FileName is too long (%dchars max)\n",OUTPUT_PATH_MAX);
       out_path = (char *)0x0;
     }

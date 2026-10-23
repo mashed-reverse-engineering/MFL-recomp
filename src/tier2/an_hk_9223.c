@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0040c9f0*/ extern undefined __cdecl players_get_wins(undefined4 p0);
+/*0040c9f0*/ extern undefined __cdecl players_get_wins(void *p0);
 /*0040cad0*/ extern int players_get_points();
 /*0040cc40*/ extern int player_get_stat_8b90();
 /*0040cc50*/ extern int player_get_wins();
@@ -21,7 +21,7 @@
 /*00427be0*/ extern int __cdecl player_stat_get_unforced_errors_total(undefined4 p0);
 /*00427c70*/ extern int player_stat_get_place_team();
 /*00427d30*/ extern int player_stat_get_team_l();
-/*00427de0*/ extern undefined __cdecl player_stat_get_by_kind(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00427de0*/ extern undefined __cdecl player_stat_get_by_kind(void *p0, undefined4 p1, undefined4 p2);
 /*0042c8e0*/ extern double text_width();
 /*0042e960*/ extern int intro_banner_set_active();
 /*0042e990*/ extern int time_is_better_than_best();
@@ -82,7 +82,7 @@ void tutorial_text_update(void)
   int *piVar5;
   int *piVar6;
   int iVar7;
-  float10 fVar8;
+  double fVar8;
   undefined4 uVar9;
   struct {
     int *piStack_10;
@@ -99,7 +99,7 @@ void tutorial_text_update(void)
     } while (iVar4 != 0);
   }
   if (g_menu_panel_state_69c998 == 1) {
-    if (((g_event_type == 0) || (g_event_type == 1)) || (g_event_type == 2)) {
+    if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
       intro_banner_set_active(0);
     }
     if (g_tutorial_reset_requested != 0) {
@@ -108,7 +108,7 @@ void tutorial_text_update(void)
     }
     if (g_tutorial_line_count == 0) {
       g_tutorial_display_ticks = 0x8e8;
-      if (((g_event_type == 0) || (g_event_type == 1)) || (g_event_type == 2)) {
+      if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
         piVar5 = (int *)(&g_tutorial_pages_basic)[g_tutorial_page_index];
       }
       else {
@@ -122,14 +122,14 @@ LAB_004322cd:
         switch(iVar4) {
         case 1:
           frame.piStack_10 = piVar5 + 1;
-          if (((g_event_type == 0) || (g_event_type == 1)) || (g_event_type == 2)) {
+          if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
 LAB_00432313:
             frame.piStack_10 = piVar5 + 1;
             (&g_tutorial_line_entries)[g_tutorial_line_count] = *frame.piStack_10;
             g_tutorial_line_count = g_tutorial_line_count + 1;
-            fVar8 = (float10)text_width(*frame.piStack_10,0x3f333333);
+            fVar8 = (double)text_width(*frame.piStack_10,0x3f333333);
             g_tutorial_line_width =
-                 (float)(fVar8 + (float10)g_tutorial_line_width + (float10)k_f_8);
+                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
           }
           break;
         case 2:
@@ -148,17 +148,17 @@ LAB_00432313:
             if (g_team_mode == 0) {
               iVar3 = g_player_slots[*piVar6].team + 0x7c;
               (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar3;
-              fVar8 = (float10)text_width(iVar3,0x3f333333);
+              fVar8 = (double)text_width(iVar3,0x3f333333);
             }
             else {
               iVar3 = g_player_slots[*piVar6].state;
               team_names_string_build(iVar3);
               iVar3 = iVar3 + 0xa7;
               (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar3;
-              fVar8 = (float10)text_width(iVar3,0x3f333333);
+              fVar8 = (double)text_width(iVar3,0x3f333333);
             }
             g_tutorial_line_width =
-                 (float)(fVar8 + (float10)g_tutorial_line_width + (float10)k_f_8);
+                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
             if (*frame.piStack_10 == 0) {
               iVar7 = player_stat_get_crowns(*piVar6);
             }
@@ -185,13 +185,13 @@ LAB_00432313:
             }
             (&g_tutorial_69d10c)[g_tutorial_line_count] = iVar4;
             ui_format_number_999(iVar7,iVar4);
-            fVar8 = (float10)text_width(iVar4,0x3f333333);
+            fVar8 = (double)text_width(iVar4,0x3f333333);
             g_tutorial_line_count = g_tutorial_line_count + 2;
             piVar6 = piVar6 + 1;
             iVar4 = iVar4 + 1;
             frame.local_4 = frame.local_4 + -1;
             g_tutorial_line_width =
-                 (float)(fVar8 + (float10)g_tutorial_line_width + (float10)k_f_8);
+                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
           } while (frame.local_4 != 0);
           goto LAB_00432894;
         case 3:
@@ -218,18 +218,18 @@ LAB_00432313:
             if (g_team_mode == 0) {
               iVar2 = g_player_slots[*piVar6].team + 0x7c;
               (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar2;
-              fVar8 = (float10)text_width(iVar2,0x3f333333);
+              fVar8 = (double)text_width(iVar2,0x3f333333);
             }
             else {
               iVar4 = g_player_slots[*piVar6].state;
               team_names_string_build(iVar4);
               iVar4 = iVar4 + 0xa7;
               (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar4;
-              fVar8 = (float10)text_width(iVar4,0x3f333333);
+              fVar8 = (double)text_width(iVar4,0x3f333333);
               iVar4 = frame.iStack_c;
             }
             g_tutorial_line_width =
-                 (float)(fVar8 + (float10)g_tutorial_line_width + (float10)k_f_8);
+                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
             if (*frame.piStack_10 == 2) {
               iVar4 = player_stat_get_place_team(*piVar6);
               iVar4 = iVar4 * 2000;
@@ -270,13 +270,13 @@ LAB_00432313:
             }
             (&g_tutorial_69d10c)[g_tutorial_line_count] = iVar3;
             tutorial_text_format_ratio(iVar4,iVar7,iVar3,frame.uStack_8);
-            fVar8 = (float10)text_width(iVar3,0x3f333333);
+            fVar8 = (double)text_width(iVar3,0x3f333333);
             g_tutorial_line_count = g_tutorial_line_count + 2;
             piVar6 = piVar6 + 1;
             iVar3 = iVar3 + 1;
             frame.local_4 = frame.local_4 + -1;
             g_tutorial_line_width =
-                 (float)(fVar8 + (float10)g_tutorial_line_width + (float10)k_f_8);
+                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
           } while (frame.local_4 != 0);
 LAB_00432894:
           frame.piStack_10 = piVar5 + 1;
@@ -294,33 +294,33 @@ LAB_00432894:
           }
           (&g_tutorial_line_entries)[g_tutorial_line_count] = 0x84;
           ui_format_number_999(iVar7,0x84);
-          fVar8 = (float10)text_width(0x84,0x3f333333);
-          g_tutorial_line_width = (float)(fVar8 + (float10)g_tutorial_line_width);
+          fVar8 = (double)text_width(0x84,0x3f333333);
+          g_tutorial_line_width = (float)(fVar8 + (double)g_tutorial_line_width);
           (&g_tutorial_69d10c)[g_tutorial_line_count] = 0xc6;
-          fVar8 = (float10)text_width(0xc6,0x3f333333);
+          fVar8 = (double)text_width(0xc6,0x3f333333);
           goto LAB_00432624;
         case 7:
           if (piVar5[1] == 2) {
             iVar7 = player_stat_get_turbo_used_team(0);
             (&g_tutorial_line_entries)[g_tutorial_line_count] = 0x91;
             tutorial_text_format_ratio(2000,iVar7,0x91,0);
-            fVar8 = (float10)text_width(0x91,0x3f333333);
-            g_tutorial_line_width = (float)(fVar8 + (float10)g_tutorial_line_width);
+            fVar8 = (double)text_width(0x91,0x3f333333);
+            g_tutorial_line_width = (float)(fVar8 + (double)g_tutorial_line_width);
           }
           if (piVar5[1] == 5) {
             iVar7 = player_stat_get_wall_hits_team(0);
             (&g_tutorial_line_entries)[g_tutorial_line_count] = 0x92;
             tutorial_text_format_ratio(0,iVar7,0x92,1);
-            fVar8 = (float10)text_width(0x92,0x3f333333);
-            g_tutorial_line_width = (float)(fVar8 + (float10)g_tutorial_line_width);
+            fVar8 = (double)text_width(0x92,0x3f333333);
+            g_tutorial_line_width = (float)(fVar8 + (double)g_tutorial_line_width);
           }
           (&g_tutorial_69d10c)[g_tutorial_line_count] = 0xc6;
-          fVar8 = (float10)text_width(0xc6,0x3f333333);
+          fVar8 = (double)text_width(0xc6,0x3f333333);
 LAB_00432624:
           frame.piStack_10 = piVar5 + 1;
           g_tutorial_line_count = g_tutorial_line_count + 2;
           g_tutorial_line_width =
-               (float)(fVar8 + (float10)g_tutorial_line_width + (float10)k_f_16);
+               (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_16);
         }
         goto switchD_004322dc_default;
       }
@@ -333,7 +333,7 @@ LAB_00432624:
     }
 LAB_004328e0:
     uVar1 = g_menu_69cc48;
-    if ((((g_event_type == 0) || (g_event_type == 1)) || (g_event_type == 2)) &&
+    if ((((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) &&
        ((int)g_menu_69cc48 < 3)) {
       g_tutorial_69d2c8 = 0;
       g_menu_69cc48 = 3;

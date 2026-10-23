@@ -5,7 +5,7 @@ extern __declspec(dllimport) int __stdcall MulDiv(int, int, int);
 extern __declspec(dllimport) int __stdcall timeGetTime(void);
 /* FUN_004ad8f0 */
 
-undefined4 __stdcall FUN_004ad8f0(int param_1, int *param_2)
+undefined4 __stdcall FUN_004ad8f0(char *param_1, int *param_2)
 
 {
   LPCRITICAL_SECTION lpCriticalSection;

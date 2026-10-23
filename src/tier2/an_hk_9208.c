@@ -1,11 +1,11 @@
 #include "mfl_tier2.h"
-/*00421a70*/ extern int course_table_find_entry();
+/*00421a70*/ extern char *course_table_find_entry();
 /*0042f620*/ extern int game_content_exists_prefixed();
-/*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
-/*0042fa80*/ extern int course_content_path_build();
+/*0042f780*/ extern char *__cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
+/*0042fa80*/ extern char *course_content_path_build();
 /*004353c0*/ extern int menu_powerup_set_for_event();
 /*00464aa0*/ extern int powerups_clear();
-/*0048b5f0*/ extern undefined __cdecl lua_run_course_script(undefined4 p0);
+/*0048b5f0*/ extern undefined __cdecl lua_run_course_script(void *p0);
 /*004a43d0*/ extern undefined __cdecl game_open_piz(char *p0);
 /*004a4440*/ extern int game_close_piz();
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
@@ -69,7 +69,7 @@ void course_load_powerups_gold(undefined4 param_1)
       if (iVar2 == 0) goto LAB_0042aac5;
       pcVar4 = "powerups.lua";
     }
-    lua_run_course_script((undefined4)pcVar4);
+    lua_run_course_script(pcVar4);
   }
 LAB_0042aac5:
   game_close_piz();

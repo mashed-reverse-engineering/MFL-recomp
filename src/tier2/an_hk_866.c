@@ -26,10 +26,10 @@
 double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
 
 {
-  float10 angle;
-  float10 cos_angle;
+  double angle;
+  double cos_angle;
   struct {
-    int car_matrix;
+    char *car_matrix;
     RwV3d dir;
   } frame;
 
@@ -39,11 +39,11 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
   frame.dir.y = 0.0;
   frame.dir.z = -(target_z - *(float *)(frame.car_matrix + CAR_MATRIX_POS_Z));
   RwV3dNormalize(&frame.dir,&frame.dir);
-#define DIR_COS (cos_angle + (float10)frame.dir.z * k_f_0)
+#define DIR_COS (cos_angle + (double)frame.dir.z * k_f_0)
   /* heading of the target direction: clamp cos to [-1, 1], arccos, degrees (FUN_004b3284 = acos, inferred) */
-  cos_angle = (float10)frame.dir.y * k_f_0 + frame.dir.x;
-  angle = (float10)FUN_004b3284((double)(DIR_COS < k_f_n1 ? (float10)k_f_n1 : (float_1_0 < DIR_COS ? (float10)float_1_0 : DIR_COS)));
-  angle = angle * (float10)RAD_TO_DEG;
+  cos_angle = (double)frame.dir.y * k_f_0 + frame.dir.x;
+  angle = (double)FUN_004b3284((double)(DIR_COS < k_f_n1 ? (double)k_f_n1 : (float_1_0 < DIR_COS ? (double)float_1_0 : DIR_COS)));
+  angle = angle * (double)RAD_TO_DEG;
   target_x = (float)angle;
   /* negative Z side: mirror the heading */
   if (frame.dir.z - frame.dir.x * k_f_0 < k_f_0) {
@@ -53,7 +53,7 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
   /* bring the heading up into the positive range (loop adds 360 while <= 0, inferred) */
   if (angle < k_f_0 != (angle == k_f_0)) {
     do {
-      angle = angle + (float10)k_f_360;
+      angle = angle + (double)k_f_360;
     } while (angle < k_f_0 != (angle == k_f_0));
     target_x = (float)angle;
   }
@@ -62,35 +62,35 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
   frame.dir.z = -frame.dir.z;
   frame.dir.y = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  cos_angle = (float10)frame.dir.y * k_f_0 + frame.dir.x;
-  angle = (float10)FUN_004b3284((double)(DIR_COS < k_f_n1 ? (float10)k_f_n1 : (float_1_0 < DIR_COS ? (float10)float_1_0 : DIR_COS)));
+  cos_angle = (double)frame.dir.y * k_f_0 + frame.dir.x;
+  angle = (double)FUN_004b3284((double)(DIR_COS < k_f_n1 ? (double)k_f_n1 : (float_1_0 < DIR_COS ? (double)float_1_0 : DIR_COS)));
 #undef DIR_COS
-  angle = angle * (float10)RAD_TO_DEG;
+  angle = angle * (double)RAD_TO_DEG;
   if (frame.dir.z - frame.dir.x * k_f_0 < k_f_0) {
     angle = -angle;
   }
   if (angle < k_f_0 != (angle == k_f_0)) {
     do {
-      angle = angle + (float10)k_f_360;
+      angle = angle + (double)k_f_360;
     } while (angle < k_f_0 != (angle == k_f_0));
   }
   /* turn needed = target heading - forward heading */
-  angle = (float10)target_x - angle;
+  angle = (double)target_x - angle;
   if (angle < k_f_0 != (angle == k_f_0)) {
     do {
-      angle = angle + (float10)k_f_360;
+      angle = angle + (double)k_f_360;
     } while (angle < k_f_0 != (angle == k_f_0));
   }
   /* wrap the difference into 0..360 */
   if (angle < k_f_0) {
     do {
-      angle = angle + (float10)k_f_360;
+      angle = angle + (double)k_f_360;
     } while (angle < k_f_0);
   }
-  if ((float10)k_f_360 < angle) {
+  if ((double)k_f_360 < angle) {
     do {
-      angle = angle - (float10)k_f_360;
-    } while ((float10)k_f_360 < angle);
+      angle = angle - (double)k_f_360;
+    } while ((double)k_f_360 < angle);
   }
   return angle;
 }

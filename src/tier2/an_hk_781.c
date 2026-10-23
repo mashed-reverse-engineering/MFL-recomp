@@ -63,7 +63,7 @@ void gfx_draw_rect_2d_flat_a(float rect_x,float rect_y,float rect_w,float rect_h
     *vertex_cursor = RwGlobalsRelease_dOpenDevice_zBufferNear(engine);
     vertex_cursor[1] = 1.0;
     vertex_cursor = vertex_cursor + 7;
-  } while ((int)vertex_cursor < ((int)&g_training_lesson));
+  } while ((char *)vertex_cursor < ((char *)&g_training_lesson));
   /* Top edge (vertices 0 and 1) gets opaque black emissive instead of the colour. */
   g_im2d_vertices[0].emissiveColor = EMISSIVE_OPAQUE_BLACK;
   g_im2d_vertices[1].emissiveColor = EMISSIVE_OPAQUE_BLACK;

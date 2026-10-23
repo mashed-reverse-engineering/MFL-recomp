@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00465f60*/ extern int weapon_effect_get_slot_record();
+/*00465f60*/ extern char *weapon_effect_get_slot_record();
 /*004726a0*/ extern int sfx_play_at();
 /*00481fd0*/ extern double random_range();
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
@@ -50,7 +50,7 @@ void weapon_mortar_fire(WeaponSlot *weapon,int action)
   float *trail_cursor;
   int ammo_left;
   undefined4 *shot;
-  float10 rnd;
+  double rnd;
   RwV3d to_target;
 
   player = weapon->player;
@@ -63,7 +63,7 @@ void weapon_mortar_fire(WeaponSlot *weapon,int action)
       if (slot_scan[1] == 0) break;
       slot_scan = slot_scan + SHOT_SLOT_DWORDS;
       shot = (undefined4 *)0x0;
-    } while ((int)slot_scan < (int)&g_weapon_6a2a28 + SHOT_POOL_BYTES);
+    } while ((char *)slot_scan < (char *)&g_weapon_6a2a28 + SHOT_POOL_BYTES);
     ammo_left = *(int *)((char *)&g_weapon_mortar_6a29c4 + player * PLAYER_RECORD_BYTES) + -1;
     *(int *)((char *)&g_weapon_mortar_6a29c4 + player * PLAYER_RECORD_BYTES) = ammo_left;
     (&g_weapon_6a29c8)[player * PLAYER_RECORD_DWORDS] = 0x3e4ccccd;
@@ -107,10 +107,10 @@ void weapon_mortar_fire(WeaponSlot *weapon,int action)
         to_target.z = trail_cursor[2] - shot_f[7];
         RwV3dNormalize(&to_target,&to_target);
         spread = (RwV3d *)(shot + 2);
-        rnd = (float10)random_range(0xbf800000,0x3f800000);
+        rnd = (double)random_range(0xbf800000,0x3f800000);
         spread->x = (float)rnd;
         shot_f[3] = 0;
-        rnd = (float10)random_range(0xbf800000,0x3f800000);
+        rnd = (double)random_range(0xbf800000,0x3f800000);
         *(float *)&shot_f[4] = (float)rnd;
         RwV3dNormalize(spread,spread);
         vel_z = spread->x * k_f_0_3;

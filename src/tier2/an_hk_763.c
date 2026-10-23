@@ -174,7 +174,7 @@ void course_object_offsets_init(void)
     object_index = object_index + 1;
     record[-10] = tmp;
     record = next_record;
-  } while ((int)next_record < ((int)&g_course_object_8c4014));
+  } while ((char *)next_record < ((char *)&g_course_object_8c4014));
   return;
 }
 

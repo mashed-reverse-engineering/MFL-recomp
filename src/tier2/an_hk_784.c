@@ -1,11 +1,11 @@
 #include "mfl_tier2.h"
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*0056b510*/ extern void FUN_0056b510(undefined4 p0, undefined4 p1);
-/*0056e250*/ extern int FUN_0056e250(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056e250*/ extern int FUN_0056e250(void *p0, undefined4 p1, void *p2);
 /*00573f10*/ extern int FUN_00573f10(undefined4 p0, undefined4 p1);
-/*00573f70*/ extern void FUN_00573f70(undefined4 p0);
-/*00573fd0*/ extern void FUN_00573fd0(undefined4 p0, undefined4 p1);
-/*0058cb40*/ extern void FUN_0058cb40(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00573f70*/ extern void FUN_00573f70(void *p0);
+/*00573fd0*/ extern void FUN_00573fd0(void *p0, undefined4 p1);
+/*0058cb40*/ extern void FUN_0058cb40(void *p0, undefined4 p1, undefined4 p2);
 /*006fa858*/ extern undefined4 g_rw_6fa858[0x1000];
 /*0088a840*/ extern undefined4 g_rwp_world_88a840;
 
@@ -58,10 +58,10 @@ undefined4 rwp_world_create(undefined4 parent)
   frame.local_8c = FLOAT_NEG_1000_BITS;
   frame.local_88 = FLOAT_NEG_1000_BITS;
   frame.local_84 = FLOAT_NEG_1000_BITS;
-  FUN_00573f70((undefined4)frame.local_7c);
-  FUN_0058cb40((undefined4)frame.local_7c,WORLD_MAX_OBJECTS,WORLD_MAX_CONTACTS);
-  FUN_00573fd0((undefined4)frame.local_7c,0x20);
-  rwp_handle = FUN_0056e250((undefined4)frame.local_7c,parent,(undefined4)&frame.local_9c);
+  FUN_00573f70(frame.local_7c);
+  FUN_0058cb40(frame.local_7c,WORLD_MAX_OBJECTS,WORLD_MAX_CONTACTS);
+  FUN_00573fd0(frame.local_7c,0x20);
+  rwp_handle = FUN_0056e250(frame.local_7c,parent,&frame.local_9c);
   g_rwp_world_88a840 = FUN_00573f10(10,10);
   /* collision bits: set bit (n+1)*k for k = 1..8, plus bit 7n+1, where n = world +WORLD_DIM_OFFSET
      (inferred). Each bit lives in the 32-bit word at WORLD_BITS_OFFSET + (bit >> 5) * 4. */

@@ -94,7 +94,7 @@ extern undefined4 __cdecl atomic_plugin_get_flags(char *param_1);
 
 /*  */
 
-extern float10 atomic_plugin_set_float_24(char *param_1,float param_2);
+extern double atomic_plugin_set_float_24(char *param_1,float param_2);
 
 
 /* atomic_plugin_construct */
@@ -292,7 +292,7 @@ extern void gfx_set_89ddfc(char *param_1);
 /* WARNING: Removing unreachable block (ram,0x00481fe7) */
 /* "(min, max) float from RpRandom" */
 
-extern float10 __fastcall random_range(char *param_1,float param_2,float param_3);
+extern double __fastcall random_range(char *param_1,float param_2,float param_3);
 
 
 /* dot_product_3d_clamped */
@@ -300,7 +300,7 @@ extern float10 __fastcall random_range(char *param_1,float param_2,float param_3
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "dot product of two 3D vectors clamped to [-1, 1]" */
 
-extern float10 dot_product_3d_clamped(float *param_1,float *param_2);
+extern double dot_product_3d_clamped(float *param_1,float *param_2);
 
 
 /* vec3_is_valid_small */
@@ -322,7 +322,7 @@ extern bool __cdecl matrix_is_valid_small(char *param_1,char *param_2);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "samples the RpSpline at 0.001 steps and sums the segment length" */
 
-extern float10 spline_get_length(RpSpline *spline);
+extern double spline_get_length(RpSpline *spline);
 
 
 /* point_lerp_to_aux_camera */
@@ -336,7 +336,7 @@ extern void point_lerp_to_aux_camera(float *param_1,float *param_2,float param_3
 
 /* "RwV3dLength of the difference of two points" */
 
-extern float10 distance_between_points(float *param_1,float *param_2,float *param_3);
+extern double distance_between_points(float *param_1,float *param_2,float *param_3);
 
 
 /* material_uv_anim_check */

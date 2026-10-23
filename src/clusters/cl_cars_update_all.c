@@ -139,7 +139,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
                 retry_count = retry_count + 1;
                 no_collision = false;
                 /* in game mode 1 a hit involving the race leader (g_cars_7ef7bc) is reported */
-                if (((game_mode == 1) && (g_cars_7ef7c4 == 0)) &&
+                if (((game_mode == GAME_MODE_HOLD_THE_FLAG) && (g_cars_7ef7c4 == 0)) &&
                    ((collided = other_index, frame.car_index == g_cars_7ef7bc ||
                     (collided = frame.car_index, other_index == g_cars_7ef7bc)))) {
                   car_hit_by_leader(collided);

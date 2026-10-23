@@ -32,36 +32,36 @@ void course_editor_read_chunk(void)
   undefined4 chunk_id;
   undefined4 chunk_value;
 
-  chunk_id = rw_first_field((int *)(((int)&g_race_phase_arg)));
+  chunk_id = rw_first_field((int *)(((char *)&g_race_phase_arg)));
   switch(chunk_id) {
   /* 0xC: set the current camera pick index. */
   case CHUNK_CAMERA_PICK_INDEX:
-    rw_stream_chunk_copy(((int)&g_race_phase_arg),&chunk_value);
-    store_u32(((int)&g_race_phase_arg),0);
+    rw_stream_chunk_copy(((char *)&g_race_phase_arg),&chunk_value);
+    store_u32(((char *)&g_race_phase_arg),0);
     g_camera_pick_652d00 = chunk_value;
     return;
   /* 0xD: line exception value for the current pick (PICK_RECORD_WORDS words per pick). */
   case CHUNK_LINE_EXCEPTION:
-    rw_stream_chunk_copy(((int)&g_race_phase_arg),&chunk_value);
-    store_u32(((int)&g_race_phase_arg),0);
+    rw_stream_chunk_copy(((char *)&g_race_phase_arg),&chunk_value);
+    store_u32(((char *)&g_race_phase_arg),0);
     (&g_line_exceptions)[g_camera_pick_652d00 * PICK_RECORD_WORDS] = chunk_value;
     return;
   /* 0xE: gamesave value for the current pick (same layout as 0xD, table g_gamesave_651ac4). */
   case CHUNK_GAMESAVE_ENTRY:
-    rw_stream_chunk_copy(((int)&g_race_phase_arg),&chunk_value);
-    store_u32(((int)&g_race_phase_arg),0);
+    rw_stream_chunk_copy(((char *)&g_race_phase_arg),&chunk_value);
+    store_u32(((char *)&g_race_phase_arg),0);
     (&g_gamesave_651ac4)[g_camera_pick_652d00 * PICK_RECORD_WORDS] = chunk_value;
     return;
   /* 0xF: camera pick value for the current pick (byte table g_camera_pick_651ac8, PICK_RECORD_BYTES
      per pick). Breaks out to the final return. */
   case CHUNK_CAMERA_PICK_ENTRY:
-    rw_stream_chunk_copy(((int)&g_race_phase_arg),&chunk_value);
-    store_u32(((int)&g_race_phase_arg),0);
+    rw_stream_chunk_copy(((char *)&g_race_phase_arg),&chunk_value);
+    store_u32(((char *)&g_race_phase_arg),0);
     *(undefined4 *)((char *)&g_camera_pick_651ac8 + g_camera_pick_652d00 * PICK_RECORD_BYTES) = chunk_value;
     break;
   /* 0x10: no value in the stream; save the line exceptions. */
   case CHUNK_LINE_EXCEPTIONS_SAVE:
-    store_u32(((int)&g_race_phase_arg),0);
+    store_u32(((char *)&g_race_phase_arg),0);
     line_exceptions_save();
     return;
   }

@@ -3,6 +3,7 @@
 /* line_exceptions_find_index_a */
 /* "searches the course token list (course_fn_42a420) for the id after param_2, -10/-1/0x100 are
    terminators/repeat markers" */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 int line_exceptions_find_index_a(int id, int start)
 {
   int *list;

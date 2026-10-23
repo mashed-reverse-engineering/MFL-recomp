@@ -7,8 +7,8 @@ typedef int (__cdecl *rwStrcpyFn)(char *, const char *);
 /*0040aca0*/ extern int line_exceptions_load();
 /*004145f0*/ extern int trail_clumps_create();
 /*00421960*/ extern int course_table_select(uint param_1);
-/*004219a0*/ extern undefined __cdecl course_call_cb0(undefined4 p0);
-/*00421a60*/ extern undefined __cdecl course_call_world_setup(undefined4 p0);
+/*004219a0*/ extern undefined __cdecl course_call_cb0(void *p0);
+/*00421a60*/ extern undefined __cdecl course_call_world_setup(void *p0);
 /*00421a70*/ extern char * course_table_find_entry();
 /*00421ac0*/ extern int course_has_cb0();
 /*00421b80*/ extern int course_has_world_setup();
@@ -23,11 +23,11 @@ typedef int (__cdecl *rwStrcpyFn)(char *, const char *);
 /*0042b1e0*/ extern int split_sectors_reset();
 /*0042f6e0*/ extern int game_content_find(char *buf, char *name);
 /*0042fa80*/ extern char * course_content_path_build();
-/*00434a20*/ extern int get_second_camera();
+/*00434a20*/ extern char *get_second_camera();
 /*0044a040*/ extern int gsd_load();
 /*0046f130*/ extern undefined __cdecl sound_load_course_audio(undefined4 p0);
 /*004741f0*/ extern int course_object_lists_reset();
-/*00474300*/ extern undefined __cdecl course_object_pairs_build_clumps(undefined4 p0);
+/*00474300*/ extern undefined __cdecl course_object_pairs_build_clumps(void *p0);
 /*00475450*/ extern int course_ai_polygons_build_grid(uint p0);
 /*00475730*/ extern int get_viewport_camera();
 /*004802a0*/ extern int rwp_trigger_groups_resolve_indices();
@@ -81,7 +81,7 @@ void course_open_and_select(CourseId course_id)
   split_sectors_reset();
   course_table_select(course_id);
   if (course_has_world_setup() != 0) {
-    course_call_world_setup((undefined4)&g_course_world);
+    course_call_world_setup(&g_course_world);
   }
   course_object_lists_reset();
   debug_printf("Opening piz file [%s]\n",g_course_piz_path);
@@ -106,7 +106,7 @@ void course_open_and_select(CourseId course_id)
   rwp_trigger_groups_resolve_indices();
   trail_clumps_create();
   course_ai_polygons_build_grid(g_course_world.collision_bsps[0]);
-  course_object_pairs_build_clumps((undefined4)&g_course_world);
+  course_object_pairs_build_clumps(&g_course_world);
   game_close_piz();
   line_exceptions_clear();
   iVar5 = line_exceptions_load();
@@ -147,7 +147,7 @@ void course_open_and_select(CourseId course_id)
   }
   course_materials_fixup((RpWorld *)g_course_world.world,(void *)g_course_world.texture_dictionary);
   if (course_has_cb0() != 0) {
-    course_call_cb0((undefined4)&g_course_world);
+    course_call_cb0(&g_course_world);
   }
   course_atomics_set_flag_0x40(&g_course_world,&g_course_counts_data);
   rain_buffers_alloc_once();

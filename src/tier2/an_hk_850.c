@@ -2,7 +2,7 @@
 /*00421e20*/ extern int vehicle_set_active();
 /*0047a100*/ extern int car_reset_state();
 /*0047b480*/ extern double car_probe_ground_distance();
-/*004904a0*/ extern undefined __cdecl car_set_physics_matrix(int p0, RwMatrix *p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9, undefined4 p10, undefined4 p11, undefined4 p12, undefined4 p13, undefined4 p14, undefined4 p15, undefined4 p16);
+/*004904a0*/ extern undefined __cdecl car_set_physics_matrix(int p0, RwMatrix *p1, undefined4 p2, void *p3, void *p4, undefined4 p5, undefined4 p6, void *p7, void *p8, undefined4 p9, undefined4 p10, void *p11, void *p12, undefined4 p13, void *p14, void *p15, undefined4 p16);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*0062ac74*/ extern float g_car_62ac74;
@@ -37,7 +37,7 @@ car_spawn(uint param_1,RwReal param_2,float param_3,RwReal param_4,RwReal angle,
   ContactPoint *pCVar2;
   int *piVar3;
   int iVar4;
-  float10 fVar5;
+  double fVar5;
   undefined4 uVar6;
   RwMatrix *matrix_00;
   undefined *puVar7;
@@ -59,7 +59,7 @@ car_spawn(uint param_1,RwReal param_2,float param_3,RwReal param_4,RwReal angle,
   }
   player_car[param_1].mode = 0;
   player_car[param_1].mode2 = 0;
-  fVar5 = (float10)car_probe_ground_distance(*(int *)&param_2,*(int *)&param_3,*(int *)&param_4,param_6);
+  fVar5 = (double)car_probe_ground_distance(*(int *)&param_2,*(int *)&param_3,*(int *)&param_4,param_6);
   pCVar2 = player_car[param_1].contacts;
   iVar4 = 0x12;
   do {
@@ -108,7 +108,7 @@ car_spawn(uint param_1,RwReal param_2,float param_3,RwReal param_4,RwReal angle,
   player_car[param_1].matrices[0x1e] = 0.0;
   player_car[param_1].matrices[0x1d] = 0.0;
   player_car[param_1].matrices[0x1c] = 0.0;
-  local_c.y = (RwReal)((float10)param_3 - fVar5);
+  local_c.y = (RwReal)((double)param_3 - fVar5);
   local_c.x = param_2;
   local_c.z = param_4;
   pfVar15 = matrix;
@@ -128,8 +128,8 @@ car_spawn(uint param_1,RwReal param_2,float param_3,RwReal param_4,RwReal angle,
   uVar6 = 0;
   car_wheel_contact_update_r(param_6,(int)(player_car + param_1),0);
   car_set_physics_matrix
-            (param_1,(RwMatrix *)matrix,uVar6,(undefined4)matrix_00,(undefined4)puVar7,*(int *)&angle,uVar8,(undefined4)pfVar9,(undefined4)puVar10,*(int *)&RVar11,
-             uVar12,(undefined4)pRVar13,(undefined4)translation,uVar14,(undefined4)pfVar15,(undefined4)translation_00,uVar16);
+            (param_1,(RwMatrix *)matrix,uVar6,matrix_00,puVar7,*(int *)&angle,uVar8,pfVar9,puVar10,*(int *)&RVar11,
+             uVar12,pRVar13,translation,uVar14,pfVar15,translation_00,uVar16);
   vehicle_set_active(param_1,1);
   car_reset_state(player_car[param_1].index);
   return 1;

@@ -43,13 +43,13 @@ __declspec(naked) void atomic_plugin_set_radius_squared(int atomic, float *r)   
 }
 
 // FUNCTION: MFL 0x004817d0
-void atomic_plugin_set_flags(int atomic, int flags)
+void atomic_plugin_set_flags(char *atomic, int flags)
 {
     *(int *)(g_gfx_89de0c + 0x20 + atomic) = flags;
 }
 
 // FUNCTION: MFL 0x00481a60
-void object_set_pipeline_6c(int obj)
+void object_set_pipeline_6c(char *obj)
 {
     if (obj != 0) {
         int v = g_object_set_6c3eb0;
@@ -59,7 +59,7 @@ void object_set_pipeline_6c(int obj)
 }
 
 // FUNCTION: MFL 0x00481a80
-void object_set_pipeline_7c(int obj)
+void object_set_pipeline_7c(char *obj)
 {
     if (obj != 0) {
         int v = g_object_set_6c3eb4;
@@ -69,7 +69,7 @@ void object_set_pipeline_7c(int obj)
 }
 
 // FUNCTION: MFL 0x00481aa0
-void object_set_pipeline_08(int obj)
+void object_set_pipeline_08(char *obj)
 {
     if (obj != 0) {
         int v = g_object_set_6c3eb8;
@@ -79,7 +79,7 @@ void object_set_pipeline_08(int obj)
 }
 
 // FUNCTION: MFL 0x00481b70
-void material_plugin_construct(int mat)
+void material_plugin_construct(char *mat)
 {
     int *p = (int *)(g_app_89de04 + mat);
     p[1] = 0;
@@ -117,7 +117,7 @@ void gfx_set_params_6c5124(int *p)
 }
 
 // FUNCTION: MFL 0x00484680
-void object_set_flag_4(int obj, int on)
+void object_set_flag_4(char *obj, int on)
 {
     if (obj != 0) {
         if (on != 0) {
@@ -129,7 +129,7 @@ void object_set_flag_4(int obj, int on)
 }
 
 // FUNCTION: MFL 0x00484630
-void material_flag_4_set(int obj, int *on)
+void material_flag_4_set(char *obj, int *on)
 {
     int b = *(unsigned char *)(obj + 2);
     if (*on != 0) {
@@ -196,9 +196,9 @@ int pool_stack_pop_index(int *pool)
 }
 
 // FUNCTION: MFL 0x00496fc0
-void *atomic_bbox_calculate_from_geometry(void *box, int atomic)
+void *atomic_bbox_calculate_from_geometry(void *box, char *atomic)
 {
-    RwBBoxCalculate(box, *(void **)(*(int *)(*(int *)(atomic + 0x18) + 0x5c) + 0x14), *(int *)(*(int *)(atomic + 0x18) + 0x14));
+    RwBBoxCalculate(box, *(void **)(*(char **)(*(char **)(atomic + 0x18) + 0x5c) + 0x14), *(int *)(*(char **)(atomic + 0x18) + 0x14));
     return box;
 }
 

@@ -18,10 +18,10 @@ void build_info_display_draw_wave_grid(void)
 
 {
   int iVar1;
-  float10 fVar2;
-  float10 fVar3;
-  float10 fVar4;
-  float10 fVar5;
+  double fVar2;
+  double fVar3;
+  double fVar4;
+  double fVar5;
   float fVar6;
   float fVar7;
   float fVar8;
@@ -34,11 +34,11 @@ void build_info_display_draw_wave_grid(void)
   uint uVar16;
   int iVar17;
   uint uVar18;
-  float10 fVar19;
-  float10 fVar20;
-  float10 fVar21;
-  float10 fVar22;
-  float10 fVar23;
+  double fVar19;
+  double fVar20;
+  double fVar21;
+  double fVar22;
+  double fVar23;
   struct {
     int local_40;
     uint local_3c;
@@ -64,26 +64,26 @@ void build_info_display_draw_wave_grid(void)
       iVar17 = 0;
       do {
         iVar1 = (uVar18 & 1) * 0x15 + (iVar17 * 5 + 0x2d) * 8;
-        fVar19 = (float10)(int)(uVar18 * 0x15);
+        fVar19 = (double)(int)(uVar18 * 0x15);
         if (frame.local_40 != 0) {
-          fVar19 = fVar19 + (float10)k_f_416;
+          fVar19 = fVar19 + (double)k_f_416;
         }
-        fVar2 = (float10)k_f_21;
+        fVar2 = (double)k_f_21;
         fVar6 = g_menu_wave_time + g_menu_wave_time;
-        fVar20 = (float10)sin((float10)(int)(iVar17 + uVar18) + (float10)fVar6);
-        fVar3 = (float10)(4.0);
-        fVar21 = (float10)sin((float10)(int)(uVar18 + 1 + iVar17) + (float10)fVar6);
-        fVar4 = (float10)(4.0);
-        fVar22 = (float10)sin((float10)(int)(uVar18 + 2 + iVar17) + (float10)fVar6);
-        fVar5 = (float10)(4.0);
-        fVar23 = (float10)sin((float10)(int)(iVar17 + uVar18 * 2) + (float10)fVar6);
+        fVar20 = (double)sin((double)(int)(iVar17 + uVar18) + (double)fVar6);
+        fVar3 = (double)(4.0);
+        fVar21 = (double)sin((double)(int)(uVar18 + 1 + iVar17) + (double)fVar6);
+        fVar4 = (double)(4.0);
+        fVar22 = (double)sin((double)(int)(uVar18 + 2 + iVar17) + (double)fVar6);
+        fVar5 = (double)(4.0);
+        fVar23 = (double)sin((double)(int)(iVar17 + uVar18 * 2) + (double)fVar6);
         local_14 = (float)(fVar23 + fVar23 + fVar19);
-        fVar23 = (float10)sin((float10)(int)(iVar17 + 1 + uVar18 * 2) + (float10)fVar6);
+        fVar23 = (double)sin((double)(int)(iVar17 + 1 + uVar18 * 2) + (double)fVar6);
         local_c = (float)(fVar23 + fVar23 + fVar19);
-        fVar23 = (float10)sin((float10)(int)(iVar17 + 2 + uVar18 * 2) + (float10)fVar6);
-        local_24 = (float)(fVar23 + fVar23 + (float10)(float)(fVar19 + (float10)k_f_21));
-        fVar23 = (float10)sin((float10)(int)(iVar17 + 3 + uVar18 * 2) + (float10)fVar6);
-        local_1c = (float)(fVar23 + fVar23 + (float10)(float)(fVar19 + (float10)k_f_21));
+        fVar23 = (double)sin((double)(int)(iVar17 + 2 + uVar18 * 2) + (double)fVar6);
+        local_24 = (float)(fVar23 + fVar23 + (double)(float)(fVar19 + (double)k_f_21));
+        fVar23 = (double)sin((double)(int)(iVar17 + 3 + uVar18 * 2) + (double)fVar6);
+        local_1c = (float)(fVar23 + fVar23 + (double)(float)(fVar19 + (double)k_f_21));
         if (frame.local_40 == 0) {
           if (uVar18 == 2) {
             local_1c = 64.0f;
@@ -100,11 +100,11 @@ void build_info_display_draw_wave_grid(void)
           uVar16 = 0;
           frame.uStack_32 = 0;
         }
-        *(volatile float *)&x0f = fVar20 * fVar3 + (float10)iVar1;
+        *(volatile float *)&x0f = fVar20 * fVar3 + (double)iVar1;
         *(volatile float *)&s1r = fVar21 * fVar4;
-        *(volatile float *)&i21f = (float10)iVar1 + fVar2;
-        *(volatile float *)&x1f = fVar21 * fVar4 + ((float10)iVar1 + fVar2);
-        *(volatile float *)&x2f = *(volatile float *)&s1r + (float10)iVar1;
+        *(volatile float *)&i21f = (double)iVar1 + fVar2;
+        *(volatile float *)&x1f = fVar21 * fVar4 + ((double)iVar1 + fVar2);
+        *(volatile float *)&x2f = *(volatile float *)&s1r + (double)iVar1;
         *(volatile float *)&x3f = fVar22 * fVar5 + *(volatile float *)&i21f;
         sVar14 = screen_width();
         fVar6 = (float)(int)sVar14 * *(volatile float *)&x0f * k_f_0_0015625;
@@ -140,7 +140,7 @@ void build_info_display_draw_wave_grid(void)
           pRVar15[-1] = RwIm2DGetNearScreenZ();
           *pRVar15 = 1.0f;
           pRVar15 = pRVar15 + 7;
-        } while ((int)pRVar15 < (int)&g_im2d_vertices + 0x7c);
+        } while ((char *)pRVar15 < (char *)&g_im2d_vertices + 0x7c);
         RwRenderStateSet(rwRENDERSTATETEXTURERASTER,(void *)0x0);
         RwRenderStateSet
                   (rwRENDERSTATEVERTEXALPHAENABLE,(void *)0x1);

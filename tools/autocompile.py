@@ -142,8 +142,10 @@ def _frname(n):
 
 # AC_PLAIN=1: also take cdecl functions whose only pseudo registers are `reg_e??` LOCALS (Ghidra's name for a local passed in a register to a callee with register parameters, tools/tier2_census.py class
 # plain-regcallee): the calls to register functions go through the F_r call adapters of tools/bridgegen.py (emitted into the chunk, static), nothing else changes.
-# AC_X87=1: also take functions whose only pseudo variables are fsin / fcos / fpatan / ABS (x87 instructions the original executes inline): written as CRT calls sin / cos / atan2 / fabs
-# (equal behaviour for in-range arguments, never the same bytes: tier 2 candidates only; atan2 / fabs may have no address in symbols.txt: the census build drops such functions).  Both are opt-in: the default flow and its results are unchanged.
+# AC_X87=1: also take functions whose only pseudo variables are fsin / fcos / fpatan / ABS (x87 instructions the original executes inline): written as plain sin / cos / atan2 / fabs calls
+# on doubles.  cl 13.00 /O2 expands these calls inline to fsin / fcos / fpatan / fabs (also tan -> fptan, atan -> fld1; fpatan, sqrt, log, exp; NOT acos / pow: _CIacos / _CIpow), i.e. the same instructions
+# as the original, so the bytes CAN match (2026-10-22: the older note 'never the same bytes' was wrong; sinf() is the call that does not inline).  Ghidra's `fptan(x)` (only shadow_project_to_ground) is not mapped yet.
+# atan2 / fabs may have no address in symbols.txt: the census build drops such functions.  Both are opt-in: the default flow and its results are unchanged.
 PLAIN, X87 = os.environ.get("AC_PLAIN") == "1", os.environ.get("AC_X87") == "1"
 def dconst(body):
     """AC_X87: Ghidra types a double constant of the original as the float `k_f_*` at its address (`(float10)_k_f_0_5de1f0`); the original reads 8 bytes there (fadd QWORD PTR ds:..): write the double literal"""

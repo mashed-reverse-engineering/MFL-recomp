@@ -37,8 +37,8 @@ void __fastcall race_ai_slot_assign_or_adjust(undefined4 event_arg)
         ((event_type != 0xd && ((event_type != 6 && (event_type != 7)))))))) && (event_type != 8))
      && ((event_type != 0x12 && (event_type != 0x11)))) {
     /* race-style game modes (4, 5, 8, 9, 10; inferred): nudge the skill bias by a fixed step */
-    if (((game_mode == 4) || (((game_mode == 9 || (game_mode == 5)) || (game_mode == 8)))) ||
-       (game_mode == 10)) {
+    if (((game_mode == GAME_MODE_RACE) || (((game_mode == GAME_MODE_CHASE_FUGITIVE || (game_mode == GAME_MODE_KILL_COPTER)) || (game_mode == GAME_MODE_SURVIVAL)))) ||
+       (game_mode == GAME_MODE_BEAT_THE_BOMB)) {
       bias = g_ai_skill_bias;
       if (g_car_7ef7b0 != 0) {
         bias = bias + k_f_0_5;

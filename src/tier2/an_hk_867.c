@@ -16,11 +16,11 @@ extern double sin(double);
  * Returns nothing.
  * (was: "spawns n burst particles with random directions around a cone of angle param_5") */
 
-void fx_spawn_burst_spread(undefined4 spawn_pos,int burst_count,float speed,float *cone_axis,float cone_angle_deg,
+void fx_spawn_burst_spread(char *spawn_pos,int burst_count,float speed,float *cone_axis,float cone_angle_deg,
                undefined4 *fx_ptr_a,undefined4 *fx_ptr_b,float fx_scale)
 {
   float cone_sin;
-  float10 scratch;
+  double scratch;
   /* per-particle scratch: particles left to spawn, direction, then velocity (passed to fx_spawn_burst as float *) */
   struct {
     int remaining;
@@ -33,29 +33,29 @@ void fx_spawn_burst_spread(undefined4 spawn_pos,int burst_count,float speed,floa
   /* nothing to spawn when burst_count is 0 */
   if (burst_count != 0) {
     /* cone offset scale = sin(angle in radians); k_f_0_017453292 is pi/180 */
-    scratch = (float10)sin((float10)cone_angle_deg * (float10)k_f_0_017453292);
+    scratch = (double)sin((double)cone_angle_deg * (double)k_f_0_017453292);
     burst_state.remaining = burst_count;
     cone_sin = (float)scratch;
     /* one iteration per particle: random direction, normalise, random speed, spawn */
     do {
-      scratch = (float10)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
+      scratch = (double)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
       burst_state.direction.x = (RwReal)scratch;
-      scratch = (float10)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
+      scratch = (double)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
       burst_state.direction.y = (RwReal)scratch;
-      scratch = (float10)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
+      scratch = (double)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
       burst_state.direction.x = burst_state.direction.x * cone_sin;
       burst_state.direction.y = burst_state.direction.y * cone_sin;
-      burst_state.direction.z = (float)(scratch * (float10)cone_sin);
+      burst_state.direction.z = (float)(scratch * (double)cone_sin);
       burst_state.direction.x = burst_state.direction.x + *cone_axis;
       burst_state.direction.y = burst_state.direction.y + cone_axis[1];
       burst_state.direction.z = burst_state.direction.z + cone_axis[2];
       RwV3dNormalize(&burst_state.direction,&burst_state.direction);
-      scratch = (float10)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
-      burst_state.vel_x = (float)(scratch * (float10)speed * (float10)burst_state.direction.x);
-      scratch = (float10)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
-      burst_state.vel_y = (float)(scratch * (float10)speed * (float10)burst_state.direction.y);
-      scratch = (float10)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
-      burst_state.vel_z = (float)(scratch * (float10)speed * (float10)burst_state.direction.z);
+      scratch = (double)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
+      burst_state.vel_x = (float)(scratch * (double)speed * (double)burst_state.direction.x);
+      scratch = (double)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
+      burst_state.vel_y = (float)(scratch * (double)speed * (double)burst_state.direction.y);
+      scratch = (double)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
+      burst_state.vel_z = (float)(scratch * (double)speed * (double)burst_state.direction.z);
       fx_spawn_burst((float *)spawn_pos,1,&burst_state.vel_x,fx_ptr_a,fx_ptr_b,fx_scale);
       burst_state.remaining = burst_state.remaining + -1;
     } while (burst_state.remaining != 0);

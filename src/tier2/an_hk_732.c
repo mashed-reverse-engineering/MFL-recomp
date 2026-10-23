@@ -239,7 +239,7 @@ void scene_tables_clear(void)
     cursor[0x366] = 6;
     cursor[0x36c] = 10;
     cursor = cursor + 1;
-  } while ((int)cursor < ((int)&g_scene_tables_6503b8));
+  } while ((char *)cursor < ((char *)&g_scene_tables_6503b8));
   return;
 }
 

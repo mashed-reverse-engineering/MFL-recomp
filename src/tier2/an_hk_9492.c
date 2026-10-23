@@ -4,7 +4,7 @@
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*004f8230*/ extern struct RpMaterial * RpMaterialSetTexture(struct RpMaterial *p0, struct RwTexture *p1);
-/*00545170*/ extern int RpPTankAtomicCreate();
+/*00545170*/ extern char *RpPTankAtomicCreate();
 /*0076e5a0*/ extern undefined4 g_app_76e5a0;
 /*0076e5ac*/ extern RpAtomic *g_app_76e5ac;
 /*0076e5b0*/ extern RwTexture *g_rain_ptank_76e5b0;
@@ -54,14 +54,14 @@ void rain_ptank_create(RwTexture *param_1)
   frame_obj.RStack_14 = 1000.0;
   g_rain_ptank_76e5b0 = param_1;
   pRVar3 = (RpAtomic *)RpPTankAtomicCreate(0x200,0x80007,0);
-  *(undefined4 *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 0xa4) = 5;
-  *(undefined4 *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 0xa8) = 2;
-  puVar1 = (uint *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 0x40);
+  *(undefined4 *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 0xa4) = 5;
+  *(undefined4 *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 0xa8) = 2;
+  puVar1 = (uint *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 0x40);
   *puVar1 = *puVar1 | 0x10000000;
-  puVar1 = (uint *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 0x40);
+  puVar1 = (uint *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 0x40);
   *puVar1 = *puVar1 | 0x800000;
   g_app_76e5ac = pRVar3;
-  *(undefined4 *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 4) = 0x200;
+  *(undefined4 *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 4) = 0x200;
   RpAtomicSetFrame(pRVar3,frame);
   pRVar3 = g_app_76e5ac;
   pRVar2 = RpGeometry_morphTarget(RpAtomic_geometry(g_app_76e5ac));
@@ -69,7 +69,7 @@ void rain_ptank_create(RwTexture *param_1)
   RpMorphTarget_boundingSphere(pRVar2).center.y = frame_obj.RStack_1c;
   RpMorphTarget_boundingSphere(pRVar2).center.z = frame_obj.RStack_18;
   RpMorphTarget_boundingSphere(pRVar2).radius = frame_obj.RStack_14;
-  *(undefined4 *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 0xac) = 1;
+  *(undefined4 *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 0xac) = 1;
   iVar4 = *(int *)((char *)pRVar3 + g_ptank_plugin_offset);
   *(undefined4 *)(iVar4 + 0xd8) = frame_obj.local_10;
   *(undefined4 *)(iVar4 + 0xdc) = frame_obj.local_c;
@@ -80,7 +80,7 @@ void rain_ptank_create(RwTexture *param_1)
   iVar4 = *(int *)((char *)pRVar3 + g_ptank_plugin_offset);
   *(undefined4 *)(iVar4 + 0xb8) = frame_obj.local_28;
   *(undefined4 *)(iVar4 + 0xbc) = frame_obj.local_24;
-  puVar1 = (uint *)(*(int *)((char *)pRVar3 + g_ptank_plugin_offset) + 0x40);
+  puVar1 = (uint *)(*(char **)((char *)pRVar3 + g_ptank_plugin_offset) + 0x40);
   *puVar1 = *puVar1 | 0x4000;
   texture = g_rain_ptank_76e5b0;
   if (g_rain_ptank_76e5b0 != (RwTexture *)0x0) {

@@ -6,8 +6,8 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00481fd0*/ extern double random_range();
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd418*/ extern float k_f_12;
 /*005dd61c*/ extern float k_f_0_001;
@@ -15,7 +15,7 @@ extern struct VoiceSlotP g_voices[210];
 /*005df9a0*/ extern float k_f_3_14;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
 /*006ae1e4*/ extern float g_sound_ambience_6ae1e4;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* voice record layout (inferred from use): handle, flags, position */
@@ -51,7 +51,7 @@ void sound_ambience_course_1a(void)
   undefined4 handle_call_result; /* FUN_005b7300 result, 0 if no handle; never read */
   int slot;
   int scratch; /* reused: slot + 1 index, then the voice handle */
-  float10 random_offset;
+  double random_offset;
   /* frame: local_18 = emitter position (x, y, z), local_c = camera position (never read) */
   struct {
     float local_18 [3];
@@ -276,11 +276,11 @@ void sound_ambience_course_1a(void)
       }
       voice_set_volume(slot,1.0);
       /* x = random in [0, 17.0) + k_f_49; z = random in [0, 70.0) - k_f_12 */
-      random_offset = (float10)random_range(0,0x41880000);
-      emitter_x = (float)(random_offset + (float10)k_f_49);
-      random_offset = (float10)random_range(0,0x428c0000);
+      random_offset = (double)random_range(0,0x41880000);
+      emitter_x = (float)(random_offset + (double)k_f_49);
+      random_offset = (double)random_range(0,0x428c0000);
       voice_ptr = g_voices[slot].voice;
-      frame.local_18[2] = (float)(random_offset - (float10)k_f_12);
+      frame.local_18[2] = (float)(random_offset - (double)k_f_12);
       frame.local_18[1] = 0.0;
       *(float *)(voice_ptr + VOICE_POS_X_OFFSET) = emitter_x;
       *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0;

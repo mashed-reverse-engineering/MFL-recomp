@@ -15,7 +15,7 @@ extern struct VoiceSlot g_voices[210];
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
 /*006ae0c4*/ extern undefined4 g_sound_frame_6ae0c4;
 /*006ae190*/ extern undefined g_sound_frame_6ae190;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 /* sound_surface_skid_voice_update */
 
@@ -32,7 +32,7 @@ void __cdecl sound_surface_skid_voice_update(int param_1,undefined4 param_2,char
   int race_phase;
   float *pfVar4;
   int iVar5;
-  float10 fVar6;
+  double fVar6;
   struct {
     undefined4 local_c;
     int local_8;
@@ -44,7 +44,7 @@ void __cdecl sound_surface_skid_voice_update(int param_1,undefined4 param_2,char
     sound_surface_ambience_lookup(param_2,frame.local_c,&frame.local_8,frame.local_4);
     iVar5 = *(int *)(frame.local_8 * 0x90 + 0x80 + g_sound_groups) + param_1;
     frame.local_8 = car_get_field_bf8(param_1);
-    race_phase = *(int *)((char *)&g_sound_frame_6ae190 + param_1 * 4);
+    race_phase = ((int *)&g_sound_frame_6ae190)[param_1];
     puVar1 = (undefined4 *)((char *)&g_sound_frame_6ae190 + param_1 * 4);
     if (race_phase != 0) {
       if (race_phase == 1) {
@@ -54,12 +54,12 @@ void __cdecl sound_surface_skid_voice_update(int param_1,undefined4 param_2,char
         if ((*(byte *)(uVar2 + 0x34) & 2) == 0) {
           FUN_005b6a40(uVar2,1);
         }
-        fVar6 = (float10)random_range(0.0,441.0);
-        *(float *)(g_voices[iVar5].voice + 0x3c) = (float)((float10)k_f_22050 - fVar6);
+        fVar6 = (double)random_range(0.0,441.0);
+        *(float *)(g_voices[iVar5].voice + 0x3c) = (float)((double)k_f_22050 - fVar6);
         if (*(int *)(g_voices[iVar5].voice + 0x30) != 0) {
-          fVar6 = (float10)random_range(0.0,441.0);
+          fVar6 = (double)random_range(0.0,441.0);
           FUN_005b7300(*(undefined4 *)(g_voices[iVar5].voice + 0x30),4,1,
-                       (float)((float10)k_f_22050 - fVar6));
+                       (float)((double)k_f_22050 - fVar6));
         }
         if (frame.local_8 == 0) {
           *puVar1 = 2;

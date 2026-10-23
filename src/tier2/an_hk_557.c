@@ -42,7 +42,7 @@ void __cdecl race_phase_4_update(char *param_1)
     team_mode = is_team_mode();
     reset_score_panel = team_mode == 0;
     break;
-  /* event types 6-8, 0xb-0xd: in team mode, reset the score panel only when game_mode == 2 */
+  /* event types 6-8, 0xb-0xd: in team mode, reset the score panel only when game_mode == GAME_MODE_HARE_AND_HOUNDS */
   case 6:
   case 7:
   case 8:
@@ -51,7 +51,7 @@ void __cdecl race_phase_4_update(char *param_1)
   case 0xd:
     team_mode = is_team_mode();
     if (team_mode == 0) goto LAB_004124cc;
-    reset_score_panel = game_mode == 2;
+    reset_score_panel = game_mode == GAME_MODE_HARE_AND_HOUNDS;
   }
   if (!reset_score_panel) {
     nop_stub();

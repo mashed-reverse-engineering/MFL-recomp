@@ -8,7 +8,6 @@ typedef int WeaponId;
 /*006a8bc0*/ extern struct Powerup g_powerups[25];
 /*006a93d0*/ extern undefined4 g_powerup_count;
 
-#define WEAPON_CHAOS (21)
 #define POWERUP_VARIANT_CHAOS (2)
 #define POWERUP_STATE_AVAILABLE (1)
 #define POWERUP_SPECIAL_RANDOM (1)

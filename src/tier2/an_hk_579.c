@@ -4,8 +4,8 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*006187f8*/ extern undefined4 g_sfx_table;
 /*006187fc*/ extern undefined4 g_sound_6187fc;
@@ -20,8 +20,6 @@ extern struct VoiceSlotP g_voices[210];
 #define SFX_ID_MULTIPLAYER_MUTED (0x20) /* the only effect id silenced by the multiplayer mute (inferred) */
 /* Effect whose plays are counted in g_sfx_play_8d9930. */
 #define SFX_ID_PLAY_COUNT (0x1c)
-/* Value of g_app_state / get_app_state() that allows sound (inferred). */
-#define APP_STATE_IN_GAME (3)
 /* Default voice frequency, bit pattern of 22050.0f. */
 #define DEFAULT_SFX_FREQ (0x46ac4400)
 #define DEFAULT_SFX_FREQ_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
@@ -51,10 +49,10 @@ void sfx_play_at(int effect_id,undefined4 *position)
   int voices_left;
 
   /* Play unless (multiplayer mute is on, 2+ players and effect_id == SFX_ID_MULTIPLAYER_MUTED),
-     and only when get_app_state() is APP_STATE_IN_GAME.
+     and only when get_app_state() is APP_STATE_RACE.
      voice_slot holds the app state for this check. */
   if ((((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) || (effect_id != SFX_ID_MULTIPLAYER_MUTED)) &&
-     (voice_slot = get_app_state(), voice_slot == APP_STATE_IN_GAME)) {
+     (voice_slot = get_app_state(), voice_slot == APP_STATE_RACE)) {
     /* From here voice_slot is the first voice slot of the effect; voices_left is the number of voices to start. */
     voice_slot = (&g_sfx_table)[effect_id * SFX_TABLE_STRIDE];
     for (voices_left = (&g_sound_6187fc)[effect_id * SFX_TABLE_STRIDE]; 0 < voices_left; voices_left = voices_left + -1) {

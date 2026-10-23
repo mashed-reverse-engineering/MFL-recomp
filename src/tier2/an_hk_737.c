@@ -18,49 +18,49 @@
 void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,undefined4 player_c,int points)
 
 {
-  float10 progress_left;
-  float10 progress_right;
+  double progress_left;
+  double progress_right;
 
   /* wrap-aware compare: if one value is above 80 and the other below 20,
      the one above 80 is shifted down by 100 (the 80/20/100 values are inferred from the names) */
-  progress_left = (float10)player_progress_b(player_a);
-  progress_right = (float10)player_progress_b(player_b);
-  progress_left = (float10)(float)progress_left;
-  if ((progress_left <= (float10)k_f_80) || ((float10)k_f_20 <= progress_right)) {
-    if (((float10)k_f_80 < progress_right) && (progress_left < (float10)k_f_20)) {
-      progress_right = progress_right - (float10)k_f_100;
+  progress_left = (double)player_progress_b(player_a);
+  progress_right = (double)player_progress_b(player_b);
+  progress_left = (double)(float)progress_left;
+  if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
+    if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
+      progress_right = progress_right - (double)k_f_100;
     }
   }
   else {
-    progress_left = progress_left - (float10)k_f_100;
+    progress_left = progress_left - (double)k_f_100;
   }
   /* player_a <= player_b: check player_c against player_a */
   if (progress_left <= progress_right) {
-    progress_left = (float10)player_progress_b(player_c);
-    progress_right = (float10)player_progress_b(player_a);
-    progress_left = (float10)(float)progress_left;
-    if ((progress_left <= (float10)k_f_80) || ((float10)k_f_20 <= progress_right)) {
-      if (((float10)k_f_80 < progress_right) && (progress_left < (float10)k_f_20)) {
-        progress_right = progress_right - (float10)k_f_100;
+    progress_left = (double)player_progress_b(player_c);
+    progress_right = (double)player_progress_b(player_a);
+    progress_left = (double)(float)progress_left;
+    if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
+      if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
+        progress_right = progress_right - (double)k_f_100;
       }
     }
     else {
-      progress_left = progress_left - (float10)k_f_100;
+      progress_left = progress_left - (double)k_f_100;
     }
     /* player_a < player_c: player_a is last of a and c, then order player_b vs player_c */
     if (progress_right < progress_left) {
       car_kill(player_a);
       player_add_points(player_a,-points);
-      progress_left = (float10)player_progress_b(player_b);
-      progress_right = (float10)player_progress_b(player_c);
-      progress_left = (float10)(float)progress_left;
-      if ((progress_left <= (float10)k_f_80) || ((float10)k_f_20 <= progress_right)) {
-        if (((float10)k_f_80 < progress_right) && (progress_left < (float10)k_f_20)) {
-          progress_right = progress_right - (float10)k_f_100;
+      progress_left = (double)player_progress_b(player_b);
+      progress_right = (double)player_progress_b(player_c);
+      progress_left = (double)(float)progress_left;
+      if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
+        if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
+          progress_right = progress_right - (double)k_f_100;
         }
       }
       else {
-        progress_left = progress_left - (float10)k_f_100;
+        progress_left = progress_left - (double)k_f_100;
       }
       /* player_c < player_b: player_c is second, player_b is first */
       if (progress_right < progress_left) {
@@ -83,16 +83,16 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
     return;
   }
   /* player_b < player_a: compare player_c against player_b */
-  progress_left = (float10)player_progress_b(player_c);
-  progress_right = (float10)player_progress_b(player_b);
-  progress_left = (float10)(float)progress_left;
-  if ((progress_left <= (float10)k_f_80) || ((float10)k_f_20 <= progress_right)) {
-    if (((float10)k_f_80 < progress_right) && (progress_left < (float10)k_f_20)) {
-      progress_right = progress_right - (float10)k_f_100;
+  progress_left = (double)player_progress_b(player_c);
+  progress_right = (double)player_progress_b(player_b);
+  progress_left = (double)(float)progress_left;
+  if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
+    if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
+      progress_right = progress_right - (double)k_f_100;
     }
   }
   else {
-    progress_left = progress_left - (float10)k_f_100;
+    progress_left = progress_left - (double)k_f_100;
   }
   /* player_c <= player_b: player_c is last, player_b second, player_a first */
   if (progress_left <= progress_right) {
@@ -106,16 +106,16 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
   /* player_b is last of b and c: compare player_a against player_c for second/first */
   car_kill(player_b);
   player_add_points(player_b,-points);
-  progress_left = (float10)player_progress_b(player_a);
-  progress_right = (float10)player_progress_b(player_c);
-  progress_left = (float10)(float)progress_left;
-  if ((progress_left <= (float10)k_f_80) || ((float10)k_f_20 <= progress_right)) {
-    if (((float10)k_f_80 < progress_right) && (progress_left < (float10)k_f_20)) {
-      progress_right = progress_right - (float10)k_f_100;
+  progress_left = (double)player_progress_b(player_a);
+  progress_right = (double)player_progress_b(player_c);
+  progress_left = (double)(float)progress_left;
+  if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
+    if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
+      progress_right = progress_right - (double)k_f_100;
     }
   }
   else {
-    progress_left = progress_left - (float10)k_f_100;
+    progress_left = progress_left - (double)k_f_100;
   }
   if (progress_right < progress_left) {
     car_kill(player_c);

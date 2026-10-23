@@ -7,7 +7,7 @@
 /*004270b0*/ extern int ai_save();
 /*004271a0*/ extern int ai_clear();
 /*0047b520*/ extern int car_current_matrix();
-/*0047eb50*/ extern undefined __cdecl car_spawn(uint p0, RwReal x, float y, RwReal z, RwReal p4, undefined4 p5);
+/*0047eb50*/ extern undefined __cdecl car_spawn(uint p0, RwReal x, float y, RwReal z, RwReal p4, void *p5);
 /*005dd330*/ extern float float_1_0;
 /*006642f8*/ extern undefined4 g_ai_editor_6642f8;
 /*00664310*/ extern undefined4 g_ai_editor_664310;
@@ -37,7 +37,7 @@ void ai_editor(void)
   int iVar3;
   struct {
     RwReal local_14;
-    int local_10;
+    char *local_10;
     RwReal local_c;
     float local_8;
     RwReal local_4;
@@ -169,7 +169,7 @@ LAB_00427417:
     if (g_ai_editor_menu_cursor != 4) {
       if (g_ai_editor_menu_cursor == 3) {
         grid_position(0,0,1,&frame.local_c,&frame.local_14);
-        car_spawn(0,frame.local_c,frame.local_8,frame.local_4,frame.local_14,(undefined4)&g_car_801b0c);      /* the position vector is passed by value; its y and z are never written (stack residue) */
+        car_spawn(0,frame.local_c,frame.local_8,frame.local_4,frame.local_14,&g_car_801b0c);      /* the position vector is passed by value; its y and z are never written (stack residue) */
       }
       if (g_ai_editor_menu_cursor == 2) {
         g_ai_editor_mode = 0;

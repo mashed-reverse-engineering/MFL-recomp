@@ -25,7 +25,7 @@ void __cdecl course_arctic_cb3_object_init(int *object)
 {
   RwMatrix *matrix;
   int random_flag;
-  float10 angle;
+  double angle;
   RwOpCombineType combineOp;
   RwV3d translation;
   RwV3d rotation_axis;
@@ -58,7 +58,7 @@ void __cdecl course_arctic_cb3_object_init(int *object)
     /* place the matrix: translate to (0, 0, 10), then rotate about Y */
     RwMatrixTranslate(matrix,&translation,rwCOMBINEREPLACE);
     combineOp = rwCOMBINEPOSTCONCAT;
-    angle = (float10)random_range(0,FLOAT_360_BITS);
+    angle = (double)random_range(0,FLOAT_360_BITS);
     RwMatrixRotate(matrix,&rotation_axis,(float)angle,combineOp);
     /* two random 0/1 flags, stored after the matrix (meaning inferred) */
     random_flag = rp_random_int_range(0,1);

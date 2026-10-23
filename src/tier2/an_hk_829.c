@@ -29,9 +29,9 @@ undefined4 __cdecl rocket_surface_hit_test(char *rocket,RwV3d *position)
 
   /* look up the entry of the rocket's current surface */
 
-  surface_entry = *(int *)(*(int *)(*(char **)(rocket + 0x3c) + 0x10) +
+  surface_entry = *(int *)(*(char **)(*(char **)(rocket + 0x3c) + 0x10) +
                       ((uint)*(ushort *)
-                              (*(int *)(*(char **)(rocket + 0x34) + 4) + 6 +
+                              (*(char **)(*(char **)(rocket + 0x34) + 4) + 6 +
                               *(int *)(rocket + 0xc) * 8) +
                       (uint)*(ushort *)(*(char **)(rocket + 0x34) + 0x80)) * 4);
   surface_tag = *(int *)(surface_entry + 4);

@@ -28,13 +28,13 @@ undefined4 __cdecl ai_find_leader_a(int bot_index)
   int slot_type;
   int slot_index;
   int leader_slot; /* NO_LEADER_SLOT, or the slot index of the human player; reused for the far-time total */
-  float10 compare_value; /* player_distance_get(bot_index), then the k_f_2_5 threshold */
-  float10 leader_dist;
+  double compare_value; /* player_distance_get(bot_index), then the k_f_2_5 threshold */
+  double leader_dist;
 
   bot = &g_ai_bots[bot_index];
   leader_slot = NO_LEADER_SLOT;
-  compare_value = (float10)player_distance_get(bot_index);
-  if (compare_value == (float10)k_f_0) {
+  compare_value = (double)player_distance_get(bot_index);
+  if (compare_value == (double)k_f_0) {
     /* scan all race slots; keep the last human slot index found */
     slot_index = 0;
     do {
@@ -46,8 +46,8 @@ undefined4 __cdecl ai_find_leader_a(int bot_index)
     } while (slot_index < RACE_SLOT_COUNT);
     /* a human slot was found: measure its distance */
     if (leader_slot != NO_LEADER_SLOT) {
-      leader_dist = (float10)player_distance_get(leader_slot);
-      compare_value = (float10)k_f_2_5;
+      leader_dist = (double)player_distance_get(leader_slot);
+      compare_value = (double)k_f_2_5;
       bot->leader_distance = (float)leader_dist;
       /* leader is further than k_f_2_5: add to the far time, return 1 past the timeout */
       if ((compare_value < leader_dist) &&
@@ -57,7 +57,7 @@ undefined4 __cdecl ai_find_leader_a(int bot_index)
       }
       /* leader distance at or above float_1_0: return 0 and keep the far time.
          Below float_1_0: fall through and reset the far time. */
-      if ((float10)float_1_0 <= leader_dist) {
+      if ((double)float_1_0 <= leader_dist) {
         return 0;
       }
       bot->leader_far_ms = 0;

@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00486ef0*/ extern int particles_render();
-/*004c65d0*/ extern void FUN_004c65d0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c65d0*/ extern void FUN_004c65d0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3, undefined4 p4);
 /*004d5410*/ extern RwReal _rwSqrt(RwReal p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd340*/ extern float k_f_0_5;

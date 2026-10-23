@@ -1,15 +1,15 @@
 {
  "clusters": {
-  "bytes": 114595,
-  "functions": 418
+  "bytes": 267584,
+  "functions": 564
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
-  "game": 2557,
-  "game_bytes": 638747,
-  "game_named": 2459,
-  "named": 4694,
-  "total": 6364
+  "game": 2784,
+  "game_bytes": 682331,
+  "game_named": 2686,
+  "named": 5417,
+  "total": 7087
  },
  "published_source": {
   "by_module": {
@@ -76,8 +76,8 @@
    "verified_bytes_identical": 908
   },
   "tier2": {
-   "bytes": 241645,
-   "functions": 714,
+   "bytes": 244384,
+   "functions": 1068,
    "verified_bytes_identical": 0
   }
  }

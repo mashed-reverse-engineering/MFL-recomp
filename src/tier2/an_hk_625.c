@@ -68,7 +68,7 @@ void vehicle_prepare_parts(int vehicle_index)
     g_game_659d08 = (RwTexDictionary *)0x0;
   }
   /* clear this slot's entry in g_game_659d50, then count one vehicle fewer */
-  *(undefined4 *)((char *)&g_game_659d50 + vehicle_index * 4) = 0;
+  ((undefined4 *)&g_game_659d50)[vehicle_index] = 0;
   g_game_65a9c8 = g_game_65a9c8 + -1;
   return;
 }

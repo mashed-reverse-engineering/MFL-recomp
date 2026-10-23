@@ -5,8 +5,8 @@
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005de1d0*/ extern float k_f_1_25;
-/*00658b34*/ extern undefined4 g_hudpanel_658b34;
-/*00658b44*/ extern undefined4 g_hudpanel_658b44;
+/*00658b34*/ extern char *g_hudpanel_658b34;
+/*00658b44*/ extern char *g_hudpanel_658b44;
 
 /* rwMATRIXINTERNALIDENTITY (0x20000) | rwMATRIXTYPEORTHONORMAL (3) */
 #define MATRIX_FLAGS_IDENTITY_ORTHONORMAL (0x20003)
@@ -26,7 +26,7 @@ void hudpanel_bomb_meter_update(void)
   undefined4 meter_colour;
   undefined1 blue_level;
   undefined1 green_level;
-  float10 bomb_value;
+  double bomb_value;
   struct {
     undefined1 pad_bytes [3];
     undefined1 pad_byte;
@@ -64,7 +64,7 @@ void hudpanel_bomb_meter_update(void)
   xform.meter_scale.z = xform.meter_scale.z * k_f_1_25;
   RwFrameScale((struct RwFrame *)g_hudpanel_658b44,(struct RwV3d *)&xform.meter_scale,rwCOMBINEPRECONCAT);
   /* read the bomb value (0..1 fraction, inferred) and use it as the x scale of the fill */
-  bomb_value = (float10)scene_get_bomb_5fb0a8();
+  bomb_value = (double)scene_get_bomb_5fb0a8();
   xform.meter_scale.x = (RwReal)bomb_value;
   xform.meter_scale.z = 1.0;
   xform.meter_scale.y = 1.0;

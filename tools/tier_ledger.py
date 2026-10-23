@@ -6,7 +6,7 @@ authority (bytes-reloc > diffemu > shadow > static > none) is the strongest evid
 evidence recorded for another src_hash (output/ledger_state.csv) is STALE and the row drops to static; FAIL / DIFF / INCONCLUSIVE / unknown never count.  validated (tier 2) = diffemu EQUAL >= 20 cases, both coverages >= 0.8, shadow OK; or shadow CALLED + a passed infra/milestone gate.
 --retag writes `/* TIER2: ... */` above each tier 2 function (a drift warning is printed otherwise); tools/status.sh summarises the csv.
 sweep (all tiers run through the 15 course union sweep as a set; per function execution counts come from the coverage runs)."""
-import csv, datetime, glob, hashlib, os, re, subprocess, sys
+import re, csv, datetime, glob, hashlib, os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import shadow_cache
 HERE = os.path.dirname(os.path.abspath(__file__)); R = os.path.join(HERE, "..", "src")
 sym = {}
@@ -133,6 +133,6 @@ with open(os.path.join(OUT, "tier_ledger.csv"), "w") as o:
     o.write("name,va,tier,evidence,authority,src_hash,hdr_hash,harness_hash,cases,cov,stale,validated\n")
     for n, (t, ev) in sorted(rows.items()):
         a, c, cv, st, v = authority(n, t, ev)
-        o.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%.2f,%d,%d\n" % (n, sym.get(n, "?"), t, "+".join(ev), a, srch.get(n.split("@")[0], "-"), hdr_hash, harness_hash, c, cv, st, int(v)))
+        o.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%.2f,%d,%d\n" % (n, sym.get(n) or (n[-8:] if re.search(r"_[0-9a-f]{8}$", n) else "?"), t, "+".join(ev), a, srch.get(n.split("@")[0], "-"), hdr_hash, harness_hash, c, cv, st, int(v)))
 import collections
 print(dict(collections.Counter(t for t, _ in rows.values())), "->", "output/tier_ledger.csv")

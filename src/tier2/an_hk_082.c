@@ -6,6 +6,18 @@
 /*006a8bc0*/ extern struct Powerup g_powerups[25];
 /*006a9390*/ extern undefined g_powerup_glow;
 /*006a93d0*/ extern undefined4 g_powerup_count;
+/* layout of *camera_frame in powerups_render, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+typedef struct powerups_render_camera_frame_layout {
+    char pad_0x0[48];
+    float f_0x30;
+    float f_0x34;
+    float f_0x38;
+    char pad_0x3c[4];
+    float f_0x40;
+    float f_0x44;
+    float f_0x48;
+} powerups_render_camera_frame_layout;
+
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 
 /* sizeof(struct Powerup) in floats: 0x50 bytes */
@@ -24,7 +36,7 @@
 void powerups_render(void)
 
 {
-  char *camera_frame;
+  powerups_render_camera_frame_layout *camera_frame;
   float delta_x;
   float delta_y;
   float delta_z;
@@ -33,7 +45,7 @@ void powerups_render(void)
 
   /* camera_frame: the camera's frame (inferred); its matrix is read at +0x30 (forward, inferred) and +0x40 (position, inferred) */
   powerup_index = g_powerup_count;
-  camera_frame = *(char **)((char *)RwCameraGetCurrentCamera() + 4);
+  camera_frame = (powerups_render_camera_frame_layout *)(*(char **)((char *)RwCameraGetCurrentCamera() + 4));
   /* glow particles: z-write off, z-test on */
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
@@ -48,13 +60,13 @@ void powerups_render(void)
       /* only powerups in state 1 (available) are drawn */
       if (*(int *)&spawn_pos[-0x1a] == 1) {
         /* vector from the camera to the powerup's spawn position */
-        delta_x = spawn_pos[-0x14] - *(float *)(camera_frame + 0x40);
-        delta_y = spawn_pos[-0x13] - *(float *)(camera_frame + 0x44);
-        delta_z = spawn_pos[-0x12] - *(float *)(camera_frame + 0x48);
+        delta_x = spawn_pos[-0x14] - camera_frame->f_0x40;
+        delta_y = spawn_pos[-0x13] - camera_frame->f_0x44;
+        delta_z = spawn_pos[-0x12] - camera_frame->f_0x48;
         /* in front of the camera (dot product with the forward vector > 0, inferred)
            and squared distance under k_f_800 (inferred max render distance squared) */
-        if ((k_f_0 <*(float *)(camera_frame + 0x38) * delta_z +
-                     delta_x * *(float *)(camera_frame + 0x30) + *(float *)(camera_frame + 0x34) * delta_y) &&
+        if ((k_f_0 <camera_frame->f_0x38 * delta_z +
+                     delta_x * camera_frame->f_0x30 + camera_frame->f_0x34 * delta_y) &&
            (delta_z * delta_z + delta_x * delta_x + delta_y * delta_y < k_f_800)) {
           RpClumpRender(*(RpClump **)&spawn_pos[-0x22]);
         }

@@ -4,7 +4,7 @@
 /*00475730*/ extern int get_viewport_camera();
 /*004d78f0*/ extern struct RwRaster * RwRasterSubRaster(struct RwRaster *p0, struct RwRaster *p1, struct RwRect *p2);
 /*0069d2c8*/ extern undefined4 g_tutorial_69d2c8;
-/*0069d69c*/ extern undefined4 g_ui_69d69c;
+/*0069d69c*/ extern char *g_ui_69d69c;
 /*008c8730*/ extern undefined4 g_ui_8c8730;
 /*008c8734*/ extern undefined4 g_ui_camera_8c8734;
 /*008c8738*/ extern undefined4 g_ui_camera_8c8738;

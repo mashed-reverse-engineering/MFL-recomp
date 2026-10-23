@@ -29,13 +29,13 @@ void race_course_model_path_for_event(EventEntry **events, int index)
 
   base = events[index + 1]->course / 6;
   type = get_event_type();
-  if (type == 0xb || get_event_type() == 0xc || get_event_type() == 0xd) {
+  if (type == EVENT_QUICK_RACE_11 || get_event_type() == EVENT_QUICK_RACE_12 || get_event_type() == EVENT_QUICK_RACE_13) {
     base = events[menu_event_course_index_get() + 1]->course / 6;
   }
-  if (get_event_type() == 6 || get_event_type() == 7 || get_event_type() == 8) {
+  if (get_event_type() == EVENT_MULTIPLAYER_6 || get_event_type() == EVENT_MULTIPLAYER_7 || get_event_type() == EVENT_MULTIPLAYER_8) {
     base = events[menu_event_course_index_get() + 1]->course / 6;
   }
-  if (get_event_type() == 0xe) {
+  if (get_event_type() == EVENT_TURBO_TOURNAMENT) {
     base = 12;
   }
   base = base * 6;
@@ -43,7 +43,7 @@ void race_course_model_path_for_event(EventEntry **events, int index)
   game_open_piz(course_content_path_build(vehicle_model_path(base)));
   for (i = 0; i < 4; i++) {
     int model = g_player_slots[i].team + base;
-    if (get_event_type() == 0x12) {
+    if (get_event_type() == EVENT_QUICK_RACE) {
       model = i + base;
     }
     models[i] = model;

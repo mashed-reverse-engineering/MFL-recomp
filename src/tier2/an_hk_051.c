@@ -45,7 +45,7 @@ void player_add_points(int player,uint points)
   int slot;
   bool flag;
 
-  if (game_mode == 1) {
+  if (game_mode == GAME_MODE_HOLD_THE_FLAG) {
     if ((int)points < 0) {
       points = 0;
     }
@@ -79,7 +79,7 @@ void player_add_points(int player,uint points)
     }
   }
   /* Mode 2: no points for slot state 1; with all slots used the amount becomes 1 if it is 2, else 0; otherwise 2 becomes 1. */
-  if (game_mode == 2) {
+  if (game_mode == GAME_MODE_HARE_AND_HOUNDS) {
     if ((int)points < 0) {
       points = 0;
     }
@@ -94,13 +94,13 @@ void player_add_points(int player,uint points)
       points = 1;
     }
   }
-  *(undefined4 *)((char *)&g_round_8d8bd0 + player * 4) = (&player_points)[player];
+  ((undefined4 *)&g_round_8d8bd0)[player] = (&player_points)[player];
   flag = g_race_7ef7fc != 0;
-  *(uint *)((char *)&g_round_8d8b80 + player * 4) = points;
+  ((uint *)&g_round_8d8b80)[player] = points;
   if ((flag) && ((int)points < 0)) {
     points = 0;
   }
-  *(uint *)((char *)&g_round_8d8b60 + player * 4) = points;
+  ((uint *)&g_round_8d8b60)[player] = points;
   /* Log the award to the event ring buffer unless the race phase is 1..5 (inferred: not while racing or in results). */
   result = race_get_phase();
   frame_ticks = g_last_frame_ticks;
@@ -118,7 +118,7 @@ void player_add_points(int player,uint points)
   total_ptr = &player_points + player;
   *total_ptr = *total_ptr + points;
   result = *total_ptr;
-  *(undefined4 *)((char *)&g_round_8d8b70 + player * 4) = 6000;
+  ((undefined4 *)&g_round_8d8b70)[player] = 6000;
   if (result < 0) {
     (&player_points)[player] = 0;
   }

@@ -12,11 +12,11 @@ void career_event_won_set_course_state(int value)
 // FUNCTION: MFL 0x004169f0
 char *career_event_slot_table(void)
 {
-    if (get_event_type() == 0xe)
+    if (get_event_type() == EVENT_TURBO_TOURNAMENT)
         return g_career_event_608d38;
-    if (get_event_type() == 0xf)
+    if (get_event_type() == EVENT_ICE_TOURNAMENT)
         return g_career_event_608e28;
-    if (get_event_type() == 0x10)
+    if (get_event_type() == EVENT_NIGHT_TOURNAMENT)
         return g_career_event_608f18;
     return g_career_event_608a68;
 }

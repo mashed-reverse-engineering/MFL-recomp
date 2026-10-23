@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00487ee0*/ extern undefined __cdecl triangle_normal_cross(struct RwV3d *p0, float *p1, float *p2, float *p3);
 /*00487f80*/ extern undefined __cdecl vector_normalize_copy(struct RwV3d *p0, float *p1, RwReal *p2);
-/*0048cff0*/ extern int __cdecl course_edge_side_test(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*0048cff0*/ extern int __cdecl course_edge_side_test(void *p0, undefined4 p1, void *p2, void *p3);
 /*005dd330*/ extern float float_1_0;
 /* course_collision_object_push_vectors */
 
@@ -24,7 +24,7 @@ void __cdecl course_collision_object_push_vectors(char *obj,float *point,RwV3d *
   byte first;
   byte second;
   RwV3d sum;
-  float10 scale;
+  double scale;
   volatile float scaled_y;
   volatile float scaled_z;
   RwV3d target;
@@ -38,7 +38,7 @@ void __cdecl course_collision_object_push_vectors(char *obj,float *point,RwV3d *
     face = 0;
     edges = obj + OBJ_FACE_EDGES;
     do {
-      if (course_edge_side_test((undefined4)obj,face,(undefined4)point,(undefined4)&side) != 0) {
+      if (course_edge_side_test(obj,face,point,&side) != 0) {
         hits = hits + 1;
         if (side == 0) {
           first = edges[0];
@@ -59,10 +59,10 @@ void __cdecl course_collision_object_push_vectors(char *obj,float *point,RwV3d *
       edges = edges + 4;
     } while (face < *(uint *)(obj + OBJ_FACE_COUNT));
     if (hits != 0) {
-      scale = float_1_0 / (float10)hits;
+      scale = float_1_0 / (double)hits;
       scaled_y = (float)(scale * sum.y);
       scaled_z = (float)(scale * sum.z);
-      target.x = (float)((float10)point[0] - scale * sum.x);
+      target.x = (float)((double)point[0] - scale * sum.x);
       target.y = point[1] - scaled_y;
       target.z = point[2] - scaled_z;
       vector_normalize_copy((RwV3d *)((char *)normals + 0),(float *)(obj + OBJ_PUSH_ORIGIN),&target.x);

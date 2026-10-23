@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3b70*/ extern int stream_read_file();
 /*004c3d80*/ extern int texdict_load_file(char * p0, int p1, int p2);
-/*004c3e40*/ extern int FUN_004c3e40(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004c3e40*/ extern int FUN_004c3e40(void *p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004c6730*/ extern int piz_find_entry_size_004c6a70();
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);

@@ -5,7 +5,7 @@ extern struct VoiceSlotP g_voices[210];
 /*00469ac0*/ extern int voice_set_position_from_car();
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*0047ac30*/ extern int car_get_mode();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*00618c98*/ extern undefined4 g_sound_618c98;
 #define CAR_MODE_VOICE (2) /* car mode from car_get_mode (inferred) */

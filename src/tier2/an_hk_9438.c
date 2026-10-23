@@ -18,6 +18,7 @@ extern double sin(double x);
 /* Ambience of courses 0x11 and 0x14: one looping voice (group slot +0x470) with a random pitch around 22050 Hz and a
    volume that dips slowly (1 - 0.1 sin(phase), the phase runs 0..3.14 in steps of 0.001), plus four consecutive voices of
    group slot +0x500 at fixed pitches 22050..22650 Hz, placed in a row at x 0.7, y 1.4, z 4.1 / 7.1 / 11.1 / 15.1. */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 void sound_ambience_course_11_14(void)
 {
   RwV3d position;

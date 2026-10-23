@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0048d540*/ extern int __cdecl course_collision_object_build(undefined4 param_1, int param_2);
+/*0048d540*/ extern int __cdecl course_collision_object_build(void *param_1, int param_2);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
 /*004d0f70*/ extern struct RwFrame * RwFrameUpdateObjects(struct RwFrame *p0);
 /*006f35c8*/ extern undefined4 g_course_6f35c8[0x1000];
@@ -23,7 +23,7 @@
  * Finally the whole record table is copied to g_course_6f4b48 (inferred: snapshot for later use).
  * Returns nothing. */
 
-void __cdecl course_collision_objects_build(int clump)
+void __cdecl course_collision_objects_build(char *clump)
 
 {
   int index;
@@ -38,7 +38,7 @@ void __cdecl course_collision_objects_build(int clump)
   if (0 < (int)g_course_6f690c) {
     record = g_course_6f35c8;
     do {
-      course_collision_object_build((undefined4)record,atomics[index]);
+      course_collision_object_build(record,atomics[index]);
       index = index + 1;
       record = record + COLLISION_RECORD_DWORDS;
     } while (index < (int)g_course_6f690c);

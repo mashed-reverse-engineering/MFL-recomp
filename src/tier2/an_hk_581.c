@@ -4,8 +4,8 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*006187f8*/ extern undefined4 g_sfx_table;
 
@@ -37,7 +37,7 @@ void sfx_play_voice_at(int effect_id,undefined4 *position,int voice_index)
   undefined4 set_param_result;
 
   state_or_handle = get_app_state();
-  if (state_or_handle == 3) {
+  if (state_or_handle == APP_STATE_RACE) {
     /* voice_index becomes the absolute slot in g_voices */
     voice_index = (&g_sfx_table)[effect_id * SFX_TABLE_STRIDE] + voice_index;
     voice_rec = g_voices[voice_index].voice;

@@ -73,7 +73,7 @@
 /*004a43d0*/ extern undefined __cdecl game_open_piz(char *p0);
 /*004a4440*/ extern int game_close_piz();
 /*004a8420*/ extern int debug_printf();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b2ccd*/ extern undefined __cdecl start(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004b322b*/ extern int exit();
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
@@ -285,7 +285,7 @@ extern undefined4 race_get_intro_652df0(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float at 0x652DF4" */
 
-extern float10 intro_banner_get_x(void);
+extern double intro_banner_get_x(void);
 
 
 /* intro_banner_update */
@@ -345,7 +345,7 @@ extern undefined4 race_get_phase(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "g_race_time_ticks / 3000 minus the phase start time" */
 
-extern float10 race_get_time_seconds(void);
+extern double race_get_time_seconds(void);
 
 
 /* team_color_rgba */

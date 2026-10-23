@@ -38,9 +38,9 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   uint uVar4;
   int iVar5;
   int iVar6;
-  float10 fVar7;
+  double fVar7;
   float brightness;
-  float10 alpha;
+  double alpha;
   struct {
     undefined4 local_48;
     undefined4 local_44;
@@ -67,8 +67,8 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   } frame;
   
   iVar6 = *(int *)&param_1[7] * 0x44;      /* style record: 0x44 bytes each, colour bytes at +0x34 */
-  fVar7 = (float10)rp_random_float_range(0,0x3f800000);
-  iVar3 = (int)(fVar7 * (float10)*(int *)((char *)&g_effects_update_76df68 + iVar6));      /* brightness jitter */
+  fVar7 = (double)rp_random_float_range(0,0x3f800000);
+  iVar3 = (int)(fVar7 * (double)*(int *)((char *)&g_effects_update_76df68 + iVar6));      /* brightness jitter */
   brightness = param_1[8];      /* clamped to the style's range */
   if (*(float *)((char *)&g_effects_update_76df6c + iVar6) < brightness) {
     brightness = *(float *)((char *)&g_effects_update_76df6c + iVar6);
@@ -80,7 +80,7 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   frame.local_48 = *puVar1;
   frame.local_44 = puVar1[1];
   frame.local_40 = puVar1[2];
-  uVar4 = (int)((float10)(uint)*(byte *)((char *)&g_effects_update_76df34 + iVar6) * (float10)brightness);
+  uVar4 = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df34 + iVar6) * (double)brightness);
   iVar5 = (uVar4 & 0xff) + iVar3;
   if ((iVar5 < 0) || (0xff < iVar5)) {
     frame.local_3c = (iVar5 < 0x100) + -1;
@@ -88,7 +88,7 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   else {
     frame.local_3c = (char)iVar5;
   }
-  uVar4 = (int)((float10)(uint)*(byte *)((char *)&g_effects_update_76df35 + iVar6) * (float10)brightness);
+  uVar4 = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df35 + iVar6) * (double)brightness);
   iVar5 = (uVar4 & 0xff) + iVar3;
   if ((iVar5 < 0) || (0xff < iVar5)) {
     frame.local_3b = (iVar5 < 0x100) + -1;
@@ -96,7 +96,7 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   else {
     frame.local_3b = (char)iVar5;
   }
-  uVar4 = (int)((float10)(uint)*(byte *)((char *)&g_effects_update_76df36 + iVar6) * (float10)brightness);
+  uVar4 = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df36 + iVar6) * (double)brightness);
   uVar4 = (uVar4 & 0xff) + iVar3;
   if (((int)uVar4 < 0) || (0xff < (int)uVar4)) {
     uVar4 = (uint)(byte)(((int)uVar4 < 0x100) - 1);
@@ -106,8 +106,8 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
     frame.local_39 = 0xff;
   }
   else {
-    alpha = (float10)(uint)(byte)(&g_effects_update_76df37)[iVar6];
-    frame.local_39 = (int)(alpha * (float10)*param_1 * (float10)k_f_0_5 + alpha * (float10)k_f_0_5);
+    alpha = (double)(uint)(byte)(&g_effects_update_76df37)[iVar6];
+    frame.local_39 = (int)(alpha * (double)*param_1 * (double)k_f_0_5 + alpha * (double)k_f_0_5);
   }
   frame.local_10 = *(undefined4 *)((char *)&g_effects_update_76df54 + iVar6);
   frame.local_18 = *(float *)((char *)&g_effects_update_76df38 + iVar6) / *param_1;
@@ -116,10 +116,10 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   frame.local_1c = *(undefined4 *)((char *)&g_effects_update_76df50 + iVar6);
   frame.local_8 = *(undefined4 *)((char *)&g_effects_update_76df64 + iVar6);
   style_index = *(int *)&param_1[7];
-  fVar7 = (float10)rp_random_float_range(0xbe4ccccd,0x3e4ccccd);
+  fVar7 = (double)rp_random_float_range(0xbe4ccccd,0x3e4ccccd);
   frame.local_3 = (&g_effects_update_76df60)[style_index * 0x44];
-  fVar7 = (fVar7 + (float10)*(float *)((char *)&g_effects_update_76df58 + style_index * 0x44)) *
-          (float10)*param_1;
+  fVar7 = (fVar7 + (double)*(float *)((char *)&g_effects_update_76df58 + style_index * 0x44)) *
+          (double)*param_1;
   frame.local_38 = (float)fVar7;
   frame.local_34 = (float)fVar7;
   if (g_tick_number % 3 == 0) {
@@ -128,12 +128,12 @@ void __cdecl fx_particle_spawn_from_style(float *param_1)
   frame.local_30 = param_1[3];
   frame.local_2c = param_1[4];
   frame.local_28 = param_1[5];
-  fVar7 = (float10)rp_random_float_range(0xbf800000,0x3f800000);
-  frame.local_30 = (float)(fVar7 * (float10)k_f_0_85 + (float10)frame.local_30);
-  fVar7 = (float10)rp_random_float_range(0,0x3f000000);
-  frame.local_2c = (float)((float10)k_f_1_3 - fVar7);
-  fVar7 = (float10)rp_random_float_range(0xbf800000,0x3f800000);
-  frame.local_28 = (float)(fVar7 * (float10)k_f_0_85 + (float10)frame.local_28);
+  fVar7 = (double)rp_random_float_range(0xbf800000,0x3f800000);
+  frame.local_30 = (float)(fVar7 * (double)k_f_0_85 + (double)frame.local_30);
+  fVar7 = (double)rp_random_float_range(0,0x3f000000);
+  frame.local_2c = (float)((double)k_f_1_3 - fVar7);
+  fVar7 = (double)rp_random_float_range(0xbf800000,0x3f800000);
+  frame.local_28 = (float)(fVar7 * (double)k_f_0_85 + (double)frame.local_28);
   fx_trail_particle_spawn_interpolated(&frame.local_48,0,0,0);
   if (*(int *)&param_1[9] != 0) {
     fx_dust_particle_spawn(param_1 + 10,*(undefined4 **)&param_1[6],*(int *)&param_1[7],brightness * k_f_0_4,*(undefined4 *)&param_1[2],*(undefined4 *)&param_1[1]);

@@ -8,7 +8,7 @@
 
 /* "same quad draw for the second quad set (+0xE8 points, texture at +0x118)" */
 
-void __cdecl course_quad_render_b(int param_1,undefined4 param_2,undefined4 param_3)
+void __cdecl course_quad_render_b(char *param_1,undefined4 param_2,undefined4 param_3)
 
 {
   int corner;

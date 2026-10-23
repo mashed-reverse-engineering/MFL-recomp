@@ -17,7 +17,7 @@ void hsv_phase_to_rgb(float *out,int value,uint range)
 
 {
   float value_f;
-  float10 fraction;
+  double fraction;
   float range_f;
 
   /* int -> float; negative values get 2^32 added back (unsigned conversion) */
@@ -36,7 +36,7 @@ void hsv_phase_to_rgb(float *out,int value,uint range)
     fraction = fraction + k_f_4_2949673e9;
   }
   /* position inside the sector, 0..1 (k_f_4 = 4.0 inferred from its name) */
-  fraction = ((float10)value_f * k_f_4) / range_f - fraction;
+  fraction = ((double)value_f * k_f_4) / range_f - fraction;
   /* each sector sets two channels; blue is left alone */
   switch(range) {
   case 0:

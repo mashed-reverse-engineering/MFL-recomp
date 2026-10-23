@@ -26,7 +26,7 @@
  * and at vectors (pitch and roll, inferred), then translate by the camera offset vector.
  * camera is the camera object; its offsets are inferred from use.
  */
-void camera_apply_rotation(int camera)
+void camera_apply_rotation(char *camera)
 
 {
   RwMatrix *matrix;

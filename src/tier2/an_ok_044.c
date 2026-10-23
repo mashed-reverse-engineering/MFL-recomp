@@ -249,7 +249,7 @@ extern void weapon_rocket_unequip(WeaponSlot *param_1);
 
 /* weapon_rocket_ammo_fraction */
 
-extern float10 weapon_rocket_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_rocket_ammo_fraction(WeaponSlot *param_1);
 
 
 /* weapon_rocket_free_assets */
@@ -336,7 +336,7 @@ extern undefined4 weapon_oil_is_finished(WeaponSlot *param_1);
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
-extern float10 weapon_oil_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_oil_ammo_fraction(WeaponSlot *param_1);
 
 
 /* weapon_oil_course_2_update */

@@ -60,7 +60,7 @@ undefined4 fx_buffers_alloc(void)
   RwV3d *dir;
   float *cursor;
   int state_offset;
-  float10 rand_value;
+  double rand_value;
 
   g_app_76e3bc = (undefined4)(RwMalloc(PARTICLE_BUF_BYTES,0));
   g_app_76e3b8 = (undefined4)(RwMalloc(STATE_BUF_BYTES,0));
@@ -73,17 +73,17 @@ undefined4 fx_buffers_alloc(void)
   dir = (RwV3d *)((int)g_app_76e3bc + PARTICLE_DIR_OFFSET);
   /* one particle per pass: fill its 32-byte record and its 12-byte state entry */
   do {
-    rand_value = (float10)random_range(g_app_62ac3c,g_app_62ac40);
+    rand_value = (double)random_range(g_app_62ac3c,g_app_62ac40);
     dir[-2].z = (float)rand_value;
-    rand_value = (float10)random_range(g_app_76e3c4,g_app_76e3c8);
+    rand_value = (double)random_range(g_app_76e3c4,g_app_76e3c8);
     dir[-1].x = (float)rand_value;
-    rand_value = (float10)random_range(g_app_62ac44,g_app_62ac48);
+    rand_value = (double)random_range(g_app_62ac44,g_app_62ac48);
     dir[-1].y = (float)rand_value;
-    rand_value = (float10)random_range(g_app_62ac4c,g_app_62ac50);
+    rand_value = (double)random_range(g_app_62ac4c,g_app_62ac50);
     dir->x = (float)rand_value;
-    rand_value = (float10)random_range(g_app_62ac54,g_app_62ac58);
+    rand_value = (double)random_range(g_app_62ac54,g_app_62ac58);
     dir->y = (float)rand_value;
-    rand_value = (float10)random_range(g_app_62ac5c,g_app_62ac60);
+    rand_value = (double)random_range(g_app_62ac5c,g_app_62ac60);
     dir->z = (float)rand_value;
     RwV3dNormalize(dir,dir);
     dir->x = g_app_62ac2c * dir->x;
@@ -91,14 +91,14 @@ undefined4 fx_buffers_alloc(void)
     scratch_float = g_app_62ac2c;
     *(ushort *)&dir[-1].z = particle_index & PARTICLE_INDEX_MASK;
     dir->z = scratch_float * dir->z;
-    rand_value = (float10)random_range(0,SPREAD_MAX_BITS);
+    rand_value = (double)random_range(0,SPREAD_MAX_BITS);
     state_buffer = (void *)g_app_76e3b8;
     scratch_float = (float)rand_value;
     *(float *)(state_offset + (int)g_app_76e3b8) = scratch_float;
-    cursor = (float *)(state_offset + (int)state_buffer);
-    rand_value = (float10)random_range((jitter_lo_1 = scratch_float * k_f_n1, *(int *)&jitter_lo_1),*(int *)&scratch_float);
+    cursor = (float *)(state_offset + (char *)state_buffer);
+    rand_value = (double)random_range((jitter_lo_1 = scratch_float * k_f_n1, *(int *)&jitter_lo_1),*(int *)&scratch_float);
     cursor[1] = (float)rand_value;
-    rand_value = (float10)random_range((jitter_lo_2 = *cursor * k_f_n1, *(int *)&jitter_lo_2),*(int *)&*cursor);
+    rand_value = (double)random_range((jitter_lo_2 = *cursor * k_f_n1, *(int *)&jitter_lo_2),*(int *)&*cursor);
     *(float *)(state_offset + 8 + (int)g_app_76e3b8) = (float)rand_value;
     dir = (RwV3d *)&dir[2].z;
     state_offset = state_offset + STATE_ENTRY_BYTES;
@@ -107,10 +107,10 @@ undefined4 fx_buffers_alloc(void)
   /* fill the g_fx_buffers_885840 table with random floats in [-8, 8] (inferred) */
   cursor = (float *)&g_fx_buffers_885840;
   do {
-    rand_value = (float10)random_range(FILL_MIN_BITS,FILL_MAX_BITS);
+    rand_value = (double)random_range(FILL_MIN_BITS,FILL_MAX_BITS);
     *cursor = (float)rand_value;
     cursor = cursor + 1;
-  } while ((int)cursor < ((int)&g_fx_buffers_886000));
+  } while ((char *)cursor < ((char *)&g_fx_buffers_886000));
   g_fx_buffers_886000 = 0;
   g_fx_buffers_88600c = 1;
   g_fx_buffers_886004 = 0;

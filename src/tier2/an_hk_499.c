@@ -5,7 +5,7 @@
 /* "(box min/max, point): per axis distance to the nearer side, vec3_multiply_components squares,
    returns the max" */
 
-float10 __cdecl
+double __cdecl
 aabb_max_axis_distance_to_point
           (float *param_1,float *param_2,char *param_3,char *param_4,char *param_5,
           char *param_6,char *param_7,char *param_8,char *param_9,
@@ -38,7 +38,7 @@ aabb_max_axis_distance_to_point
   if (frame.local_10 < frame.local_4) {
     frame.local_10 = frame.local_4;
   }
-  return (float10)frame.local_10 + (float10)frame.local_14 + (float10)frame.local_18;
+  return (double)frame.local_10 + (double)frame.local_14 + (double)frame.local_18;
 }
 
 

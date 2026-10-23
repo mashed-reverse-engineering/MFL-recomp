@@ -3,7 +3,7 @@
 /*0042d9a0*/ extern int store_u32();
 /*0042d9b0*/ extern int rw_stream_chunk_copy();
 /*00495e10*/ extern int world_sector_list_clear();
-/*004c4180*/ extern int FUN_004c4180(undefined4 p0, undefined4 p1);
+/*004c4180*/ extern int FUN_004c4180(undefined4 p0, void *p1);
 /*004c6210*/ extern int __cdecl FUN_004c6210(int a1, int a2);
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*00702a98*/ extern int (__cdecl *g_physics_702a98)();
@@ -61,7 +61,7 @@ void particle_system_set_current(int param_1,undefined4 param_2)
   *(undefined4 *)(param_1 + 0xc) = 1;
   if (bVar3) {
     g_particle_system_7036bc = param_1;
-    g_particle_system_702ea0 = FUN_004c4180(param_1,(undefined4)&g_particle_system_702ea8);
+    g_particle_system_702ea0 = FUN_004c4180(param_1,&g_particle_system_702ea8);
   }
   world_sector_list_clear();
   g_physics_7032a8 = 0;

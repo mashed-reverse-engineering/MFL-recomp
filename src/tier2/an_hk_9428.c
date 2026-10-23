@@ -2,6 +2,7 @@
 extern __declspec(dllimport) int __stdcall EnterCriticalSection(int);
 extern __declspec(dllimport) int __stdcall LeaveCriticalSection(int);
 /* FUN_004ad970 */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 undefined4 __stdcall FUN_004ad970(int param_1, int *param_2)
 {
   int lock;

@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
-/*006c40a8*/ extern undefined4 g_particles_6c40a8;
+/*006c40a8*/ extern char *g_particles_6c40a8;
 /*006c40b0*/ extern undefined4 g_particles_6c40b0;
-/*006c40b4*/ extern undefined4 g_particles_6c40b4;
-/*006c40b8*/ extern undefined4 g_gfx_6c40b8;
+/*006c40b4*/ extern char *g_particles_6c40b4;
+/*006c40b8*/ extern char *g_gfx_6c40b8;
 #define PARTICLE_RECORD_SIZE (0x50) /* bytes per particle record (inferred from the mem_zero size multiplier) */
 /* particle_pool_counts_reset */
 

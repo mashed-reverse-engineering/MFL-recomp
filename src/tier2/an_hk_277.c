@@ -1,11 +1,11 @@
 #include "mfl_tier2.h"
 /*004846b0*/ extern int alloc_zeroed();
 /*00486930*/ extern int ptank_set_size();
-/*00486980*/ extern undefined __cdecl particle_system_set_tint(undefined4 p0, undefined4 p1);
-/*004869e0*/ extern undefined __cdecl particle_system_set_matrix_table(undefined4 p0, undefined4 p1);
+/*00486980*/ extern undefined __cdecl particle_system_set_tint(void *p0, undefined4 p1);
+/*004869e0*/ extern undefined __cdecl particle_system_set_matrix_table(void *p0, undefined4 p1);
 /*00486a30*/ extern int particle_system_set_value_c0();
 /*00486a60*/ extern int ptank_set_colour();
-/*00486ab0*/ extern undefined __cdecl particle_system_set_colour_table(undefined4 p0, undefined4 p1);
+/*00486ab0*/ extern undefined __cdecl particle_system_set_colour_table(void *p0, undefined4 p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);

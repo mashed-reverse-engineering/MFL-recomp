@@ -2,7 +2,7 @@
 /*004846b0*/ extern int alloc_zeroed();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*006c40a8*/ extern undefined4 g_particles_6c40a8;
-/*006c40ac*/ extern undefined4 g_particles_6c40ac;
+/*006c40ac*/ extern char *g_particles_6c40ac;
 /*006c40b0*/ extern undefined4 g_particles_6c40b0;
 /*006c40b4*/ extern undefined4 g_particles_6c40b4;
 

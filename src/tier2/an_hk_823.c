@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0045d620*/ extern int course_get_matrix_pos_6a291c();
+/*0045d620*/ extern char *course_get_matrix_pos_6a291c();
 /*0045e0d0*/ extern int __cdecl course_get_8bf050(undefined4 p0);
 /*0045e0e0*/ extern double course_get_6a2950();
 /*0047a830*/ extern int car_is_active();
@@ -31,20 +31,20 @@ undefined4 __cdecl ai_hazard_target_for_car(char *unused_1,char *unused_2,float 
   int car_active;
   float *hazard_pos;
   undefined4 car_speed;
-  float10 course_value;
+  double course_value;
   RwReal distance_to_hazard;
   struct {
-    int car_matrix;
+    char *car_matrix;
     undefined1 speed_scratch [4];
     float drift_angle;
     RwV3d car_to_hazard;
   } scratch;
 
   /* course_value window gate: 0.5 <= value <= 30 (the callee is read twice, as in the original) */
-  course_value = (float10)course_get_6a2950();
-  if ((float10)k_f_0_5 <= course_value) {
-    course_value = (float10)course_get_6a2950();
-    if (course_value <= (float10)k_f_30) {
+  course_value = (double)course_get_6a2950();
+  if ((double)k_f_0_5 <= course_value) {
+    course_value = (double)course_get_6a2950();
+    if (course_value <= (double)k_f_30) {
       /* car_index must be valid (inferred from the callee name) */
       car_active = course_get_8bf050(car_index);
       if (car_active != 0) {

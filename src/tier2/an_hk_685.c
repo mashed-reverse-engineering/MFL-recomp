@@ -54,7 +54,7 @@ void physics_scenarios_reset(void)
       block[i + -0x10] = EMPTY_SLOT_ID;
     }
     block = block + CAR_RECORD_STRIDE_WORDS;
-  } while ((int)block < ((int)&g_physics_scenarios_6c33c4));
+  } while ((char *)block < ((char *)&g_physics_scenarios_6c33c4));
   g_rwp_trigger_group_count = 0;
   block = g_gfx_89de60;
   /*
@@ -93,7 +93,7 @@ void physics_scenarios_reset(void)
     }
     block[0x933] = 0;
     block = block + GFX_BLOCK_STRIDE_WORDS;
-  } while ((int)block < ((int)&player_car));
+  } while ((char *)block < ((char *)&player_car));
   return;
 }
 

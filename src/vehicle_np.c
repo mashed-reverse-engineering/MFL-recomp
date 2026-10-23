@@ -11,7 +11,7 @@ unsigned char vehicle_is_active(int v)
 // FUNCTION: MFL 0x00422050
 int vehicle_get_object_field_80(int v)
 {
-    return *(int *)(*(int *)(g_game_65a168 + v * 0x2ac) + 0x80);
+    return *(int *)(*(char **)(g_game_65a168 + v * 0x2ac) + 0x80);
 }
 
 // FUNCTION: MFL 0x00422280
@@ -32,7 +32,7 @@ void vehicle_set_active(int v, int on)
 {
     struct VehicleRec *r = &vehicle_table[v];
     if (on != 0) {
-        r->flags |= 8;
+        r->flags |= VEHICLE_FLAG_ACTIVE;
         return;
     }
     r->flags &= 0xfffffff7;
@@ -52,7 +52,7 @@ void vehicle_set_flag_400(int v, int on)
 {
     struct VehicleRec *r = &vehicle_table[v];
     if (on != 0) {
-        r->flags |= 0x400;
+        r->flags |= VEHICLE_FLAG_400;
         return;
     }
     r->flags &= 0xfffffbff;
@@ -63,16 +63,16 @@ void vehicle_get_flags_10(int v, unsigned int *a, unsigned int *b)
 {
     struct VehicleRec *r = &vehicle_table[v];
     if (a)
-        *a = r->flags & 0x10;
+        *a = r->flags & VEHICLE_FLAG_FRONT;
     if (b)
-        *b = r->flags & 0x20;
+        *b = r->flags & VEHICLE_FLAG_BACK;
 }
 
 // FUNCTION: MFL 0x00422190
 void vehicle_get_flag_400(int v, unsigned int *a)
 {
     if (a)
-        *a = vehicle_table[v].flags & 0x400;
+        *a = vehicle_table[v].flags & VEHICLE_FLAG_400;
 }
 
 // FUNCTION: MFL 0x004221c0

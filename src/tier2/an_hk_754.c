@@ -45,7 +45,7 @@ undefined4 __cdecl menu_select_pressed_any(char *unused_arg)
     prev_menu_select_ptr = &g_player_inputs_previous[0].menu_select;
     while ((prev_menu_select_ptr[-INPUTS_PREV_OFFSET] == '\0' || (*prev_menu_select_ptr != 0))) {
       prev_menu_select_ptr = prev_menu_select_ptr + PLAYER_INPUT_SIZE;
-      if (((int)&g_player_inputs_previous_8__pause) < (int)prev_menu_select_ptr) {
+      if (((char *)&g_player_inputs_previous_8__pause) < (char *)prev_menu_select_ptr) {
         return 0;
       }
     }
@@ -61,7 +61,7 @@ undefined4 __cdecl menu_select_pressed_any(char *unused_arg)
                 (g_player_inputs_previous[player_slot->controller].menu_select != 0))))) {
     player_slot = player_slot + 1;
     slot_index = slot_index + 1;
-    if (((int)&g_player_slot3_extra + 0x3) < (int)player_slot) {
+    if (((char *)&g_player_slot3_extra + 0x3) < (char *)player_slot) {
       return 0;
     }
   }

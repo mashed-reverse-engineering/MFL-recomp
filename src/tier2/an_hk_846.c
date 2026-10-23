@@ -4,7 +4,7 @@
 /*0049da30*/ extern undefined __cdecl fx_floating_text_spawn(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*0049dba0*/ extern int fx_floating_text_update();
 /*004b2b48*/ extern int _ftol();
-/*004c40c0*/ extern int FUN_004c40c0(undefined4 p0);
+/*004c40c0*/ extern char *FUN_004c40c0(undefined4 p0);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*00555220*/ extern void * __cdecl RpMorphAtomicSetTime(void * p0, RwReal p1);
 /*005dd330*/ extern float float_1_0;
@@ -50,11 +50,11 @@ void fx_pickup_sparkle_update(void)
   float text_height;
   float scratch_f;
   char fade_alpha;
-  int atomic_material;
+  char *atomic_material;
   int atomics_left;
   float *morph_time;
   float *rec;
-  float10 scratch_d;
+  double scratch_d;
   undefined4 text_arg2;
   undefined4 text_arg3;
   struct {
@@ -75,20 +75,20 @@ void fx_pickup_sparkle_update(void)
          (scratch_f = g_tick_seconds + *rec, *rec = scratch_f, k_f_0_3 <= scratch_f)) {
         text_arg3 = SPARKLE_TEXT_ARG3_BITS;
         text_arg2 = 0;
-        scratch_d = (float10)random_range(0x0, SPARKLE_JITTER_MAX_BITS);
+        scratch_d = (double)random_range(0x0, SPARKLE_JITTER_MAX_BITS);
         *rec = 0.0;
         ((int *)rec)[-2] = ((int *)rec)[-2] + 1;
-        fx_floating_text_spawn((undefined4)(rec + -7),(text_height = (float)(scratch_d + (float10)rec[1]), *(int *)&text_height),text_arg2,text_arg3);
+        fx_floating_text_spawn((undefined4)(rec + -7),(text_height = (float)(scratch_d + (double)rec[1]), *(int *)&text_height),text_arg2,text_arg3);
       }
       /* Age += tick (stored in rec[-3] and rec[-4]). Frame x and z come from the record,
          y = base y + sin(age * pi) * 0.35 (bob). */
-      scratch_d = (float10)g_tick_seconds + (float10)rec[-3];
+      scratch_d = (double)g_tick_seconds + (double)rec[-3];
       draw.pos.x = rec[-7];
       draw.pos.z = rec[-5];
       rec[-3] = (float)scratch_d;
       rec[-4] = (float)scratch_d;
-      scratch_d = (float10)sin(scratch_d * (float10)k_f_3_1415927);
-      draw.pos.y = (RwReal)(scratch_d * (float10)k_f_0_35 + (float10)rec[-6]);
+      scratch_d = (double)sin(scratch_d * (double)k_f_3_1415927);
+      draw.pos.y = (RwReal)(scratch_d * (double)k_f_0_35 + (double)rec[-6]);
       RwFrameTranslate(*(RwFrame **)&rec[3],&draw.pos,rwCOMBINEREPLACE);
       /* Age reached 1.0: the record is finished, clear its active flag. */
       if (float_1_0 <= rec[-3]) {
@@ -117,7 +117,7 @@ void fx_pickup_sparkle_update(void)
     }
     rec = rec + PARTICLE_RECORD_DWORDS;
     draw.active_flag = draw.active_flag + 1;
-  } while ((int)rec < (int)&g_particles_76bfdc + PARTICLE_RECORDS_BYTES);
+  } while ((char *)rec < (char *)&g_particles_76bfdc + PARTICLE_RECORDS_BYTES);
   fx_smoke_puffs_update();
   fx_floating_text_update();
   return;

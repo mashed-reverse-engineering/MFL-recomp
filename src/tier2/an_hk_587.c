@@ -2,7 +2,7 @@
 /*00490db0*/ extern int rwp_objects_destroy_all();
 /*00490e80*/ extern int rwp_atomics_destroy();
 /*00494300*/ extern int rwp_world_callback_a();
-/*00494380*/ extern undefined __cdecl rwp_world_register_callbacks(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*00494380*/ extern undefined __cdecl rwp_world_register_callbacks(undefined4 p0, undefined4 p1, void *p2, undefined4 p3, undefined4 p4);
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*0056b590*/ extern void FUN_0056b590();
 /*00701c9c*/ extern undefined4 g_rw_701c9c;

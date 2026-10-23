@@ -68,7 +68,7 @@ undefined1 * ai_file_name(void)
     ch = *cursor;
     cursor = cursor + 1;
   } while (ch != '\0');
-  name_len = (int)cursor - (int)ai_name;
+  name_len = (char *)cursor - (char *)ai_name;
   /* cursor = last char of g_ai_editor_66431c, scanning from EDITOR_NAME_OFFSET (inferred) */
   cursor = (char *)((char *)&g_ai_editor_66431c + EDITOR_NAME_OFFSET);
   do {

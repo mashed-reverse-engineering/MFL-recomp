@@ -36,13 +36,13 @@ extern double atan2(double, double);
  * Note (inferred, check disassembly): the eye is written before dx and dz are
  * computed, so dx and dz come out as 0 and the angles are constant.
  */
-void __cdecl camera_editor_setup_parallel(int cam_state)
+void __cdecl camera_editor_setup_parallel(char *cam_state)
 
 {
   float dy;
   float dz;
-  float10 full_turn;
-  float10 angle;
+  double full_turn;
+  double angle;
   RwReal horiz_len;
   RwV3d delta;
   float dx;
@@ -67,17 +67,17 @@ void __cdecl camera_editor_setup_parallel(int cam_state)
   /* yaw: angle of the (dx, dz) ground vector, in degrees (inferred) */
   if (dz == k_f_0) {
     if (dx < k_f_0) {
-      angle = (float10)k_f_270;
+      angle = (double)k_f_270;
     }
     else {
-      angle = (float10)k_f_90;
+      angle = (double)k_f_90;
     }
   }
   else {
-    angle = (float10)atan2((float10)dx / (float10)dz,(float10)1);
-    angle = (float10)k_f_180 - -(angle * (float10)(RAD_TO_DEG));
+    angle = (double)atan2((double)dx / (double)dz,(double)1);
+    angle = (double)k_f_180 - -(angle * (double)(RAD_TO_DEG));
     if (k_f_0 < dz) {
-      angle = angle + (float10)k_f_180;
+      angle = angle + (double)k_f_180;
     }
   }
   *(float *)(cam_state + CAM_YAW_DEG_OFF) = (float)angle;
@@ -87,23 +87,23 @@ void __cdecl camera_editor_setup_parallel(int cam_state)
   if (dx != k_f_0) {
     horiz_len = _rwSqrt(dx);
     if (horiz_len != k_f_0) {
-      angle = (float10)atan2((float10)dy / (float10)horiz_len,(float10)1);
-      angle = (float10)k_f_180 - -(angle * (float10)(RAD_TO_DEG));
+      angle = (double)atan2((double)dy / (double)horiz_len,(double)1);
+      angle = (double)k_f_180 - -(angle * (double)(RAD_TO_DEG));
       if (k_f_0 < horiz_len) {
-        angle = angle + (float10)k_f_180;
+        angle = angle + (double)k_f_180;
       }
       goto LAB_0044a815;
     }
   }
   if (dy < k_f_0) {
-    angle = (float10)k_f_270;
+    angle = (double)k_f_270;
   }
   else {
-    angle = (float10)k_f_90;
+    angle = (double)k_f_90;
   }
   /* shared exit: pitch = 360 - angle */
 LAB_0044a815:
-  full_turn = (float10)k_f_360;
+  full_turn = (double)k_f_360;
   *(undefined4 *)(cam_state + CAM_ROLL_DEG_OFF) = 0;
   *(float *)(cam_state + CAM_PITCH_DEG_OFF) = (float)(full_turn - angle);
   camera_apply_rotation(cam_state);

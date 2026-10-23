@@ -29,16 +29,16 @@
  * Returns 1 if the projection succeeded (projected_out written), 2 if the target is closer than
  * k_f_1_5 and its slot type is not 1, otherwise 0.
  */
-undefined4 __cdecl ai_find_target_c(char *unused_arg,undefined4 line_point_b,undefined4 projected_out,int car_index)
+undefined4 __cdecl ai_find_target_c(char *unused_arg,char *line_point_b,char *projected_out,int car_index)
 
 {
   float rank_gap;
   int slot_used;
   int slot_type;
   int slot_index;
-  float10 rank_key;
+  double rank_key;
   struct {
-    int car_matrix;
+    char *car_matrix;
     float target_speed;
     float best_rank_gap;
     float own_speed;
@@ -59,7 +59,7 @@ undefined4 __cdecl ai_find_target_c(char *unused_arg,undefined4 line_point_b,und
   car_get_forward(&frame.own_forward,car_index);
   frame.own_forward.y = 0;
   /* target_x is a scratch slot holding the own rank key until the loop ends (name reused below) */
-  rank_key = (float10)player_rank_key(car_index);
+  rank_key = (double)player_rank_key(car_index);
   frame.target_x = (float)rank_key;
   /* slot_type: best candidate slot, NO_SLOT if none; after the loop it holds that slot's race setup type */
   slot_type = NO_SLOT;
@@ -70,13 +70,13 @@ undefined4 __cdecl ai_find_target_c(char *unused_arg,undefined4 line_point_b,und
     if (slot_index != car_index) {
       slot_used = race_setup_slot_used(slot_index);
       if (slot_used != 0) {
-        rank_key = (float10)player_rank_key(slot_index);
+        rank_key = (double)player_rank_key(slot_index);
         /* target_speed is a scratch slot here: candidate rank key, overwritten by the speed below */
         frame.target_speed = (float)rank_key;
-        rank_gap = (float)(rank_key - (float10)frame.target_x);
+        rank_gap = (float)(rank_key - (double)frame.target_x);
         /* candidate at or below own rank (inferred): skip it when rank_gap >= 5 - polygon count.
            target_distance is a scratch slot holding that threshold here (name reused below) */
-        if (rank_key - (float10)frame.target_x <= k_f_0) {
+        if (rank_key - (double)frame.target_x <= k_f_0) {
           slot_used = course_get_ai_polygon_count();
           frame.target_distance = (RwReal)(5 - slot_used);
           if ((float)(int)frame.target_distance <= rank_gap) goto LAB_0041768b;

@@ -10,7 +10,6 @@ extern struct VoiceSlot g_voices[210];
 
 #define SFX_TABLE_STRIDE (0x25) /* voice slots per sfx type in g_sfx_table (inferred) */
 #define SFX_TYPE_MULTIPLAYER_MUTED (0x20) /* sfx type silenced by the multiplayer mute (inferred) */
-#define APP_STATE_RACING (3) /* get_app_state() value that gates voice updates (inferred) */
 
 /* sound_sfx_set_volume_clamped */
 
@@ -42,7 +41,7 @@ void sound_sfx_set_volume_clamped(int sfx_type,int voice_index,float volume)
   if (((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) || (sfx_type != SFX_TYPE_MULTIPLAYER_MUTED)) {
     app_state = get_app_state();
     /* Only update voices while the game is in the racing state. */
-    if (app_state == APP_STATE_RACING) {
+    if (app_state == APP_STATE_RACE) {
       voice_index = (&g_sfx_table)[sfx_type * SFX_TABLE_STRIDE] + voice_index;
       /* Only voices with flag bit 0x2 set at +0x34 of the voice record (inferred: active). */
       if ((*(byte *)(g_voices[voice_index].voice + 0x34) & 2) != 0) {

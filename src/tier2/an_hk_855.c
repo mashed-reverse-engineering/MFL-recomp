@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 extern char LAB_004069c0[];
-/*00475730*/ extern int get_viewport_camera();
+/*00475730*/ extern char *get_viewport_camera();
 /*004d5540*/ extern RwReal RwV2dNormalize(struct RwV2d *p0, struct RwV2d *p1);
 /*004f5dd0*/ extern struct RpWorld * RpWorldForAllMaterials(struct RpWorld *p0, RpMaterialCallBack p1, void *p2);
 /*005dd410*/ extern float k_f_n2;
@@ -30,18 +30,18 @@ extern char LAB_004069c0[];
  *   g_skydome_follow_8d98b8 = skydome yaw relative to the camera heading, degrees in 0..360.
  */
 
-void skydome_follow_camera(int context)
+void skydome_follow_camera(char *context)
 
 {
   float camera_heading;
-  int camera_frame;
+  char *camera_frame;
   struct {
     float camera_angle;
     RwV2d xz;
   } scratch;
 
   camera_frame = get_viewport_camera(0);
-  camera_frame = *(int *)(camera_frame + 4);
+  camera_frame = *(char **)(camera_frame + 4);
   scratch.xz.x = *(float *)(camera_frame + CAMERA_DIR_X_OFFSET);
   scratch.xz.y = *(float *)(camera_frame + CAMERA_DIR_Z_OFFSET);
   RwV2dNormalize(&scratch.xz,&scratch.xz);

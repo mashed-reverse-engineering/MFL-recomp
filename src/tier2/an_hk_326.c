@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*0049b780*/ extern int __cdecl particles_alloc_system(struct RwTexture *p0, int p1, int p2, uint p3);
 /*0049b860*/ extern int fx_set_blend_modes();
 /*00751bc4*/ extern undefined g_race_load_751bc4;

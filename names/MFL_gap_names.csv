@@ -1,0 +1,724 @@
+# address,name,comment  (G-gap 2026-10-22: functions created by GapCreate.java in the former gap_ ownership items; comment = naming evidence)
+00405bb0,clump_for_all_atomics_with_camera_matrix_cb_405bb0,function pointer pushed/stored by clump_for_all_atomics_with_camera_matrix (PUSH 0x405bb0)
+004065c0,course_materials_fixup_cb_4065c0,function pointer pushed/stored by course_materials_fixup (PUSH 0x4065c0)
+00406690,course_materials_fixup_cb_406690,function pointer pushed/stored by course_materials_fixup (PUSH 0x406690)
+004068a0,clump_for_all_atomics_cb_4068a0_2,function pointer pushed/stored by clump_for_all_atomics_cb_4068a0 (PUSH 0x4068a0) (name existed on another function)
+00406910,world_for_all_materials_cb_406910_2,function pointer pushed/stored by world_for_all_materials_cb_406910 (PUSH 0x406910) (name existed on another function)
+004069c0,skydome_follow_camera_cb_4069c0,function pointer pushed/stored by skydome_follow_camera (PUSH 0x4069c0)
+00408ad0,rwp_objects_cull_and_register_triggers_cb_408ad0,function pointer pushed/stored by rwp_objects_cull_and_register_triggers (MOV dword ptr [ESP + 0x64],0x408ad0)
+00408ef0,player_time_update_cb_408ef0,function pointer pushed/stored by player_time_update (PUSH 0x408ef0)
+0040bbd0,gamesave_update_sub_40bbd0,single caller gamesave_update
+004167c0,course_helper_449c40_sub_4167c0,single caller course_helper_449c40_sub_416840
+00416840,course_helper_449c40_sub_416840,single caller course_helper_449c40_sub_416870
+00416850,course_helper_449c40_sub_416850,single caller course_helper_449c40
+00416860,course_helper_449c40_sub_416860,single caller course_helper_449c40
+00416870,course_helper_449c40_sub_416870,single caller course_helper_449c40
+0041bcb0,hudpanel_marker_update_cb_41bcb0,function pointer pushed/stored by hudpanel_marker_update (MOV dword ptr [ESP + 0xec],0x41bcb0)
+0042b900,course_highway_cb2_sub_42b900,single caller course_highway_cb2
+0042b910,course_highway_cb2_sub_42b910,single caller course_highway_cb2
+0042ce00,course_arctic_cb10_sub_42ce00,single caller course_arctic_cb10
+004360b5,game_fn_4360b5,global g_game_state
+00449c40,course_helper_449c40,callers course_angels_cb1,course_keys_cb1,course_neustein_cb1,course_nt1_s_cb1
+0044c2a0,course_helper_449c40_sub_44c2a0,single caller course_helper_449c40
+00453560,course_dump_cb2_sub_453560,single caller course_dump_cb2
+004537f0,sound_fn_4537f0,callee category sound
+00453860,sound_fn_453860,callee category sound
+004539b0,course_highway_cb1_impl,tail-jump target of thunk course_highway_cb1_sub_453bf0
+00453aa0,gap_453aa0,single caller course_highway_cb1_sub_453c20 (descriptive name course_highway_cb1_sub_453aa0; kept the alias gap_453aa0 used by recomp/clusters)
+00453be0,course_highway_cb6_sub_453be0,single caller course_highway_cb6
+00453bf0,course_highway_cb1_sub_453bf0,single caller course_highway_cb1
+00453c00,course_highway_cb2_sub_453c00,single caller course_highway_cb2
+00453c10,course_highway_cb5_sub_453c10,single caller course_highway_cb5
+00453c20,course_highway_cb1_sub_453c20,single caller course_highway_cb1
+00453d00,course_highway_cb1_sub_453d00,single caller course_highway_cb1
+00454020,gap_454020,single caller course_highway_cb1_sub_454150 (descriptive name course_highway_cb1_sub_454020; kept the alias gap_454020 used by recomp/clusters)
+00454150,course_highway_cb1_sub_454150,single caller course_highway_cb1
+004541a0,course_highway_cb2_sub_4541a0,single caller course_highway_cb2
+004541b0,course_highway_cb5_sub_4541b0,single caller course_highway_cb5
+00454460,course_neustein_cb0_sub_454460,single caller course_neustein_cb0_sub_454650
+00454650,course_neustein_cb0_sub_454650,single caller course_neustein_cb0_sub_4546e0
+004546e0,course_neustein_cb0_sub_4546e0,single caller course_neustein_cb0
+004548b0,course_neustein_cb1_sub_4548b0,single caller course_neustein_cb1_sub_454970
+00454970,course_neustein_cb1_sub_454970,single caller course_neustein_cb1
+00455060,course_neustein_cb2_sub_455060,single caller course_neustein_cb2
+00455770,course_nt1_helper_455770,callers course_nt1_cb0,course_nt1_s_cb0
+004557f0,course_nt1_helper_4557f0,callers course_nt1_cb1,course_nt1_s_cb1
+00455a40,course_city_cb0_sub_455a40,single caller course_city_cb0
+00455aa0,course_city_cb5_helper_455aa0,callers course_city_cb5
+00455b80,course_city_helper_455b80,callers course_city_cb0,course_city_cb6,course_city_cb7
+00455dd0,course_city_helper_455dd0,callers course_city_cb6,course_city_cb7
+00455e60,course_city_cb1_sub_455e60,single caller course_city_cb1
+00455ee0,course_city_cb1_sub_455ee0,single caller course_city_cb1
+00455fd0,course_city_cb1_sub_455fd0,single caller course_city_cb1
+00456540,load_shadow_models_cb_456540,function pointer pushed/stored by load_shadow_models (PUSH 0x456540)
+004565b0,trigger_register_object_type8_cb_4565b0,function pointer pushed/stored by trigger_register_object_type8 (MOV dword ptr [ESP + 0x28],0x4565b0)
+00456ed0,course_rouabout_cb7_helper_456ed0,callers course_rouabout_cb7
+00456f00,spline_object_register_trigger_sphere_cb_456f00,function pointer pushed/stored by spline_object_register_trigger_sphere (MOV dword ptr [ESP + 0x20],0x456f00)
+004573d0,course_rouabout_cb6_sub_4573d0,single caller course_rouabout_cb6
+004573f0,course_rouabout_cb5_sub_4573f0,single caller course_rouabout_cb5
+004575c0,gap_4575c0,no context
+004577b0,course_tierra_n_cb7_sub_4577b0,single caller course_tierra_n_cb7
+004584b0,course_sandsnow_cb0_sub_4584b0,single caller course_sandsnow_cb0
+00458e70,course_forest_cb0_sub_458e70,single caller course_forest_cb0
+00458f20,course_forest_cb2_sub_458f20,single caller course_forest_cb2
+00458f80,course_forest_cb5_sub_458f80,single caller course_forest_cb5
+00459500,course_highway_cb1_sub_459500,single caller course_highway_cb1
+00459dd0,course_highway_cb1_sub_459dd0,single caller course_highway_cb1
+00459f00,gap_459f00,single caller course_highway_cb1 (descriptive name course_highway_cb1_sub_459f00; kept the alias gap_459f00 used by recomp/clusters)
+00459f70,course_highway_cb1_sub_459f70,single caller course_highway_cb1
+00459fc0,course_highway_cb1_sub_459fc0,single caller course_highway_cb1
+0045b670,course_helper_45b670,callers course_sands_cb0,course_sandsnow_cb0_sub_4584b0
+0045b7a0,course_helper_45bad0_sub_45b7a0,single caller course_helper_45bad0
+0045bad0,course_helper_45bad0,callers course_sands_cb1,course_sandsnow_cb1
+0045c140,course_superg_cb4_sub_45c140,single caller course_superg_cb4_sub_45c1f0
+0045c1f0,course_superg_cb4_sub_45c1f0,single caller course_superg_cb4
+0045c8f0,course_effect_spawn_at_helper_45c8f0,callers course_effect_spawn_at
+0045ca50,course_warzone_cb0_sub_45ca50,single caller course_warzone_cb0
+0045cd70,course_warzone_cb1_sub_45cd70,single caller course_warzone_cb1
+0045d1b0,course_warzone_cb1_sub_45d1b0,single caller course_warzone_cb1
+0045d5b0,rwp_fn_45d5b0,callee category rwp
+0045d630,course_warzone_cb1_sub_45d630,single caller course_warzone_cb1_sub_45d720
+0045d6b0,course_warzone_cb0_sub_45d6b0,single caller course_warzone_cb0
+0045d720,course_warzone_cb1_sub_45d720,single caller course_warzone_cb1
+0045d750,course_warzone_cb0_sub_45d750,single caller course_warzone_cb0
+0045d8c0,course_warzone_cb1_sub_45d8c0,single caller course_warzone_cb1
+0045d9f0,course_warzone_cb2_sub_45d9f0,single caller course_warzone_cb2
+0045da00,course_warzone_cb1_sub_45da00,single caller course_warzone_cb1_sub_45da60
+0045da60,course_warzone_cb1_sub_45da60,single caller course_warzone_cb1_sub_45db70
+0045db70,course_warzone_cb1_sub_45db70,single caller course_warzone_cb1
+0045dc10,course_warzone_cb0_sub_45dc10,single caller course_warzone_cb0
+0045e0f0,course_warzone_cb1_sub_45e0f0,single caller course_warzone_cb1
+0045e8b0,weapon_mortar_register_trigger_cb_45e8b0,function pointer pushed/stored by weapon_mortar_register_trigger (MOV dword ptr [ESP + 0x20],0x45e8b0)
+0045fad0,weapon_drum_update_one_cb_45fad0,function pointer pushed/stored by weapon_drum_update_one (MOV dword ptr [ESP + 0xf0],0x45fad0)
+00462c70,weapon_oil_register_trigger_sphere_cb_462c70,function pointer pushed/stored by weapon_oil_register_trigger_sphere (MOV dword ptr [ESP + 0x20],0x462c70)
+00463a50,weapon_mine_update_one_cb_463a50,function pointer pushed/stored by weapon_mine_update_one (MOV dword ptr [ESP + 0x40],0x463a50)
+00466270,weapon_flamethrower_register_trigger_sphere_cb_466270,function pointer pushed/stored by weapon_flamethrower_register_trigger_sphere (MOV dword ptr [ESP + 0x20],0x466270)
+00471eb0,course_storm_cb1_sub_471eb0,single caller course_storm_cb1
+00473d50,course_object_atomic_register_cb_473d50,function pointer pushed/stored by course_object_atomic_register (MOV dword ptr [EAX + 0x6af674],0x473d50)
+004757e0,course_helper_4757e0,callers course_angels_cb1,course_keys_cb1,course_neustein_cb1,course_nt1_s_cb1
+00477170,car_wheel_contact_update_cb_477170,function pointer pushed/stored by car_wheel_contact_update (PUSH 0x477170)
+0047b420,car_probe_ground_distance_cb_47b420,function pointer pushed/stored by car_probe_ground_distance (PUSH 0x47b420)
+004801f0,course_helper_4801f0,callers course_egypt_cb12,course_rouabout_cb12
+004818c0,atomic_plugin_register_cb_4818c0,function pointer pushed/stored by atomic_plugin_register (PUSH 0x4818c0)
+004819a0,atomic_plugin_register_cb_4819a0,function pointer pushed/stored by atomic_plugin_register (PUSH 0x4819a0)
+00481ac0,material_plugin_register_cb_481ac0,function pointer pushed/stored by material_plugin_register (PUSH 0x481ac0)
+00481b30,material_plugin_register_cb_481b30,function pointer pushed/stored by material_plugin_register (PUSH 0x481b30)
+00481b90,material_plugin_register_cb_481b90,function pointer pushed/stored by material_plugin_register (PUSH 0x481b90)
+00484850,clump_for_all_materials_uv_anim_cb_484850,function pointer pushed/stored by clump_for_all_materials_uv_anim (MOV dword ptr [ESP + 0xc],0x484850)
+00484940,gap_484940,no context
+00484990,atomic_set_material_alpha_value_cb_484990,function pointer pushed/stored by atomic_set_material_alpha_value (MOV dword ptr [ESP + 0xc],0x484990)
+004849e0,course_helper_4849e0,callers course_forest_cb0,course_keys_cb0,course_nt1_cb0,course_nt1_s_cb0
+00484b20,course_helper_484b20,callers course_forest_cb1,course_keys_cb1,course_nt1_cb1,course_nt1_s_cb1
+00485180,course_training_cb0_sub_485180,single caller course_training_cb0
+00485250,course_storm_cb1_helper_485250,callers course_storm_cb1
+004890e0,world_sectors_process_cb_4890e0,function pointer pushed/stored by world_sectors_process (PUSH 0x4890e0)
+0048d900,course_helper_48d900,callers course_neustein_cb0,course_warzone_cb0
+0048db10,course_helper_48db30_sub_48db10,single caller course_helper_48db30
+0048db30,course_helper_48db30,callers course_neustein_cb0,course_warzone_cb0
+0048dc40,ptank_lock_all_sub_48dc40,single caller ptank_lock_all
+0048e5a0,course_neustein_cb1_sub_48e5a0,single caller course_neustein_cb1_sub_454970
+00491280,rwp_world_create_once_cb_491280,function pointer pushed/stored by rwp_world_create_once (PUSH 0x491280)
+00494320,rwp_world_register_callbacks_cb_494320,function pointer pushed/stored by rwp_world_register_callbacks (PUSH 0x494320)
+00494360,rwp_world_register_callbacks_cb_494360,function pointer pushed/stored by rwp_world_register_callbacks (PUSH 0x494360)
+00495e30,world_render_count_sectors_cb_495e30,function pointer pushed/stored by world_render_count_sectors (PUSH 0x495e30)
+00495ec0,world_render_with_sector_callback_cb_495ec0,function pointer pushed/stored by world_render_with_sector_callback (PUSH 0x495ec0)
+00499120,fx_ring_update_cb_499120,function pointer pushed/stored by fx_ring_update (MOV dword ptr [ESP + 0xe0],0x499120)
+00499cc0,shadow_project_to_ground_00499dc0_cb_499cc0,function pointer pushed/stored by shadow_project_to_ground_00499dc0 (PUSH 0x499cc0)
+0049c180,course_training_cb1_sub_49c180,single caller course_training_cb1
+0049c880,course_helper_49c880,callers course_rouabout_cb5,course_training_cb5
+0049e170,course_training_cb0_sub_49e170,single caller course_training_cb0
+0049e1b0,course_training_cb1_sub_49e1b0,single caller course_training_cb1
+0049fdb0,tri_model_load_cb_49fdb0,function pointer pushed/stored by tri_model_load (PUSH 0x49fdb0)
+0049fdc0,geometry_set_flag_0x40_for_materials_cb_49fdc0,function pointer pushed/stored by geometry_set_flag_0x40_for_materials (PUSH 0x49fdc0)
+004a2b30,rw_engine_init_cb_4a2b30,function pointer pushed/stored by rw_engine_init (PUSH 0x4a2b30)
+004a2b40,rw_engine_init_cb_4a2b40,function pointer pushed/stored by rw_engine_init (PUSH 0x4a2b40)
+004a2f70,timer_select_implementation_cb_4a2f70,function pointer pushed/stored by timer_select_implementation (PUSH EAX)
+004a2ff0,timer_select_implementation_cb_4a2ff0,function pointer pushed/stored by timer_select_implementation (PUSH EAX)
+004a3140,gap_4a3140,no context
+004a31b0,movie_fn_4a31b0,global g_movie_renderer_76e88c
+004a3780,gap_4a3780,no context
+004a3790,gap_4a3790,no context
+004a37a0,gap_4a37a0,no context
+004a37b0,gap_4a37b0,no context
+004a37c0,gap_4a37c0,no context
+004a37d0,gap_4a37d0,no context
+004a37e0,gap_4a37e0,no context
+004a5030,joypads_search_cb_4a5030,function pointer pushed/stored by joypads_search (PUSH 0x4a5030)
+004a5ba0,course_nt1_helper_4557f0_sub_4a5ba0,single caller course_nt1_helper_4557f0
+004a5d50,course_helper_4a5d50,callers course_dump_cb0,course_highway_cb0,course_nt1_cb0,course_nt1_helper_455770
+004a6720,d3d9_pipeline_create_b_cb_4a6720,function pointer pushed/stored by d3d9_pipeline_create_b (PUSH 0x4a6720)
+004a6860,d3d9_pipeline_create_a_cb_4a6860,function pointer pushed/stored by d3d9_pipeline_create_a (PUSH 0x4a6860)
+004a6a40,render_pipelines_create_two_cb_4a6a40,function pointer pushed/stored by render_pipelines_create_two (PUSH 0x4a6a40)
+004a6a60,render_pipelines_create_two_cb_4a6a60,function pointer pushed/stored by render_pipelines_create_two (PUSH 0x4a6a60)
+004a7310,controller_dialog_start_key_capture_cb_4a7310,function pointer pushed/stored by controller_dialog_start_key_capture (PUSH 0x4a7310)
+004a7c40,controller_dialog_close_cb_4a7c40,function pointer pushed/stored by controller_dialog_close (PUSH 0x4a7c40)
+004a7fd0,controller_dialog_run_cb_4a7fd0,function pointer pushed/stored by controller_dialog_run (PUSH 0x4a7fd0)
+004a8e60,video_config_dialog_cb_4a8e60,function pointer pushed/stored by video_config_dialog (PUSH 0x4a8e60)
+004a9830,window_create_cb_4a9830,function pointer pushed/stored by window_create (MOV dword ptr [ESP + 0x28],0x4a9830)
+004a9ff0,d3d9_pipeline_create_default_cb_4a9ff0,function pointer pushed/stored by d3d9_pipeline_create_default (PUSH 0x4a9ff0)
+004aaa60,course_storm_cb0_sub_4aaa60,single caller course_storm_cb0_sub_4aac50
+004aac50,course_storm_cb0_sub_4aac50,single caller course_storm_cb0
+004aac90,course_storm_cb1_sub_4aac90,single caller course_storm_cb1
+004aaca0,course_storm_cb0_sub_4aaca0,single caller course_storm_cb0
+004aaea0,course_storm_cb1_sub_4aaea0,single caller course_storm_cb1_sub_4ab160
+004aaf40,course_storm_cb1_sub_4aaf40,single caller course_storm_cb1
+004ab120,course_storm_cb5_sub_4ab120,single caller course_storm_cb5
+004ab140,course_storm_cb2_sub_4ab140,single caller course_storm_cb2
+004ab160,course_storm_cb1_sub_4ab160,single caller course_storm_cb1
+004ac6c0,gap_4ac6c0,no context
+004ac720,gap_4ac720,no context
+004ac7f0,gap_4ac7f0,no context
+004acba0,gap_4acba0,no context
+004ace00,gap_4ace00,no context
+004ace70,gap_4ace70,no context
+004ace80,gap_4ace80,no context
+004ace90,gap_4ace90,no context
+004acea0,gap_4acea0,no context
+004acfc0,gap_4acfc0,no context
+004ad010,gap_4ad010,no context
+004ad220,gap_4ad220,no context
+004ad230,gap_4ad230,no context
+004ad270,gap_4ad270,no context
+004ad3e0,gap_4ad3e0,no context
+004ad840,gap_4ad840,no context
+004adb10,gap_4adb10,no context
+004adb40,gap_4adb40,no context
+004adb70,gap_4adb70,no context
+004adc50,gap_4adc50,no context
+004adc60,gap_4adc60,no context
+004adc70,gap_4adc70,no context
+004adc80,gap_4adc80,no context
+004add90,gap_4add90,no context
+004adfb0,gap_4adfb0,no context
+004adfe0,gap_4adfe0,no context
+004ae100,gap_4ae100,no context
+004ae1d0,gap_4ae1d0,no context
+004ae2c0,gap_4ae2c0,no context
+004ae760,gap_4ae760,no context
+004ae8d0,gap_4ae8d0,no context
+004ae8e0,gap_4ae8e0,no context
+004ae9f0,gap_4ae9f0,no context
+004aec80,gap_4aec80,no context
+004aecc0,gap_4aecc0,no context
+004aed30,gap_4aed30,no context
+004aede0,gap_4aede0,no context
+004aef90,gap_4aef90,getter of field +0x48 (descriptive name obj_get_off48_4aef90; kept the alias gap_4aef90 used by recomp/clusters)
+004af010,gap_4af010,no context
+004af070,gap_4af070,no context
+004af140,gap_4af140,no context
+004af1a0,gap_4af1a0,no context
+004af2f0,gap_4af2f0,no context
+004af310,gap_4af310,no context
+004af5c0,gap_4af5c0,no context
+004af5f0,gap_4af5f0,no context
+004af780,gap_4af780,no context
+004af7b0,gap_4af7b0,no context
+004af8d0,gap_4af8d0,no context
+004af8f0,gap_4af8f0,no context
+004af920,gap_4af920,no context
+004af930,obj_get_off30_4af930,getter of field +0x30
+004af940,gap_4af940,no context
+004af950,gap_4af950,no context
+004af980,gap_4af980,no context
+004afa20,gap_4afa20,no context
+004afa70,gap_4afa70,no context
+004afb00,gap_4afb00,no context
+004afd70,gap_4afd70,no context
+004afe90,gap_4afe90,no context
+004afeb0,gap_4afeb0,no context
+004b0360,gap_4b0360,no context
+004b03d0,gap_4b03d0,no context
+004b05e0,gap_4b05e0,no context
+004b0750,gap_4b0750,no context
+004b0810,gap_4b0810,no context
+004b0920,gap_4b0920,no context
+004b0a70,gap_4b0a70,no context
+004b0b70,gap_4b0b70,no context
+004b0d00,gap_4b0d00,no context
+004b0e50,gap_4b0e50,no context
+004b1020,gap_4b1020,no context
+004b1830,gap_4b1830,no context
+004b1840,video_fn_4b1840,global g_video_5e209c
+004b1870,video_fn_4b1870,global g_video_5e209c
+004b1890,gap_4b1890,no context
+004b1910,video_fn_4b1910,global g_video_5e209c
+004b1a20,gap_4b1a20,no context
+004b1a60,gap_4b1a60,no context
+004b1aa0,gap_4b1aa0,no context
+004b1ae0,gap_4b1ae0,no context
+004b1b20,gap_4b1b20,no context
+004b1b60,gap_4b1b60,no context
+004b1ba0,gap_4b1ba0,no context
+004b1be0,gap_4b1be0,no context
+004b1c30,gap_4b1c30,no context
+004b1c80,gap_4b1c80,no context
+004b1cf0,gap_4b1cf0,no context
+004b1d30,gap_4b1d30,no context
+004b1d70,gap_4b1d70,no context
+004b1dc0,gap_4b1dc0,no context
+004b1e00,gap_4b1e00,no context
+004b1e40,gap_4b1e40,no context
+004b1e80,gap_4b1e80,no context
+004b1ec0,gap_4b1ec0,no context
+004b1f00,gap_4b1f00,no context
+004b1f40,gap_4b1f40,no context
+004b1f80,gap_4b1f80,no context
+004b1fc0,gap_4b1fc0,no context
+004b2020,gap_4b2020,no context
+004b2060,gap_4b2060,no context
+004b22a0,gap_4b22a0,no context
+004b22b0,gap_4b22b0,no context
+004b22c0,gap_4b22c0,no context
+004b22d0,gap_4b22d0,no context
+004b23a0,gap_4b23a0,no context
+004b23c0,gap_4b23c0,no context
+004b23e0,gap_4b23e0,no context
+004b2480,gap_4b2480,no context
+004b2490,gap_4b2490,no context
+004b24a0,gap_4b24a0,no context
+004b24c0,gap_4b24c0,no context
+004b24d0,gap_4b24d0,no context
+004b24e0,gap_4b24e0,no context
+004c4040,gap_4c4040,no context
+004c4200,gap_4c4200,no context
+004c47c0,gap_4c47c0,no context
+004c4800,course_warzone_cb0_sub_4c4800,single caller course_warzone_cb0_sub_4c4830
+004c4830,course_warzone_cb0_sub_4c4830,single caller course_warzone_cb0_sub_4c4860
+004c4860,course_warzone_cb0_sub_4c4860,single caller course_warzone_cb0_sub_45ca50
+004c4a80,gap_4c4a80,no context
+004c4cc0,gap_4c4cc0,no context
+004c4e70,gap_4c4e70,no context
+004c4fd0,gap_4c4fd0,no context
+004c5420,gap_4c5420,no context
+004c56a0,gap_4c56a0,no context
+0056e990,course_neustein_cb0_sub_56e990,single caller course_neustein_cb0_sub_454460
+0056e9b0,course_neustein_cb0_sub_56e9b0,single caller course_neustein_cb0_sub_454460
+0056e9e0,course_neustein_cb0_sub_56e9e0,single caller course_neustein_cb0_sub_454460
+0056fe70,gap_56fe70,no context
+0056fea0,gap_56fea0,no context
+0056ff10,gap_56ff10,no context
+005700b0,gap_5700b0,no context
+005701f0,gap_5701f0,no context
+00570590,gap_570590,no context
+005705c0,gap_5705c0,no context
+00570620,gap_570620,no context
+005b5fe0,gap_5b5fe0,no context
+005b6240,gap_5b6240,no context
+005b62e0,gap_5b62e0,no context
+005b64e0,gap_5b64e0,no context
+005b64f0,gap_5b64f0,no context
+005b6500,gap_5b6500,no context
+005b6560,gap_5b6560,no context
+005b65f0,gap_5b65f0,no context
+005b69b0,gap_5b69b0,no context
+005b6a30,gap_5b6a30,no context
+005b6ae0,obj_set_off78_5b6ae0,setter of field +0x78
+005b6af0,obj_get_off78_5b6af0,out-param getter of field +0x78
+005b6b00,obj_set_off7c_5b6b00,setter of field +0x7c
+005b6b10,obj_get_off7c_5b6b10,out-param getter of field +0x7c
+005b6b20,gap_5b6b20,no context
+005b6b60,gap_5b6b60,no context
+005b6b80,gap_5b6b80,no context
+005b6bc0,gap_5b6bc0,no context
+005b6be0,gap_5b6be0,no context
+005b6c10,obj_get_off70_5b6c10,out-param getter of field +0x70
+005b6c20,gap_5b6c20,no context
+005b6c50,obj_get_off74_5b6c50,out-param getter of field +0x74
+005b6c60,gap_5b6c60,no context
+005b6c90,obj_get_off3c_5b6c90,out-param getter of field +0x3c
+005b6ca0,gap_5b6ca0,no context
+005b6cd0,obj_get_off40_5b6cd0,out-param getter of field +0x40
+005b6ce0,gap_5b6ce0,no context
+005b6d20,gap_5b6d20,no context
+005b6d40,gap_5b6d40,no context
+005b6d70,gap_5b6d70,no context
+005b6db0,gap_5b6db0,no context
+005b6df0,gap_5b6df0,no context
+005b6e10,gap_5b6e10,no context
+005b6e30,obj_get_off50_5b6e30,out-param getter of field +0x50
+005b6e40,gap_5b6e40,no context
+005b6e70,obj_get_off44_5b6e70,out-param getter of field +0x44
+005b6e80,gap_5b6e80,no context
+005b6e90,gap_5b6e90,no context
+005b6ec0,obj_get_off88_5b6ec0,out-param getter of field +0x88
+005b71a0,gap_5b71a0,no context
+005b7560,gap_5b7560,no context
+005b75a0,gap_5b75a0,no context
+005b7640,gap_5b7640,no context
+005b8120,gap_5b8120,no context
+005b8590,gap_5b8590,no context
+005b8630,gap_5b8630,no context
+005b8740,gap_5b8740,no context
+005b87b0,gap_5b87b0,no context
+005b8840,gap_5b8840,no context
+005b8960,gap_5b8960,no context
+005b8cc0,gap_5b8cc0,no context
+005b8df0,gap_5b8df0,no context
+005b8e90,gap_5b8e90,no context
+005b8eb0,gap_5b8eb0,no context
+005b8ed0,gap_5b8ed0,no context
+005b8f10,gap_5b8f10,no context
+005b8f30,gap_5b8f30,no context
+005b8f70,obj_get_offd6c_5b8f70,out-param getter of field +0xd6c
+005b8f90,obj_get_offd70_5b8f90,out-param getter of field +0xd70
+005b8fb0,obj_get_offd74_5b8fb0,out-param getter of field +0xd74
+005b8fd0,gap_5b8fd0,no context
+005b9030,gap_5b9030,no context
+005b9050,gap_5b9050,no context
+005b90a0,obj_get_off120_5b90a0,out-param getter of field +0x120
+005b90c0,gap_5b90c0,no context
+005b9110,gap_5b9110,no context
+005b9130,gap_5b9130,no context
+005b9440,gap_5b9440,no context
+005b9480,gap_5b9480,no context
+005b9530,gap_5b9530,no context
+005b9a40,gap_5b9a40,no context
+005b9a70,gap_5b9a70,no context
+005b9a90,gap_5b9a90,no context
+005b9ac0,gap_5b9ac0,no context
+005b9ae0,gap_5b9ae0,no context
+005b9b40,gap_5b9b40,no context
+005b9b90,gap_5b9b90,no context
+005b9bf0,gap_5b9bf0,no context
+005b9c10,gap_5b9c10,no context
+005b9c70,gap_5b9c70,no context
+005b9c90,gap_5b9c90,no context
+005b9cb0,obj_get_off6c_5b9cb0,out-param getter of field +0x6c
+005b9cc0,gap_5b9cc0,no context
+005b9f20,gap_5b9f20,no context
+005ba310,gap_5ba310,no context
+005ba7e0,gap_5ba7e0,no context
+005ba9f0,gap_5ba9f0,no context
+005bab00,gap_5bab00,no context
+005bab10,gap_5bab10,no context
+005bac10,gap_5bac10,no context
+005bad50,gap_5bad50,no context
+005bb060,gap_5bb060,no context
+005bb2e0,gap_5bb2e0,no context
+005bb370,gap_5bb370,no context
+005bb3e0,gap_5bb3e0,no context
+005bb400,gap_5bb400,no context
+005bb430,gap_5bb430,no context
+005bb460,gap_5bb460,no context
+005bb4b0,gap_5bb4b0,no context
+005bb500,gap_5bb500,no context
+005bb510,gap_5bb510,no context
+005bb560,gap_5bb560,no context
+005bb570,gap_5bb570,no context
+005bb5c0,gap_5bb5c0,no context
+005bb7e0,gap_5bb7e0,no context
+005bb850,gap_5bb850,no context
+005bbe60,gap_5bbe60,no context
+005bbf50,gap_5bbf50,no context
+005bbfa0,gap_5bbfa0,no context
+005bbfe0,gap_5bbfe0,no context
+005bc010,gap_5bc010,no context
+005bcbb0,gap_5bcbb0,no context
+005bcd80,gap_5bcd80,no context
+005bd650,gap_5bd650,no context
+005bd680,gap_5bd680,no context
+005bdad0,gap_5bdad0,no context
+005bdeb0,gap_5bdeb0,no context
+005be360,gap_5be360,no context
+005be450,gap_5be450,no context
+005be480,gap_5be480,no context
+005be660,gap_5be660,no context
+005be690,gap_5be690,no context
+005be8a0,gap_5be8a0,no context
+005beb30,gap_5beb30,no context
+005beee0,gap_5beee0,no context
+005bf070,gap_5bf070,no context
+005bf580,gap_5bf580,no context
+005bf5d0,gap_5bf5d0,no context
+005bf970,gap_5bf970,no context
+005bfd90,gap_5bfd90,no context
+005bfeb0,gap_5bfeb0,no context
+005c01a0,gap_5c01a0,no context
+005c01c0,gap_5c01c0,no context
+005c0760,gap_5c0760,no context
+005c1b10,gap_5c1b10,no context
+005c1be0,gap_5c1be0,no context
+005c1c10,gap_5c1c10,no context
+005c1c20,gap_5c1c20,no context
+005c1d90,gap_5c1d90,no context
+005c1da0,gap_5c1da0,no context
+005c1e30,gap_5c1e30,no context
+005c1e50,gap_5c1e50,no context
+005c1fe0,gap_5c1fe0,no context
+005c2040,gap_5c2040,no context
+005c3020,gap_5c3020,no context
+005c34f0,gap_5c34f0,no context
+005c3ed0,gap_5c3ed0,no context
+005c43d0,gap_5c43d0,no context
+005c6990,gap_5c6990,no context
+005c7280,gap_5c7280,no context
+005c7310,gap_5c7310,no context
+005c7630,gap_5c7630,no context
+005c7ff0,gap_5c7ff0,no context
+005c8030,gap_5c8030,no context
+005c8100,gap_5c8100,no context
+005c8220,gap_5c8220,no context
+005c82a0,gap_5c82a0,no context
+005c82d0,gap_5c82d0,no context
+005c8300,gap_5c8300,no context
+005c8320,gap_5c8320,no context
+005c8340,gap_5c8340,no context
+005c8350,gap_5c8350,no context
+005c8760,gap_5c8760,no context
+005c8820,gap_5c8820,no context
+005c8a40,gap_5c8a40,no context
+005c8bf0,gap_5c8bf0,no context
+005c8c60,gap_5c8c60,no context
+005c8c80,gap_5c8c80,no context
+005c8ca0,gap_5c8ca0,no context
+005c8ce0,gap_5c8ce0,no context
+005c8d00,obj_get_off174_5c8d00,out-param getter of field +0x174
+005c8d20,gap_5c8d20,no context
+005c8d50,gap_5c8d50,no context
+005c8dc0,gap_5c8dc0,no context
+005c91f0,gap_5c91f0,no context
+005c9260,gap_5c9260,no context
+005c92b0,gap_5c92b0,no context
+005c92c0,gap_5c92c0,no context
+005c9310,gap_5c9310,no context
+005c9320,gap_5c9320,no context
+005c9370,gap_5c9370,no context
+005c9530,gap_5c9530,no context
+005c9910,gap_5c9910,no context
+005c9950,gap_5c9950,no context
+005c9c50,gap_5c9c50,no context
+005c9c80,gap_5c9c80,no context
+005ca640,gap_5ca640,no context
+005ca890,gap_5ca890,no context
+005ca8f0,gap_5ca8f0,no context
+005ca940,gap_5ca940,no context
+005ca970,gap_5ca970,no context
+005ca9a0,gap_5ca9a0,no context
+005ca9c0,obj_get_offb8_5ca9c0,out-param getter of field +0xb8
+005ca9e0,gap_5ca9e0,no context
+005caa00,obj_get_offbc_5caa00,out-param getter of field +0xbc
+005caa20,gap_5caa20,no context
+005caa50,gap_5caa50,no context
+005caa80,gap_5caa80,no context
+005caad0,gap_5caad0,no context
+005caaf0,gap_5caaf0,no context
+005cab20,gap_5cab20,no context
+005cab50,gap_5cab50,no context
+005cab80,gap_5cab80,no context
+005cabb0,gap_5cabb0,no context
+005cac00,gap_5cac00,no context
+005cac50,gap_5cac50,no context
+005cac80,gap_5cac80,no context
+005cacb0,gap_5cacb0,no context
+005cace0,gap_5cace0,no context
+005cad10,gap_5cad10,no context
+005cad30,obj_get_off70_5cad30,out-param getter of field +0x70
+005cad40,gap_5cad40,no context
+005cad60,obj_get_off74_5cad60,out-param getter of field +0x74
+005cad70,gap_5cad70,no context
+005cad90,obj_get_off78_5cad90,out-param getter of field +0x78
+005cada0,gap_5cada0,no context
+005cadc0,obj_get_off7c_5cadc0,out-param getter of field +0x7c
+005cadd0,gap_5cadd0,no context
+005cadf0,obj_get_off80_5cadf0,out-param getter of field +0x80
+005cae10,gap_5cae10,no context
+005cae30,gap_5cae30,no context
+005cae50,gap_5cae50,no context
+005cae80,gap_5cae80,no context
+005caeb0,gap_5caeb0,no context
+005caee0,gap_5caee0,no context
+005caf10,gap_5caf10,no context
+005caf60,obj_get_off98_5caf60,out-param getter of field +0x98
+005caf80,gap_5caf80,no context
+005cafb0,obj_get_offd4_5cafb0,out-param getter of field +0xd4
+005cafd0,gap_5cafd0,no context
+005caff0,obj_get_off2c_5caff0,out-param getter of field +0x2c
+005cb000,gap_5cb000,no context
+005cb020,obj_get_off30_5cb020,out-param getter of field +0x30
+005cb030,gap_5cb030,no context
+005cb050,gap_5cb050,no context
+005cb070,gap_5cb070,no context
+005cb090,obj_get_off88_5cb090,out-param getter of field +0x88
+005cb0b0,gap_5cb0b0,no context
+005cb0d0,gap_5cb0d0,no context
+005cb0f0,gap_5cb0f0,no context
+005cb110,obj_get_off84_5cb110,out-param getter of field +0x84
+005cb130,gap_5cb130,no context
+005cb150,obj_get_off34_5cb150,out-param getter of field +0x34
+005cb160,gap_5cb160,no context
+005cb190,gap_5cb190,no context
+005cb1b0,gap_5cb1b0,no context
+005cb200,gap_5cb200,no context
+005cb240,gap_5cb240,no context
+005cb540,gap_5cb540,no context
+005cb570,gap_5cb570,no context
+005cbb20,gap_5cbb20,no context
+005cbb90,gap_5cbb90,no context
+005cc0d0,gap_5cc0d0,no context
+005cc720,gap_5cc720,no context
+005ccad0,gap_5ccad0,no context
+005ccaf0,obj_get_off38_5ccaf0,out-param getter of field +0x38
+005ccb00,gap_5ccb00,no context
+005ccb20,obj_get_off3c_5ccb20,out-param getter of field +0x3c
+005ccb30,gap_5ccb30,no context
+005ccb50,gap_5ccb50,no context
+005ccb70,gap_5ccb70,no context
+005ccb90,gap_5ccb90,no context
+005ccbb0,gap_5ccbb0,no context
+005ccc10,gap_5ccc10,no context
+005cccb0,gap_5cccb0,no context
+005cccd0,gap_5cccd0,no context
+005ccdf0,gap_5ccdf0,no context
+005ce1e0,gap_5ce1e0,no context
+005ce2a0,gap_5ce2a0,no context
+005ce2b0,gap_5ce2b0,no context
+005ce810,gap_5ce810,no context
+005cea00,gap_5cea00,no context
+005cee20,gap_5cee20,no context
+005cee40,gap_5cee40,no context
+005cee50,gap_5cee50,no context
+005cee60,gap_5cee60,no context
+005cf0c0,gap_5cf0c0,no context
+005cf190,gap_5cf190,no context
+005cf1b0,gap_5cf1b0,no context
+005cf1d0,gap_5cf1d0,no context
+005cf1f0,gap_5cf1f0,no context
+005cf5b0,gap_5cf5b0,no context
+005cf5d0,gap_5cf5d0,no context
+005cf5f0,gap_5cf5f0,no context
+005cf890,gap_5cf890,no context
+005cfa40,gap_5cfa40,no context
+005cfb50,gap_5cfb50,no context
+005cfc10,gap_5cfc10,no context
+005cfc30,gap_5cfc30,no context
+005d0000,gap_5d0000,no context
+005d0040,gap_5d0040,no context
+005d0070,gap_5d0070,no context
+005d00a0,gap_5d00a0,no context
+005d0110,obj_get_off128_5d0110,out-param getter of field +0x128
+005d0180,gap_5d0180,no context
+005d01c0,gap_5d01c0,no context
+005d01f0,gap_5d01f0,no context
+005d02d0,gap_5d02d0,no context
+005d0730,gap_5d0730,no context
+005d0790,gap_5d0790,no context
+005d08b0,gap_5d08b0,no context
+005d2bc0,gap_5d2bc0,no context
+005d2c00,gap_5d2c00,no context
+005d2c40,gap_5d2c40,no context
+005d2c90,gap_5d2c90,no context
+005d2cc0,gap_5d2cc0,no context
+005d7ad0,gap_5d7ad0,no context
+005d7af0,gap_5d7af0,no context
+005d7b30,gap_5d7b30,no context
+005d7c10,gap_5d7c10,no context
+005d7c60,gap_5d7c60,no context
+005d7c80,gap_5d7c80,no context
+005d7ce0,gap_5d7ce0,no context
+005d7cf0,gap_5d7cf0,no context
+005d7d60,gap_5d7d60,no context
+005d8140,gap_5d8140,no context
+005d8170,gap_5d8170,no context
+005d8590,obj_set_off2c_5d8590,setter of field +0x2c
+005d85a0,obj_get_off2c_5d85a0,out-param getter of field +0x2c
+005d85b0,gap_5d85b0,no context
+005d85d0,gap_5d85d0,no context
+005d85f0,gap_5d85f0,no context
+005d8610,gap_5d8610,no context
+005d8620,gap_5d8620,no context
+005d8630,obj_set_off68_5d8630,setter of field +0x68
+005d8640,obj_get_off68_5d8640,out-param getter of field +0x68
+005d8650,gap_5d8650,no context
+005d8670,gap_5d8670,no context
+005d8690,gap_5d8690,no context
+005d86d0,gap_5d86d0,no context
+005d8700,gap_5d8700,no context
+005d8720,obj_get_off8c_5d8720,out-param getter of field +0x8c
+005d8740,gap_5d8740,no context
+005d8770,gap_5d8770,no context
+005d8790,gap_5d8790,no context
+005d87e0,obj_get_off98_5d87e0,out-param getter of field +0x98
+005d8800,gap_5d8800,no context
+005d8820,obj_get_off48_5d8820,out-param getter of field +0x48
+005d8830,gap_5d8830,no context
+005d8860,gap_5d8860,no context
+005d8880,gap_5d8880,no context
+005d8b60,gap_5d8b60,no context
+005d8ba0,gap_5d8ba0,no context
+005d8c30,gap_5d8c30,no context
+005d8ca0,gap_5d8ca0,no context
+005d8dd0,gap_5d8dd0,no context
+005d8e80,gap_5d8e80,no context
+005d8eb0,obj_set_off30_5d8eb0,setter of field +0x30
+005d8ec0,obj_get_off30_5d8ec0,out-param getter of field +0x30
+005d8ed0,obj_set_off34_5d8ed0,setter of field +0x34
+005d8ee0,obj_get_off34_5d8ee0,out-param getter of field +0x34
+005d8ef0,obj_set_off38_5d8ef0,setter of field +0x38
+005d8f00,obj_get_off38_5d8f00,out-param getter of field +0x38
+005d92d0,gap_5d92d0,no context
+005d9300,gap_5d9300,no context
+005d9380,gap_5d9380,no context
+005d9390,gap_5d9390,no context
+005d9440,gap_5d9440,no context
+005d98c0,gap_5d98c0,no context
+005d9a20,gap_5d9a20,no context
+005d9a90,gap_5d9a90,no context
+005d9ab0,gap_5d9ab0,no context
+005da0d0,gap_5da0d0,no context
+005da3f0,gap_5da3f0,no context
+005da4b0,gap_5da4b0,no context
+005da4d0,gap_5da4d0,no context
+005da500,gap_5da500,no context
+005da520,gap_5da520,no context
+005da590,gap_5da590,no context
+005db54b,eh_frame_handler_5db54b,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db56b,eh_frame_handler_5db56b,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db588,eh_frame_handler_5db588,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db5b0,eh_frame_handler_5db5b0,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db5c8,eh_frame_handler_5db5c8,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db5fe,eh_frame_handler_5db5fe,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db660,eh_frame_handler_5db660,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db683,eh_frame_handler_5db683,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db698,eh_frame_handler_5db698,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db6c0,eh_frame_handler_5db6c0,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db6f0,eh_frame_handler_5db6f0,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db710,eh_frame_handler_5db710,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db728,eh_frame_handler_5db728,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db748,eh_frame_handler_5db748,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db768,eh_frame_handler_5db768,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db788,eh_frame_handler_5db788,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db7a8,eh_frame_handler_5db7a8,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db7c8,eh_frame_handler_5db7c8,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db7eb,eh_frame_handler_5db7eb,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db813,eh_frame_handler_5db813,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db82b,eh_frame_handler_5db82b,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db848,eh_frame_handler_5db848,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db868,eh_frame_handler_5db868,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db8a8,eh_frame_handler_5db8a8,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db8cb,eh_frame_handler_5db8cb,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db8d5,eh_frame_handler_5db8d5,C++ exception handler stub (jumps to __CxxFrameHandler)
+005db8e0,static_init_movie_renderer_76e8bc,static initializer video_state_clear(&g_movie_renderer_76e8bc) + atexit
+005db900,static_init_movie_renderer_76e8c0,static initializer video_state_clear(&g_movie_renderer_76e8c0) + atexit
+005db920,static_init_movie_renderer_76e8b8,static initializer video_state_clear(&g_movie_renderer_76e8b8) + atexit
+005db940,static_init_movie_renderer_76e8b4,static initializer video_state_clear(&g_movie_renderer_76e8b4) + atexit
+005db960,static_init_movie_renderer_76e8b0,static initializer video_state_clear(&g_movie_renderer_76e8b0) + atexit
+005db980,static_init_app_76e8ac,static initializer video_state_clear(&g_app_76e8ac) + atexit
+005db9a0,static_init_data_76e8c4,static initializer video_state_clear(&g_data_76e8c4) + atexit
+005db9c0,static_init_data_76e8d4,static initializer video_state_clear(&g_data_76e8d4) + atexit
+005db9e0,static_init_data_76e8cc,static initializer video_state_clear(&g_data_76e8cc) + atexit
+005dba00,static_init_data_76e8c8,static initializer video_state_clear(&g_data_76e8c8) + atexit
+005dba20,static_init_data_76e8d0,static initializer video_state_clear(&g_data_76e8d0) + atexit
+005dba40,static_init_data_76e8d8,static initializer video_state_clear(&g_data_76e8d8) + atexit
+005dba60,static_init_movie_renderer_76e8bc_cb_5dba60,function pointer pushed/stored by static_init_movie_renderer_76e8bc (PUSH 0x5dba60)
+005dba70,static_init_movie_renderer_76e8c0_cb_5dba70,function pointer pushed/stored by static_init_movie_renderer_76e8c0 (PUSH 0x5dba70)
+005dba80,static_init_movie_renderer_76e8b8_cb_5dba80,function pointer pushed/stored by static_init_movie_renderer_76e8b8 (PUSH 0x5dba80)
+005dba90,static_init_movie_renderer_76e8b4_cb_5dba90,function pointer pushed/stored by static_init_movie_renderer_76e8b4 (PUSH 0x5dba90)
+005dbaa0,static_init_movie_renderer_76e8b0_cb_5dbaa0,function pointer pushed/stored by static_init_movie_renderer_76e8b0 (PUSH 0x5dbaa0)
+005dbab0,static_init_app_76e8ac_cb_5dbab0,function pointer pushed/stored by static_init_app_76e8ac (PUSH 0x5dbab0)
+005dbac0,static_init_data_76e8c4_cb_5dbac0,function pointer pushed/stored by static_init_data_76e8c4 (PUSH 0x5dbac0)
+005dbad0,static_init_data_76e8d4_cb_5dbad0,function pointer pushed/stored by static_init_data_76e8d4 (PUSH 0x5dbad0)
+005dbae0,static_init_data_76e8cc_cb_5dbae0,function pointer pushed/stored by static_init_data_76e8cc (PUSH 0x5dbae0)
+005dbaf0,static_init_data_76e8c8_cb_5dbaf0,function pointer pushed/stored by static_init_data_76e8c8 (PUSH 0x5dbaf0)
+005dbb00,static_init_data_76e8d0_cb_5dbb00,function pointer pushed/stored by static_init_data_76e8d0 (PUSH 0x5dbb00)
+005dbb10,static_init_data_76e8d8_cb_5dbb10,function pointer pushed/stored by static_init_data_76e8d8 (PUSH 0x5dbb10)
+005dc1c4,gap_5dc1c4,no context

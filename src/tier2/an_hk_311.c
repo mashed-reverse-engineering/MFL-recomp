@@ -1,8 +1,8 @@
 #include "mfl_tier2.h"
-/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
-/*0056b220*/ extern void rwp_world_set_bit_60_64(int p0, int p1, int p2);
-/*0056b300*/ extern void FUN_0056b300(undefined4 p0, undefined4 p1);
-/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
+/*0056b220*/ extern void rwp_world_set_bit_60_64(int p0, void *p1, int p2);
+/*0056b300*/ extern void FUN_0056b300(undefined4 p0, void *p1);
+/*0056bc20*/ extern void FUN_0056bc20(void *p0, undefined4 p1, undefined4 p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*006fab78*/ extern undefined4 g_rw_6fab78;
 

@@ -142,7 +142,7 @@ extern void vehicle_get_matrix(int vehicle_index,float *out_matrix);
 
 /* "car_damage[car].front + back (two floats of the 0x28 byte record)" */
 
-extern float10 car_damage_sum_front_back(char *param_1);
+extern double car_damage_sum_front_back(char *param_1);
 
 
 /* car_damage_smoke_destroy */

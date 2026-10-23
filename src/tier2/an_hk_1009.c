@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042be50*/ extern undefined __cdecl ui_text_draw_a(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0042bfd0*/ extern undefined __cdecl ui_text_draw_boxed(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9, undefined4 p10);
+/*0042bfd0*/ extern undefined __cdecl ui_text_draw_boxed(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, void *p8, undefined4 p9, undefined4 p10);
 /*0042c220*/ extern int ui_text_draw_wide_a(undefined1 *text, undefined4 colour, undefined4 scale);
 /*0042c440*/ extern int ui_rt2d_text_draw();
 /*0042c8e0*/ extern float text_width();
@@ -94,7 +94,7 @@ void message_box_draw(void)
     puVar1 = frame.m.auStack_204;
     uVar3 = frame.m.local_218;
     ui_text_draw_wide_a(frame.m.auStack_204,frame.m.local_218,camera);
-    ui_text_draw_boxed(0x287,0x43110000,0x43858000,0x43af0000,0x43160000,(undefined4)frame.m.local_218,0x3f0ccccd,0,                        (undefined4)puVar1,uVar3,camera);
+    ui_text_draw_boxed(0x287,0x43110000,0x43858000,0x43af0000,0x43160000,(undefined4)frame.m.local_218,0x3f0ccccd,0,                        puVar1,uVar3,camera);
   }
   else if (g_message_use_text_offset == 0) {
     ui_text_draw_a(g_message_text_id,frame.m.local_218,0x3f19999a);

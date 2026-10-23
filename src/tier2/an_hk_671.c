@@ -27,12 +27,12 @@ int material_uv_scroll_update(int atomic)
   RpGeometry *geometry;
   int vertex_count;
   RwTexCoords *uv_coords;
-  float10 scroll_step;
+  double scroll_step;
   int wrap_index;
   int wrap_next_index;
   int vertex_index;
-  float10 cos_timer;
-  float10 new_u;
+  double cos_timer;
+  double new_u;
 
   g_weapon_6a9584 = g_weapon_6a9584 + k_f_0_01;
   geometry = *(RpGeometry **)(atomic + ATOMIC_GEOMETRY_OFFSET);
@@ -42,12 +42,12 @@ int material_uv_scroll_update(int atomic)
   vertex_index = 0;
   if (0 < vertex_count) {
     /* per-vertex scroll: u += cos(timer) * step; wrap check uses the unstored new_u */
-    cos_timer = (float10)cos((float10)g_weapon_6a9584);
-    scroll_step = (float10)k_f_0_01;
+    cos_timer = (double)cos((double)g_weapon_6a9584);
+    scroll_step = (double)k_f_0_01;
     do {
-      new_u = cos_timer * scroll_step + (float10)uv_coords[vertex_index].u;
+      new_u = cos_timer * scroll_step + (double)uv_coords[vertex_index].u;
       uv_coords[vertex_index].u = (float)new_u;
-      if ((float10)float_1_0 < new_u) {
+      if ((double)float_1_0 < new_u) {
         /* wrap: subtract k_f_2 from every vertex's u, not just this one (inferred from the loop bounds) */
         wrap_index = 0;
         do {

@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00496330*/ extern int trigger_grid_build_visible_cells();
-/*00496620*/ extern int __cdecl trigger_sphere_register_in_grid(undefined4 p0);
+/*00496620*/ extern int __cdecl trigger_sphere_register_in_grid(void *p0);
 /*007106e0*/ extern struct Trigger g_triggers[300];
 /*0071aaf0*/ extern undefined4 g_trigger_71aaf0;
 /*0071aaf4*/ extern undefined4 g_trigger_count;
@@ -53,7 +53,7 @@ undefined4 trigger_sphere_register(float *param_1)
     puVar5 = puVar5 + 1;
   }
   if ((g_trigger_71aaf0 != 0) &&
-     (iVar3 = trigger_sphere_register_in_grid((undefined4)pTVar1), uVar4 = g_trigger_count, iVar3 == 0)) {
+     (iVar3 = trigger_sphere_register_in_grid(pTVar1), uVar4 = g_trigger_count, iVar3 == 0)) {
     return 0;
   }
   g_trigger_count = uVar4 + 1;

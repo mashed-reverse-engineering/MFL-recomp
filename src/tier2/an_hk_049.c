@@ -4,9 +4,9 @@ typedef int WeaponId;
 /*0047a830*/ extern int car_is_active();
 /*0047b520*/ extern int car_current_matrix();
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
-/*0056b300*/ extern void FUN_0056b300(undefined4 p0, undefined4 p1);
-/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
+/*0056b300*/ extern void FUN_0056b300(undefined4 p0, void *p1);
+/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, void *p1, void *p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*005ddea0*/ extern float k_f_20;
 /*005de83c*/ extern float k_f_n20;
@@ -66,7 +66,7 @@ void __cdecl car_apply_throttle_force(int car_index)
      set rwp_world_set_bit_5c (inferred: the body is set up on first use) */
   if ((*(int *)(car_active + 0x24) == 0) ||
      (player_input = controller_input,
-     (*(uint *)(*(int *)(*(char **)(car_active + 0x24) + 0x60) +
+     (*(uint *)(*(char **)(*(char **)(car_active + 0x24) + 0x60) +
                (uint)(*(ushort *)(car_active + 0x20) >> BITSET_WORD_SHIFT) * 4) &
      1 << ((byte)*(ushort *)(car_active + 0x20) & BITSET_BIT_MASK)) == 0)) {
     FUN_0056b300(*(undefined4 *)(car_active + 0x24),car_active);

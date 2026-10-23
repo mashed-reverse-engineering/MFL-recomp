@@ -57,7 +57,7 @@ void draw_rect(float x,float y,float width,float height,uint colour)
     *vertex_cursor = RwGlobalsRelease_dOpenDevice_zBufferNear(rw_globals);
     vertex_cursor[1] = 1.0;
     vertex_cursor = vertex_cursor + 7;
-  } while ((int)vertex_cursor < ((int)&g_training_lesson));
+  } while ((char *)vertex_cursor < ((char *)&g_training_lesson));
   /* Untextured (raster 0), vertex alpha on (TRUE, inferred), standard src-alpha / inv-src-alpha blend. */
   (*RwGlobalsRelease_dOpenDevice_fpRenderStateSet(rw_globals))(rwRENDERSTATETEXTURERASTER,(void *)0x0);
   RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE,(void *)0x1);

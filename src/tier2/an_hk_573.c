@@ -4,7 +4,7 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*00413b10*/ extern int replay_current_get_split_time();
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*0061966c*/ extern undefined4 g_sound_frame_61966c;
 /*006ae100*/ extern undefined4 g_sound_frame_6ae100;

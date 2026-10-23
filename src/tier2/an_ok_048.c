@@ -279,7 +279,7 @@ extern void voice_queue_clear_players_when_phase_2(void);
    Locals: value is reused as the slider value, the slot type and then the loop index;
    mode_or_result holds game_mode and then the results of the calls below. */
 
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 undefined4 __cdecl player_voice_counter_increment(int player)
 {
   int *voice_counter;
@@ -317,7 +317,7 @@ undefined4 __cdecl player_voice_counter_increment(int player)
     }
     /* only for players whose flag in g_weapon_8be200 is 1: a loud enough stream allows the line at once,
        otherwise the idle counter must exceed VOICE_IDLE_FRAMES and the car must be playable */
-    if (*(int *)((char *)&g_weapon_8be200 + player * 4) == 1) {
+    if (((int *)&g_weapon_8be200)[player] == 1) {
       if (k_f_63 <*(float *)(*(char **)((char *)&g_sound_8be7e0 + player * 4) + 0x14)) {
         return 1;
       }

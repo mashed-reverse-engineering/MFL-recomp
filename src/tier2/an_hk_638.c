@@ -51,7 +51,7 @@ void collision_debug_draw(undefined4 x0,undefined4 y0,undefined4 x1,undefined4 y
     *vertex = RwGlobalsRelease_dOpenDevice_zBufferNear(rw_globals);
     vertex[1] = 1.0;
     vertex = vertex + IM2D_VERTEX_WORDS;
-  } while ((int)vertex < ((int)&g_trail_843efc));
+  } while ((char *)vertex < ((char *)&g_trail_843efc));
   /* no texture, Gouraud shade mode, depth test and depth write off for the draw */
   (*RwGlobalsRelease_dOpenDevice_fpRenderStateSet(rw_globals))(rwRENDERSTATETEXTURERASTER,(void *)0x0);
   RwRenderStateSet(rwRENDERSTATESHADEMODE,(void *)rwSHADEMODEGOURAUD);

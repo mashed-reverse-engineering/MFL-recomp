@@ -30,7 +30,7 @@
 void fx_distance_check(float param_1)
 
 {
-  int path;
+  char *path;
   float scaled_distance;
   int obj;
   RwReal offset_length;
@@ -47,10 +47,10 @@ void fx_distance_check(float param_1)
   offset = &frame.local_1c;
   obj = *(int *)&param_1;
   vehicle_get_position_158(0,&frame.local_10);
-  path = *(int *)(*(int *)&param_1 + OBJ_PATH_OFFSET);
-  offset->x = frame.local_10 - *(float *)(*(int *)(path + PATH_POINT_PTR_OFFSET) + PATH_POINT_X_OFFSET);
-  offset->y = frame.local_c - *(float *)(*(int *)(path + PATH_POINT_PTR_OFFSET) + PATH_POINT_Y_OFFSET);
-  offset->z = frame.local_8 - *(float *)(*(int *)(path + PATH_POINT_PTR_OFFSET) + PATH_POINT_Z_OFFSET);
+  path = *(char **)(*(int *)&param_1 + OBJ_PATH_OFFSET);
+  offset->x = frame.local_10 - *(float *)(*(char **)(path + PATH_POINT_PTR_OFFSET) + PATH_POINT_X_OFFSET);
+  offset->y = frame.local_c - *(float *)(*(char **)(path + PATH_POINT_PTR_OFFSET) + PATH_POINT_Y_OFFSET);
+  offset->z = frame.local_8 - *(float *)(*(char **)(path + PATH_POINT_PTR_OFFSET) + PATH_POINT_Z_OFFSET);
   /* only when the squared distance to the point is above the k_f_1_0en5 threshold */
   if (k_f_1_0en5 < offset->y * offset->y + offset->x * offset->x + offset->z * offset->z) {
     /* distance in units of 1/12 (k_f_0_083333336), then offset becomes a unit direction */

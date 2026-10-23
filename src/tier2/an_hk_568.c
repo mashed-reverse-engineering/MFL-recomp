@@ -5,14 +5,14 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00481fd0*/ extern double random_range();
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dde40*/ extern float k_f_70;
 /*005ddea0*/ extern float k_f_20;
 /*005df99c*/ extern float k_f_22050;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* Byte offsets into a voice record (g_voices[i].voice); the meanings are inferred from how the code uses them. */
@@ -56,7 +56,7 @@ void __cdecl sound_ambience_course_8_19(int course_id)
   char *voice;
   undefined4 child_status;
   int child;
-  float10 random_value;
+  double random_value;
   float position [3];
   
   /* skip everything when multiplayer mute is on and there are 2+ players */
@@ -69,20 +69,20 @@ void __cdecl sound_ambience_course_8_19(int course_id)
       if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_ACTIVE) == 0) {
         FUN_005b6a40(g_voices[slot].voice,1);
       }
-      random_value = (float10)random_range(0,0x461c4000);
-      *(float *)(g_voices[slot].voice + VOICE_FREQ_OFFSET) = (float)(random_value + (float10)k_f_22050);
+      random_value = (double)random_range(0,0x461c4000);
+      *(float *)(g_voices[slot].voice + VOICE_FREQ_OFFSET) = (float)(random_value + (double)k_f_22050);
       voice = g_voices[slot].voice;
       if (*(int *)(voice + VOICE_CHILD_OFFSET) != 0) {
-        random_value = (float10)random_range(0,0x461c4000);
+        random_value = (double)random_range(0,0x461c4000);
         voice = FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_CHILD_OFFSET),4,1,
-                             (float)(random_value + (float10)k_f_22050));
+                             (float)(random_value + (double)k_f_22050));
       }
       voice_set_volume(slot,1.0);
-      random_value = (float10)random_range(0,0x42200000);
-      pos_x = (float)(random_value - (float10)k_f_20);
-      random_value = (float10)random_range(0,0x430c0000);
+      random_value = (double)random_range(0,0x42200000);
+      pos_x = (float)(random_value - (double)k_f_20);
+      random_value = (double)random_range(0,0x430c0000);
       voice = g_voices[slot].voice;
-      position[2] = (float)(random_value - (float10)k_f_70);
+      position[2] = (float)(random_value - (double)k_f_70);
       position[1] = -1.0;
       *(float *)(voice + VOICE_POS_X_OFFSET) = pos_x;
       *(undefined4 *)(voice + VOICE_POS_Y_OFFSET) = 0xbf800000;
@@ -109,11 +109,11 @@ void __cdecl sound_ambience_course_8_19(int course_id)
           child_status = FUN_005b7300(child,4,1,22050.0f);
         }
         voice_set_volume(slot,1.0);
-        random_value = (float10)random_range(0,0x42200000);
+        random_value = (double)random_range(0,0x42200000);
         voice = g_voices[slot].voice;
         position[1] = 2.0;
         position[2] = -70.0;
-        position[0] = (float)(random_value - (float10)k_f_20);
+        position[0] = (float)(random_value - (double)k_f_20);
         *(float *)(voice + VOICE_POS_X_OFFSET) = position[0];
         *(undefined4 *)(voice + VOICE_POS_Y_OFFSET) = 0x40000000;
         *(undefined4 *)(voice + VOICE_POS_Z_OFFSET) = 0xc28c0000;

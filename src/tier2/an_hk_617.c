@@ -8,7 +8,6 @@
 /*007f01f4*/ extern undefined4 g_input_mode;
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /*007f023c*/ extern char g_ai_editor_mode[];
-#define MENU_PAGE_OPTIONS (0x13)
 #define NO_CONTROLLER (-1)
 /*
  * Returns 1 if the menu should treat "right" as pressed this frame, 0 otherwise.
@@ -63,7 +62,7 @@ LAB_004307fb:
     }
   }
   /* options page: entries 0..2 accept right outright; other entries fall through to the edge check */
-  if (g_menu_records[g_menu_current].page_id == MENU_PAGE_OPTIONS) {
+  if (g_menu_records[g_menu_current].page_id == MENU_PAGE_SOUND) {
     index = g_menu_records[g_menu_current].selected;
     if ((index != 0) && (index != 1)) {
       if (index == 2) {
@@ -72,7 +71,7 @@ LAB_004307fb:
       goto LAB_00430849;
     }
   }
-  else if (g_menu_records[g_menu_current].page_id != 0x1e) {
+  else if (g_menu_records[g_menu_current].page_id != MENU_PAGE_GAMMA) {
 LAB_00430849:
     /* edge check: right held now but not in the previous frame (inferred) */
     if (g_input_mode == 0x1000) {

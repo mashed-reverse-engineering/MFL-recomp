@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00484c40*/ extern undefined __cdecl spline_tween_b(RwMatrix *p1, int p2, float p3);
-/*004c48b0*/ extern void FUN_004c48b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c48b0*/ extern void FUN_004c48b0(void *p0, undefined4 p1, undefined4 p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 #define OWNER_FRAME_OFFSET (4)
 #define PATH_LENGTH_OFFSET (0xc)
@@ -39,7 +39,7 @@ void frame_follow_path_step(float owner_or_time,int path,float *path_time,float 
       spline_tween_b(&tween_matrix,path,owner_or_time);
     }
     else {
-      FUN_004c48b0((undefined4)&tween_matrix,path,*(int *)&owner_or_time);
+      FUN_004c48b0(&tween_matrix,path,*(int *)&owner_or_time);
     }
     *path_time = owner_or_time;
     RwFrameTransform(frame,&tween_matrix,rwCOMBINEREPLACE);

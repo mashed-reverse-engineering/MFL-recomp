@@ -3,17 +3,17 @@
 struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
-/*00473aa0*/ extern int sound_get_6af57c();
+/*00473aa0*/ extern char *sound_get_6af57c();
 /*00481fd0*/ extern double random_range();
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005de290*/ extern float float_50_0;
 /*005deb58*/ extern float k_f_74;
 /*005df99c*/ extern float k_f_22050;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* Voice record offsets (inferred from use) */
@@ -58,7 +58,7 @@ void sound_ambience_course_9_22(void)
   char *voice_rec;
   undefined4 *sound_pos;
   int iVar6;
-  float10 rand_val;
+  double rand_val;
   float offset [3];
 
   if ((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) {
@@ -83,20 +83,20 @@ void sound_ambience_course_9_22(void)
       if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
         FUN_005b6a40(g_voices[slot].voice,1);
       }
-      rand_val = (float10)random_range(0,RATE_JITTER_MAX);
-      *(float *)(g_voices[slot].voice + VOICE_RATE) = (float)(rand_val + (float10)k_f_22050);
+      rand_val = (double)random_range(0,RATE_JITTER_MAX);
+      *(float *)(g_voices[slot].voice + VOICE_RATE) = (float)(rand_val + (double)k_f_22050);
       voice_rec = g_voices[slot].voice;
       if (*(int *)(voice_rec + VOICE_CHILD) != 0) {
-        rand_val = (float10)random_range(0,RATE_JITTER_MAX);
+        rand_val = (double)random_range(0,RATE_JITTER_MAX);
         voice_rec = FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_CHILD),4,1,
-                             (float)(rand_val + (float10)k_f_22050));
+                             (float)(rand_val + (double)k_f_22050));
       }
       voice_set_volume(slot,1.0);
-      rand_val = (float10)random_range(0,OFFSET_X_RANGE);
-      offset_x = (float)(rand_val - (float10)float_50_0);
-      rand_val = (float10)random_range(0,OFFSET_Z_RANGE);
+      rand_val = (double)random_range(0,OFFSET_X_RANGE);
+      offset_x = (float)(rand_val - (double)float_50_0);
+      rand_val = (double)random_range(0,OFFSET_Z_RANGE);
       voice_rec = g_voices[slot].voice;
-      offset[2] = (float)(rand_val - (float10)k_f_74);
+      offset[2] = (float)(rand_val - (double)k_f_74);
       offset[1] = 0.0;
       *(float *)(voice_rec + VOICE_POS_X) = offset_x;
       *(undefined4 *)(voice_rec + VOICE_POS_Y) = 0;

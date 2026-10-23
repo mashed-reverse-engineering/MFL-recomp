@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00407590*/ extern int fx_render_all();
 /*004b4ba7*/ extern int entry();
-/*004c5b10*/ extern void FUN_004c5b10(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c5b10*/ extern void FUN_004c5b10(void *p0, void *p1, void *p2);
 /*006512cc*/ extern undefined g_race_render_6512cc;
 /*00651aa0*/ extern undefined4 g_fx_object_count;
 /*00651aa8*/ extern undefined4 g_fx_651aa8;

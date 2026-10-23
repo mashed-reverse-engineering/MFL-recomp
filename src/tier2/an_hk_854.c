@@ -62,8 +62,8 @@ void __cdecl weapon_flame_push_cars(int flame_arg,undefined4 unused_2,undefined4
   int slot;
   int record_b;
   int tmp;
-  float10 rand_a;
-  float10 rand_b;
+  double rand_a;
+  double rand_b;
   struct {
     int focus_player_b;
     float pos_x;
@@ -79,15 +79,15 @@ void __cdecl weapon_flame_push_cars(int flame_arg,undefined4 unused_2,undefined4
   if ((*(int *)(flame_arg + FLAME_ACTIVE_OFFSET) != 0) &&
      (*(float *)(flame_arg + FLAME_TIMER_OFFSET) < k_f_0 != (*(float *)(flame_arg + FLAME_TIMER_OFFSET) == k_f_0))) {
     /* particle origin: position of the origin frame */
-    frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(flame_arg + FLAME_ORIGIN_HOLDER_OFFSET) + 4));
+    frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(flame_arg + FLAME_ORIGIN_HOLDER_OFFSET) + 4));
     vec.pos_x = (frame_ltm->pos).x;
     vec.pos_y = (frame_ltm->pos).y;
     vec.pos_z = (frame_ltm->pos).z;
     /* direction frame: at vector, scaled into the position offset (dir_* is reused as push vector below) */
-    frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(flame + FLAME_DIR_HOLDER_OFFSET) + 4));
+    frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(flame + FLAME_DIR_HOLDER_OFFSET) + 4));
     vec.dir_x = (frame_ltm->at).x;
     vec.dir_y = (frame_ltm->at).y;
-    tmp = *(int *)(*(int *)(flame + 4) + CAR_PLAYER_ID_OFFSET);
+    tmp = *(int *)(*(char **)(flame + 4) + CAR_PLAYER_ID_OFFSET);
     vec.dir_z = (frame_ltm->at).z * k_f_n0_125;
     /* ring slot: derived from owner player id, cycle and substep counters */
     slot = *(int *)(flame + FLAME_SUBSTEP_OFFSET) + (tmp + *(int *)(flame + FLAME_CYCLE_OFFSET) + tmp * 4) * 5;
@@ -105,24 +105,24 @@ void __cdecl weapon_flame_push_cars(int flame_arg,undefined4 unused_2,undefined4
     /* store the particle record at slot: flag, angle, position (rand_a/rand_b are reused as samples and scales) */
     (&g_weapon_flamethrower_6a9758)[slot * FLAME_SLOT_DWORDS] = 1;
     *(undefined4 *)(flame + FLAME_TIMER_OFFSET) = FLAME_TIMER_RESET_BITS;
-    rand_a = (float10)random_range(RANDOM_ANGLE_MIN_BITS,RANDOM_ANGLE_MAX_BITS);
+    rand_a = (double)random_range(RANDOM_ANGLE_MIN_BITS,RANDOM_ANGLE_MAX_BITS);
     *(float *)&(&g_weapon_flamethrower_6a9750)[slot * FLAME_SLOT_DWORDS] = (float)rand_a;
     *(float *)&(&g_weapon_6a9728)[slot * FLAME_SLOT_DWORDS] = vec.pos_x;
     *(float *)&(&g_weapon_flamethrower_6a972c)[slot * FLAME_SLOT_DWORDS] = vec.pos_y;
     *(float *)&(&g_weapon_flamethrower_6a9730)[slot * FLAME_SLOT_DWORDS] = vec.pos_z;
     /* particle velocity: owner car's vector times k_f_n0_02, plus jitter (pos_* hold velocity from here) */
-    car_get_velocity_any_mode(vec.car_vel_out,*(undefined4 *)(*(int *)(flame + 4) + CAR_PLAYER_ID_OFFSET));
+    car_get_velocity_any_mode(vec.car_vel_out,*(undefined4 *)(*(char **)(flame + 4) + CAR_PLAYER_ID_OFFSET));
     tmp = *(int *)(flame + 4);
     vec.pos_x = *(float *)(tmp + CAR_VEC_X_OFFSET) * k_f_n0_02;
     vec.pos_y = *(float *)(tmp + CAR_VEC_Y_OFFSET) * k_f_n0_02;
     vec.pos_z = *(float *)(tmp + CAR_VEC_Z_OFFSET) * k_f_n0_02;
-    rand_a = (float10)random_range(RANDOM_JITTER_MIN_BITS,RANDOM_JITTER_MAX_BITS);
-    vec.pos_x = (float)(rand_a * (float10)k_f_4 + (float10)vec.pos_x);
-    rand_b = (float10)random_range(RANDOM_JITTER_MIN_BITS,RANDOM_JITTER_MAX_BITS);
-    rand_a = (float10)k_f_4;
+    rand_a = (double)random_range(RANDOM_JITTER_MIN_BITS,RANDOM_JITTER_MAX_BITS);
+    vec.pos_x = (float)(rand_a * (double)k_f_4 + (double)vec.pos_x);
+    rand_b = (double)random_range(RANDOM_JITTER_MIN_BITS,RANDOM_JITTER_MAX_BITS);
+    rand_a = (double)k_f_4;
     *(float *)&(&g_weapon_flamethrower_6a9734)[slot * FLAME_SLOT_DWORDS] = vec.pos_x;
     *(float *)&(&g_weapon_flamethrower_6a9738)[slot * FLAME_SLOT_DWORDS] = vec.pos_y;
-    vec.pos_z = (float)(rand_b * rand_a + (float10)vec.pos_z);
+    vec.pos_z = (float)(rand_b * rand_a + (double)vec.pos_z);
     *(float *)&(&g_weapon_flamethrower_6a973c)[slot * FLAME_SLOT_DWORDS] = vec.pos_z;
     /* flame_arg slot reused as out-param: focus player A; vec.focus_player_b is focus player B */
     flame_arg = 0;
@@ -139,10 +139,10 @@ void __cdecl weapon_flame_push_cars(int flame_arg,undefined4 unused_2,undefined4
     /* push the owner car unless it belongs to the chosen player; push = owner vector * substep * k_f_0_2 * k_f_110 */
     slot = *(int *)(flame + 4);
     if (*(int *)(slot + CAR_PLAYER_ID_OFFSET) != tmp) {
-      rand_b = (float10)*(int *)(flame + FLAME_SUBSTEP_OFFSET) * (float10)k_f_0_2 * (float10)k_f_110;
-      vec.dir_x = (float)(rand_b * (float10)*(float *)(slot + CAR_VEC_X_OFFSET));
-      vec.dir_y = (float)((float10)*(float *)(slot + CAR_VEC_Y_OFFSET) * rand_b);
-      vec.dir_z = (float)((float10)*(float *)(slot + CAR_VEC_Z_OFFSET) * rand_b);
+      rand_b = (double)*(int *)(flame + FLAME_SUBSTEP_OFFSET) * (double)k_f_0_2 * (double)k_f_110;
+      vec.dir_x = (float)(rand_b * (double)*(float *)(slot + CAR_VEC_X_OFFSET));
+      vec.dir_y = (float)((double)*(float *)(slot + CAR_VEC_Y_OFFSET) * rand_b);
+      vec.dir_z = (float)((double)*(float *)(slot + CAR_VEC_Z_OFFSET) * rand_b);
       car_add_velocity(&vec.dir_x,*(int *)(slot + CAR_PLAYER_ID_OFFSET));
     }
   }

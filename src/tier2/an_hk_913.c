@@ -8,7 +8,7 @@
 /*005de98c*/ extern undefined2 g_ui_keyboard_5de98c;
 /*005de990*/ extern char g_ui_keyboard_5de990[8];
 /*005de998*/ extern char s_keyboard_005de998[16];
-/*0064d888*/ extern undefined4 g_app_64d888;
+/*0064d888*/ extern char *g_app_64d888;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
 /* ui_keyboard_icon_find */

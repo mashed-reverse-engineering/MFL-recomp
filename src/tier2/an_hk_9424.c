@@ -33,6 +33,7 @@ typedef struct StreamInfo {
 /* voice_queue_play_pending */
 /* "starts the pending voice of the queue when the streams are idle (voice_set_two_params), then
    releases its slot" */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 void voice_queue_play_pending(void)
 {
   SoundStreamSlot *slot;

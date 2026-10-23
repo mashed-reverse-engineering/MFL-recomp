@@ -34,7 +34,7 @@ void __cdecl course_effect_spawn_at(int obj,undefined4 param_2,undefined4 param_
   int iVar1;
   /* current direction vector; dir_vec[3] is the object position */
   RwV3d *dir_vec;
-  float10 rnd;
+  double rnd;
   struct {
     undefined1 col[4];
     int cnt;
@@ -54,10 +54,10 @@ void __cdecl course_effect_spawn_at(int obj,undefined4 param_2,undefined4 param_
   /* One pass per direction: pick a random unit direction, then emit the particles for it */
   do {
     *(undefined4 *)(obj + 4) = 0x40000000;
-    rnd = (float10)random_range(DIR_COMPONENT_MIN,DIR_COMPONENT_MAX);
+    rnd = (double)random_range(DIR_COMPONENT_MIN,DIR_COMPONENT_MAX);
     dir_vec->x = (float)rnd;
     dir_vec->y = 1.0;
-    rnd = (float10)random_range(DIR_COMPONENT_MIN,DIR_COMPONENT_MAX);
+    rnd = (double)random_range(DIR_COMPONENT_MIN,DIR_COMPONENT_MAX);
     dir_vec->z = (float)rnd;
     RwV3dNormalize(dir_vec,dir_vec);
     iVar1 = SPAWN_PARTICLES_PER_DIR;
@@ -76,12 +76,12 @@ void __cdecl course_effect_spawn_at(int obj,undefined4 param_2,undefined4 param_
       frame.col[1] = 0x58;
       frame.col[2] = 0xf;
       frame.col[3] = 0xff;
-      rnd = (float10)random_range(SPAWN_POS_JITTER_MIN,SPAWN_POS_JITTER_MAX);
-      frame.pos.x = (float)(rnd + (float10)frame.pos.x);
-      rnd = (float10)random_range(SPAWN_POS_JITTER_MIN,SPAWN_POS_JITTER_MAX);
-      frame.pos.y = (RwReal)(rnd + (float10)frame.pos.y);
-      rnd = (float10)random_range(SPAWN_POS_JITTER_MIN,SPAWN_POS_JITTER_MAX);
-      frame.pos.z = (RwReal)(rnd + (float10)frame.pos.z);
+      rnd = (double)random_range(SPAWN_POS_JITTER_MIN,SPAWN_POS_JITTER_MAX);
+      frame.pos.x = (float)(rnd + (double)frame.pos.x);
+      rnd = (double)random_range(SPAWN_POS_JITTER_MIN,SPAWN_POS_JITTER_MAX);
+      frame.pos.y = (RwReal)(rnd + (double)frame.pos.y);
+      rnd = (double)random_range(SPAWN_POS_JITTER_MIN,SPAWN_POS_JITTER_MAX);
+      frame.pos.z = (RwReal)(rnd + (double)frame.pos.z);
       frame.v24.x = frame.pos.x - dir_vec[3].x;
       frame.v24.y = frame.pos.y - dir_vec[3].y;
       frame.v24.z = frame.pos.z - dir_vec[3].z;
@@ -89,7 +89,7 @@ void __cdecl course_effect_spawn_at(int obj,undefined4 param_2,undefined4 param_
       frame.dir[0] = frame.v24.x * k_f_0_05;
       frame.dir[1] = frame.v24.y * k_f_0_05;
       frame.dir[2] = frame.v24.z * k_f_0_05;
-      rnd = (float10)random_range(BURST_UP_SPEED_MIN,BURST_UP_SPEED_MAX);
+      rnd = (double)random_range(BURST_UP_SPEED_MIN,BURST_UP_SPEED_MAX);
       frame.dir[1] = (float)rnd;
       random_range(0x3f000000,0x3f800000);
       fx_spawn_burst(&frame.pos.x,1,&frame.dir[0],(undefined4 *)&frame.col[0],&frame.accel[0],0.2);

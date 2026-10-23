@@ -66,7 +66,7 @@ void ai_debug_draw_lines(void)
   int iVar4;
   int iVar5;
   int grid_origin_x;
-  float10 fVar6;
+  double fVar6;
   char local_110[12];
   char aRStack_104[256];
   
@@ -161,8 +161,8 @@ void ai_debug_draw_lines(void)
     RtCharsetPrintBuffered(g_ai_7eeb64,aRStack_104,400,0xe6,0);
     rwsprintf(aRStack_104,"%d",g_ai_debug_7f026c);
     RtCharsetPrintBuffered(g_ai_7eeb64,aRStack_104,400,0xfa,0);
-    fVar6 = (float10)player_rank_key(0);
-    if (((float10)k_f_0_5 < fVar6) && (fVar6 < (float10)*(float *)&s_333_Lap_frames_005df368)) {
+    fVar6 = (double)player_rank_key(0);
+    if (((double)k_f_0_5 < fVar6) && (fVar6 < (double)*(float *)&s_333_Lap_frames_005df368)) {
       if (g_ai_debug_7f0270 == 0) {
         g_ai_debug_7f0274 = g_ai_editor_step_counter;
       }

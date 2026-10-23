@@ -5,7 +5,7 @@
 /* course_forest_cb1 */
 
 /* the original ends in a tail jump to SUB_00484960 (clump, SUB_00484b20 result): Ghidra inlined the target */
-int course_forest_cb1(int param_1,undefined4 param_2)
+int course_forest_cb1(char *param_1,undefined4 param_2)
 
 {
   undefined4 res;

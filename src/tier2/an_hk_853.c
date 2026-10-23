@@ -3,13 +3,13 @@
 /*00492d10*/ extern int rwp_object_set_active();
 /*00499dc0*/ extern int __cdecl shadow_project_to_ground_00499dc0(int p0, RwMatrix *p1, float *p2, RwMatrix *p3, float *p4);
 /*004d0f70*/ extern struct RwFrame * RwFrameUpdateObjects(struct RwFrame *p0);
-/*0056b100*/ extern void FUN_0056b100(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
-/*0056b3b0*/ extern void FUN_0056b3b0(undefined4 p0, undefined4 p1);
-/*0056c350*/ extern void FUN_0056c350(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*0056e5b0*/ extern void FUN_0056e5b0(undefined4 p0, undefined4 p1);
-/*0058c8a0*/ extern int rwp_owner_object_get(int p0);
-/*0058cab0*/ extern int FUN_0058cab0(undefined4 p0, undefined4 p1);
+/*0056b100*/ extern void FUN_0056b100(undefined4 p0, void *p1, undefined4 p2);
+/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
+/*0056b3b0*/ extern void FUN_0056b3b0(undefined4 p0, void *p1);
+/*0056c350*/ extern void FUN_0056c350(undefined4 p0, void *p1, undefined4 p2, void *p3);
+/*0056e5b0*/ extern void FUN_0056e5b0(void *p0, undefined4 p1);
+/*0058c8a0*/ extern char *rwp_owner_object_get(int p0);
+/*0058cab0*/ extern int FUN_0058cab0(void *p0, void *p1);
 /*006f6950*/ extern undefined4 g_rw_6f6950;
 /*006f6c70*/ extern undefined4 g_rw_6f6c70;
 /*006f6f90*/ extern undefined g_rw_6f6f90;
@@ -47,7 +47,7 @@ void rwp_objects_reset_all(void)
 
 {
   undefined4 *object_matrix;
-  int object;
+  char *object;
   undefined4 slot;
   int world;
   int obj_index;
@@ -116,12 +116,12 @@ void rwp_objects_reset_all(void)
       world = *(int *)(object + 0x24);
       /* object's bit set in the world bitset (+0x60, bit id at object +0x20): detach it (FUN_0056b3b0, inferred) */
       if ((world != 0) &&
-         ((*(uint *)(*(int *)(world + 0x60) + (uint)(*(ushort *)(object + 0x20) >> BITSET_WORD_SHIFT) * 4) &
+         ((*(uint *)(*(char **)(world + 0x60) + (uint)(*(ushort *)(object + 0x20) >> BITSET_WORD_SHIFT) * 4) &
           1 << ((byte)*(ushort *)(object + 0x20) & BITSET_BIT_MASK)) != 0)) {
         FUN_0056b3b0(world,object);
       }
-      object_matrix = *(undefined4 **)(*(int *)(object + 0x10) + 8);
-      saved_matrix_src = (undefined4 *)((int)&g_rw_6fea90 + frame.matrix_offset);
+      object_matrix = *(undefined4 **)(*(char **)(object + 0x10) + 8);
+      saved_matrix_src = (undefined4 *)((char *)&g_rw_6fea90 + frame.matrix_offset);
       matrix_dst = object_matrix;
       /* copy the saved matrix (MATRIX_WORD_COUNT words) over the object's matrix */
       for (world = MATRIX_WORD_COUNT; world != 0; world = world + -1) {
@@ -134,11 +134,11 @@ void rwp_objects_reset_all(void)
       FUN_0056e5b0(object,0);
       /* owner has a world: re-link the object in it (FUN_0056b100 / rwp_world_set_bit_5c, inferred) */
       if (*(int *)(object + 0x24) != 0) {
-        slot = FUN_0058cab0(object,(undefined4)frame.scratch);
+        slot = FUN_0058cab0(object,frame.scratch);
         FUN_0056b100(*(undefined4 *)(object + 0x24),object,slot);
         rwp_world_set_bit_5c(*(undefined4 *)(object + 0x24),object,0);
       }
-      FUN_0056c350(**(undefined4 **)(object + 0x10),(undefined4)&frame.right_x,0,(undefined4)&frame.out_pos_x);
+      FUN_0056c350(**(undefined4 **)(object + 0x10),&frame.right_x,0,&frame.out_pos_x);
       frame.shadow_points[3] = frame.aux_x;
       frame.shadow_points[4] = frame.aux_y;
       frame.shadow_points[5] = frame.aux_z;
@@ -148,7 +148,7 @@ void rwp_objects_reset_all(void)
       /* ground shadow: points from FUN_0056c350 output, projected only when a caster (g_rw_801b14) is set */
       if (g_rw_801b14 != 0) {
         shadow_project_to_ground_00499dc0
-                  (g_rw_801b14,(RwMatrix *)((int)&g_rw_6fea90 + frame.matrix_offset),frame.shadow_points,
+                  (g_rw_801b14,(RwMatrix *)((char *)&g_rw_6fea90 + frame.matrix_offset),frame.shadow_points,
                    (RwMatrix *)((char *)&g_rw_6f6f90 + frame.matrix_offset),frame.shadow_result);
       }
     }

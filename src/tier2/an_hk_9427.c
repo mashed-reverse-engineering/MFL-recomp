@@ -17,6 +17,7 @@ typedef struct PoolList {
 } PoolList;
 /* pool_list_unlink */
 /* "unlinks the node with key param_2 from the pool's list" */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 int __cdecl pool_list_unlink(PoolList *list, int key)
 {
   PoolNode *node;

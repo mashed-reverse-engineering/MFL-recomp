@@ -14,7 +14,7 @@
 /*0062a94c*/ extern float g_race_update_62a94c;
 /*0075969c*/ extern undefined4 g_fx_ptank_atomic_b;
 /*007596a0*/ extern undefined4 g_particles_7596a0;
-/*007da6bc*/ extern undefined4 g_ptank_plugin_offset;
+/*007da6bc*/ extern char *g_ptank_plugin_offset;
 /*008869cc*/ extern undefined4 g_particles_8869cc[0x1000];
 /*008885a0*/ extern undefined4 g_particles_8885a0;
 /* fx_ptank_b_lock_and_fill */
@@ -23,7 +23,7 @@
 /* "locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices
    per entry)" */
 
-void __cdecl fx_ptank_b_lock_and_fill(int param_1,undefined4 param_2)
+void __cdecl fx_ptank_b_lock_and_fill(char *param_1,undefined4 param_2)
 
 {
   int iVar1;
@@ -35,11 +35,11 @@ void __cdecl fx_ptank_b_lock_and_fill(int param_1,undefined4 param_2)
     undefined1 *local_44;
     int local_40;
     undefined4 *local_3c;
-    int local_38;
+    char *local_38;
     float *local_34;
-    int local_30;
+    char *local_30;
     float *local_2c;
-    int local_28;
+    char *local_28;
     RwV3d local_24;
     float local_18;
     float local_14;
@@ -125,11 +125,11 @@ void __cdecl fx_ptank_b_lock_and_fill(int param_1,undefined4 param_2)
         }
       }
       piVar3 = piVar3 + 0xe;
-    } while ((int)piVar3 < (int)&g_particles_8885a0 + 0x2c);
+    } while ((char *)piVar3 < (char *)&g_particles_8885a0 + 0x2c);
     RpPTankAtomicUnlock_00545f20(g_fx_ptank_atomic_b);
-    *(uint *)(*(int *)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 0x40) =
-         *(uint *)(*(int *)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 0x40) | 0x800000;
-    *(int *)(*(int *)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 4) = g_particles_8885a0;
+    *(uint *)(*(char **)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 0x40) =
+         *(uint *)(*(char **)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 0x40) | 0x800000;
+    *(int *)(*(char **)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 4) = g_particles_8885a0;
   }
   return;
 }

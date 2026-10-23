@@ -2,7 +2,7 @@
 typedef int CourseId;
 /*00419fa0*/ extern double ai_get_float_8c9980();
 /*0042b110*/ extern int current_course_id();
-/*0042b200*/ extern int course_get_68b8b4_ptr();
+/*0042b200*/ extern char *course_get_68b8b4_ptr();
 /*00464aa0*/ extern int powerups_clear();
 /*005dd328*/ extern float k_f_0_6;
 /*005dd32c*/ extern float k_f_3;
@@ -59,18 +59,18 @@ void course_powerups_setup(void)
   float powerup_scale;
   int slot_count;
   float slot_value;
-  int course_table;
+  char *course_table;
   CourseId course_id;
   int slot;
-  float10 ai_skill;
+  double ai_skill;
 
   slot = 0;
   course_table = course_get_68b8b4_ptr();
   course_id = current_course_id();
-  ai_skill = (float10)ai_get_float_8c9980();
+  ai_skill = (double)ai_get_float_8c9980();
   g_course_powerups_5fb0b4 = 0;
   g_course_5fb0b8 = -1;
-  powerup_scale = (float)((float10)float_1_0 - ai_skill * (float10)k_f_0_1);
+  powerup_scale = (float)((double)float_1_0 - ai_skill * (double)k_f_0_1);
   powerups_clear();
   /* per-course layout: sets the course value and slot_value (inferred) */
   switch(course_id) {

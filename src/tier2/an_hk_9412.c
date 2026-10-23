@@ -37,7 +37,7 @@ void load_team_endpoint_panel(void)
     *(int *)(reg_ebx + 0x158) = iVar1;
     reg_ebx = reg_ebx + 0x160;
     iVar1 = iVar1 + 1;
-  } while ((int)reg_ebx < ((int)&g_endpoint_659a78));
+  } while ((char *)reg_ebx < ((char *)&g_endpoint_659a78));
   return;
 }
 

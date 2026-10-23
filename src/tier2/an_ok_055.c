@@ -249,7 +249,7 @@ extern void gfx_set_gfx_6c50c8(undefined4 param_1);
    ptank_atomic: the atomic whose plugin data is written. size: the two floats to copy.
    Returns nothing. */
 
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void ptank_set_size(char *ptank_atomic,undefined4 *size)
 {
   uint *flags;
@@ -262,7 +262,7 @@ void ptank_set_size(char *ptank_atomic,undefined4 *size)
   ptank_plugin = *(char **)(*(char **)(ptank_atomic + 4) + g_ptank_plugin_offset);
   *(undefined4 *)(ptank_plugin + PTANK_SIZE_X_OFFSET) = *size;
   *(undefined4 *)(ptank_plugin + PTANK_SIZE_Y_OFFSET) = size[1];
-  flags = (uint *)(*(char **)(*(int *)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_FLAGS_OFFSET);
+  flags = (uint *)(*(char **)(*(char **)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_FLAGS_OFFSET);
   *flags = *flags | PTANK_FLAG_SIZE;
   return;
 }
@@ -290,7 +290,7 @@ extern void __cdecl particle_system_set_tint(char *param_1,undefined4 *param_2);
 /* Copies a matrix table (MATRIX_TABLE_DWORDS dwords) into the PTank plugin data of an atomic and sets
    PTANK_PLUGIN_FLAG_MATRIX_TABLE in its flags. ptank_atomic: the atomic whose plugin data is written. matrix_table: the
    source dwords; NULL uses the default table g_gfx_6c5148 (inferred). Returns nothing. */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-22 authority=diffemu */
 void __cdecl particle_system_set_matrix_table(char *ptank_atomic,undefined4 *matrix_table)
 {
   char *dwords_left;
@@ -300,7 +300,7 @@ void __cdecl particle_system_set_matrix_table(char *ptank_atomic,undefined4 *mat
   if (matrix_table == (undefined4 *)0x0) {
     matrix_table = &g_gfx_6c5148;
   }
-  matrix_dest = (undefined4 *)(*(char **)(*(int *)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_MATRIX_TABLE_OFFSET);
+  matrix_dest = (undefined4 *)(*(char **)(*(char **)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_MATRIX_TABLE_OFFSET);
   /* copy the table one dword at a time into the plugin data; dwords_left counts down from MATRIX_TABLE_DWORDS */
   for (dwords_left = MATRIX_TABLE_DWORDS; dwords_left != 0; dwords_left = dwords_left + -1) {
     *matrix_dest = *matrix_table;
@@ -331,7 +331,7 @@ extern void particle_system_set_value_c0(char *param_1,char *param_2);
 /* Sets the colour of the PTank particles of an atomic: copies the 4 rgba dwords into the atomic's ptank plugin data at
    PTANK_COLOUR_OFFSET and sets PTANK_FLAG_RGBA_COLOUR (inferred) in its flags. ptank_atomic: the atomic whose
    plugin data is written. rgba: the 4 colour dwords; NULL uses the default colour g_gfx_62946c (white). Returns nothing. */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void ptank_set_colour(char *ptank_atomic,undefined4 *rgba)
 {
   uint *flags;
@@ -346,7 +346,7 @@ void ptank_set_colour(char *ptank_atomic,undefined4 *rgba)
   *(undefined4 *)(ptank_plugin + PTANK_COLOUR_OFFSET + 4) = rgba[1];
   *(undefined4 *)(ptank_plugin + PTANK_COLOUR_OFFSET + 8) = rgba[2];
   *(undefined4 *)(ptank_plugin + PTANK_COLOUR_OFFSET + 0xc) = rgba[3];
-  flags = (uint *)(*(char **)(*(int *)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_FLAGS_OFFSET);
+  flags = (uint *)(*(char **)(*(char **)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_FLAGS_OFFSET);
   *flags = *flags | PTANK_FLAG_RGBA_COLOUR;
   return;
 }
@@ -360,7 +360,7 @@ void ptank_set_colour(char *ptank_atomic,undefined4 *rgba)
 /* Copies the colour table (COLOUR_TABLE_DWORDS dwords) into the PTank plugin data of an atomic and sets
    PTANK_PLUGIN_FLAG_COLOUR_TABLE in its flags. ptank_atomic: the atomic whose plugin data is written. colour_table: the
    source dwords; NULL uses the default table g_gfx_62947c (inferred). Returns nothing. */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-22 authority=diffemu */
 void __cdecl particle_system_set_colour_table(char *ptank_atomic,undefined4 *colour_table)
 {
   char *dwords_left;
@@ -370,7 +370,7 @@ void __cdecl particle_system_set_colour_table(char *ptank_atomic,undefined4 *col
   if (colour_table == (undefined4 *)0x0) {
     colour_table = &g_gfx_62947c;
   }
-  colour_dest = (undefined4 *)(*(char **)(*(int *)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_COLOUR_OFFSET);
+  colour_dest = (undefined4 *)(*(char **)(*(char **)(ptank_atomic + 4) + g_ptank_plugin_offset) + PTANK_COLOUR_OFFSET);
   /* copy the table one dword at a time into the plugin data; dwords_left counts down from COLOUR_TABLE_DWORDS */
   for (dwords_left = COLOUR_TABLE_DWORDS; dwords_left != 0; dwords_left = dwords_left + -1) {
     *colour_dest = *colour_table;

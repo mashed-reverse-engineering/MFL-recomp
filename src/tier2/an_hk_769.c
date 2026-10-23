@@ -1,12 +1,12 @@
 #include "mfl_tier2.h"
 /*00463450*/ extern int weapon_oil_pick_slot_forward();
-/*00467ea0*/ extern int weapon_get_rw_801b14();
+/*00467ea0*/ extern char *weapon_get_rw_801b14();
 /*00467fd0*/ extern int __cdecl course_surface_id_is_active_check(undefined4 p0);
 /*00472890*/ extern int sfx_play_voice_at();
 /*00481fd0*/ extern double random_range();
-/*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c51a0*/ extern void FUN_004c51a0(void *p0, undefined4 p1, void *p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005dd330*/ extern float float_1_0;
@@ -49,8 +49,8 @@ void weapon_oil_fire(WeaponSlot *slot)
   float delta_z;
   float delta_y;
   int scratch_int; /* reused: player byte offset, then world_intersect_line / surface check result */
-  undefined4 world;
-  float10 random_value;
+  char *world;
+  double random_value;
   float *ray_start;
   float *muzzle_or_ray_end; /* reused: muzzle pointer, then the ray end point */
   RwOpCombineType combine_op;
@@ -73,9 +73,9 @@ void weapon_oil_fire(WeaponSlot *slot)
     float fStack_78;
     int iStack_74;
     undefined1 auStack_70 [36];
-    int iStack_4c;
+    char *iStack_4c;
     undefined4 uStack_48;
-    int iStack_44;
+    char *iStack_44;
   } hit; /* world_intersect_line output: hit normal (fStack_80..78, inferred) and surface data */
   RwMatrix fire_matrix;
 
@@ -106,25 +106,25 @@ void weapon_oil_fire(WeaponSlot *slot)
       ray.uStack_a8 = hit.uStack_48;
       scratch_int = course_surface_id_is_active_check
                         (*(undefined4 *)
-                          (*(int *)(hit.iStack_44 + 0x10) +
+                          (*(char **)(hit.iStack_44 + 0x10) +
                           ((uint)*(ushort *)(*(char **)(hit.iStack_4c + 4) + 6 + hit.iStack_74 * 8) +
                           (uint)*(ushort *)(hit.iStack_4c + 0x80)) * 4));
       if (scratch_int != 0) {
         return;
       }
       /* Spawn: lift the hit point along the normal, random yaw and jitter, then fire */
-      FUN_004c4720((undefined4)&ray.fStack_b4,(undefined4)&ray.fStack_a4,(undefined4)&ray.fStack_98,(undefined4)ray.uStack_a8);
+      FUN_004c4720(&ray.fStack_b4,&ray.fStack_a4,&ray.fStack_98,(undefined4)ray.uStack_a8);
       ray.fStack_b4 = hit.fStack_80 * k_f_0_04 + ray.fStack_b4;
       ray.fStack_b0 = hit.fStack_7c * k_f_0_04 + ray.fStack_b0;
       ray.fStack_ac = hit.fStack_78 * k_f_0_04 + ray.fStack_ac;
-      FUN_004c51a0((undefined4)&fire_matrix,(undefined4)hit.auStack_70,(undefined4)&ray.fStack_b4);
+      FUN_004c51a0(&fire_matrix,(undefined4)hit.auStack_70,&ray.fStack_b4);
       combine_op = rwCOMBINEPRECONCAT;
-      random_value = (float10)random_range(0,RANDOM_ANGLE_MAX_BITS);
+      random_value = (double)random_range(0,RANDOM_ANGLE_MAX_BITS);
       RwMatrixRotate(&fire_matrix,(RwV3d *)&g_weapon_62ac80,(float)random_value,combine_op);
-      random_value = (float10)random_range(JITTER_MIN_BITS,JITTER_MAX_BITS);
+      random_value = (double)random_range(JITTER_MIN_BITS,JITTER_MAX_BITS);
       jitter.x = (RwReal)random_value;
       jitter.y = 0.0;
-      random_value = (float10)random_range(JITTER_MIN_BITS,JITTER_MAX_BITS);
+      random_value = (double)random_range(JITTER_MIN_BITS,JITTER_MAX_BITS);
       jitter.z = (RwReal)random_value;
       RwMatrixTranslate(&fire_matrix,&jitter,rwCOMBINEPOSTCONCAT);
       weapon_oil_pick_slot_forward(&fire_matrix);

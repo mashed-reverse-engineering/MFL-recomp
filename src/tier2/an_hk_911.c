@@ -1,8 +1,8 @@
 #include "mfl_tier2.h"
 /*0040ad10*/ extern int course_editor_read_chunk();
-/*0040ae20*/ extern int gamesave_ptr_to_line_exceptions();
-/*0042b1d0*/ extern int course_get_record_base();
-/*0042b210*/ extern int course_get_record_point();
+/*0040ae20*/ extern char *gamesave_ptr_to_line_exceptions();
+/*0042b1d0*/ extern char *course_get_record_base();
+/*0042b210*/ extern char *course_get_record_point();
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005ddad0*/ extern float k_f_180;
@@ -16,7 +16,7 @@
 void __cdecl camera_pick_ground_point(int param_1,RwV3d *param_2,float *param_3)
 
 {
-  int iVar1;
+  char *iVar1;
   RwReal *pRVar2;
   float *pfVar3;
   struct {

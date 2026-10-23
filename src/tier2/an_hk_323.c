@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004978d0*/ extern int __cdecl fx_pool_alloc_particle(undefined4 p0);
+/*004978d0*/ extern char *__cdecl fx_pool_alloc_particle(undefined4 p0);
 /*005ddc28*/ extern float k_f_0;
 /*005e07f0*/ extern float k_f_0_80999994;
 /*00745ce8*/ extern char *g_particles_745ce8;

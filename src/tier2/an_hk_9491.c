@@ -34,7 +34,7 @@ undefined4 * physics_buffer_create(float param_1,int param_2,undefined4 param_3)
   puVar1[1] = uVar2;
   puVar1[2] = param_3;
   ft1 = (int)(param_1 * 60.0f);
-  iVar4 = (int)((float10)ft1 / param_2 + k_f_2);
+  iVar4 = (int)((double)ft1 / param_2 + k_f_2);
   bytes = iVar4 * 0x24;
   puVar1[0x5b] = iVar4 + -2;
   pvVar3 = RwMalloc(bytes,0);

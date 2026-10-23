@@ -14,7 +14,7 @@
 /*004a9360*/ extern int window_show();
 /*004a9810*/ extern int window_destroy();
 /*004a9c90*/ extern int window_create(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*0076e7e4*/ extern undefined4 g_app_76e7e4;
+/*0076e7e4*/ extern char *g_app_76e7e4;
 /* app_initialise_on_bootup */
 
 /* "'Calling AppInitialiseOnBootup' ... boot sequence" */
@@ -44,7 +44,7 @@ undefined4 __stdcall app_initialise_on_bootup(undefined4 param_1, undefined4 par
         app_shutdown_resources();
         if (g_app_76e7e4 != 0) {
           RwTexDictionaryDestroy_004d5ac0((struct RwTexDictionary *)g_app_76e7e4);
-          g_app_76e7e4 = (undefined4)(RwTexDictionary *)0x0;
+          g_app_76e7e4 = (char *)(RwTexDictionary *)0x0;
         }
         log_print("Calling SoftwareTidyUpBeforeExiting\n");
         rw_engine_shutdown();

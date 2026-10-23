@@ -81,7 +81,7 @@ void hud_render_by_event_and_mode(void)
     case 0xd:
       iVar1 = is_team_mode();
       if (iVar1 == 0) goto LAB_0040fa58;
-      bVar2 = game_mode == 2;
+      bVar2 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
       break;
     case 0x11:
       iVar1 = training_lesson_get();
@@ -140,7 +140,7 @@ LAB_0040fa58:
   case 0xd:
     iVar1 = is_team_mode();
     if (iVar1 != 0) {
-      bVar2 = game_mode == 2;
+      bVar2 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
       goto LAB_0040fb20;
     }
     goto LAB_0040fb29;
@@ -170,7 +170,7 @@ switchD_0040fab4_caseD_4:
     viewport_set_view_window_080();
   }
   iVar1 = get_event_type();
-  if (iVar1 == 0x12) {
+  if (iVar1 == EVENT_QUICK_RACE) {
     return;
   }
   stopclock_render_timed_parts_forward();

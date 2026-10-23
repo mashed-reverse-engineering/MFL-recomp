@@ -7,7 +7,7 @@ G = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 C2 = os.path.join(G, "output", "tier2_candidates2"); NEAR = os.path.join(G, "src", "automatch_near"); NAMES = os.path.join(G, "src", "automatch_near_names.txt")
 a, b = int(sys.argv[1]), int(sys.argv[2]); dry = "--dry" in sys.argv
 sym = {}
-for l in open(os.path.join(G, "src", "symbols.txt")):
+for l in list(open(os.path.join(G, "src", "symbols.txt"))) + list(open(os.path.join(G, "src", "aliases.txt"))):      # aliases.txt: names of functions Ghidra created later (names/MFL_gap_names.csv)
     p = l.split()
     if len(p) == 2: sym.setdefault(p[0], p[1])
 have = open(NAMES).read().split("\n"); haveset = {l.split()[1] for l in have if len(l.split()) >= 2}

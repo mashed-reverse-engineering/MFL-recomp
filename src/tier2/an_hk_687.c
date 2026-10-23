@@ -23,7 +23,7 @@
  * Calls ktc_new_copter(name, args, num_args) and pushes its int result as the single Lua return value.
  * Returns 1 (number of Lua results).
  */
-undefined4 lua_KTC_NewCopter(undefined4 lua_state)
+undefined4 lua_KTC_NewCopter(char *lua_state)
 
 {
   float arg_value;

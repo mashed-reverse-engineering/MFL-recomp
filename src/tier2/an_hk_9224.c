@@ -45,7 +45,7 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
   undefined4 uVar4;
   PlayerInput *pPVar5;
   int iVar6;
-  float10 fVar7;
+  double fVar7;
   struct {
     float fStack_14;
     float fStack_10;
@@ -81,8 +81,8 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
         if ((k_f_n1 <= angle) && (fVar2 = angle, float_1_0 < angle)) {
           fVar2 = float_1_0;
         }
-        fVar7 = (float10)FUN_004b3284((double)fVar2);
-        angle = (float)(-(fVar7 * (float10)(57.295799255371094) - k_f_0) + (float10)k_f_90);
+        fVar7 = (double)FUN_004b3284((double)fVar2);
+        angle = (float)(-(fVar7 * (double)(57.295799255371094) - k_f_0) + (double)k_f_90);
         frame.local_c.x = g_fx_62ac70 * player_car[(int)param_1].forward[1] -
                     g_fx_62ac6c * player_car[(int)param_1].forward[2];
         frame.local_c.y = g_car_62ac68 * player_car[(int)param_1].forward[2] - g_fx_62ac70 * *pfVar1;

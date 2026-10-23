@@ -146,10 +146,10 @@ extern void course_forest_cb2(char *param_1);
 extern undefined4 course_c26_stub_return_0(void);
 
 
-extern float10 course_object_get_float_16c(char *param_1);
+extern double course_object_get_float_16c(char *param_1);
 
 
-extern float10 course_c26_checkpoint_scale_value(char *param_1);
+extern double course_c26_checkpoint_scale_value(char *param_1);
 
 
 extern void course_object_offsets_init(void);

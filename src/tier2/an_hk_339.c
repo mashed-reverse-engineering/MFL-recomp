@@ -6,10 +6,10 @@ extern __declspec(dllimport) int __stdcall ShowCursor(int);
 /*004a87d0*/ extern int video_dialog_free();
 /*004a8860*/ extern int app_get_app_7712f4();
 /*004a9070*/ extern int __cdecl video_config_dialog(int p0);
-/*004dbca0*/ extern int FUN_004dbca0(void);
+/*004dbca0*/ extern char *FUN_004dbca0(void);
 /*0062ad34*/ extern undefined4 g_app_62ad34;
 /*0076e86c*/ extern undefined4 g_app_76e86c;
-/*0076ece8*/ extern undefined4 g_video_select_76ece8;
+/*0076ece8*/ extern char *g_video_select_76ece8;
 
 /* offsets into the render object returned by FUN_004dbca0 (inferred from the log labels) */
 #define VERTEX_SHADER_VERSION_OFFSET (0xc4)

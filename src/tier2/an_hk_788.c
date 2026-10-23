@@ -65,7 +65,7 @@ undefined4 game_options_reset(void)
   g_game_state.option_flags[4] = 0;
   g_game_state.mirror_mode = 0;
   g_race_time_ticks = 0;
-  game_mode = 0;
+  game_mode = GAME_MODE_STANDARD;
   option_slider_1_reset();
   option_slider_2_reset();
   option_slider_0_reset();
@@ -76,7 +76,7 @@ undefined4 game_options_reset(void)
   do {
     *player_input = 1;
     player_input = player_input + PLAYER_INPUT_WORDS;
-  } while ((int)player_input < ((int)&g_player_inputs_8__field27_0x24));
+  } while ((char *)player_input < ((char *)&g_player_inputs_8__field27_0x24));
   /* rebuild the tables row by row: 15 rows, each with 5 records and 18 progress columns */
   row_offset = 0;
   row_records = g_game_state.records;
@@ -89,7 +89,7 @@ undefined4 game_options_reset(void)
     column = 0;
     do {
       /* every entry starts selectable (enabled = 1) */
-      *(undefined1 *)(row_offset + ((int)&g_enabled_flags) + column) = 1;
+      *(undefined1 *)(row_offset + ((char *)&g_enabled_flags) + column) = 1;
       /* progress for this entry: the cases that test row_records compare the row's
          records against the thresholds g_game_state_records_5_ / _20_ (inferred) */
       switch(column) {
@@ -103,7 +103,7 @@ undefined4 game_options_reset(void)
         break;
       case 3:
         g_game_state.progress[row_offset + 3] = 0;
-        if ((int)row_records < ((int)&g_game_state_records_5_)) {
+        if ((char *)row_records < ((char *)&g_game_state_records_5_)) {
           g_game_state.progress[row_offset + 3] = 1;
         }
         break;
@@ -114,7 +114,7 @@ undefined4 game_options_reset(void)
         g_game_state.progress[row_offset + 5] = 0;
         break;
       case 6:
-        if ((int)row_records < ((int)&g_game_state_records_20_)) {
+        if ((char *)row_records < ((char *)&g_game_state_records_20_)) {
           g_game_state.progress[row_offset + 6] = PROGRESS_DONE;
         }
         break;
@@ -131,11 +131,11 @@ undefined4 game_options_reset(void)
         g_game_state.progress[row_offset + 10] = 0;
         break;
       case 0xb:
-        g_game_state.progress[row_offset + 0xb] = (uint)((int)row_records < ((int)&g_game_state_records_5_));
+        g_game_state.progress[row_offset + 0xb] = (uint)((char *)row_records < ((char *)&g_game_state_records_5_));
         break;
       case 0x11:
         g_game_state.progress[row_offset + 0x11] = 0;
-        if ((int)row_records < ((int)&g_game_state_records_5_)) {
+        if ((char *)row_records < ((char *)&g_game_state_records_5_)) {
           g_game_state.progress[row_offset + 0x11] = 1;
         }
       }
@@ -143,7 +143,7 @@ undefined4 game_options_reset(void)
     } while (column < PROGRESS_COLUMNS);
     row_records = row_records + 5;
     row_offset = row_offset + PROGRESS_COLUMNS;
-  } while ((int)row_records < ((int)&g_game_state_field2_0x564));
+  } while ((char *)row_records < ((char *)&g_game_state_field2_0x564));
   best_times_init_defaults();
   g_camera_fov_factor = CAMERA_FOV_FACTOR_DEFAULT;
   g_camera_7ef7d8 = 0;

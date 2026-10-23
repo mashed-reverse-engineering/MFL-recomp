@@ -2,7 +2,7 @@
 /*00409eb0*/ extern double player_rank_key();
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0042b0c0*/ extern int course_get_ai_polygon_count();
-/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, void *p1, undefined4 p2, void *p3, undefined4 p4);
 /*0047a830*/ extern int car_is_active();
 /*0047ac30*/ extern int car_get_mode();
 /*0047b520*/ extern int car_current_matrix();
@@ -60,10 +60,10 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
   int status;
   int target_car;
   int car_index;
-  float10 scratch_d; /* rank difference (candidate minus bot), later the acos result */
+  double scratch_d; /* rank difference (candidate minus bot), later the acos result */
   struct {
     float scratch_f; /* reused: candidate rank key, then target speed, then the facing cosine */
-    int matrix; /* RwMatrix from car_current_matrix. The struct overlays later members, so read pos right after the call (layout inferred) */
+    char *matrix; /* RwMatrix from car_current_matrix. The struct overlays later members, so read pos right after the call (layout inferred) */
     float route_angle; /* angle to the route direction, degrees 0..180 (inferred) */
     float best_rank_gap; /* smallest rank gap so far, starts at RANK_GAP_SENTINEL */
     float own_speed; /* bot speed */
@@ -83,7 +83,7 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
   frame.own_z = ((RwMatrix *)frame.matrix)->pos.z;
   /* angle between the route direction at the bot's position and its heading, folded to 0..180;
      give up when more than k_f_20 degrees off */
-  ai_route_closest_point_search(route_id, (undefined4)&frame.own_x, ROUTE_SEARCH_LIMIT_BITS, (undefined4)&frame.route_angle, 0x0);
+  ai_route_closest_point_search(route_id, &frame.own_x, ROUTE_SEARCH_LIMIT_BITS, &frame.route_angle, 0x0);
   if (k_f_180 < frame.route_angle) {
     frame.route_angle = k_f_360 - frame.route_angle;
   }
@@ -95,7 +95,7 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
   frame.own_forward.y = 0.0;
   RwV3dNormalize(&frame.own_forward,&frame.own_forward);
   ai_polygon_count = course_get_ai_polygon_count();
-  scratch_d = (float10)player_rank_key(bot_index);
+  scratch_d = (double)player_rank_key(bot_index);
   frame.own_rank_key = (float)scratch_d;
   target_car = NO_TARGET_CAR;
   frame.best_rank_gap = RANK_GAP_SENTINEL;
@@ -106,12 +106,12 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
     if ((((car_index != bot_index) && (status = car_is_active(car_index), status != 0)) &&
         (status = race_setup_get_slot_type(car_index), status == 1)) &&
        (car_get_mode(car_index,&frame.car_mode,&frame.to_target), frame.car_mode == 0)) {
-      scratch_d = (float10)player_rank_key(car_index);
+      scratch_d = (double)player_rank_key(car_index);
       frame.scratch_f = (float)scratch_d;
-      scratch_d = scratch_d - (float10)frame.own_rank_key;
+      scratch_d = scratch_d - (double)frame.own_rank_key;
       if (((k_f_0 < scratch_d) ||
-          (frame.car_mode = RANK_WINDOW_BASE - ai_polygon_count, scratch_d < (float10)frame.car_mode)) &&
-         (scratch_d < (float10)frame.best_rank_gap)) {
+          (frame.car_mode = RANK_WINDOW_BASE - ai_polygon_count, scratch_d < (double)frame.car_mode)) &&
+         (scratch_d < (double)frame.best_rank_gap)) {
         frame.best_rank_gap = (float)scratch_d;
         target_car = car_index;
       }
@@ -131,14 +131,14 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
     if (((frame.own_speed - frame.scratch_f < k_f_1000) && (k_f_2500 < frame.own_speed)) &&
        ((k_f_2500 < frame.scratch_f && (frame.distance < float_7_0)))) {
       /* aim point = target position, with the offset from origin_xz scaled by base_value * 0.1
-         (inferred) unless game_mode == 8 */
+         (inferred) unless game_mode == GAME_MODE_SURVIVAL */
       car_current_matrix(&frame.matrix, target_car);
       *out_target_xz = ((RwMatrix *)frame.matrix)->pos.x;
       frame.distance = ((RwMatrix *)frame.matrix)->pos.z;
       out_target_xz[1] = frame.distance;
       offset_x = *out_target_xz - *origin_xz;
       offset_z = frame.distance - origin_xz[1];
-      if (game_mode != 8) {
+      if (game_mode != GAME_MODE_SURVIVAL) {
         offset_scale = (float)g_ai_bots[bot_index].base_value * k_f_0_1;
         offset_x = offset_scale * offset_x;
         offset_z = offset_scale * offset_z;
@@ -159,8 +159,8 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
         }
       }
       /* angle in degrees (FUN_004b3284 taken as acos, inferred; k_f_57_2958 = 180/pi) must be below k_f_30 */
-      scratch_d = (float10)FUN_004b3284((double)frame.scratch_f);
-      if (scratch_d * (float10)k_f_57_2958 < (float10)k_f_30) {
+      scratch_d = (double)FUN_004b3284((double)frame.scratch_f);
+      if (scratch_d * (double)k_f_57_2958 < (double)k_f_30) {
         return 1;
       }
     }

@@ -50,7 +50,7 @@ void load_team_panels(void)
     *(int *)(team_panel + TEAM_PANEL_TEAM_INDEX_OFFSET) = team_index;
     team_panel = team_panel + TEAM_PANEL_RECORD_SIZE;
     team_index = team_index + 1;
-  } while ((int)team_panel < ((int)&g_team_6592b0));
+  } while ((char *)team_panel < ((char *)&g_team_6592b0));
   return;
 }
 

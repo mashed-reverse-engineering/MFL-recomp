@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0058c8a0*/ extern int rwp_owner_object_get(int p0);
+/*0058c8a0*/ extern char *rwp_owner_object_get(int p0);
 /*005de204*/ extern float k_f_0_0027777778;
 /*006fd498*/ extern undefined4 g_rw_6fd498;
 /* car_add_velocity_impl */
@@ -16,12 +16,12 @@ void __cdecl car_add_velocity_impl(float *velocity_delta,int player_index)
   int *body_info;
   float scaled_y;
   float scaled_z;
-  int owner_object;
+  char *owner_object;
   float *body_velocity;
 
   owner_object = rwp_owner_object_get((&g_rw_6fd498)[player_index]);
   body_info = *(int **)(*(char **)(owner_object + 0x10) + 4);
-  body_velocity = (float *)(body_info[1] * 0x20 + *(int *)(*(char **)(*body_info + 0x10) + 8)); /* (inferred) body velocity vector inside the body's array */
+  body_velocity = (float *)(body_info[1] * 0x20 + *(char **)(*(char **)(*body_info + 0x10) + 8)); /* (inferred) body velocity vector inside the body's array */
   /* scale the y and z components by 1/360 before the adds below */
   scaled_y = velocity_delta[1] * k_f_0_0027777778;
   scaled_z = velocity_delta[2] * k_f_0_0027777778;

@@ -67,7 +67,7 @@ void gfx_draw_rect_2d_gradient_b(float x,float y,float width,float height,uint c
     *vertex_z = RwGlobalsRelease_dOpenDevice_zBufferNear(engine);
     vertex_z[1] = 1.0;
     vertex_z = vertex_z + 7;
-  } while ((int)vertex_z < ((int)&g_training_lesson));
+  } while ((char *)vertex_z < ((char *)&g_training_lesson));
   /* Second colour on the left-hand vertices 0 and 2, converted to ARGB the same way. */
   g_im2d_vertices[0].emissiveColor =
        (((uint)((*(ushort *)((char *)&colour_secondary + 2)) >> 8) << 8 | colour_secondary & 0xff) << 8 | colour_secondary >> 8 & 0xff) << 8 |

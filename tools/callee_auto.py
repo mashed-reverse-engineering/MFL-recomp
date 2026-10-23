@@ -7,6 +7,7 @@ A parameter is `float` when the caller passes a float variable / (float) cast, e
 import collections, csv, os, re
 G = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 P = lambda *a: os.path.join(G, *a)
+RELAX = bool(os.environ.get("CALLEE_RELAX"))      # CALLEE_RELAX=1: prototypes of callees with tail / ijmp / addr flags or body reads != caller pushes too (names/MFL_callee_protos_auto.txt of the RUN overlay only; diffemu checks the argument count at every call)
 OV = os.environ.get("T2_OVERLAY_DIR")      # a t2_auto run writes its prototypes / aliases below this dir (read in addition to the shared files); tools/t2_auto.py --publish merges them
 AUTO = os.path.join(OV, "MFL_callee_protos_auto.txt") if OV else P("names", "MFL_callee_protos_auto.txt")
 ALIASES = os.path.join(OV, "aliases.txt") if OV else P("src", "aliases.txt")
@@ -67,13 +68,13 @@ def build(funcs):
         if r and r["reg_inputs"].strip("|"): why[nm] = "regin"; continue
         if va not in so: why[nm] = "no orig_stackargs row"; continue
         _, slots, retn, tail, flags = so[va][:5]; slots, retn = int(slots), int(retn)
-        if tail != "-" or flags != "-": why[nm] = "orig flags tail=%s %s" % (tail, flags); continue
+        if (tail != "-" or flags != "-") and not RELAX: why[nm] = "orig flags tail=%s %s" % (tail, flags); continue
         if retn:
             if slots > retn // 4: why[nm] = "ret N < reads"; continue
             n, conv = retn // 4, "__stdcall "
         else:
-            if va not in pm or int(pm[va][1]) != slots: why[nm] = "pushes %s != body reads %d" % (pm.get(va, ["", "?"])[1], slots); continue
-            n, conv = slots, "__cdecl "
+            if va not in pm or (int(pm[va][1]) != slots and not RELAX): why[nm] = "pushes %s != body reads %d" % (pm.get(va, ["", "?"])[1], slots); continue
+            n, conv = (int(pm[va][1]) if RELAX else slots), "__cdecl "      # RELAX: the callers' minimum pushes win; a wrong count shows up as a diffemu call-trace DIFF
         rr = (r["ret_regs"] if r else "").split("|")
         if "edx" in rr and "eax" not in rr: why[nm] = "edx-only result"; continue
         cf = any(x[2] for x in ss)

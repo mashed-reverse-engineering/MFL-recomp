@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00409f50*/ extern int player_route_get_record_ptr();
+/*00409f50*/ extern char *player_route_get_record_ptr();
 /*00417ce0*/ extern int __cdecl ai_find_leader_b(undefined4 p0, undefined4 p1, undefined4 p2);
 /*00417d50*/ extern int ai_player0_distance_is_zero();
 /*0044c180*/ extern double player_distance_get();
@@ -37,15 +37,6 @@
 #define FIRE_DELAY_LONG_MS (9000)
 #define FLOAT_ONE_BITS (0x3f800000) /* 1.0f as bits, passed to random_range as the upper bound */
 
-#define WEAPON_MORTAR (7)
-#define WEAPON_MACHINEGUN (9)
-#define WEAPON_DEPTHCHARGE (10)
-#define WEAPON_MISSILE (11)
-#define WEAPON_MINE (12)
-#define WEAPON_FLAMETHROWER (16)
-#define WEAPON_SHOTGUN (17)
-#define WEAPON_FLARE (18)
-#define WEAPON_OIL (19)
 
 /* ai_bot_stuck_check */
 
@@ -74,10 +65,10 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
   int iVar4;
   float *route_record;
   int iVar6;
-  float10 fVar7;
+  double fVar7;
   struct {
-    int local_24;
-    int local_20;
+    char *local_24;
+    char *local_20;
     RwReal local_1c;
     RwV3d local_18;
     RwV3d local_c;
@@ -115,8 +106,8 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
       if (iVar4 == 0) {
         return 0;
       }
-      fVar7 = (float10)player_distance_get(iBot);
-      if (!(fVar7 > (float10)k_f_2_75)) {
+      fVar7 = (double)player_distance_get(iBot);
+      if (!(fVar7 > (double)k_f_2_75)) {
         return 0;
       }
       if (k_f_25 <= (float)param_5) {
@@ -124,7 +115,7 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
       }
       random_roll = random_range(0,FLOAT_ONE_BITS);
       iVar4 = ((int)(g_ai_skill));
-      if (!((random_roll) < (float10)float_1_0 - ((float10)float_10_0 - (float10)iVar4) * (float10)k_f_0_06666667)) {
+      if (!((random_roll) < (double)float_1_0 - ((double)float_10_0 - (double)iVar4) * (double)k_f_0_06666667)) {
 LAB_00418283:
         g_ai_bots[iBot].fire_delay = FIRE_DELAY_DEFAULT_MS;
         return 0;
@@ -144,8 +135,8 @@ LAB_00418304:
       if (((g_ai_bots[iBot].fire_delay == 0) &&
           (iVar6 = ai_player0_distance_is_zero(), iVar6 != 0)) &&
          (iVar6 = weapon_effect_get_slot_value_b(iBot), iVar6 == 0)) {
-        fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-        if (fVar7 < (float10)k_f_0_75) {
+        fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+        if (fVar7 < (double)k_f_0_75) {
           g_ai_bots[iBot].burst_active = 1;
           return 0;
         }
@@ -176,8 +167,8 @@ LAB_00418304:
       if (k_f_15 <= (float)param_5) {
         return 0;
       }
-      fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-      if (!(fVar7 < (float10)k_f_0_9)) goto LAB_00418177;
+      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+      if (!(fVar7 < (double)k_f_0_9)) goto LAB_00418177;
     }
     goto LAB_004181f2;
   case WEAPON_MISSILE:
@@ -188,8 +179,8 @@ LAB_00418304:
         (iVar4 = ai_player0_distance_is_zero(), iVar4 != 0)) &&
        ((iVar4 = weapon_effect_get_slot_value_b(iBot), iVar4 == 0 &&
         (iVar4 = rocket_slot_6a6000_get(iBot), iVar4 != 0)))) {
-      fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-      if (fVar7 < (float10)k_f_0_75) {
+      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+      if (fVar7 < (double)k_f_0_75) {
         player_input->fire = 1;
         return 0;
       }
@@ -210,8 +201,8 @@ LAB_00418177:
       if (iVar4 == 0) {
         return 0;
       }
-      fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-      if (!(fVar7 < (float10)k_f_0_75)) {
+      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+      if (!(fVar7 < (double)k_f_0_75)) {
 LAB_0041835d:
         g_ai_bots[iBot].fire_delay = FIRE_DELAY_LONG_MS;
         return 0;
@@ -230,8 +221,8 @@ LAB_004182e3:
     if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
     if (((g_ai_bots[iBot].fire_delay == 0) && (k_f_2000 < param_4)) &&
        (iVar6 = ai_find_leader_b(iBot,0x40400000,0x41200000), iVar6 != 0)) {
-      fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-      if (fVar7 < (float10)k_f_0_5) {
+      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+      if (fVar7 < (double)k_f_0_5) {
 LAB_0041834a:
         g_ai_bots[iBot].burst_active = 1;
         return 0;
@@ -259,8 +250,8 @@ LAB_004180e3:
       route_record = (float *)player_route_get_record_ptr(iBot);
       route_offset = -((route_record[2] * frame.local_c.z + frame.local_c.x * *route_record + route_record[1] * frame.local_c.y) * frame.local_1c);
       if ((k_f_n0_75 < route_offset) && (route_offset < k_f_0_75)) {
-        fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-        if (!(fVar7 < (float10)k_f_0_9)) goto LAB_00418283;
+        fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+        if (!(fVar7 < (double)k_f_0_9)) goto LAB_00418283;
         goto LAB_004180e3;
       }
     }
@@ -270,8 +261,8 @@ LAB_004180e3:
       player_input->fire = 1;
     }
     if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)param_5)) {
-      fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-      if (!(fVar7 < (float10)k_f_0_5)) goto LAB_0041835d;
+      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+      if (!(fVar7 < (double)k_f_0_5)) goto LAB_0041835d;
       goto LAB_004182e3;
     }
     break;
@@ -279,8 +270,8 @@ LAB_004180e3:
     if (g_ai_bots[iBot].burst_active != 0) goto LAB_004182e3;
     if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
     if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)param_5)) {
-      fVar7 = (float10)random_range(0,FLOAT_ONE_BITS);
-      if (fVar7 < (float10)k_f_0_5) goto LAB_0041834a;
+      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
+      if (fVar7 < (double)k_f_0_5) goto LAB_0041834a;
       goto LAB_0041835d;
     }
   }

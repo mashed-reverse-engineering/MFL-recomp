@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004c6600*/ extern void FUN_004c6600(undefined4 p0, undefined4 p1);
+/*004c6600*/ extern void FUN_004c6600(void *p0, undefined4 p1);
 /*0076beb0*/ extern undefined1 g_particles_76beb0;
 /*0076bfc4*/ extern undefined4 g_particles_76bfc4;
 /*0076c504*/ extern undefined4 g_fx_slots_76c504;

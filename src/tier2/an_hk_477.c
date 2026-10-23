@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
-/*004817b0*/ extern int atomic_plugin_get_bbox();
+/*004817b0*/ extern char *atomic_plugin_get_bbox();
 /*00481fd0*/ extern double random_range();
 /*0049ff00*/ extern undefined __cdecl particle_emit_textured(float *p0, undefined4 *p1, int p2, int p3, struct RwTexture *p4, float p5, float *p6);
-/*004c40c0*/ extern int FUN_004c40c0(undefined4 p0);
-/*004c40f0*/ extern void * FUN_004c40f0(undefined4 p0);
+/*004c40c0*/ extern int FUN_004c40c0(void *p0);
+/*004c40f0*/ extern void * FUN_004c40f0(void *p0);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 
@@ -24,7 +24,7 @@
  * emit_vector: float[3] passed unchanged to particle_emit_textured as its last argument (inferred: per-particle direction).
  * Returns nothing.
  */
-void fx_object_break_into_particles(int atomic,float *emit_vector)
+void fx_object_break_into_particles(char *atomic,float *emit_vector)
 
 {
   float fraction;
@@ -33,7 +33,7 @@ void fx_object_break_into_particles(int atomic,float *emit_vector)
   RwTexture *texture;
   RwMatrix *matrix;
   int particle_index;
-  float10 particle_size;
+  double particle_size;
   struct {
     undefined4 colour;
     float particle_pos_x;
@@ -83,7 +83,7 @@ void fx_object_break_into_particles(int atomic,float *emit_vector)
     emit.particle_pos_y = emit.diagonal_y * fraction + emit.bbox_min.y;
     emit.particle_pos_z = fraction * emit.diagonal_z + emit.bbox_min.z;
     pfVar3 = emit_vector;
-    particle_size = (float10)random_range(RANDOM_SIZE_MIN,RANDOM_SIZE_MAX);
+    particle_size = (double)random_range(RANDOM_SIZE_MIN,RANDOM_SIZE_MAX);
     particle_emit_textured(&emit.particle_pos_x,&emit.colour,0,0,texture,(float)particle_size,pfVar3);
     particle_index = particle_index + 1;
   } while (particle_index < PARTICLE_COUNT);

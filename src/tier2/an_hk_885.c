@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
-/*00475730*/ extern int get_viewport_camera();
-/*004a1880*/ extern int game_get_62ad2c();
+/*00475730*/ extern char *get_viewport_camera();
+/*004a1880*/ extern char *game_get_62ad2c();
 /*00668c18*/ extern struct CourseWorld g_course_world;
 /*008c8840*/ extern float g_course_8c8840;
 /*008c8844*/ extern undefined4 g_course_8c8844;
@@ -23,7 +23,7 @@
 void course_fog_apply(void)
 
 {
-  int camera;
+  char *camera;
   byte *viewport_colour;
   
   g_course_8c8844 = *(undefined4 *)&g_course_world.fog_a[2];

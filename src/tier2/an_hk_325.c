@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*00497880*/ extern int fx_pool_create();
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);

@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
-/*004219c0*/ extern undefined __cdecl course_call_cb2(undefined4 p0);
-/*004219d0*/ extern undefined __cdecl course_call_cb3(undefined4 p0);
+/*004219c0*/ extern undefined __cdecl course_call_cb2(void *p0);
+/*004219d0*/ extern undefined __cdecl course_call_cb3(void *p0);
 /*00421aa0*/ extern int course_select();
 /*00421ae0*/ extern int course_has_cb2();
 /*00421af0*/ extern int course_has_cb3();
@@ -8,8 +8,8 @@
 /*0042b2a0*/ extern int course_sky_clumps_render();
 /*00475730*/ extern int get_viewport_camera();
 /*004757a0*/ extern int get_viewport_camera_matrix();
-/*004882d0*/ extern undefined __cdecl course_ribbons_render(undefined4 p0);
-/*00488d80*/ extern undefined __cdecl particle_system_set_current_forward(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004882d0*/ extern undefined __cdecl course_ribbons_render(void *p0);
+/*00488d80*/ extern undefined __cdecl particle_system_set_current_forward(void *p0, undefined4 p1, undefined4 p2);
 /*004a07d0*/ extern int rain_render();
 /*004a1880*/ extern int game_get_62ad2c();
 /*004f5780*/ extern struct RpWorld * RpWorldRender(struct RpWorld *p0);
@@ -56,7 +56,7 @@ void course_render_cb3_dispatch(undefined4 select_arg)
       course_sky_clumps_render();
     }
     else {
-      course_call_cb3((undefined4)&g_course_world);
+      course_call_cb3(&g_course_world);
     }
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
@@ -76,20 +76,20 @@ void course_render_cb3_dispatch(undefined4 select_arg)
     if (g_course_lap_data.split_sectors[7] == 0) {
       particle_forward_arg = 0;
       viewport_camera = get_viewport_camera(0x0);
-      particle_system_set_current_forward((undefined4)&g_course_world,viewport_camera,particle_forward_arg);
+      particle_system_set_current_forward(&g_course_world,viewport_camera,particle_forward_arg);
     }
     else {
       RpWorldRender((RpWorld *)g_course_world.collision_bsps[0]);
     }
     /* split_sectors[6] != 0: draw ribbons */
     if (g_course_lap_data.split_sectors[6] != 0) {
-      course_ribbons_render((undefined4)&g_course_lap_data);
+      course_ribbons_render(&g_course_lap_data);
     }
     /* run the cb2 callback if the course has one */
     course_select(select_arg);
     scratch = course_has_cb2();
     if (scratch != 0) {
-      course_call_cb2((undefined4)&g_course_world);
+      course_call_cb2(&g_course_world);
     }
   }
   rain_render();

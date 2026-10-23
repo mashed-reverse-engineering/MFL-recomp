@@ -50,7 +50,7 @@ void race_phase_3_update_n(int in_ebx)
     event_type = camera_get_car_8c7460();
     if (event_type == 0) {
       event_type = get_event_type();
-      if (event_type == 0x11) {
+      if (event_type == EVENT_TRAINING) {
         race_set_phase(6);
         g_phase_timer = 0;
         return;

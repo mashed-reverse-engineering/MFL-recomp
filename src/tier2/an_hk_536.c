@@ -1,13 +1,13 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
-/*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
+/*0042f780*/ extern char *__cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*0049b780*/ extern int __cdecl particles_alloc_system(struct RwTexture *p0, int p1, int p2, uint p3);
 /*0049b860*/ extern int fx_set_blend_modes();
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int FUN_004f6bf0(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a29cc*/ extern undefined4 g_weapon_6a29cc;
 /*006a2a6c*/ extern undefined4 g_mortar_load_6a2a6c;

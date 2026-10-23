@@ -7,17 +7,17 @@ typedef int CourseId;
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*0056b440*/ extern void FUN_0056b440(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0056bf10*/ extern float FUN_0056bf10(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056b440*/ extern void FUN_0056b440(undefined4 p0, void *p1, undefined4 p2);
+/*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
 /*0056c080*/ extern void FUN_0056c080(undefined4 p0, undefined4 p1);
 /*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
-/*0056cdf0*/ extern void FUN_0056cdf0(undefined4 p0, undefined4 p1);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, undefined4 p1);
-/*0058c990*/ extern int FUN_0058c990(undefined4 p0);
-/*0058cb90*/ extern int FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(undefined4 p0);
+/*0056cdf0*/ extern void FUN_0056cdf0(undefined4 p0, void *p1);
+/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
+/*0058c990*/ extern char *FUN_0058c990(void *p0);
+/*0058cb90*/ extern char *FUN_0058cb90(void);
+/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
 /*005dda20*/ extern float k_f_4_2949673e9;
 /*006fd498*/ extern undefined4 g_rw_6fd498;
 /*008b06e0*/ extern struct Car player_car[16];
@@ -28,20 +28,20 @@ typedef int CourseId;
 /* "creates the car physics shape from player_car[0].bounds_points and copies the centre offset to
    all cars" */
 
-void __cdecl rwp_cars_setup_bodies_from_bounds(undefined4 param_1,undefined4 param_2)
+void __cdecl rwp_cars_setup_bodies_from_bounds(char *param_1,undefined4 param_2)
 
 {
   undefined4 uVar1;
   float fVar2;
   undefined4 *puVar3;
-  int iVar4;
+  char *iVar4;
   undefined4 uVar5;
   RwFrame *frame;
   CourseId course_id;
   int fVar6;
   volatile float hz;
-  float10 hx;
-  float10 hy;
+  double hx;
+  double hy;
   int iVar7;
   struct {
     undefined1 local_20;
@@ -95,14 +95,14 @@ void __cdecl rwp_cars_setup_bodies_from_bounds(undefined4 param_1,undefined4 par
   player_car[3].rwp_body_offset[1] = player_car[0].rwp_body_offset[1];
   player_car[3].rwp_body_offset[2] = player_car[0].rwp_body_offset[2];
   frame_obj.local_1c = player_car[0].rwp_body_offset[2];
-  FUN_0056cdf0(uVar1,(undefined4)&frame_obj.local_18);
+  FUN_0056cdf0(uVar1,&frame_obj.local_18);
   FUN_0056cac0(uVar1,0x3ecccccd);
   FUN_0056ca70(uVar1,0x3f000000);
   FUN_0056c080(uVar1,0x3c23d70a);
-  FUN_0056bf10((undefined4)puVar3,0x3fc00000,1);
+  FUN_0056bf10(puVar3,0x3fc00000,1);
   fVar6 = 0;
   do {
-    iVar4 = FUN_0058c990((undefined4)puVar3);
+    iVar4 = FUN_0058c990(puVar3);
     uVar5 = rwp_object_sample_and_lock(uVar1,1);
     (&g_rw_6fd498)[fVar6] = uVar5;
     rwp_object_set_contact_params(uVar5,&frame_obj.local_20);
@@ -133,7 +133,7 @@ LAB_0048ebbc:
     FUN_0056b440(uVar5,iVar4,iVar7);
     fVar6 = (fVar6 + 1);
     if (3 < (uint)fVar6) {
-      FUN_0058cbe0((undefined4)puVar3);
+      FUN_0058cbe0(puVar3);
       return;
     }
   } while( true );

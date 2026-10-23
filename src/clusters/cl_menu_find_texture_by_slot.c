@@ -22,7 +22,7 @@ int menu_find_texture_by_slot_n(int slot)
             if (event_type_uses_standard_menu() == 0) {
                 return 0;
             }
-            if (g_event_type == 0xb || g_event_type == 0 || g_event_type == 0xc || g_event_type == 1 || g_event_type == 0xd || g_event_type == 2) {
+            if (g_event_type == EVENT_QUICK_RACE_11 || g_event_type == EVENT_TIME_TRIAL_0 || g_event_type == EVENT_QUICK_RACE_12 || g_event_type == EVENT_TIME_TRIAL_1 || g_event_type == EVENT_QUICK_RACE_13 || g_event_type == EVENT_TIME_TRIAL_2) {
                 return 0;
             }
             return find_texture_a(g_menu_find_5deca4);

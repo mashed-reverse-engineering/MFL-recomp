@@ -23,6 +23,7 @@ extern double sin(double x);
    volume, a voice (+0x620) at (7.7, 2.9, 10.5) whose pitch (22050 - 500 sin) and volume (0.9 - 0.1 sin) follow one phase,
    on course 0x1e three more fixed voices (+0x590 .. +2), and random one-shots (+0x500 on a 1 in 1001 roll at
    (15, 11, 5), +0x6b0 on a 1 in 701 roll at (4.25, 7, 1.6)) with a random pitch 22050..23050 Hz. */
+/* TIER2: validated 2026-10-21 authority=diffemu */
 void sound_ambience_course_1_1e(int course_id)
 {
   RwV3d position;

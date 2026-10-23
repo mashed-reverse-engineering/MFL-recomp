@@ -10,5 +10,5 @@ for i in $(seq 0 $((P - 1))); do
   $T/courses.sh "$O/p$i" $a $b $FR > "$O/p$i.log" 2>&1 & PIDS+=($!)
 done
 ( sleep ${WALL:-3000}; for p in "${PIDS[@]}"; do kill -TERM $p 2>/dev/null; done; echo "watchdog fired" >> "$O/watchdog.txt" ) & W=$!
-wait "${PIDS[@]}"; kill $W 2>/dev/null
+wait "${PIDS[@]}"; pkill -P $W 2>/dev/null; kill $W 2>/dev/null      # pkill -P: the watchdog subshell's `sleep` child would otherwise outlive it as an orphan holding gate.lock (2026-10-22)
 grep -h "^course" "$O"/p*.log | sort -t' ' -k2 -n

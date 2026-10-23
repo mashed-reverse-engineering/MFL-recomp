@@ -41,6 +41,6 @@ void explosion_queue_update(void)
       trigger_sphere_register(&sphere.x);
     }
     frames_left = frames_left + 9;
-  } while ((int)frames_left < (int)&g_explosion_queue + 0xe20);
+  } while ((char *)frames_left < (char *)&g_explosion_queue + 0xe20);
   return;
 }

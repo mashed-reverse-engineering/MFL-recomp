@@ -6,7 +6,7 @@
  * param_1: stream chunk, the payload starts 8 bytes behind it; its length is rw_second_field(param_1).
  */
 
-void rw_stream_chunk_copy(undefined4 param_1,undefined4 *param_2)
+void rw_stream_chunk_copy(char *param_1,undefined4 *param_2)
 
 {
   uint size;
@@ -22,8 +22,8 @@ void rw_stream_chunk_copy(undefined4 param_1,undefined4 *param_2)
   }
   for (count = size & 3; count != 0; count = count - 1) {
     *(undefined1 *)param_2 = *(undefined1 *)src;
-    src = (undefined4 *)((int)src + 1);
-    param_2 = (undefined4 *)((int)param_2 + 1);
+    src = (undefined4 *)((char *)src + 1);
+    param_2 = (undefined4 *)((char *)param_2 + 1);
   }
   return;
 }

@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 extern char UNK_005df51c[];
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *p0, int p1, undefined4 p2);
 /*00481fd0*/ extern double random_range();
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
@@ -9,7 +9,7 @@ extern char UNK_005df51c[];
 /*008c5724*/ extern undefined4 g_course_keys_8c5724;
 /* course_keys_cb0 */
 
-void course_keys_cb0(int param_1)
+void course_keys_cb0(char *param_1)
 
 {
   RwTexture *texture_dict;

@@ -258,7 +258,7 @@ extern void option_slider_4_reset(void);
 
 /* "float g_menu_69cfc4" */
 
-extern float10 menu_get_69cfc4(void);
+extern double menu_get_69cfc4(void);
 
 
 /* menu_set_69cfc4 */
@@ -469,7 +469,7 @@ bool __cdecl menu_event_is_selectable(int param_1)
   }
   iVar1 = event_type_uses_standard_menu();
   if (iVar1 != 0) {
-    if (g_event_type == 0x11) {
+    if (g_event_type == EVENT_TRAINING) {
       uVar2 = (uint)(g_game_state.progress[0x11] == 2);
       if (g_game_state.progress[0x23] == 2) {
         uVar2 = uVar2 + 1;
@@ -490,7 +490,7 @@ bool __cdecl menu_event_is_selectable(int param_1)
         return false;
       }
     }
-    else if (g_event_type == 0xe) {
+    else if (g_event_type == EVENT_TURBO_TOURNAMENT) {
       uVar2 = (uint)(g_game_state.progress[0xe] == 2);
       if (g_game_state.progress[0x20] == 2) {
         uVar2 = uVar2 + 1;
@@ -508,7 +508,7 @@ bool __cdecl menu_event_is_selectable(int param_1)
         return false;
       }
     }
-    else if (g_event_type == 0xf) {
+    else if (g_event_type == EVENT_ICE_TOURNAMENT) {
       uVar2 = (uint)(g_game_state.progress[0xf] == 2);
       if (g_game_state.progress[0x21] == 2) {
         uVar2 = uVar2 + 1;
@@ -527,7 +527,7 @@ bool __cdecl menu_event_is_selectable(int param_1)
       }
     }
     else {
-      if (g_event_type != 0x10) {
+      if (g_event_type != EVENT_NIGHT_TOURNAMENT) {
         iVar1 = 0;
         puVar3 = g_game_state.progress + 0x15;
         do {
@@ -625,7 +625,7 @@ extern void hud_menu_draw_all_panels(void);
 /* quick_race_defaults_set */
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "game_mode = 6, event type 0x12, team mode off ..." */
+/* "game_mode = GAME_MODE_QUICK_RACE, event type 0x12, team mode off ..." */
 
 extern void quick_race_defaults_set(void);
 

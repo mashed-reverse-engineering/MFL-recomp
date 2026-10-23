@@ -6,10 +6,10 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "screen quad with uv rect and colour using the movie/video texture in the viewport" */
 
-void video_draw_textured_quad(int param_1,float *param_2,float *param_3,undefined1 *param_4,void *param_5,
+void video_draw_textured_quad(char *param_1,float *param_2,float *param_3,undefined1 *param_4,void *param_5,
                undefined4 param_6,undefined4 param_7)
 {
-  int iVar1;
+  char *iVar1;
   undefined1 local_a0[4];
   short local_9c [2];
   short local_98 [2];
@@ -38,7 +38,7 @@ void video_draw_textured_quad(int param_1,float *param_2,float *param_3,undefine
   if (param_4 == (undefined1 *)0x0) {
     param_4 = local_a0;
   }
-  iVar1 = *(int *)(param_1 + 0x60);
+  iVar1 = *(char **)(param_1 + 0x60);
   local_90 = (float)*(int *)(iVar1 + 0xc);
   local_8c = (float)*(int *)(iVar1 + 0x10);
   RwRasterGetOffset(iVar1,local_98,local_9c);

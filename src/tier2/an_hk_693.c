@@ -72,7 +72,7 @@ void gfx_draw_rect_2d_gradient_rgb(float x,float y,float width,float height,uint
     vertex_rhw[-1] = RwGlobalsRelease_dOpenDevice_zBufferNear(engine);
     *vertex_rhw = 1.0;
     vertex_rhw = vertex_rhw + VERTEX_STRIDE_FLOATS;
-  } while ((int)vertex_rhw < ((int)&g_car_8c807c));
+  } while ((char *)vertex_rhw < ((char *)&g_car_8c807c));
   /* plain coloured triangles: no texture, vertex colour with alpha blending */
   (*RwGlobalsRelease_dOpenDevice_fpRenderStateSet(engine))(rwRENDERSTATETEXTURERASTER,(void *)0x0);
   RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE,(void *)0x1);

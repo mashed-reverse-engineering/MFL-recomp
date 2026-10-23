@@ -12,7 +12,7 @@ void sfx_set_voice_volume(int sfx, float *position, int offset, float volume)
 {
   int slot;
 
-  if (get_app_state() != 3) {
+  if (get_app_state() != APP_STATE_RACE) {
     return;
   }
   slot = g_sfx_table[sfx * 0x25] + offset;

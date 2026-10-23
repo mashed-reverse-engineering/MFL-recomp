@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00434100*/ extern int __cdecl menu_icon_texture_lookup(undefined4 p0);
+/*00434100*/ extern char *__cdecl menu_icon_texture_lookup(undefined4 p0);
 /*0043cda0*/ extern int menu_texture_dict_load();
 /*004824a0*/ extern int draw_rect();
 /*004832d0*/ extern int draw_sprite_uv(int *param_3, float param_4, float param_5, float param_6, float param_7, uint param_8, RwReal param_9, RwReal param_10, RwReal param_11, RwReal param_12, int param_13, int param_14);

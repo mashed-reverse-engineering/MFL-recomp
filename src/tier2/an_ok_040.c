@@ -258,14 +258,14 @@ extern undefined4 course_c26_stub_return_0(void);
 
 /* "(index): float of the object record" */
 
-extern float10 course_object_get_float_16c(char *param_1);
+extern double course_object_get_float_16c(char *param_1);
 
 
 /* course_c26_checkpoint_scale_value */
 
 /* "a float table entry * 1/6" */
 
-extern float10 course_c26_checkpoint_scale_value(char *param_1);
+extern double course_c26_checkpoint_scale_value(char *param_1);
 
 
 /* course_object_offsets_init */
@@ -279,7 +279,7 @@ extern char g_course_highway_6a26a0[];
 #define TRIGGER_TYPE_CAR_HIT (0x15)
 #define CAR_ID_RANGE_LO_EXCL (0xfeff)
 #define CAR_ID_RANGE_HI_EXCL (0xff08)
-#define HIT_BITMASK_BASE (((int)&g_course_highway_6a26a0 + 0x4))
+#define HIT_BITMASK_BASE (((char *)&g_course_highway_6a26a0 + 0x4))
 
 
 /* trigger_cb_mark_hit_bit */

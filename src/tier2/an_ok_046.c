@@ -287,6 +287,14 @@ extern void weapon_flamethrower_free_assets(void);
 #define WEAPON_FLAME_RECORD_STRIDE (0x68)     /* bytes per player's flame record */
 #define FLAME_CLUMP_STRIDE_DWORDS (0x1a)      /* dwords per player's clump slot: 0x68 bytes */
 #define SFX_VOICE_FLAMETHROWER (0x16)         /* voice id passed to sfx_play_voice_at (inferred) */
+/* layout of *rec in weapon_flamethrower_unequip, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+typedef struct weapon_flamethrower_unequip_rec_layout {
+    undefined4 f_0x0;
+    char pad_0x4[28];
+    RpClump * f_0x20;
+    undefined4 f_0x24;
+} weapon_flamethrower_unequip_rec_layout;
+
 
 
 extern undefined4 * weapon_flamethrower_equip(WeaponSlot *slot);
@@ -304,13 +312,13 @@ extern undefined4 * weapon_flamethrower_equip(WeaponSlot *slot);
 /* TIER2: unvalidated 2026-10-17 authority=diffemu */
 void weapon_flamethrower_unequip(WeaponSlot *slot)
 {
-  char *rec;
+  weapon_flamethrower_unequip_rec_layout *rec;
 
-  rec = (char *)&g_weapon_6a9588 + slot->player * WEAPON_FLAME_RECORD_STRIDE;
-  clump_set_flag_on_atomics(*(RpClump **)(rec + 0x20),0);
-  object_set_flag_4(*(undefined4 *)(rec + 0x24),0);
-  RpWorldRemoveClump((RpWorld *)course_get_rpworld_00467e90(),*(RpClump **)(rec + 0x20));
-  *(undefined4 *)rec = 0;
+  rec = (weapon_flamethrower_unequip_rec_layout *)((char *)&g_weapon_6a9588 + slot->player * WEAPON_FLAME_RECORD_STRIDE);
+  clump_set_flag_on_atomics(rec->f_0x20,0);
+  object_set_flag_4(rec->f_0x24,0);
+  RpWorldRemoveClump((RpWorld *)course_get_rpworld_00467e90(),rec->f_0x20);
+  rec->f_0x0 = 0;
   sfx_voice_is_active(SFX_VOICE_FLAMETHROWER,slot->player);
   return;
 }
@@ -318,7 +326,7 @@ void weapon_flamethrower_unequip(WeaponSlot *slot)
 
 /* weapon_flamethrower_ammo_fraction */
 
-extern float10 weapon_flamethrower_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_flamethrower_ammo_fraction(WeaponSlot *param_1);
 
 
 /* weapon_flame_push_cars */
@@ -338,7 +346,7 @@ extern void __cdecl weapon_flame_push_cars(char *param_1,char *param_2,char *par
  * record whose active flag is set (flag 0x24 bytes before the record, inferred), calls the slot-0x48 method of the
  * record's object (inferred: draw/clear the effect).
  */
-/* TIER2: unvalidated 2026-10-19 authority=shadow */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void weapon_flamethrower_clear_effects(void)
 {
   int *active_flag;
@@ -431,7 +439,7 @@ undefined * weapon_shotgun_equip(WeaponSlot *slot)
 
 /* weapon_shotgun_ammo_fraction */
 
-extern float10 weapon_shotgun_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_shotgun_ammo_fraction(WeaponSlot *param_1);
 
 #define SHOTGUN_RECORDS_END (((LONG_PTR)&g_weapon_shotgun_6aac14))     /* address one past the last shotgun effect record (4 records of 0x24 bytes from 0x6AAB84) */
 
@@ -445,7 +453,7 @@ extern float10 weapon_shotgun_ammo_fraction(WeaponSlot *param_1);
  * second object set) calls the slot-0x48 method of both of its objects (inferred: draw/clear the effect),
  * then turns depth writes back on. Takes no parameters, returns nothing.
  */
-/* TIER2: unvalidated 2026-10-19 authority=shadow */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void weapon_shotgun_clear_effects(void)
 {
   int *record;

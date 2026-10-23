@@ -11,7 +11,7 @@
 /*0042ed70*/ extern int race_winner_banner_draw();
 /*00434bb0*/ extern int get_event_type();
 /*0044c540*/ extern int camera_get_car_8c747c();
-/*00475730*/ extern int get_viewport_camera();
+/*00475730*/ extern char *get_viewport_camera();
 /*004824a0*/ extern int draw_rect();
 /*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
 /*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
@@ -51,7 +51,7 @@ void race_status_messages_draw(void)
   int iVar3;
   RwCamera *pRVar4;
   undefined4 uVar5;
-  float10 fVar6;
+  double fVar6;
   RwRGBA *pRVar7;
   RwInt32 RVar8;
   struct {
@@ -154,7 +154,7 @@ void race_status_messages_draw(void)
     return;
   }
   iVar3 = get_event_type();
-  if ((((iVar3 == 3) || (iVar3 = get_event_type(), iVar3 == 4)) ||
+  if ((((iVar3 == EVENT_CUP_3) || (iVar3 = get_event_type(), iVar3 == 4)) ||
       (iVar3 = get_event_type(), iVar3 == 5)) && (g_car_7ef7b0 != 0)) {
     uVar5 = 1;
   }
@@ -194,10 +194,10 @@ LAB_0042f22a:
   case 9:
     if (g_car_7ef7b0 == 0) {
       race_lose_banner_draw();
-      fVar6 = (float10)ai_get_counter(1);
+      fVar6 = (double)ai_get_counter(1);
       frame.local_18 = (float)fVar6;
-      fVar6 = (float10)ai_get_counter(0);
-      if ((float10)k_f_0_9 <= (float10)frame.local_18 - fVar6) {
+      fVar6 = (double)ai_get_counter(0);
+      if ((double)k_f_0_9 <= (double)frame.local_18 - fVar6) {
         ui_rt2d_text_draw(0x216, intro_banner_get_x() + k_f_3, 98.0f, uVar1, 1.0f, 2);
         ui_rt2d_text_draw(0x216, intro_banner_get_x(), 95.0f, *(int *)&fVar2, 1.0f, 2);
       }

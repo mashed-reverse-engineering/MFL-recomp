@@ -20,7 +20,7 @@ EN = os.path.join(CL, "enabled.txt")
 def specs(only_dir=None):
     out = {}
     for f in sorted(glob.glob(os.path.join(G, "output", "cluster_pilot*", "clusters.txt"))):
-        d = os.path.dirname(f)
+        d = os.path.normpath(os.path.dirname(f))      # G contains ".." (HERE/..): compare normalised paths
         if only_dir and os.path.abspath(only_dir) != d: continue
         for l in open(f):
             if not l.strip() or l.startswith("#"): continue
@@ -86,7 +86,8 @@ def install(c, force):
         cm = re.search(r"^(?:/\*[0-9a-f]{8}\*/ )?extern\s+(.*?)\b%s\s*\((.*?)\)\s*;[^\n]*\n" % cn, text, re.M)
         if not cm: sys.exit("%s: no extern line for the @ callee %s" % (root, cn))
         ret = re.sub(r"\b__(?:cdecl|stdcall)\b|\bextern\b", "", cm.group(1)).strip()
-        pt = [re.sub(r"\b__(?:cdecl|stdcall)\b", "", a).strip() for a in cm.group(2).split(",")] if cm.group(2).strip() not in ("", "void") else []
+        cparams = re.sub(r"/\*.*?\*/", "", cm.group(2))      # comments inside the parameter list (`int slot /* eax */`) would end up in the generated adapter prototype
+        pt = [re.sub(r"\b__(?:cdecl|stdcall)\b", "", a).strip() for a in cparams.split(",")] if cparams.strip() not in ("", "void") else []
         if len(pt) != len(where): sys.exit("%s: callee %s has %d parameters, option lists %d" % (root, cn, len(pt), len(where)))
         params = []
         for i, (t, w) in enumerate(zip(pt, where)):

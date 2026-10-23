@@ -66,7 +66,7 @@ void hudpanel_slot_init_player_b(int slot_index,int activate)
   hudpanel_slot_reset_r(panel);
   hudpanel_slot_clear_r((&g_hudpanel_6585a0)[slot_index * HUDPANEL_SLOT_DWORDS]);
   /* copy the team colour and controller of the player into the slot record */
-  team_colour = *(undefined4 *)((char *)&g_hudpanel_slot_603e68 + g_player_slots[slot_index].team * 4);
+  team_colour = ((undefined4 *)&g_hudpanel_slot_603e68)[g_player_slots[slot_index].team];
   controller = g_player_slots[slot_index].controller;
   (&g_hudpanel_65856c)[slot_index * HUDPANEL_SLOT_DWORDS] = HUDPANEL_STATE_ACTIVE;
   *(undefined4 *)((char *)&g_hudpanel_slot_658548 + slot_offset) = team_colour;

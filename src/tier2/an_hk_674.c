@@ -17,10 +17,10 @@ void random_vector_in_cone(RwV3d *out,float *axis,float cone_angle_deg)
   float cone_scale;
   float offset_x;
   float offset_y;
-  float10 sin_result;
+  double sin_result;
 
   /* sin of the angle: degrees to radians via k_f_0_017453292 (pi/180). cone_scale is reused below for the z component. */
-  sin_result = (float10)sin((float10)cone_angle_deg * (float10)k_f_0_017453292);
+  sin_result = (double)sin((double)cone_angle_deg * (double)k_f_0_017453292);
   cone_scale = (float)sin_result;
   /* random unit vector in out, scaled by sin(angle) per component */
   random_unit_vector(out);

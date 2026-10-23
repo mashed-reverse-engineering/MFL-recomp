@@ -43,7 +43,7 @@
  * Advances the camera record ring by one and picks which car's record the camera should show.
  * camera: the camera object (car id at +0x20, record data written to +0x58, clump frame at +0x84).
  * Result: g_car_8c5928 and camera+0x58 are set from the chosen car, then camera_update_view_window(camera) runs.
- * Note: `camera` is overwritten by car_get_mode's out-pointer in the game_mode == 10 branch, so
+ * Note: `camera` is overwritten by car_get_mode's out-pointer in the game_mode == GAME_MODE_BEAT_THE_BOMB branch, so
  * camera_addr keeps the original pointer. selected_car is scratch until the final pick.
  */
 void __cdecl camera_record_add(int camera)
@@ -64,15 +64,15 @@ void __cdecl camera_record_add(int camera)
   g_car_8c7440 = g_car_8c7440 + 1;
   ring_slot = g_car_8c7440 & CAMERA_RECORD_RING_MASK;
   /* No camera in game modes 5, or 10 (no car mode / car inactive), or 8 (ai_ftol_noop_wrapper returns -1). */
-  if (game_mode == 5) {
+  if (game_mode == GAME_MODE_KILL_COPTER) {
     selected_car = 0;
   }
-  else if ((game_mode == 10) &&
+  else if ((game_mode == GAME_MODE_BEAT_THE_BOMB) &&
           ((car_get_mode(0,&camera,car_mode_out), camera != 0 ||
            (selected_car = car_is_active(0), selected_car == 0)))) {
     selected_car = 0;
   }
-  else if ((game_mode == 8) && (selected_car = ai_ftol_noop_wrapper(0), selected_car == -1)) {
+  else if ((game_mode == GAME_MODE_SURVIVAL) && (selected_car = ai_ftol_noop_wrapper(0), selected_car == -1)) {
     selected_car = 0;
   }
   else {
@@ -159,7 +159,7 @@ void __cdecl camera_record_add(int camera)
   g_car_8c5928 = (&g_camera_record_8c5a0c)[car_index * CAR_RECORD_STRIDE_WORDS];
   *(undefined4 *)(camera_addr + 0x58) = ((undefined4 *)&g_car_8c5a00)[car_index * CAR_RECORD_STRIDE_WORDS];
   camera_update_view_window(camera_addr);
-  *(RwMatrix *)(*(int *)(*(int *)(camera_addr + 0x84) + 4) + 0x10) = *(RwMatrix *)(&g_car_8c598c + car_index * CAR_RECORD_STRIDE_WORDS);
+  *(RwMatrix *)(*(char **)(*(char **)(camera_addr + 0x84) + 4) + 0x10) = *(RwMatrix *)(&g_car_8c598c + car_index * CAR_RECORD_STRIDE_WORDS);
   return;
 }
 

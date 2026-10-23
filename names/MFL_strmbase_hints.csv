@@ -1,0 +1,7 @@
+# address,proposed name,evidence   (I-sig 2026-10-22; NOT applied to Ghidra/recomp: recomp sources use the FUN_/gap_ names, a rename needs an aliases.txt + installed-source rename)
+004b16c0,CBaseDispatch_GetTypeInfo,DirectShow baseclasses ctlutil.cpp: E_POINTER / TYPE_E_ELEMENTNOTFOUND for itinfo!=0 / LoadRegTypeLib then LoadTypeLib(L"control.tlb") fallback / caches m_pti
+004af330,CBasePin_AttemptConnection,amfilter.cpp: CheckConnect (vtbl+0x28) / BreakConnect (+0x2c) / CheckMediaType (+0x20) / m_Connected=pReceivePin+AddRef / SetMediaType (+0x24) / pReceivePin->ReceiveConnection (+0x10) / CompleteConnect (+0x30) / Disconnect on failure / VFW_E_NO_ACCEPTABLE_TYPES mapping of E_FAIL / E_INVALIDARG
+004af5f0,CBasePin_ReceiveConnection,amfilter.cpp: E_POINTER for NULL pin / pmt; lock; VFW_E_ALREADY_CONNECTED (m_Connected) ; VFW_E_NOT_STOPPED; CheckConnect / CheckMediaType / SetMediaType / CompleteConnect (IPin subobject: this-0xc)
+004af780,CBasePin_ConnectedTo,amfilter.cpp: E_POINTER; *ppPin=m_Connected; AddRef; VFW_E_NOT_CONNECTED
+004af7b0,CBasePin_ConnectionMediaType,amfilter.cpp: E_POINTER; lock; CopyMediaType(pmt,&m_mt) else ClearMediaType + VFW_E_NOT_CONNECTED
+005ce2b0,rwads_movie_graph_open,CoCreateInstance(CLSID_FilterGraphNoThread e436ebb8, IID_IFilterGraph 56a8689f) + filter names L"RwaDSSource" / L"RwaDSRenderer" (the Criterion movie player), IMediaControl 56a868b0 at 5e20bc

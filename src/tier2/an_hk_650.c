@@ -71,7 +71,7 @@ undefined1 * led_file_name(void)
     ch = *cursor;
     cursor = cursor + 1;
   } while (ch != '\0');
-  suffix_bytes = (int)cursor - (int)file_name;
+  suffix_bytes = (char *)cursor - (char *)file_name;
   /* walk to the NUL of g_led_file_name; 0x652cbf is one byte before it, so the first step lands on it */
   cursor = (char *)0x652cbf;
   do {

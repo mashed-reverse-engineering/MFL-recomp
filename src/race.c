@@ -14,13 +14,13 @@ int replay_buffer_free(void)
 int race_event_has_panel(void)
 {
     switch (get_event_type()) {
-    case 0:
-    case 1:
-    case 2:
+    case EVENT_TIME_TRIAL_0:
+    case EVENT_TIME_TRIAL_1:
+    case EVENT_TIME_TRIAL_2:
         return 3;
-    case 3:
-    case 4:
-    case 5:
+    case EVENT_CUP_3:
+    case EVENT_CUP_4:
+    case EVENT_CUP_5:
         switch (game_mode) {
         case 4:
         case 8:
@@ -45,7 +45,7 @@ void time_clear_current(void)
 // FUNCTION: MFL 0x0040e680
 int race_setup_get_course(int slot)
 {
-    return *(int *)(*(int *)(g_race_setup + 4 + slot * 4) + 4);
+    return *(int *)(*(char **)(g_race_setup + 4 + slot * 4) + 4);
 }
 
 // FUNCTION: MFL 0x0040ff20
@@ -126,7 +126,7 @@ void race_phase_9_update(void)
     particle_pool_counts_reset();
     weapons_unequip_all_b();
     particle_templates_init_b();
-    if (game_mode == 10) {
+    if (game_mode == GAME_MODE_BEAT_THE_BOMB) {
         course_powerups_setup();
         return;
     }
@@ -209,13 +209,13 @@ void replay_records_reset(void)
 void race_cup_scene_update_players_if_event(void)
 {
     switch (get_event_type()) {
-    case 3:
-    case 4:
-    case 5:
-    case 0xe:
-    case 0xf:
-    case 0x10:
-        if (game_mode == 4 || (6 < game_mode && game_mode < 0xb)) {
+    case EVENT_CUP_3:
+    case EVENT_CUP_4:
+    case EVENT_CUP_5:
+    case EVENT_TURBO_TOURNAMENT:
+    case EVENT_ICE_TOURNAMENT:
+    case EVENT_NIGHT_TOURNAMENT:
+        if (game_mode == GAME_MODE_RACE || (6 < game_mode && game_mode < 0xb)) {
             cup_scene_update_players();
             return;
         }
@@ -227,12 +227,12 @@ void race_phase_5_6_render_by_event(void)
 {
     if (4 < g_race_phase && g_race_phase < 7) {
         switch (get_event_type()) {
-        case 3:
-        case 4:
-        case 5:
-        case 0xe:
-        case 0xf:
-        case 0x10:
+        case EVENT_CUP_3:
+        case EVENT_CUP_4:
+        case EVENT_CUP_5:
+        case EVENT_TURBO_TOURNAMENT:
+        case EVENT_ICE_TOURNAMENT:
+        case EVENT_NIGHT_TOURNAMENT:
             switch (game_mode) {
             case 4:
             case 7:

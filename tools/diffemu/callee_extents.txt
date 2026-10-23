@@ -1,0 +1,4 @@
+# va(hex) arg_index bytes  reason : minimum object size behind a stack pointer argument of a hooked callee that the asm store scan (stack_lint.extents) cannot see; the canary fills it on both sides
+00569610 0 64  RtBaryGetTransform writes a 4x4 matrix
+004c4de0 2 64  world_intersect_line hit record: the intersect callback stores 0x40 bytes (+0x3c last word)
+004682c0 0 64  rocket_surface_hit_test 64 bytes

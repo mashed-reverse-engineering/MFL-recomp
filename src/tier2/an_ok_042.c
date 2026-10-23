@@ -182,7 +182,7 @@ extern undefined4 __cdecl course_get_8bf050(char *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float g_course_6a2950" */
 
-extern float10 course_get_6a2950(void);
+extern double course_get_6a2950(void);
 
 
 /* weapon_mortar_free_assets */
@@ -202,7 +202,7 @@ extern void weapon_mortar_unequip(WeaponSlot *param_1);
 
 /* weapon_mortar_ammo_fraction */
 
-extern float10 weapon_mortar_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_mortar_ammo_fraction(WeaponSlot *param_1);
 
 
 /* weapon_mortar_clear_effects */
@@ -340,7 +340,7 @@ undefined * weapon_drum_equip(WeaponSlot *weapon_slot)
 
 /* weapon_drum_ammo_fraction */
 
-extern float10 weapon_drum_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_drum_ammo_fraction(WeaponSlot *param_1);
 
 
 /* weapon_drum_free_assets */

@@ -45,7 +45,7 @@ void menu_page_update_entry_states(int param_1)
     piVar3 = piVar3 + 1;
   }
   switch(g_menu_records[param_1 + 1].page_id) {
-  case 1:
+  case MENU_PAGE_MAIN:
     if (g_game_state.option_flags[0] == 0) {
       g_menu_records[param_1 + 1].entry_enabled[3] = 0;
     }
@@ -56,7 +56,7 @@ void menu_page_update_entry_states(int param_1)
       controller_index = controller_index + 1;
     } while (controller_index < 4);
     break;
-  case 2:
+  case MENU_PAGE_SINGLE_PLAYER:
     if (g_game_state.progress[0xe] == 0) {
       g_menu_records[param_1 + 1].entry_enabled[3] = 0;
     }
@@ -67,7 +67,7 @@ void menu_page_update_entry_states(int param_1)
       g_menu_records[param_1 + 1].entry_enabled[5] = 0;
     }
     break;
-  case 3:
+  case MENU_PAGE_MULTIPLAYER:
     g_menu_powerup_set = 1;
     race_setup_use_5();
     controller_index = 0;
@@ -76,7 +76,7 @@ void menu_page_update_entry_states(int param_1)
       controller_index = controller_index + 1;
     } while (controller_index < 4);
     break;
-  case 10:
+  case MENU_PAGE_CUSTOMISE_PLAY:
     if (g_menu_player_count_index != 2) {
       g_menu_records[param_1 + 1].entry_enabled[1] = 0;
     }
@@ -84,7 +84,7 @@ void menu_page_update_entry_states(int param_1)
       g_menu_records[param_1 + 1].entry_enabled[2] = 0;
     }
     break;
-  case 0x12:
+  case MENU_PAGE_GAME_SETUP_MULTI:
     if (g_menu_game_mode_choice == 1) {
       g_menu_records[param_1 + 1].entry_enabled[3] = 0;
       g_menu_bot_skill_a = 0;
@@ -106,7 +106,7 @@ LAB_0043872d:
     else {
       g_menu_records[param_1 + 1].entry_enabled[6] = 1;
     }
-    bVar4 = game_mode == 2;
+    bVar4 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
     g_menu_records[param_1 + 1].entry_enabled[1] = 1;
     if (bVar4) {
       g_team_mode = 0;
@@ -115,13 +115,13 @@ LAB_0043872d:
     if ((controller_index != 4) && (controller_index = is_team_mode(), controller_index == 0))
     break;
     goto LAB_004387b7;
-  case 0x18:
+  case MENU_PAGE_GAME_SETUP_SINGLE:
     controller_index = career_event_set_progress(1);
     if (controller_index != 0) break;
 LAB_004387b7:
     g_menu_records[param_1 + 1].entry_enabled[3] = 0;
     break;
-  case 0x1c:
+  case MENU_PAGE_VIBRATION:
     *piVar2 = 1;
     g_menu_records[param_1 + 1].entry_enabled[1] = 1;
     g_menu_records[param_1 + 1].entry_enabled[2] = 1;
@@ -144,14 +144,14 @@ LAB_004387b7:
     g_menu_item_anims[3].ref_a = 0x23d;
     g_menu_item_anims[4].ref_a = 0x23e;
     break;
-  case 0x22:
+  case MENU_PAGE_ARCADE_MODES:
     if (g_game_state.progress[0x39] == 0) {
       g_menu_records[param_1 + 1].entry_enabled[1] = 0;
     }
     break;
-  case 0x25:
+  case MENU_PAGE_LOAD_SAVE:
     controller_index = get_app_state();
-    if (controller_index != 1) {
+    if (controller_index != APP_STATE_MAIN_LOOP_INIT) {
       *piVar2 = 0;
       g_menu_records[param_1 + 1].entry_enabled[1] = 0;
     }

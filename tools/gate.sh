@@ -1,7 +1,7 @@
 #!/bin/bash
 # gate.sh [--dry-run] <kind> [names...]   the checks of ROADMAP "When to run which game check", nothing more.
 #   kind: readability | tier1 | header | infra | tier2 | bridge | cluster | milestone
-#   names: functions touched (tier2 / bridge / tier1); tier2 without names = the functions tools/shadow_cache.py says changed. '@file' = names from a file.
+#   names: functions touched (tier2 / bridge / tier1; cluster: ignored, all enabled clusters are always gated); tier2 without names = the functions tools/shadow_cache.py says changed. '@file' = names from a file.
 #   readability  check_all.sh
 #   tier1        check_all + course 0 crash smoke
 #   header       check_all + course 0 smoke (a full sweep only when tier 2 build bytes changed: run `gate.sh infra` then)
@@ -27,7 +27,8 @@ step() { PLAN+=("$1|$2|$3"); est=$(awk "BEGIN{print $est+$2}"); }      # label |
 [ $KIND = bridge ] && [ ${#NAMES[@]} = 0 ] && { echo "bridge needs the bridge names"; exit 2; }
 # ---- course lists
 if [ $KIND = cluster ]; then      # names = cluster roots; the course lists use their entries; only those clusters are built in
-  [ ${#NAMES[@]} = 0 ] && NAMES=($(grep -v '^#' $R/src/clusters/enabled.txt)); [ ${#NAMES[@]} = 0 ] && { echo "cluster: nothing enabled / no names"; exit 2; }
+  [ ${#NAMES[@]} -gt 0 ] && echo "note: cluster names ignored ('${NAMES[*]}'): a cluster whose callee is another installed cluster crashes when built alone; always gating ALL enabled clusters" && NAMES=()
+  NAMES=($(grep -v '^#' $R/src/clusters/enabled.txt)); [ ${#NAMES[@]} = 0 ] && { echo "cluster: nothing enabled / no names"; exit 2; }
   export CLUSTER_ENABLED=$(IFS=,; echo "${NAMES[*]}"); EXTRA="$EXTRA --clusters"; ENT=($(python3 $T/cluster_install.py --entries "${NAMES[@]}")) || exit 2
   CL=$(python3 $T/fn_courses.py "${ENT[@]}" 2>/dev/null || echo "0 3"); [ -n "$CL" ] || CL="0 3"
   [ -n "${CLUSTER_COURSES:-}" ] && CL="$CLUSTER_COURSES"      # e.g. CLUSTER_COURSES="$(seq -s' ' 0 14)": the entries of most clusters run in few courses (fn_courses.csv is missing, the default is 0 3)

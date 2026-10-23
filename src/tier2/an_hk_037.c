@@ -2,7 +2,7 @@
 typedef int CourseId;
 typedef int WeaponId;
 typedef signed char sbyte;
-/*005738a0*/ extern void * FUN_005738a0(undefined4 p0);
+/*005738a0*/ extern void * FUN_005738a0(void *p0);
 /*00771a20*/ extern undefined4 g_os_771a20;
 #define CONTACT_RECORD_SIZE (0x4c)
 #define NIBBLE_MASK (0xf)

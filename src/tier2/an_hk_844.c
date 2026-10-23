@@ -14,7 +14,7 @@
 /*00451c50*/ extern int camera_records_warmup();
 /*0047a830*/ extern int car_is_active();
 /*004b2b48*/ extern int _ftol();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*006037c0*/ extern undefined4 g_phase_timer;
 /*00652e04*/ extern undefined4 g_race_course_loaded_event;
 /*00652f5c*/ extern undefined4 g_race_652f5c;
@@ -24,7 +24,7 @@
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
 /*007efce0*/ extern struct PlayerInput g_player_inputs_previous[12];
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
-/*008d8b14*/ extern undefined4 g_race_setup;
+/*008d8b14*/ extern char *g_race_setup;
 /*008d8b30*/ extern undefined4 player_count;
 
 /* Offset of the first per-player int in g_race_setup; 4 bytes per player (inferred). */
@@ -44,7 +44,6 @@
 /* Course id 11 (enum CourseId). */
 #define COURSE_SANDS (11)
 /* Event type that always takes the phase 8 path (inferred). */
-#define EVENT_TYPE_FORCE_PHASE_8 (0x11)
 
 /* race_phase_7_update */
 
@@ -156,15 +155,15 @@ void race_phase_7_update(void)
   } while (scratch < PLAYER_SLOT_COUNT);
   /* Event types 0, 1 or 2 on COURSE_SANDS: mark the career row unlocked and set winner_marker = 1 (inferred). */
   scratch = get_event_type();
-  if ((((scratch == 0) || (scratch = get_event_type(), scratch == 1)) ||
+  if ((((scratch == EVENT_TIME_TRIAL_0) || (scratch = get_event_type(), scratch == 1)) ||
       (scratch = get_event_type(), scratch == 2)) &&
      (scratch = course_get_course_8c879c(), scratch == COURSE_SANDS)) {
     winner_marker = 1;
     career_mark_row_unlocked();
   }
-  /* Winner found and event not EVENT_TYPE_FORCE_PHASE_8: camera warmup for the winner, race_set_view_player(1), go to phase 9. */
+  /* Winner found and event not EVENT_TRAINING: camera warmup for the winner, race_set_view_player(1), go to phase 9. */
   scratch = get_event_type();
-  if ((scratch != EVENT_TYPE_FORCE_PHASE_8) && (winner_marker != 0)) {
+  if ((scratch != EVENT_TRAINING) && (winner_marker != 0)) {
     camera_records_warmup(1,winner_marker + -1);
     race_set_view_player(1);
     race_set_phase(9);
@@ -183,7 +182,7 @@ void race_phase_7_update(void)
     }
     slot_ptr = slot_ptr + 1;
     winner_marker = winner_marker + 1;
-  } while ((int)slot_ptr < (int)&g_player_slots[PLAYER_SLOT_COUNT]);
+  } while ((char *)slot_ptr < (char *)&g_player_slots[PLAYER_SLOT_COUNT]);
   return;
 }
 

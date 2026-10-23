@@ -46,7 +46,7 @@ void __cdecl debris_slot_release_by_clump(int clump)
   int block_index;
   undefined *slot;
   undefined *bank;
-  float10 random_scale;
+  double random_scale;
   int slot_index;
 
   /* walk every debris bank from g_game_65c0d0 up to g_game_65c8f0 */
@@ -68,7 +68,7 @@ void __cdecl debris_slot_release_by_clump(int clump)
                  block[(slot_index >> 3) + DEBRIS_BLOCK_VISIBLE_BITS_OFFSET] & ~('\x01' << ((byte)slot_index & 7));
             debris_body_remove_if_in_world_r(slot);
             /* explosion scale: random float in 0.5..0.8 (inferred) */
-            random_scale = (float10)rp_random_float_range(DEBRIS_SCALE_MIN_BITS,DEBRIS_SCALE_MAX_BITS);
+            random_scale = (double)rp_random_float_range(DEBRIS_SCALE_MIN_BITS,DEBRIS_SCALE_MAX_BITS);
             /* spawn the decal at (owner +4 pointer) + 0x40, passing the scale as float bits (inferred) */
             explosion_decal(*(int *)(*(char **)(slot + DEBRIS_SLOT_OWNER_OFFSET) + 4) + 0x40,(scale_bits = (float)random_scale, *(int *)&scale_bits));
             return;

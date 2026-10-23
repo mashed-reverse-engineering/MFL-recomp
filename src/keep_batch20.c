@@ -20,7 +20,7 @@ extern char g_app_886984[];
 
 
 // FUNCTION: MFL 0x0045c0e0
-void course_superg_cb2(int w)
+void course_superg_cb2(char *w)
 {
     if (*(int *)(w + 0xc110) != 0)
         RpClumpRender(*(int *)(w + 0xc110));

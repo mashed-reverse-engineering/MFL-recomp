@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0056c950*/ extern int __cdecl FUN_0056c950(int a1, int a2);
+/*0056c950*/ extern int __cdecl FUN_0056c950(int a1, void *a2);
 /*005f6720*/ extern undefined g_data_5f6720;
 #define OBJ_OFFSET_40 (0x40)
 #define OBJ_OFFSET_44 (0x44)

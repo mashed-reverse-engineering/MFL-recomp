@@ -30,6 +30,7 @@ extern struct VoiceSlot g_voices[210];
 #define ROLL_D 4      /* forest only: groups +0x740 and +0x7d0, speed scale 0.001 */
 /* sound_surface_roll_voices_update */
 /* "per car sets the three roll voice volumes by the surface colour id under the wheels and speed scaling (course 0x22 special)" */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 void sound_surface_roll_voices_update(int car)
 {
   int course;

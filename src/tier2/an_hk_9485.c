@@ -18,8 +18,8 @@ void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,un
   int iVar4;
   undefined4 *puVar5;
   int iVar6;
-  float10 fVar7;
-  float10 fVar8;
+  double fVar7;
+  double fVar8;
   uint alpha;
   struct {
     float local_14;
@@ -64,22 +64,22 @@ void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,un
   if (iVar6 < iVar4) {
     do {
       iVar4 = piVar2[9] + iVar6;
-      fVar8 = float_1_0 - (float10)iVar6 / piVar2[3];
+      fVar8 = float_1_0 - (double)iVar6 / piVar2[3];
       if (piVar2[3] <= iVar4) {
         iVar4 = (piVar2[9] - piVar2[3]) + iVar6;
       }
       *(uint *)&param_2 = *(uint *)(piVar2[2] + iVar4 * 4);
       alpha = *(uint *)&param_2 >> 0x18;
-      *((char *)&param_2 + 3) = (char)(int)((float10)(int)alpha - (float10)(int)(alpha - 10) * fVar8);
+      *((char *)&param_2 + 3) = (char)(int)((double)(int)alpha - (double)(int)(alpha - 10) * fVar8);
       iVar4 = iVar4 * 0xc;
       puVar5 = (undefined4 *)(*piVar2 + iVar4);
       frame.local_c = *puVar5;
-      fVar7 = ((*(float *)&piVar2[7] - *(float *)&piVar2[6]) * fVar8 + (float10)*(float *)&piVar2[6]) * (float10)k_f_0_3;
+      fVar7 = ((*(float *)&piVar2[7] - *(float *)&piVar2[6]) * fVar8 + (double)*(float *)&piVar2[6]) * (double)k_f_0_3;
       frame.local_8 = puVar5[1];
       frame.local_4 = puVar5[2];
       frame.local_10 = (float)fVar7;
-      frame.local_14 = (float)(fVar7 * (float10)k_f_0_6);
-      *(float *)&param_3 = (float)(fVar8 * (float10)*(float *)&piVar2[8]);
+      frame.local_14 = (float)(fVar7 * (double)k_f_0_6);
+      *(float *)&param_3 = (float)(fVar8 * (double)*(float *)&piVar2[8]);
       particle_batch_add(piVar2[10],&frame.local_c,&param_2);
       particle_batch_set_uv_a(piVar2[10],&frame.local_14);
       particle_batch_set_size(piVar2[10],*(int *)&param_3);

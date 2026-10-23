@@ -5,7 +5,7 @@
 /*00801b44*/ extern undefined4 g_savegame_replay[0x1000];
 /*008432d0*/ extern undefined4 g_savegame_state[0x1000];
 #define SAVE_FLAG_INDEX (0x2be)      /* dword of g_savegame_state at 0x00843dc8 */
-/*008d8b08*/ extern undefined4 g_replay_buffer;
+/*008d8b08*/ extern char *g_replay_buffer;
 /*008d8c0c*/ extern undefined4 g_gamesave_flag_c0c;
 typedef struct { undefined4 d[0x2d9]; } Dw0x2d9;      /* the 0xB64 byte game state block */
 typedef struct { undefined4 d[0x105e3]; } DwReplay;      /* replay buffer */
@@ -27,7 +27,7 @@ void gamesave_gather(void)
     g_game_state.player_bytes[count] = (byte)*player_input_byte;
     player_input_byte = player_input_byte + 0x13;
     count = count + 1;
-  } while ((int)player_input_byte < (int)&g_player_inputs + 0x3b4);
+  } while ((char *)player_input_byte < (char *)&g_player_inputs + 0x3b4);
   *(Dw0x2d9 *)g_savegame_state = *(Dw0x2d9 *)&g_game_state;
   g_savegame_state[SAVE_FLAG_INDEX] = g_gamesave_flag_c0c;      /* after the block copy (the slot lies inside the copied block); written through the array so the compiler keeps the order */
   if (g_replay_buffer != 0) {

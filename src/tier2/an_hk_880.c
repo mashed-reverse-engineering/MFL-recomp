@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0048e6d0*/ extern int rwp_object_get_handle();
-/*0056c140*/ extern int __cdecl FUN_0056c140(int a1, int a2, int a3);
-/*0056c3b0*/ extern int __cdecl FUN_0056c3b0(int a1, int a2, int a3, int a4, int a5);
+/*0056c140*/ extern int __cdecl FUN_0056c140(int a1, int a2, void *a3);
+/*0056c3b0*/ extern int __cdecl FUN_0056c3b0(int a1, int a2, int a3, int a4, void *a5);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 
 /* Byte offsets into the owner object and into the body-flag holder it points to. */
@@ -51,11 +51,11 @@ undefined4 __cdecl rwp_object_query_ray_hit(undefined4 object_ref,undefined4 ray
   /* Only test rays for an owner that has a body and whose body-flag bit is set,
      i.e. the object is in the world (inferred). */
   if ((*(int *)(owner_or_hit + OWNER_BITSET_HOLDER_OFFSET) != 0) &&
-     ((*(uint *)(*(int *)(*(int *)(owner_or_hit + OWNER_BITSET_HOLDER_OFFSET) + BITSET_ARRAY_OFFSET) + (uint)(*(ushort *)(owner_or_hit + OWNER_BIT_INDEX_OFFSET) >> BITSET_WORD_SHIFT) * BITSET_WORD_BYTES
+     ((*(uint *)(*(char **)(*(char **)(owner_or_hit + OWNER_BITSET_HOLDER_OFFSET) + BITSET_ARRAY_OFFSET) + (uint)(*(ushort *)(owner_or_hit + OWNER_BIT_INDEX_OFFSET) >> BITSET_WORD_SHIFT) * BITSET_WORD_BYTES
                 ) & 1 << ((byte)*(ushort *)(owner_or_hit + OWNER_BIT_INDEX_OFFSET) & BITSET_BIT_MASK)) != 0)) {
     /* Per-query setup into hit_buffer, then the ray test itself (both inferred). */
-    FUN_0056c140(query_handle,owner_block_word2,(int)hit_buffer.local_30);
-    owner_or_hit = FUN_0056c3b0(query_handle,owner_block_word2,ray_origin,ray_direction,(int)hit_buffer.local_20);
+    FUN_0056c140(query_handle,owner_block_word2,hit_buffer.local_30);
+    owner_or_hit = FUN_0056c3b0(query_handle,owner_block_word2,ray_origin,ray_direction,hit_buffer.local_20);
     /* Hit: copy the 6 result words out, 3 to hit_point and 3 to hit_normal (inferred). */
     if (owner_or_hit != 0) {
       *hit_point = hit_buffer.local_1c;

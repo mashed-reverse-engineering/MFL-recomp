@@ -50,7 +50,7 @@ void viewport_set_view_window_game_mode_9(void)
   
   race_phase = 0;
   /* game mode 9: draw the training text box for phases 3/4/5, else the bomb timer text in phase 6 (below) */
-  if (game_mode == 9) {
+  if (game_mode == GAME_MODE_CHASE_FUGITIVE) {
     camera = RwCameraGetCurrentCamera();
     RwCameraEndUpdate(camera);
     saved_view_window.x = (RwCamera_viewWindow(camera)).x;
@@ -73,9 +73,9 @@ void viewport_set_view_window_game_mode_9(void)
   }
   else {
     /* modes 5 and 10 are handled inside this block; mode 8 skips it and takes the separate block after it */
-    if (game_mode != 8) {
-      if (game_mode != 5) {
-        if (game_mode == 10) {
+    if (game_mode != GAME_MODE_SURVIVAL) {
+      if (game_mode != GAME_MODE_KILL_COPTER) {
+        if (game_mode == GAME_MODE_BEAT_THE_BOMB) {
           camera = RwCameraGetCurrentCamera();
           RwCameraEndUpdate(camera);
           saved_view_window.x = (RwCamera_viewWindow(camera)).x;

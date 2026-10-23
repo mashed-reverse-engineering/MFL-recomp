@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004810a0*/ extern undefined __cdecl atomic_set_material_alpha(int p0, void *p1);
+/*004810a0*/ extern undefined __cdecl atomic_set_material_alpha(void *p0, void *p1);
 /*004810d0*/ extern int debug_box_draw_with_culling_a();
 /*00481350*/ extern int debug_box_draw_with_culling_b();
 /*004d5410*/ extern RwReal _rwSqrt(RwReal p0);
@@ -12,6 +12,14 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*00843e80*/ extern undefined4 g_course_843e80;
 /*0089de08*/ extern int (__cdecl *g_gfx_89de08)();
+/* layout of *camera_frame in atomic_render_with_culling, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+typedef struct atomic_render_with_culling_camera_frame_layout {
+    char pad_0x0[64];
+    float f_0x40;
+    float f_0x44;
+    float f_0x48;
+} atomic_render_with_culling_camera_frame_layout;
+
 /*0089de0c*/ extern undefined4 g_gfx_89de0c;
 
 /* Per-atomic culling block, at byte offset g_gfx_89de0c from the atomic (inferred). */
@@ -45,11 +53,11 @@ RpAtomic * atomic_render_with_culling(RpAtomic *atomic)
 {
   RwUInt8 *cull_data;
   void *camera;
-  int camera_frame;
-  float10 fT;
-  float10 dx;
-  float10 dy;
-  float10 dz;
+  atomic_render_with_culling_camera_frame_layout *camera_frame;
+  double fT;
+  double dx;
+  double dy;
+  double dz;
   RwSphere *world_sphere;
   RwReal radius_scale;
   struct {
@@ -80,15 +88,15 @@ RpAtomic * atomic_render_with_culling(RpAtomic *atomic)
         _rpAtomicResyncInterpolatedSphere(atomic);
       }
       radius_scale = _rwSqrt(CULL_RADIUS_SCALE_SQ);
-      fT = (float10)(RpAtomic_boundingSphere(atomic)).radius / (float10)radius_scale;
+      fT = (double)(RpAtomic_boundingSphere(atomic)).radius / (double)radius_scale;
       *(float *)cull_data = (float)(fT * fT);
     }
     /* Camera position (camera frame, offsets 0x40..0x48 inferred) minus the sphere centre. */
-    camera_frame = *(int *)((int)camera + CAMERA_FRAME_PTR_OFFSET);
-    dx =(float10)*(float *)(camera_frame + 0x40) - (world_sphere->center).x;
-    dy = (float10)*(float *)(camera_frame + 0x44) - (world_sphere->center).y;
-    dz = (float10)*(float *)(camera_frame + 0x48) - (world_sphere->center).z;
-    fT = (dy * dy + dx * dx + dz * dz) * *(float *)((int)camera + CAMERA_DIST_SCALE_OFFSET);
+    camera_frame = (atomic_render_with_culling_camera_frame_layout *)(*(char **)((char *)camera + CAMERA_FRAME_PTR_OFFSET));
+    dx =(double)camera_frame->f_0x40 - (world_sphere->center).x;
+    dy = (double)camera_frame->f_0x44 - (world_sphere->center).y;
+    dz = (double)camera_frame->f_0x48 - (world_sphere->center).z;
+    fT = (dy * dy + dx * dx + dz * dz) * *(float *)((char *)camera + CAMERA_DIST_SCALE_OFFSET);
     alpha_args.dist_sq = (float)fT;
     /* Scaled squared distance not below the cached radius: culled. */
     if (!(fT < *(float *)cull_data)) {
@@ -98,7 +106,7 @@ RpAtomic * atomic_render_with_culling(RpAtomic *atomic)
     if (*(void **)(cull_data + CULL_DATA_MATERIAL_OFFSET) != (void *)0x0) {
       alpha_args.half_radius_sq = *(float *)cull_data * k_f_0_5;
       alpha_args.radius_sq = *(float *)cull_data;
-      atomic_set_material_alpha((int)atomic,&alpha_args.dist_sq);
+      atomic_set_material_alpha(atomic,&alpha_args.dist_sq);
     }
     g_gfx_6c3ea0 = g_gfx_6c3ea0 + 1;
   }

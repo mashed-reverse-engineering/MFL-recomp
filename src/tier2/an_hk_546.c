@@ -1,10 +1,10 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*00486a60*/ extern int ptank_set_colour();
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
-/*004c3bf0*/ extern void * FUN_004c3bf0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c3bf0*/ extern void * FUN_004c3bf0(void *p0, undefined4 p1, undefined4 p2);
 /*004c3d80*/ extern int texdict_load_file(char * p0, int p1, int p2);
 /*004d4e70*/ extern RwMatrix * RwMatrixCreate();
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);

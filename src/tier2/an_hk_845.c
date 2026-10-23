@@ -4,7 +4,7 @@
 /*00465f20*/ extern int weapon_effect_get_slot_value_a();
 /*00465f40*/ extern int weapon_effect_get_slot_value_b();
 /*00465f60*/ extern int weapon_effect_get_slot_record();
-/*00467e90*/ extern int course_get_rpworld_00467e90();
+/*00467e90*/ extern char *course_get_rpworld_00467e90();
 /*00472890*/ extern int sfx_play_voice_at();
 /*00482070*/ extern double dot_product_3d_clamped();
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
@@ -80,7 +80,7 @@ void weapon_rocket_fire(WeaponSlot *slot,int event_type)
   RwV3d *spawn_pos;
   float angle_a;
   uint player;
-  float10 ninety;
+  double ninety;
   int value_b;
   undefined4 fx_index;
   RwMatrix *ltm;
@@ -90,8 +90,8 @@ void weapon_rocket_fire(WeaponSlot *slot,int event_type)
   int rocket_off;
   int player_off;
   float *aim_dir;
-  float10 scratch;
-  float10 angle_b;
+  double scratch;
+  double angle_b;
   RwReal speed;
   uint player_id;
   RpClump *clump;
@@ -135,7 +135,7 @@ void weapon_rocket_fire(WeaponSlot *slot,int event_type)
 LAB_00460b34:
   /* spawn_pos = translation of the LTM of the frame at (*(g_weapon_rocket_6a6010 + player_off) + 4) (inferred) */
   spawn_pos = (RwV3d *)((char *)&g_weapon_rocket_6a5ddc + rocket_off);
-  ltm =RwFrameGetLTM(*(RwFrame **)(*(int *)((char *)&g_weapon_rocket_6a6010 + player_off) + 4));
+  ltm =RwFrameGetLTM(*(RwFrame **)(*(char **)((char *)&g_weapon_rocket_6a6010 + player_off) + 4));
   spawn_pos->x = (ltm->pos).x;
   *(RwReal *)((char *)&g_weapon_rocket_6a5de0 + rocket_off) = (ltm->pos).y;
   *(RwReal *)((char *)&g_weapon_rocket_6a5de4 + rocket_off) = (ltm->pos).z;
@@ -154,20 +154,20 @@ LAB_00460b34:
   *(float *)((char *)&g_weapon_rocket_6a5e00 + rocket_off) = speed + k_f_0_075;
   *(uint *)((char *)&g_weapon_rocket_6a5e0c + rocket_off) = player;
   /* angle_a: acos of the aim dot product, in degrees; negated when aim_dir has a negative dot with g_car_62ac68 (inferred) */
-  scratch = (float10)dot_product_3d_clamped(&g_weapon_62ac80,aim_dir);
-  scratch = (float10)FUN_004b3284((double)scratch);
-  angle_a = (float)(scratch * (float10)(DEG_PER_RAD_APPROX));
-  scratch = (float10)dot_product_3d_clamped(&g_car_62ac68,aim_dir);
-  if (scratch < (float10)k_f_0) {
+  scratch = (double)dot_product_3d_clamped(&g_weapon_62ac80,aim_dir);
+  scratch = (double)FUN_004b3284((double)scratch);
+  angle_a = (float)(scratch * (double)(DEG_PER_RAD_APPROX));
+  scratch = (double)dot_product_3d_clamped(&g_car_62ac68,aim_dir);
+  if (scratch < (double)k_f_0) {
     angle_a = angle_a * k_f_n1;
   }
   *(float *)((char *)&g_weapon_rocket_6a5e18 + rocket_off) = angle_a;
   /* angle_b: acos of the second aim dot product, in radians, converted to degrees minus 90 below (inferred) */
-  scratch = (float10)dot_product_3d_clamped(&g_car_62ac74,aim_dir);
-  angle_b = (float10)FUN_004b3284((double)scratch);
-  scratch = (float10)(DEG_PER_RAD_APPROX);
+  scratch = (double)dot_product_3d_clamped(&g_car_62ac74,aim_dir);
+  angle_b = (double)FUN_004b3284((double)scratch);
+  scratch = (double)(DEG_PER_RAD_APPROX);
   fx_index = (&g_weapon_6a5e2c)[rocket_index * ROCKET_RECORD_WORDS];
-  ninety = (float10)k_f_90;
+  ninety = (double)k_f_90;
   *(undefined4 *)((char *)&g_weapon_rocket_6a5e14 + rocket_off) = 0;
   *(undefined4 *)((char *)&g_weapon_rocket_6a5e10 + rocket_off) = 0;
   *(float *)((char *)&g_weapon_rocket_6a5e1c + rocket_off) = (float)(angle_b * scratch - ninety);

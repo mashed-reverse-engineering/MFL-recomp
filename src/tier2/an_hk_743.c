@@ -57,7 +57,7 @@ void hudpanel_markers_update_active(void)
         hudpanel_cursor_update_r((float *)entry);
       }
       entry = entry + MARKER_SLOT_STRIDE;
-    } while ((int)entry < ((int)&g_load_6586e8));
+    } while ((char *)entry < ((char *)&g_load_6586e8));
     /* Refresh all slots, then flush the particle queues. */
     hudpanel_markers_update_all_slots();
     particles_flush_result = particles_flush(&g_hudpanel_6584f8);
@@ -67,7 +67,7 @@ void hudpanel_markers_update_active(void)
     do {
       hudpanel_marker_place_r((void *)entry);
       entry = entry + MARKER_ENTRY_STRIDE;
-    } while ((int)entry < ((int)&g_hudpanel_6584f8));
+    } while ((char *)entry < ((char *)&g_hudpanel_6584f8));
   }
   return;
 }

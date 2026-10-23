@@ -18,8 +18,8 @@
 void __cdecl course_particle_init_random(undefined4 *position)
 
 {
-  float10 rand_x;
-  float10 rand_z;
+  double rand_x;
+  double rand_z;
   /* particle layout by byte offset (names for unk_ fields are unknown) */
   struct {
     undefined4 pos_x;
@@ -55,8 +55,8 @@ void __cdecl course_particle_init_random(undefined4 *position)
   particle.unk_14 = 0x3f800000;
   particle.unk_38 = 0x3f800000;
   /* random horizontal velocity, x and z in [-1, 1] */
-  rand_x = (float10)random_range(RANDOM_VEL_MIN_BITS,RANDOM_VEL_MAX_BITS);
-  rand_z = (float10)random_range(RANDOM_VEL_MIN_BITS,RANDOM_VEL_MAX_BITS);
+  rand_x = (double)random_range(RANDOM_VEL_MIN_BITS,RANDOM_VEL_MAX_BITS);
+  rand_z = (double)random_range(RANDOM_VEL_MIN_BITS,RANDOM_VEL_MAX_BITS);
   particle.vel_z = (float)rand_z;
   particle.vel_y = PARTICLE_UP_VEL_BITS;
   particle.accel_x = 0;

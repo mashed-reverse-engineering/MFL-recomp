@@ -2,7 +2,7 @@
 /*00468450*/ extern int array_find_index();
 /*004685b0*/ extern int voice_queue_select_tables();
 /*008bed04*/ extern int *g_voice_queue_count_ptr;
-/*008bed08*/ extern undefined4 g_voice_queue_entries_ptr;
+/*008bed08*/ extern char *g_voice_queue_entries_ptr;
 typedef struct { undefined4 d[10]; } VoiceEntry;      /* queue entry, 0x28 bytes */
 /* voice_queue_remove */
 

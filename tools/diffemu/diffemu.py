@@ -22,7 +22,7 @@ DOUT = os.environ.get("DIFFEMU_OUT") or OUT      # DIFFEMU_OUT=<dir>: results / 
 os.makedirs(DOUT, exist_ok=True)
 RESULTS, CACHE, DIFFDIR = (os.path.join(DOUT, f) for f in ("diffemu_results.csv", "diffemu_cache.csv", "diffemu_diffs"))
 OBJCACHE = os.environ.get("DIFFEMU_OBJ", os.path.expanduser("~/.cache/mfl_diffemu_obj"))
-FLAGS = ["/nologo", "/c", "/Gy", "/O2", "/Ob0"]      # as build_overlay.py plus /Ob0: a callee defined in the same chunk is called (hooked at its original address like every callee), not inlined; the original calls it, and the call trace must be comparable
+FLAGS = ["/nologo", "/c", "/Gy", "/O2", "/Ob0"]      # exactly the flags build_overlay.py uses for clusters / tier 2 (it adds /Ob0 for those since 2026-10-24: the verified object is the shipped one): a callee defined in the same chunk is called (hooked at its original address like every callee), not inlined; the original calls it, and the call trace must be comparable
 COLS = ["name", "va", "verdict", "cases", "coverage_orig", "coverage_ours", "note"]
 TOOLHASH = sha(*[open(os.path.join(core.HERE, f), "rb").read() for f in ("core.py", "diffemu.py", "seed.py")], open(os.path.join(core.TOOLS, "cmpfn.py"), "rb").read())
 MIN_CASES = 20

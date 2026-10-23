@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00475730*/ extern int get_viewport_camera();
+/*00475730*/ extern char *get_viewport_camera();
 /*00481fd0*/ extern float random_range();
 /*004b2b48*/ extern int _ftol();
 /*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
@@ -15,7 +15,7 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws a textured quad of the snow object at a random alpha, 4 corners relative to the object" */
 
-void course_arctic_snow_quad_draw(int param_1,int param_2)
+void course_arctic_snow_quad_draw(char *param_1,char *param_2)
 
 {
   int u_row;

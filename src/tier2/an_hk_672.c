@@ -2,8 +2,8 @@
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005ddc28*/ extern float k_f_0;
 /*00629424*/ extern undefined4 g_gfx_629424;
-/*006c40a8*/ extern undefined4 g_particles_6c40a8;
-/*006c40b4*/ extern undefined4 g_particles_6c40b4;
+/*006c40a8*/ extern char *g_particles_6c40a8;
+/*006c40b4*/ extern char *g_particles_6c40b4;
 /*006c40b8*/ extern undefined4 g_gfx_6c40b8;
 extern double fabs(double);
 #define PARTICLE_STRIDE (0x50) /* bytes per particle record */
@@ -77,7 +77,7 @@ void particle_pool_find_oldest_or_free(int pool_index,RwReal *src_matrix,RwReal 
     }
     /* remaining records that did not fit a group of 4 */
     if (scanned_count < pool_capacity) {
-      tail_age_ptr = (float *)(scanned_count * PARTICLE_STRIDE + PARTICLE_AGE_OFFSET + (int)pool);
+      tail_age_ptr = (float *)(scanned_count * PARTICLE_STRIDE + PARTICLE_AGE_OFFSET + (char *)pool);
       scanned_count = pool_capacity - scanned_count;
       do {
         if (oldest_age < *tail_age_ptr) {
@@ -119,7 +119,7 @@ void particle_pool_find_oldest_or_free(int pool_index,RwReal *src_matrix,RwReal 
     *(int *)&pool[1].right.z = 1;
     *(ushort *)&pool[1].flags = (ushort)*(byte *)((char *)params + PARAM_FLAGS_BYTE_OFFSET);
     iVar5 = g_gfx_6c40b8;
-    *(undefined2 *)((int)&pool[1].flags + 2) = 0;
+    *(undefined2 *)((char *)&pool[1].flags + 2) = 0;
     *(int *)(iVar5 + pool_index * 4) = *(int *)(iVar5 + pool_index * 4) + 1;
   }
   return;

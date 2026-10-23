@@ -11,8 +11,8 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00481fd0*/ extern double random_range();
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd620*/ extern float float_10_0;
 /*005ddb9c*/ extern float k_f_n10;
@@ -82,7 +82,7 @@ void sound_ambience_course_c_26(void)
   int emitter_idx; /* reused: emitter index, then voice index */
   int obj_index; /* course object index, or slot index in the 8-slot loop */
   int voice_idx; /* index into g_voices */
-  float10 ret_f10; /* float result of a callee, kept at extended precision */
+  double ret_f10; /* float result of a callee, kept at extended precision */
   undefined4 one_f_bits; /* bit pattern of 1.0f */
   struct {
     undefined4 pos_x; /* scratch voice position (x, y, z) */
@@ -117,9 +117,9 @@ void sound_ambience_course_c_26(void)
 LAB_0046ddf9:
           /* at most AMBIENT_SLOT_COUNT emitters per frame */
           if (emitter_idx < AMBIENT_SLOT_COUNT) {
-            ret_f10 = (float10)course_object_get_float_16c(obj_index);
+            ret_f10 = (double)course_object_get_float_16c(obj_index);
             g_sound_ambience_6ae0ac = (float)ret_f10;
-            ret_f10 = (float10)course_c26_checkpoint_scale_value(obj_index);
+            ret_f10 = (double)course_c26_checkpoint_scale_value(obj_index);
             g_sound_ambience_6ad1fc = (float)ret_f10;
             voice_idx = *(int *)(g_sound_groups + 0x470) + emitter_idx;
             if ((*(byte *)(g_voices[voice_idx].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
@@ -170,12 +170,12 @@ LAB_0046ddf9:
                 if ((*(byte *)(g_voices[voice_idx].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
                   FUN_005b6a40(g_voices[voice_idx].voice,1);
                 }
-                ret_f10 = (float10)random_range(0,FREQ_JITTER_A_MAX);
-                *(float *)(g_voices[voice_idx].voice + VOICE_REC_FREQ) = (float)(ret_f10 + (float10)k_f_22050);
+                ret_f10 = (double)random_range(0,FREQ_JITTER_A_MAX);
+                *(float *)(g_voices[voice_idx].voice + VOICE_REC_FREQ) = (float)(ret_f10 + (double)k_f_22050);
                 if (*(int *)(g_voices[voice_idx].voice + VOICE_REC_HANDLE) != 0) {
-                  ret_f10 = (float10)random_range(0,FREQ_JITTER_A_MAX);
+                  ret_f10 = (double)random_range(0,FREQ_JITTER_A_MAX);
                   FUN_005b7300(*(undefined4 *)(g_voices[voice_idx].voice + VOICE_REC_HANDLE),4,1,
-                               (float)(ret_f10 + (float10)k_f_22050));
+                               (float)(ret_f10 + (double)k_f_22050));
                 }
                 voice_rec = g_voices[voice_idx].voice;
                 *(undefined4 *)(voice_rec + VOICE_REC_POS_X) = g_sound_ambience_6ad8e0;
@@ -192,12 +192,12 @@ LAB_0046ddf9:
               if ((*(byte *)(g_voices[voice_idx].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
                 FUN_005b6a40(g_voices[voice_idx].voice,1);
               }
-              ret_f10 = (float10)random_range(0,FREQ_JITTER_B_MAX);
-              *(float *)(g_voices[voice_idx].voice + VOICE_REC_FREQ) = (float)(ret_f10 + (float10)k_f_15050);
+              ret_f10 = (double)random_range(0,FREQ_JITTER_B_MAX);
+              *(float *)(g_voices[voice_idx].voice + VOICE_REC_FREQ) = (float)(ret_f10 + (double)k_f_15050);
               if (*(int *)(g_voices[voice_idx].voice + VOICE_REC_HANDLE) != 0) {
-                ret_f10 = (float10)random_range(0,FREQ_JITTER_B_MAX);
+                ret_f10 = (double)random_range(0,FREQ_JITTER_B_MAX);
                 FUN_005b7300(*(undefined4 *)(g_voices[voice_idx].voice + VOICE_REC_HANDLE),4,1,
-                             (float)(ret_f10 + (float10)k_f_15050));
+                             (float)(ret_f10 + (double)k_f_15050));
               }
               voice_rec = g_voices[voice_idx].voice;
               *(undefined4 *)(voice_rec + VOICE_REC_POS_X) = g_sound_ambience_6ad8e0;

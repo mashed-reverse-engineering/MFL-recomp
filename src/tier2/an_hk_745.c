@@ -60,7 +60,7 @@ void __cdecl time_trial_panel_update(int slot_matrix_table,char *unused_arg)
       hud_dest = hud_dest + 1;
     }
     hud_dest = next_hud_slot;
-  } while ((int)next_hud_slot < ((int)&g_score_658d98));
+  } while ((char *)next_hud_slot < ((char *)&g_score_658d98));
   return;
 }
 

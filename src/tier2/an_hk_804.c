@@ -37,7 +37,7 @@ undefined4 __cdecl texdict_load_named_d(char *file_name,undefined4 load_arg_2,un
   /* Only load if the name is found in the content list (inferred). */
   content_found = game_content_find(&g_texdict_load_69c778,&g_texdict_load_69bf78);
   if (content_found != 0) {
-    load_result = FUN_004c3de0(((int)&g_texdict_load_69c778), load_arg_2, load_arg_3);
+    load_result = FUN_004c3de0(((char *)&g_texdict_load_69c778), load_arg_2, load_arg_3);
     return load_result;
   }
   return 0;

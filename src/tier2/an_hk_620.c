@@ -5,7 +5,7 @@ extern char LAB_00494360[];
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*0056b550*/ extern void FUN_0056b550();
 /*0056b590*/ extern void FUN_0056b590();
-/*0056e400*/ extern void FUN_0056e400(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9);
+/*0056e400*/ extern void FUN_0056e400(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, void *p4, undefined4 p5, undefined4 p6, void *p7, undefined4 p8, undefined4 p9);
 
 #define CALLBACK_A_ADDR (0x494300) /* == rwp_world_callback_a */
 #define CALLBACK_B_ADDR (0x494320) /* == LAB_00494320 */

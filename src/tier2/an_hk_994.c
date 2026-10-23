@@ -9,7 +9,7 @@
 /*004311b0*/ extern int message_show();
 /*004316f0*/ extern int message_close();
 /*004a34a0*/ extern int stub_return_one();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*0050b5e0*/ extern int nop_stub();
 /*005dd330*/ extern float float_1_0;
 /*008d8bf4*/ extern undefined4 g_autosave_step;

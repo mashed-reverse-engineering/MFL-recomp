@@ -29,7 +29,7 @@ undefined4 __cdecl ai_bot_obstacle_ahead(undefined4 car_index)
   struct {
     float distance_along;
     undefined1 unused_pad[8];
-    int car_matrix;
+    char *car_matrix;
     float origin_x;
     float origin_z;
     RwV2d delta;

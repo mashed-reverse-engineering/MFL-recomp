@@ -20,8 +20,6 @@
 /*007ef7ec*/ extern float g_frame_seconds;
 
 /* game_mode values that pick a HUD meter (inferred from the panel each case calls) */
-#define GAME_MODE_FUEL_METER (5)
-#define GAME_MODE_BOMB_METER (10)
 /* race phase in which the bomb update runs (inferred from bomb_update) */
 #define RACE_PHASE_BOMB (6)
 
@@ -71,10 +69,10 @@ void race_update_by_event_type(void)
     case 8:
     case 9:
       goto switchD_00411d2b_caseD_4;
-    case GAME_MODE_FUEL_METER:
+    case GAME_MODE_KILL_COPTER:
       hudpanel_fuel_meter_update();
       return;
-    case GAME_MODE_BOMB_METER:
+    case GAME_MODE_BEAT_THE_BOMB:
       hudpanel_bomb_meter_update();
       result = race_get_phase();
       if (result == RACE_PHASE_BOMB) {
@@ -92,7 +90,7 @@ void race_update_by_event_type(void)
   case 0xd:
     result = is_team_mode();
     if (result == 0) goto LAB_00411d7c;
-    solo_panels = game_mode == 2;
+    solo_panels = game_mode == GAME_MODE_HARE_AND_HOUNDS;
     goto LAB_00411d70;
   case 0x11:
     result = training_lesson_get();

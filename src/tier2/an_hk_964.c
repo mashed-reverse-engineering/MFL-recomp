@@ -1,11 +1,11 @@
 #include "mfl_tier2.h"
-/*004b10c0*/ extern int __stdcall FUN_004b10c0(int a1, int a2, int a3);
+/*004b10c0*/ extern int __stdcall FUN_004b10c0(void *a1, int a2, int a3);
 /* COM method (stdcall): the callee pops the this pointer */
 typedef int (__stdcall *ComMethod)(int *self);
 #define COM_VTBL_ADDREF (0x4)
 /* FUN_004aee20 */
 
-undefined4 __stdcall FUN_004aee20(int param_1, undefined2 *param_2)
+undefined4 __stdcall FUN_004aee20(char *param_1, undefined2 *param_2)
 
 {
   int *piVar1;
@@ -17,7 +17,7 @@ undefined4 __stdcall FUN_004aee20(int param_1, undefined2 *param_2)
     *param_2 = 0;
   }
   else {
-    FUN_004b10c0((int)param_2,*(int *)(param_1 + 0x30),0x80);
+    FUN_004b10c0(param_2,*(int *)(param_1 + 0x30),0x80);
   }
   *(undefined4 *)(param_2 + 0x80) = *(undefined4 *)(param_1 + 0x34);
   piVar1 = *(int **)(param_1 + 0x34);

@@ -3,8 +3,8 @@
 /*00564b10*/ extern int Rt2dBrushSetRGBA();
 /*00566060*/ extern void * __cdecl Rt2dFontFlow(void * p0, void * p1, RwReal p2, void * p3, int p4, void * p5);
 /*005de81c*/ extern float k_f_0_0708;
-/*0069ba0c*/ extern undefined4 g_ui_font;
-/*0069ba10*/ extern undefined4 g_ui_text_brush;
+/*0069ba0c*/ extern char *g_ui_font;
+/*0069ba10*/ extern char *g_ui_text_brush;
 /*008c87a0*/ extern undefined4 g_course_8c87a0;
 static int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ecx);
 extern void ui_rt2d_wide_string_copy(void);
@@ -33,7 +33,7 @@ __declspec(naked) int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ec
  *   text_scale: multiplied by k_f_0_0708 to give the font flow scale.
  * Pushes and pops the current transform around the draw.
  */
-void ui_text_draw_wide_a(undefined4 wide_text,undefined4 colour,float text_scale)
+void ui_text_draw_wide_a(char *wide_text,undefined4 colour,float text_scale)
 
 {
   char text_buf[TEXT_BUF_BYTES];

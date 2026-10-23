@@ -27,7 +27,7 @@ undefined4 car_get_wheel_average(float *out_average,uint car_index,uint wheel_in
   if ((car_index < MAX_CARS) && (wheel_index < WHEELS_PER_CAR)) {
     /* Sample window for this wheel: sums 2 passes of 8 floats (16 samples). */
     remaining_passes = WHEEL_SAMPLE_PASSES;
-    sample =(float *)(wheel_index * WHEEL_STRIDE + car_index * CAR_STRIDE + ((int)&player_car_0__wheels_0__field40_0x40 + WHEEL_SAMPLE_OFFSET));
+    sample =(float *)(wheel_index * WHEEL_STRIDE + car_index * CAR_STRIDE + ((char *)&player_car_0__wheels_0__field40_0x40 + WHEEL_SAMPLE_OFFSET));
     wheel_sum = k_f_0;
     /* Each pass adds 8 samples and advances by 8 floats. */
     do {

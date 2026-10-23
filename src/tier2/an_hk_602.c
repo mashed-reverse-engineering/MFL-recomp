@@ -1,15 +1,15 @@
 #include "mfl_tier2.h"
 /*004a5df0*/ extern int object_atomic_create();
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*0056bf10*/ extern float FUN_0056bf10(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
 /*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
 /*005749c0*/ extern void FUN_005749c0(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, undefined4 p1);
-/*0058c990*/ extern int FUN_0058c990(undefined4 p0);
+/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
+/*0058c990*/ extern char *FUN_0058c990(void *p0);
 /*0058cb90*/ extern void * FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(undefined4 p0);
+/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*006fa18c*/ extern char *g_rwp_world_6fa18c;
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
@@ -40,7 +40,7 @@ void __cdecl rwp_objects_create_capsule_group(int count,char *param_2,undefined4
   float capsule_length_scaled;
   int slot;
   undefined4 *body;
-  int geom;
+  char *geom;
   undefined4 handle;
   int i;
   
@@ -70,7 +70,7 @@ void __cdecl rwp_objects_create_capsule_group(int count,char *param_2,undefined4
       handle = rw_first_field(rw_list);
       FUN_0056a210(handle, geom, 0xffffffff, 2);
       g_rw_6fa7d0 = g_rw_6fa7d0 + 1;
-      *(float *)((char *)&g_rwp_world_6fa18c + g_rw_6fa7d0 * 4) =
+      ((float *)&g_rwp_world_6fa18c)[g_rw_6fa7d0] =
            g_rwp_objects[object_type].shatter_velocity * g_rwp_objects[object_type].shatter_velocity;
       i = i + 1;
     } while (i < count);

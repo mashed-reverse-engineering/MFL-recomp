@@ -35,6 +35,7 @@ typedef struct HitFxRecord {
 /* race_events_process_log */
 /* "walks the event log ring of this tick: type 3 wall hit (wall_hits++, rumble, rwp mode at high
    speed), type 4 car to car collision (last_hit_by, collision_speed), types 6 / 8 / 9 / 10 effects" */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 int race_events_process_log(void)
 {
   int event_type;

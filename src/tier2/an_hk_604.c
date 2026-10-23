@@ -53,7 +53,7 @@ void race_render_viewport(void)
 {
   int race_phase;
   undefined4 camera;
-  float10 race_time;
+  double race_time;
   undefined4 forward_p1;
   undefined4 forward_p2;
   float scene_progress;
@@ -66,21 +66,21 @@ void race_render_viewport(void)
     if (race_phase != -1) {
       camera = race_get_last_active_player();
       /* scene_progress = clamp(race_time * 0.5, 0, 1): the cup scene takes two seconds to run (inferred) */
-      race_time = (float10)race_get_time_seconds();
-      if ((float10)float_1_0 <= race_time * (float10)k_f_0_5) {
+      race_time = (double)race_get_time_seconds();
+      if ((double)float_1_0 <= race_time * (double)k_f_0_5) {
 LAB_00412e65:
-        race_time = (float10)race_get_time_seconds();
-        if (race_time * (float10)k_f_0_5 < (float10)float_1_0) {
-          race_time = (float10)race_get_time_seconds();
-          scene_progress = (float)(race_time * (float10)k_f_0_5);
+        race_time = (double)race_get_time_seconds();
+        if (race_time * (double)k_f_0_5 < (double)float_1_0) {
+          race_time = (double)race_get_time_seconds();
+          scene_progress = (float)(race_time * (double)k_f_0_5);
         }
         else {
           scene_progress = 1.0;
         }
       }
       else {
-        race_time = (float10)race_get_time_seconds();
-        if ((float10)k_f_0 <= race_time * (float10)k_f_0_5) goto LAB_00412e65;
+        race_time = (double)race_get_time_seconds();
+        if ((double)k_f_0 <= race_time * (double)k_f_0_5) goto LAB_00412e65;
         scene_progress = 0.0;
       }
       cup_scene_update_object(*(int *)&scene_progress,camera);
@@ -146,7 +146,7 @@ LAB_00412e65:
   RwRenderStateSet(rwRENDERSTATEFOGENABLE,(void *)0x0);
   race_phase = race_get_setup_index();
   course_hook10(**(undefined4 **)(g_race_setup + 4 + race_phase * 4));
-  if (game_mode != 5) {
+  if (game_mode != GAME_MODE_KILL_COPTER) {
     course_signs_render_visible();
   }
   /* forward pass for the viewport camera, when option_flags[4] is set outside phase 7 (inferred) */
@@ -170,21 +170,21 @@ LAB_00412e65:
   race_phase = race_get_last_active_player();
   if (race_phase == -1) goto LAB_0041318c;
   camera = race_get_last_active_player();
-  race_time = (float10)race_get_time_seconds();
-  if ((float10)float_1_0 <= race_time * (float10)k_f_0_5) {
+  race_time = (double)race_get_time_seconds();
+  if ((double)float_1_0 <= race_time * (double)k_f_0_5) {
 LAB_00413135:
-    race_time = (float10)race_get_time_seconds();
-    if (race_time * (float10)k_f_0_5 < (float10)float_1_0) {
-      race_time = (float10)race_get_time_seconds();
-      scene_progress = (float)(race_time * (float10)k_f_0_5);
+    race_time = (double)race_get_time_seconds();
+    if (race_time * (double)k_f_0_5 < (double)float_1_0) {
+      race_time = (double)race_get_time_seconds();
+      scene_progress = (float)(race_time * (double)k_f_0_5);
     }
     else {
       scene_progress = 1.0;
     }
   }
   else {
-    race_time = (float10)race_get_time_seconds();
-    if ((float10)k_f_0 <= race_time * (float10)k_f_0_5) goto LAB_00413135;
+    race_time = (double)race_get_time_seconds();
+    if ((double)k_f_0 <= race_time * (double)k_f_0_5) goto LAB_00413135;
     scene_progress = 0.0;
   }
   cup_scene_place_object(*(int *)&scene_progress,g_game_state.mirror_mode,camera);

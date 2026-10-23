@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00494630*/ extern undefined4 hermite_interpolate(float p0, void *p1, void *p2, void *p3, void *p4, void *p5);
-/*004c5b10*/ extern void FUN_004c5b10(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c5c40*/ extern void FUN_004c5c40(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c5b10*/ extern void FUN_004c5b10(void *p0, void *p1, void *p2);
+/*004c5c40*/ extern void FUN_004c5c40(undefined4 p0, void *p1, undefined4 p2);
 /*005dd378*/ extern float k_f_0_1;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 

@@ -205,3 +205,7 @@
 /*004aa740*/ extern void FUN_004aa740(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6);
 /*004aa250*/ extern void FUN_004aa250(undefined4 p0);
 /*004aa970*/ extern void FUN_004aa970(void);
+/*00554320*/ extern int __cdecl FUN_00554320(int p0, void *p1, int p2, int p3);
+/*00554370*/ extern int __cdecl FUN_00554370(int p0);
+/*005543a0*/ extern int __cdecl FUN_005543a0(int p0, int p1);
+/*005543d0*/ extern int __cdecl FUN_005543d0(int p0);

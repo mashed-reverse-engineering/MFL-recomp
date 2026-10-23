@@ -16,13 +16,18 @@ IMG = pe.get_memory_mapped_image(); IMGEND = BASE + ((len(IMG) + 0xfff) & ~0xfff
 WSEC = [(BASE + s.VirtualAddress, BASE + s.VirtualAddress + ((max(s.Misc_VirtualSize, s.SizeOfRawData) + 0xfff) & ~0xfff)) for s in pe.sections if s.Characteristics & 0x80000000]
 STACK, STK = 0x60000000, 0x40000      # emulator memory map; everything else is lazy
 OURS, SCR, ARGBUF, STUBS, IMPSTUB, RET = 0x70000000, 0x71000000, 0x72000000, 0x73000000, 0x74000000, 0x7f000000
-FPSRC, FPOUT = STUBS + 0x8000, STUBS + 0x8100
+FPSRC = STUBS + 0x8000
+FPPAGE = 0x76000000      # x87 readout page (J-spill 2026-10-22): mapped on its own, never written by the code under test, never in a compared region (FPOUT used to be STUBS+0x8100: its fstp counted as a function write)
+FPOUT = FPPAGE
 LITSZ = 256
 MAXINS = 300000
 WIN = 0x200      # default size of the memory window behind a pointer argument
 
 
 FRAMEWIN = 8      # words (32 bytes) compared behind every pointer argument that points into the stack
+def fp_depth(uc, top):
+    """values on the x87 stack = (8 - TOP) & 7.  ponytail: a pop of an empty stack (callee the stub does not model as a float returner) reads as stale entries holding register garbage: that is a harness model gap (float_returners), not a C difference; FPTAG of Unicorn is not usable for this (empty reads 01 or 11)"""
+    return -top & 7
 def u32(v): return v & 0xffffffff
 def sha(*parts):
     h = hashlib.sha1()
@@ -451,7 +456,7 @@ def orig_ret_pops(va):
     return _RP[va]
 
 _FRET = {}
-_FCONS = ("fst", "fstp", "fmul", "fadd", "fsub", "fsubr", "fdiv", "fdivr", "fcom", "fcomp", "fabs", "fchs", "fsqrt", "fist", "fistp", "fucom", "fucomp", "fimul")
+_FCONS = ("fsin", "fcos", "fptan", "frndint", "f2xm1", "ftst", "fst", "fstp", "fmul", "fadd", "fsub", "fsubr", "fdiv", "fdivr", "fcom", "fcomp", "fabs", "fchs", "fsqrt", "fist", "fistp", "fucom", "fucomp", "fimul")
 def float_returners():
     """va -> number of ORIGINAL call sites whose first x87 instruction (<= 6 instructions, no call / jump between) consumes ST0 with a memory operand or alone (fstp [m], fmul [m], fchs ...):
     the callee returns a float in ST0 although Ghidra typed it int / undefined (course_angels_cb1: `call 4757e0; fstp [esp]`); without it the stub left no value for the fstp = a false x87 stack DIFF"""
@@ -531,6 +536,25 @@ def region(v):
     return "heap/wild"
 def isro_ptr(v): return v >= 0x1000 and (isro(v) or SCR <= v < SCR + 0x10000)
 
+CANARY = os.environ.get("DIFFEMU_CANARY", "1") != "0"
+_CNX = {}
+def canary_extents(va, nargs):
+    """per stack argument: bytes the ORIGINAL callee at va reaches through the pointer if it stores through it (tools/stack_lint.extents: (read, write)); 0 = none / unknown"""
+    key = (va, nargs)
+    if key in _CNX: return _CNX[key]
+    out = [0] * nargs
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        import stack_lint
+        for k, (rd, wr) in enumerate(stack_lint.extents(va, nargs)):
+            if wr > 0: out[k] = max(rd, wr)
+    except Exception: pass
+    try:
+        for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "callee_extents.txt")):
+            q = l.split()
+            if len(q) >= 3 and not l.startswith("#") and int(q[0], 16) == va and int(q[1]) < nargs: out[int(q[1])] = max(out[int(q[1])], int(q[2]))
+    except OSError: pass
+    _CNX[key] = out; return out
 _WT = {}
 _MEMW = {"mov", "add", "sub", "and", "or", "xor", "inc", "dec", "neg", "not", "shl", "shr", "sar", "rol", "ror", "adc", "sbb", "xchg", "bts", "btr", "btc", "cmpxchg", "xadd"}
 def writes_through(va, depth=4):
@@ -633,10 +657,10 @@ SNAP = None      # set by seed.py
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
-        m.sw, m.frames, m.sp0, m.rowrite = set(), [], 0, []; m.patch = {}; m.reads = None; m.small = False
+        m.sw, m.frames, m.sp0, m.rowrite = set(), [], 0, []; m.track = False; m.wb = set(); m.uninit = set(); m.patch = {}; m.reads = None; m.small = False
         m.seed, m.mode, m.wild, m.trace, m.writes, m.cnt, m.islots, m.stub, m.wildfn = seed, mode, 0, [], [], {}, islots, {}, wildfn
         uc = m.uc = Uc(UC_ARCH_X86, UC_MODE_32)
-        for a, n in sorted(((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000))): uc.mem_map(a, n)      # ascending: with RET (0x7f000000) mapped before ARGBUF / OURS Unicorn 2.1.4 re-executes the first store into ARGBUF after a memory hook and loses the flags (cmp; mov [eax], imm; ja took the wrong branch: time_trial_default_record_b)
+        for a, n in sorted(((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000), (FPPAGE, 0x1000))): uc.mem_map(a, n)      # ascending: with RET (0x7f000000) mapped before ARGBUF / OURS Unicorn 2.1.4 re-executes the first store into ARGBUF after a memory hook and loses the flags (cmp; mov [eax], imm; ja took the wrong branch: time_trial_default_record_b)
         if lits: uc.mem_write(SCR, lits)
         uc.mem_write(IMPSTUB, b"\xc3" * 0x10000)
         m.hooked = dict(imports); m.hooked.update(callees)
@@ -698,8 +722,15 @@ class Machine:
         m.nullcall = True; uc.emu_stop()
 
     def _write(m, uc, access, addr, size, val, ud):
+        if m.track:
+            for i in range(size): m.wb.add(addr + i)      # byte granular: a partly written word is still partly uninitialised
         if isstack(addr): m.sw.add(addr & ~3)      # stack words the function itself wrote (frame windows below: residue of an earlier frame is never compared)
-        if not (isstack(addr) or OURS <= addr < OURS + 0x10000 or SCR <= addr < SCR + 0x10000): m.writes.append((addr, size))
+        if not (isstack(addr) or OURS <= addr < OURS + 0x10000 or SCR <= addr < SCR + 0x10000 or FPPAGE <= addr < FPPAGE + 0x1000): m.writes.append((addr, size))
+
+    def _rd(m, uc, access, addr, size, val, ud):
+        """read of a stack byte below the entry ESP that this run has not written (uninitialised local / residue of the pre-fill)"""
+        for i in range(size):
+            if addr + i not in m.wb: m.uninit.add((addr + i) & ~3)
 
     def stubaddr(m, pop, fl):
         if (pop, fl) not in m.stub:
@@ -764,6 +795,15 @@ class Machine:
                 if os.environ.get("FRAMEDBG"): sys.stderr.write("FRAME %s\n" % (("ours" if m.ours else "orig", c.name, k, hex(a), hex(sp), hex(m.sp0), snap, [hex(x) for x in outs]),))
         for k, a in enumerate(outs):      # out parameters: a dword behind every pointer to a local gets a deterministic value (else it is frame garbage, different in the two builds)
             if isstack(a): uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, k), 16) % 61))
+        if CANARY:      # K-use 2026-10-23: the hooked callee would store up to its asm store extent (stack_lint.extents: max(read, write) where it writes at all) behind every pointer into the frame; a canary there overwrites what a too small C frame struct has behind the member (saved registers, return address) and shows as DIFF (course_world_ray_hit_light_sample: 64 byte matrix into 60 bytes)
+            ex_ = canary_extents(c.va, len(outs))
+            if os.environ.get("CANDBG"): sys.stderr.write("CAN %s %x outs=%s ex=%s ours=%s\n" % (c.name, c.va, [hex(x) for x in outs], ex_, m.ours))
+            for k, a in enumerate(outs):
+                if isstack(a) and k < len(ex_) and ex_[k] > 4:
+                    for j in range(min(ex_[k], 0x100) // 4):
+                        w = a + 4 * j
+                        if not isstack(w): break      # no bound at the entry esp on purpose: the return address / saved registers behind a too small frame struct are what the canary must hit
+                        uc.mem_write(w, struct.pack("<I", 0xC0DE0000 | (int(sha(c.va, i, m.seed, k, j, "cn"), 16) & 0xffff)))
         for nm_, nw_ in OUTWORDS.items():      # callees that fill a whole record behind a pointer to a local: the generic single out-word leaves the rest as frame garbage that differs between the two builds
             if c.name.startswith(nm_):
                 for k, a in enumerate(args):
@@ -787,6 +827,7 @@ class Machine:
         uc.mem_write(sp, struct.pack("<%dI" % (1 + len(args)), RET, *[u32(x) for x in args]))
         for r, v in regs.items(): uc.reg_write(REGS[r], u32(v))
         uc.reg_write(UC_X86_REG_ESP, sp); m.blocks = {}; m.exited = False; m.sp0 = sp
+        if m.track: uc.hook_add(UC_HOOK_MEM_READ, m._rd, begin=STACK, end=sp - 1)
         if count >= MAXINS // 7: uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)      # only the 12000 instruction trial runs of retry_case need no coverage (the hook used to stop after 3 runaway cases: count MAXINS // 7 > coverage ~0.4 whatever the case count)
         err = None
         t0 = time.time()
@@ -805,10 +846,13 @@ class Machine:
         r.update(eax=uc.reg_read(UC_X86_REG_EAX), edx=uc.reg_read(UC_X86_REG_EDX), esp=uc.reg_read(UC_X86_REG_ESP) - sp,
                  saved=tuple(uc.reg_read(x) for x in (UC_X86_REG_EBX, UC_X86_REG_ESI, UC_X86_REG_EDI, UC_X86_REG_EBP)),
                  fptop=(uc.reg_read(UC_X86_REG_FPSW) >> 11) & 7, trace=m.trace, st0=None)
-        if r["fptop"]:      # a value on the x87 stack: store it with all 80 bits
+        r["xs"] = []
+        if r["fptop"]:      # every value left on the x87 stack (the result on top, stale entries below), all 80 bits each, stored to the dedicated FPPAGE
             uc.mem_write(RET + 0x100, b"\xdb\x3d" + struct.pack("<I", FPOUT))
-            try: uc.emu_start(RET + 0x100, RET + 0x106); r["st0"] = bytes(uc.mem_read(FPOUT, 10))
+            try:
+                for _ in range(fp_depth(uc, r["fptop"])): uc.emu_start(RET + 0x100, RET + 0x106); r["xs"].append(bytes(uc.mem_read(FPOUT, 10)))
             except UcError: pass
+            r["st0"] = r["xs"][0] if r["xs"] else None
         return r
 
     def read(m, a, n):
@@ -980,7 +1024,7 @@ def _fill(f, r):
     return defloat(r.randbytes(STK - 0x200))
 
 def side(fn, case, ours, count=MAXINS):
-    m = Machine(case.seed, case.mode, fn.lits if ours else b"", fn.callees, fn.imports, fn.islots); m.ours = ours; m.indargs = not getattr(fn, "noindargs", False)
+    m = Machine(case.seed, case.mode, fn.lits if ours else b"", fn.callees, fn.imports, fn.islots); m.ours = ours; m.indargs = not getattr(fn, "noindargs", False); m.track = case.fill == "rand" and not os.environ.get("DIFFEMU_NOUNINIT")      # random pre-fill: watch the reads of unwritten stack bytes (run_case)
     for a, b in case.wins: m.uc.mem_write(a, b)
     m.patch = case.patch; m.small = case.small
     for a, v in case.patch.items(): m.poke(a, v)
@@ -1025,7 +1069,11 @@ def compare(fn, mo, ro, mu, ru):
     if ro["fptop"] != ru["fptop"]: d.append("x87 stack top orig %d ours %d" % (ro["fptop"], ru["fptop"]))
     if sg.ret in ("f", "d"):
         if ro["st0"] != ru["st0"]: d.append("ST0 orig %s ours %s" % (ro["st0"] and ro["st0"].hex(), ru["st0"] and ru["st0"].hex()))
-    elif sg.ret != "v":
+    if not exited:      # stale x87 entries (below the result, or all of them in a void function): dead for the caller, but compared too (not masked)
+        k0 = 1 if sg.ret in ("f", "d") else 0
+        xo, xu = ro.get("xs", [])[k0:], ru.get("xs", [])[k0:]
+        if xo != xu and len(xo) == len(xu): d.append("stale x87 stack entry %d orig %s ours %s" % (k0 + next(i for i in range(len(xo)) if xo[i] != xu[i]), *[x[next(i for i in range(len(xo)) if xo[i] != xu[i])].hex() for x in (xo, xu)]))
+    elif sg.ret != "v" or os.environ.get("DIFFEMU_VOID_EAX"):      # DIFFEMU_VOID_EAX=1: also compare EAX of void functions (the original may leave a live result there: sweep-only functions have no caller to prove it)
         mask = {"i1": 0xff, "i2": 0xffff}.get(sg.ret, 0xffffffff)
         if ro["eax"] & mask != ru["eax"] & mask: d.append("eax orig %08x ours %08x" % (ro["eax"], ru["eax"]))
         if sg.ret == "ll" and ro["edx"] != ru["edx"]: d.append("edx orig %08x ours %08x" % (ro["edx"], ru["edx"]))
@@ -1046,6 +1094,13 @@ def compare(fn, mo, ro, mu, ru):
             if (fn.name, fo[0], fo[1]) in frame_allow(): continue      # src/diffemu_frame_allow.txt: a frame window difference that was checked against the original callee (it reads fewer words than the window)
             bad = [j for j in sorted(do) if do[j] != du.get(j, "-")]      # initialised by the ORIGINAL and different / uninitialised in ours (words only ours initialised: ignored, unrelated locals)
             if bad: d.append("frame object behind stack pointer argument %d of call %s #%d differs at word(s) %s: orig %s ours %s" % (fo[1], fo[0], n, bad, [do[j] for j in bad], [du.get(j, "-") for j in bad])); break
+    if os.environ.get("DIFFEMU_STACK"):      # strict stack mode (measurement; off by default, README diffemu "stack"): every frame word either side wrote must end with the same value at the same address.  Frame layouts of two builds legitimately differ, so this reports layout noise too.
+        sw = sorted(w for w in mo.sw | mu.sw if w < mo.sp0 - 4)
+        bad = []
+        for w in sw:
+            wo, wu = struct.unpack("<I", mo.read(w, 4))[0], struct.unpack("<I", mu.read(w, 4))[0]
+            if wo != wu and not (isstack(wo) and isstack(wu)) and not (BASE <= wo < IMGEND and OURS <= wu < OURS + 0x10000): bad.append((w, wo, wu, w in mo.sw, w in mu.sw))
+        if bad: d.append("stack: %d frame words differ (written by orig/ours): %s" % (len(bad), ", ".join("%08x %08x/%08x %s%s" % (w, a_, b_, "o" if o_ else "-", "u" if u_ else "-") for w, a_, b_, o_, u_ in bad[:6])))
     addrs = sorted({x + i for w in (mo.writes, mu.writes) for x, n in w for i in range(n)})
     if addrs:
         diffs = []      # final bytes of every touched page in both machines
@@ -1132,6 +1187,11 @@ def run_case(fn, case):
     fn.cov_o |= covered(fn.leaders_o, mo.blocks)
     mu, ru = side(fn, case, True)
     fn.cov_u |= covered(fn.leaders_u, mu.blocks)
+    if (mo.uninit or mu.uninit) and ru["done"]:      # uninitialised stack read on either side under the random pre-fill: the two frames legitimately differ in size / layout, so the garbage differs.  Both sides rerun at the same ESP over a CONSTANT pre-fill, identical wherever neither side wrote (rule: README diffemu "stack").  Written words are never masked.
+        fn.uninit_cases = getattr(fn, "uninit_cases", 0) + 1
+        c2 = Case(case.seed, case.mode, (0xA5, 0x00)[case.seed & 1], case.args, case.regs, case.wins); c2.patch, c2.small = case.patch, case.small
+        mo, ro = side(fn, c2, False); mu, ru = side(fn, c2, True)
+        if not ro["done"]: return "skip", ro["cause"]
     if not ru["done"] and ru["cause"] == "TIMEOUT": return "skip", "TIMEOUT"
     if not ru["done"]: return "diff", ["ours does not return (%s, eip %08x%s) while the original does" % (ru["cause"], ru["eip"], ", " + str(ru["err"]) if ru["err"] else "")]
     d = compare(fn, mo, ro, mu, ru)

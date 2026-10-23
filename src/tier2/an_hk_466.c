@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();

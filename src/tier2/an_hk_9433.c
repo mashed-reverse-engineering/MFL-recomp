@@ -2,6 +2,7 @@
 /* sound_surface_ambience_lookup */
 /* "(course id, surface colour, out a, out b): maps the colour under the car to the two ambience indices of its course" */
 /* Every course has a default pair of indices (result 0); a few surface colours have their own pair.  The courses fall into 16 groups with identical tables. */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 int sound_surface_ambience_lookup(unsigned int course, unsigned int colour, int *out_a, int *out_b)
 {
   switch (course) {

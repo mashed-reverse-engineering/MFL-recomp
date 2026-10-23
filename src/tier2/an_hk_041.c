@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042a3f0*/ extern void * course_get_rpworld();
-/*00452b90*/ extern undefined __cdecl viewport_camera_sync_to_main(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00452b90*/ extern undefined __cdecl viewport_camera_sync_to_main(undefined4 p0, void *p1, void *p2);
 /*00452bc0*/ extern int course_arctic_camera_relative_update();
 /*00475730*/ extern int get_viewport_camera();
 /*00495c30*/ extern int viewport_get_camera();

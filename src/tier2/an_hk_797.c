@@ -34,14 +34,14 @@ void intro_banner_draw_team_text(undefined4 *colour_ptr,int bottom_layout)
   float slide_y;
   int text_id;
   int team_mode;
-  float10 scratch_d;
+  double scratch_d;
   undefined4 colour;
 
   /* text_id starts as the banner slot index, then becomes that slot's team (inferred) */
   text_id = intro_banner_get_flag();
   text_id = g_player_slots[text_id].team;
   /* slide_y: horizontal slide of the banner, used as the label x (inferred); scratch_d is a double temporary */
-  scratch_d = (float10)intro_banner_slide_y();
+  scratch_d = (double)intro_banner_slide_y();
   slide_y = (float)scratch_d;
   /* team_mode: nonzero when team play is on; reused below as the slot index (inferred) */
   team_mode = is_team_mode();
@@ -54,8 +54,8 @@ void intro_banner_draw_team_text(undefined4 *colour_ptr,int bottom_layout)
       return;
     }
     /* top layout: scratch_d is the label width (inferred); shadow at (640 - width + 3, 93) */
-    scratch_d = (float10)intro_banner_get_x(0x42ba0000,0xff000000,0x3f800000,2);
-    ui_rt2d_text_draw(text_id,(float)(((float10)k_f_640 - scratch_d) + (float10)k_f_3), TEAM_TEXT_SHADOW_Y_TOP, COLOUR_OPAQUE_BLACK, 1.0f, 0x2);
+    scratch_d = (double)intro_banner_get_x(0x42ba0000,0xff000000,0x3f800000,2);
+    ui_rt2d_text_draw(text_id,(float)(((double)k_f_640 - scratch_d) + (double)k_f_3), TEAM_TEXT_SHADOW_Y_TOP, COLOUR_OPAQUE_BLACK, 1.0f, 0x2);
     colour = *colour_ptr;
   }
   else {
@@ -72,13 +72,13 @@ void intro_banner_draw_team_text(undefined4 *colour_ptr,int bottom_layout)
       ui_rt2d_text_draw(text_id,slide_y,TEAM_TEXT_Y_BOTTOM,*colour_ptr,1.0f,1);
       return;
     }
-    scratch_d = (float10)intro_banner_get_x(0x42ba0000,0xff000000,0x3f800000,2);
-    ui_rt2d_text_draw(text_id,(float)(((float10)k_f_640 - scratch_d) + (float10)k_f_3), TEAM_TEXT_SHADOW_Y_TOP, COLOUR_OPAQUE_BLACK, 1.0f, 0x2);
+    scratch_d = (double)intro_banner_get_x(0x42ba0000,0xff000000,0x3f800000,2);
+    ui_rt2d_text_draw(text_id,(float)(((double)k_f_640 - scratch_d) + (double)k_f_3), TEAM_TEXT_SHADOW_Y_TOP, COLOUR_OPAQUE_BLACK, 1.0f, 0x2);
     colour = *colour_ptr;
   }
   /* main label, both layouts: at y 90, right-aligned to x 640 (inferred), in the colour loaded above */
-  scratch_d = (float10)intro_banner_get_x(0x42b40000,colour,0x3f800000,2);
-  ui_rt2d_text_draw(text_id,(float)((float10)k_f_640 - scratch_d), TEAM_TEXT_Y_TOP, *(int *)((char *)colour_ptr + 0), 1.0f, 0x2);
+  scratch_d = (double)intro_banner_get_x(0x42b40000,colour,0x3f800000,2);
+  ui_rt2d_text_draw(text_id,(float)((double)k_f_640 - scratch_d), TEAM_TEXT_Y_TOP, *(int *)((char *)colour_ptr + 0), 1.0f, 0x2);
   return;
 }
 

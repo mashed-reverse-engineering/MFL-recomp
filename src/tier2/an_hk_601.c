@@ -1,15 +1,15 @@
 #include "mfl_tier2.h"
 /*004a5df0*/ extern int object_atomic_create();
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*0056bf10*/ extern float FUN_0056bf10(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
 /*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
 /*0056cb10*/ extern void FUN_0056cb10(undefined4 p0, undefined4 p1);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, undefined4 p1);
-/*0058c990*/ extern int FUN_0058c990(undefined4 p0);
+/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
+/*0058c990*/ extern char *FUN_0058c990(void *p0);
 /*0058cb90*/ extern void * FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(undefined4 p0);
+/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*006fa18c*/ extern char *g_rwp_world_6fa18c;
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
@@ -38,13 +38,13 @@
  * object_index: index into g_rwp_objects (object description)
  */
 
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-22 authority=diffemu */
 void rwp_objects_create_sphere_group(int count,char *param_2,undefined4 rw_list,char *param_4,int object_index)
 {
   float scaled_radius;
   int slot;
   undefined4 *group;
-  int body;
+  char *body;
   undefined4 handle;
   int body_index;
 
@@ -75,7 +75,7 @@ void rwp_objects_create_sphere_group(int count,char *param_2,undefined4 rw_list,
       handle = rw_first_field(rw_list);
       FUN_0056a210(handle, body, 0xffffffff, 2);
       g_rw_6fa7d0 = g_rw_6fa7d0 + 1;
-      *(float *)((char *)&g_rwp_world_6fa18c + g_rw_6fa7d0 * 4) =
+      ((float *)&g_rwp_world_6fa18c)[g_rw_6fa7d0] =
            g_rwp_objects[object_index].shatter_velocity * g_rwp_objects[object_index].shatter_velocity;
       body_index = body_index + 1;
     } while (body_index < count);

@@ -313,7 +313,7 @@ ai_bot_weapon_logic(int param_1,float *param_2,char *param_3,float *param_4,char
     if (iVar1 != 10) {
       if (player_weapon_slots[param_1].descriptor == 0) {
         iVar1 = get_event_type();
-        if (iVar1 != 0x11) {
+        if (iVar1 != EVENT_TRAINING) {
           car_get_forward(&local_c,param_1);
           local_18.x = *param_4 - *param_2;
           local_c.y = 0.0;
@@ -395,7 +395,7 @@ extern void ai_route_target_for_car(char *param_1,char *param_2,char *param_3);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float at 0x8C9980" */
 
-extern float10 ai_get_float_8c9980(void);
+extern double ai_get_float_8c9980(void);
 
 /* ai_erase_cell grid: 8 world units per cell, 128 x 128 cells, world origin at -512 */
 #define AI_GRID_DIM (0x80)
@@ -489,7 +489,7 @@ undefined4 __cdecl ai_erase_cell(uint world_x,uint world_z)
 
 /* "float at 0x8C9EC0 + index * 4 (the per player countdown used by game_mode_end_check)" */
 
-extern float10 ai_get_counter(char *param_1);
+extern double ai_get_counter(char *param_1);
 
 
 /* ai_ftol_noop_wrapper */

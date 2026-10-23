@@ -52,11 +52,11 @@ void sound_menu_voices_trigger(void)
   int check_result;
   undefined4 fx_result;
   uint voice_addr;
-  float10 option_volume;
+  double option_volume;
 
-  option_volume = (float10)option_get_volume_0();
-  voice_volume = (float)(option_volume * (float10)*(float *)((char *)&s_333_Lap_frames_005df368 + 0));
-  option_volume = (float10)option_get_volume_2();
+  option_volume = (double)option_get_volume_0();
+  voice_volume = (float)(option_volume * (double)*(float *)((char *)&s_333_Lap_frames_005df368 + 0));
+  option_volume = (double)option_get_volume_2();
   voice_slot = g_sound_frame_619138;
   /* menu UI 69d6a8 open: voice on slot g_sound_frame_619138 at VOICE_FREQUENCY_DEFAULT */
   check_result = ui_get_menu_69d6a8();

@@ -12,18 +12,18 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 ## Progress
 
 <!-- progress:start -->
-**2,557 application functions** (VA < 0x4B0000, the rest is linked library code)
+**2,784 application functions** (VA < 0x4B0000, the rest is linked library code)
 
 | Stage | Functions | Progress |
 |---|---:|:---|
-| Named | 2,459 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers) | 2,142 | `█████████████████░░░` 84% |
-| ...verified byte identical | 1,387 | `███████████░░░░░░░░░` 54% |
-| ...share of the code bytes | 336,612 B | `███████████░░░░░░░░░` 53% |
-| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 714 | `██████░░░░░░░░░░░░░░` 28% |
-| ...of these register-argument clusters | 418 | `███░░░░░░░░░░░░░░░░░` 16% |
-| Published in `src/` | 381 | `███░░░░░░░░░░░░░░░░░` 15% |
-| ...byte identical (`MATCH`) | 343 | `███░░░░░░░░░░░░░░░░░` 13% |
+| Named | 2,686 | `███████████████████░` 96% |
+| Replaced by recompiled C (all tiers) | 2,496 | `██████████████████░░` 90% |
+| ...verified byte identical | 1,387 | `██████████░░░░░░░░░░` 50% |
+| ...share of the code bytes | 339,351 B | `██████████░░░░░░░░░░` 50% |
+| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 1,068 | `████████░░░░░░░░░░░░` 38% |
+| ...of these register-argument clusters | 564 | `████░░░░░░░░░░░░░░░░` 20% |
+| Published in `src/` | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
+| ...byte identical (`MATCH`) | 343 | `██░░░░░░░░░░░░░░░░░░` 12% |
 
 <details><summary>By tier (whole pipeline)</summary>
 
@@ -33,7 +33,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | bridge | 4 | 1,643 | 0 |
 | hand | 381 | 14,744 | 344 |
 | tier1 | 908 | 69,877 | 908 |
-| tier2 | 714 | 241,645 | 0 |
+| tier2 | 1068 | 244,384 | 0 |
 
 </details>
 <!-- progress:end -->

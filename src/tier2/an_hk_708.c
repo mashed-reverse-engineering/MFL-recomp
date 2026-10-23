@@ -61,7 +61,7 @@ void score_panel_load(void)
     *(int *)(entry + PANEL_ENTRY_INDEX_OFFSET) = panel_index;
     entry = entry + PANEL_ENTRY_SIZE;
     panel_index = panel_index + 1;
-  } while ((int)entry < ((int)&g_score_panel_658fc0));
+  } while ((char *)entry < ((char *)&g_score_panel_658fc0));
   return;
 }
 

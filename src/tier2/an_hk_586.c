@@ -40,17 +40,17 @@ void spring_grid_prepare(void)
 {
   float spring_z;
   float inv_len;
-  float10 ta;
-  float10 tb;
-  float10 tc;
-  float10 pp;
+  double ta;
+  double tb;
+  double tc;
+  double pp;
   float *force_y_ptr;
   int node_a;
   int *spring_link;
   SpringNode *node;
   int node_b;
-  float10 gust;
-  float10 rand_z;
+  double gust;
+  double rand_z;
   RwReal magnitude;
   struct {
     RwV3d drag;
@@ -106,15 +106,15 @@ void spring_grid_prepare(void)
           node->w34 = frame.drag.z + node->w34;
         }
         /* random gust: uniform sample scaled per axis by the wind direction */
-        gust = (float10)random_range(0,g_spring_grid_6f2ad4);
-        frame.scratch_x = (float)(gust * (float10)g_gfx_6f2aa8);
-        gust = (float10)random_range(0,g_spring_grid_6f2ad4);
-        frame.scratch_y = (float)(gust * (float10)g_gfx_6f2aac);
-        rand_z = (float10)random_range(0,g_spring_grid_6f2ad4);
-        gust = (float10)g_gfx_6f2ab0;
+        gust = (double)random_range(0,g_spring_grid_6f2ad4);
+        frame.scratch_x = (float)(gust * (double)g_gfx_6f2aa8);
+        gust = (double)random_range(0,g_spring_grid_6f2ad4);
+        frame.scratch_y = (float)(gust * (double)g_gfx_6f2aac);
+        rand_z = (double)random_range(0,g_spring_grid_6f2ad4);
+        gust = (double)g_gfx_6f2ab0;
         node->w2c = frame.scratch_x + node->w2c;
         node->w30 = frame.scratch_y + node->w30;
-        node->w34 = (float)(rand_z * gust + (float10)node->w34);
+        node->w34 = (float)(rand_z * gust + (double)node->w34);
       }
       node = node + 1;
       node_a = node_a + -1;

@@ -40,7 +40,7 @@ void trail_render(void)
   float *pfVar4;
   TrailSlot *pTVar5;
   float *v;
-  float10 fVar6;
+  double fVar6;
   struct {
     int local_44;
     undefined1 pad_40[4];
@@ -93,21 +93,21 @@ void trail_render(void)
           frame_obj.local_4 = frame_obj.local_1c * k_f_n100 + pfVar4[2];
           frame_obj.local_3c.z = *(float *)&pTVar5->w20 * k_f_4;
           camera = get_viewport_camera(0);
-          fVar6 = (float10)distance_between_points(&frame_obj.local_18,&frame_obj.local_c,*(int *)(camera + 4) + 0x40);
-          if ((float10)k_f_0_001 <= fVar6) {
-            if ((float10)float_5_0 < fVar6) {
-              fVar6 = (float10)float_5_0;
+          fVar6 = (double)distance_between_points(&frame_obj.local_18,&frame_obj.local_c,*(int *)(camera + 4) + 0x40);
+          if ((double)k_f_0_001 <= fVar6) {
+            if ((double)float_5_0 < fVar6) {
+              fVar6 = (double)float_5_0;
             }
           }
           else {
-            fVar6 = (float10)k_f_0_001;
+            fVar6 = (double)k_f_0_001;
           }
-          frame_obj.local_3c.x = (RwReal)((float10)frame_obj.local_3c.x * fVar6 * (float10)k_f_0_5);
-          frame_obj.local_3c.y = (RwReal)(fVar6 * (float10)k_f_0_5 * (float10)frame_obj.local_3c.y);
+          frame_obj.local_3c.x = (RwReal)((double)frame_obj.local_3c.x * fVar6 * (double)k_f_0_5);
+          frame_obj.local_3c.y = (RwReal)(fVar6 * (double)k_f_0_5 * (double)frame_obj.local_3c.y);
           material_uv_scroll_update(pTVar5->w00,0);
-          fVar6 = (float10)cos((float10)(int)g_tick_number * (float10)k_f_0_05);
+          fVar6 = (double)cos((double)(int)g_tick_number * (double)k_f_0_05);
           frame_obj.local_30 = (float)fVar6;
-          fVar6 = (float10)sin((float10)(int)g_tick_number * (float10)k_f_0_05);
+          fVar6 = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
           frame_obj.local_2c = (float)fVar6;
           RwFrameTranslate(frame,(RwV3d *)v,rwCOMBINEREPLACE);
           FUN_004c42f0((undefined4)frame,(undefined4)pfVar4,(undefined4)&frame_obj.local_30);

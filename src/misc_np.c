@@ -35,7 +35,7 @@ int array_find_index(int key, int *array, int count)
 // FUNCTION: MFL 0x00434bc0
 int event_type_is_race_basic(void)
 {
-    if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2)
+    if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2)
         return 0;
     return 1;
 }

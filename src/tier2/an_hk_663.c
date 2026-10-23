@@ -32,7 +32,7 @@ void hud_flash_text(void)
     undefined4 white_rgba;
   } colours;
 
-  pulse = (int)((float10)sin((float10)g_hud_flash_64d8bc) * (float10)k_f_n127);
+  pulse = (int)((double)sin((double)g_hud_flash_64d8bc) * (double)k_f_n127);
   g_hud_flash_64d8bc = g_hud_flash_64d8bc + k_f_0_1;
   colours.shadow_rgba = (uint)(byte)(HUD_FLASH_ALPHA_BASE - pulse) << 0x18;
   colours.white_rgba = CONCAT13(HUD_FLASH_ALPHA_BASE - pulse,HUD_FLASH_WHITE_RGB);

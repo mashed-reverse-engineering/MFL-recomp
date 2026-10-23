@@ -5,7 +5,7 @@
 // FUNCTION: MFL 0x004353c0
 int menu_powerup_set_for_event(void)
 {
-    if (get_event_type() == 0x12)
+    if (get_event_type() == EVENT_QUICK_RACE)
         return 1;
     return g_menu_powerup_set;
 }
@@ -22,7 +22,7 @@ int menu_markers_enabled_for_event(void)
 // FUNCTION: MFL 0x0042fb80
 int menu_page_for_game_mode(void)
 {
-    if (game_mode == 10 || game_mode == 9 || game_mode == 8 || game_mode == 7 || game_mode == 5)
+    if (game_mode == GAME_MODE_BEAT_THE_BOMB || game_mode == GAME_MODE_CHASE_FUGITIVE || game_mode == GAME_MODE_SURVIVAL || game_mode == GAME_MODE_AIRSTRIKE || game_mode == GAME_MODE_KILL_COPTER)
         return 0x2e;
     return 0x16;
 }
@@ -124,7 +124,7 @@ void ui_set_triple(int a, int b, int x, int y, int z)
 // FUNCTION: MFL 0x00437e80
 int menu_is_page_13_selected_1(void)
 {
-    if (g_menu_records[g_menu_current].page_id == 0x13 && g_menu_records[g_menu_current].selected == 1)
+    if (g_menu_records[g_menu_current].page_id == MENU_PAGE_SOUND && g_menu_records[g_menu_current].selected == 1)
         return 1;
     return 0;
 }

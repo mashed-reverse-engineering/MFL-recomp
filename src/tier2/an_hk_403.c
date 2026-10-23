@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0042bd00*/ extern int dat_get_string();
+/*0042bd00*/ extern char *dat_get_string();
 /* ui_format_number_999 */
 #define MAX_DISPLAY_VALUE (999)
 #define PLACE_HUNDRED (100)

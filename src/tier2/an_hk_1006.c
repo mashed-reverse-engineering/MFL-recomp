@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0040e000*/ extern undefined __cdecl skid_mark_spawn_from_wheel(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*0040e000*/ extern undefined __cdecl skid_mark_spawn_from_wheel(void *p0, void *p1, undefined4 p2, undefined4 p3);
 /*0040fdc0*/ extern int race_get_phase();
 /*00422070*/ extern int vehicle_is_active();
 /*00422320*/ extern int vehicle_get_matrix_local();
@@ -44,7 +44,7 @@ void cars_exhaust_and_damage_fx_update(void)
   uint uVar8;
   undefined4 *puVar9;
   int fx_flag;      /* 1 when the random draw is above 0.2, later whether the race phase is 6 (the original compares it with 2 in between) */
-  float10 fVar11;
+  double fVar11;
   uint uVar12;
   struct {
     int *local_a8;
@@ -83,8 +83,8 @@ void cars_exhaust_and_damage_fx_update(void)
     uVar8 = uVar8 - 1;
     if (-1 < *piVar1) {
       frame.local_80 = puVar9;
-      fVar11 = (float10)random_range(0,0x3f800000);
-      fx_flag = (float10)k_f_0_2 < fVar11;
+      fVar11 = (double)random_range(0,0x3f800000);
+      fx_flag = (double)k_f_0_2 < fVar11;
       uVar7 = 0;
       car_get_int_from_float_field(&frame.local_78,uVar8);
       if ((1 < frame.local_78) && (iVar3 = car_is_active(uVar8), iVar3 != 0)) {
@@ -174,7 +174,7 @@ LAB_0040e434:
             frame.local_70 = frame.local_7c;
             frame.local_74 = iVar3;
             frame.local_68 = uVar7;
-            skid_mark_spawn_from_wheel((undefined4)&frame.local_74,(undefined4)puVar9,uVar5,uVar12);
+            skid_mark_spawn_from_wheel(&frame.local_74,puVar9,uVar5,uVar12);
           }
           uVar7 = uVar7 + 1;
           puVar9 = frame.local_80;

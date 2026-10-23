@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00457170*/ extern int spline_object_update();
-/*004572c0*/ extern int spline_objects_resolve_pair(int param_2, int param_3);
+/*004572c0*/ extern int spline_objects_resolve_pair(void *param_2, void *param_3);
 /*005dda20*/ extern float k_f_4_2949673e9;
 /*005de490*/ extern float k_f_0_02;
 /*008c5500*/ extern undefined g_course_spline_8c5500[0x1000];
@@ -42,19 +42,19 @@ void course_spline_objects_update(int ticks)
     if (next_index < SPLINE_OBJECT_COUNT) {
       pair_object = spline_object + SPLINE_OBJECT_STRIDE;
       do {
-        object_index = spline_objects_resolve_pair((int)spline_object,(int)pair_object);
+        object_index = spline_objects_resolve_pair(spline_object,pair_object);
         pair_object = pair_object + SPLINE_OBJECT_STRIDE;
-      } while ((int)pair_object < ((int)&g_course_spline_8c5608));
+      } while ((char *)pair_object < ((char *)&g_course_spline_8c5608));
     }
     spline_object = spline_object + SPLINE_OBJECT_STRIDE;
     object_index = next_index;
-  } while ((int)spline_object < ((int)&g_course_spline_8c5608));
+  } while ((char *)spline_object < ((char *)&g_course_spline_8c5608));
   spline_object = g_course_spline_8c5500;
   /* Update every spline object with the time (float bits passed as int). */
   do {
     spline_object_update(spline_object,*(int *)&time_seconds);
     spline_object = spline_object + SPLINE_OBJECT_STRIDE;
-  } while ((int)spline_object < ((int)&g_course_spline_8c5608));
+  } while ((char *)spline_object < ((char *)&g_course_spline_8c5608));
   return;
 }
 

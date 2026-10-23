@@ -6,12 +6,12 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00481fd0*/ extern double random_range();
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dec0c*/ extern float k_f_47;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* offsets into g_sound_groups (inferred) */
@@ -53,7 +53,7 @@ void sound_ambience_course_12_18(void)
   char *voice_rec;
   undefined4 sub_result;
   int voice_slot;
-  float10 rand_value;
+  double rand_value;
   struct {
     float local_18 [3];
     undefined1 local_c [12];
@@ -114,11 +114,11 @@ void sound_ambience_course_12_18(void)
         sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
       }
       voice_set_volume(voice_slot,1.0);
-      rand_value = (float10)random_range(0,0x41200000);
+      rand_value = (double)random_range(0,0x41200000);
       voice_rec = g_voices[voice_slot].voice;
       ambience_pos.local_18[1] = AMBIENCE_RAND_POS_Y;
       ambience_pos.local_18[2] = AMBIENCE_RAND_POS_Z;
-      ambience_pos.local_18[0] = (float)(rand_value - (float10)k_f_47);
+      ambience_pos.local_18[0] = (float)(rand_value - (double)k_f_47);
       *(float *)(voice_rec + VOICE_OFF_POS_X) = ambience_pos.local_18[0];
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = 0xc1300000;
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0xc1880000;

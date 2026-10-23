@@ -1,12 +1,12 @@
 #include "mfl_tier2.h"
 extern void * __cdecl Rt2dFontShow(void * p0, void * p1, RwReal p2, void * p3, void * p4);
-/*0042bd00*/ extern int dat_get_string();
+/*0042bd00*/ extern char *dat_get_string();
 /*00562d20*/ extern int Rt2dCTMSetIdentity();
 /*005632e0*/ extern int Rt2dCTMPush();
 /*00564b10*/ extern int Rt2dBrushSetRGBA();
 /*005de81c*/ extern float k_f_0_0708;
-/*0069ba0c*/ extern undefined4 g_ui_font;
-/*0069ba10*/ extern undefined4 g_ui_text_brush;
+/*0069ba0c*/ extern char *g_ui_font;
+/*0069ba10*/ extern char *g_ui_text_brush;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
 extern void ui_rt2d_text_map_special_chars(void);
@@ -61,7 +61,7 @@ void ui_rt2d_text_draw(undefined4 string_id,float pos_x,float pos_y,undefined4 r
                       float font_size,int align)
 
 {
-  undefined4 raw_text;
+  char *raw_text;
   union {
     char gs_buf[264];
     struct {

@@ -62,7 +62,7 @@ void gfx_draw_rect_2d_gradient_a(float left,float top,float width,float height,u
     *vertex_word = RwGlobalsRelease_dOpenDevice_zBufferNear(engine);
     vertex_word[1] = 1.0;
     vertex_word = vertex_word + IM2D_VERTEX_WORDS;
-  } while ((int)vertex_word < ((int)&g_training_lesson));
+  } while ((char *)vertex_word < ((char *)&g_training_lesson));
   /* Right edge: vertices 1 and 3 get colour_right; vertex 3 copies vertex 1. */
   g_im2d_vertices[1].emissiveColor =
        (((uint)((*(ushort *)((char *)&colour_right + 2)) >> 8) << 8 | colour_right & 0xff) << 8 | colour_right >> 8 & 0xff) << 8 |

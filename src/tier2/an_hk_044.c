@@ -75,7 +75,7 @@ void particles_add(char *particles)
     /* 4x4 matrix (16 dwords) copied from the current emitter matrix */
     if (*(int *)(particles + PARTICLES_MATRIX_ARRAY_OFS) != 0) {
       cursor = &g_gfx_6c50d8;
-      dst = (undefined4 *)(*(int *)(particles + PARTICLES_COUNT_OFS) * PARTICLE_MATRIX_STRIDE + *(int *)(particles + PARTICLES_MATRIX_ARRAY_OFS));
+      dst = (undefined4 *)(*(int *)(particles + PARTICLES_COUNT_OFS) * PARTICLE_MATRIX_STRIDE + *(char **)(particles + PARTICLES_MATRIX_ARRAY_OFS));
       for (scratch = PARTICLE_MATRIX_DWORDS; scratch != 0; scratch = scratch + -1) {
         *dst = *cursor;
         cursor = cursor + 1;
@@ -88,7 +88,7 @@ void particles_add(char *particles)
     }
     /* colour (four dwords) */
     if (*(int *)(particles + PARTICLES_COLOUR_ARRAY_OFS) != 0) {
-      cursor = (undefined4 *)(*(int *)(particles + PARTICLES_COUNT_OFS) * PARTICLE_COLOUR_STRIDE + *(int *)(particles + PARTICLES_COLOUR_ARRAY_OFS));
+      cursor = (undefined4 *)(*(int *)(particles + PARTICLES_COUNT_OFS) * PARTICLE_COLOUR_STRIDE + *(char **)(particles + PARTICLES_COLOUR_ARRAY_OFS));
       *cursor = g_gfx_6c5188;
       cursor[1] = g_gfx_6c518c;
       cursor[2] = g_gfx_6c5190;
@@ -97,7 +97,7 @@ void particles_add(char *particles)
     /* eight-dword block copied from the current emitter block */
     if (*(int *)(particles + PARTICLES_BLOCK_ARRAY_OFS) != 0) {
       cursor = &g_particles_6c5124;
-      dst = (undefined4 *)(*(int *)(particles + PARTICLES_COUNT_OFS) * PARTICLE_BLOCK_STRIDE + *(int *)(particles + PARTICLES_BLOCK_ARRAY_OFS));
+      dst = (undefined4 *)(*(int *)(particles + PARTICLES_COUNT_OFS) * PARTICLE_BLOCK_STRIDE + *(char **)(particles + PARTICLES_BLOCK_ARRAY_OFS));
       for (scratch = PARTICLE_BLOCK_DWORDS; scratch != 0; scratch = scratch + -1) {
         *dst = *cursor;
         cursor = cursor + 1;

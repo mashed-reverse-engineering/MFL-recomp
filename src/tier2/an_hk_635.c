@@ -4,7 +4,7 @@
 /*005de81c*/ extern float k_f_0_0708;
 /*005de838*/ extern float k_f_640;
 /*0069ba00*/ extern float g_ui_layout_scale_x;
-/*0069ba0c*/ extern undefined4 g_ui_font;
+/*0069ba0c*/ extern char *g_ui_font;
 static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
 extern void ui_rt2d_text_map_special_chars(void);
 #define TEXT_BUFFER_SIZE (1024)
@@ -32,17 +32,17 @@ __declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short *
  * The raw width is divided by g_ui_layout_scale_x and multiplied by k_f_640
  * (inferred: converts to the fixed 640-wide layout, from the name of k_f_640). */
 
-float10 text_width(undefined4 string_id,float font_size)
+double text_width(undefined4 string_id,float font_size)
 
 {
   undefined4 string_ptr;
-  float10 raw_width;
+  double raw_width;
   undefined1 mapped_text [TEXT_BUFFER_SIZE];
 
   string_ptr = dat_get_string(string_id);
   ui_rt2d_text_map_special_chars_r(string_ptr,mapped_text);
-  raw_width = (float10)Rt2dFontGetStringWidth((void *)g_ui_font,mapped_text,font_size * k_f_0_0708);
-  return (raw_width / (float10)g_ui_layout_scale_x) * (float10)k_f_640;
+  raw_width = (double)Rt2dFontGetStringWidth((void *)g_ui_font,mapped_text,font_size * k_f_0_0708);
+  return (raw_width / (double)g_ui_layout_scale_x) * (double)k_f_640;
 }
 
 

@@ -43,16 +43,16 @@ undefined4 app_state_frontend_frame(void)
   stub_return_zero();
   /* Per-state dispatch. Each case notes which of menu_update() / message_box_update() it runs. */
   switch(g_app_state) {
-  case 1:
+  case APP_STATE_MAIN_LOOP_INIT:
     /* Attract state (inferred): start the attract timer when the menu reports id 0x21. */
     scratch = ui_get_menu_69d1ec();
     if (scratch == 0x21) {
       attract_timer_update();
     }
     break;
-  case 2:
+  case APP_STATE_COURSE_LOADED:
     goto switchD_004a2102_caseD_2;
-  case 3:
+  case APP_STATE_RACE:
     /* Training (inferred): update, then start the race in chunks of RACE_START_CHUNK_TICKS (rounded up). */
     training_mode_update();
     if (0 < (int)g_frame_ticks) {
@@ -63,7 +63,7 @@ undefined4 app_state_frontend_frame(void)
       } while (scratch != 0);
     }
     goto switchD_004a2102_caseD_2;
-  case 4:
+  case APP_STATE_MENU:
     /* Menu state (inferred): update the menu; menu id 0x20 also runs nop_stub(). Skips the second menu_update(). */
     menu_update();
     scratch = ui_get_menu_69d1ec();
@@ -71,9 +71,9 @@ undefined4 app_state_frontend_frame(void)
       nop_stub();
     }
     goto switchD_004a2102_caseD_7;
-  case 5:
+  case APP_STATE_FRONTEND:
     break;
-  case 6:
+  case APP_STATE_RACE_START:
     /* Race start: same chunked race_start_setup() loop as case 3. */
     if (0 < (int)g_frame_ticks) {
       scratch = (g_frame_ticks - 1U) / RACE_START_CHUNK_TICKS + 1;
@@ -83,7 +83,7 @@ undefined4 app_state_frontend_frame(void)
       } while (scratch != 0);
     }
     break;
-  case 7:
+  case APP_STATE_RACE_MESSAGE:
     goto switchD_004a2102_caseD_7;
   default:
     goto switchD_004a2102_default;

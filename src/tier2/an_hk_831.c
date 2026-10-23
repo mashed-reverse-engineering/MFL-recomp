@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0047b520*/ extern int car_current_matrix();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004d0f70*/ extern struct RwFrame * RwFrameUpdateObjects(struct RwFrame *p0);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
@@ -69,11 +69,11 @@ undefined4 car_enter_rwp_mode(int car_index)
     FUN_0056b440(*(int *)(owner + 0x24), owner, (car_index + RWP_GROUP_OFFSET));
     body_ref = *(int **)(*(char **)(owner + 0x10) + 4);
     /* body record of the owner: zero its aux vector, then read its velocity into vec_tmp */
-    body_aux = (undefined4 *)(*(char **)(*(int *)(*body_ref + 0x10) + 8) + BODY_AUX_OFFSET + body_ref[1] * BODY_RECORD_STRIDE);
+    body_aux = (undefined4 *)(*(char **)(*(char **)(*body_ref + 0x10) + 8) + BODY_AUX_OFFSET + body_ref[1] * BODY_RECORD_STRIDE);
     *body_aux = 0;
     body_aux[1] = 0;
     body_aux[2] = 0;
-    body_vel = (RwReal *)(*(char **)(*(int *)(*body_ref + 0x10) + 8) + body_ref[1] * BODY_RECORD_STRIDE);
+    body_vel = (RwReal *)(*(char **)(*(char **)(*body_ref + 0x10) + 8) + body_ref[1] * BODY_RECORD_STRIDE);
     enter_state.vec_tmp.x = *body_vel;
     enter_state.vec_tmp.y = body_vel[1];
     enter_state.vec_tmp.z = body_vel[2];
@@ -86,7 +86,7 @@ undefined4 car_enter_rwp_mode(int car_index)
       enter_state.vec_tmp.x = player_car[car_index].velocity[0] * k_f_0_0033333334;
       enter_state.vec_tmp.y = player_car[car_index].velocity[1] * k_f_0_0033333334;
       enter_state.vec_tmp.z = player_car[car_index].velocity[2] * k_f_0_0033333334;
-      body_vel_out = (float *)(*(char **)(*(int *)(*body_ref + 0x10) + 8) + body_ref[1] * BODY_RECORD_STRIDE);
+      body_vel_out = (float *)(*(char **)(*(char **)(*body_ref + 0x10) + 8) + body_ref[1] * BODY_RECORD_STRIDE);
       *body_vel_out = enter_state.vec_tmp.x;
       body_vel_out[1] = enter_state.vec_tmp.y;
       body_vel_out[2] = enter_state.vec_tmp.z;

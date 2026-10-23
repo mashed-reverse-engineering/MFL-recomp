@@ -46,7 +46,7 @@ void race_time_trial_update(void)
       g_intro_banner_slide_step = 0.0f;
     }
   }
-  if (get_event_type() != 0 && get_event_type() != 1 && get_event_type() != 2) {
+  if (get_event_type() != EVENT_TIME_TRIAL_0 && get_event_type() != EVENT_TIME_TRIAL_1 && get_event_type() != EVENT_TIME_TRIAL_2) {
     return;
   }
   triple.a = player_progress_b(0);

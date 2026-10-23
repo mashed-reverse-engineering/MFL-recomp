@@ -29,11 +29,10 @@
 /*007ef7bc*/ extern undefined4 g_cars_7ef7bc;
 /*007ef7cc*/ extern float g_course_7ef7cc;
 /*00801b08*/ extern undefined4 g_game_801b08;
-/*008d8b14*/ extern undefined4 g_race_setup;
+/*008d8b14*/ extern char *g_race_setup;
 /*0041a370*/ extern float ai_get_counter();
 #define RACE_SLOT_TABLE_START (0xb8)
 #define RACE_SLOT_TABLE_END (200)
-#define EVENT_TYPE_TRAINING (0x11) /* (inferred) from the training_lesson_get() branch below */
 /* game_mode_end_check */
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
@@ -56,7 +55,7 @@ uint game_mode_end_check(void)
   float trailing_car;
   int slot_offset;
   int car_index;
-  float10 last_value;
+  double last_value;
   struct {
     float progress_a;
     float progress_b;
@@ -77,8 +76,8 @@ uint game_mode_end_check(void)
   /* Per-mode end conditions. Modes not listed fall through to the common checks below. */
   switch(game_mode) {
   case 4:
-    last_value = (float10)ai_get_counter(0);
-    counter_below_limit = last_value < (float10)k_f_3;
+    last_value = (double)ai_get_counter(0);
+    counter_below_limit = last_value < (double)k_f_3;
     goto LAB_00413226;
   case 5:
     result = car_is_active(0);
@@ -103,8 +102,8 @@ uint game_mode_end_check(void)
         if (result == 0) {
           slot_offset = slot_offset + 1;
         }
-        last_value = (float10)ai_get_counter(player_index);
-        if ((float10)k_f_3 < last_value) {
+        last_value = (double)ai_get_counter(player_index);
+        if ((double)k_f_3 < last_value) {
           return 1;
         }
         player_index = player_index + 1;
@@ -114,8 +113,8 @@ uint game_mode_end_check(void)
     result = get_player_count();
     return (uint)(result + -1 <= slot_offset);
   case 8:
-    last_value = (float10)ai_get_counter(0);
-    if ((float10)k_f_3 <= last_value) {
+    last_value = (double)ai_get_counter(0);
+    if ((double)k_f_3 <= last_value) {
       return 1;
     }
     car_get_mode(0,&frame.car0_mode,frame.car0_mode_extra);
@@ -124,12 +123,12 @@ uint game_mode_end_check(void)
     }
     break;
   case 9:
-    last_value = (float10)ai_get_counter(0);
-    if ((float10)k_f_3 <= last_value) {
+    last_value = (double)ai_get_counter(0);
+    if ((double)k_f_3 <= last_value) {
       return 1;
     }
-    last_value = (float10)ai_get_counter(1);
-    if ((float10)k_f_3 <= last_value) {
+    last_value = (double)ai_get_counter(1);
+    if ((double)k_f_3 <= last_value) {
       return 1;
     }
     car_get_mode(0,&frame.car0_mode,frame.car0_mode_extra);
@@ -149,19 +148,19 @@ uint game_mode_end_check(void)
     if (g_course_7ef7cc <= k_f_0) {
       return 1;
     }
-    last_value = (float10)ai_get_counter(0);
-    counter_below_limit = last_value < (float10)k_f_1_999;
+    last_value = (double)ai_get_counter(0);
+    counter_below_limit = last_value < (double)k_f_1_999;
 LAB_00413226:
     if (!counter_below_limit) {
       return 1;
     }
   }
-  /* Training lesson end: event EVENT_TYPE_TRAINING and either lesson 1 with player 0's
+  /* Training lesson end: event EVENT_TRAINING and either lesson 1 with player 0's
      rank key above k_f_64, or lesson 4 with ui ids 1 or 4 and then 3. */
   result = get_event_type();
-  if ((result == EVENT_TYPE_TRAINING) &&
+  if ((result == EVENT_TRAINING) &&
      (((result = training_lesson_get(), result == 1 &&
-       (last_value = (float10)player_rank_key(0), (float10)k_f_64 < last_value)) ||
+       (last_value = (double)player_rank_key(0), (double)k_f_64 < last_value)) ||
       ((result = training_lesson_get(), result == 4 &&
        (((result = ui_get_car_8c86c8(), result == 1 || (result = ui_get_car_8c86c8(), result == 4)) &&
         (result = ui_get_car_8c8070(), result == 3)))))))) {
@@ -171,13 +170,13 @@ LAB_00413226:
      two focus players and kill the trailing one (inferred). progress_b first holds focus
      player A's handle (from race_get_focus_player), then player B's progress. */
   frame.max_rank_key = 0.0;
-  last_value = (float10)camera_get_8c7e00();
-  if (last_value == (float10)float_10_0) {
+  last_value = (double)camera_get_8c7e00();
+  if (last_value == (double)float_10_0) {
     race_get_focus_player(&frame.progress_b,&frame.player_b);
     focus_player = frame.progress_b;
-    last_value = (float10)player_progress_b(*(int *)&frame.progress_b);
+    last_value = (double)player_progress_b(*(int *)&frame.progress_b);
     frame.progress_a = (float)last_value;
-    last_value = (float10)player_progress_b(*(int *)&frame.player_b);
+    last_value = (double)player_progress_b(*(int *)&frame.player_b);
     frame.progress_b = (float)last_value;
     if ((frame.progress_a <= k_f_80) || (k_f_20 <= frame.progress_b)) {
       if ((k_f_80 < frame.progress_b) && (frame.progress_a < k_f_20)) {
@@ -187,7 +186,7 @@ LAB_00413226:
     else {
       frame.progress_a = frame.progress_a - k_f_100;
     }
-    if (game_mode == 1) {
+    if (game_mode == GAME_MODE_HOLD_THE_FLAG) {
       if (focus_player == g_cars_7ef7bc) {
         frame.progress_a = 100.0;
       }
@@ -253,7 +252,7 @@ LAB_00413226:
       g_game_801b08 = 0;
       do {
         if (*(int *)(result + g_race_setup) != 0) {
-          last_value = (float10)player_rank_key(player_index);
+          last_value = (double)player_rank_key(player_index);
           frame.max_rank_key = (float)last_value;
         }
         result = result + 4;
@@ -263,7 +262,7 @@ LAB_00413226:
       result = RACE_SLOT_TABLE_START;
       do {
         if ((*(int *)(result + g_race_setup) != 0) &&
-           (last_value = (float10)player_rank_key(player_index), (float10)frame.max_rank_key < last_value)) {
+           (last_value = (double)player_rank_key(player_index), (double)frame.max_rank_key < last_value)) {
           frame.max_rank_key = (float)last_value;
         }
         focus_player = frame.max_rank_key;

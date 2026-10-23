@@ -303,7 +303,7 @@ def _callee_w(m, uc, addr, size, ud):
     if c.ret == "f":      # float result of the stub (ST0): the default values are multiples of 0.125 in +-250: small intervals around 0 are almost never hit
         h = int(core.sha(c.va, m.cnt.get(addr, 0), m.seed, "fr"), 16)
         if h % 3 == 0: uc.mem_write(core.FPSRC, struct.pack("<d", _RPOOL[(h >> 4) % len(_RPOOL)]))
-    if not c.nargs or getattr(c, "natural", None): return
+    if not c.nargs or getattr(c, "natural", None) or c.name.startswith("RpPTankAtomicLock"): return      # the lock struct {data, stride} written by core._callee must stay a pointer (a pool float behind it was a wild store address)
     try: args = struct.unpack("<%dI" % c.nargs, bytes(uc.mem_read(sp + 4, 4 * c.nargs)))
     except Exception: return
     i = m.cnt.get(addr, 0)

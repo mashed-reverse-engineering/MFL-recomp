@@ -21,11 +21,11 @@ undefined4 career_time_under_target(void)
 {
   float row_limit_extra_2;
   float row_limit_extra_1;
-  float10 row_limit_secs;
+  double row_limit_secs;
   float row_limit_base;
   int minutes;
   int seconds;
-  float10 elapsed_secs;
+  double elapsed_secs;
 
   /* byte offset of the current row; "minutes" is reused for the clock minutes below (same local in the binary) */
   minutes = g_career_row * CAREER_ROW_SIZE;
@@ -34,9 +34,9 @@ undefined4 career_time_under_target(void)
   row_limit_extra_1 = *(float *)((char *)&g_ui_62ac94 + minutes);
   minutes = time_get_minutes(0);
   seconds = time_get_seconds(0);
-  elapsed_secs = (float10)time_get_fraction(0);
-  elapsed_secs = elapsed_secs + (float10)(minutes * SECONDS_PER_MINUTE + seconds);
-  row_limit_secs = (float10)(row_limit_base + row_limit_extra_2 + row_limit_extra_1);
+  elapsed_secs = (double)time_get_fraction(0);
+  elapsed_secs = elapsed_secs + (double)(minutes * SECONDS_PER_MINUTE + seconds);
+  row_limit_secs = (double)(row_limit_base + row_limit_extra_2 + row_limit_extra_1);
   /* same as elapsed_secs <= row_limit_secs (false for NaN) */
   if (elapsed_secs < row_limit_secs != (elapsed_secs == row_limit_secs)) {
     return 1;

@@ -41,12 +41,12 @@ undefined4 texdict_load_named_b(char *file_name, undefined4 extra_arg_2, undefin
   find_result = game_content_find(&g_texdict_load_69c378,&g_texdict_load_69c178);
   /* found as the expected kind: load the dictionary */
   if (find_result == 1) {
-    load_result = texdict_load_file((char *)(((int)&g_texdict_load_69c378)), extra_arg_2, extra_arg_3);
+    load_result = texdict_load_file((char *)(((char *)&g_texdict_load_69c378)), extra_arg_2, extra_arg_3);
     return load_result;
   }
   /* other non-zero result: alternate path (inferred) */
   if (find_result != 0) {
-    load_result = FUN_004c3d20(((int)&g_texdict_load_69c378), extra_arg_2, extra_arg_3);
+    load_result = FUN_004c3d20(((char *)&g_texdict_load_69c378), extra_arg_2, extra_arg_3);
     return load_result;
   }
   return 0;

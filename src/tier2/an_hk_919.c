@@ -8,7 +8,7 @@ extern struct VoiceSlot g_voices[210];
 /*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
 /*005ddc28*/ extern float k_f_0;
 /*00617948*/ extern float g_sound_master_fade;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /* sound_music_state_update */
 #define COURSE_DEMR (18)
 #define COURSE_DEM (24)

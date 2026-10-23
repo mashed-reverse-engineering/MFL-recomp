@@ -4,11 +4,21 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005de238*/ extern float k_f_2000;
 /*005df99c*/ extern float k_f_22050;
+/* layout of *voice in sound_voices_set_position_wide, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+typedef struct sound_voices_set_position_wide_voice_layout {
+    char pad_0x0[52];
+    byte f_0x34;
+    char pad_0x35[35];
+    undefined4 f_0x58;
+    undefined4 f_0x5c;
+    undefined4 f_0x60;
+} sound_voices_set_position_wide_voice_layout;
+
 /*00618c98*/ extern undefined4 g_sound_618c98;
 #define WIDE_VOICE_COUNT (4)
 #define WIDE_VOICE_BASE_OFFSET (4)
@@ -28,7 +38,7 @@ extern struct VoiceSlotP g_voices[210];
 void __cdecl sound_voices_set_position_wide(undefined4 *position,float frequency_offset)
 
 {
-  char *voice;
+  sound_voices_set_position_wide_voice_layout *voice;
   int source;
   float frequency;
   int app_state;
@@ -37,20 +47,20 @@ void __cdecl sound_voices_set_position_wide(undefined4 *position,float frequency
 
   app_state = get_app_state();
   /* only the wide-spread state (app_state 3) updates the voices */
-  if (app_state == 3) {
+  if (app_state == APP_STATE_RACE) {
     /* app_state doubles as a countdown: starts at WIDE_VOICE_COUNT, and the
        value is also the frequency multiplier (inferred: voice rank) */
     slot_index = g_sound_618c98 + WIDE_VOICE_BASE_OFFSET;
     app_state = WIDE_VOICE_COUNT;
     do {
-      voice = g_voices[slot_index].voice;
+      voice = (sound_voices_set_position_wide_voice_layout *)(g_voices[slot_index].voice);
       /* skip voices with flag bit 0x2 set; an updated voice sets app_state to 0,
          so the loop ends after the first voice that is updated (inferred: check intent) */
-      if ((*(byte *)(voice + 0x34) & 2) == 0) {
+      if ((voice->f_0x34 & 2) == 0) {
         /* copy the position vector into the voice record */
-        *(undefined4 *)(voice + 0x58) = *position;
-        *(undefined4 *)(voice + 0x5c) = position[1];
-        *(undefined4 *)(voice + 0x60) = position[2];
+        voice->f_0x58 = *position;
+        voice->f_0x5c = position[1];
+        voice->f_0x60 = position[2];
         /* if the voice has a source at +0x30, pass it the position too */
         source = *(int *)(g_voices[slot_index].voice + 0x30);
         if (source != 0) {

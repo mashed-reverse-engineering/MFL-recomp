@@ -75,7 +75,7 @@ LAB_0042878d:
     }
     piVar7 = piVar7 + 0x4e;
     iVar6 = iVar6 + 1;
-    if ((int)&g_player_stats_race + 0x4eb < (int)piVar7) {
+    if ((char *)&g_player_stats_race + 0x4eb < (char *)piVar7) {
       frame.local_14 = (float)g_player_stats_race[0].aggression;
       frame.local_18 = (float)g_player_stats_race[1].aggression;
       fVar1 = frame.local_14;

@@ -1,13 +1,13 @@
 #include "mfl_tier2.h"
 /*0040fdb0*/ extern int get_player_count();
 /*004222a0*/ extern int vehicle_part_matrix(int car, int part, RwMatrix *out);
-/*0045ccb0*/ extern int course_zone_contains_matrix(int zone, RwMatrix *a, RwMatrix *b);
+/*0045ccb0*/ extern int course_zone_contains_matrix(void *zone, RwMatrix *a, RwMatrix *b);
 /*0047a470*/ extern int car_set_wheel_contact(void *state, int car, int a, int b);
 /*0047a5b0*/ extern int car_add_velocity();
 /*0047b520*/ extern int car_current_matrix(RwMatrix **out, int car);
 /*00491ab0*/ extern int car_enter_rwp_mode();
 /*00492b20*/ extern int car_apply_rwp_impulse(int car, RwV3d *impulse, RwV3d *position);
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*0060d9c4*/ extern undefined g_car_60d9c4;
 /*008bf050*/ extern undefined4 g_car_8bf050;
 /* course_zone_cars_check_and_push */
@@ -20,7 +20,7 @@
 #define ZONE_INSIDE_FLAGS (0xb4)      /* per car: last zone test result */
 #define ZONE_MOVEMENT (0xa8)
 
-void course_zone_cars_check_and_push(int param_1, undefined4 st_arg2)
+void course_zone_cars_check_and_push(char *param_1, undefined4 st_arg2)
 
 {
   int car;

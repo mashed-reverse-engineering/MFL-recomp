@@ -44,7 +44,7 @@ void vehicle_exhaust_flame_particle_add_n(VehicleRecord *vehicle, LightObject *l
     f.scale.x = 0.75f;
     f.scale.y = 2.0f;
     f.scale.z = 1.0f;
-    if ((vehicle->flags & 0x40) == 0)
+    if ((vehicle->flags & VEHICLE_FLAG_40) == 0)
         return;
     ltm = RwFrameGetLTM(*(RwFrame **)(vehicle->part_frames[0x19] + 4));
     RwMatrixTransform(&f.front, ltm, rwCOMBINEREPLACE);

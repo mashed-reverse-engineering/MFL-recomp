@@ -15,7 +15,7 @@ void time_split(undefined4 ticks,float *out_fraction,int *out_seconds,int *out_m
   /* whole seconds = ticks * SECONDS_PER_TICK, truncated; out_fraction gets the remainder */
   seconds = ((int)((float)(uint)ticks * SECONDS_PER_TICK));
   *out_seconds = seconds;
-  *out_fraction = (float)(((float)(uint)ticks * SECONDS_PER_TICK) - (float10)seconds);
+  *out_fraction = (float)(((float)(uint)ticks * SECONDS_PER_TICK) - (double)seconds);
   *out_minutes = 0;
   seconds = *out_seconds;
   /* carry every 60 seconds into minutes, leaving out_seconds in 0..59 */

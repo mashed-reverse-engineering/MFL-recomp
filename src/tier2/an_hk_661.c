@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0042bd00*/ extern int dat_get_string();
+/*0042bd00*/ extern char *dat_get_string();
 /*004b2a60*/ extern int sprintf();
 /*005de9b4*/ extern undefined g_frontend_5de9b4;
 #define ASCII_ZERO (0x30)
@@ -21,7 +21,7 @@ void menu_text_format_and_draw(undefined4 dat_string_id,undefined4 number)
 
 {
   char ch;
-  int text_entry;
+  char *text_entry;
   char *cursor;
   int digit_count;
   uint glyph;

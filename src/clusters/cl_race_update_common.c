@@ -66,7 +66,7 @@ void race_update_common_n(uint in_esi)
   camera_matrix = get_viewport_camera_matrix(0);
   fx_ptank_a_lock_and_fill(camera_matrix);
   course_animated_objects_update(in_esi);
-  if (game_mode == 5) {
+  if (game_mode == GAME_MODE_KILL_COPTER) {
     fx_update_effects();
   }
   weapons_update_frame();

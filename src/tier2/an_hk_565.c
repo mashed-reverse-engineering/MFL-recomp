@@ -1,5 +1,13 @@
 #include "mfl_tier2.h"
 extern char LAB_00456f00[];
+/* layout of *pos_block in spline_object_register_trigger_sphere, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+typedef struct spline_object_register_trigger_sphere_pos_block_layout {
+    char pad_0x0[64];
+    undefined4 f_0x40;
+    undefined4 f_0x44;
+    undefined4 f_0x48;
+} spline_object_register_trigger_sphere_pos_block_layout;
+
 /*00496850*/ extern int trigger_sphere_register();
 
 /* float 0.85 as raw bits (inferred from the comment below) */
@@ -19,7 +27,7 @@ extern char LAB_00456f00[];
 void __cdecl spline_object_register_trigger_sphere(char *spline_obj)
 
 {
-  char *pos_block;
+  spline_object_register_trigger_sphere_pos_block_layout *pos_block;
   /* layout matches struct Trigger in ghidra_types.h (inferred) */
   struct {
     undefined4 pos_x;
@@ -33,10 +41,10 @@ void __cdecl spline_object_register_trigger_sphere(char *spline_obj)
   } trigger;
 
   /* copy the object position and the trigger type (inferred from +0x38) */
-  pos_block = *(char **)(*(char **)(spline_obj + 4) + 4);
-  trigger.pos_x = *(undefined4 *)(pos_block + 0x40);
-  trigger.pos_y = *(undefined4 *)(pos_block + 0x44);
-  trigger.pos_z = *(undefined4 *)(pos_block + 0x48);
+  pos_block = (spline_object_register_trigger_sphere_pos_block_layout *)(*(char **)(*(char **)(spline_obj + 4) + 4));
+  trigger.pos_x = pos_block->f_0x40;
+  trigger.pos_y = pos_block->f_0x44;
+  trigger.pos_z = pos_block->f_0x48;
   trigger.type = *(undefined4 *)(spline_obj + 0x38);
   trigger.radius = TRIGGER_SPHERE_RADIUS_F32;
   trigger.owner = spline_obj;

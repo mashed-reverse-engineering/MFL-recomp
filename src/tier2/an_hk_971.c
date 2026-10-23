@@ -1,12 +1,12 @@
 #include "mfl_tier2.h"
-/*0042b1d0*/ extern int course_get_record_base();
+/*0042b1d0*/ extern char *course_get_record_base();
 /*005ddc28*/ extern float k_f_0;
 /* player_route_progress_update */
 
 /* "dot of the course record base vector with the car vector, stores progress at +0xAC, increments
    the wrong-way counter at +0xA8 when negative" */
 
-void player_route_progress_update(int param_1,int param_2)
+void player_route_progress_update(char *param_1,char *param_2)
 
 {
   float sum;

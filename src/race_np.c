@@ -12,7 +12,7 @@ void intro_banner_set_active(int value)
 // FUNCTION: MFL 0x0040f710
 int intro_banner_get_flag(void)
 {
-    if (game_mode != 10 && game_mode != 5)
+    if (game_mode != GAME_MODE_BEAT_THE_BOMB && game_mode != GAME_MODE_KILL_COPTER)
         return g_car_652df8;
     return 0;
 }
@@ -40,9 +40,9 @@ void race_setup_set_slot_type(int slot, int type)
 // FUNCTION: MFL 0x0040cc70
 void round_time_accumulate(int ticks)
 {
-    if (get_event_type() != 0) {
-        if (get_event_type() != 1) {
-            if (get_event_type() != 2)
+    if (get_event_type() != EVENT_TIME_TRIAL_0) {
+        if (get_event_type() != EVENT_TIME_TRIAL_1) {
+            if (get_event_type() != EVENT_TIME_TRIAL_2)
                 g_round_652dbc = g_round_652dbc + ticks;
         }
     }

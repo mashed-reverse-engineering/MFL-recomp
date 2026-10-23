@@ -192,14 +192,14 @@ int __cdecl ui_collect_team_ids(int slot)
   team_ids[2] = NO_ID;
   team_ids[3] = NO_ID;
   /* Event types other than 0xb..0xd: team ids come from the career row table. */
-  if (((g_event_type != 0xb) && (g_event_type != 0xc)) && (g_event_type != 0xd)) {
+  if (((g_event_type != EVENT_QUICK_RACE_11) && (g_event_type != EVENT_QUICK_RACE_12)) && (g_event_type != EVENT_QUICK_RACE_13)) {
     team_ids[0] = g_player_slots[0].team;
     result = career_event_slot_table();
     row_group = (int *)(result + g_career_row * CAREER_ROW_STRIDE);
-    if (g_event_type == 4) {
+    if (g_event_type == EVENT_CUP_4) {
       row_group = row_group + 4;
     }
-    else if (g_event_type == 5) {
+    else if (g_event_type == EVENT_CUP_5) {
       row_group = row_group + 8;
     }
     /* row_group[0] = number of entries (at most 3), row_group[1..3] = their team ids (inferred). */
@@ -325,7 +325,7 @@ extern void option_slider_4_reset(void);
 
 /* "float g_menu_69cfc4" */
 
-extern float10 menu_get_69cfc4(void);
+extern double menu_get_69cfc4(void);
 
 
 /* menu_set_69cfc4 */

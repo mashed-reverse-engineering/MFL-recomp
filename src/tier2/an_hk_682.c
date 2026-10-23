@@ -15,7 +15,6 @@ extern char PTR_s_Training1_00608228[];
 #define TEXTURE_SET_B_OFFSET (0x3c)
 #define TEXTURE_SET_A_OFFSET (0x1e)
 /* Event type that picks between the two menu textures (inferred) */
-#define EVENT_TYPE_SPLIT_TEXTURE (0x11)
 /* menu_texture_dict_load
  * Loads the texture dictionary for one menu entry of the current menu column, via find_texture_dict_d.
  * item_index: index of the entry within the column (inferred), 0 is the first entry.
@@ -43,9 +42,9 @@ void menu_texture_dict_load(int item_index)
     find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00607d00)[texture_index]));
     return;
   }
-  /* Other columns: if get_event_type() == EVENT_TYPE_SPLIT_TEXTURE, item 0 gets the first texture and the others the second. */
+  /* Other columns: if get_event_type() == EVENT_TRAINING, item 0 gets the first texture and the others the second. */
   texture_index = get_event_type();
-  if (texture_index == EVENT_TYPE_SPLIT_TEXTURE) {
+  if (texture_index == EVENT_TRAINING) {
     if (item_index == 0) {
       find_texture_dict_d(&g_menu_texture_607adc);
       return;

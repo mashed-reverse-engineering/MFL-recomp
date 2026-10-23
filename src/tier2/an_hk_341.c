@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00481790*/ extern undefined __cdecl atomic_plugin_set_radius_squared(undefined4 p0, undefined4 p1);
+/*00481790*/ extern undefined __cdecl atomic_plugin_set_radius_squared(undefined4 p0, void *p1);
 /*004a6b30*/ extern int object_set_field_6c();
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);

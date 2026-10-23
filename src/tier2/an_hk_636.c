@@ -3,7 +3,7 @@
 /*005de81c*/ extern float k_f_0_0708;
 /*005de838*/ extern float k_f_640;
 /*0069ba00*/ extern float g_ui_layout_scale_x;
-/*0069ba0c*/ extern undefined4 g_ui_font;
+/*0069ba0c*/ extern char *g_ui_font;
 static int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ecx);
 extern void ui_rt2d_wide_string_copy(void);
 
@@ -33,15 +33,15 @@ __declspec(naked) int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ec
  * layout scale (g_ui_layout_scale_x) and multiplied by k_f_640 (inferred: 640.0f),
  * which converts it to 640-wide layout units (inferred).
  */
-float10 ui_rt2d_text_width(undefined4 string_id,float size)
+double ui_rt2d_text_width(undefined4 string_id,float size)
 
 {
-  float10 width;
+  double width;
   undefined1 text_buffer [TEXT_BUFFER_BYTES];
 
   ui_rt2d_wide_string_copy_r(string_id,text_buffer);
-  width = (float10)Rt2dFontGetStringWidth((void *)g_ui_font,text_buffer,size * k_f_0_0708);
-  return (width / (float10)g_ui_layout_scale_x) * (float10)k_f_640;
+  width = (double)Rt2dFontGetStringWidth((void *)g_ui_font,text_buffer,size * k_f_0_0708);
+  return (width / (double)g_ui_layout_scale_x) * (double)k_f_640;
 }
 
 

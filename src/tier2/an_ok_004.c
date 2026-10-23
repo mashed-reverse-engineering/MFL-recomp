@@ -33,7 +33,7 @@
 /*0049fe00*/ extern int tri_model_load();
 /*004a43d0*/ extern undefined __cdecl game_open_piz(char *p0);
 /*004a4440*/ extern int game_close_piz();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b2ccd*/ extern undefined __cdecl start(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004b322b*/ extern int exit();
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -128,7 +128,7 @@
 
 /* float used to sort the 4 players (g_rank_order) */
 
-extern float10 player_rank_key(char *param_1);
+extern double player_rank_key(char *param_1);
 
 
 /* player_set_precise_position */
@@ -142,7 +142,7 @@ extern undefined4 player_set_precise_position(char *param_1,float param_2);
 
 /* "float at 0x8D8D4C + i * 0x30C" */
 
-extern float10 player_progress_b(char *param_1);
+extern double player_progress_b(char *param_1);
 
 
 /* course_lap_line_find_index */
@@ -291,7 +291,7 @@ void round_setup_limits(void)
     point_limit = POINT_LIMIT_REDUCED;
   }
   /* game modes 1 and 2 -> reduced limit */
-  if ((game_mode == 1) || (game_mode == 2)) {
+  if ((game_mode == GAME_MODE_HOLD_THE_FLAG) || (game_mode == GAME_MODE_HARE_AND_HOUNDS)) {
     point_limit = POINT_LIMIT_REDUCED;
   }
   /* change tables (0x8D8B60 / 0x8D8B80 per the dossier) reset to -1000 */
@@ -388,7 +388,7 @@ void players_get_points(undefined4 *out_order)
     i = i + -1;
   } while (0 < i);
   /* game modes 4 and 7: overwrite every rank entry with ai_ftol_noop_wrapper(i) (inferred) */
-  if ((game_mode == 4) || (game_mode == 7)) {
+  if ((game_mode == GAME_MODE_RACE) || (game_mode == GAME_MODE_AIRSTRIKE)) {
     i = 0;
     do {
       next_idx = ai_ftol_noop_wrapper(i);
@@ -397,7 +397,7 @@ void players_get_points(undefined4 *out_order)
     } while (i < PLAYER_SLOT_COUNT);
   }
   /* game mode 9: the first two ranks depend on g_car_7ef7b0 (inferred) */
-  if (game_mode == 9) {
+  if (game_mode == GAME_MODE_CHASE_FUGITIVE) {
     if (g_car_7ef7b0 != 0) {
       *out_order = 0;
       out_order[1] = 1;

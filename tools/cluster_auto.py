@@ -63,7 +63,7 @@ def rewrite_calls(body, name, new, drop, nparams, ins=()):
     return out + body[pos:], short
 
 def head_of(body, name):
-    return re.search(r"^(?P<ret>[A-Za-z_][^\n(;]*?)\b%s\s*\((?P<ps>[^)]*)\)(?P<tail>\s*)\{" % re.escape(name), body, re.M)
+    return re.search(r"^(?P<ret>[A-Za-z_][^\n(;]*?(?:\n)?[^\n(;]*?)\b%s\s*\((?P<ps>[^)]*)\)(?P<tail>\s*)\{" % re.escape(name), body, re.M)      # Ghidra breaks `void __cdecl\nname(` when the line is long
 
 class Fail(Exception):
     def __init__(s, cls, detail): s.cls, s.detail = cls, detail
@@ -115,6 +115,7 @@ def root_signature(root, body):
             ins.append((pos, "lost_" + r)); miss.remove(r); subst.append((pn, "in_" + r, dm.group(0) if dm else None))
     if miss: raise Fail("sig:lost-register", "Ghidra signature lacks register input(s) %s" % ",".join(miss))
     if not stk and sw and sw * 4 == int(RI.get(root, {}).get("ret_n", 0) or 0): stk = ["?"] * sw      # regsigs has no types for the stack slots; ret N and Ghidra's count agree
+    if not stk and sw and "--plain-root" in A and not regs_of(root): stk = ["?"] * sw      # plain (stack convention) root: Ghidra's stack parameters are the signature
     if sw != len(stk): raise Fail("sig:stack-mismatch", "Ghidra has %d stack dwords (%s), regsigs.csv %d (%s)" % (sw, "; ".join(k[4] for k in kept if k[2] == "stack"), len(stk), ";".join(stk)))
     order = [k[3] if k[2] == "reg" else "s%d" % k[3] for k in kept]
     rest = body[:m.start()] + "%s %s(%s)%s{" % (re.sub(r"\s*__(?:cdecl|stdcall|fastcall|thiscall)\s*", " ", m.group("ret")).strip(), root, ", ".join(k[0] for k in kept) or "void", m.group("tail")) + body[m.end():]
@@ -133,7 +134,7 @@ def plan(root, members, funcs, protos, regin_all, have):
     if miss: raise Fail("plan:member-no-decomp", " ".join(miss)[:150])
     um = [m for m in members if m != root and regs_of(m)]
     if um: raise Fail("plan:member-usercall", "member(s) with register inputs: " + " ".join(um)[:150])
-    if not regs_of(root) and not int(RI.get(root, {}).get("ret_n", 0) or 0): raise Fail("plan:root-not-usercall", "no register input / ret N")
+    if not regs_of(root) and not int(RI.get(root, {}).get("ret_n", 0) or 0) and "--plain-root" not in A: raise Fail("plan:root-not-usercall", "no register input / ret N")
     body, kept, drop, ret, order, ins = root_signature(root, funcs[root][1])
     nparam = len(kept); new = root + "__cl"
     texts = {}; shorts = []
@@ -226,11 +227,14 @@ def clusters_now(root_only=False):
     import bisect
     O = P("output")
     items = [r for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))) if r["kind"] == "code"]
+    fns_ = {int(l.split()[0], 16): l.split()[1] for l in open(os.path.join(O, "fnsizes.txt")) if len(l.split()) >= 2}
+    for r in items:      # ownership_items keeps the old gap_<va> names; the Ghidra exports / aliases use the descriptive names of G-gap
+        if r["name"].startswith("gap_") and fns_.get(int(r["lo"], 16)): r["name"] = fns_[int(r["lo"], 16)]
     items.sort(key=lambda r: int(r["lo"], 16)); los = [int(r["lo"], 16) for r in items]; his = [int(r["hi"], 16) for r in items]
     def find(a):
         i = bisect.bisect_right(los, a) - 1
         return i if i >= 0 and a < his[i] else None
-    ledger = {int(r["va"], 16): r["tier"] for r in csv.DictReader(open(os.path.join(O, "tier_ledger.csv")))}
+    ledger = {int(r["va"], 16): r["tier"] for r in csv.DictReader(open(os.path.join(O, "tier_ledger.csv"))) if r["va"] != "?"}
     usercall = {int(r["addr"], 16) for r in RS.values()}
     inst = set()
     for n in open(P("src", "clusters", "enabled.txt")).read().split():
@@ -256,12 +260,15 @@ def clusters_now(root_only=False):
     return out
 
 def select():
+    if "--rows" in A:      # --rows FILE: one function name per line = its own single-entry cluster (root-only semantics; ownership_items has no function granularity inside big items)
+        sz = {l.split()[1]: int(l.split()[2]) for l in open(P("output", "fnsizes.txt")) if len(l.split()) >= 3}
+        return [dict(root=n, members=n, bytes=sz.get(n, 0)) for n in (l.split()[0] for l in open(opt("--rows", "")) if l.strip())]
     rows = clusters_now("--root-only" in A)
     inst = set(open(P("src", "clusters", "enabled.txt")).read().split())
     pil = set()
     for f in glob.glob(P("output", "cluster_pilot*", "clusters.txt")):
         pil |= {l.split("|")[0].strip() for l in open(f) if l[0] != "#" and "|" in l}
-    pos = [x for i, x in enumerate(A) if not x.startswith("--") and (i == 0 or A[i - 1] not in ("--run", "--max", "--maxbytes", "--maxmembers", "--cases", "--batch", "--dump-missing", "--text"))]
+    pos = [x for i, x in enumerate(A) if not x.startswith("--") and (i == 0 or A[i - 1] not in ("--run", "--max", "--maxbytes", "--maxmembers", "--cases", "--batch", "--dump-missing", "--text", "--text-first", "--rows"))]
     if pos and os.path.exists(pos[0]): want = [l.split()[0] for l in open(pos[0]) if l.strip()]; rows = [r for r in rows if r["root"] in want]
     elif pos: rows = [r for r in rows if r["root"] in pos]
     elif "--calib" in A:
@@ -279,7 +286,9 @@ def rows_names(rows): return sorted({m for r in rows for m in r['members'].split
 
 def main():
     rows = select(); funcs = T2.load_funcs(T2.NAMED); load_adapters()
-    for x in [P("output", "t2_auto", "need_decomp.c")] + [A[i + 1] for i, v in enumerate(A) if v == "--text"]:      # extra Ghidra exports (DecompList.java) for the FUN_/gap_ functions the named file lacks
+    for i_, v_ in enumerate(A):      # --text-first FILE: hand corrected Ghidra text ("// ==== name @ va" blocks) that replaces the exported text of the same function
+        if v_ == "--text-first": funcs.update(T2.load_funcs(A[i_ + 1]))
+    for x in [P("output", "t2_auto", "need_decomp.c"), P("output", "t2_auto", "gap_decomp.c")] + [A[i + 1] for i, v in enumerate(A) if v == "--text"]:      # extra Ghidra exports (DecompList.java) for the FUN_/gap_ functions the named file lacks
         if os.path.exists(x):
             for k, v in T2.load_funcs(x).items(): funcs.setdefault(k, v)
     for k in [k for k in rows_names(rows) if k not in funcs and k.startswith("gap_") and ("FUN_" + k[4:].zfill(8)) in funcs]: funcs[k] = (funcs["FUN_" + k[4:].zfill(8)][0], re.sub(r"\bFUN_%s\b" % k[4:].zfill(8), k, funcs["FUN_" + k[4:].zfill(8)][1]))      # Ghidra names a created gap function FUN_<va>

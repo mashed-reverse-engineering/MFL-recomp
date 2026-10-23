@@ -2,16 +2,6 @@
 extern char PTR_g_data_6c696f_005df7f0[];
 /*004d5d90*/ extern struct RwTexture * RwTexDictionaryFindNamedTexture(struct RwTexDictionary *p0, RwChar *p1);
 /*006a93d4*/ extern undefined4 g_powerup_icons_txd;
-#define WEAPON_MINE (12)
-#define WEAPON_MORTAR (7)
-#define WEAPON_MACHINEGUN (9)
-#define WEAPON_DEPTHCHARGE (10)
-#define WEAPON_MISSILE (11)
-#define WEAPON_FLAMETHROWER (16)
-#define WEAPON_SHOTGUN (17)
-#define WEAPON_FLARE (18)
-#define WEAPON_CHAOS (21)
-#define WEAPON_AIRSTRIKE (22)
 /* powerup_icon_texture */
 
 /* Returns the HUD icon texture for a powerup type id, looked up by name in g_powerup_icons_txd.

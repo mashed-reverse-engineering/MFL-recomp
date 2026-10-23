@@ -12,13 +12,13 @@
  * Samples noise_lookup at index-1, index and index+1, then returns the centre
  * sample weighted by k_f_0_5 plus the two neighbours weighted by NOISE_NEIGHBOUR_WEIGHT.
  * noise_context is passed unchanged to noise_lookup (inferred: noise table or seed). */
-float10 noise_sample_row(undefined4 noise_context,int position_bits)
+double noise_sample_row(undefined4 noise_context,int position_bits)
 
 {
   float noise_below;
   float noise_above;
   undefined4 sample_index;
-  float10 centre_noise;
+  double centre_noise;
 
   /* lower neighbour */
   sample_index = ((int)(*(float *)&position_bits - 1.0f));
@@ -28,8 +28,8 @@ float10 noise_sample_row(undefined4 noise_context,int position_bits)
   noise_above = noise_lookup(noise_context,sample_index);
   /* centre sample */
   sample_index = ((int)(*(float *)&position_bits));
-  centre_noise = (float10)noise_lookup(noise_context,sample_index);
-  return centre_noise * (float10)k_f_0_5 + ((noise_below + noise_above) * NOISE_NEIGHBOUR_WEIGHT);
+  centre_noise = (double)noise_lookup(noise_context,sample_index);
+  return centre_noise * (double)k_f_0_5 + ((noise_below + noise_above) * NOISE_NEIGHBOUR_WEIGHT);
 }
 
 

@@ -26,7 +26,7 @@ void get_competitor_count(int player_index,int placement)
   int competitor_count;
 
   competitor_count = is_team_mode();
-  if ((competitor_count == 0) || (game_mode == 2)) {
+  if ((competitor_count == 0) || (game_mode == GAME_MODE_HARE_AND_HOUNDS)) {
     competitor_count = get_player_count();
   }
   else {

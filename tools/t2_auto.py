@@ -453,7 +453,7 @@ def main():
     cases = int(a[a.index("--cases") + 1]) if "--cases" in a else 100; force = "--force" in a
     text_path = a[a.index("--text") + 1] if "--text" in a else NAMED
     rows = select(a); funcs = load_funcs(text_path); sym = core.T().sym
-    for x_ in ("need_decomp.c", "cluster_decomp.c", "more_decomp.c"):      # Ghidra exports (DecompList.java) of FUN_/gap_ functions the named file lacks
+    for x_ in ("need_decomp.c", "cluster_decomp.c", "more_decomp.c", "gap_decomp.c"):      # Ghidra exports (DecompList.java) of FUN_/gap_ functions the named file lacks
         if os.path.exists(P("output", "t2_auto", x_)):
             for k_, v_ in load_funcs(P("output", "t2_auto", x_)).items(): funcs.setdefault(k_, v_)
     fsz = {}
@@ -470,9 +470,9 @@ def main():
     ap, WHY_ = callee_auto.build(funcs); callee_auto.save(ap); WHY.update(WHY_)      # T2_OVERLAY_DIR: into this run's overlay
     protos = {"FUN_" + v for v in callee_auto.protoed()}
     first = {}
-    for l in open(P("src", "symbols.txt")):
+    for l in list(open(P("src", "symbols.txt"))) + list(open(P("src", "aliases.txt"))):      # aliases.txt: names of functions Ghidra created later (names/MFL_gap_names.csv, 2026-10-22) are known there
         p = l.split()
-        if len(p) == 2: first.setdefault(p[0], []).append(p[1])
+        if len(p) == 2 and p[1] not in first.get(p[0], []): first.setdefault(p[0], []).append(p[1])
     done = {l.strip() for l in open(os.path.join(SHARED_CAND, "names.txt"))}
     todo = []; nodec = []; dfd = defined_elsewhere()
     for _, n, _v in rows:

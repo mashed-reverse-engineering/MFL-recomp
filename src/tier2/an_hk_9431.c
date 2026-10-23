@@ -33,7 +33,7 @@ void sound_endpoint_panel_progress_cues(void)
     return;
   }
   iVar3 = get_event_type();
-  if (iVar3 == 0x12) {
+  if (iVar3 == EVENT_QUICK_RACE) {
     return;
   }
   endpoint_panel_get_value(&local_4);

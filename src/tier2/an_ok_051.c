@@ -12,7 +12,7 @@
 /*0047fc10*/ extern undefined hud_label_draw_text(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, float p7, int p8);
 /*0048e410*/ extern int rwp_object_find_index_by_id();
 /*0048e650*/ extern int rwp_object_set_in_world();
-/*00490c10*/ extern int __cdecl physics_body_get_position(undefined4 p0, undefined4 p1);
+/*00490c10*/ extern int __cdecl physics_body_get_position(void *p0, undefined4 p1);
 /*00491d70*/ extern int car_reset_physics();
 /*00492b50*/ extern undefined __cdecl car_add_velocity_impl(undefined4 p0, undefined4 p1);
 /*00492d10*/ extern int rwp_object_set_active();
@@ -247,7 +247,7 @@ extern int car_resolve_triangle_contacts(char *param_1,char *param_2);
 
 /* "float g_car_6292ec" */
 
-extern float10 car_get_6292ec(void);
+extern double car_get_6292ec(void);
 
 #define EVENT_TYPE_4_ROW_OFFSET (0xf)
 #define EVENT_TYPE_5_ROW_OFFSET (0x1e)
@@ -282,24 +282,24 @@ void career_row_for_event(float *out_a,float *out_b,float *out_c,float *out_d)
   }
   /* event types 11, 12, 13 also take the row from the menu course index */
   event_type = get_event_type();
-  if (((event_type == 0xb) || (event_type = get_event_type(), event_type == 0xc)) ||
+  if (((event_type == EVENT_QUICK_RACE_11) || (event_type = get_event_type(), event_type == 0xc)) ||
      (event_type = get_event_type(), event_type == 0xd)) {
     career_row = menu_event_course_index_get();
   }
   /* event types 4 and 5 shift the row by a fixed offset (inferred: next block of rows) */
   event_type = get_event_type();
-  if (event_type == 4) {
+  if (event_type == EVENT_CUP_4) {
     career_row = career_row + EVENT_TYPE_4_ROW_OFFSET;
   }
   event_type = get_event_type();
-  if (event_type == 5) {
+  if (event_type == EVENT_CUP_5) {
     career_row = career_row + EVENT_TYPE_5_ROW_OFFSET;
   }
   /* from here on event_type holds the course id (reused variable); career_row is reused for
      the event type */
   event_type = race_setup_get_course(career_row);
   career_row = get_event_type();
-  if (career_row == 0xe) {
+  if (career_row == EVENT_TURBO_TOURNAMENT) {
     event_type = EVENT_TYPE_14_COURSE_ID;
   }
   /* walk the handling table (5-dword records, key first) until the end key; copy the

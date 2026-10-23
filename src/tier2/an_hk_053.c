@@ -39,7 +39,7 @@ extern float g_data_771a94;
  *   and primitive count (+0x20) (inferred).
  * stage0_texture / stage1_texture: texture handles for stages 0 and 1 (inferred).
  * a3, a6, a7, a8: unused. */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-22 authority=diffemu */
 void FUN_004aa740(char *mesh, char *draw_range, int a3, int stage0_texture, int stage1_texture, int a6, int a7, int a8)
 {
   int matrix_buf[0x40];
@@ -62,7 +62,7 @@ void FUN_004aa740(char *mesh, char *draw_range, int a3, int stage0_texture, int 
   FI(0x38) = 0;
   FL(0x3c) = 1.0f;
   /* Read the projection matrix and fold it into the texture matrix (inferred). */
-  RwD3D9GetTransform(D3DTS_PROJECTION, (int)&matrix_buf[16]);
+  RwD3D9GetTransform(D3DTS_PROJECTION, (char *)&matrix_buf[16]);
   FL(0x20) = g_data_771a90 + FL(0x20);
   FL(0x24) = g_data_771a94 + FL(0x24);
   FL(0x00) = FL(0x40) * FL(0x00);
@@ -86,7 +86,7 @@ void FUN_004aa740(char *mesh, char *draw_range, int a3, int stage0_texture, int 
   RwD3D9SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
   RwD3D9SetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT3_PROJECTED);
   RwD3D9SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION);
-  RwD3D9SetTransform(D3DTS_TEXTURE1, (int)&matrix_buf[0]);
+  RwD3D9SetTransform(D3DTS_TEXTURE1, (char *)&matrix_buf[0]);
   RwD3D9SetSamplerState(1, D3DSAMP_ADDRESSU, 3);
   RwD3D9SetSamplerState(1, D3DSAMP_ADDRESSV, 3);
   /* Draw the batch. Min vertex index is passed as 0. */

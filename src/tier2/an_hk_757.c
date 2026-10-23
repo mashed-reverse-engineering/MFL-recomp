@@ -22,7 +22,7 @@ void camera_get_target_position(float *out_pos,char *camera)
   float target_z;
   float focus_x;
   struct {
-    int car_matrix;
+    char *car_matrix;
     undefined4 focus_player;
     undefined4 target_player;
     float focus_y;

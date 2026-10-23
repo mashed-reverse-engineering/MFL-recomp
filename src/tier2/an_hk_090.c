@@ -10,7 +10,7 @@
  * Each point is a float[3] (x, y, z).
  */
 
-float10 distance_between_points(float *line_start,float *line_end,float *point)
+double distance_between_points(float *line_start,float *line_end,float *point)
 
 {
   RwReal line_length;
@@ -35,7 +35,7 @@ float10 distance_between_points(float *line_start,float *line_end,float *point)
   cross.z = point_to_start.y * line_dir.x - point_to_start.x * line_dir.y;
   cross_length = RwV3dLength(&cross);
   /* distance = parallelogram area / base length */
-  return (float10)cross_length / (float10)line_length;
+  return (double)cross_length / (double)line_length;
 }
 
 

@@ -2,6 +2,7 @@
 /*007eebc0*/ extern struct GameState g_game_state;
 /* career_flag_enabled */
 /* "tests one enabled flag of a player slot: flag ids 0..0x11 or 1000..1017 select byte 0..0x11 of the slot's 18 byte row; ids 6..10 do not exist" */
+/* TIER2: validated 2026-10-21 authority=diffemu */
 int __cdecl career_flag_enabled(int slot, int flag)
 {
   int column;

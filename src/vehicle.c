@@ -69,7 +69,7 @@ void vehicle_get_matrix_ltm_b(int v, struct Mat16 *out)
 void vehicle_get_matrix_local(int v, struct Mat16 *out)
 {
     struct VehicleRecord *r = &g_vehicle_table[v];
-    *out = *(struct Mat16 *)(*(int *)(r->frame + 4) + 0x10);
+    *out = *(struct Mat16 *)(*(char **)(r->frame + 4) + 0x10);
 }
 
 // FUNCTION: MFL 0x00422350

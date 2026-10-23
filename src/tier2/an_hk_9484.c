@@ -27,9 +27,9 @@ undefined4 __cdecl particle_spawn_at_weapon_pos(float *param_1,undefined4 param_
   
   iVar2 = FUN_004c4c70(weapon_get_rw_801b14(),param_1,&frame.local_40);
   if (iVar2 != 0) {
-    float10 s = -frame.local_8;
-    float10 x = frame.local_40 * s;
-    float10 y;
+    double s = -frame.local_8;
+    double x = frame.local_40 * s;
+    double y;
     *(volatile float *)&frame.local_48 = frame.local_3c * s;
     *(volatile float *)&frame.local_44 = frame.local_38 * s;
     x = x + *param_1;

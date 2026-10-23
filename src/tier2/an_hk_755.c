@@ -37,7 +37,7 @@ undefined4 menu_pause_pressed_any(void)
     prev_pause_ptr = &g_player_inputs_previous[0].pause;
     while ((prev_pause_ptr[-PREVIOUS_INPUTS_DISTANCE] == '\0' || (*prev_pause_ptr != 0))) {
       prev_pause_ptr = prev_pause_ptr + PLAYER_INPUT_SIZE;
-      if (((int)&g_player_inputs_previous_7__menu_next + 0x43) < (int)prev_pause_ptr) {
+      if (((char *)&g_player_inputs_previous_7__menu_next + 0x43) < (char *)prev_pause_ptr) {
         return 0;
       }
     }
@@ -52,7 +52,7 @@ undefined4 menu_pause_pressed_any(void)
                 (g_player_inputs_previous[slot->controller].pause != 0))))) {
     slot = slot + 1;
     slot_index = slot_index + 1;
-    if (((int)&g_player_slot3_extra + 0x3) < (int)slot) {
+    if (((char *)&g_player_slot3_extra + 0x3) < (char *)slot) {
       return 0;
     }
   }

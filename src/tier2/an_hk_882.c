@@ -20,11 +20,11 @@
 void __cdecl car_push_from_matrix(undefined4 car,float at_amount,float up_amount)
 
 {
-  float10 at_scale;
-  float10 up_scale;
-  float10 up_x_scaled;
+  double at_scale;
+  double up_scale;
+  double up_x_scaled;
   struct {
-    int matrix;
+    char *matrix;
     float vel_x;
     float vel_y;
     float vel_z;
@@ -35,8 +35,8 @@ void __cdecl car_push_from_matrix(undefined4 car,float at_amount,float up_amount
 
   /* Fetch the car's matrix pointer (written into scratch.matrix), then scale both push amounts. */
   car_current_matrix(&scratch.matrix,car);
-  at_scale = (float10)at_amount * k_f_360;
-  up_scale = (float10)up_amount * k_f_360;
+  at_scale = (double)at_amount * k_f_360;
+  up_scale = (double)up_amount * k_f_360;
   /* Velocity delta = at axis * at_scale, then the up axis * up_scale added on top, component by component. */
   scratch.vel_x = (float)(*(float *)(scratch.matrix + MATRIX_AT_X) * at_scale);
   scratch.vel_y = (float)(*(float *)(scratch.matrix + MATRIX_AT_Y) * at_scale);

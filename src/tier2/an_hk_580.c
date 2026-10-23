@@ -4,8 +4,8 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*008bd7b0*/ extern undefined4 g_sound_groups;
 #define SOUND_GROUP_STRIDE (0x90)
@@ -32,7 +32,7 @@ void sfx_play_group_at(int group_index,undefined4 *position)
   /* voice_index holds the get_app_state() result for the check below, then the index of the
      first voice of the group (inferred: the same local is reused, not split) */
   voice_index = get_app_state();
-  if (voice_index == 3) {
+  if (voice_index == APP_STATE_RACE) {
     /* group record: first voice index at +0x80, voice count at +0x84 */
     voices_left = group_index * SOUND_GROUP_STRIDE + g_sound_groups;
     voice_index = *(int *)(voices_left + SOUND_GROUP_FIRST_VOICE);

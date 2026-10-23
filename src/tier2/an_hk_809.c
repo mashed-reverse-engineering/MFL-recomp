@@ -27,7 +27,7 @@ __declspec(naked) int * weapon_find_descriptor_r(int reg_esi)
    stores its return value in the player. Parameters: player = player weapon struct*,
    weapon_id = weapon type id (WeaponId). Returns nothing. */
 
-void player_equip_weapon(int player,undefined4 weapon_id)
+void player_equip_weapon(char *player,undefined4 weapon_id)
 
 {
   int descriptor;

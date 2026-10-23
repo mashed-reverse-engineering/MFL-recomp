@@ -39,7 +39,7 @@ undefined4 __cdecl ai_cell_is_value2(float *pos,char *unused_param)
   tile_index = g_ai_data.grid[((int)(y_scaled + AI_GRID_ORIGIN) >> AI_CELL_SHIFT) * AI_GRID_DIM + ((int)(x_scaled + AI_GRID_ORIGIN) >> AI_CELL_SHIFT)];
   /* tile must be a real tile, and the 8x8 byte at the position's sub-cell offset must be 2 */
   if (((0 < tile_index) && (tile_index < AI_TILE_COUNT)) &&
-     (*(char *)((y_scaled & 7) + ((int)&g_ai_cells) + ((x_scaled & 7) + tile_index * 8) * 8) == '\x02')) {
+     (*(char *)((y_scaled & 7) + ((char *)&g_ai_cells) + ((x_scaled & 7) + tile_index * 8) * 8) == '\x02')) {
     return 1;
   }
   return 0;

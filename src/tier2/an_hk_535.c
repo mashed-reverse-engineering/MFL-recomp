@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00459e50*/ extern int course_objects_reset_physics();
 /*0048e6d0*/ extern int rwp_object_get_handle();
-/*00491530*/ extern int __cdecl rwp_object_create_from_atomic(struct RpAtomic *p0, undefined4 p1, float p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6);
+/*00491530*/ extern int __cdecl rwp_object_create_from_atomic(struct RpAtomic *p0, void *p1, float p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*0056b440*/ extern void FUN_0056b440(undefined4 p0, undefined4 p1, undefined4 p2);

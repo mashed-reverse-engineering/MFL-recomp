@@ -47,11 +47,11 @@
 void fx_ribbon_flush_spline(int *ribbon)
 
 {
-  float10 t_sq;
-  float10 sample_step;
-  float10 phase_start;
+  double t_sq;
+  double sample_step;
+  double phase_start;
   int points_base;
-  float10 t_cu;
+  double t_cu;
   int point_off;
   undefined4 *point;
   int *flag_ptr;

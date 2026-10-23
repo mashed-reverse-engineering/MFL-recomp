@@ -2,7 +2,7 @@
 /*0040fdb0*/ extern int get_player_count();
 /*00456b20*/ extern int course_rotating_object_update();
 /*004574a0*/ extern int course_spline_objects_update();
-/*00475730*/ extern int get_viewport_camera();
+/*00475730*/ extern char *get_viewport_camera();
 /*0047a470*/ extern int car_set_wheel_contact();
 /*0047b360*/ extern int car_wheel_get_field_88_a();
 /*0048e470*/ extern int rwp_object_sync_and_reset();
@@ -79,7 +79,7 @@ void course_rouabout_cb1(char *unused_param_1,undefined4 update_arg)
           car_set_wheel_contact(contact_ptr,player_index,wheel_index,1);
           contact_ptr = contact_ptr + 1;
           wheel_index = wheel_index + 1;
-        } while ((int)contact_ptr < ((int)&g_course_rouabout_6a21a8));
+        } while ((char *)contact_ptr < ((char *)&g_course_rouabout_6a21a8));
         player_index = player_index + 1;
       } while (player_index < count_or_wheel_index);
     }
@@ -118,7 +118,7 @@ void course_rouabout_cb1(char *unused_param_1,undefined4 update_arg)
           car_set_wheel_contact(contact_ptr,player_index,wheel_index,contact_ptr[-8]);
           contact_ptr = contact_ptr + 1;
           wheel_index = wheel_index + 1;
-        } while ((int)contact_ptr < ((int)&g_course_rouabout_6a21a8));
+        } while ((char *)contact_ptr < ((char *)&g_course_rouabout_6a21a8));
         player_index = player_index + 1;
       } while (player_index < frame.player_total);
     }

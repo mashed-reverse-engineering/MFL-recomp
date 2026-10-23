@@ -18,7 +18,7 @@ void sound_sfx_update_position_volume(int sfx, float *position, int offset, floa
   if (g_sound_mute_when_multiplayer != 0 && g_sound_player_count > 1 && sfx == 0x20) {
     return;
   }
-  if (get_app_state() != 3) {
+  if (get_app_state() != APP_STATE_RACE) {
     return;
   }
   slot = g_sfx_table[sfx * 0x25] + offset;

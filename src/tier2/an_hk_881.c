@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
-/*004c5380*/ extern void FUN_004c5380(undefined4 p0, undefined4 p1);
+/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c5380*/ extern void FUN_004c5380(undefined4 p0, void *p1);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*00658b50*/ extern undefined g_btb_panel_658b50;
@@ -47,7 +47,7 @@ void btb_panel_slot_init(int slot,int clump,undefined4 *colour)
   *(undefined4 *)((char *)&g_btb_panel_658c00 + slot) = *(undefined4 *)(clump + 4);
   *(undefined4 *)((char *)&g_btb_panel_658c10 + slot) = 1;
   handle_slot = (int *)((char *)&g_btb_panel_658b90 + slot);
-  FUN_004c52f0(clump,(undefined4)handle_slot,0x10,0,0);
+  FUN_004c52f0(clump,handle_slot,0x10,0,0);
   /* no colour given: fall back to the default colour block on the stack */
   if (colour == (undefined4 *)0x0) {
     colour = (undefined4 *)&default_colour;
@@ -58,7 +58,7 @@ void btb_panel_slot_init(int slot,int clump,undefined4 *colour)
     handle = *handle_slot;
     if (handle != 0) {
       FUN_004c5410(handle,0x40,1);
-      FUN_004c5380(handle,(undefined4)colour);
+      FUN_004c5380(handle,colour);
     }
     handle_slot = handle_slot + 1;
     handles_left = handles_left + -1;

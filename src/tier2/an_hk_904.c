@@ -1,19 +1,19 @@
 #include "mfl_tier2.h"
 typedef int CourseId;
-/*00409f50*/ extern int player_route_get_record_ptr();
+/*00409f50*/ extern char *player_route_get_record_ptr();
 /*0040fdc0*/ extern int race_get_phase();
-/*004170a0*/ extern int __cdecl ai_find_target_a(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6);
-/*004175c0*/ extern int __cdecl ai_find_target_c(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*00417780*/ extern int __cdecl ai_trigger_zone_target_for_car(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*00417c30*/ extern int __cdecl ai_cell_is_value2(undefined4 p0, undefined4 p1);
-/*00417d70*/ extern int __cdecl ai_bot_stuck_check(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
-/*004183d0*/ extern int __cdecl ai_find_target_b(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004170a0*/ extern int __cdecl ai_find_target_a(undefined4 p0, void *p1, void *p2, undefined4 p3, undefined4 p4, void *p5, undefined4 p6);
+/*004175c0*/ extern int __cdecl ai_find_target_c(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*00417780*/ extern int __cdecl ai_trigger_zone_target_for_car(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*00417c30*/ extern int __cdecl ai_cell_is_value2(void *p0, undefined4 p1);
+/*00417d70*/ extern int __cdecl ai_bot_stuck_check(undefined4 p0, void *p1, void *p2, undefined4 p3, undefined4 p4);
+/*004183d0*/ extern int __cdecl ai_find_target_b(undefined4 p0, void *p1, void *p2, undefined4 p3);
 /*00418870*/ extern int __cdecl ai_bot_obstacle_ahead(undefined4 p0);
 /*00418990*/ extern double ai_steer_towards_point();
-/*00418be0*/ extern int __cdecl ai_target_check(undefined4 p0, undefined4 p1);
+/*00418be0*/ extern int __cdecl ai_target_check(void *p0, void *p1);
 /*00418d60*/ extern int ai_route_target_for_car();
 /*0044c540*/ extern int camera_get_car_8c747c();
-/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, void *p1, undefined4 p2, void *p3, undefined4 p4);
 /*0047b520*/ extern int car_current_matrix();
 /*0047b590*/ extern int car_get_forward();
 /*0047b720*/ extern int car_get_field_b0c();
@@ -104,7 +104,7 @@ void __cdecl ai_drive_b(undefined4 route_set,int car_index,undefined1 *inputs,un
     float route_angle;
     float car_speed;
     float field_b0c;
-    int car_matrix;
+    char *car_matrix;
     uint candidate_x;
     undefined4 candidate_z;
     int race_phase;
@@ -123,7 +123,7 @@ void __cdecl ai_drive_b(undefined4 route_set,int car_index,undefined1 *inputs,un
   car_current_matrix(&frame.car_matrix,car_index);
   frame.car_pos_x = *(undefined4 *)(frame.car_matrix + MATRIX_POS_X_OFFSET);
   frame.car_pos_z = *(undefined4 *)(frame.car_matrix + MATRIX_POS_Z_OFFSET);
-  ai_route_closest_point_search(route_set, (undefined4)&frame.car_pos_x, ROUTE_SEARCH_RANGE, (undefined4)&frame.route_angle, 0x0);
+  ai_route_closest_point_search(route_set, &frame.car_pos_x, ROUTE_SEARCH_RANGE, &frame.route_angle, 0x0);
   if (k_f_180 < frame.route_angle) {
     frame.route_angle = k_f_360 - frame.route_angle;
   }
@@ -132,15 +132,15 @@ void __cdecl ai_drive_b(undefined4 route_set,int car_index,undefined1 *inputs,un
   result = car_index;
   ai_route_target_for_car(route_set, &frame.target_x, car_index);
   frame.steer_mode = 0;
-  result = ai_find_target_a(route_set,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index,call_arg,(undefined4)target_ptr,result);
-  if ((result == 0) || (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result == 0)) {
-    result = ai_find_target_b(route_set,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
+  result = ai_find_target_a(route_set,&frame.target_x,&frame.candidate_x,car_index,call_arg,target_ptr,result);
+  if ((result == 0) || (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result == 0)) {
+    result = ai_find_target_b(route_set,&frame.target_x,&frame.candidate_x,car_index);
     if ((result == 0) ||
-       ((result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result == 0 ||
+       ((result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result == 0 ||
         (result = ai_bot_obstacle_ahead(car_index), result != 0)))) {
-      result = ai_find_target_c(route_set,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
+      result = ai_find_target_c(route_set,&frame.target_x,&frame.candidate_x,car_index);
       if (result == 1) {
-        result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x);
+        result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
         if (result == 0) goto LAB_00418f37;
 LAB_00418f66:
         frame.target_x = frame.candidate_x;
@@ -154,19 +154,19 @@ LAB_00418f66:
           return;
         }
 LAB_00418f37:
-        result = ai_trigger_zone_target_for_car(route_set,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
+        result = ai_trigger_zone_target_for_car(route_set,&frame.target_x,&frame.candidate_x,car_index);
         if (result == 1) {
-          result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x);
+          result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
           if (result != 0) goto LAB_00418f66;
         }
         else if ((result == 2) &&
-                (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result != 0)) {
+                (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
           frame.target_x = frame.candidate_x;
           frame.target_z = frame.candidate_z;
           frame.steer_mode = STEER_MODE_ZONE_TARGET;
           goto LAB_00418fe2;
         }
-        result = ai_cell_is_value2((undefined4)&frame.car_pos_x,car_index);
+        result = ai_cell_is_value2(&frame.car_pos_x,car_index);
         if (result == 1) {
           frame.steer_mode = STEER_MODE_CELL_VALUE2;
         }
@@ -193,8 +193,8 @@ LAB_00418fe2:
     }
     else {
       call_arg = (undefined4)(int)frame.route_angle;
-      result = ai_bot_stuck_check(route_set,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index,call_arg);
-      if ((result != 0) && (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result != 0)) {
+      result = ai_bot_stuck_check(route_set,&frame.target_x,&frame.candidate_x,car_index,call_arg);
+      if ((result != 0) && (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
         frame.steer_mode = STEER_MODE_STUCK;
       }
     }
@@ -202,16 +202,16 @@ LAB_00418fe2:
   /* this bot's record, and its 20-byte block in g_ai_data.bot_state: [2] last steer angle above 180,
    [3] last steer angle below 180, [4] last field_b0c */
   bot = &g_ai_bots[car_index];
-  steer_raw = (float10)ai_steer_towards_point(car_index,frame.target_x,frame.target_z);
+  steer_raw = (double)ai_steer_towards_point(car_index,frame.target_x,frame.target_z);
   frame.steer_angle = (float)steer_raw;
-  prev_turn_angle = (float10)k_f_0;
+  prev_turn_angle = (double)k_f_0;
   bot_state_ptr = (float *)(g_ai_data.bot_state + car_index * BOT_STATE_STRIDE);
   /* steer below 180: pulse input [0], decay into input [1] between pulses (inferred) */
   if (frame.steer_angle < k_f_180) {
     prev_side_angle = bot_state_ptr[3];
     bot_state_ptr[2] = 360.0f;
     if (prev_side_angle < frame.steer_angle) {
-      prev_turn_angle = (float10)prev_side_angle;
+      prev_turn_angle = (double)prev_side_angle;
     }
     bot_state_ptr[3] = frame.steer_angle;
     /* pulse: once STEER_PULSE_MS has passed since bot->field_0x30 (last pulse time, inferred) re-arm,
@@ -219,12 +219,12 @@ LAB_00418fe2:
     if (float_1_0 < frame.steer_angle) {
       if ((*(int *)((char *)bot + 0x2c) == 1) ||
          (result = g_race_clock_a - bot->field_0x30, (STEER_PULSE_MS - 1) < result)) {
-        turn_strength = (float10)frame.steer_angle * (float10)frame.car_speed * (float10)k_f_0_003;
+        turn_strength = (double)frame.steer_angle * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.steer_mode == 0) && (k_f_20 < frame.route_angle)) {
-          turn_strength = turn_strength * ((float10)frame.route_angle * (float10)k_f_0_05);
+          turn_strength = turn_strength * ((double)frame.route_angle * (double)k_f_0_05);
         }
         if (k_f_255 < turn_strength) {
-          turn_strength = (float10)k_f_255;
+          turn_strength = (double)k_f_255;
         }
         inputs[0] = (undefined1)(int)turn_strength;
         *(int *)((char *)bot + 0x34) = (int)turn_strength;
@@ -233,7 +233,7 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_x = STEER_PULSE_MS - result;
-        inputs[1] = (undefined1)(int)((float10)frame.candidate_x * (float10)k_f_0_005 * (float10)*(int *)((char *)bot + 0x34));
+        inputs[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + 0x34));
       }
     }
   }
@@ -242,18 +242,18 @@ LAB_00418fe2:
     prev_side_angle = bot_state_ptr[2];
     bot_state_ptr[3] = 0.0f;
     if (frame.steer_angle < prev_side_angle) {
-      prev_turn_angle = (float10)k_f_360 - (float10)prev_side_angle;
+      prev_turn_angle = (double)k_f_360 - (double)prev_side_angle;
     }
     bot_state_ptr[2] = frame.steer_angle;
     if (frame.steer_angle < k_f_359) {
       if ((*(int *)((char *)bot + 0x2c) == 2) ||
          (result = g_race_clock_a - bot->field_0x30, (STEER_PULSE_MS - 1) < result)) {
-        turn_strength = ((float10)k_f_360 - (float10)frame.steer_angle) * (float10)frame.car_speed * (float10)k_f_0_003;
+        turn_strength = ((double)k_f_360 - (double)frame.steer_angle) * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.steer_mode == 0) && (k_f_20 < frame.route_angle)) {
-          turn_strength = turn_strength * ((float10)frame.route_angle * (float10)k_f_0_05);
+          turn_strength = turn_strength * ((double)frame.route_angle * (double)k_f_0_05);
         }
         if (k_f_255 < turn_strength) {
-          turn_strength = (float10)k_f_255;
+          turn_strength = (double)k_f_255;
         }
         inputs[1] = (undefined1)(int)turn_strength;
         *(int *)((char *)bot + 0x34) = (int)turn_strength;
@@ -262,7 +262,7 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_x = STEER_PULSE_MS - result;
-        inputs[0] = (undefined1)(int)((float10)frame.candidate_x * (float10)k_f_0_005 * (float10)*(int *)((char *)bot + 0x34));
+        inputs[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + 0x34));
       }
     }
   }
@@ -277,12 +277,12 @@ LAB_00418fe2:
     inputs[4] = 0;
     inputs[5] = INPUT_MAX;
   }
-  if ((steer_raw < (float10)k_f_180) && ((float10)k_f_30 < steer_raw)) {
+  if ((steer_raw < (double)k_f_180) && ((double)k_f_30 < steer_raw)) {
     inputs[4] = INPUT_MAX;
     inputs[5] = INPUT_MAX;
     inputs[0] = INPUT_MAX;
   }
-  if (((float10)k_f_180 < steer_raw) && (steer_raw < (float10)k_f_330)) {
+  if (((double)k_f_180 < steer_raw) && (steer_raw < (double)k_f_330)) {
     inputs[4] = INPUT_MAX;
     inputs[5] = INPUT_MAX;
     inputs[1] = INPUT_MAX;
@@ -344,7 +344,7 @@ LAB_00419560:
   /* catch-up class 1: scale input [4] by a factor (inferred) */
   if (g_ai_catchup_class == 1) {
     frame.candidate_x = (uint)(byte)inputs[4];
-    inputs[4] = (undefined1)(int)((float10)frame.candidate_x * (float10)k_f_0_4);
+    inputs[4] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_4);
   }
   /* race phases 5, 6, 9, 10 and 11 keep the drive inputs; other phases clear [4] and [5] (phase meanings inferred) */
   if ((((frame.race_phase != 6) && (frame.race_phase != 5)) && (frame.race_phase != 9)) &&

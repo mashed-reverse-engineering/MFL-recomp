@@ -53,7 +53,7 @@ void gfx_draw_rect_2d_flat_b(float x,float y,float width,float height,uint colou
     *vertex_z = RwGlobalsRelease_dOpenDevice_zBufferNear(engine);
     vertex_z[1] = 1.0;
     vertex_z = vertex_z + 7;
-  } while ((int)vertex_z < ((int)&g_training_lesson));
+  } while ((char *)vertex_z < ((char *)&g_training_lesson));
   /* Vertices 2 and 3 are overwritten with opaque black emissive colour */
   g_im2d_vertices[2].emissiveColor = EMISSIVE_OPAQUE_BLACK;
   g_im2d_vertices[3].emissiveColor = EMISSIVE_OPAQUE_BLACK;

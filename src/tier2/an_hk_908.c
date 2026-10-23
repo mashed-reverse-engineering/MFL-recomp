@@ -16,7 +16,7 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the camera roll factor from the camera facing and calls game_set_option_flags" */
 
-void course_camera_roll_update(int param_1,RwCamera *camera)
+void course_camera_roll_update(char *param_1,RwCamera *camera)
 
 {
   float fVar1;
@@ -60,9 +60,9 @@ void course_camera_roll_update(int param_1,RwCamera *camera)
     local_40.pos.x = 0.0;
     RwMatrixRotate(&local_40,&local_4c,*(RwReal *)(param_1 + 0xca0c),rwCOMBINEREPLACE);
     RwV3dTransformVector(&local_58,&local_58,&local_40);
-    local_64.x = *(float *)((int)pvVar2 + 0x30);
+    local_64.x = *(float *)((char *)pvVar2 + 0x30);
     local_64.y = 0.0;
-    local_64.z = *(float *)((int)pvVar2 + 0x38);
+    local_64.z = *(float *)((char *)pvVar2 + 0x38);
     RwV3dNormalize(&local_64,&local_64);
     g_course_lap_data_split_sectors_14_ = (local_64.z * local_58.z + local_64.x * local_58.x + local_64.y * local_58.y - float_1_0) * k_f_n0_5;
     rgb[0] = (uchar)(int)((float)(int)(((uchar *)&g_course_update_6095c4)[0] - ((uchar *)&g_course_update_6095c0)[0]) * g_course_lap_data_split_sectors_14_ + (float)(int)((uchar *)&g_course_update_6095c0)[0]);

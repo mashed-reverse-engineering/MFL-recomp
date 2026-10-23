@@ -18,6 +18,7 @@ extern double sin(double x);
 
 /* Ambience of courses 2 and 6 (first part): two looping voices (group slots +0x470 and +0x620) at full volume,
    placed at the object position of g_course_8c53e0; the second one plays slightly faster. */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void sound_ambience_course_2_6_a(void)
 {
   RwV3d *position;

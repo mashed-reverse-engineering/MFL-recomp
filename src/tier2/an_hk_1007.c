@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
-/*0040d0f0*/ extern int __cdecl find_texture_dict_c(RwChar *p0);
+/*0040d0f0*/ extern char *__cdecl find_texture_dict_c(RwChar *p0);
 /*00422350*/ extern int vehicle_part_ltm();
-/*00435040*/ extern int team_color_names();
+/*00435040*/ extern char *team_color_names();
 /*00481fd0*/ extern double random_range();
 /*00482010*/ extern int random_int_range();
 /*004f8230*/ extern struct RpMaterial * RpMaterialSetTexture(struct RpMaterial *p0, struct RwTexture *p1);
@@ -34,7 +34,7 @@ void __cdecl particle_emit_textured(float *param_1,undefined4 *param_2,int param
   int iVar3;
   int iVar4;
   float fVar5;
-  float10 fVar6;
+  double fVar6;
   struct {
     undefined1 local_40;
     undefined1 local_3f;
@@ -126,51 +126,51 @@ LAB_004a0037:
   while (*piVar2 != 0) {
     piVar2 = piVar2 + 0x14;
     iVar3 = iVar3 + 1;
-    if ((int)&g_effects_update_88606c + 0x913 < (int)piVar2) {
+    if ((char *)&g_effects_update_88606c + 0x913 < (char *)piVar2) {
       return;
     }
   }
-  fVar6 = (float10)random_range(0xba83126f,0x3a83126f);
-  frame.local_24 = (float)(fVar6 + (float10)frame.local_24);
-  fVar6 = (float10)random_range(0xba83126f,0x3a83126f);
+  fVar6 = (double)random_range(0xba83126f,0x3a83126f);
+  frame.local_24 = (float)(fVar6 + (double)frame.local_24);
+  fVar6 = (double)random_range(0xba83126f,0x3a83126f);
   iVar4 = iVar3 * 0x50;
-  frame.local_1c = (float)(fVar6 + (float10)frame.local_1c);
+  frame.local_1c = (float)(fVar6 + (double)frame.local_1c);
   *(float *)&(&g_effects_update_886030)[iVar3 * 0x14] = frame.local_24;
   *(float *)&(&g_effects_update_886034)[iVar3 * 0x14] = fVar5;
   *(float *)&(&g_effects_update_886038)[iVar3 * 0x14] = frame.local_1c;
   (&g_effects_update_88605c)[iVar3 * 0x14] = 0;
   random_int = random_int_range(0x14,0x23);
   (&g_effects_update_886058)[iVar3 * 0x14] = random_int;
-  fVar6 = (float10)random_range(0,0x3f800000);
+  fVar6 = (double)random_range(0,0x3f800000);
   *(float *)((char *)&g_effects_update_886060 + iVar4) = (float)fVar6;
-  fVar6 = (float10)random_range(0,0x3f800000);
-  *(float *)(iVar4 + ((int)&g_effects_update_886060 + 0x4)) = (float)fVar6;
-  fVar6 = (float10)random_range(0,0x3f800000);
-  *(float *)(iVar4 + ((int)&g_effects_update_886060 + 0x8)) = (float)fVar6;
-  fVar6 = (float10)random_range(0xbcf5c28f,0x3cf5c28f);
+  fVar6 = (double)random_range(0,0x3f800000);
+  *(float *)(iVar4 + ((char *)&g_effects_update_886060 + 0x4)) = (float)fVar6;
+  fVar6 = (double)random_range(0,0x3f800000);
+  *(float *)(iVar4 + ((char *)&g_effects_update_886060 + 0x8)) = (float)fVar6;
+  fVar6 = (double)random_range(0xbcf5c28f,0x3cf5c28f);
   *(float *)&(&g_effects_update_88603c)[iVar3 * 0x14] = (float)fVar6;
-  fVar6 = (float10)random_range(0xbcf5c28f,0x3cf5c28f);
+  fVar6 = (double)random_range(0xbcf5c28f,0x3cf5c28f);
   *(float *)&(&g_effects_update_886044)[iVar3 * 0x14] = (float)fVar6;
-  fVar6 = (float10)random_range(0x3c23d70a,0x3d23d70a);
-  *(float *)(iVar4 + ((int)&g_effects_update_88603c + 0x4)) = (float)fVar6;
+  fVar6 = (double)random_range(0x3c23d70a,0x3d23d70a);
+  *(float *)(iVar4 + ((char *)&g_effects_update_88603c + 0x4)) = (float)fVar6;
   if (param_7 != (float *)0x0) {
     *(float *)&(&g_effects_update_88603c)[iVar3 * 0x14] =
          *(float *)&(&g_effects_update_88603c)[iVar3 * 0x14] + *param_7;
-    *(float *)(iVar4 + ((int)&g_effects_update_88603c + 0x4)) = (float)((float10)param_7[1] + fVar6);
+    *(float *)(iVar4 + ((char *)&g_effects_update_88603c + 0x4)) = (float)((double)param_7[1] + fVar6);
     *(float *)&(&g_effects_update_886044)[iVar3 * 0x14] =
          param_7[2] + *(float *)&(&g_effects_update_886044)[iVar3 * 0x14];
   }
   (&g_effects_update_88606c)[iVar3 * 0x14] = 0;
   (&g_effects_update_886054)[iVar3 * 0x14] = 0;
-  fVar6 = (float10)random_range(0x3dcccccd,0x3f19999a);
-  frame.local_24 = (float)(fVar6 * (float10)param_6);
-  fVar6 = (float10)random_range(0x3dcccccd,0x3f19999a);
-  frame.local_20 = (float)(fVar6 * (float10)param_6);
-  fVar6 = (float10)random_range(0x3dcccccd,0x3f19999a);
+  fVar6 = (double)random_range(0x3dcccccd,0x3f19999a);
+  frame.local_24 = (float)(fVar6 * (double)param_6);
+  fVar6 = (double)random_range(0x3dcccccd,0x3f19999a);
+  frame.local_20 = (float)(fVar6 * (double)param_6);
+  fVar6 = (double)random_range(0x3dcccccd,0x3f19999a);
   *(float *)((char *)&g_effects_update_886048 + iVar4) = frame.local_24;
-  frame.local_1c = (float)(fVar6 * (float10)param_6);
-  *(float *)(iVar4 + ((int)&g_effects_update_886048 + 0x4)) = frame.local_20;
-  *(float *)(iVar4 + ((int)&g_effects_update_886048 + 0x8)) = frame.local_1c;
+  frame.local_1c = (float)(fVar6 * (double)param_6);
+  *(float *)(iVar4 + ((char *)&g_effects_update_886048 + 0x4)) = frame.local_20;
+  *(float *)(iVar4 + ((char *)&g_effects_update_886048 + 0x8)) = frame.local_1c;
   (g_app_886020)[iVar3 * 0x14] = 1;
   if (texture_2 == (RwTexture *)0x0) {
     if ((param_4 == 1) && (iVar4 = random_int_range(0,3), iVar4 == 3)) {

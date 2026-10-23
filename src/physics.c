@@ -91,6 +91,6 @@ int rw_free_with_inner_buffer(int p)
 int smplfzx_get_object(unsigned int i)
 {
     if (i <= g_smplfzx_get_71abec)
-        return *(int *)(*(int *)(g_particles_71abf4 + 0x10) + i * 4);
+        return *(int *)(*(char **)(g_particles_71abf4 + 0x10) + i * 4);
     return 0;
 }

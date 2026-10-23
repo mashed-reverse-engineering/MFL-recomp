@@ -36,9 +36,6 @@
 #define VEHICLE_SETUP_STRIDE (0x40) /* bytes per vehicle in g_vehicle_setup_659e00 (16 floats) */
 #define RWMATRIX_FLOAT_COUNT (0x10) /* floats copied from the transform into the setup table */
 #define VEHICLE_PART_LAST (0x7f) /* last part index scanned (inferred) */
-#define VEHICLE_FLAG_FRONT (0x10) /* (inferred) front/back order not verified */
-#define VEHICLE_FLAG_BACK (0x20) /* (inferred) */
-#define VEHICLE_FLAG_400 (0x400) /* "flag_400" in the dossier */
 
 /* vehicle_setup_references */
 
@@ -192,7 +189,7 @@ joined_r0x00423a49:
       masked_flags = flag_word & 0x800;
       goto LAB_00423b6a;
     case 0x15:
-      if ((g_vehicle_table[vehicle_index].flags & 0x40) != 0) {
+      if ((g_vehicle_table[vehicle_index].flags & VEHICLE_FLAG_40) != 0) {
         flag_word = g_vehicle_table[vehicle_index].flags & VEHICLE_FLAG_FRONT;
         goto LAB_00423b6e;
       }
@@ -265,7 +262,7 @@ LAB_00423b25:
       render_flag = g_vehicle_table[vehicle_index].field_298 == 0;
       break;
     case 100:
-      if ((g_vehicle_table[vehicle_index].field_298 != 2) || ((g_vehicle_table[vehicle_index].flags & 0x30) != 0))
+      if ((g_vehicle_table[vehicle_index].field_298 != 2) || ((g_vehicle_table[vehicle_index].flags & (VEHICLE_FLAG_FRONT | VEHICLE_FLAG_BACK)) != 0))
       goto LAB_00423b06;
       render_flag = true;
       break;

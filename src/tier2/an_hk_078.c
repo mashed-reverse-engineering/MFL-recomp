@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0048e650*/ extern int rwp_object_set_in_world();
 /*0048e720*/ extern undefined __cdecl rwp_object_set_matrix(int p0, RwMatrix *p1);
-/*004c48b0*/ extern void FUN_004c48b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c48b0*/ extern void FUN_004c48b0(void *p0, undefined4 p1, undefined4 p2);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*0060d8b0*/ extern undefined g_course_60d8b0;
 /*006a188c*/ extern undefined4 g_course_6a188c;

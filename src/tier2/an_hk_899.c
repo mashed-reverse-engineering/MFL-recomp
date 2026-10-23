@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0040a8d0*/ extern int course_token_list_skip_to_entry();
-/*0042b1d0*/ extern int course_get_record_base();
+/*0042b1d0*/ extern char *course_get_record_base();
 /*004b3284*/ extern double FUN_004b3284(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd330*/ extern float float_1_0;
@@ -41,9 +41,9 @@ undefined4 fx_wander_target(undefined4 token_cursor,float *out_mean_angle,float 
 {
   RwV3d *rec;
   int entry_index;
-  float10 angle;
-  float10 dot; /* also reused as the heading change below */
-  float10 cross_y;
+  double angle;
+  double dot; /* also reused as the heading change below */
+  double cross_y;
   struct {
     float angle_sum;
     float angle_change;
@@ -66,7 +66,7 @@ undefined4 fx_wander_target(undefined4 token_cursor,float *out_mean_angle,float 
       return 1;
     }
     RwV3dNormalize(&acc.vec,&acc.vec);
-    dot = (float10)acc.vec.y * g_fx_62ac6c + acc.vec.x * g_car_62ac68 + acc.vec.z * g_fx_62ac70;
+    dot = (double)acc.vec.y * g_fx_62ac6c + acc.vec.x * g_car_62ac68 + acc.vec.z * g_fx_62ac70;
     /* clamp to [-1, 1] before acos */
     if (dot < k_f_n1) {
       dot = k_f_n1;
@@ -75,34 +75,34 @@ undefined4 fx_wander_target(undefined4 token_cursor,float *out_mean_angle,float 
       dot = float_1_0;
     }
     /* FUN_004b3284: acos (inferred); result in radians, converted to degrees */
-    angle = (float10)FUN_004b3284((double)dot);
-    angle = -(angle * (float10)(RAD_TO_DEG) - (float10)(90.0)) + (float10)k_f_90;
+    angle = (double)FUN_004b3284((double)dot);
+    angle = -(angle * (double)(RAD_TO_DEG) - (double)(90.0)) + (double)k_f_90;
     /* cross product of the record's full vector with the reference; only its y part is kept */
     acc.vec.x = g_fx_62ac70 * rec->y - g_fx_62ac6c * rec->z;
-    cross_y = (float10)g_car_62ac68 * rec->z - g_fx_62ac70 * rec->x;
+    cross_y = (double)g_car_62ac68 * rec->z - g_fx_62ac70 * rec->x;
     acc.vec.y = (float)cross_y;
     acc.vec.z = g_fx_62ac6c * rec->x - g_car_62ac68 * rec->y;
     /* negative cross_y: the heading is on the other side, go round the full circle */
     if (cross_y < k_f_0) {
-      angle = (float10)k_f_360 - angle;
+      angle = (double)k_f_360 - angle;
     }
     /* fold the heading into one 90 degree period (inferred: roughly -45..45) */
-    if ((float10)k_f_90 < angle) {
+    if ((double)k_f_90 < angle) {
       do {
-        angle = angle - (float10)k_f_90;
-      } while ((float10)k_f_90 < angle);
+        angle = angle - (double)k_f_90;
+      } while ((double)k_f_90 < angle);
     }
-    if ((float10)k_f_45 < angle) {
-      angle = angle - (float10)k_f_90;
+    if ((double)k_f_45 < angle) {
+      angle = angle - (double)k_f_90;
     }
-    acc.angle_sum = (float)((float10)acc.angle_sum + angle);
+    acc.angle_sum = (float)((double)acc.angle_sum + angle);
     /* change from the previous sample; the first sample has no previous one */
     if (entry_index != 0) {
-      dot = (float10)acc.prev_angle - angle;
+      dot = (double)acc.prev_angle - angle;
       if (dot < k_f_0) {
         dot = -dot;
       }
-      acc.angle_change = (float)(dot + (float10)acc.angle_change);
+      acc.angle_change = (float)(dot + (double)acc.angle_change);
     }
     acc.prev_angle = (float)angle;
     token_cursor = course_token_list_skip_to_entry(token_cursor, 0x0);

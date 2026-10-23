@@ -1,23 +1,23 @@
 #include "mfl_tier2.h"
 typedef int CourseId;
-/*00409f50*/ extern int player_route_get_record_ptr();
+/*00409f50*/ extern char *player_route_get_record_ptr();
 /*0040fdc0*/ extern int race_get_phase();
-/*004170a0*/ extern int __cdecl ai_find_target_a(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6);
-/*0041ac70*/ extern int __cdecl ai_drive_counter_phase_check(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*004175c0*/ extern int __cdecl ai_find_target_c(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*00417780*/ extern int __cdecl ai_trigger_zone_target_for_car(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*00417a50*/ extern int __cdecl ai_hazard_target_for_car(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004170a0*/ extern int __cdecl ai_find_target_a(undefined4 p0, void *p1, void *p2, undefined4 p3, undefined4 p4, void *p5, undefined4 p6);
+/*0041ac70*/ extern int __cdecl ai_drive_counter_phase_check(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*004175c0*/ extern int __cdecl ai_find_target_c(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*00417780*/ extern int __cdecl ai_trigger_zone_target_for_car(undefined4 p0, void *p1, void *p2, undefined4 p3);
+/*00417a50*/ extern int __cdecl ai_hazard_target_for_car(undefined4 p0, void *p1, void *p2, undefined4 p3);
 /*00417b70*/ extern int __cdecl ai_find_leader_a(undefined4 p0);
-/*00417c30*/ extern int __cdecl ai_cell_is_value2(undefined4 p0, undefined4 p1);
-/*00417d70*/ extern int __cdecl ai_bot_stuck_check(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
-/*004183d0*/ extern int __cdecl ai_find_target_b(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*00417c30*/ extern int __cdecl ai_cell_is_value2(void *p0, undefined4 p1);
+/*00417d70*/ extern int __cdecl ai_bot_stuck_check(undefined4 p0, void *p1, void *p2, undefined4 p3, undefined4 p4);
+/*004183d0*/ extern int __cdecl ai_find_target_b(undefined4 p0, void *p1, void *p2, undefined4 p3);
 /*00418870*/ extern int __cdecl ai_bot_obstacle_ahead(undefined4 p0);
 /*00418990*/ extern double ai_steer_towards_point();
-/*00418be0*/ extern int __cdecl ai_target_check(undefined4 p0, undefined4 p1);
+/*00418be0*/ extern int __cdecl ai_target_check(void *p0, void *p1);
 /*00418d60*/ extern int ai_route_target_for_car();
 /*0042b110*/ extern int current_course_id();
 /*0044c540*/ extern int camera_get_car_8c747c();
-/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*0044c920*/ extern float ai_route_closest_point_search(undefined4 p0, void *p1, undefined4 p2, void *p3, undefined4 p4);
 /*0047b520*/ extern int car_current_matrix();
 /*0047b590*/ extern int car_get_forward();
 /*0047b720*/ extern int car_get_field_b0c();
@@ -97,7 +97,7 @@ void __cdecl ai_drive_c(undefined4 ai_ctx,int car_index,undefined1 *controls,und
     float car_speed;
     float car_b0c;
     int race_phase;
-    int car_matrix_ptr;
+    char *car_matrix_ptr;
     uint candidate_x;
     undefined4 candidate_z;
     uint target_x;
@@ -117,7 +117,7 @@ void __cdecl ai_drive_c(undefined4 ai_ctx,int car_index,undefined1 *controls,und
   frame.car_pos_x = *(undefined4 *)(frame.car_matrix_ptr + 0x30);
   frame.car_pos_z = *(undefined4 *)(frame.car_matrix_ptr + 0x38);
   /* Heading error to the closest route point (inferred), folded into 0..180 degrees. */
-  ai_route_closest_point_search(ai_ctx, (undefined4)&frame.car_pos_x, ROUTE_SEARCH_RADIUS_BITS, (undefined4)&frame.heading_error, 0x0);
+  ai_route_closest_point_search(ai_ctx, &frame.car_pos_x, ROUTE_SEARCH_RADIUS_BITS, &frame.heading_error, 0x0);
   if (k_f_180 < frame.heading_error) {
     frame.heading_error = k_f_360 - frame.heading_error;
   }
@@ -127,15 +127,15 @@ void __cdecl ai_drive_c(undefined4 ai_ctx,int car_index,undefined1 *controls,und
   result = car_index;
   ai_route_target_for_car(ai_ctx, &frame.target_x, car_index);
   frame.target_kind = 0;
-  result = ai_find_target_a(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index,arg_scratch,(undefined4)target_ptr,result);
-  if ((result == 0) || (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result == 0)) {
-    result = ai_find_target_b(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
+  result = ai_find_target_a(ai_ctx,&frame.target_x,&frame.candidate_x,car_index,arg_scratch,target_ptr,result);
+  if ((result == 0) || (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result == 0)) {
+    result = ai_find_target_b(ai_ctx,&frame.target_x,&frame.candidate_x,car_index);
     if ((result == 0) ||
-       ((result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result == 0 ||
+       ((result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result == 0 ||
         (result = ai_bot_obstacle_ahead(car_index), result != 0)))) {
-      result = ai_find_target_c(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
+      result = ai_find_target_c(ai_ctx,&frame.target_x,&frame.candidate_x,car_index);
       if (result == 1) {
-        result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x);
+        result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
         if (result == 0) goto LAB_00418f37;
 LAB_00418f66:
         frame.target_x = frame.candidate_x;
@@ -149,19 +149,19 @@ LAB_00418f66:
           return;
         }
 LAB_00418f37:
-        result = ai_trigger_zone_target_for_car(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
+        result = ai_trigger_zone_target_for_car(ai_ctx,&frame.target_x,&frame.candidate_x,car_index);
         if (result == 1) {
-          result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x);
+          result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
           if (result != 0) goto LAB_00418f66;
         }
         else if ((result == 2) &&
-                (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result != 0)) {
+                (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
           frame.target_x = frame.candidate_x;
           frame.target_z = frame.candidate_z;
           frame.target_kind = 7;
           goto LAB_00418fe2;
         }
-        result = ai_cell_is_value2((undefined4)&frame.car_pos_x,car_index);
+        result = ai_cell_is_value2(&frame.car_pos_x,car_index);
         if (result == 1) {
           frame.target_kind = 9;
         }
@@ -181,15 +181,15 @@ LAB_00418f37:
 LAB_00418fe2:
   course = current_course_id();
   if ((course == COURSE_WARZONE) &&
-     (result = ai_hazard_target_for_car(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index), result != 0)) {
+     (result = ai_hazard_target_for_car(ai_ctx,&frame.target_x,&frame.candidate_x,car_index), result != 0)) {
     frame.target_x = frame.candidate_x;
     frame.target_z = frame.candidate_z;
     frame.target_kind = 10;
   }
   if ((frame.race_phase == 6) && (result = camera_get_car_8c747c(), result == 0)) {
     if (frame.target_kind == 0) {
-      result = ai_drive_counter_phase_check(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index);
-      if ((result != 0) && (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result != 0)) {
+      result = ai_drive_counter_phase_check(ai_ctx,&frame.target_x,&frame.candidate_x,car_index);
+      if ((result != 0) && (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
         controls[5] = 0xff;
         *controls = 0;
         controls[1] = 0;
@@ -207,35 +207,35 @@ LAB_00418fe2:
     }
     else {
       arg_scratch = (undefined4)(int)frame.heading_error;
-      result = ai_bot_stuck_check(ai_ctx,(undefined4)&frame.target_x,(undefined4)&frame.candidate_x,car_index,arg_scratch);
-      if ((result != 0) && (result = ai_target_check((undefined4)&frame.car_pos_x,(undefined4)&frame.candidate_x), result != 0)) {
+      result = ai_bot_stuck_check(ai_ctx,&frame.target_x,&frame.candidate_x,car_index,arg_scratch);
+      if ((result != 0) && (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
         frame.target_kind = 8;
       }
     }
   }
   bot = &g_ai_bots[car_index];
   bot->state_70 = frame.target_kind;
-  steer_result = (float10)ai_steer_towards_point(car_index,frame.target_x,frame.target_z);
+  steer_result = (double)ai_steer_towards_point(car_index,frame.target_x,frame.target_z);
   frame.steer_angle = (float)steer_result;
-  prev_opposite_steer = (float10)k_f_0;
+  prev_opposite_steer = (double)k_f_0;
   bot_state = (float *)(g_ai_data.bot_state + car_index * BOT_STATE_STRIDE);
   /* Steer angle below 180 degrees: left side, writes controls[0]. */
   if (frame.steer_angle < k_f_180) {
     prev_steer = bot_state[3];
     bot_state[2] = 360.0f;
     if (prev_steer < frame.steer_angle) {
-      prev_opposite_steer = (float10)prev_steer;
+      prev_opposite_steer = (double)prev_steer;
     }
     bot_state[3] = frame.steer_angle;
     if (float_1_0 < frame.steer_angle) {
       if ((*(int *)((char *)bot + BOT_STEER_SIDE_OFFSET) == 1) ||
          (result = g_race_clock_a - bot->field_0x30, 199 < result)) {
-        steer_amount = (float10)frame.steer_angle * (float10)frame.car_speed * (float10)k_f_0_003;
+        steer_amount = (double)frame.steer_angle * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.target_kind == 0) && (k_f_20 < frame.heading_error)) {
-          steer_amount = steer_amount * ((float10)frame.heading_error * (float10)k_f_0_05);
+          steer_amount = steer_amount * ((double)frame.heading_error * (double)k_f_0_05);
         }
         if (k_f_255 < steer_amount) {
-          steer_amount = (float10)k_f_255;
+          steer_amount = (double)k_f_255;
         }
         controls[0] = (undefined1)(int)steer_amount;
         *(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET) = (int)steer_amount;
@@ -244,7 +244,7 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_x = STEER_HOLD_MS - result;
-        controls[1] = (undefined1)(int)((float10)frame.candidate_x * (float10)k_f_0_005 * (float10)*(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET));
+        controls[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET));
       }
     }
   }
@@ -253,18 +253,18 @@ LAB_00418fe2:
     prev_steer = bot_state[2];
     bot_state[3] = 0.0f;
     if (frame.steer_angle < prev_steer) {
-      prev_opposite_steer = (float10)k_f_360 - (float10)prev_steer;
+      prev_opposite_steer = (double)k_f_360 - (double)prev_steer;
     }
     bot_state[2] = frame.steer_angle;
     if (frame.steer_angle < k_f_359) {
       if ((*(int *)((char *)bot + BOT_STEER_SIDE_OFFSET) == 2) ||
          (result = g_race_clock_a - bot->field_0x30, 199 < result)) {
-        steer_amount = ((float10)k_f_360 - (float10)frame.steer_angle) * (float10)frame.car_speed * (float10)k_f_0_003;
+        steer_amount = ((double)k_f_360 - (double)frame.steer_angle) * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.target_kind == 0) && (k_f_20 < frame.heading_error)) {
-          steer_amount = steer_amount * ((float10)frame.heading_error * (float10)k_f_0_05);
+          steer_amount = steer_amount * ((double)frame.heading_error * (double)k_f_0_05);
         }
         if (k_f_255 < steer_amount) {
-          steer_amount = (float10)k_f_255;
+          steer_amount = (double)k_f_255;
         }
         controls[1] = (undefined1)(int)steer_amount;
         *(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET) = (int)steer_amount;
@@ -273,7 +273,7 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_x = STEER_HOLD_MS - result;
-        controls[0] = (undefined1)(int)((float10)frame.candidate_x * (float10)k_f_0_005 * (float10)*(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET));
+        controls[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET));
       }
     }
   }
@@ -288,12 +288,12 @@ LAB_00418fe2:
     controls[4] = 0;
     controls[5] = 0xff;
   }
-  if ((steer_result < (float10)k_f_180) && ((float10)k_f_30 < steer_result)) {
+  if ((steer_result < (double)k_f_180) && ((double)k_f_30 < steer_result)) {
     controls[4] = 0xff;
     controls[5] = 0xff;
     controls[0] = 0xff;
   }
-  if (((float10)k_f_180 < steer_result) && (steer_result < (float10)k_f_330)) {
+  if (((double)k_f_180 < steer_result) && (steer_result < (double)k_f_330)) {
     controls[4] = 0xff;
     controls[5] = 0xff;
     controls[1] = 0xff;

@@ -9,12 +9,11 @@
 /*005ddc1c*/ extern float k_f_0_33333334;
 /*005ddc28*/ extern float k_f_0;
 /*00659ac0*/ extern undefined4 g_hudpanel_659ac0;
-/*00659ac8*/ extern undefined4 g_race_update_659ac8;
+/*00659ac8*/ extern char *g_race_update_659ac8;
 /*00659b04*/ extern undefined4 g_ai_659b04;
 /*00659b0c*/ extern float g_race_update_659b0c;
 /*007ef804*/ extern undefined4 g_tick_number;
 
-#define EVENT_STOPCLOCK (0x11) /* inferred from stopclock_set_digit_count */
 #define MATRIX_FLAGS_IDENTITY (0x20003) /* inferred: RwMatrix flags, the matrix is rebuilt as identity below */
 #define TICK_BLINK_MASK (0x10) /* bit of g_tick_number that makes the bar flicker */
 
@@ -69,7 +68,7 @@ void hudpanel_score_digits_update(void)
   bar_scale.z = 1.0;
   event_type = get_event_type();
   /* Stopclock event drives the digit count; any other event uses the AI counters snapshot. */
-  if (event_type == EVENT_STOPCLOCK) {
+  if (event_type == EVENT_TRAINING) {
     stopclock_set_digit_count_r(&g_hudpanel_659ac0);
   }
   else {

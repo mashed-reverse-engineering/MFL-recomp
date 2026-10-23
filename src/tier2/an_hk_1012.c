@@ -51,7 +51,7 @@ void weapon_machinegun_fire(WeaponSlot *param_1)
   undefined4 slot_record;
   uint uVar6;
   bool bVar7;
-  float10 fVar8;
+  double fVar8;
   /* one contiguous frame: rwp_object_activate reads the two vectors at RStack_30 / fStack_24 together */
   struct {
     undefined1 uStack_34;
@@ -121,14 +121,14 @@ void weapon_machinegun_fire(WeaponSlot *param_1)
     if (iVar3 == -1) {
       iVar3 = weapon_effect_get_slot_value_a(pWVar2->player);
       if (iVar3 != -1) {
-        fVar8 = (float10)ai_get_float_8c9980();
+        fVar8 = (double)ai_get_float_8c9980();
         iVar5 = fx_object_timer_subtract_by_id
-                          (iVar3,(fbits1 = (float)((float10)k_f_0_9 - fVar8 * (float10)k_f_0_04), *(int *)&fbits1));
+                          (iVar3,(fbits1 = (float)((double)k_f_0_9 - fVar8 * (double)k_f_0_04), *(int *)&fbits1));
         if (iVar5 == 0) {
           frame.RStack_30.x = pWVar2->aim_vector[0];
           frame.RStack_30.y = pWVar2->aim_vector[1];
           frame.RStack_30.z = pWVar2->aim_vector[2];
-          fVar8 = (float10)rp_random_float_range(0x3ca3d70a,0x3d75c28f);
+          fVar8 = (double)rp_random_float_range(0x3ca3d70a,0x3d75c28f);
           fx_emitter_spawn_c_default(pointsIn,0,0x43b40000,(fbits2 = (float)fVar8, *(int *)&fbits2));
           iVar5 = rwp_object_get_id(iVar3);
           if (iVar5 < 150000) {
@@ -159,11 +159,11 @@ void weapon_machinegun_fire(WeaponSlot *param_1)
       } while (iVar3 != 0);
     }
     else {
-      fVar8 = (float10)rp_random_float_range(0xbf800000,0x3f800000);
+      fVar8 = (double)rp_random_float_range(0xbf800000,0x3f800000);
       frame.fStack_24 = (float)fVar8;
-      fVar8 = (float10)rp_random_float_range(0xbf800000,0x3f800000);
+      fVar8 = (double)rp_random_float_range(0xbf800000,0x3f800000);
       frame.fStack_20 = (float)fVar8;
-      fVar8 = (float10)rp_random_float_range(0xbf800000,0x3f800000);
+      fVar8 = (double)rp_random_float_range(0xbf800000,0x3f800000);
       frame.fStack_1c = (float)fVar8;
       iVar5 = 4;
       do {
@@ -174,19 +174,19 @@ void weapon_machinegun_fire(WeaponSlot *param_1)
         fx_spawn_burst_default_scale(pointsIn,1,&frame.RStack_18,0,&frame.uStack_c,0x40800000);
         iVar5 = iVar5 + -1;
       } while (iVar5 != 0);
-      fVar8 = (float10)rp_random_float_range(0x3d75c28f,0x3dcccccd);
+      fVar8 = (double)rp_random_float_range(0x3d75c28f,0x3dcccccd);
       fx_emitter_spawn_c_default(pointsIn,0,0x43b40000,(fbits3 = (float)fVar8, *(int *)&fbits3));
       player_rumble(iVar3,1,2,0xff);
-      fVar8 = (float10)random_range(0xc3480000,0x43480000);
+      fVar8 = (double)random_range(0xc3480000,0x43480000);
       frame.RStack_30.x = (RwReal)fVar8;
       frame.RStack_30.y = 0.0;
-      fVar8 = (float10)random_range(0xc3480000,0x43480000);
+      fVar8 = (double)random_range(0xc3480000,0x43480000);
       frame.RStack_30.z = (RwReal)fVar8;
       car_add_velocity(&frame.RStack_30,iVar3);
       frame.RStack_30.x = 0.0;
-      fVar8 = (float10)random_range(0xbf4ccccd,0x3f4ccccd);
+      fVar8 = (double)random_range(0xbf4ccccd,0x3f4ccccd);
       frame.RStack_30.y = (RwReal)fVar8;
-      if (((float10)k_f_0_3 <= fVar8) || (frame.RStack_30.y <= k_f_0)) {
+      if (((double)k_f_0_3 <= fVar8) || (frame.RStack_30.y <= k_f_0)) {
         if ((k_f_n0_3 < frame.RStack_30.y) && (frame.RStack_30.y < k_f_0)) {
           frame.RStack_30.y = -0.3;
         }

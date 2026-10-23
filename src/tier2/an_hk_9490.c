@@ -4,10 +4,10 @@ extern char UNK_005df51c[];
 /*0045c6b0*/ extern int course_atomics_clone_3();
 /*0045ca00*/ extern int anim_set_callback();
 /*0048e410*/ extern int rwp_object_find_index_by_id();
-/*0048e6f0*/ extern int rwp_object_get_matrix();
+/*0048e6f0*/ extern char *rwp_object_get_matrix();
 /*00492d10*/ extern int rwp_object_set_active();
 /*004a5d10*/ extern int object_frames_create_with_matrices();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*004d5d90*/ extern struct RwTexture * RwTexDictionaryFindNamedTexture(struct RwTexDictionary *p0, RwChar *p1);
@@ -29,7 +29,7 @@ extern char UNK_005df51c[];
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
-void course_warzone_cb0(int param_1)
+void course_warzone_cb0(char *param_1)
 
 {
   undefined4 uVar1;
@@ -46,15 +46,15 @@ void course_warzone_cb0(int param_1)
   } v;
   
   course_atomics_clone_3(param_1);
-  uVar1 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc11c))));
+  uVar1 = (undefined4)(clump_first_atomic((RpClump *)(*(char **)(param_1 + 0xc11c))));
   g_course_warzone_6a2998 =
        object_frames_create_with_matrices(uVar1,*(undefined4 *)(param_1 + 0xc008),param_1 + 0x1800);
   g_course_warzone_6a299c =
        object_frames_create_with_matrices(uVar1,*(undefined4 *)(param_1 + 0xc00c),param_1 + 0x2400);
-  uVar1 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc118))));
+  uVar1 = (undefined4)(clump_first_atomic((RpClump *)(*(char **)(param_1 + 0xc118))));
   g_course_warzone_6a29a0 =
        object_frames_create_with_matrices(uVar1,*(undefined4 *)(param_1 + 0xc000),param_1);
-  uVar1 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc168))));
+  uVar1 = (undefined4)(clump_first_atomic((RpClump *)(*(char **)(param_1 + 0xc168))));
   g_course_warzone_6a29a4 =
        object_frames_create_with_matrices(uVar1,*(undefined4 *)(param_1 + 0xc018),param_1 + 0x4800);
   puVar3 = (undefined4 *)&g_course_warzone_8bf060;
@@ -106,14 +106,14 @@ void course_warzone_cb0(int param_1)
   anim_set_callback(&g_course_6a2888,&UNK_0045d5b0);
   puVar3 = (undefined4 *)rwp_object_get_matrix(g_course_60d9c8);
   uVar1 = g_course_60d9cc;
-  puVar6 = (undefined4 *)((int)&g_course_get_6a2950 + 0x8);
+  puVar6 = (undefined4 *)((char *)&g_course_get_6a2950 + 0x8);
   for (iVar5 = 0x10; iVar5 != 0; iVar5 = iVar5 + -1) {
     *puVar6 = *puVar3;
     puVar3 = puVar3 + 1;
     puVar6 = puVar6 + 1;
   }
   puVar3 = (undefined4 *)rwp_object_get_matrix(uVar1);
-  puVar6 = (undefined4 *)((int)&g_course_warzone_6a27a0 + 0x8);
+  puVar6 = (undefined4 *)((char *)&g_course_warzone_6a27a0 + 0x8);
   for (iVar5 = 0x10; iVar5 != 0; iVar5 = iVar5 + -1) {
     *puVar6 = *puVar3;
     puVar3 = puVar3 + 1;

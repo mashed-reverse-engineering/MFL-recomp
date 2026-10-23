@@ -64,7 +64,7 @@ void tutorial_state_reset(void)
   
   event_type = g_event_type;
   g_tutorial_page_index = g_tutorial_page_index + 1;
-  skip_page = g_event_type == 0;
+  skip_page = g_event_type == EVENT_TIME_TRIAL_0;
   g_tutorial_line_count = 0;
   g_tutorial_line_width = 0;
   g_tutorial_display_ticks = 0;
@@ -92,7 +92,7 @@ void tutorial_state_reset(void)
     else {
       page = (int *)(&g_tutorial_pages_event)[page_index];
     }
-    if (game_mode == 0) {
+    if (game_mode == GAME_MODE_STANDARD) {
       if (page != (int *)&g_tutorial_state_60ad80) {
         state_ref = (int *)&g_tutorial_state_60ae44;
 LAB_00431e5a:
@@ -101,7 +101,7 @@ LAB_00431e5a:
 LAB_00431e5c:
       skip_page = true;
     }
-    else if (game_mode == 4) {
+    else if (game_mode == GAME_MODE_RACE) {
       if ((page == (int *)&g_tutorial_state_60ad80) || (page == (int *)&g_tutorial_state_60ae44)
          ) {
         skip_page = true;

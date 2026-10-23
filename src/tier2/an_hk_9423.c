@@ -14,6 +14,7 @@
 /* frontend_pause_input_poll */
 /* "sets g_frontend_state=1 when a pause button was pressed this frame depending on the input mode"
     */
+/* TIER2: unvalidated 2026-10-21 authority=diffemu */
 int __cdecl frontend_pause_input_poll(int next_page)
 {
   int i;

@@ -84,7 +84,7 @@ LAB_00429fcb:
             if (bVar7) {
               RwV3dTransformPoint(&frame_obj.local_88,
                                   (RwV3d *)((char *)&g_race_update_609550 + (iVar6 + piVar5[2] * 3) * 0xc),
-                                  (RwMatrix *)(*(int *)(piVar5[-0x11] + 4) + 0x10));
+                                  (RwMatrix *)(*(char **)(piVar5[-0x11] + 4) + 0x10));
               frame_obj.local_43 = 3;
               frame_obj.local_58 = 0x42055556;
               frame_obj.local_7c = 0xffffffff;

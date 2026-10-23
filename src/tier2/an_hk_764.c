@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0045c820*/ extern undefined __cdecl course_particle_init_random(undefined4 p0);
+/*0045c820*/ extern undefined __cdecl course_particle_init_random(void *p0);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005dd378*/ extern float k_f_0_1;
@@ -66,11 +66,11 @@ void course_zone_corners_to_world(int zone)
     z_step_offset = step_index * scratch.step_z;
     scratch.sample_y = step_index * k_f_0 + scratch.corner1_y;
     scratch.sample_z = z_step_offset + scratch.corner1_z;
-    course_particle_init_random((undefined4)&scratch.sample_x);
+    course_particle_init_random(&scratch.sample_x);
     zone = zone + 1;
   } while (zone < ZONE_SAMPLE_COUNT);
   /* last spawn point: corner 0 itself */
-  course_particle_init_random((undefined4)&scratch.corner0);
+  course_particle_init_random(&scratch.corner0);
   return;
 }
 

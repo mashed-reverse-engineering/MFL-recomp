@@ -4,9 +4,8 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
+/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
 /*006187f8*/ extern undefined4 g_sfx_table;
-#define APP_STATE_PLAYING (3) /* (inferred) */
 #define SFX_TABLE_STRIDE (0x25) /* (inferred) words per effect in g_sfx_table */
 #define VOICE_FLAGS_OFFSET (0x34) /* byte offset of the flags in the voice record */
 #define VOICE_FLAG_PLAYING (2) /* (inferred) */
@@ -28,7 +27,7 @@ void sfx_voice_is_active(int effect_id,int voice_index)
 
   app_state = get_app_state();
   /* Only act while the game is in the playing state. */
-  if (app_state == APP_STATE_PLAYING) {
+  if (app_state == APP_STATE_RACE) {
     /* Turn effect id + voice index into a global voice slot index. */
     voice_index = (&g_sfx_table)[effect_id * SFX_TABLE_STRIDE] + voice_index;
     /* Voice is playing: mute it and stop it. */

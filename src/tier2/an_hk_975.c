@@ -2,7 +2,7 @@
 extern __declspec(dllimport) int __stdcall EnterCriticalSection(int);
 extern __declspec(dllimport) int __stdcall LeaveCriticalSection(int);
 extern char LAB_005db5b0[];
-/*004afe30*/ extern int __stdcall FUN_004afe30(int a1);
+/*004afe30*/ extern int __stdcall FUN_004afe30(void *a1);
 /*ffdff000*/ extern void *ExceptionList;
 /* methods of the object at +0xcc: thiscall */
 static int call_thiscall_0_r(void *self,void *method);
@@ -19,7 +19,7 @@ __declspec(naked) int call_thiscall_0_r(void *self,void *method)
 #define OBJ_VTBL_LOCK_B (0x64)
 /* FUN_004acca0 */
 
-undefined4 __stdcall FUN_004acca0(int param_1)
+undefined4 __stdcall FUN_004acca0(char *param_1)
 
 {
   undefined4 uVar1;

@@ -5,7 +5,7 @@
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005dd330*/ extern float float_1_0;
 /*005de1d0*/ extern float k_f_1_25;
-/*006592c8*/ extern undefined4 g_hudpanel_6592c8;
+/*006592c8*/ extern char *g_hudpanel_6592c8;
 /*006592d8*/ extern undefined4 g_hudpanel_6592d8;
 /* hudpanel_fuel_meter_update */
 
@@ -17,7 +17,7 @@
 void hudpanel_fuel_meter_update(void)
 
 {
-  float10 fx_value;
+  double fx_value;
   RwV3d bar_scale;
   RwV3d panel_offset;
   RwMatrix panel_matrix;
@@ -49,8 +49,8 @@ void hudpanel_fuel_meter_update(void)
   bar_scale.z = bar_scale.z * k_f_1_25;
   RwFrameScale(g_hudpanel_6592d8,&bar_scale,rwCOMBINEPRECONCAT);
   /* bar: x scale = 1 - fx value (inferred: fx value is the fraction used), y/z stay 1.0 */
-  fx_value = (float10)fx_current_object_get_float();
-  bar_scale.x = (RwReal)((float10)float_1_0 - fx_value);
+  fx_value = (double)fx_current_object_get_float();
+  bar_scale.x = (RwReal)((double)float_1_0 - fx_value);
   bar_scale.z = 1.0;
   bar_scale.y = 1.0;
   RwFrameScale(*(RwFrame **)(g_hudpanel_6592c8 + 4),&bar_scale,rwCOMBINEREPLACE);

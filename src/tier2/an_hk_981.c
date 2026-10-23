@@ -64,6 +64,6 @@ void effect_trails_update_all(void)
     }
     trail = trail + 0xb0;
     slot = slot + 1;
-  } while ((int)trail < (int)&g_gfx_6f1e20 + 0x2b0);
+  } while ((char *)trail < (char *)&g_gfx_6f1e20 + 0x2b0);
   return;
 }

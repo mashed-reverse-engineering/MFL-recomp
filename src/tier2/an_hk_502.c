@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
-/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
-/*0056b300*/ extern void FUN_0056b300(undefined4 p0, undefined4 p1);
-/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
+/*0056b300*/ extern void FUN_0056b300(void *p0, void *p1);
+/*0056bc20*/ extern void FUN_0056bc20(void *p0, void *p1, undefined4 p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /* debris_apply_velocity_b */
 
@@ -15,7 +15,7 @@ debris_apply_velocity_b
           char *param_14,char *param_15,char *param_16,char *param_17)
 
 {
-  int iVar1;
+  char *iVar1;
   int *piVar2;
   char *iVar3;
   struct {
@@ -31,7 +31,7 @@ debris_apply_velocity_b
     param_2 = &frame.local_c;
   }
   iVar3 = rwp_owner_object_get(param_1);
-  iVar1 = *(int *)(iVar3 + 0x24);
+  iVar1 = *(char **)(iVar3 + 0x24);
   if (iVar1 != 0) {
     if ((*(uint *)(*(char **)(iVar1 + 0x60) + (uint)(*(ushort *)(iVar3 + 0x20) >> 5) * 4) &
         1 << ((byte)*(ushort *)(iVar3 + 0x20) & 0x1f)) != 0) goto LAB_00424998;

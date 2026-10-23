@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004978d0*/ extern int __cdecl fx_pool_alloc_particle(undefined4 p0);
+/*004978d0*/ extern char *__cdecl fx_pool_alloc_particle(void *p0);
 /*005ddc28*/ extern float k_f_0;
 /*005e07f0*/ extern float k_f_0_80999994;
 /*00745ce8*/ extern undefined g_particles_745ce8;
@@ -65,7 +65,7 @@ void fx_trail_particle_spawn_interpolated(float *template_particle,float interp_
     }
   }
   /* Allocate from the pool. The argument is the address of the parameter (Ghidra artifact, inferred). */
-  new_particle = (float *)fx_pool_alloc_particle((undefined4)&template_particle);
+  new_particle = (float *)fx_pool_alloc_particle(&template_particle);
   if (new_particle != (float *)0x0) {
     /* Copy the template's attributes, then overwrite position and extra_float. */
     new_particle[0xc] = src_particle[0xc];

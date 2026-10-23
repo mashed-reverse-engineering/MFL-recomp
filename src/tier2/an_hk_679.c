@@ -26,10 +26,9 @@
 /*007ef7f8*/ extern float g_menu_wave_time;
 
 #define BUILD_INFO_COLOUR_WHITE (0xffffffff)
-#define EVENT_TYPE_NO_COURSE_OVERLAY (0x11) /* inferred: event where the course scene is skipped and text is dimmed */
 #define FRAME_LINE_WIDTH (0x3f800000) /* 1.0f: width passed to draw_rect for the border lines */
 #define TEXT_FACTOR_FULL (0x3f800000) /* 1.0f: last ui_rt2d_text_draw arg (alpha or scale, inferred) */
-#define TEXT_FACTOR_DIMMED (0x3f333333) /* 0.7f: same arg, used during EVENT_TYPE_NO_COURSE_OVERLAY */
+#define TEXT_FACTOR_DIMMED (0x3f333333) /* 0.7f: same arg, used during EVENT_TRAINING */
 #define TEXT_FACTOR_SMALL (0x3f4ccccd) /* 0.8f: same arg, for the lower text lines */
 
 /* build_info_display_draw_frame */
@@ -113,9 +112,9 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     frame.uStack_10 = 0x42c00000;
     frame.uStack_18 = 0x43800000;
     gfx_draw_rect_2d_gradient_a(0x43800000,0,0x42c00000,0x43f00000,0xc0000000,0xff000000);
-    /* course scene overlay, skipped for EVENT_TYPE_NO_COURSE_OVERLAY */
+    /* course scene overlay, skipped for EVENT_TRAINING */
     event_type_or_result = get_event_type();
-    if (event_type_or_result != EVENT_TYPE_NO_COURSE_OVERLAY) {
+    if (event_type_or_result != EVENT_TRAINING) {
       scratch_handle = race_get_course_id();
       cup_scene_render_with_overlay(scratch_handle);
     }
@@ -171,7 +170,7 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     frame.uStack_24 = BUILD_INFO_COLOUR_WHITE;
     event_type_or_result = get_event_type();
     scratch_handle = 1;
-    if (event_type_or_result == EVENT_TYPE_NO_COURSE_OVERLAY) {
+    if (event_type_or_result == EVENT_TRAINING) {
       scratch_value = TEXT_FACTOR_DIMMED;
     }
     else {

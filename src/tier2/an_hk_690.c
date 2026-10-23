@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0042a440*/ extern int course_get_directional_light();
+/*0042a440*/ extern char *course_get_directional_light();
 /*00456740*/ extern int trigger_register_object_type8();
 /*004567b0*/ extern int course_rotating_object_integrate();
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
@@ -56,10 +56,10 @@ void course_rotating_object_update(int *obj,int ticks)
   /* ltm: scratch pointer to a frame's LTM, reused for the parent and own frames */
   RwMatrix *ltm;
   /* frame_ptr: the object's RwFrame, then the directional light's RwFrame (inferred) */
-  int frame_ptr;
+  char *frame_ptr;
   /* sin_phase / cos_phase: trig terms used for the wobble */
-  float10 sin_phase;
-  float10 cos_phase;
+  double sin_phase;
+  double cos_phase;
   /* scratch: temporary vectors. up_x/y/z hold the up vector (0, 1.0f, 0) as raw int bits */
   struct {
     RwV3d pivot_shift;
@@ -83,15 +83,15 @@ void course_rotating_object_update(int *obj,int ticks)
   scratch.up_axis.y = 1.0;
   scratch.up_axis.z = 0.0;
   /* Wobble: drift_x and drift_z accumulate small sin/cos steps, yaw is a sin term, spin phase advances with time */
-  sin_phase = (float10)sin((float10)*(float *)&obj[SPIN_PHASE_SLOT]);
-  *(float *)&obj[DRIFT_X_SLOT] = (float)((float10)(DRIFT_AMPLITUDE) * sin_phase + (float10)*(float *)&obj[DRIFT_X_SLOT]);
-  cos_phase = (float10)cos((float10)*(float *)&obj[DRIFT_PHASE_SLOT]);
-  *(float *)&obj[DRIFT_Z_SLOT] = (float)(cos_phase * (float10)(DRIFT_AMPLITUDE) + (float10)*(float *)&obj[DRIFT_Z_SLOT]);
-  *(float *)&obj[YAW_SLOT] = (float)(sin_phase * (float10)(YAW_AMPLITUDE));
+  sin_phase = (double)sin((double)*(float *)&obj[SPIN_PHASE_SLOT]);
+  *(float *)&obj[DRIFT_X_SLOT] = (float)((double)(DRIFT_AMPLITUDE) * sin_phase + (double)*(float *)&obj[DRIFT_X_SLOT]);
+  cos_phase = (double)cos((double)*(float *)&obj[DRIFT_PHASE_SLOT]);
+  *(float *)&obj[DRIFT_Z_SLOT] = (float)(cos_phase * (double)(DRIFT_AMPLITUDE) + (double)*(float *)&obj[DRIFT_Z_SLOT]);
+  *(float *)&obj[YAW_SLOT] = (float)(sin_phase * (double)(YAW_AMPLITUDE));
   *(float *)&obj[SPIN_PHASE_SLOT] = (time_s * k_f_0_0185 + *(float *)&obj[SPIN_PHASE_SLOT]);
   /* Rotate the object's frame about its own position: shift by -pos (+0x40..0x48 is
      frame->modelling.pos), rotate about up_axis by the yaw, then shift back by +pos */
-  frame_ptr = *(int *)(*obj + 4);
+  frame_ptr = *(char **)(*obj + 4);
   scratch.pivot_shift.x = *(float *)(frame_ptr + 0x40) * k_f_n1;
   scratch.pivot_shift.y = *(float *)(frame_ptr + 0x44) * k_f_n1;
   scratch.pivot_shift.z = *(float *)(frame_ptr + 0x48) * k_f_n1;
@@ -167,7 +167,7 @@ void course_rotating_object_update(int *obj,int ticks)
   *(float *)&obj[0x2c] = scratch.right_dir.z;
   /* Shade: dot(light at, at_dir) mapped from [-1, 1] to [3.5, 8.0] (inferred), stored in both shade slots */
   frame_ptr = course_get_directional_light();
-  frame_ptr = *(int *)(frame_ptr + 4);
+  frame_ptr = *(char **)(frame_ptr + 4);
   time_s = (*(float *)(frame_ptr + 0x38) * scratch.at_dir.z +
            scratch.at_dir.x * *(float *)(frame_ptr + 0x30) +
            *(float *)(frame_ptr + 0x34) * scratch.at_dir.y + float_1_0) * k_f_1_5 * k_f_1_5 +

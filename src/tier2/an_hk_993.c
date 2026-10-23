@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004c6600*/ extern void FUN_004c6600(undefined4 p0, undefined4 p1);
+/*004c6600*/ extern void FUN_004c6600(void *p0, undefined4 p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*00770f70*/ extern undefined4 *g_app_770f70;
 /* keyboard_state_to_bits */
@@ -15,7 +15,7 @@ typedef int (__stdcall *DeviceAcquireMethod)(undefined4 *self);
 #define DIDEVICE_VTBL_GETDEVICESTATE (0x24)
 #define KEY_COUNT (0x100)
 
-undefined4 __cdecl keyboard_state_to_bits(int param_1,undefined4 param_2,undefined4 param_3)
+undefined4 __cdecl keyboard_state_to_bits(char *param_1,undefined4 param_2,undefined4 param_3)
 
 {
   int result;

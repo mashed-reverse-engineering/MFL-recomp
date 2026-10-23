@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00457430*/ extern int course_spline_objects_create();
 /*00457620*/ extern int load_shadow_models();
-/*004817b0*/ extern int atomic_plugin_get_bbox();
+/*004817b0*/ extern char *atomic_plugin_get_bbox();
 /*0049a9b0*/ extern int fx_slot_find_free();
 /*004a5d10*/ extern int object_frames_create_with_matrices();
 /*004a5e50*/ extern int object_set_colour();

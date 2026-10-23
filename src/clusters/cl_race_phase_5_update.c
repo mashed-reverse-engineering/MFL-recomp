@@ -86,7 +86,7 @@ void race_phase_5_update_n(int in_eax)
     } while (iVar3 < 200);
     g_phase_timer = 0;
     event_type = get_event_type();
-    if (((event_type == 0) || (event_type = get_event_type(), event_type == 1)) ||
+    if (((event_type == EVENT_TIME_TRIAL_0) || (event_type = get_event_type(), event_type == 1)) ||
        (event_type = get_event_type(), event_type == 2)) {
       intro_banner_set_active(1);
       ghost_update();
@@ -94,7 +94,7 @@ void race_phase_5_update_n(int in_eax)
     race_set_phase(6);
   }
   event_type = get_event_type();
-  if (((event_type != 0) && (event_type = get_event_type(), event_type != 1)) &&
+  if (((event_type != EVENT_TIME_TRIAL_0) && (event_type = get_event_type(), event_type != 1)) &&
      (event_type = get_event_type(), event_type != 2)) {
     return;
   }

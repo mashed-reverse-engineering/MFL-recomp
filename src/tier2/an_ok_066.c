@@ -361,7 +361,7 @@ undefined4 frontend_init_menus(void)
   /* dispatch on g_app_state (values inferred): 1 menu, 2 course load report, 3 race running / race end,
      4 menu wait, 5 paused, 6 menu transition, 7 message box */
   switch(g_app_state) {
-  case 1:
+  case APP_STATE_MAIN_LOOP_INIT:
     result = ui_get_ui_69d1f4();
     if (result != 0) {
       menu_id = ui_get_menu_69d1f0();
@@ -372,22 +372,22 @@ undefined4 frontend_init_menus(void)
     if (result == 1) {
       result = ui_state_is_0();
       if (result != 0) {
-        g_app_state = 2;
+        g_app_state = APP_STATE_COURSE_LOADED;
         ui_set_menu_69d1ec(0);
         return 1;
       }
     }
     else if (result == 4) {
-      g_app_state = 4;
+      g_app_state = APP_STATE_MENU;
       ui_set_menu_69d1ec(0);
       return 1;
     }
     break;
-  case 2:
+  case APP_STATE_COURSE_LOADED:
     course_load_time_report();
-    g_app_state = 3;
+    g_app_state = APP_STATE_RACE;
     return 1;
-  case 3:
+  case APP_STATE_RACE:
     ui_clear_cbe8();
     result = player_slots_count_human_with_controller();
     if (result != 0) {
@@ -395,14 +395,14 @@ undefined4 frontend_init_menus(void)
     }
     result = ui_get_message_state();
     if (result != 0) {
-      g_app_state = 7;
+      g_app_state = APP_STATE_RACE_MESSAGE;
     }
     result = get_event_type();
-    if (((result != 0x12) && (result = race_get_phase(), result != 0xb)) && (result != 9)) {
+    if (((result != EVENT_QUICK_RACE) && (result = race_get_phase(), result != 0xb)) && (result != 9)) {
       menu_id = stub_return_zero();
       result = frontend_pause_input_poll(menu_id);
       if (result != 0) {
-        g_app_state = 5;
+        g_app_state = APP_STATE_FRONTEND;
       }
     }
     result = race_get_race_652dec();
@@ -410,7 +410,7 @@ undefined4 frontend_init_menus(void)
     if (result != 0) {
       menu_id = frontend_stub_return_0_a();
       frontend_enter_menu(menu_id);
-      g_app_state = 5;
+      g_app_state = APP_STATE_FRONTEND;
       g_app_76e800 = 1;
       round_time_accumulate(1);
       players_get_points(players_by_points);
@@ -419,7 +419,7 @@ undefined4 frontend_init_menus(void)
       player_index = is_team_mode();
       /* individual scoring (or game_mode 2): walk players from the top of the points order; a player
          with fewer points than the next one starts a new placing (tied_count = players on the same points) */
-      if ((player_index == 0) || (game_mode == 2)) {
+      if ((player_index == 0) || (game_mode == GAME_MODE_HARE_AND_HOUNDS)) {
         tied_count = 0;
         player_index = get_player_count();
         if (0 < player_index) {
@@ -464,9 +464,9 @@ undefined4 frontend_init_menus(void)
       return 1;
     }
     break;
-  case 4:
+  case APP_STATE_MENU:
     if (((g_app_76e7f8 != 0) || (g_app_76e7fc != 0)) || (g_app_76e800 != 0)) {
-      g_app_state = 1;
+      g_app_state = APP_STATE_MAIN_LOOP_INIT;
       if (g_app_76e800 == 0) {
         menu_id = 0;
       }
@@ -486,27 +486,27 @@ undefined4 frontend_init_menus(void)
     }
     result = ui_state_is_5();
     if (result != 0) {
-      g_app_state = 6;
+      g_app_state = APP_STATE_RACE_START;
       return 1;
     }
     break;
-  case 5:
+  case APP_STATE_FRONTEND:
     result = ui_state_is_2();
     if (result != 0) {
-      g_app_state = 4;
+      g_app_state = APP_STATE_MENU;
       return 1;
     }
     break;
-  case 6:
+  case APP_STATE_RACE_START:
     result = ui_state_is_0();
     if (result != 0) {
-      g_app_state = 3;
+      g_app_state = APP_STATE_RACE;
     }
     break;
-  case 7:
+  case APP_STATE_RACE_MESSAGE:
     result = ui_get_message_state();
     if (result == 0) {
-      g_app_state = 3;
+      g_app_state = APP_STATE_RACE;
       return 1;
     }
   }

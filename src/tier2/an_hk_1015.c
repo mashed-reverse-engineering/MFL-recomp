@@ -2,7 +2,7 @@
 extern struct EventLogArgs g_event_log_args[256];
 extern struct EventLogData g_event_log_data[256];
 /*0040fdc0*/ extern int race_get_phase();
-/*00477130*/ extern int __cdecl car_wheel_contact_find_index(undefined4 p0, undefined4 p1);
+/*00477130*/ extern int __cdecl car_wheel_contact_find_index(void *p0, void *p1);
 /*005dd370*/ extern float k_f_0_3;
 /*005dd628*/ extern float k_f_0_25;
 /*005ddc28*/ extern float k_f_0;
@@ -122,7 +122,7 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                 }
               }
               else {
-                race_phase = car_wheel_contact_find_index((undefined4)param_2,(undefined4)param_1);
+                race_phase = car_wheel_contact_find_index(param_2,param_1);
                 if (race_phase == 0) {
                   local_90[0x1b] = param_2[9];
                   local_90[0x1c] = param_2[10];
@@ -197,7 +197,7 @@ LAB_0047b30d:
         local_8c = local_8c + 3;
         local_90 = local_90 + 0x31;
         local_88 = local_88 + 1;
-      } while ((int)local_8c < (int)&g_car_8bd790 + 0x4);
+      } while ((char *)local_8c < (char *)&g_car_8bd790 + 0x4);
       local_74 = local_74 + 1;
       param_2 = param_2 + 0x24;
     } while (local_74 < g_collision_triangle_count);

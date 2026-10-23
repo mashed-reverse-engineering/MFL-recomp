@@ -46,16 +46,6 @@ typedef int WeaponId;
 /*008c8720*/ extern undefined4 g_hit_shake;
 /*008c8788*/ extern undefined4 g_car_8c8788;
 /* training_hint_labels_update */
-#define WEAPON_NONE (-1)
-#define WEAPON_MORTAR (7)
-#define WEAPON_MACHINEGUN (9)
-#define WEAPON_DEPTHCHARGE (10)
-#define WEAPON_MISSILE (11)
-#define WEAPON_MINE (12)
-#define WEAPON_FLAMETHROWER (16)
-#define WEAPON_SHOTGUN (17)
-#define WEAPON_FLARE (18)
-#define WEAPON_OIL (19)
 #define HINT_TEXT_KEEP_GOING (0x318)
 #define TRAINING_POWERUP_COUNT (9)
 
@@ -76,7 +66,7 @@ void training_hint_labels_update(void)
   undefined4 *camera_vec;
   WeaponId held_weapon;
   int status;
-  float10 scratch;
+  double scratch;
   undefined4 label_id;
   undefined1 *label_colour;
   undefined1 *label_colour_alt;
@@ -132,12 +122,12 @@ void training_hint_labels_update(void)
   /* lesson 0 (inferred): show KEEP GOING once player 1 has moved away from the start;
      g_app_state_69d0f8 is the latch, re-armed when player 1 is close again */
   if (g_training_lesson == 0) {
-    scratch = (float10)player_distance_get(1);
-    if (scratch < (float10)k_f_2_5) {
+    scratch = (double)player_distance_get(1);
+    if (scratch < (double)k_f_2_5) {
       g_app_state_69d0f8 = 0;
     }
-    scratch = (float10)player_distance_get(1);
-    if (((float10)k_f_6 < scratch) && (g_app_state_69d0f8 == 0)) {
+    scratch = (double)player_distance_get(1);
+    if (((double)k_f_6 < scratch) && (g_app_state_69d0f8 == 0)) {
       hud_label_add_world_text(HINT_TEXT_KEEP_GOING,&frame.label_pos_x,&frame.colour_red_r,&frame.colour_yellow_r,0x42000000,0x40000000);
       g_app_state_69d0f8 = 1;
     }
@@ -221,7 +211,7 @@ LAB_0043a5ab:
     g_app_state_69d2c4 = 0;
   }
   car_current_matrix(&frame.car_matrix,0);
-  scratch = (float10)player_rank_key(0);
+  scratch = (double)player_rank_key(0);
   rank_key = (float)scratch;
   car_get_speed(&frame.car_speed,0);
   if (g_app_state_69d1d8 != 0) {

@@ -170,17 +170,17 @@ void car_apply_forces_n(Car *in_edi, float param_2, RwMatrix *param_3)
     iVar10 = iVar10 + 0xd04;
     uVar4 = uVar4 + 1;
   } while (iVar10 < 0x3410);
-  if (game_mode == 4) {
+  if (game_mode == GAME_MODE_RACE) {
     frame.local_70 = 1.0;
   }
-  else if (game_mode == 9) {
+  else if (game_mode == GAME_MODE_CHASE_FUGITIVE) {
     frame.local_70 = 1.0;
   }
-  else if ((game_mode == 8) && (in_edi->index != 0)) {
+  else if ((game_mode == GAME_MODE_SURVIVAL) && (in_edi->index != 0)) {
     frame.local_70 = 0.75;
   }
   iVar10 = get_event_type();
-  if ((iVar10 == 0x11) && (in_edi->index == 1)) {
+  if ((iVar10 == EVENT_TRAINING) && (in_edi->index == 1)) {
     frame.local_70 = float_1_0;
   }
   fVar2 = k_f_60000 - (float)(int)g_race_clock_b;

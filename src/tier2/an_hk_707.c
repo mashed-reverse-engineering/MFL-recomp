@@ -5,11 +5,11 @@ typedef int CourseId;
 /*0040ff60*/ extern int race_get_phase_timer();
 /*00416a70*/ extern int ai_bots_reset();
 /* ai_drive_a takes the same four stack arguments as ai_drive_b / ai_drive_c: the original pushes them once before the game_mode branch (push 100.0f, input, bot, route) and the call to ai_drive_a reuses them */
-/*00418dd0*/ extern undefined __cdecl ai_drive_a(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*004195b0*/ extern undefined __cdecl ai_drive_b(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*00418dd0*/ extern undefined __cdecl ai_drive_a(undefined4 p0, undefined4 p1, void *p2, undefined4 p3);
+/*004195b0*/ extern undefined __cdecl ai_drive_b(undefined4 p0, undefined4 p1, void *p2, undefined4 p3);
 /*00419d00*/ extern int ai_bot_stage_state_update();
 /*0041a280*/ extern int ai_bot_course_0x21_target_check();
-/*0041ad20*/ extern undefined __cdecl ai_drive_c(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*0041ad20*/ extern undefined __cdecl ai_drive_c(undefined4 p0, undefined4 p1, void *p2, undefined4 p3);
 /*0042b110*/ extern int current_course_id();
 /*00434bb0*/ extern int get_event_type();
 /*00437f10*/ extern int training_lesson_get();
@@ -40,7 +40,6 @@ typedef int CourseId;
 #define WARZONE_BRAKE_WINDOW_B_LOW (0x58)
 #define WARZONE_BRAKE_WINDOW_B_HIGH (0x5f)
 /* (inferred) get_event_type() value for training, the only event that calls training_lesson_get() */
-#define EVENT_TYPE_TRAINING (0x11)
 
 /* Per-frame AI update for one bot. slot_index is the player slot, which is also the index into
    g_ai_bots. Clears the bot's input bytes, then in a normal race picks a route (stage = route set,
@@ -142,11 +141,11 @@ void __cdecl ai_bot_update(int slot_index,char *unused_arg)
       }
     }
     /* drive: game modes 4 and 9 use ai_drive_b, mode 8 uses ai_drive_c, others use ai_drive_a */
-    if ((game_mode == 4) || (game_mode == 9)) {
-      ai_drive_b(scratch,slot_index,(undefined4)input,AI_DRIVE_PARAM_100F);
+    if ((game_mode == GAME_MODE_RACE) || (game_mode == GAME_MODE_CHASE_FUGITIVE)) {
+      ai_drive_b(scratch,slot_index,input,AI_DRIVE_PARAM_100F);
     }
-    else if (game_mode == 8) {
-      ai_drive_c(scratch,slot_index,(undefined4)input,AI_DRIVE_PARAM_100F);
+    else if (game_mode == GAME_MODE_SURVIVAL) {
+      ai_drive_c(scratch,slot_index,input,AI_DRIVE_PARAM_100F);
       course_id = current_course_id();
       /* warzone: release the brake while the player record value is inside either window */
       if (course_id == COURSE_WARZONE) {
@@ -160,7 +159,7 @@ void __cdecl ai_bot_update(int slot_index,char *unused_arg)
       }
     }
     else {
-      ai_drive_a(scratch,slot_index,(undefined4)input,AI_DRIVE_PARAM_100F);
+      ai_drive_a(scratch,slot_index,input,AI_DRIVE_PARAM_100F);
     }
     ai_bot_course_0x21_target_check(slot_index,input);
     /* cooldown: count cooldown_timer down by g_tick_count and replay the saved inputs */
@@ -189,14 +188,14 @@ void __cdecl ai_bot_update(int slot_index,char *unused_arg)
     return;
   }
   /* race start (phase 5): reset the race clock and bots, then hold the throttle until the phase timer
-     passes the bot's start time. Training events (EVENT_TYPE_TRAINING) use 0x4a - start value instead
+     passes the bot's start time. Training events (EVENT_TRAINING) use 0x4a - start value instead
      of start value + 0x40 (both inferred) */
   g_race_clock_b = 0;
   ai_bots_reset();
   stage_or_timer = race_get_phase_timer();
   scratch = g_ai_bots[slot_index].start_random;
   event_type = get_event_type();
-  if (event_type == EVENT_TYPE_TRAINING) {
+  if (event_type == EVENT_TRAINING) {
     scratch = -1;
     event_type = training_lesson_get();
     if (event_type != 5) {

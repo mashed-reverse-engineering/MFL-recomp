@@ -98,7 +98,11 @@ def main():
     ins0, order = R.parse_objdump(o)
     ins = {a: (ins0[a][0], ins0[a][1], order[i + 1] if i + 1 < len(order) else a + 1) for i, a in enumerate(order)}
     unnamed = lambda n: n.startswith(("gap_", "switchdata", "source match"))
-    entries = {lo for lo, hi, n in items if not unnamed(n)}
+    ctargets = {int(a.split()[0], 16) for op, a, _n in ins.values() if op == "call" and R.ADDR.match(a.split()[0] if a.split() else "")}
+    gapfn = lambda lo, n: n.startswith("gap_") and lo in ctargets      # a gap item that something CALLS is a function (course_superg_cb4_sub_45c140 = gap_45c140: its missing row hid a lost 2nd argument, 2026-10-22)
+    starts = {lo for lo, hi, n in items}
+    extra = sorted(t for t in ctargets if t not in starts and t in ins and any(lo <= t < hi and unnamed(n) for lo, hi, n in items))      # direct call target inside a gap_ item (gap_56e990 holds 56e990 / 56e9b0 / 56e9e0): a function of its own
+    entries = {lo for lo, hi, n in items if not unnamed(n) or gapfn(lo, n)} | set(extra)
     tbl = R.tables(0x401000, 0x5d7000, ins0, order, exe, secs)
     retn_of = {}
     for l in open(os.path.join(G, "output", "stdcall.txt")):
@@ -107,9 +111,13 @@ def main():
     for r in csv.DictReader(open(os.path.join(G, "output", "reginputs2.csv"))): retn_of.setdefault(int(r["addr"], 16), int(r["ret_n"]))
     rows = []
     for lo, hi, n in items:
-        if unnamed(n) or lo not in ins: continue
+        if (unnamed(n) and not gapfn(lo, n)) or lo not in ins: continue
         sl, rn, tl, fl = analyse(lo, hi, ins, entries, retn_of, tbl)
         rows.append("%08x %d %d %s %s %s" % (lo, sl, rn, ",".join("%08x" % t for t in sorted(tl)) or "-", ",".join(sorted(fl)) or "-", n))
+    for t in extra:
+        sl, rn, tl, fl = analyse(t, t, ins, entries, retn_of, tbl)
+        rows.append("%08x %d %d %s %s %s" % (t, sl, rn, ",".join("%08x" % x for x in sorted(tl)) or "-", ",".join(sorted(fl)) or "-", "sub_%08x" % t))
+    rows.sort()
     open(OUT, "w").write("\n".join(rows) + "\n")
     print("%d functions -> %s" % (len(rows), os.path.relpath(OUT, G)))
 

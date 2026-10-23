@@ -22,7 +22,7 @@ void voice_queue_remove_table_entries(void)
 
 {
   int table_index;
-  int entry_offset;
+  char *entry_offset;
   int entry_index;
 
   /* For each table: select it, then remove its entries. */

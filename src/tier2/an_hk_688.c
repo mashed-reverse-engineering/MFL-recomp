@@ -27,16 +27,16 @@ __declspec(naked) int score_panel_entry_reset_r(void *reg_ecx)
 void score_panel_reset_entries(void)
 
 {
-  int entry_addr;
+  char *entry_addr;
   undefined *entry;
 
   entry = &g_score_panel_658df0;
   /* loop over the table, stopping at the end address g_score_panel_658fc0 */
   do {
-    entry_addr = (int)(entry);
+    entry_addr = (char *)(entry);
     score_panel_entry_reset_r((void *)entry);
     entry = (undefined *)(entry_addr + SCORE_PANEL_ENTRY_SIZE);
-  } while ((int)entry < ((int)&g_score_panel_658fc0));
+  } while ((char *)entry < ((char *)&g_score_panel_658fc0));
   return;
 }
 

@@ -70,7 +70,7 @@ void explosion_trigger_callback(TrigSphere *trig,TrigOther *other)
         car_enter_rwp_mode(car);
         car_apply_rwp_impulse(car,&d,trig);
         car_damage_at_world_point(car,falloff * entry->damage,trig);
-        if ((get_event_type() == 0x11) && (car >= 1)) {
+        if ((get_event_type() == EVENT_TRAINING) && (car >= 1)) {
           screen_shake_add(10);
         }
         return;
@@ -95,7 +95,7 @@ void explosion_trigger_callback(TrigSphere *trig,TrigOther *other)
             FUN_0056b300(*(int *)(owner + 0x24),owner);
             rwp_world_set_bit_60_64(*(int *)(owner + 0x24),owner,1);
             rwp_world_set_bit_5c(*(int *)(owner + 0x24),owner,1);
-            body = *(int *)(*(int *)(owner + 0x10) + 4);
+            body = *(int *)(*(char **)(owner + 0x10) + 4);
             if (body != 0) {
               FUN_0056bc20(body,&d,trig);
             }

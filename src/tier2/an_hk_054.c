@@ -51,7 +51,7 @@ extern char s_crane_shad_005df5a8[];
  * game_state (inferred): pointer to the game context; the clump is read at
  * +0xc114 and the texture dictionary at +0xc9d0.
  */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: validated 2026-10-22 authority=diffemu */
 void load_shadow_models(char *game_state)
 {
   float rotate_axis[3];
@@ -60,7 +60,7 @@ void load_shadow_models(char *game_state)
   g_load_shadow_8c53f0 = 0;
   g_load_8c53e4 = 0;
   g_load_8c53e8 = 0;
-  RpClumpForAllAtomics(*(int *)(game_state + 0xc114), (int)g_load_shadow_456540, (int)&g_course_8c53e0);
+  RpClumpForAllAtomics(*(int *)(game_state + 0xc114), (int)g_load_shadow_456540, (char *)&g_course_8c53e0);
   rotate_axis[0] = 0.0f;
   rotate_axis[1] = 1.0f;
   rotate_axis[2] = 0.0f;
@@ -78,7 +78,7 @@ void load_shadow_models(char *game_state)
   g_load_shadow_8c547c = 0;
   g_load_shadow_8c5480 = (int)0x3ea66666;
   g_load_shadow_8c5484 = RwTexDictionaryFindNamedTexture(*(int *)(game_state + 0xc9d0), (int)s_barrel_shad_005df5b4);
-  RwFrameRotate(*(int *)(g_course_8c53e0 + 4), (int)rotate_axis, ROTATE_ANGLE_180_DEG, RW_COMBINE_POSTCONCAT);
+  RwFrameRotate(*(int *)(g_course_8c53e0 + 4), (char *)rotate_axis, ROTATE_ANGLE_180_DEG, RW_COMBINE_POSTCONCAT);
   /* crane shadow parameters */
   g_load_shadow_8c54c8 = (int)0xbf400000;
   g_load_shadow_8c54cc = 0;

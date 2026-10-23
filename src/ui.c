@@ -136,7 +136,7 @@ void ui_clear_cbe8(void)
 // FUNCTION: MFL 0x00437eb0
 int menu_is_page_13_selected_2(void)
 {
-    if (g_menu_records[g_menu_current].page_id == MENU_PAGE_OPTIONS && g_menu_records[g_menu_current].selected == 2)
+    if (g_menu_records[g_menu_current].page_id == MENU_PAGE_SOUND && g_menu_records[g_menu_current].selected == 2)
         return 1;
     return 0;
 }

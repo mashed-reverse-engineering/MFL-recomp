@@ -3,8 +3,8 @@
 /*005ddc28*/ extern float k_f_0;
 /*008be200*/ extern undefined g_weapon_8be200;
 /*008be7e0*/ extern undefined g_sound_8be7e0;
-/*008bed04*/ extern undefined4 g_voice_queue_count_ptr;
-/*008bed08*/ extern undefined4 g_voice_queue_entries_ptr;
+/*008bed04*/ extern char *g_voice_queue_count_ptr;
+/*008bed08*/ extern char *g_voice_queue_entries_ptr;
 
 /* byte offset of the float "value" field inside a voice queue entry (inferred) */
 #define VOICE_ENTRY_VALUE_OFFSET (0x14)
@@ -40,7 +40,7 @@ void voice_queue_reset_all(void)
     voice_queue_select_tables(i);
     entry_count_ptr = (int *)g_voice_queue_count_ptr;
     best_value = k_f_0;
-    *(undefined4 *)((char *)&g_weapon_8be200 + team * 4) = 0;
+    ((undefined4 *)&g_weapon_8be200)[team] = 0;
     i = 0;
     /* scan this team's entries, keeping the largest value above k_f_0 */
     if (0 < *entry_count_ptr) {
@@ -48,7 +48,7 @@ void voice_queue_reset_all(void)
       do {
         if (best_value < *entry) {
           *(float **)((char *)&g_sound_8be7e0 + team * 4) = entry + -5;
-          *(undefined4 *)((char *)&g_weapon_8be200 + team * 4) = 1;
+          ((undefined4 *)&g_weapon_8be200)[team] = 1;
           best_value = *entry;
         }
         i = i + 1;

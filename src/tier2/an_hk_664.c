@@ -11,14 +11,14 @@ extern double cos(double);
  * t is used as is, not clamped to 0..1.
  * The blend weight (1 - cos(t * pi)) / 2 eases in and out, so the
  * curve is flat at both ends. Returns the interpolated value. */
-float10 __cdecl noise_interp_cos(float value_a,float value_b,float t)
+double __cdecl noise_interp_cos(float value_a,float value_b,float t)
 
 {
-  float10 weight;
+  double weight;
 
-  weight = (float10)cos((float10)t * (float10)k_f_3_1415927);
-  weight = ((float10)(1.0) - weight) * (float10)(0.5);
-  return weight * (float10)value_b + ((float10)float_1_0 - weight) * (float10)value_a;
+  weight = (double)cos((double)t * (double)k_f_3_1415927);
+  weight = ((double)(1.0) - weight) * (double)(0.5);
+  return weight * (double)value_b + ((double)float_1_0 - weight) * (double)value_a;
 }
 
 

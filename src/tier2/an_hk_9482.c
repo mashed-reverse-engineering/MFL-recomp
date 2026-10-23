@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
 /*0047b520*/ extern int car_current_matrix();
-/*00490c60*/ extern int __cdecl physics_body_get_velocity(undefined4 p0, undefined4 p1);
+/*00490c60*/ extern int __cdecl physics_body_get_velocity(void *p0, undefined4 p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056bc20*/ extern void FUN_0056bc20(void *p0, void *p1, void *p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd340*/ extern float k_f_0_5;
@@ -43,7 +43,7 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
   iVar2 = param_1;
   car_current_matrix(&param_1,param_1);
   iVar3 = rwp_owner_object_get((&g_rw_6fd498)[iVar2]);
-  piVar1 = *(int **)(*(int *)(iVar3 + 0x10) + 4);
+  piVar1 = *(int **)(*(char **)(iVar3 + 0x10) + 4);
   if (piVar1 == (int *)0x0) {
     return;
   }
@@ -52,14 +52,14 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_18 = *(float *)(param_1 + 0x30);
     frame.local_14 = *(float *)(param_1 + 0x34);
     frame.local_10 = *(float *)(param_1 + 0x38);
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_8 = 350.0;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
     break;
   case 1:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -69,7 +69,7 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
     frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
     frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     RwV3dTransformVectors(&frame.local_24,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[iVar2].matrices)
     ;
     frame.local_24.x = frame.local_24.x * k_f_0_11111111;
@@ -81,10 +81,10 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_c = 0.0;
     frame.local_8 = 150.0;
     frame.local_4 = 0.0;
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     return;
   case 2:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -94,7 +94,7 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
     frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
     frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     RwV3dTransformVectors(&frame.local_24,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[iVar2].matrices)
     ;
     frame.local_24.x = frame.local_24.x * k_f_n0_11111111;
@@ -106,10 +106,10 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_c = 0.0;
     frame.local_8 = 150.0;
     frame.local_4 = 0.0;
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     return;
   case 3:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -127,10 +127,10 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_18 = frame.local_24.x + frame.local_18;
     frame.local_14 = frame.local_24.y + frame.local_14;
     frame.local_10 = frame.local_24.z + frame.local_10;
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     return;
   case 4:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -148,10 +148,10 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_18 = frame.local_24.x + frame.local_18;
     frame.local_14 = frame.local_24.y + frame.local_14;
     frame.local_10 = frame.local_24.z + frame.local_10;
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     return;
   case 5:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -164,7 +164,7 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_24.z = player_car[iVar2].forward[2] * k_f_0_22222222;
     goto LAB_004929af;
   case 6:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -177,7 +177,7 @@ void rwp_car_apply_forces(int param_1,undefined4 param_2)
     frame.local_24.z = player_car[iVar2].forward[2] * k_f_n0_22222222;
     break;
   case 7:
-    pfVar4 = (float *)(*(int *)(*(int *)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
+    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
     frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
     frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
     frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
@@ -194,10 +194,10 @@ LAB_004929af:
     frame.local_c = 0.0;
     frame.local_4 = 0.0;
     frame.local_10 = frame.local_24.z + frame.local_10;
-    FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     return;
   case 8:
-    iVar3 = physics_body_get_velocity((undefined4)&frame.local_24,iVar2);
+    iVar3 = physics_body_get_velocity(&frame.local_24,iVar2);
     fVar5 = k_f_100;
     if (iVar3 != 0) {
       fVar5 = RwV3dLength(&frame.local_24);
@@ -209,7 +209,7 @@ LAB_004929af:
       frame.local_c = player_car[iVar2].up[0] * k_f_n6_5;
       frame.local_8 = player_car[iVar2].up[1] * k_f_n6_5;
       frame.local_4 = player_car[iVar2].up[2] * k_f_n6_5;
-      FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+      FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
     }
   default:
     return;
@@ -219,7 +219,7 @@ LAB_004929af:
   frame.local_c = 0.0;
   frame.local_4 = 0.0;
   frame.local_10 = frame.local_24.z + frame.local_10;
-  FUN_0056bc20((undefined4)piVar1,(undefined4)&frame.local_c,(undefined4)&frame.local_18);
+  FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
   return;
 }
 

@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0040def0*/ extern int color_code_to_index();
 /*004221c0*/ extern double vehicle_get_float_184();
-/*0049fa40*/ extern undefined __cdecl fx_particle_spawn_from_style(undefined4 p0);
+/*0049fa40*/ extern undefined __cdecl fx_particle_spawn_from_style(void *p0);
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*005dd330*/ extern float float_1_0;
 /*005dd36c*/ extern float k_f_0_4;
@@ -39,7 +39,7 @@ void __cdecl skid_mark_spawn_from_wheel(int *wheel,char *param_2,char *param_3,c
 {
   float *pos;
   bool is_slipping;
-  float10 temp;
+  double temp;
   struct {
     float intensity;
     int vehicle_index;
@@ -81,7 +81,7 @@ void __cdecl skid_mark_spawn_from_wheel(int *wheel,char *param_2,char *param_3,c
     /* Particle size: twice the vehicle's float 184 value, or the default when there is no vehicle. */
     frame.scale = DEFAULT_WHEEL_SCALE;
     if (wheel[2] != NO_VEHICLE) {
-      temp = (float10)vehicle_get_float_184(wheel[2]);
+      temp = (double)vehicle_get_float_184(wheel[2]);
       frame.scale = (float)(temp + temp);
     }
     /* Early-out filter by surface: surface 6 needs slipping, others need slipping or wheel index <= 1. */
@@ -99,13 +99,13 @@ void __cdecl skid_mark_spawn_from_wheel(int *wheel,char *param_2,char *param_3,c
     /* Slipping wheels on surfaces other than 6 and 0xd get a random negative velocity
        (inferred): each axis is -(random in [0,0.9) + 1) * object velocity scale. */
     if (((is_slipping) && (frame.surface_index != 6)) && (frame.surface_index != 0xd)) {
-      temp = (float10)rp_random_float_range(0,VEL_RANDOM_MAX_BITS);
-      frame.vel_x = (float)(-(temp + (float10)float_1_0) * (float10)*(float *)(*wheel + OBJ_VEL_X_OFFSET));
-      temp = (float10)rp_random_float_range(0,VEL_RANDOM_MAX_BITS);
-      frame.vel_y = (float)(-(temp + (float10)float_1_0) * (float10)*(float *)(*wheel + OBJ_VEL_Y_OFFSET));
-      temp = (float10)rp_random_float_range(0,VEL_RANDOM_MAX_BITS);
+      temp = (double)rp_random_float_range(0,VEL_RANDOM_MAX_BITS);
+      frame.vel_x = (float)(-(temp + (double)float_1_0) * (double)*(float *)(*wheel + OBJ_VEL_X_OFFSET));
+      temp = (double)rp_random_float_range(0,VEL_RANDOM_MAX_BITS);
+      frame.vel_y = (float)(-(temp + (double)float_1_0) * (double)*(float *)(*wheel + OBJ_VEL_Y_OFFSET));
+      temp = (double)rp_random_float_range(0,VEL_RANDOM_MAX_BITS);
       frame.has_velocity = 1;
-      frame.vel_z = (float)(-(temp + (float10)float_1_0) * (float10)*(float *)(*wheel + OBJ_VEL_Z_OFFSET));
+      frame.vel_z = (float)(-(temp + (double)float_1_0) * (double)*(float *)(*wheel + OBJ_VEL_Z_OFFSET));
     }
     /* Vehicle and wheel ids, then spawn. */
     frame.vehicle_index = wheel[2];

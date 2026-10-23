@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00409eb0*/ extern double player_rank_key();
-/*00409f50*/ extern int player_route_get_record_ptr();
+/*00409f50*/ extern char *player_route_get_record_ptr();
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0042b0c0*/ extern int course_get_ai_polygon_count();
 /*00434bb0*/ extern int get_event_type();
@@ -55,9 +55,9 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
   int check_result;
   int car_index;
   float *route_dir;
-  float10 rank_gap;
+  double rank_gap;
   struct {
-    int matrix_addr;
+    char *matrix_addr;
     float candidate_value;
     float search_gap;
     int candidate_mode;
@@ -97,7 +97,7 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
       best_car = *(int *)&bot_index;
     }
   }
-  if (game_mode == 8) {
+  if (game_mode == GAME_MODE_SURVIVAL) {
     best_car = 2;
   }
   get_event_type();
@@ -113,7 +113,7 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
   car_get_forward(&frame.self_forward_out,*(int *)&bot_index);
   frame.self_forward_out.y = 0;
   frame.ai_polygon_count = course_get_ai_polygon_count();
-  rank_gap = (float10)player_rank_key(*(int *)&bot_index);
+  rank_gap = (double)player_rank_key(*(int *)&bot_index);
   frame.self_rank_key = (float)rank_gap;
   best_car = NO_CAR;
   target_is_behind = false;
@@ -129,18 +129,18 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
     if ((((car_index != self_car) && (check_result = car_is_active(car_index), check_result != 0)) &&
         (check_result = race_setup_get_slot_type(car_index), check_result == 1)) &&
        (car_get_mode(car_index,&frame.candidate_mode,frame.car_mode_extra), frame.candidate_mode == 0)) {
-      rank_gap = (float10)player_rank_key(car_index);
+      rank_gap = (double)player_rank_key(car_index);
       frame.candidate_value = (float)rank_gap;
-      rank_gap = rank_gap - (float10)frame.self_rank_key;
+      rank_gap = rank_gap - (double)frame.self_rank_key;
       if ((k_f_0 < rank_gap) ||
-         (frame.candidate_mode = 5 - frame.ai_polygon_count, rank_gap < (float10)frame.candidate_mode)) {
-        if (rank_gap < (float10)frame.search_gap) {
+         (frame.candidate_mode = 5 - frame.ai_polygon_count, rank_gap < (double)frame.candidate_mode)) {
+        if (rank_gap < (double)frame.search_gap) {
           frame.search_gap = (float)rank_gap;
           target_is_behind = false;
           best_car = car_index;
         }
       }
-      else if (-rank_gap < (float10)frame.search_gap) {
+      else if (-rank_gap < (double)frame.search_gap) {
         frame.search_gap = (float)-rank_gap;
         target_is_behind = true;
         best_car = car_index;

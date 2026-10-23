@@ -12,7 +12,7 @@ void intro_banner_start_by_event(void)
 {
   int text_id = 0x40;
 
-  if (get_event_type() == 0 || get_event_type() == 1 || get_event_type() == 2) {
+  if (get_event_type() == EVENT_TIME_TRIAL_0 || get_event_type() == EVENT_TIME_TRIAL_1 || get_event_type() == EVENT_TIME_TRIAL_2) {
     text_id = 0x25;
   }
   if (g_intro_banner_text_id == 0) {

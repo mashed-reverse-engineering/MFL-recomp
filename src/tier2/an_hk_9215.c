@@ -50,10 +50,10 @@ void powerups_update(void)
   int i;
   int type;
   int ok;
-  float10 diff;
+  double diff;
   float d2;
   float t;
-  float10 sn;
+  double sn;
   struct Powerup *p;
   int *parent;
   float size_a[2];
@@ -80,12 +80,12 @@ void powerups_update(void)
         break;
       case 2:
         if (p->respawn_timer > k_f_0) {
-          diff = (float10)p->respawn_time - (float10)p->respawn_timer;
+          diff = (double)p->respawn_time - (double)p->respawn_timer;
           p->respawn_timer = p->respawn_timer - g_tick_seconds;
           if (diff < k_f_1) {
-            sn = sin((diff / (float10)k_f_1) * (float10)k_f_3_1415927);
-            size_b[0] = (float)((float10)g_powerups_update_5df830 * sn);
-            size_b[1] = (float)((float10)g_powerups_update_5df834 * sn);
+            sn = sin((diff / (double)k_f_1) * (double)k_f_3_1415927);
+            size_b[0] = (float)((double)g_powerups_update_5df830 * sn);
+            size_b[1] = (float)((double)g_powerups_update_5df834 * sn);
             particles_set_color((char *)&g_powerup_60dac0 + type * 4);
             particles_set_position(p->spawn_position);
             particles_set_size(size_b);
@@ -98,7 +98,7 @@ void powerups_update(void)
           if ((type == 19) && (weapon_effects_any_active() == 1)) {
             ok = 0;
           }
-          if ((get_event_type() != 0x11) || (ui_get_car_69d2d8() == 0)) {
+          if ((get_event_type() != EVENT_TRAINING) || (ui_get_car_69d2d8() == 0)) {
             if (ok != 0) {
               p->respawn_timer = p->respawn_time;
               p->state = 1;

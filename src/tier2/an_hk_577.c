@@ -6,7 +6,7 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00555ff0*/ extern struct RwV3d * RpSplineFindPosition(struct RpSpline *p0, RwInt32 p1, RwReal p2, struct RwV3d *p3, struct RwV3d *p4);
 /*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd328*/ extern float k_f_0_6;
 /*005dd330*/ extern float float_1_0;
@@ -28,7 +28,7 @@ extern struct VoiceSlotP g_voices[210];
 /*006ae0a4*/ extern undefined4 g_sound_ambience_6ae0a4;
 /*006ae0a8*/ extern undefined4 g_sound_ambience_6ae0a8;
 /*006ae1a8*/ extern float g_sound_ambience_6ae1a8;
-/*008bd7b0*/ extern undefined4 g_sound_groups;
+/*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* byte offsets into g_sound_groups that hold voice slot indices (inferred from use) */

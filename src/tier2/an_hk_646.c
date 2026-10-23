@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
-/*004a93a0*/ extern int app_get_71908();
-/*004b3ab9*/ extern int strtok();
+/*004a93a0*/ extern char *app_get_71908();
+/*004b3ab9*/ extern char *strtok();
 /*004c2b6f*/ extern int __cdecl __stricmp(char *p0, char *p1);
 /*0062ad34*/ extern undefined4 g_app_62ad34;
 /*0062ad38*/ extern undefined4 g_app_62ad38;

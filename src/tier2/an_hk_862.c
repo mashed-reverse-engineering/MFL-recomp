@@ -11,9 +11,9 @@
 /*00492b20*/ extern int car_apply_rwp_impulse();
 /*004a1680*/ extern int player_rumble();
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
-/*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
+/*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
+/*004c51a0*/ extern void FUN_004c51a0(void *p0, undefined4 p1, void *p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
@@ -65,13 +65,13 @@ void weapon_shotgun_fire_shot(int *weapon)
 
 {
   float fx_scale;
-  float10 spark_dist;
+  double spark_dist;
   RwMatrix *muzzle_ltm;
   undefined4 weapon_rw;
   int slot_or_result; /* muzzle hit flag before the slot loop, then the car slot index */
   int active_or_hit; /* slot active flag, then the ray hit flag */
   int *muzzle_entry;
-  float10 rand_scale;
+  double rand_scale;
   RwV3d *muzzle_pos_ptr;
   float *hit_normal_ptr;
   struct {
@@ -140,15 +140,15 @@ void weapon_shotgun_fire_shot(int *weapon)
     shot.far_pos_y = shot.muzzle_dir.y * k_f_1_5 + shot.far_pos_y;
     shot.far_pos_z = shot.muzzle_dir.z * k_f_1_5 + shot.far_pos_z;
     /* muzzle flash, scale jittered between 0.9 and 1.1 */
-    rand_scale = (float10)rp_random_float_range(SPARK_FX_SCALE_MIN_BITS,SPARK_FX_SCALE_MAX_BITS);
+    rand_scale = (double)rp_random_float_range(SPARK_FX_SCALE_MIN_BITS,SPARK_FX_SCALE_MAX_BITS);
     fx_emitter_spawn_b_default(&shot.flash_pos_x,&g_car_62ac74,MUZZLE_FX_SIZE_BITS,(fx_scale = (float)rand_scale, *(int *)&fx_scale));
     hit_normal_ptr = &shot.hit_normal_x;
     muzzle_pos_ptr = &shot.muzzle_pos;
     weapon_rw = weapon_get_rw_801b14();
-    slot_or_result = FUN_004c4c30(weapon_rw,(undefined4)muzzle_pos_ptr,(undefined4)hit_normal_ptr);
+    slot_or_result = FUN_004c4c30(weapon_rw,muzzle_pos_ptr,hit_normal_ptr);
     /* world hit along the muzzle: spawn sparks at the hit point */
     if (slot_or_result != 0) {
-      spark_dist = (float10)shot.hit_dist * (float10)k_f_1_5;
+      spark_dist = (double)shot.hit_dist * (double)k_f_1_5;
       shot.spark_r = 0;
       shot.spark_g = 0;
       shot.spark_b = 0;
@@ -156,13 +156,13 @@ void weapon_shotgun_fire_shot(int *weapon)
       shot.spark_pos_x = shot.muzzle_pos.x;
       shot.spark_pos_y = shot.muzzle_pos.y;
       shot.spark_pos_z = shot.muzzle_pos.z;
-      shot.spark_pos_x = (float)(spark_dist * (float10)shot.muzzle_dir.x + (float10)shot.spark_pos_x);
-      shot.spark_pos_y = (float)(spark_dist * (float10)shot.muzzle_dir.y + (float10)shot.spark_pos_y);
-      shot.spark_pos_z = (float)(spark_dist * (float10)shot.muzzle_dir.z + (float10)shot.spark_pos_z);
-      shot.spark_pos_x = (float)((float10)shot.hit_normal_x * (float10)k_f_0_05 + (float10)shot.spark_pos_x);
-      shot.spark_pos_y = (float)((float10)shot.hit_normal_y * (float10)k_f_0_05 + (float10)shot.spark_pos_y);
-      shot.spark_pos_z = (float)((float10)shot.hit_normal_z * (float10)k_f_0_05 + (float10)shot.spark_pos_z);
-      FUN_004c51a0((undefined4)&shot.spark_matrix,(undefined4)shot.spark_scratch,(undefined4)&shot.spark_pos_x);
+      shot.spark_pos_x = (float)(spark_dist * (double)shot.muzzle_dir.x + (double)shot.spark_pos_x);
+      shot.spark_pos_y = (float)(spark_dist * (double)shot.muzzle_dir.y + (double)shot.spark_pos_y);
+      shot.spark_pos_z = (float)(spark_dist * (double)shot.muzzle_dir.z + (double)shot.spark_pos_z);
+      shot.spark_pos_x = (float)((double)shot.hit_normal_x * (double)k_f_0_05 + (double)shot.spark_pos_x);
+      shot.spark_pos_y = (float)((double)shot.hit_normal_y * (double)k_f_0_05 + (double)shot.spark_pos_y);
+      shot.spark_pos_z = (float)((double)shot.hit_normal_z * (double)k_f_0_05 + (double)shot.spark_pos_z);
+      FUN_004c51a0(&shot.spark_matrix,(undefined4)shot.spark_scratch,&shot.spark_pos_x);
       shot.impact_scale.y = 1.5;
       shot.impact_scale.x = 1.5;
       shot.impact_scale.z = 1.0;
@@ -184,7 +184,7 @@ void weapon_shotgun_fire_shot(int *weapon)
         /* hit car: rwp mode, impulse, damage; the local player gets screen shake */
         if (active_or_hit != 0) {
           car_enter_rwp_mode(slot_or_result);
-          FUN_004c4720((undefined4)shot.impulse_offset,(undefined4)&shot.muzzle_pos,(undefined4)&shot.far_pos_x,0);
+          FUN_004c4720(shot.impulse_offset,&shot.muzzle_pos,&shot.far_pos_x,0);
           car_apply_rwp_impulse(slot_or_result,&shot.impulse_x,shot.impulse_offset);
           car_damage_at_world_point(slot_or_result,SHOTGUN_DAMAGE_BITS,&shot.muzzle_pos);
           if (slot_or_result == LOCAL_PLAYER_SLOT) {

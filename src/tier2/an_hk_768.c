@@ -3,7 +3,7 @@
 /*00465470*/ extern int weapon_find_targets_in_cone();
 /*00465f20*/ extern int weapon_effect_get_slot_value_a();
 /*00465f40*/ extern int weapon_effect_get_slot_value_b();
-/*00465f60*/ extern int weapon_effect_get_slot_record();
+/*00465f60*/ extern char *weapon_effect_get_slot_record();
 /*00484680*/ extern int object_set_flag_4();
 /*00486c40*/ extern int particles_flush();
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);

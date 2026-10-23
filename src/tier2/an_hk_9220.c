@@ -1,12 +1,12 @@
 #include "mfl_tier2.h"
 /*0044a4f0*/ extern int camera_get_position();
-/*004757a0*/ extern int get_viewport_camera_matrix();
-/*004821a0*/ extern int __cdecl vec3_is_valid_small(undefined4 p0);
-/*00482220*/ extern int __cdecl matrix_is_valid_small(undefined4 p0, undefined4 p1);
+/*004757a0*/ extern char *get_viewport_camera_matrix();
+/*004821a0*/ extern int __cdecl vec3_is_valid_small(void *p0);
+/*00482220*/ extern int __cdecl matrix_is_valid_small(void *p0, undefined4 p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd340*/ extern float k_f_0_5;
 /*005dd620*/ extern float float_10_0;
-/*006ad1e8*/ extern undefined4 g_sound_6ad1e8;
+/*006ad1e8*/ extern char *g_sound_6ad1e8;
 /*006ad1ec*/ extern float g_sound_frame_6ad1ec;
 /*006ad1f0*/ extern float g_sound_frame_6ad1f0;
 /*006ad1f4*/ extern float g_sound_frame_6ad1f4;
@@ -15,6 +15,27 @@
 /*006ad208*/ extern float g_sound_frame_6ad208;
 /*006ae0b0*/ extern float g_sound_6ae0b0;
 /*006ae0b4*/ extern float g_sound_6ae0b4;
+/* layout of *iVar6_ptr in sound_listener_update, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+typedef struct sound_listener_update_iVar6_ptr_layout {
+    char pad_0x0[44];
+    float f_0x2c;
+    float f_0x30;
+    undefined4 f_0x34;
+    undefined4 f_0x38;
+    undefined4 f_0x3c;
+    float f_0x40;
+    union { float as_float; undefined4 as_undefined4; } f_0x44;
+    union { float as_float; undefined4 as_undefined4; } f_0x48;
+    float f_0x4c;
+    union { float as_float; undefined4 as_undefined4; } f_0x50;
+    union { float as_float; undefined4 as_undefined4; } f_0x54;
+    union { float as_float; uint as_uint; } f_0x58;
+    union { float as_float; uint as_uint; } f_0x5c;
+    union { float as_float; uint as_uint; } f_0x60;
+    char pad_0x64[12];
+    uint f_0x70;
+} sound_listener_update_iVar6_ptr_layout;
+
 /*006ae0b8*/ extern float g_sound_6ae0b8;
 /* sound_listener_update */
 
@@ -31,6 +52,7 @@ void sound_listener_update(void)
   float fVar4;
   uint *puVar5;
   int iVar6;
+  sound_listener_update_iVar6_ptr_layout *iVar6_ptr;
   uint *puVar7;
   RwReal RVar8;
   float v9[9];     /* pos[3], diff[3], zero[3]: one frame object (the escaping pos pointer keeps the zero stores alive, as in the original) */
@@ -46,7 +68,7 @@ void sound_listener_update(void)
     puVar5 = puVar5 + 1;
     puVar7 = puVar7 + 1;
   }
-  iVar6 = matrix_is_valid_small((undefined4)m,0);
+  iVar6 = matrix_is_valid_small(m,0);
   if (iVar6 == 0) {
     m[3] = m[3] | 0x20003;
     m[10] = 0x3f800000;
@@ -63,7 +85,7 @@ void sound_listener_update(void)
     m[14] = 0;
   }
   camera_get_position(v9);
-  iVar6 = vec3_is_valid_small((undefined4)v9);
+  iVar6 = vec3_is_valid_small(v9);
   if (iVar6 == 0) {
     v9[0] = 0.0;
     v9[1] = 0.0;
@@ -78,7 +100,7 @@ void sound_listener_update(void)
   RVar8 = RwV3dLength((RwV3d *)(v9 + 3));
   fVar4 = g_sound_frame_6ad1f4;
   fVar3 = g_sound_frame_6ad1f0;
-  iVar6 = g_sound_6ad1e8;
+  iVar6_ptr = (sound_listener_update_iVar6_ptr_layout *)(g_sound_6ad1e8);
   if (RVar8 <= float_10_0) {
     g_sound_6ae0b0 = g_sound_frame_6ad1ec;
     g_sound_6ae0b4 = g_sound_frame_6ad1f0;
@@ -93,47 +115,47 @@ void sound_listener_update(void)
   g_sound_frame_6ad204 = g_sound_6ae0b4;
   g_sound_frame_6ad208 = g_sound_6ae0b8;
   *(float *)(g_sound_6ad1e8 + 0x28) = g_sound_frame_6ad1ec;
-  *(float *)(iVar6 + 0x2c) = fVar3;
-  *(float *)(iVar6 + 0x30) = fVar4;
-  *(uint *)(iVar6 + 0x70) = *(uint *)(iVar6 + 0x70) | 1;
-  pfVar1 = (float *)(iVar6 + 0x4c);
+  iVar6_ptr->f_0x2c = fVar3;
+  iVar6_ptr->f_0x30 = fVar4;
+  iVar6_ptr->f_0x70 = iVar6_ptr->f_0x70 | 1;
+  pfVar1 = &iVar6_ptr->f_0x4c;
   *(uint *)pfVar1 = m[8];
-  *(undefined4 *)(iVar6 + 0x50) = m[9];
-  *(undefined4 *)(iVar6 + 0x54) = m[10];
-  pfVar2 = (float *)(iVar6 + 0x40);
-  *(float *)(iVar6 + 0x58) =
-       *(float *)(iVar6 + 0x54) * *(float *)(iVar6 + 0x44) -
-       *(float *)(iVar6 + 0x50) * *(float *)(iVar6 + 0x48);
-  *(float *)(iVar6 + 0x5c) = *(float *)(iVar6 + 0x48) * *pfVar1 - *(float *)(iVar6 + 0x54) * *pfVar2
+  iVar6_ptr->f_0x50.as_undefined4 = m[9];
+  iVar6_ptr->f_0x54.as_undefined4 = m[10];
+  pfVar2 = &iVar6_ptr->f_0x40;
+  iVar6_ptr->f_0x58.as_float =
+       iVar6_ptr->f_0x54.as_float * iVar6_ptr->f_0x44.as_float -
+       iVar6_ptr->f_0x50.as_float * iVar6_ptr->f_0x48.as_float;
+  iVar6_ptr->f_0x5c.as_float = iVar6_ptr->f_0x48.as_float * *pfVar1 - iVar6_ptr->f_0x54.as_float * *pfVar2
   ;
-  *(float *)(iVar6 + 0x60) = *pfVar2 * *(float *)(iVar6 + 0x50) - *(float *)(iVar6 + 0x44) * *pfVar1
+  iVar6_ptr->f_0x60.as_float = *pfVar2 * iVar6_ptr->f_0x50.as_float - iVar6_ptr->f_0x44.as_float * *pfVar1
   ;
-  *(uint *)(iVar6 + 0x70) = *(uint *)(iVar6 + 0x70) | 4;
+  iVar6_ptr->f_0x70 = iVar6_ptr->f_0x70 | 4;
   *(uint *)pfVar2 = m[4];
-  *(undefined4 *)(iVar6 + 0x44) = m[5];
-  *(undefined4 *)(iVar6 + 0x48) = m[6];
-  *(float *)(iVar6 + 0x58) =
-       *(float *)(iVar6 + 0x54) * *(float *)(iVar6 + 0x44) -
-       *(float *)(iVar6 + 0x50) * *(float *)(iVar6 + 0x48);
-  *(float *)(iVar6 + 0x5c) = *(float *)(iVar6 + 0x48) * *pfVar1 - *(float *)(iVar6 + 0x54) * *pfVar2
+  iVar6_ptr->f_0x44.as_undefined4 = m[5];
+  iVar6_ptr->f_0x48.as_undefined4 = m[6];
+  iVar6_ptr->f_0x58.as_float =
+       iVar6_ptr->f_0x54.as_float * iVar6_ptr->f_0x44.as_float -
+       iVar6_ptr->f_0x50.as_float * iVar6_ptr->f_0x48.as_float;
+  iVar6_ptr->f_0x5c.as_float = iVar6_ptr->f_0x48.as_float * *pfVar1 - iVar6_ptr->f_0x54.as_float * *pfVar2
   ;
-  *(float *)(iVar6 + 0x60) = *pfVar2 * *(float *)(iVar6 + 0x50) - *(float *)(iVar6 + 0x44) * *pfVar1
+  iVar6_ptr->f_0x60.as_float = *pfVar2 * iVar6_ptr->f_0x50.as_float - iVar6_ptr->f_0x44.as_float * *pfVar1
   ;
-  *(uint *)(iVar6 + 0x70) = *(uint *)(iVar6 + 0x70) | 8;
+  iVar6_ptr->f_0x70 = iVar6_ptr->f_0x70 | 8;
   *(uint *)pfVar2 = m[4];
-  *(undefined4 *)(iVar6 + 0x44) = m[5];
-  *(undefined4 *)(iVar6 + 0x48) = m[6];
+  iVar6_ptr->f_0x44.as_undefined4 = m[5];
+  iVar6_ptr->f_0x48.as_undefined4 = m[6];
   *(uint *)pfVar1 = m[8];
-  *(undefined4 *)(iVar6 + 0x50) = m[9];
-  *(undefined4 *)(iVar6 + 0x54) = m[10];
-  *(uint *)(iVar6 + 0x58) = m[0];
-  *(uint *)(iVar6 + 0x5c) = m[1];
-  *(uint *)(iVar6 + 0x60) = m[2];
-  *(uint *)(iVar6 + 0x70) = *(uint *)(iVar6 + 0x70) | 0xc;
-  *(undefined4 *)(iVar6 + 0x34) = ((uint *)v9)[6];
-  *(undefined4 *)(iVar6 + 0x38) = ((uint *)v9)[7];
-  *(undefined4 *)(iVar6 + 0x3c) = ((uint *)v9)[8];
-  *(uint *)(iVar6 + 0x70) = *(uint *)(iVar6 + 0x70) | 2;
+  iVar6_ptr->f_0x50.as_undefined4 = m[9];
+  iVar6_ptr->f_0x54.as_undefined4 = m[10];
+  iVar6_ptr->f_0x58.as_uint = m[0];
+  iVar6_ptr->f_0x5c.as_uint = m[1];
+  iVar6_ptr->f_0x60.as_uint = m[2];
+  iVar6_ptr->f_0x70 = iVar6_ptr->f_0x70 | 0xc;
+  iVar6_ptr->f_0x34 = ((uint *)v9)[6];
+  iVar6_ptr->f_0x38 = ((uint *)v9)[7];
+  iVar6_ptr->f_0x3c = ((uint *)v9)[8];
+  iVar6_ptr->f_0x70 = iVar6_ptr->f_0x70 | 2;
   return;
 }
 

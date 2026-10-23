@@ -10,7 +10,6 @@
 /*007f023c*/ extern char g_ai_editor_mode[];
 
 #define INPUT_MODE_MENU (0x1000) /* g_input_mode value: input goes to the menu, which reads players 0-7 directly (inferred) */
-#define PAGE_OPTIONS (0x13) /* menu page id of the options page */
 #define NO_CONTROLLER (-1) /* PlayerSlot.controller value for an empty slot */
 
 /*
@@ -67,7 +66,7 @@ LAB_004305cb:
   }
   /* Options page: entries 0-2 consume the press, other entries go to the edge check.
    * Page 0x1e consumes it too. */
-  if (g_menu_records[g_menu_current].page_id == PAGE_OPTIONS) {
+  if (g_menu_records[g_menu_current].page_id == MENU_PAGE_SOUND) {
     iVar4 = g_menu_records[g_menu_current].selected;
     if ((iVar4 != 0) && (iVar4 != 1)) {
       if (iVar4 == 2) {
@@ -76,7 +75,7 @@ LAB_004305cb:
       goto LAB_00430619;
     }
   }
-  else if (g_menu_records[g_menu_current].page_id != 0x1e) {
+  else if (g_menu_records[g_menu_current].page_id != MENU_PAGE_GAMMA) {
 LAB_00430619:
     /* Edge check, both modes: left newly pressed this frame. Player 7 returns at once. */
     if (g_input_mode == INPUT_MODE_MENU) {

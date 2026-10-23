@@ -42,7 +42,7 @@ extern double sin(double);
 void fx_floating_text_update(void)
 
 {
-  float10 pulse_scale;
+  double pulse_scale;
   float *slot_age;
   RwV3d *slot_pos;
   int *slot_active;
@@ -74,7 +74,7 @@ void fx_floating_text_update(void)
       slot_pos[1].x = frame.age;
       /* Still alive: draw with pulse scale and fade */
       if (frame.age <= float_1_0) {
-        pulse_scale = sin((float10)frame.age * (float10)k_f_2_3561945) * slot_pos[1].z;
+        pulse_scale = sin((double)frame.age * (double)k_f_2_3561945) * slot_pos[1].z;
         frame.alpha = ((int)((frame.age * frame.age) * 64.0f));
         frame.scale.x = (RwReal)pulse_scale;
         frame.scale.y = (RwReal)pulse_scale;
@@ -107,7 +107,7 @@ void fx_floating_text_update(void)
     slot_age = slot_age + FX_TEXT_SLOT_FLOATS;
     slot_pos = slot_pos + FX_TEXT_SLOT_V3D;
     slot_active = slot_active + 1;
-  } while ((int)slot_age < (int)&g_effects_update_76b840 + FX_TEXT_TABLE_BYTES);
+  } while ((char *)slot_age < (char *)&g_effects_update_76b840 + FX_TEXT_TABLE_BYTES);
   particles_flush(&g_particles_76be30);
   return;
 }

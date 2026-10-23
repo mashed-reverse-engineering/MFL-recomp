@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 extern char LAB_00408ad0[];
 /*0042a450*/ extern int course_is_outdoor();
-/*00475730*/ extern int get_viewport_camera();
+/*00475730*/ extern char *get_viewport_camera();
 /*004757a0*/ extern int get_viewport_camera_matrix();
 /*00482070*/ extern double dot_product_3d_clamped();
 /*0048e320*/ extern int rwpcar_ring_add_points_for_contact();
@@ -14,7 +14,7 @@ extern char LAB_00408ad0[];
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
 /*004f6240*/ extern struct RwSphere * RpAtomicGetWorldBoundingSphere(struct RpAtomic *p0);
-/*0058c8a0*/ extern int rwp_owner_object_get(int p0);
+/*0058c8a0*/ extern int rwp_owner_object_get(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*005dd620*/ extern float float_10_0;
 /*005ddad8*/ extern undefined4 g_effects_update_5ddad8;
@@ -55,7 +55,7 @@ void rwp_objects_cull_and_register_triggers(void)
   uint uVar7;
   uint uVar8;
   bool bVar9;
-  float10 fVar10;
+  double fVar10;
   float *pfVar11;
   struct {
     RwMatrix *local_cc;
@@ -96,7 +96,7 @@ void rwp_objects_cull_and_register_triggers(void)
       }
       atomic = (RpAtomic *)(&g_rw_6fab78)[uVar8];
       bVar9 = uVar7 == uVar2;
-      if (game_mode == 5) {
+      if (game_mode == GAME_MODE_KILL_COPTER) {
         if ((int)(&g_rw_6fa4b0)[uVar8] < (int)g_effects_update_5ddad8) {
           frame.local_c0 = frame.local_a8;
         }
@@ -160,15 +160,15 @@ void rwp_objects_cull_and_register_triggers(void)
               }
               if (frame.local_c0 != 0) {
                 if ((((&g_rw_6f6950)[uVar8] != 2) && ((&g_rw_6f6950)[uVar8] != 1)) ||
-                   (*(int *)(*(int *)(iVar3 + 0x10) + 4) != 0)) {
+                   (*(int *)(*(char **)(iVar3 + 0x10) + 4) != 0)) {
                   uVar6 = shadow_project_to_ground_00499dc0
                                     (g_rw_801b14,frame.local_ac,frame.local_c8,frame.local_cc,frame.local_c4);
                   (&g_effects_update_6fe770)[uVar8] = uVar6;
                 }
                 if ((&g_effects_update_6fe770)[uVar8] != 0) {
-                  fVar10 = (float10)dot_product_3d_clamped(&frame.local_cc->at,&g_car_62ac74);
-                  fVar10 = (float10)FUN_004b3284((double)fVar10);
-                  if (fVar10 < (float10)k_f_0_7853982) {
+                  fVar10 = (double)dot_product_3d_clamped(&frame.local_cc->at,&g_car_62ac74);
+                  fVar10 = (double)FUN_004b3284((double)fVar10);
+                  if (fVar10 < (double)k_f_0_7853982) {
                     uVar6 = ((int)(((1.0f - (fVar10 * 1.2732395f)) + 1.0f) * 64.0f));
                     fx_dust_add(frame.local_cc,uVar6);
                   }

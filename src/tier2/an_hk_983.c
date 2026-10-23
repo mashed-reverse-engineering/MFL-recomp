@@ -32,7 +32,7 @@ void course_editor_read_vec_chunk(void)
     int local_10 [4];
   } frame;
   
-  iVar2 = rw_first_field(((int)&g_race_phase_arg));
+  iVar2 = rw_first_field(((char *)&g_race_phase_arg));
   if (iVar2 == 0x11) {
     puVar4 = &g_course_update_603578;
   }
@@ -40,8 +40,8 @@ void course_editor_read_vec_chunk(void)
     if (iVar2 != 0x12) goto LAB_0040c65d;
     puVar4 = (undefined *)&g_course_update_652db8;
   }
-  rw_stream_chunk_copy(((int)&g_race_phase_arg),puVar4);
-  store_u32(((int)&g_race_phase_arg),0);
+  rw_stream_chunk_copy(((char *)&g_race_phase_arg),puVar4);
+  store_u32(((char *)&g_race_phase_arg),0);
 LAB_0040c65d:
   angle = 0;
   do {

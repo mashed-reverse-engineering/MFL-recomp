@@ -1,12 +1,12 @@
 #include "mfl_tier2.h"
 extern char PTR_g_data_6c696f_005df7f0[];
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*0040e530*/ extern undefined __cdecl load_shine_texture(struct RpClump *p0, undefined4 p1, int p2);
-/*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
+/*0042f780*/ extern char *__cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
-/*004f6bf0*/ extern void * FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern void * FUN_004f6bf0(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a7c38*/ extern undefined g_weapon_6a7c38;
 /*006a7c84*/ extern undefined4 g_weapon_6a7c84;

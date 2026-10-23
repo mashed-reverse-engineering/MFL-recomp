@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004b2b48*/ extern int _ftol();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*008d8ca0*/ extern undefined g_player_8d8ca0;
 /*008d8ca4*/ extern undefined g_player_8d8ca4;
 /*008d8d48*/ extern undefined g_player_8d8d48;

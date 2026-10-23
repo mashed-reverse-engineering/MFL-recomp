@@ -32,7 +32,7 @@ void __cdecl car_wobble_tilt_update(int car)
   CarWobble *wobble;
   float yaw;
   float roll;
-  float10 fraction;
+  double fraction;
   RwMatrix *matrix;
   RwV3d offset;
   
@@ -43,18 +43,18 @@ void __cdecl car_wobble_tilt_update(int car)
       yaw = 0.0;
     }
     else {
-      fraction = (float10)wobble->yaw_time / (float10)wobble->yaw_duration;
+      fraction = (double)wobble->yaw_time / (double)wobble->yaw_duration;
       wobble->yaw_fraction = (float)fraction;
-      yaw = (float)(((float10)float_1_0 - fraction) * (float10)wobble->yaw_gain);
+      yaw = (float)(((double)float_1_0 - fraction) * (double)wobble->yaw_gain);
       wobble->yaw_time = yaw + wobble->yaw_time;
     }
     if (wobble->roll_duration == k_f_0) {
       yaw = 0.0;      /* sic: the original clears the yaw here, not the roll */
     }
     else {
-      fraction = (float10)wobble->roll_time / (float10)wobble->roll_duration;
+      fraction = (double)wobble->roll_time / (double)wobble->roll_duration;
       wobble->roll_fraction = (float)fraction;
-      roll = (float)(((float10)float_1_0 - fraction) * (float10)wobble->roll_gain);
+      roll = (float)(((double)float_1_0 - fraction) * (double)wobble->roll_gain);
       wobble->roll_time = roll + wobble->roll_time;
     }
     car_current_matrix(&matrix,car);
