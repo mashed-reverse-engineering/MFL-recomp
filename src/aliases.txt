@@ -2296,3 +2296,12 @@ g_sky_offsets 0069e6e0
 g_sky_drift 0069f6e0
 g_sky_colour_ramp 008c7ec0
 rwframe_plugin_object_get 00544440
+replay_save 00413d10
+_rwD3D9LastVertexDeclarationUsed 0062e764
+_rwD3D9LastVertexShaderUsed 0062e768
+_rwD3D9LastPixelShaderUsed 0062e76c
+_rwD3D9LastIndexBufferUsed 0062e770
+g_course_storm_waterfall_fx 008c52c0
+g_course_storm_matrix_offset 0060d920
+g_course_highway_cars 008bf0a0
+g_course_highway_active_bits 006a26a4

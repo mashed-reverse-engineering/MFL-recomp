@@ -13,37 +13,37 @@
 void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,undefined4 *param_4)
 
 {
-  float *pfVar1;
-  int *piVar2;
-  int iVar4;
-  undefined4 *puVar5;
-  int iVar6;
-  double fVar7;
-  double fVar8;
+  float *tmp_f;
+  int *ribbon;
+  int ring_size;
+  undefined4 *point_ptr;
+  int age_index;
+  double width;
+  double fade;
   uint alpha;
   struct {
-    float local_14;
-    float local_10;
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    float uv_a_x;
+    float uv_a_y;
+    undefined4 point_x;
+    undefined4 point_y;
+    undefined4 point_z;
   } frame;
   
-  piVar2 = param_1;
-  puVar5 = (undefined4 *)(*param_1 + param_1[9] * 0xc);
-  *puVar5 = *param_2;
-  puVar5[1] = param_2[1];
-  puVar5[2] = param_2[2];
+  ribbon = param_1;
+  point_ptr = (undefined4 *)(*param_1 + param_1[9] * 0xc);
+  *point_ptr = *param_2;
+  point_ptr[1] = param_2[1];
+  point_ptr[2] = param_2[2];
   if (param_3 == (undefined4 *)0x0) {
     *(undefined4 *)(param_1[1] + param_1[9] * 0xc) = 0;
     *(undefined4 *)(param_1[1] + 4 + param_1[9] * 0xc) = 0;
     *(undefined4 *)(param_1[1] + 8 + param_1[9] * 0xc) = 0;
   }
   else {
-    puVar5 = (undefined4 *)(param_1[1] + param_1[9] * 0xc);
-    *puVar5 = *param_3;
-    puVar5[1] = param_3[1];
-    puVar5[2] = param_3[2];
+    point_ptr = (undefined4 *)(param_1[1] + param_1[9] * 0xc);
+    *point_ptr = *param_3;
+    point_ptr[1] = param_3[1];
+    point_ptr[2] = param_3[2];
   }
   if (param_4 == (undefined4 *)0x0) {
     *(undefined1 *)(param_1[2] + param_1[9] * 4) = 0xff;
@@ -54,43 +54,43 @@ void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,un
   else {
     *(undefined4 *)(param_1[2] + param_1[9] * 4) = *param_4;
   }
-  iVar6 = param_1[9];
-  iVar4 = param_1[3];
-  param_1[9] = iVar6 + 1;
-  if (iVar4 <= iVar6 + 1) {
+  age_index = param_1[9];
+  ring_size = param_1[3];
+  param_1[9] = age_index + 1;
+  if (ring_size <= age_index + 1) {
     param_1[9] = 0;
   }
-  iVar6 = iVar4 - param_1[4];
-  if (iVar6 < iVar4) {
+  age_index = ring_size - param_1[4];
+  if (age_index < ring_size) {
     do {
-      iVar4 = piVar2[9] + iVar6;
-      fVar8 = float_1_0 - (double)iVar6 / piVar2[3];
-      if (piVar2[3] <= iVar4) {
-        iVar4 = (piVar2[9] - piVar2[3]) + iVar6;
+      ring_size = ribbon[9] + age_index;
+      fade = float_1_0 - (double)age_index / ribbon[3];
+      if (ribbon[3] <= ring_size) {
+        ring_size = (ribbon[9] - ribbon[3]) + age_index;
       }
-      *(uint *)&param_2 = *(uint *)(piVar2[2] + iVar4 * 4);
+      *(uint *)&param_2 = *(uint *)(ribbon[2] + ring_size * 4);
       alpha = *(uint *)&param_2 >> 0x18;
-      *((char *)&param_2 + 3) = (char)(int)((double)(int)alpha - (double)(int)(alpha - 10) * fVar8);
-      iVar4 = iVar4 * 0xc;
-      puVar5 = (undefined4 *)(*piVar2 + iVar4);
-      frame.local_c = *puVar5;
-      fVar7 = ((*(float *)&piVar2[7] - *(float *)&piVar2[6]) * fVar8 + (double)*(float *)&piVar2[6]) * (double)k_f_0_3;
-      frame.local_8 = puVar5[1];
-      frame.local_4 = puVar5[2];
-      frame.local_10 = (float)fVar7;
-      frame.local_14 = (float)(fVar7 * (double)k_f_0_6);
-      *(float *)&param_3 = (float)(fVar8 * (double)*(float *)&piVar2[8]);
-      particle_batch_add(piVar2[10],&frame.local_c,&param_2);
-      particle_batch_set_uv_a(piVar2[10],&frame.local_14);
-      particle_batch_set_size(piVar2[10],*(int *)&param_3);
-      iVar6 = iVar6 + 1;
-      *(float *)(*piVar2 + iVar4) = *(float *)(iVar4 + piVar2[1]) + *(float *)(*piVar2 + iVar4);
-      pfVar1 = (float *)(*piVar2 + 4 + iVar4);
-      *pfVar1 = *(float *)(iVar4 + 4 + piVar2[1]) + *pfVar1;
-      pfVar1 = (float *)(*piVar2 + 8 + iVar4);
-      *pfVar1 = *(float *)(iVar4 + 8 + piVar2[1]) + *pfVar1;
-    } while (iVar6 < piVar2[3]);
-    fx_system_flush(piVar2[10]);
+      *((char *)&param_2 + 3) = (char)(int)((double)(int)alpha - (double)(int)(alpha - 10) * fade);
+      ring_size = ring_size * 0xc;
+      point_ptr = (undefined4 *)(*ribbon + ring_size);
+      frame.point_x = *point_ptr;
+      width = ((*(float *)&ribbon[7] - *(float *)&ribbon[6]) * fade + (double)*(float *)&ribbon[6]) * (double)k_f_0_3;
+      frame.point_y = point_ptr[1];
+      frame.point_z = point_ptr[2];
+      frame.uv_a_y = (float)width;
+      frame.uv_a_x = (float)(width * (double)k_f_0_6);
+      *(float *)&param_3 = (float)(fade * (double)*(float *)&ribbon[8]);
+      particle_batch_add(ribbon[10],&frame.point_x,&param_2);
+      particle_batch_set_uv_a(ribbon[10],&frame.uv_a_x);
+      particle_batch_set_size(ribbon[10],*(int *)&param_3);
+      age_index = age_index + 1;
+      *(float *)(*ribbon + ring_size) = *(float *)(ring_size + ribbon[1]) + *(float *)(*ribbon + ring_size);
+      tmp_f = (float *)(*ribbon + 4 + ring_size);
+      *tmp_f = *(float *)(ring_size + 4 + ribbon[1]) + *tmp_f;
+      tmp_f = (float *)(*ribbon + 8 + ring_size);
+      *tmp_f = *(float *)(ring_size + 8 + ribbon[1]) + *tmp_f;
+    } while (age_index < ribbon[3]);
+    fx_system_flush(ribbon[10]);
   }
   return;
 }

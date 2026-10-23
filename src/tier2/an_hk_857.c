@@ -28,13 +28,13 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
 {
   int event_type;
   undefined4 *panel_state;
-  /* Frame buffer filled by replay_buffer_interpolate_frame: ghost at local_80, replay at local_40 (inferred) */
+  /* Frame buffer filled by replay_buffer_interpolate_frame: ghost at ghost_frame, replay at replay_frame (inferred) */
   struct {
-    undefined4 *local_90;
-    undefined4 *local_8c;
-    undefined4 local_88;
-    undefined4 local_84;
-    undefined4 local_80;
+    undefined4 *panel_replay_ptr;
+    undefined4 *panel_ghost_ptr;
+    undefined4 panel_flag_a;
+    undefined4 panel_flag_b;
+    undefined4 ghost_frame;
     undefined4 local_7c;
     undefined4 local_78;
     uint local_74;
@@ -50,7 +50,7 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
     undefined4 local_4c;
     undefined4 local_48;
     undefined1 pad_44[4];
-    undefined4 local_40;
+    undefined4 replay_frame;
     undefined4 local_3c;
     undefined4 local_38;
     uint local_34;
@@ -84,15 +84,15 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
   /* Only event types 0..2 record and display a frame (inferred) */
   event_type = get_event_type();
   if ((-1 < event_type) && (event_type < TRACKED_EVENT_TYPES)) {
-    frame.local_8c = &frame.local_80;
+    frame.panel_ghost_ptr = &frame.ghost_frame;
     frame.local_34 = frame.local_34 | FRAME_FLAGS_SET;
     frame.local_74 = frame.local_74 | FRAME_FLAGS_SET;
-    frame.local_90 = &frame.local_40;
-    frame.local_88 = 1;
-    frame.local_84 = 0;
+    frame.panel_replay_ptr = &frame.replay_frame;
+    frame.panel_flag_a = 1;
+    frame.panel_flag_b = 0;
     frame.local_18 = FLOAT_1_0_BITS;
     frame.local_2c = FLOAT_1_0_BITS;
-    frame.local_40 = FLOAT_1_0_BITS;
+    frame.replay_frame = FLOAT_1_0_BITS;
     frame.local_30 = 0;
     frame.local_38 = 0;
     frame.local_3c = 0;
@@ -104,7 +104,7 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
     frame.local_10 = 0;
     frame.local_58 = FLOAT_1_0_BITS;
     frame.local_6c = FLOAT_1_0_BITS;
-    frame.local_80 = FLOAT_1_0_BITS;
+    frame.ghost_frame = FLOAT_1_0_BITS;
     frame.local_70 = 0;
     frame.local_78 = 0;
     frame.local_7c = 0;
@@ -116,14 +116,14 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
     frame.local_50 = 0;
     /* Interpolate the ghost and replay frames at the stored time, then update the panel */
     if (g_ghost_652f84 != 0) {
-      replay_buffer_interpolate_frame(g_ghost_652f84,&frame.local_80,g_time_652f94);
+      replay_buffer_interpolate_frame(g_ghost_652f84,&frame.ghost_frame,g_time_652f94);
     }
     if (g_replay_652f88 != 0) {
-      replay_buffer_interpolate_frame(g_replay_652f88,&frame.local_40,g_time_652f94);
+      replay_buffer_interpolate_frame(g_replay_652f88,&frame.replay_frame,g_time_652f94);
     }
-    panel_state = &frame.local_88;
-    btb_panel_set_visible_all(&frame.local_88);
-    time_trial_panel_update(&frame.local_90,panel_state);
+    panel_state = &frame.panel_flag_a;
+    btb_panel_set_visible_all(&frame.panel_flag_a);
+    time_trial_panel_update(&frame.panel_replay_ptr,panel_state);
   }
   return;
 }

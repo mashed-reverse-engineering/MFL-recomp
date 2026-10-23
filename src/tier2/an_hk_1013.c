@@ -25,272 +25,273 @@
 
 /* "builds and draws the 6 entry menu layout (variant b)" */
 
-void menu_layout_draw_b(int param_1,int param_2)
+void menu_layout_draw_b(int alpha,int compact)
 
 {
   float fbits1;
   float fbits2;
   float fbits3;
-  undefined4 uVar1;
-  bool bVar2;
-  uint uVar3;
-  uint uVar4;
+  undefined4 icon_variant;
+  bool event_handled;
+  uint wave_phase;
+  uint phase_ahead;
   int sprite_texture;
-  int *piVar5;
-  int iVar6;
-  int iVar7;
+  int *icon_tex;
+  int fade_a_or_event;
+  int fade_b_or_flag;
   int slot;
-  float pu_edi;
-  float fVar8;
-  float fVar9;
-  float fVar10;
-  float fVar11;
-  RwReal RVar12;
-  RwReal RVar13;
-  RwReal RVar14;
-  RwReal RVar15;
-  RwReal RVar16;
+  float icon_x;
+  float x_arg;
+  float y_arg;
+  float w_arg;
+  float h_arg;
+  RwReal uv_0;
+  RwReal uv_1;
+  RwReal uv_2;
+  RwReal uv_3;
+  RwReal uv_one;
   struct {
-    undefined4 local_64;
-    int local_60;
+    undefined4 colour;
+    int border_colour;
   } frame;
   struct {
-    float local_50;
-    float local_4c;
-    float local_48;
-    float local_44;
-    undefined4 local_40 [16];
+    float rect_x;
+    float rect_y;
+    float rect_w;
+    float rect_h;
+    undefined4 icon_cycle [16];
   } frame2;
   
-  frame2.local_40[3] = 3;
-  frame2.local_40[9] = 3;
-  frame2.local_40[0xf] = 3;
-  frame2.local_40[0] = 0;
-  frame2.local_40[1] = 1;
-  frame2.local_40[2] = 2;
-  frame2.local_40[4] = 4;
-  frame2.local_40[5] = 5;
-  frame2.local_40[6] = 0;
-  frame2.local_40[7] = 1;
-  frame2.local_40[8] = 2;
-  frame2.local_40[10] = 4;
-  frame2.local_40[0xb] = 5;
-  frame2.local_40[0xc] = 0;
-  frame2.local_40[0xd] = 1;
-  frame2.local_40[0xe] = 2;
-  frame.local_64 = 0xffffff;
-  frame2.local_50 = 330.0;
-  frame2.local_4c = 96.0;
-  frame2.local_48 = 270.0;
-  frame2.local_44 = 180.0;
-  if (param_2 != 0) {
-    frame2.local_50 = 321.0;
-    frame2.local_4c = 65.0;
-    frame2.local_48 = 255.0;
-    frame2.local_44 = 200.0;
+  frame2.icon_cycle[3] = 3;
+  frame2.icon_cycle[9] = 3;
+  frame2.icon_cycle[0xf] = 3;
+  frame2.icon_cycle[0] = 0;
+  frame2.icon_cycle[1] = 1;
+  frame2.icon_cycle[2] = 2;
+  frame2.icon_cycle[4] = 4;
+  frame2.icon_cycle[5] = 5;
+  frame2.icon_cycle[6] = 0;
+  frame2.icon_cycle[7] = 1;
+  frame2.icon_cycle[8] = 2;
+  frame2.icon_cycle[10] = 4;
+  frame2.icon_cycle[0xb] = 5;
+  frame2.icon_cycle[0xc] = 0;
+  frame2.icon_cycle[0xd] = 1;
+  frame2.icon_cycle[0xe] = 2;
+  frame.colour = 0xffffff;
+  frame2.rect_x = 330.0;
+  frame2.rect_y = 96.0;
+  frame2.rect_w = 270.0;
+  frame2.rect_h = 180.0;
+  if (compact != 0) {
+    frame2.rect_x = 321.0;
+    frame2.rect_y = 65.0;
+    frame2.rect_w = 255.0;
+    frame2.rect_h = 200.0;
   }
-  uVar3 = ((int)(g_menu_wave_time * 60.0f));
-  uVar3 = uVar3 & 0x1ff;
-  if (uVar3 == 0x1e0) {
+  wave_phase = ((int)(g_menu_wave_time * 60.0f));
+  wave_phase = wave_phase & 0x1ff;
+  if (wave_phase == 0x1e0) {
     g_menu_layout_69cc30 = g_menu_layout_69cc30 + 2;
   }
-  else if (uVar3 == 0xe0) {
+  else if (wave_phase == 0xe0) {
     g_hud_69d664 = g_hud_69d664 + 2;
   }
   if ((g_hud_69d664 & 1) == 0) {
     g_hud_69d664 = g_hud_69d664 + 1;
   }
-  if (uVar3 < 0xe0) {
-    iVar7 = 0;
+  if (wave_phase < 0xe0) {
+    fade_b_or_flag = 0;
 LAB_0043d357:
-    iVar6 = 0xff;
+    fade_a_or_event = 0xff;
   }
-  else if (uVar3 < 0x100) {
-    iVar7 = uVar3 - 0xe0;
-    if (iVar7 < 0x10) {
-      iVar7 = iVar7 * 0x10;
+  else if (wave_phase < 0x100) {
+    fade_b_or_flag = wave_phase - 0xe0;
+    if (fade_b_or_flag < 0x10) {
+      fade_b_or_flag = fade_b_or_flag * 0x10;
       goto LAB_0043d357;
     }
-    iVar6 = (0x1f - iVar7) * 0x10;
-    iVar7 = 0xff;
+    fade_a_or_event = (0x1f - fade_b_or_flag) * 0x10;
+    fade_b_or_flag = 0xff;
   }
-  else if (uVar3 < 0x1e0) {
-    iVar6 = 0;
-    iVar7 = 0xff;
+  else if (wave_phase < 0x1e0) {
+    fade_a_or_event = 0;
+    fade_b_or_flag = 0xff;
   }
   else {
-    iVar6 = uVar3 - 0x1e0;
-    if (0xf < iVar6) {
-      iVar7 = (0x1f - iVar6) * 0x10;
+    fade_a_or_event = wave_phase - 0x1e0;
+    if (0xf < fade_a_or_event) {
+      fade_b_or_flag = (0x1f - fade_a_or_event) * 0x10;
       goto LAB_0043d357;
     }
-    iVar6 = iVar6 * 0x10;
-    iVar7 = 0xff;
+    fade_a_or_event = fade_a_or_event * 0x10;
+    fade_b_or_flag = 0xff;
   }
-  uVar1 = frame2.local_40[g_hud_69d664 & 0xf];
-  if (iVar6 != 0) {
-    iVar6 = iVar6 * param_1;
-    uVar4 = uVar3 + 0x20;
-    frame.local_64 = CONCAT13(((char)(iVar6 / 0xff) + (char)(iVar6 >> 0x1f)) -
-                        (char)((longlong)iVar6 * 0x80808081 >> 0x3f),0xffffff);
-    if (0x1ff < uVar4) {
-      uVar4 = uVar3 - 0x1e0;
+  icon_variant = frame2.icon_cycle[g_hud_69d664 & 0xf];
+  if (fade_a_or_event != 0) {
+    fade_a_or_event = fade_a_or_event * alpha;
+    phase_ahead = wave_phase + 0x20;
+    frame.colour = CONCAT13(((char)(fade_a_or_event / 0xff) + (char)(fade_a_or_event >> 0x1f)) -
+                        (char)((longlong)fade_a_or_event * 0x80808081 >> 0x3f),0xffffff);
+    if (0x1ff < phase_ahead) {
+      phase_ahead = wave_phase - 0x1e0;
     }
     sprite_texture = menu_texture_dict_load(0);
-    ui_draw_sprite_oriented(sprite_texture,*(int *)&frame2.local_50,*(int *)&frame2.local_4c,*(int *)&frame2.local_48,*(int *)&frame2.local_44,frame.local_64,(int)(uVar4 << 8) / 0x120, frame2.local_40[g_menu_layout_69cc30 & 0xf],0);
+    ui_draw_sprite_oriented(sprite_texture,*(int *)&frame2.rect_x,*(int *)&frame2.rect_y,*(int *)&frame2.rect_w,*(int *)&frame2.rect_h,frame.colour,(int)(phase_ahead << 8) / 0x120, frame2.icon_cycle[g_menu_layout_69cc30 & 0xf],0);
   }
-  if (iVar7 != 0) {
-    iVar7 = iVar7 * param_1;
-    frame.local_64 = CONCAT13(((char)(iVar7 / 0xff) + (char)(iVar7 >> 0x1f)) -
-                        (char)((longlong)iVar7 * 0x80808081 >> 0x3f),(undefined3)frame.local_64);
+  if (fade_b_or_flag != 0) {
+    fade_b_or_flag = fade_b_or_flag * alpha;
+    frame.colour = CONCAT13(((char)(fade_b_or_flag / 0xff) + (char)(fade_b_or_flag >> 0x1f)) -
+                        (char)((longlong)fade_b_or_flag * 0x80808081 >> 0x3f),(undefined3)frame.colour);
     sprite_texture = menu_texture_dict_load(1);
-    ui_draw_sprite_oriented(sprite_texture,*(int *)&frame2.local_50,*(int *)&frame2.local_4c,*(int *)&frame2.local_48,*(int *)&frame2.local_44,frame.local_64,(int)((uVar3 - 0xe0) * 0x100) / 0x120, uVar1,0);
+    ui_draw_sprite_oriented(sprite_texture,*(int *)&frame2.rect_x,*(int *)&frame2.rect_y,*(int *)&frame2.rect_w,*(int *)&frame2.rect_h,frame.colour,(int)((wave_phase - 0xe0) * 0x100) / 0x120, icon_variant,0);
   }
-  if (param_2 == 0) {
-    frame.local_60 = param_1 << 0x18;
-    frame2.local_50 = frame2.local_50 - k_f_2;
-    frame2.local_4c = frame2.local_4c - k_f_2;
-    draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x40000000,(fbits1 = frame2.local_44 + k_f_4, *(int *)&fbits1),frame.local_60);
-    draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x43890000,0x40000000,frame.local_60);
-    frame2.local_4c = frame2.local_4c + k_f_182;
-    draw_rect(*(int *)&frame2.local_50,*(int *)&frame2.local_4c,0x43890000,0x40000000,frame.local_60);
-    draw_rect((fbits2 = frame2.local_50 + k_f_272, *(int *)&fbits2),(fbits3 = frame2.local_4c - k_f_182, *(int *)&fbits3),0x40000000,0x43360000,frame.local_60);
+  if (compact == 0) {
+    frame.border_colour = alpha << 0x18;
+    frame2.rect_x = frame2.rect_x - k_f_2;
+    frame2.rect_y = frame2.rect_y - k_f_2;
+    draw_rect(*(int *)&frame2.rect_x,*(int *)&frame2.rect_y,0x40000000,(fbits1 = frame2.rect_h + k_f_4, *(int *)&fbits1),frame.border_colour);
+    draw_rect(*(int *)&frame2.rect_x,*(int *)&frame2.rect_y,0x43890000,0x40000000,frame.border_colour);
+    frame2.rect_y = frame2.rect_y + k_f_182;
+    draw_rect(*(int *)&frame2.rect_x,*(int *)&frame2.rect_y,0x43890000,0x40000000,frame.border_colour);
+    draw_rect((fbits2 = frame2.rect_x + k_f_272, *(int *)&fbits2),(fbits3 = frame2.rect_y - k_f_182, *(int *)&fbits3),0x40000000,0x43360000,frame.border_colour);
   }
-  frame2.local_50 = 330.0;
-  frame2.local_4c = 100.0;
-  if (param_2 != 0) {
-    frame2.local_50 = 322.0;
-    frame2.local_4c = 76.0;
+  frame2.rect_x = 330.0;
+  frame2.rect_y = 100.0;
+  if (compact != 0) {
+    frame2.rect_x = 322.0;
+    frame2.rect_y = 76.0;
   }
-  param_2 = g_career_row * 0xc;
-  frame2.local_44 = 40.0;
-  frame2.local_48 = 40.0;
-  frame.local_64 = CONCAT13((char)param_1,(undefined3)frame.local_64);
+  compact = g_career_row * 0xc;
+  frame2.rect_h = 40.0;
+  frame2.rect_w = 40.0;
+  frame.colour = CONCAT13((char)alpha,(undefined3)frame.colour);
   if (g_menu_event_column == 5) {
-    param_2 = param_2 + 8;
+    compact = compact + 8;
     goto LAB_0043d5dc;
   }
   if (g_menu_event_column != 4) {
     if (g_menu_event_column == 8) {
-      param_2 = param_2 + 8;
+      compact = compact + 8;
       goto LAB_0043d5dc;
     }
     if (g_menu_event_column != 7) {
       if (g_menu_event_column == 0xd) {
-        param_2 = param_2 + 8;
+        compact = compact + 8;
         goto LAB_0043d5dc;
       }
       if (g_menu_event_column != 0xc) {
         if (g_menu_event_column == 2) {
-          param_2 = param_2 + 8;
+          compact = compact + 8;
           goto LAB_0043d5dc;
         }
         if (g_menu_event_column != 1) goto LAB_0043d5dc;
       }
     }
   }
-  param_2 = param_2 + 4;
+  compact = compact + 4;
 LAB_0043d5dc:
+  /* from here on fade_a_or_event / fade_b_or_flag are reused: event type, layout-table entry (non-zero = slot has an icon) */
   slot = 0;
   g_game_state.mirror_mode = 0;
-  iVar6 = g_event_type;
-  pu_edi = frame2.local_50;
+  fade_a_or_event = g_event_type;
+  icon_x = frame2.rect_x;
   do {
-    if (((iVar6 == 3) || (iVar6 == 4)) || (iVar6 == 5)) {
-      iVar7 = *(int *)((char *)&g_menu_layout_607e68 + (param_2 + slot) * 4);
+    if (((fade_a_or_event == EVENT_CUP_3) || (fade_a_or_event == EVENT_CUP_4)) || (fade_a_or_event == EVENT_CUP_5)) {
+      fade_b_or_flag = *(int *)((char *)&g_menu_layout_607e68 + (compact + slot) * 4);
 LAB_0043d730:
-      if (iVar7 != 0) {
+      if (fade_b_or_flag != 0) {
         if (slot == 3) {
           g_game_state.mirror_mode = 1;
         }
-        iVar7 = 0;
-        iVar6 = 1;
-        RVar15 = 1.0;
-        RVar14 = 0.0;
-        RVar13 = 1.0;
-        RVar12 = 0.0;
-        fVar8 = pu_edi;
-        fVar9 = frame2.local_4c;
-        fVar10 = frame2.local_48;
-        fVar11 = frame2.local_44;
-        uVar3 = frame.local_64;
-        piVar5 = (int *)menu_icon_texture_lookup(slot);
-        draw_sprite_uv(piVar5,fVar8,fVar9,fVar10,fVar11,uVar3,RVar12,RVar13,RVar14,
-                       RVar15,iVar6,iVar7);
-        pu_edi = frame2.local_50 + k_f_36;
-        iVar6 = g_event_type;
-        frame2.local_50 = pu_edi;
+        fade_b_or_flag = 0;
+        fade_a_or_event = 1;
+        uv_3 = 1.0;
+        uv_2 = 0.0;
+        uv_1 = 1.0;
+        uv_0 = 0.0;
+        x_arg = icon_x;
+        y_arg = frame2.rect_y;
+        w_arg = frame2.rect_w;
+        h_arg = frame2.rect_h;
+        wave_phase = frame.colour;
+        icon_tex = (int *)menu_icon_texture_lookup(slot);
+        draw_sprite_uv(icon_tex,x_arg,y_arg,w_arg,h_arg,wave_phase,uv_0,uv_1,uv_2,
+                       uv_3,fade_a_or_event,fade_b_or_flag);
+        icon_x = frame2.rect_x + k_f_36;
+        fade_a_or_event = g_event_type;
+        frame2.rect_x = icon_x;
       }
     }
     else {
-      bVar2 = false;
-      if (iVar6 == 0xe) {
-        if (*(int *)((char *)&g_menu_layout_608138 + (param_2 + slot) * 4) != 0) {
+      event_handled = false;
+      if (fade_a_or_event == EVENT_TURBO_TOURNAMENT) {
+        if (*(int *)((char *)&g_menu_layout_608138 + (compact + slot) * 4) != 0) {
           if (slot == 3) {
             g_game_state.mirror_mode = 1;
           }
-          iVar7 = 0;
-          iVar6 = 1;
-          RVar15 = 1.0;
-          RVar14 = 0.0;
-          RVar13 = 1.0;
-          RVar12 = 0.0;
-          fVar8 = pu_edi;
-          fVar9 = frame2.local_4c;
-          fVar10 = frame2.local_48;
-          fVar11 = frame2.local_44;
-          uVar3 = frame.local_64;
-          piVar5 = (int *)menu_icon_texture_lookup(slot);
-          draw_sprite_uv(piVar5,fVar8,fVar9,fVar10,fVar11,uVar3,RVar12,RVar13,RVar14
-                         ,RVar15,iVar6,iVar7);
-          pu_edi = frame2.local_50 + k_f_36;
-          iVar6 = g_event_type;
-          frame2.local_50 = pu_edi;
+          fade_b_or_flag = 0;
+          fade_a_or_event = 1;
+          uv_3 = 1.0;
+          uv_2 = 0.0;
+          uv_1 = 1.0;
+          uv_0 = 0.0;
+          x_arg = icon_x;
+          y_arg = frame2.rect_y;
+          w_arg = frame2.rect_w;
+          h_arg = frame2.rect_h;
+          wave_phase = frame.colour;
+          icon_tex = (int *)menu_icon_texture_lookup(slot);
+          draw_sprite_uv(icon_tex,x_arg,y_arg,w_arg,h_arg,wave_phase,uv_0,uv_1,uv_2
+                         ,uv_3,fade_a_or_event,fade_b_or_flag);
+          icon_x = frame2.rect_x + k_f_36;
+          fade_a_or_event = g_event_type;
+          frame2.rect_x = icon_x;
         }
-        bVar2 = true;
+        event_handled = true;
       }
-      if (iVar6 == 0xf) {
+      if (fade_a_or_event == EVENT_ICE_TOURNAMENT) {
         if (slot == 0) {
-          iVar6 = 1;
-          RVar16 = 1.0;
-          RVar15 = 1.0;
-          fVar8 = pu_edi;
-          fVar9 = frame2.local_4c;
-          fVar10 = frame2.local_48;
-          fVar11 = frame2.local_44;
-          uVar3 = frame.local_64;
-          RVar12 = 0.0;
-          RVar13 = 0.0;
-          RVar14 = 0.0;
-          piVar5 = (int *)menu_icon_texture_lookup(0);
-          draw_sprite_uv(piVar5,fVar8,fVar9,fVar10,fVar11,uVar3,RVar12,RVar15,RVar13,
-                         RVar16,iVar6,(int)RVar14);
-          iVar6 = g_event_type;
+          fade_a_or_event = 1;
+          uv_one = 1.0;
+          uv_3 = 1.0;
+          x_arg = icon_x;
+          y_arg = frame2.rect_y;
+          w_arg = frame2.rect_w;
+          h_arg = frame2.rect_h;
+          wave_phase = frame.colour;
+          uv_0 = 0.0;
+          uv_1 = 0.0;
+          uv_2 = 0.0;
+          icon_tex = (int *)menu_icon_texture_lookup(0);
+          draw_sprite_uv(icon_tex,x_arg,y_arg,w_arg,h_arg,wave_phase,uv_0,uv_3,uv_1,
+                         uv_one,fade_a_or_event,(int)uv_2);
+          fade_a_or_event = g_event_type;
         }
-        bVar2 = true;
+        event_handled = true;
       }
-      if (iVar6 == 0x10) {
+      if (fade_a_or_event == EVENT_NIGHT_TOURNAMENT) {
         if (slot == 0) {
-          iVar6 = 1;
-          RVar16 = 1.0;
-          RVar15 = 1.0;
-          fVar8 = pu_edi;
-          fVar9 = frame2.local_4c;
-          fVar10 = frame2.local_48;
-          fVar11 = frame2.local_44;
-          uVar3 = frame.local_64;
-          RVar12 = 0.0;
-          RVar13 = 0.0;
-          RVar14 = 0.0;
-          piVar5 = (int *)menu_icon_texture_lookup(1);
-          draw_sprite_uv(piVar5,fVar8,fVar9,fVar10,fVar11,uVar3,RVar12,RVar15,RVar13,
-                         RVar16,iVar6,(int)RVar14);
-          iVar6 = g_event_type;
+          fade_a_or_event = 1;
+          uv_one = 1.0;
+          uv_3 = 1.0;
+          x_arg = icon_x;
+          y_arg = frame2.rect_y;
+          w_arg = frame2.rect_w;
+          h_arg = frame2.rect_h;
+          wave_phase = frame.colour;
+          uv_0 = 0.0;
+          uv_1 = 0.0;
+          uv_2 = 0.0;
+          icon_tex = (int *)menu_icon_texture_lookup(1);
+          draw_sprite_uv(icon_tex,x_arg,y_arg,w_arg,h_arg,wave_phase,uv_0,uv_3,uv_1,
+                         uv_one,fade_a_or_event,(int)uv_2);
+          fade_a_or_event = g_event_type;
         }
-        bVar2 = true;
+        event_handled = true;
       }
-      if ((iVar6 != 0x11) && (!bVar2)) {
-        iVar7 = *(int *)((char *)&g_menu_layout_608408 + (param_2 + slot) * 4);
+      if ((fade_a_or_event != EVENT_TRAINING) && (!event_handled)) {
+        fade_b_or_flag = *(int *)((char *)&g_menu_layout_608408 + (compact + slot) * 4);
         goto LAB_0043d730;
       }
     }

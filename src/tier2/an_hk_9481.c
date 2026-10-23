@@ -28,63 +28,63 @@ typedef int CourseId;
 /* "creates the car physics shape from player_car[0].bounds_points and copies the centre offset to
    all cars" */
 
-void __cdecl rwp_cars_setup_bodies_from_bounds(char *param_1,undefined4 param_2)
+void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 param_2)
 
 {
-  undefined4 uVar1;
-  float fVar2;
-  undefined4 *puVar3;
-  char *iVar4;
-  undefined4 uVar5;
+  undefined4 shape;
+  float index_f;
+  undefined4 *body_def;
+  char *body;
+  undefined4 tmp_w;
   RwFrame *frame;
   CourseId course_id;
-  int fVar6;
+  int car_index;
   volatile float hz;
   double hx;
   double hy;
-  int iVar7;
+  int shape_index;
   struct {
-    undefined1 local_20;
-    undefined1 local_1f;
-    undefined1 local_1e;
-    undefined1 local_1d;
-    float local_1c;
-    float local_18;
-    float local_14;
-    float local_10;
+    undefined1 contact_r;
+    undefined1 contact_g;
+    undefined1 contact_b;
+    undefined1 contact_a;
+    float box_tmp;
+    float box_x;
+    float box_y;
+    float box_z;
     undefined4 local_c;
     undefined4 local_8;
     undefined4 local_4;
   } frame_obj;
   
-  frame_obj.local_20 = 0x40;
-  frame_obj.local_1f = 0x40;
-  frame_obj.local_1e = 0x60;
-  frame_obj.local_1d = 0xff;
-  frame_obj.local_18 = 0.200000003f;
-  frame_obj.local_14 = 0.0649999976f;
-  frame_obj.local_10 = 0.400000006f;
-  puVar3 = (undefined4 *)FUN_0058cb90();
-  puVar3[0xd] = 0x3f800000;
-  puVar3[0xe] = 0x40200000;
+  frame_obj.contact_r = 0x40;
+  frame_obj.contact_g = 0x40;
+  frame_obj.contact_b = 0x60;
+  frame_obj.contact_a = 0xff;
+  frame_obj.box_x = 0.200000003f;
+  frame_obj.box_y = 0.0649999976f;
+  frame_obj.box_z = 0.400000006f;
+  body_def = (undefined4 *)FUN_0058cb90();
+  body_def[0xd] = 0x3f800000;
+  body_def[0xe] = 0x40200000;
   frame_obj.local_c = 0;
-  puVar3[1] = 0;
+  body_def[1] = 0;
   frame_obj.local_8 = 0xbdcccccd;
-  puVar3[2] = 0xbdcccccd;
+  body_def[2] = 0xbdcccccd;
   frame_obj.local_4 = 0;
-  puVar3[3] = 0;
+  body_def[3] = 0;
   hx = (player_car[0].bounds_points[0] - player_car[0].bounds_points[3]) * 0.5f;
   hy = (player_car[0].bounds_points[0xd] - player_car[0].bounds_points[1]) * 0.5f;
   hz = (player_car[0].bounds_points[2] - player_car[0].bounds_points[8]) * 0.5f;
-  frame_obj.local_18 = hx * 0.95f;
-  frame_obj.local_14 = hy * 0.95f;
-  frame_obj.local_10 = hz * 0.95f;
+  frame_obj.box_x = hx * 0.95f;
+  frame_obj.box_y = hy * 0.95f;
+  frame_obj.box_z = hz * 0.95f;
   player_car[0].rwp_body_offset[0] =
        (-player_car[0].bounds_points[3] - player_car[0].bounds_points[0]) * 0.5f;
-  player_car[0].rwp_body_offset[1] = -(player_car[0].bounds_points[1] + frame_obj.local_14);
+  player_car[0].rwp_body_offset[1] = -(player_car[0].bounds_points[1] + frame_obj.box_y);
   player_car[0].rwp_body_offset[2] =
        (-player_car[0].bounds_points[8] - player_car[0].bounds_points[2]) * 0.5f;
-  uVar1 = *puVar3;
+  shape = *body_def;
   player_car[1].rwp_body_offset[0] = player_car[0].rwp_body_offset[0];
   player_car[1].rwp_body_offset[1] = player_car[0].rwp_body_offset[1];
   player_car[1].rwp_body_offset[2] = player_car[0].rwp_body_offset[2];
@@ -94,46 +94,46 @@ void __cdecl rwp_cars_setup_bodies_from_bounds(char *param_1,undefined4 param_2)
   player_car[3].rwp_body_offset[0] = player_car[0].rwp_body_offset[0];
   player_car[3].rwp_body_offset[1] = player_car[0].rwp_body_offset[1];
   player_car[3].rwp_body_offset[2] = player_car[0].rwp_body_offset[2];
-  frame_obj.local_1c = player_car[0].rwp_body_offset[2];
-  FUN_0056cdf0(uVar1,&frame_obj.local_18);
-  FUN_0056cac0(uVar1,0x3ecccccd);
-  FUN_0056ca70(uVar1,0x3f000000);
-  FUN_0056c080(uVar1,0x3c23d70a);
-  FUN_0056bf10(puVar3,0x3fc00000,1);
-  fVar6 = 0;
+  frame_obj.box_tmp = player_car[0].rwp_body_offset[2];
+  FUN_0056cdf0(shape,&frame_obj.box_x);
+  FUN_0056cac0(shape,0x3ecccccd);
+  FUN_0056ca70(shape,0x3f000000);
+  FUN_0056c080(shape,0x3c23d70a);
+  FUN_0056bf10(body_def,0x3fc00000,1);
+  car_index = 0;
   do {
-    iVar4 = FUN_0058c990(puVar3);
-    uVar5 = rwp_object_sample_and_lock(uVar1,1);
-    (&g_rw_6fd498)[fVar6] = uVar5;
-    rwp_object_set_contact_params(uVar5,&frame_obj.local_20);
+    body = FUN_0058c990(body_def);
+    tmp_w = rwp_object_sample_and_lock(shape,1);
+    (&g_rw_6fd498)[car_index] = tmp_w;
+    rwp_object_set_contact_params(tmp_w,&frame_obj.contact_r);
     frame = RwFrameCreate();
-    RpAtomicSetFrame((RpAtomic *)(&g_rw_6fd498)[fVar6],frame);
-    FUN_0058c8b0((&g_rw_6fd498)[fVar6],iVar4);
-    fVar2 = (float)fVar6;
-    if (fVar6 < 0) {
-      fVar2 = fVar2 + k_f_4_2949673e9;
+    RpAtomicSetFrame((RpAtomic *)(&g_rw_6fd498)[car_index],frame);
+    FUN_0058c8b0((&g_rw_6fd498)[car_index],body);
+    index_f = (float)car_index;
+    if (car_index < 0) {
+      index_f = index_f + k_f_4_2949673e9;
     }
-    frame_obj.local_1c = fVar6;
-    rwp_object_set_rotation_degrees(fVar6,0,0.5f,-10.0f,fVar2 * 1.25f);
-    *(uint *)(iVar4 + 8) = *(uint *)(iVar4 + 8) & 0xfffffff3;
-    uVar5 = rw_first_field((int *)param_1);
-    FUN_0056a210(uVar5, iVar4, 0xffffffff, 6);
+    frame_obj.box_tmp = car_index;
+    rwp_object_set_rotation_degrees(car_index,0,0.5f,-10.0f,index_f * 1.25f);
+    *(uint *)(body + 8) = *(uint *)(body + 8) & 0xfffffff3;
+    tmp_w = rw_first_field((int *)world);
+    FUN_0056a210(tmp_w, body, 0xffffffff, 6);
     course_id = current_course_id();
     if (course_id == COURSE_HIGHWAY) {
 LAB_0048ebbc:
-      uVar5 = *(undefined4 *)(iVar4 + 0x24);
-      iVar7 = fVar6 + 2;
+      tmp_w = *(undefined4 *)(body + 0x24);
+      shape_index = car_index + 2;
     }
     else {
       course_id = current_course_id();
       if (course_id == COURSE_HIGHWAYN) goto LAB_0048ebbc;
-      uVar5 = *(undefined4 *)(iVar4 + 0x24);
-      iVar7 = 1;
+      tmp_w = *(undefined4 *)(body + 0x24);
+      shape_index = 1;
     }
-    FUN_0056b440(uVar5,iVar4,iVar7);
-    fVar6 = (fVar6 + 1);
-    if (3 < (uint)fVar6) {
-      FUN_0058cbe0(puVar3);
+    FUN_0056b440(tmp_w,body,shape_index);
+    car_index = (car_index + 1);
+    if (3 < (uint)car_index) {
+      FUN_0058cbe0(body_def);
       return;
     }
   } while( true );

@@ -32,7 +32,7 @@ extern struct VoiceSlotP g_voices[210];
  * voice slots that begin at the course's thunder group entry and uses the first one that is not
  * playing. Only runs during a race.
  */
-/* TIER2: unvalidated 2026-10-22 authority=static */
+/* TIER2: unvalidated 2026-10-23 authority=diffemu */
 void course_storm_cb1_sub_471eb0(float *pos)
 {
   int remaining = THUNDER_VOICE_COUNT;

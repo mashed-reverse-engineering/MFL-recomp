@@ -493,6 +493,7 @@ ai_bot_update 0041b4e0
 LAB_0041b575 0041b575
 switchD 0041b6c3
 race_mark_ai_slots 0041b810
+hudpanel_load_assets_0041b960 0041b960
 hudpanel_reset_all 0041b970
 marker_particles_update_a 0041b980
 marker_particles_update_b 0041b9a0
@@ -1529,12 +1530,17 @@ course_lod_atomic_set_geometries 00459350
 course_highway_lod_atomic_clone_a 004593e0
 course_highway_lod_atomic_clone_b 00459420
 course_highway_lod_atomic_scale_by_index 00459460
+SUB_00459500 00459500
 course_highway_cb2 00459560
 course_highway_cb5 004596e0
 course_object_offsets_init 00459810
 course_object_distance_table_build 00459cd0
+SUB_00459dd0 00459dd0
 course_objects_reset_physics 00459e50
 trigger_cb_mark_hit_bit 00459ec0
+SUB_00459f00 00459f00
+SUB_00459f70 00459f70
+SUB_00459fc0 00459fc0
 course_highway_cb6 0045a010
 course_object_offsets_init_b 0045a030
 course_highway_cb1 0045a040
@@ -2114,6 +2120,7 @@ course_moving_platforms_update 00480480
 rwp_trigger_group_advance_and_fire 004807c0
 gfx_groups_reset 004809f0
 physics_scenarios_reset 00480af0
+physics_scenarios_reset_00480bb0 00480bb0
 rwp_trigger_groups_update 00480bc0
 gfx_frame_counters_rotate 00480e50
 gfx_render_state_probe 00480e70
@@ -3495,14 +3502,21 @@ stream_read_file 004c3b70
 stream_write_file 004c3bb0
 FUN_004c3bf0 004c3bf0
 FUN_004c3d20 004c3d20
+FUN_004c3d80 004c3d80
 FUN_004c3de0 004c3de0
 FUN_004c3e40 004c3e40
 FUN_004c3f60 004c3f60
+FUN_004c3f90 004c3f90
+FUN_004c3fd0 004c3fd0
+FUN_004c3fe0 004c3fe0
+FUN_004c4050 004c4050
 FUN_004c40c0 004c40c0
 FUN_004c40f0 004c40f0
 FUN_004c4120 004c4120
 FUN_004c4180 004c4180
+FUN_004c41c0 004c41c0
 FUN_004c4280 004c4280
+FUN_004c42b0 004c42b0
 FUN_004c42f0 004c42f0
 FUN_004c4460 004c4460
 FUN_004c45c0 004c45c0
@@ -3522,6 +3536,7 @@ FUN_004c53e0 004c53e0
 FUN_004c5410 004c5410
 FUN_004c5440 004c5440
 thunk_FUN_00561060 004c5470
+FUN_004c54f0 004c54f0
 FUN_004c56c0 004c56c0
 FUN_004c56e0 004c56e0
 FUN_004c5860 004c5860
@@ -3532,10 +3547,14 @@ FUN_004c6310 004c6310
 FUN_004c65d0 004c65d0
 FUN_004c6600 004c6600
 FUN_004c66a0 004c66a0
+piz_fs_create_004c67c0 004c66c0
+piz_set_progress_callback_004c6790 004c66e0
 piz_open_archive_bool 004c66f0
 thunk_FUN_004c6a60 004c6720
 piz_find_entry_size_004c6a70 004c6730
 FUN_004c6740 004c6740
+piz_set_progress_callback_004c6790 004c6790
+piz_fs_create_004c67c0 004c67c0
 piz_open_file 004c6890
 piz_close_file 004c68f0
 piz_read_sectors 004c6960
@@ -4295,6 +4314,7 @@ init_D3DXVec3TransformCoordArray 004fbc4f
 c_D3DXVec4Hermite 004fbee6
 c_D3DXVec4CatmullRom 004fbfe1
 c_D3DXVec4BaryCentric 004fc103
+thunk_FUN_004fc616 004fc623
 c_D3DXMatrixRotationX 004fcdc1
 c_D3DXMatrixRotationY 004fce57
 c_D3DXMatrixRotationZ 004fceee
@@ -4902,6 +4922,7 @@ _rpD3D9SkinAtomicCreateVertexBuffer 00541180
 _rpSkinIntelSSEMatrixBlend1Matrix 00542580
 _rpSkinIntelSSEMatrixBlend1Weight 00542630
 _rpSkinD3D9CreatePlainPipe 00542d50
+FUN_00542fe0 00542fe0
 RpHAnimKeyFrameInterpolate 00543100
 RpHAnimKeyFrameStreamRead 00543920
 RpHAnimPluginAttach 00543c50
@@ -4921,6 +4942,7 @@ switchD 00545da0
 RpPTankAtomicUnlock_00545f20 00545f20
 PVSCalculateSectorBounds 00548920
 RpPVSPluginAttach 00548c10
+FUN_00549090 00549090
 _rpPVSDestroyPolyList 00549180
 _rpPVSDestroyPoly 005491b0
 _rpPVSWorldGetNumWorldSectors 005491e0
@@ -4967,6 +4989,7 @@ RpMatFXPluginAttach 0054f0c0
 MatFXMaterialDataClean 0054f2c0
 switchD 0054f2db
 switchD 0054f3e3
+FUN_00550190 00550190
 RpMatFXMaterialSetEffects 005501d0
 switchD 00550249
 default 00550330
@@ -4988,6 +5011,9 @@ _rpMatFXPipelinesCreate 00553ca0
 _rpMatFXPipelinesDestroy 00553fd0
 _rpMatFXPipelineAtomicSetup 005540a0
 _rpMatFXSetupBumpMapTexture 005540c0
+FUN_00554120 00554120
+FUN_005542c0 005542c0
+FUN_005542f0 005542f0
 FUN_00554370 00554370
 FUN_005543a0 005543a0
 FUN_005543d0 005543d0
@@ -5130,6 +5156,7 @@ _rt2dTriangulateOpen 00567820
 RpLODAtomicPluginAttach 00567e70
 RpLODAtomicSetGeometry 00568490
 RpLODAtomicSetCurrentLOD 00568580
+SUB_005685e0 005685e0
 RpLODAtomicSetRange 00568600
 RpLODAtomicHookRender 005686d0
 RpLODAtomicUnHookRender 00568710
@@ -5789,6 +5816,8 @@ k_f_0_34 005de3a8
 k_f_n360 005de3e0
 k_f_40 005de3e4
 k_f_0_9375 005de3e8
+g_game_5de408 005de408
+g_game_5de410 005de410
 k_f_3_0en4 005de418
 k_f_17_5 005de41c
 k_f_12_5 005de420
@@ -5974,6 +6003,7 @@ k_f_1_01 005df488
 k_f_6_6666666en4 005df498
 k_f_0_5df4c0 005df4c0
 k_f_3_5 005df4d0
+k_f_0_47169814 005df4d4
 k_f_n1_6 005df50c
 k_f_6_25en4 005df510
 k_f_1_15 005df514
@@ -6418,6 +6448,7 @@ g_game_607624 00607624
 g_vehicle_render_607628 00607628
 g_vehicle_render_6076e0 006076e0
 g_vehicle_set_607798 00607798
+PTR_s_debris0_dff_00607838 00607838
 g_vehicle_load_607868 00607868
 g_menu_texture_607adc 00607adc
 g_menu_texture_607ae0 00607ae0
@@ -6551,6 +6582,17 @@ g_course_city_60d8c8 0060d8c8
 g_course_city_60d8d4 0060d8d4
 g_course_city_60d8e0 0060d8e0
 g_course_spline_60d8fc 0060d8fc
+g_spline_object_60d908 0060d908
+g_course_highway_60d938 0060d938
+g_course_highway_60d93c 0060d93c
+g_course_highway_60d940 0060d940
+g_course_highway_60d944 0060d944
+g_course_highway_60d948 0060d948
+g_course_highway_60d94c 0060d94c
+g_course_highway_60d950 0060d950
+g_course_highway_60d954 0060d954
+g_course_highway_60d958 0060d958
+g_course_highway_60d95c 0060d95c
 g_course_atomics_60d9a8 0060d9a8
 g_course_atomics_60d9b4 0060d9b4
 g_course_atomics_60d9c0 0060d9c0
@@ -6666,6 +6708,10 @@ g_particle_system_62949c 0062949c
 g_particle_system_6294a0 006294a0
 g_gfx_6294a4 006294a4
 g_gfx_6294a8 006294a8
+g_course_create_6294b8 006294b8
+g_course_create_6294c8 006294c8
+g_course_create_6294d8 006294d8
+g_course_create_629758 00629758
 g_gfx_6299d8 006299d8
 g_lua_current_type 006299dc
 g_lua_current_respawn 006299e0
@@ -6740,6 +6786,7 @@ g_controller_dialog_62b588 0062b588
 g_controller_dialog_62b988 0062b988
 g_controller_dialog_62bd88 0062bd88
 g_controller_dialog_62c188 0062c188
+g_controller_dialog_62c588 0062c588
 g_app_62c5c8 0062c5c8
 g_app_62c5cc 0062c5cc
 g_app_62c5d0 0062c5d0
@@ -7324,6 +7371,7 @@ g_menu_panel_state_69ca10 0069ca10
 g_menu_69ca14 0069ca14
 g_menu_select_flash 0069ca18
 g_menu_69ca1c 0069ca1c
+g_menu_layout_69ca20 0069ca20
 g_menu_controller_vehicle 0069ca28
 g_menu_update_69ca34 0069ca34
 g_menu_start_race_requested 0069caec
@@ -7441,6 +7489,7 @@ g_car_69d2d8 0069d2d8
 g_ui_69d2dc 0069d2dc
 g_menu_records 0069d2e0
 g_frontend_69d31c 0069d31c
+g_menu_layout_69d660 0069d660
 g_hud_69d664 0069d664
 g_menu_player0_team_choice 0069d668
 g_hud_69d66c 0069d66c
@@ -7525,6 +7574,7 @@ g_course_tierra_6a2660 006a2660
 g_course_tierra_6a2664 006a2664
 g_course_highway_6a267c 006a267c
 g_course_objects_6a2680 006a2680
+g_course_highway_6a2684 006a2684
 g_course_highway_6a2690 006a2690
 g_course_highway_6a2694 006a2694
 g_course_highway_6a2698 006a2698
@@ -8492,6 +8542,9 @@ g_controller_dialog_7711e8 007711e8
 g_controller_dialog_771208 00771208
 g_app_77120c 0077120c
 g_app_77122c 0077122c
+g_controller_dialog_77124c 0077124c
+g_controller_dialog_771250 00771250
+g_data_771254 00771254
 g_video_cfg_7712d8 007712d8
 g_video_cfg_7712dc 007712dc
 g_video_cfg_7712e0 007712e0
@@ -8535,6 +8588,8 @@ g_data_771a38 00771a38
 g_data_771a3c 00771a3c
 g_data_771a40 00771a40
 g_data_771a44 00771a44
+g_data_771a88 00771a88
+g_data_771a8c 00771a8c
 g_data_771a90 00771a90
 g_data_771a94 00771a94
 g_data_771aa0 00771aa0
@@ -8592,6 +8647,7 @@ g_event_log_time 007e8364
 g_event_log_param 007e8764
 g_ai_7eeb64 007eeb64
 g_race_7eeb88 007eeb88
+g_app_7eebb0 007eebb0
 g_race_7eebb4 007eebb4
 g_game_state 007eebc0
 g_game_state_progress_1_ 007eebc4
@@ -9889,9 +9945,14 @@ g_car_8c7460 008c7460
 g_camera_get_8c7470 008c7470
 g_car_8c747c 008c747c
 g_camera_records_8c7480 008c7480
+g_camera_race_8c74cc 008c74cc
+g_camera_race_8c74d0 008c74d0
+g_camera_race_8c74e4 008c74e4
 g_camera_get_8c7e00 008c7e00
+g_camera_race_8c7e08 008c7e08
 g_camera_8c7e0c 008c7e0c
 g_camera_records_8c7e10 008c7e10
+g_camera_race_8c7e14 008c7e14
 g_camera_records_8c7e18 008c7e18
 g_camera_8c7e1c 008c7e1c
 g_camera_8c7e20 008c7e20
@@ -9951,6 +10012,7 @@ g_menu_8c8084 008c8084
 g_menu_page_8c8088 008c8088
 g_menu_page_8c808c 008c808c
 g_menu_8c8090 008c8090
+g_hud_8c8098 008c8098
 g_menu_item_anims 008c80a0
 g_ai_8c86b8 008c86b8
 g_hud_8c86bc 008c86bc
@@ -9959,6 +10021,7 @@ g_car_8c86c4 008c86c4
 g_car_8c86c8 008c86c8
 g_ai_8c86cc 008c86cc
 g_course_8c86d0 008c86d0
+g_camera_race_8c86e0 008c86e0
 g_hit_shake 008c8720
 g_course_8c8724 008c8724
 g_ui_8c8730 008c8730
@@ -9966,6 +10029,7 @@ g_ui_camera_8c8734 008c8734
 g_ui_camera_8c8738 008c8738
 g_ui_camera_8c873c 008c873c
 g_ai_8c8740 008c8740
+g_menu_layout_8c8780 008c8780
 g_car_8c8788 008c8788
 g_intro_banner_text_id 008c8790
 g_intro_banner_slide_step 008c8794
@@ -10145,7 +10209,10 @@ g_sound_stuff_8d9964 008d9964
 g_sound_stuff_8d9968 008d9968
 g_sound_stuff_8d996c 008d996c
 g_sound_frame_8d9970 008d9970
+g_app_boot_8d9974 008d9974
+g_app_boot_8d9978 008d9978
 g_piz_8dae40 008dae40
+g_rw_947144 00947144
 Rsrc_Dialog_65_809 0094dcf0
 Rsrc_Dialog_67_809 0094df58
 Rsrc_Dialog_68_809 0094e230

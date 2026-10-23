@@ -22,204 +22,204 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "applies the physics object forces from the car matrix" */
 
-void rwp_car_apply_forces(int param_1,undefined4 param_2)
+void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
 
 {
-  int *piVar1;
-  int iVar2;
-  int iVar3;
-  float *pfVar4;
-  float fVar5;
+  int *body_ptr;
+  int car_index;
+  int owner_or_hit;
+  float *dir_ptr;
+  float speed;
   struct {
-    RwV3d local_24;
-    float local_18;
-    float local_14;
-    float local_10;
-    float local_c;
-    float local_8;
-    float local_4;
+    RwV3d offset;
+    float at_x;
+    float at_y;
+    float at_z;
+    float force_x;
+    float force_y;
+    float force_z;
   } frame;
   
-  iVar2 = param_1;
-  car_current_matrix(&param_1,param_1);
-  iVar3 = rwp_owner_object_get((&g_rw_6fd498)[iVar2]);
-  piVar1 = *(int **)(*(char **)(iVar3 + 0x10) + 4);
-  if (piVar1 == (int *)0x0) {
+  car_index = car_or_matrix;
+  car_current_matrix(&car_or_matrix,car_or_matrix);
+  owner_or_hit = rwp_owner_object_get((&g_rw_6fd498)[car_index]);
+  body_ptr = *(int **)(*(char **)(owner_or_hit + 0x10) + 4);
+  if (body_ptr == (int *)0x0) {
     return;
   }
-  switch(param_2) {
+  switch(force_kind) {
   case 0:
-    frame.local_18 = *(float *)(param_1 + 0x30);
-    frame.local_14 = *(float *)(param_1 + 0x34);
-    frame.local_10 = *(float *)(param_1 + 0x38);
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_8 = 350.0;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
+    frame.at_x = *(float *)(car_or_matrix + 0x30);
+    frame.at_y = *(float *)(car_or_matrix + 0x34);
+    frame.at_z = *(float *)(car_or_matrix + 0x38);
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.force_y = 350.0;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
     break;
   case 1:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_c = 0.0;
-    frame.local_8 = 350.0;
-    frame.local_4 = 0.0;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
-    RwV3dTransformVectors(&frame.local_24,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[iVar2].matrices)
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.force_x = 0.0;
+    frame.force_y = 350.0;
+    frame.force_z = 0.0;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
-    frame.local_24.x = frame.local_24.x * k_f_0_11111111;
-    frame.local_24.y = frame.local_24.y * k_f_0_11111111;
-    frame.local_24.z = frame.local_24.z * k_f_0_11111111;
-    frame.local_18 = frame.local_24.x + frame.local_18;
-    frame.local_14 = frame.local_24.y + frame.local_14;
-    frame.local_10 = frame.local_24.z + frame.local_10;
-    frame.local_c = 0.0;
-    frame.local_8 = 150.0;
-    frame.local_4 = 0.0;
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+    frame.offset.x = frame.offset.x * k_f_0_11111111;
+    frame.offset.y = frame.offset.y * k_f_0_11111111;
+    frame.offset.z = frame.offset.z * k_f_0_11111111;
+    frame.at_x = frame.offset.x + frame.at_x;
+    frame.at_y = frame.offset.y + frame.at_y;
+    frame.at_z = frame.offset.z + frame.at_z;
+    frame.force_x = 0.0;
+    frame.force_y = 150.0;
+    frame.force_z = 0.0;
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 2:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_c = 0.0;
-    frame.local_8 = 350.0;
-    frame.local_4 = 0.0;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
-    RwV3dTransformVectors(&frame.local_24,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[iVar2].matrices)
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.force_x = 0.0;
+    frame.force_y = 350.0;
+    frame.force_z = 0.0;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
-    frame.local_24.x = frame.local_24.x * k_f_n0_11111111;
-    frame.local_24.y = frame.local_24.y * k_f_n0_11111111;
-    frame.local_24.z = frame.local_24.z * k_f_n0_11111111;
-    frame.local_18 = frame.local_24.x + frame.local_18;
-    frame.local_14 = frame.local_24.y + frame.local_14;
-    frame.local_10 = frame.local_24.z + frame.local_10;
-    frame.local_c = 0.0;
-    frame.local_8 = 150.0;
-    frame.local_4 = 0.0;
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+    frame.offset.x = frame.offset.x * k_f_n0_11111111;
+    frame.offset.y = frame.offset.y * k_f_n0_11111111;
+    frame.offset.z = frame.offset.z * k_f_n0_11111111;
+    frame.at_x = frame.offset.x + frame.at_x;
+    frame.at_y = frame.offset.y + frame.at_y;
+    frame.at_z = frame.offset.z + frame.at_z;
+    frame.force_x = 0.0;
+    frame.force_y = 150.0;
+    frame.force_z = 0.0;
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 3:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    RwV3dTransformVectors(&frame.local_24,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[iVar2].matrices)
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
-    frame.local_24.x = frame.local_24.x * k_f_0_11111111;
-    frame.local_c = 0.0;
-    frame.local_8 = 180.0;
-    frame.local_4 = 0.0;
-    frame.local_24.y = frame.local_24.y * k_f_0_11111111;
-    frame.local_24.z = frame.local_24.z * k_f_0_11111111;
-    frame.local_18 = frame.local_24.x + frame.local_18;
-    frame.local_14 = frame.local_24.y + frame.local_14;
-    frame.local_10 = frame.local_24.z + frame.local_10;
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+    frame.offset.x = frame.offset.x * k_f_0_11111111;
+    frame.force_x = 0.0;
+    frame.force_y = 180.0;
+    frame.force_z = 0.0;
+    frame.offset.y = frame.offset.y * k_f_0_11111111;
+    frame.offset.z = frame.offset.z * k_f_0_11111111;
+    frame.at_x = frame.offset.x + frame.at_x;
+    frame.at_y = frame.offset.y + frame.at_y;
+    frame.at_z = frame.offset.z + frame.at_z;
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 4:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    RwV3dTransformVectors(&frame.local_24,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[iVar2].matrices)
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
-    frame.local_24.x = frame.local_24.x * k_f_n0_11111111;
-    frame.local_c = 0.0;
-    frame.local_8 = 180.0;
-    frame.local_4 = 0.0;
-    frame.local_24.y = frame.local_24.y * k_f_n0_11111111;
-    frame.local_24.z = frame.local_24.z * k_f_n0_11111111;
-    frame.local_18 = frame.local_24.x + frame.local_18;
-    frame.local_14 = frame.local_24.y + frame.local_14;
-    frame.local_10 = frame.local_24.z + frame.local_10;
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+    frame.offset.x = frame.offset.x * k_f_n0_11111111;
+    frame.force_x = 0.0;
+    frame.force_y = 180.0;
+    frame.force_z = 0.0;
+    frame.offset.y = frame.offset.y * k_f_n0_11111111;
+    frame.offset.z = frame.offset.z * k_f_n0_11111111;
+    frame.at_x = frame.offset.x + frame.at_x;
+    frame.at_y = frame.offset.y + frame.at_y;
+    frame.at_z = frame.offset.z + frame.at_z;
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 5:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    frame.local_24.x = player_car[iVar2].forward[0] * k_f_0_22222222;
-    frame.local_8 = 425.0;
-    frame.local_24.y = player_car[iVar2].forward[1] * k_f_0_22222222;
-    frame.local_24.z = player_car[iVar2].forward[2] * k_f_0_22222222;
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.offset.x = player_car[car_index].forward[0] * k_f_0_22222222;
+    frame.force_y = 425.0;
+    frame.offset.y = player_car[car_index].forward[1] * k_f_0_22222222;
+    frame.offset.z = player_car[car_index].forward[2] * k_f_0_22222222;
     goto LAB_004929af;
   case 6:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    frame.local_24.x = player_car[iVar2].forward[0] * k_f_n0_22222222;
-    frame.local_8 = 425.0;
-    frame.local_24.y = player_car[iVar2].forward[1] * k_f_n0_22222222;
-    frame.local_24.z = player_car[iVar2].forward[2] * k_f_n0_22222222;
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.offset.x = player_car[car_index].forward[0] * k_f_n0_22222222;
+    frame.force_y = 425.0;
+    frame.offset.y = player_car[car_index].forward[1] * k_f_n0_22222222;
+    frame.offset.z = player_car[car_index].forward[2] * k_f_n0_22222222;
     break;
   case 7:
-    pfVar4 = (float *)(*(char **)(*(char **)(*piVar1 + 0x10) + 8) + piVar1[1] * 0x20);
-    frame.local_24.x = *pfVar4 * k_f_n6_6666666en4;
-    frame.local_24.y = pfVar4[1] * k_f_n6_6666666en4;
-    frame.local_24.z = pfVar4[2] * k_f_n6_6666666en4;
-    frame.local_18 = frame.local_24.x + *(float *)(param_1 + 0x30);
-    frame.local_14 = frame.local_24.y + *(float *)(param_1 + 0x34);
-    frame.local_10 = frame.local_24.z + *(float *)(param_1 + 0x38);
-    frame.local_24.x = player_car[iVar2].forward[0] * k_f_n0_22222222;
-    frame.local_8 = 125.0;
-    frame.local_24.y = player_car[iVar2].forward[1] * k_f_n0_22222222;
-    frame.local_24.z = player_car[iVar2].forward[2] * k_f_n0_22222222;
+    dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
+    frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
+    frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
+    frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
+    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
+    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
+    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.offset.x = player_car[car_index].forward[0] * k_f_n0_22222222;
+    frame.force_y = 125.0;
+    frame.offset.y = player_car[car_index].forward[1] * k_f_n0_22222222;
+    frame.offset.z = player_car[car_index].forward[2] * k_f_n0_22222222;
 LAB_004929af:
-    frame.local_18 = frame.local_24.x + frame.local_18;
-    frame.local_14 = frame.local_24.y + frame.local_14;
-    frame.local_c = 0.0;
-    frame.local_4 = 0.0;
-    frame.local_10 = frame.local_24.z + frame.local_10;
-    FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+    frame.at_x = frame.offset.x + frame.at_x;
+    frame.at_y = frame.offset.y + frame.at_y;
+    frame.force_x = 0.0;
+    frame.force_z = 0.0;
+    frame.at_z = frame.offset.z + frame.at_z;
+    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 8:
-    iVar3 = physics_body_get_velocity(&frame.local_24,iVar2);
-    fVar5 = k_f_100;
-    if (iVar3 != 0) {
-      fVar5 = RwV3dLength(&frame.local_24);
+    owner_or_hit = physics_body_get_velocity(&frame.offset,car_index);
+    speed = k_f_100;
+    if (owner_or_hit != 0) {
+      speed = RwV3dLength(&frame.offset);
     }
-    if ((6000 < *(int *)&player_car[iVar2].field_0xc) || (fVar5 < float_1_0)) {
-      frame.local_18 = *(float *)(param_1 + 0x30);
-      frame.local_14 = *(float *)(param_1 + 0x34) + k_f_0_5;
-      frame.local_10 = *(float *)(param_1 + 0x38);
-      frame.local_c = player_car[iVar2].up[0] * k_f_n6_5;
-      frame.local_8 = player_car[iVar2].up[1] * k_f_n6_5;
-      frame.local_4 = player_car[iVar2].up[2] * k_f_n6_5;
-      FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+    if ((6000 < *(int *)&player_car[car_index].field_0xc) || (speed < float_1_0)) {
+      frame.at_x = *(float *)(car_or_matrix + 0x30);
+      frame.at_y = *(float *)(car_or_matrix + 0x34) + k_f_0_5;
+      frame.at_z = *(float *)(car_or_matrix + 0x38);
+      frame.force_x = player_car[car_index].up[0] * k_f_n6_5;
+      frame.force_y = player_car[car_index].up[1] * k_f_n6_5;
+      frame.force_z = player_car[car_index].up[2] * k_f_n6_5;
+      FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     }
   default:
     return;
   }
-  frame.local_18 = frame.local_24.x + frame.local_18;
-  frame.local_14 = frame.local_24.y + frame.local_14;
-  frame.local_c = 0.0;
-  frame.local_4 = 0.0;
-  frame.local_10 = frame.local_24.z + frame.local_10;
-  FUN_0056bc20(piVar1,&frame.local_c,&frame.local_18);
+  frame.at_x = frame.offset.x + frame.at_x;
+  frame.at_y = frame.offset.y + frame.at_y;
+  frame.force_x = 0.0;
+  frame.force_z = 0.0;
+  frame.at_z = frame.offset.z + frame.at_z;
+  FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
   return;
 }
 

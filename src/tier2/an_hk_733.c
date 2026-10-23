@@ -46,7 +46,7 @@ undefined4 __cdecl camera_path_update(int time_step)
     RwCameraSetViewWindow(g_scene_select_param,&path_scratch.view_window);
     camera_frame = RwCamera_object_object_parent(g_scene_select_param);
     /* timer still within the spline's end time: place the camera on the spline */
-    if (g_scene_select_timer <= *(float *)(g_scene_selected_object + SPLINE_END_TIME_OFF)) {
+    if (!(g_scene_select_timer > *(float *)(g_scene_selected_object + SPLINE_END_TIME_OFF))) {
       spline_tween_a(&path_scratch.spline_matrix,g_scene_selected_object,g_scene_select_timer);
       /* timer equal to k_f_0 (presumably 0.0f): RwFrameTransform is called here and again
          unconditionally below with the same arguments (inferred, check disassembly) */

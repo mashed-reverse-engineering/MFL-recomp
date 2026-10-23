@@ -24,9 +24,9 @@ void player_stats_debug_log(void)
   int player_count;
   int points;
   int team_mode;
-  int iVar6;
-  int *piVar7;
-  bool bVar8;
+  int player;
+  int *stat_ptr;
+  bool is_match;
   struct {
     float local_20;
     float local_1c;
@@ -35,47 +35,47 @@ void player_stats_debug_log(void)
   } frame;
   
   player_count = get_player_count();
-  iVar6 = 0;
-  piVar7 = &g_player_stats_race[0].turbo_skill_kind;
+  player = 0;
+  stat_ptr = &g_player_stats_race[0].turbo_skill_kind;
   do {
-    points = ((PlayerStatRecord *)(piVar7 + -3))->place;
-    piVar7[-1] = 0;
-    *piVar7 = 0;
-    piVar7[1] = 0;
-    piVar7[0x28] = 0;
-    piVar7[0x3e] = 0;
-    piVar7[0x3f] = 0;
-    ((PlayerStatRecord *)(piVar7 + -3))->place = points + 1;
-    piVar7[0x40] = 0;
-    piVar7[0x41] = 0;
-    piVar7[0x42] = 0;
-    piVar7[0x43] = 0;
-    piVar7[0x49] = 0;
-    piVar7[0x4a] = 0;
-    points = player_get_points(iVar6);
+    points = ((PlayerStatRecord *)(stat_ptr + -3))->place;
+    stat_ptr[-1] = 0;
+    *stat_ptr = 0;
+    stat_ptr[1] = 0;
+    stat_ptr[0x28] = 0;
+    stat_ptr[0x3e] = 0;
+    stat_ptr[0x3f] = 0;
+    ((PlayerStatRecord *)(stat_ptr + -3))->place = points + 1;
+    stat_ptr[0x40] = 0;
+    stat_ptr[0x41] = 0;
+    stat_ptr[0x42] = 0;
+    stat_ptr[0x43] = 0;
+    stat_ptr[0x49] = 0;
+    stat_ptr[0x4a] = 0;
+    points = player_get_points(player);
     if (points == 0) {
-      piVar7[0x3b] = piVar7[0x3b] + 1;
+      stat_ptr[0x3b] = stat_ptr[0x3b] + 1;
     }
     if (player_count == 4) {
       if (points != 10) {
-        bVar8 = points == 0xb;
+        is_match = points == 0xb;
 LAB_00428785:
-        if (!bVar8) goto LAB_0042878d;
+        if (!is_match) goto LAB_0042878d;
       }
-      piVar7[0x3a] = piVar7[0x3a] + 1;
+      stat_ptr[0x3a] = stat_ptr[0x3a] + 1;
     }
     else if ((player_count == 3) || (player_count == 2)) {
-      bVar8 = points == 7;
+      is_match = points == 7;
       goto LAB_00428785;
     }
 LAB_0042878d:
     team_mode = is_team_mode();
     if (((team_mode != 0) && (player_count == 4)) && (points == 7)) {
-      piVar7[0x3a] = piVar7[0x3a] + 1;
+      stat_ptr[0x3a] = stat_ptr[0x3a] + 1;
     }
-    piVar7 = piVar7 + 0x4e;
-    iVar6 = iVar6 + 1;
-    if ((char *)&g_player_stats_race + 0x4eb < (char *)piVar7) {
+    stat_ptr = stat_ptr + 0x4e;
+    player = player + 1;
+    if ((char *)&g_player_stats_race + 0x4eb < (char *)stat_ptr) {
       frame.local_14 = (float)g_player_stats_race[0].aggression;
       frame.local_18 = (float)g_player_stats_race[1].aggression;
       fVar1 = frame.local_14;

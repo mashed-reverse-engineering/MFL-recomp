@@ -315,63 +315,63 @@ void __cdecl menu_page_enter_set_panel_state(undefined4 page_id)
 {
   menu_panel_states_decay();
   switch(page_id) {
-  case 4:
+  case MENU_PAGE_TEAM_COLOUR_SELECT:
     g_menu_panel_state_69c978 = 1;
     break;
-  case 5:
+  case MENU_PAGE_RACE_RESULTS:
     g_menu_panel_state_69c998 = 1;
     return;
-  case 6:
-  case 7:
+  case MENU_PAGE_CHALLENGE_SELECT_A:
+  case MENU_PAGE_CHALLENGE_SELECT_B:
     g_menu_panel_state_69c988 = 1;
     return;
-  case 8:
+  case MENU_PAGE_OPTIONS:
     g_menu_panel_state_69c9d8 = 1;
     g_menu_panel_state_69c9f8 = 1;
     return;
-  case 9:
-  case 0x10:
+  case MENU_PAGE_TEAMS:
+  case MENU_PAGE_TEAM_SELECT:
     g_menu_panel_state_69c9b0 = 1;
     return;
-  case 10:
+  case MENU_PAGE_CUSTOMISE_PLAY:
     g_menu_panel_state_69c980 = 1;
     return;
-  case 0xc:
+  case MENU_PAGE_LOBBY_A:
     g_menu_panel_state_69c9a0 = 1;
     return;
-  case 0xf:
+  case MENU_PAGE_ABILITY_SELECT:
     g_menu_panel_state_69c9a8 = 1;
     return;
-  case 0x11:
+  case MENU_PAGE_CUSTOM_ABILITIES:
     g_menu_panel_state_69c9b8 = 1;
     return;
-  case 0x12:
-  case 0x18:
+  case MENU_PAGE_GAME_SETUP_MULTI:
+  case MENU_PAGE_GAME_SETUP_SINGLE:
     g_menu_panel_state_69c9c0 = 1;
     return;
-  case 0x13:
+  case MENU_PAGE_SOUND:
     g_menu_panel_state_69c9c8 = 1;
     return;
   case 0x14:
     g_menu_panel_state_69c9d0 = 1;
     return;
-  case 0x1c:
+  case MENU_PAGE_VIBRATION:
     g_menu_panel_state_69c9e0 = 1;
     return;
-  case 0x1d:
+  case MENU_PAGE_CONTROLLERS:
     g_menu_panel_state_69c9e8 = 1;
     return;
-  case 0x1e:
+  case MENU_PAGE_GAMMA:
     g_menu_panel_state_69c9f0 = 1;
     return;
-  case 0x1f:
-  case 0x21:
+  case MENU_PAGE_BONUS_FEATURES:
+  case MENU_PAGE_BONUS_CAMERAS:
     g_menu_panel_state_69ca00 = 1;
     return;
-  case 0x20:
+  case MENU_PAGE_AUTOSAVE:
     g_menu_panel_state_69ca08 = 1;
     return;
-  case 0x23:
+  case MENU_PAGE_WIDESCREEN:
     g_menu_panel_state_69ca10 = 1;
     return;
   }
@@ -458,153 +458,153 @@ extern char g_game_state_records_3_[];
 /* "false for event 0xE, else depends on ui_fn_435ec0 (event type is a career event)" */
 
 /* TIER2: validated 2026-10-19 authority=diffemu */
-bool __cdecl menu_event_is_selectable(int param_1)
+bool __cdecl menu_event_is_selectable(int event_row)
 {
-  int iVar1;
-  uint uVar2;
-  uint *puVar3;
+  int uses_menu_or_count;
+  uint completed_count;
+  uint *progress_ptr;
   
-  if (param_1 == 0xe) {
+  if (event_row == 0xe) {
     return false;
   }
-  iVar1 = event_type_uses_standard_menu();
-  if (iVar1 != 0) {
+  uses_menu_or_count = event_type_uses_standard_menu();
+  if (uses_menu_or_count != 0) {
     if (g_event_type == EVENT_TRAINING) {
-      uVar2 = (uint)(g_game_state.progress[0x11] == 2);
+      completed_count = (uint)(g_game_state.progress[0x11] == 2);
       if (g_game_state.progress[0x23] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x35] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x47] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x59] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x6b] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
-      if (g_game_state.progress[param_1 * 0x12 + 0x11] == 0) {
+      if (g_game_state.progress[event_row * 0x12 + 0x11] == 0) {
         return false;
       }
     }
     else if (g_event_type == EVENT_TURBO_TOURNAMENT) {
-      uVar2 = (uint)(g_game_state.progress[0xe] == 2);
+      completed_count = (uint)(g_game_state.progress[0xe] == 2);
       if (g_game_state.progress[0x20] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x32] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x44] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x56] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
-      if (g_game_state.progress[param_1 * 0x12 + 0xe] == 0) {
+      if (g_game_state.progress[event_row * 0x12 + 0xe] == 0) {
         return false;
       }
     }
     else if (g_event_type == EVENT_ICE_TOURNAMENT) {
-      uVar2 = (uint)(g_game_state.progress[0xf] == 2);
+      completed_count = (uint)(g_game_state.progress[0xf] == 2);
       if (g_game_state.progress[0x21] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x33] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x45] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x57] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
-      if (g_game_state.progress[param_1 * 0x12 + 0xf] == 0) {
+      if (g_game_state.progress[event_row * 0x12 + 0xf] == 0) {
         return false;
       }
     }
     else {
       if (g_event_type != EVENT_NIGHT_TOURNAMENT) {
-        iVar1 = 0;
-        puVar3 = g_game_state.progress + 0x15;
+        uses_menu_or_count = 0;
+        progress_ptr = g_game_state.progress + 0x15;
         do {
-          if (puVar3[-0x12] == 2) {
-            iVar1 = iVar1 + 1;
+          if (progress_ptr[-0x12] == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          if (*puVar3 == 2) {
-            iVar1 = iVar1 + 1;
+          if (*progress_ptr == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          if (puVar3[0x12] == 2) {
-            iVar1 = iVar1 + 1;
+          if (progress_ptr[0x12] == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          if (puVar3[0x24] == 2) {
-            iVar1 = iVar1 + 1;
+          if (progress_ptr[0x24] == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          if (puVar3[0x36] == 2) {
-            iVar1 = iVar1 + 1;
+          if (progress_ptr[0x36] == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          if (puVar3[0x48] == 2) {
-            iVar1 = iVar1 + 1;
+          if (progress_ptr[0x48] == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          if (puVar3[0x5a] == 2) {
-            iVar1 = iVar1 + 1;
+          if (progress_ptr[0x5a] == 2) {
+            uses_menu_or_count = uses_menu_or_count + 1;
           }
-          puVar3 = puVar3 + 0x7e;
-        } while (puVar3 < (uint *)&g_game_state_records_3_);
-        if (g_game_state.progress[param_1 * 0x12 + 3] == 0) {
+          progress_ptr = progress_ptr + 0x7e;
+        } while (progress_ptr < (uint *)&g_game_state_records_3_);
+        if (g_game_state.progress[event_row * 0x12 + 3] == 0) {
           return false;
         }
-        return param_1 <= iVar1;
+        return event_row <= uses_menu_or_count;
       }
-      uVar2 = (uint)(g_game_state.progress[0x10] == 2);
+      completed_count = (uint)(g_game_state.progress[0x10] == 2);
       if (g_game_state.progress[0x22] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x34] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x46] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
       if (g_game_state.progress[0x58] == 2) {
-        uVar2 = uVar2 + 1;
+        completed_count = completed_count + 1;
       }
-      if (g_game_state.progress[param_1 * 0x12 + 0x10] == 0) {
+      if (g_game_state.progress[event_row * 0x12 + 0x10] == 0) {
         return false;
       }
     }
-    return param_1 <= (int)uVar2;
+    return event_row <= (int)completed_count;
   }
-  iVar1 = 0;
-  puVar3 = g_game_state.progress + 0x18;
+  uses_menu_or_count = 0;
+  progress_ptr = g_game_state.progress + 0x18;
   do {
-    if (puVar3[-0x12] != 0) {
-      iVar1 = iVar1 + 1;
+    if (progress_ptr[-0x12] != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    if (*puVar3 != 0) {
-      iVar1 = iVar1 + 1;
+    if (*progress_ptr != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    if (puVar3[0x12] != 0) {
-      iVar1 = iVar1 + 1;
+    if (progress_ptr[0x12] != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    if (puVar3[0x24] != 0) {
-      iVar1 = iVar1 + 1;
+    if (progress_ptr[0x24] != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    if (puVar3[0x36] != 0) {
-      iVar1 = iVar1 + 1;
+    if (progress_ptr[0x36] != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    if (puVar3[0x48] != 0) {
-      iVar1 = iVar1 + 1;
+    if (progress_ptr[0x48] != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    if (puVar3[0x5a] != 0) {
-      iVar1 = iVar1 + 1;
+    if (progress_ptr[0x5a] != 0) {
+      uses_menu_or_count = uses_menu_or_count + 1;
     }
-    puVar3 = puVar3 + 0x7e;
-  } while (puVar3 < (uint *)&g_game_state_records_6_);
-  return param_1 <= iVar1 + -1;
+    progress_ptr = progress_ptr + 0x7e;
+  } while (progress_ptr < (uint *)&g_game_state_records_6_);
+  return event_row <= uses_menu_or_count + -1;
 }
 
 

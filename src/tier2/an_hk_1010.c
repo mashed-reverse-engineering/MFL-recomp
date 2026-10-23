@@ -37,106 +37,106 @@ extern double sin(double);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per object update using the camera matrix and car matrices (inferred)" */
 
-void cup_scene_update_object(float param_1,int param_2)
+void cup_scene_update_object(float blend,int car_index)
 
 {
-  RwMatrix *pRVar1;
-  char *iVar2;
-  uint uVar3;
-  bool bVar4;
-  double fVar5;
-  double fVar6;
-  undefined *puVar7;
+  RwMatrix *cam_mtx;
+  char *part_frame;
+  uint tick_masked;
+  bool on_period;
+  double side_offset;
+  double cos_part;
+  undefined *car_vel_ptr;
   struct {
-    RwV3d local_b0;
-    float *local_a4;
-    float local_a0;
-    float local_9c;
-    float local_98;
-    float local_94;
+    RwV3d target_pos;
+    float *car_mtx;
+    float fwd_offset;
+    float car_pos_x;
+    float car_pos_y;
+    float car_pos_z;
     undefined1 pad_90[4];
-    RwV3d local_8c;
-    RwMatrix local_80;
-    RwMatrix local_40;
+    RwV3d to_car;
+    RwMatrix look_mtx;
+    RwMatrix blend_mtx;
   } frame;
   
-  frame.local_a4 = (float *)0x0;
-  frame.local_b0.x = 0.0;
-  frame.local_b0.y = 0.0;
-  frame.local_b0.z = 0.0;
-  if (param_2 != -1) {
-    g_cup_scene_64cb14 = param_1;
+  frame.car_mtx = (float *)0x0;
+  frame.target_pos.x = 0.0;
+  frame.target_pos.y = 0.0;
+  frame.target_pos.z = 0.0;
+  if (car_index != -1) {
+    g_cup_scene_64cb14 = blend;
     g_cup_scene_64cb08 = 1.25;
     g_cup_scene_64cb0c = 2.0;
-    pRVar1 = (RwMatrix *)get_viewport_camera_matrix(0);
-    vehicle_get_position_158(param_2,&frame.local_9c);
-    car_current_matrix(&frame.local_a4,param_2);
-    frame.local_8c.x = frame.local_a4[0xc] - (pRVar1->pos).x;
-    frame.local_8c.y = frame.local_a4[0xd] - (pRVar1->pos).y;
-    frame.local_8c.z = frame.local_a4[0xe] - (pRVar1->pos).z;
-    RwV3dNormalize(&frame.local_8c,&frame.local_8c);
+    cam_mtx = (RwMatrix *)get_viewport_camera_matrix(0);
+    vehicle_get_position_158(car_index,&frame.car_pos_x);
+    car_current_matrix(&frame.car_mtx,car_index);
+    frame.to_car.x = frame.car_mtx[0xc] - (cam_mtx->pos).x;
+    frame.to_car.y = frame.car_mtx[0xd] - (cam_mtx->pos).y;
+    frame.to_car.z = frame.car_mtx[0xe] - (cam_mtx->pos).z;
+    RwV3dNormalize(&frame.to_car,&frame.to_car);
     if ((g_cup_scene_64cb14 < k_f_0_1) &&
        (g_cup_scene_64cb10 = -1.0,
-       frame.local_8c.z * frame.local_a4[2] + frame.local_8c.x * *frame.local_a4 + frame.local_8c.y * frame.local_a4[1] < k_f_0)) {
+       frame.to_car.z * frame.car_mtx[2] + frame.to_car.x * *frame.car_mtx + frame.to_car.y * frame.car_mtx[1] < k_f_0)) {
       g_cup_scene_64cb10 = 1.0;
     }
     if (g_cup_scene_64cb14 == k_f_0) {
       g_cup_scene_64cb04 = 0.3926991;
     }
-    fVar5 = (double)sin((double)g_cup_scene_64cb04);
-    fVar5 = fVar5 * (double)g_cup_scene_64cb10 * (double)g_cup_scene_64cb08;
-    fVar6 = (double)cos((double)g_cup_scene_64cb04);
-    frame.local_a0 = (float)(fVar6 * (double)g_cup_scene_64cb08);
+    side_offset = (double)sin((double)g_cup_scene_64cb04);
+    side_offset = side_offset * (double)g_cup_scene_64cb10 * (double)g_cup_scene_64cb08;
+    cos_part = (double)cos((double)g_cup_scene_64cb04);
+    frame.fwd_offset = (float)(cos_part * (double)g_cup_scene_64cb08);
     g_cup_scene_64cb04 =
          g_cup_scene_64cb04 - g_tick_seconds * g_cup_scene_64cb0c * g_cup_scene_64cb14 * k_f_0_2;
-    frame.local_b0.x = frame.local_a4[4] * k_f_0_3 +
-                 (float)((double)frame.local_9c +
-                        (double)frame.local_a4[8] * (double)frame.local_a0 + fVar5 * (double)*frame.local_a4);
-    frame.local_b0.y = frame.local_a4[5] * k_f_0_3 +
-                 frame.local_98 + frame.local_a4[9] * frame.local_a0 + (float)(fVar5 * (double)frame.local_a4[1]);
-    frame.local_b0.z = frame.local_a4[6] * k_f_0_3 +
-                 frame.local_94 + frame.local_a4[10] * frame.local_a0 + (float)(fVar5 * (double)frame.local_a4[2]);
-    frame.local_9c = frame.local_a4[4] * k_f_0_4 + frame.local_9c;
-    frame.local_98 = frame.local_a4[5] * k_f_0_4 + frame.local_98;
-    frame.local_94 = frame.local_a4[6] * k_f_0_4 + frame.local_94;
-    RwMatrixTransform(&frame.local_80,pRVar1,rwCOMBINEREPLACE);
-    FUN_004c4460(&frame.local_80,&frame.local_9c,frame.local_a4 + 4);
-    frame.local_80.pos.x = frame.local_b0.x;
-    frame.local_80.pos.y = frame.local_b0.y;
-    frame.local_80.pos.z = frame.local_b0.z;
-    RwMatrixUpdate(&frame.local_80);
-    matrix_interpolate_rotation_translation(&frame.local_40, pRVar1, &frame.local_80, *(int *)&g_cup_scene_64cb14, *(int *)&g_cup_scene_64cb14);
-    RwMatrixTransform(pRVar1,&frame.local_40,rwCOMBINEREPLACE);
-    uVar3 = g_tick_number & 0x8000007f;
-    bVar4 = uVar3 == 0;
-    if ((int)uVar3 < 0) {
-      bVar4 = (uVar3 - 1 | 0xffffff80) == 0xffffffff;
+    frame.target_pos.x = frame.car_mtx[4] * k_f_0_3 +
+                 (float)((double)frame.car_pos_x +
+                        (double)frame.car_mtx[8] * (double)frame.fwd_offset + side_offset * (double)*frame.car_mtx);
+    frame.target_pos.y = frame.car_mtx[5] * k_f_0_3 +
+                 frame.car_pos_y + frame.car_mtx[9] * frame.fwd_offset + (float)(side_offset * (double)frame.car_mtx[1]);
+    frame.target_pos.z = frame.car_mtx[6] * k_f_0_3 +
+                 frame.car_pos_z + frame.car_mtx[10] * frame.fwd_offset + (float)(side_offset * (double)frame.car_mtx[2]);
+    frame.car_pos_x = frame.car_mtx[4] * k_f_0_4 + frame.car_pos_x;
+    frame.car_pos_y = frame.car_mtx[5] * k_f_0_4 + frame.car_pos_y;
+    frame.car_pos_z = frame.car_mtx[6] * k_f_0_4 + frame.car_pos_z;
+    RwMatrixTransform(&frame.look_mtx,cam_mtx,rwCOMBINEREPLACE);
+    FUN_004c4460(&frame.look_mtx,&frame.car_pos_x,frame.car_mtx + 4);
+    frame.look_mtx.pos.x = frame.target_pos.x;
+    frame.look_mtx.pos.y = frame.target_pos.y;
+    frame.look_mtx.pos.z = frame.target_pos.z;
+    RwMatrixUpdate(&frame.look_mtx);
+    matrix_interpolate_rotation_translation(&frame.blend_mtx, cam_mtx, &frame.look_mtx, *(int *)&g_cup_scene_64cb14, *(int *)&g_cup_scene_64cb14);
+    RwMatrixTransform(cam_mtx,&frame.blend_mtx,rwCOMBINEREPLACE);
+    tick_masked = g_tick_number & 0x8000007f;
+    on_period = tick_masked == 0;
+    if ((int)tick_masked < 0) {
+      on_period = (tick_masked - 1 | 0xffffff80) == 0xffffffff;
     }
-    if (bVar4) {
-      cup_scene_draw_team_overlay(*(int *)&param_1,param_2);
+    if (on_period) {
+      cup_scene_draw_team_overlay(*(int *)&blend,car_index);
     }
-    iVar2 = vehicle_part_frame(0,0x13);
-    frame.local_b0.x = 1.0;
-    frame.local_b0.y = 1.0;
-    frame.local_b0.z = 0.0;
-    pRVar1 = RwFrameGetLTM(*(RwFrame **)(iVar2 + 4));
-    RwFrameRotate((struct RwFrame *)g_cup_64cbd4,(struct RwV3d *)&frame.local_b0,(float)(int)g_camera_7ef7d8 * k_f_0_0075,rwCOMBINEREPLACE);
-    RwFrameTranslate((struct RwFrame *)g_cup_64cbd4,(struct RwV3d *)&pRVar1->pos,rwCOMBINEPOSTCONCAT);
+    part_frame = vehicle_part_frame(0,0x13);
+    frame.target_pos.x = 1.0;
+    frame.target_pos.y = 1.0;
+    frame.target_pos.z = 0.0;
+    cam_mtx = RwFrameGetLTM(*(RwFrame **)(part_frame + 4));
+    RwFrameRotate((struct RwFrame *)g_cup_64cbd4,(struct RwV3d *)&frame.target_pos,(float)(int)g_camera_7ef7d8 * k_f_0_0075,rwCOMBINEREPLACE);
+    RwFrameTranslate((struct RwFrame *)g_cup_64cbd4,(struct RwV3d *)&cam_mtx->pos,rwCOMBINEPOSTCONCAT);
     /* car position + lift, each partial sum rounded to 32 bit like the original's stores */
-    frame.local_b0.x = frame.local_a4[0xc];
-    frame.local_b0.y = frame.local_a4[0xd];
-    frame.local_b0.z = frame.local_a4[0xe];
-    frame.local_b0.y = frame.local_b0.y + k_f_4;
-    frame.local_b0.x = frame.local_a4[8] + frame.local_b0.x;
-    frame.local_b0.y = frame.local_a4[9] + frame.local_b0.y;
-    frame.local_b0.z = frame.local_a4[10] + frame.local_b0.z;
-    frame.local_b0.x = frame.local_b0.x + *frame.local_a4;
-    frame.local_b0.y = frame.local_a4[1] + frame.local_b0.y;
-    frame.local_b0.z = frame.local_a4[2] + frame.local_b0.z;
-    RwFrameTranslate((struct RwFrame *)g_cup_64cbd8,(struct RwV3d *)&frame.local_b0,rwCOMBINEREPLACE);
-    puVar7 = (undefined *)&g_car_62ac74;
-    pRVar1 = RwFrameGetLTM((struct RwFrame *)g_cup_64cbd4);
-    FUN_004c42f0(g_cup_64cbd8,&pRVar1->pos,puVar7);
+    frame.target_pos.x = frame.car_mtx[0xc];
+    frame.target_pos.y = frame.car_mtx[0xd];
+    frame.target_pos.z = frame.car_mtx[0xe];
+    frame.target_pos.y = frame.target_pos.y + k_f_4;
+    frame.target_pos.x = frame.car_mtx[8] + frame.target_pos.x;
+    frame.target_pos.y = frame.car_mtx[9] + frame.target_pos.y;
+    frame.target_pos.z = frame.car_mtx[10] + frame.target_pos.z;
+    frame.target_pos.x = frame.target_pos.x + *frame.car_mtx;
+    frame.target_pos.y = frame.car_mtx[1] + frame.target_pos.y;
+    frame.target_pos.z = frame.car_mtx[2] + frame.target_pos.z;
+    RwFrameTranslate((struct RwFrame *)g_cup_64cbd8,(struct RwV3d *)&frame.target_pos,rwCOMBINEREPLACE);
+    car_vel_ptr = (undefined *)&g_car_62ac74;
+    cam_mtx = RwFrameGetLTM((struct RwFrame *)g_cup_64cbd4);
+    FUN_004c42f0(g_cup_64cbd8,&cam_mtx->pos,car_vel_ptr);
   }
   return;
 }

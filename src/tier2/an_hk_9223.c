@@ -75,28 +75,28 @@
 void tutorial_text_update(void)
 
 {
-  uint uVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int *piVar5;
-  int *piVar6;
-  int iVar7;
-  double fVar8;
-  undefined4 uVar9;
+  uint prev_state;
+  int text_id_a;
+  int text_id_b;
+  int opcode_or_text;
+  int *page_script;
+  int *ranked_player;
+  int stat_value;
+  double text_w;
+  undefined4 ratio_flag_arg;
   struct {
-    int *piStack_10;
-    int iStack_c;
-    undefined4 uStack_8;
-    int local_4;
+    int *script_cursor;
+    int ratio_ref;
+    undefined4 ratio_flag;
+    int rows_left;
   } frame;
   
   if (0 < (int)g_frame_ticks) {
-    iVar4 = (g_frame_ticks - 1U) / 0x32 + 1;
+    opcode_or_text = (g_frame_ticks - 1U) / 0x32 + 1;
     do {
       race_start_setup(0x32);
-      iVar4 = iVar4 + -1;
-    } while (iVar4 != 0);
+      opcode_or_text = opcode_or_text + -1;
+    } while (opcode_or_text != 0);
   }
   if (g_menu_panel_state_69c998 == 1) {
     if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
@@ -109,218 +109,218 @@ void tutorial_text_update(void)
     if (g_tutorial_line_count == 0) {
       g_tutorial_display_ticks = 0x8e8;
       if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
-        piVar5 = (int *)(&g_tutorial_pages_basic)[g_tutorial_page_index];
+        page_script = (int *)(&g_tutorial_pages_basic)[g_tutorial_page_index];
       }
       else {
-        piVar5 = (int *)(&g_tutorial_pages_event)[g_tutorial_page_index];
+        page_script = (int *)(&g_tutorial_pages_event)[g_tutorial_page_index];
       }
-      iVar4 = *piVar5;
-      iVar7 = frame.local_4;
-      if (iVar4 != -1) {
+      opcode_or_text = *page_script;
+      stat_value = frame.rows_left;
+      if (opcode_or_text != -1) {
 LAB_004322cd:
-        frame.piStack_10 = piVar5;
-        switch(iVar4) {
+        frame.script_cursor = page_script;
+        switch(opcode_or_text) {
         case 1:
-          frame.piStack_10 = piVar5 + 1;
+          frame.script_cursor = page_script + 1;
           if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
 LAB_00432313:
-            frame.piStack_10 = piVar5 + 1;
-            (&g_tutorial_line_entries)[g_tutorial_line_count] = *frame.piStack_10;
+            frame.script_cursor = page_script + 1;
+            (&g_tutorial_line_entries)[g_tutorial_line_count] = *frame.script_cursor;
             g_tutorial_line_count = g_tutorial_line_count + 1;
-            fVar8 = (double)text_width(*frame.piStack_10,0x3f333333);
+            text_w = (double)text_width(*frame.script_cursor,0x3f333333);
             g_tutorial_line_width =
-                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
+                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
           }
           break;
         case 2:
-          frame.piStack_10 = piVar5 + 1;
-          player_stat_get_by_kind(g_tutorial_ranked_players,piVar5[1],0);
-          frame.local_4 = get_player_count();
+          frame.script_cursor = page_script + 1;
+          player_stat_get_by_kind(g_tutorial_ranked_players,page_script[1],0);
+          frame.rows_left = get_player_count();
           if (g_team_mode == 0) {
-            if (frame.local_4 < 1) break;
+            if (frame.rows_left < 1) break;
           }
           else {
-            frame.local_4 = 2;
+            frame.rows_left = 2;
           }
-          iVar4 = 0x84;
-          piVar6 = g_tutorial_ranked_players;
+          opcode_or_text = 0x84;
+          ranked_player = g_tutorial_ranked_players;
           do {
             if (g_team_mode == 0) {
-              iVar3 = g_player_slots[*piVar6].team + 0x7c;
-              (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar3;
-              fVar8 = (double)text_width(iVar3,0x3f333333);
+              text_id_b = g_player_slots[*ranked_player].team + 0x7c;
+              (&g_tutorial_line_entries)[g_tutorial_line_count] = text_id_b;
+              text_w = (double)text_width(text_id_b,0x3f333333);
             }
             else {
-              iVar3 = g_player_slots[*piVar6].state;
-              team_names_string_build(iVar3);
-              iVar3 = iVar3 + 0xa7;
-              (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar3;
-              fVar8 = (double)text_width(iVar3,0x3f333333);
+              text_id_b = g_player_slots[*ranked_player].state;
+              team_names_string_build(text_id_b);
+              text_id_b = text_id_b + 0xa7;
+              (&g_tutorial_line_entries)[g_tutorial_line_count] = text_id_b;
+              text_w = (double)text_width(text_id_b,0x3f333333);
             }
             g_tutorial_line_width =
-                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
-            if (*frame.piStack_10 == 0) {
-              iVar7 = player_stat_get_crowns(*piVar6);
+                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            if (*frame.script_cursor == 0) {
+              stat_value = player_stat_get_crowns(*ranked_player);
             }
-            if (*frame.piStack_10 == 1) {
-              iVar7 = player_stat_get_pants(*piVar6);
+            if (*frame.script_cursor == 1) {
+              stat_value = player_stat_get_pants(*ranked_player);
             }
-            if (*frame.piStack_10 == 4) {
-              iVar7 = player_stat_get_kills(*piVar6);
+            if (*frame.script_cursor == 4) {
+              stat_value = player_stat_get_kills(*ranked_player);
             }
-            if (*frame.piStack_10 == 6) {
-              iVar7 = player_stat_get_unforced_errors(*piVar6);
+            if (*frame.script_cursor == 6) {
+              stat_value = player_stat_get_unforced_errors(*ranked_player);
             }
-            if (*frame.piStack_10 == 7) {
-              iVar7 = player_stat_get_crowns_total(*piVar6);
+            if (*frame.script_cursor == 7) {
+              stat_value = player_stat_get_crowns_total(*ranked_player);
             }
-            if (*frame.piStack_10 == 8) {
-              iVar7 = player_stat_get_pants_total(*piVar6);
+            if (*frame.script_cursor == 8) {
+              stat_value = player_stat_get_pants_total(*ranked_player);
             }
-            if (*frame.piStack_10 == 0xb) {
-              iVar7 = player_stat_get_kills_total(*piVar6);
+            if (*frame.script_cursor == 0xb) {
+              stat_value = player_stat_get_kills_total(*ranked_player);
             }
-            if (*frame.piStack_10 == 0xd) {
-              iVar7 = player_stat_get_unforced_errors_total(*piVar6);
+            if (*frame.script_cursor == 0xd) {
+              stat_value = player_stat_get_unforced_errors_total(*ranked_player);
             }
-            (&g_tutorial_69d10c)[g_tutorial_line_count] = iVar4;
-            ui_format_number_999(iVar7,iVar4);
-            fVar8 = (double)text_width(iVar4,0x3f333333);
+            (&g_tutorial_69d10c)[g_tutorial_line_count] = opcode_or_text;
+            ui_format_number_999(stat_value,opcode_or_text);
+            text_w = (double)text_width(opcode_or_text,0x3f333333);
             g_tutorial_line_count = g_tutorial_line_count + 2;
-            piVar6 = piVar6 + 1;
-            iVar4 = iVar4 + 1;
-            frame.local_4 = frame.local_4 + -1;
+            ranked_player = ranked_player + 1;
+            opcode_or_text = opcode_or_text + 1;
+            frame.rows_left = frame.rows_left + -1;
             g_tutorial_line_width =
-                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
-          } while (frame.local_4 != 0);
+                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+          } while (frame.rows_left != 0);
           goto LAB_00432894;
         case 3:
-          iVar4 = piVar5[1];
-          frame.piStack_10 = piVar5 + 1;
-          if ((iVar4 == 5) || (iVar4 == 0xc)) {
-            uVar9 = 1;
+          opcode_or_text = page_script[1];
+          frame.script_cursor = page_script + 1;
+          if ((opcode_or_text == 5) || (opcode_or_text == 0xc)) {
+            ratio_flag_arg = 1;
           }
           else {
-            uVar9 = 0;
+            ratio_flag_arg = 0;
           }
-          player_stat_get_by_kind(g_tutorial_ranked_players,iVar4,uVar9);
-          frame.local_4 = get_player_count();
+          player_stat_get_by_kind(g_tutorial_ranked_players,opcode_or_text,ratio_flag_arg);
+          frame.rows_left = get_player_count();
           if (g_team_mode == 0) {
-            if (frame.local_4 < 1) break;
+            if (frame.rows_left < 1) break;
           }
           else {
-            frame.local_4 = 2;
+            frame.rows_left = 2;
           }
-          iVar3 = 0x91;
-          piVar6 = g_tutorial_ranked_players;
-          iVar4 = frame.iStack_c;
+          text_id_b = 0x91;
+          ranked_player = g_tutorial_ranked_players;
+          opcode_or_text = frame.ratio_ref;
           do {
             if (g_team_mode == 0) {
-              iVar2 = g_player_slots[*piVar6].team + 0x7c;
-              (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar2;
-              fVar8 = (double)text_width(iVar2,0x3f333333);
+              text_id_a = g_player_slots[*ranked_player].team + 0x7c;
+              (&g_tutorial_line_entries)[g_tutorial_line_count] = text_id_a;
+              text_w = (double)text_width(text_id_a,0x3f333333);
             }
             else {
-              iVar4 = g_player_slots[*piVar6].state;
-              team_names_string_build(iVar4);
-              iVar4 = iVar4 + 0xa7;
-              (&g_tutorial_line_entries)[g_tutorial_line_count] = iVar4;
-              fVar8 = (double)text_width(iVar4,0x3f333333);
-              iVar4 = frame.iStack_c;
+              opcode_or_text = g_player_slots[*ranked_player].state;
+              team_names_string_build(opcode_or_text);
+              opcode_or_text = opcode_or_text + 0xa7;
+              (&g_tutorial_line_entries)[g_tutorial_line_count] = opcode_or_text;
+              text_w = (double)text_width(opcode_or_text,0x3f333333);
+              opcode_or_text = frame.ratio_ref;
             }
             g_tutorial_line_width =
-                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
-            if (*frame.piStack_10 == 2) {
-              iVar4 = player_stat_get_place_team(*piVar6);
-              iVar4 = iVar4 * 2000;
-              iVar7 = player_stat_get_turbo_used_team(*piVar6);
-              frame.uStack_8 = 0;
-              frame.iStack_c = iVar4;
+                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            if (*frame.script_cursor == 2) {
+              opcode_or_text = player_stat_get_place_team(*ranked_player);
+              opcode_or_text = opcode_or_text * 2000;
+              stat_value = player_stat_get_turbo_used_team(*ranked_player);
+              frame.ratio_flag = 0;
+              frame.ratio_ref = opcode_or_text;
             }
-            if (*frame.piStack_10 == 3) {
-              iVar4 = player_stat_get_aggression_team(g_tutorial_ranked_players[0]);
-              iVar7 = player_stat_get_aggression_team(*piVar6);
-              frame.uStack_8 = 0;
-              frame.iStack_c = iVar4;
+            if (*frame.script_cursor == 3) {
+              opcode_or_text = player_stat_get_aggression_team(g_tutorial_ranked_players[0]);
+              stat_value = player_stat_get_aggression_team(*ranked_player);
+              frame.ratio_flag = 0;
+              frame.ratio_ref = opcode_or_text;
             }
-            if (*frame.piStack_10 == 5) {
-              iVar4 = player_stat_get_wall_hits_team(g_tutorial_ranked_players[0]);
-              iVar7 = player_stat_get_wall_hits_team(*piVar6);
-              frame.uStack_8 = 1;
-              frame.iStack_c = iVar4;
+            if (*frame.script_cursor == 5) {
+              opcode_or_text = player_stat_get_wall_hits_team(g_tutorial_ranked_players[0]);
+              stat_value = player_stat_get_wall_hits_team(*ranked_player);
+              frame.ratio_flag = 1;
+              frame.ratio_ref = opcode_or_text;
             }
-            if (*frame.piStack_10 == 9) {
-              iVar4 = player_stat_get_team_l(*piVar6);
-              iVar4 = iVar4 * 2000;
-              iVar7 = player_stat_get_turbo_used_total_team(*piVar6);
-              frame.uStack_8 = 0;
-              frame.iStack_c = iVar4;
+            if (*frame.script_cursor == 9) {
+              opcode_or_text = player_stat_get_team_l(*ranked_player);
+              opcode_or_text = opcode_or_text * 2000;
+              stat_value = player_stat_get_turbo_used_total_team(*ranked_player);
+              frame.ratio_flag = 0;
+              frame.ratio_ref = opcode_or_text;
             }
-            if (*frame.piStack_10 == 10) {
-              iVar4 = player_stat_get_aggression_total_team(g_tutorial_ranked_players[0]);
-              iVar7 = player_stat_get_aggression_total_team(*piVar6);
-              frame.uStack_8 = 0;
-              frame.iStack_c = iVar4;
+            if (*frame.script_cursor == 10) {
+              opcode_or_text = player_stat_get_aggression_total_team(g_tutorial_ranked_players[0]);
+              stat_value = player_stat_get_aggression_total_team(*ranked_player);
+              frame.ratio_flag = 0;
+              frame.ratio_ref = opcode_or_text;
             }
-            if (*frame.piStack_10 == 0xc) {
-              iVar4 = player_stat_get_wall_hits_total_team(g_tutorial_ranked_players[0]);
-              iVar7 = player_stat_get_wall_hits_total_team(*piVar6);
-              frame.uStack_8 = 1;
-              frame.iStack_c = iVar4;
+            if (*frame.script_cursor == 0xc) {
+              opcode_or_text = player_stat_get_wall_hits_total_team(g_tutorial_ranked_players[0]);
+              stat_value = player_stat_get_wall_hits_total_team(*ranked_player);
+              frame.ratio_flag = 1;
+              frame.ratio_ref = opcode_or_text;
             }
-            (&g_tutorial_69d10c)[g_tutorial_line_count] = iVar3;
-            tutorial_text_format_ratio(iVar4,iVar7,iVar3,frame.uStack_8);
-            fVar8 = (double)text_width(iVar3,0x3f333333);
+            (&g_tutorial_69d10c)[g_tutorial_line_count] = text_id_b;
+            tutorial_text_format_ratio(opcode_or_text,stat_value,text_id_b,frame.ratio_flag);
+            text_w = (double)text_width(text_id_b,0x3f333333);
             g_tutorial_line_count = g_tutorial_line_count + 2;
-            piVar6 = piVar6 + 1;
-            iVar3 = iVar3 + 1;
-            frame.local_4 = frame.local_4 + -1;
+            ranked_player = ranked_player + 1;
+            text_id_b = text_id_b + 1;
+            frame.rows_left = frame.rows_left + -1;
             g_tutorial_line_width =
-                 (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_8);
-          } while (frame.local_4 != 0);
+                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+          } while (frame.rows_left != 0);
 LAB_00432894:
-          frame.piStack_10 = piVar5 + 1;
+          frame.script_cursor = page_script + 1;
           break;
         case 4:
           goto switchD_004322dc_caseD_4;
         case 5:
-          iVar4 = time_is_better_than_best();
-          if (iVar4 != 0) goto LAB_00432313;
+          opcode_or_text = time_is_better_than_best();
+          if (opcode_or_text != 0) goto LAB_00432313;
           g_tutorial_page_index = g_tutorial_page_index + 1;
           goto switchD_004322dc_caseD_4;
         case 6:
-          if (piVar5[1] == 6) {
-            iVar7 = player_stat_get_unforced_errors(0);
+          if (page_script[1] == 6) {
+            stat_value = player_stat_get_unforced_errors(0);
           }
           (&g_tutorial_line_entries)[g_tutorial_line_count] = 0x84;
-          ui_format_number_999(iVar7,0x84);
-          fVar8 = (double)text_width(0x84,0x3f333333);
-          g_tutorial_line_width = (float)(fVar8 + (double)g_tutorial_line_width);
+          ui_format_number_999(stat_value,0x84);
+          text_w = (double)text_width(0x84,0x3f333333);
+          g_tutorial_line_width = (float)(text_w + (double)g_tutorial_line_width);
           (&g_tutorial_69d10c)[g_tutorial_line_count] = 0xc6;
-          fVar8 = (double)text_width(0xc6,0x3f333333);
+          text_w = (double)text_width(0xc6,0x3f333333);
           goto LAB_00432624;
         case 7:
-          if (piVar5[1] == 2) {
-            iVar7 = player_stat_get_turbo_used_team(0);
+          if (page_script[1] == 2) {
+            stat_value = player_stat_get_turbo_used_team(0);
             (&g_tutorial_line_entries)[g_tutorial_line_count] = 0x91;
-            tutorial_text_format_ratio(2000,iVar7,0x91,0);
-            fVar8 = (double)text_width(0x91,0x3f333333);
-            g_tutorial_line_width = (float)(fVar8 + (double)g_tutorial_line_width);
+            tutorial_text_format_ratio(2000,stat_value,0x91,0);
+            text_w = (double)text_width(0x91,0x3f333333);
+            g_tutorial_line_width = (float)(text_w + (double)g_tutorial_line_width);
           }
-          if (piVar5[1] == 5) {
-            iVar7 = player_stat_get_wall_hits_team(0);
+          if (page_script[1] == 5) {
+            stat_value = player_stat_get_wall_hits_team(0);
             (&g_tutorial_line_entries)[g_tutorial_line_count] = 0x92;
-            tutorial_text_format_ratio(0,iVar7,0x92,1);
-            fVar8 = (double)text_width(0x92,0x3f333333);
-            g_tutorial_line_width = (float)(fVar8 + (double)g_tutorial_line_width);
+            tutorial_text_format_ratio(0,stat_value,0x92,1);
+            text_w = (double)text_width(0x92,0x3f333333);
+            g_tutorial_line_width = (float)(text_w + (double)g_tutorial_line_width);
           }
           (&g_tutorial_69d10c)[g_tutorial_line_count] = 0xc6;
-          fVar8 = (double)text_width(0xc6,0x3f333333);
+          text_w = (double)text_width(0xc6,0x3f333333);
 LAB_00432624:
-          frame.piStack_10 = piVar5 + 1;
+          frame.script_cursor = page_script + 1;
           g_tutorial_line_count = g_tutorial_line_count + 2;
           g_tutorial_line_width =
-               (float)(fVar8 + (double)g_tutorial_line_width + (double)k_f_16);
+               (float)(text_w + (double)g_tutorial_line_width + (double)k_f_16);
         }
         goto switchD_004322dc_default;
       }
@@ -332,7 +332,7 @@ LAB_00432624:
       }
     }
 LAB_004328e0:
-    uVar1 = g_menu_69cc48;
+    prev_state = g_menu_69cc48;
     if ((((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) &&
        ((int)g_menu_69cc48 < 3)) {
       g_tutorial_69d2c8 = 0;
@@ -392,38 +392,38 @@ LAB_004328e0:
     }
   }
 LAB_00432ab5:
-  iVar4 = g_tutorial_69d2a8;
+  opcode_or_text = g_tutorial_69d2a8;
   if (g_menu_multiplayer_kind == 1) {
-    iVar7 = 0;
+    stat_value = 0;
     do {
-      iVar3 = player_get_wins(iVar7);
-      iVar7 = iVar7 + 1;
-      iVar4 = iVar7;
-      if ((int)g_menu_60ad5c <= iVar3) break;
-      iVar4 = g_tutorial_69d2a8;
-    } while (iVar7 < 4);
+      text_id_b = player_get_wins(stat_value);
+      stat_value = stat_value + 1;
+      opcode_or_text = stat_value;
+      if ((int)g_menu_60ad5c <= text_id_b) break;
+      opcode_or_text = g_tutorial_69d2a8;
+    } while (stat_value < 4);
   }
-  g_tutorial_69d2a8 = iVar4;
-  iVar4 = g_tutorial_69d2a8;
+  g_tutorial_69d2a8 = opcode_or_text;
+  opcode_or_text = g_tutorial_69d2a8;
   if (g_menu_multiplayer_kind == 2) {
-    iVar4 = 0;
+    opcode_or_text = 0;
     while( true ) {
-      iVar7 = player_get_stat_8b90(iVar4);
-      iVar4 = iVar4 + 1;
-      if ((int)g_menu_60ad60 <= iVar7) break;
-      if (3 < iVar4) {
+      stat_value = player_get_stat_8b90(opcode_or_text);
+      opcode_or_text = opcode_or_text + 1;
+      if ((int)g_menu_60ad60 <= stat_value) break;
+      if (3 < opcode_or_text) {
         return;
       }
     }
   }
-  g_tutorial_69d2a8 = iVar4;
+  g_tutorial_69d2a8 = opcode_or_text;
   return;
 switchD_004322dc_caseD_4:
-  frame.piStack_10 = piVar5 + 1;
+  frame.script_cursor = page_script + 1;
 switchD_004322dc_default:
-  iVar4 = frame.piStack_10[1];
-  piVar5 = frame.piStack_10 + 1;
-  if (iVar4 == -1) goto LAB_004328e0;
+  opcode_or_text = frame.script_cursor[1];
+  page_script = frame.script_cursor + 1;
+  if (opcode_or_text == -1) goto LAB_004328e0;
   goto LAB_004322cd;
 }
 

@@ -36,169 +36,170 @@ static int score_panel_entry_scale_parts_r(int p0, RwV3d * p1);
 extern void score_panel_entry_scale_parts(void);
 static int score_panel_entry_scale_parts_low_r(int p0, RwV3d * p1);
 extern void score_panel_entry_scale_parts_low(void);
-void score_panel_entry_update_n(int in_eax)
+/* entry fields used: +0x50 translation (RwV3d), +0x60 RwFrame, +100 player index, +0x68 state flag bits (0x40..0x400 set from the g_score_panel_* tables, 0x800 / 0x1000 icon variant, 0x2000..0x8000 points change), +0x70 animation counter */
+void score_panel_entry_update_n(int entry)
 
 {
   RwV3d *translation;
-  float fVar1;
+  float tmp_f;
   int points;
-  int iVar2;
-  uint uVar3;
-  int iVar4;
-  float10 fVar5;
+  int score_target;
+  uint flags;
+  int player_or_tmp;
+  float10 pulse;
   struct {
-    RwV3d local_4c;
-    RwMatrix local_40;
+    RwV3d scale;
+    RwMatrix mtx;
   } frame;
   
-  frame.local_4c.x = 1.0;
-  frame.local_4c.y = 1.0;
-  frame.local_4c.z = 1.0;
-  points = player_get_points(*(undefined4 *)(in_eax + 100));
-  iVar2 = score_target_a();
-  iVar4 = *(int *)(in_eax + 100);
-  if (*(int *)((char *)&g_score_panel_658dc4 + iVar4 * 4) == 0) {
-    uVar3 = *(uint *)(in_eax + 0x68) & 0xffffffbf;
+  frame.scale.x = 1.0;
+  frame.scale.y = 1.0;
+  frame.scale.z = 1.0;
+  points = player_get_points(*(undefined4 *)(entry + 100));
+  score_target = score_target_a();
+  player_or_tmp = *(int *)(entry + 100);
+  if (*(int *)((char *)&g_score_panel_658dc4 + player_or_tmp * 4) == 0) {
+    flags = *(uint *)(entry + 0x68) & 0xffffffbf;
   }
   else {
-    uVar3 = *(uint *)(in_eax + 0x68) | 0x40;
+    flags = *(uint *)(entry + 0x68) | 0x40;
   }
-  *(uint *)(in_eax + 0x68) = uVar3;
-  if (((&g_score_panel_658dd4)[iVar4] == 0) || (g_score_panel_658de8 != 0)) {
-    uVar3 = *(uint *)(in_eax + 0x68) & 0xffffff7f;
-  }
-  else {
-    uVar3 = *(uint *)(in_eax + 0x68) | 0x80;
-  }
-  *(uint *)(in_eax + 0x68) = uVar3;
-  if (((&g_score_658dac)[iVar4] == 0) || (g_score_panel_658dc0 != 0)) {
-    uVar3 = *(uint *)(in_eax + 0x68) & 0xfffffeff;
+  *(uint *)(entry + 0x68) = flags;
+  if (((&g_score_panel_658dd4)[player_or_tmp] == 0) || (g_score_panel_658de8 != 0)) {
+    flags = *(uint *)(entry + 0x68) & 0xffffff7f;
   }
   else {
-    uVar3 = *(uint *)(in_eax + 0x68) | 0x100;
+    flags = *(uint *)(entry + 0x68) | 0x80;
   }
-  *(uint *)(in_eax + 0x68) = uVar3;
-  if (*(int *)((char *)&g_score_658d98 + iVar4 * 4) == 0) {
-    uVar3 = *(uint *)(in_eax + 0x68) & 0xfffffdff;
-  }
-  else {
-    uVar3 = *(uint *)(in_eax + 0x68) | 0x200;
-  }
-  *(uint *)(in_eax + 0x68) = uVar3;
-  if (*(int *)((char *)&g_score_panel_658fc0 + iVar4 * 4) == 0) {
-    uVar3 = *(uint *)(in_eax + 0x68) & 0xfffffbff;
+  *(uint *)(entry + 0x68) = flags;
+  if (((&g_score_658dac)[player_or_tmp] == 0) || (g_score_panel_658dc0 != 0)) {
+    flags = *(uint *)(entry + 0x68) & 0xfffffeff;
   }
   else {
-    uVar3 = *(uint *)(in_eax + 0x68) | 0x400;
+    flags = *(uint *)(entry + 0x68) | 0x100;
   }
-  *(uint *)(in_eax + 0x68) = uVar3;
-  if (((uVar3 & 0x40) != 0) && ((uVar3 & 0x100) != 0)) {
-    *(uint *)(in_eax + 0x68) = uVar3 & 0xfffffeff;
+  *(uint *)(entry + 0x68) = flags;
+  if (*(int *)((char *)&g_score_658d98 + player_or_tmp * 4) == 0) {
+    flags = *(uint *)(entry + 0x68) & 0xfffffdff;
   }
-  if ((*(uint *)(in_eax + 0x68) & 0x400) != 0) {
-    *(uint *)(in_eax + 0x68) = *(uint *)(in_eax + 0x68) & 0xfffffc3f;
+  else {
+    flags = *(uint *)(entry + 0x68) | 0x200;
   }
-  uVar3 = *(uint *)(in_eax + 0x68);
-  *(uint *)(in_eax + 0x68) = uVar3 & 0xffff1fff;
-  if ((uVar3 & 0x400) != 0) {
-    iVar4 = player_get_points_change_visual(iVar4);
-    if (iVar4 == -2) {
-      uVar3 = *(uint *)(in_eax + 0x68) | 0x8000;
+  *(uint *)(entry + 0x68) = flags;
+  if (*(int *)((char *)&g_score_panel_658fc0 + player_or_tmp * 4) == 0) {
+    flags = *(uint *)(entry + 0x68) & 0xfffffbff;
+  }
+  else {
+    flags = *(uint *)(entry + 0x68) | 0x400;
+  }
+  *(uint *)(entry + 0x68) = flags;
+  if (((flags & 0x40) != 0) && ((flags & 0x100) != 0)) {
+    *(uint *)(entry + 0x68) = flags & 0xfffffeff;
+  }
+  if ((*(uint *)(entry + 0x68) & 0x400) != 0) {
+    *(uint *)(entry + 0x68) = *(uint *)(entry + 0x68) & 0xfffffc3f;
+  }
+  flags = *(uint *)(entry + 0x68);
+  *(uint *)(entry + 0x68) = flags & 0xffff1fff;
+  if ((flags & 0x400) != 0) {
+    player_or_tmp = player_get_points_change_visual(player_or_tmp);
+    if (player_or_tmp == -2) {
+      flags = *(uint *)(entry + 0x68) | 0x8000;
 LAB_0041e119:
-      *(uint *)(in_eax + 0x68) = uVar3;
+      *(uint *)(entry + 0x68) = flags;
     }
     else {
-      if (iVar4 == -1) {
-        uVar3 = *(uint *)(in_eax + 0x68) | 0x4000;
+      if (player_or_tmp == -1) {
+        flags = *(uint *)(entry + 0x68) | 0x4000;
         goto LAB_0041e119;
       }
-      if (iVar4 == 0) {
-        uVar3 = *(uint *)(in_eax + 0x68) | 0x2000;
+      if (player_or_tmp == 0) {
+        flags = *(uint *)(entry + 0x68) | 0x2000;
         goto LAB_0041e119;
       }
     }
-    *(float *)(in_eax + 0x70) = *(float *)(in_eax + 0x70) + float_1_0;
+    *(float *)(entry + 0x70) = *(float *)(entry + 0x70) + float_1_0;
   }
-  if (iVar2 == 8) {
-    *(uint *)(in_eax + 0x68) = *(uint *)(in_eax + 0x68) & 0xffffefff | 0x800;
+  if (score_target == 8) {
+    *(uint *)(entry + 0x68) = *(uint *)(entry + 0x68) & 0xffffefff | 0x800;
   }
-  else if (iVar2 == 0xc) {
-    *(uint *)(in_eax + 0x68) = *(uint *)(in_eax + 0x68) & 0xfffff7ff | 0x1000;
+  else if (score_target == 0xc) {
+    *(uint *)(entry + 0x68) = *(uint *)(entry + 0x68) & 0xfffff7ff | 0x1000;
   }
-  translation = (RwV3d *)(in_eax + 0x50);
-  if (fabs(*(float *)((char *)&g_score_panel_603ed4 + *(uint *)(in_eax + 100) * 0xc)) <
-      fabs(*(float *)(in_eax + 0x50))) {
-    if ((*(uint *)(in_eax + 100) & 1) == 0) {
-      fVar1 = translation->x - k_f_0_015;
+  translation = (RwV3d *)(entry + 0x50);
+  if (fabs(*(float *)((char *)&g_score_panel_603ed4 + *(uint *)(entry + 100) * 0xc)) <
+      fabs(*(float *)(entry + 0x50))) {
+    if ((*(uint *)(entry + 100) & 1) == 0) {
+      tmp_f = translation->x - k_f_0_015;
     }
     else {
-      fVar1 = translation->x + k_f_0_015;
+      tmp_f = translation->x + k_f_0_015;
     }
-    translation->x = fVar1;
+    translation->x = tmp_f;
   }
-  frame.local_40.flags = frame.local_40.flags | 0x20003;
-  frame.local_40.at.z = 1.0;
-  frame.local_40.up.y = 1.0;
-  frame.local_40.right.x = 1.0;
-  frame.local_40.up.x = 0.0;
-  frame.local_40.right.z = 0.0;
-  frame.local_40.right.y = 0.0;
-  frame.local_40.at.y = 0.0;
-  frame.local_40.at.x = 0.0;
-  frame.local_40.up.z = 0.0;
-  frame.local_40.pos.z = 0.0;
-  frame.local_40.pos.y = 0.0;
-  frame.local_40.pos.x = 0.0;
-  RwMatrixTranslate(&frame.local_40,translation,rwCOMBINEREPLACE);
-  RwFrameTransform(*(RwFrame **)(in_eax + 0x60),&frame.local_40,rwCOMBINEREPLACE);
-  frame.local_4c.x = frame.local_4c.x * k_f_1_125;
-  frame.local_4c.y = frame.local_4c.y * k_f_1_125;
-  frame.local_4c.z = frame.local_4c.z * k_f_1_125;
-  RwFrameScale(*(RwFrame **)(in_eax + 0x60),&frame.local_4c,rwCOMBINEPRECONCAT);
-  frame.local_4c.x = (float)points / (float)iVar2;
-  frame.local_4c.z = 1.0;
-  frame.local_4c.y = 1.0;
-  if ((*(uint *)(in_eax + 0x68) & 0x800) == 0) {
-    if ((*(uint *)(in_eax + 0x68) & 0x1000) == 0) goto LAB_0041e29b;
-    iVar4 = *(int *)(in_eax + 8);
+  frame.mtx.flags = frame.mtx.flags | 0x20003;
+  frame.mtx.at.z = 1.0;
+  frame.mtx.up.y = 1.0;
+  frame.mtx.right.x = 1.0;
+  frame.mtx.up.x = 0.0;
+  frame.mtx.right.z = 0.0;
+  frame.mtx.right.y = 0.0;
+  frame.mtx.at.y = 0.0;
+  frame.mtx.at.x = 0.0;
+  frame.mtx.up.z = 0.0;
+  frame.mtx.pos.z = 0.0;
+  frame.mtx.pos.y = 0.0;
+  frame.mtx.pos.x = 0.0;
+  RwMatrixTranslate(&frame.mtx,translation,rwCOMBINEREPLACE);
+  RwFrameTransform(*(RwFrame **)(entry + 0x60),&frame.mtx,rwCOMBINEREPLACE);
+  frame.scale.x = frame.scale.x * k_f_1_125;
+  frame.scale.y = frame.scale.y * k_f_1_125;
+  frame.scale.z = frame.scale.z * k_f_1_125;
+  RwFrameScale(*(RwFrame **)(entry + 0x60),&frame.scale,rwCOMBINEPRECONCAT);
+  frame.scale.x = (float)points / (float)score_target;
+  frame.scale.z = 1.0;
+  frame.scale.y = 1.0;
+  if ((*(uint *)(entry + 0x68) & 0x800) == 0) {
+    if ((*(uint *)(entry + 0x68) & 0x1000) == 0) goto LAB_0041e29b;
+    player_or_tmp = *(int *)(entry + 8);
   }
   else {
-    iVar4 = *(int *)(in_eax + 0x14);
+    player_or_tmp = *(int *)(entry + 0x14);
   }
-  RwFrameScale(*(RwFrame **)(iVar4 + 4),&frame.local_4c,rwCOMBINEREPLACE);
+  RwFrameScale(*(RwFrame **)(player_or_tmp + 4),&frame.scale,rwCOMBINEREPLACE);
 LAB_0041e29b:
-  if (((char)*(uint *)(in_eax + 0x68) < '\0') && ((*(uint *)(in_eax + 0x68) & 0x40) == 0)) {
-    fVar5 = (float10)g_score_panel_658fd0;
+  if (((char)*(uint *)(entry + 0x68) < '\0') && ((*(uint *)(entry + 0x68) & 0x40) == 0)) {
+    pulse = (float10)g_score_panel_658fd0;
     if ((int)g_score_panel_658fd0 < 0) {
-      fVar5 = fVar5 + (float10)k_f_4_2949673e9;
+      pulse = pulse + (float10)k_f_4_2949673e9;
     }
-    fVar5 = (float10)sin(fVar5 * (float10)k_f_0_2);
-    fVar5 = fVar5 * (float10)k_f_0_2 + (float10)float_1_0;
-    frame.local_4c.y = (RwReal)fVar5;
-    frame.local_4c.x = (RwReal)fVar5;
+    pulse = (float10)sin(pulse * (float10)k_f_0_2);
+    pulse = pulse * (float10)k_f_0_2 + (float10)float_1_0;
+    frame.scale.y = (RwReal)pulse;
+    frame.scale.x = (RwReal)pulse;
   }
   else {
-    frame.local_4c.y = 1.0;
-    frame.local_4c.x = 1.0;
+    frame.scale.y = 1.0;
+    frame.scale.x = 1.0;
   }
-  frame.local_4c.z = 1.0;
-  score_panel_entry_scale_parts_low_r(in_eax,&frame.local_4c);
-  if ((*(uint *)(in_eax + 0x68) & 0x400) != 0) {
-    frame.local_4c.x = float_1_0 - *(float *)(in_eax + 0x70) * k_f_0_04;
-    if (frame.local_4c.x <= k_f_0) {
-      frame.local_4c.x = k_f_0;
+  frame.scale.z = 1.0;
+  score_panel_entry_scale_parts_low_r(entry,&frame.scale);
+  if ((*(uint *)(entry + 0x68) & 0x400) != 0) {
+    frame.scale.x = float_1_0 - *(float *)(entry + 0x70) * k_f_0_04;
+    if (frame.scale.x <= k_f_0) {
+      frame.scale.x = k_f_0;
     }
-    frame.local_4c.z = 1.0;
-    frame.local_4c.y = frame.local_4c.x;
-    score_panel_entry_scale_parts_low_r(in_eax,&frame.local_4c);
-    fVar1 = (*(float *)(in_eax + 0x70) - k_f_25) * k_f_0_04;
-    if (((fVar1 <= k_f_0) || (frame.local_4c.x = float_1_0, float_1_0 > fVar1))
-       && (frame.local_4c.x = fVar1, fVar1 <= k_f_0)) {
-      frame.local_4c.x = k_f_0;
+    frame.scale.z = 1.0;
+    frame.scale.y = frame.scale.x;
+    score_panel_entry_scale_parts_low_r(entry,&frame.scale);
+    tmp_f = (*(float *)(entry + 0x70) - k_f_25) * k_f_0_04;
+    if (((tmp_f <= k_f_0) || (frame.scale.x = float_1_0, float_1_0 > tmp_f))
+       && (frame.scale.x = tmp_f, tmp_f <= k_f_0)) {
+      frame.scale.x = k_f_0;
     }
-    frame.local_4c.z = 1.0;
-    frame.local_4c.y = frame.local_4c.x;
-    score_panel_entry_scale_parts_r(in_eax,&frame.local_4c);
+    frame.scale.z = 1.0;
+    frame.scale.y = frame.scale.x;
+    score_panel_entry_scale_parts_r(entry,&frame.scale);
   }
   return;
 }

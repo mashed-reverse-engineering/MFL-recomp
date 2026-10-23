@@ -16,7 +16,7 @@ typedef struct TexAnim { TexFrame *first; TexFrame *last; int count; int reserve
  * Frames are collected until the next number is missing; the list is made circular and the frame
  * count stored. Allocated with the RenderWare memory functions. Returns the animation header.
  */
-/* TIER2: unvalidated 2026-10-22 authority=static */
+/* TIER2: unvalidated 2026-10-23 authority=diffemu */
 TexAnim *course_helper_4849e0(char *base_name, RwTexDictionary *dict)
 {
   TexAnim *anim;

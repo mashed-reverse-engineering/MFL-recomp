@@ -44,133 +44,133 @@ void rwp_objects_cull_and_register_triggers(void)
 
 {
   RpAtomic *atomic;
-  float fVar1;
-  uint uVar2;
-  int iVar3;
-  RwSphere *pRVar4;
-  int camera_matrix;
+  float to_cam_z;
+  uint tick_parity;
+  int owner;
+  RwSphere *sphere_ptr;
+  int cam_mtx_or_stamp;
   RwCamera *camera;
-  RwFrustumTestResult RVar5;
-  undefined4 uVar6;
-  uint uVar7;
-  uint uVar8;
-  bool bVar9;
-  double fVar10;
-  float *pfVar11;
+  RwFrustumTestResult frustum_result;
+  undefined4 shadow_flag_or_count;
+  uint obj_parity;
+  uint obj;
+  bool test_this_frame;
+  double shadow_angle;
+  float *trigger_ptr;
   struct {
-    RwMatrix *local_cc;
-    float *local_c8;
-    float *local_c4;
-    int local_c0;
-    RwSphere local_bc;
-    RwMatrix *local_ac;
-    int local_a8;
-    float local_a4;
-    float local_a0;
+    RwMatrix *obj_mtx;
+    float *shadow_a;
+    float *shadow_b;
+    int shadow_enabled;
+    RwSphere sphere;
+    RwMatrix *atomic_ltm;
+    int outdoor;
+    float to_cam_x;
+    float to_cam_y;
     undefined1 pad_9c[4];
-    float local_98;
-    float local_94;
-    float local_90;
-    float local_8c;
-    undefined4 local_88;
-    int local_84;
-    uint local_80;
-    code *local_7c;
+    float trig_x;
+    float trig_y;
+    float trig_z;
+    float trig_radius;
+    undefined4 trig_kind;
+    int trig_owner;
+    uint trig_obj_index;
+    code *trig_callback;
   } frame;
   
-  uVar8 = 0;
-  frame.local_a8 = course_is_outdoor();
-  frame.local_c0 = 1;
+  obj = 0;
+  frame.outdoor = course_is_outdoor();
+  frame.shadow_enabled = 1;
   if (0 < (int)g_rw_6fa7d0) {
-    frame.local_cc = (RwMatrix *)&g_rw_6f6f90;
-    frame.local_c8 = (float *)&g_rw_6fd4a8;
-    frame.local_c4 = (float *)&g_rw_6fae98;
+    frame.obj_mtx = (RwMatrix *)&g_rw_6f6f90;
+    frame.shadow_a = (float *)&g_rw_6fd4a8;
+    frame.shadow_b = (float *)&g_rw_6fae98;
     do {
-      uVar2 = g_tick_number & 0x80000001;
-      if ((int)uVar2 < 0) {
-        uVar2 = (uVar2 - 1 | 0xfffffffe) + 1;
+      tick_parity = g_tick_number & 0x80000001;
+      if ((int)tick_parity < 0) {
+        tick_parity = (tick_parity - 1 | 0xfffffffe) + 1;
       }
-      uVar7 = uVar8 & 0x80000001;
-      if ((int)uVar7 < 0) {
-        uVar7 = (uVar7 - 1 | 0xfffffffe) + 1;
+      obj_parity = obj & 0x80000001;
+      if ((int)obj_parity < 0) {
+        obj_parity = (obj_parity - 1 | 0xfffffffe) + 1;
       }
-      atomic = (RpAtomic *)(&g_rw_6fab78)[uVar8];
-      bVar9 = uVar7 == uVar2;
+      atomic = (RpAtomic *)(&g_rw_6fab78)[obj];
+      test_this_frame = obj_parity == tick_parity;
       if (game_mode == GAME_MODE_KILL_COPTER) {
-        if ((int)(&g_rw_6fa4b0)[uVar8] < (int)g_effects_update_5ddad8) {
-          frame.local_c0 = frame.local_a8;
+        if ((int)(&g_rw_6fa4b0)[obj] < (int)g_effects_update_5ddad8) {
+          frame.shadow_enabled = frame.outdoor;
         }
         else {
-          bVar9 = true;
-          frame.local_c0 = 0;
+          test_this_frame = true;
+          frame.shadow_enabled = 0;
         }
       }
       if ((atomic != (RpAtomic *)0x0) && ((*(RwUInt8 *)((char *)atomic + 2) & 4) != 0)) {
-        frame.local_ac = RwFrameGetLTM(RpAtomic_object_object_parent(atomic));
-        iVar3 = rwp_owner_object_get(atomic);
-        if (iVar3 != 0) {
-          pRVar4 = RpAtomicGetWorldBoundingSphere(atomic);
-          frame.local_bc.center.x = (pRVar4->center).x;
-          frame.local_bc.center.y = (pRVar4->center).y;
-          frame.local_bc.center.z = (pRVar4->center).z;
-          frame.local_bc.radius = pRVar4->radius * float_10_0;
-          camera_matrix = get_viewport_camera_matrix(0);
-          frame.local_a4 = frame.local_bc.center.x - *(float *)(camera_matrix + 0x30);
-          camera_matrix = get_viewport_camera_matrix(0);
-          frame.local_a0 = frame.local_bc.center.y - *(float *)(camera_matrix + 0x34);
-          camera_matrix = get_viewport_camera_matrix(0);
-          fVar1 = frame.local_bc.center.z - *(float *)(camera_matrix + 0x38);
-          if (fVar1 * fVar1 + frame.local_a4 * frame.local_a4 + frame.local_a0 * frame.local_a0 < k_f_2500) {
-            (&g_rw_6f6950)[uVar8] = (&g_rw_6f6c70)[uVar8];
-            if (bVar9) {
-              pRVar4 = &frame.local_bc;
+        frame.atomic_ltm = RwFrameGetLTM(RpAtomic_object_object_parent(atomic));
+        owner = rwp_owner_object_get(atomic);
+        if (owner != 0) {
+          sphere_ptr = RpAtomicGetWorldBoundingSphere(atomic);
+          frame.sphere.center.x = (sphere_ptr->center).x;
+          frame.sphere.center.y = (sphere_ptr->center).y;
+          frame.sphere.center.z = (sphere_ptr->center).z;
+          frame.sphere.radius = sphere_ptr->radius * float_10_0;
+          cam_mtx_or_stamp = get_viewport_camera_matrix(0);
+          frame.to_cam_x = frame.sphere.center.x - *(float *)(cam_mtx_or_stamp + 0x30);
+          cam_mtx_or_stamp = get_viewport_camera_matrix(0);
+          frame.to_cam_y = frame.sphere.center.y - *(float *)(cam_mtx_or_stamp + 0x34);
+          cam_mtx_or_stamp = get_viewport_camera_matrix(0);
+          to_cam_z = frame.sphere.center.z - *(float *)(cam_mtx_or_stamp + 0x38);
+          if (to_cam_z * to_cam_z + frame.to_cam_x * frame.to_cam_x + frame.to_cam_y * frame.to_cam_y < k_f_2500) {
+            (&g_rw_6f6950)[obj] = (&g_rw_6f6c70)[obj];
+            if (test_this_frame) {
+              sphere_ptr = &frame.sphere;
               camera = (RwCamera *)get_viewport_camera(0);
-              RVar5 = RwCameraFrustumTestSphere(camera,pRVar4);
-              (&g_rw_6f6c70)[uVar8] = RVar5;
+              frustum_result = RwCameraFrustumTestSphere(camera,sphere_ptr);
+              (&g_rw_6f6c70)[obj] = frustum_result;
             }
-            if (((&g_rw_6f6c70)[uVar8] == 2) || ((&g_rw_6f6c70)[uVar8] == 1)) {
-              if (bVar9) {
-                frame.local_8c = frame.local_bc.radius * k_f_0_1;
-                frame.local_94 = frame.local_bc.center.y;
-                camera_matrix = (&g_rw_6fa4b0)[uVar8];
-                frame.local_98 = frame.local_bc.center.x;
-                frame.local_90 = frame.local_bc.center.z;
-                frame.local_7c = (code *)0x0;
-                frame.local_88 = 10;
-                if ((camera_matrix < 150000) || (0x24a21 < camera_matrix)) {
-                  if ((camera_matrix < 1000) || (0x802 < camera_matrix)) {
-                    if (((int)g_effects_update_5ddad8 <= camera_matrix) &&
-                       (camera_matrix <= (int)g_effects_update_5ddad8 + 0x32)) {
-                      frame.local_7c = (code *)&LAB_00408ad0;
-                      frame.local_88 = 0x1c;
+            if (((&g_rw_6f6c70)[obj] == 2) || ((&g_rw_6f6c70)[obj] == 1)) {
+              if (test_this_frame) {
+                frame.trig_radius = frame.sphere.radius * k_f_0_1;
+                frame.trig_y = frame.sphere.center.y;
+                cam_mtx_or_stamp = (&g_rw_6fa4b0)[obj];
+                frame.trig_x = frame.sphere.center.x;
+                frame.trig_z = frame.sphere.center.z;
+                frame.trig_callback = (code *)0x0;
+                frame.trig_kind = 10;
+                if ((cam_mtx_or_stamp < 150000) || (0x24a21 < cam_mtx_or_stamp)) {
+                  if ((cam_mtx_or_stamp < 1000) || (0x802 < cam_mtx_or_stamp)) {
+                    if (((int)g_effects_update_5ddad8 <= cam_mtx_or_stamp) &&
+                       (cam_mtx_or_stamp <= (int)g_effects_update_5ddad8 + 0x32)) {
+                      frame.trig_callback = (code *)&LAB_00408ad0;
+                      frame.trig_kind = 0x1c;
                     }
                   }
-                  else if ((*(byte *)(&g_rw_6fcdd8 + uVar8) & 1) == 0) {
-                    frame.local_7c = rwpcar_ring_add_points_for_contact;
+                  else if ((*(byte *)(&g_rw_6fcdd8 + obj) & 1) == 0) {
+                    frame.trig_callback = rwpcar_ring_add_points_for_contact;
                   }
                 }
                 else {
-                  frame.local_88 = 0x1a;
+                  frame.trig_kind = 0x1a;
                 }
-                pfVar11 = &frame.local_98;
-                frame.local_84 = iVar3;
-                frame.local_80 = uVar8;
-                trigger_sphere_register(pfVar11);
-                rwp_object_debris_expire_check(uVar8);
+                trigger_ptr = &frame.trig_x;
+                frame.trig_owner = owner;
+                frame.trig_obj_index = obj;
+                trigger_sphere_register(trigger_ptr);
+                rwp_object_debris_expire_check(obj);
               }
-              if (frame.local_c0 != 0) {
-                if ((((&g_rw_6f6950)[uVar8] != 2) && ((&g_rw_6f6950)[uVar8] != 1)) ||
-                   (*(int *)(*(char **)(iVar3 + 0x10) + 4) != 0)) {
-                  uVar6 = shadow_project_to_ground_00499dc0
-                                    (g_rw_801b14,frame.local_ac,frame.local_c8,frame.local_cc,frame.local_c4);
-                  (&g_effects_update_6fe770)[uVar8] = uVar6;
+              if (frame.shadow_enabled != 0) {
+                if ((((&g_rw_6f6950)[obj] != 2) && ((&g_rw_6f6950)[obj] != 1)) ||
+                   (*(int *)(*(char **)(owner + 0x10) + 4) != 0)) {
+                  shadow_flag_or_count = shadow_project_to_ground_00499dc0
+                                    (g_rw_801b14,frame.atomic_ltm,frame.shadow_a,frame.obj_mtx,frame.shadow_b);
+                  (&g_effects_update_6fe770)[obj] = shadow_flag_or_count;
                 }
-                if ((&g_effects_update_6fe770)[uVar8] != 0) {
-                  fVar10 = (double)dot_product_3d_clamped(&frame.local_cc->at,&g_car_62ac74);
-                  fVar10 = (double)FUN_004b3284((double)fVar10);
-                  if (fVar10 < (double)k_f_0_7853982) {
-                    uVar6 = ((int)(((1.0f - (fVar10 * 1.2732395f)) + 1.0f) * 64.0f));
-                    fx_dust_add(frame.local_cc,uVar6);
+                if ((&g_effects_update_6fe770)[obj] != 0) {
+                  shadow_angle = (double)dot_product_3d_clamped(&frame.obj_mtx->at,&g_car_62ac74);
+                  shadow_angle = (double)FUN_004b3284((double)shadow_angle);
+                  if (shadow_angle < (double)k_f_0_7853982) {
+                    shadow_flag_or_count = ((int)(((1.0f - (shadow_angle * 1.2732395f)) + 1.0f) * 64.0f));
+                    fx_dust_add(frame.obj_mtx,shadow_flag_or_count);
                   }
                 }
               }
@@ -178,11 +178,11 @@ void rwp_objects_cull_and_register_triggers(void)
           }
         }
       }
-      uVar8 = uVar8 + 1;
-      frame.local_c4 = frame.local_c4 + 10;
-      frame.local_c8 = frame.local_c8 + 6;
-      frame.local_cc = frame.local_cc + 1;
-    } while ((int)uVar8 < (int)g_rw_6fa7d0);
+      obj = obj + 1;
+      frame.shadow_b = frame.shadow_b + 10;
+      frame.shadow_a = frame.shadow_a + 6;
+      frame.obj_mtx = frame.obj_mtx + 1;
+    } while ((int)obj < (int)g_rw_6fa7d0);
   }
   return;
 }

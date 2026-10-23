@@ -38,10 +38,10 @@ void smplfzx_object_bounds_update(char *obj,float radius)
   RwMatrix *mtx;
   RwReal *frame_cursor;
   struct {
-    RwReal local_d8 [4];
+    RwReal bbox_f [4];
     undefined4 local_c8;
     undefined4 local_c4;
-    RwV3d local_c0;
+    RwV3d corners_local;
     RwReal local_b4;
     RwReal local_b0;
     RwReal local_ac;
@@ -63,12 +63,12 @@ void smplfzx_object_bounds_update(char *obj,float radius)
     RwReal local_6c;
     undefined4 local_68;
     undefined4 local_64;
-    RwV3d local_60 [8];
+    RwV3d corners_world [8];
   } frame;
   
   /* copy the 6 floats of the local bbox (sup, inf) into the frame scratch */
   float_cursor = (RwReal *)(obj + OBJ_LOCAL_BBOX_OFFSET);
-  frame_cursor = frame.local_d8;
+  frame_cursor = frame.bbox_f;
   for (i = RWBBOX_FLOAT_COUNT; i != 0; i = i + -1) {
     *frame_cursor = *float_cursor;
     float_cursor = float_cursor + 1;
@@ -92,45 +92,45 @@ void smplfzx_object_bounds_update(char *obj,float radius)
   (mtx->pos).y = 0.0;
   (mtx->pos).x = 0.0;
   mtx->flags = mtx->flags | 0x20003;
-  frame.local_78 = frame.local_d8[3];
+  frame.local_78 = frame.bbox_f[3];
   frame.local_70 = frame.local_c4;
   frame.local_68 = frame.local_c8;
   frame.local_74 = frame.local_c8;
-  frame.local_9c = frame.local_d8[0];
-  frame.local_6c = frame.local_d8[0];
+  frame.local_9c = frame.bbox_f[0];
+  frame.local_6c = frame.bbox_f[0];
   frame.local_94 = frame.local_c4;
   frame.local_64 = frame.local_c4;
-  frame.local_a4 = frame.local_d8[1];
-  frame.local_98 = frame.local_d8[1];
-  frame.local_90 = frame.local_d8[3];
-  frame.local_a8 = frame.local_d8[3];
-  frame.local_88 = frame.local_d8[2];
+  frame.local_a4 = frame.bbox_f[1];
+  frame.local_98 = frame.bbox_f[1];
+  frame.local_90 = frame.bbox_f[3];
+  frame.local_a8 = frame.bbox_f[3];
+  frame.local_88 = frame.bbox_f[2];
   frame.local_a0 = frame.local_c4;
   frame.local_80 = frame.local_c8;
   frame.local_8c = frame.local_c8;
-  frame.local_b4 = frame.local_d8[0];
-  frame.local_84 = frame.local_d8[0];
-  frame.local_ac = frame.local_d8[2];
-  frame.local_7c = frame.local_d8[2];
-  frame.local_c0.y = frame.local_d8[1];
-  frame.local_b0 = frame.local_d8[1];
-  frame.local_c0.x = frame.local_d8[3];
-  frame.local_c0.z = frame.local_d8[2];
+  frame.local_b4 = frame.bbox_f[0];
+  frame.local_84 = frame.bbox_f[0];
+  frame.local_ac = frame.bbox_f[2];
+  frame.local_7c = frame.bbox_f[2];
+  frame.corners_local.y = frame.bbox_f[1];
+  frame.local_b0 = frame.bbox_f[1];
+  frame.corners_local.x = frame.bbox_f[3];
+  frame.corners_local.z = frame.bbox_f[2];
   /* place the scratch matrix at the translation of the object's matrix (+0x30 of the matrix pointer) */
   RwMatrixTranslate(mtx,(RwV3d *)(*(char **)(obj + OBJ_MATRIX_PTR_OFFSET) + 0x30),rwCOMBINEREPLACE);
   /* margin = 2*radius + 0.005, kept in the frame's bbox slot */
-  frame.local_d8[2] = radius + radius + k_f_0_005;
+  frame.bbox_f[2] = radius + radius + k_f_0_005;
   /* transform the 8 local corners of the local bbox into world space */
-  RwV3dTransformPoints(frame.local_60,&frame.local_c0,BBOX_CORNER_COUNT,*(RwMatrix **)(obj + OBJ_MATRIX_PTR_OFFSET));
+  RwV3dTransformPoints(frame.corners_world,&frame.corners_local,BBOX_CORNER_COUNT,*(RwMatrix **)(obj + OBJ_MATRIX_PTR_OFFSET));
   /* world bbox = bound of the 8 world corners, then grow it by the margin (sup += margin, inf -= margin) */
   world_bbox = (RwBBox *)(obj + OBJ_WORLD_BBOX_OFFSET);
-  RwBBoxCalculate(world_bbox,frame.local_60,BBOX_CORNER_COUNT);
-  (world_bbox->sup).x = frame.local_d8[2] + (world_bbox->sup).x;
-  *(float *)(obj + 0x454) = frame.local_d8[2] + *(float *)(obj + 0x454);
-  *(float *)(obj + 0x458) = frame.local_d8[2] + *(float *)(obj + 0x458);
-  *(float *)(obj + 0x45c) = *(float *)(obj + 0x45c) - frame.local_d8[2];
-  *(float *)(obj + 0x460) = *(float *)(obj + 0x460) - frame.local_d8[2];
-  *(float *)(obj + 0x464) = *(float *)(obj + 0x464) - frame.local_d8[2];
+  RwBBoxCalculate(world_bbox,frame.corners_world,BBOX_CORNER_COUNT);
+  (world_bbox->sup).x = frame.bbox_f[2] + (world_bbox->sup).x;
+  *(float *)(obj + 0x454) = frame.bbox_f[2] + *(float *)(obj + 0x454);
+  *(float *)(obj + 0x458) = frame.bbox_f[2] + *(float *)(obj + 0x458);
+  *(float *)(obj + 0x45c) = *(float *)(obj + 0x45c) - frame.bbox_f[2];
+  *(float *)(obj + 0x460) = *(float *)(obj + 0x460) - frame.bbox_f[2];
+  *(float *)(obj + 0x464) = *(float *)(obj + 0x464) - frame.bbox_f[2];
   /* publish the world bbox min/max relative to the scratch matrix position */
   g_particles_8885cc = *(float *)(obj + 0x45c) - (g_course_create_72dfc4->pos).x;
   g_course_create_8885d0 = *(float *)(obj + 0x460) - (g_course_create_72dfc4->pos).y;
@@ -147,7 +147,7 @@ void smplfzx_object_bounds_update(char *obj,float radius)
     float_cursor = float_cursor + 1;
   }
   /* transform the frame's corner points in place (inferred) */
-  RwV3dTransformPoints(&frame.local_c0,&frame.local_c0,BBOX_CORNER_COUNT,*(RwMatrix **)(obj + OBJ_MATRIX_PTR_OFFSET));
+  RwV3dTransformPoints(&frame.corners_local,&frame.corners_local,BBOX_CORNER_COUNT,*(RwMatrix **)(obj + OBJ_MATRIX_PTR_OFFSET));
   /* write the 8 corners as vec4 entries (xyz + radius) at obj+0x300..0x37c, 16 bytes each (inferred) */
   *(RwReal *)(obj + 0x360) = frame.local_78;
   *(undefined4 *)(obj + 0x364) = frame.local_74;
@@ -177,10 +177,10 @@ void smplfzx_object_bounds_update(char *obj,float radius)
   *(RwReal *)(obj + 0x314) = frame.local_b0;
   *(RwReal *)(obj + 0x318) = frame.local_ac;
   *(float *)(obj + 0x31c) = radius;
-  *(RwReal *)(obj + 0x300) = frame.local_c0.x;
-  *(RwReal *)(obj + 0x304) = frame.local_c0.y;
+  *(RwReal *)(obj + 0x300) = frame.corners_local.x;
+  *(RwReal *)(obj + 0x304) = frame.corners_local.y;
   *(float *)(obj + 0x30c) = radius;
-  *(RwReal *)(obj + 0x308) = frame.local_c0.z;
+  *(RwReal *)(obj + 0x308) = frame.corners_local.z;
   return;
 }
 

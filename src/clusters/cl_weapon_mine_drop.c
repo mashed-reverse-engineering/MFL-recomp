@@ -31,83 +31,83 @@ typedef struct MineSlot {
 /* WARNING: Unknown calling convention */
 /* "places a mine at the car (matrix rotate / transform) and adds its clump to the course world" */
 
-void weapon_mine_drop_n(int in_eax)
+void weapon_mine_drop_n(int mine_pool)
 
 {
-  MineSlot *pRVar1;
-  undefined4 uVar2;
-  int iVar3;
+  MineSlot *mine;
+  undefined4 rw_world;
+  int tmp_i;
   RpWorld *world;
   RpClump *clump;
-  float *pfVar6;
-  float *pfVar7;
+  float *seg_start;
+  float *hit_buf_ptr;
   struct {
-    float local_b4;
-    float local_b0;
-    float local_ac;
-    float local_a8;
-    float local_a4;
-    float local_a0;
-    float local_9c;
-    float local_98;
-    float local_94;
-    RwV3d local_90;
-    undefined4 local_84;
-    float local_80;
-    float local_7c;
-    float local_78;
-    int local_74;
-    undefined1 local_70 [36];
-    int local_4c;
-    undefined4 local_48;
-    int local_44;
-    RwMatrix local_40;
+    float mine_x;
+    float mine_y;
+    float mine_z;
+    float car_x;
+    float car_y;
+    float car_z;
+    float probe_end_x;
+    float probe_end_y;
+    float probe_end_z;
+    RwV3d rot_axis;
+    undefined4 hit_t;
+    float hit_normal_x;
+    float hit_normal_y;
+    float hit_normal_z;
+    int hit_triangle;
+    undefined1 hit_aux [36];
+    int hit_sector;
+    undefined4 hit_record_t;
+    int hit_world_obj;
+    RwMatrix mine_matrix;
   } frame;
   
-  iVar3 = *(int *)(in_eax + 0xc);
-  frame.local_a8 = *(float *)(iVar3 + 0x30);
-  frame.local_90.z = *(float *)(iVar3 + 0x18) * k_f_n1;
-  frame.local_a4 = *(float *)(iVar3 + 0x34);
-  frame.local_a0 = *(float *)(iVar3 + 0x38);
-  frame.local_9c = *(float *)(iVar3 + 0x10) * k_f_n1 * k_f_0_5 + frame.local_a8;
-  pfVar7 = &frame.local_80;
-  pfVar6 = &frame.local_a8;
-  frame.local_98 = *(float *)(iVar3 + 0x14) * k_f_n1 * k_f_0_5 + frame.local_a4;
-  frame.local_94 = frame.local_90.z * k_f_0_5 + frame.local_a0;
-  uVar2 = weapon_get_rw_801b14();
-  iVar3 = world_intersect_line(uVar2,pfVar6,pfVar7);
-  if (iVar3 != 0) {
-    frame.local_90.x = 1.0;
-    frame.local_90.y = 0.0;
-    frame.local_90.z = 0.0;
-    frame.local_84 = frame.local_48;
-    iVar3 = course_surface_id_is_active_check
+  /* (inferred) probe segment from the car matrix at mine_pool+0xc along its negated axis; the mine is placed on the hit point */
+  tmp_i = *(int *)(mine_pool + 0xc);
+  frame.car_x = *(float *)(tmp_i + 0x30);
+  frame.rot_axis.z = *(float *)(tmp_i + 0x18) * k_f_n1;
+  frame.car_y = *(float *)(tmp_i + 0x34);
+  frame.car_z = *(float *)(tmp_i + 0x38);
+  frame.probe_end_x = *(float *)(tmp_i + 0x10) * k_f_n1 * k_f_0_5 + frame.car_x;
+  hit_buf_ptr = &frame.hit_normal_x;
+  seg_start = &frame.car_x;
+  frame.probe_end_y = *(float *)(tmp_i + 0x14) * k_f_n1 * k_f_0_5 + frame.car_y;
+  frame.probe_end_z = frame.rot_axis.z * k_f_0_5 + frame.car_z;
+  rw_world = weapon_get_rw_801b14();
+  tmp_i = world_intersect_line(rw_world,seg_start,hit_buf_ptr);
+  if (tmp_i != 0) {
+    frame.rot_axis.x = 1.0;
+    frame.rot_axis.y = 0.0;
+    frame.rot_axis.z = 0.0;
+    frame.hit_t = frame.hit_record_t;
+    tmp_i = course_surface_id_is_active_check
                       (*(undefined4 *)
-                        (*(int *)(frame.local_44 + 0x10) +
-                        ((uint)*(ushort *)(*(int *)(frame.local_4c + 4) + 6 + frame.local_74 * 8) +
-                        (uint)*(ushort *)(frame.local_4c + 0x80)) * 4));
-    if (iVar3 == 0) {
-      FUN_004c4720(&frame.local_b4,&frame.local_a8,&frame.local_9c,frame.local_84);
-      frame.local_80 = frame.local_80 * k_f_0_005;
-      iVar3 = *(int *)(in_eax + 8) + -1;
-      *(int *)(in_eax + 8) = iVar3;
-      frame.local_b4 = frame.local_80 + frame.local_b4;
-      frame.local_b0 = frame.local_7c * k_f_0_005 + frame.local_b0;
-      frame.local_ac = frame.local_78 * k_f_0_005 + frame.local_ac;
-      pRVar1 = *(MineSlot **)(in_eax + iVar3 * 4);
-      *(undefined4 *)(in_eax + iVar3 * 4) = 0;
-      pRVar1->timer_5c = 0.0;
-      pRVar1->state = 2;
-      pRVar1->timer_64 = 0.0;
-      pRVar1->position[0] = frame.local_b4;
-      pRVar1->position[1] = frame.local_b0;
-      pRVar1->position[2] = frame.local_ac;
-      pRVar1->radius = 0.125;
-      FUN_004c51a0(&frame.local_40,frame.local_70,&frame.local_b4);
-      pRVar1->matrix = frame.local_40;
-      RwMatrixRotate(&frame.local_40,&frame.local_90,-90.0,rwCOMBINEPRECONCAT);
-      RwFrameTransform(*(RwFrame **)((char *)pRVar1->clump + 4),&frame.local_40,rwCOMBINEREPLACE);
-      clump = pRVar1->clump;
+                        (*(int *)(frame.hit_world_obj + 0x10) +
+                        ((uint)*(ushort *)(*(int *)(frame.hit_sector + 4) + 6 + frame.hit_triangle * 8) +
+                        (uint)*(ushort *)(frame.hit_sector + 0x80)) * 4));
+    if (tmp_i == 0) {
+      FUN_004c4720(&frame.mine_x,&frame.car_x,&frame.probe_end_x,frame.hit_t);
+      tmp_i = *(int *)(mine_pool + 8) + -1;
+      *(int *)(mine_pool + 8) = tmp_i;
+      frame.mine_x = frame.hit_normal_x * k_f_0_005 + frame.mine_x;
+      frame.mine_y = frame.hit_normal_y * k_f_0_005 + frame.mine_y;
+      frame.mine_z = frame.hit_normal_z * k_f_0_005 + frame.mine_z;
+      mine = *(MineSlot **)(mine_pool + tmp_i * 4);
+      *(undefined4 *)(mine_pool + tmp_i * 4) = 0;
+      mine->timer_5c = 0.0;
+      mine->state = 2;
+      mine->timer_64 = 0.0;
+      mine->position[0] = frame.mine_x;
+      mine->position[1] = frame.mine_y;
+      mine->position[2] = frame.mine_z;
+      mine->radius = 0.125;
+      FUN_004c51a0(&frame.mine_matrix,frame.hit_aux,&frame.mine_x);
+      mine->matrix = frame.mine_matrix;
+      RwMatrixRotate(&frame.mine_matrix,&frame.rot_axis,-90.0,rwCOMBINEPRECONCAT);
+      RwFrameTransform(*(RwFrame **)((char *)mine->clump + 4),&frame.mine_matrix,rwCOMBINEREPLACE);
+      clump = mine->clump;
       world = (RpWorld *)course_get_rpworld_00467e90();
       RpWorldAddClump(world,clump);
     }

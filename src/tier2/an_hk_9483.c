@@ -45,83 +45,83 @@ void race_status_messages_draw(void)
   float fbits2;
   float fbits3;
   float fbits4;
-  undefined4 uVar1;
-  float fVar2;
+  undefined4 shadow_colour;
+  float text_colour;
   RwCamera *camera;
   int iVar3;
-  RwCamera *pRVar4;
+  RwCamera *clear_camera;
   undefined4 uVar5;
   double fVar6;
-  RwRGBA *pRVar7;
-  RwInt32 RVar8;
+  RwRGBA *clear_colour_ptr;
+  RwInt32 clear_flags;
   struct {
-    undefined4 local_28;
-    RwRGBA local_24;
-    undefined4 local_20;
+    undefined4 colour_white;
+    RwRGBA clear_colour;
+    undefined4 colour_black;
     undefined4 uStack_1c;
-    float local_18;
+    float text_colour_f;
     float fStack_14;
   } frame;
-  RwV2d RStack_10;
-  RwV2d RStack_8;
+  RwV2d view_window_new;
+  RwV2d view_window_saved;
   
-  frame.local_24.red = '\0';
-  frame.local_24.green = '\0';
-  frame.local_24.blue = '\0';
-  frame.local_24.alpha = '\0';
-  frame.local_20 = 0xff000000;
-  frame.local_18 = -2.5554925e+38;
-  frame.local_28 = 0xffffffff;
+  frame.clear_colour.red = '\0';
+  frame.clear_colour.green = '\0';
+  frame.clear_colour.blue = '\0';
+  frame.clear_colour.alpha = '\0';
+  frame.colour_black = 0xff000000;
+  frame.text_colour_f = -2.5554925e+38;
+  frame.colour_white = 0xffffffff;
   camera = (RwCamera *)get_viewport_camera(0);
   iVar3 = get_event_type();
-  fVar2 = frame.local_18;
-  uVar1 = frame.local_20;
+  text_colour = frame.text_colour_f;
+  shadow_colour = frame.colour_black;
   if ((((iVar3 == 0) || (iVar3 = get_event_type(), iVar3 == 1)) ||
       (iVar3 = get_event_type(), iVar3 == 2)) &&
      ((iVar3 = race_get_phase(), iVar3 == 7 && (iVar3 = game_get_game_659d00(), iVar3 == 0)))) {
     RwCameraEndUpdate(camera);
-    RStack_8.x = RwCamera_viewWindow(camera).x;
-    RStack_8.y = RwCamera_viewWindow(camera).y;
-    RStack_10.x = 0.800000012f;
-    RStack_10.y = 0.800000012f;
-    RwCameraSetViewWindow(camera,&RStack_10);
-    RVar8 = 2;
-    pRVar7 = &frame.local_24;
-    pRVar4 = (RwCamera *)get_viewport_camera(0);
-    RwCameraClear(pRVar4,pRVar7,RVar8);
+    view_window_saved.x = RwCamera_viewWindow(camera).x;
+    view_window_saved.y = RwCamera_viewWindow(camera).y;
+    view_window_new.x = 0.800000012f;
+    view_window_new.y = 0.800000012f;
+    RwCameraSetViewWindow(camera,&view_window_new);
+    clear_flags = 2;
+    clear_colour_ptr = &frame.clear_colour;
+    clear_camera = (RwCamera *)get_viewport_camera(0);
+    RwCameraClear(clear_camera,clear_colour_ptr,clear_flags);
     RwCameraBeginUpdate(camera);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
-    ui_rt2d_text_draw(0x256, 323.0f, 98.0f, uVar1, 1.0f, 2);
-    ui_rt2d_text_draw(0x256, 320.0f, 95.0f, *(int *)&fVar2, 1.0f, 2);
-    ui_rt2d_text_draw(599, 323.0f, 128.0f, uVar1, 1.0f, 2);
-    ui_rt2d_text_draw(599, 320.0f, 125.0f, *(int *)&fVar2, 1.0f, 2);
+    ui_rt2d_text_draw(0x256, 323.0f, 98.0f, shadow_colour, 1.0f, 2);
+    ui_rt2d_text_draw(0x256, 320.0f, 95.0f, *(int *)&text_colour, 1.0f, 2);
+    ui_rt2d_text_draw(599, 323.0f, 128.0f, shadow_colour, 1.0f, 2);
+    ui_rt2d_text_draw(599, 320.0f, 125.0f, *(int *)&text_colour, 1.0f, 2);
     RwCameraEndUpdate(camera);
-    RwCameraSetViewWindow(camera,&RStack_8);
+    RwCameraSetViewWindow(camera,&view_window_saved);
     RwCameraBeginUpdate(camera);
   }
   iVar3 = camera_get_car_8c747c();
   if (iVar3 != 1) {
     if (g_intro_banner_text_id != 0) {
       RwCameraEndUpdate(camera);
-      RStack_8.x = RwCamera_viewWindow(camera).x;
-      RStack_8.y = RwCamera_viewWindow(camera).y;
-      RStack_10.x = 0.800000012f;
-      RStack_10.y = 0.800000012f;
-      RwCameraSetViewWindow(camera,&RStack_10);
-      RVar8 = 2;
-      pRVar7 = &frame.local_24;
-      pRVar4 = (RwCamera *)get_viewport_camera(0);
-      RwCameraClear(pRVar4,pRVar7,RVar8);
+      view_window_saved.x = RwCamera_viewWindow(camera).x;
+      view_window_saved.y = RwCamera_viewWindow(camera).y;
+      view_window_new.x = 0.800000012f;
+      view_window_new.y = 0.800000012f;
+      RwCameraSetViewWindow(camera,&view_window_new);
+      clear_flags = 2;
+      clear_colour_ptr = &frame.clear_colour;
+      clear_camera = (RwCamera *)get_viewport_camera(0);
+      RwCameraClear(clear_camera,clear_colour_ptr,clear_flags);
       RwCameraBeginUpdate(camera);
-      frame.local_28 = 0xff000000;
+      frame.colour_white = 0xff000000;
       frame.uStack_1c = 0x42a00000;
-      frame.local_20 = 0x44200000;
-      frame.local_18 = 0.0;
+      frame.colour_black = 0x44200000;
+      frame.text_colour_f = 0.0;
       frame.fStack_14 = g_intro_banner_slide_step;
       draw_rect(0,*(int *)&g_intro_banner_slide_step,0x44200000,0x42a00000,0xff000000);
       frame.fStack_14 = (k_f_480 - g_intro_banner_slide_step) - k_f_64;
-      draw_rect(0,*(int *)&frame.fStack_14,0x44200000,frame.uStack_1c,frame.local_28);
-      frame.local_28 = 0xffffffff;
+      draw_rect(0,*(int *)&frame.fStack_14,0x44200000,frame.uStack_1c,frame.colour_white);
+      frame.colour_white = 0xffffffff;
       frame.uStack_1c = 0x3f800000;
       draw_rect(0,*(int *)&frame.fStack_14,0x44200000,0x3f800000,0xffffffff);
       frame.fStack_14 = g_intro_banner_slide_step + k_f_80;
@@ -144,7 +144,7 @@ void race_status_messages_draw(void)
       }
       RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
       RwCameraEndUpdate(camera);
-      RwCameraSetViewWindow(camera,&RStack_8);
+      RwCameraSetViewWindow(camera,&view_window_saved);
       RwCameraBeginUpdate(camera);
     }
     return;
@@ -162,15 +162,15 @@ void race_status_messages_draw(void)
     uVar5 = 0;
   }
   RwCameraEndUpdate(camera);
-  RStack_8.x = RwCamera_viewWindow(camera).x;
-  RStack_8.y = RwCamera_viewWindow(camera).y;
-  RStack_10.x = 0.800000012f;
-  RStack_10.y = 0.800000012f;
-  RwCameraSetViewWindow(camera,&RStack_10);
-  RVar8 = 2;
-  pRVar7 = &frame.local_24;
-  pRVar4 = (RwCamera *)get_viewport_camera(0);
-  RwCameraClear(pRVar4,pRVar7,RVar8);
+  view_window_saved.x = RwCamera_viewWindow(camera).x;
+  view_window_saved.y = RwCamera_viewWindow(camera).y;
+  view_window_new.x = 0.800000012f;
+  view_window_new.y = 0.800000012f;
+  RwCameraSetViewWindow(camera,&view_window_new);
+  clear_flags = 2;
+  clear_colour_ptr = &frame.clear_colour;
+  clear_camera = (RwCamera *)get_viewport_camera(0);
+  RwCameraClear(clear_camera,clear_colour_ptr,clear_flags);
   RwCameraBeginUpdate(camera);
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
   switch(game_mode) {
@@ -195,35 +195,35 @@ LAB_0042f22a:
     if (g_car_7ef7b0 == 0) {
       race_lose_banner_draw();
       fVar6 = (double)ai_get_counter(1);
-      frame.local_18 = (float)fVar6;
+      frame.text_colour_f = (float)fVar6;
       fVar6 = (double)ai_get_counter(0);
-      if ((double)k_f_0_9 <= (double)frame.local_18 - fVar6) {
-        ui_rt2d_text_draw(0x216, intro_banner_get_x() + k_f_3, 98.0f, uVar1, 1.0f, 2);
-        ui_rt2d_text_draw(0x216, intro_banner_get_x(), 95.0f, *(int *)&fVar2, 1.0f, 2);
+      if ((double)k_f_0_9 <= (double)frame.text_colour_f - fVar6) {
+        ui_rt2d_text_draw(0x216, intro_banner_get_x() + k_f_3, 98.0f, shadow_colour, 1.0f, 2);
+        ui_rt2d_text_draw(0x216, intro_banner_get_x(), 95.0f, *(int *)&text_colour, 1.0f, 2);
       }
     }
     else {
       race_winner_banner_draw(uVar5);
-      intro_banner_draw_team_text(&frame.local_28,1);
-      ui_rt2d_text_draw(0x215, 320.0f, 98.0f, uVar1, 1.0f, 2);
-      ui_rt2d_text_draw(0x215, 320.0f, 95.0f, frame.local_28, 1.0f, 2);
+      intro_banner_draw_team_text(&frame.colour_white,1);
+      ui_rt2d_text_draw(0x215, 320.0f, 98.0f, shadow_colour, 1.0f, 2);
+      ui_rt2d_text_draw(0x215, 320.0f, 95.0f, frame.colour_white, 1.0f, 2);
     }
     goto LAB_0042f393;
   case 10:
     if (g_car_7ef7b0 == 0) {
       race_lose_banner_draw();
-      ui_rt2d_text_draw(0x231, intro_banner_get_x() + k_f_3, 98.0f, uVar1, 1.0f, 2);
-      ui_rt2d_text_draw(0x231, intro_banner_get_x(), 95.0f, *(int *)&fVar2, 1.0f, 2);
+      ui_rt2d_text_draw(0x231, intro_banner_get_x() + k_f_3, 98.0f, shadow_colour, 1.0f, 2);
+      ui_rt2d_text_draw(0x231, intro_banner_get_x(), 95.0f, *(int *)&text_colour, 1.0f, 2);
       goto LAB_0042f393;
     }
 LAB_0042f370:
     race_winner_banner_draw(uVar5);
     uVar5 = 1;
   }
-  intro_banner_draw_team_text(&frame.local_28,uVar5);
+  intro_banner_draw_team_text(&frame.colour_white,uVar5);
 LAB_0042f393:
   RwCameraEndUpdate(camera);
-  RwCameraSetViewWindow(camera,&RStack_8);
+  RwCameraSetViewWindow(camera,&view_window_saved);
   RwCameraBeginUpdate(camera);
   return;
 }

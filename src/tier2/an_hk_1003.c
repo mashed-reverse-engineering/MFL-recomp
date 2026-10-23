@@ -19,108 +19,108 @@
 
 /* "scans the trigger array for type 7 boxes the car is in and projects a target onto the line" */
 
-undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 param_1,char *param_2,char *param_3,undefined4 param_4)
+undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 param_1,char *out_target,char *out_aux,undefined4 car_index)
 
 {
   float fbits1;
-  float fVar1;
+  float tmp_f;
   int type_id;
   char *owner;
-  int iVar2;
-  float *pfVar3;
-  float *pfVar4;
-  float *pfVar5;
-  double fVar6;
-  RwReal RVar7;
+  int tmp_i;
+  float *trigger_ptr;
+  float *copy_src;
+  float *copy_dst;
+  double player_dist;
+  RwReal dist;
   struct {
-    float local_68;
-    char *local_64;
-    int local_60;
-    int local_5c;
-    float local_58;
-    float local_54;
-    undefined4 local_50;
-    undefined4 local_4c;
-    float local_48;
-    float local_44;
-    float local_40;
-    RwV3d local_3c;
-    undefined1 local_30 [16];
-    float local_20 [5];
-    float local_c;
+    float zone_height;
+    char *car_mtx;
+    int trigger_i;
+    int trigger_count;
+    float zone_x;
+    float zone_z;
+    undefined4 car_x;
+    undefined4 car_z;
+    float car_pos_x;
+    float car_pos_y;
+    float car_pos_z;
+    RwV3d to_zone;
+    undefined1 car_pos158 [16];
+    float zone_box [5];
+    float zone_box_end;
   } frame;
   
-  car_current_matrix(&frame.local_64,param_4);
-  frame.local_48 = *(float *)(frame.local_64 + 0x30);
-  frame.local_44 = *(float *)(frame.local_64 + 0x34);
-  frame.local_40 = *(float *)(frame.local_64 + 0x38);
-  iVar2 = triggers_get_array(&frame.local_5c);
-  frame.local_60 = 0;
-  if (0 < frame.local_5c) {
-    pfVar3 = (float *)(iVar2 + 0xc);
+  car_current_matrix(&frame.car_mtx,car_index);
+  frame.car_pos_x = *(float *)(frame.car_mtx + 0x30);
+  frame.car_pos_y = *(float *)(frame.car_mtx + 0x34);
+  frame.car_pos_z = *(float *)(frame.car_mtx + 0x38);
+  tmp_i = triggers_get_array(&frame.trigger_count);
+  frame.trigger_i = 0;
+  if (0 < frame.trigger_count) {
+    trigger_ptr = (float *)(tmp_i + 0xc);
     do {
-      type_id = *(int *)&pfVar3[1];
+      type_id = *(int *)&trigger_ptr[1];
       if (type_id < 0xff00) {
         if (type_id == 21) {
-          owner = *(char **)&pfVar3[2];
-          vehicle_get_position_158(param_4,frame.local_30);
-          pfVar4 = (float *)(owner + 0x68);
-          pfVar5 = frame.local_20;
-          for (iVar2 = 6; iVar2 != 0; iVar2 = iVar2 + -1) {
-            *pfVar5 = *pfVar4;
-            pfVar4 = pfVar4 + 1;
-            pfVar5 = pfVar5 + 1;
+          owner = *(char **)&trigger_ptr[2];
+          vehicle_get_position_158(car_index,frame.car_pos158);
+          copy_src = (float *)(owner + 0x68);
+          copy_dst = frame.zone_box;
+          for (tmp_i = 6; tmp_i != 0; tmp_i = tmp_i + -1) {
+            *copy_dst = *copy_src;
+            copy_src = copy_src + 1;
+            copy_dst = copy_dst + 1;
           }
-          fVar1 = (frame.local_20[2] - frame.local_c) * k_f_0_875;
-          frame.local_20[2] = frame.local_20[2] + fVar1;
-          frame.local_c = frame.local_c - fVar1;
-          iVar2 = sphere_vs_box_test(frame.local_20,(float *)frame.local_30);
-          if (iVar2 == 1) {
-            frame.local_50 = *(undefined4 *)(frame.local_64 + 0x30);
-            frame.local_4c = *(undefined4 *)(frame.local_64 + 0x38);
-            frame.local_58 = pfVar3[-3];
-            frame.local_54 = pfVar3[-1];
-            iVar2 = point_project_onto_line_2d(param_4,(float *)&frame.local_50,(float *)param_2,&frame.local_58,*pfVar3 * k_f_0_33333334 + k_f_0_5,(float *)param_3);
+          tmp_f = (frame.zone_box[2] - frame.zone_box_end) * k_f_0_875;
+          frame.zone_box[2] = frame.zone_box[2] + tmp_f;
+          frame.zone_box_end = frame.zone_box_end - tmp_f;
+          tmp_i = sphere_vs_box_test(frame.zone_box,(float *)frame.car_pos158);
+          if (tmp_i == 1) {
+            frame.car_x = *(undefined4 *)(frame.car_mtx + 0x30);
+            frame.car_z = *(undefined4 *)(frame.car_mtx + 0x38);
+            frame.zone_x = trigger_ptr[-3];
+            frame.zone_z = trigger_ptr[-1];
+            tmp_i = point_project_onto_line_2d(car_index,(float *)&frame.car_x,(float *)out_target,&frame.zone_x,*trigger_ptr * k_f_0_33333334 + k_f_0_5,(float *)out_aux);
 joined_r0x00417a28:
-            if (iVar2 != 0) {
+            if (tmp_i != 0) {
               return 1;
             }
           }
         }
-        else if ((((type_id != 10) || (pfVar3[2] == 0.0)) ||
-                 (iVar2 = *(int *)(*(int *)&pfVar3[2] + 4), iVar2 == 0)) ||
-                (k_f_0_4 <= *(float *)(iVar2 + 0x10))) {
-          frame.local_68 = *pfVar3;
+        else if ((((type_id != 10) || (trigger_ptr[2] == 0.0)) ||
+                 (tmp_i = *(int *)(*(int *)&trigger_ptr[2] + 4), tmp_i == 0)) ||
+                (k_f_0_4 <= *(float *)(tmp_i + 0x10))) {
+          frame.zone_height = *trigger_ptr;
           if (type_id == 13) {
-            frame.local_68 = frame.local_68 + frame.local_68;
+            frame.zone_height = frame.zone_height + frame.zone_height;
           }
-          frame.local_3c.x = frame.local_48 - pfVar3[-3];
-          frame.local_3c.y = frame.local_44 - pfVar3[-2];
-          frame.local_3c.z = frame.local_40 - pfVar3[-1];
-          RVar7 = RwV3dLength(&frame.local_3c);
-          if ((frame.local_3c.y < frame.local_68) && (RVar7 < k_f_8)) {
-            frame.local_50 = *(undefined4 *)(frame.local_64 + 0x30);
-            frame.local_4c = *(undefined4 *)(frame.local_64 + 0x38);
-            frame.local_58 = pfVar3[-3];
-            frame.local_54 = pfVar3[-1];
-            if (*(int *)&pfVar3[1] != 7) {
-              iVar2 = point_project_onto_line_2d(param_4,(float *)&frame.local_50,(float *)param_2,&frame.local_58,frame.local_68 + k_f_0_5,(float *)param_3);
+          frame.to_zone.x = frame.car_pos_x - trigger_ptr[-3];
+          frame.to_zone.y = frame.car_pos_y - trigger_ptr[-2];
+          frame.to_zone.z = frame.car_pos_z - trigger_ptr[-1];
+          dist = RwV3dLength(&frame.to_zone);
+          if ((frame.to_zone.y < frame.zone_height) && (dist < k_f_8)) {
+            frame.car_x = *(undefined4 *)(frame.car_mtx + 0x30);
+            frame.car_z = *(undefined4 *)(frame.car_mtx + 0x38);
+            frame.zone_x = trigger_ptr[-3];
+            frame.zone_z = trigger_ptr[-1];
+            if (*(int *)&trigger_ptr[1] != 7) {
+              tmp_i = point_project_onto_line_2d(car_index,(float *)&frame.car_x,(float *)out_target,&frame.zone_x,frame.zone_height + k_f_0_5,(float *)out_aux);
               goto joined_r0x00417a28;
             }
-            fVar6 = (double)player_distance_get(param_4);
-            if (((fVar6 == k_f_0) &&
-                (iVar2 = ai_bot_weapon_logic(param_4,&frame.local_50,param_2,&frame.local_58,(fbits1 = frame.local_68 + k_f_0_5, *(int *)&fbits1),
-                                             param_3), iVar2 != 0)) &&
-               ((fVar1 = *(float *)(frame.local_64 + 0x34) - pfVar3[-2], k_f_n0_75 < fVar1 &&
-                (fVar1 < k_f_0_75)))) {
+            player_dist = (double)player_distance_get(car_index);
+            if (((player_dist == k_f_0) &&
+                (tmp_i = ai_bot_weapon_logic(car_index,&frame.car_x,out_target,&frame.zone_x,(fbits1 = frame.zone_height + k_f_0_5, *(int *)&fbits1),
+                                             out_aux), tmp_i != 0)) &&
+               ((tmp_f = *(float *)(frame.car_mtx + 0x34) - trigger_ptr[-2], k_f_n0_75 < tmp_f &&
+                (tmp_f < k_f_0_75)))) {
               return 2;
             }
           }
         }
       }
-      frame.local_60 = frame.local_60 + 1;
-      pfVar3 = pfVar3 + 0x23;
-    } while (frame.local_60 < frame.local_5c);
+      frame.trigger_i = frame.trigger_i + 1;
+      trigger_ptr = trigger_ptr + 0x23;
+    } while (frame.trigger_i < frame.trigger_count);
   }
   return 0;
 }

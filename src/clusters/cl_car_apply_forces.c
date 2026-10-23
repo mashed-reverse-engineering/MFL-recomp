@@ -66,303 +66,310 @@ typedef int CourseId;
 
 static int triangle_normal_r(float * p0, float * p1, float * p2, float * p3);
 extern void triangle_normal(void);
-void car_apply_forces_n(Car *in_edi, float param_2, RwMatrix *param_3)
+void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
 
 {
-  uint uVar1;
-  float fVar2;
-  float fVar3;
-  uint uVar4;
-  int iVar5;
-  int iVar6;
-  CourseId CVar7;
-  RwV3d *pRVar8;
-  float *pfVar9;
-  int iVar10;
-  float *pfVar11;
-  byte bVar12;
-  float10 fVar13;
-  RwReal RVar14;
-  float fVar15;
+  uint matrix_slot;
+  float tmp_f;
+  float slip;
+  uint index_tmp;
+  int other_car_off;
+  int other_car_matrix_off;
+  CourseId course_id;
+  RwV3d *wheel_ground_pos;
+  float *wheel_pos_ptr;
+  int other_car_byte_off;
+  float *wheel_force_ptr;
+  byte active_cars;
+  float10 fl_tmp;
+  RwReal other_speed;
+  float scale_tmp;
   float slip3;
   float speed_keep;
   float raw_keep;
   volatile float base_load;      /* the original keeps this value in a stack slot (rounded to float) between its uses */
   int wheels_left;
   struct {
-    float local_70;
-    float local_6c;
+    float proximity_factor;
+    float catchup_t;
     undefined1 pad_68[4];
-    RwV3d local_64;
-    RwV3d local_58;
-    RwV3d local_4c;
-    RwMatrix local_40;
+    RwV3d rel_pos;
+    RwV3d other_vel;
+    RwV3d dir_to_other;
+    RwMatrix wheel_rot_matrix;
   } frame;
   
-  pfVar11 = in_edi->forward;
-  RwV3dTransformVectors((RwV3d *)pfVar11,(RwV3d *)&g_weapon_62ac80,1,param_3);
-  in_edi->wheels_in_contact = 0.0;
-  pRVar8 = (RwV3d *)&g_car_8b06a0;
-  pfVar9 = &in_edi->wheels[0].pos_x;
+  /* 1: rotate the forward vector and every wheel anchor into world space; count wheels in contact; wheel steering rotation */
+  wheel_force_ptr = self_car->forward;
+  RwV3dTransformVectors((RwV3d *)wheel_force_ptr,(RwV3d *)&g_weapon_62ac80,1,car_matrix);
+  self_car->wheels_in_contact = 0.0;
+  wheel_ground_pos = (RwV3d *)&g_car_8b06a0;
+  wheel_pos_ptr = &self_car->wheels[0].pos_x;
   do {
-    if (pfVar9[0xb] != 0.0) {
-      in_edi->wheels_in_contact = in_edi->wheels_in_contact + float_1_0;
+    if (wheel_pos_ptr[0xb] != 0.0) {
+      self_car->wheels_in_contact = self_car->wheels_in_contact + float_1_0;
     }
-    pRVar8->x = *pfVar9;
-    pRVar8->y = 0.0;
-    pRVar8->z = pfVar9[2];
-    RwV3dTransformVectors((RwV3d *)(pfVar9 + 5),pRVar8,1,param_3);
-    if (pfVar9[0xf] == k_f_0) {
-      pfVar9[0x2d] = *pfVar11;
-      pfVar9[0x2e] = in_edi->forward[1];
-      pfVar9[0x2f] = in_edi->forward[2];
+    wheel_ground_pos->x = *wheel_pos_ptr;
+    wheel_ground_pos->y = 0.0;
+    wheel_ground_pos->z = wheel_pos_ptr[2];
+    RwV3dTransformVectors((RwV3d *)(wheel_pos_ptr + 5),wheel_ground_pos,1,car_matrix);
+    if (wheel_pos_ptr[0xf] == k_f_0) {
+      wheel_pos_ptr[0x2d] = *wheel_force_ptr;
+      wheel_pos_ptr[0x2e] = self_car->forward[1];
+      wheel_pos_ptr[0x2f] = self_car->forward[2];
     }
     else {
-      RwMatrixRotate(&frame.local_40,(RwV3d *)&g_car_62ac74,pfVar9[0xf],rwCOMBINEREPLACE);
-      RwV3dTransformVectors((RwV3d *)(pfVar9 + 0x2d),(RwV3d *)pfVar11,1,&frame.local_40);
+      RwMatrixRotate(&frame.wheel_rot_matrix,(RwV3d *)&g_car_62ac74,wheel_pos_ptr[0xf],rwCOMBINEREPLACE);
+      RwV3dTransformVectors((RwV3d *)(wheel_pos_ptr + 0x2d),(RwV3d *)wheel_force_ptr,1,&frame.wheel_rot_matrix);
     }
-    pRVar8 = pRVar8 + 1;
-    pfVar9 = pfVar9 + 0x31;
-  } while ((int)pRVar8 < (int)&g_car_apply_8b06c8 + 0x8);
-  uVar4 = in_edi->velocity_history_index - 1U & 1;
-  in_edi->velocity_history_index = uVar4;
-  in_edi->velocity_history[uVar4 * 3] = in_edi->velocity[0];
-  in_edi->velocity_history[uVar4 * 3 + 1] = in_edi->velocity[1];
-  in_edi->velocity_history[uVar4 * 3 + 2] = in_edi->velocity[2];
-  fVar15 = in_edi->speed;
-  if (in_edi->speed < k_f_1_0en4) {
-    fVar15 = k_f_0;
+    wheel_ground_pos = wheel_ground_pos + 1;
+    wheel_pos_ptr = wheel_pos_ptr + 0x31;
+  } while ((int)wheel_ground_pos < (int)&g_car_apply_8b06c8 + 0x8);
+  index_tmp = self_car->velocity_history_index - 1U & 1;
+  self_car->velocity_history_index = index_tmp;
+  self_car->velocity_history[index_tmp * 3] = self_car->velocity[0];
+  self_car->velocity_history[index_tmp * 3 + 1] = self_car->velocity[1];
+  self_car->velocity_history[index_tmp * 3 + 2] = self_car->velocity[2];
+  /* 2: base drag factor: speed * scale, halved when not all 4 wheels touch the ground */
+  scale_tmp = self_car->speed;
+  if (self_car->speed < k_f_1_0en4) {
+    scale_tmp = k_f_0;
   }
-  fVar15 = *(float *)((char *)in_edi + 0x150) * in_edi->speed_scale * *(float *)((char *)in_edi + 0x158)
-           * fVar15;
-  if (in_edi->wheels_in_contact != 4.0) {
-    fVar15 = fVar15 * k_f_0_5;
+  scale_tmp = *(float *)((char *)self_car + 0x150) * self_car->speed_scale * *(float *)((char *)self_car + 0x158)
+           * scale_tmp;
+  if (self_car->wheels_in_contact != 4.0) {
+    scale_tmp = scale_tmp * k_f_0_5;
   }
-  uVar4 = 0;
-  frame.local_70 = 1.0;
-  iVar10 = 0;
-  fVar15 = fVar15 * in_edi->time_step_const * param_2 * k_f_3_3333333en4;
+  /* 3: slow down when another active car is close ahead on the same heading (rubber band), factor 1 - (6 - dist) / 8 */
+  index_tmp = 0;
+  frame.proximity_factor = 1.0;
+  other_car_byte_off = 0;
+  scale_tmp = scale_tmp * self_car->time_step_const * dt * k_f_3_3333333en4;
   do {
-    if ((uVar4 != in_edi->index) &&
-       (*(int *)((int)player_car[0].effect_level + iVar10 + -0x1c) == 1)) {
-      uVar1 = in_edi->matrix_current;
-      iVar5 = *(int *)((int)player_car[0].velocity + iVar10 + -8) * 0x40;
-      iVar6 = iVar5 + iVar10;
-      frame.local_64.x = *(float *)(iVar5 + 0x8b1038 + iVar10) - in_edi->matrices[uVar1 * 0x10 + 0xc];
-      frame.local_64.y = *(float *)((int)player_car[0].matrices + iVar6 + 0x34) -
-                   in_edi->matrices[uVar1 * 0x10 + 0xd];
-      frame.local_58.x = *(float *)((int)player_car[0].velocity + iVar10);
-      frame.local_64.z = *(float *)((int)player_car[0].matrices + iVar6 + 0x38) -
-                   in_edi->matrices[uVar1 * 0x10 + 0xe];
-      frame.local_58.y = *(float *)((int)player_car[0].velocity + iVar10 + 4);
-      frame.local_58.z = *(float *)((int)player_car[0].velocity + iVar10 + 8);
-      RVar14 = RwV3dLength(&frame.local_58);
-      if (k_f_1_0en4 <= RVar14) {
-        RwV3dNormalize(&frame.local_58,&frame.local_58);
-        RwV3dNormalize(&frame.local_4c,&frame.local_64);
-        if (((k_f_0_99 < frame.local_4c.z * frame.local_58.z + frame.local_4c.x * frame.local_58.x + frame.local_4c.y * frame.local_58.y
-             ) && (RVar14 = RwV3dLength(&frame.local_64), RVar14 < k_f_6)) &&
-           (fVar2 = float_1_0 - (k_f_6 - RVar14) * k_f_0_125, fVar2 < frame.local_70)) {
-          frame.local_70 = fVar2;
+    if ((index_tmp != self_car->index) &&
+       (*(int *)((int)player_car[0].effect_level + other_car_byte_off + -0x1c) == 1)) {
+      matrix_slot = self_car->matrix_current;
+      other_car_off = *(int *)((int)player_car[0].velocity + other_car_byte_off + -8) * 0x40;
+      other_car_matrix_off = other_car_off + other_car_byte_off;
+      frame.rel_pos.x = *(float *)(other_car_off + 0x8b1038 + other_car_byte_off) - self_car->matrices[matrix_slot * 0x10 + 0xc];
+      frame.rel_pos.y = *(float *)((int)player_car[0].matrices + other_car_matrix_off + 0x34) -
+                   self_car->matrices[matrix_slot * 0x10 + 0xd];
+      frame.other_vel.x = *(float *)((int)player_car[0].velocity + other_car_byte_off);
+      frame.rel_pos.z = *(float *)((int)player_car[0].matrices + other_car_matrix_off + 0x38) -
+                   self_car->matrices[matrix_slot * 0x10 + 0xe];
+      frame.other_vel.y = *(float *)((int)player_car[0].velocity + other_car_byte_off + 4);
+      frame.other_vel.z = *(float *)((int)player_car[0].velocity + other_car_byte_off + 8);
+      other_speed = RwV3dLength(&frame.other_vel);
+      if (k_f_1_0en4 <= other_speed) {
+        RwV3dNormalize(&frame.other_vel,&frame.other_vel);
+        RwV3dNormalize(&frame.dir_to_other,&frame.rel_pos);
+        if (((k_f_0_99 < frame.dir_to_other.z * frame.other_vel.z + frame.dir_to_other.x * frame.other_vel.x + frame.dir_to_other.y * frame.other_vel.y
+             ) && (other_speed = RwV3dLength(&frame.rel_pos), other_speed < k_f_6)) &&
+           (tmp_f = float_1_0 - (k_f_6 - other_speed) * k_f_0_125, tmp_f < frame.proximity_factor)) {
+          frame.proximity_factor = tmp_f;
         }
       }
     }
-    iVar10 = iVar10 + 0xd04;
-    uVar4 = uVar4 + 1;
-  } while (iVar10 < 0x3410);
+    other_car_byte_off = other_car_byte_off + 0xd04;
+    index_tmp = index_tmp + 1;
+  } while (other_car_byte_off < 0x3410);
+  /* 4: no proximity slowdown in races / fugitive chase; survival: 0.75 for non-human cars */
   if (game_mode == GAME_MODE_RACE) {
-    frame.local_70 = 1.0;
+    frame.proximity_factor = 1.0;
   }
   else if (game_mode == GAME_MODE_CHASE_FUGITIVE) {
-    frame.local_70 = 1.0;
+    frame.proximity_factor = 1.0;
   }
-  else if ((game_mode == GAME_MODE_SURVIVAL) && (in_edi->index != 0)) {
-    frame.local_70 = 0.75;
+  else if ((game_mode == GAME_MODE_SURVIVAL) && (self_car->index != 0)) {
+    frame.proximity_factor = 0.75;
   }
-  iVar10 = get_event_type();
-  if ((iVar10 == EVENT_TRAINING) && (in_edi->index == 1)) {
-    frame.local_70 = float_1_0;
+  other_car_byte_off = get_event_type();
+  if ((other_car_byte_off == EVENT_TRAINING) && (self_car->index == 1)) {
+    frame.proximity_factor = float_1_0;
   }
-  fVar2 = k_f_60000 - (float)(int)g_race_clock_b;
-  if (k_f_0 <= fVar2) {
-    frame.local_6c = 1.0;
+  /* 5: catch-up factor from the race clock and the best / worst vehicle id of the players */
+  tmp_f = k_f_60000 - (float)(int)g_race_clock_b;
+  if (k_f_0 <= tmp_f) {
+    frame.catchup_t = 1.0;
   }
   else {
-    if (fVar2 < k_f_n30000) {
-      fVar2 = k_f_n30000;
+    if (tmp_f < k_f_n30000) {
+      tmp_f = k_f_n30000;
     }
-    frame.local_6c = float_1_0 - fVar2 * k_f_n3_3333334en5;
+    frame.catchup_t = float_1_0 - tmp_f * k_f_n3_3333334en5;
   }
-  iVar10 = 0;
+  other_car_byte_off = 0;
   if ((player_car[0].active != 0) && (0 < player_car[0].vehicle_id)) {
-    iVar10 = player_car[0].vehicle_id;
+    other_car_byte_off = player_car[0].vehicle_id;
   }
-  if ((player_car[1].active != 0) && (iVar10 < player_car[1].vehicle_id)) {
-    iVar10 = player_car[1].vehicle_id;
+  if ((player_car[1].active != 0) && (other_car_byte_off < player_car[1].vehicle_id)) {
+    other_car_byte_off = player_car[1].vehicle_id;
   }
-  if ((player_car[2].active != 0) && (iVar10 < player_car[2].vehicle_id)) {
-    iVar10 = player_car[2].vehicle_id;
+  if ((player_car[2].active != 0) && (other_car_byte_off < player_car[2].vehicle_id)) {
+    other_car_byte_off = player_car[2].vehicle_id;
   }
-  if ((player_car[3].active != 0) && (iVar10 < player_car[3].vehicle_id)) {
-    iVar10 = player_car[3].vehicle_id;
+  if ((player_car[3].active != 0) && (other_car_byte_off < player_car[3].vehicle_id)) {
+    other_car_byte_off = player_car[3].vehicle_id;
   }
-  fVar2 = k_f_n0_15;
-  if ((((iVar10 != 0) && (fVar2 = k_f_0, iVar10 != 1)) && (fVar2 = k_f_0_5, iVar10 != 2)) &&
-     (fVar2 = k_f_0, iVar10 == 3)) {
-    fVar2 = float_1_0;
+  tmp_f = k_f_n0_15;
+  if ((((other_car_byte_off != 0) && (tmp_f = k_f_0, other_car_byte_off != 1)) && (tmp_f = k_f_0_5, other_car_byte_off != 2)) &&
+     (tmp_f = k_f_0, other_car_byte_off == 3)) {
+    tmp_f = float_1_0;
   }
-  if (frame.local_6c == k_f_0) {
-    iVar10 = 3;
+  if (frame.catchup_t == k_f_0) {
+    other_car_byte_off = 3;
     if ((player_car[0].active != 0) && (player_car[0].vehicle_id < 3)) {
-      iVar10 = player_car[0].vehicle_id;
+      other_car_byte_off = player_car[0].vehicle_id;
     }
-    if ((player_car[1].active != 0) && (player_car[1].vehicle_id < iVar10)) {
-      iVar10 = player_car[1].vehicle_id;
+    if ((player_car[1].active != 0) && (player_car[1].vehicle_id < other_car_byte_off)) {
+      other_car_byte_off = player_car[1].vehicle_id;
     }
-    if ((player_car[2].active != 0) && (player_car[2].vehicle_id < iVar10)) {
-      iVar10 = player_car[2].vehicle_id;
+    if ((player_car[2].active != 0) && (player_car[2].vehicle_id < other_car_byte_off)) {
+      other_car_byte_off = player_car[2].vehicle_id;
     }
-    if ((player_car[3].active != 0) && (player_car[3].vehicle_id < iVar10)) {
-      iVar10 = player_car[3].vehicle_id;
+    if ((player_car[3].active != 0) && (player_car[3].vehicle_id < other_car_byte_off)) {
+      other_car_byte_off = player_car[3].vehicle_id;
     }
-    if (iVar10 == 0) {
-      frame.local_6c = 1.0;
-      fVar2 = k_f_n0_15;
+    if (other_car_byte_off == 0) {
+      frame.catchup_t = 1.0;
+      tmp_f = k_f_n0_15;
     }
   }
-  frame.local_70 = (fVar2 * frame.local_6c + float_1_0) * frame.local_70;
-  fVar13 = (float10)camera_get_distance_factor(in_edi->index,frame.local_70,frame.local_6c);
-  frame.local_70 = (float)(fVar13 * (float10)frame.local_70);
-  if ((k_f_0 < frame.local_6c) && (iVar10 = player_distance_warning(in_edi->index), iVar10 != 0)) {
-    bVar12 = player_car[0].active != 0;
+  frame.proximity_factor = (tmp_f * frame.catchup_t + float_1_0) * frame.proximity_factor;
+  fl_tmp = (float10)camera_get_distance_factor(self_car->index,frame.proximity_factor,frame.catchup_t);
+  frame.proximity_factor = (float)(fl_tmp * (float10)frame.proximity_factor);
+  if ((k_f_0 < frame.catchup_t) && (other_car_byte_off = player_distance_warning(self_car->index), other_car_byte_off != 0)) {
+    active_cars = player_car[0].active != 0;
     if (player_car[1].active != 0) {
-      bVar12 = bVar12 + 1;
+      active_cars = active_cars + 1;
     }
     if (player_car[2].active != 0) {
-      bVar12 = bVar12 + 1;
+      active_cars = active_cars + 1;
     }
     if (player_car[3].active != 0) {
-      bVar12 = bVar12 + 1;
+      active_cars = active_cars + 1;
     }
-    if (2 < bVar12) {
-      frame.local_70 = frame.local_70 * k_f_0_5;
+    if (2 < active_cars) {
+      frame.proximity_factor = frame.proximity_factor * k_f_0_5;
     }
   }
-  raw_keep = float_1_0 - frame.local_70 * fVar15;
+  /* 6: drag: keep factor clamped to 0..1 applied to velocity, then gravity along g_gravity_vector scaled by speed */
+  raw_keep = float_1_0 - frame.proximity_factor * scale_tmp;
   speed_keep = ((raw_keep < k_f_0) || (float_1_0 < raw_keep)) ? k_f_0 : raw_keep;
-  in_edi->velocity[0] = speed_keep * in_edi->velocity[0];
-  in_edi->velocity[1] = speed_keep * in_edi->velocity[1];
-  in_edi->velocity[2] = speed_keep * in_edi->velocity[2];
-  frame.local_64.z = param_2 * in_edi->speed * k_f_1_0en5;
-  if (k_f_2 < frame.local_64.z) {
-    frame.local_64.z = k_f_2;
+  self_car->velocity[0] = speed_keep * self_car->velocity[0];
+  self_car->velocity[1] = speed_keep * self_car->velocity[1];
+  self_car->velocity[2] = speed_keep * self_car->velocity[2];
+  frame.rel_pos.z = dt * self_car->speed * k_f_1_0en5;
+  if (k_f_2 < frame.rel_pos.z) {
+    frame.rel_pos.z = k_f_2;
   }
-  frame.local_64.z = frame.local_64.z * g_cars_801b28;
-  frame.local_64.x = g_gravity_vector * frame.local_64.z;
-  frame.local_64.y = g_cars_801b20 * frame.local_64.z;
-  frame.local_64.z = g_cars_801b24 * frame.local_64.z;
-  in_edi->velocity[0] = frame.local_64.x + in_edi->velocity[0];
-  in_edi->velocity[1] = frame.local_64.y + in_edi->velocity[1];
-  in_edi->velocity[2] = frame.local_64.z + in_edi->velocity[2];
-  if (in_edi->wheels_in_contact != k_f_0) {
-    iVar10 = in_edi->velocity_history_index;
-    uVar4 = iVar10 - 1U & 1;
-    frame.local_64.x = in_edi->velocity_history[iVar10 * 3] - in_edi->velocity_history[uVar4 * 3];      /* the original rounds the x and y differences to float, z stays in the register */
-    frame.local_64.y = in_edi->velocity_history[iVar10 * 3 + 1] - in_edi->velocity_history[uVar4 * 3 + 1];
-    frame.local_64.z = in_edi->velocity_history[iVar10 * 3 + 2] - in_edi->velocity_history[uVar4 * 3 + 2];
-    frame.local_64.x = frame.local_64.x * param_2;
-    frame.local_64.y = frame.local_64.y * param_2;
-    frame.local_64.z = frame.local_64.z * param_2;
-    base_load = (in_edi->mass / in_edi->wheels_in_contact) * g_cars_8bd750;
-    fVar2 = base_load * k_f_0_33333334;
-    if (in_edi->wheels[0].in_contact == 0) {
-      in_edi->wheels[0].load = 0.0;
+  frame.rel_pos.z = frame.rel_pos.z * g_cars_801b28;
+  frame.rel_pos.x = g_gravity_vector * frame.rel_pos.z;
+  frame.rel_pos.y = g_cars_801b20 * frame.rel_pos.z;
+  frame.rel_pos.z = g_cars_801b24 * frame.rel_pos.z;
+  self_car->velocity[0] = frame.rel_pos.x + self_car->velocity[0];
+  self_car->velocity[1] = frame.rel_pos.y + self_car->velocity[1];
+  self_car->velocity[2] = frame.rel_pos.z + self_car->velocity[2];
+  if (self_car->wheels_in_contact != k_f_0) {
+    other_car_byte_off = self_car->velocity_history_index;
+    index_tmp = other_car_byte_off - 1U & 1;
+    frame.rel_pos.x = self_car->velocity_history[other_car_byte_off * 3] - self_car->velocity_history[index_tmp * 3];      /* the original rounds the x and y differences to float, z stays in the register */
+    frame.rel_pos.y = self_car->velocity_history[other_car_byte_off * 3 + 1] - self_car->velocity_history[index_tmp * 3 + 1];
+    frame.rel_pos.z = self_car->velocity_history[other_car_byte_off * 3 + 2] - self_car->velocity_history[index_tmp * 3 + 2];
+    frame.rel_pos.x = frame.rel_pos.x * dt;
+    frame.rel_pos.y = frame.rel_pos.y * dt;
+    frame.rel_pos.z = frame.rel_pos.z * dt;
+    /* 7: per wheel load from the acceleration change since last frame (clamped to +-1/3 of base load), store wheel slip values */
+    base_load = (self_car->mass / self_car->wheels_in_contact) * g_cars_8bd750;
+    tmp_f = base_load * k_f_0_33333334;
+    if (self_car->wheels[0].in_contact == 0) {
+      self_car->wheels[0].load = 0.0;
     }
     else {
-      fVar3 = (*(float *)((char *)&in_edi->wheels[0] + 0x20) * frame.local_64.z +
-              (*(float *)((char *)&in_edi->wheels[0] + 0x18) * frame.local_64.x +
-               *(float *)((char *)&in_edi->wheels[0] + 0x1c) * frame.local_64.y)) * k_f_0_002;
-      if (fVar2 < fVar3) {
-        fVar3 = fVar2;
+      slip = (*(float *)((char *)&self_car->wheels[0] + 0x20) * frame.rel_pos.z +
+              (*(float *)((char *)&self_car->wheels[0] + 0x18) * frame.rel_pos.x +
+               *(float *)((char *)&self_car->wheels[0] + 0x1c) * frame.rel_pos.y)) * k_f_0_002;
+      if (tmp_f < slip) {
+        slip = tmp_f;
       }
-      if (fVar3 < -fVar2) {
-        fVar3 = -fVar2;
+      if (slip < -tmp_f) {
+        slip = -tmp_f;
       }
-      in_edi->wheels[0].load = base_load + fVar3;
-      if (fVar3 > k_f_20) {
+      self_car->wheels[0].load = base_load + slip;
+      if (slip > k_f_20) {
         g_car_8b06a4 = k_f_20 * k_f_0_0033333334;
       }
       else {
-        if (fVar3 < k_f_n20) {
-          fVar3 = k_f_n20;
+        if (slip < k_f_n20) {
+          slip = k_f_n20;
         }
-        g_car_8b06a4 = fVar3 * k_f_0_0033333334;
+        g_car_8b06a4 = slip * k_f_0_0033333334;
       }
     }
-    if (in_edi->wheels[1].in_contact == 0) {
-      in_edi->wheels[1].load = 0.0;
+    if (self_car->wheels[1].in_contact == 0) {
+      self_car->wheels[1].load = 0.0;
     }
     else {
-      fVar3 = (*(float *)((char *)&in_edi->wheels[1] + 0x20) * frame.local_64.z +
-              (*(float *)((char *)&in_edi->wheels[1] + 0x18) * frame.local_64.x +
-               *(float *)((char *)&in_edi->wheels[1] + 0x1c) * frame.local_64.y)) * k_f_0_002;
-      if (fVar2 < fVar3) {
-        fVar3 = fVar2;
+      slip = (*(float *)((char *)&self_car->wheels[1] + 0x20) * frame.rel_pos.z +
+              (*(float *)((char *)&self_car->wheels[1] + 0x18) * frame.rel_pos.x +
+               *(float *)((char *)&self_car->wheels[1] + 0x1c) * frame.rel_pos.y)) * k_f_0_002;
+      if (tmp_f < slip) {
+        slip = tmp_f;
       }
-      if (fVar3 < -fVar2) {
-        fVar3 = -fVar2;
+      if (slip < -tmp_f) {
+        slip = -tmp_f;
       }
-      in_edi->wheels[1].load = base_load + fVar3;
-      if (fVar3 > k_f_20) {
+      self_car->wheels[1].load = base_load + slip;
+      if (slip > k_f_20) {
         g_car_8b06b0 = k_f_20 * k_f_0_0033333334;
       }
       else {
-        if (fVar3 < k_f_n20) {
-          fVar3 = k_f_n20;
+        if (slip < k_f_n20) {
+          slip = k_f_n20;
         }
-        g_car_8b06b0 = fVar3 * k_f_0_0033333334;
+        g_car_8b06b0 = slip * k_f_0_0033333334;
       }
     }
-    if (in_edi->wheels[2].in_contact == 0) {
-      in_edi->wheels[2].load = 0.0;
+    if (self_car->wheels[2].in_contact == 0) {
+      self_car->wheels[2].load = 0.0;
     }
     else {
-      fVar3 =
-           (*(float *)((char *)&in_edi->wheels[2] + 0x20) * frame.local_64.z +
-              (*(float *)((char *)&in_edi->wheels[2] + 0x18) * frame.local_64.x +
-               *(float *)((char *)&in_edi->wheels[2] + 0x1c) * frame.local_64.y)) * k_f_0_002;
-      if (fVar2 < fVar3) {
-        fVar3 = fVar2;
+      slip =
+           (*(float *)((char *)&self_car->wheels[2] + 0x20) * frame.rel_pos.z +
+              (*(float *)((char *)&self_car->wheels[2] + 0x18) * frame.rel_pos.x +
+               *(float *)((char *)&self_car->wheels[2] + 0x1c) * frame.rel_pos.y)) * k_f_0_002;
+      if (tmp_f < slip) {
+        slip = tmp_f;
       }
-      if (fVar3 < -fVar2) {
-        fVar3 = -fVar2;
+      if (slip < -tmp_f) {
+        slip = -tmp_f;
       }
-      in_edi->wheels[2].load = base_load + fVar3;
-      if (fVar3 > k_f_20) {
+      self_car->wheels[2].load = base_load + slip;
+      if (slip > k_f_20) {
         g_car_apply_8b06bc = k_f_20 * k_f_0_0033333334;
       }
       else {
-        if (fVar3 < k_f_n20) {
-          fVar3 = k_f_n20;
+        if (slip < k_f_n20) {
+          slip = k_f_n20;
         }
-        g_car_apply_8b06bc = fVar3 * k_f_0_0033333334;
+        g_car_apply_8b06bc = slip * k_f_0_0033333334;
       }
     }
-    if (in_edi->wheels[3].in_contact == 0) {
-      in_edi->wheels[3].load = 0.0;
+    if (self_car->wheels[3].in_contact == 0) {
+      self_car->wheels[3].load = 0.0;
     }
     else {
       slip3 =
-           (*(float *)((char *)&in_edi->wheels[3] + 0x20) * frame.local_64.z +
-              (*(float *)((char *)&in_edi->wheels[3] + 0x18) * frame.local_64.x +
-               *(float *)((char *)&in_edi->wheels[3] + 0x1c) * frame.local_64.y)) * k_f_0_002;
-      if (fVar2 < slip3) {
-        slip3 = fVar2;
+           (*(float *)((char *)&self_car->wheels[3] + 0x20) * frame.rel_pos.z +
+              (*(float *)((char *)&self_car->wheels[3] + 0x18) * frame.rel_pos.x +
+               *(float *)((char *)&self_car->wheels[3] + 0x1c) * frame.rel_pos.y)) * k_f_0_002;
+      if (tmp_f < slip3) {
+        slip3 = tmp_f;
       }
-      if (slip3 < -fVar2) {
-        slip3 = -fVar2;
+      if (slip3 < -tmp_f) {
+        slip3 = -tmp_f;
       }
-      in_edi->wheels[3].load = base_load + slip3;
+      self_car->wheels[3].load = base_load + slip3;
       if (slip3 > k_f_20) {
         g_car_apply_8b06c8 = k_f_20 * k_f_0_0033333334;
       }
@@ -373,115 +380,116 @@ void car_apply_forces_n(Car *in_edi, float param_2, RwMatrix *param_3)
         g_car_apply_8b06c8 = slip3 * k_f_0_0033333334;
       }
     }
-    in_edi->wheels[3].load = in_edi->wheels[3].load * k_f_0_5;
-    uVar4 = *(int *)((char *)in_edi + 0xbec) + 1U & 0xf;
-    *(uint *)((char *)in_edi + 0xbec) = uVar4;
+    self_car->wheels[3].load = self_car->wheels[3].load * k_f_0_5;
+    index_tmp = *(int *)((char *)self_car + 0xbec) + 1U & 0xf;
+    *(uint *)((char *)self_car + 0xbec) = index_tmp;
     triangle_normal_r(&g_car_8b06a0,&g_car_8b06ac,&g_car_apply_8b06b8,
-                    in_edi->field_b00 + uVar4 * 3 + 0xb);
-    if (in_edi->field_b00[uVar4 * 3 + 0xd] < k_f_0) {
-      in_edi->field_b00[uVar4 * 3 + 0xd] = in_edi->field_b00[uVar4 * 3 + 0xd] * k_f_0_25;
+                    self_car->field_b00 + index_tmp * 3 + 0xb);
+    if (self_car->field_b00[index_tmp * 3 + 0xd] < k_f_0) {
+      self_car->field_b00[index_tmp * 3 + 0xd] = self_car->field_b00[index_tmp * 3 + 0xd] * k_f_0_25;
     }
   }
-  pfVar11 = (float *)((char *)&in_edi->wheels[0] + 0x8c);
+  /* 8: per wheel grip / drag forces from the surface type (pfVar[-1]) and the wheel load */
+  wheel_force_ptr = (float *)((char *)&self_car->wheels[0] + 0x8c);
   wheels_left = 4;
   do {
-    if (pfVar11[-0x17] == 0.0) {
-      pfVar11[10] = 0.0;
-      pfVar11[9] = 0.0;
-      pfVar11[8] = 0.0;
+    if (wheel_force_ptr[-0x17] == 0.0) {
+      wheel_force_ptr[10] = 0.0;
+      wheel_force_ptr[9] = 0.0;
+      wheel_force_ptr[8] = 0.0;
     }
     else {
-      fVar15 = pfVar11[-1];
-      *pfVar11 = 0.25;
-      in_edi->field_b00[0] = 0.0;
-      in_edi->field_b00[1] = 0.0;
-      in_edi->field_b00[2] = 0.0;
-      if (fVar15 == -NAN) {
-        fVar15 = in_edi->speed * k_f_5_0en6;
-        fVar13 = (float10)random_range(-fVar15,*(int *)&fVar15);
-        in_edi->field_b00[0] = (float)fVar13;
-        in_edi->field_b00[1] = 0.0;
-        fVar13 = (float10)random_range(-fVar15,*(int *)&fVar15);
-        in_edi->field_b00[2] = (float)fVar13;
+      scale_tmp = wheel_force_ptr[-1];
+      *wheel_force_ptr = 0.25;
+      self_car->field_b00[0] = 0.0;
+      self_car->field_b00[1] = 0.0;
+      self_car->field_b00[2] = 0.0;
+      if (scale_tmp == -NAN) {
+        scale_tmp = self_car->speed * k_f_5_0en6;
+        fl_tmp = (float10)random_range(-scale_tmp,*(int *)&scale_tmp);
+        self_car->field_b00[0] = (float)fl_tmp;
+        self_car->field_b00[1] = 0.0;
+        fl_tmp = (float10)random_range(-scale_tmp,*(int *)&scale_tmp);
+        self_car->field_b00[2] = (float)fl_tmp;
       }
-      else if (fVar15 == -NAN) {
-        *pfVar11 = 0.1;
+      else if (scale_tmp == -NAN) {
+        *wheel_force_ptr = 0.1;
       }
-      else if (fVar15 == -NAN) {
-        *pfVar11 = 0.01;
+      else if (scale_tmp == -NAN) {
+        *wheel_force_ptr = 0.01;
       }
       else {
-        if ((fVar15 == -NAN) || (fVar15 == -2.1068629e+38)) {
-          if (in_edi->is_bot == 0) {
-            *pfVar11 = 0.01;
-            CVar7 = current_course_id();
-            if (CVar7 == COURSE_NT1_S) {
-              *pfVar11 = 0.1;
+        if ((scale_tmp == -NAN) || (scale_tmp == -2.1068629e+38)) {
+          if (self_car->is_bot == 0) {
+            *wheel_force_ptr = 0.01;
+            course_id = current_course_id();
+            if (course_id == COURSE_NT1_S) {
+              *wheel_force_ptr = 0.1;
             }
           }
           else {
-            *pfVar11 = 0.2;
+            *wheel_force_ptr = 0.2;
           }
         }
-        if (fVar15 == -NAN) {
-          *pfVar11 = 0.2;
+        if (scale_tmp == -NAN) {
+          *wheel_force_ptr = 0.2;
         }
       }
-      if (in_edi->effect_level[3] != 0) {
-        *pfVar11 = (float)(int)in_edi->effect_level[3] * *pfVar11 * k_f_0_01;
+      if (self_car->effect_level[3] != 0) {
+        *wheel_force_ptr = (float)(int)self_car->effect_level[3] * *wheel_force_ptr * k_f_0_01;
       }
-      fVar15 = pfVar11[-0x1a] * *pfVar11;
-      *pfVar11 = fVar15;
-      pfVar11[1] = k_f_0_6 * fVar15;
-      pfVar11[2] = g_car_apply_6292e8 * fVar15;
-      if (in_edi->controls_disabled == 1) {
-        pfVar11[1] = fVar15;
-        pfVar11[2] = fVar15;
+      scale_tmp = wheel_force_ptr[-0x1a] * *wheel_force_ptr;
+      *wheel_force_ptr = scale_tmp;
+      wheel_force_ptr[1] = k_f_0_6 * scale_tmp;
+      wheel_force_ptr[2] = g_car_apply_6292e8 * scale_tmp;
+      if (self_car->controls_disabled == 1) {
+        wheel_force_ptr[1] = scale_tmp;
+        wheel_force_ptr[2] = scale_tmp;
       }
-      pfVar11[7] = pfVar11[6] * pfVar11[4];
-      if (pfVar11[6] * pfVar11[4] < k_f_0) {
-        pfVar11[7] = 0.0;
+      wheel_force_ptr[7] = wheel_force_ptr[6] * wheel_force_ptr[4];
+      if (wheel_force_ptr[6] * wheel_force_ptr[4] < k_f_0) {
+        wheel_force_ptr[7] = 0.0;
       }
-      if (in_edi->wheels_in_contact == 4.0) {
-        pRVar8 = (RwV3d *)(pfVar11 + 8);
-        fVar15 = g_car_8bd730 * pfVar11[6] * k_f_0_5;
-        pRVar8->x = fVar15 * pfVar11[3];
-        pfVar11[9] = (pfVar11[4] - float_1_0) * fVar15;
-        pfVar11[10] = fVar15 * pfVar11[5];
-        fVar15 = RwV3dLength(pRVar8);
-        if (fVar15 != k_f_0) {
-          frame.local_64.z = float_1_0 / fVar15;
-          frame.local_64.x = frame.local_64.z * pRVar8->x;
-          frame.local_64.y = frame.local_64.z * pfVar11[9];
-          frame.local_64.z = frame.local_64.z * pfVar11[10];
-          fVar2 = (frame.local_64.z * pfVar11[0xd] + frame.local_64.x * pfVar11[0xb] + frame.local_64.y * pfVar11[0xc]
-                  ) * fVar15;
-          pRVar8->x = fVar2 * pfVar11[0xb];
-          pfVar11[9] = fVar2 * pfVar11[0xc];
-          fVar2 = fVar2 * pfVar11[0xd];
+      if (self_car->wheels_in_contact == 4.0) {
+        wheel_ground_pos = (RwV3d *)(wheel_force_ptr + 8);
+        scale_tmp = g_car_8bd730 * wheel_force_ptr[6] * k_f_0_5;
+        wheel_ground_pos->x = scale_tmp * wheel_force_ptr[3];
+        wheel_force_ptr[9] = (wheel_force_ptr[4] - float_1_0) * scale_tmp;
+        wheel_force_ptr[10] = scale_tmp * wheel_force_ptr[5];
+        scale_tmp = RwV3dLength(wheel_ground_pos);
+        if (scale_tmp != k_f_0) {
+          frame.rel_pos.z = float_1_0 / scale_tmp;
+          frame.rel_pos.x = frame.rel_pos.z * wheel_ground_pos->x;
+          frame.rel_pos.y = frame.rel_pos.z * wheel_force_ptr[9];
+          frame.rel_pos.z = frame.rel_pos.z * wheel_force_ptr[10];
+          tmp_f = (frame.rel_pos.z * wheel_force_ptr[0xd] + frame.rel_pos.x * wheel_force_ptr[0xb] + frame.rel_pos.y * wheel_force_ptr[0xc]
+                  ) * scale_tmp;
+          wheel_ground_pos->x = tmp_f * wheel_force_ptr[0xb];
+          wheel_force_ptr[9] = tmp_f * wheel_force_ptr[0xc];
+          tmp_f = tmp_f * wheel_force_ptr[0xd];
           goto LAB_0047cad1;
         }
       }
       else {
-        fVar15 = (pfVar11[6] / param_2) * g_car_8bd730;
-        pfVar11[8] = fVar15 * pfVar11[3];
-        pfVar11[9] = fVar15 * pfVar11[4];
-        fVar2 = fVar15 * pfVar11[5];
+        scale_tmp = (wheel_force_ptr[6] / dt) * g_car_8bd730;
+        wheel_force_ptr[8] = scale_tmp * wheel_force_ptr[3];
+        wheel_force_ptr[9] = scale_tmp * wheel_force_ptr[4];
+        tmp_f = scale_tmp * wheel_force_ptr[5];
 LAB_0047cad1:
-        pfVar11[10] = fVar2;
+        wheel_force_ptr[10] = tmp_f;
       }
-      if ((*(int *)((char *)in_edi + 0xb20) == 0) && (k_f_65536 < fVar15)) {
-        *(undefined4 *)((char *)in_edi + 0xb20) = 1;
+      if ((*(int *)((char *)self_car + 0xb20) == 0) && (k_f_65536 < scale_tmp)) {
+        *(undefined4 *)((char *)self_car + 0xb20) = 1;
       }
     }
-    fVar15 = g_cars_8bd750;
-    pfVar11 = pfVar11 + 0x31;
+    scale_tmp = g_cars_8bd750;
+    wheel_force_ptr = wheel_force_ptr + 0x31;
     wheels_left = wheels_left + -1;
     if (wheels_left == 0) {
-      if (in_edi->wheels_in_contact < k_f_3) {
-        *(undefined4 *)((char *)in_edi + 0xb20) = 1;
-        *(float *)((char *)in_edi + 0xb18) =
-             *(float *)((char *)in_edi + 0xb18) - fVar15 * in_edi->mass * k_f_3000;
+      if (self_car->wheels_in_contact < k_f_3) {
+        *(undefined4 *)((char *)self_car + 0xb20) = 1;
+        *(float *)((char *)self_car + 0xb18) =
+             *(float *)((char *)self_car + 0xb18) - scale_tmp * self_car->mass * k_f_3000;
       }
       return;
     }

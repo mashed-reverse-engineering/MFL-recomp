@@ -1072,3 +1072,5 @@
 004849e0 course_helper_4849e0 hk_9501.c
 00471eb0 course_storm_cb1_sub_471eb0 hk_9502.c
 004065c0 course_materials_fixup_cb_4065c0 hk_9503.c
+00413d10 replay_save hk_9601.c
+0042a7f0 course_run_ktc_script hk_9602.c

@@ -26,137 +26,137 @@
 /* WARNING: Unknown calling convention */
 /* "sfx 0x13 at the bomb position, then car_damage_at_world_point to nearby cars (inferred)" */
 
-void bomb_explode_n(char *in_esi, float *param_2)
+void bomb_explode_n(char *bomb, float *target_pos)
 
 {
   float fbits1;
-  float *pfVar1;
-  float *pfVar2;
-  RwMatrix *pRVar3;
-  RwV3d *pRVar4;
-  int iVar5;
-  float10 fVar6;
-  RwV3d *pointsIn;
+  float *start_ptr;
+  float *end_ptr;
+  RwMatrix *bomb_ltm;
+  RwV3d *bomb_pos;
+  int burst_count;
+  float10 rnd;
+  RwV3d *spark_ptr;
   struct {
-    float local_3c;
-    float local_38;
-    float local_34;
-    RwV3d local_30;
-    RwV3d local_24;
-    undefined4 local_18;
-    undefined4 local_14;
-    undefined4 local_10;
-    float local_c [3];
+    float impulse_x;
+    float impulse_y;
+    float impulse_z;
+    RwV3d spark_pos;
+    RwV3d burst_dir;
+    undefined4 burst_vec_x;
+    undefined4 burst_vec_y;
+    undefined4 burst_vec_z;
+    float cone_axis [3];
   } frame;
   
-  frame.local_c[0] = 1.0;
-  frame.local_c[1] = 1.5;
-  frame.local_c[2] = 1.0;
-  frame.local_18 = 0;
-  frame.local_14 = 0xba83126f;
-  frame.local_10 = 0;
-  pRVar3 = RwFrameGetLTM(*(RwFrame **)(*(char **)(in_esi + 0x28) + 4));
-  pRVar4 = &pRVar3->pos;
-  sfx_play_at(0x13,pRVar4);
-  sfx_play_at(0x25,param_2);
-  iVar5 = 5;
+  frame.cone_axis[0] = 1.0;
+  frame.cone_axis[1] = 1.5;
+  frame.cone_axis[2] = 1.0;
+  frame.burst_vec_x = 0;
+  frame.burst_vec_y = 0xba83126f;
+  frame.burst_vec_z = 0;
+  bomb_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(bomb + 0x28) + 4));
+  bomb_pos = &bomb_ltm->pos;
+  sfx_play_at(0x13,bomb_pos);
+  sfx_play_at(0x25,target_pos);
+  burst_count = 5;
   do {
-    random_vector_in_cone(&frame.local_24,frame.local_c,10.0);
-    frame.local_24.x = frame.local_24.x * k_f_0_023;
-    frame.local_24.y = frame.local_24.y * k_f_0_023;
-    frame.local_24.z = frame.local_24.z * k_f_0_023;
-    fx_spawn_burst_default_scale(pRVar4,1,&frame.local_24,0,&frame.local_18,0x40000000);
-    fx_spawn_burst_default_scale(param_2,1,&frame.local_24,0,&frame.local_18,0x40000000);
-    iVar5 = iVar5 + -1;
-  } while (iVar5 != 0);
-  point_lerp_to_aux_camera(param_2,&frame.local_30,0x3dcccccd);
-  fVar6 = (float10)random_range(0xbe4ccccd,0x3e4ccccd);
-  frame.local_30.x = (RwReal)(fVar6 + (float10)frame.local_30.x);
-  fVar6 = (float10)random_range(0xbe4ccccd,0x3e4ccccd);
-  frame.local_30.y = (RwReal)(fVar6 + (float10)frame.local_30.y);
-  fVar6 = (float10)random_range(0xbe4ccccd,0x3e4ccccd);
-  frame.local_30.z = (RwReal)(fVar6 + (float10)frame.local_30.z);
-  weapon_particle_spark_emit(&frame.local_30,0x3f19999a);
-  point_lerp_to_aux_camera(pRVar4,&frame.local_30,0x3dcccccd);
-  fVar6 = (float10)random_range(0xbdcccccd,0x3dcccccd);
-  frame.local_30.x = (RwReal)(fVar6 + (float10)frame.local_30.x);
-  fVar6 = (float10)random_range(0xbdcccccd,0x3dcccccd);
-  frame.local_30.y = (RwReal)(fVar6 + (float10)frame.local_30.y);
-  fVar6 = (float10)random_range(0xbdcccccd,0x3dcccccd);
-  frame.local_30.z = (RwReal)(fVar6 + (float10)frame.local_30.z);
-  weapon_particle_spark_emit(&frame.local_30,0x3f19999a);
-  pointsIn = &frame.local_30;
-  fVar6 = (float10)ai_get_float_8c9980();
-  car_damage_at_world_point(0,(fbits1 = (float)(fVar6 * (float10)k_f_0_025 + (float10)k_f_0_01), *(int *)&fbits1),pointsIn);
-  fVar6 = (float10)random_range(0xc3480000,0x43480000);
-  frame.local_3c = (float)fVar6;
-  frame.local_38 = 0.0;
-  fVar6 = (float10)random_range(0xc3480000,0x43480000);
-  frame.local_34 = (float)fVar6;
-  fVar6 = (float10)ai_get_float_8c9980();
-  frame.local_3c = (float)((fVar6 * (float10)k_f_0_1 + (float10)k_f_0_05) * (float10)frame.local_3c);
-  fVar6 = (float10)ai_get_float_8c9980();
-  frame.local_38 = (float)((fVar6 * (float10)k_f_0_1 + (float10)k_f_0_05) * (float10)frame.local_38);
-  fVar6 = (float10)ai_get_float_8c9980();
-  frame.local_34 = (float)((fVar6 * (float10)k_f_0_1 + (float10)k_f_0_05) * (float10)frame.local_34);
-  car_add_velocity(&frame.local_3c,0);
-  frame.local_3c = 0.0;
-  fVar6 = (float10)random_range(0xbf4ccccd,0x3f4ccccd);
-  frame.local_38 = (float)fVar6;
-  if (((float10)k_f_0_3 <= fVar6) || (frame.local_38 <= k_f_0)) {
-    if ((k_f_n0_3 < frame.local_38) && (frame.local_38 < k_f_0)) {
-      frame.local_38 = -0.3;
+    random_vector_in_cone(&frame.burst_dir,frame.cone_axis,10.0);
+    frame.burst_dir.x = frame.burst_dir.x * k_f_0_023;
+    frame.burst_dir.y = frame.burst_dir.y * k_f_0_023;
+    frame.burst_dir.z = frame.burst_dir.z * k_f_0_023;
+    fx_spawn_burst_default_scale(bomb_pos,1,&frame.burst_dir,0,&frame.burst_vec_x,0x40000000);
+    fx_spawn_burst_default_scale(target_pos,1,&frame.burst_dir,0,&frame.burst_vec_x,0x40000000);
+    burst_count = burst_count + -1;
+  } while (burst_count != 0);
+  point_lerp_to_aux_camera(target_pos,&frame.spark_pos,0x3dcccccd);
+  rnd = (float10)random_range(0xbe4ccccd,0x3e4ccccd);
+  frame.spark_pos.x = (RwReal)(rnd + (float10)frame.spark_pos.x);
+  rnd = (float10)random_range(0xbe4ccccd,0x3e4ccccd);
+  frame.spark_pos.y = (RwReal)(rnd + (float10)frame.spark_pos.y);
+  rnd = (float10)random_range(0xbe4ccccd,0x3e4ccccd);
+  frame.spark_pos.z = (RwReal)(rnd + (float10)frame.spark_pos.z);
+  weapon_particle_spark_emit(&frame.spark_pos,0x3f19999a);
+  point_lerp_to_aux_camera(bomb_pos,&frame.spark_pos,0x3dcccccd);
+  rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
+  frame.spark_pos.x = (RwReal)(rnd + (float10)frame.spark_pos.x);
+  rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
+  frame.spark_pos.y = (RwReal)(rnd + (float10)frame.spark_pos.y);
+  rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
+  frame.spark_pos.z = (RwReal)(rnd + (float10)frame.spark_pos.z);
+  weapon_particle_spark_emit(&frame.spark_pos,0x3f19999a);
+  spark_ptr = &frame.spark_pos;
+  rnd = (float10)ai_get_float_8c9980();
+  car_damage_at_world_point(0,(fbits1 = (float)(rnd * (float10)k_f_0_025 + (float10)k_f_0_01), *(int *)&fbits1),spark_ptr);
+  rnd = (float10)random_range(0xc3480000,0x43480000);
+  frame.impulse_x = (float)rnd;
+  frame.impulse_y = 0.0;
+  rnd = (float10)random_range(0xc3480000,0x43480000);
+  frame.impulse_z = (float)rnd;
+  rnd = (float10)ai_get_float_8c9980();
+  frame.impulse_x = (float)((rnd * (float10)k_f_0_1 + (float10)k_f_0_05) * (float10)frame.impulse_x);
+  rnd = (float10)ai_get_float_8c9980();
+  frame.impulse_y = (float)((rnd * (float10)k_f_0_1 + (float10)k_f_0_05) * (float10)frame.impulse_y);
+  rnd = (float10)ai_get_float_8c9980();
+  frame.impulse_z = (float)((rnd * (float10)k_f_0_1 + (float10)k_f_0_05) * (float10)frame.impulse_z);
+  car_add_velocity(&frame.impulse_x,0);
+  frame.impulse_x = 0.0;
+  rnd = (float10)random_range(0xbf4ccccd,0x3f4ccccd);
+  frame.impulse_y = (float)rnd;
+  if (((float10)k_f_0_3 <= rnd) || (frame.impulse_y <= k_f_0)) {
+    if ((k_f_n0_3 < frame.impulse_y) && (frame.impulse_y < k_f_0)) {
+      frame.impulse_y = -0.3;
     }
   }
   else {
-    frame.local_38 = 0.3;
+    frame.impulse_y = 0.3;
   }
-  frame.local_34 = 0.0;
-  fVar6 = (float10)ai_get_float_8c9980();
-  frame.local_3c = (float)((fVar6 * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.local_3c);
-  fVar6 = (float10)ai_get_float_8c9980();
-  frame.local_38 = (float)((fVar6 * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.local_38);
-  fVar6 = (float10)ai_get_float_8c9980();
-  frame.local_34 = (float)((fVar6 * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.local_34);
-  car_set_field_144(&frame.local_3c,0);
-  pfVar1 = (float *)(in_esi + 0x7c);
-  *pfVar1 = pRVar4->x;
-  *(RwReal *)(in_esi + 0x80) = (pRVar3->pos).y;
-  *(RwReal *)(in_esi + 0x84) = (pRVar3->pos).z;
-  pfVar2 = (float *)(in_esi + 0x88);
-  *pfVar2 = *param_2;
-  *(float *)(in_esi + 0x8c) = param_2[1];
-  *(float *)(in_esi + 0x90) = param_2[2];
-  frame.local_24.x = *pfVar2 - *pfVar1;
-  frame.local_24.y = *(float *)(in_esi + 0x8c) - *(float *)(in_esi + 0x80);
-  frame.local_24.z = *(float *)(in_esi + 0x90) - *(float *)(in_esi + 0x84);
-  fVar6 = (float10)random_range(0x3dcccccd,0x3ecccccd);
-  *pfVar1 = (float)(fVar6 * (float10)frame.local_24.x + (float10)*pfVar1);
-  fVar6 = (float10)random_range(0x3dcccccd,0x3ecccccd);
-  *(float *)(in_esi + 0x80) =
-       (float)(fVar6 * (float10)frame.local_24.y + (float10)*(float *)(in_esi + 0x80));
-  fVar6 = (float10)random_range(0x3dcccccd,0x3ecccccd);
-  *(float *)(in_esi + 0x84) =
-       (float)(fVar6 * (float10)frame.local_24.z + (float10)*(float *)(in_esi + 0x84));
-  fVar6 = (float10)random_range(0xbdcccccd,0xbecccccd);
-  *pfVar2 = (float)(fVar6 * (float10)frame.local_24.x + (float10)*pfVar2);
-  fVar6 = (float10)random_range(0xbdcccccd,0xbecccccd);
-  *(float *)(in_esi + 0x8c) =
-       (float)(fVar6 * (float10)frame.local_24.y + (float10)*(float *)(in_esi + 0x8c));
-  fVar6 = (float10)random_range(0xbdcccccd,0xbecccccd);
-  *(float *)(in_esi + 0x90) =
-       (float)(fVar6 * (float10)frame.local_24.z + (float10)*(float *)(in_esi + 0x90));
-  fVar6 = (float10)random_range(0xbdcccccd,0x3dcccccd);
-  frame.local_24.x = (RwReal)fVar6;
-  fVar6 = (float10)random_range(0xbdcccccd,0x3dcccccd);
-  frame.local_24.y = (RwReal)fVar6;
-  fVar6 = (float10)random_range(0xbdcccccd,0x3dcccccd);
-  *pfVar1 = frame.local_24.x + *pfVar1;
-  *(float *)(in_esi + 0x80) = frame.local_24.y + *(float *)(in_esi + 0x80);
-  *(float *)(in_esi + 0x84) = (float)(fVar6 + (float10)*(float *)(in_esi + 0x84));
-  *pfVar2 = frame.local_24.x + *pfVar2;
-  *(float *)(in_esi + 0x8c) = frame.local_24.y + *(float *)(in_esi + 0x8c);
-  *(float *)(in_esi + 0x90) = (float)(fVar6 + (float10)*(float *)(in_esi + 0x90));
+  frame.impulse_z = 0.0;
+  rnd = (float10)ai_get_float_8c9980();
+  frame.impulse_x = (float)((rnd * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.impulse_x);
+  rnd = (float10)ai_get_float_8c9980();
+  frame.impulse_y = (float)((rnd * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.impulse_y);
+  rnd = (float10)ai_get_float_8c9980();
+  frame.impulse_z = (float)((rnd * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.impulse_z);
+  car_set_field_144(&frame.impulse_x,0);
+  start_ptr = (float *)(bomb + 0x7c);
+  *start_ptr = bomb_pos->x;
+  *(RwReal *)(bomb + 0x80) = (bomb_ltm->pos).y;
+  *(RwReal *)(bomb + 0x84) = (bomb_ltm->pos).z;
+  end_ptr = (float *)(bomb + 0x88);
+  *end_ptr = *target_pos;
+  *(float *)(bomb + 0x8c) = target_pos[1];
+  *(float *)(bomb + 0x90) = target_pos[2];
+  frame.burst_dir.x = *end_ptr - *start_ptr;
+  frame.burst_dir.y = *(float *)(bomb + 0x8c) - *(float *)(bomb + 0x80);
+  frame.burst_dir.z = *(float *)(bomb + 0x90) - *(float *)(bomb + 0x84);
+  rnd = (float10)random_range(0x3dcccccd,0x3ecccccd);
+  *start_ptr = (float)(rnd * (float10)frame.burst_dir.x + (float10)*start_ptr);
+  rnd = (float10)random_range(0x3dcccccd,0x3ecccccd);
+  *(float *)(bomb + 0x80) =
+       (float)(rnd * (float10)frame.burst_dir.y + (float10)*(float *)(bomb + 0x80));
+  rnd = (float10)random_range(0x3dcccccd,0x3ecccccd);
+  *(float *)(bomb + 0x84) =
+       (float)(rnd * (float10)frame.burst_dir.z + (float10)*(float *)(bomb + 0x84));
+  rnd = (float10)random_range(0xbdcccccd,0xbecccccd);
+  *end_ptr = (float)(rnd * (float10)frame.burst_dir.x + (float10)*end_ptr);
+  rnd = (float10)random_range(0xbdcccccd,0xbecccccd);
+  *(float *)(bomb + 0x8c) =
+       (float)(rnd * (float10)frame.burst_dir.y + (float10)*(float *)(bomb + 0x8c));
+  rnd = (float10)random_range(0xbdcccccd,0xbecccccd);
+  *(float *)(bomb + 0x90) =
+       (float)(rnd * (float10)frame.burst_dir.z + (float10)*(float *)(bomb + 0x90));
+  rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
+  frame.burst_dir.x = (RwReal)rnd;
+  rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
+  frame.burst_dir.y = (RwReal)rnd;
+  rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
+  *start_ptr = frame.burst_dir.x + *start_ptr;
+  *(float *)(bomb + 0x80) = frame.burst_dir.y + *(float *)(bomb + 0x80);
+  *(float *)(bomb + 0x84) = (float)(rnd + (float10)*(float *)(bomb + 0x84));
+  *end_ptr = frame.burst_dir.x + *end_ptr;
+  *(float *)(bomb + 0x8c) = frame.burst_dir.y + *(float *)(bomb + 0x8c);
+  *(float *)(bomb + 0x90) = (float)(rnd + (float10)*(float *)(bomb + 0x90));
   return;
 }
 

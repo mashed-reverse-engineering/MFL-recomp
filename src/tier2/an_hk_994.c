@@ -61,7 +61,7 @@ void gamesave_autosave_state_machine(float delta_time)
   case 4:
     iVar1 = gamesave_write();
     if (iVar1 == 0) {
-      if (g_gamesave_wait_timer <= float_1_0) {
+      if (!(g_gamesave_wait_timer > float_1_0)) {
         gamesave_poll_status(*(int *)&delta_time);
       }
       else {

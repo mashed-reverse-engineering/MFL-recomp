@@ -32,141 +32,141 @@
 /* WARNING: Unknown calling convention */
 /* "random colour / size, explosion_decal and sfx_play_player_set_at at the effect position" */
 
-float10 explosion_spawn_fx_n(char *in_eax)
+float10 explosion_spawn_fx_n(char *effect)
 
 {
-  undefined4 *puVar1;
-  int *piVar2;
-  float fVar3;
+  undefined4 *vec_ptr;
+  int *body_ptr;
+  float timer;
   int rwp_matrix;
-  RwMatrix *pRVar4;
-  int iVar5;
-  RwV3d *pRVar6;
-  float *pfVar7;
-  float10 fVar8;
-  RwV3d *pRVar9;
-  RwV3d *pRVar10;
+  RwMatrix *ltm;
+  int owner_or_count;
+  RwV3d *pos_a;
+  float *obj_pos;
+  float10 rnd;
+  RwV3d *pos_b;
+  RwV3d *pos_c;
   struct {
-    float local_1c;
-    undefined1 local_18;
-    undefined1 local_17;
-    undefined1 local_16;
-    undefined1 local_15;
-    float local_14;
-    float local_10;
-    float local_c;
-    float local_8;
-    float local_4;
+    float damage_frac;
+    undefined1 colour_r;
+    undefined1 colour_g;
+    undefined1 colour_b;
+    undefined1 colour_a;
+    float rand_a;
+    float rand_b;
+    float spark_x;
+    float spark_y;
+    float spark_z;
   } frame;
   
-  rwp_matrix = rwp_object_get_matrix(*(undefined4 *)(in_eax + 0x44));
-  frame.local_1c = (k_f_100 - *(float *)(in_eax + 0x5c)) * k_f_0_01;
-  pfVar7 = (float *)(rwp_matrix + 0x30);
-  fVar8 = (float10)random_range(0,0x3f800000);
-  frame.local_14 = (float)fVar8;
-  fVar8 = (float10)random_range(0x3f4ccccd,0x3f99999a);
-  frame.local_10 = (float)fVar8;
-  pRVar4 = RwFrameGetLTM(*(RwFrame **)(*(int *)(in_eax + 0x3c) + 4));
-  pRVar6 = &pRVar4->pos;
-  pRVar4 = RwFrameGetLTM(*(RwFrame **)(*(int *)(in_eax + 0x40) + 4));
-  fVar3 = g_tick_seconds + *(float *)(in_eax + 0x6c);
-  pRVar9 = &pRVar4->pos;
-  *(float *)(in_eax + 0x6c) = fVar3;
-  frame.local_15 = 0x80;
-  if (k_f_3 <= fVar3) {
-    *(undefined4 *)(in_eax + 0x6c) = 0;
-    *(undefined4 *)(in_eax + 0x68) = *(undefined4 *)(in_eax + 0x60);
+  rwp_matrix = rwp_object_get_matrix(*(undefined4 *)(effect + 0x44));
+  frame.damage_frac = (k_f_100 - *(float *)(effect + 0x5c)) * k_f_0_01;
+  obj_pos = (float *)(rwp_matrix + 0x30);
+  rnd = (float10)random_range(0,0x3f800000);
+  frame.rand_a = (float)rnd;
+  rnd = (float10)random_range(0x3f4ccccd,0x3f99999a);
+  frame.rand_b = (float)rnd;
+  ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(effect + 0x3c) + 4));
+  pos_a = &ltm->pos;
+  ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(effect + 0x40) + 4));
+  timer = g_tick_seconds + *(float *)(effect + 0x6c);
+  pos_b = &ltm->pos;
+  *(float *)(effect + 0x6c) = timer;
+  frame.colour_a = 0x80;
+  if (k_f_3 <= timer) {
+    *(undefined4 *)(effect + 0x6c) = 0;
+    *(undefined4 *)(effect + 0x68) = *(undefined4 *)(effect + 0x60);
   }
-  if (float_1_0 < frame.local_1c) {
-    frame.local_1c = 1.0;
+  if (float_1_0 < frame.damage_frac) {
+    frame.damage_frac = 1.0;
   }
-  frame.local_18 = ((int)(frame.local_10 * 128.0f));
-  frame.local_17 = frame.local_18;
-  frame.local_16 = ((int)(frame.local_10 * 150.0f));
-  if (*(int *)(in_eax + 0x48) == 0) {
-    if (float_1_0 <= frame.local_1c) {
+  frame.colour_r = ((int)(frame.rand_b * 128.0f));
+  frame.colour_g = frame.colour_r;
+  frame.colour_b = ((int)(frame.rand_b * 150.0f));
+  if (*(int *)(effect + 0x48) == 0) {
+    if (float_1_0 <= frame.damage_frac) {
       g_explosion_651aa4 = g_explosion_651aa4 + 1;
-      *(undefined4 *)(in_eax + 0x48) = 1;
-      *(undefined4 *)(in_eax + 0xe0) = 0;
-      fx_emitter_spawn_a_default(pfVar7,&g_car_62ac74,0x43b40000);
-      sfx_play_player_set_at(pfVar7);
-      if (*(int *)(in_eax + 0x18) != 0) {
-        rwp_object_set_enabled(*(undefined4 *)(in_eax + 0x44),1);
-        iVar5 = rwp_owner_object_get(*(undefined4 *)(in_eax + 0x18));
-        rwp_world_set_bit_5c(*(undefined4 *)(iVar5 + 0x24),iVar5,1);
-        piVar2 = *(int **)(*(int *)(iVar5 + 0x10) + 4);
-        if (piVar2 != (int *)0x0) {
-          *(float *)&piVar2[6] = (float_1_0 / (g_tick_seconds * float_10_0));
-          puVar1 = (undefined4 *)(*(int *)(*(int *)(*piVar2 + 0x10) + 8) + 0x10 + piVar2[1] * 0x20);
-          *puVar1 = 0;
-          puVar1[1] = 0x41a00000;
-          puVar1[2] = 0;
-          *(float *)&piVar2[5] = (float_1_0 / (g_tick_seconds * k_f_60));
+      *(undefined4 *)(effect + 0x48) = 1;
+      *(undefined4 *)(effect + 0xe0) = 0;
+      fx_emitter_spawn_a_default(obj_pos,&g_car_62ac74,0x43b40000);
+      sfx_play_player_set_at(obj_pos);
+      if (*(int *)(effect + 0x18) != 0) {
+        rwp_object_set_enabled(*(undefined4 *)(effect + 0x44),1);
+        owner_or_count = rwp_owner_object_get(*(undefined4 *)(effect + 0x18));
+        rwp_world_set_bit_5c(*(undefined4 *)(owner_or_count + 0x24),owner_or_count,1);
+        body_ptr = *(int **)(*(int *)(owner_or_count + 0x10) + 4);
+        if (body_ptr != (int *)0x0) {
+          *(float *)&body_ptr[6] = (float_1_0 / (g_tick_seconds * float_10_0));
+          vec_ptr = (undefined4 *)(*(int *)(*(int *)(*body_ptr + 0x10) + 8) + 0x10 + body_ptr[1] * 0x20);
+          *vec_ptr = 0;
+          vec_ptr[1] = 0x41a00000;
+          vec_ptr[2] = 0;
+          *(float *)&body_ptr[5] = (float_1_0 / (g_tick_seconds * k_f_60));
         }
       }
-      iVar5 = 6;
+      owner_or_count = 6;
       do {
-        frame.local_c = *pfVar7;
-        frame.local_8 = *(float *)(rwp_matrix + 0x34);
-        frame.local_4 = *(float *)(rwp_matrix + 0x38);
-        fVar8 = (float10)random_range(0xbf666666,0x3f666666);
-        frame.local_c = (float)(fVar8 + (float10)frame.local_c);
-        fVar8 = (float10)random_range(0xbf666666,0x3f666666);
-        frame.local_8 = (float)(fVar8 + (float10)frame.local_8);
-        fVar8 = (float10)random_range(0xbf666666,0x3f666666);
-        frame.local_4 = (float)(fVar8 + (float10)frame.local_4);
-        fx_emitter_spawn_a_default(&frame.local_c,&g_car_62ac74,0x43b40000);
-        explosion_decal(&frame.local_c,0x3f99999a);
-        iVar5 = iVar5 + -1;
-      } while (iVar5 != 0);
-      return (float10)frame.local_1c;
+        frame.spark_x = *obj_pos;
+        frame.spark_y = *(float *)(rwp_matrix + 0x34);
+        frame.spark_z = *(float *)(rwp_matrix + 0x38);
+        rnd = (float10)random_range(0xbf666666,0x3f666666);
+        frame.spark_x = (float)(rnd + (float10)frame.spark_x);
+        rnd = (float10)random_range(0xbf666666,0x3f666666);
+        frame.spark_y = (float)(rnd + (float10)frame.spark_y);
+        rnd = (float10)random_range(0xbf666666,0x3f666666);
+        frame.spark_z = (float)(rnd + (float10)frame.spark_z);
+        fx_emitter_spawn_a_default(&frame.spark_x,&g_car_62ac74,0x43b40000);
+        explosion_decal(&frame.spark_x,0x3f99999a);
+        owner_or_count = owner_or_count + -1;
+      } while (owner_or_count != 0);
+      return (float10)frame.damage_frac;
     }
-    if (frame.local_14 + frame.local_14 < frame.local_1c) {
-      fVar8 = (float10)random_range(0,0x3f800000);
-      pRVar10 = pRVar9;
-      if ((float10)k_f_0_5 < fVar8) {
-        pRVar10 = pRVar6;
+    if (frame.rand_a + frame.rand_a < frame.damage_frac) {
+      rnd = (float10)random_range(0,0x3f800000);
+      pos_c = pos_b;
+      if ((float10)k_f_0_5 < rnd) {
+        pos_c = pos_a;
       }
-      fx_smoke_particle_spawn_tinted(pRVar10,0x3f333333,&frame.local_18,0x40a00000,0x3f000000);
+      fx_smoke_particle_spawn_tinted(pos_c,0x3f333333,&frame.colour_r,0x40a00000,0x3f000000);
     }
-    if ((k_f_0_5 < frame.local_1c) && (*(int *)(in_eax + 100) == 0)) {
-      fx_ring_add_point(pRVar6,0x3f800000);
-      fx_ring_add_point(pRVar6,0x3f800000);
-      fx_ring_add_point(pRVar6,0x3f800000);
-      fx_ring_add_point(pRVar9,0x3f800000);
-      fx_ring_add_point(pRVar9,0x3f800000);
-      fx_ring_add_point(pRVar9,0x3f800000);
-      *(undefined4 *)(in_eax + 100) = 1;
+    if ((k_f_0_5 < frame.damage_frac) && (*(int *)(effect + 100) == 0)) {
+      fx_ring_add_point(pos_a,0x3f800000);
+      fx_ring_add_point(pos_a,0x3f800000);
+      fx_ring_add_point(pos_a,0x3f800000);
+      fx_ring_add_point(pos_b,0x3f800000);
+      fx_ring_add_point(pos_b,0x3f800000);
+      fx_ring_add_point(pos_b,0x3f800000);
+      *(undefined4 *)(effect + 100) = 1;
     }
   }
   else {
-    if (k_f_0_9 < frame.local_14) {
-      fVar8 = (float10)random_range(0,0x3f800000);
-      if ((float10)k_f_0_5 < fVar8) {
-        pRVar9 = pRVar6;
+    if (k_f_0_9 < frame.rand_a) {
+      rnd = (float10)random_range(0,0x3f800000);
+      if ((float10)k_f_0_5 < rnd) {
+        pos_b = pos_a;
       }
-      fx_smoke_particle_spawn_tinted(pRVar9,0x3f333333,&frame.local_18,0x40a00000,0x3f000000);
+      fx_smoke_particle_spawn_tinted(pos_b,0x3f333333,&frame.colour_r,0x40a00000,0x3f000000);
     }
-    if (k_f_0_96 < frame.local_14) {
-      frame.local_c = *pfVar7;
-      frame.local_8 = *(float *)(rwp_matrix + 0x34);
-      frame.local_4 = *(float *)(rwp_matrix + 0x38);
-      fVar8 = (float10)random_range(0xbf666666,0x3f666666);
-      frame.local_c = (float)(fVar8 + (float10)frame.local_c);
-      fVar8 = (float10)random_range(0xbf666666,0x3f666666);
-      frame.local_8 = (float)(fVar8 * (float10)k_f_0_2 + (float10)frame.local_8);
-      fVar8 = (float10)random_range(0xbf666666,0x3f666666);
-      frame.local_4 = (float)(fVar8 + (float10)frame.local_4);
-      fx_emitter_spawn_a_default(&frame.local_c,&g_car_62ac74,0x43b40000);
-      fVar8 = (float10)random_range(0,0x3f800000);
-      if ((float10)float_0_8 < fVar8) {
-        explosion_decal(&frame.local_c,0x3f99999a);
+    if (k_f_0_96 < frame.rand_a) {
+      frame.spark_x = *obj_pos;
+      frame.spark_y = *(float *)(rwp_matrix + 0x34);
+      frame.spark_z = *(float *)(rwp_matrix + 0x38);
+      rnd = (float10)random_range(0xbf666666,0x3f666666);
+      frame.spark_x = (float)(rnd + (float10)frame.spark_x);
+      rnd = (float10)random_range(0xbf666666,0x3f666666);
+      frame.spark_y = (float)(rnd * (float10)k_f_0_2 + (float10)frame.spark_y);
+      rnd = (float10)random_range(0xbf666666,0x3f666666);
+      frame.spark_z = (float)(rnd + (float10)frame.spark_z);
+      fx_emitter_spawn_a_default(&frame.spark_x,&g_car_62ac74,0x43b40000);
+      rnd = (float10)random_range(0,0x3f800000);
+      if ((float10)float_0_8 < rnd) {
+        explosion_decal(&frame.spark_x,0x3f99999a);
       }
-      sfx_play_player_set_at(&frame.local_c);
-      return (float10)frame.local_1c;
+      sfx_play_player_set_at(&frame.spark_x);
+      return (float10)frame.damage_frac;
     }
   }
-  return (float10)frame.local_1c;
+  return (float10)frame.damage_frac;
 }
 
 /* entry thunk at the original address of explosion_spawn_fx: register inputs (eax) -> natural C explosion_spawn_fx_n; ret 0 */

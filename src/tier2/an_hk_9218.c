@@ -12,14 +12,14 @@
 /* "transforms the 8 corners of a box with two matrices, recomputes the AABB and compares to
    another" */
 
-undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *param_2,RwReal *param_3,RwMatrix *matrix,RwV3d *param_5)
+undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *matrix_b,RwReal *box_in,RwMatrix *matrix_a,RwV3d *out_center)
 
 {
-  RwBool RVar1;
-  int iVar2;
+  RwBool inside;
+  int ok;
   struct {
-    RwBBox local_118;
-    RwV3d local_100;
+    RwBBox corner_box;
+    RwV3d corners;
     RwReal local_f4;
     RwReal local_f0;
     RwReal local_ec;
@@ -41,7 +41,7 @@ undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *param_2,RwR
     RwReal local_ac;
     RwReal local_a8;
     RwReal local_a4;
-    RwReal local_a0;
+    RwReal other_box;
     RwReal local_9c;
     RwReal local_98;
     undefined4 local_94;
@@ -49,7 +49,7 @@ undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *param_2,RwR
     RwReal local_8c;
     RwReal local_88;
     undefined1 pad_84[4];
-    RwReal local_80;
+    RwReal moved_box;
     RwReal local_7c;
     RwReal local_78;
     undefined1 pad_74[4];
@@ -57,7 +57,7 @@ undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *param_2,RwR
     RwReal local_6c;
     RwReal local_68;
     undefined4 local_64;
-    float local_60;
+    float overlap_box;
     float local_5c;
     float local_58;
     undefined1 pad_54[4];
@@ -65,65 +65,67 @@ undefined4 course_bbox_transform_and_test(RwBBox *boundBox,RwMatrix *param_2,RwR
     float local_4c;
     float local_48;
     undefined1 pad_44[4];
-    float local_40[16];   /* RwMatrix scratch (as raw floats: the original has no aligned frame) */
+    float inv_matrix_b[16];   /* RwMatrix scratch (as raw floats: the original has no aligned frame) */
   } frame;
   
-  RwMatrixInvert((RwMatrix *)frame.local_40,param_2);
-  frame.local_118 = *(RwBBox *)param_3;
-  frame.local_100.x = frame.local_118.inf.x;
-  frame.local_f4 = frame.local_118.sup.x;
-  frame.local_e8 = frame.local_118.sup.x;
-  frame.local_100.y = frame.local_118.inf.y;
-  frame.local_f0 = frame.local_118.inf.y;
-  frame.local_dc = frame.local_118.inf.x;
-  frame.local_d0 = frame.local_118.inf.x;
-  frame.local_e4 = frame.local_118.sup.y;
-  frame.local_d8 = frame.local_118.sup.y;
-  frame.local_c4 = frame.local_118.sup.x;
-  frame.local_b8 = frame.local_118.sup.x;
-  frame.local_cc = frame.local_118.inf.y;
-  frame.local_c0 = frame.local_118.inf.y;
-  frame.local_ac = frame.local_118.inf.x;
-  frame.local_100.z = frame.local_118.inf.z;
-  frame.local_ec = frame.local_118.inf.z;
-  frame.local_e0 = frame.local_118.inf.z;
-  frame.local_d4 = frame.local_118.inf.z;
-  frame.local_b4 = frame.local_118.sup.y;
-  frame.local_a8 = frame.local_118.sup.y;
-  frame.local_c8 = frame.local_118.sup.z;
-  frame.local_bc = frame.local_118.sup.z;
-  frame.local_b0 = frame.local_118.sup.z;
-  frame.local_a4 = frame.local_118.sup.z;
-  RwV3dTransformPoints(&frame.local_100,&frame.local_100,8,matrix);
-  RwV3dTransformPoints(&frame.local_100,&frame.local_100,8,(RwMatrix *)frame.local_40);
-  RwBBoxCalculate(&frame.local_118,&frame.local_100,8);
+  /* 8 corners of box_in -> matrix_a -> inverse(matrix_b), then their AABB */
+  RwMatrixInvert((RwMatrix *)frame.inv_matrix_b,matrix_b);
+  frame.corner_box = *(RwBBox *)box_in;
+  frame.corners.x = frame.corner_box.inf.x;
+  frame.local_f4 = frame.corner_box.sup.x;
+  frame.local_e8 = frame.corner_box.sup.x;
+  frame.corners.y = frame.corner_box.inf.y;
+  frame.local_f0 = frame.corner_box.inf.y;
+  frame.local_dc = frame.corner_box.inf.x;
+  frame.local_d0 = frame.corner_box.inf.x;
+  frame.local_e4 = frame.corner_box.sup.y;
+  frame.local_d8 = frame.corner_box.sup.y;
+  frame.local_c4 = frame.corner_box.sup.x;
+  frame.local_b8 = frame.corner_box.sup.x;
+  frame.local_cc = frame.corner_box.inf.y;
+  frame.local_c0 = frame.corner_box.inf.y;
+  frame.local_ac = frame.corner_box.inf.x;
+  frame.corners.z = frame.corner_box.inf.z;
+  frame.local_ec = frame.corner_box.inf.z;
+  frame.local_e0 = frame.corner_box.inf.z;
+  frame.local_d4 = frame.corner_box.inf.z;
+  frame.local_b4 = frame.corner_box.sup.y;
+  frame.local_a8 = frame.corner_box.sup.y;
+  frame.local_c8 = frame.corner_box.sup.z;
+  frame.local_bc = frame.corner_box.sup.z;
+  frame.local_b0 = frame.corner_box.sup.z;
+  frame.local_a4 = frame.corner_box.sup.z;
+  RwV3dTransformPoints(&frame.corners,&frame.corners,8,matrix_a);
+  RwV3dTransformPoints(&frame.corners,&frame.corners,8,(RwMatrix *)frame.inv_matrix_b);
+  RwBBoxCalculate(&frame.corner_box,&frame.corners,8);
+  /* other box (boundBox) vs the transformed AABB: both must be valid and the overlap centre must lie inside boundBox */
   frame.local_90 = boundBox->inf.x;
   frame.local_8c = boundBox->inf.y;
   frame.local_88 = boundBox->inf.z;
-  frame.local_a0 = boundBox->sup.x;
+  frame.other_box = boundBox->sup.x;
   frame.local_94 = 0;
   frame.local_9c = boundBox->sup.y;
   frame.local_98 = boundBox->sup.z;
   frame.local_64 = 0;
-  frame.local_70 = frame.local_118.inf.x;
-  frame.local_80 = frame.local_118.sup.x;
-  frame.local_6c = frame.local_118.inf.y;
-  frame.local_68 = frame.local_118.inf.z;
-  frame.local_7c = frame.local_118.sup.y;
-  frame.local_78 = frame.local_118.sup.z;
-  iVar2 = FUN_0056f080(&frame.local_a0);
-  if (iVar2 != 0) {
-    iVar2 = FUN_0056f080(&frame.local_80);
-    if (iVar2 != 0) {
-      FUN_0056f3a0(&frame.local_60,&frame.local_a0,&frame.local_80);
-      iVar2 = FUN_0056f080(&frame.local_60);
-      if (iVar2 != 0) {
-        param_5->x = (frame.local_50 + frame.local_60) * k_f_0_5;
-        param_5->y = (frame.local_4c + frame.local_5c) * k_f_0_5;
-        param_5->z = (frame.local_48 + frame.local_58) * k_f_0_5;
-        RVar1 = RwBBoxContainsPoint(boundBox,param_5);
-        if (RVar1 != 0) {
-          RwV3dTransformPoint(param_5,param_5,param_2);
+  frame.local_70 = frame.corner_box.inf.x;
+  frame.moved_box = frame.corner_box.sup.x;
+  frame.local_6c = frame.corner_box.inf.y;
+  frame.local_68 = frame.corner_box.inf.z;
+  frame.local_7c = frame.corner_box.sup.y;
+  frame.local_78 = frame.corner_box.sup.z;
+  ok = FUN_0056f080(&frame.other_box);
+  if (ok != 0) {
+    ok = FUN_0056f080(&frame.moved_box);
+    if (ok != 0) {
+      FUN_0056f3a0(&frame.overlap_box,&frame.other_box,&frame.moved_box);
+      ok = FUN_0056f080(&frame.overlap_box);
+      if (ok != 0) {
+        out_center->x = (frame.local_50 + frame.overlap_box) * k_f_0_5;
+        out_center->y = (frame.local_4c + frame.local_5c) * k_f_0_5;
+        out_center->z = (frame.local_48 + frame.local_58) * k_f_0_5;
+        inside = RwBBoxContainsPoint(boundBox,out_center);
+        if (inside != 0) {
+          RwV3dTransformPoint(out_center,out_center,matrix_b);
           return 1;
         }
       }

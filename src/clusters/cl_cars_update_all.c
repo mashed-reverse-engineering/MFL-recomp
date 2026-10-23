@@ -70,7 +70,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
 
   race_phase = race_get_phase();
   num_players = get_player_count();
-  if ((g_cars_7ef7c4 != 0) && (g_cars_7ef7c4 = ((int)((float)g_cars_7ef7c4 - dt)), (int)g_cars_7ef7c4 < 0)) {
+  if ((g_cars_7ef7c4 != 0) && (g_cars_7ef7c4 = ((int)((double)(int)g_cars_7ef7c4 - dt)), (int)g_cars_7ef7c4 < 0)) {
     g_cars_7ef7c4 = 0;
   }
   frame.car_index = 0;

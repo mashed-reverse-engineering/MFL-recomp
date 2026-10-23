@@ -23,81 +23,85 @@ extern double cos(double);
 
 static int weapon_pickup_explode_effect_r(int p0);
 extern void weapon_pickup_explode_effect(void);
-undefined4 weapon_mortar_shell_impact_check_n(int in_eax)
+undefined4 weapon_mortar_shell_impact_check_n(int shell)
 
 {
-  undefined4 uVar1;
-  int iVar2;
-  float10 fVar3;
-  float *pfVar4;
-  float *pfVar5;
+  undefined4 rw_world;
+  int hit;
+  float10 fl_tmp;
+  float *seg_start;
+  float *hit_buf_ptr;
   struct {
-    undefined1 local_b8;
-    undefined1 local_b7;
-    undefined1 local_b6;
-    undefined1 local_b5;
-    float local_b4;
-    float local_b0;
-    float local_ac;
-    undefined4 local_a8;
-    float local_a4;
-    float local_a0;
-    float local_9c;
-    float local_98;
-    float local_94;
-    float local_90;
-    RwV3d local_8c;
-    RwMatrix local_80;
-    float local_40;
-    float local_3c;
-    float local_38;
+    undefined1 marker_r;
+    undefined1 marker_g;
+    undefined1 marker_b;
+    undefined1 marker_a;
+    float impact_x;
+    float impact_y;
+    float impact_z;
+    undefined4 hit_t;
+    float seg_start_x;
+    float seg_start_y;
+    float seg_start_z;
+    float seg_end_x;
+    float seg_end_y;
+    float seg_end_z;
+    RwV3d decal_scale;
+    RwMatrix decal_matrix;
+    float hit_normal_x;
+    float hit_normal_y;
+    float hit_normal_z;
     undefined1 pad_34[4];
-    undefined1 local_30 [40];
-    undefined4 local_8;
-    undefined4 local_4;
+    undefined1 decal_aux [40];
+    undefined4 hit_record_t;
+    undefined4 hit_record_tail;
   } frame;
   
-  if (((*(float *)(in_eax + 0x38) == k_f_0) && (*(float *)(in_eax + 0x3c) == k_f_0)) &&
-     (*(float *)(in_eax + 0x40) == k_f_0)) {
+  /* no velocity: nothing to test */
+  if (((*(float *)(shell + 0x38) == k_f_0) && (*(float *)(shell + 0x3c) == k_f_0)) &&
+     (*(float *)(shell + 0x40) == k_f_0)) {
     return 0;
   }
-  frame.local_a4 = *(float *)(in_eax + 0x14);
-  frame.local_a0 = *(float *)(in_eax + 0x18);
-  frame.local_9c = *(float *)(in_eax + 0x1c);
-  frame.local_98 = frame.local_a4 + *(float *)(in_eax + 0x38);
-  pfVar5 = &frame.local_40;
-  frame.local_94 = *(float *)(in_eax + 0x3c) + frame.local_a0;
-  pfVar4 = &frame.local_a4;
-  frame.local_90 = *(float *)(in_eax + 0x40) + frame.local_9c;
-  uVar1 = weapon_get_rw_801b14();
-  iVar2 = world_intersect_line(uVar1,pfVar4,pfVar5);
-  if (iVar2 != 0) {
-    frame.local_a8 = frame.local_8;
-    frame.local_b8 = 0xff;
-    frame.local_b7 = 0x80;
-    frame.local_b6 = 0;
-    frame.local_b5 = 0x40;
-    iVar2 = rocket_surface_hit_test(&frame.local_40,(float *)(in_eax + 0x14));
-    if (iVar2 == 0) {
-      FUN_004c4720(&frame.local_b4,&frame.local_a4,&frame.local_98,frame.local_a8);
-      frame.local_b4 = frame.local_40 * k_f_0_05 + frame.local_b4;
-      frame.local_b0 = frame.local_3c * k_f_0_05 + frame.local_b0;
-      frame.local_ac = frame.local_38 * k_f_0_05 + frame.local_ac;
-      FUN_004c51a0(&frame.local_80,frame.local_30,&frame.local_b4);
-      fVar3 = (float10)cos((float10)(2.6179938316345215));
-      if ((float10)frame.local_80.at.x * k_f_0 +
-          (float10)frame.local_80.at.y + (float10)frame.local_80.at.z * k_f_0 < fVar3) {
-        fVar3 = (float10)rp_random_float_range(0x3f4ccccd,0x3f99999a);
-        frame.local_8c.y = (RwReal)fVar3;
-        frame.local_8c.x = (RwReal)fVar3;
-        frame.local_8c.z = 1.0;
-        RwMatrixScale(&frame.local_80,&frame.local_8c,rwCOMBINEPRECONCAT);
-        particle_pool_find_oldest_or_free(0,&frame.local_80,0);
-        effect_sprite_spawn(0,&frame.local_80,&frame.local_b8,0x40400000,0x40800000);
-        fVar3 = (float10)rp_random_float_range(0x3ecccccd,0x3f19999a);
-        fx_spawn_from_matrix_2(&frame.local_80,(frame.local_8c.x = (float)fVar3, *(int *)&frame.local_8c.x));
+  /* segment from the shell position (+0x14) along its velocity (+0x38) */
+  frame.seg_start_x = *(float *)(shell + 0x14);
+  frame.seg_start_y = *(float *)(shell + 0x18);
+  frame.seg_start_z = *(float *)(shell + 0x1c);
+  frame.seg_end_x = frame.seg_start_x + *(float *)(shell + 0x38);
+  hit_buf_ptr = &frame.hit_normal_x;
+  frame.seg_end_y = *(float *)(shell + 0x3c) + frame.seg_start_y;
+  seg_start = &frame.seg_start_x;
+  frame.seg_end_z = *(float *)(shell + 0x40) + frame.seg_start_z;
+  rw_world = weapon_get_rw_801b14();
+  hit = world_intersect_line(rw_world,seg_start,hit_buf_ptr);
+  if (hit != 0) {
+    frame.hit_t = frame.hit_record_t;
+    /* orange impact marker colour (255,128,0, alpha 64) */
+    frame.marker_r = 0xff;
+    frame.marker_g = 0x80;
+    frame.marker_b = 0;
+    frame.marker_a = 0x40;
+    hit = rocket_surface_hit_test(&frame.hit_normal_x,(float *)(shell + 0x14));
+    if (hit == 0) {
+      FUN_004c4720(&frame.impact_x,&frame.seg_start_x,&frame.seg_end_x,frame.hit_t);
+      frame.impact_x = frame.hit_normal_x * k_f_0_05 + frame.impact_x;
+      frame.impact_y = frame.hit_normal_y * k_f_0_05 + frame.impact_y;
+      frame.impact_z = frame.hit_normal_z * k_f_0_05 + frame.impact_z;
+      FUN_004c51a0(&frame.decal_matrix,frame.decal_aux,&frame.impact_x);
+      /* decal only when matrix.at.y < cos(150 deg) (floor-like surface in the sign convention of FUN_004c51a0), random size 0.8..1.2 */
+      fl_tmp = (float10)cos((float10)(2.6179938316345215));
+      if ((float10)frame.decal_matrix.at.x * k_f_0 +
+          (float10)frame.decal_matrix.at.y + (float10)frame.decal_matrix.at.z * k_f_0 < fl_tmp) {
+        fl_tmp = (float10)rp_random_float_range(0x3f4ccccd,0x3f99999a);
+        frame.decal_scale.y = (RwReal)fl_tmp;
+        frame.decal_scale.x = (RwReal)fl_tmp;
+        frame.decal_scale.z = 1.0;
+        RwMatrixScale(&frame.decal_matrix,&frame.decal_scale,rwCOMBINEPRECONCAT);
+        particle_pool_find_oldest_or_free(0,&frame.decal_matrix,0);
+        effect_sprite_spawn(0,&frame.decal_matrix,&frame.marker_r,0x40400000,0x40800000);
+        fl_tmp = (float10)rp_random_float_range(0x3ecccccd,0x3f19999a);
+        fx_spawn_from_matrix_2(&frame.decal_matrix,(frame.decal_scale.x = (float)fl_tmp, *(int *)&frame.decal_scale.x));
       }
-      weapon_pickup_explode_effect_r(in_eax);
+      weapon_pickup_explode_effect_r(shell);
       return 1;
     }
   }

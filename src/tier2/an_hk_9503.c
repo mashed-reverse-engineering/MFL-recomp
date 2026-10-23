@@ -12,7 +12,7 @@
  * sets *found to 1 when one of the entry names, upper-cased, is "JACFX.CFXTYPE".
  * Returns the object, so that a "for all" iteration continues.
  */
-/* TIER2: unvalidated 2026-10-22 authority=static */
+/* TIER2: unvalidated 2026-10-23 authority=diffemu */
 int course_materials_fixup_cb_4065c0(int object, int *found)
 {
   char upper_name [64];

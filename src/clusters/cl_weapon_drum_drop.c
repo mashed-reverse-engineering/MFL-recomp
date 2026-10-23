@@ -13,22 +13,22 @@
 /* "detaches the depth charge drum frame from the car and starts its fall (particles at the car
    position)" */
 
-void weapon_drum_drop_n(char *in_edi)
+void weapon_drum_drop_n(char *launcher)
 
 {
-  char *iVar1;
+  char *rec_ptr;
   float fVar2;
   float fVar3;
-  float fVar4;
-  float fVar5;
-  float fVar6;
-  RwMatrix *pRVar7;
-  int iVar8;
-  RwOpCombineType combine;
+  float scaled_x;
+  float scaled_y;
+  float scaled_z;
+  RwMatrix *ltm;
+  int count_or_frame;
+  RwOpCombineType combine_op;
   struct {
-    undefined4 local_48;
-    undefined4 local_44;
-    undefined4 local_40;
+    undefined4 spawn_x;
+    undefined4 spawn_y;
+    undefined4 spawn_z;
     undefined4 local_3c;
     undefined4 local_38;
     undefined4 local_34;
@@ -47,48 +47,48 @@ void weapon_drum_drop_n(char *in_edi)
     undefined1 local_3;
   } frame;
   
-  iVar1 = *(char **)(in_edi + 0xc);
-  fVar4 = *(float *)(iVar1 + 0x10) * k_f_3_5;
-  fVar5 = *(float *)(iVar1 + 0x14) * k_f_3_5;
-  iVar8 = *(int *)(in_edi + 8);
-  fVar6 = *(float *)(iVar1 + 0x18) * k_f_3_5;
-  if (iVar8 == 2) {
-    *(undefined4 *)(in_edi + 0x24) = 4;
+  rec_ptr = *(char **)(launcher + 0xc);
+  scaled_x = *(float *)(rec_ptr + 0x10) * k_f_3_5;
+  scaled_y = *(float *)(rec_ptr + 0x14) * k_f_3_5;
+  count_or_frame = *(int *)(launcher + 8);
+  scaled_z = *(float *)(rec_ptr + 0x18) * k_f_3_5;
+  if (count_or_frame == 2) {
+    *(undefined4 *)(launcher + 0x24) = 4;
   }
-  else if (iVar8 == 1) {
-    *(undefined4 *)(in_edi + 0x28) = 4;
+  else if (count_or_frame == 1) {
+    *(undefined4 *)(launcher + 0x28) = 4;
   }
-  *(int *)(in_edi + 8) = iVar8 + -1;
-  iVar1 = *(char **)(in_edi + (iVar8 + -1) * 4);
-  *(undefined4 *)(iVar1 + 0x28) = 0;
-  pRVar7 = RwFrameGetLTM(*(RwFrame **)(iVar1 + 0x34));
-  *(RwReal *)(iVar1 + 0x10) = (pRVar7->pos).x;
-  *(RwReal *)(iVar1 + 0x14) = (pRVar7->pos).y;
-  *(RwReal *)(iVar1 + 0x18) = (pRVar7->pos).z;
-  RwFrameRemoveChild(*(RwFrame **)(iVar1 + 0x34));
-  if (*(int *)(in_edi + 8) == 1) {
-    iVar8 = *(int *)(in_edi + 0x1c);
+  *(int *)(launcher + 8) = count_or_frame + -1;
+  rec_ptr = *(char **)(launcher + (count_or_frame + -1) * 4);
+  *(undefined4 *)(rec_ptr + 0x28) = 0;
+  ltm = RwFrameGetLTM(*(RwFrame **)(rec_ptr + 0x34));
+  *(RwReal *)(rec_ptr + 0x10) = (ltm->pos).x;
+  *(RwReal *)(rec_ptr + 0x14) = (ltm->pos).y;
+  *(RwReal *)(rec_ptr + 0x18) = (ltm->pos).z;
+  RwFrameRemoveChild(*(RwFrame **)(rec_ptr + 0x34));
+  if (*(int *)(launcher + 8) == 1) {
+    count_or_frame = *(int *)(launcher + 0x1c);
   }
   else {
-    if (*(int *)(in_edi + 8) != 0) goto LAB_0045f9a3;
-    iVar8 = *(int *)(in_edi + 0x18);
+    if (*(int *)(launcher + 8) != 0) goto LAB_0045f9a3;
+    count_or_frame = *(int *)(launcher + 0x18);
   }
-  combine = rwCOMBINEREPLACE;
-  pRVar7 = RwFrameGetLTM(*(RwFrame **)(iVar8 + 4));
-  RwFrameTransform(*(RwFrame **)(iVar1 + 0x34),pRVar7,combine);
+  combine_op = rwCOMBINEREPLACE;
+  ltm = RwFrameGetLTM(*(RwFrame **)(count_or_frame + 4));
+  RwFrameTransform(*(RwFrame **)(rec_ptr + 0x34),ltm,combine_op);
 LAB_0045f9a3:
-  *(undefined4 *)(iVar1 + 0x2c) = 2;
-  iVar8 = *(int *)(in_edi + 0xc);
-  fVar2 = *(float *)(iVar8 + 0x94);
-  fVar3 = *(float *)(iVar8 + 0x98);
-  *(float *)(iVar1 + 0x1c) = *(float *)(iVar8 + 0x90) * k_f_40 + fVar4;
-  *(float *)(iVar1 + 0x20) = fVar2 * k_f_40 + fVar5;
-  *(float *)(iVar1 + 0x24) = fVar3 * k_f_40 + fVar6;
-  *(undefined4 *)(in_edi + *(int *)(in_edi + 8) * 4) = 0;
-  iVar1 = *(char **)(iVar1 + 0x34);
-  frame.local_48 = *(undefined4 *)(iVar1 + 0x40);
-  frame.local_44 = *(undefined4 *)(iVar1 + 0x44);
-  frame.local_40 = *(undefined4 *)(iVar1 + 0x48);
+  *(undefined4 *)(rec_ptr + 0x2c) = 2;
+  count_or_frame = *(int *)(launcher + 0xc);
+  fVar2 = *(float *)(count_or_frame + 0x94);
+  fVar3 = *(float *)(count_or_frame + 0x98);
+  *(float *)(rec_ptr + 0x1c) = *(float *)(count_or_frame + 0x90) * k_f_40 + scaled_x;
+  *(float *)(rec_ptr + 0x20) = fVar2 * k_f_40 + scaled_y;
+  *(float *)(rec_ptr + 0x24) = fVar3 * k_f_40 + scaled_z;
+  *(undefined4 *)(launcher + *(int *)(launcher + 8) * 4) = 0;
+  rec_ptr = *(char **)(rec_ptr + 0x34);
+  frame.spawn_x = *(undefined4 *)(rec_ptr + 0x40);
+  frame.spawn_y = *(undefined4 *)(rec_ptr + 0x44);
+  frame.spawn_z = *(undefined4 *)(rec_ptr + 0x48);
   frame.local_3 = 5;
   frame.local_18 = 0x41480000;
   frame.local_3c = 0x40ffffff;
@@ -102,7 +102,7 @@ LAB_0045f9a3:
   frame.local_24 = 0;
   frame.local_20 = 0;
   frame.local_1c = 0;
-  fx_trail_particle_spawn_interpolated(&frame.local_48,0,0,0);
+  fx_trail_particle_spawn_interpolated(&frame.spawn_x,0,0,0);
   return;
 }
 

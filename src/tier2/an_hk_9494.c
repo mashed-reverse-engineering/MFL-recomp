@@ -23,109 +23,109 @@
 /* "locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices
    per entry)" */
 
-void __cdecl fx_ptank_b_lock_and_fill(char *param_1,undefined4 param_2)
+void __cdecl fx_ptank_b_lock_and_fill(char *camera_mtx,undefined4 param_2)
 
 {
-  int iVar1;
-  float fVar2;
-  int *piVar3;
-  RwReal RVar4;
+  int entry_mtx;
+  float size_scale;
+  int *entry_ptr;
+  RwReal dist;
   struct {
-    float local_48;
-    undefined1 *local_44;
-    int local_40;
-    undefined4 *local_3c;
-    char *local_38;
-    float *local_34;
-    char *local_30;
-    float *local_2c;
-    char *local_28;
-    RwV3d local_24;
-    float local_18;
-    float local_14;
-    float local_10;
-    RwV3d local_c;
+    float fade;
+    undefined1 *colour_ptr;
+    int colour_stride;
+    undefined4 *uv_ptr;
+    char *uv_stride;
+    float *pos_ptr;
+    char *pos_stride;
+    float *size_ptr;
+    char *size_stride;
+    RwV3d entry_pos;
+    float ahead_x;
+    float ahead_y;
+    float ahead_z;
+    RwV3d dir;
   } frame;
   
-  frame.local_24.x = 0.0;
-  frame.local_24.y = 0.0;
-  frame.local_24.z = 0.0;
+  frame.entry_pos.x = 0.0;
+  frame.entry_pos.y = 0.0;
+  frame.entry_pos.z = 0.0;
   if (g_particles_7596a0 != 0) {
-    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.local_34,1,0x40000000);
-    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.local_2c,4,0x40000000);
-    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.local_44,2,0x40000000);
-    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.local_3c,0x80,0x40000000);
-    piVar3 = g_particles_8869cc;
-    frame.local_18 = *(float *)(param_1 + 0x20) * k_f_3 + *(float *)(param_1 + 0x30);
-    frame.local_14 = *(float *)(param_1 + 0x24) * k_f_3 + *(float *)(param_1 + 0x34);
-    frame.local_10 = *(float *)(param_1 + 0x28) * k_f_3 + *(float *)(param_1 + 0x38);
+    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.pos_ptr,1,0x40000000);
+    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.size_ptr,4,0x40000000);
+    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.colour_ptr,2,0x40000000);
+    RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.uv_ptr,0x80,0x40000000);
+    entry_ptr = g_particles_8869cc;
+    frame.ahead_x = *(float *)(camera_mtx + 0x20) * k_f_3 + *(float *)(camera_mtx + 0x30);
+    frame.ahead_y = *(float *)(camera_mtx + 0x24) * k_f_3 + *(float *)(camera_mtx + 0x34);
+    frame.ahead_z = *(float *)(camera_mtx + 0x28) * k_f_3 + *(float *)(camera_mtx + 0x38);
     g_particles_8885a0 = 0;
     do {
-      if (piVar3[-6] != 0) {
-        if ((RwMatrix *)*piVar3 == (RwMatrix *)0x0) {
-          frame.local_24.x = *(float *)&piVar3[-10];
-          frame.local_24.y = *(float *)&piVar3[-9];
-          frame.local_24.z = *(float *)&piVar3[-8];
-          frame.local_48 = float_1_0;
+      if (entry_ptr[-6] != 0) {
+        if ((RwMatrix *)*entry_ptr == (RwMatrix *)0x0) {
+          frame.entry_pos.x = *(float *)&entry_ptr[-10];
+          frame.entry_pos.y = *(float *)&entry_ptr[-9];
+          frame.entry_pos.z = *(float *)&entry_ptr[-8];
+          frame.fade = float_1_0;
         }
         else {
-          RwV3dTransformPoints(&frame.local_24,(RwV3d *)(piVar3 + -10),1,(RwMatrix *)*piVar3);
-          iVar1 = *piVar3;
-          frame.local_48 = *(float *)(iVar1 + 0x28) * *(float *)(param_1 + 0x28) +
-                     *(float *)(iVar1 + 0x20) * *(float *)(param_1 + 0x20) +
-                     *(float *)(iVar1 + 0x24) * *(float *)(param_1 + 0x24);
+          RwV3dTransformPoints(&frame.entry_pos,(RwV3d *)(entry_ptr + -10),1,(RwMatrix *)*entry_ptr);
+          entry_mtx = *entry_ptr;
+          frame.fade = *(float *)(entry_mtx + 0x28) * *(float *)(camera_mtx + 0x28) +
+                     *(float *)(entry_mtx + 0x20) * *(float *)(camera_mtx + 0x20) +
+                     *(float *)(entry_mtx + 0x24) * *(float *)(camera_mtx + 0x24);
         }
-        frame.local_48 = frame.local_48 * *(float *)&piVar3[-5];
-        if (frame.local_48 < k_f_0) {
-          frame.local_48 = 0.0;
+        frame.fade = frame.fade * *(float *)&entry_ptr[-5];
+        if (frame.fade < k_f_0) {
+          frame.fade = 0.0;
         }
-        frame.local_24.y = -frame.local_24.y;
-        if (frame.local_34 != (float *)0x0) {
-          frame.local_c.x = frame.local_24.x - frame.local_18;
-          frame.local_c.y = frame.local_24.y - frame.local_14;
-          frame.local_c.z = frame.local_24.z - frame.local_10;
-          RVar4 = RwV3dNormalize(&frame.local_c,&frame.local_c);
-          fVar2 = frame.local_48 + k_f_0_5;
-          *frame.local_34 = RVar4 * frame.local_c.x + frame.local_18;
-          frame.local_34[1] = (RVar4 * frame.local_c.y + frame.local_14) - frame.local_48 * k_f_0;
-          frame.local_34[2] = RVar4 * frame.local_c.z + frame.local_10;
-          frame.local_34 = (float *)((int)frame.local_34 + frame.local_30);
-          *frame.local_2c = fVar2 * *(float *)piVar3[-3] * frame.local_48;
-          frame.local_2c[1] = fVar2 * *(float *)piVar3[-3] * frame.local_48 * k_f_4;
-          frame.local_2c = (float *)((int)frame.local_2c + frame.local_28);
-          *frame.local_44 = *(undefined1 *)piVar3[-1];
-          frame.local_44[1] = *(undefined1 *)(piVar3[-1] + 1);
-          frame.local_44[2] = *(undefined1 *)(piVar3[-1] + 2);
-          frame.local_44[3] = 0x80;
-          frame.local_44 = frame.local_44 + frame.local_40;
-          *frame.local_3c = *(int *)&g_race_update_62a940;
-          *(float *)&frame.local_3c[1] = g_race_update_62a944;
-          *(float *)&frame.local_3c[2] = g_race_update_62a948;
-          *(float *)&frame.local_3c[3] = g_race_update_62a94c;
-          frame.local_3c = (undefined4 *)((int)frame.local_3c + frame.local_38);
+        frame.entry_pos.y = -frame.entry_pos.y;
+        if (frame.pos_ptr != (float *)0x0) {
+          frame.dir.x = frame.entry_pos.x - frame.ahead_x;
+          frame.dir.y = frame.entry_pos.y - frame.ahead_y;
+          frame.dir.z = frame.entry_pos.z - frame.ahead_z;
+          dist = RwV3dNormalize(&frame.dir,&frame.dir);
+          size_scale = frame.fade + k_f_0_5;
+          *frame.pos_ptr = dist * frame.dir.x + frame.ahead_x;
+          frame.pos_ptr[1] = (dist * frame.dir.y + frame.ahead_y) - frame.fade * k_f_0;
+          frame.pos_ptr[2] = dist * frame.dir.z + frame.ahead_z;
+          frame.pos_ptr = (float *)((int)frame.pos_ptr + frame.pos_stride);
+          *frame.size_ptr = size_scale * *(float *)entry_ptr[-3] * frame.fade;
+          frame.size_ptr[1] = size_scale * *(float *)entry_ptr[-3] * frame.fade * k_f_4;
+          frame.size_ptr = (float *)((int)frame.size_ptr + frame.size_stride);
+          *frame.colour_ptr = *(undefined1 *)entry_ptr[-1];
+          frame.colour_ptr[1] = *(undefined1 *)(entry_ptr[-1] + 1);
+          frame.colour_ptr[2] = *(undefined1 *)(entry_ptr[-1] + 2);
+          frame.colour_ptr[3] = 0x80;
+          frame.colour_ptr = frame.colour_ptr + frame.colour_stride;
+          *frame.uv_ptr = *(int *)&g_race_update_62a940;
+          *(float *)&frame.uv_ptr[1] = g_race_update_62a944;
+          *(float *)&frame.uv_ptr[2] = g_race_update_62a948;
+          *(float *)&frame.uv_ptr[3] = g_race_update_62a94c;
+          frame.uv_ptr = (undefined4 *)((int)frame.uv_ptr + frame.uv_stride);
           g_particles_8885a0 = g_particles_8885a0 + 1;
-          *frame.local_34 = RVar4 * frame.local_c.x + frame.local_18;
-          frame.local_34[1] = (RVar4 * frame.local_c.y + frame.local_14) - frame.local_48 * k_f_0_5;
-          frame.local_34[2] = RVar4 * frame.local_c.z + frame.local_10;
-          frame.local_34 = (float *)((int)frame.local_34 + frame.local_30);
-          *frame.local_2c = fVar2 * *(float *)piVar3[-3] * frame.local_48;
-          frame.local_2c[1] = fVar2 * *(float *)piVar3[-3] * frame.local_48 * k_f_4;
-          frame.local_2c = (float *)((int)frame.local_2c + frame.local_28);
-          *frame.local_44 = *(undefined1 *)piVar3[-1];
-          frame.local_44[1] = *(undefined1 *)(piVar3[-1] + 1);
-          frame.local_44[2] = *(undefined1 *)(piVar3[-1] + 2);
-          frame.local_44[3] = 0x78;
-          frame.local_44 = frame.local_44 + frame.local_40;
-          *frame.local_3c = *(int *)&g_race_update_62a940;
-          *(float *)&frame.local_3c[1] = g_race_update_62a944;
-          *(float *)&frame.local_3c[2] = g_race_update_62a948;
-          *(float *)&frame.local_3c[3] = g_race_update_62a94c;
-          frame.local_3c = (undefined4 *)((int)frame.local_3c + frame.local_38);
+          *frame.pos_ptr = dist * frame.dir.x + frame.ahead_x;
+          frame.pos_ptr[1] = (dist * frame.dir.y + frame.ahead_y) - frame.fade * k_f_0_5;
+          frame.pos_ptr[2] = dist * frame.dir.z + frame.ahead_z;
+          frame.pos_ptr = (float *)((int)frame.pos_ptr + frame.pos_stride);
+          *frame.size_ptr = size_scale * *(float *)entry_ptr[-3] * frame.fade;
+          frame.size_ptr[1] = size_scale * *(float *)entry_ptr[-3] * frame.fade * k_f_4;
+          frame.size_ptr = (float *)((int)frame.size_ptr + frame.size_stride);
+          *frame.colour_ptr = *(undefined1 *)entry_ptr[-1];
+          frame.colour_ptr[1] = *(undefined1 *)(entry_ptr[-1] + 1);
+          frame.colour_ptr[2] = *(undefined1 *)(entry_ptr[-1] + 2);
+          frame.colour_ptr[3] = 0x78;
+          frame.colour_ptr = frame.colour_ptr + frame.colour_stride;
+          *frame.uv_ptr = *(int *)&g_race_update_62a940;
+          *(float *)&frame.uv_ptr[1] = g_race_update_62a944;
+          *(float *)&frame.uv_ptr[2] = g_race_update_62a948;
+          *(float *)&frame.uv_ptr[3] = g_race_update_62a94c;
+          frame.uv_ptr = (undefined4 *)((int)frame.uv_ptr + frame.uv_stride);
           g_particles_8885a0 = g_particles_8885a0 + 1;
         }
       }
-      piVar3 = piVar3 + 0xe;
-    } while ((char *)piVar3 < (char *)&g_particles_8885a0 + 0x2c);
+      entry_ptr = entry_ptr + 0xe;
+    } while ((char *)entry_ptr < (char *)&g_particles_8885a0 + 0x2c);
     RpPTankAtomicUnlock_00545f20(g_fx_ptank_atomic_b);
     *(uint *)(*(char **)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 0x40) =
          *(uint *)(*(char **)(g_ptank_plugin_offset + g_fx_ptank_atomic_b) + 0x40) | 0x800000;

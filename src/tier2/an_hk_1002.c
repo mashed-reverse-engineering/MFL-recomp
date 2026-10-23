@@ -29,116 +29,116 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "spawns a particle from a style record: colour with brightness jitter, velocity, size, flags" */
 
-void __cdecl fx_particle_spawn_from_style(float *param_1)
+void __cdecl fx_particle_spawn_from_style(float *style_inst)
 
 {
-  undefined4 *puVar1;
+  undefined4 *pos_ptr;
   int style_index;
-  int iVar3;
-  uint uVar4;
-  int iVar5;
-  int iVar6;
-  double fVar7;
+  int jitter;
+  uint channel;
+  int channel_sum;
+  int style_off;
+  double rnd;
   float brightness;
   double alpha;
   struct {
-    undefined4 local_48;
-    undefined4 local_44;
-    undefined4 local_40;
-    char local_3c;
-    char local_3b;
-    undefined1 local_3a;
-    undefined1 local_39;
-    float local_38;
-    float local_34;
-    float local_30;
-    float local_2c;
-    float local_28;
+    undefined4 spawn_pos_x;
+    undefined4 spawn_pos_y;
+    undefined4 spawn_pos_z;
+    char col_r;
+    char col_g;
+    undefined1 col_b;
+    undefined1 col_a;
+    float size_x;
+    float size_y;
+    float vel_x;
+    float vel_y;
+    float vel_z;
     undefined4 local_24;
     undefined4 local_20;
     undefined4 local_1c;
-    float local_18;
+    float life_scale;
     undefined1 pad_14[4];
     undefined4 local_10;
     undefined1 pad_c[4];
     undefined4 local_8;
     undefined1 pad_4[1];
-    undefined1 local_3;
+    undefined1 flags;
   } frame;
   
-  iVar6 = *(int *)&param_1[7] * 0x44;      /* style record: 0x44 bytes each, colour bytes at +0x34 */
-  fVar7 = (double)rp_random_float_range(0,0x3f800000);
-  iVar3 = (int)(fVar7 * (double)*(int *)((char *)&g_effects_update_76df68 + iVar6));      /* brightness jitter */
-  brightness = param_1[8];      /* clamped to the style's range */
-  if (*(float *)((char *)&g_effects_update_76df6c + iVar6) < brightness) {
-    brightness = *(float *)((char *)&g_effects_update_76df6c + iVar6);
+  style_off = *(int *)&style_inst[7] * 0x44;      /* style record: 0x44 bytes each, colour bytes at +0x34 */
+  rnd = (double)rp_random_float_range(0,0x3f800000);
+  jitter = (int)(rnd * (double)*(int *)((char *)&g_effects_update_76df68 + style_off));      /* brightness jitter */
+  brightness = style_inst[8];      /* clamped to the style's range */
+  if (*(float *)((char *)&g_effects_update_76df6c + style_off) < brightness) {
+    brightness = *(float *)((char *)&g_effects_update_76df6c + style_off);
   }
-  if (brightness < *(float *)((char *)&g_effects_update_76df70 + iVar6)) {
-    brightness = *(float *)((char *)&g_effects_update_76df70 + iVar6);
+  if (brightness < *(float *)((char *)&g_effects_update_76df70 + style_off)) {
+    brightness = *(float *)((char *)&g_effects_update_76df70 + style_off);
   }
-  puVar1 = *(undefined4 **)&param_1[6];
-  frame.local_48 = *puVar1;
-  frame.local_44 = puVar1[1];
-  frame.local_40 = puVar1[2];
-  uVar4 = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df34 + iVar6) * (double)brightness);
-  iVar5 = (uVar4 & 0xff) + iVar3;
-  if ((iVar5 < 0) || (0xff < iVar5)) {
-    frame.local_3c = (iVar5 < 0x100) + -1;
-  }
-  else {
-    frame.local_3c = (char)iVar5;
-  }
-  uVar4 = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df35 + iVar6) * (double)brightness);
-  iVar5 = (uVar4 & 0xff) + iVar3;
-  if ((iVar5 < 0) || (0xff < iVar5)) {
-    frame.local_3b = (iVar5 < 0x100) + -1;
+  pos_ptr = *(undefined4 **)&style_inst[6];
+  frame.spawn_pos_x = *pos_ptr;
+  frame.spawn_pos_y = pos_ptr[1];
+  frame.spawn_pos_z = pos_ptr[2];
+  channel = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df34 + style_off) * (double)brightness);
+  channel_sum = (channel & 0xff) + jitter;
+  if ((channel_sum < 0) || (0xff < channel_sum)) {
+    frame.col_r = (channel_sum < 0x100) + -1;
   }
   else {
-    frame.local_3b = (char)iVar5;
+    frame.col_r = (char)channel_sum;
   }
-  uVar4 = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df36 + iVar6) * (double)brightness);
-  uVar4 = (uVar4 & 0xff) + iVar3;
-  if (((int)uVar4 < 0) || (0xff < (int)uVar4)) {
-    uVar4 = (uint)(byte)(((int)uVar4 < 0x100) - 1);
-  }
-  frame.local_3a = (undefined1)uVar4;
-  if ((&g_effects_update_76df37)[iVar6] == -1) {
-    frame.local_39 = 0xff;
+  channel = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df35 + style_off) * (double)brightness);
+  channel_sum = (channel & 0xff) + jitter;
+  if ((channel_sum < 0) || (0xff < channel_sum)) {
+    frame.col_g = (channel_sum < 0x100) + -1;
   }
   else {
-    alpha = (double)(uint)(byte)(&g_effects_update_76df37)[iVar6];
-    frame.local_39 = (int)(alpha * (double)*param_1 * (double)k_f_0_5 + alpha * (double)k_f_0_5);
+    frame.col_g = (char)channel_sum;
   }
-  frame.local_10 = *(undefined4 *)((char *)&g_effects_update_76df54 + iVar6);
-  frame.local_18 = *(float *)((char *)&g_effects_update_76df38 + iVar6) / *param_1;
-  frame.local_24 = *(undefined4 *)((char *)&g_effects_update_76df48 + iVar6);
-  frame.local_20 = *(undefined4 *)((char *)&g_effects_update_76df4c + iVar6);
-  frame.local_1c = *(undefined4 *)((char *)&g_effects_update_76df50 + iVar6);
-  frame.local_8 = *(undefined4 *)((char *)&g_effects_update_76df64 + iVar6);
-  style_index = *(int *)&param_1[7];
-  fVar7 = (double)rp_random_float_range(0xbe4ccccd,0x3e4ccccd);
-  frame.local_3 = (&g_effects_update_76df60)[style_index * 0x44];
-  fVar7 = (fVar7 + (double)*(float *)((char *)&g_effects_update_76df58 + style_index * 0x44)) *
-          (double)*param_1;
-  frame.local_38 = (float)fVar7;
-  frame.local_34 = (float)fVar7;
+  channel = (int)((double)(uint)*(byte *)((char *)&g_effects_update_76df36 + style_off) * (double)brightness);
+  channel = (channel & 0xff) + jitter;
+  if (((int)channel < 0) || (0xff < (int)channel)) {
+    channel = (uint)(byte)(((int)channel < 0x100) - 1);
+  }
+  frame.col_b = (undefined1)channel;
+  if ((&g_effects_update_76df37)[style_off] == 0xff) {
+    frame.col_a = 0xff;
+  }
+  else {
+    alpha = (double)(uint)(byte)(&g_effects_update_76df37)[style_off];
+    frame.col_a = (int)(alpha * (double)*style_inst * (double)k_f_0_5 + alpha * (double)k_f_0_5);
+  }
+  frame.local_10 = *(undefined4 *)((char *)&g_effects_update_76df54 + style_off);
+  frame.life_scale = *(float *)((char *)&g_effects_update_76df38 + style_off) / *style_inst;
+  frame.local_24 = *(undefined4 *)((char *)&g_effects_update_76df48 + style_off);
+  frame.local_20 = *(undefined4 *)((char *)&g_effects_update_76df4c + style_off);
+  frame.local_1c = *(undefined4 *)((char *)&g_effects_update_76df50 + style_off);
+  frame.local_8 = *(undefined4 *)((char *)&g_effects_update_76df64 + style_off);
+  style_index = *(int *)&style_inst[7];
+  rnd = (double)rp_random_float_range(0xbe4ccccd,0x3e4ccccd);
+  frame.flags = (&g_effects_update_76df60)[style_index * 0x44];
+  rnd = (rnd + (double)*(float *)((char *)&g_effects_update_76df58 + style_index * 0x44)) *
+          (double)*style_inst;
+  frame.size_x = (float)rnd;
+  frame.size_y = (float)rnd;
   if (g_tick_number % 3 == 0) {
-    frame.local_3 = 2;
+    frame.flags = 2;
   }
-  frame.local_30 = param_1[3];
-  frame.local_2c = param_1[4];
-  frame.local_28 = param_1[5];
-  fVar7 = (double)rp_random_float_range(0xbf800000,0x3f800000);
-  frame.local_30 = (float)(fVar7 * (double)k_f_0_85 + (double)frame.local_30);
-  fVar7 = (double)rp_random_float_range(0,0x3f000000);
-  frame.local_2c = (float)((double)k_f_1_3 - fVar7);
-  fVar7 = (double)rp_random_float_range(0xbf800000,0x3f800000);
-  frame.local_28 = (float)(fVar7 * (double)k_f_0_85 + (double)frame.local_28);
-  fx_trail_particle_spawn_interpolated(&frame.local_48,0,0,0);
-  if (*(int *)&param_1[9] != 0) {
-    fx_dust_particle_spawn(param_1 + 10,*(undefined4 **)&param_1[6],*(int *)&param_1[7],brightness * k_f_0_4,*(undefined4 *)&param_1[2],*(undefined4 *)&param_1[1]);
+  frame.vel_x = style_inst[3];
+  frame.vel_y = style_inst[4];
+  frame.vel_z = style_inst[5];
+  rnd = (double)rp_random_float_range(0xbf800000,0x3f800000);
+  frame.vel_x = (float)(rnd * (double)k_f_0_85 + (double)frame.vel_x);
+  rnd = (double)rp_random_float_range(0,0x3f000000);
+  frame.vel_y = (float)((double)k_f_1_3 - rnd);
+  rnd = (double)rp_random_float_range(0xbf800000,0x3f800000);
+  frame.vel_z = (float)(rnd * (double)k_f_0_85 + (double)frame.vel_z);
+  fx_trail_particle_spawn_interpolated(&frame.spawn_pos_x,0,0,0);
+  if (*(int *)&style_inst[9] != 0) {
+    fx_dust_particle_spawn(style_inst + 10,*(undefined4 **)&style_inst[6],*(int *)&style_inst[7],brightness * k_f_0_4,*(undefined4 *)&style_inst[2],*(undefined4 *)&style_inst[1]);
   }
-  g_effects_update_7ef784 = (float)*(int *)&param_1[7];
+  g_effects_update_7ef784 = (float)*(int *)&style_inst[7];
   return;
 }
 

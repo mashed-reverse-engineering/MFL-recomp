@@ -31,227 +31,230 @@
 void car_ground_contact_forces_n(Car *car)
 
 {
-  float fVar1;
-  float fVar2;
-  float fVar3;
-  float fVar4;
-  float *pfVar5;
-  int iVar6;
-  float *pfVar7;
-  int cVar8;
-  RwReal RVar9;
+  float tmp_f;
+  float vel_y_new;
+  float vel_z_new;
+  float damp;
+  float *contact_next;
+  int contact_index;
+  float *contact;
+  int wheels_touching;
+  RwReal vec_len;
   struct {
     float pad_bot;
-    float local_78;
-    float local_74;
+    float tangent_force_sum;
+    float grip_factor;
     undefined1 pad_70[4];
-    RwV3d local_6c;
-    float local_60;
-    float local_5c;
-    float local_58;
-    RwV3d local_54;
-    RwV3d local_48;
-    RwV3d local_3c;
-    RwV3d local_30;
-    RwV3d local_24;
-    float local_18;
-    float local_14;
-    float local_10;
-    float local_c;
-    float local_8;
+    RwV3d torque_sum;
+    float total_force_x;
+    float total_force_y;
+    float total_force_z;
+    RwV3d net_force;
+    RwV3d extra_force;
+    RwV3d contact_force;
+    RwV3d torque_axis;
+    RwV3d normal_dir;
+    float tangent_x;
+    float tangent_y;
+    float tangent_z;
+    float normal_part_x;
+    float normal_part_y;
   } frame;
   
-  iVar6 = 0;
-  cVar8 = car->wheels[0].in_contact != 0;
-  frame.local_78 = 0.0;
-  frame.local_6c.z = 0.0;
-  frame.local_6c.y = 0.0;
-  frame.local_6c.x = 0.0;
-  frame.local_58 = 0.0;
-  frame.local_5c = 0.0;
-  frame.local_60 = 0.0;
-  frame.local_54.z = 0.0;
-  frame.local_54.y = 0.0;
-  frame.local_54.x = 0.0;
-  frame.local_74 = 1.0;
+  contact_index = 0;
+  /* count wheels touching the ground */
+  wheels_touching = car->wheels[0].in_contact != 0;
+  frame.tangent_force_sum = 0.0;
+  frame.torque_sum.z = 0.0;
+  frame.torque_sum.y = 0.0;
+  frame.torque_sum.x = 0.0;
+  frame.total_force_z = 0.0;
+  frame.total_force_y = 0.0;
+  frame.total_force_x = 0.0;
+  frame.net_force.z = 0.0;
+  frame.net_force.y = 0.0;
+  frame.net_force.x = 0.0;
+  frame.grip_factor = 1.0;
   if (car->wheels[1].in_contact != 0) {
-    cVar8 = cVar8 + 1;
+    wheels_touching = wheels_touching + 1;
   }
   if (car->wheels[2].in_contact != 0) {
-    cVar8 = cVar8 + 1;
+    wheels_touching = wheels_touching + 1;
   }
   if (car->wheels[3].in_contact != 0) {
-    cVar8 = cVar8 + 1;
+    wheels_touching = wheels_touching + 1;
   }
-  pfVar5 = (float *)((char *)&car->contacts[0] + 8);
+  /* 18 contact records (first 4: wheel contacts): force along the contact normal, weight by wheel count / speed, sum up forces and torque */
+  contact_next = (float *)((char *)&car->contacts[0] + 8);
   do {
-    pfVar7 = pfVar5;
-    if (*(int *)&pfVar7[-2] != -1) {
-      frame.local_3c.z = pfVar7[0xb];
-      if (iVar6 < 4) {
-        frame.local_3c.z = frame.local_3c.z * k_f_n1;
-        if (*pfVar7 < k_f_0_9) {
-          frame.local_3c.z = frame.local_3c.z * k_f_4;
+    contact = contact_next;
+    if (*(int *)&contact[-2] != -1) {
+      frame.contact_force.z = contact[0xb];
+      if (contact_index < 4) {
+        frame.contact_force.z = frame.contact_force.z * k_f_n1;
+        if (*contact < k_f_0_9) {
+          frame.contact_force.z = frame.contact_force.z * k_f_4;
         }
       }
-      else if (cVar8 == 4) {
-        frame.local_3c.z = frame.local_3c.z * k_f_n1;
+      else if (wheels_touching == 4) {
+        frame.contact_force.z = frame.contact_force.z * k_f_n1;
       }
       else {
-        frame.local_3c.z = frame.local_3c.z * k_f_n0_5;
+        frame.contact_force.z = frame.contact_force.z * k_f_n0_5;
       }
-      fVar1 = pfVar7[0xb] / car->speed;
-      if (fVar1 < k_f_0) {
-        fVar1 = -fVar1;
-        if (float_1_0 < fVar1) {
-          fVar1 = float_1_0;
+      tmp_f = contact[0xb] / car->speed;
+      if (tmp_f < k_f_0) {
+        tmp_f = -tmp_f;
+        if (float_1_0 < tmp_f) {
+          tmp_f = float_1_0;
         }
-        frame.local_74 = float_1_0 - fVar1;
+        frame.grip_factor = float_1_0 - tmp_f;
       }
-      if ((*(int *)((char *)car + 0xcfc) != 0) && (frame.local_3c.z < k_f_500)) {
-        frame.local_3c.z = k_f_500;
+      if ((*(int *)((char *)car + 0xcfc) != 0) && (frame.contact_force.z < k_f_500)) {
+        frame.contact_force.z = k_f_500;
       }
-      frame.local_3c.z = frame.local_3c.z * k_f_0_75;
-      frame.local_3c.x = frame.local_3c.z * pfVar7[-1];
-      frame.local_3c.y = frame.local_3c.z * *pfVar7;
-      frame.local_3c.z = frame.local_3c.z * pfVar7[1];
-      frame.local_54.x = frame.local_3c.x + frame.local_54.x;
-      frame.local_54.y = frame.local_3c.y + frame.local_54.y;
-      frame.local_54.z = frame.local_3c.z + frame.local_54.z;
-      frame.local_60 = frame.local_3c.x + frame.local_60;
-      frame.local_5c = frame.local_3c.y + frame.local_5c;
-      frame.local_58 = frame.local_3c.z + frame.local_58;
+      frame.contact_force.z = frame.contact_force.z * k_f_0_75;
+      frame.contact_force.x = frame.contact_force.z * contact[-1];
+      frame.contact_force.y = frame.contact_force.z * *contact;
+      frame.contact_force.z = frame.contact_force.z * contact[1];
+      frame.net_force.x = frame.contact_force.x + frame.net_force.x;
+      frame.net_force.y = frame.contact_force.y + frame.net_force.y;
+      frame.net_force.z = frame.contact_force.z + frame.net_force.z;
+      frame.total_force_x = frame.contact_force.x + frame.total_force_x;
+      frame.total_force_y = frame.contact_force.y + frame.total_force_y;
+      frame.total_force_z = frame.contact_force.z + frame.total_force_z;
       if (*(int *)((char *)car + 0xcfc) == 0) {
-        frame.local_48.x = pfVar7[-1] * k_f_90;
-        frame.local_48.y = *pfVar7 * k_f_90;
-        frame.local_48.z = pfVar7[1] * k_f_90;
+        frame.extra_force.x = contact[-1] * k_f_90;
+        frame.extra_force.y = *contact * k_f_90;
+        frame.extra_force.z = contact[1] * k_f_90;
       }
       else {
-        frame.local_48.x = pfVar7[-1] * k_f_500;
-        frame.local_48.y = *pfVar7 * k_f_500;
-        frame.local_48.z = pfVar7[1] * k_f_500;
+        frame.extra_force.x = contact[-1] * k_f_500;
+        frame.extra_force.y = *contact * k_f_500;
+        frame.extra_force.z = contact[1] * k_f_500;
       }
-      frame.local_54.x = frame.local_48.x + frame.local_54.x;
-      frame.local_54.y = frame.local_48.y + frame.local_54.y;
-      frame.local_54.z = frame.local_48.z + frame.local_54.z;
-      frame.local_60 = frame.local_48.x + frame.local_60;
-      frame.local_5c = frame.local_48.y + frame.local_5c;
-      frame.local_58 = frame.local_48.z + frame.local_58;
-      if (3 < iVar6) {
-        RwV3dNormalize(&frame.local_24,(RwV3d *)(pfVar7 + 8));
-        fVar1 = frame.local_24.x * pfVar7[-1] + frame.local_24.y * *pfVar7 + frame.local_24.z * pfVar7[1];
-        RVar9 = RwV3dLength(&frame.local_3c);
-        fVar1 = RVar9 * fVar1;
-        frame.local_c = frame.local_24.x * fVar1;
-        frame.local_8 = frame.local_24.y * fVar1;
-        fVar1 = fVar1 * frame.local_24.z;
-        frame.local_18 = frame.local_3c.x - frame.local_c;
-        frame.local_14 = frame.local_3c.y - frame.local_8;
-        frame.local_10 = frame.local_3c.z - fVar1;
-        frame.local_30.x = frame.local_10 * frame.local_8 - frame.local_14 * fVar1;
-        frame.local_30.y = frame.local_18 * fVar1 - frame.local_10 * frame.local_c;
-        frame.local_30.z = frame.local_14 * frame.local_c - frame.local_18 * frame.local_8;
-        if (k_f_0 < pfVar7[10] * frame.local_3c.z +
-                    frame.local_3c.x * ((RwV3d *)(pfVar7 + 8))->x + pfVar7[9] * frame.local_3c.y) {
-          frame.local_30.x = -frame.local_30.x;
-          frame.local_30.y = -frame.local_30.y;
-          frame.local_30.z = -frame.local_30.z;
+      frame.net_force.x = frame.extra_force.x + frame.net_force.x;
+      frame.net_force.y = frame.extra_force.y + frame.net_force.y;
+      frame.net_force.z = frame.extra_force.z + frame.net_force.z;
+      frame.total_force_x = frame.extra_force.x + frame.total_force_x;
+      frame.total_force_y = frame.extra_force.y + frame.total_force_y;
+      frame.total_force_z = frame.extra_force.z + frame.total_force_z;
+      if (3 < contact_index) {
+        RwV3dNormalize(&frame.normal_dir,(RwV3d *)(contact + 8));
+        tmp_f = frame.normal_dir.x * contact[-1] + frame.normal_dir.y * *contact + frame.normal_dir.z * contact[1];
+        vec_len = RwV3dLength(&frame.contact_force);
+        tmp_f = vec_len * tmp_f;
+        frame.normal_part_x = frame.normal_dir.x * tmp_f;
+        frame.normal_part_y = frame.normal_dir.y * tmp_f;
+        tmp_f = tmp_f * frame.normal_dir.z;
+        frame.tangent_x = frame.contact_force.x - frame.normal_part_x;
+        frame.tangent_y = frame.contact_force.y - frame.normal_part_y;
+        frame.tangent_z = frame.contact_force.z - tmp_f;
+        frame.torque_axis.x = frame.tangent_z * frame.normal_part_y - frame.tangent_y * tmp_f;
+        frame.torque_axis.y = frame.tangent_x * tmp_f - frame.tangent_z * frame.normal_part_x;
+        frame.torque_axis.z = frame.tangent_y * frame.normal_part_x - frame.tangent_x * frame.normal_part_y;
+        if (k_f_0 < contact[10] * frame.contact_force.z +
+                    frame.contact_force.x * ((RwV3d *)(contact + 8))->x + contact[9] * frame.contact_force.y) {
+          frame.torque_axis.x = -frame.torque_axis.x;
+          frame.torque_axis.y = -frame.torque_axis.y;
+          frame.torque_axis.z = -frame.torque_axis.z;
         }
-        frame.local_54.x = frame.local_c + frame.local_54.x;
-        frame.local_54.y = frame.local_8 + frame.local_54.y;
-        frame.local_54.z = fVar1 + frame.local_54.z;
-        frame.local_60 = frame.local_3c.x + frame.local_60;
-        frame.local_5c = frame.local_3c.y + frame.local_5c;
-        frame.local_58 = frame.local_3c.z + frame.local_58;
-        frame.local_48.z = pfVar7[2];
-        frame.local_48.x = frame.local_18 * frame.local_48.z;
-        frame.local_48.y = frame.local_14 * frame.local_48.z;
-        frame.local_48.z = frame.local_10 * frame.local_48.z;
-        RVar9 = RwV3dLength(&frame.local_48);
-        fVar1 = RVar9 * k_f_50_24;
-        frame.local_78 = fVar1 + frame.local_78;
-        RVar9 = RwV3dLength(&frame.local_30);
-        if (k_f_1_0en4 < RVar9) {
-          RwV3dNormalize(&frame.local_30,&frame.local_30);
-          frame.local_24.x = frame.local_30.x * fVar1;
-          frame.local_24.y = frame.local_30.y * fVar1;
-          frame.local_24.z = frame.local_30.z * fVar1;
-          frame.local_6c.x = frame.local_6c.x - frame.local_24.x;
-          frame.local_6c.y = frame.local_6c.y - frame.local_24.y;
-          frame.local_6c.z = frame.local_6c.z - frame.local_24.z;
+        frame.net_force.x = frame.normal_part_x + frame.net_force.x;
+        frame.net_force.y = frame.normal_part_y + frame.net_force.y;
+        frame.net_force.z = tmp_f + frame.net_force.z;
+        frame.total_force_x = frame.contact_force.x + frame.total_force_x;
+        frame.total_force_y = frame.contact_force.y + frame.total_force_y;
+        frame.total_force_z = frame.contact_force.z + frame.total_force_z;
+        frame.extra_force.z = contact[2];
+        frame.extra_force.x = frame.tangent_x * frame.extra_force.z;
+        frame.extra_force.y = frame.tangent_y * frame.extra_force.z;
+        frame.extra_force.z = frame.tangent_z * frame.extra_force.z;
+        vec_len = RwV3dLength(&frame.extra_force);
+        tmp_f = vec_len * k_f_50_24;
+        frame.tangent_force_sum = tmp_f + frame.tangent_force_sum;
+        vec_len = RwV3dLength(&frame.torque_axis);
+        if (k_f_1_0en4 < vec_len) {
+          RwV3dNormalize(&frame.torque_axis,&frame.torque_axis);
+          frame.normal_dir.x = frame.torque_axis.x * tmp_f;
+          frame.normal_dir.y = frame.torque_axis.y * tmp_f;
+          frame.normal_dir.z = frame.torque_axis.z * tmp_f;
+          frame.torque_sum.x = frame.torque_sum.x - frame.normal_dir.x;
+          frame.torque_sum.y = frame.torque_sum.y - frame.normal_dir.y;
+          frame.torque_sum.z = frame.torque_sum.z - frame.normal_dir.z;
         }
       }
     }
-    iVar6 = iVar6 + 1;
-    pfVar5 = pfVar7 + 0x10;
-  } while (iVar6 < 0x12);
-  fVar1 = float_1_0 / (float)*(int *)((char *)car + 0x9ec);
-  frame.local_60 = frame.local_60 * fVar1;
-  frame.local_5c = frame.local_5c * fVar1;
-  frame.local_58 = frame.local_58 * fVar1;
-  frame.local_54.x = frame.local_54.x * fVar1;
-  frame.local_54.y = frame.local_54.y * fVar1;
-  frame.local_54.z = frame.local_54.z * fVar1;
-  frame.local_6c.x = frame.local_6c.x * fVar1;
-  frame.local_6c.y = frame.local_6c.y * fVar1;
-  frame.local_6c.z = frame.local_6c.z * fVar1;
-  frame.local_78 = frame.local_78 * fVar1;
-  RVar9 = RwV3dLength(&frame.local_6c);
-  if (frame.local_78 - RVar9 != k_f_0) {
-    frame.local_48.x = frame.local_60 - frame.local_54.x;
-    frame.local_48.y = frame.local_5c - frame.local_54.y;
-    frame.local_48.z = frame.local_58 - frame.local_54.z;
+    contact_index = contact_index + 1;
+    contact_next = contact + 0x10;
+  } while (contact_index < 0x12);
+  /* average by the contact count, convert to velocity changes */
+  tmp_f = float_1_0 / (float)*(int *)((char *)car + 0x9ec);
+  frame.total_force_x = frame.total_force_x * tmp_f;
+  frame.total_force_y = frame.total_force_y * tmp_f;
+  frame.total_force_z = frame.total_force_z * tmp_f;
+  frame.net_force.x = frame.net_force.x * tmp_f;
+  frame.net_force.y = frame.net_force.y * tmp_f;
+  frame.net_force.z = frame.net_force.z * tmp_f;
+  frame.torque_sum.x = frame.torque_sum.x * tmp_f;
+  frame.torque_sum.y = frame.torque_sum.y * tmp_f;
+  frame.torque_sum.z = frame.torque_sum.z * tmp_f;
+  frame.tangent_force_sum = frame.tangent_force_sum * tmp_f;
+  vec_len = RwV3dLength(&frame.torque_sum);
+  if (frame.tangent_force_sum - vec_len != k_f_0) {
+    frame.extra_force.x = frame.total_force_x - frame.net_force.x;
+    frame.extra_force.y = frame.total_force_y - frame.net_force.y;
+    frame.extra_force.z = frame.total_force_z - frame.net_force.z;
   }
-  fVar1 = car->inertia_inverse * k_f_0_0027778;
+  tmp_f = car->inertia_inverse * k_f_0_0027778;
   *(undefined4 *)((char *)car + 0xb20) = 1;
-  fVar1 = fVar1 * k_f_8;
-  frame.local_6c.x = frame.local_6c.x * fVar1;
-  frame.local_6c.y = frame.local_6c.y * fVar1;
-  frame.local_6c.z = fVar1 * frame.local_6c.z;
-  RVar9 = RwV3dLength(&frame.local_6c);
-  if ((RVar9 != k_f_0) && (RVar9 < k_f_0_25)) {
-    fVar1 = k_f_0_25 / RVar9;
-    if (float_50_0 < k_f_0_25 / RVar9) {
-      fVar1 = float_50_0;
+  tmp_f = tmp_f * k_f_8;
+  frame.torque_sum.x = frame.torque_sum.x * tmp_f;
+  frame.torque_sum.y = frame.torque_sum.y * tmp_f;
+  frame.torque_sum.z = tmp_f * frame.torque_sum.z;
+  vec_len = RwV3dLength(&frame.torque_sum);
+  if ((vec_len != k_f_0) && (vec_len < k_f_0_25)) {
+    tmp_f = k_f_0_25 / vec_len;
+    if (float_50_0 < k_f_0_25 / vec_len) {
+      tmp_f = float_50_0;
     }
-    frame.local_6c.x = frame.local_6c.x * fVar1;
-    frame.local_6c.y = frame.local_6c.y * fVar1;
-    frame.local_6c.z = fVar1 * frame.local_6c.z;
+    frame.torque_sum.x = frame.torque_sum.x * tmp_f;
+    frame.torque_sum.y = frame.torque_sum.y * tmp_f;
+    frame.torque_sum.z = tmp_f * frame.torque_sum.z;
   }
-  frame.local_6c.x = frame.local_6c.x * k_f_0_5;
-  pfVar5 = car->velocity;
-  frame.local_6c.y = frame.local_6c.y * k_f_0_5;
-  frame.local_6c.z = frame.local_6c.z * k_f_0_5;
-  car->velocity_input[0] = frame.local_6c.x + car->velocity_input[0];
-  car->velocity_input[1] = frame.local_6c.y + car->velocity_input[1];
-  car->velocity_input[2] = frame.local_6c.z + car->velocity_input[2];
-  fVar1 = *pfVar5;
-  *pfVar5 = frame.local_54.x + fVar1;
-  fVar2 = frame.local_54.y + car->velocity[1];
-  car->velocity[1] = fVar2;
-  fVar3 = frame.local_54.z + car->velocity[2];
-  car->velocity[2] = fVar3;
-  if (*(int *)&pfVar7[-2] != -1) {
-    fVar4 = frame.local_74 * k_f_3;
-    if (k_f_0_9 < frame.local_74 * k_f_3) {
-      fVar4 = k_f_0_9;
+  frame.torque_sum.x = frame.torque_sum.x * k_f_0_5;
+  contact_next = car->velocity;
+  frame.torque_sum.y = frame.torque_sum.y * k_f_0_5;
+  frame.torque_sum.z = frame.torque_sum.z * k_f_0_5;
+  car->velocity_input[0] = frame.torque_sum.x + car->velocity_input[0];
+  car->velocity_input[1] = frame.torque_sum.y + car->velocity_input[1];
+  car->velocity_input[2] = frame.torque_sum.z + car->velocity_input[2];
+  tmp_f = *contact_next;
+  *contact_next = frame.net_force.x + tmp_f;
+  vel_y_new = frame.net_force.y + car->velocity[1];
+  car->velocity[1] = vel_y_new;
+  vel_z_new = frame.net_force.z + car->velocity[2];
+  car->velocity[2] = vel_z_new;
+  if (*(int *)&contact[-2] != -1) {
+    damp = frame.grip_factor * k_f_3;
+    if (k_f_0_9 < frame.grip_factor * k_f_3) {
+      damp = k_f_0_9;
     }
-    *pfVar5 = (frame.local_54.x + fVar1) * fVar4;
-    car->velocity[1] = fVar2 * fVar4;
-    car->velocity[2] = fVar3 * fVar4;
+    *contact_next = (frame.net_force.x + tmp_f) * damp;
+    car->velocity[1] = vel_y_new * damp;
+    car->velocity[2] = vel_z_new * damp;
   }
-  if ((*(int *)&car->wheels_in_contact == 0x40800000) && (RVar9 = RwV3dLength((RwV3d *)pfVar5), k_f_1_0en4 < RVar9))
+  if ((*(int *)&car->wheels_in_contact == 0x40800000) && (vec_len = RwV3dLength((RwV3d *)contact_next), k_f_1_0en4 < vec_len))
   {
-    RwV3dNormalize(&frame.local_48,(RwV3d *)pfVar5);
-    fVar1 = (frame.local_48.z * car->up[2] + frame.local_48.x * car->up[0] + frame.local_48.y * car->up[1]) * k_f_0_1;
-    frame.local_48.z = fVar1 * RVar9;
-    frame.local_48.x = frame.local_48.z * car->up[0];
-    frame.local_48.y = frame.local_48.z * car->up[1];
-    frame.local_48.z = frame.local_48.z * car->up[2];
-    *pfVar5 = *pfVar5 - frame.local_48.x;
-    car->velocity[1] = car->velocity[1] - frame.local_48.y;
-    car->velocity[2] = car->velocity[2] - frame.local_48.z;
-    RwV3dLength(&frame.local_54);
+    RwV3dNormalize(&frame.extra_force,(RwV3d *)contact_next);
+    tmp_f = (frame.extra_force.z * car->up[2] + frame.extra_force.x * car->up[0] + frame.extra_force.y * car->up[1]) * k_f_0_1;
+    frame.extra_force.z = tmp_f * vec_len;
+    frame.extra_force.x = frame.extra_force.z * car->up[0];
+    frame.extra_force.y = frame.extra_force.z * car->up[1];
+    frame.extra_force.z = frame.extra_force.z * car->up[2];
+    *contact_next = *contact_next - frame.extra_force.x;
+    car->velocity[1] = car->velocity[1] - frame.extra_force.y;
+    car->velocity[2] = car->velocity[2] - frame.extra_force.z;
+    RwV3dLength(&frame.net_force);
   }
   return;
 }

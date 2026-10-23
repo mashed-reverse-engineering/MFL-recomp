@@ -29,78 +29,78 @@ void fx_update_all(void)
 {
   float fbits1;
   float fVar1;
-  float fVar2;
-  RwMatrix *pRVar3;
-  undefined4 uVar4;
-  int iVar5;
-  uint *puVar6;
-  uint uVar7;
+  float step;
+  RwMatrix *clump_ltm;
+  undefined4 world_ptr;
+  int clump_frame_or_hit;
+  uint *phase_ptr;
+  uint slot_index;
   double fVar8;
-  undefined4 *puVar9;
-  undefined1 *puVar10;
+  undefined4 *ray_origin_ptr;
+  undefined1 *hit_ptr;
   struct {
-    RwV3d local_5c;
-    undefined4 local_50;
-    undefined4 local_4c;
-    undefined4 local_48;
-    float local_44;
-    undefined1 local_40 [64];
+    RwV3d move;
+    undefined4 ray_x;
+    undefined4 ray_y;
+    undefined4 ray_z;
+    float ray_len;
+    undefined1 hit_record [64];
   } frame;
   
-  uVar7 = 0;
-  puVar6 = &g_fx_slots[0].phase;
+  slot_index = 0;
+  phase_ptr = &g_fx_slots[0].phase;
   do {
-    if (puVar6[1] != 0) {
-      if (float_7_0 < *(float *)puVar6) {
-        puVar6[1] = 0;
+    if (phase_ptr[1] != 0) {
+      if (float_7_0 < *(float *)phase_ptr) {
+        phase_ptr[1] = 0;
       }
-      *(float *)puVar6 = g_tick_seconds + *(float *)puVar6;
-      pRVar3 = RwFrameGetLTM(*(RwFrame **)(((char *)((FxSlot *)(puVar6 + -2))->clump) + 4));
-      fVar2 = g_tick_seconds * *(float *)&puVar6[-1];
-      frame.local_5c.x = fVar2 * (pRVar3->at).x;
-      frame.local_5c.y = (pRVar3->at).y * fVar2;
-      frame.local_5c.z = fVar2 * (pRVar3->at).z + *(float *)&puVar6[5];
-      frame.local_5c.x = frame.local_5c.x + *(float *)&puVar6[3];
-      frame.local_5c.y = frame.local_5c.y + *(float *)&puVar6[4];
-      *(float *)&puVar6[3] = (*(float *)&puVar6[3] * k_f_0_99);
-      *(float *)&puVar6[4] = (*(float *)&puVar6[4] * k_f_0_99);
-      *(float *)&puVar6[5] = (*(float *)&puVar6[5] * k_f_0_99);
-      RwFrameTranslate(*(RwFrame **)(((char *)((FxSlot *)(puVar6 + -2))->clump) + 4),&frame.local_5c,rwCOMBINEPOSTCONCAT);
-      fx_ribbon_add_point(puVar6[2],*(int *)(((char *)((FxSlot *)(puVar6 + -2))->clump) + 4) + 0x40,0,0);
-      g_fx_8d98b0 = uVar7;
-      if ((char *)&g_car_62ac74 + 0x26d73 < (char *)puVar6) {
-        g_fx_8d98b0 = uVar7 - (uVar7 & 0xfffffffc);
+      *(float *)phase_ptr = g_tick_seconds + *(float *)phase_ptr;
+      clump_ltm = RwFrameGetLTM(*(RwFrame **)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4));
+      step = g_tick_seconds * *(float *)&phase_ptr[-1];
+      frame.move.x = step * (clump_ltm->at).x;
+      frame.move.y = (clump_ltm->at).y * step;
+      frame.move.z = step * (clump_ltm->at).z + *(float *)&phase_ptr[5];
+      frame.move.x = frame.move.x + *(float *)&phase_ptr[3];
+      frame.move.y = frame.move.y + *(float *)&phase_ptr[4];
+      *(float *)&phase_ptr[3] = (*(float *)&phase_ptr[3] * k_f_0_99);
+      *(float *)&phase_ptr[4] = (*(float *)&phase_ptr[4] * k_f_0_99);
+      *(float *)&phase_ptr[5] = (*(float *)&phase_ptr[5] * k_f_0_99);
+      RwFrameTranslate(*(RwFrame **)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4),&frame.move,rwCOMBINEPOSTCONCAT);
+      fx_ribbon_add_point(phase_ptr[2],*(int *)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4) + 0x40,0,0);
+      g_fx_8d98b0 = slot_index;
+      if ((char *)&g_car_62ac74 + 0x26d73 < (char *)phase_ptr) {
+        g_fx_8d98b0 = slot_index - (slot_index & 0xfffffffc);
       }
-      sfx_move_playing_voice(0x14,*(int *)(((char *)((FxSlot *)(puVar6 + -2))->clump) + 4) + 0x40,g_fx_8d98b0)
+      sfx_move_playing_voice(0x14,*(int *)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4) + 0x40,g_fx_8d98b0)
       ;
-      frame.local_44 = (frame.local_5c.z * frame.local_5c.z + frame.local_5c.x * frame.local_5c.x + frame.local_5c.y * frame.local_5c.y) *
+      frame.ray_len = (frame.move.z * frame.move.z + frame.move.x * frame.move.x + frame.move.y * frame.move.y) *
                  k_f_1_5 + k_f_0_05;
-      iVar5 = *(int *)(((char *)((FxSlot *)(puVar6 + -2))->clump) + 4);
-      frame.local_50 = *(undefined4 *)(iVar5 + 0x40);
-      frame.local_4c = *(undefined4 *)(iVar5 + 0x44);
-      frame.local_48 = *(undefined4 *)(iVar5 + 0x48);
-      puVar10 = frame.local_40;
-      puVar9 = &frame.local_50;
-      uVar4 = weapon_get_rw_801b14();
-      iVar5 = FUN_004c4e20(uVar4,puVar9,puVar10);
-      if (iVar5 != 0) {
-        iVar5 = rocket_surface_hit_test(frame.local_40,&frame.local_50);
-        if (iVar5 == 0) {
-          frame.local_44 = 1.2;
+      clump_frame_or_hit = *(int *)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4);
+      frame.ray_x = *(undefined4 *)(clump_frame_or_hit + 0x40);
+      frame.ray_y = *(undefined4 *)(clump_frame_or_hit + 0x44);
+      frame.ray_z = *(undefined4 *)(clump_frame_or_hit + 0x48);
+      hit_ptr = frame.hit_record;
+      ray_origin_ptr = &frame.ray_x;
+      world_ptr = weapon_get_rw_801b14();
+      clump_frame_or_hit = FUN_004c4e20(world_ptr,ray_origin_ptr,hit_ptr);
+      if (clump_frame_or_hit != 0) {
+        clump_frame_or_hit = rocket_surface_hit_test(frame.hit_record,&frame.ray_x);
+        if (clump_frame_or_hit == 0) {
+          frame.ray_len = 1.2;
           fVar8 = (double)ai_get_float_8c9980(0x43480000,0x43160000,2);
-          explosion_queue(&frame.local_50,(fbits1 = (float)(fVar8 + (double)k_f_15), *(int *)&fbits1),0x43480000,0x43160000,2);
-          fx_emitter_spawn_a_default(&frame.local_50,&g_car_62ac74,0x43b40000);
-          g_fx_8d98b0 = uVar7;
-          if ((char *)&g_car_62ac74 + 0x26d73 < (char *)puVar6) {
-            g_fx_8d98b0 = uVar7 - (uVar7 & 0xfffffffc);
+          explosion_queue(&frame.ray_x,(fbits1 = (float)(fVar8 + (double)k_f_15), *(int *)&fbits1),0x43480000,0x43160000,2);
+          fx_emitter_spawn_a_default(&frame.ray_x,&g_car_62ac74,0x43b40000);
+          g_fx_8d98b0 = slot_index;
+          if ((char *)&g_car_62ac74 + 0x26d73 < (char *)phase_ptr) {
+            g_fx_8d98b0 = slot_index - (slot_index & 0xfffffffc);
           }
           sfx_voice_is_active(0x14,g_fx_8d98b0);
         }
       }
     }
-    puVar6 = puVar6 + 8;
-    uVar7 = uVar7 + 1;
-  } while ((char *)puVar6 < (char *)&g_car_62ac74 + 0x26e34);
+    phase_ptr = phase_ptr + 8;
+    slot_index = slot_index + 1;
+  } while ((char *)phase_ptr < (char *)&g_car_62ac74 + 0x26e34);
   return;
 }
 

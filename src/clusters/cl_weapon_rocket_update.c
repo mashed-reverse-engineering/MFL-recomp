@@ -45,145 +45,150 @@ extern void rocket_update_launcher(void);
 void weapon_rocket_update(void)
 
 {
-  int *piVar1;
-  float fVar2;
-  char random_int_2;
-  undefined4 uVar3;
-  int random_int;
-  uint uVar4;
-  int *piVar5;
-  int *piVar6;
-  undefined *puVar7;
-  undefined *reg_eax;
-  bool bVar8;
-  int *piVar9;
-  int *piVar10;
-  undefined1 *puVar11;
+  int *rocket_pos;
+  float tmp_f;
+  char smoke_jitter;
+  undefined4 rw_world;
+  int rnd_or_result;
+  uint tick_parity;
+  int *rocket_cursor;
+  int *rocket_prev;
+  undefined *launcher_cursor;
+  undefined *launcher;
+  bool tick_is_even;
+  int *sphere_ptr;
+  int *rocket;
+  undefined1 *hit_buf_ptr;
   struct {
-    char cStack_ec;
-    char cStack_eb;
-    char cStack_ea;
-    undefined1 uStack_e9;
-    undefined *puStack_e8;
-    int iStack_e4;
-    int iStack_e0;
-    int iStack_dc;
-    int iStack_d8;
-    float fStack_d4;
-    int iStack_d0;
-    int iStack_cc;
-    int iStack_c8;
-    int iStack_c4;
-    float fStack_c0;
-    undefined4 uStack_bc;
-    int *piStack_b8;
-    undefined4 uStack_b4;
-    code *pcStack_b0;
+    char smoke_r;
+    char smoke_g;
+    char smoke_b;
+    undefined1 smoke_a;
+    undefined *launcher_saved;
+    int ray_start_x;
+    int ray_start_y;
+    int ray_start_z;
+    int ray_end_x;
+    float ray_end_y;
+    int ray_end_z;
+    int sphere_x;
+    int sphere_y;
+    int sphere_z;
+    float sphere_radius;
+    undefined4 sphere_kind;
+    int *sphere_owner;
+    undefined4 sphere_unused;
+    code *sphere_callback;
   } frame;
   struct {
-    undefined1 auStack_40 [56];
+    undefined1 hit_buf [56];
     float fStack_8;
     float fStack_4;      /* rocket_surface_hit_test writes 64 bytes */
   } frame2;
   
-  puVar7 = g_weapon_rocket_6a60cc;
-  piVar5 = (int *)&g_weapon_rocket_6a6040;
+  /* per slot: launcher (spin / aim) update, then the rocket itself (flies straight or homing, 108 byte records) */
+  launcher_cursor = g_weapon_rocket_6a60cc;
+  rocket_cursor = (int *)&g_weapon_rocket_6a6040;
   do {
-    reg_eax = puVar7 + -0x2c;
-    piVar6 = piVar5 + -0x1b;
-    frame.puStack_e8 = reg_eax;
-    object_set_flag_4(*(undefined4 *)(puVar7 + -0xc),0);
-    if (*(int *)(puVar7 + -0x28) != 0) {
-      rocket_update_launcher_r((void *)reg_eax);
-      if (*(int *)(puVar7 + -0x10) != 0) {
-        weapon_rocket_spin_update((undefined4)reg_eax);
+    launcher = launcher_cursor + -0x2c;
+    rocket_prev = rocket_cursor + -0x1b;
+    frame.launcher_saved = launcher;
+    object_set_flag_4(*(undefined4 *)(launcher_cursor + -0xc),0);
+    if (*(int *)(launcher_cursor + -0x28) != 0) {
+      rocket_update_launcher_r((void *)launcher);
+      if (*(int *)(launcher_cursor + -0x10) != 0) {
+        weapon_rocket_spin_update((undefined4)launcher);
       }
     }
-    object_set_flag_4(piVar5[-0x17],0);
-    puVar7 = reg_eax;
-    if (piVar5[-0x1c] != 0) {
-      if ((*piVar6 == -1) && (piVar5[-0x1a] == -1)) {
-        rocket_fly_straight_r((void *)(piVar5 + -0x30));
+    object_set_flag_4(rocket_cursor[-0x17],0);
+    launcher_cursor = launcher;
+    if (rocket_cursor[-0x1c] != 0) {
+      if ((*rocket_prev == -1) && (rocket_cursor[-0x1a] == -1)) {
+        rocket_fly_straight_r((void *)(rocket_cursor + -0x30));
       }
       else {
-        rocket_fly_homing_r((void *)(piVar5 + -0x30));
+        rocket_fly_homing_r((void *)(rocket_cursor + -0x30));
       }
-      piVar10 = piVar5 + -0x30;
-      fVar2 = g_tick_seconds + *(float *)&piVar5[-0x2a];
-      *(float *)&piVar5[-0x2a] = fVar2;
-      if (!(fVar2 > k_f_3)) {
-        piVar1 = piVar5 + -0x2d;
-        frame.iStack_cc = *piVar1;
-        frame.iStack_c8 = piVar5[-0x2c];
-        frame.iStack_c4 = piVar5[-0x2b];
-        frame.fStack_c0 = 0.05;
-        frame.pcStack_b0 = rocket_hit_callback;
-        frame.uStack_b4 = 0;
-        frame.uStack_bc = 0xb;
-        frame.piStack_b8 = piVar10;
-        trigger_sphere_register((float *)&frame.iStack_cc);
-        uVar4 = g_tick_number & 0x80000001;
-        bVar8 = uVar4 == 0;
-        if ((int)uVar4 < 0) {
-          bVar8 = (uVar4 - 1 | 0xfffffffe) == 0xffffffff;
+      rocket = rocket_cursor + -0x30;
+      tmp_f = g_tick_seconds + *(float *)&rocket_cursor[-0x2a];
+      *(float *)&rocket_cursor[-0x2a] = tmp_f;
+      if (!(tmp_f > k_f_3)) {
+        rocket_pos = rocket_cursor + -0x2d;
+        /* rocket alive for under 3 s: register its damage trigger sphere (kind 0xb, radius 0.05) */
+        frame.sphere_x = *rocket_pos;
+        frame.sphere_y = rocket_cursor[-0x2c];
+        frame.sphere_z = rocket_cursor[-0x2b];
+        frame.sphere_radius = 0.05;
+        frame.sphere_callback = rocket_hit_callback;
+        frame.sphere_unused = 0;
+        frame.sphere_kind = 0xb;
+        frame.sphere_owner = rocket;
+        trigger_sphere_register((float *)&frame.sphere_x);
+        /* every second tick: test the rocket path against the world, explode on a plain hit */
+        tick_parity = g_tick_number & 0x80000001;
+        tick_is_even = tick_parity == 0;
+        if ((int)tick_parity < 0) {
+          tick_is_even = (tick_parity - 1 | 0xfffffffe) == 0xffffffff;
         }
-        if (bVar8) {
-          puVar11 = frame2.auStack_40;
-          piVar9 = &frame.iStack_cc;
-          frame.fStack_c0 = (*(float *)&piVar5[-0x27] * *(float *)&piVar5[-0x27] +
-                      *(float *)&piVar5[-0x28] * *(float *)&piVar5[-0x28] +
-                      *(float *)&piVar5[-0x29] * *(float *)&piVar5[-0x29]) * k_f_1_5 + frame.fStack_c0;
-          uVar3 = weapon_get_rw_801b14();
-          random_int = FUN_004c4e20(uVar3,(undefined4)piVar9,(undefined4)puVar11);
-          if (random_int != 0) {
-            random_int = rocket_surface_hit_test((undefined4)frame2.auStack_40,(undefined4)&frame.iStack_cc);
-            if (random_int == 0) {
-              rocket_explode_r((void *)piVar10);
+        if (tick_is_even) {
+          hit_buf_ptr = frame2.hit_buf;
+          sphere_ptr = &frame.sphere_x;
+          frame.sphere_radius = (*(float *)&rocket_cursor[-0x27] * *(float *)&rocket_cursor[-0x27] +
+                      *(float *)&rocket_cursor[-0x28] * *(float *)&rocket_cursor[-0x28] +
+                      *(float *)&rocket_cursor[-0x29] * *(float *)&rocket_cursor[-0x29]) * k_f_1_5 + frame.sphere_radius;
+          rw_world = weapon_get_rw_801b14();
+          rnd_or_result = FUN_004c4e20(rw_world,(undefined4)sphere_ptr,(undefined4)hit_buf_ptr);
+          if (rnd_or_result != 0) {
+            rnd_or_result = rocket_surface_hit_test((undefined4)frame2.hit_buf,(undefined4)&frame.sphere_x);
+            if (rnd_or_result == 0) {
+              rocket_explode_r((void *)rocket);
             }
           }
         }
-        frame.iStack_e4 = *piVar1;
-        frame.iStack_e0 = piVar5[-0x2c];
-        frame.iStack_dc = piVar5[-0x2b];
-        frame.iStack_d8 = *piVar1;
-        frame.iStack_d0 = piVar5[-0x2b];
-        frame.fStack_d4 = *(float *)&piVar5[-0x2c] - k_f_3;
-        puVar11 = frame2.auStack_40;
-        piVar10 = &frame.iStack_e4;
-        uVar3 = weapon_get_rw_801b14();
-        random_int = world_intersect_line((RpWorld *)uVar3,(undefined4)piVar10,(undefined4)puVar11);
-        if (random_int == 0) {
-          piVar5[-0x26] = -0x45fced91;
+        /* ground probe 3 units below the rocket: sets the smoke / ribbon height value */
+        frame.ray_start_x = *rocket_pos;
+        frame.ray_start_y = rocket_cursor[-0x2c];
+        frame.ray_start_z = rocket_cursor[-0x2b];
+        frame.ray_end_x = *rocket_pos;
+        frame.ray_end_z = rocket_cursor[-0x2b];
+        frame.ray_end_y = *(float *)&rocket_cursor[-0x2c] - k_f_3;
+        hit_buf_ptr = frame2.hit_buf;
+        rocket = &frame.ray_start_x;
+        rw_world = weapon_get_rw_801b14();
+        rnd_or_result = world_intersect_line((RpWorld *)rw_world,(undefined4)rocket,(undefined4)hit_buf_ptr);
+        if (rnd_or_result == 0) {
+          rocket_cursor[-0x26] = -0x45fced91;
         }
         else {
-          fVar2 = (frame2.fStack_8 * k_f_3 - k_f_0_4) * k_f_2_5 * k_f_n0_5;
-          *(float *)&piVar5[-0x26] = fVar2;
-          if (fVar2 < k_f_n0_05) {
-            piVar5[-0x26] = -0x42b33333;
+          tmp_f = (frame2.fStack_8 * k_f_3 - k_f_0_4) * k_f_2_5 * k_f_n0_5;
+          *(float *)&rocket_cursor[-0x26] = tmp_f;
+          if (tmp_f < k_f_n0_05) {
+            rocket_cursor[-0x26] = -0x42b33333;
           }
         }
-        fx_ribbon_add_point(piVar5[-0x16],piVar1,0,0);
-        random_int = random_int_range(0,10);
-        if (5 < random_int) {
-          frame.cStack_ec = -0x80;
-          frame.cStack_eb = -0x80;
-          frame.cStack_ea = -0x80;
-          frame.uStack_e9 = 0xff;
-          random_int_2 = random_int_range(0xffffffe2,0x1e);
-          frame.cStack_ec = frame.cStack_ec + random_int_2;
-          frame.cStack_ea = frame.cStack_ea + random_int_2;
-          frame.cStack_eb = frame.cStack_eb + random_int_2;
-          fx_smoke_particle_spawn_tinted(piVar1,0x3e4ccccd,&frame.cStack_ec,0x40a00000,0x3fc00000);
+        /* trail: ribbon point, grey smoke about half of the ticks, flight sound follows the rocket */
+        fx_ribbon_add_point(rocket_cursor[-0x16],rocket_pos,0,0);
+        rnd_or_result = random_int_range(0,10);
+        if (5 < rnd_or_result) {
+          frame.smoke_r = -0x80;
+          frame.smoke_g = -0x80;
+          frame.smoke_b = -0x80;
+          frame.smoke_a = 0xff;
+          smoke_jitter = random_int_range(0xffffffe2,0x1e);
+          frame.smoke_r = frame.smoke_r + smoke_jitter;
+          frame.smoke_b = frame.smoke_b + smoke_jitter;
+          frame.smoke_g = frame.smoke_g + smoke_jitter;
+          fx_smoke_particle_spawn_tinted(rocket_pos,0x3e4ccccd,&frame.smoke_r,0x40a00000,0x3fc00000);
         }
-        sfx_move_playing_voice(0x14,piVar1,piVar5[-0x21]);
-        puVar7 = frame.puStack_e8;
+        sfx_move_playing_voice(0x14,rocket_pos,rocket_cursor[-0x21]);
+        launcher_cursor = frame.launcher_saved;
       }
       else {
-        rocket_explode_r((void *)piVar10);
+        rocket_explode_r((void *)rocket);
       }
     }
-    piVar5 = piVar6;
-  } while (piVar6 != (int *)&g_weapon_rocket_6a5e24);
+    rocket_cursor = rocket_prev;
+  } while (rocket_prev != (int *)&g_weapon_rocket_6a5e24);
   return;
 }
 

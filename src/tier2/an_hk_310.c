@@ -49,7 +49,7 @@ undefined4 __cdecl course_edge_side_test(char *edge_block,int edge_index,float *
   dot_b = normal_b[2] * dir.z + dir.x * *normal_b + normal_b[1] * dir.y;
   /* optional output: 1 if dot_a <= dot_b, else 0 */
   if (out_side != (uint *)0x0) {
-    *out_side = (uint)(dot_a <= dot_b);
+    *out_side = (uint)!(dot_a > dot_b);
   }
   /* opposite signs (product below threshold) means the point is across the edge */
   if (dot_b * dot_a < k_f_0) {

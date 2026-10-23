@@ -17,38 +17,38 @@ extern double sin(double);
 void build_info_display_draw_wave_grid(void)
 
 {
-  int iVar1;
-  double fVar2;
-  double fVar3;
-  double fVar4;
-  double fVar5;
-  float fVar6;
-  float fVar7;
-  float fVar8;
-  float fVar9;
-  float fVar10;
-  float fVar11;
-  float fVar12;
-  short sVar14;
-  RwReal *pRVar15;
-  uint uVar16;
-  int iVar17;
-  uint uVar18;
-  double fVar19;
-  double fVar20;
-  double fVar21;
-  double fVar22;
-  double fVar23;
+  int cell_x;
+  double cell_w;
+  double amp0;
+  double amp1;
+  double amp2;
+  float wave_time2_or_sx0;
+  float sy0;
+  float sx1;
+  float sy1;
+  float sx2;
+  float sy2;
+  float sx3;
+  short screen_dim;
+  RwReal *vtx_cursor;
+  uint colour_in;
+  int col;
+  uint row;
+  double band_y;
+  double wave0;
+  double wave1;
+  double wave2;
+  double wave_tmp;
   struct {
-    int local_40;
-    uint local_3c;
+    int pass;
+    uint colour_base;
     undefined1 pad_38[6];
-    ushort uStack_32;
+    ushort colour_hi;
   } frame;
-  float local_24;
-  float local_1c;
-  float local_14;
-  float local_c;
+  float y2;
+  float y3;
+  float y0;
+  float y1;
   float x0f;
   float x1f;
   float x2f;
@@ -56,91 +56,91 @@ void build_info_display_draw_wave_grid(void)
   float s1r;
   float i21f;
   
-  frame.local_3c = 0xff808080;
-  frame.local_40 = 0;
+  frame.colour_base = 0xff808080;
+  frame.pass = 0;
   do {
-    uVar18 = 0;
+    row = 0;
     do {
-      iVar17 = 0;
+      col = 0;
       do {
-        iVar1 = (uVar18 & 1) * 0x15 + (iVar17 * 5 + 0x2d) * 8;
-        fVar19 = (double)(int)(uVar18 * 0x15);
-        if (frame.local_40 != 0) {
-          fVar19 = fVar19 + (double)k_f_416;
+        cell_x = (row & 1) * 0x15 + (col * 5 + 0x2d) * 8;
+        band_y = (double)(int)(row * 0x15);
+        if (frame.pass != 0) {
+          band_y = band_y + (double)k_f_416;
         }
-        fVar2 = (double)k_f_21;
-        fVar6 = g_menu_wave_time + g_menu_wave_time;
-        fVar20 = (double)sin((double)(int)(iVar17 + uVar18) + (double)fVar6);
-        fVar3 = (double)(4.0);
-        fVar21 = (double)sin((double)(int)(uVar18 + 1 + iVar17) + (double)fVar6);
-        fVar4 = (double)(4.0);
-        fVar22 = (double)sin((double)(int)(uVar18 + 2 + iVar17) + (double)fVar6);
-        fVar5 = (double)(4.0);
-        fVar23 = (double)sin((double)(int)(iVar17 + uVar18 * 2) + (double)fVar6);
-        local_14 = (float)(fVar23 + fVar23 + fVar19);
-        fVar23 = (double)sin((double)(int)(iVar17 + 1 + uVar18 * 2) + (double)fVar6);
-        local_c = (float)(fVar23 + fVar23 + fVar19);
-        fVar23 = (double)sin((double)(int)(iVar17 + 2 + uVar18 * 2) + (double)fVar6);
-        local_24 = (float)(fVar23 + fVar23 + (double)(float)(fVar19 + (double)k_f_21));
-        fVar23 = (double)sin((double)(int)(iVar17 + 3 + uVar18 * 2) + (double)fVar6);
-        local_1c = (float)(fVar23 + fVar23 + (double)(float)(fVar19 + (double)k_f_21));
-        if (frame.local_40 == 0) {
-          if (uVar18 == 2) {
-            local_1c = 64.0f;
-            local_24 = 64.0f;
+        cell_w = (double)k_f_21;
+        wave_time2_or_sx0 = g_menu_wave_time + g_menu_wave_time;
+        wave0 = (double)sin((double)(int)(col + row) + (double)wave_time2_or_sx0);
+        amp0 = (double)(4.0);
+        wave1 = (double)sin((double)(int)(row + 1 + col) + (double)wave_time2_or_sx0);
+        amp1 = (double)(4.0);
+        wave2 = (double)sin((double)(int)(row + 2 + col) + (double)wave_time2_or_sx0);
+        amp2 = (double)(4.0);
+        wave_tmp = (double)sin((double)(int)(col + row * 2) + (double)wave_time2_or_sx0);
+        y0 = (float)(wave_tmp + wave_tmp + band_y);
+        wave_tmp = (double)sin((double)(int)(col + 1 + row * 2) + (double)wave_time2_or_sx0);
+        y1 = (float)(wave_tmp + wave_tmp + band_y);
+        wave_tmp = (double)sin((double)(int)(col + 2 + row * 2) + (double)wave_time2_or_sx0);
+        y2 = (float)(wave_tmp + wave_tmp + (double)(float)(band_y + (double)k_f_21));
+        wave_tmp = (double)sin((double)(int)(col + 3 + row * 2) + (double)wave_time2_or_sx0);
+        y3 = (float)(wave_tmp + wave_tmp + (double)(float)(band_y + (double)k_f_21));
+        if (frame.pass == 0) {
+          if (row == 2) {
+            y3 = 64.0f;
+            y2 = 64.0f;
           }
         }
-        else if (uVar18 == 0) {
-          local_c = 416.0f;
-          local_14 = 416.0f;
+        else if (row == 0) {
+          y1 = 416.0f;
+          y0 = 416.0f;
         }
-        frame.uStack_32 = 0xff80;
-        uVar16 = frame.local_3c;
-        if ((iVar17 == 0) && ((uVar18 & 1) == 0)) {
-          uVar16 = 0;
-          frame.uStack_32 = 0;
+        frame.colour_hi = 0xff80;
+        colour_in = frame.colour_base;
+        if ((col == 0) && ((row & 1) == 0)) {
+          colour_in = 0;
+          frame.colour_hi = 0;
         }
-        *(volatile float *)&x0f = fVar20 * fVar3 + (double)iVar1;
-        *(volatile float *)&s1r = fVar21 * fVar4;
-        *(volatile float *)&i21f = (double)iVar1 + fVar2;
-        *(volatile float *)&x1f = fVar21 * fVar4 + ((double)iVar1 + fVar2);
-        *(volatile float *)&x2f = *(volatile float *)&s1r + (double)iVar1;
-        *(volatile float *)&x3f = fVar22 * fVar5 + *(volatile float *)&i21f;
-        sVar14 = screen_width();
-        fVar6 = (float)(int)sVar14 * *(volatile float *)&x0f * k_f_0_0015625;
-        sVar14 = screen_height();
-        fVar7 = (float)(int)sVar14 * local_14 * k_f_0_0020833334;
-        sVar14 = screen_width();
-        fVar8 = (float)(int)sVar14 * *(volatile float *)&x1f * k_f_0_0015625;
-        sVar14 = screen_height();
-        fVar9 = (float)(int)sVar14 * local_c * k_f_0_0020833334;
-        sVar14 = screen_width();
-        fVar10 = (float)(int)sVar14 * *(volatile float *)&x2f * k_f_0_0015625;
-        sVar14 = screen_height();
-        fVar11 = (float)(int)sVar14 * local_24 * k_f_0_0020833334;
-        sVar14 = screen_width();
-        fVar12 = (float)(int)sVar14 * *(volatile float *)&x3f * k_f_0_0015625;
-        sVar14 = screen_height();
-        g_im2d_vertices[3].y = (float)(int)sVar14 * local_1c * k_f_0_0020833334;
+        *(volatile float *)&x0f = wave0 * amp0 + (double)cell_x;
+        *(volatile float *)&s1r = wave1 * amp1;
+        *(volatile float *)&i21f = (double)cell_x + cell_w;
+        *(volatile float *)&x1f = wave1 * amp1 + ((double)cell_x + cell_w);
+        *(volatile float *)&x2f = *(volatile float *)&s1r + (double)cell_x;
+        *(volatile float *)&x3f = wave2 * amp2 + *(volatile float *)&i21f;
+        screen_dim = screen_width();
+        wave_time2_or_sx0 = (float)(int)screen_dim * *(volatile float *)&x0f * k_f_0_0015625;
+        screen_dim = screen_height();
+        sy0 = (float)(int)screen_dim * y0 * k_f_0_0020833334;
+        screen_dim = screen_width();
+        sx1 = (float)(int)screen_dim * *(volatile float *)&x1f * k_f_0_0015625;
+        screen_dim = screen_height();
+        sy1 = (float)(int)screen_dim * y1 * k_f_0_0020833334;
+        screen_dim = screen_width();
+        sx2 = (float)(int)screen_dim * *(volatile float *)&x2f * k_f_0_0015625;
+        screen_dim = screen_height();
+        sy2 = (float)(int)screen_dim * y2 * k_f_0_0020833334;
+        screen_dim = screen_width();
+        sx3 = (float)(int)screen_dim * *(volatile float *)&x3f * k_f_0_0015625;
+        screen_dim = screen_height();
+        g_im2d_vertices[3].y = (float)(int)screen_dim * y3 * k_f_0_0020833334;
         g_im2d_vertices[0].emissiveColor =
-             (((uint)(frame.uStack_32 >> 8) << 8 | uVar16 & 0xff) << 8 | uVar16 >> 8 & 0xff) << 8 |
-             frame.uStack_32 & 0xff;
+             (((uint)(frame.colour_hi >> 8) << 8 | colour_in & 0xff) << 8 | colour_in >> 8 & 0xff) << 8 |
+             frame.colour_hi & 0xff;
         g_im2d_vertices[1].emissiveColor = 0xff808080;
         g_im2d_vertices[3].emissiveColor = 0xff808080;
-        pRVar15 = &g_im2d_vertices[0].rhw;
-        g_im2d_vertices[0].x = fVar6;
-        g_im2d_vertices[0].y = fVar7;
-        g_im2d_vertices[1].x = fVar8;
-        g_im2d_vertices[1].y = fVar9;
-        g_im2d_vertices[2].x = fVar10;
-        g_im2d_vertices[2].y = fVar11;
+        vtx_cursor = &g_im2d_vertices[0].rhw;
+        g_im2d_vertices[0].x = wave_time2_or_sx0;
+        g_im2d_vertices[0].y = sy0;
+        g_im2d_vertices[1].x = sx1;
+        g_im2d_vertices[1].y = sy1;
+        g_im2d_vertices[2].x = sx2;
+        g_im2d_vertices[2].y = sy2;
         g_im2d_vertices[2].emissiveColor = g_im2d_vertices[0].emissiveColor;
-        g_im2d_vertices[3].x = fVar12;
+        g_im2d_vertices[3].x = sx3;
         do {
-          pRVar15[-1] = RwIm2DGetNearScreenZ();
-          *pRVar15 = 1.0f;
-          pRVar15 = pRVar15 + 7;
-        } while ((char *)pRVar15 < (char *)&g_im2d_vertices + 0x7c);
+          vtx_cursor[-1] = RwIm2DGetNearScreenZ();
+          *vtx_cursor = 1.0f;
+          vtx_cursor = vtx_cursor + 7;
+        } while ((char *)vtx_cursor < (char *)&g_im2d_vertices + 0x7c);
         RwRenderStateSet(rwRENDERSTATETEXTURERASTER,(void *)0x0);
         RwRenderStateSet
                   (rwRENDERSTATEVERTEXALPHAENABLE,(void *)0x1);
@@ -148,12 +148,12 @@ void build_info_display_draw_wave_grid(void)
         RwRenderStateSet(rwRENDERSTATEDESTBLEND,(void *)0x6);
         RwIm2DRenderPrimitive
                   (rwPRIMTYPETRISTRIP,g_im2d_vertices,4);
-        iVar17 = iVar17 + 1;
-      } while (iVar17 < 7);
-      uVar18 = uVar18 + 1;
-    } while ((int)uVar18 < 3);
-    frame.local_40 = frame.local_40 + 1;
-  } while (frame.local_40 < 2);
+        col = col + 1;
+      } while (col < 7);
+      row = row + 1;
+    } while ((int)row < 3);
+    frame.pass = frame.pass + 1;
+  } while (frame.pass < 2);
   return;
 }
 

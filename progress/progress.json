@@ -1,7 +1,7 @@
 {
  "clusters": {
-  "bytes": 299142,
-  "functions": 593
+  "bytes": 324580,
+  "functions": 622
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
@@ -76,8 +76,8 @@
    "verified_bytes_identical": 908
   },
   "tier2": {
-   "bytes": 244384,
-   "functions": 1068,
+   "bytes": 244664,
+   "functions": 1070,
    "verified_bytes_identical": 0
   }
  }

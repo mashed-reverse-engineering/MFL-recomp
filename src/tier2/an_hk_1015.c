@@ -20,32 +20,32 @@ extern struct EventLogData g_event_log_data[256];
 
 /* "wheel points against the collected triangle list in 0x8BD720 (inferred)" */
 
-void car_wheels_vs_triangles(int *param_1,float *param_2)
+void car_wheels_vs_triangles(int *car,float *tri)
 
 {
-  float fVar1;
-  float fVar2;
-  float fVar3;
-  float fVar4;
-  float fVar5;
-  float fVar6;
-  float fVar7;
-  float fVar8;
-  float fVar9;
-  float fVar10;
-  float fVar11;
-  float fVar12;
-  float fVar13;
-  float fVar14;
-  uint uMark;
-  float fVar15;
-  undefined4 uVar16;
-  int race_phase;
-  int iVar17;
-  float *local_90;
-  float *local_8c;
-  int *local_88;
-  uint local_74;
+  float v0x;
+  float v0y;
+  float v0z;
+  float v1x;
+  float v1y;
+  float v1z;
+  float v2x;
+  float v2y;
+  float v2z;
+  float nx;
+  float ny;
+  float nz;
+  float px_or_dist;
+  float py;
+  uint tri_mark;
+  float pz;
+  undefined4 now_ticks;
+  int phase_or_idx;
+  int next_i;
+  float *wheel_rec;
+  float *point_ptr;
+  int *point_done;
+  uint tri_index;
   struct {
     float fStack_40;
     uint local_3c;
@@ -57,49 +57,50 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
     uint local_24;
   } frame;
   
-  local_74 = 0;
+  /* tri = 36-float collision triangle (v0 v1 v2 at [0..8], normal [9..11], mark [13], edge planes [0x1b..0x23]); car wheel points are tested one by one, the first 4 hits stop the scan */
+  tri_index = 0;
   if (g_collision_triangle_count != 0) {
     do {
-      fVar1 = *param_2;
-      fVar2 = param_2[1];
-      fVar3 = param_2[2];
-      fVar4 = param_2[3];
-      fVar5 = param_2[4];
-      fVar6 = param_2[5];
-      fVar7 = param_2[6];
-      fVar8 = param_2[7];
-      fVar9 = param_2[8];
-      fVar10 = param_2[9];
-      fVar11 = param_2[10];
-      fVar12 = param_2[0xb];
-      local_90 = (float *)(param_1 + 0x65);
-      local_88 = g_car_8bd720;
-      local_8c = (float *)&g_car_8bd764;
+      v0x = *tri;
+      v0y = tri[1];
+      v0z = tri[2];
+      v1x = tri[3];
+      v1y = tri[4];
+      v1z = tri[5];
+      v2x = tri[6];
+      v2y = tri[7];
+      v2z = tri[8];
+      nx = tri[9];
+      ny = tri[10];
+      nz = tri[0xb];
+      wheel_rec = (float *)(car + 0x65);
+      point_done = g_car_8bd720;
+      point_ptr = (float *)&g_car_8bd764;
       do {
-        if (*local_88 == 0) {
-          fVar13 = local_8c[-1];
-          fVar14 = *local_8c;
-          fVar15 = local_8c[1];
-          if ((k_f_0 <= (fVar15 - fVar3) * param_2[0x1d] +
-                        (fVar14 - fVar2) * param_2[0x1c] + (fVar13 - fVar1) * param_2[0x1b]) &&
-             (k_f_0 <= (fVar15 - fVar6) * param_2[0x20] +
-                       (fVar14 - fVar5) * param_2[0x1f] + (fVar13 - fVar4) * param_2[0x1e])) {
-            if ((k_f_0 <= (fVar15 - fVar9) * param_2[0x23] +
-                          (fVar14 - fVar8) * param_2[0x22] + (fVar13 - fVar7) * param_2[0x21]) &&
-               (!((fVar13 = (fVar15 - fVar9) * fVar12 +
-                           (fVar14 - fVar8) * fVar11 + (fVar13 - fVar7) * fVar10) < k_f_n0_25) &&
-                 (fVar13 < k_f_0_25) &&
-                (k_f_0_3 < fVar12 * *(float *)&param_1[0x274] +
-                           fVar11 * *(float *)&param_1[0x273] + fVar10 * *(float *)&param_1[0x272]))) {
-              uMark = *(uint *)&param_2[0xd];
-              if (uMark == 0xff010101) {
-                if (((((param_1[0x27c] == 0) &&
-                      (race_phase = race_get_phase(), uVar16 = g_last_frame_ticks, race_phase != 1))
-                     && (race_phase != 2)) && ((race_phase != 3 && (race_phase != 4)))) &&
-                   (race_phase != 5)) {
+        if (*point_done == 0) {
+          px_or_dist = point_ptr[-1];
+          py = *point_ptr;
+          pz = point_ptr[1];
+          if ((k_f_0 <= (pz - v0z) * tri[0x1d] +
+                        (py - v0y) * tri[0x1c] + (px_or_dist - v0x) * tri[0x1b]) &&
+             (k_f_0 <= (pz - v1z) * tri[0x20] +
+                       (py - v1y) * tri[0x1f] + (px_or_dist - v1x) * tri[0x1e])) {
+            if ((k_f_0 <= (pz - v2z) * tri[0x23] +
+                          (py - v2y) * tri[0x22] + (px_or_dist - v2x) * tri[0x21]) &&
+               (!((px_or_dist = (pz - v2z) * nz +
+                           (py - v2y) * ny + (px_or_dist - v2x) * nx) < k_f_n0_25) &&
+                 (px_or_dist < k_f_0_25) &&
+                (k_f_0_3 < nz * *(float *)&car[0x274] +
+                           ny * *(float *)&car[0x273] + nx * *(float *)&car[0x272]))) {
+              tri_mark = *(uint *)&tri[0xd];
+              if (tri_mark == 0xff010101) {
+                if (((((car[0x27c] == 0) &&
+                      (phase_or_idx = race_get_phase(), now_ticks = g_last_frame_ticks, phase_or_idx != 1))
+                     && (phase_or_idx != 2)) && ((phase_or_idx != 3 && (phase_or_idx != 4)))) &&
+                   (phase_or_idx != 5)) {
                   (&g_event_log_type)[g_event_log_head] = 6;
-                  (&g_event_log_time)[g_event_log_head] = uVar16;
-                  (&g_event_log_param)[g_event_log_head] = *param_1 + 0xff00;
+                  (&g_event_log_time)[g_event_log_head] = now_ticks;
+                  (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
                   g_event_log_args[g_event_log_head].arg0 = 0xff010101;
                   g_event_log_args[g_event_log_head].arg1 = frame.local_3c;
                   g_event_log_args[g_event_log_head].arg2 = frame.local_38;
@@ -108,13 +109,13 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                   g_event_log_args[g_event_log_head].w14 = frame.local_2c;
                   g_event_log_args[g_event_log_head].w18 = frame.local_28;
                   g_event_log_args[g_event_log_head].w1c = frame.local_24;
-                  race_phase = 0;
+                  phase_or_idx = 0;
                   do {
-                    iVar17 = race_phase + 1;
-                    (&g_event_log_data[g_event_log_head].w00)[race_phase] = (&frame.fStack_40)[race_phase]
+                    next_i = phase_or_idx + 1;
+                    (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] = (&frame.fStack_40)[phase_or_idx]
                     ;
-                    race_phase = iVar17;
-                  } while (iVar17 < 0x10);
+                    phase_or_idx = next_i;
+                  } while (next_i < 0x10);
                   g_event_log_head = g_event_log_head + 1;
                   if (0xff < g_event_log_head) {
                     g_event_log_head = 0;
@@ -122,22 +123,22 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                 }
               }
               else {
-                race_phase = car_wheel_contact_find_index(param_2,param_1);
-                if (race_phase == 0) {
-                  local_90[0x1b] = param_2[9];
-                  local_90[0x1c] = param_2[10];
-                  local_90[0x1d] = param_2[0xb];
-                  *local_90 = fVar13;
-                  local_90[0x16] = param_2[0xc];
-                  local_90[0x17] = param_2[0xd];
-                  if (uMark == 0xff0000ff) {
-                    if (((((param_1[0x27c] == 0) || (param_1[0x27c] == 1)) &&
-                         ((race_phase = race_get_phase(), uVar16 = g_last_frame_ticks,
-                          race_phase != 1 && ((race_phase != 2 && (race_phase != 3)))))) &&
-                        (race_phase != 4)) && (race_phase != 5)) {
+                phase_or_idx = car_wheel_contact_find_index(tri,car);
+                if (phase_or_idx == 0) {
+                  wheel_rec[0x1b] = tri[9];
+                  wheel_rec[0x1c] = tri[10];
+                  wheel_rec[0x1d] = tri[0xb];
+                  *wheel_rec = px_or_dist;
+                  wheel_rec[0x16] = tri[0xc];
+                  wheel_rec[0x17] = tri[0xd];
+                  if (tri_mark == 0xff0000ff) {
+                    if (((((car[0x27c] == 0) || (car[0x27c] == 1)) &&
+                         ((phase_or_idx = race_get_phase(), now_ticks = g_last_frame_ticks,
+                          phase_or_idx != 1 && ((phase_or_idx != 2 && (phase_or_idx != 3)))))) &&
+                        (phase_or_idx != 4)) && (phase_or_idx != 5)) {
                       (&g_event_log_type)[g_event_log_head] = 6;
-                      (&g_event_log_time)[g_event_log_head] = uVar16;
-                      (&g_event_log_param)[g_event_log_head] = *param_1 + 0xff00;
+                      (&g_event_log_time)[g_event_log_head] = now_ticks;
+                      (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
                       g_event_log_args[g_event_log_head].arg0 = 0xff0000ff;
                       g_event_log_args[g_event_log_head].arg1 = frame.local_3c;
                       g_event_log_args[g_event_log_head].arg2 = frame.local_38;
@@ -146,23 +147,23 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                       g_event_log_args[g_event_log_head].w14 = frame.local_2c;
                       g_event_log_args[g_event_log_head].w18 = frame.local_28;
                       g_event_log_args[g_event_log_head].w1c = frame.local_24;
-                      race_phase = 0;
+                      phase_or_idx = 0;
                       do {
-                        iVar17 = race_phase + 1;
-                        (&g_event_log_data[g_event_log_head].w00)[race_phase] =
-                             (&frame.fStack_40)[race_phase];
-                        race_phase = iVar17;
-                      } while (iVar17 < 0x10);
+                        next_i = phase_or_idx + 1;
+                        (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] =
+                             (&frame.fStack_40)[phase_or_idx];
+                        phase_or_idx = next_i;
+                      } while (next_i < 0x10);
                       goto LAB_0047b30d;
                     }
                   }
-                  else if (((((param_1[0x27c] == 1) && (uMark != 0xffff0080)) && (0x32 < param_1[0x27d]))
-                           && ((race_phase = race_get_phase(), uVar16 = g_last_frame_ticks,
-                               race_phase != 1 && (race_phase != 2)))) &&
-                          ((race_phase != 3 && ((race_phase != 4 && (race_phase != 5)))))) {
+                  else if (((((car[0x27c] == 1) && (tri_mark != 0xffff0080)) && (0x32 < car[0x27d]))
+                           && ((phase_or_idx = race_get_phase(), now_ticks = g_last_frame_ticks,
+                               phase_or_idx != 1 && (phase_or_idx != 2)))) &&
+                          ((phase_or_idx != 3 && ((phase_or_idx != 4 && (phase_or_idx != 5)))))) {
                     (&g_event_log_type)[g_event_log_head] = 6;
-                    (&g_event_log_time)[g_event_log_head] = uVar16;
-                    (&g_event_log_param)[g_event_log_head] = *param_1 + 0xff00;
+                    (&g_event_log_time)[g_event_log_head] = now_ticks;
+                    (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
                     g_event_log_args[g_event_log_head].arg0 = 0xff0000ff;
                     g_event_log_args[g_event_log_head].arg1 = frame.local_3c;
                     g_event_log_args[g_event_log_head].arg2 = frame.local_38;
@@ -171,20 +172,20 @@ void car_wheels_vs_triangles(int *param_1,float *param_2)
                     g_event_log_args[g_event_log_head].w14 = frame.local_2c;
                     g_event_log_args[g_event_log_head].w18 = frame.local_28;
                     g_event_log_args[g_event_log_head].w1c = frame.local_24;
-                    race_phase = 0;
+                    phase_or_idx = 0;
                     do {
-                      iVar17 = race_phase + 1;
-                      (&g_event_log_data[g_event_log_head].w00)[race_phase] =
-                           (&frame.fStack_40)[race_phase];
-                      race_phase = iVar17;
-                    } while (iVar17 < 0x10);
+                      next_i = phase_or_idx + 1;
+                      (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] =
+                           (&frame.fStack_40)[phase_or_idx];
+                      phase_or_idx = next_i;
+                    } while (next_i < 0x10);
 LAB_0047b30d:
                     g_event_log_head = g_event_log_head + 1;
                     if (0xff < g_event_log_head) {
                       g_event_log_head = 0;
                     }
                   }
-                  *local_88 = 1;
+                  *point_done = 1;
                   g_car_8bd790 = g_car_8bd790 + 1;
                   if (g_car_8bd790 == 4) {
                     return;
@@ -194,13 +195,13 @@ LAB_0047b30d:
             }
           }
         }
-        local_8c = local_8c + 3;
-        local_90 = local_90 + 0x31;
-        local_88 = local_88 + 1;
-      } while ((char *)local_8c < (char *)&g_car_8bd790 + 0x4);
-      local_74 = local_74 + 1;
-      param_2 = param_2 + 0x24;
-    } while (local_74 < g_collision_triangle_count);
+        point_ptr = point_ptr + 3;
+        wheel_rec = wheel_rec + 0x31;
+        point_done = point_done + 1;
+      } while ((char *)point_ptr < (char *)&g_car_8bd790 + 0x4);
+      tri_index = tri_index + 1;
+      tri = tri + 0x24;
+    } while (tri_index < g_collision_triangle_count);
   }
   return;
 }

@@ -1,6 +1,7 @@
 // cluster-entries: grid_position
 /* Installed cluster grid_position (tools/cluster_install.py from output/cluster_pilot_j1/grid_position.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#define GRID_SLOT_HARE (100) /* grid slot of the chased car in Hare and Hounds (GAME_MODE_HARE_AND_HOUNDS) */
 /*0042b1c0*/ extern int course_get_record_pos();
 /*0042b1d0*/ extern int course_get_record_base();
 /*0042b210*/ extern int course_get_record_point();
@@ -30,152 +31,152 @@
 /* computes a position/heading for one of the cars of the race ("Invalid number of cars in race";
    "Invalid position") */
 
-void grid_position(undefined4 param_1,int param_2,int param_3,float *param_4,float *param_5)
+void grid_position(undefined4 route,int grid_slot,int car_count,float *out_pos,float *out_heading)
 
 {
-  float fVar1;
-  float fVar2;
+  float tmp_f;
+  float start_x;
+  int row_or_event;
+  float *rec_ptr;
+  float *rec_ptr2;
   int event_type;
-  float *pfVar3;
-  float *pfVar4;
-  int event_type_2;
-  float10 fVar5;
+  float10 heading_deg;
   struct {
-    RwV2d local_68;
-    float local_60;
-    float local_5c;
-    float local_58;
+    RwV2d route_dir;
+    float vec_x;
+    float vec_y;
+    float vec_z;
   } frame;
-  RwV3d RStack_54;
+  RwV3d fwd;
   struct {
-    float local_48;
-    float local_44;
-    float local_40;
-    float fStack_3c;
-    float fStack_38;
-    float fStack_34;
-    float fStack_30;
-    float fStack_2c;
-    float fStack_28;
-    float local_24;
-    float local_20;
-    float local_1c;
-    float fStack_18;
-    float fStack_14;
-    float fStack_10;
-    float fStack_c;
-    float fStack_8;
-    float fStack_4;
+    float start_x_f;
+    float start_y;
+    float start_z;
+    float fwd04_x;
+    float fwd04_y;
+    float fwd04_z;
+    float side11_x;
+    float side11_y;
+    float side11_z;
+    float side_x;
+    float side_y;
+    float side_z;
+    float side22_x;
+    float side22_y;
+    float side22_z;
+    float side33_x;
+    float side33_y;
+    float side33_z;
   } frame2;
   
-  frame.local_60 = 0.0;
-  frame.local_5c = 1.0;
+  frame.vec_x = 0.0;
+  frame.vec_y = 1.0;
   if ((g_race_time_ticks != g_fx_651ab0) &&
-     (g_grid_position_651ab4 = g_grid_position_651ab4 + 1, param_3 <= (int)g_grid_position_651ab4)) {
+     (g_grid_position_651ab4 = g_grid_position_651ab4 + 1, car_count <= (int)g_grid_position_651ab4)) {
     g_grid_position_651ab4 = 0;
   }
-  event_type = get_event_type();
-  if (event_type == 0x11) {
+  row_or_event = get_event_type();
+  if (row_or_event == EVENT_TRAINING) {
     g_grid_position_651ab4 = 0;
   }
   g_fx_651ab0 = g_race_time_ticks;
-  if (((game_mode == 4) || (game_mode == 9)) || (game_mode == 8)) {
+  if (((game_mode == GAME_MODE_RACE) || (game_mode == GAME_MODE_CHASE_FUGITIVE)) || (game_mode == GAME_MODE_SURVIVAL)) {
     g_grid_position_651ab4 = 3;
   }
-  pfVar3 = (float *)course_get_record_pos(param_1);
-  fVar2 = *pfVar3;
-  frame2.local_44 = pfVar3[1];
-  frame2.local_40 = pfVar3[2];
-  frame2.local_48 = fVar2;
-  pfVar3 = (float *)course_get_record_base(param_1);
-  frame.local_68.x = *pfVar3;
-  frame2.local_20 = pfVar3[1];
-  frame.local_68.y = pfVar3[2];
-  frame2.local_24 = frame.local_68.x;
-  frame2.local_1c = frame.local_68.y;
-  RwV2dNormalize(&frame.local_68,&frame.local_68);
-  fVar5 = (float10)dot_product_2d_clamped(&frame.local_60,&frame.local_68);
-  fVar5 = (float10)FUN_004b3284((double)fVar5);
-  fVar5 = fVar5 * (float10)k_f_57_29578;
-  if (frame.local_68.x < k_f_0) {
-    fVar5 = (float10)k_f_360 - fVar5;
+  rec_ptr = (float *)course_get_record_pos(route);
+  start_x = *rec_ptr;
+  frame2.start_y = rec_ptr[1];
+  frame2.start_z = rec_ptr[2];
+  frame2.start_x_f = start_x;
+  rec_ptr = (float *)course_get_record_base(route);
+  frame.route_dir.x = *rec_ptr;
+  frame2.side_y = rec_ptr[1];
+  frame.route_dir.y = rec_ptr[2];
+  frame2.side_x = frame.route_dir.x;
+  frame2.side_z = frame.route_dir.y;
+  RwV2dNormalize(&frame.route_dir,&frame.route_dir);
+  heading_deg = (float10)dot_product_2d_clamped(&frame.vec_x,&frame.route_dir);
+  heading_deg = (float10)FUN_004b3284((double)heading_deg);
+  heading_deg = heading_deg * (float10)k_f_57_29578;
+  if (frame.route_dir.x < k_f_0) {
+    heading_deg = (float10)k_f_360 - heading_deg;
   }
-  *param_5 = (float)fVar5;
-  pfVar3 = (float *)course_get_record_point(param_1,0);
-  pfVar4 = (float *)course_get_record_point(param_1,3);
-  RStack_54.x = *pfVar3 - *pfVar4;
-  event_type = course_get_record_point(param_1,0);
-  fVar1 = *(float *)(event_type + 4);
-  event_type = course_get_record_point(param_1,3);
-  RStack_54.y = fVar1 - *(float *)(event_type + 4);
-  event_type = course_get_record_point(param_1,0);
-  fVar1 = *(float *)(event_type + 8);
-  event_type = course_get_record_point(param_1,3);
-  RStack_54.z = fVar1 - *(float *)(event_type + 8);
-  RwV3dNormalize(&RStack_54,&RStack_54);
-  frame2.fStack_3c = RStack_54.x * k_f_0_4;
-  frame2.fStack_38 = RStack_54.y * k_f_0_4;
-  frame2.fStack_34 = RStack_54.z * k_f_0_4;
-  frame2.fStack_30 = frame2.local_24 * k_f_1_1;
-  frame2.fStack_2c = frame2.local_20 * k_f_1_1;
-  frame2.fStack_28 = frame2.local_1c * k_f_1_1;
-  frame2.fStack_18 = frame2.local_24 * k_f_2_2;
-  frame2.fStack_14 = frame2.local_20 * k_f_2_2;
-  frame2.fStack_10 = frame2.local_1c * k_f_2_2;
-  frame2.fStack_c = frame2.local_24 * k_f_3_3;
-  frame2.fStack_8 = frame2.local_20 * k_f_3_3;
-  frame2.fStack_4 = frame2.local_1c * k_f_3_3;
-  if (param_2 == 100) {
-    frame.local_60 = frame2.local_48 + frame2.fStack_18;
-    frame.local_5c = frame2.local_44 + frame2.fStack_14;
-    frame2.local_40 = frame2.local_40 + frame2.fStack_10;
+  *out_heading = (float)heading_deg;
+  rec_ptr = (float *)course_get_record_point(route,0);
+  rec_ptr2 = (float *)course_get_record_point(route,3);
+  fwd.x = *rec_ptr - *rec_ptr2;
+  row_or_event = course_get_record_point(route,0);
+  tmp_f = *(float *)(row_or_event + 4);
+  row_or_event = course_get_record_point(route,3);
+  fwd.y = tmp_f - *(float *)(row_or_event + 4);
+  row_or_event = course_get_record_point(route,0);
+  tmp_f = *(float *)(row_or_event + 8);
+  row_or_event = course_get_record_point(route,3);
+  fwd.z = tmp_f - *(float *)(row_or_event + 8);
+  RwV3dNormalize(&fwd,&fwd);
+  frame2.fwd04_x = fwd.x * k_f_0_4;
+  frame2.fwd04_y = fwd.y * k_f_0_4;
+  frame2.fwd04_z = fwd.z * k_f_0_4;
+  frame2.side11_x = frame2.side_x * k_f_1_1;
+  frame2.side11_y = frame2.side_y * k_f_1_1;
+  frame2.side11_z = frame2.side_z * k_f_1_1;
+  frame2.side22_x = frame2.side_x * k_f_2_2;
+  frame2.side22_y = frame2.side_y * k_f_2_2;
+  frame2.side22_z = frame2.side_z * k_f_2_2;
+  frame2.side33_x = frame2.side_x * k_f_3_3;
+  frame2.side33_y = frame2.side_y * k_f_3_3;
+  frame2.side33_z = frame2.side_z * k_f_3_3;
+  if (grid_slot == GRID_SLOT_HARE) {
+    frame.vec_x = frame2.start_x_f + frame2.side22_x;
+    frame.vec_y = frame2.start_y + frame2.side22_y;
+    frame2.start_z = frame2.start_z + frame2.side22_z;
 LAB_0040a700:
-    *param_4 = frame.local_60;
-    param_4[1] = frame.local_5c;
-    param_4[2] = frame2.local_40;
+    *out_pos = frame.vec_x;
+    out_pos[1] = frame.vec_y;
+    out_pos[2] = frame2.start_z;
     return;
   }
-  if (param_2 < 4) {
-    RStack_54.x = RStack_54.x * float_0_8;
-    RStack_54.y = RStack_54.y * float_0_8;
-    fVar2 = RStack_54.z * float_0_8;
-    frame.local_60 = frame2.fStack_3c * float_0_8;
-    frame.local_5c = frame2.fStack_38 * float_0_8;
-    RStack_54.z = frame2.fStack_34 * float_0_8;
-    switch(param_2) {
+  if (grid_slot < 4) {
+    fwd.x = fwd.x * float_0_8;
+    fwd.y = fwd.y * float_0_8;
+    start_x = fwd.z * float_0_8;
+    frame.vec_x = frame2.fwd04_x * float_0_8;
+    frame.vec_y = frame2.fwd04_y * float_0_8;
+    fwd.z = frame2.fwd04_z * float_0_8;
+    switch(grid_slot) {
     case 0:
       {
-        frame.local_58 = frame2.local_40 + fVar2;
-        frame.local_5c = (frame2.local_44 + RStack_54.y) - frame.local_5c;
-        frame.local_60 = (frame2.local_48 + RStack_54.x) - frame.local_60;
-        RStack_54.z = frame.local_58 - RStack_54.z;
+        frame.vec_z = frame2.start_z + start_x;
+        frame.vec_y = (frame2.start_y + fwd.y) - frame.vec_y;
+        frame.vec_x = (frame2.start_x_f + fwd.x) - frame.vec_x;
+        fwd.z = frame.vec_z - fwd.z;
       }
       break;
     case 1:
       {
-        frame.local_60 = frame2.local_48 - RStack_54.x - frame.local_60;
-        frame.local_58 = frame2.local_40 - fVar2;
-        frame.local_5c = ((frame2.local_44 - RStack_54.y) - frame.local_5c) - frame2.fStack_2c;
-        frame.local_60 = frame.local_60 - frame2.fStack_30;
-        frame2.fStack_28 = frame.local_58 - RStack_54.z - frame2.fStack_28;
+        frame.vec_x = frame2.start_x_f - fwd.x - frame.vec_x;
+        frame.vec_z = frame2.start_z - start_x;
+        frame.vec_y = ((frame2.start_y - fwd.y) - frame.vec_y) - frame2.side11_y;
+        frame.vec_x = frame.vec_x - frame2.side11_x;
+        frame2.side11_z = frame.vec_z - fwd.z - frame2.side11_z;
       }
       goto LAB_0040a68e;
     case 2:
       {
-        frame.local_60 = frame2.local_48 + RStack_54.x + frame.local_60;
-        frame.local_58 = frame2.local_40 + fVar2;
-        frame.local_5c = (frame2.local_44 + RStack_54.y + frame.local_5c) - frame2.fStack_14;
-        frame.local_60 = frame.local_60 - frame2.fStack_18;
-        frame2.local_40 = frame.local_58 + RStack_54.z - frame2.fStack_10;
+        frame.vec_x = frame2.start_x_f + fwd.x + frame.vec_x;
+        frame.vec_z = frame2.start_z + start_x;
+        frame.vec_y = (frame2.start_y + fwd.y + frame.vec_y) - frame2.side22_y;
+        frame.vec_x = frame.vec_x - frame2.side22_x;
+        frame2.start_z = frame.vec_z + fwd.z - frame2.side22_z;
       }
       goto LAB_0040a700;
     case 3:
       {
-        frame.local_60 = frame2.local_48 - RStack_54.x + frame.local_60;
-        frame.local_58 = frame2.local_40 - fVar2;
-        frame.local_5c = ((frame2.local_44 - RStack_54.y) + frame.local_5c) - frame2.fStack_8;
-        frame.local_60 = frame.local_60 - frame2.fStack_c;
-        RStack_54.z = frame.local_58 + RStack_54.z - frame2.fStack_4;
+        frame.vec_x = frame2.start_x_f - fwd.x + frame.vec_x;
+        frame.vec_z = frame2.start_z - start_x;
+        frame.vec_y = ((frame2.start_y - fwd.y) + frame.vec_y) - frame2.side33_y;
+        frame.vec_x = frame.vec_x - frame2.side33_x;
+        fwd.z = frame.vec_z + fwd.z - frame2.side33_z;
       }
       break;
     default:
@@ -183,144 +184,144 @@ LAB_0040a700:
     }
     goto LAB_0040a772;
   }
-  for (event_type = param_2 + -4 + g_grid_position_651ab4; param_3 <= event_type;
-      event_type = event_type - param_3) {
+  for (row_or_event = grid_slot + -4 + g_grid_position_651ab4; car_count <= row_or_event;
+      row_or_event = row_or_event - car_count) {
   }
-  switch(param_3) {
+  switch(car_count) {
   case 1:
-    if (event_type == 0) {
+    if (row_or_event == 0) {
 LAB_0040a48b:
-      *param_4 = fVar2;
-      param_4[1] = frame2.local_44;
-      param_4[2] = frame2.local_40;
+      *out_pos = start_x;
+      out_pos[1] = frame2.start_y;
+      out_pos[2] = frame2.start_z;
       return;
     }
     break;
   case 2:
-    RStack_54.x = RStack_54.x * k_f_0_6;
-    RStack_54.y = RStack_54.y * k_f_0_6;
-    RStack_54.z = RStack_54.z * k_f_0_6;
-    if (event_type == 0) {
-      frame.local_60 = frame2.local_48 + RStack_54.x;
-      frame.local_5c = frame2.local_44 + RStack_54.y;
-      frame2.fStack_28 = frame2.local_40 + RStack_54.z;
+    fwd.x = fwd.x * k_f_0_6;
+    fwd.y = fwd.y * k_f_0_6;
+    fwd.z = fwd.z * k_f_0_6;
+    if (row_or_event == 0) {
+      frame.vec_x = frame2.start_x_f + fwd.x;
+      frame.vec_y = frame2.start_y + fwd.y;
+      frame2.side11_z = frame2.start_z + fwd.z;
       goto LAB_0040a68e;
     }
-    if (event_type == 1) {
-      frame.local_60 = frame2.local_48 - RStack_54.x;
-      frame.local_5c = frame2.local_44 - RStack_54.y;
-      RStack_54.z = frame2.local_40 - RStack_54.z;
+    if (row_or_event == 1) {
+      frame.vec_x = frame2.start_x_f - fwd.x;
+      frame.vec_y = frame2.start_y - fwd.y;
+      fwd.z = frame2.start_z - fwd.z;
       goto LAB_0040a772;
     }
     break;
   case 3:
-    RStack_54.x = RStack_54.x * k_f_0_9;
-    RStack_54.y = RStack_54.y * k_f_0_9;
-    RStack_54.z = RStack_54.z * k_f_0_9;
-    if (event_type == 0) {
-      frame.local_60 = frame2.local_48 + RStack_54.x;
-      frame.local_5c = frame2.local_44 + RStack_54.y;
-      RStack_54.z = frame2.local_40 + RStack_54.z;
+    fwd.x = fwd.x * k_f_0_9;
+    fwd.y = fwd.y * k_f_0_9;
+    fwd.z = fwd.z * k_f_0_9;
+    if (row_or_event == 0) {
+      frame.vec_x = frame2.start_x_f + fwd.x;
+      frame.vec_y = frame2.start_y + fwd.y;
+      fwd.z = frame2.start_z + fwd.z;
       goto LAB_0040a772;
     }
-    if (event_type == 1) goto LAB_0040a48b;
-    if (event_type == 2) {
-      frame.local_60 = frame2.local_48 - RStack_54.x;
-      frame.local_5c = frame2.local_44 - RStack_54.y;
-      frame2.local_40 = frame2.local_40 - RStack_54.z;
+    if (row_or_event == 1) goto LAB_0040a48b;
+    if (row_or_event == 2) {
+      frame.vec_x = frame2.start_x_f - fwd.x;
+      frame.vec_y = frame2.start_y - fwd.y;
+      frame2.start_z = frame2.start_z - fwd.z;
       goto LAB_0040a700;
     }
     break;
   case 4:
-    RStack_54.x = RStack_54.x * float_0_8;
-    RStack_54.y = RStack_54.y * float_0_8;
-    RStack_54.z = RStack_54.z * float_0_8;
-    frame2.fStack_3c = frame2.fStack_3c * float_0_8;
-    frame2.fStack_38 = frame2.fStack_38 * float_0_8;
-    frame2.fStack_34 = frame2.fStack_34 * float_0_8;
-    event_type_2 = get_event_type();
-    if (event_type_2 == 0x11) {
-      if (event_type != 0) {
-        if (event_type == 1) {
+    fwd.x = fwd.x * float_0_8;
+    fwd.y = fwd.y * float_0_8;
+    fwd.z = fwd.z * float_0_8;
+    frame2.fwd04_x = frame2.fwd04_x * float_0_8;
+    frame2.fwd04_y = frame2.fwd04_y * float_0_8;
+    frame2.fwd04_z = frame2.fwd04_z * float_0_8;
+    event_type = get_event_type();
+    if (event_type == 0x11) {
+      if (row_or_event != 0) {
+        if (row_or_event == 1) {
           {
-            frame.local_58 = frame2.local_40 - RStack_54.z;
-            frame.local_5c = (frame2.local_44 - RStack_54.y) - frame2.fStack_38;
-            frame.local_60 = (frame2.local_48 - RStack_54.x) - frame2.fStack_3c;
-            frame2.local_40 = frame.local_58 - frame2.fStack_34;
+            frame.vec_z = frame2.start_z - fwd.z;
+            frame.vec_y = (frame2.start_y - fwd.y) - frame2.fwd04_y;
+            frame.vec_x = (frame2.start_x_f - fwd.x) - frame2.fwd04_x;
+            frame2.start_z = frame.vec_z - frame2.fwd04_z;
           }
           goto LAB_0040a700;
         }
-        if (event_type != 2) {
+        if (row_or_event != 2) {
           return;
         }
-        frame.local_60 = ((((frame2.local_48 - RStack_54.x) - RStack_54.x) - frame2.fStack_30) - frame2.fStack_30) - frame2.fStack_30;
-        frame.local_5c = ((((frame2.local_44 - RStack_54.y) - RStack_54.y) - frame2.fStack_2c) - frame2.fStack_2c) - frame2.fStack_2c;
-        frame2.fStack_28 = ((((frame2.local_40 - RStack_54.z) - RStack_54.z) - frame2.fStack_28) - frame2.fStack_28) - frame2.fStack_28
+        frame.vec_x = ((((frame2.start_x_f - fwd.x) - fwd.x) - frame2.side11_x) - frame2.side11_x) - frame2.side11_x;
+        frame.vec_y = ((((frame2.start_y - fwd.y) - fwd.y) - frame2.side11_y) - frame2.side11_y) - frame2.side11_y;
+        frame2.side11_z = ((((frame2.start_z - fwd.z) - fwd.z) - frame2.side11_z) - frame2.side11_z) - frame2.side11_z
         ;
         goto LAB_0040a68e;
       }
       {
-        frame.local_58 = frame2.local_40 + RStack_54.z;
-        frame.local_5c = frame2.local_44 + RStack_54.y + frame2.fStack_38;
-        frame.local_60 = frame2.local_48 + RStack_54.x + frame2.fStack_3c;
-        RStack_54.z = frame.local_58 + frame2.fStack_34;
+        frame.vec_z = frame2.start_z + fwd.z;
+        frame.vec_y = frame2.start_y + fwd.y + frame2.fwd04_y;
+        frame.vec_x = frame2.start_x_f + fwd.x + frame2.fwd04_x;
+        fwd.z = frame.vec_z + frame2.fwd04_z;
       }
 LAB_0040a772:
-      *param_4 = frame.local_60;
-      param_4[1] = frame.local_5c;
-      param_4[2] = RStack_54.z;
+      *out_pos = frame.vec_x;
+      out_pos[1] = frame.vec_y;
+      out_pos[2] = fwd.z;
       return;
     }
-    switch(event_type) {
+    switch(row_or_event) {
     case 0:
       {
-        frame.local_58 = frame2.local_40 + RStack_54.z;
-        frame.local_5c = (frame2.local_44 + RStack_54.y) - frame2.fStack_38;
-        frame.local_60 = (frame2.local_48 + RStack_54.x) - frame2.fStack_3c;
-        frame2.fStack_28 = frame.local_58 - frame2.fStack_34;
+        frame.vec_z = frame2.start_z + fwd.z;
+        frame.vec_y = (frame2.start_y + fwd.y) - frame2.fwd04_y;
+        frame.vec_x = (frame2.start_x_f + fwd.x) - frame2.fwd04_x;
+        frame2.side11_z = frame.vec_z - frame2.fwd04_z;
       }
       break;
     case 1:
       {
-        frame.local_60 = frame2.local_48 - RStack_54.x - frame2.fStack_3c;
-        frame.local_58 = frame2.local_40 - RStack_54.z;
-        frame.local_5c = ((frame2.local_44 - RStack_54.y) - frame2.fStack_38) - frame2.fStack_2c;
-        frame.local_60 = frame.local_60 - frame2.fStack_30;
-        frame2.local_40 = frame.local_58 - frame2.fStack_34 - frame2.fStack_28;
+        frame.vec_x = frame2.start_x_f - fwd.x - frame2.fwd04_x;
+        frame.vec_z = frame2.start_z - fwd.z;
+        frame.vec_y = ((frame2.start_y - fwd.y) - frame2.fwd04_y) - frame2.side11_y;
+        frame.vec_x = frame.vec_x - frame2.side11_x;
+        frame2.start_z = frame.vec_z - frame2.fwd04_z - frame2.side11_z;
       }
       goto LAB_0040a700;
     case 2:
       {
-        frame.local_60 = frame2.local_48 + RStack_54.x + frame2.fStack_3c;
-        frame.local_58 = frame2.local_40 + RStack_54.z;
-        frame.local_5c = (frame2.local_44 + RStack_54.y + frame2.fStack_38) - frame2.fStack_14;
-        frame.local_60 = frame.local_60 - frame2.fStack_18;
-        RStack_54.z = frame.local_58 + frame2.fStack_34 - frame2.fStack_10;
+        frame.vec_x = frame2.start_x_f + fwd.x + frame2.fwd04_x;
+        frame.vec_z = frame2.start_z + fwd.z;
+        frame.vec_y = (frame2.start_y + fwd.y + frame2.fwd04_y) - frame2.side22_y;
+        frame.vec_x = frame.vec_x - frame2.side22_x;
+        fwd.z = frame.vec_z + frame2.fwd04_z - frame2.side22_z;
       }
       goto LAB_0040a772;
     case 3:
       {
-        frame.local_60 = frame2.local_48 - RStack_54.x + frame2.fStack_3c;
-        frame.local_58 = frame2.local_40 - RStack_54.z;
-        frame.local_5c = ((frame2.local_44 - RStack_54.y) + frame2.fStack_38) - frame2.fStack_8;
-        frame.local_60 = frame.local_60 - frame2.fStack_c;
-        frame2.fStack_28 = frame.local_58 + frame2.fStack_34 - frame2.fStack_4;
+        frame.vec_x = frame2.start_x_f - fwd.x + frame2.fwd04_x;
+        frame.vec_z = frame2.start_z - fwd.z;
+        frame.vec_y = ((frame2.start_y - fwd.y) + frame2.fwd04_y) - frame2.side33_y;
+        frame.vec_x = frame.vec_x - frame2.side33_x;
+        frame2.side11_z = frame.vec_z + frame2.fwd04_z - frame2.side33_z;
       }
       break;
     default:
       goto switchD_0040a651_default;
     }
 LAB_0040a68e:
-    *param_4 = frame.local_60;
-    param_4[1] = frame.local_5c;
-    param_4[2] = frame2.fStack_28;
+    *out_pos = frame.vec_x;
+    out_pos[1] = frame.vec_y;
+    out_pos[2] = frame2.side11_z;
     return;
   default:
-    debug_printf("Invalid number of cars in race (%d)\n",param_3);
+    debug_printf("Invalid number of cars in race (%d)\n",car_count);
     return;
   }
 switchD_0040a651_default:
-  debug_printf("Invalid position (%d)\n",event_type);
+  debug_printf("Invalid position (%d)\n",row_or_event);
   return;
 }
 

@@ -26,98 +26,98 @@ extern double sin(double);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fills a camera path record with start / end points and deltas" */
 
-void __cdecl camera_record_set_path(char *param_1,float param_2,float param_3,float param_4,float param_5,float param_6,
-          float param_7,float param_8,float param_9)
+void __cdecl camera_record_set_path(char *camera_rec,float end_x,float end_y,float end_z,float start_x,float start_y,
+          float start_z,float dist_base,float dist_sway)
 
 {
-  float fVar1;
-  float fVar2;
-  double fVar3;
+  float dy;
+  float dz;
+  double angle_deg;
   double fVar4;
   double fVar5;
   double fVar6;
   double fVar7;
-  RwReal RVar8;
-  float num;
-  RwV3d d;
+  RwReal horiz_len;
+  float dx_or_horiz;
+  RwV3d delta;
   float sumf;
   
-  num = param_2 - param_5;
-  *(float *)(param_1 + 0x964) = param_5;
-  fVar1 = param_3 - param_6;
-  *(float *)(param_1 + 0x968) = param_6;
-  *(float *)(param_1 + 0x96c) = param_7;
-  fVar2 = param_4 - param_7;
-  *(float *)(param_1 + 0x97c) = param_2;
-  *(float *)(param_1 + 0x980) = param_3;
-  *(float *)(param_1 + 0x984) = param_4;
-  *(float *)(param_1 + 0x44) = param_6;
-  *(float *)(param_1 + 0x40) = param_5;
-  *(float *)(param_1 + 0x48) = param_7;
-  d.x = num;
-  d.y = fVar1;
-  d.z = fVar2;
-  RwV3dLength(&d);
-  fVar3 = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
-  *(float *)(param_1 + 0x58) =
-       (float)((fVar3 + (double)float_1_0) * (double)param_8 * (double)param_9 *
-               (double)k_f_0_05 + (double)*(volatile float *)&param_8);
-  if (fVar2 == k_f_0) {
-    if (k_f_0 <= (double)num) {
-      fVar3 = (double)k_f_90;
+  dx_or_horiz = end_x - start_x;
+  *(float *)(camera_rec + 0x964) = start_x;
+  dy = end_y - start_y;
+  *(float *)(camera_rec + 0x968) = start_y;
+  *(float *)(camera_rec + 0x96c) = start_z;
+  dz = end_z - start_z;
+  *(float *)(camera_rec + 0x97c) = end_x;
+  *(float *)(camera_rec + 0x980) = end_y;
+  *(float *)(camera_rec + 0x984) = end_z;
+  *(float *)(camera_rec + 0x44) = start_y;
+  *(float *)(camera_rec + 0x40) = start_x;
+  *(float *)(camera_rec + 0x48) = start_z;
+  delta.x = dx_or_horiz;
+  delta.y = dy;
+  delta.z = dz;
+  RwV3dLength(&delta);
+  angle_deg = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
+  *(float *)(camera_rec + 0x58) =
+       (float)((angle_deg + (double)float_1_0) * (double)dist_base * (double)dist_sway *
+               (double)k_f_0_05 + (double)*(volatile float *)&dist_base);
+  if (dz == k_f_0) {
+    if (k_f_0 <= (double)dx_or_horiz) {
+      angle_deg = (double)k_f_90;
     }
     else {
-      fVar3 = (double)k_f_270;
+      angle_deg = (double)k_f_270;
     }
   }
   else {
-    fVar3 = (double)atan2((double)num / (double)fVar2,(double)1);
-    fVar3 = (double)k_f_180 - -(fVar3 * (double)(57.295799255371094));
-    if (k_f_0 < fVar2) {
-      fVar3 = fVar3 + (double)k_f_180;
+    angle_deg = (double)atan2((double)dx_or_horiz / (double)dz,(double)1);
+    angle_deg = (double)k_f_180 - -(angle_deg * (double)(57.295799255371094));
+    if (k_f_0 < dz) {
+      angle_deg = angle_deg + (double)k_f_180;
     }
   }
-  *(float *)(param_1 + 0x38) = (float)fVar3;
-  num = num * num + fVar2 * fVar2;
-  if (num != k_f_0) {
-    RVar8 = _rwSqrt(num);
-    if (RVar8 != k_f_0) {
-      fVar3 = (double)atan2((double)fVar1 / (double)RVar8,(double)1);
-      fVar3 = (double)k_f_180 - -(fVar3 * (double)(57.295799255371094));
-      if (k_f_0 < RVar8) {
-        fVar3 = fVar3 + (double)k_f_180;
+  *(float *)(camera_rec + 0x38) = (float)angle_deg;
+  dx_or_horiz = dx_or_horiz * dx_or_horiz + dz * dz;
+  if (dx_or_horiz != k_f_0) {
+    horiz_len = _rwSqrt(dx_or_horiz);
+    if (horiz_len != k_f_0) {
+      angle_deg = (double)atan2((double)dy / (double)horiz_len,(double)1);
+      angle_deg = (double)k_f_180 - -(angle_deg * (double)(57.295799255371094));
+      if (k_f_0 < horiz_len) {
+        angle_deg = angle_deg + (double)k_f_180;
       }
       goto LAB_0044c474;
     }
   }
-  if (k_f_0 <= fVar1) {
-    fVar3 = (double)k_f_90;
+  if (k_f_0 <= dy) {
+    angle_deg = (double)k_f_90;
   }
   else {
-    fVar3 = (double)k_f_270;
+    angle_deg = (double)k_f_270;
   }
 LAB_0044c474:
   fVar7 = (double)k_f_360;
-  *(float *)(param_1 + 0x34) = (float)(fVar7 - fVar3);
+  *(float *)(camera_rec + 0x34) = (float)(fVar7 - angle_deg);
   fVar4 = (double)(int)g_tick_number;
   fVar5 = (double)sin((double)k_f_0_05 * fVar4);
   fVar6 = (double)sin(fVar4 * (double)k_f_0_012820513);
   fVar4 = (double)sin(fVar4 * (double)k_f_0_0042918455);
   *(volatile float *)&sumf = fVar6 + fVar5;
-  *(float *)(param_1 + 0x34) =
+  *(float *)(camera_rec + 0x34) =
        (float)(((double)*(volatile float *)&sumf * (double)k_f_0_5 + fVar4) * (double)k_f_0_5 *
-               (double)param_9 + (fVar7 - fVar3));
-  fVar3 = (double)sin((double)k_f_0_1 * (double)(int)g_tick_number);
+               (double)dist_sway + (fVar7 - angle_deg));
+  angle_deg = (double)sin((double)k_f_0_1 * (double)(int)g_tick_number);
   fVar7 = (double)sin((double)(int)g_tick_number * (double)k_f_0_012048192);
-  param_8 = (float)(fVar7 + fVar3 * (double)k_f_0_125);
+  dist_base = (float)(fVar7 + angle_deg * (double)k_f_0_125);
   fVar7 = (double)random_range(0,0x42700000);
-  fVar3 = (double)(int)g_tick_number;
-  *(undefined4 *)(param_1 + 0x3c) = 0;
-  fVar3 = (double)sin((fVar7 + fVar3) * (double)k_f_0_016666668);
-  *(float *)(param_1 + 0x38) =
-       (float)((fVar3 * (double)k_f_0_0625 + (double)param_8) * (double)param_9 +
-              (double)*(float *)(param_1 + 0x38));
-  camera_apply_rotation(param_1);
+  angle_deg = (double)(int)g_tick_number;
+  *(undefined4 *)(camera_rec + 0x3c) = 0;
+  angle_deg = (double)sin((fVar7 + angle_deg) * (double)k_f_0_016666668);
+  *(float *)(camera_rec + 0x38) =
+       (float)((angle_deg * (double)k_f_0_0625 + (double)dist_base) * (double)dist_sway +
+              (double)*(float *)(camera_rec + 0x38));
+  camera_apply_rotation(camera_rec);
   return;
 }
 

@@ -28,7 +28,7 @@
 /*0065aae4*/ extern undefined4 g_car_damage_65aae4;
 /*007ef7f4*/ extern float g_tick_seconds;
 extern double cos(double);
-/* layout of *iVar4 in car_damage_smoke_update, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
+/* layout of *part_ltm in car_damage_smoke_update, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
 typedef struct car_damage_smoke_update_iVar4_layout {
     char pad_0x0[48];
     float f_0x30;
@@ -49,105 +49,105 @@ void car_damage_smoke_update(void)
   float fVar2;
   undefined1 uVar3;
   int slot_used;
-  car_damage_smoke_update_iVar4_layout *iVar4;
-  float *pfVar5;
-  int iVar6;
-  float *pfVar7;
-  double fVar8;
+  car_damage_smoke_update_iVar4_layout *part_ltm;
+  float *damage_ptr;
+  int car;
+  float *damage_ptr2;
+  double rnd;
   float strength;
   double angle;
   double cos_offset;
   double alpha;
   struct {
-    uint local_30;      /* particle colour */
-    float local_2c;
+    uint particle_colour;      /* particle colour */
+    float offset_x;
     uint local_28;
-    float local_24;
-    float local_20;
-    float local_1c;
+    float smoke_x;
+    float smoke_y;
+    float smoke_z;
     float local_18;
     float local_14;
     float local_10;
-    RwV3d local_c;
+    RwV3d velocity;
   } frame;
   
-  iVar6 = 0;
-  pfVar5 = (float *)&car_damage;
-  pfVar7 = (float *)&g_car_damage_65a9ec;
+  car = 0;
+  damage_ptr = (float *)&car_damage;
+  damage_ptr2 = (float *)&g_car_damage_65a9ec;
   do {
-    car_get_velocity_any_mode(&frame.local_c,iVar6);
-    RwV3dLength(&frame.local_c);
-    strength = (*pfVar7 + *pfVar5) * k_f_0_01;
+    car_get_velocity_any_mode(&frame.velocity,car);
+    RwV3dLength(&frame.velocity);
+    strength = (*damage_ptr2 + *damage_ptr) * k_f_0_01;
     if (k_f_0 <= strength) {
-      slot_used = race_setup_slot_used(iVar6);
+      slot_used = race_setup_slot_used(car);
       if (slot_used != 0) {
-        fVar8 = (double)random_range(0,0x3f800000);
-        if (fVar8 < (double)strength * (double)k_f_0_5) {
-          iVar4 = (car_damage_smoke_update_iVar4_layout *)(vehicle_part_ltm(iVar6, 0x33));
-          frame.local_24 = iVar4->f_0x30;
-          frame.local_20 = iVar4->f_0x34;
-          frame.local_1c = iVar4->f_0x38;
+        rnd = (double)random_range(0,0x3f800000);
+        if (rnd < (double)strength * (double)k_f_0_5) {
+          part_ltm = (car_damage_smoke_update_iVar4_layout *)(vehicle_part_ltm(car, 0x33));
+          frame.smoke_x = part_ltm->f_0x30;
+          frame.smoke_y = part_ltm->f_0x34;
+          frame.smoke_z = part_ltm->f_0x38;
           /* random offset of the smoke position around the part: x +-0.07, y +-0.1, z +-0.07 */
-          fVar8 = (double)random_range(0xbd8f5c29,0x3d8f5c29);
-          frame.local_24 = (float)(fVar8 + (double)frame.local_24);
-          fVar8 = (double)random_range(0xbdcccccd,0x3dcccccd);
-          frame.local_20 = (float)(fVar8 + (double)frame.local_20);
-          fVar8 = (double)random_range(0xbd8f5c29,0x3d8f5c29);
-          frame.local_1c = (float)(fVar8 + (double)frame.local_1c);
-          car_damage_smoke_spawn((char *)&frame.local_24,iVar6);
+          rnd = (double)random_range(0xbd8f5c29,0x3d8f5c29);
+          frame.smoke_x = (float)(rnd + (double)frame.smoke_x);
+          rnd = (double)random_range(0xbdcccccd,0x3dcccccd);
+          frame.smoke_y = (float)(rnd + (double)frame.smoke_y);
+          rnd = (double)random_range(0xbd8f5c29,0x3d8f5c29);
+          frame.smoke_z = (float)(rnd + (double)frame.smoke_z);
+          car_damage_smoke_spawn((char *)&frame.smoke_x,car);
         }
       }
     }
-    pfVar7 = pfVar7 + 10;
-    iVar6 = iVar6 + 1;
-    pfVar5 = pfVar5 + 10;
-  } while ((char *)pfVar7 < (char *)&g_car_damage_65aa88 + 0x4);
-  iVar6 = 0;
-  pfVar5 = (float *)&g_car_damage_65aae4;
+    damage_ptr2 = damage_ptr2 + 10;
+    car = car + 1;
+    damage_ptr = damage_ptr + 10;
+  } while ((char *)damage_ptr2 < (char *)&g_car_damage_65aa88 + 0x4);
+  car = 0;
+  damage_ptr = (float *)&g_car_damage_65aae4;
   do {
-    fVar2 = *pfVar5;
+    fVar2 = *damage_ptr;
     if ((float_1_0 <= fVar2) || (fVar2 < k_f_0)) {
-      (&g_car_damage_65a9d8)[iVar6 >> 3] =
-           (&g_car_damage_65a9d8)[iVar6 >> 3] & ~('\x01' << ((byte)iVar6 & 7));
+      (&g_car_damage_65a9d8)[car >> 3] =
+           (&g_car_damage_65a9d8)[car >> 3] & ~('\x01' << ((byte)car & 7));
     }
     else {
-      frame.local_30 = *(uint *)&pfVar5[2];
+      frame.particle_colour = *(uint *)&damage_ptr[2];
       angle = (double)fVar2 * (double)k_f_6_2831855;
-      fVar8 = (double)sin(angle);
-      frame.local_2c = (float)(fVar8 * (double)(0.05000000074505806));
+      rnd = (double)sin(angle);
+      frame.offset_x = (float)(rnd * (double)(0.05000000074505806));
       cos_offset = (double)cos(angle) * (double)(0.05000000074505806);
-      *pfVar5 = g_tick_seconds + *pfVar5;
+      *damage_ptr = g_tick_seconds + *damage_ptr;
       /* alpha of the particle colour: fades in over the first 0.2 of its life and out afterwards */
       if (fVar2 < k_f_0_2) {
-        alpha = (double)(int)*(byte *)((char *)pfVar5 + 0xb) * ((double)fVar2 * (double)float_5_0);
+        alpha = (double)(int)*(byte *)((char *)damage_ptr + 0xb) * ((double)fVar2 * (double)float_5_0);
       }
       else {
-        alpha = (double)(int)*(byte *)((char *)pfVar5 + 0xb) * ((double)float_1_0 - (double)fVar2);
+        alpha = (double)(int)*(byte *)((char *)damage_ptr + 0xb) * ((double)float_1_0 - (double)fVar2);
       }
-      frame.local_24 = pfVar5[-7] * pfVar5[1];
-      frame.local_30 = (frame.local_30 & 0xffffff) | ((uint)(byte)(int)alpha << 0x18);
-      frame.local_20 = pfVar5[-6] * pfVar5[1];
-      pfVar5[-2] = pfVar5[-1] + pfVar5[-2];
-      frame.local_14 = fVar2 * k_f_0_6 + pfVar5[-4];
-      if (pfVar5[-1] <= k_f_0) {
-        frame.local_18 = pfVar5[-5] - frame.local_2c;
-        fVar8 = (double)pfVar5[-3] - cos_offset;
+      frame.smoke_x = damage_ptr[-7] * damage_ptr[1];
+      frame.particle_colour = (frame.particle_colour & 0xffffff) | ((uint)(byte)(int)alpha << 0x18);
+      frame.smoke_y = damage_ptr[-6] * damage_ptr[1];
+      damage_ptr[-2] = damage_ptr[-1] + damage_ptr[-2];
+      frame.local_14 = fVar2 * k_f_0_6 + damage_ptr[-4];
+      if (damage_ptr[-1] <= k_f_0) {
+        frame.local_18 = damage_ptr[-5] - frame.offset_x;
+        rnd = (double)damage_ptr[-3] - cos_offset;
       }
       else {
-        frame.local_18 = frame.local_2c + pfVar5[-5];
-        fVar8 = cos_offset + (double)pfVar5[-3];
+        frame.local_18 = frame.offset_x + damage_ptr[-5];
+        rnd = cos_offset + (double)damage_ptr[-3];
       }
-      frame.local_10 = (float)fVar8;
+      frame.local_10 = (float)rnd;
       point_lerp_to_aux_camera(&frame.local_18,&frame.local_18,0x3d4ccccd);
       particles_set_position(&frame.local_18);
-      particles_set_size(&frame.local_24);
-      gfx_set_gfx_6c50c8(*(int *)&pfVar5[-2]);
-      particles_set_color(&frame.local_30);
+      particles_set_size(&frame.smoke_x);
+      gfx_set_gfx_6c50c8(*(int *)&damage_ptr[-2]);
+      particles_set_color(&frame.particle_colour);
       particles_add(&g_car_damage_65aa88);
     }
-    pfVar5 = pfVar5 + 0xb;
-    iVar6 = iVar6 + 1;
-  } while ((char *)pfVar5 < (char *)&g_car_damage_65aae4 + 0x1600);
+    damage_ptr = damage_ptr + 0xb;
+    car = car + 1;
+  } while ((char *)damage_ptr < (char *)&g_car_damage_65aae4 + 0x1600);
   particles_flush(&g_car_damage_65aa88);
   return;
 }
