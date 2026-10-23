@@ -174,7 +174,7 @@ ai_bots_reset,00416a70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee
 ai_catchup_bot_state_update,004173e0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,676da9d1b233,126ee480af92,87fc0ebfc725,200,0.33,0,0
 ai_cell_is_value2,00417c30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,1.00,0,0
 ai_clear,004271a0,hand,bytes,bytes-reloc,-,126ee480af92,87fc0ebfc725,0,0.00,0,0
-ai_debug_draw_lines,0044e4d0,tier2,compiled+shadow-never,static,-,126ee480af92,87fc0ebfc725,0,0.00,0,0
+ai_debug_draw_lines,0044e4d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,199,0.70,0,0
 ai_debug_draw_marker_box,0044c6f0,tier2,compiled+shadow-never,static,-,126ee480af92,87fc0ebfc725,0,0.00,0,0
 ai_drive_a,00418dd0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,0.71,0,0
 ai_drive_b,004195b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,0.75,0,0
@@ -1338,7 +1338,7 @@ hud_labels_render_all,0047fe30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu
 hud_marker_get_distance,004221e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,1.00,0,0
 hud_menu_draw_all_panels,00443820,tier1,bytes,bytes-reloc,d501272630cb,126ee480af92,87fc0ebfc725,0,0.00,0,0
 hud_player_marker_position_calc,004154b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,1.00,0,0
-hud_player_marker_position_calc_with_facing,00415370,tier2,compiled+diffemu-DIFF+shadow-never,static,-,126ee480af92,87fc0ebfc725,7,1.00,0,0
+hud_player_marker_position_calc_with_facing,00415370,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,1.00,0,0
 hud_player_markers_update,004155b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,0.84,0,0
 hud_render_by_event_and_mode,0040f9c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,0.40,0,0
 hudpanel_bomb_meter_update,0041d2d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,87fc0ebfc725,200,1.00,0,0

@@ -95,8 +95,9 @@ void ai_debug_draw_lines(void)
   ;
   collision_debug_draw(0x43500000,0x43400000,0x43500000,0x43500000,0x43510000,0x43400000,0xffffffff)
   ;
-  fVar1 = (float)iVar5 * k_f_20 + k_f_28;
-  fVar2 = fVar1 + k_f_18;
+  fVar6 = (double)((float)iVar5 * k_f_20) + (double)k_f_28;      /* x87: the second row edge is computed from the unrounded sum */
+  fVar1 = (float)fVar6;
+  fVar2 = (float)(fVar6 + (double)k_f_18);
   collision_debug_draw(0x43c40000,*(int *)&fVar1,0x43fc0000,*(int *)&fVar1,0x43c40000,*(int *)&fVar2,0xff404040);
   collision_debug_draw(0x43c40000,*(int *)&fVar2,0x43fc0000,*(int *)&fVar1,0x43fc0000,*(int *)&fVar2,0xff404040);
   if (g_ai_editor_mode == 0) {

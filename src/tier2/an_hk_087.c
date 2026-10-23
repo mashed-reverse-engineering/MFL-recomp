@@ -15,8 +15,8 @@ double dot_product_3d_clamped(float *vec_a,float *vec_b)
   double dot;
 
   /* sum of the x, y and z component products */
-  dot = (double)vec_a[2] * (double)vec_b[2] +
-          (double)*vec_a * (double)*vec_b + (double)vec_a[1] * (double)vec_b[1];
+  dot = (double)vec_a[1] * (double)vec_b[1] + (double)*vec_a * (double)*vec_b;      /* summation order of the original: (y + x) + z */
+  dot = dot + (double)vec_a[2] * (double)vec_b[2];
   /* clamp below to -1.0 */
   if (dot < (double)k_f_n1) {
     return (double)k_f_n1;

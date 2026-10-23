@@ -13,7 +13,7 @@ void __cdecl FUN_0056f0d0(float *out_sphere,float *sphere,float *point)
 
 {
   float two_dist;
-  RwReal dist;
+  double dist;      /* x87: the original keeps the length in extended precision (no float spill), 2*dist is the rounded temp */
   RwV3d center_to_point;
 
   /* offset from the sphere centre to the point */

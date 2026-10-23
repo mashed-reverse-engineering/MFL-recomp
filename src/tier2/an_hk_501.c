@@ -16,6 +16,7 @@ hud_player_marker_position_calc_with_facing
 
 {
   float fVar1;
+  volatile float zprod;      /* rounds the z product to float like the original's stack temp (it is stored, then reloaded for the sum) */
   float fdot;
   undefined1 uVar2;
   RwReal RVar3;
@@ -41,13 +42,13 @@ hud_player_marker_position_calc_with_facing
     frame.local_8 = *(undefined4 *)(param_2 + 0x24);
     frame.local_4 = *(undefined4 *)(param_2 + 0x28);
     fdot = dot_product_3d_clamped(&frame.local_c,&frame.local_18);
-    frame.local_24.z = frame.local_24.z * param_5;
+    zprod = frame.local_24.z * param_5;
     *param_1 = frame.local_24.x * param_5 + *(float *)(param_2 + 0x30);
     param_1[1] = frame.local_24.y * param_5 + *(float *)(param_2 + 0x34);
     fVar1 = *(float *)(param_2 + 0x38);
     param_1[5] = 1.0;
     param_1[7] = 1.0;
-    param_1[2] = frame.local_24.z + fVar1;
+    param_1[2] = zprod + fVar1;
     param_1[6] = 0.0;
     param_1[8] = 0.0;
     param_1[3] = RVar3 * k_f_0_025 + k_f_0_05;
