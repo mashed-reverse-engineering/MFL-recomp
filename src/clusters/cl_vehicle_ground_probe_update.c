@@ -83,7 +83,7 @@ void vehicle_ground_probe_update_n(VehicleRecord *vehicle_record)
   vehicle_record->size_factor = fVar1;
   if (fVar1 >= float_1_0)
     vehicle_record->size_factor = float_1_0;
-  else if (fVar1 < k_f_0)
+  else if (!(fVar1 >= k_f_0))      /* NaN stores 0 in the original (test ah,1; jne) */
     vehicle_record->size_factor = k_f_0;
   else
     vehicle_record->size_factor = fVar1;
