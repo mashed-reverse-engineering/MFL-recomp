@@ -233,7 +233,7 @@ void ai_update_speed_scaling(void)
     g_ai_catchup_class = 0;
     return;
   }
-  if (race_get_phase() != 6) {
+  if (race_get_phase() != RACE_PHASE_RACING) {
     return;
   }
   if (g_ai_catchup_class == 2) {

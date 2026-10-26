@@ -166,11 +166,11 @@ void race_phase_7_update(void)
   if ((scratch != EVENT_TRAINING) && (winner_marker != 0)) {
     camera_records_warmup(1,winner_marker + -1);
     race_set_view_player(1);
-    race_set_phase(9);
+    race_set_phase(RACE_PHASE_WINNER_VIEW);
     return;
   }
   /* Otherwise: phase 8, camera_records_warmup(0,0), player_stats_debug_log(). */
-  race_set_phase(8);
+  race_set_phase(RACE_PHASE_FINISHED);
   camera_records_warmup(0,0);
   player_stats_debug_log();
   /* Loop 4: activate the vehicle of every occupied player slot (controller != -1). */

@@ -59,7 +59,7 @@ void fx_course_specific_update_n(CourseFx *fx)
       blocked = 1;
     }
   }
-  if (race_get_phase() != 6 || blocked) {
+  if (race_get_phase() != RACE_PHASE_RACING || blocked) {
     fx->active = 0;
     fx->idle_time = 0.0f;
   } else if (fx->active != 0) {

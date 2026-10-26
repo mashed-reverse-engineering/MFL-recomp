@@ -169,15 +169,15 @@ static int career_flag_clear_r(int p0, int p1);
 extern void career_flag_clear(void);
 void menu_update(void)
 {
-  int team_mode, iVar9, active_slots, slot_type, iVar15, iVar11, local_28, local_24, local_20;
-  unsigned int uVar10;
-  unsigned int uVar8;
-  unsigned int *puVar12, *puVar14, *puVar16;
-  PlayerSlot *pPVar13, *pPVar20;
-  int *piVar17, *piVar18, *piVar19;
+  int team_mode, aux, active_slots, slot_type, team_pick, team_cand, controller_skip, teams_left, next_controller;
+  unsigned int token;
+  unsigned int text_id;
+  unsigned int *color_ptr, *src_word, *dst_word;
+  PlayerSlot *slot_scan, *slot_ptr;
+  int *slot_team_ptr, *tbl, *tbl_next;
   int select_enabled;
-  char cVar21;
-  int bVar1, back_enabled, up_enabled, down_enabled, left_enabled, right_enabled, next_enabled;
+  char team_count;
+  int slot_clash, back_enabled, up_enabled, down_enabled, left_enabled, right_enabled, next_enabled;
   float v;
 
   v = menu_get_69cfc4();
@@ -197,6 +197,7 @@ void menu_update(void)
     movie_poll_and_set_surface_b(0);
     video_get_default_mode();
   }
+  /* per frame: panel fades, savegame update, then the frontend_state machine (1 fade out, 2 fade in, 3 interactive, 4 start race, 5 leaving; inferred from the code below) */
   menu_panel_fades_update();
   gamesave_update(*(int *)&g_frame_seconds);
   if (g_menu_select_pressed == 2) {
@@ -228,6 +229,7 @@ void menu_update(void)
     g_frontend_state = 3;
     return;
   }
+  /* state 3 (interactive): position screen nudges first, then input handling */
   if (g_frontend_state != 3) goto LAB_004490d6;
   if ((undefined *)g_menu_records[g_menu_current].item_list == &g_menu_page_26_position_screen) {
     if (g_player_inputs[0].direction_flags[2] != 0) {
@@ -345,16 +347,17 @@ void menu_update(void)
     g_frontend_state = 4;
   }
   if ((team_mode != 0) && (g_message_state == 0)) {
-    piVar18 = (int *)g_menu_records[g_menu_current].item_list;
-    iVar9 = 0;
-    team_mode = piVar18[0];
+    /* scan the page item token list up to its end marker (-0xf90000) or the input marker (-0xf70000); the tokens after the input marker enable select/back/up/down/left/right/pause/next (aux = pause enabled) */
+    tbl = (int *)g_menu_records[g_menu_current].item_list;
+    aux = 0;
+    team_mode = tbl[0];
     while (team_mode != -0xf90000 && team_mode != -0xf70000) {
-      iVar9 = iVar9 + 1;
-      team_mode = piVar18[iVar9];
+      aux = aux + 1;
+      team_mode = tbl[aux];
     }
-    if (piVar18[iVar9] == -0xf70000) {
-      piVar18 = piVar18 + iVar9 + 1;
-      iVar9 = 0;
+    if (tbl[aux] == -0xf70000) {
+      tbl = tbl + aux + 1;
+      aux = 0;
       next_enabled = false;
       right_enabled = false;
       left_enabled = false;
@@ -362,7 +365,7 @@ void menu_update(void)
       up_enabled = false;
       back_enabled = false;
       select_enabled = 0;
-      team_mode = *piVar18;
+      team_mode = *tbl;
       while (team_mode != -0xf60000) {
         if ((team_mode == -0xf00000) || (team_mode == -0xdd0000)) {
           select_enabled = 1;
@@ -384,42 +387,43 @@ void menu_update(void)
             right_enabled = true;
           }
           else if (team_mode == -0xee0000) {
-            iVar9 = 1;
+            aux = 1;
           }
           else if (team_mode == -0xcd0000) {
             next_enabled = true;
           }
         }
-        piVar19 = piVar18 + 1;
-        piVar18 = piVar18 + 1;
-        team_mode = *piVar19;
+        tbl_next = tbl + 1;
+        tbl = tbl + 1;
+        team_mode = *tbl_next;
       }
       nop_stub();
-      if ((select_enabled != 0) && (team_mode = menu_select_pressed_any(iVar9), team_mode != 0)) {
+      if ((select_enabled != 0) && (team_mode = menu_select_pressed_any(aux), team_mode != 0)) {
         g_menu_select_pressed = 1;
-        uVar10 = menu_current_item_offset();
+        /* select pressed: the highlighted item's token (0xff....0000) picks the action (start race, open page, set up player slots ...) */
+        token = menu_current_item_offset();
         if (((g_menu_panel_state_69c9c0 != 1) && (g_menu_panel_state_69c9c0 != 2)) ||
            (g_menu_records[g_menu_current + 1].selected == 0)) {
           g_menu_select_flash = 1.0;
         }
-        if (uVar10 != 0xffffffff) {
-          if (uVar10 < 0xff440001) {
-            if (uVar10 == 0xff440000) {
+        if (token != 0xffffffff) {
+          if (token < 0xff440001) {
+            if (token == 0xff440000) {
               loading_start_log();
             }
-            else if (uVar10 < 0xff310001) {
-              if (uVar10 == 0xff310000) {
+            else if (token < 0xff310001) {
+              if (token == 0xff310000) {
                 g_menu_multiplayer_kind = 2;
 LAB_00447824:
-                puVar12 = &player_color_id;
+                color_ptr = &player_color_id;
                 do {
-                  *puVar12 = 0xffffffff;
-                  puVar12 = puVar12 + 3;
-                } while ((int)puVar12 < 0x69d0b8);
+                  *color_ptr = 0xffffffff;
+                  color_ptr = color_ptr + 3;
+                } while ((int)color_ptr < 0x69d0b8);
                 goto LAB_004477e2;
               }
-              if (uVar10 < 0xff260001) {
-                if (uVar10 == 0xff260000) {
+              if (token < 0xff260001) {
+                if (token == 0xff260000) {
                   active_slots = career_event_has_entry();
                   slot_type = g_career_row;
                   team_mode = g_event_type;
@@ -474,26 +478,27 @@ LAB_00447824:
                         active_slots = 2;
                       }
                       active_slots = (active_slots + slot_type * 3) * 4;
+                      /* career events 3,4,5,0xe,0xf,0x10: token = mode class of the event (high word): 0/1/0xc team race, 2/3/0xb race, 6 survival, 5 chase fugitive, 7 kill copter, 8 airstrike (GAME_MODE_* below); each branch resets the player slots and fills the opponent slots (controller_skip steps over the human's controller id, team_pick avoids the teams already used) */
                       g_menu_markers_enabled = *(uint *)(&g_menu_update_664360 + active_slots);
-                      uVar10 = *(uint *)(&g_menu_608848 + active_slots);
+                      token = *(uint *)(&g_menu_608848 + active_slots);
                       if (team_mode == 0xe) {
-                        uVar10 = *(uint *)(&g_menu_6088fc + active_slots);
+                        token = *(uint *)(&g_menu_6088fc + active_slots);
                       }
                       else if (team_mode == 0xf) {
-                        uVar10 = *(uint *)(&g_menu_608938 + active_slots);
+                        token = *(uint *)(&g_menu_608938 + active_slots);
                       }
                       else if (team_mode == 0x10) {
-                        uVar10 = *(uint *)(&g_menu_608974 + active_slots);
+                        token = *(uint *)(&g_menu_608974 + active_slots);
                       }
-                      uVar10 = uVar10 & 0xffff0000;
-                      if (uVar10 == 0x70000) {
+                      token = token & 0xffff0000;
+                      if (token == 0x70000) {
                         game_mode = GAME_MODE_KILL_COPTER;
                         g_menu_powerup_set = 1;
                         g_player_slots[0].state = -1;
                       }
                       else {
-                        if (uVar10 != 0x40000) {
-                          if (uVar10 == 0x80000) {
+                        if (token != 0x40000) {
+                          if (token == 0x80000) {
                             game_mode = GAME_MODE_AIRSTRIKE;
                             g_team_mode = 0;
                             g_menu_multiplayer_kind = 0;
@@ -507,44 +512,44 @@ LAB_00447824:
                             g_player_slots[2].state = -1;
                             g_player_slots[3].state = -1;
                             team_mode = career_event_slot_table();
-                            piVar18 = (int *)(team_mode + g_career_row * 0x30);
+                            tbl = (int *)(team_mode + g_career_row * 0x30);
                             if (g_event_type == EVENT_CUP_4) {
-                              piVar18 = piVar18 + 4;
+                              tbl = tbl + 4;
                             }
                             else if (g_event_type == EVENT_CUP_5) {
-                              piVar18 = piVar18 + 8;
+                              tbl = tbl + 8;
                             }
-                            team_mode = *piVar18;
-                            local_28 = 0;
+                            team_mode = *tbl;
+                            controller_skip = 0;
                             if (0 < team_mode) {
-                              piVar17 = &g_player_slots[1].team;
+                              slot_team_ptr = &g_player_slots[1].team;
                               slot_type = 0;
-                              piVar19 = piVar18 + 1;
+                              tbl_next = tbl + 1;
                               do {
                                 active_slots = slot_type + 1;
                                 if (g_player_slots[0].controller == active_slots) {
-                                  local_28 = local_28 + 1;
+                                  controller_skip = controller_skip + 1;
                                 }
-                                ((PlayerSlot *)(piVar17 + -2))->controller =
-                                     local_28 + 1 + slot_type;
+                                ((PlayerSlot *)(slot_team_ptr + -2))->controller =
+                                     controller_skip + 1 + slot_type;
                                 race_setup_set_slot_type(active_slots,2);
-                                slot_type = *piVar19;
-                                piVar19 = piVar19 + 1;
-                                iVar15 = slot_type;
+                                slot_type = *tbl_next;
+                                tbl_next = tbl_next + 1;
+                                team_pick = slot_type;
                                 if (slot_type == g_player_slots[0].team) {
-                                  iVar11 = 0;
+                                  team_cand = 0;
                                   do {
-                                    if (((iVar11 != g_player_slots[0].team) &&
-                                        (iVar11 != piVar18[1])) &&
-                                       ((iVar11 != piVar18[2] &&
-                                        (iVar15 = iVar11, iVar11 != piVar18[3])))) break;
-                                    iVar11 = iVar11 + 1;
-                                    iVar15 = slot_type;
-                                  } while (iVar11 < 6);
+                                    if (((team_cand != g_player_slots[0].team) &&
+                                        (team_cand != tbl[1])) &&
+                                       ((team_cand != tbl[2] &&
+                                        (team_pick = team_cand, team_cand != tbl[3])))) break;
+                                    team_cand = team_cand + 1;
+                                    team_pick = slot_type;
+                                  } while (team_cand < 6);
                                 }
-                                *piVar17 = iVar15;
-                                piVar17[-1] = 1;
-                                piVar17 = piVar17 + 4;
+                                *slot_team_ptr = team_pick;
+                                slot_team_ptr[-1] = 1;
+                                slot_team_ptr = slot_team_ptr + 4;
                                 slot_type = active_slots;
                               } while (active_slots < team_mode);
                             }
@@ -554,7 +559,7 @@ LAB_00447824:
                             slot_type = g_career_row;
                           }
                           else {
-                            if (uVar10 == 0x50000) {
+                            if (token == 0x50000) {
                               game_mode = GAME_MODE_CHASE_FUGITIVE;
                               g_menu_powerup_set = 0;
                               g_menu_69cc4c = 0;
@@ -567,63 +572,63 @@ LAB_00447824:
                               g_player_slots[2].state = -1;
                               g_player_slots[3].state = -1;
                               team_mode = career_event_slot_table();
-                              piVar18 = (int *)(team_mode + g_career_row * 0x30);
+                              tbl = (int *)(team_mode + g_career_row * 0x30);
                               if (g_event_type == EVENT_CUP_4) {
-                                piVar18 = piVar18 + 4;
+                                tbl = tbl + 4;
                               }
                               else if (g_event_type == EVENT_CUP_5) {
-                                piVar18 = piVar18 + 8;
+                                tbl = tbl + 8;
                               }
-                              team_mode = *piVar18;
-                              local_28 = 0;
+                              team_mode = *tbl;
+                              controller_skip = 0;
                               if (0 < team_mode) {
-                                piVar17 = &g_player_slots[1].team;
+                                slot_team_ptr = &g_player_slots[1].team;
                                 slot_type = 0;
-                                piVar19 = piVar18 + 1;
+                                tbl_next = tbl + 1;
                                 do {
                                   active_slots = slot_type + 1;
                                   if (g_player_slots[0].controller == active_slots) {
-                                    local_28 = local_28 + 1;
+                                    controller_skip = controller_skip + 1;
                                   }
-                                  ((PlayerSlot *)(piVar17 + -2))->controller =
-                                       local_28 + 1 + slot_type;
+                                  ((PlayerSlot *)(slot_team_ptr + -2))->controller =
+                                       controller_skip + 1 + slot_type;
                                   race_setup_set_slot_type(active_slots,2);
-                                  slot_type = *piVar19;
-                                  piVar19 = piVar19 + 1;
-                                  iVar15 = slot_type;
+                                  slot_type = *tbl_next;
+                                  tbl_next = tbl_next + 1;
+                                  team_pick = slot_type;
                                   if (slot_type == g_player_slots[0].team) {
-                                    iVar11 = 0;
+                                    team_cand = 0;
                                     do {
-                                      if (((iVar11 != g_player_slots[0].team) &&
-                                          (iVar11 != piVar18[1])) &&
-                                         ((iVar11 != piVar18[2] &&
-                                          (iVar15 = iVar11, iVar11 != piVar18[3])))) break;
-                                      iVar11 = iVar11 + 1;
-                                      iVar15 = slot_type;
-                                    } while (iVar11 < 6);
+                                      if (((team_cand != g_player_slots[0].team) &&
+                                          (team_cand != tbl[1])) &&
+                                         ((team_cand != tbl[2] &&
+                                          (team_pick = team_cand, team_cand != tbl[3])))) break;
+                                      team_cand = team_cand + 1;
+                                      team_pick = slot_type;
+                                    } while (team_cand < 6);
                                   }
-                                  *piVar17 = iVar15;
-                                  piVar17[-1] = 1;
-                                  piVar17 = piVar17 + 4;
+                                  *slot_team_ptr = team_pick;
+                                  slot_team_ptr[-1] = 1;
+                                  slot_team_ptr = slot_team_ptr + 4;
                                   slot_type = active_slots;
                                 } while (active_slots < team_mode);
                               }
                             }
                             else {
-                              if (((uVar10 == 0x20000) || (uVar10 == 0x30000)) ||
-                                 ((uVar10 == 0xb0000 || (uVar10 == 0x60000)))) {
+                              if (((token == 0x20000) || (token == 0x30000)) ||
+                                 ((token == 0xb0000 || (token == 0x60000)))) {
                                 game_mode = GAME_MODE_RACE;
-                                if (uVar10 == 0x60000) {
+                                if (token == 0x60000) {
                                   game_mode = GAME_MODE_SURVIVAL;
                                 }
                                 g_menu_powerup_set = 0;
-                                if (uVar10 == 0x30000) {
+                                if (token == 0x30000) {
                                   g_menu_powerup_set = 1;
                                 }
-                                else if (uVar10 == 0x60000) {
+                                else if (token == 0x60000) {
                                   g_menu_powerup_set = 1;
                                 }
-                                else if (uVar10 == 0xb0000) {
+                                else if (token == 0xb0000) {
                                   g_menu_powerup_set = 2;
                                 }
                                 g_menu_69cc4c = 0;
@@ -636,44 +641,44 @@ LAB_00447824:
                                 g_player_slots[2].state = -1;
                                 g_player_slots[3].state = -1;
                                 team_mode = career_event_slot_table();
-                                piVar18 = (int *)(team_mode + g_career_row * 0x30);
+                                tbl = (int *)(team_mode + g_career_row * 0x30);
                                 if (g_event_type == EVENT_CUP_4) {
-                                  piVar18 = piVar18 + 4;
+                                  tbl = tbl + 4;
                                 }
                                 else if (g_event_type == EVENT_CUP_5) {
-                                  piVar18 = piVar18 + 8;
+                                  tbl = tbl + 8;
                                 }
-                                team_mode = *piVar18;
-                                local_28 = 0;
+                                team_mode = *tbl;
+                                controller_skip = 0;
                                 if (0 < team_mode) {
-                                  piVar17 = &g_player_slots[1].team;
+                                  slot_team_ptr = &g_player_slots[1].team;
                                   slot_type = 0;
-                                  piVar19 = piVar18 + 1;
+                                  tbl_next = tbl + 1;
                                   do {
                                     active_slots = slot_type + 1;
                                     if (g_player_slots[0].controller == active_slots) {
-                                      local_28 = local_28 + 1;
+                                      controller_skip = controller_skip + 1;
                                     }
-                                    ((PlayerSlot *)(piVar17 + -2))->controller =
-                                         local_28 + 1 + slot_type;
+                                    ((PlayerSlot *)(slot_team_ptr + -2))->controller =
+                                         controller_skip + 1 + slot_type;
                                     race_setup_set_slot_type(active_slots,2);
-                                    slot_type = *piVar19;
-                                    piVar19 = piVar19 + 1;
-                                    iVar15 = slot_type;
+                                    slot_type = *tbl_next;
+                                    tbl_next = tbl_next + 1;
+                                    team_pick = slot_type;
                                     if (slot_type == g_player_slots[0].team) {
-                                      iVar11 = 0;
+                                      team_cand = 0;
                                       do {
-                                        if (((iVar11 != g_player_slots[0].team) &&
-                                            (iVar11 != piVar18[1])) &&
-                                           ((iVar11 != piVar18[2] &&
-                                            (iVar15 = iVar11, iVar11 != piVar18[3])))) break;
-                                        iVar11 = iVar11 + 1;
-                                        iVar15 = slot_type;
-                                      } while (iVar11 < 6);
+                                        if (((team_cand != g_player_slots[0].team) &&
+                                            (team_cand != tbl[1])) &&
+                                           ((team_cand != tbl[2] &&
+                                            (team_pick = team_cand, team_cand != tbl[3])))) break;
+                                        team_cand = team_cand + 1;
+                                        team_pick = slot_type;
+                                      } while (team_cand < 6);
                                     }
-                                    *piVar17 = iVar15;
-                                    piVar17[-1] = 1;
-                                    piVar17 = piVar17 + 4;
+                                    *slot_team_ptr = team_pick;
+                                    slot_team_ptr[-1] = 1;
+                                    slot_team_ptr = slot_team_ptr + 4;
                                     slot_type = active_slots;
                                   } while (active_slots < team_mode);
                                 }
@@ -681,14 +686,14 @@ LAB_00447824:
                                 team_mode = g_event_type;
                                 slot_type = g_career_row;
                               }
-                              if (((uVar10 == 0) || (uVar10 == 0x10000)) || (uVar10 == 0xc0000)) {
+                              if (((token == 0) || (token == 0x10000)) || (token == 0xc0000)) {
                                 g_team_mode = 1;
                                 g_menu_multiplayer_kind = 0;
                                 g_menu_powerup_set = 0;
-                                if (uVar10 == 0x10000) {
+                                if (token == 0x10000) {
                                   g_menu_powerup_set = 1;
                                 }
-                                else if (uVar10 == 0xc0000) {
+                                else if (token == 0xc0000) {
                                   g_menu_powerup_set = 2;
                                 }
                                 g_menu_69cc4c = 0;
@@ -700,44 +705,44 @@ LAB_00447824:
                                 g_player_slots[2].state = -1;
                                 g_player_slots[3].state = -1;
                                 team_mode = career_event_slot_table();
-                                piVar18 = (int *)(team_mode + g_career_row * 0x30);
+                                tbl = (int *)(team_mode + g_career_row * 0x30);
                                 if (g_event_type == EVENT_CUP_4) {
-                                  piVar18 = piVar18 + 4;
+                                  tbl = tbl + 4;
                                 }
                                 else if (g_event_type == EVENT_CUP_5) {
-                                  piVar18 = piVar18 + 8;
+                                  tbl = tbl + 8;
                                 }
-                                team_mode = *piVar18;
-                                local_28 = 0;
+                                team_mode = *tbl;
+                                controller_skip = 0;
                                 if (0 < team_mode) {
-                                  piVar17 = &g_player_slots[1].team;
+                                  slot_team_ptr = &g_player_slots[1].team;
                                   slot_type = 0;
-                                  piVar19 = piVar18 + 1;
+                                  tbl_next = tbl + 1;
                                   do {
                                     active_slots = slot_type + 1;
                                     if (g_player_slots[0].controller == active_slots) {
-                                      local_28 = local_28 + 1;
+                                      controller_skip = controller_skip + 1;
                                     }
-                                    ((PlayerSlot *)(piVar17 + -2))->controller =
-                                         local_28 + 1 + slot_type;
+                                    ((PlayerSlot *)(slot_team_ptr + -2))->controller =
+                                         controller_skip + 1 + slot_type;
                                     race_setup_set_slot_type(active_slots,2);
-                                    slot_type = *piVar19;
-                                    piVar19 = piVar19 + 1;
-                                    iVar15 = slot_type;
+                                    slot_type = *tbl_next;
+                                    tbl_next = tbl_next + 1;
+                                    team_pick = slot_type;
                                     if (slot_type == g_player_slots[0].team) {
-                                      iVar11 = 0;
+                                      team_cand = 0;
                                       do {
-                                        if (((iVar11 != g_player_slots[0].team) &&
-                                            (iVar11 != piVar18[1])) &&
-                                           ((iVar11 != piVar18[2] &&
-                                            (iVar15 = iVar11, iVar11 != piVar18[3])))) break;
-                                        iVar11 = iVar11 + 1;
-                                        iVar15 = slot_type;
-                                      } while (iVar11 < 6);
+                                        if (((team_cand != g_player_slots[0].team) &&
+                                            (team_cand != tbl[1])) &&
+                                           ((team_cand != tbl[2] &&
+                                            (team_pick = team_cand, team_cand != tbl[3])))) break;
+                                        team_cand = team_cand + 1;
+                                        team_pick = slot_type;
+                                      } while (team_cand < 6);
                                     }
-                                    *piVar17 = iVar15;
-                                    piVar17[-1] = 1;
-                                    piVar17 = piVar17 + 4;
+                                    *slot_team_ptr = team_pick;
+                                    slot_team_ptr[-1] = 1;
+                                    slot_team_ptr = slot_team_ptr + 4;
                                     slot_type = active_slots;
                                   } while (active_slots < team_mode);
                                 }
@@ -745,16 +750,16 @@ LAB_00447824:
                                 team_mode = g_event_type;
                                 slot_type = g_career_row;
                               }
-                              if (((uVar10 != 0x90000) && (uVar10 != 0xa0000)) &&
-                                 (uVar10 != 0xd0000)) break;
+                              if (((token != 0x90000) && (token != 0xa0000)) &&
+                                 (token != 0xd0000)) break;
                               g_team_mode = 0;
                               g_menu_multiplayer_kind = 0;
-                              if (uVar10 == 0x90000) {
+                              if (token == 0x90000) {
                                 g_menu_powerup_set = 0;
                               }
                               else {
                                 g_menu_powerup_set = 1;
-                                if (uVar10 == 0xd0000) {
+                                if (token == 0xd0000) {
                                   g_menu_powerup_set = 2;
                                 }
                               }
@@ -767,43 +772,43 @@ LAB_00447824:
                               g_player_slots[2].state = -1;
                               g_player_slots[3].state = -1;
                               team_mode = career_event_slot_table();
-                              piVar18 = (int *)(team_mode + g_career_row * 0x30);
+                              tbl = (int *)(team_mode + g_career_row * 0x30);
                               if (g_event_type == EVENT_CUP_4) {
-                                piVar18 = piVar18 + 4;
+                                tbl = tbl + 4;
                               }
                               else if (g_event_type == EVENT_CUP_5) {
-                                piVar18 = piVar18 + 8;
+                                tbl = tbl + 8;
                               }
-                              team_mode = *piVar18;
-                              local_28 = 0;
+                              team_mode = *tbl;
+                              controller_skip = 0;
                               if (0 < team_mode) {
-                                piVar17 = &g_player_slots[1].team;
+                                slot_team_ptr = &g_player_slots[1].team;
                                 slot_type = 0;
-                                piVar19 = piVar18 + 1;
+                                tbl_next = tbl + 1;
                                 do {
                                   active_slots = slot_type + 1;
                                   if (g_player_slots[0].controller == active_slots) {
-                                    local_28 = local_28 + 1;
+                                    controller_skip = controller_skip + 1;
                                   }
-                                  ((PlayerSlot *)(piVar17 + -2))->controller =
-                                       local_28 + 1 + slot_type;
+                                  ((PlayerSlot *)(slot_team_ptr + -2))->controller =
+                                       controller_skip + 1 + slot_type;
                                   race_setup_set_slot_type(active_slots,2);
-                                  slot_type = *piVar19;
-                                  piVar19 = piVar19 + 1;
-                                  iVar15 = slot_type;
+                                  slot_type = *tbl_next;
+                                  tbl_next = tbl_next + 1;
+                                  team_pick = slot_type;
                                   if (slot_type == g_player_slots[0].team) {
-                                    iVar11 = 0;
+                                    team_cand = 0;
                                     do {
-                                      if ((((iVar11 != g_player_slots[0].team) &&
-                                           (iVar11 != piVar18[1])) && (iVar11 != piVar18[2])) &&
-                                         (iVar15 = iVar11, iVar11 != piVar18[3])) break;
-                                      iVar11 = iVar11 + 1;
-                                      iVar15 = slot_type;
-                                    } while (iVar11 < 6);
+                                      if ((((team_cand != g_player_slots[0].team) &&
+                                           (team_cand != tbl[1])) && (team_cand != tbl[2])) &&
+                                         (team_pick = team_cand, team_cand != tbl[3])) break;
+                                      team_cand = team_cand + 1;
+                                      team_pick = slot_type;
+                                    } while (team_cand < 6);
                                   }
-                                  *piVar17 = iVar15;
-                                  piVar17[-1] = 0;
-                                  piVar17 = piVar17 + 4;
+                                  *slot_team_ptr = team_pick;
+                                  slot_team_ptr[-1] = 0;
+                                  slot_team_ptr = slot_team_ptr + 4;
                                   slot_type = active_slots;
                                 } while (active_slots < team_mode);
                               }
@@ -882,36 +887,36 @@ LAB_00447628:
                         g_menu_markers_enabled = 1;
                         team_mode = 3;
                       }
-                      local_28 = 0;
+                      controller_skip = 0;
                       g_training_lesson = slot_type;
                       if (team_mode != 0) {
-                        piVar18 = &g_player_slots[1].team;
+                        tbl = &g_player_slots[1].team;
                         slot_type = 0;
                         do {
                           active_slots = slot_type + 1;
                           if (g_player_slots[0].controller == active_slots) {
-                            local_28 = local_28 + 1;
+                            controller_skip = controller_skip + 1;
                           }
-                          ((PlayerSlot *)(piVar18 + -2))->controller = local_28 + 1 + slot_type;
+                          ((PlayerSlot *)(tbl + -2))->controller = controller_skip + 1 + slot_type;
                           race_setup_set_slot_type(active_slots,2);
-                          iVar15 = slot_type;
+                          team_pick = slot_type;
                           if (slot_type == g_player_slots[0].team) {
-                            iVar11 = 0;
+                            team_cand = 0;
                             do {
-                              if ((((iVar11 != g_player_slots[0].team) && (iVar11 != 0)) &&
-                                  (iVar11 != 1)) && (iVar15 = iVar11, iVar11 != 2)) break;
-                              iVar11 = iVar11 + 1;
-                              iVar15 = slot_type;
-                            } while (iVar11 < 6);
+                              if ((((team_cand != g_player_slots[0].team) && (team_cand != 0)) &&
+                                  (team_cand != 1)) && (team_pick = team_cand, team_cand != 2)) break;
+                              team_cand = team_cand + 1;
+                              team_pick = slot_type;
+                            } while (team_cand < 6);
                           }
-                          *piVar18 = iVar15;
-                          piVar18[-1] = 1;
-                          piVar18 = piVar18 + 4;
+                          *tbl = team_pick;
+                          tbl[-1] = 1;
+                          tbl = tbl + 4;
                           slot_type = active_slots;
                         } while (active_slots < team_mode);
                       }
                       car_set_field_8(0,g_menu_selected_vehicle);
-                      race_set_phase(1);
+                      race_set_phase(RACE_PHASE_SETUP);
                       team_mode = g_event_type;
                       slot_type = g_career_row;
                     }
@@ -926,15 +931,15 @@ LAB_00447628:
                       race_set_setup_index(slot_type);
                       menu_page_enter(MENU_PAGE_GAME_SETUP_MULTI,0);
                       team_mode = 0;
-                      pPVar20 = g_player_slots;
+                      slot_ptr = g_player_slots;
                       do {
                         slot_type = race_setup_get_slot_type(team_mode);
                         if (slot_type == 2) {
-                          pPVar20->controller = -1;
+                          slot_ptr->controller = -1;
                         }
-                        pPVar20 = pPVar20 + 1;
+                        slot_ptr = slot_ptr + 1;
                         team_mode = team_mode + 1;
-                      } while ((int)pPVar20 < 0x7f023c);
+                      } while ((int)slot_ptr < 0x7f023c);
                       g_menu_69d6b4 = 1;
                     }
                     else if (((team_mode != 0xb) && (team_mode != 0xc)) && (team_mode != 0xd)) {
@@ -963,15 +968,15 @@ LAB_004478ac:
                     }
                   }
                 }
-                else if (uVar10 < 0xff1f0001) {
-                  if (uVar10 == 0xff1f0000) {
+                else if (token < 0xff1f0001) {
+                  if (token == 0xff1f0000) {
                     message_show_now(0x34,0xff1f0000,2,0x2f,0x30,0);
                   }
-                  else if (uVar10 == 0xff150000) {
+                  else if (token == 0xff150000) {
                     menu_page_enter(0,2);
                     g_menu_start_race_requested = 1;
                   }
-                  else if (uVar10 == 0xff1d0000) {
+                  else if (token == 0xff1d0000) {
                     team_mode = event_type_uses_standard_menu();
                     if (team_mode == 0) {
                       team_mode = menu_validate_player_setup();
@@ -1020,15 +1025,15 @@ LAB_004478ac:
                     }
                   }
                   else {
-                    if (uVar10 != 0xff1e0000) goto LAB_00448159;
+                    if (token != 0xff1e0000) goto LAB_00448159;
                     message_show_now(0x33,0xff1e0000,2,0x2f,0x30,0);
                   }
                 }
-                else if (uVar10 == 0xff200000) {
+                else if (token == 0xff200000) {
                   message_show_now(0x35,0xff200000,2,0x2f,0x30,0);
                 }
                 else {
-                  if (uVar10 != 0xff240000) goto LAB_00448159;
+                  if (token != 0xff240000) goto LAB_00448159;
                   if ((((g_event_type == EVENT_MULTIPLAYER_6) || (g_event_type == EVENT_MULTIPLAYER_7)) ||
                       ((g_event_type == EVENT_MULTIPLAYER_8 || ((g_event_type == EVENT_TIME_TRIAL_0 || (g_event_type == EVENT_TIME_TRIAL_1)))))) ||
                      (g_event_type == EVENT_TIME_TRIAL_2)) {
@@ -1075,8 +1080,8 @@ LAB_00446b4b:
                 }
               }
               else {
-                if (uVar10 < 0xff2e0001) {
-                  if ((uVar10 == 0xff2e0000) || (uVar10 == 0xff2c0000)) {
+                if (token < 0xff2e0001) {
+                  if ((token == 0xff2e0000) || (token == 0xff2c0000)) {
                     if (g_menu_player_count_index == 2) {
                       g_menu_multiplayer_kind = 1;
                     }
@@ -1087,30 +1092,30 @@ LAB_00446b4b:
                     g_menu_69d68c = 0;
                     g_menu_event_column = 6;
                     event_type_from_menu_choice();
-                    g_team_mode = (uint)(uVar10 == 0xff2e0000);
-                    puVar12 = &player_color_id;
+                    g_team_mode = (uint)(token == 0xff2e0000);
+                    color_ptr = &player_color_id;
                     do {
-                      *puVar12 = 0xffffffff;
-                      puVar12 = puVar12 + 3;
-                    } while ((int)puVar12 < 0x69d0b8);
+                      *color_ptr = 0xffffffff;
+                      color_ptr = color_ptr + 3;
+                    } while ((int)color_ptr < 0x69d0b8);
                     goto LAB_004477dc;
                   }
-                  if (uVar10 == 0xff2d0000) goto LAB_00447720;
+                  if (token == 0xff2d0000) goto LAB_00447720;
                 }
                 else {
-                  if (uVar10 == 0xff2f0000) {
+                  if (token == 0xff2f0000) {
 LAB_00447720:
                     g_event_type = EVENT_TIME_TRIAL_0;
                     g_menu_60ad5c = 10;
                     g_menu_60ad60 = 3;
                     menu_text_format_and_draw(100,10);
                     menu_text_format_and_draw(0x65,g_menu_60ad60);
-                    g_team_mode = (uint)(uVar10 == 0xff2f0000);
+                    g_team_mode = (uint)(token == 0xff2f0000);
                     g_menu_player_count_index = 0;
                     menu_page_enter(MENU_PAGE_CUSTOMISE_PLAY,0);
                     goto LAB_00448214;
                   }
-                  if (uVar10 == 0xff300000) {
+                  if (token == 0xff300000) {
                     g_menu_multiplayer_kind = 1;
                     goto LAB_00447824;
                   }
@@ -1120,41 +1125,41 @@ LAB_00448159:
                    (g_menu_records[g_menu_current].selected == 0)) {
                   ui_input_reset();
                 }
-                menu_page_enter(uVar10,0);
+                menu_page_enter(token,0);
               }
             }
-            else if (uVar10 < 0xff3b0001) {
-              if (uVar10 == 0xff3b0000) {
+            else if (token < 0xff3b0001) {
+              if (token == 0xff3b0000) {
                 menu_page_enter(MENU_PAGE_CHALLENGE_SELECT_A,0);
                 team_mode = 0;
-                pPVar20 = g_player_slots;
+                slot_ptr = g_player_slots;
                 do {
-                  if (-1 < pPVar20->controller) {
-                    car_set_field_8(team_mode,(&g_menu_controller_vehicle)[pPVar20->controller * 3])
+                  if (-1 < slot_ptr->controller) {
+                    car_set_field_8(team_mode,(&g_menu_controller_vehicle)[slot_ptr->controller * 3])
                     ;
                   }
-                  pPVar20 = pPVar20 + 1;
+                  slot_ptr = slot_ptr + 1;
                   team_mode = team_mode + 1;
-                } while ((int)pPVar20 < 0x7f023c);
+                } while ((int)slot_ptr < 0x7f023c);
               }
-              else if (uVar10 < 0xff380001) {
-                if (uVar10 == 0xff380000) {
+              else if (token < 0xff380001) {
+                if (token == 0xff380000) {
                   menu_page_enter(MENU_PAGE_JOIN,0);
                 }
-                else if (uVar10 == 0xff360000) {
+                else if (token == 0xff360000) {
                   menu_page_enter(MENU_PAGE_XBOX_LIVE,0);
                 }
-                else if (uVar10 != 0xff370000) goto LAB_00448159;
+                else if (token != 0xff370000) goto LAB_00448159;
               }
-              else if (uVar10 != 0xff390000) {
-                if (uVar10 != 0xff3a0000) goto LAB_00448159;
+              else if (token != 0xff390000) {
+                if (token != 0xff3a0000) goto LAB_00448159;
                 race_set_setup_index(0);
                 goto LAB_004478ac;
               }
             }
             else {
-              if (uVar10 < 0xff400001) {
-                if (uVar10 == 0xff400000) {
+              if (token < 0xff400001) {
+                if (token == 0xff400000) {
                   race_setup_use_5();
                   g_menu_7ef7d0 = 0;
                   g_menu_event_column = 0;
@@ -1166,14 +1171,14 @@ LAB_00448159:
                   } while (team_mode < 4);
                 }
                 else {
-                  if (uVar10 == 0xff3c0000) {
+                  if (token == 0xff3c0000) {
                     team_mode = player_slots_reset_state();
                     if (team_mode == 0x1000) {
-                      puVar12 = &g_menu_controller_vehicle;
+                      color_ptr = &g_menu_controller_vehicle;
                       do {
-                        *puVar12 = 1;
-                        puVar12 = puVar12 + 3;
-                      } while ((int)puVar12 < 0x69cab8);
+                        *color_ptr = 1;
+                        color_ptr = color_ptr + 3;
+                      } while ((int)color_ptr < 0x69cab8);
                       team_mode = 0;
                       do {
                         car_set_field_8(team_mode,0);
@@ -1195,7 +1200,7 @@ LAB_00448159:
                     }
                     goto LAB_00448214;
                   }
-                  if (uVar10 != 0xff3d0000) goto LAB_00448159;
+                  if (token != 0xff3d0000) goto LAB_00448159;
                   race_setup_use_0();
                   g_menu_7ef7d0 = 0;
                   g_menu_event_column = 3;
@@ -1208,16 +1213,17 @@ LAB_00448159:
                 }
                 goto LAB_004481e1;
               }
-              if (uVar10 == 0xff420000) {
+              if (token == 0xff420000) {
                 if (((g_event_type == EVENT_QUICK_RACE_11) || (g_event_type == EVENT_QUICK_RACE_12)) || (g_event_type == EVENT_QUICK_RACE_13)) {
-                  cVar21 = g_menu_player_team_choice != 0;
+                  /* quick race 11..13: count the teams that have players (up to 3); starting needs at least one else message 0x254 */
+                  team_count = g_menu_player_team_choice != 0;
                   if (g_menu_player_team_choice_1 != 0) {
-                    cVar21 = cVar21 + '\x01';
+                    team_count = team_count + '\x01';
                   }
                   if (g_menu_player_team_choice_2 != 0) {
-                    cVar21 = cVar21 + '\x01';
+                    team_count = team_count + '\x01';
                   }
-                  if (cVar21 != '\0') {
+                  if (team_count != '\0') {
                     menu_page_enter(0,2);
                     g_team_mode = g_menu_team_mode_choice ^ 1;
                     g_menu_start_race_requested = 1;
@@ -1235,49 +1241,50 @@ LAB_00448159:
                     g_player_slots[1].controller = -1;
                     g_player_slots[2].controller = -1;
                     g_player_slots[3].controller = -1;
-                    local_24 = (uint)(g_menu_player_team_choice != 0);
+                    /* teams_left: number of selected teams still to place into slots 1..3 */
+                    teams_left = (uint)(g_menu_player_team_choice != 0);
                     if (g_menu_player_team_choice_1 != 0) {
-                      local_24 = local_24 + 1;
+                      teams_left = teams_left + 1;
                     }
                     if (g_menu_player_team_choice_2 != 0) {
-                      local_24 = local_24 + 1;
+                      teams_left = teams_left + 1;
                     }
                     team_mode = 0;
                     slot_type = 0;
-                    local_20 = 6;
-                    if (local_24 != 0) {
+                    next_controller = 6;
+                    if (teams_left != 0) {
                       active_slots = 1;
-                      piVar18 = &g_player_slots[1].team;
+                      tbl = &g_player_slots[1].team;
                       do {
                         if ((&g_menu_player_team_choice)[slot_type] == 0) {
                           do {
-                            piVar19 = &g_menu_player_team_choice_1 + slot_type;
+                            tbl_next = &g_menu_player_team_choice_1 + slot_type;
                             slot_type = slot_type + 1;
-                          } while (*piVar19 == 0);
-                          if (*piVar19 != 0) goto LAB_00447d20;
+                          } while (*tbl_next == 0);
+                          if (*tbl_next != 0) goto LAB_00447d20;
                         }
                         else {
 LAB_00447d20:
                           if (g_player_slots[0].controller == active_slots) {
                             slot_type = slot_type + 1;
                           }
-                          ((PlayerSlot *)(piVar18 + -2))->controller = local_20;
-                          local_20 = local_20 + 1;
+                          ((PlayerSlot *)(tbl + -2))->controller = next_controller;
+                          next_controller = next_controller + 1;
                           race_setup_set_slot_type(active_slots,2);
-                          iVar15 = (&g_menu_player_team_choice)[team_mode];
-                          while (iVar15 == 0) {
-                            piVar19 = &g_menu_player_team_choice_1 + team_mode;
+                          team_pick = (&g_menu_player_team_choice)[team_mode];
+                          while (team_pick == 0) {
+                            tbl_next = &g_menu_player_team_choice_1 + team_mode;
                             team_mode = team_mode + 1;
-                            iVar15 = *piVar19;
+                            team_pick = *tbl_next;
                           }
-                          *piVar18 = (&g_menu_player_team_choice)[team_mode] + -1;
-                          piVar18[-1] = 1;
+                          *tbl = (&g_menu_player_team_choice)[team_mode] + -1;
+                          tbl[-1] = 1;
                           team_mode = team_mode + 1;
                         }
                         active_slots = active_slots + 1;
-                        piVar18 = piVar18 + 4;
-                        local_24 = local_24 - 1;
-                      } while (local_24 != 0);
+                        tbl = tbl + 4;
+                        teams_left = teams_left - 1;
+                      } while (teams_left != 0);
                     }
                     goto LAB_00447bf5;
                   }
@@ -1300,89 +1307,89 @@ LAB_00447d20:
                   g_menu_screen_id = 1;
                   g_menu_69d290 = 0;
                   team_mode = 0;
-                  pPVar20 = g_player_slots;
+                  slot_ptr = g_player_slots;
                   do {
-                    if (pPVar20->controller != -1) {
+                    if (slot_ptr->controller != -1) {
                       race_setup_set_slot_type(team_mode,1);
                     }
                     slot_type = race_setup_get_slot_type(team_mode);
                     if (slot_type == 2) {
-                      pPVar20->controller = -1;
+                      slot_ptr->controller = -1;
                       race_setup_set_slot_type(team_mode,0);
                     }
-                    pPVar20 = pPVar20 + 1;
+                    slot_ptr = slot_ptr + 1;
                     team_mode = team_mode + 1;
-                  } while ((int)pPVar20 < 0x7f023c);
+                  } while ((int)slot_ptr < 0x7f023c);
                   if ((g_menu_bot_skill_a != 0) && (g_menu_game_mode_choice != 1)) {
                     team_mode = 0;
-                    pPVar20 = g_player_slots;
+                    slot_ptr = g_player_slots;
                     do {
-                      if (pPVar20->controller == -1) {
+                      if (slot_ptr->controller == -1) {
                         slot_type = 0;
                         do {
-                          bVar1 = false;
-                          pPVar13 = g_player_slots;
+                          slot_clash = false;
+                          slot_scan = g_player_slots;
                           do {
-                            if (0x7f023b < (int)pPVar13) {
-                              if (!bVar1) {
-                                pPVar20->controller = slot_type;
+                            if (0x7f023b < (int)slot_scan) {
+                              if (!slot_clash) {
+                                slot_ptr->controller = slot_type;
                               }
                               break;
                             }
-                            if (pPVar13->controller == slot_type) {
+                            if (slot_scan->controller == slot_type) {
                               slot_type = slot_type + 1;
-                              bVar1 = true;
+                              slot_clash = true;
                             }
-                            pPVar13 = pPVar13 + 1;
-                          } while (!bVar1);
+                            slot_scan = slot_scan + 1;
+                          } while (!slot_clash);
                           race_setup_set_slot_type(team_mode,2);
-                        } while (bVar1);
+                        } while (slot_clash);
                         slot_type = 0;
                         do {
-                          bVar1 = false;
-                          piVar18 = &g_player_slots[0].team;
+                          slot_clash = false;
+                          tbl = &g_player_slots[0].team;
                           do {
-                            if (0x7f0243 < (int)piVar18) {
-                              if (!bVar1) {
-                                pPVar20->team = slot_type;
+                            if (0x7f0243 < (int)tbl) {
+                              if (!slot_clash) {
+                                slot_ptr->team = slot_type;
                                 goto LAB_00447be5;
                               }
                               break;
                             }
-                            if (*piVar18 == slot_type) {
+                            if (*tbl == slot_type) {
                               slot_type = slot_type + 1;
-                              bVar1 = true;
+                              slot_clash = true;
                             }
-                            piVar18 = piVar18 + 4;
-                          } while (!bVar1);
+                            tbl = tbl + 4;
+                          } while (!slot_clash);
                         } while( true );
                       }
                       race_setup_set_slot_type(team_mode,1);
 LAB_00447be5:
-                      pPVar20 = pPVar20 + 1;
+                      slot_ptr = slot_ptr + 1;
                       team_mode = team_mode + 1;
-                    } while ((int)pPVar20 < 0x7f023c);
+                    } while ((int)slot_ptr < 0x7f023c);
 LAB_00447bf5:
                     car_set_field_8(0,g_menu_selected_vehicle);
                   }
                 }
               }
               else {
-                if (uVar10 != 0xff430000) goto LAB_00448159;
+                if (token != 0xff430000) goto LAB_00448159;
                 menu_page_enter(MENU_PAGE_SOUND,0);
               }
             }
           }
-          else if (uVar10 < 0xff710001) {
-            if (uVar10 == 0xff710000) {
+          else if (token < 0xff710001) {
+            if (token == 0xff710000) {
 LAB_004477dc:
               g_menu_7ef7d0 = 0;
 LAB_004477e2:
               menu_page_enter(MENU_PAGE_TEAM_COLOUR_SELECT,0);
               g_menu_69cc44 = 1;
             }
-            else if (uVar10 < 0xff4b0001) {
-              if (uVar10 == 0xff4b0000) {
+            else if (token < 0xff4b0001) {
+              if (token == 0xff4b0000) {
                 gfx_set_89ddfc(0xff);
                 g_ui_69d1f4 = 1;
                 g_menu_69d1f0 = 0;
@@ -1390,19 +1397,19 @@ LAB_004477e2:
                 menu_page_enter(MENU_PAGE_MAIN,0);
                 g_menu_7ef7d0 = 0;
               }
-              else if (uVar10 < 0xff480001) {
-                if (uVar10 == 0xff480000) {
+              else if (token < 0xff480001) {
+                if (token == 0xff480000) {
                   menu_page_enter(0x14,0);
                 }
-                else if (uVar10 == 0xff450000) {
+                else if (token == 0xff450000) {
                   menu_page_enter(0,1);
                 }
                 else {
-                  if (uVar10 != 0xff470000) goto LAB_00448159;
+                  if (token != 0xff470000) goto LAB_00448159;
                   gamesave_request_save_a();
                 }
               }
-              else if (uVar10 == 0xff490000) {
+              else if (token == 0xff490000) {
                 g_menu_69d6b4 = 0;
                 menu_page_enter(MENU_PAGE_CHALLENGE_SELECT_B,0);
                 if (g_menu_career_race_active == 2) {
@@ -1410,23 +1417,23 @@ LAB_004477e2:
                 }
               }
               else {
-                if (uVar10 != 0xff4a0000) goto LAB_00448159;
+                if (token != 0xff4a0000) goto LAB_00448159;
                 menu_page_enter(0,2);
                 g_menu_start_race_requested = 1;
-                race_set_phase(1);
+                race_set_phase(RACE_PHASE_SETUP);
                 g_menu_69d1f0 = 4;
                 g_ui_69d1f4 = 1;
                 best_time_load_current();
                 time_clear_current();
               }
             }
-            else if (uVar10 < 0xff4e0001) {
-              if (uVar10 == 0xff4e0000) {
+            else if (token < 0xff4e0001) {
+              if (token == 0xff4e0000) {
                 message_show_now(0x35,0xff4e0000,2,0x2f,0x30,0);
               }
               else {
-                if (uVar10 != 0xff4c0000) {
-                  if (uVar10 != 0xff4d0000) goto LAB_00448159;
+                if (token != 0xff4c0000) {
+                  if (token != 0xff4d0000) goto LAB_00448159;
                   race_setup_use_5();
                   g_menu_7ef7d0 = 0;
                   g_menu_event_column = 0xb;
@@ -1468,35 +1475,35 @@ LAB_004477e2:
                 }
               }
             }
-            else if (uVar10 != 0xff4f0000) {
-              if (uVar10 != 0xff500000) goto LAB_00448159;
+            else if (token != 0xff4f0000) {
+              if (token != 0xff500000) goto LAB_00448159;
               menu_page_enter(MENU_PAGE_OPTIONS,0);
             }
           }
-          else if (uVar10 < 0xff830001) {
-            if (uVar10 == 0xff830000) {
+          else if (token < 0xff830001) {
+            if (token == 0xff830000) {
               menu_page_enter(MENU_PAGE_AUTOSAVE,0);
             }
-            else if (uVar10 < 0xff800001) {
-              if (uVar10 == 0xff800000) {
+            else if (token < 0xff800001) {
+              if (token == 0xff800000) {
                 message_show_now(0x267,0xff800000,2,0x2f,0x30,0);
               }
-              else if (uVar10 == 0xff720000) {
+              else if (token == 0xff720000) {
                 g_menu_7ef7d0 = 1;
                 menu_page_enter(MENU_PAGE_TEAM_COLOUR_SELECT,0);
                 g_menu_69cc44 = 1;
               }
               else {
-                if (uVar10 != 0xff730000) goto LAB_00448159;
+                if (token != 0xff730000) goto LAB_00448159;
                 menu_page_enter(MENU_PAGE_GAMMA,0);
               }
             }
-            else if (uVar10 == 0xff810000) {
+            else if (token == 0xff810000) {
               g_menu_records[g_menu_current].selected = 0;
               g_menu_select_flash = 0.0;
             }
             else {
-              if (uVar10 != 0xff820000) goto LAB_00448159;
+              if (token != 0xff820000) goto LAB_00448159;
               team_mode = scene_get_log_64d898();
               if (team_mode == 0) {
                 menu_page_enter(MENU_PAGE_BONUS_FEATURES,0);
@@ -1507,8 +1514,8 @@ LAB_004477e2:
             }
           }
           else {
-            if (uVar10 < 0xff860001) {
-              if (uVar10 == 0xff860000) {
+            if (token < 0xff860001) {
+              if (token == 0xff860000) {
                 race_setup_use_3();
                 g_menu_7ef7d0 = 0;
                 g_menu_event_column = 0xf;
@@ -1520,11 +1527,11 @@ LAB_004477e2:
                 } while (team_mode < 4);
               }
               else {
-                if (uVar10 == 0xff840000) {
+                if (token == 0xff840000) {
                   race_load_course_0042fad0();
                   goto LAB_00448214;
                 }
-                if (uVar10 != 0xff850000) goto LAB_00448159;
+                if (token != 0xff850000) goto LAB_00448159;
                 race_setup_use_2();
                 g_menu_7ef7d0 = 0;
                 g_menu_event_column = 0xe;
@@ -1536,7 +1543,7 @@ LAB_004477e2:
                 } while (team_mode < 4);
               }
             }
-            else if (uVar10 == 0xff870000) {
+            else if (token == 0xff870000) {
               race_setup_use_4();
               g_menu_7ef7d0 = 0;
               g_menu_event_column = 0x10;
@@ -1548,7 +1555,7 @@ LAB_004477e2:
               } while (team_mode < 4);
             }
             else {
-              if (uVar10 != 0xff880000) goto LAB_00448159;
+              if (token != 0xff880000) goto LAB_00448159;
               race_setup_use_1();
               g_menu_7ef7d0 = 0;
               g_menu_event_column = 0x11;
@@ -1637,13 +1644,13 @@ LAB_0044849c:
             g_game_state.option_sliders[1] = GS(2840);
           }
           if (team_mode == 0x1c) {
-            puVar16 = &g_player_inputs[0].rumble_enabled;
-            puVar14 = &g_ai_8c8740;
+            dst_word = &g_player_inputs[0].rumble_enabled;
+            src_word = &g_ai_8c8740;
             do {
-              *puVar16 = *puVar14;
-              puVar14 = puVar14 + 1;
-              puVar16 = puVar16 + 0x13;
-            } while ((int)puVar14 < 0x8c8770);
+              *dst_word = *src_word;
+              src_word = src_word + 1;
+              dst_word = dst_word + 0x13;
+            } while ((int)src_word < 0x8c8770);
           }
           if ((g_menu_screen_id == 0x20) || (g_menu_screen_id == 0x22)) goto LAB_0044849c;
           break;
@@ -1687,13 +1694,13 @@ LAB_0044849c:
          (g_menu_69d6b0 = 1, g_menu_8c8090 == 0)) {
         menu_career_row_next();
       }
-      if ((iVar9 != 0) && (team_mode = menu_pause_pressed_any(), team_mode != 0)) {
+      if ((aux != 0) && (team_mode = menu_pause_pressed_any(), team_mode != 0)) {
         g_menu_select_pressed = 1;
         menu_page_enter(0,2);
         g_menu_start_race_requested = 1;
       }
       if ((left_enabled) &&
-         (slot_type = menu_left_pressed_any(), iVar9 = g_career_row, team_mode = g_menu_69cc44,
+         (slot_type = menu_left_pressed_any(), aux = g_career_row, team_mode = g_menu_69cc44,
          slot_type != 0)) {
         g_menu_69d6b0 = 1;
         switch(g_menu_records[g_menu_current].page_id) {
@@ -1717,20 +1724,20 @@ LAB_0044849c:
                     (((g_menu_event_column == 0xc || (g_menu_event_column == 5)) ||
                      ((g_menu_event_column == 8 ||
                       ((g_menu_event_column == 2 ||
-                       (iVar9 = g_menu_event_column, g_menu_event_column == 0xd)))))))) {
+                       (aux = g_menu_event_column, g_menu_event_column == 0xd)))))))) {
               g_menu_event_column = g_menu_event_column + -1;
             }
             else {
               do {
                 active_slots = (-(uint)(team_mode != 0) & 3) + 3;
-                slot_type = iVar9 + -1;
-                if (iVar9 + -1 < active_slots) {
+                slot_type = aux + -1;
+                if (aux + -1 < active_slots) {
                   g_menu_69d6b0 = 0;
                   slot_type = active_slots;
                 }
                 g_menu_event_column = slot_type;
                 active_slots = menu_event_column_is_special();
-                iVar9 = slot_type;
+                aux = slot_type;
               } while (active_slots == 0);
             }
             event_type_from_menu_choice();
@@ -1750,14 +1757,14 @@ LAB_0044849c:
             g_menu_60ad60 = g_menu_60ad60 + -1;
           }
           if (g_menu_60ad5c == 1) {
-            uVar8 = 0x6c;
+            text_id = 0x6c;
             team_mode = 1;
           }
           else {
-            uVar8 = 100;
+            text_id = 100;
             team_mode = g_menu_60ad5c;
           }
-          menu_text_format_and_draw(uVar8,team_mode);
+          menu_text_format_and_draw(text_id,team_mode);
           if (g_menu_60ad60 == 1) {
             menu_text_format_and_draw(0x6d,1);
           }
@@ -1806,7 +1813,7 @@ LAB_0044849c:
               active_slots = career_event_set_progress(slot_type);
             } while (active_slots == 0);
             g_menu_event_course_index = slot_type;
-            (&g_menu_609a58)[iVar9] = slot_type;
+            (&g_menu_609a58)[aux] = slot_type;
           }
           if (team_mode == 5) {
             g_menu_markers_enabled = g_menu_markers_enabled ^ 1;
@@ -1814,7 +1821,7 @@ LAB_0044849c:
           if (team_mode == 6) {
             g_menu_game_mode_choice = g_menu_game_mode_choice + -1;
             if (g_menu_game_mode_choice < 0) {
-              if (g_game_state.progress[iVar9 * 0x12 + 10] != 0) {
+              if (g_game_state.progress[aux * 0x12 + 10] != 0) {
                 g_menu_game_mode_choice = 2;
 LAB_004488f8:
                 team_mode = is_team_mode();
@@ -1858,17 +1865,17 @@ LAB_004488f8:
              (g_menu_bot_skill_b = g_menu_bot_skill_b + -1, g_menu_bot_skill_b < 1)) {
             g_menu_bot_skill_b = 4;
           }
-          iVar9 = g_menu_event_course_index;
+          aux = g_menu_event_course_index;
           if (team_mode == 3) {
             do {
-              iVar9 = iVar9 + -1;
-              if (iVar9 < 0) {
-                iVar9 = 0xe;
+              aux = aux + -1;
+              if (aux < 0) {
+                aux = 0xe;
               }
-              slot_type = career_event_set_progress(iVar9);
+              slot_type = career_event_set_progress(aux);
             } while (slot_type == 0);
-            g_menu_event_course_index = iVar9;
-            (&g_menu_609a58)[g_career_row] = iVar9;
+            g_menu_event_course_index = aux;
+            (&g_menu_609a58)[g_career_row] = aux;
           }
           if (team_mode == 4) {
             g_menu_player_team_choice = g_menu_player_team_choice + -1;
@@ -1899,9 +1906,9 @@ LAB_004488f8:
           team_mode = 0;
           do {
             if (g_menu_records[g_menu_current].selected == team_mode) {
-              iVar9 = (&g_menu_8c8080)[team_mode];
-              g_player_inputs[iVar9].rumble_enabled = g_player_inputs[iVar9].rumble_enabled ^ 1;
-              input_player_rumble_set(iVar9);
+              aux = (&g_menu_8c8080)[team_mode];
+              g_player_inputs[aux].rumble_enabled = g_player_inputs[aux].rumble_enabled ^ 1;
+              input_player_rumble_set(aux);
             }
             team_mode = team_mode + 1;
           } while (team_mode < 4);
@@ -1915,39 +1922,39 @@ LAB_004488f8:
         case 0x1f:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 1] = g_game_state.option_flags[team_mode + 1] ^ 1;
-          iVar9 = 0;
+          aux = 0;
           do {
-            if ((iVar9 != team_mode) && (g_game_state.option_flags[team_mode + 1] == 1)) {
-              g_game_state.option_flags[iVar9 + 1] = 0;
+            if ((aux != team_mode) && (g_game_state.option_flags[team_mode + 1] == 1)) {
+              g_game_state.option_flags[aux + 1] = 0;
             }
-            iVar9 = iVar9 + 1;
-          } while (iVar9 < 4);
+            aux = aux + 1;
+          } while (aux < 4);
           break;
         case 0x20:
           g_menu_69d6b0 = 0;
-          uVar10 = nop_b();
-          gamesave_set_autosave_enabled(uVar10 ^ 1);
+          token = nop_b();
+          gamesave_set_autosave_enabled(token ^ 1);
           g_menu_69d6b0 = 1;
           break;
         case 0x21:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 2] = g_game_state.option_flags[team_mode + 2] ^ 1;
-          iVar9 = 0;
+          aux = 0;
           do {
-            if ((iVar9 != team_mode) && (g_game_state.option_flags[team_mode + 2] == 1)) {
-              g_game_state.option_flags[iVar9 + 2] = 0;
+            if ((aux != team_mode) && (g_game_state.option_flags[team_mode + 2] == 1)) {
+              g_game_state.option_flags[aux + 2] = 0;
             }
-            iVar9 = iVar9 + 1;
-          } while (iVar9 < 2);
+            aux = aux + 1;
+          } while (aux < 2);
           break;
         case 0x23:
-          uVar10 = game_state_get_2812();
-          camera_fov_factor_set_wide(uVar10 ^ 1);
+          token = game_state_get_2812();
+          camera_fov_factor_set_wide(token ^ 1);
           g_menu_69d6b0 = 1;
         }
       }
       if ((right_enabled) &&
-         (slot_type = menu_right_pressed_any(), iVar9 = g_menu_event_column,
+         (slot_type = menu_right_pressed_any(), aux = g_menu_event_column,
          team_mode = g_career_row, slot_type != 0)) {
         g_menu_69d6b0 = 1;
         switch(g_menu_records[g_menu_current].page_id) {
@@ -1983,7 +1990,7 @@ LAB_0044907d:
                 slot_type = team_mode + 1;
                 if (team_mode + 1 == 0x12) {
                   g_menu_69d6b0 = 0;
-                  slot_type = iVar9;
+                  slot_type = aux;
                 }
                 g_menu_event_column = slot_type;
                 active_slots = menu_event_column_is_special();
@@ -2007,14 +2014,14 @@ LAB_0044907d:
             g_menu_60ad60 = g_menu_60ad60 + 1;
           }
           if (g_menu_60ad5c == 1) {
-            uVar8 = 0x6c;
+            text_id = 0x6c;
             team_mode = 1;
           }
           else {
-            uVar8 = 100;
+            text_id = 100;
             team_mode = g_menu_60ad5c;
           }
-          menu_text_format_and_draw(uVar8,team_mode);
+          menu_text_format_and_draw(text_id,team_mode);
           if (g_menu_60ad60 == 1) {
             menu_text_format_and_draw(0x6d,1);
           }
@@ -2039,22 +2046,22 @@ LAB_0044907d:
           }
           break;
         case 0x12:
-          iVar9 = g_menu_records[g_menu_current].selected;
-          if ((iVar9 == 1) && (g_menu_powerup_set = g_menu_powerup_set + 1, 2 < g_menu_powerup_set))
+          aux = g_menu_records[g_menu_current].selected;
+          if ((aux == 1) && (g_menu_powerup_set = g_menu_powerup_set + 1, 2 < g_menu_powerup_set))
           {
             g_menu_powerup_set = 0;
           }
-          if ((iVar9 == 2) &&
+          if ((aux == 2) &&
              (g_menu_race_length_choice = g_menu_race_length_choice + 1,
              g_menu_race_length_choice == 3)) {
             g_menu_race_length_choice = 0;
           }
-          if ((iVar9 == 3) && (g_menu_bot_skill_a = g_menu_bot_skill_a + 1, 4 < g_menu_bot_skill_a))
+          if ((aux == 3) && (g_menu_bot_skill_a = g_menu_bot_skill_a + 1, 4 < g_menu_bot_skill_a))
           {
             g_menu_bot_skill_a = 0;
           }
           slot_type = g_menu_event_course_index;
-          if (iVar9 == 4) {
+          if (aux == 4) {
             do {
               slot_type = slot_type + 1;
               if (0xe < slot_type) {
@@ -2065,10 +2072,10 @@ LAB_0044907d:
             g_menu_event_course_index = slot_type;
             (&g_menu_609a58)[team_mode] = slot_type;
           }
-          if (iVar9 == 5) {
+          if (aux == 5) {
             g_menu_markers_enabled = g_menu_markers_enabled ^ 1;
           }
-          if (iVar9 == 6) {
+          if (aux == 6) {
             g_menu_game_mode_choice = g_menu_game_mode_choice + 1;
             if (g_menu_game_mode_choice == (g_game_state.progress[team_mode * 0x12 + 10] != 0) + 2)
             {
@@ -2113,17 +2120,17 @@ LAB_0044907d:
              (g_menu_bot_skill_b = g_menu_bot_skill_b + 1, 4 < g_menu_bot_skill_b)) {
             g_menu_bot_skill_b = 1;
           }
-          iVar9 = g_menu_event_course_index;
+          aux = g_menu_event_course_index;
           if (team_mode == 3) {
             do {
-              iVar9 = iVar9 + 1;
-              if (0xe < iVar9) {
-                iVar9 = 0;
+              aux = aux + 1;
+              if (0xe < aux) {
+                aux = 0;
               }
-              slot_type = career_event_set_progress(iVar9);
+              slot_type = career_event_set_progress(aux);
             } while (slot_type == 0);
-            g_menu_event_course_index = iVar9;
-            (&g_menu_609a58)[g_career_row] = iVar9;
+            g_menu_event_course_index = aux;
+            (&g_menu_609a58)[g_career_row] = aux;
           }
           if (team_mode == 4) {
             g_menu_player_team_choice = g_menu_player_team_choice + 1;
@@ -2154,9 +2161,9 @@ LAB_0044907d:
           team_mode = 0;
           do {
             if (g_menu_records[g_menu_current].selected == team_mode) {
-              iVar9 = (&g_menu_8c8080)[team_mode];
-              g_player_inputs[iVar9].rumble_enabled = g_player_inputs[iVar9].rumble_enabled ^ 1;
-              input_player_rumble_set(iVar9);
+              aux = (&g_menu_8c8080)[team_mode];
+              g_player_inputs[aux].rumble_enabled = g_player_inputs[aux].rumble_enabled ^ 1;
+              input_player_rumble_set(aux);
             }
             team_mode = team_mode + 1;
           } while (team_mode < 4);
@@ -2170,34 +2177,34 @@ LAB_0044907d:
         case 0x1f:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 1] = g_game_state.option_flags[team_mode + 1] ^ 1;
-          iVar9 = 0;
+          aux = 0;
           do {
-            if ((iVar9 != team_mode) && (g_game_state.option_flags[team_mode + 1] == 1)) {
-              g_game_state.option_flags[iVar9 + 1] = 0;
+            if ((aux != team_mode) && (g_game_state.option_flags[team_mode + 1] == 1)) {
+              g_game_state.option_flags[aux + 1] = 0;
             }
-            iVar9 = iVar9 + 1;
-          } while (iVar9 < 4);
+            aux = aux + 1;
+          } while (aux < 4);
           break;
         case 0x20:
           g_menu_69d6b0 = 0;
-          uVar10 = nop_b();
-          gamesave_set_autosave_enabled(uVar10 ^ 1);
+          token = nop_b();
+          gamesave_set_autosave_enabled(token ^ 1);
           g_menu_69d6b0 = 1;
           break;
         case 0x21:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 2] = g_game_state.option_flags[team_mode + 2] ^ 1;
-          iVar9 = 0;
+          aux = 0;
           do {
-            if ((iVar9 != team_mode) && (g_game_state.option_flags[team_mode + 2] == 1)) {
-              g_game_state.option_flags[iVar9 + 2] = 0;
+            if ((aux != team_mode) && (g_game_state.option_flags[team_mode + 2] == 1)) {
+              g_game_state.option_flags[aux + 2] = 0;
             }
-            iVar9 = iVar9 + 1;
-          } while (iVar9 < 2);
+            aux = aux + 1;
+          } while (aux < 2);
           break;
         case 0x23:
-          uVar10 = game_state_get_2812();
-          camera_fov_factor_set_wide(uVar10 ^ 1);
+          token = game_state_get_2812();
+          camera_fov_factor_set_wide(token ^ 1);
           g_menu_69d6b0 = 1;
         }
       }
@@ -2211,9 +2218,9 @@ LAB_0044907d:
 LAB_004490d6:
   if (g_frontend_state == 4) {
     team_mode = menu_items_animate_update();
-    iVar9 = (int)(g_frame_seconds * k_f_1000);
-    if (g_menu_fade_alpha + iVar9 < 0xff) {
-      g_menu_fade_alpha = g_menu_fade_alpha + iVar9;
+    aux = (int)(g_frame_seconds * k_f_1000);
+    if (g_menu_fade_alpha + aux < 0xff) {
+      g_menu_fade_alpha = g_menu_fade_alpha + aux;
       return;
     }
     g_menu_fade_alpha = 0xff;

@@ -91,7 +91,7 @@ void race_phase_5_update_n(int in_eax)
       intro_banner_set_active(1);
       ghost_update();
     }
-    race_set_phase(6);
+    race_set_phase(RACE_PHASE_RACING);
   }
   event_type = get_event_type();
   if (((event_type != EVENT_TIME_TRIAL_0) && (event_type = get_event_type(), event_type != 1)) &&

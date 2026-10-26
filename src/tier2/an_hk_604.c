@@ -191,7 +191,7 @@ LAB_00413135:
   cup_scene_render(*(int *)&scene_progress,camera);
 LAB_0041318c:
   /* present the mirror frame unless the race is in phase 9 or 10 */
-  if (((g_race_phase != 9) && (g_race_phase != 10)) && (g_game_state.mirror_mode != 0)) {
+  if (((g_race_phase != RACE_PHASE_WINNER_VIEW) && (g_race_phase != 10)) && (g_game_state.mirror_mode != 0)) {
     movie_present_frame();
   }
   race_phase = course_get_split_sector_8();

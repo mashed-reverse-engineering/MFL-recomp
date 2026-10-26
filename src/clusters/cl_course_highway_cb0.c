@@ -91,136 +91,138 @@ static int course_highway_lod_atomic_scale_by_index_r(RpAtomic * p0, int p1);
 extern void course_highway_lod_atomic_scale_by_index(void);
 static int course_highway_lod_objects_setup_r(int p0, int p1);
 extern void course_highway_lod_objects_setup(void);
-void course_highway_cb0(int param_1)
+/* Highway course load callback (inferred): builds the 5 big scenery objects (g_course_highway_6a2690..6a26a0), initialises the float tables (g_course_highway_8c3f60.., 8c4440.., 8c4720..), then creates the 2 x 4 x 10 grid (row, col, seg) of 0xfc byte LOD scenery objects (clump tables at course+0xc110, index triples chosen from variant_table, lod_tier 0..2 selects the far clump 0x2e..0x30), links each object to the next through +0xbc, and finally creates physics objects, shadow/smoke particles and, on COURSE_HIGHWAYN, the headlight. */
+void course_highway_cb0(int course)
 
 {
-  int *piVar1;
-  int *piVar2;
-  undefined4 uVar3;
-  int iVar4;
+  int *chain_last;
+  int *chain_first;
+  undefined4 atomic;
+  int idx_b;
   CourseId CVar5;
-  int *piVar6;
-  int course_id;
-  int iVar7;
-  int iVar8;
+  int *chain;
+  int idx;
+  int lod_tier;
+  int idx_a;
   struct {
-    int iStack_174;
-    int iStack_170;
-    int iStack_16c;
-    int iStack_168;
-    int iStack_164;
-    int iStack_160;
-    undefined4 uStack_15c;
-    undefined4 uStack_158;
-    undefined4 uStack_154;
-    undefined4 uStack_150;
-    undefined4 uStack_14c;
-    undefined4 uStack_148;
-    undefined4 uStack_144;
-    undefined4 auStack_140 [80];
+    int slot_off;
+    int row;
+    int col;
+    int seg;
+    int far_clump_idx;
+    int obj;
+    undefined4 shared_atomic_0;
+    undefined4 shared_atomic_1;
+    undefined4 shared_atomic_2;
+    undefined4 shared_atomic_3;
+    undefined4 lod_atomic_a;
+    undefined4 lod_atomic_b;
+    undefined4 lod_atomic_c;
+    undefined4 variant_table [80];
   } frame;
   
-  iVar7 = 0;
-  frame.auStack_140[0] = 9;
-  frame.auStack_140[1] = 6;
-  frame.auStack_140[2] = 10;
-  frame.auStack_140[3] = 1;
-  frame.auStack_140[4] = 7;
-  frame.auStack_140[5] = 0xb;
-  frame.auStack_140[6] = 2;
-  frame.auStack_140[7] = 8;
-  frame.auStack_140[8] = 0xc;
-  frame.auStack_140[9] = 3;
-  frame.auStack_140[10] = 0xb;
-  frame.auStack_140[0xb] = 8;
-  frame.auStack_140[0xc] = 0xc;
-  frame.auStack_140[0xd] = 6;
-  frame.auStack_140[0xe] = 9;
-  frame.auStack_140[0xf] = 10;
-  frame.auStack_140[0x10] = 0xb;
-  frame.auStack_140[0x11] = 6;
-  frame.auStack_140[0x12] = 1;
-  frame.auStack_140[0x13] = 7;
-  frame.auStack_140[0x14] = 1;
-  frame.auStack_140[0x15] = 7;
-  frame.auStack_140[0x16] = 0xb;
-  frame.auStack_140[0x17] = 2;
-  frame.auStack_140[0x18] = 8;
-  frame.auStack_140[0x19] = 0xc;
-  frame.auStack_140[0x1a] = 3;
-  frame.auStack_140[0x1b] = 9;
-  frame.auStack_140[0x1c] = 0;
-  frame.auStack_140[0x1d] = 7;
-  frame.auStack_140[0x1e] = 10;
-  frame.auStack_140[0x1f] = 8;
-  frame.auStack_140[0x20] = 6;
-  frame.auStack_140[0x21] = 0xb;
-  frame.auStack_140[0x22] = 0;
-  frame.auStack_140[0x23] = 6;
-  frame.auStack_140[0x24] = 10;
-  frame.auStack_140[0x25] = 1;
-  frame.auStack_140[0x26] = 7;
-  frame.auStack_140[0x27] = 0xb;
-  frame.auStack_140[0x28] = 0;
-  frame.auStack_140[0x29] = 6;
-  frame.auStack_140[0x2a] = 10;
-  frame.auStack_140[0x2b] = 1;
-  frame.auStack_140[0x2c] = 7;
-  frame.auStack_140[0x2d] = 0xb;
-  frame.auStack_140[0x2e] = 2;
-  frame.auStack_140[0x2f] = 8;
-  frame.auStack_140[0x30] = 0xc;
-  frame.auStack_140[0x31] = 3;
-  frame.auStack_140[0x32] = 2;
-  frame.auStack_140[0x33] = 8;
-  frame.auStack_140[0x34] = 0xc;
-  frame.auStack_140[0x35] = 7;
-  frame.auStack_140[0x36] = 9;
-  frame.auStack_140[0x37] = 10;
-  frame.auStack_140[0x38] = 0xb;
-  frame.auStack_140[0x39] = 6;
-  frame.auStack_140[0x3a] = 1;
-  frame.auStack_140[0x3b] = 7;
-  frame.auStack_140[0x3c] = 1;
-  frame.auStack_140[0x3d] = 7;
-  frame.auStack_140[0x3e] = 0xb;
-  frame.auStack_140[0x3f] = 2;
-  frame.auStack_140[0x40] = 8;
-  frame.auStack_140[0x41] = 0xc;
-  frame.auStack_140[0x42] = 3;
-  frame.auStack_140[0x43] = 9;
-  frame.auStack_140[0x44] = 0;
-  frame.auStack_140[0x45] = 0xc;
-  frame.auStack_140[0x46] = 10;
-  frame.auStack_140[0x4c] = 10;
-  frame.auStack_140[0x49] = 0xb;
-  frame.auStack_140[0x4f] = 0xb;
-  frame.auStack_140[0x47] = 8;
-  frame.auStack_140[0x48] = 6;
-  frame.auStack_140[0x4a] = 3;
-  frame.auStack_140[0x4b] = 6;
-  frame.auStack_140[0x4d] = 1;
-  frame.auStack_140[0x4e] = 7;
-  uVar3 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc1e4))));
+  lod_tier = 0;
+  /* variant_table: 80 entries of road piece kinds 0..0xc, consumed 4 bytes per piece (slot_off) in the loops below */
+  frame.variant_table[0] = 9;
+  frame.variant_table[1] = 6;
+  frame.variant_table[2] = 10;
+  frame.variant_table[3] = 1;
+  frame.variant_table[4] = 7;
+  frame.variant_table[5] = 0xb;
+  frame.variant_table[6] = 2;
+  frame.variant_table[7] = 8;
+  frame.variant_table[8] = 0xc;
+  frame.variant_table[9] = 3;
+  frame.variant_table[10] = 0xb;
+  frame.variant_table[0xb] = 8;
+  frame.variant_table[0xc] = 0xc;
+  frame.variant_table[0xd] = 6;
+  frame.variant_table[0xe] = 9;
+  frame.variant_table[0xf] = 10;
+  frame.variant_table[0x10] = 0xb;
+  frame.variant_table[0x11] = 6;
+  frame.variant_table[0x12] = 1;
+  frame.variant_table[0x13] = 7;
+  frame.variant_table[0x14] = 1;
+  frame.variant_table[0x15] = 7;
+  frame.variant_table[0x16] = 0xb;
+  frame.variant_table[0x17] = 2;
+  frame.variant_table[0x18] = 8;
+  frame.variant_table[0x19] = 0xc;
+  frame.variant_table[0x1a] = 3;
+  frame.variant_table[0x1b] = 9;
+  frame.variant_table[0x1c] = 0;
+  frame.variant_table[0x1d] = 7;
+  frame.variant_table[0x1e] = 10;
+  frame.variant_table[0x1f] = 8;
+  frame.variant_table[0x20] = 6;
+  frame.variant_table[0x21] = 0xb;
+  frame.variant_table[0x22] = 0;
+  frame.variant_table[0x23] = 6;
+  frame.variant_table[0x24] = 10;
+  frame.variant_table[0x25] = 1;
+  frame.variant_table[0x26] = 7;
+  frame.variant_table[0x27] = 0xb;
+  frame.variant_table[0x28] = 0;
+  frame.variant_table[0x29] = 6;
+  frame.variant_table[0x2a] = 10;
+  frame.variant_table[0x2b] = 1;
+  frame.variant_table[0x2c] = 7;
+  frame.variant_table[0x2d] = 0xb;
+  frame.variant_table[0x2e] = 2;
+  frame.variant_table[0x2f] = 8;
+  frame.variant_table[0x30] = 0xc;
+  frame.variant_table[0x31] = 3;
+  frame.variant_table[0x32] = 2;
+  frame.variant_table[0x33] = 8;
+  frame.variant_table[0x34] = 0xc;
+  frame.variant_table[0x35] = 7;
+  frame.variant_table[0x36] = 9;
+  frame.variant_table[0x37] = 10;
+  frame.variant_table[0x38] = 0xb;
+  frame.variant_table[0x39] = 6;
+  frame.variant_table[0x3a] = 1;
+  frame.variant_table[0x3b] = 7;
+  frame.variant_table[0x3c] = 1;
+  frame.variant_table[0x3d] = 7;
+  frame.variant_table[0x3e] = 0xb;
+  frame.variant_table[0x3f] = 2;
+  frame.variant_table[0x40] = 8;
+  frame.variant_table[0x41] = 0xc;
+  frame.variant_table[0x42] = 3;
+  frame.variant_table[0x43] = 9;
+  frame.variant_table[0x44] = 0;
+  frame.variant_table[0x45] = 0xc;
+  frame.variant_table[0x46] = 10;
+  frame.variant_table[0x4c] = 10;
+  frame.variant_table[0x49] = 0xb;
+  frame.variant_table[0x4f] = 0xb;
+  frame.variant_table[0x47] = 8;
+  frame.variant_table[0x48] = 6;
+  frame.variant_table[0x4a] = 3;
+  frame.variant_table[0x4b] = 6;
+  frame.variant_table[0x4d] = 1;
+  frame.variant_table[0x4e] = 7;
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc1e4))));
   g_course_highway_6a2690 =
-       func_0x004a5d50(uVar3,*(undefined4 *)(param_1 + 0xc004),param_1 + 0xc00,
-                       *(undefined4 *)(param_1 + 0xc9e0),*(undefined4 *)(param_1 + 0xc9e4));
-  uVar3 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc1f0))));
+       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc004),course + 0xc00,
+                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc1f0))));
   g_course_highway_6a2694 =
-       func_0x004a5d50(uVar3,*(undefined4 *)(param_1 + 0xc010),param_1 + 0x3000,
-                       *(undefined4 *)(param_1 + 0xc9e0),*(undefined4 *)(param_1 + 0xc9e4));
-  uVar3 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc1fc))));
+       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc010),course + 0x3000,
+                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc1fc))));
   g_course_highway_6a2698 =
-       func_0x004a5d50(uVar3,*(undefined4 *)(param_1 + 0xc01c),param_1 + 0x5400,
-                       *(undefined4 *)(param_1 + 0xc9e0),*(undefined4 *)(param_1 + 0xc9e4));
-  uVar3 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc200))));
+       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc01c),course + 0x5400,
+                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc200))));
   g_course_highway_6a269c =
-       func_0x004a5d50(uVar3,*(undefined4 *)(param_1 + 0xc020),param_1 + 0x6000,
-                       *(undefined4 *)(param_1 + 0xc9e0),*(undefined4 *)(param_1 + 0xc9e4));
-  uVar3 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc208))));
+       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc020),course + 0x6000,
+                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc208))));
   g_course_highway_6a26a0 =
-       func_0x004a5d50(uVar3,*(undefined4 *)(param_1 + 0xc028),param_1 + 0x7800,
-                       *(undefined4 *)(param_1 + 0xc9e0),*(undefined4 *)(param_1 + 0xc9e4));
+       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc028),course + 0x7800,
+                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
   g_course_8c3fc0 = 0x40800000;
   g_course_highway_8c3fc4 = 0x40400000;
   g_course_highway_8c3fc8 = 0x40000000;
@@ -237,6 +239,7 @@ void course_highway_cb0(int param_1)
   g_course_highway_8c3fb4 = 0x40a00000;
   g_course_highway_8c3fb8 = 0x40b00000;
   g_course_highway_8c3fbc = 0x40c00000;
+  /* float bit patterns (3 x 3 vectors) halved into g_course_highway_8c3f60.. below */
   g_course_highway_8c4440 = 0x3f0d14e4;
   g_course_highway_8c4444 = 0x3f6f4880;
   g_course_highway_8c4448 = 0x40277b4a;
@@ -246,17 +249,17 @@ void course_highway_cb0(int param_1)
   g_course_highway_8c4458 = 0x3f0d42c4;
   g_course_highway_8c445c = 0x3f86f34d;
   g_course_highway_8c4460 = 0x4044fc50;
-  course_id = 0;
+  idx = 0;
   do {
-    iVar4 = course_id + 0xc;
-    *(float *)((int)&g_course_highway_8c3f60 + course_id) =
-         *(float *)((char *)((undefined *)&g_course_highway_8c4440) + course_id) * k_f_0_5;
-    *(float *)((int)&g_course_8c3f64 + course_id) =
-         *(float *)((char *)((undefined *)&g_course_highway_8c4444) + course_id) * k_f_0_5;
-    *(float *)((int)&g_course_highway_8c3f68 + course_id) =
-         *(float *)((char *)((undefined *)&g_course_highway_8c4448) + course_id) * k_f_0_5;
-    course_id = iVar4;
-  } while (iVar4 < 0x24);
+    idx_b = idx + 0xc;
+    *(float *)((int)&g_course_highway_8c3f60 + idx) =
+         *(float *)((char *)((undefined *)&g_course_highway_8c4440) + idx) * k_f_0_5;
+    *(float *)((int)&g_course_8c3f64 + idx) =
+         *(float *)((char *)((undefined *)&g_course_highway_8c4444) + idx) * k_f_0_5;
+    *(float *)((int)&g_course_highway_8c3f68 + idx) =
+         *(float *)((char *)((undefined *)&g_course_highway_8c4448) + idx) * k_f_0_5;
+    idx = idx_b;
+  } while (idx_b < 0x24);
   mem_zero(&g_course_highway_8c4720,0x90);
   mem_zero(&g_course_highway_8c4470,0xc);
   g_course_highway_8c4470 = 2;
@@ -283,157 +286,160 @@ void course_highway_cb0(int param_1)
   g_course_highway_8c479c = 0xbed0e560;
   g_course_highway_8c47a0 = 0xbfadf3b6;
   g_course_highway_8c4478 = 3;
-  frame.iStack_160 = 0x8bf0a0;
-  frame.iStack_170 = 0;
-  frame.iStack_174 = 0;
+  frame.obj = 0x8bf0a0;
+  frame.row = 0;
+  frame.slot_off = 0;
   do {
-    frame.iStack_16c = 0;
+    frame.col = 0;
     do {
-      frame.iStack_168 = 0;
+      frame.seg = 0;
       do {
-        iVar8 = 0;
-        iVar4 = 0;
-        course_id = 0;
-        mem_zero(&frame.uStack_15c,0x10);
-        switch(*(undefined4 *)((int)frame.auStack_140 + frame.iStack_174)) {
+        idx_a = 0;
+        idx_b = 0;
+        idx = 0;
+        /* per piece: choose three clump indices (idx_a/idx_b/idx) and the LOD tier from the piece kind */
+        mem_zero(&frame.shared_atomic_0,0x10);
+        switch(*(undefined4 *)((int)frame.variant_table + frame.slot_off)) {
         case 0:
-          iVar4 = 1;
-          iVar8 = 0;
-          course_id = 2;
-          iVar7 = 1;
+          idx_b = 1;
+          idx_a = 0;
+          idx = 2;
+          lod_tier = 1;
           break;
         case 1:
-          iVar8 = 3;
-          iVar4 = 4;
-          course_id = 5;
-          iVar7 = 1;
+          idx_a = 3;
+          idx_b = 4;
+          idx = 5;
+          lod_tier = 1;
           break;
         case 2:
-          iVar8 = 6;
-          iVar4 = 7;
-          course_id = 8;
-          iVar7 = 1;
+          idx_a = 6;
+          idx_b = 7;
+          idx = 8;
+          lod_tier = 1;
           break;
         case 3:
-          iVar8 = 9;
-          iVar4 = 10;
-          course_id = 0xb;
-          iVar7 = 1;
+          idx_a = 9;
+          idx_b = 10;
+          idx = 0xb;
+          lod_tier = 1;
           break;
         case 4:
-          iVar8 = 0xc;
-          iVar4 = 0xd;
-          course_id = 0xe;
-          iVar7 = 1;
+          idx_a = 0xc;
+          idx_b = 0xd;
+          idx = 0xe;
+          lod_tier = 1;
           break;
         case 5:
-          iVar8 = 0xf;
-          iVar4 = 0x10;
-          course_id = 0x11;
-          iVar7 = 1;
+          idx_a = 0xf;
+          idx_b = 0x10;
+          idx = 0x11;
+          lod_tier = 1;
           break;
         case 6:
-          iVar8 = 0x12;
-          iVar4 = 0x13;
-          course_id = 0x14;
-          iVar7 = 0;
+          idx_a = 0x12;
+          idx_b = 0x13;
+          idx = 0x14;
+          lod_tier = 0;
           break;
         case 7:
-          iVar8 = 0x15;
-          iVar4 = 0x16;
-          course_id = 0x17;
-          iVar7 = 0;
+          idx_a = 0x15;
+          idx_b = 0x16;
+          idx = 0x17;
+          lod_tier = 0;
           break;
         case 8:
-          iVar8 = 0x18;
-          iVar4 = 0x19;
-          course_id = 0x1a;
-          iVar7 = 0;
+          idx_a = 0x18;
+          idx_b = 0x19;
+          idx = 0x1a;
+          lod_tier = 0;
           break;
         case 9:
-          iVar8 = 0x1b;
-          iVar4 = 0x1c;
-          course_id = 0x1d;
-          iVar7 = 0;
+          idx_a = 0x1b;
+          idx_b = 0x1c;
+          idx = 0x1d;
+          lod_tier = 0;
           break;
         case 10:
-          iVar8 = 0x1e;
-          iVar4 = 0x1f;
-          course_id = 0x20;
+          idx_a = 0x1e;
+          idx_b = 0x1f;
+          idx = 0x20;
           goto LAB_0045b28a;
         case 0xb:
-          iVar8 = 0x21;
-          iVar4 = 0x22;
-          course_id = 0x23;
+          idx_a = 0x21;
+          idx_b = 0x22;
+          idx = 0x23;
           goto LAB_0045b28a;
         case 0xc:
-          iVar8 = 0x24;
-          iVar4 = 0x25;
-          course_id = 0x26;
+          idx_a = 0x24;
+          idx_b = 0x25;
+          idx = 0x26;
 LAB_0045b28a:
-          iVar7 = 2;
+          lod_tier = 2;
         }
-        if (iVar7 == 0) {
-          frame.iStack_164 = 0x2e;
+        if (lod_tier == 0) {
+          /* far (lowest detail) clump index by tier */
+          frame.far_clump_idx = 0x2e;
         }
-        else if (iVar7 == 1) {
-          frame.iStack_164 = 0x2f;
+        else if (lod_tier == 1) {
+          frame.far_clump_idx = 0x2f;
         }
-        else if (iVar7 == 2) {
-          frame.iStack_164 = 0x30;
+        else if (lod_tier == 2) {
+          frame.far_clump_idx = 0x30;
         }
-        frame.uStack_14c = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc110 + iVar8 * 4))));
-        frame.uStack_148 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc110 + iVar4 * 4))));
-        frame.uStack_144 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc110 + course_id * 4))));
-        uVar3 = *(undefined4 *)(param_1 + 0xc1c0);
-        frame.uStack_15c = (undefined4)(clump_first_atomic((RpClump *)uVar3));
-        frame.uStack_158 = (undefined4)(clump_first_atomic((RpClump *)uVar3));
-        frame.uStack_154 = (undefined4)(clump_first_atomic((RpClump *)uVar3));
-        frame.uStack_150 = (undefined4)(clump_first_atomic((RpClump *)uVar3));
-        uVar3 = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(param_1 + 0xc110 + frame.iStack_164 * 4))));
-        mem_zero((void *)frame.iStack_160,0xfc);
-        *(int *)(frame.iStack_160 + 0xb8) = frame.iStack_168;
-        *(int *)(frame.iStack_160 + 0xac) = iVar7;
-        *(int *)(frame.iStack_160 + 0xb0) = frame.iStack_170;
-        *(int *)(frame.iStack_160 + 0xb4) = frame.iStack_16c;
-        course_highway_lod_atomic_clone_a_r(&frame.uStack_14c,frame.iStack_160);
-        course_highway_lod_objects_setup_r(frame.iStack_160,(int)&frame.uStack_15c);
-        course_highway_lod_atomic_clone_b_r(uVar3, frame.iStack_160);
+        frame.lod_atomic_a = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + idx_a * 4))));
+        frame.lod_atomic_b = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + idx_b * 4))));
+        frame.lod_atomic_c = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + idx * 4))));
+        atomic = *(undefined4 *)(course + 0xc1c0);
+        frame.shared_atomic_0 = (undefined4)(clump_first_atomic((RpClump *)atomic));
+        frame.shared_atomic_1 = (undefined4)(clump_first_atomic((RpClump *)atomic));
+        frame.shared_atomic_2 = (undefined4)(clump_first_atomic((RpClump *)atomic));
+        frame.shared_atomic_3 = (undefined4)(clump_first_atomic((RpClump *)atomic));
+        atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + frame.far_clump_idx * 4))));
+        mem_zero((void *)frame.obj,0xfc);
+        *(int *)(frame.obj + 0xb8) = frame.seg;
+        *(int *)(frame.obj + 0xac) = lod_tier;
+        *(int *)(frame.obj + 0xb0) = frame.row;
+        *(int *)(frame.obj + 0xb4) = frame.col;
+        course_highway_lod_atomic_clone_a_r(&frame.lod_atomic_a,frame.obj);
+        course_highway_lod_objects_setup_r(frame.obj,(int)&frame.shared_atomic_0);
+        course_highway_lod_atomic_clone_b_r(atomic, frame.obj);
         CVar5 = current_course_id();
         if (CVar5 == COURSE_HIGHWAYN) {
-          course_highway_lod_atomic_scale_by_index_r((RpAtomic *)uVar3,frame.iStack_160);
+          course_highway_lod_atomic_scale_by_index_r((RpAtomic *)atomic,frame.obj);
         }
-        *(int *)((int)&g_course_highway_8c4300 + frame.iStack_174) = frame.iStack_160;
-        frame.iStack_160 = frame.iStack_160 + 0xfc;
-        frame.iStack_168 = frame.iStack_168 + 1;
-        frame.iStack_174 = frame.iStack_174 + 4;
-      } while (frame.iStack_168 < 10);
-      frame.iStack_16c = frame.iStack_16c + 1;
-    } while (frame.iStack_16c < 4);
-    frame.iStack_170 = frame.iStack_170 + 1;
-    if (0x13f < frame.iStack_174) {
-      piVar6 = g_course_highway_8c4308;
+        *(int *)((int)&g_course_highway_8c4300 + frame.slot_off) = frame.obj;
+        frame.obj = frame.obj + 0xfc;
+        frame.seg = frame.seg + 1;
+        frame.slot_off = frame.slot_off + 4;
+      } while (frame.seg < 10);
+      frame.col = frame.col + 1;
+    } while (frame.col < 4);
+    frame.row = frame.row + 1;
+    if (0x13f < frame.slot_off) {
+      /* all 80 objects made (2 rows x 4 x 10): link them in chains of 10 (obj+0xbc = next object, ring per 10) */
+      chain = g_course_highway_8c4308;
       do {
-        course_id = 4;
+        idx = 4;
         do {
-          *(int *)(piVar6[-2] + 0xbc) = piVar6[-1];
-          *(int *)(piVar6[-1] + 0xbc) = *piVar6;
-          *(int *)(*piVar6 + 0xbc) = piVar6[1];
-          *(int *)(piVar6[1] + 0xbc) = piVar6[2];
-          *(int *)(piVar6[2] + 0xbc) = piVar6[3];
-          *(int *)(piVar6[3] + 0xbc) = piVar6[4];
-          *(int *)(piVar6[4] + 0xbc) = piVar6[5];
-          *(int *)(piVar6[5] + 0xbc) = piVar6[6];
-          *(int *)(piVar6[6] + 0xbc) = piVar6[7];
-          piVar1 = piVar6 + 7;
-          piVar2 = piVar6 + -2;
-          piVar6 = piVar6 + 10;
-          course_id = course_id + -1;
-          *(int *)(*piVar1 + 0xbc) = *piVar2;
-        } while (course_id != 0);
-      } while ((int)piVar6 < 0x8c4448);
+          *(int *)(chain[-2] + 0xbc) = chain[-1];
+          *(int *)(chain[-1] + 0xbc) = *chain;
+          *(int *)(*chain + 0xbc) = chain[1];
+          *(int *)(chain[1] + 0xbc) = chain[2];
+          *(int *)(chain[2] + 0xbc) = chain[3];
+          *(int *)(chain[3] + 0xbc) = chain[4];
+          *(int *)(chain[4] + 0xbc) = chain[5];
+          *(int *)(chain[5] + 0xbc) = chain[6];
+          *(int *)(chain[6] + 0xbc) = chain[7];
+          chain_last = chain + 7;
+          chain_first = chain + -2;
+          chain = chain + 10;
+          idx = idx + -1;
+          *(int *)(*chain_last + 0xbc) = *chain_first;
+        } while (idx != 0);
+      } while ((int)chain < 0x8c4448);
       course_object_offsets_init();
-      course_highway_physics_objects_create(param_1);
+      course_highway_physics_objects_create(course);
       course_car_shadow_particles_create();
       course_smoke_particles_create_00453ca0();
       CVar5 = current_course_id();

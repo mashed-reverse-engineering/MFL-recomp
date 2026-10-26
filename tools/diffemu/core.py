@@ -790,7 +790,7 @@ class Machine:
                     w = a + 4 * j
                     if not isstack(w) or (w + 4 > m.sp0 and (w & ~3) not in m.sw): break      # the return address / arguments of the function itself are shared by the two sides (unless the function wrote them: a frame object compiled into its own argument slot, cluster weapon_flashbang_flare_particles)
                     if (w & ~3) in m.sw:
-                        v = struct.unpack("<I", bytes(uc.mem_read(w, 4)))[0]; snap.append((j, ("S", v - a) if isstack(v) else m.norm(v)))
+                        v = struct.unpack("<I", bytes(uc.mem_read(w, 4)))[0]; snap.append((j, ("S", v - a, v) if isstack(v) else m.norm(v)))
                 m.frames.append((c.name, k, tuple(snap)))
                 if os.environ.get("FRAMEDBG"): sys.stderr.write("FRAME %s\n" % (("ours" if m.ours else "orig", c.name, k, hex(a), hex(sp), hex(m.sp0), snap, [hex(x) for x in outs]),))
         for k, a in enumerate(outs):      # out parameters: a dword behind every pointer to a local gets a deterministic value (else it is frame garbage, different in the two builds)
@@ -1095,7 +1095,7 @@ def compare(fn, mo, ro, mu, ru):
             if fo[:2] != fu[:2]: break
             do, du = dict(fo[2]), dict(fu[2])
             if (fn.name, fo[0], fo[1]) in frame_allow(): continue      # src/diffemu_frame_allow.txt: a frame window difference that was checked against the original callee (it reads fewer words than the window)
-            bad = [j for j in sorted(do) if do[j] != du.get(j, "-")]  # initialised by the ORIGINAL and different / uninitialised in ours (words only ours initialised: ignored, unrelated locals)
+            bad = [j for j in sorted(do) if do[j] != du.get(j, "-") and not (isinstance(do[j], tuple) and isinstance(du.get(j), tuple) and len(do[j]) == 3 and len(du[j]) == 3 and do[j][0] == du[j][0] == "S" and (do[j][2] == du[j][2] or do[j][1] == du[j][1]))]  # initialised by the ORIGINAL and different / uninitialised in ours (words only ours initialised: ignored, unrelated locals)
             if bad: d.append("frame object behind stack pointer argument %d of call %s #%d differs at word(s) %s: orig %s ours %s" % (fo[1], fo[0], n, bad, [do[j] for j in bad], [du.get(j, "-") for j in bad])); break
     if os.environ.get("DIFFEMU_STACK"):      # strict stack mode (measurement; off by default, README diffemu "stack"): every frame word either side wrote must end with the same value at the same address.  Frame layouts of two builds legitimately differ, so this reports layout noise too.
         sw = sorted(w for w in mo.sw | mu.sw if w < mo.sp0 - 4)

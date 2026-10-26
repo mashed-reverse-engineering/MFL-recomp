@@ -33,11 +33,11 @@ void hud_render_by_event_and_mode(void)
   if (iVar1 == 0) {
     return;
   }
-  if (g_race_phase < 5) {
+  if (g_race_phase < RACE_PHASE_COUNTDOWN) {
     return;
   }
   if (6 < g_race_phase) {
-    if (g_race_phase != 7) {
+    if (g_race_phase != RACE_PHASE_STANDINGS) {
       return;
     }
     event_type = get_event_type();

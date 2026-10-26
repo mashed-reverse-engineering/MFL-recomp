@@ -117,7 +117,7 @@ void sound_surface_roll_voices_update(int car)
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
       FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, (float)((k_f_22050 - random_range(0.0f, 441.0f)) + pitch));
     }
-    voice_set_volume(slot, race_get_phase() == 6 ? volume : 0.0f);
+    voice_set_volume(slot, race_get_phase() == RACE_PHASE_RACING ? volume : 0.0f);
     if (course == COURSE_FOREST && roll == ROLL_D) {
       voice_set_position_from_car(slot2, car);
       if ((VOICE_FIELD(slot2, unsigned char, 0x34) & 2) == 0) {
@@ -127,7 +127,7 @@ void sound_surface_roll_voices_update(int car)
       if (VOICE_FIELD(slot2, int, 0x30) != 0) {
         FUN_005b7300(VOICE_FIELD(slot2, int, 0x30), 4, 1, 22050.0f);
       }
-      if (race_get_phase() != 6) {
+      if (race_get_phase() != RACE_PHASE_RACING) {
         volume = 0.0f;
       }
       voice_set_volume(slot2, volume);

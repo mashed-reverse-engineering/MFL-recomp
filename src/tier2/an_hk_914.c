@@ -26,7 +26,7 @@ void race_update_cameras(undefined4 param_1)
     undefined4 local_10 [4];
   } frame;
   
-  if ((g_race_phase == 3) && (iVar1 = scene_object_select_is_active(), iVar1 != 0)) {
+  if ((g_race_phase == RACE_PHASE_LOADING) && (iVar1 = scene_object_select_is_active(), iVar1 != 0)) {
     return;
   }
   iVar1 = 0;

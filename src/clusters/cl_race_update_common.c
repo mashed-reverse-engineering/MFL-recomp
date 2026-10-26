@@ -88,7 +88,7 @@ void race_update_common_n(uint in_esi)
   if (0xf731400 < (int)g_race_time_ticks) {
     g_race_time_ticks = 0xf731400;
   }
-  if (g_race_phase != 7) {
+  if (g_race_phase != RACE_PHASE_STANDINGS) {
     g_race_clock_a = g_race_clock_a + in_esi;
     g_race_clock_b = g_race_clock_b + in_esi;
   }

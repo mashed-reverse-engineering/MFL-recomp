@@ -100,7 +100,7 @@ void time_trial_panel_times_update_n(TimeTrialPanel *panel)
             time_unpack_centiseconds_r(frame.packed_a, panel->shown);
         }
     }
-    if (race_get_phase() == 7) {
+    if (race_get_phase() == RACE_PHASE_STANDINGS) {
         car_get_mode(0, &frame.packed_b, &frame.other);
         if (frame.packed_b == 0 && (char)panel->finish_ticks < 0) {
             f = time_get_fraction(1);

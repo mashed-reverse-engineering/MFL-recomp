@@ -501,6 +501,21 @@ typedef void (*RwFreeFunc)(void *);
 #define RxNodeDefinition_name(p) (*(RwChar * *)((char *)(p) + 0x0))
 
 /* ---- named constants: values of game state globals ---- */
+/* g_race_phase values (race_set_phase / race_get_phase); 4, 8, 9 named from the handlers that set them (inferred), 10 and 11 are set but not named yet */
+#ifndef MFL_RACE_PHASE_ENUM
+#define MFL_RACE_PHASE_ENUM
+enum RacePhase {
+    RACE_PHASE_SETUP = 1,         /* course_race_phase_hook: course marker positions are initialised */
+    RACE_PHASE_PRE_LOAD = 2,
+    RACE_PHASE_LOADING = 3,       /* race_phase_3_update: camera path plays, then phase 4 (or 6 in training) */
+    RACE_PHASE_INTRO = 4,         /* (inferred) after the loading camera path, 12000 ms timer, then the countdown */
+    RACE_PHASE_COUNTDOWN = 5,     /* the deterministic test harness seeds the RNG here */
+    RACE_PHASE_RACING = 6,
+    RACE_PHASE_STANDINGS = 7,
+    RACE_PHASE_FINISHED = 8,      /* (inferred) race ended without a winner camera (race_check_winner_by_game_mode) */
+    RACE_PHASE_WINNER_VIEW = 9    /* (inferred) winner found: camera on the winner (race_phase_9_update) */
+};
+#endif
 #ifndef MFL_APP_STATE_ENUM
 #define MFL_APP_STATE_ENUM
 /* g_app_state (0x0076e7f4, get_app_state()): the main loop state machine of the frontend frame step (update and draw per state).

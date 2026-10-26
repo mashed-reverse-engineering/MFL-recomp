@@ -66,7 +66,7 @@ void race_time_trial_update(void)
   }
   stage = g_course_8c879c;
   if (stage == 0xb) {
-    if (race_get_phase() == 6) {
+    if (race_get_phase() == RACE_PHASE_RACING) {
       debug_printf("time trial time is %f\n", (double)((float)g_course_69bb64 + g_course_69bb6c));
       debug_printf(g_race_time_5de8c8, (double)((float)g_race_clock_a * 0.00033333333f));
       replay_current_get_split_time(0, &triple.a, &triple.b, &triple.c);
@@ -80,7 +80,7 @@ void race_time_trial_update(void)
       replay_best_get_split_time(1, &triple.a, &triple.b, &triple.c);
       ui_set_triple(1, 1, triple.a, triple.b, triple.c);
       replay_load_compare(1);
-      race_set_phase(7);
+      race_set_phase(RACE_PHASE_STANDINGS);
     }
     if (g_course_8c879c >= 0xb) {
       return;

@@ -40,7 +40,7 @@ void race_update_by_event_type(void)
   bool solo_panels;
 
   /* phases 7, 10 and 11 reset the trail (inferred from the trail_reset call) */
-  if ((g_race_phase == 7) || ((9 < (int)g_race_phase && ((int)g_race_phase < 0xc)))) {
+  if ((g_race_phase == RACE_PHASE_STANDINGS) || ((9 < (int)g_race_phase && ((int)g_race_phase < 0xc)))) {
     nop_stub(0);
     trail_reset();
   }

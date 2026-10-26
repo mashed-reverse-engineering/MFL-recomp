@@ -51,11 +51,11 @@ void race_phase_3_update_n(int in_ebx)
     if (event_type == 0) {
       event_type = get_event_type();
       if (event_type == EVENT_TRAINING) {
-        race_set_phase(6);
+        race_set_phase(RACE_PHASE_RACING);
         g_phase_timer = 0;
         return;
       }
-      race_set_phase(4);
+      race_set_phase(RACE_PHASE_INTRO);
       g_phase_timer = 12000;
     }
   }
