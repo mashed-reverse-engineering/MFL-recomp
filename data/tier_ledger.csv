@@ -427,7 +427,7 @@ career_time_under_target,00435f30,tier2,compiled+diffemu-EQUAL+shadow-never,diff
 cars_exhaust_and_damage_fx_update,0040e1c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 cars_inactive_flags,0040d000,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 cars_step_race_phase_and_respawn,00428a20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,800,0.80,0,0
-cars_update_all,0047f030,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,800,0.86,0,0
+cars_update_all,0047f030,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.86,0,0
 cars_update_per_frame_setup,0040f550,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.92,0,0
 clump_check_atomics_lookup,00429c40,tier1,bytes,bytes-reloc,f2504afef2a1,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 clump_clear_atomic_plugin_flag_1,00405cd0,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
@@ -1310,7 +1310,7 @@ gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,compiled+diffemu-EQUAL+shadow-CALLE
 gfx_draw_triangle_2d,00482610,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,7d3592cf8dba,126ee480af92,9a2277a8f1a9,200,1.00,0,1
 gfx_frame_counters_rotate,00480e50,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 gfx_groups_reset,004809f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,7d5692dc5438,126ee480af92,9a2277a8f1a9,166,0.57,0,1
-gfx_render_state_probe,00480e70,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
+gfx_render_state_probe,00480e70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,165,0.58,0,0
 gfx_set_6299d8,0048b4d0,tier1,bytes,bytes-reloc,9112bafa831f,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 gfx_set_89ddfc,00481fc0,tier1,bytes,bytes-reloc,9ac08a05a3ac,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 gfx_set_fx_matrix,00486860,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
