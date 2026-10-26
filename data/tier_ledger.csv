@@ -1894,7 +1894,7 @@ race_setup_use_5,0040e660,tier1,bytes,bytes-reloc,828eba092635,126ee480af92,9a22
 race_status_messages_draw,0042efb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.68,0,0
 race_time_trial_record,00413b50,agent,bytes-standalone+19f955ab0967,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 race_update_by_event_type,00411cc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.78,0,0
-race_update_cameras,00410de0,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
+race_update_cameras,00410de0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 race_update_cars_and_stats,004295b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.86,0,0
 race_winner_banner_draw,0042ed70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 rain_buffers_alloc_once,004a0aa0,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
@@ -2104,7 +2104,7 @@ sound_streams_resume,00469400,tier1,bytes,bytes-reloc,0758febd5ab1,126ee480af92,
 sound_stub_return_0,0046ef30,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,255039e69ba3,126ee480af92,9a2277a8f1a9,200,1.00,0,1
 sound_stuff_init,004733c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_surface_ambience_lookup,0046e5c0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,8eb5036d42b8,126ee480af92,9a2277a8f1a9,800,0.56,0,0
-sound_surface_roll_voices_update,00470750,tier2,compiled+diffemu-STALE+shadow-STALE,static,353ba5529132,126ee480af92,9a2277a8f1a9,0,0.00,1,0
+sound_surface_roll_voices_update,00470750,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,353ba5529132,126ee480af92,9a2277a8f1a9,200,0.17,0,0
 sound_surface_skid_voice_update,00470bf0,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_tick_counter_increment,00468780,tier1,bytes,bytes-reloc,2af39daf31b1,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_update,00473a40,tier1,bytes,bytes-reloc,dd8f9c0b0fed,126ee480af92,9a2277a8f1a9,0,0.00,0,0
