@@ -30,9 +30,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
 {
   float t;
   float f;
-  float fVar1;
-  float fVar2;
-  int iVar3;
+  float scale;
+  float axis_value;
+  int phase_or_percent;
   float vx, vy, vz;
   struct { float lo[5]; RwV3d dir; float tmp[3]; } fr;      /* frame layout of the original: dir at esp+0x18 below the return address */
 
@@ -41,9 +41,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
   vx = f * car->velocity[0];
   vy = f * car->velocity[1];
   vz = f * car->velocity[2];
-  iVar3 = race_get_phase();
-  if (((iVar3 != 6) && (iVar3 = race_get_phase(), iVar3 != 0xb)) &&
-     (iVar3 = race_get_phase(), iVar3 != RACE_PHASE_WINNER_DONE)) {
+  phase_or_percent = race_get_phase();
+  if (((phase_or_percent != 6) && (phase_or_percent = race_get_phase(), phase_or_percent != 0xb)) &&
+     (phase_or_percent = race_get_phase(), phase_or_percent != RACE_PHASE_WINNER_DONE)) {
     vz = 0.0f;
     vy = 0.0f;
     vx = 0.0f;
@@ -60,45 +60,45 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
     vz = 0.0f;
     vy = 0.0f;
     vx = 0.0f;
-    fVar1 = car->speed * k_f_6_6666666en4;
+    scale = car->speed * k_f_6_6666666en4;
     if (car->speed * k_f_6_6666666en4 > float_1_0) {
-      fVar1 = float_1_0;
+      scale = float_1_0;
     }
     car->field_0xcfc = 0;
     if ((input[4] != 0) && (input[5] != 0)) {
       car->field_0xcfc = 1;
-      fVar1 = float_1_0;
+      scale = float_1_0;
     }
     if (car->wheels_in_contact != k_f_0) {
-      fVar2 = (float)input[0];
-      if ((car->effect_level[0] != 0) && (fVar2 = (float)input[0] + (float)(int)car->effect_level[0], fVar2 > k_f_255)) {
-        fVar2 = k_f_255;
+      axis_value = (float)input[0];
+      if ((car->effect_level[0] != 0) && (axis_value = (float)input[0] + (float)(int)car->effect_level[0], axis_value > k_f_255)) {
+        axis_value = k_f_255;
       }
-      iVar3 = car->effect_level[4];
-      if (iVar3 != 0) {
-        t = float_1_0 - (float)iVar3 * k_f_0_01;
-        fVar2 = t * fVar2;
+      phase_or_percent = car->effect_level[4];
+      if (phase_or_percent != 0) {
+        t = float_1_0 - (float)phase_or_percent * k_f_0_01;
+        axis_value = t * axis_value;
       }
-      if (fVar2 != k_f_0) {
-        t = fVar2 * dt * g_car_handling_param_b8 * fVar1 * k_f_1_0en4 * k_f_3_3333333en4;
+      if (axis_value != k_f_0) {
+        t = axis_value * dt * g_car_handling_param_b8 * scale * k_f_1_0en4 * k_f_3_3333333en4;
         vx = fr.dir.x * t;
         vy = fr.dir.y * t;
         vz = fr.dir.z * t;
       }
-      fVar2 = (float)input[1];
-      if ((car->effect_level[1] != 0) && (fVar2 = (float)input[1] + (float)(int)car->effect_level[1], fVar2 > k_f_255)) {
-        fVar2 = k_f_255;
+      axis_value = (float)input[1];
+      if ((car->effect_level[1] != 0) && (axis_value = (float)input[1] + (float)(int)car->effect_level[1], axis_value > k_f_255)) {
+        axis_value = k_f_255;
       }
-      if (iVar3 != 0) {
-        t = float_1_0 - (float)iVar3 * k_f_0_01;
-        fVar2 = t * fVar2;
+      if (phase_or_percent != 0) {
+        t = float_1_0 - (float)phase_or_percent * k_f_0_01;
+        axis_value = t * axis_value;
       }
-      if (fVar2 != k_f_0) {
-        t = fVar2 * dt * g_car_handling_param_b8 * fVar1 * k_f_1_0en4 * k_f_3_3333333en4;
-        fVar1 = -t;
-        fr.tmp[1] = fVar1 * fr.dir.y;
-        fr.tmp[2] = fVar1 * fr.dir.z;
-        vx = fr.dir.x * fVar1 + vx;
+      if (axis_value != k_f_0) {
+        t = axis_value * dt * g_car_handling_param_b8 * scale * k_f_1_0en4 * k_f_3_3333333en4;
+        scale = -t;
+        fr.tmp[1] = scale * fr.dir.y;
+        fr.tmp[2] = scale * fr.dir.z;
+        vx = fr.dir.x * scale + vx;
         vy = fr.tmp[1] + vy;
         vz = fr.tmp[2] + vz;
       }
@@ -124,44 +124,44 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
     car->velocity_input[1] = vy + car->velocity_input[1];
     car->velocity_input[2] = vz + car->velocity_input[2];
   }
-  iVar3 = race_get_phase();
-  if ((iVar3 == 7) && (car->active == 1)) {
+  phase_or_percent = race_get_phase();
+  if ((phase_or_percent == 7) && (car->active == 1)) {
     f = (dt + dt) * k_f_3_3333333en4 * car->speed * k_f_5_0en4;
     vy = fr.dir.y * f;
     vz = fr.dir.z * f;
     vx = fr.dir.x * f;
   }
-  fVar1 = (k_f_3000 - dt * k_f_4) * k_f_3_3333333en4;
-  car->velocity_input[0] = (vx + car->velocity_input[0]) * fVar1;
-  car->velocity_input[1] = (vy + car->velocity_input[1]) * fVar1;
-  car->velocity_input[2] = (vz + car->velocity_input[2]) * fVar1;
-  fVar1 = dt * k_f_0_002;
-  fr.dir.x = fVar1 * car->velocity_input[0];
-  fr.dir.y = fVar1 * car->velocity_input[1];
-  fr.dir.z = fVar1 * car->velocity_input[2];
+  scale = (k_f_3000 - dt * k_f_4) * k_f_3_3333333en4;
+  car->velocity_input[0] = (vx + car->velocity_input[0]) * scale;
+  car->velocity_input[1] = (vy + car->velocity_input[1]) * scale;
+  car->velocity_input[2] = (vz + car->velocity_input[2]) * scale;
+  scale = dt * k_f_0_002;
+  fr.dir.x = scale * car->velocity_input[0];
+  fr.dir.y = scale * car->velocity_input[1];
+  fr.dir.z = scale * car->velocity_input[2];
   if ((input[1] == 0) && (input[0] == 0)) {
     vx = fr.dir.x + vx;
     vy = fr.dir.y + vy;
     vz = vz + fr.dir.z;
   }
-  fVar1 = old_m[0];
-  fVar2 = old_m[2];
+  scale = old_m[0];
+  axis_value = old_m[2];
   fr.dir.z = vx * old_m[1] - vy * old_m[0];
   new_m[0] = (vy * old_m[2] - vz * old_m[1]) + old_m[0];
-  new_m[1] = (vz * fVar1 - vx * fVar2) + old_m[1];
+  new_m[1] = (vz * scale - vx * axis_value) + old_m[1];
   new_m[2] = fr.dir.z + old_m[2];
-  fVar1 = old_m[4];
-  fVar2 = old_m[6];
+  scale = old_m[4];
+  axis_value = old_m[6];
   fr.dir.z = vx * old_m[5] - vy * old_m[4];
   new_m[4] = (vy * old_m[6] - vz * old_m[5]) + old_m[4];
-  new_m[5] = (vz * fVar1 - vx * fVar2) + old_m[5];
+  new_m[5] = (vz * scale - vx * axis_value) + old_m[5];
   new_m[6] = fr.dir.z + old_m[6];
   fr.dir.x = vy * old_m[10] - vz * old_m[9];
-  fVar1 = old_m[8];
-  fVar2 = old_m[10];
+  scale = old_m[8];
+  axis_value = old_m[10];
   fr.dir.z = vx * old_m[9] - vy * old_m[8];
   new_m[8] = fr.dir.x + old_m[8];
-  new_m[9] = (vz * fVar1 - vx * fVar2) + old_m[9];
+  new_m[9] = (vz * scale - vx * axis_value) + old_m[9];
   new_m[10] = fr.dir.z + old_m[10];
   MatrixOrthoNormalize_004d3d50(new_m, new_m);
 }

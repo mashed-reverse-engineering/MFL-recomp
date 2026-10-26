@@ -99,7 +99,7 @@ void course_highway_cb0(int course)
   int *chain_first;
   undefined4 atomic;
   int idx_b;
-  CourseId CVar5;
+  CourseId course_id;
   int *chain;
   int idx;
   int lod_tier;
@@ -404,8 +404,8 @@ LAB_0045b28a:
         course_highway_lod_atomic_clone_a_r(&frame.lod_atomic_a,frame.obj);
         course_highway_lod_objects_setup_r(frame.obj,(int)&frame.shared_atomic_0);
         course_highway_lod_atomic_clone_b_r(atomic, frame.obj);
-        CVar5 = current_course_id();
-        if (CVar5 == COURSE_HIGHWAYN) {
+        course_id = current_course_id();
+        if (course_id == COURSE_HIGHWAYN) {
           course_highway_lod_atomic_scale_by_index_r((RpAtomic *)atomic,frame.obj);
         }
         *(int *)((int)&g_course_highway_8c4300 + frame.slot_off) = frame.obj;
@@ -442,8 +442,8 @@ LAB_0045b28a:
       course_highway_physics_objects_create(course);
       course_car_shadow_particles_create();
       course_smoke_particles_create_00453ca0();
-      CVar5 = current_course_id();
-      if (CVar5 != COURSE_HIGHWAYN) {
+      course_id = current_course_id();
+      if (course_id != COURSE_HIGHWAYN) {
         return;
       }
       load_headlight();

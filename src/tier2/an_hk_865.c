@@ -62,10 +62,10 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
   float route_offset;
   int iBot;
   int held_ms_total;
-  int iVar4;
+  int tmp_a;
   float *route_record;
-  int iVar6;
-  double fVar7;
+  int tmp_b;
+  double roll_or_dist;
   struct {
     char *local_24;
     char *local_20;
@@ -75,10 +75,10 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
   } frame;
   
   iBot = *(int *)&param_4;
-  iVar6 = g_player_slots[iBot].controller;
-  player_input = &g_player_inputs[iVar6];
+  tmp_b = g_player_slots[iBot].controller;
+  player_input = &g_player_inputs[tmp_b];
   car_get_speed(&param_4,iBot);
-  iVar4 = g_tick_count;
+  tmp_a = g_tick_count;
   held_ms_total = g_ai_bots[iBot].weapon_held_ms + g_tick_count;
   g_ai_bots[iBot].weapon_held_ms = held_ms_total;
   if (MUST_FIRE_HELD_MS < held_ms_total) {
@@ -88,8 +88,8 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
     g_ai_bots[iBot].fire_delay = FIRE_DELAY_DEFAULT_MS;
   }
   if ((g_ai_bots[iBot].fire_delay != 0) &&
-     (iVar4 = g_ai_bots[iBot].fire_delay - iVar4, g_ai_bots[iBot].fire_delay = iVar4,
-     iVar4 < 0)) {
+     (tmp_a = g_ai_bots[iBot].fire_delay - tmp_a, g_ai_bots[iBot].fire_delay = tmp_a,
+     tmp_a < 0)) {
     g_ai_bots[iBot].fire_delay = 0;
   }
   if ((undefined4 *)player_weapon_slots[iBot].descriptor == (undefined4 *)0x0) {
@@ -102,20 +102,20 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
       if (g_ai_bots[iBot].fire_delay != 0) {
         return 0;
       }
-      iVar4 = ai_player0_distance_is_zero();
-      if (iVar4 == 0) {
+      tmp_a = ai_player0_distance_is_zero();
+      if (tmp_a == 0) {
         return 0;
       }
-      fVar7 = (double)player_distance_get(iBot);
-      if (!(fVar7 > (double)k_f_2_75)) {
+      roll_or_dist = (double)player_distance_get(iBot);
+      if (!(roll_or_dist > (double)k_f_2_75)) {
         return 0;
       }
       if (k_f_25 <= (float)param_5) {
         return 0;
       }
       random_roll = random_range(0,FLOAT_ONE_BITS);
-      iVar4 = ((int)(g_ai_skill));
-      if (!((random_roll) < (double)float_1_0 - ((double)float_10_0 - (double)iVar4) * (double)k_f_0_06666667)) {
+      tmp_a = ((int)(g_ai_skill));
+      if (!((random_roll) < (double)float_1_0 - ((double)float_10_0 - (double)tmp_a) * (double)k_f_0_06666667)) {
 LAB_00418283:
         g_ai_bots[iBot].fire_delay = FIRE_DELAY_DEFAULT_MS;
         return 0;
@@ -133,10 +133,10 @@ LAB_00418304:
         return 0;
       }
       if (((g_ai_bots[iBot].fire_delay == 0) &&
-          (iVar6 = ai_player0_distance_is_zero(), iVar6 != 0)) &&
-         (iVar6 = weapon_effect_get_slot_value_b(iBot), iVar6 == 0)) {
-        fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-        if (fVar7 < (double)k_f_0_75) {
+          (tmp_b = ai_player0_distance_is_zero(), tmp_b != 0)) &&
+         (tmp_b = weapon_effect_get_slot_value_b(iBot), tmp_b == 0)) {
+        roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+        if (roll_or_dist < (double)k_f_0_75) {
           g_ai_bots[iBot].burst_active = 1;
           return 0;
         }
@@ -145,8 +145,8 @@ LAB_00418304:
     }
     else {
       player_input->fire = 1;
-      iVar6 = weapon_effect_get_slot_value_b(iBot);
-      if (iVar6 != 0) {
+      tmp_b = weapon_effect_get_slot_value_b(iBot);
+      if (tmp_b != 0) {
         g_ai_bots[iBot].burst_active = 0;
         return 0;
       }
@@ -160,15 +160,15 @@ LAB_00418304:
       if (!(param_4 > k_f_2000)) {
         return 0;
       }
-      iVar4 = ai_find_leader_b(iBot,0x40800000,0x41200000);
-      if (iVar4 == 0) {
+      tmp_a = ai_find_leader_b(iBot,0x40800000,0x41200000);
+      if (tmp_a == 0) {
         return 0;
       }
       if (k_f_15 <= (float)param_5) {
         return 0;
       }
-      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-      if (!(fVar7 < (double)k_f_0_9)) goto LAB_00418177;
+      roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+      if (!(roll_or_dist < (double)k_f_0_9)) goto LAB_00418177;
     }
     goto LAB_004181f2;
   case WEAPON_MISSILE:
@@ -176,11 +176,11 @@ LAB_00418304:
       player_input->fire = 1;
     }
     if (((g_ai_bots[iBot].fire_delay == 0) &&
-        (iVar4 = ai_player0_distance_is_zero(), iVar4 != 0)) &&
-       ((iVar4 = weapon_effect_get_slot_value_b(iBot), iVar4 == 0 &&
-        (iVar4 = rocket_slot_6a6000_get(iBot), iVar4 != 0)))) {
-      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-      if (fVar7 < (double)k_f_0_75) {
+        (tmp_a = ai_player0_distance_is_zero(), tmp_a != 0)) &&
+       ((tmp_a = weapon_effect_get_slot_value_b(iBot), tmp_a == 0 &&
+        (tmp_a = rocket_slot_6a6000_get(iBot), tmp_a != 0)))) {
+      roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+      if (roll_or_dist < (double)k_f_0_75) {
         player_input->fire = 1;
         return 0;
       }
@@ -197,12 +197,12 @@ LAB_00418177:
       if (!(param_4 > k_f_2000)) {
         return 0;
       }
-      iVar4 = ai_find_leader_b(iBot,0x40800000,0x41200000);
-      if (iVar4 == 0) {
+      tmp_a = ai_find_leader_b(iBot,0x40800000,0x41200000);
+      if (tmp_a == 0) {
         return 0;
       }
-      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-      if (!(fVar7 < (double)k_f_0_75)) {
+      roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+      if (!(roll_or_dist < (double)k_f_0_75)) {
 LAB_0041835d:
         g_ai_bots[iBot].fire_delay = FIRE_DELAY_LONG_MS;
         return 0;
@@ -220,9 +220,9 @@ LAB_004182e3:
     }
     if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
     if (((g_ai_bots[iBot].fire_delay == 0) && (k_f_2000 < param_4)) &&
-       (iVar6 = ai_find_leader_b(iBot,0x40400000,0x41200000), iVar6 != 0)) {
-      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-      if (fVar7 < (double)k_f_0_5) {
+       (tmp_b = ai_find_leader_b(iBot,0x40400000,0x41200000), tmp_b != 0)) {
+      roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+      if (roll_or_dist < (double)k_f_0_5) {
 LAB_0041834a:
         g_ai_bots[iBot].burst_active = 1;
         return 0;
@@ -239,7 +239,7 @@ LAB_004180e3:
       return 0;
     }
     if ((g_ai_bots[iBot].fire_delay == 0) &&
-       (iVar4 = ai_find_leader_b(iBot,0x3f000000,0x40400000), iVar4 != 0)) {
+       (tmp_a = ai_find_leader_b(iBot,0x3f000000,0x40400000), tmp_a != 0)) {
       car_current_matrix(&frame.local_24,0);
       car_current_matrix(&frame.local_20,iBot);
       frame.local_18.x = *(float *)(frame.local_24 + 0x30) - *(float *)(frame.local_20 + 0x30);
@@ -250,8 +250,8 @@ LAB_004180e3:
       route_record = (float *)player_route_get_record_ptr(iBot);
       route_offset = -((route_record[2] * frame.local_c.z + frame.local_c.x * *route_record + route_record[1] * frame.local_c.y) * frame.local_1c);
       if ((k_f_n0_75 < route_offset) && (route_offset < k_f_0_75)) {
-        fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-        if (!(fVar7 < (double)k_f_0_9)) goto LAB_00418283;
+        roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+        if (!(roll_or_dist < (double)k_f_0_9)) goto LAB_00418283;
         goto LAB_004180e3;
       }
     }
@@ -261,8 +261,8 @@ LAB_004180e3:
       player_input->fire = 1;
     }
     if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)param_5)) {
-      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-      if (!(fVar7 < (double)k_f_0_5)) goto LAB_0041835d;
+      roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+      if (!(roll_or_dist < (double)k_f_0_5)) goto LAB_0041835d;
       goto LAB_004182e3;
     }
     break;
@@ -270,8 +270,8 @@ LAB_004180e3:
     if (g_ai_bots[iBot].burst_active != 0) goto LAB_004182e3;
     if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
     if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)param_5)) {
-      fVar7 = (double)random_range(0,FLOAT_ONE_BITS);
-      if (fVar7 < (double)k_f_0_5) goto LAB_0041834a;
+      roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
+      if (roll_or_dist < (double)k_f_0_5) goto LAB_0041834a;
       goto LAB_0041835d;
     }
   }

@@ -19,15 +19,15 @@ undefined4 sound_music_state_update(void)
 
 {
   int iVar1;
-  CourseId CVar2;
+  CourseId course_id;
   
   iVar1 = race_get_phase();
   if (iVar1 == 7) {
     sound_master_fade_towards(0.0);
     sound_music_fade_step(1);
     if (g_sound_master_fade <= k_f_0) {
-      CVar2 = current_course_id();
-      if (((CVar2 == COURSE_DEM) || (CVar2 == COURSE_DEMR)) &&
+      course_id = current_course_id();
+      if (((course_id == COURSE_DEM) || (course_id == COURSE_DEMR)) &&
          ((*(byte *)(g_voices[*(int *)(g_sound_groups + 0x620)].voice + 0x34) & 2) != 0)) {
         FUN_005b6a40(g_voices[*(int *)(g_sound_groups + 0x620)].voice,0);
       }

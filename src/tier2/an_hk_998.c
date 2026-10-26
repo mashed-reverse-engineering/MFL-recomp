@@ -32,96 +32,96 @@ void trail_render(void)
 
 {
   RwFrame *frame;
-  float fVar1;
-  TrailSlot *pTVar2;
-  int iVar3;
+  float delta_y;
+  TrailSlot *trail_cursor;
+  int panel_count;
   uint user_data;
   int camera;
-  float *pfVar4;
-  TrailSlot *pTVar5;
-  float *v;
-  double fVar6;
+  float *end_pos;
+  TrailSlot *trail;
+  float *start_pos;
+  double view_dist;
   struct {
-    int local_44;
+    int trail_i;
     undefined1 pad_40[4];
-    RwV3d local_3c;
-    float local_30;
-    float local_2c;
-    undefined4 local_28;
+    RwV3d scale;
+    float rot_cos;
+    float rot_sin;
+    undefined4 rot_zero;
     undefined1 pad_24[8];
-    float local_1c;
-    float local_18;
-    float local_14;
-    float local_10;
-    float local_c;
-    float local_8;
-    float local_4;
+    float delta_z;
+    float ext_a_x;
+    float ext_a_y;
+    float ext_a_z;
+    float ext_b_x;
+    float ext_b_y;
+    float ext_b_z;
   } frame_obj;
   
-  frame_obj.local_44 = 0;
+  frame_obj.trail_i = 0;
   vehicle_get_field_18c(0);
-  iVar3 = race_event_has_panel();
-  if (0 < iVar3) {
-    pTVar5 = g_trails;
-    pfVar4 = &g_trails[0].w14;
-    pTVar2 = g_trails;
+  panel_count = race_event_has_panel();
+  if (0 < panel_count) {
+    trail = g_trails;
+    end_pos = &g_trails[0].w14;
+    trail_cursor = g_trails;
     do {
-      v = &pTVar2->w08;
-      frame_obj.local_3c.x = g_trail_603920;
-      frame_obj.local_30 = 0.0;
-      frame_obj.local_2c = 1.0;
-      frame_obj.local_28 = 0;
-      frame_obj.local_3c.y = g_trail_render_603924;
-      frame_obj.local_3c.z = g_trail_render_603928;
-      frame = *(RwFrame **)(pTVar5->w00 + 4);
-      if ((pTVar5->active != 0) &&
-         (!(*(float *)&pTVar5->w20 <= k_f_1_0en4))) {
-        user_data = rwp_object_get_user_data(pTVar5->object_a);
+      start_pos = &trail_cursor->w08;
+      frame_obj.scale.x = g_trail_603920;
+      frame_obj.rot_cos = 0.0;
+      frame_obj.rot_sin = 1.0;
+      frame_obj.rot_zero = 0;
+      frame_obj.scale.y = g_trail_render_603924;
+      frame_obj.scale.z = g_trail_render_603928;
+      frame = *(RwFrame **)(trail->w00 + 4);
+      if ((trail->active != 0) &&
+         (!(*(float *)&trail->w20 <= k_f_1_0en4))) {
+        user_data = rwp_object_get_user_data(trail->object_a);
         if (((user_data & 8) == 0) &&
-           (((user_data = rwp_object_get_user_data(pTVar5->object_b), (user_data & 8) == 0 &&
-             (user_data = rwp_object_get_user_data(pTVar5->object_a), (user_data & 2) == 0)) &&
-            (user_data = rwp_object_get_user_data(pTVar5->object_b), (user_data & 2) == 0)))) {
-          fVar1 = pTVar5->w0c - pTVar5->w18;
-          frame_obj.local_1c = pTVar5->w10 - pTVar5->w1c;
-          frame_obj.local_18 = (*v - *pfVar4) * k_f_100 + *v;
-          frame_obj.local_14 = k_f_100 * fVar1 + v[1];
-          frame_obj.local_3c.x = 4.0;
-          frame_obj.local_3c.y = 4.0;
-          frame_obj.local_10 = frame_obj.local_1c * k_f_100 + v[2];
-          frame_obj.local_c = (*v - *pfVar4) * k_f_n100 + *pfVar4;
-          frame_obj.local_8 = fVar1 * k_f_n100 + pfVar4[1];
-          frame_obj.local_4 = frame_obj.local_1c * k_f_n100 + pfVar4[2];
-          frame_obj.local_3c.z = *(float *)&pTVar5->w20 * k_f_4;
+           (((user_data = rwp_object_get_user_data(trail->object_b), (user_data & 8) == 0 &&
+             (user_data = rwp_object_get_user_data(trail->object_a), (user_data & 2) == 0)) &&
+            (user_data = rwp_object_get_user_data(trail->object_b), (user_data & 2) == 0)))) {
+          delta_y = trail->w0c - trail->w18;
+          frame_obj.delta_z = trail->w10 - trail->w1c;
+          frame_obj.ext_a_x = (*start_pos - *end_pos) * k_f_100 + *start_pos;
+          frame_obj.ext_a_y = k_f_100 * delta_y + start_pos[1];
+          frame_obj.scale.x = 4.0;
+          frame_obj.scale.y = 4.0;
+          frame_obj.ext_a_z = frame_obj.delta_z * k_f_100 + start_pos[2];
+          frame_obj.ext_b_x = (*start_pos - *end_pos) * k_f_n100 + *end_pos;
+          frame_obj.ext_b_y = delta_y * k_f_n100 + end_pos[1];
+          frame_obj.ext_b_z = frame_obj.delta_z * k_f_n100 + end_pos[2];
+          frame_obj.scale.z = *(float *)&trail->w20 * k_f_4;
           camera = get_viewport_camera(0);
-          fVar6 = (double)distance_between_points(&frame_obj.local_18,&frame_obj.local_c,*(int *)(camera + 4) + 0x40);
-          if ((double)k_f_0_001 <= fVar6) {
-            if ((double)float_5_0 < fVar6) {
-              fVar6 = (double)float_5_0;
+          view_dist = (double)distance_between_points(&frame_obj.ext_a_x,&frame_obj.ext_b_x,*(int *)(camera + 4) + 0x40);
+          if ((double)k_f_0_001 <= view_dist) {
+            if ((double)float_5_0 < view_dist) {
+              view_dist = (double)float_5_0;
             }
           }
           else {
-            fVar6 = (double)k_f_0_001;
+            view_dist = (double)k_f_0_001;
           }
-          frame_obj.local_3c.x = (RwReal)((double)frame_obj.local_3c.x * fVar6 * (double)k_f_0_5);
-          frame_obj.local_3c.y = (RwReal)(fVar6 * (double)k_f_0_5 * (double)frame_obj.local_3c.y);
-          material_uv_scroll_update(pTVar5->w00,0);
-          fVar6 = (double)cos((double)(int)g_tick_number * (double)k_f_0_05);
-          frame_obj.local_30 = (float)fVar6;
-          fVar6 = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
-          frame_obj.local_2c = (float)fVar6;
-          RwFrameTranslate(frame,(RwV3d *)v,rwCOMBINEREPLACE);
-          FUN_004c42f0((undefined4)frame,(undefined4)pfVar4,(undefined4)&frame_obj.local_30);
-          RwFrameScale(frame,&frame_obj.local_3c,rwCOMBINEPRECONCAT);
+          frame_obj.scale.x = (RwReal)((double)frame_obj.scale.x * view_dist * (double)k_f_0_5);
+          frame_obj.scale.y = (RwReal)(view_dist * (double)k_f_0_5 * (double)frame_obj.scale.y);
+          material_uv_scroll_update(trail->w00,0);
+          view_dist = (double)cos((double)(int)g_tick_number * (double)k_f_0_05);
+          frame_obj.rot_cos = (float)view_dist;
+          view_dist = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
+          frame_obj.rot_sin = (float)view_dist;
+          RwFrameTranslate(frame,(RwV3d *)start_pos,rwCOMBINEREPLACE);
+          FUN_004c42f0((undefined4)frame,(undefined4)end_pos,(undefined4)&frame_obj.rot_cos);
+          RwFrameScale(frame,&frame_obj.scale,rwCOMBINEPRECONCAT);
         }
         else {
-          pTVar5->active = 0;
+          trail->active = 0;
         }
       }
-      frame_obj.local_44 = frame_obj.local_44 + 1;
-      pTVar5 = pTVar5 + 1;
-      pTVar2 = (TrailSlot *)(v + 9);
-      pfVar4 = pfVar4 + 0xb;
-    } while (frame_obj.local_44 < iVar3);
+      frame_obj.trail_i = frame_obj.trail_i + 1;
+      trail = trail + 1;
+      trail_cursor = (TrailSlot *)(start_pos + 9);
+      end_pos = end_pos + 0xb;
+    } while (frame_obj.trail_i < panel_count);
   }
   return;
 }

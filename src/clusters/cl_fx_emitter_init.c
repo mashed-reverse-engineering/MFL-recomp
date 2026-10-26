@@ -11,79 +11,80 @@
 /* WARNING: Unknown calling convention */
 /* "initialises one 0x1D8 byte emitter slot from position, size and flags" */
 
-void fx_emitter_init_n(int in_edi, float *param_2, undefined4 param_3, undefined4 param_4, float param_5, int param_6, undefined4 param_7)
+void fx_emitter_init_n(int emitter, float *pos, undefined4 unused_3, undefined4 unused_4, float rise, int size_or_count, undefined4 flags)
 
 {
-  float *pfVar1;
-  float *pfVar2;
-  RwV3d *out;
-  RwV3d *out_00;
-  float fVar3;
-  float *pfVar4;
-  float fVar5;
+  float *point_a;
+  float *point_b;
+  RwV3d *dir_a;
+  RwV3d *dir_b;
+  float zero;
+  float *corner;
+  float rnd;
   
-  fVar3 = k_f_0;
-  *(float *)(in_edi + 0xc0) = *param_2;
-  *(float *)(in_edi + 0xc4) = param_2[1];
-  *(float *)(in_edi + 200) = param_2[2];
-  *(undefined4 *)(in_edi + 0xd0) = 0;
-  *(undefined4 *)(in_edi + 0xd4) = 0;
-  *(int *)(in_edi + 0xdc) = param_6;
-  *(int *)(in_edi + 0xe0) = param_6;
-  *(undefined4 *)(in_edi + 0xe4) = param_7;
-  *(undefined4 *)(in_edi + 0xd8) = 1;
-  *(undefined4 *)(in_edi + 0xe8) = 1;
-  if (fVar3 < param_5) {
-    *(float *)(in_edi + 0xd0) = -param_5;
+  /* emitter slot (0x1D8 bytes, edi): +0xc0 position, +0xd0 rise (negative when > 0), +0xdc/+0xe0 size, +0xe4 flags; four corner records are jittered by +-size/4 around pos and get two random unit directions each */
+  zero = k_f_0;
+  *(float *)(emitter + 0xc0) = *pos;
+  *(float *)(emitter + 0xc4) = pos[1];
+  *(float *)(emitter + 200) = pos[2];
+  *(undefined4 *)(emitter + 0xd0) = 0;
+  *(undefined4 *)(emitter + 0xd4) = 0;
+  *(int *)(emitter + 0xdc) = size_or_count;
+  *(int *)(emitter + 0xe0) = size_or_count;
+  *(undefined4 *)(emitter + 0xe4) = flags;
+  *(undefined4 *)(emitter + 0xd8) = 1;
+  *(undefined4 *)(emitter + 0xe8) = 1;
+  if (zero < rise) {
+    *(float *)(emitter + 0xd0) = -rise;
   }
-  pfVar4 = (float *)(in_edi + 8);
-  param_6 = 4;
+  corner = (float *)(emitter + 8);
+  size_or_count = 4;
   do {
-    pfVar1 = pfVar4 + -2;
-    *pfVar1 = *param_2;
-    pfVar4[-1] = param_2[1];
-    *pfVar4 = param_2[2];
-    pfVar2 = pfVar4 + 0x16;
-    *pfVar2 = *param_2;
-    pfVar4[0x17] = param_2[1];
-    pfVar4[0x18] = param_2[2];
-    fVar5 = rp_random_float_range(*(float *)(in_edi + 0xdc) * k_f_n0_25,
-                                  *(float *)(in_edi + 0xdc) * k_f_0_25);
-    *pfVar1 = fVar5 + *pfVar1;
-    fVar5 = rp_random_float_range(*(float *)(in_edi + 0xdc) * k_f_n0_25,
-                                  *(float *)(in_edi + 0xdc) * k_f_0_25);
-    pfVar4[-1] = fVar5 + pfVar4[-1];
-    fVar5 = rp_random_float_range(*(float *)(in_edi + 0xdc) * k_f_n0_25,
-                                  *(float *)(in_edi + 0xdc) * k_f_0_25);
-    *pfVar4 = fVar5 + *pfVar4;
-    fVar5 = rp_random_float_range(*(float *)(in_edi + 0xdc) * k_f_n0_25,
-                                  *(float *)(in_edi + 0xdc) * k_f_0_25);
-    *pfVar2 = fVar5 + *pfVar2;
-    fVar5 = rp_random_float_range(*(float *)(in_edi + 0xdc) * k_f_n0_25,
-                                  *(float *)(in_edi + 0xdc) * k_f_0_25);
-    pfVar4[0x17] = fVar5 + pfVar4[0x17];
-    fVar5 = rp_random_float_range(*(float *)(in_edi + 0xdc) * k_f_n0_25,
-                                  *(float *)(in_edi + 0xdc) * k_f_0_25);
-    out = (RwV3d *)(pfVar4 + 10);
-    pfVar4[0x18] = fVar5 + pfVar4[0x18];
-    fVar5 = rp_random_float_range(-1.0f,1.0f);
-    out->x = fVar5;
-    fVar5 = rp_random_float_range(-1.0f,1.0f);
-    pfVar4[0xb] = fVar5;
-    fVar5 = rp_random_float_range(-1.0f,1.0f);
-    pfVar4[0xc] = fVar5;
-    out_00 = (RwV3d *)(pfVar4 + 0x22);
-    fVar5 = rp_random_float_range(-1.0f,1.0f);
-    out_00->x = fVar5;
-    fVar5 = rp_random_float_range(-1.0f,1.0f);
-    pfVar4[0x23] = fVar5;
-    fVar5 = rp_random_float_range(-1.0f,1.0f);
-    pfVar4[0x24] = fVar5;
-    RwV3dNormalize(out,out);
-    RwV3dNormalize(out_00,out_00);
-    pfVar4 = pfVar4 + 3;
-    param_6 = param_6 + -1;
-  } while (param_6 != 0);
+    point_a = corner + -2;
+    *point_a = *pos;
+    corner[-1] = pos[1];
+    *corner = pos[2];
+    point_b = corner + 0x16;
+    *point_b = *pos;
+    corner[0x17] = pos[1];
+    corner[0x18] = pos[2];
+    rnd = rp_random_float_range(*(float *)(emitter + 0xdc) * k_f_n0_25,
+                                  *(float *)(emitter + 0xdc) * k_f_0_25);
+    *point_a = rnd + *point_a;
+    rnd = rp_random_float_range(*(float *)(emitter + 0xdc) * k_f_n0_25,
+                                  *(float *)(emitter + 0xdc) * k_f_0_25);
+    corner[-1] = rnd + corner[-1];
+    rnd = rp_random_float_range(*(float *)(emitter + 0xdc) * k_f_n0_25,
+                                  *(float *)(emitter + 0xdc) * k_f_0_25);
+    *corner = rnd + *corner;
+    rnd = rp_random_float_range(*(float *)(emitter + 0xdc) * k_f_n0_25,
+                                  *(float *)(emitter + 0xdc) * k_f_0_25);
+    *point_b = rnd + *point_b;
+    rnd = rp_random_float_range(*(float *)(emitter + 0xdc) * k_f_n0_25,
+                                  *(float *)(emitter + 0xdc) * k_f_0_25);
+    corner[0x17] = rnd + corner[0x17];
+    rnd = rp_random_float_range(*(float *)(emitter + 0xdc) * k_f_n0_25,
+                                  *(float *)(emitter + 0xdc) * k_f_0_25);
+    dir_a = (RwV3d *)(corner + 10);
+    corner[0x18] = rnd + corner[0x18];
+    rnd = rp_random_float_range(-1.0f,1.0f);
+    dir_a->x = rnd;
+    rnd = rp_random_float_range(-1.0f,1.0f);
+    corner[0xb] = rnd;
+    rnd = rp_random_float_range(-1.0f,1.0f);
+    corner[0xc] = rnd;
+    dir_b = (RwV3d *)(corner + 0x22);
+    rnd = rp_random_float_range(-1.0f,1.0f);
+    dir_b->x = rnd;
+    rnd = rp_random_float_range(-1.0f,1.0f);
+    corner[0x23] = rnd;
+    rnd = rp_random_float_range(-1.0f,1.0f);
+    corner[0x24] = rnd;
+    RwV3dNormalize(dir_a,dir_a);
+    RwV3dNormalize(dir_b,dir_b);
+    corner = corner + 3;
+    size_or_count = size_or_count + -1;
+  } while (size_or_count != 0);
   return;
 }
 

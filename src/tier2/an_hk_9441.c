@@ -72,7 +72,7 @@ ReplayBuffer * __cdecl replay_buffer_create_from_stream(ReplayMemory *source, in
     length = *(float *)&header[3];
     resolution = header[4];
     FID_conflict__wprintf(s_loaded_replay_of_length__f__res___005e06aa_2, (double)length, resolution);
-    RwStreamClose(stream, header);
+    RwStreamClose(stream, &mem);
   }
   stream = RwStreamOpen(rwSTREAMMEMORY, rwSTREAMREAD, &mem);
   if (stream != 0) {

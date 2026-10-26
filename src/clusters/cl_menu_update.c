@@ -146,6 +146,16 @@
 /*004a4040*/ extern int video_texture_setup_004a4040();
 extern int gamesave_update(int seconds_bits);
 extern int menu_page_enter(int page, int arg);
+#define MENU_EVENT_COL_USE5_A 0 /* event column of the setup that fills race_setup_use_5 */
+#define MENU_EVENT_COL_USE0 3 /* event column of the setup that fills race_setup_use_0 */
+#define MENU_EVENT_COL_USE5_B 0xb /* event column of the setup that fills race_setup_use_5 */
+#define MENU_EVENT_COL_USE2 0xe /* event column of the setup that fills race_setup_use_2 */
+#define MENU_EVENT_COL_USE3 0xf /* event column of the setup that fills race_setup_use_3 */
+#define MENU_EVENT_COL_USE4 0x10 /* event column of the setup that fills race_setup_use_4 */
+#define MENU_EVENT_COL_USE1 0x11 /* event column of the setup that fills race_setup_use_1 */
+#define MENU_PAGE_TRANSMISSION_INTERRUPTED_A 0x14 /* page 20, title text 72 "Transmission Interrupted" */
+#define MENU_PAGE_OPTIONS_INGAME 0x15 /* page 21, title text 40 "Options" (second options page) */
+#define MENU_PAGE_TRANSMISSION_INTERRUPTED_B 0x17 /* page 23, title text 72 "Transmission Interrupted" */
 extern int video_get_default_mode(void);
 /* DECLS-END */
 extern float k_f_n500;
@@ -205,7 +215,7 @@ extern void __cdecl movie_poll_and_set_surface_b(int a);
 #define MENU_ITEM_OPEN_BONUS 0xff820000 /* page BONUS_FEATURES or BONUS_CAMERAS */
 #define MENU_ITEM_OPEN_AUTOSAVE 0xff830000 /* page AUTOSAVE */
 #define MENU_ITEM_LOAD_COURSE 0xff840000 /* race_load_course_0042fad0 */
-#define MENU_ITEM_OPEN_PAGE_14 0xff480000 /* page 0x14 */
+#define MENU_ITEM_OPEN_TRANSMISSION_INTERRUPTED_A 0xff480000 /* page TRANSMISSION_INTERRUPTED_A (0x14, title text 72) */
 
 /* Frontend menu state machine (0x4463e0): the volume/flash fades, then per frontend state 1..5 the fade in/out of the page, and in state 3 the input handling: the
    position screen, select (the item offset token switch that starts races, opens pages, sets up the player slots), back, up, down, pause, left/right value
@@ -999,7 +1009,7 @@ LAB_00447628:
 LAB_004476ee:
                           slot_type = slot_type + 0xf;
                         }
-                        else if (g_menu_event_column != 3) {
+                        else if (g_menu_event_column != MENU_EVENT_COL_USE0) {
                           if (g_menu_event_column == 2) {
                             race_set_setup_index(slot_type + 0x1e);
                             goto LAB_004478ac;
@@ -1210,7 +1220,7 @@ LAB_00448159:
                 if (token == MENU_ITEM_SETUP_USE_5_COL0) {
                   race_setup_use_5();
                   g_menu_7ef7d0 = 0;
-                  g_menu_event_column = 0;
+                  g_menu_event_column = MENU_EVENT_COL_USE5_A;
                   event_type_from_menu_choice();
                   team_mode = 0;
                   do {
@@ -1251,7 +1261,7 @@ LAB_00448159:
                   if (token != MENU_ITEM_SETUP_USE_0) goto LAB_00448159;
                   race_setup_use_0();
                   g_menu_7ef7d0 = 0;
-                  g_menu_event_column = 3;
+                  g_menu_event_column = MENU_EVENT_COL_USE0;
                   event_type_from_menu_choice();
                   team_mode = 0;
                   do {
@@ -1446,8 +1456,8 @@ LAB_004477e2:
                 g_menu_7ef7d0 = 0;
               }
               else if (token < 0xff480001) {
-                if (token == MENU_ITEM_OPEN_PAGE_14) {
-                  menu_page_enter(0x14,0);
+                if (token == MENU_ITEM_OPEN_TRANSMISSION_INTERRUPTED_A) {
+                  menu_page_enter(MENU_PAGE_TRANSMISSION_INTERRUPTED_A,0);
                 }
                 else if (token == MENU_ITEM_RESUME) {
                   menu_page_enter(MENU_PAGE_PAUSE,1);
@@ -1484,7 +1494,7 @@ LAB_004477e2:
                   if (token != MENU_ITEM_SETUP_USE_5_COL_B) goto LAB_00448159;
                   race_setup_use_5();
                   g_menu_7ef7d0 = 0;
-                  g_menu_event_column = 0xb;
+                  g_menu_event_column = MENU_EVENT_COL_USE5_B;
                   event_type_from_menu_choice();
                   team_mode = 0;
                   do {
@@ -1499,7 +1509,7 @@ LAB_004477e2:
                   goto LAB_0044820b;
                 }
                 g_menu_69d1f0 = 0;
-                if (g_menu_records[g_menu_current].page_id == 0x17) {
+                if (g_menu_records[g_menu_current].page_id == MENU_PAGE_TRANSMISSION_INTERRUPTED_B) {
                   menu_page_enter(MENU_PAGE_MAIN,0);
                   g_menu_7ef7d0 = 0;
                   gamesave_request_load_slot1();
@@ -1566,7 +1576,7 @@ LAB_004477e2:
               if (token == MENU_ITEM_SETUP_USE_3) {
                 race_setup_use_3();
                 g_menu_7ef7d0 = 0;
-                g_menu_event_column = 0xf;
+                g_menu_event_column = MENU_EVENT_COL_USE3;
                 event_type_from_menu_choice();
                 team_mode = 0;
                 do {
@@ -1582,7 +1592,7 @@ LAB_004477e2:
                 if (token != MENU_ITEM_SETUP_USE_2) goto LAB_00448159;
                 race_setup_use_2();
                 g_menu_7ef7d0 = 0;
-                g_menu_event_column = 0xe;
+                g_menu_event_column = MENU_EVENT_COL_USE2;
                 event_type_from_menu_choice();
                 team_mode = 0;
                 do {
@@ -1594,7 +1604,7 @@ LAB_004477e2:
             else if (token == MENU_ITEM_SETUP_USE_4) {
               race_setup_use_4();
               g_menu_7ef7d0 = 0;
-              g_menu_event_column = 0x10;
+              g_menu_event_column = MENU_EVENT_COL_USE4;
               event_type_from_menu_choice();
               team_mode = 0;
               do {
@@ -1606,7 +1616,7 @@ LAB_004477e2:
               if (token != MENU_ITEM_SETUP_USE_1) goto LAB_00448159;
               race_setup_use_1();
               g_menu_7ef7d0 = 0;
-              g_menu_event_column = 0x11;
+              g_menu_event_column = MENU_EVENT_COL_USE1;
               event_type_from_menu_choice();
               team_mode = 0;
               do {
@@ -1706,7 +1716,7 @@ LAB_0044849c:
         case MENU_PAGE_ABILITY_SELECT:
           g_menu_69d6b4 = 0;
           break;
-        case 0x15:
+        case MENU_PAGE_OPTIONS_INGAME:
           if (team_mode != MENU_PAGE_OPTIONS) {
             g_menu_records[2].item_list = (char *)PTR_g_menu_page_01_game_type_select_0060acac;
             g_menu_records[2].page_id = 1;
@@ -1764,11 +1774,11 @@ LAB_0044849c:
         case MENU_PAGE_CHALLENGE_SELECT_A:
         case MENU_PAGE_CHALLENGE_SELECT_B:
           if (g_menu_8c8090 == 0) {
-            if ((((((g_menu_event_column == 3) || (g_menu_event_column == 0xe)) ||
-                  (g_menu_event_column == 0xf)) ||
-                 ((g_menu_event_column == 0x10 || (g_menu_event_column == 0x11)))) ||
+            if ((((((g_menu_event_column == MENU_EVENT_COL_USE0) || (g_menu_event_column == MENU_EVENT_COL_USE2)) ||
+                  (g_menu_event_column == MENU_EVENT_COL_USE3)) ||
+                 ((g_menu_event_column == MENU_EVENT_COL_USE4 || (g_menu_event_column == MENU_EVENT_COL_USE1)))) ||
                 (g_menu_event_column == 6)) ||
-               ((g_menu_event_column == 0 || (g_menu_event_column == 0xb)))) {
+               ((g_menu_event_column == MENU_EVENT_COL_USE5_A || (g_menu_event_column == MENU_EVENT_COL_USE5_B)))) {
               g_menu_69d6b0 = 0;
             }
             else if ((((g_menu_event_column == 4) || (g_menu_event_column == 7)) ||
@@ -2028,9 +2038,9 @@ LAB_004488f8:
           if (g_menu_8c8090 == 0) {
             if ((((g_menu_event_column == 5) || (g_menu_event_column == 8)) ||
                 (g_menu_event_column == 2)) ||
-               (((g_menu_event_column == 0xd || (g_menu_event_column == 0x11)) ||
-                ((g_menu_event_column == 0xe ||
-                 ((g_menu_event_column == 0xf || (g_menu_event_column == 0x10)))))))) {
+               (((g_menu_event_column == 0xd || (g_menu_event_column == MENU_EVENT_COL_USE1)) ||
+                ((g_menu_event_column == MENU_EVENT_COL_USE2 ||
+                 ((g_menu_event_column == MENU_EVENT_COL_USE3 || (g_menu_event_column == MENU_EVENT_COL_USE4)))))))) {
               g_menu_69d6b0 = 0;
             }
             else if ((((g_menu_event_column == 4) || (g_menu_event_column == 7)) ||
@@ -2039,9 +2049,9 @@ LAB_004488f8:
                  ((g_event_type == EVENT_CUP_5 || ((&g_menu_608428)[g_career_row * 0xc] != -1))))
               goto LAB_0044907d;
             }
-            else if ((((g_menu_event_column == 3) || (g_menu_event_column == 6)) ||
-                     (g_menu_event_column == 0)) ||
-                    (team_mode = g_menu_event_column, g_menu_event_column == 0xb)) {
+            else if ((((g_menu_event_column == MENU_EVENT_COL_USE0) || (g_menu_event_column == 6)) ||
+                     (g_menu_event_column == MENU_EVENT_COL_USE5_A)) ||
+                    (team_mode = g_menu_event_column, g_menu_event_column == MENU_EVENT_COL_USE5_B)) {
 LAB_0044907d:
               g_menu_event_column = g_menu_event_column + 1;
             }

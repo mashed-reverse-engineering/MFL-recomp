@@ -20,45 +20,45 @@ void flamethrower_load_assets(void)
 
 {
   RpClump *clump;
-  undefined4 uVar1;
-  int iVar2;
-  int iVar3;
-  RwMatrix *pRVar4;
-  undefined4 *puVar5;
-  undefined4 *puVar6;
-  RwReal *pRVar7;
-  int aiStack_28 [10];
+  undefined4 clump_or_particles;
+  int atomic_count;
+  int atomic_flag;
+  RwMatrix *ltm;
+  undefined4 *slot_end;
+  undefined4 *slot;
+  RwReal *dst_matrix;
+  int atomics [10];
   
   clump = (RpClump *)clump_load_by_name("FlameThrower.dff", 0x0, 0x0);
   g_weapon_6aab78 = (char *)((RwTexture *)find_texture_dict_b("exp_cloud2"));
-  puVar5 = g_weapon_6a9728;
+  slot_end = g_weapon_6a9728;
   do {
-    puVar6 = puVar5 + -0x1a;
-    uVar1 = FUN_004f6bf0(clump);
-    puVar5[-0x12] = uVar1;
-    iVar2 = clump_get_atomics((RpClump *)uVar1,(RpAtomic **)aiStack_28);
-    while (iVar2 != 0) {
-      iVar3 = iVar2 + -1;
-      iVar2 = iVar2 + -1;
-      iVar3 = FUN_004c52b0(aiStack_28[iVar3],0,0);
-      if (iVar3 == 1) {
-        iVar3 = aiStack_28[iVar2];
-        puVar5[-0x11] = iVar3;
-        pRVar4 = RwFrameGetLTM(*(RwFrame **)(iVar3 + 4));
-        pRVar7 = (RwReal *)(puVar5 + -0x10);
-        for (iVar3 = 0x10; iVar3 != 0; iVar3 = iVar3 + -1) {
-          *pRVar7 = (pRVar4->right).x;
-          pRVar4 = (RwMatrix *)&(pRVar4->right).y;
-          pRVar7 = pRVar7 + 1;
+    slot = slot_end + -0x1a;
+    clump_or_particles = FUN_004f6bf0(clump);
+    slot_end[-0x12] = clump_or_particles;
+    atomic_count = clump_get_atomics((RpClump *)clump_or_particles,(RpAtomic **)atomics);
+    while (atomic_count != 0) {
+      atomic_flag = atomic_count + -1;
+      atomic_count = atomic_count + -1;
+      atomic_flag = FUN_004c52b0(atomics[atomic_flag],0,0);
+      if (atomic_flag == 1) {
+        atomic_flag = atomics[atomic_count];
+        slot_end[-0x11] = atomic_flag;
+        ltm = RwFrameGetLTM(*(RwFrame **)(atomic_flag + 4));
+        dst_matrix = (RwReal *)(slot_end + -0x10);
+        for (atomic_flag = 0x10; atomic_flag != 0; atomic_flag = atomic_flag + -1) {
+          *dst_matrix = (ltm->right).x;
+          ltm = (RwMatrix *)&(ltm->right).y;
+          dst_matrix = dst_matrix + 1;
         }
       }
     }
-    weapon_fx_grid_clear(puVar6);
-    uVar1 = particles_alloc_system((struct RwTexture *)g_weapon_6aab78,0x1e,6,0x37);
-    puVar5[-0x16] = uVar1;
-    fx_set_blend_modes(uVar1,5,2);
-    puVar5 = puVar6;
-  } while (puVar6 != (undefined4 *)&g_weapon_6a9588);
+    weapon_fx_grid_clear(slot);
+    clump_or_particles = particles_alloc_system((struct RwTexture *)g_weapon_6aab78,0x1e,6,0x37);
+    slot_end[-0x16] = clump_or_particles;
+    fx_set_blend_modes(clump_or_particles,5,2);
+    slot_end = slot;
+  } while (slot != (undefined4 *)&g_weapon_6a9588);
   RpClumpDestroy(clump);
   return;
 }

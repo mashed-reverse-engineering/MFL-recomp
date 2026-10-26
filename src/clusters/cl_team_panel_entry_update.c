@@ -17,7 +17,7 @@ void team_panel_entry_update_n(int *in_esi)
 {
   uint uVar1;
   uint uVar2;
-  int iVar3;
+  int score_target;
   int points;
   bool bVar4;
   struct {
@@ -200,8 +200,8 @@ LAB_0041ea18:
       RwFrameTransform((RwFrame *)in_esi[0x58],&frame.local_40,rwCOMBINEREPLACE);
       RwFrameScale((RwFrame *)in_esi[0x58],&frame.local_4c,rwCOMBINEPRECONCAT);
       points = player_get_points(*in_esi);
-      iVar3 = score_target_a();
-      frame.local_4c.x = (float)points / (float)iVar3;
+      score_target = score_target_a();
+      frame.local_4c.x = (float)points / (float)score_target;
       frame.local_4c.z = 1.0;
       frame.local_4c.y = 1.0;
       RwFrameScale(*(RwFrame **)(in_esi[0x2e] + 4),&frame.local_4c,rwCOMBINEREPLACE);

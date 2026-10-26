@@ -118,7 +118,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
   bool bVar1;
   undefined4 app_state;
   CourseId CVar2;
-  CourseId CVar3;
+  CourseId course_id;
   int slot_used;
   int iVar4;
   undefined4 uVar5;
@@ -163,9 +163,9 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
         event_type = sound_music_fade_step(0);
       }
       else if (event_type == 4) {
-        CVar3 = current_course_id();
+        course_id = current_course_id();
         CVar2 = sound_music_for_career_row();
-        sound_music_fade_step(CVar3 != CVar2);
+        sound_music_fade_step(course_id != CVar2);
         event_type = sound_music_fade_step_b(0);
       }
     }
@@ -201,7 +201,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     }
     soundengine_create_race_streams();
     get_event_type();
-    CVar3 = current_course_id();
+    course_id = current_course_id();
     sound_event_log_process();
     event_type = 0;
     do {
@@ -213,28 +213,28 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
         sound_car_mode_2_voice(iVar4);
         slot_used = event_type;
         sound_car_landing_voice(iVar4);
-        slot_used = sound_music_for_menu_page(CVar3,slot_used,iVar4,iVar7);
+        slot_used = sound_music_for_menu_page(course_id,slot_used,iVar4,iVar7);
         if (slot_used != 0) {
           iVar7 = event_type;
-          CVar2 = CVar3;
-          sound_car_voices_mute(iVar4, CVar3);
+          CVar2 = course_id;
+          sound_car_voices_mute(iVar4, course_id);
           iVar4 = event_type;
           sound_surface_roll_voices_update(event_type);
           slot_used = event_type;
           sound_car_engine_start(event_type);
-          sound_surface_skid_voice_update(event_type,CVar3,slot_used,iVar4,iVar7,CVar2);
+          sound_surface_skid_voice_update(event_type,course_id,slot_used,iVar4,iVar7,CVar2);
         }
       }
       event_type = event_type + 1;
     } while (event_type < 4);
     sound_nearest_objects_sort();
-    switch(CVar3) {
+    switch(course_id) {
     case COURSE_ARCTIC:
       sound_ambience_course_0();
       break;
     case COURSE_ANGELS:
     case COURSE_TRAINING:
-      sound_ambience_course_1_1e(CVar3);
+      sound_ambience_course_1_1e(course_id);
       break;
     case COURSE_ROUABOUT:
     case COURSE_TIERRA_N:
@@ -251,7 +251,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
       break;
     case COURSE_SUPERG_N:
     case COURSE_SUPERG:
-      sound_ambience_course_8_19(CVar3);
+      sound_ambience_course_8_19(course_id);
       break;
     case COURSE_FOREST_R:
     case COURSE_FOREST:
@@ -293,7 +293,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     sound_endpoint_panel_progress_cues();
     event_type = sound_stub_return_0();
     if ((((event_type == 0) && (event_type = get_event_type(), event_type != 0x12)) &&
-        (CVar3 != COURSE_KEYS)) && (CVar3 != COURSE_KEYS01)) {
+        (course_id != COURSE_KEYS)) && (course_id != COURSE_KEYS01)) {
       voice_queue_frame_update();
     }
     sound_music_fade_step(3);

@@ -35,7 +35,7 @@ struct JoyState {
   char buttons[32];
 };
 
-void joypad_device_setup_n(undefined4 *in_esi)
+void joypad_device_setup_n(undefined4 *pad)
 
 {
   struct JoyState js;
@@ -43,53 +43,54 @@ void joypad_device_setup_n(undefined4 *in_esi)
   float *pf;
   float *px;
   float *py;
-  float fVar3;
-  float fVar4;
-  float fVar5;
+  float stick_x;
+  float stick_y;
+  float dead_zone_or_len2;
   int *dev;
-  int iVar6;
-  undefined4 *puVar7;
-  undefined4 *puVar11;
-  float *pfVar10;
+  int hr_or_count;
+  undefined4 *hist_a;
+  undefined4 *hist_b;
+  float *hist_f;
   int i;
-  undefined4 uVar9;
+  undefined4 stick_x_bits;
 
-  pf = (float *)in_esi;
-  dev = (int *)*in_esi;
-  iVar6 = ((DiDeviceCall1)*(int *)(*dev + 100))(dev);      /* Poll */
-  if (iVar6 < 0) {
-    iVar6 = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);      /* Acquire */
-    while (iVar6 == -0x7ff8ffe2) {
-      iVar6 = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);
+  pf = (float *)pad;
+  /* pad: joypad device object (esi); +0x0 IDirectInputDevice, floats [0xb2],[0xb3] = stick x/y, history ring of earlier samples is shifted down each poll, final stick is the 8-sample average (* 0.125) */
+  dev = (int *)*pad;
+  hr_or_count = ((DiDeviceCall1)*(int *)(*dev + 100))(dev);      /* Poll */
+  if (hr_or_count < 0) {
+    hr_or_count = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);      /* Acquire */
+    while (hr_or_count == -0x7ff8ffe2) {
+      hr_or_count = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);
     }
   }
-  iVar6 = ((DiDeviceGetState)*(int *)(*dev + 0x24))(dev, 0x50, &js);      /* GetDeviceState */
-  if (iVar6 < 0) {
+  hr_or_count = ((DiDeviceGetState)*(int *)(*dev + 0x24))(dev, 0x50, &js);      /* GetDeviceState */
+  if (hr_or_count < 0) {
     return;
   }
-  puVar7 = in_esi + 0xd0;
-  puVar11 = in_esi + 0x111;
-  iVar6 = 0xf;
+  hist_a = pad + 0xd0;
+  hist_b = pad + 0x111;
+  hr_or_count = 0xf;
   do {
-    *puVar11 = puVar11[-1];
-    puVar11[-0x10] = puVar11[-0x11];
-    *puVar7 = puVar7[-2];
-    puVar7[1] = puVar7[-1];
-    puVar7[0x20] = puVar7[0x1e];
-    puVar7[0x21] = puVar7[0x1f];
-    puVar11 = puVar11 + -1;
-    puVar7 = puVar7 + -2;
-    iVar6 = iVar6 + -1;
-  } while (iVar6 != 0);
-  in_esi[0xf2] = 0;
-  in_esi[0xb3] = 0;
-  in_esi[0xb2] = 0;
-  in_esi[0xd3] = 0;
-  in_esi[0xd2] = 0;
-  FUN_004c6600(in_esi + 0x102,0x20);
+    *hist_b = hist_b[-1];
+    hist_b[-0x10] = hist_b[-0x11];
+    *hist_a = hist_a[-2];
+    hist_a[1] = hist_a[-1];
+    hist_a[0x20] = hist_a[0x1e];
+    hist_a[0x21] = hist_a[0x1f];
+    hist_b = hist_b + -1;
+    hist_a = hist_a + -2;
+    hr_or_count = hr_or_count + -1;
+  } while (hr_or_count != 0);
+  pad[0xf2] = 0;
+  pad[0xb3] = 0;
+  pad[0xb2] = 0;
+  pad[0xd3] = 0;
+  pad[0xd2] = 0;
+  FUN_004c6600(pad + 0x102,0x20);
   for (i = 0; i < 16; i++) {
     if (js.buttons[i] < 0) {
-      ((byte *)in_esi)[0x408 + (i >> 3)] |= (byte)(1 << (i & 7));
+      ((byte *)pad)[0x408 + (i >> 3)] |= (byte)(1 << (i & 7));
     }
   }
   pf[0xb2] = (float)(js.lX >> 12) * k_f_0_13333334 - float_1_0;
@@ -97,68 +98,68 @@ void joypad_device_setup_n(undefined4 *in_esi)
   if ((short)js.pov[0] != -1) {
     switch (js.pov[0]) {
     case 0:
-      in_esi[0xb2] = 0;
-      in_esi[0xb3] = 0x3f800000;
+      pad[0xb2] = 0;
+      pad[0xb3] = 0x3f800000;
       break;
     case 4500:
-      in_esi[0xb2] = 0x3f800000;
-      in_esi[0xb3] = 0x3f800000;
+      pad[0xb2] = 0x3f800000;
+      pad[0xb3] = 0x3f800000;
       break;
     case 9000:
-      in_esi[0xb2] = 0x3f800000;
-      in_esi[0xb3] = 0;
+      pad[0xb2] = 0x3f800000;
+      pad[0xb3] = 0;
       break;
     case 13500:
-      in_esi[0xb2] = 0x3f800000;
-      in_esi[0xb3] = 0xbf800000;
+      pad[0xb2] = 0x3f800000;
+      pad[0xb3] = 0xbf800000;
       break;
     case 18000:
-      in_esi[0xb2] = 0;
-      in_esi[0xb3] = 0xbf800000;
+      pad[0xb2] = 0;
+      pad[0xb3] = 0xbf800000;
       break;
     case 22500:
-      in_esi[0xb2] = 0xbf800000;
-      in_esi[0xb3] = 0xbf800000;
+      pad[0xb2] = 0xbf800000;
+      pad[0xb3] = 0xbf800000;
       break;
     case 27000:
-      in_esi[0xb2] = 0xbf800000;
-      in_esi[0xb3] = 0;
+      pad[0xb2] = 0xbf800000;
+      pad[0xb3] = 0;
       break;
     case 31500:
-      in_esi[0xb2] = 0xbf800000;
-      in_esi[0xb3] = 0x3f800000;
+      pad[0xb2] = 0xbf800000;
+      pad[0xb3] = 0x3f800000;
       break;
     }
   }
-  fVar5 = g_app_770f60;
-  fVar3 = (fabs(pf[0xb2]) < fVar5) ? k_f_0 : pf[0xb2];
-  pf[0xb2] = fVar3;
-  fVar4 = (fabs(pf[0xb3]) < fVar5) ? k_f_0 : pf[0xb3];
-  pf[0xb3] = fVar4;
+  dead_zone_or_len2 = g_app_770f60;
+  stick_x = (fabs(pf[0xb2]) < dead_zone_or_len2) ? k_f_0 : pf[0xb2];
+  pf[0xb2] = stick_x;
+  stick_y = (fabs(pf[0xb3]) < dead_zone_or_len2) ? k_f_0 : pf[0xb3];
+  pf[0xb3] = stick_y;
   v = *(V2 *)&pf[0xb2];
-  fVar5 = v.x * v.x + v.y * v.y;
-  if (fVar5 > float_1_0) {
-    fVar5 = float_1_0 / sqrt(fVar5);
-    pf[0xb2] = fVar3 * fVar5;
-    pf[0xb3] = fVar4 * fVar5;
+  dead_zone_or_len2 = v.x * v.x + v.y * v.y;
+  if (dead_zone_or_len2 > float_1_0) {
+    dead_zone_or_len2 = float_1_0 / sqrt(dead_zone_or_len2);
+    pf[0xb2] = stick_x * dead_zone_or_len2;
+    pf[0xb3] = stick_y * dead_zone_or_len2;
   }
-  iVar6 = 7;
-  pfVar10 = (float *)(in_esi + 0xa0);
+  hr_or_count = 7;
+  hist_f = (float *)(pad + 0xa0);
   do {
-    *pfVar10 = pfVar10[-2];
-    pfVar10[1] = pfVar10[-1];
-    pfVar10[0x10] = pfVar10[0xe];
-    pfVar10[0x11] = pfVar10[0xf];
-    pfVar10 = pfVar10 + -2;
-    iVar6 = iVar6 + -1;
-  } while (iVar6 != 0);
-  uVar9 = in_esi[0xb2];
-  in_esi[0x93] = in_esi[0xb3];
-  in_esi[0x92] = uVar9;
-  in_esi[0xb2] = 0;
-  in_esi[0xb3] = 0;
-  in_esi[0xb2] = uVar9;
-  in_esi[0xb3] = in_esi[0x93];
+    *hist_f = hist_f[-2];
+    hist_f[1] = hist_f[-1];
+    hist_f[0x10] = hist_f[0xe];
+    hist_f[0x11] = hist_f[0xf];
+    hist_f = hist_f + -2;
+    hr_or_count = hr_or_count + -1;
+  } while (hr_or_count != 0);
+  stick_x_bits = pad[0xb2];
+  pad[0x93] = pad[0xb3];
+  pad[0x92] = stick_x_bits;
+  pad[0xb2] = 0;
+  pad[0xb3] = 0;
+  pad[0xb2] = stick_x_bits;
+  pad[0xb3] = pad[0x93];
   px = &pf[0xb2];
   py = &pf[0xb3];
   px[0] = pf[0x94] + px[0];

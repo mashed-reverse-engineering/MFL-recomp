@@ -48,7 +48,7 @@ void race_update_common_n(uint in_esi)
 
 {
   float fVar1;
-  int iVar2;
+  int setup_index;
   undefined4 camera_matrix;
   
   fVar1 = (float)in_esi;
@@ -59,8 +59,8 @@ void race_update_common_n(uint in_esi)
   }
   cars_update_per_frame_setup(in_esi);
   race_update_cameras(0);
-  iVar2 = race_get_setup_index();
-  course_update_frame(**(undefined4 **)(g_race_setup + 4 + iVar2 * 4),in_esi);
+  setup_index = race_get_setup_index();
+  course_update_frame(**(undefined4 **)(g_race_setup + 4 + setup_index * 4),in_esi);
   camera_matrix = get_viewport_camera_matrix(0);
   hud_player_markers_update(camera_matrix);
   camera_matrix = get_viewport_camera_matrix(0);

@@ -106,7 +106,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   wheel_ground_pos = (RwV3d *)&g_car_8b06a0;
   wheel_pos_ptr = &self_car->wheels[0].pos_x;
   do {
-    if (wheel_pos_ptr[0xb] != 0.0) {
+    if (*(int *)&wheel_pos_ptr[0xb] != 0) {
       self_car->wheels_in_contact = self_car->wheels_in_contact + float_1_0;
     }
     wheel_ground_pos->x = *wheel_pos_ptr;
@@ -393,7 +393,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   wheel_force_ptr = (float *)((char *)&self_car->wheels[0] + 0x8c);
   wheels_left = 4;
   do {
-    if (wheel_force_ptr[-0x17] == 0.0) {
+    if (*(int *)&wheel_force_ptr[-0x17] == 0) {
       wheel_force_ptr[10] = 0.0;
       wheel_force_ptr[9] = 0.0;
       wheel_force_ptr[8] = 0.0;

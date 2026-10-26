@@ -1913,7 +1913,7 @@ raster_destroy_771038,0048cfe0,tier1,bytes,bytes-reloc,91e6790fbae2,126ee480af92
 render_pipelines_create_two,004a6b70,tier1,bytes,bytes-reloc,ea01580b1b3b,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 replay_best_get_split_time,00413ad0,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 replay_buffer_alloc,00413900,tier1,bytes,bytes-reloc,5fe5e83f64c9,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-replay_buffer_create_from_stream,00495860,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ed3e4200e206,126ee480af92,9a2277a8f1a9,200,0.32,0,0
+replay_buffer_create_from_stream,00495860,tier2,compiled+diffemu-STALE+shadow-STALE,static,267fdb585870,126ee480af92,9a2277a8f1a9,0,0.00,1,0
 replay_buffer_free,00413a10,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 replay_buffer_record_frame,00494520,tier1,bytes,bytes-reloc,86592e195cda,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 replay_create_buffer,00414320,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0

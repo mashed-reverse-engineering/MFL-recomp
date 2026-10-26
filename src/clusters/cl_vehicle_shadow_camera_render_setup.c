@@ -32,11 +32,11 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
   int iVar1;
   uint uVar2;
   RwFrame *frame;
-  RpWorld *pRVar3;
+  RpWorld *rpworld;
   int iVar4;
   undefined4 collision_bsp;
   bool bVar5;
-  float10 fVar6;
+  float10 shadow_scale;
   RwCamera *pRVar7;
   struct {
     RwRGBA local_20;
@@ -76,14 +76,14 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     vehicle_render_state_set_6614e8(vehicle_record->index,vehicle_record->shadow_camera);
     RwCameraClear((RwCamera *)vehicle_record->shadow_camera,&frame_obj.local_20,1);
     pRVar7 = (RwCamera *)vehicle_record->shadow_camera;
-    pRVar3 = (RpWorld *)course_get_rpworld();
-    RpWorldAddCamera(pRVar3,pRVar7);
+    rpworld = (RpWorld *)course_get_rpworld();
+    RpWorldAddCamera(rpworld,pRVar7);
     iVar4 = RwCameraBeginUpdate(vehicle_record->shadow_camera);
     if (iVar4 != 0) {
-      fVar6 = (float10)course_get_shadow_scale();
+      shadow_scale = (float10)course_get_shadow_scale();
       collision_bsp =
            course_get_collision_bsp
-                     ((fbits1 = (float)(fVar6 * (float10)*(float *)((char *)vehicle_record + 0x288) *
+                     ((fbits1 = (float)(shadow_scale * (float10)*(float *)((char *)vehicle_record + 0x288) *
                              (float10)vehicle_record->size_factor), *(int *)&fbits1));
       vehicle_tyre_marks_collect_triangles
                 (vehicle_record->index,*(int *)(vehicle_record->frame + 4) + 0x10,collision_bsp);
@@ -95,8 +95,8 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
       RwCameraEndUpdate(vehicle_record->shadow_camera);
     }
     pRVar7 = (RwCamera *)vehicle_record->shadow_camera;
-    pRVar3 = (RpWorld *)course_get_rpworld();
-    RpWorldRemoveCamera(pRVar3,pRVar7);
+    rpworld = (RpWorld *)course_get_rpworld();
+    RpWorldRemoveCamera(rpworld,pRVar7);
   }
   return;
 }
