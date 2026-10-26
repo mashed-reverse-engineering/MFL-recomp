@@ -217,7 +217,7 @@ LAB_0042759f:
     if ((int)g_ai_7f0280 < 0) {
       g_ai_7f0280 = *(int *)(iVar3 + 0x200);
     }
-    if ((*(int *)(iVar3 + 0x200) < g_ai_7f0280) || (g_ai_7f0280 == 0x40)) {
+    if ((*(int *)(iVar3 + 0x200) < (int)g_ai_7f0280) || (g_ai_7f0280 == 0x40)) {
       g_ai_7f0280 = 0;
     }
     if (((*(byte *)((char *)&g_player_inputs[0] + 61)) != '\0') && ((*(byte *)((char *)&g_player_inputs_previous[0] + 61)) == '\0')) {

@@ -33,40 +33,40 @@
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
-void course_arctic_cb0(int param_1)
+void course_arctic_cb0(int course)
 
 {
   void *texture_dict;
   RpAtomic *atomic;
-  int camera_2;
-  undefined4 uVar1;
+  int row_or_clump;
+  undefined4 smoke_texture;
   RwCamera *camera;
-  int iVar2;
-  int *piVar3;
-  int iVar4;
+  int col_i;
+  int *clump_slot;
+  int grid_i;
   RwReal farClip;
-  RwV3d RStack_24;
+  RwV3d grid_pos;
   struct {
-    undefined4 uStack_18;
-    undefined4 uStack_14;
-    undefined4 uStack_10;
-    undefined4 uStack_c;
-    undefined4 uStack_8;
-    undefined4 uStack_4;
+    undefined4 vel_x;
+    undefined4 vel_y;
+    undefined4 vel_z;
+    undefined4 emit_x;
+    undefined4 emit_y;
+    undefined4 emit_z;
   } frame;
   
   g_course_arctic_6a0770 =
-       RwTexDictionaryFindNamedTexture((struct RwTexDictionary *)(*(RwTexDictionary **)(param_1 + 0xc9d0)),(RwChar *)("lightning"));
+       RwTexDictionaryFindNamedTexture((struct RwTexDictionary *)(*(RwTexDictionary **)(course + 0xc9d0)),(RwChar *)("lightning"));
   viewport_raster_create(0,0x80,0x80,0x600);
   texture_dict = (void *)viewport_get_field_702254(0);
-  world_for_all_materials_cb_406910(*(RpWorld **)(param_1 + 0xc9d4),texture_dict);
-  camera_create_a(param_1);
-  camera_create_b(param_1);
-  RwFrameSetIdentity(*(RwFrame **)(*(char **)(param_1 + 0xc118) + 4));
-  g_course_arctic_8c5840 = *(RpClump **)(param_1 + 0xc118);
-  RStack_24.x = 0.0;
-  RStack_24.y = -4.1;
-  RStack_24.z = 0.0;
+  world_for_all_materials_cb_406910(*(RpWorld **)(course + 0xc9d4),texture_dict);
+  camera_create_a(course);
+  camera_create_b(course);
+  RwFrameSetIdentity(*(RwFrame **)(*(char **)(course + 0xc118) + 4));
+  g_course_arctic_8c5840 = *(RpClump **)(course + 0xc118);
+  grid_pos.x = 0.0;
+  grid_pos.y = -4.1;
+  grid_pos.z = 0.0;
   atomic = (RpAtomic *)clump_first_atomic(g_course_arctic_8c5840);
   if ((RpAtomic_interpolator_flags(atomic) & 2) != 0) {
     _rpAtomicResyncInterpolatedSphere(atomic);
@@ -75,89 +75,89 @@ void course_arctic_cb0(int param_1)
   g_course_arctic_8c5734 = RpAtomic_boundingSphere(atomic).center.y;
   g_course_arctic_8c5738 = RpAtomic_boundingSphere(atomic).center.z;
   g_course_arctic_8c573c = RpAtomic_boundingSphere(atomic).radius;
-  RpWorldRemoveClump(*(RpWorld **)(param_1 + 0xc9d4),g_course_arctic_8c5840);
+  RpWorldRemoveClump(*(RpWorld **)(course + 0xc9d4),g_course_arctic_8c5840);
   RwFrameSetIdentity(RpClump_object_parent(g_course_arctic_8c5840));
-  piVar3 = g_course_arctic_8c5844;
+  clump_slot = g_course_arctic_8c5844;
   do {
-    camera_2 = FUN_004f6bf0((undefined4)g_course_arctic_8c5840);
-    *piVar3 = camera_2;
-    RwFrameSetIdentity(*(RwFrame **)(camera_2 + 4));
-    piVar3 = piVar3 + 1;
-  } while ((int)piVar3 < (int)g_course_arctic_8c5844 + 0x60);
-  RStack_24.x = -150.0;
-  iVar4 = 0;
-  camera_2 = 5;
+    row_or_clump = FUN_004f6bf0((undefined4)g_course_arctic_8c5840);
+    *clump_slot = row_or_clump;
+    RwFrameSetIdentity(*(RwFrame **)(row_or_clump + 4));
+    clump_slot = clump_slot + 1;
+  } while ((int)clump_slot < (int)g_course_arctic_8c5844 + 0x60);
+  grid_pos.x = -150.0;
+  grid_i = 0;
+  row_or_clump = 5;
   do {
-    RStack_24.z = -150.0;
-    iVar2 = 5;
+    grid_pos.z = -150.0;
+    col_i = 5;
     do {
-      RwFrameTranslate(*(RwFrame **)((char *)(&g_course_arctic_8c5840)[iVar4] + 4),&RStack_24,
+      RwFrameTranslate(*(RwFrame **)((char *)(&g_course_arctic_8c5840)[grid_i] + 4),&grid_pos,
                        rwCOMBINEREPLACE);
-      RStack_24.z = RStack_24.z + k_f_60;
-      iVar4 = iVar4 + 1;
-      iVar2 = iVar2 + -1;
-    } while (iVar2 != 0);
-    camera_2 = camera_2 + -1;
-    RStack_24.x = RStack_24.x + k_f_60;
-  } while (camera_2 != 0);
-  frame.uStack_c = 0xc23af5c3;
-  frame.uStack_8 = 0x3f3f3b64;
-  frame.uStack_4 = 0xc28c245a;
-  frame.uStack_18 = 0xbc03126f;
-  frame.uStack_14 = 0x3ca3d70a;
-  frame.uStack_10 = 0xbc03126f;
-  RStack_24.x = 0.008;
-  RStack_24.y = 0.08;
-  RStack_24.z = 0.008;
-  uVar1 = find_texture_dict_b("smoke");
-  rain_ptank_create(uVar1);
-  rain_splash_add(&frame.uStack_c,0x3c23d70a,&frame.uStack_18,&RStack_24);
-  camera_2 = 0;
-  if (0 < *(int *)(param_1 + 0xc004)) {
-    iVar4 = param_1 + 0xc30;
+      grid_pos.z = grid_pos.z + k_f_60;
+      grid_i = grid_i + 1;
+      col_i = col_i + -1;
+    } while (col_i != 0);
+    row_or_clump = row_or_clump + -1;
+    grid_pos.x = grid_pos.x + k_f_60;
+  } while (row_or_clump != 0);
+  frame.emit_x = 0xc23af5c3;
+  frame.emit_y = 0x3f3f3b64;
+  frame.emit_z = 0xc28c245a;
+  frame.vel_x = 0xbc03126f;
+  frame.vel_y = 0x3ca3d70a;
+  frame.vel_z = 0xbc03126f;
+  grid_pos.x = 0.008;
+  grid_pos.y = 0.08;
+  grid_pos.z = 0.008;
+  smoke_texture = find_texture_dict_b("smoke");
+  rain_ptank_create(smoke_texture);
+  rain_splash_add(&frame.emit_x,0x3c23d70a,&frame.vel_x,&grid_pos);
+  row_or_clump = 0;
+  if (0 < *(int *)(course + 0xc004)) {
+    grid_i = course + 0xc30;
     do {
-      uVar1 = fx_slot_find_free(0xc,iVar4,0,0x14);
-      (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = uVar1;
+      smoke_texture = fx_slot_find_free(0xc,grid_i,0,0x14);
+      (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-      camera_2 = camera_2 + 1;
-      iVar4 = iVar4 + 0x40;
-    } while (camera_2 < *(int *)(param_1 + 0xc004));
+      row_or_clump = row_or_clump + 1;
+      grid_i = grid_i + 0x40;
+    } while (row_or_clump < *(int *)(course + 0xc004));
   }
-  camera_2 = 0;
-  if (0 < *(int *)(param_1 + 0xc008)) {
-    iVar4 = param_1 + 0x1830;
+  row_or_clump = 0;
+  if (0 < *(int *)(course + 0xc008)) {
+    grid_i = course + 0x1830;
     do {
-      uVar1 = fx_slot_find_free(7,iVar4,0,0x14);
-      (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = uVar1;
+      smoke_texture = fx_slot_find_free(7,grid_i,0,0x14);
+      (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-      camera_2 = camera_2 + 1;
-      iVar4 = iVar4 + 0x40;
-    } while (camera_2 < *(int *)(param_1 + 0xc008));
+      row_or_clump = row_or_clump + 1;
+      grid_i = grid_i + 0x40;
+    } while (row_or_clump < *(int *)(course + 0xc008));
   }
-  camera_2 = 0;
-  if (0 < *(int *)(param_1 + 0xc00c)) {
-    iVar4 = param_1 + 0x2430;
+  row_or_clump = 0;
+  if (0 < *(int *)(course + 0xc00c)) {
+    grid_i = course + 0x2430;
     do {
-      uVar1 = fx_slot_find_free(2,iVar4,0,0x14);
-      (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = uVar1;
+      smoke_texture = fx_slot_find_free(2,grid_i,0,0x14);
+      (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-      camera_2 = camera_2 + 1;
-      iVar4 = iVar4 + 0x40;
-    } while (camera_2 < *(int *)(param_1 + 0xc00c));
+      row_or_clump = row_or_clump + 1;
+      grid_i = grid_i + 0x40;
+    } while (row_or_clump < *(int *)(course + 0xc00c));
   }
-  frame.uStack_c = 0xc204199a;
-  frame.uStack_8 = 0x401147ae;
-  frame.uStack_4 = 0xc2286666;
+  frame.emit_x = 0xc204199a;
+  frame.emit_y = 0x401147ae;
+  frame.emit_z = 0xc2286666;
   g_course_arctic_6a0774 = g_course_arctic_6a0778;
-  uVar1 = fx_slot_find_free(0xc,&frame.uStack_c,0,0x14);
-  (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = uVar1;
+  smoke_texture = fx_slot_find_free(0xc,&frame.emit_x,0,0x14);
+  (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
   g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-  if (*(float *)(param_1 + 0xc9f8) == *(float *)(param_1 + 0xc9fc)) {
+  if (*(float *)(course + 0xc9f8) == *(float *)(course + 0xc9fc)) {
     farClip = 800.0;
     camera = (RwCamera *)get_viewport_camera(0);
     RwCameraSetFarClipPlane(camera,farClip);
-    camera_2 = get_viewport_camera(0);
-    *(undefined4 *)(camera_2 + 0x88) = 0x43480000;
+    row_or_clump = get_viewport_camera(0);
+    *(undefined4 *)(row_or_clump + 0x88) = 0x43480000;
     get_viewport_camera(0);
     game_set_option_flags(0x28,0x2c,0x30);
   }

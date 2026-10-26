@@ -22,48 +22,48 @@ extern struct VoiceSlot g_voices[210];
 void sound_music_volume_update(void)
 
 {
-  int iVar1;
-  float fVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  float local_10;
+  int filter_handle;
+  float music_gain;
+  int skip_voice_b;
+  int skip_voice_c;
+  int skip_voice_d;
+  int skip_voice_music;
+  int skip_voice_a;
+  int voice_i;
+  float voice_volume;
   
-  fVar2 = g_sound_master_fade;
-  fVar2 = (float)(option_get_volume_0() * fVar2);
-  iVar6 = g_sound_music_voice;
-  iVar5 = g_sound_frame_619fac;
-  iVar4 = g_sound_frame_619e84;
-  iVar3 = g_sound_frame_619138;
-  iVar7 = g_sound_frame_6190a4;
-  iVar8 = 0;
+  music_gain = g_sound_master_fade;
+  music_gain = (float)(option_get_volume_0() * music_gain);
+  skip_voice_music = g_sound_music_voice;
+  skip_voice_d = g_sound_frame_619fac;
+  skip_voice_c = g_sound_frame_619e84;
+  skip_voice_b = g_sound_frame_619138;
+  skip_voice_a = g_sound_frame_6190a4;
+  voice_i = 0;
   if (0 < (int)g_sound_8bd7b4) {
     do {
-      if ((((iVar8 != iVar6) && (iVar8 != iVar3)) && (iVar8 != iVar7)) &&
-         ((iVar8 != iVar4 && (iVar8 != iVar5)))) {
-        local_10 = g_voices[iVar8].volume * fVar2;
-        if (local_10 <= float_1_0) {
-          if (local_10 < k_f_0) {
-            local_10 = 0.0;
+      if ((((voice_i != skip_voice_music) && (voice_i != skip_voice_b)) && (voice_i != skip_voice_a)) &&
+         ((voice_i != skip_voice_c && (voice_i != skip_voice_d)))) {
+        voice_volume = g_voices[voice_i].volume * music_gain;
+        if (voice_volume <= float_1_0) {
+          if (voice_volume < k_f_0) {
+            voice_volume = 0.0;
           }
         }
         else {
-          local_10 = 1.0;
+          voice_volume = 1.0;
         }
-        *(float *)(g_voices[iVar8].voice + 0x40) = local_10;
-        iVar1 = *(int *)(g_voices[iVar8].voice + 0x30);
-        if (iVar1 != 0) {
-          FUN_005b7300(iVar1,5,1,local_10);
+        *(float *)(g_voices[voice_i].voice + 0x40) = voice_volume;
+        filter_handle = *(int *)(g_voices[voice_i].voice + 0x30);
+        if (filter_handle != 0) {
+          FUN_005b7300(filter_handle,5,1,voice_volume);
         }
       }
-      iVar8 = iVar8 + 1;
-    } while (iVar8 < (int)g_sound_8bd7b4);
+      voice_i = voice_i + 1;
+    } while (voice_i < (int)g_sound_8bd7b4);
   }
-  iVar7 = message_is_controller_missing_shown();
-  if (iVar7 != 0) {
+  skip_voice_a = message_is_controller_missing_shown();
+  if (skip_voice_a != 0) {
     FUN_005cc2a0(g_sound_6ae0bc,0);
     return;
   }
