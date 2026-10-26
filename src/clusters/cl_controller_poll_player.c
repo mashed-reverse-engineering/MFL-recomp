@@ -24,125 +24,128 @@ extern unsigned char g_controller_poll_8c7e2c;   /* previous extra byte */
 /* WARNING: Unknown calling convention */
 /* builds the per-player input state from the bindings */
 
-void controller_poll_player_n(int in_ebx)
+/* Per frame: previous <- current input record, clear, read the stick of a joypad device, then the bound actions (indices of controller_action_pressed:
+   0 accelerate, 1 brake, 2 fire, 3 drop, 4 menu select, 5 menu back, 6 pause, 7 menu next, 8 insult, 9..0xc left/right/up/down), derive analog x/y (device 1: stick,
+   device 2: keys scaled by 1/255), swap left/right in mirror mode; for player 1 also fill the signed-byte stick state for the second pad channel. */
+void controller_poll_player_n(int player)
 
 {
-  struct PlayerInput *p_in_ebx;
-  float fVar1;
-  byte bVar2;
-  byte bVar3;
-  byte bVar4;
+  struct PlayerInput *pin;
+  float axis_y_out;
+  byte tmp_up;
+  byte tmp_down;
+  byte pressed;
   undefined1 uVar5;
-  int iVar6;
-  PlayerInput *pPVar7;
-  PlayerInput *pPVar8;
+  int n;
+  PlayerInput *cur_in;
+  PlayerInput *prev_in;
   struct {
-    undefined4 local_10;
-    ControllerCfg *local_c;
-    float local_8;
-    float local_4;
+    undefined4 axis_aux;
+    ControllerCfg *cfg_or_tmp;
+    float axis_x;
+    float axis_y;
   } frame;
   
-  pPVar7 = g_player_inputs + in_ebx;
-  pPVar8 = g_player_inputs_previous + in_ebx;
-  for (iVar6 = 0x13; iVar6 != 0; iVar6 = iVar6 + -1) {
-    bVar4 = pPVar7->right;
-    bVar2 = pPVar7->up;
-    bVar3 = pPVar7->down;
-    pPVar8->left = pPVar7->left;
-    pPVar8->right = bVar4;
-    pPVar8->up = bVar2;
-    pPVar8->down = bVar3;
-    pPVar7 = (PlayerInput *)&pPVar7->accelerate;
-    pPVar8 = (PlayerInput *)&pPVar8->accelerate;
+  cur_in = g_player_inputs + player;
+  prev_in = g_player_inputs_previous + player;
+  for (n = 0x13; n != 0; n = n + -1) {
+    pressed = cur_in->right;
+    tmp_up = cur_in->up;
+    tmp_down = cur_in->down;
+    prev_in->left = cur_in->left;
+    prev_in->right = pressed;
+    prev_in->up = tmp_up;
+    prev_in->down = tmp_down;
+    cur_in = (PlayerInput *)&cur_in->accelerate;
+    prev_in = (PlayerInput *)&prev_in->accelerate;
   }
-  frame.local_c = g_controller_cfg + in_ebx;
-  pPVar7 = g_player_inputs + in_ebx;
-  for (iVar6 = 0x13; iVar6 != 0; iVar6 = iVar6 + -1) {
-    pPVar7->left = 0;
-    pPVar7->right = 0;
-    pPVar7->up = 0;
-    pPVar7->down = 0;
-    pPVar7 = (PlayerInput *)&pPVar7->accelerate;
+  frame.cfg_or_tmp = g_controller_cfg + player;
+  cur_in = g_player_inputs + player;
+  for (n = 0x13; n != 0; n = n + -1) {
+    cur_in->left = 0;
+    cur_in->right = 0;
+    cur_in->up = 0;
+    cur_in->down = 0;
+    cur_in = (PlayerInput *)&cur_in->accelerate;
   }
-  frame.local_8 = 0.0;
-  frame.local_4 = 0.0;
-  frame.local_10 = 0;
-  if (g_controller_cfg[in_ebx].device == 1) {
-    joypad_get_axis_info(g_controller_cfg[in_ebx].joystick,0,&frame.local_8,0,&frame.local_10);
+  frame.axis_x = 0.0;
+  frame.axis_y = 0.0;
+  frame.axis_aux = 0;
+  if (g_controller_cfg[player].device == 1) {
+    joypad_get_axis_info(g_controller_cfg[player].joystick,0,&frame.axis_x,0,&frame.axis_aux);
   }
-  bVar4 = controller_action_pressed(in_ebx,4);
-  p_in_ebx = &g_player_inputs[in_ebx];
-  p_in_ebx->menu_select = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,5);
-  p_in_ebx->menu_back = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,6);
-  p_in_ebx->pause = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,7);
-  p_in_ebx->menu_next = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,0);
-  p_in_ebx->accelerate = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,1);
-  p_in_ebx->brake = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,2);
-  p_in_ebx->fire = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,3);
-  p_in_ebx->drop = bVar4;
-  bVar4 = controller_action_pressed(in_ebx,8);
-  p_in_ebx->insult = bVar4;
-  p_in_ebx->fire_copy = p_in_ebx->fire;
-  bVar4 = controller_action_pressed(in_ebx,9);
-  if (bVar4 != 0) {
-    p_in_ebx->direction_flags[0] = 0xff;
-    p_in_ebx->left = bVar4;
+  pressed = controller_action_pressed(player,4);
+  pin = &g_player_inputs[player];
+  pin->menu_select = pressed;
+  pressed = controller_action_pressed(player,5);
+  pin->menu_back = pressed;
+  pressed = controller_action_pressed(player,6);
+  pin->pause = pressed;
+  pressed = controller_action_pressed(player,7);
+  pin->menu_next = pressed;
+  pressed = controller_action_pressed(player,0);
+  pin->accelerate = pressed;
+  pressed = controller_action_pressed(player,1);
+  pin->brake = pressed;
+  pressed = controller_action_pressed(player,2);
+  pin->fire = pressed;
+  pressed = controller_action_pressed(player,3);
+  pin->drop = pressed;
+  pressed = controller_action_pressed(player,8);
+  pin->insult = pressed;
+  pin->fire_copy = pin->fire;
+  pressed = controller_action_pressed(player,9);
+  if (pressed != 0) {
+    pin->direction_flags[0] = 0xff;
+    pin->left = pressed;
   }
-  bVar4 = controller_action_pressed(in_ebx,10);
-  if (bVar4 != 0) {
-    p_in_ebx->direction_flags[1] = 0xff;
-    p_in_ebx->right = bVar4;
+  pressed = controller_action_pressed(player,10);
+  if (pressed != 0) {
+    pin->direction_flags[1] = 0xff;
+    pin->right = pressed;
   }
-  bVar4 = controller_action_pressed(in_ebx,0xb);
-  if (bVar4 != 0) {
-    p_in_ebx->direction_flags[2] = 0xff;
-    p_in_ebx->up = bVar4;
+  pressed = controller_action_pressed(player,0xb);
+  if (pressed != 0) {
+    pin->direction_flags[2] = 0xff;
+    pin->up = pressed;
   }
-  bVar4 = controller_action_pressed(in_ebx,0xc);
-  if (bVar4 != 0) {
-    p_in_ebx->direction_flags[3] = 0xff;
-    p_in_ebx->down = bVar4;
+  pressed = controller_action_pressed(player,0xc);
+  if (pressed != 0) {
+    pin->direction_flags[3] = 0xff;
+    pin->down = pressed;
   }
-  if (frame.local_c->device == 1) {
-    p_in_ebx->analog_x = frame.local_8;
-    fVar1 = -frame.local_4;
+  if (frame.cfg_or_tmp->device == 1) {
+    pin->analog_x = frame.axis_x;
+    axis_y_out = -frame.axis_y;
   }
   else {
-    if (frame.local_c->device != 2) goto LAB_004a5867;
-    frame.local_c = (ControllerCfg *)
-              ((uint)p_in_ebx->down - (uint)p_in_ebx->up);
-    p_in_ebx->analog_x =
-         (float)(int)((uint)p_in_ebx->right - (uint)p_in_ebx->left) *
+    if (frame.cfg_or_tmp->device != 2) goto LAB_004a5867;
+    frame.cfg_or_tmp = (ControllerCfg *)
+              ((uint)pin->down - (uint)pin->up);
+    pin->analog_x =
+         (float)(int)((uint)pin->right - (uint)pin->left) *
          k_f_0_003921569;
-    fVar1 = (float)(int)frame.local_c * k_f_0_003921569;
+    axis_y_out = (float)(int)frame.cfg_or_tmp * k_f_0_003921569;
   }
-  p_in_ebx->analog_y = fVar1;
+  pin->analog_y = axis_y_out;
 LAB_004a5867:
   if (g_game_state.mirror_mode != 0) {
-    bVar4 = p_in_ebx->left;
-    p_in_ebx->left = p_in_ebx->right;
-    p_in_ebx->right = bVar4;
+    pressed = pin->left;
+    pin->left = pin->right;
+    pin->right = pressed;
   }
-  if (in_ebx == 1) {
+  if (player == 1) {
     g_controller_poll_8c7e2c = g_controller_poll_8c7e5c;
     g_controller_poll_8c7e28 = g_controller_8c7e58;
     g_controller_poll_8c7e5c = 0;
     if (g_player_inputs[1].accelerate != 0) {
       g_controller_8c7e58.axes[1] = 0;
       g_controller_8c7e58.axes[0] = 0;
-      g_controller_8c7e58.axes[2] = (signed char)(int)(frame.local_4 * -127.0f);
-      g_controller_8c7e58.axes[3] = (signed char)(int)(frame.local_8 * 127.0f);
+      g_controller_8c7e58.axes[2] = (signed char)(int)(frame.axis_y * -127.0f);
+      g_controller_8c7e58.axes[3] = (signed char)(int)(frame.axis_x * 127.0f);
     } else {
-      g_controller_8c7e58.axes[1] = (signed char)(int)(frame.local_8 * 127.0f);
-      g_controller_8c7e58.axes[0] = (signed char)(int)(frame.local_4 * -127.0f);
+      g_controller_8c7e58.axes[1] = (signed char)(int)(frame.axis_x * 127.0f);
+      g_controller_8c7e58.axes[0] = (signed char)(int)(frame.axis_y * -127.0f);
       g_controller_8c7e58.axes[2] = 0;
       g_controller_8c7e58.axes[3] = 0;
     }

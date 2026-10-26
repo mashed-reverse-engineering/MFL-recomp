@@ -14,95 +14,97 @@
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
 /* "gets and sets the cull mode while drawing the debug pass" */
 
+/* Debug pass: sorts the draw list g_gfx_6c3da0 (g_gfx_6c3eac entries) ascending by the float at +0x24 of each entry's record (base g_gfx_89de0c), a selection sort
+   unrolled by 4 in the inner loop, then calls g_gfx_89de08 on every entry with culling set to mode 2, and empties the list. */
 void gfx_render_state_probe(void)
 
 {
-  int iVar1;
-  int *piVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
+  int item_or_count;
+  int *slot;
+  int j_next4;
+  int j;
+  int base_or_i;
   union {
     char gs_buf[16];
     struct {
-      int iStack_14;
-      int iStack_10;
-      int iStack_c;
-      void *local_8;
+      int remaining;
+      int i;
+      int outer_left;
+      void *old_cull_mode;
     } m;
   } frame;
   
-  RwRenderStateGet(rwRENDERSTATECULLMODE,&frame.m.local_8);
+  RwRenderStateGet(rwRENDERSTATECULLMODE,&frame.m.old_cull_mode);
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)0x2);
-  iVar5 = g_gfx_89de0c;
-  iVar1 = g_gfx_6c3eac;
+  base_or_i = g_gfx_89de0c;
+  item_or_count = g_gfx_6c3eac;
   if (0 < (int)g_gfx_6c3eac) {
-    frame.m.iStack_10 = 1;
-    piVar2 = g_gfx_6c3da0;
-    frame.m.iStack_c = g_gfx_6c3eac;
-    frame.m.iStack_14 = g_gfx_6c3eac;
+    frame.m.i = 1;
+    slot = g_gfx_6c3da0;
+    frame.m.outer_left = g_gfx_6c3eac;
+    frame.m.remaining = g_gfx_6c3eac;
     do {
-      frame.m.iStack_14 = frame.m.iStack_14 + -1;
-      iVar4 = frame.m.iStack_10;
-      if (3 < frame.m.iStack_14) {
-        iVar3 = frame.m.iStack_10 + 3;
+      frame.m.remaining = frame.m.remaining + -1;
+      j = frame.m.i;
+      if (3 < frame.m.remaining) {
+        j_next4 = frame.m.i + 3;
         do {
-          iVar1 = *piVar2;
-          if (*(float *)(iVar1 + 0x24 + iVar5) < *(float *)((g_gfx_6c3da0)[iVar4] + 0x24 + iVar5))
+          item_or_count = *slot;
+          if (*(float *)(item_or_count + 0x24 + base_or_i) < *(float *)((g_gfx_6c3da0)[j] + 0x24 + base_or_i))
           {
-            *piVar2 = (g_gfx_6c3da0)[iVar4];
-            (g_gfx_6c3da0)[iVar4] = iVar1;
+            *slot = (g_gfx_6c3da0)[j];
+            (g_gfx_6c3da0)[j] = item_or_count;
           }
-          iVar1 = *piVar2;
-          if (*(float *)(iVar1 + 0x24 + iVar5) <
-              *(float *)((&g_gfx_render_6c3da4)[iVar4] + 0x24 + iVar5)) {
-            *piVar2 = (&g_gfx_render_6c3da4)[iVar4];
-            (&g_gfx_render_6c3da4)[iVar4] = iVar1;
+          item_or_count = *slot;
+          if (*(float *)(item_or_count + 0x24 + base_or_i) <
+              *(float *)((&g_gfx_render_6c3da4)[j] + 0x24 + base_or_i)) {
+            *slot = (&g_gfx_render_6c3da4)[j];
+            (&g_gfx_render_6c3da4)[j] = item_or_count;
           }
-          iVar1 = *piVar2;
-          if (*(float *)(iVar1 + 0x24 + iVar5) <
-              *(float *)((&g_gfx_render_6c3da8)[iVar4] + 0x24 + iVar5)) {
-            *piVar2 = (&g_gfx_render_6c3da8)[iVar4];
-            (&g_gfx_render_6c3da8)[iVar4] = iVar1;
+          item_or_count = *slot;
+          if (*(float *)(item_or_count + 0x24 + base_or_i) <
+              *(float *)((&g_gfx_render_6c3da8)[j] + 0x24 + base_or_i)) {
+            *slot = (&g_gfx_render_6c3da8)[j];
+            (&g_gfx_render_6c3da8)[j] = item_or_count;
           }
-          iVar1 = *piVar2;
-          if (*(float *)(iVar1 + 0x24 + iVar5) <
-              *(float *)((&g_gfx_render_6c3dac)[iVar4] + 0x24 + iVar5)) {
-            *piVar2 = (&g_gfx_render_6c3dac)[iVar4];
-            (&g_gfx_render_6c3dac)[iVar4] = iVar1;
+          item_or_count = *slot;
+          if (*(float *)(item_or_count + 0x24 + base_or_i) <
+              *(float *)((&g_gfx_render_6c3dac)[j] + 0x24 + base_or_i)) {
+            *slot = (&g_gfx_render_6c3dac)[j];
+            (&g_gfx_render_6c3dac)[j] = item_or_count;
           }
-          iVar3 = iVar3 + 4;
-          iVar4 = iVar4 + 4;
-          iVar1 = g_gfx_6c3eac;
-        } while (iVar3 < (int)g_gfx_6c3eac);
+          j_next4 = j_next4 + 4;
+          j = j + 4;
+          item_or_count = g_gfx_6c3eac;
+        } while (j_next4 < (int)g_gfx_6c3eac);
       }
-      if (iVar4 < iVar1) {
+      if (j < item_or_count) {
         do {
-          iVar1 = *piVar2;
-          if (*(float *)(iVar1 + 0x24 + iVar5) < *(float *)((g_gfx_6c3da0)[iVar4] + 0x24 + iVar5))
+          item_or_count = *slot;
+          if (*(float *)(item_or_count + 0x24 + base_or_i) < *(float *)((g_gfx_6c3da0)[j] + 0x24 + base_or_i))
           {
-            *piVar2 = (g_gfx_6c3da0)[iVar4];
-            (g_gfx_6c3da0)[iVar4] = iVar1;
+            *slot = (g_gfx_6c3da0)[j];
+            (g_gfx_6c3da0)[j] = item_or_count;
           }
-          iVar4 = iVar4 + 1;
-          iVar1 = g_gfx_6c3eac;
-        } while (iVar4 < (int)g_gfx_6c3eac);
+          j = j + 1;
+          item_or_count = g_gfx_6c3eac;
+        } while (j < (int)g_gfx_6c3eac);
       }
-      frame.m.iStack_10 = frame.m.iStack_10 + 1;
-      piVar2 = piVar2 + 1;
-      frame.m.iStack_c = frame.m.iStack_c + -1;
-    } while (frame.m.iStack_c != 0);
+      frame.m.i = frame.m.i + 1;
+      slot = slot + 1;
+      frame.m.outer_left = frame.m.outer_left + -1;
+    } while (frame.m.outer_left != 0);
   }
-  iVar5 = 0;
-  if (0 < iVar1) {
+  base_or_i = 0;
+  if (0 < item_or_count) {
     do {
-      (*g_gfx_89de08)((g_gfx_6c3da0)[iVar5]);
+      (*g_gfx_89de08)((g_gfx_6c3da0)[base_or_i]);
       g_gfx_6c3ea0 = g_gfx_6c3ea0 + 1;
-      iVar5 = iVar5 + 1;
-    } while (iVar5 < (int)g_gfx_6c3eac);
+      base_or_i = base_or_i + 1;
+    } while (base_or_i < (int)g_gfx_6c3eac);
   }
   g_gfx_6c3eac = 0;
-  RwRenderStateSet(rwRENDERSTATECULLMODE,frame.m.local_8);
+  RwRenderStateSet(rwRENDERSTATECULLMODE,frame.m.old_cull_mode);
   return;
 }
 

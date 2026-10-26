@@ -67,7 +67,7 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
     }
     race_phase = race_get_phase();
     if (((race_phase != 6) && (race_phase = race_get_phase(), race_phase != 0xb)) &&
-       (race_phase = race_get_phase(), race_phase != 10)) {
+       (race_phase = race_get_phase(), race_phase != RACE_PHASE_WINNER_DONE)) {
       pPVar5 = (PlayerInput *)&g_cars_7f01a0;
     }
     if ((pPVar5->left == 0) && (pPVar5->right == 0)) {

@@ -43,7 +43,7 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
   vz = f * car->velocity[2];
   iVar3 = race_get_phase();
   if (((iVar3 != 6) && (iVar3 = race_get_phase(), iVar3 != 0xb)) &&
-     (iVar3 = race_get_phase(), iVar3 != 10)) {
+     (iVar3 = race_get_phase(), iVar3 != RACE_PHASE_WINNER_DONE)) {
     vz = 0.0f;
     vy = 0.0f;
     vx = 0.0f;

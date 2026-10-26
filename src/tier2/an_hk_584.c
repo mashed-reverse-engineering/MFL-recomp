@@ -147,7 +147,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
     }
     retry_count = race_get_phase();
     if (((retry_count != 6) && (retry_count = race_get_phase(), retry_count != 0xb)) &&
-       (retry_count = race_get_phase(), retry_count != 10)) {
+       (retry_count = race_get_phase(), retry_count != RACE_PHASE_WINNER_DONE)) {
       frame.input = (PlayerInput *)&g_cars_7f01a0;
     }
     if ((player_car[frame.car_index].rwp_object == 0) &&
@@ -192,7 +192,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
               if (((*own_pos - *other_pos) * (*own_pos - *other_pos) +
                    (own_pos[1] - other_pos[1]) * (own_pos[1] - other_pos[1]) +
                    (own_pos[2] - other_pos[2]) * (own_pos[2] - other_pos[2]) < collision_range * collision_range) &&
-                 (((((race_phase == 6 || (race_phase == 7)) || (race_phase == 10)) ||
+                 (((((race_phase == 6 || (race_phase == 7)) || (race_phase == RACE_PHASE_WINNER_DONE)) ||
                    (race_phase == 0xb)) &&
                   (collided = car_car_collision_r(car,(int)player_car[0].effect_level + other_offset + -0x20,
                                              other_index,retry_count), collided != 0)))) {

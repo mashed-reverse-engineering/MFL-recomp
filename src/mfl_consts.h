@@ -20,7 +20,9 @@ enum RacePhase {
     RACE_PHASE_RACING = 6,
     RACE_PHASE_STANDINGS = 7,
     RACE_PHASE_FINISHED = 8,      /* (inferred) race ended without a winner camera (race_check_winner_by_game_mode) */
-    RACE_PHASE_WINNER_VIEW = 9    /* (inferred) winner found: camera on the winner (race_phase_9_update) */
+    RACE_PHASE_WINNER_VIEW = 9,   /* (inferred) winner found: camera on the winner (race_phase_9_update) */
+    RACE_PHASE_WINNER_DONE = 10,  /* (inferred) set by the event handler right after race_phase_9_update; cars stop updating */
+    RACE_PHASE_ROUND_END = 11     /* (inferred) race_check_winner_by_game_mode: weapons/powerups off, end-of-round camera */
 };
 #endif
 

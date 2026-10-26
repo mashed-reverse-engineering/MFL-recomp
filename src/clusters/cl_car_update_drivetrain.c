@@ -49,16 +49,15 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
 
 {
   RwV3d *in;
-  float *in_00;
-  float *pfVar1;
+  float *vel_ptr;
   float fVar2;
   float fVar3;
   float fVar4;
   float fVar5;
-  double fVar6;
+  double drag_damp;
   bool boost_active;
   int iVar8;
-  int CVar9;
+  int course_id;
   int gear_probe;
   int wheel_index;
   int gear_max;
@@ -73,7 +72,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
   float s2x, s2y, s2z;
   double inv;
   volatile float tq_y, tq_z, pz;       /* the original stores both products to stack temps (rounded to float) before the subtractions */
-  RwReal RVar13;
+  RwReal vec_len;
   float traction;
   RwV3d tmp_vec;
   float gear_torque;
@@ -106,10 +105,10 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
   
   iVar8 = race_get_phase();
   race_phase = iVar8;
-  RVar13 = RwV3dLength((RwV3d *)car->velocity);
-  car->speed = RVar13;
-  RVar13 = RwV3dLength((RwV3d *)car->angular_velocity);
-  car->angular_speed = RVar13;
+  vec_len = RwV3dLength((RwV3d *)car->velocity);
+  car->speed = vec_len;
+  vec_len = RwV3dLength((RwV3d *)car->angular_velocity);
+  car->angular_speed = vec_len;
   slip_energy = 0.0;
   torque_sum.z = 0.0;
   torque_sum.y = 0.0;
@@ -237,15 +236,15 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
     fVar5 = k_f_350000;
     if (((iVar8 == -0x69e1a6) || (iVar8 == -0xe17f4c)) &&
        ((car->is_bot == 0 &&
-        (CVar9 = current_course_id(), fVar5 = k_f_300000, CVar9 == 20)))) {
+        (course_id = current_course_id(), fVar5 = k_f_300000, course_id == 20)))) {
       fVar5 = k_f_150000;
     }
     if ((iVar8 == -1) || (iVar8 == -0x373738)) {
       { double dragt = dt * k_f_0_016666668;      /* keeps the original product order */
-        fVar6 = (float_1_0 - dragt * k_f_0_01) * k_f_0_99; }
-      car->velocity[0] = fVar6 * car->velocity[0];
-      car->velocity[1] = fVar6 * car->velocity[1];
-      car->velocity[2] = fVar6 * car->velocity[2];
+        drag_damp = (float_1_0 - dragt * k_f_0_01) * k_f_0_99; }
+      car->velocity[0] = drag_damp * car->velocity[0];
+      car->velocity[1] = drag_damp * car->velocity[1];
+      car->velocity[2] = drag_damp * car->velocity[2];
     }
   }
   if (fVar5 < (fVar2 / fVar4) * fVar3) {
@@ -427,7 +426,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
         side_dir.z = tz - slip_z;
         rlen = RwV3dLength(&side_dir);      /* fst: stored as a float AND the unrounded ST0 is multiplied */
         rl_f = (float)rlen;
-        RVar13 = rl_f;
+        vec_len = rl_f;
         wheel_flags = wheel[-1];
         drag_sum = rlen * traction + drag_sum;
         if ((wheel_flags & 0x100) == 0) {
@@ -436,7 +435,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
             s2x = slip_x * coef;
             s2y = slip_y * coef;
             s2z = coef * slip_z;
-            vv = RVar13 * car->speed;
+            vv = vec_len * car->speed;
             if (vv < float_50_0) {
               vv = (vv * k_f_0_02) * side_grip;
             }
@@ -470,8 +469,8 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
       }
     }
     in = (RwV3d *)(wheel + 0x1c);
-    RVar13 = RwV3dLength(in);
-    if (k_f_1_0en4 < RVar13) {
+    vec_len = RwV3dLength(in);
+    if (k_f_1_0en4 < vec_len) {
       inv = float_1_0 / PF(-0xb);
       dir_x = PF(-9) * inv;
       dir_y = PF(-8) * inv;
@@ -501,13 +500,13 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
       tmp_vec.x = side_dir.x * PF(-0xb);
       tmp_vec.y = side_dir.y * PF(-0xb);
       tmp_vec.z = side_dir.z * PF(-0xb);
-      RVar13 = RwV3dLength(&tmp_vec);
-      slip_energy_add = RVar13 * k_f_50_24;
+      vec_len = RwV3dLength(&tmp_vec);
+      slip_energy_add = vec_len * k_f_50_24;
       { volatile float vf = (float)slip_energy_add; fVar3 = vf; }      /* stored to a stack float in the original (fst) */
       slip_energy = slip_energy_add + slip_energy;
-      RVar13 = RwV3dLength(&torque_dir);
-      if (k_f_1_0en4 < RVar13) {
-        double q = fVar3 / RVar13;      /* stays on the x87 stack (unrounded) in the original */
+      vec_len = RwV3dLength(&torque_dir);
+      if (k_f_1_0en4 < vec_len) {
+        double q = fVar3 / vec_len;      /* stays on the x87 stack (unrounded) in the original */
         tq_y = torque_dir.y * q;
         tq_z = torque_dir.z * q;
         torque_sum.x = torque_sum.x - torque_dir.x * q;
@@ -527,9 +526,9 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
     car->angular_velocity[1] = tmp_vec.y + car->angular_velocity[1];
     car->angular_velocity[2] = tmp_vec.z + car->angular_velocity[2];
   }
-  RVar13 = RwV3dLength(&torque_sum);
+  vec_len = RwV3dLength(&torque_sum);
   zacc = force_z;
-  rdiff = slip_energy - RVar13;      /* double: the original keeps the difference on the x87 stack (cl would spill a float temporary) */
+  rdiff = slip_energy - vec_len;      /* double: the original keeps the difference on the x87 stack (cl would spill a float temporary) */
   if (rdiff != k_f_0) {
     ratio = rdiff / slip_energy;
     tmp_vec.x = contact_sum_x - force_x;
@@ -539,16 +538,16 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
     force_y = tmp_vec.y * ratio + force_y;
     zacc = ratio * tmp_vec.z + force_z;
   }
-  in_00 = car->velocity;
+  vel_ptr = car->velocity;
   { volatile float t_a4 = CFLD(car, 0xb1c) + zacc; force_z = t_a4; }      /* stored as a float in the original */
   dt_scaled = dt * car->time_step_const * k_f_3_3333333en4;
   slip_energy = (float)dt_scaled;
   v8c = (float)(dt_scaled * (CFLD(car, 0xb14) + force_x));      /* stored as a float in the original */
-  *in_00 = v8c + *in_00;
+  *vel_ptr = v8c + *vel_ptr;
   car->velocity[1] = slip_energy * (CFLD(car, 0xb18) + force_y) + car->velocity[1];
   car->velocity[2] = slip_energy * force_z + car->velocity[2];
-  RVar13 = RwV3dLength((RwV3d *)in_00);
-  car->speed = RVar13;
+  vec_len = RwV3dLength((RwV3d *)vel_ptr);
+  car->speed = vec_len;
   iVar8 = car->wheels[0].surface_color;
   slide_amount = drag_sum / car->wheels[0].handling_scale;
   drag_sum = (float)slide_amount;

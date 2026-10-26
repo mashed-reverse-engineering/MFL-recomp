@@ -158,6 +158,54 @@ extern float menu_get_69cfc4(void);
 extern void gamma_apply_via_device_scaled(float a, float b);
 extern void nop_stub(void);
 extern void __cdecl movie_poll_and_set_surface_b(int a);
+/* menu item tokens (high word 0xffNN): the item id a menu record hands back; named by what the handler does (inferred) */
+#define MENU_ITEM_START_RACE 0xff150000 /* menu_page_enter(PAUSE,2) + start_race_requested */
+#define MENU_ITEM_PLAY_GAME_CHECKED 0xff1d0000 /* validates the player setup before starting */
+#define MENU_ITEM_MSG_33 0xff1e0000 /* "locked" help message 0x33 */
+#define MENU_ITEM_MSG_34 0xff1f0000 /* "locked" help message 0x34 */
+#define MENU_ITEM_MSG_35_A 0xff200000 /* help message 0x35 */
+#define MENU_ITEM_CHALLENGE_PLAY 0xff240000 /* career challenge: starts, or message 0x39/0xac */
+#define MENU_ITEM_MSG_13B 0xff270000 /* cup 3 message */
+#define MENU_ITEM_MSG_13A 0xff280000 /* cup message */
+#define MENU_ITEM_MSG_AC 0xff320000 /* message 0xac */
+#define MENU_ITEM_STANDARD_PLAY 0xff2c0000 /* multiplayer standard play (g_team_mode 0) */
+#define MENU_ITEM_TEAM_PLAY 0xff2e0000 /* multiplayer team play (g_team_mode 1) */
+#define MENU_ITEM_TIME_TRIAL_STANDARD 0xff2d0000 /* time trial, standard */
+#define MENU_ITEM_TIME_TRIAL_TEAM 0xff2f0000 /* time trial, team */
+#define MENU_ITEM_MULTIPLAYER_KIND_1 0xff300000 /* g_menu_multiplayer_kind = 1 */
+#define MENU_ITEM_MULTIPLAYER_KIND_2 0xff310000 /* g_menu_multiplayer_kind = 2 */
+#define MENU_ITEM_OPEN_XBOX_LIVE 0xff360000 /* page XBOX_LIVE */
+#define MENU_ITEM_OPEN_JOIN 0xff380000 /* page JOIN */
+#define MENU_ITEM_OPEN_CHALLENGE_SELECT_A 0xff3b0000 /* page CHALLENGE_SELECT_A, resets slots */
+#define MENU_ITEM_SETUP_USE_0 0xff3d0000 /* race_setup_use_0, event column 3 */
+#define MENU_ITEM_SETUP_USE_5_COL0 0xff400000 /* race_setup_use_5, event column 0 */
+#define MENU_ITEM_SETUP_USE_5_COL_B 0xff4d0000 /* race_setup_use_5, event column 0xb */
+#define MENU_ITEM_SETUP_USE_2 0xff850000 /* race_setup_use_2, event column 0xe */
+#define MENU_ITEM_SETUP_USE_3 0xff860000 /* race_setup_use_3, event column 0xf */
+#define MENU_ITEM_SETUP_USE_4 0xff870000 /* race_setup_use_4, event column 0x10 */
+#define MENU_ITEM_SETUP_USE_1 0xff880000 /* race_setup_use_1, event column 0x11 */
+#define MENU_ITEM_SETUP_INDEX_0 0xff3a0000 /* race_set_setup_index(0) */
+#define MENU_ITEM_RESET_PLAYER_SLOTS 0xff3c0000 /* player_slots_reset_state */
+#define MENU_ITEM_QUICK_RACE_START 0xff420000 /* quick race 11..13 start */
+#define MENU_ITEM_START_LOADING 0xff440000 /* loading_start_log */
+#define MENU_ITEM_OPEN_SOUND 0xff430000 /* page SOUND */
+#define MENU_ITEM_RESUME 0xff450000 /* menu_page_enter(PAUSE,1) */
+#define MENU_ITEM_SAVE_GAME 0xff470000 /* gamesave_request_save_a */
+#define MENU_ITEM_OPEN_CHALLENGE_SELECT_B 0xff490000 /* page CHALLENGE_SELECT_B */
+#define MENU_ITEM_START_RACE_SETUP 0xff4a0000 /* starts a race with race phase SETUP */
+#define MENU_ITEM_EXIT_TO_MAIN 0xff4b0000 /* load slot 1, back to the main page */
+#define MENU_ITEM_BACK_FROM_SAVE_LOAD 0xff4c0000 /* load/save screen back item */
+#define MENU_ITEM_MSG_35_B 0xff4e0000 /* help message 0x35 */
+#define MENU_ITEM_OPEN_OPTIONS 0xff500000 /* page OPTIONS */
+#define MENU_ITEM_TEAM_COLOUR_A 0xff710000 /* page TEAM_COLOUR_SELECT, g_menu_7ef7d0 = 0 */
+#define MENU_ITEM_TEAM_COLOUR_B 0xff720000 /* page TEAM_COLOUR_SELECT, g_menu_7ef7d0 = 1 */
+#define MENU_ITEM_OPEN_GAMMA 0xff730000 /* page GAMMA */
+#define MENU_ITEM_MSG_267 0xff800000 /* help message 0x267 */
+#define MENU_ITEM_DESELECT 0xff810000 /* clears the selection */
+#define MENU_ITEM_OPEN_BONUS 0xff820000 /* page BONUS_FEATURES or BONUS_CAMERAS */
+#define MENU_ITEM_OPEN_AUTOSAVE 0xff830000 /* page AUTOSAVE */
+#define MENU_ITEM_LOAD_COURSE 0xff840000 /* race_load_course_0042fad0 */
+#define MENU_ITEM_OPEN_PAGE_14 0xff480000 /* page 0x14 */
 
 /* Frontend menu state machine (0x4463e0): the volume/flash fades, then per frontend state 1..5 the fade in/out of the page, and in state 3 the input handling: the
    position screen, select (the item offset token switch that starts races, opens pages, sets up the player slots), back, up, down, pause, left/right value
@@ -408,11 +456,11 @@ void menu_update(void)
         }
         if (token != 0xffffffff) {
           if (token < 0xff440001) {
-            if (token == 0xff440000) {
+            if (token == MENU_ITEM_START_LOADING) {
               loading_start_log();
             }
             else if (token < 0xff310001) {
-              if (token == 0xff310000) {
+              if (token == MENU_ITEM_MULTIPLAYER_KIND_2) {
                 g_menu_multiplayer_kind = 2;
 LAB_00447824:
                 color_ptr = &player_color_id;
@@ -969,14 +1017,14 @@ LAB_004478ac:
                   }
                 }
                 else if (token < 0xff1f0001) {
-                  if (token == 0xff1f0000) {
-                    message_show_now(0x34,0xff1f0000,2,0x2f,0x30,0);
+                  if (token == MENU_ITEM_MSG_34) {
+                    message_show_now(0x34,MENU_ITEM_MSG_34,2,0x2f,0x30,0);
                   }
-                  else if (token == 0xff150000) {
+                  else if (token == MENU_ITEM_START_RACE) {
                     menu_page_enter(0,2);
                     g_menu_start_race_requested = 1;
                   }
-                  else if (token == 0xff1d0000) {
+                  else if (token == MENU_ITEM_PLAY_GAME_CHECKED) {
                     team_mode = event_type_uses_standard_menu();
                     if (team_mode == 0) {
                       team_mode = menu_validate_player_setup();
@@ -1025,15 +1073,15 @@ LAB_004478ac:
                     }
                   }
                   else {
-                    if (token != 0xff1e0000) goto LAB_00448159;
-                    message_show_now(0x33,0xff1e0000,2,0x2f,0x30,0);
+                    if (token != MENU_ITEM_MSG_33) goto LAB_00448159;
+                    message_show_now(0x33,MENU_ITEM_MSG_33,2,0x2f,0x30,0);
                   }
                 }
-                else if (token == 0xff200000) {
-                  message_show_now(0x35,0xff200000,2,0x2f,0x30,0);
+                else if (token == MENU_ITEM_MSG_35_A) {
+                  message_show_now(0x35,MENU_ITEM_MSG_35_A,2,0x2f,0x30,0);
                 }
                 else {
-                  if (token != 0xff240000) goto LAB_00448159;
+                  if (token != MENU_ITEM_CHALLENGE_PLAY) goto LAB_00448159;
                   if ((((g_event_type == EVENT_MULTIPLAYER_6) || (g_event_type == EVENT_MULTIPLAYER_7)) ||
                       ((g_event_type == EVENT_MULTIPLAYER_8 || ((g_event_type == EVENT_TIME_TRIAL_0 || (g_event_type == EVENT_TIME_TRIAL_1)))))) ||
                      (g_event_type == EVENT_TIME_TRIAL_2)) {
@@ -1057,23 +1105,23 @@ LAB_00446b4b:
                       else {
                         team_mode = career_time_under_target();
                         if (team_mode == 0) {
-                          message_show_now(0x13b,0xff270000,2,0x2f,0x30,0);
+                          message_show_now(0x13b,MENU_ITEM_MSG_13B,2,0x2f,0x30,0);
                           g_menu_career_race_active = 2;
                           g_menu_69cc48 = 5;
                         }
                         else {
-                          message_show_now(0x13a,0xff280000,1,0x2e,0,0);
+                          message_show_now(0x13a,MENU_ITEM_MSG_13A,1,0x2e,0,0);
                           g_menu_career_race_active = 1;
                           g_menu_69cc48 = 5;
                         }
                       }
                     }
                     else if (g_tutorial_69d2a8 == 0) {
-                      message_show_now(0x39,0xff240000,2,0x2f,0x30,0);
+                      message_show_now(0x39,MENU_ITEM_CHALLENGE_PLAY,2,0x2f,0x30,0);
                       g_menu_69cc48 = 5;
                     }
                     else {
-                      message_show_now(0xac,0xff320000,2,0x2f,0x30,0);
+                      message_show_now(0xac,MENU_ITEM_MSG_AC,2,0x2f,0x30,0);
                       g_menu_69cc48 = 5;
                     }
                   }
@@ -1081,7 +1129,7 @@ LAB_00446b4b:
               }
               else {
                 if (token < 0xff2e0001) {
-                  if ((token == 0xff2e0000) || (token == 0xff2c0000)) {
+                  if ((token == MENU_ITEM_TEAM_PLAY) || (token == MENU_ITEM_STANDARD_PLAY)) {
                     if (g_menu_player_count_index == 2) {
                       g_menu_multiplayer_kind = 1;
                     }
@@ -1092,7 +1140,7 @@ LAB_00446b4b:
                     g_menu_69d68c = 0;
                     g_menu_event_column = 6;
                     event_type_from_menu_choice();
-                    g_team_mode = (uint)(token == 0xff2e0000);
+                    g_team_mode = (uint)(token == MENU_ITEM_TEAM_PLAY);
                     color_ptr = &player_color_id;
                     do {
                       *color_ptr = 0xffffffff;
@@ -1100,22 +1148,22 @@ LAB_00446b4b:
                     } while ((int)color_ptr < 0x69d0b8);
                     goto LAB_004477dc;
                   }
-                  if (token == 0xff2d0000) goto LAB_00447720;
+                  if (token == MENU_ITEM_TIME_TRIAL_STANDARD) goto LAB_00447720;
                 }
                 else {
-                  if (token == 0xff2f0000) {
+                  if (token == MENU_ITEM_TIME_TRIAL_TEAM) {
 LAB_00447720:
                     g_event_type = EVENT_TIME_TRIAL_0;
                     g_menu_60ad5c = 10;
                     g_menu_60ad60 = 3;
                     menu_text_format_and_draw(100,10);
                     menu_text_format_and_draw(0x65,g_menu_60ad60);
-                    g_team_mode = (uint)(token == 0xff2f0000);
+                    g_team_mode = (uint)(token == MENU_ITEM_TIME_TRIAL_TEAM);
                     g_menu_player_count_index = 0;
                     menu_page_enter(MENU_PAGE_CUSTOMISE_PLAY,0);
                     goto LAB_00448214;
                   }
-                  if (token == 0xff300000) {
+                  if (token == MENU_ITEM_MULTIPLAYER_KIND_1) {
                     g_menu_multiplayer_kind = 1;
                     goto LAB_00447824;
                   }
@@ -1129,7 +1177,7 @@ LAB_00448159:
               }
             }
             else if (token < 0xff3b0001) {
-              if (token == 0xff3b0000) {
+              if (token == MENU_ITEM_OPEN_CHALLENGE_SELECT_A) {
                 menu_page_enter(MENU_PAGE_CHALLENGE_SELECT_A,0);
                 team_mode = 0;
                 slot_ptr = g_player_slots;
@@ -1143,23 +1191,23 @@ LAB_00448159:
                 } while ((int)slot_ptr < 0x7f023c);
               }
               else if (token < 0xff380001) {
-                if (token == 0xff380000) {
+                if (token == MENU_ITEM_OPEN_JOIN) {
                   menu_page_enter(MENU_PAGE_JOIN,0);
                 }
-                else if (token == 0xff360000) {
+                else if (token == MENU_ITEM_OPEN_XBOX_LIVE) {
                   menu_page_enter(MENU_PAGE_XBOX_LIVE,0);
                 }
                 else if (token != 0xff370000) goto LAB_00448159;
               }
               else if (token != 0xff390000) {
-                if (token != 0xff3a0000) goto LAB_00448159;
+                if (token != MENU_ITEM_SETUP_INDEX_0) goto LAB_00448159;
                 race_set_setup_index(0);
                 goto LAB_004478ac;
               }
             }
             else {
               if (token < 0xff400001) {
-                if (token == 0xff400000) {
+                if (token == MENU_ITEM_SETUP_USE_5_COL0) {
                   race_setup_use_5();
                   g_menu_7ef7d0 = 0;
                   g_menu_event_column = 0;
@@ -1171,7 +1219,7 @@ LAB_00448159:
                   } while (team_mode < 4);
                 }
                 else {
-                  if (token == 0xff3c0000) {
+                  if (token == MENU_ITEM_RESET_PLAYER_SLOTS) {
                     team_mode = player_slots_reset_state();
                     if (team_mode == 0x1000) {
                       color_ptr = &g_menu_controller_vehicle;
@@ -1200,7 +1248,7 @@ LAB_00448159:
                     }
                     goto LAB_00448214;
                   }
-                  if (token != 0xff3d0000) goto LAB_00448159;
+                  if (token != MENU_ITEM_SETUP_USE_0) goto LAB_00448159;
                   race_setup_use_0();
                   g_menu_7ef7d0 = 0;
                   g_menu_event_column = 3;
@@ -1213,7 +1261,7 @@ LAB_00448159:
                 }
                 goto LAB_004481e1;
               }
-              if (token == 0xff420000) {
+              if (token == MENU_ITEM_QUICK_RACE_START) {
                 if (((g_event_type == EVENT_QUICK_RACE_11) || (g_event_type == EVENT_QUICK_RACE_12)) || (g_event_type == EVENT_QUICK_RACE_13)) {
                   /* quick race 11..13: count the teams that have players (up to 3); starting needs at least one else message 0x254 */
                   team_count = g_menu_player_team_choice != 0;
@@ -1302,7 +1350,7 @@ LAB_00447d20:
                     game_mode = GAME_MODE_HARE_AND_HOUNDS;
                     g_team_mode = 1;
                   }
-                  menu_page_enter(0,2);
+                  menu_page_enter(MENU_PAGE_PAUSE,2);
                   g_menu_start_race_requested = 1;
                   g_menu_screen_id = 1;
                   g_menu_69d290 = 0;
@@ -1375,13 +1423,13 @@ LAB_00447bf5:
                 }
               }
               else {
-                if (token != 0xff430000) goto LAB_00448159;
+                if (token != MENU_ITEM_OPEN_SOUND) goto LAB_00448159;
                 menu_page_enter(MENU_PAGE_SOUND,0);
               }
             }
           }
           else if (token < 0xff710001) {
-            if (token == 0xff710000) {
+            if (token == MENU_ITEM_TEAM_COLOUR_A) {
 LAB_004477dc:
               g_menu_7ef7d0 = 0;
 LAB_004477e2:
@@ -1389,7 +1437,7 @@ LAB_004477e2:
               g_menu_69cc44 = 1;
             }
             else if (token < 0xff4b0001) {
-              if (token == 0xff4b0000) {
+              if (token == MENU_ITEM_EXIT_TO_MAIN) {
                 gfx_set_89ddfc(0xff);
                 g_ui_69d1f4 = 1;
                 g_menu_69d1f0 = 0;
@@ -1398,18 +1446,18 @@ LAB_004477e2:
                 g_menu_7ef7d0 = 0;
               }
               else if (token < 0xff480001) {
-                if (token == 0xff480000) {
+                if (token == MENU_ITEM_OPEN_PAGE_14) {
                   menu_page_enter(0x14,0);
                 }
-                else if (token == 0xff450000) {
-                  menu_page_enter(0,1);
+                else if (token == MENU_ITEM_RESUME) {
+                  menu_page_enter(MENU_PAGE_PAUSE,1);
                 }
                 else {
-                  if (token != 0xff470000) goto LAB_00448159;
+                  if (token != MENU_ITEM_SAVE_GAME) goto LAB_00448159;
                   gamesave_request_save_a();
                 }
               }
-              else if (token == 0xff490000) {
+              else if (token == MENU_ITEM_OPEN_CHALLENGE_SELECT_B) {
                 g_menu_69d6b4 = 0;
                 menu_page_enter(MENU_PAGE_CHALLENGE_SELECT_B,0);
                 if (g_menu_career_race_active == 2) {
@@ -1417,8 +1465,8 @@ LAB_004477e2:
                 }
               }
               else {
-                if (token != 0xff4a0000) goto LAB_00448159;
-                menu_page_enter(0,2);
+                if (token != MENU_ITEM_START_RACE_SETUP) goto LAB_00448159;
+                menu_page_enter(MENU_PAGE_PAUSE,2);
                 g_menu_start_race_requested = 1;
                 race_set_phase(RACE_PHASE_SETUP);
                 g_menu_69d1f0 = 4;
@@ -1428,12 +1476,12 @@ LAB_004477e2:
               }
             }
             else if (token < 0xff4e0001) {
-              if (token == 0xff4e0000) {
-                message_show_now(0x35,0xff4e0000,2,0x2f,0x30,0);
+              if (token == MENU_ITEM_MSG_35_B) {
+                message_show_now(0x35,MENU_ITEM_MSG_35_B,2,0x2f,0x30,0);
               }
               else {
-                if (token != 0xff4c0000) {
-                  if (token != 0xff4d0000) goto LAB_00448159;
+                if (token != MENU_ITEM_BACK_FROM_SAVE_LOAD) {
+                  if (token != MENU_ITEM_SETUP_USE_5_COL_B) goto LAB_00448159;
                   race_setup_use_5();
                   g_menu_7ef7d0 = 0;
                   g_menu_event_column = 0xb;
@@ -1459,7 +1507,7 @@ LAB_004477e2:
                   g_menu_update_69d2bc = 0;
                 }
                 else {
-                  menu_page_enter(0,1);
+                  menu_page_enter(MENU_PAGE_PAUSE,1);
                   if (g_menu_update_69d2bc == 0) {
                     if (g_menu_update_69d2c0 != 0) {
                       gamesave_request_save_a();
@@ -1476,34 +1524,34 @@ LAB_004477e2:
               }
             }
             else if (token != 0xff4f0000) {
-              if (token != 0xff500000) goto LAB_00448159;
+              if (token != MENU_ITEM_OPEN_OPTIONS) goto LAB_00448159;
               menu_page_enter(MENU_PAGE_OPTIONS,0);
             }
           }
           else if (token < 0xff830001) {
-            if (token == 0xff830000) {
+            if (token == MENU_ITEM_OPEN_AUTOSAVE) {
               menu_page_enter(MENU_PAGE_AUTOSAVE,0);
             }
             else if (token < 0xff800001) {
-              if (token == 0xff800000) {
-                message_show_now(0x267,0xff800000,2,0x2f,0x30,0);
+              if (token == MENU_ITEM_MSG_267) {
+                message_show_now(0x267,MENU_ITEM_MSG_267,2,0x2f,0x30,0);
               }
-              else if (token == 0xff720000) {
+              else if (token == MENU_ITEM_TEAM_COLOUR_B) {
                 g_menu_7ef7d0 = 1;
                 menu_page_enter(MENU_PAGE_TEAM_COLOUR_SELECT,0);
                 g_menu_69cc44 = 1;
               }
               else {
-                if (token != 0xff730000) goto LAB_00448159;
+                if (token != MENU_ITEM_OPEN_GAMMA) goto LAB_00448159;
                 menu_page_enter(MENU_PAGE_GAMMA,0);
               }
             }
-            else if (token == 0xff810000) {
+            else if (token == MENU_ITEM_DESELECT) {
               g_menu_records[g_menu_current].selected = 0;
               g_menu_select_flash = 0.0;
             }
             else {
-              if (token != 0xff820000) goto LAB_00448159;
+              if (token != MENU_ITEM_OPEN_BONUS) goto LAB_00448159;
               team_mode = scene_get_log_64d898();
               if (team_mode == 0) {
                 menu_page_enter(MENU_PAGE_BONUS_FEATURES,0);
@@ -1515,7 +1563,7 @@ LAB_004477e2:
           }
           else {
             if (token < 0xff860001) {
-              if (token == 0xff860000) {
+              if (token == MENU_ITEM_SETUP_USE_3) {
                 race_setup_use_3();
                 g_menu_7ef7d0 = 0;
                 g_menu_event_column = 0xf;
@@ -1527,11 +1575,11 @@ LAB_004477e2:
                 } while (team_mode < 4);
               }
               else {
-                if (token == 0xff840000) {
+                if (token == MENU_ITEM_LOAD_COURSE) {
                   race_load_course_0042fad0();
                   goto LAB_00448214;
                 }
-                if (token != 0xff850000) goto LAB_00448159;
+                if (token != MENU_ITEM_SETUP_USE_2) goto LAB_00448159;
                 race_setup_use_2();
                 g_menu_7ef7d0 = 0;
                 g_menu_event_column = 0xe;
@@ -1543,7 +1591,7 @@ LAB_004477e2:
                 } while (team_mode < 4);
               }
             }
-            else if (token == 0xff870000) {
+            else if (token == MENU_ITEM_SETUP_USE_4) {
               race_setup_use_4();
               g_menu_7ef7d0 = 0;
               g_menu_event_column = 0x10;
@@ -1555,7 +1603,7 @@ LAB_004477e2:
               } while (team_mode < 4);
             }
             else {
-              if (token != 0xff880000) goto LAB_00448159;
+              if (token != MENU_ITEM_SETUP_USE_1) goto LAB_00448159;
               race_setup_use_1();
               g_menu_7ef7d0 = 0;
               g_menu_event_column = 0x11;
@@ -1579,27 +1627,28 @@ LAB_0044820b:
         }
       }
 LAB_00448214:
+      /* back: restore what the leaving page edited (option sliders / flags / rumble / widescreen saved copies), per-page cleanup, then return to the pause page */
       if (((back_enabled) && (team_mode = menu_back_pressed_any(), team_mode != 0)) &&
          (g_menu_select_pressed == 0)) {
         team_mode = g_menu_records[g_menu_current].page_id;
         g_menu_select_flash = 1.0;
         g_message_69d6ac = 1;
-        if (team_mode == 0x1f) {
+        if (team_mode == MENU_PAGE_BONUS_FEATURES) {
           g_game_state.option_flags[1] = GS(2884);
           g_game_state.option_flags[2] = GS(2888);
           g_game_state.option_flags[3] = GS(2892);
           g_game_state.option_flags[4] = GS(2896);
         }
-        if (team_mode == 0x21) {
+        if (team_mode == MENU_PAGE_BONUS_CAMERAS) {
           g_game_state.option_flags[1] = GS(2884);
           g_game_state.option_flags[2] = GS(2888);
           g_game_state.option_flags[3] = GS(2892);
           g_game_state.option_flags[4] = GS(2896);
         }
         switch(g_menu_records[g_menu_current + -1].page_id) {
-        case 0:
-        case 5:
-          if (team_mode != 8) {
+        case MENU_PAGE_PAUSE:
+        case MENU_PAGE_RACE_RESULTS:
+          if (team_mode != MENU_PAGE_OPTIONS) {
             g_menu_records[1].item_list = (char *)PTR_g_menu_page_01_game_type_select_0060acac;
             g_menu_records[1].page_id = 1;
             g_menu_records[1].entry_count = 5;
@@ -1615,35 +1664,35 @@ LAB_0044849c:
             g_menu_69d1f0 = 0;
           }
           break;
-        case 1:
+        case MENU_PAGE_MAIN:
           ui_input_mode_menu();
           g_menu_69cc4c = 1;
           break;
-        case 2:
+        case MENU_PAGE_SINGLE_PLAYER:
           g_menu_powerup_set = 1;
-          if (g_menu_screen_id == 2) goto LAB_0044849c;
+          if (g_menu_screen_id == MENU_PAGE_SINGLE_PLAYER) goto LAB_0044849c;
           break;
-        case 3:
-        case 9:
+        case MENU_PAGE_MULTIPLAYER:
+        case MENU_PAGE_TEAMS:
           race_setup_use_5();
-          if (((g_menu_screen_id == 9) || (g_menu_screen_id == 2)) || (g_menu_screen_id == 0x1c))
+          if (((g_menu_screen_id == MENU_PAGE_TEAMS) || (g_menu_screen_id == MENU_PAGE_SINGLE_PLAYER)) || (g_menu_screen_id == MENU_PAGE_VIBRATION))
           goto LAB_0044849c;
           break;
-        case 4:
+        case MENU_PAGE_TEAM_COLOUR_SELECT:
           team_mode = event_type_uses_standard_menu();
           if (team_mode == 0) {
             ui_input_mode_menu();
           }
           break;
-        case 8:
-          if (team_mode == 0x13) {
+        case MENU_PAGE_OPTIONS:
+          if (team_mode == MENU_PAGE_SOUND) {
             g_game_state.option_sliders[0] = GS(2836);
             g_game_state.option_sliders[4] = GS(2852);
             g_game_state.option_sliders[3] = GS(2848);
             g_game_state.option_sliders[2] = GS(2844);
             g_game_state.option_sliders[1] = GS(2840);
           }
-          if (team_mode == 0x1c) {
+          if (team_mode == MENU_PAGE_VIBRATION) {
             dst_word = &g_player_inputs[0].rumble_enabled;
             src_word = &g_ai_8c8740;
             do {
@@ -1652,13 +1701,13 @@ LAB_0044849c:
               dst_word = dst_word + 0x13;
             } while ((int)src_word < 0x8c8770);
           }
-          if ((g_menu_screen_id == 0x20) || (g_menu_screen_id == 0x22)) goto LAB_0044849c;
+          if ((g_menu_screen_id == MENU_PAGE_AUTOSAVE) || (g_menu_screen_id == MENU_PAGE_ARCADE_MODES)) goto LAB_0044849c;
           break;
-        case 0xf:
+        case MENU_PAGE_ABILITY_SELECT:
           g_menu_69d6b4 = 0;
           break;
         case 0x15:
-          if (team_mode != 8) {
+          if (team_mode != MENU_PAGE_OPTIONS) {
             g_menu_records[2].item_list = (char *)PTR_g_menu_page_01_game_type_select_0060acac;
             g_menu_records[2].page_id = 1;
             g_menu_records[2].entry_count = 5;
@@ -1666,22 +1715,23 @@ LAB_0044849c:
             goto LAB_0044847c;
           }
           break;
-        case 0x24:
-          if (team_mode == 0x1a) {
+        case MENU_PAGE_SCREEN:
+          if (team_mode == MENU_PAGE_GAME_OPTIONS) {
             GS(2792) = GS(2800);
             GS(2796) = GS(2804);
           }
-          if (team_mode == 0x23) {
+          if (team_mode == MENU_PAGE_WIDESCREEN) {
             camera_fov_factor_set_wide(g_ai_8c86cc);
           }
           break;
-        case 0x25:
-          if (team_mode == 0x20) {
+        case MENU_PAGE_LOAD_SAVE:
+          if (team_mode == MENU_PAGE_AUTOSAVE) {
             gamesave_set_autosave_enabled(g_ai_8c86b8);
           }
         }
-        menu_page_enter(0,1);
+        menu_page_enter(MENU_PAGE_PAUSE,1);
       }
+      /* up/down: move the selection; on the challenge pages step the career row */
       if ((up_enabled) && (team_mode = menu_up_pressed_any(), team_mode != 0)) {
         g_menu_69d6b0 = 1;
         menu_selection_step(0xffffffff);
@@ -1694,23 +1744,25 @@ LAB_0044849c:
          (g_menu_69d6b0 = 1, g_menu_8c8090 == 0)) {
         menu_career_row_next();
       }
+      /* pause button: back to the race with the start-race request */
       if ((aux != 0) && (team_mode = menu_pause_pressed_any(), team_mode != 0)) {
         g_menu_select_pressed = 1;
-        menu_page_enter(0,2);
+        menu_page_enter(MENU_PAGE_PAUSE,2);
         g_menu_start_race_requested = 1;
       }
+      /* left: decrement the value of the selected entry, per page (wraps; sliders step by 0.01 and clamp to 0) */
       if ((left_enabled) &&
          (slot_type = menu_left_pressed_any(), aux = g_career_row, team_mode = g_menu_69cc44,
          slot_type != 0)) {
         g_menu_69d6b0 = 1;
         switch(g_menu_records[g_menu_current].page_id) {
-        case 4:
+        case MENU_PAGE_TEAM_COLOUR_SELECT:
           if (g_menu_update_69d2d4 != 0) {
             g_menu_69d6b0 = 0;
           }
           break;
-        case 6:
-        case 7:
+        case MENU_PAGE_CHALLENGE_SELECT_A:
+        case MENU_PAGE_CHALLENGE_SELECT_B:
           if (g_menu_8c8090 == 0) {
             if ((((((g_menu_event_column == 3) || (g_menu_event_column == 0xe)) ||
                   (g_menu_event_column == 0xf)) ||
@@ -1743,7 +1795,8 @@ LAB_0044849c:
             event_type_from_menu_choice();
           }
           break;
-        case 10:
+        /* entry 0 player count index (0..3), 1/2 round count values; text ids 0x6c/0x65 are the singular forms */
+        case MENU_PAGE_CUSTOMISE_PLAY:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
              (g_menu_player_count_index = g_menu_player_count_index + -1,
@@ -1772,7 +1825,8 @@ LAB_0044849c:
             menu_text_format_and_draw(0x65,g_menu_60ad60);
           }
           break;
-        case 0x11:
+        /* entries: 0 vehicle (0..3), 1 markers on/off, 2 race length (0..2) */
+        case MENU_PAGE_CUSTOM_ABILITIES:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
              (g_menu_selected_vehicle = g_menu_selected_vehicle + -1, g_menu_selected_vehicle < 0))
@@ -1788,7 +1842,8 @@ LAB_0044849c:
             g_menu_race_length_choice = 2;
           }
           break;
-        case 0x12:
+        /* entries: 1 power-up set (0..2), 2 race length, 3 bot skill (0..4), 4 course index (0..0xe, skips locked courses), 5 markers, 6 game mode */
+        case MENU_PAGE_GAME_SETUP_MULTI:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 1) &&
              (g_menu_powerup_set = g_menu_powerup_set + -1, g_menu_powerup_set < 0)) {
@@ -1832,7 +1887,7 @@ LAB_004488f8:
             else if (g_menu_game_mode_choice == 2) goto LAB_004488f8;
           }
           break;
-        case 0x13:
+        case MENU_PAGE_SOUND:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
              (SLF(1) = SLF(1) - k_f_0_01,
@@ -1855,7 +1910,8 @@ LAB_004488f8:
             g_game_state.option_sliders[4] = 2;
           }
           break;
-        case 0x18:
+        /* entries: 1 power-up set, 2 bot skill (1..4), 3 course index, 4..6 team choice of players 0..2 (0..6), 7 team mode toggle */
+        case MENU_PAGE_GAME_SETUP_SINGLE:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 1) &&
              (g_menu_powerup_set = g_menu_powerup_set + -1, g_menu_powerup_set < 0)) {
@@ -1902,7 +1958,8 @@ LAB_004488f8:
             g_menu_team_mode_choice = g_menu_team_mode_choice ^ 1;
           }
           break;
-        case 0x1c:
+        /* toggle rumble of the controller behind the selected row */
+        case MENU_PAGE_VIBRATION:
           team_mode = 0;
           do {
             if (g_menu_records[g_menu_current].selected == team_mode) {
@@ -1913,13 +1970,14 @@ LAB_004488f8:
             team_mode = team_mode + 1;
           } while (team_mode < 4);
           break;
-        case 0x1e:
+        case MENU_PAGE_GAMMA:
           if ((g_menu_records[g_menu_current].selected == 0) &&
              (g_menu_69cfc4 = g_menu_69cfc4 - k_f_0_01, g_menu_69cfc4 < k_f_0)) {
             g_menu_69cfc4 = 0.0;
           }
           break;
-        case 0x1f:
+        /* bonus features: flags 1..4 behave as radio buttons */
+        case MENU_PAGE_BONUS_FEATURES:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 1] = g_game_state.option_flags[team_mode + 1] ^ 1;
           aux = 0;
@@ -1930,13 +1988,14 @@ LAB_004488f8:
             aux = aux + 1;
           } while (aux < 4);
           break;
-        case 0x20:
+        case MENU_PAGE_AUTOSAVE:
           g_menu_69d6b0 = 0;
           token = nop_b();
           gamesave_set_autosave_enabled(token ^ 1);
           g_menu_69d6b0 = 1;
           break;
-        case 0x21:
+        /* bonus cameras: flags 2..3 are mutually exclusive */
+        case MENU_PAGE_BONUS_CAMERAS:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 2] = g_game_state.option_flags[team_mode + 2] ^ 1;
           aux = 0;
@@ -1947,24 +2006,25 @@ LAB_004488f8:
             aux = aux + 1;
           } while (aux < 2);
           break;
-        case 0x23:
+        case MENU_PAGE_WIDESCREEN:
           token = game_state_get_2812();
           camera_fov_factor_set_wide(token ^ 1);
           g_menu_69d6b0 = 1;
         }
       }
+      /* right: mirror of left, increments (sliders clamp to 1.0) */
       if ((right_enabled) &&
          (slot_type = menu_right_pressed_any(), aux = g_menu_event_column,
          team_mode = g_career_row, slot_type != 0)) {
         g_menu_69d6b0 = 1;
         switch(g_menu_records[g_menu_current].page_id) {
-        case 4:
+        case MENU_PAGE_TEAM_COLOUR_SELECT:
           if (g_menu_update_69d2d4 != 0) {
             g_menu_69d6b0 = 0;
           }
           break;
-        case 6:
-        case 7:
+        case MENU_PAGE_CHALLENGE_SELECT_A:
+        case MENU_PAGE_CHALLENGE_SELECT_B:
           if (g_menu_8c8090 == 0) {
             if ((((g_menu_event_column == 5) || (g_menu_event_column == 8)) ||
                 (g_menu_event_column == 2)) ||
@@ -2000,7 +2060,8 @@ LAB_0044907d:
             event_type_from_menu_choice();
           }
           break;
-        case 10:
+        /* entry 0 player count index (0..3), 1/2 round count values; text ids 0x6c/0x65 are the singular forms */
+        case MENU_PAGE_CUSTOMISE_PLAY:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
              (g_menu_player_count_index = g_menu_player_count_index + 1,
@@ -2029,7 +2090,8 @@ LAB_0044907d:
             menu_text_format_and_draw(0x65,g_menu_60ad60);
           }
           break;
-        case 0x11:
+        /* entries: 0 vehicle (0..3), 1 markers on/off, 2 race length (0..2) */
+        case MENU_PAGE_CUSTOM_ABILITIES:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
              (g_menu_selected_vehicle = g_menu_selected_vehicle + 1, g_menu_selected_vehicle == 4))
@@ -2045,7 +2107,8 @@ LAB_0044907d:
             g_menu_race_length_choice = 0;
           }
           break;
-        case 0x12:
+        /* entries: 1 power-up set (0..2), 2 race length, 3 bot skill (0..4), 4 course index (0..0xe, skips locked courses), 5 markers, 6 game mode */
+        case MENU_PAGE_GAME_SETUP_MULTI:
           aux = g_menu_records[g_menu_current].selected;
           if ((aux == 1) && (g_menu_powerup_set = g_menu_powerup_set + 1, 2 < g_menu_powerup_set))
           {
@@ -2087,7 +2150,7 @@ LAB_0044907d:
             }
           }
           break;
-        case 0x13:
+        case MENU_PAGE_SOUND:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
              (SLF(1) = SLF(1) + k_f_0_01,
@@ -2110,7 +2173,8 @@ LAB_0044907d:
             g_game_state.option_sliders[4] = 0;
           }
           break;
-        case 0x18:
+        /* entries: 1 power-up set, 2 bot skill (1..4), 3 course index, 4..6 team choice of players 0..2 (0..6), 7 team mode toggle */
+        case MENU_PAGE_GAME_SETUP_SINGLE:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 1) &&
              (g_menu_powerup_set = g_menu_powerup_set + 1, 2 < g_menu_powerup_set)) {
@@ -2157,7 +2221,8 @@ LAB_0044907d:
             g_menu_team_mode_choice = g_menu_team_mode_choice ^ 1;
           }
           break;
-        case 0x1c:
+        /* toggle rumble of the controller behind the selected row */
+        case MENU_PAGE_VIBRATION:
           team_mode = 0;
           do {
             if (g_menu_records[g_menu_current].selected == team_mode) {
@@ -2168,13 +2233,14 @@ LAB_0044907d:
             team_mode = team_mode + 1;
           } while (team_mode < 4);
           break;
-        case 0x1e:
+        case MENU_PAGE_GAMMA:
           if ((g_menu_records[g_menu_current].selected == 0) &&
              (g_menu_69cfc4 = g_menu_69cfc4 + k_f_0_01, float_1_0 < g_menu_69cfc4)) {
             g_menu_69cfc4 = 1.0;
           }
           break;
-        case 0x1f:
+        /* bonus features: flags 1..4 behave as radio buttons */
+        case MENU_PAGE_BONUS_FEATURES:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 1] = g_game_state.option_flags[team_mode + 1] ^ 1;
           aux = 0;
@@ -2185,13 +2251,14 @@ LAB_0044907d:
             aux = aux + 1;
           } while (aux < 4);
           break;
-        case 0x20:
+        case MENU_PAGE_AUTOSAVE:
           g_menu_69d6b0 = 0;
           token = nop_b();
           gamesave_set_autosave_enabled(token ^ 1);
           g_menu_69d6b0 = 1;
           break;
-        case 0x21:
+        /* bonus cameras: flags 2..3 are mutually exclusive */
+        case MENU_PAGE_BONUS_CAMERAS:
           team_mode = g_menu_records[g_menu_current].selected;
           g_game_state.option_flags[team_mode + 2] = g_game_state.option_flags[team_mode + 2] ^ 1;
           aux = 0;
@@ -2202,7 +2269,7 @@ LAB_0044907d:
             aux = aux + 1;
           } while (aux < 2);
           break;
-        case 0x23:
+        case MENU_PAGE_WIDESCREEN:
           token = game_state_get_2812();
           camera_fov_factor_set_wide(token ^ 1);
           g_menu_69d6b0 = 1;
@@ -2216,6 +2283,7 @@ LAB_0044907d:
   }
   menu_page_update_entry_states(g_menu_current + -1);
 LAB_004490d6:
+  /* frontend fade: state 4 fades the menu in (alpha += 1000/s up to 0xff, then state 5 once the item animation is done); state 5 fades out at 800/s, stops the movie and returns to state 0 */
   if (g_frontend_state == 4) {
     team_mode = menu_items_animate_update();
     aux = (int)(g_frame_seconds * k_f_1000);
