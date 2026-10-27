@@ -110,7 +110,7 @@ void car_ground_contact_forces_n(Car *car)
         }
         frame.grip_factor = float_1_0 - tmp_f;
       }
-      if ((*(int *)((char *)car + 0xcfc) != 0) && (frame.contact_force.z < k_f_500)) {
+      if ((car->handbrake_held != 0) && (frame.contact_force.z < k_f_500)) {
         frame.contact_force.z = k_f_500;
       }
       frame.contact_force.z = frame.contact_force.z * k_f_0_75;
@@ -123,7 +123,7 @@ void car_ground_contact_forces_n(Car *car)
       frame.total_force_x = frame.contact_force.x + frame.total_force_x;
       frame.total_force_y = frame.contact_force.y + frame.total_force_y;
       frame.total_force_z = frame.contact_force.z + frame.total_force_z;
-      if (*(int *)((char *)car + 0xcfc) == 0) {
+      if (car->handbrake_held == 0) {
         frame.extra_force.x = contact[-1] * k_f_90;
         frame.extra_force.y = *contact * k_f_90;
         frame.extra_force.z = contact[1] * k_f_90;
@@ -188,7 +188,7 @@ void car_ground_contact_forces_n(Car *car)
     contact_next = contact + 0x10;
   } while (contact_index < 0x12);
   /* average by the contact count, convert to velocity changes */
-  tmp_f = float_1_0 / (float)*(int *)((char *)car + 0x9ec);
+  tmp_f = float_1_0 / (float)car->contact_count;
   frame.total_force_x = frame.total_force_x * tmp_f;
   frame.total_force_y = frame.total_force_y * tmp_f;
   frame.total_force_z = frame.total_force_z * tmp_f;
@@ -206,7 +206,7 @@ void car_ground_contact_forces_n(Car *car)
     frame.extra_force.z = frame.total_force_z - frame.net_force.z;
   }
   tmp_f = car->inertia_inverse * k_f_0_0027778;
-  *(undefined4 *)((char *)car + 0xb20) = 1;
+  car->driven = 1;
   tmp_f = tmp_f * k_f_8;
   frame.torque_sum.x = frame.torque_sum.x * tmp_f;
   frame.torque_sum.y = frame.torque_sum.y * tmp_f;

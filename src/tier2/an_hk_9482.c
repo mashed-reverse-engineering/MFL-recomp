@@ -49,9 +49,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
   }
   switch(force_kind) {
   case 0:
-    frame.at_x = *(float *)(car_or_matrix + 0x30);
-    frame.at_y = *(float *)(car_or_matrix + 0x34);
-    frame.at_z = *(float *)(car_or_matrix + 0x38);
+    frame.at_x = ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = ((RwMatrix *)car_or_matrix)->pos.z;
     dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
     frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
@@ -66,9 +66,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.force_x = 0.0;
     frame.force_y = 350.0;
     frame.force_z = 0.0;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
@@ -91,9 +91,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.force_x = 0.0;
     frame.force_y = 350.0;
     frame.force_z = 0.0;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
     RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
@@ -113,9 +113,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
     frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
     frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
     frame.offset.x = frame.offset.x * k_f_0_11111111;
@@ -134,9 +134,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
     frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
     frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
     frame.offset.x = frame.offset.x * k_f_n0_11111111;
@@ -155,9 +155,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
     frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
     frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     frame.offset.x = player_car[car_index].forward[0] * k_f_0_22222222;
     frame.force_y = 425.0;
     frame.offset.y = player_car[car_index].forward[1] * k_f_0_22222222;
@@ -168,9 +168,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
     frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
     frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     frame.offset.x = player_car[car_index].forward[0] * k_f_n0_22222222;
     frame.force_y = 425.0;
     frame.offset.y = player_car[car_index].forward[1] * k_f_n0_22222222;
@@ -181,9 +181,9 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
     frame.offset.y = dir_ptr[1] * k_f_n6_6666666en4;
     frame.offset.z = dir_ptr[2] * k_f_n6_6666666en4;
-    frame.at_x = frame.offset.x + *(float *)(car_or_matrix + 0x30);
-    frame.at_y = frame.offset.y + *(float *)(car_or_matrix + 0x34);
-    frame.at_z = frame.offset.z + *(float *)(car_or_matrix + 0x38);
+    frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
+    frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
+    frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
     frame.offset.x = player_car[car_index].forward[0] * k_f_n0_22222222;
     frame.force_y = 125.0;
     frame.offset.y = player_car[car_index].forward[1] * k_f_n0_22222222;
@@ -203,9 +203,9 @@ LAB_004929af:
       speed = RwV3dLength(&frame.offset);
     }
     if ((6000 < *(int *)&player_car[car_index].field_0xc) || (speed < float_1_0)) {
-      frame.at_x = *(float *)(car_or_matrix + 0x30);
-      frame.at_y = *(float *)(car_or_matrix + 0x34) + k_f_0_5;
-      frame.at_z = *(float *)(car_or_matrix + 0x38);
+      frame.at_x = ((RwMatrix *)car_or_matrix)->pos.x;
+      frame.at_y = ((RwMatrix *)car_or_matrix)->pos.y + k_f_0_5;
+      frame.at_z = ((RwMatrix *)car_or_matrix)->pos.z;
       frame.force_x = player_car[car_index].up[0] * k_f_n6_5;
       frame.force_y = player_car[car_index].up[1] * k_f_n6_5;
       frame.force_z = player_car[car_index].up[2] * k_f_n6_5;

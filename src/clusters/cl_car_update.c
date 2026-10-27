@@ -33,10 +33,10 @@ void car_update_n(Car *car, int arg0, float dt, unsigned char *input, int unused
 
   race_phase = race_get_phase();
   matrix = (RwMatrix *)(car->matrices + car->matrix_current * 0x10);
-  CAR_INT(car, 0xb20) = 0;
-  CAR_INT(car, 0xb1c) = 0;
-  CAR_INT(car, 0xb18) = 0;
-  CAR_INT(car, 0xb14) = 0;
+  car->driven = 0;
+  car->force_accum[2] = 0.0f;
+  car->force_accum[1] = 0.0f;
+  car->force_accum[0] = 0.0f;
   WHEEL_FORCE(car, 3)->current = 0.0f;
   WHEEL_FORCE(car, 2)->current = 0.0f;
   WHEEL_FORCE(car, 1)->current = 0.0f;
@@ -64,7 +64,7 @@ void car_update_n(Car *car, int arg0, float dt, unsigned char *input, int unused
   force = 0.0f;
   if (input[0] != 0) {
     if (car->speed > 64.0f) {
-      CAR_INT(car, 0xb20) = 1;
+      car->driven = 1;
     }
     force = (float)input[0] * car->wheels[0].const_34 * 0.00390625f;
     if (race_phase == 7) {
@@ -90,7 +90,7 @@ void car_update_n(Car *car, int arg0, float dt, unsigned char *input, int unused
   WHEEL_FORCE(car, 1)->history[tick] = force;
   if (input[1] != 0) {
     if (car->speed > 64.0f) {
-      CAR_INT(car, 0xb20) = 1;
+      car->driven = 1;
     }
     force = (float)input[1] * car->wheels[0].const_34 * 0.00390625f;
     if (race_phase == 7) {

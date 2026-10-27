@@ -6,7 +6,6 @@ static int team_panel_load_parts_r(int reg_eax, void *reg_ebx);
 extern void team_panel_load_parts(void);
 extern char g_team_6592b0[];
 #define TEAM_PANEL_RECORD_SIZE (0x16c) /* stride between team panel records (inferred) */
-#define TEAM_PANEL_TEAM_INDEX_OFFSET (0x164) /* record offset where the team index is stored (inferred) */
 __declspec(naked) int team_panel_load_parts_r(int reg_eax, void *reg_ebx)
 {
     __asm {
@@ -47,7 +46,7 @@ void load_team_panels(void)
   do {
     clump = clump_load_by_name(panel_names[team_index], 0x0, 0x0);
     team_panel_load_parts_r(clump,(void *)team_panel);
-    *(int *)(team_panel + TEAM_PANEL_TEAM_INDEX_OFFSET) = team_index;
+    ((TeamPanelEntry *)team_panel)->team = team_index;
     team_panel = team_panel + TEAM_PANEL_RECORD_SIZE;
     team_index = team_index + 1;
   } while ((char *)team_panel < ((char *)&g_team_6592b0));

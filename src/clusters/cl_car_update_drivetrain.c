@@ -39,6 +39,7 @@
 /*0040fdc0*/ extern int race_get_phase(void);
 extern float float_1_0, float_10_0, float_50_0, k_f_1_7453333, k_f_256, g_car_8bd730, k_f_0_008, k_f_0_01, k_f_0_1, k_f_0_5, k_f_0_85, k_f_0_99, k_f_1_0en7, k_f_1_1, k_f_1_25, k_f_1_5, k_f_3, k_f_360, k_f_3_0517578en5, k_f_3_3333333en4, k_f_50_24, k_f_6_6666666en4, k_f_9_259333en7, k_f_9_765625en4;
 /* DECLS-END */
+/* CFLD(car, 0xb14/0xb18/0xb1c) is Car.force_accum[0..2], CFLDI(car, 0xb20) is Car.driven; the typed members compile differently in this function (not object identical) */
 #define CFLD(c, off) (*(float *)((char *)(c) + (off)))
 #define CFLDI(c, off) (*(int *)((char *)(c) + (off)))
 #define PF(i) (*(float *)(wheel + (i)))

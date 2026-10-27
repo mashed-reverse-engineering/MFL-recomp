@@ -23,7 +23,7 @@
 /* "locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices
    per entry)" */
 
-void __cdecl fx_ptank_b_lock_and_fill(char *camera_mtx,undefined4 unused_2)
+void __cdecl fx_ptank_b_lock_and_fill(RwMatrix *camera_mtx,undefined4 unused_2)
 
 {
   int entry_mtx;
@@ -56,9 +56,9 @@ void __cdecl fx_ptank_b_lock_and_fill(char *camera_mtx,undefined4 unused_2)
     RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.colour_ptr,2,0x40000000);
     RpPTankAtomicLock_00545d10(g_fx_ptank_atomic_b,&frame.uv_ptr,0x80,0x40000000);
     entry_ptr = g_particles_8869cc;
-    frame.ahead_x = *(float *)(camera_mtx + 0x20) * k_f_3 + *(float *)(camera_mtx + 0x30);
-    frame.ahead_y = *(float *)(camera_mtx + 0x24) * k_f_3 + *(float *)(camera_mtx + 0x34);
-    frame.ahead_z = *(float *)(camera_mtx + 0x28) * k_f_3 + *(float *)(camera_mtx + 0x38);
+    frame.ahead_x = camera_mtx->at.x * k_f_3 + camera_mtx->pos.x;
+    frame.ahead_y = camera_mtx->at.y * k_f_3 + camera_mtx->pos.y;
+    frame.ahead_z = camera_mtx->at.z * k_f_3 + camera_mtx->pos.z;
     g_particles_8885a0 = 0;
     do {
       if (entry_ptr[-6] != 0) {
@@ -71,9 +71,9 @@ void __cdecl fx_ptank_b_lock_and_fill(char *camera_mtx,undefined4 unused_2)
         else {
           RwV3dTransformPoints(&frame.entry_pos,(RwV3d *)(entry_ptr + -10),1,(RwMatrix *)*entry_ptr);
           entry_mtx = *entry_ptr;
-          frame.fade = *(float *)(entry_mtx + 0x28) * *(float *)(camera_mtx + 0x28) +
-                     *(float *)(entry_mtx + 0x20) * *(float *)(camera_mtx + 0x20) +
-                     *(float *)(entry_mtx + 0x24) * *(float *)(camera_mtx + 0x24);
+          frame.fade = *(float *)(entry_mtx + 0x28) * camera_mtx->at.z +
+                     *(float *)(entry_mtx + 0x20) * camera_mtx->at.x +
+                     *(float *)(entry_mtx + 0x24) * camera_mtx->at.y;
         }
         frame.fade = frame.fade * *(float *)&entry_ptr[-5];
         if (frame.fade < k_f_0) {

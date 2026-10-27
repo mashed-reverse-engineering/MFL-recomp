@@ -7,7 +7,7 @@
 /* WARNING: Unknown calling convention */
 /* "mask 0x800000<<(n-1) and per slot team bits" */
 
-void team_panel_build_team_mask_n(int panel)
+void team_panel_build_team_mask_n(TeamPanelEntry *panel)
 
 {
   int slot_count;
@@ -15,16 +15,16 @@ void team_panel_build_team_mask_n(int panel)
   int i;
   char shift;
   
-  slot_count = *(int *)(panel + 0xc);
-  *(int *)(panel + 0x168) = 0x800000 << ((char)slot_count - 1U & 0x1f);
+  slot_count = panel->player_count;
+  panel->flags = 0x800000 << ((char)slot_count - 1U & 0x1f);
   i = 0;
   if (0 < slot_count) {
     shift = '\0';
     do {
-      bit = (char)g_player_slots[*(int *)(panel + i * 4)].team + shift;
+      bit = (char)g_player_slots[panel->player[i]].team + shift;
       shift = shift + '\x06';
       i = i + 1;
-      *(uint *)(panel + 0x168) = *(uint *)(panel + 0x168) | 1 << (bit & 0x1f);
+      panel->flags = panel->flags | 1 << (bit & 0x1f);
     } while (i < slot_count);
   }
   return;

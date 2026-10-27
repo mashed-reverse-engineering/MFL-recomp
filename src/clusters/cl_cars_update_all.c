@@ -107,7 +107,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
                                ,&frame.input->left);
             car_wheel_contact_update_r(param_2,car,1);
             other_index = car_world_collision_test_r(car);
-            if ((*(int *)&player_car[frame.car_index].field_0x9ec == 0) ||
+            if ((player_car[frame.car_index].contact_count == 0) ||
                (car_ground_contact_forces_r(car), other_index == 0)) break;
             retry_count = retry_count + 1;
           }

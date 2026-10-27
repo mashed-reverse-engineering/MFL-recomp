@@ -5,7 +5,13 @@
 
 /*  */
 
-void kc_panel_entry_render_n(int in_eax)
+/* same record as in cl_kc_panel_entry_update.c: visible[k] and part[k] describe panel part k */
+typedef struct KcPanelEntry {
+    int visible[32]; /* 0x0 */
+    int part[32]; /* 0x80: part objects, vtable slot 0x48 draws one */
+} KcPanelEntry;
+
+void kc_panel_entry_render_n(KcPanelEntry *entry)
 
 {
   int iVar1;
@@ -13,19 +19,19 @@ void kc_panel_entry_render_n(int in_eax)
   int iVar3;
   int *piVar4;
   
-  if (*(int *)(in_eax + 100) != 0) {
-    (**(code **)(*(int *)(in_eax + 0xe4) + 0x48))(*(int *)(in_eax + 0xe4));
+  if (entry->visible[25] != 0) {
+    (**(code **)(entry->part[25] + 0x48))(entry->part[25]);
   }
-  if (*(int *)(in_eax + 8) != 0) {
-    *(undefined4 *)(**(int **)(*(int *)(*(int *)(in_eax + 0x88) + 0x18) + 0x20) + 4) = 0xff323232;
-    (**(code **)(*(int *)(in_eax + 0x88) + 0x48))(*(int *)(in_eax + 0x88));
+  if (entry->visible[2] != 0) {
+    *(undefined4 *)(**(int **)(*(int *)(entry->part[2] + 0x18) + 0x20) + 4) = 0xff323232;
+    (**(code **)(entry->part[2] + 0x48))(entry->part[2]);
   }
-  if (*(int *)(in_eax + 0x14) != 0) {
-    *(undefined4 *)(**(int **)(*(int *)(*(int *)(in_eax + 0x94) + 0x18) + 0x20) + 4) = 0xff323232;
-    (**(code **)(*(int *)(in_eax + 0x94) + 0x48))(*(int *)(in_eax + 0x94));
+  if (entry->visible[5] != 0) {
+    *(undefined4 *)(**(int **)(*(int *)(entry->part[5] + 0x18) + 0x20) + 4) = 0xff323232;
+    (**(code **)(entry->part[5] + 0x48))(entry->part[5]);
   }
   iVar2 = -2;
-  piVar4 = (int *)(in_eax + 0x80);
+  piVar4 = (int *)entry->part;
   iVar3 = 0x20;
   do {
     iVar1 = *piVar4;
@@ -51,23 +57,23 @@ void kc_panel_entry_render_n(int in_eax)
     piVar4 = piVar4 + 1;
     iVar3 = iVar3 + -1;
   } while (iVar3 != 0);
-  if (*(int *)(in_eax + 0x1c) != 0) {
-    (**(code **)(*(int *)(in_eax + 0x9c) + 0x48))(*(int *)(in_eax + 0x9c));
+  if (entry->visible[7] != 0) {
+    (**(code **)(entry->part[7] + 0x48))(entry->part[7]);
   }
-  if (*(int *)(in_eax + 0x20) != 0) {
-    (**(code **)(*(int *)(in_eax + 0xa0) + 0x48))(*(int *)(in_eax + 0xa0));
+  if (entry->visible[8] != 0) {
+    (**(code **)(entry->part[8] + 0x48))(entry->part[8]);
   }
-  if (*(int *)(in_eax + 0x24) != 0) {
-    (**(code **)(*(int *)(in_eax + 0xa4) + 0x48))(*(int *)(in_eax + 0xa4));
+  if (entry->visible[9] != 0) {
+    (**(code **)(entry->part[9] + 0x48))(entry->part[9]);
   }
-  if (*(int *)(in_eax + 0x28) != 0) {
-    (**(code **)(*(int *)(in_eax + 0xa8) + 0x48))(*(int *)(in_eax + 0xa8));
+  if (entry->visible[10] != 0) {
+    (**(code **)(entry->part[10] + 0x48))(entry->part[10]);
   }
-  if (*(int *)(in_eax + 0x2c) != 0) {
-    (**(code **)(*(int *)(in_eax + 0xac) + 0x48))(*(int *)(in_eax + 0xac));
+  if (entry->visible[11] != 0) {
+    (**(code **)(entry->part[11] + 0x48))(entry->part[11]);
   }
-  if (*(int *)(in_eax + 0x30) != 0) {
-    (**(code **)(*(int *)(in_eax + 0xb0) + 0x48))(*(int *)(in_eax + 0xb0));
+  if (entry->visible[12] != 0) {
+    (**(code **)(entry->part[12] + 0x48))(entry->part[12]);
   }
   return;
 }

@@ -32,7 +32,7 @@
 /* WARNING: Unknown calling convention */
 /* "random colour / size, explosion_decal and sfx_play_player_set_at at the effect position" */
 
-float10 explosion_spawn_fx_n(char *effect)
+float10 explosion_spawn_fx_n(FxSceneObject *effect)
 
 {
   undefined4 *vec_ptr;
@@ -59,23 +59,23 @@ float10 explosion_spawn_fx_n(char *effect)
     float spark_z;
   } frame;
   
-  rwp_matrix = rwp_object_get_matrix(*(undefined4 *)(effect + 0x44));
-  frame.damage_frac = (k_f_100 - *(float *)(effect + 0x5c)) * k_f_0_01;
+  rwp_matrix = rwp_object_get_matrix(effect->rwp_object);
+  frame.damage_frac = (k_f_100 - effect->health) * k_f_0_01;
   obj_pos = (float *)(rwp_matrix + 0x30);
   rnd = (float10)random_range(0,0x3f800000);
   frame.rand_a = (float)rnd;
   rnd = (float10)random_range(0x3f4ccccd,0x3f99999a);
   frame.rand_b = (float)rnd;
-  ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(effect + 0x3c) + 4));
+  ltm = RwFrameGetLTM(*(RwFrame **)(effect->frame_c + 4));
   pos_a = &ltm->pos;
-  ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(effect + 0x40) + 4));
-  timer = g_tick_seconds + *(float *)(effect + 0x6c);
+  ltm = RwFrameGetLTM(*(RwFrame **)(effect->frame_d + 4));
+  timer = g_tick_seconds + effect->timer_6c;
   pos_b = &ltm->pos;
-  *(float *)(effect + 0x6c) = timer;
+  effect->timer_6c = timer;
   frame.colour_a = 0x80;
   if (k_f_3 <= timer) {
-    *(undefined4 *)(effect + 0x6c) = 0;
-    *(undefined4 *)(effect + 0x68) = *(undefined4 *)(effect + 0x60);
+    *(undefined4 *)&effect->timer_6c = 0;
+    *(undefined4 *)&effect->f_68 = *(undefined4 *)&effect->spin_speed;
   }
   if (float_1_0 < frame.damage_frac) {
     frame.damage_frac = 1.0;
@@ -83,16 +83,16 @@ float10 explosion_spawn_fx_n(char *effect)
   frame.colour_r = ((int)(frame.rand_b * 128.0f));
   frame.colour_g = frame.colour_r;
   frame.colour_b = ((int)(frame.rand_b * 150.0f));
-  if (*(int *)(effect + 0x48) == 0) {
+  if (effect->use_b == 0) {
     if (float_1_0 <= frame.damage_frac) {
       g_explosion_651aa4 = g_explosion_651aa4 + 1;
-      *(undefined4 *)(effect + 0x48) = 1;
-      *(undefined4 *)(effect + 0xe0) = 0;
+      *(undefined4 *)&effect->use_b = 1;
+      *(undefined4 *)&effect->vel.y = 0;
       fx_emitter_spawn_a_default(obj_pos,&g_car_62ac74,0x43b40000);
       sfx_play_player_set_at(obj_pos);
-      if (*(int *)(effect + 0x18) != 0) {
-        rwp_object_set_enabled(*(undefined4 *)(effect + 0x44),1);
-        owner_or_count = rwp_owner_object_get(*(undefined4 *)(effect + 0x18));
+      if (effect->owner != 0) {
+        rwp_object_set_enabled(effect->rwp_object,1);
+        owner_or_count = rwp_owner_object_get(*(undefined4 *)&effect->owner);
         rwp_world_set_bit_5c(*(undefined4 *)(owner_or_count + 0x24),owner_or_count,1);
         body_ptr = *(int **)(*(int *)(owner_or_count + 0x10) + 4);
         if (body_ptr != (int *)0x0) {
@@ -129,14 +129,14 @@ float10 explosion_spawn_fx_n(char *effect)
       }
       fx_smoke_particle_spawn_tinted(pos_c,0x3f333333,&frame.colour_r,0x40a00000,0x3f000000);
     }
-    if ((k_f_0_5 < frame.damage_frac) && (*(int *)(effect + 100) == 0)) {
+    if ((k_f_0_5 < frame.damage_frac) && (effect->flag_64 == 0)) {
       fx_ring_add_point(pos_a,0x3f800000);
       fx_ring_add_point(pos_a,0x3f800000);
       fx_ring_add_point(pos_a,0x3f800000);
       fx_ring_add_point(pos_b,0x3f800000);
       fx_ring_add_point(pos_b,0x3f800000);
       fx_ring_add_point(pos_b,0x3f800000);
-      *(undefined4 *)(effect + 100) = 1;
+      *(undefined4 *)&effect->flag_64 = 1;
     }
   }
   else {

@@ -10,7 +10,7 @@
 /* WARNING: Unknown calling convention */
 /* "loads the 0x32 grey colour parts into the team panel" */
 
-void team_panel_load_parts_n(int clump, int panel)
+void team_panel_load_parts_n(int clump, TeamPanelEntry *panel)
 
 {
   undefined4 atomic;
@@ -29,17 +29,17 @@ void team_panel_load_parts_n(int clump, int panel)
   frame.grey_b = 0x32;
   frame.grey_a = 0xff;
   clump_get_atomics(clump,frame.atomics);
-  *(int *)(panel + 0x15c) = clump;
-  *(undefined4 *)(panel + 0x160) = *(undefined4 *)(clump + 4);
-  mem_zero(panel + 0xb0,0xa0);
+  panel->clump = clump;
+  panel->frame = *(undefined4 *)(clump + 4);
+  mem_zero(panel->part,sizeof(panel->part));
   i = 0;
   do {
     atomic = frame.atomics[i];
     part_slot = FUN_004c52b0(atomic,0,0);
     i = i + 1;
-    *(undefined4 *)(panel + 0xb0 + part_slot * 4) = atomic;
+    *(undefined4 *)&panel->part[part_slot] = atomic;
   } while (i < 0x1d);
-  FUN_004c5380(*(undefined4 *)(panel + 0xb8),&frame.grey_r);
+  FUN_004c5380(*(undefined4 *)&panel->part[2],&frame.grey_r);
   return;
 }
 

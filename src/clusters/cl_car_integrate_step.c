@@ -64,9 +64,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
     if (car->speed * k_f_6_6666666en4 > float_1_0) {
       scale = float_1_0;
     }
-    car->field_0xcfc = 0;
+    car->handbrake_held = 0;
     if ((input[4] != 0) && (input[5] != 0)) {
-      car->field_0xcfc = 1;
+      car->handbrake_held = 1;
       scale = float_1_0;
     }
     if (car->wheels_in_contact != k_f_0) {

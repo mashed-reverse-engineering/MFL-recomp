@@ -9,15 +9,15 @@
 /* WARNING: Unknown calling convention */
 /* "copies team colour (table 0x603F1C, 12 bytes per team) into the panel" */
 
-void team_panel_load_team_colour_n(int in_ecx)
+void team_panel_load_team_colour_n(TeamPanelEntry *panel)
 
 {
   int iVar1;
   
-  iVar1 = *(int *)(in_ecx + 0x164);
-  *(undefined4 *)(in_ecx + 0x150) = (&g_race_start_603f1c)[iVar1 * 3];
-  *(undefined4 *)(in_ecx + 0x154) = (&g_race_start_603f20)[iVar1 * 3];
-  *(undefined4 *)(in_ecx + 0x158) = *(undefined4 *)((char *)&g_race_start_603f24 + iVar1 * 0xc);
+  iVar1 = panel->team;
+  *(undefined4 *)&panel->origin.x = (&g_race_start_603f1c)[iVar1 * 3];
+  *(undefined4 *)&panel->origin.y = (&g_race_start_603f20)[iVar1 * 3];
+  *(undefined4 *)&panel->origin.z = *(undefined4 *)((char *)&g_race_start_603f24 + iVar1 * 0xc);
   return;
 }
 

@@ -7,10 +7,10 @@
 /* WARNING: Unknown calling convention */
 /*  */
 
-void team_panel_entry_destroy_n(int in_eax)
+void team_panel_entry_destroy_n(TeamPanelEntry *panel)
 
 {
-  RpClumpDestroy(*(RpClump **)(in_eax + 0x15c));
+  RpClumpDestroy(*(RpClump **)&panel->clump);
   return;
 }
 

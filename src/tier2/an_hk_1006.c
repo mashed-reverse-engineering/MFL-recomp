@@ -74,7 +74,7 @@ void cars_exhaust_and_damage_fx_update(void)
   frame.race_phase = race_get_phase();
   frame.car_flag_base = g_ai_editor_mode;
   frame.damage_base = (int *)&g_race_7eebb4;
-  car_field_ptr = (undefined4 *)&player_car[4].field_0xcfc;
+  car_field_ptr = (undefined4 *)&player_car[4].handbrake_held;
   do {
     car_flag_ptr = frame.car_flag_base + -4;
     frame.car_flag_base = frame.car_flag_base + -4;
@@ -182,7 +182,7 @@ LAB_0040e434:
       }
     }
     frame.damage_base = damage_ptr;
-    if (car_field_ptr == (undefined4 *)&player_car[0].field_0xcfc) {
+    if (car_field_ptr == (undefined4 *)&player_car[0].handbrake_held) {
       return;
     }
   } while( true );

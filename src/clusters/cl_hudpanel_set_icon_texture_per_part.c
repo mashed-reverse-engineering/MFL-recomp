@@ -17,41 +17,52 @@
 /* WARNING: Unknown calling convention */
 /* "when the index changes assigns the texture colour table entry to each of 12 part materials" */
 
+/* HUD panel record, only the fields this function uses: 12 part holders (+0x18 -> material list) and the icon index with its cache */
+typedef struct HudIconPanel {
+    char unknown_000[0x108];
+    int icon_part[10];      /* 0x108 */
+    char unknown_130[0x44];
+    int icon_part_174;
+    int icon_part_178;
+    char unknown_17c[0x38];
+    int icon_index;         /* 0x1b4 */
+    int icon_cached;        /* 0x1b8: last applied icon_index */
+} HudIconPanel;
 static int time_trial_panel_times_update_r(int p0);
 extern void time_trial_panel_times_update(void);
 /* panel = HUD panel record whose 12 part material pointers (offsets 0x108..0x178) get colour table entry [icon_index] (offset 0x1b4; 0x1b8 caches the last one). */
-void hudpanel_set_icon_texture_per_part_n(int panel)
+void hudpanel_set_icon_texture_per_part_n(HudIconPanel *panel)
 
 {
   int icon_index;
   
-  icon_index = *(int *)(panel + 0x1b4);
-  if (icon_index != *(int *)(panel + 0x1b8)) {
-    *(int *)(panel + 0x1b8) = icon_index;
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x108) + 0x18) + 0x20) + 4) =
+  icon_index = panel->icon_index;
+  if (icon_index != panel->icon_cached) {
+    panel->icon_cached = icon_index;
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[0] + 0x18) + 0x20) + 4) =
          *(undefined4 *)((char *)&g_game_659b18 + icon_index * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x10c) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x110) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x114) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x118) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x11c) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x120) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x124) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x128) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 300) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x178) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
-    *(undefined4 *)(**(int **)(*(char **)(*(int *)(panel + 0x174) + 0x18) + 0x20) + 4) =
-         *(undefined4 *)((char *)&g_game_659b18 + *(int *)(panel + 0x1b4) * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[1] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[2] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[3] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[4] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[5] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[6] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[7] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[8] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part[9] + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part_178 + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
+    *(undefined4 *)(**(int **)(*(char **)(panel->icon_part_174 + 0x18) + 0x20) + 4) =
+         *(undefined4 *)((char *)&g_game_659b18 + panel->icon_index * 4);
   }
   return;
 }

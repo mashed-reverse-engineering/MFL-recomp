@@ -546,6 +546,55 @@ typedef struct RocketRecord {
     undefined4 target_fx_object; /* 0x58 */
     char *frame_holder;     /* 0x5c */
 } RocketRecord;
+/* team panel entry (table g_team_658fd8, TEAM_PANEL_ENTRY_SIZE bytes each; team_panel_* functions).  visible[k] and part[k] belong to the same panel part k;
+   part[k] is the RpAtomic-like holder whose vtable slot 0x48 draws it (team_panel_entry_render). */
+typedef struct TeamPanelEntry {
+    int player[3];          /* 0x00: player slot indices of the team (team_panel_reset appends them) */
+    int player_count;       /* 0x0c */
+    int visible[40];        /* 0x10: per part, rewritten every frame by team_panel_entry_update */
+    char *part[40];         /* 0xb0: per part objects (team_panel_load_parts fills the table by the part slot of each atomic) */
+    RwV3d origin;           /* 0x150: panel frame translation, copied from the team colour table by team_panel_load_team_colour */
+    int clump;              /* 0x15c */
+    int frame;              /* 0x160: RwFrame of the clump */
+    int team;               /* 0x164: index into the team colour table */
+    unsigned int flags;     /* 0x168: bit 0x40000 follows g_team_6592b0[player[0]], 0x3000000 / 0x800000 select button groups, low bits are button bits; team_panel_build_team_mask */
+} TeamPanelEntry;
+/* effect object record (table g_scene_651250, 0xec bytes each; fx_update_effects, explosion_spawn_fx, the rwp collision callback) */
+typedef struct FxSceneObject {
+    char unknown_00[0x10];
+    int frame_a;          /* 0x10: +4 is the RwFrame */
+    char unknown_14[4];
+    int owner;            /* 0x18 */
+    char unknown_1c[4];
+    int spin_a;           /* 0x20 */
+    int spin_b;           /* 0x24 */
+    char unknown_28[0x14];
+    int frame_c;          /* 0x3c: +4 is an RwFrame (explosion_spawn_fx reads its LTM) */
+    int frame_d;          /* 0x40 */
+    undefined4 rwp_object; /* 0x44 */
+    int use_b;            /* 0x48 */
+    float age;            /* 0x4c: += tick seconds */
+    float offset_x;       /* 0x50: rwp object position minus frame position */
+    float offset_y;
+    float offset_z;
+    float health;         /* 0x5c: percent, explosion_spawn_fx uses (100 - health) / 100 */
+    float spin_speed;     /* 0x60 */
+    int flag_64;          /* 0x64: set once the damage fraction passes 0.5 (explosion_spawn_fx) */
+    float f_68;           /* 0x68: reloaded from spin_speed when timer_6c expires */
+    float timer_6c;       /* 0x6c */
+    char unknown_70[0x34];
+    int flag_a4;          /* 0xa4 */
+    char unknown_a8[8];
+    int choice_count;     /* 0xb0 */
+    int choice[5];        /* 0xb4: random pick of the next entry in the course table (+0xc9b0) */
+    int choice_index;     /* 0xc8 */
+    int cur;              /* 0xcc: current entry, its +0xc is the duration */
+    float timer;          /* 0xd0 */
+    float gravity;        /* 0xd4: added to vel.y each step */
+    float timer_rate;     /* 0xd8 */
+    RwV3d vel;            /* 0xdc */
+    float damping;        /* 0xe8 */
+} FxSceneObject;
 #endif
 
 /* g_race_phase values (race_set_phase / race_get_phase); 4, 8, 9 named from the handlers that set them (inferred), 10 and 11 are set but not named yet */
@@ -820,7 +869,7 @@ struct Car {
     float wheels_in_contact; /* number of wheels with in_contact == 1 as float (4.0 = all, set by car_wheel_contact_update, reset value 4.0) */
     float speed;
     float angular_speed; /* length of angular_velocity */
-    undefined4 field_0x9ec;
+    union { int contact_count; undefined4 field_0x9ec; }; /* ground contact points found by the world collision test (inferred): 0 = none (cars_update_all skips car_ground_contact_forces), divisor of the averaged forces in car_ground_contact_forces */
     uint mode; /* 2 halves the velocity every step; 0 and 1 are logged as event 6 */
     uint mode2;
     char _gap_9f8[216];
@@ -833,12 +882,14 @@ struct Car {
     float field_b00[3]; /* read by car_get_field_b00 */
     int field_b0c; /* car_get_field_b0c */
     int field_b10; /* counter changed by car_add_field_b10 */
-    char _gap_b14[224];
+    float force_accum[3]; /* 0xb14: extra force of this step, zeroed at the start of car_update, drive force (car_update_drivetrain) and airborne gravity (car_apply_forces) are added, integrate adds it to the velocity */
+    int driven; /* 0xb20: set to 1 by car_update (input, speed > 64), car_update_drivetrain, car_ground_contact_forces and car_apply_forces; cleared at the start of car_update; car_update_drivetrain only zeroes a slow car (speed < 16) while it is 0 */
+    char _gap_b24[208];
     int turbo_charge; /* 0..3000: +2 dt while accelerate > 160, -dt every update (race_phase_5_update_sub_47b870) */
     int turbo_state; /* 1 / 2 set when the charge is used up (race_phase_5_update_sub_47b800) */
     int contact_key[32]; /* 32 slot table of the wheel contact cache: value compared with triangle +0x34 by car_wheel_contact_find_index (0x477130), written by car_set_wheel_contact */
     int contact_valid[32]; /* flag per slot of contact_key (0 = slot unused); +0xBFC..+0xCFC */
-    undefined4 field_0xcfc;
+    union { int handbrake_held; undefined4 field_0xcfc; }; /* 1 while input[4] and input[5] are both pressed (car_integrate_step); car_ground_contact_forces then keeps at least 500 contact force and skips the extra force */
     uint is_bot; /* 0 for the human player, 1 for AI cars (verified in a live race; MashedTrainer PLAYER_BOT) */
 };
 

@@ -12,8 +12,8 @@
 /* WARNING: Unknown calling convention */
 /*  */
 
-/* panel[0x5a] is the flag word (bit 0x40000 toggled, 0x3000000/0x800000 select button groups); the loop below tests each button bit and updates the entry. */
-void team_panel_entry_update_n(int *panel)
+/* panel->flags is the flag word (bit 0x40000 toggled, 0x3000000/0x800000 select button groups); the loop below tests each button bit and updates the entry. */
+void team_panel_entry_update_n(TeamPanelEntry *panel)
 
 {
   uint uVar1;
@@ -29,16 +29,16 @@ void team_panel_entry_update_n(int *panel)
   frame.unit_scale.x = 1.0;
   frame.unit_scale.y = 1.0;
   frame.unit_scale.z = 1.0;
-  if (*(int *)((char *)&g_team_6592b0 + *panel * 4) == 0) {
-    uVar2 = panel[0x5a] & 0xfffbffff;
+  if (*(int *)((char *)&g_team_6592b0 + panel->player[0] * 4) == 0) {
+    uVar2 = panel->flags & 0xfffbffff;
   }
   else {
-    uVar2 = panel[0x5a] | 0x40000;
+    uVar2 = panel->flags | 0x40000;
   }
-  panel[0x5a] = uVar2;
+  panel->flags = uVar2;
   points = 0;
   do {
-    if (panel[points + 0x2c] == 0) goto LAB_0041ea18;
+    if (panel->part[points] == 0) goto LAB_0041ea18;
     switch(points) {
     case 0:
     case 1:
@@ -46,109 +46,109 @@ void team_panel_entry_update_n(int *panel)
     case 3:
       goto switchD_0041e888_caseD_0;
     case 4:
-      uVar2 = panel[0x5a] & 0x40000;
+      uVar2 = panel->flags & 0x40000;
       goto LAB_0041ea14;
     case 5:
-      uVar2 = panel[0x5a];
+      uVar2 = panel->flags;
       uVar1 = uVar2 & 0x3000000;
       goto LAB_0041e8aa;
     case 6:
-      if ((panel[0x5a] & 0x3000000U) == 0) break;
-      bit_clear = (panel[0x5a] & 2U) == 0;
+      if ((panel->flags & 0x3000000U) == 0) break;
+      bit_clear = (panel->flags & 2U) == 0;
       goto LAB_0041e8b2;
     case 7:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 4U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 4U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 8:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 8U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 8U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 9:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x10U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x10U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 10:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x20U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x20U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xb:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x40U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x40U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xc:
-      if (((panel[0x5a] & 0x3000000U) == 0) || (-1 < (char)panel[0x5a])) break;
+      if (((panel->flags & 0x3000000U) == 0) || (-1 < (char)panel->flags)) break;
       goto switchD_0041e888_caseD_0;
     case 0xd:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x100U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x100U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xe:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x200U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x200U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xf:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x400U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x400U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x10:
-      if ((panel[0x5a] & 0x3000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x800U) == 0;
+      if ((panel->flags & 0x3000000U) != 0) {
+        bit_clear = (panel->flags & 0x800U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x16:
-      if ((panel[0x5a] & 0x2000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x1000U) == 0;
+      if ((panel->flags & 0x2000000U) != 0) {
+        bit_clear = (panel->flags & 0x1000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x17:
-      if ((panel[0x5a] & 0x2000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x2000U) == 0;
+      if ((panel->flags & 0x2000000U) != 0) {
+        bit_clear = (panel->flags & 0x2000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x18:
-      if ((panel[0x5a] & 0x2000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x4000U) == 0;
+      if ((panel->flags & 0x2000000U) != 0) {
+        bit_clear = (panel->flags & 0x4000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x19:
-      if (((panel[0x5a] & 0x2000000U) == 0) || (-1 < (char)((uint)panel[0x5a] >> 8))) break;
+      if (((panel->flags & 0x2000000U) == 0) || (-1 < (char)((uint)panel->flags >> 8))) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x1a:
-      if ((panel[0x5a] & 0x2000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x10000U) == 0;
+      if ((panel->flags & 0x2000000U) != 0) {
+        bit_clear = (panel->flags & 0x10000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x1b:
-      if ((panel[0x5a] & 0x2000000U) != 0) {
-        bit_clear = (panel[0x5a] & 0x20000U) == 0;
+      if ((panel->flags & 0x2000000U) != 0) {
+        bit_clear = (panel->flags & 0x20000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x1c:
-      uVar2 = panel[0x5a];
+      uVar2 = panel->flags;
       uVar1 = uVar2 & 0x800000;
 LAB_0041e8aa:
       if (uVar1 != 0) {
@@ -158,29 +158,29 @@ LAB_0041e8b2:
       }
       break;
     case 0x1d:
-      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 2U) == 0)) break;
+      if (((panel->flags & 0x800000U) == 0) || ((panel->flags & 2U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x1e:
-      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 4U) == 0)) break;
+      if (((panel->flags & 0x800000U) == 0) || ((panel->flags & 4U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x1f:
-      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 8U) == 0)) break;
+      if (((panel->flags & 0x800000U) == 0) || ((panel->flags & 8U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x20:
-      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 0x10U) == 0)) break;
+      if (((panel->flags & 0x800000U) == 0) || ((panel->flags & 0x10U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x21:
-      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 0x20U) == 0)) break;
+      if (((panel->flags & 0x800000U) == 0) || ((panel->flags & 0x20U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     }
     uVar2 = 0;
 LAB_0041ea14:
-    panel[points + 4] = uVar2;
+    panel->visible[points] = uVar2;
 LAB_0041ea18:
     points = points + 1;
     if (0x27 < points) {
@@ -197,15 +197,15 @@ LAB_0041ea18:
       frame.mtx.pos.z = 0.0;
       frame.mtx.pos.y = 0.0;
       frame.mtx.pos.x = 0.0;
-      RwMatrixTranslate(&frame.mtx,(RwV3d *)(panel + 0x54),rwCOMBINEREPLACE);
-      RwFrameTransform((RwFrame *)panel[0x58],&frame.mtx,rwCOMBINEREPLACE);
-      RwFrameScale((RwFrame *)panel[0x58],&frame.unit_scale,rwCOMBINEPRECONCAT);
-      points = player_get_points(*panel);
+      RwMatrixTranslate(&frame.mtx,&panel->origin,rwCOMBINEREPLACE);
+      RwFrameTransform((RwFrame *)panel->frame,&frame.mtx,rwCOMBINEREPLACE);
+      RwFrameScale((RwFrame *)panel->frame,&frame.unit_scale,rwCOMBINEPRECONCAT);
+      points = player_get_points(panel->player[0]);
       score_target = score_target_a();
       frame.unit_scale.x = (float)points / (float)score_target;
       frame.unit_scale.z = 1.0;
       frame.unit_scale.y = 1.0;
-      RwFrameScale(*(RwFrame **)(panel[0x2e] + 4),&frame.unit_scale,rwCOMBINEREPLACE);
+      RwFrameScale(*(RwFrame **)(panel->part[2] + 4),&frame.unit_scale,rwCOMBINEREPLACE);
       return;
     }
   } while( true );

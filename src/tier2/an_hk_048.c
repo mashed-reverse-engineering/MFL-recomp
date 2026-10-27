@@ -64,9 +64,9 @@ undefined4 car_reset_state(uint car_index)
   player_car[car_index].wheels[3].contact_normal[0] = 0.0;
   player_car[car_index].wheels[3].contact_normal[2] = 0.0;
   player_car[car_index].wheels_in_contact = 4.0;
-  *(undefined4 *)((char *)&player_car[car_index] + 0xb1c) = 0;
-  *(undefined4 *)((char *)&player_car[car_index] + 0xb18) = 0;
-  *(undefined4 *)((char *)&player_car[car_index] + 0xb14) = 0;
+  *(undefined4 *)&player_car[car_index].force_accum[2] = 0;
+  *(undefined4 *)&player_car[car_index].force_accum[1] = 0;
+  *(undefined4 *)&player_car[car_index].force_accum[0] = 0;
   *(undefined4 *)((char *)&player_car[car_index] + 0xaf0) = 0;
   player_car[car_index].field_af4[0] = 0.0;
   player_car[car_index].field_af4[1] = -1.0;
@@ -101,7 +101,7 @@ undefined4 car_reset_state(uint car_index)
   player_car[car_index].field_b00[2] = 0.0;
   player_car[car_index].field_b00[1] = 0.0;
   player_car[car_index].field_b00[0] = 0.0;
-  player_car[car_index].field_0x9ec = 0;
+  player_car[car_index].contact_count = 0;
   player_car[car_index].mode = 0;
   player_car[car_index].mode2 = 0;
   player_car[car_index].velocity_history_index = 0;
