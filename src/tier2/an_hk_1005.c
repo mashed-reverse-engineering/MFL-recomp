@@ -27,11 +27,12 @@ void player_stats_debug_log(void)
   int player;
   int *stat_ptr;
   bool is_match;
+  /* score0..2 (+ fVar1 for player 3) are reused: first aggression, then wall hit ratios, printed as the "cleanest line" values */
   struct {
-    float local_20;
-    float local_1c;
-    float local_18;
-    float local_14;
+    float min_wall_hits;
+    float score2;
+    float score1;
+    float score0;
   } frame;
   
   player_count = get_player_count();
@@ -76,69 +77,69 @@ LAB_0042878d:
     stat_ptr = stat_ptr + 0x4e;
     player = player + 1;
     if ((char *)&g_player_stats_race + 0x4eb < (char *)stat_ptr) {
-      frame.local_14 = (float)g_player_stats_race[0].aggression;
-      frame.local_18 = (float)g_player_stats_race[1].aggression;
-      fVar1 = frame.local_14;
-      if (frame.local_14 < frame.local_18) {
-        fVar1 = frame.local_18;
+      frame.score0 = (float)g_player_stats_race[0].aggression;
+      frame.score1 = (float)g_player_stats_race[1].aggression;
+      fVar1 = frame.score0;
+      if (frame.score0 < frame.score1) {
+        fVar1 = frame.score1;
       }
-      frame.local_1c = (float)g_player_stats_race[2].aggression;
-      if (fVar1 < frame.local_1c) {
-        fVar1 = frame.local_1c;
+      frame.score2 = (float)g_player_stats_race[2].aggression;
+      if (fVar1 < frame.score2) {
+        fVar1 = frame.score2;
       }
       fVar2 = (float)g_player_stats_race[3].aggression;
       if (fVar1 < fVar2) {
         fVar1 = fVar2;
       }
       if (fVar1 == k_f_0) {
-        frame.local_1c = 0.0;
-        frame.local_18 = 0.0;
-        frame.local_14 = 0.0;
+        frame.score2 = 0.0;
+        frame.score1 = 0.0;
+        frame.score0 = 0.0;
         fVar1 = k_f_0;
       }
       else {
         fVar1 = float_1_0 / fVar1;
-        frame.local_14 = fVar1 * frame.local_14;
-        frame.local_18 = frame.local_18 * fVar1;
-        frame.local_1c = frame.local_1c * fVar1;
+        frame.score0 = fVar1 * frame.score0;
+        frame.score1 = frame.score1 * fVar1;
+        frame.score2 = frame.score2 * fVar1;
         fVar1 = fVar1 * fVar2;
       }
       fVar2 = (float)g_player_stats_race[0].wall_hits;
       fVar3 = (float)g_player_stats_race[1].wall_hits;
-      frame.local_20 = fVar2;
+      frame.min_wall_hits = fVar2;
       if ((fVar3 < fVar2) && (g_player_stats_race[1].wall_hits != 0)) {
-        frame.local_20 = fVar3;
+        frame.min_wall_hits = fVar3;
       }
       fVar4 = (float)g_player_stats_race[2].wall_hits;
-      if ((fVar4 < frame.local_20) && (g_player_stats_race[2].wall_hits != 0)) {
-        frame.local_20 = fVar4;
+      if ((fVar4 < frame.min_wall_hits) && (g_player_stats_race[2].wall_hits != 0)) {
+        frame.min_wall_hits = fVar4;
       }
       fVar5 = (float)g_player_stats_race[3].wall_hits;
-      if ((fVar5 < frame.local_20) && (g_player_stats_race[3].wall_hits != 0)) {
-        frame.local_20 = fVar5;
+      if ((fVar5 < frame.min_wall_hits) && (g_player_stats_race[3].wall_hits != 0)) {
+        frame.min_wall_hits = fVar5;
       }
-      if (frame.local_20 == k_f_0) {
-        frame.local_1c = 0.0;
-        frame.local_18 = 0.0;
-        frame.local_14 = 0.0;
+      if (frame.min_wall_hits == k_f_0) {
+        frame.score2 = 0.0;
+        frame.score1 = 0.0;
+        frame.score0 = 0.0;
         fVar1 = k_f_0;
       }
       else {
         if (g_player_stats_race[0].wall_hits != 0) {
-          frame.local_14 = float_1_0 / (fVar2 / frame.local_20);
+          frame.score0 = float_1_0 / (fVar2 / frame.min_wall_hits);
         }
         if (g_player_stats_race[1].wall_hits != 0) {
-          frame.local_18 = float_1_0 / (fVar3 / frame.local_20);
+          frame.score1 = float_1_0 / (fVar3 / frame.min_wall_hits);
         }
         if (g_player_stats_race[2].wall_hits != 0) {
-          frame.local_1c = float_1_0 / (fVar4 / frame.local_20);
+          frame.score2 = float_1_0 / (fVar4 / frame.min_wall_hits);
         }
         if (g_player_stats_race[3].wall_hits != 0) {
-          fVar1 = float_1_0 / (fVar5 / frame.local_20);
+          fVar1 = float_1_0 / (fVar5 / frame.min_wall_hits);
         }
       }
-      debug_printf("cleanest line      %.2f   %.2f   %.2f   %.2f\n",(double)frame.local_14,
-                   (double)frame.local_18,(double)frame.local_1c,(double)fVar1);
+      debug_printf("cleanest line      %.2f   %.2f   %.2f   %.2f\n",(double)frame.score0,
+                   (double)frame.score1,(double)frame.score2,(double)fVar1);
       debug_printf("number of pants    %d      %d      %d      %d\n",g_player_stats_race[0].pants,
                    g_player_stats_race[1].pants,g_player_stats_race[2].pants,
                    g_player_stats_race[3].pants);
