@@ -20,7 +20,6 @@
 #define OBJ_MATRIX_PTR_OFFSET (0x478)
 /* smplfzx_object_bounds_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the world AABB of an object from the local box and matrix plus margin 2*param+0.005"
  *
  * obj:    object base pointer; local bbox at +0x438 (RwBBox), world bbox written to +0x450 (RwBBox),

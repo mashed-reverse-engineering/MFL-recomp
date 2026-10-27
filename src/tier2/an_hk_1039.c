@@ -11,7 +11,6 @@
 /*006a18b8*/ extern float g_data_6a18b8;
 /* course_neustein_cb1_sub_4548b0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_neustein_cb1_sub_454970 */
 
 void course_neustein_cb1_sub_4548b0(float param_1,float param_2)

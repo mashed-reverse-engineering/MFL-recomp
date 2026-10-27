@@ -8,7 +8,6 @@
 /*006c2954*/ extern float g_data_6c2954;
 /* course_helper_4757e0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* callers course_angels_cb1,course_keys_cb1,course_neustein_cb1,course_nt1_s_cb1 */
 
 float10 course_helper_4757e0(undefined4 viewport)

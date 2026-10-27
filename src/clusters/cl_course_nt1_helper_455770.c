@@ -10,7 +10,6 @@
 /*006a1f28*/ extern undefined4 g_course_6a1f28;
 /* course_nt1_helper_455770 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* callers course_nt1_cb0,course_nt1_s_cb0 */
 
 void course_nt1_helper_455770(int course)

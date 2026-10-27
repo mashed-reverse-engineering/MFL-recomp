@@ -9,7 +9,7 @@
 extern void course_superg_cb4_sub_45c140(int part_frame, RwMatrix *matrix);
 
 /* The original pushes (matrix, 100, index) for vehicle_part_frame, which only reads two of them, and leaves the third (the matrix pointer) on the stack as
-   the second argument of course_superg_cb4_sub_45c140 (cdecl; the caller cleans 8 bytes after it).  Ghidra lost that argument: the 45c140 call had one
+   the second argument of course_superg_cb4_sub_45c140 (cdecl; the caller cleans 8 bytes after it).  The decompiler lost that argument: the 45c140 call had one
    parameter and the callee read stack garbage (NULL, crash in RwMatrixTransform on course 7). */
 void course_superg_cb4_sub_45c1f0(int count)
 

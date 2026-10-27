@@ -18,8 +18,6 @@
 /*00603ea4*/ extern undefined4 g_marker_particles_603ea4;
 /* hudpanel_marker_place */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "builds the matrices of a player marker (translate / scale / rotate) and applies them to its
    frame" */
 

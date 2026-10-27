@@ -6,7 +6,6 @@
 /*0060d894*/ extern undefined4 g_course_egypt_60d894;
 /* sound_fn_4537f0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* callee category sound */
 
 void sound_fn_4537f0(void)

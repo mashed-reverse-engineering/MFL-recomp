@@ -6,8 +6,6 @@
 /*006a2680*/ extern undefined4 g_course_objects_6a2680;
 /* course_highway_cb1_sub_459fc0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* single caller course_highway_cb1 */
 
 void course_highway_cb1_sub_459fc0_n(int in_eax)

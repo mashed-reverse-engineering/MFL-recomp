@@ -30,7 +30,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* course_moving_platforms_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per platform object follows its spline (tween), pushes the physics body by velocity and clamps
    lateral offset" */
 
@@ -73,19 +72,19 @@ void course_moving_platforms_update(char *world_base, char *platform_base)
   if (0 < *(int *)(platform_base + 0x250c)) {
     platform_ptr = (float *)(platform_base + 0x2444);
     do {
-      if (platform_ptr[-1] != 0.0) {
+      if (*(int *)&platform_ptr[-1] != 0) {      /* an int flag (original: test eax,eax), not a float */
         body_matrix = (RwMatrix *)rwp_object_get_matrix(*(int *)&platform_ptr[-6]);
         handle_or_z = rwp_object_get_handle(*(int *)&platform_ptr[-6]);
         frame.advance = g_tick_seconds + g_tick_seconds;
         spline = *(int *)(world_base + 0xc9b0 + *(int *)&platform_ptr[-2] * 4);
         frame.spline_copy = spline;
-        if (platform_ptr[-4] == 0.0) {
+        if (*(int *)&platform_ptr[-4] == 0) {
           FUN_004c48b0(&frame.pose,spline,*(int *)&*platform_ptr);
         }
         else {
           spline_tween_b(&frame.pose,spline,*platform_ptr);
         }
-        if (*platform_ptr < k_f_0_001 != (*platform_ptr == k_f_0_001)) {
+        if (*platform_ptr <= k_f_0_001) {
           rwp_object_set_matrix(*(int *)&platform_ptr[-6],&frame.pose);
         }
         owner = rwp_owner_object_get(handle_or_z);
@@ -114,13 +113,11 @@ void course_moving_platforms_update(char *world_base, char *platform_base)
           frame.body_vec_y = *(float *)&vec_ptr[1];
           handle_or_z = vec_ptr[2];
           if ((k_f_0_05 < frame.local_pos.x) || (frame.local_pos.x < k_f_n0_05)) {
-            if (frame.local_pos.x <= k_f_0_95) {
-              if (frame.local_pos.x < k_f_n0_95) {
-                frame.local_pos.x = -0.95;
-              }
-            }
-            else {
+            if (frame.local_pos.x > k_f_0_95) {      /* NaN passes (original: test ah,0x41; jne to the lower clamp) */
               frame.local_pos.x = 0.95;
+            }
+            else if (frame.local_pos.x < k_f_n0_95) {
+              frame.local_pos.x = -0.95;
             }
             frame.body_vec_y = frame.local_pos.x + frame.body_vec_y;
             vec_ptr = (undefined4 *)
@@ -135,7 +132,7 @@ void course_moving_platforms_update(char *world_base, char *platform_base)
           frame.push_x = (body_matrix->at).x * push;
           frame.push_y = (body_matrix->at).y * push;
           frame.push_z = (body_matrix->at).z * push;
-          if (platform_ptr[-3] == 0.0) {
+          if (*(int *)&platform_ptr[-3] == 0) {
             frame.push_y = float_10_0;
             if (k_f_0 < frame.delta.y) {
               frame.push_y = k_f_21;

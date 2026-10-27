@@ -39,7 +39,7 @@ extern struct VoiceSlot g_voices[210];
  * (inferred: restart), sets the playback frequency, sets the channel handle via FUN_005b7300
  * (args 4 and 1 unknown) when the record has one, and sets the volume.
  * Takes no parameters, returns nothing.
- * voice_volume = option_get_volume_0() * the float at 0x5df368 (Ghidra label s_333_Lap_frames, used as a float scale).
+ * voice_volume = option_get_volume_0() * the float at 0x5df368 (the decompiler label s_333_Lap_frames, used as a float scale).
  * option_volume: scratch float, first option_get_volume_0() (for voice_volume), then option_get_volume_2()
  * (applied at the end to the slot from g_sound_frame_619fac if it is playing).
  * (was: "starts the menu/event voices (0x619138, 0x6190a4, 0x619ba0) scaled by the option volume")

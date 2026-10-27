@@ -11,7 +11,6 @@
 /*0062ac80*/ extern undefined g_weapon_62ac80;
 /* vehicle_marker_steering_wheel_update */
 
-/* WARNING: Unknown calling convention */
 /* "rotates the wheel frame from the car's af4/b00 fields" */
 
 /* (inferred names) af4 / b00: two car vectors (xy array + z); wheel spin = (b00.x + af4.x) * 40 around one axis, steer = (b00.z + af4.z) * -100 around the other, applied at the frame position wheel_pos */

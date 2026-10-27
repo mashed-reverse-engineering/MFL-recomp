@@ -96,7 +96,7 @@ void weapon_mortar_shell_update_n(undefined4 *shell)
         shell[0x11] = 0;
       }
     }
-    if (k_f_1_25 <= *(float *)&shell[0x14]) {
+    if (!(k_f_1_25 > *(float *)&shell[0x14])) {
       arc = ((float10)*(float *)&shell[0x13] - (float10)k_f_1_3) * (float10)k_f_n2_2;
     }
     else {

@@ -5,7 +5,6 @@
 /*0069d2e0*/ extern struct MenuRecord g_menu_records[14];
 /* menu_item_list_find_index_current */
 
-/* WARNING: Unknown calling convention */
 /* "index of the id in EBX in the item list of the current menu" */
 
 int menu_item_list_find_index_current_n(int item_id, int occurrence)

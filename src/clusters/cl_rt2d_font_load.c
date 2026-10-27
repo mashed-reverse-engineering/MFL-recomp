@@ -7,7 +7,6 @@
 /*00564e40*/ extern int Rt2dFontStreamRead(struct RwStream *p0);
 /* rt2d_font_load */
 
-/* WARNING: Unknown calling convention */
 /* "opens a font file and reads chunk 0x199 with Rt2dFontStreamRead" */
 
 int rt2d_font_load_n(void *in_eax)

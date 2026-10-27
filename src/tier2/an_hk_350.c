@@ -45,7 +45,6 @@ __declspec(naked) int stopclock_set_digit_count_r(int reg_esi)
 
 /* hudpanel_score_digits_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "positions the panel (0.48,0.35) and scales the bar to 0, 1/3, 2/3, 1 by the counter" */
 
 /* Per-frame update of the score digits HUD panel (inferred from the body and the callee names).

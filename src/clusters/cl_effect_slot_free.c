@@ -6,7 +6,6 @@
 /*006f1e20*/ extern undefined1 g_gfx_6f1e20;
 /* effect_slot_free */
 
-/* WARNING: Unknown calling convention */
 /* "clears the 0x2C0 byte effect slot and its bit in the allocation mask" */
 
 void effect_slot_free_n(int in_esi)

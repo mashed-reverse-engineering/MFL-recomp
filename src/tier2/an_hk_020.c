@@ -438,7 +438,6 @@ extern void controller_missing_message_update(void);
 
 /* frontend_enter_menu */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "state 0 -> 1 and resets g_menu_current to 0 (or event 0x11 special case)" */
 
 extern void frontend_enter_menu(char *param_1);
@@ -624,7 +623,6 @@ extern void hud_menu_draw_all_panels(void);
 
 /* quick_race_defaults_set */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "game_mode = GAME_MODE_QUICK_RACE, event type 0x12, team mode off ..." */
 
 extern void quick_race_defaults_set(void);
@@ -695,7 +693,6 @@ extern void __cdecl camera_apply_matrix(char *param_1);
 
 /* distances_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* per-player horizontal distance to the leader * 0.8 -> distance_to_leader[4] */
 
 extern void distances_update(void);
@@ -703,7 +700,6 @@ extern void distances_update(void);
 
 /* player_distance_warning */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* returns 1 in race mode when distance_to_leader[p] > 7.0 (trainer warning threshold patch at
    0044c16b) */
 

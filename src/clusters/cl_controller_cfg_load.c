@@ -9,7 +9,6 @@
 /*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
 /* controller_cfg_load */
 
-/* WARNING: Unknown calling convention */
 /* fread 0x200 bytes into g_controller_cfg[n] */
 
 static char * controller_cfg_path_r(int p0);

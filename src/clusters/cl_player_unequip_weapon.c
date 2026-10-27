@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* player_unequip_weapon */
 
-/* WARNING: Unknown calling convention */
 /* esi = player weapon struct; calls descriptor+0x10 then zeroes +0xA8/+0xAC; NO null check on +0xA8
    (crashes if no weapon) */
 

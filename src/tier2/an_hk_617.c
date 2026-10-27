@@ -17,7 +17,6 @@
  * When no player holds right, clears g_menu_right_69d6c8.
  */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "direction_flags[1] on any player input (with auto repeat)" */
 
 undefined4 menu_right_pressed_any(void)

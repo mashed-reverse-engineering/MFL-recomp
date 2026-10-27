@@ -50,7 +50,6 @@
 
 /* bomb_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "Beat the Bomb: counts the bomb timer (g_race 0x7EF7CC) down, normalised in 0x5FB0A8; at 0 calls
    car_kill / car_enter_rwp_mode on the carrier and plays the explosion" */
 /* Per frame. Counts the bomb timer down, blows up the carrier car when the timer runs out in the

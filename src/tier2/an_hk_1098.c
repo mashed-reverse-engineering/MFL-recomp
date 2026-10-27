@@ -10,7 +10,6 @@
 /*007dc68c*/ extern char g_data_7dc68c[];
 /* course_storm_cb1_sub_4aaf40 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_storm_cb1 */
 
 void course_storm_cb1_sub_4aaf40(void)

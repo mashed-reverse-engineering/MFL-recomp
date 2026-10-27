@@ -14,7 +14,6 @@
 #define RW_BLEND_INV_SRC_ALPHA (6) /* inferred: RwBlendFunction rwINVSRCALPHA */
 /* particles_alloc_system */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "finds a free system record (0x68 bytes), sets texture and dimensions" */
 /*
  * Claims a free particle system record and fills it in.

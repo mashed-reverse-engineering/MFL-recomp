@@ -14,7 +14,6 @@
 /*0068b8f8*/ extern char g_race_phase_arg[];
 /* course_editor_read_vec_chunk */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "reads chunk 0x11/0x12 from the 0x68b8f8 stream into a table, then loops
    course_update_frame_sub_40c480" */
 

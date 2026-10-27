@@ -5,7 +5,6 @@
 /*00651aa0*/ extern undefined4 g_fx_object_count;
 /* fx_find_object_by_owner */
 
-/* WARNING: Unknown calling convention */
 /* "returns the fx record (0xEC bytes) whose +0x44 matches the owner" */
 
 undefined * fx_find_object_by_owner_n(int in_esi)

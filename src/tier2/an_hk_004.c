@@ -144,7 +144,6 @@
 
 /* fx_ptank_create */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(texture, ?, count): PTank atomic with its frame and blend modes 2 / 2" */
 
 /*

@@ -5,7 +5,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* weapon_pickup_slot_clear_a */
 
-/* WARNING: Unknown calling convention */
 /* "clears fields, removes the clump from its world" */
 
 void weapon_pickup_slot_clear_a_n(int in_esi)

@@ -8,7 +8,6 @@
 /*007ef7d0*/ extern undefined4 g_menu_7ef7d0;
 /* menu_panel_draw_69c9e8 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "panel with state flag g_menu_panel_state_69c9e8 (fade counter 69c9ec)" */
 
 void menu_panel_draw_69c9e8(void)

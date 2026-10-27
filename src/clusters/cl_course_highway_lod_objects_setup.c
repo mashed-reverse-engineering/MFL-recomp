@@ -12,7 +12,6 @@
 /*008c4728*/ extern undefined4 g_course_highway_8c4728;
 /* course_highway_lod_objects_setup */
 
-/* WARNING: Unknown calling convention */
 /* "clones the atomics of the highway object set and creates their frames" */
 
 void course_highway_lod_objects_setup_n(int object_set, char *source_atomics)

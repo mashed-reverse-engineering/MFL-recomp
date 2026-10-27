@@ -4,7 +4,6 @@
 /*00488140*/ extern int __cdecl sphere_plane_side(undefined4 p0, undefined4 p1);
 /* planes_test_sphere */
 
-/* WARNING: Unknown calling convention */
 /* "(sphere): loop of sphere_plane_side over the planes" */
 
 undefined4 planes_test_sphere_n(int plane_count, int plane_cursor, undefined4 sphere)

@@ -21,7 +21,6 @@ extern double cos(double);
 extern char g_data_69d6dc[];
 /* course_sky_atomic_create */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "creates the frame / atomic of the sky object (g_course_6a06e0)" */
 
 void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)

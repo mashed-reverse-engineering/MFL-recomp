@@ -4,7 +4,6 @@
 #define UNROLL_POINTS (4)
 /* FUN_004c4620 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Computes the centroid (average position) of an array of 3D points.
    out_center: receives the average x, y, z (float[3]).

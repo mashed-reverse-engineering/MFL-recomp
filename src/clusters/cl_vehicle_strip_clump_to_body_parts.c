@@ -11,7 +11,6 @@
 /*004f70f0*/ extern struct RpClump * RpClumpRemoveAtomic(struct RpClump *p0, struct RpAtomic *p1);
 /* vehicle_strip_clump_to_body_parts */
 
-/* WARNING: Unknown calling convention */
 /* "removes all atomics except ids 0x25,0x27,0x29,0x2a,0x2b,0x2d and fits the bounding box" */
 
 void vehicle_strip_clump_to_body_parts_n(VehicleRecord *vehicle_record)

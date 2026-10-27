@@ -30,7 +30,6 @@ typedef signed char sbyte;
 /*007ef804*/ extern undefined4 g_tick_number;
 /* course_falling_objects_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per active falling object integrates velocity, rotates, spawns burst/dust on ground contact and
    removes it" */
 

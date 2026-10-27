@@ -10,7 +10,6 @@ extern double cos(double);
 #define ATOMIC_GEOMETRY_OFFSET (0x18) /* offset of the RpGeometry pointer in the atomic (inferred) */
 #define GEOMETRY_LOCK_TEXCOORDS (16) /* rpGEOMETRYLOCKTEXCOORDS, texcoord set 1 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "scrolls the u coordinates of the geometry by cos(timer) * 0.01" */
 /*
  * Per-frame update of the u texture coordinates of an atomic's geometry (inferred from the body).

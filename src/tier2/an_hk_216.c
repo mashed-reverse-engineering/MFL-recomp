@@ -13,7 +13,6 @@
 /*008c9a40*/ extern undefined4 g_ai_career_counter_table;
 /* race_ai_slot_assign_or_adjust */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "for non-career events adjusts g_ai_skill_bias by +-0.5 or calls ai_bots_assign_slots" */
 
 /* Per-event AI skill bias update. `event_arg` is the event passed to get_event_type (inferred: event handle).

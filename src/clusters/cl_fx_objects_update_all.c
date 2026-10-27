@@ -8,7 +8,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* fx_objects_update_all */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "updates each active fx object and fades the block" */
 
 static int fx_object_apply_transform_r(int * p0);

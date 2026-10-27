@@ -5,7 +5,6 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* debris_slots_init_for_vehicle */
 
-/* WARNING: Unknown calling convention */
 /* "clears the record, stores the vehicle and builds the 2 half debris slot sets" */
 
 static int debris_slots_init_from_atomics_r(undefined4 p0, int p1, undefined4 p2, int p3);

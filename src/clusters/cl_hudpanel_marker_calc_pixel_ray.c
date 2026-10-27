@@ -5,7 +5,6 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /* hudpanel_marker_calc_pixel_ray */
 
-/* WARNING: Unknown calling convention */
 /* "RwCameraCalcPixelRay for a marker of type 2" */
 
 void hudpanel_marker_calc_pixel_ray_n(int in_eax)

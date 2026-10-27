@@ -14,7 +14,6 @@
 /*0060d8bc*/ extern char g_course_nt1_60d8bc[];
 /* course_city_helper_455b80 */
 
-/* WARNING: Unknown calling convention */
 /* callers course_city_cb0,course_city_cb6,course_city_cb7 */
 
 /* Spawns the city course light effects: for each world object id range (1000+i x26, 2000+i x12, 5000+i x3, 6000+i x4 with two anchor points) the object index is looked up

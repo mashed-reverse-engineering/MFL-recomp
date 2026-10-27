@@ -4,7 +4,6 @@
 /*00424d40*/ extern undefined __cdecl debris_slot_list_update_visible(undefined4 p0);
 /* debris_half_update_visible_both */
 
-/* WARNING: Unknown calling convention */
 /* "runs debris_slot_list_update_visible for 2 halves (stride 0x100)" */
 
 void debris_half_update_visible_both_n(int in_eax)

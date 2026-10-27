@@ -4,7 +4,6 @@
 /*00481fd0*/ extern double random_range(float lo, float hi);
 /* particles_emit_random */
 
-/* WARNING: Unknown calling convention */
 /* "fills free slots in the batch with random positions/velocities from the emitter box" */
 
 void particles_emit_random_n(int *slot, float *box)

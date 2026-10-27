@@ -26,7 +26,6 @@
 #define JITTER_MAX_BITS (0x3e4ccccd) /* 0.2f bit pattern */
 /* weapon_oil_fire */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Oil weapon fire emitter for one weapon slot (inferred from the body).

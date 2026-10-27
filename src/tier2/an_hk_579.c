@@ -33,7 +33,6 @@ extern struct VoiceSlotP g_voices[210];
 
 /* sfx_play_at */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(effect, position*): when g_app_state is 3, starts every voice of the effect (table g_sfx_table:
    +0 first voice, +4 count) at the position with frequency 22050.0 (0x46AC4400) unless an effect
    0x20 special case applies" */

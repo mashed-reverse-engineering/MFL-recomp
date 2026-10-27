@@ -4,7 +4,6 @@
 /*004880b0*/ extern int __cdecl bbox_plane_corner_test(undefined4 p0, undefined4 p1);
 /* planes_test_bbox */
 
-/* WARNING: Unknown calling convention */
 /* "(bbox): true when the bbox is inside all frustum planes (loop of bbox_plane_corner_test)" */
 
 undefined4 planes_test_bbox_n(int in_ebx, int in_eax, undefined4 param_3)

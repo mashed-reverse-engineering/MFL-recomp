@@ -25,9 +25,8 @@
 /*00651ab4*/ extern undefined4 g_grid_position_651ab4;
 /*007ef7b8*/ extern undefined4 game_mode;
 /*007ef7d4*/ extern undefined4 g_race_time_ticks;
-/* Start grid position of one car of the race (computes a position and a heading from the route record; "Invalid number of cars in race" / "Invalid position").  Ghidra-style locals kept: the x87 expression order is the verified one. */
+/* Start grid position of one car of the race (computes a position and a heading from the route record; "Invalid number of cars in race" / "Invalid position").  The decompiler-style locals kept: the x87 expression order is the verified one. */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* computes a position/heading for one of the cars of the race ("Invalid number of cars in race";
    "Invalid position") */
 

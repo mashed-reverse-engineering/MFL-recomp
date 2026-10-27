@@ -6,7 +6,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* effect_sprite_update */
 
-/* WARNING: Unknown calling convention */
 /* "advances age, scales the frame by the progress, resets the sprite when age >= lifetime" */
 
 static int effect_sprite_reset_r(undefined4 * p0);

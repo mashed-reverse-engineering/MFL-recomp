@@ -26,7 +26,6 @@ extern struct SpringNode g_spring_nodes[460];
 
 /* spring_grid_prepare */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the 23 x 23 grid forces and normalises the wind direction (inferred)"
  *
  * Per frame: zeroes the force accumulators (w2c, w30, w34) of every grid node,

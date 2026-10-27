@@ -36,7 +36,6 @@ extern char LAB_00408ad0[];
 /*00801b14*/ extern undefined4 g_rw_801b14;
 /* rwp_objects_cull_and_register_triggers */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per physics object tests camera distance/frustum and registers trigger spheres, updates debris
    expiry" */
 

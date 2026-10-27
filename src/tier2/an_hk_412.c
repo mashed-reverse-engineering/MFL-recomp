@@ -19,7 +19,6 @@
 #define CELL_DONE (2)
 #define ACTION_RESET (2)
 /* frontend_attract_menu_input */
-/* WARNING: Type propagation algorithm not settling */
 /* "12 step direction-key sequence on pads 0 and 2 (cheat code), unlocks all progress cells" */
 /* Attract-screen key sequence (inferred): key_sequence[] is the direction expected at each of the
  * KEY_SEQUENCE_LEN steps, and g_frontend_init_76e80c is the current step. A newly pressed

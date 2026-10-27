@@ -25,7 +25,7 @@ undefined4 course_neustein_cb0_sub_454460(undefined4 param_1,undefined4 param_2,
   } frame;
   RtQuat identity_quat;
   
-  /* func_0x0056e780 takes (list, index) but the original pushes a third value (ignored by it) that stays on the stack as the second argument of the setter that is called next (56e9b0 / 56e990 copy a quaternion / vec3 from it): Ghidra lost it and the setters read stack garbage (same class as course_superg_cb4_sub_45c1f0) */
+  /* func_0x0056e780 takes (list, index) but the original pushes a third value (ignored by it) that stays on the stack as the second argument of the setter that is called next (56e9b0 / 56e990 copy a quaternion / vec3 from it): the decompiler lost it and the setters read stack garbage (same class as course_superg_cb4_sub_45c1f0) */
   sample_map = func_0x0056e640();
   func_0x0056e770(sample_map,0x3e);
   channel_or_result = func_0x0056e7a0(sample_map);

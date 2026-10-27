@@ -36,7 +36,6 @@ extern struct VoiceSlot g_voices[210];
 
 /* sound_bomb_countdown_voices */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "state 1/2/3: start/pitch-up/stop voices of the bomb countdown from the fraction" */
 
 /*

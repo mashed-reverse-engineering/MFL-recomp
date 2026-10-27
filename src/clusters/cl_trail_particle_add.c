@@ -37,8 +37,6 @@
 /*008d8b00*/ extern undefined4 g_trail_8d8b00;
 /* trail_particle_add */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "adds one trail particle to the PTank buffer (inferred)" */
 
 void trail_particle_add_n(RwV3d *particle, int camera, float view_scale)

@@ -15,7 +15,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* course_highway_cb1_impl */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* tail-jump target of thunk course_highway_cb1_sub_453bf0 */
 
 void course_highway_cb1_impl(void)

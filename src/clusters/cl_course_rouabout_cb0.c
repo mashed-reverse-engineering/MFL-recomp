@@ -67,7 +67,6 @@
 /*006a2634*/ extern undefined4 g_course_6a2634;
 /* course_rouabout_cb0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_rouabout_cb0(int course)
 

@@ -12,7 +12,6 @@
 /*008c590c*/ extern undefined4 g_course_arctic_8c590c;
 /* course_arctic_snow_quad_draw */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws a textured quad of the snow object at a random alpha, 4 corners relative to the object" */
 
 void course_arctic_snow_quad_draw(char *param_1,char *param_2)

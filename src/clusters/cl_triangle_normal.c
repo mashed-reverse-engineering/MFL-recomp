@@ -6,8 +6,6 @@
 /*005ddc28*/ extern float k_f_0;
 /* triangle_normal */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "(p0, p1, p2 -> out): normalised cross product" */
 
 void triangle_normal_n(float *in_eax, float *in_edx, float *in_ecx, float *in_esi)

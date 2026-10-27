@@ -20,7 +20,6 @@ __declspec(naked) int effect_slot_free_r(int reg_esi)
 
 /* effect_trails_update_all */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per active trail advances time and rewrites the vertex alpha" */
 
 void effect_trails_update_all(void)

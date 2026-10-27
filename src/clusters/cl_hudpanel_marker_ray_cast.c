@@ -7,7 +7,6 @@
 /*005ddafc*/ extern float k_f_0_05;
 /* hudpanel_marker_ray_cast */
 
-/* WARNING: Unknown calling convention */
 /* "casts a ray from the marker and stores the hit point matrix (surface id check against 0xFEFEFF)"
     */
 

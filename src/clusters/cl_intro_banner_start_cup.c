@@ -9,7 +9,6 @@
 /*008c8798*/ extern undefined4 g_intro_banner_offset;
 /* intro_banner_start_cup */
 
-/* WARNING: Unknown calling convention */
 /* "for cup events 3..5 starts the banner id 0xEE" */
 
 void intro_banner_start_cup(void)

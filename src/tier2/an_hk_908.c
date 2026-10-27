@@ -13,7 +13,6 @@
 /*0068b8ec*/ extern float g_course_lap_data_split_sectors_14_;
 /* course_camera_roll_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the camera roll factor from the camera facing and calls game_set_option_flags" */
 
 /* (inferred) course +0xc9f4..0xca0c: two colour / fog near / fog far key frames (A at c9f4, B at ca00) and a roll angle (ca0c); the blend factor is (dot(camera forward flattened, forward rotated by roll) - 1) * -0.5 */

@@ -22,7 +22,6 @@ __declspec(naked) int kc_panel_entry_init_r(int reg_esi)
 
 /* kc_panel_init */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "player count, max_points_b = score_target_a, entry init" */
 
 /*

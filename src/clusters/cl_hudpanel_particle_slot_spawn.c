@@ -7,7 +7,6 @@
 /*00658a28*/ extern float g_particles_658a28[];
 /* hudpanel_particle_slot_spawn */
 
-/* WARNING: Unknown calling convention */
 /* "stores the position (3 floats at in_edi) in the first free slot of the 64 particle slots (age > 0.75), else in the oldest one" */
 
 void hudpanel_particle_slot_spawn_n(float *in_edi)

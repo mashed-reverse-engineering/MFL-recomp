@@ -6,7 +6,6 @@
 /*006a5d78*/ extern char g_weapon_6a5d78[];
 /* weapon_flashbang_start_effect */
 
-/* WARNING: Unknown calling convention */
 /* "state 2, finds a free flash slot, stores the pickup position and sets the screen shake to 10" */
 
 void weapon_flashbang_start_effect_n(int in_edx)

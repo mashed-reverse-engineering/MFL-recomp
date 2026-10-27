@@ -4,7 +4,6 @@
 /*005dda20*/ extern float k_f_4_2949673e9;
 /* hsv_phase_to_rgb */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Maps a phase, value / range, onto four colour sectors in the R/G plane.
  * out[0] = R, out[1] = G; blue is not written.

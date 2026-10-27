@@ -16,7 +16,6 @@
 
 /* ai_steer_towards_point */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Steering angle in degrees, 0..360: how far the car must turn from its forward heading to face the world point
  * (target_x, target_z) in the XZ plane. Each heading is the angle from +X (acos of the X component, sign from Z,
  * inferred). Both headings are converted to degrees, then the difference is wrapped into 0..360.

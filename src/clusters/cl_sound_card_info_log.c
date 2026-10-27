@@ -24,7 +24,6 @@ extern __declspec(dllimport) int __stdcall OutputDebugStringA(int);
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "MAX voices / useSoftware flag" */
 
 void sound_card_info_log(void)

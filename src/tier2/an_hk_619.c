@@ -11,7 +11,6 @@
 /*008c7e60*/ extern undefined4 g_distances_8c7e60;
 /* camera_get_distance_factor */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "1.0 in modes 4 / 8 / 9, else based on the distance to the leader" */
 
 /*

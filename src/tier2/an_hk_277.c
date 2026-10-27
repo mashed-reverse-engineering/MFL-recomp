@@ -39,7 +39,6 @@
 #define PTANK_FEATURE_COLOUR_TABLE (0x1000)
 /* particle_system_setup_ptank */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "RpPTankAtomicCreate with all blend / flag setters (26 callers)" */
 
 /*

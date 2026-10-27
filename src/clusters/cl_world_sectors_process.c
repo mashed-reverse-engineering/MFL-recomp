@@ -5,8 +5,7 @@ extern char LAB_004890e0[];
 /*004f5e10*/ extern struct RpWorld * RpWorldForAllWorldSectors(struct RpWorld *p0, RpWorldSectorCallBack p1, void *p2);
 /* world_sectors_process */
 
-/* WARNING: Unknown calling convention */
-/* "RpWorldForAllWorldSectors(world, FUN_004890e0)" */
+/* "RpWorldForAllWorldSectors(world, LAB_004890e0)" */
 
 void world_sectors_process_n(RpWorld *in_eax)
 

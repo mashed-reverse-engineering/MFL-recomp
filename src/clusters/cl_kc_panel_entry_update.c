@@ -22,8 +22,6 @@
 extern double sin(double);
 /* kc_panel_entry_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /*  */
 
 typedef struct KcPanelEntry {

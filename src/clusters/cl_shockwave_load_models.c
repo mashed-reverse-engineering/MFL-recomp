@@ -44,7 +44,6 @@ extern char g_shockwave_load_6c5e3c[];
 
 /* shockwave_load_models */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "shockwave.dff and hemisphere.dff clumps" */
 
 /*

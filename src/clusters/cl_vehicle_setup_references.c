@@ -39,7 +39,6 @@
 
 /* vehicle_setup_references */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Per-frame update for one vehicle slot, given the slot's new transform.
  *   index_or_morph:    on entry the slot index (int bits); on exit the proximity factor, clamped to 0..1
  *                      and passed to vehicle_marker_morph_update

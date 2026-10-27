@@ -18,7 +18,6 @@ extern struct VoiceSlot g_voices[210];
 /*008d98bc*/ extern int g_sound_player_count;
 /* sound_play_impact_voice */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(voice, car, ...): positions the voice at the car with speed dependent volume" */
 
 /* (inferred names) player_or_speed_a: the parameter slot is reused, first the player index (selects the voice table row), then the float speed of car_a (car_get_speed writes it there); the volume is max(speed_a, speed_b) (or speed_override + 500) times a per player scale */

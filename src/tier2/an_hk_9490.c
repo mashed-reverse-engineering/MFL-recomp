@@ -27,7 +27,6 @@ extern char UNK_005df51c[];
 /* course_warzone_cb0 */
 
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Warzone course init: clones the atomics, builds the object-frame sets for the four course lists (offsets 0x1800/0x2400/0x0/0x4800), then plants a tree sprite
    ("OakTreeSprite") for every record of the two tree lists (0xc008 and 0xc00c counts; position from the record, radius = length of its first vector), and

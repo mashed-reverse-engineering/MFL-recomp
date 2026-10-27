@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* hudpanel_counters_clear */
 
-/* WARNING: Unknown calling convention */
 /* "clears the two counters at +0x4C / +0x50" */
 
 void hudpanel_counters_clear_n(int in_eax)

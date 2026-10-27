@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* collision_edge_shares_vertex_pair */
 
-/* WARNING: Unknown calling convention */
 /* "true when both vertex indices of this edge occur in the other edge" */
 
 undefined4 collision_edge_shares_vertex_pair_n(int in_esi, int in_edx)

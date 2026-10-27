@@ -29,7 +29,6 @@ extern char g_car_world_8b06d4[];
 
 /* car_world_collision_query */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* transforms the wheel anchors and a bounding sphere by the car's previous-frame matrix
    (matrix_previous) and runs RpCollisionWorldForAllIntersections against the track.
    car_index: index into player_car.

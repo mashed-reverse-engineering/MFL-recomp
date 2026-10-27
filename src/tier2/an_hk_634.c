@@ -38,7 +38,6 @@ __declspec(naked) undefined4 rt2d_font_load_r(int reg_eax)
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Sets up the UI font and brushes: opens Rt2d, loads the font texture dict and the font,
    creates the brushes (white and opaque black, plus two more) and zeroes the course,
    g_app_boot_69b9fc and UI layout scale globals (inferred). Takes no parameters, returns nothing.

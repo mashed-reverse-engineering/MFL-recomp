@@ -118,7 +118,7 @@ int race_check_winner_by_game_mode(void)
     if (0 < iVar2) {
       do {
         counter = (float10)ai_get_counter(points);
-        if ((float10)k_f_3 < counter) {
+        if (counter > (float10)k_f_3) {
           car_active = points + 1;
           break;
         }
@@ -162,8 +162,8 @@ LAB_004129e1:
       goto LAB_0041280c;
     }
     counter = (float10)ai_get_counter(0);
-    if (counter < (float10)k_f_1_999) {
-      if (g_course_7ef7cc > k_f_0) {
+    if (!(counter >= (float10)k_f_1_999)) {      /* NaN enters (original: test ah,1; jne) */
+      if (k_f_0 <= g_course_7ef7cc) {      /* original: fld 0.0; fcomp g; test ah,0x41; jp */
         return 0;
       }
       goto LAB_004129e1;

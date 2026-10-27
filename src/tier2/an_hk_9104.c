@@ -4,7 +4,7 @@
 /*008c4b08*/ extern undefined4 g_course_forest_8c4b08;
 /* course_forest_cb1 */
 
-/* the original ends in a tail jump to SUB_00484960 (clump, SUB_00484b20 result): Ghidra inlined the target */
+/* the original ends in a tail jump to SUB_00484960 (clump, SUB_00484b20 result): the decompiler inlined the target */
 int course_forest_cb1(char *param_1,undefined4 param_2)
 
 {

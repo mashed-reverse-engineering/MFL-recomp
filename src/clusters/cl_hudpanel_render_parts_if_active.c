@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* hudpanel_render_parts_if_active */
 
-/* WARNING: Unknown calling convention */
 /* "calls virtual render method (0x48) of up to 6 parts when active" */
 
 void hudpanel_render_parts_if_active_n(int *in_eax)

@@ -14,7 +14,6 @@ extern double sin(double);
 #define HUD_FLASH_WHITE_RGB (0xffffff)
 /* hud_flash_text */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "text 0x2AF pulsing (sine alpha) at two offsets, shadow + white" */
 
 /*

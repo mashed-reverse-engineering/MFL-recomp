@@ -40,7 +40,6 @@ typedef int CourseId;
 /* highest slot index the setup loop fills (inferred) */
 #define LAST_SLOT (5)
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per course id (switch) powerups_clear and the course specific powerup layout" */
 
 /* Sets up the powerup state for the race about to start (inferred).

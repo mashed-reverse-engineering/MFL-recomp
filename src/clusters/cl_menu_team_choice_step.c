@@ -7,7 +7,6 @@
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /* menu_team_choice_step */
 
-/* WARNING: Unknown calling convention */
 /* "steps the team choice of player (in EAX) by +-1 skipping choices already taken (wraps 0..6)" */
 
 void menu_team_choice_step_n(int player, int step, int skip_none_flag)

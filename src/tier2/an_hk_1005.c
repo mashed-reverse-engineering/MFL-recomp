@@ -9,7 +9,6 @@
 /*008d8b30*/ extern undefined4 player_count;
 /* player_stats_debug_log */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "no callers found: clears the per race counters of every player and prints 'cleanest line' /
    'number of pants' / 'number of crowns' lines (old debug code)" */
 

@@ -6,8 +6,6 @@
 /*008c47c0*/ extern undefined4 g_course_8c47c0;
 /* course_highway_cb1_sub_459f70 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* single caller course_highway_cb1 */
 
 void course_highway_cb1_sub_459f70_n(int in_edx)

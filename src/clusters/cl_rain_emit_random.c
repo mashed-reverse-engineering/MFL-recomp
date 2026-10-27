@@ -4,7 +4,6 @@
 /*00481fd0*/ extern double random_range(float lo, float hi);
 /* rain_emit_random */
 
-/* WARNING: Unknown calling convention */
 /* "fills free rain slots with random positions/velocities from the emitter box" */
 
 void rain_emit_random_n(int *drop, float *box)

@@ -61,7 +61,6 @@ extern double sin(double);
 
 /* sound_car_engine_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(player): engine voices from speed and damage (car_damage_sum_front_back,
    voice_set_position_from_car)" */
 

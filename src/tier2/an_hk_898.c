@@ -14,7 +14,6 @@
 
 /* ai_target_check */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "inferred: validates a candidate target (position, target)" */
 
 /* Returns 1 if the straight segment from origin to target is clear, 0 if a sample point on it lands in a blocked cell (inferred).

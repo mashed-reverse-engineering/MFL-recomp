@@ -34,7 +34,6 @@
 /*0041a370*/ extern float ai_get_counter();
 /* race_status_messages_draw */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'Car is wrecked', 'Time Trial Abandoned', 'Fugitive has lapped you!' (texts 598, 599, 534 ...)"
     */
 

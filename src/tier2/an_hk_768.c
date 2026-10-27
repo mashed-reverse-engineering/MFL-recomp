@@ -32,7 +32,6 @@
 
 /* weapon_machinegun_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Per-frame update of the machine gun turrets: MACHINEGUN_COUNT entries of

@@ -29,7 +29,6 @@ __declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short *
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "dat string drawn in a box (x,y,w,h in 640x480 space, alignment 0/1/2)" */
 
 /*

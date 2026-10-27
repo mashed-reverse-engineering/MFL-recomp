@@ -5,7 +5,6 @@
 /*0048e6c0*/ extern int rwp_object_set_flag();
 /* course_city_helper_455dd0 */
 
-/* WARNING: Unknown calling convention */
 /* callers course_city_cb6,course_city_cb7 */
 
 void course_city_helper_455dd0_n(undefined4 in_esi)

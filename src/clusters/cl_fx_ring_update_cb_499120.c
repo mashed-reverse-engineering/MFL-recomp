@@ -50,11 +50,11 @@ void fx_ring_update_cb_499120(RwV3d *hit_pos, int other_record)
     object = *(int *)&hit_pos[1].z;
     frame.car_speed = 0.0;
     event_or_car = event_or_car + -0xff00;
-    if (*(float *)(object + 0x20) <= float_0_8) {
+    if (!(*(float *)(object + 0x20) > float_0_8)) {
       car_get_speed(&frame.car_speed,event_or_car);
       frame.kick_x = 0.0;
       random_val = (float10)random_range(0xbf800000,0x3f800000);
-      if (((float10)k_f_0_2 <= random_val) || (random_val <= k_f_0)) {
+      if (!((float10)k_f_0_2 > random_val) || !(random_val > k_f_0)) {
         if (((float10)k_f_n0_2 < random_val) && (random_val < k_f_0)) {
           random_val = (float10)k_f_n0_2;
         }

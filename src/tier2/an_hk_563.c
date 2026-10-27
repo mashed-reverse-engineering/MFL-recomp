@@ -77,7 +77,6 @@ __declspec(naked) void func_0x00455e60_r(RwV3d *reg_esi)
 
 /* course_city_cb1 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Per-frame effect update for the city course (inferred).

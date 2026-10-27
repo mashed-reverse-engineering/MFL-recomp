@@ -68,7 +68,6 @@
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /* tutorial_text_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "runs game_tick for the frame time, then builds the instruction text lines for event types 0..2
    using text_width (inferred)" */
 

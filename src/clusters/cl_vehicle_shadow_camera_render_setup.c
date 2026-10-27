@@ -21,7 +21,6 @@ extern float course_get_shadow_scale(void);
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /* vehicle_shadow_camera_render_setup */
 
-/* WARNING: Unknown calling convention */
 /* "places the shadow camera below the car, sets the shadow render target and renders the car into
    it" */
 

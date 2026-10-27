@@ -11,7 +11,6 @@
 
 /* fx_system_flush */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "flushes the pending particles of the system and stores its count" */
 /* Flushes a live FX system: ribbon spline and particles, then moves the pending
    particle count into g_fx_system_759700 and zeroes it (inferred). fx_system is the

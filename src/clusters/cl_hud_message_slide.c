@@ -17,8 +17,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* hud_message_slide */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "slides the message 0x22B in and out using a timer in the object (+0x10)" */
 
 void hud_message_slide_n(char *message, int slot_index)

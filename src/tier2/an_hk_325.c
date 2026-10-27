@@ -43,7 +43,6 @@
 
 /* fx_spritecomp_create */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'spriteComp' PTank atomic and texture" */
 
 /*

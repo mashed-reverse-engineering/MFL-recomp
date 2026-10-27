@@ -7,7 +7,6 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* team_endpoint_panel_load_parts */
 
-/* WARNING: Unknown calling convention */
 /* "loads grey 0x32 parts into the endpoint panel" */
 
 void team_endpoint_panel_load_parts_n(int clump, int panel)

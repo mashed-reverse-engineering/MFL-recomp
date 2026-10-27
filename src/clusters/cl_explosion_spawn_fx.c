@@ -28,8 +28,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* explosion_spawn_fx */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "random colour / size, explosion_decal and sfx_play_player_set_at at the effect position" */
 
 float10 explosion_spawn_fx_n(FxSceneObject *effect)

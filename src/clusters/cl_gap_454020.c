@@ -41,7 +41,7 @@ void gap_454020_n(int in_eax)
   fx.axis.y = 0.0;
   fx.axis.z = 0.0;
   iVar2 = *(int *)(*(int *)(in_eax + 0xa0) + 4);
-  if (*(float *)(iVar2 + 0x44) - *(float *)&(&g_course_8c3f64)[slot * 3] <= k_f_0_01) {
+  if (!(*(float *)(iVar2 + 0x44) - *(float *)&(&g_course_8c3f64)[slot * 3] > k_f_0_01)) {      /* NaN takes the branch (original: test ah,0x41; je) */
     fx.scale.x = *(float *)((char *)((undefined *)&g_course_highway_8c4440) + slot * 0xc) * k_f_1_225;
     fx.scale.z = 1.0;
     fx.translate.x = 0.0;

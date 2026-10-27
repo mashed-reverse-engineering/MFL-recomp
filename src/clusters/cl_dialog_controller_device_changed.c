@@ -6,7 +6,6 @@ extern __declspec(dllimport) int __stdcall SendMessageA(int hWnd, int Msg, int w
 /*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
 /* dialog_controller_device_changed */
 
-/* WARNING: Unknown calling convention */
 /* "reads the selected device of the combo box into g_controller_cfg[player].device" */
 
 int dialog_controller_device_changed_n(int in_eax, int in_ecx, int in_edx)

@@ -24,7 +24,6 @@ typedef struct FxEmitterSlot {
 } FxEmitterSlot;
 /* fx_emitter_init */
 
-/* WARNING: Unknown calling convention */
 /* "initialises one 0x1D8 byte emitter slot from position, size and flags" */
 
 void fx_emitter_init_n(FxEmitterSlot *emitter, float *pos, undefined4 unused_3, undefined4 unused_4, float rise, int size_or_count, undefined4 flags)

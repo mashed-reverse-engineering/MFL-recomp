@@ -6,7 +6,6 @@
 /*008c3f68*/ extern undefined4 g_course_highway_8c3f68;
 /* course_highway_cb1_sub_459500 */
 
-/* WARNING: Unknown calling convention */
 /* single caller course_highway_cb1 */
 
 void course_highway_cb1_sub_459500_n(int in_edx)

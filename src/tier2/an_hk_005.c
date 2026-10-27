@@ -103,7 +103,6 @@
 /* vehicle_skidmarks_render */
 
 /* WARNING: Function: __chkstk replaced with injection: alloca_probe */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "builds an Im3D vertex list from the skid segments (0xF1C byte records) and renders them"
  * slot_index: vehicle slot whose skid record block to draw (inferred)
  * Returns nothing. Does nothing when the slot has no segments.

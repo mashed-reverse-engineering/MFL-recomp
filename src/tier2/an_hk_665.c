@@ -5,7 +5,6 @@
 extern double cos(double);
 /* interp_cosine */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(a, b, t): cosine interpolation" */
 
 /* Eased interpolation from start to end: blend = (1 - cos(pi * t)) / 2 is 0 at t = 0 and 1 at t = 1,

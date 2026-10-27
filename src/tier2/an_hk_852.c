@@ -22,7 +22,6 @@ extern double atan2(double, double);
 #define RAD_TO_DEG (57.295799255371094) /* 180 / pi */
 /* camera_editor_setup_parallel */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "parallel projection over the AI editor view origin (g_ai_editor_view_origin_x / _z)" (was: "... AI grid bounds (g_ai_7f0240 / 7f0244)") */
 
 /*

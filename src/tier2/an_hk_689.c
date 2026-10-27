@@ -35,7 +35,6 @@
 #define RACE_SLOT_TABLE_END (200)
 /* game_mode_end_check */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* switch on game_mode; contains the compare against [008c7e00]==10.0 patched by the trainer 'max
    distance' (008c7e00 has no static writer) */
 

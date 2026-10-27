@@ -9,7 +9,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* fx_random_burst */
 
-/* WARNING: Unknown calling convention */
 /* "counts a delay down, then random spawn positions (random_range) and fx_spawn" */
 
 static int fx_spawn_r(RwMatrix * p0, float * p1);

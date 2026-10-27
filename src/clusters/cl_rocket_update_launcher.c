@@ -44,7 +44,6 @@
 /*007ef804*/ extern undefined4 g_tick_number;
 /* rocket_update_launcher */
 
-/* WARNING: Unknown calling convention */
 /* "per player: updates the launcher model on the car (inferred from weapon_rocket_update)" */
 
 static int rocket_explode_r(int p0);

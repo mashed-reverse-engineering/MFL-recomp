@@ -7,7 +7,6 @@
 /*004f4560*/ extern struct RpWorld * __cdecl RpAtomicGetWorld(struct RpAtomic *p0);
 /* weapon_fx_explosion_slot_clear */
 
-/* WARNING: Unknown calling convention */
 /* "clears one explosion fx slot and removes its frame / atomic from the world" */
 
 void weapon_fx_explosion_slot_clear_n(undefined4 *in_esi)

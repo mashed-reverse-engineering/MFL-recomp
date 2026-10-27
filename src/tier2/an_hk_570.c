@@ -33,7 +33,6 @@ extern struct VoiceSlotP g_voices[210];
 #define RANDOM_EMITTER_STRIDE (0x90)
 /* sound_ambience_course_1a */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "course id 0x1A" */
 /*
  * Per-frame update of the ambience emitters for course 0x1A (COURSE_CITY in the

@@ -21,7 +21,7 @@
  * world: the world object, passed to every step function (inferred).
  * step_arg: forwarded to FUN_0056e7c0 and FUN_00572d90 (inferred: a step parameter, meaning unknown).
  * Returns nothing.
- * Locals world_for_<fn> are copies of world (Ghidra split them), one per call.
+ * Locals world_for_<fn> are copies of world (the decompiler split them), one per call.
  * world_8c / world_90 are the fields at offsets 0x8c and 0x90 (meaning unknown);
  * the _reloaded copies are read again after the collision response, which may have changed them. */
 void __cdecl rwp_world_step_pipeline(int world,undefined4 step_arg)

@@ -18,7 +18,6 @@
 
 /* intro_banner_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "state 1: slides the banner at 700 per second down to 320, then state 2 with a 5 s timer" */
 
 /* Per-frame update of the intro banner: a small state machine driven by g_intro_652df0.
@@ -28,7 +27,7 @@
    reaches 320, then the hold timer (g_intro_652dfc) is set to 5 s and the state becomes 2.
    State 2 (hold): the hold timer counts down by g_tick_seconds; at 0 the state becomes 3.
    State 3 (slide out): the banner falls at 700 units/s until it reaches -320, then state 0.
-   The `a < b != (a == b)` pattern is Ghidra's rendering of `a <= b`. */
+   The `a < b != (a == b)` pattern is the decompiler's rendering of `a <= b`. */
 
 void intro_banner_update(void)
 

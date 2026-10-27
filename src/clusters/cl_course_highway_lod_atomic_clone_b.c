@@ -7,7 +7,6 @@
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /* course_highway_lod_atomic_clone_b */
 
-/* WARNING: Unknown calling convention */
 /* "clones the atomic into +0xA4 and adds its frame as child of the +0xA0 frame" */
 
 void course_highway_lod_atomic_clone_b_n(int in_esi, RpAtomic *in_eax)

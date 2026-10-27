@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* weapon_effect_slot_clear_6a7c78 */
 
-/* WARNING: Unknown calling convention */
 /* "zero fields, +0x5C=-1.0" */
 
 void weapon_effect_slot_clear_6a7c78_n(undefined4 *in_eax)

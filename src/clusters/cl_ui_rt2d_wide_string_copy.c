@@ -6,7 +6,6 @@ typedef unsigned int (*RwStrlenFunction)(const char *);
 #define rwstrlen RW_GLOBAL(0xf4, RwStrlenFunction)      /* stringFuncs.vecStrlen */
 /* ui_rt2d_wide_string_copy */
 
-/* WARNING: Unknown calling convention */
 /* "copies a string widening it to 16 bit characters" */
 
 void ui_rt2d_wide_string_copy_n(byte *in_eax, ushort *in_ecx)

@@ -30,7 +30,6 @@ __declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short *
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "Rt2dFontFlow: text flowed into a box" */
 
 /* Draws the string string_id word-wrapped into a box with Rt2dFontFlow. Returns nothing.

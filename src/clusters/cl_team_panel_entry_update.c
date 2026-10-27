@@ -9,7 +9,6 @@
 /*006592b0*/ extern undefined g_team_6592b0;
 /* team_panel_entry_update */
 
-/* WARNING: Unknown calling convention */
 /*  */
 
 /* panel->flags is the flag word (bit 0x40000 toggled, 0x3000000/0x800000 select button groups); the loop below tests each button bit and updates the entry. */

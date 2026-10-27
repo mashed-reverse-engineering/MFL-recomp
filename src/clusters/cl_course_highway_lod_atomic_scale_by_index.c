@@ -8,7 +8,6 @@
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /* course_highway_lod_atomic_scale_by_index */
 
-/* WARNING: Unknown calling convention */
 /* "clones the atomic, adds the frame as child, scale 1.27/1.24 by index" */
 
 void course_highway_lod_atomic_scale_by_index_n(RpAtomic *in_eax, int in_ecx)

@@ -22,7 +22,6 @@
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
 /* gamesave_load_menu_state */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* state machine for the boot-time save check (memory-card style states from the console builds) */
 
 void gamesave_load_menu_state(float delta_time)

@@ -83,7 +83,6 @@ extern char s_videocfg_bin_005e1520[];
 
 /* video_cfg_path */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Copies fields of the "videocfg.bin" block into the g_video_cfg_7712d8..7712e4 globals
    (inferred: words at offsets 0, 4, 8 and a byte at offset 12). Returns &g_video_cfg_7712d8. */
 

@@ -34,7 +34,6 @@ extern double cos(double);
 extern double sin(double);
 /* cup_scene_update_object */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per object update using the camera matrix and car matrices (inferred)" */
 
 void cup_scene_update_object(float blend,int car_index)

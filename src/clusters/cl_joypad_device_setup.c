@@ -13,8 +13,6 @@ extern double sqrt(double);
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "DirectInput joypad: creates the device, sets data format, axis ranges and dead zones (1.5 KB)"
     */
 

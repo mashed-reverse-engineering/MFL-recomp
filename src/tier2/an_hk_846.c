@@ -25,7 +25,6 @@ extern double sin(double);
 #define SPARKLE_TEXT_ARG3_BITS (0x3e4ccccd)
 /* fx_pickup_sparkle_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per active record (0x29 dwords) spawns timed sub effects, bobs the frame with sin and fades 10
    morph atomics" */
 

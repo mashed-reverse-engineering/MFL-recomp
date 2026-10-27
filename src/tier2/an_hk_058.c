@@ -9,7 +9,6 @@
 /*006592d8*/ extern undefined4 g_hudpanel_6592d8;
 /* hudpanel_fuel_meter_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "places the panel frame (-0.48,-0.35) scale 1.25 and scales the bar by 1 - fx value" */
 
 /* Per-frame update of the fuel meter HUD panel. Takes no parameters, returns nothing.

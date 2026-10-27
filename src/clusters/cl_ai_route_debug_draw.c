@@ -25,7 +25,6 @@
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws the route polygon and Catmull-Rom spline of an AI route with point indices (debug)" */
 
 /* Route point i is route[2 * i] (x), route[2 * i + 1] (z); the count is the int at byte offset 0x200. */

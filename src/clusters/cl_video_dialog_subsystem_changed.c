@@ -10,7 +10,6 @@ extern __declspec(dllimport) int __stdcall SendMessageA(int hWnd, int Msg, int w
 /*007714fc*/ extern undefined4 g_video_subsystem_index;
 /* video_dialog_subsystem_changed */
 
-/* WARNING: Unknown calling convention */
 /* "reads the subsystem combo (1000) and refreshes the mode list" */
 
 void video_dialog_subsystem_changed_n(int in_eax)

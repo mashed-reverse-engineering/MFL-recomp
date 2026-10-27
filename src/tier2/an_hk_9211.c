@@ -3,7 +3,6 @@
 /*007d2128*/ extern char *RwEngineInstance;
 /* video_draw_textured_quad */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "screen quad with uv rect and colour using the movie/video texture in the viewport" */
 
 /* (inferred) rect_min / rect_max are fractions of the raster (NULL = whole raster 0,0..1,1), color_rgba NULL = opaque white, u_max / v_max are float bits */

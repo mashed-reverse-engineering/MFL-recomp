@@ -3,7 +3,6 @@
 /*005dd364*/ extern float k_f_n1;
 /* dot_product_3d_clamped */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "dot product of two 3D vectors clamped to [-1, 1]" */
 
 /* Returns the dot product of the 3D vectors vec_a and vec_b (each three floats: x, y, z),

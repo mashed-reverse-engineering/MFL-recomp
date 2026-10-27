@@ -13,7 +13,6 @@ extern struct VoiceSlot g_voices[210];
 
 /* sound_sfx_set_volume_clamped */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "sets the volume of a playing sfx voice clamped to [0,1]"
  *
  * sfx_type:    sfx type id; selects the voice block in g_sfx_table.

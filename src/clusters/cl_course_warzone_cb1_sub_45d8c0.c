@@ -10,7 +10,6 @@
 /*005df6a0*/ extern float k_f_0_0098;
 /* course_warzone_cb1_sub_45d8c0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_warzone_cb1 */
 
 void course_warzone_cb1_sub_45d8c0(int *list)
@@ -32,7 +31,7 @@ void course_warzone_cb1_sub_45d8c0(int *list)
   frame_obj.uStack_4 = 0;
   if (0 < *list) {
     do {
-      if (item_cursor[9] != 0.0) {
+      if (*(int *)&item_cursor[9] != 0) {      /* an int word (original: cmp dword, 0), not a float */
         unused_vec.x = item_cursor[0xb];
         unused_vec.y = item_cursor[0xb];
         unused_vec.z = item_cursor[0xb];

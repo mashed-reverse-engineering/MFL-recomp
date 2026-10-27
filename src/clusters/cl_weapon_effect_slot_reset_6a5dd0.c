@@ -6,7 +6,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* weapon_effect_slot_reset_6a5dd0 */
 
-/* WARNING: Unknown calling convention */
 /* "clears the state, atomic flags and removes the clump from its world" */
 
 void weapon_effect_slot_reset_6a5dd0_n(undefined4 *in_esi)

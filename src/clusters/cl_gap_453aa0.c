@@ -6,7 +6,6 @@
 /*006a1418*/ extern float g_course_particle_6a1418[];
 /* gap_453aa0 */
 
-/* WARNING: Unknown calling convention */
 /* "stores the position (3 floats at in_edi) in the first free slot of the 256 course particle slots (age > threshold), else in the oldest one" */
 
 void gap_453aa0_n(float *in_edi)

@@ -42,7 +42,6 @@ typedef struct { char c[8]; } Text8;   /* the 8 byte string "waiting\0" copied a
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "logs 'course LoadTime is %u (%.3f)' and starts the race setup" */
 
 void __cdecl race_course_loaded(int event,int round_index)

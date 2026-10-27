@@ -20,7 +20,6 @@
 #define FX_FAR_LEVEL_BITS (0x3fd99999) /* float bits of 1.6999999f: level used when the vehicle is ahead */
 /* fx_distance_check */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "distance to the first camera path point against a threshold (inferred)"
  * Sets the fx level of an object from the vehicle's distance to the object's path point.
  *   param_1: object pointer, passed in a float slot (its bits are read as an int, see `obj`).

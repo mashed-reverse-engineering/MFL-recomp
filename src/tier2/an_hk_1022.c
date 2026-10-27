@@ -16,7 +16,6 @@
 /*00416840*/ extern float course_helper_449c40_sub_416840(float p0, int p1);
 /* course_helper_449c40_sub_416870 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_helper_449c40 */
 
 void course_helper_449c40_sub_416870(float param_1)

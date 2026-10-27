@@ -3,7 +3,6 @@
 /*007e06e0*/ extern undefined4 g_data_7e06e0;
 /* course_storm_cb2_sub_4ab140 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_storm_cb2 */
 
 void course_storm_cb2_sub_4ab140(void)

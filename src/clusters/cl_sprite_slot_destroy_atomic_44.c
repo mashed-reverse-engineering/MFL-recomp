@@ -6,7 +6,6 @@
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /* sprite_slot_destroy_atomic_44 */
 
-/* WARNING: Unknown calling convention */
 /* "destroys the frame and atomic stored at +0x44" */
 
 void sprite_slot_destroy_atomic_44_n(int in_esi)

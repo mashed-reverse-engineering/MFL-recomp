@@ -37,7 +37,6 @@ extern double sin(double);
 
 /* course_rotating_object_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(object, ticks): animates a rotating object (sin / cos offsets, frame rotate) and re-registers
    its trigger" */
 

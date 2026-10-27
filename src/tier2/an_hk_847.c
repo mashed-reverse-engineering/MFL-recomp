@@ -17,7 +17,6 @@
 
 /* fx_floating_text_spawn */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Spawns one floating text effect in the FX_SLOT_COUNT-slot table at g_effects_update_76b830 (slots FX_SLOT_STRIDE
    bytes apart). Uses the first free slot. If none is free, it reuses one of the first eight slots: the one whose
    +0x10 field is largest (inferred: an age/timer; the chain of '>' compares keeps the maximum, not the smallest as

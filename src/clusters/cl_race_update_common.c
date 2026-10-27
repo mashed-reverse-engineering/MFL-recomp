@@ -40,7 +40,6 @@
 /*008d8b14*/ extern undefined4 g_race_setup;
 /* race_update_common */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* per tick work shared by all race phases (ESI = ticks): sim time; weapons_update_frame; effects;
    clamps total time at 0xF731400 */
 

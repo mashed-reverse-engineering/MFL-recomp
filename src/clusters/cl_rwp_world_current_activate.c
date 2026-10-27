@@ -6,7 +6,6 @@
 /*00701c9c*/ extern undefined4 g_rw_701c9c;
 /* rwp_world_current_activate */
 
-/* WARNING: Unknown calling convention */
 /* "FUN_0056a210 on the current rwp world" */
 
 void rwp_world_current_activate_n(undefined4 in_eax)

@@ -28,7 +28,6 @@
 /*008d8b14*/ extern undefined4 g_race_setup;
 /* race_phase_5_update */
 
-/* WARNING: Unknown calling convention */
 /* "phase 5 handler of game_tick" */
 
 void race_phase_5_update_n(int in_eax)

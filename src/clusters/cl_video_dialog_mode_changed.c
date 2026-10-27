@@ -6,7 +6,6 @@ extern __declspec(dllimport) int __stdcall SendMessageA(int hWnd, int Msg, int w
 /*007712f0*/ extern undefined4 g_video_7712f0;
 /* video_dialog_mode_changed */
 
-/* WARNING: Unknown calling convention */
 /* "reads the selected mode of combo 0x3E9 into g_video_7712f0" */
 
 void video_dialog_mode_changed_n(int in_eax)

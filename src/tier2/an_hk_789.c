@@ -21,7 +21,6 @@
 
 /* app_state_frontend_frame */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "one frontend frame: game_tick, menu_update" */
 
 /*

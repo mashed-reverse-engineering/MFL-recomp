@@ -23,7 +23,6 @@ typedef struct SnowDrop { int active; int age; float x, y, z; float vx, vy, vz; 
 
 /* fx_snow_ptank_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "spawns/updates the particles of system n near the camera, ages them (0x80 steps) and locks the
    ptank" */
 

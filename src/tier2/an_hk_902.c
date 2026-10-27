@@ -63,7 +63,6 @@ typedef int CourseId;
 #define STEER_MODE_CELL_VALUE2 (9) /* ai_cell_is_value2 */
 #define STEER_MODE_HAZARD (10) /* ai_hazard_target_for_car (warzone) */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* bot steering: target point from ai_find_target_a/b/c with speed and forward vector (variant a).
  * Per frame, for bot car_index: choose a target (route, find_target_a/b/c, trigger zone, hazard,
  * catch-up, stuck fallback), steer towards it, and write the turn/throttle bytes into controls

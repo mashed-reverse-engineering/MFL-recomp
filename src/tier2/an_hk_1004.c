@@ -57,7 +57,7 @@ __declspec(naked) int player_unequip_weapon_r(int reg_esi)
    status 2 -> 3 and unequip; if a weapon is equipped call descriptor+0xC (update, nonzero =
    finished -> unequip), derive a fire state from input byte +7 and the previous frame's copy (3
    pressed with no previous / 2 / 1 released) and call descriptor+8(slot, state); then the per type
-   per frame callbacks (descriptor +0x1C, and +0x38/+0x3C for course ids 2 and 0x21), FUN_00465fe0,
+   per frame callbacks (descriptor +0x1C, and +0x38/+0x3C for course ids 2 and 0x21), weapon_effects_particles_update,
    powerups_update and the delayed trigger spheres (explosion_queue_update, tail call)" */
 
 void weapons_update_frame(void)

@@ -33,7 +33,6 @@
 
 /* build_info_display_draw_frame */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws the build info/loading screen: backdrop, gradients, borders and the 640x480 frame lines"
     */
 

@@ -11,7 +11,6 @@
 /*008c873c*/ extern undefined4 g_ui_camera_8c873c;
 /* ui_camera_update_view_rect */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the viewport rectangle of the secondary frontend camera from the screen size" */
 
 undefined4 ui_camera_update_view_rect(void)

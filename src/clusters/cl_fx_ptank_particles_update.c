@@ -43,7 +43,6 @@ static float float_barrier(float v) { return v; }
    0x20 no ground test, 8 bounce, 2 die on ground, 0x1000 fade alpha), byte p+0x2c = PTank layer (0/1), byte p+0x2d = texture row,
    p[12] update callback.  Each live particle is stepped, written into the locked PTank buffers and dropped (pool_push) when it dies. */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "locks the PTank, steps the pool particles and unlocks" */
 
 void fx_ptank_particles_update(float dt)

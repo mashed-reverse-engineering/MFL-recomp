@@ -11,8 +11,6 @@
 extern double sin(double);
 /* rocket_fly_straight */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "flight step of a rocket without a target (target ids both -1)" */
 
 void rocket_fly_straight_n(RocketRecord *rocket)

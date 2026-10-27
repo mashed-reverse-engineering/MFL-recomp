@@ -28,7 +28,6 @@ typedef struct MineSlot {
 
 /* weapon_mine_drop */
 
-/* WARNING: Unknown calling convention */
 /* "places a mine at the car (matrix rotate / transform) and adds its clump to the course world" */
 
 void weapon_mine_drop_n(int mine_pool)

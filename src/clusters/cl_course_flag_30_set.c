@@ -4,7 +4,6 @@
 /*008c86d0*/ extern undefined4 g_course_8c86d0;
 /* course_flag_30_set */
 
-/* WARNING: Unknown calling convention */
 /* "stores 0x30 at +3 and g_course_8c86d0=1" */
 
 void course_flag_30_set_n(int in_eax)

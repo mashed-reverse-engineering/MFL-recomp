@@ -29,7 +29,6 @@
 
 /* course_rouabout_cb1 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Per-frame update for the Rouabout course (inferred: course callback).

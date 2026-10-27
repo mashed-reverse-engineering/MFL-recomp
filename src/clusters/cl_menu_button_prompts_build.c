@@ -7,7 +7,6 @@
 /*008c80a0*/ extern struct MenuItemAnim g_menu_item_anims[30];
 /* menu_button_prompts_build */
 
-/* WARNING: Unknown calling convention */
 /* "(page, ...): fills the 0x34 byte button / prompt entries at 0x8C80A0 for the current frontend
    page (Continue / Back icons)" */
 

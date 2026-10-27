@@ -23,7 +23,6 @@
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
 /* gamesave_load_state_machine */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'Waiting for load status' state machine" */
 
 void gamesave_load_state_machine(float delta_time)

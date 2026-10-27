@@ -9,7 +9,6 @@
 /*006c2658*/ extern int g_car_6c2658;
 /* course_object_pair_build_clump */
 
-/* WARNING: Unknown calling convention */
 /* "removes the old clump and builds frames/atomics for entry unused_2" */
 
 static int course_object_atomic_register_r(int p0, char * p1, int p2, int p3);

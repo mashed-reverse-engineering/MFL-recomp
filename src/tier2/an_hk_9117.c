@@ -9,8 +9,6 @@
 /*004d1ca0*/ extern struct RwCamera * RwCameraSetFarClipPlane(struct RwCamera *p0, RwReal p1);
 /* course_superg_cb0 */
 
-/* WARNING: Removing unreachable block (ram,0x00495c39) */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 int course_superg_cb0(char *param_1)
 

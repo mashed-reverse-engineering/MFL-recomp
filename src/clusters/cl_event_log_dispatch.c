@@ -42,8 +42,6 @@ extern struct EventLogData g_event_log_data[256];
 /*007ef77c*/ extern float g_event_log_7ef77c;
 /* event_log_dispatch */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "(index): plays the effects and sounds for one event log entry (switch on the event type: 3 world
    collision, ...)" */
 

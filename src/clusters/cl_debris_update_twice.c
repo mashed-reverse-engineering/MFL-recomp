@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* debris_update_twice */
 
-/* WARNING: Unknown calling convention */
 /* "calls race_update_common_sub_4254e0 twice" */
 
 static int vehicle_debris_update_one_r(int p0);

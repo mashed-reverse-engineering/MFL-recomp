@@ -21,7 +21,6 @@
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
 /* gamesave_format_state_machine */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'process format %d' state machine" */
 
 void gamesave_format_state_machine(float delta_time)

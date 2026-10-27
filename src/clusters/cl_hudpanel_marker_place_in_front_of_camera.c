@@ -11,7 +11,6 @@
 extern double atan2(double, double);
 /* hudpanel_marker_place_in_front_of_camera */
 
-/* WARNING: Unknown calling convention */
 /* "places the marker frame, offsets by 12 along the horizontal direction and plays voice 0x12/0x14"
     */
 

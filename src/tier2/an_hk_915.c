@@ -7,7 +7,6 @@
 /*005ddb14*/ extern float float_7_0;
 /* ai_debug_draw_marker_box */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws a coloured box around a point, colour by colour_id = 1,2,3" */
 
 void __cdecl ai_debug_draw_marker_box(float x,float y,float colour_id)

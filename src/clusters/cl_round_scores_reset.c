@@ -11,7 +11,6 @@
 /*008d8b8c*/ extern undefined4 g_round_8d8b8c;
 /* round_scores_reset */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "sets the three per player change tables at 0x8D8B60 to -1000 (0xFFFFFC18)" */
 
 void round_scores_reset(void)

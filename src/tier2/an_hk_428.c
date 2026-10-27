@@ -25,7 +25,6 @@ __declspec(naked) int team_panel_entry_update_r(int reg_esi)
  * Takes no parameters, returns nothing.
  */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "players_reached_target then team_panel_entry_update" */
 
 void team_panel_update(void)

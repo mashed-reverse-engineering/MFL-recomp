@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* menu_count_items */
 
-/* WARNING: Unknown calling convention */
 /* "counts the entries of a menu item list up to its terminator" */
 
 int menu_count_items_n(int *list)

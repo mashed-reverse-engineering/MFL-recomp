@@ -58,7 +58,6 @@ typedef int CourseId;
 #define BLINK_DIVISOR (0x3c) /* (inferred) */
 #define BLINK_BIT (0x20U) /* (inferred) */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Steering and throttle for AI bot car_index (variant c).
  * Picks a target point (route target, then ai_find_target_a/b/c, trigger zone, and a hazard
  * target on COURSE_WARZONE), steers towards it and writes the control bytes:

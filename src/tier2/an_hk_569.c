@@ -43,10 +43,9 @@ extern struct VoiceSlotP g_voices[210];
  * Otherwise it refreshes three voices in g_sound_groups (slot at +0x470, slot at +0x6b0,
  * and the slot after that) with a rate and a position, then sometimes starts a random
  * group voice (roll A, roll B). Takes no parameters, returns nothing.
- * Note: the locals are reused by Ghidra, so `slot` also holds the random rolls and
+ * Note: the locals are reused by the decompiler, so `slot` also holds the random rolls and
  * `voice_rec` is briefly set to the FUN_005b7300 result (unused). */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "course ids 0x09 and 0x22" */
 
 void sound_ambience_course_9_22(void)

@@ -11,7 +11,6 @@
 extern double sin(double);
 /* course_arctic_cb1 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_arctic_cb1(undefined4 param_1)
 

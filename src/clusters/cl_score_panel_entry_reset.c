@@ -6,7 +6,6 @@
 /*00603edc*/ extern undefined g_score_panel_603edc;
 /* score_panel_entry_reset */
 
-/* WARNING: Unknown calling convention */
 /* "entry scale / offsets from the table at 0x603ED4" */
 
 void score_panel_entry_reset_n(int in_ecx)

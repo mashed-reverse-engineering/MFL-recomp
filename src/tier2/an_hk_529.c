@@ -3,7 +3,6 @@
 /*005dd330*/ extern float float_1_0;
 /* fx_smoke_particle_spawn_tinted */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "spawns a type 6 particle with a given colour and size+1" */
 
 void fx_smoke_particle_spawn_tinted

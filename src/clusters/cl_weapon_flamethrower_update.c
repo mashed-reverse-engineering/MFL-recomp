@@ -72,7 +72,6 @@ __declspec(naked) int weapon_flamethrower_register_trigger_sphere_r(void *flame_
 
 /* weapon_flamethrower_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void weapon_flamethrower_update(void)
 

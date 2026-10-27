@@ -8,7 +8,6 @@
 /*006a2678*/ extern undefined4 g_data_6a2678;
 /* course_forest_cb0_sub_458e70 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_forest_cb0 */
 
 void course_forest_cb0_sub_458e70(char *param_1)

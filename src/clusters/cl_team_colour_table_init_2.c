@@ -13,7 +13,6 @@ extern char g_team_6592b0[];
 
 /* team_colour_table_init_2 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fills 6 floats (two team colours) at g_race_start_603f1c" */
 
 /* Sets up the race-start team colours and team panel colours.

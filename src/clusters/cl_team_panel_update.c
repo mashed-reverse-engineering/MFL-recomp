@@ -17,7 +17,6 @@
  * Takes no parameters, returns nothing.
  */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "players_reached_target then team_panel_entry_update" */
 
 static int team_panel_entry_update_r(int p0);

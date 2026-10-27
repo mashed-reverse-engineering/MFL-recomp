@@ -10,7 +10,6 @@
 /*005dd340*/ extern float k_f_0_5;
 /* debris_slots_init_from_atomics */
 
-/* WARNING: Unknown calling convention */
 /* "assigns atomics to debris slots by their id range 0x50..0x59 / 0x5a..0x63" */
 
 void debris_slots_init_from_atomics_n(undefined4 mode, int debris_set, undefined4 owner, int atomics)

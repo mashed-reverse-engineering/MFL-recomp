@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* flashunit_state_clear */
 
-/* WARNING: Unknown calling convention */
 /* "clears +0xC..+0x14" */
 
 void flashunit_state_clear_n(int in_eax)

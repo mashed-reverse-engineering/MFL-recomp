@@ -6,7 +6,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* weapon_fx_clump_remove_b */
 
-/* WARNING: Unknown calling convention */
 /* "ids = -1, clump flags cleared and clump at +0x5C removed from its world" */
 
 void weapon_fx_clump_remove_b_n(int in_esi)

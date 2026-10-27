@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* video_state_clear */
 
-/* WARNING: Unknown calling convention */
 /* "*param = 0" */
 
 void video_state_clear_n(undefined4 *in_ecx)

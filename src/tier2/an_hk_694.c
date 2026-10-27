@@ -68,7 +68,6 @@ extern char LAB_00408ef0[];
 
 /* player_time_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per player timer update from 0x8D8C80 (stride 0x30C) when the car mode is 0 (inferred)" */
 
 /*

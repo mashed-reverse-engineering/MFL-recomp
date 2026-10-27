@@ -4,7 +4,6 @@
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /* endpoint_panel_entry_destroy */
 
-/* WARNING: Unknown calling convention */
 /*  */
 
 void endpoint_panel_entry_destroy_n(int in_eax)

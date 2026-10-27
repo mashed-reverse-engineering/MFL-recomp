@@ -40,7 +40,6 @@ __declspec(naked) int triangle_normal_r(float * reg_eax, float * reg_edx, float 
 
 /* car_world_collision_query */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* transforms the wheel anchors and a bounding sphere by the car's previous-frame matrix
    (matrix_previous) and runs RpCollisionWorldForAllIntersections against the track.
    car_index: index into player_car.

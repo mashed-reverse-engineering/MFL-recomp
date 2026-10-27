@@ -36,7 +36,6 @@ extern char LAB_004a2b40[];
 
 /* rw_engine_init */
 
-/* WARNING: Enum "RwVideoModeFlag": Some values do not have unique names */
 /* "'Calling RwEngineInit', RtFSManager, plugins" */
 
 /*

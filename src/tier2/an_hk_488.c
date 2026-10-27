@@ -13,7 +13,6 @@
 #define FLASH_ENTRY_STRIDE (6) /* entry size in floats (24 bytes) */
 /* weapon_flashbang_clear_effects */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Draws the flashbang clear-screen effect each frame. Takes no parameters and returns nothing.
    Draws the particles in g_weapon_8bf000 with the depth test off, then, for every flash entry

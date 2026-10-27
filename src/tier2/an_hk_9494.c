@@ -19,7 +19,6 @@
 /*008885a0*/ extern undefined4 g_particles_8885a0;
 /* fx_ptank_b_lock_and_fill */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices
    per entry)" */
 

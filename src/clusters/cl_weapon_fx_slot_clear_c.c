@@ -4,7 +4,6 @@
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /* weapon_fx_slot_clear_c */
 
-/* WARNING: Unknown calling convention */
 /* "default scale 1.0, counters 0, clump flags cleared" */
 
 void weapon_fx_slot_clear_c_n(undefined4 *in_eax)

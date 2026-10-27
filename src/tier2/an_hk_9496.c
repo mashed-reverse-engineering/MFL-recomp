@@ -11,7 +11,6 @@
 extern double sin(double);
 /* build_info_display_draw_wave_grid */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws the animated sine wave distorted tile grid of the build info backdrop" */
 
 void build_info_display_draw_wave_grid(void)

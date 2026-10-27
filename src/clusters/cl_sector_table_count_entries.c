@@ -5,7 +5,6 @@
 /*00702668*/ extern undefined g_sector_table_702668;
 /* sector_table_count_entries */
 
-/* WARNING: Unknown calling convention */
 /* "stores the table pointer for the sector and counts its entries up to the zero terminator" */
 
 void sector_table_count_entries_n(int sector, char *table_cursor)

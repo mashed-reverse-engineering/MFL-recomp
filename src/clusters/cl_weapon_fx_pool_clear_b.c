@@ -6,7 +6,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* weapon_fx_pool_clear_b */
 
-/* WARNING: Unknown calling convention */
 /* "clears both slots of the pool and removes the clump from the world" */
 
 static int weapon_fx_slot_clear_b_r(undefined4 * p0);

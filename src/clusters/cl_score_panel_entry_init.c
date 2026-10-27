@@ -6,7 +6,6 @@
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /* score_panel_entry_init */
 
-/* WARNING: Unknown calling convention */
 /* "per player entry of the panel.txd score panel: bit mask from the team table, colour 0xFF323232"
     */
 

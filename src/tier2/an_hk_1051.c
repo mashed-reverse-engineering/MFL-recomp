@@ -8,7 +8,6 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /* course_forest_cb2_sub_458f20 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_forest_cb2 */
 
 void course_forest_cb2_sub_458f20(void)

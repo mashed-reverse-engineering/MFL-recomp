@@ -17,7 +17,6 @@
  * Returns nothing.
  */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_city_cb2(char *course_state)
 

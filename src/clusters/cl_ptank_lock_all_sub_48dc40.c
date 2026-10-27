@@ -16,7 +16,6 @@
 /*006f6934*/ extern undefined4 g_data_6f6934;
 /* ptank_lock_all_sub_48dc40 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller ptank_lock_all */
 
 void ptank_lock_all_sub_48dc40(char *ptank, undefined4 *src)

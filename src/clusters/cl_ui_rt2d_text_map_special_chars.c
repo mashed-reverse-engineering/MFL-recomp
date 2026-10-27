@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* ui_rt2d_text_map_special_chars */
 
-/* WARNING: Unknown calling convention */
 /* "maps the special control codes 8..0xB of a counted wide string to font glyph codes" */
 
 void ui_rt2d_text_map_special_chars_n(ushort *text, short *out)

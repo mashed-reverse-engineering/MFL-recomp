@@ -19,7 +19,6 @@
 /*005ddc28*/ extern float k_f_0;
 /* explosion_trigger_callback */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(trigger, other): horizontal distance falloff 1 - d/radius, scaled by 1/frames; cars (id 0xFF00
    + n) get player_rumble, car_enter_rwp_mode, car_apply_rwp_impulse and
    car_damage_at_world_point(amount * falloff * entry.damage); physics objects (types 10 and 0x1A)

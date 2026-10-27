@@ -7,7 +7,6 @@
 /*008c5728*/ extern undefined4 g_course_dump_8c5728;
 /* course_dump_cb0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Course dump callback 0 (inferred: gathers course/track data for the course dump).
  * course: the CourseWorld block (clump slots, matrix lists, lights) of the loaded course.

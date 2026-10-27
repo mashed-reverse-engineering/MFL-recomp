@@ -12,8 +12,6 @@
 /*005df8d8*/ extern float k_f_0_18181819;
 /* weapon_flame_particle_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "updates one flame record: frame transform, scale and its sound" */
 
 void weapon_flame_particle_update_n(char *in_eax)

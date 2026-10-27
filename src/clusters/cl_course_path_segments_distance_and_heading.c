@@ -15,7 +15,6 @@
 /*005dfea0*/ extern double k_f_0_5dfea0; /* 8 byte constant (-1.0) */
 /* course_path_segments_distance_and_heading */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per path segment computes the length to the next segment and the heading angle (0..360) from the
    direction" */
 

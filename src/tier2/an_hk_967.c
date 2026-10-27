@@ -11,7 +11,6 @@ typedef struct { undefined4 d[0x2d9]; } Dw0x2d9;      /* the 0xB64 byte game sta
 typedef struct { undefined4 d[0x105e3]; } DwReplay;      /* replay buffer */
 /* gamesave_gather */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* live state -> g_savegame (sets 0xDEADBEEF; copies the replay buffer and the 0xB64 byte game state
    block) */
 

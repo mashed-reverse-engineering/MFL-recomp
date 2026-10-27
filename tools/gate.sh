@@ -106,6 +106,9 @@ diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (n
   if [ -n "${HS:-}" ]; then      # HS=1 (opt-in): additionally the state-seeded harness of tools/diffemu_audit/tweak (README there); same DIFF / INCONCLUSIVE rules
     ~/.cache/mfl_diffemu_venv/bin/python $T/diffemu_audit/tweak/gate_hs.py $1 ${HS_CASES:-1500} ${HS_BUDGET:-300} 2>&1 | tee -a $D/diffemu.log | tail -15
   fi
+  # NaN-form ratchet (T-weak3): a tier 2 function with a compare that treats NaN the other way than the original (tools/diffemu_audit/tweak/nancmp.py --flips; src/nancmp_allow.txt for justified cases)
+  ~/.cache/mfl_diffemu_venv/bin/python $T/diffemu_audit/tweak/nancmp.py --flips $(cat $1) 2>&1 | tee -a $D/diffemu.log | tail -8
+  ! grep "^FLIP " $D/diffemu.log | grep -qv "(allowed)" || { echo "nancmp: NaN-form FLIP (a compare takes NaN the other side than the original)"; return 1; }
   ! grep -q "^DIFF " $D/diffemu.log || { echo "diffemu: DIFF verdict"; return 1; }
   grep -q "^INCONCLUSIVE " $D/diffemu.log && echo "WARNING diffemu: INCONCLUSIVE verdicts (see $D/diffemu.log)"; return 0
 }

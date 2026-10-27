@@ -13,7 +13,6 @@ typedef int CourseId;
 /* DECLS-END */
 /* vehicle_set_scale_for_course */
 
-/* WARNING: Unknown calling convention */
 /* "scale from the per course table at 0x607798" */
 
 void vehicle_set_scale_for_course_n(VehicleRecord *vehicle_record)

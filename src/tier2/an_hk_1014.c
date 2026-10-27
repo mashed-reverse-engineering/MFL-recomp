@@ -43,7 +43,6 @@ __declspec(naked) int rwp_world_current_activate_r(undefined4 reg_eax)
 
 /* vehicle_smoke_emitters_spawn */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "spawns smoke emitters at +/-0.4 side offsets of the vehicle (from its local matrix and velocity)
    with a random size" */
 

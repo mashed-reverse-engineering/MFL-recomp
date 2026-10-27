@@ -19,7 +19,6 @@
 #define MATRIX_FLAGS_IDENTITY_ORTHONORMAL (0x20003)
 /* cup_scene_setup_lights */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "inferred: lights / scale constants of the cup scene" */
 
 /*

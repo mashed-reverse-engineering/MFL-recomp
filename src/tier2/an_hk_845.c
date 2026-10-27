@@ -65,7 +65,6 @@
 
 /* weapon_rocket_fire */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Fires one rocket for the player owning `slot` (inferred, from the rocket record writes).
  * slot: WeaponSlot of the firing player.

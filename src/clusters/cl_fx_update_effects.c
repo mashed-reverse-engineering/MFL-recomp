@@ -56,7 +56,6 @@ __declspec(naked) int fx_course_specific_update_r(void *fx_obj)
 
 /* fx_update_effects */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fx_update_all then the effect object table at 0x651250 (0x651AA0 entries)" */
 
 void fx_update_effects(void)

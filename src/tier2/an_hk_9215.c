@@ -40,7 +40,6 @@ __declspec(naked) int powerup_move_and_spin_r(int * reg_edi)
 
 /* powerups_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per frame: glow particles for available ones; for taken ones the respawn countdown (state 2 ->
    1, random type for special slots)" */
 

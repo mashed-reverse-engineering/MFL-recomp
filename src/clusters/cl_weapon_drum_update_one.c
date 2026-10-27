@@ -98,7 +98,7 @@ void weapon_drum_update_one(undefined4 *drum)
       return;
     }
     if (state_or_tmp == 2) {
-      if (*(float *)&drum[0xf] <= float_5_0) {
+      if (!(*(float *)&drum[0xf] > float_5_0)) {      /* NaN takes the branch (original: jne) */
         pos_ptr = (float *)(drum + 4);
         np.x = g_tick_seconds * *(float *)&drum[7] + *pos_ptr;
         seg.from.x = *pos_ptr;

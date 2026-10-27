@@ -38,7 +38,6 @@
 
 /* particles_add */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "appends a particle with the current emitter state (position, size, colour, matrix, ...)"
  * Appends one particle at index `count` of the buffer `particles` (count < capacity, else nothing).
  * Each parallel array that is present (non-NULL) receives the current emitter value for that slot,

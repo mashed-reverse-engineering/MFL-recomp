@@ -39,7 +39,6 @@
 #define STAT_PLAYER_COUNT (4) /* player slots summed by the stat loop (inferred) */
 /* tutorial_state_reset */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "resets the tutorial / frontend counters when a race event starts (per event type)" */
 
 /*

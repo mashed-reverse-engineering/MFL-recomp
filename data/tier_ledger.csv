@@ -1815,7 +1815,7 @@ pool_clear,004977a0,agent,bytes-standalone+832f8962c931,bytes-reloc,-,126ee480af
 pool_create,00497820,tier1,bytes,bytes-reloc,07476cde4d4b,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 pool_destroy,004977e0,tier1,bytes,bytes-reloc,6a964d92248c,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 pool_list_destroy,00484ad0,tier1,bytes,bytes-reloc,e7e32f934b18,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-pool_list_unlink,004976b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a984cf57ba26,126ee480af92,9a2277a8f1a9,28,0.62,0,0
+pool_list_unlink,004976b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a984cf57ba26,126ee480af92,9a2277a8f1a9,34,0.62,0,0
 pool_push,00497770,tier1,bytes,bytes-reloc,984e2a766725,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 pool_stack_pop_index,00497750,hand,registers-only,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 powerup_icon_texture,00464330,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.93,0,0
@@ -2145,7 +2145,7 @@ team_color_rgba,0040fe50,tier1,bytes,bytes-reloc,131e4f605052,126ee480af92,9a227
 team_colour_table_init_2,0041f090,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 team_colour_table_init_4,0041fc40,tier1,bytes,bytes-reloc,f81263c22cc3,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 team_endpoint_panel_destroy,00420b00,tier1,bytes,bytes-reloc,02d833f8d860,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-team_names_string_build,00432060,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ebcb5bfbd28f,126ee480af92,9a2277a8f1a9,23,0.26,0,0
+team_names_string_build,00432060,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ebcb5bfbd28f,126ee480af92,9a2277a8f1a9,22,0.26,0,0
 team_panel_destroy,0041f160,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 team_panel_render,0041f140,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 team_panel_reset,0041efa0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0

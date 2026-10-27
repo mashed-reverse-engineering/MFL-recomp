@@ -12,8 +12,7 @@
 /*005ddaf0*/ extern float k_f_1_0en5;
 /* line_of_sight_between */
 
-/* WARNING: Unknown calling convention */
-/* "inferred: ray test between two points with FUN_00467ea0 / FUN_004682c0" */
+/* "inferred: ray test between two points with weapon_get_rw_801b14 / rocket_surface_hit_test" */
 
 /* Returns 1 when `target_pos` is visible from the shooter (world_intersect_line finds no hit on the segment in either direction, or the hit is one for which rocket_surface_hit_test returns nonzero; meaning of that test is inferred),
    within max_range (flat distance) and inside the max_angle_deg cone around the shooter forward vector (+0x30). */

@@ -6,7 +6,6 @@
 /*008c7fc8*/ extern undefined g_ui_8c7fc8;
 /* ui_get_triple */
 
-/* WARNING: Unknown calling convention */
 /* "reads the 3 dwords stored by ui_set_triple" */
 
 void ui_get_triple_n(int a, int b, undefined4 *out_x, undefined4 *out_y, undefined4 *out_z)

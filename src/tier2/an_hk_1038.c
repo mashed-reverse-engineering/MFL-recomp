@@ -16,7 +16,6 @@
 /*006a1890*/ extern char g_course_physics_6a1890[];
 /* course_neustein_cb0_sub_4546e0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_neustein_cb0 */
 
 void course_neustein_cb0_sub_4546e0(char *course)

@@ -19,7 +19,6 @@
 
 /* menu_down_pressed_any */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Returns 1 when the menu should move down this frame, 0 otherwise. Two ways to get 1:
  *   - auto-repeat: down is held while the current menu page is 6 or 7, and the hold timer

@@ -20,8 +20,6 @@ extern unsigned char g_controller_poll_8c7e2c;   /* previous extra byte */
 
 /* controller_poll_player */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* builds the per-player input state from the bindings */
 
 /* Per frame: previous <- current input record, clear, read the stick of a joypad device, then the bound actions (indices of controller_action_pressed:

@@ -22,7 +22,6 @@
 
 /* scene_tables_clear */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fills 0x28 dwords at 0x651198 with -1 and clears 0xE10 dwords at 0x64D958" */
 
 /* Resets the scene table state to its defaults (inferred from the body).

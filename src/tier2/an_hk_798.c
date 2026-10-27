@@ -23,7 +23,6 @@
 #define COLOUR_ARGB_WHITE (0xffffffff)
 /* race_winner_banner_draw */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'Winner' banner with Continue prompt (texts 231, 46)" */
 
 /* Draws the race-winner banner. The title and boxes are placed by the intro banner

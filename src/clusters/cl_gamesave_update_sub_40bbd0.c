@@ -22,7 +22,6 @@
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
 /* gamesave_update_sub_40bbd0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller gamesave_update */
 
 void gamesave_update_sub_40bbd0(float param_1)

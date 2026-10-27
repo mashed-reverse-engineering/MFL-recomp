@@ -14,7 +14,6 @@
 
 /* ai_find_leader_a */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "scans the players when player_distance_get(bot) is 0 (inferred)" */
 /* Leader watch for bot_index (inferred from the body). Returns 1 once the human leader
    has stayed more than k_f_2_5 away for longer than LEADER_FAR_TIMEOUT_MS, else 0.

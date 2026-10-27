@@ -6,7 +6,6 @@
 /*00603f24*/ extern undefined g_race_start_603f24;
 /* team_panel_load_team_colour */
 
-/* WARNING: Unknown calling convention */
 /* "copies team colour (table 0x603F1C, 12 bytes per team) into the panel" */
 
 void team_panel_load_team_colour_n(TeamPanelEntry *panel)

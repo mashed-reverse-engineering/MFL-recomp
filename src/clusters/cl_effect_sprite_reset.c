@@ -5,7 +5,6 @@
 /*006c57b0*/ extern undefined4 g_gfx_6c57b0;
 /* effect_sprite_reset */
 
-/* WARNING: Unknown calling convention */
 /* "resets a sprite entry: colour white, scale 1, flags |= 0x20003" */
 
 void effect_sprite_reset_n(undefined4 *in_eax)

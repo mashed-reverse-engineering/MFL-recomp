@@ -35,7 +35,6 @@
 #define FLOAT_BITS_1_0 (0x3f800000) /* bit pattern of 1.0f */
 /* course_tierra_n_cb0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Course setup for Tierra N (inferred from the callees; the name is from the decompiler).

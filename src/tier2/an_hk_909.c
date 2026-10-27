@@ -21,7 +21,6 @@ extern struct FxSlot g_fx_slots[10];
 /*008d98b0*/ extern undefined4 g_fx_8d98b0;
 /* fx_update_all */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "advances the effect timers (7.0 s lifetime), updates positions and sounds, queues explosions" */
 
 void fx_update_all(void)

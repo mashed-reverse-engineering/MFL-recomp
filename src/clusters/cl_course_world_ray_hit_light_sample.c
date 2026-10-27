@@ -7,7 +7,6 @@
 /*005dff00*/ extern float k_f_0_003921569;
 /* course_world_ray_hit_light_sample */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "ray test against the course world (world_intersect_line), samples vertex colours via barycentric coords
    for a light factor (0..1)" */
 

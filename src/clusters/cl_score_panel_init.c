@@ -19,7 +19,6 @@ extern char g_score_panel_658fc0[];
  * Takes no parameters and returns nothing. The entry table layout is (inferred).
  */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "player count, max_points_a = score_target_a, score_panel_entry_init for every entry (0x658DF0,
    stride 0x74)" */
 

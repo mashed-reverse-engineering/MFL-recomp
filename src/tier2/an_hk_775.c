@@ -19,7 +19,6 @@ extern char s_more_soundstuff_006179f0[];
 /*008d996c*/ extern undefined4 g_sound_stuff_8d996c;
 /* sound_stuff_init */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*  */
 
 /* Sound system startup: selects the language path, logs the sound card info, loads the

@@ -12,7 +12,6 @@
 #define RWMATRIX_POS_Z_OFFSET (0x38)
 /* ai_bot_obstacle_ahead */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Returns 1 if the grid shows an obstacle on the straight line from the car's position (matrix pos x/z)
  * to 2 forward vectors ahead of it, else 0. The line is sampled every k_f_0_25 units; a sample whose

@@ -40,7 +40,6 @@ __declspec(naked) int time_trial_panel_times_update_r(void *reg_ebx)
 
 /* hudpanel_load_indicator_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "places the load indicator for phase 7 (0.35,0.2, scale 1.5) or otherwise (-0.375,-0.3, 1.125)"
     */
 /* Positions the race load indicator frame (g_load_659ce0) for the current race phase, then refreshes the HUD

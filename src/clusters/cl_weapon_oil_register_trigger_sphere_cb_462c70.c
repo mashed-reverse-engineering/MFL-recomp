@@ -9,7 +9,6 @@
 /*005dec28*/ extern float k_f_220;
 /* weapon_oil_register_trigger_sphere_cb_462c70 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* function pointer pushed/stored by weapon_oil_register_trigger_sphere (MOV dword ptr [ESP +
    0x20],0x462c70) */
 
@@ -34,7 +33,7 @@ void weapon_oil_register_trigger_sphere_cb_462c70(char *param_1, char *param_2)
         screen_shake_add(1);
       }
     }
-    if ((pfVar1[0x16] == 0.0) &&
+    if ((*(int *)&pfVar1[0x16] == 0) &&
        ((*(int *)(param_2 + 0x10) == 0x10 || (*(int *)(param_2 + 0x10) == 0x11)))) {
       pfVar1[0x17] = 0.1;
       *(int *)&pfVar1[0x16] = 1;

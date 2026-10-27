@@ -15,7 +15,6 @@ extern char s_333_Lap_frames_005df368[];
 /*007ef74c*/ extern float g_vehicle_render_7ef74c;
 /* weapon_flamethrower_register_trigger_sphere_cb_466270 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* function pointer pushed/stored by weapon_flamethrower_register_trigger_sphere (MOV dword ptr [ESP
    + 0x20],0x466270) */
 

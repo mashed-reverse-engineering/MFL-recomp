@@ -65,7 +65,6 @@ typedef int CourseId;
 #define STEER_MODE_STUCK (8) /* set when ai_bot_stuck_check fires */
 #define STEER_MODE_CELL_VALUE2 (9) /* set when ai_cell_is_value2 returns 1 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "bot steering: target point from ai_find_target_a/b/c with speed and forward vector (variant b)"
     */
 /* Per-frame steering and drive inputs for the AI bot driving car `car_index` (inferred).

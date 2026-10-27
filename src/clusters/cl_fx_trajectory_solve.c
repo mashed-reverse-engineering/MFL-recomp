@@ -15,7 +15,7 @@
 /*005ddc28*/ extern float k_f_0;
 /* fx_trajectory_solve */
 
-/* "inferred: ballistic / aim solution using FUN_0042b1c0 / 1d0 (error string i is too big)" */
+/* "inferred: ballistic / aim solution using course_get_record_pos / 1d0 (error string i is too big)" */
 
 /* Result of the track position solve (read by the AI / player route code). */
 typedef struct TrajectoryResult {

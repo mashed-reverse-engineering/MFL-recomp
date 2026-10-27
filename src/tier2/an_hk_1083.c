@@ -16,7 +16,6 @@ typedef struct course_training_cb0_sub_49e170_iVar1_layout {
 /*00886988*/ extern float g_data_886988;
 /* course_training_cb0_sub_49e170 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_training_cb0 */
 
 void course_training_cb0_sub_49e170(void)

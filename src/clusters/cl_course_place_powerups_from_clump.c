@@ -6,8 +6,6 @@
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /* course_place_powerups_from_clump */
 
-/* WARNING: Removing unreachable block (ram,0x0042a955) */
-/* WARNING: Unknown calling convention */
 /* "for each frame of the clump places a powerup with respawn" */
 
 void course_place_powerups_from_clump_n(undefined4 clump)

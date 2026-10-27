@@ -14,7 +14,6 @@
 #define RWP_OBJECT_STRIDE_FLOATS (0x44)
 /* course_script_run */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(file name, CourseFiles, course id): runs COURSE.LUA, which fills the CourseFiles / CourseCounts
    blocks" */
 

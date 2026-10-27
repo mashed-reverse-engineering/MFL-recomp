@@ -4,7 +4,6 @@
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /* team_panel_build_team_mask */
 
-/* WARNING: Unknown calling convention */
 /* "mask 0x800000<<(n-1) and per slot team bits" */
 
 void team_panel_build_team_mask_n(TeamPanelEntry *panel)

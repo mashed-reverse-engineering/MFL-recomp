@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* menu_item_list_find_index_a */
 
-/* WARNING: Unknown calling convention */
 /* "(list) index of the item with the current id, -1 at the 0xFF0F0000 terminator or a null list" */
 
 int menu_item_list_find_index_a_n(int *in_edx, int in_ebx, int in_edi)

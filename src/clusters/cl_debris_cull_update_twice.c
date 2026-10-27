@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* debris_cull_update_twice */
 
-/* WARNING: Unknown calling convention */
 /* "debris_cull_update called twice" */
 
 static int debris_cull_update_r(int p0);

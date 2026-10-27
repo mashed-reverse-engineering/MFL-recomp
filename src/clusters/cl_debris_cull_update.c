@@ -6,7 +6,6 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /* debris_cull_update */
 
-/* WARNING: Unknown calling convention */
 /* "frustum test of each flagged debris atomic bounding sphere" */
 
 void debris_cull_update_n(int in_ebx)

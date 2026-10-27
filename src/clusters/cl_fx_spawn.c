@@ -10,7 +10,6 @@ typedef struct { int clump; float life; int phase; int active; int fx_system; fl
 /*008d98b0*/ extern int g_fx_8d98b0;
 /* fx_spawn */
 
-/* WARNING: Unknown calling convention */
 /* "takes the next slot of the 32 byte stride effect table at 0x651960, sets its timer 6.0 and its
    transform" */
 

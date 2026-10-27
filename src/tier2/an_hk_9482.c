@@ -19,7 +19,6 @@
 /*008b06e0*/ extern struct Car player_car[16];
 /* rwp_car_apply_forces */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "applies the physics object forces from the car matrix" */
 
 void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)

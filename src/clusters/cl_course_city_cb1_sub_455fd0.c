@@ -8,7 +8,6 @@
 /*005df53c*/ extern float k_f_1_95;
 /* course_city_cb1_sub_455fd0 */
 
-/* WARNING: Unknown calling convention */
 /* single caller course_city_cb1 */
 
 void course_city_cb1_sub_455fd0_n(undefined4 *position)

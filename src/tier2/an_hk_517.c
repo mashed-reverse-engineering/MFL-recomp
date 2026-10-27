@@ -26,7 +26,6 @@ typedef int CourseId;
 #define GROUP_OPTIONAL_ATOMIC (0x11) /* group slot 17: optional atomic, may be NULL (inferred) */
 #define GROUP_AUX_ATOMIC (0xf) /* group slot 15: auxiliary atomic (inferred) */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Course teardown for Highway (inferred). Destroys the scenery frames of five object lists,

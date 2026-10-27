@@ -5,7 +5,6 @@
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /* course_mesh_triangle_normals_build */
 
-/* WARNING: Unknown calling convention */
 /* "builds the triangle normals (cross products) from the index list" */
 
 void course_mesh_triangle_normals_build_n(unsigned short *in_edx, RwV3d *in_ecx, float *in_ebx, int param_4)

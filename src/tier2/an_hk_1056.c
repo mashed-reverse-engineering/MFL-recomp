@@ -9,7 +9,6 @@
 /*007ef7ac*/ extern float g_camera_shake;
 /* course_effect_spawn_at_helper_45c8f0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* callers course_effect_spawn_at */
 
 void course_effect_spawn_at_helper_45c8f0(float *pos,float range)

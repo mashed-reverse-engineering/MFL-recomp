@@ -19,7 +19,6 @@
 
 /* course_effect_spawn_at */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(object): shaking + sfx 0x12 / 0x15 at the object position" */
 /* Effect for object `obj` (struct base pointer; its position is at obj+0x3c). Shakes it (func_0x0045c8f0, inferred),
    plays sfx 0x12 and 0x15 and the player-set sfx at the position, and spawns the default emitter at obj+0x48.

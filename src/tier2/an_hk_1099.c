@@ -4,7 +4,6 @@
 /*00771ab0*/ extern struct RpAtomic *g_data_771ab0;
 /* course_storm_cb5_sub_4ab120 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_storm_cb5 */
 
 void course_storm_cb5_sub_4ab120(void)

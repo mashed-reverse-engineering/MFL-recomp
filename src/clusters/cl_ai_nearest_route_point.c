@@ -23,7 +23,6 @@
 /*007f0284*/ extern struct AiData g_ai_data;
 /* ai_nearest_route_point */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "nearest point of a route (points at +0x0, count at +0x200) to a position, with a per player
    hint" */
 

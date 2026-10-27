@@ -82,7 +82,6 @@ typedef int CourseId;
 
 /* course_highway_cb0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 static int course_highway_lod_atomic_clone_a_r(undefined4 * p0, int p1);
 extern void course_highway_lod_atomic_clone_a(void);

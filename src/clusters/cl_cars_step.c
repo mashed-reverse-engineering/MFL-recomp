@@ -89,7 +89,6 @@ __declspec(naked) int car_wheel_contact_update_r(void *reg_eax, int reg_edi, int
 
 /* cars_step */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "physics driver per game tick: race time limit, ranking of the players, then chunks of <= 50
    ticks: car_update for every slot, speed lengths, sub-steps of <= 25 ticks of cars_update_all" */
 

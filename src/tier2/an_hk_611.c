@@ -57,7 +57,6 @@
 #define FRAMERATE_SAMPLE_STRIDE (0x44) /* bytes per framerate sample slot */
 /* app_state_menu_render */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "camera clear, menu state render" */
 
 /*

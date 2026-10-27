@@ -8,8 +8,6 @@ void rw_engine_init_cb_4a2b30(void)
 
 {
   if (g_rw_engine_76e864 != (code *)0x0) {
-                    /* WARNING: Could not recover jumptable at 0x004a2b39. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
     (*g_rw_engine_76e864)();
     return;
   }

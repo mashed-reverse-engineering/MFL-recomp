@@ -48,7 +48,6 @@ extern char LAB_00499120[];
 /* fx_ring_update */
 #define COURSE_WARZONE (33)
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "updates the 256 entry fx marker ring filled by fx_ring_add_point: finds the 4 nearest points to
    the camera and emits particles from them" */
 

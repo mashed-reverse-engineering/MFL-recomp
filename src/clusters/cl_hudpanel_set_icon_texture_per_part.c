@@ -14,7 +14,6 @@
 /*00659cfc*/ extern undefined4 g_game_659cfc;
 /* hudpanel_set_icon_texture_per_part */
 
-/* WARNING: Unknown calling convention */
 /* "when the index changes assigns the texture colour table entry to each of 12 part materials" */
 
 /* HUD panel record, only the fields this function uses: 12 part holders (+0x18 -> material list) and the icon index with its cache */
@@ -69,7 +68,6 @@ void hudpanel_set_icon_texture_per_part_n(HudIconPanel *panel)
 
 /* hudpanel_load_indicator_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "places the load indicator for phase 7 (0.35,0.2, scale 1.5) or otherwise (-0.375,-0.3, 1.125)"
     */
 

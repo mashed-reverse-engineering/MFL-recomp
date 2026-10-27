@@ -115,10 +115,10 @@ void ai_polygons_log_count(CourseLap *lap,int param_2)
       RwMatrixUpdate(&RStack_108);
       RwMatrixInvert(&RStack_a0,&RStack_108);
       RwV3dTransformPoints(out,&pts[0],4,&RStack_a0);
-      if (k_f_0 <= out[0].x) {
+      if (!(k_f_0 > out[0].x)) {
 LAB_00488a2c:
         if (k_f_0 < out[0].x) {
-          if (out[0].y <= k_f_0) {
+          if (!(out[0].y > k_f_0)) {
             if ((k_f_0 < out[0].x) && (out[0].y < k_f_0)) {
               src_f = poly_rec + 9;
               goto LAB_00488a8c;
@@ -133,8 +133,8 @@ LAB_00488a2c:
       }
       else {
         src_f = poly_rec;
-        if (k_f_0 <= out[0].y) {
-          if ((k_f_0 <= out[0].x) || (out[0].y <= k_f_0)) goto LAB_00488a2c;
+        if (!(k_f_0 > out[0].y)) {
+          if ((!(k_f_0 > out[0].x)) || (!(out[0].y > k_f_0))) goto LAB_00488a2c;
           poly_rec[3] = pts[0].x;
           poly_rec[4] = pts[0].y;
           poly_rec[5] = pts[0].z;
@@ -146,10 +146,10 @@ LAB_00488a8c:
           src_f[2] = pts[0].z;
         }
       }
-      if (k_f_0 <= out[1].x) {
+      if (!(k_f_0 > out[1].x)) {
 LAB_00488b04:
         if (k_f_0 < out[1].x) {
-          if (out[1].y <= k_f_0) {
+          if (!(out[1].y > k_f_0)) {
             if ((k_f_0 < out[1].x) && (out[1].y < k_f_0)) {
               src_f = poly_rec + 9;
               goto LAB_00488b64;
@@ -164,8 +164,8 @@ LAB_00488b04:
       }
       else {
         src_f = poly_rec;
-        if (k_f_0 <= out[1].y) {
-          if ((k_f_0 <= out[1].x) || (out[1].y <= k_f_0)) goto LAB_00488b04;
+        if (!(k_f_0 > out[1].y)) {
+          if ((!(k_f_0 > out[1].x)) || (!(out[1].y > k_f_0))) goto LAB_00488b04;
           poly_rec[3] = pts[1].x;
           poly_rec[4] = pts[1].y;
           poly_rec[5] = pts[1].z;
@@ -177,10 +177,10 @@ LAB_00488b64:
           src_f[2] = pts[1].z;
         }
       }
-      if (k_f_0 <= out[2].x) {
+      if (!(k_f_0 > out[2].x)) {
 LAB_00488bdc:
         if (k_f_0 < out[2].x) {
-          if (out[2].y <= k_f_0) {
+          if (!(out[2].y > k_f_0)) {
             if ((k_f_0 < out[2].x) && (out[2].y < k_f_0)) {
               src_f = poly_rec + 9;
               goto LAB_00488c3c;
@@ -195,8 +195,8 @@ LAB_00488bdc:
       }
       else {
         src_f = poly_rec;
-        if (k_f_0 <= out[2].y) {
-          if ((k_f_0 <= out[2].x) || (out[2].y <= k_f_0)) goto LAB_00488bdc;
+        if (!(k_f_0 > out[2].y)) {
+          if ((!(k_f_0 > out[2].x)) || (!(out[2].y > k_f_0))) goto LAB_00488bdc;
           poly_rec[3] = pts[2].x;
           poly_rec[4] = pts[2].y;
           poly_rec[5] = pts[2].z;
@@ -208,10 +208,10 @@ LAB_00488c3c:
           src_f[2] = pts[2].z;
         }
       }
-      if (k_f_0 <= out[3].x) {
+      if (!(k_f_0 > out[3].x)) {
 LAB_00488cb4:
         if (k_f_0 < out[3].x) {
-          if (out[3].y <= k_f_0) {
+          if (!(out[3].y > k_f_0)) {
             if ((k_f_0 < out[3].x) && (out[3].y < k_f_0)) {
               src_f = poly_rec + 9;
               goto LAB_00488d14;
@@ -226,8 +226,8 @@ LAB_00488cb4:
       }
       else {
         src_f = poly_rec;
-        if (k_f_0 <= out[3].y) {
-          if ((k_f_0 <= out[3].x) || (out[3].y <= k_f_0)) goto LAB_00488cb4;
+        if (!(k_f_0 > out[3].y)) {
+          if ((!(k_f_0 > out[3].x)) || (!(out[3].y > k_f_0))) goto LAB_00488cb4;
           poly_rec[3] = pts[3].x;
           poly_rec[4] = pts[3].y;
           poly_rec[5] = pts[3].z;

@@ -23,7 +23,6 @@ __declspec(naked) int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ec
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(string id, size): Rt2dFontGetStringWidth scaled to the 640 wide layout" */
 
 /*

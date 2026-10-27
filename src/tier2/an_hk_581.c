@@ -17,7 +17,7 @@ extern struct VoiceSlotP g_voices[210];
 #define VOICE_OFF_POS_Z (0x60)
 #define VOICE_OFF_HANDLE (0x30) /* voice record: handle passed to FUN_005b72a0 / FUN_005b7300 (inferred) */
 #define VOICE_OFF_RATE (0x3c) /* voice record: playback rate (inferred) */
-#define VOICE_DEFAULT_RATE (0x46ac4400) /* 22050.0f as raw bits, Ghidra shows it as int (inferred) */
+#define VOICE_DEFAULT_RATE (0x46ac4400) /* 22050.0f as raw bits, the decompiler shows it as int (inferred) */
 #define VOICE_DEFAULT_RATE_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 
 /* sfx_play_voice_at */

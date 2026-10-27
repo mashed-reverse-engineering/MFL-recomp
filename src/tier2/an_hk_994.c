@@ -18,7 +18,6 @@
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
 /* gamesave_autosave_state_machine */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'Waiting for autosave status' / 'status change' state machine" */
 
 void gamesave_autosave_state_machine(float delta_time)

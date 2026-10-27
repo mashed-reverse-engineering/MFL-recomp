@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* team_panel_entry_render */
 
-/* WARNING: Unknown calling convention */
 /*  */
 
 void team_panel_entry_render_n(TeamPanelEntry *panel)

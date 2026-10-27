@@ -4,7 +4,6 @@
 extern double cos(double);
 /* noise_interp_cos */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(a, b, t): cosine interpolation" */
 
 /* Cosine interpolation from value_a (t = 0) to value_b (t = 1).

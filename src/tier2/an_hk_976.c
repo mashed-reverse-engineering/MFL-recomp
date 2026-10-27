@@ -9,7 +9,6 @@
 /*007eebc0*/ extern struct GameState g_game_state;
 /* best_time_load_current */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void best_time_load_current(void)
 

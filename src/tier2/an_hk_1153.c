@@ -15,7 +15,6 @@
 /*007dabfc*/ extern undefined4 g_data_7dabfc;
 /* gap_5b8120 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* no context */
 
 undefined4 gap_5b8120(void)

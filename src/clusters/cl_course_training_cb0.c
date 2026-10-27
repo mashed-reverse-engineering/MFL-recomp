@@ -16,7 +16,6 @@ extern int _rpUVAnimDictSchema;
 /*008bf084*/ extern undefined4 g_course_training_8bf084;
 /* course_training_cb0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_training_cb0(char *param_1)
 

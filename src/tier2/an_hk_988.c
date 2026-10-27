@@ -5,7 +5,6 @@
 /*005dd330*/ extern float float_1_0;
 /* course_collision_object_push_vectors */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "for each face of the object near the point accumulates push direction and writes the face
    normals" */
 

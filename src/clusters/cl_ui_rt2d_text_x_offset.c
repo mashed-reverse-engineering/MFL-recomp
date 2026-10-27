@@ -15,8 +15,6 @@
 /*0069ba0c*/ extern undefined4 g_ui_font;
 /* ui_rt2d_text_x_offset */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "(scale, x, align 0..2, ...): x position of a text string for left / centre / right alignment" */
 
 /* (inferred names) out_pos[0] = x of the text start (left 0 / centre 1 / right 2 alignment of x, in 640 wide units), out_pos[1] = y from the top of a 480 high screen; layout scale from g_ui_layout_scale_x/y */

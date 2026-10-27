@@ -12,8 +12,6 @@
 /*007ef804*/ extern undefined4 g_tick_number;
 /* vehicle_ground_probe_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "shifts the history of 7 samples and probes the ground below the car every 4th tick" */
 
 /* probe: segment from 1/16 above to 15/16 below the car position, tested once every 4 ticks (per vehicle index); history holds the last 8

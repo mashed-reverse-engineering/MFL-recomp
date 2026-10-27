@@ -53,7 +53,7 @@ void course_quad_render_a(char *obj)
   point_in = &transformed_points[0].y;
   byte_offset = 0;
   /* one pass per corner: position from transformed_points, then the U/V pair from quad_uv_table.
-     The constant colour word is written as a float literal by Ghidra; its value is not identified. */
+     The constant colour word is written as a float literal by the decompiler; its value is not identified. */
   do {
     uv_component = *(undefined4 *)((LONG_PTR)quad_uv_table + byte_offset + UV_TABLE_HALF_BYTES);
     ((RwV3d *)(vertex_out + -2))->x = ((RwV3d *)(point_in + -1))->x;

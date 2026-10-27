@@ -50,7 +50,6 @@ __declspec(naked) int effect_sprite_reset_r(undefined4 * reg_eax)
 
 /* shockwave_load_models */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "shockwave.dff and hemisphere.dff clumps" */
 
 /*

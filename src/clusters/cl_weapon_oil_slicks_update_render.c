@@ -220,7 +220,7 @@ LAB_00463233:
         gfx_set_fx_matrix(&frame.slick_matrix);
         particles_add(&g_weapon_6a7c38);
         weapon_oil_register_trigger_sphere_r((void *)slick_age_ptr);
-        if ((slick[0x12] == 0.0) && (*(int *)&slick[0x10] == 1)) {
+        if ((*(int *)&slick[0x12] == 0) && (*(int *)&slick[0x10] == 1)) {
           t_val = slick[0x11] - g_tick_seconds;
           slick[0x11] = t_val;
           if (t_val <= k_f_0) {

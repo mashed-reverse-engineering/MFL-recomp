@@ -32,7 +32,6 @@ extern struct TrailSlot g_trails[6];
 #define RW_MATRIX_IDENTITY_FLAGS (0x20003)
 /* trail_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per frame update of the trail records (inferred)" */
 
 /* Per frame: hides all TRAIL_COUNT trail slots, then for each enabled slot (< enabled_trail_count) finds its

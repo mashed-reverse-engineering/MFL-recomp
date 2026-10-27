@@ -23,8 +23,6 @@
 /*005dfda0*/ extern float k_f_0_0027778;
 /* car_ground_contact_forces */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "counts wheels in contact (+0x198 / +0x25C / +0x320 / +0x3E4) and builds the contact forces
    (inferred)" */
 

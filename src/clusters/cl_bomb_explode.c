@@ -112,7 +112,7 @@ void bomb_explode_n(FxEffectSlot *bomb, float *target_pos)
   frame.impulse_x = 0.0;
   rnd = (float10)random_range(0xbf4ccccd,0x3f4ccccd);
   frame.impulse_y = (float)rnd;
-  if (((float10)k_f_0_3 <= rnd) || (frame.impulse_y <= k_f_0)) {
+  if (!((float10)k_f_0_3 > rnd) || !(frame.impulse_y > k_f_0)) {
     if ((k_f_n0_3 < frame.impulse_y) && (frame.impulse_y < k_f_0)) {
       frame.impulse_y = -0.3;
     }

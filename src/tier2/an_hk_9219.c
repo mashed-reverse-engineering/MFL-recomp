@@ -31,7 +31,6 @@
 /*008c5844*/ extern undefined4 g_course_arctic_8c5844[0x1000];
 /* course_arctic_cb0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_arctic_cb0(int course)
 

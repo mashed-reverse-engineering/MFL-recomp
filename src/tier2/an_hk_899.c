@@ -17,7 +17,6 @@
 #define WANDER_SAMPLE_COUNT (3) /* track entries sampled per target */
 /* fx_wander_target */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Heading statistics over WANDER_SAMPLE_COUNT consecutive track entries, starting at
  * token_cursor (a local copy: the caller's cursor is not changed).
@@ -33,7 +32,7 @@
  * Returns 1. If a sampled direction has zero horizontal length it returns 1 early and writes
  * neither output.
  *
- * (was: "inferred: random target points from FUN_0042b1d0 normalised"; nothing here is random)
+ * (was: "inferred: random target points from course_get_record_base normalised"; nothing here is random)
  */
 
 undefined4 fx_wander_target(undefined4 token_cursor,float *out_mean_angle,float *out_total_change)

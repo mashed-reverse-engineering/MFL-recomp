@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* debris_body_remove_if_in_world */
 
-/* WARNING: Unknown calling convention */
 /* "removes the body from the world when it has one" */
 
 static void rwp_world_current_deactivate_r(int p0);

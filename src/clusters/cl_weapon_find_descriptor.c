@@ -5,7 +5,6 @@
 /*0060de60*/ extern undefined4 weapon_descriptor_count;
 /* weapon_find_descriptor */
 
-/* WARNING: Unknown calling convention */
 /* esi = weapon type id; linear search of weapon_descriptors (0x40 stride; count at
    weapon_descriptor_count); returns descriptor or 0 */
 

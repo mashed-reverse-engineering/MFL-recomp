@@ -24,7 +24,6 @@
 /*008c80a0*/ extern struct MenuItemAnim g_menu_item_anims[30];
 /* menu_page_update_entry_states */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(page): enables / disables the entries of a menu page from the career progress, player count and
    options" */
 

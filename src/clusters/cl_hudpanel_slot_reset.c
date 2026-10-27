@@ -5,7 +5,6 @@
 /*00603e84*/ extern undefined g_hudpanel_603e84;
 /* hudpanel_slot_reset */
 
-/* WARNING: Unknown calling convention */
 /* "copies the default position from the table at 0x603E80 and clears the slot state" */
 
 void hudpanel_slot_reset_n(undefined4 *in_eax)

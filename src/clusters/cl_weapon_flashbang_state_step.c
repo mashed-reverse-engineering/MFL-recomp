@@ -4,7 +4,6 @@
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /* weapon_flashbang_state_step */
 
-/* WARNING: Unknown calling convention */
 /* "transform frame by state 1..3 then advances state 2->3->4->5" */
 
 static int weapon_fx_clump_remove_a_r(int p0);

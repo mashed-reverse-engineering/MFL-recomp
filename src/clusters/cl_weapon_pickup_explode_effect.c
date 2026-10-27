@@ -13,7 +13,6 @@
 /*0062ac74*/ extern float g_car_62ac74;
 /* weapon_pickup_explode_effect */
 
-/* WARNING: Unknown calling convention */
 /* "spawns the explosion fx, emitter and light flash at the pickup position" */
 
 void weapon_pickup_explode_effect_n(char *pickup)

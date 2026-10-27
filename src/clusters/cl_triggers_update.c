@@ -43,7 +43,7 @@ void triggers_update(void)
               other = *(float **)(cell + object_i * 4);
               other_index = *(short *)(other + 8);
               if (((((int)trigger_i < (int)other_index) && (trigger->type != *(uint *)&other[4])) &&
-                  ((trigger_cb = (code *)trigger->callback, trigger_cb != (code *)0x0 || (other[7] != 0.0))
+                  ((trigger_cb = (code *)trigger->callback, trigger_cb != (code *)0x0 || (*(int *)&other[7] != 0))
                   )) && (((*(byte *)((int)trigger->cells + ((int)other_index >> 3) + 0x44) &
                           (byte)(1 << ((byte)other_index & 7))) == 0 &&
                          (dx = trigger->position_radius[0] - *other,

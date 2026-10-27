@@ -10,7 +10,6 @@
 /*0088a844*/ extern undefined4 g_rw_88a844;
 /* course_helper_48db30 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* callers course_neustein_cb0,course_warzone_cb0 */
 
 /* rounding point: the original spills this product to a float before the add */

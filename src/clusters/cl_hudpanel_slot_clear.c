@@ -5,7 +5,6 @@
 /*00472bb0*/ extern int sfx_voice_is_active();
 /* hudpanel_slot_clear */
 
-/* WARNING: Unknown calling convention */
 /* "clears the slot state words and the trail record of its player" */
 
 void hudpanel_slot_clear_n(int in_eax)

@@ -5,7 +5,6 @@
 extern void *memset(void *, int, unsigned int);
 /* course_collision_edges_build */
 
-/* WARNING: Unknown calling convention */
 /* "allocates and fills the 0x48 byte per triangle edge records (3 per triangle)" */
 
 static int collision_edge_shares_vertex_pair_r(int * p0, int * p1);

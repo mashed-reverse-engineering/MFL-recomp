@@ -19,7 +19,6 @@ typedef struct course_storm_cb0_sub_4aaca0_iVar3_layout {
 /*007dc68c*/ extern char g_data_7dc68c[];
 /* course_storm_cb0_sub_4aaca0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_storm_cb0 */
 
 void course_storm_cb0_sub_4aaca0(RwTexture *param_1)

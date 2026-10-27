@@ -5,7 +5,6 @@
 /*00617948*/ extern float g_sound_master_fade;
 /* sound_master_fade_towards */
 
-/* WARNING: Unknown calling convention */
 /* "(target): g_sound_617948 moves by 0.025 per call towards target" */
 
 void sound_master_fade_towards(float target)

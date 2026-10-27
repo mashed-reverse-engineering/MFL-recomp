@@ -3,7 +3,6 @@
 /*006a2150*/ extern undefined4 g_course_city_6a2150;
 /* course_city_cb5 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Course-specific teardown for the City course (inferred from the name: course_city, callback 5).
  * Takes no parameters and returns nothing.

@@ -40,7 +40,6 @@ extern char LAB_004a8e60[];
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Enum "RwVideoModeFlag": Some values do not have unique names */
 /* "'Number of subsystems: %d': video_cfg_load, dialog setup" */
 
 static int video_mode_name_format_004a8670_r(int p0, undefined4 p1);

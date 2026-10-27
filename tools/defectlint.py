@@ -546,8 +546,14 @@ class Lint:
             body = "\n".join(self.lines[s:e + 1])      # class 12, nested form: `if (x <= hi) { if (x < lo) x = lo; } else x = hi;` (also >= / else-first) on a float object
             for m in re.finditer(r"if \(\(?\s*([A-Za-z_][\w.\[\]>-]*) (<=|>=) ([\w.]+)\s*\)?\) \{\s*if \(\(?\s*\1 (<|>) ([\w.]+)\s*\)?\) \{\s*\1 = [\w.-]+;\s*\}\s*\}\s*else \{\s*\1 = [\w.-]+;\s*\}", body):
                 k, n = self.atom(m.group(1), env)
-                if k == "F" or (k == "?" and m.group(1) in self.float_members()) or k == "U" and False:
+                if k == "F" or (k == "?" and m.group(1) in self.float_members()) or self.atom(m.group(3), env)[0] == "F":      # T-weak3: a float bound (`k_f_0_95`, `0.95f`) makes x a float even when its member name is ambiguous (`frame.pos.x`)
                     self.add(12, "high", s + 1 + body[:m.start()].count("\n"), fn, m.group(1), " ".join(m.group(0).split()), "clamp `if (x %s k) { if (x %s k2) x = ..; } else x = ..;`: NaN takes the else value, the original passes NaN unchanged" % (m.group(2), m.group(4)))
+            # class 13 (mixedwidth, T-weak3): the same array element is read / written as an int (`*(int *)&p[0x12]`) in this function but compared with a float literal elsewhere (`p[0x12] == 0.0`): an int flag word read as a float (-0.0 / NaN bit patterns differ; the original does cmp dword, 0)
+            nrm = lambda x: re.sub(r"\s+", "", x)
+            ints = {nrm(x) for x in re.findall(r"\*\(\s*(?:int|uint|unsigned int|undefined4|ulong|long)\s*\*\)\s*&\s*([A-Za-z_]\w*\[\s*(?:0x[0-9a-fA-F]+|\d+)\s*\])", body)}
+            for m in re.finditer(r"(?<![\w&)\]])([A-Za-z_]\w*\[\s*(?:0x[0-9a-fA-F]+|\d+)\s*\])\s*(?:==|!=)\s*-?\d+\.\d*[fF]?(?![\w.])", body):
+                if nrm(m.group(1)) in ints:
+                    self.add(13, "high", s + 1 + body[:m.start()].count("\n"), fn, m.group(1), " ".join(m.group(0).split()), "`%s` is accessed as an int elsewhere in this function but compared with a float literal here: an int flag word (the original compares integer bits)" % m.group(1))
         for m in re.finditer(r"^([A-Za-z_][\w \*]*?)\b(__stdcall |__cdecl )?(\w+)\(([^;{]*)\)\s*\{?\s*$", self.t, flags=re.M):
             n = m.group(3)
             if n in NAMEVA and NAMEVA[n] in GTCONV and "__stdcall" not in (m.group(2) or "") and not m.group(1).lstrip().startswith(("extern", "typedef", "return", "else")) and n not in KW and "(" not in m.group(1):
@@ -750,7 +756,7 @@ def main():
     cols = ["cls", "sev", "tier", "file", "line", "function", "symbol", "diffemu", "enabled", "byte_identical", "text", "note"]
     with open(out_csv, "w", newline="") as fh:
         w = csv.DictWriter(fh, cols, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (

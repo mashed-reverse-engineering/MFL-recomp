@@ -18,7 +18,6 @@
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws collision triangles / trails (debug lines)" */
 
 /* Draws one debug triangle with depth test and depth write off, then restores both.

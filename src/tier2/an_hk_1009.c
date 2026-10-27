@@ -23,7 +23,6 @@
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "draws the message box (quads, table grid, title, body text by message type 1,2,7,9,0xB,0xC,
    button strings)" */
 

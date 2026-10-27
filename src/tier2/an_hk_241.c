@@ -12,7 +12,6 @@
 
 /* course_egypt_cb7 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Egypt course setup (inferred from the body): takes the object ids

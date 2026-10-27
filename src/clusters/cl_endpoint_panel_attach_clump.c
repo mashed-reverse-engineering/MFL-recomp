@@ -6,7 +6,6 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* endpoint_panel_attach_clump */
 
-/* WARNING: Unknown calling convention */
 /* "stores clump/frame, clears and fills the part table" */
 
 void endpoint_panel_attach_clump_n(int in_eax, int in_ebx)

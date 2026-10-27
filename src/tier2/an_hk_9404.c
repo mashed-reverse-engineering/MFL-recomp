@@ -10,7 +10,6 @@ extern struct VoiceSlot g_voices[210];
 /*00619e84*/ extern undefined4 g_sound_frame_619e84;
 /* sound_ambient_pitch_randomise */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "starts the ambience voice with random pitch (22050 - random) and volume 0.8" */
 
 void __cdecl sound_ambient_pitch_randomise(char *unused_1,char *unused_2,char *unused_3,char *unused_4,

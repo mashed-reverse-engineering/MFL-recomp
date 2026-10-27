@@ -17,7 +17,6 @@
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Writes the fraction count_b / count_a as text into the dat string buffer for string_id (inferred).
  * Output is "1.0 " or "0.0 " (4 chars) for the edge cases, or "0.dd " (5 chars) otherwise.

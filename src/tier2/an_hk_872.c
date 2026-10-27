@@ -12,7 +12,6 @@
 #define CAR_POS_Z_OFFSET (0x38)
 /* hud_player_marker_position_calc */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "world position between two cars scaled by scale, distance*10, fills one marker entry (limit
    0x7f)" */
 /* Fills one HUD marker entry (the float array at marker, 11 floats per entry) for the pair car_a / car_b.

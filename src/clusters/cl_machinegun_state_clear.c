@@ -7,7 +7,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* machinegun_state_clear */
 
-/* WARNING: Unknown calling convention */
 /* "removes the clump from the course world and clears the state" */
 
 void machinegun_state_clear_n(undefined4 *in_esi)

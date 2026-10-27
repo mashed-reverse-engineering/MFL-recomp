@@ -2,7 +2,6 @@
 /*005dd330*/ extern float float_1_0;
 /* FUN_0056f080 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /*
  * Returns 1 if the box is at most 1.0 wide on every axis, else 0 (inferred).

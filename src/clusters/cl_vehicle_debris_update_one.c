@@ -11,7 +11,6 @@
 /*0065c8f0*/ extern undefined4 g_game_65c8f0;
 /* vehicle_debris_update_one */
 
-/* WARNING: Unknown calling convention */
 /* "spawns smoke and an sfx for damaged front/back or updates the flying debris pieces" */
 
 static int debris_body_remove_if_in_world_r(int p0);

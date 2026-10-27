@@ -36,7 +36,6 @@
 #define FILL_MAX_BITS (0x41000000) /* float 8.0 */
 /* fx_buffers_alloc */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "allocates the 0x7000 / 0x2A00 byte buffers" */
 
 /*

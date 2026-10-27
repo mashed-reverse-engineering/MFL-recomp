@@ -5,7 +5,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* weapon_fx_slot_clear_b */
 
-/* WARNING: Unknown calling convention */
 /* "resets the matrix based fx slot to identity / defaults" */
 
 void weapon_fx_slot_clear_b_n(undefined4 *in_esi)

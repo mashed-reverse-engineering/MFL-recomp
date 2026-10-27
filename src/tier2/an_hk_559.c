@@ -25,7 +25,6 @@
 
 /* ai_editor_paint_input */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "AI editor: menu select with the paint tool paints the cell under the cursor (ai_paint_cell)" */
 
 /*

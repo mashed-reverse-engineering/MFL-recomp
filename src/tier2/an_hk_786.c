@@ -32,7 +32,6 @@
 
 /* ui_colour_a_default */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "g_app_62c5d0..d3 = (0x78, 0x80, 0x88, 0x40)" */
 
 /*

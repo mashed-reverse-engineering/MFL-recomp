@@ -4,7 +4,6 @@
 /*008c80a0*/ extern struct MenuItemAnim g_menu_item_anims[30];
 /* menu_text_slot_set */
 
-/* WARNING: Unknown calling convention */
 /* "fills a 0x34 byte text slot: id, colour white, scale 0.6, position" */
 
 void menu_text_slot_set_n(int *slot_index_ptr, int item_id, int x, int y, int item_param)

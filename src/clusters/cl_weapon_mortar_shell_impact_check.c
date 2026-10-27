@@ -16,8 +16,6 @@
 extern double cos(double);
 /* weapon_mortar_shell_impact_check */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "checks the surface under the shell (weapon_fn_4682c0 / course colour), spawns the explosion fx
    and the impact marker" */
 

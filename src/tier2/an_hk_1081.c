@@ -4,7 +4,6 @@
 /*0075cde8*/ extern float g_particles_75cde8;
 /* course_training_cb1_sub_49c180 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* single caller course_training_cb1 */
 
 void course_training_cb1_sub_49c180(undefined4 *param_1)

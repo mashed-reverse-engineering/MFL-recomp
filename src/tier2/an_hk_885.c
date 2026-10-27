@@ -11,7 +11,6 @@
 /*008c8858*/ extern undefined4 g_course_8c8858;
 /* course_fog_apply */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "copies the course fog settings and the viewport colour into the render state at 0x8C8840" */
 /*
  * Copies the course fog values from g_course_world (fog_a[1], fog_a[2]) and a value from the

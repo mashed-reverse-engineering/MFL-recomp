@@ -78,7 +78,7 @@ typedef struct DustParticle {
   unsigned char unknown_46[2];
 } DustParticle;
 
-/* (global, not static: cl would otherwise pass ticks in edx like the original, making course_dem_cb0 byte-identical to the original 12 byte stub, which overlay.py then size-checks against the 1326 byte Ghidra function)
+/* (global, not static: cl would otherwise pass ticks in edx like the original, making course_dem_cb0 byte-identical to the original 12 byte stub, which overlay.py then size-checks against the 1326 byte the decompiler function)
    the demolition course's per-frame update (ticks = time since the last call): moves the round clock, plays the round sounds, starts the
    next round after 45 s (shake, dust, impulses and rumble for every car), shakes / lifts the course and sprays dust */
 void course_dem_update(unsigned int ticks, unsigned char *world)

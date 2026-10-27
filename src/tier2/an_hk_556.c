@@ -22,7 +22,6 @@
 #define OBJ_VEL_Z_OFFSET (0x28)
 /* skid_mark_spawn_from_wheel */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "if the wheel slips (speed>100, drift<90 or brake) spawns a skid/smoke effect via
    effects_update_frame_sub_49fa40" */
 

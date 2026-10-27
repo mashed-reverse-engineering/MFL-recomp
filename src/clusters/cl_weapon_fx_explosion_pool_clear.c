@@ -6,7 +6,6 @@
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /* weapon_fx_explosion_pool_clear */
 
-/* WARNING: Unknown calling convention */
 /* "clears both slots of a pool and its counters" */
 
 static int weapon_fx_explosion_slot_clear_r(undefined4 * p0);

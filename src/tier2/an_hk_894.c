@@ -31,7 +31,6 @@
 #define RIBBON_POINT_PARAMS_OFF (0x20)
 /* fx_ribbon_flush_spline */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Emits particles along a ribbon: a chain of points, each 0x30 bytes, starting at ribbon[0].
  * Consecutive unflagged points form a run; each segment of a run is a Catmull-Rom curve

@@ -4,7 +4,6 @@
 /*006c3d9c*/ extern undefined4 g_text_pages_6c3d9c;
 /* course_helper_4801f0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* callers course_egypt_cb12,course_rouabout_cb12 */
 
 void course_helper_4801f0(char *param_1,undefined4 param_2)

@@ -11,7 +11,6 @@
 /*005de258*/ extern float k_f_0_003;
 /* weapon_effect_scale_by_camera_distance */
 
-/* WARNING: Unknown calling convention */
 /* "scale x/y/z by clamped (0.003..3) distance from the camera *0.5" */
 
 void weapon_effect_scale_by_camera_distance_n(int in_edi)
@@ -28,7 +27,7 @@ void weapon_effect_scale_by_camera_distance_n(int in_edi)
   camera = get_viewport_camera(0);
   fVar1 = (float10)distance_between_points
                              (in_edi + 0x48,in_edi + 0x3c,*(int *)(camera + 4) + 0x40);
-  if ((float10)k_f_0_003 <= fVar1) {
+  if (!((float10)k_f_0_003 > fVar1)) {
     if ((float10)k_f_3 < fVar1) {
       fVar1 = (float10)k_f_3;
     }

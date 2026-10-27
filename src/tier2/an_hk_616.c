@@ -19,7 +19,6 @@
  * Clears g_menu_left_69d6c4 while no player is holding left.
  */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "direction_flags[0] on any player input (with auto repeat)" */
 
 undefined4 menu_left_pressed_any(void)

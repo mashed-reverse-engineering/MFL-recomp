@@ -15,7 +15,6 @@
 /*008d8b14*/ extern undefined4 g_race_setup;
 /* race_phase_3_update */
 
-/* WARNING: Unknown calling convention */
 /* phase 3: counts g_phase_timer down from 100000 (x 0x44c / 60 per tick) then enters phase 4
    (12000) */
 

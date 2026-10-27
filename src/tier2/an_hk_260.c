@@ -6,7 +6,6 @@
 /*006ad8ac*/ extern float g_sound_music_fade;
 /* sound_music_fade_step */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(dir): g_sound_6ad8ac -= 0.2 / += 0.2 / -= 0.01, clamped to 1.0" */
 
 /* Steps the music fade level g_sound_music_fade by one fade operation, then clamps it.

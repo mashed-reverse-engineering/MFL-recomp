@@ -19,8 +19,6 @@
 extern double sin(double);
 /* endpoint_panel_entry_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "endpoint panel entry (0x6597B8, stride 0x160)" */
 
 /* Per frame update of one endpoint panel entry (esi = entry, stride 0x160; entry[0] = player index, entry[3] = count of listed players, entry[4..0x2b] = 40 indicator slots, entry[0x55] = RwFrame, entry[0x57] = state flag word, bit 0x40000 = highlighted). Sets the highlight flag, stores the player's points change class (0,1,2 up; -1,-2 down) into flag bits 0x4000000..0x40000000, then derives each indicator slot (0 or 1) from those flags, positions the panel frame and sets the score bar scale (points / score_target_a) and the pulsing scale of the highlight (inferred). */

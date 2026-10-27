@@ -3,7 +3,6 @@
 #include "mfl_tier2.h"
 /* hudpanel_render_group */
 
-/* WARNING: Unknown calling convention */
 /* "calls the render callback of the four clumps of the group" */
 
 void hudpanel_render_group_n(int *in_eax)

@@ -4,7 +4,6 @@
 /*005dd340*/ extern float k_f_0_5;
 /* vec2_normalise_to_unit_square */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "out = (v / (2*length)) + 0.5 for the delta of two 2D points" */
 
 void vec2_normalise_to_unit_square(float *out,float *from_pt,float *to_pt)

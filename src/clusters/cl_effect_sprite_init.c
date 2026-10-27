@@ -5,7 +5,6 @@
 /*006c57b0*/ extern undefined4 g_gfx_6c57b0;
 /* effect_sprite_init */
 
-/* WARNING: Unknown calling convention */
 /* "copies a 4x4 matrix and a colour into the sprite entry and sets its active bit in g_gfx_6c57b0"
     */
 

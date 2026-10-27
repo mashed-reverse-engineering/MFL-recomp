@@ -4,7 +4,6 @@
 extern __declspec(dllimport) int __stdcall LeaveCriticalSection(int);
 /* critical_section_leave */
 
-/* WARNING: Unknown calling convention */
 /*  */
 
 void critical_section_leave_n(undefined4 *in_ecx)

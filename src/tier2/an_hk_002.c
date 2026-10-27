@@ -105,7 +105,6 @@
 /* vehicle_tyre_marks_render */
 
 /* WARNING: Function: __chkstk replaced with injection: alloca_probe */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "builds an Im3D vertex list from the tyre mark segments (0xF54 byte records) and renders them" */
 /* Draws the tyre marks of one vehicle as an Im3D triangle list.
  * vehicle_index: index of the vehicle; its tyre mark record is TYRE_MARK_RECORD_SIZE bytes (inferred from the stride).

@@ -67,9 +67,9 @@ car_collision_impulse(int car_index,RwBBox *obstacle_box,RwMatrix *box_matrix,fl
     frame.dir_car_to_contact.y = frame.contact_point.y - car_pos[1];
     frame.dir_car_to_contact.z = frame.contact_point.z - car_pos[2];
     RwV3dNormalize(&frame.dir_car_to_contact,&frame.dir_car_to_contact);
-    if (k_f_0 <= frame.dir_car_to_contact.z * player_car[car_index].velocity[2] +
-                 frame.dir_car_to_contact.x * player_car[car_index].velocity[0] +
-                 frame.dir_car_to_contact.y * player_car[car_index].velocity[1]) {
+    if (!(frame.dir_car_to_contact.z * player_car[car_index].velocity[2] +
+          frame.dir_car_to_contact.x * player_car[car_index].velocity[0] +
+          frame.dir_car_to_contact.y * player_car[car_index].velocity[1] < k_f_0)) {      /* NaN enters the branch (original: test ah,5; jnp) */
       frame.dir_center_to_contact.x = frame.contact_point.x - frame.box_center_x;
       frame.dir_center_to_contact.y = frame.contact_point.y - frame.box_center_y;
       frame.dir_center_to_contact.z = frame.contact_point.z - frame.box_center_z;

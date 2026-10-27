@@ -33,7 +33,6 @@ extern int _g_physics_000000;
 /*00888640*/ extern struct RwpObjectDesc g_rwp_objects[32];
 /* rwp_world_initialize */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "prints 'Initialize CALLED' and creates the physics world, collision world and car objects" */
 
 /* Builds the RWP physics world from the object table g_rwp_objects (stride 0x110, rec = field_0x10c of the current record): clears two 200 entry id tables to -1, then for each of the 0x21 (inferred from the loop bound) records with a shape type (rec[-0x43]) loads its matrix list (.mts, rec-0x22) and clump (.dff, rec-0x32), creates the object group by shape (1 box, 2 cylinder, 3 sphere, 4 capsule, from the debug prints), logs its settings and finally resets all RWP objects. */

@@ -21,7 +21,6 @@
 
 /* menu_up_pressed_any */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "direction_flags[2] set on any of the 12 player inputs while in menu input mode" */
 
 /* Returns 1 if the menu "up" direction fired this frame, 0 otherwise.

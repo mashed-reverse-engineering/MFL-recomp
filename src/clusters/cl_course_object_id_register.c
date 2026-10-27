@@ -5,7 +5,6 @@
 /*006c28c0*/ extern undefined4 g_car_6c28c0;
 /* course_object_id_register */
 
-/* WARNING: Unknown calling convention */
 /* "appends the id to the list at 0x6C2688 if not present" */
 
 int course_object_id_register_n(int in_edx)

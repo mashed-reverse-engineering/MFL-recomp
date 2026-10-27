@@ -109,7 +109,6 @@ typedef int CourseId;
 #define COURSE_HIGHWAY (38)
 #define COURSE_NEUSTEIN (39)
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "stores the player count in g_sound_8d98bc when sound is running" */
 
 void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)

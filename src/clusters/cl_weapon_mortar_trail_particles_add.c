@@ -12,7 +12,6 @@
 /*005de23c*/ extern float k_f_0_06666667;
 /* weapon_mortar_trail_particles_add */
 
-/* WARNING: Unknown calling convention */
 /* "adds the mortar shell smoke trail particles (position / size / colour) to the fx system and
    flushes it" */
 

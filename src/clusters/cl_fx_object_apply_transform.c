@@ -6,7 +6,6 @@
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /* fx_object_apply_transform */
 
-/* WARNING: Unknown calling convention */
 /* "transforms the frame from the matrix and updates the plugin colour" */
 
 void fx_object_apply_transform_n(int *in_esi)

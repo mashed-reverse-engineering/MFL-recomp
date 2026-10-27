@@ -4,7 +4,6 @@
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /* score_panel_entry_scale_parts */
 
-/* WARNING: Unknown calling convention */
 /* "RwFrameScale of the parts selected by flags 0x2000/0x4000/0x8000" */
 
 void score_panel_entry_scale_parts_n(int in_esi, RwV3d *in_edi)

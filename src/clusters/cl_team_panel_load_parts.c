@@ -7,7 +7,6 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* team_panel_load_parts */
 
-/* WARNING: Unknown calling convention */
 /* "loads the 0x32 grey colour parts into the team panel" */
 
 void team_panel_load_parts_n(int clump, TeamPanelEntry *panel)

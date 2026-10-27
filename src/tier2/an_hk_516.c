@@ -34,7 +34,6 @@ typedef int CourseId;
 #define RS_ZWRITE_OFF ((void *)0x0)
 #define RS_ZWRITE_ON ((void *)0x1)
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_highway_cb2(char *course_data)
 

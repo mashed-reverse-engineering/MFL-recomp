@@ -21,7 +21,6 @@ extern char LAB_004069c0[];
 #define CONTEXT_WORLD_OFFSET (0xc9d4)
 /* skydome_follow_camera */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "inferred: uses the camera position projected on XZ (normalised)" */
 /*
  * Per-frame update of the skydome scroll (inferred). Parameter context: game object whose

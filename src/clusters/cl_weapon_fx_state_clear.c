@@ -4,7 +4,6 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* weapon_fx_state_clear */
 
-/* WARNING: Unknown calling convention */
 /* "clears the weapon fx state record" */
 
 void weapon_fx_state_clear_n(int *in_esi)
