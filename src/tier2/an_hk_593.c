@@ -25,7 +25,6 @@
 #define AI_NO_ACTIVE_PLAYER (0xffffffff)
 /* ai_bot_skill */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(bot): skill value from the 0x8C99A4 table by career cell (9.0 in event types 0xE..0x10)" */
 
 /*

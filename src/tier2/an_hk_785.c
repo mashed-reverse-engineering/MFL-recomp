@@ -64,7 +64,7 @@ void fx_trail_particle_spawn_interpolated(float *template_particle,float interp_
       spawn_z = delta_z * interp_t + spawn_z;
     }
   }
-  /* Allocate from the pool. The argument is the address of the parameter (Ghidra artifact, inferred). */
+  /* Allocate from the pool. The argument is the address of the parameter (the decompiler artifact, inferred). */
   new_particle = (float *)fx_pool_alloc_particle(&template_particle);
   if (new_particle != (float *)0x0) {
     /* Copy the template's attributes, then overwrite position and extra_float. */

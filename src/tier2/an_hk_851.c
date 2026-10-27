@@ -17,12 +17,11 @@
 #define DUCK_ANY_PARTNER (-1)
 /* sound_ducking_adjust_by_event */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "adds per voice class offsets (by id 3, 0xA, 0xF, 0x13, 0x17, 0x1A) to the g_weapon_8be720 table"
     */
 
 /* Adjusts the sound ducking matrix g_weapon_8be720 for one voice class event (inferred).
-   The matrix is 6x6 floats, row-major: cell [row][col] is at row * 6 + col. The Ghidra name is a
+   The matrix is 6x6 floats, row-major: cell [row][col] is at row * 6 + col. The the decompiler name is a
    weapon name, the data is a matrix.
    voice_class: picks the offsets below; ids are not in the known enum list, so they stay numeric.
    class_index: the class whose cells are changed (inferred).

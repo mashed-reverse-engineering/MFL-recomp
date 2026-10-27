@@ -20,7 +20,6 @@
 extern double sin(double);
 /* weapon_mortar_shell_update */
 
-/* WARNING: Unknown calling convention */
 /* "moves one mortar shell along its arc, scales its frame, handles impact and calls the trail
    particles" */
 

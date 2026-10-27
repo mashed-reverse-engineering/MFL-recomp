@@ -34,7 +34,6 @@
 
 /* ai_find_target_a */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "inferred: candidate target point for a bot (first choice in the ai_drive_* variants)" */
 /* (inferred) Aim helper for a bot: finds the human car it should chase and the aim point next to it,
  * then reports whether the bot is already roughly facing that point.

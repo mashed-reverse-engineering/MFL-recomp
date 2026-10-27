@@ -17,8 +17,6 @@
 /*0062ac80*/ extern undefined g_weapon_62ac80;
 /* car_air_control */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "when the car is airborne (+0x9E0 == 0, mode 0) levels pitch and roll with RwMatrixRotate;
    otherwise damps the angular part (inferred)" */
 

@@ -50,7 +50,6 @@ __declspec(naked) int weapon_oil_register_trigger_sphere_r(void *slick_age_ptr)
 
 /* weapon_oil_slicks_update_render */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "updates and renders the oil slicks: camera relative matrices, particles and the slippery area"
     */
 

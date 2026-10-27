@@ -36,7 +36,6 @@ typedef int CourseId;
 #define COURSE_HIGHWAYN (12)
 #define COURSE_HIGHWAY (38)
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the winning player (points 8/12 thresholds, team mode, per game mode 4,5,7,8,9) into
    g_intro_652df0" */
 

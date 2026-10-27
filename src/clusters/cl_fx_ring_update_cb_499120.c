@@ -16,7 +16,6 @@
 /*007ef804*/ extern undefined4 g_tick_number;
 /* fx_ring_update_cb_499120 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* function pointer pushed/stored by fx_ring_update (MOV dword ptr [ESP + 0xe0],0x499120) */
 
 void fx_ring_update_cb_499120(RwV3d *hit_pos, int other_record)

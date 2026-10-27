@@ -31,7 +31,6 @@ typedef struct camera_path_get_point_path_cam_layout {
 
 /* camera_path_get_point */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fills a position / orientation from the path camera frame (inferred)" */
 
 /*

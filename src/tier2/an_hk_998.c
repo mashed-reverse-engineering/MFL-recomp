@@ -25,7 +25,6 @@ extern double cos(double);
 extern double sin(double);
 /* trail_render */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "renders the trail records (inferred)" */
 
 void trail_render(void)

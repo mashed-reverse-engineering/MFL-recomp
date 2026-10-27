@@ -53,7 +53,6 @@ extern struct VoiceSlotP g_voices[210];
 
 /* sound_ambience_course_f_24 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "course ids 0x0F and 0x24 (spline based)" */
 
 /*
@@ -99,7 +98,7 @@ void sound_ambience_course_f_24(void)
     }
     /* fade_raw = camera height ratio minus 0.25 (inferred) */
     fade_raw = (camera_pos.y + k_f_2_5) * k_f_0_125 - k_f_0_25;
-    /* Ghidra artifact: x87 compare flags packed into fpu_status (never read here) */
+    /* The decompiler artifact: x87 compare flags packed into fpu_status (never read here) */
     status_hi = (undefined2)(voice_rec >> 0x10);
     fpu_status = CONCAT22(status_hi,(ushort)(fade_raw < k_f_0) << FPU_C0_SHIFT | (ushort)(((fade_raw) != (fade_raw)) || ((k_f_0) != (k_f_0))) << FPU_C2_SHIFT |
                            (ushort)(fade_raw == k_f_0) << FPU_C3_SHIFT);

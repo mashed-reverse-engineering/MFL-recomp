@@ -45,7 +45,6 @@
 /*008d8b14*/ extern char *g_race_setup;
 /* race_render_viewport */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "RwRenderStateSet cull mode, renders the world, cars, effects and HUD of one viewport" */
 
 void race_render_viewport(void)

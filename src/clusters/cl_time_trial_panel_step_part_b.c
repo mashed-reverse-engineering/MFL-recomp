@@ -9,7 +9,6 @@
 /*005ddc28*/ extern float k_f_0;
 /* time_trial_panel_step_part_b */
 
-/* WARNING: Unknown calling convention */
 /* "per slot distance to the local vehicle matrix *0.1 clamped to [0,0.5]" */
 
 void time_trial_panel_step_part_b_n(int slots)

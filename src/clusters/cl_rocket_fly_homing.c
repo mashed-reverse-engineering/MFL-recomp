@@ -23,7 +23,6 @@
 /*0062ac74*/ extern float g_car_62ac74;
 /* rocket_fly_homing */
 
-/* WARNING: Unknown calling convention */
 /* "flight step of a rocket that has a target car (homing)" */
 
 /* target_world = target position (+0.2 up) from the target fx object (+0x58) or car (+0x54); transformed into the rocket frame

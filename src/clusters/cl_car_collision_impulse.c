@@ -16,7 +16,6 @@
 /*008b06e0*/ extern struct Car player_car[16];
 /* car_collision_impulse */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* resolves a hit at a contact point: updates the velocity at +0x9B0 and returns the impulse */
 
 #pragma auto_inline(off)

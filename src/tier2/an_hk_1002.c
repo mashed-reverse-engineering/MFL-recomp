@@ -26,7 +26,6 @@
 /*007ef804*/ extern undefined4 g_tick_number;
 /* fx_particle_spawn_from_style */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "spawns a particle from a style record: colour with brightness jitter, velocity, size, flags" */
 
 void __cdecl fx_particle_spawn_from_style(float *style_inst)

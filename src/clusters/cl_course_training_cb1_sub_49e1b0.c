@@ -29,8 +29,6 @@
 /*00886988*/ extern float g_view_pos_z;
 /* course_training_cb1_sub_49e1b0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Restarted to delay deadcode elimination for space: stack */
 /* single caller course_training_cb1 */
 
 /* RpPTank lock record: base pointer of one attribute stream and its stride in bytes */

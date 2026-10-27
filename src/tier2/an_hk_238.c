@@ -12,7 +12,6 @@
 
 /* camera_path_sample */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(path, index, t, out): interpolates between the ring buffer points of a camera path"
  *
  * Evaluates a cubic (Catmull-Rom style, inferred) segment between points index-1 .. index+2 of the

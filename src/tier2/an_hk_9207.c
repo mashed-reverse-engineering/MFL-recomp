@@ -16,7 +16,6 @@ extern struct VoiceSlot g_voices[210];
 /*008bd7b4*/ extern undefined4 g_sound_8bd7b4;
 /* sound_music_volume_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "music volume from option_get_volume_0 with the menu state (ui_fn_437ee0)" */
 
 void sound_music_volume_update(void)

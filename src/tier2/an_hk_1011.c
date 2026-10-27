@@ -25,7 +25,6 @@
 /*00801b0c*/ extern undefined4 g_car_801b0c;
 /* ai_editor */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "the built-in AI editor: reset car, start / stop race, single step, route editing (uses
    grid_position and car_spawn)" */
 

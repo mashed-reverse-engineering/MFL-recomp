@@ -39,7 +39,6 @@ typedef struct car_damage_smoke_update_iVar4_layout {
 extern double sin(double);
 /* car_damage_smoke_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per car: emits smoke particles for the damaged front / back (inferred)" */
 
 void car_damage_smoke_update(void)

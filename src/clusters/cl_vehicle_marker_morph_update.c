@@ -17,8 +17,6 @@
 /*0065a9d4*/ extern float g_vehicle_setup_65a9d4;
 /* vehicle_marker_morph_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "sets the morph target time from wheel average speed and rotates the frame" */
 
 void vehicle_marker_morph_update_n(VehicleRecord *vehicle_record, float dt)

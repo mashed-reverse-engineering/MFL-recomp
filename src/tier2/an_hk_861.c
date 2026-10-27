@@ -30,7 +30,6 @@ extern double sin(double);
 
 /* fx_floating_text_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "advances each active slot, scales with sin, fades alpha and sets the particle matrix/colour" */
 
 /* Per-frame update of the floating text pool. Takes no parameters, returns nothing.

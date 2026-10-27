@@ -32,7 +32,6 @@ typedef struct FxEffectSlot {
 /*005ddc28*/ extern float k_f_0;
 /* bomb_explode */
 
-/* WARNING: Unknown calling convention */
 /* "sfx 0x13 at the bomb position, then car_damage_at_world_point to nearby cars (inferred)" */
 
 void bomb_explode_n(FxEffectSlot *bomb, float *target_pos)

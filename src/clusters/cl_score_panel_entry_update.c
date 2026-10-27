@@ -28,8 +28,6 @@ extern double fabs(double);
 extern double sin(double);
 /* score_panel_entry_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* WARNING: Unknown calling convention */
 /* "player_get_points vs score_target_a: scale / show the icons" */
 
 static int score_panel_entry_scale_parts_r(int p0, RwV3d * p1);

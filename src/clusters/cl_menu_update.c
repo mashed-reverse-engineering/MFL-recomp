@@ -266,7 +266,7 @@ void menu_update(void)
     movie_poll_and_set_surface_b(0);
     video_get_default_mode();
   }
-  /* per frame: panel fades, savegame update, then the frontend_state machine (1 fade out, 2 fade in, 3 interactive, 4 start race, 5 leaving; inferred from the code below) */
+  /* per frame: panel fades, savegame update, then the frontend_state machine (1 fade alpha up to 0xff, then enter the next page; 2 alpha back down to 0; 3 interactive; 4 set when g_menu_start_race_requested: alpha up to 0xff; 5 fade out, then back to 0) */
   menu_panel_fades_update();
   gamesave_update(*(int *)&g_frame_seconds);
   if (g_menu_select_pressed == 2) {
@@ -2304,7 +2304,7 @@ LAB_0044907d:
   }
   menu_page_update_entry_states(g_menu_current + -1);
 LAB_004490d6:
-  /* frontend fade: state 4 fades the menu in (alpha += 1000/s up to 0xff, then state 5 once the item animation is done); state 5 fades out at 800/s, stops the movie and returns to state 0 */
+  /* frontend fade: state 4 raises the fade alpha (alpha += 1000/s up to 0xff, then state 5 once the item animation is done); state 5 fades out at 800/s, stops the movie and returns to state 0 */
   if (g_frontend_state == 4) {
     team_mode = menu_items_animate_update();
     aux = (int)(g_frame_seconds * k_f_1000);

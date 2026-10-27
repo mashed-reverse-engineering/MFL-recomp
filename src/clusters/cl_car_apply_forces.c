@@ -60,7 +60,6 @@ typedef int CourseId;
 /* car_apply_forces */
 #define COURSE_NT1_S (20)
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* per car: wheel anchor positions; speed factor from the proximity of other cars (catch-up style)
    and distance warning; adds gravity; wheel grip/drag forces */
 

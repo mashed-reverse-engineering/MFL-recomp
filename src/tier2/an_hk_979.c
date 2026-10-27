@@ -9,7 +9,6 @@ extern struct VoiceSlot g_voices[210];
 /*008bd7b4*/ extern undefined4 g_sound_8bd7b4;
 /* sound_global_fade_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fades g_sound_frame_617940 by 0.025 per step by ui state and applies it to all voice volumes" */
 
 void sound_global_fade_update(void)

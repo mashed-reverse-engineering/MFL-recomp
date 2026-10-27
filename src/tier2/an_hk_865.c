@@ -40,7 +40,6 @@
 
 /* ai_bot_stuck_check */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per bot timers (0x8C9B40 stride 0x78) with g_tick_count and the car speed (inferred)" */
 
 /*

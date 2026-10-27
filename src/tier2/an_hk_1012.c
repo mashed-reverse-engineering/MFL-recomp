@@ -34,7 +34,6 @@
 /*006a60d0*/ extern struct MachinegunState MachinegunState_ARRAY_006a60d0[4];
 /* weapon_machinegun_fire */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
 

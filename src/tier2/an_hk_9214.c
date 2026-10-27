@@ -23,7 +23,6 @@
 extern double sin(double);
 /* fx_smoke_puffs_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "iterates the active bit mask of the puff pool and updates each puff" */
 
 void fx_smoke_puffs_update(void)

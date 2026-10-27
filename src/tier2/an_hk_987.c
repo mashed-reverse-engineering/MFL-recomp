@@ -14,8 +14,7 @@
 /*0041a370*/ extern float ai_get_counter();
 /* hud_bomb_timer_text */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
-/* "inferred: 60.0 second text handling driven by the float at FUN_0041a370(0)" */
+/* "inferred: 60.0 second text handling driven by the float at ai_get_counter(0)" */
 
 void hud_bomb_timer_text(void)
 

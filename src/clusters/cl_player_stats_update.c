@@ -40,7 +40,6 @@ extern struct EventLogArgs g_event_log_args[256];
 #define EVLOG_STAT_AGGRESSION (0x3ff03)       /* a human car rammed by this car: aggression counter */
 #define EVLOG_STAT_AGGRESSION_ANGLED (0x3ff04) /* the same, headings differ by more than 60 degrees */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(dt) per frame: turbo skills (steering spin, long reverse), aggression (ram of a human car),
    kills / unforced errors when a car dies, writes events 0x3FF01..0x3FF04 to the event log" */
 

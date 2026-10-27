@@ -31,7 +31,6 @@
 /*008b06e0*/ extern struct Car player_car[16];
 /* car_auto_steer_assist_step */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "when the player gives no steering input steers the car matrix toward the route heading
    (fx_wander_target, limit by speed)" */
 

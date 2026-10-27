@@ -49,7 +49,6 @@ extern char PTR_g_data_736579_005df3cc[];
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "debug draw of 'race lines', 'inside lines' and 'slow lines' of the AI grid" */
 
 void ai_debug_draw_lines(void)

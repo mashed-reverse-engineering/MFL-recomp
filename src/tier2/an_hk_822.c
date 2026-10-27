@@ -41,7 +41,6 @@
 #define CONTROLLER_NONE (-1)
 /* hud_player_markers_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "per player distance to the camera and flashing (tick & 0x1F) used for the markers above the cars
    (inferred)" */
 /* Per frame update of the player markers drawn over the cars (inferred from the callees).

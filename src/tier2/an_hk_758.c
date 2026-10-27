@@ -21,7 +21,6 @@
 #define MATRIX_POS_Z_OFFSET (0x38)
 /* distances_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* per-player horizontal distance to the leader * 0.8 -> distance_to_leader[4] */
 /*
  * Recomputes distance_to_leader[] for every player slot (no parameters, no return value).

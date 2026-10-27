@@ -60,7 +60,6 @@ extern struct VoiceSlotP g_voices[210];
 
 /* sound_ambience_course_c_26 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "course ids 0x0C and 0x26 (course object positions)" */
 
 /*
@@ -88,7 +87,7 @@ void sound_ambience_course_c_26(void)
     undefined4 pos_x; /* scratch voice position (x, y, z) */
     undefined4 pos_y;
     float pos_z;
-    undefined1 camera_xy [8]; /* camera position, x and y (Ghidra split, inferred) */
+    undefined1 camera_xy [8]; /* camera position, x and y (the decompiler split, inferred) */
     float camera_z; /* camera position, z (inferred) */
   } frame;
   

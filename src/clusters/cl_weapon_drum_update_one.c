@@ -34,7 +34,6 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 /* weapon_drum_update_one */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "updates one depth charge drum: frame transform / spin, trigger sphere, fx emitter, removal from
    the world" */
 

@@ -8,7 +8,6 @@
 extern double fabs(double);
 /* gap_5700b0 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* no context */
 
 void gap_5700b0(char *param_1,float *param_2,float *param_3)

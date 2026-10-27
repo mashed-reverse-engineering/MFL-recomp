@@ -39,7 +39,6 @@ typedef struct sound_listener_layout {
 /*006ae0b8*/ extern float g_sound_6ae0b8;
 /* sound_listener_update */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "places the sound listener from the viewport camera matrix and position (validated with
    vec3_is_valid_small)" */
 
