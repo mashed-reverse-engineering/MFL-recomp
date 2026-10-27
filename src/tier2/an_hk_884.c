@@ -16,7 +16,7 @@
  *   out_matrix[10] = depth_scale = far / (far - near), far = camera +0x84, near = camera +0x80 (inferred)
  *   out_matrix[11] = -(depth_scale * near) (inferred)
  *   out_matrix[14] = 1.0f; every other dword is 0.
- * camera is the camera pointer (not a struct pointer in ghidra_types.h yet). param_3..param_6 are unused.
+ * camera is the camera pointer (not a struct pointer in mfl_tier2.h yet). param_3..param_6 are unused.
  * (was: "packs the +0x70/+0x74 fields of a camera into an 8 dword structure (zeroing the rest)") */
 
 void __cdecl camera_view_params_pack(undefined4 *out_matrix,char *camera,undefined4 param_3,undefined4 unused_4,undefined4 unused_5,

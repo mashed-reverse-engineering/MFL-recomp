@@ -746,6 +746,7 @@
 004575c0 gap_4575c0 hk_1047.c
 004577b0 course_tierra_n_cb7_sub_4577b0 hk_1048.c
 004584b0 course_sandsnow_cb0_sub_4584b0 hk_1049.c
+00458f20 course_forest_cb2_sub_458f20 hk_1051.c
 00458f80 course_forest_cb5_sub_458f80 hk_1052.c
 0045b670 course_helper_45b670 hk_1053.c
 0045c1f0 course_superg_cb4_sub_45c1f0 hk_1055.c
@@ -768,6 +769,7 @@
 004a5d50 course_helper_4a5d50 hk_1090.c
 004aac50 course_storm_cb0_sub_4aac50 hk_1094.c
 004aac90 course_storm_cb1_sub_4aac90 hk_1095.c
+004ab120 course_storm_cb5_sub_4ab120 hk_1099.c
 004c4040 gap_4c4040 hk_1113.c
 004c5420 gap_4c5420 hk_1120.c
 004c56a0 gap_4c56a0 hk_1121.c
@@ -931,6 +933,7 @@
 005d9ab0 gap_5d9ab0 hk_1334.c
 005da500 gap_5da500 hk_1336.c
 00405bb0 clump_for_all_atomics_with_camera_matrix_cb_405bb0 hk_1017.c
+00406910 world_for_all_materials_cb_406910_2 hk_1018.c
 00408ef0 player_time_update_cb_408ef0 hk_1019.c
 00416860 course_helper_449c40_sub_416860 hk_1021.c
 00416870 course_helper_449c40_sub_416870 hk_1022.c
@@ -944,9 +947,11 @@
 00455aa0 course_city_cb5_helper_455aa0 hk_1042.c
 004573f0 course_rouabout_cb5_sub_4573f0 hk_1046.c
 00458e70 course_forest_cb0_sub_458e70 hk_1050.c
+0045c140 course_superg_cb4_sub_45c140 hk_1054.c
 0045c8f0 course_effect_spawn_at_helper_45c8f0 hk_1056.c
 0045ca50 course_warzone_cb0_sub_45ca50 hk_1057.c
 0045d630 course_warzone_cb1_sub_45d630 hk_1059.c
+0045d750 course_warzone_cb0_sub_45d750 hk_1061.c
 0045da00 course_warzone_cb1_sub_45da00 hk_1062.c
 0047b420 car_probe_ground_distance_cb_47b420 hk_1065.c
 004801f0 course_helper_4801f0 hk_1066.c
@@ -955,7 +960,10 @@
 00484850 clump_for_all_materials_uv_anim_cb_484850 hk_1072.c
 00484b20 course_helper_484b20 hk_1075.c
 00491280 rwp_world_create_once_cb_491280 hk_1079.c
+0049c880 course_helper_49c880 hk_1082.c
 0049e170 course_training_cb0_sub_49e170 hk_1083.c
+004a5ba0 course_nt1_helper_4557f0_sub_4a5ba0 hk_1089.c
+004aaca0 course_storm_cb0_sub_4aaca0 hk_1096.c
 004aaea0 course_storm_cb1_sub_4aaea0 hk_1097.c
 004aaf40 course_storm_cb1_sub_4aaf40 hk_1098.c
 004ab140 course_storm_cb2_sub_4ab140 hk_1100.c
@@ -973,6 +981,8 @@
 004b24e0 gap_4b24e0 hk_1112.c
 004c4200 gap_4c4200 hk_1114.c
 004c4830 course_warzone_cb0_sub_4c4830 hk_1115.c
+004c4860 course_warzone_cb0_sub_4c4860 hk_1116.c
+004c4800 course_warzone_cb0_sub_4c4800 hk_1338.c
 004ac720 gap_4ac720 hk_1353.c
 004acba0 gap_4acba0 hk_1354.c
 004ad220 gap_4ad220 hk_1355.c

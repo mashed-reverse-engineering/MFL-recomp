@@ -5,7 +5,7 @@
 #define SRC_FLAG_BIT2 (4)
 /*
  * Copies the state record at src into dst (field meanings inferred from the
- * access pattern; the struct is not in ghidra_types.h).
+ * access pattern; the struct has no definition in mfl_tier2.h).
  * clear_dst != 0: zero the dst fields first, then copy.
  * Returns nothing; dst is the output.
  */

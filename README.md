@@ -22,11 +22,11 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...share of the code bytes | 339,631 B | `██████████░░░░░░░░░░` 50% |
 | ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 1,070 | `████████░░░░░░░░░░░░` 38% |
 | ...of these register-argument clusters | 622 | `████░░░░░░░░░░░░░░░░` 22% |
-| **Published in this repo** (`src/`: hand-written + `src/tier2` + `src/clusters`) | 2,038 | `███████████████░░░░░` 73% |
+| **Published in this repo** (`src/`: hand-written + `src/tier2` + `src/clusters`) | 2,063 | `███████████████░░░░░` 74% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...byte identical (`MATCH`) | 343 | `██░░░░░░░░░░░░░░░░░░` 12% |
-| ...tier 2, `src/tier2` (1006 files) | 1,060 | `████████░░░░░░░░░░░░` 38% |
-| ...clusters, `src/clusters` (597 files) | 597 | `████░░░░░░░░░░░░░░░░` 21% |
+| ...tier 2, `src/tier2` (1016 files) | 1,070 | `████████░░░░░░░░░░░░` 38% |
+| ...clusters, `src/clusters` (612 files) | 612 | `████░░░░░░░░░░░░░░░░` 22% |
 
 *Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. Tier 1 / most automatch sources still use the decompiler's type dump and are not published (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 2 and cluster code is behaviour verified, not byte identical.
 

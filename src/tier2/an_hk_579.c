@@ -23,7 +23,7 @@ extern struct VoiceSlotP g_voices[210];
 /* Default voice frequency, bit pattern of 22050.0f. */
 #define DEFAULT_SFX_FREQ (0x46ac4400)
 #define DEFAULT_SFX_FREQ_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
-/* Byte offsets into a voice record (struct not in ghidra_types.h). */
+/* Byte offsets into a voice record (struct not in mfl_tier2.h). */
 #define VOICE_OFF_SUB_OBJ (0x30)
 #define VOICE_OFF_FLAGS (0x34)
 #define VOICE_OFF_FREQ (0x3c)

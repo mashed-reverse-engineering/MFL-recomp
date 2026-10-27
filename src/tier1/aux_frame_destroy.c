@@ -9,7 +9,7 @@
 /* aux_frame_destroy */
 /* Destroys the RwFrame and the two RwRasters held by an object record, then passes the record to FUN_004d1e80
    (inferred: frees the record). Does nothing if record is NULL. record is an int because the record is not a struct
-   in ghidra_types.h; the offsets below are byte offsets into it. */
+   in the headers; the offsets below are byte offsets into it. */
 void aux_frame_destroy(char *record)
 {
   if (record != 0) {

@@ -157,12 +157,10 @@ void sound_ambience_course_0(void)
     if (count != 0) {
       g_sound_ambience_6ae1a0 = g_sound_ambience_6ae1a0 / (float)count;
     }
-    if (g_sound_ambience_6ae1a0 <= float_1_0) {
-      if (g_sound_ambience_6ae1a0 < k_f_0) {
-        g_sound_ambience_6ae1a0 = 0.0f;
-      }
-    } else {
+    if (g_sound_ambience_6ae1a0 > float_1_0) {      /* NaN passes unchanged (original: fcomp / test ah,0x41 / jne, test ah,5 / jp) */
       g_sound_ambience_6ae1a0 = 1.0f;
+    } else if (g_sound_ambience_6ae1a0 < k_f_0) {
+      g_sound_ambience_6ae1a0 = 0.0f;
     }
     g_sound_ambience_6ae1a0 = g_sound_ambience_6ae1a0 + k_f_0_05;
     if (float_1_0 < g_sound_ambience_6ae1a0) {

@@ -87,7 +87,7 @@ void weapon_mine_update_one(WeaponMine *mine)
         t = g_tick_seconds + mine->timer;
         mine->timer = (float)t;
         mine_glow_draw(mine, t, g_weapon_mines_60da5c);
-        if (!(mine->timer < MINE_ARMING_SECONDS))
+        if (mine->timer >= MINE_ARMING_SECONDS)      /* NaN keeps the mine arming (original: fcomp / test ah,1 / jne) */
             mine->state = MINE_ARMED;
         return;
     }

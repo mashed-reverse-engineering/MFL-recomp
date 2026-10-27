@@ -2,7 +2,7 @@
    Curated: plain C types, the game's own structs, and the library types (RenderWare, Windows, C runtime) as incomplete
    structs (handles), except a few plain math / vertex records the code uses by value.  RenderWare object fields the code
    touches are reached through offset accessors (below), as rwrs.h does: no RenderWare struct bodies.
-   Every object file compiled with this header is identical to the one compiled with the decompiler's type dump.
+   Every object file compiled with this header is identical to the one compiled with the complete, uncurated type headers.
    Compiler: cl 13.00.9466 (Visual C++ .NET 2002), C mode.  Generated once by a script, then maintained by hand. */
 #ifndef MFL_TIER2_H
 #define MFL_TIER2_H
@@ -232,6 +232,7 @@ typedef enum RwStreamAccessType {
 
 typedef struct RpHAnimHierarchy RpHAnimHierarchy;
 typedef struct RwFrame RwFrame;
+typedef RwFrame * (*RwFrameCallBack)(struct RwFrame *, void *);
 typedef struct RtAnimInterpolator RtAnimInterpolator;
 typedef struct RtQuat { RwV3d imag; float real; } RtQuat;
 
@@ -449,11 +450,19 @@ typedef void (*RwFreeFunc)(void *);
 #define RwIm2DRenderTriangle RW_GLOBAL(0x2c, RwIm2DRenderTriangleFunction)
 #define RwIm2DRenderPrimitive RW_GLOBAL(0x30, RwIm2DRenderPrimitiveFunction)
 #define RwIm2DRenderIndexedPrimitive RW_GLOBAL(0x34, RwIm2DRenderIndexedPrimitiveFunction)
+typedef int (*vecSprintfFunc)(RwChar *, RwChar *, ...);
+typedef size_t (*vecStrlenFunc)(RwChar *);
+#define rwsprintf RW_GLOBAL(0xc4, vecSprintfFunc)
+#define rwstrlen RW_GLOBAL(0xf4, vecStrlenFunc)
 #define rwstrcpy RW_GLOBAL(0xcc, vecStrcpyFunc)                                              /* stringFuncs (+0xc4) */
 #define rwstrcat RW_GLOBAL(0xd4, vecStrcatFunc)
 #define rwstrcmp RW_GLOBAL(0xe8, vecStrcmpFunc)
 #define RwMalloc RW_GLOBAL(0x108, RwMallocFunc)                                             /* memoryFuncs (+0x108) */
 #define RwFree RW_GLOBAL(0x10c, RwFreeFunc)
+
+/* RwRasterCreate flags (RenderWare raster type / creation flags) */
+#define rwRASTERTYPETEXTURE 0x04
+#define rwRASTERDONTALLOCATE 0x80
 
 /* RenderWare object fields the sources read or write: by byte offset (release build layouts), named <struct>_<member path>(object) */
 #define RpAtomic_boundingSphere(p) (*(struct RwSphere *)((char *)(p) + 0x1c))
@@ -497,6 +506,7 @@ typedef void (*RwFreeFunc)(void *);
 #define RwRaster_height(p) (*(RwInt32 *)((char *)(p) + 0x10))
 #define RwRaster_width(p) (*(RwInt32 *)((char *)(p) + 0xc))
 #define RwStringFunctions_vecStrcpy(p) (*(vecStrcpyFunc *)((char *)(p) + 0x8))
+#define RwTexture_name(p) ((char *)(p) + 0x10)
 #define RwTexture_filterAddressing(p) (*(RwUInt32 *)((char *)(p) + 0x50))
 #define RxNodeDefinition_name(p) (*(RwChar * *)((char *)(p) + 0x0))
 

@@ -32,7 +32,7 @@ extern struct VoiceSlotP g_voices[210];
 /*008bd7b0*/ extern char *g_sound_groups;
 /*008d98bc*/ extern int g_sound_player_count;
 
-/* voice record layout (byte offsets into the record g_voices[i].voice points to; not in ghidra_types.h) */
+/* voice record layout (byte offsets into the record g_voices[i].voice points to; not in mfl_tier2.h) */
 #define VOICE_REC_HANDLE (0x30) /* secondary handle passed to FUN_005b7300 / FUN_005b72a0 */
 #define VOICE_REC_FLAGS (0x34) /* byte: bit VOICE_FLAG_PLAYING set once the voice has been started */
 #define VOICE_FLAG_PLAYING (2)

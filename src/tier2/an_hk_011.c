@@ -114,7 +114,7 @@
 #define BRUSH_MAX (0x7f) /* highest brush value (inferred) */
 #define BRUSH_GROUP_SIZE (4) /* brush values step in groups of four (inferred) */
 #define BRUSH_GROUP_MASK (3) /* low two bits: position inside a group */
-/* PlayerInput gap bytes (offsets 58..61 are unnamed in ghidra_types.h), set for one frame per press (inferred) */
+/* PlayerInput gap bytes (offsets 58..61 are unnamed in mfl_tier2.h), set for one frame per press (inferred) */
 #define PLAYER_INPUT_BRUSH_GROUP_DOWN (58)
 #define PLAYER_INPUT_BRUSH_GROUP_UP (59)
 #define PLAYER_INPUT_BRUSH_STEP_DOWN (60)

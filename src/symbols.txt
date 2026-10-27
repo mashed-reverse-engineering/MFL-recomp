@@ -3611,6 +3611,7 @@ FUN_004c3d80 004c3d80
 FUN_004c3de0 004c3de0
 FUN_004c3e40 004c3e40
 FUN_004c3eb0 004c3eb0
+FUN_004c3f20 004c3f20
 FUN_004c3f60 004c3f60
 FUN_004c3f90 004c3f90
 FUN_004c3fd0 004c3fd0
@@ -6344,6 +6345,7 @@ k_f_21 005dfcf4
 k_f_n14 005dfcf8
 k_f_104 005dfcfc
 k_f_0_0125 005dfd00
+k_f_0_5_5dfd04 005dfd04
 k_f_0_007874016 005dfd08
 k_f_0_0019569471 005dfd0c
 k_f_511 005dfd10
@@ -8453,6 +8455,7 @@ g_lua_expobj_6af5e8 006af5e8
 g_car_6af658 006af658
 g_car_6af6e4 006af6e4
 g_car_6af6ec 006af6ec
+g_effects_update_6af734 006af734
 g_car_6c2658 006c2658
 g_course_object_count 006c2680
 g_course_object_pair_count 006c2684
@@ -8676,8 +8679,11 @@ g_data_6f6928 006f6928
 g_data_6f692c 006f692c
 g_rw_6f6930 006f6930
 g_data_6f6934 006f6934
+g_data_6f6938 006f6938
 g_ptank_atomic 006f693c
+g_data_6f6940 006f6940
 g_ptank_lock_6f6944 006f6944
+g_data_6f6948 006f6948
 g_rw_6f6950 006f6950
 g_rw_6f6c70 006f6c70
 g_rw_6f6f90 006f6f90
@@ -10428,6 +10434,9 @@ g_weapon_8bf000 008bf000
 g_course_warzone_8bf040 008bf040
 g_course_warzone_8bf044 008bf044
 g_car_8bf050 008bf050
+g_data_8bf054 008bf054
+g_data_8bf058 008bf058
+g_data_8bf05c 008bf05c
 g_course_warzone_8bf060 008bf060
 g_course_8bf080 008bf080
 g_course_training_8bf084 008bf084

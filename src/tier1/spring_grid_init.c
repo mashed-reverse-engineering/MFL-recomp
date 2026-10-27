@@ -3,7 +3,7 @@
 /*0048a0c0*/ extern int spring_grid_build();
 /*004d4e70*/ extern RwMatrix * RwMatrixCreate();
 /*006f2ab4*/ extern RwMatrix *g_spring_grid_6f2ab4;
-/* rwMATRIXINTERNALIDENTITY (0x20000) | rwMATRIXTYPEORTHONORMAL (3), see RwMatrixFlag in ghidra_types.h */
+/* rwMATRIXINTERNALIDENTITY (0x20000) | rwMATRIXTYPEORTHONORMAL (3), see RwMatrixFlag in the RenderWare headers */
 #define RW_MATRIX_FLAGS_IDENTITY_ORTHONORMAL (0x20003)
 /* spring_grid_init
  * Resets the spring grid constants, creates the grid's RwMatrix in g_spring_grid_6f2ab4,

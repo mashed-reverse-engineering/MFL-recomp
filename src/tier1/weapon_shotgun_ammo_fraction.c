@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 
-/* Offset of the ammo counter in the per-player weapon state (ghidra_types.h: ammo). */
+/* Offset of the ammo counter in the per-player weapon state (field ammo). */
 #define SHOTGUN_STATE_AMMO_OFFSET 0x10
 
 /*005ddc1c*/ extern float k_f_0_33333334;

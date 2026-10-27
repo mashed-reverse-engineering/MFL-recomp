@@ -20,7 +20,7 @@ void ui_draw_sprite_oriented(int *texture, float x, float y, float w, float h, u
                              int index, int mode, int no_alpha)
 {
   volatile float sx, sy, scaled_h;  /* ponytail: the original stores all four scaled values as 32-bit floats in its parameter slots */
-  float half_w, bottom, right;
+  float half_w, bottom, right, prod;
   volatile float v_top, v_bottom;  /* stored floats in the original frame */
   float u_left, u_right;
   volatile float step;
@@ -28,10 +28,14 @@ void ui_draw_sprite_oriented(int *texture, float x, float y, float w, float h, u
   unsigned int packed;
 
   RwRenderStateSet(rwRENDERSTATECULLMODE, (void *)0x1);
-  sx = (float)(int)screen_width() * x * k_f_0_0015625;
-  sy = (float)(int)screen_height() * y * k_f_0_0020833334;
-  half_w = (float)(int)screen_width() * w * k_f_0_0015625;
-  scaled_h = (float)(int)screen_height() * h * k_f_0_0020833334;
+  prod = (float)(int)screen_width() * x;      /* separate statements: MSVC regrouped the one-line form to (width * k) * x (different rounding) */
+  sx = prod * k_f_0_0015625;
+  prod = (float)(int)screen_height() * y;
+  sy = prod * k_f_0_0020833334;
+  prod = (float)(int)screen_width() * w;
+  half_w = prod * k_f_0_0015625;
+  prod = (float)(int)screen_height() * h;
+  scaled_h = prod * k_f_0_0020833334;
   switch (mode) {
   case 1:
     v_top = k_f_0_125 - (double)index * k_f_4_8828125en4;

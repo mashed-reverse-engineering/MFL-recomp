@@ -143,13 +143,11 @@ void hud_player_markers_update(undefined4 marker_context)
       frame.camera_to_car.z = ground_distance - *(float *)(result + 0x38);
       camera_distance = RwV3dLength(&frame.camera_to_car);
       g_hud_player_60392c = camera_distance * k_f_0_5 - float_1_0;
-      if (g_hud_player_60392c <= k_f_n0_05) {
-        if (g_hud_player_60392c < k_f_n1) {
-          g_hud_player_60392c = -1.0;
-        }
-      }
-      else {
+      if (g_hud_player_60392c > k_f_n0_05) {      /* NaN passes unchanged (original: fcomp / test ah,0x41 / jne, test ah,5 / jp) */
         g_hud_player_60392c = -0.05;
+      }
+      else if (g_hud_player_60392c < k_f_n1) {
+        g_hud_player_60392c = -1.0;
       }
       /* Ground distance under the car (ground_distance; the same float is a scratch value above) */
       ground_probe = (double)car_probe_ground_distance

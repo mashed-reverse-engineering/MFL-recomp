@@ -14,7 +14,7 @@ typedef int CourseId;
 /*008c9ae0*/ extern struct AiBotRecord g_ai_bots[4];
 /* ai_bot_course_0x21_target_check */
 #define COURSE_WARZONE (33)
-/* RwMatrix.pos x/y/z byte offsets inside the car matrix (ghidra_types.h struct RwMatrixTag) */
+/* RwMatrix.pos x/y/z byte offsets inside the car matrix (struct RwMatrixTag) */
 #define MATRIX_POS_X_OFFSET (0x30)
 #define MATRIX_POS_Y_OFFSET (0x34)
 #define MATRIX_POS_Z_OFFSET (0x38)

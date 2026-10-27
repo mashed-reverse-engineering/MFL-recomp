@@ -13,7 +13,7 @@
 /* Stores value in obj's field at OBJ_VALUE_OFFSET. If obj's flag byte at OBJ_FLAGS_OFFSET has
  * OBJ_FLAG_PROPAGATE set, the same value is also stored in the object linked from obj at
  * OBJ_LINK_OFFSET (its field at LINK_VALUE_OFFSET).
- * obj: object to update (char * because the layout is not in ghidra_types.h).
+ * obj: object to update (char * because the layout has no definition in mfl_tier2.h).
  * value: 32-bit value to store (inferred: a plain 4-byte field, meaning not known). */
 void FUN_005cc2e0(char *obj,undefined4 value)
 

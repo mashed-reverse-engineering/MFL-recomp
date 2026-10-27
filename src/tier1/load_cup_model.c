@@ -26,10 +26,10 @@
 /*0064cbd4*/ extern undefined4 g_cup_64cbd4;
 /*0064cbd8*/ extern undefined4 g_cup_64cbd8;
 /*0064d890*/ extern undefined4 g_load_64d890;
-/* RpLightType (ghidra_types.h): rpLIGHTAMBIENT=2, rpLIGHTSPOTSOFT=130 */
+/* RpLightType (RenderWare): rpLIGHTAMBIENT=2, rpLIGHTSPOTSOFT=130 */
 #define RP_LIGHT_TYPE_AMBIENT (2)
 #define RP_LIGHT_TYPE_SPOTSOFT (0x82)
-/* RpLightFlag (ghidra_types.h): rpLIGHTLIGHTATOMICS=1 */
+/* RpLightFlag (RenderWare): rpLIGHTLIGHTATOMICS=1 */
 #define RP_LIGHT_FLAG_LIGHTATOMICS (1)
 /* pi/4 radians, as printed by Ghidra */
 #define SPOT_LIGHT_CONE_ANGLE (0.7853982)

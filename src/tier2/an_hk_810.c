@@ -18,7 +18,7 @@ extern struct VoiceSlot g_voices[210];
 /*00619ba0*/ extern undefined4 g_sound_619ba0;
 /*00619fac*/ extern undefined4 g_sound_frame_619fac;
 
-/* voice record offsets (no voice struct in ghidra_types.h; channel/flags names inferred) */
+/* voice record offsets (no voice struct in mfl_tier2.h; channel/flags names inferred) */
 #define VOICE_CHANNEL_OFFSET (0x30) /* inferred: handle passed to FUN_005b7300 when non-zero */
 #define VOICE_FLAGS_OFFSET (0x34) /* byte field */
 #define VOICE_FREQUENCY_OFFSET (0x3c) /* playback frequency in Hz (float) */

@@ -28,7 +28,7 @@ void __cdecl spline_object_register_trigger_sphere(char *spline_obj)
 
 {
   spline_object_register_trigger_sphere_pos_block_layout *pos_block;
-  /* layout matches struct Trigger in ghidra_types.h (inferred) */
+  /* layout matches struct Trigger of the game (inferred) */
   struct {
     undefined4 pos_x;
     undefined4 pos_y;
