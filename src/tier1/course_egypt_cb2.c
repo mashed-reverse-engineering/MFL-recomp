@@ -2,7 +2,7 @@
 /*004f67c0*/ extern int RpClumpRender();
 /* course_egypt_cb2 */
 /* tail call: the original rewrites its stack argument and jumps */
-int course_egypt_cb2(char *param_1)
+int course_egypt_cb2(char *course)
 {
-  return RpClumpRender(*(int *)(param_1 + 0xc110));
+  return RpClumpRender(((CourseWorld *)course)->clumps[0]);
 }

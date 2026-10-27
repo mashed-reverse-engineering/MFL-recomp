@@ -11,15 +11,15 @@ extern char LAB_004a2ff0[];
 /* "picks a timer function by OS version and stores it (InterlockedExchange)" */
 void timer_select_implementation(void)
 {
-  char *Value;
-  struct OsVersionInfo local_98;
+  char *timer_impl;
+  struct OsVersionInfo os_version;
   
-  local_98.dwOSVersionInfoSize = 0x94;
-  GetVersionExA(&local_98);
-  if ((local_98.dwPlatformId != 2) || (Value = LAB_004a2ff0, local_98.dwMajorVersion < 5)) {
-    Value = LAB_004a2f70;
+  os_version.dwOSVersionInfoSize = 0x94;
+  GetVersionExA(&os_version);
+  if ((os_version.dwPlatformId != 2) || (timer_impl = LAB_004a2ff0, os_version.dwMajorVersion < 5)) {
+    timer_impl = LAB_004a2f70;
   }
-  InterlockedExchange((long *)&PTR_timer_select_implementation_0062ad54,(long)Value);
+  InterlockedExchange((long *)&PTR_timer_select_implementation_0062ad54,(long)timer_impl);
   PTR_timer_select_implementation_0062ad54();
   return;
 }

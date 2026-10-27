@@ -16,9 +16,9 @@
  *   pool+8      per-slot in-use flags (one int per slot, 1 = in use)
  * value: stored in slot word 0 (inferred: caller's payload)
  * Slot words (inferred): [0] value, [1] prev, [2] next, [3] slot index, [4] owner pool.
- * param_3..param_9: unused by this function.
+ * unused_3..unused_9: unused by this function.
  */
-undefined4 * __cdecl pool_alloc_slot(ushort *pool,undefined4 value,char *param_3,char *param_4, char *param_5,char *param_6,char *param_7,char *param_8, char *param_9)
+undefined4 * __cdecl pool_alloc_slot(ushort *pool,undefined4 value,char *unused_3,char *unused_4, char *unused_5,char *unused_6,char *unused_7,char *unused_8, char *unused_9)
 {
   undefined4 *slot;
   ushort slot_index;

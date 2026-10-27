@@ -11,14 +11,14 @@
 void car_damage_at_world_point(undefined4 car,undefined4 amount,RwV3d *world_point)
 {
   struct {
-    RwV3d local_8c;
-    RwMatrix local_80;
-    RwMatrix local_40;
+    RwV3d local_point;
+    RwMatrix car_matrix;
+    RwMatrix inverse_matrix;
   } frame;
 
-  vehicle_get_matrix_ltm_b(car, &frame.local_80);
-  RwMatrixInvert(&frame.local_40,&frame.local_80);
-  RwV3dTransformPoints(&frame.local_8c,world_point,1,&frame.local_40);
-  car_damage_at_local_point(car,amount,&frame.local_8c);
+  vehicle_get_matrix_ltm_b(car, &frame.car_matrix);
+  RwMatrixInvert(&frame.inverse_matrix,&frame.car_matrix);
+  RwV3dTransformPoints(&frame.local_point,world_point,1,&frame.inverse_matrix);
+  car_damage_at_local_point(car,amount,&frame.local_point);
   return;
 }

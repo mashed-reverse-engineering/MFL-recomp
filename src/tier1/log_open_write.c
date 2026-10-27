@@ -23,8 +23,8 @@ undefined4 log_open_write(void)
 {
   undefined4 ctime_text;
   struct {
-    undefined1 local_114 [LOG_TIMEB_SIZE]; /* struct __timeb64 filled by _ftime64 */
-    char local_104 [LOG_LINE_SIZE];        /* formatted line that gets logged */
+    undefined1 timeb [LOG_TIMEB_SIZE]; /* struct __timeb64 filled by _ftime64 */
+    char line [LOG_LINE_SIZE];        /* formatted line that gets logged */
   } log_entry;
 
   g_log_770f74 = FUN_004b4531("mashed.log",&g_log_open_5e13fc);
@@ -33,9 +33,9 @@ undefined4 log_open_write(void)
     return 0;
   }
   /* current time -> ctime string -> "%.19s" line -> log */
-  _ftime64(log_entry.local_114);
-  ctime_text = _ctime64(log_entry.local_114);
-  sprintf(log_entry.local_104,"%.19s\n\n",ctime_text);
-  log_print(log_entry.local_104);
+  _ftime64(log_entry.timeb);
+  ctime_text = _ctime64(log_entry.timeb);
+  sprintf(log_entry.line,"%.19s\n\n",ctime_text);
+  log_print(log_entry.line);
   return 1;
 }

@@ -5,12 +5,12 @@
 /* vehicle_part_set_effect */
 /* "(player, part, a, b): locks the part's geometry and applies FUN_004c4f90 (material effect,
    inferred)" */
-void __cdecl vehicle_part_set_effect(int param_1,int param_2,undefined4 param_3,undefined4 param_4)
+void __cdecl vehicle_part_set_effect(int player,int part,undefined4 effect_a,undefined4 effect_b)
 {
-  int iVar1;
+  int part_frame;
   
-  iVar1 = g_vehicle_table[param_1].part_frames[param_2];
-  FUN_0054d6a0(*(undefined4 *)(iVar1 + 0x18));
-  FUN_004c4f90(iVar1,param_3,param_4);
+  part_frame = g_vehicle_table[player].part_frames[part];
+  FUN_0054d6a0(*(undefined4 *)(part_frame + 0x18));
+  FUN_004c4f90(part_frame,effect_a,effect_b);
   return;
 }

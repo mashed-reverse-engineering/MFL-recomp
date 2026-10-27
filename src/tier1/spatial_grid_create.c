@@ -18,21 +18,21 @@ extern void *__cdecl memset(void *, int, unsigned int);
 #pragma intrinsic(memset)
 /* spatial_grid_create */
 /* "(w, h): clears the header and allocates w * h dwords" */
-void __cdecl spatial_grid_create(int param_1, int param_2, struct GridBounds *param_3)
+void __cdecl spatial_grid_create(int grid_w, int grid_h, struct GridBounds *bounds)
 {
   int size;
 
   spatial_grid_clear();
-  size = param_1 * param_2 * 4;
+  size = grid_w * grid_h * 4;
   g_car_6c2884 = RwMalloc(size, 0);
   memset(g_car_6c2884, 0, size);
-  g_car_6c28b0 = param_2;
-  g_car_6c28b4 = param_1;
-  g_car_6c2888 = *param_3;
-  g_car_6c28a0 = param_3->v[0] - param_3->v[3];
-  g_car_6c28a4 = param_3->v[2] - param_3->v[5];
+  g_car_6c28b0 = grid_h;
+  g_car_6c28b4 = grid_w;
+  g_car_6c2888 = *bounds;
+  g_car_6c28a0 = bounds->v[0] - bounds->v[3];
+  g_car_6c28a4 = bounds->v[2] - bounds->v[5];
   g_car_6c28a8 = float_1_0 / g_car_6c28a0;
   g_car_6c28ac = float_1_0 / g_car_6c28a4;
-  g_car_6c28bc = g_car_6c28a0 / (float)param_1;
-  g_car_6c28b8 = g_car_6c28a4 / (float)param_2;
+  g_car_6c28bc = g_car_6c28a0 / (float)grid_w;
+  g_car_6c28b8 = g_car_6c28a4 / (float)grid_h;
 }

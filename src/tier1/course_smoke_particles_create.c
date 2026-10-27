@@ -24,20 +24,20 @@ void course_smoke_particles_create(void)
 {
   RwTexture *texture_dict;
   struct {
-    float local_8;
-    float local_4;
+    float width;
+    float height;
   } particle_size;
 
   /* Size pair: both fields copied from the same global (inferred). */
-  particle_size.local_8 = *(float *)&g_course_smoke_60d8a8;
-  particle_size.local_4 = *(float *)&g_course_smoke_60d8a8;
+  particle_size.width = *(float *)&g_course_smoke_60d8a8;
+  particle_size.height = *(float *)&g_course_smoke_60d8a8;
   /* Clear the whole tank before setting it up. */
   mem_zero(&g_course_smoke_6a07d8,PARTICLE_TANK_SIZE);
   /* Look up the "smoke" texture dictionary entry and create the tank. */
   texture_dict = (RwTexture *)find_texture_dict_b("smoke");
   particle_system_setup_ptank((uint *)&g_course_smoke_6a07d8,SMOKE_PTANK_TYPE,SMOKE_PTANK_MAX_PARTICLES,texture_dict);
   /* Apply size and colour to the new tank, then reset the timers. */
-  ptank_set_size(&g_course_smoke_6a07d8,&particle_size.local_8);
+  ptank_set_size(&g_course_smoke_6a07d8,&particle_size.width);
   ptank_set_colour(&g_course_smoke_6a07d8,0);
   course_particle_timers_reset();
   return;

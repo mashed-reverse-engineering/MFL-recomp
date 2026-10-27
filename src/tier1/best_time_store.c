@@ -9,8 +9,8 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Stores the just-finished race time (minutes, seconds, fraction of a second) in the
  * best-time tables for the current career row and menu slot. Only the first three
- * parameters are used; param_4..param_8 are unused here (inferred). */
-void __cdecl best_time_store(float fraction,uint seconds,uint minutes,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8)
+ * parameters are used; unused_4..unused_8 are unused here (inferred). */
+void __cdecl best_time_store(float fraction,uint seconds,uint minutes,char *unused_4,char *unused_5, char *unused_6,char *unused_7,char *unused_8)
 {
   g_best_69bb70 = fraction;
   g_best_69bb68 = seconds;

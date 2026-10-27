@@ -21,16 +21,16 @@ void debris_apply_velocity_a(undefined4 body_handle,undefined4 *velocity)
   int *desc;
   char *obj;
   struct {
-    float local_c;
-    float local_8;
-    float local_4;
+    float zero_x;
+    float zero_y;
+    float zero_z;
   } frame;
 
-  frame.local_c = 0.0f;
-  frame.local_8 = 0.0f;
-  frame.local_4 = 0.0f;
+  frame.zero_x = 0.0f;
+  frame.zero_y = 0.0f;
+  frame.zero_z = 0.0f;
   if (velocity == (undefined4 *)0x0) {
-    velocity = (undefined4 *)&frame.local_c;
+    velocity = (undefined4 *)&frame.zero_x;
   }
   obj = rwp_owner_object_get(body_handle);
   world = *(char **)(obj + 0x24);

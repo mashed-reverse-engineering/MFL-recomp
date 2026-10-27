@@ -4,7 +4,7 @@
 /*00464dd0*/ extern int powerup_set_respawn_time(int index, float respawn);
 /* training_powerups_setup */
 /* "powerups_clear and places 20 powerups with a 10 second respawn (training layout)" */
-void __cdecl training_powerups_setup(undefined4 param_1)
+void __cdecl training_powerups_setup(undefined4 powerup_arg)
 {
   int powerup_index;
   float *position;
@@ -37,7 +37,7 @@ void __cdecl training_powerups_setup(undefined4 param_1)
   position = positions;
   count = 0x14;
   do {
-    powerup_index = powerup_place(position,param_1);
+    powerup_index = powerup_place(position,powerup_arg);
     powerup_set_respawn_time(powerup_index,10.0f);
     position = position + 3;
     count = count + -1;

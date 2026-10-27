@@ -4,25 +4,25 @@
 /*004d1d70*/ extern struct RwCamera * RwCameraShowRaster(struct RwCamera *p0, void *p1, RwUInt32 p2);
 /* cup_scene_clear_screen */
 /* "RwCameraClear black for each of the 4 viewports, then RwCameraShowRaster" */
-void __cdecl cup_scene_clear_screen(int param_1,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8,char *param_9)
+void __cdecl cup_scene_clear_screen(int pass_count,char *unused_2,char *unused_3,char *unused_4,char *unused_5, char *unused_6,char *unused_7,char *unused_8,char *unused_9)
 {
-  int iVar2;
-  RwRGBA local_4;
+  int began;
+  RwRGBA black;
   
-  local_4.red = '\0';
-  local_4.green = '\0';
-  local_4.blue = '\0';
-  local_4.alpha = 0xff;
-  if (0 < param_1) {
+  black.red = '\0';
+  black.green = '\0';
+  black.blue = '\0';
+  black.alpha = 0xff;
+  if (0 < pass_count) {
     do {
-      RwCameraClear((RwCamera *)get_viewport_camera(0),&local_4,3);
-      iVar2 = RwCameraBeginUpdate(get_viewport_camera(0));
-      if (iVar2 != 0) {
+      RwCameraClear((RwCamera *)get_viewport_camera(0),&black,(rwCAMERACLEARIMAGE | rwCAMERACLEARZ));
+      began = RwCameraBeginUpdate(get_viewport_camera(0));
+      if (began != 0) {
         RwCameraEndUpdate(get_viewport_camera(0));
       }
-      RwCameraShowRaster((RwCamera *)get_viewport_camera(0),(void *)0,1);
-      param_1 = param_1 + -1;
-    } while (param_1 != 0);
+      RwCameraShowRaster((RwCamera *)get_viewport_camera(0),(void *)0,rwRASTERFLIPWAITVSYNC);
+      pass_count = pass_count + -1;
+    } while (pass_count != 0);
   }
   return;
 }

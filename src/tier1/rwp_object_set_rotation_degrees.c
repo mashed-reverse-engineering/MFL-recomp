@@ -11,40 +11,40 @@
 /*006fd498*/ extern undefined4 g_rw_6fd498;
 /* rwp_object_set_rotation_degrees */
 /* "sets the body matrix rotation (angle*90 about z) and position" */
-void rwp_object_set_rotation_degrees(int param_1,int param_2,RwReal param_3,RwReal param_4,RwReal param_5)
+void rwp_object_set_rotation_degrees(int slot,int quarter_turns,RwReal pos_x,RwReal pos_y,RwReal pos_z)
 {
   ushort bit_index;
-  char *iVar1;
+  char *owner_world;
   RwMatrix *matrix;
-  char *iVar2;
-  undefined4 uVar3;
+  char *owner_object;
+  undefined4 pose_id;
   struct {
-    RwV3d local_2c;
-    undefined1 local_20 [32];
+    RwV3d axis;
+    undefined1 pose_scratch [32];
   } frame;
   
-  frame.local_2c.x = 0.0;
-  frame.local_2c.y = 0.0;
-  frame.local_2c.z = 1.0;
-  iVar2 = rwp_owner_object_get((&g_rw_6fd498)[param_1]);
-  iVar1 = *(char **)(iVar2 + 0x24);
-  if (iVar1 != 0) {
-    if ((*(uint *)(*(char **)(iVar1 + 0x60) + (uint)((bit_index = *(ushort *)(iVar2 + 0x20)) >> 5) * 4) & 1 << (bit_index & 0x1f)) != 0) {
-      FUN_0056b3b0(iVar1,iVar2);
+  frame.axis.x = 0.0;
+  frame.axis.y = 0.0;
+  frame.axis.z = 1.0;
+  owner_object = rwp_owner_object_get((&g_rw_6fd498)[slot]);
+  owner_world = *(char **)(owner_object + 0x24);
+  if (owner_world != 0) {
+    if ((*(uint *)(*(char **)(owner_world + 0x60) + (uint)((bit_index = *(ushort *)(owner_object + 0x20)) >> 5) * 4) & 1 << (bit_index & 0x1f)) != 0) {
+      FUN_0056b3b0(owner_world,owner_object);
     }
   }
-  matrix = *(RwMatrix **)(*(char **)(iVar2 + 0x10) + 8);
-  RwMatrixRotate(matrix,&frame.local_2c,(float)param_2 * k_f_90,rwCOMBINEREPLACE);
-  (matrix->pos).x = param_3;
-  (matrix->pos).y = param_4;
-  (matrix->pos).z = param_5;
+  matrix = *(RwMatrix **)(*(char **)(owner_object + 0x10) + 8);
+  RwMatrixRotate(matrix,&frame.axis,(float)quarter_turns * k_f_90,rwCOMBINEREPLACE);
+  (matrix->pos).x = pos_x;
+  (matrix->pos).y = pos_y;
+  (matrix->pos).z = pos_z;
   RwMatrixUpdate(matrix);
-  RwFrameUpdateObjects(*(RwFrame **)((&g_rw_6fd498)[param_1] + 4));
-  FUN_0056e5b0(iVar2,0);
-  if (*(int *)(iVar2 + 0x24) != 0) {
-    uVar3 = FUN_0058cab0(iVar2,frame.local_20);
-    FUN_0056b100(*(undefined4 *)(iVar2 + 0x24),iVar2,uVar3);
-    rwp_world_set_bit_5c(*(undefined4 *)(iVar2 + 0x24),iVar2,0);
+  RwFrameUpdateObjects(*(RwFrame **)((&g_rw_6fd498)[slot] + 4));
+  FUN_0056e5b0(owner_object,0);
+  if (*(int *)(owner_object + 0x24) != 0) {
+    pose_id = FUN_0058cab0(owner_object,frame.pose_scratch);
+    FUN_0056b100(*(undefined4 *)(owner_object + 0x24),owner_object,pose_id);
+    rwp_world_set_bit_5c(*(undefined4 *)(owner_object + 0x24),owner_object,0);
   }
   return;
 }

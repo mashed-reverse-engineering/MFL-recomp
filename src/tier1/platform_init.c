@@ -15,15 +15,15 @@
 bool platform_init(void)
 
 {
-  undefined4 uVar1;
+  undefined4 app_window;
   int bitmap_set;
   
   timer_init_performance_counter();
   dinput_init();
-  uVar1 = app_get_app_7e7704();
-  joypads_init(uVar1);
-  uVar1 = app_get_app_7e7704();
-  dinput_keyboard_init(uVar1);
+  app_window = app_get_app_7e7704();
+  joypads_init(app_window);
+  app_window = app_get_app_7e7704();
+  dinput_keyboard_init(app_window);
   switch(g_language_offset) {
   case 0:
     bitmap_set = 0;

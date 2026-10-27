@@ -21,13 +21,13 @@ void load_start_lights(void)
   int startlights_clump;
   undefined4 *light_slot;
   char *startlights_name;
-  undefined4 uVar3;
-  undefined4 uVar4;
+  undefined4 clump_arg_b;
+  undefined4 clump_arg_c;
 
-  uVar4 = 0;
-  uVar3 = 0;
+  clump_arg_c = 0;
+  clump_arg_b = 0;
   startlights_name = "startlights.dff";
-  startlights_clump = clump_load_by_name("startlights.dff",uVar3,uVar4);
+  startlights_clump = clump_load_by_name("startlights.dff",clump_arg_b,clump_arg_c);
   mem_zero(&g_load_659a7c,LOAD_LIGHTS_BLOCK_SIZE);
   g_load_659a9c = startlights_clump;
   g_hudpanel_659aa0 = *(undefined4 *)(startlights_clump + 4);

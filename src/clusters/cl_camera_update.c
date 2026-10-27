@@ -654,9 +654,12 @@ void __cdecl camera_update(int *camera,int force_snap)
       vec_a_a.x = *(float *)&camera[0x25f] + *(float *)&camera[0x262];
       vec_a_a.y = *(float *)&camera[0x260] + *(float *)&camera[0x263];
       vec_a_a.z = *(float *)&camera[0x261] + *(float *)&camera[0x264];
-      vec_b8.x = ((float_10_0 - zoom_t) / float_10_0) * (target_x3 - vec_a_a.x);
-      vec_b8.y = ((float_10_0 - zoom_t) / float_10_0) * (target_y3 - vec_a_a.y);
-      vec_b8.z = ((float_10_0 - zoom_t) / float_10_0) * (target_z_v - vec_a_a.z);
+      vec_b8.x = target_x3 - vec_a_a.x;      /* the original rounds the difference to a float before scaling (as above) */
+      vec_b8.y = target_y3 - vec_a_a.y;
+      vec_b8.z = target_z_v - vec_a_a.z;
+      vec_b8.x = ((float_10_0 - zoom_t) / float_10_0) * vec_b8.x;
+      vec_b8.y = ((float_10_0 - zoom_t) / float_10_0) * vec_b8.y;
+      vec_b8.z = ((float_10_0 - zoom_t) / float_10_0) * vec_b8.z;
       look_x4 = target_x3 - vec_b8.x;
       look_y_ = target_y3 - vec_b8.y;
       a_look_z = target_z_v - vec_b8.z;

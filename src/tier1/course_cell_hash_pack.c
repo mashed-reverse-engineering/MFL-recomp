@@ -13,11 +13,11 @@
  * x_unit, y_unit: float values passed as raw bits; scaled by 511 and truncated to int.
  *   x_unit is not masked, so it is assumed to be in 0..1 (inferred).
  * aux_a, aux_b: integers, assumed 0..127 (inferred); rescaled through 1/127 and 127, then masked to 7 bits.
- * param_5..param_7 are unused.
+ * unused_5..unused_7 are unused.
  * Returns the packed key.
  * (was: "packs four float values into a 7/9/7/7 bit key"; aux_a and aux_b are ints, not floats)
  */
-uint __cdecl course_cell_hash_pack(undefined4 x_unit,undefined4 y_unit,int aux_a,int aux_b,char *param_5, char *param_6,char *param_7)
+uint __cdecl course_cell_hash_pack(undefined4 x_unit,undefined4 y_unit,int aux_a,int aux_b,char *unused_5, char *unused_6,char *unused_7)
 {
   uint aux_a_q7;
   int x_q9;

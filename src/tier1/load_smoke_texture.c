@@ -20,16 +20,16 @@ void load_smoke_texture(void)
 {
   RwTexture *smoke_texture;
   struct {
-    float local_8;
-    float local_4;
+    float width;
+    float height;
   } smoke_size;
 
-  smoke_size.local_8 = 0.35f;
-  smoke_size.local_4 = 0.35f;
+  smoke_size.width = 0.35f;
+  smoke_size.height = 0.35f;
   mem_zero(&g_load_6586e8,PTANK_BUFFER_SIZE);
   smoke_texture = (RwTexture *)find_texture_dict_b("smoke");
   particle_system_setup_ptank((uint *)&g_load_6586e8,SMOKE_PTANK_TYPE,SMOKE_PARTICLE_COUNT,smoke_texture);
-  ptank_set_size(&g_load_6586e8,&smoke_size.local_8);
+  ptank_set_size(&g_load_6586e8,&smoke_size.width);
   ptank_set_colour(&g_load_6586e8,0);
   hudpanel_values_init();
   return;

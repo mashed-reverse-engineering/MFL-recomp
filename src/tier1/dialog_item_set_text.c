@@ -6,11 +6,11 @@ extern __declspec(dllimport) int __stdcall SetWindowTextA(int, int);
 /* compile: /GS */
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
 /* "LoadString + SetWindowText for dialog controls" */
-void dialog_item_set_text(int param_1,unsigned int param_2)
+void dialog_item_set_text(int control,unsigned int string_id)
 {
-  char local_104 [256];
+  char text [256];
   
-  LoadStringA(g_app_7e7700,param_2,local_104,0x100);
-  SetWindowTextA(param_1,(int)local_104);
+  LoadStringA(g_app_7e7700,string_id,text,0x100);
+  SetWindowTextA(control,(int)text);
   return;
 }

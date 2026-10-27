@@ -535,6 +535,7 @@ typedef size_t (*vecStrlenFunc)(RwChar *);
 /* course data block (the `course` / `world` / `game_state` argument of the course_*_cb0 setup functions, offsets from its start) */
 #define COURSE_FX_SOURCE_COUNT(c, set) (*(int *)((char *)(c) + 0xc004 + (set) * 4)) /* number of 0x40 byte fx source records of set 0..2 (arrays at +0xc30, +0x1830, +0x2430; each gets an fx slot) */
 #define COURSE_MTS_LIST(c, i) ((c)->mts_matrices + (i) * 0xc00) /* matrix list i of CourseWorld.mts_matrices (0x30 RwMatrix, count in mts_matrix_counts[i]) */
+#define COURSE_CLUMP(c, i) (((RpClump **)(c)->clumps)[i]) /* Clump_Filename clump i of a CourseWorld as a pointer (the field is declared uint) */
 #define COURSE_TEXDICT(c) (*(RwTexDictionary **)((char *)(c) + 0xc9d0))
 #define COURSE_WORLD(c) (*(RpWorld **)((char *)(c) + 0xc9d4))
 #define COURSE_FOG_NEAR(c) (*(float *)((char *)(c) + 0xc9f8))     /* an_hk_908 blends these with the *_END values by the lap-data fraction (inferred meaning) */

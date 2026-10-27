@@ -379,7 +379,7 @@ blend:
       }
       frame.angle_temp = frame.speed * WHEEL_SPIN_RATE + car->angle;
       car->angle = frame.angle_temp;
-      if (!(frame.angle_temp < FULL_TURN)) {
+      if (FULL_TURN <= frame.angle_temp) {
         car->angle = frame.angle_temp - FULL_TURN;
       }
       if (SUB_005685e0(car->body) == 0 && car->trail_count > 0) {

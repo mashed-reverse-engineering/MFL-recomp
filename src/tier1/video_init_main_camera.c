@@ -13,30 +13,31 @@
 /*004d5d90*/ extern struct RwTexture * RwTexDictionaryFindNamedTexture(struct RwTexDictionary *p0, RwChar *p1);
 /*0076e7e4*/ extern RwTexDictionary *g_app_76e7e4;
 /*0076e7ec*/ extern undefined4 g_car_76e7ec;
+#define LOAD_ICON_DICT_RES_ID (0x194) /* resource id of the RWTEXDICTIONARY with the load icon */
 /* video_init_main_camera */
 /* WARNING: Enum "RwVideoModeFlag": Some values do not have unique names */
 /* "'RWTEXDICTIONARY': video mode info and aux camera setup" */
 void video_init_main_camera(void)
 {
-  undefined4 uVar2;
-  undefined4 uVar3;
+  undefined4 width;
+  undefined4 height;
   struct {
     undefined4 size;
     undefined4 data;
   } res;
-  RwVideoMode local_18;
+  RwVideoMode video_mode;
   
-  RwEngineGetVideoModeInfo(&local_18,(int)(short)RwEngineGetCurrentVideoMode());
-  uVar2 = app_get_app_62c5c8();
-  uVar3 = app_get_app_62c5cc();
-  aux_camera_setup(uVar2,uVar3);
-  ui_set_ui_69cc2c(uVar2);
-  ui_set_ui_69cc2e(uVar3);
+  RwEngineGetVideoModeInfo(&video_mode,(int)(short)RwEngineGetCurrentVideoMode());
+  width = app_get_app_62c5c8();
+  height = app_get_app_62c5cc();
+  aux_camera_setup(width,height);
+  ui_set_ui_69cc2c(width);
+  ui_set_ui_69cc2e(height);
   ui_camera_create_main();
   ui_camera_create_secondary();
   res.size = 0;
   res.data = 0;
-  resource_load(0x194,"RWTEXDICTIONARY",&res.data,&res.size);
+  resource_load(LOAD_ICON_DICT_RES_ID,"RWTEXDICTIONARY",&res.data,&res.size);
   g_app_76e7e4 = FUN_004c3eb0(res.data,res.size,0,0);
   if (g_app_76e7e4 != (RwTexDictionary *)0x0) {
     g_car_76e7ec = (undefined4)RwTexDictionaryFindNamedTexture(g_app_76e7e4,"LoadIcon_fully_loaded");

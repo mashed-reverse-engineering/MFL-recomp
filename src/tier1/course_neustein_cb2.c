@@ -5,19 +5,19 @@
 /*006a1d8c*/ extern undefined4 g_course_neustein_6a1d8c;
 /*006a1d90*/ extern undefined4 g_course_neustein_6a1d90;
 /* course_neustein_cb2 */
-void course_neustein_cb2(char *param_1)
+void course_neustein_cb2(char *course)
 {
-  if (*(RpClump **)(param_1 + 0xc130) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(param_1 + 0xc130));
+  if (COURSE_CLUMP((CourseWorld *)course, 8) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 8));
   }
-  if (*(RpClump **)(param_1 + 0xc128) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(param_1 + 0xc128));
+  if (COURSE_CLUMP((CourseWorld *)course, 6) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 6));
   }
-  if (*(RpClump **)(param_1 + 0xc124) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(param_1 + 0xc124));
+  if (COURSE_CLUMP((CourseWorld *)course, 5) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 5));
   }
-  if (*(RpClump **)(param_1 + 0xc134) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(param_1 + 0xc134));
+  if (COURSE_CLUMP((CourseWorld *)course, 9) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 9));
   }
   func_0x00455060();
   object_render(g_course_neustein_6a1d88);

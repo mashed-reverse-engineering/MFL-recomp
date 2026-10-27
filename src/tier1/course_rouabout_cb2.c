@@ -17,10 +17,10 @@
  * Per-frame draw callback for the Rouabout course (cb2 = second course callback, inferred).
  * Draws the course's RpClump slots, the two objects, then the quad and object pass
  * only when the camera value is inside (k_f_35, k_f_49).
- * Parameter: course_state - per-course state block; RpClump pointers at +0xc110..+0xc170 (inferred).
+ * Parameter: course - per-course state block; RpClump pointers at +0xc110..+0xc170 (inferred).
  * Returns nothing.
  */
-void course_rouabout_cb2(char *course_state)
+void course_rouabout_cb2(char *course)
 {
   double camera_value_wide;
   float camera_value;
@@ -28,8 +28,8 @@ void course_rouabout_cb2(char *course_state)
   camera_value_wide = (double)camera_get_8c7e0c();
   camera_value = (float)camera_value_wide;
   /* first clump slot (+0xc164), drawn before the render state setup */
-  if (*(RpClump **)(course_state + 0xc164) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc164));
+  if (COURSE_CLUMP((CourseWorld *)course, 21) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 21));
   }
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
   RwRenderStateSet(rwRENDERSTATEFOGENABLE,(void *)0x0);
@@ -42,34 +42,34 @@ void course_rouabout_cb2(char *course_state)
   RwRenderStateSet(rwRENDERSTATESRCBLEND,(void *)rwBLENDSRCALPHA);
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)rwCULLMODECULLNONE);
-  if (*(RpClump **)(course_state + 0xc11c) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc11c));
+  if (COURSE_CLUMP((CourseWorld *)course, 3) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 3));
   }
-  if (*(RpClump **)(course_state + 0xc110) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc110));
+  if (COURSE_CLUMP((CourseWorld *)course, 0) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 0));
   }
-  if (*(RpClump **)(course_state + 0xc124) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc124));
+  if (COURSE_CLUMP((CourseWorld *)course, 5) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 5));
   }
-  if (*(RpClump **)(course_state + 0xc13c) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc13c));
+  if (COURSE_CLUMP((CourseWorld *)course, 11) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 11));
   }
-  if (*(RpClump **)(course_state + 0xc170) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc170));
+  if (COURSE_CLUMP((CourseWorld *)course, 24) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 24));
   }
-  if (*(RpClump **)(course_state + 0xc134) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc134));
+  if (COURSE_CLUMP((CourseWorld *)course, 9) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 9));
   }
-  if (*(RpClump **)(course_state + 0xc130) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc130));
+  if (COURSE_CLUMP((CourseWorld *)course, 8) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 8));
   }
   object_render(g_course_rouabout_6a2630);
   object_render(g_course_rouabout_6a262c);
-  if (*(RpClump **)(course_state + 0xc12c) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc12c));
+  if (COURSE_CLUMP((CourseWorld *)course, 7) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 7));
   }
-  if (*(RpClump **)(course_state + 0xc128) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_state + 0xc128));
+  if (COURSE_CLUMP((CourseWorld *)course, 6) != (RpClump *)0x0) {
+    RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 6));
   }
   /* only when the camera value lies strictly between k_f_35 and k_f_49 (inferred range check) */
   if ((camera_value > k_f_35) && (camera_value < k_f_49)) {

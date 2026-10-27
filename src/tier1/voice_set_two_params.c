@@ -14,19 +14,19 @@
 void __cdecl voice_set_two_params(int voice,undefined4 value,undefined4 first_param,undefined4 second_param)
 {
   struct {
-    undefined4 local_10;
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    undefined4 value;
+    undefined4 reserved;
+    undefined4 flag;
+    undefined4 param;
   } args;
 
-  args.local_10 = value;
-  args.local_c = 0;
-  args.local_8 = 0;
-  args.local_4 = first_param;
-  FUN_005b8c70((&g_sound_stream_handles)[voice],&args.local_10);
-  args.local_4 = second_param;
-  args.local_8 = 1;
-  FUN_005b8c70((&g_sound_stream_handles)[voice],&args.local_10);
+  args.value = value;
+  args.reserved = 0;
+  args.flag = 0;
+  args.param = first_param;
+  FUN_005b8c70((&g_sound_stream_handles)[voice],&args.value);
+  args.param = second_param;
+  args.flag = 1;
+  FUN_005b8c70((&g_sound_stream_handles)[voice],&args.value);
   return;
 }

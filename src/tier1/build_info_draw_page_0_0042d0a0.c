@@ -50,9 +50,9 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
   union {
     char gs_buf[136];
     struct {
-      RwRGBA local_8c;
-      RwRGBA local_88;
-      undefined1 local_84 [128];
+      RwRGBA color_0;
+      RwRGBA color_1;
+      undefined1 text_buf [128];
     } m;
   } frame;
 
@@ -61,15 +61,15 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
   if (status != 0) {
     status = nop_a();
     if (status != 0) {
-      /* Text colour is white (local_8c), clear colour is black (local_88), both opaque. */
-      frame.m.local_8c.red = 0xff;
-      frame.m.local_8c.green = 0xff;
-      frame.m.local_8c.blue = 0xff;
-      frame.m.local_8c.alpha = 0xff;
-      frame.m.local_88.alpha = 0xff;
-      frame.m.local_88.red = '\0';
-      frame.m.local_88.green = '\0';
-      frame.m.local_88.blue = '\0';
+      /* Text colour is white (color_0), clear colour is black (color_1), both opaque. */
+      frame.m.color_0.red = 0xff;
+      frame.m.color_0.green = 0xff;
+      frame.m.color_0.blue = 0xff;
+      frame.m.color_0.alpha = 0xff;
+      frame.m.color_1.alpha = 0xff;
+      frame.m.color_1.red = '\0';
+      frame.m.color_1.green = '\0';
+      frame.m.color_1.blue = '\0';
       /* First call latches the start time in g_build_info_69ba2c (g_build_info_69bb48 marks it as latched). */
       if (g_build_info_69bb48 == 0) {
         g_build_info_69bb48 = 1;
@@ -81,10 +81,10 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
         g_build_info_69bb30 = 1;
       }
       clear_flags = (rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
-      clear_color = &frame.m.local_88;
+      clear_color = &frame.m.color_1;
       RwCameraClear((RwCamera *)get_viewport_camera(0),clear_color,clear_flags);
-      /* Format the build date/time stamp into the local buffer (local_84); nothing later in this function reads it (inferred). */
-      sprintf(frame.m.local_84,&g_build_info_5de894,"Jun 30 2005","12:38:08");
+      /* Format the build date/time stamp into the local buffer (text_buf); nothing later in this function reads it (inferred). */
+      sprintf(frame.m.text_buf,&g_build_info_5de894,"Jun 30 2005","12:38:08");
       camera_handle = get_viewport_camera(0);
       status = RwCameraBeginUpdate(camera_handle);
       /* Draw only if the camera began updating. */
@@ -95,7 +95,7 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
         RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)rwCULLMODECULLNONE);
         build_info_draw_page_0();
         ui_draw_pulsing_texture(PULSE_TEXTURE_X,PULSE_TEXTURE_Y,1.0);
-        ui_rt2d_text_draw(BUILD_INFO_TEXT_ID,BUILD_INFO_TEXT_X,BUILD_INFO_TEXT_Y,frame.m.local_8c,BUILD_INFO_TEXT_SCALE,1);
+        ui_rt2d_text_draw(BUILD_INFO_TEXT_ID,BUILD_INFO_TEXT_X,BUILD_INFO_TEXT_Y,frame.m.color_0,BUILD_INFO_TEXT_SCALE,1);
         camera_handle = get_viewport_camera(0);
         RwCameraEndUpdate(camera_handle);
       }
@@ -104,11 +104,11 @@ void __cdecl build_info_draw_page_0_0042d0a0(char *unused_param_1,char *unused_p
   }
   /* Plain page: clear to opaque black and draw only the pulsing texture. */
   clear_flags = (rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
-  clear_color = &frame.m.local_8c;
-  frame.m.local_8c.red = '\0';
-  frame.m.local_8c.green = '\0';
-  frame.m.local_8c.blue = '\0';
-  frame.m.local_8c.alpha = 0xff;
+  clear_color = &frame.m.color_0;
+  frame.m.color_0.red = '\0';
+  frame.m.color_0.green = '\0';
+  frame.m.color_0.blue = '\0';
+  frame.m.color_0.alpha = 0xff;
   RwCameraClear((RwCamera *)get_viewport_camera(0),clear_color,clear_flags);
   camera_handle = get_viewport_camera(0);
   status = RwCameraBeginUpdate(camera_handle);

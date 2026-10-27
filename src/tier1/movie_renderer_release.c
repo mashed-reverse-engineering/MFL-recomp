@@ -11,40 +11,40 @@
 /* "releases the three COM interfaces of the movie renderer" */
 void movie_renderer_release(void)
 {
-  int *piVar1;
+  int *iface;
   
   if (g_movie_renderer_76e8c0 != (int *)0x0) {
     (*(int (__stdcall **)(int *))(*g_movie_renderer_76e8c0 + 0x24))(g_movie_renderer_76e8c0);
-    piVar1 = g_movie_renderer_76e8c0;
+    iface = g_movie_renderer_76e8c0;
     if (g_movie_renderer_76e8c0 != (int *)0x0) {
       g_movie_renderer_76e8c0 = (int *)0x0;
-      (*(int (__stdcall **)(int *))(*(int *)piVar1 + 8))((int *)piVar1);
+      (*(int (__stdcall **)(int *))(*(int *)iface + 8))((int *)iface);
     }
   }
-  piVar1 = g_movie_renderer_76e8b4;
+  iface = g_movie_renderer_76e8b4;
   if (g_movie_renderer_76e8b4 != (int *)0x0) {
     g_movie_renderer_76e8b4 = (int *)0x0;
-    (*(int (__stdcall **)(int *))(*(int *)piVar1 + 8))((int *)piVar1);
+    (*(int (__stdcall **)(int *))(*(int *)iface + 8))((int *)iface);
   }
-  piVar1 = g_movie_renderer_76e8b8;
+  iface = g_movie_renderer_76e8b8;
   if (g_movie_renderer_76e8b8 != (int *)0x0) {
     g_movie_renderer_76e8b8 = (int *)0x0;
-    (*(int (__stdcall **)(int *))(*(int *)piVar1 + 8))((int *)piVar1);
+    (*(int (__stdcall **)(int *))(*(int *)iface + 8))((int *)iface);
   }
-  piVar1 = g_movie_renderer_76e8bc;
+  iface = g_movie_renderer_76e8bc;
   if (g_movie_renderer_76e8bc != (int *)0x0) {
     g_movie_renderer_76e8bc = (int *)0x0;
-    (*(int (__stdcall **)(int *))(*(int *)piVar1 + 8))((int *)piVar1);
+    (*(int (__stdcall **)(int *))(*(int *)iface + 8))((int *)iface);
   }
-  piVar1 = g_movie_renderer_76e8b0;
+  iface = g_movie_renderer_76e8b0;
   if (g_movie_renderer_76e8b0 != (int *)0x0) {
     g_movie_renderer_76e8b0 = (int *)0x0;
-    (*(int (__stdcall **)(int *))(*(int *)piVar1 + 8))((int *)piVar1);
+    (*(int (__stdcall **)(int *))(*(int *)iface + 8))((int *)iface);
   }
-  piVar1 = g_app_76e8ac;
+  iface = g_app_76e8ac;
   if (g_app_76e8ac != (int *)0x0) {
     g_app_76e8ac = (int *)0x0;
-    (*(int (__stdcall **)(int *))(*(int *)piVar1 + 8))((int *)piVar1);
+    (*(int (__stdcall **)(int *))(*(int *)iface + 8))((int *)iface);
   }
   (*(int (__stdcall **)(int *))(*(int *)g_d3dx_76e89c + 8))((int *)g_d3dx_76e89c);
   (*(int (__stdcall **)(int *))(*(int *)g_app_76e8a0 + 8))((int *)g_app_76e8a0);

@@ -11,6 +11,13 @@ extern struct VoiceSlot g_voices[210];
 /*0061795c*/ extern int g_sound_frame_61795c[];
 /*006199e4*/ extern undefined4 g_sound_frame_6199e4;
 /*006ae120*/ extern int g_sound_frame_6ae120[];
+/* voice record offsets, in bytes from the voice pointer in g_voices[].voice */
+#define VOICE_OFF_FLAGS (0x34)
+#define VOICE_OFF_HANDLE (0x30)
+#define VOICE_OFF_FREQ (0x3c)
+#define VOICE_FLAG_BUSY (2) /* set = voice busy, sfx not started (inferred) */
+#define SFX_CAR_FREQ (0x46ac4400) /* float bit pattern 22050.0f */
+#define SFX_CAR_FREQ_F (22050.0f)
 /* sound_car_landing_voice */
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
@@ -35,13 +42,13 @@ void sound_car_landing_voice(int car)
     }
     if (g_sound_frame_6ae120[car] == 1 && *landing >= 2 && speed > float_10_0) {
       slot = g_sound_frame_6199e4 + car;
-      if ((*(byte *)(g_voices[slot].voice + 0x34) & 2) == 0) {
+      if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_BUSY) == 0) {
         voice_set_position_from_car(slot, car);
         FUN_005b6a40(g_voices[slot].voice, 1);
-        *(undefined4 *)(g_voices[slot].voice + 0x3c) = 0x46ac4400;
-        stream = *(int *)(g_voices[slot].voice + 0x30);
+        *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = SFX_CAR_FREQ;
+        stream = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (stream != 0) {
-          FUN_005b7300(stream, 4, 1, 22050.0f);
+          FUN_005b7300(stream, 4, 1, SFX_CAR_FREQ_F);
         }
         voice_set_volume(slot, 1.0);
       }

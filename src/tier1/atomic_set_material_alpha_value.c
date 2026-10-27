@@ -10,12 +10,12 @@ undefined4 __cdecl atomic_set_material_alpha_value(undefined4 atomic,undefined4 
 {
   /* context handed to the callback: [0] = callback code address, [1] = pointer to `alpha` (inferred) */
   struct {
-    undefined1 *local_8;
-    undefined4 *local_4;
-  } material_cb_ctx;
+    undefined1 *callback;
+    undefined4 *alpha_ptr;
+  } ctx;
 
-  material_cb_ctx.local_8 = &LAB_00484990;
-  material_cb_ctx.local_4 = &alpha;
-  geometry_for_all_materials_cb(atomic,&material_cb_ctx.local_8);
+  ctx.callback = &LAB_00484990;
+  ctx.alpha_ptr = &alpha;
+  geometry_for_all_materials_cb(atomic,&ctx.callback);
   return atomic;
 }
