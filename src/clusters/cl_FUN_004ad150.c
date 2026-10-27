@@ -15,7 +15,7 @@ typedef int (__fastcall *ThisMethod2)(int *self, int unused_edx, int a, int b);
 
 static void FUN_004ad120_r(int * p0);
 extern void FUN_004ad120(void);
-void FUN_004ad150_n(int *in_ecx, int param_1)
+void FUN_004ad150_n(int *in_ecx, int unused_1)
 
 {
   in_ecx[0x3d] = 0;

@@ -19,7 +19,7 @@
  * camera is the camera pointer (not a struct pointer in ghidra_types.h yet). param_3..param_6 are unused.
  * (was: "packs the +0x70/+0x74 fields of a camera into an 8 dword structure (zeroing the rest)") */
 
-void __cdecl camera_view_params_pack(undefined4 *out_matrix,char *camera,undefined4 param_3,undefined4 param_4,undefined4 param_5,
+void __cdecl camera_view_params_pack(undefined4 *out_matrix,char *camera,undefined4 param_3,undefined4 unused_4,undefined4 unused_5,
           undefined4 param_6)
 
 {

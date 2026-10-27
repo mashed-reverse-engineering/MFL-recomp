@@ -6,31 +6,31 @@
 /* WARNING: Unknown calling convention */
 /* "counts the entries of a menu item list up to its terminator" */
 
-int menu_count_items_n(int *in_edx)
+int menu_count_items_n(int *list)
 
 {
   int *piVar1;
-  int iVar2;
-  int iVar3;
+  int entry;
+  int count;
   
-  iVar3 = 0;
-  if (in_edx != (int *)0x0) {
+  count = 0;
+  if (list != (int *)0x0) {
     while( true ) {
-      iVar2 = *in_edx;
-      while (iVar2 != -0xfa0000) {
-        if (iVar2 == -0xf90000) {
-          return iVar3;
+      entry = *list;
+      while (entry != -0xfa0000) {
+        if (entry == -0xf90000) {
+          return count;
         }
-        piVar1 = in_edx + 1;
-        in_edx = in_edx + 1;
-        iVar2 = *piVar1;
+        piVar1 = list + 1;
+        list = list + 1;
+        entry = *piVar1;
       }
-      if (*in_edx == -0xf90000) break;
-      iVar3 = iVar3 + 1;
-      in_edx = in_edx + 1;
+      if (*list == -0xf90000) break;
+      count = count + 1;
+      list = list + 1;
     }
   }
-  return iVar3;
+  return count;
 }
 
 /* entry thunk at the original address of menu_count_items: register inputs (edx) -> natural C menu_count_items_n; ret 0 */

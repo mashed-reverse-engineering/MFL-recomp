@@ -26,25 +26,25 @@ int course_animated_objects_update(uint dt_ms)
   bool on_second;
   struct {
     RwV3d emit_pos;
-    undefined4 local_7c;
-    undefined4 local_78;
-    undefined4 local_74;
-    undefined4 local_70;
-    undefined4 local_6c;
-    undefined4 local_68;
-    undefined4 local_64;
-    undefined4 local_60;
-    undefined4 local_5c;
-    undefined4 local_58;
-    undefined1 pad_54[4];
-    undefined4 local_50;
-    undefined1 pad_4c[4];
-    undefined4 local_48;
-    undefined1 pad_44[1];
-    undefined1 local_43;
-    undefined1 pad_42[2];
+    undefined4 fx_colour;
+    undefined4 fx_size_start;
+    undefined4 fx_size_end;
+    undefined4 fx_vel_x;
+    undefined4 fx_vel_y;
+    undefined4 fx_vel_z;
+    undefined4 fx_accel_x;
+    undefined4 fx_accel_y;
+    undefined4 fx_accel_z;
+    undefined4 fx_life_scale;
+    undefined1 fx_field_34[4];
+    undefined4 fx_field_38;
+    undefined1 fx_field_3c[4];
+    undefined4 fx_flags;
+    undefined1 fx_flag_44[1];
+    undefined1 fx_kind;
+    undefined1 fx_pad[2];
     RwMatrix path_mtx;
-  } frame_obj;
+  } frame_obj;   /* emit_pos .. fx_pad overlay the 0x48 byte particle record of fx_trail_particle_spawn_interpolated (layout as FxParticle in cl_fx_dust_particle_spawn.c) */
   volatile float vang;
   float angle;
   
@@ -85,19 +85,19 @@ LAB_00429fcb:
               RwV3dTransformPoint(&frame_obj.emit_pos,
                                   (RwV3d *)((char *)&g_race_update_609550 + (emitter_i + object_ptr[2] * 3) * 0xc),
                                   (RwMatrix *)(*(char **)(object_ptr[-0x11] + 4) + 0x10));
-              frame_obj.local_43 = 3;
-              frame_obj.local_58 = 0x42055556;
-              frame_obj.local_7c = 0xffffffff;
-              frame_obj.local_48 = 0x920;
-              frame_obj.local_78 = 0x3f19999a;
-              frame_obj.local_74 = 0x3f19999a;
-              frame_obj.local_50 = 0x3f800000;
-              frame_obj.local_70 = 0;
-              frame_obj.local_6c = 0;
-              frame_obj.local_68 = 0;
-              frame_obj.local_64 = 0;
-              frame_obj.local_60 = 0;
-              frame_obj.local_5c = 0;
+              frame_obj.fx_kind = 3;
+              frame_obj.fx_life_scale = 0x42055556;
+              frame_obj.fx_colour = 0xffffffff;
+              frame_obj.fx_flags = 0x920;
+              frame_obj.fx_size_start = 0x3f19999a;
+              frame_obj.fx_size_end = 0x3f19999a;
+              frame_obj.fx_field_38 = 0x3f800000;
+              frame_obj.fx_vel_x = 0;
+              frame_obj.fx_vel_y = 0;
+              frame_obj.fx_vel_z = 0;
+              frame_obj.fx_accel_x = 0;
+              frame_obj.fx_accel_y = 0;
+              frame_obj.fx_accel_z = 0;
               path_or_tmp = fx_trail_particle_spawn_interpolated(&frame_obj.emit_pos,0,0,0);
               tick_number = g_tick_number;
             }

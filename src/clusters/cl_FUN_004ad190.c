@@ -5,7 +5,7 @@ extern __declspec(dllimport) int __stdcall timeGetTime(void);
 typedef int (__fastcall *ThisMethod2)(int *self, int unused_edx, int a, int b);
 /* FUN_004ad190 */
 
-void FUN_004ad190_n(int *in_ecx, undefined4 param_1)
+void FUN_004ad190_n(int *in_ecx, undefined4 unused_1)
 
 {
   DWORD DVar1;

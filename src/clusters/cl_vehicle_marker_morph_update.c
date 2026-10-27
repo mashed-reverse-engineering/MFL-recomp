@@ -21,32 +21,32 @@
 /* WARNING: Unknown calling convention */
 /* "sets the morph target time from wheel average speed and rotates the frame" */
 
-void vehicle_marker_morph_update_n(VehicleRecord *vehicle_record, float param_2)
+void vehicle_marker_morph_update_n(VehicleRecord *vehicle_record, float dt)
 
 {
   RwFrame *frame;
-  float fVar1;
-  float10 fVar2;
+  float clamped;
+  float10 noise;
   struct {
-    float local_8;
-    float local_4;
+    float wheel_avg_or_blend;
+    float shake;
   } frame_obj;
   
   if (vehicle_record->field_298 == 0) {
-    car_get_wheel_average(&frame_obj.local_8,vehicle_record->index,0);
-    frame_obj.local_8 = frame_obj.local_8 * k_f_0_05;
-    fVar1 = float_1_0;
-    if ((float_1_0 > frame_obj.local_8) && (fVar1 = frame_obj.local_8, frame_obj.local_8 < k_f_n1)) {
-      fVar1 = k_f_n1;
+    car_get_wheel_average(&frame_obj.wheel_avg_or_blend,vehicle_record->index,0);
+    frame_obj.wheel_avg_or_blend = frame_obj.wheel_avg_or_blend * k_f_0_05;
+    clamped = float_1_0;
+    if ((float_1_0 > frame_obj.wheel_avg_or_blend) && (clamped = frame_obj.wheel_avg_or_blend, frame_obj.wheel_avg_or_blend < k_f_n1)) {
+      clamped = k_f_n1;
     }
-    frame_obj.local_8 = fVar1 * k_f_0_5;
-    RpMorphAtomicSetTime(vehicle_record->part_frames[0x12],frame_obj.local_8 + k_f_0_5);
+    frame_obj.wheel_avg_or_blend = clamped * k_f_0_5;
+    RpMorphAtomicSetTime(vehicle_record->part_frames[0x12],frame_obj.wheel_avg_or_blend + k_f_0_5);
     frame = *(RwFrame **)(vehicle_record->part_frames[0x14] + 4);
-    fVar2 = (float10)noise_smooth_value(*(int *)&g_vehicle_setup_65a9d4,0xff);
-    frame_obj.local_4 = (float)(fVar2 - (float10)k_f_0_5);
-    RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,frame_obj.local_4 * k_f_30,rwCOMBINEREPLACE);
-    RwFrameRotate(frame,(RwV3d *)&g_car_62ac68,frame_obj.local_4 * k_f_15,rwCOMBINEPRECONCAT);
-    g_vehicle_setup_65a9d4 = param_2 * k_f_0_0625 + g_vehicle_setup_65a9d4;
+    noise = (float10)noise_smooth_value(*(int *)&g_vehicle_setup_65a9d4,0xff);
+    frame_obj.shake = (float)(noise - (float10)k_f_0_5);
+    RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,frame_obj.shake * k_f_30,rwCOMBINEREPLACE);
+    RwFrameRotate(frame,(RwV3d *)&g_car_62ac68,frame_obj.shake * k_f_15,rwCOMBINEPRECONCAT);
+    g_vehicle_setup_65a9d4 = dt * k_f_0_0625 + g_vehicle_setup_65a9d4;
   }
   return;
 }

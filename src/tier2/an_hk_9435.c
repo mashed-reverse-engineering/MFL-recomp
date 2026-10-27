@@ -93,7 +93,7 @@ int race_events_process_log(void)
       else if (type == 9) {
         debris_slot_release_by_clump(g_event_log_args[idx].arg1);
       }
-      if (car < 0x10) {
+      if (car < MAX_CARS) {
         if (type == 8) {
           vec.y = g_event_log_data[idx].w04 * k_f_0_005;
           vec.x = 0.0f;

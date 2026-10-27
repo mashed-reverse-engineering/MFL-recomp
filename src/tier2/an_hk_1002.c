@@ -54,15 +54,15 @@ void __cdecl fx_particle_spawn_from_style(float *style_inst)
     float vel_x;
     float vel_y;
     float vel_z;
-    undefined4 local_24;
-    undefined4 local_20;
-    undefined4 local_1c;
+    undefined4 accel_x;
+    undefined4 accel_y;
+    undefined4 accel_z;
     float life_scale;
-    undefined1 pad_14[4];
-    undefined4 local_10;
-    undefined1 pad_c[4];
-    undefined4 local_8;
-    undefined1 pad_4[1];
+    undefined1 field_34[4];
+    undefined4 field_38;
+    undefined1 field_3c[4];
+    undefined4 flags_word;
+    undefined1 flag_44[1];
     undefined1 flags;
   } frame;
   
@@ -109,12 +109,12 @@ void __cdecl fx_particle_spawn_from_style(float *style_inst)
     alpha = (double)(uint)(byte)(&g_effects_update_76df37)[style_off];
     frame.col_a = (int)(alpha * (double)*style_inst * (double)k_f_0_5 + alpha * (double)k_f_0_5);
   }
-  frame.local_10 = *(undefined4 *)((char *)&g_effects_update_76df54 + style_off);
+  frame.field_38 = *(undefined4 *)((char *)&g_effects_update_76df54 + style_off);
   frame.life_scale = *(float *)((char *)&g_effects_update_76df38 + style_off) / *style_inst;
-  frame.local_24 = *(undefined4 *)((char *)&g_effects_update_76df48 + style_off);
-  frame.local_20 = *(undefined4 *)((char *)&g_effects_update_76df4c + style_off);
-  frame.local_1c = *(undefined4 *)((char *)&g_effects_update_76df50 + style_off);
-  frame.local_8 = *(undefined4 *)((char *)&g_effects_update_76df64 + style_off);
+  frame.accel_x = *(undefined4 *)((char *)&g_effects_update_76df48 + style_off);
+  frame.accel_y = *(undefined4 *)((char *)&g_effects_update_76df4c + style_off);
+  frame.accel_z = *(undefined4 *)((char *)&g_effects_update_76df50 + style_off);
+  frame.flags_word = *(undefined4 *)((char *)&g_effects_update_76df64 + style_off);
   style_index = *(int *)&style_inst[7];
   rnd = (double)rp_random_float_range(0xbe4ccccd,0x3e4ccccd);
   frame.flags = (&g_effects_update_76df60)[style_index * 0x44];

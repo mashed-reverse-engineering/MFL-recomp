@@ -109,25 +109,25 @@ extern int atomic_plugin_construct(char *param_1);
 /* "plugin copy constructor" */
 
 void __cdecl
-atomic_plugin_copy(char *param_1,char *param_2,char *param_3,char *param_4,char *param_5,
-                  char *param_6,char *param_7,char *param_8,char *param_9)
+atomic_plugin_copy(char *dst_offset,char *src_offset,char *unused_3,char *unused_4,char *unused_5,
+                  char *unused_6,char *unused_7,char *unused_8,char *unused_9)
 {
-  undefined4 *puVar1;
-  undefined4 *puVar2;
+  undefined4 *dst;
+  undefined4 *src;
   
-  puVar1 = (undefined4 *)(g_gfx_89de0c + param_1);
-  puVar2 = (undefined4 *)(g_gfx_89de0c + param_2);
-  *puVar1 = *puVar2;
-  puVar1[9] = puVar2[9];
-  puVar1[5] = puVar2[5];
-  puVar1[6] = puVar2[6];
-  puVar1[7] = puVar2[7];
-  puVar1[2] = puVar2[2];
-  puVar1[3] = puVar2[3];
-  puVar1[4] = puVar2[4];
-  puVar1[10] = puVar2[10];
-  puVar1[8] = puVar2[8];
-  puVar1[1] = puVar2[1];
+  dst = (undefined4 *)(g_gfx_89de0c + dst_offset);
+  src = (undefined4 *)(g_gfx_89de0c + src_offset);
+  *dst = *src;
+  dst[9] = src[9];
+  dst[5] = src[5];
+  dst[6] = src[6];
+  dst[7] = src[7];
+  dst[2] = src[2];
+  dst[3] = src[3];
+  dst[4] = src[4];
+  dst[10] = src[10];
+  dst[8] = src[8];
+  dst[1] = src[1];
   return;
 }
 

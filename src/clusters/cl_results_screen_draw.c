@@ -130,6 +130,12 @@ static void ui_draw_framed_rect_r(unsigned int p0, float p1, float p2, float p3,
 extern void ui_draw_framed_rect(void);
 static void ui_get_triple_r(int p0, int p1, float * p2, int * p3, int * p4);
 extern void ui_get_triple(void);
+/* Draws the end-of-race results screen (no parameters). Depending on the event type it draws either the four
+   stacked panels of a time trial / cup event (lap and total time from time_get_minutes/seconds/fraction,
+   points via player_get_points, with a sign comparison against the previous value) or the per-player / per-
+   team score table in the multiplayer events (team colour names, points, wins, stats formatted through
+   sprintf into ui_rt2d_text_draw). Inferred from the callees and format strings; the meaning of individual
+   columns is not fully confirmed. */
 void results_screen_draw(void)
 {
   unsigned char team_rgba[4];
@@ -228,7 +234,7 @@ void results_screen_draw(void)
   }
   team_color_rgba(0, team_rgba);
   show_tutorial = 1;
-  if ((g_event_type == 3 || g_event_type == 4 || g_event_type == 5) &&
+  if ((g_event_type == EVENT_CUP_3 || g_event_type == EVENT_CUP_4 || g_event_type == EVENT_CUP_5) &&
       (game_mode == 10 || game_mode == 9 || game_mode == 8 || game_mode == 7 || game_mode == 5)) {
     show_tutorial = 0;
   }
@@ -287,24 +293,24 @@ void results_screen_draw(void)
   slot_color = (alpha << 24) | 0x146ef0;
   /* top: set only by the four stacked panels below (100.0); every other path reads it uninitialised, as the original does (frame residue) */
   py = 100.0f;
-  if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2) {
+  if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2) {
     ui_draw_framed_rect_r(alpha, px, 100.0f, pw, 26.0f);
   }
   if (g_menu_69cc48 < 3) {
     ui_rt2d_text_draw(g_team_mode == 0 ? 0xa4 : 0x6e, px + float_10_0, 113.0f, tint, 0.7f, 0);
     goto common;
   }
-  if (g_event_type != 6 && g_event_type != 7 && g_event_type != 8 &&
-      g_event_type != 0 && g_event_type != 1 && g_event_type != 2) {
+  if (g_event_type != EVENT_MULTIPLAYER_6 && g_event_type != EVENT_MULTIPLAYER_7 && g_event_type != EVENT_MULTIPLAYER_8 &&
+      g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2) {
     goto common;
   }
   if (g_team_mode != 0) {
     ui_rt2d_text_draw(0x6e, px + float_10_0, 113.0f, tint, 0.7f, 0);
   }
-  else if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2) {
+  else if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2) {
     ui_rt2d_text_draw(0xa4, px + float_10_0, 113.0f, tint, 0.7f, 0);
   }
-  if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2) {
+  if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2) {
     x_a = px + k_f_155;
     ui_rt2d_text_draw(0x3e, x_a, 107.0f, tint, 0.5f, 2);
     ui_rt2d_text_draw(0x75, x_a, 119.0f, tint, 0.5f, 2);
@@ -342,7 +348,7 @@ common:
       ui_rt2d_text_draw(0xab, 595.0f, 119.0f, tint, 0.5f, 1);
     }
   }
-  else if (g_event_type == 0 || g_event_type == 1 || g_event_type == 2) {
+  else if (g_event_type == EVENT_TIME_TRIAL_0 || g_event_type == EVENT_TIME_TRIAL_1 || g_event_type == EVENT_TIME_TRIAL_2) {
     y_a = top + float_7_0;
     ui_rt2d_text_draw(0xc1, 270.0f, y_a, tint, 0.5f, 2);
     y_b = top + k_f_19;
@@ -351,7 +357,7 @@ common:
     ui_rt2d_text_draw(0x152, 400.0f, y_b, tint, 0.5f, 2);
     ui_rt2d_text_draw(0x153, 590.0f, top + k_f_12, tint, 0.5f, 1);
   }
-  else if (g_event_type == 6 || g_event_type == 7 || g_event_type == 8) {
+  else if (g_event_type == EVENT_MULTIPLAYER_6 || g_event_type == EVENT_MULTIPLAYER_7 || g_event_type == EVENT_MULTIPLAYER_8) {
     ui_rt2d_text_draw(0x6f, 590.0f, 113.0f, tint, 0.7f, 1);
   }
   else {
@@ -390,7 +396,7 @@ common:
         team_run = 1;
       }
       slot_color = (alpha << 24) | 0x92312e;
-      if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2) {
+      if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2) {
         ui_draw_framed_rect_r(alpha, px, py, pw, 26.0f);
       }
       py = py + k_f_2;
@@ -400,7 +406,7 @@ common:
       }
       px = px + k_f_8;
       py = py - k_f_4;
-      if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2 && g_results_screen_69d1f8[index] != -1) {
+      if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2 && g_results_screen_69d1f8[index] != -1) {
         draw_sprite_uv(tex, px, py, 32.0f, 32.0f, white, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
       }
       px = px - k_f_8;
@@ -459,7 +465,7 @@ common:
           label = 0x71;
           sprintf(rank_text, g_frontend_5de9b4, rank1);
         }
-        if (g_event_type == 6 || g_event_type == 7 || g_event_type == 8) {
+        if (g_event_type == EVENT_MULTIPLAYER_6 || g_event_type == EVENT_MULTIPLAYER_7 || g_event_type == EVENT_MULTIPLAYER_8) {
           y_a = py + k_f_15;
           ui_rt2d_text_draw(label, px + k_f_140, y_a, tint, 0.6f, 1);
           text_draw_plain(rank_text, px + k_f_220, y_a, tint, 0.6f, 2);
@@ -474,7 +480,7 @@ common:
       case 3:
       case 4:
       case 5:
-        if (g_event_type == 0 || g_event_type == 1 || g_event_type == 2) {
+        if (g_event_type == EVENT_TIME_TRIAL_0 || g_event_type == EVENT_TIME_TRIAL_1 || g_event_type == EVENT_TIME_TRIAL_2) {
           g_results_screen_69d288 = 0;
           if (time_is_better_than_best() != 0 && g_menu_career_race_active == 0) {
             best_time_store_previous();
@@ -488,7 +494,7 @@ common:
           g_results_screen_69d678 = (int)(time_get_fraction(1) * k_f_100);
           goto time_table;
         }
-        if (g_event_type != 6 && g_event_type != 7 && g_event_type != 8) {
+        if (g_event_type != EVENT_MULTIPLAYER_6 && g_event_type != EVENT_MULTIPLAYER_7 && g_event_type != EVENT_MULTIPLAYER_8) {
           break;
         }
         if (g_menu_multiplayer_kind == 2) {
@@ -616,7 +622,7 @@ star_loop:
       star_index = 0;
       if (star_count >= 0) {
         do {
-          if (g_event_type == 0 || g_event_type == 1 || g_event_type == 2) {
+          if (g_event_type == EVENT_TIME_TRIAL_0 || g_event_type == EVENT_TIME_TRIAL_1 || g_event_type == EVENT_TIME_TRIAL_2) {
             cur_cx = 392.0f;
             cur_cy = ((top + k_f_13) - float_7_0) + k_f_96;
           }
@@ -757,12 +763,12 @@ line_advance:
     draw_rect(0.0f, 344.0f, 640.0f, 2.0f, tint);
     title_w = (float)text_width(0x74, 0.6f);
     page_w = (float)text_width(g_tutorial_page_index + 0xad, 0.6f);
-    if (g_event_type == 0 || g_event_type == 1 || g_event_type == 2) {
+    if (g_event_type == EVENT_TIME_TRIAL_0 || g_event_type == EVENT_TIME_TRIAL_1 || g_event_type == EVENT_TIME_TRIAL_2) {
       title_w = 0.0f;
       page_w = (float)text_width(0xc4, 0.6f);
     }
     ui_draw_framed_rect_r(alpha, 80.0f, 344.0f, (float)(page_w + title_w) + k_f_4, 16.0f);
-    if (g_event_type == 0 || g_event_type == 1 || g_event_type == 2) {
+    if (g_event_type == EVENT_TIME_TRIAL_0 || g_event_type == EVENT_TIME_TRIAL_1 || g_event_type == EVENT_TIME_TRIAL_2) {
       ui_rt2d_text_draw(0xc4, 82.0f, 351.0f, tint, 0.6f, 0);
     }
     else {

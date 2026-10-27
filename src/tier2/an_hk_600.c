@@ -31,10 +31,10 @@
  * `rw_owner` is passed to rw_first_field() (inferred). Parameters 2, 4 and 6..16 are unused here.
  */
 
-void __cdecl rwp_objects_create_box_group(int count,char *param_2,undefined4 rw_owner,char *param_4,int object_type,
-          char *param_6,char *param_7,char *param_8,char *param_9,
-          char *param_10,char *param_11,char *param_12,char *param_13,
-          char *param_14,char *param_15,char *param_16)
+void __cdecl rwp_objects_create_box_group(int count,char *unused_2,undefined4 rw_owner,char *unused_4,int object_type,
+          char *unused_6,char *unused_7,char *unused_8,char *unused_9,
+          char *unused_10,char *unused_11,char *unused_12,char *unused_13,
+          char *unused_14,char *unused_15,char *unused_16)
 
 {
   float scaled_property_a;

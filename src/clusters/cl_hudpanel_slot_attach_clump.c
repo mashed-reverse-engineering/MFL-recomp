@@ -10,27 +10,27 @@
 /* WARNING: Unknown calling convention */
 /* "stores clump and frame, clears the part table" */
 
-void hudpanel_slot_attach_clump_n(int in_eax, int in_ebx, undefined4 param_3)
+void hudpanel_slot_attach_clump_n(int clump, int slot, undefined4 extra)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int local_18 [6];
+  int atomic;
+  int part_index;
+  int i;
+  int atomics [6];
   
-  clump_get_atomics(in_eax,local_18);
-  *(undefined4 *)(in_ebx + 0x48) = param_3;
-  *(int *)(in_ebx + 0x40) = in_eax;
-  *(undefined4 *)(in_ebx + 0x44) = *(undefined4 *)(in_eax + 4);
-  mem_zero(in_ebx + 0x20,0x20);
-  iVar3 = 0;
+  clump_get_atomics(clump,atomics);
+  *(undefined4 *)(slot + 0x48) = extra;
+  *(int *)(slot + 0x40) = clump;
+  *(undefined4 *)(slot + 0x44) = *(undefined4 *)(clump + 4);
+  mem_zero(slot + 0x20,0x20);
+  i = 0;
   do {
-    iVar1 = local_18[iVar3];
-    iVar2 = FUN_004c52b0(iVar1,0,0);
-    *(int *)(in_ebx + 0x20 + iVar2 * 4) = iVar1;
-    FUN_004c53e0(*(undefined4 *)(iVar1 + 0x18),0x40,1);
-    iVar3 = iVar3 + 1;
-  } while (iVar3 < 6);
+    atomic = atomics[i];
+    part_index = FUN_004c52b0(atomic,0,0);
+    *(int *)(slot + 0x20 + part_index * 4) = atomic;
+    FUN_004c53e0(*(undefined4 *)(atomic + 0x18),0x40,1);
+    i = i + 1;
+  } while (i < 6);
   return;
 }
 

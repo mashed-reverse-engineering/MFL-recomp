@@ -2,9 +2,12 @@
 #ifndef MFL_CONSTS_H
 #define MFL_CONSTS_H
 
+#ifndef MFL_COUNT_CONSTS
+#define MFL_COUNT_CONSTS
 #define MAX_CARS 16               /* Car records player_car[16] (index checks `>= 0x10`) */
 #define MAX_PLAYERS 4             /* player slots / vehicle records / AI bots */
 #define WHEELS_PER_CAR 4
+#endif
 #define MAX_RWP_OBJECTS 200       /* RWP physics object table (rwp_object_* index checks) */
 #define MAX_VIEWPORTS 4           /* viewport camera / raster table */
 

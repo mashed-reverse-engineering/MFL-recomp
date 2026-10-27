@@ -65,55 +65,55 @@ void hud_player_markers_update(undefined4 marker_context)
   struct {
     float loop_offset;
     float marker_fade;
-    undefined1 local_78;
-    undefined1 local_77;
-    undefined1 local_76;
-    undefined1 local_75;
-    undefined1 local_74;
-    undefined1 local_73;
-    undefined1 local_72;
-    undefined1 local_71;
+    undefined1 color_white_r;
+    undefined1 color_white_g;
+    undefined1 color_white_b;
+    undefined1 color_white_a;
+    undefined1 color_red_r;
+    undefined1 color_red_g;
+    undefined1 color_red_b;
+    undefined1 color_red_a;
     undefined1 part_matrix [32];
-    float local_50;
-    float local_4c;
-    float local_48;
+    float unused_50;
+    float unused_4c;
+    float unused_48;
     undefined1 pad_44[8];
     float marker_height;
     undefined1 pad_38[8];
-    undefined1 local_30;
-    undefined1 local_2f;
-    undefined1 local_2e;
-    undefined1 local_2d;
-    undefined1 local_2c;
-    undefined1 local_2b;
-    undefined1 local_2a;
-    undefined1 local_29;
+    undefined1 color_red_b_r;
+    undefined1 color_red_b_g;
+    undefined1 color_red_b_b;
+    undefined1 color_red_b_a;
+    undefined1 color_blue_r;
+    undefined1 color_blue_g;
+    undefined1 color_blue_b;
+    undefined1 color_blue_a;
     PlayerSlot *slot_cursor;
     char *car_matrix;
-    int local_20;
+    int vehicle_flag_a;
     float flash_phase;
     int player_count;
     int vehicle_flag_400;
-    int local_10;
+    int vehicle_flag_b;
     RwV3d camera_to_car;
   } frame;
   
-  frame.local_78 = 0xff;
-  frame.local_77 = 0xff;
-  frame.local_76 = 0xff;
-  frame.local_75 = 0xff;
-  frame.local_30 = 0xff;
-  frame.local_2f = 0;
-  frame.local_2e = 0;
-  frame.local_2d = 0xff;
-  frame.local_74 = 0xff;
-  frame.local_73 = 0;
-  frame.local_72 = 0;
-  frame.local_71 = 0xff;
-  frame.local_2c = 0;
-  frame.local_2b = 0;
-  frame.local_2a = 0xff;
-  frame.local_29 = 0xff;
+  frame.color_white_r = 0xff;
+  frame.color_white_g = 0xff;
+  frame.color_white_b = 0xff;
+  frame.color_white_a = 0xff;
+  frame.color_red_b_r = 0xff;
+  frame.color_red_b_g = 0;
+  frame.color_red_b_b = 0;
+  frame.color_red_b_a = 0xff;
+  frame.color_red_r = 0xff;
+  frame.color_red_g = 0;
+  frame.color_red_b = 0;
+  frame.color_red_a = 0xff;
+  frame.color_blue_r = 0;
+  frame.color_blue_g = 0;
+  frame.color_blue_b = 0xff;
+  frame.color_blue_a = 0xff;
   frame.player_count = get_player_count();
   frame.flash_phase = (float)(g_tick_number & FLASH_PHASE_MASK);
   player_index = 0;
@@ -159,9 +159,9 @@ void hud_player_markers_update(undefined4 marker_context)
       /* Slot has a controller. Braking car with no flags set: brake markers (parts 0x39/0x3a), then
          a fading copy loop of 4 passes (inferred) */
       if (CONTROLLER_NONE < slot->controller) {
-        vehicle_get_flags_10(player_index,0,&frame.local_20);
+        vehicle_get_flags_10(player_index,0,&frame.vehicle_flag_a);
         vehicle_get_flag_400(player_index,&frame.vehicle_flag_400);
-        if (((g_player_inputs[slot->controller].brake != 0) && (frame.local_20 == 0)) && (frame.vehicle_flag_400 == 0)
+        if (((g_player_inputs[slot->controller].brake != 0) && (frame.vehicle_flag_a == 0)) && (frame.vehicle_flag_400 == 0)
            ) {
           result = vehicle_part_frame(player_index,0x39);
           if (result != 0) {
@@ -169,12 +169,12 @@ void hud_player_markers_update(undefined4 marker_context)
             part_id = 0x39;
             result = player_index;
             vehicle_part_matrix(player_index, 0x39, frame.part_matrix);
-            frame.local_50 = frame.local_50 * k_f_n1;
-            frame.local_4c = frame.local_4c * k_f_n1;
-            frame.local_48 = frame.local_48 * k_f_n1;
+            frame.unused_50 = frame.unused_50 * k_f_n1;
+            frame.unused_4c = frame.unused_4c * k_f_n1;
+            frame.unused_48 = frame.unused_48 * k_f_n1;
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3f800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_30,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_red_b_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           result = vehicle_part_frame(player_index,0x3a);
           if (result != 0) {
@@ -182,12 +182,12 @@ void hud_player_markers_update(undefined4 marker_context)
             part_id = 0x3a;
             result = player_index;
             vehicle_part_matrix(player_index, 0x3a, frame.part_matrix);
-            frame.local_50 = frame.local_50 * k_f_n1;
-            frame.local_4c = frame.local_4c * k_f_n1;
-            frame.local_48 = frame.local_48 * k_f_n1;
+            frame.unused_50 = frame.unused_50 * k_f_n1;
+            frame.unused_4c = frame.unused_4c * k_f_n1;
+            frame.unused_48 = frame.unused_48 * k_f_n1;
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3f800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_30,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_red_b_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           frame.loop_offset = 0.0;
           frame.marker_fade = 1.0;
@@ -200,12 +200,12 @@ void hud_player_markers_update(undefined4 marker_context)
               loop_result = player_index;
               vehicle_part_matrix(player_index, 0x39, frame.part_matrix);
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
-              frame.local_50 = frame.local_50 * k_f_n1;
-              frame.local_4c = frame.local_4c * k_f_n1;
-              frame.local_48 = frame.local_48 * k_f_n1;
+              frame.unused_50 = frame.unused_50 * k_f_n1;
+              frame.unused_4c = frame.unused_4c * k_f_n1;
+              frame.unused_48 = frame.unused_48 * k_f_n1;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_74,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_red_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             loop_result = vehicle_part_frame(player_index,0x3a);
             if (loop_result != 0) {
@@ -214,12 +214,12 @@ void hud_player_markers_update(undefined4 marker_context)
               loop_result = player_index;
               vehicle_part_matrix(player_index, 0x3a, frame.part_matrix);
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
-              frame.local_50 = frame.local_50 * k_f_n1;
-              frame.local_4c = frame.local_4c * k_f_n1;
-              frame.local_48 = frame.local_48 * k_f_n1;
+              frame.unused_50 = frame.unused_50 * k_f_n1;
+              frame.unused_4c = frame.unused_4c * k_f_n1;
+              frame.unused_48 = frame.unused_48 * k_f_n1;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_74,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_red_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             result = result + -1;
             frame.loop_offset = frame.loop_offset - k_f_0_05;
@@ -241,7 +241,7 @@ void hud_player_markers_update(undefined4 marker_context)
               vehicle_part_matrix(player_index, 0x2a, frame.part_matrix);
               frame.marker_height = frame.marker_height + k_f_0_3;
               hud_player_marker_position_calc
-                        (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.flash_phase,0xbe4ccccd,1,                          &frame.local_2c,&g_hud_653160,result,part_id,part_matrix_ptr);
+                        (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.flash_phase,0xbe4ccccd,1,                          &frame.color_blue_r,&g_hud_653160,result,part_id,part_matrix_ptr);
             }
           }
         }
@@ -259,8 +259,8 @@ void hud_player_markers_update(undefined4 marker_context)
       /* Car flagged in g_car_65314c: parts 0x19-0x1c (4 fading copies) when flags_10 is 0,
          then parts 0x37/0x38 (8 fading copies) when the second flags_10 is 0 (inferred) */
       if ((&g_car_65314c)[player_index] != 0) {
-        vehicle_get_flags_10(player_index,&frame.local_10,0);
-        if (frame.local_10 == 0) {
+        vehicle_get_flags_10(player_index,&frame.vehicle_flag_b,0);
+        if (frame.vehicle_flag_b == 0) {
           result = vehicle_part_frame(player_index,0x19);
           if (result != 0) {
             part_matrix_ptr = frame.part_matrix;
@@ -269,7 +269,7 @@ void hud_player_markers_update(undefined4 marker_context)
             vehicle_part_matrix(player_index, 0x19, frame.part_matrix);
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3f800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_78,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_white_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           result = vehicle_part_frame(player_index,0x1a);
           if (result != 0) {
@@ -279,7 +279,7 @@ void hud_player_markers_update(undefined4 marker_context)
             vehicle_part_matrix(player_index, 0x1a, frame.part_matrix);
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3f800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_78,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_white_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           result = vehicle_part_frame(player_index,0x1c);
           if (result != 0) {
@@ -289,7 +289,7 @@ void hud_player_markers_update(undefined4 marker_context)
             vehicle_part_matrix(player_index, 0x1c, frame.part_matrix);
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3f800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_78,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_white_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           result = vehicle_part_frame(player_index,0x1b);
           if (result != 0) {
@@ -299,7 +299,7 @@ void hud_player_markers_update(undefined4 marker_context)
             vehicle_part_matrix(player_index, 0x1b, frame.part_matrix);
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3f800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_78,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_white_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           frame.loop_offset = 0.0;
           frame.marker_fade = 1.0;
@@ -314,7 +314,7 @@ void hud_player_markers_update(undefined4 marker_context)
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_78,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_white_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             loop_result = vehicle_part_frame(player_index,0x1a);
             if (loop_result != 0) {
@@ -325,7 +325,7 @@ void hud_player_markers_update(undefined4 marker_context)
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_78,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_white_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             loop_result = vehicle_part_frame(player_index,0x1c);
             if (loop_result != 0) {
@@ -336,7 +336,7 @@ void hud_player_markers_update(undefined4 marker_context)
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_78,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_white_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             loop_result = vehicle_part_frame(player_index,0x1b);
             if (loop_result != 0) {
@@ -347,27 +347,27 @@ void hud_player_markers_update(undefined4 marker_context)
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_78,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_white_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             result = result + -1;
             frame.loop_offset = frame.loop_offset - k_f_0_05;
             frame.marker_fade = frame.marker_fade - k_f_0_125;
           } while (result != 0);
         }
-        vehicle_get_flags_10(player_index,&frame.local_20,0);
-        if (frame.local_20 == 0) {
+        vehicle_get_flags_10(player_index,&frame.vehicle_flag_a,0);
+        if (frame.vehicle_flag_a == 0) {
           result = vehicle_part_frame(player_index,0x37);
           if (result != 0) {
             part_matrix_ptr = frame.part_matrix;
             part_id = 0x37;
             result = player_index;
             vehicle_part_matrix(player_index, 0x37, frame.part_matrix);
-            frame.local_50 = frame.local_50 * k_f_n1;
-            frame.local_4c = frame.local_4c * k_f_n1;
-            frame.local_48 = frame.local_48 * k_f_n1;
+            frame.unused_50 = frame.unused_50 * k_f_n1;
+            frame.unused_4c = frame.unused_4c * k_f_n1;
+            frame.unused_48 = frame.unused_48 * k_f_n1;
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3e800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_74,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_red_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           result = vehicle_part_frame(player_index,0x38);
           if (result != 0) {
@@ -375,12 +375,12 @@ void hud_player_markers_update(undefined4 marker_context)
             part_id = 0x38;
             result = player_index;
             vehicle_part_matrix(player_index, 0x38, frame.part_matrix);
-            frame.local_50 = frame.local_50 * k_f_n1;
-            frame.local_4c = frame.local_4c * k_f_n1;
-            frame.local_48 = frame.local_48 * k_f_n1;
+            frame.unused_50 = frame.unused_50 * k_f_n1;
+            frame.unused_4c = frame.unused_4c * k_f_n1;
+            frame.unused_48 = frame.unused_48 * k_f_n1;
             hud_player_marker_position_calc_with_facing
                       (((char *)&g_hud_8cb500 + g_hud_653160 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,0x3e800000,
-                       *(int *)&g_hud_player_60392c,1,&frame.local_74,&g_hud_653160,result,part_id,part_matrix_ptr);
+                       *(int *)&g_hud_player_60392c,1,&frame.color_red_r,&g_hud_653160,result,part_id,part_matrix_ptr);
           }
           frame.loop_offset = 0.0;
           frame.marker_fade = 1.0;
@@ -393,12 +393,12 @@ void hud_player_markers_update(undefined4 marker_context)
               loop_result = player_index;
               vehicle_part_matrix(player_index, 0x37, frame.part_matrix);
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
-              frame.local_50 = frame.local_50 * k_f_n1;
-              frame.local_4c = frame.local_4c * k_f_n1;
-              frame.local_48 = frame.local_48 * k_f_n1;
+              frame.unused_50 = frame.unused_50 * k_f_n1;
+              frame.unused_4c = frame.unused_4c * k_f_n1;
+              frame.unused_48 = frame.unused_48 * k_f_n1;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_74,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_red_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             loop_result = vehicle_part_frame(player_index,0x38);
             if (loop_result != 0) {
@@ -407,12 +407,12 @@ void hud_player_markers_update(undefined4 marker_context)
               loop_result = player_index;
               vehicle_part_matrix(player_index, 0x38, frame.part_matrix);
               frame.marker_height = (ground_distance - (frame.marker_height - ground_distance)) + frame.loop_offset;
-              frame.local_50 = frame.local_50 * k_f_n1;
-              frame.local_4c = frame.local_4c * k_f_n1;
-              frame.local_48 = frame.local_48 * k_f_n1;
+              frame.unused_50 = frame.unused_50 * k_f_n1;
+              frame.unused_4c = frame.unused_4c * k_f_n1;
+              frame.unused_48 = frame.unused_48 * k_f_n1;
               hud_player_marker_position_calc_with_facing
                         (((char *)&g_hud_player_8c9f00 + g_hud_player_653164 * HUD_MARKER_STRIDE),frame.part_matrix,marker_context,*(int *)&frame.marker_fade
-                         ,*(int *)&g_hud_player_60392c,0,&frame.local_74,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
+                         ,*(int *)&g_hud_player_60392c,0,&frame.color_red_r,&g_hud_player_653164,loop_result,part_id,part_matrix_ptr);
             }
             result = result + -1;
             frame.loop_offset = frame.loop_offset - k_f_0_05;

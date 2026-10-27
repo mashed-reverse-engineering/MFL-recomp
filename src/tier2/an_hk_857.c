@@ -28,44 +28,44 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
 {
   int event_type;
   undefined4 *panel_state;
-  /* Frame buffer filled by replay_buffer_interpolate_frame: ghost at ghost_frame, replay at replay_frame (inferred) */
+  /* Two RwMatrix-shaped frames (right, flags, up, pad, at, pad, pos, pad) filled by replay_buffer_interpolate_frame: ghost at ghost_right_x, replay at replay_right_x (inferred) */
   struct {
     undefined4 *panel_replay_ptr;
     undefined4 *panel_ghost_ptr;
     undefined4 panel_flag_a;
     undefined4 panel_flag_b;
-    undefined4 ghost_frame;
-    undefined4 local_7c;
-    undefined4 local_78;
-    uint local_74;
-    undefined4 local_70;
-    undefined4 local_6c;
-    undefined4 local_68;
-    undefined1 pad_64[4];
-    undefined4 local_60;
-    undefined4 local_5c;
-    undefined4 local_58;
-    undefined1 pad_54[4];
-    undefined4 local_50;
-    undefined4 local_4c;
-    undefined4 local_48;
-    undefined1 pad_44[4];
-    undefined4 replay_frame;
-    undefined4 local_3c;
-    undefined4 local_38;
-    uint local_34;
-    undefined4 local_30;
-    undefined4 local_2c;
-    undefined4 local_28;
-    undefined1 pad_24[4];
-    undefined4 local_20;
-    undefined4 local_1c;
-    undefined4 local_18;
-    undefined1 pad_14[4];
-    undefined4 local_10;
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 pad_top;
+    undefined4 ghost_right_x;
+    undefined4 ghost_right_y;
+    undefined4 ghost_right_z;
+    uint ghost_flags;
+    undefined4 ghost_up_x;
+    undefined4 ghost_up_y;
+    undefined4 ghost_up_z;
+    undefined1 ghost_up_pad[4];
+    undefined4 ghost_at_x;
+    undefined4 ghost_at_y;
+    undefined4 ghost_at_z;
+    undefined1 ghost_at_pad[4];
+    undefined4 ghost_pos_x;
+    undefined4 ghost_pos_y;
+    undefined4 ghost_pos_z;
+    undefined1 ghost_pos_pad[4];
+    undefined4 replay_right_x;
+    undefined4 replay_right_y;
+    undefined4 replay_right_z;
+    uint replay_flags;
+    undefined4 replay_up_x;
+    undefined4 replay_up_y;
+    undefined4 replay_up_z;
+    undefined1 replay_up_pad[4];
+    undefined4 replay_at_x;
+    undefined4 replay_at_y;
+    undefined4 replay_at_z;
+    undefined1 replay_at_pad[4];
+    undefined4 replay_pos_x;
+    undefined4 replay_pos_y;
+    undefined4 replay_pos_z;
+    undefined4 replay_pos_pad;
   } frame;
   
   /* Time trial running: shift the requested time by player 0's steering and by the bytes
@@ -84,42 +84,42 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
   /* Only event types 0..2 record and display a frame (inferred) */
   event_type = get_event_type();
   if ((-1 < event_type) && (event_type < TRACKED_EVENT_TYPES)) {
-    frame.panel_ghost_ptr = &frame.ghost_frame;
-    frame.local_34 = frame.local_34 | FRAME_FLAGS_SET;
-    frame.local_74 = frame.local_74 | FRAME_FLAGS_SET;
-    frame.panel_replay_ptr = &frame.replay_frame;
+    frame.panel_ghost_ptr = &frame.ghost_right_x;
+    frame.replay_flags = frame.replay_flags | FRAME_FLAGS_SET;
+    frame.ghost_flags = frame.ghost_flags | FRAME_FLAGS_SET;
+    frame.panel_replay_ptr = &frame.replay_right_x;
     frame.panel_flag_a = 1;
     frame.panel_flag_b = 0;
-    frame.local_18 = FLOAT_1_0_BITS;
-    frame.local_2c = FLOAT_1_0_BITS;
-    frame.replay_frame = FLOAT_1_0_BITS;
-    frame.local_30 = 0;
-    frame.local_38 = 0;
-    frame.local_3c = 0;
-    frame.local_1c = 0;
-    frame.local_20 = 0;
-    frame.local_28 = 0;
-    frame.local_8 = 0;
-    frame.local_c = 0;
-    frame.local_10 = 0;
-    frame.local_58 = FLOAT_1_0_BITS;
-    frame.local_6c = FLOAT_1_0_BITS;
-    frame.ghost_frame = FLOAT_1_0_BITS;
-    frame.local_70 = 0;
-    frame.local_78 = 0;
-    frame.local_7c = 0;
-    frame.local_5c = 0;
-    frame.local_60 = 0;
-    frame.local_68 = 0;
-    frame.local_48 = 0;
-    frame.local_4c = 0;
-    frame.local_50 = 0;
+    frame.replay_at_z = FLOAT_1_0_BITS;
+    frame.replay_up_y = FLOAT_1_0_BITS;
+    frame.replay_right_x = FLOAT_1_0_BITS;
+    frame.replay_up_x = 0;
+    frame.replay_right_z = 0;
+    frame.replay_right_y = 0;
+    frame.replay_at_y = 0;
+    frame.replay_at_x = 0;
+    frame.replay_up_z = 0;
+    frame.replay_pos_z = 0;
+    frame.replay_pos_y = 0;
+    frame.replay_pos_x = 0;
+    frame.ghost_at_z = FLOAT_1_0_BITS;
+    frame.ghost_up_y = FLOAT_1_0_BITS;
+    frame.ghost_right_x = FLOAT_1_0_BITS;
+    frame.ghost_up_x = 0;
+    frame.ghost_right_z = 0;
+    frame.ghost_right_y = 0;
+    frame.ghost_at_y = 0;
+    frame.ghost_at_x = 0;
+    frame.ghost_up_z = 0;
+    frame.ghost_pos_z = 0;
+    frame.ghost_pos_y = 0;
+    frame.ghost_pos_x = 0;
     /* Interpolate the ghost and replay frames at the stored time, then update the panel */
     if (g_ghost_652f84 != 0) {
-      replay_buffer_interpolate_frame(g_ghost_652f84,&frame.ghost_frame,g_time_652f94);
+      replay_buffer_interpolate_frame(g_ghost_652f84,&frame.ghost_right_x,g_time_652f94);
     }
     if (g_replay_652f88 != 0) {
-      replay_buffer_interpolate_frame(g_replay_652f88,&frame.replay_frame,g_time_652f94);
+      replay_buffer_interpolate_frame(g_replay_652f88,&frame.replay_right_x,g_time_652f94);
     }
     panel_state = &frame.panel_flag_a;
     btb_panel_set_visible_all(&frame.panel_flag_a);

@@ -327,7 +327,7 @@ extern void vehicle_atomics_destroy_659b30(void);
 
 /* game_set_game_659d00 */
 
-/* "g_game_659d00 = param_1; return;" */
+/* "g_game_659d00 = unused_1; return;" */
 
 extern void game_set_game_659d00(undefined4 param_1);
 

@@ -166,13 +166,11 @@ void sound_ambience_course_f_24(void)
         g_sound_ambience_6ae1a8 = k_f_0_55 - (camera_pos.z + k_f_27) * k_f_0_011111111 * k_f_0_55;
       }
       /* Clamp t to [0, 1] */
-      if (g_sound_ambience_6ae1a8 <= float_1_0) {
-        if (g_sound_ambience_6ae1a8 < k_f_0) {
-          g_sound_ambience_6ae1a8 = 0.0;
-        }
-      }
-      else {
+      if (g_sound_ambience_6ae1a8 > float_1_0) {      /* NaN keeps its value (original: fcomp, test ah,0x41, jne) */
         g_sound_ambience_6ae1a8 = 1.0;
+      }
+      else if (g_sound_ambience_6ae1a8 < k_f_0) {
+        g_sound_ambience_6ae1a8 = 0.0;
       }
       /* Point on the spline at t, copied into the voice record's position */
       RpSplineFindPosition

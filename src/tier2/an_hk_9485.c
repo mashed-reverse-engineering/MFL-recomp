@@ -10,7 +10,7 @@
 
 /* "appends a point (pos, optional vel, colour) to a ribbon ring and fades the older points" */
 
-void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,undefined4 *param_4)
+void fx_ribbon_add_point(int *ribbon_arg,undefined4 *pos,undefined4 *vel,undefined4 *colour)
 
 {
   float *tmp_f;
@@ -29,38 +29,38 @@ void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,un
     undefined4 point_z;
   } frame;
   
-  ribbon = param_1;
-  point_ptr = (undefined4 *)(*param_1 + param_1[9] * 0xc);
-  *point_ptr = *param_2;
-  point_ptr[1] = param_2[1];
-  point_ptr[2] = param_2[2];
-  if (param_3 == (undefined4 *)0x0) {
-    *(undefined4 *)(param_1[1] + param_1[9] * 0xc) = 0;
-    *(undefined4 *)(param_1[1] + 4 + param_1[9] * 0xc) = 0;
-    *(undefined4 *)(param_1[1] + 8 + param_1[9] * 0xc) = 0;
+  ribbon = ribbon_arg;
+  point_ptr = (undefined4 *)(*ribbon_arg + ribbon_arg[9] * 0xc);
+  *point_ptr = *pos;
+  point_ptr[1] = pos[1];
+  point_ptr[2] = pos[2];
+  if (vel == (undefined4 *)0x0) {
+    *(undefined4 *)(ribbon_arg[1] + ribbon_arg[9] * 0xc) = 0;
+    *(undefined4 *)(ribbon_arg[1] + 4 + ribbon_arg[9] * 0xc) = 0;
+    *(undefined4 *)(ribbon_arg[1] + 8 + ribbon_arg[9] * 0xc) = 0;
   }
   else {
-    point_ptr = (undefined4 *)(param_1[1] + param_1[9] * 0xc);
-    *point_ptr = *param_3;
-    point_ptr[1] = param_3[1];
-    point_ptr[2] = param_3[2];
+    point_ptr = (undefined4 *)(ribbon_arg[1] + ribbon_arg[9] * 0xc);
+    *point_ptr = *vel;
+    point_ptr[1] = vel[1];
+    point_ptr[2] = vel[2];
   }
-  if (param_4 == (undefined4 *)0x0) {
-    *(undefined1 *)(param_1[2] + param_1[9] * 4) = 0xff;
-    *(undefined1 *)(param_1[2] + 1 + param_1[9] * 4) = 0xff;
-    *(undefined1 *)(param_1[2] + 2 + param_1[9] * 4) = 0xff;
-    *(undefined1 *)(param_1[2] + 3 + param_1[9] * 4) = 0xff;
+  if (colour == (undefined4 *)0x0) {
+    *(undefined1 *)(ribbon_arg[2] + ribbon_arg[9] * 4) = 0xff;
+    *(undefined1 *)(ribbon_arg[2] + 1 + ribbon_arg[9] * 4) = 0xff;
+    *(undefined1 *)(ribbon_arg[2] + 2 + ribbon_arg[9] * 4) = 0xff;
+    *(undefined1 *)(ribbon_arg[2] + 3 + ribbon_arg[9] * 4) = 0xff;
   }
   else {
-    *(undefined4 *)(param_1[2] + param_1[9] * 4) = *param_4;
+    *(undefined4 *)(ribbon_arg[2] + ribbon_arg[9] * 4) = *colour;
   }
-  age_index = param_1[9];
-  ring_size = param_1[3];
-  param_1[9] = age_index + 1;
+  age_index = ribbon_arg[9];
+  ring_size = ribbon_arg[3];
+  ribbon_arg[9] = age_index + 1;
   if (ring_size <= age_index + 1) {
-    param_1[9] = 0;
+    ribbon_arg[9] = 0;
   }
-  age_index = ring_size - param_1[4];
+  age_index = ring_size - ribbon_arg[4];
   if (age_index < ring_size) {
     do {
       ring_size = ribbon[9] + age_index;
@@ -68,9 +68,9 @@ void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,un
       if (ribbon[3] <= ring_size) {
         ring_size = (ribbon[9] - ribbon[3]) + age_index;
       }
-      *(uint *)&param_2 = *(uint *)(ribbon[2] + ring_size * 4);
-      alpha = *(uint *)&param_2 >> 0x18;
-      *((char *)&param_2 + 3) = (char)(int)((double)(int)alpha - (double)(int)(alpha - 10) * fade);
+      *(uint *)&pos = *(uint *)(ribbon[2] + ring_size * 4);
+      alpha = *(uint *)&pos >> 0x18;
+      *((char *)&pos + 3) = (char)(int)((double)(int)alpha - (double)(int)(alpha - 10) * fade);
       ring_size = ring_size * 0xc;
       point_ptr = (undefined4 *)(*ribbon + ring_size);
       frame.point_x = *point_ptr;
@@ -79,10 +79,10 @@ void fx_ribbon_add_point(int *param_1,undefined4 *param_2,undefined4 *param_3,un
       frame.point_z = point_ptr[2];
       frame.uv_a_y = (float)width;
       frame.uv_a_x = (float)(width * (double)k_f_0_6);
-      *(float *)&param_3 = (float)(fade * (double)*(float *)&ribbon[8]);
-      particle_batch_add(ribbon[10],&frame.point_x,&param_2);
+      *(float *)&vel = (float)(fade * (double)*(float *)&ribbon[8]);
+      particle_batch_add(ribbon[10],&frame.point_x,&pos);
       particle_batch_set_uv_a(ribbon[10],&frame.uv_a_x);
-      particle_batch_set_size(ribbon[10],*(int *)&param_3);
+      particle_batch_set_size(ribbon[10],*(int *)&vel);
       age_index = age_index + 1;
       *(float *)(*ribbon + ring_size) = *(float *)(ring_size + ribbon[1]) + *(float *)(*ribbon + ring_size);
       tmp_f = (float *)(*ribbon + 4 + ring_size);

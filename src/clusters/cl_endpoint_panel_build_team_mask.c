@@ -7,25 +7,25 @@
 /* WARNING: Unknown calling convention */
 /* "mask 0x800000<<(n-1) and per slot team bits" */
 
-void endpoint_panel_build_team_mask_n(int in_eax)
+void endpoint_panel_build_team_mask_n(int panel)
 
 {
-  int iVar1;
-  byte bVar2;
-  int iVar3;
-  char cVar4;
+  int slot_count;
+  byte bit;
+  int i;
+  char shift;
   
-  iVar1 = *(int *)(in_eax + 0xc);
-  *(int *)(in_eax + 0x15c) = 0x800000 << ((char)iVar1 - 1U & 0x1f);
-  iVar3 = 0;
-  if (0 < iVar1) {
-    cVar4 = '\0';
+  slot_count = *(int *)(panel + 0xc);
+  *(int *)(panel + 0x15c) = 0x800000 << ((char)slot_count - 1U & 0x1f);
+  i = 0;
+  if (0 < slot_count) {
+    shift = '\0';
     do {
-      bVar2 = (char)g_player_slots[*(int *)(in_eax + iVar3 * 4)].team + cVar4;
-      cVar4 = cVar4 + '\x06';
-      iVar3 = iVar3 + 1;
-      *(uint *)(in_eax + 0x15c) = *(uint *)(in_eax + 0x15c) | 1 << (bVar2 & 0x1f);
-    } while (iVar3 < iVar1);
+      bit = (char)g_player_slots[*(int *)(panel + i * 4)].team + shift;
+      shift = shift + '\x06';
+      i = i + 1;
+      *(uint *)(panel + 0x15c) = *(uint *)(panel + 0x15c) | 1 << (bit & 0x1f);
+    } while (i < slot_count);
   }
   return;
 }

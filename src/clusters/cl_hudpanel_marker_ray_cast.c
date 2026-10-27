@@ -11,42 +11,44 @@
 /* "casts a ray from the marker and stores the hit point matrix (surface id check against 0xFEFEFF)"
     */
 
-undefined4 hudpanel_marker_ray_cast_n(undefined4 *in_eax, int in_edx, undefined4 in_ecx)
+/* (inferred names) ray = ray_start (start xyz, end xyz at +0xc) in world; frame.hit_* is the world_intersect_line hit record (normal first, then triangle index, mesh, fraction, world); the marker matrix
+   is built at the hit point lifted 0.05 along the normal and copied (16 floats) to out_matrix when it is not NULL. Returns 1 on a hit that is not the 0xfefeff surface. */
+undefined4 hudpanel_marker_ray_cast_n(undefined4 *out_matrix, int ray_start, undefined4 world)
 
 {
-  int iVar1;
-  undefined4 *puVar2;
+  int hit_or_count;
+  undefined4 *src_cursor;
   struct {
-    float local_8c;
-    float local_88;
-    float local_84;
-    float local_80;
-    float local_7c;
-    float local_78;
-    int local_74;
-    undefined1 local_70 [36];
-    int local_4c;
-    undefined4 local_48;
-    int local_44;
-    undefined4 local_40 [16];
+    float hit_pos_x;
+    float hit_pos_y;
+    float hit_pos_z;
+    float hit_normal_x;
+    float hit_normal_y;
+    float hit_normal_z;
+    int hit_tri_index;
+    undefined1 hit_unused [36];
+    int hit_mesh;
+    undefined4 hit_fraction;
+    int hit_world;
+    undefined4 out_matrix_buf [16];
   } frame;
   
-  iVar1 = world_intersect_line(in_ecx,in_edx,&frame.local_80);
-  if ((iVar1 != 0) &&
-     (*(int *)(*(int *)(*(int *)(frame.local_44 + 0x10) +
-                       ((uint)*(ushort *)(*(char **)(frame.local_4c + 4) + 6 + frame.local_74 * 8) +
-                       (uint)*(ushort *)(frame.local_4c + 0x80)) * 4) + 4) != -0xfefeff)) {
-    FUN_004c4720(&frame.local_8c,in_edx,in_edx + 0xc,frame.local_48);
-    frame.local_8c = frame.local_80 * k_f_0_05 + frame.local_8c;
-    frame.local_88 = frame.local_7c * k_f_0_05 + frame.local_88;
-    frame.local_84 = frame.local_78 * k_f_0_05 + frame.local_84;
-    FUN_004c51a0(frame.local_40,frame.local_70,&frame.local_8c);
-    if (in_eax != (undefined4 *)0x0) {
-      puVar2 = frame.local_40;
-      for (iVar1 = 0x10; iVar1 != 0; iVar1 = iVar1 + -1) {
-        *in_eax = *puVar2;
-        puVar2 = puVar2 + 1;
-        in_eax = in_eax + 1;
+  hit_or_count = world_intersect_line(world,ray_start,&frame.hit_normal_x);
+  if ((hit_or_count != 0) &&
+     (*(int *)(*(int *)(*(int *)(frame.hit_world + 0x10) +
+                       ((uint)*(ushort *)(*(char **)(frame.hit_mesh + 4) + 6 + frame.hit_tri_index * 8) +
+                       (uint)*(ushort *)(frame.hit_mesh + 0x80)) * 4) + 4) != -0xfefeff)) {
+    FUN_004c4720(&frame.hit_pos_x,ray_start,ray_start + 0xc,frame.hit_fraction);
+    frame.hit_pos_x = frame.hit_normal_x * k_f_0_05 + frame.hit_pos_x;
+    frame.hit_pos_y = frame.hit_normal_y * k_f_0_05 + frame.hit_pos_y;
+    frame.hit_pos_z = frame.hit_normal_z * k_f_0_05 + frame.hit_pos_z;
+    FUN_004c51a0(frame.out_matrix_buf,frame.hit_unused,&frame.hit_pos_x);
+    if (out_matrix != (undefined4 *)0x0) {
+      src_cursor = frame.out_matrix_buf;
+      for (hit_or_count = 0x10; hit_or_count != 0; hit_or_count = hit_or_count + -1) {
+        *out_matrix = *src_cursor;
+        src_cursor = src_cursor + 1;
+        out_matrix = out_matrix + 1;
       }
     }
     return 1;

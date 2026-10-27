@@ -53,77 +53,79 @@ static int rocket_fly_homing_r(int p0);
 extern void rocket_fly_homing(void);
 static int rocket_fly_straight_r(int p0);
 extern void rocket_fly_straight(void);
-void rocket_update_launcher_n(int in_eax)
+/* (inferred names) per frame update of one rocket launcher (launcher record, slot at +0xc, frame object at +0x20): follows the launcher frame, counts the slot timer down, and when it
+   expires shows the green world label 0x32b above the launching vehicle (or the fx object) once, then searches targets in a cone in front of the launcher. slot_byte_offset = slot * 0x2c into the rocket state table. */
+void rocket_update_launcher_n(int launcher)
 
 {
-  int iVar1;
-  RwMatrix *pRVar2;
-  int iVar3;
-  undefined4 uVar4;
+  int slot;
+  RwMatrix *launcher_ltm;
+  int owner_vehicle;
+  undefined4 effect_a_id;
   int fx_index;
-  int iVar5;
-  undefined *puVar6;
+  int slot_byte_offset;
+  undefined *target_filter;
   struct {
-    undefined1 local_48;
-    undefined1 local_47;
-    undefined1 local_46;
-    undefined1 local_45;
-    int local_44;
-    undefined1 local_40 [48];
-    undefined1 local_10 [16];
+    undefined1 label_r;
+    undefined1 label_g;
+    undefined1 label_b;
+    undefined1 label_a;
+    int fx_flag_or_matrix;
+    undefined1 vehicle_matrix [48];
+    undefined1 label_pos [16];
   } frame;
   
-  frame.local_44 = 0;
-  pRVar2 = RwFrameGetLTM(*(RwFrame **)(*(int *)(in_eax + 0x20) + 4));
-  iVar1 = *(int *)(in_eax + 0xc);
-  if (iVar1 == -1) {
+  frame.fx_flag_or_matrix = 0;
+  launcher_ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(launcher + 0x20) + 4));
+  slot = *(int *)(launcher + 0xc);
+  if (slot == -1) {
     return;
   }
-  iVar3 = weapon_effect_get_slot_value_b(iVar1);
-  iVar5 = iVar1 * 0x2c;
-  RwFrameTransform(*(RwFrame **)((&g_weapon_6a6008)[iVar1 * 0xb] + 4),
-                   *(RwMatrix **)((char *)&g_rocket_state + iVar5),rwCOMBINEREPLACE);
-  if (iVar3 == -1) {
-    fx_index = iVar1;
-    uVar4 = weapon_effect_get_slot_value_a(fx_index);
-    fx_index = fx_find_index_by_rwp_id(uVar4,fx_index);
+  owner_vehicle = weapon_effect_get_slot_value_b(slot);
+  slot_byte_offset = slot * 0x2c;
+  RwFrameTransform(*(RwFrame **)((&g_weapon_6a6008)[slot * 0xb] + 4),
+                   *(RwMatrix **)((char *)&g_rocket_state + slot_byte_offset),rwCOMBINEREPLACE);
+  if (owner_vehicle == -1) {
+    fx_index = slot;
+    effect_a_id = weapon_effect_get_slot_value_a(fx_index);
+    fx_index = fx_find_index_by_rwp_id(effect_a_id,fx_index);
     if (fx_index == -1) {
-      *(undefined4 *)((char *)&g_rocket_update_6a6004 + iVar5) = 0x3e99999a;
-      *(undefined4 *)((char *)&g_rocket_6a6000 + iVar5) = 0;
+      *(undefined4 *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) = 0x3e99999a;
+      *(undefined4 *)((char *)&g_rocket_6a6000 + slot_byte_offset) = 0;
       goto LAB_004616d1;
     }
-    frame.local_44 = 1;
+    frame.fx_flag_or_matrix = 1;
   }
-  *(float *)((char *)&g_rocket_update_6a6004 + iVar5) =
-       *(float *)((char *)&g_rocket_update_6a6004 + iVar5) - g_tick_seconds;
+  *(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) =
+       *(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) - g_tick_seconds;
 LAB_004616d1:
-  if (*(float *)((char *)&g_rocket_update_6a6004 + iVar5) < k_f_0 !=
-      (*(float *)((char *)&g_rocket_update_6a6004 + iVar5) == k_f_0)) {
-    frame.local_47 = 0xff;
-    frame.local_45 = 0xff;
-    frame.local_48 = 0;
-    frame.local_46 = 0;
-    if ((*(int *)((char *)&g_rocket_6a6000 + iVar5) == 0) && (0 < *(int *)((char *)&g_weapon_6a5ff8 + iVar5))) {
-      if (frame.local_44 == 1) {
-        fx_object_get_matrix_ptr(&frame.local_44,0);
-        hud_label_add_world_text(0x32b,frame.local_44 + 0x30,&frame.local_48,&frame.local_48,0x41c00000,0);
+  if (*(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) < k_f_0 !=
+      (*(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) == k_f_0)) {
+    frame.label_g = 0xff;
+    frame.label_a = 0xff;
+    frame.label_r = 0;
+    frame.label_b = 0;
+    if ((*(int *)((char *)&g_rocket_6a6000 + slot_byte_offset) == 0) && (0 < *(int *)((char *)&g_weapon_6a5ff8 + slot_byte_offset))) {
+      if (frame.fx_flag_or_matrix == 1) {
+        fx_object_get_matrix_ptr(&frame.fx_flag_or_matrix,0);
+        hud_label_add_world_text(0x32b,frame.fx_flag_or_matrix + 0x30,&frame.label_r,&frame.label_r,0x41c00000,0);
       }
       else {
-        vehicle_get_matrix_local(iVar3,frame.local_40);
-        hud_label_add_world_text(0x32b,frame.local_10,&frame.local_48,&frame.local_48,0x41c00000,0);
-        sfx_play_voice_at(0x2b,frame.local_10,iVar1);
+        vehicle_get_matrix_local(owner_vehicle,frame.vehicle_matrix);
+        hud_label_add_world_text(0x32b,frame.label_pos,&frame.label_r,&frame.label_r,0x41c00000,0);
+        sfx_play_voice_at(0x2b,frame.label_pos,slot);
       }
     }
-    *(undefined4 *)((char *)&g_rocket_6a6000 + iVar5) = 1;
-    *(undefined4 *)((char *)&g_rocket_update_6a6004 + iVar5) = 0;
+    *(undefined4 *)((char *)&g_rocket_6a6000 + slot_byte_offset) = 1;
+    *(undefined4 *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) = 0;
   }
-  if (*(int *)((char *)&g_rocket_6a6000 + iVar5) == 0) {
-    puVar6 = &g_rocket_update_60da40;
+  if (*(int *)((char *)&g_rocket_6a6000 + slot_byte_offset) == 0) {
+    target_filter = &g_rocket_update_60da40;
   }
   else {
-    puVar6 = &g_rocket_update_60da44;
+    target_filter = &g_rocket_update_60da44;
   }
-  weapon_find_targets_in_cone(iVar1,&pRVar2->pos,0x41000000,0x41f00000,puVar6);
+  weapon_find_targets_in_cone(slot,&launcher_ltm->pos,0x41000000,0x41f00000,target_filter);
   return;
 }
 

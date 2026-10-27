@@ -44,9 +44,9 @@ void race_phase_5_update_n(int in_eax)
   local_4 = 0.0;
   event_type = course_get_course_8c879c();
   if (((event_type != 0) && (event_type = ui_get_menu_69d2d0(), event_type == 0)) &&
-     ((event_type = get_event_type(), event_type == 0 ||
-      ((event_type = get_event_type(), event_type == 1 ||
-       (event_type = get_event_type(), event_type == 2)))))) {
+     ((event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_0 ||
+      ((event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_1 ||
+       (event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_2)))))) {
     race_finish();
   }
   g_phase_timer = g_phase_timer - in_eax;
@@ -86,16 +86,16 @@ void race_phase_5_update_n(int in_eax)
     } while (iVar3 < 200);
     g_phase_timer = 0;
     event_type = get_event_type();
-    if (((event_type == EVENT_TIME_TRIAL_0) || (event_type = get_event_type(), event_type == 1)) ||
-       (event_type = get_event_type(), event_type == 2)) {
+    if (((event_type == EVENT_TIME_TRIAL_0) || (event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_1)) ||
+       (event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_2)) {
       intro_banner_set_active(1);
       ghost_update();
     }
     race_set_phase(RACE_PHASE_RACING);
   }
   event_type = get_event_type();
-  if (((event_type != EVENT_TIME_TRIAL_0) && (event_type = get_event_type(), event_type != 1)) &&
-     (event_type = get_event_type(), event_type != 2)) {
+  if (((event_type != EVENT_TIME_TRIAL_0) && (event_type = get_event_type(), event_type != EVENT_TIME_TRIAL_1)) &&
+     (event_type = get_event_type(), event_type != EVENT_TIME_TRIAL_2)) {
     return;
   }
   time_trial_record_step(0,0);

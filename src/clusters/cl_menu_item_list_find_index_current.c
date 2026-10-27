@@ -8,30 +8,30 @@
 /* WARNING: Unknown calling convention */
 /* "index of the id in EBX in the item list of the current menu" */
 
-int menu_item_list_find_index_current_n(int in_ebx, int in_edi)
+int menu_item_list_find_index_current_n(int item_id, int occurrence)
 
 {
-  int *piVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
+  int *list;
+  int entry;
+  int pos;
+  int match_count;
   
-  piVar1 = (int *)g_menu_records[g_menu_current].item_list;
-  iVar2 = *piVar1;
-  iVar4 = 0;
-  iVar3 = 0;
+  list = (int *)g_menu_records[g_menu_current].item_list;
+  entry = *list;
+  match_count = 0;
+  pos = 0;
   do {
-    if (iVar2 == -0xf90000) {
+    if (entry == -0xf90000) {
       return -1;
     }
-    if (iVar2 == in_ebx) {
-      if (in_edi == iVar4) {
-        return piVar1[iVar3 + 1];
+    if (entry == item_id) {
+      if (occurrence == match_count) {
+        return list[pos + 1];
       }
-      iVar4 = iVar4 + 1;
+      match_count = match_count + 1;
     }
-    iVar2 = piVar1[iVar3 + 1];
-    iVar3 = iVar3 + 1;
+    entry = list[pos + 1];
+    pos = pos + 1;
   } while( true );
 }
 

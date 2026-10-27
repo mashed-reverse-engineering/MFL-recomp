@@ -223,7 +223,7 @@ extern void fx_explosion_systems_init(void);
 
 /* fx_explosion_spawn */
 
-/* "spawns an explosion in system param_1 slot param_2 (4 sub puffs)" */
+/* "spawns an explosion in system unused_1 slot unused_2 (4 sub puffs)" */
 
 extern void fx_explosion_spawn(int param_1,int param_2,char *param_3,char *param_4);
 

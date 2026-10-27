@@ -10,41 +10,41 @@
 /*008b06e0*/ extern struct Car player_car[16];
 /* car_set_physics_matrix */
 
-/* "copies the matrix into the physics body and translates by the field_0x138 offset" */
+/* "copies the body_matrix into the physics body and translates by the field_0x138 offset" */
 
 void __cdecl
 car_set_physics_matrix
-          (int param_1,RwMatrix *matrix_2,char *param_3,char *param_4,char *param_5,
-          char *param_6,char *param_7,char *param_8,char *param_9,
-          char *param_10,char *param_11,char *param_12,char *param_13,
-          char *param_14,char *param_15,char *param_16,char *param_17)
+          (int car_index,RwMatrix *src_matrix,char *unused_3,char *unused_4,char *unused_5,
+          char *unused_6,char *unused_7,char *unused_8,char *unused_9,
+          char *unused_10,char *unused_11,char *unused_12,char *unused_13,
+          char *unused_14,char *unused_15,char *unused_16,char *unused_17)
 
 {
-  RwMatrix *matrix;
-  char *iVar1;
-  int iVar2;
-  RwMatrix *pRVar3;
-  RwMatrix *pRVar4;
-  RwV3d local_c;
+  RwMatrix *body_matrix;
+  char *owner;
+  int words_left;
+  RwMatrix *src_cursor;
+  RwMatrix *dst_cursor;
+  RwV3d body_offset;
   
-  if (((&g_rw_6fd498)[param_1] != 0) && (iVar1 = rwp_owner_object_get((&g_rw_6fd498)[param_1]), iVar1 != 0))
+  if (((&g_rw_6fd498)[car_index] != 0) && (owner = rwp_owner_object_get((&g_rw_6fd498)[car_index]), owner != 0))
   {
-    matrix = *(RwMatrix **)(*(char **)(iVar1 + 0x10) + 8);
-    pRVar3 = matrix_2;
-    pRVar4 = matrix;
-    for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
-      (pRVar4->right).x = (pRVar3->right).x;
-      pRVar3 = (RwMatrix *)&(pRVar3->right).y;
-      pRVar4 = (RwMatrix *)&(pRVar4->right).y;
+    body_matrix = *(RwMatrix **)(*(char **)(owner + 0x10) + 8);
+    src_cursor = src_matrix;
+    dst_cursor = body_matrix;
+    for (words_left = 0x10; words_left != 0; words_left = words_left + -1) {
+      (dst_cursor->right).x = (src_cursor->right).x;
+      src_cursor = (RwMatrix *)&(src_cursor->right).y;
+      dst_cursor = (RwMatrix *)&(dst_cursor->right).y;
     }
-    local_c.x = player_car[param_1].rwp_body_offset[0] * k_f_n1;
-    local_c.y = player_car[param_1].rwp_body_offset[1] * k_f_n1;
-    local_c.z = player_car[param_1].rwp_body_offset[2] * k_f_n1;
-    RwV3dTransformVectors(&local_c,&local_c,1,matrix_2);
-    RwMatrixTranslate(matrix,&local_c,rwCOMBINEPRECONCAT);
-    RwFrameUpdateObjects(*(RwFrame **)((&g_rw_6fd498)[param_1] + 4));
-    FUN_0056e5b0(iVar1,0);
-    rwp_world_set_bit_5c(*(undefined4 *)(iVar1 + 0x24),iVar1,1);
+    body_offset.x = player_car[car_index].rwp_body_offset[0] * k_f_n1;
+    body_offset.y = player_car[car_index].rwp_body_offset[1] * k_f_n1;
+    body_offset.z = player_car[car_index].rwp_body_offset[2] * k_f_n1;
+    RwV3dTransformVectors(&body_offset,&body_offset,1,src_matrix);
+    RwMatrixTranslate(body_matrix,&body_offset,rwCOMBINEPRECONCAT);
+    RwFrameUpdateObjects(*(RwFrame **)((&g_rw_6fd498)[car_index] + 4));
+    FUN_0056e5b0(owner,0);
+    rwp_world_set_bit_5c(*(undefined4 *)(owner + 0x24),owner,1);
   }
   return;
 }

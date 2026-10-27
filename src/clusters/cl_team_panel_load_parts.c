@@ -10,36 +10,36 @@
 /* WARNING: Unknown calling convention */
 /* "loads the 0x32 grey colour parts into the team panel" */
 
-void team_panel_load_parts_n(int in_eax, int in_ebx)
+void team_panel_load_parts_n(int clump, int panel)
 
 {
-  undefined4 uVar1;
-  int iVar2;
-  int iVar3;
+  undefined4 atomic;
+  int part_slot;
+  int i;
   struct {
-    undefined1 local_78;
-    undefined1 local_77;
-    undefined1 local_76;
-    undefined1 local_75;
-    undefined4 local_74 [29];
+    undefined1 grey_r;
+    undefined1 grey_g;
+    undefined1 grey_b;
+    undefined1 grey_a;
+    undefined4 atomics [29];
   } frame;
   
-  frame.local_78 = 0x32;
-  frame.local_77 = 0x32;
-  frame.local_76 = 0x32;
-  frame.local_75 = 0xff;
-  clump_get_atomics(in_eax,frame.local_74);
-  *(int *)(in_ebx + 0x15c) = in_eax;
-  *(undefined4 *)(in_ebx + 0x160) = *(undefined4 *)(in_eax + 4);
-  mem_zero(in_ebx + 0xb0,0xa0);
-  iVar3 = 0;
+  frame.grey_r = 0x32;
+  frame.grey_g = 0x32;
+  frame.grey_b = 0x32;
+  frame.grey_a = 0xff;
+  clump_get_atomics(clump,frame.atomics);
+  *(int *)(panel + 0x15c) = clump;
+  *(undefined4 *)(panel + 0x160) = *(undefined4 *)(clump + 4);
+  mem_zero(panel + 0xb0,0xa0);
+  i = 0;
   do {
-    uVar1 = frame.local_74[iVar3];
-    iVar2 = FUN_004c52b0(uVar1,0,0);
-    iVar3 = iVar3 + 1;
-    *(undefined4 *)(in_ebx + 0xb0 + iVar2 * 4) = uVar1;
-  } while (iVar3 < 0x1d);
-  FUN_004c5380(*(undefined4 *)(in_ebx + 0xb8),&frame.local_78);
+    atomic = frame.atomics[i];
+    part_slot = FUN_004c52b0(atomic,0,0);
+    i = i + 1;
+    *(undefined4 *)(panel + 0xb0 + part_slot * 4) = atomic;
+  } while (i < 0x1d);
+  FUN_004c5380(*(undefined4 *)(panel + 0xb8),&frame.grey_r);
   return;
 }
 

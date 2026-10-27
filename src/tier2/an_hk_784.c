@@ -38,30 +38,30 @@ undefined4 rwp_world_create(undefined4 parent)
   uint word_index;
   undefined4 *slot_ptr;
   struct {
-    undefined4 local_9c;
-    undefined4 local_98;
-    undefined4 local_94;
-    undefined4 local_90;
-    undefined4 local_8c;
-    undefined4 local_88;
-    undefined4 local_84;
-    undefined4 local_80;
-    undefined1 local_7c [124];
+    undefined4 bounds_max_x;
+    undefined4 bounds_max_y;
+    undefined4 bounds_max_z;
+    undefined4 bounds_max_w;
+    undefined4 bounds_min_x;
+    undefined4 bounds_min_y;
+    undefined4 bounds_min_z;
+    undefined4 bounds_min_w;
+    undefined1 world_buf [124];
   } frame;
 
   /* bounds box: two vectors in frame, +1000 corner then -1000 corner, w = 0 (inferred) */
-  frame.local_90 = 0;
-  frame.local_80 = 0;
-  frame.local_9c = FLOAT_1000_BITS;
-  frame.local_98 = FLOAT_1000_BITS;
-  frame.local_94 = FLOAT_1000_BITS;
-  frame.local_8c = FLOAT_NEG_1000_BITS;
-  frame.local_88 = FLOAT_NEG_1000_BITS;
-  frame.local_84 = FLOAT_NEG_1000_BITS;
-  FUN_00573f70(frame.local_7c);
-  FUN_0058cb40(frame.local_7c,WORLD_MAX_OBJECTS,WORLD_MAX_CONTACTS);
-  FUN_00573fd0(frame.local_7c,0x20);
-  rwp_handle = FUN_0056e250(frame.local_7c,parent,&frame.local_9c);
+  frame.bounds_max_w = 0;
+  frame.bounds_min_w = 0;
+  frame.bounds_max_x = FLOAT_1000_BITS;
+  frame.bounds_max_y = FLOAT_1000_BITS;
+  frame.bounds_max_z = FLOAT_1000_BITS;
+  frame.bounds_min_x = FLOAT_NEG_1000_BITS;
+  frame.bounds_min_y = FLOAT_NEG_1000_BITS;
+  frame.bounds_min_z = FLOAT_NEG_1000_BITS;
+  FUN_00573f70(frame.world_buf);
+  FUN_0058cb40(frame.world_buf,WORLD_MAX_OBJECTS,WORLD_MAX_CONTACTS);
+  FUN_00573fd0(frame.world_buf,0x20);
+  rwp_handle = FUN_0056e250(frame.world_buf,parent,&frame.bounds_max_x);
   g_rwp_world_88a840 = FUN_00573f10(10,10);
   /* collision bits: set bit (n+1)*k for k = 1..8, plus bit 7n+1, where n = world +WORLD_DIM_OFFSET
      (inferred). Each bit lives in the 32-bit word at WORLD_BITS_OFFSET + (bit >> 5) * 4. */

@@ -14,7 +14,7 @@ extern double sin(double);
  * The jitter offset is sin(cone_angle_deg) (inferred); the direction is normalised and the speed is speed
  * times a 0.95..1.05 random factor. fx_ptr_a, fx_ptr_b and fx_scale are passed through to fx_spawn_burst (inferred).
  * Returns nothing.
- * (was: "spawns n burst particles with random directions around a cone of angle param_5") */
+ * (was: "spawns n burst particles with random directions around a cone of angle unused_5") */
 
 void fx_spawn_burst_spread(char *spawn_pos,int burst_count,float speed,float *cone_axis,float cone_angle_deg,
                undefined4 *fx_ptr_a,undefined4 *fx_ptr_b,float fx_scale)

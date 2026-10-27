@@ -11,53 +11,53 @@ typedef int (__fastcall *ThisMethod2)(int *self, int unused_edx, int a, int b);
 
 static int FUN_004b2520_r(void * p0, int p1, int p2, int * p3, int p4);
 extern void FUN_004b2520(void);
-int FUN_004ade80_n(int *in_ecx, int param_1, int param_2)
+int FUN_004ade80_n(int *self, int arg_a, int arg_b)
 
 {
   LPCRITICAL_SECTION lpCriticalSection;
-  int uVar1;
-  int iVar2;
-  int *piVar3;
+  int call_result;
+  int handle;
+  int *sibling;
   void *obj_mem;
   int status;
   
-  lpCriticalSection = (LPCRITICAL_SECTION)(in_ecx + 0x31);
+  lpCriticalSection = (LPCRITICAL_SECTION)(self + 0x31);
   EnterCriticalSection(lpCriticalSection);
-  iVar2 = in_ecx[0x14];
-  if (iVar2 == 0) {
+  handle = self[0x14];
+  if (handle == 0) {
     status = 0;
     obj_mem = operator_new(0x50);
     if (obj_mem == (void *)0x0) {
-      iVar2 = 0;
+      handle = 0;
     }
     else {
-      piVar3 = (int *)(*(ThisMethod1 *)(*in_ecx + 0x1c))(in_ecx,0,0);
-      if (piVar3 == (int *)0x0) {
-        iVar2 = 0;
+      sibling = (int *)(*(ThisMethod1 *)(*self + 0x1c))(self,0,0);
+      if (sibling == (int *)0x0) {
+        handle = 0;
       }
       else {
-        iVar2 = (int)piVar3 + 0xc;
+        handle = (int)sibling + 0xc;
       }
-      iVar2 = FUN_004b2520_r(obj_mem,0,in_ecx[1],&status,iVar2);
+      handle = FUN_004b2520_r(obj_mem,0,self[1],&status,handle);
     }
-    in_ecx[0x14] = iVar2;
-    if (iVar2 == 0) {
+    self[0x14] = handle;
+    if (handle == 0) {
       LeaveCriticalSection(lpCriticalSection);
       return 0x8007000e;
     }
     if (status < 0) {
-      (*(ThisMethod1 *)(*(int *)(iVar2 + 8) + 0xc))((int *)(iVar2 + 8),0,1);
-      in_ecx[0x14] = 0;
+      (*(ThisMethod1 *)(*(int *)(handle + 8) + 0xc))((int *)(handle + 8),0,1);
+      self[0x14] = 0;
       LeaveCriticalSection(lpCriticalSection);
       return 0x80004002;
     }
-    uVar1 = (*(ThisMethod2 *)(*in_ecx + 0x24))(in_ecx,0,param_1,param_2);
+    call_result = (*(ThisMethod2 *)(*self + 0x24))(self,0,arg_a,arg_b);
   }
   else {
-    uVar1 = (*(ComMethod3 *)(*(int *)(iVar2 + 8)))((int *)(iVar2 + 8),param_1,param_2);
+    call_result = (*(ComMethod3 *)(*(int *)(handle + 8)))((int *)(handle + 8),arg_a,arg_b);
   }
   LeaveCriticalSection(lpCriticalSection);
-  return uVar1;
+  return call_result;
 }
 
 /* FUN_004b2520_r: C -> original FUN_004b2520 (registers ecx,s0,s1,s2,s3) */

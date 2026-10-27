@@ -4,7 +4,7 @@
 
 /* "(a, out, t): out = a + (aux camera position - a) * t" */
 
-void point_lerp_to_aux_camera(float *param_1,float *param_2,float param_3)
+void point_lerp_to_aux_camera(float *from,float *out,float t)
 
 {
   float dx;
@@ -12,20 +12,20 @@ void point_lerp_to_aux_camera(float *param_1,float *param_2,float param_3)
   double dz;
   volatile float py;      /* volatile: forces the float store of the product (x87 rounding) */
   volatile float pz;
-  float *pfVar7;
+  float *cam_pos;
   char *aux_position;
 
-  pfVar7 = (float *)aux_camera_get_position(0);
-  dx = *pfVar7 - *param_1;
+  cam_pos = (float *)aux_camera_get_position(0);
+  dx = *cam_pos - *from;
   aux_position = aux_camera_get_position(0);
-  dy = *(float *)(aux_position + 4) - param_1[1];
+  dy = *(float *)(aux_position + 4) - from[1];
   aux_position = aux_camera_get_position(0);
   /* x87 rounding as in the original: dx, dy and the y / z products are stored as float, dz and the x product stay unrounded */
-  dz = (double)*(float *)(aux_position + 8) - (double)param_1[2];
-  py = dy * param_3;
-  pz = (float)(dz * param_3);
-  *param_2 = dx * param_3 + *param_1;
-  param_2[1] = py + param_1[1];
-  param_2[2] = pz + param_1[2];
+  dz = (double)*(float *)(aux_position + 8) - (double)from[2];
+  py = dy * t;
+  pz = (float)(dz * t);
+  *out = dx * t + *from;
+  out[1] = py + from[1];
+  out[2] = pz + from[2];
   return;
 }

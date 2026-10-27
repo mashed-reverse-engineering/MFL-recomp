@@ -3,7 +3,7 @@
 /*00659b08*/ extern undefined4 g_stopclock_659b08;
 static int stopclock_render_parts_by_team_r(int * reg_esi, int param_2);
 extern void stopclock_render_parts_by_team(void);
-__declspec(naked) int stopclock_render_parts_by_team_r(int * reg_esi, int param_2)
+__declspec(naked) int stopclock_render_parts_by_team_r(int * reg_esi, int unused_2)
 {
     __asm {
         push esi

@@ -5,40 +5,41 @@
 /* "(box min/max, point): per axis distance to the nearer side, vec3_multiply_components squares,
    returns the max" */
 
+/* (inferred) box = {min xyz, max xyz}; min_d* / max_d* are the per axis (squared) distances to the min / max side */
 double __cdecl
 aabb_max_axis_distance_to_point
-          (float *param_1,float *param_2,char *param_3,char *param_4,char *param_5,
-          char *param_6,char *param_7,char *param_8,char *param_9,
-          char *param_10,char *param_11,char *param_12)
+          (float *box,float *point,char *unused_3,char *unused_4,char *unused_5,
+          char *unused_6,char *unused_7,char *unused_8,char *unused_9,
+          char *unused_10,char *unused_11,char *unused_12)
 
 {
   struct {
-    float local_18;
-    float local_14;
-    float local_10;
-    float local_c;
-    float local_8;
-    float local_4;
+    float min_dx;
+    float min_dy;
+    float min_dz;
+    float max_dx;
+    float max_dy;
+    float max_dz;
   } frame;
   
-  frame.local_18 = *param_2 - *param_1;
-  frame.local_14 = param_2[1] - param_1[1];
-  frame.local_10 = param_2[2] - param_1[2];
-  frame.local_c = *param_2 - param_1[3];
-  frame.local_8 = param_2[1] - param_1[4];
-  frame.local_4 = param_2[2] - param_1[5];
-  vec3_multiply_components(&frame.local_18,&frame.local_18,&frame.local_18);
-  vec3_multiply_components(&frame.local_c,&frame.local_c,&frame.local_c);
-  if (frame.local_18 < frame.local_c) {
-    frame.local_18 = frame.local_c;
+  frame.min_dx = *point - *box;
+  frame.min_dy = point[1] - box[1];
+  frame.min_dz = point[2] - box[2];
+  frame.max_dx = *point - box[3];
+  frame.max_dy = point[1] - box[4];
+  frame.max_dz = point[2] - box[5];
+  vec3_multiply_components(&frame.min_dx,&frame.min_dx,&frame.min_dx);
+  vec3_multiply_components(&frame.max_dx,&frame.max_dx,&frame.max_dx);
+  if (frame.min_dx < frame.max_dx) {
+    frame.min_dx = frame.max_dx;
   }
-  if (frame.local_14 < frame.local_8) {
-    frame.local_14 = frame.local_8;
+  if (frame.min_dy < frame.max_dy) {
+    frame.min_dy = frame.max_dy;
   }
-  if (frame.local_10 < frame.local_4) {
-    frame.local_10 = frame.local_4;
+  if (frame.min_dz < frame.max_dz) {
+    frame.min_dz = frame.max_dz;
   }
-  return (double)frame.local_10 + (double)frame.local_14 + (double)frame.local_18;
+  return (double)frame.min_dz + (double)frame.min_dy + (double)frame.min_dx;
 }
 
 

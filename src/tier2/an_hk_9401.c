@@ -12,38 +12,38 @@ extern double fabs(double);
 
 /* "on |value|>0.5 spawns a burst at the object position and offsets by the car's matrix" */
 
-void course_highway_hit_spawn_fx(char *param_1)
+void course_highway_hit_spawn_fx(char *obj)
 
 {
-  double fVar1;
+  double rand_x;
   struct {
-    char *local_1c;
-    float local_18;
-    float local_14;
-    float local_10;
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    char *car_matrix;
+    float impulse_x;
+    float impulse_y;
+    float impulse_z;
+    undefined4 burst_x;
+    undefined4 burst_y;
+    undefined4 burst_z;
   } frame;
   
-  frame.local_1c = 0;
-  frame.local_c = 0;
-  frame.local_8 = 0;
-  frame.local_4 = 0;
-  frame.local_18 = 0.0;
-  frame.local_14 = 0.0;
-  frame.local_10 = 0.0;
-  FUN_004c4620(&frame.local_c,param_1,*(undefined4 *)(param_1 + 0x44));
-  if (k_f_0_5 < fabs(*(float *)(param_1 + 0x38))) {
-    fx_spawn_burst_default_scale(&frame.local_c,10,0,0,0,0x40000000);
-    car_current_matrix(&frame.local_1c,*(undefined4 *)(param_1 + 0x3c));
-    frame.local_18 = *(float *)(frame.local_1c + 0x20) * k_f_300;
-    frame.local_14 = *(float *)(frame.local_1c + 0x24) * k_f_300;
-    frame.local_10 = *(float *)(frame.local_1c + 0x28) * k_f_300;
-    fVar1 = (double)rp_random_float_range(0xc2480000,0x42480000);
-    frame.local_18 = (float)fVar1;
-    car_enter_rwp_mode(*(undefined4 *)(param_1 + 0x3c));
-    car_apply_rwp_impulse(*(undefined4 *)(param_1 + 0x3c),&frame.local_18,&frame.local_c);
+  frame.car_matrix = 0;
+  frame.burst_x = 0;
+  frame.burst_y = 0;
+  frame.burst_z = 0;
+  frame.impulse_x = 0.0;
+  frame.impulse_y = 0.0;
+  frame.impulse_z = 0.0;
+  FUN_004c4620(&frame.burst_x,obj,*(undefined4 *)(obj + 0x44));
+  if (k_f_0_5 < fabs(*(float *)(obj + 0x38))) {
+    fx_spawn_burst_default_scale(&frame.burst_x,10,0,0,0,0x40000000);
+    car_current_matrix(&frame.car_matrix,*(undefined4 *)(obj + 0x3c));
+    frame.impulse_x = *(float *)(frame.car_matrix + 0x20) * k_f_300;
+    frame.impulse_y = *(float *)(frame.car_matrix + 0x24) * k_f_300;
+    frame.impulse_z = *(float *)(frame.car_matrix + 0x28) * k_f_300;
+    rand_x = (double)rp_random_float_range(0xc2480000,0x42480000);
+    frame.impulse_x = (float)rand_x;
+    car_enter_rwp_mode(*(undefined4 *)(obj + 0x3c));
+    car_apply_rwp_impulse(*(undefined4 *)(obj + 0x3c),&frame.impulse_x,&frame.burst_x);
   }
   return;
 }

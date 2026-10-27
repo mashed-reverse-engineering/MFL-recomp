@@ -12,38 +12,38 @@
 /* WARNING: Unknown calling convention */
 /* "per slot distance to the local vehicle matrix *0.1 clamped to [0,0.5]" */
 
-void time_trial_panel_step_part_b_n(int in_edi)
+void time_trial_panel_step_part_b_n(int slots)
 
 {
-  int iVar1;
-  int iVar2;
-  RwReal RVar3;
+  int slot_ptr;
+  int slot_index;
+  RwReal dist;
   struct {
-    float local_50;
-    RwV3d local_4c;
-    float local_40[16];  /* 4x4 matrix, position at [12..14] */
+    float value;
+    RwV3d delta;
+    float local_matrix[16];  /* 4x4 matrix, position at [12..14] */
   } frame;
   
-  vehicle_get_matrix_local(0,frame.local_40);
-  iVar2 = 0;
+  vehicle_get_matrix_local(0,frame.local_matrix);
+  slot_index = 0;
   do {
-    iVar1 = *(int *)(in_edi + iVar2 * 4);
-    frame.local_4c.x = frame.local_40[12] - *(float *)(iVar1 + 0x30);
-    frame.local_4c.y = frame.local_40[13] - *(float *)(iVar1 + 0x34);
-    frame.local_4c.z = frame.local_40[14] - *(float *)(iVar1 + 0x38);
-    RVar3 = RwV3dLength(&frame.local_4c);
-    frame.local_50 = RVar3 * k_f_0_1;
-    if (k_f_0_5 > frame.local_50) {
-      if (frame.local_50 < k_f_0) {
-        frame.local_50 = 0.0;
+    slot_ptr = *(int *)(slots + slot_index * 4);
+    frame.delta.x = frame.local_matrix[12] - *(float *)(slot_ptr + 0x30);
+    frame.delta.y = frame.local_matrix[13] - *(float *)(slot_ptr + 0x34);
+    frame.delta.z = frame.local_matrix[14] - *(float *)(slot_ptr + 0x38);
+    dist = RwV3dLength(&frame.delta);
+    frame.value = dist * k_f_0_1;
+    if (k_f_0_5 > frame.value) {
+      if (frame.value < k_f_0) {
+        frame.value = 0.0;
       }
     }
     else {
-      frame.local_50 = 0.5;
+      frame.value = 0.5;
     }
-    btb_panel_slot_set_value(iVar2,*(int *)&frame.local_50);
-    iVar2 = iVar2 + 1;
-  } while (iVar2 < 2);
+    btb_panel_slot_set_value(slot_index,*(int *)&frame.value);
+    slot_index = slot_index + 1;
+  } while (slot_index < 2);
   return;
 }
 

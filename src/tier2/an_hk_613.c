@@ -18,7 +18,7 @@ extern char g_crown_64d950[];
 #define HUD_ENTRY_DWORDS (5)
 #define HUD_ENTRY_THRESHOLD_IDX (4)
 
-__declspec(naked) int hud_message_slide_r(int entry, int param_2)
+__declspec(naked) int hud_message_slide_r(int entry, int unused_2)
 {
     __asm {
         push dword ptr [esp + 8]

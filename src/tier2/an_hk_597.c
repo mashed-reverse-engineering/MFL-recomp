@@ -57,13 +57,13 @@ undefined4 car_world_collision_query(int car_index,int collision_ctx)
   undefined4 contact_result;
   float *wheel_pos;
   struct {
-    RwV3d local_28;
-    RwReal local_1c;
-    RwReal local_18;
-    RwReal local_14;
-    float local_10;
+    RwV3d origin;
+    RwReal sphere_x;
+    RwReal sphere_y;
+    RwReal sphere_z;
+    float sphere_radius;
     undefined1 pad_c[8];
-    undefined4 local_4;
+    undefined4 intersect_type;
   } query;
 
   /* reset the three global counters/flags used by the collision callback */
@@ -71,9 +71,9 @@ undefined4 car_world_collision_query(int car_index,int collision_ctx)
   g_car_8bd724 = 0;
   g_car_8bd728 = 0;
   prev_matrix =(RwMatrix *)(player_car[car_index].matrices + player_car[car_index].matrix_previous * RW_MATRIX_FLOATS);
-  query.local_28.x = 0.0;
-  query.local_28.y = 0.0;
-  query.local_28.z = 0.0;
+  query.origin.x = 0.0;
+  query.origin.y = 0.0;
+  query.origin.z = 0.0;
   g_car_world_8bd72c = 0;
   /* for each of the 4 wheels: store (pos_x * k, 0, pos_z * k) as a triple in g_car_8b06a4
      (k = k_f_0_2778, ~1/3.6 (inferred)),
@@ -92,21 +92,21 @@ undefined4 car_world_collision_query(int car_index,int collision_ctx)
     wheel_pos = wheel_pos + WHEEL_STRIDE_FLOATS;
   } while ((LONG_PTR)next_anchor < ((LONG_PTR)&g_car_world_8b06d4));
   /* car origin -> g_car_8bd740; the 4 wheel anchors -> g_car_8bd760 */
-  RwV3dTransformPoints((RwV3d *)&g_car_8bd740,&query.local_28,1,prev_matrix);
+  RwV3dTransformPoints((RwV3d *)&g_car_8bd740,&query.origin,1,prev_matrix);
   RwV3dTransformPoints((RwV3d *)&g_car_8bd760,(RwV3d *)&g_car_8b06a0,4,prev_matrix);
   /* &player_car[car_index].up (sizeof(struct Car) = 0xd04) */
   triangle_normal_r(&g_car_8bd760,&g_car_8bd778,&g_car_8bd784,car_index * 0xd04 + 0x8b10a8);
-  query.local_4 = 3;
+  query.intersect_type = 3;
   /* bounding sphere: centre = car position in world, radius = bounds_radius */
-  query.local_1c = (prev_matrix->pos).x;
-  query.local_18 = (prev_matrix->pos).y;
-  query.local_10 = player_car[car_index].bounds_radius;
-  query.local_14 = (prev_matrix->pos).z;
+  query.sphere_x = (prev_matrix->pos).x;
+  query.sphere_y = (prev_matrix->pos).y;
+  query.sphere_radius = player_car[car_index].bounds_radius;
+  query.sphere_z = (prev_matrix->pos).z;
   g_collision_triangle_count = 0;
   /* collect every track triangle the sphere touches, then resolve the contacts for this car */
   g_car_8bd794 = collision_ctx;
   RpCollisionWorldForAllIntersections
-            (*(undefined4 *)(collision_ctx + 8),&query.local_1c,&LAB_00477170,&g_collision_triangles);
+            (*(undefined4 *)(collision_ctx + 8),&query.sphere_x,&LAB_00477170,&g_collision_triangles);
   contact_result = car_resolve_triangle_contacts(player_car + car_index,&g_collision_triangles);
   rwp_car_apply_forces(car_index,8);
   return contact_result;

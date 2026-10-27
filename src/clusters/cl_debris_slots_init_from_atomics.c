@@ -13,47 +13,47 @@
 /* WARNING: Unknown calling convention */
 /* "assigns atomics to debris slots by their id range 0x50..0x59 / 0x5a..0x63" */
 
-void debris_slots_init_from_atomics_n(undefined4 in_eax, int in_ebx, undefined4 in_ecx, int param_4)
+void debris_slots_init_from_atomics_n(undefined4 mode, int debris_set, undefined4 owner, int atomics)
 
 {
   RpAtomic *atomic;
-  int iVar1;
-  int iVar2;
-  int local_8;
+  int atomic_id;
+  int slot;
+  int i;
   
-  *(undefined4 *)(in_ebx + 0xf8) = in_eax;
-  *(undefined4 *)(in_ebx + 0xfc) = in_ecx;
-  local_8 = 0;
+  *(undefined4 *)(debris_set + 0xf8) = mode;
+  *(undefined4 *)(debris_set + 0xfc) = owner;
+  i = 0;
   do {
-    atomic = *(RpAtomic **)(param_4 + local_8 * 4);
-    iVar2 = 0;
+    atomic = *(RpAtomic **)(atomics + i * 4);
+    slot = 0;
     if (atomic != (RpAtomic *)0x0) {
-      iVar1 = FUN_004c52b0(atomic,0,0);
-      if ((((iVar1 < 0x50) || (0x59 < iVar1)) || (*(int *)(in_ebx + 0xf8) == 0)) &&
-         (((iVar1 < 0x5a || (99 < iVar1)) || (*(int *)(in_ebx + 0xf8) == 1)))) {
-        if (*(int *)(in_ebx + 0xf8) == 0) {
-          iVar2 = iVar1 + -0x50;
+      atomic_id = FUN_004c52b0(atomic,0,0);
+      if ((((atomic_id < 0x50) || (0x59 < atomic_id)) || (*(int *)(debris_set + 0xf8) == 0)) &&
+         (((atomic_id < 0x5a || (99 < atomic_id)) || (*(int *)(debris_set + 0xf8) == 1)))) {
+        if (*(int *)(debris_set + 0xf8) == 0) {
+          slot = atomic_id + -0x50;
         }
-        else if (*(int *)(in_ebx + 0xf8) == 1) {
-          iVar2 = iVar1 + -0x5a;
+        else if (*(int *)(debris_set + 0xf8) == 1) {
+          slot = atomic_id + -0x5a;
         }
-        iVar2 = in_ebx + iVar2 * 0x18;
-        *(RpAtomic **)(iVar2 + 0xc) = atomic;
+        slot = debris_set + slot * 0x18;
+        *(RpAtomic **)(slot + 0xc) = atomic;
         RwFrameRemoveChild(RpAtomic_object_object_parent(atomic));
         if ((RpAtomic_interpolator_flags(atomic) & 2) != 0) {
           _rpAtomicResyncInterpolatedSphere(atomic);
         }
-        iVar1 = debris_body_configure
+        atomic_id = debris_body_configure
                           (atomic,(RpAtomic_boundingSphere(atomic)).radius * k_f_0_5,0.1f,1.0f,0)
         ;
-        *(int *)(*(int *)(iVar1 + 0x10) + 8) = (int)RpAtomic_object_object_parent(atomic) + 0x10;
-        FUN_0056e5b0(iVar1,0);
-        *(int *)(iVar2 + 0x10) = iVar1;
+        *(int *)(*(int *)(atomic_id + 0x10) + 8) = (int)RpAtomic_object_object_parent(atomic) + 0x10;
+        FUN_0056e5b0(atomic_id,0);
+        *(int *)(slot + 0x10) = atomic_id;
         debris_model_get_first_clump(atomic);
       }
     }
-    local_8 = local_8 + 1;
-  } while (local_8 < 0x14);
+    i = i + 1;
+  } while (i < 0x14);
   return;
 }
 

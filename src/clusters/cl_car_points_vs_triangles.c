@@ -34,10 +34,10 @@ void car_points_vs_triangles(int *car,int triangles)
 
 {
   float cos_in;
-  undefined4 uVar2;
+  undefined4 now_ticks;
   float *tri_cur;
   int race_phase;
-  int iVar4;
+  int next_index;
   float *tri_next;
   RwV3d *contact;
   RwReal spin_len;
@@ -149,12 +149,12 @@ void car_points_vs_triangles(int *car,int triangles)
                   frame.speed = frame.speed * cos_in;
                   if (*(unsigned int *)&frame.tri[0xb] == 0xff010101u) {
                     if ((((car[0x27c] == 0) &&
-                         (race_phase = race_get_phase(), uVar2 = g_last_frame_ticks,
+                         (race_phase = race_get_phase(), now_ticks = g_last_frame_ticks,
                          tri_next = frame.tri, race_phase != 1)) &&
                         ((race_phase != 2 && ((race_phase != 3 && (race_phase != 4)))))) &&
                        (race_phase != 5)) {
                       (&g_event_log_type)[g_event_log_head] = 6;
-                      (&g_event_log_time)[g_event_log_head] = uVar2;
+                      (&g_event_log_time)[g_event_log_head] = now_ticks;
                       (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
                       g_event_log_args[g_event_log_head].arg0 = 0xff010101;
                       g_event_log_args[g_event_log_head].arg1 = ((unsigned int *)&frame.spin_matrix)[1];      /* raw bits of the matrix word (not a float conversion) */
@@ -166,11 +166,11 @@ void car_points_vs_triangles(int *car,int triangles)
                       g_event_log_args[g_event_log_head].w1c = frame.spin_matrix.pad1;
                       race_phase = 0;
                       do {
-                        iVar4 = race_phase + 1;
+                        next_index = race_phase + 1;
                         (&g_event_log_data[g_event_log_head].w00)[race_phase] =
                              (&frame.spin_matrix.right.x)[race_phase];
-                        race_phase = iVar4;
-                      } while (iVar4 < 0x10);
+                        race_phase = next_index;
+                      } while (next_index < 0x10);
                       g_event_log_head = g_event_log_head + 1;
                       if (0xffu < (unsigned int)g_event_log_head) {
                         g_event_log_head = 0;
@@ -180,11 +180,11 @@ void car_points_vs_triangles(int *car,int triangles)
                   else {
                     if (((((*(unsigned int *)&frame.tri[0xb] == 0xff0000ffu) &&
                           ((car[0x27c] == 0 || (car[0x27c] == 1)))) &&
-                         (race_phase = race_get_phase(), uVar2 = g_last_frame_ticks, race_phase != 1
+                         (race_phase = race_get_phase(), now_ticks = g_last_frame_ticks, race_phase != 1
                          )) && (((race_phase != 2 && (race_phase != 3)) && (race_phase != 4)))) &&
                        (race_phase != 5)) {
                       (&g_event_log_type)[g_event_log_head] = 6;
-                      (&g_event_log_time)[g_event_log_head] = uVar2;
+                      (&g_event_log_time)[g_event_log_head] = now_ticks;
                       (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
                       g_event_log_args[g_event_log_head].arg0 = 0xff0000ff;
                       g_event_log_args[g_event_log_head].arg1 = ((unsigned int *)&frame.spin_matrix)[1];      /* raw bits of the matrix word (not a float conversion) */
@@ -196,11 +196,11 @@ void car_points_vs_triangles(int *car,int triangles)
                       g_event_log_args[g_event_log_head].w1c = frame.spin_matrix.pad1;
                       race_phase = 0;
                       do {
-                        iVar4 = race_phase + 1;
+                        next_index = race_phase + 1;
                         (&g_event_log_data[g_event_log_head].w00)[race_phase] =
                              (&frame.spin_matrix.right.x)[race_phase];
-                        race_phase = iVar4;
-                      } while (iVar4 < 0x10);
+                        race_phase = next_index;
+                      } while (next_index < 0x10);
                       g_event_log_head = g_event_log_head + 1;
                       if (0xffu < (unsigned int)g_event_log_head) {
                         g_event_log_head = 0;

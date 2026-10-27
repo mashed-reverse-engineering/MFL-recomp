@@ -29,41 +29,41 @@ extern float s_333_Lap_frames_005df368;  /* mislabeled by the string finder: a f
 
 /* "adds an explosion record (ring of 8) and spawns 15 smoke puffs around the position" */
 
-void fx_explosion_spawn_ring(float *param_1,int param_2,undefined4 param_3)
+void fx_explosion_spawn_ring(float *pos_in,int ring_arg_a,undefined4 ring_arg_b)
 
 {
   RwFrame *frame;
-  int iVar3;
+  int ring_index;
   char *rec;
-  int *piVar4;
-  int iVar5;
+  int *piece_cursor;
+  int puffs_left;
   float vx;
   float vy;
   float vz;
   unsigned char colour[4];
   RwV3d pos;
 
-  iVar3 = g_event_log_76df00;
-  rec = (char *)&g_particles_76bfc0 + iVar3 * 0xa4;
-  (&g_particles_76dee0)[iVar3] = 1;
+  ring_index = g_event_log_76df00;
+  rec = (char *)&g_particles_76bfc0 + ring_index * 0xa4;
+  (&g_particles_76dee0)[ring_index] = 1;
   g_event_log_76df00 = g_event_log_76df00 + 1;
   if ((int)g_event_log_76df00 >= 8) {
     g_event_log_76df00 = 0;
   }
-  *(float *)rec = *param_1;
-  *(float *)(rec + 4) = param_1[1];
-  *(float *)(rec + 8) = param_1[2];
+  *(float *)rec = *pos_in;
+  *(float *)(rec + 4) = pos_in[1];
+  *(float *)(rec + 8) = pos_in[2];
   *(int *)(rec + 0xc) = 0;
   *(int *)(rec + 0x10) = 0;
-  *(int *)(rec + 0x20) = param_2;
+  *(int *)(rec + 0x20) = ring_arg_a;
   *(int *)(rec + 0x14) = 0;
-  *(undefined4 *)(rec + 0x18) = param_3;
+  *(undefined4 *)(rec + 0x18) = ring_arg_b;
   *(int *)(rec + 0x1c) = 0;
-  iVar5 = 0xf;
+  puffs_left = 0xf;
   do {
-    pos.x = *param_1;
-    pos.y = param_1[1];
-    pos.z = param_1[2];
+    pos.x = *pos_in;
+    pos.y = pos_in[1];
+    pos.z = pos_in[2];
     pos.x = (float)(random_range(-0.05f,0.05f) + pos.x);
     pos.z = (float)(random_range(-0.05f,0.05f) + pos.z);
     vx = (float)(random_range(-0.1f,0.2f) + k_f_0_14);
@@ -71,26 +71,26 @@ void fx_explosion_spawn_ring(float *param_1,int param_2,undefined4 param_3)
     vz = (float)(random_range(-0.1f,0.3f) + s_333_Lap_frames_005df368);
     colour_floats_to_bytes(colour,&g_event_log_62ac0c,&g_event_log_62ac10,(float)random_range(0.0f,0.2f));
     fx_smoke_puff_spawn(&pos,colour,vx,vy,vz);
-    iVar5 = iVar5 + -1;
-  } while (iVar5 != 0);
+    puffs_left = puffs_left + -1;
+  } while (puffs_left != 0);
   *(int *)(rec + 0x1c) = 0x3e99999a;
-  param_2 = 0;
-  piVar4 = (int *)(rec + 0x2c);
+  ring_arg_a = 0;
+  piece_cursor = (int *)(rec + 0x2c);
   do {
     pos.x = 0.0;
     pos.y = 0.0;
     pos.z = -0.2f;
-    frame = *(RwFrame **)(*piVar4 + 4);
+    frame = *(RwFrame **)(*piece_cursor + 4);
     pos.z = (float)(random_range(0.7f,1.3f) * pos.z);
-    RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,(float)param_2 * k_f_36,rwCOMBINEREPLACE);
+    RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,(float)ring_arg_a * k_f_36,rwCOMBINEREPLACE);
     RwFrameTranslate(frame,&pos,rwCOMBINEPRECONCAT);
-    RpMorphAtomicSetTime((void *)*piVar4,0);
-    *(float *)&piVar4[10] = (float)random_range(0.7f,1.7f);
-    param_2 = param_2 + 1;
-    piVar4[0x14] = 0;
-    piVar4 = piVar4 + 1;
-  } while (param_2 < 10);
-  sfx_play_at(0x1d,param_1);
+    RpMorphAtomicSetTime((void *)*piece_cursor,0);
+    *(float *)&piece_cursor[10] = (float)random_range(0.7f,1.7f);
+    ring_arg_a = ring_arg_a + 1;
+    piece_cursor[0x14] = 0;
+    piece_cursor = piece_cursor + 1;
+  } while (ring_arg_a < 10);
+  sfx_play_at(0x1d,pos_in);
   return;
 }
 

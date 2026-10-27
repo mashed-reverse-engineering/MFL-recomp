@@ -9,33 +9,33 @@
 /* "copies a 4x4 matrix and a colour into the sprite entry and sets its active bit in g_gfx_6c57b0"
     */
 
-void effect_sprite_init_n(undefined4 *in_eax, undefined4 *param_2, undefined4 *param_3, undefined4 param_4, undefined4 param_5)
+void effect_sprite_init_n(undefined4 *sprite, undefined4 *src_matrix, undefined4 *src_colour, undefined4 extent_a, undefined4 extent_b)
 
 {
-  byte *pbVar1;
-  int iVar2;
-  undefined4 *puVar3;
+  byte *bit_byte;
+  int count_or_byte;
+  undefined4 *dst_cursor;
   
-  in_eax[0x13] = param_4;
-  in_eax[0x14] = param_5;
-  in_eax[0x15] = 0;
-  in_eax[0x12] = 0;
-  puVar3 = in_eax;
-  for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
-    *puVar3 = *param_2;
-    param_2 = param_2 + 1;
-    puVar3 = puVar3 + 1;
+  sprite[0x13] = extent_a;
+  sprite[0x14] = extent_b;
+  sprite[0x15] = 0;
+  sprite[0x12] = 0;
+  dst_cursor = sprite;
+  for (count_or_byte = 0x10; count_or_byte != 0; count_or_byte = count_or_byte + -1) {
+    *dst_cursor = *src_matrix;
+    src_matrix = src_matrix + 1;
+    dst_cursor = dst_cursor + 1;
   }
-  in_eax[0x10] = *param_3;
-  if (in_eax[0x17] == 0) {
-    iVar2 = (int)in_eax[0x16] >> 3;
-    *(byte *)((char *)&g_gfx_6c57b0 + iVar2) =
-         *(byte *)((char *)&g_gfx_6c57b0 + iVar2) | '\x01' << ((byte)in_eax[0x16] & 7);
+  sprite[0x10] = *src_colour;
+  if (sprite[0x17] == 0) {
+    count_or_byte = (int)sprite[0x16] >> 3;
+    *(byte *)((char *)&g_gfx_6c57b0 + count_or_byte) =
+         *(byte *)((char *)&g_gfx_6c57b0 + count_or_byte) | '\x01' << ((byte)sprite[0x16] & 7);
     return;
   }
-  if (in_eax[0x17] == 1) {
-    pbVar1 = (byte *)((int)&g_gfx_6c51a8 + ((int)in_eax[0x16] >> 3));
-    *pbVar1 = *pbVar1 | '\x01' << ((byte)in_eax[0x16] & 7);
+  if (sprite[0x17] == 1) {
+    bit_byte = (byte *)((int)&g_gfx_6c51a8 + ((int)sprite[0x16] >> 3));
+    *bit_byte = *bit_byte | '\x01' << ((byte)sprite[0x16] & 7);
   }
   return;
 }

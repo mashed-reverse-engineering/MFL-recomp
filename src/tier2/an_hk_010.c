@@ -90,7 +90,7 @@
  * Culling is off and vertex alpha is on, so the quad is visible from both sides and alpha blends. (inferred) */
 
 /* TIER2: validated 2026-10-19 authority=diffemu */
-void __cdecl im2d_draw_quad(undefined4 *texture,float x,float y,float width,float height, uint color,char *param_7,char *param_8,char *param_9, char *param_10)
+void __cdecl im2d_draw_quad(undefined4 *texture,float x,float y,float width,float height, uint color,char *param_7,char *unused_8,char *unused_9, char *param_10)
 {
   RwGlobalsRelease *engine;
   RwReal *vertex_z;

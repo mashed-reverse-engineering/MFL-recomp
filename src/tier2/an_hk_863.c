@@ -50,7 +50,7 @@
  */
 
 undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *out_target_xz,int bot_index,undefined4 param_5,
-                undefined4 param_6,undefined4 param_7)
+                undefined4 unused_6,undefined4 unused_7)
 
 {
   float offset_x;

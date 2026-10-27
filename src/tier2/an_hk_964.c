@@ -5,24 +5,24 @@ typedef int (__stdcall *ComMethod)(int *self);
 #define COM_VTBL_ADDREF (0x4)
 /* FUN_004aee20 */
 
-undefined4 __stdcall FUN_004aee20(char *param_1, undefined2 *param_2)
+undefined4 __stdcall FUN_004aee20(char *this_ptr, undefined2 *out_name)
 
 {
-  int *piVar1;
+  int *unused_ptr;
   
-  if (param_2 == (undefined2 *)0x0) {
+  if (out_name == (undefined2 *)0x0) {
     return 0x80004003;
   }
-  if (*(int *)(param_1 + 0x30) == 0) {
-    *param_2 = 0;
+  if (*(int *)(this_ptr + 0x30) == 0) {
+    *out_name = 0;
   }
   else {
-    FUN_004b10c0(param_2,*(int *)(param_1 + 0x30),0x80);
+    FUN_004b10c0(out_name,*(int *)(this_ptr + 0x30),0x80);
   }
-  *(undefined4 *)(param_2 + 0x80) = *(undefined4 *)(param_1 + 0x34);
-  piVar1 = *(int **)(param_1 + 0x34);
-  if (piVar1 != (int *)0x0) {
-    (*(ComMethod *)(*piVar1 + COM_VTBL_ADDREF))(piVar1);
+  *(undefined4 *)(out_name + 0x80) = *(undefined4 *)(this_ptr + 0x34);
+  unused_ptr = *(int **)(this_ptr + 0x34);
+  if (unused_ptr != (int *)0x0) {
+    (*(ComMethod *)(*unused_ptr + COM_VTBL_ADDREF))(unused_ptr);
   }
   return 0;
 }

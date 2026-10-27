@@ -6,16 +6,16 @@
 
 typedef int (__fastcall *ThisMethod1)(int self, int unused_edx, int arg);
 
-void gap_4ace00_n(int param_1, int param_2)
+void gap_4ace00_n(int this_ptr, int arg)
 
 {
-  int iVar1;
+  int hr;
   int self;
 
-  self = *(int *)(param_1 + 0xd8);
-  iVar1 = (*(ThisMethod1 *)(*(int *)self + 0x94))(self,0,param_2);
-  if (-1 < iVar1) {
-    FUN_004ac6b0(param_2);
+  self = *(int *)(this_ptr + 0xd8);
+  hr = (*(ThisMethod1 *)(*(int *)self + 0x94))(self,0,arg);
+  if (-1 < hr) {
+    FUN_004ac6b0(arg);
   }
   return;
 }

@@ -12,7 +12,7 @@ static void FUN_004b0df0_r(int * p0, int p1, int p2, void * p3, int p4);
 extern void FUN_004b0df0(void);
 static void FUN_004b1060_r(int * p0, int p1);
 extern void FUN_004b1060(void);
-int *FUN_004adc90_n(int *in_ecx, int param_1, int param_2, int param_3, int param_4)
+int *FUN_004adc90_n(int *in_ecx, int param_1, int param_2, int param_3, int unused_4)
 
 {
   FUN_004b0df0_r(in_ecx,param_2,param_3,in_ecx + 0x1f,param_1);

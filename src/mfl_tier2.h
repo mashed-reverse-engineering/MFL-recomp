@@ -501,6 +501,14 @@ typedef void (*RwFreeFunc)(void *);
 #define RxNodeDefinition_name(p) (*(RwChar * *)((char *)(p) + 0x0))
 
 /* ---- named constants: values of game state globals ---- */
+/* table sizes shared with mfl_consts.h */
+#ifndef MFL_COUNT_CONSTS
+#define MFL_COUNT_CONSTS
+#define MAX_CARS 16               /* Car records player_car[16] (index checks `>= 0x10`) */
+#define MAX_PLAYERS 4             /* player slots / vehicle records / AI bots */
+#define WHEELS_PER_CAR 4
+#endif
+
 /* g_race_phase values (race_set_phase / race_get_phase); 4, 8, 9 named from the handlers that set them (inferred), 10 and 11 are set but not named yet */
 #ifndef MFL_RACE_PHASE_ENUM
 #define MFL_RACE_PHASE_ENUM

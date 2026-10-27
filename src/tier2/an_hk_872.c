@@ -24,7 +24,7 @@
    param_9..param_11 are unused. Returns nothing. */
 
 void __cdecl hud_player_marker_position_calc(float *marker,char *car_a,char *car_b,undefined4 alpha_bits,float scale,float extra_value,
-          undefined1 *rgb,int *marker_count,undefined4 param_9,undefined4 param_10,
+          undefined1 *rgb,int *marker_count,undefined4 param_9,undefined4 unused_10,
           undefined4 param_11)
 
 {

@@ -31,10 +31,10 @@
  * object_list: passed to rw_first_field (inferred).
  */
 
-void __cdecl rwp_objects_create_cylinder_group(int count,char *param_2,undefined4 object_list,char *param_4,int type,
-          char *param_6,char *param_7,char *param_8,char *param_9,
-          char *param_10,char *param_11,char *param_12,char *param_13,
-          char *param_14,char *param_15,char *param_16)
+void __cdecl rwp_objects_create_cylinder_group(int count,char *unused_2,undefined4 object_list,char *unused_4,int type,
+          char *unused_6,char *unused_7,char *unused_8,char *unused_9,
+          char *unused_10,char *unused_11,char *unused_12,char *unused_13,
+          char *unused_14,char *unused_15,char *unused_16)
 
 {
   float radius_bits;

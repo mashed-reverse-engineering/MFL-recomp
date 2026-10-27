@@ -7,22 +7,22 @@
 /* WARNING: Unknown calling convention */
 /* "(sphere): loop of sphere_plane_side over the planes" */
 
-undefined4 planes_test_sphere_n(int in_ebx, int in_eax, undefined4 param_3)
+undefined4 planes_test_sphere_n(int plane_count, int plane_cursor, undefined4 sphere)
 
 {
-  int iVar1;
-  int iVar2;
+  int side;
+  int i;
   
-  iVar2 = 0;
-  if (0 < in_ebx) {
+  i = 0;
+  if (0 < plane_count) {
     do {
-      iVar1 = sphere_plane_side(in_eax,param_3);
-      if (iVar1 != 2) {
+      side = sphere_plane_side(plane_cursor,sphere);
+      if (side != 2) {
         return 0;
       }
-      iVar2 = iVar2 + 1;
-      in_eax = in_eax + 0x10;
-    } while (iVar2 < in_ebx);
+      i = i + 1;
+      plane_cursor = plane_cursor + 0x10;
+    } while (i < plane_count);
   }
   return 1;
 }

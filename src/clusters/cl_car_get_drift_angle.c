@@ -15,7 +15,7 @@ int car_get_drift_angle(float *angle, unsigned int index)
   float cos_a;
 
   *angle = 0.0f;
-  if (index < 0x10) {
+  if (index < MAX_CARS) {
     if (player_car[index].velocity[0] != 0.0f || player_car[index].velocity[1] != 0.0f || player_car[index].velocity[2] != 0.0f) {
       RwV3dNormalize((struct RwV3d *)dir, (struct RwV3d *)player_car[index].velocity);
       cos_a = player_car[index].forward[1] * dir[1] + player_car[index].forward[0] * dir[0] + player_car[index].forward[2] * dir[2];

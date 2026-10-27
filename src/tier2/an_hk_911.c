@@ -13,54 +13,55 @@
 
 /* "ray from the camera down (0, -1, 0) for the replay / editor view" */
 
-void __cdecl camera_pick_ground_point(int param_1,RwV3d *param_2,float *param_3)
+/* (inferred names) out_dir = unit view direction of course record `index` (rotated down vector by the yaw / pitch of its line exception row when it has one, else the record base rotated by -25 degrees around the first edge), out_offset = distance override (row +8, 0 otherwise) */
+void __cdecl camera_pick_ground_point(int index,RwV3d *out_dir,float *out_offset)
 
 {
-  char *iVar1;
-  RwReal *pRVar2;
-  float *pfVar3;
+  char *view_exceptions;
+  RwReal *record_base;
+  float *exception_row;
   struct {
-    RwV3d local_64;
-    RwV3d local_58;
+    RwV3d edge_axis;
+    RwV3d down_dir;
     undefined1 pad_4c[8];
-    float local_44;
-    RwMatrix local_40;
+    float edge_z;
+    RwMatrix rot_matrix;
   } frame;
   
-  frame.local_58.x = 0.0;
-  frame.local_58.y = -1.0;
-  frame.local_58.z = 0.0;
-  *param_3 = 0.0;
+  frame.down_dir.x = 0.0;
+  frame.down_dir.y = -1.0;
+  frame.down_dir.z = 0.0;
+  *out_offset = 0.0;
   course_editor_read_chunk();
-  iVar1 = gamesave_ptr_to_line_exceptions();
-  if (iVar1 != 0) {
-    pfVar3 = (float *)(iVar1 + param_1 * 0xc);
-    if (pfVar3[2] != -1.0) {
-      *param_3 = pfVar3[2];
+  view_exceptions = gamesave_ptr_to_line_exceptions();
+  if (view_exceptions != 0) {
+    exception_row = (float *)(view_exceptions + index * 0xc);
+    if (exception_row[2] != -1.0) {
+      *out_offset = exception_row[2];
     }
-    if (*pfVar3 != -1.0) {
-      RwMatrixRotate(&frame.local_40,(RwV3d *)&g_car_62ac68,k_f_90 - *pfVar3,rwCOMBINEREPLACE);
-      RwV3dTransformVectors(param_2,&frame.local_58,1,&frame.local_40);
-      RwMatrixRotate(&frame.local_40,(RwV3d *)&g_car_62ac74,pfVar3[1] + k_f_180,rwCOMBINEREPLACE);
-      RwV3dTransformVectors(param_2,param_2,1,&frame.local_40);
+    if (*exception_row != -1.0) {
+      RwMatrixRotate(&frame.rot_matrix,(RwV3d *)&g_car_62ac68,k_f_90 - *exception_row,rwCOMBINEREPLACE);
+      RwV3dTransformVectors(out_dir,&frame.down_dir,1,&frame.rot_matrix);
+      RwMatrixRotate(&frame.rot_matrix,(RwV3d *)&g_car_62ac74,exception_row[1] + k_f_180,rwCOMBINEREPLACE);
+      RwV3dTransformVectors(out_dir,out_dir,1,&frame.rot_matrix);
       return;
     }
   }
-  pRVar2 = (RwReal *)course_get_record_base(param_1);
-  param_2->x = *pRVar2;
-  param_2->y = pRVar2[1];
-  param_2->z = pRVar2[2];
-  pfVar3 = (float *)course_get_record_point(param_1,0);
-  frame.local_64.x = *pfVar3;
-  frame.local_64.y = pfVar3[1];
-  frame.local_64.z = pfVar3[2];
-  pfVar3 = (float *)course_get_record_point(param_1,3);
-  frame.local_44 = pfVar3[2];
-  frame.local_64.x = frame.local_64.x - *pfVar3;
-  frame.local_64.y = frame.local_64.y - pfVar3[1];
-  frame.local_64.z = frame.local_64.z - frame.local_44;
-  RwMatrixRotate(&frame.local_40,&frame.local_64,-25.0,rwCOMBINEREPLACE);
-  RwV3dTransformVectors(param_2,param_2,1,&frame.local_40);
+  record_base = (RwReal *)course_get_record_base(index);
+  out_dir->x = *record_base;
+  out_dir->y = record_base[1];
+  out_dir->z = record_base[2];
+  exception_row = (float *)course_get_record_point(index,0);
+  frame.edge_axis.x = *exception_row;
+  frame.edge_axis.y = exception_row[1];
+  frame.edge_axis.z = exception_row[2];
+  exception_row = (float *)course_get_record_point(index,3);
+  frame.edge_z = exception_row[2];
+  frame.edge_axis.x = frame.edge_axis.x - *exception_row;
+  frame.edge_axis.y = frame.edge_axis.y - exception_row[1];
+  frame.edge_axis.z = frame.edge_axis.z - frame.edge_z;
+  RwMatrixRotate(&frame.rot_matrix,&frame.edge_axis,-25.0,rwCOMBINEREPLACE);
+  RwV3dTransformVectors(out_dir,out_dir,1,&frame.rot_matrix);
   return;
 }
 

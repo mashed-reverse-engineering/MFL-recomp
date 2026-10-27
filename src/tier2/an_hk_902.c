@@ -70,20 +70,20 @@ typedef int CourseId;
  * Per frame, for bot car_index: choose a target (route, find_target_a/b/c, trigger zone, hazard,
  * catch-up, stuck fallback), steer towards it, and write the turn/throttle bytes into controls
  * (inferred: controls[0] / [1] = turn left / right, [4] / [5] = throttle / brake).
- * ai_ctx is the AI state (inferred). param_4 is unused.
+ * ai_ctx is the AI state (inferred). unused_4 is unused.
  * (was: "bot steering: target point from ai_find_target_a/b/c with speed and forward vector (variant a)")
  */
 
-void __cdecl ai_drive_a(undefined4 ai_ctx,int car_index,undefined1 *controls,undefined4 param_4)
+void __cdecl ai_drive_a(undefined4 ai_ctx,int car_index,undefined1 *controls,undefined4 unused_4)
 
 {
   struct AiBotRecord *bot;
-  byte *pbVar1;
+  byte *unused_p;
   float prev_car_b0c;
   float prev_value;
-  bool bVar4;
-  float fVar5;
-  undefined1 uVar6;
+  bool unused_b;
+  float unused_f;
+  undefined1 unused_u;
   int result;
   CourseId current_course;
   undefined4 arg_scratch;

@@ -21,32 +21,32 @@
 /* WARNING: Unknown calling convention */
 /* "slides the message 0x22B in and out using a timer in the object (+0x10)" */
 
-void hud_message_slide_n(char *in_eax, int param_2)
+void hud_message_slide_n(char *message, int slot_index)
 
 {
-  float fVar1;
-  float local_c;
+  float phase;
+  float y_pos;
   
-  fVar1 = *(float *)(in_eax + 0x10) * k_f_0_625;
-  *(float *)(in_eax + 0x10) = *(float *)(in_eax + 0x10) - g_tick_seconds;
-  local_c = 80.0;
-  if (fVar1 < k_f_0_5) {
-    fVar1 = float_1_0 - fVar1;
-    local_c = (float_1_0 - (fVar1 + fVar1)) * k_f_110 + k_f_80;
+  phase = *(float *)(message + 0x10) * k_f_0_625;
+  *(float *)(message + 0x10) = *(float *)(message + 0x10) - g_tick_seconds;
+  y_pos = 80.0;
+  if (phase < k_f_0_5) {
+    phase = float_1_0 - phase;
+    y_pos = (float_1_0 - (phase + phase)) * k_f_110 + k_f_80;
   }
-  fVar1 = local_c + k_f_3;
-  ui_rt2d_text_draw(0x22b,323.0,fVar1,0xff000000,1.2,2);
-  ui_rt2d_text_draw(0x22b,320.0,local_c,0xc800d805,1.2,2);
-  ui_rt2d_text_draw(0x22c,323.0,fVar1 + k_f_30,0xff000000,0.9,2);
-  ui_rt2d_text_draw(0x22c,320.0,local_c + k_f_30,0xc800d805,0.9,2);
-  if ((param_2 == 0) && ((float)(int)g_bomb_5fb0b0 == k_f_0_99899995)) {
-    ui_rt2d_text_draw(0x22d,323.0,fVar1 + k_f_60,0xff000000,0.9,2);
-    ui_rt2d_text_draw(0x22d,320.0,local_c + k_f_60,0xc800d8d8,0.9,2);
+  phase = y_pos + k_f_3;
+  ui_rt2d_text_draw(0x22b,323.0,phase,0xff000000,1.2,2);
+  ui_rt2d_text_draw(0x22b,320.0,y_pos,0xc800d805,1.2,2);
+  ui_rt2d_text_draw(0x22c,323.0,phase + k_f_30,0xff000000,0.9,2);
+  ui_rt2d_text_draw(0x22c,320.0,y_pos + k_f_30,0xc800d805,0.9,2);
+  if ((slot_index == 0) && ((float)(int)g_bomb_5fb0b0 == k_f_0_99899995)) {
+    ui_rt2d_text_draw(0x22d,323.0,phase + k_f_60,0xff000000,0.9,2);
+    ui_rt2d_text_draw(0x22d,320.0,y_pos + k_f_60,0xc800d8d8,0.9,2);
   }
-  if (((&g_bomb_64d8dc)[param_2 * 5] == g_course_5fb0b8) && ((float)(int)g_bomb_5fb0b0 == k_f_0_99899995)
+  if (((&g_bomb_64d8dc)[slot_index * 5] == g_course_5fb0b8) && ((float)(int)g_bomb_5fb0b0 == k_f_0_99899995)
      ) {
-    ui_rt2d_text_draw(0x22e,323.0,fVar1 + k_f_60,0xff000000,0.9,2);
-    ui_rt2d_text_draw(0x22e,320.0,local_c + k_f_60,0xc800d8d8,0.9,2);
+    ui_rt2d_text_draw(0x22e,323.0,phase + k_f_60,0xff000000,0.9,2);
+    ui_rt2d_text_draw(0x22e,320.0,y_pos + k_f_60,0xc800d8d8,0.9,2);
   }
   return;
 }

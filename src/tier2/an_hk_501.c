@@ -8,57 +8,59 @@
 
 /* "as hud_player_marker_position_calc but also computes the facing dot product" */
 
+/* (inferred) Fills one 0x2c-byte marker vertex: position = matrix_a.pos + lerp_t * (matrix_a.pos - matrix_b.pos), size from the distance, colour from color_rgb,
+   alpha from the squared dot product of the two cars' at vectors; marker_count (max 0x7f) is incremented. alpha_scale_bits carries a float through a char* parameter. */
 void __cdecl
 hud_player_marker_position_calc_with_facing
-          (float *param_1,char *param_2,char *param_3,char *param_4,float param_5,float param_6,
-          undefined1 *param_7,int *param_8,char *param_9,char *param_10,
-          char *param_11)
+          (float *marker,char *matrix_a,char *matrix_b,char *alpha_scale_bits,float lerp_t,float extra_value,
+          undefined1 *color_rgb,int *marker_count,char *unused_9,char *unused_10,
+          char *unused_11)
 
 {
-  float fVar1;
+  float base_z;
   volatile float zprod;      /* rounds the z product to float like the original's stack temp (it is stored, then reloaded for the sum) */
   float fdot;
-  undefined1 uVar2;
-  RwReal RVar3;
+  undefined1 alpha;
+  RwReal distance;
   struct {
-    RwV3d local_24;
-    undefined4 local_18;
-    undefined4 local_14;
-    undefined4 local_10;
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    RwV3d a_to_b;
+    undefined4 b_at;
+    undefined4 b_at_y;
+    undefined4 b_at_z;
+    undefined4 a_at;
+    undefined4 a_at_y;
+    undefined4 a_at_z;
   } frame;
   
-  if (*param_8 < 0x7f) {
-    frame.local_24.x = *(float *)(param_2 + 0x30) - *(float *)(param_3 + 0x30);
-    frame.local_24.y = *(float *)(param_2 + 0x34) - *(float *)(param_3 + 0x34);
-    frame.local_24.z = *(float *)(param_2 + 0x38) - *(float *)(param_3 + 0x38);
-    RVar3 = RwV3dLength(&frame.local_24);
-    frame.local_18 = *(undefined4 *)(param_3 + 0x20);
-    frame.local_14 = *(undefined4 *)(param_3 + 0x24);
-    frame.local_10 = *(undefined4 *)(param_3 + 0x28);
-    frame.local_c = *(undefined4 *)(param_2 + 0x20);
-    frame.local_8 = *(undefined4 *)(param_2 + 0x24);
-    frame.local_4 = *(undefined4 *)(param_2 + 0x28);
-    fdot = dot_product_3d_clamped(&frame.local_c,&frame.local_18);
-    zprod = frame.local_24.z * param_5;
-    *param_1 = frame.local_24.x * param_5 + *(float *)(param_2 + 0x30);
-    param_1[1] = frame.local_24.y * param_5 + *(float *)(param_2 + 0x34);
-    fVar1 = *(float *)(param_2 + 0x38);
-    param_1[5] = 1.0;
-    param_1[7] = 1.0;
-    param_1[2] = zprod + fVar1;
-    param_1[6] = 0.0;
-    param_1[8] = 0.0;
-    param_1[3] = RVar3 * k_f_0_025 + k_f_0_05;
-    *(undefined1 *)(param_1 + 9) = *param_7;
-    *(undefined1 *)((char *)param_1 + 0x25) = param_7[1];
-    *(undefined1 *)((char *)param_1 + 0x26) = param_7[2];
-    uVar2 = (int)(fdot * fdot * 255.0f * *(float *)&param_4);
-    *(undefined1 *)((char *)param_1 + 0x27) = uVar2;
-    param_1[10] = param_6;
-    *param_8 = *param_8 + 1;
+  if (*marker_count < 0x7f) {
+    frame.a_to_b.x = *(float *)(matrix_a + 0x30) - *(float *)(matrix_b + 0x30);
+    frame.a_to_b.y = *(float *)(matrix_a + 0x34) - *(float *)(matrix_b + 0x34);
+    frame.a_to_b.z = *(float *)(matrix_a + 0x38) - *(float *)(matrix_b + 0x38);
+    distance = RwV3dLength(&frame.a_to_b);
+    frame.b_at = *(undefined4 *)(matrix_b + 0x20);
+    frame.b_at_y = *(undefined4 *)(matrix_b + 0x24);
+    frame.b_at_z = *(undefined4 *)(matrix_b + 0x28);
+    frame.a_at = *(undefined4 *)(matrix_a + 0x20);
+    frame.a_at_y = *(undefined4 *)(matrix_a + 0x24);
+    frame.a_at_z = *(undefined4 *)(matrix_a + 0x28);
+    fdot = dot_product_3d_clamped(&frame.a_at,&frame.b_at);
+    zprod = frame.a_to_b.z * lerp_t;
+    *marker = frame.a_to_b.x * lerp_t + *(float *)(matrix_a + 0x30);
+    marker[1] = frame.a_to_b.y * lerp_t + *(float *)(matrix_a + 0x34);
+    base_z = *(float *)(matrix_a + 0x38);
+    marker[5] = 1.0;
+    marker[7] = 1.0;
+    marker[2] = zprod + base_z;
+    marker[6] = 0.0;
+    marker[8] = 0.0;
+    marker[3] = distance * k_f_0_025 + k_f_0_05;
+    *(undefined1 *)(marker + 9) = *color_rgb;
+    *(undefined1 *)((char *)marker + 0x25) = color_rgb[1];
+    *(undefined1 *)((char *)marker + 0x26) = color_rgb[2];
+    alpha = (int)(fdot * fdot * 255.0f * *(float *)&alpha_scale_bits);
+    *(undefined1 *)((char *)marker + 0x27) = alpha;
+    marker[10] = extra_value;
+    *marker_count = *marker_count + 1;
   }
   return;
 }

@@ -20,24 +20,24 @@ __declspec(naked) int debris_model_clear_flags_r(int reg_eax, int stk0)
 
 /* debris_body_configure */
 
-/* "physics body setup: FUN_0056cb10/cac0/ca70; the body (puVar1) goes to debris_model_clear_flags in eax, param_1 on the stack" */
+/* "physics body setup: FUN_0056cb10/cac0/ca70; the body (body) goes to debris_model_clear_flags in eax, model on the stack" */
 
-undefined4 debris_body_configure(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4,
-          undefined4 param_5)
+undefined4 debris_body_configure(undefined4 model,undefined4 property_e,undefined4 property_d,undefined4 property_c,
+          undefined4 property_b)
 
 {
-  undefined4 *puVar1;
-  undefined4 uVar2;
+  undefined4 *body;
+  undefined4 handle;
   
-  puVar1 = (undefined4 *)FUN_0058cb90();
-  uVar2 = *puVar1;
-  FUN_0056cb10(uVar2,param_2);
-  FUN_0056cac0(uVar2,param_5);
-  FUN_0056ca70(uVar2,param_4);
-  FUN_0056bf10(puVar1,param_3,0);
-  uVar2 = debris_model_clear_flags_r((int)puVar1, param_1);
-  FUN_0058cbe0(puVar1);
-  return uVar2;
+  body = (undefined4 *)FUN_0058cb90();
+  handle = *body;
+  FUN_0056cb10(handle,property_e);
+  FUN_0056cac0(handle,property_b);
+  FUN_0056ca70(handle,property_c);
+  FUN_0056bf10(body,property_d,0);
+  handle = debris_model_clear_flags_r((int)body, model);
+  FUN_0058cbe0(body);
+  return handle;
 }
 
 

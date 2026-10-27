@@ -23,7 +23,7 @@
 /* "locks ptank atomic b and writes position/size/colour/uv for each active fx entry (two vertices
    per entry)" */
 
-void __cdecl fx_ptank_b_lock_and_fill(char *camera_mtx,undefined4 param_2)
+void __cdecl fx_ptank_b_lock_and_fill(char *camera_mtx,undefined4 unused_2)
 
 {
   int entry_mtx;

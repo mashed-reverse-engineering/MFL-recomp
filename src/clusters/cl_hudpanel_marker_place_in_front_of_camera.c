@@ -15,45 +15,45 @@ extern double atan2(double, double);
 /* "places the marker frame, offsets by 12 along the horizontal direction and plays voice 0x12/0x14"
     */
 
-void hudpanel_marker_place_in_front_of_camera_n(undefined4 in_eax, int in_edi)
+void hudpanel_marker_place_in_front_of_camera_n(undefined4 vehicle, int marker)
 
 {
-  float *pfVar1;
-  char *iVar2;
-  float10 fVar3;
+  float *pos_ptr;
+  char *frame_ptr;
+  float10 heading;
   struct {
-    RwV3d local_58;
-    RwV3d local_4c;
-    RwMatrix local_40;
+    RwV3d facing_flat;
+    RwV3d right_flat;
+    RwMatrix vehicle_matrix;
   } frame;
   
-  *(undefined4 *)(in_edi + 0x44) = 1;
-  *(undefined4 *)(in_edi + 0x48) = 0;
-  *(undefined4 *)(in_edi + 0x4c) = in_eax;
-  vehicle_get_matrix_local(in_eax,&frame.local_40);
-  RwFrameTransform(*(RwFrame **)(*(char **)(in_edi + 0x40) + 4),&frame.local_40,rwCOMBINEREPLACE);
-  iVar2 = *(char **)(*(char **)(in_edi + 0x40) + 4);
-  pfVar1 = (float *)(iVar2 + 0x40);
-  frame.local_4c.x = *(RwReal *)(iVar2 + 0x10);
-  frame.local_4c.z = *(RwReal *)(iVar2 + 0x18);
-  frame.local_4c.y = 0.0;
-  RwV3dNormalize(&frame.local_4c,&frame.local_4c);
-  frame.local_58.x = *(float *)(iVar2 + 0x30);
-  frame.local_58.z = *(float *)(iVar2 + 0x38);
-  frame.local_58.y = 0.0;
-  RwV3dNormalize(&frame.local_58,&frame.local_58);
-  *pfVar1 = frame.local_58.x * k_f_n12 + *pfVar1;
-  *(float *)(iVar2 + 0x44) = frame.local_58.y * k_f_n12 + *(float *)(iVar2 + 0x44);
-  *pfVar1 = *pfVar1;
-  *(float *)(iVar2 + 0x48) = frame.local_58.z * k_f_n12 + *(float *)(iVar2 + 0x48);
-  *(undefined4 *)(iVar2 + 0x48) = *(undefined4 *)(iVar2 + 0x48);
-  *(float *)(iVar2 + 0x44) = *(float *)(iVar2 + 0x44) + k_f_12;
-  RwMatrixUpdate(*(int *)(*(char **)(in_edi + 0x40) + 4) + 0x10);
-  fVar3 = (float10)atan2((float10)frame.local_58.x,(float10)frame.local_58.z);
-  *(float *)(in_edi + 0x58) = (float)(fVar3 * (float10)k_f_57_295776);
-  *(undefined4 *)(in_edi + 0x5c) = 0x42340000;
-  sfx_play_voice_at(0x12,pfVar1,*(undefined4 *)(in_edi + 0x60));
-  sfx_play_voice_at(0x14,pfVar1,*(undefined4 *)(in_edi + 0x60));
+  *(undefined4 *)(marker + 0x44) = 1;
+  *(undefined4 *)(marker + 0x48) = 0;
+  *(undefined4 *)(marker + 0x4c) = vehicle;
+  vehicle_get_matrix_local(vehicle,&frame.vehicle_matrix);
+  RwFrameTransform(*(RwFrame **)(*(char **)(marker + 0x40) + 4),&frame.vehicle_matrix,rwCOMBINEREPLACE);
+  frame_ptr = *(char **)(*(char **)(marker + 0x40) + 4);
+  pos_ptr = (float *)(frame_ptr + 0x40);
+  frame.right_flat.x = *(RwReal *)(frame_ptr + 0x10);
+  frame.right_flat.z = *(RwReal *)(frame_ptr + 0x18);
+  frame.right_flat.y = 0.0;
+  RwV3dNormalize(&frame.right_flat,&frame.right_flat);
+  frame.facing_flat.x = *(float *)(frame_ptr + 0x30);
+  frame.facing_flat.z = *(float *)(frame_ptr + 0x38);
+  frame.facing_flat.y = 0.0;
+  RwV3dNormalize(&frame.facing_flat,&frame.facing_flat);
+  *pos_ptr = frame.facing_flat.x * k_f_n12 + *pos_ptr;
+  *(float *)(frame_ptr + 0x44) = frame.facing_flat.y * k_f_n12 + *(float *)(frame_ptr + 0x44);
+  *pos_ptr = *pos_ptr;
+  *(float *)(frame_ptr + 0x48) = frame.facing_flat.z * k_f_n12 + *(float *)(frame_ptr + 0x48);
+  *(undefined4 *)(frame_ptr + 0x48) = *(undefined4 *)(frame_ptr + 0x48);
+  *(float *)(frame_ptr + 0x44) = *(float *)(frame_ptr + 0x44) + k_f_12;
+  RwMatrixUpdate(*(int *)(*(char **)(marker + 0x40) + 4) + 0x10);
+  heading = (float10)atan2((float10)frame.facing_flat.x,(float10)frame.facing_flat.z);
+  *(float *)(marker + 0x58) = (float)(heading * (float10)k_f_57_295776);
+  *(undefined4 *)(marker + 0x5c) = 0x42340000;
+  sfx_play_voice_at(0x12,pos_ptr,*(undefined4 *)(marker + 0x60));
+  sfx_play_voice_at(0x14,pos_ptr,*(undefined4 *)(marker + 0x60));
   return;
 }
 

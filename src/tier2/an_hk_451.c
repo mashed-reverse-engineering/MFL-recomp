@@ -5,7 +5,7 @@
 static undefined4 planes_test_sphere_r(int reg_ebx, int reg_eax, undefined4 param_3);
 extern void planes_test_sphere(void);
 #define COURSE_VOLUME_STRIDE (0x80)
-__declspec(naked) undefined4 planes_test_sphere_r(int reg_ebx, int reg_eax, undefined4 param_3)
+__declspec(naked) undefined4 planes_test_sphere_r(int reg_ebx, int reg_eax, undefined4 unused_3)
 {
     __asm {
         push ebx

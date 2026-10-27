@@ -10,12 +10,12 @@
 /* WARNING: Unknown calling convention */
 /* "loads grey 0x32 parts into the endpoint panel" */
 
-void team_endpoint_panel_load_parts_n(int in_eax, int in_ebx)
+void team_endpoint_panel_load_parts_n(int clump, int panel)
 
 {
-  undefined4 uVar1;
-  int iVar2;
-  int iVar3;
+  undefined4 atomic;
+  int part_slot;
+  int i;
   struct {
     undefined1 local_8c;
     undefined1 local_8b;
@@ -28,18 +28,18 @@ void team_endpoint_panel_load_parts_n(int in_eax, int in_ebx)
   frame.local_8b = 0x32;
   frame.local_8a = 0x32;
   frame.local_89 = 0xff;
-  clump_get_atomics(in_eax,frame.local_88);
-  *(int *)(in_ebx + 0x150) = in_eax;
-  *(undefined4 *)(in_ebx + 0x154) = *(undefined4 *)(in_eax + 4);
-  mem_zero(in_ebx + 0xb0,0xa0);
-  iVar3 = 0;
+  clump_get_atomics(clump,frame.local_88);
+  *(int *)(panel + 0x150) = clump;
+  *(undefined4 *)(panel + 0x154) = *(undefined4 *)(clump + 4);
+  mem_zero(panel + 0xb0,0xa0);
+  i = 0;
   do {
-    uVar1 = frame.local_88[iVar3];
-    iVar2 = FUN_004c52b0(uVar1,0,0);
-    iVar3 = iVar3 + 1;
-    *(undefined4 *)(in_ebx + 0xb0 + iVar2 * 4) = uVar1;
-  } while (iVar3 < 0x22);
-  FUN_004c5380(*(undefined4 *)(in_ebx + 0xb8),&frame.local_8c);
+    atomic = frame.local_88[i];
+    part_slot = FUN_004c52b0(atomic,0,0);
+    i = i + 1;
+    *(undefined4 *)(panel + 0xb0 + part_slot * 4) = atomic;
+  } while (i < 0x22);
+  FUN_004c5380(*(undefined4 *)(panel + 0xb8),&frame.local_8c);
   return;
 }
 

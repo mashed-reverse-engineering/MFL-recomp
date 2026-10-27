@@ -9,7 +9,7 @@ extern char g_fx_emitter_6c51c4[];
 /* bit pattern of 1.0f, passed to fx_emitter_init_r as an int */
 #define FLOAT_ONE_BITS (0x3f800000)
 
-__declspec(naked) int fx_emitter_init_r(int reg_edi, float * param_2, undefined4 param_3, undefined4 param_4, float param_5, int param_6, undefined4 param_7)
+__declspec(naked) int fx_emitter_init_r(int reg_edi, float * param_2, undefined4 param_3, undefined4 unused_4, float unused_5, int unused_6, undefined4 unused_7)
 {
     __asm {
         push edi

@@ -5,7 +5,7 @@ static int hud_label_draw_text_r(void *reg_edi, undefined4 param_2, undefined4 p
 extern void hud_label_draw_text(void);
 #define HUD_LABEL_COUNT (8)
 #define HUD_LABEL_STRIDE (0xb0)
-__declspec(naked) int hud_label_draw_text_r(void *reg_edi, undefined4 param_2, undefined4 param_3, void *param_4, void *param_5, void *param_6, void *param_7, float param_8, int param_9)
+__declspec(naked) int hud_label_draw_text_r(void *reg_edi, undefined4 unused_2, undefined4 unused_3, void *unused_4, void *unused_5, void *unused_6, void *unused_7, float unused_8, int unused_9)
 {
     __asm {
         push edi

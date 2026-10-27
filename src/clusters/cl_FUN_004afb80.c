@@ -4,20 +4,20 @@
 typedef int (__stdcall *ComMethod1)(int *self);
 /* FUN_004afb80 */
 
-int FUN_004afb80_n(int param_1)
+int FUN_004afb80_n(int this_ptr)
 
 {
-  int *piVar1;
-  int iVar2;
+  int *com_object;
+  int hr;
   
-  piVar1 = *(int **)(param_1 + 0x9c);
-  if (piVar1 != (int *)0x0) {
-    iVar2 = (*(ComMethod1 *)(*piVar1 + 0x18))(piVar1);
-    if (iVar2 < 0) {
-      return iVar2;
+  com_object = *(int **)(this_ptr + 0x9c);
+  if (com_object != (int *)0x0) {
+    hr = (*(ComMethod1 *)(*com_object + 0x18))(com_object);
+    if (hr < 0) {
+      return hr;
     }
-    (*(ComMethod1 *)(**(int **)(param_1 + 0x9c) + 8))(*(int **)(param_1 + 0x9c));
-    *(undefined4 *)(param_1 + 0x9c) = 0;
+    (*(ComMethod1 *)(**(int **)(this_ptr + 0x9c) + 8))(*(int **)(this_ptr + 0x9c));
+    *(undefined4 *)(this_ptr + 0x9c) = 0;
   }
   return 0;
 }

@@ -7,18 +7,18 @@
 /* WARNING: Unknown calling convention */
 /* "fills a 0x34 byte text slot: id, colour white, scale 0.6, position" */
 
-void menu_text_slot_set_n(int *in_eax, int in_edx, int param_3, int param_4, int param_5)
+void menu_text_slot_set_n(int *slot_index_ptr, int item_id, int x, int y, int item_param)
 
 {
-  g_menu_item_anims[*in_eax].item_id = in_edx;
-  *(undefined1 *)&g_menu_item_anims[*in_eax].colour = 0xff;
-  *(undefined1 *)((int)&g_menu_item_anims[*in_eax].colour + 1) = 0xff;
-  *(undefined1 *)((int)&g_menu_item_anims[*in_eax].colour + 2) = 0xff;
-  *(undefined1 *)((int)&g_menu_item_anims[*in_eax].colour + 3) = 0xff;
-  g_menu_item_anims[*in_eax].scale = 0.6;
-  g_menu_item_anims[*in_eax].x = (float)param_3;
-  g_menu_item_anims[*in_eax].y = (float)param_4;
-  g_menu_item_anims[*in_eax].param = param_5;
+  g_menu_item_anims[*slot_index_ptr].item_id = item_id;
+  *(undefined1 *)&g_menu_item_anims[*slot_index_ptr].colour = 0xff;
+  *(undefined1 *)((int)&g_menu_item_anims[*slot_index_ptr].colour + 1) = 0xff;
+  *(undefined1 *)((int)&g_menu_item_anims[*slot_index_ptr].colour + 2) = 0xff;
+  *(undefined1 *)((int)&g_menu_item_anims[*slot_index_ptr].colour + 3) = 0xff;
+  g_menu_item_anims[*slot_index_ptr].scale = 0.6;
+  g_menu_item_anims[*slot_index_ptr].x = (float)x;
+  g_menu_item_anims[*slot_index_ptr].y = (float)y;
+  g_menu_item_anims[*slot_index_ptr].param = item_param;
   return;
 }
 

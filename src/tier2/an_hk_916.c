@@ -19,25 +19,26 @@
 
 /* "'Calling AppInitialiseOnBootup' ... boot sequence" */
 
-undefined4 __stdcall app_initialise_on_bootup(undefined4 param_1, undefined4 param_2, undefined4 param_3, undefined4 param_4)
+/* (inferred) WinMain-style arguments (hInstance, hPrevInstance, command line, nCmdShow); runs the boot sequence step by step, aborts with 0xffffffff when a step fails, otherwise runs the main loop and the shutdown sequence */
+undefined4 __stdcall app_initialise_on_bootup(undefined4 hinstance, undefined4 prev_instance, undefined4 cmd_line, undefined4 show_cmd)
 
 {
-  int iVar1;
-  undefined4 uVar2;
+  int step_ok;
+  undefined4 exit_code;
   
-  window_create(param_1,param_2,param_3,param_4);
+  window_create(hinstance,prev_instance,cmd_line,show_cmd);
   app_parse_command_line();
-  iVar1 = app_shutdown_sequence_a(0,0);
-  if (iVar1 != 0) {
-    iVar1 = game_options_reset();
-    if (iVar1 != 0) {
-      iVar1 = app_initialise_rw_and_camera();
-      if (iVar1 != 0) {
+  step_ok = app_shutdown_sequence_a(0,0);
+  if (step_ok != 0) {
+    step_ok = game_options_reset();
+    if (step_ok != 0) {
+      step_ok = app_initialise_rw_and_camera();
+      if (step_ok != 0) {
         stub_return_zero();
-        window_show(param_4);
+        window_show(show_cmd);
         log_print("Calling AppInitialiseOnBootup\n");
-        iVar1 = app_boot_init();
-        if (iVar1 != 0) {
+        step_ok = app_boot_init();
+        if (step_ok != 0) {
           app_main_loop();
         }
         log_print("Calling AppDestroy\n");
@@ -50,8 +51,8 @@ undefined4 __stdcall app_initialise_on_bootup(undefined4 param_1, undefined4 par
         rw_engine_shutdown();
         log_print("Calling HardwareExitApplication\n");
         cursor_show_if_windowed();
-        uVar2 = window_destroy();
-        return uVar2;
+        exit_code = window_destroy();
+        return exit_code;
       }
     }
   }

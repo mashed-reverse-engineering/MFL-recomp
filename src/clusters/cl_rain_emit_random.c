@@ -7,34 +7,34 @@
 /* WARNING: Unknown calling convention */
 /* "fills free rain slots with random positions/velocities from the emitter box" */
 
-void rain_emit_random_n(int *in_eax, float *in_edi)
+void rain_emit_random_n(int *drop, float *box)
 
 {
-  int iVar1;
+  int i;
   float10 fVar2;
   float10 fVar3;
   
-  iVar1 = 0;
+  i = 0;
   do {
-    if (*in_eax == 0) {
-      *in_eax = 1;
-      in_eax[1] = 0;
-      fVar2 = (float10)random_range(in_edi[4],in_edi[7]);
-      fVar3 = (float10)random_range(in_edi[6],in_edi[9]);
-      *(float *)&in_eax[5] = (float)fVar2;
-      fVar2 = (float10)random_range(in_edi[5],in_edi[8]);
-      *(float *)&in_eax[6] = (float)fVar2;
-      *(float *)&in_eax[7] = (float)fVar3;
-      fVar2 = (float10)random_range(-in_edi[3],in_edi[3]);
-      *(float *)&in_eax[2] = (float)(fVar2 + (float10)*in_edi);
-      in_eax[3] = *(int *)&in_edi[1];
-      fVar2 = (float10)random_range(-in_edi[3],in_edi[3]);
-      *(float *)&in_eax[4] = (float)(fVar2 + (float10)in_edi[2]);
+    if (*drop == 0) {
+      *drop = 1;
+      drop[1] = 0;
+      fVar2 = (float10)random_range(box[4],box[7]);
+      fVar3 = (float10)random_range(box[6],box[9]);
+      *(float *)&drop[5] = (float)fVar2;
+      fVar2 = (float10)random_range(box[5],box[8]);
+      *(float *)&drop[6] = (float)fVar2;
+      *(float *)&drop[7] = (float)fVar3;
+      fVar2 = (float10)random_range(-box[3],box[3]);
+      *(float *)&drop[2] = (float)(fVar2 + (float10)*box);
+      drop[3] = *(int *)&box[1];
+      fVar2 = (float10)random_range(-box[3],box[3]);
+      *(float *)&drop[4] = (float)(fVar2 + (float10)box[2]);
       return;
     }
-    in_eax = in_eax + 8;
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 0x200);
+    drop = drop + 8;
+    i = i + 1;
+  } while (i < 0x200);
   return;
 }
 

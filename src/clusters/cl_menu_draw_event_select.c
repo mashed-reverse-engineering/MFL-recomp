@@ -105,6 +105,13 @@ static unsigned int category_word(int event)
     return word;
 }
 
+/* Draws the event selection panel of the front end (the 96 px band at the bottom of the screen with a divider
+   in the middle, faded by 'fade'). Per event type (cups, tournaments, time trials, quick races, training, or
+   the multiplayer setups when event_type_uses_standard_menu() is 0) it shows the player/team icons, the
+   category of the career row looked up in the g_menu_* category tables (category_word), the track/powerup
+   icons and, for time trials, the best time formatted as mm:ss.cc. skip_list is handed to menu_layout_draw_b.
+   Inferred from the draw calls and the tables read; the exact meaning of several g_menu_* tables is not
+   confirmed. */
 void menu_draw_event_select(int fade, int skip_list)
 {
     unsigned int colour, band, word, cat, sub;
@@ -708,8 +715,8 @@ event_row:
         row = g_career_row;
 after_marker2:
         if (event != EV_CUP_0) {
-            if (event != 4 && event != 5 && event != 0xe && event != 0xf && event != 0x10) g_menu_8c8090 = 0;
-            if (event != EV_CUP_0 && event != 4 && event != 5) return;
+            if (event != EVENT_CUP_4 && event != EVENT_CUP_5 && event != EVENT_TURBO_TOURNAMENT && event != EVENT_ICE_TOURNAMENT && event != EVENT_NIGHT_TOURNAMENT) g_menu_8c8090 = 0;
+            if (event != EV_CUP_0 && event != EVENT_CUP_4 && event != EVENT_CUP_5) return;
         }
         if (row >= 0xc) {
             mx = 466.0f;

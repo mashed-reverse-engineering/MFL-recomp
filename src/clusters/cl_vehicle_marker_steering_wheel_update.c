@@ -14,30 +14,31 @@
 /* WARNING: Unknown calling convention */
 /* "rotates the wheel frame from the car's af4/b00 fields" */
 
+/* (inferred names) af4 / b00: two car vectors (xy array + z); wheel spin = (b00.x + af4.x) * 40 around one axis, steer = (b00.z + af4.z) * -100 around the other, applied at the frame position wheel_pos */
 void vehicle_marker_steering_wheel_update_n(VehicleRecord *vehicle_record)
 
 {
   RwFrame *frame;
   float angle;
   struct {
-    RwV3d local_24;
-    float local_18 [2];
-    float local_10;
-    float local_c [2];
-    float local_4;
+    RwV3d wheel_pos;
+    float b00_xy [2];
+    float b00_z;
+    float af4_xy [2];
+    float af4_z;
   } frame_obj;
   
   frame = *(RwFrame **)(vehicle_record->part_frames[0x13] + 4);
-  car_get_field_af4(frame_obj.local_c,vehicle_record->index);
-  car_get_field_b00(frame_obj.local_18,vehicle_record->index);
-  frame_obj.local_24.x = (RwFrame_modelling(frame)).pos.x;
-  angle = (frame_obj.local_10 + frame_obj.local_4) * k_f_n100;
-  frame_obj.local_24.y = (RwFrame_modelling(frame)).pos.y;
-  frame_obj.local_24.z = (RwFrame_modelling(frame)).pos.z;
-  RwFrameRotate(frame,(RwV3d *)&g_weapon_62ac80,(frame_obj.local_18[0] + frame_obj.local_c[0]) * k_f_40,rwCOMBINEREPLACE
+  car_get_field_af4(frame_obj.af4_xy,vehicle_record->index);
+  car_get_field_b00(frame_obj.b00_xy,vehicle_record->index);
+  frame_obj.wheel_pos.x = (RwFrame_modelling(frame)).pos.x;
+  angle = (frame_obj.b00_z + frame_obj.af4_z) * k_f_n100;
+  frame_obj.wheel_pos.y = (RwFrame_modelling(frame)).pos.y;
+  frame_obj.wheel_pos.z = (RwFrame_modelling(frame)).pos.z;
+  RwFrameRotate(frame,(RwV3d *)&g_weapon_62ac80,(frame_obj.b00_xy[0] + frame_obj.af4_xy[0]) * k_f_40,rwCOMBINEREPLACE
                );
   RwFrameRotate(frame,(RwV3d *)&g_car_62ac68,angle,rwCOMBINEPOSTCONCAT);
-  RwFrameTranslate(frame,&frame_obj.local_24,rwCOMBINEPOSTCONCAT);
+  RwFrameTranslate(frame,&frame_obj.wheel_pos,rwCOMBINEPOSTCONCAT);
   return;
 }
 

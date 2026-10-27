@@ -22,54 +22,54 @@
 /* "when the car is airborne (+0x9E0 == 0, mode 0) levels pitch and roll with RwMatrixRotate;
    otherwise damps the angular part (inferred)" */
 
-void car_air_control_n(Car *in_ecx, RwMatrix *in_esi, float param_4)
+void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
 
 {
-  float fVar1;
-  double fVar2;
-  double fVar3;
-  float10 fVar4;
+  float step;
+  double dot_a;
+  double dot_clamped;
+  float10 angle;
   struct {
-    RwV3d local_18;
-    RwV3d local_c;
+    RwV3d velocity_dir;
+    RwV3d swirl_axis;
   } frame;
   
-  if (in_ecx->wheels_in_contact == k_f_0) {
-    if (in_ecx->mode == 0) {
-      fVar1 = param_4 * k_f_0_001;
-      fVar2 = (in_esi->at).z * g_car_62ac7c +
-              (in_esi->at).x * g_car_62ac74 + (in_esi->at).y * g_car_62ac78;
-      fVar3 = k_f_n1;
-      if ((k_f_n1 <= fVar2) && (fVar3 = fVar2, float_1_0 < fVar2)) {
-        fVar3 = float_1_0;
+  if (car->wheels_in_contact == k_f_0) {
+    if (car->mode == 0) {
+      step = dt * k_f_0_001;
+      dot_a = (matrix->at).z * g_car_62ac7c +
+              (matrix->at).x * g_car_62ac74 + (matrix->at).y * g_car_62ac78;
+      dot_clamped = k_f_n1;
+      if ((k_f_n1 <= dot_a) && (dot_clamped = dot_a, float_1_0 < dot_a)) {
+        dot_clamped = float_1_0;
       }
-      fVar4 = (float10)FUN_004b3284((double)fVar3);
-      RwMatrixRotate(in_esi,(RwV3d *)&g_car_62ac68,
-                     (float)(-(fVar4 * (float10)(57.295799255371094) - (float10)(90.0)) * (float10)fVar1),
+      angle = (float10)FUN_004b3284((double)dot_clamped);
+      RwMatrixRotate(matrix,(RwV3d *)&g_car_62ac68,
+                     (float)(-(angle * (float10)(57.295799255371094) - (float10)(90.0)) * (float10)step),
                      rwCOMBINEPRECONCAT);
-      fVar2 = (in_esi->right).z * g_car_62ac7c +
-              g_car_62ac74 * (in_esi->right).x + (in_esi->right).y * g_car_62ac78;
-      fVar3 = k_f_n1;
-      if ((k_f_n1 <= fVar2) && (fVar3 = fVar2, float_1_0 < fVar2)) {
-        fVar3 = float_1_0;
+      dot_a = (matrix->right).z * g_car_62ac7c +
+              g_car_62ac74 * (matrix->right).x + (matrix->right).y * g_car_62ac78;
+      dot_clamped = k_f_n1;
+      if ((k_f_n1 <= dot_a) && (dot_clamped = dot_a, float_1_0 < dot_a)) {
+        dot_clamped = float_1_0;
       }
-      fVar4 = (float10)FUN_004b3284((double)fVar3);
-      RwMatrixRotate(in_esi,(RwV3d *)&g_weapon_62ac80,
-                     (float)((fVar4 * (float10)(57.295799255371094) - (float10)k_f_90) * (float10)fVar1),
+      angle = (float10)FUN_004b3284((double)dot_clamped);
+      RwMatrixRotate(matrix,(RwV3d *)&g_weapon_62ac80,
+                     (float)((angle * (float10)(57.295799255371094) - (float10)k_f_90) * (float10)step),
                      rwCOMBINEPRECONCAT);
       return;
     }
-    in_ecx->angular_velocity[2] = 0.0;
-    in_ecx->angular_velocity[1] = 0.0;
-    in_ecx->angular_velocity[0] = 0.0;
-    frame.local_18.x = in_ecx->velocity[0];
-    frame.local_18.y = in_ecx->velocity[1];
-    frame.local_18.z = in_ecx->velocity[2];
-    RwV3dNormalize(&frame.local_18,&frame.local_18);
-    frame.local_c.x = frame.local_18.z;
-    frame.local_c.y = frame.local_18.y;
-    frame.local_c.z = frame.local_18.x;
-    RwMatrixRotate(in_esi,&frame.local_c,param_4 * k_f_0_05,rwCOMBINEPRECONCAT);
+    car->angular_velocity[2] = 0.0;
+    car->angular_velocity[1] = 0.0;
+    car->angular_velocity[0] = 0.0;
+    frame.velocity_dir.x = car->velocity[0];
+    frame.velocity_dir.y = car->velocity[1];
+    frame.velocity_dir.z = car->velocity[2];
+    RwV3dNormalize(&frame.velocity_dir,&frame.velocity_dir);
+    frame.swirl_axis.x = frame.velocity_dir.z;
+    frame.swirl_axis.y = frame.velocity_dir.y;
+    frame.swirl_axis.z = frame.velocity_dir.x;
+    RwMatrixRotate(matrix,&frame.swirl_axis,dt * k_f_0_05,rwCOMBINEPRECONCAT);
   }
   return;
 }

@@ -5,7 +5,7 @@
 static undefined4 planes_test_bbox_r(int reg_ebx, int reg_eax, undefined4 param_3);
 extern void planes_test_bbox(void);
 #define COURSE_BBOX_STRIDE (0x80) /* bytes per course entry in g_course_6f60c8 (inferred) */
-__declspec(naked) undefined4 planes_test_bbox_r(int reg_ebx, int reg_eax, undefined4 param_3)
+__declspec(naked) undefined4 planes_test_bbox_r(int reg_ebx, int reg_eax, undefined4 unused_3)
 {
     __asm {
         push ebx

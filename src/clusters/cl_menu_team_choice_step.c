@@ -10,63 +10,63 @@
 /* WARNING: Unknown calling convention */
 /* "steps the team choice of player (in EAX) by +-1 skipping choices already taken (wraps 0..6)" */
 
-void menu_team_choice_step_n(int in_eax, int in_esi, int param_3)
+void menu_team_choice_step_n(int player, int step, int skip_none_flag)
 
 {
-  int iVar1;
-  bool bVar2;
-  int iVar3;
+  int old_choice;
+  bool moved;
+  int taken_choice;
   
-  if ((&g_menu_player_team_choice)[in_eax] != 0) {
-    bVar2 = false;
-    iVar3 = g_player_slots[0].team + 1;
+  if ((&g_menu_player_team_choice)[player] != 0) {
+    moved = false;
+    taken_choice = g_player_slots[0].team + 1;
     do {
-      if ((&g_menu_player_team_choice)[in_eax] == iVar3) {
-        bVar2 = true;
+      if ((&g_menu_player_team_choice)[player] == taken_choice) {
+        moved = true;
         do {
-          iVar1 = (&g_menu_player_team_choice)[in_eax];
-          (&g_menu_player_team_choice)[in_eax] = iVar1 + in_esi;
-        } while (iVar1 + in_esi == iVar3);
+          old_choice = (&g_menu_player_team_choice)[player];
+          (&g_menu_player_team_choice)[player] = old_choice + step;
+        } while (old_choice + step == taken_choice);
       }
-      if ((in_eax != 0) && ((&g_menu_player_team_choice)[in_eax] == g_menu_player_team_choice)) {
+      if ((player != 0) && ((&g_menu_player_team_choice)[player] == g_menu_player_team_choice)) {
         do {
-          if ((&g_menu_player_team_choice)[in_eax] == 0) break;
-          (&g_menu_player_team_choice)[in_eax] = (&g_menu_player_team_choice)[in_eax] + in_esi;
-          bVar2 = true;
-        } while ((&g_menu_player_team_choice)[in_eax] == g_menu_player_team_choice);
+          if ((&g_menu_player_team_choice)[player] == 0) break;
+          (&g_menu_player_team_choice)[player] = (&g_menu_player_team_choice)[player] + step;
+          moved = true;
+        } while ((&g_menu_player_team_choice)[player] == g_menu_player_team_choice);
       }
-      if ((in_eax != 1) && ((&g_menu_player_team_choice)[in_eax] == g_menu_player_team_choice_1))
+      if ((player != 1) && ((&g_menu_player_team_choice)[player] == g_menu_player_team_choice_1))
       {
         do {
-          if ((&g_menu_player_team_choice)[in_eax] == 0) break;
-          (&g_menu_player_team_choice)[in_eax] = (&g_menu_player_team_choice)[in_eax] + in_esi;
-          bVar2 = true;
-        } while ((&g_menu_player_team_choice)[in_eax] == g_menu_player_team_choice_1);
+          if ((&g_menu_player_team_choice)[player] == 0) break;
+          (&g_menu_player_team_choice)[player] = (&g_menu_player_team_choice)[player] + step;
+          moved = true;
+        } while ((&g_menu_player_team_choice)[player] == g_menu_player_team_choice_1);
       }
-      if ((in_eax != 2) && ((&g_menu_player_team_choice)[in_eax] == g_menu_player_team_choice_2))
+      if ((player != 2) && ((&g_menu_player_team_choice)[player] == g_menu_player_team_choice_2))
       {
         do {
-          if ((&g_menu_player_team_choice)[in_eax] == 0) break;
-          (&g_menu_player_team_choice)[in_eax] = (&g_menu_player_team_choice)[in_eax] + in_esi;
-          bVar2 = true;
-        } while ((&g_menu_player_team_choice)[in_eax] == g_menu_player_team_choice_2);
+          if ((&g_menu_player_team_choice)[player] == 0) break;
+          (&g_menu_player_team_choice)[player] = (&g_menu_player_team_choice)[player] + step;
+          moved = true;
+        } while ((&g_menu_player_team_choice)[player] == g_menu_player_team_choice_2);
       }
-      bVar2 = (bool)(bVar2 ^ 1);
-      if (in_esi == 1) {
-        if (param_3 == 0) {
-          if ((&g_menu_player_team_choice)[in_eax] == 7) {
-            (&g_menu_player_team_choice)[in_eax] = 1;
+      moved = (bool)(moved ^ 1);
+      if (step == 1) {
+        if (skip_none_flag == 0) {
+          if ((&g_menu_player_team_choice)[player] == 7) {
+            (&g_menu_player_team_choice)[player] = 1;
           }
         }
-        else if ((&g_menu_player_team_choice)[in_eax] == 7) {
-          (&g_menu_player_team_choice)[in_eax] = 0;
+        else if ((&g_menu_player_team_choice)[player] == 7) {
+          (&g_menu_player_team_choice)[player] = 0;
         }
       }
-      else if (((param_3 == 0) && ((&g_menu_player_team_choice)[in_eax] == 0)) ||
-              ((&g_menu_player_team_choice)[in_eax] == -1)) {
-        (&g_menu_player_team_choice)[in_eax] = 6;
+      else if (((skip_none_flag == 0) && ((&g_menu_player_team_choice)[player] == 0)) ||
+              ((&g_menu_player_team_choice)[player] == -1)) {
+        (&g_menu_player_team_choice)[player] = 6;
       }
-    } while (!bVar2);
+    } while (!moved);
   }
   return;
 }

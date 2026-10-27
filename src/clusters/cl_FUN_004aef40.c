@@ -4,22 +4,22 @@
 typedef int (__stdcall *ComMethod4)(int *self, int a, int b, int c);
 /* FUN_004aef40 */
 
-undefined4 FUN_004aef40_n(char *in_ecx, int param_1, undefined4 param_2, undefined4 param_3)
+undefined4 FUN_004aef40_n(char *self, int command, undefined4 arg_a, undefined4 arg_b)
 
 {
-  int *piVar1;
-  undefined4 uVar2;
+  int *com_object;
+  undefined4 result;
   
-  piVar1 = *(int **)(in_ecx + 0x44);
-  if (piVar1 == (int *)0x0) {
+  com_object = *(int **)(self + 0x44);
+  if (com_object == (int *)0x0) {
     return 0x80004001;
   }
-  if (param_1 == 1) {
-    uVar2 = (*(ComMethod4 *)(*piVar1 + 0xc))(piVar1,1,param_2,in_ecx + 0xc);
-    return uVar2;
+  if (command == 1) {
+    result = (*(ComMethod4 *)(*com_object + 0xc))(com_object,1,arg_a,self + 0xc);
+    return result;
   }
-  uVar2 = (*(ComMethod4 *)(*piVar1 + 0xc))(piVar1,param_1,param_2,param_3);
-  return uVar2;
+  result = (*(ComMethod4 *)(*com_object + 0xc))(com_object,command,arg_a,arg_b);
+  return result;
 }
 
 /* entry thunk at the original address of FUN_004aef40: register inputs (ecx,s0,s1,s2) -> natural C FUN_004aef40_n; ret 12 */

@@ -7,43 +7,45 @@
 
 /* "(body, vec3 or zero, flag): same with extra param" */
 
+/* (inferred names) body = physics body handle, velocity = vec3 or NULL for zero, matrix = frame matrix or 0 for the owner's default; unused_N are the trailing
+   stack parameters the original declares but never reads. */
 void __cdecl
 debris_apply_velocity_b
-          (undefined4 param_1,undefined4 *param_2,int param_3,char *param_4,char *param_5,
-          char *param_6,char *param_7,char *param_8,char *param_9,
-          char *param_10,char *param_11,char *param_12,char *param_13,
-          char *param_14,char *param_15,char *param_16,char *param_17)
+          (undefined4 body,undefined4 *velocity,int matrix,char *unused_4,char *unused_5,
+          char *unused_6,char *unused_7,char *unused_8,char *unused_9,
+          char *unused_10,char *unused_11,char *unused_12,char *unused_13,
+          char *unused_14,char *unused_15,char *unused_16,char *unused_17)
 
 {
-  char *iVar1;
-  int *piVar2;
-  char *iVar3;
+  char *world;
+  int *link;
+  char *owner;
   struct {
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    undefined4 zero_x;
+    undefined4 zero_y;
+    undefined4 zero_z;
   } frame;
   
-  frame.local_c = 0;
-  frame.local_8 = 0;
-  frame.local_4 = 0;
-  if (param_2 == (undefined4 *)0x0) {
-    param_2 = &frame.local_c;
+  frame.zero_x = 0;
+  frame.zero_y = 0;
+  frame.zero_z = 0;
+  if (velocity == (undefined4 *)0x0) {
+    velocity = &frame.zero_x;
   }
-  iVar3 = rwp_owner_object_get(param_1);
-  iVar1 = *(char **)(iVar3 + 0x24);
-  if (iVar1 != 0) {
-    if ((*(uint *)(*(char **)(iVar1 + 0x60) + (uint)(*(ushort *)(iVar3 + 0x20) >> 5) * 4) &
-        1 << ((byte)*(ushort *)(iVar3 + 0x20) & 0x1f)) != 0) goto LAB_00424998;
+  owner = rwp_owner_object_get(body);
+  world = *(char **)(owner + 0x24);
+  if (world != 0) {
+    if ((*(uint *)(*(char **)(world + 0x60) + (uint)(*(ushort *)(owner + 0x20) >> 5) * 4) &
+        1 << ((byte)*(ushort *)(owner + 0x20) & 0x1f)) != 0) goto LAB_00424998;
   }
-  FUN_0056b300(iVar1,iVar3);
+  FUN_0056b300(world,owner);
 LAB_00424998:
-  piVar2 = *(int **)(*(char **)(iVar3 + 0x10) + 4);
-  if (param_3 == 0) {
-    param_3 = **(int **)(*piVar2 + 0x10) + 0x30 + piVar2[1] * 0x40;
+  link = *(int **)(*(char **)(owner + 0x10) + 4);
+  if (matrix == 0) {
+    matrix = **(int **)(*link + 0x10) + 0x30 + link[1] * 0x40;
   }
-  FUN_0056bc20(piVar2,param_2,param_3);
-  rwp_world_set_bit_5c(*(undefined4 *)(iVar3 + 0x24),iVar3,1);
+  FUN_0056bc20(link,velocity,matrix);
+  rwp_world_set_bit_5c(*(undefined4 *)(owner + 0x24),owner,1);
   return;
 }
 

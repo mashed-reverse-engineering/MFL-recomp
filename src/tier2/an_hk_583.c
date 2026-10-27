@@ -1,11 +1,11 @@
 #include "mfl_tier2.h"
 /*006af5e4*/ extern undefined4 g_car_6af5e4[0x1000];
 /*006c2684*/ extern undefined4 g_course_object_pair_count;
-static int course_object_pair_build_clump_r(int reg_esi, int reg_ebx, int param_3, int param_4);
+static int course_object_pair_build_clump_r(int reg_esi, int reg_ebx, int pair_obj_b, int pair_index);
 extern void course_object_pair_build_clump(void);
 /* dwords per object pair record in g_car_6af5e4 (inferred from the loop stride) */
 #define OBJECT_PAIR_STRIDE (3)
-__declspec(naked) int course_object_pair_build_clump_r(int reg_esi, int reg_ebx, int param_3, int param_4)
+__declspec(naked) int course_object_pair_build_clump_r(int reg_esi, int reg_ebx, int pair_obj_b, int pair_index)
 {
     __asm {
         push ebx
@@ -30,10 +30,10 @@ __declspec(naked) int course_object_pair_build_clump_r(int reg_esi, int reg_ebx,
  * esi_arg is forwarded unchanged as the callee's esi (inferred).
  * Returns nothing; params 2..16 are unused. */
 
-void __cdecl course_object_pairs_build_clumps(undefined4 esi_arg,char *param_2,char *param_3,char *param_4,
-          char *param_5,char *param_6,char *param_7,char *param_8,
-          char *param_9,char *param_10,char *param_11,char *param_12,
-          char *param_13,char *param_14,char *param_15,char *param_16)
+void __cdecl course_object_pairs_build_clumps(undefined4 esi_arg,char *unused_2,char *unused_3,char *unused_4,
+          char *unused_5,char *unused_6,char *unused_7,char *unused_8,
+          char *unused_9,char *unused_10,char *unused_11,char *unused_12,
+          char *unused_13,char *unused_14,char *unused_15,char *unused_16)
 
 {
   undefined4 *pair_ptr;

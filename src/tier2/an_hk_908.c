@@ -16,64 +16,65 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the camera roll factor from the camera facing and calls game_set_option_flags" */
 
-void course_camera_roll_update(char *param_1,RwCamera *camera)
+/* (inferred) course +0xc9f4..0xca0c: two colour / fog near / fog far key frames (A at c9f4, B at ca00) and a roll angle (ca0c); the blend factor is (dot(camera forward flattened, forward rotated by roll) - 1) * -0.5 */
+void course_camera_roll_update(char *course,RwCamera *camera)
 
 {
-  float fVar1;
-  void *pvVar2;
-  float fVar3;
-  undefined1 uVar4;
-  undefined1 uVar5;
-  undefined1 uVar6;
-  undefined1 uStack_69;
-  undefined1 uStack_68;
-  undefined1 uStack_67;
+  float unused_f;
+  void *camera_frame;
+  float fog_near;
+  undefined1 unused_a;
+  undefined1 unused_b;
+  undefined1 unused_c;
+  undefined1 unused_d;
+  undefined1 unused_e;
+  undefined1 unused_g;
   uchar rgb[8];
-  RwV3d local_64;
-  RwV3d local_58;
-  RwV3d local_4c;
-  RwMatrix local_40;
+  RwV3d view_dir_flat;
+  RwV3d forward_vec;
+  RwV3d up_axis;
+  RwMatrix roll_matrix;
   
-  pvVar2 = RwCamera_object_object_parent(camera);
-  local_58.x = 0.0;
-  local_58.y = 0.0;
-  local_58.z = 1.0;
-  local_4c.x = 0.0;
-  local_4c.y = 1.0;
-  local_4c.z = 0.0;
-  if (((*(char *)(param_1 + 0xca00) != '\0') || (*(char *)(param_1 + 0xca01) != '\0')) ||
-     (*(char *)(param_1 + 0xca02) != '\0')) {
-    g_course_update_6095c0 = *(undefined4 *)(param_1 + 0xc9f4);
-    g_course_update_6095c4 = *(undefined4 *)(param_1 + 0xca00);
-    local_40.flags = local_40.flags | 0x20003;
-    local_40.at.z = 1.0;
-    local_40.up.y = 1.0;
-    local_40.right.x = 1.0;
-    local_40.up.x = 0.0;
-    local_40.right.z = 0.0;
-    local_40.right.y = 0.0;
-    local_40.at.y = 0.0;
-    local_40.at.x = 0.0;
-    local_40.up.z = 0.0;
-    local_40.pos.z = 0.0;
-    local_40.pos.y = 0.0;
-    local_40.pos.x = 0.0;
-    RwMatrixRotate(&local_40,&local_4c,*(RwReal *)(param_1 + 0xca0c),rwCOMBINEREPLACE);
-    RwV3dTransformVector(&local_58,&local_58,&local_40);
-    local_64.x = *(float *)((char *)pvVar2 + 0x30);
-    local_64.y = 0.0;
-    local_64.z = *(float *)((char *)pvVar2 + 0x38);
-    RwV3dNormalize(&local_64,&local_64);
-    g_course_lap_data_split_sectors_14_ = (local_64.z * local_58.z + local_64.x * local_58.x + local_64.y * local_58.y - float_1_0) * k_f_n0_5;
+  camera_frame = RwCamera_object_object_parent(camera);
+  forward_vec.x = 0.0;
+  forward_vec.y = 0.0;
+  forward_vec.z = 1.0;
+  up_axis.x = 0.0;
+  up_axis.y = 1.0;
+  up_axis.z = 0.0;
+  if (((*(char *)(course + 0xca00) != '\0') || (*(char *)(course + 0xca01) != '\0')) ||
+     (*(char *)(course + 0xca02) != '\0')) {
+    g_course_update_6095c0 = *(undefined4 *)(course + 0xc9f4);
+    g_course_update_6095c4 = *(undefined4 *)(course + 0xca00);
+    roll_matrix.flags = roll_matrix.flags | 0x20003;
+    roll_matrix.at.z = 1.0;
+    roll_matrix.up.y = 1.0;
+    roll_matrix.right.x = 1.0;
+    roll_matrix.up.x = 0.0;
+    roll_matrix.right.z = 0.0;
+    roll_matrix.right.y = 0.0;
+    roll_matrix.at.y = 0.0;
+    roll_matrix.at.x = 0.0;
+    roll_matrix.up.z = 0.0;
+    roll_matrix.pos.z = 0.0;
+    roll_matrix.pos.y = 0.0;
+    roll_matrix.pos.x = 0.0;
+    RwMatrixRotate(&roll_matrix,&up_axis,*(RwReal *)(course + 0xca0c),rwCOMBINEREPLACE);
+    RwV3dTransformVector(&forward_vec,&forward_vec,&roll_matrix);
+    view_dir_flat.x = *(float *)((char *)camera_frame + 0x30);
+    view_dir_flat.y = 0.0;
+    view_dir_flat.z = *(float *)((char *)camera_frame + 0x38);
+    RwV3dNormalize(&view_dir_flat,&view_dir_flat);
+    g_course_lap_data_split_sectors_14_ = (view_dir_flat.z * forward_vec.z + view_dir_flat.x * forward_vec.x + view_dir_flat.y * forward_vec.y - float_1_0) * k_f_n0_5;
     rgb[0] = (uchar)(int)((float)(int)(((uchar *)&g_course_update_6095c4)[0] - ((uchar *)&g_course_update_6095c0)[0]) * g_course_lap_data_split_sectors_14_ + (float)(int)((uchar *)&g_course_update_6095c0)[0]);
     rgb[1] = (uchar)(int)((float)(int)(((uchar *)&g_course_update_6095c4)[1] - ((uchar *)&g_course_update_6095c0)[1]) * g_course_lap_data_split_sectors_14_ + (float)(int)((uchar *)&g_course_update_6095c0)[1]);
     rgb[2] = (uchar)(int)((float)(int)(((uchar *)&g_course_update_6095c4)[2] - ((uchar *)&g_course_update_6095c0)[2]) * g_course_lap_data_split_sectors_14_ + (float)(int)((uchar *)&g_course_update_6095c0)[2]);
     game_set_option_flags(*(int *)&rgb[0],*(int *)&rgb[1],*(int *)&rgb[2]);
-    fVar3 = (*(float *)(param_1 + 0xca04) - *(float *)(param_1 + 0xc9f8)) * g_course_lap_data_split_sectors_14_ + *(float *)(param_1 + 0xc9f8);
+    fog_near = (*(float *)(course + 0xca04) - *(float *)(course + 0xc9f8)) * g_course_lap_data_split_sectors_14_ + *(float *)(course + 0xc9f8);
     RwCameraSetFarClipPlane
-              (camera,(*(float *)(param_1 + 0xca08) - *(float *)(param_1 + 0xc9fc)) *
-                      g_course_lap_data_split_sectors_14_ + *(float *)(param_1 + 0xc9fc));
-    RwCamera_fogPlane(camera) = fVar3;
+              (camera,(*(float *)(course + 0xca08) - *(float *)(course + 0xc9fc)) *
+                      g_course_lap_data_split_sectors_14_ + *(float *)(course + 0xc9fc));
+    RwCamera_fogPlane(camera) = fog_near;
   }
   return;
 }

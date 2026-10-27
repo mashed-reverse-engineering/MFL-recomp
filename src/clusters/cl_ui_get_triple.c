@@ -9,15 +9,15 @@
 /* WARNING: Unknown calling convention */
 /* "reads the 3 dwords stored by ui_set_triple" */
 
-void ui_get_triple_n(int in_eax, int in_ecx, undefined4 *param_3, undefined4 *param_4, undefined4 *param_5)
+void ui_get_triple_n(int a, int b, undefined4 *out_x, undefined4 *out_y, undefined4 *out_z)
 
 {
-  int iVar1;
+  int offset;
   
-  iVar1 = (in_eax + in_ecx * 2) * 0xc;
-  *param_3 = *(undefined4 *)((char *)&g_ui_8c7fc0 + iVar1);
-  *param_5 = *(undefined4 *)((char *)&g_ui_8c7fc8 + iVar1);
-  *param_4 = *(undefined4 *)((char *)&g_ui_8c7fc4 + iVar1);
+  offset = (a + b * 2) * 0xc;
+  *out_x = *(undefined4 *)((char *)&g_ui_8c7fc0 + offset);
+  *out_z = *(undefined4 *)((char *)&g_ui_8c7fc8 + offset);
+  *out_y = *(undefined4 *)((char *)&g_ui_8c7fc4 + offset);
   return;
 }
 

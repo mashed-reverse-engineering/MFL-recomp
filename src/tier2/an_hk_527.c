@@ -18,37 +18,38 @@
 
 /* "stores three vectors into slot (system, index) (max 16 each)" */
 
+/* (inferred names) slot (system, slot_count) gets vec_a (twice, at +0 and +0x28), vec_b, vec_c and scalar (twice); returns 0 when the system already holds 16 slots */
 undefined4
 particles_slot_set_vectors
-          (int param_1,undefined4 *param_2,undefined4 param_3,undefined4 *param_4,
-          undefined4 *param_5)
+          (int system,undefined4 *vec_a,undefined4 scalar,undefined4 *vec_b,
+          undefined4 *vec_c)
 
 {
-  int iVar1;
-  undefined4 uVar2;
-  int iVar3;
+  int slot_count;
+  undefined4 vec_a_z;
+  int slot_offset;
   
-  iVar1 = ((int *)&g_particles_75cda8)[param_1];
-  if (0xf < iVar1) {
+  slot_count = ((int *)&g_particles_75cda8)[system];
+  if (0xf < slot_count) {
     return 0;
   }
-  iVar3 = (param_1 * 0x10 + iVar1) * 0x38;
-  *(undefined4 *)((char *)&g_particles_75bfa8 + iVar3) = *param_2;
-  *(undefined4 *)((char *)&g_particles_75bfac + iVar3) = param_2[1];
-  *(undefined4 *)((char *)&g_particles_75bfb0 + iVar3) = param_2[2];
-  *(undefined4 *)((char *)&g_particles_75bfb8 + iVar3) = *param_4;
-  *(undefined4 *)((char *)&g_particles_75bfbc + iVar3) = param_4[1];
-  *(undefined4 *)((char *)&g_particles_75bfc0 + iVar3) = param_4[2];
-  *(undefined4 *)((char *)&g_particles_75bfc4 + iVar3) = *param_5;
-  *(undefined4 *)((char *)&g_particles_75bfc8 + iVar3) = param_5[1];
-  *(undefined4 *)((char *)&g_particles_75bfcc + iVar3) = param_5[2];
-  *(undefined4 *)((char *)&g_particles_75bfb4 + iVar3) = param_3;
-  *(undefined4 *)((char *)&g_particles_75bfd0 + iVar3) = *param_2;
-  *(undefined4 *)((char *)&g_particles_75bfd4 + iVar3) = param_2[1];
-  uVar2 = param_2[2];
-  ((int *)&g_particles_75cda8)[param_1] = iVar1 + 1;
-  *(undefined4 *)((char *)&g_particles_75bfd8 + iVar3) = uVar2;
-  *(undefined4 *)((char *)&g_particles_75bfdc + iVar3) = param_3;
+  slot_offset = (system * 0x10 + slot_count) * 0x38;
+  *(undefined4 *)((char *)&g_particles_75bfa8 + slot_offset) = *vec_a;
+  *(undefined4 *)((char *)&g_particles_75bfac + slot_offset) = vec_a[1];
+  *(undefined4 *)((char *)&g_particles_75bfb0 + slot_offset) = vec_a[2];
+  *(undefined4 *)((char *)&g_particles_75bfb8 + slot_offset) = *vec_b;
+  *(undefined4 *)((char *)&g_particles_75bfbc + slot_offset) = vec_b[1];
+  *(undefined4 *)((char *)&g_particles_75bfc0 + slot_offset) = vec_b[2];
+  *(undefined4 *)((char *)&g_particles_75bfc4 + slot_offset) = *vec_c;
+  *(undefined4 *)((char *)&g_particles_75bfc8 + slot_offset) = vec_c[1];
+  *(undefined4 *)((char *)&g_particles_75bfcc + slot_offset) = vec_c[2];
+  *(undefined4 *)((char *)&g_particles_75bfb4 + slot_offset) = scalar;
+  *(undefined4 *)((char *)&g_particles_75bfd0 + slot_offset) = *vec_a;
+  *(undefined4 *)((char *)&g_particles_75bfd4 + slot_offset) = vec_a[1];
+  vec_a_z = vec_a[2];
+  ((int *)&g_particles_75cda8)[system] = slot_count + 1;
+  *(undefined4 *)((char *)&g_particles_75bfd8 + slot_offset) = vec_a_z;
+  *(undefined4 *)((char *)&g_particles_75bfdc + slot_offset) = scalar;
   return 1;
 }
 

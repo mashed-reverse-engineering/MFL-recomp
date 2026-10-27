@@ -208,28 +208,28 @@ extern undefined4 lua_RainSetDirection(char *param_1);
 /* "adds a splash record (max 8): position, velocity vectors" */
 
 undefined4
-rain_splash_add(undefined4 *param_1,undefined4 param_2,undefined4 *param_3,undefined4 *param_4)
+rain_splash_add(undefined4 *pos,undefined4 splash_arg,undefined4 *vel,undefined4 *colour_or_size)
 {
-  int iVar1;
+  int slot_offset;
   
   if (7 < (int)g_app_76e5a0) {      /* defectlint: undefined4 global, the original compares signed (jl) */
     return 0;
   }
-  iVar1 = g_app_76e5a0 * 0x38;
-  (&g_app_76e3e0)[g_app_76e5a0 * 0xe] = *param_1;
-  (&g_app_76e3e4)[g_app_76e5a0 * 0xe] = param_1[1];
-  (&g_app_76e3e8)[g_app_76e5a0 * 0xe] = param_1[2];
-  *(undefined4 *)((char *)&g_course_arctic_76e3f0 + iVar1) = *param_3;
-  *(undefined4 *)((char *)&g_course_arctic_76e3f4 + iVar1) = param_3[1];
-  *(undefined4 *)((char *)&g_course_arctic_76e3f8 + iVar1) = param_3[2];
-  *(undefined4 *)((char *)&g_course_arctic_76e3fc + iVar1) = *param_4;
-  *(undefined4 *)((char *)&g_course_arctic_76e400 + iVar1) = param_4[1];
-  *(undefined4 *)((char *)&g_course_arctic_76e404 + iVar1) = param_4[2];
-  *(undefined4 *)((char *)&g_course_arctic_76e3ec + iVar1) = param_2;
-  *(undefined4 *)((char *)&g_app_76e408 + iVar1) = *param_1;
-  *(undefined4 *)((char *)&g_course_arctic_76e40c + iVar1) = param_1[1];
-  *(undefined4 *)((char *)&g_course_arctic_76e410 + iVar1) = param_1[2];
-  *(undefined4 *)((char *)&g_course_arctic_76e414 + iVar1) = param_2;
+  slot_offset = g_app_76e5a0 * 0x38;
+  (&g_app_76e3e0)[g_app_76e5a0 * 0xe] = *pos;
+  (&g_app_76e3e4)[g_app_76e5a0 * 0xe] = pos[1];
+  (&g_app_76e3e8)[g_app_76e5a0 * 0xe] = pos[2];
+  *(undefined4 *)((char *)&g_course_arctic_76e3f0 + slot_offset) = *vel;
+  *(undefined4 *)((char *)&g_course_arctic_76e3f4 + slot_offset) = vel[1];
+  *(undefined4 *)((char *)&g_course_arctic_76e3f8 + slot_offset) = vel[2];
+  *(undefined4 *)((char *)&g_course_arctic_76e3fc + slot_offset) = *colour_or_size;
+  *(undefined4 *)((char *)&g_course_arctic_76e400 + slot_offset) = colour_or_size[1];
+  *(undefined4 *)((char *)&g_course_arctic_76e404 + slot_offset) = colour_or_size[2];
+  *(undefined4 *)((char *)&g_course_arctic_76e3ec + slot_offset) = splash_arg;
+  *(undefined4 *)((char *)&g_app_76e408 + slot_offset) = *pos;
+  *(undefined4 *)((char *)&g_course_arctic_76e40c + slot_offset) = pos[1];
+  *(undefined4 *)((char *)&g_course_arctic_76e410 + slot_offset) = pos[2];
+  *(undefined4 *)((char *)&g_course_arctic_76e414 + slot_offset) = splash_arg;
   g_app_76e5a0 = g_app_76e5a0 + 1;
   return 1;
 }

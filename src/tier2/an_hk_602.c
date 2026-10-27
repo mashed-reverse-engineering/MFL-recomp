@@ -32,8 +32,8 @@
  * object_type: index into g_rwp_objects
  */
 
-void __cdecl rwp_objects_create_capsule_group(int count,char *param_2,undefined4 rw_list,char *param_4,int object_type,
-          char *param_6)
+void __cdecl rwp_objects_create_capsule_group(int count,char *unused_2,undefined4 rw_list,char *unused_4,int object_type,
+          char *unused_6)
 
 {
   float capsule_radius_scaled;

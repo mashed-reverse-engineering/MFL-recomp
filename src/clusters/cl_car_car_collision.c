@@ -32,8 +32,8 @@ extern EventLogDataF g_event_log_data[256];
 /* Collision response between two cars (a = ecx, b = eax): each car's four hull corner points are tested against the other car's tetrahedron (four planes);
    the mean of the points inside is the contact point (nothing inside: no collision, returns 0).  The cars then exchange velocity along the contact normals
    (elasticity from the normal speeds), are pushed apart (impulse scaled by the speed sum, at least 200), get a yaw spin from the contact side, and the
-   event is logged (type 4, 16 floats) unless the race is in phase 1..5.  Returns param_4 == 0. */
-int car_car_collision_n(Car *a, Car *b, int unused, int param_4)
+   event is logged (type 4, 16 floats) unless the race is in phase 1..5.  Returns flag_4 == 0. */
+int car_car_collision_n(Car *a, Car *b, int unused, int flag_4)
 {
   float *pos_a, *pos_b;
   float contact_x, contact_y, contact_z;
@@ -320,14 +320,14 @@ int car_car_collision_n(Car *a, Car *b, int unused, int param_4)
         (&g_event_log_data[g_event_log_head].w00)[i] = log_data[i];
       }
     } else {
-      return param_4 == 0;
+      return flag_4 == 0;
     }
   }
   g_event_log_head = g_event_log_head + 1;
   if (0xff < g_event_log_head) {
     g_event_log_head = 0;
   }
-  return param_4 == 0;
+  return flag_4 == 0;
 }
 
 /* entry thunk at the original address of car_car_collision: register inputs (ecx,eax,s0,s1) -> natural C car_car_collision_n; ret 0 */

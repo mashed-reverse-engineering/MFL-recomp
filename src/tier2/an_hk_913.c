@@ -16,7 +16,7 @@
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
 /* "RwTexDictionaryFindNamedTexture('keyboard')" */
 /* TIER2: validated 2026-10-19 authority=diffemu */
-void __cdecl ui_keyboard_icon_find(int param_1,float param_2,float param_3,undefined4 param_4,int param_5)
+void __cdecl ui_keyboard_icon_find(int controller,float icon_x,float icon_y,undefined4 colour_rgba,int add_suffix)
 {
   struct RwTexture *tex;
   void *raster;
@@ -34,13 +34,13 @@ void __cdecl ui_keyboard_icon_find(int param_1,float param_2,float param_3,undef
   frame.name[6] = '\0';
   frame.name[7] = '\0';
   frame.name[8] = '\0';
-  frame.x1 = param_2 * k_f_0_0015625 + k_f_0_04;
+  frame.x1 = icon_x * k_f_0_0015625 + k_f_0_04;
   frame.name[9] = '\0';
   frame.name[10] = '\0';
   frame.name[11] = '\0';
   frame.name[12] = '\0';
   raster = (void *)0x0;
-  frame.y1 = k_f_0_03 + param_3 * k_f_0_0020833334;
+  frame.y1 = k_f_0_03 + icon_y * k_f_0_0020833334;
   frame.name[13] = '\0';
   frame.name[14] = '\0';
   frame.name[0] = '\0';
@@ -48,21 +48,21 @@ void __cdecl ui_keyboard_icon_find(int param_1,float param_2,float param_3,undef
   frame.name[2] = '\0';
   frame.name[3] = '\0';
   frame.name[15] = '\0';
-  frame.x0 = param_2 * k_f_0_0015625 - k_f_0_04;
-  frame.y0 = param_3 * k_f_0_0020833334 - k_f_0_03;
-  if (g_controller_cfg[param_1].device == 2) {
+  frame.x0 = icon_x * k_f_0_0015625 - k_f_0_04;
+  frame.y0 = icon_y * k_f_0_0020833334 - k_f_0_03;
+  if (g_controller_cfg[controller].device == 2) {
     *(undefined4 *)(frame.name + 4) = *(undefined4 *)(s_keyboard_005de998 + 4);
     frame.name[8] = s_keyboard_005de998[8];
     *(undefined4 *)frame.name = *(undefined4 *)s_keyboard_005de998;
   }
   else {
-    if (g_controller_cfg[param_1].device == 1) {
+    if (g_controller_cfg[controller].device == 1) {
       *(undefined2 *)(frame.name + 4) = *(undefined2 *)(g_ui_keyboard_5de990 + 4);
       frame.name[6] = g_ui_keyboard_5de990[6];
       *(undefined4 *)frame.name = *(undefined4 *)g_ui_keyboard_5de990;
     }
   }
-  if (param_5 != 0) {
+  if (add_suffix != 0) {
     p = frame.name;
     while (*p != '\0') {
       p = p + 1;
@@ -73,6 +73,6 @@ void __cdecl ui_keyboard_icon_find(int param_1,float param_2,float param_3,undef
   if (tex != (struct RwTexture *)0x0) {
     raster = *(void **)tex;
   }
-  FUN_004c65d0(*(void **)RwEngineInstance,&frame.x0,&frame.x1,&param_4,raster);
+  FUN_004c65d0(*(void **)RwEngineInstance,&frame.x0,&frame.x1,&colour_rgba,raster);
   return;
 }

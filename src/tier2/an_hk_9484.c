@@ -5,40 +5,40 @@
 /*005de490*/ extern float k_f_0_02;
 /* particle_spawn_at_weapon_pos */
 
-/* "spawns at weapon pos offset -local_8 along the direction" */
+/* "spawns at weapon pos offset -hit_distance along the direction" */
 
-undefined4 __cdecl particle_spawn_at_weapon_pos(float *param_1,undefined4 param_2)
+undefined4 __cdecl particle_spawn_at_weapon_pos(float *pos,undefined4 out_matrix)
 
 {
-  undefined4 uVar1;
-  int iVar2;
+  undefined4 unused_ret;
+  int hit;
   struct {
-    float local_4c;
-    float local_48;
-    float local_44;
-    float local_40;
-    float local_3c;
-    float local_38;
+    float spawn_x;
+    float spawn_y;
+    float spawn_z;
+    float hit_normal_x;
+    float hit_normal_y;
+    float hit_normal_z;
     undefined1 pad_34[4];
-    undefined1 local_30 [40];
-    float local_8;
+    undefined1 hit_info [40];
+    float hit_distance;
     undefined1 pad_4[4];
   } frame;
   
-  iVar2 = FUN_004c4c70(weapon_get_rw_801b14(),param_1,&frame.local_40);
-  if (iVar2 != 0) {
-    double s = -frame.local_8;
-    double x = frame.local_40 * s;
+  hit = FUN_004c4c70(weapon_get_rw_801b14(),pos,&frame.hit_normal_x);
+  if (hit != 0) {
+    double s = -frame.hit_distance;
+    double x = frame.hit_normal_x * s;
     double y;
-    *(volatile float *)&frame.local_48 = frame.local_3c * s;
-    *(volatile float *)&frame.local_44 = frame.local_38 * s;
-    x = x + *param_1;
-    y = param_1[1] + *(volatile float *)&frame.local_48;
-    *(volatile float *)&frame.local_44 = param_1[2] + *(volatile float *)&frame.local_44;
-    frame.local_4c = k_f_0_02 * frame.local_40 + x;
-    frame.local_48 = k_f_0_02 * frame.local_3c + y;
-    frame.local_44 = k_f_0_02 * frame.local_38 + *(volatile float *)&frame.local_44;
-    FUN_004c51a0(param_2,frame.local_30,&frame.local_4c);
+    *(volatile float *)&frame.spawn_y = frame.hit_normal_y * s;
+    *(volatile float *)&frame.spawn_z = frame.hit_normal_z * s;
+    x = x + *pos;
+    y = pos[1] + *(volatile float *)&frame.spawn_y;
+    *(volatile float *)&frame.spawn_z = pos[2] + *(volatile float *)&frame.spawn_z;
+    frame.spawn_x = k_f_0_02 * frame.hit_normal_x + x;
+    frame.spawn_y = k_f_0_02 * frame.hit_normal_y + y;
+    frame.spawn_z = k_f_0_02 * frame.hit_normal_z + *(volatile float *)&frame.spawn_z;
+    FUN_004c51a0(out_matrix,frame.hit_info,&frame.spawn_x);
     return 1;
   }
   return 0;

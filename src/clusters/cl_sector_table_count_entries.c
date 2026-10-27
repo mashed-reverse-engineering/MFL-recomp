@@ -8,26 +8,26 @@
 /* WARNING: Unknown calling convention */
 /* "stores the table pointer for the sector and counts its entries up to the zero terminator" */
 
-void sector_table_count_entries_n(int in_edx, char *in_eax)
+void sector_table_count_entries_n(int sector, char *table_cursor)
 
 {
   char *pcVar1;
   char *pcVar2;
   char *pcVar3;
-  int *piVar4;
+  int *count_ptr;
   char *pcVar5;
   
-  piVar4 = &g_sector_table_702268 + in_edx;
-  *(char **)((char *)&g_sector_table_702668 + in_edx * 4) = in_eax;
-  *piVar4 = 0;
-  if (((in_eax[3] != '\0' || in_eax[2] != '\0') || in_eax[1] != '\0') || *in_eax != '\0') {
+  count_ptr = &g_sector_table_702268 + sector;
+  *(char **)((char *)&g_sector_table_702668 + sector * 4) = table_cursor;
+  *count_ptr = 0;
+  if (((table_cursor[3] != '\0' || table_cursor[2] != '\0') || table_cursor[1] != '\0') || *table_cursor != '\0') {
     do {
-      pcVar5 = in_eax + 4;
-      *piVar4 = *piVar4 + 1;
-      pcVar1 = in_eax + 6;
-      pcVar2 = in_eax + 7;
-      pcVar3 = in_eax + 5;
-      in_eax = pcVar5;
+      pcVar5 = table_cursor + 4;
+      *count_ptr = *count_ptr + 1;
+      pcVar1 = table_cursor + 6;
+      pcVar2 = table_cursor + 7;
+      pcVar3 = table_cursor + 5;
+      table_cursor = pcVar5;
     } while (((*pcVar2 != '\0' || *pcVar1 != '\0') || *pcVar3 != '\0') || *pcVar5 != '\0');
   }
   return;

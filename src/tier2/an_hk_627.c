@@ -13,7 +13,7 @@ extern struct VoiceSlot g_voices[210];
 /*006ae154*/ extern undefined4 g_bomb_update_6ae154;
 /*006ae158*/ extern undefined4 g_bomb_update_6ae158;
 
-/* state values passed as param_1 (inferred from the branches) */
+/* state values passed as unused_1 (inferred from the branches) */
 #define BOMB_STATE_START (1)
 #define BOMB_STATE_PITCH_UP (2)
 #define BOMB_STATE_STOP (3)

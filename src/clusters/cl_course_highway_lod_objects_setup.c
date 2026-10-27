@@ -15,37 +15,37 @@
 /* WARNING: Unknown calling convention */
 /* "clones the atomics of the highway object set and creates their frames" */
 
-void course_highway_lod_objects_setup_n(int in_ebx, char *param_2)
+void course_highway_lod_objects_setup_n(int object_set, char *source_atomics)
 
 {
-  int iVar1;
-  RpAtomic *pRVar2;
-  RwFrame *pRVar3;
-  int iVar4;
-  int *piVar5;
+  int count_or_row;
+  RpAtomic *clone;
+  RwFrame *clone_frame;
+  int i;
+  int *entry;
   
-  iVar1 = *(int *)((char *)((undefined *)&g_course_highway_8c4470) + *(int *)(in_ebx + 0xac) * 4);
-  iVar4 = 0;
-  *(int *)(in_ebx + 100) = iVar1;
-  if (0 < iVar1) {
-    piVar5 = (int *)(in_ebx + 0xc);
+  count_or_row = *(int *)((char *)((undefined *)&g_course_highway_8c4470) + *(int *)(object_set + 0xac) * 4);
+  i = 0;
+  *(int *)(object_set + 100) = count_or_row;
+  if (0 < count_or_row) {
+    entry = (int *)(object_set + 0xc);
     do {
-      iVar1 = (iVar4 + *(int *)(in_ebx + 0xac) * 4) * 0xc;
-      piVar5[-3] = *(int *)((char *)((undefined *)&g_course_highway_8c4720) + iVar1);
-      piVar5[-2] = *(int *)((char *)((undefined *)&g_course_highway_8c4724) + iVar1);
-      piVar5[-1] = *(int *)((char *)((undefined *)&g_course_highway_8c4728) + iVar1);
-      pRVar2 = RpAtomicClone(*(RpAtomic **)(param_2 + iVar4 * 4));
-      *piVar5 = (int)pRVar2;
-      pRVar3 = RwFrameCreate();
-      RpAtomicSetFrame((RpAtomic *)*piVar5,pRVar3);
-      pRVar3 = *(RwFrame **)(*piVar5 + 4);
-      RwFrameAddChild(*(RwFrame **)(*(char **)(in_ebx + 0xa0) + 4),pRVar3);
-      RwFrameTranslate(pRVar3,(RwV3d *)(((undefined *)&g_course_highway_8c4720) +
-                                       (iVar4 + *(int *)(in_ebx + 0xac) * 4) * 0xc),
+      count_or_row = (i + *(int *)(object_set + 0xac) * 4) * 0xc;
+      entry[-3] = *(int *)((char *)((undefined *)&g_course_highway_8c4720) + count_or_row);
+      entry[-2] = *(int *)((char *)((undefined *)&g_course_highway_8c4724) + count_or_row);
+      entry[-1] = *(int *)((char *)((undefined *)&g_course_highway_8c4728) + count_or_row);
+      clone = RpAtomicClone(*(RpAtomic **)(source_atomics + i * 4));
+      *entry = (int)clone;
+      clone_frame = RwFrameCreate();
+      RpAtomicSetFrame((RpAtomic *)*entry,clone_frame);
+      clone_frame = *(RwFrame **)(*entry + 4);
+      RwFrameAddChild(*(RwFrame **)(*(char **)(object_set + 0xa0) + 4),clone_frame);
+      RwFrameTranslate(clone_frame,(RwV3d *)(((undefined *)&g_course_highway_8c4720) +
+                                       (i + *(int *)(object_set + 0xac) * 4) * 0xc),
                        rwCOMBINEREPLACE);
-      iVar4 = iVar4 + 1;
-      piVar5 = piVar5 + 6;
-    } while (iVar4 < *(int *)(in_ebx + 100));
+      i = i + 1;
+      entry = entry + 6;
+    } while (i < *(int *)(object_set + 100));
   }
   return;
 }

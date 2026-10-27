@@ -31,14 +31,14 @@ undefined4 __cdecl rwp_object_query_ray_hit(undefined4 object_ref,undefined4 ray
   undefined4 query_handle;
   int owner_or_hit;
   struct {
-    undefined1 local_30 [16];
-    undefined1 local_20 [4];
-    undefined4 local_1c;
-    undefined4 local_18;
-    undefined4 local_14;
-    undefined4 local_10;
-    undefined4 local_c;
-    undefined4 local_8;
+    undefined1 query_setup [16];
+    undefined1 hit_header [4];
+    undefined4 hit_point_x;
+    undefined4 hit_point_y;
+    undefined4 hit_point_z;
+    undefined4 hit_normal_x;
+    undefined4 hit_normal_y;
+    undefined4 hit_normal_z;
     undefined4 pad_top;
   } hit_buffer;
 
@@ -54,16 +54,16 @@ undefined4 __cdecl rwp_object_query_ray_hit(undefined4 object_ref,undefined4 ray
      ((*(uint *)(*(char **)(*(char **)(owner_or_hit + OWNER_BITSET_HOLDER_OFFSET) + BITSET_ARRAY_OFFSET) + (uint)(*(ushort *)(owner_or_hit + OWNER_BIT_INDEX_OFFSET) >> BITSET_WORD_SHIFT) * BITSET_WORD_BYTES
                 ) & 1 << ((byte)*(ushort *)(owner_or_hit + OWNER_BIT_INDEX_OFFSET) & BITSET_BIT_MASK)) != 0)) {
     /* Per-query setup into hit_buffer, then the ray test itself (both inferred). */
-    FUN_0056c140(query_handle,owner_block_word2,hit_buffer.local_30);
-    owner_or_hit = FUN_0056c3b0(query_handle,owner_block_word2,ray_origin,ray_direction,hit_buffer.local_20);
+    FUN_0056c140(query_handle,owner_block_word2,hit_buffer.query_setup);
+    owner_or_hit = FUN_0056c3b0(query_handle,owner_block_word2,ray_origin,ray_direction,hit_buffer.hit_header);
     /* Hit: copy the 6 result words out, 3 to hit_point and 3 to hit_normal (inferred). */
     if (owner_or_hit != 0) {
-      *hit_point = hit_buffer.local_1c;
-      hit_point[1] = hit_buffer.local_18;
-      hit_point[2] = hit_buffer.local_14;
-      *hit_normal = hit_buffer.local_10;
-      hit_normal[1] = hit_buffer.local_c;
-      hit_normal[2] = hit_buffer.local_8;
+      *hit_point = hit_buffer.hit_point_x;
+      hit_point[1] = hit_buffer.hit_point_y;
+      hit_point[2] = hit_buffer.hit_point_z;
+      *hit_normal = hit_buffer.hit_normal_x;
+      hit_normal[1] = hit_buffer.hit_normal_y;
+      hit_normal[2] = hit_buffer.hit_normal_z;
       return 1;
     }
   }

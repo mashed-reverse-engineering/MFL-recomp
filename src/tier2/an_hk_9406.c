@@ -9,26 +9,26 @@
 
 /* "(camera matrix): positions and rotates the sky clumps around the camera" */
 
-void course_sky_clumps_update(char *param_1)
+void course_sky_clumps_update(char *camera_matrix)
 
 {
   RwFrame *frame;
-  uint *puVar1;
-  RwV3d local_c;
+  uint *sky_clump_cursor;
+  RwV3d up_axis;
   
-  local_c.x = 0.0;
-  local_c.y = 1.0;
-  local_c.z = 0.0;
-  puVar1 = g_course_world.sky_clumps;
+  up_axis.x = 0.0;
+  up_axis.y = 1.0;
+  up_axis.z = 0.0;
+  sky_clump_cursor = g_course_world.sky_clumps;
   do {
-    if (*puVar1 != 0) {
-      frame = *(RwFrame **)(*puVar1 + 4);
+    if (*sky_clump_cursor != 0) {
+      frame = *(RwFrame **)(*sky_clump_cursor + 4);
       RwFrameSetIdentity(frame);
-      RwFrameRotate(frame,&local_c,*(float *)&g_course_lap_data.split_sectors[0xf],rwCOMBINEREPLACE);
-      RwFrameTranslate(frame,(RwV3d *)(param_1 + 0x30),rwCOMBINEPOSTCONCAT);
+      RwFrameRotate(frame,&up_axis,*(float *)&g_course_lap_data.split_sectors[0xf],rwCOMBINEREPLACE);
+      RwFrameTranslate(frame,(RwV3d *)(camera_matrix + 0x30),rwCOMBINEPOSTCONCAT);
     }
-    puVar1 = puVar1 + 1;
-  } while ((char *)puVar1 < ((char *)&g_course_world_field8_0xc100));
+    sky_clump_cursor = sky_clump_cursor + 1;
+  } while ((char *)sky_clump_cursor < ((char *)&g_course_world_field8_0xc100));
   return;
 }
 

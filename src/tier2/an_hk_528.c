@@ -6,8 +6,8 @@
 
 void __cdecl
 fx_smoke_particle_spawn_grey
-          (undefined4 param_1,undefined4 param_2,char *param_3,char *param_4,
-          char *param_5,char *param_6,char *param_7)
+          (undefined4 param_1,undefined4 param_2,char *unused_3,char *unused_4,
+          char *unused_5,char *unused_6,char *unused_7)
 
 {
   char *iVar1;

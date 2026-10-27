@@ -15,7 +15,7 @@
    digit glyphs (16-bit values) into the text entry returned by dat_get_string(dat_string_id).
    Digits are right-aligned in slots 0..2 and the empty leading slots get ASCII_ZERO.
    A formatted string of 0 or more than 3 characters gives "000" (inferred from the branches).
-   (was: "formats the dat string with param_2 and draws characters") */
+   (was: "formats the dat string with unused_2 and draws characters") */
 
 void menu_text_format_and_draw(undefined4 dat_string_id,undefined4 number)
 

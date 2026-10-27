@@ -48,24 +48,24 @@ void fx_explosion_spawn(int system_id,int slot_id,undefined4 param_3,undefined4 
   int slot_index;
   int slot_byte_offset;
   struct {
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    undefined4 slot_pos_x;
+    undefined4 slot_pos_y;
+    undefined4 slot_pos_z;
   } frame;
 
   slot_index = system_id * SLOTS_PER_SYSTEM + slot_id;
   slot_byte_offset = slot_index * 4;
   if ((&g_effects_update_751b38)[slot_index] != 1) {
     /* read the slot's position into frame (3 dwords) */
-    vehicle_part_position_by_index_r(slot_id, system_id, &frame.local_c);
+    vehicle_part_position_by_index_r(slot_id, system_id, &frame.slot_pos_x);
     /* copy the position into every sub puff, walking backwards through the slot's block */
     puffs_left = SUB_PUFFS_PER_SPAWN;
     puff_ptr = &g_effects_update_751a18 + system_id * SLOTS_PER_SYSTEM + slot_id * PUFF_DWORDS_PER_SLOT;
     do {
       puffs_left = puffs_left + -1;
-      puff_ptr[-3] = frame.local_c;
-      puff_ptr[-2] = frame.local_8;
-      puff_ptr[-1] = frame.local_4;
+      puff_ptr[-3] = frame.slot_pos_x;
+      puff_ptr[-2] = frame.slot_pos_y;
+      puff_ptr[-1] = frame.slot_pos_z;
       puff_ptr = puff_ptr + -3;
     } while (puffs_left != 0);
     /* mark the slot active and record its id */

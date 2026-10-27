@@ -240,7 +240,7 @@ LAB_0040a48b:
     frame2.fwd04_y = frame2.fwd04_y * float_0_8;
     frame2.fwd04_z = frame2.fwd04_z * float_0_8;
     event_type = get_event_type();
-    if (event_type == 0x11) {
+    if (event_type == EVENT_TRAINING) {
       if (row_or_event != 0) {
         if (row_or_event == 1) {
           {

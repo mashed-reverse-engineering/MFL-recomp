@@ -299,32 +299,33 @@ extern void ai_bots_assign_slots(void);
 
 /* "(bot): decides about picking / using a weapon unless the race phase is 10 or 0xB (inferred)" */
 
+/* (inferred) returns 1 and copies the target xz to out_target_xz when the bot has no weapon (descriptor 0), is not in training or race phase 10 / 0xb and the target lies within about 30 degrees (dot > 0.866) of its forward direction */
 undefined4 __cdecl
-ai_bot_weapon_logic(int param_1,float *param_2,char *param_3,float *param_4,char *param_5,
-                   float *param_6)
+ai_bot_weapon_logic(int bot,float *bot_pos_xz,char *unused_3,float *target_pos_xz,char *unused_5,
+                   float *out_target_xz)
 {
-  int iVar1;
-  RwV3d local_18;
-  RwV3d local_c;
+  int phase_or_event;
+  RwV3d to_target;
+  RwV3d forward;
   
-  iVar1 = race_get_phase();
-  if (iVar1 != 0xb) {
-    iVar1 = race_get_phase();
-    if (iVar1 != 10) {
-      if (player_weapon_slots[param_1].descriptor == 0) {
-        iVar1 = get_event_type();
-        if (iVar1 != EVENT_TRAINING) {
-          car_get_forward(&local_c,param_1);
-          local_18.x = *param_4 - *param_2;
-          local_c.y = 0.0;
-          local_18.y = 0.0;
-          local_18.z = param_4[1] - param_2[1];
-          RwV3dNormalize(&local_c,&local_c);
-          RwV3dNormalize(&local_18,&local_18);
-          if (k_f_0_866 < local_c.z * local_18.z + local_18.y * local_c.y + local_c.x * local_18.x)
+  phase_or_event = race_get_phase();
+  if (phase_or_event != 0xb) {
+    phase_or_event = race_get_phase();
+    if (phase_or_event != 10) {
+      if (player_weapon_slots[bot].descriptor == 0) {
+        phase_or_event = get_event_type();
+        if (phase_or_event != EVENT_TRAINING) {
+          car_get_forward(&forward,bot);
+          to_target.x = *target_pos_xz - *bot_pos_xz;
+          forward.y = 0.0;
+          to_target.y = 0.0;
+          to_target.z = target_pos_xz[1] - bot_pos_xz[1];
+          RwV3dNormalize(&forward,&forward);
+          RwV3dNormalize(&to_target,&to_target);
+          if (k_f_0_866 < forward.z * to_target.z + to_target.y * forward.y + forward.x * to_target.x)
           {
-            *param_6 = *param_4;
-            param_6[1] = param_4[1];
+            *out_target_xz = *target_pos_xz;
+            out_target_xz[1] = target_pos_xz[1];
             return 1;
           }
         }

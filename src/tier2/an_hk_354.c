@@ -8,7 +8,7 @@
 /*0069cfc8*/ extern undefined4 g_menu_team_mode_choice;
 static int menu_team_choice_step_r(int reg_eax, int reg_esi, int param_3);
 extern void menu_team_choice_step(void);
-__declspec(naked) int menu_team_choice_step_r(int reg_eax, int reg_esi, int param_3)
+__declspec(naked) int menu_team_choice_step_r(int reg_eax, int reg_esi, int unused_3)
 {
     __asm {
         push esi

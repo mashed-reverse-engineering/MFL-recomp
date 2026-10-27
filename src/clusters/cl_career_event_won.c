@@ -49,17 +49,17 @@ void career_event_won(void)
       g_game_state.progress[n] = 2;
       g_game_state.progress[n + 0x12] = 1;
       if (all_done) {
-        if (event == 0xe) {
+        if (event == EVENT_TURBO_TOURNAMENT) {
           career_event_won_set_course_state(0x33e);
           autosave_request();
           return;
         }
-        if (event == 0xf) {
+        if (event == EVENT_ICE_TOURNAMENT) {
           career_event_won_set_course_state(0x33f);
           autosave_request();
           return;
         }
-        if (event == 0x10) {
+        if (event == EVENT_NIGHT_TOURNAMENT) {
           career_event_won_set_course_state(0x340);
         }
       }

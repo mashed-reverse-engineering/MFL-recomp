@@ -19,37 +19,38 @@
 /* WARNING: Unknown calling convention */
 /* "(scale, x, align 0..2, ...): x position of a text string for left / centre / right alignment" */
 
-void ui_rt2d_text_x_offset_n(undefined4 in_edi, float *in_esi, float param_3, float param_4, int param_5, float param_6)
+/* (inferred names) out_pos[0] = x of the text start (left 0 / centre 1 / right 2 alignment of x, in 640 wide units), out_pos[1] = y from the top of a 480 high screen; layout scale from g_ui_layout_scale_x/y */
+void ui_rt2d_text_x_offset_n(undefined4 text, float *out_pos, float x, float y, int align, float scale)
 
 {
-  short sVar1;
-  int iVar2;
-  float10 fVar3;
-  float10 fVar4;
+  short screen_dim;
+  int screen_w;
+  float10 x_px;
+  float10 text_w_px;
   
-  sVar1 = screen_width();
-  iVar2 = (int)sVar1;
-  sVar1 = screen_height();
-  if (param_5 == 1) {
-    fVar4 = (float10)Rt2dFontGetStringWidth(g_ui_font,in_edi,param_6 * k_f_0_0708);
-    fVar3 = (float10)iVar2 * (float10)k_f_0_0015625 * (float10)param_3;
-    fVar4 = (fVar4 / (float10)g_ui_layout_scale_x) * (float10)iVar2;
+  screen_dim = screen_width();
+  screen_w = (int)screen_dim;
+  screen_dim = screen_height();
+  if (align == 1) {
+    text_w_px = (float10)Rt2dFontGetStringWidth(g_ui_font,text,scale * k_f_0_0708);
+    x_px = (float10)screen_w * (float10)k_f_0_0015625 * (float10)x;
+    text_w_px = (text_w_px / (float10)g_ui_layout_scale_x) * (float10)screen_w;
   }
   else {
-    if (param_5 != 2) {
-      fVar3 = (float10)iVar2 * (float10)k_f_0_0015625 * (float10)param_3;
+    if (align != 2) {
+      x_px = (float10)screen_w * (float10)k_f_0_0015625 * (float10)x;
       goto LAB_0042bcbb;
     }
-    fVar4 = (float10)Rt2dFontGetStringWidth(g_ui_font,in_edi,param_6 * k_f_0_0708);
-    fVar3 = (float10)iVar2 * (float10)k_f_0_0015625 * (float10)param_3;
-    fVar4 = (fVar4 / (float10)g_ui_layout_scale_x) * (float10)iVar2 * (float10)k_f_0_5;
+    text_w_px = (float10)Rt2dFontGetStringWidth(g_ui_font,text,scale * k_f_0_0708);
+    x_px = (float10)screen_w * (float10)k_f_0_0015625 * (float10)x;
+    text_w_px = (text_w_px / (float10)g_ui_layout_scale_x) * (float10)screen_w * (float10)k_f_0_5;
   }
-  fVar3 = fVar3 - fVar4;
+  x_px = x_px - text_w_px;
 LAB_0042bcbb:
-  *in_esi = (float)((fVar3 / (float10)iVar2) * (float10)g_ui_layout_scale_x);
-  in_esi[1] = (float_1_0 -
-               (((float)(int)sVar1 * k_f_0_0020833334 * param_4) / (float)(int)sVar1) *
-               g_ui_layout_scale_y) - param_6 * k_f_0_025;
+  *out_pos = (float)((x_px / (float10)screen_w) * (float10)g_ui_layout_scale_x);
+  out_pos[1] = (float_1_0 -
+               (((float)(int)screen_dim * k_f_0_0020833334 * y) / (float)(int)screen_dim) *
+               g_ui_layout_scale_y) - scale * k_f_0_025;
   return;
 }
 

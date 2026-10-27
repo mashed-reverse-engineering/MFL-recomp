@@ -60,21 +60,21 @@ int car_init_dynamics(unsigned int index)
   car = &player_car[index];
   row = get_career_row();
   event = get_event_type();
-  if (((event == 0xb) || (event = get_event_type(), event == 0xc)) ||
-     (event = get_event_type(), event == 0xd)) {
+  if (((event == EVENT_QUICK_RACE_11) || (event = get_event_type(), event == EVENT_QUICK_RACE_12)) ||
+     (event = get_event_type(), event == EVENT_QUICK_RACE_13)) {
     row = menu_event_course_index_get();
   }
   event = get_event_type();
-  if (event == 4) {
+  if (event == EVENT_CUP_4) {
     row = row + 0xf;
   }
   event = get_event_type();
-  if (event == 5) {
+  if (event == EVENT_CUP_5) {
     row = row + 0x1e;
   }
   row = race_setup_get_course(row);
   event = get_event_type();
-  if (event == 0xe) {
+  if (event == EVENT_TURBO_TOURNAMENT) {
     row = 0x48;
   }
   g_car_handling_param_b8 = k_f_100;
@@ -99,7 +99,7 @@ int car_init_dynamics(unsigned int index)
   g_car_init_7ef764 = g_car_handling_param_c4;
   g_car_init_7ef768 = g_car_handling_scale;
   g_car_init_7ef76c = g_car_default_speed_scale;
-  if (index < 0x10) {
+  if (index < MAX_CARS) {
     car->speed_scale = g_car_default_speed_scale;
     car->wheels[0].pos_z = 1.08288;
     car->wheels[1].pos_z = 1.08288;

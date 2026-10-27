@@ -153,6 +153,17 @@ extern int menu_page_enter(int page, int arg);
 #define MENU_EVENT_COL_USE3 0xf /* event column of the setup that fills race_setup_use_3 */
 #define MENU_EVENT_COL_USE4 0x10 /* event column of the setup that fills race_setup_use_4 */
 #define MENU_EVENT_COL_USE1 0x11 /* event column of the setup that fills race_setup_use_1 */
+/* (inferred) event columns come in groups of three: a group's variant n adds 0xf*n to the setup index (race_set_setup_index(row + 0xf * n)); groups start at 0, 3, 6, 0xb */
+#define MENU_SETUP_VARIANT_STRIDE 0xf /* setup index step between the three variants of an event column group */
+#define MENU_EVENT_COL_USE5_A_V1 0x1
+#define MENU_EVENT_COL_USE5_A_V2 0x2
+#define MENU_EVENT_COL_USE0_V1 0x4
+#define MENU_EVENT_COL_USE0_V2 0x5
+#define MENU_EVENT_COL_G6 0x6
+#define MENU_EVENT_COL_G6_V1 0x7
+#define MENU_EVENT_COL_G6_V2 0x8
+#define MENU_EVENT_COL_USE5_B_V1 0xc
+#define MENU_EVENT_COL_USE5_B_V2 0xd
 #define MENU_PAGE_TRANSMISSION_INTERRUPTED_A 0x14 /* page 20, title text 72 "Transmission Interrupted" */
 #define MENU_PAGE_OPTIONS_INGAME 0x15 /* page 21, title text 40 "Options" (second options page) */
 #define MENU_PAGE_TRANSMISSION_INTERRUPTED_B 0x17 /* page 23, title text 72 "Transmission Interrupted" */
@@ -907,10 +918,10 @@ LAB_00447824:
                     case 0xc:
                     case 0xd:
                       if (team_mode == 0xd) {
-                        slot_type = slot_type + 0x1e;
+                        slot_type = slot_type + 2 * MENU_SETUP_VARIANT_STRIDE;
                       }
                       else if (team_mode == 0xc) {
-                        slot_type = slot_type + 0xf;
+                        slot_type = slot_type + MENU_SETUP_VARIANT_STRIDE;
                       }
                       race_set_setup_index(slot_type);
                       menu_page_enter(MENU_PAGE_GAME_SETUP_SINGLE,0);
@@ -980,11 +991,11 @@ LAB_00447628:
                     }
                     active_slots = event_type_uses_standard_menu();
                     if (active_slots == 0) {
-                      if (g_menu_event_column == 8) {
-                        slot_type = slot_type + 0x1e;
+                      if (g_menu_event_column == MENU_EVENT_COL_G6_V2) {
+                        slot_type = slot_type + 2 * MENU_SETUP_VARIANT_STRIDE;
                       }
-                      else if (g_menu_event_column == 7) {
-                        slot_type = slot_type + 0xf;
+                      else if (g_menu_event_column == MENU_EVENT_COL_G6_V1) {
+                        slot_type = slot_type + MENU_SETUP_VARIANT_STRIDE;
                       }
                       race_set_setup_index(slot_type);
                       menu_page_enter(MENU_PAGE_GAME_SETUP_MULTI,0);
@@ -1001,25 +1012,25 @@ LAB_00447628:
                       g_menu_69d6b4 = 1;
                     }
                     else if (((team_mode != 0xb) && (team_mode != 0xc)) && (team_mode != 0xd)) {
-                      if (g_menu_event_column == 5) {
-                        race_set_setup_index(slot_type + 0x1e);
+                      if (g_menu_event_column == MENU_EVENT_COL_USE0_V2) {
+                        race_set_setup_index(slot_type + 2 * MENU_SETUP_VARIANT_STRIDE);
                       }
                       else {
-                        if (g_menu_event_column == 4) {
+                        if (g_menu_event_column == MENU_EVENT_COL_USE0_V1) {
 LAB_004476ee:
-                          slot_type = slot_type + 0xf;
+                          slot_type = slot_type + MENU_SETUP_VARIANT_STRIDE;
                         }
                         else if (g_menu_event_column != MENU_EVENT_COL_USE0) {
-                          if (g_menu_event_column == 2) {
-                            race_set_setup_index(slot_type + 0x1e);
+                          if (g_menu_event_column == MENU_EVENT_COL_USE5_A_V2) {
+                            race_set_setup_index(slot_type + 2 * MENU_SETUP_VARIANT_STRIDE);
                             goto LAB_004478ac;
                           }
-                          if (g_menu_event_column == 1) goto LAB_004476ee;
+                          if (g_menu_event_column == MENU_EVENT_COL_USE5_A_V1) goto LAB_004476ee;
                         }
                         race_set_setup_index(slot_type);
                       }
 LAB_004478ac:
-                      menu_page_enter(0,2);
+                      menu_page_enter(MENU_PAGE_PAUSE,2);
                       g_menu_start_race_requested = 1;
                       g_menu_screen_id = 1;
                       g_menu_69d290 = 0;
@@ -1031,7 +1042,7 @@ LAB_004478ac:
                     message_show_now(0x34,MENU_ITEM_MSG_34,2,0x2f,0x30,0);
                   }
                   else if (token == MENU_ITEM_START_RACE) {
-                    menu_page_enter(0,2);
+                    menu_page_enter(MENU_PAGE_PAUSE,2);
                     g_menu_start_race_requested = 1;
                   }
                   else if (token == MENU_ITEM_PLAY_GAME_CHECKED) {
@@ -1148,7 +1159,7 @@ LAB_00446b4b:
                     }
                     g_career_row = 0;
                     g_menu_69d68c = 0;
-                    g_menu_event_column = 6;
+                    g_menu_event_column = MENU_EVENT_COL_G6;
                     event_type_from_menu_choice();
                     g_team_mode = (uint)(token == MENU_ITEM_TEAM_PLAY);
                     color_ptr = &player_color_id;
@@ -1282,7 +1293,7 @@ LAB_00448159:
                     team_count = team_count + '\x01';
                   }
                   if (team_count != '\0') {
-                    menu_page_enter(0,2);
+                    menu_page_enter(MENU_PAGE_PAUSE,2);
                     g_team_mode = g_menu_team_mode_choice ^ 1;
                     g_menu_start_race_requested = 1;
                     g_menu_screen_id = 1;
@@ -1777,16 +1788,16 @@ LAB_0044849c:
             if ((((((g_menu_event_column == MENU_EVENT_COL_USE0) || (g_menu_event_column == MENU_EVENT_COL_USE2)) ||
                   (g_menu_event_column == MENU_EVENT_COL_USE3)) ||
                  ((g_menu_event_column == MENU_EVENT_COL_USE4 || (g_menu_event_column == MENU_EVENT_COL_USE1)))) ||
-                (g_menu_event_column == 6)) ||
+                (g_menu_event_column == MENU_EVENT_COL_G6)) ||
                ((g_menu_event_column == MENU_EVENT_COL_USE5_A || (g_menu_event_column == MENU_EVENT_COL_USE5_B)))) {
               g_menu_69d6b0 = 0;
             }
-            else if ((((g_menu_event_column == 4) || (g_menu_event_column == 7)) ||
-                     (g_menu_event_column == 1)) ||
-                    (((g_menu_event_column == 0xc || (g_menu_event_column == 5)) ||
-                     ((g_menu_event_column == 8 ||
-                      ((g_menu_event_column == 2 ||
-                       (aux = g_menu_event_column, g_menu_event_column == 0xd)))))))) {
+            else if ((((g_menu_event_column == MENU_EVENT_COL_USE0_V1) || (g_menu_event_column == MENU_EVENT_COL_G6_V1)) ||
+                     (g_menu_event_column == MENU_EVENT_COL_USE5_A_V1)) ||
+                    (((g_menu_event_column == MENU_EVENT_COL_USE5_B_V1 || (g_menu_event_column == MENU_EVENT_COL_USE0_V2)) ||
+                     ((g_menu_event_column == MENU_EVENT_COL_G6_V2 ||
+                      ((g_menu_event_column == MENU_EVENT_COL_USE5_A_V2 ||
+                       (aux = g_menu_event_column, g_menu_event_column == MENU_EVENT_COL_USE5_B_V2)))))))) {
               g_menu_event_column = g_menu_event_column + -1;
             }
             else {
@@ -2036,20 +2047,20 @@ LAB_004488f8:
         case MENU_PAGE_CHALLENGE_SELECT_A:
         case MENU_PAGE_CHALLENGE_SELECT_B:
           if (g_menu_8c8090 == 0) {
-            if ((((g_menu_event_column == 5) || (g_menu_event_column == 8)) ||
-                (g_menu_event_column == 2)) ||
-               (((g_menu_event_column == 0xd || (g_menu_event_column == MENU_EVENT_COL_USE1)) ||
+            if ((((g_menu_event_column == MENU_EVENT_COL_USE0_V2) || (g_menu_event_column == MENU_EVENT_COL_G6_V2)) ||
+                (g_menu_event_column == MENU_EVENT_COL_USE5_A_V2)) ||
+               (((g_menu_event_column == MENU_EVENT_COL_USE5_B_V2 || (g_menu_event_column == MENU_EVENT_COL_USE1)) ||
                 ((g_menu_event_column == MENU_EVENT_COL_USE2 ||
                  ((g_menu_event_column == MENU_EVENT_COL_USE3 || (g_menu_event_column == MENU_EVENT_COL_USE4)))))))) {
               g_menu_69d6b0 = 0;
             }
-            else if ((((g_menu_event_column == 4) || (g_menu_event_column == 7)) ||
-                     (g_menu_event_column == 1)) || (g_menu_event_column == 0xc)) {
+            else if ((((g_menu_event_column == MENU_EVENT_COL_USE0_V1) || (g_menu_event_column == MENU_EVENT_COL_G6_V1)) ||
+                     (g_menu_event_column == MENU_EVENT_COL_USE5_A_V1)) || (g_menu_event_column == MENU_EVENT_COL_USE5_B_V1)) {
               if (((g_event_type == EVENT_CUP_3) || (g_event_type == EVENT_CUP_4)) ||
                  ((g_event_type == EVENT_CUP_5 || ((&g_menu_608428)[g_career_row * 0xc] != -1))))
               goto LAB_0044907d;
             }
-            else if ((((g_menu_event_column == MENU_EVENT_COL_USE0) || (g_menu_event_column == 6)) ||
+            else if ((((g_menu_event_column == MENU_EVENT_COL_USE0) || (g_menu_event_column == MENU_EVENT_COL_G6)) ||
                      (g_menu_event_column == MENU_EVENT_COL_USE5_A)) ||
                     (team_mode = g_menu_event_column, g_menu_event_column == MENU_EVENT_COL_USE5_B)) {
 LAB_0044907d:

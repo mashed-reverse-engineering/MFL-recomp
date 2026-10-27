@@ -6,49 +6,49 @@
 /* WARNING: Unknown calling convention */
 /* "maps the special control codes 8..0xB of a counted wide string to font glyph codes" */
 
-void ui_rt2d_text_map_special_chars_n(ushort *in_eax, short *in_ebx)
+void ui_rt2d_text_map_special_chars_n(ushort *text, short *out)
 
 {
-  ushort uVar1;
-  short sVar2;
-  short *psVar3;
-  uint uVar4;
+  ushort count;
+  short ch;
+  short *out_cursor;
+  uint left;
   
-  uVar1 = *in_eax;
-  if (0 < (short)uVar1) {
-    uVar4 = (uint)uVar1;
-    psVar3 = in_ebx;
+  count = *text;
+  if (0 < (short)count) {
+    left = (uint)count;
+    out_cursor = out;
     do {
-      sVar2 = *(short *)((int)in_eax + (2 - (int)in_ebx) + (int)psVar3);
-      if (sVar2 == 8) {
-        sVar2 = 0x81;
+      ch = *(short *)((int)text + (2 - (int)out) + (int)out_cursor);
+      if (ch == 8) {
+        ch = 0x81;
       }
-      else if (sVar2 == 9) {
-        sVar2 = 0x7f;
+      else if (ch == 9) {
+        ch = 0x7f;
       }
-      else if (sVar2 == 10) {
-        sVar2 = 0x81;
+      else if (ch == 10) {
+        ch = 0x81;
       }
-      else if (sVar2 == 0xb) {
-        sVar2 = 0x8d;
+      else if (ch == 0xb) {
+        ch = 0x8d;
       }
-      else if (sVar2 == 0xc) {
-        sVar2 = 0x80;
+      else if (ch == 0xc) {
+        ch = 0x80;
       }
-      else if (sVar2 == 0xd) {
-        sVar2 = 0x87;
+      else if (ch == 0xd) {
+        ch = 0x87;
       }
-      else if (sVar2 == 0xe) {
-        sVar2 = 0x8f;
+      else if (ch == 0xe) {
+        ch = 0x8f;
       }
-      *psVar3 = sVar2;
-      psVar3 = psVar3 + 1;
-      uVar4 = uVar4 - 1;
-    } while (uVar4 != 0);
-    in_ebx[(short)uVar1] = 0;
+      *out_cursor = ch;
+      out_cursor = out_cursor + 1;
+      left = left - 1;
+    } while (left != 0);
+    out[(short)count] = 0;
     return;
   }
-  in_ebx[(short)uVar1] = 0;
+  out[(short)count] = 0;
   return;
 }
 

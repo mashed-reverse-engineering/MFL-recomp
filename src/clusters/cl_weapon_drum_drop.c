@@ -17,8 +17,8 @@ void weapon_drum_drop_n(char *launcher)
 
 {
   char *rec_ptr;
-  float fVar2;
-  float fVar3;
+  float dir_y;
+  float dir_z;
   float scaled_x;
   float scaled_y;
   float scaled_z;
@@ -29,23 +29,23 @@ void weapon_drum_drop_n(char *launcher)
     undefined4 spawn_x;
     undefined4 spawn_y;
     undefined4 spawn_z;
-    undefined4 local_3c;
-    undefined4 local_38;
-    undefined4 local_34;
-    undefined4 local_30;
-    undefined4 local_2c;
-    undefined4 local_28;
-    undefined4 local_24;
-    undefined4 local_20;
-    undefined4 local_1c;
-    undefined4 local_18;
-    undefined1 pad_14[4];
-    undefined4 local_10;
-    undefined1 pad_c[4];
-    undefined4 local_8;
-    undefined1 pad_4[1];
-    undefined1 local_3;
-  } frame;
+    undefined4 fx_colour;
+    undefined4 fx_size_start;
+    undefined4 fx_size_end;
+    undefined4 fx_vel_x;
+    undefined4 fx_vel_y;
+    undefined4 fx_vel_z;
+    undefined4 fx_accel_x;
+    undefined4 fx_accel_y;
+    undefined4 fx_accel_z;
+    undefined4 fx_life_scale;
+    undefined1 fx_field_34[4];
+    undefined4 fx_field_38;
+    undefined1 fx_field_3c[4];
+    undefined4 fx_flags;
+    undefined1 fx_flag_44[1];
+    undefined1 fx_kind;
+  } frame;   /* spawn_x .. fx_kind: the 0x48 byte particle record of fx_trail_particle_spawn_interpolated (layout as FxParticle in cl_fx_dust_particle_spawn.c) */
   
   rec_ptr = *(char **)(launcher + 0xc);
   scaled_x = *(float *)(rec_ptr + 0x10) * k_f_3_5;
@@ -79,29 +79,29 @@ void weapon_drum_drop_n(char *launcher)
 LAB_0045f9a3:
   *(undefined4 *)(rec_ptr + 0x2c) = 2;
   count_or_frame = *(int *)(launcher + 0xc);
-  fVar2 = *(float *)(count_or_frame + 0x94);
-  fVar3 = *(float *)(count_or_frame + 0x98);
+  dir_y = *(float *)(count_or_frame + 0x94);
+  dir_z = *(float *)(count_or_frame + 0x98);
   *(float *)(rec_ptr + 0x1c) = *(float *)(count_or_frame + 0x90) * k_f_40 + scaled_x;
-  *(float *)(rec_ptr + 0x20) = fVar2 * k_f_40 + scaled_y;
-  *(float *)(rec_ptr + 0x24) = fVar3 * k_f_40 + scaled_z;
+  *(float *)(rec_ptr + 0x20) = dir_y * k_f_40 + scaled_y;
+  *(float *)(rec_ptr + 0x24) = dir_z * k_f_40 + scaled_z;
   *(undefined4 *)(launcher + *(int *)(launcher + 8) * 4) = 0;
   rec_ptr = *(char **)(rec_ptr + 0x34);
   frame.spawn_x = *(undefined4 *)(rec_ptr + 0x40);
   frame.spawn_y = *(undefined4 *)(rec_ptr + 0x44);
   frame.spawn_z = *(undefined4 *)(rec_ptr + 0x48);
-  frame.local_3 = 5;
-  frame.local_18 = 0x41480000;
-  frame.local_3c = 0x40ffffff;
-  frame.local_8 = 0x1120;
-  frame.local_38 = 0x3f99999a;
-  frame.local_34 = 0x3f99999a;
-  frame.local_10 = 0x3f800000;
-  frame.local_30 = 0;
-  frame.local_2c = 0;
-  frame.local_28 = 0;
-  frame.local_24 = 0;
-  frame.local_20 = 0;
-  frame.local_1c = 0;
+  frame.fx_kind = 5;
+  frame.fx_life_scale = 0x41480000;
+  frame.fx_colour = 0x40ffffff;
+  frame.fx_flags = 0x1120;
+  frame.fx_size_start = 0x3f99999a;
+  frame.fx_size_end = 0x3f99999a;
+  frame.fx_field_38 = 0x3f800000;
+  frame.fx_vel_x = 0;
+  frame.fx_vel_y = 0;
+  frame.fx_vel_z = 0;
+  frame.fx_accel_x = 0;
+  frame.fx_accel_y = 0;
+  frame.fx_accel_z = 0;
   fx_trail_particle_spawn_interpolated(&frame.spawn_x,0,0,0);
   return;
 }

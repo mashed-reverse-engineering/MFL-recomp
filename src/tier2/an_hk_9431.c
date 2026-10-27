@@ -26,7 +26,7 @@ void sound_endpoint_panel_progress_cues(void)
   int iVar3;
   int iVar4;
   undefined4 pu_eax;
-  float local_4;
+  float panel_value;
   
   iVar3 = race_get_phase();
   if (iVar3 != 5) {
@@ -36,42 +36,42 @@ void sound_endpoint_panel_progress_cues(void)
   if (iVar3 == EVENT_QUICK_RACE) {
     return;
   }
-  endpoint_panel_get_value(&local_4);
+  endpoint_panel_get_value(&panel_value);
   iVar2 = g_sound_frame_619700;
   iVar3 = g_sound_frame_6191cc;
   switch(g_sound_endpoint_cue_state) {
   case 0:
-    if (local_4 < k_f_0_34) {
+    if (panel_value < k_f_0_34) {
       return;
     }
     g_sound_endpoint_cue_state = 1;
     goto LAB_0046f7eb;
   case 1:
-    bVar1 = k_f_0_82 <= local_4;
+    bVar1 = k_f_0_82 <= panel_value;
     if (bVar1) {
       g_sound_endpoint_cue_state = 2;
     }
-    if (local_4 < k_f_0_34) {
+    if (panel_value < k_f_0_34) {
       g_sound_endpoint_cue_state = 0;
     }
     break;
   case 2:
-    bVar1 = k_f_1_3 <= local_4;
+    bVar1 = k_f_1_3 <= panel_value;
     if (bVar1) {
       g_sound_endpoint_cue_state = 3;
     }
-    if (local_4 < k_f_0_82) {
+    if (panel_value < k_f_0_82) {
       g_sound_endpoint_cue_state = 1;
     }
     break;
   case 3:
-    if (k_f_1_86 <= local_4) {
+    if (k_f_1_86 <= panel_value) {
       g_sound_endpoint_cue_state = 4;
     }
-    if (local_4 < k_f_1_3) {
+    if (panel_value < k_f_1_3) {
       g_sound_endpoint_cue_state = 2;
     }
-    if (k_f_1_86 > local_4) {
+    if (k_f_1_86 > panel_value) {
       return;
     }
     if ((*(byte *)(g_voices[g_sound_frame_619700].voice + 0x34) & 2) != 0) {
@@ -83,7 +83,7 @@ void sound_endpoint_panel_progress_cues(void)
     iVar3 = iVar2;
     goto LAB_0046f8d8;
   case 4:
-    if (k_f_1_86 <= local_4) {
+    if (k_f_1_86 <= panel_value) {
       return;
     }
   default:

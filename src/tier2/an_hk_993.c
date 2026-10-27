@@ -15,7 +15,7 @@ typedef int (__stdcall *DeviceAcquireMethod)(undefined4 *self);
 #define DIDEVICE_VTBL_GETDEVICESTATE (0x24)
 #define KEY_COUNT (0x100)
 
-undefined4 __cdecl keyboard_state_to_bits(char *param_1,undefined4 param_2,undefined4 param_3)
+undefined4 __cdecl keyboard_state_to_bits(char *param_1,undefined4 unused_2,undefined4 unused_3)
 
 {
   int result;

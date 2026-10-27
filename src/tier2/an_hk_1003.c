@@ -19,7 +19,7 @@
 
 /* "scans the trigger array for type 7 boxes the car is in and projects a target onto the line" */
 
-undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 param_1,char *out_target,char *out_aux,undefined4 car_index)
+undefined4 __cdecl ai_trigger_zone_target_for_car(undefined4 unused_1,char *out_target,char *out_aux,undefined4 car_index)
 
 {
   float fbits1;

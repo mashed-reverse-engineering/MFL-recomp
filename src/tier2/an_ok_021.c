@@ -416,16 +416,16 @@ undefined4 menu_validate_player_setup(void)
 /* "opens the message box when none is active" */
 
 void __cdecl
-message_show_now(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4,
-                undefined4 param_5,undefined4 param_6)
+message_show_now(undefined4 text_id,undefined4 code,undefined4 buttons,undefined4 button_text_a,
+                undefined4 button_text_b,undefined4 extra)
 {
   if (g_message_state == 0) {
-    g_message_buttons = param_3;
-    g_message_code = param_2;
-    g_message_button_text_a = param_4;
-    g_message_button_text_b = param_5;
-    g_message_show_69d004 = param_6;
-    g_message_text_id = param_1;
+    g_message_buttons = buttons;
+    g_message_code = code;
+    g_message_button_text_a = button_text_a;
+    g_message_button_text_b = button_text_b;
+    g_message_show_69d004 = extra;
+    g_message_text_id = text_id;
     g_message_state = 1;
     *(int *)&g_message_timer = 0;
     g_message_use_text_offset = 0;

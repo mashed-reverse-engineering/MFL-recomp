@@ -9,22 +9,22 @@
 
 /* "QueryInterface: known interface ids give the sub object at +0xc (+0x10 for one), else the base class" */
 
-int __stdcall FUN_004aebd0(int param_1,int *param_2,int param_3)
+int __stdcall FUN_004aebd0(int this_ptr,int *iid,int out_object)
 
 {
-  if ((param_2[0] == g_data_5e203c[0] && param_2[1] == g_data_5e203c[1] && param_2[2] == g_data_5e203c[2] && param_2[3] == g_data_5e203c[3]) ||
-      (param_2[0] == g_data_5e204c[0] && param_2[1] == g_data_5e204c[1] && param_2[2] == g_data_5e204c[2] && param_2[3] == g_data_5e204c[3]) ||
-      (param_2[0] == g_data_5e2624[0] && param_2[1] == g_data_5e2624[1] && param_2[2] == g_data_5e2624[2] && param_2[3] == g_data_5e2624[3])) {
-    if (param_1 != 0) {
-      return FUN_004b0f50(param_1 + 0xc,param_3);
+  if ((iid[0] == g_data_5e203c[0] && iid[1] == g_data_5e203c[1] && iid[2] == g_data_5e203c[2] && iid[3] == g_data_5e203c[3]) ||
+      (iid[0] == g_data_5e204c[0] && iid[1] == g_data_5e204c[1] && iid[2] == g_data_5e204c[2] && iid[3] == g_data_5e204c[3]) ||
+      (iid[0] == g_data_5e2624[0] && iid[1] == g_data_5e2624[1] && iid[2] == g_data_5e2624[2] && iid[3] == g_data_5e2624[3])) {
+    if (this_ptr != 0) {
+      return FUN_004b0f50(this_ptr + 0xc,out_object);
     }
-    return FUN_004b0f50(0,param_3);
+    return FUN_004b0f50(0,out_object);
   }
-  if ((param_2[0] == g_data_5e1fec[0] && param_2[1] == g_data_5e1fec[1] && param_2[2] == g_data_5e1fec[2] && param_2[3] == g_data_5e1fec[3])) {
-    if (param_1 != 0) {
-      return FUN_004b0f50(param_1 + 0x10,param_3);
+  if ((iid[0] == g_data_5e1fec[0] && iid[1] == g_data_5e1fec[1] && iid[2] == g_data_5e1fec[2] && iid[3] == g_data_5e1fec[3])) {
+    if (this_ptr != 0) {
+      return FUN_004b0f50(this_ptr + 0x10,out_object);
     }
-    return FUN_004b0f50(0,param_3);
+    return FUN_004b0f50(0,out_object);
   }
-  return FUN_004b0fb0(param_1,param_2,param_3);
+  return FUN_004b0fb0(this_ptr,iid,out_object);
 }

@@ -66,17 +66,17 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
   float side_offset;
   int emitter;
   float *hit_buf_ptr;
-  undefined4 uVar9;
-  undefined4 uVar10;
-  undefined4 uVar11;
-  undefined4 uVar12;
-  undefined4 uVar13;
-  undefined4 uVar14;
-  undefined4 uVar15;
-  undefined4 uVar16;
-  undefined4 uVar17;
-  undefined4 uVar18;
-  undefined4 uVar19;
+  undefined4 extra_arg_9;
+  undefined4 extra_arg_10;
+  undefined4 extra_arg_11;
+  undefined4 extra_arg_12;
+  undefined4 extra_arg_13;
+  undefined4 extra_arg_14;
+  undefined4 extra_arg_15;
+  undefined4 extra_arg_16;
+  undefined4 extra_arg_17;
+  undefined4 extra_arg_18;
+  undefined4 extra_arg_19;
   struct {
     RwV3d throw_dir;
     float spin_axis_x;
@@ -204,33 +204,33 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
       frame.throw_dir.y = *(float *)(owner_tmp + 0x44) - frame.car_pos_y;
       frame.throw_dir.z = *(float *)(owner_tmp + 0x48) - frame.car_pos_z;
       RwV3dNormalize(&frame.throw_dir,&frame.throw_dir);
-      uVar19 = 0x3e99999a;
-      uVar18 = 0xbe99999a;
+      extra_arg_19 = 0x3e99999a;
+      extra_arg_18 = 0xbe99999a;
       frame.throw_dir.x = frame.impact_x * float_0_8 + frame.throw_dir.x;
       frame.throw_dir.z = frame.impact_z * float_0_8 + frame.throw_dir.z;
       rand_val = (double)rp_random_float_range(0xbe99999a, 0x3e99999a);
-      uVar17 = 0x3fc00000;
-      uVar16 = 0x3f800000;
+      extra_arg_17 = 0x3fc00000;
+      extra_arg_16 = 0x3f800000;
       frame.throw_dir.x = (RwReal)(rand_val + (double)frame.throw_dir.x);
       rand_val = (double)rp_random_float_range(0x3f800000, 0x3fc00000);
-      uVar15 = 0x3e99999a;
+      extra_arg_15 = 0x3e99999a;
       frame.throw_dir.y = (RwReal)rand_val;
-      uVar14 = 0xbe99999a;
+      extra_arg_14 = 0xbe99999a;
       rand_val = (double)rp_random_float_range(0xbe99999a, 0x3e99999a);
-      uVar13 = 0x43480000;
+      extra_arg_13 = 0x43480000;
       frame.throw_dir.x = frame.throw_dir.x * k_f_40;
-      uVar12 = 0x42c80000;
+      extra_arg_12 = 0x42c80000;
       frame.throw_dir.y = frame.throw_dir.y * k_f_40;
       frame.throw_dir.z = (RwReal)((rand_val + (double)frame.throw_dir.z) * (double)k_f_40);
       frame.spin_axis_x = *piece - piece[-1] * k_f_0;
       frame.spin_axis_y = out->x * k_f_0 - *piece * k_f_0;
       frame.spin_axis_z = piece[-1] * k_f_0 - out->x;
       rand_val = (double)rp_random_float_range(0x42c80000, 0x43480000);
-      uVar11 = 0x43480000;
-      uVar10 = 0x42c80000;
+      extra_arg_11 = 0x43480000;
+      extra_arg_10 = 0x42c80000;
       frame.spin_axis_x = (float)(rand_val * (double)frame.spin_axis_x);
       rand_val = (double)rp_random_float_range(0x42c80000, 0x43480000);
-      uVar9 = 0x43480000;
+      extra_arg_9 = 0x43480000;
       rw_world = 0x42c80000;
       frame.spin_axis_y = (float)(rand_val * (double)frame.spin_axis_y);
       rand_val = (double)rp_random_float_range(0x42c80000, 0x43480000);
@@ -239,8 +239,8 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
       frame.spin_axis_z = (float)(rand_val * (double)frame.spin_axis_z);
       debris_apply_velocity_a(emitter,hit_buf_ptr);
       debris_apply_velocity_b
-                (*(int *)&piece[1],&frame.throw_dir,0,emitter,hit_buf_ptr,rw_world,uVar9,uVar10,uVar11,uVar12,uVar13,uVar14,
-                 uVar15,uVar16,uVar17,uVar18,uVar19);
+                (*(int *)&piece[1],&frame.throw_dir,0,emitter,hit_buf_ptr,rw_world,extra_arg_9,extra_arg_10,extra_arg_11,extra_arg_12,extra_arg_13,extra_arg_14,
+                 extra_arg_15,extra_arg_16,extra_arg_17,extra_arg_18,extra_arg_19);
       owner_tmp = 4;
       do {
         rand_val = (double)rp_random_float_range(0x3ecccccd,0x3f4ccccd);

@@ -19,22 +19,22 @@ void vehicle_strip_clump_to_body_parts_n(VehicleRecord *vehicle_record)
 {
   RpAtomic *atomic;
   RpClump *clump;
-  int iVar1;
-  undefined4 uVar2;
-  int iVar3;
+  int atomic_count;
+  undefined4 part_id;
+  int i;
   struct {
-    uint local_204;
-    undefined4 local_200 [128];
+    uint unused_count;
+    undefined4 atomics [128];
   } frame_obj;
   
   clump = (RpClump *)FUN_004f6bf0(vehicle_record->frame);
-  iVar1 = clump_get_atomics(clump,frame_obj.local_200);
-  iVar3 = 0;
-  if (0 < iVar1) {
+  atomic_count = clump_get_atomics(clump,frame_obj.atomics);
+  i = 0;
+  if (0 < atomic_count) {
     do {
-      atomic = (RpAtomic *)frame_obj.local_200[iVar3];
-      uVar2 = FUN_004c52b0(atomic,0,0);
-      switch(uVar2) {
+      atomic = (RpAtomic *)frame_obj.atomics[i];
+      part_id = FUN_004c52b0(atomic,0,0);
+      switch(part_id) {
       case 0x25:
       case 0x27:
       case 0x29:
@@ -45,31 +45,31 @@ void vehicle_strip_clump_to_body_parts_n(VehicleRecord *vehicle_record)
       default:
         RpClumpRemoveAtomic(clump,atomic);
         RpAtomicDestroy(atomic);
-        frame_obj.local_200[iVar3] = 0;
+        frame_obj.atomics[i] = 0;
       }
-      iVar3 = iVar3 + 1;
-    } while (iVar3 < iVar1);
+      i = i + 1;
+    } while (i < atomic_count);
   }
-  frame_obj.local_204 = (uint)(vehicle_record->matrix6[3] == vehicle_record->matrix6[4]);
-  frame_obj.local_204 = (uint)((float)frame_obj.local_204 == vehicle_record->matrix6[5]);
-  frame_obj.local_204 = (uint)((float)frame_obj.local_204 == vehicle_record->matrix6[0]);
-  frame_obj.local_204 = (uint)((float)frame_obj.local_204 == vehicle_record->matrix6[1]);
-  if ((float)frame_obj.local_204 == vehicle_record->matrix6[2]) {
+  frame_obj.unused_count = (uint)(vehicle_record->matrix6[3] == vehicle_record->matrix6[4]);
+  frame_obj.unused_count = (uint)((float)frame_obj.unused_count == vehicle_record->matrix6[5]);
+  frame_obj.unused_count = (uint)((float)frame_obj.unused_count == vehicle_record->matrix6[0]);
+  frame_obj.unused_count = (uint)((float)frame_obj.unused_count == vehicle_record->matrix6[1]);
+  if ((float)frame_obj.unused_count == vehicle_record->matrix6[2]) {
     bbox_init(vehicle_record->matrix6,clump);
   }
   RpClumpDestroy(clump);
   if ((RpAtomic_interpolator_flags(((RpAtomic *)vehicle_record->part_frames[0x3b])) & 2) != 0) {
     _rpAtomicResyncInterpolatedSphere((RpAtomic *)vehicle_record->part_frames[0x3b]);
   }
-  iVar1 = vehicle_record->part_frames[0x3b];
-  vehicle_record->local_sphere[0] = *(float *)(iVar1 + 0x1c);
-  vehicle_record->local_sphere[1] = *(float *)(iVar1 + 0x20);
-  vehicle_record->local_sphere[2] = *(float *)(iVar1 + 0x24);
-  vehicle_record->local_sphere[3] = *(float *)(iVar1 + 0x28);
-  vehicle_record->world_sphere[0] = *(float *)(iVar1 + 0x1c);
-  vehicle_record->world_sphere[1] = *(float *)(iVar1 + 0x20);
-  vehicle_record->world_sphere[2] = *(float *)(iVar1 + 0x24);
-  vehicle_record->world_sphere[3] = *(float *)(iVar1 + 0x28);
+  atomic_count = vehicle_record->part_frames[0x3b];
+  vehicle_record->local_sphere[0] = *(float *)(atomic_count + 0x1c);
+  vehicle_record->local_sphere[1] = *(float *)(atomic_count + 0x20);
+  vehicle_record->local_sphere[2] = *(float *)(atomic_count + 0x24);
+  vehicle_record->local_sphere[3] = *(float *)(atomic_count + 0x28);
+  vehicle_record->world_sphere[0] = *(float *)(atomic_count + 0x1c);
+  vehicle_record->world_sphere[1] = *(float *)(atomic_count + 0x20);
+  vehicle_record->world_sphere[2] = *(float *)(atomic_count + 0x24);
+  vehicle_record->world_sphere[3] = *(float *)(atomic_count + 0x28);
   return;
 }
 

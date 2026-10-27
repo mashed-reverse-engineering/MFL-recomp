@@ -7,18 +7,18 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "out = (v / (2*length)) + 0.5 for the delta of two 2D points" */
 
-void vec2_normalise_to_unit_square(float *param_1,float *param_2,float *param_3)
+void vec2_normalise_to_unit_square(float *out,float *from_pt,float *to_pt)
 
 {
   float dx;
   float dy;
   double inv;
 
-  dx = *param_3 - *param_2;
+  dx = *to_pt - *from_pt;
   /* the assignment keeps the unrounded x87 difference as the second _hypot argument (fst + fstp qword in the original) */
-  inv = (double)_hypot((double)dx,(double)(dy = param_3[1] - param_2[1]));
+  inv = (double)_hypot((double)dx,(double)(dy = to_pt[1] - from_pt[1]));
   inv = (double)float_1_0 / (inv + inv);
-  *param_1 = (float)((double)dx * inv + (double)k_f_0_5);
-  param_1[1] = (float)(inv * (double)dy + (double)k_f_0_5);
+  *out = (float)((double)dx * inv + (double)k_f_0_5);
+  out[1] = (float)(inv * (double)dy + (double)k_f_0_5);
   return;
 }

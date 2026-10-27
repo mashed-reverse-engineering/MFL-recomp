@@ -28,7 +28,7 @@ typedef int CourseId;
 /* "creates the car physics shape from player_car[0].bounds_points and copies the centre offset to
    all cars" */
 
-void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 param_2)
+void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 unused_2)
 
 {
   undefined4 shape;

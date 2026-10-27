@@ -33,13 +33,13 @@ void __cdecl rwp_object_debris_expire_check(int slot)
   char *owner;
   float *pos_entry;
   struct {
-    float local_1c;
-    float local_18;
-    float local_14;
-    undefined4 local_10;
-    undefined4 local_c;
-    undefined4 local_8;
-    undefined4 local_4;
+    float x;
+    float y;
+    float z;
+    undefined4 unused_10;
+    undefined4 unused_c;
+    undefined4 unused_8;
+    undefined4 unused_4;
   } burst_pos;
 
   /* look up the object's owner, then the body position entry the owner points at */
@@ -47,22 +47,22 @@ void __cdecl rwp_object_debris_expire_check(int slot)
   owner = rwp_owner_object_get(object_handle);
   if ((owner != 0) && (pos_ref = *(int **)(*(char **)(owner + 0x10) + 4), pos_ref != (int *)0x0)) {
     pos_entry = (float *)(*(char **)(*(char **)(*pos_ref + 0x10) + 8) + pos_ref[1] * BODY_ENTRY_STRIDE);
-    burst_pos.local_1c = *pos_entry;
-    burst_pos.local_18 = pos_entry[1];
-    burst_pos.local_14 = pos_entry[2];
+    burst_pos.x = *pos_entry;
+    burst_pos.y = pos_entry[1];
+    burst_pos.z = pos_entry[2];
     /* squared distance from the origin; the body has moved too far if it exceeds the limit */
-    dist_sq = burst_pos.local_14 * burst_pos.local_14 + burst_pos.local_1c * burst_pos.local_1c + burst_pos.local_18 * burst_pos.local_18;
+    dist_sq = burst_pos.z * burst_pos.z + burst_pos.x * burst_pos.x + burst_pos.y * burst_pos.y;
     /* too far from the origin: flag it */
     if (k_f_1_0en5 < dist_sq) {
       (&g_rw_6fcdd8)[slot] = (&g_rw_6fcdd8)[slot] | FLAG_MOVED_TOO_FAR;
     }
     /* expired: dist_sq above this slot's limit (g_rw_6fa190), or y below -8 */
-    if ((((float *)&g_rw_6fa190)[slot] < dist_sq) || (burst_pos.local_18 < k_f_n8)) {
+    if ((((float *)&g_rw_6fa190)[slot] < dist_sq) || (burst_pos.y < k_f_n8)) {
       /* scale the position down for the burst particles */
-      burst_pos.local_1c = burst_pos.local_1c * k_f_0_005;
-      burst_pos.local_18 = burst_pos.local_18 * k_f_0_005;
-      burst_pos.local_14 = burst_pos.local_14 * k_f_0_005;
-      fx_object_break_into_particles(object_handle,&burst_pos.local_1c);
+      burst_pos.x = burst_pos.x * k_f_0_005;
+      burst_pos.y = burst_pos.y * k_f_0_005;
+      burst_pos.z = burst_pos.z * k_f_0_005;
+      fx_object_break_into_particles(object_handle,&burst_pos.x);
       rwp_object_set_in_world(slot,0);
       rwp_object_set_active(slot,0);
       (&g_rw_6fcdd8)[slot] = (&g_rw_6fcdd8)[slot] | FLAG_EXPIRED;
@@ -71,11 +71,11 @@ void __cdecl rwp_object_debris_expire_check(int slot)
         /* object_handle is reused here as the object's data pointer (+4), not a handle */
         object_handle = *(char **)(object_handle + 4);
         fx_emitter_spawn_a_default((undefined4 *)(object_handle + 0x40),&g_car_62ac74,0x43b40000);
-        burst_pos.local_10 = *(undefined4 *)(object_handle + 0x40);
-        burst_pos.local_c = *(undefined4 *)(object_handle + 0x44);
-        burst_pos.local_8 = *(undefined4 *)(object_handle + 0x48);
-        burst_pos.local_4 = 0x3f800000;
-        explosion_queue(&burst_pos.local_10,0x41f00000,0x43c80000,0x42c80000,1);
+        burst_pos.unused_10 = *(undefined4 *)(object_handle + 0x40);
+        burst_pos.unused_c = *(undefined4 *)(object_handle + 0x44);
+        burst_pos.unused_8 = *(undefined4 *)(object_handle + 0x48);
+        burst_pos.unused_4 = 0x3f800000;
+        explosion_queue(&burst_pos.unused_10,0x41f00000,0x43c80000,0x42c80000,1);
       }
     }
   }

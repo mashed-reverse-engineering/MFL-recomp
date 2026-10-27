@@ -27,7 +27,7 @@
    SPAWN_PARTICLES_PER_DIR burst particles around the position (dir_vec[3]). Parameters 2-5 are unused.
    Returns nothing. */
 
-void __cdecl course_effect_spawn_at(int obj,undefined4 param_2,undefined4 param_3,undefined4 param_4,undefined4 param_5)
+void __cdecl course_effect_spawn_at(int obj,undefined4 unused_2,undefined4 unused_3,undefined4 unused_4,undefined4 unused_5)
 
 {
   /* iVar1: position pointer (obj+0x3c) first, then the particle loop counter */

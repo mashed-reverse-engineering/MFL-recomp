@@ -7,35 +7,35 @@
 /* WARNING: Unknown calling convention */
 /* "fills free slots in the batch with random positions/velocities from the emitter box" */
 
-void particles_emit_random_n(int *in_eax, float *in_esi)
+void particles_emit_random_n(int *slot, float *box)
 
 {
-  int iVar1;
+  int i;
   float10 fVar2;
   float10 fVar3;
   
-  iVar1 = 0;
+  i = 0;
   do {
-    if (*in_eax == 0) {
-      *in_eax = 1;
-      in_eax[1] = 0;
-      fVar2 = (float10)random_range(in_esi[4],in_esi[7]);
-      fVar3 = (float10)random_range(in_esi[6],in_esi[9]);
-      *(float *)&in_eax[5] = (float)fVar2;
-      fVar2 = (float10)random_range(in_esi[5],in_esi[8]);
-      *(float *)&in_eax[6] = (float)fVar2;
-      *(float *)&in_eax[7] = (float)fVar3;
-      fVar2 = (float10)random_range(-in_esi[3],in_esi[3]);
-      *(float *)&in_eax[2] = (float)(fVar2 + (float10)*in_esi);
-      fVar2 = (float10)random_range(-in_esi[3],in_esi[3]);
-      *(float *)&in_eax[3] = (float)(fVar2 + (float10)in_esi[1]);
-      fVar2 = (float10)random_range(-in_esi[3],in_esi[3]);
-      *(float *)&in_eax[4] = (float)(fVar2 + (float10)in_esi[2]);
+    if (*slot == 0) {
+      *slot = 1;
+      slot[1] = 0;
+      fVar2 = (float10)random_range(box[4],box[7]);
+      fVar3 = (float10)random_range(box[6],box[9]);
+      *(float *)&slot[5] = (float)fVar2;
+      fVar2 = (float10)random_range(box[5],box[8]);
+      *(float *)&slot[6] = (float)fVar2;
+      *(float *)&slot[7] = (float)fVar3;
+      fVar2 = (float10)random_range(-box[3],box[3]);
+      *(float *)&slot[2] = (float)(fVar2 + (float10)*box);
+      fVar2 = (float10)random_range(-box[3],box[3]);
+      *(float *)&slot[3] = (float)(fVar2 + (float10)box[1]);
+      fVar2 = (float10)random_range(-box[3],box[3]);
+      *(float *)&slot[4] = (float)(fVar2 + (float10)box[2]);
       return;
     }
-    in_eax = in_eax + 8;
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 0x200);
+    slot = slot + 8;
+    i = i + 1;
+  } while (i < 0x200);
   return;
 }
 

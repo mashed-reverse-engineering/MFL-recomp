@@ -81,9 +81,9 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
   RwReal *setup_dst;
   bool render_flag;
   struct {
-    RwV3d local_18;
-    float local_c [2];
-    float local_4;
+    RwV3d envmap_axis;
+    float vel_xy [2];
+    float vel_z;
   } frame_obj;
   float angle_or_delta_x;
   
@@ -99,15 +99,15 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
   /* Envmap (inferred): the envmap angle advances with the car velocity; the envmap frame is
      rotated about the frame's right vector. setup_offset is reused here as a frame pointer. */
   if (g_vehicle_table[*(int *)&index_or_morph].envmap_frame == (&g_game_659d60)[*(int *)&index_or_morph]) {
-    car_get_velocity_any_mode(frame_obj.local_c,*(int *)&index_or_morph);
+    car_get_velocity_any_mode(frame_obj.vel_xy,*(int *)&index_or_morph);
     setup_offset = (int)(g_vehicle_table[*(int *)&index_or_morph].frame);
-    angle_or_delta_x = g_vehicle_table[*(int *)&index_or_morph].envmap_angle - (frame_obj.local_4 + frame_obj.local_c[0]) * k_f_3_0en4;
+    angle_or_delta_x = g_vehicle_table[*(int *)&index_or_morph].envmap_angle - (frame_obj.vel_z + frame_obj.vel_xy[0]) * k_f_3_0en4;
     g_vehicle_table[*(int *)&index_or_morph].envmap_angle = angle_or_delta_x;
     setup_offset = *(int *)(setup_offset + 4);
-    frame_obj.local_18.x = *(RwReal *)(setup_offset + 0x10);
-    frame_obj.local_18.y = *(RwReal *)(setup_offset + 0x14);
-    frame_obj.local_18.z = *(RwReal *)(setup_offset + 0x18);
-    RwFrameRotate((RwFrame *)g_vehicle_table[*(int *)&index_or_morph].envmap_frame,&frame_obj.local_18,angle_or_delta_x,
+    frame_obj.envmap_axis.x = *(RwReal *)(setup_offset + 0x10);
+    frame_obj.envmap_axis.y = *(RwReal *)(setup_offset + 0x14);
+    frame_obj.envmap_axis.z = *(RwReal *)(setup_offset + 0x18);
+    RwFrameRotate((RwFrame *)g_vehicle_table[*(int *)&index_or_morph].envmap_frame,&frame_obj.envmap_axis,angle_or_delta_x,
                   rwCOMBINEREPLACE);
   }
   /* Proximity: squared distance from the new position to the slot's setup point (x, y, z in

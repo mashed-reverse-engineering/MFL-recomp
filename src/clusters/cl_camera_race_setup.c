@@ -100,7 +100,7 @@ static int race_code_generate(void)
   char *key;
   int digit;
 
-  if (g_event_type != 0 && g_event_type != 1 && g_event_type != 2) {
+  if (g_event_type != EVENT_TIME_TRIAL_0 && g_event_type != EVENT_TIME_TRIAL_1 && g_event_type != EVENT_TIME_TRIAL_2) {
     return g_event_type;
   }
   minutes = time_get_minutes(0);

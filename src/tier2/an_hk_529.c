@@ -7,7 +7,7 @@
 /* "spawns a type 6 particle with a given colour and size+1" */
 
 void fx_smoke_particle_spawn_tinted
-               (undefined4 param_1,undefined4 param_2,undefined4 *param_3,char *param_4,
+               (undefined4 param_1,undefined4 param_2,undefined4 *param_3,char *unused_4,
                float param_5)
 
 {

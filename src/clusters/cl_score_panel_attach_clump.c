@@ -9,25 +9,25 @@
 /* WARNING: Unknown calling convention */
 /* "stores clump/frame, clears and fills the part table" */
 
-void score_panel_attach_clump_n(int in_eax, int in_ebx)
+void score_panel_attach_clump_n(int clump, int panel)
 
 {
-  undefined4 uVar1;
-  int iVar2;
-  int iVar3;
-  undefined4 local_44 [17];
+  undefined4 atomic;
+  int part_index;
+  int i;
+  undefined4 atomics [17];
   
-  clump_get_atomics(in_eax,local_44);
-  *(int *)(in_ebx + 0x5c) = in_eax;
-  *(undefined4 *)(in_ebx + 0x60) = *(undefined4 *)(in_eax + 4);
-  mem_zero(in_ebx,0x50);
-  iVar3 = 0;
+  clump_get_atomics(clump,atomics);
+  *(int *)(panel + 0x5c) = clump;
+  *(undefined4 *)(panel + 0x60) = *(undefined4 *)(clump + 4);
+  mem_zero(panel,0x50);
+  i = 0;
   do {
-    uVar1 = local_44[iVar3];
-    iVar2 = FUN_004c52b0(uVar1,0,0);
-    iVar3 = iVar3 + 1;
-    *(undefined4 *)(in_ebx + iVar2 * 4) = uVar1;
-  } while (iVar3 < 0x11);
+    atomic = atomics[i];
+    part_index = FUN_004c52b0(atomic,0,0);
+    i = i + 1;
+    *(undefined4 *)(panel + part_index * 4) = atomic;
+  } while (i < 0x11);
   return;
 }
 

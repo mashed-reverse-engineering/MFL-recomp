@@ -16,56 +16,56 @@
 /* WARNING: Unknown calling convention */
 /* "spawns the explosion fx, emitter and light flash at the pickup position" */
 
-void weapon_pickup_explode_effect_n(char *in_edi)
+void weapon_pickup_explode_effect_n(char *pickup)
 
 {
   RwV3d *translation;
   RpClump *clump;
   struct {
-    undefined1 local_60;
-    undefined1 local_5f;
-    undefined1 local_5e;
-    undefined1 local_5d;
-    undefined1 local_5c [12];
-    RwReal local_50;
-    undefined4 local_4c;
-    undefined4 local_48;
-    undefined4 local_44;
-    RwMatrix local_40;
+    undefined1 flash_r;
+    undefined1 flash_g;
+    undefined1 flash_b;
+    undefined1 flash_a;
+    undefined1 cam_lerp_pos [12];
+    RwReal explosion_x;
+    undefined4 explosion_y;
+    undefined4 explosion_z;
+    undefined4 explosion_w;
+    RwMatrix sprite_matrix;
   } frame;
   
-  translation = (RwV3d *)(in_edi + 0x14);
-  frame.local_60 = 0xff;
-  frame.local_5f = 0x80;
-  frame.local_5e = 0;
-  frame.local_5d = 100;
-  *(undefined4 *)(in_edi + 4) = 0;
-  point_lerp_to_aux_camera(translation,frame.local_5c,0.3);
-  clump = *(RpClump **)(in_edi + 0x48);
+  translation = (RwV3d *)(pickup + 0x14);
+  frame.flash_r = 0xff;
+  frame.flash_g = 0x80;
+  frame.flash_b = 0;
+  frame.flash_a = 100;
+  *(undefined4 *)(pickup + 4) = 0;
+  point_lerp_to_aux_camera(translation,frame.cam_lerp_pos,0.3);
+  clump = *(RpClump **)(pickup + 0x48);
   clump_set_flag_on_atomics(clump, 0x0);
   fx_emitter_spawn_b_default(translation,&g_car_62ac74,360.0,rp_random_float_range(1.75,2.25));
-  frame.local_50 = translation->x;
-  frame.local_4c = *(undefined4 *)(in_edi + 0x18);
-  frame.local_48 = *(undefined4 *)(in_edi + 0x1c);
-  frame.local_44 = 0x40000000;
-  explosion_queue(&frame.local_50,rp_random_float_range(25.0,35.0),rp_random_float_range(100.0,200.0),
+  frame.explosion_x = translation->x;
+  frame.explosion_y = *(undefined4 *)(pickup + 0x18);
+  frame.explosion_z = *(undefined4 *)(pickup + 0x1c);
+  frame.explosion_w = 0x40000000;
+  explosion_queue(&frame.explosion_x,rp_random_float_range(25.0,35.0),rp_random_float_range(100.0,200.0),
                   rp_random_float_range(100.0,200.0),2);
-  frame.local_40.flags = frame.local_40.flags | 0x20003;
-  frame.local_40.at.z = 1.0;
-  frame.local_40.up.y = 1.0;
-  frame.local_40.right.x = 1.0;
-  frame.local_40.up.x = 0.0;
-  frame.local_40.right.z = 0.0;
-  frame.local_40.right.y = 0.0;
-  frame.local_40.at.y = 0.0;
-  frame.local_40.at.x = 0.0;
-  frame.local_40.up.z = 0.0;
-  frame.local_40.pos.z = 0.0;
-  frame.local_40.pos.y = 0.0;
-  frame.local_40.pos.x = 0.0;
-  RwMatrixTranslate(&frame.local_40,translation,rwCOMBINEREPLACE);
-  RwMatrixRotate(&frame.local_40,(RwV3d *)&g_car_62ac68,90.0,rwCOMBINEPRECONCAT);
-  effect_sprite_spawn(1,&frame.local_40,&frame.local_60,2.0,4.0);
+  frame.sprite_matrix.flags = frame.sprite_matrix.flags | 0x20003;
+  frame.sprite_matrix.at.z = 1.0;
+  frame.sprite_matrix.up.y = 1.0;
+  frame.sprite_matrix.right.x = 1.0;
+  frame.sprite_matrix.up.x = 0.0;
+  frame.sprite_matrix.right.z = 0.0;
+  frame.sprite_matrix.right.y = 0.0;
+  frame.sprite_matrix.at.y = 0.0;
+  frame.sprite_matrix.at.x = 0.0;
+  frame.sprite_matrix.up.z = 0.0;
+  frame.sprite_matrix.pos.z = 0.0;
+  frame.sprite_matrix.pos.y = 0.0;
+  frame.sprite_matrix.pos.x = 0.0;
+  RwMatrixTranslate(&frame.sprite_matrix,translation,rwCOMBINEREPLACE);
+  RwMatrixRotate(&frame.sprite_matrix,(RwV3d *)&g_car_62ac68,90.0,rwCOMBINEPRECONCAT);
+  effect_sprite_spawn(1,&frame.sprite_matrix,&frame.flash_r,2.0,4.0);
   return;
 }
 

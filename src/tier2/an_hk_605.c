@@ -48,14 +48,14 @@ undefined4 cars_step_race_phase_and_respawn(int step_ticks)
   uint banner_car;
   uint car_index;
   struct {
-    undefined4 local_38;
-    RwReal local_34;
-    int local_30;
-    RwReal local_2c;
-    float local_28;
-    RwReal local_24;
-    int local_20 [4];
-    int local_10 [4];
+    undefined4 grid_key;
+    RwReal spawn_heading;
+    int active_cars;
+    RwReal spawn_x;
+    float spawn_y;
+    RwReal spawn_z;
+    int car_mode [4];
+    int car_timer [4];
   } frame;
   
   get_player_count();
@@ -75,7 +75,7 @@ undefined4 cars_step_race_phase_and_respawn(int step_ticks)
     } while (race_phase < CAR_SLOTS);
   }
   /* pass 1: count the active cars (active_count) and fetch each car's mode and timer */
-  frame.local_30 = 0;
+  frame.active_cars = 0;
   race_phase = 0;
   active_count = 0;
   do {
@@ -85,7 +85,7 @@ undefined4 cars_step_race_phase_and_respawn(int step_ticks)
       if (respawn_count == 1) {
         active_count = active_count + 1;
         car_auto_steer_assist_step(race_phase,step_ticks);
-        car_get_mode(race_phase,frame.local_20 + race_phase,frame.local_10 + race_phase);
+        car_get_mode(race_phase,frame.car_mode + race_phase,frame.car_timer + race_phase);
       }
     }
     race_phase = race_phase + 1;
@@ -95,79 +95,79 @@ undefined4 cars_step_race_phase_and_respawn(int step_ticks)
   race_phase = 0;
   respawn_count = 0;
   car_index = 0;
-  frame.local_30 = active_count;
+  frame.active_cars = active_count;
   do {
     active_count = race_setup_slot_used(car_index);
     if (active_count != 0) {
       active_count = car_is_active(car_index);
-      if ((active_count == 1) && (active_count = frame.local_20[car_index], active_count != 0)) {
+      if ((active_count == 1) && (active_count = frame.car_mode[car_index], active_count != 0)) {
         race_phase = race_phase + 1;
-        timer = frame.local_10[car_index] + step_ticks;
-        frame.local_10[car_index] = timer;
+        timer = frame.car_timer[car_index] + step_ticks;
+        frame.car_timer[car_index] = timer;
         if (((active_count == 1) || (active_count == 2)) && (MODE_TIMEOUT_TICKS < timer)) {
-          frame.local_20[car_index] = CAR_MODE_RESPAWN;
+          frame.car_mode[car_index] = CAR_MODE_RESPAWN;
         }
-        car_set_mode(car_index,frame.local_20[car_index],timer);
-        if (frame.local_20[car_index] == CAR_MODE_RESPAWN) {
+        car_set_mode(car_index,frame.car_mode[car_index],timer);
+        if (frame.car_mode[car_index] == CAR_MODE_RESPAWN) {
           active_count = respawn_count + 1;
           timer = camera_get_car_8c747c();
           if ((timer != 0) && (game_mode != GAME_MODE_BEAT_THE_BOMB)) {
             banner_car = intro_banner_get_flag();
             if (banner_car == car_index) {
-              frame.local_10[car_index] = 0;
-              frame.local_20[car_index] = 0;
+              frame.car_timer[car_index] = 0;
+              frame.car_mode[car_index] = 0;
               car_set_mode(car_index,0,0);
               debris_slot_clear_forward(car_index);
               fx_ring_clear();
               car_reset_state(car_index);
-              frame.local_38 = (int)player_rank_key(car_index);
-              course_lap_line_find_index(&frame.local_38);
-              grid_position(frame.local_38,0,1,&frame.local_2c,&frame.local_34);
-              car_spawn(car_index,frame.local_2c,frame.local_28,frame.local_24,frame.local_34,&g_car_801b0c);
+              frame.grid_key = (int)player_rank_key(car_index);
+              course_lap_line_find_index(&frame.grid_key);
+              grid_position(frame.grid_key,0,1,&frame.spawn_x,&frame.spawn_heading);
+              car_spawn(car_index,frame.spawn_x,frame.spawn_y,frame.spawn_z,frame.spawn_heading,&g_car_801b0c);
               active_count = respawn_count;
             }
           }
           respawn_count = active_count;
           if (game_mode == GAME_MODE_SURVIVAL) {
             if (car_index == 0) goto LAB_00428da3;
-            frame.local_10[car_index] = 0;
-            frame.local_20[car_index] = 0;
+            frame.car_timer[car_index] = 0;
+            frame.car_mode[car_index] = 0;
             car_set_mode(car_index,0,0);
             debris_slot_clear_forward(car_index);
             fx_ring_clear();
             car_reset_state(car_index);
-            frame.local_38 = (int)player_rank_key(car_index);
-            course_lap_line_find_index(&frame.local_38);
-            grid_position(frame.local_38,car_index,4,&frame.local_2c,&frame.local_34);
-            car_spawn(car_index,frame.local_2c,frame.local_28,frame.local_24,frame.local_34,&g_car_801b0c);
+            frame.grid_key = (int)player_rank_key(car_index);
+            course_lap_line_find_index(&frame.grid_key);
+            grid_position(frame.grid_key,car_index,4,&frame.spawn_x,&frame.spawn_heading);
+            car_spawn(car_index,frame.spawn_x,frame.spawn_y,frame.spawn_z,frame.spawn_heading,&g_car_801b0c);
             respawn_count = respawn_count + -1;
           }
           if ((game_mode == GAME_MODE_CHASE_FUGITIVE) || (game_mode == GAME_MODE_AIRSTRIKE)) {
-            frame.local_10[car_index] = 0;
-            frame.local_20[car_index] = 0;
+            frame.car_timer[car_index] = 0;
+            frame.car_mode[car_index] = 0;
             car_set_mode(car_index,0,0);
             debris_slot_clear_forward(car_index);
             fx_ring_clear();
             player_status_set(car_index,1);
             car_reset_state(car_index);
-            frame.local_38 = (int)player_rank_key(car_index);
-            course_lap_line_find_index(&frame.local_38);
-            grid_position(frame.local_38,0,1,&frame.local_2c,&frame.local_34);
-            car_spawn(car_index,frame.local_2c,frame.local_28,frame.local_24,frame.local_34,&g_car_801b0c);
+            frame.grid_key = (int)player_rank_key(car_index);
+            course_lap_line_find_index(&frame.grid_key);
+            grid_position(frame.grid_key,0,1,&frame.spawn_x,&frame.spawn_heading);
+            car_spawn(car_index,frame.spawn_x,frame.spawn_y,frame.spawn_z,frame.spawn_heading,&g_car_801b0c);
             respawn_count = respawn_count + -1;
           }
           if (game_mode == GAME_MODE_RACE) {
-            frame.local_10[car_index] = 0;
-            frame.local_20[car_index] = 0;
+            frame.car_timer[car_index] = 0;
+            frame.car_mode[car_index] = 0;
             car_set_mode(car_index,0,0);
             debris_slot_clear_forward(car_index);
             fx_ring_clear();
             player_status_set(car_index,1);
             car_reset_state(car_index);
-            frame.local_38 = (int)player_rank_key(car_index);
-            course_lap_line_find_index(&frame.local_38);
-            grid_position(frame.local_38,car_index,4,&frame.local_2c,&frame.local_34);
-            car_spawn(car_index,frame.local_2c,frame.local_28,frame.local_24,frame.local_34,&g_car_801b0c);
+            frame.grid_key = (int)player_rank_key(car_index);
+            course_lap_line_find_index(&frame.grid_key);
+            grid_position(frame.grid_key,car_index,4,&frame.spawn_x,&frame.spawn_heading);
+            car_spawn(car_index,frame.spawn_x,frame.spawn_y,frame.spawn_z,frame.spawn_heading,&g_car_801b0c);
             respawn_count = respawn_count + -1;
           }
         }
@@ -185,7 +185,7 @@ LAB_00428da3:
           timer = race_setup_slot_used(respawn_count);
           if (timer != 0) {
             timer = car_is_active(respawn_count);
-            if ((timer == 1) && (frame.local_20[respawn_count] == CAR_MODE_RESPAWN)) {
+            if ((timer == 1) && (frame.car_mode[respawn_count] == CAR_MODE_RESPAWN)) {
               car_kill(respawn_count);
               active_count = respawn_count + 1;
               if (1 < race_phase) {

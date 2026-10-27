@@ -28,26 +28,26 @@
 /* "(page): enables / disables the entries of a menu page from the career progress, player count and
    options" */
 
-void menu_page_update_entry_states(int param_1)
+void menu_page_update_entry_states(int page_index)
 
 {
   int controller_index;
   int iVar1;
-  int *piVar2;
-  int *piVar3;
+  int *entry_enabled;
+  int *fill_cursor;
   bool bVar4;
   
-  piVar2 = g_menu_records[param_1 + 1].entry_enabled;
-  piVar3 = piVar2;
+  entry_enabled = g_menu_records[page_index + 1].entry_enabled;
+  fill_cursor = entry_enabled;
   for (controller_index = 0xc; iVar1 = g_menu_player_count_index, controller_index != 0;
       controller_index = controller_index + -1) {
-    *piVar3 = 1;
-    piVar3 = piVar3 + 1;
+    *fill_cursor = 1;
+    fill_cursor = fill_cursor + 1;
   }
-  switch(g_menu_records[param_1 + 1].page_id) {
+  switch(g_menu_records[page_index + 1].page_id) {
   case MENU_PAGE_MAIN:
     if (g_game_state.option_flags[0] == 0) {
-      g_menu_records[param_1 + 1].entry_enabled[3] = 0;
+      g_menu_records[page_index + 1].entry_enabled[3] = 0;
     }
     g_menu_7ef7d0 = 0;
     controller_index = 0;
@@ -58,13 +58,13 @@ void menu_page_update_entry_states(int param_1)
     break;
   case MENU_PAGE_SINGLE_PLAYER:
     if (g_game_state.progress[0xe] == 0) {
-      g_menu_records[param_1 + 1].entry_enabled[3] = 0;
+      g_menu_records[page_index + 1].entry_enabled[3] = 0;
     }
     if (g_game_state.progress[0xf] == 0) {
-      g_menu_records[param_1 + 1].entry_enabled[4] = 0;
+      g_menu_records[page_index + 1].entry_enabled[4] = 0;
     }
     if (g_game_state.progress[0x10] == 0) {
-      g_menu_records[param_1 + 1].entry_enabled[5] = 0;
+      g_menu_records[page_index + 1].entry_enabled[5] = 0;
     }
     break;
   case MENU_PAGE_MULTIPLAYER:
@@ -78,36 +78,36 @@ void menu_page_update_entry_states(int param_1)
     break;
   case MENU_PAGE_CUSTOMISE_PLAY:
     if (g_menu_player_count_index != 2) {
-      g_menu_records[param_1 + 1].entry_enabled[1] = 0;
+      g_menu_records[page_index + 1].entry_enabled[1] = 0;
     }
     if (iVar1 != 3) {
-      g_menu_records[param_1 + 1].entry_enabled[2] = 0;
+      g_menu_records[page_index + 1].entry_enabled[2] = 0;
     }
     break;
   case MENU_PAGE_GAME_SETUP_MULTI:
     if (g_menu_game_mode_choice == 1) {
-      g_menu_records[param_1 + 1].entry_enabled[3] = 0;
+      g_menu_records[page_index + 1].entry_enabled[3] = 0;
       g_menu_bot_skill_a = 0;
 LAB_0043872d:
       controller_index = player_slots_count_active();
       if (controller_index == 2) {
-        g_menu_records[param_1 + 1].entry_enabled[5] = 0;
+        g_menu_records[page_index + 1].entry_enabled[5] = 0;
         g_menu_markers_enabled = 0;
       }
     }
     else {
       if (g_menu_bot_skill_a == 0) goto LAB_0043872d;
-      g_menu_records[param_1 + 1].entry_enabled[5] = 1;
+      g_menu_records[page_index + 1].entry_enabled[5] = 1;
     }
     if (g_game_state.progress[g_career_row * 0x12 + 9] == 0) {
-      g_menu_records[param_1 + 1].entry_enabled[6] = 0;
+      g_menu_records[page_index + 1].entry_enabled[6] = 0;
       g_menu_game_mode_choice = 0;
     }
     else {
-      g_menu_records[param_1 + 1].entry_enabled[6] = 1;
+      g_menu_records[page_index + 1].entry_enabled[6] = 1;
     }
     bVar4 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
-    g_menu_records[param_1 + 1].entry_enabled[1] = 1;
+    g_menu_records[page_index + 1].entry_enabled[1] = 1;
     if (bVar4) {
       g_team_mode = 0;
     }
@@ -119,21 +119,21 @@ LAB_0043872d:
     controller_index = career_event_set_progress(1);
     if (controller_index != 0) break;
 LAB_004387b7:
-    g_menu_records[param_1 + 1].entry_enabled[3] = 0;
+    g_menu_records[page_index + 1].entry_enabled[3] = 0;
     break;
   case MENU_PAGE_VIBRATION:
-    *piVar2 = 1;
-    g_menu_records[param_1 + 1].entry_enabled[1] = 1;
-    g_menu_records[param_1 + 1].entry_enabled[2] = 1;
-    g_menu_records[param_1 + 1].entry_enabled[3] = 1;
+    *entry_enabled = 1;
+    g_menu_records[page_index + 1].entry_enabled[1] = 1;
+    g_menu_records[page_index + 1].entry_enabled[2] = 1;
+    g_menu_records[page_index + 1].entry_enabled[3] = 1;
     controller_index = 0;
     do {
       iVar1 = controller_present_004a70c0(controller_index);
       if (iVar1 == 0) {
-        *piVar2 = 0;
+        *entry_enabled = 0;
       }
       controller_index = controller_index + 1;
-      piVar2 = piVar2 + 1;
+      entry_enabled = entry_enabled + 1;
     } while (controller_index < 4);
     g_menu_8c8080 = 0;
     g_menu_8c8084 = 1;
@@ -146,36 +146,36 @@ LAB_004387b7:
     break;
   case MENU_PAGE_ARCADE_MODES:
     if (g_game_state.progress[0x39] == 0) {
-      g_menu_records[param_1 + 1].entry_enabled[1] = 0;
+      g_menu_records[page_index + 1].entry_enabled[1] = 0;
     }
     break;
   case MENU_PAGE_LOAD_SAVE:
     controller_index = get_app_state();
     if (controller_index != APP_STATE_MAIN_LOOP_INIT) {
-      *piVar2 = 0;
-      g_menu_records[param_1 + 1].entry_enabled[1] = 0;
+      *entry_enabled = 0;
+      g_menu_records[page_index + 1].entry_enabled[1] = 0;
     }
   }
-  controller_index = g_menu_records[param_1 + 1].selected;
+  controller_index = g_menu_records[page_index + 1].selected;
   if (controller_index == -1) {
     controller_index = 0;
   }
-  if (g_menu_records[param_1 + 1].entry_enabled[controller_index] != 1) {
+  if (g_menu_records[page_index + 1].entry_enabled[controller_index] != 1) {
     iVar1 = 0;
-    if (0 < g_menu_records[param_1 + 1].entry_count) {
+    if (0 < g_menu_records[page_index + 1].entry_count) {
       do {
-        if (g_menu_records[param_1 + 1].entry_enabled[controller_index] == 1) {
-          g_menu_records[param_1 + 1].selected = controller_index;
+        if (g_menu_records[page_index + 1].entry_enabled[controller_index] == 1) {
+          g_menu_records[page_index + 1].selected = controller_index;
           return;
         }
         controller_index = controller_index + 1;
-        if (controller_index == g_menu_records[param_1 + 1].entry_count) {
+        if (controller_index == g_menu_records[page_index + 1].entry_count) {
           controller_index = 0;
         }
         iVar1 = iVar1 + 1;
-      } while (iVar1 < g_menu_records[param_1 + 1].entry_count);
+      } while (iVar1 < g_menu_records[page_index + 1].entry_count);
     }
-    g_menu_records[param_1 + 1].selected = -1;
+    g_menu_records[page_index + 1].selected = -1;
   }
   return;
 }

@@ -293,8 +293,8 @@ void menu_draw_event_descriptions(int skip_list)
                 dark.b[1] = 0;
                 dark.b[2] = 0;
                 dark.b[3] = alpha_row;
-                if (y_off < EVENT_LIST_MEDAL_ROWS_FROM || event_type == 0xe || event_type == 0xf ||
-                    event_type == 0x10 || event_type == 0x11) {
+                if (y_off < EVENT_LIST_MEDAL_ROWS_FROM || event_type == EVENT_TURBO_TOURNAMENT || event_type == EVENT_ICE_TOURNAMENT ||
+                    event_type == EVENT_NIGHT_TOURNAMENT || event_type == EVENT_TRAINING) {
                     if (y_off > 0 && menu_event_is_selectable(row) == 0)
                         state = 1;
                 } else if (career_progress_event_unlocked(row) == 0) {
@@ -303,14 +303,14 @@ void menu_draw_event_descriptions(int skip_list)
                 scale = 0.6f;
                 if (row != g_career_row)
                     scale = 0.58f;
-                if (event_type == 0x11)
+                if (event_type == EVENT_TRAINING)
                     scale = 0.52f;
                 if (state != 2)
                     continue;
                 ui_rt2d_text_draw(career_row_title_string_id(row), 64.0f, row_y, dark.packed, scale, 0);
                 event_type = g_event_type;
                 kind = event_type;
-                if (event_type == 4 || event_type == 5)
+                if (event_type == EVENT_CUP_4 || event_type == EVENT_CUP_5)
                     kind = 3;
                 if (career_flag_enabled(row, kind) != 0 && y_off < EVENT_LIST_MEDAL_ROWS_FROM) {
                     /* "new" marker, blinking */
@@ -385,13 +385,13 @@ void menu_draw_event_descriptions(int skip_list)
                 int alpha;
                 float icon_y_f, half_w, half_h;
 
-                if (!(row < 12 || event_type == 0xe || event_type == 0xf || event_type == 0x10 || event_type == 0x11)) {
+                if (!(row < 12 || event_type == EVENT_TURBO_TOURNAMENT || event_type == EVENT_ICE_TOURNAMENT || event_type == EVENT_NIGHT_TOURNAMENT || event_type == EVENT_TRAINING)) {
                     if (career_progress_event_unlocked(row) == 0)
                         continue;
                     event_type = g_event_type;
                 }
                 d.state = 2;
-                if (row < 12 || event_type == 0xe || event_type == 0xf || event_type == 0x10 || event_type == 0x11) {
+                if (row < 12 || event_type == EVENT_TURBO_TOURNAMENT || event_type == EVENT_ICE_TOURNAMENT || event_type == EVENT_NIGHT_TOURNAMENT || event_type == EVENT_TRAINING) {
                     if (row > 0 && menu_event_is_selectable(row) == 0)
                         d.state = 1;
                 } else if (career_progress_event_unlocked(row) == 0) {
