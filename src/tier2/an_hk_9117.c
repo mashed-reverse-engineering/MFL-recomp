@@ -23,7 +23,7 @@ int course_superg_cb0(char *param_1)
   course_sky_atomic_create(texture_dict,0x3f800000,0xc0000000);
   viewport_raster_create(0,0x100,0x100,0x600);
   pData = (void *)viewport_get_field_702254(0);
-  world_for_all_materials_cb_406910(*(RpWorld **)(param_1 + 0xc9d4),pData);
+  world_for_all_materials_cb_406910(COURSE_WORLD(param_1),pData);
   pRVar1 = (RwCamera *)viewport_get_camera(0);
   RwCameraSetNearClipPlane(pRVar1,0.5f);
   pRVar1 = (RwCamera *)viewport_get_camera(0);

@@ -123,7 +123,7 @@ void sound_ambience_course_25(void)
   }
   progress = (float)player_progress_b(0);
   camera_get_position(camera);
-  slot = *(int *)(g_sound_groups + 0x470);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 0.2f);
   if (progress < k_f_30) {
@@ -133,7 +133,7 @@ void sound_ambience_course_25(void)
     voice_set_volume(slot, (progress - k_f_70) * k_f_0_033333335 * k_f_0_2 + k_f_0_2);
   }
   sound_voice_fixed_a(0x500, 22050.0f, 1.0f, 0x42860000, 0xc0a00000, 0x42fc0000);
-  slot = *(int *)(g_sound_groups + 0x590);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(9);
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 1.0f);
   sound_voice_place_bits(slot, 0x42740000, 0xc0a00000, 0x42e7cccd);
@@ -141,12 +141,12 @@ void sound_ambience_course_25(void)
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 1.0f);
   sound_voice_place_bits(slot, 0x423e0000, 0x40000000, 0x4286999a);
-  slot = *(int *)(g_sound_groups + 0x620);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(10);
   sound_voice_start_22050(slot);
   sound_voice_place_bits(slot, 0x422f3333, 0x40000000, 0x427c0000);
   voice_set_volume(slot, 1.0f);
   sound_voice_fixed_a(0x6b0, 27050.0f, 0.9f, 0x4214cccd, 0xc04ccccd, 0x42e60000);
-  slot = *(int *)(g_sound_groups + 0x740);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(12);
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 1.0f);
   sound_voice_place_bits(slot, 0x422e6666, 0xc0566666, 0x42b96666);
@@ -156,7 +156,7 @@ void sound_ambience_course_25(void)
   sound_voice_place_bits(slot, 0x42300000, 0xc0870a3d, 0x42d2cccd);
   sound_voice_fixed_a(0xa10, 22050.0f, 1.0f, 0x3fd9999a, 0xbf19999a, 0x42ef3333);
   sound_voice_fixed_a(0x980, 22050.0f, 1.0f, 0x42886666, 0xc0866666, 0x42d5999a);
-  base = *(int *)(g_sound_groups + 0xa10);
+  base = SOUND_GROUP_FIRST_VOICE_OF(17);
   slot = base + 1;
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 1.0f);

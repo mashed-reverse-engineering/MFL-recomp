@@ -67,7 +67,7 @@ void sound_ambience_course_1a(void)
       g_sound_ambience_6ae1e4 = 0.0;
     }
     /* group 0x590: volume 0.2, no position written */
-    slot = *(int *)(g_sound_groups + 0x590);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(9);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -79,7 +79,7 @@ void sound_ambience_course_1a(void)
     }
     voice_set_volume(slot,0.2);
     /* group 0x470: three emitters in a row at x=36.7, y=2.6, z=-13.1 / -19.1 / -26.1 (slot, slot+1, slot+2) */
-    slot = *(int *)(g_sound_groups + 0x470);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(7);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -146,7 +146,7 @@ void sound_ambience_course_1a(void)
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x500: emitter at (85.6, 0.3, 21.97) */
-    slot = *(int *)(g_sound_groups + 0x500);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(8);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -169,7 +169,7 @@ void sound_ambience_course_1a(void)
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x6b0: emitter at (96.6, 0.8, -22.8) */
-    slot = *(int *)(g_sound_groups + 0x6b0);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(11);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -192,7 +192,7 @@ void sound_ambience_course_1a(void)
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x740: emitter at (-1.06, 0.6, -29.32) */
-    slot = *(int *)(g_sound_groups + 0x740);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(12);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -215,7 +215,7 @@ void sound_ambience_course_1a(void)
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x620: emitter at (36.7, 3.3, 42.5), and slot+1 at (96.7, 1.3, 14.2) */
-    slot = *(int *)(g_sound_groups + 0x620);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(10);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -292,7 +292,7 @@ void sound_ambience_course_1a(void)
       }
     }
     /* group 0x8f0: emitters at (63.6, 0.5, -28) and slot+1 at (77.0, 0.5, -28) */
-    slot = *(int *)(g_sound_groups + 0x8f0);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(15);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }

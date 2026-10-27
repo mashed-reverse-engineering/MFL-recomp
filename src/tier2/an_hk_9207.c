@@ -45,13 +45,11 @@ void sound_music_volume_update(void)
       if ((((voice_i != skip_voice_music) && (voice_i != skip_voice_b)) && (voice_i != skip_voice_a)) &&
          ((voice_i != skip_voice_c && (voice_i != skip_voice_d)))) {
         voice_volume = g_voices[voice_i].volume * music_gain;
-        if (voice_volume <= float_1_0) {
-          if (voice_volume < k_f_0) {
-            voice_volume = 0.0;
-          }
-        }
-        else {
+        if (voice_volume > float_1_0) {      /* NaN passes both clamps unchanged (original: fcomp / test ah,0x41 / jne) */
           voice_volume = 1.0;
+        }
+        else if (voice_volume < k_f_0) {
+          voice_volume = 0.0;
         }
         *(float *)(g_voices[voice_i].voice + 0x40) = voice_volume;
         filter_handle = *(int *)(g_voices[voice_i].voice + 0x30);

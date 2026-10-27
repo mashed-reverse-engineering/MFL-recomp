@@ -49,6 +49,7 @@ def parse(obj):
     syms = {}; first = {}; i = 0
     while i < nsym:
         o = symoff + i * 18; n = nm(d[o:o + 8]); value, sec, typ, cls, aux = struct.unpack_from("<IhHBB", d, o + 8)
+        if re.fullmatch(r'\$L\d+', n) and sec > 0: n = '$L#%d+%d' % (sec, value)      # compiler-numbered local label (jump tables, switch cases): identify by place, not by number
         syms[i] = n
         if sec > 0 and cls in (2, 3) and not n.startswith(".") and sec not in first: first[sec] = n
         i += 1 + aux

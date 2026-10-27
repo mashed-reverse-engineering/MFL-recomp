@@ -70,10 +70,10 @@ void course_camera_roll_update(char *course,RwCamera *camera)
     rgb[1] = (uchar)(int)((float)(int)(((uchar *)&g_course_update_6095c4)[1] - ((uchar *)&g_course_update_6095c0)[1]) * g_course_lap_data_split_sectors_14_ + (float)(int)((uchar *)&g_course_update_6095c0)[1]);
     rgb[2] = (uchar)(int)((float)(int)(((uchar *)&g_course_update_6095c4)[2] - ((uchar *)&g_course_update_6095c0)[2]) * g_course_lap_data_split_sectors_14_ + (float)(int)((uchar *)&g_course_update_6095c0)[2]);
     game_set_option_flags(*(int *)&rgb[0],*(int *)&rgb[1],*(int *)&rgb[2]);
-    fog_near = (*(float *)(course + 0xca04) - *(float *)(course + 0xc9f8)) * g_course_lap_data_split_sectors_14_ + *(float *)(course + 0xc9f8);
+    fog_near = (COURSE_FOG_NEAR_END(course) - COURSE_FOG_NEAR(course)) * g_course_lap_data_split_sectors_14_ + COURSE_FOG_NEAR(course);
     RwCameraSetFarClipPlane
-              (camera,(*(float *)(course + 0xca08) - *(float *)(course + 0xc9fc)) *
-                      g_course_lap_data_split_sectors_14_ + *(float *)(course + 0xc9fc));
+              (camera,(COURSE_FOG_FAR_END(course) - COURSE_FOG_FAR(course)) *
+                      g_course_lap_data_split_sectors_14_ + COURSE_FOG_FAR(course));
     RwCamera_fogPlane(camera) = fog_near;
   }
   return;

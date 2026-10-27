@@ -54,8 +54,6 @@ typedef int CourseId;
 #define COURSE_WARZONE (33)
 #define ROUTE_SEARCH_RADIUS_BITS (0x41200000) /* float 10.0f, passed to ai_route_closest_point_search (inferred radius) */
 #define BOT_STATE_STRIDE (0x14) /* bytes per bot in g_ai_data.bot_state (4 bots x 20 bytes) */
-#define BOT_STEER_SIDE_OFFSET (0x2c) /* last steer side (1 = left, 2 = right) (inferred); gap in AiBotRecord */
-#define BOT_STEER_AMOUNT_OFFSET (0x34) /* last steer amount written by this function; gap in AiBotRecord */
 #define STEER_HOLD_MS (200) /* ms a steer amount is held before it decays (inferred) */
 #define BLINK_DIVISOR (0x3c) /* (inferred) */
 #define BLINK_BIT (0x20U) /* (inferred) */
@@ -228,7 +226,7 @@ LAB_00418fe2:
     }
     bot_state[3] = frame.steer_angle;
     if (float_1_0 < frame.steer_angle) {
-      if ((*(int *)((char *)bot + BOT_STEER_SIDE_OFFSET) == 1) ||
+      if ((bot->steer_side == 1) ||
          (result = g_race_clock_a - bot->field_0x30, 199 < result)) {
         steer_amount = (double)frame.steer_angle * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.target_kind == 0) && (k_f_20 < frame.heading_error)) {
@@ -238,13 +236,13 @@ LAB_00418fe2:
           steer_amount = (double)k_f_255;
         }
         controls[0] = (undefined1)(int)steer_amount;
-        *(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET) = (int)steer_amount;
-        *(int *)((char *)bot + BOT_STEER_SIDE_OFFSET) = 1;
+        bot->steer_amount = (int)steer_amount;
+        bot->steer_side = 1;
         bot->field_0x30 = g_race_clock_a;
       }
       else {
         frame.candidate_x = STEER_HOLD_MS - result;
-        controls[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET));
+        controls[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)bot->steer_amount);
       }
     }
   }
@@ -257,7 +255,7 @@ LAB_00418fe2:
     }
     bot_state[2] = frame.steer_angle;
     if (frame.steer_angle < k_f_359) {
-      if ((*(int *)((char *)bot + BOT_STEER_SIDE_OFFSET) == 2) ||
+      if ((bot->steer_side == 2) ||
          (result = g_race_clock_a - bot->field_0x30, 199 < result)) {
         steer_amount = ((double)k_f_360 - (double)frame.steer_angle) * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.target_kind == 0) && (k_f_20 < frame.heading_error)) {
@@ -267,13 +265,13 @@ LAB_00418fe2:
           steer_amount = (double)k_f_255;
         }
         controls[1] = (undefined1)(int)steer_amount;
-        *(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET) = (int)steer_amount;
-        *(int *)((char *)bot + BOT_STEER_SIDE_OFFSET) = 2;
+        bot->steer_amount = (int)steer_amount;
+        bot->steer_side = 2;
         bot->field_0x30 = g_race_clock_a;
       }
       else {
         frame.candidate_x = STEER_HOLD_MS - result;
-        controls[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_STEER_AMOUNT_OFFSET));
+        controls[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)bot->steer_amount);
       }
     }
   }

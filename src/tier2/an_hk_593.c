@@ -68,13 +68,11 @@ void __cdecl ai_bot_skill(void)
     bot_skill = (float)event_type * k_f_2_5;
   }
   /* clamp to [0, BOT_SKILL_MAX] */
-  if (k_f_0 <= bot_skill) {
-    if (float_10_0 < bot_skill) {
-      bot_skill = BOT_SKILL_MAX;
-    }
-  }
-  else {
+  if (bot_skill < k_f_0) {      /* NaN passes both clamps unchanged (original: fcomp, test ah,5, jp / test ah,0x41, jne) */
     bot_skill = 0.0;
+  }
+  else if (float_10_0 < bot_skill) {
+    bot_skill = BOT_SKILL_MAX;
   }
   /* training: lesson 5 keeps 9.0, other lessons use TRAINING_BOT_SKILL */
   event_type = get_event_type();

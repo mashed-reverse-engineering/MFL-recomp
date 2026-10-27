@@ -42,7 +42,7 @@ void vehicle_ground_probe_update_n(VehicleRecord *vehicle_record)
   probe.hit_dist = 1.0;
   if (g_course_64d894 != 0) {
     vehicle_record->size_factor = 1.0;
-    *(float *)((char *)vehicle_record + 0x288) = 1.0f;
+    vehicle_record->light_factor = 1.0f;
     return;
   }
   count = 7;
@@ -64,7 +64,7 @@ void vehicle_ground_probe_update_n(VehicleRecord *vehicle_record)
     if (count != 0) {
       vehicle_record->part_frames[0x80] = probe.hit_index;
     }
-    *(float *)((char *)vehicle_record + 0x288) = float_1_0 - probe.hit_dist;
+    vehicle_record->light_factor = float_1_0 - probe.hit_dist;
   }
   vehicle_record->size_factor = 0.0;
   sum = history[0];

@@ -28,8 +28,8 @@ undefined4 sound_music_state_update(void)
     if (g_sound_master_fade <= k_f_0) {
       course_id = current_course_id();
       if (((course_id == COURSE_DEM) || (course_id == COURSE_DEMR)) &&
-         ((*(byte *)(g_voices[*(int *)(g_sound_groups + 0x620)].voice + 0x34) & 2) != 0)) {
-        FUN_005b6a40(g_voices[*(int *)(g_sound_groups + 0x620)].voice,0);
+         ((*(byte *)(g_voices[SOUND_GROUP_FIRST_VOICE_OF(10)].voice + 0x34) & 2) != 0)) {
+        FUN_005b6a40(g_voices[SOUND_GROUP_FIRST_VOICE_OF(10)].voice,0);
       }
     }
     return 1;

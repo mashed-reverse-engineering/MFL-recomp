@@ -56,10 +56,10 @@ void course_arctic_cb0(int course)
   } frame;
   
   g_course_arctic_6a0770 =
-       RwTexDictionaryFindNamedTexture((struct RwTexDictionary *)(*(RwTexDictionary **)(course + 0xc9d0)),(RwChar *)("lightning"));
+       RwTexDictionaryFindNamedTexture((struct RwTexDictionary *)(COURSE_TEXDICT(course)),(RwChar *)("lightning"));
   viewport_raster_create(0,0x80,0x80,0x600);
   texture_dict = (void *)viewport_get_field_702254(0);
-  world_for_all_materials_cb_406910(*(RpWorld **)(course + 0xc9d4),texture_dict);
+  world_for_all_materials_cb_406910(COURSE_WORLD(course),texture_dict);
   camera_create_a(course);
   camera_create_b(course);
   RwFrameSetIdentity(*(RwFrame **)(*(char **)(course + 0xc118) + 4));
@@ -75,7 +75,7 @@ void course_arctic_cb0(int course)
   g_course_arctic_8c5734 = RpAtomic_boundingSphere(atomic).center.y;
   g_course_arctic_8c5738 = RpAtomic_boundingSphere(atomic).center.z;
   g_course_arctic_8c573c = RpAtomic_boundingSphere(atomic).radius;
-  RpWorldRemoveClump(*(RpWorld **)(course + 0xc9d4),g_course_arctic_8c5840);
+  RpWorldRemoveClump(COURSE_WORLD(course),g_course_arctic_8c5840);
   RwFrameSetIdentity(RpClump_object_parent(g_course_arctic_8c5840));
   clump_slot = g_course_arctic_8c5844;
   do {
@@ -113,7 +113,7 @@ void course_arctic_cb0(int course)
   rain_ptank_create(smoke_texture);
   rain_splash_add(&frame.emit_x,0x3c23d70a,&frame.vel_x,&grid_pos);
   row_or_clump = 0;
-  if (0 < *(int *)(course + 0xc004)) {
+  if (0 < COURSE_FX_SOURCE_COUNT(course, 0)) {
     grid_i = course + 0xc30;
     do {
       smoke_texture = fx_slot_find_free(0xc,grid_i,0,0x14);
@@ -121,10 +121,10 @@ void course_arctic_cb0(int course)
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
       row_or_clump = row_or_clump + 1;
       grid_i = grid_i + 0x40;
-    } while (row_or_clump < *(int *)(course + 0xc004));
+    } while (row_or_clump < COURSE_FX_SOURCE_COUNT(course, 0));
   }
   row_or_clump = 0;
-  if (0 < *(int *)(course + 0xc008)) {
+  if (0 < COURSE_FX_SOURCE_COUNT(course, 1)) {
     grid_i = course + 0x1830;
     do {
       smoke_texture = fx_slot_find_free(7,grid_i,0,0x14);
@@ -132,10 +132,10 @@ void course_arctic_cb0(int course)
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
       row_or_clump = row_or_clump + 1;
       grid_i = grid_i + 0x40;
-    } while (row_or_clump < *(int *)(course + 0xc008));
+    } while (row_or_clump < COURSE_FX_SOURCE_COUNT(course, 1));
   }
   row_or_clump = 0;
-  if (0 < *(int *)(course + 0xc00c)) {
+  if (0 < COURSE_FX_SOURCE_COUNT(course, 2)) {
     grid_i = course + 0x2430;
     do {
       smoke_texture = fx_slot_find_free(2,grid_i,0,0x14);
@@ -143,7 +143,7 @@ void course_arctic_cb0(int course)
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
       row_or_clump = row_or_clump + 1;
       grid_i = grid_i + 0x40;
-    } while (row_or_clump < *(int *)(course + 0xc00c));
+    } while (row_or_clump < COURSE_FX_SOURCE_COUNT(course, 2));
   }
   frame.emit_x = 0xc204199a;
   frame.emit_y = 0x401147ae;

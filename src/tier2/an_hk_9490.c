@@ -71,10 +71,10 @@ void course_warzone_cb0(char *course)
   v.pos_x = *(RwReal *)(course + 0x30);
   v.pos_z = *(RwReal *)(course + 0x38);
   v.pos_y = *(float *)(course + 0x34) + k_f_0_75;
-  tree_tex = RwTexDictionaryFindNamedTexture(*(RwTexDictionary **)(course + 0xc9d0),"OakTreeSprite");
+  tree_tex = RwTexDictionaryFindNamedTexture(COURSE_TEXDICT(course),"OakTreeSprite");
   func_0x0048d900(tree_tex);
   i = 0;
-  if (0 < *(int *)(course + 0xc008)) {
+  if (0 < COURSE_FX_SOURCE_COUNT(course, 1)) {
     tree_rec = (RwV3d *)(course + 0x1820);
     do {
       v.pos_x = tree_rec[1].y;
@@ -85,10 +85,10 @@ void course_warzone_cb0(char *course)
       g_course_warzone_8bf040 = g_course_warzone_8bf040 + 1;
       i = i + 1;
       tree_rec = (RwV3d *)&tree_rec[5].y;
-    } while (i < *(int *)(course + 0xc008));
+    } while (i < COURSE_FX_SOURCE_COUNT(course, 1));
   }
   i = 0;
-  if (0 < *(int *)(course + 0xc00c)) {
+  if (0 < COURSE_FX_SOURCE_COUNT(course, 2)) {
     tree_rec = (RwV3d *)(course + 0x2420);
     do {
       v.pos_x = tree_rec[1].y;
@@ -99,7 +99,7 @@ void course_warzone_cb0(char *course)
       g_course_warzone_8bf040 = g_course_warzone_8bf040 + 1;
       i = i + 1;
       tree_rec = (RwV3d *)&tree_rec[5].y;
-    } while (i < *(int *)(course + 0xc00c));
+    } while (i < COURSE_FX_SOURCE_COUNT(course, 2));
   }
   FID_conflict__wprintf("Created %d trees\n",g_course_warzone_8bf040);
   g_course_60d9c8 = rwp_object_find_index_by_id(1000);

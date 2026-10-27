@@ -509,6 +509,45 @@ typedef void (*RwFreeFunc)(void *);
 #define WHEELS_PER_CAR 4
 #endif
 
+/* ---- data layouts reached through raw offsets (macros expand to the same byte accesses) ---- */
+#ifndef MFL_LAYOUT_MACROS
+#define MFL_LAYOUT_MACROS
+/* g_sound_groups: table of sound group records, SOUND_GROUP_STRIDE bytes each (sfx_play_group_at: +0x80 first voice slot, +0x84 voice count) */
+#ifndef SOUND_GROUP_STRIDE
+#define SOUND_GROUP_STRIDE (0x90)
+#endif
+#define SOUND_GROUP_FIRST_VOICE_OF(group) (*(int *)(g_sound_groups + (group) * SOUND_GROUP_STRIDE + 0x80))
+/* course data block (the `course` / `world` / `game_state` argument of the course_*_cb0 setup functions, offsets from its start) */
+#define COURSE_FX_SOURCE_COUNT(c, set) (*(int *)((char *)(c) + 0xc004 + (set) * 4)) /* number of 0x40 byte fx source records of set 0..2 (arrays at +0xc30, +0x1830, +0x2430; each gets an fx slot) */
+#define COURSE_TEXDICT(c) (*(RwTexDictionary **)((char *)(c) + 0xc9d0))
+#define COURSE_WORLD(c) (*(RpWorld **)((char *)(c) + 0xc9d4))
+#define COURSE_FOG_NEAR(c) (*(float *)((char *)(c) + 0xc9f8))     /* an_hk_908 blends these with the *_END values by the lap-data fraction (inferred meaning) */
+#define COURSE_FOG_FAR(c) (*(float *)((char *)(c) + 0xc9fc))
+#define COURSE_FOG_NEAR_END(c) (*(float *)((char *)(c) + 0xca04))
+#define COURSE_FOG_FAR_END(c) (*(float *)((char *)(c) + 0xca08))
+/* weapon_rocket record (rocket_fly_straight / rocket_fly_homing / rocket_hit_callback); the +0x5c holder's +4 is the RwFrame of the rocket model */
+typedef struct RocketRecord {
+    char unknown_00[0xc];
+    RwV3d pos;              /* 0x0c */
+    float age;              /* 0x18: drives the sine wobble of straight flight */
+    RwV3d vel;              /* 0x1c: per frame movement, set from the frame's at-vector * speed */
+    float lift;             /* 0x28: added to vel.y (inferred) */
+    float accel;            /* 0x2c: grows by 1e-4 per frame, capped at 0.005 */
+    float speed;            /* 0x30 */
+    float target_speed_a;   /* 0x34: car_get_speed of the target (homing; inferred) */
+    float target_speed_b;   /* 0x38 */
+    int field_3c;           /* compared with the hit object's id in rocket_hit_callback */
+    float pitch_rate;       /* 0x40: homing steering, 0 / +-20 */
+    float yaw_rate;         /* 0x44: homing steering, 0 / +-2 */
+    float yaw;              /* 0x48 */
+    float pitch;            /* 0x4c */
+    int field_50;
+    int target_car;         /* 0x54: -1 = none (then target_fx_object is used) */
+    undefined4 target_fx_object; /* 0x58 */
+    char *frame_holder;     /* 0x5c */
+} RocketRecord;
+#endif
+
 /* g_race_phase values (race_set_phase / race_get_phase); 4, 8, 9 named from the handlers that set them (inferred), 10 and 11 are set but not named yet */
 #ifndef MFL_RACE_PHASE_ENUM
 #define MFL_RACE_PHASE_ENUM
@@ -664,9 +703,9 @@ struct AiBotRecord {
     int target_car; /* car index of the chosen target (car_get_forward argument) */
     int leader_far_ms; /* ms the human player has been further than 2.5 away (ai_find_leader_a returns 1 after 72000) */
     union { float leader_distance; undefined4 field_0x28; }; /* player_distance_get to the human player (type 1 slot), read by ai_drive_* (> 4, > 6) */
-    char _gap_2c[4];
+    int steer_side; /* last steer side written by ai_drive_*: 1 = left, 2 = right (inferred) */
     undefined4 field_0x30;
-    char _gap_34[4];
+    int steer_amount; /* last steer amount written by ai_drive_* (inferred) */
     int start_random; /* "random start value from the table at 0x603950 (ai_bots_randomise)" */
     union { int cooldown_timer; undefined4 field_0x3c; }; /* ms countdown (ai_bot_set_cooldown_b4 / _78 set it, ai_bot_update decrements by g_tick_count) */
     union { int cooldown_flag; undefined4 field_0x40; }; /* 1 set by ai_bot_set_cooldown_78, cleared by ai_bot_clear_flag_20, read by ai_bot_get_flag_20 */
@@ -1158,7 +1197,7 @@ struct VehicleRecord {
     uint envmap_frame; /* RwFrame handle (g_game_659d60[v]) for RpMatFXMaterialSetEnvMapFrame */
     float envmap_angle; /* environment map rotation, advanced by vehicle_setup_references from the car velocity */
     float size_factor; /* "vehicle_get_float_184" */
-    char _gap_288[4];
+    float light_factor; /* 1 - distance of the downward ground probe (1.0 while the course has no probe data); scales the headlight / shadow strength */
     int field_28c; /* "vehicle_get_field_18c" */
     int index; /* slot index 0..3 set by vehicle_load; the car index for car_get_* and (g_tick_number & 3) selects the frame of the ground probe */
     uint flags; /* "bit 1 scale set, 8 active, 0x10/0x20 front/back flags, 0x400 flag_400" */

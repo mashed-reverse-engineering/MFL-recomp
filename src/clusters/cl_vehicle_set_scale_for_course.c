@@ -16,7 +16,7 @@ typedef int CourseId;
 /* WARNING: Unknown calling convention */
 /* "scale from the per course table at 0x607798" */
 
-void vehicle_set_scale_for_course_n(char *vehicle_record)
+void vehicle_set_scale_for_course_n(VehicleRecord *vehicle_record)
 
 {
   uint uVar1;
@@ -26,35 +26,35 @@ void vehicle_set_scale_for_course_n(char *vehicle_record)
   int iVar3;
   
   course_id = current_course_id();
-  vehicle_set_scale(*(int *)(vehicle_record + 0x290),*(undefined4 *)(g_vehicle_set_607798 + course_id * 4));
-  uVar1 = *(uint *)(vehicle_record + 0x294);
+  vehicle_set_scale(vehicle_record->index,*(undefined4 *)(g_vehicle_set_607798 + course_id * 4));
+  uVar1 = vehicle_record->flags;
   iVar3 = 0;
   do {
-    if (*(int *)(vehicle_record + iVar3 * 4) != 0) {
+    if (vehicle_record->part_frames[iVar3] != 0) {
       iVar2 = vehicle_part_id_has_damage_model(iVar3);
       if (iVar2 != 0) {
-        material = (RpMaterial *)**(undefined4 **)(*(int *)(*(int *)(vehicle_record + iVar3 * 4) + 0x18) + 0x20);
+        material = (RpMaterial *)**(undefined4 **)(*(int *)(vehicle_record->part_frames[iVar3] + 0x18) + 0x20);
         if ((uVar1 & 2) != 0) {
-          RpMatFXMaterialSetEnvMapCoefficient(material,*(float *)(vehicle_record + 0x274));
+          RpMatFXMaterialSetEnvMapCoefficient(material,vehicle_record->half_scale);
         }
         if ((uVar1 & 4) != 0) {
-          RpMatFXMaterialSetEnvMapFrame(material,(RwFrame *)*(uint *)(vehicle_record + 0x27c));
+          RpMatFXMaterialSetEnvMapFrame(material,(RwFrame *)vehicle_record->envmap_frame);
         }
         if ((uVar1 & 1) != 0) {
-          RpMatFXMaterialSetEnvMapTexture(material,(RwTexture *)*(uint *)(vehicle_record + 0x278));
+          RpMatFXMaterialSetEnvMapTexture(material,(RwTexture *)vehicle_record->envmap_texture);
         }
       }
     }
     iVar3 = iVar3 + 1;
   } while (iVar3 < 0x80);
   if ((uVar1 & 2) != 0) {
-    *(uint *)(vehicle_record + 0x294) = *(uint *)(vehicle_record + 0x294) & 0xfffffffd;
+    vehicle_record->flags = vehicle_record->flags & 0xfffffffd;
   }
   if ((uVar1 & 4) != 0) {
-    *(uint *)(vehicle_record + 0x294) = *(uint *)(vehicle_record + 0x294) & 0xfffffffb;
+    vehicle_record->flags = vehicle_record->flags & 0xfffffffb;
   }
   if ((uVar1 & 1) != 0) {
-    *(uint *)(vehicle_record + 0x294) = *(uint *)(vehicle_record + 0x294) & 0xfffffffe;
+    vehicle_record->flags = vehicle_record->flags & 0xfffffffe;
   }
   return;
 }

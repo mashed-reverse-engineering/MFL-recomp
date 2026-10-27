@@ -27,30 +27,30 @@ void course_neustein_cb0(char *course)
   nop_stub(course);
   SUB_004546e0(course);
   course_sky_atomic_create(find_texture_dict_b(s_smoke_005ddb64), 1.0f, -2.0f);
-  SUB_0048d900(RwTexDictionaryFindNamedTexture(*(struct RwTexDictionary **)(course + 0xc9d0), "TreeSprite"));
+  SUB_0048d900(RwTexDictionaryFindNamedTexture(COURSE_TEXDICT(course), "TreeSprite"));
   entry = course + 0x20;
   for (i = 0; i < *(int *)(course + 0xc000); i++) {
     position = *(RwV3d *)(entry + 0x10);
-    SUB_0048db30(&position, *(int *)(course + 0xc004), course + 0xc00, RwV3dLength((RwV3d *)entry));
+    SUB_0048db30(&position, COURSE_FX_SOURCE_COUNT(course, 0), course + 0xc00, RwV3dLength((RwV3d *)entry));
     g_course_neustein_6a1870 = g_course_neustein_6a1870 + 1;
     entry = entry + 0x40;
   }
   entry = course + 0x1820;
-  for (i = 0; i < *(int *)(course + 0xc008); i++) {
+  for (i = 0; i < COURSE_FX_SOURCE_COUNT(course, 1); i++) {
     position = *(RwV3d *)(entry + 0x10);
-    SUB_0048db30(&position, *(int *)(course + 0xc004), course + 0xc00, RwV3dLength((RwV3d *)entry));
+    SUB_0048db30(&position, COURSE_FX_SOURCE_COUNT(course, 0), course + 0xc00, RwV3dLength((RwV3d *)entry));
     g_course_neustein_6a1870 = g_course_neustein_6a1870 + 1;
     entry = entry + 0x40;
   }
   entry = course + 0x1820;
   for (i = 0; i < *(int *)(course + 0xc014); i++) {
     position = *(RwV3d *)(entry + 0x2410);
-    SUB_0048db30(&position, *(int *)(course + 0xc004), course + 0xc00, RwV3dLength((RwV3d *)entry));
+    SUB_0048db30(&position, COURSE_FX_SOURCE_COUNT(course, 0), course + 0xc00, RwV3dLength((RwV3d *)entry));
     g_course_neustein_6a1870 = g_course_neustein_6a1870 + 1;
     entry = entry + 0x40;
   }
   atomic = FUN_004c3f60(*(int *)(course + 0xc11c));
   g_course_neustein_6a1d88 = object_frames_create_with_matrices(atomic, *(int *)(course + 0xc000), course);
-  g_course_neustein_6a1d8c = object_frames_create_with_matrices(atomic, *(int *)(course + 0xc008), course + 0x1800);
+  g_course_neustein_6a1d8c = object_frames_create_with_matrices(atomic, COURSE_FX_SOURCE_COUNT(course, 1), course + 0x1800);
   g_course_neustein_6a1d90 = object_frames_create_with_matrices(atomic, *(int *)(course + 0xc014), course + 0x3c00);
 }

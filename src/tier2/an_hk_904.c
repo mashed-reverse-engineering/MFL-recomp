@@ -217,7 +217,7 @@ LAB_00418fe2:
     /* pulse: once STEER_PULSE_MS has passed since bot->field_0x30 (last pulse time, inferred) re-arm,
        otherwise decay the last value (inferred) */
     if (float_1_0 < frame.steer_angle) {
-      if ((*(int *)((char *)bot + 0x2c) == 1) ||
+      if ((bot->steer_side == 1) ||
          (result = g_race_clock_a - bot->field_0x30, (STEER_PULSE_MS - 1) < result)) {
         turn_strength = (double)frame.steer_angle * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.steer_mode == 0) && (k_f_20 < frame.route_angle)) {
@@ -227,13 +227,13 @@ LAB_00418fe2:
           turn_strength = (double)k_f_255;
         }
         inputs[0] = (undefined1)(int)turn_strength;
-        *(int *)((char *)bot + 0x34) = (int)turn_strength;
-        *(int *)((char *)bot + 0x2c) = 1;
+        bot->steer_amount = (int)turn_strength;
+        bot->steer_side = 1;
         bot->field_0x30 = g_race_clock_a;
       }
       else {
         frame.candidate_x = STEER_PULSE_MS - result;
-        inputs[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + 0x34));
+        inputs[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)bot->steer_amount);
       }
     }
   }
@@ -246,7 +246,7 @@ LAB_00418fe2:
     }
     bot_state_ptr[2] = frame.steer_angle;
     if (frame.steer_angle < k_f_359) {
-      if ((*(int *)((char *)bot + 0x2c) == 2) ||
+      if ((bot->steer_side == 2) ||
          (result = g_race_clock_a - bot->field_0x30, (STEER_PULSE_MS - 1) < result)) {
         turn_strength = ((double)k_f_360 - (double)frame.steer_angle) * (double)frame.car_speed * (double)k_f_0_003;
         if ((frame.steer_mode == 0) && (k_f_20 < frame.route_angle)) {
@@ -256,13 +256,13 @@ LAB_00418fe2:
           turn_strength = (double)k_f_255;
         }
         inputs[1] = (undefined1)(int)turn_strength;
-        *(int *)((char *)bot + 0x34) = (int)turn_strength;
-        *(int *)((char *)bot + 0x2c) = 2;
+        bot->steer_amount = (int)turn_strength;
+        bot->steer_side = 2;
         bot->field_0x30 = g_race_clock_a;
       }
       else {
         frame.candidate_x = STEER_PULSE_MS - result;
-        inputs[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)*(int *)((char *)bot + 0x34));
+        inputs[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)bot->steer_amount);
       }
     }
   }

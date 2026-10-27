@@ -63,7 +63,7 @@ void sound_ambience_course_9_22(void)
 
   if ((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) {
     /* Voice A: rate VOICE_RATE_DEFAULT, volume 0.5 (inferred). */
-    slot = *(int *)(g_sound_groups + 0x470);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(7);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
@@ -108,7 +108,7 @@ void sound_ambience_course_9_22(void)
       }
     }
     /* Voice B: rate VOICE_RATE_DEFAULT, volume 1.0, fixed position (1.32, -7.7, -30.7) (inferred). */
-    slot = *(int *)(g_sound_groups + 0x6b0);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(11);
     if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }

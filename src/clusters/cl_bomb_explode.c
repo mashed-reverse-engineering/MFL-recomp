@@ -1,6 +1,15 @@
 // cluster-entries: bomb_explode
 /* Installed cluster bomb_explode (tools/cluster_install.py from output/cluster_pilot_hb1/bomb_explode.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+/* The bomb is an fx slot (same record as FxEffectSlot in cl_fx_reset_slot.c): +0x7c / +0x88 are two vec3 that bomb_explode fills with the bomb position and the target. */
+typedef struct FxEffectSlot {
+    char unknown_00[0x28];
+    char *node;            /* 0x28: holder whose +4 is the RwFrame of the bomb */
+    char unknown_2c[0x50];
+    RwV3d start;           /* 0x7c */
+    RwV3d end;             /* 0x88 */
+} FxEffectSlot;
+
 /*00419fa0*/ extern double ai_get_float_8c9980();
 /*00424760*/ extern undefined __cdecl car_damage_at_world_point(undefined4 p0, undefined4 p1, struct RwV3d *p2);
 /*00461cc0*/ extern int weapon_particle_spark_emit();
@@ -26,7 +35,7 @@
 /* WARNING: Unknown calling convention */
 /* "sfx 0x13 at the bomb position, then car_damage_at_world_point to nearby cars (inferred)" */
 
-void bomb_explode_n(char *bomb, float *target_pos)
+void bomb_explode_n(FxEffectSlot *bomb, float *target_pos)
 
 {
   float fbits1;
@@ -55,7 +64,7 @@ void bomb_explode_n(char *bomb, float *target_pos)
   frame.burst_vec_x = 0;
   frame.burst_vec_y = 0xba83126f;
   frame.burst_vec_z = 0;
-  bomb_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(bomb + 0x28) + 4));
+  bomb_ltm = RwFrameGetLTM(*(RwFrame **)(bomb->node + 4));
   bomb_pos = &bomb_ltm->pos;
   sfx_play_at(0x13,bomb_pos);
   sfx_play_at(0x25,target_pos);
@@ -119,44 +128,44 @@ void bomb_explode_n(char *bomb, float *target_pos)
   rnd = (float10)ai_get_float_8c9980();
   frame.impulse_z = (float)((rnd * (float10)k_f_0_071428575 + (float10)k_f_0_05) * (float10)frame.impulse_z);
   car_set_field_144(&frame.impulse_x,0);
-  start_ptr = (float *)(bomb + 0x7c);
+  start_ptr = &bomb->start.x;
   *start_ptr = bomb_pos->x;
-  *(RwReal *)(bomb + 0x80) = (bomb_ltm->pos).y;
-  *(RwReal *)(bomb + 0x84) = (bomb_ltm->pos).z;
-  end_ptr = (float *)(bomb + 0x88);
+  bomb->start.y = (bomb_ltm->pos).y;
+  bomb->start.z = (bomb_ltm->pos).z;
+  end_ptr = &bomb->end.x;
   *end_ptr = *target_pos;
-  *(float *)(bomb + 0x8c) = target_pos[1];
-  *(float *)(bomb + 0x90) = target_pos[2];
+  bomb->end.y = target_pos[1];
+  bomb->end.z = target_pos[2];
   frame.burst_dir.x = *end_ptr - *start_ptr;
-  frame.burst_dir.y = *(float *)(bomb + 0x8c) - *(float *)(bomb + 0x80);
-  frame.burst_dir.z = *(float *)(bomb + 0x90) - *(float *)(bomb + 0x84);
+  frame.burst_dir.y = bomb->end.y - bomb->start.y;
+  frame.burst_dir.z = bomb->end.z - bomb->start.z;
   rnd = (float10)random_range(0x3dcccccd,0x3ecccccd);
   *start_ptr = (float)(rnd * (float10)frame.burst_dir.x + (float10)*start_ptr);
   rnd = (float10)random_range(0x3dcccccd,0x3ecccccd);
-  *(float *)(bomb + 0x80) =
-       (float)(rnd * (float10)frame.burst_dir.y + (float10)*(float *)(bomb + 0x80));
+  bomb->start.y =
+       (float)(rnd * (float10)frame.burst_dir.y + (float10)bomb->start.y);
   rnd = (float10)random_range(0x3dcccccd,0x3ecccccd);
-  *(float *)(bomb + 0x84) =
-       (float)(rnd * (float10)frame.burst_dir.z + (float10)*(float *)(bomb + 0x84));
+  bomb->start.z =
+       (float)(rnd * (float10)frame.burst_dir.z + (float10)bomb->start.z);
   rnd = (float10)random_range(0xbdcccccd,0xbecccccd);
   *end_ptr = (float)(rnd * (float10)frame.burst_dir.x + (float10)*end_ptr);
   rnd = (float10)random_range(0xbdcccccd,0xbecccccd);
-  *(float *)(bomb + 0x8c) =
-       (float)(rnd * (float10)frame.burst_dir.y + (float10)*(float *)(bomb + 0x8c));
+  bomb->end.y =
+       (float)(rnd * (float10)frame.burst_dir.y + (float10)bomb->end.y);
   rnd = (float10)random_range(0xbdcccccd,0xbecccccd);
-  *(float *)(bomb + 0x90) =
-       (float)(rnd * (float10)frame.burst_dir.z + (float10)*(float *)(bomb + 0x90));
+  bomb->end.z =
+       (float)(rnd * (float10)frame.burst_dir.z + (float10)bomb->end.z);
   rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
   frame.burst_dir.x = (RwReal)rnd;
   rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
   frame.burst_dir.y = (RwReal)rnd;
   rnd = (float10)random_range(0xbdcccccd,0x3dcccccd);
   *start_ptr = frame.burst_dir.x + *start_ptr;
-  *(float *)(bomb + 0x80) = frame.burst_dir.y + *(float *)(bomb + 0x80);
-  *(float *)(bomb + 0x84) = (float)(rnd + (float10)*(float *)(bomb + 0x84));
+  bomb->start.y = frame.burst_dir.y + bomb->start.y;
+  bomb->start.z = (float)(rnd + (float10)bomb->start.z);
   *end_ptr = frame.burst_dir.x + *end_ptr;
-  *(float *)(bomb + 0x8c) = frame.burst_dir.y + *(float *)(bomb + 0x8c);
-  *(float *)(bomb + 0x90) = (float)(rnd + (float10)*(float *)(bomb + 0x90));
+  bomb->end.y = frame.burst_dir.y + bomb->end.y;
+  bomb->end.z = (float)(rnd + (float10)bomb->end.z);
   return;
 }
 

@@ -100,8 +100,8 @@ void sound_ambience_course_c_26(void)
     obj_index = 0;
     /* silence the first AMBIENT_SLOT_COUNT voices of groups +0x470 and +0x500 */
     do {
-      voice_set_volume(*(int *)(g_sound_groups + 0x470) + obj_index,0.0);
-      call_result = voice_set_volume(*(int *)(g_sound_groups + 0x500) + obj_index,0.0);
+      voice_set_volume(SOUND_GROUP_FIRST_VOICE_OF(7) + obj_index,0.0);
+      call_result = voice_set_volume(SOUND_GROUP_FIRST_VOICE_OF(8) + obj_index,0.0);
       obj_index = obj_index + 1;
     } while (obj_index < AMBIENT_SLOT_COUNT);
     /* for each course object near the camera's height, start its ambient voices */
@@ -121,7 +121,7 @@ LAB_0046ddf9:
             g_sound_ambience_6ae0ac = (float)ret_f10;
             ret_f10 = (double)course_c26_checkpoint_scale_value(obj_index);
             g_sound_ambience_6ad1fc = (float)ret_f10;
-            voice_idx = *(int *)(g_sound_groups + 0x470) + emitter_idx;
+            voice_idx = SOUND_GROUP_FIRST_VOICE_OF(7) + emitter_idx;
             if ((*(byte *)(g_voices[voice_idx].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
               FUN_005b6a40(g_voices[voice_idx].voice,1);
             }
@@ -144,7 +144,7 @@ LAB_0046ddf9:
             voice_set_volume(voice_idx,1.0);
             voice_idx = course_object_is_inactive(obj_index,voice_idx,one_f_bits);
             if (voice_idx != 0) {
-              voice_idx = *(int *)(g_sound_groups + 0x620);
+              voice_idx = SOUND_GROUP_FIRST_VOICE_OF(10);
               if ((*(byte *)(g_voices[voice_idx].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
                 FUN_005b6a40(g_voices[voice_idx].voice,1);
               }
@@ -188,7 +188,7 @@ LAB_0046ddf9:
                 }
                 voice_set_volume(voice_idx,1.0);
               }
-              voice_idx = *(int *)(g_sound_groups + 0x500) + emitter_idx;
+              voice_idx = SOUND_GROUP_FIRST_VOICE_OF(8) + emitter_idx;
               if ((*(byte *)(g_voices[voice_idx].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
                 FUN_005b6a40(g_voices[voice_idx].voice,1);
               }
@@ -218,15 +218,15 @@ LAB_0046ddf9:
     }
     /* recompute the flag from which of the three checked voices are playing */
     g_sound_ambience_6ad07c =
-         (uint)((*(byte *)(g_voices[*(int *)(g_sound_groups + 0x620)].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) != 0);
-    if ((*(byte *)(g_voices[*(int *)(g_sound_groups + 0x6b0)].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) != 0) {
+         (uint)((*(byte *)(g_voices[SOUND_GROUP_FIRST_VOICE_OF(10)].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) != 0);
+    if ((*(byte *)(g_voices[SOUND_GROUP_FIRST_VOICE_OF(11)].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) != 0) {
       g_sound_ambience_6ad07c = g_sound_ambience_6ad07c + 1;
     }
-    if ((*(byte *)(g_voices[*(int *)(g_sound_groups + 0x740)].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) != 0) {
+    if ((*(byte *)(g_voices[SOUND_GROUP_FIRST_VOICE_OF(12)].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) != 0) {
       g_sound_ambience_6ad07c = g_sound_ambience_6ad07c + 1;
     }
     /* fixed emitters: two voices each from groups +0x860 and +0x8f0 (next index), then a random pick from +0x980 (inferred) */
-    obj_count = *(int *)(g_sound_groups + 0x860);
+    obj_count = SOUND_GROUP_FIRST_VOICE_OF(14);
     if ((*(byte *)(g_voices[obj_count].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
       FUN_005b6a40(g_voices[obj_count].voice,1);
     }
@@ -270,7 +270,7 @@ LAB_0046ddf9:
     if (obj_count != 0) {
       FUN_005b72a0(obj_count,0,1,&frame.pos_x);
     }
-    obj_count = *(int *)(g_sound_groups + 0x8f0);
+    obj_count = SOUND_GROUP_FIRST_VOICE_OF(15);
     if ((*(byte *)(g_voices[obj_count].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {
       FUN_005b6a40(g_voices[obj_count].voice,1);
     }
@@ -317,7 +317,7 @@ LAB_0046ddf9:
     /* per-frame roll; AMBIENT_ROLL_HIT adds the extra ambient voice */
     obj_count = rp_random_int_range(0,AMBIENT_ROLL_MAX);
     if (obj_count == AMBIENT_ROLL_HIT) {
-      obj_count = *(int *)(g_sound_groups + 0x980);
+      obj_count = SOUND_GROUP_FIRST_VOICE_OF(16);
       emitter_idx = rp_random_int_range(0,1);
       obj_count = obj_count + emitter_idx;
       if ((*(byte *)(g_voices[obj_count].voice + VOICE_REC_FLAGS) & VOICE_FLAG_PLAYING) == 0) {

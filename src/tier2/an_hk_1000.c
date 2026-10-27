@@ -31,7 +31,7 @@ __declspec(naked) int rocket_explode_r(int reg_eax)
 void rocket_hit_callback(float *param_1,float *param_2)
 
 {
-  char *rocket;
+  RocketRecord *rocket;
   int target_type;
   int iVar2;
   RwMatrix *pRVar3;
@@ -65,24 +65,24 @@ void rocket_hit_callback(float *param_1,float *param_2)
   if (*(int *)&param_1[4] != 11) {
     return;
   }
-  rocket = *(char **)&param_1[5];
+  rocket = *(RocketRecord **)&param_1[5];
   target_type = *(int *)&param_2[4];
   if (target_type == 7) {
     return;
   }
-  if (*(int *)((char *)rocket + 0x50) == 0) {
+  if (rocket->field_50 == 0) {
     return;
   }
-  if (*(float *)((char *)rocket + 0x18) < k_f_0_3) {
+  if (rocket->age < k_f_0_3) {
     return;
   }
   if (target_type == 10) {
-    frame.fStack_b0 = *(float *)((char *)rocket + 0xc);
-    frame.fStack_ac = *(float *)((char *)rocket + 0x10);
-    frame.fStack_a8 = *(float *)((char *)rocket + 0x14);
-    frame.fStack_bc = *(float *)((char *)rocket + 0x1c) + frame.fStack_b0;
-    frame.fStack_b8 = *(float *)((char *)rocket + 0x20) + frame.fStack_ac;
-    frame.fStack_b4 = *(float *)((char *)rocket + 0x24) + frame.fStack_a8;
+    frame.fStack_b0 = rocket->pos.x;
+    frame.fStack_ac = rocket->pos.y;
+    frame.fStack_a8 = rocket->pos.z;
+    frame.fStack_bc = rocket->vel.x + frame.fStack_b0;
+    frame.fStack_b8 = rocket->vel.y + frame.fStack_ac;
+    frame.fStack_b4 = rocket->vel.z + frame.fStack_a8;
     iVar2 = rwp_object_query_ray_hit(*(int *)&param_2[6],&frame.fStack_b0,&frame.fStack_bc,&frame.uStack_a4,frame.auStack_8c);
   }
   else {
@@ -99,7 +99,7 @@ LAB_00461442:
   target_type = *(int *)&param_2[4];
   if ((0xfeff < target_type) && (target_type < 0xff08)) {
     iVar2 = target_type + -0xff00;
-    if (iVar2 == *(int *)((char *)rocket + 0x3c)) {
+    if (iVar2 == rocket->field_3c) {
       return;
     }
     puVar4 = frame.auStack_80;
@@ -121,23 +121,23 @@ LAB_00461442:
       screen_shake_set(10);
     }
   }
-  pRVar3 = RwFrameGetLTM(*(RwFrame **)(*(char **)((char *)rocket + 0x5c) + 4));
+  pRVar3 = RwFrameGetLTM(*(RwFrame **)(rocket->frame_holder + 4));
   frame.fStack_b0 = (pRVar3->at).x;
   frame.fStack_ac = (pRVar3->at).y;
   frame.fStack_b8 = param_2[1];
   frame.fStack_a8 = -(pRVar3->at).z;
   frame.fStack_b4 = param_2[2];
   frame.fStack_bc = -frame.fStack_b0 * k_f_0_5 + *param_2;
-  *(float *)((char *)rocket + 0xc) = frame.fStack_bc;
+  rocket->pos.x = frame.fStack_bc;
   frame.fStack_b8 = -frame.fStack_ac * k_f_0_5 + frame.fStack_b8;
-  *(float *)((char *)rocket + 0x10) = frame.fStack_b8;
+  rocket->pos.y = frame.fStack_b8;
   frame.fStack_b4 = frame.fStack_a8 * k_f_0_5 + frame.fStack_b4;
-  *(float *)((char *)rocket + 0x14) = frame.fStack_b4;
+  rocket->pos.z = frame.fStack_b4;
   rocket_explode_r((int)rocket);
   iVar2 = 10;
   do {
     particle_emit_textured
-              ((float *)((char *)rocket + 0xc),(undefined4 *)&g_rocket_hit_5df77c,0,0,(RwTexture *)0x0
+              (&rocket->pos.x,(undefined4 *)&g_rocket_hit_5df77c,0,0,(RwTexture *)0x0
                ,1.0,(float *)0x0);
     iVar2 = iVar2 + -1;
   } while (iVar2 != 0);

@@ -121,7 +121,7 @@ void sound_ambience_course_0(void)
     return;
   }
   camera_get_position(camera);
-  slot = *(int *)(g_sound_groups + 0x6b0);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(11);
   sound_voice_start_22050(slot);
   volume = (camera[1] + k_f_2_5) * k_f_0_125;
   if (volume < k_f_0) {
@@ -130,7 +130,7 @@ void sound_ambience_course_0(void)
     volume = 1.0f;
   }
   voice_set_volume(slot, volume);
-  slot = *(int *)(g_sound_groups + 0x470);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   sound_voice_restart_22050(slot);
   level = (camera[1] + s_333_Lap_frames_005df368) * k_f_0_125 - k_f_0_25;
   progress = k_f_0;
@@ -141,7 +141,7 @@ void sound_ambience_course_0(void)
     }
   }
   voice_set_volume(slot, float_1_0 - progress);
-  slot = *(int *)(g_sound_groups + 0x500);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(8);
   sound_voice_restart_22050(slot);
   voice_set_volume(slot, (float)(float_0_8 - random_range(0.0f, 0.1f)));
   spline_slot = slot;
@@ -172,7 +172,7 @@ void sound_ambience_course_0(void)
     sound_voice_place_ptr(spline_slot, g_sound_ambience_6ae0a0);
     voice_set_volume(spline_slot, 1.0f);
   }
-  slot = *(int *)(g_sound_groups + 0x590);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(9);
   g_sound_6adcf0 = g_sound_6adcf0 + 1;
   if (g_sound_6ad8ec <= g_sound_6adcf0) {
     slot = slot + (int)random_range(0.0f, 2.0f);
@@ -182,7 +182,7 @@ void sound_ambience_course_0(void)
     g_sound_6ad8ec = (int)random_range(1000.0f, 3000.0f);
   }
   if (g_sound_ambience_6ae1a4 == 500) {
-    slot = *(int *)(g_sound_groups + 0x740);
+    slot = SOUND_GROUP_FIRST_VOICE_OF(12);
     sound_voice_force_22050(slot);
     voice_set_volume(slot, 1.0f);
     sound_voice_place_bits(slot, 0xc1b80000, 0, 0xc2540000);

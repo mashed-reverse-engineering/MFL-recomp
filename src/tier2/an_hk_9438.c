@@ -31,7 +31,7 @@ void sound_ambience_course_11_14(void)
   if (g_sound_ambience_6ae1d0 > k_f_3_14) {
     g_sound_ambience_6ae1d0 = 0.0f;
   }
-  slot = *(int *)(g_sound_groups + 0x470);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
     FUN_005b6a40(g_voices[slot].voice, 1);
   }
@@ -42,7 +42,7 @@ void sound_ambience_course_11_14(void)
   }
   voice_set_volume(slot, (float)(1.0 - sin(g_sound_ambience_6ae1d0) * 0.1f));
 
-  slot = *(int *)(g_sound_groups + 0x500);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(8);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
     FUN_005b6a40(g_voices[slot].voice, 1);
   }

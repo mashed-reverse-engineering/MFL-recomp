@@ -49,7 +49,7 @@ void sound_ambience_course_16_17(void)
   if (g_sound_mute_when_multiplayer != 0 && g_sound_player_count >= 2) {
     return;
   }
-  slot = *(int *)(g_sound_groups + 0x590);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(9);
   sound_voice_start_22050(slot);
   if (camera[2] <= k_f_4 || camera[2] >= k_f_184) {
     volume = 0.0f;

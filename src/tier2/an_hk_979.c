@@ -24,22 +24,23 @@ void sound_global_fade_update(void)
   else {
     g_sound_global_fade = g_sound_global_fade + float_1_0;
   }
-  if (g_sound_global_fade <= float_1_0) {
-    if (k_f_0 <= g_sound_global_fade) {
-      if (((g_sound_global_fade < float_1_0) && (k_f_0 < g_sound_global_fade)) &&
-         (iVar1 = 0, 0 < (int)g_sound_8bd7b4)) {
-        do {
-          voice_set_volume(iVar1,
-                           *(float *)(g_voices[iVar1].voice + 0x40) * g_sound_global_fade);
-          iVar1 = iVar1 + 1;
-        } while (iVar1 < (int)g_sound_8bd7b4);
-      }
-      return;
-    }
+  /* original: fcomp / test ah,0x41 / jne and fcomp / test ah,5 / jp: a NaN fade passes both clamps unchanged */
+  if (g_sound_global_fade > float_1_0) {
+    g_sound_global_fade = 1.0;
+    return;
+  }
+  if (g_sound_global_fade < k_f_0) {
     g_sound_global_fade = 0.0;
     return;
   }
-  g_sound_global_fade = 1.0;
+  if (((g_sound_global_fade < float_1_0) && (k_f_0 < g_sound_global_fade)) &&
+     (iVar1 = 0, 0 < (int)g_sound_8bd7b4)) {
+    do {
+      voice_set_volume(iVar1,
+                       *(float *)(g_voices[iVar1].voice + 0x40) * g_sound_global_fade);
+      iVar1 = iVar1 + 1;
+    } while (iVar1 < (int)g_sound_8bd7b4);
+  }
   return;
 }
 

@@ -628,7 +628,7 @@ course_marker_positions_init,0045b510,tier1,bytes,bytes-reloc,d747c7e16286,126ee
 course_materials_fixup,00406970,tier1,bytes,bytes-reloc,d533369b2eba,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 course_materials_fixup_cb_4065c0,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,bfe3c4a3202c,126ee480af92,9a2277a8f1a9,79,0.83,0,0
 course_model_path_copy,0040eac0,tier1,bytes,bytes-reloc,8e8230271e90,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-course_neustein_cb0,00455400,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,87b93e1b906b,126ee480af92,9a2277a8f1a9,189,0.40,0,0
+course_neustein_cb0,00455400,tier2,compiled+diffemu-STALE+shadow-STALE,static,357bdc115ff6,126ee480af92,9a2277a8f1a9,0,0.00,1,0
 course_neustein_cb0_sub_454460,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 course_neustein_cb0_sub_454650,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 course_neustein_cb0_sub_4546e0,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
@@ -2044,11 +2044,11 @@ smplfzx_object_get_position,00496f80,tier2,compiled+diffemu-EQUAL+shadow-never,d
 smplfzx_object_init_bounds,00497450,tier1,bytes,bytes-reloc,77399bfe8b25,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 smplfzx_retire_object,00496f50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_allowed_for_pair,00468a90,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-sound_ambience_course_11_14,0046b790,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,34665babd748,126ee480af92,9a2277a8f1a9,200,1.00,0,0
+sound_ambience_course_11_14,0046b790,tier2,compiled+diffemu-STALE+shadow-STALE,static,969384a2a58f,126ee480af92,9a2277a8f1a9,0,0.00,1,0
 sound_ambience_course_12_18,0046daf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_ambience_course_1_1e,0046b170,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,1e023d6fe986,126ee480af92,9a2277a8f1a9,200,0.96,0,1
 sound_ambience_course_1a,0046d290,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
-sound_ambience_course_2_6_a,004715b0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,344c588137ac,126ee480af92,9a2277a8f1a9,200,0.93,0,1
+sound_ambience_course_2_6_a,004715b0,tier2,compiled+diffemu-STALE+shadow-STALE,static,658374b89ebb,126ee480af92,9a2277a8f1a9,0,0.00,1,0
 sound_ambience_course_8_19,0046a960,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_ambience_course_9_22,0046c470,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_ambience_course_b,0046bb10,tier1,bytes,bytes-reloc,d1327df0b6db,126ee480af92,9a2277a8f1a9,0,0.00,0,0

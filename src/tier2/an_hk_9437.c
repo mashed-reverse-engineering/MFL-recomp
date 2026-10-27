@@ -28,7 +28,7 @@ void sound_ambience_course_2_6_a(void)
     return;
   }
   position = course_get_matrix_pos_8c53e0();
-  slot = *(int *)(g_sound_groups + 0x470);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {      /* not playing yet: start at 22050 Hz */
     FUN_005b6a40(g_voices[slot].voice, 1);
     VOICE_FIELD(slot, float, 0x3c) = 22050.0f;
@@ -42,7 +42,7 @@ void sound_ambience_course_2_6_a(void)
     FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, position);
   }
 
-  slot = *(int *)(g_sound_groups + 0x620);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(10);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {      /* not playing yet: start slightly above 22050 Hz */
     FUN_005b6a40(g_voices[slot].voice, 1);
     VOICE_FIELD(slot, float, 0x3c) = (float)(sin(k_f_n3_689349e19) * k_f_0_5dfcd8 + k_f_0_5df9b0);

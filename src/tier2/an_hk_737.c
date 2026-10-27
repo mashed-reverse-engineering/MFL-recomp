@@ -20,12 +20,13 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
 {
   double progress_left;
   double progress_right;
+  volatile float left_f;
 
   /* wrap-aware compare: if one value is above 80 and the other below 20,
      the one above 80 is shifted down by 100 (the 80/20/100 values are inferred from the names) */
-  progress_left = (double)player_progress_b(player_a);
+  left_f = (float)player_progress_b(player_a);      /* the original spills the first value as a float (fstp dword), the second stays unrounded in st(0) */
   progress_right = (double)player_progress_b(player_b);
-  progress_left = (double)(float)progress_left;
+  progress_left = (double)left_f;
   if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
     if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
       progress_right = progress_right - (double)k_f_100;
@@ -36,9 +37,9 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
   }
   /* player_a <= player_b: check player_c against player_a */
   if (progress_left <= progress_right) {
-    progress_left = (double)player_progress_b(player_c);
+    left_f = (float)player_progress_b(player_c);      /* the original spills the first value as a float (fstp dword), the second stays unrounded in st(0) */
     progress_right = (double)player_progress_b(player_a);
-    progress_left = (double)(float)progress_left;
+    progress_left = (double)left_f;
     if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
       if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
         progress_right = progress_right - (double)k_f_100;
@@ -51,9 +52,9 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
     if (progress_right < progress_left) {
       car_kill(player_a);
       player_add_points(player_a,-points);
-      progress_left = (double)player_progress_b(player_b);
+      left_f = (float)player_progress_b(player_b);      /* the original spills the first value as a float (fstp dword), the second stays unrounded in st(0) */
       progress_right = (double)player_progress_b(player_c);
-      progress_left = (double)(float)progress_left;
+      progress_left = (double)left_f;
       if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
         if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
           progress_right = progress_right - (double)k_f_100;
@@ -83,9 +84,9 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
     return;
   }
   /* player_b < player_a: compare player_c against player_b */
-  progress_left = (double)player_progress_b(player_c);
+  left_f = (float)player_progress_b(player_c);      /* the original spills the first value as a float (fstp dword), the second stays unrounded in st(0) */
   progress_right = (double)player_progress_b(player_b);
-  progress_left = (double)(float)progress_left;
+  progress_left = (double)left_f;
   if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
     if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
       progress_right = progress_right - (double)k_f_100;
@@ -106,9 +107,9 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
   /* player_b is last of b and c: compare player_a against player_c for second/first */
   car_kill(player_b);
   player_add_points(player_b,-points);
-  progress_left = (double)player_progress_b(player_a);
+  left_f = (float)player_progress_b(player_a);      /* the original spills the first value as a float (fstp dword), the second stays unrounded in st(0) */
   progress_right = (double)player_progress_b(player_c);
-  progress_left = (double)(float)progress_left;
+  progress_left = (double)left_f;
   if ((progress_left <= (double)k_f_80) || ((double)k_f_20 <= progress_right)) {
     if (((double)k_f_80 < progress_right) && (progress_left < (double)k_f_20)) {
       progress_right = progress_right - (double)k_f_100;

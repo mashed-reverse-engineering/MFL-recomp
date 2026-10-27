@@ -26,8 +26,17 @@ extern double sin(double);
 /* WARNING: Unknown calling convention */
 /*  */
 
+typedef struct KcPanelEntry {
+    uint visible[32]; /* 0x0 */
+    int part[32]; /* 0x80 */
+    char unknown_100[0x4];
+    RwFrame *frame; /* 0x104 */
+    int index; /* 0x108 */
+    uint flags; /* 0x10c */
+} KcPanelEntry;
+
 /* entry fields used: +0 .. +0x7c visibility of the 0x20 parts (written at the end of the part loop), +0x80 part present table, +0x108 player_or_part index, +0x10c state flag bits (0x40..0x200 from the g_kc_panel_* tables, 0x800 / 0x400 icon variant, 0x1000..0x10000 points change) */
-void kc_panel_entry_update_n(int entry)
+void kc_panel_entry_update_n(KcPanelEntry *entry)
 
 {
   uint flags;
@@ -40,48 +49,48 @@ void kc_panel_entry_update_n(int entry)
     RwMatrix mtx;
   } frame;
   
-  player_or_part = *(int *)(entry + 0x108);
+  player_or_part = entry->index;
   frame.scale.x = 1.0;
   frame.scale.y = 1.0;
   frame.scale.z = 1.0;
   if (*(int *)((char *)&g_kc_panel_659308 + player_or_part * 4) == 0) {
-    flags = *(uint *)(entry + 0x10c) & 0xffffffbf;
+    flags = entry->flags & 0xffffffbf;
   }
   else {
-    flags = *(uint *)(entry + 0x10c) | 0x40;
+    flags = entry->flags | 0x40;
   }
-  *(uint *)(entry + 0x10c) = flags;
+  entry->flags = flags;
   if (*(int *)((char *)&g_kc_panel_659328 + player_or_part * 4) == 0) {
-    flags = *(uint *)(entry + 0x10c) & 0xffffff7f;
+    flags = entry->flags & 0xffffff7f;
   }
   else {
-    flags = *(uint *)(entry + 0x10c) | 0x80;
+    flags = entry->flags | 0x80;
   }
-  *(uint *)(entry + 0x10c) = flags;
+  entry->flags = flags;
   if (*(int *)((char *)&g_kc_panel_6592f4 + player_or_part * 4) == 0) {
-    flags = *(uint *)(entry + 0x10c) & 0xfffffeff;
+    flags = entry->flags & 0xfffffeff;
   }
   else {
-    flags = *(uint *)(entry + 0x10c) | 0x100;
+    flags = entry->flags | 0x100;
   }
-  *(uint *)(entry + 0x10c) = flags;
+  entry->flags = flags;
   if (*(int *)((char *)&g_kc_panel_6592e0 + player_or_part * 4) == 0) {
-    flags = *(uint *)(entry + 0x10c) & 0xfffffdff;
+    flags = entry->flags & 0xfffffdff;
   }
   else {
-    flags = *(uint *)(entry + 0x10c) | 0x200;
+    flags = entry->flags | 0x200;
   }
-  *(uint *)(entry + 0x10c) = flags;
+  entry->flags = flags;
   if (((char)flags < '\0') && ((flags & 0x100) != 0)) {
-    *(uint *)(entry + 0x10c) = flags & 0xfffffe7f;
+    entry->flags = flags & 0xfffffe7f;
   }
-  flags = *(uint *)(entry + 0x10c);
+  flags = entry->flags;
   if (((flags & 0x40) != 0) && ((flags & 0x100) != 0)) {
-    *(uint *)(entry + 0x10c) = flags & 0xfffffeff;
+    entry->flags = flags & 0xfffffeff;
   }
   points_change = player_get_points_change_visual(player_or_part);
-  flags = *(uint *)(entry + 0x10c) & 0xfffe0fff;
-  *(uint *)(entry + 0x10c) = flags;
+  flags = entry->flags & 0xfffe0fff;
+  entry->flags = flags;
   switch(points_change) {
   default:
     flags = flags | 0x4000;
@@ -98,19 +107,19 @@ void kc_panel_entry_update_n(int entry)
   case 0xffffffff:
     flags = flags | 0x8000;
   }
-  *(uint *)(entry + 0x10c) = flags;
+  entry->flags = flags;
   player_or_part = 0;
   do {
     flags = 0;
-    if (*(int *)(entry + 0x80 + player_or_part * 4) != 0) {
+    if (entry->part[player_or_part] != 0) {
       switch(player_or_part) {
       case 1:
       case 2:
-        flags = *(uint *)(entry + 0x10c) & 0x800;
+        flags = entry->flags & 0x800;
         break;
       case 3:
-        if (((*(uint *)(entry + 0x10c) & 0x40) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x800) == 0)) {
+        if (((entry->flags & 0x40) == 0) ||
+           ((entry->flags & 0x800) == 0)) {
 LAB_0041f76a:
           flags = 0;
         }
@@ -120,91 +129,91 @@ LAB_0041f76a:
         break;
       case 4:
       case 5:
-        flags = *(uint *)(entry + 0x10c) & 0x400;
+        flags = entry->flags & 0x400;
         break;
       case 6:
-        if (((*(uint *)(entry + 0x10c) & 0x40) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x40) == 0) ||
+           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 7:
-        flags = *(uint *)(entry + 0x10c) & 1;
+        flags = entry->flags & 1;
         break;
       case 8:
-        flags = *(uint *)(entry + 0x10c) & 2;
+        flags = entry->flags & 2;
         break;
       case 9:
-        flags = *(uint *)(entry + 0x10c) & 4;
+        flags = entry->flags & 4;
         break;
       case 10:
-        flags = *(uint *)(entry + 0x10c) & 8;
+        flags = entry->flags & 8;
         break;
       case 0xb:
-        flags = *(uint *)(entry + 0x10c) & 0x10;
+        flags = entry->flags & 0x10;
         break;
       case 0xc:
-        flags = *(uint *)(entry + 0x10c) & 0x20;
+        flags = entry->flags & 0x20;
         break;
       case 0xf:
-        if (((*(uint *)(entry + 0x10c) & 0x4000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x4000) == 0) ||
+           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x10:
-        if (((*(uint *)(entry + 0x10c) & 0x2000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x2000) == 0) ||
+           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x11:
-        if (((*(uint *)(entry + 0x10c) & 0x1000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x1000) == 0) ||
+           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x12:
-        if ((-1 < (char)(*(uint *)(entry + 0x10c) >> 8)) ||
-           ((*(uint *)(entry + 0x10c) & 0x800) == 0)) goto LAB_0041f76a;
+        if ((-1 < (char)(entry->flags >> 8)) ||
+           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x13:
-        if (((*(uint *)(entry + 0x10c) & 0x10000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x10000) == 0) ||
+           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x14:
-        if (((*(uint *)(entry + 0x10c) & 0x4000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x4000) == 0) ||
+           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x15:
-        if (((*(uint *)(entry + 0x10c) & 0x2000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x2000) == 0) ||
+           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x16:
-        if (((*(uint *)(entry + 0x10c) & 0x1000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x1000) == 0) ||
+           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x17:
-        if ((-1 < (char)(*(uint *)(entry + 0x10c) >> 8)) ||
-           ((*(uint *)(entry + 0x10c) & 0x400) == 0)) goto LAB_0041f76a;
+        if ((-1 < (char)(entry->flags >> 8)) ||
+           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x18:
-        if (((*(uint *)(entry + 0x10c) & 0x10000) == 0) ||
-           ((*(uint *)(entry + 0x10c) & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & 0x10000) == 0) ||
+           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
       case 0:
       case 0x19:
         flags = 1;
       }
-      *(uint *)(entry + player_or_part * 4) = flags;
+      entry->visible[player_or_part] = flags;
     }
     player_or_part = player_or_part + 1;
   } while (player_or_part < 0x20);
   player_or_part = 0;
   do {
     slot_index = player_or_part;
-    if (*(int *)(entry + 0x108) == (&g_kc_panel_659318)[player_or_part]) break;
+    if (entry->index == (&g_kc_panel_659318)[player_or_part]) break;
     player_or_part = player_or_part + 1;
     slot_index = 0;
   } while (player_or_part < 4);
@@ -222,19 +231,19 @@ LAB_0041f76a:
   frame.mtx.pos.y = 0.0;
   frame.mtx.pos.x = 0.0;
   RwMatrixTranslate(&frame.mtx,(RwV3d *)((char *)&g_hudpanel_603f4c + slot_index * 12),rwCOMBINEREPLACE);
-  RwFrameTransform(*(RwFrame **)(entry + 0x104),&frame.mtx,rwCOMBINEREPLACE);
+  RwFrameTransform(entry->frame,&frame.mtx,rwCOMBINEREPLACE);
   frame.scale.x = frame.scale.x * k_f_1_125;
   frame.scale.y = frame.scale.y * k_f_1_125;
   frame.scale.z = frame.scale.z * k_f_1_125;
-  RwFrameScale(*(RwFrame **)(entry + 0x104),&frame.scale,rwCOMBINEPRECONCAT);
-  player_or_part = player_get_points(*(undefined4 *)(entry + 0x108));
+  RwFrameScale(entry->frame,&frame.scale,rwCOMBINEPRECONCAT);
+  player_or_part = player_get_points(entry->index);
   slot_index = score_target_a();
   frame.scale.x = (float)player_or_part / (float)slot_index;
   frame.scale.z = 1.0;
   frame.scale.y = 1.0;
-  RwFrameScale(*(RwFrame **)(*(int *)(entry + 0x94) + 4),&frame.scale,rwCOMBINEREPLACE);
-  RwFrameScale(*(RwFrame **)(*(int *)(entry + 0x88) + 4),&frame.scale,rwCOMBINEREPLACE);
-  if ((*(byte *)(entry + 0x10c) & 0x40) == 0) {
+  RwFrameScale(*(RwFrame **)(entry->part[5] + 4),&frame.scale,rwCOMBINEREPLACE);
+  RwFrameScale(*(RwFrame **)(entry->part[2] + 4),&frame.scale,rwCOMBINEREPLACE);
+  if ((*(byte *)&entry->flags & 0x40) == 0) {
     frame.scale.y = 1.0;
     frame.scale.x = 1.0;
   }
@@ -249,8 +258,8 @@ LAB_0041f76a:
     frame.scale.x = (RwReal)pulse;
   }
   frame.scale.z = 1.0;
-  RwFrameScale(*(RwFrame **)(*(int *)(entry + 0x98) + 4),&frame.scale,rwCOMBINEREPLACE);
-  RwFrameScale(*(RwFrame **)(*(int *)(entry + 0x8c) + 4),&frame.scale,rwCOMBINEREPLACE);
+  RwFrameScale(*(RwFrame **)(entry->part[6] + 4),&frame.scale,rwCOMBINEREPLACE);
+  RwFrameScale(*(RwFrame **)(entry->part[3] + 4),&frame.scale,rwCOMBINEREPLACE);
   return;
 }
 

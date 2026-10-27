@@ -45,18 +45,22 @@ extern float float_1_0, float_10_0, float_50_0, k_f_1_7453333, k_f_256, g_car_8b
 /* Drivetrain of one car for one frame (inferred names): gear selection from the speed, engine / turbo force on the wheels in contact,
    sideways slip per wheel, speed and angular speed updates.  The x87 temporaries that the original keeps unrounded are doubles, the
    ones it stores to the stack are volatile floats. */
+/* Multi-purpose locals (kept as one variable each: splitting them per use changes the register allocation of the object): scratch_i = race phase (until the throttle test), then the surface colour (0xaarrggbb) compared against the road/dirt tables, later the turbo charge / wheel index / contact flag;
+   scratch_f3 = torque limit of the gear table (1500 - field_b0c, min 500), then the throttle input 0..160, then the boost / impulse scale; scratch_f2 = gear_torque * ratio (the force term of the slip test); scratch_f4 = torque base, then speed term (speed * 0.01 + 10). */
 void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,int controls)
 
 {
   RwV3d *in;
   float *vel_ptr;
-  float fVar2;
-  float fVar3;
-  float fVar4;
+  float scratch_f2;
+  float gear_demand;
+  float scratch_f3;
+  float scratch_f4;
   float fVar5;
+  float slip_threshold;
   double drag_damp;
   bool boost_active;
-  int iVar8;
+  int scratch_i;
   int course_id;
   int gear_probe;
   int wheel_index;
@@ -103,8 +107,8 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
   float gear_torque_tab [5];
   RwMatrix rot_matrix;
   
-  iVar8 = race_get_phase();
-  race_phase = iVar8;
+  scratch_i = race_get_phase();
+  race_phase = scratch_i;
   vec_len = RwV3dLength((RwV3d *)car->velocity);
   car->speed = vec_len;
   vec_len = RwV3dLength((RwV3d *)car->angular_velocity);
@@ -114,84 +118,84 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
   torque_sum.y = 0.0;
   torque_sum.x = 0.0;
   contact_sum_z = 0.0;
-  fVar3 = k_f_1500 - *(float *)&car->field_b0c;
+  scratch_f3 = k_f_1500 - *(float *)&car->field_b0c;
   contact_sum_y = 0.0;
   contact_sum_x = 0.0;
   force_z = 0.0;
   force_y = 0.0;
   force_x = 0.0;
-  if (fVar3 <= k_f_500) {
-    fVar3 = k_f_500;
+  if (scratch_f3 <= k_f_500) {
+    scratch_f3 = k_f_500;
   }
   wheel_index = 0;
   gear_max = 0;
   gear_probe = 0;
-  fVar4 = car->handling_c4 * k_f_0_5 * fVar3 * k_f_6_6666666en4;
-  fVar3 = fVar3 * k_f_6_6666666en4 * car->handling_c0 * k_f_0_5;
+  scratch_f4 = car->handling_c4 * k_f_0_5 * scratch_f3 * k_f_6_6666666en4;
+  scratch_f3 = scratch_f3 * k_f_6_6666666en4 * car->handling_c0 * k_f_0_5;
   do {
     if (car->handling_params[gear_probe] != k_f_0) {
       if (gear_probe == 0) {
-        fVar2 = (car->speed + k_f_250) * car->handling_params[0];
+        gear_demand = (car->speed + k_f_250) * car->handling_params[0];
       }
       else {
-        fVar2 = car->handling_params[gear_probe] * car->speed;
+        gear_demand = car->handling_params[gear_probe] * car->speed;
       }
-      if ((fVar3 < fVar2) && (fVar2 = fVar3, gear_probe != 4)) {
+      if ((scratch_f3 < gear_demand) && (gear_demand = scratch_f3, gear_probe != 4)) {
         gear_max = gear_max + 1;
       }
-      gear_torque_tab[gear_probe] = ((fVar4 / car->handling_params[gear_probe]) / fVar3) * fVar2 + car->speed
+      gear_torque_tab[gear_probe] = ((scratch_f4 / car->handling_params[gear_probe]) / scratch_f3) * gear_demand + car->speed
       ;
     }
     if (car->handling_params[gear_probe + 1] != k_f_0) {
       if (gear_probe == -1) {
-        fVar2 = (car->speed + k_f_250) * car->handling_params[0];
+        gear_demand = (car->speed + k_f_250) * car->handling_params[0];
       }
       else {
-        fVar2 = car->handling_params[gear_probe + 1] * car->speed;
+        gear_demand = car->handling_params[gear_probe + 1] * car->speed;
       }
-      if ((fVar3 < fVar2) && (fVar2 = fVar3, gear_probe != 3)) {
+      if ((scratch_f3 < gear_demand) && (gear_demand = scratch_f3, gear_probe != 3)) {
         gear_max = gear_max + 1;
       }
       gear_torque_tab[gear_probe + 1] =
-           ((fVar4 / car->handling_params[gear_probe + 1]) / fVar3) * fVar2 + car->speed;
+           ((scratch_f4 / car->handling_params[gear_probe + 1]) / scratch_f3) * gear_demand + car->speed;
     }
     if (car->handling_params[gear_probe + 2] != k_f_0) {
       if (gear_probe == -2) {
-        fVar2 = (car->speed + k_f_250) * car->handling_params[0];
+        gear_demand = (car->speed + k_f_250) * car->handling_params[0];
       }
       else {
-        fVar2 = car->handling_params[gear_probe + 2] * car->speed;
+        gear_demand = car->handling_params[gear_probe + 2] * car->speed;
       }
-      if ((fVar3 < fVar2) && (fVar2 = fVar3, gear_probe != 2)) {
+      if ((scratch_f3 < gear_demand) && (gear_demand = scratch_f3, gear_probe != 2)) {
         gear_max = gear_max + 1;
       }
       gear_torque_tab[gear_probe + 2] =
-           ((fVar4 / car->handling_params[gear_probe + 2]) / fVar3) * fVar2 + car->speed;
+           ((scratch_f4 / car->handling_params[gear_probe + 2]) / scratch_f3) * gear_demand + car->speed;
     }
     if (car->handling_params[gear_probe + 3] != k_f_0) {
-      fVar2 = car->speed;
+      gear_demand = car->speed;
       if (gear_probe == -3) {
-        fVar2 = fVar2 + k_f_250;
+        gear_demand = gear_demand + k_f_250;
       }
-      fVar2 = fVar2 * car->handling_params[gear_probe + 3];
-      if ((fVar3 < fVar2) && (fVar2 = fVar3, gear_probe != 1)) {
+      gear_demand = gear_demand * car->handling_params[gear_probe + 3];
+      if ((scratch_f3 < gear_demand) && (gear_demand = scratch_f3, gear_probe != 1)) {
         gear_max = gear_max + 1;
       }
       gear_torque_tab[gear_probe + 3] =
-           ((fVar4 / car->handling_params[gear_probe + 3]) / fVar3) * fVar2 + car->speed;
+           ((scratch_f4 / car->handling_params[gear_probe + 3]) / scratch_f3) * gear_demand + car->speed;
     }
     if (car->handling_params[gear_probe + 4] != k_f_0) {
       if (gear_probe == -4) {
-        fVar2 = (car->speed + k_f_250) * car->handling_params[0];
+        gear_demand = (car->speed + k_f_250) * car->handling_params[0];
       }
       else {
-        fVar2 = car->handling_params[gear_probe + 4] * car->speed;
+        gear_demand = car->handling_params[gear_probe + 4] * car->speed;
       }
-      if ((fVar3 < fVar2) && (fVar2 = fVar3, gear_probe != 0)) {
+      if ((scratch_f3 < gear_demand) && (gear_demand = scratch_f3, gear_probe != 0)) {
         gear_max = gear_max + 1;
       }
       gear_torque_tab[gear_probe + 4] =
-           ((fVar4 / car->handling_params[gear_probe + 4]) / fVar3) * fVar2 + car->speed;
+           ((scratch_f4 / car->handling_params[gear_probe + 4]) / scratch_f3) * gear_demand + car->speed;
     }
     gear_probe = gear_probe + 5;
   } while (gear_probe < 5);
@@ -223,23 +227,23 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
     }
   }
   spinning = 0;
-  fVar3 = k_f_0;
-  if ((iVar8 != 7) &&
-     (fVar3 = (float)*(byte *)(controls + 4), k_f_160 < (float)*(byte *)(controls + 4))) {
-    fVar3 = k_f_160;
+  scratch_f3 = k_f_0;
+  if ((scratch_i != 7) &&
+     (scratch_f3 = (float)*(byte *)(controls + 4), k_f_160 < (float)*(byte *)(controls + 4))) {
+    scratch_f3 = k_f_160;
   }
-  fVar2 = gear_torque * car->handling_params[gear_probe];
-  iVar8 = car->wheels[0].surface_color;
-  fVar4 = car->speed * k_f_0_01 + float_10_0;
-  fVar5 = k_f_150000;
-  if ((iVar8 != -0x5f7f80) && (fVar5 = k_f_200000, iVar8 != -0x557f80)) {
-    fVar5 = k_f_350000;
-    if (((iVar8 == -0x69e1a6) || (iVar8 == -0xe17f4c)) &&
+  scratch_f2 = gear_torque * car->handling_params[gear_probe];
+  scratch_i = car->wheels[0].surface_color;
+  scratch_f4 = car->speed * k_f_0_01 + float_10_0;
+  slip_threshold = k_f_150000;
+  if ((scratch_i != -0x5f7f80) && (slip_threshold = k_f_200000, scratch_i != -0x557f80)) {
+    slip_threshold = k_f_350000;
+    if (((scratch_i == -0x69e1a6) || (scratch_i == -0xe17f4c)) &&
        ((car->is_bot == 0 &&
-        (course_id = current_course_id(), fVar5 = k_f_300000, course_id == 20)))) {
-      fVar5 = k_f_150000;
+        (course_id = current_course_id(), slip_threshold = k_f_300000, course_id == 20)))) {
+      slip_threshold = k_f_150000;
     }
-    if ((iVar8 == -1) || (iVar8 == -0x373738)) {
+    if ((scratch_i == -1) || (scratch_i == -0x373738)) {
       { double dragt = dt * k_f_0_016666668;      /* keeps the original product order */
         drag_damp = (float_1_0 - dragt * k_f_0_01) * k_f_0_99; }
       car->velocity[0] = drag_damp * car->velocity[0];
@@ -247,7 +251,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
       car->velocity[2] = drag_damp * car->velocity[2];
     }
   }
-  if (fVar5 < (fVar2 / fVar4) * fVar3) {
+  if (slip_threshold < (scratch_f2 / scratch_f4) * scratch_f3) {
     spinning = 1;
     gear_torque = gear_torque * k_f_0_5;
   }
@@ -263,8 +267,8 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
       if (car->effect_level[2] != 0) {
         traction = (float)(int)(100 - car->effect_level[2]) * traction * k_f_0_01;
       }
-      iVar8 = car->wheels[0].surface_color;
-      if (((iVar8 == -0x69e1a6) || (iVar8 == -0xe17f4c)) && (k_f_0 < car->speed)) {
+      scratch_i = car->wheels[0].surface_color;
+      if (((scratch_i == -0x69e1a6) || (scratch_i == -0xe17f4c)) && (k_f_0 < car->speed)) {
         RwV3dNormalize(&tmp_vec,(RwV3d *)car->velocity);
         forward_align = (car->forward[1] * tmp_vec.y + car->forward[0] * tmp_vec.x) + car->forward[2] * tmp_vec.z;
         forward_align = forward_align * forward_align;
@@ -281,11 +285,11 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
         }
         traction = forward_align * traction;
       }
-      fVar3 = k_f_160;
+      scratch_f3 = k_f_160;
       if ((race_phase != 7) && (traction != k_f_0)) {
         boost_active = true;
         CFLDI(car, 0xb20) = 1;
-        if (fVar3 < traction) {
+        if (scratch_f3 < traction) {
           traction = 160.0;
         }
         drive_force = traction * gear_torque;
@@ -293,11 +297,11 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
         CFLD(car, 0xb18) = PF(0x20) * drive_force + CFLD(car, 0xb18);
         CFLD(car, 0xb1c) = PF(0x21) * drive_force + CFLD(car, 0xb1c);
       }
-      iVar8 = race_get_phase();
-      if (iVar8 == 6) {
-        iVar8 = (int)((float)car->turbo_charge - dt);
-        car->turbo_charge = iVar8;
-        if (3000 < iVar8) {
+      scratch_i = race_get_phase();
+      if (scratch_i == 6) {
+        scratch_i = (int)((float)car->turbo_charge - dt);
+        car->turbo_charge = scratch_i;
+        if (3000 < scratch_i) {
           car->turbo_charge = 3000;
         }
         if (car->turbo_charge < 0) {
@@ -309,17 +313,17 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
           car->turbo_state = 0;
         }
         else {
-          iVar8 = get_player_count();
-          if ((iVar8 != 4) ||
-             ((fVar3 = k_f_8000000, g_cars_8bd7a8 != car_slot && (g_cars_8bd7ac != car_slot)))) {
-            fVar3 = 5e+06;
+          scratch_i = get_player_count();
+          if ((scratch_i != 4) ||
+             ((scratch_f3 = k_f_8000000, g_cars_8bd7a8 != car_slot && (g_cars_8bd7ac != car_slot)))) {
+            scratch_f3 = 5e+06;
           }
-          CFLD(car, 0xb14) = PF(0x1f) * fVar3 + CFLD(car, 0xb14);
-          CFLD(car, 0xb18) = PF(0x20) * fVar3 + CFLD(car, 0xb18);
-          CFLD(car, 0xb1c) = PF(0x21) * fVar3 + CFLD(car, 0xb1c);
-          iVar8 = (int)((float)car->turbo_charge - dt);
-          car->turbo_charge = iVar8;
-          if (iVar8 < 1) {
+          CFLD(car, 0xb14) = PF(0x1f) * scratch_f3 + CFLD(car, 0xb14);
+          CFLD(car, 0xb18) = PF(0x20) * scratch_f3 + CFLD(car, 0xb18);
+          CFLD(car, 0xb1c) = PF(0x21) * scratch_f3 + CFLD(car, 0xb1c);
+          scratch_i = (int)((float)car->turbo_charge - dt);
+          car->turbo_charge = scratch_i;
+          if (scratch_i < 1) {
             car->turbo_state = 0;
             car->turbo_charge = 0;
           }
@@ -333,24 +337,24 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
           CFLD(car, 0xb1c) = 0;
           CFLD(car, 0xb18) = 0;
           CFLD(car, 0xb14) = 0;
-          iVar8 = (int)((float)car->turbo_charge - dt);
-          car->turbo_charge = iVar8;
-          if (iVar8 < 1) {
+          scratch_i = (int)((float)car->turbo_charge - dt);
+          car->turbo_charge = scratch_i;
+          if (scratch_i < 1) {
             car->turbo_state = 0;
             car->turbo_charge = 0;
           }
         }
       }
     }
-    iVar8 = (int)(((PF(0x1f) * car->velocity[0] + PF(0x20) * car->velocity[1]) + PF(0x21) * car->velocity[2]) / (PF(-10) * k_f_1_7453333));
-    *wheel = iVar8;
+    scratch_i = (int)(((PF(0x1f) * car->velocity[0] + PF(0x20) * car->velocity[1]) + PF(0x21) * car->velocity[2]) / (PF(-10) * k_f_1_7453333));
+    *wheel = scratch_i;
     if ((spinning == 0) || (((Wheel *)(wheel + -0xf))->state != 2)) {
       wheel[-1] = 0;
     }
     else {
-      iVar8 = wheel[-1];
-      wheel[-1] = iVar8 + 1;
-      if (iVar8 + 1 < 0x200) {
+      scratch_i = wheel[-1];
+      wheel[-1] = scratch_i + 1;
+      if (scratch_i + 1 < 0x200) {
         wheel[-1] = 0x200;
       }
       *wheel = *wheel + (wheel[-1] + -0x200) * 0x40;
@@ -360,22 +364,22 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
         CFLDI(car, 0xb20) = 1;
         if (*wheel < 1) {
           if (((Wheel *)(wheel + -0xf))->state == 2) {
-            fVar3 = (float)*(byte *)(controls + 5);
+            scratch_f3 = (float)*(byte *)(controls + 5);
             if (car->effect_level[2] != 0) {
-              fVar3 = fVar3 * (float)(int)(100 - car->effect_level[2]) * k_f_0_01;
+              scratch_f3 = scratch_f3 * (float)(int)(100 - car->effect_level[2]) * k_f_0_01;
             }
-            if (k_f_160 < fVar3) {
-              fVar3 = k_f_160;
+            if (k_f_160 < scratch_f3) {
+              scratch_f3 = k_f_160;
             }
-            fVar3 = -(gear_torque * k_f_0_9 * fVar3);
-            PF(0x1c) = fVar3 * PF(0x1f) + PF(0x1c);
-            PF(0x1d) = fVar3 * PF(0x20) + PF(0x1d);
-            PF(0x1e) = fVar3 * PF(0x21) + PF(0x1e);
+            scratch_f3 = -(gear_torque * k_f_0_9 * scratch_f3);
+            PF(0x1c) = scratch_f3 * PF(0x1f) + PF(0x1c);
+            PF(0x1d) = scratch_f3 * PF(0x20) + PF(0x1d);
+            PF(0x1e) = scratch_f3 * PF(0x21) + PF(0x1e);
           }
         }
         else if (1 < wheel_index) {
-          iVar8 = (int)((float)*(byte *)(controls + 5) + k_f_256);
-          wheel[-1] = iVar8;
+          scratch_i = (int)((float)*(byte *)(controls + 5) + k_f_256);
+          wheel[-1] = scratch_i;
         }
       }
       if (((((car->angular_velocity[0] < k_f_n1_0en5) || (k_f_1_0en5 < car->angular_velocity[0])) ||
@@ -502,11 +506,11 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
       tmp_vec.z = side_dir.z * PF(-0xb);
       vec_len = RwV3dLength(&tmp_vec);
       slip_energy_add = vec_len * k_f_50_24;
-      { volatile float vf = (float)slip_energy_add; fVar3 = vf; }      /* stored to a stack float in the original (fst) */
+      { volatile float vf = (float)slip_energy_add; scratch_f3 = vf; }      /* stored to a stack float in the original (fst) */
       slip_energy = slip_energy_add + slip_energy;
       vec_len = RwV3dLength(&torque_dir);
       if (k_f_1_0en4 < vec_len) {
-        double q = fVar3 / vec_len;      /* stays on the x87 stack (unrounded) in the original */
+        double q = scratch_f3 / vec_len;      /* stays on the x87 stack (unrounded) in the original */
         tq_y = torque_dir.y * q;
         tq_z = torque_dir.z * q;
         torque_sum.x = torque_sum.x - torque_dir.x * q;
@@ -548,17 +552,17 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
   car->velocity[2] = slip_energy * force_z + car->velocity[2];
   vec_len = RwV3dLength((RwV3d *)vel_ptr);
   car->speed = vec_len;
-  iVar8 = car->wheels[0].surface_color;
+  scratch_i = car->wheels[0].surface_color;
   slide_amount = drag_sum / car->wheels[0].handling_scale;
   drag_sum = (float)slide_amount;
-  if (iVar8 == (int)0xffa08080) {
+  if (scratch_i == (int)0xffa08080) {
     slide_amount = slide_amount * k_f_1_5;
   }
-  else if (iVar8 == (int)0xffaa8080) {
+  else if (scratch_i == (int)0xffaa8080) {
     slide_amount = slide_amount + slide_amount;
   }
   else {
-    if (iVar8 == (int)0xff961e5a || iVar8 == (int)0xff1e80b4) {
+    if (scratch_i == (int)0xff961e5a || scratch_i == (int)0xff1e80b4) {
       if (car->is_bot == 0) {
         if (current_course_id() == 20) {
           slide_amount = drag_sum * k_f_1_5;
@@ -571,7 +575,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
         slide_amount = slide_amount * k_f_1_5;
       }
     }
-    if (iVar8 == (int)0xffc81e5a) {
+    if (scratch_i == (int)0xffc81e5a) {
       if (car->is_bot == 0) {
         slide_amount = slide_amount + slide_amount;
       }
@@ -626,11 +630,11 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 param_4,i
       grip_factor = k_f_0_5;
     }
     grip_factor = float_1_0 - grip_factor;
-    iVar8 = CFLDI(car, 0xb20);
+    scratch_i = CFLDI(car, 0xb20);
     car->angular_velocity[0] = grip_factor * car->angular_velocity[0];
     car->angular_velocity[1] = grip_factor * car->angular_velocity[1];
     car->angular_velocity[2] = grip_factor * car->angular_velocity[2];
-    if (iVar8 == 0 && car->speed < k_f_16) {
+    if (scratch_i == 0 && car->speed < k_f_16) {
       car->velocity[0] = 0.0f;
       car->velocity[2] = 0.0f;
       car->velocity[1] = 0.0f;

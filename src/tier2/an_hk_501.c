@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*00482070*/ extern float dot_product_3d_clamped();
+/*00482070*/ extern double dot_product_3d_clamped();
 /*004b2b48*/ extern int _ftol();
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005ddafc*/ extern float k_f_0_05;
@@ -19,7 +19,7 @@ hud_player_marker_position_calc_with_facing
 {
   float base_z;
   volatile float zprod;      /* rounds the z product to float like the original's stack temp (it is stored, then reloaded for the sum) */
-  float fdot;
+  double fdot;      /* the original keeps the callee's x87 result unrounded */
   undefined1 alpha;
   RwReal distance;
   struct {
@@ -44,6 +44,9 @@ hud_player_marker_position_calc_with_facing
     frame.a_at_y = *(undefined4 *)(matrix_a + 0x24);
     frame.a_at_z = *(undefined4 *)(matrix_a + 0x28);
     fdot = dot_product_3d_clamped(&frame.a_at,&frame.b_at);
+    if (fdot > 0.0) {      /* original: fcom, test ah,0x41, jne; fstp st(0); fld 0.0 */
+      fdot = 0.0;
+    }
     zprod = frame.a_to_b.z * lerp_t;
     *marker = frame.a_to_b.x * lerp_t + *(float *)(matrix_a + 0x30);
     marker[1] = frame.a_to_b.y * lerp_t + *(float *)(matrix_a + 0x34);

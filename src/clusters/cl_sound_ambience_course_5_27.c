@@ -80,7 +80,7 @@ void sound_ambience_course_5_27(void)
     return;
   }
   camera_get_position(camera);
-  slot = *(int *)(g_sound_groups + 0x470);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   sound_voice_start_22050(slot);
   g_sound_ambience_6ae1dc = (camera[1] + k_f_2_5) * k_f_0_125;
   if (g_sound_ambience_6ae1dc < k_f_0) {
@@ -90,27 +90,27 @@ void sound_ambience_course_5_27(void)
   }
   voice_set_volume(slot, g_sound_ambience_6ae1dc);
   for (i = 0; i < 3; i++) {
-    slot = *(int *)(g_sound_groups + 0x500) + i;
+    slot = SOUND_GROUP_FIRST_VOICE_OF(8) + i;
     sound_voice_start_22050(slot);
     voice_set_volume(slot, 1.0f);
   }
-  slot = *(int *)(g_sound_groups + 0x500);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(8);
   sound_voice_place_bits(slot, 0x413ccccd, 0x4123851f, 0x4197ae14);
   sound_voice_place_bits(slot + 1, 0x41f4cccd, 0x412e6666, 0x42020000);
   sound_voice_place_bits(slot + 2, 0xc0accccd, 0x40b66666, 0x41766666);
   for (i = 0; i < 2; i++) {
-    slot = *(int *)(g_sound_groups + 0x590) + i;
+    slot = SOUND_GROUP_FIRST_VOICE_OF(9) + i;
     sound_voice_start_22050(slot);
     voice_set_volume(slot, 1.0f);
   }
-  slot = *(int *)(g_sound_groups + 0x590);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(9);
   sound_voice_place_ptr(slot, course_get_car_body_position(0));
   sound_voice_place_ptr(slot + 1, course_get_car_body_position(1));
-  slot = *(int *)(g_sound_groups + 0x620);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(10);
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 1.0f);
   sound_voice_place_bits(slot, 0xc14b3333, 0x408ccccd, 0x4142e148);
-  slot = *(int *)(g_sound_groups + 0x6b0);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(11);
   sound_voice_start_rate(slot, 21050.0f);
   voice_set_volume(slot, 1.0f);
   sound_voice_place_bits(slot, 0xc20acccd, 0x40000000, 0x41a33333);

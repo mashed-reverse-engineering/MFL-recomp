@@ -28,7 +28,7 @@
 
 /* target_world = target position (+0.2 up) from the target fx object (+0x58) or car (+0x54); transformed into the rocket frame
    (inverse matrix) and normalised to target_dir, whose x/y components steer the rocket within +-0.2. */
-void rocket_fly_homing_n(int rocket)
+void rocket_fly_homing_n(RocketRecord *rocket)
 
 {
   RwV3d *v;
@@ -44,13 +44,13 @@ void rocket_fly_homing_n(int rocket)
   } frame_obj;
   
   frame_obj.dt_scaled = 0.0;
-  frame = *(RwFrame **)(*(char **)(rocket + 0x5c) + 4);
+  frame = *(RwFrame **)(rocket->frame_holder + 4);
   RwMatrixInvert(&frame_obj.inv_matrix,&RwFrame_modelling(frame));
-  if (*(int *)(rocket + 0x54) == -1) {
-    fx_object_get_matrix_ptr(&frame_obj.target_matrix,*(undefined4 *)(rocket + 0x58));
+  if (rocket->target_car == -1) {
+    fx_object_get_matrix_ptr(&frame_obj.target_matrix,rocket->target_fx_object);
   }
   else {
-    car_current_matrix(&frame_obj.target_matrix,*(int *)(rocket + 0x54));
+    car_current_matrix(&frame_obj.target_matrix,rocket->target_car);
   }
   frame_obj.target_world.x = *(RwReal *)(frame_obj.target_matrix + 0x30);
   frame_obj.target_world.z = *(RwReal *)(frame_obj.target_matrix + 0x38);
@@ -59,64 +59,64 @@ void rocket_fly_homing_n(int rocket)
   RwV3dNormalize(&frame_obj.target_dir,&frame_obj.target_local);
   if (frame_obj.target_dir.y <= k_f_0_2) {
     if (k_f_n0_2 <= frame_obj.target_dir.y) {
-      *(undefined4 *)(rocket + 0x40) = 0;
+      *(undefined4 *)&rocket->pitch_rate = 0;
     }
     else {
-      *(undefined4 *)(rocket + 0x40) = 0x41a00000;
+      *(undefined4 *)&rocket->pitch_rate = 0x41a00000;
     }
   }
   else {
-    *(undefined4 *)(rocket + 0x40) = 0xc1a00000;
+    *(undefined4 *)&rocket->pitch_rate = 0xc1a00000;
   }
   if (frame_obj.target_dir.x <= k_f_0_2) {
     if (k_f_n0_2 <= frame_obj.target_dir.x) {
-      *(undefined4 *)(rocket + 0x44) = 0;
+      *(undefined4 *)&rocket->yaw_rate = 0;
     }
     else {
-      *(undefined4 *)(rocket + 0x44) = 0xc0000000;
+      *(undefined4 *)&rocket->yaw_rate = 0xc0000000;
     }
   }
   else {
-    *(undefined4 *)(rocket + 0x44) = 0x40000000;
+    *(undefined4 *)&rocket->yaw_rate = 0x40000000;
   }
   RwV3dLength(&frame_obj.target_local);
-  *(float *)(rocket + 0x48) = *(float *)(rocket + 0x44) + *(float *)(rocket + 0x48);
-  *(float *)(rocket + 0x4c) = *(float *)(rocket + 0x4c) + *(float *)(rocket + 0x40);
+  rocket->yaw = rocket->yaw_rate + rocket->yaw;
+  rocket->pitch = rocket->pitch + rocket->pitch_rate;
   RwFrameSetIdentity(frame);
-  RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,*(RwReal *)(rocket + 0x48),rwCOMBINEREPLACE);
-  RwFrameRotate(frame,&(RwFrame_modelling(frame)).right,*(RwReal *)(rocket + 0x4c),rwCOMBINEPOSTCONCAT);
-  car_get_speed(&frame_obj.dt_scaled,*(undefined4 *)(rocket + 0x54));
+  RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,rocket->yaw,rwCOMBINEREPLACE);
+  RwFrameRotate(frame,&(RwFrame_modelling(frame)).right,rocket->pitch,rwCOMBINEPOSTCONCAT);
+  car_get_speed(&frame_obj.dt_scaled,rocket->target_car);
   fVar1 = k_f_4_8780486en5 * frame_obj.dt_scaled;
-  *(float *)(rocket + 0x34) = fVar1;
-  fVar1 = fVar1 - *(float *)(rocket + 0x30);
-  *(float *)(rocket + 0x38) = fVar1;
+  rocket->target_speed_a = fVar1;
+  fVar1 = fVar1 - rocket->speed;
+  rocket->target_speed_b = fVar1;
   if (k_f_0_02 <= fVar1) {
-    fVar1 = *(float *)(rocket + 0x2c) - k_f_0_001;
+    fVar1 = rocket->accel - k_f_0_001;
   }
   else {
-    fVar1 = *(float *)(rocket + 0x2c) + k_f_1_0en4;
+    fVar1 = rocket->accel + k_f_1_0en4;
   }
-  *(float *)(rocket + 0x2c) = fVar1;
-  if (*(float *)(rocket + 0x2c) < k_f_0) {
-    *(undefined4 *)(rocket + 0x2c) = 0;
+  rocket->accel = fVar1;
+  if (rocket->accel < k_f_0) {
+    *(undefined4 *)&rocket->accel = 0;
   }
-  if (k_f_0_005 < *(float *)(rocket + 0x2c)) {
-    *(undefined4 *)(rocket + 0x2c) = 0x3ba3d70a;
+  if (k_f_0_005 < rocket->accel) {
+    *(undefined4 *)&rocket->accel = 0x3ba3d70a;
   }
-  fVar1 = *(float *)(rocket + 0x2c) + *(float *)(rocket + 0x30);
-  *(float *)(rocket + 0x30) = fVar1;
+  fVar1 = rocket->accel + rocket->speed;
+  rocket->speed = fVar1;
   if (fVar1 < k_f_0_075) {
-    *(undefined4 *)(rocket + 0x30) = 0x3d99999a;
+    *(undefined4 *)&rocket->speed = 0x3d99999a;
   }
-  v = (RwV3d *)(rocket + 0xc);
-  *(float *)(rocket + 0x1c) = *(float *)(rocket + 0x30) * (RwFrame_modelling(frame)).at.x;
-  *(float *)(rocket + 0x20) = (RwFrame_modelling(frame)).at.y * *(float *)(rocket + 0x30);
-  *(float *)(rocket + 0x24) = (RwFrame_modelling(frame)).at.z * *(float *)(rocket + 0x30);
-  fVar1 = *(float *)(rocket + 0x28) + *(float *)(rocket + 0x20);
-  *(float *)(rocket + 0x20) = fVar1;
-  v->x = v->x + *(float *)(rocket + 0x1c);
-  *(float *)(rocket + 0x10) = fVar1 + *(float *)(rocket + 0x10);
-  *(float *)(rocket + 0x14) = *(float *)(rocket + 0x24) + *(float *)(rocket + 0x14);
+  v = &rocket->pos;
+  rocket->vel.x = rocket->speed * (RwFrame_modelling(frame)).at.x;
+  rocket->vel.y = (RwFrame_modelling(frame)).at.y * rocket->speed;
+  rocket->vel.z = (RwFrame_modelling(frame)).at.z * rocket->speed;
+  fVar1 = rocket->lift + rocket->vel.y;
+  rocket->vel.y = fVar1;
+  v->x = v->x + rocket->vel.x;
+  rocket->pos.y = fVar1 + rocket->pos.y;
+  rocket->pos.z = rocket->vel.z + rocket->pos.z;
   RwFrameTranslate(frame,v,rwCOMBINEPOSTCONCAT);
   return;
 }

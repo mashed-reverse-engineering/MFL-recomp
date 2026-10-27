@@ -54,8 +54,6 @@ typedef int CourseId;
 /* ai_drive_a */
 #define COURSE_WARZONE (33)
 #define BOT_STATE_STRIDE (0x14) /* sizeof one bot_state record (80 bytes / 4 bots) */
-#define BOT_TURN_SIDE_OFFSET (0x2c) /* last turn side, 1 = left, 2 = right (inferred) */
-#define BOT_TURN_STRENGTH_OFFSET (0x34) /* last turn strength (inferred) */
 #define STEER_MODE_TARGET_A (1) /* ai_find_target_a chose the target */
 #define STEER_MODE_TARGET_B (2) /* ai_find_target_b chose the target */
 #define STEER_MODE_TARGET_C (3) /* ai_find_target_c chose the target */
@@ -237,7 +235,7 @@ LAB_00418fe2:
     }
     bot_state[3] = frame.steer_angle_f;
     if (float_1_0 < frame.steer_angle_f) {
-      if ((*(int *)((char *)bot + BOT_TURN_SIDE_OFFSET) == 1) ||
+      if ((bot->steer_side == 1) ||
          (result = g_race_clock_a - *(int *)&bot->field_0x30, 199 < result)) {
         control_value = (double)frame.steer_angle_f * (double)frame.speed * (double)k_f_0_003;
         if ((frame.target_mode == 0) && (k_f_20 < frame.route_angle)) {
@@ -247,13 +245,13 @@ LAB_00418fe2:
           control_value = (double)k_f_255;
         }
         controls[0] = (undefined1)(int)control_value;
-        *(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET) = (int)control_value;
-        *(int *)((char *)bot + BOT_TURN_SIDE_OFFSET) = 1;
+        bot->steer_amount = (int)control_value;
+        bot->steer_side = 1;
         *(int *)&bot->field_0x30 = g_race_clock_a;
       }
       else {
         frame.candidate_a = 200 - result;
-        controls[1] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET));
+        controls[1] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_005 * (double)bot->steer_amount);
       }
     }
   }
@@ -266,7 +264,7 @@ LAB_00418fe2:
     }
     bot_state[2] = frame.steer_angle_f;
     if (frame.steer_angle_f < k_f_359) {
-      if ((*(int *)((char *)bot + BOT_TURN_SIDE_OFFSET) == 2) ||
+      if ((bot->steer_side == 2) ||
          (result = g_race_clock_a - *(int *)&bot->field_0x30, 199 < result)) {
         control_value = ((double)k_f_360 - (double)frame.steer_angle_f) * (double)frame.speed * (double)k_f_0_003;
         if ((frame.target_mode == 0) && (k_f_20 < frame.route_angle)) {
@@ -276,13 +274,13 @@ LAB_00418fe2:
           control_value = (double)k_f_255;
         }
         controls[1] = (undefined1)(int)control_value;
-        *(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET) = (int)control_value;
-        *(int *)((char *)bot + BOT_TURN_SIDE_OFFSET) = 2;
+        bot->steer_amount = (int)control_value;
+        bot->steer_side = 2;
         *(int *)&bot->field_0x30 = g_race_clock_a;
       }
       else {
         frame.candidate_a = 200 - result;
-        controls[0] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_005 * (double)*(int *)((char *)bot + BOT_TURN_STRENGTH_OFFSET));
+        controls[0] = (undefined1)(int)((double)frame.candidate_a * (double)k_f_0_005 * (double)bot->steer_amount);
       }
     }
   }

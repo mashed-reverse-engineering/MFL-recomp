@@ -89,7 +89,7 @@
  * param_7..param_10 are never read (inferred). Returns nothing.
  * Culling is off and vertex alpha is on, so the quad is visible from both sides and alpha blends. (inferred) */
 
-/* TIER2: validated 2026-10-19 authority=diffemu */
+/* TIER2: unvalidated 2026-10-27 authority=static */
 void __cdecl im2d_draw_quad(undefined4 *texture,float x,float y,float width,float height, uint color,char *param_7,char *unused_8,char *unused_9, char *param_10)
 {
   RwGlobalsRelease *engine;

@@ -18,14 +18,14 @@ void __cdecl FUN_0056f450(float *result,float *box_a,float *box_b)
   }
   result[4] = value;
   /* components 5 and 6: smaller of the two */
-  if (box_b[5] < box_a[5]) {
+  if (!(box_b[5] >= box_a[5])) {      /* original: fcompp, and eax,0x100 (C0 = less or unordered) */
     value = box_b[5];
   }
   else {
     value = box_a[5];
   }
   result[5] = value;
-  if (box_b[6] < box_a[6]) {
+  if (!(box_b[6] >= box_a[6])) {      /* original: fcompp, and eax,0x100 (C0 = less or unordered) */
     value = box_b[6];
   }
   else {

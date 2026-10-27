@@ -111,7 +111,7 @@ void sound_ambience_course_2_6_b(void)
     return;
   }
   camera_get_position(camera);
-  slot = *(int *)(g_sound_groups + 0x590);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(9);
   sound_voice_start_22050(slot);
   volume = (camera[1] + float_1_0) * k_f_0_1;
   if (volume < k_f_0) {
@@ -120,7 +120,7 @@ void sound_ambience_course_2_6_b(void)
     volume = 1.0f;
   }
   voice_set_volume(slot, volume);
-  slot = *(int *)(g_sound_groups + 0x500);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(8);
   if ((*(unsigned char *)(g_voices[slot].voice + 0x34) & 2) == 0) {
     FUN_005b6a40(g_voices[slot].voice, 1);
   }
@@ -131,7 +131,7 @@ void sound_ambience_course_2_6_b(void)
   voice_set_volume(slot, 0.3f);
   sound_voice_place_bits(slot, 0x40c28f5c, 0x3eb33333, 0x41c26666);
   sound_voice_fixed(0x6b0, 0xc1800000, 0x3fcccccd, 0x421c0000);
-  slot = *(int *)(g_sound_groups + 0x6b0) + 1;
+  slot = SOUND_GROUP_FIRST_VOICE_OF(11) + 1;
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 1.0f);
   sound_voice_place_bits(slot, 0x41500000, 0x3f800000, 0x42580000);

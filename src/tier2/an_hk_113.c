@@ -11,7 +11,7 @@ void FUN_0056f3a0(float *merged_box,float *box_a,float *box_b)
   float chosen;
 
   /* max corner, x (inferred) */
-  if (box_a[4] < box_b[4]) {
+  if (!(box_a[4] >= box_b[4])) {      /* original: fcomp, and eax,0x100 (C0 = less or unordered) */
     chosen = box_b[4];
   }
   else {

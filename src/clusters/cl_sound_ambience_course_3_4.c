@@ -39,7 +39,7 @@ void sound_ambience_course_3_4(void)
     return;
   }
   camera_get_position(camera);
-  slot = *(int *)(g_sound_groups + 0x470);
+  slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   sound_voice_start_22050(slot);
   g_sound_ambience_6ae1e0 = (camera[1] + k_f_2_5) * k_f_0_125;
   if (g_sound_ambience_6ae1e0 < k_f_0) {

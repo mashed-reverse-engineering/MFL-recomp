@@ -83,7 +83,7 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
       shadow_scale = (float10)course_get_shadow_scale();
       collision_bsp =
            course_get_collision_bsp
-                     ((fbits1 = (float)(shadow_scale * (float10)*(float *)((char *)vehicle_record + 0x288) *
+                     ((fbits1 = (float)(shadow_scale * (float10)vehicle_record->light_factor *
                              (float10)vehicle_record->size_factor), *(int *)&fbits1));
       vehicle_tyre_marks_collect_triangles
                 (vehicle_record->index,*(int *)(vehicle_record->frame + 4) + 0x10,collision_bsp);
