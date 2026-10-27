@@ -543,6 +543,11 @@ class Lint:
                 self.check_stmt(fn, line, st, env); self.check_regcallee(fn, line, st); self.check_krarity(fn, line, st); self.check_calleearity(fn, line, st)
                 vc += [(line, st) + c for c in self.vtable_calls(st)]
             self.check_vtable(fn, vc)
+            body = "\n".join(self.lines[s:e + 1])      # class 12, nested form: `if (x <= hi) { if (x < lo) x = lo; } else x = hi;` (also >= / else-first) on a float object
+            for m in re.finditer(r"if \(\(?\s*([A-Za-z_][\w.\[\]>-]*) (<=|>=) ([\w.]+)\s*\)?\) \{\s*if \(\(?\s*\1 (<|>) ([\w.]+)\s*\)?\) \{\s*\1 = [\w.-]+;\s*\}\s*\}\s*else \{\s*\1 = [\w.-]+;\s*\}", body):
+                k, n = self.atom(m.group(1), env)
+                if k == "F" or (k == "?" and m.group(1) in self.float_members()) or k == "U" and False:
+                    self.add(12, "high", s + 1 + body[:m.start()].count("\n"), fn, m.group(1), " ".join(m.group(0).split()), "clamp `if (x %s k) { if (x %s k2) x = ..; } else x = ..;`: NaN takes the else value, the original passes NaN unchanged" % (m.group(2), m.group(4)))
         for m in re.finditer(r"^([A-Za-z_][\w \*]*?)\b(__stdcall |__cdecl )?(\w+)\(([^;{]*)\)\s*\{?\s*$", self.t, flags=re.M):
             n = m.group(3)
             if n in NAMEVA and NAMEVA[n] in GTCONV and "__stdcall" not in (m.group(2) or "") and not m.group(1).lstrip().startswith(("extern", "typedef", "return", "else")) and n not in KW and "(" not in m.group(1):

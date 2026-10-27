@@ -24,19 +24,15 @@ void matrix_interpolate_rotation_translation(RwMatrix *result, RwMatrix *from, R
   volatile float dz;
 
   angle = 0.0f;
-  if (t_rot <= float_1_0) {
-    if (t_rot < k_f_0) {
-      t_rot = 0.0f;
-    }
-  } else {
+  if (t_rot > float_1_0) {      /* NaN passes unchanged (original: fcomp / test ah,0x41 / jne, then test ah,5 / jp) */
     t_rot = 1.0f;
+  } else if (t_rot < k_f_0) {
+    t_rot = 0.0f;
   }
-  if (t_pos <= float_1_0) {
-    if (t_pos < k_f_0) {
-      t_pos = 0.0f;
-    }
-  } else {
+  if (t_pos > float_1_0) {      /* NaN passes unchanged (original: fcomp / test ah,0x41 / jne, then test ah,5 / jp) */
     t_pos = 1.0f;
+  } else if (t_pos < k_f_0) {
+    t_pos = 0.0f;
   }
   from_copy = *from;
   center.x = from_copy.pos.x * k_f_n1;

@@ -40,12 +40,12 @@ void rain_splash_update(void)
     if (state == 3) {
       height = SPLASH_F(splash, 0xd) * k_f_1_1;
       SPLASH_F(splash, 0xd) = (float)height;
-      if (!(age < k_f_0_5)) {
+      if (age >= k_f_0_5) {      /* NaN keeps the splash (original: fcomp / test ah,1 / jne) */
         splash[0] = 0;
       }
     } else {
       height = sin((double)age * k_f_6) * SPLASH_F(splash, 8);
-      if (state != 1 || height >= k_f_0) {
+      if (state != 1 || !(height < k_f_0)) {      /* NaN keeps state 1 (original: fcomp / test ah,5 / jp) */
         if (state != 2) {
           goto place;
         }

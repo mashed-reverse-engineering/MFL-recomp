@@ -1,8 +1,8 @@
 #!/bin/bash
-# public_syntax.sh [root]: syntax-only check (cl /Zs, original compiler under Wine, tools/vc7.sh) of every published src/tier1, src/tier2 and src/clusters source against the curated headers.
+# public_syntax.sh [root]: syntax-only check (cl /Zs, original compiler under Wine, tools/vc7.sh) of every published src/tier1, src/automatch, src/tier2 and src/clusters source against the curated headers.
 # Sources go in chunks of 300 (one command line for all of them overflows Wine's limit and then compiles nothing); a chunk that compiled fewer files than it was given counts as an error.
 R=$(readlink -f "${1:-$(dirname "$(readlink -f "$0")")/..}"); cd "$R" || exit 1
-ls src/tier1/*.c src/tier2/an_*.c src/clusters/cl_*.c > .syntax_all.txt; split -l 300 .syntax_all.txt .syntax_part_
+ls src/tier1/*.c src/automatch/am_*.c src/tier2/an_*.c src/clusters/cl_*.c > .syntax_all.txt; split -l 300 .syntax_all.txt .syntax_part_
 n=0; total=$(wc -l < .syntax_all.txt)
 for p in .syntax_part_*; do
   cp "$p" .syntax_list.txt

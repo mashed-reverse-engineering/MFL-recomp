@@ -7,12 +7,10 @@
 /* Sets the volume (clamped to 0..1) of voice slot `index` in the slot table and on its sound object. */
 void voice_set_volume(int index, float volume)
 {
-  if (volume >= 0.0f) {
-    if (volume > 1.0f) {
-      volume = 1.0f;
-    }
-  } else {
+  if (volume < 0.0f) {      /* NaN passes unchanged (original: fcomp / test ah,1 / jne ...) */
     volume = 0.0f;
+  } else if (volume > 1.0f) {
+    volume = 1.0f;
   }
   *(float *)(g_voices[index].voice + 0x40) = volume;
   if (*(int *)(g_voices[index].voice + 0x30) != 0) {
