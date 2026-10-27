@@ -16,10 +16,10 @@ double atan2_degrees(float y, float x)
   double angle;
 
   if (x == k_f_0) {
-    if (y >= k_f_0) {
-      angle = k_f_90;
-    } else {
+    if (y < k_f_0) {      /* NaN y takes the 90 branch (original: fcomp, test ah,5, jp) */
       angle = k_f_270;
+    } else {
+      angle = k_f_90;
     }
   } else {
     angle = atan2(y / x, 1.0);
