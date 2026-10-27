@@ -4,14 +4,14 @@ The private working tree replaces application functions of `MFL.exe` with C that
 Not all of that source is published; the progress table in the README separates the two numbers:
 
 * **Whole pipeline**: everything the working tree has replaced, in every tier below.
-* **Published**: the C source that is in this repository (`src/*.c`, `src/tier2/`, `src/clusters/`).
+* **Published**: the C source that is in this repository (`src/*.c`, `src/tier1/`, `src/automatch/`, `src/tier2/`, `src/clusters/`). The table counts each function once (a function with both a tier 2 and a cluster source counts once) and only application code (VA < 0x4B0000); published sources of linked library code are listed separately. "Byte identical" published = tier 1 + automatch + hand-written `MATCH`.
 
 ## Tiers
 
 | Tier | Evidence | Published here |
 |---|---|---|
-| Tier 1 / automatch / agent | The compiled object is **byte identical** to the original function after relocation (`cmpfn`, strict build with relocation check). | Mostly not: those sources still use the decompiler's type dump, which cannot be published. The hand-written ones are in `src/*.c`. |
-| Tier 2 | **Behaviour verified**, bytes differ (other register allocation, other frame layout). Written as readable C against `mfl_tier2.h`. | `src/tier2/` (installed functions whose source needs no unpublished header). |
+| Tier 1 / automatch / agent | The compiled object is **byte identical** to the original function after relocation (`cmpfn`, strict build with relocation check). | `src/tier1/`, `src/automatch/` (all of them, written against `mfl_tier2.h`), plus the hand-written ones in `src/*.c`. |
+| Tier 2 | **Behaviour verified**, bytes differ (other register allocation, other frame layout). Written as readable C against `mfl_tier2.h`. | `src/tier2/` (installed functions; a few sources that still need the decompiler's type dump stay private). |
 | Clusters | A group of functions that pass arguments in registers: natural-C body plus a generated entry thunk, verified together. | `src/clusters/` (`enabled.txt` = installed set; clusters still on the decompiler header are skipped). |
 
 Source files that include anything other than the curated headers (`mfl_tier2.h`, `mfl_consts.h`, `mfl_types.h`, `mfl_externs.h`, `rwrs.h`) are never exported; `tools/export_public.py` enforces this and also refuses game data, binaries, SDK structure text and absolute paths.

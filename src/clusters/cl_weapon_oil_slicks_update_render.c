@@ -134,8 +134,8 @@ LAB_00463233:
       t_val = t_val * k_f_0_014285714;
       /* life fraction = age / 70 s; scale grows quickly (x200) then slowly */
       slick[-5] = t_val;
-      if (t_val <= one) {
-        if (k_f_0_005 <= t_val) {
+      if (!(t_val > one)) {      /* NaN stays in range (original: fcom / test ah,0x41 / jne; test ah,5 / jp) */
+        if (!(t_val < k_f_0_005)) {
           t_val = t_val * k_f_0_5 + k_f_1_25;
         }
         else {

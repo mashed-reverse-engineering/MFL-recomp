@@ -17,18 +17,22 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,686 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers) | 2,498 | `██████████████████░░` 90% |
-| ...verified byte identical | 1,387 | `██████████░░░░░░░░░░` 50% |
-| ...share of the code bytes | 339,631 B | `██████████░░░░░░░░░░` 50% |
-| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | 1,070 | `████████░░░░░░░░░░░░` 38% |
-| ...of these register-argument clusters | 622 | `████░░░░░░░░░░░░░░░░` 22% |
-| **Published in this repo** (`src/`: hand-written + `src/tier2` + `src/clusters`) | 2,063 | `███████████████░░░░░` 74% |
+| Replaced by recompiled C (all tiers, each function once) | 2,680 | `███████████████████░` 96% |
+| ...verified byte identical | 1,301 | `█████████░░░░░░░░░░░` 47% |
+| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,379 | `██████████░░░░░░░░░░` 50% |
+| ...share of the code bytes | 654,748 B | `███████████████████░` 96% |
+| ...of these register-argument clusters | 620 | `████░░░░░░░░░░░░░░░░` 22% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,583 | `███████████████████░` 93% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,196 | `█████████░░░░░░░░░░░` 43% |
+| ...tier 1, `src/tier1` (908 files) | 848 | `██████░░░░░░░░░░░░░░` 30% |
+| ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...byte identical (`MATCH`) | 343 | `██░░░░░░░░░░░░░░░░░░` 12% |
-| ...tier 2, `src/tier2` (1016 files) | 1,070 | `████████░░░░░░░░░░░░` 38% |
-| ...clusters, `src/clusters` (612 files) | 612 | `████░░░░░░░░░░░░░░░░` 22% |
+| ...tier 2, `src/tier2` (1016 files) | 788 | `██████░░░░░░░░░░░░░░` 28% |
+| ...clusters, `src/clusters` (615 files) | 648 | `█████░░░░░░░░░░░░░░░` 23% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 344 | |
+| ...functions present in two kinds (counted once above) | 87 | |
 
-*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. Tier 1 / most automatch sources still use the decompiler's type dump and are not published (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 2 and cluster code is behaviour verified, not byte identical.
+*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts and a few sources that still need the decompiler's type dump (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.
 
 
 <details><summary>By tier (whole pipeline)</summary>
@@ -51,7 +55,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by the scripts below. |
 | `scripts/` | Ghidra headless scripts (`RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`, ...). |
 | `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
-| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. How "verified" is established and where it stops: [docs/VERIFICATION.md](docs/VERIFICATION.md). |
+| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier1/` and `src/automatch/`: byte-identical functions, one per file. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. How "verified" is established and where it stops: [docs/VERIFICATION.md](docs/VERIFICATION.md). |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
 | `docs/` | Building, naming workflow, toolchain, verification, enum constants, legal note. Start here to understand the game: [docs/GAME_STRUCTURE.md](docs/GAME_STRUCTURE.md) (main loop, race phases, cars, camera, course loading, menus, weapons, effects, audio) and [docs/STRUCTS.md](docs/STRUCTS.md) (record layouts). |
 

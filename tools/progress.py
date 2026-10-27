@@ -16,6 +16,7 @@ def find(name):
 def compute():
     fn = [(int(l.split()[0], 16), l.split()[1], int(l.split()[2])) for l in open(find("fnsizes.txt")) if len(l.split()) >= 3]
     size = {va: sz for va, _, sz in fn}
+    va_of = {n: "%08x" % va for va, n, _ in fn}
     game = [f for f in fn if f[0] < GAME_END]
     named = lambda fs: sum(1 for _, n, _ in fs if not AUTO.match(n))
     man = collections.Counter(); by_mod = collections.Counter()
@@ -25,35 +26,72 @@ def compute():
         st = p[4] if len(p) > 4 else "MATCH"             # blank status = MATCH (cmpfn --manifest)
         man[st] += 1; by_mod[re.sub(r"(_np)?\.c$", "", p[0])] += 1
     tiers = collections.defaultdict(lambda: collections.Counter())
-    p = find("tier_ledger.csv")
+    p = p_led = find("tier_ledger.csv")
     if p:
         for r in csv.DictReader(open(p)):
             t = tiers[r["tier"]]; t["functions"] += 1; t["bytes"] += (size.get(int(r["va"], 16), 0) if re.fullmatch(r"[0-9a-fA-F]+", r["va"]) else 0)
             t["verified_bytes_identical"] += r["authority"] == "bytes-reloc"
     rep = {t: dict(c) for t, c in sorted(tiers.items())}
+    cl_names = []
     cl = {"functions": 0, "bytes": 0}                    # register-argument clusters (natural-C body + generated entry thunk), behaviour verified
     p = find("clusters_enabled.txt") or os.path.join(G, "src", "clusters", "enabled.txt")
     if os.path.exists(p):
         by_name = {n: sz for _, n, sz in fn}
         for n in (l.strip() for l in open(p)):
-            if n: cl["functions"] += 1; cl["bytes"] += by_name.get(n, 0)
-    pub = {"tier2_files": 0, "tier2_functions": 0, "cluster_files": 0, "cluster_functions": 0}     # published verified sources (public repo: src/tier2, src/clusters)
+            if n: cl_names.append(n); cl["functions"] += 1; cl["bytes"] += by_name.get(n, 0)
+    pub = {"tier2_files": 0, "tier2_functions": 0, "cluster_files": 0, "cluster_functions": 0, "tier1_files": 0, "tier1_functions": 0, "automatch_files": 0, "automatch_functions": 0}     # published sources (public repo: src/tier1, src/automatch, src/tier2, src/clusters)
+    vaof = lambda n: va_of.get(n, n)                                        # function name -> VA (unresolved names stay as they are)
+    names = {"hand": set(), "tier1": set(), "automatch": set(), "tier2": set(), "cluster": set()}                   # function names per kind, to count a function once
+    for l in open(os.path.join(G, "src", "manifest.txt")):
+        q = l.split()
+        if len(q) > 2 and not q[0].startswith("#") and q[0] != "(none)": names["hand"].add(q[2].lower().zfill(8))
+    for sub, k in (("tier1", "tier1"), ("automatch", "automatch")):         # byte identical sources, one function per file ('{' in column 0 = function body)
+        d = os.path.join(G, "src", sub)
+        fs = [f for f in os.listdir(d) if f.endswith(".c")] if os.path.isdir(d) else []
+        pub[k + "_files"] = len(fs)
+        for f in fs:
+            t = open(os.path.join(d, f), errors="replace").read().split("\n")
+            for i, x in enumerate(t):
+                if x == "{":
+                    m = re.search(r"(\w+)\(", next((y for y in reversed(t[:i]) if "(" in y and not y[:1].isspace()), ""))
+                    names[k].add(vaof(m.group(1) if m else f[:-2]))
     for sub, k in (("tier2", "tier2"), ("clusters", "cluster")):
         d = next((x for x in (os.path.join(G, "src", sub), os.path.join(G, "src", "automatch_near" if sub == "tier2" else "clusters")) if os.path.isdir(x)), None)
         fs = [f for f in os.listdir(d) if re.match(r"(an|cl)_.*\.c$", f)] if d else []
         pub[k + "_files"] = len(fs)
         if k == "tier2":
             nm = os.path.join(G, "src", "tier2", "names.txt")
-            if os.path.exists(nm): pub[k + "_functions"] = sum(1 for l in open(nm) if len(l.split()) >= 3 and "an_" + l.split()[2] in fs)
+            if os.path.exists(nm):
+                for l in open(nm):
+                    q = l.split()
+                    if len(q) >= 3 and "an_" + q[2] in fs: names[k].add(q[0].lower().zfill(8))
         else:
             for f in fs:
                 m = re.search(r"^// cluster-entries: (.*)$", open(os.path.join(d, f), errors="replace").read(), re.M)
-                pub[k + "_functions"] += len(m.group(1).split(",")) if m else 0
+                if m: names[k] |= {vaof(x) for x in m.group(1).replace(",", " ").split()}
+    inrange = lambda v: not re.fullmatch(r"[0-9a-f]{8}", v) or int(v, 16) < GAME_END
+    for k, nm_ in (("tier1", "tier1"), ("automatch", "automatch"), ("tier2", "tier2"), ("cluster", "cluster")): pub[k + "_functions"] = sum(1 for v in names[nm_] if inrange(v))
+    pub["library_functions"] = len({v for k in names.values() for v in k if not inrange(v)})      # published sources of linked library code (VA >= 0x4B0000), not in the percentages
+    pub["hand_functions"] = len(names["hand"])
+    pub["unique_all_kinds"] = len(set().union(*names.values()))
+    pub["unique_functions"] = len({v for k in names.values() for v in k if inrange(v)})                  # a name in two kinds (e.g. tier 2 draft and its cluster) counts once
+    # whole pipeline, each function once: ledger rows (VA, or the VA of the name when the ledger has "?") plus enabled clusters, application range only
+    led = {}
+    if p_led:
+        for r in csv.DictReader(open(p_led)):
+            v = r["va"].lower() if re.fullmatch(r"[0-9a-fA-F]{8}", r["va"]) else va_of.get(r["name"])
+            if v and int(v, 16) < GAME_END: led.setdefault(v, r)
+    clv = {va_of[n] for n in cl_names if n in va_of and int(va_of[n], 16) < GAME_END}
+    bi = {v for v, r in led.items() if r["authority"] == "bytes-reloc"}
+    allv = set(led) | clv
+    sz = {"%08x" % va: s_ for va, s_ in size.items()}
+    uniq = {"functions": len(allv), "bytes": sum(sz.get(v, 0) for v in allv), "byte_identical": len(bi), "behaviour_verified": len(allv - bi),
+            "clusters": len(clv), "clusters_not_in_ledger": len(clv - set(led))}
     return {"exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
             "functions": {"total": len(fn), "game": len(game), "named": named(fn), "game_named": named(game),
                           "game_bytes": sum(s for _, _, s in game)},
             "published_source": {"by_status": dict(man), "by_module": dict(sorted(by_mod.items()))},
-            "replaced_in_pipeline": rep, "clusters": cl, "published_verified": pub}
+            "replaced_in_pipeline": rep, "replaced_unique": uniq, "clusters": cl, "published_verified": pub}
 
 def bar(n, d, w=20):
     k = round(w * n / d) if d else 0
@@ -65,27 +103,30 @@ def table(j):
     out = ["**%s application functions** (VA < 0x4B0000, the rest is linked library code)\n" % format(g, ","),
            "| Stage | Functions | Progress |", "|---|---:|:---|",
            "| Named | %s | %s |" % (format(f["game_named"], ","), bar(f["game_named"], g))]
-    if rep:
-        tot = sum(t["functions"] for t in rep.values()); ver = sum(t["verified_bytes_identical"] for t in rep.values())
-        rb = sum(t["bytes"] for t in rep.values())
-        out += ["| Replaced by recompiled C (all tiers) | %s | %s |" % (format(tot, ","), bar(tot, g)),
-                "| ...verified byte identical | %s | %s |" % (format(ver, ","), bar(ver, g)),
-                "| ...share of the code bytes | %s B | %s |" % (format(rb, ","), bar(rb, f["game_bytes"]))]
-    t2 = rep.get("tier2") if rep else None
-    if t2:
-        out.append("| ...behaviour verified, not byte identical (tier 2: diffemu + game gates) | %s | %s |" % (format(t2["functions"], ","), bar(t2["functions"], g)))
-    cl = j.get("clusters")
-    if cl and cl["functions"]:
-        out.append("| ...of these register-argument clusters | %s | %s |" % (format(cl["functions"], ","), bar(cl["functions"], g)))
+    u = j.get("replaced_unique")
+    if u:
+        out += ["| Replaced by recompiled C (all tiers, each function once) | %s | %s |" % (format(u["functions"], ","), bar(u["functions"], g)),
+                "| ...verified byte identical | %s | %s |" % (format(u["byte_identical"], ","), bar(u["byte_identical"], g)),
+                "| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | %s | %s |" % (format(u["behaviour_verified"], ","), bar(u["behaviour_verified"], g)),
+                "| ...share of the code bytes | %s B | %s |" % (format(u["bytes"], ","), bar(u["bytes"], f["game_bytes"])),
+                "| ...of these register-argument clusters | %s | %s |" % (format(u["clusters"], ","), bar(u["clusters"], g))]
     pv = j.get("published_verified")
-    tp = pub + (pv["tier2_functions"] + pv["cluster_functions"] if pv else 0)
-    out.append("| **Published in this repo** (`src/`: hand-written + `src/tier2` + `src/clusters`) | %s | %s |" % (format(tp, ","), bar(tp, g)))
+    if pv:
+        tp = pv["unique_functions"]; bi = m.get("MATCH", 0) + pv["tier1_functions"] + pv["automatch_functions"]
+    else: tp = pub; bi = m.get("MATCH", 0)
+    out.append("| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | %s | %s |" % (format(tp, ","), bar(tp, g)))
+    out.append("| ...byte identical (tier 1, automatch, hand-written `MATCH`) | %s | %s |" % (format(bi, ","), bar(bi, g)))
+    if pv:
+        out.append("| ...tier 1, `src/tier1` (%d files) | %s | %s |" % (pv["tier1_files"], format(pv["tier1_functions"], ","), bar(pv["tier1_functions"], g)))
+        out.append("| ...automatch, `src/automatch` (%d files) | %s | %s |" % (pv["automatch_files"], format(pv["automatch_functions"], ","), bar(pv["automatch_functions"], g)))
     out.append("| ...hand-written, `src/*.c` (`manifest.txt`) | %s | %s |" % (format(pub, ","), bar(pub, g)))
-    out.append("| ...byte identical (`MATCH`) | %s | %s |" % (format(m.get("MATCH", 0), ","), bar(m.get("MATCH", 0), g)))
     if pv:
         out.append("| ...tier 2, `src/tier2` (%d files) | %s | %s |" % (pv["tier2_files"], format(pv["tier2_functions"], ","), bar(pv["tier2_functions"], g)))
         out.append("| ...clusters, `src/clusters` (%d files) | %s | %s |" % (pv["cluster_files"], format(pv["cluster_functions"], ","), bar(pv["cluster_functions"], g)))
-    out += ["", "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. Tier 1 / most automatch sources still use the decompiler's type dump and are not published (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 2 and cluster code is behaviour verified, not byte identical.", ""]
+        if pv.get("library_functions"): out.append("| ...plus linked library code (VA >= 0x4B0000), not in the percentages | %d | |" % pv["library_functions"])
+        ov = sum(pv[k] for k in ("tier1_functions", "automatch_functions", "tier2_functions", "cluster_functions")) + pub - tp
+        if ov: out.append("| ...functions present in two kinds (counted once above) | %d | |" % ov)
+    out += ["", "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts and a few sources that still need the decompiler's type dump (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.", ""]
     if rep:
         out += ["", "<details><summary>By tier (whole pipeline)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]
         out += ["| %s | %d | %s | %d |" % (k, t["functions"], format(t["bytes"], ","), t["verified_bytes_identical"]) for k, t in rep.items()]
