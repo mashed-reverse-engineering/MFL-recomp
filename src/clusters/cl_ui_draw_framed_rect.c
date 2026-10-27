@@ -13,7 +13,7 @@ extern void draw_rect(float x, float y, float width, float height, unsigned int 
 void ui_draw_framed_rect_n(unsigned int alpha, float x, float y, float width, float height)
 {
     unsigned int fill, border;
-    float left, border_width, bottom, bottom_offset;
+    float left, border_width, bottom, bottom_offset, right;      /* right: the original adds width + left first (MSVC reassociated the one-expression form to (left + 2) + width: different rounding for tiny widths) */
 
     fill = ((unsigned int)((unsigned char)alpha >> 1) << 24) | 0x146ef0;
     draw_rect(x, y, width, height, fill);
@@ -25,7 +25,8 @@ void ui_draw_framed_rect_n(unsigned int alpha, float x, float y, float width, fl
     bottom_offset = height - k_f_2;
     bottom = bottom_offset + y;
     draw_rect(left, bottom, border_width, 2.0f, border);
-    draw_rect(width + left + k_f_2, bottom - bottom_offset, 2.0f, height, border);
+    right = width + left;
+    draw_rect(right + k_f_2, bottom - bottom_offset, 2.0f, height, border);
 }
 
 /* entry thunk at the original address of ui_draw_framed_rect: register inputs (eax,s0,s1,s2,s3) -> natural C ui_draw_framed_rect_n; ret 0 */

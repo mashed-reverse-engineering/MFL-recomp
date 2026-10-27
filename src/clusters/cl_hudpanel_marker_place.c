@@ -24,7 +24,18 @@
    frame" */
 
 static float marker_x_f32;
-void hudpanel_marker_place_n(int marker)
+
+typedef struct HudMarker { /* player marker: eight parts (arrow, frame, particles) hanging from one frame */
+  unsigned int part_visible[8];   /* 0x00: per part, rewritten every call */
+  int part[8];                    /* 0x20: part objects, 0 = unused */
+  char unknown_40[4];
+  RwFrame *frame;                 /* 0x44 */
+  char unknown_48[4];
+  unsigned int flags;             /* 0x4c: 1 = active, 2 / 4 = record state bits */
+  int record;                     /* 0x50: marker record (+0x34 state, +0x58 / +0x60 flags, +0x5c fraction) */
+} HudMarker;
+
+void hudpanel_marker_place_n(HudMarker *marker)
 
 {
   int part;
@@ -44,7 +55,7 @@ void hudpanel_marker_place_n(int marker)
     RwMatrix mtx;
   } frame;
   
-  rec_or_part = *(int *)(marker + 0x50);
+  rec_or_part = marker->record;
   px = &frame.translate_vec.x;
   frame.translate_vec.x = 0.0;
   frame.translate_vec.y = 0.0;
@@ -58,24 +69,24 @@ void hudpanel_marker_place_n(int marker)
   if (rec_or_part == 0) {
     return;
   }
-  *(undefined4 *)(marker + 0x4c) = 0;
+  marker->flags = 0;
   if (*(int *)(rec_or_part + 0x34) == 2) {
-    *(undefined4 *)(marker + 0x4c) = 1;
+    marker->flags = 1;
   }
   if (*(int *)(rec_or_part + 0x60) == 0) {
     if (*(int *)(rec_or_part + 0x58) == 0) goto LAB_0041c171;
-    flags = *(uint *)(marker + 0x4c) | 2;
+    flags = marker->flags | 2;
   }
   else {
-    flags = *(uint *)(marker + 0x4c) | 4;
+    flags = marker->flags | 4;
   }
-  *(uint *)(marker + 0x4c) = flags;
+  marker->flags = flags;
 LAB_0041c171:
-  flags = *(uint *)(marker + 0x4c);
+  flags = marker->flags;
   rec_or_part = 0;
   do {
-    part = *(int *)(marker + 0x20 + rec_or_part * 4);
-    *(undefined4 *)(marker + rec_or_part * 4) = 0;
+    part = marker->part[rec_or_part];
+    marker->part_visible[rec_or_part] = 0;
     if ((part != 0) && ((flags & 1) != 0)) {
       switch(rec_or_part) {
       case 0:
@@ -93,12 +104,12 @@ LAB_0041c171:
       default:
         visible = 0;
       }
-      *(uint *)(marker + rec_or_part * 4) = visible;
-      FUN_004c5380(part,*(int *)(marker + 0x50) + 0x10);
+      marker->part_visible[rec_or_part] = visible;
+      FUN_004c5380(part,marker->record + 0x10);
     }
     rec_or_part = rec_or_part + 1;
   } while (rec_or_part < 8);
-  rec_ptr = *(float **)(marker + 0x50);
+  rec_ptr = *(float **)&marker->record;
   frame.rot_t = rec_ptr[0x17] * k_f_1_1111112;
   if ((float_1_0 <= frame.rot_t) || (k_f_0 <= frame.rot_t)) {
     if (float_1_0 <= frame.rot_t) {
@@ -129,7 +140,7 @@ LAB_0041c171:
   frame.mtx.pos.x = 0.0;
   RwMatrixTranslate(&frame.mtx,&frame.translate_vec,rwCOMBINEREPLACE);
   RwMatrixScale(&frame.mtx,&frame.scale_vec,rwCOMBINEPRECONCAT);
-  RwFrameTransform(*(RwFrame **)(marker + 0x44),&frame.mtx,rwCOMBINEREPLACE);
+  RwFrameTransform(marker->frame,&frame.mtx,rwCOMBINEREPLACE);
   frame.mtx.flags = frame.mtx.flags | 0x20003;
   frame.mtx.at.z = 1.0;
   frame.mtx.up.y = 1.0;
@@ -144,8 +155,8 @@ LAB_0041c171:
   frame.mtx.pos.y = 0.0;
   frame.mtx.pos.x = 0.0;
   RwMatrixRotate(&frame.mtx,&frame.axis_vec,frame.rot_t * k_f_90,rwCOMBINEPRECONCAT);
-  part_ptr = (int *)(marker + 0x28);
-  RwFrameTransform(*(RwFrame **)(*(int *)(*(int *)(marker + 0x28) + 4) + 4),&frame.mtx,
+  part_ptr = &marker->part[2];
+  RwFrameTransform(*(RwFrame **)(*(int *)(marker->part[2] + 4) + 4),&frame.mtx,
                    rwCOMBINEREPLACE);
   rec_ptr = (float *)&g_marker_particles_603ea4;
   spread = (float_1_0 - frame.rot_t) * k_f_0_025;

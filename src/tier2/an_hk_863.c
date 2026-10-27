@@ -146,7 +146,7 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
       *out_target_xz = offset_x + *origin_xz;
       out_target_xz[1] = offset_z + origin_xz[1];
       frame.to_target.x = *out_target_xz - frame.own_x;
-      frame.to_target.z = out_target_xz[1] - frame.own_z;
+      frame.to_target.z = *(volatile float *)&out_target_xz[1] - frame.own_z;      /* reload: the original does fstp + fld here (the rounded float), the compiler reused the unrounded st(0) */
       RwV3dNormalize(&frame.to_target,&frame.to_target);
       /* facing test: cosine between own forward and the direction to the aim point, clamped to -1..1 */
       frame.scratch_f = frame.own_forward.z * frame.to_target.z + frame.to_target.y * frame.own_forward.y + frame.own_forward.x * frame.to_target.x;

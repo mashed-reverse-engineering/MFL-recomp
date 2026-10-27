@@ -56,8 +56,11 @@ void camera_path_sample(char *path,int index,float t,float *out)
     index = index - point_count;
   }
   /* clamp t to [k_f_0, float_1_0]; values above 1.0 become 1.0 (inferred) */
-  t_clamped = float_1_0;
-  if ((t <= float_1_0) && (t_clamped = t, t < k_f_0)) {
+  t_clamped = t;      /* NaN passes unchanged (original: fcomp / test ah,0x41 / jne, fcomp / test ah,5 / jp) */
+  if (t > float_1_0) {
+    t_clamped = float_1_0;
+  }
+  else if (t < k_f_0) {
     t_clamped = k_f_0;
   }
   t_sq = t_clamped * t_clamped;

@@ -182,8 +182,11 @@ LAB_00429069:
             car_get_forward(&frame.fwd_x,frame.car_index);
             car_get_forward(&frame.other_fwd_x,tmp_i);
             dot_or_part = frame.other_fwd_z * frame.fwd_z + frame.other_fwd_x * frame.fwd_x + frame.other_fwd_y * frame.fwd_y;
-            dot_clamped = k_f_n1;
-            if ((k_f_n1 <= dot_or_part) && (dot_clamped = dot_or_part, float_1_0 < dot_or_part)) {
+            dot_clamped = dot_or_part;      /* clamp to -1..1; NaN passes unchanged (original: fcom / test ah,5 / jp, fcom / test ah,0x41 / jne) */
+            if (dot_or_part < k_f_n1) {
+              dot_clamped = k_f_n1;
+            }
+            else if (dot_or_part > float_1_0) {
               dot_clamped = float_1_0;
             }
             angle_deg = (float10)FUN_004b3284((double)dot_clamped);

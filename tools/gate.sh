@@ -103,6 +103,9 @@ shadow() {        # shadow <race|early> '<courses>' <names file|->: shadowgen2 -
 }
 diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (needs the unicorn venv, see README)
   python3 $T/diffemu/diffemu.py --names $1 2>&1 | tee $D/diffemu.log | tail -15
+  if [ -n "${HS:-}" ]; then      # HS=1 (opt-in): additionally the state-seeded harness of tools/diffemu_audit/tweak (README there); same DIFF / INCONCLUSIVE rules
+    ~/.cache/mfl_diffemu_venv/bin/python $T/diffemu_audit/tweak/gate_hs.py $1 ${HS_CASES:-1500} ${HS_BUDGET:-300} 2>&1 | tee -a $D/diffemu.log | tail -15
+  fi
   ! grep -q "^DIFF " $D/diffemu.log || { echo "diffemu: DIFF verdict"; return 1; }
   grep -q "^INCONCLUSIVE " $D/diffemu.log && echo "WARNING diffemu: INCONCLUSIVE verdicts (see $D/diffemu.log)"; return 0
 }

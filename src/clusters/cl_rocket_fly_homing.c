@@ -90,7 +90,7 @@ void rocket_fly_homing_n(RocketRecord *rocket)
   rocket->target_speed_a = fVar1;
   fVar1 = fVar1 - rocket->speed;
   rocket->target_speed_b = fVar1;
-  if (k_f_0_02 <= fVar1) {
+  if (!(fVar1 < k_f_0_02)) {      /* NaN takes this branch (original: fcomp, test ah,5, jp) */
     fVar1 = rocket->accel - k_f_0_001;
   }
   else {

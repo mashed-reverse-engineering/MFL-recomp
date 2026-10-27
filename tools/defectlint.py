@@ -16,7 +16,7 @@ they are listed (column `byte_identical`) but a byte identical function never co
 Exit 0 always (warning tool)."""
 import csv, glob, os, re, subprocess, sys
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, ".."))
-SCOPE = ["src/automatch_near", "src/automatch_agent", "src/tier1", "src/bridges", "output/tier2_candidates", "output/tier2_candidates2", "output/usercall_candidates*"]
+SCOPE = ["src/automatch_near", "src/automatch_agent", "src/tier1", "src/automatch", "src/bridges", "output/tier2_candidates", "output/tier2_candidates2", "output/usercall_candidates*"]
 INT_T = {"int", "short", "long", "char", "signed", "ushort_s", "int8_t", "int16_t", "int32_t", "SHORT", "LONG", "INT", "BOOL", "RwInt32", "RwBool", "RwInt16"}
 UNS_T = {"uint", "ulong", "ushort", "uchar", "byte", "DWORD", "UINT", "WORD", "BYTE", "ULONG", "size_t", "unsigned", "RwUInt32", "RwUInt16", "undefined1", "undefined2", "dword", "word"}
 FLT_T = {"float", "double", "float10", "RwReal", "FLOAT", "longdouble"}
@@ -270,6 +270,17 @@ class Lint:
                 where = "local" if u.split("[")[0].lstrip("*") in env else "global"
                 self.hints.append(("sgn", line, u, []))
                 self.add(1, "high" if where == "global" else "medium", line, fn, u, st, "%s `%s` is undefined4 (unsigned compare); the original may be signed: needs (int)" % (where, u))
+        # class 12 (T-weak2 2026-10-27): Ghidra's clamp idiom `(a <= b) && (y = b, c < b)`: `<=` is false for NaN so the clamp value wins; the original (`fcom / test ah,0x41 / jne`, `test ah,5 / jp`) lets NaN pass unchanged:
+        # write `y = x; if (x > hi) y = hi; else if (x < lo) y = lo;` (car_air_control, camera_path_sample, player_stats_update)
+        for m in re.finditer(r"\(\s*([\w.\[\]>-]+)\s*(<=|>=)\s*([\w.\[\]>-]+)\s*\)\s*&&\s*\(\s*[\w.]+\s*=\s*([\w.\[\]>-]+)\s*,", st):
+            if m.group(4) in (m.group(1), m.group(3)): self.add(12, "high", line, fn, m.group(4), st, "clamp idiom `(%s %s %s) && (y = %s, ..)`: NaN takes the clamp value, the original passes NaN unchanged" % (m.group(1), m.group(2), m.group(3), m.group(4)))
+        # class 11 (T-weak2 2026-10-27): an int / pointer object (typed local / global / parameter, `p[i]`, `*p`) compared with a float literal: the original is `cmp` / `test`, NaN or -0.0 bit patterns take the other branch (car_apply_forces in_contact)
+        for m in re.finditer(r"(?<![<>\-=!])(<=|>=|==|!=|<|>)(?![<>=])", st):
+            a, b = self.operand(st, m.start(), -1), self.operand(st, m.end(), 1)
+            if not a or not b: continue
+            ka, na = self.atom(a, env); kb, nb = self.atom(b, env)
+            for kx, nx, ky, ny in ((ka, na, kb, nb), (kb, nb, ka, na)):
+                if kx in "USuP" and ky == "F" and re.match(r"^-?(\d+\.\d*|\.\d+)([eE][-+]?\d+)?[fF]?$", ny): self.add(11, "high", line, fn, nx, st, "%s `%s` (int / pointer object) is compared with the float literal %s: the original compares integer bits (cmp / test)" % ("pointer" if kx == "P" else "int", nx, ny))
         # class 2
         for m in re.finditer(r"(?<![\w.])(\d+\.\d*(?:[eE]-?\d+)|\d+[eE]-\d+)[fF]?\b", st):
             if 0 < abs(float(m.group(1))) < 1e-30: self.add(2, "high", line, fn, m.group(1), st, "denormal float literal %s: an integer bit pattern (counter / flags) read as a float" % m.group(1))
@@ -734,7 +745,7 @@ def main():
     cols = ["cls", "sev", "tier", "file", "line", "function", "symbol", "diffemu", "enabled", "byte_identical", "text", "note"]
     with open(out_csv, "w", newline="") as fh:
         w = csv.DictWriter(fh, cols, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (

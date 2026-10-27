@@ -39,8 +39,11 @@ void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
       step = dt * k_f_0_001;
       dot_a = (matrix->at).z * g_car_62ac7c +
               (matrix->at).x * g_car_62ac74 + (matrix->at).y * g_car_62ac78;
-      dot_clamped = k_f_n1;
-      if ((k_f_n1 <= dot_a) && (dot_clamped = dot_a, float_1_0 < dot_a)) {
+      dot_clamped = dot_a;      /* clamp to -1..1; NaN passes unchanged (original: fcom / test ah,5 / jp, fcom / test ah,0x41 / jne) */
+      if (dot_a < k_f_n1) {
+        dot_clamped = k_f_n1;
+      }
+      else if (dot_a > float_1_0) {
         dot_clamped = float_1_0;
       }
       angle = (float10)FUN_004b3284((double)dot_clamped);
@@ -49,8 +52,11 @@ void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
                      rwCOMBINEPRECONCAT);
       dot_a = (matrix->right).z * g_car_62ac7c +
               g_car_62ac74 * (matrix->right).x + (matrix->right).y * g_car_62ac78;
-      dot_clamped = k_f_n1;
-      if ((k_f_n1 <= dot_a) && (dot_clamped = dot_a, float_1_0 < dot_a)) {
+      dot_clamped = dot_a;      /* clamp to -1..1; NaN passes unchanged (original: fcom / test ah,5 / jp, fcom / test ah,0x41 / jne) */
+      if (dot_a < k_f_n1) {
+        dot_clamped = k_f_n1;
+      }
+      else if (dot_a > float_1_0) {
         dot_clamped = float_1_0;
       }
       angle = (float10)FUN_004b3284((double)dot_clamped);

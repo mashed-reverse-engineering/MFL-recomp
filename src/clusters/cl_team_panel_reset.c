@@ -32,7 +32,7 @@ void team_panel_reset(void)
 
 {
   int built_entry;
-  int *team_entry;
+  TeamPanelEntry *team_entry;
   undefined *entry;
 
   /* clear the header of entries 0 and 1 */
@@ -43,27 +43,27 @@ void team_panel_reset(void)
   } while ((int)entry < (int)g_team_658fd8 + TEAM_ENTRY_LOOP_END);
   /* slot 0: append index 0 to the entry for its state */
   if ((g_player_slots[0].controller != PLAYER_SLOT_NO_CONTROLLER) && (g_player_slots[0].state != PLAYER_SLOT_STATE_UNUSED)) {
-    team_entry = (int *)((char *)g_team_658fd8 + g_player_slots[0].state * TEAM_ENTRY_STRIDE);
-    team_entry[team_entry[3]] = 0;
-    team_entry[3] = team_entry[3] + 1;
+    team_entry = (TeamPanelEntry *)((char *)g_team_658fd8 + g_player_slots[0].state * TEAM_ENTRY_STRIDE);
+    team_entry->player[team_entry->player_count] = 0;
+    team_entry->player_count = team_entry->player_count + 1;
   }
   /* slot 1: append index 1 */
   if ((g_player_slots[1].controller != PLAYER_SLOT_NO_CONTROLLER) && (g_player_slots[1].state != PLAYER_SLOT_STATE_UNUSED)) {
-    team_entry = (int *)((char *)g_team_658fd8 + g_player_slots[1].state * TEAM_ENTRY_STRIDE);
-    team_entry[team_entry[3]] = 1;
-    team_entry[3] = team_entry[3] + 1;
+    team_entry = (TeamPanelEntry *)((char *)g_team_658fd8 + g_player_slots[1].state * TEAM_ENTRY_STRIDE);
+    team_entry->player[team_entry->player_count] = 1;
+    team_entry->player_count = team_entry->player_count + 1;
   }
   /* slot 2: append index 2 */
   if ((g_player_slots[2].controller != PLAYER_SLOT_NO_CONTROLLER) && (g_player_slots[2].state != PLAYER_SLOT_STATE_UNUSED)) {
-    team_entry = (int *)((char *)g_team_658fd8 + g_player_slots[2].state * TEAM_ENTRY_STRIDE);
-    team_entry[team_entry[3]] = 2;
-    team_entry[3] = team_entry[3] + 1;
+    team_entry = (TeamPanelEntry *)((char *)g_team_658fd8 + g_player_slots[2].state * TEAM_ENTRY_STRIDE);
+    team_entry->player[team_entry->player_count] = 2;
+    team_entry->player_count = team_entry->player_count + 1;
   }
   /* slot 3: append index 3 */
   if ((g_player_slots[3].controller != PLAYER_SLOT_NO_CONTROLLER) && (g_player_slots[3].state != PLAYER_SLOT_STATE_UNUSED)) {
-    team_entry = (int *)((char *)g_team_658fd8 + g_player_slots[3].state * TEAM_ENTRY_STRIDE);
-    team_entry[team_entry[3]] = 3;
-    team_entry[3] = team_entry[3] + 1;
+    team_entry = (TeamPanelEntry *)((char *)g_team_658fd8 + g_player_slots[3].state * TEAM_ENTRY_STRIDE);
+    team_entry->player[team_entry->player_count] = 3;
+    team_entry->player_count = team_entry->player_count + 1;
   }
   /* build the team mask for entries 0 and 1 (the builder returns the entry it was given, inferred) */
   entry = g_team_658fd8;
