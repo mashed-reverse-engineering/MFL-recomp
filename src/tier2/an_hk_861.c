@@ -73,7 +73,7 @@ void fx_floating_text_update(void)
       *slot_age = frame.age;
       slot_pos[1].x = frame.age;
       /* Still alive: draw with pulse scale and fade */
-      if (frame.age <= float_1_0) {
+      if (!(frame.age > float_1_0)) {      /* NaN counts as alive (original: fcomp, test ah,0x41, jne) */
         pulse_scale = sin((double)frame.age * (double)k_f_2_3561945) * slot_pos[1].z;
         frame.alpha = ((int)((frame.age * frame.age) * 64.0f));
         frame.scale.x = (RwReal)pulse_scale;

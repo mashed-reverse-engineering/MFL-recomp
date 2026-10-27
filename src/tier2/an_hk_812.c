@@ -42,8 +42,8 @@ void triggers_sort_axis(void)
         /* inner loop: test a against each b from b_start to the last trigger */
         do {
           /* only pairs of different type, and only if a or b has a callback */
-          if ((a_y[3] != b_y[3]) &&
-             ((a_callback = *(code **)&a_y[6], a_callback != (code *)0x0 || (b_y[6] != 0.0)))) {
+          if ((*(int *)&a_y[3] != *(int *)&b_y[3]) &&      /* integer compares, as the original (cmp eax,[esi+0xc] / test ecx,ecx) */
+             ((a_callback = *(code **)&a_y[6], a_callback != (code *)0x0 || (*(int *)&b_y[6] != 0)))) {
             dx = ((Trigger *)(a_y + -1))->position_radius[0] -
                     ((Trigger *)(b_y + -1))->position_radius[0];
             /* sphere overlap: squared centre distance < (r_a + r_b)^2 */

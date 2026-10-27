@@ -95,7 +95,7 @@ void particle_pool_find_oldest_or_free(int pool_index,RwReal *src_matrix,RwReal 
   /* find the first free record (alive word == 0); iVar5 is the record index here */
   iVar5 = 0;
   if (0 < pool_capacity) {
-    while (pool[1].right.z != 0.0) {
+    while (*(int *)&pool[1].right.z != 0) {      /* integer alive word (original: mov ecx,[ebx+0x48]; test ecx,ecx) */
       iVar5 = iVar5 + 1;
       pool = (RwMatrix *)&pool[1].up;
       if (pool_capacity <= iVar5) {

@@ -107,7 +107,8 @@ void __cdecl fx_particle_spawn_from_style(float *style_inst)
   }
   else {
     alpha = (double)(uint)(byte)(&g_effects_update_76df37)[style_off];
-    frame.col_a = (int)(alpha * (double)*style_inst * (double)k_f_0_5 + alpha * (double)k_f_0_5);
+    /* the original computes (alpha * scale) * 0.5 + alpha * 0.5 as two separate products; the compiler would otherwise factor the sum into alpha * (scale + 1) * 0.5 (different rounding): the second operand is re-read through a volatile access */
+    frame.col_a = (int)(alpha * (double)*style_inst * (double)k_f_0_5 + (double)(uint)*(volatile byte *)&(&g_effects_update_76df37)[style_off] * (double)k_f_0_5);
   }
   frame.field_38 = *(undefined4 *)((char *)&g_effects_update_76df54 + style_off);
   frame.life_scale = *(float *)((char *)&g_effects_update_76df38 + style_off) / *style_inst;

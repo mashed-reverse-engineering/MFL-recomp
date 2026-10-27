@@ -36,10 +36,10 @@ void __cdecl camera_pick_ground_point(int index,RwV3d *out_dir,float *out_offset
   view_exceptions = gamesave_ptr_to_line_exceptions();
   if (view_exceptions != 0) {
     exception_row = (float *)(view_exceptions + index * 0xc);
-    if (exception_row[2] != -1.0) {
+    if (*(unsigned int *)&exception_row[2] != 0xbf800000) {      /* integer compare with the bits of -1.0f, as the original */
       *out_offset = exception_row[2];
     }
-    if (*exception_row != -1.0) {
+    if (*(unsigned int *)exception_row != 0xbf800000) {
       RwMatrixRotate(&frame.rot_matrix,(RwV3d *)&g_car_62ac68,k_f_90 - *exception_row,rwCOMBINEREPLACE);
       RwV3dTransformVectors(out_dir,&frame.down_dir,1,&frame.rot_matrix);
       RwMatrixRotate(&frame.rot_matrix,(RwV3d *)&g_car_62ac74,exception_row[1] + k_f_180,rwCOMBINEREPLACE);

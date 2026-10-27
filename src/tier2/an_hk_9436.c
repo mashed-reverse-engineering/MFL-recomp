@@ -100,13 +100,11 @@ void sound_surface_roll_voices_update(int car)
       slot2 = GROUP_BASE(0x7d0) + car;
       volume = speed * k_f_0_001;
     }
-    if (volume <= float_1_0) {
-      if (volume < k_f_0) {
-        volume = 0.0f;
-      }
-    }
-    else {
+    if (volume > float_1_0) {      /* NaN passes both clamps unchanged (original: fcomp, test ah,0x41, jne) */
       volume = 1.0f;
+    }
+    else if (volume < k_f_0) {
+      volume = 0.0f;
     }
     voice_set_position_from_car(slot, car);
     if ((VOICE_FIELD(slot, unsigned char, 0x34) & 2) == 0) {

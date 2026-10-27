@@ -120,7 +120,7 @@ LAB_0049d8b5:
             *(float *)&(&g_fx_slots_76c4e8)[byte_index * 0xd];
   frame.local_8 = (float)(rnd * (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x30) +
                    (double)*(float *)&(&g_fx_slots_76c4e4)[byte_index * 0xd]);
-  if (fVar1 <= float_1_0) {
+  if (!(fVar1 > float_1_0)) {      /* NaN counts as alive (original: fcomp, test ah,0x41, jne) */
     rnd = rnd * (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
     rnd = rnd + rnd + (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
     frame.local_10 = (float)rnd;
