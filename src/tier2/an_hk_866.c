@@ -50,10 +50,10 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
     target_x = (float)angle;
   }
   /* bring the heading up into the positive range (loop adds 360 while <= 0, inferred) */
-  if (angle < k_f_0 != (angle == k_f_0)) {
+  if (angle <= k_f_0) {
     do {
       angle = angle + (double)k_f_360;
-    } while (angle < k_f_0 != (angle == k_f_0));
+    } while (angle <= k_f_0);
     target_x = (float)angle;
   }
   /* second heading: the car's forward vector (car_get_forward), same steps as above */
@@ -68,17 +68,17 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
   if (frame.dir.z - frame.dir.x * k_f_0 < k_f_0) {
     angle = -angle;
   }
-  if (angle < k_f_0 != (angle == k_f_0)) {
+  if (angle <= k_f_0) {
     do {
       angle = angle + (double)k_f_360;
-    } while (angle < k_f_0 != (angle == k_f_0));
+    } while (angle <= k_f_0);
   }
   /* turn needed = target heading - forward heading */
   angle = (double)target_x - angle;
-  if (angle < k_f_0 != (angle == k_f_0)) {
+  if (angle <= k_f_0) {
     do {
       angle = angle + (double)k_f_360;
-    } while (angle < k_f_0 != (angle == k_f_0));
+    } while (angle <= k_f_0);
   }
   /* wrap the difference into 0..360 */
   if (angle < k_f_0) {

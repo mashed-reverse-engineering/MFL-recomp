@@ -74,10 +74,10 @@ void course_path_segments_distance_and_heading(int course)
         if (frame.dir.x * k_f_0 - frame.dir.y < k_f_0) {
           heading = -heading;
         }
-        if (heading < k_f_0 != (heading == k_f_0)) {
+        if (heading <= k_f_0) {
           do {
             heading = heading + (float10)k_f_360;
-          } while (heading < k_f_0 != (heading == k_f_0));
+          } while (heading <= k_f_0);
         }
         *(float *)(course + (frame.path_row_offset + 0x1800 + seg) * 4) = (float)heading;
         seg = next_seg;

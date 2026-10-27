@@ -19,7 +19,7 @@ void FUN_0056f3a0(float *merged_box,float *box_a,float *box_b)
   }
   merged_box[4] = chosen;
   /* max corner, y (inferred). Picks box_b only when box_b > box_a. Ties keep box_a; NaN picks box_b */
-  if (box_b[5] < box_a[5] == (box_b[5] == box_a[5])) {
+  if (!(box_b[5] <= box_a[5])) {
     chosen = box_b[5];
   }
   else {
@@ -27,7 +27,7 @@ void FUN_0056f3a0(float *merged_box,float *box_a,float *box_b)
   }
   merged_box[5] = chosen;
   /* max corner, z (inferred), same selection rule as y */
-  if (box_b[6] < box_a[6] == (box_b[6] == box_a[6])) {
+  if (!(box_b[6] <= box_a[6])) {
     chosen = box_b[6];
   }
   else {
@@ -35,7 +35,7 @@ void FUN_0056f3a0(float *merged_box,float *box_a,float *box_b)
   }
   merged_box[6] = chosen;
   /* min corner, x (inferred). Picks box_b only when box_a > box_b */
-  if (*box_a < *box_b == (*box_a == *box_b)) {
+  if (!(*box_a <= *box_b)) {
     chosen = *box_b;
   }
   else {

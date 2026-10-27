@@ -8,7 +8,7 @@
 void gap_5caf10(char *param_1,char *unused_2,float *param_3)
 
 {
-  if (*param_3 < k_f_0 != (*param_3 == k_f_0)) {
+  if (*param_3 <= k_f_0) {
     *(float *)(param_1 + 0x98) = k_f_1_0en5;
     *(uint *)(param_1 + 0x28) = *(uint *)(param_1 + 0x28) | 4;
     return;

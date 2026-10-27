@@ -231,7 +231,7 @@ void __cdecl camera_update(int *camera,int force_snap)
     tmp_world = weapon_get_rw_801b14();
     hit_found7 = world_intersect_line((RpWorld *)tmp_world,(undefined4)pos_ptr_c,(undefined4)hit_ptr2);
     if (hit_found7 == 0) {
-      if (*(float *)&camera[0x269] < k_f_2_5 != (*(float *)&camera[0x269] == k_f_2_5)) {
+      if (*(float *)&camera[0x269] <= k_f_2_5) {
         camera[0x269] = 0x40200000;
       }
       if (cast_len_f <= *(float *)&camera[0x269]) {

@@ -27,7 +27,7 @@
    reaches 320, then the hold timer (g_intro_652dfc) is set to 5 s and the state becomes 2.
    State 2 (hold): the hold timer counts down by g_tick_seconds; at 0 the state becomes 3.
    State 3 (slide out): the banner falls at 700 units/s until it reaches -320, then state 0.
-   The `a < b != (a == b)` pattern is the decompiler's rendering of `a <= b`. */
+   (The three `<=` tests used to read `a < b != (a == b)`, the decompiler's rendering of the same fcomp / test ah,0x41 / jp.) */
 
 void intro_banner_update(void)
 
@@ -36,7 +36,7 @@ void intro_banner_update(void)
   if (g_intro_652df0 == BANNER_STATE_SLIDE_IN) {
     g_intro_652df4 = g_intro_652df4 - g_tick_seconds * k_f_700;
     /* banner reached its rest position (y <= 320): park it there and start the 5 s hold */
-    if (g_intro_652df4 < k_f_320 != (g_intro_652df4 == k_f_320)) {
+    if (g_intro_652df4 <= k_f_320) {
       g_intro_652df4 = BANNER_REST_Y;
       g_intro_652dfc = BANNER_HOLD_SECONDS;
       g_intro_652df0 = BANNER_STATE_HOLD;
@@ -46,7 +46,7 @@ void intro_banner_update(void)
   else if (g_intro_652df0 == BANNER_STATE_HOLD) {
     g_intro_652dfc = g_intro_652dfc - g_tick_seconds;
     /* hold time is over (timer <= 0) */
-    if (g_intro_652dfc < k_f_0 != (g_intro_652dfc == k_f_0)) {
+    if (g_intro_652dfc <= k_f_0) {
       g_intro_652df0 = BANNER_STATE_SLIDE_OUT;
       return;
     }
@@ -55,7 +55,7 @@ void intro_banner_update(void)
   else if (g_intro_652df0 == BANNER_STATE_SLIDE_OUT) {
     g_intro_652df4 = g_intro_652df4 - g_tick_seconds * k_f_700;
     /* banner is off screen: go idle (inferred) */
-    if (g_intro_652df4 < k_f_n320 != (g_intro_652df4 == k_f_n320)) {
+    if (g_intro_652df4 <= k_f_n320) {
       g_intro_652df0 = 0;
       return;
     }

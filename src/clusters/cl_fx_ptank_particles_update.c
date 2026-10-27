@@ -153,7 +153,7 @@ LAB_00497ead:
                 *active_byte = *active_byte & ~('\x01' << active_bit);
                 goto LAB_00497ebe;
               }
-              if (p[-5] - frame.query_y < k_f_0_001 != (p[-5] - frame.query_y == k_f_0_001)) {
+              if (p[-5] - frame.query_y <= k_f_0_001) {
                 if ((*(uint *)&p[10] & 2) != 0) {
                   pool_push(g_particles_7519b8,index);
                   *active_byte = *active_byte & ~('\x01' << active_bit);

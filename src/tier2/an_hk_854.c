@@ -77,7 +77,7 @@ void __cdecl weapon_flame_push_cars(int flame_arg,undefined4 unused_2,undefined4
 
   flame = flame_arg;
   if ((*(int *)(flame_arg + FLAME_ACTIVE_OFFSET) != 0) &&
-     (*(float *)(flame_arg + FLAME_TIMER_OFFSET) < k_f_0 != (*(float *)(flame_arg + FLAME_TIMER_OFFSET) == k_f_0))) {
+     (*(float *)(flame_arg + FLAME_TIMER_OFFSET) <= k_f_0)) {
     /* particle origin: position of the origin frame */
     frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(flame_arg + FLAME_ORIGIN_HOLDER_OFFSET) + 4));
     vec.pos_x = (frame_ltm->pos).x;

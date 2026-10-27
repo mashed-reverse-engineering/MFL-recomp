@@ -38,7 +38,7 @@ undefined4 career_time_under_target(void)
   elapsed_secs = elapsed_secs + (double)(minutes * SECONDS_PER_MINUTE + seconds);
   row_limit_secs = (double)(row_limit_base + row_limit_extra_2 + row_limit_extra_1);
   /* same as elapsed_secs <= row_limit_secs (false for NaN) */
-  if (elapsed_secs < row_limit_secs != (elapsed_secs == row_limit_secs)) {
+  if (elapsed_secs <= row_limit_secs) {
     return 1;
   }
   return 0;

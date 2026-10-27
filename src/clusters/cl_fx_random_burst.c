@@ -22,7 +22,7 @@ void fx_random_burst_n(int in_esi, undefined4 in_ecx)
   RwMatrix *reg_eax_00;
   float10 fVar1;
   
-  if (*(float *)(in_esi + 0xa0) < k_f_0 == (*(float *)(in_esi + 0xa0) == k_f_0)) {
+  if (!(*(float *)(in_esi + 0xa0) <= k_f_0)) {
     *(float *)(in_esi + 0xa0) = *(float *)(in_esi + 0xa0) - g_tick_seconds;
   }
   else {

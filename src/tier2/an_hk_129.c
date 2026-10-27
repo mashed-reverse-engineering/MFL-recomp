@@ -10,7 +10,7 @@ void __cdecl FUN_0056f450(float *result,float *box_a,float *box_b)
   float value;
 
   /* component 4: smaller of the two (the NaN-aware compare picks box_b when unordered) */
-  if (box_a[4] < box_b[4] == (box_a[4] == box_b[4])) {
+  if (!(box_a[4] <= box_b[4])) {
     value = box_b[4];
   }
   else {
@@ -41,7 +41,7 @@ void __cdecl FUN_0056f450(float *result,float *box_a,float *box_b)
   }
   *result = value;
   /* component 1: larger of the two */
-  if (box_b[1] < box_a[1] == (box_b[1] == box_a[1])) {
+  if (!(box_b[1] <= box_a[1])) {
     value = box_b[1];
   }
   else {
@@ -49,7 +49,7 @@ void __cdecl FUN_0056f450(float *result,float *box_a,float *box_b)
   }
   result[1] = value;
   /* component 2: larger of the two; returns early when box_a[2] is the pick */
-  if (box_b[2] < box_a[2] != (box_b[2] == box_a[2])) {
+  if (box_b[2] <= box_a[2]) {
     result[2] = box_a[2];
     return;
   }

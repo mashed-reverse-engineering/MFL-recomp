@@ -24,7 +24,7 @@ undefined4 __cdecl vec3_is_valid_small(float *vec)
          length_sq > k and for NaN (unordered), false for length_sq <= k */
       if ((is_finite != 0) &&
          (length_sq = vec[2] * vec[2] + *vec * *vec + vec[1] * vec[1],
-         length_sq < k_f_1_0en6 == (length_sq == k_f_1_0en6))) {
+         !(length_sq <= k_f_1_0en6))) {
         return 1;
       }
     }

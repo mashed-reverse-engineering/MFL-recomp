@@ -153,7 +153,7 @@ void course_warzone_cb1_sub_45d1b0(WarzoneZone *zone, int ticks)
       zone->anim_time = zone->anim_time - step;
       RtAnimInterpolatorSubAnimTime(*(RtAnimInterpolator **)((int)zone->hierarchy + 0x20),step)
       ;
-      if (zone->anim_time < k_f_0 != (zone->anim_time == k_f_0)) {
+      if (zone->anim_time <= k_f_0) {
         anim_stop(zone);
         *(undefined4 *)&zone->anim_time = 0;
         RtAnimInterpolatorSetCurrentTime

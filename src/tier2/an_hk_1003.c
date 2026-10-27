@@ -89,7 +89,7 @@ joined_r0x00417a28:
         }
         else if ((((type_id != 10) || (*(int *)&trigger_ptr[2] == 0)) ||
                  (tmp_i = *(int *)(*(int *)&trigger_ptr[2] + 4), tmp_i == 0)) ||
-                !(*(float *)(tmp_i + 0x10) < k_f_0_4))) {      /* NaN enters (original: test ah,5; jnp) */
+                !(k_f_0_4 > *(float *)(tmp_i + 0x10))) {      /* NaN enters (original: test ah,5; jnp) */
           frame.zone_height = *trigger_ptr;
           if (type_id == 13) {
             frame.zone_height = frame.zone_height + frame.zone_height;

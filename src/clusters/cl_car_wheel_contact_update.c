@@ -99,7 +99,7 @@ void car_wheel_contact_update_n(void *world, Car *car, int limit_angle)
       if (0.02f <= d) {
         lifted++;
       }
-      if (d < -0.005f != (d == -0.005f)) {
+      if (d <= -0.005f) {
         sunk++;
       }
     }
@@ -112,7 +112,7 @@ void car_wheel_contact_update_n(void *world, Car *car, int limit_angle)
     w = &car->wheels[i];
     d = w->contact_distance;
     if (w->in_contact == 0) {
-      if (-2.0f < d && d < 0.0f != (d == 0.0f)) {
+      if (-2.0f < d && d <= 0.0f) {
         w->in_contact = 2;
         speed_dot = (car->forward[2] * car->velocity[2] + car->forward[0] * car->velocity[0] + car->forward[1] * car->velocity[1]) / car->speed;
         if (speed_dot != 0.0f && (-0.1f < speed_dot && speed_dot < 0.1f)) {
@@ -329,7 +329,7 @@ settle:
     }
   }
   car->wheels_in_contact = (float)count;
-  if (car->mode == 0 && (float)count != 0.0f && ((float)count < 2.0f != ((float)count == 2.0f))) {
+  if (car->mode == 0 && (float)count != 0.0f && ((float)count <= 2.0f)) {
     unsigned char n;
 
     n = car->wheels[0].in_contact != 1;

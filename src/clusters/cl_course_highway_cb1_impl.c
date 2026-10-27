@@ -32,7 +32,7 @@ void course_highway_cb1_impl(void)
   pfVar3 = (float *)0x6a081c;
   pfVar2 = (float *)&g_course_particle_6a1418;
   do {
-    if (*pfVar2 < g_course_particle_60d8a4 != (*pfVar2 == g_course_particle_60d8a4)) {
+    if (*pfVar2 <= g_course_particle_60d8a4) {
       frame.uStack_4 = g_data_60d8ac >> 0x18;
       frame.fStack_8 = *pfVar2 / g_course_particle_60d8a4;
       frame.uStack_c = g_data_60d8ac;
