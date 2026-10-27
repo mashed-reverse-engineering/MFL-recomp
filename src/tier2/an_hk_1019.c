@@ -7,7 +7,7 @@
 
 /* function pointer pushed/stored by player_time_update (PUSH 0x408ef0) */
 
-/* TIER2: unvalidated 2026-10-27 authority=static */
+/* TIER2: unvalidated 2026-10-27 authority=diffemu */
 void player_time_update_cb_408ef0(char *unused_1,char *param_2,undefined4 *param_3,char *unused_4,int *param_5)
 {
   int iVar1;

@@ -5,7 +5,7 @@
 
 /* function pointer pushed/stored by rwp_world_create_once (PUSH 0x491280) */
 
-/* TIER2: unvalidated 2026-10-27 authority=static */
+/* TIER2: unvalidated 2026-10-27 authority=diffemu */
 int rwp_world_create_once_cb_491280(int param_1,char *unused_2,undefined4 *param_3,char *unused_4,char *param_5)
 {
   struct {

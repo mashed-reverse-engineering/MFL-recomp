@@ -3,6 +3,7 @@
 
 /* Listener3D position setter: copies *v, marks LISTENER3D_DIRTY_POSITION. */
 
+/* TIER2: unvalidated 2026-10-27 authority=diffemu */
 void gap_5b9a40(Listener3D *listener,char *unused_2,const RwV3d *v)
 {
   listener->position.x = v->x;

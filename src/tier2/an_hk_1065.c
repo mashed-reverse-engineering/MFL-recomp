@@ -5,7 +5,7 @@
 
 /* function pointer pushed/stored by car_probe_ground_distance (PUSH 0x47b420) */
 
-/* TIER2: unvalidated 2026-10-27 authority=static */
+/* TIER2: unvalidated 2026-10-27 authority=diffemu */
 void car_probe_ground_distance_cb_47b420(char *unused_1,char *hit_mesh,char *hit_record,float hit_fraction,float *best_dist)
 {
   int surface_colour;

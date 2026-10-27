@@ -3,6 +3,7 @@
 
 /* Listener3D orientation getter into a matrix (up row = front, at row = top, right row = side). */
 
+/* TIER2: unvalidated 2026-10-27 authority=diffemu */
 char *gap_5b9b40(Listener3D *listener,char *unused_2,RwMatrix *out)
 {
   out->up.x = listener->front.x;
