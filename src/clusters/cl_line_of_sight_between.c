@@ -75,8 +75,7 @@ undefined4 line_of_sight_between_n(int shooter, float *target_pos, float max_ran
   }
   angle_rad = (float10)dot_product_3d_clamped(&frame.flat_dir,shooter_node + 0x30);
   angle_rad = (float10)FUN_004b3284((double)angle_rad);
-  if (((float10)k_f_57_29578 * angle_rad < (float10)max_angle_deg !=
-       ((float10)k_f_57_29578 * angle_rad == (float10)max_angle_deg)) &&
+  if (((float10)k_f_57_29578 * angle_rad <= (float10)max_angle_deg) &&
      (distance <= max_range)) {
     return 1;
   }

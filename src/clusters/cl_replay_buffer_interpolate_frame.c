@@ -185,12 +185,12 @@ void __cdecl replay_buffer_interpolate_frame(ReplaySampler *sampler, unsigned in
     return;
   }
   frame.alpha = (float)(unsigned int)(time - key->time) / (float)(unsigned int)(next->time - key->time);
-  if (frame.alpha < 0.0f || frame.alpha == 0.0f) {
+  if (frame.alpha <= 0.0f) {
     frame.quat[0] = key->rotation[0];
     frame.quat[1] = key->rotation[1];
     frame.quat[2] = key->rotation[2];
     frame.quat[3] = key->rotation[3];
-  } else if (1.0f < frame.alpha || 1.0f == frame.alpha) {
+  } else if (1.0f <= frame.alpha) {
     frame.quat[0] = next->rotation[0];
     frame.quat[1] = next->rotation[1];
     frame.quat[2] = next->rotation[2];

@@ -56,7 +56,7 @@ undefined4 __cdecl ai_find_leader_a(int bot_index)
       }
       /* leader distance at or above float_1_0: return 0 and keep the far time.
          Below float_1_0: fall through and reset the far time. */
-      if ((double)float_1_0 <= leader_dist) {
+      if (!((double)float_1_0 > leader_dist)) {
         return 0;
       }
       bot->leader_far_ms = 0;

@@ -98,8 +98,7 @@ void rocket_update_launcher_n(int launcher)
   *(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) =
        *(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) - g_tick_seconds;
 LAB_004616d1:
-  if (*(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) < k_f_0 !=
-      (*(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) == k_f_0)) {
+  if (*(float *)((char *)&g_rocket_update_6a6004 + slot_byte_offset) <= k_f_0) {
     frame.label_g = 0xff;
     frame.label_a = 0xff;
     frame.label_r = 0;

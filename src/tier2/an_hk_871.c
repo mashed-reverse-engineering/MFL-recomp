@@ -45,7 +45,7 @@ undefined4 plane_classify_point(float *plane,float *point,RwReal *out_distance)
     return PLANE_CLASS_GREATER;
   }
   result = PLANE_CLASS_LESS;
-  if (k_f_0 <= frame.d) {
+  if (!(k_f_0 > frame.d)) {
     result = PLANE_CLASS_EQUAL;
   }
   return result;

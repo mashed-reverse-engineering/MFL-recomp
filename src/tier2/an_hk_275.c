@@ -31,9 +31,9 @@ void particle_emitters_update_all(void)
   emitter_timing = (float *)&g_effects_update_6c4210;
   /* walk every emitter slot up to the particle buckets */
   do {
-    if (emitter_timing[2] != 0.0) {
+    if (*(int *)&emitter_timing[2] != 0) {      /* an int flag (original: cmp dword, 0) */
       /* still inside its duration: step elapsed time, publish progress, update the emitter */
-      if (*emitter_timing <= emitter_timing[-1]) {
+      if (!(*emitter_timing > emitter_timing[-1])) {
         smoke_emitter_update(emitter_timing + -EMITTER_BASE_OFFSET_DWORDS);
         new_elapsed = g_tick_seconds + *emitter_timing;
         *emitter_timing = new_elapsed;

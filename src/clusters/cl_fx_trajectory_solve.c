@@ -73,7 +73,7 @@ void fx_trajectory_solve(int unused_player, int seg, int list, float *pos, Traje
   rp = course_get_record_pos(seg);
   rb = course_get_record_base(seg);
   dist = plane_dist(pos, rp, rb);
-  if (!(dist < k_f_0) && !(dist == k_f_0)) {
+  if (!(dist <= k_f_0)) {
     /* in front of the record plane: walk forward until the plane is crossed */
     found = 0;
     iter = 0;
