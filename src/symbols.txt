@@ -7927,6 +7927,7 @@ g_course_physics_6a18dc 006a18dc
 g_course_neustein_6a1d88 006a1d88
 g_course_neustein_6a1d8c 006a1d8c
 g_course_neustein_6a1d90 006a1d90
+g_course_neustein_6a1d94 006a1d94
 g_data_6a1d98 006a1d98
 g_data_6a1d9c 006a1d9c
 g_course_neustein_6a1da0 006a1da0
@@ -10726,6 +10727,7 @@ g_course_active_8c8a90 008c8a90
 g_vehicle_slots_8c8ad0 008c8ad0
 g_game_8c8ad4 008c8ad4
 g_player_stats_race 008c8ae0
+g_game_8c8ae4 008c8ae4
 g_load_copters_8c8b2c 008c8b2c
 g_player_stats_result 008c8fc0
 g_player_stats_total 008c94a0
