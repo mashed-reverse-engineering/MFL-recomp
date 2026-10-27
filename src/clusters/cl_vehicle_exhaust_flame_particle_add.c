@@ -61,7 +61,7 @@ void vehicle_exhaust_flame_particle_add_n(VehicleRecord *vehicle, LightObject *l
     RwMatrixScale(&f.rear, &f.scale, rwCOMBINEPRECONCAT);
     RwMatrixUpdate(&f.rear);
     dot = RwFrame_modelling(light->frame).at.y * f.rear.at.y + RwFrame_modelling(light->frame).at.x * f.rear.at.x + RwFrame_modelling(light->frame).at.z * f.rear.at.z;
-    if (!(k_f_0 < dot))
+    if (k_f_0 >= dot)
         dot = k_f_0;
     f.colour[3] = (unsigned char)(int)(dot * k_f_64);
     particles_set_color(f.colour);

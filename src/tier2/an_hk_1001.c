@@ -78,7 +78,7 @@ void car_damage_smoke_update(void)
     car_get_velocity_any_mode(&frame.velocity,car);
     RwV3dLength(&frame.velocity);
     strength = (*damage_ptr2 + *damage_ptr) * k_f_0_01;
-    if (k_f_0 <= strength) {
+    if (!(k_f_0 > strength)) {
       slot_used = race_setup_slot_used(car);
       if (slot_used != 0) {
         rnd = (double)random_range(0,0x3f800000);
@@ -106,7 +106,7 @@ void car_damage_smoke_update(void)
   damage_ptr = (float *)&g_car_damage_65aae4;
   do {
     fVar2 = *damage_ptr;
-    if ((float_1_0 <= fVar2) || (fVar2 < k_f_0)) {
+    if ((!(float_1_0 > fVar2)) || (fVar2 < k_f_0)) {
       (&g_car_damage_65a9d8)[car >> 3] =
            (&g_car_damage_65a9d8)[car >> 3] & ~('\x01' << ((byte)car & 7));
     }

@@ -57,8 +57,8 @@ void rocket_fly_homing_n(RocketRecord *rocket)
   frame_obj.target_world.y = *(float *)(frame_obj.target_matrix + 0x34) + k_f_0_2;
   RwV3dTransformPoints(&frame_obj.target_local,&frame_obj.target_world,1,&frame_obj.inv_matrix);
   RwV3dNormalize(&frame_obj.target_dir,&frame_obj.target_local);
-  if (frame_obj.target_dir.y <= k_f_0_2) {
-    if (k_f_n0_2 <= frame_obj.target_dir.y) {
+  if (!(frame_obj.target_dir.y > k_f_0_2)) {
+    if (!(k_f_n0_2 > frame_obj.target_dir.y)) {
       *(undefined4 *)&rocket->pitch_rate = 0;
     }
     else {
@@ -68,8 +68,8 @@ void rocket_fly_homing_n(RocketRecord *rocket)
   else {
     *(undefined4 *)&rocket->pitch_rate = 0xc1a00000;
   }
-  if (frame_obj.target_dir.x <= k_f_0_2) {
-    if (k_f_n0_2 <= frame_obj.target_dir.x) {
+  if (!(frame_obj.target_dir.x > k_f_0_2)) {
+    if (!(k_f_n0_2 > frame_obj.target_dir.x)) {
       *(undefined4 *)&rocket->yaw_rate = 0;
     }
     else {

@@ -94,7 +94,7 @@ void trail_render(void)
           frame_obj.scale.z = *(float *)&trail->w20 * k_f_4;
           camera = get_viewport_camera(0);
           view_dist = (double)distance_between_points(&frame_obj.ext_a_x,&frame_obj.ext_b_x,*(int *)(camera + 4) + 0x40);
-          if ((double)k_f_0_001 <= view_dist) {
+          if (!((double)k_f_0_001 > view_dist)) {
             if ((double)float_5_0 < view_dist) {
               view_dist = (double)float_5_0;
             }

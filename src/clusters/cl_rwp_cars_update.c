@@ -150,7 +150,7 @@ int rwp_cars_update(void)
         if (k_f_180 < angle) {
           angle = -(k_f_360 - angle);
         }
-        if (angle <= k_f_0) {
+        if (!(angle > k_f_0)) {
           angle = -(angle + k_f_180);
         }
         else {

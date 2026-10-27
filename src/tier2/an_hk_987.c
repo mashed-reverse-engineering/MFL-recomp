@@ -26,7 +26,7 @@ void hud_bomb_timer_text(void)
   
   local_4 = 60.0;
   fVar2 = (double)ai_get_counter(0);
-  if (fVar2 <= (double)k_f_2) {
+  if (!(fVar2 > (double)k_f_2)) {
     g_hud_bomb_64d8d0 = 0.0;
   }
   else {

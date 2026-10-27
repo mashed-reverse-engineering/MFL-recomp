@@ -741,7 +741,7 @@ void __cdecl camera_update(int *camera,int force_snap)
       *(float *)&camera[0x15] = target_z_v;
       camera[0x16] = 0x3f19999a;
       if (target_z_v == k_f_0) {
-        if (k_f_0 <= target_x3) {
+        if (!(target_x3 < k_f_0)) {      /* NaN takes the 90 branch (as atan2_degrees) */
           tmp_g_ = 90.0;
         }
         else {
@@ -763,7 +763,7 @@ void __cdecl camera_update(int *camera,int force_snap)
         target_z_v = _rwSqrt(target_z_v);
       }
       if (target_z_v == k_f_0) {
-        if (k_f_0 <= target_y3) {
+        if (!(target_y3 < k_f_0)) {      /* NaN takes the 90 branch (as atan2_degrees) */
           tmp_g_ = 90.0;
         }
         else {

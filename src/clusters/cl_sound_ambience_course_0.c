@@ -134,7 +134,7 @@ void sound_ambience_course_0(void)
   sound_voice_restart_22050(slot);
   level = (camera[1] + s_333_Lap_frames_005df368) * k_f_0_125 - k_f_0_25;
   progress = k_f_0;
-  if (level >= k_f_0) {
+  if (!(level < k_f_0)) {
     progress = level;
     if (level > float_1_0) {
       progress = float_1_0;

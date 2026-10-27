@@ -137,7 +137,7 @@ void sound_ambience_course_21(void)
     return;
   }
   camera_get_position(camera);
-  if (camera[0] <= k_f_70) {
+  if (!(camera[0] > k_f_70)) {
     level = 0.3f;
   } else {
     level = (camera[0] - k_f_70) * k_f_0_0125 + k_f_0_3;
@@ -149,7 +149,7 @@ void sound_ambience_course_21(void)
   sound_voice_start_22050(slot);
   volume = (camera[1] + float_1_0) * k_f_0_1 + k_f_0_5;
   clamped = k_f_0;
-  if (volume >= k_f_0) {
+  if (!(volume < k_f_0)) {
     clamped = volume;
     if (volume > float_1_0) {
       clamped = float_1_0;
@@ -177,7 +177,7 @@ void sound_ambience_course_21(void)
   if (*(int *)(g_voices[slot].voice + 0x30) != 0) {
     FUN_005b72a0(*(int *)(g_voices[slot].voice + 0x30), 0, 1, position);
   }
-  if (object[2] <= k_f_88 || (g_sound_ambience_6ae1c4 = 1.0f, g_sound_ambience_6ae1c0 != 0)) {
+  if (!(object[2] > k_f_88) || (g_sound_ambience_6ae1c4 = 1.0f, g_sound_ambience_6ae1c0 != 0)) {
     g_sound_ambience_6ae1c4 = 0.0f;
   }
   if (k_f_104 < object[2] && g_sound_ambience_6ae1c0 == 0 && *(unsigned int *)&object[0] == 0x42e8d64c) {

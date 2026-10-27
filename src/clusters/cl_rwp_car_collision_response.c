@@ -74,7 +74,7 @@ static void evlog_contact(Frame *f, int code)
       ((int *)&g_event_log_data[g_event_log_head])[k] = f->data[k + 5];
     }
     g_event_log_head = g_event_log_head + 1;
-    if (0xff < g_event_log_head) {
+    if (0xffu < (unsigned int)g_event_log_head) {      /* unsigned index in the original (ja) */
       g_event_log_head = 0;
     }
   }

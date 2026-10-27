@@ -130,7 +130,7 @@ static void evlog_push(int type, int param, Frame *f)
       ((unsigned *)&g_event_log_data[g_event_log_head])[k] = f->ev_data[k];
     }
     g_event_log_head = g_event_log_head + 1;
-    if (0xff < g_event_log_head) {
+    if (0xffu < (unsigned int)g_event_log_head) {      /* the head is an unsigned index in the original (ja) */
       g_event_log_head = 0;
     }
   }

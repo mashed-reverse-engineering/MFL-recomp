@@ -31,7 +31,7 @@ void fx_spawn_burst(float *center, int count, float *velocity, unsigned int *col
   double brighten;
   int remaining;
 
-  if (life <= 0.0f) {
+  if (!(life > 0.0f)) {
     p.life_scale = 0.16666667f;
   } else {
     p.life_scale = life;

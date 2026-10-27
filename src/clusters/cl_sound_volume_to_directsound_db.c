@@ -25,7 +25,7 @@ undefined4 sound_volume_to_directsound_db(void)
   if (hr == DSERR_UNSUPPORTED) {
     return 0;
   }
-  if (k_f_0_1 <= volume) {
+  if (!(k_f_0_1 > volume)) {
     attenuation = (int)(volume * k_f_n2000);
     base = -2000;
   }

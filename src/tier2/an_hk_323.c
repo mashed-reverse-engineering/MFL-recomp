@@ -40,7 +40,7 @@ float * fx_trail_particle_spawn(float *pos,float emit_gate,float scale,int emitt
     dx = *(float *)((char *)&g_particles_745ce8 + emitter_slot) - *pos;
     dy = *(float *)((char *)&g_particles_745cec + emitter_slot) - pos_y;
     dz = *(float *)((char *)&g_particles_745cf0 + emitter_slot) - pos_z;
-    if (emit_gate <= k_f_0) {
+    if (!(emit_gate > k_f_0)) {      /* NaN resets the point (original: fcomp, test ah,0x41, jne) */
       *(float *)((char *)&g_particles_745ce8 + emitter_slot) = *pos;
       *(float *)((char *)&g_particles_745cec + emitter_slot) = pos_y;
       *(float *)((char *)&g_particles_745cf0 + emitter_slot) = pos_z;

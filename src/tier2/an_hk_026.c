@@ -47,10 +47,11 @@ undefined4 course_zone_contains_matrix(char *zone,RwMatrix *world_matrix,RwReal 
   RwMatrixInvert(&zone_inverse,(RwMatrix *)(zone + ZONE_MATRIX_OFFSET));
   RwMatrixTransform(&zone_space_matrix,&zone_inverse,rwCOMBINEPOSTCONCAT);
   /* Bounds test on the zone-space position: outside if x or z is at/past a bound. */
-  if ((((*(float *)(zone + ZONE_MAX_X_OFFSET) <= zone_space_matrix.pos.x) ||
-       (zone_space_matrix.pos.x <= *(float *)(zone + ZONE_MIN_X_OFFSET))) ||
-      (*(float *)(zone + ZONE_MAX_Z_OFFSET) <= zone_space_matrix.pos.z)) ||
-     (zone_space_matrix.pos.z <= *(float *)(zone + ZONE_MIN_Z_OFFSET))) {
+  /* NaN counts as outside (original: fcomp / test ah,5 / jp and fcomp / test ah,0x41 / jne) */
+  if ((((!(zone_space_matrix.pos.x < *(float *)(zone + ZONE_MAX_X_OFFSET)) ||
+       (!(zone_space_matrix.pos.x > *(float *)(zone + ZONE_MIN_X_OFFSET)))) ||
+      (!(zone_space_matrix.pos.z < *(float *)(zone + ZONE_MAX_Z_OFFSET)))) ||
+     (!(zone_space_matrix.pos.z > *(float *)(zone + ZONE_MIN_Z_OFFSET))))) {
     inside_zone = 0;
   }
   else {

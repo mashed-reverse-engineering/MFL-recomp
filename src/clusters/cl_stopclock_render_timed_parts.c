@@ -32,9 +32,9 @@ void stopclock_render_timed_parts_n(StopclockPanel *panel)
         render_part(panel->parts[0]);
         render_part(panel->parts[5]);
     }
-    if (0.34f <= panel->timer) {
-        if (0.82f <= panel->timer) {
-            if (1.3f <= panel->timer) {
+    if (!(0.34f > panel->timer)) {
+        if (!(0.82f > panel->timer)) {
+            if (!(1.3f > panel->timer)) {
                 if (panel->timer < 1.86f) {
                     render_part(panel->parts[1]);
                     render_part(panel->parts[2]);

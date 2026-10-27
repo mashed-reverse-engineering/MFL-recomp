@@ -102,7 +102,7 @@ void sound_listener_update(void)
   pos_z = g_sound_frame_6ad1f4;
   pos_y = g_sound_frame_6ad1f0;
   listener = (sound_listener_layout *)(g_sound_6ad1e8);
-  if (move_dist <= float_10_0) {
+  if (!(move_dist > float_10_0)) {
     g_sound_6ae0b0 = g_sound_frame_6ad1ec;
     g_sound_6ae0b4 = g_sound_frame_6ad1f0;
     g_sound_6ae0b8 = g_sound_frame_6ad1f4;

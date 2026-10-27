@@ -48,7 +48,7 @@ void fx_trail_particle_spawn_interpolated(float *template_particle,float interp_
     delta_y = *(float *)((char *)&g_particles_745cec + emit_offset) - spawn_y;
     delta_z = *(float *)((char *)&g_particles_745cf0 + emit_offset) - spawn_z;
     /* No interpolation: store the template position as the new emission point. */
-    if (interp_t <= k_f_0) {
+    if (!(interp_t > k_f_0)) {      /* NaN: no interpolation (original: fcomp, test ah,0x41, jne) */
       *(float *)((char *)&g_particles_745ce8 + emit_offset) = spawn_x;
       *(float *)((char *)&g_particles_745cec + emit_offset) = spawn_y;
       *(float *)((char *)&g_particles_745cf0 + emit_offset) = spawn_z;

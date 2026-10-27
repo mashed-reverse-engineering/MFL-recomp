@@ -110,7 +110,7 @@ void sound_ambience_course_c_26(void)
       do {
         course_object_get_position(obj_index,&g_sound_ambience_6ad8e0);
         fdist = g_sound_ambience_6ad8e8 - frame.camera_z;
-        if (fdist <= k_f_0) {
+        if (!(fdist > k_f_0)) {
           if (k_f_n10 < fdist) goto LAB_0046ddf9;
         }
         else if (fdist < float_10_0) {

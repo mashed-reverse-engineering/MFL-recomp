@@ -567,7 +567,7 @@ tail:
                 double v;
                 int t = (int)(g_menu_draw_69cc3c * -60.0f);
                 v = sin((double)((i * 30 - t) * 0.16666667f)) * 48.0f;
-                if (!(v >= 0.0)) v = 0.0f;
+                if (v < 0.0) v = 0.0f;
                 v = v * 0.6666667f;
                 scale = (float)v;
                 if (v >= 31.0f)

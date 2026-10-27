@@ -36,7 +36,7 @@ void vehicle_marker_morph_update_n(VehicleRecord *vehicle_record, float dt)
     car_get_wheel_average(&frame_obj.wheel_avg_or_blend,vehicle_record->index,0);
     frame_obj.wheel_avg_or_blend = frame_obj.wheel_avg_or_blend * k_f_0_05;
     clamped = float_1_0;
-    if ((float_1_0 > frame_obj.wheel_avg_or_blend) && (clamped = frame_obj.wheel_avg_or_blend, frame_obj.wheel_avg_or_blend < k_f_n1)) {
+    if ((!(float_1_0 <= frame_obj.wheel_avg_or_blend)) && (clamped = frame_obj.wheel_avg_or_blend, !(frame_obj.wheel_avg_or_blend >= k_f_n1))) {
       clamped = k_f_n1;
     }
     frame_obj.wheel_avg_or_blend = clamped * k_f_0_5;

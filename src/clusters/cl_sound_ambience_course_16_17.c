@@ -51,7 +51,7 @@ void sound_ambience_course_16_17(void)
   }
   slot = SOUND_GROUP_FIRST_VOICE_OF(9);
   sound_voice_start_22050(slot);
-  if (camera[2] <= k_f_4 || camera[2] >= k_f_184) {
+  if (!(camera[2] > k_f_4) || !(camera[2] < k_f_184)) {
     volume = 0.0f;
   } else {
     volume = (float)sin((camera[2] - k_f_4) * k_f_0_0055555557 * k_f_3_14);

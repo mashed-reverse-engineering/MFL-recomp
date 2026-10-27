@@ -368,7 +368,7 @@ void menu_draw_event_icons(int skip_option_rows)
                 double wave = sin((double)(slot * 30 - (int)(g_menu_draw_69d1dc * -60.0f)) * 0.16666667f) * 48.0f;
                 double pulse;
 
-                if (wave < 0.0f)
+                if (!(wave >= 0.0f))
                     wave = 0.0f;
                 pulse = wave * 0.6666667f;
                 scale = (float)pulse;

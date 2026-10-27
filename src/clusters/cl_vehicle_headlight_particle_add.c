@@ -63,7 +63,7 @@ void vehicle_headlight_particle_add_n(VehicleLightView *vehicle)
     RwMatrixScale(&f.matrix, &f.scale, rwCOMBINEPRECONCAT);
     RwMatrixUpdate(&f.matrix);
     dot = car->up.x * k_f_0 + car->up.y + car->up.z * k_f_0;
-    if (!(k_f_0 < dot))
+    if (k_f_0 >= dot)
         dot = k_f_0;
     f.colour[3] = (unsigned char)(int)(dot * vehicle->light_factor * k_f_255);
     particles_set_color(f.colour);

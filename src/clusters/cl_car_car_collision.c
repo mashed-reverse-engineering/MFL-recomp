@@ -249,7 +249,7 @@ int car_car_collision_n(Car *a, Car *b, int unused, int flag_4)
   RwMatrixInvert(&inverse, (RwMatrix *)&CF(b, 0x24a + CU(b, 0x26b) * 0x10));
   RwV3dTransformVectors(&dir_b, &at_b, 1, &inverse);
   spin = strength;
-  if (0.0f <= dir_a.x) {
+  if (!(0.0f > dir_a.x)) {
     if (0.0f < dir_a.z) {
       spin = -strength;
     }
@@ -264,7 +264,7 @@ int car_car_collision_n(Car *a, Car *b, int unused, int flag_4)
     CU(a, 0x271) = 0;
     CF(a, 0x270) = spin;
   }
-  if (0.0f <= dir_b.x) {
+  if (!(0.0f > dir_b.x)) {
     if (0.0f < dir_b.z) {
       strength = -strength;
     }

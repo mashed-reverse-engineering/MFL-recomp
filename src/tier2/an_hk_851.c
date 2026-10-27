@@ -119,7 +119,7 @@ LAB_004688de:
         ((float *)&g_weapon_8be720)[row_base + class_index] = column_offset + ((float *)&g_weapon_8be720)[row_base + class_index];
       }
       /* Clamp: below k_f_n5 becomes -DUCK_LIMIT, above float_5_0 becomes DUCK_LIMIT (inferred bounds -5 / +5). */
-      if (k_f_n5 <= *cell_ptr) {
+      if (!(k_f_n5 > *cell_ptr)) {
         if (float_5_0 < *cell_ptr) {
           *cell_ptr = DUCK_LIMIT;
         }

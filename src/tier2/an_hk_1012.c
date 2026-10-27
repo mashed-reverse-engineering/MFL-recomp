@@ -186,7 +186,7 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
       frame.muzzle_dir.x = 0.0;
       rnd = (double)random_range(0xbf4ccccd,0x3f4ccccd);
       frame.muzzle_dir.y = (RwReal)rnd;
-      if (((double)k_f_0_3 <= rnd) || (frame.muzzle_dir.y <= k_f_0)) {
+      if ((!((double)k_f_0_3 > rnd)) || (!(frame.muzzle_dir.y > k_f_0))) {
         if ((k_f_n0_3 < frame.muzzle_dir.y) && (frame.muzzle_dir.y < k_f_0)) {
           frame.muzzle_dir.y = -0.3;
         }

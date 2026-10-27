@@ -614,7 +614,7 @@ star_update:
         }
         else {
           g_frontend_69d31c = 359.0f;
-          if (g_results_screen_69cbdc <= k_f_0_75) {
+          if (!(g_results_screen_69cbdc > k_f_0_75)) {
             goto star_loop;
           }
           g_frontend_69d31c = 0.0f;
@@ -682,7 +682,7 @@ next_row:
     ui_draw_framed_rect_r(alpha, 60.0f, 340.0f, 520.0f, 60.0f);
     scroll = ((float)g_tutorial_display_ticks - k_f_640) - k_f_1000;
     if (scroll < k_f_100) {
-      if (scroll <= k_f_n1500) {
+      if (!(scroll > k_f_n1500)) {
         scroll = scroll + k_f_1600;
       }
       else {
@@ -694,7 +694,7 @@ next_row:
       do {
         id = g_tutorial_line_entries[line];
         line_end = (float)(text_width(id, 0.6f) + scroll);
-        if (line_end >= k_f_60) {
+        if (!(line_end < k_f_60)) {
           if (scroll < k_f_60) {
             dat = dat_get_string(id);
             clip_w = k_f_60 - scroll;
@@ -721,7 +721,7 @@ next_row:
             text_draw_plain(clip, (scroll - k_f_60) + star_off + k_f_60, 376.0f, tint, 0.6f, 0);
             goto line_advance;
           }
-          if (scroll <= k_f_580) {
+          if (!(scroll > k_f_580)) {
             if (line_end <= k_f_580) {
               ui_rt2d_text_draw(id, scroll, 376.0f, tint, 0.6f, 0);
             }

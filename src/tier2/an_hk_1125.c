@@ -26,7 +26,7 @@ void gap_5700b0(char *param_1,float *param_2,float *param_3)
   frame.fStack_8 = param_2[1];
   fVar1 = param_2[2];
   fVar2 = fabs(fVar1);
-  if (fVar2 > k_f_0_9998) {
+  if (!(fVar2 <= k_f_0_9998)) {      /* NaN takes the axis branch (original: fcom / test ah,0x41 / jp) */
     frame.fStack_c = 0.0;
     frame.fStack_8 = 0.0;
     frame.fStack_4 = float_1_0;
@@ -37,7 +37,7 @@ void gap_5700b0(char *param_1,float *param_2,float *param_3)
   }
   else {
     frame.fStack_4 = 0.0;
-    if (fVar2 <= k_f_0_02) {
+    if (!(fVar2 > k_f_0_02)) {      /* NaN: the first branch (original: and eax,0x4100 / jne) */
       FUN_0056fd20(&frame.fStack_c,&frame.fStack_c);
       frame.fStack_c = *(float *)(param_1 + 0x44) * frame.fStack_c;
       frame.fStack_8 = *(float *)(param_1 + 0x44) * frame.fStack_8;
@@ -47,7 +47,7 @@ void gap_5700b0(char *param_1,float *param_2,float *param_3)
       FUN_0056fd20(&frame.fStack_c,&frame.fStack_c);
       frame.fStack_c = *(float *)(param_1 + 0x44) * frame.fStack_c;
       frame.fStack_8 = *(float *)(param_1 + 0x44) * frame.fStack_8;
-      if (k_f_0 <= fVar1) {
+      if (!(fVar1 < k_f_0)) {      /* NaN counts as >= 0 (original: fcomp / test ah,5 / jp) */
         frame.fStack_4 = float_1_0 * *(float *)(param_1 + 0x40);
       }
       else {

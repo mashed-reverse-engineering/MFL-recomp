@@ -216,7 +216,7 @@ int car_resolve_triangle_contacts(char *car,char *triangles)
                           (point_y - v2_y) * tri[TRI_EDGE_NORMAL_2 + 1] + (point_z - v2_z) * tri[TRI_EDGE_NORMAL_2 + 2]) &&
                (((point_x = (point_x - v2_x) * n_x +
                            (point_y - v2_y) * n_y + (point_z - v2_z) * n_z,
-                 k_f_n0_25 <= point_x && (point_x < k_f_0_05)) &&
+                 !(k_f_n0_25 > point_x) && (point_x < k_f_0_05)) &&
                 (k_f_0_3 < n_x * *(float *)(car + CAR_UP_OFFSET) +
                            n_y * *(float *)(car + CAR_UP_OFFSET + 4) +
                            n_z * *(float *)(car + CAR_UP_OFFSET + 8))))) {

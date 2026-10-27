@@ -110,7 +110,7 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
       if (!(roll_or_dist > (double)k_f_2_75)) {
         return 0;
       }
-      if (k_f_25 <= (float)param_5) {
+      if (!(k_f_25 > (float)param_5)) {
         return 0;
       }
       random_roll = random_range(0,FLOAT_ONE_BITS);
@@ -164,7 +164,7 @@ LAB_00418304:
       if (tmp_a == 0) {
         return 0;
       }
-      if (k_f_15 <= (float)param_5) {
+      if (!(k_f_15 > (float)param_5)) {
         return 0;
       }
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);

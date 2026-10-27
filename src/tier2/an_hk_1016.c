@@ -195,7 +195,7 @@ void ai_debug_draw_lines(void)
     fVar1 = (float)(g_ai_editor_brush & 3) * k_f_20;
     fVar2 = (float)(((int)(g_ai_editor_brush + ((int)g_ai_editor_brush >> 0x1f & 3U)) >> 2) -
                    g_ai_debug_7f027c);
-    if (fVar2 <= float_7_0) {
+    if (!(fVar2 > float_7_0)) {
       if (fVar2 < k_f_0) {
         g_ai_debug_7f027c = g_ai_debug_7f027c + -1;
       }

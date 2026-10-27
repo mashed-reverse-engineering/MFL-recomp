@@ -33,8 +33,8 @@ void time_trial_panel_step_part_b_n(int slots)
     frame.delta.z = frame.local_matrix[14] - *(float *)(slot_ptr + 0x38);
     dist = RwV3dLength(&frame.delta);
     frame.value = dist * k_f_0_1;
-    if (k_f_0_5 > frame.value) {
-      if (frame.value < k_f_0) {
+    if (!(k_f_0_5 <= frame.value)) {
+      if (!(frame.value >= k_f_0)) {
         frame.value = 0.0;
       }
     }

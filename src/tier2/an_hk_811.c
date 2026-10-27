@@ -20,15 +20,16 @@
  * (was: "advances time with wrap, interpolates the path (spline_tween_b) and sets the frame matrix")
  */
 
-void frame_follow_path_step(float owner_or_time,int path,float *path_time,float time_step,int tween_mode)
+void frame_follow_path_step(int owner,int path,float *path_time,float time_step,int tween_mode)
 
 {
   RwFrame *frame;
   RwMatrix tween_matrix;
+  float owner_or_time;      /* the new path time (the first parameter is the owner pointer: it was declared float and tested as `!= 0.0`, -0.0 / NaN bits differ from `test eax,eax`) */
 
-  if ((owner_or_time != 0.0) && (path != 0)) {
+  if ((owner != 0) && (path != 0)) {
     /* frame is the RwFrame stored at +OWNER_FRAME_OFFSET of the owner (inferred) */
-    frame = *(RwFrame **)(*(int *)&owner_or_time + OWNER_FRAME_OFFSET);
+    frame = *(RwFrame **)(owner + OWNER_FRAME_OFFSET);
     /* advance time; wrap once if it passes the path length */
     owner_or_time = time_step + *path_time;
     if (*(float *)(path + PATH_LENGTH_OFFSET) < owner_or_time) {

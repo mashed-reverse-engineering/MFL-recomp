@@ -53,6 +53,7 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
     RwV3d local_c;
   } frame;
   double angle;
+  double wrapped;
   float t;
   
   uVar3 = param_1;
@@ -96,20 +97,21 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
         }
         uVar4 = (int)player_rank_key(param_1);
         fx_wander_target(uVar4,&frame.fStack_14,&frame.fStack_10);
-        for (t = t - frame.fStack_14; t < k_f_0; t = t + k_f_90) {
+        wrapped = t - frame.fStack_14;      /* double: the original keeps this in st(0) through the wrap loops and the compares (no float store) */
+        for (; wrapped < k_f_0; wrapped = wrapped + k_f_90) {
         }
-        for (; k_f_90 < t; t = t - k_f_90) {
+        for (; k_f_90 < wrapped; wrapped = wrapped - k_f_90) {
         }
-        if (k_f_30 <= t) {
-          if (k_f_60 <= t) {
-            angle = k_f_90 - t;
+        if (!(k_f_30 > wrapped)) {
+          if (!(k_f_60 > wrapped)) {
+            angle = k_f_90 - wrapped;
           }
           else {
-            angle = k_f_45 - t;
+            angle = k_f_45 - wrapped;
           }
         }
         else {
-          angle = -t;
+          angle = -wrapped;
         }
         t = player_car[uVar3].speed * k_f_1_6666666en4;
         if (k_f_2 < t) {
@@ -132,8 +134,8 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
         if (k_f_45 < frame.fStack_10) {
           frame.fStack_10 = k_f_45;
         }
-        angle = (k_f_45 - frame.fStack_10) * fVar2 * angle * k_f_0_016666668 * g_race_update_6292e4 *
-                k_f_0_022222223;
+        angle = angle * fVar2 * k_f_0_016666668 * g_race_update_6292e4 * (k_f_45 - frame.fStack_10) *
+                k_f_0_022222223;      /* the original's multiplication order (angle * count first), another order rounds differently */
         if (angle != k_f_0) {
           RwMatrixRotate((RwMatrix *)((char *)player_car + player_car[uVar3].matrix_current * 0x40 + 0x928 + iVar6),
                          (RwV3d *)&g_car_62ac74,angle,rwCOMBINEPRECONCAT);

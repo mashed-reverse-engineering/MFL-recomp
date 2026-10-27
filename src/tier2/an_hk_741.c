@@ -46,7 +46,7 @@ void ai_bot_course_0x21_target_check(uint bot_index,char *ai_out)
   /* Gate: right course, course metric small enough, bot not in state 10, bot_ok set */
   course_id = current_course_id();
   if ((((course_id == COURSE_WARZONE) &&
-       (course_metric = (double)course_get_6a2950(), course_metric <= (double)k_f_30)) &&
+       (course_metric = (double)course_get_6a2950(), !(course_metric > (double)k_f_30))) &&
       (g_ai_bots[bot_index].state_70 != 10)) && (bot_ok = course_get_8bf050(bot_index), bot_ok != 0)) {
     course_pos = (float *)course_get_matrix_pos_6a291c();
     speed_result = car_get_speed(&probe.speed,bot_index);

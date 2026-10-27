@@ -78,7 +78,7 @@ undefined4 camera_path_get_point(char *out_cam)
                                         frame.dir.y * path_cam->f_0x24 +
                                         path_cam->f_0x20 * frame.dir.x));
   angle = angle * (double)RAD_TO_DEG;
-  if (k_f_0 <= frame.dir.y) {
+  if (!(k_f_0 > frame.dir.y)) {
     angle = -angle;
   }
   /* pitch (inferred): same as roll using the vectors at +0x30 / +0x38, y forced to 0;
@@ -90,7 +90,7 @@ undefined4 camera_path_get_point(char *out_cam)
   RwV3dNormalize(&frame.dir,&frame.dir);
   angle = (double)FUN_004b3284((double)(frame.dir.x * k_f_0 + frame.dir.y * k_f_0 + frame.dir.z));
   angle = angle * (double)RAD_TO_DEG;
-  if (frame.dir.z <= k_f_0) {
+  if (!(frame.dir.z > k_f_0)) {
     angle = -angle;
   }
   /* yaw (inferred): angle between the vector at +0x10 (cam_up) and (x, y, 0);
@@ -104,7 +104,7 @@ undefined4 camera_path_get_point(char *out_cam)
                                         frame.dir.y * path_cam->f_0x14 + frame.dir.x * *cam_up
                                         ));
   angle = angle * (double)RAD_TO_DEG;
-  if (frame.dir.x <= k_f_0) {
+  if (!(frame.dir.x > k_f_0)) {
     angle = -angle;
   }
   frame.yaw_deg = (float)angle;

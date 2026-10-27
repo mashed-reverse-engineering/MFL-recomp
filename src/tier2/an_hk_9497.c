@@ -79,7 +79,7 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
        (float)((angle_deg + (double)float_1_0) * (double)dist_base * (double)dist_sway *
                (double)k_f_0_05 + (double)*(volatile float *)&dist_base);
   if (dz == k_f_0) {
-    if (k_f_0 <= (double)dx_or_horiz) {
+    if (!((double)dx_or_horiz < k_f_0)) {      /* NaN takes the 90 branch (as atan2_degrees) */
       angle_deg = (double)k_f_90;
     }
     else {
@@ -106,7 +106,7 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
       goto LAB_0044c474;
     }
   }
-  if (k_f_0 <= dy) {
+  if (!(dy < k_f_0)) {      /* NaN takes the 90 branch (original: fcomp / test ah,5 / jp) */
     angle_deg = (double)k_f_90;
   }
   else {

@@ -38,7 +38,7 @@ int rwp_cars_sphere_points_generate(void *body, float scale, int arg)
     while (theta < 3.1415927f) {
       sin_theta = (float)sin(theta);
       cos_theta = (float)cos(theta);
-      ring_step = step / (sin_theta < 0.0f ? -sin_theta : sin_theta);
+      ring_step = step / (!(sin_theta >= 0.0f) ? -sin_theta : sin_theta);
       ring_end = 6.2831855f - ring_step;
       angle = phase;
       while (angle < ring_end) {

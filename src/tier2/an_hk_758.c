@@ -70,7 +70,7 @@ void distances_update(void)
   frame.progress_b = (float)progress_value;
   /* start/finish wrap (inferred): if one car is just past the line (< 20) and the other is near the end (> 80),
      subtract a full lap (100) from the one near the end so it compares as behind */
-  if ((frame.progress_a <= k_f_80) || (k_f_20 <= frame.progress_b)) {
+  if ((!(frame.progress_a > k_f_80)) || (!(k_f_20 > frame.progress_b))) {
     if ((k_f_80 < frame.progress_b) && (frame.progress_a < k_f_20)) {
       frame.progress_b = frame.progress_b - k_f_100;
     }

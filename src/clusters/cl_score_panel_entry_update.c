@@ -208,7 +208,7 @@ LAB_0041e29b:
     frame.scale.y = frame.scale.x;
     score_panel_entry_scale_parts_low_r((int)entry,&frame.scale);
     tmp_f = (entry->anim_counter - k_f_25) * k_f_0_04;
-    if (((tmp_f <= k_f_0) || (frame.scale.x = float_1_0, float_1_0 > tmp_f))
+    if (((tmp_f <= k_f_0) || (frame.scale.x = float_1_0, !(float_1_0 <= tmp_f)))
        && (frame.scale.x = tmp_f, tmp_f <= k_f_0)) {
       frame.scale.x = k_f_0;
     }

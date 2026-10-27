@@ -120,7 +120,7 @@ void course_training_cb1_sub_49e1b0(int param_1)
   facing = (light_dir.z * *(float *)(scene + 0x38) +
            light_dir.x * *(float *)(scene + 0x30) + light_dir.y * *(float *)(scene + 0x34)) * k_f_n1;
   clamped = k_f_0;
-  if (k_f_0 <= facing) {
+  if (!(k_f_0 > facing)) {
     clamped = facing;
     if (float_1_0 < facing)
       clamped = float_1_0;

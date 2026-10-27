@@ -42,9 +42,9 @@ undefined4 __cdecl ai_hazard_target_for_car(char *unused_1,char *unused_2,float 
 
   /* course_value window gate: 0.5 <= value <= 30 (the callee is read twice, as in the original) */
   course_value = (double)course_get_6a2950();
-  if ((double)k_f_0_5 <= course_value) {
+  if (!((double)k_f_0_5 > course_value)) {
     course_value = (double)course_get_6a2950();
-    if (course_value <= (double)k_f_30) {
+    if (!(course_value > (double)k_f_30)) {
       /* car_index must be valid (inferred from the callee name) */
       car_active = course_get_8bf050(car_index);
       if (car_active != 0) {

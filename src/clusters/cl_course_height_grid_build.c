@@ -94,7 +94,7 @@ HeightGrid *course_height_grid_build(int world, const HeightGridBox *box)
       count = course_ray_hit_surfaces_collect_r(frame.ray, frame.hits.distance, 0, world);
       for (k = 0; k < count; k++) {
         height = grid->box.y_top - range_y * frame.hits.distance[k];
-        if (!(height >= min_height)) {
+        if (height < min_height) {
           min_height = height;
         }
         if (height > max_height) {

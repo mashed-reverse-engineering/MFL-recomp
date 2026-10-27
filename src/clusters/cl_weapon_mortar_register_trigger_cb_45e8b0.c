@@ -20,7 +20,7 @@ void weapon_mortar_register_trigger_cb_45e8b0(int trigger, char *hit)
      (((reg_edi = *(int *)(trigger + 0x14), *(int *)(hit + 0x10) == 0x15 &&
        (overlap = sphere_vs_box_test((float *)(*(char **)(hit + 0x14) + 0x68),
                                    (float *)trigger), overlap != 0)) ||
-      ((k_f_0_4 <= *(float *)(reg_edi + 0x50) &&
+      ((!(k_f_0_4 > *(float *)(reg_edi + 0x50)) &&
        ((0xfeff < *(int *)(hit + 0x10) && (*(int *)(hit + 0x10) < 0xff08)))))))) {
     weapon_pickup_explode_effect_r(reg_edi);
   }
