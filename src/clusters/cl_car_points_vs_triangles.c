@@ -109,7 +109,7 @@ void car_points_vs_triangles(int *car,int triangles)
                             (frame.pz - frame.v1z) * tri_next[0x1e])) &&
                  (k_f_0 <= (frame.px - frame.v2x) * tri_next[0x1f] +
                            (frame.py - frame.v2y) * tri_next[0x20] +
-                           (frame.pz - frame.v2z) * tri_next[0x21])) && (k_f_n0_1 <= frame.depth)))) {
+                           (frame.pz - frame.v2z) * tri_next[0x21])) && !(k_f_n0_1 > frame.depth)))) {
               contact[1].x = -frame.depth;
               *(volatile float *)&frame.zt = frame.point[-0x265] - *(float *)&car[0x59];
               frame.spin_vel.x = (frame.point[-0x267] - *(float *)&car[0x57]) * k_f_3_6;

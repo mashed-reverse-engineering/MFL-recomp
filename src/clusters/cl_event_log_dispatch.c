@@ -271,9 +271,9 @@ void event_log_dispatch_n(int log_index)
   /* multi-point impact (arg0 points): burst at every point and between neighbouring points */
   case 0xc:
     car_or_count = 0;
-    if (k_f_85 <= EVLOG_F(log_index, 0x38) * EVLOG_F(log_index, 0x38) +
+    if (!(k_f_85 > EVLOG_F(log_index, 0x38) * EVLOG_F(log_index, 0x38) +
                   EVLOG_F(log_index, 0x30) * EVLOG_F(log_index, 0x30) +
-                  EVLOG_F(log_index, 0x34) * EVLOG_F(log_index, 0x34)) {
+                  EVLOG_F(log_index, 0x34) * EVLOG_F(log_index, 0x34))) {
       frame.burst_pos_x = (float)(int)g_event_log_args[log_index].arg2 * k_f_n0_001;
       frame.burst_pos_y = (float)(int)g_event_log_args[log_index].w0c * k_f_n0_001;
       frame.burst_pos_z = (float)(int)g_event_log_args[log_index].w10 * k_f_n0_001;

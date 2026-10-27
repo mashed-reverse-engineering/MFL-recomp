@@ -28,29 +28,31 @@ extern void line_of_sight_between(void);
 /* was: ECX = slot, EAX = target position */
 void fx_reset_slot_n(FxEffectSlot *slot, float *target)
 {
-    int fuse_short = slot->timer_a < k_f_1_4;
-
     slot->velocity_a[2] = 0.0f;
     slot->velocity_a[1] = 0.0f;
     slot->velocity_a[0] = 0.0f;
     slot->velocity_b[2] = 0.0f;
     slot->velocity_b[1] = 0.0f;
     slot->velocity_b[0] = 0.0f;
-    if (fuse_short) {
-        if (slot->timer_b < k_f_0_05) {
+    if (slot->timer_a >= k_f_1_4) {      /* a NaN timer takes the fuse branch below (original: test ah,1; jne) */
+        if (line_of_sight_between_r(slot, target, 15.0f, 45.0f) != 0) {
+            if (random_range(0.0f, 10.0f) < slot->chance)
+                slot->timer_a = slot->timer_a - g_tick_seconds;
+        }
+    } else {
+        if (slot->timer_b >= k_f_0_05) {
+            if (line_of_sight_between_r(slot, target, 15.0f, 45.0f) != 0) {
+                bomb_explode_r(slot, target);
+                slot->timer_b = slot->timer_b - g_tick_seconds;
+            }
+        } else {
             slot->timer_b = slot->timer_b - g_tick_seconds;
             if (slot->timer_b <= k_f_0)
                 slot->timer_b = 0.05f;
-        } else if (line_of_sight_between_r(slot, target, 15.0f, 45.0f) != 0) {
-            bomb_explode_r(slot, target);
-            slot->timer_b = slot->timer_b - g_tick_seconds;
         }
         slot->timer_a = slot->timer_a - g_tick_seconds;
         if (slot->timer_a <= k_f_0)
             slot->timer_a = 1.4f;
-    } else if (line_of_sight_between_r(slot, target, 15.0f, 45.0f) != 0) {
-        if (random_range(0.0f, 10.0f) < slot->chance)
-            slot->timer_a = slot->timer_a - g_tick_seconds;
     }
 }
 

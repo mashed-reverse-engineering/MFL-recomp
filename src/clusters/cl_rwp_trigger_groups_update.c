@@ -104,7 +104,7 @@ LAB_00480d8f:
                              vec_y = *(float *)(owner_ref[1] * 0x20 + 4 + rwp_handle),
                              vec = (float *)(owner_ref[1] * 0x20 + rwp_handle), vec_x = *vec,
                              vec_z = vec[2],
-                             vec_z * vec_z + vec_y * vec_y + vec_x * vec_x <= k_f_0_001))))
+                             !(vec_z * vec_z + vec_y * vec_y + vec_x * vec_x > k_f_0_001)))))
                       goto LAB_00480daf;
                     }
                     group[0x22] = 1;

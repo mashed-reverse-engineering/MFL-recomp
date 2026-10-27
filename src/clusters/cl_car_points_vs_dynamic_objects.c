@@ -72,7 +72,7 @@ void car_points_vs_dynamic_objects(float *car)
                                 if (k_f_0 <= (px - v1x) * ex + (py - v1y) * ey + (pz - v1z) * ((v2y - v1y) * nx - (v2x - v1x) * ny)) {
                                     ex = ny * (v0z - v2z) - (v0y - v2y) * nz;
                                     ey = (v0x - v2x) * nz - (v0z - v2z) * nx;
-                                    if ((k_f_0 <= (px - v2x) * ex + (py - v2y) * ey + (pz - v2z) * ((v0y - v2y) * nx - (v0x - v2x) * ny)) && (k_f_n0_4 <= depth)) {
+                                    if ((k_f_0 <= (px - v2x) * ex + (py - v2y) * ey + (pz - v2z) * ((v0y - v2y) * nx - (v0x - v2x) * ny)) && !(k_f_n0_4 > depth)) {
                                         contact[1].x = -depth;
                                         spin_vel.x = (point[-0x268] - car[0x57]) * k_f_3_6;
                                         spin_vel.y = (point[-0x267] - car[0x58]) * k_f_3_6;
@@ -85,10 +85,10 @@ void car_points_vs_dynamic_objects(float *car)
                                         contact->z = car[0x26e];
                                         spin_vel.x = 0.0f;
                                         speed = RwV3dLength(contact);
-                                        if (speed <= k_f_1_0en4) goto no_slip;
+                                        if (!(speed > k_f_1_0en4)) goto no_slip;
                                         RwV3dNormalize(contact, contact);
                                         cos_in = tri->normal[2] * contact->z + contact->y * tri->normal[1] + tri->normal[0] * contact->x;
-                                        if (k_f_0 <= cos_in) goto no_slip;
+                                        if (!(k_f_0 > cos_in)) goto no_slip;
                                         if (cos_in < k_f_n1) cos_in = k_f_n1;
                                         ((float *)contact)[8] = speed * cos_in;
                                         goto slip_done;
