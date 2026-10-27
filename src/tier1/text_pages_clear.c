@@ -11,7 +11,6 @@
 
 /* text_pages_clear */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the 0x84 byte records at 0x6C33C8" */
 /* Clears all text page records and resets the active text page count. */
 

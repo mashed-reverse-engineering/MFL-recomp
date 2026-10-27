@@ -70,7 +70,7 @@ void race_render_viewport(void)
       if ((double)float_1_0 <= race_time * (double)k_f_0_5) {
 LAB_00412e65:
         race_time = (double)race_get_time_seconds();
-        if (race_time * (double)k_f_0_5 < (double)float_1_0) {
+        if (!(race_time * (double)k_f_0_5 >= (double)float_1_0)) {      /* NaN takes the scaled value (original: test ah,1; jne) */
           race_time = (double)race_get_time_seconds();
           scene_progress = (float)(race_time * (double)k_f_0_5);
         }
@@ -174,7 +174,7 @@ LAB_00412e65:
   if ((double)float_1_0 <= race_time * (double)k_f_0_5) {
 LAB_00413135:
     race_time = (double)race_get_time_seconds();
-    if (race_time * (double)k_f_0_5 < (double)float_1_0) {
+    if (!(race_time * (double)k_f_0_5 >= (double)float_1_0)) {      /* NaN takes the scaled value (original: test ah,1; jne) */
       race_time = (double)race_get_time_seconds();
       scene_progress = (float)(race_time * (double)k_f_0_5);
     }

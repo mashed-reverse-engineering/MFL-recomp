@@ -8,7 +8,7 @@ extern double sin(double);
 /* Returns the music / master volume multiplier for the options menu, read from
  * the first option slider (option_sliders[0], float bits, range 0..1 (inferred)).
  * Volume = sin(slider * pi/2): 0 at slider 0, 1 at slider 1, steepest near 0.
- * No parameters. Returns a double (double in Ghidra). */
+ * No parameters. Returns a double (a double). */
 unkbyte10 option_get_volume_0(void)
 {
   unkbyte10 volume;

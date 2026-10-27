@@ -1,6 +1,5 @@
 #include "mfl_tier2.h"
 /* sphere_vs_box_test */
-/* WARNING: Unknown calling convention */
 /*
  * Coarse sphere-vs-box overlap test (inferred: a box-grown-by-radius test, not an
  * exact closest-point distance check).

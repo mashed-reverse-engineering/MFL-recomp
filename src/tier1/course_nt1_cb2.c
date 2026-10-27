@@ -14,7 +14,6 @@
  * then clump B if set (with stub_return_zero calls around it; stub role inferred from name).
  * course_state: address of the course state block, passed as int (inferred).
  */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 void course_nt1_cb2(char *course_state)
 {
   /* Clump A: render only when the pointer is non-null. */

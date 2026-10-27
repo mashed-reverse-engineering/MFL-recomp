@@ -5,7 +5,7 @@
 /*0060da38*/ extern char g_course_player_60da38[];
 /* course_player_markers_setup */
 /* "assigns the 8 marker clumps of the world record and enables them" */
-void __cdecl course_player_markers_setup(char *course,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6)
+void __cdecl course_player_markers_setup(char *course,char *unused_2,char *unused_3,char *unused_4,char *unused_5, char *unused_6)
 {
   int marker_index;
   undefined4 *clump_slot;

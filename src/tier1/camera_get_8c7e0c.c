@@ -4,7 +4,6 @@
 
 /* camera_get_8c7e0c */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float g_camera_8c7e0c" */
 
 double camera_get_8c7e0c(void)

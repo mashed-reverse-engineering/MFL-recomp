@@ -33,7 +33,6 @@
 
 /* fx_counters_clear */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the fx counters at 0x651964..0x6519AC" */
 
 void fx_counters_clear(void)

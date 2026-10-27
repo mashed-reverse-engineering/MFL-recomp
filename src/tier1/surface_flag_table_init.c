@@ -43,7 +43,6 @@
 
 /* surface_flag_table_init */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fills the 0xff01ffff/0xff013cff... colour code pairs (two per surface id) of the surface table
    at 0x6c3f30" */
 

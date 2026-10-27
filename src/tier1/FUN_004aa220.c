@@ -7,7 +7,6 @@
  * state; their meaning is not known from this function alone).
  * Takes no parameters and returns nothing.
  */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 void FUN_004aa220(void)
 {
   rwD3D9SetPixelShader(g_data_771aa4);

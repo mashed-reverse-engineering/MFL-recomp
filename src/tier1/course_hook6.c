@@ -7,9 +7,9 @@
 /*
  * Calls course callback 6 with the course world as its argument, but only when
  * course_has_cb6() reports that the callback is present. Returns nothing.
- * param_1 is not used by the body (inferred: hook signature only).
+ * course is not used by the body (inferred: hook signature only).
  */
-void __cdecl course_hook6(char *param_1)
+void __cdecl course_hook6(char *course)
 {
   int has_cb6;
 

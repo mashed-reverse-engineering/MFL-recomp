@@ -4,7 +4,6 @@
 
 /* ai_get_float_8c9980 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float at 0x8C9980" */
 
 double ai_get_float_8c9980(void)

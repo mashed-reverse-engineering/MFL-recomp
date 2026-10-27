@@ -9,6 +9,5 @@
 void course_error_exit(undefined4 error_code)
 {
   debug_printf("Exiting due to course error %d\n",error_code);
-                    /* WARNING: Subroutine does not return */
   exit(error_code);
 }

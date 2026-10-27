@@ -5,6 +5,7 @@
 
 /* course_sands_cb6 */
 
+/* Course Sands callback: at race phase 1 initialises the marker positions. */
 void course_sands_cb6(void)
 {
   int race_phase;

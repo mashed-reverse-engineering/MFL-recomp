@@ -6,6 +6,7 @@
 
 /*  */
 
+/* Returns g_gamesave_flag_c0c (placeholder getter). */
 undefined4 nop_b(void)
 {
   return g_gamesave_flag_c0c;

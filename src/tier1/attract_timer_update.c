@@ -12,7 +12,6 @@
 #define PLAYER_INPUT_STRIDE (0x4c) /* sizeof(struct PlayerInput) in bytes */
 #define PLAYER_INPUT_CLEAR_DWORDS (0x98) /* 4-byte steps to clear the direction bytes: 8 players x 76 bytes / 4 (inferred) */
 /* attract_timer_update */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "adds g_frame_seconds while no message is shown; after the limit starts the attract / demo" */
 /* Per-frame attract / demo timer. While no message is shown, adds g_frame_seconds to the
    attract timer. Once it passes g_attract_timer_64d8ac it either runs the quick race defaults

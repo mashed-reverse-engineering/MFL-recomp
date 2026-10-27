@@ -4,7 +4,6 @@
 
 /* course_neustein_cb9 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void course_neustein_cb9(void)
 {

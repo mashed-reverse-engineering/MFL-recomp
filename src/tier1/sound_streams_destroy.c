@@ -13,7 +13,6 @@
 /* byte size of the per-slot tables walked by sound_streams_destroy (inferred: 4-byte entries, 6 slots) */
 #define STREAM_SLOT_TABLE_BYTES (0x18)
 /* sound_streams_destroy */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "'DestroyStream': syncs the file manager and destroys the 4 streams" */
 /* Destroys all sound streams and resets their slot bookkeeping at race teardown.
  * Takes no parameters, returns nothing. Does nothing unless the sound engine is not stubbed

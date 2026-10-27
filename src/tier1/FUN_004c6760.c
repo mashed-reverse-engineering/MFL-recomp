@@ -10,7 +10,6 @@
  * g_data_93f100, g_data_93f104, g_data_93f108) to 0. Takes no parameters and
  * returns nothing. Meaning of the globals not known (inferred: reset of
  * per-session state). */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 void FUN_004c6760(void)
 {
   g_data_91f088 = 0;

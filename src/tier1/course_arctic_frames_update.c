@@ -21,7 +21,6 @@ extern double sin(double);
 /* offset of the frame pointer inside a clump (inferred: RpClump frame field) */
 #define CLUMP_FRAME_OFFSET (4)
 /* course_arctic_frames_update */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "rotates the course frames of the arctic course from the angle tables" */
 /*
  * Per-frame update for the Arctic course: for each of the 4 camera slots

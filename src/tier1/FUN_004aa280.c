@@ -9,7 +9,6 @@
  * (inferred: a 2-float pair, e.g. x/y; meaning of the globals not known).
  * Returns nothing.
  */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 void FUN_004aa280(undefined4 *src_pair)
 {
   rwD3D9SetPixelShader(g_data_771aa8);

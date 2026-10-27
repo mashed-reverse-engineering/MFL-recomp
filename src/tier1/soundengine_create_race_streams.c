@@ -22,7 +22,6 @@
 #define SOUND_STREAM_COUNT (4)
 #define TEAM_SOUND_STRIDE (0x80) /* bytes per team sound block in g_sound_6add78 (inferred) */
 /* soundengine_create_race_streams */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* sets race_audio_active=1 (trainer uses it as 'game active') */
 /*
  * Sets up race audio once per race: creates SOUND_STREAM_COUNT sound streams

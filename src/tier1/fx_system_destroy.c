@@ -14,8 +14,6 @@ void fx_system_destroy(undefined4 *fx_system)
   fx_system[0x16] = 1;
   /* destroy the embedded particle buffer */
   particles_destroy(fx_system + FX_PARTICLES_IDX);
-                    /* WARNING: Could not recover jumptable at 0x0049bdbc. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   RwFree(*(void **)fx_system);
   return;
 }

@@ -10,6 +10,5 @@
 void __cdecl line_rain_error(undefined4 message,undefined4 error_code)
 {
   debug_printf("LineRain error [%d] : %s\n",error_code,message);
-                    /* WARNING: Subroutine does not return */
   exit(EXIT_STATUS_FAILURE);
 }

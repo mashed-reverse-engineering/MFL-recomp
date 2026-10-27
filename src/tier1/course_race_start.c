@@ -9,7 +9,6 @@
 
 /* course_race_start */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "cb4 when present, sets 0x6095BC" */
 
 /* Start the race for the current course and invoke callback 4 if available. */

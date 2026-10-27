@@ -22,7 +22,6 @@
 /*00652dd4*/ extern undefined4 g_effects_652dd4;
 /*007ef7f4*/ extern float g_tick_seconds;
 /* effects_update_frame */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "advances the effects each frame (0x652DD0 frame counter, particles, event log, effects)" */
 /*
  * Per-frame update of all visual effects, called once per game frame.

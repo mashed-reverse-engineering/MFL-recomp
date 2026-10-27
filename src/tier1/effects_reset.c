@@ -21,7 +21,6 @@
 
 /* effects_reset */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "resets the particle systems between races" */
 
 void effects_reset(void)

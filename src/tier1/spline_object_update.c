@@ -14,7 +14,6 @@
 #define OBJ_START_T (5)
 #define SPLINE_FIND_MATRIX_ARG (10)
 /* spline_object_update */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "RpSplineFindMatrix of the spline object and sets its frame transform" */
 /* Moves a spline-driven object along its spline and places its render object there.
  * obj: block of 4-byte words (layout inferred): obj[0] spline, obj[1] holds a pointer whose +4 is the RwFrame,

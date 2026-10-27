@@ -22,6 +22,6 @@ void course_neustein_cb2(char *course)
   func_0x00455060();
   object_render(g_course_neustein_6a1d88);
   object_render(g_course_neustein_6a1d8c);
-  object_render(g_course_neustein_6a1d90);      /* tail call (Ghidra showed the inlined body of object_render) */
+  object_render(g_course_neustein_6a1d90);      /* tail call (the decompiler showed the inlined body of object_render) */
   return;
 }

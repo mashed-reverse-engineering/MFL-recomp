@@ -4,7 +4,6 @@
 
 /* sound_flag_617af0_clear */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "_g_sound_617af0 = 0" */
 
 void sound_flag_617af0_clear(void)

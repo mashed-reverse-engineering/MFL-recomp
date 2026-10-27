@@ -19,7 +19,6 @@
 /* "DestroyWindow(g_app_7e7704), returns g_app_7e7728" */
 /* IEEE 754 bit pattern of float 1.0f */
 /* app_counters_clear */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Zeroes the 12 app counter globals 0x771A4C..0x771A80 (except 0x771A5C and 0x771A70),
    and sets 0x771A48, 0x771A5C, 0x771A70 and 0x771A84 to float 1.0 (inferred: their initial values).
    Returns 1. */

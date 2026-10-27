@@ -5,10 +5,10 @@
 
 /* "zeroes fields +8, +0xC, +0x54" */
 
-void particle_batch_clear(char *param_1)
+void particle_batch_clear(char *batch)
 {
-  *(undefined4 *)(param_1 + 0x54) = 0;
-  *(undefined4 *)(param_1 + 8) = 0;
-  *(undefined4 *)(param_1 + 0xc) = 0;
+  *(undefined4 *)(batch + 0x54) = 0;
+  *(undefined4 *)(batch + 8) = 0;
+  *(undefined4 *)(batch + 0xc) = 0;
   return;
 }

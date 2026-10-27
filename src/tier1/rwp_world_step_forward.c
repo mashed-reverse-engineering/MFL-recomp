@@ -6,8 +6,8 @@
 
 /* "calls rwp_world_step_pipeline" */
 
-undefined4 __cdecl rwp_world_step_forward(undefined4 param_1,undefined4 param_2)
+undefined4 __cdecl rwp_world_step_forward(undefined4 world,undefined4 step)
 {
-  rwp_world_step_pipeline(param_1,param_2);
-  return param_1;
+  rwp_world_step_pipeline(world,step);
+  return world;
 }

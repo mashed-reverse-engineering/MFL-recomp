@@ -4,7 +4,6 @@
 
 /* course_get_6a2950 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "float g_course_6a2950" */
 
 double course_get_6a2950(void)

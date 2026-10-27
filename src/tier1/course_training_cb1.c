@@ -12,7 +12,6 @@
  * clump_arg: passed to func_0x00484b20 with the course global (inferred).
  * Returns nothing.
  */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 void course_training_cb1(char *course,undefined4 clump_arg)
 {
   struct {

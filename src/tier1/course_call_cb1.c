@@ -8,8 +8,6 @@
  * update_arg_1 / update_arg_2: the two pointers course_update passes on (meaning inferred). */
 void __cdecl course_call_cb1(char *update_arg_1,char *update_arg_2)
 {
-                    /* WARNING: Could not recover jumptable at 0x004219b6. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   (**(code **)(g_current_course_entry + COURSE_ENTRY_UPDATE_SLOT))(update_arg_1,update_arg_2);
   return;
 }

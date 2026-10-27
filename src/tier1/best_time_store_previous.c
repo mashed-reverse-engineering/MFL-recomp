@@ -7,7 +7,6 @@
 /*007eebc0*/ extern struct GameState g_game_state;
 /* Entries per career row in the best_* arrays (inferred from their [45] size = 15 rows x 3). */
 #define BEST_TIMES_PER_ROW (3)
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* best_time_store_previous: stores the course's best time (minutes, seconds, fraction) into
    g_game_state, at index career_row * BEST_TIMES_PER_ROW + menu_slot (inferred: the slot is the
    menu selection, the row is the current career row). Takes no parameters, returns nothing. */

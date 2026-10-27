@@ -18,7 +18,6 @@ extern double sin(double);
 #define SWAY_HEIGHT_AMPLITUDE (0.5) /* sin() amplitude of the y translation */
 #define SWAY_HEIGHT_OFFSET (4.5) /* constant y translation, subtracted */
 /* course_arctic_frames_sway_update */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "sways the frames of the second object set with sin/cos of three slowly advancing phases" */
 /* Per-frame sway for the two objects in g_camera_8c5920: each frame is reset to identity, turned by its
    base angle about the up axis (y), then tilted about its modelling at/right vectors by cos/sin of two phases,

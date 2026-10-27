@@ -19,7 +19,6 @@
 /* score_panel_clear */
 /* "g_score_658fd0 = 0" */
 /* hudpanel_fuel_meter_update */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "places the panel frame (-0.48,-0.35) scale 1.25 and scales the bar by 1 - fx value" */
 /* hudpanel_clump_destroy */
 /* "RpClumpDestroy(g_hudpanel_6592d4)" */

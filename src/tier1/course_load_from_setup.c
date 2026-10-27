@@ -12,7 +12,7 @@
 
 /* course_load_from_setup */
 
-/* "(setup, index): course_open_and_run_scripts(*entry) and FUN_0048a610" */
+/* "(setup, index): course_open_and_run_scripts(*entry) and spring_grid_init" */
 
 /* Load and initialize the course at the given index from setup data. */
 void course_load_from_setup(char *setup, int course_index)

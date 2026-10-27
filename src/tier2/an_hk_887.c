@@ -76,10 +76,10 @@ undefined4 __cdecl ai_find_target_c(char *unused_arg,char *line_point_b,char *pr
         rank_gap = (float)(rank_key - (double)frame.target_x);
         /* candidate at or below own rank (inferred): skip it when rank_gap >= 5 - polygon count.
            target_distance is a scratch slot holding that threshold here (name reused below) */
-        if (rank_key - (double)frame.target_x <= k_f_0) {
+        if (!(rank_key - (double)frame.target_x > k_f_0)) {      /* NaN takes the branch (original: test ah,0x41; je) */
           slot_used = course_get_ai_polygon_count();
           frame.target_distance = (RwReal)(5 - slot_used);
-          if ((float)(int)frame.target_distance <= rank_gap) goto LAB_0041768b;
+          if (!((float)(int)frame.target_distance > rank_gap)) goto LAB_0041768b;      /* NaN skips the candidate (original: jne) */
         }
         /* keep the closest candidate so far */
         if (rank_gap < frame.best_rank_gap) {

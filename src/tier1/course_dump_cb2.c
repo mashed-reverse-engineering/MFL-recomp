@@ -4,31 +4,32 @@
 
 /* course_dump_cb2 */
 
-void course_dump_cb2(char *param_1)
+/* Course render callback: draws the clumps in slots 1,2,3,9,14,15, then the slot 0xc138/0xc120/0xc150 clumps. */
+void course_dump_cb2(char *course)
 {
   RpClump *clump;
-  uint uVar1;
-  int aiStack_18 [6];
+  uint i;
+  int clump_slots [6];
   
-  aiStack_18[0] = 1;
-  aiStack_18[1] = 2;
-  aiStack_18[2] = 3;
-  aiStack_18[3] = 9;
-  aiStack_18[4] = 0xe;
-  aiStack_18[5] = 0xf;
-  uVar1 = 0;
+  clump_slots[0] = 1;
+  clump_slots[1] = 2;
+  clump_slots[2] = 3;
+  clump_slots[3] = 9;
+  clump_slots[4] = 0xe;
+  clump_slots[5] = 0xf;
+  i = 0;
   do {
-    clump = *(RpClump **)(param_1 + 0xc110 + aiStack_18[uVar1] * 4);
+    clump = *(RpClump **)(course + 0xc110 + clump_slots[i] * 4);
     if (clump != (RpClump *)0x0) {
       RpClumpRender(clump);
     }
-    uVar1 = uVar1 + 1;
-  } while (uVar1 < 6);
+    i = i + 1;
+  } while (i < 6);
   func_0x00453560();
-  if (*(RpClump **)(param_1 + 0xc138) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(param_1 + 0xc138));
+  if (*(RpClump **)(course + 0xc138) != (RpClump *)0x0) {
+    RpClumpRender(*(RpClump **)(course + 0xc138));
   }
-  RpClumpRender(*(RpClump **)(param_1 + 0xc120));
-  RpClumpRender(*(RpClump **)(param_1 + 0xc150));
+  RpClumpRender(*(RpClump **)(course + 0xc120));
+  RpClumpRender(*(RpClump **)(course + 0xc150));
   return;
 }

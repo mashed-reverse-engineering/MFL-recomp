@@ -272,7 +272,7 @@ blend:
     frame.ramp = float_barrier(car->blend - g_course_highway_60d95c - g_course_highway_60d958 * car->fall + g_course_highway_60d954 * car->rise);
     if (frame.ramp >= BLEND_ONE) {
       car->blend = BLEND_ONE;
-    } else if (frame.ramp < BLEND_ZERO) {
+    } else if (!(frame.ramp >= BLEND_ZERO)) {      /* NaN clamps to zero (original: fcomp, test ah,1) */
       car->blend = BLEND_ZERO;
     } else {
       car->blend = frame.ramp;

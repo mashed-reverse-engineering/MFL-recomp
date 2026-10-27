@@ -10,7 +10,6 @@
 #define ROCKET_TIMER_OFF (0x28) /* float, counts down by g_tick_seconds */
 #define ROCKET_SPIN_DEG (25.0) /* rotation applied to the frame per tick */
 /* weapon_rocket_spin_update */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Per-tick update of a flying rocket's spin: advances the spin angle, rotates the rocket's frame
  * by ROCKET_SPIN_DEG, and counts the timer down by g_tick_seconds. When the timer runs out, the
  * timer and the state field are cleared.

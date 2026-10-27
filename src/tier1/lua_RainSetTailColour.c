@@ -10,25 +10,25 @@
 
 /* Lua function RainSetTailColour (registered by the script engine) */
 
-undefined4 lua_RainSetTailColour(undefined4 param_1)
+undefined4 lua_RainSetTailColour(undefined4 L)
 {
   int arg_count;
-  undefined4 uVar1;
-  undefined4 uVar2;
-  undefined4 uVar3;
-  undefined4 uVar4;
+  undefined4 red;
+  undefined4 green;
+  undefined4 blue;
+  undefined4 alpha;
   
-  arg_count = lua_gettop(param_1);
-  uVar1 = (int)lua_tonumber(param_1,arg_count + -3);
-  uVar2 = (int)lua_tonumber(param_1,arg_count + -2);
-  uVar3 = (int)lua_tonumber(param_1,arg_count + -1);
-  uVar4 = (int)lua_tonumber(param_1,arg_count);
+  arg_count = lua_gettop(L);
+  red = (int)lua_tonumber(L,arg_count + -3);
+  green = (int)lua_tonumber(L,arg_count + -2);
+  blue = (int)lua_tonumber(L,arg_count + -1);
+  alpha = (int)lua_tonumber(L,arg_count);
   if (arg_count != 4) {
     line_rain_error("Usage : RainSetTailColour(red,green,blue,alpha)\n",0xffffffff);
   }
   if (g_app_76e3c0 == 0) {
     line_rain_error("Line Rain has not been enabled\n",0xffffffff);
   }
-  ui_colour_b_set(uVar1,uVar2,uVar3,uVar4);
+  ui_colour_b_set(red,green,blue,alpha);
   return 0;
 }

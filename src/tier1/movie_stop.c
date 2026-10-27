@@ -9,7 +9,7 @@
 /* "stops the movie, releases the renderer and destroys the raster" */
 
 typedef void (__stdcall *vtbl_fn_ii)(undefined4 *, int);
-void __cdecl movie_stop(undefined4 param_1)
+void __cdecl movie_stop(undefined4 unused_1)
 {
   (*(vtbl_fn_ii *)(*g_app_76e8ac + 0x1c))(g_app_76e8ac,0xffffec78);
   (*(vtbl_fn_ii *)(*g_app_76e8ac + 0x1c))(g_app_76e8ac,0xffffd8f0);

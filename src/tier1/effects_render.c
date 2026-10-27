@@ -18,7 +18,6 @@
 
 /* effects_render */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "renders the particle systems when 0x652DD4 is set" */
 
 void effects_render(void)

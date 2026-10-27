@@ -9,8 +9,6 @@
 /* "jmp [entry+0x38]" */
 void __cdecl course_call_cb9(char *callback_arg)
 {
-                    /* WARNING: Could not recover jumptable at 0x00421a36. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   (**(code **)(g_current_course_entry + COURSE_ENTRY_CB9_OFFSET))(callback_arg);
   return;
 }

@@ -10,14 +10,14 @@
 
 void player_markers_render(void)
 {
-  undefined4 *puVar1;
+  undefined4 *marker_slot;
   
-  puVar1 = &g_gfx_6c3f3c;
+  marker_slot = &g_gfx_6c3f3c;
   do {
-    if ((puVar1[-1] != 0) && ((RpClump *)*puVar1 != (RpClump *)0x0)) {
-      RpClumpRender((RpClump *)*puVar1);
+    if ((marker_slot[-1] != 0) && ((RpClump *)*marker_slot != (RpClump *)0x0)) {
+      RpClumpRender((RpClump *)*marker_slot);
     }
-    puVar1 = puVar1 + 4;
-  } while ((int)puVar1 < ((int)&g_car_6c3fdc));
+    marker_slot = marker_slot + 4;
+  } while ((int)marker_slot < ((int)&g_car_6c3fdc));
   return;
 }

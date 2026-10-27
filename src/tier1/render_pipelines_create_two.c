@@ -12,7 +12,6 @@ extern char LAB_004a6a60[];
 /*0077104c*/ extern undefined4 g_app_boot_77104c;
 /*00771054*/ extern undefined4 g_app_771054;
 /* render_pipelines_create_two */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "creates two RxPipelines and installs the render callbacks 0x4a6a40/0x4a6a60" */
 /* Creates two RxPipelines, stored in g_app_771054 and g_app_771048. In each one it finds the
    node named by a string from FUN_005003b0 / FUN_005009c0 (inferred), saves the node's old

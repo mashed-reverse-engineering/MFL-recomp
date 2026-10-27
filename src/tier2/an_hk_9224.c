@@ -54,6 +54,7 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
   } frame;
   double angle;
   double wrapped;
+  double spread;
   float t;
   
   uVar3 = param_1;
@@ -127,14 +128,14 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
         if (param_2 < 0) {
           fVar2 = fVar2 + k_f_4_2949673e9;
         }
-        frame.fStack_10 = frame.fStack_10 * k_f_4;
-        if (frame.fStack_10 < k_f_0) {
-          frame.fStack_10 = -frame.fStack_10;
+        spread = frame.fStack_10 * k_f_4;      /* double: the original keeps it in st(0) (45 - spread cancels, a float store changes the angle by 1e-4) */
+        if (spread < k_f_0) {
+          spread = -spread;
         }
-        if (k_f_45 < frame.fStack_10) {
-          frame.fStack_10 = k_f_45;
+        if (k_f_45 < spread) {
+          spread = k_f_45;
         }
-        angle = angle * fVar2 * k_f_0_016666668 * g_race_update_6292e4 * (k_f_45 - frame.fStack_10) *
+        angle = angle * fVar2 * k_f_0_016666668 * g_race_update_6292e4 * (k_f_45 - spread) *
                 k_f_0_022222223;      /* the original's multiplication order (angle * count first), another order rounds differently */
         if (angle != k_f_0) {
           RwMatrixRotate((RwMatrix *)((char *)player_car + player_car[uVar3].matrix_current * 0x40 + 0x928 + iVar6),

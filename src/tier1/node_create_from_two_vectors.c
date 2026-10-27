@@ -4,7 +4,6 @@
 #define NODE_SIZE (0x18) /* bytes allocated for one node */
 #define OWNER_SCALE_OFFSET (0x80) /* float at owner+0x80, its inverse is stored in the node (inferred) */
 /* node_create_from_two_vectors */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "allocates a 0x18 byte node and fills it from two vec2" */
 /* Allocates a NODE_SIZE node through the engine allocator and fills it from two vec2:
  *   node[0..1] = vec_b (x, y), node[2] = vec_a.x, node[3] = 1 / owner's scale float,

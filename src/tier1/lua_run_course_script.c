@@ -11,7 +11,6 @@
 
 #define LUA_CURRENT_TYPE_NONE 0xffffffff /* "no current type" sentinel */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "resets the lua current pos/type and runs the script with lua_register_course_functions" */
 
 /* Resets the Lua current position/type state, then runs the course script. */

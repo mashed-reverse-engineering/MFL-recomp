@@ -68,12 +68,12 @@
 
 /* "movie_renderer_poll and sets the current surface via app_fn_4a2d20" */
 
-undefined4 __cdecl movie_poll_and_set_surface(undefined4 param_1,undefined4 param_2)
+undefined4 __cdecl movie_poll_and_set_surface(undefined4 unused_1,undefined4 unused_2)
 {
-  undefined4 uVar1;
+  undefined4 raster;
   
   movie_renderer_poll();
-  uVar1 = app_get_app_76e8a4((&g_d3dx_76e89c)[g_app_62ad50]);
-  rw_set_value_at_root_plus_947144(uVar1);
+  raster = app_get_app_76e8a4((&g_d3dx_76e89c)[g_app_62ad50]);
+  rw_set_value_at_root_plus_947144(raster);
   return 1;
 }

@@ -31,7 +31,7 @@
 #define RP_LIGHT_TYPE_SPOTSOFT (0x82)
 /* RpLightFlag (RenderWare): rpLIGHTLIGHTATOMICS=1 */
 #define RP_LIGHT_FLAG_LIGHTATOMICS (1)
-/* pi/4 radians, as printed by Ghidra */
+/* pi/4 radians */
 #define SPOT_LIGHT_CONE_ANGLE (0.7853982)
 #define SPOT_LIGHT_RADIUS (100.0)
 /* world bounds are +/-100 on each axis */

@@ -9,7 +9,6 @@ extern double sin(double);
 #define UNIT_Z_MAX_BITS (0x3f800000)   /* 1.0f */
 #define ANGLE_MAX_BITS (0x40c90fdb)    /* 2*pi, about 6.2831855f */
 /* random_unit_vector */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "z in [-1, 1], angle in [0, 2 pi], x/y from sqrt(1 - z^2)" */
 /* Writes a uniformly random unit vector to out[0..2] (x, y, z).
  * z is uniform in [-1, 1]; angle is uniform in [0, 2*pi).

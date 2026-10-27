@@ -6,8 +6,8 @@
 
 /* "fx_emitter_spawn_a with the default flag" */
 
-void fx_emitter_spawn_a_default(undefined4 param_1,undefined4 param_2,undefined4 param_3)
+void fx_emitter_spawn_a_default(undefined4 arg0,undefined4 arg1,undefined4 arg2)
 {
-  fx_emitter_spawn_a(param_1,param_2,param_3,0);
+  fx_emitter_spawn_a(arg0,arg1,arg2,0);
   return;
 }

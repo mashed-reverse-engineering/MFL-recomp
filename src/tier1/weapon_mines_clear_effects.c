@@ -6,6 +6,7 @@
 
 /* weapon_mines_clear_effects */
 
+/* Renders the mine effect particles with z-write disabled. */
 void weapon_mines_clear_effects(void)
 {
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);

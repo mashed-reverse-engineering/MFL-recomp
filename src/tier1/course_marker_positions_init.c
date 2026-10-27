@@ -28,21 +28,16 @@
 /*006a2784*/ extern undefined4 g_course_6a2784;
 /* course_sandsnow_cb2 */
 /* course_storm_cb0 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_storm_cb2 */
 /* course_storm_cb5 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_tierra_n_cb0 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_tierra_n_cb6 */
 /* course_tierra_n_cb7 */
 /* course_tierra_n_cb1 */
 /* course_tierra_n_cb2 */
 /* course_tierra_n_cb5 */
 /* course_forest_cb0 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_forest_cb1 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_forest_cb2 */
 /* course_c26_stub_return_0 */
 /* "returns without work" */
@@ -54,13 +49,11 @@
 /* "fills the table of 80 float offsets (10, 35, 60 ... 235 then pairs) used to place the course
    objects" */
 /* course_objects_reset_physics */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the 10 object records per group and parks their physics objects" */
 /* trigger_cb_mark_hit_bit */
 /* "type 0x15 trigger vs a car id (0xFF00..0xFF07): sets the bit of the object index in the bitmask
    at 0x6A26A4" */
 /* course_highway_cb6 */
-/* WARNING: Removing unreachable block (ram,0x004590b5) */
 /* course_object_offsets_init_b */
 /* "duplicate of course_object_offsets_init" */
 /* IEEE-754 bits of -1.0f */
@@ -70,7 +63,6 @@
 #define PLAYER_2_MARKER_CLUMP_OFFSET (0xc15c)
 #define PLAYER_3_MARKER_CLUMP_OFFSET (0xc12c)
 /* course_marker_positions_init */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "initialises six marker position triples and enables the four player markers with their clumps"
     */
 /* Sets up the course marker data: clears g_course_6a2784, writes the position

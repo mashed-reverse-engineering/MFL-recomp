@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 /*00481fd0*/ extern float random_range(float lo, float hi);
 /*005dd370*/ extern float k_f_0_3;
+/* Maps an ARGB colour constant to a palette index (white picks index 15 or 16 at random). */
 unsigned int color_code_to_index(unsigned int c)
 {
   switch (c) {

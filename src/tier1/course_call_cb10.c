@@ -7,8 +7,6 @@
  * (opaque pointer, the caller passes the address of the course world). Returns nothing. (inferred) */
 void __cdecl course_call_cb10(char *callback_arg)
 {
-                    /* WARNING: Could not recover jumptable at 0x00421a46. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   (**(code **)(g_current_course_entry + COURSE_ENTRY_CB10_OFFSET))(callback_arg);
   return;
 }

@@ -20,7 +20,6 @@ extern struct VoiceSlot g_voices[210];
 #define SFX_CAR_FREQ_F (22050.0f)
 /* sound_car_landing_voice */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "plays the landing voice when the car mode changes from air to ground at speed >10" */
 
 void sound_car_landing_voice(int car)

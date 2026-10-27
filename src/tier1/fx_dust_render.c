@@ -12,16 +12,16 @@
 
 void fx_dust_render(void)
 {
-  void *local_4;
+  void *saved_cull_mode;
   
   if (g_fx_dust_759648 != 0) {
-    RwRenderStateGet(rwRENDERSTATECULLMODE,&local_4);
+    RwRenderStateGet(rwRENDERSTATECULLMODE,&saved_cull_mode);
     RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)0x1);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
     stub_return_zero(0x3e99999a);
     particles_render(&g_fx_dust_759658);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
-    RwRenderStateSet(rwRENDERSTATECULLMODE,local_4);
+    RwRenderStateSet(rwRENDERSTATECULLMODE,saved_cull_mode);
     stub_return_zero(0);
   }
   return;

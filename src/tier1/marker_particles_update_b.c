@@ -6,7 +6,7 @@
 
 /* marker_particles_update_b */
 
-/* "race phase 6: FUN_0041c510 when markers enabled" */
+/* "race phase 6: hudpanel_markers_render_all when markers enabled" */
 
 void marker_particles_update_b(void)
 {

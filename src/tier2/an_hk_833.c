@@ -97,10 +97,9 @@ void trigger_grid_build_visible_cells(void)
       /* Assume visible; the cone test below clears this to 0 or sets it to 1. */
       *cull_flag = 0;
       /* Cone test: dot(normalised direction, view) >= 0.93 means the cell is inside the view cone. */
-      if (k_f_0_93 <=
-          scan.dir.z * *(float *)(view_matrix + MATRIX_AT_Z) +
+      if (!(scan.dir.z * *(float *)(view_matrix + MATRIX_AT_Z) +
           scan.dir.x * *(float *)(view_matrix + MATRIX_AT_X) +
-          scan.dir.y * *(float *)(view_matrix + MATRIX_AT_Y)) {
+          scan.dir.y * *(float *)(view_matrix + MATRIX_AT_Y) < k_f_0_93)) {      /* NaN counts as inside the cone (original: jp to the body) */
         tmp_x = *cam_pos;
         cam_z = cam_pos[2];
         *min_x = (scan.cell_x + tmp_x) - k_f_2_25_5e06e0;

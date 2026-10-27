@@ -7,7 +7,6 @@
 /* course_particle_timers_reset */
 
 /* Resets every particle timer to (g_course_particle_60d8a4 + 1.0). */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "fills the 0x100 particle timers at 0x6A1418 with limit + 1.0" */
 
 #define PARTICLE_TIMER_COUNT 0x100

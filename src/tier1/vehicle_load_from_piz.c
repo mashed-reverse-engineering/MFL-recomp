@@ -8,17 +8,17 @@
 
 /* vehicle_load_from_piz */
 
-/* "(model): opens the vehicle piz of vehicle_model_path and loads the vehicle (FUN_00423320)" */
+/* "(model): opens the vehicle piz of vehicle_model_path and loads the vehicle (vehicle_load)" */
 
-void vehicle_load_from_piz(undefined4 param_1)
+void vehicle_load_from_piz(undefined4 model)
 {
-  undefined4 uVar1;
+  undefined4 model_path;
   char *_Str;
   
-  uVar1 = vehicle_model_path(param_1);
-  _Str = (char *)course_content_path_build(uVar1);
+  model_path = vehicle_model_path(model);
+  _Str = (char *)course_content_path_build(model_path);
   game_open_piz(_Str);
-  vehicle_load(0,param_1);
+  vehicle_load(0,model);
   game_close_piz();
   return;
 }

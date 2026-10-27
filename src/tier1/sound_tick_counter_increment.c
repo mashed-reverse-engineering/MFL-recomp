@@ -4,7 +4,6 @@
 
 /* sound_tick_counter_increment */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "g_weapon_6aaf74 += 1" */
 
 void sound_tick_counter_increment(void)

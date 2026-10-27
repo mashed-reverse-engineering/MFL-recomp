@@ -9,8 +9,6 @@
 /* "jmp [entry+0x44] (cb12), before the world is created" */
 void __cdecl course_call_world_setup(char *world_setup_data)
 {
-                    /* WARNING: Could not recover jumptable at 0x00421a66. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   (**(code **)(g_current_course_entry + COURSE_ENTRY_WORLD_SETUP_HOOK))(world_setup_data);
   return;
 }

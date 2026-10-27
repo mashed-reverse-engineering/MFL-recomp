@@ -48,7 +48,6 @@ void team_color_rgba(undefined4 team,undefined1 *rgba)
     rgba[3] = RGBA_ALPHA_OPAQUE;
     return;
   default:
-                    /* WARNING: Subroutine does not return */
     exit(EXIT_BAD_TEAM);
   }
 }

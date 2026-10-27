@@ -8,8 +8,6 @@
 /* "jmp [entry+0x24]: called by course_race_start" */
 void __cdecl course_call_cb4(char *cb_arg)
 {
-                    /* WARNING: Could not recover jumptable at 0x004219e6. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   (**(code **)(g_current_course_entry + COURSE_ENTRY_CB4_OFFSET))(cb_arg);
   return;
 }

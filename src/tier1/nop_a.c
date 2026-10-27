@@ -6,6 +6,7 @@
 
 /*  */
 
+/* Returns the constant g_nop_a_652d04 (placeholder getter). */
 undefined4 nop_a(void)
 {
   return g_nop_a_652d04;

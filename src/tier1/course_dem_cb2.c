@@ -3,7 +3,7 @@
 /*006a07bc*/ extern undefined4 g_course_dem_6a07bc;
 /*007ef804*/ extern int g_tick_number;
 /* course_dem_cb2 */
-/* the original ends in tail jumps to RpClumpRender (both arms); Ghidra inlined the target as a list walk */
+/* the original ends in tail jumps to RpClumpRender (both arms); the decompiler inlined the target as a list walk */
 RpClump * course_dem_cb2(char *course)
 {
   RpClumpRender(COURSE_CLUMP((CourseWorld *)course, 4));

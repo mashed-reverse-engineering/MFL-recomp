@@ -95,7 +95,7 @@ void __cdecl camera_record_add(int camera)
       }
       else if ((selected_car != 3) ||
               (selected_car = g_camera_8c7e1c,
-              *(float *)((char *)&g_camera_record_8c5a08 + g_camera_8c7e1c * CAR_RECORD_STRIDE) <= k_f_80)) {
+              !(*(float *)((char *)&g_camera_record_8c5a08 + g_camera_8c7e1c * CAR_RECORD_STRIDE) > k_f_80))) {      /* NaN takes the branch (original: test ah,0x41; je) */
         min_score = *(float *)((char *)&g_camera_record_8c5a08 + g_camera_8c5930 * CAR_RECORD_STRIDE);
         car_index = g_camera_8c5930;
         selected_car = g_camera_8c5930;

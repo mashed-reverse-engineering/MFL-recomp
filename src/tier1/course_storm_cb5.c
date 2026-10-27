@@ -6,7 +6,6 @@
 
 #define STORM_FX_SLOT_TABLE_LEN 0x40   /* entries in the table at 0x8c52c0 (no extern declared here) */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Tears down the Storm course: runs func_0x004ab120, releases the fx slots in use
    (count in g_course_storm_6a263c), then marks all table entries free (-1). */

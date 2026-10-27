@@ -11,7 +11,6 @@ typedef struct anim_update_hierarchy_anim_owner_layout {
 
 /*00544450*/ extern RwBool RpHAnimHierarchyUpdateMatrices(struct RpHAnimHierarchy *p0);
 /* anim_update_hierarchy */
-/* WARNING: Unknown calling convention */
 /* "RtAnimInterpolatorSubAnimTime + RpHAnimHierarchyUpdateMatrices" */
 /* Advances the animation of the hierarchy held by anim_owner and rebuilds its matrices.
  *   anim_owner: object whose +0x50 holds the RpHAnimHierarchy pointer and whose +0x44 holds the

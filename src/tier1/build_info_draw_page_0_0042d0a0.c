@@ -28,7 +28,6 @@ extern char s_Toast_Toast_Toast_Toast_Toast_To_006099b0[];
 /* build_info_draw_page_0_0042d0a0 */
 /* compile: /GS */
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* duplicate name: was build_info_draw_page_0 (first address 0042cf10) */
 /*
  * Draws one frame of the build-info overlay into the viewport camera and shows it (inferred from the call sequence).

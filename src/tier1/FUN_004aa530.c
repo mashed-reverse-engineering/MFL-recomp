@@ -30,32 +30,32 @@
 void __cdecl FUN_004aa530(char *geometry,char *index_range,char *unused_3,undefined4 base_texture,undefined4 detail_texture, char *unused_6)
 {
   struct {
-    float local_80 [21];
+    float tex_matrix [21];
     float local_2c;
     int pad_top[10];
   } transform_block;
 
   /* Texture matrix: bias 0.5/-0.5 (maps clip space to texture space) in elements [0..15];
      the projection (D3DTS_PROJECTION, read into [16..31]) scales its x and y terms. */
-  transform_block.local_80[0] = 0.5;
-  transform_block.local_80[1] = 0.0;
-  transform_block.local_80[2] = 0.0;
-  transform_block.local_80[3] = 0.0;
-  transform_block.local_80[4] = 0.0;
-  transform_block.local_80[5] = -0.5;
-  transform_block.local_80[6] = 0.0;
-  transform_block.local_80[7] = 0.0;
-  transform_block.local_80[8] = 0.5;
-  transform_block.local_80[9] = 0.5;
-  transform_block.local_80[10] = 1.0;
-  transform_block.local_80[0xb] = 0.0;
-  transform_block.local_80[0xc] = 0.0;
-  transform_block.local_80[0xd] = 0.0;
-  transform_block.local_80[0xe] = 0.0;
-  transform_block.local_80[0xf] = 1.0;
-  RwD3D9GetTransform(3,transform_block.local_80 + 0x10);
-  transform_block.local_80[0] = transform_block.local_80[0x10] * transform_block.local_80[0];
-  transform_block.local_80[5] = transform_block.local_2c * transform_block.local_80[5];
+  transform_block.tex_matrix[0] = 0.5;
+  transform_block.tex_matrix[1] = 0.0;
+  transform_block.tex_matrix[2] = 0.0;
+  transform_block.tex_matrix[3] = 0.0;
+  transform_block.tex_matrix[4] = 0.0;
+  transform_block.tex_matrix[5] = -0.5;
+  transform_block.tex_matrix[6] = 0.0;
+  transform_block.tex_matrix[7] = 0.0;
+  transform_block.tex_matrix[8] = 0.5;
+  transform_block.tex_matrix[9] = 0.5;
+  transform_block.tex_matrix[10] = 1.0;
+  transform_block.tex_matrix[0xb] = 0.0;
+  transform_block.tex_matrix[0xc] = 0.0;
+  transform_block.tex_matrix[0xd] = 0.0;
+  transform_block.tex_matrix[0xe] = 0.0;
+  transform_block.tex_matrix[0xf] = 1.0;
+  RwD3D9GetTransform(3,transform_block.tex_matrix + 0x10);
+  transform_block.tex_matrix[0] = transform_block.tex_matrix[0x10] * transform_block.tex_matrix[0];
+  transform_block.tex_matrix[5] = transform_block.local_2c * transform_block.tex_matrix[5];
   /* Stage 0 setup: base texture, texture factor colour */
   RwD3D9SetRenderState(RS_TEXTURE_FACTOR,TEXTURE_FACTOR_SHADOW);
   FUN_004e55d0(base_texture,0);
@@ -75,7 +75,7 @@ void __cdecl FUN_004aa530(char *geometry,char *index_range,char *unused_3,undefi
   RwD3D9SetTextureStageState(1,4,1);
   RwD3D9SetTextureStageState(1,0x18,TEXTURE_TRANSFORM_PROJECTED_COUNT3);
   RwD3D9SetTextureStageState(1,0xb,TEXCOORD_CAMERASPACE_POSITION);
-  RwD3D9SetTransform(TRANSFORM_TEXTURE1,transform_block.local_80);
+  RwD3D9SetTransform(TRANSFORM_TEXTURE1,transform_block.tex_matrix);
   RwD3D9SetSamplerState(1,1,3);
   RwD3D9SetSamplerState(1,2,3);
   /* Draw the indexed range with the stage 0 and stage 1 state set above */

@@ -11,22 +11,22 @@
 
 /* "(row or -1): string id of the event title for the current event type" */
 
-int __cdecl career_row_title_string_id(int param_1)
+int __cdecl career_row_title_string_id(int row)
 {
-  if (param_1 < 0) {
-    param_1 = g_career_row;
+  if (row < 0) {
+    row = g_career_row;
   }
   if (g_event_type == EVENT_TURBO_TOURNAMENT) {
-    return *(int *)(&g_career_row_6091a4 + param_1 * 4);
+    return *(int *)(&g_career_row_6091a4 + row * 4);
   }
   if (g_event_type == EVENT_ICE_TOURNAMENT) {
-    return *(int *)(&g_career_row_6091b8 + param_1 * 4);
+    return *(int *)(&g_career_row_6091b8 + row * 4);
   }
   if (g_event_type == EVENT_NIGHT_TOURNAMENT) {
-    return *(int *)(&g_career_row_6091cc + param_1 * 4);
+    return *(int *)(&g_career_row_6091cc + row * 4);
   }
   if (g_event_type == EVENT_TRAINING) {
-    return *(int *)(&g_career_row_6091e0 + param_1 * 4);
+    return *(int *)(&g_career_row_6091e0 + row * 4);
   }
-  return param_1 + 0x4a;
+  return row + 0x4a;
 }

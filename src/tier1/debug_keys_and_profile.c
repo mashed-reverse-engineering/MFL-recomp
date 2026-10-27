@@ -12,7 +12,6 @@
 #define JOYPAD_FIELD_ARM_KEY (3) /* inferred: pressing it arms the debug flag */
 #define JOYPAD_FIELD_CANCEL_KEY (4) /* inferred: pressing it disarms the flag */
 /* debug_keys_and_profile */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* reads two debug keys and averages the frame time over PROFILE_FRAMES frames.
  * Called once per frame; takes no parameters and returns nothing.
  * JOYPAD_FIELD_ARM_KEY sets g_debug_keys_62ad30. While that flag is set and

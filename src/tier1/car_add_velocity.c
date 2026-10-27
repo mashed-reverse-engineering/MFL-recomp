@@ -7,17 +7,17 @@
 
 /* "(delta vec, car): adds to Car.velocity, or applies an impulse in RWP mode" */
 
-undefined4 car_add_velocity(float *param_1,uint param_2)
+undefined4 car_add_velocity(float *delta,uint car_index)
 {
-  if (param_2 >= 16) {
+  if (car_index >= 16) {
     return 0;
   }
-  if (player_car[param_2].rwp_object != 0) {
-    car_add_velocity_impl(param_1,param_2);
+  if (player_car[car_index].rwp_object != 0) {
+    car_add_velocity_impl(delta,car_index);
     return 1;
   }
-  player_car[param_2].velocity[0] = player_car[param_2].velocity[0] + *param_1;
-  player_car[param_2].velocity[1] = param_1[1] + player_car[param_2].velocity[1];
-  player_car[param_2].velocity[2] = param_1[2] + player_car[param_2].velocity[2];
+  player_car[car_index].velocity[0] = player_car[car_index].velocity[0] + *delta;
+  player_car[car_index].velocity[1] = delta[1] + player_car[car_index].velocity[1];
+  player_car[car_index].velocity[2] = delta[2] + player_car[car_index].velocity[2];
   return 1;
 }

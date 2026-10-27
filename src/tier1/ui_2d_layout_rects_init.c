@@ -34,7 +34,6 @@
 /* course_render_cb3_dispatch */
 /* "course_call_cb3 + sky + render" */
 /* ui_2d_layout_rects_init */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "sets the two text rectangles of the 2D UI from the screen size" */
 void ui_2d_layout_rects_init(void)
 {

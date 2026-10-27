@@ -2,13 +2,10 @@
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
 /* course_sands_cb1 */
 /* course_sands_cb2 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_sands_cb5 */
 /* course_superg_cb1 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_superg_cb4 */
 /* course_training_cb1 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* course_training_cb2 */
 /* course_training_cb10 */
 /* course_particle_init_random */

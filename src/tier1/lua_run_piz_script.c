@@ -31,7 +31,7 @@ void __cdecl lua_run_piz_script(undefined4 piz_path,undefined4 lua_state)
   RwFseek_00560f10(piz_file,0,RW_SEEK_END);
   script_len = thunk_FUN_00544430(piz_file);
   /* Rewind, then read the whole file into script_buf. RwFwrite_00560eb0 gets (buffer, 1, count, file),
-     which is fread's shape: the Ghidra name says Write, but data flows into script_buf (inferred).
+     which is fread's shape: the imported name says Write, but data flows into script_buf (inferred).
      script_len becomes the number of items read. */
   RwFseek_00560f10(piz_file,0,0);
   script_len = RwFwrite_00560eb0(script_buf,1,script_len,piz_file);

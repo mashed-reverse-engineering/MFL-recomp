@@ -2,7 +2,6 @@
 /*005ddc28*/ extern float k_f_0;
 /*007ef7ac*/ extern float g_camera_shake;
 /* camera_shake_decay */
-/* WARNING: Unknown calling convention */
 /* "(dt): g_camera_7ef7ac -= dt, clamped to 0" */
 /* Decays the global camera shake g_camera_shake by dt each call, clamped to 0. No return value.
    dt: amount subtracted from g_camera_shake. */

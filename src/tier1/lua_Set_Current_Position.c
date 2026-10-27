@@ -13,7 +13,6 @@
 
 /* lua_Set_Current_Position */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Lua function Set_Current_Position (registered by the script engine) */
 /* Purpose: Sets the current 3D position (x, y, z) in global state from Lua script arguments. */
 

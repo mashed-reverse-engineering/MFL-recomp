@@ -12,7 +12,6 @@
 /* ui_get_8c8730 */
 /* "returns &g_ui_8c8730" */
 /* ui_camera_update_view_rect */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the viewport rectangle of the secondary frontend camera from the screen size" */
 /* get_event_type */
 /* "returns g_event_type (the column of the career grid, 0..0x11; 0x11 is a special variant)" */

@@ -6,7 +6,6 @@
 /*006a06e0*/ extern undefined4 g_sky_atomic;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /* course_nt1_s_cb2 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*0044a010*/ extern int course_sky_atomic_render();
 /* offsets of RpClump pointers inside the course state block (inferred roles) */
 #define COURSE_STATE_PRE_CLUMP_OFFSET (0xc118)

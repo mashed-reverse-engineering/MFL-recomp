@@ -55,7 +55,7 @@ void weapon_mortar_fire(WeaponSlot *weapon,int action)
 
   player = weapon->player;
   if (((action == 1) && (-1 < *(int *)((char *)&g_weapon_mortar_6a29c4 + player * PLAYER_RECORD_BYTES))) &&
-     (*(float *)&(&g_weapon_6a29c8)[player * PLAYER_RECORD_DWORDS] <= k_f_0)) {
+     !(*(float *)&(&g_weapon_6a29c8)[player * PLAYER_RECORD_DWORDS] > k_f_0)) {      /* NaN cooldown fires (original: test ah,0x41; je) */
     /* find the first free shot record in the pool; shot is NULL if the pool is full */
     slot_scan = (undefined4 *)&g_weapon_6a2a28;
     do {

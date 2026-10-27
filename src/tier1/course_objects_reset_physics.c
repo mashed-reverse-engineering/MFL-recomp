@@ -8,7 +8,6 @@
 #define RECORDS_PER_GROUP (10)
 #define RECORD_STRIDE_INTS (7)
 /* course_objects_reset_physics */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the 10 object records per group and parks their physics objects" */
 /* Resets the course object table. Parameters: none. Returns nothing.
  * The table is groups of RECORDS_PER_GROUP records, each RECORD_STRIDE_INTS ints:

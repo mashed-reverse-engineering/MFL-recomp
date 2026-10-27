@@ -3,9 +3,9 @@
 /*00668c18*/ extern struct CourseWorld g_course_world;
 /*00421b50*/ extern int course_has_cb9();
 /* course_hook9: runs the cb9 callback with the course world when course_has_cb9()
-   reports it is present. param_1 is unused (inferred). Returns nothing. */
+   reports it is present. course is unused (inferred). Returns nothing. */
 /* "cb9 when present" */
-void __cdecl course_hook9(char *param_1)
+void __cdecl course_hook9(char *course)
 {
   int has_cb9;
 

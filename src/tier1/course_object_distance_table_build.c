@@ -12,7 +12,6 @@ extern double fabs(double);
 #define OBJECT_COUNT_OFFSET (0x50) /* int entry count inside a record */
 #define OBJECT_ENTRY_SIZE (0x14) /* 4 ints per entry */
 /* course_object_distance_table_build */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Rebuilds the course object table in g_course_highway_8c4478: clears all 8 records, then for each of the
    4 vehicles (vehicle = 0..3) and each of the 8 course objects (object = 0..7, x in g_course_8c3fc0[object]),
    appends an entry {x bits, y bits, z bits, vehicle + 1} to that object's list when the vehicle's slot is

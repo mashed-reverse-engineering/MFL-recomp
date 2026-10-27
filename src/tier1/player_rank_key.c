@@ -129,7 +129,7 @@
 
 /* float used to sort the 4 players (g_rank_order) */
 
-double player_rank_key(int param_1)
+double player_rank_key(int player_index)
 {
-  return (double)*(float *)((char *)&g_player_8d8d48 + param_1 * 0x30c);
+  return (double)*(float *)((char *)&g_player_8d8d48 + player_index * 0x30c);
 }

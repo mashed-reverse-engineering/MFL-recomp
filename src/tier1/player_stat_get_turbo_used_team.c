@@ -16,7 +16,6 @@
 /* "loops vehicle debris records calling vehicles_any_active_sub_424db0" */
 /* vehicle_tyre_marks_render */
 /* WARNING: Function: __chkstk replaced with injection: alloca_probe */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "builds an Im3D vertex list from the tyre mark segments (0xF54 byte records) and renders them" */
 /* player_stat_add_turbo_used */
 /* "(player, amount): g_player_stats_race[player].turbo_used += amount (called when the turbo charge

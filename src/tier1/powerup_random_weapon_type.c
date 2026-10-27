@@ -3,7 +3,6 @@ typedef int WeaponId;
 /*00463310*/ extern int weapon_effects_any_active();
 /*00482010*/ extern int random_int_range();
 /* powerup_random_weapon_type */
-/* WARNING: Unknown calling convention -- yet parameter storage is locked */
 /* "picks a random weapon id from {0xC, 0x13, 0x12, 0x11, 0x10, 0xB, 0xA, 9, 7}" */
 /* Purpose: pick the weapon a power-up box gives out. Returns a random WeaponId from weapon_pool.
    If any weapon effect is already active (weapon_effects_any_active() != 0), the pool is

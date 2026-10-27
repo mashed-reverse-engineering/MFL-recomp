@@ -8,23 +8,23 @@
 /* "(car): if the turbo charge is above 1000 spends it (state 2), else converts the charge (state 1,
    +1000); adds the used charge to the player's turbo_used statistic" */
 
-undefined4 car_turbo_spend(int param_1)
+undefined4 car_turbo_spend(int car_index)
 {
-  int iVar1;
+  int charge;
   
-  if (param_1 >= 16) {
+  if (car_index >= 16) {
     return 0;
   }
-  iVar1 = player_car[param_1].turbo_charge;
-  if (1000 < iVar1) {
-    player_car[param_1].turbo_state = 2;
-    player_stat_add_turbo_used(param_1,1000 - iVar1);
+  charge = player_car[car_index].turbo_charge;
+  if (1000 < charge) {
+    player_car[car_index].turbo_state = 2;
+    player_stat_add_turbo_used(car_index,1000 - charge);
     return 1;
   }
-  if (0 < iVar1) {
-    player_car[param_1].turbo_state = 1;
-    player_car[param_1].turbo_charge = iVar1 + 1000;
-    player_stat_add_turbo_used(param_1,iVar1 + 1000);
+  if (0 < charge) {
+    player_car[car_index].turbo_state = 1;
+    player_car[car_index].turbo_charge = charge + 1000;
+    player_stat_add_turbo_used(car_index,charge + 1000);
   }
   return 1;
 }

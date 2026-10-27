@@ -14,10 +14,10 @@ extern __declspec(dllimport) int __stdcall ShowCursor(int);
 
 undefined4 cursor_show(void)
 {
-  int iVar1;
+  int cursor_enabled;
   
-  iVar1 = app_get_app_7712f4();
-  if (iVar1 != 0) {
+  cursor_enabled = app_get_app_7712f4();
+  if (cursor_enabled != 0) {
     ShowCursor(1);
   }
   video_dialog_free();

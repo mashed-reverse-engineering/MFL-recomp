@@ -3,6 +3,7 @@
 /*00457520*/ extern void LAB_00457520(void);
 /* course_tierra_n_cb7 */
 
+/* Course Tierra-N callback: runs SUB_004577b0, then the shared routine (LAB_00457520). */
 void course_tierra_n_cb7(void)
 
 {

@@ -10,7 +10,6 @@
 /*006c28a4*/ extern float g_car_6c28a4;
 /*006c28b0*/ extern int g_car_6c28b0;
 /* course_cell_bounds_from_position */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes cell indices and fills the cell min/max bounds" */
 /* Finds the course grid cell that contains a world position and writes that cell's
  * world-space bounds.

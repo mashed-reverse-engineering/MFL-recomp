@@ -11,7 +11,6 @@
 #define VIEW_WINDOW_Y (0.45)
 #define MATRIX_FLAGS_IDENTITY_ORTHONORMAL (0x20003)
 /* camera_save */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /*
  * Saves the camera's state into globals, then resets the camera to a fixed setup:
  * identity frame, 0.6 x 0.45 view window, parallel projection, and adds it to the

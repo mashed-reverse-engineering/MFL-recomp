@@ -78,7 +78,7 @@ LAB_00413f8a:
   if (*(int *)(g_replay_652f8c + 0x174) < 0) {
     time_s = time_s + k_f_4_2949673e9;
   }
-  if (frame.best_time <= time_s * k_f_3_3333333en4) {
+  if (!(frame.best_time > time_s * k_f_3_3333333en4)) {      /* NaN: too long (original: test ah,5; jp) */
     debug_printf("Time is too long\n");
   }
   else if (((beats_compare_replay) || (g_replay_652fa4 == 0)) && (update_flag != 0)) {

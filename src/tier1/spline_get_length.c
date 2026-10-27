@@ -4,7 +4,6 @@
 /*005dd330*/ extern float float_1_0;
 /*005dd61c*/ extern float k_f_0_001;
 /* spline_get_length */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "samples the RpSpline at 0.001 steps and sums the segment length" */
 /* Returns the approximate arc length of `spline` (inferred): the sum of straight-line distances between consecutive samples along the curve.
    spline - curve to measure. Returns the total length as double. */

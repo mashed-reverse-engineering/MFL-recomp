@@ -4,7 +4,6 @@
 /*0076df18*/ extern RpAtomic *g_fx_ptank_76df18;
 /*0076df2c*/ extern undefined4 g_fx_ptank_76df2c;
 /* fx_ptank_atomic_destroy */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "destroys the atomic and frame of _g_data_76df18" */
 /* Destroys the particle-tank atomic g_fx_ptank_76df18 and its parent frame, then clears
    g_fx_ptank_76df18 and g_fx_ptank_76df2c. Takes no parameters, returns nothing.

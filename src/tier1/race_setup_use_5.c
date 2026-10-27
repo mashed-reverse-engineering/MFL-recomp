@@ -7,7 +7,6 @@
 
 /* race_setup_use_5 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "also advances the float at 0x7EF758 by 1.0" */
 
 void race_setup_use_5(void)

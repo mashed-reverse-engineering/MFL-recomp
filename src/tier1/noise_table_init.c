@@ -19,7 +19,6 @@
  * drawn from RpRandomSeed(NOISE_TABLE_SEED) and random_range(-0.25f, 1.25f), then sets four float globals.
  * Takes no parameters, returns nothing. The clamp bounds k_f_0 (low) and float_1_0 (high) are not in the dossier, so their values are inferred.
  */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "RpRandomSeed(0xD7A33) then fills 4096 random floats at 0x653298" */
 void noise_table_init(void)
 {

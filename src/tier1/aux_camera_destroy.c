@@ -10,7 +10,7 @@
  *  1. Detaches the frame from g_car_6c2944 (the car object).
  *  2. Destroys the RwFrame held in g_aux_camera_6c2948 (the aux camera).
  *  3. Calls FUN_004d1e80 on g_car_6c2944 (inferred: finishes the car's
- *     per-object cleanup; the name is still a Ghidra placeholder).
+ *     per-object cleanup; the name is still a placeholder).
  */
 void aux_camera_destroy(void)
 {

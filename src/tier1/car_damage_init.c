@@ -7,7 +7,6 @@
 /*0065aa78*/ extern undefined4 g_car_damage_65aa78;
 #define CAR_DAMAGE_TABLE_SIZE (0xa0)
 /* car_damage_init */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the 0xA0 byte car_damage table and sets the default per car ids (0, 1, 2 ...)" */
 /* Resets the car damage table at startup: zeroes CAR_DAMAGE_TABLE_SIZE bytes, then stores
    the default car ids 0..3 into the four globals, which sit inside the table at

@@ -16,7 +16,6 @@
 #define ATOMIC_MATRIX_1_OFFSET (0x5440)
 #define ATOMIC_MATRIX_2_OFFSET (0x5480)
 /* course_atomics_clone_3 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clones the atomic of the world record three times (g_course_6a2830 / 6a2838 / 6a2840)" */
 /*
  * Makes three copies of the course's world record atomic (the first atomic of the

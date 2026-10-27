@@ -9,7 +9,6 @@
 #define RASTER_FLIP_WAIT_VSYNC (rwRASTERFLIPWAITVSYNC)
 #define HALF_PI (1.5707964f)
 /* screen_clear_black */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "RwCameraClear of viewport 0 with opaque black" */
 /* Clears the viewport 0 camera to opaque black, draws a pulsing texture over it while the
    camera update is open (inferred), then presents the raster. Takes no parameters, always returns 1. */

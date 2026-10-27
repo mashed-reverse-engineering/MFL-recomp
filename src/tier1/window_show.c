@@ -8,9 +8,9 @@ extern __declspec(dllimport) int __stdcall UpdateWindow(int);
 
 /* "ShowWindow + UpdateWindow(g_app_7e7704)" */
 
-void window_show(int param_1)
+void window_show(int show_cmd)
 {
-  ShowWindow(g_app_7e7704,param_1);
+  ShowWindow(g_app_7e7704,show_cmd);
   UpdateWindow(g_app_7e7704);
   return;
 }

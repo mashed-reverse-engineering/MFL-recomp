@@ -140,13 +140,13 @@
 
 void hudpanel_values_init(void)
 {
-  int iVar1;
-  undefined4 *puVar2;
+  int words_left;
+  undefined4 *dst;
   
-  puVar2 = &g_particles_658a28;
-  for (iVar1 = 0x40; iVar1 != 0; iVar1 = iVar1 + -1) {
-    *puVar2 = 0x3fe00000;
-    puVar2 = puVar2 + 1;
+  dst = &g_particles_658a28;
+  for (words_left = 0x40; words_left != 0; words_left = words_left + -1) {
+    *dst = 0x3fe00000;
+    dst = dst + 1;
   }
   return;
 }

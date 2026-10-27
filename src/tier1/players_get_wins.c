@@ -9,7 +9,6 @@ extern char g_ai_editor_mode[];
 #define PLAYER_SLOTS_END (((LONG_PTR)&g_ai_editor_mode)) /* one past the end of g_player_slots */
 #define WINS_ABSENT_PLAYER (-1) /* wins sort key of a slot with no player (sorted last) */
 /* round_scores_reset */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "sets the three per player change tables at 0x8D8B60 to -1000 (0xFFFFFC18)" */
 /* player_get_points_change */
 /* "0x8D8B80[player]" */

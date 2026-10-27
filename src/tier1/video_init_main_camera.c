@@ -15,7 +15,6 @@
 /*0076e7ec*/ extern undefined4 g_car_76e7ec;
 #define LOAD_ICON_DICT_RES_ID (0x194) /* resource id of the RWTEXDICTIONARY with the load icon */
 /* video_init_main_camera */
-/* WARNING: Enum "RwVideoModeFlag": Some values do not have unique names */
 /* "'RWTEXDICTIONARY': video mode info and aux camera setup" */
 void video_init_main_camera(void)
 {

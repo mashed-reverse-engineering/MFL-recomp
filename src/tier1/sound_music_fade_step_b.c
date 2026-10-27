@@ -7,7 +7,6 @@
 /*006ad8dc*/ extern float g_sound_6ad8dc;
 /*006adcf4*/ extern float g_sound_frame_6adcf4;
 /* sound_music_fade_step_b */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "second fade variable stepped by -0.2 / +0.2 like sound_music_fade_step" */
 /*
  * Steps the music fade level g_sound_6ad8dc by one notch and pushes the result

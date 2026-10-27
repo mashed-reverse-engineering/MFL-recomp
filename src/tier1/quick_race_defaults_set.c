@@ -20,7 +20,6 @@
 
 /* quick_race_defaults_set */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "game_mode = GAME_MODE_QUICK_RACE, event type 0x12, team mode off ..." */
 
 void quick_race_defaults_set(void)

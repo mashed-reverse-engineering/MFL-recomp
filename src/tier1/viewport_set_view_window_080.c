@@ -12,7 +12,7 @@
 void viewport_set_view_window_080(void)
 {
   RwCamera *camera;
-  int iVar1;
+  int began;
   union {
     RwV2d window[2];       /* [0] the 0.8 window, [1] the saved old window */
     char gs_buffer[16];    /* only makes /GS put the stack cookie here, as in the original */
@@ -26,8 +26,8 @@ void viewport_set_view_window_080(void)
   vw[1].x = RwCamera_viewWindow(camera).x;
   vw[1].y = RwCamera_viewWindow(camera).y;
   RwCameraSetViewWindow(camera,&vw[0]);
-  iVar1 = RwCameraBeginUpdate(camera);
-  if (iVar1 != 0) {
+  began = RwCameraBeginUpdate(camera);
+  if (began != 0) {
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
     hud_flash_text();

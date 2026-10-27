@@ -6,7 +6,6 @@
 /* best-time slots per career row (inferred: best_minutes[45] = 15 rows x 3) */
 #define BEST_TIMES_PER_ROW (3)
 /* best_time_store */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Stores the just-finished race time (minutes, seconds, fraction of a second) in the
  * best-time tables for the current career row and menu slot. Only the first three
  * parameters are used; unused_4..unused_8 are unused here (inferred). */

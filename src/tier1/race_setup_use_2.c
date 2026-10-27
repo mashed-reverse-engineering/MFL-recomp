@@ -7,6 +7,7 @@
 
 /*  */
 
+/* Makes race setup record 2 the current g_race_setup. */
 void race_setup_use_2(void)
 {
   g_race_setup = race_setup_struct_2();

@@ -33,7 +33,6 @@
 #define SCORCH_POOL_SIZE (0x18)
 #define WFALL_POOL_SIZE (0x10)
 /* race_load_common_assets */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "opens sfx.piz, fx.txd; loads cup / tri / shockwave models"
  *
  * Loads the assets shared by all races: opens sfx.piz, loads the fx, badges,

@@ -15,7 +15,6 @@
 
 /* hud_game_vars_clear */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "clears the counters at 0x659CB8..0x659CF8" */
 
 void hud_game_vars_clear(void)

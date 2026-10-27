@@ -19,7 +19,6 @@ typedef int CourseId;
 /* gsd_load */
 /* compile: /GS */
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "Boid%d.gsd loader (the GSD format in MashedFormats)" */
 /* Loads the GSD header for the current course (Boid<course_id>.gsd) into the globals at 0x8c7e80.
    Takes no parameters; returns nothing. If the file cannot be read, the globals get default values

@@ -6,8 +6,8 @@
 /* "cb8 when present" */
 /* Course hook: if course_has_cb8() reports a cb8 callback is present, calls it with the
  * course world (g_course_world). Does nothing otherwise. Returns nothing.
- * param_1 is never read (inferred: unused by this hook). */
-void __cdecl course_hook8(char *param_1)
+ * course is never read (inferred: unused by this hook). */
+void __cdecl course_hook8(char *course)
 {
   int has_cb8;
 

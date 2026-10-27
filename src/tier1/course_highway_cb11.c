@@ -9,7 +9,6 @@
 /*006a268c*/ extern float g_course_highway_6a268c;
 /*006a26b4*/ extern undefined4 g_course_highway_6a26b4;
 /* course_highway_cb11 */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Course setup step for course_highway_cb11 (inferred from the name and the calls).
  * Takes no parameters and returns nothing.
  * Clears g_course_highway_6a26b4, then calls course_object_offsets_init() when

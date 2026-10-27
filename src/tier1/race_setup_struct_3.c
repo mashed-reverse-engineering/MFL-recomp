@@ -6,6 +6,7 @@
 
 /*  */
 
+/* Returns the address of race setup record 3. */
 undefined * race_setup_struct_3(void)
 {
   return &g_race_setup_6092c8;

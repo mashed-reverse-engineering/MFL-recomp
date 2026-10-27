@@ -5,7 +5,7 @@
 /*008bf084*/ extern undefined4 *g_course_training_8bf084;
 /* course_training_cb5 */
 /* destroys the training pool list; the original ends in a tail jump to pool_list_destroy */
-int course_training_cb5(int param_1)
+int course_training_cb5(int course)
 {
   fx_ptank_atomic_destroy();
   SUB_0049c880(0);

@@ -7,9 +7,9 @@
 /*
  * Course hook 11: if course_has_cb11() reports the callback is present,
  * call course_call_cb11() with the address of g_course_world.
- * param_1 is unused (inferred).
+ * course is unused (inferred).
  */
-void __cdecl course_hook11(char *param_1)
+void __cdecl course_hook11(char *course)
 {
   int has_cb11;
 

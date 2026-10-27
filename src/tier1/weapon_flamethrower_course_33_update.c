@@ -15,7 +15,6 @@
  * course_zone_contains_matrix_in_zone_6a2888 (which may move it back into the zone), and the
  * result is written back to the entry's x/y/z. Takes no parameters, returns nothing.
  */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 void weapon_flamethrower_course_33_update(void)
 {
   int row_left;

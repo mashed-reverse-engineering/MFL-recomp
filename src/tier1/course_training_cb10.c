@@ -6,7 +6,8 @@
 
 /* course_training_cb10 */
 
-void course_training_cb10(char *param_1)
+/* Course Training render callback: draws particles (z-write off), then the clump at +0xc140 with back-face culling disabled. */
+void course_training_cb10(char *course)
 {
   void *pvStack_4;
   
@@ -15,8 +16,8 @@ void course_training_cb10(char *param_1)
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
   RwRenderStateGet(rwRENDERSTATECULLMODE,&pvStack_4);
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)0x2);
-  if (*(RpClump **)(param_1 + 0xc140) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(param_1 + 0xc140));
+  if (*(RpClump **)(course + 0xc140) != (RpClump *)0x0) {
+    RpClumpRender(*(RpClump **)(course + 0xc140));
   }
   RwRenderStateSet(rwRENDERSTATECULLMODE,pvStack_4);
   return;

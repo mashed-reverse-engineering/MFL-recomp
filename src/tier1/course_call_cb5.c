@@ -8,8 +8,6 @@
    unload_context: the char * passed through to the hook (inferred). Returns nothing. */
 void __cdecl course_call_cb5(char *unload_context)
 {
-                    /* WARNING: Could not recover jumptable at 0x004219f6. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
   (**(code **)(g_current_course_entry + COURSE_ENTRY_CB5_OFFSET))(unload_context);
   return;
 }

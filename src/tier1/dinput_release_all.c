@@ -8,7 +8,6 @@
 /*00770f68*/ extern undefined4 g_app_770f68;
 #define DINPUT_DEVICE_TABLE_SIZE (0x2240)
 /* dinput_release_all */
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "dinput_release_device, clears the 0x2240 byte device table" */
 /* Releases all DirectInput devices (inferred from dinput_release_device), then zeroes the device table and resets the
    related globals (g_app_770f64, g_app_76ed18, g_app_770f60, g_app_770f68) to 0.

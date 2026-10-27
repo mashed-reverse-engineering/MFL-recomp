@@ -9,21 +9,22 @@ extern RpAtomic * atomic_log_not_instancing(RpAtomic *atomic,int *param_2);
 
 /*  */
 
+/* Debug: logs, for each of the 128 course clump slots, the atomics that are not instancing. */
 void instancing_clump_log(void)
 {
-  int iVar1;
-  undefined4 local_4;
+  int clump_index;
+  undefined4 not_instancing_count;
   
-  local_4 = 0;
-  iVar1 = 0;
+  not_instancing_count = 0;
+  clump_index = 0;
   do {
-    if (g_course_world.clumps[iVar1] != 0) {
-      FID_conflict__wprintf("\ninstancing clump %d\n",iVar1);
-      local_4 = 0;
+    if (g_course_world.clumps[clump_index] != 0) {
+      FID_conflict__wprintf("\ninstancing clump %d\n",clump_index);
+      not_instancing_count = 0;
       RpClumpForAllAtomics
-                ((RpClump *)g_course_world.clumps[iVar1],atomic_log_not_instancing,&local_4);
+                ((RpClump *)g_course_world.clumps[clump_index],atomic_log_not_instancing,&not_instancing_count);
     }
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 0x80);
+    clump_index = clump_index + 1;
+  } while (clump_index < 0x80);
   return;
 }
