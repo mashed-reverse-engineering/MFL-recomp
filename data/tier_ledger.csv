@@ -317,7 +317,7 @@ camera_hud_update,0044c5a0,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,
 camera_path_get_point,004063b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 camera_path_sample,0044c7e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 camera_path_update,004062d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
-camera_pick_ground_point,0044a530,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
+camera_pick_ground_point,0044a530,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 camera_record_add,0044bc90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.93,0,0
 camera_record_set_path,0044c2c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.79,0,0
 camera_records_clear,0044ba50,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
@@ -2053,7 +2053,7 @@ sound_ambience_course_8_19,0046a960,tier2,compiled+diffemu-EQUAL+shadow-never,di
 sound_ambience_course_9_22,0046c470,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_ambience_course_b,0046bb10,tier1,bytes,bytes-reloc,d1327df0b6db,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_ambience_course_c_26,0046dd30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
-sound_ambience_course_f_24,00471bc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,800,0.71,0,0
+sound_ambience_course_f_24,00471bc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.71,0,0
 sound_ambient_pitch_randomise,0046f940,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_bomb_countdown_voices,0046fc20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.42,0,0
 sound_car_engine_start,00470b00,tier1,bytes,bytes-reloc,a5a6eea055db,126ee480af92,9a2277a8f1a9,0,0.00,0,0
@@ -2074,7 +2074,7 @@ sound_fn_453860,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af
 sound_frame_begin,00473550,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,800,0.76,0,0
 sound_get_6af57c,00473aa0,tier1,bytes,bytes-reloc,371c18d8c153,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_get_8d9960,00469d20,agent,bytes-standalone+0c977788a3bf,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-sound_global_fade_update,004710f0,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
+sound_global_fade_update,004710f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.86,0,0
 sound_language_path,0046ed30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.90,0,0
 sound_listener_update,00469770,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_load_perm_dict,00469430,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,12b9063c3b6c,126ee480af92,9a2277a8f1a9,123,1.00,0,1
@@ -2084,7 +2084,7 @@ sound_music_fade_step_b,00469bb0,tier1,bytes,bytes-reloc,45af43d79e69,126ee480af
 sound_music_for_career_row,0046eca0,agent,bytes-standalone+00ed6f63a912,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_music_for_menu_page,0046e570,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_music_state_update,0046ef60,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-sound_music_volume_update,00469d30,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
+sound_music_volume_update,00469d30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,1.00,0,0
 sound_nearest_objects_sort,00471360,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,148,1.00,0,0
 sound_phase_change_check,00468760,tier1,bytes,bytes-reloc,adc2c4c238e2,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 sound_play_impact_voice,00470f70,tier2,compiled+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
@@ -2214,7 +2214,7 @@ trigger_register_object_type8,00456740,tier1,bytes,bytes-reloc,0622e59de8c9,126e
 trigger_sphere_register,00496850,tier2,compiled+diffemu-DIFF+shadow-never,static,-,126ee480af92,9a2277a8f1a9,0,0.58,0,0
 triggers_assign_ids,004967f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,c12a260d452a,126ee480af92,9a2277a8f1a9,200,1.00,0,1
 triggers_get_array,004967d0,hand,bytes,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
-triggers_sort_axis,00496ad0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,198,1.00,0,0
+triggers_sort_axis,00496ad0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,170,1.00,0,0
 triggers_update_dispatch,00496bd0,agent,bytes-standalone+3e315d3e9864,bytes-reloc,-,126ee480af92,9a2277a8f1a9,0,0.00,0,0
 tutorial_state_reset,00431d70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,199,0.82,0,0
 tutorial_text_format_ratio,00431c20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,9a2277a8f1a9,200,0.67,0,0
