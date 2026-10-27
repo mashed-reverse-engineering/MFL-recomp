@@ -55,10 +55,10 @@
   }
  },
  "published_verified": {
-  "cluster_files": 422,
-  "cluster_functions": 422,
-  "tier2_files": 681,
-  "tier2_functions": 735
+  "cluster_files": 597,
+  "cluster_functions": 597,
+  "tier2_files": 1006,
+  "tier2_functions": 1060
  },
  "replaced_in_pipeline": {
   "agent": {

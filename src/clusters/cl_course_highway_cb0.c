@@ -3,12 +3,13 @@
 #include "mfl_tier2.h"
 #define COURSE_HIGHWAYN (12)
 typedef int CourseId;
+#define MTS_LIST_BYTES 0xc00 /* one matrix list of CourseWorld.mts_matrices (0x30 RwMatrix) */
 /*0042b110*/ extern int current_course_id();
 /*00453ca0*/ extern int course_smoke_particles_create_00453ca0();
 /*00453cb0*/ extern int load_headlight();
 /*00453ff0*/ extern int course_car_shadow_particles_create();
 /*00459810*/ extern int course_object_offsets_init();
-/*0045aa00*/ extern int __cdecl course_highway_physics_objects_create(undefined4 p0);
+/*0045aa00*/ extern int __cdecl course_highway_physics_objects_create(struct CourseWorld *p0);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*005dd340*/ extern float k_f_0_5;
@@ -92,7 +93,7 @@ extern void course_highway_lod_atomic_scale_by_index(void);
 static int course_highway_lod_objects_setup_r(int p0, int p1);
 extern void course_highway_lod_objects_setup(void);
 /* Highway course load callback (inferred): builds the 5 big scenery objects (g_course_highway_6a2690..6a26a0), initialises the float tables (g_course_highway_8c3f60.., 8c4440.., 8c4720..), then creates the 2 x 4 x 10 grid (row, col, seg) of 0xfc byte LOD scenery objects (clump tables at course+0xc110, index triples chosen from variant_table, lod_tier 0..2 selects the far clump 0x2e..0x30), links each object to the next through +0xbc, and finally creates physics objects, shadow/smoke particles and, on COURSE_HIGHWAYN, the headlight. */
-void course_highway_cb0(int course)
+void course_highway_cb0(struct CourseWorld *course)
 
 {
   int *chain_last;
@@ -203,26 +204,26 @@ void course_highway_cb0(int course)
   frame.variant_table[0x4b] = 6;
   frame.variant_table[0x4d] = 1;
   frame.variant_table[0x4e] = 7;
-  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc1e4))));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[53]));
   g_course_highway_6a2690 =
-       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc004),course + 0xc00,
-                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
-  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc1f0))));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[1],course->mts_matrices + 1 * MTS_LIST_BYTES,
+                       course->ambient_light,course->directional_light);
+  atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[56]));
   g_course_highway_6a2694 =
-       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc010),course + 0x3000,
-                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
-  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc1fc))));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[4],course->mts_matrices + 4 * MTS_LIST_BYTES,
+                       course->ambient_light,course->directional_light);
+  atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[59]));
   g_course_highway_6a2698 =
-       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc01c),course + 0x5400,
-                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
-  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc200))));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[7],course->mts_matrices + 7 * MTS_LIST_BYTES,
+                       course->ambient_light,course->directional_light);
+  atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[60]));
   g_course_highway_6a269c =
-       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc020),course + 0x6000,
-                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
-  atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc208))));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[8],course->mts_matrices + 8 * MTS_LIST_BYTES,
+                       course->ambient_light,course->directional_light);
+  atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[62]));
   g_course_highway_6a26a0 =
-       func_0x004a5d50(atomic,*(undefined4 *)(course + 0xc028),course + 0x7800,
-                       *(undefined4 *)(course + 0xc9e0),*(undefined4 *)(course + 0xc9e4));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[10],course->mts_matrices + 10 * MTS_LIST_BYTES,
+                       course->ambient_light,course->directional_light);
   g_course_8c3fc0 = 0x40800000;
   g_course_highway_8c3fc4 = 0x40400000;
   g_course_highway_8c3fc8 = 0x40000000;
@@ -387,15 +388,15 @@ LAB_0045b28a:
         else if (lod_tier == 2) {
           frame.far_clump_idx = 0x30;
         }
-        frame.lod_atomic_a = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + idx_a * 4))));
-        frame.lod_atomic_b = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + idx_b * 4))));
-        frame.lod_atomic_c = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + idx * 4))));
-        atomic = *(undefined4 *)(course + 0xc1c0);
+        frame.lod_atomic_a = (undefined4)(clump_first_atomic((RpClump *)course->clumps[idx_a]));
+        frame.lod_atomic_b = (undefined4)(clump_first_atomic((RpClump *)course->clumps[idx_b]));
+        frame.lod_atomic_c = (undefined4)(clump_first_atomic((RpClump *)course->clumps[idx]));
+        atomic = course->clumps[44];
         frame.shared_atomic_0 = (undefined4)(clump_first_atomic((RpClump *)atomic));
         frame.shared_atomic_1 = (undefined4)(clump_first_atomic((RpClump *)atomic));
         frame.shared_atomic_2 = (undefined4)(clump_first_atomic((RpClump *)atomic));
         frame.shared_atomic_3 = (undefined4)(clump_first_atomic((RpClump *)atomic));
-        atomic = (undefined4)(clump_first_atomic((RpClump *)(*(undefined4 *)(course + 0xc110 + frame.far_clump_idx * 4))));
+        atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[frame.far_clump_idx]));
         mem_zero((void *)frame.obj,0xfc);
         *(int *)(frame.obj + 0xb8) = frame.seg;
         *(int *)(frame.obj + 0xac) = lod_tier;

@@ -7,19 +7,34 @@
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*005de3e4*/ extern float k_f_40;
 /*005df4d0*/ extern float k_f_3_5;
-/* weapon_drum_drop */
+/* weapon_drum_drop: the depth charge launcher releases its last remaining drum.
+ *
+ * `launcher` is the weapon state: +0 / +4 the pointers of the two drums (cleared as they are dropped), +8 the number of drums
+ * left, +0xc the owning vehicle record (position at +0x10, direction at +0x90), +0x18 / +0x1c the frame holders the drums hang
+ * from, +0x24 / +0x28 per drum state words (set to 4 when the drum with that index is dropped; meaning inferred).
+ *
+ * (Field meanings below are inferred from use.)  The drum is detached from the launcher frame, placed at the vehicle position and given the vehicle direction times 40 plus
+ * the vehicle position times 3.5 as its velocity, then a puff of trail particles is spawned at the drum. */
 
-/* WARNING: Unknown calling convention */
-/* "detaches the depth charge drum frame from the car and starts its fall (particles at the car
-   position)" */
+typedef struct DrumRecord { /* one depth charge drum (weapon_drum_update_one) */
+  char unknown_00[0x10];
+  RwV3d pos;          /* 0x10 */
+  RwV3d vel;          /* 0x1c: car direction * 40 + car velocity once dropped */
+  int state;          /* 0x28: 0 = detached */
+  int phase;          /* 0x2c: 2 = falling */
+  char unknown_30[4];
+  RwFrame *frame;     /* 0x34 */
+} DrumRecord;
 
 void weapon_drum_drop_n(char *launcher)
 
 {
-  char *rec_ptr;
+  char *owner;
+  char *frame_ltm;
+  DrumRecord *drum;
   float dir_y;
   float dir_z;
-  float scaled_x;
+  float scaled_x; /* vehicle position * 3.5 (added to the drum velocity) */
   float scaled_y;
   float scaled_z;
   RwMatrix *ltm;
@@ -47,11 +62,11 @@ void weapon_drum_drop_n(char *launcher)
     undefined1 fx_kind;
   } frame;   /* spawn_x .. fx_kind: the 0x48 byte particle record of fx_trail_particle_spawn_interpolated (layout as FxParticle in cl_fx_dust_particle_spawn.c) */
   
-  rec_ptr = *(char **)(launcher + 0xc);
-  scaled_x = *(float *)(rec_ptr + 0x10) * k_f_3_5;
-  scaled_y = *(float *)(rec_ptr + 0x14) * k_f_3_5;
+  owner = *(char **)(launcher + 0xc);
+  scaled_x = *(float *)(owner + 0x10) * k_f_3_5;
+  scaled_y = *(float *)(owner + 0x14) * k_f_3_5;
   count_or_frame = *(int *)(launcher + 8);
-  scaled_z = *(float *)(rec_ptr + 0x18) * k_f_3_5;
+  scaled_z = *(float *)(owner + 0x18) * k_f_3_5;
   if (count_or_frame == 2) {
     *(undefined4 *)(launcher + 0x24) = 4;
   }
@@ -59,13 +74,13 @@ void weapon_drum_drop_n(char *launcher)
     *(undefined4 *)(launcher + 0x28) = 4;
   }
   *(int *)(launcher + 8) = count_or_frame + -1;
-  rec_ptr = *(char **)(launcher + (count_or_frame + -1) * 4);
-  *(undefined4 *)(rec_ptr + 0x28) = 0;
-  ltm = RwFrameGetLTM(*(RwFrame **)(rec_ptr + 0x34));
-  *(RwReal *)(rec_ptr + 0x10) = (ltm->pos).x;
-  *(RwReal *)(rec_ptr + 0x14) = (ltm->pos).y;
-  *(RwReal *)(rec_ptr + 0x18) = (ltm->pos).z;
-  RwFrameRemoveChild(*(RwFrame **)(rec_ptr + 0x34));
+  drum = *(DrumRecord **)(launcher + (count_or_frame + -1) * 4);
+  drum->state = 0;
+  ltm = RwFrameGetLTM(drum->frame);
+  drum->pos.x = (ltm->pos).x;
+  drum->pos.y = (ltm->pos).y;
+  drum->pos.z = (ltm->pos).z;
+  RwFrameRemoveChild(drum->frame);
   if (*(int *)(launcher + 8) == 1) {
     count_or_frame = *(int *)(launcher + 0x1c);
   }
@@ -75,20 +90,20 @@ void weapon_drum_drop_n(char *launcher)
   }
   combine_op = rwCOMBINEREPLACE;
   ltm = RwFrameGetLTM(*(RwFrame **)(count_or_frame + 4));
-  RwFrameTransform(*(RwFrame **)(rec_ptr + 0x34),ltm,combine_op);
+  RwFrameTransform(drum->frame,ltm,combine_op);
 LAB_0045f9a3:
-  *(undefined4 *)(rec_ptr + 0x2c) = 2;
+  drum->phase = 2;
   count_or_frame = *(int *)(launcher + 0xc);
   dir_y = *(float *)(count_or_frame + 0x94);
   dir_z = *(float *)(count_or_frame + 0x98);
-  *(float *)(rec_ptr + 0x1c) = *(float *)(count_or_frame + 0x90) * k_f_40 + scaled_x;
-  *(float *)(rec_ptr + 0x20) = dir_y * k_f_40 + scaled_y;
-  *(float *)(rec_ptr + 0x24) = dir_z * k_f_40 + scaled_z;
+  drum->vel.x = *(float *)(count_or_frame + 0x90) * k_f_40 + scaled_x;
+  drum->vel.y = dir_y * k_f_40 + scaled_y;
+  drum->vel.z = dir_z * k_f_40 + scaled_z;
   *(undefined4 *)(launcher + *(int *)(launcher + 8) * 4) = 0;
-  rec_ptr = *(char **)(rec_ptr + 0x34);
-  frame.spawn_x = *(undefined4 *)(rec_ptr + 0x40);
-  frame.spawn_y = *(undefined4 *)(rec_ptr + 0x44);
-  frame.spawn_z = *(undefined4 *)(rec_ptr + 0x48);
+  frame_ltm = (char *)drum->frame;
+  frame.spawn_x = *(undefined4 *)(frame_ltm + 0x40);
+  frame.spawn_y = *(undefined4 *)(frame_ltm + 0x44);
+  frame.spawn_z = *(undefined4 *)(frame_ltm + 0x48);
   frame.fx_kind = 5;
   frame.fx_life_scale = 0x41480000;
   frame.fx_colour = 0x40ffffff;

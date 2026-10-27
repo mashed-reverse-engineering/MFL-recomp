@@ -519,6 +519,7 @@ typedef void (*RwFreeFunc)(void *);
 #define SOUND_GROUP_FIRST_VOICE_OF(group) (*(int *)(g_sound_groups + (group) * SOUND_GROUP_STRIDE + 0x80))
 /* course data block (the `course` / `world` / `game_state` argument of the course_*_cb0 setup functions, offsets from its start) */
 #define COURSE_FX_SOURCE_COUNT(c, set) (*(int *)((char *)(c) + 0xc004 + (set) * 4)) /* number of 0x40 byte fx source records of set 0..2 (arrays at +0xc30, +0x1830, +0x2430; each gets an fx slot) */
+#define COURSE_MTS_LIST(c, i) ((c)->mts_matrices + (i) * 0xc00) /* matrix list i of CourseWorld.mts_matrices (0x30 RwMatrix, count in mts_matrix_counts[i]) */
 #define COURSE_TEXDICT(c) (*(RwTexDictionary **)((char *)(c) + 0xc9d0))
 #define COURSE_WORLD(c) (*(RpWorld **)((char *)(c) + 0xc9d4))
 #define COURSE_FOG_NEAR(c) (*(float *)((char *)(c) + 0xc9f8))     /* an_hk_908 blends these with the *_END values by the lap-data fraction (inferred meaning) */
@@ -1215,6 +1216,44 @@ struct RwpObjectDesc {
     int base_label; /* RWP_Object_BaseLabel */
     float shatter_velocity; /* RWP_Object_ShatterVel (default 8.0) */
     undefined4 field_0x10c;
+};
+
+/* One 0x48 byte particle record: returned by fx_trail_particle_spawn (already zeroed), or filled in by the caller and handed to
+   fx_trail_particle_spawn_interpolated. */
+typedef struct FxTrailParticle {
+    RwV3d pos;                 /* 0x00 */
+    unsigned char colour[4];   /* 0x0c r, g, b, a */
+    float size_start;          /* 0x10 */
+    float size_end;            /* 0x14 */
+    RwV3d velocity;            /* 0x18 */
+    RwV3d accel;               /* 0x24 */
+    float life_scale;          /* 0x30 */
+    float field_34;
+    float scale;               /* 0x38 (inferred) */
+    float field_3c;
+    unsigned int flags;        /* 0x40 */
+    unsigned char flag_44;     /* 0x44 */
+    unsigned char kind;        /* 0x45 */
+    unsigned char pad[2];
+} FxTrailParticle;
+
+/* 3D audio listener state (inferred from its accessors gap_5b9a40..gap_5b9cc0 in the sound library: position / velocity / orientation / distance, doppler and
+   rolloff factors, i.e. the DirectSound3D listener parameters).  Each setter ORs its LISTENER3D_DIRTY_* bit into `dirty`. */
+typedef struct Listener3D {
+    char unknown_00[0x28];
+    RwV3d position;        /* 0x28 */
+    RwV3d velocity;        /* 0x34 */
+    RwV3d front;           /* 0x40 */
+    RwV3d top;             /* 0x4c */
+    RwV3d side;            /* 0x58: cross product of front and top, recomputed by the orientation setters */
+    float distance_factor; /* 0x64 */
+    float doppler_factor;  /* 0x68 */
+    float rolloff_factor;  /* 0x6c */
+    uint dirty;            /* 0x70 */
+} Listener3D;
+enum {
+    LISTENER3D_DIRTY_POSITION = 0x01, LISTENER3D_DIRTY_VELOCITY = 0x02, LISTENER3D_DIRTY_TOP = 0x04, LISTENER3D_DIRTY_FRONT = 0x08,
+    LISTENER3D_DIRTY_DISTANCE = 0x10, LISTENER3D_DIRTY_DOPPLER = 0x20, LISTENER3D_DIRTY_ROLLOFF = 0x40
 };
 
 typedef struct Trigger Trigger, *PTrigger;

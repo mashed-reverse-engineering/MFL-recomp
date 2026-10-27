@@ -10,35 +10,35 @@
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 /* Course dump callback 0 (inferred: gathers course/track data for the course dump).
- * game_state: base of the game state block; every field is read at a byte offset from it.
+ * course: the CourseWorld block (clump slots, matrix lists, lights) of the loaded course.
  * Copies the word at +0xc110 into g_course_dump_8c5728. Then, for four clumps stored at
  * +0xc154, +0xc158, +0xc15c and +0xc128, takes each clump's first atomic and passes it to
- * func_0x004a5d50 together with a per-slot word and a block address inside game_state;
+ * func_0x004a5d50 together with a per-slot word and a block address inside course;
  * the result goes to g_course_6a07c4, g_course_6a07c8, g_course_6a07cc and g_course_6a07d0.
  * Returns nothing. */
-void course_dump_cb0(char *game_state)
+void course_dump_cb0(struct CourseWorld *course)
 
 {
   undefined4 atomic;
 
-  g_course_dump_8c5728 = *(undefined4 *)(game_state + 0xc110);
+  g_course_dump_8c5728 = course->clumps[0];
   /* One block per clump slot: first atomic of the clump -> func_0x004a5d50 -> global. */
-  atomic = clump_first_atomic(*(undefined4 *)(game_state + 0xc154));
+  atomic = clump_first_atomic(course->clumps[17]);
   g_course_6a07c4 =
-       func_0x004a5d50(atomic,*(undefined4 *)(game_state + 0xc010),game_state + 0x3000,
-                       *(undefined4 *)(game_state + 0xc9e0),*(undefined4 *)(game_state + 0xc9e4));
-  atomic = clump_first_atomic(*(undefined4 *)(game_state + 0xc158));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[4],COURSE_MTS_LIST(course, 4),
+                       course->ambient_light,course->directional_light);
+  atomic = clump_first_atomic(course->clumps[18]);
   g_course_6a07c8 =
-       func_0x004a5d50(atomic,*(undefined4 *)(game_state + 0xc014),game_state + 0x3c00,
-                       *(undefined4 *)(game_state + 0xc9e0),*(undefined4 *)(game_state + 0xc9e4));
-  atomic = clump_first_atomic(*(undefined4 *)(game_state + 0xc15c));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[5],COURSE_MTS_LIST(course, 5),
+                       course->ambient_light,course->directional_light);
+  atomic = clump_first_atomic(course->clumps[19]);
   g_course_6a07cc =
-       func_0x004a5d50(atomic,*(undefined4 *)(game_state + 0xc018),game_state + 0x4800,
-                       *(undefined4 *)(game_state + 0xc9e0),*(undefined4 *)(game_state + 0xc9e4));
-  atomic = clump_first_atomic(*(undefined4 *)(game_state + 0xc128));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[6],COURSE_MTS_LIST(course, 6),
+                       course->ambient_light,course->directional_light);
+  atomic = clump_first_atomic(course->clumps[6]);
   g_course_6a07d0 =
-       func_0x004a5d50(atomic,*(undefined4 *)(game_state + 0xc000),game_state,
-                       *(undefined4 *)(game_state + 0xc9e0),*(undefined4 *)(game_state + 0xc9e4));
+       func_0x004a5d50(atomic,course->mts_matrix_counts[0],course,
+                       course->ambient_light,course->directional_light);
   return;
 }
 

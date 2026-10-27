@@ -9,27 +9,27 @@
  * course_data: base pointer to the course state block (inferred).
  * Returns nothing.
  */
-void course_sandsnow_cb2(char *course_data)
+void course_sandsnow_cb2(struct CourseWorld *course_data)
 
 {
   /* Render each clump slot that is set (inferred: the six slots are the course's scenery objects). */
-  if (*(RpClump **)(course_data + 0xc168) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_data + 0xc168));
+  if ((RpClump *)course_data->clumps[22] != (RpClump *)0x0) {
+    RpClumpRender((RpClump *)course_data->clumps[22]);
   }
-  if (*(RpClump **)(course_data + 0xc114) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_data + 0xc114));
+  if ((RpClump *)course_data->clumps[1] != (RpClump *)0x0) {
+    RpClumpRender((RpClump *)course_data->clumps[1]);
   }
-  if (*(RpClump **)(course_data + 0xc148) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_data + 0xc148));
+  if ((RpClump *)course_data->clumps[14] != (RpClump *)0x0) {
+    RpClumpRender((RpClump *)course_data->clumps[14]);
   }
-  if (*(RpClump **)(course_data + 0xc14c) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_data + 0xc14c));
+  if ((RpClump *)course_data->clumps[15] != (RpClump *)0x0) {
+    RpClumpRender((RpClump *)course_data->clumps[15]);
   }
-  if (*(RpClump **)(course_data + 0xc150) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_data + 0xc150));
+  if ((RpClump *)course_data->clumps[16] != (RpClump *)0x0) {
+    RpClumpRender((RpClump *)course_data->clumps[16]);
   }
-  if (*(RpClump **)(course_data + 0xc134) != (RpClump *)0x0) {
-    RpClumpRender(*(RpClump **)(course_data + 0xc134));
+  if ((RpClump *)course_data->clumps[9] != (RpClump *)0x0) {
+    RpClumpRender((RpClump *)course_data->clumps[9]);
   }
   object_render(g_course_sandsnow_6a2638);
   return;
