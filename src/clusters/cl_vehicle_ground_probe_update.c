@@ -16,77 +16,79 @@
 /* WARNING: Unknown calling convention */
 /* "shifts the history of 7 samples and probes the ground below the car every 4th tick" */
 
+/* probe: segment from 1/16 above to 15/16 below the car position, tested once every 4 ticks (per vehicle index); history holds the last 8
+   ground-contact samples, size_factor = their average clamped to [0,1]. */
 void vehicle_ground_probe_update_n(VehicleRecord *vehicle_record)
 
 {
-  float fVar1;
+  float sum;
   float fVar2;
-  int *piVar3;
-  RwMatrix *pRVar4;
-  int iVar5;
+  int *shift_ptr;
+  RwMatrix *ltm;
+  int count;
   float *history = (float *)&vehicle_record->part_frames[0x80];      /* the last 8 ground samples (bits of floats) */
   struct {
-    int local_20;
-    float local_1c;
-    RwReal local_18;
-    float local_14;
-    RwReal local_10;
-    RwReal local_c;
-    float local_8;
-    RwReal local_4;
-  } frame_obj;
+    int hit_index;
+    float hit_dist;
+    RwReal start_x;
+    float start_y;
+    RwReal start_z;
+    RwReal end_x;
+    float end_y;
+    RwReal end_z;
+  } probe;
   
-  frame_obj.local_20 = 0;
-  frame_obj.local_1c = 1.0;
+  probe.hit_index = 0;
+  probe.hit_dist = 1.0;
   if (g_course_64d894 != 0) {
     vehicle_record->size_factor = 1.0;
     *(float *)((char *)vehicle_record + 0x288) = 1.0f;
     return;
   }
-  iVar5 = 7;
-  piVar3 = vehicle_record->part_frames + 0x87;
+  count = 7;
+  shift_ptr = vehicle_record->part_frames + 0x87;
   do {
-    *piVar3 = piVar3[-1];
-    piVar3 = piVar3 + -1;
-    iVar5 = iVar5 + -1;
-  } while (iVar5 != 0);
-  pRVar4 = RwFrameGetLTM(*(RwFrame **)(vehicle_record->frame + 4));
-  frame_obj.local_18 = (pRVar4->pos).x;
-  frame_obj.local_14 = (pRVar4->pos).y + k_f_0_0625;
-  frame_obj.local_10 = (pRVar4->pos).z;
-  frame_obj.local_c = (pRVar4->pos).x;
-  frame_obj.local_8 = (pRVar4->pos).y - k_f_0_9375;
-  frame_obj.local_4 = (pRVar4->pos).z;
+    *shift_ptr = shift_ptr[-1];
+    shift_ptr = shift_ptr + -1;
+    count = count + -1;
+  } while (count != 0);
+  ltm = RwFrameGetLTM(*(RwFrame **)(vehicle_record->frame + 4));
+  probe.start_x = (ltm->pos).x;
+  probe.start_y = (ltm->pos).y + k_f_0_0625;
+  probe.start_z = (ltm->pos).z;
+  probe.end_x = (ltm->pos).x;
+  probe.end_y = (ltm->pos).y - k_f_0_9375;
+  probe.end_z = (ltm->pos).z;
   if ((g_tick_number & 3) == vehicle_record->index) {
-    iVar5 = course_world_ray_hit_light_forward(&frame_obj.local_18,&frame_obj.local_20,&frame_obj.local_1c);
-    if (iVar5 != 0) {
-      vehicle_record->part_frames[0x80] = frame_obj.local_20;
+    count = course_world_ray_hit_light_forward(&probe.start_x,&probe.hit_index,&probe.hit_dist);
+    if (count != 0) {
+      vehicle_record->part_frames[0x80] = probe.hit_index;
     }
-    *(float *)((char *)vehicle_record + 0x288) = float_1_0 - frame_obj.local_1c;
+    *(float *)((char *)vehicle_record + 0x288) = float_1_0 - probe.hit_dist;
   }
   vehicle_record->size_factor = 0.0;
-  fVar1 = history[0];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = fVar1 + history[1];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = fVar1 + history[2];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = fVar1 + history[3];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = fVar1 + history[4];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = fVar1 + history[5];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = fVar1 + history[6];
-  vehicle_record->size_factor = fVar1;
-  fVar1 = (fVar1 + history[7]) * k_f_0_125;
-  vehicle_record->size_factor = fVar1;
-  if (fVar1 >= float_1_0)
+  sum = history[0];
+  vehicle_record->size_factor = sum;
+  sum = sum + history[1];
+  vehicle_record->size_factor = sum;
+  sum = sum + history[2];
+  vehicle_record->size_factor = sum;
+  sum = sum + history[3];
+  vehicle_record->size_factor = sum;
+  sum = sum + history[4];
+  vehicle_record->size_factor = sum;
+  sum = sum + history[5];
+  vehicle_record->size_factor = sum;
+  sum = sum + history[6];
+  vehicle_record->size_factor = sum;
+  sum = (sum + history[7]) * k_f_0_125;
+  vehicle_record->size_factor = sum;
+  if (sum >= float_1_0)
     vehicle_record->size_factor = float_1_0;
-  else if (!(fVar1 >= k_f_0))      /* NaN stores 0 in the original (test ah,1; jne) */
+  else if (!(sum >= k_f_0))      /* NaN stores 0 in the original (test ah,1; jne) */
     vehicle_record->size_factor = k_f_0;
   else
-    vehicle_record->size_factor = fVar1;
+    vehicle_record->size_factor = sum;
 }
 
 /* entry thunk at the original address of vehicle_ground_probe_update: register inputs (esi) -> natural C vehicle_ground_probe_update_n; ret 0 */

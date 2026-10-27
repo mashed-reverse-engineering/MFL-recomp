@@ -15,68 +15,70 @@
 /* WARNING: Unknown calling convention */
 /* "inferred: ray test between two points with FUN_00467ea0 / FUN_004682c0" */
 
-undefined4 line_of_sight_between_n(int in_eax, float *in_edi, float param_3, float param_4)
+/* Returns 1 when `target_pos` is visible from the shooter (no world hit on the segment in either direction, rocket_surface_hit_test confirms
+   hits), within max_range (flat distance) and inside the max_angle_deg cone around the shooter forward vector (+0x30). */
+undefined4 line_of_sight_between_n(int shooter, float *target_pos, float max_range, float max_angle_deg)
 
 {
-  float *pfVar1;
-  int iVar2;
-  undefined4 uVar3;
-  int iVar4;
-  float10 fVar5;
-  RwReal RVar6;
-  float *pfVar7;
-  undefined1 *puVar8;
+  float *shooter_pos;
+  int shooter_node;
+  undefined4 world;
+  int hit;
+  float10 angle_rad;
+  RwReal distance;
+  float *seg;
+  undefined1 *hit_buf;
   struct {
-    RwV3d local_64;
-    float local_58;
-    float local_54;
-    float local_50;
-    float local_4c;
-    float local_48;
-    float local_44;
-    undefined1 local_40 [64];
+    RwV3d flat_dir;
+    float seg_x0;
+    float seg_y0;
+    float seg_z0;
+    float seg_x1;
+    float seg_y1;
+    float seg_z1;
+    undefined1 hit_info [64];
   } frame;
   
-  iVar2 = *(int *)(*(char **)(in_eax + 0x10) + 4);
-  pfVar1 = (float *)(iVar2 + 0x40);
-  frame.local_58 = *pfVar1;
-  frame.local_54 = *(float *)(iVar2 + 0x44);
-  frame.local_50 = *(float *)(iVar2 + 0x48);
-  frame.local_4c = *in_edi;
-  frame.local_48 = in_edi[1];
-  frame.local_44 = in_edi[2];
-  puVar8 = frame.local_40;
-  pfVar7 = &frame.local_58;
-  uVar3 = weapon_get_rw_801b14();
-  iVar4 = world_intersect_line(uVar3,pfVar7,puVar8);
-  if ((iVar4 == 1) && (iVar4 = rocket_surface_hit_test(frame.local_40,pfVar1), iVar4 == 0)) {
+  shooter_node = *(int *)(*(char **)(shooter + 0x10) + 4);
+  shooter_pos = (float *)(shooter_node + 0x40);
+  frame.seg_x0 = *shooter_pos;
+  frame.seg_y0 = *(float *)(shooter_node + 0x44);
+  frame.seg_z0 = *(float *)(shooter_node + 0x48);
+  frame.seg_x1 = *target_pos;
+  frame.seg_y1 = target_pos[1];
+  frame.seg_z1 = target_pos[2];
+  hit_buf = frame.hit_info;
+  seg = &frame.seg_x0;
+  world = weapon_get_rw_801b14();
+  hit = world_intersect_line(world,seg,hit_buf);
+  if ((hit == 1) && (hit = rocket_surface_hit_test(frame.hit_info,shooter_pos), hit == 0)) {
     return 0;
   }
-  frame.local_58 = *in_edi;
-  frame.local_54 = in_edi[1];
-  frame.local_50 = in_edi[2];
-  frame.local_4c = *pfVar1;
-  frame.local_48 = *(float *)(iVar2 + 0x44);
-  frame.local_44 = *(float *)(iVar2 + 0x48);
-  puVar8 = frame.local_40;
-  pfVar7 = &frame.local_58;
-  uVar3 = weapon_get_rw_801b14();
-  iVar4 = world_intersect_line(uVar3,pfVar7,puVar8);
-  if ((iVar4 == 1) && (iVar4 = rocket_surface_hit_test(frame.local_40,pfVar1), iVar4 == 0)) {
+  frame.seg_x0 = *target_pos;
+  frame.seg_y0 = target_pos[1];
+  frame.seg_z0 = target_pos[2];
+  frame.seg_x1 = *shooter_pos;
+  frame.seg_y1 = *(float *)(shooter_node + 0x44);
+  frame.seg_z1 = *(float *)(shooter_node + 0x48);
+  hit_buf = frame.hit_info;
+  seg = &frame.seg_x0;
+  world = weapon_get_rw_801b14();
+  hit = world_intersect_line(world,seg,hit_buf);
+  if ((hit == 1) && (hit = rocket_surface_hit_test(frame.hit_info,shooter_pos), hit == 0)) {
     return 0;
   }
-  frame.local_64.x = *in_edi - *pfVar1;
-  frame.local_64.z = in_edi[2] - *(float *)(iVar2 + 0x48);
-  frame.local_64.y = 0.0;
-  RVar6 = RwV3dLength(&frame.local_64);
-  if (k_f_1_0en5 < frame.local_64.z * frame.local_64.z + frame.local_64.x * frame.local_64.x + frame.local_64.y * frame.local_64.y) {
-    RwV3dNormalize(&frame.local_64,&frame.local_64);
+  frame.flat_dir.x = *target_pos - *shooter_pos;
+  frame.flat_dir.z = target_pos[2] - *(float *)(shooter_node + 0x48);
+  frame.flat_dir.y = 0.0;
+  distance = RwV3dLength(&frame.flat_dir);
+  if (k_f_1_0en5 < frame.flat_dir.z * frame.flat_dir.z + frame.flat_dir.x * frame.flat_dir.x + frame.flat_dir.y * frame.flat_dir.y) {
+    RwV3dNormalize(&frame.flat_dir,&frame.flat_dir);
   }
-  fVar5 = (float10)dot_product_3d_clamped(&frame.local_64,iVar2 + 0x30);
-  fVar5 = (float10)FUN_004b3284((double)fVar5);
-  if (((float10)k_f_57_29578 * fVar5 < (float10)param_4 !=
-       ((float10)k_f_57_29578 * fVar5 == (float10)param_4)) &&
-     (RVar6 <= param_3)) {
+  angle_rad = (float10)dot_product_3d_clamped(&frame.flat_dir,shooter_node + 0x30);
+  angle_rad = (float10)FUN_004b3284((double)angle_rad);
+  if (((float10)k_f_57_29578 * angle_rad < (float10)max_angle_deg !=
+       ((float10)k_f_57_29578 * angle_rad == (float10)max_angle_deg)) &&
+     (distance <= max_range)) {
     return 1;
   }
   return 0;

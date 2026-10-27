@@ -12,32 +12,33 @@
 /* WARNING: Unknown calling convention */
 /*  */
 
-void team_panel_entry_update_n(int *in_esi)
+/* panel[0x5a] is the flag word (bit 0x40000 toggled, 0x3000000/0x800000 select button groups); the loop below tests each button bit and updates the entry. */
+void team_panel_entry_update_n(int *panel)
 
 {
   uint uVar1;
   uint uVar2;
   int score_target;
   int points;
-  bool bVar4;
+  bool bit_clear;
   struct {
-    RwV3d local_4c;
-    RwMatrix local_40;
+    RwV3d unit_scale;
+    RwMatrix mtx;
   } frame;
   
-  frame.local_4c.x = 1.0;
-  frame.local_4c.y = 1.0;
-  frame.local_4c.z = 1.0;
-  if (*(int *)((char *)&g_team_6592b0 + *in_esi * 4) == 0) {
-    uVar2 = in_esi[0x5a] & 0xfffbffff;
+  frame.unit_scale.x = 1.0;
+  frame.unit_scale.y = 1.0;
+  frame.unit_scale.z = 1.0;
+  if (*(int *)((char *)&g_team_6592b0 + *panel * 4) == 0) {
+    uVar2 = panel[0x5a] & 0xfffbffff;
   }
   else {
-    uVar2 = in_esi[0x5a] | 0x40000;
+    uVar2 = panel[0x5a] | 0x40000;
   }
-  in_esi[0x5a] = uVar2;
+  panel[0x5a] = uVar2;
   points = 0;
   do {
-    if (in_esi[points + 0x2c] == 0) goto LAB_0041ea18;
+    if (panel[points + 0x2c] == 0) goto LAB_0041ea18;
     switch(points) {
     case 0:
     case 1:
@@ -45,166 +46,166 @@ void team_panel_entry_update_n(int *in_esi)
     case 3:
       goto switchD_0041e888_caseD_0;
     case 4:
-      uVar2 = in_esi[0x5a] & 0x40000;
+      uVar2 = panel[0x5a] & 0x40000;
       goto LAB_0041ea14;
     case 5:
-      uVar2 = in_esi[0x5a];
+      uVar2 = panel[0x5a];
       uVar1 = uVar2 & 0x3000000;
       goto LAB_0041e8aa;
     case 6:
-      if ((in_esi[0x5a] & 0x3000000U) == 0) break;
-      bVar4 = (in_esi[0x5a] & 2U) == 0;
+      if ((panel[0x5a] & 0x3000000U) == 0) break;
+      bit_clear = (panel[0x5a] & 2U) == 0;
       goto LAB_0041e8b2;
     case 7:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 4U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 4U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 8:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 8U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 8U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 9:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x10U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x10U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 10:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x20U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x20U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xb:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x40U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x40U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xc:
-      if (((in_esi[0x5a] & 0x3000000U) == 0) || (-1 < (char)in_esi[0x5a])) break;
+      if (((panel[0x5a] & 0x3000000U) == 0) || (-1 < (char)panel[0x5a])) break;
       goto switchD_0041e888_caseD_0;
     case 0xd:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x100U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x100U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xe:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x200U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x200U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0xf:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x400U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x400U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x10:
-      if ((in_esi[0x5a] & 0x3000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x800U) == 0;
+      if ((panel[0x5a] & 0x3000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x800U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x16:
-      if ((in_esi[0x5a] & 0x2000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x1000U) == 0;
+      if ((panel[0x5a] & 0x2000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x1000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x17:
-      if ((in_esi[0x5a] & 0x2000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x2000U) == 0;
+      if ((panel[0x5a] & 0x2000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x2000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x18:
-      if ((in_esi[0x5a] & 0x2000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x4000U) == 0;
+      if ((panel[0x5a] & 0x2000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x4000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x19:
-      if (((in_esi[0x5a] & 0x2000000U) == 0) || (-1 < (char)((uint)in_esi[0x5a] >> 8))) break;
+      if (((panel[0x5a] & 0x2000000U) == 0) || (-1 < (char)((uint)panel[0x5a] >> 8))) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x1a:
-      if ((in_esi[0x5a] & 0x2000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x10000U) == 0;
+      if ((panel[0x5a] & 0x2000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x10000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x1b:
-      if ((in_esi[0x5a] & 0x2000000U) != 0) {
-        bVar4 = (in_esi[0x5a] & 0x20000U) == 0;
+      if ((panel[0x5a] & 0x2000000U) != 0) {
+        bit_clear = (panel[0x5a] & 0x20000U) == 0;
         goto LAB_0041e8b2;
       }
       break;
     case 0x1c:
-      uVar2 = in_esi[0x5a];
+      uVar2 = panel[0x5a];
       uVar1 = uVar2 & 0x800000;
 LAB_0041e8aa:
       if (uVar1 != 0) {
-        bVar4 = (uVar2 & 1) == 0;
+        bit_clear = (uVar2 & 1) == 0;
 LAB_0041e8b2:
-        if (!bVar4) goto switchD_0041e888_caseD_0;
+        if (!bit_clear) goto switchD_0041e888_caseD_0;
       }
       break;
     case 0x1d:
-      if (((in_esi[0x5a] & 0x800000U) == 0) || ((in_esi[0x5a] & 2U) == 0)) break;
+      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 2U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x1e:
-      if (((in_esi[0x5a] & 0x800000U) == 0) || ((in_esi[0x5a] & 4U) == 0)) break;
+      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 4U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x1f:
-      if (((in_esi[0x5a] & 0x800000U) == 0) || ((in_esi[0x5a] & 8U) == 0)) break;
+      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 8U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x20:
-      if (((in_esi[0x5a] & 0x800000U) == 0) || ((in_esi[0x5a] & 0x10U) == 0)) break;
+      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 0x10U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     case 0x21:
-      if (((in_esi[0x5a] & 0x800000U) == 0) || ((in_esi[0x5a] & 0x20U) == 0)) break;
+      if (((panel[0x5a] & 0x800000U) == 0) || ((panel[0x5a] & 0x20U) == 0)) break;
       uVar2 = 1;
       goto LAB_0041ea14;
     }
     uVar2 = 0;
 LAB_0041ea14:
-    in_esi[points + 4] = uVar2;
+    panel[points + 4] = uVar2;
 LAB_0041ea18:
     points = points + 1;
     if (0x27 < points) {
-      frame.local_40.flags = frame.local_40.flags | 0x20003;
-      frame.local_40.at.z = 1.0;
-      frame.local_40.up.y = 1.0;
-      frame.local_40.right.x = 1.0;
-      frame.local_40.up.x = 0.0;
-      frame.local_40.right.z = 0.0;
-      frame.local_40.right.y = 0.0;
-      frame.local_40.at.y = 0.0;
-      frame.local_40.at.x = 0.0;
-      frame.local_40.up.z = 0.0;
-      frame.local_40.pos.z = 0.0;
-      frame.local_40.pos.y = 0.0;
-      frame.local_40.pos.x = 0.0;
-      RwMatrixTranslate(&frame.local_40,(RwV3d *)(in_esi + 0x54),rwCOMBINEREPLACE);
-      RwFrameTransform((RwFrame *)in_esi[0x58],&frame.local_40,rwCOMBINEREPLACE);
-      RwFrameScale((RwFrame *)in_esi[0x58],&frame.local_4c,rwCOMBINEPRECONCAT);
-      points = player_get_points(*in_esi);
+      frame.mtx.flags = frame.mtx.flags | 0x20003;
+      frame.mtx.at.z = 1.0;
+      frame.mtx.up.y = 1.0;
+      frame.mtx.right.x = 1.0;
+      frame.mtx.up.x = 0.0;
+      frame.mtx.right.z = 0.0;
+      frame.mtx.right.y = 0.0;
+      frame.mtx.at.y = 0.0;
+      frame.mtx.at.x = 0.0;
+      frame.mtx.up.z = 0.0;
+      frame.mtx.pos.z = 0.0;
+      frame.mtx.pos.y = 0.0;
+      frame.mtx.pos.x = 0.0;
+      RwMatrixTranslate(&frame.mtx,(RwV3d *)(panel + 0x54),rwCOMBINEREPLACE);
+      RwFrameTransform((RwFrame *)panel[0x58],&frame.mtx,rwCOMBINEREPLACE);
+      RwFrameScale((RwFrame *)panel[0x58],&frame.unit_scale,rwCOMBINEPRECONCAT);
+      points = player_get_points(*panel);
       score_target = score_target_a();
-      frame.local_4c.x = (float)points / (float)score_target;
-      frame.local_4c.z = 1.0;
-      frame.local_4c.y = 1.0;
-      RwFrameScale(*(RwFrame **)(in_esi[0x2e] + 4),&frame.local_4c,rwCOMBINEREPLACE);
+      frame.unit_scale.x = (float)points / (float)score_target;
+      frame.unit_scale.z = 1.0;
+      frame.unit_scale.y = 1.0;
+      RwFrameScale(*(RwFrame **)(panel[0x2e] + 4),&frame.unit_scale,rwCOMBINEREPLACE);
       return;
     }
   } while( true );

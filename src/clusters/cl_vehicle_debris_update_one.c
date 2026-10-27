@@ -16,27 +16,30 @@
 
 static int debris_body_remove_if_in_world_r(int p0);
 extern void debris_body_remove_if_in_world(void);
-void vehicle_debris_update_one_n(int in_ebx)
+/* debris+0xf4 == 0: car intact-ish, spawn smoke + sfx when the car (+0xfc) has front (side 0) or back (side 1) damage.
+   Otherwise (while g_game_65c8f0 != 0) walk the 10 debris pieces (stride 0x18 from +0xc, live bits at +0xf0): pieces without body
+   (piece_ptr[2]==0) emit a trail particle with random velocity, the others are removed from the world and their frame reset to origin. */
+void vehicle_debris_update_one_n(int debris)
 
 {
-  byte *pbVar1;
-  byte bVar2;
-  char *iVar3;
-  byte bVar4;
-  int iVar5;
-  int *piVar6;
-  float10 fVar7;
+  byte *live_byte;
+  byte live_bits;
+  char *piece_node;
+  byte bit;
+  int piece;
+  int *piece_ptr;
+  float10 rnd;
   struct {
-    RwV3d local_54;
-    undefined4 local_48;
-    undefined4 local_44;
-    undefined4 local_40;
-    undefined4 local_3c;
-    undefined4 local_38;
-    undefined4 local_34;
-    float local_30;
-    float local_2c;
-    float local_28;
+    RwV3d zero_pos;
+    undefined4 part_pos_x;
+    undefined4 part_pos_y;
+    undefined4 part_pos_z;
+    undefined4 part_color;
+    undefined4 part_size_x;
+    undefined4 part_size_y;
+    float part_vel_x;
+    float part_vel_y;
+    float part_vel_z;
     undefined4 local_24;
     undefined4 local_20;
     undefined4 local_1c;
@@ -46,71 +49,71 @@ void vehicle_debris_update_one_n(int in_ebx)
     undefined1 pad_c[4];
     undefined4 local_8;
     undefined1 pad_4[1];
-    undefined1 local_3;
-  } frame;
+    undefined1 part_type;
+  } spawn;
   
-  if (*(int *)(in_ebx + 0xf4) == 0) {
-    if (*(int *)(in_ebx + 0xf8) == 0) {
-      iVar5 = car_damage_get_front(*(undefined4 *)(*(char **)(in_ebx + 0xfc) + 0x204),0);
-      if (iVar5 != 0) {
-        iVar5 = in_ebx;
-        vehicle_smoke_emitters_spawn(iVar5);
-        sound_sfx_play_at_car(0x21,*(undefined4 *)(*(char **)(in_ebx + 0xfc) + 0x204),iVar5);
+  if (*(int *)(debris + 0xf4) == 0) {
+    if (*(int *)(debris + 0xf8) == 0) {
+      piece = car_damage_get_front(*(undefined4 *)(*(char **)(debris + 0xfc) + 0x204),0);
+      if (piece != 0) {
+        piece = debris;
+        vehicle_smoke_emitters_spawn(piece);
+        sound_sfx_play_at_car(0x21,*(undefined4 *)(*(char **)(debris + 0xfc) + 0x204),piece);
         return;
       }
     }
-    else if (*(int *)(in_ebx + 0xf8) == 1) {
-      iVar5 = car_damage_get_back(*(undefined4 *)(*(char **)(in_ebx + 0xfc) + 0x204),0);
-      if (iVar5 != 0) {
-        iVar5 = in_ebx;
-        vehicle_smoke_emitters_spawn(iVar5);
-        sound_sfx_play_at_car(0x21,*(undefined4 *)(*(char **)(in_ebx + 0xfc) + 0x204),iVar5);
+    else if (*(int *)(debris + 0xf8) == 1) {
+      piece = car_damage_get_back(*(undefined4 *)(*(char **)(debris + 0xfc) + 0x204),0);
+      if (piece != 0) {
+        piece = debris;
+        vehicle_smoke_emitters_spawn(piece);
+        sound_sfx_play_at_car(0x21,*(undefined4 *)(*(char **)(debris + 0xfc) + 0x204),piece);
       }
     }
   }
   else if (g_game_65c8f0 != 0) {
-    iVar5 = 0;
-    piVar6 = (int *)(in_ebx + 0xc);
+    piece = 0;
+    piece_ptr = (int *)(debris + 0xc);
     do {
-      bVar4 = (byte)iVar5 & 7;
-      pbVar1 = (byte *)((iVar5 >> 3) + 0xf0 + in_ebx);
-      bVar2 = *pbVar1;
-      if ((bVar2 & (byte)(1 << bVar4)) != 0) {
-        if (piVar6[2] == 0) {
-          iVar3 = *(char **)(*piVar6 + 4);
-          frame.local_48 = *(undefined4 *)(iVar3 + 0x40);
-          frame.local_44 = *(undefined4 *)(iVar3 + 0x44);
-          frame.local_40 = *(undefined4 *)(iVar3 + 0x48);
-          frame.local_3 = 6;
-          frame.local_18 = 0x40000000;
-          frame.local_3c = 0x80404040;
-          frame.local_8 = 0x1120;
-          frame.local_38 = 0x3e800000;
-          frame.local_34 = 0x3e800000;
-          frame.local_10 = 0x3f800000;
-          fVar7 = (float10)rp_random_float_range(0xbe800000,0x3e800000);
-          frame.local_30 = (float)fVar7;
-          fVar7 = (float10)rp_random_float_range(0xbe800000,0x3e800000);
-          frame.local_2c = (float)fVar7;
-          fVar7 = (float10)rp_random_float_range(0xbe800000,0x3e800000);
-          frame.local_28 = (float)fVar7;
-          frame.local_24 = 0;
-          frame.local_20 = 0;
-          frame.local_1c = 0;
-          fx_trail_particle_spawn_interpolated(&frame.local_48,0,0,0);
+      bit = (byte)piece & 7;
+      live_byte = (byte *)((piece >> 3) + 0xf0 + debris);
+      live_bits = *live_byte;
+      if ((live_bits & (byte)(1 << bit)) != 0) {
+        if (piece_ptr[2] == 0) {
+          piece_node = *(char **)(*piece_ptr + 4);
+          spawn.part_pos_x = *(undefined4 *)(piece_node + 0x40);
+          spawn.part_pos_y = *(undefined4 *)(piece_node + 0x44);
+          spawn.part_pos_z = *(undefined4 *)(piece_node + 0x48);
+          spawn.part_type = 6;
+          spawn.local_18 = 0x40000000;
+          spawn.part_color = 0x80404040;
+          spawn.local_8 = 0x1120;
+          spawn.part_size_x = 0x3e800000;
+          spawn.part_size_y = 0x3e800000;
+          spawn.local_10 = 0x3f800000;
+          rnd = (float10)rp_random_float_range(0xbe800000,0x3e800000);
+          spawn.part_vel_x = (float)rnd;
+          rnd = (float10)rp_random_float_range(0xbe800000,0x3e800000);
+          spawn.part_vel_y = (float)rnd;
+          rnd = (float10)rp_random_float_range(0xbe800000,0x3e800000);
+          spawn.part_vel_z = (float)rnd;
+          spawn.local_24 = 0;
+          spawn.local_20 = 0;
+          spawn.local_1c = 0;
+          fx_trail_particle_spawn_interpolated(&spawn.part_pos_x,0,0,0);
         }
         else {
-          frame.local_54.x = 0.0;
-          frame.local_54.y = 0.0;
-          frame.local_54.z = 0.0;
-          *pbVar1 = ~('\x01' << bVar4) & bVar2;
-          debris_body_remove_if_in_world_r(piVar6 + -3);
-          RwFrameTranslate(*(RwFrame **)(*piVar6 + 4),&frame.local_54,rwCOMBINEREPLACE);
+          spawn.zero_pos.x = 0.0;
+          spawn.zero_pos.y = 0.0;
+          spawn.zero_pos.z = 0.0;
+          *live_byte = ~('\x01' << bit) & live_bits;
+          debris_body_remove_if_in_world_r(piece_ptr + -3);
+          RwFrameTranslate(*(RwFrame **)(*piece_ptr + 4),&spawn.zero_pos,rwCOMBINEREPLACE);
         }
       }
-      iVar5 = iVar5 + 1;
-      piVar6 = piVar6 + 6;
-    } while (iVar5 < 10);
+      piece = piece + 1;
+      piece_ptr = piece_ptr + 6;
+    } while (piece < 10);
     return;
   }
   return;
