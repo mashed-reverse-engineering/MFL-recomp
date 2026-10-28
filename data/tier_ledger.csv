@@ -882,7 +882,7 @@ effect_slot_alloc,00487be0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,2a33f8
 effect_sprite_spawn,00487670,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.68,0,0
 effect_sprites_render_all,004877e0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,-,126ee480af92,4608b9e561f7,200,0.93,1,0
 effect_sprites_update_all,00487760,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,1,0
-effect_trail_add_point,00487c60,tier2,compiled+diffemu-STALE+shadow-STALE,static,c220e4570104,126ee480af92,4608b9e561f7,0,0.00,1,0
+effect_trail_add_point,00487c60,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,c220e4570104,126ee480af92,4608b9e561f7,200,1.00,0,1
 effect_trails_update_all,004879a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,137,0.93,0,0
 effects_init,0040d270,tier1,bytes,bytes-reloc,03e27ec33b76,126ee480af92,4608b9e561f7,0,0.00,0,0
 effects_render,0040d340,tier1,bytes,bytes-reloc,62c41f421774,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -2145,7 +2145,7 @@ team_color_rgba,0040fe50,tier1,bytes,bytes-reloc,131e4f605052,126ee480af92,4608b
 team_colour_table_init_2,0041f090,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 team_colour_table_init_4,0041fc40,tier1,bytes,bytes-reloc,f81263c22cc3,126ee480af92,4608b9e561f7,0,0.00,0,0
 team_endpoint_panel_destroy,00420b00,tier1,bytes,bytes-reloc,02d833f8d860,126ee480af92,4608b9e561f7,0,0.00,0,0
-team_names_string_build,00432060,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ebcb5bfbd28f,126ee480af92,4608b9e561f7,22,0.26,0,0
+team_names_string_build,00432060,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ebcb5bfbd28f,126ee480af92,4608b9e561f7,23,0.26,0,0
 team_panel_destroy,0041f160,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 team_panel_render,0041f140,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 team_panel_reset,0041efa0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
