@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0040a8d0*/ extern int course_token_list_skip_to_entry();
 /*0042b1d0*/ extern char *course_get_record_base();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
@@ -73,8 +73,8 @@ undefined4 fx_wander_target(undefined4 token_cursor,float *out_mean_angle,float 
     else if (float_1_0 < dot) {
       dot = float_1_0;
     }
-    /* FUN_004b3284: acos (inferred); result in radians, converted to degrees */
-    angle = (double)FUN_004b3284((double)dot);
+    /* crt_acos_body: acos (inferred); result in radians, converted to degrees */
+    angle = (double)crt_acos_body((double)dot);
     angle = -(angle * (double)(RAD_TO_DEG) - (double)(90.0)) + (double)k_f_90;
     /* cross product of the record's full vector with the reference; only its y part is kept */
     acc.vec.x = g_fx_62ac70 * rec->y - g_fx_62ac6c * rec->z;

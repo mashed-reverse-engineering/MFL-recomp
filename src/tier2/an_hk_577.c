@@ -5,9 +5,9 @@ extern struct VoiceSlotP g_voices[210];
 /*0044a4f0*/ extern int camera_get_position();
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00555ff0*/ extern struct RwV3d * RpSplineFindPosition(struct RpSpline *p0, RwInt32 p1, RwReal p2, struct RwV3d *p3, struct RwV3d *p4);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd328*/ extern float k_f_0_6;
 /*005dd330*/ extern float float_1_0;
 /*005dd36c*/ extern float k_f_0_4;
@@ -38,7 +38,7 @@ extern struct VoiceSlotP g_voices[210];
 /* offsets inside a voice record (inferred from use) */
 #define VOICE_FLAG_SETUP_DONE (2)
 /* raw IEEE-754 bits of 22050.0f (default playback frequency in Hz, inferred), stored and passed as a DWORD */
-#define VOICE_DEFAULT_FREQ_BITS_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
+#define VOICE_DEFAULT_FREQ_BITS_F (22050.0f) /* the same value as a float argument of sound_voice_set_float_param (`float p3`; the integer literal would convert to 1.18e9) */
 /* x87 status word bit positions used by the emulated compare (C0, C2, C3) */
 
 /* sound_ambience_course_f_24 */
@@ -76,12 +76,12 @@ void sound_ambience_course_f_24(void)
     voice_rec = g_voices[voice_slot].voice;
     /* First use: set up the voice record (flag bit not set yet) (inferred) */
     if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_SETUP_DONE) == 0) {
-      FUN_005b6a40(voice_rec,1);
+      sound_voice_set_enabled(voice_rec,1);
       *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
       voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
-        voice_rec = FUN_005b7300(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
+        voice_rec = sound_voice_set_float_param(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
       }
     }
     /* fade_raw = camera height ratio minus 0.25 (inferred) */
@@ -100,12 +100,12 @@ void sound_ambience_course_f_24(void)
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_FADE_IN_OFF);
     voice_rec = g_voices[voice_slot].voice;
     if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_SETUP_DONE) == 0) {
-      FUN_005b6a40(voice_rec,1);
+      sound_voice_set_enabled(voice_rec,1);
       *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
       voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
-        voice_rec = FUN_005b7300(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
+        voice_rec = sound_voice_set_float_param(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
       }
     }
     /* height_t: camera height ratio, clamped to [0, 1] in place below */
@@ -121,12 +121,12 @@ void sound_ambience_course_f_24(void)
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_SPLINE_OFF);
     voice_rec = g_voices[voice_slot].voice;
     if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_SETUP_DONE) == 0) {
-      FUN_005b6a40(voice_rec,1);
+      sound_voice_set_enabled(voice_rec,1);
       *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
       voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
-        voice_rec = FUN_005b7300(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
+        voice_rec = sound_voice_set_float_param(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
       }
     }
     /* Spline ambience: only when the spline is loaded */
@@ -157,7 +157,7 @@ void sound_ambience_course_f_24(void)
       voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
-        voice_rec = FUN_005b72a0(voice_handle,0,1,&g_sound_ambience_6ae0a0);
+        voice_rec = sound_voice_call_entry(voice_handle,0,1,&g_sound_ambience_6ae0a0);
       }
     }
     /* Spline voice plays at full volume */

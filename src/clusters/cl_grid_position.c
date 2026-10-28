@@ -8,7 +8,7 @@
 /*00434bb0*/ extern int get_event_type();
 /*00482030*/ extern double dot_product_2d_clamped();
 /*004a8420*/ extern int debug_printf();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d5540*/ extern RwReal RwV2dNormalize(struct RwV2d *p0, struct RwV2d *p1);
 /*005dd328*/ extern float k_f_0_6;
@@ -95,7 +95,7 @@ void grid_position(undefined4 route,int grid_slot,int car_count,float *out_pos,f
   frame2.side_z = frame.route_dir.y;
   RwV2dNormalize(&frame.route_dir,&frame.route_dir);
   heading_deg = (float10)dot_product_2d_clamped(&frame.vec_x,&frame.route_dir);
-  heading_deg = (float10)FUN_004b3284((double)heading_deg);
+  heading_deg = (float10)crt_acos_body((double)heading_deg);
   heading_deg = heading_deg * (float10)k_f_57_29578;
   if (frame.route_dir.x < k_f_0) {
     heading_deg = (float10)k_f_360 - heading_deg;

@@ -5,7 +5,7 @@ extern struct VoiceSlot g_voices[210];
 /*0042b110*/ extern int current_course_id();
 /*00469b20*/ extern int sound_music_fade_step();
 /*00469f40*/ extern int sound_master_fade_towards(float param_2);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
 /*005ddc28*/ extern float k_f_0;
 /*00617948*/ extern float g_sound_master_fade;
 /*008bd7b0*/ extern char *g_sound_groups;
@@ -29,7 +29,7 @@ undefined4 sound_music_state_update(void)
       course_id = current_course_id();
       if (((course_id == COURSE_DEM) || (course_id == COURSE_DEMR)) &&
          ((*(byte *)(g_voices[SOUND_GROUP_FIRST_VOICE_OF(10)].voice + 0x34) & 2) != 0)) {
-        FUN_005b6a40(g_voices[SOUND_GROUP_FIRST_VOICE_OF(10)].voice,0);
+        sound_voice_set_enabled(g_voices[SOUND_GROUP_FIRST_VOICE_OF(10)].voice,0);
       }
     }
     return 1;

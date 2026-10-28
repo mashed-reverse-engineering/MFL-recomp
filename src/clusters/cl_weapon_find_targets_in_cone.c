@@ -17,7 +17,7 @@ extern char s_333_Lap_frames_005df368[];
 /*0048e6d0*/ extern int rwp_object_get_handle();
 /*004b3284*/ extern double acos(double p0);
 /*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004b3284*/ extern double FUN_004b3284(double p0);   /* acos */
+/*004b3284*/ extern double crt_acos_body(double p0);   /* acos */
 /*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, int p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -150,7 +150,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
       }
       angle_deg = (float10)dot_product_3d_clamped
                                   (&frame_obj.delta_vec,(&g_weapon_6a9458)[shooter_slot * 0x16] + 0x20);
-      angle_deg = (float10)FUN_004b3284((double)angle_deg);
+      angle_deg = (float10)crt_acos_body((double)angle_deg);
       angle_deg = angle_deg * (float10)k_f_57_29578;
       if ((angle_deg <= (float10)cone_deg) &&
          (frame_obj.dist_to_target <= range)) {
@@ -184,7 +184,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
         }
         angle_deg = (float10)dot_product_3d_clamped
                                     (&frame_obj.delta_vec,(&g_weapon_6a9458)[shooter_slot * 0x16] + 0x20);
-        angle_deg = (float10)FUN_004b3284((double)angle_deg);
+        angle_deg = (float10)crt_acos_body((double)angle_deg);
         angle_deg = angle_deg * (float10)k_f_57_29578;
         if ((angle_deg <= (float10)cone_deg) &&
            (frame_obj.dist_to_target <= range)) {

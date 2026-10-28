@@ -9,7 +9,7 @@
 /*00482070*/ extern double dot_product_3d_clamped();
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*0049be80*/ extern int fx_system_reset_positions();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
@@ -154,7 +154,7 @@ LAB_00460b34:
   *(uint *)((char *)&g_weapon_rocket_6a5e0c + rocket_off) = player;
   /* angle_a: acos of the aim dot product, in degrees; negated when aim_dir has a negative dot with g_car_62ac68 (inferred) */
   scratch = (double)dot_product_3d_clamped(&g_weapon_62ac80,aim_dir);
-  scratch = (double)FUN_004b3284((double)scratch);
+  scratch = (double)crt_acos_body((double)scratch);
   angle_a = (float)(scratch * (double)(DEG_PER_RAD_APPROX));
   scratch = (double)dot_product_3d_clamped(&g_car_62ac68,aim_dir);
   if (scratch < (double)k_f_0) {
@@ -163,7 +163,7 @@ LAB_00460b34:
   *(float *)((char *)&g_weapon_rocket_6a5e18 + rocket_off) = angle_a;
   /* angle_b: acos of the second aim dot product, in radians, converted to degrees minus 90 below (inferred) */
   scratch = (double)dot_product_3d_clamped(&g_car_62ac74,aim_dir);
-  angle_b = (double)FUN_004b3284((double)scratch);
+  angle_b = (double)crt_acos_body((double)scratch);
   scratch = (double)(DEG_PER_RAD_APPROX);
   fx_index = (&g_weapon_6a5e2c)[rocket_index * ROCKET_RECORD_WORDS];
   ninety = (double)k_f_90;

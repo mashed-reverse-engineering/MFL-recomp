@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*004850c0*/ extern int matrix_to_euler_degrees();
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005ddc28*/ extern float k_f_0;
 /* layout of *path_cam in camera_path_get_point, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
@@ -73,7 +73,7 @@ undefined4 camera_path_get_point(char *out_cam)
   frame.dir.z = path_cam->f_0x28;
   frame.dir.x = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  angle = (double)FUN_004b3284((double)(frame.dir.z * path_cam->f_0x28 +
+  angle = (double)crt_acos_body((double)(frame.dir.z * path_cam->f_0x28 +
                                         frame.dir.y * path_cam->f_0x24 +
                                         path_cam->f_0x20 * frame.dir.x));
   angle = angle * (double)RAD_TO_DEG;
@@ -87,7 +87,7 @@ undefined4 camera_path_get_point(char *out_cam)
   frame.dir.z = path_cam->f_0x38;
   frame.dir.y = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  angle = (double)FUN_004b3284((double)(frame.dir.x * k_f_0 + frame.dir.y * k_f_0 + frame.dir.z));
+  angle = (double)crt_acos_body((double)(frame.dir.x * k_f_0 + frame.dir.y * k_f_0 + frame.dir.z));
   angle = angle * (double)RAD_TO_DEG;
   if (!(frame.dir.z > k_f_0)) {
     angle = -angle;
@@ -99,7 +99,7 @@ undefined4 camera_path_get_point(char *out_cam)
   frame.dir.y = path_cam->f_0x14;
   frame.dir.z = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  angle = (double)FUN_004b3284((double)(path_cam->f_0x18 * frame.dir.z +
+  angle = (double)crt_acos_body((double)(path_cam->f_0x18 * frame.dir.z +
                                         frame.dir.y * path_cam->f_0x14 + frame.dir.x * *cam_up
                                         ));
   angle = angle * (double)RAD_TO_DEG;

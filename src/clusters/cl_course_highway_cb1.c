@@ -8,7 +8,7 @@
 /*00453bf0*/ extern void course_highway_cb1_sub_453bf0(void);
 /*00453d00*/ extern void course_highway_cb1_sub_453d00(void *matrix);
 /*004c6600*/ extern void __cdecl FUN_004c6600(void *bits, int count);
-/*004c45e0*/ extern double __cdecl FUN_004c45e0(float low, float high);
+/*004c45e0*/ extern double __cdecl rp_random_float_range(float low, float high);
 /*004d5410*/ extern float _rwSqrt(float x);
 /*0040fdc0*/ extern int race_get_phase(void);
 /*0042b110*/ extern int current_course_id(void);
@@ -292,14 +292,14 @@ blend:
       frame.base.y = trail->offset[1] + frame.u.trail.player.y;
       frame.base.z = frame.u.trail.player.z + trail->offset[2];
       frame.vector = frame.base;
-      frame.vector.x = (float)(FUN_004c45e0(EXHAUST_SPREAD_X_LOW, EXHAUST_SPREAD_X_HIGH) + frame.vector.x);
-      frame.vector.y = (float)(frame.vector.y - FUN_004c45e0(EXHAUST_SPREAD_Y_LOW, EXHAUST_SPREAD_Y_HIGH));
-      frame.vector.z = (float)(FUN_004c45e0(EXHAUST_SPREAD_Z_LOW, EXHAUST_SPREAD_Z_HIGH) + frame.vector.z);
+      frame.vector.x = (float)(rp_random_float_range(EXHAUST_SPREAD_X_LOW, EXHAUST_SPREAD_X_HIGH) + frame.vector.x);
+      frame.vector.y = (float)(frame.vector.y - rp_random_float_range(EXHAUST_SPREAD_Y_LOW, EXHAUST_SPREAD_Y_HIGH));
+      frame.vector.z = (float)(rp_random_float_range(EXHAUST_SPREAD_Z_LOW, EXHAUST_SPREAD_Z_HIGH) + frame.vector.z);
       course_highway_cb1_sub_453c20(&frame.vector);
       frame.vector = frame.base;
-      frame.vector.x = (float)(frame.vector.x - FUN_004c45e0(EXHAUST_SPREAD_X_LOW, EXHAUST_SPREAD_X_HIGH));
-      frame.vector.y = (float)(frame.vector.y - FUN_004c45e0(EXHAUST_SPREAD_Y_LOW, EXHAUST_SPREAD_Y_HIGH));
-      frame.vector.z = (float)(FUN_004c45e0(EXHAUST_SPREAD_Z_LOW, EXHAUST_SPREAD_Z_HIGH) + frame.vector.z);
+      frame.vector.x = (float)(frame.vector.x - rp_random_float_range(EXHAUST_SPREAD_X_LOW, EXHAUST_SPREAD_X_HIGH));
+      frame.vector.y = (float)(frame.vector.y - rp_random_float_range(EXHAUST_SPREAD_Y_LOW, EXHAUST_SPREAD_Y_HIGH));
+      frame.vector.z = (float)(rp_random_float_range(EXHAUST_SPREAD_Z_LOW, EXHAUST_SPREAD_Z_HIGH) + frame.vector.z);
       course_highway_cb1_sub_453c20(&frame.vector);
       for (j = 0; j < 2; j++) {
         int *effect = &trail->effect[j];

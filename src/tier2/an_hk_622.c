@@ -5,8 +5,8 @@ extern char LAB_00491280[];
 /*005543e0*/ extern int rw_second_field(int * p0);
 /*0056c090*/ extern void FUN_0056c090(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9, void *p10, undefined4 p11, undefined4 p12);
 /*0056ca60*/ extern void FUN_0056ca60();
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
-/*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
+/*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056e3b0*/ extern void FUN_0056e3b0();
 /*00571810*/ extern void FUN_00571810(undefined4 p0, void *p1);
 /*00571830*/ extern void FUN_00571830(undefined4 p0, undefined4 p1);
@@ -92,10 +92,10 @@ int rwp_world_create_once(int default_value,int value)
     FUN_0056e3b0(world, handle, 0x0);
     point_one_f = 0x3dcccccd;
     scratch = handle;
-    FUN_0056cac0(handle, 0x3dcccccd);
+    rwp_shape_set_property_b(handle, 0x3dcccccd);
     one_f = 0x3f800000;
     field_value = handle;
-    FUN_0056ca70(handle, 0x3f800000);
+    rwp_shape_set_property_c(handle, 0x3f800000);
     /* final setup call on the handle; most arguments are copies of handle (inferred) */
     FUN_0056c090(handle,1,field_value,one_f,scratch,point_one_f,world_copy,handle_copy_a,zero_1,handle_copy_b,label,value,zero_2);
     g_car_888620 = 0x7b;

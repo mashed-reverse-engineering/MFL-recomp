@@ -4,9 +4,9 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005de238*/ extern float k_f_2000;
 /*005df99c*/ extern float k_f_22050;
 /*008bd7b0*/ extern char *g_sound_groups;
@@ -48,9 +48,9 @@ void __cdecl sfx_play_group_voice_at(undefined4 *position,int group)
         *(RwV3d *)(voice + VOICE_OFF_POS_X) = *(RwV3d *)position;
         sample_handle = *(int *)(g_voices[app_state].voice + VOICE_OFF_HANDLE);
         if (sample_handle != 0) {
-          FUN_005b72a0(sample_handle,0,1,position);
+          sound_voice_call_entry(sample_handle,0,1,position);
         }
-        FUN_005b6a40(g_voices[app_state].voice,1);
+        sound_voice_set_enabled(g_voices[app_state].voice,1);
         /* Pitch ramp: earlier tries (larger tries_left) start higher (inferred). */
         pitch = (float)tries_left * k_f_2000 + k_f_22050;
         *(float *)(g_voices[app_state].voice + VOICE_PITCH_OFS) = pitch;
@@ -58,7 +58,7 @@ void __cdecl sfx_play_group_voice_at(undefined4 *position,int group)
         tries_left = *(int *)(g_voices[app_state].voice + VOICE_OFF_HANDLE);
         pitch_call_result = 0;
         if (tries_left != 0) {
-          pitch_call_result = FUN_005b7300(tries_left,4,1,pitch);
+          pitch_call_result = sound_voice_set_float_param(tries_left,4,1,pitch);
         }
         voice_set_volume(app_state,1.0);
         tries_left = 0;

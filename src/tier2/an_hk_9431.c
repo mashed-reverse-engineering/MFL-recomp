@@ -4,8 +4,8 @@ extern struct VoiceSlot g_voices[210];
 /*00420b10*/ extern int endpoint_panel_get_value();
 /*00434bb0*/ extern int get_event_type();
 /*0046a0c0*/ extern int voice_set_volume(int param_2, float param_3);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005ddf54*/ extern float k_f_1_86;
 /*005de3a0*/ extern float k_f_1_3;
 /*005de3a4*/ extern float k_f_0_82;
@@ -80,7 +80,7 @@ void sound_endpoint_panel_progress_cues(void)
     if ((*(byte *)(g_voices[g_sound_frame_619700].voice + VOICE_OFF_FLAGS) & 2) != 0) {
       return;
     }
-    FUN_005b6a40(g_voices[g_sound_frame_619700].voice,1);
+    sound_voice_set_enabled(g_voices[g_sound_frame_619700].voice,1);
     *(undefined4 *)(g_voices[voice_b_index].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
     sub_handle = *(int *)(g_voices[voice_b_index].voice + VOICE_OFF_HANDLE);
     scratch = voice_b_index;
@@ -96,13 +96,13 @@ void sound_endpoint_panel_progress_cues(void)
   if (reached_next_step) {
 LAB_0046f7eb:
     if ((*(byte *)(g_voices[g_sound_frame_6191cc].voice + VOICE_OFF_FLAGS) & 2) == 0) {
-      FUN_005b6a40(g_voices[g_sound_frame_6191cc].voice,1);
+      sound_voice_set_enabled(g_voices[g_sound_frame_6191cc].voice,1);
       *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
       sub_handle = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
 LAB_0046f8d8:
       sub_result = 0;
       if (sub_handle != 0) {
-        sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
+        sub_result = sound_voice_set_float_param(sub_handle,4,1,22050.0f);
       }
       voice_set_volume(scratch,0.6);
     }

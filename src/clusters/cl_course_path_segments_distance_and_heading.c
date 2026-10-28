@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*0040a8a0*/ extern int course_token_list_entry_start();
 /*0040a8d0*/ extern int course_token_list_skip_to_entry();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d5410*/ extern RwReal _rwSqrt(RwReal p0);
 /*005dd330*/ extern float float_1_0;
@@ -69,7 +69,7 @@ void course_path_segments_distance_and_heading(int course)
         if (k_f_0_5de1f0 < dx_or_cos) {
           dx_or_cos = float_1_0;
         }
-        heading = (float10)FUN_004b3284((double)dx_or_cos);
+        heading = (float10)crt_acos_body((double)dx_or_cos);
         heading = heading * (float10)k_f_57_29578;
         if (frame.dir.x * k_f_0 - frame.dir.y < k_f_0) {
           heading = -heading;

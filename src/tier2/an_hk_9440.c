@@ -13,7 +13,7 @@
 /*005b7650*/ extern void FUN_005b7650(int device, int *channels, uint count);
 /*005b68e0*/ extern uint FUN_005b68e0(int p0, int p1, int p2, int p3, int p4);
 /*005b6a80*/ extern void FUN_005b6a80(uint voice, int wave);
-/*005b7300*/ extern void FUN_005b7300(int sound_object, int param, int enable, int value);
+/*005b7300*/ extern void sound_voice_set_float_param(int sound_object, int param, int enable, int value);
 
 /* One permanent wave of PERMDICT.RWS (0x94 bytes, table at 0x618778). */
 typedef struct PermWave {
@@ -90,9 +90,9 @@ void sound_load_perm_dict(void)
   }
   for (i = 0; i < g_sound_6ad8a4; i++) {
     VOICE_FIELD(i, 0x34) |= 4;
-    if (VOICE_FIELD(i, 0x30) != 0) FUN_005b7300(VOICE_FIELD(i, 0x30), 8, 1, 1);
+    if (VOICE_FIELD(i, 0x30) != 0) sound_voice_set_float_param(VOICE_FIELD(i, 0x30), 8, 1, 1);
     VOICE_FIELD(i, 0x44) = 0;
-    if (VOICE_FIELD(i, 0x30) != 0) FUN_005b7300(VOICE_FIELD(i, 0x30), 10, 1, 0);
+    if (VOICE_FIELD(i, 0x30) != 0) sound_voice_set_float_param(VOICE_FIELD(i, 0x30), 10, 1, 0);
   }
 
   voice = 0;
@@ -103,13 +103,13 @@ void sound_load_perm_dict(void)
       FUN_005b6a80(g_voices[voice].voice, g_sound_6ad118[wave]);
       if (w->looping == 0) {
         VOICE_FIELD(voice, 0x34) &= ~4;
-        if (VOICE_FIELD(voice, 0x30) != 0) FUN_005b7300(VOICE_FIELD(voice, 0x30), 8, 1, 0);
+        if (VOICE_FIELD(voice, 0x30) != 0) sound_voice_set_float_param(VOICE_FIELD(voice, 0x30), 8, 1, 0);
       } else {
         VOICE_FIELD(voice, 0x34) |= 4;
-        if (VOICE_FIELD(voice, 0x30) != 0) FUN_005b7300(VOICE_FIELD(voice, 0x30), 8, 1, 1);
+        if (VOICE_FIELD(voice, 0x30) != 0) sound_voice_set_float_param(VOICE_FIELD(voice, 0x30), 8, 1, 1);
       }
       VOICE_FIELD(voice, 0x74) = w->param3;
-      if (VOICE_FIELD(voice, 0x30) != 0) FUN_005b7300(VOICE_FIELD(voice, 0x30), 3, 1, w->param3);
+      if (VOICE_FIELD(voice, 0x30) != 0) sound_voice_set_float_param(VOICE_FIELD(voice, 0x30), 3, 1, w->param3);
       voice++;
     }
   }

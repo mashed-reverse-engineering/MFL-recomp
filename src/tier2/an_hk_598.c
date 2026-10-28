@@ -1,15 +1,15 @@
 #include "mfl_tier2.h"
 /*004a5df0*/ extern int object_atomic_create();
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056a210*/ extern void rwp_world_activate_object(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
 /*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
-/*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
+/*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056fe40*/ extern void FUN_0056fe40(undefined4 p0, undefined4 p1, undefined4 p2);
 /*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
 /*0058c990*/ extern char *FUN_0058c990(void *p0);
-/*0058cb90*/ extern void * FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
+/*0058cb90*/ extern void * rwp_body_create(void);
+/*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*006fa18c*/ extern char *g_rwp_world_6fa18c;
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
@@ -46,15 +46,15 @@ void __cdecl rwp_objects_create_cylinder_group(int count,char *unused_2,undefine
   int group_index;
 
   /* body: centre of mass, cylinder radius/height (inferred), property values */
-  body = (undefined4 *)FUN_0058cb90();
+  body = (undefined4 *)rwp_body_create();
   handle = *body;
   *(float *)&body[1] = g_rwp_objects[type].centre_of_mass_offset[0];
   *(float *)&body[2] = g_rwp_objects[type].centre_of_mass_offset[1];
   *(float *)&body[3] = g_rwp_objects[type].centre_of_mass_offset[2];
   FUN_0056fe40(handle,(radius_bits = g_rwp_objects[type].cylinder[0] * k_f_0_1, *(int *)&radius_bits),
                (height_bits = g_rwp_objects[type].cylinder[1] * k_f_0_1, *(int *)&height_bits));
-  FUN_0056cac0(handle,*(int *)&g_rwp_objects[type].property_b);
-  FUN_0056ca70(handle,*(int *)&g_rwp_objects[type].property_c);
+  rwp_shape_set_property_b(handle,*(int *)&g_rwp_objects[type].property_b);
+  rwp_shape_set_property_c(handle,*(int *)&g_rwp_objects[type].property_c);
   FUN_0056bf10(body,*(int *)&g_rwp_objects[type].property_d,0);
   group_index = 0;
   if (0 < count) {
@@ -70,14 +70,14 @@ void __cdecl rwp_objects_create_cylinder_group(int count,char *unused_2,undefine
       FUN_0058c8b0(handle,entry);
       *(uint *)(entry + 8) = *(uint *)(entry + 8) & 0xfffffff3;
       handle = rw_first_field(object_list);
-      FUN_0056a210(handle, entry, 0xffffffff, 2);
+      rwp_world_activate_object(handle, entry, 0xffffffff, 2);
       g_rw_6fa7d0 = g_rw_6fa7d0 + 1;
       ((float *)&g_rwp_world_6fa18c)[g_rw_6fa7d0] =
            g_rwp_objects[type].shatter_velocity * g_rwp_objects[type].shatter_velocity;
       group_index = group_index + 1;
     } while (group_index < count);
   }
-  FUN_0058cbe0(body);
+  rwp_body_destroy(body);
   return;
 }
 

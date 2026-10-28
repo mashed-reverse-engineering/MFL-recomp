@@ -6,9 +6,9 @@
 /*0046a0c0*/ extern void voice_set_volume(int index, float volume);
 /*00481fd0*/ extern float random_range(float low, float high);
 /*004c45c0*/ extern int FUN_004c45c0(int low, int high);      /* random integer low..high */
-/*005b6a40*/ extern void FUN_005b6a40(uint voice, int enable);
-/*005b7300*/ extern void FUN_005b7300(int sound_object, int param, int enable, float value);
-/*005b72a0*/ extern void FUN_005b72a0(int sound_object, int param, int enable, RwV3d *position);
+/*005b6a40*/ extern void sound_voice_set_enabled(uint voice, int enable);
+/*005b7300*/ extern void sound_voice_set_float_param(int sound_object, int param, int enable, float value);
+/*005b72a0*/ extern void sound_voice_call_entry(int sound_object, int param, int enable, RwV3d *position);
 /*005dd61c*/ extern float k_f_0_001;
 /*005df9a0*/ extern float k_f_3_14;
 extern double sin(double x);
@@ -36,11 +36,11 @@ void sound_ambience_course_b(void)
   }
   slot = GROUP_VOICE(0x470);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
-    FUN_005b6a40(g_voices[slot].voice, 1);
+    sound_voice_set_enabled(g_voices[slot].voice, 1);
   }
   VOICE_FIELD(slot, float, 0x3c) = 22050.0f;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
+    sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
   }
   voice_set_volume(slot, (float)(0.7f - sin(g_sound_ambience_6ae1d8) * 0.7f));
 
@@ -50,21 +50,21 @@ void sound_ambience_course_b(void)
   }
   slot = GROUP_VOICE(0x500);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
-    FUN_005b6a40(g_voices[slot].voice, 1);
+    sound_voice_set_enabled(g_voices[slot].voice, 1);
   }
   VOICE_FIELD(slot, float, 0x3c) = 22050.0f;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
+    sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
   }
   voice_set_volume(slot, (float)(0.7f - sin(g_sound_ambience_629290) * 0.7f));
 
   slot = GROUP_VOICE(0x590);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
-    FUN_005b6a40(g_voices[slot].voice, 1);
+    sound_voice_set_enabled(g_voices[slot].voice, 1);
   }
   VOICE_FIELD(slot, float, 0x3c) = 22050.0f;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
+    sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
   }
   voice_set_volume(slot, 1.0f);
   position.x = -11.9f;
@@ -72,18 +72,18 @@ void sound_ambience_course_b(void)
   position.z = -19.13f;
   VOICE_FIELD(slot, RwV3d, 0x58) = position;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
+    sound_voice_call_entry(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
   }
 
   if (FUN_004c45c0(0, 250) == 25) {
     slot = GROUP_VOICE(0x6b0);
     if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
-      FUN_005b6a40(g_voices[slot].voice, 1);
+      sound_voice_set_enabled(g_voices[slot].voice, 1);
     }
     /* the voice and its sound object each get their own random pitch */
     VOICE_FIELD(slot, float, 0x3c) = random_range(0.0f, 3000.0f) + 22050.0f;
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, random_range(0.0f, 3000.0f) + 22050.0f);
+      sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, random_range(0.0f, 3000.0f) + 22050.0f);
     }
     voice_set_volume(slot, 1.0f);
     position.x = -11.9f;
@@ -91,18 +91,18 @@ void sound_ambience_course_b(void)
     position.z = -19.13f;
     VOICE_FIELD(slot, RwV3d, 0x58) = position;
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
+      sound_voice_call_entry(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
     }
   }
   if (FUN_004c45c0(0, 500) == 35) {
     slot = GROUP_VOICE(0x620);
     if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
-      FUN_005b6a40(g_voices[slot].voice, 1);
+      sound_voice_set_enabled(g_voices[slot].voice, 1);
     }
     /* the voice and its sound object each get their own random pitch */
     VOICE_FIELD(slot, float, 0x3c) = random_range(0.0f, 3000.0f) + 22050.0f;
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, random_range(0.0f, 3000.0f) + 22050.0f);
+      sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, random_range(0.0f, 3000.0f) + 22050.0f);
     }
     voice_set_volume(slot, 1.0f);
     position.x = -41.9f;
@@ -110,16 +110,16 @@ void sound_ambience_course_b(void)
     position.z = 41.38f;
     VOICE_FIELD(slot, RwV3d, 0x58) = position;
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
+      sound_voice_call_entry(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
     }
   }
   slot = GROUP_VOICE(0x740);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {
-    FUN_005b6a40(g_voices[slot].voice, 1);
+    sound_voice_set_enabled(g_voices[slot].voice, 1);
   }
   VOICE_FIELD(slot, float, 0x3c) = 22050.0f;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
+    sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
   }
   voice_set_volume(slot, 1.0f);
   position.x = -6.96f;
@@ -127,6 +127,6 @@ void sound_ambience_course_b(void)
   position.z = 17.77f;
   VOICE_FIELD(slot, RwV3d, 0x58) = position;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
+    sound_voice_call_entry(VOICE_FIELD(slot, int, 0x30), 0, 1, &position);
   }
 }

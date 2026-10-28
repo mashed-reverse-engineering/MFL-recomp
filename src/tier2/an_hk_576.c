@@ -10,9 +10,9 @@ extern struct VoiceSlotP g_voices[210];
 /*0044a4f0*/ extern int camera_get_position();
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*00619010*/ extern undefined4 g_sound_frame_619010;
 /*00619df0*/ extern undefined4 g_sound_frame_619df0;
 #define SORT_SLOTS (10)
@@ -103,12 +103,12 @@ void sound_nearest_objects_sort(void)
       voice = g_voices[voice_slot].voice;
       /* voice flag bit 2 (meaning unknown) not set: (re)initialise the voice */
       if ((*(byte *)(voice + VOICE_OFF_FLAGS) & 2) == 0) {
-        FUN_005b6a40(voice,1);
+        sound_voice_set_enabled(voice,1);
         *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
         voice_stream = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
         voice = 0;
         if (voice_stream != 0) {
-          voice = FUN_005b7300(voice_stream,4,1,22050.0f);
+          voice = sound_voice_set_float_param(voice_stream,4,1,22050.0f);
         }
       }
       voice_set_volume(voice_slot,1.0);
@@ -120,7 +120,7 @@ void sound_nearest_objects_sort(void)
       *(undefined4 *)(voice + VOICE_OFF_POS_Z) = object_pos_raw[2];
       voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       if (voice_slot != 0) {
-        FUN_005b72a0(voice_slot,0,1,object_pos_raw);
+        sound_voice_call_entry(voice_slot,0,1,object_pos_raw);
       }
       index = index + 1;
     } while (index < NEAREST_VOICE_COUNT);
@@ -129,12 +129,12 @@ void sound_nearest_objects_sort(void)
     if (frame.fx_flag == 1) {
       voice = g_voices[g_sound_frame_619df0].voice;
       if ((*(byte *)(voice + VOICE_OFF_FLAGS) & 2) == 0) {
-        FUN_005b6a40(voice,1);
+        sound_voice_set_enabled(voice,1);
         *(undefined4 *)(g_voices[object_count].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
         index = *(int *)(g_voices[object_count].voice + VOICE_OFF_HANDLE);
         voice = 0;
         if (index != 0) {
-          voice = FUN_005b7300(index,4,1,22050.0f);
+          voice = sound_voice_set_float_param(index,4,1,22050.0f);
         }
       }
       voice_set_volume(object_count,1.0);
@@ -145,7 +145,7 @@ void sound_nearest_objects_sort(void)
       *(undefined4 *)(voice + VOICE_OFF_POS_Z) = object_pos_raw[2];
       object_count = *(int *)(g_voices[object_count].voice + VOICE_OFF_HANDLE);
       if (object_count != 0) {
-        FUN_005b72a0(object_count,0,1,object_pos_raw);
+        sound_voice_call_entry(object_count,0,1,object_pos_raw);
       }
     }
   }

@@ -12,7 +12,7 @@
 /*004980c0*/ extern void __cdecl fx_trail_particle_spawn_interpolated(void *particle, int a, int b, int c);
 /*004a1680*/ extern void __cdecl player_rumble(int player, int motor, int duration, int strength);
 /*004c45c0*/ extern int __cdecl FUN_004c45c0(int low, int high);
-/*004c45e0*/ extern double __cdecl FUN_004c45e0(float low, float high);
+/*004c45e0*/ extern double __cdecl rp_random_float_range(float low, float high);
 /*004d1460*/ extern void * __cdecl RwFrameTranslate(struct RwFrame *frame, float *translation, int combine);
 /*004d1cd0*/ extern int __cdecl RwCameraFrustumTestSphere(void *camera, float *sphere);
 /*0060d808*/ extern int g_course_dem_60d808;       /* the "get ready" label has not been shown for this round */
@@ -152,8 +152,8 @@ void course_dem_update(unsigned int ticks, unsigned char *world)
       frame.v.direction[0] = 0.0f;
       frame.v.direction[1] = 1.0f;
       frame.v.direction[2] = 0.0f;
-      frame.a.random_a = (float)FUN_004c45e0(0.0f, 0.125f);
-      frame.b.random_b = (float)FUN_004c45e0(4.0f, 6.0f);
+      frame.a.random_a = (float)rp_random_float_range(0.0f, 0.125f);
+      frame.b.random_b = (float)rp_random_float_range(4.0f, 6.0f);
       frame.w.sphere[0] = ((float *)position)[0];
       frame.w.sphere[1] = ((float *)position)[1];
       frame.w.sphere[2] = ((float *)position)[2];
@@ -171,17 +171,17 @@ void course_dem_update(unsigned int ticks, unsigned char *world)
       frame.v.impulse[0] = frame.m.car_matrix.pos.x;
       frame.v.impulse[1] = frame.m.car_matrix.pos.y;
       frame.v.impulse[2] = frame.m.car_matrix.pos.z;
-      frame.v.impulse[0] = (float)(FUN_004c45e0(-0.1f, 0.1f) + frame.v.impulse[0]);
-      frame.v.impulse[2] = (float)(FUN_004c45e0(-0.1f, 0.1f) + frame.v.impulse[2]);
+      frame.v.impulse[0] = (float)(rp_random_float_range(-0.1f, 0.1f) + frame.v.impulse[0]);
+      frame.v.impulse[2] = (float)(rp_random_float_range(-0.1f, 0.1f) + frame.v.impulse[2]);
       car_apply_rwp_impulse(car, frame.w.point, frame.v.impulse);
       player_rumble(car, 2, 30, FUN_004c45c0(200, 255));
     }
   }
   if (g_course_dem_6a07b0 != 0 && g_course_dem_6a07b8 <= DEM_LAST_ROUND) {
     g_course_dem_6a07b0--;
-    g_camera_shake = (float)FUN_004c45e0(0.05f, 0.1f);
+    g_camera_shake = (float)rp_random_float_range(0.05f, 0.1f);
     if (g_course_dem_6a07b0 > DEM_SHAKE_STRONG) {
-      g_camera_shake = (float)FUN_004c45e0(0.25f, 0.35f);
+      g_camera_shake = (float)rp_random_float_range(0.25f, 0.35f);
     }
     if (g_course_dem_6a07b0 > DEM_SHAKE_LIFT_FIRST && g_course_dem_6a07b0 < DEM_SHAKE_LIFT_LAST) {
       g_course_dem_6a07b4 = k_f_3_5 / (1.0f / ((g_course_60d8b0 - g_course_dem_6a07b0)[0] * k_f_0_47169814)) + g_course_dem_6a07b4;
@@ -200,9 +200,9 @@ void course_dem_update(unsigned int ticks, unsigned char *world)
     frame.m.dust.colour = 0xfa323232;
     frame.m.dust.size_a = 2.5f;
     frame.m.dust.size_b = 2.5f;
-    frame.m.dust.random_a = (float)FUN_004c45e0(-0.2f, 0.2f);
-    frame.m.dust.random_b = (float)FUN_004c45e0(2.0f, 3.0f);
-    frame.m.dust.random_c = (float)FUN_004c45e0(-0.2f, 0.2f);
+    frame.m.dust.random_a = (float)rp_random_float_range(-0.2f, 0.2f);
+    frame.m.dust.random_b = (float)rp_random_float_range(2.0f, 3.0f);
+    frame.m.dust.random_c = (float)rp_random_float_range(-0.2f, 0.2f);
     frame.m.dust.zero[0] = 0.0f;
     frame.m.dust.zero[1] = 0.0f;
     frame.m.dust.zero[2] = 0.0f;
@@ -215,9 +215,9 @@ void course_dem_update(unsigned int ticks, unsigned char *world)
       frame.m.dust.position[0] = ((float *)position)[0];
       frame.m.dust.position[1] = ((float *)position)[1];
       frame.m.dust.position[2] = ((float *)position)[2];
-      frame.m.dust.position[0] = (float)(FUN_004c45e0(-1.0f, 1.0f) + frame.m.dust.position[0]);
-      frame.m.dust.position[1] = (float)(FUN_004c45e0(-1.0f, 1.0f) + frame.m.dust.position[1]);
-      frame.m.dust.position[2] = (float)(FUN_004c45e0(-1.0f, 1.0f) + frame.m.dust.position[2]);
+      frame.m.dust.position[0] = (float)(rp_random_float_range(-1.0f, 1.0f) + frame.m.dust.position[0]);
+      frame.m.dust.position[1] = (float)(rp_random_float_range(-1.0f, 1.0f) + frame.m.dust.position[1]);
+      frame.m.dust.position[2] = (float)(rp_random_float_range(-1.0f, 1.0f) + frame.m.dust.position[2]);
       fx_trail_particle_spawn_interpolated(&frame.m.dust, 0, 0, 0);
     }
     g_course_dem_6a07c0--;

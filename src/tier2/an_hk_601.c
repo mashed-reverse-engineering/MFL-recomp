@@ -1,15 +1,15 @@
 #include "mfl_tier2.h"
 /*004a5df0*/ extern int object_atomic_create();
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056a210*/ extern void rwp_world_activate_object(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
 /*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
-/*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
+/*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056cb10*/ extern void FUN_0056cb10(undefined4 p0, undefined4 p1);
 /*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
 /*0058c990*/ extern char *FUN_0058c990(void *p0);
-/*0058cb90*/ extern void * FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
+/*0058cb90*/ extern void * rwp_body_create(void);
+/*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*006fa18c*/ extern char *g_rwp_world_6fa18c;
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
@@ -48,14 +48,14 @@ void rwp_objects_create_sphere_group(int count,char *param_2,undefined4 rw_list,
   undefined4 handle;
   int body_index;
 
-  group = (undefined4 *)FUN_0058cb90();
+  group = (undefined4 *)rwp_body_create();
   handle = *group;
   *(float *)&group[1] = g_rwp_objects[object_index].centre_of_mass_offset[0];
   *(float *)&group[2] = g_rwp_objects[object_index].centre_of_mass_offset[1];
   *(float *)&group[3] = g_rwp_objects[object_index].centre_of_mass_offset[2];
   FUN_0056cb10(handle,(scaled_radius = g_rwp_objects[object_index].sphere_radius * k_f_0_1, *(int *)&scaled_radius));
-  FUN_0056cac0(handle,*(int *)&g_rwp_objects[object_index].property_b);
-  FUN_0056ca70(handle,*(int *)&g_rwp_objects[object_index].property_c);
+  rwp_shape_set_property_b(handle,*(int *)&g_rwp_objects[object_index].property_b);
+  rwp_shape_set_property_c(handle,*(int *)&g_rwp_objects[object_index].property_c);
   FUN_0056bf10(group,*(int *)&g_rwp_objects[object_index].property_d,0);
   body_index = 0;
   /* one iteration per body: create it, register it, clear its flags and
@@ -73,14 +73,14 @@ void rwp_objects_create_sphere_group(int count,char *param_2,undefined4 rw_list,
       /* clear the flag bits outside BODY_FLAGS_KEEP_MASK (inferred) */
       *(uint *)(body + 8) = *(uint *)(body + 8) & BODY_FLAGS_KEEP_MASK;
       handle = rw_first_field(rw_list);
-      FUN_0056a210(handle, body, 0xffffffff, 2);
+      rwp_world_activate_object(handle, body, 0xffffffff, 2);
       g_rw_6fa7d0 = g_rw_6fa7d0 + 1;
       ((float *)&g_rwp_world_6fa18c)[g_rw_6fa7d0] =
            g_rwp_objects[object_index].shatter_velocity * g_rwp_objects[object_index].shatter_velocity;
       body_index = body_index + 1;
     } while (body_index < count);
   }
-  FUN_0058cbe0(group);
+  rwp_body_destroy(group);
   return;
 }
 

@@ -1,16 +1,16 @@
 #include "mfl_tier2.h"
 /*004a5df0*/ extern int object_atomic_create();
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056a210*/ extern void rwp_world_activate_object(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
 /*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
 /*0056c080*/ extern void FUN_0056c080(undefined4 p0, undefined4 p1);
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
-/*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
+/*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056cdf0*/ extern void FUN_0056cdf0(undefined4 p0, void *p1);
 /*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
 /*0058c990*/ extern char *FUN_0058c990(void *p0);
-/*0058cb90*/ extern void * FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
+/*0058cb90*/ extern void * rwp_body_create(void);
+/*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*006fa18c*/ extern undefined g_rwp_world_6fa18c;
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
@@ -51,7 +51,7 @@ void __cdecl rwp_objects_create_box_group(int count,char *unused_2,undefined4 rw
   } extents;
 
   /* scratch record: handle at [0], centre of mass offset at [1..3] (inferred) */
-  scratch = (undefined4 *)FUN_0058cb90();
+  scratch = (undefined4 *)rwp_body_create();
   handle = *scratch;
   *(float *)&scratch[1] = g_rwp_objects[object_type].centre_of_mass_offset[0];
   *(float *)&scratch[2] = g_rwp_objects[object_type].centre_of_mass_offset[1];
@@ -61,8 +61,8 @@ void __cdecl rwp_objects_create_box_group(int count,char *unused_2,undefined4 rw
   extents.y = g_rwp_objects[object_type].box_dimensions[1] * k_f_0_1;
   extents.z = g_rwp_objects[object_type].box_dimensions[2] * k_f_0_1;
   FUN_0056cdf0(handle,&extents.x);
-  FUN_0056cac0(handle,*(int *)&g_rwp_objects[object_type].property_b);
-  FUN_0056ca70(handle,*(int *)&g_rwp_objects[object_type].property_c);
+  rwp_shape_set_property_b(handle,*(int *)&g_rwp_objects[object_type].property_b);
+  rwp_shape_set_property_c(handle,*(int *)&g_rwp_objects[object_type].property_c);
   FUN_0056c080(handle,(scaled_property_a = g_rwp_objects[object_type].property_a * k_f_0_1, *(int *)&scaled_property_a));
   FUN_0056bf10(scratch,*(int *)&g_rwp_objects[object_type].property_d,0);
   i = 0;
@@ -81,7 +81,7 @@ void __cdecl rwp_objects_create_box_group(int count,char *unused_2,undefined4 rw
       /* clear bits 0x0c of the flags word at +8 (inferred) */
       *(uint *)(obj + 8) = *(uint *)(obj + 8) & 0xfffffff3;
       handle = rw_first_field(rw_owner);
-      FUN_0056a210(handle, obj, 0xffffffff, 2);
+      rwp_world_activate_object(handle, obj, 0xffffffff, 2);
       g_rw_6fa7d0 = g_rw_6fa7d0 + 1;
       /* shatter velocity squared, stored at the entry just claimed */
       ((float *)&g_rwp_world_6fa18c)[g_rw_6fa7d0] =
@@ -89,7 +89,7 @@ void __cdecl rwp_objects_create_box_group(int count,char *unused_2,undefined4 rw
       i = i + 1;
     } while (i < count);
   }
-  FUN_0058cbe0(scratch);
+  rwp_body_destroy(scratch);
   return;
 }
 

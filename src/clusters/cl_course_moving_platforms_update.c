@@ -13,7 +13,7 @@
 /*0056b220*/ extern void rwp_world_set_bit_60_64(int p0, int p1, int p2);
 /*0056b300*/ extern void FUN_0056b300(undefined4 p0, undefined4 p1);
 /*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd41c*/ extern float float_5_0;
@@ -141,7 +141,7 @@ void course_moving_platforms_update(char *world_base, char *platform_base)
           }
           FUN_0056bc20(body_ptr,&frame.push_x,frame.body_pos_ptr);
           *(float *)&body_ptr[5] = (float_1_0 / (g_tick_seconds * float_10_0));
-          FUN_0056ca70(frame.body_flags,0x3c23d70a);
+          rwp_shape_set_property_c(frame.body_flags,0x3c23d70a);
           body_ptr[7] = 0x3c23d70a;
           spline = frame.spline_copy;
         }

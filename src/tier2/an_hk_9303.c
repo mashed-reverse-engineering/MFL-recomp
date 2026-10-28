@@ -10,7 +10,7 @@ extern char LAB_00408ad0[];
 /*00499dc0*/ extern int __cdecl shadow_project_to_ground_00499dc0(int p0, RwMatrix *p1, float *p2, RwMatrix *p3, float *p4);
 /*0049a850*/ extern int fx_dust_add();
 /*004b2b48*/ extern int _ftol();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
 /*004f6240*/ extern struct RwSphere * RpAtomicGetWorldBoundingSphere(struct RpAtomic *p0);
@@ -166,7 +166,7 @@ void rwp_objects_cull_and_register_triggers(void)
                 }
                 if ((&g_effects_update_6fe770)[obj] != 0) {
                   shadow_angle = (double)dot_product_3d_clamped(&frame.obj_mtx->at,&g_car_62ac74);
-                  shadow_angle = (double)FUN_004b3284((double)shadow_angle);
+                  shadow_angle = (double)crt_acos_body((double)shadow_angle);
                   if (shadow_angle < (double)k_f_0_7853982) {
                     shadow_flag_or_count = ((int)(((1.0f - (shadow_angle * 1.2732395f)) + 1.0f) * 64.0f));
                     fx_dust_add(frame.obj_mtx,shadow_flag_or_count);

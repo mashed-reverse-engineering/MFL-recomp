@@ -7,8 +7,8 @@ extern struct VoiceSlot g_voices[210];
 /*0047a7b0*/ extern int car_get_field_bf8();
 /*0047b360*/ extern int car_wheel_get_field_88_a();
 /*00481fd0*/ extern double random_range(float p0, float p1);
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005ddc28*/ extern float k_f_0;
 /*005de490*/ extern float k_f_0_02;
 /*005df99c*/ extern float k_f_22050;
@@ -54,13 +54,13 @@ void __cdecl sound_surface_skid_voice_update(int car_index,undefined4 surface_ar
         fade_ptr = (float *)((char *)((undefined *)&g_sound_frame_6ae0c4) + car_index * 4);
         *fade_ptr = 1.0;
         if ((*(byte *)(voice + 0x34) & 2) == 0) {
-          FUN_005b6a40(voice,1);
+          sound_voice_set_enabled(voice,1);
         }
         pitch_jitter = (double)random_range(0.0,441.0);
         *(float *)(g_voices[voice_index].voice + 0x3c) = (float)((double)k_f_22050 - pitch_jitter);
         if (*(int *)(g_voices[voice_index].voice + 0x30) != 0) {
           pitch_jitter = (double)random_range(0.0,441.0);
-          FUN_005b7300(*(undefined4 *)(g_voices[voice_index].voice + 0x30),4,1,
+          sound_voice_set_float_param(*(undefined4 *)(g_voices[voice_index].voice + 0x30),4,1,
                        (float)((double)k_f_22050 - pitch_jitter));
         }
         if (frame.group_or_slide == 0) {

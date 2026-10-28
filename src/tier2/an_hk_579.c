@@ -4,9 +4,9 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*006187f8*/ extern undefined4 g_sfx_table;
 /*006187fc*/ extern undefined4 g_sound_6187fc;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
@@ -21,7 +21,7 @@ extern struct VoiceSlotP g_voices[210];
 /* Effect whose plays are counted in g_sfx_play_8d9930. */
 #define SFX_ID_PLAY_COUNT (0x1c)
 /* Default voice frequency, bit pattern of 22050.0f. */
-#define DEFAULT_SFX_FREQ_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
+#define DEFAULT_SFX_FREQ_F (22050.0f) /* the same value as a float argument of sound_voice_set_float_param (`float p3`; the integer literal would convert to 1.18e9) */
 /* Byte offsets into a voice record (struct not in mfl_tier2.h). */
 
 /* sfx_play_at */
@@ -56,14 +56,14 @@ void sfx_play_at(int effect_id,undefined4 *position)
         *(undefined4 *)(voice + VOICE_OFF_POS_Z) = position[2];
         voices_left = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
         if (voices_left != 0) {
-          FUN_005b72a0(voices_left,0,1,position);
+          sound_voice_call_entry(voices_left,0,1,position);
         }
-        FUN_005b6a40(g_voices[voice_slot].voice,1);
+        sound_voice_set_enabled(g_voices[voice_slot].voice,1);
         *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
         voices_left = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
         freq_set_result = 0;
         if (voices_left != 0) {
-          freq_set_result = FUN_005b7300(voices_left,4,1,DEFAULT_SFX_FREQ_F);
+          freq_set_result = sound_voice_set_float_param(voices_left,4,1,DEFAULT_SFX_FREQ_F);
         }
         voice_set_volume(voice_slot,1.0);
         voices_left = 0;

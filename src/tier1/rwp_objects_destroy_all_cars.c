@@ -4,7 +4,7 @@
 /*004f4560*/ extern struct RpWorld * __cdecl RpAtomicGetWorld(struct RpAtomic *p0);
 /*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
-/*0056a4b0*/ extern void FUN_0056a4b0(undefined4 p0, void *p1);
+/*0056a4b0*/ extern void rwp_world_deactivate_object(undefined4 p0, void *p1);
 /*0058c8a0*/ extern char *rwp_owner_object_get(int p0);
 /*0058ca00*/ extern void FUN_0058ca00(void *p0);
 /*006fd498*/ extern undefined4 g_rw_6fd498;
@@ -31,7 +31,7 @@ void rwp_objects_destroy_all_cars(void)
       if (owner != 0) {
         /* (inferred) notify the owner's pointer at +0x24, then release the owner */
         if (*(int *)(owner + 0x24) != 0) {
-          FUN_0056a4b0(*(int *)(owner + 0x24),owner);
+          rwp_world_deactivate_object(*(int *)(owner + 0x24),owner);
         }
         FUN_0058ca00(owner);
       }

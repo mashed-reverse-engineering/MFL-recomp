@@ -13,7 +13,7 @@ extern struct EventLogArgs g_event_log_args[256];
 /*0047ac30*/ extern int car_get_mode(int p0, int *p1, int *p2);
 /*0047ac90*/ extern int car_get_int_from_float_field();
 /*0047b590*/ extern int car_get_forward();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
 /*005dd7e8*/ extern float k_f_60;
@@ -188,7 +188,7 @@ LAB_00429069:
             else if (dot_or_part > float_1_0) {
               dot_clamped = float_1_0;
             }
-            angle_deg = (float10)FUN_004b3284((double)dot_clamped);
+            angle_deg = (float10)crt_acos_body((double)dot_clamped);
             angle_deg = angle_deg * (float10)k_f_57_2958;
             if (angle_deg < k_f_0) {
               angle_deg = -angle_deg;

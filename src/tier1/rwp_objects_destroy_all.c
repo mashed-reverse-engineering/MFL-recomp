@@ -6,7 +6,7 @@
 /*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a4b0*/ extern void FUN_0056a4b0(undefined4 p0, void *p1);
+/*0056a4b0*/ extern void rwp_world_deactivate_object(undefined4 p0, void *p1);
 /*0058c8a0*/ extern char *rwp_owner_object_get(int p0);
 /*0058ca00*/ extern void FUN_0058ca00(void *p0);
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
@@ -45,7 +45,7 @@ void rwp_objects_destroy_all(void)
       if (owner_obj != 0) {
         /* If the owner belongs to first_field (+0x24 match, inferred), notify it first. */
         if ((first_field != 0) && (*(int *)(owner_obj + 0x24) == first_field)) {
-          FUN_0056a4b0(first_field,owner_obj);
+          rwp_world_deactivate_object(first_field,owner_obj);
         }
         FUN_0058ca00(owner_obj);
       }

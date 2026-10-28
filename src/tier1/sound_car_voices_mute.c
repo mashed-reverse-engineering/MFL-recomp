@@ -13,8 +13,8 @@
 /*0047b360*/ extern void car_wheel_get_field_88_a(int car, int wheel, int *out);
 /*0047b720*/ extern void car_get_field_b0c(float *out, int car);
 /*00481fd0*/ extern float random_range(float low, float high);
-/*005b6a40*/ extern void FUN_005b6a40(uint voice, int enable);
-/*005b7300*/ extern void FUN_005b7300(int sound_object, int param, int enable, float value);
+/*005b6a40*/ extern void sound_voice_set_enabled(uint voice, int enable);
+/*005b7300*/ extern void sound_voice_set_float_param(int sound_object, int param, int enable, float value);
 extern double sin(double x);
 /*005deb2c*/ extern float k_f_1_57;      /* 1.57f (about pi/2) */
 /*005dfcc8*/ extern float k_f_4_71;      /* 4.71f (about 3 pi/2): sin starts at -1 */
@@ -65,10 +65,10 @@ void sound_car_voices_mute(int car, int course_param)
   voice_set_position_from_car(voice_a, car);
   voice_set_position_from_car(voice_b, car);
   if ((VOICE_FIELD(voice_a, uchar, 0x34) & 2) == 0) {
-    FUN_005b6a40(g_voices[voice_a].voice, 1);
+    sound_voice_set_enabled(g_voices[voice_a].voice, 1);
   }
   if ((VOICE_FIELD(voice_b, uchar, 0x34) & 2) == 0) {
-    FUN_005b6a40(g_voices[voice_b].voice, 1);
+    sound_voice_set_enabled(g_voices[voice_b].voice, 1);
   }
   if (race_get_phase() != RACE_PHASE_RUNNING) {
     voice_set_volume(voice_a, 0.0f);
@@ -78,14 +78,14 @@ void sound_car_voices_mute(int car, int course_param)
   /* the voice and its sound object each get their own random pitch */
   VOICE_FIELD(voice_a, float, 0x3c) = 22050.0f - random_range(0.0f, 2205.0f);
   if (VOICE_FIELD(voice_a, int, 0x30) != 0) {
-    FUN_005b7300(VOICE_FIELD(voice_a, int, 0x30), 4, 1, 22050.0f - random_range(0.0f, 2205.0f));
+    sound_voice_set_float_param(VOICE_FIELD(voice_a, int, 0x30), 4, 1, 22050.0f - random_range(0.0f, 2205.0f));
   }
   voice_set_volume(voice_a, volume);
   if (found != 0) {
     rate = 22050.0f - volume * 2205.0f;
     VOICE_FIELD(voice_b, float, 0x3c) = rate;
     if (VOICE_FIELD(voice_b, int, 0x30) != 0) {
-      FUN_005b7300(VOICE_FIELD(voice_b, int, 0x30), 4, 1, rate);
+      sound_voice_set_float_param(VOICE_FIELD(voice_b, int, 0x30), 4, 1, rate);
     }
     voice_set_volume(voice_b, volume);
   }

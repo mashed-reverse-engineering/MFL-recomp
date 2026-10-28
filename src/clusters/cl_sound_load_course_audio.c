@@ -21,7 +21,7 @@ extern int course_table_find_entry(int course);
 extern int FUN_005b82b0(int a, void *stream, int b, int c, int d, int e);
 extern int FUN_005b8000(int bank);
 extern int FUN_005b7fb0(int bank, int group);
-extern int FUN_005b7300(int voice, int what, int a, int b);
+extern int sound_voice_set_float_param(int voice, int what, int a, int b);
 extern int FUN_005b6a80(int voice, int v);
 extern int sound_course_audio_init(char *path, int course);
 extern int sound_spline_create_a(void);
@@ -107,11 +107,11 @@ void sound_load_course_audio(int course_id)
     for (voice = g_sound_6ad8a4; voice < g_sound_6ad8a4 + g_sound_load_6ad8a0; voice++) {
       *(unsigned int *)(g_voices[voice].voice + VOICE_OFF_FLAGS) |= VOICE_FLAG_LOOP;
       if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
-        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 1);
+        sound_voice_set_float_param(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 1);
       }
       *(int *)(g_voices[voice].voice + 0x44) = 0;
       if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
-        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 10, 1, 0);
+        sound_voice_set_float_param(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 10, 1, 0);
       }
     }
     voice = g_sound_6ad8a4;
@@ -123,18 +123,18 @@ void sound_load_course_audio(int course_id)
         if (*(int *)(group_rec + SOUND_GROUP_LOOP) == 0) {
           *(unsigned int *)(g_voices[voice].voice + VOICE_OFF_FLAGS) &= ~VOICE_FLAG_LOOP;
           if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
-            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 0);
+            sound_voice_set_float_param(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 0);
           }
         }
         else {
           *(unsigned int *)(g_voices[voice].voice + VOICE_OFF_FLAGS) |= VOICE_FLAG_LOOP;
           if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
-            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 1);
+            sound_voice_set_float_param(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 1);
           }
         }
         *(int *)(g_voices[voice].voice + 0x74) = *(int *)(group_rec + SOUND_GROUP_VOLUME);
         if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
-          FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 3, 1, *(int *)(group_rec + SOUND_GROUP_VOLUME));
+          sound_voice_set_float_param(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 3, 1, *(int *)(group_rec + SOUND_GROUP_VOLUME));
         }
         voice++;
       }

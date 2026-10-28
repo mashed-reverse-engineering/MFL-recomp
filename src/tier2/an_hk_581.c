@@ -4,15 +4,15 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*006187f8*/ extern undefined4 g_sfx_table;
 
 #define SFX_TABLE_STRIDE (0x25) /* g_sfx_table entries per effect (inferred) */
 #define VOICE_FLAG_NO_PLAY (2) /* flags bit that skips playback (inferred) */
 #define VOICE_OFF_RATE (0x3c) /* voice record: playback rate (inferred) */
-#define VOICE_DEFAULT_RATE_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
+#define VOICE_DEFAULT_RATE_F (22050.0f) /* the same value as a float argument of sound_voice_set_float_param (`float p3`; the integer literal would convert to 1.18e9) */
 
 /* sfx_play_voice_at */
 
@@ -43,15 +43,15 @@ void sfx_play_voice_at(int effect_id,undefined4 *position,int voice_index)
       /* notify the handle if there is one, then start playback */
       state_or_handle = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
       if (state_or_handle != 0) {
-        FUN_005b72a0(state_or_handle,0,1,position);
+        sound_voice_call_entry(state_or_handle,0,1,position);
       }
-      FUN_005b6a40(g_voices[voice_index].voice,1);
+      sound_voice_set_enabled(g_voices[voice_index].voice,1);
       /* set the default playback rate, then the handle's parameter */
       *(undefined4 *)(g_voices[voice_index].voice + VOICE_OFF_RATE) = VOICE_DEFAULT_FREQ_BITS;
       state_or_handle = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
       set_param_result = 0;
       if (state_or_handle != 0) {
-        set_param_result = FUN_005b7300(state_or_handle,4,1,VOICE_DEFAULT_RATE_F);
+        set_param_result = sound_voice_set_float_param(state_or_handle,4,1,VOICE_DEFAULT_RATE_F);
       }
       voice_set_volume(voice_index,1.0);
     }

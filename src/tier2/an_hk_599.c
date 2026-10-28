@@ -5,16 +5,16 @@
 /*004f6ae0*/ extern struct RpAtomic * RpAtomicClone(struct RpAtomic *p0);
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056a210*/ extern void rwp_world_activate_object(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
 /*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
 /*0056c080*/ extern void FUN_0056c080(undefined4 p0, undefined4 p1);
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
-/*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
+/*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056cdf0*/ extern void FUN_0056cdf0(undefined4 p0, undefined4 p1);
 /*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
 /*0058c990*/ extern char *FUN_0058c990(void *p0);
-/*0058cb90*/ extern void * FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
+/*0058cb90*/ extern void * rwp_body_create(void);
+/*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
 /*006fa4b0*/ extern undefined4 g_rw_6fa4b0;
 /*006fa7d0*/ extern undefined4 g_rw_6fa7d0;
@@ -35,7 +35,7 @@
 
 /*
  * Creates one physics body for the atomic `atomic` and adds a clone of it, with its own frame, to the course world.
- *   setting_a, setting_b, setting_c: three per-body settings, passed to FUN_0056cdf0 / FUN_0056cac0 / FUN_0056ca70 (inferred)
+ *   setting_a, setting_b, setting_c: three per-body settings, passed to FUN_0056cdf0 / rwp_shape_set_property_b / rwp_shape_set_property_c (inferred)
  *   box_size: scaled by k_f_0_1 and passed to FUN_0056c080 (inferred: box size)
  *   mass: passed to FUN_0056bf10 (inferred: mass properties)
  *   user_id: stored in the per-object table g_rw_6fa4b0 at the new slot (inferred)
@@ -57,14 +57,14 @@ int rwp_object_create_from_atomic(RpAtomic *atomic,undefined4 setting_a,float bo
   undefined4 *dst;
 
   /* get a new body and clear its 3 words after the id (inferred) */
-  body = (undefined4 *)FUN_0058cb90();
+  body = (undefined4 *)rwp_body_create();
   handle = *body;
   body[1] = 0;
   body[2] = 0;
   body[3] = 0;
   FUN_0056cdf0(handle,setting_a);
-  FUN_0056cac0(handle,setting_b);
-  FUN_0056ca70(handle,setting_c);
+  rwp_shape_set_property_b(handle,setting_b);
+  rwp_shape_set_property_c(handle,setting_c);
   FUN_0056c080(handle,(scaled_size = box_size * k_f_0_1, *(int *)&scaled_size));
   FUN_0056bf10(body,mass,0);
   phys_handle = FUN_0058c990(body);
@@ -92,10 +92,10 @@ int rwp_object_create_from_atomic(RpAtomic *atomic,undefined4 setting_a,float bo
   *(uint *)(phys_handle + 8) = *(uint *)(phys_handle + 8) & PHYS_FLAGS_CLEAR_MASK;
   /* register the physics object: id from the first field of g_rw_701c9c (inferred) */
   handle = rw_first_field(g_rw_701c9c);
-  FUN_0056a210(handle, phys_handle, 0xffffffff, 2);
+  rwp_world_activate_object(handle, phys_handle, 0xffffffff, 2);
   slot = g_rw_6fa7d0;
   g_rw_6fa7d0 = g_rw_6fa7d0 + 1;
-  FUN_0058cbe0(body);
+  rwp_body_destroy(body);
   return slot;
 }
 

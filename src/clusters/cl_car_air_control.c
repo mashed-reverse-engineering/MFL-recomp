@@ -1,7 +1,7 @@
 // cluster-entries: car_air_control
 /* Installed cluster car_air_control (tools/cluster_install.py from output/cluster_pilot9/car_air_control.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd330*/ extern float float_1_0;
@@ -44,7 +44,7 @@ void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
       else if (dot_a > float_1_0) {
         dot_clamped = float_1_0;
       }
-      angle = (float10)FUN_004b3284((double)dot_clamped);
+      angle = (float10)crt_acos_body((double)dot_clamped);
       RwMatrixRotate(matrix,(RwV3d *)&g_car_62ac68,
                      (float)(-(angle * (float10)(57.295799255371094) - (float10)(90.0)) * (float10)step),
                      rwCOMBINEPRECONCAT);
@@ -57,7 +57,7 @@ void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
       else if (dot_a > float_1_0) {
         dot_clamped = float_1_0;
       }
-      angle = (float10)FUN_004b3284((double)dot_clamped);
+      angle = (float10)crt_acos_body((double)dot_clamped);
       RwMatrixRotate(matrix,(RwV3d *)&g_weapon_62ac80,
                      (float)((angle * (float10)(57.295799255371094) - (float10)k_f_90) * (float10)step),
                      rwCOMBINEPRECONCAT);

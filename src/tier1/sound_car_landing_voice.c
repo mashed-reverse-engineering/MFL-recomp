@@ -5,8 +5,8 @@ extern struct VoiceSlot g_voices[210];
 /*0047ac30*/ extern int car_get_mode();
 /*0047ac90*/ extern int car_get_int_from_float_field();
 /*0047b750*/ extern int car_get_speed();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd620*/ extern float float_10_0;
 /*0061795c*/ extern int g_sound_frame_61795c[];
 /*006199e4*/ extern undefined4 g_sound_frame_6199e4;
@@ -39,11 +39,11 @@ void sound_car_landing_voice(int car)
       slot = g_sound_frame_6199e4 + car;
       if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_BUSY) == 0) {
         voice_set_position_from_car(slot, car);
-        FUN_005b6a40(g_voices[slot].voice, 1);
+        sound_voice_set_enabled(g_voices[slot].voice, 1);
         *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
         stream = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (stream != 0) {
-          FUN_005b7300(stream, 4, 1, SFX_CAR_FREQ_F);
+          sound_voice_set_float_param(stream, 4, 1, SFX_CAR_FREQ_F);
         }
         voice_set_volume(slot, 1.0);
       }

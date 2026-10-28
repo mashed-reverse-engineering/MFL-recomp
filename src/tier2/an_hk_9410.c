@@ -9,7 +9,7 @@ typedef struct voice_set_position_from_car_voice_layout {
     undefined4 f_0x60;
 } voice_set_position_from_car_voice_layout;
 
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
 /* voice_set_position_from_car */
 
 /* "(voice, car): voice position = the car's current matrix position (12 callers)" */
@@ -28,6 +28,6 @@ void voice_set_position_from_car(int slot, undefined4 car)
   voice->f_0x60 = *(undefined4 *)(matrix + 0x38);
   sound = *(int *)(*(char **)&g_voices[slot].voice + 0x30);
   if (sound != 0) {
-    FUN_005b72a0(sound, 0, 1, matrix + 0x30);
+    sound_voice_call_entry(sound, 0, 1, matrix + 0x30);
   }
 }

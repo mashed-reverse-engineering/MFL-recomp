@@ -48,11 +48,14 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
 {
   float dy;
   float dz;
-  double angle_deg;
-  double tick_or_wave_fast;
+  /* wave_value / tick_value / pitch_base_then_jitter are deliberately shared across the sway, pitch and yaw-jitter phases: splitting them changes the x87 temporaries (checked, not object-identical) */
+  double wave_value;
+  double yaw_deg;
+  double elevation_deg;
+  double tick_value;
   double wave_slow;
   double wave_mid;
-  double deg360_or_wave;
+  double pitch_base_then_jitter;
   RwReal horiz_len;
   float dx_or_horiz;
   RwV3d delta;
@@ -74,64 +77,64 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
   delta.y = dy;
   delta.z = dz;
   RwV3dLength(&delta);
-  angle_deg = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
+  wave_value = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
   camera_rec->distance =
-       (float)((angle_deg + (double)float_1_0) * (double)dist_base * (double)dist_sway *
+       (float)((wave_value + (double)float_1_0) * (double)dist_base * (double)dist_sway *
                (double)k_f_0_05 + (double)*(volatile float *)&dist_base);
   if (dz == k_f_0) {
     if (!((double)dx_or_horiz < k_f_0)) {      /* NaN takes the 90 branch (as atan2_degrees) */
-      angle_deg = (double)k_f_90;
+      yaw_deg = (double)k_f_90;
     }
     else {
-      angle_deg = (double)k_f_270;
+      yaw_deg = (double)k_f_270;
     }
   }
   else {
-    angle_deg = (double)atan2((double)dx_or_horiz / (double)dz,(double)1);
-    angle_deg = (double)k_f_180 - -(angle_deg * (double)(57.295799255371094));
+    yaw_deg = (double)atan2((double)dx_or_horiz / (double)dz,(double)1);
+    yaw_deg = (double)k_f_180 - -(yaw_deg * (double)(57.295799255371094));
     if (k_f_0 < dz) {
-      angle_deg = angle_deg + (double)k_f_180;
+      yaw_deg = yaw_deg + (double)k_f_180;
     }
   }
-  camera_rec->yaw = (float)angle_deg;
+  camera_rec->yaw = (float)yaw_deg;
   dx_or_horiz = dx_or_horiz * dx_or_horiz + dz * dz;
   if (dx_or_horiz != k_f_0) {
     horiz_len = _rwSqrt(dx_or_horiz);
     if (horiz_len != k_f_0) {
-      angle_deg = (double)atan2((double)dy / (double)horiz_len,(double)1);
-      angle_deg = (double)k_f_180 - -(angle_deg * (double)(57.295799255371094));
+      elevation_deg = (double)atan2((double)dy / (double)horiz_len,(double)1);
+      elevation_deg = (double)k_f_180 - -(elevation_deg * (double)(57.295799255371094));
       if (k_f_0 < horiz_len) {
-        angle_deg = angle_deg + (double)k_f_180;
+        elevation_deg = elevation_deg + (double)k_f_180;
       }
       goto LAB_0044c474;
     }
   }
   if (!(dy < k_f_0)) {      /* NaN takes the 90 branch (original: fcomp / test ah,5 / jp) */
-    angle_deg = (double)k_f_90;
+    elevation_deg = (double)k_f_90;
   }
   else {
-    angle_deg = (double)k_f_270;
+    elevation_deg = (double)k_f_270;
   }
 LAB_0044c474:
-  deg360_or_wave = (double)k_f_360;
-  camera_rec->pitch = (float)(deg360_or_wave - angle_deg);
-  tick_or_wave_fast = (double)(int)g_tick_number;
-  wave_slow = (double)sin((double)k_f_0_05 * tick_or_wave_fast);
-  wave_mid = (double)sin(tick_or_wave_fast * (double)k_f_0_012820513);
-  tick_or_wave_fast = (double)sin(tick_or_wave_fast * (double)k_f_0_0042918455);
+  pitch_base_then_jitter = (double)k_f_360;
+  camera_rec->pitch = (float)(pitch_base_then_jitter - elevation_deg);
+  tick_value = (double)(int)g_tick_number;
+  wave_slow = (double)sin((double)k_f_0_05 * tick_value);
+  wave_mid = (double)sin(tick_value * (double)k_f_0_012820513);
+  tick_value = (double)sin(tick_value * (double)k_f_0_0042918455);
   *(volatile float *)&sumf = wave_mid + wave_slow;
   camera_rec->pitch =
-       (float)(((double)*(volatile float *)&sumf * (double)k_f_0_5 + tick_or_wave_fast) * (double)k_f_0_5 *
-               (double)dist_sway + (deg360_or_wave - angle_deg));
-  angle_deg = (double)sin((double)k_f_0_1 * (double)(int)g_tick_number);
-  deg360_or_wave = (double)sin((double)(int)g_tick_number * (double)k_f_0_012048192);
-  dist_base = (float)(deg360_or_wave + angle_deg * (double)k_f_0_125);
-  deg360_or_wave = (double)random_range(0,0x42700000);
-  angle_deg = (double)(int)g_tick_number;
+       (float)(((double)*(volatile float *)&sumf * (double)k_f_0_5 + tick_value) * (double)k_f_0_5 *
+               (double)dist_sway + (pitch_base_then_jitter - elevation_deg));
+  wave_value = (double)sin((double)k_f_0_1 * (double)(int)g_tick_number);
+  pitch_base_then_jitter = (double)sin((double)(int)g_tick_number * (double)k_f_0_012048192);
+  dist_base = (float)(pitch_base_then_jitter + wave_value * (double)k_f_0_125);
+  pitch_base_then_jitter = (double)random_range(0,0x42700000);
+  wave_value = (double)(int)g_tick_number;
   camera_rec->roll = 0;
-  angle_deg = (double)sin((deg360_or_wave + angle_deg) * (double)k_f_0_016666668);
+  wave_value = (double)sin((pitch_base_then_jitter + wave_value) * (double)k_f_0_016666668);
   camera_rec->yaw =
-       (float)((angle_deg * (double)k_f_0_0625 + (double)dist_base) * (double)dist_sway +
+       (float)((wave_value * (double)k_f_0_0625 + (double)dist_base) * (double)dist_sway +
               (double)camera_rec->yaw);
   camera_apply_rotation(camera_rec);
   return;

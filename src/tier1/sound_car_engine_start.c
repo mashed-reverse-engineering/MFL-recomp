@@ -7,8 +7,8 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*0047ac90*/ extern int car_get_int_from_float_field();
 /*0047b750*/ extern int car_get_speed();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*0061a040*/ extern undefined4 g_sound_frame_61a040;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
 /*006ae130*/ extern undefined g_sound_6ae130;
@@ -42,13 +42,13 @@ void sound_car_engine_start(int car_index)
         voice_set_position_from_car(voice_slot,car_index);
         /* make sure the voice record's flag bit 1 is set (inferred: voice is active) */
         if ((*(byte *)(g_voices[voice_slot].voice + 0x34) & 2) == 0) {
-          FUN_005b6a40(g_voices[voice_slot].voice,1);
+          sound_voice_set_enabled(g_voices[voice_slot].voice,1);
         }
         *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = 0x4694d400;
-        /* the record's +0x30 pointer is forwarded to FUN_005b7300 when present */
+        /* the record's +0x30 pointer is forwarded to sound_voice_set_float_param when present */
         race_phase = *(int *)(g_voices[voice_slot].voice + 0x30);
         if (race_phase != 0) {
-          FUN_005b7300(race_phase,4,1,19050.0f);
+          sound_voice_set_float_param(race_phase,4,1,19050.0f);
         }
         /* volume is 0.45 in race phase 6, silent otherwise (inferred: phase 6 = racing) */
         race_phase = race_get_phase();

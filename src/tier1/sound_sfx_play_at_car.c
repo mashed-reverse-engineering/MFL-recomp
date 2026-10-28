@@ -5,8 +5,8 @@ extern struct VoiceSlotP g_voices[210];
 /*00469ac0*/ extern int voice_set_position_from_car();
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*006187f8*/ extern undefined4 g_sfx_table;
 /* voice record offsets, in bytes from the voice pointer in g_voices[].voice */
 /* bit in the voice flags: set = voice busy, sfx not started (inferred) */
@@ -14,7 +14,7 @@ extern struct VoiceSlotP g_voices[210];
 /* voice slots per g_sfx_table entry (inferred) */
 #define SFX_BLOCK_SIZE (0x25)
 /* float bit pattern 22050.0f (playback frequency) stored at VOICE_OFF_FREQ and passed as p3 (inferred) */
-#define SFX_CAR_FREQ_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
+#define SFX_CAR_FREQ_F (22050.0f) /* the same value as a float argument of sound_voice_set_float_param (`float p3`; the integer literal would convert to 1.18e9) */
 /* sound_sfx_play_at_car */
 /* "starts sfx table entry param_1 for car param_2 with position and volume 1"
  *
@@ -37,12 +37,12 @@ void __cdecl sound_sfx_play_at_car(int sfx_id,int car_index)
      (voice_slot = (&g_sfx_table)[sfx_id * SFX_BLOCK_SIZE] + car_index,
      (*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_BUSY) == 0)) {
     voice_set_position_from_car(voice_slot,car_index);
-    FUN_005b6a40(g_voices[voice_slot].voice,1);
+    sound_voice_set_enabled(g_voices[voice_slot].voice,1);
     *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
     voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     sfx_result = 0;
     if (voice_handle != 0) {
-      sfx_result = FUN_005b7300(voice_handle,4,1,SFX_CAR_FREQ_F);
+      sfx_result = sound_voice_set_float_param(voice_handle,4,1,SFX_CAR_FREQ_F);
     }
     voice_set_volume(voice_slot,1.0);
   }

@@ -2,7 +2,7 @@
 extern struct VoiceSlot g_voices[210];
 /*00437750*/ extern double option_get_volume_0();
 /*00437ee0*/ extern int message_is_controller_missing_shown();
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005cc2a0*/ extern void FUN_005cc2a0(undefined4 p0, undefined4 p1);
 /*005dd330*/ extern float float_1_0;
 /*005ddc28*/ extern float k_f_0;
@@ -53,7 +53,7 @@ void sound_music_volume_update(void)
         *(float *)(g_voices[voice_i].voice + 0x40) = voice_volume;
         filter_handle = *(int *)(g_voices[voice_i].voice + 0x30);
         if (filter_handle != 0) {
-          FUN_005b7300(filter_handle,5,1,voice_volume);
+          sound_voice_set_float_param(filter_handle,5,1,voice_volume);
         }
       }
       voice_i = voice_i + 1;

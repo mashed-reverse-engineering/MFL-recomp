@@ -12,7 +12,7 @@ extern double sin(double);
 /*00486840*/ extern void particles_set_color(unsigned char *rgba);
 /*00486b50*/ extern void particles_add(void *particle_batch);
 /*00496850*/ extern void trigger_sphere_register(void *sphere);
-/*004c45e0*/ extern float FUN_004c45e0(float low, float high);                  /* uniform random float */
+/*004c45e0*/ extern float rp_random_float_range(float low, float high);                  /* uniform random float */
 /*004866d0*/ extern void fx_emitter_spawn_b_default(float *position, void *style, float speed, float spread);
 /*00485660*/ extern void particle_pool_find_oldest_or_free(int pool, RwMatrix *matrix, int flags);
 /*00499100*/ extern void fx_spawn_from_matrix_2(void *owner, float scale);
@@ -121,17 +121,17 @@ void weapon_mine_update_one(WeaponMine *mine)
         struct RpWorld *world;
 
         mine->state = MINE_EXPLOSION_QUEUED;
-        fx_emitter_spawn_b_default(mine->sphere, g_car_62ac74, 90.0f, FUN_004c45e0(1.25f, 1.75f));
+        fx_emitter_spawn_b_default(mine->sphere, g_car_62ac74, 90.0f, rp_random_float_range(1.25f, 1.75f));
         mine->sphere[3] = MINE_SPHERE_RADIUS_AFTER_BLAST;
         world = FUN_004f4920(mine->model);
         if (world != 0)
             RpWorldRemoveClump(world, mine->model);
         debris = mine->transform;
-        debris_scale.x = debris_scale.y = FUN_004c45e0(0.5f, 1.0f);
+        debris_scale.x = debris_scale.y = rp_random_float_range(0.5f, 1.0f);
         debris_scale.z = 1.0f;
         RwMatrixScale(&debris, &debris_scale, 1);
         particle_pool_find_oldest_or_free(0, &debris, 0);
-        fx_spawn_from_matrix_2(mine, FUN_004c45e0(0.4f, 0.6f));
+        fx_spawn_from_matrix_2(mine, rp_random_float_range(0.4f, 0.6f));
         effect_sprite_spawn(0, mine, flash_colour, 3.0f, 3.0f);
         return;
     }
@@ -143,7 +143,7 @@ void weapon_mine_update_one(WeaponMine *mine)
         blast[2] = mine->sphere[2];
         blast[3] = 1.5f;
         mine->state = MINE_REMOVED;
-        explosion_queue(blast, FUN_004c45e0(20.0f, 30.0f), FUN_004c45e0(150.0f, 250.0f), FUN_004c45e0(250.0f, 350.0f), 2);
+        explosion_queue(blast, rp_random_float_range(20.0f, 30.0f), rp_random_float_range(150.0f, 250.0f), rp_random_float_range(250.0f, 350.0f), 2);
         return;
     }
     if (mine->state == MINE_REMOVED) {

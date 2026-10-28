@@ -11,7 +11,7 @@
 /*0047b590*/ extern void __cdecl car_get_forward(float *forward, int car);
 /*00490480*/ extern int __cdecl rwp_world_step_forward(int world, float dt);
 /*0048e960*/ extern void __cdecl rwp_cars_setup_bodies_from_bounds(int world, int rpworld);
-/*004b3284*/ extern double __cdecl FUN_004b3284(double x);
+/*004b3284*/ extern double __cdecl crt_acos_body(double x);
 /*004d0f70*/ extern void __cdecl RwFrameUpdateObjects(void *frame);
 /*004d3cc0*/ extern void __cdecl RwMatrixUpdate(RwMatrix *matrix);
 /*004d56d0*/ extern void __cdecl RwV3dTransformVectors(RwV3d *out, RwV3d *in, int count, RwMatrix *matrix);
@@ -174,7 +174,7 @@ int rwp_cars_update(void)
           else if (dot > float_1_0) {
             dot = float_1_0;
           }
-          angle = FUN_004b3284(dot) * k_f_57_29578;
+          angle = crt_acos_body(dot) * k_f_57_29578;
           *(int *)&f.pos_x = *(int *)&body->pos.x;
           *(int *)&f.pos_z = *(int *)&body->pos.z;
           f.rec_x = (float)(f.cross_x * angle);

@@ -4,7 +4,7 @@
 /*004a20c0*/ extern int get_app_state(void);
 /*006187f8*/ extern int g_sfx_table[];
 /*006ad210*/ extern VoiceSlot g_voices[];
-/*005b72a0*/ extern void FUN_005b72a0(int voice, int param, int enable, float *position);
+/*005b72a0*/ extern void sound_voice_call_entry(int voice, int param, int enable, float *position);
 /*0046a0c0*/ extern void voice_set_volume(int index, float volume);
 
 /* In the in-game state, positions sound `sfx`'s voice (slot table entry + offset) at *position (3 floats copied to voice+0x58) and sets its volume clamped to 0..1. */
@@ -23,7 +23,7 @@ void sfx_set_voice_volume(int sfx, float *position, int offset, float volume)
   *(float *)(g_voices[slot].voice + 0x5c) = position[1];
   *(float *)(g_voices[slot].voice + 0x60) = position[2];
   if (*(int *)(g_voices[slot].voice + 0x30) != 0) {
-    FUN_005b72a0(*(int *)(g_voices[slot].voice + 0x30), 0, 1, position);
+    sound_voice_call_entry(*(int *)(g_voices[slot].voice + 0x30), 0, 1, position);
   }
   if (volume > 1.0f) {
     voice_set_volume(slot, 1.0f);

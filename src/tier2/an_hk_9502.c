@@ -6,9 +6,9 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state(void);
 /*00481fd0*/ extern double random_range();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*008bd7b0*/ extern char *g_sound_groups;
 
 #define VOICE_FLAG_ACTIVE (2) /* inferred: voice is already started / playing */
@@ -48,14 +48,14 @@ void course_storm_cb1_sub_471eb0(float *pos)
         *(float *)(voice + VOICE_OFF_POS_Z) = pos[2];
         child = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (child != 0)
-          FUN_005b72a0(child, 0, 1, pos);
-        FUN_005b6a40(g_voices[slot].voice, 1);
+          sound_voice_call_entry(child, 0, 1, pos);
+        sound_voice_set_enabled(g_voices[slot].voice, 1);
         freq = random_range(FREQ_MIN_BITS, FREQ_MAX_BITS);
         *(float *)(g_voices[slot].voice + VOICE_OFF_FREQ) = (float)freq;
         voice = g_voices[slot].voice;
         if (*(int *)(voice + VOICE_OFF_HANDLE) != 0) {
           freq = random_range(FREQ_MIN_BITS, FREQ_MAX_BITS);
-          FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_OFF_HANDLE), 4, 1, (float)freq);
+          sound_voice_set_float_param(*(undefined4 *)(g_voices[slot].voice + VOICE_OFF_HANDLE), 4, 1, (float)freq);
         }
         voice_set_volume(slot, 1.0f);
         voice = g_voices[slot].voice;
@@ -64,7 +64,7 @@ void course_storm_cb1_sub_471eb0(float *pos)
         *(float *)(voice + VOICE_OFF_POS_Z) = pos[2];
         child = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (child != 0)
-          FUN_005b72a0(child, 0, 1, pos);
+          sound_voice_call_entry(child, 0, 1, pos);
         remaining = 0;
       }
       slot++;

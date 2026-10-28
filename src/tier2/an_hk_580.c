@@ -4,9 +4,9 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*008bd7b0*/ extern undefined4 g_sound_groups;
 #define SOUND_GROUP_STRIDE (0x90)
 #define SOUND_GROUP_FIRST_VOICE (0x80)
@@ -43,15 +43,15 @@ void sfx_play_group_at(int group_index,undefined4 *position)
           *(undefined4 *)(voice + VOICE_OFF_POS_Z) = position[2];
           voices_left = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
           if (voices_left != 0) {
-            FUN_005b72a0(voices_left,0,1,position);
+            sound_voice_call_entry(voices_left,0,1,position);
           }
         }
-        FUN_005b6a40(g_voices[voice_index].voice,1);
+        sound_voice_set_enabled(g_voices[voice_index].voice,1);
         *(undefined4 *)(g_voices[voice_index].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
         voices_left = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
         fx_result = 0;
         if (voices_left != 0) {
-          fx_result = FUN_005b7300(voices_left,4,1,22050.0f);
+          fx_result = sound_voice_set_float_param(voices_left,4,1,22050.0f);
         }
         voice_set_volume(voice_index,1.0);
         voices_left = 0;

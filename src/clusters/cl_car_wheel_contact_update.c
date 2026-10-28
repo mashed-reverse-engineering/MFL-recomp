@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 typedef struct RpWorld RpWorld;
 /*0047acc0*/ extern void car_wheels_vs_triangles(Car *car, void *triangles);
-/*004b3284*/ extern double FUN_004b3284(double x);
+/*004b3284*/ extern double crt_acos_body(double x);
 /*004d5290*/ extern float RwV3dNormalize(RwV3d *out, RwV3d *in);
 /*004d5670*/ extern RwV3d *RwV3dTransformPoints(RwV3d *out, RwV3d *in, int count, RwMatrix *matrix);
 /*004d43f0*/ extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, RwV3d *axis, float angle, enum RwOpCombineType combine);
@@ -283,7 +283,7 @@ void car_wheel_contact_update_n(void *world, Car *car, int limit_angle)
         cosine_clamped = 1.0;
       }
     }
-    angle = (float)(FUN_004b3284(cosine_clamped) * 57.29578f);
+    angle = (float)(crt_acos_body(cosine_clamped) * 57.29578f);
     if (limit_angle != 0 && 2.5f < angle) {
       angle = 2.5f;
     }

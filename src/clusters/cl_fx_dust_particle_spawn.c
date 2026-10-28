@@ -2,7 +2,7 @@
 /* Installed cluster fx_dust_particle_spawn (tools/cluster_install.py from output/cluster_pilot_uc3/fx_dust_particle_spawn.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*00481fd0*/ extern double random_range(float low, float high);
-/*004c45e0*/ extern double FUN_004c45e0(float low, float high);
+/*004c45e0*/ extern double rp_random_float_range(float low, float high);
 
 /* One particle record as fx_trail_particle_spawn_interpolated takes it (0x48 bytes). */
 typedef struct FxParticle {
@@ -49,22 +49,22 @@ void fx_dust_particle_spawn(float *velocity, float *position, int slot, float sc
   p.colour[1] = (unsigned char)(rec->g * scale);
   if (big) {
     p.flags = 0x1100;
-    p.size_start = (float)(FUN_004c45e0(0.04f, 0.07f) * 2.0);
+    p.size_start = (float)(rp_random_float_range(0.04f, 0.07f) * 2.0);
     p.size_end = p.size_start;
     p.kind = 2;
   } else {
     p.life_scale = p.life_scale + p.life_scale;
     p.flags = 0x1082;
-    p.size_start = (float)(FUN_004c45e0(0.03f, 0.09f) * 2.0);
+    p.size_start = (float)(rp_random_float_range(0.03f, 0.09f) * 2.0);
     p.size_end = 0.025f;
   }
   p.velocity.x = velocity[0];
   p.velocity.y = velocity[1];
   p.velocity.z = velocity[2];
   p.colour[3] = 0xff;
-  p.velocity.x = (float)(FUN_004c45e0(-1.0f, 1.0f) * 0.4f + p.velocity.x);
-  p.velocity.y = (float)(1.3f - FUN_004c45e0(0.0f, 1.0f));
-  p.velocity.z = (float)(FUN_004c45e0(-1.0f, 1.0f) * 0.4f + p.velocity.z);
+  p.velocity.x = (float)(rp_random_float_range(-1.0f, 1.0f) * 0.4f + p.velocity.x);
+  p.velocity.y = (float)(1.3f - rp_random_float_range(0.0f, 1.0f));
+  p.velocity.z = (float)(rp_random_float_range(-1.0f, 1.0f) * 0.4f + p.velocity.z);
   p.accel.x = 0.0f;
   p.accel.y = -2.8f;
   p.accel.z = 0.0f;

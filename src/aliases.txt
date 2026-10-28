@@ -2305,3 +2305,13 @@ g_course_storm_waterfall_fx 008c52c0
 g_course_storm_matrix_offset 0060d920
 g_course_highway_cars 008bf0a0
 g_course_highway_active_bits 006a26a4
+crt_acos_body 004b3284
+sound_voice_set_float_param 005b7300
+sound_voice_call_entry 005b72a0
+sound_voice_set_enabled 005b6a40
+rwp_world_activate_object 0056a210
+rwp_world_deactivate_object 0056a4b0
+rwp_body_create 0058cb90
+rwp_body_destroy 0058cbe0
+rwp_shape_set_property_c 0056ca70
+rwp_shape_set_property_b 0056cac0

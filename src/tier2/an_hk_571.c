@@ -6,9 +6,9 @@ extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*00481fd0*/ extern double random_range();
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dec0c*/ extern float k_f_47;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
 /*008bd7b0*/ extern char *g_sound_groups;
@@ -61,25 +61,25 @@ void sound_ambience_course_12_18(void)
     /* Bed voice 1: group A slot, quiet (no position set). */
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_A_OFF);
     if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
-      FUN_005b6a40(g_voices[voice_slot].voice,1);
+      sound_voice_set_enabled(g_voices[voice_slot].voice,1);
     }
     *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
     sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     sub_result = 0;
     if (sub_handle != 0) {
-      sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
+      sub_result = sound_voice_set_float_param(sub_handle,4,1,22050.0f);
     }
     voice_set_volume(voice_slot,AMBIENCE_VOLUME_QUIET);
     /* Bed voice 2: group B slot, full volume, at the fixed source position. */
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_B_OFF);
     if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
-      FUN_005b6a40(g_voices[voice_slot].voice,1);
+      sound_voice_set_enabled(g_voices[voice_slot].voice,1);
     }
     *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
     sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     sub_result = 0;
     if (sub_handle != 0) {
-      sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
+      sub_result = sound_voice_set_float_param(sub_handle,4,1,22050.0f);
     }
     voice_set_volume(voice_slot,1.0);
     voice_rec = g_voices[voice_slot].voice;
@@ -91,7 +91,7 @@ void sound_ambience_course_12_18(void)
     *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0x41fc0000;
     voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     if (voice_slot != 0) {
-      FUN_005b72a0(voice_slot,0,1,ambience_pos.local_18);
+      sound_voice_call_entry(voice_slot,0,1,ambience_pos.local_18);
     }
     /* Random extra voice: fires only when the roll equals AMBIENCE_ROLL_HIT (inferred),
        then picks one of two random-group slots (inferred: 0 or 1). */
@@ -100,13 +100,13 @@ void sound_ambience_course_12_18(void)
       voice_slot = rp_random_int_range(0,1);
       voice_slot = *(int *)(voice_slot * SOUND_GROUP_RANDOM_STRIDE + SOUND_GROUP_RANDOM_BASE + g_sound_groups);
       if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
-        FUN_005b6a40(g_voices[voice_slot].voice,1);
+        sound_voice_set_enabled(g_voices[voice_slot].voice,1);
       }
       *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
       sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       sub_result = 0;
       if (sub_handle != 0) {
-        sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
+        sub_result = sound_voice_set_float_param(sub_handle,4,1,22050.0f);
       }
       voice_set_volume(voice_slot,1.0);
       rand_value = (double)random_range(0,0x41200000);
@@ -119,7 +119,7 @@ void sound_ambience_course_12_18(void)
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0xc1880000;
       voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       if (voice_slot != 0) {
-        FUN_005b72a0(voice_slot,0,1,ambience_pos.local_18);
+        sound_voice_call_entry(voice_slot,0,1,ambience_pos.local_18);
       }
     }
   }

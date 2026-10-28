@@ -5,9 +5,9 @@
 /*008d98bc*/ extern int g_sound_player_count;
 /*00456ef0*/ extern RwV3d *course_get_matrix_pos_8c53e0(void);
 /*0046a0c0*/ extern void voice_set_volume(int index, float volume);
-/*005b6a40*/ extern void FUN_005b6a40(uint voice, int enable);
-/*005b7300*/ extern void FUN_005b7300(int sound_object, int param, int enable, float value);
-/*005b72a0*/ extern void FUN_005b72a0(int sound_object, int param, int enable, RwV3d *position);
+/*005b6a40*/ extern void sound_voice_set_enabled(uint voice, int enable);
+/*005b7300*/ extern void sound_voice_set_float_param(int sound_object, int param, int enable, float value);
+/*005b72a0*/ extern void sound_voice_call_entry(int sound_object, int param, int enable, RwV3d *position);
 extern double sin(double x);
 /*005dfce0*/ extern double k_f_n3_689349e19;
 /*005dfcd8*/ extern double k_f_0_5dfcd8;
@@ -30,29 +30,29 @@ void sound_ambience_course_2_6_a(void)
   position = course_get_matrix_pos_8c53e0();
   slot = SOUND_GROUP_FIRST_VOICE_OF(7);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {      /* not playing yet: start at 22050 Hz */
-    FUN_005b6a40(g_voices[slot].voice, 1);
+    sound_voice_set_enabled(g_voices[slot].voice, 1);
     VOICE_FIELD(slot, float, 0x3c) = 22050.0f;
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
+      sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, 22050.0f);
     }
   }
   voice_set_volume(slot, 1.0f);
   VOICE_POSITION(slot) = *position;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, position);
+    sound_voice_call_entry(VOICE_FIELD(slot, int, 0x30), 0, 1, position);
   }
 
   slot = SOUND_GROUP_FIRST_VOICE_OF(10);
   if ((VOICE_FIELD(slot, uchar, 0x34) & 2) == 0) {      /* not playing yet: start slightly above 22050 Hz */
-    FUN_005b6a40(g_voices[slot].voice, 1);
+    sound_voice_set_enabled(g_voices[slot].voice, 1);
     VOICE_FIELD(slot, float, 0x3c) = (float)(sin(k_f_n3_689349e19) * k_f_0_5dfcd8 + k_f_0_5df9b0);
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, (float)(sin(k_f_n3_689349e19) * k_f_0_5dfcd8 + k_f_0_5df9b0));
+      sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, (float)(sin(k_f_n3_689349e19) * k_f_0_5dfcd8 + k_f_0_5df9b0));
     }
   }
   voice_set_volume(slot, 1.0f);
   VOICE_POSITION(slot) = *position;
   if (VOICE_FIELD(slot, int, 0x30) != 0) {
-    FUN_005b72a0(VOICE_FIELD(slot, int, 0x30), 0, 1, position);
+    sound_voice_call_entry(VOICE_FIELD(slot, int, 0x30), 0, 1, position);
   }
 }

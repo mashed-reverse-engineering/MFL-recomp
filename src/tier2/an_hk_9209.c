@@ -4,8 +4,8 @@ extern struct VoiceSlot g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int player_or_speed_a, float car_b);
 /*0047b750*/ extern int car_get_speed();
 /*00481fd0*/ extern double random_range();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd330*/ extern float float_1_0;
 /*005ddc28*/ extern float k_f_0;
 /*005de244*/ extern float k_f_500;
@@ -55,12 +55,12 @@ void __cdecl sound_play_impact_voice(int car_a,int player_or_speed_a,int car_b,f
     if (float_1_0 < g_sound_play_62925c) {
       g_sound_play_62925c = 1.0;
     }
-    FUN_005b6a40(g_voices[voice_index].voice,1);
+    sound_voice_set_enabled(g_voices[voice_index].voice,1);
     pitch_jitter = (double)random_range(0,0x4509d000);
     *(float *)(g_voices[voice_index].voice + 0x3c) = (float)(pitch_jitter + (double)k_f_22050);
     if (*(int *)(g_voices[voice_index].voice + 0x30) != 0) {
       pitch_jitter = (double)random_range(0,0x4509d000);
-      FUN_005b7300(*(undefined4 *)(g_voices[voice_index].voice + 0x30),4,1,
+      sound_voice_set_float_param(*(undefined4 *)(g_voices[voice_index].voice + 0x30),4,1,
                    (float)(pitch_jitter + (double)k_f_22050));
     }
     voice_set_volume(voice_index,g_sound_play_62925c);

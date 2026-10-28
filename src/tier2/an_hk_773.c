@@ -9,8 +9,8 @@ extern struct VoiceSlot g_voices[210];
 /*0047ac90*/ extern int car_get_int_from_float_field();
 /*0047b750*/ extern int car_get_speed();
 /*00481fd0*/ extern double random_range();
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005dd330*/ extern float float_1_0;
 /*005dd338*/ extern float k_f_0_01;
 /*005dd620*/ extern float float_10_0;
@@ -131,8 +131,8 @@ LAB_0046ff1d:
   engine_freq = (float *)((char *)&g_sound_car_6ae0d4 + car_index * 4);
   /* (re)start the primary voice unless flag 0x2 in its record (+0x34) is set (inferred), then the secondary */
   if (((*(byte *)(g_voices[voice_index].voice + 0x34) & 2) == 0) &&
-     (FUN_005b6a40(g_voices[voice_index].voice,1), g_sound_car_62923c != 0)) {
-    FUN_005b6a40(g_voices[voice_index + VOICE_SECOND_OFFSET].voice,1);
+     (sound_voice_set_enabled(g_voices[voice_index].voice,1), g_sound_car_62923c != 0)) {
+    sound_voice_set_enabled(g_voices[voice_index + VOICE_SECOND_OFFSET].voice,1);
   }
   voice_set_position_from_car(voice_index,car_index);
   if (g_sound_car_62923c != 0) {
@@ -283,7 +283,7 @@ LAB_00470356:
   scratch_int = *(int *)(g_voices[voice_index].voice + 0x30);
   fx_result = 0;
   if (scratch_int != 0) {
-    fx_result = FUN_005b7300(scratch_int,4,1,*engine_freq * k_f_3_5 + voice_base_freq);
+    fx_result = sound_voice_set_float_param(scratch_int,4,1,*engine_freq * k_f_3_5 + voice_base_freq);
   }
   /* primary voice volume: engine_freq * 1e-5 (k_f_1_0en5) plus the class volume table entry */
   voice_set_volume(voice_index,
@@ -292,7 +292,7 @@ LAB_00470356:
     *(float *)(g_voices[voice_index + VOICE_SECOND_OFFSET].voice + 0x3c) = *engine_freq * k_f_3_5 + voice_base_freq;
     voice_index = *(int *)(g_voices[voice_index + VOICE_SECOND_OFFSET].voice + 0x30);
     if (voice_index != 0) {
-      FUN_005b7300(voice_index,4,1,*engine_freq * k_f_3_5 + voice_base_freq);
+      sound_voice_set_float_param(voice_index,4,1,*engine_freq * k_f_3_5 + voice_base_freq);
     }
   }
   return;

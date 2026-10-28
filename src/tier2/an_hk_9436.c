@@ -8,8 +8,8 @@ extern struct VoiceSlot g_voices[210];
 /*0047b360*/ extern void car_wheel_get_field_88_a(int car, int wheel, unsigned int *colour);
 /*0047b750*/ extern void car_get_speed(float *out, int car);
 /*00481fd0*/ extern float random_range(float low, float high);
-/*005b6a40*/ extern void FUN_005b6a40(unsigned int voice, int enable);
-/*005b7300*/ extern void FUN_005b7300(int sound_object, int param, int enable, float value);
+/*005b6a40*/ extern void sound_voice_set_enabled(unsigned int voice, int enable);
+/*005b7300*/ extern void sound_voice_set_float_param(int sound_object, int param, int enable, float value);
 /*005dd330*/ extern float float_1_0;
 /*005ddc28*/ extern float k_f_0;
 /*005dfcd0*/ extern float k_f_2_2222222en4;
@@ -108,22 +108,22 @@ void sound_surface_roll_voices_update(int car)
     }
     voice_set_position_from_car(slot, car);
     if ((VOICE_FIELD(slot, unsigned char, 0x34) & 2) == 0) {
-      FUN_005b6a40(*(unsigned int *)&g_voices[slot].voice, 1);
+      sound_voice_set_enabled(*(unsigned int *)&g_voices[slot].voice, 1);
     }
     pitch = volume * k_f_5000;
     VOICE_FIELD(slot, float, 0x3c) = (float)((k_f_22050 - random_range(0.0f, 441.0f)) + pitch);
     if (VOICE_FIELD(slot, int, 0x30) != 0) {
-      FUN_005b7300(VOICE_FIELD(slot, int, 0x30), 4, 1, (float)((k_f_22050 - random_range(0.0f, 441.0f)) + pitch));
+      sound_voice_set_float_param(VOICE_FIELD(slot, int, 0x30), 4, 1, (float)((k_f_22050 - random_range(0.0f, 441.0f)) + pitch));
     }
     voice_set_volume(slot, race_get_phase() == RACE_PHASE_RACING ? volume : 0.0f);
     if (course == COURSE_FOREST && roll == ROLL_D) {
       voice_set_position_from_car(slot2, car);
       if ((VOICE_FIELD(slot2, unsigned char, 0x34) & 2) == 0) {
-        FUN_005b6a40(*(unsigned int *)&g_voices[slot2].voice, 1);
+        sound_voice_set_enabled(*(unsigned int *)&g_voices[slot2].voice, 1);
       }
       VOICE_FIELD(slot2, float, 0x3c) = 22050.0f;
       if (VOICE_FIELD(slot2, int, 0x30) != 0) {
-        FUN_005b7300(VOICE_FIELD(slot2, int, 0x30), 4, 1, 22050.0f);
+        sound_voice_set_float_param(VOICE_FIELD(slot2, int, 0x30), 4, 1, 22050.0f);
       }
       if (race_get_phase() != RACE_PHASE_RACING) {
         volume = 0.0f;

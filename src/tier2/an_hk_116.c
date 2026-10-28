@@ -2,13 +2,13 @@
 
 #define TABLE_ENTRY_SIZE (8)
 
-/* FUN_005b72a0
+/* sound_voice_call_entry
  * Looks up entry `entry_index` in the table at context[1]->+4 (8-byte entries) and calls its
  * callback (inferred) with (context[0], the entry's 16-bit argument at +4, callback_arg).
  * Returns context if the callback returned nonzero, otherwise NULL (inferred).
  * param_3 is unused. */
 
-uint FUN_005b72a0(undefined4 *context,int entry_index,char *param_3,undefined4 callback_arg)
+uint sound_voice_call_entry(undefined4 *context,int entry_index,char *param_3,undefined4 callback_arg)
 
 {
   undefined4 *entry;

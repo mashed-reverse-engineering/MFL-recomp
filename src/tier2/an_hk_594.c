@@ -4,9 +4,9 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005de238*/ extern float k_f_2000;
 /*005df99c*/ extern float k_f_22050;
 /* layout of *voice in sound_voices_set_position_wide, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
@@ -64,16 +64,16 @@ void __cdecl sound_voices_set_position_wide(undefined4 *position,float frequency
         /* if the voice has a source at +0x30, pass it the position too */
         source = *(int *)(g_voices[slot_index].voice + 0x30);
         if (source != 0) {
-          FUN_005b72a0(source,0,1,position);
+          sound_voice_call_entry(source,0,1,position);
         }
-        FUN_005b6a40(g_voices[slot_index].voice,1);
+        sound_voice_set_enabled(g_voices[slot_index].voice,1);
         /* frequency stored at +0x3c and passed to the source */
         frequency = (float)app_state * k_f_2000 + frequency_offset + k_f_22050;
         *(float *)(g_voices[slot_index].voice + 0x3c) = frequency;
         app_state = *(int *)(g_voices[slot_index].voice + 0x30);
         call_result = 0;
         if (app_state != 0) {
-          call_result = FUN_005b7300(app_state,4,1,frequency);
+          call_result = sound_voice_set_float_param(app_state,4,1,frequency);
         }
         voice_set_volume(slot_index,1.0);
         app_state = 0;

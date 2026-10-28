@@ -37,6 +37,19 @@ def compile_obj(src):
     finally: shutil.rmtree(w, ignore_errors=True)
     return obj
 
+_VA = {}
+for _f in ("aliases.txt", "symbols.txt"):      # names that link to the same address are the same relocation target (callee / global renames keep the object identical)
+    try:
+        for _l in open(os.path.join(HERE, "..", "src", _f)):
+            _p = _l.split()
+            if len(_p) == 2 and re.fullmatch(r"[0-9a-f]{8}", _p[1]) and not _p[0].startswith("gap_"): _VA.setdefault(_p[0], _p[1])
+    except OSError: pass
+def canon(n):
+    m = re.fullmatch(r"[_@]?((?:FUN|DAT|PTR)_([0-9a-f]{8})|\w+?)(@\d+)?", n)
+    if not m: return n
+    b = m.group(1); v = m.group(2) or _VA.get(b)
+    return "@VA" + v if v and not m.group(3) else n
+
 def parse(obj):
     """-> {section key: (is_code, bytes, [(offset, type, target name)])}; key = name of the first symbol defined in the section (COMDAT name)"""
     d = open(obj, "rb").read()
@@ -60,7 +73,7 @@ def parse(obj):
         if flags & 0x00000800 or sname.startswith((b".drectve", b".debug")): continue      # info / debug
         raw = d[rawptr:rawptr + rawsz] if not flags & 0x80 else b"bss%d" % rawsz
         rel = sorted((struct.unpack_from("<I", d, relptr + k * 10)[0], struct.unpack_from("<H", d, relptr + k * 10 + 8)[0],
-                      re.sub(r"(\$switchD_\w+)\$\d+$", r"\1", syms[struct.unpack_from("<I", d, relptr + k * 10 + 4)[0]])) for k in range(nrel))   # jump-table label: per-TU counter suffix is not code
+                      canon(re.sub(r"(\$switchD_\w+)\$\d+$", r"\1", syms[struct.unpack_from("<I", d, relptr + k * 10 + 4)[0]]))) for k in range(nrel))   # jump-table label: per-TU counter suffix is not code
         key = first.get(s + 1, "%s#%d" % (sname.rstrip(b"\0").decode(), s))
         out[key] = (bool(flags & 0x20), raw, rel)
     return out

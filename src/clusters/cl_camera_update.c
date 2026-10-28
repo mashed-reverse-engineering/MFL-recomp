@@ -34,7 +34,7 @@ typedef int CourseId;
 /*0047b520*/ extern int car_current_matrix();
 /*00481fd0*/ extern double random_range(float lo, float hi);
 /*004b2b48*/ extern int _ftol();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004c4460*/ extern void FUN_004c4460(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -525,7 +525,7 @@ void __cdecl camera_update(int *camera,int force_snap)
       if (float_1_0 < pitch_deg5) {
         pitch_deg5 = 1.0;
       }
-      tmp_x87 = (float10)FUN_004b3284((double)pitch_deg5);
+      tmp_x87 = (float10)crt_acos_body((double)pitch_deg5);
       pitch_deg5 = (float)((float10)k_f_90 - ((float10)k_f_180 - tmp_x87 * (float10)(57.295799255371094)));
       tmp_f7 = (k_f_n3_95 - (k_f_0_25 * zoom_t) / float_5_0);
       the_vec_a.x = the_vec_a.x * tmp_f7;

@@ -11,7 +11,7 @@
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d5640*/ extern struct RwV3d * RwV3dTransformPoint(struct RwV3d *p0, struct RwV3d *p1, RwMatrix *p2);
 /* DECLS-END */
-extern float FUN_004c45e0(float lo, float hi);
+extern float rp_random_float_range(float lo, float hi);
 extern int vehicle_get_matrix_local(int slot, void *buf);
 extern int explosion_queue(RwV3d *pos, float a, float b, float c, int d);
 extern int fx_emitter_spawn_b_default(RwV3d *pos, void *axis, float angle, float scale);
@@ -89,9 +89,9 @@ void hudpanel_marker_update_n(int *m)
     ray[0] = pos.x;
     ray[1] = pos.y;
     ray[2] = pos.z;
-    spawn[0] = (float)(FUN_004c45e0(-0.04f, 0.04f) + spawn[0]);
-    spawn[1] = (float)(FUN_004c45e0(-0.04f, 0.04f) + spawn[1]);
-    spawn[2] = (float)(FUN_004c45e0(-0.04f, 0.04f) + spawn[2]);
+    spawn[0] = (float)(rp_random_float_range(-0.04f, 0.04f) + spawn[0]);
+    spawn[1] = (float)(rp_random_float_range(-0.04f, 0.04f) + spawn[1]);
+    spawn[2] = (float)(rp_random_float_range(-0.04f, 0.04f) + spawn[2]);
     hudpanel_particle_slot_spawn_r(spawn);
     vehicle_get_matrix_local(m[0x13], veh);
     diff.x = veh[12] - ray[0];
@@ -194,20 +194,20 @@ void hudpanel_marker_update_n(int *m)
     expl.x = *(float *)(obj + 0x40);
     expl.y = *(float *)(obj + 0x44) - k_f_0_5;
     expl.z = *(float *)(obj + 0x48);
-    expl.x = (float)(FUN_004c45e0(-0.5f, 0.5f) + expl.x);
-    expl.z = (float)(FUN_004c45e0(-0.5f, 0.5f) + expl.z);
+    expl.x = (float)(rp_random_float_range(-0.5f, 0.5f) + expl.x);
+    expl.z = (float)(rp_random_float_range(-0.5f, 0.5f) + expl.z);
     ray[0] = 2.0f;
     if (game_mode == GAME_MODE_AIRSTRIKE) {
       explosion_queue(&expl, 30.0f, 700.0f, 1500.0f, 1);
     }
     else {
-      x = FUN_004c45e0(250.0f, 350.0f);
-      speed = FUN_004c45e0(350.0f, 450.0f);
-      scale = FUN_004c45e0(25.0f, 35.0f);
+      x = rp_random_float_range(250.0f, 350.0f);
+      speed = rp_random_float_range(350.0f, 450.0f);
+      scale = rp_random_float_range(25.0f, 35.0f);
       explosion_queue(&expl, scale, speed, x, 1);
     }
-    scale = FUN_004c45e0(1.5f, 2.0f);
-    x = FUN_004c45e0(0.0f, 360.0f);
+    scale = rp_random_float_range(1.5f, 2.0f);
+    x = rp_random_float_range(0.0f, 360.0f);
     fx_emitter_spawn_b_default(&expl, &g_car_62ac74, x, scale);
     m[0x11] = 3;
     return;

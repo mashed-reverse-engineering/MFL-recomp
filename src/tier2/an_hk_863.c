@@ -8,7 +8,7 @@
 /*0047b520*/ extern int car_current_matrix();
 /*0047b590*/ extern int car_get_forward();
 /*0047b750*/ extern int car_get_speed();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd330*/ extern float float_1_0;
@@ -157,8 +157,8 @@ undefined4 __cdecl ai_find_target_a(undefined4 route_id,float *origin_xz,float *
           frame.scratch_f = 1.0;
         }
       }
-      /* angle in degrees (FUN_004b3284 taken as acos, inferred; k_f_57_2958 = 180/pi) must be below k_f_30 */
-      scratch_d = (double)FUN_004b3284((double)frame.scratch_f);
+      /* angle in degrees (crt_acos_body taken as acos, inferred; k_f_57_2958 = 180/pi) must be below k_f_30 */
+      scratch_d = (double)crt_acos_body((double)frame.scratch_f);
       if (scratch_d * (double)k_f_57_2958 < (double)k_f_30) {
         return 1;
       }

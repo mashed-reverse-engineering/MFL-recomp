@@ -6,7 +6,7 @@
 /*005dd330*/ extern float float_1_0;
 /*005ddc30*/ extern double k_f_n2_5ddc30;
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
-/*004b3284*/ extern double FUN_004b3284(double x);
+/*004b3284*/ extern double crt_acos_body(double x);
 
 /* Angle in degrees between car `index`'s heading (forward) and its velocity direction, written to *angle (0 when the car is not moving or index >= 16); returns 1 when an angle was computed. */
 int car_get_drift_angle(float *angle, unsigned int index)
@@ -24,7 +24,7 @@ int car_get_drift_angle(float *angle, unsigned int index)
       } else if (cos_a > float_1_0) {
         cos_a = float_1_0;
       }
-      *angle = (float)(FUN_004b3284(cos_a) * k_f_n2_5ddc30);
+      *angle = (float)(crt_acos_body(cos_a) * k_f_n2_5ddc30);
       return 1;
     }
   }

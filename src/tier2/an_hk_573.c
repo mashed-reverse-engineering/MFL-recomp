@@ -4,8 +4,8 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*00413b10*/ extern int replay_current_get_split_time();
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*0061966c*/ extern undefined4 g_sound_frame_61966c;
 /*006ae100*/ extern undefined4 g_sound_frame_6ae100;
 /*008d98bc*/ extern int g_sound_player_count;
@@ -27,7 +27,7 @@ void sound_replay_split_beep(void)
 {
   int slot;
   int result; /* split-found flag, then the voice sub-record pointer */
-  undefined4 tone_ret; /* return value of FUN_005b7300, unused */
+  undefined4 tone_ret; /* return value of sound_voice_set_float_param, unused */
   struct {
     undefined1 local_c [4];
     undefined1 local_8 [4];
@@ -42,13 +42,13 @@ void sound_replay_split_beep(void)
     g_sound_frame_6ae100 = g_sound_frame_6ae100 + 1;
     /* start the beep only if the voice is not already busy */
     if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_BUSY) == 0) {
-      FUN_005b6a40(g_voices[slot].voice,1);
+      sound_voice_set_enabled(g_voices[slot].voice,1);
       *(undefined4 *)(g_voices[slot].voice + 0x3c) = 0x47188a00;
       result = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
       tone_ret = 0;
       /* play the tone only if the voice has a sub-record */
       if (result != 0) {
-        tone_ret = FUN_005b7300(result,4,1,39050.0f);
+        tone_ret = sound_voice_set_float_param(result,4,1,39050.0f);
       }
       voice_set_volume(slot,BEEP_VOLUME);
     }

@@ -4,7 +4,7 @@
 /*00467ea0*/ extern int weapon_get_rw_801b14();
 /*004682c0*/ extern int __cdecl rocket_surface_hit_test(undefined4 p0, undefined4 p1);
 /*00482070*/ extern double dot_product_3d_clamped();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
@@ -74,7 +74,7 @@ undefined4 line_of_sight_between_n(int shooter, float *target_pos, float max_ran
     RwV3dNormalize(&frame.flat_dir,&frame.flat_dir);
   }
   angle_rad = (float10)dot_product_3d_clamped(&frame.flat_dir,shooter_node + 0x30);
-  angle_rad = (float10)FUN_004b3284((double)angle_rad);
+  angle_rad = (float10)crt_acos_body((double)angle_rad);
   if (((float10)k_f_57_29578 * angle_rad <= (float10)max_angle_deg) &&
      (distance <= max_range)) {
     return 1;

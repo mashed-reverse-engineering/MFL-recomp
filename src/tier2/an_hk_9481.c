@@ -7,17 +7,17 @@ typedef int CourseId;
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
+/*0056a210*/ extern void rwp_world_activate_object(undefined4 p0, void *p1, undefined4 p2, undefined4 p3);
 /*0056b440*/ extern void FUN_0056b440(undefined4 p0, void *p1, undefined4 p2);
 /*0056bf10*/ extern float FUN_0056bf10(void *p0, undefined4 p1, undefined4 p2);
 /*0056c080*/ extern void FUN_0056c080(undefined4 p0, undefined4 p1);
-/*0056ca70*/ extern void FUN_0056ca70(undefined4 p0, undefined4 p1);
-/*0056cac0*/ extern void FUN_0056cac0(undefined4 p0, undefined4 p1);
+/*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
+/*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056cdf0*/ extern void FUN_0056cdf0(undefined4 p0, void *p1);
 /*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
 /*0058c990*/ extern char *FUN_0058c990(void *p0);
-/*0058cb90*/ extern char *FUN_0058cb90(void);
-/*0058cbe0*/ extern void FUN_0058cbe0(void *p0);
+/*0058cb90*/ extern char *rwp_body_create(void);
+/*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dda20*/ extern float k_f_4_2949673e9;
 /*006fd498*/ extern undefined4 g_rw_6fd498;
 /*008b06e0*/ extern struct Car player_car[16];
@@ -64,7 +64,7 @@ void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 unused_2)
   frame_obj.box_x = 0.200000003f;
   frame_obj.box_y = 0.0649999976f;
   frame_obj.box_z = 0.400000006f;
-  body_def = (undefined4 *)FUN_0058cb90();
+  body_def = (undefined4 *)rwp_body_create();
   body_def[0xd] = 0x3f800000;
   body_def[0xe] = 0x40200000;
   frame_obj.local_c = 0;
@@ -96,8 +96,8 @@ void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 unused_2)
   player_car[3].rwp_body_offset[2] = player_car[0].rwp_body_offset[2];
   frame_obj.box_tmp = player_car[0].rwp_body_offset[2];
   FUN_0056cdf0(shape,&frame_obj.box_x);
-  FUN_0056cac0(shape,0x3ecccccd);
-  FUN_0056ca70(shape,0x3f000000);
+  rwp_shape_set_property_b(shape,0x3ecccccd);
+  rwp_shape_set_property_c(shape,0x3f000000);
   FUN_0056c080(shape,0x3c23d70a);
   FUN_0056bf10(body_def,0x3fc00000,1);
   car_index = 0;
@@ -117,7 +117,7 @@ void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 unused_2)
     rwp_object_set_rotation_degrees(car_index,0,0.5f,-10.0f,index_f * 1.25f);
     *(uint *)(body + 8) = *(uint *)(body + 8) & 0xfffffff3;
     tmp_w = rw_first_field((int *)world);
-    FUN_0056a210(tmp_w, body, 0xffffffff, 6);
+    rwp_world_activate_object(tmp_w, body, 0xffffffff, 6);
     course_id = current_course_id();
     if (course_id == COURSE_HIGHWAY) {
 LAB_0048ebbc:
@@ -133,7 +133,7 @@ LAB_0048ebbc:
     FUN_0056b440(tmp_w,body,shape_index);
     car_index = (car_index + 1);
     if (3 < (uint)car_index) {
-      FUN_0058cbe0(body_def);
+      rwp_body_destroy(body_def);
       return;
     }
   } while( true );

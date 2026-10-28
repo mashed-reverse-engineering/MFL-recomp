@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*005543d0*/ extern int rw_first_field(int * p0);
-/*0056a210*/ extern void FUN_0056a210(undefined4 p0, void *st_arg2, undefined4 st_arg3, undefined4 st_arg4);
-/*0056a4b0*/ extern void FUN_0056a4b0(undefined4 p0, void *p1);
+/*0056a210*/ extern void rwp_world_activate_object(undefined4 p0, void *st_arg2, undefined4 st_arg3, undefined4 st_arg4);
+/*0056a4b0*/ extern void rwp_world_deactivate_object(undefined4 p0, void *p1);
 /*0058c8a0*/ extern char *rwp_owner_object_get(int p0);
 /*006fab78*/ extern undefined4 g_rw_6fab78;
 /*00701c9c*/ extern char *g_rw_701c9c;
@@ -29,13 +29,13 @@ void rwp_object_set_in_world(int slot_index,int add_to_world)
       /* add: only if not already in the world */
       if (*(int *)(physics_object + PHYSICS_OBJECT_WORLD_LINK_OFFSET) == 0) {
         *(uint *)(physics_object + PHYSICS_OBJECT_FLAGS_OFFSET) = *(uint *)(physics_object + PHYSICS_OBJECT_FLAGS_OFFSET) & 0xfffffff3;
-        FUN_0056a210(physics_world,physics_object,0xffffffff,7);
+        rwp_world_activate_object(physics_world,physics_object,0xffffffff,7);
         return;
       }
     }
     /* remove: only if currently in the world */
     else if (*(int *)(physics_object + PHYSICS_OBJECT_WORLD_LINK_OFFSET) != 0) {
-      FUN_0056a4b0(physics_world,physics_object);
+      rwp_world_deactivate_object(physics_world,physics_object);
     }
   }
   return;

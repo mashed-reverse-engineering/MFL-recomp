@@ -10,7 +10,7 @@
 /*004726a0*/ extern void __cdecl sfx_play_at(int sound, int *position);
 /*00480060*/ extern void __cdecl hud_label_add_world_text(int text, int *position, int *colour_entry, void *colour, float height, float scale);
 /*004980c0*/ extern void __cdecl fx_trail_particle_spawn_interpolated(void *particle, int a, int b, int c);
-/*004c45e0*/ extern double FUN_004c45e0(float lo, float hi);
+/*004c45e0*/ extern double rp_random_float_range(float lo, float hi);
 /*005dd324*/ extern float k_f_1_7;
 /*005de200*/ extern float k_f_0_85;
 /*005df838*/ extern float k_f_1;
@@ -115,9 +115,9 @@ void powerup_collision_callback(int trigger_obj, int collider_obj)
           frame.particle.size[0] = 2.0f;
           frame.particle.size[1] = 2.0f;
           frame.particle.kind = 3;
-          frame.particle.velocity[0] = (float)(FUN_004c45e0(-1.0f, 1.0f) * k_f_0_85);
-          frame.particle.velocity[1] = (float)(k_f_1_7 - FUN_004c45e0(0.0f, 1.0f));
-          frame.particle.velocity[2] = (float)(FUN_004c45e0(-1.0f, 1.0f) * k_f_0_85);
+          frame.particle.velocity[0] = (float)(rp_random_float_range(-1.0f, 1.0f) * k_f_0_85);
+          frame.particle.velocity[1] = (float)(k_f_1_7 - rp_random_float_range(0.0f, 1.0f));
+          frame.particle.velocity[2] = (float)(rp_random_float_range(-1.0f, 1.0f) * k_f_0_85);
           fx_trail_particle_spawn_interpolated(&frame.particle, 0, 0, 0);
         } while (spark != 0);
       }

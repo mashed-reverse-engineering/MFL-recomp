@@ -4,9 +4,9 @@ struct VoiceSlotP { char *voice; float volume; };
 extern struct VoiceSlotP g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
-/*005b6a40*/ extern int FUN_005b6a40(void *p0, undefined4 p1);
-/*005b72a0*/ extern int FUN_005b72a0(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
-/*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*005b6a40*/ extern int sound_voice_set_enabled(void *p0, undefined4 p1);
+/*005b72a0*/ extern int sound_voice_call_entry(undefined4 p0, undefined4 p1, undefined4 p2, void *p3);
+/*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005de238*/ extern float k_f_2000;
 /*005df99c*/ extern float k_f_22050;
 /*00618c98*/ extern undefined4 g_sound_618c98;
@@ -44,15 +44,15 @@ void __cdecl sfx_play_player_set_at(undefined4 *position)
         *(RwV3d *)(voice + VOICE_OFF_POS_X) = *(RwV3d *)position;
         emitter = *(int *)(g_voices[slot_index].voice + VOICE_OFF_HANDLE);
         if (emitter != 0) {
-          FUN_005b72a0(emitter,0,1,position);
+          sound_voice_call_entry(emitter,0,1,position);
         }
-        FUN_005b6a40(g_voices[slot_index].voice,1);
+        sound_voice_set_enabled(g_voices[slot_index].voice,1);
         pitch = (float)voices_left * k_f_2000 + k_f_22050;
         *(float *)(g_voices[slot_index].voice + VOICE_PITCH_OFF) = pitch;
         voices_left = *(int *)(g_voices[slot_index].voice + VOICE_OFF_HANDLE);
         rate_result = 0;
         if (voices_left != 0) {
-          rate_result = FUN_005b7300(voices_left,4,1,pitch);
+          rate_result = sound_voice_set_float_param(voices_left,4,1,pitch);
         }
         voice_set_volume(slot_index,VOICE_FULL_VOLUME);
         voices_left = 0;

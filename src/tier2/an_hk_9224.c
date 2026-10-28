@@ -3,7 +3,7 @@
 /*0040a950*/ extern int __cdecl fx_wander_target(int key, float *a, float *b);
 /*0040fdc0*/ extern int race_get_phase();
 /*004b2b48*/ extern int _ftol();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd330*/ extern float float_1_0;
@@ -86,7 +86,7 @@ undefined4 car_auto_steer_assist_step(uint car_index,int step_count)
         else if (dot > float_1_0) {
           dot = float_1_0;
         }
-        acos_result = (double)FUN_004b3284(dot);
+        acos_result = (double)crt_acos_body(dot);
         angle = (float)(-(acos_result * (double)(57.295799255371094) - k_f_0) + (double)k_f_90);
         frame.forward_flat.x = g_fx_62ac70 * player_car[(int)car_index].forward[1] -
                     g_fx_62ac6c * player_car[(int)car_index].forward[2];

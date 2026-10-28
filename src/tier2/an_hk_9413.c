@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 extern struct VoiceSlot g_voices[210];
-/*005b6a40*/ extern int FUN_005b6a40(undefined4 p0, undefined4 p1);
+/*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
 /*0061a168*/ extern undefined4 g_sound_music_voice;
 /* sound_voices_stop_all_but_music */
 
@@ -14,7 +14,7 @@ void sound_voices_stop_all_but_music(void)
   iVar1 = 0;
   do {
     if (iVar1 != g_sound_music_voice) {
-      FUN_005b6a40(g_voices[iVar1].voice,0);
+      sound_voice_set_enabled(g_voices[iVar1].voice,0);
     }
     iVar1 = iVar1 + 1;
   } while (iVar1 < 0xd2);

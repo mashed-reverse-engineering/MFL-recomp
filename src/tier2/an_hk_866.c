@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0047b520*/ extern int car_current_matrix();
 /*0047b590*/ extern int car_get_forward();
-/*004b3284*/ extern double FUN_004b3284(double p0);
+/*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
@@ -39,9 +39,9 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
   frame.dir.z = -(target_z - *(float *)(frame.car_matrix + CAR_MATRIX_POS_Z));
   RwV3dNormalize(&frame.dir,&frame.dir);
 #define DIR_COS (cos_angle + (double)frame.dir.z * k_f_0)
-  /* heading of the target direction: clamp cos to [-1, 1], arccos, degrees (FUN_004b3284 = acos, inferred) */
+  /* heading of the target direction: clamp cos to [-1, 1], arccos, degrees (crt_acos_body = acos, inferred) */
   cos_angle = (double)frame.dir.y * k_f_0 + frame.dir.x;
-  angle = (double)FUN_004b3284((double)(DIR_COS < k_f_n1 ? (double)k_f_n1 : (float_1_0 < DIR_COS ? (double)float_1_0 : DIR_COS)));
+  angle = (double)crt_acos_body((double)(DIR_COS < k_f_n1 ? (double)k_f_n1 : (float_1_0 < DIR_COS ? (double)float_1_0 : DIR_COS)));
   angle = angle * (double)RAD_TO_DEG;
   target_x = (float)angle;
   /* negative Z side: mirror the heading */
@@ -62,7 +62,7 @@ double ai_steer_towards_point(undefined4 car,float target_x,float target_z)
   frame.dir.y = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
   cos_angle = (double)frame.dir.y * k_f_0 + frame.dir.x;
-  angle = (double)FUN_004b3284((double)(DIR_COS < k_f_n1 ? (double)k_f_n1 : (float_1_0 < DIR_COS ? (double)float_1_0 : DIR_COS)));
+  angle = (double)crt_acos_body((double)(DIR_COS < k_f_n1 ? (double)k_f_n1 : (float_1_0 < DIR_COS ? (double)float_1_0 : DIR_COS)));
 #undef DIR_COS
   angle = angle * (double)RAD_TO_DEG;
   if (frame.dir.z - frame.dir.x * k_f_0 < k_f_0) {
