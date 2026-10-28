@@ -42,7 +42,7 @@ static void progress_unwrapped(int car_a, int car_b, float10 *a, float10 *b)
   progress_a = (float10)player_progress_b(car_a);
   progress_b = (float10)player_progress_b(car_b);
   progress_a = (float10)(float)progress_a;
-  if ((progress_a <= (float10)k_f_80) || ((float10)k_f_20 <= progress_b)) {
+  if (!(progress_a > (float10)k_f_80) || !(progress_b < (float10)k_f_20)) {      /* NaN takes this branch (test ah,0x41; jne / test ah,5; jp) */
     if (((float10)k_f_80 < progress_b) && (progress_a < (float10)k_f_20)) {
       progress_b = progress_b - (float10)k_f_100;
     }
@@ -176,7 +176,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
                 ) && (tmp = race_setup_get_slot_type(scan), tmp == 2)) {
               if (first_seen) {
                 progress_unwrapped(scan, frame.candidate, &prog_a, &prog_b);
-                if (prog_a <= prog_b) {
+                if (!(prog_a > prog_b)) {
                   car_kill(scan);
                   player_add_points(frame.candidate,score);
                   tmp = scan;
@@ -218,7 +218,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
             slot_ptr = g_player_slots + tmp;
             if (scan == g_player_slots[tmp].state) {
               progress_unwrapped(tmp, car_idx, &prog_a, &prog_b);
-              if (prog_a <= prog_b) {
+              if (!(prog_a > prog_b)) {
                 car_kill(tmp);
               }
               else {
@@ -283,7 +283,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
            (tmp = race_setup_get_slot_type(scan), tmp == 2)) {
           if (first_seen) {
             progress_unwrapped(scan, frame.candidate, &prog_a, &prog_b);
-            if (prog_a <= prog_b) {
+            if (!(prog_a > prog_b)) {
               car_kill(scan);
               player_add_points(frame.candidate,2);
               tmp = scan;
@@ -392,7 +392,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
                 ) && (scan = race_setup_get_slot_type(event_type_or_off), scan == 2)) {
               if (first_seen) {
                 progress_unwrapped(event_type_or_off, frame.candidate, &prog_a, &prog_b);
-                if (prog_a <= prog_b) {
+                if (!(prog_a > prog_b)) {
                   car_kill(event_type_or_off);
                   player_add_points(frame.candidate,2);
                   scan = event_type_or_off;
@@ -444,7 +444,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
             event_type_or_off = event_type_or_off + 1;
             if (event_type_or_off == 3) {
               progress_unwrapped(cars_remaining_or_i, frame.candidate, &prog_a, &prog_b);
-              if (prog_a <= prog_b) {
+              if (!(prog_a > prog_b)) {
                 car_kill(cars_remaining_or_i);
                 progress_unwrapped(frame.candidate, dead_car, &prog_a, &prog_b);
                 scan = dead_car;
@@ -456,7 +456,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
                 progress_unwrapped(cars_remaining_or_i, dead_car, &prog_a, &prog_b);
                 scan = cars_remaining_or_i;
                 car_idx = dead_car;
-                if (prog_a <= prog_b) {
+                if (!(prog_a > prog_b)) {
 LAB_00411724:
                   car_idx = scan;
                 }

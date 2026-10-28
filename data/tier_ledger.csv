@@ -1799,7 +1799,7 @@ player_stats_debug_log,004286f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffem
 player_status_get,004678a0,tier1,bytes,bytes-reloc,a379798b60c4,126ee480af92,4608b9e561f7,0,0.00,0,0
 player_status_set,00467890,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 player_time_update,00409a70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.61,0,0
-player_time_update_cb_408ef0,?,tier2,compiled+diffemu-STALE+shadow-never,static,073b6b73a4f8,126ee480af92,4608b9e561f7,0,0.00,1,0
+player_time_update_cb_408ef0,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,073b6b73a4f8,126ee480af92,4608b9e561f7,200,1.00,0,0
 player_voice_counter_increment,004690a0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,484c2458b807,126ee480af92,4608b9e561f7,200,0.89,0,1
 player_voice_progress_gap_check,00469fc0,agent,bytes-standalone+7f3c42916669,bytes-reloc,ba8f419b4a8f,126ee480af92,4608b9e561f7,0,0.00,0,0
 players_get_points,0040cad0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,7977874a0458,126ee480af92,4608b9e561f7,200,0.90,0,1
@@ -1815,7 +1815,7 @@ pool_clear,004977a0,agent,bytes-standalone+832f8962c931,bytes-reloc,-,126ee480af
 pool_create,00497820,tier1,bytes,bytes-reloc,07476cde4d4b,126ee480af92,4608b9e561f7,0,0.00,0,0
 pool_destroy,004977e0,tier1,bytes,bytes-reloc,6a964d92248c,126ee480af92,4608b9e561f7,0,0.00,0,0
 pool_list_destroy,00484ad0,tier1,bytes,bytes-reloc,e7e32f934b18,126ee480af92,4608b9e561f7,0,0.00,0,0
-pool_list_unlink,004976b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a984cf57ba26,126ee480af92,4608b9e561f7,34,0.62,0,0
+pool_list_unlink,004976b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a984cf57ba26,126ee480af92,4608b9e561f7,28,0.62,0,0
 pool_push,00497770,tier1,bytes,bytes-reloc,984e2a766725,126ee480af92,4608b9e561f7,0,0.00,0,0
 pool_stack_pop_index,00497750,hand,registers-only,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 powerup_icon_texture,00464330,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.93,0,0
@@ -1989,7 +1989,7 @@ rwp_world_callback_a,00494300,tier1,bytes,bytes-reloc,15d637950db3,126ee480af92,
 rwp_world_clear_arena,004943c0,tier1,bytes,bytes-reloc,de4204296428,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_world_create,00490f70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 rwp_world_create_once,004912f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.80,0,0
-rwp_world_create_once_cb_491280,?,tier2,compiled+diffemu-STALE+shadow-never,static,c55099f7b349,126ee480af92,4608b9e561f7,0,0.00,1,0
+rwp_world_create_once_cb_491280,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,c55099f7b349,126ee480af92,4608b9e561f7,200,1.00,0,0
 rwp_world_current_activate_b,004553f0,agent,bytes-standalone+5796d83f3306,bytes-reloc,8b27f7cd5c79,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_world_destroy,00490f30,tier1,bytes,bytes-reloc,710679edc2fe,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_world_flush,00490ef0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
