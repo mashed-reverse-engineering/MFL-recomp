@@ -152,7 +152,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
                                   (&frame_obj.delta_vec,(&g_weapon_6a9458)[shooter_slot * 0x16] + 0x20);
       angle_deg = (float10)FUN_004b3284((double)angle_deg);
       angle_deg = angle_deg * (float10)k_f_57_29578;
-      if ((angle_deg < (float10)cone_deg != (angle_deg == (float10)cone_deg)) &&
+      if ((angle_deg <= (float10)cone_deg) &&
          (frame_obj.dist_to_target <= range)) {
         rec_ptr[3] = (float)angle_deg;
         rec_ptr[-3] = frame_obj.target_pos.x;
@@ -186,7 +186,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
                                     (&frame_obj.delta_vec,(&g_weapon_6a9458)[shooter_slot * 0x16] + 0x20);
         angle_deg = (float10)FUN_004b3284((double)angle_deg);
         angle_deg = angle_deg * (float10)k_f_57_29578;
-        if ((angle_deg < (float10)cone_deg != (angle_deg == (float10)cone_deg)) &&
+        if ((angle_deg <= (float10)cone_deg) &&
            (frame_obj.dist_to_target <= range)) {
           *(float *)&rec_int_ptr[3] = (float)angle_deg;
           *(float *)&rec_int_ptr[-3] = frame_obj.target_pos.x;

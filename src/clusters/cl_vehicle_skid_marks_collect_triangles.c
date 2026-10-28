@@ -41,7 +41,6 @@ void __cdecl vehicle_skid_marks_collect_triangles(int car_index,RwMatrix *car_ma
   RwMatrix *copy_dst;
   float *copy_dst_f;
   RwV3d *car_pos;
-  ushort below_plane_flags;
   struct {
     int tris_left;
     float plane_dist;
@@ -121,15 +120,10 @@ void __cdecl vehicle_skid_marks_collect_triangles(int car_index,RwMatrix *car_ma
                     triangle_normal_cross(&frame.tri_normal,tri_ptr,tri_ptr + 3,tri_ptr + 6);
                     tmp_i = plane_classify_point(&frame.tri_normal,car_pos,&frame.plane_dist);
                     if (tmp_i == 0) {
-                      below_plane_flags = (ushort)(frame.plane_dist < k_f_0_5) << 8 |
-                               (ushort)(frame.plane_dist == k_f_0_5) << 0xe;
-LAB_00425a4e:
-                      if (below_plane_flags == 0) goto LAB_00425a9c;
+                      if (frame.plane_dist > k_f_0_5) goto LAB_00425a9c;
                     }
                     else if (tmp_i == 2) {
-                      below_plane_flags = (ushort)(frame.plane_dist < k_f_0_35) << 8 |
-                               (ushort)(frame.plane_dist == k_f_0_35) << 0xe;
-                      goto LAB_00425a4e;
+                      if (frame.plane_dist > k_f_0_35) goto LAB_00425a9c;
                     }
                     out_tri = (float *)(&g_game_65c8f8 +
                                       *(int *)((char *)&g_game_65d80c + record_off) * 0x3c + record_off);

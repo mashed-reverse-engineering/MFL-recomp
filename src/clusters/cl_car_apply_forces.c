@@ -1,6 +1,12 @@
 // cluster-entries: car_apply_forces
 /* Installed cluster car_apply_forces (tools/cluster_install.py from output/cluster_pilot_tr/car_apply_forces.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#define SURFACE_ARGB_FFFF32FF (-0xcd01)
+#define SURFACE_ARGB_FFA08080 (-0x5f7f80)
+#define SURFACE_ARGB_FFAA8080 (-0x557f80)
+#define SURFACE_ARGB_FF961E5A (-0x69e1a6)
+#define SURFACE_ARGB_FF1E80B4 (-0xe17f4c)
+#define SURFACE_ARGB_FFC81E5A (-0x37e1a6)
 typedef int CourseId;
 /*0042b110*/ extern int current_course_id();
 /*00434bb0*/ extern int get_event_type();
@@ -83,6 +89,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   float10 fl_tmp;
   RwReal other_speed;
   float scale_tmp;
+  int surface_color;
   float slip3;
   float speed_keep;
   float raw_keep;
@@ -136,7 +143,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   }
   scale_tmp = *(float *)((char *)self_car + 0x150) * self_car->speed_scale * *(float *)((char *)self_car + 0x158)
            * scale_tmp;
-  if (self_car->wheels_in_contact != 4.0) {
+  if (*(int *)&self_car->wheels_in_contact != 0x40800000 /* 4.0f as an int word */) {
     scale_tmp = scale_tmp * k_f_0_5;
   }
   /* 3: slow down when another active car is close ahead on the same heading (rubber band), factor 1 - (6 - dist) / 8 */
@@ -159,7 +166,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
       frame.other_vel.y = *(float *)((int)player_car[0].velocity + other_car_byte_off + 4);
       frame.other_vel.z = *(float *)((int)player_car[0].velocity + other_car_byte_off + 8);
       other_speed = RwV3dLength(&frame.other_vel);
-      if (k_f_1_0en4 <= other_speed) {
+      if (!(k_f_1_0en4 > other_speed)) {
         RwV3dNormalize(&frame.other_vel,&frame.other_vel);
         RwV3dNormalize(&frame.dir_to_other,&frame.rel_pos);
         if (((k_f_0_99 < frame.dir_to_other.z * frame.other_vel.z + frame.dir_to_other.x * frame.other_vel.x + frame.dir_to_other.y * frame.other_vel.y
@@ -188,7 +195,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   }
   /* 5: catch-up factor from the race clock and the best / worst vehicle id of the players */
   tmp_f = k_f_60000 - (float)(int)g_race_clock_b;
-  if (k_f_0 <= tmp_f) {
+  if (!(k_f_0 > tmp_f)) {
     frame.catchup_t = 1.0;
   }
   else {
@@ -398,12 +405,12 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
       wheel_force_ptr[8] = 0.0;
     }
     else {
-      scale_tmp = wheel_force_ptr[-1];
+      surface_color = *(int *)&wheel_force_ptr[-1]; /* int ARGB word of the surface, not a float */
       *wheel_force_ptr = 0.25;
       self_car->field_b00[0] = 0.0;
       self_car->field_b00[1] = 0.0;
       self_car->field_b00[2] = 0.0;
-      if (scale_tmp == -NAN) {
+      if (surface_color == SURFACE_ARGB_FFFF32FF) {
         scale_tmp = self_car->speed * k_f_5_0en6;
         fl_tmp = (float10)random_range(-scale_tmp,*(int *)&scale_tmp);
         self_car->field_b00[0] = (float)fl_tmp;
@@ -411,14 +418,14 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
         fl_tmp = (float10)random_range(-scale_tmp,*(int *)&scale_tmp);
         self_car->field_b00[2] = (float)fl_tmp;
       }
-      else if (scale_tmp == -NAN) {
+      else if (surface_color == SURFACE_ARGB_FFA08080) {
         *wheel_force_ptr = 0.1;
       }
-      else if (scale_tmp == -NAN) {
+      else if (surface_color == SURFACE_ARGB_FFAA8080) {
         *wheel_force_ptr = 0.01;
       }
       else {
-        if ((scale_tmp == -NAN) || (scale_tmp == -2.1068629e+38)) {
+        if ((surface_color == SURFACE_ARGB_FF961E5A) || (surface_color == SURFACE_ARGB_FF1E80B4)) {
           if (self_car->is_bot == 0) {
             *wheel_force_ptr = 0.01;
             course_id = current_course_id();
@@ -430,7 +437,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
             *wheel_force_ptr = 0.2;
           }
         }
-        if (scale_tmp == -NAN) {
+        if (surface_color == SURFACE_ARGB_FFC81E5A) {
           *wheel_force_ptr = 0.2;
         }
       }
@@ -449,7 +456,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
       if (wheel_force_ptr[6] * wheel_force_ptr[4] < k_f_0) {
         wheel_force_ptr[7] = 0.0;
       }
-      if (self_car->wheels_in_contact == 4.0) {
+      if (*(int *)&self_car->wheels_in_contact == 0x40800000 /* 4.0f as an int word */) {
         wheel_ground_pos = (RwV3d *)(wheel_force_ptr + 8);
         scale_tmp = g_car_8bd730 * wheel_force_ptr[6] * k_f_0_5;
         wheel_ground_pos->x = scale_tmp * wheel_force_ptr[3];

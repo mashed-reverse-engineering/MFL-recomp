@@ -818,7 +818,6 @@ debris_update_visible_all_vehicles_b 00425710
 debris_update_all_vehicles_twice 00425720
 load_groundbeam 00425740
 vehicle_skid_marks_collect_triangles 00425790
-LAB_00425a4e 00425a4e
 LAB_00425a9c 00425a9c
 vehicle_skidmarks_render 00425b20
 vehicle_prepare_clear_660568 00425ce0

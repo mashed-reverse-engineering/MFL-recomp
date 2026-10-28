@@ -86,7 +86,7 @@ void fx_ring_update(void)
     float nearest_dist_sq [4];
     RwV3d *nearest_pts [4];
     int nearest_count;
-    RwReal emitter_flag;
+    int emitter_flag; /* word 9 x of the point: an int flag */
     int any_attached;
     RwReal particle_pos_x;
     float particle_pos_y;
@@ -136,10 +136,10 @@ void fx_ring_update(void)
     if ((live_bitmap_byte & (byte)(1 << bit_in_byte)) != 0) {
       attach_pos = *(float **)&point[9].y;
       if (attach_pos == (float *)0x0) {
-        frame.emitter_flag = point[9].x;
+        frame.emitter_flag = *(int *)&point[9].x;
       }
       else {
-        *(int *)&frame.emitter_flag = 1;
+        frame.emitter_flag = 1;
         frame.any_attached = 1;
         if (((*attach_pos == k_f_0) && (attach_pos[1] == k_f_0)) && (attach_pos[2] == k_f_0)) {
           *frame.slot_aux_ptr = 0;
@@ -205,7 +205,7 @@ void fx_ring_update(void)
         point[9].y = 0.0;
         *live_bitmap_byte_ptr = live_bitmap_byte & ~('\x01' << bit_in_byte);
       }
-      if (k_f_0_02 <= frame.scratch_f) {
+      if (!(k_f_0_02 > frame.scratch_f)) {
         fsz = float_1_0 - frame.scratch_f;
       }
       else {
@@ -241,7 +241,7 @@ void fx_ring_update(void)
       ((unsigned char *)&frame.color_rgba)[3] = (unsigned char)(int)((frame.any_attached != 0) ? (255.0f - (point[2].z * 210.0f)) : (164.0f - (point[2].z * 163.0f)));
       particles_set_color(&frame.color_rgba);
       particles_add(&g_load_752180);
-      if (point[9].x != 0.0) {
+      if (*(int *)&point[9].x != 0) {
         ((unsigned char *)&frame.color_rgba)[0] = 0x10;
         ((unsigned char *)&frame.color_rgba)[1] = 0x10;
         ((unsigned char *)&frame.color_rgba)[2] = 0x10;
@@ -255,7 +255,7 @@ void fx_ring_update(void)
       saved_dist_3 = frame.nearest_dist_sq[3];
       saved_dist_2 = frame.nearest_dist_sq[2];
       saved_dist_1 = frame.nearest_dist_sq[1];
-      if ((point[9].y != 0.0) || (point[9].x != 0.0)) {
+      if ((*(int *)&point[9].y != 0) || (*(int *)&point[9].x != 0)) {      /* attach pointer or flag */
         point_dist_sq = frame.cam_pos_x - point->x;
         cam_dy = frame.cam_pos_y - point->y;
         cam_dz = frame.cam_pos_z - point->z;
@@ -300,7 +300,7 @@ void fx_ring_update(void)
           }
         }
       }
-      if (frame.emitter_flag != 0.0) {
+      if (frame.emitter_flag != 0) {
         frame.trig_sphere_x = point->x;
         frame.trig_sphere_y = point->y;
         frame.trig_sphere_z = point->z;
