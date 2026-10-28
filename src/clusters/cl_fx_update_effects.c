@@ -10,8 +10,8 @@
 /*0048e4f0*/ extern int rwp_object_set_enabled();
 /*0048e650*/ extern int rwp_object_set_in_world();
 /*0048e6f0*/ extern int rwp_object_get_matrix();
-/*004c4460*/ extern void FUN_004c4460(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c48b0*/ extern void FUN_004c48b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c4460*/ extern void rwmatrix_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c48b0*/ extern void hanim_keyframes_sample_at_time(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -157,7 +157,7 @@ void fx_update_effects(void)
         frame.pivot_vec.z = frame.pivot_vec.z * k_f_n1;
         RwMatrixTranslate(mat_a,&frame.pivot_vec,rwCOMBINEPOSTCONCAT);
         if (body_link != (int *)0x0) {
-          FUN_004c48b0((undefined4)&frame.pivot_matrix,*(undefined4 *)&fx_obj->cur,*(undefined4 *)&fx_obj->timer);
+          hanim_keyframes_sample_at_time((undefined4)&frame.pivot_matrix,*(undefined4 *)&fx_obj->cur,*(undefined4 *)&fx_obj->timer);
           pRVar11 = frame.obj_aux_ptr;
           fx_obj->vel.y = fx_obj->gravity + fx_obj->vel.y;
           RwMatrixTranslate(&frame.pivot_matrix,frame.obj_aux_ptr,rwCOMBINEPOSTCONCAT);
@@ -204,7 +204,7 @@ void fx_update_effects(void)
             frame.up_x = 0;
             frame.up_y = 0x3f800000;
             frame.up_z = 0;
-            FUN_004c4460((undefined4)&frame.matrix_d,(undefined4)frame.car_pos,(undefined4)&frame.up_x);
+            rwmatrix_look_at((undefined4)&frame.matrix_d,(undefined4)frame.car_pos,(undefined4)&frame.up_x);
           }
           render_arg_b = 2;
           frame.tmp_vec.x = frame.matrix_d.pos.x * k_f_n1;

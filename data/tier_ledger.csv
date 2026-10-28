@@ -43,8 +43,6 @@ FUN_004c3fd0,004c3fd0,tier1,bytes,bytes-reloc,33bcac1e1b06,126ee480af92,4608b9e5
 FUN_004c4020,004c4020,tier1,bytes,bytes-reloc,fbe0f75b3f60,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_004c40f0,004c40f0,tier1,bytes,bytes-reloc,cbff18719f19,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_004c4270,004c4270,tier1,bytes,bytes-reloc,f123b0107b85,126ee480af92,4608b9e561f7,0,0.00,0,0
-FUN_004c42f0,004c42f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
-FUN_004c4460,004c4460,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 FUN_004c4620,004c4620,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,102,1.00,0,0
 FUN_004c4720,004c4720,tier1,bytes,bytes-reloc,2dcaebe90c75,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_004c4890,004c4890,tier1,bytes,bytes-reloc,b4c939bcca26,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -102,9 +100,9 @@ FUN_005bae80,005bae80,agent,bytes-standalone+0a6e18bbcfc0,bytes-reloc,e264a12f66
 FUN_005bb600,005bb600,tier1,bytes,bytes-reloc,a7a735e73374,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005bcc50,005bcc50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 FUN_005bcea0,005bcea0,tier1,bytes,bytes-reloc,06f62e79b080,126ee480af92,4608b9e561f7,0,0.00,0,0
-FUN_005bcf00,005bcf00,tier1,bytes,bytes-reloc,65b691141de4,126ee480af92,4608b9e561f7,0,0.00,0,0
+FUN_005bcf00,005bcf00,tier1,bytes,bytes-reloc,6d5f3610a7bd,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005bcfa0,005bcfa0,tier1,bytes,bytes-reloc,5550f733e4bd,126ee480af92,4608b9e561f7,0,0.00,0,0
-FUN_005bda80,005bda80,tier1,bytes,bytes-reloc,814d0cf621be,126ee480af92,4608b9e561f7,0,0.00,0,0
+FUN_005bda80,005bda80,tier1,bytes,bytes-reloc,5c74b9685d3f,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005be6b0,005be6b0,tier1,bytes,bytes-reloc,39a5c651661c,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005be8e0,005be8e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.92,0,0
 FUN_005bf0e0,005bf0e0,tier1,bytes,bytes-reloc,faa6a418ee0a,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -123,7 +121,7 @@ FUN_005c1eb0,005c1eb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee4
 FUN_005c1f60,005c1f60,tier1,bytes,bytes-reloc,074d5ab03d81,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005c1f80,005c1f80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 FUN_005c1ff0,005c1ff0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,198,1.00,0,0
-FUN_005c2180,005c2180,tier1,bytes,bytes-reloc,88107a6bbe5d,126ee480af92,4608b9e561f7,0,0.00,0,0
+FUN_005c2180,005c2180,tier1,bytes,bytes-reloc,80e7288c1750,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005c21e0,005c21e0,tier1,bytes,bytes-reloc,7de6bdea51f3,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005c30c0,005c30c0,tier1,bytes,bytes-reloc,b80de74ad591,126ee480af92,4608b9e561f7,0,0.00,0,0
 FUN_005c4340,005c4340,tier1,bytes,bytes-reloc,5e749399c542,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -299,8 +297,8 @@ build_info_set_page,0042c9d0,tier1,bytes,bytes-reloc,2941170d6d5d,126ee480af92,4
 build_info_textures_destroy,0042ca50,tier1,bytes,bytes-reloc,37f19a2bb9a0,126ee480af92,4608b9e561f7,0,0.00,0,0
 camera_apply_matrix,0044bee0,agent,bytes-standalone+26008570af68,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 camera_apply_rotation,0044a470,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
-camera_create_a,00451d10,tier1,bytes,bytes-reloc,d71a3f3341d1,126ee480af92,4608b9e561f7,0,0.00,0,0
-camera_create_b,00451dc0,tier1,bytes,bytes-reloc,b302f7539e9b,126ee480af92,4608b9e561f7,0,0.00,0,0
+camera_create_a,00451d10,tier1,bytes,bytes-reloc,34fd70d25faf,126ee480af92,4608b9e561f7,0,0.00,0,0
+camera_create_b,00451dc0,tier1,bytes,bytes-reloc,6cde84d580b0,126ee480af92,4608b9e561f7,0,0.00,0,0
 camera_editor_setup_parallel,0044a6a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.50,0,0
 camera_fov_factor_set_wide,0042faf0,tier1,bytes,bytes-reloc,e51a26eb1ab2,126ee480af92,4608b9e561f7,0,0.00,0,0
 camera_frame_ui,00451c80,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -336,7 +334,7 @@ camera_world_attach,0040ea40,tier1,bytes,bytes-reloc,7d4b9c1ca76d,126ee480af92,4
 car_add_field_b10,0047a780,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_add_velocity,0047a5b0,tier1,bytes,bytes-reloc,7b76b85fbd2c,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_add_velocity_impl,00492b50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
-car_apply_rwp_impulse,00492b20,tier1,bytes,bytes-reloc,8d8b35d039bd,126ee480af92,4608b9e561f7,0,0.00,0,0
+car_apply_rwp_impulse,00492b20,tier1,bytes,bytes-reloc,7f818f011de6,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_apply_speed_boost_along_forward,0040c3c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 car_apply_throttle_force,00491f10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 car_auto_steer_assist_step,0047a850,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.73,0,0
@@ -346,7 +344,7 @@ car_damage_events_reset,00423f40,tier2,compiled+diffemu-EQUAL+shadow-never,diffe
 car_damage_get_back,00423fc0,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_damage_get_front,00423fa0,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_damage_init,00423f00,tier1,bytes,bytes-reloc,591735f14955,126ee480af92,4608b9e561f7,0,0.00,0,0
-car_damage_smoke_create,004241e0,tier1,bytes,bytes-reloc,cd91a942d1e7,126ee480af92,4608b9e561f7,0,0.00,0,0
+car_damage_smoke_create,004241e0,tier1,bytes,bytes-reloc,cae88654b78c,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_damage_smoke_destroy,00424220,tier1,bytes,bytes-reloc,8556cca6b468,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_damage_smoke_destroy_004246c0,004246c0,tier1,bytes,bytes-reloc,7187b59fd285,126ee480af92,4608b9e561f7,0,0.00,0,0
 car_damage_smoke_render,00424690,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -725,7 +723,7 @@ course_smoke_particles_create,00453c30,tier1,bytes,bytes-reloc,764ad2c742b7,126e
 course_smoke_particles_create_00453ca0,00453ca0,tier1,bytes,bytes-reloc,e04726b0b2ad,126ee480af92,4608b9e561f7,0,0.00,0,0
 course_smoke_particles_destroy,00453a90,tier1,bytes,bytes-reloc,f2324a5bd157,126ee480af92,4608b9e561f7,0,0.00,0,0
 course_smoke_particles_render,00453a80,tier1,bytes,bytes-reloc,887ca482aa5b,126ee480af92,4608b9e561f7,0,0.00,0,0
-course_spline_objects_create,00457430,tier1,bytes,bytes-reloc,b9bb97947cf7,126ee480af92,4608b9e561f7,0,0.00,0,0
+course_spline_objects_create,00457430,tier1,bytes,bytes-reloc,2ea705af6949,126ee480af92,4608b9e561f7,0,0.00,0,0
 course_spline_objects_update,004574a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 course_storm_cb0_sub_4aac50,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 course_storm_cb0_sub_4aaca0,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
@@ -818,7 +816,7 @@ cup_scene_place_object,004016c0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,dif
 cup_scene_render,00401d90,tier1,bytes,bytes-reloc,f29dd5f0e86e,126ee480af92,4608b9e561f7,0,0.00,0,0
 cup_scene_render_players,00402860,tier2,compiled+shadow-never,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 cup_scene_render_with_overlay,00402830,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
-cup_scene_setup_frames,00401210,tier1,bytes,bytes-reloc,f4b6d64a9722,126ee480af92,4608b9e561f7,0,0.00,0,0
+cup_scene_setup_frames,00401210,tier1,bytes,bytes-reloc,f1ce0417e5b2,126ee480af92,4608b9e561f7,0,0.00,0,0
 cup_scene_setup_lights,004026f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 cup_scene_update_light_colour,00401360,tier1,bytes,bytes-reloc,319a1d3cafc1,126ee480af92,4608b9e561f7,0,0.00,0,0
 cup_scene_update_object,004019a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
@@ -1425,7 +1423,7 @@ load_team_panels,0041ef40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,12
 load_waterfall_fx,0049d1e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 loading_start_log,0040ae80,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 log_file_close,004a55c0,tier1,bytes,bytes-reloc,498f08d1077e,126ee480af92,4608b9e561f7,0,0.00,0,0
-log_open_write,004a55e0,tier1,bytes,bytes-reloc,d84faeba69d7,126ee480af92,4608b9e561f7,0,0.00,0,0
+log_open_write,004a55e0,tier1,bytes,bytes-reloc,1da2b87b07bf,126ee480af92,4608b9e561f7,0,0.00,0,0
 log_print,004a5530,tier1,bytes,bytes-reloc,cdac618adcaf,126ee480af92,4608b9e561f7,0,0.00,0,0
 log_printf,004a5550,tier1,bytes,bytes-reloc,c77ee56d7d06,126ee480af92,4608b9e561f7,0,0.00,0,0
 lua_AI_Bsp_Filename,0048b9d0,tier1,bytes,bytes-reloc,c0e3f6ce1e4e,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -1925,7 +1923,7 @@ replay_records_reset,00413cb0,hand,near-regress-only,static,-,126ee480af92,4608b
 replay_save,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,4383f4ad08a8,126ee480af92,4608b9e561f7,200,1.00,0,0
 resource_load,004a9420,tier1,bytes,bytes-reloc,d7b31e96c586,126ee480af92,4608b9e561f7,0,0.00,0,0
 rocket_hit_callback,00461370,tier2,compiled+diffemu-DIFF+shadow-never,static,-,126ee480af92,4608b9e561f7,27,0.62,0,0
-rocket_hit_spawn_particle,004681f0,tier1,bytes,bytes-reloc,087855b92527,126ee480af92,4608b9e561f7,0,0.00,0,0
+rocket_hit_spawn_particle,004681f0,tier1,bytes,bytes-reloc,731d94678e1f,126ee480af92,4608b9e561f7,0,0.00,0,0
 rocket_slot_6a6000_get,00461620,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 rocket_surface_hit_test,004682c0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,-,126ee480af92,4608b9e561f7,200,0.75,1,0
 round_find_winner,0040ffc0,hand,near-regress-only,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -1946,13 +1944,15 @@ rw_free_with_inner_buffer,00495c90,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e
 rw_plugins_attach,004a2a70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 rw_register_image_formats,004a2a30,tier1,bytes,bytes-reloc,a1f2b61bd0b0,126ee480af92,4608b9e561f7,0,0.00,0,0
 rw_stream_chunk_copy,0042d9b0,tier2,compiled+shadow-never,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
+rwframe_look_at,?,tier2,compiled+shadow-never,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
+rwmatrix_look_at,?,tier2,compiled+shadow-never,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_atomics_destroy,00490e80,tier1,bytes,bytes-reloc,dee0dbb05bcf,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_atomics_render,00492af0,tier1,bytes,bytes-reloc,1bba9776d61e,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_camera_destroy_frame,00495af0,tier1,bytes,bytes-reloc,288df11e107b,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_car_apply_forces,00492100,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.50,0,0
 rwp_cars_setup_bodies_from_bounds,0048e960,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.89,0,0
 rwp_contact_collect,00491180,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.89,0,0
-rwp_object_activate,00492ca0,tier1,bytes,bytes-reloc,6c68112cf2f8,126ee480af92,4608b9e561f7,0,0.00,0,0
+rwp_object_activate,00492ca0,tier1,bytes,bytes-reloc,711e41552730,126ee480af92,4608b9e561f7,0,0.00,0,0
 rwp_object_create_from_atomic,00491530,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 rwp_object_debris_expire_check,00493490,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 rwp_object_destroy,00490cc0,tier1,bytes,bytes-reloc,e94bfb326073,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -2328,9 +2328,9 @@ vehicle_tyre_marks_render,004263f0,tier2,compiled+diffemu-EQUAL+shadow-never,dif
 vehicles_any_active,0040e6a0,agent,bytes-standalone+c7d9dc744517,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 vehicles_prepare_all,00423110,tier1,bytes,bytes-reloc,81f48d3563d7,126ee480af92,4608b9e561f7,0,0.00,0,0
 video_cfg_apply_selection,004a8b10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
-video_cfg_load,004a85c0,tier1,bytes,bytes-reloc,52674fe56058,126ee480af92,4608b9e561f7,0,0.00,0,0
+video_cfg_load,004a85c0,tier1,bytes,bytes-reloc,70bf2190f0e2,126ee480af92,4608b9e561f7,0,0.00,0,0
 video_cfg_path,004a8580,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,082fb007ab54,126ee480af92,4608b9e561f7,200,1.00,0,1
-video_cfg_save,004a8620,tier1,bytes,bytes-reloc,ba2b7768aa1a,126ee480af92,4608b9e561f7,0,0.00,0,0
+video_cfg_save,004a8620,tier1,bytes,bytes-reloc,1f49eaacf509,126ee480af92,4608b9e561f7,0,0.00,0,0
 video_dialog_free,004a87d0,tier1,bytes,bytes-reloc,9714256f156f,126ee480af92,4608b9e561f7,0,0.00,0,0
 video_draw_textured_quad,004a3500,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,1.00,0,0
 video_get_default_mode,004a4070,agent,bytes-standalone+6950758a9007,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
@@ -2373,7 +2373,7 @@ voice_queue_slots_clear,004687d0,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e56
 voice_queue_tables_clear,004683f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,2af13b318937,126ee480af92,4608b9e561f7,200,1.00,0,1
 voice_set_position_from_car,00469ac0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,8d7454794b16,126ee480af92,4608b9e561f7,200,1.00,0,1
 voice_set_two_params,00469a60,tier1,bytes,bytes-reloc,722b07530cd9,126ee480af92,4608b9e561f7,0,0.00,0,0
-weapon_6a5e2c_get_clump,004608c0,tier1,bytes,bytes-reloc,f9488674a97d,126ee480af92,4608b9e561f7,0,0.00,0,0
+weapon_6a5e2c_get_clump,004608c0,tier1,bytes,bytes-reloc,cead3d12ae2c,126ee480af92,4608b9e561f7,0,0.00,0,0
 weapon_drum_ammo_fraction,0045f7b0,tier1,bytes,bytes-reloc,7fe44abbcd49,126ee480af92,4608b9e561f7,0,0.00,0,0
 weapon_drum_clear_effects,0045f840,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,45cf7e0309bb,126ee480af92,4608b9e561f7,200,1.00,0,1
 weapon_drum_equip,0045f6d0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,c7a65393e026,126ee480af92,4608b9e561f7,200,1.00,0,0

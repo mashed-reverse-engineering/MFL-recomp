@@ -1,13 +1,13 @@
 #include "mfl_tier2.h"
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/* FUN_004c4460 */
+/* rwmatrix_look_at */
 /* Rebuilds an orientation matrix so its at vector points from the matrix
  * position towards target_pos (inferred). right = normalize(cross(up_hint, at)),
  * up = normalize(cross(at, right)), then RwMatrixUpdate(matrix).
  * matrix is laid out as RwMatrix viewed through RwV3d: right at +0x0,
  * up at +0x10, at at +0x20, pos at +0x30 (inferred). Returns nothing. */
 
-void FUN_004c4460(RwV3d *matrix,float *target_pos,float *up_hint)
+void rwmatrix_look_at(RwV3d *matrix,float *target_pos,float *up_hint)
 
 {
   RwReal *at_vec;

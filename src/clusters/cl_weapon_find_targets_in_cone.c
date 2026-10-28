@@ -16,7 +16,7 @@ extern char s_333_Lap_frames_005df368[];
 /*0048e440*/ extern int rwpcar_get_rw_6fa7d0();
 /*0048e6d0*/ extern int rwp_object_get_handle();
 /*004b3284*/ extern double acos(double p0);
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c42f0*/ extern void rwframe_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004b3284*/ extern double crt_acos_body(double p0);   /* acos */
 /*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, int p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
@@ -412,7 +412,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
   frame = *(RwFrame **)((&g_weapon_6a9474)[shooter_slot * 0x16] + 4);
   RwFrameSetIdentity(frame);
   RwFrameTranslate(frame,(RwV3d *)((char *)&g_weapon_find_6a9468 + slot_off),rwCOMBINEREPLACE);
-  FUN_004c42f0(frame,&g_weapon_find_6a945c + slot_off,(&g_weapon_6a9458)[shooter_slot * 0x16] + 0x10);
+  rwframe_look_at(frame,&g_weapon_find_6a945c + slot_off,(&g_weapon_6a9458)[shooter_slot * 0x16] + 0x10);
   frame_matrix_src = &RwFrame_modelling(frame);
   car_matrix_dst = (RwReal *)(&g_weapon_6a9458)[shooter_slot * 0x16];
   for (slot_used = 0x10; slot_used != 0; slot_used = slot_used + -1) {

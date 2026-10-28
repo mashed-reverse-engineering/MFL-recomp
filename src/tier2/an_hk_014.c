@@ -15,7 +15,7 @@ extern char s_videocfg_bin_005e1520[];
 /*004b2a60*/ extern int sprintf();
 /*004b3bca*/ extern void __cdecl _free_004b45fd(void *p0);
 /*004b4358*/ extern int __cdecl _fclose(FILE *p0);
-/*004b4531*/ extern int FUN_004b4531(undefined4 p0, undefined4 p1);
+/*004b4531*/ extern int crt_fopen_body(undefined4 p0, undefined4 p1);
 /*004b49bf*/ extern size_t __cdecl _fread(void *p0, size_t p1, size_t p2, FILE *p3);
 /*004b4b12*/ extern size_t __cdecl _fwrite(void *p0, size_t p1, size_t p2, FILE *p3);
 /*004b4ba7*/ extern int entry();

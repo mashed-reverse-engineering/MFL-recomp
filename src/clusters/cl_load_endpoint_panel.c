@@ -6,7 +6,7 @@
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*0042f860*/ extern int __cdecl texdict_load_named_b(char *p0, undefined4 p1, undefined4 p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*006592f0*/ extern undefined4 g_load_6592f0;
 /*00659340*/ extern undefined g_kc_659340;
 /*00659448*/ extern undefined4 g_load_endpoint_659448;
@@ -43,9 +43,9 @@ void load_endpoint_panel(void)
   /* One pass per panel slot. */
   do {
     slot_clump = endpoint_clump;
-    /* Slot 0 uses the loaded clump; every other slot gets FUN_004f6bf0(clump) (inferred: a copy). */
+    /* Slot 0 uses the loaded clump; every other slot gets rpclump_clone(clump) (inferred: a copy). */
     if (slot != 0) {
-      slot_clump = FUN_004f6bf0(endpoint_clump);
+      slot_clump = rpclump_clone(endpoint_clump);
     }
     endpoint_panel_attach_clump_r(slot_clump,(void *)(&g_kc_659340 + slot * ENDPOINT_RECORD_SIZE));
     (&g_load_endpoint_659448)[slot * ENDPOINT_RECORD_DWORDS] = slot;

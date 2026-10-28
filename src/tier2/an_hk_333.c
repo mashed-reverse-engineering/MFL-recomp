@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004c6600*/ extern void FUN_004c6600(void *p0, undefined4 p1);
+/*004c6600*/ extern void bitset_clear_first_n(void *p0, undefined4 p1);
 /*0076beb0*/ extern undefined1 g_particles_76beb0;
 /*0076bfc4*/ extern undefined4 g_particles_76bfc4;
 /*0076c504*/ extern undefined4 g_fx_slots_76c504;
@@ -11,7 +11,7 @@
 #define FX_SLOT_STRIDE_DWORDS (0xd)
 /* fx_slots_clear_8
  * Zeroes the particle and fx slot state tables. Takes no parameters and returns nothing.
- * Also calls FUN_004c6600 on g_particles_76beb0 with 0x80 (meaning of the argument unknown).
+ * Also calls bitset_clear_first_n on g_particles_76beb0 with 0x80 (meaning of the argument unknown).
  */
 
 /* "clears 8 dwords at 0x76DEE0" */
@@ -51,7 +51,7 @@ void fx_slots_clear_8(void)
     cursor[-9] = 0;
     cursor = cursor + FX_SLOT_STRIDE_DWORDS;
   } while ((LONG_PTR)cursor < ((LONG_PTR)&g_fx_slots_76df04));
-  FUN_004c6600(&g_particles_76beb0,0x80);
+  bitset_clear_first_n(&g_particles_76beb0,0x80);
   return;
 }
 

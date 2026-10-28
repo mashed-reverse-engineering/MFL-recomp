@@ -13,7 +13,7 @@
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
-/*004c51a0*/ extern void FUN_004c51a0(void *p0, undefined4 p1, void *p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, undefined4 p1, void *p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
@@ -104,7 +104,7 @@ void weapon_shotgun_fire_shot(int *weapon)
     float hit_normal_y;
     float hit_normal_z;
     undefined1 pad_74[4];
-    undefined1 spark_scratch [40]; /* scratch passed to FUN_004c51a0 (inferred) */
+    undefined1 spark_scratch [40]; /* scratch passed to rwmatrix_from_three_points (inferred) */
     float hit_dist; /* distance to the world hit (inferred) */
     undefined1 pad_44[4];
     RwMatrix spark_matrix; /* spark transform */
@@ -162,7 +162,7 @@ void weapon_shotgun_fire_shot(int *weapon)
       shot.spark_pos_x = (float)((double)shot.hit_normal_x * (double)k_f_0_05 + (double)shot.spark_pos_x);
       shot.spark_pos_y = (float)((double)shot.hit_normal_y * (double)k_f_0_05 + (double)shot.spark_pos_y);
       shot.spark_pos_z = (float)((double)shot.hit_normal_z * (double)k_f_0_05 + (double)shot.spark_pos_z);
-      FUN_004c51a0(&shot.spark_matrix,(undefined4)shot.spark_scratch,&shot.spark_pos_x);
+      rwmatrix_from_three_points(&shot.spark_matrix,(undefined4)shot.spark_scratch,&shot.spark_pos_x);
       shot.impact_scale.y = 1.5;
       shot.impact_scale.x = 1.5;
       shot.impact_scale.z = 1.0;

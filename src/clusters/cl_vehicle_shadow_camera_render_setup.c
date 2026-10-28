@@ -7,7 +7,7 @@
 /*0042a3f0*/ extern int course_get_rpworld();
 /*0042a400*/ extern int course_get_collision_bsp();
 extern float course_get_shadow_scale(void);
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c42f0*/ extern void rwframe_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d17a0*/ extern struct RwFrame * RwFrameOrthoNormalize(struct RwFrame *p0);
 /*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
@@ -57,7 +57,7 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     light_or_status = *(int *)(g_particles_659d70 + 4);
     is_mode_2 = vehicle_record->field_298 == 2;
     shadow_camera = (&g_load_65a9b0)[is_mode_2];
-    /* Shadow camera/texture pair chosen by field_298 == 2 (is_mode_2); camera sits at the vehicle's world sphere centre offset by -4 * the light object's direction (+0x30..+0x38), then is oriented by FUN_004c42f0 (inferred). */
+    /* Shadow camera/texture pair chosen by field_298 == 2 (is_mode_2); camera sits at the vehicle's world sphere centre offset by -4 * the light object's direction (+0x30..+0x38), then is oriented by rwframe_look_at (inferred). */
     vehicle_record->shadow_camera = shadow_camera;
     vehicle_record->shadow_texture = (&g_game_659d74)[is_mode_2];
     frame = *(RwFrame **)(shadow_camera + 4);
@@ -66,7 +66,7 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     frame_obj.camera_pos.y = *(float *)(light_or_status + 0x34) * k_f_n4 + frame_obj.camera_pos.y;
     frame_obj.camera_pos.z = *(float *)(light_or_status + 0x38) * k_f_n4 + frame_obj.camera_pos.z;
     RwFrameTranslate(frame,&frame_obj.camera_pos,rwCOMBINEREPLACE);
-    FUN_004c42f0(vehicle_record->shadow_frame,vehicle_record->world_sphere,&g_car_62ac74);
+    rwframe_look_at(vehicle_record->shadow_frame,vehicle_record->world_sphere,&g_car_62ac74);
     RwFrameOrthoNormalize((RwFrame *)vehicle_record->shadow_frame);
     frame_obj.tint_0 = vehicle_record->shadow_texture;
     frame_obj.tint_1 = frame_obj.tint_0;

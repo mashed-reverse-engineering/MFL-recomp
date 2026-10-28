@@ -2,7 +2,7 @@
 /*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
 /*0056b220*/ extern void rwp_world_set_bit_60_64(int p0, void *p1, int p2);
 /*0056b300*/ extern void FUN_0056b300(undefined4 p0, void *p1);
-/*0056bc20*/ extern void FUN_0056bc20(void *p0, undefined4 p1, undefined4 p2);
+/*0056bc20*/ extern void rwp_body_add_force_at_point(void *p0, undefined4 p1, undefined4 p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*006fab78*/ extern undefined4 g_rw_6fab78;
 
@@ -13,7 +13,7 @@
  *
  * Syncs the physics body of the object with the given id and applies a matrix to it.
  *   object_id:   index into g_rw_6fab78 (valid range 0..MAX_OBJECT_ID-1)
- *   matrix_arg:  passed through to FUN_0056bc20 as its second argument (inferred: matrix or flags)
+ *   matrix_arg:  passed through to rwp_body_add_force_at_point as its second argument (inferred: matrix or flags)
  * Does nothing if the id is out of range, the slot is empty, or the owner has no body.
  */
 
@@ -36,7 +36,7 @@ void rwp_object_sync_and_reset(int object_id,undefined4 matrix_arg)
     matrix_target = *(int **)(*(char **)(owner + 0x10) + 4);
     /* apply the matrix only when the owner's sub-block has a target (inferred) */
     if (matrix_target != (int *)0x0) {
-      FUN_0056bc20(matrix_target,matrix_arg,matrix_target[1] * 0x40 + 0x30 + **(int **)(*matrix_target + 0x10));
+      rwp_body_add_force_at_point(matrix_target,matrix_arg,matrix_target[1] * 0x40 + 0x30 + **(int **)(*matrix_target + 0x10));
     }
   }
   return;

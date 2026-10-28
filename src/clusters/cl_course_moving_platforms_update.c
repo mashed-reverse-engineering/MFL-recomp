@@ -5,14 +5,14 @@
 /*0048e6d0*/ extern int rwp_object_get_handle();
 /*0048e6f0*/ extern int rwp_object_get_matrix();
 /*0048e720*/ extern undefined __cdecl rwp_object_set_matrix(int p0, RwMatrix *p1);
-/*004c48b0*/ extern void FUN_004c48b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c48b0*/ extern void hanim_keyframes_sample_at_time(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*004d5640*/ extern struct RwV3d * RwV3dTransformPoint(struct RwV3d *p0, struct RwV3d *p1, RwMatrix *p2);
 /*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
 /*0056b220*/ extern void rwp_world_set_bit_60_64(int p0, int p1, int p2);
 /*0056b300*/ extern void FUN_0056b300(undefined4 p0, undefined4 p1);
-/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, undefined4 p1, undefined4 p2);
+/*0056bc20*/ extern void rwp_body_add_force_at_point(undefined4 p0, undefined4 p1, undefined4 p2);
 /*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*005dd330*/ extern float float_1_0;
@@ -79,7 +79,7 @@ void course_moving_platforms_update(char *world_base, char *platform_base)
         spline = *(int *)(world_base + 0xc9b0 + *(int *)&platform_ptr[-2] * 4);
         frame.spline_copy = spline;
         if (*(int *)&platform_ptr[-4] == 0) {
-          FUN_004c48b0(&frame.pose,spline,*(int *)&*platform_ptr);
+          hanim_keyframes_sample_at_time(&frame.pose,spline,*(int *)&*platform_ptr);
         }
         else {
           spline_tween_b(&frame.pose,spline,*platform_ptr);
@@ -139,7 +139,7 @@ void course_moving_platforms_update(char *world_base, char *platform_base)
             }
             frame.push_y = body_scale * frame.push_y;
           }
-          FUN_0056bc20(body_ptr,&frame.push_x,frame.body_pos_ptr);
+          rwp_body_add_force_at_point(body_ptr,&frame.push_x,frame.body_pos_ptr);
           *(float *)&body_ptr[5] = (float_1_0 / (g_tick_seconds * float_10_0));
           rwp_shape_set_property_c(frame.body_flags,0x3c23d70a);
           body_ptr[7] = 0x3c23d70a;

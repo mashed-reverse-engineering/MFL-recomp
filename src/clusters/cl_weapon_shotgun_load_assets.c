@@ -9,7 +9,7 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*006aab80*/ extern undefined g_weapon_shotgun_6aab80[0x1000];
 /*006aac10*/ extern undefined4 g_weapon_shotgun_6aac10;
 /*004676a0*/ extern void LAB_004676a0(void); /* shared tail: removes the clumps of all 4 shotgun slots */
@@ -31,7 +31,7 @@ void weapon_shotgun_load_assets(void)
   g_weapon_shotgun_6aac10 = clump_load_by_name("shotgun.dff", 0x0, 0x0);
   slot_cursor = g_weapon_shotgun_6aab80;
   do {
-    clump = FUN_004f6bf0(g_weapon_shotgun_6aac10);
+    clump = rpclump_clone(g_weapon_shotgun_6aac10);
     *(undefined4 *)(slot_cursor + 0x1c) = clump;
     clump_get_atomics(clump,atomics);
     i = 0;

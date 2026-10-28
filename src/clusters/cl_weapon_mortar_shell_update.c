@@ -2,7 +2,7 @@
 /* Installed cluster weapon_mortar_shell_update (tools/cluster_install.py from output/cluster_pilot_h2/weapon_mortar_shell_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*0047b520*/ extern int car_current_matrix();
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c42f0*/ extern void rwframe_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
@@ -65,7 +65,7 @@ void weapon_mortar_shell_update_n(undefined4 *shell)
   tmp.up_dir.x = 0.0;
   tmp.up_dir.y = 0.0;
   tmp.up_dir.z = 0.0;
-  /* (inferred) tmp.prev_* first holds the owner car position (+0x30..0x38 of its matrix) while homing, later the shell's old position; aim_* is the look-at point passed to FUN_004c42f0 with up_dir. */
+  /* (inferred) tmp.prev_* first holds the owner car position (+0x30..0x38 of its matrix) while homing, later the shell's old position; aim_* is the look-at point passed to rwframe_look_at with up_dir. */
   scratch_i = weapon_mortar_shell_impact_check_r((int)shell);
   if (scratch_i == 0) {
     scratch_f = *(float *)&shell[0x13] * k_f_0_7692308;
@@ -140,7 +140,7 @@ void weapon_mortar_shell_update_n(undefined4 *shell)
     tmp.up_dir.z = *(RwReal *)(scratch_i + 0x28);
     RwV3dNormalize(&tmp.up_dir,&tmp.up_dir);
     RwFrameTranslate(frame,v,rwCOMBINEREPLACE);
-    FUN_004c42f0((undefined4)frame,(undefined4)&tmp.aim_x,(undefined4)&tmp.up_dir);
+    rwframe_look_at((undefined4)frame,(undefined4)&tmp.aim_x,(undefined4)&tmp.up_dir);
     RwFrameScale(frame,&tmp.scale,rwCOMBINEPRECONCAT);
     weapon_mortar_trail_particles_add_r((int)shell);
   }

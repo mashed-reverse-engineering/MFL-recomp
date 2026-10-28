@@ -7,7 +7,7 @@
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(void *p0);
+/*004f6bf0*/ extern int rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a9588*/ extern undefined g_weapon_6a9588;
 /*006a9728*/ extern undefined4 g_weapon_6a9728[0x1000];
@@ -34,7 +34,7 @@ void flamethrower_load_assets(void)
   slot_end = g_weapon_6a9728;
   do {
     slot = slot_end + -0x1a;
-    clump_or_particles = FUN_004f6bf0(clump);
+    clump_or_particles = rpclump_clone(clump);
     slot_end[-0x12] = clump_or_particles;
     atomic_count = clump_get_atomics((RpClump *)clump_or_particles,(RpAtomic **)atomics);
     while (atomic_count != 0) {

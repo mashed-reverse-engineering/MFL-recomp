@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*004077d0*/ extern int fx_counters_clear();
 /*0048e720*/ extern undefined __cdecl rwp_object_set_matrix(int p0, RwMatrix *p1);
-/*004c48b0*/ extern void FUN_004c48b0(void *p0, undefined4 p1, undefined4 p2);
+/*004c48b0*/ extern void hanim_keyframes_sample_at_time(void *p0, undefined4 p1, undefined4 p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*00651320*/ extern undefined4 g_fx_651320;
 /*00651aa0*/ extern undefined4 g_fx_object_count;
@@ -60,7 +60,7 @@ void fx_objects_reset(void)
       /* entries with a handle at [-1] get their matrix refreshed (inferred) */
       /* entries with a handle at [-1] get their matrix refreshed (inferred) */
       if (entry[-1] != 0) {
-        FUN_004c48b0(&transform,entry[-1],0);
+        hanim_keyframes_sample_at_time(&transform,entry[-1],0);
         RwFrameTransform(*(RwFrame **)(entry[-0x30] + 4),&transform,rwCOMBINEREPLACE);
         rwp_object_set_matrix(entry[-0x23],&transform);
       }

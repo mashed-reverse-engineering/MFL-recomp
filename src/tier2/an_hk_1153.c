@@ -3,7 +3,7 @@
 /*005be7d0*/ extern int __cdecl FUN_005be7d0(int a1, void *a2);
 /*005be810*/ extern int __cdecl FUN_005be810(int a1, void *a2);
 /*005beec0*/ extern int __cdecl FUN_005beec0(void *a1);
-/*005bef40*/ extern int __cdecl FUN_005bef40(int a1, int a2, int a3, int a4, void *a5, int a6);
+/*005bef40*/ extern int __cdecl block_pool_create(int a1, int a2, int a3, int a4, void *a5, int a6);
 /*005dd5a2*/ extern undefined g_game_5dd5a2;
 /*005f765c*/ extern undefined g_data_5f765c;
 /*007dab98*/ extern undefined g_data_7dab98;
@@ -25,7 +25,7 @@ undefined4 gap_5b8120(void)
   g_data_7dabbc = (char *)(&g_data_7dabbc);
   g_data_7dabc0 = (char *)(&g_data_7dabbc);
   g_data_7dabf0 = 1;
-  iVar1 = FUN_005bef40(0x24,8,4,0,&g_data_7dab98,0x40808);
+  iVar1 = block_pool_create(0x24,8,4,0,&g_data_7dab98,0x40808);
   if (iVar1 != 0) {
     iVar1 = FUN_005b7ef0(&g_data_7dabc4);
     g_data_7dabf8 = iVar1;

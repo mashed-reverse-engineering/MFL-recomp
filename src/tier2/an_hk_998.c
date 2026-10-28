@@ -6,7 +6,7 @@ extern struct TrailSlot g_trails[6];
 /*00475730*/ extern int get_viewport_camera();
 /*00484770*/ extern double distance_between_points();
 /*0048e3d0*/ extern int rwp_object_get_user_data();
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c42f0*/ extern void rwframe_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005dd33c*/ extern float k_f_4;
@@ -109,7 +109,7 @@ void trail_render(void)
           view_dist = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
           frame_obj.rot_sin = (float)view_dist;
           RwFrameTranslate(frame,(RwV3d *)start_pos,rwCOMBINEREPLACE);
-          FUN_004c42f0((undefined4)frame,(undefined4)end_pos,(undefined4)&frame_obj.rot_cos);
+          rwframe_look_at((undefined4)frame,(undefined4)end_pos,(undefined4)&frame_obj.rot_cos);
           RwFrameScale(frame,&frame_obj.scale,rwCOMBINEPRECONCAT);
         }
         else {

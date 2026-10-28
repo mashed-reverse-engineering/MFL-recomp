@@ -8,7 +8,7 @@
 /*0047b520*/ extern void __cdecl car_current_matrix(RwMatrix **out, int car);
 /*004757a0*/ extern RwMatrix * __cdecl get_viewport_camera_matrix(int viewport);
 /*004c4050*/ extern int * __cdecl FUN_004c4050(void *object);
-/*004c42f0*/ extern void __cdecl FUN_004c42f0(void *frame, float *a, float *b);
+/*004c42f0*/ extern void __cdecl rwframe_look_at(void *frame, float *a, float *b);
 /*004d1500*/ extern void * __cdecl RwFrameScale(void *frame, float *scale, int combine);
 /*004d15a0*/ extern void * __cdecl RwFrameTransform(void *frame, RwMatrix *matrix, int combine);
 /*004d1460*/ extern void * __cdecl RwFrameTranslate(void *frame, float *translation, int combine);
@@ -180,7 +180,7 @@ void cup_scene_update_players(void)
       frame.t.middle[2] = float_barrier(frame.second_point[2] + frame.first_point[2]) * k_f_0_5;      /* the z sum is rounded to float before the halving */
       object_frame = g_cup_64d880->panel_object[i]->frame;
       RwFrameTranslate(object_frame, frame.t.middle, COMBINE_REPLACE);
-      FUN_004c42f0(object_frame, frame.first_point, g_car_62ac74);
+      rwframe_look_at(object_frame, frame.first_point, g_car_62ac74);
       RwFrameTransform(object_frame, matrix, COMBINE_POSTCONCAT);
       RwFrameScale(object_frame, frame.scale, COMBINE_PRECONCAT);
       record = FUN_004c4050(g_cup_64d880->panel_object[i]);

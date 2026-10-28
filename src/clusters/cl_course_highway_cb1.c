@@ -7,7 +7,7 @@
 /*00454150*/ extern void course_highway_cb1_sub_454150(void *matrix);
 /*00453bf0*/ extern void course_highway_cb1_sub_453bf0(void);
 /*00453d00*/ extern void course_highway_cb1_sub_453d00(void *matrix);
-/*004c6600*/ extern void __cdecl FUN_004c6600(void *bits, int count);
+/*004c6600*/ extern void __cdecl bitset_clear_first_n(void *bits, int count);
 /*004c45e0*/ extern double __cdecl rp_random_float_range(float low, float high);
 /*004d5410*/ extern float _rwSqrt(float x);
 /*0040fdc0*/ extern int race_get_phase(void);
@@ -177,7 +177,7 @@ void course_highway_cb1(char *world)
       SUB_00459f70_r(car);
     }
   }
-  FUN_004c6600(g_course_highway_active_bits, HIGHWAY_CARS);
+  bitset_clear_first_n(g_course_highway_active_bits, HIGHWAY_CARS);
 
   for (car = &g_course_highway_cars[0]; car < &g_course_highway_cars[HIGHWAY_CARS]; car++) {
     frame.distance = 0.0f;

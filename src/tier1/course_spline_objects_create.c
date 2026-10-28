@@ -2,7 +2,7 @@
 /*00457070*/ extern undefined __cdecl spline_object_init(undefined4 *p0, struct RpSpline *p1, void *p2, undefined4 p3, int p4);
 /*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
-/*004f6bf0*/ extern void * FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern void * rpclump_clone(undefined4 p0);
 /*0060d8fc*/ extern undefined4 g_course_spline_60d8fc;
 /*008c5500*/ extern undefined g_course_spline_8c5500;
 #define SPLINE_OBJECT_COUNT (3)
@@ -28,7 +28,7 @@ void course_spline_objects_create(char *game_state)
   spline_index = 0;
   spline_object = (undefined4 *)&g_course_spline_8c5500;
   do {
-    clump = (RpClump *)FUN_004f6bf0(*(undefined4 *)(game_state + WORLD_RECORD_C118_OFFSET));
+    clump = (RpClump *)rpclump_clone(*(undefined4 *)(game_state + WORLD_RECORD_C118_OFFSET));
     clump_world = clump_get_world(clump);
     if (clump_world == 0) {
       RpWorldAddClump(*(RpWorld **)(game_state + STATE_WORLD_OFFSET),clump);

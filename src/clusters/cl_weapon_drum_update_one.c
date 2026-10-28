@@ -12,7 +12,7 @@
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*004c4720*/ extern void FUN_004c4720(void *out, void *a, void *b, unsigned int hit_word);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -153,7 +153,7 @@ void weapon_drum_update_one(undefined4 *drum)
           np.x = hit.nx * k_f_0_05 + np.x;
           np.y = hit.ny * k_f_0_05 + np.y;
           np.z = hit.nz * k_f_0_05 + np.z;
-          FUN_004c51a0(&particle_mtx,hit.bc,&np);
+          rwmatrix_from_three_points(&particle_mtx,hit.bc,&np);
           effect_sprite_spawn(1,&particle_mtx,&particle_colour,0x40000000,0x40000000);
           effect_sprite_spawn(0,&particle_mtx,&particle_colour,0x40400000,0x40000000);
           scale_vec.y = 2.0;

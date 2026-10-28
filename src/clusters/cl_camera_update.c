@@ -35,7 +35,7 @@ typedef int CourseId;
 /*00481fd0*/ extern double random_range(float lo, float hi);
 /*004b2b48*/ extern int _ftol();
 /*004b3284*/ extern double crt_acos_body(double p0);
-/*004c4460*/ extern void FUN_004c4460(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c4460*/ extern void rwmatrix_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -109,7 +109,7 @@ extern double atan(double);
    operands */
 
 /* NAMING NOTE: this function is compiled without global optimization, so the stack frame layout (hence the object code) depends on the local variable NAMES. The odd suffixes / prefixes (this_target_x, eye_z6, a_look_z ...) were searched so that the object stays identical; only change a local name together with a readable_vs_head.py run. Legend: target_* = look-at point of the focus pair, eye_* = camera position, look_* = smoothed look-at, zoom = 0..10 spread factor, focus_a/focus_b = the two followed cars, vec_* = scratch vectors, tmp_f/tmp_g = scratch floats. */
-/* Legend for the locals that keep the decompiler names (renaming them changes the stack layout and was tried: no name variant of local_f8 / local_f4 / local_d8 / local_114 / iVar3 keeps the object identical): local_f8 / local_f4 = eye x / y (eye_z6 is z); local_d8 = horizontal follow distance * 0.8 (copied to follow_dist_raw_e); local_114 = viewport camera of viewport 0; the ground ray of the trigger cast: cam.local_12c / local_128 / local_124 = ray start (camera position), cam.local_120 = ray direction (unit, y from the camera tilt), local_19c = ray end (start + direction * cast_len_f), local_18c / local_188 = ray start y / z copies (ray_start_x_x is x), local_184 / local_180 / local_17c = copy of the ray end; local_178 / local_174 / local_170 = axis vector (g_car_62ac68..70 or a computed one) passed to FUN_004c4460; iVar3 = scratch int for call results. */
+/* Legend for the locals that keep the decompiler names (renaming them changes the stack layout and was tried: no name variant of local_f8 / local_f4 / local_d8 / local_114 / iVar3 keeps the object identical): local_f8 / local_f4 = eye x / y (eye_z6 is z); local_d8 = horizontal follow distance * 0.8 (copied to follow_dist_raw_e); local_114 = viewport camera of viewport 0; the ground ray of the trigger cast: cam.local_12c / local_128 / local_124 = ray start (camera position), cam.local_120 = ray direction (unit, y from the camera tilt), local_19c = ray end (start + direction * cast_len_f), local_18c / local_188 = ray start y / z copies (ray_start_x_x is x), local_184 / local_180 / local_17c = copy of the ray end; local_178 / local_174 / local_170 = axis vector (g_car_62ac68..70 or a computed one) passed to rwmatrix_look_at; iVar3 = scratch int for call results. */
 void __cdecl camera_update(int *camera,int force_snap)
 
 {
@@ -257,7 +257,7 @@ void __cdecl camera_update(int *camera,int force_snap)
     local_178 = (float)tmp_x87;
     tmp_x87 = (float10)cos(g_camera_7ef7d8 * k_f_1_0en4);
     local_170 = (float)tmp_x87;
-    FUN_004c4460((undefined4)view_matrix_d,(undefined4)&cam.local_12c,(undefined4)&local_178);
+    rwmatrix_look_at((undefined4)view_matrix_d,(undefined4)&cam.local_12c,(undefined4)&local_178);
     camera[0x16] = 0x3f4ccccd;
     camera_update_view_window(camera);
   }

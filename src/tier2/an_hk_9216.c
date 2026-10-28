@@ -13,7 +13,7 @@
 /*0056b1d0*/ extern void rwp_world_set_bit_5c(int world, void *owner, int v);
 /*0056b220*/ extern void rwp_world_set_bit_60_64(int world, void *owner, int v);
 /*0056b300*/ extern void FUN_0056b300(int world, void *owner);
-/*0056bc20*/ extern void FUN_0056bc20(int body, RwV3d *impulse, void *trigger);
+/*0056bc20*/ extern void rwp_body_add_force_at_point(int body, RwV3d *impulse, void *trigger);
 /*005dd330*/ extern float float_1_0;
 /*005dd374*/ extern float k_f_0_2;
 /*005ddc28*/ extern float k_f_0;
@@ -96,7 +96,7 @@ void explosion_trigger_callback(TrigSphere *trig,TrigOther *other)
             rwp_world_set_bit_5c(*(int *)(owner + 0x24),owner,1);
             body = *(int *)(*(char **)(owner + 0x10) + 4);
             if (body != 0) {
-              FUN_0056bc20(body,&d,trig);
+              rwp_body_add_force_at_point(body,&d,trig);
             }
           }
         }

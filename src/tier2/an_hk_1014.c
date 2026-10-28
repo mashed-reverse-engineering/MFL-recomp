@@ -15,7 +15,7 @@
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
-/*004c51a0*/ extern void FUN_004c51a0(void *p0, undefined4 p1, void *p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, undefined4 p1, void *p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -160,7 +160,7 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
     frame.impact_x = frame.hit_normal_x * k_f_0_05 + frame.impact_x;
     frame.impact_y = frame.hit_normal_y * k_f_0_05 + frame.impact_y;
     frame.impact_z = frame.hit_normal_z * k_f_0_05 + frame.impact_z;
-    FUN_004c51a0(&frame.decal_matrix,(undefined4)frame.hit_buf,&frame.impact_x);
+    rwmatrix_from_three_points(&frame.decal_matrix,(undefined4)frame.hit_buf,&frame.impact_x);
     rand_val = (double)rp_random_float_range(0x3f333333,0x3f800000);
     frame.decal_scale.y = (RwReal)rand_val;
     frame.decal_scale.x = (RwReal)rand_val;

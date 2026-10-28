@@ -9,7 +9,7 @@
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*004c4720*/ extern void FUN_004c4720(float *p0, float *p1, float *p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(undefined4 p0, float *p1, float *p2);
-/*004c51a0*/ extern void FUN_004c51a0(RwMatrix *p0, void *p1, float *p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(RwMatrix *p0, void *p1, float *p2);
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005ddafc*/ extern float k_f_0_05;
 /*005e64a4*/ extern float k_f_0;
@@ -84,8 +84,8 @@ undefined4 weapon_mortar_shell_impact_check_n(int shell)
       frame.impact_x = frame.hit_normal_x * k_f_0_05 + frame.impact_x;
       frame.impact_y = frame.hit_normal_y * k_f_0_05 + frame.impact_y;
       frame.impact_z = frame.hit_normal_z * k_f_0_05 + frame.impact_z;
-      FUN_004c51a0(&frame.decal_matrix,frame.decal_aux,&frame.impact_x);
-      /* decal only when matrix.at.y < cos(150 deg) (floor-like surface in the sign convention of FUN_004c51a0), random size 0.8..1.2 */
+      rwmatrix_from_three_points(&frame.decal_matrix,frame.decal_aux,&frame.impact_x);
+      /* decal only when matrix.at.y < cos(150 deg) (floor-like surface in the sign convention of rwmatrix_from_three_points), random size 0.8..1.2 */
       fl_tmp = (float10)cos((float10)(2.6179938316345215));
       if ((float10)frame.decal_matrix.at.x * k_f_0 +
           (float10)frame.decal_matrix.at.y + (float10)frame.decal_matrix.at.z * k_f_0 < fl_tmp) {

@@ -11,7 +11,7 @@
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*006a5d18*/ extern undefined g_weapon_6a5d18;
 /*006a5d78*/ extern undefined g_weapon_6a5d78[0x1000];
 /*006a5dc8*/ extern undefined4 g_weapon_6a5dc8;
@@ -42,7 +42,7 @@ void flashunit_load_assets(void)
   g_weapon_6a5dc8 = clump_load_by_name("flashunit.dff", 0x0, 0x0);
   unit_cursor = g_weapon_6a5d78;
   do {
-    flash_obj = FUN_004f6bf0(g_weapon_6a5dc8);
+    flash_obj = rpclump_clone(g_weapon_6a5dc8);
     *(undefined4 *)(unit_cursor + 0x10) = flash_obj;
     clump_get_atomics(flash_obj,atomics_and_colour);
     atomic_idx = 0;

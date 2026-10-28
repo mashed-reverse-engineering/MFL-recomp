@@ -4,7 +4,7 @@
 /*00499100*/ extern int fx_spawn_from_matrix_2();
 /*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
-/*004c51a0*/ extern void FUN_004c51a0(void *p0, void *p1, void *p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, void *p1, void *p2);
 /*005dd628*/ extern float k_f_0_25;
 /*005ddafc*/ extern float k_f_0_05;
 /* explosion_decal */
@@ -69,7 +69,7 @@ undefined4 explosion_decal(undefined4 *explosion_pos,undefined4 fx_param)
       frame.decal_pos_y = frame.hit_normal_y * k_f_0_05 + frame.decal_pos_y;
       frame.decal_pos_z = frame.hit_normal_z * k_f_0_05 + frame.decal_pos_z;
       /* build the decal orientation matrix at the lifted position, then spawn it */
-      FUN_004c51a0(frame.decal_matrix,frame.matrix_scratch,&frame.decal_pos_x);
+      rwmatrix_from_three_points(frame.decal_matrix,frame.matrix_scratch,&frame.decal_pos_x);
       fx_spawn_from_matrix_2(frame.decal_matrix,fx_param);
     }
     return 1;

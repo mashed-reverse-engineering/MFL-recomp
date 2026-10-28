@@ -1,7 +1,7 @@
 // cluster-entries: joypad_device_setup
 /* Installed cluster joypad_device_setup (tools/cluster_install.py from output/cluster_pilot_h3/joypad_device_setup.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
-/*004c6600*/ extern void FUN_004c6600(void *p0, int p1);      /* bzero-like: (buffer, byte count) */
+/*004c6600*/ extern void bitset_clear_first_n(void *p0, int p1);      /* bzero-like: (buffer, byte count) */
 /*005dd330*/ extern float float_1_0;
 /*005ddc28*/ extern float k_f_0;
 /*005de1ac*/ extern float k_f_0_125;
@@ -85,7 +85,7 @@ void joypad_device_setup_n(undefined4 *pad)
   pad[0xb2] = 0;
   pad[0xd3] = 0;
   pad[0xd2] = 0;
-  FUN_004c6600(pad + 0x102,0x20);
+  bitset_clear_first_n(pad + 0x102,0x20);
   for (i = 0; i < 16; i++) {
     if (js.buttons[i] < 0) {
       ((byte *)pad)[0x408 + (i >> 3)] |= (byte)(1 << (i & 7));

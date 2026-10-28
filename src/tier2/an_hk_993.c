@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004c6600*/ extern void FUN_004c6600(void *p0, undefined4 p1);
+/*004c6600*/ extern void bitset_clear_first_n(void *p0, undefined4 p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*00770f70*/ extern undefined4 *g_app_770f70;
 /* keyboard_state_to_bits */
@@ -22,7 +22,7 @@ undefined4 __cdecl keyboard_state_to_bits(char *param_1,undefined4 unused_2,unde
   int key;
   char keys[KEY_COUNT];
   
-  FUN_004c6600(param_1,KEY_COUNT);
+  bitset_clear_first_n(param_1,KEY_COUNT);
   mem_zero(keys,KEY_COUNT);
   result = (*(DeviceGetStateMethod *)(*g_app_770f70 + DIDEVICE_VTBL_GETDEVICESTATE))(g_app_770f70,KEY_COUNT,keys);
   if ((-1 < result) ||

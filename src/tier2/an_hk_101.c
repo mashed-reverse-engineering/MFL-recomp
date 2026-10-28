@@ -5,7 +5,7 @@
 /*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 #define RW_MATRIX_WORDS (0x10)
-/* FUN_004c42f0 */
+/* rwframe_look_at */
 
 /*
  * Re-aims a frame so its local +Z ("at") axis points at target_pos, keeping the
@@ -18,7 +18,7 @@
  *   world_up   - up hint, float[3] (inferred)
  * Returns nothing.
  */
-void FUN_004c42f0(RwFrame *frame,float *target_pos,float *world_up)
+void rwframe_look_at(RwFrame *frame,float *target_pos,float *world_up)
 
 {
   RwMatrix *src;

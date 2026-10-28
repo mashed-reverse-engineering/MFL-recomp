@@ -2,7 +2,7 @@
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*0060d718*/ extern undefined g_course_60d718;
 /*0060d730*/ extern undefined4 g_course_60d730;
 /*008c5920*/ extern undefined4 g_camera_8c5920;
@@ -15,7 +15,7 @@
  * Creates the course camera for a world record.
  * world_record: the record; its clump pointer (inferred) is at WORLD_RECORD_CLUMP_C11C_OFFSET.
  * Stores that camera in g_camera_8c5920, resets its frame to identity, and creates
- * the second camera g_course_8c5924 from it (FUN_004f6bf0, inferred).
+ * the second camera g_course_8c5924 from it (rpclump_clone, inferred).
  * Returns nothing.
  */
 void camera_create_a(char *world_record)
@@ -31,7 +31,7 @@ void camera_create_a(char *world_record)
   up_axis.z = 0.0;
   g_camera_8c5920 = *(int *)(world_record + WORLD_RECORD_CLUMP_C11C_OFFSET);
   RwFrameSetIdentity(*(RwFrame **)(g_camera_8c5920 + CAMERA_FRAME_OFFSET));
-  g_course_8c5924 = FUN_004f6bf0(g_camera_8c5920);
+  g_course_8c5924 = rpclump_clone(g_camera_8c5920);
   translation = (RwV3d *)&g_course_60d718;
   slot_offset = 0;
   /* for each of the two cameras (slot_offset 0 and 4, inferred): reset its frame,

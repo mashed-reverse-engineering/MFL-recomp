@@ -7,7 +7,7 @@
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
-/*004f6bf0*/ extern int FUN_004f6bf0(void *p0);
+/*004f6bf0*/ extern int rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a29cc*/ extern undefined4 g_weapon_6a29cc;
 /*006a2a6c*/ extern undefined4 g_mortar_load_6a2a6c;
@@ -45,7 +45,7 @@ void mortar_load_assets(void)
   slot = &g_weapon_6a29cc;
   /* One pass per weapon slot: clone the mortar clump, clear the slot fields, and set up its atomics (inferred). */
   do {
-    weapon_clump = (RpClump *)FUN_004f6bf0(mortar_clump);
+    weapon_clump = (RpClump *)rpclump_clone(mortar_clump);
     last_result = 0;
     *slot = weapon_clump;
     slot[-3] = 0;
@@ -75,7 +75,7 @@ void mortar_load_assets(void)
   slot = &g_mortar_load_6a2a6c;
   /* One pass per explosion queue entry: clone the round clump and start a smoke particle system with blend modes (inferred). */
   do {
-    last_result = FUN_004f6bf0(mortar_round_clump);
+    last_result = rpclump_clone(mortar_round_clump);
     slot[1] = last_result;
     slot[-0x10] = 0;
     *slot = 0;

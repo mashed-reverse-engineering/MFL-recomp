@@ -8,7 +8,7 @@
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(void *p0);
+/*004f6bf0*/ extern int rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a6090*/ extern char *g_weapon_rocket_6a6090;
 /*006a60a0*/ extern char *g_weapon_rocket_6a60a0;
@@ -31,7 +31,7 @@
  * "flash" texture, then fills the global gun slot tables.  Takes no parameters
  * and returns nothing.
  * For each gun slot (GATLING_GUN_STRIDE apart, from GATLING_GUN_START_OFFSET
- * down to 0) it takes a clump from FUN_004f6bf0 (inferred: clone of the gun
+ * down to 0) it takes a clump from rpclump_clone (inferred: clone of the gun
  * clump), stores it, walks its atomics and stores each atomic in the slot
  * picked by its part id, then sets the clump's atomic flags and scales the
  * frame of one slot by (2, 2, 4).  The loaded clump is destroyed at the end. */
@@ -64,7 +64,7 @@ void gatling_load_models(void)
   do {
     next_gun_offset = gun_offset + -GATLING_GUN_STRIDE;
     *(undefined4 *)((char *)&g_weapon_rocket_6a60a0 + gun_offset) = 0;
-    uVar2 = FUN_004f6bf0(clump);
+    uVar2 = rpclump_clone(clump);
     *(undefined4 *)((char *)&g_weapon_rocket_6a6090 + gun_offset) = uVar2;
     atomics_left = clump_get_atomics(uVar2,buf.atomics);
     /* Visit the clump's atomics from last to first. */

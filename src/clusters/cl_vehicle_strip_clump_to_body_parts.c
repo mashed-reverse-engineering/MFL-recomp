@@ -6,7 +6,7 @@
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004f6100*/ extern void _rpAtomicResyncInterpolatedSphere(struct RpAtomic *p0);
 /*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*004f70f0*/ extern struct RpClump * RpClumpRemoveAtomic(struct RpClump *p0, struct RpAtomic *p1);
 /* vehicle_strip_clump_to_body_parts */
@@ -26,7 +26,7 @@ void vehicle_strip_clump_to_body_parts_n(VehicleRecord *vehicle_record)
     undefined4 atomics [128];
   } frame_obj;
   
-  clump = (RpClump *)FUN_004f6bf0(vehicle_record->frame);
+  clump = (RpClump *)rpclump_clone(vehicle_record->frame);
   atomic_count = clump_get_atomics(clump,frame_obj.atomics);
   i = 0;
   if (0 < atomic_count) {

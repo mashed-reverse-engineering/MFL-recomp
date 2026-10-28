@@ -6,7 +6,7 @@
 /*00467fd0*/ extern int __cdecl course_surface_id_is_active_check(undefined4 p0);
 /*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
@@ -102,7 +102,7 @@ void weapon_mine_drop_n(int mine_pool)
       mine->position[1] = frame.mine_y;
       mine->position[2] = frame.mine_z;
       mine->radius = 0.125;
-      FUN_004c51a0(&frame.mine_matrix,frame.hit_aux,&frame.mine_x);
+      rwmatrix_from_three_points(&frame.mine_matrix,frame.hit_aux,&frame.mine_x);
       mine->matrix = frame.mine_matrix;
       RwMatrixRotate(&frame.mine_matrix,&frame.rot_axis,-90.0,rwCOMBINEPRECONCAT);
       RwFrameTransform(*(RwFrame **)((char *)mine->clump + 4),&frame.mine_matrix,rwCOMBINEREPLACE);

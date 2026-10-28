@@ -10,7 +10,7 @@ extern __declspec(dllimport) int __stdcall SendMessageA(void *window, unsigned i
 /*004a5130*/ extern void joypads_release_all(void);
 /*004a5250*/ extern int __cdecl keyboard_state_to_bits(unsigned char *key_bits);
 /*004a9390*/ extern void * app_get_app_7e7700(void);
-/*004c6600*/ extern void __cdecl FUN_004c6600(void *bits, int bit_count);      /* clears the first bit_count bits of a bit set */
+/*004c6600*/ extern void __cdecl bitset_clear_first_n(void *bits, int bit_count);      /* clears the first bit_count bits of a bit set */
 /*0050b5e0*/ extern void nop_stub(void);
 /*0062c588*/ extern unsigned int g_controller_dialog_62c588[];              /* pad button -> low word: bitmap resource id */
 /*007711a0*/ extern int g_controller_dialog_7711a0;                          /* controller being edited */
@@ -80,7 +80,7 @@ void controller_dialog_start_key_capture_cb_4a7310_n(void *dialog, unsigned int 
       }
     }
   } else if (cfg->device == CONTROLLER_DEVICE_KEYBOARD) {
-    FUN_004c6600(key_bits, KEYBOARD_KEY_COUNT);
+    bitset_clear_first_n(key_bits, KEYBOARD_KEY_COUNT);
     if (keyboard_state_to_bits(key_bits) != 0) {
       for (index = 0; index < KEYBOARD_KEY_COUNT; index++) {
         if ((key_bits[index >> 3] & (1 << (index & 7))) != 0) {

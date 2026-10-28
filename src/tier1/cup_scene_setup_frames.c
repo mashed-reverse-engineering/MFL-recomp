@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042d9e0*/ extern double hud_get_8c8798(void);
-/*004c42f0*/ extern void FUN_004c42f0(void *p0, void *p1, void *p2);
+/*004c42f0*/ extern void rwframe_look_at(void *p0, void *p1, void *p2);
 /*004d0f70*/ extern struct RwFrame * RwFrameUpdateObjects(struct RwFrame *p0);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -56,5 +56,5 @@ void cup_scene_setup_frames(void)
   pos2.z = pos2.z - k_f_1_7;
   RwFrameTranslate(frame2, &pos2, rwCOMBINEREPLACE);
   RwFrameTransform(frame2, parent, rwCOMBINEPOSTCONCAT);
-  FUN_004c42f0(frame2, &RwFrame_modelling(frame).pos, &g_car_62ac74);
+  rwframe_look_at(frame2, &RwFrame_modelling(frame).pos, &g_car_62ac74);
 }

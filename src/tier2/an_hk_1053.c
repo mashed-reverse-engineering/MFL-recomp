@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004068f0*/ extern int __cdecl clump_for_all_atomics_cb_4068a0(struct RpClump *p0, void *p1);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*006a26cc*/ extern undefined4 g_course_clumps_6a26cc;
 /*006a26d0*/ extern undefined4 g_course_clumps_6a26d0;
 /*006a26d4*/ extern undefined4 g_course_clumps_6a26d4;
@@ -15,12 +15,12 @@
 void course_helper_45b670(char *course_state)
 
 {
-  g_course_clumps_6a26cc = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
-  g_course_clumps_6a26d0 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
-  g_course_clumps_6a26d4 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
-  g_course_clumps_6a272c = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
-  g_course_clumps_6a2730 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
-  g_course_clumps_6a2734 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26cc = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26d0 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26d4 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a272c = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a2730 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a2734 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
   clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc158),*(void **)(course_state + 0xc9d0));
   clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc15c),*(void **)(course_state + 0xc9d0));
   clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc160),*(void **)(course_state + 0xc9d0));

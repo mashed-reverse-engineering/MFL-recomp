@@ -2,14 +2,14 @@
 /*00467ea0*/ extern char *weapon_get_rw_801b14();
 /*004c4720*/ extern void FUN_004c4720(void *p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, void *p1, void *p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, void *p1, void *p2);
 /* byte offset of the second RwV3d (direction, inferred) inside the weapon block at weapon_pos */
 #define WEAPON_DIR_OFFSET (0xc)
 /* rocket_hit_spawn_particle */
 /* Spawns one particle where a weapon shot hits the world.
  * Traces a line from weapon_pos (pointer to the weapon position vector, inferred) against the
  * world returned by weapon_get_rw_801b14(). On a hit, the impact point (from FUN_004c4720) is
- * moved k_f_0_05 (0.05 per the old comment, float bits unchecked) off the surface along the hit normal, and FUN_004c51a0 spawns the
+ * moved k_f_0_05 (0.05 per the old comment, float bits unchecked) off the surface along the hit normal, and rwmatrix_from_three_points spawns the
  * particle on particle_system (inferred). unused_arg_3 and unused_arg_4 are not used.
  * Returns 1 if a particle was spawned, 0 if there was no hit or an argument was NULL.
  * (was: "particle at the weapon position along the rw_801b14 direction *0.05")
@@ -43,7 +43,7 @@ undefined4 __cdecl rocket_hit_spawn_particle(int particle_system,int weapon_pos,
       frame.spawn_pos_x = frame.hit_normal_x * 0.05f + frame.spawn_pos_x;
       frame.spawn_pos_y = frame.hit_normal_y * 0.05f + frame.spawn_pos_y;
       frame.spawn_pos_z = frame.hit_normal_z * 0.05f + frame.spawn_pos_z;
-      FUN_004c51a0(particle_system,frame.particle_params,&frame.spawn_pos_x);
+      rwmatrix_from_three_points(particle_system,frame.particle_params,&frame.spawn_pos_x);
       return 1;
     }
   }

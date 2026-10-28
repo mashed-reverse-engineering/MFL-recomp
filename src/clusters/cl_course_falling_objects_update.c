@@ -10,7 +10,7 @@ typedef signed char sbyte;
 /*00496850*/ extern int trigger_sphere_register(float *param_1);
 /*004980c0*/ extern int fx_trail_particle_spawn_interpolated();
 /*0049a850*/ extern int fx_dust_add();
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c42f0*/ extern void rwframe_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -152,7 +152,7 @@ void course_falling_objects_update(void)
               dy_cam = cam_pos[1] - RwFrame_modelling(frame).pos.y;
               dz_cam = cam_pos[2] - RwFrame_modelling(frame).pos.z;
               if (float_5_0 < dz_cam * dz_cam + age_or_dx * age_or_dx + dy_cam * dy_cam) {
-                FUN_004c42f0((undefined4)frame,(undefined4)cam_pos,(undefined4)&g_car_62ac74);
+                rwframe_look_at((undefined4)frame,(undefined4)cam_pos,(undefined4)&g_car_62ac74);
                 random_int = random_int_range(0,0x19);
                 frame_obj.burst_r = frame_obj.burst_r - random_int;
                 random_int = random_int_range(0,0x19);

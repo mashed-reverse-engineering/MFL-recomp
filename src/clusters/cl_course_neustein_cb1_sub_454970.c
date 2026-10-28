@@ -9,7 +9,7 @@
 /*0048e6f0*/ extern int __cdecl rwp_object_get_matrix(int handle);
 /*0048e720*/ extern void __cdecl rwp_object_set_matrix(int handle, RwMatrix *matrix);
 /*004548b0*/ extern void __cdecl course_neustein_cb1_sub_4548b0(float a, float b);
-/*004c48b0*/ extern void __cdecl FUN_004c48b0(RwMatrix *out, void *path, float time);
+/*004c48b0*/ extern void __cdecl hanim_keyframes_sample_at_time(RwMatrix *out, void *path, float time);
 /*0056b1d0*/ extern void __cdecl FUN_0056b1d0(int world, int owner, int enable);
 /*0058c8a0*/ extern int __cdecl FUN_0058c8a0(int handle);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -37,7 +37,7 @@ typedef struct NeusteinHull {
   int body_a;       /* +0x00 rwp body ids, resolved with FUN_0058c8a0 */
   int body_b;       /* +0x04 */
   int unused_8;
-  void *path;       /* +0x0c motion path (duration at +0x0c, evaluated by FUN_004c48b0) */
+  void *path;       /* +0x0c motion path (duration at +0x0c, evaluated by hanim_keyframes_sample_at_time) */
   int object_a;     /* +0x10 rwp object handles that follow the path */
   int object_b;     /* +0x14 */
   float time;       /* +0x18 position on the path */
@@ -133,12 +133,12 @@ void course_neustein_cb1_sub_454970(void)
     frame_b = *(int **)(*(int *)(body_b_owner + 0x10) + 4);
     if (*(float *)((char *)hull->path + 0xc) <= hull->time) {
       hull->time = 0.0f;
-      FUN_004c48b0(&path_matrix, hull->path, 0.0f);
+      hanim_keyframes_sample_at_time(&path_matrix, hull->path, 0.0f);
       rwp_object_set_matrix(hull->object_b, &path_matrix);
       RwMatrixTranslate(&path_matrix, (RwV3d *)&g_course_60d8b0, rwCOMBINEPOSTCONCAT);
       rwp_object_set_matrix(hull->object_a, &path_matrix);
     }
-    FUN_004c48b0(&path_matrix, hull->path, hull->time);
+    hanim_keyframes_sample_at_time(&path_matrix, hull->path, hull->time);
     RwMatrixTranslate(&path_matrix, &lift, rwCOMBINEPOSTCONCAT);
     obj_matrix = rwp_object_get_matrix(hull->object_b);
     dx = path_matrix.pos.x - *(float *)(obj_matrix + 0x30);

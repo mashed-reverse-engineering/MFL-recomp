@@ -3,7 +3,7 @@
 /*004a5550*/ extern int log_printf();
 /*004a8580*/ extern int video_cfg_path();
 /*004b4358*/ extern int __cdecl _fclose(FILE *p0);
-/*004b4531*/ extern char *FUN_004b4531(undefined4 p0, void *p1);
+/*004b4531*/ extern char *crt_fopen_body(undefined4 p0, void *p1);
 /*004b49bf*/ extern size_t __cdecl _fread(void *p0, size_t p1, size_t p2, FILE *p3);
 /*005e0450*/ extern undefined g_piz_5e0450;
 /*007712f8*/ extern struct VideoCfg g_video_cfg;
@@ -20,8 +20,8 @@ undefined4 video_cfg_load(void)
 
   cfg_path = video_cfg_path();
   log_printf("Loading video cfg from %s\n",cfg_path);
-  /* open the file (FUN_004b4531 is the open call, inferred; g_piz_5e0450 is its mode string) */
-  cfg_file = (FILE *)FUN_004b4531(cfg_path,&g_piz_5e0450);
+  /* open the file (crt_fopen_body is the open call, inferred; g_piz_5e0450 is its mode string) */
+  cfg_file = (FILE *)crt_fopen_body(cfg_path,&g_piz_5e0450);
   if (cfg_file != (FILE *)0x0) {
     /* read the whole config struct, then close the file */
     _fread(&g_video_cfg,1,VIDEO_CFG_FILE_SIZE,cfg_file);

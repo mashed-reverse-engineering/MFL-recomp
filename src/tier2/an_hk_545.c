@@ -6,7 +6,7 @@ extern char PTR_g_data_6c696f_005df7f0[];
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
-/*004f6bf0*/ extern void * FUN_004f6bf0(void *p0);
+/*004f6bf0*/ extern void * rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a7c38*/ extern undefined g_weapon_6a7c38;
 /*006a7c84*/ extern undefined4 g_weapon_6a7c84;
@@ -53,7 +53,7 @@ void oil_load_assets(void)
   slot_ptr = &g_weapon_6a7c84;
   /* per weapon slot: spawn an oilslicker instance, store it in the slot, set up its shine */
   do {
-    slot_clump = (RpClump *)FUN_004f6bf0(oilslicker_clump);
+    slot_clump = (RpClump *)rpclump_clone(oilslicker_clump);
     *slot_ptr = slot_clump;
     load_shine_texture(slot_clump,SHINE_ARG_0_4F,0);
     weapon_fx_slot_clear_c_r(slot_ptr + -3);

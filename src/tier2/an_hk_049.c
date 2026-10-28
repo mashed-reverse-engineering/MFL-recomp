@@ -6,7 +6,7 @@ typedef int WeaponId;
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
 /*0056b300*/ extern void FUN_0056b300(undefined4 p0, void *p1);
-/*0056bc20*/ extern void FUN_0056bc20(undefined4 p0, void *p1, void *p2);
+/*0056bc20*/ extern void rwp_body_add_force_at_point(undefined4 p0, void *p1, void *p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*005ddea0*/ extern float k_f_20;
 /*005de83c*/ extern float k_f_n20;
@@ -40,7 +40,7 @@ void __cdecl car_apply_throttle_force(int car_index)
   char contact_count;
   RwMatrix *car_matrix;
   PlayerInput *controller_input;
-  RwV3d car_pos;   /* two 12 byte vectors in one object each: FUN_0056bc20 reads 3 floats through each pointer */
+  RwV3d car_pos;   /* two 12 byte vectors in one object each: rwp_body_add_force_at_point reads 3 floats through each pointer */
   RwV3d drive_force;
   
   /* controller_index: PlayerInput index bound to this car's slot (-1 = no player) */
@@ -73,7 +73,7 @@ void __cdecl car_apply_throttle_force(int car_index)
     rwp_world_set_bit_5c(*(undefined4 *)(car_active + 0x24),car_active,1);
   }
   car_current_matrix(&car_matrix,car_index);
-  /* reused as the body handle of the physics object (inferred), passed to FUN_0056bc20 as its first argument */
+  /* reused as the body handle of the physics object (inferred), passed to rwp_body_add_force_at_point as its first argument */
   controller_index = *(int *)(*(char **)(car_active + 0x10) + 4);
   /* only apply the force while the car is active and a wheel touches the ground */
   if (((controller_index != 0) && (car_active = car_is_active(car_index), car_active != 0)) && (contact_count != '\0')) {
@@ -85,7 +85,7 @@ void __cdecl car_apply_throttle_force(int car_index)
       car_pos.z = (car_matrix->pos).z;
       drive_force.y = player_car[car_index].forward[1] * k_f_20;
       drive_force.z = player_car[car_index].forward[2] * k_f_20;
-      FUN_0056bc20(controller_index,&drive_force,&car_pos);
+      rwp_body_add_force_at_point(controller_index,&drive_force,&car_pos);
     }
     /* brake: k_f_n20 (-20) along the forward vector */
     if (player_input->brake != 0) {
@@ -95,7 +95,7 @@ void __cdecl car_apply_throttle_force(int car_index)
       car_pos.z = (car_matrix->pos).z;
       drive_force.y = player_car[car_index].forward[1] * k_f_n20;
       drive_force.z = player_car[car_index].forward[2] * k_f_n20;
-      FUN_0056bc20(controller_index,&drive_force,&car_pos);
+      rwp_body_add_force_at_point(controller_index,&drive_force,&car_pos);
     }
   }
   return;

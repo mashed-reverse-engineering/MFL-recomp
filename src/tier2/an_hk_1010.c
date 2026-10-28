@@ -5,8 +5,8 @@
 /*004757a0*/ extern char *get_viewport_camera_matrix();
 /*0047b520*/ extern int car_current_matrix();
 /*00485350*/ extern undefined __cdecl matrix_interpolate_rotation_translation(void *p0, void *p1, void *p2, undefined4 p3, undefined4 p4);
-/*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, void *p1, void *p2);
-/*004c4460*/ extern void FUN_004c4460(void *p0, void *p1, void *p2);
+/*004c42f0*/ extern void rwframe_look_at(undefined4 p0, void *p1, void *p2);
+/*004c4460*/ extern void rwmatrix_look_at(void *p0, void *p1, void *p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -99,7 +99,7 @@ void cup_scene_update_object(float blend,int car_index)
     frame.car_pos_y = frame.car_mtx[5] * k_f_0_4 + frame.car_pos_y;
     frame.car_pos_z = frame.car_mtx[6] * k_f_0_4 + frame.car_pos_z;
     RwMatrixTransform(&frame.look_mtx,cam_mtx,rwCOMBINEREPLACE);
-    FUN_004c4460(&frame.look_mtx,&frame.car_pos_x,frame.car_mtx + 4);
+    rwmatrix_look_at(&frame.look_mtx,&frame.car_pos_x,frame.car_mtx + 4);
     frame.look_mtx.pos.x = frame.target_pos.x;
     frame.look_mtx.pos.y = frame.target_pos.y;
     frame.look_mtx.pos.z = frame.target_pos.z;
@@ -135,7 +135,7 @@ void cup_scene_update_object(float blend,int car_index)
     RwFrameTranslate((struct RwFrame *)g_cup_64cbd8,(struct RwV3d *)&frame.target_pos,rwCOMBINEREPLACE);
     car_vel_ptr = (undefined *)&g_car_62ac74;
     cam_mtx = RwFrameGetLTM((struct RwFrame *)g_cup_64cbd4);
-    FUN_004c42f0(g_cup_64cbd8,&cam_mtx->pos,car_vel_ptr);
+    rwframe_look_at(g_cup_64cbd8,&cam_mtx->pos,car_vel_ptr);
   }
   return;
 }

@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*005be600*/ extern int __cdecl FUN_005be600(int a1, void *a2);
+/*005be600*/ extern int __cdecl guid_compare(int a1, void *a2);
 /*005f7914*/ extern undefined g_data_5f7914;
 /*005f7924*/ extern undefined g_data_5f7924;
 /*005f7934*/ extern undefined g_data_5f7934;
@@ -14,7 +14,7 @@
  * Returns a per-stream size value for the stream's format (inferred: the
  * MP3 frame length in bytes on the frame-size path).
  *   stream: uint array. [0] = sample rate, [1] = format handle passed to
- *           FUN_005be600, [3] = byte whose top 5 bits are used (inferred
+ *           guid_compare, [3] = byte whose top 5 bits are used (inferred
  *           sample-size field), [4] = pointer to bitrate (NULL = default).
  *   returns: the size for the matched format; 0 on the tag 5f7974 path, and
  *           4 or 36 (inferred header sizes) when no earlier tag matches.
@@ -26,29 +26,29 @@ uint FUN_005bcc50(uint *stream)
   uint sample_rate;
 
   /* tag 5f7924: size from byte 3 */
-  match = FUN_005be600(stream[1],&g_data_5f7924);
+  match = guid_compare(stream[1],&g_data_5f7924);
   if (match == 0) {
     return (uint)(byte)((byte)stream[3] >> 3);
   }
   /* tags 5f7914 / 5f7934 / 5f7944: fixed sizes */
-  match = FUN_005be600(stream[1],&g_data_5f7914);
+  match = guid_compare(stream[1],&g_data_5f7914);
   if (match == 0) {
     return 0x10;
   }
-  match = FUN_005be600(stream[1],&g_data_5f7934);
+  match = guid_compare(stream[1],&g_data_5f7934);
   if (match == 0) {
     return 4;
   }
-  match = FUN_005be600(stream[1],&g_data_5f7944);
+  match = guid_compare(stream[1],&g_data_5f7944);
   if (match == 0) {
     return 8;
   }
   /* tags 5f7954 and 5f79b4 must both match, and 5f7974 must not, for the frame-size path */
-  match = FUN_005be600(stream[1],&g_data_5f7954);
+  match = guid_compare(stream[1],&g_data_5f7954);
   if (match != 0) {
-    match = FUN_005be600(stream[1],&g_data_5f79b4);
+    match = guid_compare(stream[1],&g_data_5f79b4);
     if (match != 0) {
-      match = FUN_005be600(stream[1],&g_data_5f7974);
+      match = guid_compare(stream[1],&g_data_5f7974);
       if (match == 0) {
         /* frame size = MP3_FRAME_COEF * bitrate / sample rate */
         if ((int *)stream[4] == (int *)0x0) {

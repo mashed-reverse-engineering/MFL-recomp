@@ -4,7 +4,7 @@
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004c6600*/ extern void FUN_004c6600(void *p0, undefined4 p1);
+/*004c6600*/ extern void bitset_clear_first_n(void *p0, undefined4 p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004d1160*/ extern struct RwFrame * RwFrameAddChild(struct RwFrame *p0, struct RwFrame *p1);
 /*004f6ae0*/ extern struct RpAtomic * RpAtomicClone(struct RpAtomic *p0);
@@ -58,7 +58,7 @@ void load_waterfall_fx(void)
   particle_system_setup_ptank((uint *)&g_particles_76be70,0x817,0x80,texture_dict);
   texture_dict = (RwTexture *)find_texture_dict_b("shockwave");
   particle_system_setup_ptank((uint *)&g_particles_76be30,0x80c,0x40,texture_dict);
-  FUN_004c6600(&g_particles_76beb0,0x80);
+  bitset_clear_first_n(&g_particles_76beb0,0x80);
   clump_load_arg2 = 0;
   clump_load_arg1 = 0;
   waterfall_state = &g_load_waterfall_5e097c;

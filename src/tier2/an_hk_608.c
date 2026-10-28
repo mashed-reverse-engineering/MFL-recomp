@@ -11,7 +11,7 @@
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*004f6ae0*/ extern struct RpAtomic * RpAtomicClone(struct RpAtomic *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*005df73c*/ extern undefined g_weapon_drum_5df73c;
 /*0060da34*/ extern undefined g_weapon_drum_60da34;
@@ -60,7 +60,7 @@ void weapon_drum_load_assets(void)
   entry = g_weapon_6a5c60;
   /* One pass per clump entry (4 entries; the loop ends when entry passes the table end). */
   do {
-    clump_or_atomic = FUN_004f6bf0(g_weapon_drum_6a5d14);
+    clump_or_atomic = rpclump_clone(g_weapon_drum_6a5d14);
     *(undefined4 *)(entry + CLUMP_ENTRY_CLUMP_OFFSET) = clump_or_atomic;
     clump_get_atomics(clump_or_atomic,atomics);
     atomic_idx = 0;

@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*005ddafc*/ extern float k_f_0_05;
 /* hudpanel_marker_ray_cast */
 
@@ -41,7 +41,7 @@ undefined4 hudpanel_marker_ray_cast_n(undefined4 *out_matrix, int ray_start, und
     frame.hit_pos_x = frame.hit_normal_x * k_f_0_05 + frame.hit_pos_x;
     frame.hit_pos_y = frame.hit_normal_y * k_f_0_05 + frame.hit_pos_y;
     frame.hit_pos_z = frame.hit_normal_z * k_f_0_05 + frame.hit_pos_z;
-    FUN_004c51a0(frame.out_matrix_buf,frame.hit_unused,&frame.hit_pos_x);
+    rwmatrix_from_three_points(frame.out_matrix_buf,frame.hit_unused,&frame.hit_pos_x);
     if (out_matrix != (undefined4 *)0x0) {
       src_cursor = frame.out_matrix_buf;
       for (hit_or_count = 0x10; hit_or_count != 0; hit_or_count = hit_or_count + -1) {

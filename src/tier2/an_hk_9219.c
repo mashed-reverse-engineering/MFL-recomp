@@ -17,7 +17,7 @@
 /*004d5d90*/ extern struct RwTexture * RwTexDictionaryFindNamedTexture(struct RwTexDictionary *p0, RwChar *p1);
 /*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
 /*004f6100*/ extern void _rpAtomicResyncInterpolatedSphere(struct RpAtomic *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*005dd7e8*/ extern float k_f_60;
 /*006a0770*/ extern undefined4 g_course_arctic_6a0770;
 /*006a0774*/ extern undefined4 g_course_arctic_6a0774;
@@ -78,7 +78,7 @@ void course_arctic_cb0(int course)
   RwFrameSetIdentity(RpClump_object_parent(g_course_arctic_8c5840));
   clump_slot = g_course_arctic_8c5844;
   do {
-    row_or_clump = FUN_004f6bf0((undefined4)g_course_arctic_8c5840);
+    row_or_clump = rpclump_clone((undefined4)g_course_arctic_8c5840);
     *clump_slot = row_or_clump;
     RwFrameSetIdentity(*(RwFrame **)(row_or_clump + 4));
     clump_slot = clump_slot + 1;

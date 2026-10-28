@@ -16,7 +16,7 @@ extern struct FxSlot g_fx_slots[10];
 /*004b2a60*/ extern int sprintf();
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c48b0*/ extern void FUN_004c48b0(void *p0, undefined4 p1, undefined4 p2);
+/*004c48b0*/ extern void hanim_keyframes_sample_at_time(void *p0, undefined4 p1, undefined4 p2);
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*005ddae0*/ extern undefined g_load_copter_5ddae0;
@@ -90,7 +90,7 @@ void __cdecl load_copter_models(char *game_state,char *unused_arg)
       copter_record[0x2c] = 0;
       clump = *(undefined4 *)(game_state + GAME_COPTER_TABLE_OFFSET + copter_record[COPTER_SLOT_WORD] * 4);
       copter_record[0x2d] = clump;
-      FUN_004c48b0(&frame.local_44,clump,0);
+      hanim_keyframes_sample_at_time(&frame.local_44,clump,0);
       rwp_object_set_matrix(copter_record[COPTER_RWP_OBJECT_WORD],&frame.local_44);
       rwp_object_set_enabled(copter_record[COPTER_RWP_OBJECT_WORD],1);
       remaining_atomics = clump_get_atomics(copter_record[COPTER_CLUMP_WORD],frame.local_ac);

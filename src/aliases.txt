@@ -2315,3 +2315,14 @@ rwp_body_create 0058cb90
 rwp_body_destroy 0058cbe0
 rwp_shape_set_property_c 0056ca70
 rwp_shape_set_property_b 0056cac0
+# T-C5 callee names below were inferred from the decompile (behaviour), not from symbols
+rwframe_look_at 004c42f0
+rwmatrix_look_at 004c4460
+rwmatrix_from_three_points 004c51a0
+rpclump_clone 004f6bf0
+block_pool_create 005bef40
+rwp_body_add_force_at_point 0056bc20
+hanim_keyframes_sample_at_time 004c48b0
+bitset_clear_first_n 004c6600
+guid_compare 005be600
+crt_fopen_body 004b4531

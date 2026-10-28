@@ -2,7 +2,7 @@
 /* Installed cluster controller_cfg_load (tools/cluster_install.py from output/cluster_pilot11/controller_cfg_load.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*004a5550*/ extern void log_printf(const char *fmt, ...);
-/*004b4531*/ extern FILE * FUN_004b4531(char *name, void *mode);
+/*004b4531*/ extern FILE * crt_fopen_body(char *name, void *mode);
 /*004b4358*/ extern int __cdecl _fclose(FILE *p0);
 /*004b49bf*/ extern size_t __cdecl _fread(void *p0, size_t p1, size_t p2, FILE *p3);
 /*005e0450*/ extern undefined g_piz_5e0450;
@@ -21,7 +21,7 @@ int controller_cfg_load_n(int in_eax)
   
   cfg_path = controller_cfg_path_r(in_eax);
   log_printf("Attempting to load controller config %s\n",cfg_path);
-  file = FUN_004b4531(cfg_path,&g_piz_5e0450);
+  file = crt_fopen_body(cfg_path,&g_piz_5e0450);
   if (file != (FILE *)0x0) {
     _fread(g_controller_cfg + in_eax,1,0x200,file);
     _fclose(file);

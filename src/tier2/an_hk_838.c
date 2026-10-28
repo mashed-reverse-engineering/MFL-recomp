@@ -6,7 +6,7 @@
 /*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(void *p0);
+/*004f6bf0*/ extern int rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*006a5dc8*/ extern undefined4 g_weapon_6a5dc8;
 /*006a5df8*/ extern undefined g_weapon_rocket_6a5df8;
@@ -76,7 +76,7 @@ void missile_load_assets(void)
   do {
     fx_block.iStack_44 = fx_block.iStack_44 + -1;
     next_record_offset = record_offset + -MISSILE_RECORD_STRIDE;
-    handle = FUN_004f6bf0(launcher_clump);
+    handle = rpclump_clone(launcher_clump);
     *(undefined4 *)((char *)&g_weapon_6a5fdc + slot_offset) = handle;
     atomics_left = clump_get_atomics((RpClump *)handle,(RpAtomic **)atomics);
     /* Launcher atomics, last to first: the one FUN_004c52b0 accepts (returns 1)
@@ -94,7 +94,7 @@ void missile_load_assets(void)
     *(int *)((char *)&g_weapon_6a5fd0 + slot_offset) = fx_block.iStack_44;
     *(undefined4 *)((char *)&g_weapon_6a5fe0 + slot_offset) = 0;
     *(undefined4 *)((char *)&g_weapon_6a5fe8 + slot_offset) = 0;
-    handle = FUN_004f6bf0(missile_clump);
+    handle = rpclump_clone(missile_clump);
     *(undefined4 *)(record_offset + ((char *)&g_weapon_flashbang_6a5db0 + 0x10)) = handle;
     handle = fx_system_create(10,smoke_texture,SMOKE_FX_FLAGS,1,(undefined4 *)&fx_block.uStack_48,0x3f000000 /* 0.5f */,0x40000000 /* 2.0f */);
     *(undefined4 *)(record_offset + ((char *)&g_weapon_6a5dc8 + 0x4)) = handle;

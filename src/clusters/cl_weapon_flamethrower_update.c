@@ -16,7 +16,7 @@
 /*004b2b48*/ extern int _ftol();
 /*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*005dd330*/ extern float float_1_0;
 /*005dd36c*/ extern float k_f_0_4;
@@ -188,7 +188,7 @@ void weapon_flamethrower_update(void)
               *(int *)&particle[5] = 1;
               frame_obj.hit_pos_y = tmp_f + frame_obj.hit_pos_y;
               frame_obj.hit_pos_z = frame_obj.hit_normal_z * k_f_0_02 + frame_obj.hit_pos_z;
-              FUN_004c51a0((undefined4)frame_obj.hit_fx_matrix,(undefined4)frame_obj.hit_basis,(undefined4)&frame_obj.hit_pos_x);
+              rwmatrix_from_three_points((undefined4)frame_obj.hit_fx_matrix,(undefined4)frame_obj.hit_basis,(undefined4)&frame_obj.hit_pos_x);
               rand_val = (float10)random_range(0x3e99999a,0x3fa66666);
               fx_spawn_from_matrix_2(frame_obj.hit_fx_matrix,(fbits1 = (float)rand_val, *(int *)&fbits1));
             }

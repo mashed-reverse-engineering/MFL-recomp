@@ -10,7 +10,7 @@
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
-/*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*0060da4c*/ extern undefined g_mine_load_60da4c;
 /*006a7d38*/ extern undefined g_weapon_6a7d38[0x1000];
 /*006a8ab8*/ extern undefined g_weapon_6a8ab8;
@@ -63,7 +63,7 @@ void mine_load_assets(void)
   /* fill the dropper slots: one clump copy per slot, until the end of g_weapon_6a8b0c */
   dropper_slot = g_weapon_6a8b0c;
   do {
-    clump = FUN_004f6bf0(g_weapon_6a8b5c);
+    clump = rpclump_clone(g_weapon_6a8b5c);
     *dropper_slot = clump;
     dropper_slot = dropper_slot + DROPPER_SLOT_STRIDE;
   } while ((LONG_PTR)dropper_slot < ((LONG_PTR)&g_weapon_6a8b6c));
@@ -71,7 +71,7 @@ void mine_load_assets(void)
   /* one loop iteration per mine record: store the clump, then set the render flag of its atomics */
   mine_record = g_weapon_6a7d38;
   do {
-    clump = FUN_004f6bf0(g_weapon_6a8b58);
+    clump = rpclump_clone(g_weapon_6a8b58);
     *(undefined4 *)(mine_record + MINE_RECORD_CLUMP_OFFSET) = clump;
     clump_get_atomics(clump,atomics);
     atomic_index = 0;

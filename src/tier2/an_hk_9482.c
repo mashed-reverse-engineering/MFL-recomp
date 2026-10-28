@@ -3,7 +3,7 @@
 /*00490c60*/ extern int __cdecl physics_body_get_velocity(void *p0, undefined4 p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*0056bc20*/ extern void FUN_0056bc20(void *p0, void *p1, void *p2);
+/*0056bc20*/ extern void rwp_body_add_force_at_point(void *p0, void *p1, void *p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd340*/ extern float k_f_0_5;
@@ -68,7 +68,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
     frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
     frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
     frame.offset.x = frame.offset.x * k_f_0_11111111;
@@ -80,7 +80,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.force_x = 0.0;
     frame.force_y = 150.0;
     frame.force_z = 0.0;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 2:
     dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
@@ -93,7 +93,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.at_x = frame.offset.x + ((RwMatrix *)car_or_matrix)->pos.x;
     frame.at_y = frame.offset.y + ((RwMatrix *)car_or_matrix)->pos.y;
     frame.at_z = frame.offset.z + ((RwMatrix *)car_or_matrix)->pos.z;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     RwV3dTransformVectors(&frame.offset,(RwV3d *)&g_car_62ac68,1,(RwMatrix *)player_car[car_index].matrices)
     ;
     frame.offset.x = frame.offset.x * k_f_n0_11111111;
@@ -105,7 +105,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.force_x = 0.0;
     frame.force_y = 150.0;
     frame.force_z = 0.0;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 3:
     dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
@@ -126,7 +126,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.at_x = frame.offset.x + frame.at_x;
     frame.at_y = frame.offset.y + frame.at_y;
     frame.at_z = frame.offset.z + frame.at_z;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 4:
     dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
@@ -147,7 +147,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.at_x = frame.offset.x + frame.at_x;
     frame.at_y = frame.offset.y + frame.at_y;
     frame.at_z = frame.offset.z + frame.at_z;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 5:
     dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
@@ -193,7 +193,7 @@ LAB_004929af:
     frame.force_x = 0.0;
     frame.force_z = 0.0;
     frame.at_z = frame.offset.z + frame.at_z;
-    FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+    rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     return;
   case 8:
     owner_or_hit = physics_body_get_velocity(&frame.offset,car_index);
@@ -208,7 +208,7 @@ LAB_004929af:
       frame.force_x = player_car[car_index].up[0] * k_f_n6_5;
       frame.force_y = player_car[car_index].up[1] * k_f_n6_5;
       frame.force_z = player_car[car_index].up[2] * k_f_n6_5;
-      FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+      rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
     }
   default:
     return;
@@ -218,7 +218,7 @@ LAB_004929af:
   frame.force_x = 0.0;
   frame.force_z = 0.0;
   frame.at_z = frame.offset.z + frame.at_z;
-  FUN_0056bc20(body_ptr,&frame.force_x,&frame.at_x);
+  rwp_body_add_force_at_point(body_ptr,&frame.force_x,&frame.at_x);
   return;
 }
 

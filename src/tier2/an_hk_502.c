@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, void *p1, int p2);
 /*0056b300*/ extern void FUN_0056b300(void *p0, void *p1);
-/*0056bc20*/ extern void FUN_0056bc20(void *p0, void *p1, undefined4 p2);
+/*0056bc20*/ extern void rwp_body_add_force_at_point(void *p0, void *p1, undefined4 p2);
 /*0058c8a0*/ extern int rwp_owner_object_get(int p0);
 /* debris_apply_velocity_b */
 
@@ -44,7 +44,7 @@ LAB_00424998:
   if (matrix == 0) {
     matrix = **(int **)(*link + 0x10) + 0x30 + link[1] * 0x40;
   }
-  FUN_0056bc20(link,velocity,matrix);
+  rwp_body_add_force_at_point(link,velocity,matrix);
   rwp_world_set_bit_5c(*(undefined4 *)(owner + 0x24),owner,1);
   return;
 }

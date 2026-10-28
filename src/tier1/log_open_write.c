@@ -3,7 +3,7 @@
 /*004b2a60*/ extern int sprintf();
 /*004b43a9*/ extern int _ctime64();
 /*004b43c2*/ extern int _ftime64();
-/*004b4531*/ extern int FUN_004b4531(const char *p0, void *p1);
+/*004b4531*/ extern int crt_fopen_body(const char *p0, void *p1);
 /*005e13fc*/ extern undefined g_log_open_5e13fc;
 /*00770f74*/ extern undefined4 g_log_770f74;
 #define LOG_TIMEB_SIZE (16)
@@ -14,7 +14,7 @@
 /* "mashed.log" */
 /*
  * Opens mashed.log and writes a session header line, e.g. "Sat Oct 17 21:47:00\n\n"
- * (ctime text cut to 19 chars, so no year). The handle FUN_004b4531 returns is
+ * (ctime text cut to 19 chars, so no year). The handle crt_fopen_body returns is
  * stored in g_log_770f74 (inferred: the log file handle). The second argument is
  * the address of g_log_open_5e13fc (inferred: open mode / options block).
  * Returns 1 on success, 0 if the file could not be opened (nothing is written).
@@ -27,7 +27,7 @@ undefined4 log_open_write(void)
     char line [LOG_LINE_SIZE];        /* formatted line that gets logged */
   } log_entry;
 
-  g_log_770f74 = FUN_004b4531("mashed.log",&g_log_open_5e13fc);
+  g_log_770f74 = crt_fopen_body("mashed.log",&g_log_open_5e13fc);
   /* open failed: nothing to log */
   if (g_log_770f74 == 0) {
     return 0;

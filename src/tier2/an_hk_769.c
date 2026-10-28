@@ -6,7 +6,7 @@
 /*00481fd0*/ extern double random_range();
 /*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c51a0*/ extern void FUN_004c51a0(void *p0, undefined4 p1, void *p2);
+/*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, undefined4 p1, void *p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005dd330*/ extern float float_1_0;
@@ -116,7 +116,7 @@ void weapon_oil_fire(WeaponSlot *slot)
       ray.fire_x = hit.normal_x * k_f_0_04 + ray.fire_x;
       ray.fire_y = hit.normal_y * k_f_0_04 + ray.fire_y;
       ray.fire_z = hit.normal_z * k_f_0_04 + ray.fire_z;
-      FUN_004c51a0(&fire_matrix,(undefined4)hit.hit_data,&ray.fire_x);
+      rwmatrix_from_three_points(&fire_matrix,(undefined4)hit.hit_data,&ray.fire_x);
       combine_op = rwCOMBINEPRECONCAT;
       random_value = (double)random_range(0,RANDOM_ANGLE_MAX_BITS);
       RwMatrixRotate(&fire_matrix,(RwV3d *)&g_weapon_62ac80,(float)random_value,combine_op);
