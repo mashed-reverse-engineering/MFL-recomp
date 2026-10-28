@@ -7,6 +7,7 @@
 
 /* TIER2: unvalidated 2026-10-27 authority=diffemu */
 /* Collision callback: copies the 6-float box from `box` into a query frame and runs RpCollisionWorldForAllIntersections on the world, collecting contacts into collect_state; returns world (inferred). */
+/* TIER2: unvalidated 2026-10-28 authority=static */
 int rwp_world_create_once_cb_491280(int world,char *unused_2,undefined4 *box,char *unused_4,char *collect_state)
 {
   struct {

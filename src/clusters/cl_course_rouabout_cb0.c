@@ -218,7 +218,7 @@ void course_rouabout_cb0(int course)
           for (comp_i = 0; comp_i < 9; comp_i++) {
             *(int *)&tri[comp_i] = *(int *)&tri_src[comp_i];
           }
-          if ((tri[6] - tri[3]) * (tri[2] - tri[5]) - (tri[8] - tri[5]) * (tri[0] - tri[3]) <= k_f_0) {
+          if (!((tri[6] - tri[3]) * (tri[2] - tri[5]) - (tri[8] - tri[5]) * (tri[0] - tri[3]) > k_f_0)) {      /* a NaN area swaps too (test ah,0x41; je) */
             for (comp_i = 0; comp_i < 3; comp_i++) {
               int tmp = *(int *)&tri[comp_i];
               *(int *)&tri[comp_i] = *(int *)&tri[6 + comp_i];

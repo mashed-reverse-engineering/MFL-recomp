@@ -31,7 +31,7 @@ void weapon_flame_slot_update_n(int slot, int sub, const float *point)
 
     for (frame.outer = 1; frame.outer < 6; frame.outer++) {
         a = &set[frame.outer - 1];
-        if (a->active != 0 && a->age < float_1_0) {
+        if (a->active != 0 && !(a->age >= float_1_0)) {
             px = point[0];
             ax = a->position[0];
             ay = a->position[1];
@@ -41,7 +41,7 @@ void weapon_flame_slot_update_n(int slot, int sub, const float *point)
             a_distance = (pz - az) * (pz - az) + (px - ax) * (px - ax) + (py - ay) * (py - ay);      /* squared distance, kept as a float */
             for (j = frame.outer; j < 5; j++) {
                 b = &set[j];
-                if (b->active != 0 && b->age < float_1_0 &&
+                if (b->active != 0 && !(b->age >= float_1_0) &&
                     a_distance <
                         (point[2] - b->position[2]) * (point[2] - b->position[2]) + (point[0] - b->position[0]) * (point[0] - b->position[0]) +
                             (point[1] - b->position[1]) * (point[1] - b->position[1])) {

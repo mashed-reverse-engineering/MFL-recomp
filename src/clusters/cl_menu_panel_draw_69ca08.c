@@ -82,10 +82,10 @@ void menu_panel_draw(int state, int fade, int (*arrow_flag)(void))
   colour = (unsigned int)fade << 24;
   y_float = (float)menu_item_y_position_r(count, MENU_PANEL_ITEM_BASE);
   sum = text_width(state == 1 ? g_menu_8c8084[count].text_id_current : g_menu_8c8084[count].text_id_next, 0.8f) + g_menu_8c8084[count].width;
-  if (sum >= MENU_PANEL_MIN_WIDTH) {
-    width_total = (float)(sum + k_f_20);
-  } else {
+  if (sum < MENU_PANEL_MIN_WIDTH) {      /* a NaN width takes the else branch (test ah,5; jp) */
     width_total = MENU_PANEL_MIN_WIDTH;
+  } else {
+    width_total = (float)(sum + k_f_20);
   }
   x = (float)((float)screen_width() * width_total * k_f_0_0015625);
   y = (float)((y_float - k_f_8) * (float)screen_height() * k_f_0_0020833334);
