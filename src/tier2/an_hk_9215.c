@@ -38,6 +38,8 @@ __declspec(naked) int powerup_move_and_spin_r(int * reg_edi)
     }
 }
 
+#define MIN_F(a, b) (((a) <= (b)) ? (a) : (b))
+
 /* powerups_update */
 
 /* "per frame: glow particles for available ones; for taken ones the respawn countdown (state 2 ->
@@ -114,18 +116,14 @@ void powerups_update(void)
         d2 = (p->position[0] - p->spawn_position[0]) * (p->position[0] - p->spawn_position[0]) +
              (p->position[1] - p->spawn_position[1]) * (p->position[1] - p->spawn_position[1]) +
              (p->position[2] - p->spawn_position[2]) * (p->position[2] - p->spawn_position[2]);
-        if (d2 <= k_f_0) {
+        if (!(d2 > k_f_0)) {
           size_a[0] = g_powerups_update_5df830;
           size_a[1] = g_powerups_update_5df834;
         }
         else {
           t = float_1_0 - d2;
-          if (t <= k_f_0) {
-            t = k_f_0;
-          }
-          else if (t >= float_1_0) {
-            t = float_1_0;
-          }
+          /* t = clamp(t, 0, 1) as the original's nested min / max macros (the inner min is evaluated twice) */
+          t = !(MIN_F(float_1_0, t) >= k_f_0) ? k_f_0 : MIN_F(float_1_0, t);
           size_a[0] = g_powerups_update_5df830 * t;
           size_a[1] = g_powerups_update_5df834 * t;
         }

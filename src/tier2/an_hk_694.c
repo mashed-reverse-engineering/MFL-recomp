@@ -82,7 +82,7 @@ void __cdecl player_time_update(char *car,undefined4 collision_world,int player_
 
 {
   /* tmp_int, tmp_int_b, tmp_u32 and tmp_float are reused for several values; see the block comments */
-  float elapsed_time;
+  double elapsed_time; /* x87 temporary: kept unrounded like the original */
   float tmp_float;
   undefined4 route_id;
   int tmp_int;
@@ -124,13 +124,14 @@ void __cdecl player_time_update(char *car,undefined4 collision_world,int player_
     if (*player < 0) {
       tmp_float = tmp_float + k_f_4_2949673e9;
     }
-    /* now is before the stored time: the clock wrapped, remember the offset (inferred) */
-    if (frame.now_us - tmp_float < k_f_0) {
+    /* time since the stored timestamp; if now is before it, the clock wrapped: remember the offset and
+       use it instead (inferred). The difference is computed once, as in the original. */
+    elapsed_time = frame.now_us - tmp_float;
+    if (elapsed_time < k_f_0) {
       frame.wrap_offset = -1 - *player;
+      elapsed_time = (float)(uint)frame.wrap_offset + frame.now_us;
     }
-    /* time since the stored timestamp, plus the wrap offset when it wrapped (inferred) */
-    elapsed_time = (frame.now_us - (float)(uint)*(int *)player);
-    tmp_u32 = ((int)((!(elapsed_time < 0.0f) ? elapsed_time : ((float)(uint)frame.wrap_offset + frame.now_us)) - (float)(uint)*(int *)((char *)player + 0x1c)));
+    tmp_u32 = (int)(elapsed_time - (float)(uint)*(int *)((char *)player + 0x1c));
     *(undefined4 *)((char *)&g_player_time_8d8c88 + player_offset) = tmp_u32;
     car_get_mode(player_index,&frame.car_mode,frame.mode_extra);
     /* car mode 1 skips the route and checkpoint update (inferred) */

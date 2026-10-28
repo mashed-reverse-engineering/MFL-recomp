@@ -166,9 +166,8 @@ LAB_0046ff1d:
     *engine_freq = (float)((double)frame.car_speed * (double)phase_value + wave_level + (double)k_f_1000);
     break;
   case 1:
-    if (*engine_freq < *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4)
-        != (*engine_freq ==
-           *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4))) {
+    /* !(a > b), not a <= b: a NaN frequency takes the branch like the original */
+    if (!(*engine_freq > *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4))) {
       scratch_int = ((int *)&g_sound_car_6ae15c)[car_index] + 1;
       ((int *)&g_sound_car_6ae15c)[car_index] = scratch_int;
       ((undefined4 *)&g_sound_car_6ae17c)[car_index] = 0;

@@ -351,7 +351,10 @@ race_get_course_id 00410090
 race_course_loaded 004100b0
 race_spawn_cars 004103d0
 switchD 0041048e
+LAB_004104bd 004104bd
+LAB_004104f2 004104f2
 default 00410500
+LAB_00410b76 00410b76
 course_load_time_report 00410dc0
 race_update_cameras 00410de0
 LAB_00410e4e 00410e4e
@@ -2692,8 +2695,10 @@ fx_spawn_burst_spread 0049d090
 load_waterfall_fx 0049d1e0
 fx_systems_destroy_all 0049d350
 fx_smoke_puff_spawn 0049d3d0
+LAB_0049d3e3 0049d3e3
 switchD 0049d420
 default 0049d456
+LAB_0049d491 0049d491
 fx_explosion_spawn_ring 0049d610
 fx_smoke_puffs_update 0049d820
 LAB_0049d830 0049d830
@@ -3642,7 +3647,9 @@ FUN_004c4ba0 004c4ba0
 FUN_004c4be0 004c4be0
 FUN_004c4c30 004c4c30
 FUN_004c4c70 004c4c70
+LAB_004c4d78 004c4d78
 FUN_004c4e20 004c4e20
+LAB_004c4f27 004c4f27
 FUN_004c4f90 004c4f90
 FUN_004c5150 004c5150
 FUN_004c51a0 004c51a0
@@ -7314,6 +7321,7 @@ g_race_update_652e54 00652e54
 g_camera_652e88 00652e88
 g_camera_652e8c 00652e8c
 g_camera_save_652e90 00652e90
+g_race_spawn_652e98 00652e98
 g_race_652f58 00652f58
 g_race_652f5c 00652f5c
 g_race_652f64 00652f64
@@ -8298,12 +8306,23 @@ g_weapon_6a9424 006a9424
 g_weapon_6a9428 006a9428
 g_weapon_6a942c 006a942c
 g_weapon_6a9430 006a9430
+g_weapon_find_6a9434 006a9434
+g_weapon_find_6a9438 006a9438
+g_weapon_find_6a943c 006a943c
 g_weapon_6a9444 006a9444
+g_weapon_find_6a9448 006a9448
+g_weapon_find_6a944c 006a944c
 g_weapon_6a9454 006a9454
 g_weapon_6a9455 006a9455
 g_weapon_6a9456 006a9456
 g_weapon_6a9457 006a9457
 g_weapon_6a9458 006a9458
+g_weapon_find_6a945c 006a945c
+g_weapon_find_6a9460 006a9460
+g_weapon_find_6a9464 006a9464
+g_weapon_find_6a9468 006a9468
+g_weapon_find_6a946c 006a946c
+g_weapon_find_6a9470 006a9470
 g_weapon_6a9474 006a9474
 g_particles_6a9580 006a9580
 g_weapon_6a9584 006a9584
@@ -8639,6 +8658,7 @@ g_race_render_6c60d4 006c60d4
 g_race_update_6c60d8 006c60d8
 g_race_update_6c60dc 006c60dc
 g_gfx_6f1e20 006f1e20
+g_spring_grid_6f1e48 006f1e48
 g_gfx_6f2aa8 006f2aa8
 g_gfx_6f2aac 006f2aac
 g_gfx_6f2ab0 006f2ab0
@@ -8727,6 +8747,7 @@ g_particle_system_7036b8 007036b8
 g_particle_system_7036bc 007036bc
 g_physics_7036c0 007036c0
 g_particles_7036c4 007036c4
+g_data_7036c8 007036c8
 g_particle_system_7036cc 007036cc
 g_particle_system_7036d0 007036d0
 g_particle_system_7036d4 007036d4
@@ -8912,6 +8933,7 @@ g_particles_76bfdc 0076bfdc
 g_particles_76bfe0 0076bfe0
 g_load_76bfe8 0076bfe8
 g_load_76bfec 0076bfec
+g_fx_systems_76c090 0076c090
 g_particles_76c4e0 0076c4e0
 g_fx_slots_76c4e4 0076c4e4
 g_fx_slots_76c4e8 0076c4e8
@@ -8919,6 +8941,7 @@ g_effects_update_76c4fc 0076c4fc
 g_fx_slots_76c504 0076c504
 g_particles_76c508 0076c508
 g_fx_systems_76c50c 0076c50c
+g_particles_76c53c 0076c53c
 g_particles_76dee0 0076dee0
 g_event_log_76df00 0076df00
 g_fx_slots_76df04 0076df04
@@ -9270,6 +9293,7 @@ g_event_log_time 007e8364
 g_event_log_param 007e8764
 g_car_7e8b64 007e8b64
 g_ai_7eeb64 007eeb64
+g_race_7eeb84 007eeb84
 g_race_7eeb88 007eeb88
 g_app_7eebb0 007eebb0
 g_race_7eebb4 007eebb4
@@ -10772,6 +10796,7 @@ g_trail_8d8b00 008d8b00
 g_trail_indices_8d8b02 008d8b02
 g_replay_buffer 008d8b08
 g_replay_buffer_size 008d8b0c
+g_race_spawn_8d8b10 008d8b10
 g_race_setup 008d8b14
 g_round_8d8b20 008d8b20
 g_round_8d8b24 008d8b24

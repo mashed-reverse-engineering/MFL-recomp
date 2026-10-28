@@ -982,6 +982,8 @@
 004c4200 gap_4c4200 hk_1114.c
 004c4830 course_warzone_cb0_sub_4c4830 hk_1115.c
 004c4860 course_warzone_cb0_sub_4c4860 hk_1116.c
+004c4cc0 gap_4c4cc0 hk_1118.c
+004c4e70 gap_4c4e70 hk_1119.c
 004c4800 course_warzone_cb0_sub_4c4800 hk_1338.c
 004ac720 gap_4ac720 hk_1353.c
 004acba0 gap_4acba0 hk_1354.c

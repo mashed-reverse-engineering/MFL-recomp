@@ -511,6 +511,7 @@ typedef size_t (*vecStrlenFunc)(RwChar *);
 #define RwRaster_height(p) (*(RwInt32 *)((char *)(p) + 0x10))
 #define RwRaster_width(p) (*(RwInt32 *)((char *)(p) + 0xc))
 #define RwStringFunctions_vecStrcpy(p) (*(vecStrcpyFunc *)((char *)(p) + 0x8))
+#define RwStringFunctions_vecStrcmp(p) (*(vecStrcmpFunc *)((char *)(p) + 0x24))
 #define RwTexture_name(p) ((char *)(p) + 0x10)
 #define RwTexture_filterAddressing(p) (*(RwUInt32 *)((char *)(p) + 0x50))
 #define RxNodeDefinition_name(p) (*(RwChar * *)((char *)(p) + 0x0))

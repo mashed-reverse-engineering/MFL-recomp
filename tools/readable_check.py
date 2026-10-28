@@ -60,7 +60,7 @@ def parse(obj):
         if flags & 0x00000800 or sname.startswith((b".drectve", b".debug")): continue      # info / debug
         raw = d[rawptr:rawptr + rawsz] if not flags & 0x80 else b"bss%d" % rawsz
         rel = sorted((struct.unpack_from("<I", d, relptr + k * 10)[0], struct.unpack_from("<H", d, relptr + k * 10 + 8)[0],
-                      syms[struct.unpack_from("<I", d, relptr + k * 10 + 4)[0]]) for k in range(nrel))
+                      re.sub(r"(\$switchD_\w+)\$\d+$", r"\1", syms[struct.unpack_from("<I", d, relptr + k * 10 + 4)[0]])) for k in range(nrel))   # jump-table label: per-TU counter suffix is not code
         key = first.get(s + 1, "%s#%d" % (sname.rstrip(b"\0").decode(), s))
         out[key] = (bool(flags & 0x20), raw, rel)
     return out

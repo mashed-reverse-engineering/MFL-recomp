@@ -17,33 +17,34 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,686 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers, each function once) | 2,680 | `███████████████████░` 96% |
+| Replaced by recompiled C (all tiers, each function once) | 2,695 | `███████████████████░` 97% |
 | ...verified byte identical | 1,301 | `█████████░░░░░░░░░░░` 47% |
-| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,379 | `██████████░░░░░░░░░░` 50% |
-| ...share of the code bytes | 654,748 B | `███████████████████░` 96% |
-| ...of these register-argument clusters | 620 | `████░░░░░░░░░░░░░░░░` 22% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,583 | `███████████████████░` 93% |
+| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,394 | `██████████░░░░░░░░░░` 50% |
+| ...share of the code bytes | 662,239 B | `███████████████████░` 97% |
+| ...of these register-argument clusters | 655 | `█████░░░░░░░░░░░░░░░` 24% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,590 | `███████████████████░` 93% |
 | ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,196 | `█████████░░░░░░░░░░░` 43% |
 | ...tier 1, `src/tier1` (908 files) | 848 | `██████░░░░░░░░░░░░░░` 30% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (1016 files) | 788 | `██████░░░░░░░░░░░░░░` 28% |
-| ...clusters, `src/clusters` (615 files) | 648 | `█████░░░░░░░░░░░░░░░` 23% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 344 | |
+| ...tier 2, `src/tier2` (1018 files) | 788 | `██████░░░░░░░░░░░░░░` 28% |
+| ...clusters, `src/clusters` (622 files) | 655 | `█████░░░░░░░░░░░░░░░` 24% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 346 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
-*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts and a few sources that still need the decompiler's type dump (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.
+*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts that are not installed (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.
 
 
-<details><summary>By tier (whole pipeline)</summary>
+<details><summary>By tier (whole pipeline, each function once)</summary>
 
 | Tier | Functions | Code bytes | Verified byte identical |
 |---|---:|---:|---:|
-| agent | 135 | 8,703 | 135 |
+| agent | 109 | 8,420 | 109 |
 | bridge | 4 | 1,643 | 0 |
+| cluster (not in ledger) | 568 | 321,622 | 0 |
 | hand | 381 | 14,744 | 344 |
-| tier1 | 908 | 69,877 | 908 |
-| tier2 | 1070 | 244,664 | 0 |
+| tier1 | 848 | 67,292 | 848 |
+| tier2 | 785 | 248,518 | 0 |
 
 </details>
 <!-- progress:end -->

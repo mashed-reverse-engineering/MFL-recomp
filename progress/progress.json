@@ -1,7 +1,7 @@
 {
  "clusters": {
-  "bytes": 324580,
-  "functions": 622
+  "bytes": 333756,
+  "functions": 657
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
@@ -57,16 +57,16 @@
  "published_verified": {
   "automatch_files": 5,
   "automatch_functions": 5,
-  "cluster_files": 615,
-  "cluster_functions": 648,
+  "cluster_files": 622,
+  "cluster_functions": 655,
   "hand_functions": 381,
-  "library_functions": 344,
+  "library_functions": 346,
   "tier1_files": 908,
   "tier1_functions": 848,
-  "tier2_files": 1016,
+  "tier2_files": 1018,
   "tier2_functions": 788,
-  "unique_all_kinds": 2927,
-  "unique_functions": 2583
+  "unique_all_kinds": 2936,
+  "unique_functions": 2590
  },
  "replaced_in_pipeline": {
   "agent": {
@@ -96,11 +96,43 @@
   }
  },
  "replaced_unique": {
-  "behaviour_verified": 1379,
+  "behaviour_verified": 1394,
+  "by_tier": {
+   "agent": {
+    "bytes": 8420,
+    "functions": 109,
+    "verified_bytes_identical": 109
+   },
+   "bridge": {
+    "bytes": 1643,
+    "functions": 4,
+    "verified_bytes_identical": 0
+   },
+   "cluster (not in ledger)": {
+    "bytes": 321622,
+    "functions": 568,
+    "verified_bytes_identical": 0
+   },
+   "hand": {
+    "bytes": 14744,
+    "functions": 381,
+    "verified_bytes_identical": 344
+   },
+   "tier1": {
+    "bytes": 67292,
+    "functions": 848,
+    "verified_bytes_identical": 848
+   },
+   "tier2": {
+    "bytes": 248518,
+    "functions": 785,
+    "verified_bytes_identical": 0
+   }
+  },
   "byte_identical": 1301,
-  "bytes": 654748,
-  "clusters": 620,
-  "clusters_not_in_ledger": 553,
-  "functions": 2680
+  "bytes": 662239,
+  "clusters": 655,
+  "clusters_not_in_ledger": 568,
+  "functions": 2695
  }
 }

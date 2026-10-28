@@ -38,7 +38,11 @@ def compute():
     if os.path.exists(p):
         by_name = {n: sz for _, n, sz in fn}
         for n in (l.strip() for l in open(p)):
-            if n: cl_names.append(n); cl["functions"] += 1; cl["bytes"] += by_name.get(n, 0)
+            if not n: continue
+            cf = next((os.path.join(x, "cl_%s.c" % n) for x in (os.path.join(G, "src", "clusters"), os.path.join(G, "src", "clusters")) if os.path.exists(os.path.join(x, "cl_%s.c" % n))), None)
+            m = re.search(r"^// cluster-entries: (.*)$", open(cf, errors="replace").read(), re.M) if cf else None
+            for e in (m.group(1).replace(",", " ").split() if m else [n]):          # a cluster file can hold several entry functions: count them all (enabled.txt lists roots only)
+                cl_names.append(e); cl["functions"] += 1; cl["bytes"] += by_name.get(e, 0)
     pub = {"tier2_files": 0, "tier2_functions": 0, "cluster_files": 0, "cluster_functions": 0, "tier1_files": 0, "tier1_functions": 0, "automatch_files": 0, "automatch_functions": 0}     # published sources (public repo: src/tier1, src/automatch, src/tier2, src/clusters)
     vaof = lambda n: va_of.get(n, n)                                        # function name -> VA (unresolved names stay as they are)
     names = {"hand": set(), "tier1": set(), "automatch": set(), "tier2": set(), "cluster": set()}                   # function names per kind, to count a function once
@@ -85,8 +89,12 @@ def compute():
     bi = {v for v, r in led.items() if r["authority"] == "bytes-reloc"}
     allv = set(led) | clv
     sz = {"%08x" % va: s_ for va, s_ in size.items()}
+    ut = collections.defaultdict(collections.Counter)            # by tier, each function once (ledger row, or "cluster (not in ledger)")
+    for v in allv:
+        t = ut[led[v]["tier"] if v in led else "cluster (not in ledger)"]; t["functions"] += 1; t["bytes"] += sz.get(v, 0); t["verified_bytes_identical"] += v in bi
+    uniq_tiers = {k: dict(c) for k, c in sorted(ut.items())}
     uniq = {"functions": len(allv), "bytes": sum(sz.get(v, 0) for v in allv), "byte_identical": len(bi), "behaviour_verified": len(allv - bi),
-            "clusters": len(clv), "clusters_not_in_ledger": len(clv - set(led))}
+            "clusters": len(clv), "clusters_not_in_ledger": len(clv - set(led)), "by_tier": uniq_tiers}
     return {"exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
             "functions": {"total": len(fn), "game": len(game), "named": named(fn), "game_named": named(game),
                           "game_bytes": sum(s for _, _, s in game)},
@@ -126,10 +134,11 @@ def table(j):
         if pv.get("library_functions"): out.append("| ...plus linked library code (VA >= 0x4B0000), not in the percentages | %d | |" % pv["library_functions"])
         ov = sum(pv[k] for k in ("tier1_functions", "automatch_functions", "tier2_functions", "cluster_functions")) + pub - tp
         if ov: out.append("| ...functions present in two kinds (counted once above) | %d | |" % ov)
-    out += ["", "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts and a few sources that still need the decompiler's type dump (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.", ""]
-    if rep:
-        out += ["", "<details><summary>By tier (whole pipeline)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]
-        out += ["| %s | %d | %s | %d |" % (k, t["functions"], format(t["bytes"], ","), t["verified_bytes_identical"]) for k, t in rep.items()]
+    out += ["", "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts that are not installed (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.", ""]
+    bt = (u or {}).get("by_tier")
+    if bt:
+        out += ["", "<details><summary>By tier (whole pipeline, each function once)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]
+        out += ["| %s | %d | %s | %d |" % (k, t["functions"], format(t["bytes"], ","), t["verified_bytes_identical"]) for k, t in bt.items()]
         out.append("\n</details>")
     return "\n".join(out)
 
