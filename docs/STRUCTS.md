@@ -205,3 +205,7 @@ Gaps (`_gap_xx`) and `field_0xNN` members are bytes whose meaning is not known y
 human leader (`leader_distance`, `leader_far_ms`), last steering (`steer_side`, `steer_amount`), cooldown timers, weapon hold and fire delay
 (`weapon_held_ms`, `fire_delay`, `must_fire`). Confidence medium (written and read by the `ai_*` functions). `AiData` (0x11884) holds the 128 x 128
 `grid` of tile indices, a pool of 512 tiles of 8 x 8 danger bytes and the route sets; confidence medium.
+
+## Voice record offsets
+
+Named in `mfl_tier2.h` (raw offsets, confidence medium): `VOICE_OFF_HANDLE` 0x30 (sound object / sub voice), `VOICE_OFF_FLAGS` 0x34, `VOICE_OFF_FREQ` 0x3c (float), `VOICE_OFF_POS_X/Y/Z` 0x58 / 0x5c / 0x60. Car ids in collider and event parameters are `CAR_ID_BASE + n` (0xff00 + n). Several functions that keep a local struct on the stack (probe, hit record, wave state) now name its fields; those layouts are file-local and not shared.

@@ -160,3 +160,14 @@ The frontend is a token driven page system.
 - Spoken lines (commentary) are queued: `voice_queue_frame_update` (per frame, name table only), `voice_queue_add`, `voice_queue_race_update`.
 - The 3D listener is a DirectSound3D style record, `Listener3D` (**inferred** from its accessors in the sound library: position, velocity,
   front and top vectors, distance/doppler/rolloff factors and a dirty mask `LISTENER3D_DIRTY_*`).
+
+## 10. Shared constants
+
+`mfl_tier2.h` carries names that many sources use (guard `MFL_SHARED_BITS`):
+
+- `CAR_ID_BASE` (0xff00): collider type and event parameter `CAR_ID_BASE + n` denotes car `n`.
+- `VOICE_OFF_HANDLE`, `VOICE_OFF_FLAGS`, `VOICE_OFF_FREQ`, `VOICE_OFF_POS_X/Y/Z`: offsets inside a voice record; `VOICE_DEFAULT_FREQ_BITS` is the bit pattern of the default frequency (22050.0f).
+- `MESSAGE_COLOUR_DARK_RED`, `COLOUR_WHITE_ARGB`: ARGB colour arguments of the on-screen message call (the colour meaning is inferred).
+- `FLOAT_ONE_BITS`: bits of 1.0f stored through an int-typed slot.
+
+Generic small numbers (0x10, 0x20, ...) are strides of different structs and are deliberately not shared.

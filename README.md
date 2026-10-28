@@ -32,6 +32,8 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...plus linked library code (VA >= 0x4B0000), not in the percentages | 346 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
+**How the numbers are counted.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ: 622 files give 655 functions. The cluster row counts those entry functions; those not yet in the tier ledger are listed as `cluster (not in ledger)` in the by-tier table, the rest are counted under their ledger tier. The *byte identical* rows are exactly the ledger entries with authority `bytes-reloc`; everything else replaced is behaviour verified.
+
 *Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts that are not installed (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.
 
 
