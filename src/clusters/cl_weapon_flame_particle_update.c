@@ -14,52 +14,56 @@
 
 /* "updates one flame record: frame transform, scale and its sound" */
 
-void weapon_flame_particle_update_n(char *in_eax)
+void weapon_flame_particle_update_n(char *flame)
 
 {
   RwFrame *frame;
-  RwMatrix *pRVar1;
-  float10 fVar2;
-  float10 fVar3;
+  RwMatrix *frame_ltm;
+  float10 size_jitter;
+  float10 pulse_scale;
   struct {
-    float local_1c;
-    RwV3d local_18;
-    RwReal local_c;
-    RwReal local_8;
-    RwReal local_4;
+    float base_scale;
+    RwV3d scale_vec;
+    RwReal voice_pos_x;
+    RwReal voice_pos_y;
+    RwReal voice_pos_z;
   } frame_obj;
   
-  frame = *(RwFrame **)(*(int *)(in_eax + 0x24) + 4);
-  frame_obj.local_18.x = 1.0;
-  frame_obj.local_18.y = 1.0;
-  frame_obj.local_18.z = 1.0;
-  frame_obj.local_1c = 1.0;
-  if (*(int *)(in_eax + 0x1c) == 1) {
-    if (*(float *)(in_eax + 0xc) < float_5_0) {
-      *(float *)(in_eax + 0xc) = *(float *)(in_eax + 0xc) + k_f_0_5;
+  frame = *(RwFrame **)(*(int *)(flame + 0x24) + 4);
+  frame_obj.scale_vec.x = 1.0;
+  frame_obj.scale_vec.y = 1.0;
+  frame_obj.scale_vec.z = 1.0;
+  frame_obj.base_scale = 1.0;
+  /* state +0x1c == 1: grow flame intensity (+0xc, capped near 5.0) and base scale 1.5; otherwise shrink it toward 1.0 (inferred) */
+  if (*(int *)(flame + 0x1c) == 1) {
+    if (*(float *)(flame + 0xc) < float_5_0) {
+      *(float *)(flame + 0xc) = *(float *)(flame + 0xc) + k_f_0_5;
     }
-    frame_obj.local_1c = 1.5;
+    frame_obj.base_scale = 1.5;
   }
-  else if (float_1_0 < *(float *)(in_eax + 0xc)) {
-    frame_obj.local_1c = 1.0;
-    *(float *)(in_eax + 0xc) = *(float *)(in_eax + 0xc) - k_f_0_5;
+  else if (float_1_0 < *(float *)(flame + 0xc)) {
+    frame_obj.base_scale = 1.0;
+    *(float *)(flame + 0xc) = *(float *)(flame + 0xc) - k_f_0_5;
   }
-  pRVar1 = RwFrameGetLTM(*(RwFrame **)(*(int *)(in_eax + 0x24) + 4));
-  frame_obj.local_c = (pRVar1->pos).x;
-  frame_obj.local_8 = (pRVar1->pos).y;
-  frame_obj.local_4 = (pRVar1->pos).z;
+  /* flame sound at the frame's world position, volume = intensity * 0.1818 (inferred) */
+  frame_ltm = RwFrameGetLTM(*(RwFrame **)(*(int *)(flame + 0x24) + 4));
+  frame_obj.voice_pos_x = (frame_ltm->pos).x;
+  frame_obj.voice_pos_y = (frame_ltm->pos).y;
+  frame_obj.voice_pos_z = (frame_ltm->pos).z;
   sfx_set_voice_volume
-            (0x16,&frame_obj.local_c,*(int *)(*(int *)(in_eax + 4) + 0xb0),
-             *(float *)(in_eax + 0xc) * k_f_0_18181819);
-  fVar2 = (float10)random_range(0.0,0.1);
-  fVar3 = (float10)random_range(0.0,0.3);
-  fVar3 = fVar3 + (float10)*(float *)(in_eax + 0xc);
-  *(float *)(in_eax + 0xc) = (float)fVar3;
-  frame_obj.local_18.z = (RwReal)fVar3;
-  frame_obj.local_18.x = (float)(fVar2 + (float10)frame_obj.local_1c);
-  frame_obj.local_18.y = (float)(fVar2 + (float10)frame_obj.local_1c);
-  RwFrameTransform(frame,(RwMatrix *)(in_eax + 0x28),rwCOMBINEREPLACE);
-  RwFrameScale(frame,&frame_obj.local_18,rwCOMBINEPRECONCAT);
+            (0x16,&frame_obj.voice_pos_x,*(int *)(*(int *)(flame + 4) + 0xb0),
+             *(float *)(flame + 0xc) * k_f_0_18181819);
+  /* random jitter added to the scale each update (inferred) */
+  size_jitter = (float10)random_range(0.0,0.1);
+  pulse_scale = (float10)random_range(0.0,0.3);
+  pulse_scale = pulse_scale + (float10)*(float *)(flame + 0xc);
+  *(float *)(flame + 0xc) = (float)pulse_scale;
+  frame_obj.scale_vec.z = (RwReal)pulse_scale;
+  frame_obj.scale_vec.x = (float)(size_jitter + (float10)frame_obj.base_scale);
+  frame_obj.scale_vec.y = (float)(size_jitter + (float10)frame_obj.base_scale);
+  /* apply the stored matrix (flame+0x28), then scale by scale_vec */
+  RwFrameTransform(frame,(RwMatrix *)(flame + 0x28),rwCOMBINEREPLACE);
+  RwFrameScale(frame,&frame_obj.scale_vec,rwCOMBINEPRECONCAT);
   return;
 }
 

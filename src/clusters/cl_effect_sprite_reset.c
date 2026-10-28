@@ -7,40 +7,41 @@
 
 /* "resets a sprite entry: colour white, scale 1, flags |= 0x20003" */
 
-void effect_sprite_reset_n(undefined4 *in_eax)
+/* Reset sprite entry: colour white (alpha/rgb 0xff), scale 1.0f, clear transform/uv fields, set flags |= 0x20003, then clear its bit in the allocation bitmap selected by sprite[0x17] (0 -> g_gfx_6c57b0, 1 -> g_gfx_6c51a8; index sprite[0x16]). (inferred) */
+void effect_sprite_reset_n(undefined4 *sprite)
 
 {
-  byte *pbVar1;
+  byte *bitmap_byte;
   
-  *(undefined1 *)(in_eax + 0x10) = 0xff;
-  *(undefined1 *)((char *)in_eax + 0x41) = 0xff;
-  *(undefined1 *)((char *)in_eax + 0x42) = 0xff;
-  *(undefined1 *)((char *)in_eax + 0x43) = 0xff;
-  in_eax[10] = 0x3f800000;
-  in_eax[5] = 0x3f800000;
-  *in_eax = 0x3f800000;
-  in_eax[3] = in_eax[3] | 0x20003;
-  in_eax[0x12] = 0;
-  in_eax[0x13] = 0;
-  in_eax[0x14] = 0;
-  in_eax[0x15] = 0;
-  in_eax[4] = 0;
-  in_eax[2] = 0;
-  in_eax[1] = 0;
-  in_eax[9] = 0;
-  in_eax[8] = 0;
-  in_eax[6] = 0;
-  in_eax[0xe] = 0;
-  in_eax[0xd] = 0;
-  in_eax[0xc] = 0;
-  if (in_eax[0x17] == 0) {
-    pbVar1 = (byte *)((int)&g_gfx_6c57b0 + ((int)in_eax[0x16] >> 3));
-    *pbVar1 = *pbVar1 & ~('\x01' << ((byte)in_eax[0x16] & 7));
+  *(undefined1 *)(sprite + 0x10) = 0xff;
+  *(undefined1 *)((char *)sprite + 0x41) = 0xff;
+  *(undefined1 *)((char *)sprite + 0x42) = 0xff;
+  *(undefined1 *)((char *)sprite + 0x43) = 0xff;
+  sprite[10] = 0x3f800000;
+  sprite[5] = 0x3f800000;
+  *sprite = 0x3f800000;
+  sprite[3] = sprite[3] | 0x20003;
+  sprite[0x12] = 0;
+  sprite[0x13] = 0;
+  sprite[0x14] = 0;
+  sprite[0x15] = 0;
+  sprite[4] = 0;
+  sprite[2] = 0;
+  sprite[1] = 0;
+  sprite[9] = 0;
+  sprite[8] = 0;
+  sprite[6] = 0;
+  sprite[0xe] = 0;
+  sprite[0xd] = 0;
+  sprite[0xc] = 0;
+  if (sprite[0x17] == 0) {
+    bitmap_byte = (byte *)((int)&g_gfx_6c57b0 + ((int)sprite[0x16] >> 3));
+    *bitmap_byte = *bitmap_byte & ~('\x01' << ((byte)sprite[0x16] & 7));
     return;
   }
-  if (in_eax[0x17] == 1) {
-    pbVar1 = (byte *)((int)&g_gfx_6c51a8 + ((int)in_eax[0x16] >> 3));
-    *pbVar1 = *pbVar1 & ~('\x01' << ((byte)in_eax[0x16] & 7));
+  if (sprite[0x17] == 1) {
+    bitmap_byte = (byte *)((int)&g_gfx_6c51a8 + ((int)sprite[0x16] >> 3));
+    *bitmap_byte = *bitmap_byte & ~('\x01' << ((byte)sprite[0x16] & 7));
   }
   return;
 }

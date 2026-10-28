@@ -384,24 +384,25 @@ extern void vehicle_markers_render_if_loaded(void);
 /* "(course id): g_current_course_entry = the g_course_table record with that id" */
 
 void __cdecl
-course_table_select(uint param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4,
-                   undefined4 param_5,undefined4 param_6,undefined4 param_7,undefined4 param_8,
-                   undefined4 param_9,undefined4 param_10,undefined4 param_11)
+course_table_select(uint course_id,undefined4 unused_2,undefined4 unused_3,undefined4 unused_4,
+                   undefined4 unused_5,undefined4 unused_6,undefined4 unused_7,undefined4 unused_8,
+                   undefined4 unused_9,undefined4 unused_10,undefined4 unused_11)
 {
-  CourseEntry *pCVar1;
-  int iVar2;
+  CourseEntry *entry;
+  int entries_left;
   
+  /* Selects the g_course_table record whose course_id matches (last match wins); null if none. unused_2..11 are stack arguments the function ignores. */
   g_current_course_entry = (CourseEntry *)0x0;
   if (0 < g_course_table_count) {
-    pCVar1 = g_course_table;
-    iVar2 = g_course_table_count;
+    entry = g_course_table;
+    entries_left = g_course_table_count;
     do {
-      if (pCVar1->course_id == param_1) {
-        g_current_course_entry = pCVar1;
+      if (entry->course_id == course_id) {
+        g_current_course_entry = entry;
       }
-      pCVar1 = pCVar1 + 1;
-      iVar2 = iVar2 + -1;
-    } while (iVar2 != 0);
+      entry = entry + 1;
+      entries_left = entries_left + -1;
+    } while (entries_left != 0);
   }
   return;
 }

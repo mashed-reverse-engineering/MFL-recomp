@@ -21,6 +21,8 @@
 /*0076c50c*/ extern undefined g_fx_systems_76c50c;
 /*007ef7f4*/ extern float g_tick_seconds;
 extern double sin(double);
+#define PUFF_POOL_SIZE (0x80) /* puffs in the pool; one bit each in g_particles_76beb0 */
+#define PUFF_RECORD_SIZE (0x34) /* bytes per puff record from g_particles_76c4e0 (13 words) */
 /* fx_smoke_puffs_update */
 
 /* "iterates the active bit mask of the puff pool and updates each puff" */
@@ -28,30 +30,31 @@ extern double sin(double);
 void fx_smoke_puffs_update(void)
 
 {
-  float fVar1;
-  float fVar2;
+  float life_t;
+  float life_for_alpha;
   byte mask_byte;
-  char cVar4;
+  char alpha_byte;
   int byte_index;
   uint puff_index;
-  int iVar7;
-  double rnd;
+  int record_offset;
+  double wobble;
   struct {
-    undefined4 local_18;
-    float local_14;
-    float local_10;
-    float local_c;
-    float local_8;
-    float local_4;
+    undefined4 colour_rgba;
+    float size_w;
+    float size_h;
+    float pos_x;
+    float pos_y;
+    float pos_z;
   } frame;
   
+  /* Walks the live-puff bitmask (bit per slot, 0x80 slots); for each live puff: advance its age (life_t, written to +0x504/+0x508 words), compute position (velocity*age + base, plus sin(age*pi) sideways wobble), size and fade alpha, and queue it with particles_add; puffs whose age exceeds 1.0 are cleared from the mask. byte_index is reused: mask byte index while scanning, then slot index (inferred). */
   puff_index = 0;
 LAB_0049d830:
-  frame.local_14 = 0.5;
-  frame.local_10 = 0.5;
+  frame.size_w = 0.5;
+  frame.size_h = 0.5;
   do {
     while( true ) {
-      if (0x7f < (int)puff_index) goto LAB_0049d9f7;
+      if (PUFF_POOL_SIZE - 1 < (int)puff_index) goto LAB_0049d9f7;
       if (*(int *)((char *)&g_particles_76beb0 + ((int)puff_index >> 5) * 4) != 0) break;
       puff_index = (((int)puff_index >> 5) + 1) * 0x20;
     }
@@ -107,32 +110,32 @@ switchD_0049d87d_default:
 LAB_0049d8b5:
   if ((int)puff_index < 0) goto LAB_0049d9f7;
   byte_index = puff_index - 1;
-  iVar7 = byte_index * 0x34;
-  frame.local_18 = *(undefined4 *)((char *)&g_particles_76c4e0 + iVar7 + 0x18);
-  rnd = (double)sin((double)*(float *)&(&g_fx_slots_76c504)[byte_index * 0xd] * (double)k_f_3_1415927);
-  fVar1 = g_tick_seconds + *(float *)&(&g_particles_76c508)[byte_index * 0xd];
-  *(float *)&(&g_particles_76c508)[byte_index * 0xd] = fVar1;
-  *(float *)&(&g_fx_slots_76c504)[byte_index * 0xd] = fVar1;
-  frame.local_c = *(float *)((char *)&g_particles_76c4e0 + iVar7 + 0xc) * fVar1 * *(float *)((char *)&g_fx_systems_76c50c + iVar7) +
+  record_offset = byte_index * PUFF_RECORD_SIZE;
+  frame.colour_rgba = *(undefined4 *)((char *)&g_particles_76c4e0 + record_offset + 0x18);
+  wobble = (double)sin((double)*(float *)&(&g_fx_slots_76c504)[byte_index * 0xd] * (double)k_f_3_1415927);
+  life_t = g_tick_seconds + *(float *)&(&g_particles_76c508)[byte_index * 0xd];
+  *(float *)&(&g_particles_76c508)[byte_index * 0xd] = life_t;
+  *(float *)&(&g_fx_slots_76c504)[byte_index * 0xd] = life_t;
+  frame.pos_x = *(float *)((char *)&g_particles_76c4e0 + record_offset + 0xc) * life_t * *(float *)((char *)&g_fx_systems_76c50c + record_offset) +
             *(float *)&(&g_particles_76c4e0)[byte_index * 0xd];
-  frame.local_4 = *(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x14) * fVar1 * *(float *)((char *)&g_fx_systems_76c50c + iVar7) +
+  frame.pos_z = *(float *)((char *)&g_particles_76c4e0 + record_offset + 0x14) * life_t * *(float *)((char *)&g_fx_systems_76c50c + record_offset) +
             *(float *)&(&g_fx_slots_76c4e8)[byte_index * 0xd];
-  frame.local_8 = (float)(rnd * (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x30) +
+  frame.pos_y = (float)(wobble * (double)*(float *)((char *)&g_particles_76c4e0 + record_offset + 0x30) +
                    (double)*(float *)&(&g_fx_slots_76c4e4)[byte_index * 0xd]);
-  if (!(fVar1 > float_1_0)) {      /* NaN counts as alive (original: fcomp, test ah,0x41, jne) */
-    rnd = rnd * (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
-    rnd = rnd + rnd + (double)*(float *)((char *)&g_particles_76c4e0 + iVar7 + 0x20);
-    frame.local_10 = (float)rnd;
-    frame.local_14 = (float)(rnd * (double)k_f_0_75);
-    cVar4 = ((int)(((fVar1 * fVar1) * fVar1) * 255.0f));
-    frame.local_18 = CONCAT13(-1 - cVar4,(undefined3)frame.local_18);
-    point_lerp_to_aux_camera(&frame.local_c,&frame.local_c,0x3d4ccccd);
-    fVar1 = *(float *)((char *)&g_effects_update_76c4fc + iVar7);
-    fVar2 = *(float *)&(&g_fx_slots_76c504)[byte_index * 0xd];
-    particles_set_position(&frame.local_c);
-    particles_set_color(&frame.local_18);
-    particles_set_size(&frame.local_14);
-    gfx_set_gfx_6c50c8(fVar1 * fVar2);
+  if (!(life_t > float_1_0)) {      /* NaN counts as alive (original: fcomp, test ah,0x41, jne) */
+    wobble = wobble * (double)*(float *)((char *)&g_particles_76c4e0 + record_offset + 0x20);
+    wobble = wobble + wobble + (double)*(float *)((char *)&g_particles_76c4e0 + record_offset + 0x20);
+    frame.size_h = (float)wobble;
+    frame.size_w = (float)(wobble * (double)k_f_0_75);
+    alpha_byte = ((int)(((life_t * life_t) * life_t) * 255.0f));
+    frame.colour_rgba = CONCAT13(-1 - alpha_byte,(undefined3)frame.colour_rgba);
+    point_lerp_to_aux_camera(&frame.pos_x,&frame.pos_x,0x3d4ccccd);
+    life_t = *(float *)((char *)&g_effects_update_76c4fc + record_offset);
+    life_for_alpha = *(float *)&(&g_fx_slots_76c504)[byte_index * 0xd];
+    particles_set_position(&frame.pos_x);
+    particles_set_color(&frame.colour_rgba);
+    particles_set_size(&frame.size_w);
+    gfx_set_gfx_6c50c8(life_t * life_for_alpha);
     particles_add(&g_particles_76be70);
   }
   else {

@@ -80,7 +80,8 @@ static void evlog_contact(Frame *f, int code)
   }
 }
 
-void rwp_car_collision_response(char *param_1)
+/* Walks every cell (count at +200, 0x28-byte cells at +0xd4) of the contact grid and its linked contact lists; contacts that involve a player car are classified by the collision-BSP surface code of each contact point: SURFACE_CAR_BLOCK contacts are unlinked, SOFT/PICKUP ones are logged via evlog_contact, and surface codes in the car's ignore-list (32 entries at car+0xbfc) are unlinked (inferred). */
+void rwp_car_collision_response(char *contact_grid)
 
 {
   Frame f;
@@ -100,9 +101,9 @@ void rwp_car_collision_response(char *param_1)
   }
   f.bsp = course_get_collision_bsp();
   f.cell = 0;
-  if (*(int *)(param_1 + 200) != 0) {
+  if (*(int *)(contact_grid + 200) != 0) {
     do {
-      f.prev_link = (int *)(*(char **)(param_1 + 0xd4) + 4 + f.cell * 0x28);
+      f.prev_link = (int *)(*(char **)(contact_grid + 0xd4) + 4 + f.cell * 0x28);
       for (contact = *f.prev_link; contact != 0; contact = *(int *)(contact + 0xdc)) {
         other = *(int *)(contact + 0xb4);
         f.removed = 0;
@@ -196,7 +197,7 @@ void rwp_car_collision_response(char *param_1)
         }
       }
       f.cell = f.cell + 1;
-    } while (f.cell < *(unsigned *)(param_1 + 200));
+    } while (f.cell < *(unsigned *)(contact_grid + 200));
   }
   return;
 }

@@ -96,8 +96,8 @@ undefined4 cars_step(int tick_count,float *step_params)
 
 {
   float tmp_f;
-  bool bVar2;
-  bool bVar3;
+  bool unused_bool_a;
+  bool unused_bool_b;
   float step_f;
   float rank_key[4];
   int swapped, j;

@@ -23,6 +23,10 @@
 /*007f025c*/ extern undefined4 g_ai_editor_step_flag_b;
 /*007f0280*/ extern undefined4 g_ai_7f0280;
 /*00801b0c*/ extern undefined4 g_car_801b0c;
+/* AI route record (inferred from use): up to 64 waypoints of 2 floats (x, z) at +0, waypoint count at +0x200, 0x204 bytes in all. */
+#define ROUTE_RECORD_SIZE (0x204)
+#define ROUTE_COUNT_OFFSET (0x200)
+#define ROUTE_MAX_WAYPOINTS (0x40)
 /* ai_editor */
 
 /* "the built-in AI editor: reset car, start / stop race, single step, route editing (uses
@@ -31,32 +35,34 @@
 void ai_editor(void)
 
 {
-  undefined4 *puVar1;
-  int iVar2;
-  int iVar3;
+  undefined4 *shift_ptr;
+  int scratch;
+  int route;
   struct {
-    RwReal local_14;
-    char *local_10;
-    RwReal local_c;
-    float local_8;
-    RwReal local_4;
+    RwReal spawn_angle;
+    char *car_matrix;
+    RwReal spawn_x;
+    float spawn_y;
+    RwReal spawn_z;
   } frame;
   
-  iVar2 = g_ai_editor_menu_cursor;
+  scratch = g_ai_editor_menu_cursor;
+  /* route = the selected route record (route_set picks one of 4 banks of 3 routes, 0x204 bytes each). scratch is reused: first the menu cursor, later waypoint count + 1, later a snapshot of g_ai_editor_6642f8 (auto-repeat state for the step key). */
   switch(g_ai_editor_route_set) {
   default:
-    iVar3 = g_ai_editor_route_index * 0x204 + ((int)&g_ai_data_routes_0_);
+    route = g_ai_editor_route_index * ROUTE_RECORD_SIZE + ((int)&g_ai_data_routes_0_);
     break;
   case 1:
-    iVar3 = g_ai_editor_route_index * 0x204 + ((int)&g_ai_data_routes_1548_);
+    route = g_ai_editor_route_index * ROUTE_RECORD_SIZE + ((int)&g_ai_data_routes_1548_);
     break;
   case 2:
-    iVar3 = g_ai_editor_route_index * 0x204 + ((int)&g_ai_data_routes_3096_);
+    route = g_ai_editor_route_index * ROUTE_RECORD_SIZE + ((int)&g_ai_data_routes_3096_);
     break;
   case 3:
-    iVar3 = g_ai_editor_route_index * 0x204 + ((int)&g_ai_data_routes_4644_);
+    route = g_ai_editor_route_index * ROUTE_RECORD_SIZE + ((int)&g_ai_data_routes_4644_);
   }
   g_ai_editor_step_flag_a = 0;
+  /* Menu handling: g_ai_editor_mode 0=main menu, 1=clear, 3=save, 4=race/step, 6=route edit (inferred from the branches). */
   if ((g_player_inputs[0].menu_back == 0) || (g_player_inputs_previous[0].menu_back != 0)) {
 LAB_004274f6:
     if (g_ai_editor_mode != 4) goto LAB_0042759f;
@@ -72,7 +78,7 @@ LAB_004274f6:
       if (g_ai_editor_menu_cursor == 1) {
         g_ai_editor_mode = 6;
         g_ai_editor_menu_cursor = 2;
-        g_ai_editor_route_set = iVar2;
+        g_ai_editor_route_set = scratch;
         return;
       }
       if (g_ai_editor_menu_cursor == 2) {
@@ -103,7 +109,7 @@ LAB_004274f6:
       }
       g_ai_editor_mode = 6;
       g_ai_editor_menu_cursor = 2;
-      g_ai_editor_route_set = iVar2;
+      g_ai_editor_route_set = scratch;
       return;
     }
     if (g_ai_editor_mode == 1) {
@@ -132,30 +138,30 @@ LAB_004274f6:
 LAB_00427417:
       if (g_ai_editor_mode == 6) {
         if (g_ai_editor_menu_cursor == 2) {
-          *(float *)(iVar3 + g_ai_7f0280 * 8) = g_ai_editor_view_origin_x + float_1_0;
-          *(float *)(iVar3 + 4 + g_ai_7f0280 * 8) = g_ai_editor_view_origin_z - float_1_0;
-          if (g_ai_7f0280 == *(int *)(iVar3 + 0x200)) {
-            *(int *)(iVar3 + 0x200) = *(int *)(iVar3 + 0x200) + 1;
+          *(float *)(route + g_ai_7f0280 * 8) = g_ai_editor_view_origin_x + float_1_0;
+          *(float *)(route + 4 + g_ai_7f0280 * 8) = g_ai_editor_view_origin_z - float_1_0;
+          if (g_ai_7f0280 == *(int *)(route + ROUTE_COUNT_OFFSET)) {
+            *(int *)(route + ROUTE_COUNT_OFFSET) = *(int *)(route + ROUTE_COUNT_OFFSET) + 1;
           }
         }
         if (g_ai_editor_menu_cursor == 3) {
-          if (*(int *)(iVar3 + 0x200) == 0x40) goto LAB_004274f6;
-          iVar2 = *(int *)(iVar3 + 0x200) + 1;
-          if ((int)g_ai_7f0280 < iVar2) {
-            puVar1 = (undefined4 *)(iVar3 + -4 + iVar2 * 8);
+          if (*(int *)(route + ROUTE_COUNT_OFFSET) == ROUTE_MAX_WAYPOINTS) goto LAB_004274f6;
+          scratch = *(int *)(route + ROUTE_COUNT_OFFSET) + 1;
+          if ((int)g_ai_7f0280 < scratch) {
+            shift_ptr = (undefined4 *)(route + -4 + scratch * 8);
             do {
-              puVar1[1] = puVar1[-1];
-              puVar1[2] = *puVar1;
-              iVar2 = iVar2 + -1;
-              puVar1 = puVar1 + -2;
-            } while ((int)g_ai_7f0280 < iVar2);
+              shift_ptr[1] = shift_ptr[-1];
+              shift_ptr[2] = *shift_ptr;
+              scratch = scratch + -1;
+              shift_ptr = shift_ptr + -2;
+            } while ((int)g_ai_7f0280 < scratch);
           }
-          *(float *)(iVar3 + g_ai_7f0280 * 8) = g_ai_editor_view_origin_x + float_1_0;
-          *(float *)(iVar3 + 4 + g_ai_7f0280 * 8) = g_ai_editor_view_origin_z - float_1_0;
-          if (g_ai_7f0280 == *(int *)(iVar3 + 0x200)) {
+          *(float *)(route + g_ai_7f0280 * 8) = g_ai_editor_view_origin_x + float_1_0;
+          *(float *)(route + 4 + g_ai_7f0280 * 8) = g_ai_editor_view_origin_z - float_1_0;
+          if (g_ai_7f0280 == *(int *)(route + ROUTE_COUNT_OFFSET)) {
             g_ai_7f0280 = g_ai_7f0280 + 1;
           }
-          *(int *)(iVar3 + 0x200) = *(int *)(iVar3 + 0x200) + 1;
+          *(int *)(route + ROUTE_COUNT_OFFSET) = *(int *)(route + ROUTE_COUNT_OFFSET) + 1;
         }
         if (g_ai_editor_menu_cursor == 5) {
           g_ai_editor_mode = 0;
@@ -167,8 +173,8 @@ LAB_00427417:
     }
     if (g_ai_editor_menu_cursor != 4) {
       if (g_ai_editor_menu_cursor == 3) {
-        grid_position(0,0,1,&frame.local_c,&frame.local_14);
-        car_spawn(0,frame.local_c,frame.local_8,frame.local_4,frame.local_14,&g_car_801b0c);      /* the position vector is passed by value; its y and z are never written (stack residue) */
+        grid_position(0,0,1,&frame.spawn_x,&frame.spawn_angle);
+        car_spawn(0,frame.spawn_x,frame.spawn_y,frame.spawn_z,frame.spawn_angle,&g_car_801b0c);      /* the position vector is passed by value; its y and z are never written (stack residue) */
       }
       if (g_ai_editor_menu_cursor == 2) {
         g_ai_editor_mode = 0;
@@ -179,10 +185,10 @@ LAB_00427417:
     }
     g_ai_editor_step_flag_b = g_ai_editor_step_flag_b - 1 & 1;
   }
-  car_current_matrix(&frame.local_10,0);
-  iVar2 = g_ai_editor_6642f8;
-  g_ai_editor_view_origin_x = *(float *)(frame.local_10 + 0x30);
-  g_ai_editor_view_origin_z = *(float *)(frame.local_10 + 0x38);
+  car_current_matrix(&frame.car_matrix,0);
+  scratch = g_ai_editor_6642f8;
+  g_ai_editor_view_origin_x = *(float *)(frame.car_matrix + 0x30);
+  g_ai_editor_view_origin_z = *(float *)(frame.car_matrix + 0x38);
   if (g_ai_editor_menu_cursor != 5) goto LAB_0042759f;
   if (g_player_inputs[0].menu_back == 0) {
     g_ai_editor_6642f8 = 0;
@@ -197,7 +203,7 @@ LAB_00427417:
     else if (g_ai_editor_6642f8 == 1) {
       if (g_ai_editor_664310 != 0x1e) goto LAB_0042759f;
       g_ai_editor_6642f8 = 2;
-      g_ai_editor_step_flag_a = iVar2;
+      g_ai_editor_step_flag_a = scratch;
     }
     else {
       if ((g_ai_editor_6642f8 != 2) || (g_ai_editor_664310 != 3)) goto LAB_0042759f;
@@ -214,9 +220,9 @@ LAB_0042759f:
       g_ai_7f0280 = g_ai_7f0280 + -1;
     }
     if ((int)g_ai_7f0280 < 0) {
-      g_ai_7f0280 = *(int *)(iVar3 + 0x200);
+      g_ai_7f0280 = *(int *)(route + ROUTE_COUNT_OFFSET);
     }
-    if ((*(int *)(iVar3 + 0x200) < (int)g_ai_7f0280) || (g_ai_7f0280 == 0x40)) {
+    if ((*(int *)(route + ROUTE_COUNT_OFFSET) < (int)g_ai_7f0280) || (g_ai_7f0280 == ROUTE_MAX_WAYPOINTS)) {
       g_ai_7f0280 = 0;
     }
     if (((*(byte *)((char *)&g_player_inputs[0] + 61)) != '\0') && ((*(byte *)((char *)&g_player_inputs_previous[0] + 61)) == '\0')) {

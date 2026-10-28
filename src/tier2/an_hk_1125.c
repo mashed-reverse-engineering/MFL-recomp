@@ -10,53 +10,53 @@ extern double fabs(double);
 
 /* no context */
 
-void gap_5700b0(char *param_1,float *param_2,float *param_3)
+void gap_5700b0(char *obj,float *axis_in,float *vec_out)
 
 {
-  float fVar1;
-  float fVar2;
+  float in_z;
+  float abs_in_z;
   struct {
     float fStack_c;
     float fStack_8;
     float fStack_4;
   } frame;
   
-  frame.fStack_c = *param_2;
-  frame.fStack_8 = param_2[1];
-  fVar1 = param_2[2];
-  fVar2 = fabs(fVar1);
-  if (!(fVar2 <= k_f_0_9998)) {      /* NaN takes the axis branch (original: fcom / test ah,0x41 / jp) */
+  frame.fStack_c = *axis_in;
+  frame.fStack_8 = axis_in[1];
+  in_z = axis_in[2];
+  abs_in_z = fabs(in_z);
+  if (!(abs_in_z <= k_f_0_9998)) {      /* NaN takes the axis branch (original: fcom / test ah,0x41 / jp) */
     frame.fStack_c = 0.0;
     frame.fStack_8 = 0.0;
     frame.fStack_4 = float_1_0;
-    if (fVar1 < k_f_0) {
+    if (in_z < k_f_0) {
       frame.fStack_4 = k_f_n1;
     }
-    frame.fStack_4 = frame.fStack_4 * *(float *)(param_1 + 0x40);
+    frame.fStack_4 = frame.fStack_4 * *(float *)(obj + 0x40);
   }
   else {
     frame.fStack_4 = 0.0;
-    if (!(fVar2 > k_f_0_02)) {      /* NaN: the first branch (original: and eax,0x4100 / jne) */
+    if (!(abs_in_z > k_f_0_02)) {      /* NaN: the first branch (original: and eax,0x4100 / jne) */
       FUN_0056fd20(&frame.fStack_c,&frame.fStack_c);
-      frame.fStack_c = *(float *)(param_1 + 0x44) * frame.fStack_c;
-      frame.fStack_8 = *(float *)(param_1 + 0x44) * frame.fStack_8;
-      frame.fStack_4 = *(float *)(param_1 + 0x44) * frame.fStack_4;
+      frame.fStack_c = *(float *)(obj + 0x44) * frame.fStack_c;
+      frame.fStack_8 = *(float *)(obj + 0x44) * frame.fStack_8;
+      frame.fStack_4 = *(float *)(obj + 0x44) * frame.fStack_4;
     }
     else {
       FUN_0056fd20(&frame.fStack_c,&frame.fStack_c);
-      frame.fStack_c = *(float *)(param_1 + 0x44) * frame.fStack_c;
-      frame.fStack_8 = *(float *)(param_1 + 0x44) * frame.fStack_8;
-      if (!(fVar1 < k_f_0)) {      /* NaN counts as >= 0 (original: fcomp / test ah,5 / jp) */
-        frame.fStack_4 = float_1_0 * *(float *)(param_1 + 0x40);
+      frame.fStack_c = *(float *)(obj + 0x44) * frame.fStack_c;
+      frame.fStack_8 = *(float *)(obj + 0x44) * frame.fStack_8;
+      if (!(in_z < k_f_0)) {      /* NaN counts as >= 0 (original: fcomp / test ah,5 / jp) */
+        frame.fStack_4 = float_1_0 * *(float *)(obj + 0x40);
       }
       else {
-        frame.fStack_4 = k_f_n1 * *(float *)(param_1 + 0x40);
+        frame.fStack_4 = k_f_n1 * *(float *)(obj + 0x40);
       }
     }
   }
-  *param_3 = frame.fStack_c;
-  param_3[1] = frame.fStack_8;
-  param_3[2] = frame.fStack_4;
+  *vec_out = frame.fStack_c;
+  vec_out[1] = frame.fStack_8;
+  vec_out[2] = frame.fStack_4;
   return;
 }
 

@@ -31,6 +31,14 @@ extern int g_sound_groups, g_sound_7dabec;
 extern void *g_sound_7dabe8;
 extern unsigned int g_sound_6ad088[];
 extern int PTR_s_skid_on_wet_tarmac_006229a0[];
+#define VOICE_SOUND_OBJECT_OFFSET (0x30) /* voice record: sound object passed to FUN_005b7300 (0 = none) */
+#define VOICE_FLAGS_OFFSET (0x34) /* voice record flags */
+#define VOICE_FLAG_LOOP (4) /* set when the group loop flag (+0x88) is non-zero (inferred) */
+#define SOUND_GROUP_FIRST_VOICE (0x80) /* group record: index of its first voice slot */
+#define SOUND_GROUP_VOICE_COUNT (0x84)
+#define SOUND_GROUP_LOOP (0x88)
+#define SOUND_GROUP_VOLUME (0x8c) /* copied to voice +0x74 and sound param 3 (inferred: volume) */
+#define SOUND_BANK_CHUNK_ID (0x809) /* RenderWare stream chunk holding one sound bank (inferred) */
 
 /* Loads the audio bank of a course ("toastaudio\pc\audio\pcdics\<course>.rws"): opens the stream, reads the sound chunks into the bank, creates the voices of the sound groups
    (loop flag, volume) and starts the course specific audio. */
@@ -38,12 +46,12 @@ void sound_load_course_audio(int course_id)
 {
   char path[128] = {0};
   char name[16];
-  int *mem;
+  int *stream_buffer;
   unsigned int i;
-  unsigned int n;
+  unsigned int group_index;
   unsigned int voice;
   unsigned int total;
-  int offs;
+  int group_rec;
   void *stream;
 
   FID_conflict__wprintf("loading course\n");
@@ -57,26 +65,26 @@ void sound_load_course_audio(int course_id)
   stream = RwStreamOpen(rwSTREAMFILENAME, rwSTREAMREAD, path);
   if (stream != 0) {
     FID_conflict__wprintf("loading courseA %s\n", path);
-    mem = (int *)(*(void *(**)(unsigned int, unsigned int, int))((char *)RwEngineInstance + 0x114))(0x10001, 1, 0);
+    stream_buffer = (int *)(*(void *(**)(unsigned int, unsigned int, int))((char *)RwEngineInstance + 0x114))(0x10001, 1, 0);
     FID_conflict__wprintf("loading courseB\n");
     FID_conflict__wprintf("loading courseC\n");
-    if (mem == 0) {
+    if (stream_buffer == 0) {
       g_sound_7dabe8 = 0;
       g_sound_7dabec = 0;
     }
     else {
       g_sound_7dabec = 0x10000;
-      g_sound_7dabe8 = mem;
+      g_sound_7dabe8 = stream_buffer;
     }
     FID_conflict__wprintf("loading courseD\n");
     g_sound_6ad1f8 = 0;
-    while (RwStreamFindChunk(stream, 0x809, 0, 0) != 0) {
+    while (RwStreamFindChunk(stream, SOUND_BANK_CHUNK_ID, 0, 0) != 0) {
       FID_conflict__wprintf("loading courseDA\n");
       g_sound_6ad1f8 = FUN_005b82b0(0, stream, g_sound_6ae0bc, 0, 0, 0);
       FID_conflict__wprintf("loading courseDB\n");
     }
     FID_conflict__wprintf("loading courseE\n");
-    (*(void (**)(void *))((char *)RwEngineInstance + 0x10c))(mem);
+    (*(void (**)(void *))((char *)RwEngineInstance + 0x10c))(stream_buffer);
     FID_conflict__wprintf("loading courseF\n");
     RwStreamClose(stream, 0);
     FID_conflict__wprintf("loading courseG\n");
@@ -87,48 +95,48 @@ void sound_load_course_audio(int course_id)
     total = 0;
     g_sound_load_6ad8a0 = 0;
     if (g_sound_6ae098 != 0) {
-      n = g_sound_6ae098;
-      offs = g_sound_groups + 0x84;
+      group_index = g_sound_6ae098;
+      group_rec = g_sound_groups + 0x84;
       do {
-        if (*(unsigned int *)offs != 0) {
-          total = total + *(unsigned int *)offs;
+        if (*(unsigned int *)group_rec != 0) {
+          total = total + *(unsigned int *)group_rec;
         }
-        offs = offs + 0x90;
-        n = n - 1;
+        group_rec = group_rec + 0x90;
+        group_index = group_index - 1;
         g_sound_load_6ad8a0 = total;
-      } while (n != 0);
+      } while (group_index != 0);
     }
     for (voice = g_sound_6ad8a4; voice < g_sound_6ad8a4 + g_sound_load_6ad8a0; voice++) {
-      *(unsigned int *)(g_voices[voice].voice + 0x34) |= 4;
-      if (*(int *)(g_voices[voice].voice + 0x30) != 0) {
-        FUN_005b7300(*(int *)(g_voices[voice].voice + 0x30), 8, 1, 1);
+      *(unsigned int *)(g_voices[voice].voice + VOICE_FLAGS_OFFSET) |= VOICE_FLAG_LOOP;
+      if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
+        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 8, 1, 1);
       }
       *(int *)(g_voices[voice].voice + 0x44) = 0;
-      if (*(int *)(g_voices[voice].voice + 0x30) != 0) {
-        FUN_005b7300(*(int *)(g_voices[voice].voice + 0x30), 10, 1, 0);
+      if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
+        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 10, 1, 0);
       }
     }
     voice = g_sound_6ad8a4;
-    for (n = 0; n < (unsigned int)g_sound_6ae098; n++) {
-      offs = g_sound_groups + n * 0x90;
-      *(unsigned int *)(offs + 0x80) = voice;
-      for (i = 0; i < *(unsigned int *)(offs + 0x84); i++) {
-        FUN_005b6a80(g_voices[voice].voice, g_sound_6ad088[n]);
-        if (*(int *)(offs + 0x88) == 0) {
-          *(unsigned int *)(g_voices[voice].voice + 0x34) &= 0xfffffffb;
-          if (*(int *)(g_voices[voice].voice + 0x30) != 0) {
-            FUN_005b7300(*(int *)(g_voices[voice].voice + 0x30), 8, 1, 0);
+    for (group_index = 0; group_index < (unsigned int)g_sound_6ae098; group_index++) {
+      group_rec = g_sound_groups + group_index * 0x90;
+      *(unsigned int *)(group_rec + SOUND_GROUP_FIRST_VOICE) = voice;
+      for (i = 0; i < *(unsigned int *)(group_rec + SOUND_GROUP_VOICE_COUNT); i++) {
+        FUN_005b6a80(g_voices[voice].voice, g_sound_6ad088[group_index]);
+        if (*(int *)(group_rec + SOUND_GROUP_LOOP) == 0) {
+          *(unsigned int *)(g_voices[voice].voice + VOICE_FLAGS_OFFSET) &= ~VOICE_FLAG_LOOP;
+          if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
+            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 8, 1, 0);
           }
         }
         else {
-          *(unsigned int *)(g_voices[voice].voice + 0x34) |= 4;
-          if (*(int *)(g_voices[voice].voice + 0x30) != 0) {
-            FUN_005b7300(*(int *)(g_voices[voice].voice + 0x30), 8, 1, 1);
+          *(unsigned int *)(g_voices[voice].voice + VOICE_FLAGS_OFFSET) |= VOICE_FLAG_LOOP;
+          if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
+            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 8, 1, 1);
           }
         }
-        *(int *)(g_voices[voice].voice + 0x74) = *(int *)(offs + 0x8c);
-        if (*(int *)(g_voices[voice].voice + 0x30) != 0) {
-          FUN_005b7300(*(int *)(g_voices[voice].voice + 0x30), 3, 1, *(int *)(offs + 0x8c));
+        *(int *)(g_voices[voice].voice + 0x74) = *(int *)(group_rec + SOUND_GROUP_VOLUME);
+        if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
+          FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 3, 1, *(int *)(group_rec + SOUND_GROUP_VOLUME));
         }
         voice++;
       }

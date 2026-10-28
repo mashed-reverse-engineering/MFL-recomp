@@ -27,75 +27,77 @@ extern float course_get_shadow_scale(void);
 void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
 
 {
-  float fbits1;
-  int iVar1;
-  uint uVar2;
+  float shadow_scale_scaled;
+  int part_frame;
+  uint shadow_camera;
   RwFrame *frame;
   RpWorld *rpworld;
-  int iVar4;
+  int light_or_status;
   undefined4 collision_bsp;
-  bool bVar5;
+  bool is_mode_2;
   float10 shadow_scale;
-  RwCamera *pRVar7;
+  RwCamera *camera_to_toggle;
   struct {
-    RwRGBA local_20;
-    RwV3d local_1c;
-    uint local_10;
-    uint local_c;
-    uint local_8;
-    uint local_4;
+    RwRGBA clear_colour;
+    RwV3d camera_pos;
+    uint tint_0;
+    uint tint_1;
+    uint tint_2;
+    uint tint_3;
   } frame_obj;
   
-  iVar1 = vehicle_record->part_frames[vehicle_record->field_28c];
-  if ((g_particles_659d70 != 0) && (iVar1 != 0)) {
-    frame_obj.local_1c.y = vehicle_record->world_sphere[1];
-    frame_obj.local_1c.z = vehicle_record->world_sphere[2];
-    frame_obj.local_20.red = '\0';
-    frame_obj.local_20.green = '\0';
-    frame_obj.local_20.blue = '\0';
-    frame_obj.local_20.alpha = '\0';
-    iVar4 = *(int *)(g_particles_659d70 + 4);
-    bVar5 = vehicle_record->field_298 == 2;
-    uVar2 = (&g_load_65a9b0)[bVar5];
-    vehicle_record->shadow_camera = uVar2;
-    vehicle_record->shadow_texture = (&g_game_659d74)[bVar5];
-    frame = *(RwFrame **)(uVar2 + 4);
+  part_frame = vehicle_record->part_frames[vehicle_record->field_28c];
+  if ((g_particles_659d70 != 0) && (part_frame != 0)) {
+    frame_obj.camera_pos.y = vehicle_record->world_sphere[1];
+    frame_obj.camera_pos.z = vehicle_record->world_sphere[2];
+    frame_obj.clear_colour.red = '\0';
+    frame_obj.clear_colour.green = '\0';
+    frame_obj.clear_colour.blue = '\0';
+    frame_obj.clear_colour.alpha = '\0';
+    light_or_status = *(int *)(g_particles_659d70 + 4);
+    is_mode_2 = vehicle_record->field_298 == 2;
+    shadow_camera = (&g_load_65a9b0)[is_mode_2];
+    /* Shadow camera/texture pair chosen by field_298 == 2 (is_mode_2); camera sits at the vehicle's world sphere centre offset by -4 * the light object's direction (+0x30..+0x38), then is oriented by FUN_004c42f0 (inferred). */
+    vehicle_record->shadow_camera = shadow_camera;
+    vehicle_record->shadow_texture = (&g_game_659d74)[is_mode_2];
+    frame = *(RwFrame **)(shadow_camera + 4);
     vehicle_record->shadow_frame = (uint)frame;
-    frame_obj.local_1c.x = *(float *)(iVar4 + 0x30) * k_f_n4 + vehicle_record->world_sphere[0];
-    frame_obj.local_1c.y = *(float *)(iVar4 + 0x34) * k_f_n4 + frame_obj.local_1c.y;
-    frame_obj.local_1c.z = *(float *)(iVar4 + 0x38) * k_f_n4 + frame_obj.local_1c.z;
-    RwFrameTranslate(frame,&frame_obj.local_1c,rwCOMBINEREPLACE);
+    frame_obj.camera_pos.x = *(float *)(light_or_status + 0x30) * k_f_n4 + vehicle_record->world_sphere[0];
+    frame_obj.camera_pos.y = *(float *)(light_or_status + 0x34) * k_f_n4 + frame_obj.camera_pos.y;
+    frame_obj.camera_pos.z = *(float *)(light_or_status + 0x38) * k_f_n4 + frame_obj.camera_pos.z;
+    RwFrameTranslate(frame,&frame_obj.camera_pos,rwCOMBINEREPLACE);
     FUN_004c42f0(vehicle_record->shadow_frame,vehicle_record->world_sphere,&g_car_62ac74);
     RwFrameOrthoNormalize((RwFrame *)vehicle_record->shadow_frame);
-    frame_obj.local_10 = vehicle_record->shadow_texture;
-    frame_obj.local_c = frame_obj.local_10;
-    frame_obj.local_8 = frame_obj.local_10;
-    frame_obj.local_4 = frame_obj.local_10;
-    vehicle_render_state_set_colour(vehicle_record->index,&frame_obj.local_10);
+    frame_obj.tint_0 = vehicle_record->shadow_texture;
+    frame_obj.tint_1 = frame_obj.tint_0;
+    frame_obj.tint_2 = frame_obj.tint_0;
+    frame_obj.tint_3 = frame_obj.tint_0;
+    vehicle_render_state_set_colour(vehicle_record->index,&frame_obj.tint_0);
     vehicle_render_state_set_6614e8(vehicle_record->index,vehicle_record->shadow_camera);
-    RwCameraClear((RwCamera *)vehicle_record->shadow_camera,&frame_obj.local_20,1);
-    pRVar7 = (RwCamera *)vehicle_record->shadow_camera;
+    RwCameraClear((RwCamera *)vehicle_record->shadow_camera,&frame_obj.clear_colour,1);
+    camera_to_toggle = (RwCamera *)vehicle_record->shadow_camera;
     rpworld = (RpWorld *)course_get_rpworld();
-    RpWorldAddCamera(rpworld,pRVar7);
-    iVar4 = RwCameraBeginUpdate(vehicle_record->shadow_camera);
-    if (iVar4 != 0) {
+    RpWorldAddCamera(rpworld,camera_to_toggle);
+    light_or_status = RwCameraBeginUpdate(vehicle_record->shadow_camera);
+    if (light_or_status != 0) {
+      /* Render the part frame into the shadow camera with Z test/write off (draw via the frame's virtual call at +0x48), then restore Z state. */
       shadow_scale = (float10)course_get_shadow_scale();
       collision_bsp =
            course_get_collision_bsp
-                     ((fbits1 = (float)(shadow_scale * (float10)vehicle_record->light_factor *
-                             (float10)vehicle_record->size_factor), *(int *)&fbits1));
+                     ((shadow_scale_scaled = (float)(shadow_scale * (float10)vehicle_record->light_factor *
+                             (float10)vehicle_record->size_factor), *(int *)&shadow_scale_scaled));
       vehicle_tyre_marks_collect_triangles
                 (vehicle_record->index,*(int *)(vehicle_record->frame + 4) + 0x10,collision_bsp);
       RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
       RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
-      (**(code **)(iVar1 + 0x48))(iVar1);
+      (**(code **)(part_frame + 0x48))(part_frame);
       RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
       RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
       RwCameraEndUpdate(vehicle_record->shadow_camera);
     }
-    pRVar7 = (RwCamera *)vehicle_record->shadow_camera;
+    camera_to_toggle = (RwCamera *)vehicle_record->shadow_camera;
     rpworld = (RpWorld *)course_get_rpworld();
-    RpWorldRemoveCamera(rpworld,pRVar7);
+    RpWorldRemoveCamera(rpworld,camera_to_toggle);
   }
   return;
 }

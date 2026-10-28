@@ -72,6 +72,13 @@ typedef int CourseId;
 /*008c4798*/ extern int g_course_highway_8c4798;
 /*008c479c*/ extern int g_course_highway_8c479c;
 /*008c47a0*/ extern int g_course_highway_8c47a0;
+#define LOD_OBJ_SIZE (0xfc) /* bytes per highway LOD scenery object */
+#define LOD_OBJ_POOL (0x8bf0a0) /* address of the first LOD object (80 consecutive objects) */
+#define LOD_OBJ_TIER (0xac) /* obj field: lod_tier 0..2 */
+#define LOD_OBJ_ROW (0xb0)
+#define LOD_OBJ_COL (0xb4)
+#define LOD_OBJ_SEG (0xb8)
+#define LOD_OBJ_NEXT (0xbc) /* obj field: pointer to the next object in its ring of 10 */
 
 
 
@@ -286,7 +293,7 @@ void course_highway_cb0(struct CourseWorld *course)
   g_course_highway_8c479c = 0xbed0e560;
   g_course_highway_8c47a0 = 0xbfadf3b6;
   g_course_highway_8c4478 = 3;
-  frame.obj = 0x8bf0a0;
+  frame.obj = LOD_OBJ_POOL;
   frame.row = 0;
   frame.slot_off = 0;
   do {
@@ -396,11 +403,11 @@ LAB_0045b28a:
         frame.shared_atomic_2 = (undefined4)(clump_first_atomic((RpClump *)atomic));
         frame.shared_atomic_3 = (undefined4)(clump_first_atomic((RpClump *)atomic));
         atomic = (undefined4)(clump_first_atomic((RpClump *)course->clumps[frame.far_clump_idx]));
-        mem_zero((void *)frame.obj,0xfc);
-        *(int *)(frame.obj + 0xb8) = frame.seg;
-        *(int *)(frame.obj + 0xac) = lod_tier;
-        *(int *)(frame.obj + 0xb0) = frame.row;
-        *(int *)(frame.obj + 0xb4) = frame.col;
+        mem_zero((void *)frame.obj,LOD_OBJ_SIZE);
+        *(int *)(frame.obj + LOD_OBJ_SEG) = frame.seg;
+        *(int *)(frame.obj + LOD_OBJ_TIER) = lod_tier;
+        *(int *)(frame.obj + LOD_OBJ_ROW) = frame.row;
+        *(int *)(frame.obj + LOD_OBJ_COL) = frame.col;
         course_highway_lod_atomic_clone_a_r(&frame.lod_atomic_a,frame.obj);
         course_highway_lod_objects_setup_r(frame.obj,(int)&frame.shared_atomic_0);
         course_highway_lod_atomic_clone_b_r(atomic, frame.obj);
@@ -409,7 +416,7 @@ LAB_0045b28a:
           course_highway_lod_atomic_scale_by_index_r((RpAtomic *)atomic,frame.obj);
         }
         *(int *)((int)&g_course_highway_8c4300 + frame.slot_off) = frame.obj;
-        frame.obj = frame.obj + 0xfc;
+        frame.obj = frame.obj + LOD_OBJ_SIZE;
         frame.seg = frame.seg + 1;
         frame.slot_off = frame.slot_off + 4;
       } while (frame.seg < 10);
@@ -422,20 +429,20 @@ LAB_0045b28a:
       do {
         idx = 4;
         do {
-          *(int *)(chain[-2] + 0xbc) = chain[-1];
-          *(int *)(chain[-1] + 0xbc) = *chain;
-          *(int *)(*chain + 0xbc) = chain[1];
-          *(int *)(chain[1] + 0xbc) = chain[2];
-          *(int *)(chain[2] + 0xbc) = chain[3];
-          *(int *)(chain[3] + 0xbc) = chain[4];
-          *(int *)(chain[4] + 0xbc) = chain[5];
-          *(int *)(chain[5] + 0xbc) = chain[6];
-          *(int *)(chain[6] + 0xbc) = chain[7];
+          *(int *)(chain[-2] + LOD_OBJ_NEXT) = chain[-1];
+          *(int *)(chain[-1] + LOD_OBJ_NEXT) = *chain;
+          *(int *)(*chain + LOD_OBJ_NEXT) = chain[1];
+          *(int *)(chain[1] + LOD_OBJ_NEXT) = chain[2];
+          *(int *)(chain[2] + LOD_OBJ_NEXT) = chain[3];
+          *(int *)(chain[3] + LOD_OBJ_NEXT) = chain[4];
+          *(int *)(chain[4] + LOD_OBJ_NEXT) = chain[5];
+          *(int *)(chain[5] + LOD_OBJ_NEXT) = chain[6];
+          *(int *)(chain[6] + LOD_OBJ_NEXT) = chain[7];
           chain_last = chain + 7;
           chain_first = chain + -2;
           chain = chain + 10;
           idx = idx + -1;
-          *(int *)(*chain_last + 0xbc) = *chain_first;
+          *(int *)(*chain_last + LOD_OBJ_NEXT) = *chain_first;
         } while (idx != 0);
       } while ((int)chain < 0x8c4448);
       course_object_offsets_init();

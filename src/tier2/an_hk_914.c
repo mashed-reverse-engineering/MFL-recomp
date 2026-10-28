@@ -15,26 +15,26 @@
 
 /* sets up the cameras of the 4 players (split screen aware) */
 
-void race_update_cameras(undefined4 param_1)
+void race_update_cameras(undefined4 camera_arg)
 
 {
-  int iVar1;
+  int tmp;
   RwCamera *camera;
-  undefined4 *puVar2;
+  undefined4 *car_matrix_array;
   struct {
-    undefined4 local_14;
-    undefined4 local_10 [4];
+    undefined4 car_matrix;
+    undefined4 car_matrix_by_player [4];
   } frame;
   
-  if ((g_race_phase == RACE_PHASE_LOADING) && (iVar1 = scene_object_select_is_active(), iVar1 != 0)) {
+  if ((g_race_phase == RACE_PHASE_LOADING) && (tmp = scene_object_select_is_active(), tmp != 0)) {
     return;
   }
-  iVar1 = 0;
+  tmp = 0;
   do {
-    car_current_matrix(&frame.local_14,iVar1);
-    frame.local_10[iVar1] = frame.local_14;
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 4);
+    car_current_matrix(&frame.car_matrix,tmp);
+    frame.car_matrix_by_player[tmp] = frame.car_matrix;
+    tmp = tmp + 1;
+  } while (tmp < 4);
   if (((*(byte *)((char *)&g_player_inputs[1] + 29)) == '\0') || ((*(byte *)((char *)&g_player_inputs_previous[1] + 29)) != '\0')) {
     if (g_race_652f64 == 0) goto LAB_00410e4e;
   }
@@ -42,9 +42,9 @@ void race_update_cameras(undefined4 param_1)
     if (g_race_652f64 != 0) {
       g_race_652f64 = 0;
 LAB_00410e4e:
-      puVar2 = frame.local_10;
+      car_matrix_array = frame.car_matrix_by_player;
       camera = (RwCamera *)get_viewport_camera(0);
-      camera_race_setup((struct RwCamera *)camera,(undefined4)puVar2,param_1);
+      camera_race_setup((struct RwCamera *)camera,(undefined4)car_matrix_array,camera_arg);
       goto LAB_00410e6b;
     }
     g_race_652f64 = 1;
@@ -52,16 +52,16 @@ LAB_00410e4e:
   camera = (RwCamera *)get_viewport_camera(0);
   camera_debug_adjust_scale(camera);
 LAB_00410e6b:
-  iVar1 = race_get_phase();
-  if ((iVar1 != 7) && (g_game_state.option_flags[2] != 0)) {
-    iVar1 = get_viewport_camera(0);
-    iVar1 = *(int *)(iVar1 + 4);
-    *(float *)(iVar1 + 0x10) = *(float *)(iVar1 + 0x10) * k_f_n1;
-    *(float *)(iVar1 + 0x14) = *(float *)(iVar1 + 0x14) * k_f_n1;
-    *(float *)(iVar1 + 0x18) = *(float *)(iVar1 + 0x18) * k_f_n1;
-    *(float *)(iVar1 + 0x20) = *(float *)(iVar1 + 0x20) * k_f_n1;
-    *(float *)(iVar1 + 0x24) = *(float *)(iVar1 + 0x24) * k_f_n1;
-    *(float *)(iVar1 + 0x28) = *(float *)(iVar1 + 0x28) * k_f_n1;
+  tmp = race_get_phase();
+  if ((tmp != 7) && (g_game_state.option_flags[2] != 0)) {
+    tmp = get_viewport_camera(0);
+    tmp = *(int *)(tmp + 4);
+    *(float *)(tmp + 0x10) = *(float *)(tmp + 0x10) * k_f_n1;
+    *(float *)(tmp + 0x14) = *(float *)(tmp + 0x14) * k_f_n1;
+    *(float *)(tmp + 0x18) = *(float *)(tmp + 0x18) * k_f_n1;
+    *(float *)(tmp + 0x20) = *(float *)(tmp + 0x20) * k_f_n1;
+    *(float *)(tmp + 0x24) = *(float *)(tmp + 0x24) * k_f_n1;
+    *(float *)(tmp + 0x28) = *(float *)(tmp + 0x28) * k_f_n1;
   }
   return;
 }

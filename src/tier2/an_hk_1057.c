@@ -10,52 +10,53 @@
 
 /* single caller course_warzone_cb0 */
 
-void course_warzone_cb0_sub_45ca50(undefined4 *object,undefined4 clump,undefined4 anim_arg)
+/* Initialises an animated-clump object: stores clump/anim_arg, creates its hierarchy (course_warzone_cb0_sub_4c4860), caches atomic bbox/centre values and copies a 16-word matrix from the hierarchy node (+0x40) into entity[0x15..0x24] (inferred). */
+void course_warzone_cb0_sub_45ca50(undefined4 *entity,undefined4 clump,undefined4 anim_arg)
 
 {
-  int iVar1;
-  undefined4 *src_cursor;
-  int copy_left;
-  undefined4 *dst_cursor;
+  int hier_or_bbox;
+  undefined4 *src_ptr;
+  int words_left;
+  undefined4 *dst_ptr;
   struct {
     undefined4 uStack_8;
     undefined4 *puStack_4;
   } frame;
   
-  *object = clump;
-  object[0x13] = anim_arg;
-  object[0x11] = 0;
-  iVar1 = course_warzone_cb0_sub_4c4860(clump,anim_arg);
-  object[0x14] = iVar1;
-  object[0x12] = 0;
-  func_0x0053e480(*(undefined4 *)(iVar1 + 0x20),anim_update_hierarchy,object);
+  *entity = clump;
+  entity[0x13] = anim_arg;
+  entity[0x11] = 0;
+  hier_or_bbox = course_warzone_cb0_sub_4c4860(clump,anim_arg);
+  entity[0x14] = hier_or_bbox;
+  entity[0x12] = 0;
+  func_0x0053e480(*(undefined4 *)(hier_or_bbox + 0x20),anim_update_hierarchy,entity);
   frame.uStack_8 = 0;
-  frame.puStack_4 = object;
-  RpClumpForAllAtomics((struct RpClump *)((RpClump *)*object),(RpAtomicCallBack)atomic_lookup_error,(void *)&frame.uStack_8);
-  object[4] = *(undefined4 *)(object[2] + 4);
-  iVar1 = atomic_plugin_get_bbox(object[2]);
-  object[8] = *(undefined4 *)(iVar1 + 0xc);
-  object[9] = *(undefined4 *)(iVar1 + 0x10);
-  object[10] = *(undefined4 *)(iVar1 + 0x14);
-  src_cursor = (undefined4 *)atomic_plugin_get_bbox(object[2]);
-  object[5] = *src_cursor;
-  object[6] = src_cursor[1];
-  object[7] = src_cursor[2];
-  RtAnimInterpolatorSetCurrentTime(*(RtAnimInterpolator **)(object[0x14] + 0x20),0.0);
-  RpHAnimHierarchyUpdateMatrices((RpHAnimHierarchy *)object[0x14]);
-  iVar1 = FUN_00544430(object[0x14]);
-  object[0xe] = *(undefined4 *)(iVar1 + 0x70);
-  object[0xf] = *(undefined4 *)(iVar1 + 0x74);
-  object[0x10] = *(undefined4 *)(iVar1 + 0x78);
-  object[0x25] = (undefined4)((undefined4 *)(iVar1 + 0x40));
-  src_cursor = (undefined4 *)(iVar1 + 0x40);
-  dst_cursor = object + 0x15;
-  for (copy_left = 0x10; copy_left != 0; copy_left = copy_left + -1) {
-    *dst_cursor = *src_cursor;
-    src_cursor = src_cursor + 1;
-    dst_cursor = dst_cursor + 1;
+  frame.puStack_4 = entity;
+  RpClumpForAllAtomics((struct RpClump *)((RpClump *)*entity),(RpAtomicCallBack)atomic_lookup_error,(void *)&frame.uStack_8);
+  entity[4] = *(undefined4 *)(entity[2] + 4);
+  hier_or_bbox = atomic_plugin_get_bbox(entity[2]);
+  entity[8] = *(undefined4 *)(hier_or_bbox + 0xc);
+  entity[9] = *(undefined4 *)(hier_or_bbox + 0x10);
+  entity[10] = *(undefined4 *)(hier_or_bbox + 0x14);
+  src_ptr = (undefined4 *)atomic_plugin_get_bbox(entity[2]);
+  entity[5] = *src_ptr;
+  entity[6] = src_ptr[1];
+  entity[7] = src_ptr[2];
+  RtAnimInterpolatorSetCurrentTime(*(RtAnimInterpolator **)(entity[0x14] + 0x20),0.0);
+  RpHAnimHierarchyUpdateMatrices((RpHAnimHierarchy *)entity[0x14]);
+  hier_or_bbox = FUN_00544430(entity[0x14]);
+  entity[0xe] = *(undefined4 *)(hier_or_bbox + 0x70);
+  entity[0xf] = *(undefined4 *)(hier_or_bbox + 0x74);
+  entity[0x10] = *(undefined4 *)(hier_or_bbox + 0x78);
+  entity[0x25] = (undefined4)((undefined4 *)(hier_or_bbox + 0x40));
+  src_ptr = (undefined4 *)(hier_or_bbox + 0x40);
+  dst_ptr = entity + 0x15;
+  for (words_left = 0x10; words_left != 0; words_left = words_left + -1) {
+    *dst_ptr = *src_ptr;
+    src_ptr = src_ptr + 1;
+    dst_ptr = dst_ptr + 1;
   }
-  object[0x31] = 0;
+  entity[0x31] = 0;
   return;
 }
 

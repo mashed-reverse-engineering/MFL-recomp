@@ -33,6 +33,8 @@ typedef int CourseId;
 /*008d8b30*/ extern undefined4 player_count;
 /*0041a370*/ extern float ai_get_counter();
 /* race_check_winner_by_game_mode */
+#define RACE_SETUP_CAR_ACTIVE_FIRST (0xb8) /* g_race_setup +0xb8..+0xc7: one active/enabled word per car, 4 cars (inferred) */
+#define RACE_SETUP_CAR_ACTIVE_END (200)
 #define COURSE_HIGHWAYN (12)
 #define COURSE_HIGHWAY (38)
 
@@ -42,121 +44,121 @@ typedef int CourseId;
 int race_check_winner_by_game_mode(void)
 
 {
-  bool bVar1;
-  int iVar2;
+  bool has_next_player;
+  int scratch;
   int points;
-  int iVar3;
+  int scratch2;
   int team_mode;
   CourseId course_id;
-  int car_active;
+  int winner_plus1;
   float10 counter;
   struct {
-    int local_c;
-    undefined1 local_8 [4];
-    float fStack_4;
+    int mode_out0;
+    undefined1 mode_out1 [4];
+    float counter1_f;
   } frame;
   
-  car_active = 0;
+  winner_plus1 = 0;
   g_intro_652df0 = 0;
-  iVar2 = get_event_type();
-  if ((((iVar2 == 0) || (iVar2 = get_event_type(), iVar2 == 1)) ||
-      (iVar2 = get_event_type(), iVar2 == 2)) || (iVar2 = get_event_type(), iVar2 == 0x11)) {
+  scratch = get_event_type();
+  if ((((scratch == EVENT_TIME_TRIAL_0) || (scratch = get_event_type(), scratch == EVENT_TIME_TRIAL_1)) ||
+      (scratch = get_event_type(), scratch == EVENT_TIME_TRIAL_2)) || (scratch = get_event_type(), scratch == EVENT_TRAINING)) {
     return 0;
   }
-  iVar2 = 1;
+  scratch = 1;
   do {
-    points = player_get_points(iVar2 + -1);
-    if ((((player_count == 2) || (player_count == 3)) || (iVar3 = is_team_mode(), iVar3 != 0)) &&
+    points = player_get_points(scratch + -1);
+    if ((((player_count == 2) || (player_count == 3)) || (scratch2 = is_team_mode(), scratch2 != 0)) &&
        (points == 8)) {
-      car_active = iVar2;
+      winner_plus1 = scratch;
     }
-    if (((game_mode == 2) || (game_mode == 1)) && (points == 8)) {
-      car_active = iVar2;
+    if (((game_mode == GAME_MODE_HARE_AND_HOUNDS) || (game_mode == GAME_MODE_HOLD_THE_FLAG)) && (points == 8)) {
+      winner_plus1 = scratch;
     }
     if ((player_count == 4) && (0xb < points)) {
-      car_active = iVar2;
+      winner_plus1 = scratch;
     }
-    bVar1 = iVar2 < 4;
-    iVar2 = iVar2 + 1;
-  } while (bVar1);
-  if (car_active != 0) {
+    has_next_player = scratch < 4;
+    scratch = scratch + 1;
+  } while (has_next_player);
+  if (winner_plus1 != 0) {
     points = 0;
-    iVar2 = 0xb8;
+    scratch = RACE_SETUP_CAR_ACTIVE_FIRST;
     do {
-      if ((*(int *)(g_race_setup + iVar2) != 0) && (iVar3 = car_is_active(points), iVar3 == 1)) {
-        iVar3 = player_get_points(points);
+      if ((*(int *)(g_race_setup + scratch) != 0) && (scratch2 = car_is_active(points), scratch2 == 1)) {
+        scratch2 = player_get_points(points);
         if (((player_count == 2) ||
-            ((player_count == 3 || (team_mode = is_team_mode(), team_mode != 0)))) && (iVar3 == 8))
+            ((player_count == 3 || (team_mode = is_team_mode(), team_mode != 0)))) && (scratch2 == 8))
         {
-          car_active = points + 1;
+          winner_plus1 = points + 1;
         }
-        if ((player_count == 4) && (0xb < iVar3)) {
-          car_active = points + 1;
+        if ((player_count == 4) && (0xb < scratch2)) {
+          winner_plus1 = points + 1;
         }
       }
-      iVar2 = iVar2 + 4;
+      scratch = scratch + 4;
       points = points + 1;
-    } while (iVar2 < 200);
+    } while (scratch < RACE_SETUP_CAR_ACTIVE_END);
   }
   switch(game_mode) {
-  case 4:
-    car_active = ai_ftol_noop_wrapper(0);
-    car_active = car_active + 1;
+  case GAME_MODE_RACE:
+    winner_plus1 = ai_ftol_noop_wrapper(0);
+    winner_plus1 = winner_plus1 + 1;
     break;
-  case 5:
-    car_active = car_is_active(0);
-    if (car_active == 0) {
-      car_active = -1;
+  case GAME_MODE_KILL_COPTER:
+    winner_plus1 = car_is_active(0);
+    if (winner_plus1 == 0) {
+      winner_plus1 = -1;
       goto LAB_0041280c;
     }
-    car_active = fx_objects_all_exploded();
+    winner_plus1 = fx_objects_all_exploded();
     break;
-  case 7:
+  case GAME_MODE_AIRSTRIKE:
     points = 0;
-    iVar2 = get_player_count();
-    if (0 < iVar2) {
+    scratch = get_player_count();
+    if (0 < scratch) {
       do {
         counter = (float10)ai_get_counter(points);
         if (counter > (float10)k_f_3) {
-          car_active = points + 1;
+          winner_plus1 = points + 1;
           break;
         }
         points = points + 1;
-        iVar2 = get_player_count();
-      } while (points < iVar2);
+        scratch = get_player_count();
+      } while (points < scratch);
     }
     break;
-  case 8:
-    car_get_mode(0,&frame.local_c,frame.local_8);
-    car_active = (uint)(frame.local_c == 0) * 2 + -1;
+  case GAME_MODE_SURVIVAL:
+    car_get_mode(0,&frame.mode_out0,frame.mode_out1);
+    winner_plus1 = (uint)(frame.mode_out0 == 0) * 2 + -1;
     goto LAB_0041280c;
-  case 9:
-    car_active = ai_ftol_noop_wrapper(0);
-    if (car_active != -1) {
+  case GAME_MODE_CHASE_FUGITIVE:
+    winner_plus1 = ai_ftol_noop_wrapper(0);
+    if (winner_plus1 != -1) {
 LAB_004129e1:
-      car_active = -1;
+      winner_plus1 = -1;
       g_car_7ef7b0 = 0;
       goto LAB_0041280c;
     }
-    car_get_mode(0,&frame.local_c,frame.local_8);
-    if (frame.local_c != 0) {
-      car_active = -1;
+    car_get_mode(0,&frame.mode_out0,frame.mode_out1);
+    if (frame.mode_out0 != 0) {
+      winner_plus1 = -1;
       g_car_7ef7b0 = 0;
       goto LAB_0041280c;
     }
     counter = (float10)ai_get_counter(1);
-    frame.fStack_4 = (float)counter;
+    frame.counter1_f = (float)counter;
     counter = (float10)ai_get_counter(0);
-    if ((float10)k_f_0_9 <= (float10)frame.fStack_4 - counter) {
-      car_active = -1;
+    if ((float10)k_f_0_9 <= (float10)frame.counter1_f - counter) {
+      winner_plus1 = -1;
       g_car_7ef7b0 = 0;
       goto LAB_0041280c;
     }
     goto LAB_004129c3;
-  case 10:
-    car_get_mode(0,&frame.local_c,frame.local_8);
-    if (frame.local_c != 0) {
-      car_active = -1;
+  case GAME_MODE_BEAT_THE_BOMB:
+    car_get_mode(0,&frame.mode_out0,frame.mode_out1);
+    if (frame.mode_out0 != 0) {
+      winner_plus1 = -1;
       g_car_7ef7b0 = 0;
       goto LAB_0041280c;
     }
@@ -168,11 +170,11 @@ LAB_004129e1:
       goto LAB_004129e1;
     }
 LAB_004129c3:
-    car_active = 1;
+    winner_plus1 = 1;
     g_car_7ef7b0 = 1;
     goto LAB_0041280c;
   }
-  if (car_active == 0) {
+  if (winner_plus1 == 0) {
     return 0;
   }
 LAB_0041280c:
@@ -184,21 +186,21 @@ LAB_0041280c:
   g_intro_652df4 = 700.0f;
   g_intro_652dfc = 0;
   g_game_652e00 = 0;
-  if (car_active == -1) {
+  if (winner_plus1 == -1) {
     camera_records_warmup(1,0);
     g_car_652df8 = 1;
     g_car_7ef7b0 = 0;
   }
   else {
-    iVar2 = car_active + -1;
-    camera_records_warmup(1,iVar2);
-    g_car_7ef7b0 = (uint)(iVar2 == 0);
-    g_car_652df8 = iVar2;
+    scratch = winner_plus1 + -1;
+    camera_records_warmup(1,scratch);
+    g_car_7ef7b0 = (uint)(scratch == 0);
+    g_car_652df8 = scratch;
   }
   course_id = current_course_id();
   if ((course_id == COURSE_HIGHWAY) || (course_id = current_course_id(), course_id == COURSE_HIGHWAYN)) {
     course_set_lod(0);
   }
-  return car_active;
+  return winner_plus1;
 }
 

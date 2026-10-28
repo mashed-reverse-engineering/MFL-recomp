@@ -11,19 +11,20 @@
 
 /* callers course_sands_cb0,course_sandsnow_cb0_sub_4584b0 */
 
-void course_helper_45b670(char *param_1)
+/* Refreshes six course clump globals from the handle at +0xc138, then runs clump_for_all_atomics_cb_4068a0 on four clumps (+0xc158/c15c/c160/c168) with the user data at +0xc9d0 (inferred). */
+void course_helper_45b670(char *course_state)
 
 {
-  g_course_clumps_6a26cc = FUN_004f6bf0(*(undefined4 *)(param_1 + 0xc138));
-  g_course_clumps_6a26d0 = FUN_004f6bf0(*(undefined4 *)(param_1 + 0xc138));
-  g_course_clumps_6a26d4 = FUN_004f6bf0(*(undefined4 *)(param_1 + 0xc138));
-  g_course_clumps_6a272c = FUN_004f6bf0(*(undefined4 *)(param_1 + 0xc138));
-  g_course_clumps_6a2730 = FUN_004f6bf0(*(undefined4 *)(param_1 + 0xc138));
-  g_course_clumps_6a2734 = FUN_004f6bf0(*(undefined4 *)(param_1 + 0xc138));
-  clump_for_all_atomics_cb_4068a0(*(RpClump **)(param_1 + 0xc158),*(void **)(param_1 + 0xc9d0));
-  clump_for_all_atomics_cb_4068a0(*(RpClump **)(param_1 + 0xc15c),*(void **)(param_1 + 0xc9d0));
-  clump_for_all_atomics_cb_4068a0(*(RpClump **)(param_1 + 0xc160),*(void **)(param_1 + 0xc9d0));
-  clump_for_all_atomics_cb_4068a0(*(RpClump **)(param_1 + 0xc168),*(void **)(param_1 + 0xc9d0));
+  g_course_clumps_6a26cc = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26d0 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26d4 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a272c = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a2730 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a2734 = FUN_004f6bf0(*(undefined4 *)(course_state + 0xc138));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc158),*(void **)(course_state + 0xc9d0));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc15c),*(void **)(course_state + 0xc9d0));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc160),*(void **)(course_state + 0xc9d0));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc168),*(void **)(course_state + 0xc9d0));
   return;
 }
 

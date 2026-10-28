@@ -26,44 +26,46 @@ extern struct EventLogArgs g_event_log_args[256];
 void trigger_register_object_type8_cb_4565b0(int param_1, int param_2)
 
 {
-  char *iVar1;
-  float fVar2;
-  undefined4 uVar3;
-  int iVar4;
-  RwMatrix *matrixIn;
-  int iVar5;
-  RwReal RVar6;
-  RwV3d RStack_58;
-  RwV3d RStack_4c;
-  RwMatrix RStack_40;
+  char *trigger_data;
+  float push_scale;
+  undefined4 frame_ticks;
+  int event;
+  RwMatrix *object_ltm;
+  int car_or_phase;
+  RwReal car_speed;
+  RwV3d push_vec;
+  RwV3d car_velocity;
+  RwMatrix inv_ltm;
   
-  iVar4 = param_2;
-  iVar1 = *(char **)(param_1 + 0x14);
-  iVar5 = *(int *)(param_2 + 0x10);
-  if ((0xfeff < iVar5) && (iVar5 < 0xff08)) {
-    iVar5 = iVar5 + -0xff00;
-    car_current_matrix(&param_1,iVar5);
-    matrixIn = RwFrameGetLTM(*(RwFrame **)(*(char **)(iVar1 + 8) + 4));
-    RStack_58.x = *(float *)(param_1 + 0x30) - (matrixIn->pos).x;
-    RStack_58.z = *(float *)(param_1 + 0x38) - (matrixIn->pos).z;
-    RStack_58.y = 0.0;
-    car_get_velocity(&RStack_4c,iVar5);
-    RVar6 = RwV3dLength(&RStack_4c);
-    fVar2 = RVar6 * k_f_0_1 + k_f_180;
-    RStack_58.x = RStack_58.x * fVar2;
-    RStack_58.y = RStack_58.y * fVar2;
-    RStack_58.z = RStack_58.z * fVar2;
-    car_add_velocity(&RStack_58,iVar5);
-    RwMatrixInvert(&RStack_40,matrixIn);
-    RwV3dTransformVectors(&RStack_58,&RStack_58,1,&RStack_40);
-    *(float *)(iVar1 + 0x14) = RStack_58.x * k_f_5_0en4;
-    *(float *)(iVar1 + 0x1c) = RStack_58.z * k_f_5_0en4;
-    iVar5 = race_get_phase();
-    uVar3 = g_last_frame_ticks;
-    if (((iVar5 != 1) && (((iVar5 != 2 && (iVar5 != 3)) && (iVar5 != 4)))) && (iVar5 != 5)) {
+  event = param_2;
+  trigger_data = *(char **)(param_1 + 0x14);
+  car_or_phase = *(int *)(param_2 + 0x10);
+  if ((0xfeff < car_or_phase) && (car_or_phase < 0xff08)) {
+    car_or_phase = car_or_phase + -0xff00;
+    /* Event ids 0xff00..0xff07 mean car index 0..7 (inferred from the range test). Pushes that car's velocity toward the object, scaled by speed, then stores the object-local push x/z in trigger_data+0x14/+0x1c (inferred). param_1 is reused as the car matrix pointer. */
+    car_current_matrix(&param_1,car_or_phase);
+    object_ltm = RwFrameGetLTM(*(RwFrame **)(*(char **)(trigger_data + 8) + 4));
+    push_vec.x = *(float *)(param_1 + 0x30) - (object_ltm->pos).x;
+    push_vec.z = *(float *)(param_1 + 0x38) - (object_ltm->pos).z;
+    push_vec.y = 0.0;
+    car_get_velocity(&car_velocity,car_or_phase);
+    car_speed = RwV3dLength(&car_velocity);
+    push_scale = car_speed * k_f_0_1 + k_f_180;
+    push_vec.x = push_vec.x * push_scale;
+    push_vec.y = push_vec.y * push_scale;
+    push_vec.z = push_vec.z * push_scale;
+    car_add_velocity(&push_vec,car_or_phase);
+    RwMatrixInvert(&inv_ltm,object_ltm);
+    RwV3dTransformVectors(&push_vec,&push_vec,1,&inv_ltm);
+    *(float *)(trigger_data + 0x14) = push_vec.x * k_f_5_0en4;
+    *(float *)(trigger_data + 0x1c) = push_vec.z * k_f_5_0en4;
+    car_or_phase = race_get_phase();
+    frame_ticks = g_last_frame_ticks;
+    /* Log event 0xb for the event id unless the race phase is 1..5 (inferred). */
+    if (((car_or_phase != 1) && (((car_or_phase != 2 && (car_or_phase != 3)) && (car_or_phase != 4)))) && (car_or_phase != 5)) {
       (&g_event_log_type)[g_event_log_head] = 0xb;
-      (&g_event_log_time)[g_event_log_head] = uVar3;
-      (&g_event_log_param)[g_event_log_head] = *(undefined4 *)(iVar4 + 0x10);
+      (&g_event_log_time)[g_event_log_head] = frame_ticks;
+      (&g_event_log_param)[g_event_log_head] = *(undefined4 *)(event + 0x10);
       g_event_log_args[g_event_log_head].arg0 = 1;
       g_event_log_head = g_event_log_head + 1;
       if (0xff < g_event_log_head) { /* unsigned (jb) */

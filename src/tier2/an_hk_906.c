@@ -114,27 +114,27 @@ typedef int CourseId;
 void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
 
 {
-  bool bVar1;
+  bool streams_stalled; /* frontend: all 4 stream counters reached 3 (inferred) */
   undefined4 app_state;
-  CourseId CVar2;
+  CourseId course_copy;
   CourseId course_id;
   int slot_used;
-  int iVar4;
-  undefined4 uVar5;
-  int event_type;
-  double fVar6;
-  int iVar7;
-  int aiStack_30 [4];
-  undefined4 auStack_20 [4];
-  undefined4 auStack_10 [4];
+  int tmp_a;
+  undefined4 stream_aux;
+  int index_or_byte_offset; /* car slot 0..3 in the race branch, byte offset into g_sound_stream_handles (4 handles) in the frontend branch; was named event_type */
+  double volume;
+  int tmp_b;
+  int stream_state_by_slot [4];
+  undefined4 stream_aux_by_slot [4];
+  undefined4 stream_aux2_by_slot [4];
   
   if (g_sound_streams_enabled == 0) {
     return;
   }
   g_sound_player_count = get_player_count();
   g_sound_frame_8d9970 = current_course_id();
-  fVar6 = (double)option_get_volume_1();
-  g_sound_frame_6adcf4 = (float)fVar6;
+  volume = (double)option_get_volume_1();
+  g_sound_frame_6adcf4 = (float)volume;
   sound_listener_update();
   app_state = get_app_state();
   switch(app_state) {
@@ -143,8 +143,8 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     sound_music_fade_step(1);
     break;
   case APP_STATE_MAIN_LOOP_INIT:
-    event_type = message_is_controller_missing_shown();
-    if (event_type != 0) {
+    index_or_byte_offset = message_is_controller_missing_shown();
+    if (index_or_byte_offset != 0) {
       g_sound_frame_6adcf4 = 0.0;
     }
     sound_resume_streams();
@@ -155,17 +155,17 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     voice_queue_tables_clear();
     g_sound_frame_6ae100 = 0;
     g_sound_endpoint_cue_state = 0;
-    event_type = ui_get_frontend_state();
-    if (0 < event_type) {
-      if (event_type < 4) {
+    index_or_byte_offset = ui_get_frontend_state();
+    if (0 < index_or_byte_offset) {
+      if (index_or_byte_offset < 4) {
         sound_music_fade_step_b(1);
-        event_type = sound_music_fade_step(0);
+        index_or_byte_offset = sound_music_fade_step(0);
       }
-      else if (event_type == 4) {
+      else if (index_or_byte_offset == 4) {
         course_id = current_course_id();
-        CVar2 = sound_music_for_career_row();
-        sound_music_fade_step(course_id != CVar2);
-        event_type = sound_music_fade_step_b(0);
+        course_copy = sound_music_for_career_row();
+        sound_music_fade_step(course_id != course_copy);
+        index_or_byte_offset = sound_music_fade_step_b(0);
       }
     }
     sound_master_fade_towards(0.0);
@@ -173,8 +173,8 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     g_sound_frame_6ae11c = 1;
     break;
   case APP_STATE_COURSE_LOADED:
-    event_type = get_event_type();
-    if (event_type != EVENT_QUICK_RACE) {
+    index_or_byte_offset = get_event_type();
+    if (index_or_byte_offset != EVENT_QUICK_RACE) {
       if (g_sound_frame_6ae11c == 1) {
         sound_streams_destroy();
       }
@@ -188,44 +188,44 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     goto LAB_00473980;
   case APP_STATE_RACE:
   case APP_STATE_RACE_MESSAGE:
-    event_type = sound_music_state_update();
-    if (event_type == 0) {
+    index_or_byte_offset = sound_music_state_update();
+    if (index_or_byte_offset == 0) {
       sound_master_fade_to_default();
     }
-    fVar6 = (double)option_get_volume_2();
-    g_sound_frame_61794c = (float)fVar6;
-    event_type = message_is_controller_missing_shown();
-    if (event_type != 0) {
+    volume = (double)option_get_volume_2();
+    g_sound_frame_61794c = (float)volume;
+    index_or_byte_offset = message_is_controller_missing_shown();
+    if (index_or_byte_offset != 0) {
       g_sound_frame_61794c = 0.0;
     }
     soundengine_create_race_streams();
     get_event_type();
     course_id = current_course_id();
     sound_event_log_process();
-    event_type = 0;
+    index_or_byte_offset = 0;
     do {
-      slot_used = race_setup_slot_used(event_type);
+      slot_used = race_setup_slot_used(index_or_byte_offset);
       if (slot_used != 0) {
-        iVar7 = event_type;
-        sound_car_engine_update(event_type);
-        iVar4 = event_type;
-        sound_car_mode_2_voice(iVar4);
-        slot_used = event_type;
-        sound_car_landing_voice(iVar4);
-        slot_used = sound_music_for_menu_page(course_id,slot_used,iVar4,iVar7);
+        tmp_b = index_or_byte_offset;
+        sound_car_engine_update(index_or_byte_offset);
+        tmp_a = index_or_byte_offset;
+        sound_car_mode_2_voice(tmp_a);
+        slot_used = index_or_byte_offset;
+        sound_car_landing_voice(tmp_a);
+        slot_used = sound_music_for_menu_page(course_id,slot_used,tmp_a,tmp_b);
         if (slot_used != 0) {
-          iVar7 = event_type;
-          CVar2 = course_id;
-          sound_car_voices_mute(iVar4, course_id);
-          iVar4 = event_type;
-          sound_surface_roll_voices_update(event_type);
-          slot_used = event_type;
-          sound_car_engine_start(event_type);
-          sound_surface_skid_voice_update(event_type,course_id,slot_used,iVar4,iVar7,CVar2);
+          tmp_b = index_or_byte_offset;
+          course_copy = course_id;
+          sound_car_voices_mute(tmp_a, course_id);
+          tmp_a = index_or_byte_offset;
+          sound_surface_roll_voices_update(index_or_byte_offset);
+          slot_used = index_or_byte_offset;
+          sound_car_engine_start(index_or_byte_offset);
+          sound_surface_skid_voice_update(index_or_byte_offset,course_id,slot_used,tmp_a,tmp_b,course_copy);
         }
       }
-      event_type = event_type + 1;
-    } while (event_type < 4);
+      index_or_byte_offset = index_or_byte_offset + 1;
+    } while (index_or_byte_offset < 4);
     sound_nearest_objects_sort();
     switch(course_id) {
     case COURSE_ARCTIC:
@@ -290,8 +290,8 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     }
     sound_replay_split_beep();
     sound_endpoint_panel_progress_cues();
-    event_type = sound_stub_return_0();
-    if ((((event_type == 0) && (event_type = get_event_type(), event_type != 0x12)) &&
+    index_or_byte_offset = sound_stub_return_0();
+    if ((((index_or_byte_offset == 0) && (index_or_byte_offset = get_event_type(), index_or_byte_offset != 0x12)) &&
         (course_id != COURSE_KEYS)) && (course_id != COURSE_KEYS01)) {
       voice_queue_frame_update();
     }
@@ -303,20 +303,20 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     g_sound_frame_6ae14c = 0;
     break;
   case APP_STATE_MENU:
-    event_type = message_is_controller_missing_shown();
-    if (event_type != 0) {
+    index_or_byte_offset = message_is_controller_missing_shown();
+    if (index_or_byte_offset != 0) {
       g_sound_frame_6adcf4 = 0.0;
     }
-    event_type = ui_get_frontend_state();
+    index_or_byte_offset = ui_get_frontend_state();
     g_sound_frame_6ae100 = 0;
-    if ((event_type == 2) || (event_type == 3)) {
+    if ((index_or_byte_offset == 2) || (index_or_byte_offset == 3)) {
       app_state = 1;
 LAB_00473958:
-      event_type = sound_music_fade_step_b(app_state);
+      index_or_byte_offset = sound_music_fade_step_b(app_state);
     }
     else {
-      event_type = event_type + -4;
-      if (event_type == 0) {
+      index_or_byte_offset = index_or_byte_offset + -4;
+      if (index_or_byte_offset == 0) {
         app_state = 0;
         goto LAB_00473958;
       }
@@ -330,36 +330,36 @@ LAB_00473958:
     g_sound_frame_6ae0cc = 0;
     g_sound_frame_6ae0d0 = 0;
     sound_resume_streams();
-    event_type = 0;
+    index_or_byte_offset = 0;
     do {
-      slot_used = *(int *)((char *)&g_sound_stream_handles + event_type);
+      slot_used = *(int *)((char *)&g_sound_stream_handles + index_or_byte_offset);
       if ((slot_used != 0) && (g_sound_frame_6ae118 != 0)) {
-        iVar4 = sound_stream_state(*(undefined4 *)((char *)&g_sound_stream_handles + event_type));
-        app_state = *(undefined4 *)((char *)&g_sound_stream_handles + event_type);
-        *(int *)((int)aiStack_30 + event_type) = iVar4;
-        uVar5 = FUN_005b8c50(*(undefined4 *)((char *)&g_sound_stream_handles + event_type));
-        *(undefined4 *)((int)auStack_20 + event_type) = uVar5;
-        app_state = FUN_005b8c60(*(undefined4 *)((char *)&g_sound_stream_handles + event_type),
+        tmp_a = sound_stream_state(*(undefined4 *)((char *)&g_sound_stream_handles + index_or_byte_offset));
+        app_state = *(undefined4 *)((char *)&g_sound_stream_handles + index_or_byte_offset);
+        *(int *)((int)stream_state_by_slot + index_or_byte_offset) = tmp_a;
+        stream_aux = FUN_005b8c50(*(undefined4 *)((char *)&g_sound_stream_handles + index_or_byte_offset));
+        *(undefined4 *)((int)stream_aux_by_slot + index_or_byte_offset) = stream_aux;
+        app_state = FUN_005b8c60(*(undefined4 *)((char *)&g_sound_stream_handles + index_or_byte_offset),
                                  app_state,slot_used);
-        *(undefined4 *)((int)auStack_10 + event_type) = app_state;
-        if (iVar4 == 3) {
-          *(int *)((char *)&g_sound_frame_6ae140 + event_type) =
-               *(int *)((char *)&g_sound_frame_6ae140 + event_type) + 1;
+        *(undefined4 *)((int)stream_aux2_by_slot + index_or_byte_offset) = app_state;
+        if (tmp_a == 3) {
+          *(int *)((char *)&g_sound_frame_6ae140 + index_or_byte_offset) =
+               *(int *)((char *)&g_sound_frame_6ae140 + index_or_byte_offset) + 1;
         }
         else {
-          *(undefined4 *)((char *)&g_sound_frame_6ae140 + event_type) = 0;
+          *(undefined4 *)((char *)&g_sound_frame_6ae140 + index_or_byte_offset) = 0;
         }
       }
-      event_type = event_type + 4;
-    } while (event_type < 0x10);
+      index_or_byte_offset = index_or_byte_offset + 4;
+    } while (index_or_byte_offset < 0x10);
     if (((((int)g_sound_frame_6ae140 < 3) || ((int)g_sound_frame_6ae144 < 3)) || ((int)g_sound_frame_6ae148 < 3))
        || ((int)g_sound_frame_6ae14c < 3)) {
-      bVar1 = false;
+      streams_stalled = false;
     }
     else {
-      bVar1 = true;
+      streams_stalled = true;
     }
-    if ((g_sound_frame_6ae118 == 1) && (bVar1)) {
+    if ((g_sound_frame_6ae118 == 1) && (streams_stalled)) {
       sound_streams_destroy();
       g_sound_frame_6ae118 = 0;
       g_sound_frame_6ae11c = 0;

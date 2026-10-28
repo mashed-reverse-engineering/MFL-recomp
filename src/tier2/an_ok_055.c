@@ -455,9 +455,9 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
   float *point_dest;
   float half_width;
   float dir_z;
-  float fVar5;
-  float fVar6;
-  float fVar7;
+  float unused_f5;
+  float unused_f6;
+  float unused_f7;
   int slot_offset;
   RwReal segment_len;
   RwV3d work_vec;

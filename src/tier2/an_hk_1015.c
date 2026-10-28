@@ -16,6 +16,10 @@ extern struct EventLogData g_event_log_data[256];
 /*008bd74c*/ extern undefined4 g_collision_triangle_count;
 /*008bd764*/ extern undefined4 g_car_8bd764;
 /*008bd790*/ extern undefined4 g_car_8bd790;
+#define TRI_MARK_FF010101 (0xff010101) /* triangle mark word [13] values that are logged as events; meaning of the colours unknown */
+#define TRI_MARK_FF0000FF (0xff0000ff)
+#define TRI_MARK_FFFF0080 (0xffff0080)
+#define EVENT_DATA_WORDS (0x10) /* words copied from the stack snapshot into g_event_log_data (the snapshot struct below is uninitialised stack in the decompile, inferred) */
 /* car_wheels_vs_triangles */
 
 /* "wheel points against the collected triangle list in 0x8BD720 (inferred)" */
@@ -47,14 +51,14 @@ void car_wheels_vs_triangles(int *car,float *tri)
   int *point_done;
   uint tri_index;
   struct {
-    float fStack_40;
-    uint local_3c;
-    uint local_38;
-    uint local_34;
-    uint local_30;
-    uint local_2c;
-    uint local_28;
-    uint local_24;
+    float stack_w0;
+    uint stack_w1;
+    uint stack_w2;
+    uint stack_w3;
+    uint stack_w4;
+    uint stack_w5;
+    uint stack_w6;
+    uint stack_w7;
   } frame;
   
   /* tri = 36-float collision triangle (v0 v1 v2 at [0..8], normal [9..11], mark [13], edge planes [0x1b..0x23]); car wheel points are tested one by one, the first 4 hits stop the scan */
@@ -93,7 +97,7 @@ void car_wheels_vs_triangles(int *car,float *tri)
                 (k_f_0_3 < nz * *(float *)&car[0x274] +
                            ny * *(float *)&car[0x273] + nx * *(float *)&car[0x272]))) {
               tri_mark = *(uint *)&tri[0xd];
-              if (tri_mark == 0xff010101) {
+              if (tri_mark == TRI_MARK_FF010101) {
                 if (((((car[0x27c] == 0) &&
                       (phase_or_idx = race_get_phase(), now_ticks = g_last_frame_ticks, phase_or_idx != 1))
                      && (phase_or_idx != 2)) && ((phase_or_idx != 3 && (phase_or_idx != 4)))) &&
@@ -101,21 +105,21 @@ void car_wheels_vs_triangles(int *car,float *tri)
                   (&g_event_log_type)[g_event_log_head] = 6;
                   (&g_event_log_time)[g_event_log_head] = now_ticks;
                   (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
-                  g_event_log_args[g_event_log_head].arg0 = 0xff010101;
-                  g_event_log_args[g_event_log_head].arg1 = frame.local_3c;
-                  g_event_log_args[g_event_log_head].arg2 = frame.local_38;
-                  g_event_log_args[g_event_log_head].w0c = frame.local_34;
-                  g_event_log_args[g_event_log_head].w10 = frame.local_30;
-                  g_event_log_args[g_event_log_head].w14 = frame.local_2c;
-                  g_event_log_args[g_event_log_head].w18 = frame.local_28;
-                  g_event_log_args[g_event_log_head].w1c = frame.local_24;
+                  g_event_log_args[g_event_log_head].arg0 = TRI_MARK_FF010101;
+                  g_event_log_args[g_event_log_head].arg1 = frame.stack_w1;
+                  g_event_log_args[g_event_log_head].arg2 = frame.stack_w2;
+                  g_event_log_args[g_event_log_head].w0c = frame.stack_w3;
+                  g_event_log_args[g_event_log_head].w10 = frame.stack_w4;
+                  g_event_log_args[g_event_log_head].w14 = frame.stack_w5;
+                  g_event_log_args[g_event_log_head].w18 = frame.stack_w6;
+                  g_event_log_args[g_event_log_head].w1c = frame.stack_w7;
                   phase_or_idx = 0;
                   do {
                     next_i = phase_or_idx + 1;
-                    (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] = (&frame.fStack_40)[phase_or_idx]
+                    (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] = (&frame.stack_w0)[phase_or_idx]
                     ;
                     phase_or_idx = next_i;
-                  } while (next_i < 0x10);
+                  } while (next_i < EVENT_DATA_WORDS);
                   g_event_log_head = g_event_log_head + 1;
                   if (0xff < g_event_log_head) {
                     g_event_log_head = 0;
@@ -131,7 +135,7 @@ void car_wheels_vs_triangles(int *car,float *tri)
                   *wheel_rec = px_or_dist;
                   wheel_rec[0x16] = tri[0xc];
                   wheel_rec[0x17] = tri[0xd];
-                  if (tri_mark == 0xff0000ff) {
+                  if (tri_mark == TRI_MARK_FF0000FF) {
                     if (((((car[0x27c] == 0) || (car[0x27c] == 1)) &&
                          ((phase_or_idx = race_get_phase(), now_ticks = g_last_frame_ticks,
                           phase_or_idx != 1 && ((phase_or_idx != 2 && (phase_or_idx != 3)))))) &&
@@ -139,46 +143,46 @@ void car_wheels_vs_triangles(int *car,float *tri)
                       (&g_event_log_type)[g_event_log_head] = 6;
                       (&g_event_log_time)[g_event_log_head] = now_ticks;
                       (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
-                      g_event_log_args[g_event_log_head].arg0 = 0xff0000ff;
-                      g_event_log_args[g_event_log_head].arg1 = frame.local_3c;
-                      g_event_log_args[g_event_log_head].arg2 = frame.local_38;
-                      g_event_log_args[g_event_log_head].w0c = frame.local_34;
-                      g_event_log_args[g_event_log_head].w10 = frame.local_30;
-                      g_event_log_args[g_event_log_head].w14 = frame.local_2c;
-                      g_event_log_args[g_event_log_head].w18 = frame.local_28;
-                      g_event_log_args[g_event_log_head].w1c = frame.local_24;
+                      g_event_log_args[g_event_log_head].arg0 = TRI_MARK_FF0000FF;
+                      g_event_log_args[g_event_log_head].arg1 = frame.stack_w1;
+                      g_event_log_args[g_event_log_head].arg2 = frame.stack_w2;
+                      g_event_log_args[g_event_log_head].w0c = frame.stack_w3;
+                      g_event_log_args[g_event_log_head].w10 = frame.stack_w4;
+                      g_event_log_args[g_event_log_head].w14 = frame.stack_w5;
+                      g_event_log_args[g_event_log_head].w18 = frame.stack_w6;
+                      g_event_log_args[g_event_log_head].w1c = frame.stack_w7;
                       phase_or_idx = 0;
                       do {
                         next_i = phase_or_idx + 1;
                         (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] =
-                             (&frame.fStack_40)[phase_or_idx];
+                             (&frame.stack_w0)[phase_or_idx];
                         phase_or_idx = next_i;
-                      } while (next_i < 0x10);
+                      } while (next_i < EVENT_DATA_WORDS);
                       goto LAB_0047b30d;
                     }
                   }
-                  else if (((((car[0x27c] == 1) && (tri_mark != 0xffff0080)) && (0x32 < car[0x27d]))
+                  else if (((((car[0x27c] == 1) && (tri_mark != TRI_MARK_FFFF0080)) && (0x32 < car[0x27d]))
                            && ((phase_or_idx = race_get_phase(), now_ticks = g_last_frame_ticks,
                                phase_or_idx != 1 && (phase_or_idx != 2)))) &&
                           ((phase_or_idx != 3 && ((phase_or_idx != 4 && (phase_or_idx != 5)))))) {
                     (&g_event_log_type)[g_event_log_head] = 6;
                     (&g_event_log_time)[g_event_log_head] = now_ticks;
                     (&g_event_log_param)[g_event_log_head] = *car + 0xff00;
-                    g_event_log_args[g_event_log_head].arg0 = 0xff0000ff;
-                    g_event_log_args[g_event_log_head].arg1 = frame.local_3c;
-                    g_event_log_args[g_event_log_head].arg2 = frame.local_38;
-                    g_event_log_args[g_event_log_head].w0c = frame.local_34;
-                    g_event_log_args[g_event_log_head].w10 = frame.local_30;
-                    g_event_log_args[g_event_log_head].w14 = frame.local_2c;
-                    g_event_log_args[g_event_log_head].w18 = frame.local_28;
-                    g_event_log_args[g_event_log_head].w1c = frame.local_24;
+                    g_event_log_args[g_event_log_head].arg0 = TRI_MARK_FF0000FF;
+                    g_event_log_args[g_event_log_head].arg1 = frame.stack_w1;
+                    g_event_log_args[g_event_log_head].arg2 = frame.stack_w2;
+                    g_event_log_args[g_event_log_head].w0c = frame.stack_w3;
+                    g_event_log_args[g_event_log_head].w10 = frame.stack_w4;
+                    g_event_log_args[g_event_log_head].w14 = frame.stack_w5;
+                    g_event_log_args[g_event_log_head].w18 = frame.stack_w6;
+                    g_event_log_args[g_event_log_head].w1c = frame.stack_w7;
                     phase_or_idx = 0;
                     do {
                       next_i = phase_or_idx + 1;
                       (&g_event_log_data[g_event_log_head].w00)[phase_or_idx] =
-                           (&frame.fStack_40)[phase_or_idx];
+                           (&frame.stack_w0)[phase_or_idx];
                       phase_or_idx = next_i;
-                    } while (next_i < 0x10);
+                    } while (next_i < EVENT_DATA_WORDS);
 LAB_0047b30d:
                     g_event_log_head = g_event_log_head + 1;
                     if (0xff < g_event_log_head) {

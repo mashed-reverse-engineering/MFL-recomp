@@ -26,84 +26,85 @@ typedef struct RainDrop { int active; int age; float x, y, z; float vx, vy, vz; 
 
 static int rain_emit_random_r(int p0, int p1);
 extern void rain_emit_random(void);
+/* Per frame: emit drops from rain emitters (stride 0xe floats at g_app_76e3e8) that are within 75.0 of the camera and whose sphere is inside the frustum; then lock the PTank (flags 1/2/4 = position/colour/size streams, inferred), age and move every active drop and write survivors (lifetime RAIN_DROP_LIFETIME frames) into the PTank, unlock, and set the active count. (inferred) */
 void rain_update_render(RwCamera *camera)
 
 {
-  uint *puVar1;
-  float fVar2;
-  void *pvVar3;
+  uint *ptank_flags;
+  float old_x_or_size;
+  void *camera_frame;
   RainDrop *drop;
   int age;
   RwFrustumTestResult sphere_visibility;
-  int iVar6;
-  float *pfVar7;
-  int iVar8;
+  int index_or_alpha;
+  float *emitter_z;
+  int pool_or_remaining;
   RwReal length;
   struct {
-    char *local_24;
-    int local_20;
-    float *local_1c;
-    int local_18;
-    float *local_14;
-    int local_10;
-    RwV3d local_c;
+    char *color_ptr;
+    int color_stride;
+    float *pos_ptr;
+    int pos_stride;
+    float *size_ptr;
+    int size_stride;
+    RwV3d to_emitter;
   } frame;
   
-  iVar8 = g_app_885820;
-  iVar6 = 0;
+  pool_or_remaining = g_app_885820;
+  index_or_alpha = 0;
   if ((g_rain_update_76e5a4 != 0) && (0 < (int)g_app_76e5a0)) {
-    pfVar7 = (float *)&g_app_76e3e8;
+    emitter_z = (float *)&g_app_76e3e8;
     do {
-      pvVar3 = RwCamera_object_object_parent(camera);
-      frame.local_c.x = pfVar7[-2] - *(float *)((char *)pvVar3 + 0x40);
-      frame.local_c.y = pfVar7[-1] - *(float *)((char *)pvVar3 + 0x44);
-      frame.local_c.z = *pfVar7 - *(float *)((char *)pvVar3 + 0x48);
-      length = RwV3dLength(&frame.local_c);
+      camera_frame = RwCamera_object_object_parent(camera);
+      frame.to_emitter.x = emitter_z[-2] - *(float *)((char *)camera_frame + 0x40);
+      frame.to_emitter.y = emitter_z[-1] - *(float *)((char *)camera_frame + 0x44);
+      frame.to_emitter.z = *emitter_z - *(float *)((char *)camera_frame + 0x48);
+      length = RwV3dLength(&frame.to_emitter);
       if ((length < k_f_75) &&
-         (sphere_visibility = RwCameraFrustumTestSphere(camera,(RwSphere *)(pfVar7 + 8)),
+         (sphere_visibility = RwCameraFrustumTestSphere(camera,(RwSphere *)(emitter_z + 8)),
          sphere_visibility == rwSPHEREINSIDE)) {
-        rain_emit_random_r(iVar8,(int)(pfVar7 + -2));
+        rain_emit_random_r(pool_or_remaining,(int)(emitter_z + -2));
       }
-      iVar6 = iVar6 + 1;
-      pfVar7 = pfVar7 + 0xe;
-    } while (iVar6 < (int)g_app_76e5a0);
+      index_or_alpha = index_or_alpha + 1;
+      emitter_z = emitter_z + 0xe;
+    } while (index_or_alpha < (int)g_app_76e5a0);
   }
   g_rain_update_76e5a4 = g_rain_update_76e5a4 + 1;
   g_app_76e5a8 = 0;
-  RpPTankAtomicLock_00545d10(g_app_76e5ac,&frame.local_1c,1,0x40000000);
-  RpPTankAtomicLock_00545d10(g_app_76e5ac,&frame.local_24,2,0x40000000);
-  RpPTankAtomicLock_00545d10(g_app_76e5ac,&frame.local_14,4,0x40000000);
-  if (((frame.local_1c != (float *)0x0) && (frame.local_24 != (char *)0x0)) && (frame.local_14 != (float *)0x0)) {
-    drop = (RainDrop *)iVar8;
-    for (iVar8 = RAIN_DROP_COUNT; iVar8 != 0; iVar8--, drop++) {
+  RpPTankAtomicLock_00545d10(g_app_76e5ac,&frame.pos_ptr,1,0x40000000);
+  RpPTankAtomicLock_00545d10(g_app_76e5ac,&frame.color_ptr,2,0x40000000);
+  RpPTankAtomicLock_00545d10(g_app_76e5ac,&frame.size_ptr,4,0x40000000);
+  if (((frame.pos_ptr != (float *)0x0) && (frame.color_ptr != (char *)0x0)) && (frame.size_ptr != (float *)0x0)) {
+    drop = (RainDrop *)pool_or_remaining;
+    for (pool_or_remaining = RAIN_DROP_COUNT; pool_or_remaining != 0; pool_or_remaining--, drop++) {
       if (drop->active == 1) {
         age = drop->age;
-        fVar2 = drop->x;
-        drop->x = drop->vx + fVar2;
+        old_x_or_size = drop->x;
+        drop->x = drop->vx + old_x_or_size;
         drop->age = age + 1;
         drop->y = drop->vy + drop->y;
         drop->z = drop->vz + drop->z;
         if (age + 1 < RAIN_DROP_LIFETIME) {
-          *frame.local_1c = drop->vx + fVar2;
-          frame.local_1c[1] = drop->y;
-          frame.local_1c[2] = drop->z;
-          frame.local_1c = (float *)((int)frame.local_1c + frame.local_18);
-          *frame.local_24 = (char)(drop->age / 2) + -0x40;
-          frame.local_24[1] = (char)(drop->age / 2) + '@';
-          frame.local_24[2] = '\b';
-          iVar6 = drop->age * -4 + 0xff;
-          if (iVar6 < 0) {
-            iVar6 = 0;
+          *frame.pos_ptr = drop->vx + old_x_or_size;
+          frame.pos_ptr[1] = drop->y;
+          frame.pos_ptr[2] = drop->z;
+          frame.pos_ptr = (float *)((int)frame.pos_ptr + frame.pos_stride);
+          *frame.color_ptr = (char)(drop->age / 2) + -0x40;
+          frame.color_ptr[1] = (char)(drop->age / 2) + '@';
+          frame.color_ptr[2] = '\b';
+          index_or_alpha = drop->age * -4 + 0xff;
+          if (index_or_alpha < 0) {
+            index_or_alpha = 0;
           }
-          else if (0xff < iVar6) {
-            iVar6 = 0xff;
+          else if (0xff < index_or_alpha) {
+            index_or_alpha = 0xff;
           }
-          frame.local_24[3] = (char)iVar6;
-          frame.local_24 = frame.local_24 + frame.local_20;
-          fVar2 = (float)drop->age * k_f_0_02 + k_f_0_2;
-          *frame.local_14 = fVar2;
-          frame.local_14[1] = fVar2;
-          frame.local_14 = (float *)((int)frame.local_14 + frame.local_10);
+          frame.color_ptr[3] = (char)index_or_alpha;
+          frame.color_ptr = frame.color_ptr + frame.color_stride;
+          old_x_or_size = (float)drop->age * k_f_0_02 + k_f_0_2;
+          *frame.size_ptr = old_x_or_size;
+          frame.size_ptr[1] = old_x_or_size;
+          frame.size_ptr = (float *)((int)frame.size_ptr + frame.size_stride);
           g_app_76e5a8 = g_app_76e5a8 + 1;
         }
         else {
@@ -114,10 +115,10 @@ void rain_update_render(RwCamera *camera)
     }
     RpPTankAtomicUnlock_00545f20(g_app_76e5ac);
   }
-  iVar8 = g_app_76e5ac;
-  puVar1 = (uint *)(*(char **)(g_ptank_plugin_offset + g_app_76e5ac) + 0x40);
-  *puVar1 = *puVar1 | 0x800000;
-  *(int *)(*(char **)(g_ptank_plugin_offset + iVar8) + 4) = g_app_76e5a8;
+  pool_or_remaining = g_app_76e5ac;
+  ptank_flags = (uint *)(*(char **)(g_ptank_plugin_offset + g_app_76e5ac) + 0x40);
+  *ptank_flags = *ptank_flags | 0x800000;
+  *(int *)(*(char **)(g_ptank_plugin_offset + pool_or_remaining) + 4) = g_app_76e5a8;
   return;
 }
 

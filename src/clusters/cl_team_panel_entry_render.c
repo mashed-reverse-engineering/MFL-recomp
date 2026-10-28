@@ -5,6 +5,7 @@
 
 /*  */
 
+/* Draws one team panel entry: for each part listed below (draw order: 3,2,0,1,4, 28-33, 22-27, 11-16, 5-10) calls vtable slot 0x48 (draw, inferred) when panel->visible[part] is set. */
 void team_panel_entry_render_n(TeamPanelEntry *panel)
 
 {

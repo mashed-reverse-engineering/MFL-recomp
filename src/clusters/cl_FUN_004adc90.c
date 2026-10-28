@@ -12,35 +12,36 @@ static void FUN_004b0df0_r(int * p0, int p1, int p2, void * p3, int p4);
 extern void FUN_004b0df0(void);
 static void FUN_004b1060_r(int * p0, int p1);
 extern void FUN_004b1060(void);
-int *FUN_004adc90_n(int *in_ecx, int param_1, int param_2, int param_3, int unused_4)
+int *FUN_004adc90_n(int *self, int base_ctor_last_arg, int base_ctor_arg_a, int base_ctor_arg_b, int unused_4)
 
 {
-  FUN_004b0df0_r(in_ecx,param_2,param_3,in_ecx + 0x1f,param_1);
-  *in_ecx = (int)PTR_FUN_005e22a0;
-  in_ecx[3] = (int)PTR_FUN_005e2264;
-  in_ecx[4] = (int)PTR_LAB_005e238c;
-  in_ecx[0x14] = 0;
-  FUN_004b1060_r(in_ecx + 0x15,0);
-  FUN_004b1060_r(in_ecx + 0x16,1);
-  FUN_004b1060_r(in_ecx + 0x17,1);
-  in_ecx[0x18] = 0;
-  in_ecx[0x19] = 0;
-  in_ecx[0x1a] = 0;
-  in_ecx[0x1b] = 0;
-  in_ecx[0x1c] = 0;
-  in_ecx[0x1d] = 0;
-  in_ecx[0x1e] = 0;
-  InitializeCriticalSection(in_ecx + 0x1f);
-  InitializeCriticalSection(in_ecx + 0x25);
-  in_ecx[0x2b] = 0;
-  in_ecx[0x2c] = 1;
-  in_ecx[0x2d] = 0;
-  in_ecx[0x2e] = 0;
-  in_ecx[0x2f] = 0;
-  in_ecx[0x30] = 0;
-  InitializeCriticalSection(in_ecx + 0x31);
-  SetEvent(in_ecx[0x17]);
-  return in_ecx;
+  /* Constructor (thiscall, inferred): runs base ctor FUN_004b0df0, sets three vtable-like pointers (self[0], [3], [4]), inits three critical sections (dwords 0x1f, 0x25, 0x31) and signals the event handle in self[0x17]. */
+  FUN_004b0df0_r(self,base_ctor_arg_a,base_ctor_arg_b,self + 0x1f,base_ctor_last_arg);
+  *self = (int)PTR_FUN_005e22a0;
+  self[3] = (int)PTR_FUN_005e2264;
+  self[4] = (int)PTR_LAB_005e238c;
+  self[0x14] = 0;
+  FUN_004b1060_r(self + 0x15,0);
+  FUN_004b1060_r(self + 0x16,1);
+  FUN_004b1060_r(self + 0x17,1);
+  self[0x18] = 0;
+  self[0x19] = 0;
+  self[0x1a] = 0;
+  self[0x1b] = 0;
+  self[0x1c] = 0;
+  self[0x1d] = 0;
+  self[0x1e] = 0;
+  InitializeCriticalSection(self + 0x1f);
+  InitializeCriticalSection(self + 0x25);
+  self[0x2b] = 0;
+  self[0x2c] = 1;
+  self[0x2d] = 0;
+  self[0x2e] = 0;
+  self[0x2f] = 0;
+  self[0x30] = 0;
+  InitializeCriticalSection(self + 0x31);
+  SetEvent(self[0x17]);
+  return self;
 }
 
 /* FUN_004b0df0_r: C -> original FUN_004b0df0 (registers ecx,s0,s1,s2,s3) */

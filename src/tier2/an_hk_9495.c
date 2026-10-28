@@ -29,7 +29,7 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
   uint *ptank_flags;
   RwV3d *vec_ptr;
   RpMorphTarget *morph_target;
-  undefined1 uVar4;
+  undefined1 sky_fade_byte;
   RwFrame *frame;
   int byte_off;
   uint particle_index;
@@ -154,9 +154,10 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
   } while (byte_off != 0);
   size_hi = 0;
   do {
+    /* 256-entry sky fade table: 127.5*(1+cos((i-128)*0.0245437)) (inferred) */
     cos(((double)size_hi - (double)k_f_128) * (double)k_f_0_024543693);
-    uVar4 = ((int)((cos((((float)size_hi - 128.0f) * 0.024543693f)) + 1.0f) * 127.5f));
-    *(undefined1 *)(size_hi + ((char *)&g_course_sky_8c7eb0 + 0x10)) = uVar4;
+    sky_fade_byte = ((int)((cos((((float)size_hi - 128.0f) * 0.024543693f)) + 1.0f) * 127.5f));
+    *(undefined1 *)(size_hi + ((char *)&g_course_sky_8c7eb0 + 0x10)) = sky_fade_byte;
     size_hi = size_hi + 1;
   } while (size_hi < 0x100);
   return;

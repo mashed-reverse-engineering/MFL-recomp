@@ -16,29 +16,30 @@ static void FUN_004b1080_r(int * p0);
 extern void FUN_004b1080(void);
 static void FUN_004b00b0_r(int * p0);
 extern void FUN_004b00b0(void);
-void FUN_004adda0_n(int *in_ecx)
+/* Destructor-like (inferred): installs vtable pointers on `self`, releases the sub-objects at self[0x14]+8 and self[0x1e] via their vtable slot 3, deletes the three critical sections (self+0x31/0x25/0x1f), then tears down the embedded members. */
+void FUN_004adda0_n(int *self)
 
 {
-  *in_ecx = (int)PTR_FUN_005e22a0;
-  in_ecx[3] = (int)PTR_FUN_005e2264;
-  in_ecx[4] = (int)PTR_LAB_005e238c;
-  FUN_004acb00_r(in_ecx);
-  FUN_004ac8c0_r(in_ecx);
-  if (in_ecx[0x14] != 0) {
-    (*(ThisMethod1 *)(*(int *)(in_ecx[0x14] + 8) + 0xc))((int *)(in_ecx[0x14] + 8),0,1);
-    in_ecx[0x14] = 0;
+  *self = (int)PTR_FUN_005e22a0;
+  self[3] = (int)PTR_FUN_005e2264;
+  self[4] = (int)PTR_LAB_005e238c;
+  FUN_004acb00_r(self);
+  FUN_004ac8c0_r(self);
+  if (self[0x14] != 0) {
+    (*(ThisMethod1 *)(*(int *)(self[0x14] + 8) + 0xc))((int *)(self[0x14] + 8),0,1);
+    self[0x14] = 0;
   }
-  if (in_ecx[0x1e] != 0) {
-    (*(ThisMethod1 *)(*(int *)in_ecx[0x1e] + 0xc))((int *)in_ecx[0x1e],0,1);
-    in_ecx[0x1e] = 0;
+  if (self[0x1e] != 0) {
+    (*(ThisMethod1 *)(*(int *)self[0x1e] + 0xc))((int *)self[0x1e],0,1);
+    self[0x1e] = 0;
   }
-  DeleteCriticalSection(in_ecx + 0x31);
-  DeleteCriticalSection(in_ecx + 0x25);
-  DeleteCriticalSection(in_ecx + 0x1f);
-  FUN_004b1080_r(in_ecx + 0x17);
-  FUN_004b1080_r(in_ecx + 0x16);
-  FUN_004b1080_r(in_ecx + 0x15);
-  FUN_004b00b0_r(in_ecx);
+  DeleteCriticalSection(self + 0x31);
+  DeleteCriticalSection(self + 0x25);
+  DeleteCriticalSection(self + 0x1f);
+  FUN_004b1080_r(self + 0x17);
+  FUN_004b1080_r(self + 0x16);
+  FUN_004b1080_r(self + 0x15);
+  FUN_004b00b0_r(self);
   return;
 }
 

@@ -12,6 +12,9 @@
 /*005dd628*/ extern float k_f_0_25;
 /*005de1ac*/ extern float k_f_0_125;
 /*005df77c*/ extern undefined g_rocket_hit_5df77c;
+#define COLLIDER_TYPE_CAR_FIRST (0xff00) /* collider types 0xff00..0xff07 are cars; type - 0xff00 = car index (inferred) */
+#define ROCKET_TRIGGER_TYPE (11) /* trigger record kind registered by weapon_rocket_update (see header comment) */
+#define ROCKET_HIT_PARTICLE_COUNT (10)
 static int rocket_explode_r(int reg_eax);
 extern void rocket_explode(void);
 __declspec(naked) int rocket_explode_r(int reg_eax)
@@ -28,25 +31,25 @@ __declspec(naked) int rocket_explode_r(int reg_eax)
 /* "trigger sphere callback (type 0xB, radius 0.05) registered by weapon_rocket_update every frame"
     */
 
-void rocket_hit_callback(float *param_1,float *param_2)
+void rocket_hit_callback(float *trigger,float *other)
 
 {
   RocketRecord *rocket;
   int target_type;
-  int iVar2;
-  RwMatrix *pRVar3;
-  undefined1 *puVar4;
+  int scratch_i;
+  RwMatrix *rocket_ltm;
+  undefined1 *car_matrix_buf;
   struct {
-    undefined1 uStack_c0;
-    undefined1 uStack_bf;
-    undefined1 uStack_be;
-    undefined1 uStack_bd;
-    float fStack_bc;
-    float fStack_b8;
-    float fStack_b4;
-    float fStack_b0;
-    float fStack_ac;
-    float fStack_a8;
+    undefined1 colour_byte0;
+    undefined1 colour_byte1;
+    undefined1 colour_byte2;
+    undefined1 colour_byte3;
+    float ray_end_x;
+    float ray_end_y;
+    float ray_end_z;
+    float ray_start_x;
+    float ray_start_y;
+    float ray_start_z;
     undefined4 uStack_a4;
     float fStack_a0;
     undefined4 uStack_9c;
@@ -62,14 +65,15 @@ void rocket_hit_callback(float *param_1,float *param_2)
     undefined1 auStack_40 [64];
   } frame;
   
-  if (*(int *)&param_1[4] != 11) {
+  if (*(int *)&trigger[4] != ROCKET_TRIGGER_TYPE) {
     return;
   }
-  rocket = *(RocketRecord **)&param_1[5];
-  target_type = *(int *)&param_2[4];
+  rocket = *(RocketRecord **)&trigger[5];
+  target_type = *(int *)&other[4];
   if (target_type == 7) {
     return;
   }
+  /* ignore hits from collider type 7, skip until the rocket is older than 0.3 s (k_f_0_3); type 10 = ray test along the velocity, 21 = sphere-vs-box, 18 ignored (inferred) */
   if (rocket->field_50 == 0) {
     return;
   }
@@ -77,70 +81,72 @@ void rocket_hit_callback(float *param_1,float *param_2)
     return;
   }
   if (target_type == 10) {
-    frame.fStack_b0 = rocket->pos.x;
-    frame.fStack_ac = rocket->pos.y;
-    frame.fStack_a8 = rocket->pos.z;
-    frame.fStack_bc = rocket->vel.x + frame.fStack_b0;
-    frame.fStack_b8 = rocket->vel.y + frame.fStack_ac;
-    frame.fStack_b4 = rocket->vel.z + frame.fStack_a8;
-    iVar2 = rwp_object_query_ray_hit(*(int *)&param_2[6],&frame.fStack_b0,&frame.fStack_bc,&frame.uStack_a4,frame.auStack_8c);
+    frame.ray_start_x = rocket->pos.x;
+    frame.ray_start_y = rocket->pos.y;
+    frame.ray_start_z = rocket->pos.z;
+    frame.ray_end_x = rocket->vel.x + frame.ray_start_x;
+    frame.ray_end_y = rocket->vel.y + frame.ray_start_y;
+    frame.ray_end_z = rocket->vel.z + frame.ray_start_z;
+    scratch_i = rwp_object_query_ray_hit(*(int *)&other[6],&frame.ray_start_x,&frame.ray_end_x,&frame.uStack_a4,frame.auStack_8c);
   }
   else {
     if (target_type == 18) {
       return;
     }
     if (target_type != 21) goto LAB_00461442;
-    iVar2 = sphere_vs_box_test((float *)(*(int *)&param_2[5] + 0x68),param_1);
+    scratch_i = sphere_vs_box_test((float *)(*(int *)&other[5] + 0x68),trigger);
   }
-  if (iVar2 == 0) {
+  if (scratch_i == 0) {
     return;
   }
 LAB_00461442:
-  target_type = *(int *)&param_2[4];
-  if ((0xfeff < target_type) && (target_type < 0xff08)) {
-    iVar2 = target_type + -0xff00;
-    if (iVar2 == rocket->field_3c) {
+  target_type = *(int *)&other[4];
+  /* car hit (types 0xff00..0xff07): spawn hit particle + sprites + screen shake unless it is the rocket's own car (field_3c) */
+  if ((COLLIDER_TYPE_CAR_FIRST - 1 < target_type) && (target_type < COLLIDER_TYPE_CAR_FIRST + 8)) {
+    scratch_i = target_type - COLLIDER_TYPE_CAR_FIRST;
+    if (scratch_i == rocket->field_3c) {
       return;
     }
-    puVar4 = frame.auStack_80;
-    vehicle_get_matrix_local((*(int *)((char *)param_2 + 16) + 0xffff0100), frame.auStack_80);
+    car_matrix_buf = frame.auStack_80;
+    vehicle_get_matrix_local((*(int *)((char *)other + 16) + 0xffff0100), frame.auStack_80);
     frame.uStack_a4 = frame.uStack_50;
     frame.fStack_a0 = frame.fStack_4c + k_f_0_125;
     frame.uStack_98 = frame.uStack_50;
     frame.uStack_9c = frame.uStack_48;
     frame.fStack_94 = frame.fStack_4c - k_f_0_25;
     frame.uStack_90 = frame.uStack_48;
-    iVar2 = rocket_hit_spawn_particle(frame.auStack_40,&frame.uStack_a4,iVar2,puVar4);
-    if (iVar2 != 0) {
-      frame.uStack_c0 = 0xff;
-      frame.uStack_bf = 0x80;
-      frame.uStack_be = 0;
-      frame.uStack_bd = 0x40;
-      effect_sprite_spawn(0,frame.auStack_40,&frame.uStack_c0,0x40800000,0x40800000);
-      effect_sprite_spawn(1,frame.auStack_40,&frame.uStack_c0,0x40000000,0x40000000);
+    scratch_i = rocket_hit_spawn_particle(frame.auStack_40,&frame.uStack_a4,scratch_i,car_matrix_buf);
+    if (scratch_i != 0) {
+      frame.colour_byte0 = 0xff;
+      frame.colour_byte1 = 0x80;
+      frame.colour_byte2 = 0;
+      frame.colour_byte3 = 0x40;
+      effect_sprite_spawn(0,frame.auStack_40,&frame.colour_byte0,0x40800000,0x40800000);
+      effect_sprite_spawn(1,frame.auStack_40,&frame.colour_byte0,0x40000000,0x40000000);
       screen_shake_set(10);
     }
   }
-  pRVar3 = RwFrameGetLTM(*(RwFrame **)(rocket->frame_holder + 4));
-  frame.fStack_b0 = (pRVar3->at).x;
-  frame.fStack_ac = (pRVar3->at).y;
-  frame.fStack_b8 = param_2[1];
-  frame.fStack_a8 = -(pRVar3->at).z;
-  frame.fStack_b4 = param_2[2];
-  frame.fStack_bc = -frame.fStack_b0 * k_f_0_5 + *param_2;
-  rocket->pos.x = frame.fStack_bc;
-  frame.fStack_b8 = -frame.fStack_ac * k_f_0_5 + frame.fStack_b8;
-  rocket->pos.y = frame.fStack_b8;
-  frame.fStack_b4 = frame.fStack_a8 * k_f_0_5 + frame.fStack_b4;
-  rocket->pos.z = frame.fStack_b4;
+  /* move the rocket back 0.5 along its LTM 'at' axis from the contact point, explode it and emit ROCKET_HIT_PARTICLE_COUNT particles */
+  rocket_ltm = RwFrameGetLTM(*(RwFrame **)(rocket->frame_holder + 4));
+  frame.ray_start_x = (rocket_ltm->at).x;
+  frame.ray_start_y = (rocket_ltm->at).y;
+  frame.ray_end_y = other[1];
+  frame.ray_start_z = -(rocket_ltm->at).z;
+  frame.ray_end_z = other[2];
+  frame.ray_end_x = -frame.ray_start_x * k_f_0_5 + *other;
+  rocket->pos.x = frame.ray_end_x;
+  frame.ray_end_y = -frame.ray_start_y * k_f_0_5 + frame.ray_end_y;
+  rocket->pos.y = frame.ray_end_y;
+  frame.ray_end_z = frame.ray_start_z * k_f_0_5 + frame.ray_end_z;
+  rocket->pos.z = frame.ray_end_z;
   rocket_explode_r((int)rocket);
-  iVar2 = 10;
+  scratch_i = ROCKET_HIT_PARTICLE_COUNT;
   do {
     particle_emit_textured
               (&rocket->pos.x,(undefined4 *)&g_rocket_hit_5df77c,0,0,(RwTexture *)0x0
                ,1.0,(float *)0x0);
-    iVar2 = iVar2 + -1;
-  } while (iVar2 != 0);
+    scratch_i = scratch_i + -1;
+  } while (scratch_i != 0);
   return;
 }
 

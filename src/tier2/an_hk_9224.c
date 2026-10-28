@@ -34,70 +34,71 @@
 /* "when the player gives no steering input steers the car matrix toward the route heading
    (fx_wander_target, limit by speed)" */
 
-undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
+undefined4 car_auto_steer_assist_step(uint car_index,int step_count)
 
 {
-  float *pfVar1;
-  double fVar2;
-  uint uVar3;
+  float *car_forward;
+  double step_count_f;
+  uint car_index_copy;
   int race_phase;
-  undefined4 uVar4;
-  PlayerInput *pPVar5;
-  int iVar6;
-  double fVar7;
+  undefined4 rank_key;
+  PlayerInput *input;
+  int car_byte_offset;
+  double acos_result;
   double dot;
   struct {
-    float fStack_14;
-    float fStack_10;
-    RwV3d local_c;
+    float target_heading;
+    float target_spread;
+    RwV3d forward_flat;
   } frame;
   double angle;
   double wrapped;
   double spread;
   float t;
   
-  uVar3 = param_1;
-  if (param_1 < 0x10) {
-    iVar6 = (int)param_1 * 0xd04;
-    pPVar5 = g_player_inputs + g_player_slots[(int)param_1].controller;
-    if (player_car[(int)param_1].mode != 0) {
-      pPVar5 = (PlayerInput *)&g_cars_7f01a0;
+  car_index_copy = car_index;
+  /* Auto-steer assist (inferred): when the car's input has neither left nor right pressed (and the race phase allows control), rotates the car's current matrix about the g_car_62ac74 axis toward the heading from fx_wander_target; step_count scales the turn, capped by speed. Returns 1 if car_index is valid, else 0. */
+  if (car_index < 0x10) {
+    car_byte_offset = (int)car_index * 0xd04;
+    input = g_player_inputs + g_player_slots[(int)car_index].controller;
+    if (player_car[(int)car_index].mode != 0) {
+      input = (PlayerInput *)&g_cars_7f01a0;
     }
-    if (player_car[(int)param_1].controls_disabled != 0) {
-      pPVar5 = (PlayerInput *)&g_cars_7f01a0;
+    if (player_car[(int)car_index].controls_disabled != 0) {
+      input = (PlayerInput *)&g_cars_7f01a0;
     }
     race_phase = race_get_phase();
     if (((race_phase != 6) && (race_phase = race_get_phase(), race_phase != 0xb)) &&
        (race_phase = race_get_phase(), race_phase != RACE_PHASE_WINNER_DONE)) {
-      pPVar5 = (PlayerInput *)&g_cars_7f01a0;
+      input = (PlayerInput *)&g_cars_7f01a0;
     }
-    if ((pPVar5->left == 0) && (pPVar5->right == 0)) {
-      pfVar1 = player_car[(int)param_1].forward;
-      frame.local_c.x = *pfVar1;
-      frame.local_c.z = player_car[(int)param_1].forward[2];
-      if ((frame.local_c.x != k_f_0) || (frame.local_c.z != k_f_0)) {
-        frame.local_c.y = 0.0;
-        RwV3dNormalize(&frame.local_c,&frame.local_c);
-        dot = g_fx_62ac70 * frame.local_c.z + g_car_62ac68 * frame.local_c.x + g_fx_62ac6c * frame.local_c.y;      /* kept in the x87 register (unrounded) and passed as a double, not stored to a float */
+    if ((input->left == 0) && (input->right == 0)) {
+      car_forward = player_car[(int)car_index].forward;
+      frame.forward_flat.x = *car_forward;
+      frame.forward_flat.z = player_car[(int)car_index].forward[2];
+      if ((frame.forward_flat.x != k_f_0) || (frame.forward_flat.z != k_f_0)) {
+        frame.forward_flat.y = 0.0;
+        RwV3dNormalize(&frame.forward_flat,&frame.forward_flat);
+        dot = g_fx_62ac70 * frame.forward_flat.z + g_car_62ac68 * frame.forward_flat.x + g_fx_62ac6c * frame.forward_flat.y;      /* kept in the x87 register (unrounded) and passed as a double, not stored to a float */
         if (dot < k_f_n1) {
           dot = k_f_n1;
         }
         else if (dot > float_1_0) {
           dot = float_1_0;
         }
-        fVar7 = (double)FUN_004b3284(dot);
-        angle = (float)(-(fVar7 * (double)(57.295799255371094) - k_f_0) + (double)k_f_90);
-        frame.local_c.x = g_fx_62ac70 * player_car[(int)param_1].forward[1] -
-                    g_fx_62ac6c * player_car[(int)param_1].forward[2];
-        frame.local_c.y = g_car_62ac68 * player_car[(int)param_1].forward[2] - g_fx_62ac70 * *pfVar1;
-        frame.local_c.z = g_fx_62ac6c * *pfVar1 - g_car_62ac68 * player_car[(int)param_1].forward[1];
+        acos_result = (double)FUN_004b3284(dot);
+        angle = (float)(-(acos_result * (double)(57.295799255371094) - k_f_0) + (double)k_f_90);
+        frame.forward_flat.x = g_fx_62ac70 * player_car[(int)car_index].forward[1] -
+                    g_fx_62ac6c * player_car[(int)car_index].forward[2];
+        frame.forward_flat.y = g_car_62ac68 * player_car[(int)car_index].forward[2] - g_fx_62ac70 * *car_forward;
+        frame.forward_flat.z = g_fx_62ac6c * *car_forward - g_car_62ac68 * player_car[(int)car_index].forward[1];
         t = angle;
-        if (frame.local_c.y < k_f_0) {
+        if (frame.forward_flat.y < k_f_0) {
           t = k_f_360 - angle;
         }
-        uVar4 = (int)player_rank_key(param_1);
-        fx_wander_target(uVar4,&frame.fStack_14,&frame.fStack_10);
-        wrapped = t - frame.fStack_14;      /* double: the original keeps this in st(0) through the wrap loops and the compares (no float store) */
+        rank_key = (int)player_rank_key(car_index);
+        fx_wander_target(rank_key,&frame.target_heading,&frame.target_spread);
+        wrapped = t - frame.target_heading;      /* double: the original keeps this in st(0) through the wrap loops and the compares (no float store) */
         for (; wrapped < k_f_0; wrapped = wrapped + k_f_90) {
         }
         for (; k_f_90 < wrapped; wrapped = wrapped - k_f_90) {
@@ -113,7 +114,7 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
         else {
           angle = -wrapped;
         }
-        t = player_car[uVar3].speed * k_f_1_6666666en4;
+        t = player_car[car_index_copy].speed * k_f_1_6666666en4;
         if (k_f_2 < t) {
           t = 2.0f;
         }
@@ -123,21 +124,21 @@ undefined4 car_auto_steer_assist_step(uint param_1,int param_2)
         if (angle < -t) {
           angle = -t;
         }
-        fVar2 = (float)param_2;
-        if (param_2 < 0) {
-          fVar2 = fVar2 + k_f_4_2949673e9;
+        step_count_f = (float)step_count;
+        if (step_count < 0) {
+          step_count_f = step_count_f + k_f_4_2949673e9;
         }
-        spread = frame.fStack_10 * k_f_4;      /* double: the original keeps it in st(0) (45 - spread cancels, a float store changes the angle by 1e-4) */
+        spread = frame.target_spread * k_f_4;      /* double: the original keeps it in st(0) (45 - spread cancels, a float store changes the angle by 1e-4) */
         if (spread < k_f_0) {
           spread = -spread;
         }
         if (k_f_45 < spread) {
           spread = k_f_45;
         }
-        angle = angle * fVar2 * k_f_0_016666668 * g_race_update_6292e4 * (k_f_45 - spread) *
+        angle = angle * step_count_f * k_f_0_016666668 * g_race_update_6292e4 * (k_f_45 - spread) *
                 k_f_0_022222223;      /* the original's multiplication order (angle * count first), another order rounds differently */
         if (angle != k_f_0) {
-          RwMatrixRotate((RwMatrix *)((char *)player_car + player_car[uVar3].matrix_current * 0x40 + 0x928 + iVar6),
+          RwMatrixRotate((RwMatrix *)((char *)player_car + player_car[car_index_copy].matrix_current * 0x40 + 0x928 + car_byte_offset),
                          (RwV3d *)&g_car_62ac74,angle,rwCOMBINEPRECONCAT);
         }
       }

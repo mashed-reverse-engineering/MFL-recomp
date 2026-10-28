@@ -3,37 +3,37 @@
 
 /* no context */
 
-int gap_5c6990(byte *param_1,int param_2,byte *param_3)
+int gap_5c6990(byte *src,int byte_count,byte *dst)
 
 {
-  byte bVar1;
-  int iVar2;
-  int iVar3;
+  byte first_byte;
+  int block_count;
+  int half_block_countdown;
   
-  iVar2 = (int)(param_2 + 0xf + (param_2 + 0xf >> 0x1f & 0xfU)) >> 4;
-  param_2 = iVar2;
-  if (0 < iVar2) {
+  block_count = (int)(byte_count + 0xf + (byte_count + 0xf >> 0x1f & 0xfU)) >> 4;
+  byte_count = block_count;
+  if (0 < block_count) {
     do {
-      bVar1 = *param_1;
-      param_1 = param_1 + 2;
-      iVar3 = 2;
+      first_byte = *src;
+      src = src + 2;
+      half_block_countdown = 2;
       do {
-        *param_3 = 0xc - (bVar1 & 0xf) | bVar1 & 0xf0;
-        param_3[1] = *param_1 >> 4 | *param_1 << 4;
-        param_3[2] = param_1[1] >> 4 | param_1[1] << 4;
-        param_3[3] = param_1[2] >> 4 | param_1[2] << 4;
-        param_3[4] = param_1[3] >> 4 | param_1[3] << 4;
-        param_3[5] = param_1[4] >> 4 | param_1[4] << 4;
-        param_3[6] = param_1[5] >> 4 | param_1[5] << 4;
-        param_3[7] = param_1[6] >> 4 | param_1[6] << 4;
-        param_1 = param_1 + 7;
-        param_3 = param_3 + 8;
-        iVar3 = iVar3 + -1;
-      } while (iVar3 != 0);
-      param_2 = param_2 + -1;
-    } while (param_2 != 0);
+        *dst = 0xc - (first_byte & 0xf) | first_byte & 0xf0;
+        dst[1] = *src >> 4 | *src << 4;
+        dst[2] = src[1] >> 4 | src[1] << 4;
+        dst[3] = src[2] >> 4 | src[2] << 4;
+        dst[4] = src[3] >> 4 | src[3] << 4;
+        dst[5] = src[4] >> 4 | src[4] << 4;
+        dst[6] = src[5] >> 4 | src[5] << 4;
+        dst[7] = src[6] >> 4 | src[6] << 4;
+        src = src + 7;
+        dst = dst + 8;
+        half_block_countdown = half_block_countdown + -1;
+      } while (half_block_countdown != 0);
+      byte_count = byte_count + -1;
+    } while (byte_count != 0);
   }
-  return iVar2 << 4;
+  return block_count << 4;
 }
 
 

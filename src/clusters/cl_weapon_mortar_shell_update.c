@@ -36,62 +36,63 @@ void weapon_mortar_shell_update_n(undefined4 *shell)
 {
   RwV3d *v;
   RwFrame *frame;
-  float fVar1;
-  int iVar2;
+  float scratch_f;
+  int scratch_i;
   float10 arc;
   struct {
-    int car_matrix;
-    float local_4c;
-    float local_48;
-    float local_44;
-    float local_40;
+    int car_matrix_ptr;
+    float new_x;
+    float len_or_new_z;
+    float delta_y;
+    float delta_z;
     RwV3d to_target;
-    float local_30;
-    float local_2c;
-    float local_28;
+    float aim_x;
+    float aim_y;
+    float aim_z;
     RwV3d up_dir;
-    float local_18;
-    float local_14;
-    float local_10;
+    float prev_x;
+    float prev_y;
+    float prev_z;
     RwV3d scale;
   } tmp;
   
   tmp.scale.x = 2.0;
   tmp.scale.y = 2.0;
   tmp.scale.z = 2.0;
-  tmp.local_30 = 0.0;
-  tmp.local_2c = 0.0;
-  tmp.local_28 = 0.0;
+  tmp.aim_x = 0.0;
+  tmp.aim_y = 0.0;
+  tmp.aim_z = 0.0;
   tmp.up_dir.x = 0.0;
   tmp.up_dir.y = 0.0;
   tmp.up_dir.z = 0.0;
-  iVar2 = weapon_mortar_shell_impact_check_r((int)shell);
-  if (iVar2 == 0) {
-    fVar1 = *(float *)&shell[0x13] * k_f_0_7692308;
-    *(float *)&shell[0x14] = fVar1;
-    if (k_f_2 < fVar1) {
+  /* (inferred) tmp.prev_* first holds the owner car position (+0x30..0x38 of its matrix) while homing, later the shell's old position; aim_* is the look-at point passed to FUN_004c42f0 with up_dir. */
+  scratch_i = weapon_mortar_shell_impact_check_r((int)shell);
+  if (scratch_i == 0) {
+    scratch_f = *(float *)&shell[0x13] * k_f_0_7692308;
+    *(float *)&shell[0x14] = scratch_f;
+    if (k_f_2 < scratch_f) {
       weapon_pickup_explode_effect_r((int)shell);
       return;
     }
     if (shell[0x11] != 0) {
-      car_current_matrix(&tmp.car_matrix,*shell);
-      tmp.local_18 = *(float *)(tmp.car_matrix + 0x30);
-      tmp.local_14 = *(float *)(tmp.car_matrix + 0x34);
-      tmp.local_10 = *(float *)(tmp.car_matrix + 0x38);
-      tmp.to_target.x = (*(float *)&shell[2] + tmp.local_18) - *(float *)&shell[5];
-      tmp.to_target.z = (*(float *)&shell[4] + tmp.local_10) - *(float *)&shell[7];
+      car_current_matrix(&tmp.car_matrix_ptr,*shell);
+      tmp.prev_x = *(float *)(tmp.car_matrix_ptr + 0x30);
+      tmp.prev_y = *(float *)(tmp.car_matrix_ptr + 0x34);
+      tmp.prev_z = *(float *)(tmp.car_matrix_ptr + 0x38);
+      tmp.to_target.x = (*(float *)&shell[2] + tmp.prev_x) - *(float *)&shell[5];
+      tmp.to_target.z = (*(float *)&shell[4] + tmp.prev_z) - *(float *)&shell[7];
       tmp.to_target.y = 0.0;
-      tmp.local_48 = RwV3dLength(&tmp.to_target);
+      tmp.len_or_new_z = RwV3dLength(&tmp.to_target);
       RwV3dNormalize(&tmp.to_target,&tmp.to_target);
-      fVar1 = tmp.local_48 * *(float *)&shell[0x14] * k_f_0_38;
-      tmp.to_target.x = tmp.to_target.x * fVar1;
-      tmp.to_target.y = tmp.to_target.y * fVar1;
+      scratch_f = tmp.len_or_new_z * *(float *)&shell[0x14] * k_f_0_38;
+      tmp.to_target.x = tmp.to_target.x * scratch_f;
+      tmp.to_target.y = tmp.to_target.y * scratch_f;
       *(float *)&shell[8] = tmp.to_target.x;
-      tmp.to_target.z = fVar1 * tmp.to_target.z;
+      tmp.to_target.z = scratch_f * tmp.to_target.z;
       *(float *)&shell[9] = tmp.to_target.y;
-      fVar1 = k_f_0_58;
+      scratch_f = k_f_0_58;
       *(float *)&shell[10] = tmp.to_target.z;
-      if (fVar1 < *(float *)&shell[0x14]) {
+      if (scratch_f < *(float *)&shell[0x14]) {
         shell[0x11] = 0;
       }
     }
@@ -102,44 +103,44 @@ void weapon_mortar_shell_update_n(undefined4 *shell)
       arc = (float10)sin((float10)*(float *)&shell[0x14] * (float10)k_f_3_1415927);
     }
     v = (RwV3d *)(shell + 5);
-    tmp.local_18 = v->x;
-    tmp.local_14 = *(float *)&shell[6];
-    tmp.local_10 = *(float *)&shell[7];
+    tmp.prev_x = v->x;
+    tmp.prev_y = *(float *)&shell[6];
+    tmp.prev_z = *(float *)&shell[7];
     *(float *)&shell[0x13] = g_tick_seconds + *(float *)&shell[0x13];
     *(float *)&shell[0xb] = v->x;
-    tmp.local_4c = *(float *)&shell[8] + v->x;
+    tmp.new_x = *(float *)&shell[8] + v->x;
     shell[0xc] = shell[6];
-    iVar2 = shell[0x12];
+    scratch_i = shell[0x12];
     shell[0xd] = shell[7];
-    v->x = tmp.local_4c;
-    tmp.local_48 = *(float *)&shell[10] + *(float *)&shell[7];
-    *(float *)&shell[7] = tmp.local_48;
+    v->x = tmp.new_x;
+    tmp.len_or_new_z = *(float *)&shell[10] + *(float *)&shell[7];
+    *(float *)&shell[7] = tmp.len_or_new_z;
     arc = arc * (float10)k_f_1_5 + (float10)*(float *)&shell[0x15];
     *(float *)&shell[6] = (float)arc;
-    *(float *)&shell[0xe] = tmp.local_4c - tmp.local_18;
-    tmp.local_44 = (float)(arc - (float10)tmp.local_14);
-    *(float *)&shell[0xf] = (float)(arc - (float10)tmp.local_14);
-    tmp.local_40 = tmp.local_48 - tmp.local_10;
-    *(float *)&shell[0x10] = tmp.local_40;
-    frame = *(RwFrame **)(iVar2 + 4);
+    *(float *)&shell[0xe] = tmp.new_x - tmp.prev_x;
+    tmp.delta_y = (float)(arc - (float10)tmp.prev_y);
+    *(float *)&shell[0xf] = (float)(arc - (float10)tmp.prev_y);
+    tmp.delta_z = tmp.len_or_new_z - tmp.prev_z;
+    *(float *)&shell[0x10] = tmp.delta_z;
+    frame = *(RwFrame **)(scratch_i + 4);
     if (shell[0x11] == 0) {
-      tmp.local_30 = (tmp.local_4c - tmp.local_18) + tmp.local_4c;
-      tmp.local_2c = (float)((float10)tmp.local_44 + arc);
-      tmp.local_28 = tmp.local_40 + tmp.local_48;
+      tmp.aim_x = (tmp.new_x - tmp.prev_x) + tmp.new_x;
+      tmp.aim_y = (float)((float10)tmp.delta_y + arc);
+      tmp.aim_z = tmp.delta_z + tmp.len_or_new_z;
     }
     else {
-      car_current_matrix(&tmp.car_matrix,*shell);
-      tmp.local_30 = *(float *)(tmp.car_matrix + 0x30);
-      tmp.local_2c = *(float *)(tmp.car_matrix + 0x34);
-      tmp.local_28 = *(float *)(tmp.car_matrix + 0x38);
+      car_current_matrix(&tmp.car_matrix_ptr,*shell);
+      tmp.aim_x = *(float *)(tmp.car_matrix_ptr + 0x30);
+      tmp.aim_y = *(float *)(tmp.car_matrix_ptr + 0x34);
+      tmp.aim_z = *(float *)(tmp.car_matrix_ptr + 0x38);
     }
-    iVar2 = *(int *)(shell[0x12] + 4);
-    tmp.up_dir.x = *(RwReal *)(iVar2 + 0x20);
-    tmp.up_dir.y = *(RwReal *)(iVar2 + 0x24);
-    tmp.up_dir.z = *(RwReal *)(iVar2 + 0x28);
+    scratch_i = *(int *)(shell[0x12] + 4);
+    tmp.up_dir.x = *(RwReal *)(scratch_i + 0x20);
+    tmp.up_dir.y = *(RwReal *)(scratch_i + 0x24);
+    tmp.up_dir.z = *(RwReal *)(scratch_i + 0x28);
     RwV3dNormalize(&tmp.up_dir,&tmp.up_dir);
     RwFrameTranslate(frame,v,rwCOMBINEREPLACE);
-    FUN_004c42f0((undefined4)frame,(undefined4)&tmp.local_30,(undefined4)&tmp.up_dir);
+    FUN_004c42f0((undefined4)frame,(undefined4)&tmp.aim_x,(undefined4)&tmp.up_dir);
     RwFrameScale(frame,&tmp.scale,rwCOMBINEPRECONCAT);
     weapon_mortar_trail_particles_add_r((int)shell);
   }

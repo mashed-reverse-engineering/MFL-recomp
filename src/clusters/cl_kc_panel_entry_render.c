@@ -14,10 +14,10 @@ typedef struct KcPanelEntry {
 void kc_panel_entry_render_n(KcPanelEntry *entry)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int *piVar4;
+  int part_obj;
+  int part_index_minus_2;
+  int parts_left;
+  int *part_ptr;
   
   if (entry->visible[25] != 0) {
     (**(code **)(entry->part[25] + 0x48))(entry->part[25]);
@@ -30,13 +30,14 @@ void kc_panel_entry_render_n(KcPanelEntry *entry)
     *(undefined4 *)(**(int **)(*(int *)(entry->part[5] + 0x18) + 0x20) + 4) = 0xff323232;
     (**(code **)(entry->part[5] + 0x48))(entry->part[5]);
   }
-  iVar2 = -2;
-  piVar4 = (int *)entry->part;
-  iVar3 = 0x20;
+  /* loop over all 32 parts: part_index_minus_2 = k-2 for part k; parts 2,5,7..12,25 are drawn explicitly outside the loop (the switch skips them); the others are drawn when visible[k] is set. */
+  part_index_minus_2 = -2;
+  part_ptr = (int *)entry->part;
+  parts_left = 0x20;
   do {
-    iVar1 = *piVar4;
-    if (iVar1 != 0) {
-      switch(iVar2) {
+    part_obj = *part_ptr;
+    if (part_obj != 0) {
+      switch(part_index_minus_2) {
       case 0:
       case 3:
       case 5:
@@ -48,15 +49,15 @@ void kc_panel_entry_render_n(KcPanelEntry *entry)
       case 0x17:
         break;
       default:
-        if (piVar4[-0x20] != 0) {
-          (**(code **)(iVar1 + 0x48))(iVar1);
+        if (part_ptr[-0x20] != 0) {
+          (**(code **)(part_obj + 0x48))(part_obj);
         }
       }
     }
-    iVar2 = iVar2 + 1;
-    piVar4 = piVar4 + 1;
-    iVar3 = iVar3 + -1;
-  } while (iVar3 != 0);
+    part_index_minus_2 = part_index_minus_2 + 1;
+    part_ptr = part_ptr + 1;
+    parts_left = parts_left + -1;
+  } while (parts_left != 0);
   if (entry->visible[7] != 0) {
     (**(code **)(entry->part[7] + 0x48))(entry->part[7]);
   }

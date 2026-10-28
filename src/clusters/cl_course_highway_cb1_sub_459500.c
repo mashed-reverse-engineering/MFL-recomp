@@ -8,24 +8,25 @@
 
 /* single caller course_highway_cb1 */
 
-void course_highway_cb1_sub_459500_n(int in_edx)
+/* Fills box+0x68..0x70 with centre_src(+0x40..0x48) + a per-index offset vector and box+0x74..0x7c with centre_src - the same vector, i.e. a min/max pair around a centre (inferred). Offset vectors are 12-byte entries at g_course_highway_8c3f60[corner_index*3]. */
+void course_highway_cb1_sub_459500_n(int box)
 
 {
-  int iVar1;
-  char *iVar2;
+  int corner_index;
+  char *centre_src;
   
-  iVar1 = *(int *)(in_edx + 0xac);
-  iVar2 = *(char **)(*(char **)(in_edx + 0xa0) + 4);
-  *(float *)(in_edx + 0x68) =
-       *(float *)&(&g_course_highway_8c3f60)[iVar1 * 3] + *(float *)(iVar2 + 0x40);
-  *(float *)(in_edx + 0x6c) = *(float *)&(&g_course_8c3f64)[iVar1 * 3] + *(float *)(iVar2 + 0x44);
-  *(float *)(in_edx + 0x70) =
-       *(float *)(iVar2 + 0x48) + *(float *)&(&g_course_highway_8c3f68)[iVar1 * 3];
-  *(float *)(in_edx + 0x74) =
-       *(float *)(iVar2 + 0x40) - *(float *)&(&g_course_highway_8c3f60)[iVar1 * 3];
-  *(float *)(in_edx + 0x78) = *(float *)(iVar2 + 0x44) - *(float *)&(&g_course_8c3f64)[iVar1 * 3];
-  *(float *)(in_edx + 0x7c) =
-       *(float *)(iVar2 + 0x48) - *(float *)&(&g_course_highway_8c3f68)[iVar1 * 3];
+  corner_index = *(int *)(box + 0xac);
+  centre_src = *(char **)(*(char **)(box + 0xa0) + 4);
+  *(float *)(box + 0x68) =
+       *(float *)&(&g_course_highway_8c3f60)[corner_index * 3] + *(float *)(centre_src + 0x40);
+  *(float *)(box + 0x6c) = *(float *)&(&g_course_8c3f64)[corner_index * 3] + *(float *)(centre_src + 0x44);
+  *(float *)(box + 0x70) =
+       *(float *)(centre_src + 0x48) + *(float *)&(&g_course_highway_8c3f68)[corner_index * 3];
+  *(float *)(box + 0x74) =
+       *(float *)(centre_src + 0x40) - *(float *)&(&g_course_highway_8c3f60)[corner_index * 3];
+  *(float *)(box + 0x78) = *(float *)(centre_src + 0x44) - *(float *)&(&g_course_8c3f64)[corner_index * 3];
+  *(float *)(box + 0x7c) =
+       *(float *)(centre_src + 0x48) - *(float *)&(&g_course_highway_8c3f68)[corner_index * 3];
   return;
 }
 

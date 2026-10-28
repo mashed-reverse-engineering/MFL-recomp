@@ -20,7 +20,7 @@ FPSRC = STUBS + 0x8000
 FPPAGE = 0x76000000      # x87 readout page (J-spill 2026-10-22): mapped on its own, never written by the code under test, never in a compared region (FPOUT used to be STUBS+0x8100: its fstp counted as a function write)
 FPOUT = FPPAGE
 LITSZ = 256
-MAXINS = 300000
+MAXINS = int(os.environ.get("DIFFEMU_MAXINS", "300000"))      # opt-in larger instruction cap (spring_grid_prepare); timeout below is 2 s wall
 WIN = 0x200      # default size of the memory window behind a pointer argument
 
 
@@ -716,6 +716,35 @@ class Machine:
         except (UcError, ValueError): pass
         args = struct.unpack("<%dI" % n, bytes(uc.mem_read(sp + 4, 4 * n))) if n and m.indargs else ()      # cluster mode: the argument count read from the caller's `add esp` is unreliable (batched cleanup), the target address (random per object) identifies the call
         m.trace.append(("indirect %08x" % addr, tuple(m.norm(a) for a in args), ()))
+        m.indord = getattr(m, "indord", 0) + 1
+        if os.environ.get("INDDBG"): sys.stderr.write("IND %s ord=%d ra=%x n=%d\n" % ("ours" if m.ours else "orig", m.indord, ra, n))
+        if m.indord in INDOUT:      # opt-in out word: INDOUT="1:1:1" = the 1st stubbed indirect call stores 1 through its stack argument 1 (0 = this)
+            try: uc.mem_write(struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * INDOUT[m.indord][0], 4)))[0], struct.pack("<I", INDOUT[m.indord][1]))
+            except UcError: pass
+        if STDCALL_IND and INDARGC and m.indord in INDARGC:      # opt-in exact stdcall arg count per call ordinal (INDARGC="1:3,2:5"; ordinal = Nth stubbed indirect call of the run, same on orig and ours, unlike the return address)
+            k_ = INDARGC[m.indord]; uc.mem_write(sp + 4 * k_, struct.pack("<I", ra)); uc.reg_write(UC_X86_REG_ESP, sp + 4 * k_)
+        elif STDCALL_IND and not n:      # opt-in: no `add esp` after the call = stdcall COM method: the callee pops the pushes of this call (counted back from the call site to the previous call / jump)
+            try:
+                key_ = (ra, m.ours)
+                if key_ not in _POPC:
+                    k_ = 0
+                    for off_ in range(48, 2, -1):
+                        q = ra - off_; ins_ = []
+                        buf_ = m.read(q, off_ + 16)
+                        while q < ra:
+                            i_ = next(CS.disasm(buf_[q - (ra - off_):], q, 1), None)
+                            if i_ is None: break
+                            ins_.append(i_); q += i_.size
+                        if q == ra and ins_ and ins_[-1].mnemonic == "call" and len(ins_) >= 3:
+                            for i_ in reversed(ins_[:-1]):
+                                if i_.mnemonic in ("call", "ret", "jmp") or i_.mnemonic.startswith("j"): break
+                                if i_.mnemonic == "push": k_ += 1
+                            break
+                    _POPC[key_] = min(k_, 8)
+                k_ = _POPC[key_]
+                if k_:
+                    uc.mem_write(sp + 4 * k_, struct.pack("<I", ra)); uc.reg_write(UC_X86_REG_ESP, sp + 4 * k_)
+            except UcError: pass
         h = int(sha("ind", addr, len(m.trace), m.seed), 16); uc.reg_write(UC_X86_REG_EAX, (0, 1, h % 50, u32(h))[h % 4]); uc.reg_write(UC_X86_REG_EDX, u32(h >> 20))
 
     def _nullcode(m, uc, addr, size, ud):
@@ -794,7 +823,13 @@ class Machine:
                 m.frames.append((c.name, k, tuple(snap)))
                 if os.environ.get("FRAMEDBG"): sys.stderr.write("FRAME %s\n" % (("ours" if m.ours else "orig", c.name, k, hex(a), hex(sp), hex(m.sp0), snap, [hex(x) for x in outs]),))
         for k, a in enumerate(outs):      # out parameters: a dword behind every pointer to a local gets a deterministic value (else it is frame garbage, different in the two builds)
-            if isstack(a): uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, k), 16) % 61))
+            if isstack(a):
+                os_ = OUTSPEC.get(c.va)
+                if os_ and k in os_ and (int(sha(c.va, i, m.seed, k, "os"), 16) >> 8) % 4 != 0:
+                    uc.mem_write(a, struct.pack("<I", os_[k][(int(sha(c.va, i, m.seed, k, "os"), 16) >> 12) % len(os_[k])])); continue
+                hh_ = int(sha(c.va, i, m.seed, k), 16)
+                if FRETPOOL and (hh_ >> 20) % 5 < 2: uc.mem_write(a, struct.pack("<f", (OUTFLOATS[(hh_ >> 11) % len(OUTFLOATS)] if OUTFLOATS and (hh_ >> 6) % 2 else (0.0, 1.0, -1.0, 0.5, 100.0, 2.0, 0.25, ((hh_ >> 24) % 2000 - 1000) / 8.0)[(hh_ >> 8) % 8])))      # opt-in: interesting float / zero out values
+                else: uc.mem_write(a, struct.pack("<I", hh_ % 61))
         if CANARY:      # K-use 2026-10-23: the hooked callee would store up to its asm store extent (stack_lint.extents: max(read, write) where it writes at all) behind every pointer into the frame; a canary there overwrites what a too small C frame struct has behind the member (saved registers, return address) and shows as DIFF (course_world_ray_hit_light_sample: 64 byte matrix into 60 bytes)
             ex_ = canary_extents(c.va, len(outs))
             if os.environ.get("CANDBG"): sys.stderr.write("CAN %s %x outs=%s ex=%s ours=%s\n" % (c.name, c.va, [hex(x) for x in outs], ex_, m.ours))
@@ -803,7 +838,14 @@ class Machine:
                     for j in range(min(ex_[k], 0x100) // 4):
                         w = a + 4 * j
                         if not isstack(w): break      # no bound at the entry esp on purpose: the return address / saved registers behind a too small frame struct are what the canary must hit
-                        uc.mem_write(w, struct.pack("<I", 0xC0DE0000 | (int(sha(c.va, i, m.seed, k, j, "cn"), 16) & 0xffff)))
+                        hv_ = int(sha(c.va, i, m.seed, k, j, "cn"), 16)
+                        if OUTSTRUCT and (hv_ >> 40) % 2 == 0:      # opt-in: plausible values (floats the original compares with, zero, colours) instead of the canary pattern
+                            ch_ = (hv_ >> 16) % 6
+                            if ch_ < 3 and OUTFLOATS: uc.mem_write(w, struct.pack("<f", OUTFLOATS[(hv_ >> 24) % len(OUTFLOATS)]))
+                            elif ch_ == 3 and OUTINTS: uc.mem_write(w, struct.pack("<I", OUTINTS[(hv_ >> 24) % len(OUTINTS)]))
+                            elif ch_ == 4: uc.mem_write(w, struct.pack("<I", 0))
+                            else: uc.mem_write(w, struct.pack("<f", ((hv_ >> 24) % 2000 - 1000) / 16.0))
+                        else: uc.mem_write(w, struct.pack("<I", 0xC0DE0000 | (hv_ & 0xffff)))
         for nm_, nw_ in OUTWORDS.items():      # callees that fill a whole record behind a pointer to a local: the generic single out-word leaves the rest as frame garbage that differs between the two builds
             if c.name.startswith(nm_):
                 for k, a in enumerate(args):
@@ -812,12 +854,15 @@ class Machine:
                             if isstack(a + 4 * j) and a + 4 * j + 4 <= m.sp0 - 0x0: uc.mem_write(a + 4 * j, struct.pack("<I", int(sha(c.va, i, m.seed, k, j), 16) % 61))
         if c.name.startswith("RpPTankAtomicLock") and len(args) > 1 and isstack(args[1]):      # RpPTankLockStruct {data, stride}: a real buffer in the compared argument area (the generic out-parameter value would be a small integer: the stores of the function went to addresses 0..60, order dependent and different in the two builds)
             uc.mem_write(args[1], struct.pack("<II", ARGBUF + 0x10000 + 0x2000 * (i % 6), 0x20 + 4 * (i % 4)))
-        if c.ret == "f": uc.mem_write(FPSRC, struct.pack("<d", ((h >> 4) % 4000 - 2000) / 8.0))
+        if c.ret == "f": uc.mem_write(FPSRC, struct.pack("<d", (0.0, 1.0, -1.0, 0.5, 2.0, 100.0, 0.25, 1e-3)[(h >> 3) % 8] if FRETPOOL and (h >> 6) % 2 == 0 else ((h >> 4) % 4000 - 2000) / 8.0))      # FRETPOOL (opt-in): exact 0 / 1 / -1 returns
         w_ = RETWANT.get(c.va)
-        if w_ and not m.small and m.seed % 3 == 2 and (h >> 3) % 3 != 0: uc.reg_write(UC_X86_REG_EAX, w_[(h >> 12) % len(w_)])      # compare-guided result (see ret_wants)
+        if w_ and not m.small and (m.seed % 3 == 2 or (FRETPOOL and (h >> 9) % 2 == 0)) and (h >> 3) % 3 != 0: uc.reg_write(UC_X86_REG_EAX, w_[(h >> 12) % len(w_)])      # compare-guided result (see ret_wants)
         else: uc.reg_write(UC_X86_REG_EAX, (0, 1, r % 3, r % 50, r % 6, r % 256, r % 10, 2)[h % 8] if m.small else (0, 1, u32(-1), r % 50, r % 6, r % 256, u32(r * 2654435761), u32(r))[h % 8])      # m.small: retry_case, a loop bound returned by a stubbed callee
         if not keeps_reg(c.va, "edx"): uc.reg_write(UC_X86_REG_EDX, u32(h >> 20))      # a callee that never writes ecx / edx (tools/pseudofix.may_write over its bytes) leaves the caller's value: the ORIGINAL keeps loop counters there (powerups_set_all_enabled)
         if not keeps_reg(c.va, "ecx"): uc.reg_write(UC_X86_REG_ECX, u32(h >> 12))
+        rs_ = RETSPEC.get(c.va)
+        if rs_ and (h >> 5) % 4 != 0: uc.reg_write(UC_X86_REG_EAX, rs_[(h >> 12) % len(rs_)])      # hand spec return values (pointers to spec windows); empty by default
+        for a_, v_ in STUBPOKE.get(c.va, ()): m.poke(a_, v_)      # opt-in side effect of the stubbed callee (STUBPOKE="va:addr:val,...", hex): the original callee stores a value (world_render_with_sector_callback: the sector callback counter)
         uc.reg_write(UC_X86_REG_EIP, m.stubaddr(0 if nat and m.ours else c.pop, c.ret == "f"))
 
     def run(m, entry, args, regs, fill, lo, hi, count=MAXINS):
@@ -831,9 +876,9 @@ class Machine:
         if count >= MAXINS // 7: uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)      # only the 12000 instruction trial runs of retry_case need no coverage (the hook used to stop after 3 runaway cases: count MAXINS // 7 > coverage ~0.4 whatever the case count)
         err = None
         t0 = time.time()
-        try: uc.emu_start(entry, RET, timeout=2000000, count=count)
+        try: uc.emu_start(entry, RET, timeout=2000000 * max(1, MAXINS // 300000), count=count)
         except UcError as e: err = e
-        slow = time.time() - t0 >= 1.9      # wall clock timeout of the emulator (a loaded machine), not a loop: never a DIFF
+        slow = time.time() - t0 >= 1.9 * max(1, MAXINS // 300000)      # wall clock timeout of the emulator (a loaded machine), not a loop: never a DIFF
         eip = uc.reg_read(UC_X86_REG_EIP); r = dict(done=((eip == RET or m.exited) and err is None), exited=m.exited, err=err, eip=eip, wild=m.wild)
         if not r["done"]:
             if m.nullcall: c = "NULLCALL"
@@ -955,6 +1000,11 @@ def cmp_targets(fn):
         fn._cmpt = sorted(set(out))
     return fn._cmpt
 
+RETSPEC = {}; OUTSPEC = {}; _POPC = {}; OUTFLOATS = []; OUTINTS = []      # hand-spec hooks (hs.py fills them); all empty = no change
+OUTSTRUCT = bool(os.environ.get("OUTSTRUCT")); FRETPOOL = bool(os.environ.get("FRETPOOL")); STDCALL_IND = bool(os.environ.get("STDCALL_IND")); MEMMASK = [tuple(int(y, 16) for y in x.split("-")) for x in os.environ.get("MEMMASK", "").split(",") if x]; STUBPOKE = {}
+for x_ in os.environ.get("STUBPOKE", "").split(","):
+    if x_: v_, a_, w_ = (int(y, 16) for y in x_.split(":")); STUBPOKE.setdefault(v_, []).append((a_, w_))
+INDOUT = {int(x.split(":")[0]): (int(x.split(":")[1]), int(x.split(":")[2])) for x in os.environ.get("INDOUT", "").split(",") if x}; INDARGC = {int(x.split(":")[0]): int(x.split(":")[1]) for x in os.environ.get("INDARGC", "").split(",") if x}      # opt-in switches
 RETWANT = {}      # callee va -> immediates the ORIGINAL compares its result with (set by evaluate() for the function under test, one function at a time per process)
 def ret_wants(fn):
     """{callee va: [imm..]}: `call f` followed within 4 instructions by `cmp eax, imm` / `sub eax, imm` (switch on a result): the stub returns these values in some cases"""
@@ -1113,6 +1163,7 @@ def compare(fn, mo, ro, mu, ru):
                 if bo[x - p] != bu[x - p]:
                     off = x & 0xffc; wo = struct.unpack("<I", bo[off:off + 4])[0]; wu = struct.unpack("<I", bu[off:off + 4])[0]
                     if isstack(wo) and isstack(wu): continue      # a pointer to a local: the two frames differ
+                    if any(l_ <= x < h_ for l_, h_ in MEMMASK): continue      # opt-in (MEMMASK=lo-hi,...): bytes known to hold uninitialised stack copies (car_wheels_vs_triangles g_event_log_data)
                     diffs.append((x, bo[x - p], bu[x - p]))
         if diffs: d.append("memory: %d bytes differ: %s" % (len(diffs), ", ".join("%08x %02x/%02x" % x for x in diffs[:10])))
     return d

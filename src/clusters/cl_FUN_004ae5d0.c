@@ -13,59 +13,60 @@ static void FUN_004b20a0_r(int p0, int * p1);
 extern void FUN_004b20a0(void);
 static void FUN_004acb70_r(int * p0, int p1);
 extern void FUN_004acb70(void);
-int FUN_004ae5d0_n(int *in_ecx, int *param_1)
+/* Queue/submit COM object `sample` (inferred) on `self`: takes the outer lock, forwards to the owner (self[0x1e]), then under the inner lock stores it in the pending slot self[0x1b]. Returns 0 on success, else an HRESULT (E_FAIL 0x80004005, 0x8004022b, 0x8000ffff). (inferred) */
+int FUN_004ae5d0_n(int *self, int *sample)
 
 {
-  LPCRITICAL_SECTION lpCriticalSection;
-  LPCRITICAL_SECTION lpCriticalSection_00;
+  LPCRITICAL_SECTION outer_lock;
+  LPCRITICAL_SECTION inner_lock;
   int *owner;
-  int iVar1;
+  int result;
   
-  lpCriticalSection = (LPCRITICAL_SECTION)(in_ecx + 0x1f);
-  EnterCriticalSection(lpCriticalSection);
-  in_ecx[0x2d] = 1;
-  iVar1 = FUN_004afbc0(in_ecx[0x1e] + 0x98,param_1);
-  if (iVar1 != 0) {
-    in_ecx[0x2d] = 0;
-    LeaveCriticalSection(lpCriticalSection);
+  outer_lock = (LPCRITICAL_SECTION)(self + 0x1f);
+  EnterCriticalSection(outer_lock);
+  self[0x2d] = 1;
+  result = FUN_004afbc0(self[0x1e] + 0x98,sample);
+  if (result != 0) {
+    self[0x2d] = 0;
+    LeaveCriticalSection(outer_lock);
     return 0x80004005;
   }
-  owner = (int *)in_ecx[0x1e];
+  owner = (int *)self[0x1e];
   if (owner[0x33] != 0) {
-    iVar1 = (*(ThisMethod1 *)(*owner + 0x24))(owner,0,owner[0x33]);
-    if (iVar1 < 0) {
-      in_ecx[0x2d] = 0;
-      LeaveCriticalSection(lpCriticalSection);
-      return iVar1;
+    result = (*(ThisMethod1 *)(*owner + 0x24))(owner,0,owner[0x33]);
+    if (result < 0) {
+      self[0x2d] = 0;
+      LeaveCriticalSection(outer_lock);
+      return result;
     }
   }
-  lpCriticalSection_00 = (LPCRITICAL_SECTION)(in_ecx + 0x25);
-  EnterCriticalSection(lpCriticalSection_00);
-  if (((in_ecx[0x1b] == 0) && (in_ecx[0x1c] == 0)) && (in_ecx[0x18] == 0)) {
-    if (in_ecx[0x14] != 0) {
-      FUN_004b20a0_r(in_ecx[0x14],param_1);
+  inner_lock = (LPCRITICAL_SECTION)(self + 0x25);
+  EnterCriticalSection(inner_lock);
+  if (((self[0x1b] == 0) && (self[0x1c] == 0)) && (self[0x18] == 0)) {
+    if (self[0x14] != 0) {
+      FUN_004b20a0_r(self[0x14],sample);
     }
-    if ((in_ecx[0x19] == 1) && ((*(ThisMethod1 *)(*in_ecx + 0x54))(in_ecx,0,(int)param_1) == 0)) {
-      in_ecx[0x2d] = 0;
-      LeaveCriticalSection(lpCriticalSection_00);
-      LeaveCriticalSection(lpCriticalSection);
+    if ((self[0x19] == 1) && ((*(ThisMethod1 *)(*self + 0x54))(self,0,(int)sample) == 0)) {
+      self[0x2d] = 0;
+      LeaveCriticalSection(inner_lock);
+      LeaveCriticalSection(outer_lock);
       return 0x8004022b;
     }
-    in_ecx[0x2e] = *(int *)(in_ecx[0x1e] + 0xc0);
-    in_ecx[0x2f] = *(int *)(in_ecx[0x1e] + 0xc4);
-    in_ecx[0x1b] = (int)param_1;
-    (*(ComMethod1 *)(*param_1 + 4))(param_1);
-    if (in_ecx[0x19] == 0) {
-      FUN_004acb70_r(in_ecx,1);
+    self[0x2e] = *(int *)(self[0x1e] + 0xc0);
+    self[0x2f] = *(int *)(self[0x1e] + 0xc4);
+    self[0x1b] = (int)sample;
+    (*(ComMethod1 *)(*sample + 4))(sample);
+    if (self[0x19] == 0) {
+      FUN_004acb70_r(self,1);
     }
-    LeaveCriticalSection(lpCriticalSection_00);
-    LeaveCriticalSection(lpCriticalSection);
+    LeaveCriticalSection(inner_lock);
+    LeaveCriticalSection(outer_lock);
     return 0;
   }
-  SetEvent(in_ecx[0x17]);
-  in_ecx[0x2d] = 0;
-  LeaveCriticalSection(lpCriticalSection_00);
-  LeaveCriticalSection(lpCriticalSection);
+  SetEvent(self[0x17]);
+  self[0x2d] = 0;
+  LeaveCriticalSection(inner_lock);
+  LeaveCriticalSection(outer_lock);
   return 0x8000ffff;
 }
 

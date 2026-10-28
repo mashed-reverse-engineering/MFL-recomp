@@ -14,6 +14,8 @@ extern int _rwD3D9SetStreams(void *streams, int flag);
 extern int RpMaterialSetTexture(void *material, int texture);
 extern int g_app_62e770, g_rw_62e764, g_app_62e760, g_app_89de04;
 extern int *g_d3d9_device;
+/* Size in bytes of one mesh record inside the instance (inferred from the loop step). */
+#define INSTANCE_MESH_STRIDE (0x24)
 
 /* Renders the meshes of an instanced geometry (`obj`, eax): sets the index buffer, the vertex streams and the vertex declaration when they changed, then per mesh
    chooses by the material's render type (1..4 in the plugin data of the material) and the pipeline mode (app_get_app_771058: 0 fixed function callbacks, 1 / 2 the
@@ -22,7 +24,7 @@ static int d3d9_instance_render_callback_a_r(void * p0, void * p1, void * p2, un
 extern void d3d9_instance_render_callback_a(void);
 static int d3d9_instance_render_callback_b_r(void * p0, void * p1, void * p2, unsigned int p3);
 extern void d3d9_instance_render_callback_b(void);
-void d3d9_instance_render_dispatch_n(char *obj, int param_2, int param_3)
+void d3d9_instance_render_dispatch_n(char *obj, int callback_arg, int shader_path_arg)
 {
   char *instance;
   char *mesh;
@@ -40,12 +42,14 @@ void d3d9_instance_render_dispatch_n(char *obj, int param_2, int param_3)
   index_buffer = *(int *)(obj + 0x20);
   if (g_app_62e770 != index_buffer) {
     g_app_62e770 = index_buffer;
+    /* IDirect3DDevice9 vtable +0x1a0 = SetIndices (index 104). */
     (*(int (__stdcall **)(int *, int))(*g_d3d9_device + 0x1a0))(g_d3d9_device, *(int *)(instance + 8));
   }
   _rwD3D9SetStreams(instance + 0x10, *(int *)(instance + 0x30));
   if (g_rw_62e764 != *(int *)(instance + 0x34)) {
     g_rw_62e764 = *(int *)(instance + 0x34);
     g_app_62e760 = -1;
+    /* IDirect3DDevice9 vtable +0x15c = SetVertexDeclaration (index 87). */
     (*(int (__stdcall **)(int *, int))(*g_d3d9_device + 0x15c))(g_d3d9_device, *(int *)(instance + 0x34));
   }
   count = *(int *)(instance + 4);
@@ -68,14 +72,15 @@ void d3d9_instance_render_dispatch_n(char *obj, int param_2, int param_3)
         a = *(int *)(data + 4);
         b = *(int *)(data + 8);
         FUN_004aa220();
-        FUN_004aa2b0(instance, mesh, param_3, a, b, param_2);
+        FUN_004aa2b0(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       else if (mode == 2) {
-        FUN_004aa530(instance, mesh, param_3, *(int *)(data + 4), *(int *)(data + 8), param_2);
+        FUN_004aa530(instance, mesh, shader_path_arg, *(int *)(data + 4), *(int *)(data + 8), callback_arg);
         plugin = g_app_89de04;
       }
       break;
+    /* Types 3 and 4 also feed a (-u, v) pair from the material plugin data (+0x20, +0x24) to FUN_004aa280 / FUN_004aa250 (inferred: texture-coordinate offset). */
     case 3:
       if (mode == 0) {
         goto set_texture;
@@ -86,7 +91,7 @@ void d3d9_instance_render_dispatch_n(char *obj, int param_2, int param_3)
         v[1] = *(float *)(data + 0x24);
         b = *(int *)(data + 8);
         FUN_004aa280(v);
-        FUN_004aa2b0(instance, mesh, param_3, a, b, param_2);
+        FUN_004aa2b0(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       else if (mode == 2) {
@@ -95,7 +100,7 @@ void d3d9_instance_render_dispatch_n(char *obj, int param_2, int param_3)
         v[1] = *(float *)(data + 0x24);
         b = *(int *)(data + 8);
         FUN_004aa280(v);
-        FUN_004aa740(instance, mesh, param_3, a, b, param_2);
+        FUN_004aa740(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       break;
@@ -109,21 +114,21 @@ void d3d9_instance_render_dispatch_n(char *obj, int param_2, int param_3)
         v[1] = *(float *)(data + 0x24);
         b = *(int *)(data + 8);
         FUN_004aa250(v);
-        FUN_004aa2b0(instance, mesh, param_3, a, b, param_2);
+        FUN_004aa2b0(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       else if (mode == 2) {
 set_texture:
         RpMaterialSetTexture(material, *(int *)(data + 4));
-        d3d9_instance_render_callback_b_r(material, mesh, instance, param_2);
+        d3d9_instance_render_callback_b_r(material, mesh, instance, callback_arg);
         plugin = g_app_89de04;
       }
       break;
     default:
-      d3d9_instance_render_callback_a_r(material, mesh, instance, param_2);
+      d3d9_instance_render_callback_a_r(material, mesh, instance, callback_arg);
       plugin = g_app_89de04;
     }
-    mesh = mesh + 0x24;
+    mesh = mesh + INSTANCE_MESH_STRIDE;
     count = count - 1;
   } while (count != 0);
 }

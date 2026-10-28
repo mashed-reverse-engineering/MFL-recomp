@@ -238,29 +238,30 @@ extern void fx_system_render(int param_1);
 /* "allocates an fx system (three buffers, slot via particles_fn_49b780)" */
 
 undefined4 *
-fx_system_create(int param_1,RwTexture *texture,uint param_3,int param_4,undefined4 *param_5,
-                undefined4 param_6,undefined4 param_7)
+fx_system_create(int max_particles,RwTexture *texture,uint alloc_arg_d,int alloc_arg_c,undefined4 *init_values_ptr,
+                undefined4 init_value_b,undefined4 init_value_c)
 {
-  undefined4 *puVar1;
-  undefined4 uVar2;
+  undefined4 *fx_sys;
+  undefined4 buffer_or_slot;
   
-  puVar1 = (undefined4 *)alloc_zeroed(1,0x2c);
-  uVar2 = alloc_zeroed(param_1,0xc);
-  *puVar1 = uVar2;
-  uVar2 = alloc_zeroed(param_1,0xc);
-  puVar1[1] = uVar2;
-  uVar2 = alloc_zeroed(param_1,4);
-  puVar1[2] = uVar2;
-  puVar1[3] = param_1;
-  puVar1[4] = param_1;
-  uVar2 = particles_alloc_system(texture,param_1,param_4,param_3);
-  puVar1[10] = uVar2;
-  puVar1[5] = *param_5;
-  puVar1[6] = param_6;
-  puVar1[7] = param_7;
-  puVar1[9] = 0;
-  fx_set_blend_modes(uVar2,5,6);
-  return puVar1;
+  /* fx system record (0x2c bytes): [0],[1] = two max_particles*12 byte buffers, [2] = max_particles*4 byte buffer, [3],[4] = max_particles, [5..7] = init values, [9] = 0, [10] = particle system from particles_alloc_system (blend 5/6) (inferred layout) */
+  fx_sys = (undefined4 *)alloc_zeroed(1,0x2c);
+  buffer_or_slot = alloc_zeroed(max_particles,0xc);
+  *fx_sys = buffer_or_slot;
+  buffer_or_slot = alloc_zeroed(max_particles,0xc);
+  fx_sys[1] = buffer_or_slot;
+  buffer_or_slot = alloc_zeroed(max_particles,4);
+  fx_sys[2] = buffer_or_slot;
+  fx_sys[3] = max_particles;
+  fx_sys[4] = max_particles;
+  buffer_or_slot = particles_alloc_system(texture,max_particles,alloc_arg_c,alloc_arg_d);
+  fx_sys[10] = buffer_or_slot;
+  fx_sys[5] = *init_values_ptr;
+  fx_sys[6] = init_value_b;
+  fx_sys[7] = init_value_c;
+  fx_sys[9] = 0;
+  fx_set_blend_modes(buffer_or_slot,5,6);
+  return fx_sys;
 }
 
 

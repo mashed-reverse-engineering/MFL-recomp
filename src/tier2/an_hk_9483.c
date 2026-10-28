@@ -47,19 +47,19 @@ void race_status_messages_draw(void)
   undefined4 shadow_colour;
   float text_colour;
   RwCamera *camera;
-  int iVar3;
+  int scratch_int;
   RwCamera *clear_camera;
-  undefined4 uVar5;
-  double fVar6;
+  undefined4 draw_team_text;
+  double counter_b;
   RwRGBA *clear_colour_ptr;
   RwInt32 clear_flags;
   struct {
     undefined4 colour_white;
     RwRGBA clear_colour;
     undefined4 colour_black;
-    undefined4 uStack_1c;
+    undefined4 rect_height_bits;
     float text_colour_f;
-    float fStack_14;
+    float rect_y;
   } frame;
   RwV2d view_window_new;
   RwV2d view_window_saved;
@@ -72,12 +72,12 @@ void race_status_messages_draw(void)
   frame.text_colour_f = -2.5554925e+38;
   frame.colour_white = 0xffffffff;
   camera = (RwCamera *)get_viewport_camera(0);
-  iVar3 = get_event_type();
+  scratch_int = get_event_type();
   text_colour = frame.text_colour_f;
   shadow_colour = frame.colour_black;
-  if ((((iVar3 == 0) || (iVar3 = get_event_type(), iVar3 == 1)) ||
-      (iVar3 = get_event_type(), iVar3 == 2)) &&
-     ((iVar3 = race_get_phase(), iVar3 == 7 && (iVar3 = game_get_game_659d00(), iVar3 == 0)))) {
+  if ((((scratch_int == 0) || (scratch_int = get_event_type(), scratch_int == 1)) ||
+      (scratch_int = get_event_type(), scratch_int == 2)) &&
+     ((scratch_int = race_get_phase(), scratch_int == 7 && (scratch_int = game_get_game_659d00(), scratch_int == 0)))) {
     RwCameraEndUpdate(camera);
     view_window_saved.x = RwCamera_viewWindow(camera).x;
     view_window_saved.y = RwCamera_viewWindow(camera).y;
@@ -90,6 +90,7 @@ void race_status_messages_draw(void)
     RwCameraClear(clear_camera,clear_colour_ptr,clear_flags);
     RwCameraBeginUpdate(camera);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
+    /* Case 1: event types 0/1/2 in race phase 7: shrunk view window (0.8), text ids 0x256 (598) and 599 each drawn twice (shadow at +3,+3, then main), then the camera is restored (inferred) */
     ui_rt2d_text_draw(0x256, 323.0f, 98.0f, shadow_colour, 1.0f, 2);
     ui_rt2d_text_draw(0x256, 320.0f, 95.0f, *(int *)&text_colour, 1.0f, 2);
     ui_rt2d_text_draw(599, 323.0f, 128.0f, shadow_colour, 1.0f, 2);
@@ -98,8 +99,9 @@ void race_status_messages_draw(void)
     RwCameraSetViewWindow(camera,&view_window_saved);
     RwCameraBeginUpdate(camera);
   }
-  iVar3 = camera_get_car_8c747c();
-  if (iVar3 != 1) {
+  /* Case 2: camera car 8c747c != 1 draws the intro banner (g_intro_banner_text_id): black bars sliding by g_intro_banner_slide_step, text ids 0x2e / 0x42 / banner id, plus text 0xd4 blinking once the slide ended (inferred) */
+  scratch_int = camera_get_car_8c747c();
+  if (scratch_int != 1) {
     if (g_intro_banner_text_id != 0) {
       RwCameraEndUpdate(camera);
       view_window_saved.x = RwCamera_viewWindow(camera).x;
@@ -113,28 +115,28 @@ void race_status_messages_draw(void)
       RwCameraClear(clear_camera,clear_colour_ptr,clear_flags);
       RwCameraBeginUpdate(camera);
       frame.colour_white = 0xff000000;
-      frame.uStack_1c = 0x42a00000;
+      frame.rect_height_bits = 0x42a00000;
       frame.colour_black = 0x44200000;
       frame.text_colour_f = 0.0;
-      frame.fStack_14 = g_intro_banner_slide_step;
+      frame.rect_y = g_intro_banner_slide_step;
       draw_rect(0,*(int *)&g_intro_banner_slide_step,0x44200000,0x42a00000,0xff000000);
-      frame.fStack_14 = (k_f_480 - g_intro_banner_slide_step) - k_f_64;
-      draw_rect(0,*(int *)&frame.fStack_14,0x44200000,frame.uStack_1c,frame.colour_white);
+      frame.rect_y = (k_f_480 - g_intro_banner_slide_step) - k_f_64;
+      draw_rect(0,*(int *)&frame.rect_y,0x44200000,frame.rect_height_bits,frame.colour_white);
       frame.colour_white = 0xffffffff;
-      frame.uStack_1c = 0x3f800000;
-      draw_rect(0,*(int *)&frame.fStack_14,0x44200000,0x3f800000,0xffffffff);
-      frame.fStack_14 = g_intro_banner_slide_step + k_f_80;
-      draw_rect(0,*(int *)&frame.fStack_14,0x44200000,frame.uStack_1c,0xffffffff);
+      frame.rect_height_bits = 0x3f800000;
+      draw_rect(0,*(int *)&frame.rect_y,0x44200000,0x3f800000,0xffffffff);
+      frame.rect_y = g_intro_banner_slide_step + k_f_80;
+      draw_rect(0,*(int *)&frame.rect_y,0x44200000,frame.rect_height_bits,0xffffffff);
       RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
-      iVar3 = race_get_phase_timer();
-      if (199 < iVar3) {
+      scratch_int = race_get_phase_timer();
+      if (199 < scratch_int) {
         ui_rt2d_text_draw(0x2e, 64.0f, (k_f_480 - g_intro_banner_slide_step) - k_f_52, 0xffffffff, 0.600000024f, 0);
       }
       ui_rt2d_text_draw(0x42, 64.0f, g_intro_banner_slide_step + float_50_0, 0xffffffff, 0.800000012f, 0);
       ui_rt2d_text_draw(g_intro_banner_text_id, 64.0f, g_intro_banner_slide_step + k_f_68, 0xffffffff, 0.600000024f, 0);
       if (g_intro_banner_slide_step == k_f_0) {
         if (((g_race_7ef7fc != 0) && (((byte)g_intro_banner_offset & 0x3f) < 0x34)) &&
-           (iVar3 = get_event_type(), iVar3 != 0)) {
+           (scratch_int = get_event_type(), scratch_int != 0)) {
           ui_rt2d_text_draw(0xd4, 320.0f, 400.0f, 0xffffffff, 1.0f, 2);
         }
       }
@@ -148,17 +150,17 @@ void race_status_messages_draw(void)
     }
     return;
   }
-  iVar3 = race_get_phase();
-  if (iVar3 != 0xb) {
+  scratch_int = race_get_phase();
+  if (scratch_int != 0xb) {
     return;
   }
-  iVar3 = get_event_type();
-  if ((((iVar3 == EVENT_CUP_3) || (iVar3 = get_event_type(), iVar3 == 4)) ||
-      (iVar3 = get_event_type(), iVar3 == 5)) && (g_car_7ef7b0 != 0)) {
-    uVar5 = 1;
+  scratch_int = get_event_type();
+  if ((((scratch_int == EVENT_CUP_3) || (scratch_int = get_event_type(), scratch_int == 4)) ||
+      (scratch_int = get_event_type(), scratch_int == 5)) && (g_car_7ef7b0 != 0)) {
+    draw_team_text = 1;
   }
   else {
-    uVar5 = 0;
+    draw_team_text = 0;
   }
   RwCameraEndUpdate(camera);
   view_window_saved.x = RwCamera_viewWindow(camera).x;
@@ -172,37 +174,38 @@ void race_status_messages_draw(void)
   RwCameraClear(clear_camera,clear_colour_ptr,clear_flags);
   RwCameraBeginUpdate(camera);
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
+  /* Case 3: race phase 0xb (end of race): per game_mode draw the winner or lose banner, optional team text (draw_team_text) and mode specific captions (0x216, 0x215, 0x231) */
   switch(game_mode) {
   case 5:
-    iVar3 = fx_objects_all_exploded();
-    if (iVar3 == 0) {
+    scratch_int = fx_objects_all_exploded();
+    if (scratch_int == 0) {
 LAB_0042f22a:
       race_lose_banner_draw();
       goto LAB_0042f393;
     }
-    race_winner_banner_draw(uVar5);
-    uVar5 = 1;
+    race_winner_banner_draw(draw_team_text);
+    draw_team_text = 1;
     break;
   default:
-    race_winner_banner_draw(uVar5);
+    race_winner_banner_draw(draw_team_text);
     break;
   case 8:
-    iVar3 = ai_ftol_noop_wrapper(0);
-    if (iVar3 == -1) goto LAB_0042f22a;
+    scratch_int = ai_ftol_noop_wrapper(0);
+    if (scratch_int == -1) goto LAB_0042f22a;
     goto LAB_0042f370;
   case 9:
     if (g_car_7ef7b0 == 0) {
       race_lose_banner_draw();
-      fVar6 = (double)ai_get_counter(1);
-      frame.text_colour_f = (float)fVar6;
-      fVar6 = (double)ai_get_counter(0);
-      if ((double)k_f_0_9 <= (double)frame.text_colour_f - fVar6) {
+      counter_b = (double)ai_get_counter(1);
+      frame.text_colour_f = (float)counter_b;
+      counter_b = (double)ai_get_counter(0);
+      if ((double)k_f_0_9 <= (double)frame.text_colour_f - counter_b) {
         ui_rt2d_text_draw(0x216, intro_banner_get_x() + k_f_3, 98.0f, shadow_colour, 1.0f, 2);
         ui_rt2d_text_draw(0x216, intro_banner_get_x(), 95.0f, *(int *)&text_colour, 1.0f, 2);
       }
     }
     else {
-      race_winner_banner_draw(uVar5);
+      race_winner_banner_draw(draw_team_text);
       intro_banner_draw_team_text(&frame.colour_white,1);
       ui_rt2d_text_draw(0x215, 320.0f, 98.0f, shadow_colour, 1.0f, 2);
       ui_rt2d_text_draw(0x215, 320.0f, 95.0f, frame.colour_white, 1.0f, 2);
@@ -216,10 +219,10 @@ LAB_0042f22a:
       goto LAB_0042f393;
     }
 LAB_0042f370:
-    race_winner_banner_draw(uVar5);
-    uVar5 = 1;
+    race_winner_banner_draw(draw_team_text);
+    draw_team_text = 1;
   }
-  intro_banner_draw_team_text(&frame.colour_white,uVar5);
+  intro_banner_draw_team_text(&frame.colour_white,draw_team_text);
 LAB_0042f393:
   RwCameraEndUpdate(camera);
   RwCameraSetViewWindow(camera,&view_window_saved);

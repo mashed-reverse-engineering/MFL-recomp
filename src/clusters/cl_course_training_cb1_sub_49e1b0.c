@@ -40,6 +40,7 @@ typedef struct PTankLock { unsigned char *data; int stride; } PTankLock;
 #define RP_PTANK_LOCK_MATRIX   0x80 /* flag 0x80: 4 floats per particle, used here as texture rect (u, v, w, h) */
 #define SPRAY_PARTICLES 32
 #define SPRAY_STEP_DECAY 0.03125f
+#define PTANK_PLUGIN_FLAGS_OFFSET 0x40 /* flag word inside the PTank atomic plugin data */
 
 /* course_training_cb1_sub_49e1b0 */
 
@@ -48,9 +49,9 @@ typedef struct PTankLock { unsigned char *data; int stride; } PTankLock;
  * particles on a ray from the light source (or the first scene light), spaced by a step that
  * shrinks along the ray, with a colour ramp (first two fixed, then the 8 entry colour table halved),
  * a size that fades out and the lit amount light_scale (squared facing of the light).
- * param_1: the owner object (+4 = scene node whose matrix gives the ray basis).
+ * beam_owner: the owner object (+4 = scene node whose matrix gives the ray basis).
  */
-void course_training_cb1_sub_49e1b0(int param_1)
+void course_training_cb1_sub_49e1b0(int beam_owner)
 
 {
   double facing;
@@ -93,7 +94,7 @@ void course_training_cb1_sub_49e1b0(int param_1)
   light = (float *)course_get_light_position();
   light_dir.x = *light;
   light_dir.y = light[1];
-  scene = *(int *)(param_1 + 4);
+  scene = *(int *)(beam_owner + 4);
   light_dir.z = light[2];
   view_matrix = get_viewport_camera_matrix(0);
   g_view_pos_x = *(float *)(view_matrix + 0x30);
@@ -111,7 +112,7 @@ void course_training_cb1_sub_49e1b0(int param_1)
   target_pos.y = g_view_pos_y - source_pos.y;
   target_pos.z = g_view_pos_z - source_pos.z;
   RwV3dLength(&target_pos);
-  target_pos.x = g_data_62ac1c * *(float *)(scene + 0x30) + *(float *)(scene + 0x40);
+  target_pos.x = g_data_62ac1c * *(float *)(scene + 0x30) + *(float *)(scene + PTANK_PLUGIN_FLAGS_OFFSET);
   target_pos.y = g_data_62ac1c * *(float *)(scene + 0x34) + *(float *)(scene + 0x44);
   target_pos.z = g_data_62ac1c * *(float *)(scene + 0x38) + *(float *)(scene + 0x48);
   /* how much the light faces the scene node: the x87 keeps the whole chain in extended precision, only the final square is stored as a float */
@@ -193,11 +194,11 @@ void course_training_cb1_sub_49e1b0(int param_1)
     }
     RpPTankAtomicUnlock_0049a970(g_fx_ptank_76df18);
   }
-  flags = (unsigned int *)(*(int *)(g_ptank_plugin_offset + g_fx_ptank_76df18) + 0x40);
+  flags = (unsigned int *)(*(int *)(g_ptank_plugin_offset + g_fx_ptank_76df18) + PTANK_PLUGIN_FLAGS_OFFSET);
   *flags = *flags | 0x800000;
   *(unsigned int *)(*(int *)(g_ptank_plugin_offset + g_fx_ptank_76df18) + 4) = SPRAY_PARTICLES;
-  scene = *(int *)(param_1 + 4);
-  g_view_pos_x = *(float *)(scene + 0x40);
+  scene = *(int *)(beam_owner + 4);
+  g_view_pos_x = *(float *)(scene + PTANK_PLUGIN_FLAGS_OFFSET);
   g_view_pos_y = *(float *)(scene + 0x44);
   g_view_pos_z = *(float *)(scene + 0x48);
   return;

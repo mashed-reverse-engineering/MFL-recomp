@@ -29,6 +29,8 @@
 /* byte offsets into g_race_setup of the 4 per-car "enabled" words */
 #define RACE_SETUP_CAR_ENABLED 0xb8
 #define RACE_SETUP_CAR_ENABLED_END 200
+/* loop limit for the PlayerSlot.state walk: slots are 0x10 bytes, state is at +4, so 4*0x10 + 4 is where the (non-existent) 5th slot's state would be */
+#define PLAYER_SLOTS_STATE_LIMIT 0x44
 
 /* player progress runs 0..100 around the lap: a car that has just crossed the line (< 20) is ahead of one that is about to (> 80).  Puts the two on a common scale
    (the one that wrapped is moved down by a lap) so that `a <= b` means car a is behind car b.  The first value is rounded to float, the second stays extended like in the original. */
@@ -63,7 +65,7 @@ static void progress_unwrapped(int car_a, int car_b, float10 *a, float10 *b)
    progress (progress_unwrapped) and killed. Returns 1 when a winner is known (all four precise positions are
    then set to its rank key), else 0. Inferred from the callees, constants and debug strings; the exact
    scoring rules per mode are not verified. */
-/* Multi-purpose locals: car_idx = car index in the race-setup scan loops, the index of the current best/last candidate, the count of already finished cars; scan = byte offset into g_race_setup's car-enabled table (stride 4), the team state of the first scanned slot, a loop counter over the 4 cars, or an is_team_mode() result. */
+/* Locals that could not be split without changing the compiled code (register allocation): car_idx = car index in the race-setup scan loops, the index of the current best/last candidate, the count of already finished cars; scan = byte offset into g_race_setup's car-enabled table (stride 4), the team state of the first scanned slot, a loop counter over the 4 cars, or an is_team_mode() result; cars_remaining_or_i = number of active cars, later reused as a loop counter / car index; event_type_or_off = get_event_type() result, later a byte offset. Already split off: is_duel (player_count == 2), team_state (team of the car being scored, 3 players) and team_state_c (same, 4 players). */
 undefined4 race_battle_mode_update(int dead_car, int score)
 
 {
@@ -72,11 +74,14 @@ undefined4 race_battle_mode_update(int dead_car, int score)
   int event_type_or_off;
   int tmp;
   int car_active;
+  int team_state_c;
+  int team_state;
   int cars_remaining_or_i;
   int scan;
   int *slot_state_ptr;
   int car_idx;
   bool first_seen;
+  bool is_duel;
   float10 prog_a;
   float10 prog_b;
   undefined4 team_points;
@@ -119,9 +124,10 @@ undefined4 race_battle_mode_update(int dead_car, int score)
     scan = *slot_state_ptr;
   }
   /* player_count == 2 (duel): the loser gets -1, the survivor +1 when one car remains */
-  first_seen = player_count == 2;
+  is_duel = player_count == 2;
   (&g_round_8d8b20)[car_idx] = dead_car;
-  if (first_seen) {
+  if (is_duel) {
+
     if (cars_remaining_or_i == 1) {
       FID_conflict__wprintf("loser is %d, winner is %d\n",dead_car,frame.winner);
       player_add_points(dead_car,0xffffffff);
@@ -220,12 +226,12 @@ undefined4 race_battle_mode_update(int dead_car, int score)
                 tmp = car_idx;
               }
               car_add_field_b10(tmp,1);
-              car_active = slot_ptr->state;
+              team_state = slot_ptr->state;
               tmp = 0;
               slot_state_ptr = &g_player_slots[0].state;
               do {
                 if (((PlayerSlot *)(slot_state_ptr + -1))->controller != -1) {
-                  if (*slot_state_ptr == car_active) {
+                  if (*slot_state_ptr == team_state) {
                     team_points = 1;
                   }
                   else {
@@ -236,7 +242,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
                 slot_state_ptr = slot_state_ptr + 4;
                 tmp = tmp + 1;
                 car_idx = frame.candidate;
-              } while ((int)slot_state_ptr < (int)&g_player_slots + 0x44);
+              } while ((int)slot_state_ptr < (int)&g_player_slots + PLAYER_SLOTS_STATE_LIMIT);
             }
           }
         }
@@ -259,7 +265,7 @@ undefined4 race_battle_mode_update(int dead_car, int score)
         }
         slot_state_ptr = slot_state_ptr + 4;
         car_idx = car_idx + 1;
-      } while ((int)slot_state_ptr < (int)&g_player_slots + 0x44);
+      } while ((int)slot_state_ptr < (int)&g_player_slots + PLAYER_SLOTS_STATE_LIMIT);
     }
   }
   /* 4 players: same scheme; with bots (menu_bot_skill_a) in multiplayer events 6..8 the two remaining bots are decided by progress, the rear one is killed */
@@ -469,7 +475,7 @@ LAB_00411724:
                 }
                 slot_state_ptr = slot_state_ptr + 4;
                 cars_remaining_or_i = cars_remaining_or_i + 1;
-              } while ((int)slot_state_ptr < (int)&g_player_slots + 0x44);
+              } while ((int)slot_state_ptr < (int)&g_player_slots + PLAYER_SLOTS_STATE_LIMIT);
             }
           }
         }
@@ -497,12 +503,12 @@ LAB_00411724:
                   scan = cars_remaining_or_i;
                 }
                 car_kill(scan);
-                car_idx = slot_ptr->state;
+                team_state_c = slot_ptr->state;
                 scan = 0;
                 slot_state_ptr = &g_player_slots[0].state;
                 do {
                   if (((PlayerSlot *)(slot_state_ptr + -1))->controller != -1) {
-                    if (*slot_state_ptr == car_idx) {
+                    if (*slot_state_ptr == team_state_c) {
                       team_points = 1;
                     }
                     else {
@@ -513,7 +519,7 @@ LAB_00411724:
                   slot_state_ptr = slot_state_ptr + 4;
                   scan = scan + 1;
                   cars_remaining_or_i = frame.candidate;
-                } while ((int)slot_state_ptr < (int)&g_player_slots + 0x44);
+                } while ((int)slot_state_ptr < (int)&g_player_slots + PLAYER_SLOTS_STATE_LIMIT);
               }
             }
           }
@@ -537,7 +543,7 @@ LAB_00411724:
           }
           slot_state_ptr = slot_state_ptr + 4;
           cars_remaining_or_i = cars_remaining_or_i + 1;
-        } while ((int)slot_state_ptr < (int)&g_player_slots + 0x44);
+        } while ((int)slot_state_ptr < (int)&g_player_slots + PLAYER_SLOTS_STATE_LIMIT);
         goto LAB_00411c7e;
       }
     }

@@ -47,13 +47,13 @@
  * Advances the bot's held-weapon timer and fire cooldown, then picks a rule from the
  * weapon id in the bot's weapon descriptor. A rule either presses fire
  * (player_input->fire = 1) or sets the next cooldown (fire_delay) and returns.
- * param_4: bot index (its bit pattern is read as an int), later compared as a float
+ * bot_index_then_speed: bot index (its bit pattern is read as an int), later compared as a float
  *          against distances (inferred).
- * param_5: int compared as a float against 15 / 25 / 80 (inferred, meaning unknown).
- * param_1..3 are unused. Always returns 0.
+ * range_value: int compared as a float against 15 / 25 / 80 (inferred, meaning unknown).
+ * unused_1..3 are unused. Always returns 0.
  */
-undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,undefined4 param_3,float param_4,
-                  int param_5)
+undefined4 __cdecl ai_bot_stuck_check(undefined4 unused_1,undefined4 unused_2,undefined4 unused_3,float bot_index_then_speed,
+                  int range_value)
 
 {
   float random_roll;
@@ -66,17 +66,17 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
   int tmp_b;
   double roll_or_dist;
   struct {
-    char *local_24;
-    char *local_20;
-    RwReal local_1c;
-    RwV3d local_18;
-    RwV3d local_c;
+    char *player0_matrix;
+    char *bot_matrix;
+    RwReal to_player0_length;
+    RwV3d to_player0;
+    RwV3d to_player0_dir;
   } frame;
   
-  iBot = *(int *)&param_4;
+  iBot = *(int *)&bot_index_then_speed;
   tmp_b = g_player_slots[iBot].controller;
   player_input = &g_player_inputs[tmp_b];
-  car_get_speed(&param_4,iBot);
+  car_get_speed(&bot_index_then_speed,iBot);
   tmp_a = g_tick_count;
   held_ms_total = g_ai_bots[iBot].weapon_held_ms + g_tick_count;
   g_ai_bots[iBot].weapon_held_ms = held_ms_total;
@@ -109,7 +109,7 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 param_1,undefined4 param_2,unde
       if (!(roll_or_dist > (double)k_f_2_75)) {
         return 0;
       }
-      if (!(k_f_25 > (float)param_5)) {
+      if (!(k_f_25 > (float)range_value)) {
         return 0;
       }
       random_roll = random_range(0,FLOAT_ONE_BITS);
@@ -156,14 +156,14 @@ LAB_00418304:
       if (g_ai_bots[iBot].fire_delay != 0) {
         return 0;
       }
-      if (!(param_4 > k_f_2000)) {
+      if (!(bot_index_then_speed > k_f_2000)) {
         return 0;
       }
       tmp_a = ai_find_leader_b(iBot,0x40800000,0x41200000);
       if (tmp_a == 0) {
         return 0;
       }
-      if (!(k_f_15 > (float)param_5)) {
+      if (!(k_f_15 > (float)range_value)) {
         return 0;
       }
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
@@ -193,7 +193,7 @@ LAB_00418177:
       if (g_ai_bots[iBot].fire_delay != 0) {
         return 0;
       }
-      if (!(param_4 > k_f_2000)) {
+      if (!(bot_index_then_speed > k_f_2000)) {
         return 0;
       }
       tmp_a = ai_find_leader_b(iBot,0x40800000,0x41200000);
@@ -218,7 +218,7 @@ LAB_004182e3:
       return 0;
     }
     if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
-    if (((g_ai_bots[iBot].fire_delay == 0) && (k_f_2000 < param_4)) &&
+    if (((g_ai_bots[iBot].fire_delay == 0) && (k_f_2000 < bot_index_then_speed)) &&
        (tmp_b = ai_find_leader_b(iBot,0x40400000,0x41200000), tmp_b != 0)) {
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
       if (roll_or_dist < (double)k_f_0_5) {
@@ -239,15 +239,15 @@ LAB_004180e3:
     }
     if ((g_ai_bots[iBot].fire_delay == 0) &&
        (tmp_a = ai_find_leader_b(iBot,0x3f000000,0x40400000), tmp_a != 0)) {
-      car_current_matrix(&frame.local_24,0);
-      car_current_matrix(&frame.local_20,iBot);
-      frame.local_18.x = *(float *)(frame.local_24 + 0x30) - *(float *)(frame.local_20 + 0x30);
-      frame.local_18.y = 0.0;
-      frame.local_18.z = *(float *)(frame.local_24 + 0x38) - *(float *)(frame.local_20 + 0x38);
-      frame.local_1c = RwV3dLength(&frame.local_18);
-      RwV3dNormalize(&frame.local_c,&frame.local_18);
+      car_current_matrix(&frame.player0_matrix,0);
+      car_current_matrix(&frame.bot_matrix,iBot);
+      frame.to_player0.x = *(float *)(frame.player0_matrix + 0x30) - *(float *)(frame.bot_matrix + 0x30);
+      frame.to_player0.y = 0.0;
+      frame.to_player0.z = *(float *)(frame.player0_matrix + 0x38) - *(float *)(frame.bot_matrix + 0x38);
+      frame.to_player0_length = RwV3dLength(&frame.to_player0);
+      RwV3dNormalize(&frame.to_player0_dir,&frame.to_player0);
       route_record = (float *)player_route_get_record_ptr(iBot);
-      route_offset = -((route_record[2] * frame.local_c.z + frame.local_c.x * *route_record + route_record[1] * frame.local_c.y) * frame.local_1c);
+      route_offset = -((route_record[2] * frame.to_player0_dir.z + frame.to_player0_dir.x * *route_record + route_record[1] * frame.to_player0_dir.y) * frame.to_player0_length);
       if ((k_f_n0_75 < route_offset) && (route_offset < k_f_0_75)) {
         roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
         if (!(roll_or_dist < (double)k_f_0_9)) goto LAB_00418283;
@@ -259,7 +259,7 @@ LAB_004180e3:
     if (g_ai_bots[iBot].must_fire != 0) {
       player_input->fire = 1;
     }
-    if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)param_5)) {
+    if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)range_value)) {
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
       if (!(roll_or_dist < (double)k_f_0_5)) goto LAB_0041835d;
       goto LAB_004182e3;
@@ -268,7 +268,7 @@ LAB_004180e3:
   case WEAPON_OIL:
     if (g_ai_bots[iBot].burst_active != 0) goto LAB_004182e3;
     if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
-    if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)param_5)) {
+    if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)range_value)) {
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
       if (roll_or_dist < (double)k_f_0_5) goto LAB_0041834a;
       goto LAB_0041835d;
