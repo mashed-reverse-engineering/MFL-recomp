@@ -47,9 +47,6 @@ extern struct VoiceSlotP g_voices[210];
 #define VOICE_DEFAULT_FREQ_BITS (0x46ac4400)
 #define VOICE_DEFAULT_FREQ_BITS_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 /* x87 status word bit positions used by the emulated compare (C0, C2, C3) */
-#define FPU_C0_SHIFT (8)
-#define FPU_C2_SHIFT (10)
-#define FPU_C3_SHIFT (14)
 
 /* sound_ambience_course_f_24 */
 
@@ -70,7 +67,6 @@ void sound_ambience_course_f_24(void)
   float fade_raw;
   float fade_clamped;
   uint voice_rec;
-  undefined4 fpu_status;
   /* camera_get_position fills x, y, z (from the second member on); height_t is scratch */
   struct {
     float height_t;
@@ -78,7 +74,6 @@ void sound_ambience_course_f_24(void)
     float y;
     float z;
   } camera_pos;
-  undefined2 status_hi;
   
   /* Skip the whole update only when multiplayer muting is on and 2+ players are present */
   if ((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) {
@@ -98,16 +93,12 @@ void sound_ambience_course_f_24(void)
     }
     /* fade_raw = camera height ratio minus 0.25 (inferred) */
     fade_raw = (camera_pos.y + k_f_2_5) * k_f_0_125 - k_f_0_25;
-    /* The decompiler artifact: x87 compare flags packed into fpu_status (never read here) */
-    status_hi = (undefined2)(voice_rec >> 0x10);
-    fpu_status = CONCAT22(status_hi,(ushort)(fade_raw < k_f_0) << FPU_C0_SHIFT | (ushort)(((fade_raw) != (fade_raw)) || ((k_f_0) != (k_f_0))) << FPU_C2_SHIFT |
-                           (ushort)(fade_raw == k_f_0) << FPU_C3_SHIFT);
-    fade_clamped = k_f_0;
-    if ((fade_raw >= k_f_0) &&
-       (fpu_status = CONCAT22(status_hi,(ushort)(fade_raw < float_1_0) << FPU_C0_SHIFT |
-                               (ushort)(((fade_raw) != (fade_raw)) || ((float_1_0) != (float_1_0))) << FPU_C2_SHIFT |
-                               (ushort)(fade_raw == float_1_0) << FPU_C3_SHIFT), fade_clamped = fade_raw,
-       fade_raw >= float_1_0 && (fade_raw == float_1_0) == 0)) {
+    /* clamp to [0, 1] */
+    fade_clamped = fade_raw;
+    if (fade_raw < k_f_0) {
+      fade_clamped = 0.0;
+    }
+    else if (fade_raw > float_1_0) {
       fade_clamped = float_1_0;
     }
     /* Fade-out volume is the inverse of the clamped fade_raw */
@@ -126,21 +117,12 @@ void sound_ambience_course_f_24(void)
     }
     /* height_t: camera height ratio, clamped to [0, 1] in place below */
     camera_pos.height_t = (camera_pos.y + k_f_2_5) * k_f_0_125;
-    status_hi = (undefined2)(voice_rec >> 0x10);
-    fpu_status = CONCAT22(status_hi,(ushort)(camera_pos.height_t < k_f_0) << FPU_C0_SHIFT |
-                           (ushort)(((camera_pos.height_t) != (camera_pos.height_t)) || ((k_f_0) != (k_f_0))) << FPU_C2_SHIFT |
-                           (ushort)(camera_pos.height_t == k_f_0) << FPU_C3_SHIFT);
     /* Clamp height_t to [0, 1] */
     if (camera_pos.height_t < k_f_0) {
       camera_pos.height_t = 0.0;
     }
-    else {
-      fpu_status = CONCAT22(status_hi,(ushort)(camera_pos.height_t < float_1_0) << FPU_C0_SHIFT |
-                             (ushort)(((camera_pos.height_t) != (camera_pos.height_t)) || ((float_1_0) != (float_1_0))) << FPU_C2_SHIFT |
-                             (ushort)(camera_pos.height_t == float_1_0) << FPU_C3_SHIFT);
-      if (camera_pos.height_t >= float_1_0 && (camera_pos.height_t == float_1_0) == 0) {
-        camera_pos.height_t = 1.0;
-      }
+    else if (camera_pos.height_t > float_1_0) {
+      camera_pos.height_t = 1.0;
     }
     voice_set_volume(voice_slot,camera_pos.height_t);
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_SPLINE_OFF);
@@ -158,10 +140,10 @@ void sound_ambience_course_f_24(void)
     if (g_sound_6ad1e4 != (RpSpline *)0x0) {
       /* Spline parameter t: fixed ramp in the x <= -2.8 zone, z-based ramp when z > -27 (inferred).
        Outside both zones t keeps its last value. */
-      if (camera_pos.x <= k_f_n2_8) {
+      if (!(camera_pos.x > k_f_n2_8)) {      /* spelled !(x > k): `x <= k` gives the other NaN form */
         g_sound_ambience_6ae1a8 = (camera_pos.z + k_f_30) * k_f_0_025 * k_f_0_4 + k_f_0_6;
       }
-      else if (k_f_n27 < camera_pos.z) {
+      else if (camera_pos.z > k_f_n27) {
         g_sound_ambience_6ae1a8 = k_f_0_55 - (camera_pos.z + k_f_27) * k_f_0_011111111 * k_f_0_55;
       }
       /* Clamp t to [0, 1] */

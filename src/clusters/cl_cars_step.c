@@ -297,7 +297,7 @@ LAB_0047f3f4:
             if (*(float *)&rwp_timer_cursor[0x272] < k_f_4) {
               car_enter_rwp_mode(car_index);
             }
-            if ((*(float *)&rwp_timer_cursor[0x272] == 4.0) && (rwp_timer_cursor[0x276] == 0)) {
+            if ((rwp_timer_cursor[0x272] == 0x40800000 /* 4.0f, compared as an int word */) && (rwp_timer_cursor[0x276] == 0)) {
               car_reset_physics(car_index);
             }
           }

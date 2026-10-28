@@ -163,10 +163,11 @@ void car_wheel_contact_update_n(void *world, Car *car, int limit_angle)
       d1 = -d1;
     }
     best = d0;
+    worst = 0;
     if (d0 < d1) {
       best = d1;
+      worst = 1;
     }
-    worst = d0 < d1;
     d2 = car->wheels[2].contact_distance;
     if (d2 < 0.0f) {
       d2 = -d2;
