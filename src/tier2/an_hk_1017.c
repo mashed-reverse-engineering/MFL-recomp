@@ -24,6 +24,7 @@ int clump_for_all_atomics_with_camera_matrix_cb_405bb0(int atomic,char *camera)
   uint alpha_value;
   RwV3d *cam_pos_ptr;
   float *bbox;
+  float alpha_scaled;
   double axis_dist;
   float *bbox_arg2;
   RwV3d *cam_local_ptr2;
@@ -56,7 +57,8 @@ int clump_for_all_atomics_with_camera_matrix_cb_405bb0(int atomic,char *camera)
                              (bbox,&cam_local_pos,bbox_arg2,cam_local_ptr2,cam_local_ptr,cam_pos_ptr,extra_arg_a,inv_ltm_ptr2,extra_arg_c
                               ,extra_arg_b,inv_ltm_ptr,atomic_ltm);
   atomic_plugin_set_float_24(atomic,(fbits1 = (float)axis_dist, *(int *)&fbits1));
-  alpha_value = ((int)(((penetration * 127.0f) < 0.0f) ? 0.0f : (!((penetration * 127.0f) < 0.0f) && !((penetration * 127.0f) > 255.0f) ? (penetration * 127.0f) : 255.0f)));
+  alpha_scaled = penetration * 127.0f;
+  alpha_value = (int)((alpha_scaled < 0.0f) ? 0.0f : ((alpha_scaled > 255.0f) ? 255.0f : alpha_scaled));
   atomic_set_material_alpha_value(atomic,alpha_value & 0xff);
   return atomic;
 }

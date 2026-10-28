@@ -29,9 +29,6 @@ extern struct VoiceSlot g_voices[210];
 void sound_sfx_set_volume_clamped(int sfx_type,int voice_index,float volume)
 
 {
-  bool is_nan;
-  bool is_below_zero;
-  bool is_zero;
   int app_state;
   undefined2 voice_hi;
 
@@ -47,16 +44,12 @@ void sound_sfx_set_volume_clamped(int sfx_type,int voice_index,float volume)
         /* High 16 bits of the voice pointer. Read but never used. */
         voice_hi = (undefined2)(g_voices[voice_index].voice >> 0x10);
         /* Volume above 1.0: set full volume and stop. */
-        if (volume >= float_1_0 && (volume == float_1_0) == 0) {
+        if (volume > float_1_0) {
           voice_set_volume(voice_index,1.0);
           return;
         }
-        /* NaN and zero flags are computed but never read. */
-        is_nan = ((volume) != (volume));
-        is_below_zero = volume < k_f_0;
-        is_zero = volume == k_f_0;
         /* Clamp negative volume to 0.0. */
-        if (is_below_zero) {
+        if (volume < k_f_0) {
           volume = 0.0;
         }
         voice_set_volume(voice_index,volume);

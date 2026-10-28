@@ -14,8 +14,8 @@
 void course_effect_spawn_at_helper_45c8f0(float *pos,float range)
 
 {
-  float fv1;
-  float falloff;
+  double shake;
+  double falloff;
   int cam_matrix_or_alpha;
   int i;
   RwReal cam_dist;
@@ -32,11 +32,12 @@ void course_effect_spawn_at_helper_45c8f0(float *pos,float range)
   if (falloff < k_f_0) {
     falloff = k_f_0;
   }
-  g_camera_shake = falloff * k_f_0_5;
-  if (k_f_0 < g_camera_shake) {
+  shake = falloff * k_f_0_5;
+  g_camera_shake = shake;
+  if (k_f_0 < shake) {
     i = 0;
-    fv1 = (1.0f - (cam_dist * (1.0f / range)));
-    cam_matrix_or_alpha = ((int)(((!(fv1 < 0.0f) ? fv1 : 0.0f) * 0.5f) * (-127.0f)));
+    /* the rumble strength reuses the shake value (x87 temporary, unrounded) */
+    cam_matrix_or_alpha = (int)(shake * (-127.0f));
     do {
       player_rumble(i,2,0xf,0x80 - cam_matrix_or_alpha);
       i = i + 1;

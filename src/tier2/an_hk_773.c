@@ -166,7 +166,7 @@ LAB_0046ff1d:
     *engine_freq = (float)((double)frame.car_speed * (double)phase_value + wave_level + (double)k_f_1000);
     break;
   case 1:
-    /* !(a > b), not a <= b: a NaN frequency takes the branch like the original */
+    /* spelled !(a > b): with `a <= b` the compiler emits the other NaN form */
     if (!(*engine_freq > *(float *)((char *)&g_sound_car_629200 + ((int *)&g_sound_car_6ae15c)[car_index] * 4))) {
       scratch_int = ((int *)&g_sound_car_6ae15c)[car_index] + 1;
       ((int *)&g_sound_car_6ae15c)[car_index] = scratch_int;

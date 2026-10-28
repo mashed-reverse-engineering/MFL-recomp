@@ -47,11 +47,12 @@ uint game_mode_end_check(void)
 {
   bool counter_below_limit;
   float focus_player;
+  int focus_car; /* car handle (an int, not a float) */
   int result;
   uint all_exploded;
   int car_active;
   int player_index;
-  float trailing_car;
+  int trailing_car;
   int slot_offset;
   int car_index;
   double last_value;
@@ -63,7 +64,7 @@ uint game_mode_end_check(void)
     undefined1 car0_mode_extra [4];
     int player_b_mode;
     int focus_mode;
-    float player_b;
+    int player_b;
     undefined1 focus_mode_extra [4];
     undefined1 player_b_mode_extra [4];
   } frame;
@@ -75,8 +76,7 @@ uint game_mode_end_check(void)
   /* Per-mode end conditions. Modes not listed fall through to the common checks below. */
   switch(game_mode) {
   case 4:
-    last_value = (double)ai_get_counter(0);
-    counter_below_limit = last_value < (double)k_f_3;
+    counter_below_limit = !(ai_get_counter(0) >= k_f_3);
     goto LAB_00413226;
   case 5:
     result = car_is_active(0);
@@ -101,8 +101,7 @@ uint game_mode_end_check(void)
         if (result == 0) {
           slot_offset = slot_offset + 1;
         }
-        last_value = (double)ai_get_counter(player_index);
-        if ((double)k_f_3 < last_value) {
+        if (ai_get_counter(player_index) > k_f_3) {
           return 1;
         }
         player_index = player_index + 1;
@@ -112,8 +111,7 @@ uint game_mode_end_check(void)
     result = get_player_count();
     return (uint)(result + -1 <= slot_offset);
   case 8:
-    last_value = (double)ai_get_counter(0);
-    if ((double)k_f_3 <= last_value) {
+    if (ai_get_counter(0) >= k_f_3) {
       return 1;
     }
     car_get_mode(0,&frame.car0_mode,frame.car0_mode_extra);
@@ -122,12 +120,10 @@ uint game_mode_end_check(void)
     }
     break;
   case 9:
-    last_value = (double)ai_get_counter(0);
-    if ((double)k_f_3 <= last_value) {
+    if (ai_get_counter(0) >= k_f_3) {
       return 1;
     }
-    last_value = (double)ai_get_counter(1);
-    if ((double)k_f_3 <= last_value) {
+    if (ai_get_counter(1) >= k_f_3) {
       return 1;
     }
     car_get_mode(0,&frame.car0_mode,frame.car0_mode_extra);
@@ -147,8 +143,7 @@ uint game_mode_end_check(void)
     if (g_course_7ef7cc <= k_f_0) {
       return 1;
     }
-    last_value = (double)ai_get_counter(0);
-    counter_below_limit = last_value < (double)k_f_1_999;
+    counter_below_limit = !(ai_get_counter(0) >= k_f_1_999);
 LAB_00413226:
     if (!counter_below_limit) {
       return 1;
@@ -159,7 +154,7 @@ LAB_00413226:
   result = get_event_type();
   if ((result == EVENT_TRAINING) &&
      (((result = training_lesson_get(), result == 1 &&
-       (last_value = (double)player_rank_key(0), (double)k_f_64 < last_value)) ||
+       (float)player_rank_key(0) > k_f_64) ||
       ((result = training_lesson_get(), result == 4 &&
        (((result = ui_get_car_8c86c8(), result == 1 || (result = ui_get_car_8c86c8(), result == 4)) &&
         (result = ui_get_car_8c8070(), result == 3)))))))) {
@@ -172,43 +167,41 @@ LAB_00413226:
   last_value = (double)camera_get_8c7e00();
   if (last_value == (double)float_10_0) {
     race_get_focus_player(&frame.progress_b,&frame.player_b);
-    focus_player = frame.progress_b;
+    focus_car = *(int *)&frame.progress_b;
     last_value = (double)player_progress_b(*(int *)&frame.progress_b);
     frame.progress_a = (float)last_value;
-    last_value = (double)player_progress_b(*(int *)&frame.player_b);
+    last_value = (double)player_progress_b(frame.player_b);
     frame.progress_b = (float)last_value;
-    if ((frame.progress_a <= k_f_80) || (k_f_20 <= frame.progress_b)) {
-      if ((k_f_80 < frame.progress_b) && (frame.progress_a < k_f_20)) {
-        frame.progress_b = frame.progress_b - k_f_100;
-      }
-    }
-    else {
+    if ((frame.progress_a > k_f_80) && (frame.progress_b < k_f_20)) {
       frame.progress_a = frame.progress_a - k_f_100;
     }
+    if ((frame.progress_b > k_f_80) && (frame.progress_a < k_f_20)) {
+      frame.progress_b = frame.progress_b - k_f_100;
+    }
     if (game_mode == GAME_MODE_HOLD_THE_FLAG) {
-      if (focus_player == g_cars_7ef7bc) {
+      if (focus_car == g_cars_7ef7bc) {
         frame.progress_a = 100.0;
       }
       if (frame.player_b == g_cars_7ef7bc) {
         frame.progress_b = 100.0;
       }
     }
-    car_get_mode(*(int *)&focus_player,&frame.focus_mode,frame.focus_mode_extra);
-    car_get_mode(*(int *)&frame.player_b,&frame.player_b_mode,frame.player_b_mode_extra);
-    trailing_car = focus_player;
+    car_get_mode(focus_car,&frame.focus_mode,frame.focus_mode_extra);
+    car_get_mode(frame.player_b,&frame.player_b_mode,frame.player_b_mode_extra);
+    trailing_car = focus_car;
     result = frame.focus_mode;
-    if (frame.progress_b < frame.progress_a) {
+    if (frame.progress_a > frame.progress_b) {
       trailing_car = frame.player_b;
       result = frame.player_b_mode;
-      frame.player_b = focus_player;
+      frame.player_b = focus_car;
       frame.player_b_mode = frame.focus_mode;
     }
     if ((frame.player_b_mode != 0) && (trailing_car = frame.player_b, result != 0)) {
       return 0;
     }
-    player_rumble(*(int *)&trailing_car,3,10,0x80);
-    car_kill(*(int *)&trailing_car);
-    result = race_battle_mode_update(*(int *)&trailing_car,1);
+    player_rumble(trailing_car,3,10,0x80);
+    car_kill(trailing_car);
+    result = race_battle_mode_update(trailing_car,1);
     if (result == 1) {
       return 1;
     }
@@ -261,7 +254,7 @@ LAB_00413226:
       result = RACE_SLOT_TABLE_START;
       do {
         if ((*(int *)(result + g_race_setup) != 0) &&
-           (last_value = (double)player_rank_key(player_index), (double)frame.max_rank_key < last_value)) {
+           (last_value = (double)player_rank_key(player_index), last_value > frame.max_rank_key)) {
           frame.max_rank_key = (float)last_value;
         }
         focus_player = frame.max_rank_key;

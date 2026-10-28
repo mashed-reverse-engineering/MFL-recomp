@@ -65,13 +65,14 @@ void sound_endpoint_panel_progress_cues(void)
     }
     break;
   case 3:
-    if (k_f_1_86 <= panel_value) {
+    bVar1 = k_f_1_86 <= panel_value;
+    if (bVar1) {
       g_sound_endpoint_cue_state = 4;
     }
     if (panel_value < k_f_1_3) {
       g_sound_endpoint_cue_state = 2;
     }
-    if (k_f_1_86 > panel_value) {
+    if (!bVar1) {
       return;
     }
     if ((*(byte *)(g_voices[g_sound_frame_619700].voice + 0x34) & 2) != 0) {
