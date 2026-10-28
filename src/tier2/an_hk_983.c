@@ -17,60 +17,61 @@
 /* "reads chunk 0x11/0x12 from the 0x68b8f8 stream into a table, then loops
    course_update_frame_sub_40c480" */
 
+/* Reads a chunk id from the race stream (0x11 or 0x12) into a course table, then for each of 4 cars updates tilt and scans its 4 wheels' surface colours to apply a velocity scale / push / speed boost (inferred). */
 void course_editor_read_vec_chunk(void)
 
 {
-  float fbits1;
-  int iVar1;
-  int iVar2;
-  int angle;
-  int *piVar3;
-  undefined *puVar4;
+  float half_speed_bits;
+  int matched_color;
+  int chunk_id;
+  int car_index;
+  int *wheel_color_ptr;
+  undefined *chunk_dest;
   struct {
-    int local_14;
+    int wheel_valid;
     int local_10 [4];
   } frame;
   
-  iVar2 = rw_first_field(((char *)&g_race_phase_arg));
-  if (iVar2 == 0x11) {
-    puVar4 = &g_course_update_603578;
+  chunk_id = rw_first_field(((char *)&g_race_phase_arg));
+  if (chunk_id == 0x11) {
+    chunk_dest = &g_course_update_603578;
   }
   else {
-    if (iVar2 != 0x12) goto LAB_0040c65d;
-    puVar4 = (undefined *)&g_course_update_652db8;
+    if (chunk_id != 0x12) goto LAB_0040c65d;
+    chunk_dest = (undefined *)&g_course_update_652db8;
   }
-  rw_stream_chunk_copy(((char *)&g_race_phase_arg),puVar4);
+  rw_stream_chunk_copy(((char *)&g_race_phase_arg),chunk_dest);
   store_u32(((char *)&g_race_phase_arg),0);
 LAB_0040c65d:
-  angle = 0;
+  car_index = 0;
   do {
-    car_wobble_tilt_update(angle);
-    iVar2 = 0;
-    piVar3 = frame.local_10;
+    car_wobble_tilt_update(car_index);
+    chunk_id = 0;
+    wheel_color_ptr = frame.local_10;
     do {
-      car_wheel_get_field_88_b(piVar3,angle,iVar2);
-      car_wheel_get_field_30(&frame.local_14,angle,iVar2);
-      if (frame.local_14 != 0) {
-        if (*piVar3 == -0xff0001) break;
-        if (*piVar3 == -0xfcfcfd) {
-          car_scale_velocity(angle,0xbc23d70a);
+      car_wheel_get_field_88_b(wheel_color_ptr,car_index,chunk_id);
+      car_wheel_get_field_30(&frame.wheel_valid,car_index,chunk_id);
+      if (frame.wheel_valid != 0) {
+        if (*wheel_color_ptr == -0xff0001) break;
+        if (*wheel_color_ptr == -0xfcfcfd) {
+          car_scale_velocity(car_index,0xbc23d70a);
         }
-        iVar1 = *piVar3;
-        if (iVar1 == -0xff01) {
-          car_push_from_matrix(angle,0,(fbits1 = g_course_update_652db8 * k_f_0_5, *(int *)&fbits1));
+        matched_color = *wheel_color_ptr;
+        if (matched_color == -0xff01) {
+          car_push_from_matrix(car_index,0,(half_speed_bits = g_course_update_652db8 * k_f_0_5, *(int *)&half_speed_bits));
           break;
         }
-        if (iVar1 == -0xe5cc80) {
-          car_apply_speed_boost_along_forward(angle,0xbc23d70a);
+        if (matched_color == -0xe5cc80) {
+          car_apply_speed_boost_along_forward(car_index,0xbc23d70a);
           break;
         }
-        if (iVar1 == -0x42cf) break;
+        if (matched_color == -0x42cf) break;
       }
-      iVar2 = iVar2 + 1;
-      piVar3 = piVar3 + 1;
-    } while (iVar2 < 4);
-    angle = (angle + 1);
-    if (3 < angle) {
+      chunk_id = chunk_id + 1;
+      wheel_color_ptr = wheel_color_ptr + 1;
+    } while (chunk_id < 4);
+    car_index = (car_index + 1);
+    if (3 < car_index) {
       return;
     }
   } while( true );

@@ -2,42 +2,46 @@
 /* Installed cluster course_object_pair_build_clump (tools/cluster_install.py from output/cluster_pilot_uc3/course_object_pair_build_clump.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*004a5cd0*/ extern int object_frames_create_forward(int atomic, int count, int arg2, int arg3);
-/*004a5df0*/ extern int object_atomic_create(int frames, int index, int param_4);
+/*004a5df0*/ extern int object_atomic_create(int frames, int index, int object_index);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /*006c2658*/ extern int g_car_6c2658;
+#define CLUMP_TABLE_OFFSET (0xc110) /* clump pointers, indexed by clump_index (inferred) */
+#define ATOMIC_COUNT_TABLE_OFFSET (0xc000) /* atomic count per set (inferred) */
+#define ATOMIC_SET_BYTES (0xc00) /* bytes of atomic slots per set */
+#define ATOMIC_SLOT_BYTES (0x40) /* bytes per atomic slot */
 /* course_object_pair_build_clump */
 
-/* "removes the old clump and builds frames/atomics for entry unused_2" */
+/* Removes the old clump from its world, creates the frames for its first atomic and registers one atomic per slot of set_index (inferred) */
 
 static int course_object_atomic_register_r(int p0, char * p1, int p2, int p3);
 extern void course_object_atomic_register(void);
-void course_object_pair_build_clump_n(char *in_esi, int in_ebx, int param_3, int param_4)
+void course_object_pair_build_clump_n(char *car_data, int set_index, int clump_index, int object_index)
 
 {
   RpWorld *world;
   int atomic;
-  int iVar2;
+  int atomic_index;
   char *slot;
   
-  iVar2 = 0;
-  slot = in_esi + in_ebx * 0xc00;
-  world = clump_get_world(*(RpClump **)(in_esi + 0xc110 + param_3 * 4));
+  atomic_index = 0;
+  slot = car_data + set_index * ATOMIC_SET_BYTES;
+  world = clump_get_world(*(RpClump **)(car_data + CLUMP_TABLE_OFFSET + clump_index * 4));
   if (world != (RpWorld *)0x0) {
-    RpWorldRemoveClump(world,*(RpClump **)(in_esi + 0xc110 + param_3 * 4));
+    RpWorldRemoveClump(world,*(RpClump **)(car_data + CLUMP_TABLE_OFFSET + clump_index * 4));
   }
-  (&g_car_6c2658)[param_4] =
-       object_frames_create_forward((int)clump_first_atomic(*(RpClump **)(in_esi + 0xc110 + param_3 * 4)),
-                                    *(int *)(in_esi + 0xc000 + in_ebx * 4),*(int *)(in_esi + 0xc9e0),
-                                    *(int *)(in_esi + 0xc9e4));
-  if (0 < *(int *)(in_esi + 0xc000 + in_ebx * 4)) {
+  (&g_car_6c2658)[object_index] =
+       object_frames_create_forward((int)clump_first_atomic(*(RpClump **)(car_data + CLUMP_TABLE_OFFSET + clump_index * 4)),
+                                    *(int *)(car_data + ATOMIC_COUNT_TABLE_OFFSET + set_index * 4),*(int *)(car_data + 0xc9e0),
+                                    *(int *)(car_data + 0xc9e4));
+  if (0 < *(int *)(car_data + ATOMIC_COUNT_TABLE_OFFSET + set_index * 4)) {
     do {
-      atomic = object_atomic_create((&g_car_6c2658)[param_4],iVar2,param_4);
-      course_object_atomic_register_r(atomic,slot,*(int *)(in_esi + 0xc090),param_4);
-      iVar2 = iVar2 + 1;
-      slot = slot + 0x40;
-    } while (iVar2 < *(int *)(in_esi + 0xc000 + in_ebx * 4));
+      atomic = object_atomic_create((&g_car_6c2658)[object_index],atomic_index,object_index);
+      course_object_atomic_register_r(atomic,slot,*(int *)(car_data + 0xc090),object_index);
+      atomic_index = atomic_index + 1;
+      slot = slot + ATOMIC_SLOT_BYTES;
+    } while (atomic_index < *(int *)(car_data + ATOMIC_COUNT_TABLE_OFFSET + set_index * 4));
   }
   return;
 }

@@ -33,7 +33,15 @@ typedef struct KcPanelEntry {
     uint flags; /* 0x10c */
 } KcPanelEntry;
 
-/* entry fields used: +0 .. +0x7c visibility of the 0x20 parts (written at the end of the part loop), +0x80 part present table, +0x108 player_or_part index, +0x10c state flag bits (0x40..0x200 from the g_kc_panel_* tables, 0x800 / 0x400 icon variant, 0x1000..0x10000 points change) */
+#define KC_FLAG_659308 (0x40) /* set from g_kc_panel_659308[player]; also makes the bar pulse */
+#define KC_FLAG_ICON_A (0x800)
+#define KC_FLAG_ICON_B (0x400)
+#define KC_POINTS_CHANGE_NONE (0x4000) /* player_get_points_change_visual() default result (inferred) */
+#define KC_POINTS_CHANGE_1 (0x2000) /* result 1 */
+#define KC_POINTS_CHANGE_2 (0x1000) /* result 2 */
+#define KC_POINTS_CHANGE_M2 (0x10000) /* result -2 */
+#define KC_POINTS_CHANGE_M1 (0x8000) /* result -1 */
+/* Updates a score-panel entry (inferred): derives state flags, per-part visibility, then positions the frame and scales the points bar and pulse. entry fields used: +0 .. +0x7c visibility of the 0x20 parts (written at the end of the part loop), +0x80 part present table, +0x108 player_or_part index, +0x10c state flag bits (0x40..0x200 from the g_kc_panel_* tables, 0x800 / 0x400 icon variant, 0x1000..0x10000 points change) */
 void kc_panel_entry_update_n(KcPanelEntry *entry)
 
 {
@@ -55,7 +63,7 @@ void kc_panel_entry_update_n(KcPanelEntry *entry)
     flags = entry->flags & 0xffffffbf;
   }
   else {
-    flags = entry->flags | 0x40;
+    flags = entry->flags | KC_FLAG_659308;
   }
   entry->flags = flags;
   if (*(int *)((char *)&g_kc_panel_659328 + player_or_part * 4) == 0) {
@@ -83,7 +91,7 @@ void kc_panel_entry_update_n(KcPanelEntry *entry)
     entry->flags = flags & 0xfffffe7f;
   }
   flags = entry->flags;
-  if (((flags & 0x40) != 0) && ((flags & 0x100) != 0)) {
+  if (((flags & KC_FLAG_659308) != 0) && ((flags & 0x100) != 0)) {
     entry->flags = flags & 0xfffffeff;
   }
   points_change = player_get_points_change_visual(player_or_part);
@@ -91,19 +99,19 @@ void kc_panel_entry_update_n(KcPanelEntry *entry)
   entry->flags = flags;
   switch(points_change) {
   default:
-    flags = flags | 0x4000;
+    flags = flags | KC_POINTS_CHANGE_NONE;
     break;
   case 1:
-    flags = flags | 0x2000;
+    flags = flags | KC_POINTS_CHANGE_1;
     break;
   case 2:
-    flags = flags | 0x1000;
+    flags = flags | KC_POINTS_CHANGE_2;
     break;
   case 0xfffffffe:
-    flags = flags | 0x10000;
+    flags = flags | KC_POINTS_CHANGE_M2;
     break;
   case 0xffffffff:
-    flags = flags | 0x8000;
+    flags = flags | KC_POINTS_CHANGE_M1;
   }
   entry->flags = flags;
   player_or_part = 0;
@@ -113,11 +121,11 @@ void kc_panel_entry_update_n(KcPanelEntry *entry)
       switch(player_or_part) {
       case 1:
       case 2:
-        flags = entry->flags & 0x800;
+        flags = entry->flags & KC_FLAG_ICON_A;
         break;
       case 3:
-        if (((entry->flags & 0x40) == 0) ||
-           ((entry->flags & 0x800) == 0)) {
+        if (((entry->flags & KC_FLAG_659308) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_A) == 0)) {
 LAB_0041f76a:
           flags = 0;
         }
@@ -127,11 +135,11 @@ LAB_0041f76a:
         break;
       case 4:
       case 5:
-        flags = entry->flags & 0x400;
+        flags = entry->flags & KC_FLAG_ICON_B;
         break;
       case 6:
-        if (((entry->flags & 0x40) == 0) ||
-           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_FLAG_659308) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_B) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 7:
@@ -153,53 +161,53 @@ LAB_0041f76a:
         flags = entry->flags & 0x20;
         break;
       case 0xf:
-        if (((entry->flags & 0x4000) == 0) ||
-           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_NONE) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_A) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x10:
-        if (((entry->flags & 0x2000) == 0) ||
-           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_1) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_A) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x11:
-        if (((entry->flags & 0x1000) == 0) ||
-           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_2) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_A) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x12:
         if ((-1 < (char)(entry->flags >> 8)) ||
-           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
+           ((entry->flags & KC_FLAG_ICON_A) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x13:
-        if (((entry->flags & 0x10000) == 0) ||
-           ((entry->flags & 0x800) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_M2) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_A) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x14:
-        if (((entry->flags & 0x4000) == 0) ||
-           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_NONE) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_B) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x15:
-        if (((entry->flags & 0x2000) == 0) ||
-           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_1) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_B) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x16:
-        if (((entry->flags & 0x1000) == 0) ||
-           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_2) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_B) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x17:
         if ((-1 < (char)(entry->flags >> 8)) ||
-           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
+           ((entry->flags & KC_FLAG_ICON_B) == 0)) goto LAB_0041f76a;
         flags = 1;
         break;
       case 0x18:
-        if (((entry->flags & 0x10000) == 0) ||
-           ((entry->flags & 0x400) == 0)) goto LAB_0041f76a;
+        if (((entry->flags & KC_POINTS_CHANGE_M2) == 0) ||
+           ((entry->flags & KC_FLAG_ICON_B) == 0)) goto LAB_0041f76a;
       case 0:
       case 0x19:
         flags = 1;
@@ -241,7 +249,7 @@ LAB_0041f76a:
   frame.scale.y = 1.0;
   RwFrameScale(*(RwFrame **)(entry->part[5] + 4),&frame.scale,rwCOMBINEREPLACE);
   RwFrameScale(*(RwFrame **)(entry->part[2] + 4),&frame.scale,rwCOMBINEREPLACE);
-  if ((*(byte *)&entry->flags & 0x40) == 0) {
+  if ((*(byte *)&entry->flags & KC_FLAG_659308) == 0) {
     frame.scale.y = 1.0;
     frame.scale.x = 1.0;
   }

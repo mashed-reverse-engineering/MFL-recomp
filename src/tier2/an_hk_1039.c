@@ -13,29 +13,30 @@
 
 /* single caller course_neustein_cb1_sub_454970 */
 
-void course_neustein_cb1_sub_4548b0(float param_1,float param_2)
+/* Sets two random-jittered globals (offset_a/offset_b +- 0.3) and re-places the object pairs of the table at g_course_6a188c: activates both rwp objects, sets matrices from FUN_004c48b0, the second translated by g_course_60d8b0 (inferred). */
+void course_neustein_cb1_sub_4548b0(float offset_a,float offset_b)
 
 {
-  int *piVar1;
-  double fVar2;
-  RwMatrix RStack_40;
+  int *slot;
+  double jitter;
+  RwMatrix slot_matrix;
   
-  fVar2 = (double)random_range(0xbe99999a,0x3e99999a);
-  g_course_physics_6a1890 = (float)(fVar2 + (double)param_1);
-  fVar2 = (double)random_range(0xbe99999a,0x3e99999a);
-  piVar1 = g_course_6a188c;
-  g_data_6a18b8 = (float)(fVar2 + (double)param_2);
+  jitter = (double)random_range(0xbe99999a,0x3e99999a);
+  g_course_physics_6a1890 = (float)(jitter + (double)offset_a);
+  jitter = (double)random_range(0xbe99999a,0x3e99999a);
+  slot = g_course_6a188c;
+  g_data_6a18b8 = (float)(jitter + (double)offset_b);
   do {
-    rwp_object_set_in_world(piVar1[-1],1);
-    rwp_object_set_active(piVar1[-1],1);
-    rwp_object_set_in_world(*piVar1,1);
-    rwp_object_set_active(*piVar1,1);
-    FUN_004c48b0(&RStack_40,piVar1[-2],piVar1[1]);
-    rwp_object_set_matrix(*piVar1,&RStack_40);
-    RwMatrixTranslate(&RStack_40,(RwV3d *)&g_course_60d8b0,rwCOMBINEPOSTCONCAT);
-    rwp_object_set_matrix(piVar1[-1],&RStack_40);
-    piVar1 = piVar1 + 10;
-  } while ((char *)piVar1 < (char *)&g_data_6a18b8 + 0x24);
+    rwp_object_set_in_world(slot[-1],1);
+    rwp_object_set_active(slot[-1],1);
+    rwp_object_set_in_world(*slot,1);
+    rwp_object_set_active(*slot,1);
+    FUN_004c48b0(&slot_matrix,slot[-2],slot[1]);
+    rwp_object_set_matrix(*slot,&slot_matrix);
+    RwMatrixTranslate(&slot_matrix,(RwV3d *)&g_course_60d8b0,rwCOMBINEPOSTCONCAT);
+    rwp_object_set_matrix(slot[-1],&slot_matrix);
+    slot = slot + 10;
+  } while ((char *)slot < (char *)&g_data_6a18b8 + 0x24);
   return;
 }
 

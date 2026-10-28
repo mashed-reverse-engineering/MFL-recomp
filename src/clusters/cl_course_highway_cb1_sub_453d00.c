@@ -40,13 +40,13 @@ typedef struct HighwayScale {
 extern HighwayObject g_highway_objects[HIGHWAY_OBJECT_COUNT];   /* 0x8bf140 */
 extern HighwayScale g_highway_scales[];                         /* 0x8c3f60 */
 
-/* "for each active highway object: two sprites near the object, the alpha follows the angle between the direction to the player and the object's axis"; param_1 = the player's matrix (position at +0x30) */
-void course_highway_cb1_sub_453d00(int param_1)
+/* "for each active highway object: two sprites near the object, the alpha follows the angle between the direction to the player and the object's axis"; player_matrix = the player's matrix (position at +0x30) */
+void course_highway_cb1_sub_453d00(int player_matrix)
 
 {
   int slot;
-  float fVar2;
-  float fVar3;
+  float scale_tmp;
+  float side_offset;
   double dot;
   float *m;
   HighwayObject *object;
@@ -77,10 +77,10 @@ void course_highway_cb1_sub_453d00(int param_1)
       m = *(float **)(object->node + 4);
       frame.position.x = m[0x40 / 4];
       frame.position.y = m[0x44 / 4];
-      frame.direction.x = *(float *)(param_1 + 0x30) - frame.position.x;
+      frame.direction.x = *(float *)(player_matrix + 0x30) - frame.position.x;
       frame.position.z = m[0x48 / 4];
-      frame.direction.y = *(float *)(param_1 + 0x34) - frame.position.y;
-      frame.direction.z = *(float *)(param_1 + 0x38) - frame.position.z;
+      frame.direction.y = *(float *)(player_matrix + 0x34) - frame.position.y;
+      frame.direction.z = *(float *)(player_matrix + 0x38) - frame.position.z;
       dot = frame.direction.y * frame.direction.y;
       dot = dot + frame.direction.x * frame.direction.x;
       dot = dot + frame.direction.z * frame.direction.z;
@@ -92,12 +92,12 @@ void course_highway_cb1_sub_453d00(int param_1)
       if (k_f_0 >= dot) {
         dot = k_f_0;
       }
-      fVar2 = frame.dist2 * k_f_6_25en4;
-      if (!(frame.size_x >= fVar2)) {
-        frame.size_x = fVar2;
+      scale_tmp = frame.dist2 * k_f_6_25en4;
+      if (!(frame.size_x >= scale_tmp)) {
+        frame.size_x = scale_tmp;
       }
-      if (!(frame.size_y >= fVar2)) {
-        frame.size_y = fVar2;
+      if (!(frame.size_y >= scale_tmp)) {
+        frame.size_y = scale_tmp;
       }
       dot = dot * dot;
       frame.colour[3] = (unsigned char)(int)(dot * k_f_255);
@@ -109,20 +109,20 @@ void course_highway_cb1_sub_453d00(int param_1)
       frame.position.x = m[0x30 / 4] * k_f_0_01 + frame.position.x;
       frame.position.y = m[0x34 / 4] * k_f_0_01 + frame.position.y;
       frame.position.z = m[0x38 / 4] * k_f_0_01 + frame.position.z;
-      fVar2 = frame.up * k_f_n0_5;
-      frame.position.x = m[0x20 / 4] * fVar2 + frame.position.x;
-      frame.position.y = m[0x24 / 4] * fVar2 + frame.position.y;
-      frame.position.z = m[0x28 / 4] * fVar2 + frame.position.z;
-      fVar3 = frame.side * float_0_8;
-      frame.position.x = fVar3 * m[0x10 / 4] + frame.position.x;
-      frame.position.y = fVar3 * m[0x14 / 4] + frame.position.y;
-      frame.position.z = fVar3 * m[0x18 / 4] + frame.position.z;
+      scale_tmp = frame.up * k_f_n0_5;
+      frame.position.x = m[0x20 / 4] * scale_tmp + frame.position.x;
+      frame.position.y = m[0x24 / 4] * scale_tmp + frame.position.y;
+      frame.position.z = m[0x28 / 4] * scale_tmp + frame.position.z;
+      side_offset = frame.side * float_0_8;
+      frame.position.x = side_offset * m[0x10 / 4] + frame.position.x;
+      frame.position.y = side_offset * m[0x14 / 4] + frame.position.y;
+      frame.position.z = side_offset * m[0x18 / 4] + frame.position.z;
       particles_set_position(&frame.position);
       particles_add(g_course_6a1818);
-      fVar2 = frame.side * k_f_n1_6;
-      frame.position.x = fVar2 * m[0x10 / 4] + frame.position.x;
-      frame.position.y = fVar2 * m[0x14 / 4] + frame.position.y;
-      frame.position.z = fVar2 * m[0x18 / 4] + frame.position.z;
+      scale_tmp = frame.side * k_f_n1_6;
+      frame.position.x = scale_tmp * m[0x10 / 4] + frame.position.x;
+      frame.position.y = scale_tmp * m[0x14 / 4] + frame.position.y;
+      frame.position.z = scale_tmp * m[0x18 / 4] + frame.position.z;
       particles_set_position(&frame.position);
       particles_add(g_course_6a1818);
     }

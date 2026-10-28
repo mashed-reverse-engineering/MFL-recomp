@@ -21,7 +21,7 @@ static void world_render_with_sector_callback_r(int reg_eax, int stk0);
 extern void world_render_with_sector_callback(void);
 static void world_render_count_sectors_r(int reg_esi, int stk0);
 extern void world_render_count_sectors(void);
-/* adapters for the register convention callees: eax / esi = particle system, stack argument = param_2 */
+/* adapters for the register convention callees: eax / esi = particle system, stack argument = render_arg */
 __declspec(naked) void world_render_with_sector_callback_r(int reg_eax, int stk0)
 {
     __asm {
@@ -47,28 +47,28 @@ __declspec(naked) void world_render_count_sectors_r(int reg_esi, int stk0)
 
 /* particle_system_set_current */
 
-/* "marks a system current (+0xC = 1) and stores it as g_particles_7036bc" */
+/* Marks sys current (+0xC = 1), then runs a debug-style command (cases 0x14..0x1e, from g_race_phase_arg) that steps/selects the sector-list index globals, renders via one of the two sector callbacks and optionally calls g_physics_702a98 (inferred; was: "marks a system current (+0xC = 1) and stores it as g_particles_7036bc") */
 
-void particle_system_set_current(int param_1,undefined4 param_2)
+void particle_system_set_current(int sys,undefined4 render_arg)
 
 {
-  undefined4 uVar1;
-  int iVar2;
-  bool bVar3;
-  undefined4 *puVar4;
+  undefined4 command;
+  int index;
+  bool sys_changed;
+  undefined4 *target;
   
-  bVar3 = param_1 != g_particle_system_7036bc;
-  *(undefined4 *)(param_1 + 0xc) = 1;
-  if (bVar3) {
-    g_particle_system_7036bc = param_1;
-    g_particle_system_702ea0 = FUN_004c4180(param_1,&g_particle_system_702ea8);
+  sys_changed = sys != g_particle_system_7036bc;
+  *(undefined4 *)(sys + 0xc) = 1;
+  if (sys_changed) {
+    g_particle_system_7036bc = sys;
+    g_particle_system_702ea0 = FUN_004c4180(sys,&g_particle_system_702ea8);
   }
   world_sector_list_clear();
   g_physics_7032a8 = 0;
-  uVar1 = rw_first_field((int)g_race_phase_arg);
-  switch(uVar1) {
+  command = rw_first_field((int)g_race_phase_arg);
+  switch(command) {
   case 3:
-    puVar4 = &g_particle_system_7036d4;
+    target = &g_particle_system_7036d4;
     goto LAB_004961bf;
   default:
     goto switchD_0049613d_caseD_4;
@@ -93,12 +93,12 @@ void particle_system_set_current(int param_1,undefined4 param_2)
     g_particle_system_7036d8 = (g_particle_system_7036d8 + 1) % g_particle_system_702ea0;
     break;
   case 0x19:
-    puVar4 = &g_physics_7036c0;
+    target = &g_physics_7036c0;
     goto LAB_004961bf;
   case 0x1a:
-    puVar4 = &g_particles_7036c4;
+    target = &g_particles_7036c4;
 LAB_004961bf:
-    rw_stream_chunk_copy((int)g_race_phase_arg,puVar4);
+    rw_stream_chunk_copy((int)g_race_phase_arg,target);
     store_u32((int)g_race_phase_arg,0);
     goto switchD_0049613d_caseD_4;
   case 0x1b:
@@ -121,21 +121,21 @@ LAB_004961bf:
   store_u32((int)g_race_phase_arg,0);
 switchD_0049613d_caseD_4:
   if (g_particle_system_7036d4 == 0) {
-    world_render_with_sector_callback_r(param_1,param_2);
+    world_render_with_sector_callback_r(sys,render_arg);
   }
   else {
-    world_render_count_sectors_r(param_1,param_2);
+    world_render_count_sectors_r(sys,render_arg);
   }
   if (g_particles_7036c4 != 0) {
     (*g_physics_702a98)((&g_particle_system_702ea8)[g_particle_system_7036dc]);
   }
   if (g_particle_system_7036d0 == 1) {
-    iVar2 = 0;
+    index = 0;
     if (0 < (int)g_particle_system_702ea0) {
       do {
-        FUN_004c6210((&g_particle_system_702ea8)[iVar2] + 0x60,0);
-        iVar2 = iVar2 + 1;
-      } while (iVar2 < (int)g_particle_system_702ea0);
+        FUN_004c6210((&g_particle_system_702ea8)[index] + 0x60,0);
+        index = index + 1;
+      } while (index < (int)g_particle_system_702ea0);
     }
   }
   else if (g_particle_system_7036d0 == 2) {

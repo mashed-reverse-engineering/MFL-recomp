@@ -6,21 +6,22 @@
 typedef int (__stdcall *ComMethod3)(int *self, uint *arg1, uint *arg2);
 typedef int (__fastcall *ThisMethod3)(int *self, int unused_edx, int *arg0, uint *arg1, uint *arg2);
 
-undefined4 gap_4ac6c0_n(int *param_1, int *param_2, uint *param_3, uint *param_4)
+/* Calls COM vtable[5] on stream to get two 64-bit values; returns 0x80040228 if pos_b is not past pos_a, else forwards to this->vtable[0x17] when self[6] is set (inferred). */
+undefined4 gap_4ac6c0_n(int *self, int *stream, uint *pos_a, uint *pos_b)
 
 {
-  int iVar1;
-  undefined4 uVar2;
+  int hr;
+  undefined4 result;
   
-  iVar1 = (*(ComMethod3 *)(*param_2 + 0x14))(param_2,param_3,param_4);
-  if (-1 < iVar1) {
-    if (((int)param_4[1] <= (int)param_3[1]) &&
-       (((int)param_4[1] < (int)param_3[1] || (*param_4 < *param_3)))) {
+  hr = (*(ComMethod3 *)(*stream + 0x14))(stream,pos_a,pos_b);
+  if (-1 < hr) {
+    if (((int)pos_b[1] <= (int)pos_a[1]) &&
+       (((int)pos_b[1] < (int)pos_a[1] || (*pos_b < *pos_a)))) {
       return 0x80040228;
     }
-    if (param_1[6] != 0) {
-      uVar2 = (*(ThisMethod3 *)(*param_1 + 0x5c))(param_1,0,param_2,param_3,param_4);
-      return uVar2;
+    if (self[6] != 0) {
+      result = (*(ThisMethod3 *)(*self + 0x5c))(self,0,stream,pos_a,pos_b);
+      return result;
     }
   }
   return 0;

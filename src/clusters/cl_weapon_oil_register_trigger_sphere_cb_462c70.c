@@ -14,29 +14,30 @@
 
 static int weapon_oil_car_slide_random_r(int p0);
 extern void weapon_oil_car_slide_random(void);
-void weapon_oil_register_trigger_sphere_cb_462c70(char *param_1, char *param_2)
+/* Oil trigger-sphere callback: for trigger ids 0xff01..0xff07 may start a random slide (weapon_oil_car_slide_random) and shake the screen in training; ids 0x10/0x11 arm a one-shot flag on the car data (inferred). */
+void weapon_oil_register_trigger_sphere_cb_462c70(char *trigger_owner, char *trigger_other)
 
 {
-  float *pfVar1;
-  int iVar2;
+  float *car_data;
+  int trigger_id;
   int event_type;
   
-  pfVar1 = *(float **)(param_1 + 0x14);
-  if (pfVar1 != (float *)0x0) {
-    iVar2 = *(int *)(param_2 + 0x10);
-    if ((0xfeff < iVar2) && (iVar2 < 0xff08)) {
-      if ((k_f_0_3 < *pfVar1) && (k_f_20 < (float_1_0 - pfVar1[1]) * k_f_220)) {
-        weapon_oil_car_slide_random_r(iVar2 + -0xff00);
+  car_data = *(float **)(trigger_owner + 0x14);
+  if (car_data != (float *)0x0) {
+    trigger_id = *(int *)(trigger_other + 0x10);
+    if ((0xfeff < trigger_id) && (trigger_id < 0xff08)) {
+      if ((k_f_0_3 < *car_data) && (k_f_20 < (float_1_0 - car_data[1]) * k_f_220)) {
+        weapon_oil_car_slide_random_r(trigger_id + -0xff00);
       }
       event_type = get_event_type();
-      if ((event_type == EVENT_TRAINING) && (iVar2 == 0xff01)) {
+      if ((event_type == EVENT_TRAINING) && (trigger_id == 0xff01)) {
         screen_shake_add(1);
       }
     }
-    if ((*(int *)&pfVar1[0x16] == 0) &&
-       ((*(int *)(param_2 + 0x10) == 0x10 || (*(int *)(param_2 + 0x10) == 0x11)))) {
-      pfVar1[0x17] = 0.1;
-      *(int *)&pfVar1[0x16] = 1;
+    if ((*(int *)&car_data[0x16] == 0) &&
+       ((*(int *)(trigger_other + 0x10) == 0x10 || (*(int *)(trigger_other + 0x10) == 0x11)))) {
+      car_data[0x17] = 0.1;
+      *(int *)&car_data[0x16] = 1;
     }
   }
   return;

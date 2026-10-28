@@ -31,14 +31,14 @@ void menu_page_update_entry_states(int page_index)
 
 {
   int controller_index;
-  int iVar1;
+  int tmp_value;
   int *entry_enabled;
   int *fill_cursor;
-  bool bVar4;
+  bool is_hare_and_hounds;
   
   entry_enabled = g_menu_records[page_index + 1].entry_enabled;
   fill_cursor = entry_enabled;
-  for (controller_index = 0xc; iVar1 = g_menu_player_count_index, controller_index != 0;
+  for (controller_index = 0xc; tmp_value = g_menu_player_count_index, controller_index != 0;
       controller_index = controller_index + -1) {
     *fill_cursor = 1;
     fill_cursor = fill_cursor + 1;
@@ -79,7 +79,7 @@ void menu_page_update_entry_states(int page_index)
     if (g_menu_player_count_index != 2) {
       g_menu_records[page_index + 1].entry_enabled[1] = 0;
     }
-    if (iVar1 != 3) {
+    if (tmp_value != 3) {
       g_menu_records[page_index + 1].entry_enabled[2] = 0;
     }
     break;
@@ -105,9 +105,9 @@ LAB_0043872d:
     else {
       g_menu_records[page_index + 1].entry_enabled[6] = 1;
     }
-    bVar4 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
+    is_hare_and_hounds = game_mode == GAME_MODE_HARE_AND_HOUNDS;
     g_menu_records[page_index + 1].entry_enabled[1] = 1;
-    if (bVar4) {
+    if (is_hare_and_hounds) {
       g_team_mode = 0;
     }
     controller_index = player_slots_count_active();
@@ -127,8 +127,8 @@ LAB_004387b7:
     g_menu_records[page_index + 1].entry_enabled[3] = 1;
     controller_index = 0;
     do {
-      iVar1 = controller_present_004a70c0(controller_index);
-      if (iVar1 == 0) {
+      tmp_value = controller_present_004a70c0(controller_index);
+      if (tmp_value == 0) {
         *entry_enabled = 0;
       }
       controller_index = controller_index + 1;
@@ -160,7 +160,7 @@ LAB_004387b7:
     controller_index = 0;
   }
   if (g_menu_records[page_index + 1].entry_enabled[controller_index] != 1) {
-    iVar1 = 0;
+    tmp_value = 0;
     if (0 < g_menu_records[page_index + 1].entry_count) {
       do {
         if (g_menu_records[page_index + 1].entry_enabled[controller_index] == 1) {
@@ -171,8 +171,8 @@ LAB_004387b7:
         if (controller_index == g_menu_records[page_index + 1].entry_count) {
           controller_index = 0;
         }
-        iVar1 = iVar1 + 1;
-      } while (iVar1 < g_menu_records[page_index + 1].entry_count);
+        tmp_value = tmp_value + 1;
+      } while (tmp_value < g_menu_records[page_index + 1].entry_count);
     }
     g_menu_records[page_index + 1].selected = -1;
   }

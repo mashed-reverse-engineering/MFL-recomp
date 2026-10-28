@@ -4,20 +4,21 @@
 
 /* no context */
 
-char *gap_5d9a20(char *param_1,char *unused_2,int *param_3)
+/* Stores *value_ptr (read as unsigned, converted to float) at target+0x60 of obj->+0x20 and sets flag 0x20 at target+0x5c (inferred). */
+char *gap_5d9a20(char *obj,char *unused_2,int *value_ptr)
 
 {
-  char *iVar1;
-  float fVar2;
+  char *target;
+  float value_f;
   
-  iVar1 = *(char **)(param_1 + 0x20);
-  fVar2 = (float)*param_3;
-  if (*param_3 < 0) {
-    fVar2 = fVar2 + k_f_4_2949673e9;
+  target = *(char **)(obj + 0x20);
+  value_f = (float)*value_ptr;
+  if (*value_ptr < 0) {
+    value_f = value_f + k_f_4_2949673e9;
   }
-  *(float *)(iVar1 + 0x60) = fVar2;
-  *(uint *)(iVar1 + 0x5c) = *(uint *)(iVar1 + 0x5c) | 0x20;
-  return param_1;
+  *(float *)(target + 0x60) = value_f;
+  *(uint *)(target + 0x5c) = *(uint *)(target + 0x5c) | 0x20;
+  return obj;
 }
 
 

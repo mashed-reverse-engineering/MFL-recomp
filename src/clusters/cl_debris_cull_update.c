@@ -8,27 +8,28 @@
 
 /* "frustum test of each flagged debris atomic bounding sphere" */
 
-void debris_cull_update_n(int in_ebx)
+/* For each of the 10 debris slots (stride 0x18 from debris+0xc) whose bit is set in the mask at debris+0xf0, frustum-tests the atomic's world bounding sphere against the current camera, stores slot[2] = outside, and calls the atomic's vtable+0x48 hook (inferred). */
+void debris_cull_update_n(int debris)
 
 {
   RwSphere *sphere;
-  RwFrustumTestResult RVar1;
-  int iVar2;
-  int *piVar3;
+  RwFrustumTestResult test_result;
+  int index;
+  int *slot;
   
-  if (*(int *)(in_ebx + 0xf4) != 0) {
-    iVar2 = 0;
-    piVar3 = (int *)(in_ebx + 0xc);
+  if (*(int *)(debris + 0xf4) != 0) {
+    index = 0;
+    slot = (int *)(debris + 0xc);
     do {
-      if ((*(byte *)((iVar2 >> 3) + 0xf0 + in_ebx) & (byte)(1 << ((byte)iVar2 & 7))) != 0) {
-        sphere = RpAtomicGetWorldBoundingSphere((RpAtomic *)*piVar3);
-        RVar1 = RwCameraFrustumTestSphere(RwCameraGetCurrentCamera(),sphere);
-        piVar3[2] = (RVar1 == rwSPHEREOUTSIDE);
-        (**(code **)(*piVar3 + 0x48))(*piVar3);
+      if ((*(byte *)((index >> 3) + 0xf0 + debris) & (byte)(1 << ((byte)index & 7))) != 0) {
+        sphere = RpAtomicGetWorldBoundingSphere((RpAtomic *)*slot);
+        test_result = RwCameraFrustumTestSphere(RwCameraGetCurrentCamera(),sphere);
+        slot[2] = (test_result == rwSPHEREOUTSIDE);
+        (**(code **)(*slot + 0x48))(*slot);
       }
-      iVar2 = iVar2 + 1;
-      piVar3 = piVar3 + 6;
-    } while (iVar2 < 10);
+      index = index + 1;
+      slot = slot + 6;
+    } while (index < 10);
   }
   return;
 }

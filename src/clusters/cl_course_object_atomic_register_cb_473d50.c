@@ -16,11 +16,13 @@
 /*0062ac74*/ extern float g_car_62ac74;
 /*007ef7f4*/ extern float g_tick_seconds;
 #define COLLIDER_TYPE_CAR_FIRST (0xff00) /* collider types 0xff00..0xff07 are cars; type - 0xff00 = car index (inferred from car_collision_impulse arg) */
+#define COURSE_OBJECT_TRIGGER_TYPE (29) /* trigger record kind of the course object (see comment in the function) */
 /* course_object_atomic_register_cb_473d50 */
 
 /* function pointer pushed/stored by course_object_atomic_register (MOV dword ptr [EAX +
    0x6af674],0x473d50) */
 
+/* Trigger callback of a course object (e.g. a breakable): on a valid hit (bbox/sphere test or car impact) spawns an effect and sound once per cooldown, throws the object's fields +0xdc..0xe8 and queues an explosion (inferred). */
 void course_object_atomic_register_cb_473d50(float *hit_pos, char *collider)
 
 {
@@ -39,7 +41,7 @@ void course_object_atomic_register_cb_473d50(float *hit_pos, char *collider)
   } frame;
   
   /* Collision callback for trigger records: hit_pos[4]==29 marks the record kind, hit_pos[5] holds the pointer to the record (obj). Collider types 7/0x12/0x1c are ignored, 10 = bbox test vs another object, 0x15 = sphere-vs-box test (inferred). */
-  if (*(int *)&hit_pos[4] != 29) {
+  if (*(int *)&hit_pos[4] != COURSE_OBJECT_TRIGGER_TYPE) {
     return;
   }
   obj = *(int *)&hit_pos[5];

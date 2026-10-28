@@ -5,27 +5,28 @@
 
 typedef int (__stdcall *ComMethod2)(int *self, uint *arg);
 
-int gap_4aede0_n(int param_1, uint *param_2)
+/* COM call (vtable slot 3) filling out_range, then subtracts the 64-bit base (obj+0x20/0x24) from it; returns HRESULT or 0 (inferred). */
+int gap_4aede0_n(int obj, uint *out_range)
 
 {
-  int *piVar1;
-  uint uVar2;
-  uint uVar3;
-  int iVar4;
+  int *com_obj;
+  uint base_lo;
+  uint old_lo;
+  int hr;
   
-  piVar1 = *(int **)(param_1 + 0x18);
-  if (piVar1 == (int *)0x0) {
+  com_obj = *(int **)(obj + 0x18);
+  if (com_obj == (int *)0x0) {
     return -0x7ffbfded;
   }
-  iVar4 = (*(ComMethod2 *)(*piVar1 + 0xc))(piVar1,param_2);
-  if (-1 < iVar4) {
-    uVar2 = *(uint *)(param_1 + 0x20);
-    uVar3 = *param_2;
-    *param_2 = uVar3 - uVar2;
-    param_2[1] = (param_2[1] - *(int *)(param_1 + 0x24)) - (uint)(uVar3 < uVar2);
-    iVar4 = 0;
+  hr = (*(ComMethod2 *)(*com_obj + 0xc))(com_obj,out_range);
+  if (-1 < hr) {
+    base_lo = *(uint *)(obj + 0x20);
+    old_lo = *out_range;
+    *out_range = old_lo - base_lo;
+    out_range[1] = (out_range[1] - *(int *)(obj + 0x24)) - (uint)(old_lo < base_lo);
+    hr = 0;
   }
-  return iVar4;
+  return hr;
 }
 
 /* entry thunk at the original address of gap_4aede0: register inputs (ecx,s0) -> natural C gap_4aede0_n; ret 4 */

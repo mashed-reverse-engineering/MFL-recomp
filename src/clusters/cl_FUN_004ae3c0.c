@@ -7,44 +7,46 @@ extern __declspec(dllimport) void __stdcall LeaveCriticalSection(void *);
 extern char PTR_g_data_6e0049_005e219c[];
 typedef int (__fastcall *ThisMethod1)(int *self, int unused_edx, int arg);
 /* FUN_004ae3c0 */
+#define CHILD_OBJECT_BYTES (0xe0) /* sizeof the child object built by FUN_004acbb0 (inferred) */
 
 static int * FUN_004acbb0_r(void * p0, int p1, int * p2, void * p3);
 extern void FUN_004acbb0(void);
-int FUN_004ae3c0_n(char *in_ecx, int param_1)
+/* Lazily creates the child object stored at obj+0x78 (inferred): when arg_or_hr == 0 and none exists, allocates 0xe0 bytes, constructs it, destroys it again on a negative HRESULT; returns the child pointer or 0, under the critical section at obj+0xc4. */
+int FUN_004ae3c0_n(char *obj, int arg_or_hr)
 
 {
-  LPCRITICAL_SECTION lpCriticalSection;
-  int uVar1;
+  LPCRITICAL_SECTION obj_cs;
+  int child;
   void *obj_mem;
-  int *piVar3;
+  int *new_child;
   
-  lpCriticalSection = (LPCRITICAL_SECTION)(in_ecx + 0xc4);
-  EnterCriticalSection(lpCriticalSection);
-  if (param_1 == 0) {
-    if (*(int *)(in_ecx + 0x78) == 0) {
-      param_1 = 0;
-      obj_mem = operator_new(0xe0);
+  obj_cs = (LPCRITICAL_SECTION)(obj + 0xc4);
+  EnterCriticalSection(obj_cs);
+  if (arg_or_hr == 0) {
+    if (*(int *)(obj + 0x78) == 0) {
+      arg_or_hr = 0;
+      obj_mem = operator_new(CHILD_OBJECT_BYTES);
       if (obj_mem == (void *)0x0) {
-        piVar3 = (int *)0x0;
+        new_child = (int *)0x0;
       }
       else {
-        piVar3 = FUN_004acbb0_r(obj_mem,(int)in_ecx,&param_1,PTR_g_data_6e0049_005e219c);
+        new_child = FUN_004acbb0_r(obj_mem,(int)obj,&arg_or_hr,PTR_g_data_6e0049_005e219c);
       }
-      *(int **)(in_ecx + 0x78) = piVar3;
-      if (piVar3 != (int *)0x0) {
-        if (-1 < param_1) goto LAB_004ae46f;
-        (*(ThisMethod1 *)(*piVar3 + 0xc))(piVar3,0,1);
-        *(int *)(in_ecx + 0x78) = 0;
+      *(int **)(obj + 0x78) = new_child;
+      if (new_child != (int *)0x0) {
+        if (-1 < arg_or_hr) goto LAB_004ae46f;
+        (*(ThisMethod1 *)(*new_child + 0xc))(new_child,0,1);
+        *(int *)(obj + 0x78) = 0;
       }
     }
     else {
 LAB_004ae46f:
-      uVar1 = *(int *)(in_ecx + 0x78);
-      LeaveCriticalSection(lpCriticalSection);
-      return uVar1;
+      child = *(int *)(obj + 0x78);
+      LeaveCriticalSection(obj_cs);
+      return child;
     }
   }
-  LeaveCriticalSection(lpCriticalSection);
+  LeaveCriticalSection(obj_cs);
   return 0;
 }
 

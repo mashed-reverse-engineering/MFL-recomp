@@ -10,15 +10,17 @@
 /*0062ac74*/ extern float g_car_62ac74;
 extern double sin(double);
 /* rocket_fly_straight */
+#define ROCKET_ACCEL_CAP_BITS 0x3ba3d70a /* 0.005f */
 
 /* "flight step of a rocket without a target (target ids both -1)" */
 
+/* Flight step of an untargeted rocket: wobbling yaw/pitch (sin of age), accel grows by k_f_1_0en4 up to 0.005, speed along the frame's at vector plus lift, then moves the frame by vel (inferred). */
 void rocket_fly_straight_n(RocketRecord *rocket)
 
 {
   RwV3d *v;
   float fVar1;
-  float fVar2;
+  float pitch_base;
   RwFrame *frame;
   float10 pitch_amp;
   float10 wobble;
@@ -29,16 +31,16 @@ void rocket_fly_straight_n(RocketRecord *rocket)
   yaw_amp = (float10)(15.0);
   fVar1 = rocket->yaw;
   pitch_amp = (float10)(20.0);
-  fVar2 = rocket->pitch;
+  pitch_base = rocket->pitch;
   RwFrameSetIdentity(frame);
   RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,(float)(yaw_amp * wobble + (float10)fVar1),
                 rwCOMBINEREPLACE);
-  RwFrameRotate(frame,&(RwFrame_modelling(frame)).right,(float)(wobble * pitch_amp + (float10)fVar2),
+  RwFrameRotate(frame,&(RwFrame_modelling(frame)).right,(float)(wobble * pitch_amp + (float10)pitch_base),
                 rwCOMBINEPOSTCONCAT);
   fVar1 = rocket->accel + k_f_1_0en4;
   rocket->accel = fVar1;
   if (k_f_0_005 < fVar1) {
-    *(undefined4 *)&rocket->accel = 0x3ba3d70a;
+    *(undefined4 *)&rocket->accel = ROCKET_ACCEL_CAP_BITS;
   }
   v = &rocket->pos;
   fVar1 = rocket->speed + rocket->accel;

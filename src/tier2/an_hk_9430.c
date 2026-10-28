@@ -19,18 +19,18 @@
 /*007ef7b8*/ extern undefined4 game_mode;
 /* hud_render_by_event_and_mode */
 
-/* "phase 7 only: renders the marker/stopclock/hudpanel set depending on event type and game mode"
+/* HUD dispatcher for race phases COUNTDOWN..STANDINGS: picks the marker/stopclock/hudpanel/score/team/kc/endpoint panel from event type and game mode, then draws the timed parts unless the event is a quick race (inferred) (was: "phase 7 only ...")
     */
 
 void hud_render_by_event_and_mode(void)
 
 {
-  int iVar1;
+  int query_result;
   undefined4 event_type;
-  bool bVar2;
+  bool use_single_panel;
   
-  iVar1 = course_get_split_sector_8();
-  if (iVar1 == 0) {
+  query_result = course_get_split_sector_8();
+  if (query_result == 0) {
     return;
   }
   if (g_race_phase < RACE_PHASE_COUNTDOWN) {
@@ -70,8 +70,8 @@ void hud_render_by_event_and_mode(void)
         return;
       }
     default:
-      iVar1 = is_team_mode();
-      bVar2 = iVar1 == 0;
+      query_result = is_team_mode();
+      use_single_panel = query_result == 0;
       break;
     case 6:
     case 7:
@@ -79,22 +79,22 @@ void hud_render_by_event_and_mode(void)
     case 0xb:
     case 0xc:
     case 0xd:
-      iVar1 = is_team_mode();
-      if (iVar1 == 0) goto LAB_0040fa58;
-      bVar2 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
+      query_result = is_team_mode();
+      if (query_result == 0) goto LAB_0040fa58;
+      use_single_panel = game_mode == GAME_MODE_HARE_AND_HOUNDS;
       break;
     case 0x11:
-      iVar1 = training_lesson_get();
-      if (iVar1 == 1) {
+      query_result = training_lesson_get();
+      if (query_result == 1) {
         return;
       }
-      iVar1 = training_lesson_get();
-      if (iVar1 == 4) {
+      query_result = training_lesson_get();
+      if (query_result == 4) {
         return;
       }
       goto LAB_0040fa58;
     }
-    if (!bVar2) {
+    if (!use_single_panel) {
       endpoint_panel_render();
       return;
     }
@@ -138,18 +138,18 @@ LAB_0040fa58:
   case 0xb:
   case 0xc:
   case 0xd:
-    iVar1 = is_team_mode();
-    if (iVar1 != 0) {
-      bVar2 = game_mode == GAME_MODE_HARE_AND_HOUNDS;
+    query_result = is_team_mode();
+    if (query_result != 0) {
+      use_single_panel = game_mode == GAME_MODE_HARE_AND_HOUNDS;
       goto LAB_0040fb20;
     }
     goto LAB_0040fb29;
   default:
 switchD_0040fa80_caseD_9:
-    iVar1 = is_team_mode();
-    bVar2 = iVar1 == 0;
+    query_result = is_team_mode();
+    use_single_panel = query_result == 0;
 LAB_0040fb20:
-    if (!bVar2) {
+    if (!use_single_panel) {
       team_panel_render();
       break;
     }
@@ -157,20 +157,20 @@ LAB_0040fb29:
     score_panel_render();
     break;
   case 0x11:
-    iVar1 = ui_get_car_69d2d8();
-    if ((iVar1 != 0) ||
-       (((iVar1 = training_lesson_get(), iVar1 == 1 && (iVar1 = ui_get_car_8c86c8(), iVar1 != 1)) &&
-        (iVar1 = ui_get_car_8c86c8(), iVar1 != 4)))) break;
-    iVar1 = training_lesson_get();
-    if (iVar1 != 4) goto LAB_0040fb29;
+    query_result = ui_get_car_69d2d8();
+    if ((query_result != 0) ||
+       (((query_result = training_lesson_get(), query_result == 1 && (query_result = ui_get_car_8c86c8(), query_result != 1)) &&
+        (query_result = ui_get_car_8c86c8(), query_result != 4)))) break;
+    query_result = training_lesson_get();
+    if (query_result != 4) goto LAB_0040fb29;
 switchD_0040fab4_caseD_4:
     stopclock_render(1);
     break;
   case 0x12:
     viewport_set_view_window_080();
   }
-  iVar1 = get_event_type();
-  if (iVar1 == EVENT_QUICK_RACE) {
+  query_result = get_event_type();
+  if (query_result == EVENT_QUICK_RACE) {
     return;
   }
   stopclock_render_timed_parts_forward();

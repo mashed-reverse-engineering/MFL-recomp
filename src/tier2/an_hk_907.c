@@ -20,16 +20,18 @@
 /*008d8c0c*/ extern undefined4 g_gamesave_flag_c0c;
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
+#define GAMESAVE_MSG_COLOUR (0xff460000) /* message_show colour argument (inferred) */
 /* gamesave_load_menu_state */
 
 /* state machine for the boot-time save check (memory-card style states from the console builds) */
 
+/* Per-frame state machine of the boot-time save check: waits for boot status, picks the prompt (no card / unformatted / load / write), shows the message, runs load or write and applies the result; steps are g_gamesave_format_step (inferred). */
 void gamesave_load_menu_state(float delta_time)
 
 {
-  int iVar1;
-  undefined4 uVar2;
-  char *_Format;
+  int result;
+  undefined4 message_id;
+  char *log_text;
   
   switch(g_gamesave_format_step) {
   case 0:
@@ -39,13 +41,13 @@ void gamesave_load_menu_state(float delta_time)
     gamesave_poll_status(delta_time);
     return;
   case 1:
-    iVar1 = stub_return_zero();
-    if (iVar1 == 0) {
+    result = stub_return_zero();
+    if (result == 0) {
       g_gamesave_status_poll_count = g_gamesave_status_poll_count + 1;
     }
     if (1 < (int)g_gamesave_status_poll_count) {
-      iVar1 = stub_return_zero();
-      if (iVar1 != 0) {
+      result = stub_return_zero();
+      if (result != 0) {
         FID_conflict__wprintf("status change\n");
         message_close();
       }
@@ -54,23 +56,23 @@ void gamesave_load_menu_state(float delta_time)
     FID_conflict__wprintf("Waiting for boot status\n");
     return;
   case 2:
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       g_gamesave_format_step = 4;
       return;
     }
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       g_gamesave_format_step = 10;
       return;
     }
-    iVar1 = gamesave_exists(0);
-    if (iVar1 != 0) {
+    result = gamesave_exists(0);
+    if (result != 0) {
       g_gamesave_format_step = 9;
       return;
     }
-    iVar1 = stub_return_one(0);
-    g_gamesave_format_step = (-(uint)(iVar1 != 0) & 5) + 5;
+    result = stub_return_one(0);
+    g_gamesave_format_step = (-(uint)(result != 0) & 5) + 5;
     break;
   case 3:
     if (g_gamesave_result_code == 3) {
@@ -86,12 +88,12 @@ void gamesave_load_menu_state(float delta_time)
     }
     break;
   case 4:
-    uVar2 = 0x281;
+    message_id = 0x281;
     goto LAB_0040b1cc;
   case 5:
-    uVar2 = 0x289;
+    message_id = 0x289;
 LAB_0040b1cc:
-    message_show(uVar2,0xff460000,0xb,0x2e,0,0);
+    message_show(message_id,0xff460000,0xb,0x2e,0,0);
     g_gamesave_format_step = 0;
     g_gamesave_flag_c0c = 0;
     return;
@@ -111,8 +113,8 @@ LAB_0040b1cc:
     g_gamesave_format_step = 0xb;
     return;
   case 0xc:
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       gamesave_ui_load_done(3);
       return;
     }
@@ -122,8 +124,8 @@ LAB_0040b1cc:
     gamesave_gather(*(int *)&delta_time);
     return;
   case 0xd:
-    iVar1 = gamesave_load();
-    if (iVar1 == 0) {
+    result = gamesave_load();
+    if (result == 0) {
       if (float_1_0 < g_gamesave_wait_timer) {
         message_close();
         g_gamesave_format_step = 0xf;
@@ -131,15 +133,15 @@ LAB_0040b1cc:
       }
 LAB_0040b27c:
       gamesave_poll_status(*(int *)&delta_time);
-      _Format = "Waiting for time to elapse\n";
+      log_text = "Waiting for time to elapse\n";
     }
     else {
-      _Format = "Waiting for load to complete\n";
+      log_text = "Waiting for load to complete\n";
     }
     goto LAB_0040b36e;
   case 0xe:
-    iVar1 = gamesave_write();
-    if (iVar1 == 0) {
+    result = gamesave_write();
+    if (result == 0) {
       if (float_1_0 < g_gamesave_wait_timer) {
         message_close();
         g_gamesave_format_step = 0x10;
@@ -147,9 +149,9 @@ LAB_0040b27c:
       }
       goto LAB_0040b27c;
     }
-    _Format = "Waiting for save to complete\n";
+    log_text = "Waiting for save to complete\n";
 LAB_0040b36e:
-    FID_conflict__wprintf(_Format);
+    FID_conflict__wprintf(log_text);
 LAB_0040b376:
     g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;
     return;

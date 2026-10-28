@@ -11,36 +11,36 @@
 /*005de258*/ extern float k_f_0_003;
 /* weapon_effect_scale_by_camera_distance */
 
-/* "scale x/y/z by clamped (0.003..3) distance from the camera *0.5" */
+/* Scales the effect's frame: x,y = 4 * clamp(distance to camera, 0.003, 3) * 0.5, z = effect[0x1c] * 4 (inferred) */
 
-void weapon_effect_scale_by_camera_distance_n(int in_edi)
+void weapon_effect_scale_by_camera_distance_n(int effect)
 
 {
   int camera;
   RwMatrix *matrix;
-  float10 fVar1;
-  RwV3d local_c;
+  float10 distance;
+  RwV3d scale;
   
-  local_c.z = *(float *)(in_edi + 0x1c) * k_f_4;
-  local_c.x = 4.0;
-  local_c.y = 4.0;
+  scale.z = *(float *)(effect + 0x1c) * k_f_4;
+  scale.x = 4.0;
+  scale.y = 4.0;
   camera = get_viewport_camera(0);
-  fVar1 = (float10)distance_between_points
-                             (in_edi + 0x48,in_edi + 0x3c,*(int *)(camera + 4) + 0x40);
-  if (!((float10)k_f_0_003 > fVar1)) {
-    if ((float10)k_f_3 < fVar1) {
-      fVar1 = (float10)k_f_3;
+  distance = (float10)distance_between_points
+                             (effect + 0x48,effect + 0x3c,*(int *)(camera + 4) + 0x40);
+  if (!((float10)k_f_0_003 > distance)) {
+    if ((float10)k_f_3 < distance) {
+      distance = (float10)k_f_3;
     }
   }
   else {
-    fVar1 = (float10)k_f_0_003;
+    distance = (float10)k_f_0_003;
   }
-  local_c.x = (RwReal)((float10)local_c.x * fVar1 * (float10)k_f_0_5);
-  local_c.y = (RwReal)(fVar1 * (float10)k_f_0_5 * (float10)local_c.y);
-  matrix = (RwMatrix *)(*(char **)(*(int *)(in_edi + 0x54) + 4) + 0x10);
-  RwMatrixScale(matrix,&local_c,rwCOMBINEPRECONCAT);
+  scale.x = (RwReal)((float10)scale.x * distance * (float10)k_f_0_5);
+  scale.y = (RwReal)(distance * (float10)k_f_0_5 * (float10)scale.y);
+  matrix = (RwMatrix *)(*(char **)(*(int *)(effect + 0x54) + 4) + 0x10);
+  RwMatrixScale(matrix,&scale,rwCOMBINEPRECONCAT);
   RwMatrixUpdate(matrix);
-  RwFrameUpdateObjects(*(RwFrame **)(*(char **)(in_edi + 0x54) + 4));
+  RwFrameUpdateObjects(*(RwFrame **)(*(char **)(effect + 0x54) + 4));
   return;
 }
 

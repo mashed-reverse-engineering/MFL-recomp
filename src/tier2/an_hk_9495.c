@@ -19,9 +19,13 @@ extern char g_sky_drift[];
 /*008c7eb0*/ extern undefined4 g_course_sky_8c7eb0;
 extern double cos(double);
 extern char g_data_69d6dc[];
+#define SKY_PARTICLE_COUNT (0x100) /* particles in the sky PTank */
+#define SKY_PARTICLE_STRIDE (0x10) /* bytes per particle in g_sky_offsets / g_sky_drift */
+#define SKY_PARTICLE_TABLE_BYTES (0x1000) /* SKY_PARTICLE_COUNT * SKY_PARTICLE_STRIDE */
+#define SKY_FADE_TABLE_SIZE (0x100) /* entries of the sky fade table */
 /* course_sky_atomic_create */
 
-/* "creates the frame / atomic of the sky object (g_course_6a06e0)" */
+/* Creates the sky particle tank (g_sky_atomic): sets its bounding sphere, randomises per-particle offset and drift vectors, applies the texture, locks the vertex colours to (0x20,0x20,0x40,0xff) and fills the sky fade table (inferred) */
 
 void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
 
@@ -37,8 +41,8 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
   double rnd;
   RwV2d dir2d;
   struct {
-    undefined1 *puStack_30;
-    int iStack_2c;
+    undefined1 *lock_ptr;
+    int lock_stride;
     undefined4 uStack_28;
     undefined4 uStack_24;
     RwReal sphere_x;
@@ -62,13 +66,13 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
   fo.sphere_y = 0.0;
   fo.sphere_z = 0.0;
   fo.sphere_radius = 1000.0f;
-  g_sky_atomic = (RpAtomic *)RpPTankAtomicCreate(0x100,0x10080003,0);
+  g_sky_atomic = (RpAtomic *)RpPTankAtomicCreate(SKY_PARTICLE_COUNT,0x10080003,0);
   g_course_sky_6a06e4 = size_hi;
   g_course_sky_6a06e8 = size_lo;
   g_course_sky_8c7eb0 = (undefined4)texture;
   ptank_flags = (uint *)(*(char **)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset) + 0x40);
   *ptank_flags = *ptank_flags | 0x800000;
-  *(undefined4 *)(*(char **)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset) + 4) = 0x100
+  *(undefined4 *)(*(char **)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset) + 4) = SKY_PARTICLE_COUNT
   ;
   RpAtomicSetFrame(g_sky_atomic,frame);
   byte_off = *(int *)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset);
@@ -123,11 +127,11 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
     rnd = (double)random_range(0x3f000000,0x3f800000);
     *(float *)(byte_off + ((char *)g_sky_drift + 0x4)) = (float)(rnd * (double)*(float *)(byte_off + ((char *)g_sky_drift + 0x4)));
     rnd = (double)random_range(0x3f000000,0x3f800000);
-    next_off = byte_off + 0x10;
+    next_off = byte_off + SKY_PARTICLE_STRIDE;
     *(float *)(byte_off + ((char *)g_sky_drift + 0x8)) = (float)(rnd * (double)*(float *)(byte_off + ((char *)g_sky_drift + 0x8)));
     particle_index = particle_index + 1;
     byte_off = next_off;
-  } while (next_off < 0x1000);
+  } while (next_off < SKY_PARTICLE_TABLE_BYTES);
   if (texture != (RwTexture *)0x0) {
     RpMaterialSetTexture(*RpGeometry_matList_materials(RpAtomic_geometry(g_sky_atomic)),texture);
     byte_off = *(int *)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset);
@@ -142,14 +146,14 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
   *(undefined4 *)(*(char **)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset) + 0xa8) = 6;
   byte_off = *(int *)(&RpAtomic_object_object_type(g_sky_atomic) + g_ptank_plugin_offset);
   *(uint *)(byte_off + 0x40) = *(uint *)(byte_off + 0x40) | 0x10000000;
-  RpPTankAtomicLock_00545d10(g_sky_atomic,&fo.puStack_30,2,0x40000000);
-  byte_off = 0x100;
+  RpPTankAtomicLock_00545d10(g_sky_atomic,&fo.lock_ptr,2,0x40000000);
+  byte_off = SKY_PARTICLE_COUNT;
   do {
-    *fo.puStack_30 = 0x20;
-    fo.puStack_30[1] = 0x20;
-    fo.puStack_30[2] = 0x40;
-    fo.puStack_30[3] = 0xff;
-    fo.puStack_30 = fo.puStack_30 + fo.iStack_2c;
+    *fo.lock_ptr = 0x20;
+    fo.lock_ptr[1] = 0x20;
+    fo.lock_ptr[2] = 0x40;
+    fo.lock_ptr[3] = 0xff;
+    fo.lock_ptr = fo.lock_ptr + fo.lock_stride;
     byte_off = byte_off + -1;
   } while (byte_off != 0);
   size_hi = 0;
@@ -159,7 +163,7 @@ void course_sky_atomic_create(RwTexture *texture,int size_hi,undefined4 size_lo)
     sky_fade_byte = ((int)((cos((((float)size_hi - 128.0f) * 0.024543693f)) + 1.0f) * 127.5f));
     *(undefined1 *)(size_hi + ((char *)&g_course_sky_8c7eb0 + 0x10)) = sky_fade_byte;
     size_hi = size_hi + 1;
-  } while (size_hi < 0x100);
+  } while (size_hi < SKY_FADE_TABLE_SIZE);
   return;
 }
 

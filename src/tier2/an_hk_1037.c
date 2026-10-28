@@ -6,12 +6,13 @@
 
 /* single caller course_neustein_cb0_sub_4546e0 */
 
-void course_neustein_cb0_sub_454650(undefined4 *param_1)
+/* Builds a small direction/offset frame, resolves two owner objects from msg[0], msg[1], calls sub_454460 and stores the result in msg[2] (inferred). */
+void course_neustein_cb0_sub_454650(undefined4 *msg)
 
 {
-  undefined4 uVar1;
-  undefined4 uVar2;
-  undefined4 uVar3;
+  undefined4 first_field;
+  undefined4 owner_a;
+  undefined4 owner_b;
   struct {
     undefined4 uStack_18;
     undefined4 uStack_14;
@@ -27,12 +28,12 @@ void course_neustein_cb0_sub_454650(undefined4 *param_1)
   frame.uStack_c = 0;
   frame.uStack_8 = 0x3fffe910;
   frame.uStack_4 = 0;
-  uVar1 = rw_first_field((int *)g_rw_701c9c);
-  uVar2 = rwp_owner_object_get(*param_1);
-  uVar3 = rwp_owner_object_get(param_1[1]);
-  uVar2 = course_neustein_cb0_sub_454460(uVar2,uVar3,&frame.uStack_c,&frame.uStack_18);
-  param_1[2] = uVar2;
-  func_0x0056a5c0(uVar1,uVar2,0xffffffff);
+  first_field = rw_first_field((int *)g_rw_701c9c);
+  owner_a = rwp_owner_object_get(*msg);
+  owner_b = rwp_owner_object_get(msg[1]);
+  owner_a = course_neustein_cb0_sub_454460(owner_a,owner_b,&frame.uStack_c,&frame.uStack_18);
+  msg[2] = owner_a;
+  func_0x0056a5c0(first_field,owner_a,0xffffffff);
   return;
 }
 

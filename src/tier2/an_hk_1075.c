@@ -3,20 +3,21 @@
 
 /* callers course_forest_cb1,course_keys_cb1,course_nt1_cb1,course_nt1_s_cb1 */
 
-undefined4 course_helper_484b20(char *param_1,int param_2)
+/* Advances cursor's timer (+0xc) by delta; once it exceeds 299 moves to the next list node (**(cursor+4)) and resets it; returns node[1] (inferred). */
+undefined4 course_helper_484b20(char *cursor,int delta)
 
 {
-  int iVar1;
+  int next_node;
   
-  param_2 = *(int *)(param_1 + 0xc) + param_2;
-  *(int *)(param_1 + 0xc) = param_2;
-  if (299 < param_2) {
-    iVar1 = **(int **)(param_1 + 4);
-    *(int *)(param_1 + 4) = iVar1;
-    *(undefined4 *)(param_1 + 0xc) = 0;
-    return *(undefined4 *)(iVar1 + 4);
+  delta = *(int *)(cursor + 0xc) + delta;
+  *(int *)(cursor + 0xc) = delta;
+  if (299 < delta) {
+    next_node = **(int **)(cursor + 4);
+    *(int *)(cursor + 4) = next_node;
+    *(undefined4 *)(cursor + 0xc) = 0;
+    return *(undefined4 *)(next_node + 4);
   }
-  return *(undefined4 *)(*(char **)(param_1 + 4) + 4);
+  return *(undefined4 *)(*(char **)(cursor + 4) + 4);
 }
 
 

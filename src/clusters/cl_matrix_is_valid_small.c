@@ -6,19 +6,19 @@
 
 /* "vec3_is_valid_small for the four rows (+0x20,+0x10,+0,+0x30)" */
 
-bool matrix_is_valid_small(int param_1, char *unused_2)
+bool matrix_is_valid_small(int matrix, char *unused_2)
 
 {
-  int iVar1;
+  int valid;
   
-  iVar1 = vec3_is_valid_small(param_1 + 0x20);
-  if (iVar1 != 0) {
-    iVar1 = vec3_is_valid_small(param_1 + 0x10);
-    if (iVar1 != 0) {
-      iVar1 = vec3_is_valid_small(param_1);
-      if (iVar1 != 0) {
-        iVar1 = vec3_is_valid_small(param_1 + 0x30);
-        return iVar1 != 0;
+  valid = vec3_is_valid_small(matrix + 0x20);
+  if (valid != 0) {
+    valid = vec3_is_valid_small(matrix + 0x10);
+    if (valid != 0) {
+      valid = vec3_is_valid_small(matrix);
+      if (valid != 0) {
+        valid = vec3_is_valid_small(matrix + 0x30);
+        return valid != 0;
       }
     }
   }

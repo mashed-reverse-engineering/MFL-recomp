@@ -23,48 +23,49 @@
 
 static int world_sector_list_add_r(undefined4 p0);
 extern void world_sector_list_add(void);
-int world_render_with_sector_callback_cb_495ec0(int param_1)
+/* Per-sector callback: reads the bounding sphere from the sector user data, counts it, and if non-empty either queues the sector in the visible list (sphere or bbox hit) or adds it to the world sector list (inferred); returns sector. */
+int world_render_with_sector_callback_cb_495ec0(int sector)
 
 {
-  RwStringFunctions *pRVar1;
-  undefined4 uVar2;
+  RwStringFunctions *str_funcs;
+  undefined4 user_data;
   RwChar *string1;
-  int iVar3;
+  int test_result;
   RwChar *string2;
   RwSphere sphere; /* bounding sphere read from the sector's user data (x, y, z, radius) */
   
-  uVar2 = FUN_00554340(param_1,0);
+  user_data = FUN_00554340(sector,0);
   string2 = "BS";
-  pRVar1 = &RwGlobalsRelease_stringFuncs(RwEngineInstance);
-  string1 = (RwChar *)rw_first_field(uVar2);
-  RwStringFunctions_vecStrcmp(pRVar1)(string1,string2);
-  FUN_00544430(uVar2);
-  g_physics_7036b0 = g_physics_7036b0 + (uint)*(ushort *)(param_1 + 0x84);
+  str_funcs = &RwGlobalsRelease_stringFuncs(RwEngineInstance);
+  string1 = (RwChar *)rw_first_field(user_data);
+  RwStringFunctions_vecStrcmp(str_funcs)(string1,string2);
+  FUN_00544430(user_data);
+  g_physics_7036b0 = g_physics_7036b0 + (uint)*(ushort *)(sector + 0x84);
   g_physics_702a94 = g_physics_702a94 + 1;
-  sphere.center.x = (float)RpUserDataArrayGetReal(uVar2,0);
-  sphere.center.y = (float)RpUserDataArrayGetReal(uVar2,1);
-  sphere.center.z = (float)RpUserDataArrayGetReal(uVar2,2);
-  sphere.radius = (float)RpUserDataArrayGetReal(uVar2,3);
-  if (*(short *)(param_1 + 0x84) != 0) {
-    iVar3 = course_objects_test_sphere(&sphere);
-    if ((iVar3 != 0) || (iVar3 = course_objects_test_bbox(param_1 + 0x60), iVar3 != 0)) {
-      (&g_particle_system_7032b0)[g_particle_system_7036b8] = param_1;
+  sphere.center.x = (float)RpUserDataArrayGetReal(user_data,0);
+  sphere.center.y = (float)RpUserDataArrayGetReal(user_data,1);
+  sphere.center.z = (float)RpUserDataArrayGetReal(user_data,2);
+  sphere.radius = (float)RpUserDataArrayGetReal(user_data,3);
+  if (*(short *)(sector + 0x84) != 0) {
+    test_result = course_objects_test_sphere(&sphere);
+    if ((test_result != 0) || (test_result = course_objects_test_bbox(sector + 0x60), test_result != 0)) {
+      (&g_particle_system_7032b0)[g_particle_system_7036b8] = sector;
       g_particle_system_7036b8 = g_particle_system_7036b8 + 1;
-      return param_1;
+      return sector;
     }
-    iVar3 = rw_first_field(&g_race_phase_arg);
-    if (iVar3 == 1) {
+    test_result = rw_first_field(&g_race_phase_arg);
+    if (test_result == 1) {
       rw_stream_chunk_copy(&g_race_phase_arg,&g_data_7036c8);
       store_u32(&g_race_phase_arg,0);
     }
     if (g_data_7036c8 != 0) {
-      return param_1;
+      return sector;
     }
-    world_sector_list_add_r(param_1);
-    g_physics_702a90 = g_physics_702a90 + (uint)*(ushort *)(param_1 + 0x84);
+    world_sector_list_add_r(sector);
+    g_physics_702a90 = g_physics_702a90 + (uint)*(ushort *)(sector + 0x84);
   }
   g_physics_7036b4 = g_physics_7036b4 + 1;
-  return param_1;
+  return sector;
 }
 
 /* world_sector_list_add_r: C -> original world_sector_list_add (registers ecx) */

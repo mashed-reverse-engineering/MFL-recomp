@@ -11,6 +11,7 @@
 /*0064d894*/ extern undefined4 g_course_64d894;
 /*007ef804*/ extern undefined4 g_tick_number;
 /* vehicle_ground_probe_update */
+#define MIN_F(a, b) (((a) <= (b)) ? (a) : (b))
 
 /* "shifts the history of 7 samples and probes the ground below the car every 4th tick" */
 
@@ -81,12 +82,8 @@ void vehicle_ground_probe_update_n(VehicleRecord *vehicle_record)
   vehicle_record->size_factor = sum;
   sum = (sum + history[7]) * k_f_0_125;
   vehicle_record->size_factor = sum;
-  if (sum >= float_1_0)
-    vehicle_record->size_factor = float_1_0;
-  else if (!(sum >= k_f_0))      /* NaN stores 0 in the original (test ah,1; jne) */
-    vehicle_record->size_factor = k_f_0;
-  else
-    vehicle_record->size_factor = sum;
+  /* clamp to [0, 1] with the original's nested min / max macros (each argument evaluated twice; a NaN sum gives 0) */
+  vehicle_record->size_factor = !(MIN_F(float_1_0, sum) >= k_f_0) ? k_f_0 : MIN_F(float_1_0, sum);
 }
 
 /* entry thunk at the original address of vehicle_ground_probe_update: register inputs (esi) -> natural C vehicle_ground_probe_update_n; ret 0 */

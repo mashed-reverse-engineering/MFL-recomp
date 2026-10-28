@@ -25,51 +25,52 @@ __declspec(naked) int course_place_powerups_from_clump_r(void *reg_ecx)
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
-/* "'powerups_gold.lua' course powerup layout" */
+/* course powerup layout loader (was: 'powerups_gold.lua' course powerup layout) */
 
-void course_load_powerups_gold(undefined4 param_1)
+/* Loads the powerup layout of course_id: opens the course .piz, places powerups from powerups_gold.dff if present, else runs the powerups_gold.lua / powerups.lua script (inferred). */
+void course_load_powerups_gold(undefined4 course_id)
 
 {
-  vecStrcpyFunc *pRVar1;
+  vecStrcpyFunc *strcpy_fn;
   RwChar *course_entry;
   RpClump *clump;
-  int iVar2;
-  undefined4 *puVar3;
-  char *pcVar4;
-  char *apcStack_120 [4];
-  char local_110[128] = "";
-  char local_90[128] = "";
+  int powerup_set;
+  undefined4 *unused_ptr;
+  char *script_name;
+  char *script_names [4];
+  char piz_rel_path[128] = "";
+  char piz_path[128] = "";
   
-  course_entry = (RwChar *)course_table_find_entry(param_1);
-  apcStack_120[1] = "powerups_gold.lua";
-  apcStack_120[2] = "powerups_gold.lua";
-  apcStack_120[3] = "powerups_gold.lua";
-  rwstrcpy(local_110,"toastart/tracks/");
-  rwstrcat(local_110,course_entry);
-  rwstrcat(local_110,".piz");
-  pRVar1 = &rwstrcpy;
-  course_entry = (RwChar *)course_content_path_build(local_110);
-  (*pRVar1)(local_90,course_entry);
+  course_entry = (RwChar *)course_table_find_entry(course_id);
+  script_names[1] = "powerups_gold.lua";
+  script_names[2] = "powerups_gold.lua";
+  script_names[3] = "powerups_gold.lua";
+  rwstrcpy(piz_rel_path,"toastart/tracks/");
+  rwstrcat(piz_rel_path,course_entry);
+  rwstrcat(piz_rel_path,".piz");
+  strcpy_fn = &rwstrcpy;
+  course_entry = (RwChar *)course_content_path_build(piz_rel_path);
+  (*strcpy_fn)(piz_path,course_entry);
   powerups_clear();
-  iVar2 = menu_powerup_set_for_event();
-  if (iVar2 == 0) {
+  powerup_set = menu_powerup_set_for_event();
+  if (powerup_set == 0) {
     return;
   }
-  pcVar4 = apcStack_120[iVar2];
-  game_open_piz(local_90);
+  script_name = script_names[powerup_set];
+  game_open_piz(piz_path);
   clump = (RpClump *)clump_load_by_name("powerups_gold.dff", 0x0, 0x0);
   if (clump != (RpClump *)0x0) {
     course_place_powerups_from_clump_r((void *)clump);
     RpClumpDestroy(clump);
   }
   else {
-    iVar2 = game_content_exists_prefixed(0,pcVar4,1);
-    if (iVar2 == 0) {
-      iVar2 = game_content_exists_prefixed(0,"powerups.lua",1);
-      if (iVar2 == 0) goto LAB_0042aac5;
-      pcVar4 = "powerups.lua";
+    powerup_set = game_content_exists_prefixed(0,script_name,1);
+    if (powerup_set == 0) {
+      powerup_set = game_content_exists_prefixed(0,"powerups.lua",1);
+      if (powerup_set == 0) goto LAB_0042aac5;
+      script_name = "powerups.lua";
     }
-    lua_run_course_script(pcVar4);
+    lua_run_course_script(script_name);
   }
 LAB_0042aac5:
   game_close_piz();

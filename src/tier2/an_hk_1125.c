@@ -10,10 +10,11 @@ extern double fabs(double);
 
 /* no context */
 
+/* Builds a vector from axis_in (obj+0x40 / obj+0x44 are scale factors): if |z| > 0.9998 result is (0,0,+-obj[0x40]) by the sign of z, else the xy part is normalised and scaled by obj[0x44] (z scaled by obj[0x40] when |z| > 0.02); writes vec_out (inferred). */
 void gap_5700b0(char *obj,float *axis_in,float *vec_out)
 
 {
-  float in_z;
+  float axis_z;
   float abs_in_z;
   struct {
     float fStack_c;
@@ -23,13 +24,13 @@ void gap_5700b0(char *obj,float *axis_in,float *vec_out)
   
   frame.fStack_c = *axis_in;
   frame.fStack_8 = axis_in[1];
-  in_z = axis_in[2];
-  abs_in_z = fabs(in_z);
+  axis_z = axis_in[2];
+  abs_in_z = fabs(axis_z);
   if (!(abs_in_z <= k_f_0_9998)) {      /* NaN takes the axis branch (original: fcom / test ah,0x41 / jp) */
     frame.fStack_c = 0.0;
     frame.fStack_8 = 0.0;
     frame.fStack_4 = float_1_0;
-    if (in_z < k_f_0) {
+    if (axis_z < k_f_0) {
       frame.fStack_4 = k_f_n1;
     }
     frame.fStack_4 = frame.fStack_4 * *(float *)(obj + 0x40);
@@ -46,7 +47,7 @@ void gap_5700b0(char *obj,float *axis_in,float *vec_out)
       FUN_0056fd20(&frame.fStack_c,&frame.fStack_c);
       frame.fStack_c = *(float *)(obj + 0x44) * frame.fStack_c;
       frame.fStack_8 = *(float *)(obj + 0x44) * frame.fStack_8;
-      if (!(in_z < k_f_0)) {      /* NaN counts as >= 0 (original: fcomp / test ah,5 / jp) */
+      if (!(axis_z < k_f_0)) {      /* NaN counts as >= 0 (original: fcomp / test ah,5 / jp) */
         frame.fStack_4 = float_1_0 * *(float *)(obj + 0x40);
       }
       else {

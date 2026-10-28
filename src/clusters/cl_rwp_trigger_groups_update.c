@@ -18,7 +18,8 @@
 /* "per group tests contacts of the focus player (route record) against each trigger entry and
    fires" */
 
-void rwp_trigger_groups_update(undefined4 param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11, char *param_12, char *param_13)
+/* Per frame, for each trigger group: update its moving platforms, then test each trigger entry (matching focus-player record/progress, or objects of the wanted type whose user-data flag / owner speed matches) and set the trigger flag; fires rwp_trigger_group_advance_and_fire when the entry asks for it (inferred). */
+void rwp_trigger_groups_update(undefined4 platform_update_arg, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11, char *param_12, char *param_13)
 
 {
   float vec_y;
@@ -57,7 +58,7 @@ void rwp_trigger_groups_update(undefined4 param_1, char *param_2, char *param_3,
       rwp_handle = group[group[0x20]];
       frame.trigger_i = 0;
       frame.group_handle = rwp_handle;
-      course_moving_platforms_update(param_1,rwp_handle);
+      course_moving_platforms_update(platform_update_arg,rwp_handle);
       if (0 < *(int *)(rwp_handle + 0x2428)) {
         trigger = (int *)(rwp_handle + 0x5a0);
         do {

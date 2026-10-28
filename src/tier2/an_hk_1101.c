@@ -7,29 +7,30 @@
 
 /* single caller course_storm_cb1 */
 
-void course_storm_cb1_sub_4ab160(undefined4 *param_1,float param_2)
+/* Walks the spline state from t_start to t_end in steps of delta*t_step once (guarded by state[6]==0, then set to 0x40): samples the spline matrix, optionally transforms it by the matrix at state[7], and calls course_storm_cb1_sub_4aaea0 (inferred). */
+void course_storm_cb1_sub_4ab160(undefined4 *state,float delta)
 
 {
-  RwV3d RStack_4c;
-  RwMatrix RStack_40;
+  RwV3d up_vector;
+  RwMatrix spline_matrix;
   
-  RStack_4c.x = 0.0;
-  RStack_4c.y = 1.0;
-  RStack_4c.z = 0.0;
-  if (param_1[6] == 0) {
-    param_1[6] = 0x40;
-    param_1[4] = param_1[1];
-    if (*(float *)&param_1[1] < *(float *)&param_1[2]) {
+  up_vector.x = 0.0;
+  up_vector.y = 1.0;
+  up_vector.z = 0.0;
+  if (state[6] == 0) {
+    state[6] = 0x40;
+    state[4] = state[1];
+    if (*(float *)&state[1] < *(float *)&state[2]) {
       do {
-        RpSplineFindMatrix((RpSpline *)*param_1,10,*(float *)&param_1[4],&RStack_4c,&RStack_40);
-        if ((RwMatrix *)param_1[7] != (RwMatrix *)0x0) {
-          RwMatrixTransform(&RStack_40,(RwMatrix *)param_1[7],rwCOMBINEPOSTCONCAT);
-          RwV3dTransformPoint((RwV3d *)(param_1 + 8),(RwV3d *)(param_1 + 0xc),(RwMatrix *)param_1[7]
+        RpSplineFindMatrix((RpSpline *)*state,10,*(float *)&state[4],&up_vector,&spline_matrix);
+        if ((RwMatrix *)state[7] != (RwMatrix *)0x0) {
+          RwMatrixTransform(&spline_matrix,(RwMatrix *)state[7],rwCOMBINEPOSTCONCAT);
+          RwV3dTransformPoint((RwV3d *)(state + 8),(RwV3d *)(state + 0xc),(RwMatrix *)state[7]
                              );
         }
-        course_storm_cb1_sub_4aaea0(&RStack_40,param_1[5],((char *)&g_data_7dc68c + 0x54));
-        *(float *)&param_1[4] = param_2 * *(float *)&param_1[3] + *(float *)&param_1[4];
-      } while (*(float *)&param_1[4] < *(float *)&param_1[2]);
+        course_storm_cb1_sub_4aaea0(&spline_matrix,state[5],((char *)&g_data_7dc68c + 0x54));
+        *(float *)&state[4] = delta * *(float *)&state[3] + *(float *)&state[4];
+      } while (*(float *)&state[4] < *(float *)&state[2]);
     }
   }
   return;

@@ -19,7 +19,7 @@
 /*007ef7b8*/ extern int game_mode;
 /* powerup_collision_callback */
 
-#define POWERUP_KIND_PICKUP 7       /* trigger kind of a powerup sphere (param_1 + 0x10) */
+#define POWERUP_KIND_PICKUP 7       /* trigger kind of a powerup sphere (trigger_obj + 0x10) */
 #define POWERUP_STATE_ACTIVE 1
 #define POWERUP_STATE_TAKEN 2
 #define OBJECT_ID_CAR_FIRST 0xff00  /* the collider ids 0xff00.. + n are the player cars */
@@ -51,7 +51,7 @@ typedef struct TrailParticle {
    during the race a car that already has a weapon only pushes the powerup away */
 static double powerup_collision_vector_to_car_r(int p0, float * p1, int * p2);
 extern void powerup_collision_vector_to_car(void);
-void powerup_collision_callback(int param_1, int param_2)
+void powerup_collision_callback(int trigger_obj, int collider_obj)
 
 {
   struct {
@@ -63,16 +63,16 @@ void powerup_collision_callback(int param_1, int param_2)
   int car;
   int spark;
 
-  if (*(int *)(param_1 + 0x10) == POWERUP_KIND_PICKUP) {
-    powerup = *(Powerup **)(param_1 + 0x14);
+  if (*(int *)(trigger_obj + 0x10) == POWERUP_KIND_PICKUP) {
+    powerup = *(Powerup **)(trigger_obj + 0x14);
     if (powerup->state == POWERUP_STATE_ACTIVE) {
-      if ((game_mode == GAME_MODE_5) && (fx_objects_all_exploded() != 0) && (*(int *)(param_2 + 0x10) == 10) &&
-          (*(int *)(param_2 + 0x10) == fx_object_get_rwp_id(0))) {
+      if ((game_mode == GAME_MODE_5) && (fx_objects_all_exploded() != 0) && (*(int *)(collider_obj + 0x10) == 10) &&
+          (*(int *)(collider_obj + 0x10) == fx_object_get_rwp_id(0))) {
         powerup->state = POWERUP_STATE_TAKEN;
         powerup->respawn_timer = powerup->respawn_time - k_f_1;
         return;
       }
-      collider = *(int *)(param_2 + 0x10);
+      collider = *(int *)(collider_obj + 0x10);
       if ((collider > 0xfeff) && (collider < 0xff08)) {
         car = collider - OBJECT_ID_CAR_FIRST;
         if (race_get_phase() != RACE_PHASE_RUNNING) {
@@ -92,11 +92,11 @@ void powerup_collision_callback(int param_1, int param_2)
         powerup_pickup_fx((int *)powerup);
         player_equip_weapon_by_index(car, powerup->type);
         sfx_play_at(PICKUP_SOUND, ((int *)powerup->spawn_position));
-        ((unsigned char *)&param_1)[0] = 0xff;
-        ((unsigned char *)&param_1)[1] = 0xff;
-        ((unsigned char *)&param_1)[2] = 0;
-        ((unsigned char *)&param_1)[3] = 0;
-        hud_label_add_world_text(g_powerup_collision_60da68[powerup->type], ((int *)powerup->spawn_position), &g_powerup_60dac0[powerup->type], &param_1, 32.0f, 2.0f);
+        ((unsigned char *)&trigger_obj)[0] = 0xff;
+        ((unsigned char *)&trigger_obj)[1] = 0xff;
+        ((unsigned char *)&trigger_obj)[2] = 0;
+        ((unsigned char *)&trigger_obj)[3] = 0;
+        hud_label_add_world_text(g_powerup_collision_60da68[powerup->type], ((int *)powerup->spawn_position), &g_powerup_60dac0[powerup->type], &trigger_obj, 32.0f, 2.0f);
         spark = PICKUP_SPARKS;
         do {
           frame.particle.pos[0] = ((int *)powerup->spawn_position)[0];

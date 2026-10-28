@@ -12,6 +12,8 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*007da6bc*/ extern undefined4 g_ptank_plugin_offset;
 /* fx_snow_ptank_create */
+#define SNOW_PTANK_PARTICLES (0x200) /* ptank particle count (inferred) */
+#define SNOW_PTANK_BUFFER_BYTES (0x4000)
 
 /* "creates the 0x200 snow/rain ptank atomic of system n with its bounding sphere and texture" */
 
@@ -47,7 +49,7 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
   frame_obj.size_x = 0x3dcccccd;
   frame_obj.size_y = 0x3dcccccd;
   if (((int *)&g_particles_75cdec)[system] == 0) {
-    buffer = RwMalloc(0x4000,0);
+    buffer = RwMalloc(SNOW_PTANK_BUFFER_BYTES,0);
     *(void **)((char *)&g_particles_75cdec + system * 4) = buffer;
   }
   if (((int *)&g_particles_75cdcc)[system] == 0) {
@@ -56,7 +58,7 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
     frame_obj.sphere_z = 0;
     frame_obj.sphere_radius = 0x447a0000;
     g_particles_75cddc = texture_in;
-    atomic = RpPTankAtomicCreate(0x200,0x80007,0);
+    atomic = RpPTankAtomicCreate(SNOW_PTANK_PARTICLES,0x80007,0);
     plugin_ptr = g_ptank_plugin_offset;
     ((int *)&g_particles_75cdcc)[system] = atomic;
     *(undefined4 *)(*(char **)(atomic + plugin_ptr) + 0xa4) = 5;
@@ -69,7 +71,7 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
                      + 0x40);
     *ptank_flags = *ptank_flags | 0x800000;
     *(undefined4 *)
-     (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4)) + 4) = 0x200;
+     (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4)) + 4) = SNOW_PTANK_PARTICLES;
     RpAtomicSetFrame(*(RpAtomic **)((char *)&g_particles_75cdcc + system * 4),frame);
     plugin_ptr = *(int *)(*(char **)(*(char **)((char *)&g_particles_75cdcc + system * 4) + 0x18) + 0x5c);
     *(undefined4 *)(plugin_ptr + 4) = frame_obj.sphere_x;
@@ -102,7 +104,7 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
     }
     RpPTankAtomicLock_00545d10
               (((undefined4 *)&g_particles_75cdcc)[system],&frame_obj.puStack_30,2,0x40000000);
-    plugin_ptr = 0x200;
+    plugin_ptr = SNOW_PTANK_PARTICLES;
     do {
       *frame_obj.puStack_30 = 0xff;
       frame_obj.puStack_30[1] = 0xff;

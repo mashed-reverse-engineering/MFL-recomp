@@ -9,32 +9,33 @@
 
 /* single caller course_warzone_cb1_sub_45db70 */
 
-float * course_warzone_cb1_sub_45da60(int param_1)
+/* Triggers an explosion effect (fx emitter, decal, sub effect) at the player marker's world position (frame+0x40), then disables the marker; returns the position pointer (inferred). */
+float * course_warzone_cb1_sub_45da60(int player_index)
 
 {
-  float *pfVar1;
-  char *iVar2;
+  float *pos;
+  char *marker_frame;
   struct {
-    undefined4 uStack_c;
-    undefined4 uStack_8;
-    undefined4 uStack_4;
+    undefined4 up_x;
+    undefined4 up_y;
+    undefined4 up_z;
   } frame;
   
-  iVar2 = player_marker_get_clump(param_1);
-  iVar2 = *(char **)(iVar2 + 4);
-  frame.uStack_c = 0;
-  frame.uStack_8 = 0x3f800000;
-  frame.uStack_4 = 0;
-  pfVar1 = (float *)(iVar2 + 0x40);
+  marker_frame = player_marker_get_clump(player_index);
+  marker_frame = *(char **)(marker_frame + 4);
+  frame.up_x = 0;
+  frame.up_y = 0x3f800000;
+  frame.up_z = 0;
+  pos = (float *)(marker_frame + 0x40);
   FID_conflict__wprintf
-            ("trigger explosion at (%.3f, %.3f, %.3f\n",(double)*pfVar1,
-             (double)*(float *)(iVar2 + 0x44),(double)*(float *)(iVar2 + 0x48));
-  course_effect_spawn_at_helper_45c8f0(pfVar1,0x41f00000);
-  fx_emitter_spawn_b_default(pfVar1,&frame.uStack_c,0x42340000,0x40000000);
-  course_warzone_cb1_sub_45da00((&g_course_warzone_8bf060)[param_1],iVar2 + 0x10);
-  explosion_decal(pfVar1,0x40000000,0x3ff33333);
-  player_marker_set_enabled(param_1,0);
-  return pfVar1;
+            ("trigger explosion at (%.3f, %.3f, %.3f\n",(double)*pos,
+             (double)*(float *)(marker_frame + 0x44),(double)*(float *)(marker_frame + 0x48));
+  course_effect_spawn_at_helper_45c8f0(pos,0x41f00000);
+  fx_emitter_spawn_b_default(pos,&frame.up_x,0x42340000,0x40000000);
+  course_warzone_cb1_sub_45da00((&g_course_warzone_8bf060)[player_index],marker_frame + 0x10);
+  explosion_decal(pos,0x40000000,0x3ff33333);
+  player_marker_set_enabled(player_index,0);
+  return pos;
 }
 
 

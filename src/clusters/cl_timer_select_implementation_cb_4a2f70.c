@@ -10,32 +10,33 @@ extern __declspec(dllimport) int __stdcall GetLocaleInfoA(int, int, char *, int)
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
 /* function pointer pushed/stored by timer_select_implementation (PUSH EAX) */
 
+/* Return the ANSI code page of the thread locale (LOCALE_IDEFAULTANSICODE 0x1004 parsed as decimal), falling back to GetACP() (inferred). */
 unsigned int timer_select_implementation_cb_4a2f70(void)
 
 {
-  unsigned long Locale;
-  int iVar1;
-  char *pcVar2;
-  unsigned int UVar3;
+  unsigned long locale_id;
+  int got_info;
+  char *digit_ptr;
+  unsigned int codepage;
   struct {
-    char cStack_c;
-    char acStack_b [7];
+    char digit_char;
+    char digits_rest [7];
   } frame;
   
-  UVar3 = 0;
-  Locale = GetThreadLocale();
-  iVar1 = GetLocaleInfoA(Locale,0x1004,&frame.cStack_c,7);
-  if ((iVar1 != 0) && (pcVar2 = &frame.cStack_c, frame.cStack_c != '\0')) {
+  codepage = 0;
+  locale_id = GetThreadLocale();
+  got_info = GetLocaleInfoA(locale_id,0x1004,&frame.digit_char,7);
+  if ((got_info != 0) && (digit_ptr = &frame.digit_char, frame.digit_char != '\0')) {
     do {
-      pcVar2 = pcVar2 + 1;
-      UVar3 = frame.cStack_c + -0x30 + UVar3 * 10;
-      frame.cStack_c = *pcVar2;
-    } while (frame.cStack_c != '\0');
-    if (UVar3 != 0) {
-      return UVar3;
+      digit_ptr = digit_ptr + 1;
+      codepage = frame.digit_char + -0x30 + codepage * 10;
+      frame.digit_char = *digit_ptr;
+    } while (frame.digit_char != '\0');
+    if (codepage != 0) {
+      return codepage;
     }
   }
-  UVar3 = GetACP();
-  return UVar3;
+  codepage = GetACP();
+  return codepage;
 }
 

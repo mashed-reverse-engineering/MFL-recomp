@@ -42,9 +42,9 @@ __declspec(naked) int rwp_world_current_activate_r(undefined4 reg_eax)
 }
 
 /* vehicle_smoke_emitters_spawn */
+#define DEBRIS_PIECE_COUNT (10) /* detachable pieces per debris set */
 
-/* "spawns smoke emitters at +/-0.4 side offsets of the vehicle (from its local matrix and velocity)
-   with a random size" */
+/* Spawns a smoke emitter at +/-0.4 on one side of the car plus a ground decal, then throws away each of the 10 detachable debris pieces with random velocity and spin, marking them done in the bit set at debris_set+0xf0 (inferred; was: "spawns smoke emitters at +/-0.4 side offsets of the vehicle, with a random size") */
 
 void vehicle_smoke_emitters_spawn(char *debris_set)
 
@@ -259,7 +259,7 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
     }
     frame.piece_index = frame.piece_index + 1;
     piece = piece + 6;
-  } while (frame.piece_index < 10);
+  } while (frame.piece_index < DEBRIS_PIECE_COUNT);
   *(undefined4 *)(debris_set + 0xf4) = 1;
   return;
 }

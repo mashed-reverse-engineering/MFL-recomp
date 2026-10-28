@@ -16,15 +16,17 @@
 /*008d8c00*/ extern undefined4 g_gamesave_result_code;
 /*008d8c08*/ extern float g_gamesave_wait_timer;
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
+#define AUTOSAVE_MESSAGE_COLOUR (0xff460000) /* message_show colour argument (inferred) */
 /* gamesave_autosave_state_machine */
 
 /* "'Waiting for autosave status' / 'status change' state machine" */
 
+/* Per-frame autosave state machine (g_autosave_step 0..11): checks save status, shows the saving message, writes the save, waits at least 1.0s, then shows the result message (inferred). */
 void gamesave_autosave_state_machine(float delta_time)
 
 {
-  int iVar1;
-  undefined4 uVar2;
+  int result;
+  undefined4 message_id;
   
   switch(g_autosave_step) {
   case 0:
@@ -33,13 +35,13 @@ void gamesave_autosave_state_machine(float delta_time)
     gamesave_poll_status();
     return;
   case 1:
-    iVar1 = stub_return_zero();
-    if (iVar1 == 0) {
+    result = stub_return_zero();
+    if (result == 0) {
       g_gamesave_status_poll_count = g_gamesave_status_poll_count + 1;
     }
     if (1 < (int)g_gamesave_status_poll_count) {
-      iVar1 = stub_return_zero();
-      if (iVar1 != 0) {
+      result = stub_return_zero();
+      if (result != 0) {
         FID_conflict__wprintf("status change\n");
         nop_stub();
         message_close();
@@ -51,15 +53,17 @@ void gamesave_autosave_state_machine(float delta_time)
   case 2:
     break;
   case 3:
-    message_show(0x237,0xff460000,0,0,0,0);
+    /* step 3: show "saving" message, gather save data, start the wait timer */
+    message_show(0x237,AUTOSAVE_MESSAGE_COLOUR,0,0,0,0);
     gamesave_gather();
     g_gamesave_wait_timer = 0.0;
     g_autosave_step = 4;
     gamesave_set_result_code(0x8);
     return;
   case 4:
-    iVar1 = gamesave_write();
-    if (iVar1 == 0) {
+    /* step 4: write the save; close the message after the 1.0s minimum wait */
+    result = gamesave_write();
+    if (result == 0) {
       if (!(g_gamesave_wait_timer > float_1_0)) {
         gamesave_poll_status(*(int *)&delta_time);
       }
@@ -71,56 +75,57 @@ void gamesave_autosave_state_machine(float delta_time)
     g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;
     return;
   case 5:
+    /* step 5: show the message that matches the save result code */
     switch(g_gamesave_result_code) {
     case 0:
-      message_show(0x1bc,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1bc,AUTOSAVE_MESSAGE_COLOUR,0xb,0x2e,0,0);
       nop_stub();
       g_autosave_step = 0xb;
       return;
     case 1:
-      uVar2 = 0x1bf;
+      message_id = 0x1bf;
       break;
     case 2:
-      uVar2 = 0x1ba;
+      message_id = 0x1ba;
       break;
     case 3:
-      message_show(0x24e,0xff460000,2,0x2f,0x30,0);
+      message_show(0x24e,AUTOSAVE_MESSAGE_COLOUR,2,0x2f,0x30,0);
       g_autosave_step = 8;
       return;
     default:
-      uVar2 = 0x1bb;
+      message_id = 0x1bb;
     }
-    message_show(uVar2,0xff460000,0xb,0x2e,0,0);
+    message_show(message_id,AUTOSAVE_MESSAGE_COLOUR,0xb,0x2e,0,0);
     g_autosave_step = 0;
     return;
   case 6:
-    message_show(0x1c5,0xff460000,2,0x2f,0x30,0);
+    message_show(0x1c5,AUTOSAVE_MESSAGE_COLOUR,2,0x2f,0x30,0);
     g_autosave_step = 7;
     return;
   case 9:
-    message_show(0x280,0xff460000,2,0x2f,0x30,0);
+    message_show(0x280,AUTOSAVE_MESSAGE_COLOUR,2,0x2f,0x30,0);
     g_autosave_step = 10;
     return;
   default:
     return;
   }
-  iVar1 = stub_return_one(0);
-  if (iVar1 == 0) {
+  result = stub_return_one(0);
+  if (result == 0) {
     gamesave_ui_autosave_done(1);
     return;
   }
-  iVar1 = stub_return_zero();
-  if (iVar1 != 0) {
+  result = stub_return_zero();
+  if (result != 0) {
     g_autosave_step = 9;
     return;
   }
-  iVar1 = stub_return_one(0);
-  if (iVar1 == 0) {
+  result = stub_return_one(0);
+  if (result == 0) {
     gamesave_ui_autosave_done(3);
     return;
   }
-  iVar1 = stub_return_one(0);
-  if ((iVar1 != 0) || (iVar1 = gamesave_exists(0), iVar1 != 0)) {
+  result = stub_return_one(0);
+  if ((result != 0) || (result = gamesave_exists(0), result != 0)) {
     g_autosave_step = 3;
     return;
   }

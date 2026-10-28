@@ -24,14 +24,15 @@ __declspec(naked) int triangle_normal_cross_array_r(float * reg_eax, RwV3d * reg
     }
 }
 
+#define AI_POLY_REC_FLOATS (0x13) /* floats per AI polygon record in the lap (stride 0x4c bytes) */
 /* ai_polygons_log_count */
 
-/* "'Number of AI polygons is %d' and builds the AI polygon records" */
+/* Logs 'Number of AI polygons is %d' (count read from course_data+0x14), then for each polygon fetches its triangle, builds a local frame (normal/right/up) and stores the corner points that fall into each quadrant of that frame into the polygon record (inferred) */
 
-void ai_polygons_log_count(CourseLap *lap,int param_2)
+void ai_polygons_log_count(CourseLap *lap,int course_data)
 
 {
-  int hit;
+  int test_result;
   RwReal *src_f;
   int cnt;
   int poly_index;
@@ -39,55 +40,55 @@ void ai_polygons_log_count(CourseLap *lap,int param_2)
   RwV3d *dst_v3;
   RwReal *dst_f;
   struct {
-    undefined1 uStack_178;
-    undefined1 uStack_177;
-    undefined1 uStack_176;
-    undefined1 uStack_175;
+    undefined1 id_lo;
+    undefined1 id_hi;
+    undefined1 id_zero;
+    undefined1 id_alpha;
   } frame;
   RwV3d pts[5];      /* the 3 triangle corners, then two more points (0xc apart on the stack) */
   RwV3d out[4];      /* RwV3dTransformPoints result */
-  RwMatrix RStack_108;
-  int local_c8;
-  RwReal aRStack_c4 [9];
-  RwMatrix RStack_a0;
-  RwReal aRStack_60 [24];     /* two 12 float records written by FUN_004c5150 (the second one is aRStack_60 + 12) */
+  RwMatrix poly_matrix;
+  int polygon_count;
+  RwReal tri_b_points [9];
+  RwMatrix poly_inverse;
+  RwReal rec_buf [24];     /* two 12 float records written by FUN_004c5150 (the second one is rec_buf + 12) */
   
-  cnt = *(int *)(param_2 + 0x14);
+  cnt = *(int *)(course_data + 0x14);
   lap->ai_polygon_count = cnt;
-  local_c8 = cnt;
+  polygon_count = cnt;
   debug_printf("Number of AI polygons is %d\n",cnt);
   poly_index = 0;
   if (0 < cnt) {
     poly_rec = (RwReal *)&lap->field_0xc1d8;
     do {
-      frame.uStack_177 = (undefined1)((uint)poly_index >> 8);
-      frame.uStack_176 = 0;
-      frame.uStack_175 = 0xff;
-      frame.uStack_178 = (undefined1)poly_index;
-      FUN_004c5150(param_2,(undefined4)&frame.uStack_178,aRStack_60,2);
-      src_f = aRStack_60;
+      frame.id_hi = (undefined1)((uint)poly_index >> 8);
+      frame.id_zero = 0;
+      frame.id_alpha = 0xff;
+      frame.id_lo = (undefined1)poly_index;
+      FUN_004c5150(course_data,(undefined4)&frame.id_lo,rec_buf,2);
+      src_f = rec_buf;
       dst_v3 = &pts[0];
       for (cnt = 9; cnt != 0; cnt = cnt + -1) {
         dst_v3->x = *src_f;
         src_f = src_f + 1;
         dst_v3 = (RwV3d *)&dst_v3->y;
       }
-      src_f = aRStack_60 + 12;
-      dst_f = aRStack_c4;
+      src_f = rec_buf + 12;
+      dst_f = tri_b_points;
       for (cnt = 9; cnt != 0; cnt = cnt + -1) {
         *dst_f = *src_f;
         src_f = src_f + 1;
         dst_f = dst_f + 1;
       }
       cnt = 0;
-      src_f = aRStack_c4;
+      src_f = tri_b_points;
       do {
         pts[4].x = *src_f;
         pts[4].y = src_f[1];
         pts[4].z = src_f[2];
-        hit = FUN_004c4780((undefined4)&pts[4],(undefined4)&pts[0]);
-        if (((hit == 0) && (hit = FUN_004c4780((undefined4)&pts[4],(undefined4)&pts[1]), hit == 0)) &&
-           (hit = FUN_004c4780((undefined4)&pts[4],(undefined4)&pts[2]), hit == 0)) {
+        test_result = FUN_004c4780((undefined4)&pts[4],(undefined4)&pts[0]);
+        if (((test_result == 0) && (test_result = FUN_004c4780((undefined4)&pts[4],(undefined4)&pts[1]), test_result == 0)) &&
+           (test_result = FUN_004c4780((undefined4)&pts[4],(undefined4)&pts[2]), test_result == 0)) {
           pts[3].x = pts[4].x;
           pts[3].y = pts[4].y;
           pts[3].z = pts[4].z;
@@ -98,23 +99,23 @@ void ai_polygons_log_count(CourseLap *lap,int param_2)
       } while (cnt < 3);
       triangle_normal_cross_array_r((float *)&pts[0],(RwV3d *)(poly_rec + -6),1);
       FUN_004c4620((undefined4)(poly_rec + -3),(undefined4)&pts[0],4);
-      RStack_108.pos.y = poly_rec[-2];
-      RStack_108.pos.z = poly_rec[-1];
-      RStack_108.pos.x = poly_rec[-3];
-      RStack_108.at.y = poly_rec[-5];
-      RStack_108.at.z = poly_rec[-4];
-      RStack_108.right.x = RStack_108.at.z - RStack_108.at.y * k_f_0;
-      RStack_108.at.x = poly_rec[-6];
-      RStack_108.right.y = RStack_108.at.x * k_f_0 - RStack_108.at.z * k_f_0;
-      RStack_108.right.z = RStack_108.at.y * k_f_0 - RStack_108.at.x;
-      RwV3dNormalize(&RStack_108.right,&RStack_108.right);
-      RStack_108.up.x = RStack_108.right.z * RStack_108.at.y - RStack_108.right.y * RStack_108.at.z;
-      RStack_108.up.y = RStack_108.right.x * RStack_108.at.z - RStack_108.right.z * RStack_108.at.x;
-      RStack_108.up.z = RStack_108.right.y * RStack_108.at.x - RStack_108.right.x * RStack_108.at.y;
-      RwV3dNormalize(&RStack_108.up,&RStack_108.up);
-      RwMatrixUpdate(&RStack_108);
-      RwMatrixInvert(&RStack_a0,&RStack_108);
-      RwV3dTransformPoints(out,&pts[0],4,&RStack_a0);
+      poly_matrix.pos.y = poly_rec[-2];
+      poly_matrix.pos.z = poly_rec[-1];
+      poly_matrix.pos.x = poly_rec[-3];
+      poly_matrix.at.y = poly_rec[-5];
+      poly_matrix.at.z = poly_rec[-4];
+      poly_matrix.right.x = poly_matrix.at.z - poly_matrix.at.y * k_f_0;
+      poly_matrix.at.x = poly_rec[-6];
+      poly_matrix.right.y = poly_matrix.at.x * k_f_0 - poly_matrix.at.z * k_f_0;
+      poly_matrix.right.z = poly_matrix.at.y * k_f_0 - poly_matrix.at.x;
+      RwV3dNormalize(&poly_matrix.right,&poly_matrix.right);
+      poly_matrix.up.x = poly_matrix.right.z * poly_matrix.at.y - poly_matrix.right.y * poly_matrix.at.z;
+      poly_matrix.up.y = poly_matrix.right.x * poly_matrix.at.z - poly_matrix.right.z * poly_matrix.at.x;
+      poly_matrix.up.z = poly_matrix.right.y * poly_matrix.at.x - poly_matrix.right.x * poly_matrix.at.y;
+      RwV3dNormalize(&poly_matrix.up,&poly_matrix.up);
+      RwMatrixUpdate(&poly_matrix);
+      RwMatrixInvert(&poly_inverse,&poly_matrix);
+      RwV3dTransformPoints(out,&pts[0],4,&poly_inverse);
       if (!(k_f_0 > out[0].x)) {
 LAB_00488a2c:
         if (k_f_0 < out[0].x) {
@@ -240,8 +241,8 @@ LAB_00488d14:
         }
       }
       poly_index = poly_index + 1;
-      poly_rec = poly_rec + 0x13;
-    } while (poly_index < local_c8);
+      poly_rec = poly_rec + AI_POLY_REC_FLOATS;
+    } while (poly_index < polygon_count);
   }
   course_path_segments_distance_and_heading((undefined4)lap);
   return;

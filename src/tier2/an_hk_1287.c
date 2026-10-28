@@ -3,20 +3,21 @@
 
 /* no context */
 
-char *gap_5ccb30(char *param_1,char *unused_2,undefined4 *param_3)
+/* Copy a 12-dword block from src into obj+0x44 and set flag 0x80 in obj+0x78 (inferred setter); returns obj. */
+char *gap_5ccb30(char *obj,char *unused_2,undefined4 *src)
 
 {
-  int iVar1;
-  undefined4 *puVar2;
+  int words_left;
+  undefined4 *dst;
   
-  puVar2 = (undefined4 *)(param_1 + 0x44);
-  for (iVar1 = 0xc; iVar1 != 0; iVar1 = iVar1 + -1) {
-    *puVar2 = *param_3;
-    param_3 = param_3 + 1;
-    puVar2 = puVar2 + 1;
+  dst = (undefined4 *)(obj + 0x44);
+  for (words_left = 0xc; words_left != 0; words_left = words_left + -1) {
+    *dst = *src;
+    src = src + 1;
+    dst = dst + 1;
   }
-  *(uint *)(param_1 + 0x78) = *(uint *)(param_1 + 0x78) | 0x80;
-  return param_1;
+  *(uint *)(obj + 0x78) = *(uint *)(obj + 0x78) | 0x80;
+  return obj;
 }
 
 

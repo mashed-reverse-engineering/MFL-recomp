@@ -21,50 +21,52 @@
 /*008d8c08*/ extern float g_gamesave_wait_timer;
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
+#define MESSAGE_COLOUR (0xff460000) /* message_show colour argument (ARGB, dark red; inferred) */
 /* gamesave_load_state_machine */
 
 /* "'Waiting for load status' state machine" */
 
+/* Load-game UI state machine step (g_gamesave_load_step): waits for status, checks the device, loads the save, shows result messages; delta_time is added to g_gamesave_wait_timer (inferred). */
 void gamesave_load_state_machine(float delta_time)
 
 {
-  int iVar1;
-  char *_Format;
+  int result;
+  char *log_text;
   
   switch(g_gamesave_load_step) {
   case 0:
     gamesave_poll_status();
     return;
   case 1:
-    iVar1 = stub_return_zero();
-    if (iVar1 == 0) {
+    result = stub_return_zero();
+    if (result == 0) {
       g_gamesave_status_poll_count = g_gamesave_status_poll_count + 1;
     }
     if (1 < (int)g_gamesave_status_poll_count) {
-      iVar1 = stub_return_zero();
-      if (iVar1 != 0) {
+      result = stub_return_zero();
+      if (result != 0) {
         FID_conflict__wprintf("status change\n");
         nop_stub();
         message_close();
       }
-      message_show(0x21a,0xff460000,2,0x2f,0x30,0);
+      message_show(0x21a,MESSAGE_COLOUR,2,0x2f,0x30,0);
       g_gamesave_load_step = 7;
     }
     FID_conflict__wprintf("Waiting for load status\n");
     return;
   case 2:
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       gamesave_ui_load_done(1);
       return;
     }
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       gamesave_ui_load_done(3);
       return;
     }
-    iVar1 = gamesave_exists(0);
-    if (iVar1 != 0) {
+    result = gamesave_exists(0);
+    if (result != 0) {
       g_gamesave_load_step = 3;
       return;
     }
@@ -72,7 +74,7 @@ void gamesave_load_state_machine(float delta_time)
     return;
   case 3:
     g_gamesave_load_failed = 0;
-    message_show(0x236,0xff460000,0,0,0,0);
+    message_show(0x236,MESSAGE_COLOUR,0,0,0,0);
     g_gamesave_wait_timer = 0.0;
     g_gamesave_load_step = 4;
     gamesave_set_result_code(5);
@@ -83,22 +85,22 @@ void gamesave_load_state_machine(float delta_time)
   case 5:
     switch(g_gamesave_result_code) {
     case 0:
-      message_show(0x1c1,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1c1,MESSAGE_COLOUR,0xb,0x2e,0,0);
       gamesave_apply();
       g_gamesave_load_step = 6;
       return;
     case 1:
-      message_show(0x1bf,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1bf,MESSAGE_COLOUR,0xb,0x2e,0,0);
       g_gamesave_load_step = 0;
       return;
     default:
-      message_show(0x1c0,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1c0,MESSAGE_COLOUR,0xb,0x2e,0,0);
       g_gamesave_load_step = 0;
       g_gamesave_load_failed = 1;
       break;
     case 3:
     case 4:
-      message_show(0x1be,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1be,MESSAGE_COLOUR,0xb,0x2e,0,0);
       g_gamesave_load_step = 0;
       return;
     }
@@ -107,20 +109,20 @@ void gamesave_load_state_machine(float delta_time)
   default:
     return;
   }
-  iVar1 = gamesave_load();
-  if (iVar1 == 0) {
+  result = gamesave_load();
+  if (result == 0) {
     if (float_1_0 < g_gamesave_wait_timer) {
       message_close();
       g_gamesave_load_step = 5;
       goto LAB_0040b8d2;
     }
     gamesave_poll_status(*(int *)&delta_time);
-    _Format = "Waiting for time to elapse\n";
+    log_text = "Waiting for time to elapse\n";
   }
   else {
-    _Format = "Waiting for load to complete\n";
+    log_text = "Waiting for load to complete\n";
   }
-  FID_conflict__wprintf(_Format);
+  FID_conflict__wprintf(log_text);
 LAB_0040b8d2:
   g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;
   return;

@@ -6,29 +6,30 @@
 
 /* single caller course_warzone_cb1 */
 
-undefined4 course_warzone_cb1_sub_45cd70(char *param_1,RwReal *param_2,RwReal *param_3)
+/* Copies the 16 floats src_floats into a matrix, post-concats inverse(obj+0x54) and *(obj+0x94), orthonormalizes it and copies the 16 floats to dst_floats; returns 1 (inferred). */
+undefined4 course_warzone_cb1_sub_45cd70(char *obj,RwReal *src_floats,RwReal *dst_floats)
 
 {
-  int iVar1;
-  RwMatrix *pRVar2;
-  RwMatrix RStack_80;
-  RwMatrix RStack_40;
+  int remaining;
+  RwMatrix *mtx_cursor;
+  RwMatrix work_mtx;
+  RwMatrix inv_mtx;
   
-  pRVar2 = &RStack_80;
-  for (iVar1 = 0x10; iVar1 != 0; iVar1 = iVar1 + -1) {
-    (pRVar2->right).x = *param_2;
-    param_2 = param_2 + 1;
-    pRVar2 = (RwMatrix *)&(pRVar2->right).y;
+  mtx_cursor = &work_mtx;
+  for (remaining = 0x10; remaining != 0; remaining = remaining + -1) {
+    (mtx_cursor->right).x = *src_floats;
+    src_floats = src_floats + 1;
+    mtx_cursor = (RwMatrix *)&(mtx_cursor->right).y;
   }
-  RwMatrixInvert(&RStack_40,(RwMatrix *)(param_1 + 0x54));
-  RwMatrixTransform(&RStack_80,&RStack_40,rwCOMBINEPOSTCONCAT);
-  RwMatrixTransform(&RStack_80,*(RwMatrix **)(param_1 + 0x94),rwCOMBINEPOSTCONCAT);
-  MatrixOrthoNormalize_004d3d50(&RStack_80,&RStack_80);
-  pRVar2 = &RStack_80;
-  for (iVar1 = 0x10; iVar1 != 0; iVar1 = iVar1 + -1) {
-    *param_3 = (pRVar2->right).x;
-    pRVar2 = (RwMatrix *)&(pRVar2->right).y;
-    param_3 = param_3 + 1;
+  RwMatrixInvert(&inv_mtx,(RwMatrix *)(obj + 0x54));
+  RwMatrixTransform(&work_mtx,&inv_mtx,rwCOMBINEPOSTCONCAT);
+  RwMatrixTransform(&work_mtx,*(RwMatrix **)(obj + 0x94),rwCOMBINEPOSTCONCAT);
+  MatrixOrthoNormalize_004d3d50(&work_mtx,&work_mtx);
+  mtx_cursor = &work_mtx;
+  for (remaining = 0x10; remaining != 0; remaining = remaining + -1) {
+    *dst_floats = (mtx_cursor->right).x;
+    mtx_cursor = (RwMatrix *)&(mtx_cursor->right).y;
+    dst_floats = dst_floats + 1;
   }
   return 1;
 }

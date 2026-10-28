@@ -30,17 +30,18 @@
 
 /* "phase 5 handler of game_tick" */
 
-void race_phase_5_update_n(int in_eax)
+/* Phase 5 (countdown, inferred) tick: finishes time-trial events when needed, counts g_phase_timer down by elapsed_ticks, resets/charges turbo per active car, and once the endpoint value reaches k_f_1_86 spends turbo, saves fields +bf4/+bf8 and switches to RACE_PHASE_RACING. */
+void race_phase_5_update_n(int elapsed_ticks)
 
 {
   int event_type;
   int car_active;
-  undefined4 uVar1;
-  undefined4 *puVar2;
-  int iVar3;
-  float local_4;
+  undefined4 car_field;
+  undefined4 *saved_turbo;
+  int setup_off;
+  float endpoint_value;
   
-  local_4 = 0.0;
+  endpoint_value = 0.0;
   event_type = course_get_course_8c879c();
   if (((event_type != 0) && (event_type = ui_get_menu_69d2d0(), event_type == 0)) &&
      ((event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_0 ||
@@ -48,41 +49,41 @@ void race_phase_5_update_n(int in_eax)
        (event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_2)))))) {
     race_finish();
   }
-  g_phase_timer = g_phase_timer - in_eax;
+  g_phase_timer = g_phase_timer - elapsed_ticks;
   g_race_7ef7fc = (uint)(g_time_limit_ticks < g_race_clock_a);
   event_type = race_get_setup_index();
   course_hook11(**(undefined4 **)(g_race_setup + 4 + event_type * 4));
   race_mark_ai_slots();
   event_type = 0;
-  iVar3 = 0xb8;
+  setup_off = 0xb8;
   do {
-    if ((*(int *)(iVar3 + g_race_setup) != 0) &&
+    if ((*(int *)(setup_off + g_race_setup) != 0) &&
        (car_active = car_is_active(event_type), car_active == 1)) {
       car_active = event_type;
       car_reset_state(car_active);
-      car_turbo_charge_update(event_type,in_eax,car_active);
+      car_turbo_charge_update(event_type,elapsed_ticks,car_active);
     }
-    iVar3 = iVar3 + 4;
+    setup_off = setup_off + 4;
     event_type = event_type + 1;
-  } while (iVar3 < 200);
-  endpoint_panel_get_value(&local_4);
-  if (k_f_1_86 <= local_4) {
+  } while (setup_off < 200);
+  endpoint_panel_get_value(&endpoint_value);
+  if (k_f_1_86 <= endpoint_value) {
     event_type = 0;
-    puVar2 = g_race_7eeb88;
-    iVar3 = 0xb8;
+    saved_turbo = g_race_7eeb88;
+    setup_off = 0xb8;
     do {
-      if ((*(int *)(iVar3 + g_race_setup) != 0) &&
+      if ((*(int *)(setup_off + g_race_setup) != 0) &&
          (car_active = car_is_active(event_type), car_active == 1)) {
         car_turbo_spend(event_type);
-        uVar1 = car_get_field_bf4(event_type);
-        puVar2[-1] = uVar1;
-        uVar1 = car_get_field_bf8(event_type);
-        *puVar2 = uVar1;
+        car_field = car_get_field_bf4(event_type);
+        saved_turbo[-1] = car_field;
+        car_field = car_get_field_bf8(event_type);
+        *saved_turbo = car_field;
       }
-      iVar3 = iVar3 + 4;
+      setup_off = setup_off + 4;
       event_type = event_type + 1;
-      puVar2 = puVar2 + 3;
-    } while (iVar3 < 200);
+      saved_turbo = saved_turbo + 3;
+    } while (setup_off < 200);
     g_phase_timer = 0;
     event_type = get_event_type();
     if (((event_type == EVENT_TIME_TRIAL_0) || (event_type = get_event_type(), event_type == EVENT_TIME_TRIAL_1)) ||

@@ -3,26 +3,27 @@
 
 /* single caller course_warzone_cb1_sub_45da60 */
 
-void course_warzone_cb1_sub_45da00(int *param_1,char *param_2)
+/* Spawns into every free (life == 0) entry of the 0x30-byte-stride pool at src_obj+0x30..0x38 position with life 100 and scale 1.0 (inferred). */
+void course_warzone_cb1_sub_45da00(int *pool,char *src_obj)
 
 {
-  int *piVar1;
-  int iVar2;
+  int *life_ptr;
+  int index;
   
-  iVar2 = 0;
-  if (0 < *param_1) {
-    piVar1 = (int *)(param_1[1] + 0x24);
+  index = 0;
+  if (0 < *pool) {
+    life_ptr = (int *)(pool[1] + 0x24);
     do {
-      if (*piVar1 == 0) {
-        piVar1[-3] = *(int *)(param_2 + 0x30);
-        piVar1[-2] = *(int *)(param_2 + 0x34);
-        piVar1[-1] = *(int *)(param_2 + 0x38);
-        *piVar1 = 100;
-        piVar1[2] = 0x3f800000;
+      if (*life_ptr == 0) {
+        life_ptr[-3] = *(int *)(src_obj + 0x30);
+        life_ptr[-2] = *(int *)(src_obj + 0x34);
+        life_ptr[-1] = *(int *)(src_obj + 0x38);
+        *life_ptr = 100;
+        life_ptr[2] = 0x3f800000;
       }
-      piVar1 = piVar1 + 0xc;
-      iVar2 = iVar2 + 1;
-    } while (iVar2 < *param_1);
+      life_ptr = life_ptr + 0xc;
+      index = index + 1;
+    } while (index < *pool);
   }
   return;
 }

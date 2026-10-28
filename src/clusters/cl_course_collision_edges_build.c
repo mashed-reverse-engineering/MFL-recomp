@@ -3,6 +3,8 @@
 #include "mfl_tier2.h"
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 extern void *memset(void *, int, unsigned int);
+#define EDGE_BYTES_PER_TRIANGLE (0x48) /* 3 edge records of 6 ints */
+#define EDGE_RECORD_BYTES (0x18) /* 6 ints */
 /* course_collision_edges_build */
 
 /* "allocates and fills the 0x48 byte per triangle edge records (3 per triangle)" */
@@ -19,22 +21,22 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
   int *mem;
   void *packed;
   int *edge;
-  int n;
-  int tmp;
+  int index_or_remaining;
+  int other_tri_or_word_count;
   int *other;
   int edge_count;
   int *dst;
   struct {
-    int local_c;
-    int iStack_8;
-    int iStack_4;
+    int shared_edge_count;
+    int outer_index;
+    int outer_left;
   } frame;
   
   edge_count = tri_count * 3;
-  frame.local_c = 0;
-  mem = RwMalloc(tri_count * 0x48,0);
-  memset(mem,0,tri_count * 0x48);
-  n = 0;
+  frame.shared_edge_count = 0;
+  mem = RwMalloc(tri_count * EDGE_BYTES_PER_TRIANGLE,0);
+  memset(mem,0,tri_count * EDGE_BYTES_PER_TRIANGLE);
+  index_or_remaining = 0;
   edge = mem;
   if (0 < tri_count) {
     do {
@@ -42,79 +44,79 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
       edge[5] = (uint)tri_idx[1];
       *edge = (int)tri_idx;
       edge[1] = 0;
-      edge[2] = n;
+      edge[2] = index_or_remaining;
       edge[3] = -1;
       edge[10] = (uint)tri_idx[1];
       edge[0xb] = (uint)tri_idx[2];
       edge[6] = (int)tri_idx;
-      edge[8] = n;
+      edge[8] = index_or_remaining;
       edge[7] = 0;
       edge[9] = -1;
       edge[0x10] = (uint)tri_idx[2];
       edge[0x11] = (uint)*tri_idx;
       edge[0xc] = (int)tri_idx;
-      edge[0xe] = n;
+      edge[0xe] = index_or_remaining;
       edge[0xd] = 0;
       edge[0xf] = -1;
-      n = n + 1;
+      index_or_remaining = index_or_remaining + 1;
       tri_idx = tri_idx + 4;
       edge = edge + 0x12;
-    } while (n < tri_count);
+    } while (index_or_remaining < tri_count);
   }
-  frame.iStack_4 = edge_count + -1;
-  if (0 < frame.iStack_4) {
-    frame.iStack_8 = 1;
+  frame.outer_left = edge_count + -1;
+  if (0 < frame.outer_left) {
+    frame.outer_index = 1;
     edge = mem;
     do {
-      if ((*edge != 0) && (frame.iStack_8 < edge_count)) {
-        n = edge_count - frame.iStack_8;
+      if ((*edge != 0) && (frame.outer_index < edge_count)) {
+        index_or_remaining = edge_count - frame.outer_index;
         other = edge;
         do {
           other = other + 6;
-          tmp = *other;
-          if (tmp != 0) {
+          other_tri_or_word_count = *other;
+          if (other_tri_or_word_count != 0) {
             if (collision_edge_shares_vertex_pair_r(edge,other) != 0) {
-              edge[1] = tmp;
+              edge[1] = other_tri_or_word_count;
               edge[3] = other[2];
               *other = 0;
               other[2] = -1;
             }
           }
-          n = n + -1;
-        } while (n != 0);
+          index_or_remaining = index_or_remaining + -1;
+        } while (index_or_remaining != 0);
       }
       edge = edge + 6;
-      frame.iStack_8 = frame.iStack_8 + 1;
-      frame.iStack_4 = frame.iStack_4 + -1;
-    } while (frame.iStack_4 != 0);
+      frame.outer_index = frame.outer_index + 1;
+      frame.outer_left = frame.outer_left + -1;
+    } while (frame.outer_left != 0);
   }
   edge = mem;
-  n = edge_count;
+  index_or_remaining = edge_count;
   if (0 < edge_count) {
     do {
       if ((*edge != 0) && (edge[1] != 0)) {
-        frame.local_c = frame.local_c + 1;
+        frame.shared_edge_count = frame.shared_edge_count + 1;
       }
-      n = n + -1;
+      index_or_remaining = index_or_remaining + -1;
       edge = edge + 6;
-    } while (n != 0);
+    } while (index_or_remaining != 0);
   }
-  packed = RwMalloc(frame.local_c * 0x18,0);
+  packed = RwMalloc(frame.shared_edge_count * EDGE_RECORD_BYTES,0);
   *out_edges = (int)packed;
-  out_edges[1] = frame.local_c;
+  out_edges[1] = frame.shared_edge_count;
   if (0 < edge_count) {
-    n = 0;
+    index_or_remaining = 0;
     edge = mem;
     do {
       if ((*edge != 0) && (edge[1] != 0)) {
         other = edge;
-        dst = (int *)(*out_edges + n);
-        for (tmp = 6; tmp != 0; tmp = tmp + -1) {
+        dst = (int *)(*out_edges + index_or_remaining);
+        for (other_tri_or_word_count = 6; other_tri_or_word_count != 0; other_tri_or_word_count = other_tri_or_word_count + -1) {
           *dst = *other;
           other = other + 1;
           dst = dst + 1;
         }
-        n = n + 0x18;
+        index_or_remaining = index_or_remaining + EDGE_RECORD_BYTES;
       }
       edge = edge + 6;
       edge_count = edge_count + -1;

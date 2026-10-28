@@ -12,27 +12,28 @@ typedef int (__fastcall *ThisMethod0)(int *self, int unused_edx);
 typedef int (__fastcall *ThisMethod1)(int *self, int unused_edx, int arg);
 /* FUN_004aca50 */
 
-int FUN_004aca50_n(int *param_1)
+/* Starts the object (inferred): under the critical section at obj+0x94, if state (obj[0x19]) != 1 sets it to 1, timeBeginPeriod(1), calls vtable +0x40, then +0x60, or +0x54 with obj[0x1b] (signals event obj[0x15] on success). */
+int FUN_004aca50_n(int *obj)
 
 {
   LPCRITICAL_SECTION lpCriticalSection;
-  int uVar1;
-  int iVar2;
+  int result;
+  int hr;
   
-  lpCriticalSection = (LPCRITICAL_SECTION)(param_1 + 0x25);
+  lpCriticalSection = (LPCRITICAL_SECTION)(obj + 0x25);
   EnterCriticalSection(lpCriticalSection);
-  if (param_1[0x19] != 1) {
-    param_1[0x19] = 1;
+  if (obj[0x19] != 1) {
+    obj[0x19] = 1;
     timeBeginPeriod(1);
-    (*(ThisMethod0 *)(*param_1 + 0x40))(param_1,0);
-    if (param_1[0x1b] == 0) {
-      uVar1 = (*(ThisMethod0 *)(*param_1 + 0x60))(param_1,0);
+    (*(ThisMethod0 *)(*obj + 0x40))(obj,0);
+    if (obj[0x1b] == 0) {
+      result = (*(ThisMethod0 *)(*obj + 0x60))(obj,0);
       LeaveCriticalSection(lpCriticalSection);
-      return uVar1;
+      return result;
     }
-    iVar2 = (*(ThisMethod1 *)(*param_1 + 0x54))(param_1,0,param_1[0x1b]);
-    if (iVar2 == 0) {
-      SetEvent(param_1[0x15]);
+    hr = (*(ThisMethod1 *)(*obj + 0x54))(obj,0,obj[0x1b]);
+    if (hr == 0) {
+      SetEvent(obj[0x15]);
     }
   }
   LeaveCriticalSection(lpCriticalSection);

@@ -13,41 +13,45 @@
 /*006a07d8*/ extern undefined g_course_smoke_6a07d8;
 /*006a1418*/ extern undefined4 g_course_particle_6a1418;
 /*007ef7f4*/ extern float g_tick_seconds;
+#define COLOUR_ALPHA_SHIFT (0x18)
+#define SMOKE_AGE_ARRAY_BYTES (0x400) /* 256 float ages at g_course_particle_6a1418 */
+#define SMOKE_POS_Y_START (0x6a081c) /* y of the first of 256 smoke positions (3 floats each, inferred) */
 /* course_highway_cb1_impl */
 
 /* tail-jump target of thunk course_highway_cb1_sub_453bf0 */
 
+/* Per-frame highway smoke: for each of 256 particles still within its lifetime, emit a fading, rotating particle at its position, then advance its age and raise it (inferred). */
 void course_highway_cb1_impl(void)
 
 {
-  undefined1 uVar1;
-  float *pfVar2;
-  float *pfVar3;
+  undefined1 alpha_byte;
+  float *age_ptr;
+  float *pos_y_ptr;
   struct {
-    undefined4 uStack_c;
-    float fStack_8;
-    uint uStack_4;
+    undefined4 color;
+    float life_frac;
+    uint base_alpha;
   } frame;
   
-  pfVar3 = (float *)0x6a081c;
-  pfVar2 = (float *)&g_course_particle_6a1418;
+  pos_y_ptr = (float *)SMOKE_POS_Y_START;
+  age_ptr = (float *)&g_course_particle_6a1418;
   do {
-    if (*pfVar2 <= g_course_particle_60d8a4) {
-      frame.uStack_4 = g_data_60d8ac >> 0x18;
-      frame.fStack_8 = *pfVar2 / g_course_particle_60d8a4;
-      frame.uStack_c = g_data_60d8ac;
-      uVar1 = ((int)((1.0f - frame.fStack_8) * frame.uStack_4));
-      frame.uStack_c = CONCAT13(uVar1,(undefined3)frame.uStack_c);
-      particles_set_position(pfVar3 + -1);
-      particles_set_color(&frame.uStack_c);
-      gfx_set_gfx_6c50c8(frame.fStack_8 * k_f_1_5707964);
+    if (*age_ptr <= g_course_particle_60d8a4) {
+      frame.base_alpha = g_data_60d8ac >> COLOUR_ALPHA_SHIFT;
+      frame.life_frac = *age_ptr / g_course_particle_60d8a4;
+      frame.color = g_data_60d8ac;
+      alpha_byte = ((int)((1.0f - frame.life_frac) * frame.base_alpha));
+      frame.color = CONCAT13(alpha_byte,(undefined3)frame.color);
+      particles_set_position(pos_y_ptr + -1);
+      particles_set_color(&frame.color);
+      gfx_set_gfx_6c50c8(frame.life_frac * k_f_1_5707964);
       particles_add(&g_course_smoke_6a07d8);
-      *pfVar2 = g_tick_seconds + *pfVar2;
-      *pfVar3 = g_tick_seconds * k_f_0_05 + *pfVar3;
+      *age_ptr = g_tick_seconds + *age_ptr;
+      *pos_y_ptr = g_tick_seconds * k_f_0_05 + *pos_y_ptr;
     }
-    pfVar2 = pfVar2 + 1;
-    pfVar3 = pfVar3 + 3;
-  } while ((int)pfVar2 < (int)&g_course_particle_6a1418 + 0x400);
+    age_ptr = age_ptr + 1;
+    pos_y_ptr = pos_y_ptr + 3;
+  } while ((int)age_ptr < (int)&g_course_particle_6a1418 + SMOKE_AGE_ARRAY_BYTES);
   particles_flush(&g_course_smoke_6a07d8);
   return;
 }

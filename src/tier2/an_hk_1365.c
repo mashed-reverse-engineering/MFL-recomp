@@ -3,17 +3,18 @@
 
 /* no context */
 
-undefined4 __stdcall gap_5d0000(char *param_1, undefined4 *param_2)
+/* Copies the 4 words pointed to by obj+0x10 into out_vec4 and returns 0, or E_FAIL (0x80004005) if that pointer is NULL (inferred). */
+undefined4 __stdcall gap_5d0000(char *obj, undefined4 *out_vec4)
 
 {
-  undefined4 *puVar1;
+  undefined4 *src_vec4;
   
-  puVar1 = *(undefined4 **)(param_1 + 0x10);
-  if (puVar1 != (undefined4 *)0x0) {
-    *param_2 = *puVar1;
-    param_2[1] = puVar1[1];
-    param_2[2] = puVar1[2];
-    param_2[3] = puVar1[3];
+  src_vec4 = *(undefined4 **)(obj + 0x10);
+  if (src_vec4 != (undefined4 *)0x0) {
+    *out_vec4 = *src_vec4;
+    out_vec4[1] = src_vec4[1];
+    out_vec4[2] = src_vec4[2];
+    out_vec4[3] = src_vec4[3];
     return 0;
   }
   return 0x80004005;

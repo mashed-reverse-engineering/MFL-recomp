@@ -14,7 +14,8 @@
 
 /* "draws a textured quad of the snow object at a random alpha, 4 corners relative to the object" */
 
-void course_arctic_snow_quad_draw(char *param_1,char *param_2)
+/* Draws one camera-facing snow quad (4 corners transformed by snow_obj+4, offset by the anchor position at anchor+0x30) with a random 0..255 alpha, and sets g_course_arctic_8c590c to alpha/8 when its culling sphere is visible, else 0 (inferred). */
+void course_arctic_snow_quad_draw(char *snow_obj,char *anchor)
 
 {
   int u_row;
@@ -66,14 +67,14 @@ void course_arctic_snow_quad_draw(char *param_1,char *param_2)
   }
   RwRenderStateSet(rwRENDERSTATESHADEMODE,(void *)0x2);
   RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE,(void *)0x1);
-  RwV3dTransformPoints(frame.corner,frame.corner,4,(RwMatrix *)(param_1 + 4));
+  RwV3dTransformPoints(frame.corner,frame.corner,4,(RwMatrix *)(snow_obj + 4));
   alpha = (int)random_range(0,0x437f0000);
-  u_row = *(int *)(param_1 + 0x44);
-  v_row = *(int *)(param_1 + 0x48);
+  u_row = *(int *)(snow_obj + 0x44);
+  v_row = *(int *)(snow_obj + 0x48);
   for (corner = 0; corner < 4; corner = corner + 1) {
-    frame.vertex[corner].objVertex.x = frame.corner[corner].x + *(float *)(param_2 + 0x30);
-    frame.vertex[corner].objVertex.y = frame.corner[corner].y + *(float *)(param_2 + 0x34);
-    frame.vertex[corner].objVertex.z = frame.corner[corner].z + *(float *)(param_2 + 0x38);
+    frame.vertex[corner].objVertex.x = frame.corner[corner].x + *(float *)(anchor + 0x30);
+    frame.vertex[corner].objVertex.y = frame.corner[corner].y + *(float *)(anchor + 0x34);
+    frame.vertex[corner].objVertex.z = frame.corner[corner].z + *(float *)(anchor + 0x38);
     frame.vertex[corner].color = alpha << 0x18 | 0xffffff;
     frame.vertex[corner].u = frame.u_table[u_row * 4 + corner];
     frame.vertex[corner].v = frame.v_table[v_row * 4 + corner];
@@ -84,10 +85,10 @@ void course_arctic_snow_quad_draw(char *param_1,char *param_2)
     RwIm3DEnd();
   }
   sphere = (RwSphere *)frame.u_table;
-  sphere->center.x = *(float *)(param_1 + 0x34) + *(float *)(param_2 + 0x30);
-  sphere->center.y = *(float *)(param_1 + 0x38) + *(float *)(param_2 + 0x34);
+  sphere->center.x = *(float *)(snow_obj + 0x34) + *(float *)(anchor + 0x30);
+  sphere->center.y = *(float *)(snow_obj + 0x38) + *(float *)(anchor + 0x34);
   sphere->radius = 0.25;
-  sphere->center.z = *(float *)(param_1 + 0x3c) + *(float *)(param_2 + 0x38);
+  sphere->center.z = *(float *)(snow_obj + 0x3c) + *(float *)(anchor + 0x38);
   camera = (RwCamera *)get_viewport_camera(0);
   test_result = RwCameraFrustumTestSphere(camera,sphere);
   if ((test_result != rwSPHEREINSIDE) && (test_result != rwSPHEREBOUNDARY)) {

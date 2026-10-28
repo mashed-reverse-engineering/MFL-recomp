@@ -36,54 +36,58 @@ extern char LAB_004a8e60[];
 /*007e7704*/ extern undefined4 g_app_7e7704;
 
 
+#define VIDEO_MODE_RECORD_SIZE (0x18) /* stride of one mode record in g_video_mode_lists[subsystem] (inferred) */
+#define VIDEO_SUBSYSTEM_NAME_STRIDE (0x50) /* stride of subsystem name strings at g_video_7712ec (inferred) */
+#define VIDEO_DIALOG_RESOURCE_ID (0x65) /* DialogBoxParamA template id (inferred) */
 /* video_config_dialog */
 /* compile: /GS */
 
 /* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
 /* "'Number of subsystems: %d': video_cfg_load, dialog setup" */
 
+/* Select the video subsystem/mode: log all subsystems and modes, load saved config (or show the settings dialog when show_dialog != 0), apply it to RenderWare, set window style for fullscreen modes, and copy quality options into game globals; returns 0 if the dialog was cancelled, else 1 (inferred). */
 static int video_mode_name_format_004a8670_r(int p0, undefined4 p1);
 extern void video_mode_name_format_004a8670(void);
 undefined4 __cdecl video_config_dialog(int show_dialog)
 
 {
   int dialog_result;
-  int iVar1;
+  int zero_words_left;
   int subsystem;
   int mode;
-  undefined4 *puVar2;
-  char iStack_64[32];
+  undefined4 *zero_ptr;
+  char loop_offsets[32];
   struct RwVideoMode mode_info;
-  char uStack_44[64];
+  char mode_name_buf[64];
   
   video_dialog_init();
   log_printf("Number of subsystems: %d\n",g_app_771500);
   subsystem = 0;
   if (0 < g_app_771500) {
-    (*(int *)(iStack_64 + 4)) = 0;
+    (*(int *)(loop_offsets + 4)) = 0;
     do {
-      log_printf(&g_gfx_5de630,(*(int *)(iStack_64 + 4)) + g_video_7712ec);
+      log_printf(&g_gfx_5de630,(*(int *)(loop_offsets + 4)) + g_video_7712ec);
       mode = 0;
       if (0 < *(int *)(g_video_mode_counts + subsystem * 4)) {
-        (*(int *)iStack_64) = 0;
+        (*(int *)loop_offsets) = 0;
         do {
-          (*(undefined1 *)uStack_44) = 0;
-          puVar2 = ((undefined4 *)(uStack_44 + 1));
-          for (iVar1 = 0xf; iVar1 != 0; iVar1 = iVar1 + -1) {
-            *puVar2 = 0;
-            puVar2 = puVar2 + 1;
+          (*(undefined1 *)mode_name_buf) = 0;
+          zero_ptr = ((undefined4 *)(mode_name_buf + 1));
+          for (zero_words_left = 0xf; zero_words_left != 0; zero_words_left = zero_words_left + -1) {
+            *zero_ptr = 0;
+            zero_ptr = zero_ptr + 1;
           }
-          *(undefined2 *)puVar2 = 0;
-          *(undefined1 *)((int)puVar2 + 2) = 0;
+          *(undefined2 *)zero_ptr = 0;
+          *(undefined1 *)((int)zero_ptr + 2) = 0;
           video_mode_name_format_004a8670_r
-                    (*(int *)(g_video_mode_lists + subsystem * 4) + (*(int *)iStack_64),(undefined4)uStack_44);
-          log_printf("%d\t%s\n",mode,uStack_44);
-          (*(int *)iStack_64) = (*(int *)iStack_64) + 0x18;
+                    (*(int *)(g_video_mode_lists + subsystem * 4) + (*(int *)loop_offsets),(undefined4)mode_name_buf);
+          log_printf("%d\t%s\n",mode,mode_name_buf);
+          (*(int *)loop_offsets) = (*(int *)loop_offsets) + 0x18;
           mode = mode + 1;
         } while (mode < *(int *)(g_video_mode_counts + subsystem * 4));
       }
       subsystem = subsystem + 1;
-      (*(int *)(iStack_64 + 4)) = (*(int *)(iStack_64 + 4)) + 0x50;
+      (*(int *)(loop_offsets + 4)) = (*(int *)(loop_offsets + 4)) + 0x50;
     } while (subsystem < g_app_771500);
   }
   if (show_dialog == 0) {
@@ -108,7 +112,7 @@ undefined4 __cdecl video_config_dialog(int show_dialog)
       g_video_subsystem_index = g_video_cfg.subsystem_index;
       g_video_7712f0 = g_video_cfg.mode_index;
     }
-    dialog_result = DialogBoxParamA(g_app_7e7700,0x65,g_app_7e7704,(int)LAB_004a8e60,0);
+    dialog_result = DialogBoxParamA(g_app_7e7700,VIDEO_DIALOG_RESOURCE_ID,g_app_7e7704,(int)LAB_004a8e60,0);
     if (dialog_result == 0) {
       return 0;
     }
@@ -118,7 +122,7 @@ undefined4 __cdecl video_config_dialog(int show_dialog)
 LAB_004a9200:
   RwEngineSetSubSystem(g_video_subsystem_index);
   RwEngineSetVideoMode(g_video_7712f0);
-  log_printf("Current subsystem: %s\n",g_video_subsystem_index * 0x50 + g_video_7712ec);
+  log_printf("Current subsystem: %s\n",g_video_subsystem_index * VIDEO_SUBSYSTEM_NAME_STRIDE + g_video_7712ec);
   log_printf("Current mode: %d\n",g_video_7712f0);
   RwEngineGetVideoModeInfo(&mode_info,g_video_7712f0);
   if ((mode_info.flags & 1) != 0) {

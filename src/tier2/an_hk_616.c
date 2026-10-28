@@ -28,7 +28,7 @@ undefined4 menu_left_pressed_any(void)
   int slot_type;
   undefined4 left_pressed;
   PlayerSlot *slot;
-  int iVar4;
+  int slot_index;
   
   left_pressed = 0;
   any_left_held = false;
@@ -46,16 +46,16 @@ undefined4 menu_left_pressed_any(void)
   else {
     /* Slot mode: any active player slot holding left, skipping slot type 2 (inferred).
      * The slot array ends where g_ai_editor_mode starts. */
-    iVar4 = 0;
+    slot_index = 0;
     slot = g_player_slots;
     do {
       if (((slot->controller != NO_CONTROLLER) &&
-          (slot_type = race_setup_get_slot_type(iVar4), slot_type != 2)) &&
+          (slot_type = race_setup_get_slot_type(slot_index), slot_type != 2)) &&
          (g_player_inputs[slot->controller].direction_flags[0] != 0)) {
         any_left_held = true;
       }
       slot = slot + 1;
-      iVar4 = iVar4 + 1;
+      slot_index = slot_index + 1;
     } while ((LONG_PTR)slot < ((LONG_PTR)&g_ai_editor_mode));
 LAB_004305cb:
     if (!any_left_held) {
@@ -66,9 +66,9 @@ LAB_004305cb:
   /* Options page: entries 0-2 consume the press, other entries go to the edge check.
    * Page 0x1e consumes it too. */
   if (g_menu_records[g_menu_current].page_id == MENU_PAGE_SOUND) {
-    iVar4 = g_menu_records[g_menu_current].selected;
-    if ((iVar4 != 0) && (iVar4 != 1)) {
-      if (iVar4 == 2) {
+    slot_index = g_menu_records[g_menu_current].selected;
+    if ((slot_index != 0) && (slot_index != 1)) {
+      if (slot_index == 2) {
         return 1;
       }
       goto LAB_00430619;
@@ -112,17 +112,17 @@ LAB_00430619:
       }
     }
     else {
-      iVar4 = 0;
+      slot_index = 0;
       slot = g_player_slots;
       do {
         if (((slot->controller != NO_CONTROLLER) &&
-            (slot_type = race_setup_get_slot_type(iVar4), slot_type != 2)) &&
+            (slot_type = race_setup_get_slot_type(slot_index), slot_type != 2)) &&
            ((g_player_inputs[slot->controller].direction_flags[0] != 0 &&
             (g_player_inputs_previous[slot->controller].direction_flags[0] == 0)))) {
           left_pressed = 1;
         }
         slot = slot + 1;
-        iVar4 = iVar4 + 1;
+        slot_index = slot_index + 1;
       } while ((LONG_PTR)slot < ((LONG_PTR)&g_ai_editor_mode));
     }
     return left_pressed;

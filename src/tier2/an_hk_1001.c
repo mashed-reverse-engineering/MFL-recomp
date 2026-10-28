@@ -39,13 +39,13 @@ typedef struct car_damage_smoke_update_iVar4_layout {
 extern double sin(double);
 /* car_damage_smoke_update */
 
-/* "per car: emits smoke particles for the damaged front / back (inferred)" */
+/* Per frame: (1) per car, randomly spawns damage smoke at vehicle part 0x33 (chance grows with front+back damage); (2) advances 128 smoke puffs (11 floats each, g_car_damage_65aae4) and draws them as particles, fading alpha in over the first 0.2 of their age and out afterwards (inferred) */
 
 void car_damage_smoke_update(void)
 
 {
   byte bVar1;
-  float fVar2;
+  float smoke_age;
   undefined1 uVar3;
   int slot_used;
   car_damage_smoke_update_iVar4_layout *part_ltm;
@@ -64,9 +64,9 @@ void car_damage_smoke_update(void)
     float smoke_x;
     float smoke_y;
     float smoke_z;
-    float local_18;
-    float local_14;
-    float local_10;
+    float puff_pos_x;
+    float puff_pos_y;
+    float puff_pos_z;
     RwV3d velocity;
   } frame;
   
@@ -104,41 +104,41 @@ void car_damage_smoke_update(void)
   car = 0;
   damage_ptr = (float *)&g_car_damage_65aae4;
   do {
-    fVar2 = *damage_ptr;
-    if ((!(float_1_0 > fVar2)) || (fVar2 < k_f_0)) {
+    smoke_age = *damage_ptr;
+    if ((!(float_1_0 > smoke_age)) || (smoke_age < k_f_0)) {
       (&g_car_damage_65a9d8)[car >> 3] =
            (&g_car_damage_65a9d8)[car >> 3] & ~('\x01' << ((byte)car & 7));
     }
     else {
       frame.particle_colour = *(uint *)&damage_ptr[2];
-      angle = (double)fVar2 * (double)k_f_6_2831855;
+      angle = (double)smoke_age * (double)k_f_6_2831855;
       rnd = (double)sin(angle);
       frame.offset_x = (float)(rnd * (double)(0.05000000074505806));
       cos_offset = (double)cos(angle) * (double)(0.05000000074505806);
       *damage_ptr = g_tick_seconds + *damage_ptr;
       /* alpha of the particle colour: fades in over the first 0.2 of its life and out afterwards */
-      if (fVar2 < k_f_0_2) {
-        alpha = (double)(int)*(byte *)((char *)damage_ptr + 0xb) * ((double)fVar2 * (double)float_5_0);
+      if (smoke_age < k_f_0_2) {
+        alpha = (double)(int)*(byte *)((char *)damage_ptr + 0xb) * ((double)smoke_age * (double)float_5_0);
       }
       else {
-        alpha = (double)(int)*(byte *)((char *)damage_ptr + 0xb) * ((double)float_1_0 - (double)fVar2);
+        alpha = (double)(int)*(byte *)((char *)damage_ptr + 0xb) * ((double)float_1_0 - (double)smoke_age);
       }
       frame.smoke_x = damage_ptr[-7] * damage_ptr[1];
       frame.particle_colour = (frame.particle_colour & 0xffffff) | ((uint)(byte)(int)alpha << 0x18);
       frame.smoke_y = damage_ptr[-6] * damage_ptr[1];
       damage_ptr[-2] = damage_ptr[-1] + damage_ptr[-2];
-      frame.local_14 = fVar2 * k_f_0_6 + damage_ptr[-4];
+      frame.puff_pos_y = smoke_age * k_f_0_6 + damage_ptr[-4];
       if (damage_ptr[-1] <= k_f_0) {
-        frame.local_18 = damage_ptr[-5] - frame.offset_x;
+        frame.puff_pos_x = damage_ptr[-5] - frame.offset_x;
         rnd = (double)damage_ptr[-3] - cos_offset;
       }
       else {
-        frame.local_18 = frame.offset_x + damage_ptr[-5];
+        frame.puff_pos_x = frame.offset_x + damage_ptr[-5];
         rnd = cos_offset + (double)damage_ptr[-3];
       }
-      frame.local_10 = (float)rnd;
-      point_lerp_to_aux_camera(&frame.local_18,&frame.local_18,0x3d4ccccd);
-      particles_set_position(&frame.local_18);
+      frame.puff_pos_z = (float)rnd;
+      point_lerp_to_aux_camera(&frame.puff_pos_x,&frame.puff_pos_x,0x3d4ccccd);
+      particles_set_position(&frame.puff_pos_x);
       particles_set_size(&frame.smoke_x);
       gfx_set_gfx_6c50c8(*(int *)&damage_ptr[-2]);
       particles_set_color(&frame.particle_colour);

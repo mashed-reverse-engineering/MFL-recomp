@@ -3,19 +3,20 @@
 
 /* no context */
 
-undefined4 gap_4c4200(undefined4 param_1,int *param_2)
+/* Appends item to the array list[0] (if non-null) and increments the counter list[1] points to; with a null array it only counts (inferred). */
+undefined4 gap_4c4200(undefined4 item,int *list)
 
 {
-  int *piVar1;
+  int *count_ptr;
   
-  piVar1 = (int *)param_2[1];
-  if (*param_2 != 0) {
-    *(undefined4 *)(*param_2 + *piVar1 * 4) = param_1;
-    *piVar1 = *piVar1 + 1;
-    return param_1;
+  count_ptr = (int *)list[1];
+  if (*list != 0) {
+    *(undefined4 *)(*list + *count_ptr * 4) = item;
+    *count_ptr = *count_ptr + 1;
+    return item;
   }
-  *piVar1 = *piVar1 + 1;
-  return param_1;
+  *count_ptr = *count_ptr + 1;
+  return item;
 }
 
 

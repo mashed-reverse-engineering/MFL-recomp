@@ -1,35 +1,37 @@
 // cluster-entries: menu_item_list_find_index_a
 /* Installed cluster menu_item_list_find_index_a (tools/cluster_install.py from output/cluster_pilot_zy/menu_item_list_find_index_a.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#define MENU_ITEM_LIST_END (-0xf90000) /* terminator id 0xFF0F0000 */
 /* menu_item_list_find_index_a */
 
 /* "(list) index of the item with the current id, -1 at the 0xFF0F0000 terminator or a null list" */
 
-int menu_item_list_find_index_a_n(int *in_edx, int in_ebx, int in_edi)
+/* Scans list for the nth_match-th entry equal to target_id and returns the element following it; -1 for a null list or the terminator (inferred). */
+int menu_item_list_find_index_a_n(int *list, int target_id, int nth_match)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
+  int cur_id;
+  int pos;
+  int matches_seen;
   
-  if (in_edx == (int *)0x0) {
+  if (list == (int *)0x0) {
     return -1;
   }
-  iVar1 = *in_edx;
-  iVar3 = 0;
-  iVar2 = 0;
+  cur_id = *list;
+  matches_seen = 0;
+  pos = 0;
   do {
-    if (iVar1 == -0xf90000) {
+    if (cur_id == MENU_ITEM_LIST_END) {
       return -1;
     }
-    if (iVar1 == in_ebx) {
-      if (in_edi == iVar3) {
-        return in_edx[iVar2 + 1];
+    if (cur_id == target_id) {
+      if (nth_match == matches_seen) {
+        return list[pos + 1];
       }
-      iVar3 = iVar3 + 1;
+      matches_seen = matches_seen + 1;
     }
-    iVar1 = in_edx[iVar2 + 1];
-    iVar2 = iVar2 + 1;
+    cur_id = list[pos + 1];
+    pos = pos + 1;
   } while( true );
 }
 

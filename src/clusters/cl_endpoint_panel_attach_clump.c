@@ -8,25 +8,26 @@
 
 /* "stores clump/frame, clears and fills the part table" */
 
-void endpoint_panel_attach_clump_n(int in_eax, int in_ebx)
+/* Store clump and its frame in panel (+0x100/+0x104), clear the 0x80-byte part table at panel+0x80, then file each of the clump's 24 atomics into the slot returned by FUN_004c52b0 (inferred part index). */
+void endpoint_panel_attach_clump_n(int clump, int panel)
 
 {
-  undefined4 uVar1;
-  int iVar2;
-  int iVar3;
-  undefined4 local_60 [24];
+  undefined4 atomic;
+  int part_slot;
+  int atomic_index;
+  undefined4 atomics [24];
   
-  clump_get_atomics(in_eax,local_60);
-  *(int *)(in_ebx + 0x100) = in_eax;
-  *(undefined4 *)(in_ebx + 0x104) = *(undefined4 *)(in_eax + 4);
-  mem_zero(in_ebx + 0x80,0x80);
-  iVar3 = 0;
+  clump_get_atomics(clump,atomics);
+  *(int *)(panel + 0x100) = clump;
+  *(undefined4 *)(panel + 0x104) = *(undefined4 *)(clump + 4);
+  mem_zero(panel + 0x80,0x80);
+  atomic_index = 0;
   do {
-    uVar1 = local_60[iVar3];
-    iVar2 = FUN_004c52b0(uVar1,0,0);
-    iVar3 = iVar3 + 1;
-    *(undefined4 *)(in_ebx + 0x80 + iVar2 * 4) = uVar1;
-  } while (iVar3 < 0x18);
+    atomic = atomics[atomic_index];
+    part_slot = FUN_004c52b0(atomic,0,0);
+    atomic_index = atomic_index + 1;
+    *(undefined4 *)(panel + 0x80 + part_slot * 4) = atomic;
+  } while (atomic_index < 0x18);
   return;
 }
 

@@ -10,36 +10,37 @@
 
 /* single caller course_warzone_cb1 */
 
+/* For each of 4 players, trigger a 3-sound effect once when the player's rank key passes a table threshold entry (entry[-1] <= key < entry[-1]+1) not yet fired (inferred). */
 void course_warzone_cb1_sub_45db70(void)
 
 {
-  float fVar1;
-  undefined4 uVar3;
-  int iVar4;
-  int iVar5;
-  int *piVar6;
-  float10 fVar7;
+  float rank_key;
+  undefined4 sound_pos;
+  int slot;
+  int player;
+  int *entry;
+  float10 rank_key_x87;
   
-  iVar5 = 0;
+  player = 0;
   do {
-    fVar7 = (float10)player_rank_key(iVar5);
-    fVar1 = (float)fVar7;
-    iVar4 = 0;
-    piVar6 = g_course_player_60d9d8;
+    rank_key_x87 = (float10)player_rank_key(player);
+    rank_key = (float)rank_key_x87;
+    slot = 0;
+    entry = g_course_player_60d9d8;
     do {
-      if ((((float)piVar6[-1] <= fVar1) && (fVar1 < (float)(piVar6[-1] + 1))) &&
-         (*piVar6 == 0)) {
-        uVar3 = course_warzone_cb1_sub_45da60(iVar4);
-        *piVar6 = 1;
-        sfx_play_at(0x12,uVar3);
-        sfx_play_at(0x15,uVar3);
-        sfx_play_player_set_at(uVar3);
+      if ((((float)entry[-1] <= rank_key) && (rank_key < (float)(entry[-1] + 1))) &&
+         (*entry == 0)) {
+        sound_pos = course_warzone_cb1_sub_45da60(slot);
+        *entry = 1;
+        sfx_play_at(0x12,sound_pos);
+        sfx_play_at(0x15,sound_pos);
+        sfx_play_player_set_at(sound_pos);
       }
-      piVar6 = piVar6 + 3;
-      iVar4 = iVar4 + 1;
-    } while ((int)piVar6 < (int)g_course_player_60d9d8 + 0x60);
-    iVar5 = iVar5 + 1;
-  } while (iVar5 < 4);
+      entry = entry + 3;
+      slot = slot + 1;
+    } while ((int)entry < (int)g_course_player_60d9d8 + 0x60);
+    player = player + 1;
+  } while (player < 4);
   return;
 }
 

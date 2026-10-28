@@ -13,6 +13,8 @@
 /*004f8bd0*/ extern struct RpGeometry * RpGeometryUnlock(struct RpGeometry *p0);
 /*004f8e30*/ extern struct RpGeometry * RpGeometryCreate(RwInt32 p0, RwInt32 p1, RwUInt32 p2);
 /*004f9060*/ extern RwBool RpGeometryDestroy(struct RpGeometry *p0);
+#define MESH_RECORD_BYTES (0xc) /* bytes per position / normal / strip vertex record of the collision mesh */
+#define GEOMETRY_FLAGS (0x74) /* rpGEOMETRYTEXTURED|NORMALS|LIGHT|MODULATEMATERIALCOLOR */
 /* rwp_collision_mesh_to_geometry */
 
 /* "converts the Rwp collision mesh (strips/vertex tables) to an RpGeometry with normals and uv" */
@@ -32,11 +34,12 @@ typedef struct CollisionMesh {
     char unknown_20[0x24];
     float uv_scale[2];  /* 0x44 */
 } CollisionMesh;
+/* Builds an RpAtomic with a new RpGeometry (positions, normals, uv; flags TEXTURED|NORMALS|LIGHT|MODULATEMATERIALCOLOR) from an Rwp collision mesh; shared_vertices != 0 shares one vertex per mesh vertex, else 3 per triangle. */
 RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertices)
 
 {
   ushort *strip_end_ptr;
-  uint uVar2;
+  uint next_index;
   int tri_rec;
   ushort strip_begin;
   RpMorphTarget *morphTarget;
@@ -48,7 +51,7 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
   RpMaterial *material;
   RpAtomic *atomic;
   ushort *strip_cursor;
-  RwReal *pRVar9;
+  RwReal *pos_ptr;
   uint uVar10;
   int strip_len;
   uint uVar12;
@@ -86,7 +89,7 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
   else {
     numVert = (uint)mesh->strip_count_a;
   }
-  geometry = RpGeometryCreate(numVert,numTriangles,0x74);
+  geometry = RpGeometryCreate(numVert,numTriangles,GEOMETRY_FLAGS);
   morphTarget = RpGeometry_morphTarget(geometry);
   verts = RpMorphTarget_verts(morphTarget);
   normals = RpMorphTarget_normals(morphTarget);
@@ -98,10 +101,10 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
     frame.vert_offset = verts;
     frame.normal_or_uv_ptr = (RwV3d *)uvs;
     do {
-      pRVar9 = (RwReal *)((int)normal_z_ptr + mesh->positions + (-8 - (int)normals));
-      frame.vert_offset->x = *pRVar9;
-      frame.vert_offset->y = pRVar9[1];
-      frame.vert_offset->z = pRVar9[2];
+      pos_ptr = (RwReal *)((int)normal_z_ptr + mesh->positions + (-8 - (int)normals));
+      frame.vert_offset->x = *pos_ptr;
+      frame.vert_offset->y = pos_ptr[1];
+      frame.vert_offset->z = pos_ptr[2];
       vert_ptr = (RwV3d *)(normal_z_ptr + -2);
       vert_ptr->x = 0.0;
       normal_z_ptr[-1] = 0.0;
@@ -118,7 +121,7 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
                           (uint)*(ushort *)
                                  (mesh->tri_extra +
                                  (*(ushort *)(mesh->strip_ranges + numTriangles) + uVar12) * 2) *
-                          0xc) * 0xc;
+                          0xc) * MESH_RECORD_BYTES;
           vert_ptr->x = *(float *)(mesh->normals + strip_len) + vert_ptr->x;
           normal_z_ptr[-1] = *(float *)(mesh->normals + 4 + strip_len) + normal_z_ptr[-1];
           *normal_z_ptr = *(float *)(mesh->normals + 8 + strip_len) + *normal_z_ptr;
@@ -127,7 +130,7 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
                           (uint)*(ushort *)
                                  (mesh->tri_extra + 2 +
                                  (*(ushort *)(mesh->strip_ranges + numTriangles) + uVar12) * 2) *
-                          0xc) * 0xc;
+                          0xc) * MESH_RECORD_BYTES;
           vert_ptr->x = *(float *)(mesh->normals + strip_len) + vert_ptr->x;
           normal_z_ptr[-1] = *(float *)(mesh->normals + 4 + strip_len) + normal_z_ptr[-1];
           *normal_z_ptr = *(float *)(mesh->normals + 8 + strip_len) + *normal_z_ptr;
@@ -136,7 +139,7 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
                           (uint)*(ushort *)
                                  (mesh->tri_extra + 4 +
                                  (*(ushort *)(mesh->strip_ranges + numTriangles) + uVar12) * 2) *
-                          0xc) * 0xc;
+                          0xc) * MESH_RECORD_BYTES;
           vert_ptr->x = *(float *)(mesh->normals + strip_len) + vert_ptr->x;
           normal_z_ptr[-1] = *(float *)(mesh->normals + 4 + strip_len) + normal_z_ptr[-1];
           *normal_z_ptr = *(float *)(mesh->normals + 8 + strip_len) + *normal_z_ptr;
@@ -145,14 +148,14 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
                           (uint)*(ushort *)
                                  (mesh->tri_extra + 6 +
                                  (*(ushort *)(mesh->strip_ranges + numTriangles) + uVar12) * 2) *
-                          0xc) * 0xc;
+                          0xc) * MESH_RECORD_BYTES;
           numVert = uVar12 + 4;
           vert_ptr->x = *(float *)(mesh->normals + strip_len) + vert_ptr->x;
           normal_z_ptr[-1] = *(float *)(mesh->normals + 4 + strip_len) + normal_z_ptr[-1];
-          uVar2 = uVar12 + 7;
+          next_index = uVar12 + 7;
           *normal_z_ptr = *(float *)(mesh->normals + 8 + strip_len) + *normal_z_ptr;
           uVar12 = numVert;
-        } while (uVar2 < uVar10);
+        } while (next_index < uVar10);
       }
       for (; numVert < uVar10; numVert = numVert + 1) {
         strip_len = (uint)*(ushort *)
@@ -160,7 +163,7 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
                         (uint)*(ushort *)
                                (mesh->tri_extra +
                                (*(ushort *)(mesh->strip_ranges + numTriangles) + numVert) * 2) *
-                        0xc) * 0xc;
+                        0xc) * MESH_RECORD_BYTES;
         vert_ptr->x = *(float *)(mesh->normals + strip_len) + vert_ptr->x;
         normal_z_ptr[-1] = *(float *)(mesh->normals + 4 + strip_len) + normal_z_ptr[-1];
         *normal_z_ptr = *(float *)(mesh->normals + 8 + strip_len) + *normal_z_ptr;
@@ -189,22 +192,22 @@ RpAtomic * rwp_collision_mesh_to_geometry(CollisionMesh *mesh,int shared_vertice
         do {
           RpGeometryTriangleSetMaterial(geometry,frame.tri_ptr,material);
           numVert = (uint)*(ushort *)(mesh->strips + frame.strip_index * 2);
-          uVar10 = (uint)*(ushort *)(mesh->tris + 4 + numVert * 0xc);
-          tri_rec = mesh->tris + (numVert + frame.tri_in_strip) * 0xc;
+          uVar10 = (uint)*(ushort *)(mesh->tris + 4 + numVert * MESH_RECORD_BYTES);
+          tri_rec = mesh->tris + (numVert + frame.tri_in_strip) * MESH_RECORD_BYTES;
           numVert = (uint)*(ushort *)(tri_rec + 0x10);
           uVar12 = (uint)*(ushort *)(tri_rec + 0x1c);
           if (shared_vertices == 0) {
             RpGeometryTriangleSetVertexIndices
                       (geometry,frame.tri_ptr,numTriangles,numTriangles + 1,numTriangles + 2);
-            normal_z_ptr = (RwReal *)(mesh->positions + uVar10 * 0xc);
+            normal_z_ptr = (RwReal *)(mesh->positions + uVar10 * MESH_RECORD_BYTES);
             vert_ptr[-2].x = *normal_z_ptr;
             vert_ptr[-2].y = normal_z_ptr[1];
             vert_ptr[-2].z = normal_z_ptr[2];
-            normal_z_ptr = (RwReal *)(mesh->positions + numVert * 0xc);
+            normal_z_ptr = (RwReal *)(mesh->positions + numVert * MESH_RECORD_BYTES);
             vert_ptr[-1].x = *normal_z_ptr;
             vert_ptr[-1].y = normal_z_ptr[1];
             vert_ptr[-1].z = normal_z_ptr[2];
-            normal_z_ptr = (RwReal *)(mesh->positions + uVar12 * 0xc);
+            normal_z_ptr = (RwReal *)(mesh->positions + uVar12 * MESH_RECORD_BYTES);
             vert_ptr->x = *normal_z_ptr;
             vert_ptr->y = normal_z_ptr[1];
             vert_ptr->z = normal_z_ptr[2];

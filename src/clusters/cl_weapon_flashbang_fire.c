@@ -6,21 +6,22 @@
 
 static int weapon_flashbang_start_effect_r(int p0);
 extern void weapon_flashbang_start_effect(void);
-void weapon_flashbang_fire(WeaponSlot *param_1, int param_2)
+/* On event 2 with state stage 1: starts the flash effect and plays sfx 0x18 at the muzzle position. */
+void weapon_flashbang_fire(WeaponSlot *slot, int event)
 
 {
   struct {
-    float fStack_c;
-    float fStack_8;
-    float fStack_4;
+    float pos_x;
+    float pos_y;
+    float pos_z;
   } frame;
   
-  if ((param_2 == 2) && (*(int *)(param_1->state + 0xc) == 1)) {
-    weapon_flashbang_start_effect_r(param_1->state);
-    frame.fStack_c = param_1->muzzle_position[0];
-    frame.fStack_8 = param_1->muzzle_position[1];
-    frame.fStack_4 = param_1->muzzle_position[2];
-    sfx_play_at(0x18,&frame.fStack_c);
+  if ((event == 2) && (*(int *)(slot->state + 0xc) == 1)) {
+    weapon_flashbang_start_effect_r(slot->state);
+    frame.pos_x = slot->muzzle_position[0];
+    frame.pos_y = slot->muzzle_position[1];
+    frame.pos_z = slot->muzzle_position[2];
+    sfx_play_at(0x18,&frame.pos_x);
   }
   return;
 }

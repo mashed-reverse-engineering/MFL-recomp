@@ -3,29 +3,30 @@
 
 /* no context */
 
-void gap_5c8bf0(char *param_1,uint *param_2)
+/* Fills slot[0..3] from the current entry (obj+0x1a4, index obj+0x1ac, stride 0x14) according to slot[1] kind 1/2/other (inferred). */
+void gap_5c8bf0(char *obj,uint *slot)
 
 {
-  int *piVar1;
-  uint uVar2;
+  int *entry;
+  uint value;
   
-  piVar1 = (int *)(*(char **)(param_1 + 0x1a4) + *(int *)(param_1 + 0x1ac) * 0x14);
-  if (param_2[1] == 1) {
-    uVar2 = *(uint *)(*piVar1 + 4);
+  entry = (int *)(*(char **)(obj + 0x1a4) + *(int *)(obj + 0x1ac) * 0x14);
+  if (slot[1] == 1) {
+    value = *(uint *)(*entry + 4);
   }
   else {
-    if (param_2[1] != 2) {
-      param_2[1] = 3;
-      *param_2 = (uint)(*piVar1 - *(int *)(*(char **)(param_1 + 0x174) + 0x10)) >> 5;
+    if (slot[1] != 2) {
+      slot[1] = 3;
+      *slot = (uint)(*entry - *(int *)(*(char **)(obj + 0x174) + 0x10)) >> 5;
       goto LAB_005c8c43;
     }
-    uVar2 = *(uint *)*piVar1;
+    value = *(uint *)*entry;
   }
-  *param_2 = uVar2;
+  *slot = value;
 LAB_005c8c43:
-  param_2[3] = 2;
-  uVar2 = gap_5c3020(param_1 + 0x5c,piVar1,0);
-  param_2[2] = uVar2;
+  slot[3] = 2;
+  value = gap_5c3020(obj + 0x5c,entry,0);
+  slot[2] = value;
   return;
 }
 

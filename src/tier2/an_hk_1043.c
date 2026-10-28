@@ -4,30 +4,31 @@
 
 /* function pointer pushed/stored by load_shadow_models (PUSH 0x456540) */
 
-undefined4 load_shadow_models_cb_456540(undefined4 param_1,undefined4 *param_2)
+/* Enumeration callback: stores model_obj into model_slots[kind-1] (kinds 1..4 from FUN_004c52b0) and increments the visit counter at model_slots[4]; returns model_obj (inferred). */
+undefined4 load_shadow_models_cb_456540(undefined4 model_obj,undefined4 *model_slots)
 
 {
-  undefined4 uVar1;
+  undefined4 model_kind;
   
-  uVar1 = FUN_004c52b0(param_1,0,0);
-  switch(uVar1) {
+  model_kind = FUN_004c52b0(model_obj,0,0);
+  switch(model_kind) {
   case 1:
-    *param_2 = param_1;
-    param_2[4] = param_2[4] + 1;
-    return param_1;
+    *model_slots = model_obj;
+    model_slots[4] = model_slots[4] + 1;
+    return model_obj;
   case 2:
-    param_2[1] = param_1;
-    param_2[4] = param_2[4] + 1;
-    return param_1;
+    model_slots[1] = model_obj;
+    model_slots[4] = model_slots[4] + 1;
+    return model_obj;
   case 3:
-    param_2[2] = param_1;
-    param_2[4] = param_2[4] + 1;
-    return param_1;
+    model_slots[2] = model_obj;
+    model_slots[4] = model_slots[4] + 1;
+    return model_obj;
   case 4:
-    param_2[3] = param_1;
+    model_slots[3] = model_obj;
   }
-  param_2[4] = param_2[4] + 1;
-  return param_1;
+  model_slots[4] = model_slots[4] + 1;
+  return model_obj;
 }
 
 

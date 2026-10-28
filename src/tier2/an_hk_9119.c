@@ -11,48 +11,49 @@
 /*008c873c*/ extern undefined4 g_ui_camera_8c873c;
 /* ui_camera_update_view_rect */
 
-/* "computes the viewport rectangle of the secondary frontend camera from the screen size" */
+/* "computes the viewport rectangle of the secondary frontend raw_val from the screen size" */
 
+/* Computes the 640x480-relative viewport sub-rect of the secondary frontend camera from the screen size and sub-rasters its two rasters (+0x60, +100); returns 0 if the width is non-positive, else 1 (inferred). */
 undefined4 ui_camera_update_view_rect(void)
 
 {
-  short sVar1;
-  int iVar2;
-  int camera;
-  int iVar3;
-  RwRect *pRVar4;
-  RwRect local_10;
+  short screen_dim;
+  int clamped_x;
+  int raw_val;
+  int view_w;
+  RwRect *rect_ptr;
+  RwRect view_rect;
   
-  sVar1 = screen_width();
-  camera = ((int)sVar1 * ((int)g_tutorial_69d2c8 - 0x127)) / 0x280 + 2;
-  iVar2 = camera;
-  iVar3 = 0;
-  if (camera < 0) {
-    iVar2 = 0;
-    iVar3 = camera;
+  screen_dim = screen_width();
+  raw_val = ((int)screen_dim * ((int)g_tutorial_69d2c8 - 0x127)) / 0x280 + 2;
+  clamped_x = raw_val;
+  view_w = 0;
+  if (raw_val < 0) {
+    clamped_x = 0;
+    view_w = raw_val;
   }
-  local_10.x = iVar2;
-  sVar1 = screen_height();
-  camera = (sVar1 * 100) / 0x1e0 + 2;
-  local_10.y = camera;
-  sVar1 = screen_width();
-  iVar3 = ((int)sVar1 * (iVar3 + 0x100)) / 0x280 + -4;
-  if (iVar3 < 1) {
+  view_rect.x = clamped_x;
+  screen_dim = screen_height();
+  raw_val = (screen_dim * 100) / 0x1e0 + 2;
+  view_rect.y = raw_val;
+  screen_dim = screen_width();
+  view_w = ((int)screen_dim * (view_w + 0x100)) / 0x280 + -4;
+  if (view_w < 1) {
     return 0;
   }
-  local_10.w = iVar3;
-  sVar1 = screen_height();
-  pRVar4 = &local_10;
-  g_ui_camera_8c873c = (sVar1 * 0xdc) / 0x1e0 + -4;
-  g_ui_8c8730 = iVar2;
-  g_ui_camera_8c8734 = camera;
-  g_ui_camera_8c8738 = iVar3;
-  local_10.h = g_ui_camera_8c873c;
-  camera = get_viewport_camera(0xffffffff);
-  RwRasterSubRaster(*(RwRaster **)(g_ui_69d69c + 0x60),*(RwRaster **)(camera + 0x60),pRVar4);
-  pRVar4 = &local_10;
-  camera = get_viewport_camera(0xffffffff);
-  RwRasterSubRaster(*(RwRaster **)(g_ui_69d69c + 100),*(RwRaster **)(camera + 100),pRVar4);
+  view_rect.w = view_w;
+  screen_dim = screen_height();
+  rect_ptr = &view_rect;
+  g_ui_camera_8c873c = (screen_dim * 0xdc) / 0x1e0 + -4;
+  g_ui_8c8730 = clamped_x;
+  g_ui_camera_8c8734 = raw_val;
+  g_ui_camera_8c8738 = view_w;
+  view_rect.h = g_ui_camera_8c873c;
+  raw_val = get_viewport_camera(0xffffffff);
+  RwRasterSubRaster(*(RwRaster **)(g_ui_69d69c + 0x60),*(RwRaster **)(raw_val + 0x60),rect_ptr);
+  rect_ptr = &view_rect;
+  raw_val = get_viewport_camera(0xffffffff);
+  RwRasterSubRaster(*(RwRaster **)(g_ui_69d69c + 100),*(RwRaster **)(raw_val + 100),rect_ptr);
   return 1;
 }
 

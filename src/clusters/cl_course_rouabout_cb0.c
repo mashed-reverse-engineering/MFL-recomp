@@ -68,6 +68,7 @@
 /* course_rouabout_cb0 */
 
 
+/* Roundabout course setup (inferred): creates the two animated object sets, sets far clip 150 when the two fog values at +0xc9f8/+0xc9fc match, creates spline objects and smoke emitters per +0xc30 record, loads shadow models, then (if g_course_6a2634) caches 8 object matrices and builds 8x2 collision triangles with their bounding box in g_course_6a2614. */
 void course_rouabout_cb0(int course)
 
 {

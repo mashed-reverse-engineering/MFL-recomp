@@ -11,48 +11,53 @@ typedef int CourseId;
 /*00422440*/ extern int vehicle_part_id_has_damage_model(int part);
 /*00423210*/ extern void vehicle_set_scale(int index, int scale_bits);
 /* DECLS-END */
+#define VEH_ENVMAP_COEFF_DIRTY (2)
+#define VEH_ENVMAP_FRAME_DIRTY (4)
+#define VEH_ENVMAP_TEXTURE_DIRTY (1)
+#define VEHICLE_PART_FRAME_COUNT (0x80)
 /* vehicle_set_scale_for_course */
 
 /* "scale from the per course table at 0x607798" */
 
+/* Sets the vehicle scale from the per-course table, then pushes the pending env-map coefficient/frame/texture (flag bits 2/4/1) into the material of every damage-model part frame and clears those flags. */
 void vehicle_set_scale_for_course_n(VehicleRecord *vehicle_record)
 
 {
-  uint uVar1;
+  uint pending_flags;
   RpMaterial *material;
   CourseId course_id;
-  int iVar2;
-  int iVar3;
+  int has_damage_model;
+  int part_id;
   
   course_id = current_course_id();
   vehicle_set_scale(vehicle_record->index,*(undefined4 *)(g_vehicle_set_607798 + course_id * 4));
-  uVar1 = vehicle_record->flags;
-  iVar3 = 0;
+  pending_flags = vehicle_record->flags;
+  part_id = 0;
   do {
-    if (vehicle_record->part_frames[iVar3] != 0) {
-      iVar2 = vehicle_part_id_has_damage_model(iVar3);
-      if (iVar2 != 0) {
-        material = (RpMaterial *)**(undefined4 **)(*(int *)(vehicle_record->part_frames[iVar3] + 0x18) + 0x20);
-        if ((uVar1 & 2) != 0) {
+    if (vehicle_record->part_frames[part_id] != 0) {
+      has_damage_model = vehicle_part_id_has_damage_model(part_id);
+      if (has_damage_model != 0) {
+        material = (RpMaterial *)**(undefined4 **)(*(int *)(vehicle_record->part_frames[part_id] + 0x18) + 0x20);
+        if ((pending_flags & VEH_ENVMAP_COEFF_DIRTY) != 0) {
           RpMatFXMaterialSetEnvMapCoefficient(material,vehicle_record->half_scale);
         }
-        if ((uVar1 & 4) != 0) {
+        if ((pending_flags & VEH_ENVMAP_FRAME_DIRTY) != 0) {
           RpMatFXMaterialSetEnvMapFrame(material,(RwFrame *)vehicle_record->envmap_frame);
         }
-        if ((uVar1 & 1) != 0) {
+        if ((pending_flags & VEH_ENVMAP_TEXTURE_DIRTY) != 0) {
           RpMatFXMaterialSetEnvMapTexture(material,(RwTexture *)vehicle_record->envmap_texture);
         }
       }
     }
-    iVar3 = iVar3 + 1;
-  } while (iVar3 < 0x80);
-  if ((uVar1 & 2) != 0) {
+    part_id = part_id + 1;
+  } while (part_id < VEHICLE_PART_FRAME_COUNT);
+  if ((pending_flags & VEH_ENVMAP_COEFF_DIRTY) != 0) {
     vehicle_record->flags = vehicle_record->flags & 0xfffffffd;
   }
-  if ((uVar1 & 4) != 0) {
+  if ((pending_flags & VEH_ENVMAP_FRAME_DIRTY) != 0) {
     vehicle_record->flags = vehicle_record->flags & 0xfffffffb;
   }
-  if ((uVar1 & 1) != 0) {
+  if ((pending_flags & VEH_ENVMAP_TEXTURE_DIRTY) != 0) {
     vehicle_record->flags = vehicle_record->flags & 0xfffffffe;
   }
   return;

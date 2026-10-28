@@ -21,9 +21,15 @@
 /*005df774*/ extern float k_f_4_8780486en5;
 /*005df7b8*/ extern float k_f_n0_2;
 /*0062ac74*/ extern float g_car_62ac74;
+#define ROCKET_STEER_PITCH_POS (0x41a00000) /* float +20.0: pitch_rate when the target is below -0.2 in the rocket frame (inferred) */
+#define ROCKET_STEER_PITCH_NEG (0xc1a00000) /* float -20.0: pitch_rate when the target direction y > 0.2 */
+#define ROCKET_STEER_YAW_POS (0x40000000) /* float +2.0: yaw_rate when the target direction x > 0.2 */
+#define ROCKET_STEER_YAW_NEG (0xc0000000) /* float -2.0: yaw_rate when the target direction x < -0.2 */
+#define ROCKET_ACCEL_MAX (0x3ba3d70a) /* float 0.005 */
+#define ROCKET_SPEED_MIN (0x3d99999a) /* float 0.075 */
 /* rocket_fly_homing */
 
-/* "flight step of a rocket that has a target car (homing)" */
+/* One flight step of a homing rocket: steers yaw/pitch towards the target by fixed rates, adapts speed to the target car's speed (accel clamped 0..0.005, speed >= 0.075), then moves the rocket frame along its 'at' axis */
 
 /* target_world = target position (+0.2 up) from the target fx object (+0x58) or car (+0x54); transformed into the rocket frame
    (inverse matrix) and normalised to target_dir, whose x/y components steer the rocket within +-0.2. */
@@ -32,7 +38,7 @@ void rocket_fly_homing_n(RocketRecord *rocket)
 {
   RwV3d *v;
   RwFrame *frame;
-  float fVar1;
+  float scratch;
   struct {
     int target_matrix;
     float dt_scaled;
@@ -61,22 +67,22 @@ void rocket_fly_homing_n(RocketRecord *rocket)
       *(undefined4 *)&rocket->pitch_rate = 0;
     }
     else {
-      *(undefined4 *)&rocket->pitch_rate = 0x41a00000;
+      *(undefined4 *)&rocket->pitch_rate = ROCKET_STEER_PITCH_POS;
     }
   }
   else {
-    *(undefined4 *)&rocket->pitch_rate = 0xc1a00000;
+    *(undefined4 *)&rocket->pitch_rate = ROCKET_STEER_PITCH_NEG;
   }
   if (!(frame_obj.target_dir.x > k_f_0_2)) {
     if (!(k_f_n0_2 > frame_obj.target_dir.x)) {
       *(undefined4 *)&rocket->yaw_rate = 0;
     }
     else {
-      *(undefined4 *)&rocket->yaw_rate = 0xc0000000;
+      *(undefined4 *)&rocket->yaw_rate = ROCKET_STEER_YAW_NEG;
     }
   }
   else {
-    *(undefined4 *)&rocket->yaw_rate = 0x40000000;
+    *(undefined4 *)&rocket->yaw_rate = ROCKET_STEER_YAW_POS;
   }
   RwV3dLength(&frame_obj.target_local);
   rocket->yaw = rocket->yaw_rate + rocket->yaw;
@@ -85,36 +91,36 @@ void rocket_fly_homing_n(RocketRecord *rocket)
   RwFrameRotate(frame,(RwV3d *)&g_car_62ac74,rocket->yaw,rwCOMBINEREPLACE);
   RwFrameRotate(frame,&(RwFrame_modelling(frame)).right,rocket->pitch,rwCOMBINEPOSTCONCAT);
   car_get_speed(&frame_obj.dt_scaled,rocket->target_car);
-  fVar1 = k_f_4_8780486en5 * frame_obj.dt_scaled;
-  rocket->target_speed_a = fVar1;
-  fVar1 = fVar1 - rocket->speed;
-  rocket->target_speed_b = fVar1;
-  if (!(fVar1 < k_f_0_02)) {      /* NaN takes this branch (original: fcomp, test ah,5, jp) */
-    fVar1 = rocket->accel - k_f_0_001;
+  scratch = k_f_4_8780486en5 * frame_obj.dt_scaled;
+  rocket->target_speed_a = scratch;
+  scratch = scratch - rocket->speed;
+  rocket->target_speed_b = scratch;
+  if (!(scratch < k_f_0_02)) {      /* NaN takes this branch (original: fcomp, test ah,5, jp) */
+    scratch = rocket->accel - k_f_0_001;
   }
   else {
-    fVar1 = rocket->accel + k_f_1_0en4;
+    scratch = rocket->accel + k_f_1_0en4;
   }
-  rocket->accel = fVar1;
+  rocket->accel = scratch;
   if (rocket->accel < k_f_0) {
     *(undefined4 *)&rocket->accel = 0;
   }
   if (k_f_0_005 < rocket->accel) {
-    *(undefined4 *)&rocket->accel = 0x3ba3d70a;
+    *(undefined4 *)&rocket->accel = ROCKET_ACCEL_MAX;
   }
-  fVar1 = rocket->accel + rocket->speed;
-  rocket->speed = fVar1;
-  if (fVar1 < k_f_0_075) {
-    *(undefined4 *)&rocket->speed = 0x3d99999a;
+  scratch = rocket->accel + rocket->speed;
+  rocket->speed = scratch;
+  if (scratch < k_f_0_075) {
+    *(undefined4 *)&rocket->speed = ROCKET_SPEED_MIN;
   }
   v = &rocket->pos;
   rocket->vel.x = rocket->speed * (RwFrame_modelling(frame)).at.x;
   rocket->vel.y = (RwFrame_modelling(frame)).at.y * rocket->speed;
   rocket->vel.z = (RwFrame_modelling(frame)).at.z * rocket->speed;
-  fVar1 = rocket->lift + rocket->vel.y;
-  rocket->vel.y = fVar1;
+  scratch = rocket->lift + rocket->vel.y;
+  rocket->vel.y = scratch;
   v->x = v->x + rocket->vel.x;
-  rocket->pos.y = fVar1 + rocket->pos.y;
+  rocket->pos.y = scratch + rocket->pos.y;
   rocket->pos.z = rocket->vel.z + rocket->pos.z;
   RwFrameTranslate(frame,v,rwCOMBINEPOSTCONCAT);
   return;

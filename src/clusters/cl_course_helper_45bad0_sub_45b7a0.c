@@ -15,46 +15,47 @@ extern double sin(double);
 
 /* single caller course_helper_45bad0 */
 
-void course_helper_45bad0_sub_45b7a0(int param_1)
+/* Animates three child frames (anim+0xc[]): translate by a position row blended with the timer at anim+4 plus a sine bob, then rotate about a (0.5,0.5,0.5) axis; timer counts down by g_tick_seconds (inferred). */
+void course_helper_45bad0_sub_45b7a0(int anim)
 
 {
   RwFrame *frame;
-  float fVar1;
-  int *piVar2;
-  float *pfVar3;
-  double fVar4;
-  double fVar5;
+  float inv_progress;
+  int *frame_slot;
+  float *pos_row;
+  double half_timer;
+  double sine_x87;
   double sin_twice;
   float half;
-  int iStack_24;
-  RwV3d RStack_18;
-  RwV3d RStack_c;
+  int index;
+  RwV3d pos;
+  RwV3d axis;
   
-  if (k_f_0 < *(float *)(param_1 + 4)) {
-    fVar4 = *(float *)(param_1 + 4) * k_f_0_5;      /* x87: stays extended for the sine, a rounded float copy goes to the rotation */
-    half = (float)fVar4;
-    iStack_24 = 0;
-    RStack_c.x = 0.5;
-    fVar5 = sin(fVar4 * k_f_3_1415927);
-    sin_twice = fVar5 + fVar5; /* spilled as a double */
-    RStack_c.y = 0.5;
-    RStack_c.z = 0.5;
-    pfVar3 = (float *)(param_1 + 0x18);
-    piVar2 = (int *)(param_1 + 0xc);
+  if (k_f_0 < *(float *)(anim + 4)) {
+    half_timer = *(float *)(anim + 4) * k_f_0_5;      /* x87: stays extended for the sine, a rounded float copy goes to the rotation */
+    half = (float)half_timer;
+    index = 0;
+    axis.x = 0.5;
+    sine_x87 = sin(half_timer * k_f_3_1415927);
+    sin_twice = sine_x87 + sine_x87; /* spilled as a double */
+    axis.y = 0.5;
+    axis.z = 0.5;
+    pos_row = (float *)(anim + 0x18);
+    frame_slot = (int *)(anim + 0xc);
     do {
-      fVar1 = k_f_2 - *(float *)(param_1 + 4);
-      frame = *(RwFrame **)(*piVar2 + 4);
-      RStack_18.x = fVar1 * *pfVar3 + pfVar3[9];
-      RStack_18.z = pfVar3[2] * fVar1 + pfVar3[0xb];
-      RStack_18.y = pfVar3[10] + sin_twice;
-      RwFrameTranslate(frame,&RStack_18,rwCOMBINEREPLACE);
-      RwFrameRotate(frame,&RStack_c,((float)iStack_24 + k_f_4) * half * k_f_360,
+      inv_progress = k_f_2 - *(float *)(anim + 4);
+      frame = *(RwFrame **)(*frame_slot + 4);
+      pos.x = inv_progress * *pos_row + pos_row[9];
+      pos.z = pos_row[2] * inv_progress + pos_row[0xb];
+      pos.y = pos_row[10] + sin_twice;
+      RwFrameTranslate(frame,&pos,rwCOMBINEREPLACE);
+      RwFrameRotate(frame,&axis,((float)index + k_f_4) * half * k_f_360,
                     rwCOMBINEPRECONCAT);
-      iStack_24 = iStack_24 + 1;
-      piVar2 = piVar2 + 1;
-      pfVar3 = pfVar3 + 3;
-    } while (iStack_24 < 3);
-    *(float *)(param_1 + 4) = *(float *)(param_1 + 4) - g_tick_seconds;
+      index = index + 1;
+      frame_slot = frame_slot + 1;
+      pos_row = pos_row + 3;
+    } while (index < 3);
+    *(float *)(anim + 4) = *(float *)(anim + 4) - g_tick_seconds;
   }
   return;
 }

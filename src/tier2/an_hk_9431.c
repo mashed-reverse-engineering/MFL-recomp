@@ -13,6 +13,12 @@ extern struct VoiceSlot g_voices[210];
 /*006191cc*/ extern undefined4 g_sound_frame_6191cc;
 /*00619700*/ extern undefined4 g_sound_frame_619700;
 /*006ae104*/ extern undefined4 g_sound_endpoint_cue_state;
+/* voice record offsets (same as sound_ambience_course_12_18) */
+#define VOICE_OFF_SUB (0x30)
+#define VOICE_OFF_FLAGS (0x34)
+#define VOICE_OFF_FREQUENCY (0x3c) /* playback frequency, float */
+#define VOICE_FREQUENCY_22050 (0x46ac4400) /* float bits of 22050.0f */
+
 /* sound_endpoint_panel_progress_cues */
 
 /* "state machine 0..4 on the endpoint panel value (0.34, 0.82, 1.3, 1.86), plays the cue at the
@@ -21,24 +27,24 @@ extern struct VoiceSlot g_voices[210];
 void sound_endpoint_panel_progress_cues(void)
 
 {
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  undefined4 pu_eax;
+  bool reached_next_step;
+  int voice_b_index;
+  int scratch;
+  int sub_handle;
+  undefined4 sub_result;
   float panel_value;
   
-  iVar3 = race_get_phase();
-  if (iVar3 != 5) {
+  scratch = race_get_phase();
+  if (scratch != 5) {
     return;
   }
-  iVar3 = get_event_type();
-  if (iVar3 == EVENT_QUICK_RACE) {
+  scratch = get_event_type();
+  if (scratch == EVENT_QUICK_RACE) {
     return;
   }
   endpoint_panel_get_value(&panel_value);
-  iVar2 = g_sound_frame_619700;
-  iVar3 = g_sound_frame_6191cc;
+  voice_b_index = g_sound_frame_619700;
+  scratch = g_sound_frame_6191cc;
   switch(g_sound_endpoint_cue_state) {
   case 0:
     if (panel_value < k_f_0_34) {
@@ -47,8 +53,8 @@ void sound_endpoint_panel_progress_cues(void)
     g_sound_endpoint_cue_state = 1;
     goto LAB_0046f7eb;
   case 1:
-    bVar1 = k_f_0_82 <= panel_value;
-    if (bVar1) {
+    reached_next_step = k_f_0_82 <= panel_value;
+    if (reached_next_step) {
       g_sound_endpoint_cue_state = 2;
     }
     if (panel_value < k_f_0_34) {
@@ -56,8 +62,8 @@ void sound_endpoint_panel_progress_cues(void)
     }
     break;
   case 2:
-    bVar1 = k_f_1_3 <= panel_value;
-    if (bVar1) {
+    reached_next_step = k_f_1_3 <= panel_value;
+    if (reached_next_step) {
       g_sound_endpoint_cue_state = 3;
     }
     if (panel_value < k_f_0_82) {
@@ -65,23 +71,23 @@ void sound_endpoint_panel_progress_cues(void)
     }
     break;
   case 3:
-    bVar1 = k_f_1_86 <= panel_value;
-    if (bVar1) {
+    reached_next_step = k_f_1_86 <= panel_value;
+    if (reached_next_step) {
       g_sound_endpoint_cue_state = 4;
     }
     if (panel_value < k_f_1_3) {
       g_sound_endpoint_cue_state = 2;
     }
-    if (!bVar1) {
+    if (!reached_next_step) {
       return;
     }
-    if ((*(byte *)(g_voices[g_sound_frame_619700].voice + 0x34) & 2) != 0) {
+    if ((*(byte *)(g_voices[g_sound_frame_619700].voice + VOICE_OFF_FLAGS) & 2) != 0) {
       return;
     }
     FUN_005b6a40(g_voices[g_sound_frame_619700].voice,1);
-    *(undefined4 *)(g_voices[iVar2].voice + 0x3c) = 0x46ac4400;
-    iVar4 = *(int *)(g_voices[iVar2].voice + 0x30);
-    iVar3 = iVar2;
+    *(undefined4 *)(g_voices[voice_b_index].voice + VOICE_OFF_FREQUENCY) = VOICE_FREQUENCY_22050;
+    sub_handle = *(int *)(g_voices[voice_b_index].voice + VOICE_OFF_SUB);
+    scratch = voice_b_index;
     goto LAB_0046f8d8;
   case 4:
     if (k_f_1_86 <= panel_value) {
@@ -91,18 +97,18 @@ void sound_endpoint_panel_progress_cues(void)
     g_sound_endpoint_cue_state = 0;
     return;
   }
-  if (bVar1) {
+  if (reached_next_step) {
 LAB_0046f7eb:
-    if ((*(byte *)(g_voices[g_sound_frame_6191cc].voice + 0x34) & 2) == 0) {
+    if ((*(byte *)(g_voices[g_sound_frame_6191cc].voice + VOICE_OFF_FLAGS) & 2) == 0) {
       FUN_005b6a40(g_voices[g_sound_frame_6191cc].voice,1);
-      *(undefined4 *)(g_voices[iVar3].voice + 0x3c) = 0x46ac4400;
-      iVar4 = *(int *)(g_voices[iVar3].voice + 0x30);
+      *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQUENCY) = VOICE_FREQUENCY_22050;
+      sub_handle = *(int *)(g_voices[scratch].voice + VOICE_OFF_SUB);
 LAB_0046f8d8:
-      pu_eax = 0;
-      if (iVar4 != 0) {
-        pu_eax = FUN_005b7300(iVar4,4,1,22050.0f);
+      sub_result = 0;
+      if (sub_handle != 0) {
+        sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
       }
-      voice_set_volume(iVar3,0.6);
+      voice_set_volume(scratch,0.6);
     }
   }
   return;

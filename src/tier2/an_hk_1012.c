@@ -35,18 +35,19 @@
 /* weapon_machinegun_fire */
 
 
-void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
+/* Fire the machinegun of slot_arg->player: spin up barrel, consume ammo when cooldown is 0, emit sparks/shell casings, sound; branch on whether a target object is hooked (inferred). */
+void weapon_machinegun_fire(WeaponSlot *slot_arg)
 
 {
   float fbits1;
   float fbits2;
   float fbits3;
-  float fVar1;
+  float aim_scale;
   WeaponSlot *slot;
   int slot_value;
   RwV3d *muzzle_pos;
   RwMatrix *gun_ltm;
-  int iVar5;
+  int timer_result;
   undefined4 slot_record;
   uint player;
   bool ammo_even;
@@ -62,15 +63,15 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
     float shell_vel_y;
     float shell_vel_z;
     RwV3d shell_pos;
-    undefined4 uStack_c;
-    undefined4 uStack_8;
-    undefined4 uStack_4;
+    undefined4 zero_vec_x;
+    undefined4 zero_vec_y;
+    undefined4 zero_vec_z;
   } frame;
   
-  slot = slot_or_colour;
-  frame.uStack_c = 0;
-  frame.uStack_8 = 0;
-  frame.uStack_4 = 0;
+  slot = slot_arg;
+  frame.zero_vec_x = 0;
+  frame.zero_vec_y = 0;
+  frame.zero_vec_z = 0;
   frame.shell_vel_x = 1.0;
   frame.shell_vel_y = 1.5;
   frame.shell_vel_z = 1.0;
@@ -78,7 +79,7 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
   frame.shell_g = 0;
   frame.shell_b = 0;
   frame.shell_a = 0xff;
-  slot_value = weapon_effect_get_slot_value_b(slot_or_colour->player);
+  slot_value = weapon_effect_get_slot_value_b(slot_arg->player);
   muzzle_pos = (RwV3d *)weapon_effect_get_slot_record(slot->player);
   player = slot->player;
   if (MachinegunState_ARRAY_006a60d0[player].spin < k_f_40) {
@@ -98,7 +99,7 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
       ammo_even = (player - 1 | 0xfffffffe) == 0xffffffff;
     }
     if (ammo_even) {
-      slot_or_colour = (WeaponSlot *)0xff2184ff;
+      slot_arg = (WeaponSlot *)0xff2184ff;
       gun_ltm = RwFrameGetLTM(*(RwFrame **)
                               (*(int *)&MachinegunState_ARRAY_006a60d0[slot->player].field_0x44 +
                               4));
@@ -115,31 +116,31 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
       frame.shell_pos.x = frame.muzzle_dir.x + frame.muzzle_dir.x + frame.shell_pos.x;
       frame.shell_pos.y = frame.muzzle_dir.y + frame.muzzle_dir.y + frame.shell_pos.y;
       frame.shell_pos.z = frame.muzzle_dir.z + frame.muzzle_dir.z + frame.shell_pos.z;
-      fx_spawn_burst_default_scale(&frame.shell_pos,1,&frame.shell_vel_x,&slot_or_colour,&frame.uStack_c,0x40a00000);
+      fx_spawn_burst_default_scale(&frame.shell_pos,1,&frame.shell_vel_x,&slot_arg,&frame.zero_vec_x,0x40a00000);
     }
     if (slot_value == -1) {
       slot_value = weapon_effect_get_slot_value_a(slot->player);
       if (slot_value != -1) {
         rnd = (double)ai_get_float_8c9980();
-        iVar5 = fx_object_timer_subtract_by_id
+        timer_result = fx_object_timer_subtract_by_id
                           (slot_value,(fbits1 = (float)((double)k_f_0_9 - rnd * (double)k_f_0_04), *(int *)&fbits1));
-        if (iVar5 == 0) {
+        if (timer_result == 0) {
           frame.muzzle_dir.x = slot->aim_vector[0];
           frame.muzzle_dir.y = slot->aim_vector[1];
           frame.muzzle_dir.z = slot->aim_vector[2];
           rnd = (double)rp_random_float_range(0x3ca3d70a,0x3d75c28f);
           fx_emitter_spawn_c_default(muzzle_pos,0,0x43b40000,(fbits2 = (float)rnd, *(int *)&fbits2));
-          iVar5 = rwp_object_get_id(slot_value);
-          if (iVar5 < 150000) {
+          timer_result = rwp_object_get_id(slot_value);
+          if (timer_result < 150000) {
             frame.muzzle_dir.y = frame.muzzle_dir.y * float_10_0;
-            fVar1 = float_10_0;
+            aim_scale = float_10_0;
           }
           else {
             frame.muzzle_dir.y = 100.0;
-            fVar1 = k_f_100;
+            aim_scale = k_f_100;
           }
-          frame.muzzle_dir.x = frame.muzzle_dir.x * fVar1;
-          frame.muzzle_dir.z = frame.muzzle_dir.z * fVar1;
+          frame.muzzle_dir.x = frame.muzzle_dir.x * aim_scale;
+          frame.muzzle_dir.z = frame.muzzle_dir.z * aim_scale;
           slot_record = weapon_effect_get_slot_record(slot->player);
           rwp_object_activate(slot_value,&frame.muzzle_dir,slot_record);
         }
@@ -153,7 +154,7 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
         frame.shell_pos.x = frame.shell_pos.x * k_f_0_023;
         frame.shell_pos.y = frame.shell_pos.y * k_f_0_023;
         frame.shell_pos.z = frame.shell_pos.z * k_f_0_023;
-        fx_spawn_burst_default_scale(muzzle_pos,1,&frame.shell_pos,&frame.shell_r,&frame.uStack_c,0x40000000);
+        fx_spawn_burst_default_scale(muzzle_pos,1,&frame.shell_pos,&frame.shell_r,&frame.zero_vec_x,0x40000000);
         slot_value = slot_value + -1;
       } while (slot_value != 0);
     }
@@ -164,15 +165,15 @@ void weapon_machinegun_fire(WeaponSlot *slot_or_colour)
       frame.shell_vel_y = (float)rnd;
       rnd = (double)rp_random_float_range(0xbf800000,0x3f800000);
       frame.shell_vel_z = (float)rnd;
-      iVar5 = 4;
+      timer_result = 4;
       do {
         random_vector_in_cone(&frame.shell_pos,&frame.shell_vel_x,10.0);
         frame.shell_pos.x = frame.shell_pos.x * k_f_0_023;
         frame.shell_pos.y = frame.shell_pos.y * k_f_0_023;
         frame.shell_pos.z = frame.shell_pos.z * k_f_0_023;
-        fx_spawn_burst_default_scale(muzzle_pos,1,&frame.shell_pos,0,&frame.uStack_c,0x40800000);
-        iVar5 = iVar5 + -1;
-      } while (iVar5 != 0);
+        fx_spawn_burst_default_scale(muzzle_pos,1,&frame.shell_pos,0,&frame.zero_vec_x,0x40800000);
+        timer_result = timer_result + -1;
+      } while (timer_result != 0);
       rnd = (double)rp_random_float_range(0x3d75c28f,0x3dcccccd);
       fx_emitter_spawn_c_default(muzzle_pos,0,0x43b40000,(fbits3 = (float)rnd, *(int *)&fbits3));
       player_rumble(slot_value,1,2,0xff);

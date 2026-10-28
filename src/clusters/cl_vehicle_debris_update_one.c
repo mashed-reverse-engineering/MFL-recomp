@@ -9,6 +9,8 @@
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*0065c8f0*/ extern undefined4 g_game_65c8f0;
+#define DEBRIS_PIECE_COUNT (10) /* debris pieces per vehicle */
+#define DEBRIS_PIECE_STRIDE_INTS (6) /* 0x18 bytes per piece record */
 /* vehicle_debris_update_one */
 
 /* "spawns smoke and an sfx for damaged front/back or updates the flying debris pieces" */
@@ -111,8 +113,8 @@ void vehicle_debris_update_one_n(int debris)
         }
       }
       piece = piece + 1;
-      piece_ptr = piece_ptr + 6;
-    } while (piece < 10);
+      piece_ptr = piece_ptr + DEBRIS_PIECE_STRIDE_INTS;
+    } while (piece < DEBRIS_PIECE_COUNT);
     return;
   }
   return;

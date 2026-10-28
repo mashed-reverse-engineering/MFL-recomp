@@ -3,19 +3,20 @@
 
 /* no context */
 
-char *gap_5ccb50(char *param_1,char *unused_2,undefined4 *param_3)
+/* Copies the 12 words (48 bytes) at src_obj+0x44 into dst_words and returns src_obj (inferred). */
+char *gap_5ccb50(char *src_obj,char *unused_2,undefined4 *dst_words)
 
 {
-  int iVar1;
-  undefined4 *puVar2;
+  int words_left;
+  undefined4 *src_words;
   
-  puVar2 = (undefined4 *)(param_1 + 0x44);
-  for (iVar1 = 0xc; iVar1 != 0; iVar1 = iVar1 + -1) {
-    *param_3 = *puVar2;
-    puVar2 = puVar2 + 1;
-    param_3 = param_3 + 1;
+  src_words = (undefined4 *)(src_obj + 0x44);
+  for (words_left = 0xc; words_left != 0; words_left = words_left + -1) {
+    *dst_words = *src_words;
+    src_words = src_words + 1;
+    dst_words = dst_words + 1;
   }
-  return param_1;
+  return src_obj;
 }
 
 

@@ -21,51 +21,52 @@
 
 /* "flashunit.dff and lensflare-fs8 texture, flash particles" */
 
+/* Loads flashunit.dff and builds 4 flash units (0x14 bytes each at g_weapon_6a5d78) with their two atomics, then sets up the lensflare-fs8 particle tank (inferred). */
 void flashunit_load_assets(void)
 
 {
-  undefined4 texture_dict;
-  int iVar1;
+  undefined4 flash_obj;
+  int atomic_kind;
   RwTexture *texture;
-  undefined *puVar2;
-  int iVar3;
-  undefined4 uVar4;
-  undefined4 auStack_18 [6];
+  undefined *unit_cursor;
+  int atomic_idx;
+  undefined4 render_flag;
+  undefined4 atomics_and_colour [6];
   
-  auStack_18[2] = 0;
-  auStack_18[3] = 0;
-  auStack_18[4] = 0x3f000000;
-  auStack_18[5] = 0x3f800000;
+  atomics_and_colour[2] = 0;
+  atomics_and_colour[3] = 0;
+  atomics_and_colour[4] = 0x3f000000;
+  atomics_and_colour[5] = 0x3f800000;
   mem_zero(g_weapon_6a5d78,0x50);
   RwTexDictionarySetCurrent((RwTexDictionary *)0x0);
   g_weapon_6a5dc8 = clump_load_by_name("flashunit.dff", 0x0, 0x0);
-  puVar2 = g_weapon_6a5d78;
+  unit_cursor = g_weapon_6a5d78;
   do {
-    texture_dict = FUN_004f6bf0(g_weapon_6a5dc8);
-    *(undefined4 *)(puVar2 + 0x10) = texture_dict;
-    clump_get_atomics(texture_dict,auStack_18);
-    iVar3 = 0;
+    flash_obj = FUN_004f6bf0(g_weapon_6a5dc8);
+    *(undefined4 *)(unit_cursor + 0x10) = flash_obj;
+    clump_get_atomics(flash_obj,atomics_and_colour);
+    atomic_idx = 0;
     do {
-      texture_dict = auStack_18[iVar3];
-      iVar1 = FUN_004c52b0(texture_dict,0,0);
-      if (iVar1 == 0) {
-        uVar4 = 1;
+      flash_obj = atomics_and_colour[atomic_idx];
+      atomic_kind = FUN_004c52b0(flash_obj,0,0);
+      if (atomic_kind == 0) {
+        render_flag = 1;
 LAB_00460844:
-        atomic_set_render_flag(texture_dict,uVar4);
+        atomic_set_render_flag(flash_obj,render_flag);
       }
-      else if (iVar1 == 1) {
-        uVar4 = 0;
+      else if (atomic_kind == 1) {
+        render_flag = 0;
         goto LAB_00460844;
       }
-      iVar3 = iVar3 + 1;
-      *(undefined4 *)(puVar2 + iVar1 * 4) = texture_dict;
-    } while (iVar3 < 2);
-    puVar2 = puVar2 + 0x14;
-    if ((int)g_weapon_6a5d78 + 0x4f < (int)puVar2) {
+      atomic_idx = atomic_idx + 1;
+      *(undefined4 *)(unit_cursor + atomic_kind * 4) = flash_obj;
+    } while (atomic_idx < 2);
+    unit_cursor = unit_cursor + 0x14;
+    if ((int)g_weapon_6a5d78 + 0x4f < (int)unit_cursor) {
       texture = (RwTexture *)find_texture_dict_b("lensflare-fs8");
       particle_system_setup_ptank((uint *)&g_weapon_8bf000,0x807,4,texture);
       ptank_set_blend_modes(&g_weapon_8bf000,5,2);
-      ptank_set_colour(&g_weapon_8bf000,auStack_18 + 2);
+      ptank_set_colour(&g_weapon_8bf000,atomics_and_colour + 2);
       LAB_00460780();
       return;
     }

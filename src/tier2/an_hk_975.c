@@ -19,12 +19,13 @@ __declspec(naked) int call_thiscall_0_r(void *self,void *method)
 #define OBJ_VTBL_LOCK_B (0x64)
 /* FUN_004acca0 */
 
-undefined4 __stdcall FUN_004acca0(char *param_1)
+/* Enters the two critical sections of the object at obj+0xcc (+0x7c, +0x94), calls FUN_004afe30(obj), then thiscall vtable slots +0x84 and +0x64 on it and leaves them; returns the second call's result (inferred). */
+undefined4 __stdcall FUN_004acca0(char *obj)
 
 {
-  undefined4 uVar1;
-  LPCRITICAL_SECTION lpCriticalSection;
-  LPCRITICAL_SECTION lpCriticalSection_00;
+  undefined4 result;
+  LPCRITICAL_SECTION inner_cs;
+  LPCRITICAL_SECTION outer_cs;
   struct {
     void *pvStack_c;
     undefined1 *puStack_8;
@@ -34,21 +35,21 @@ undefined4 __stdcall FUN_004acca0(char *param_1)
   frame.local_4 = 0xffffffff;
   frame.puStack_8 = (undefined1 *)&LAB_005db5b0;
   frame.pvStack_c = ExceptionList;
-  lpCriticalSection_00 = (LPCRITICAL_SECTION)(*(int *)(param_1 + 0xcc) + 0x7c);
+  outer_cs = (LPCRITICAL_SECTION)(*(int *)(obj + 0xcc) + 0x7c);
   ExceptionList = &frame.pvStack_c;
-  EnterCriticalSection(lpCriticalSection_00);
-  lpCriticalSection = (LPCRITICAL_SECTION)(*(int *)(param_1 + 0xcc) + 0x94);
+  EnterCriticalSection(outer_cs);
+  inner_cs = (LPCRITICAL_SECTION)(*(int *)(obj + 0xcc) + 0x94);
   frame.local_4 = 0;
-  EnterCriticalSection(lpCriticalSection);
+  EnterCriticalSection(inner_cs);
   (*(byte *)((char *)&frame.local_4 + 0)) = 1;
-  FUN_004afe30(param_1);
-  call_thiscall_0_r(*(void **)(param_1 + 0xcc),*(void **)(**(int **)(param_1 + 0xcc) + OBJ_VTBL_LOCK_A));
+  FUN_004afe30(obj);
+  call_thiscall_0_r(*(void **)(obj + 0xcc),*(void **)(**(int **)(obj + 0xcc) + OBJ_VTBL_LOCK_A));
   frame.local_4 = (uint)((uint)frame.local_4 >> 8 & 0xffffff) << 8;
-  LeaveCriticalSection(lpCriticalSection);
-  uVar1 = call_thiscall_0_r(*(void **)(param_1 + 0xcc),*(void **)(**(int **)(param_1 + 0xcc) + OBJ_VTBL_LOCK_B));
-  LeaveCriticalSection(lpCriticalSection_00);
+  LeaveCriticalSection(inner_cs);
+  result = call_thiscall_0_r(*(void **)(obj + 0xcc),*(void **)(**(int **)(obj + 0xcc) + OBJ_VTBL_LOCK_B));
+  LeaveCriticalSection(outer_cs);
   ExceptionList = frame.pvStack_c;
-  return uVar1;
+  return result;
 }
 
 

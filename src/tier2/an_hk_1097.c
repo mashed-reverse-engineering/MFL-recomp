@@ -8,34 +8,35 @@
 
 /* single caller course_storm_cb1_sub_4ab160 */
 
-void course_storm_cb1_sub_4aaea0(float *param_1,float param_2,short *param_3)
+/* Spawn one particle into the first free slot (of 512, 32 bytes each) of the particles array, with randomised velocity/size scaled by scale (inferred). */
+void course_storm_cb1_sub_4aaea0(float *emitter,float scale,short *particles)
 
 {
   float fbits1;
   float fbits2;
   float fbits3;
   float fbits4;
-  int iVar1;
-  double fVar2;
+  int index;
+  double speed;
   
-  fVar2 = -(double)random_range((fbits1 = param_2 * k_f_0_15, *(int *)&fbits1),(fbits2 = param_2 * k_f_0_25, *(int *)&fbits2));
-  iVar1 = 0;
+  speed = -(double)random_range((fbits1 = scale * k_f_0_15, *(int *)&fbits1),(fbits2 = scale * k_f_0_25, *(int *)&fbits2));
+  index = 0;
   do {
-    if (*param_3 == 0) {
-      *param_3 = 1;
-      param_3[1] = 0;
-      *(float *)(param_3 + 8) = (float)(fVar2 * (double)*param_1);
-      *(float *)(param_3 + 0xc) = (float)(fVar2 * (double)param_1[2]);
-      fVar2 = (double)random_range((fbits3 = param_2 * k_f_0_75, *(int *)&fbits3),(fbits4 = param_2 * k_f_1_05, *(int *)&fbits4));
-      *(float *)(param_3 + 10) = (float)fVar2;
-      *(float *)(param_3 + 2) = param_1[0xc];
-      *(float *)(param_3 + 4) = param_1[0xd];
-      *(float *)(param_3 + 6) = param_1[0xe];
+    if (*particles == 0) {
+      *particles = 1;
+      particles[1] = 0;
+      *(float *)(particles + 8) = (float)(speed * (double)*emitter);
+      *(float *)(particles + 0xc) = (float)(speed * (double)emitter[2]);
+      speed = (double)random_range((fbits3 = scale * k_f_0_75, *(int *)&fbits3),(fbits4 = scale * k_f_1_05, *(int *)&fbits4));
+      *(float *)(particles + 10) = (float)speed;
+      *(float *)(particles + 2) = emitter[0xc];
+      *(float *)(particles + 4) = emitter[0xd];
+      *(float *)(particles + 6) = emitter[0xe];
       return;
     }
-    param_3 = param_3 + 0x10;
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 0x200);
+    particles = particles + 0x10;
+    index = index + 1;
+  } while (index < 0x200);
   return;
 }
 

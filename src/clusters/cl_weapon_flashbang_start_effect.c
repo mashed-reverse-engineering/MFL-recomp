@@ -8,28 +8,29 @@
 
 /* "state 2, finds a free flash slot, stores the pickup position and sets the screen shake to 10" */
 
-void weapon_flashbang_start_effect_n(int in_edx)
+/* Sets weapon state to 2, takes the first free flash slot (slot[3]==0), stores pickup position (+0x30..0x38) in it and starts screen shake 10. */
+void weapon_flashbang_start_effect_n(int state)
 
 {
-  char *iVar1;
-  undefined4 *puVar2;
+  char *pickup_obj;
+  undefined4 *flash_slot;
   
-  *(undefined4 *)(in_edx + 0xc) = 2;
-  puVar2 = (undefined4 *)&g_weapon_6a5d18;
+  *(undefined4 *)(state + 0xc) = 2;
+  flash_slot = (undefined4 *)&g_weapon_6a5d18;
   do {
-    if (puVar2[3] == 0) {
-      puVar2[4] = 0;
-      puVar2[5] = 0;
-      puVar2[3] = 1;
-      iVar1 = *(char **)(in_edx + 8);
-      *puVar2 = *(undefined4 *)(iVar1 + 0x30);
-      puVar2[1] = *(undefined4 *)(iVar1 + 0x34);
-      puVar2[2] = *(undefined4 *)(iVar1 + 0x38);
+    if (flash_slot[3] == 0) {
+      flash_slot[4] = 0;
+      flash_slot[5] = 0;
+      flash_slot[3] = 1;
+      pickup_obj = *(char **)(state + 8);
+      *flash_slot = *(undefined4 *)(pickup_obj + 0x30);
+      flash_slot[1] = *(undefined4 *)(pickup_obj + 0x34);
+      flash_slot[2] = *(undefined4 *)(pickup_obj + 0x38);
       screen_shake_set(10);
       return;
     }
-    puVar2 = puVar2 + 6;
-  } while ((int)puVar2 < ((int)&g_weapon_6a5d78));
+    flash_slot = flash_slot + 6;
+  } while ((int)flash_slot < ((int)&g_weapon_6a5d78));
   screen_shake_set(10);
   return;
 }

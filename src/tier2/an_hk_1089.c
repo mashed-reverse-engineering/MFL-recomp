@@ -5,28 +5,29 @@
 
 /* single caller course_nt1_helper_4557f0 */
 
-void course_nt1_helper_4557f0_sub_4a5ba0(undefined4 *param_1,RwV3d *param_2,int param_3)
+/* For each of the frames[0x62] frames: rotate by its angle (read at angles_base + slot offset) about axis while keeping its current position (inferred). */
+void course_nt1_helper_4557f0_sub_4a5ba0(undefined4 *frames,RwV3d *axis,int angles_base)
 
 {
   RwFrame *frame;
-  undefined4 *puVar1;
-  int iVar2;
-  RwV3d RStack_c;
+  undefined4 *frame_slot;
+  int index;
+  RwV3d saved_pos;
   
-  iVar2 = 0;
-  if (0 < (int)param_1[0x62]) {
-    puVar1 = param_1;
+  index = 0;
+  if (0 < (int)frames[0x62]) {
+    frame_slot = frames;
     do {
-      frame = (RwFrame *)*puVar1;
-      RStack_c.x = RwFrame_modelling(frame).pos.x;
-      RStack_c.y = RwFrame_modelling(frame).pos.y;
-      RStack_c.z = RwFrame_modelling(frame).pos.z;
-      RwFrameRotate(frame,param_2,*(RwReal *)((char *)puVar1 + (param_3 - (int)param_1)),
+      frame = (RwFrame *)*frame_slot;
+      saved_pos.x = RwFrame_modelling(frame).pos.x;
+      saved_pos.y = RwFrame_modelling(frame).pos.y;
+      saved_pos.z = RwFrame_modelling(frame).pos.z;
+      RwFrameRotate(frame,axis,*(RwReal *)((char *)frame_slot + (angles_base - (int)frames)),
                     rwCOMBINEREPLACE);
-      RwFrameTranslate((RwFrame *)*puVar1,&RStack_c,rwCOMBINEPOSTCONCAT);
-      iVar2 = iVar2 + 1;
-      puVar1 = puVar1 + 1;
-    } while (iVar2 < (int)param_1[0x62]);
+      RwFrameTranslate((RwFrame *)*frame_slot,&saved_pos,rwCOMBINEPOSTCONCAT);
+      index = index + 1;
+      frame_slot = frame_slot + 1;
+    } while (index < (int)frames[0x62]);
   }
   return;
 }

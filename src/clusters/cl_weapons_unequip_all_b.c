@@ -11,33 +11,34 @@ static int player_unequip_weapon_r(WeaponSlot * p0);
 extern void player_unequip_weapon(void);
 static int weapon_fx_state_clear_r(WeaponSlot * p0);
 extern void weapon_fx_state_clear(void);
+/* Unequip and clear fx state for all 4 players' weapon slots, zero g_weapons_6aaef8 entries, then call the per-descriptor callback of each weapon descriptor (inferred). */
 void weapons_unequip_all_b(void)
 
 {
   WeaponSlot *weapon_slot;
-  int iVar1;
-  undefined4 *puVar2;
-  undefined **ppuVar3;
+  int descriptor_index;
+  undefined4 *weapon_state_ptr;
+  undefined **descriptor_cb_ptr;
   
-  puVar2 = g_weapons_6aaef8;
+  weapon_state_ptr = g_weapons_6aaef8;
   weapon_slot = player_weapon_slots;
   do {
     if (weapon_slot->descriptor != 0) {
       player_unequip_weapon_r(weapon_slot);
     }
     weapon_fx_state_clear_r(weapon_slot);
-    *puVar2 = 0;
+    *weapon_state_ptr = 0;
     weapon_slot = weapon_slot + 1;
-    puVar2 = puVar2 + 1;
+    weapon_state_ptr = weapon_state_ptr + 1;
   } while ((int)weapon_slot < (int)&player_weapon_slots + 0x2d0);
-  iVar1 = 0;
+  descriptor_index = 0;
   if (0 < (int)weapon_descriptor_count) {
-    ppuVar3 = &PTR_nop_stub_0060dc50;
+    descriptor_cb_ptr = &PTR_nop_stub_0060dc50;
     do {
-      (*(code *)*ppuVar3)();
-      iVar1 = iVar1 + 1;
-      ppuVar3 = ppuVar3 + 0x10;
-    } while (iVar1 < (int)weapon_descriptor_count);
+      (*(code *)*descriptor_cb_ptr)();
+      descriptor_index = descriptor_index + 1;
+      descriptor_cb_ptr = descriptor_cb_ptr + 0x10;
+    } while (descriptor_index < (int)weapon_descriptor_count);
   }
   return;
 }

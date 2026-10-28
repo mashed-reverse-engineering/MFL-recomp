@@ -20,16 +20,18 @@
 /*008d8c08*/ extern float g_gamesave_wait_timer;
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
+#define MESSAGE_COLOUR (0xff460000) /* message_show colour argument (ARGB, dark red; inferred) */
 /* gamesave_update_sub_40bbd0 */
 
 /* single caller gamesave_update */
 
-void gamesave_update_sub_40bbd0(float param_1)
+/* Save-game UI state machine step (g_gamesave_save_step): polls status, shows messages, writes the save and reports the result; dt is the frame time added to g_gamesave_wait_timer (inferred). */
+void gamesave_update_sub_40bbd0(float dt)
 
 {
-  int iVar1;
-  undefined4 uVar2;
-  char *_Format;
+  int result;
+  undefined4 message_id;
+  char *log_text;
   
   switch(g_gamesave_save_step) {
   case 0:
@@ -39,20 +41,20 @@ void gamesave_update_sub_40bbd0(float param_1)
     gamesave_poll_status();
     return;
   case 1:
-    iVar1 = stub_return_zero();
-    if (iVar1 == 0) {
+    result = stub_return_zero();
+    if (result == 0) {
       g_gamesave_status_poll_count = g_gamesave_status_poll_count + 1;
     }
     if (1 < (int)g_gamesave_status_poll_count) {
-      iVar1 = stub_return_zero();
-      if (iVar1 != 0) {
+      result = stub_return_zero();
+      if (result != 0) {
         FID_conflict__wprintf("status change\n");
         nop_stub();
         message_close();
       }
-      iVar1 = gamesave_exists(0);
-      if (iVar1 == 0) {
-        message_show(0x21b,0xff460000,2,0x2f,0x30,0);
+      result = gamesave_exists(0);
+      if (result == 0) {
+        message_show(0x21b,MESSAGE_COLOUR,2,0x2f,0x30,0);
         g_gamesave_save_step = 0xc;
         FID_conflict__wprintf("Waiting for save status\n");
         return;
@@ -62,23 +64,23 @@ void gamesave_update_sub_40bbd0(float param_1)
     FID_conflict__wprintf("Waiting for save status\n");
     return;
   case 2:
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       gamesave_ui_save_done(1);
       return;
     }
-    iVar1 = stub_return_one(0);
-    if (iVar1 == 0) {
+    result = stub_return_one(0);
+    if (result == 0) {
       gamesave_ui_save_done(3);
       return;
     }
-    iVar1 = gamesave_exists(0);
-    if (iVar1 != 0) {
+    result = gamesave_exists(0);
+    if (result != 0) {
       g_gamesave_save_step = 9;
       return;
     }
-    iVar1 = stub_return_one(0);
-    if (iVar1 != 0) {
+    result = stub_return_one(0);
+    if (result != 0) {
       g_gamesave_save_step = 3;
       return;
     }
@@ -86,68 +88,68 @@ void gamesave_update_sub_40bbd0(float param_1)
     return;
   case 3:
     g_gamesave_load_failed = 0;
-    message_show(0x238,0xff460000,0,0,0,0);
+    message_show(0x238,MESSAGE_COLOUR,0,0,0,0);
     gamesave_gather();
     g_gamesave_wait_timer = 0.0;
     g_gamesave_save_step = 4;
     gamesave_set_result_code(0x6);
     return;
   case 4:
-    iVar1 = gamesave_write();
-    if (iVar1 == 0) {
+    result = gamesave_write();
+    if (result == 0) {
       if (float_1_0 < g_gamesave_wait_timer) {
         message_close();
         g_gamesave_save_step = 5;
         goto LAB_0040be88;
       }
       gamesave_poll_status();
-      _Format = "Waiting for time to elapse\n";
+      log_text = "Waiting for time to elapse\n";
     }
     else {
-      _Format = "Waiting for save to complete\n";
+      log_text = "Waiting for save to complete\n";
     }
-    FID_conflict__wprintf(_Format);
+    FID_conflict__wprintf(log_text);
 LAB_0040be88:
-    g_gamesave_wait_timer = g_gamesave_wait_timer + param_1;
+    g_gamesave_wait_timer = g_gamesave_wait_timer + dt;
     return;
   case 5:
     switch(g_gamesave_result_code) {
     case 0:
-      message_show(0x1bc,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1bc,MESSAGE_COLOUR,0xb,0x2e,0,0);
       nop_stub();
       g_gamesave_save_step = 0xb;
       return;
     case 1:
-      message_show(0x1bf,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1bf,MESSAGE_COLOUR,0xb,0x2e,0,0);
       g_gamesave_save_step = 0;
       return;
     case 2:
-      message_show(0x1ba,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1ba,MESSAGE_COLOUR,0xb,0x2e,0,0);
       g_gamesave_save_step = 0;
       return;
     case 3:
-      message_show(0x24e,0xff460000,2,0x2f,0x30,0);
+      message_show(0x24e,MESSAGE_COLOUR,2,0x2f,0x30,0);
       g_gamesave_save_step = 8;
       return;
     case 6:
-      message_show(0x1bb,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1bb,MESSAGE_COLOUR,0xb,0x2e,0,0);
       g_gamesave_load_failed = 1;
       g_gamesave_result_code = 7;
       return;
     }
     break;
   case 6:
-    message_show(0x1c5,0xff460000,2,0x2f,0x30,0);
+    message_show(0x1c5,MESSAGE_COLOUR,2,0x2f,0x30,0);
     g_gamesave_save_step = 7;
     return;
   case 9:
     if (g_gamesave_load_failed == 0) {
-      uVar2 = 0x1cf;
+      message_id = 0x1cf;
     }
     else {
-      uVar2 = 0x24d;
+      message_id = 0x24d;
     }
-    message_show(uVar2,0xff460000,2,0x2f,0x30,0);
+    message_show(message_id,MESSAGE_COLOUR,2,0x2f,0x30,0);
     g_gamesave_save_step = 10;
     return;
   case 0xb:
