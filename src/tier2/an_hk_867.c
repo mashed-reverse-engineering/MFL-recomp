@@ -5,7 +5,6 @@
 /*005de9c4*/ extern float k_f_0_017453292;
 extern double sin(double);
 #define RAND_DIR_MIN_BITS (0xbf800000) /* float bits of -1.0f, lower bound of a direction component */
-#define RAND_DIR_MAX_BITS (0x3f800000) /* float bits of 1.0f, upper bound of a direction component */
 #define SPEED_JITTER_MIN_BITS (0x3f733333) /* float bits of 0.95f */
 #define SPEED_JITTER_MAX_BITS (0x3f866666) /* float bits of 1.05f */
 /* fx_spawn_burst_spread */
@@ -38,11 +37,11 @@ void fx_spawn_burst_spread(char *spawn_pos,int burst_count,float speed,float *co
     cone_sin = (float)scratch;
     /* one iteration per particle: random direction, normalise, random speed, spawn */
     do {
-      scratch = (double)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
+      scratch = (double)random_range(RAND_DIR_MIN_BITS,FLOAT_ONE_BITS);
       burst_state.direction.x = (RwReal)scratch;
-      scratch = (double)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
+      scratch = (double)random_range(RAND_DIR_MIN_BITS,FLOAT_ONE_BITS);
       burst_state.direction.y = (RwReal)scratch;
-      scratch = (double)random_range(RAND_DIR_MIN_BITS,RAND_DIR_MAX_BITS);
+      scratch = (double)random_range(RAND_DIR_MIN_BITS,FLOAT_ONE_BITS);
       burst_state.direction.x = burst_state.direction.x * cone_sin;
       burst_state.direction.y = burst_state.direction.y * cone_sin;
       burst_state.direction.z = (float)(scratch * (double)cone_sin);

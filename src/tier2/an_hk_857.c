@@ -9,7 +9,6 @@
 /*00652f9c*/ extern undefined4 g_time_trial_652f9c;
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
 
-#define FLOAT_1_0_BITS (0x3f800000) /* 1.0f as raw bits */
 #define FRAME_FLAGS_SET (0x20003) /* OR-ed into two frame flag words (inferred) */
 #define TRACKED_EVENT_TYPES (3) /* event types 0..2 get a frame recorded (inferred) */
 #define REPLAY_END_TIME_OFFSET (0x174) /* replay +0x174: end time, clamps the requested time (inferred) */
@@ -90,9 +89,9 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
     frame.panel_replay_ptr = &frame.replay_right_x;
     frame.panel_flag_a = 1;
     frame.panel_flag_b = 0;
-    frame.replay_at_z = FLOAT_1_0_BITS;
-    frame.replay_up_y = FLOAT_1_0_BITS;
-    frame.replay_right_x = FLOAT_1_0_BITS;
+    frame.replay_at_z = FLOAT_ONE_BITS;
+    frame.replay_up_y = FLOAT_ONE_BITS;
+    frame.replay_right_x = FLOAT_ONE_BITS;
     frame.replay_up_x = 0;
     frame.replay_right_z = 0;
     frame.replay_right_y = 0;
@@ -102,9 +101,9 @@ void time_trial_record_step(undefined4 unused_param,uint requested_time)
     frame.replay_pos_z = 0;
     frame.replay_pos_y = 0;
     frame.replay_pos_x = 0;
-    frame.ghost_at_z = FLOAT_1_0_BITS;
-    frame.ghost_up_y = FLOAT_1_0_BITS;
-    frame.ghost_right_x = FLOAT_1_0_BITS;
+    frame.ghost_at_z = FLOAT_ONE_BITS;
+    frame.ghost_up_y = FLOAT_ONE_BITS;
+    frame.ghost_right_x = FLOAT_ONE_BITS;
     frame.ghost_up_x = 0;
     frame.ghost_right_z = 0;
     frame.ghost_right_y = 0;

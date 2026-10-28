@@ -20,7 +20,6 @@
 /*008d8c0c*/ extern undefined4 g_gamesave_flag_c0c;
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
 /*008d8c14*/ extern undefined4 g_gamesave_load_failed;
-#define GAMESAVE_MSG_COLOUR (0xff460000) /* message_show colour argument (inferred) */
 /* gamesave_load_menu_state */
 
 /* state machine for the boot-time save check (memory-card style states from the console builds) */
@@ -76,12 +75,12 @@ void gamesave_load_menu_state(float delta_time)
     break;
   case 3:
     if (g_gamesave_result_code == 3) {
-      message_show(0x24e,0xff460000,2,0x2f,0x30,0);
+      message_show(0x24e,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
       g_gamesave_format_step = 6;
       return;
     }
     if (g_gamesave_result_code == 5) {
-      message_show(0x1c0,0xff460000,0xb,0x2e,0,0);
+      message_show(0x1c0,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
       g_gamesave_format_step = 0;
       g_gamesave_load_failed = 1;
       return;
@@ -93,23 +92,23 @@ void gamesave_load_menu_state(float delta_time)
   case 5:
     message_id = 0x289;
 LAB_0040b1cc:
-    message_show(message_id,0xff460000,0xb,0x2e,0,0);
+    message_show(message_id,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
     g_gamesave_format_step = 0;
     g_gamesave_flag_c0c = 0;
     return;
   case 7:
-    message_show(0x1c5,0xff460000,2,0x2f,0x30,0);
+    message_show(0x1c5,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
     g_gamesave_format_step = 8;
     return;
   case 9:
-    message_show(0x236,0xff460000,0,0,0,0);
+    message_show(0x236,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
     g_gamesave_format_step = 0xd;
     g_gamesave_wait_timer = 0.0;
     nop_stub();
     g_gamesave_load_failed = 0;
     return;
   case 10:
-    message_show(0x2ae,0xff460000,2,0x290,0x291,0);
+    message_show(0x2ae,MESSAGE_COLOUR_DARK_RED,2,0x290,0x291,0);
     g_gamesave_format_step = 0xb;
     return;
   case 0xc:
@@ -118,7 +117,7 @@ LAB_0040b1cc:
       gamesave_ui_load_done(3);
       return;
     }
-    message_show(0x238,0xff460000,0,0,0,0);
+    message_show(0x238,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
     g_gamesave_format_step = 0xe;
     g_gamesave_wait_timer = 0.0;
     gamesave_gather(*(int *)&delta_time);
@@ -156,12 +155,12 @@ LAB_0040b376:
     g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;
     return;
   case 0xf:
-    message_show(0x1c1,0xff460000,0xb,0x2e,0,0);
+    message_show(0x1c1,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
     gamesave_apply();
     g_gamesave_format_step = 0x11;
     return;
   case 0x10:
-    message_show(0x1bc,0xff460000,0xb,0x2e,0,0);
+    message_show(0x1bc,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
     nop_stub();
     g_gamesave_format_step = 0x11;
     g_gamesave_flag_c0c = 1;

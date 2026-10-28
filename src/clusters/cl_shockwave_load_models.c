@@ -38,7 +38,6 @@ extern char g_shockwave_load_6c57f4[];
 extern char g_shockwave_load_6c5e3c[];
 
 /* IEEE-754 bit pattern of 1.0f */
-#define FLOAT_ONE_BITS (0x3f800000)
 /* dwords per entry in the two model tables (inferred: 96-byte entry) */
 #define ENTRY_STRIDE_DWORDS (0x18)
 

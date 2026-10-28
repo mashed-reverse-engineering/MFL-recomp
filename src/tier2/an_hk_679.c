@@ -25,9 +25,6 @@
 /*007ef7b4*/ extern undefined4 g_hud_7ef7b4;
 /*007ef7f8*/ extern float g_menu_wave_time;
 
-#define BUILD_INFO_COLOUR_WHITE (0xffffffff)
-#define FRAME_LINE_WIDTH (0x3f800000) /* 1.0f: width passed to draw_rect for the border lines */
-#define TEXT_FACTOR_FULL (0x3f800000) /* 1.0f: last ui_rt2d_text_draw arg (alpha or scale, inferred) */
 #define TEXT_FACTOR_DIMMED (0x3f333333) /* 0.7f: same arg, used during EVENT_TRAINING */
 #define TEXT_FACTOR_SMALL (0x3f4ccccd) /* 0.8f: same arg, for the lower text lines */
 
@@ -78,7 +75,7 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
   frame.local_20.green = '\0';
   frame.local_20.blue = '\0';
   frame.local_20.alpha = 0xff;
-  frame.local_1c = BUILD_INFO_COLOUR_WHITE;
+  frame.local_1c = COLOUR_WHITE_ARGB;
   scratch_handle = menu_texture_dict_load(0);
   menu_texture_dict_load(1);
   /* 0.8 x 0.8 view window */
@@ -140,23 +137,23 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     frame.uStack_c = 0x3f800000;
     frame.uStack_10 = 0x44200000;
     frame.uStack_18 = 0;
-    draw_rect(0,0x43d00000,0x44200000,FRAME_LINE_WIDTH,BUILD_INFO_COLOUR_WHITE);
+    draw_rect(0,0x43d00000,0x44200000,FLOAT_ONE_BITS,COLOUR_WHITE_ARGB);
     frame.uStack_14 = 0x42800000;
-    draw_rect(0,0x42800000,frame.uStack_10,FRAME_LINE_WIDTH,BUILD_INFO_COLOUR_WHITE);
+    draw_rect(0,0x42800000,frame.uStack_10,FLOAT_ONE_BITS,COLOUR_WHITE_ARGB);
     frame.uStack_18 = 0x44100000;
     frame.uStack_14 = 0;
     frame.uStack_10 = 0x3f800000;
     frame.uStack_c = 0x43848000;
-    draw_rect(0x44100000,0,FRAME_LINE_WIDTH,0x43848000,BUILD_INFO_COLOUR_WHITE);
+    draw_rect(0x44100000,0,FLOAT_ONE_BITS,0x43848000,COLOUR_WHITE_ARGB);
     frame.uStack_c = 0x3f800000;
     frame.uStack_10 = 0x43800000;
     frame.uStack_14 = 0x43848000;
     frame.uStack_18 = 0x43a00000;
-    draw_rect(0x43a00000,0x43848000,0x43800000,FRAME_LINE_WIDTH,BUILD_INFO_COLOUR_WHITE);
+    draw_rect(0x43a00000,0x43848000,0x43800000,FLOAT_ONE_BITS,COLOUR_WHITE_ARGB);
     frame.uStack_10 = 0x44200000;
     frame.uStack_14 = 0x43180000;
     frame.uStack_18 = 0;
-    draw_rect(0,0x43180000,0x44200000,FRAME_LINE_WIDTH,BUILD_INFO_COLOUR_WHITE);
+    draw_rect(0,0x43180000,0x44200000,FLOAT_ONE_BITS,COLOUR_WHITE_ARGB);
     if (g_hud_7ef7b4 == 0) {
       ui_draw_pulsing_texture(-0xd8,0x24,0.4);
     }
@@ -164,16 +161,16 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     frame.uStack_10 = 0x3f800000;
     frame.uStack_14 = 0;
     frame.uStack_18 = 0x43a00000;
-    draw_rect(0x43a00000,0,FRAME_LINE_WIDTH,0x43848000,BUILD_INFO_COLOUR_WHITE);
+    draw_rect(0x43a00000,0,FLOAT_ONE_BITS,0x43848000,COLOUR_WHITE_ARGB);
     /* title line: string from career_row_title_string_id(-1), at x = 310.0 (0x439b0000), y = 168.0 (0x43280000) (x/y inferred) */
-    frame.uStack_24 = BUILD_INFO_COLOUR_WHITE;
+    frame.uStack_24 = COLOUR_WHITE_ARGB;
     event_type_or_result = get_event_type();
     scratch_handle = 1;
     if (event_type_or_result == EVENT_TRAINING) {
       scratch_value = TEXT_FACTOR_DIMMED;
     }
     else {
-      scratch_value = TEXT_FACTOR_FULL;
+      scratch_value = FLOAT_ONE_BITS;
     }
     text_y = 0x43280000;
     text_x = 0x439b0000;
@@ -184,7 +181,7 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
     /* hint text at (320.0, 432.0) (0x43a00000, 0x43d80000), only while g_hud_7ef7b4 is 0 */
     if (g_hud_7ef7b4 == 0) {
-      ui_rt2d_text_draw(0x227,0x43a00000,0x43d80000,BUILD_INFO_COLOUR_WHITE,TEXT_FACTOR_SMALL,2);
+      ui_rt2d_text_draw(0x227,0x43a00000,0x43d80000,COLOUR_WHITE_ARGB,TEXT_FACTOR_SMALL,2);
     }
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);

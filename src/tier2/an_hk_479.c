@@ -3,7 +3,6 @@
 /*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
 #define MATRIX_FLAGS_IDENTITY_ORTHONORMAL (0x20003)
 #define VIEW_MATRIX_FLOAT_COUNT (16)
-#define FLOAT_ONE_BITS (0x3f800000)
 /* camera_view_matrix_from_frame */
 
 /* "inverts the frame LTM and writes the 4x4 view matrix (x/y/z axis negated)"

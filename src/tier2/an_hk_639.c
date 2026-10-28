@@ -15,7 +15,6 @@
 #define PUGLOW_PTANK_TYPE (0x817) /* particle_system_setup_ptank p1 (inferred) */
 #define PUGLOW_PTANK_COUNT (0x19) /* particle_system_setup_ptank p2 (inferred; same as the 25 powerup slots) */
 #define READ_BUFFER_SIZE (0x800) /* bytes of stack buffer for IconCube.dff (inferred) */
-#define FLOAT_ONE_BITS (0x3f800000) /* IEEE-754 bit pattern of 1.0f */
 /* powerups_init */
 /* compile: /GS */
 

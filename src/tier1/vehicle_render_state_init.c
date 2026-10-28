@@ -8,7 +8,6 @@
 /* per-vehicle render state: size in bytes, and float bit patterns written into it */
 #define VEHICLE_RENDER_STATE_SIZE (0xf54)
 #define FLOAT_HALF_BITS (0x3f000000)
-#define FLOAT_ONE_BITS (0x3f800000)
 #define FLOAT_NEG_1_8_BITS (0xbfe66666)
 #define FLOAT_NEG_0_85_BITS (0xbf59999a)
 /* vehicle_render_state_init */

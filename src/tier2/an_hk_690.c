@@ -33,7 +33,6 @@ extern double sin(double);
 #define YAW_AMPLITUDE (0.15000000596046448)
 #define ATTACH_A_HEIGHT (3.52)
 #define ATTACH_B_HEIGHT (3.51)
-#define FLOAT_ONE_BITS (0x3f800000)
 
 /* course_rotating_object_update */
 

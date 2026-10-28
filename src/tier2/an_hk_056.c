@@ -15,7 +15,6 @@
 
 #define SLOT_STRIDE (0xc4)          /* bytes per panel slot record (inferred) */
 #define MATRIX_FLOAT_COUNT (0x10)   /* 4x4 matrix = 16 floats */
-#define FLOAT_ONE_BITS (0x3f800000) /* IEEE-754 bit pattern of 1.0f */
 
 /* btb_panel_slot_set_matrix */
 

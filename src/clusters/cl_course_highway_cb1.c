@@ -270,12 +270,11 @@ blend:
     car->fall_delta = car->fall - car->fall_prev;
     car->rise_delta = car->rise - car->rise_prev;
     frame.ramp = float_barrier(car->blend - g_course_highway_60d95c - g_course_highway_60d958 * car->fall + g_course_highway_60d954 * car->rise);
-    if (frame.ramp >= BLEND_ONE) {
-      car->blend = BLEND_ONE;
-    } else if (!(frame.ramp >= BLEND_ZERO)) {      /* NaN clamps to zero (original: fcomp, test ah,1) */
-      car->blend = BLEND_ZERO;
-    } else {
-      car->blend = frame.ramp;
+    {
+      /* clamp to [0, 1] as the original's nested min / max: the capped value is evaluated twice, the second time from the stored ramp */
+      float capped = BLEND_ONE <= frame.ramp ? BLEND_ONE : frame.ramp;
+
+      car->blend = !(capped >= BLEND_ZERO) ? BLEND_ZERO : (BLEND_ONE <= float_barrier(frame.ramp) ? BLEND_ONE : frame.ramp);
     }
     car->blend_delta = car->blend - car->blend_prev;
     if (car->visible == 0 || !(car->blend_delta < TRAIL_BLEND_DROP) || race_get_phase() != RACE_PHASE_RACING_VALUE) {

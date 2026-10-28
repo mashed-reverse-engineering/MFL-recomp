@@ -107,7 +107,7 @@ void course_rouabout_cb0(int course)
     undefined4 vec_b_y;
     undefined4 vec_b_z;
     float tris [48];
-  } frame;
+  } scan;
   
   bounds = &g_course_6a2614;
   if (*(int *)(course + 0xc154) != 0) {
@@ -137,25 +137,25 @@ void course_rouabout_cb0(int course)
     game_set_option_flags(0x83,0x96,0xa3);
   }
   course_spline_objects_create(course);
-  frame.emit_x = 0xc23af5c3;
-  frame.emit_y = 0.747;
-  frame.emit_z = 0xc28c245a;
-  frame.vec_a_x = 0xbd23d70a;
-  frame.vec_a_y = 0x3cf5c28f;
-  frame.vec_a_z = 0xbd23d70a;
-  frame.vec_b_x = 0x3d23d70a;
-  frame.vec_b_y = 0x3d75c28f;
-  frame.vec_b_z = 0x3d23d70a;
+  scan.emit_x = 0xc23af5c3;
+  scan.emit_y = 0.747;
+  scan.emit_z = 0xc28c245a;
+  scan.vec_a_x = 0xbd23d70a;
+  scan.vec_a_y = 0x3cf5c28f;
+  scan.vec_a_z = 0xbd23d70a;
+  scan.vec_b_x = 0x3d23d70a;
+  scan.vec_b_y = 0x3d75c28f;
+  scan.vec_b_z = 0x3d23d70a;
   texture_dict = find_texture_dict_b("smoke");
   fx_snow_ptank_create(0,texture_dict);
   camera_2 = 0;
   if (0 < *(int *)(course + 0xc004)) {
     cursor = (undefined4 *)(course + 0xc30);
     do {
-      frame.emit_x = *cursor;
-      frame.emit_z = cursor[2];
-      frame.emit_y = *(float *)&cursor[1] - k_f_0_5;
-      particles_slot_set_vectors(0,&frame.emit_x,0x3f19999a,&frame.vec_a_x,&frame.vec_b_x);
+      scan.emit_x = *cursor;
+      scan.emit_z = cursor[2];
+      scan.emit_y = *(float *)&cursor[1] - k_f_0_5;
+      particles_slot_set_vectors(0,&scan.emit_x,0x3f19999a,&scan.vec_a_x,&scan.vec_b_x);
       camera_2 = camera_2 + 1;
       cursor = cursor + 0x10;
     } while (camera_2 < *(int *)(course + 0xc004));
@@ -202,19 +202,19 @@ void course_rouabout_cb0(int course)
       }
       cursor = cursor + 0x10;
     } while ((int)object_ptr < 0x6a21c8);
-    frame.tri_group = 0;
+    scan.tri_group = 0;
     do {
-      frame.key_b1 = (char)frame.tri_group + '3';
-      frame.key_b0 = 0xff;
-      frame.key_b2 = 0xff;
-      frame.key_b3 = 0xff;
-      frame.tri_count = FUN_004c5150(*(undefined4 *)(course + 0xc090),(undefined4)&frame.key_b0,(undefined4)frame.tris,4);
-      frame.tri_i = 0;
-      if (0 < frame.tri_count) {
+      scan.key_b1 = (char)scan.tri_group + '3';
+      scan.key_b0 = 0xff;
+      scan.key_b2 = 0xff;
+      scan.key_b3 = 0xff;
+      scan.tri_count = FUN_004c5150(*(undefined4 *)(course + 0xc090),(undefined4)&scan.key_b0,(undefined4)scan.tris,4);
+      scan.tri_i = 0;
+      if (0 < scan.tri_count) {
         do {
-          camera_2 = frame.tri_i + frame.tri_group * 2;
+          camera_2 = scan.tri_i + scan.tri_group * 2;
           tri = (float *)&g_course_6a23d4 + camera_2 * 9;
-          tri_src = frame.tris + frame.tri_i * 0xc;
+          tri_src = scan.tris + scan.tri_i * 0xc;
           for (comp_i = 0; comp_i < 9; comp_i++) {
             *(int *)&tri[comp_i] = *(int *)&tri_src[comp_i];
           }
@@ -225,7 +225,7 @@ void course_rouabout_cb0(int course)
               *(int *)&tri[6 + comp_i] = tmp;
             }
           }
-          if ((frame.tri_group == 0) && (frame.tri_i == 0)) {
+          if ((scan.tri_group == 0) && (scan.tri_i == 0)) {
             for (comp_i = 0; comp_i < 3; comp_i++) {
               *(int *)&bounds[comp_i] = *(int *)&tri[comp_i];
               *(int *)&bounds[3 + comp_i] = *(int *)&tri[comp_i];
@@ -237,11 +237,11 @@ void course_rouabout_cb0(int course)
               if (tri[vert_i * 3 + comp_i] < bounds[3 + comp_i]) bounds[3 + comp_i] = tri[vert_i * 3 + comp_i];
             }
           }
-          frame.tri_i = frame.tri_i + 1;
-        } while (frame.tri_i < frame.tri_count);
+          scan.tri_i = scan.tri_i + 1;
+        } while (scan.tri_i < scan.tri_count);
       }
-      frame.tri_group = frame.tri_group + 1;
-    } while (frame.tri_group < 8);
+      scan.tri_group = scan.tri_group + 1;
+    } while (scan.tri_group < 8);
     g_course_rouabout_6a2618 = g_course_rouabout_6a2618 + k_f_0_05;
   }
   return;

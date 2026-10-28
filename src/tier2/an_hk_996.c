@@ -64,7 +64,7 @@ void gamesave_format_state_machine(float delta_time)
     return;
   case 3:
     message_close();
-    message_show(0x1c6,0xff460000,0,0,0,0);
+    message_show(0x1c6,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
     nop_stub();
     g_gamesave_wait_timer = 0.0;
     g_gamesave_delete_step = 4;
@@ -74,13 +74,13 @@ void gamesave_format_state_machine(float delta_time)
     break;
   case 5:
     if (g_gamesave_result_code == 0) {
-      message_show(0x1c8,0xff460000,0,0,0,0);
+      message_show(0x1c8,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
       nop_stub();
       g_gamesave_wait_timer = 0.0;
       g_gamesave_delete_step = 8;
       return;
     }
-    message_show(0x1c9,0xff460000,0xb,0x2e,0,0);
+    message_show(0x1c9,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
     g_gamesave_delete_step = 0;
     return;
   default:

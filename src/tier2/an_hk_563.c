@@ -16,7 +16,6 @@
 
 #define TICK_PARITY_MASK (0x80000001)
 #define FLOAT_BITS_NEG_ONE (0xbf800000)
-#define FLOAT_BITS_ONE (0x3f800000)
 #define SLOT_EMPTY (-1)
 #define MATRIX_POS_X (0x30)
 #define MATRIX_POS_Y (0x34)
@@ -119,9 +118,9 @@ void course_city_cb1(void)
     func_0x00455ee0_r(&pos);
   }
   /* random unit vector in the xz plane, scaled and offset from the base point */
-  rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_BITS_ONE);
+  rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_ONE_BITS);
   dir.x = (RwReal)rand_value;
-  rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_BITS_ONE);
+  rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_ONE_BITS);
   dir.z = (RwReal)rand_value;
   RwV3dNormalize(&dir,&dir);
   dir.x = dir.x * k_f_0_4;

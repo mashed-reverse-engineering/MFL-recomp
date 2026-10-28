@@ -24,7 +24,6 @@
 #define MATRIX_WORD_COUNT (0x10) /* 16 words = one 4x4 RwMatrix */
 #define MATRIX_SLOT_BYTES (0x40) /* per-object stride in the matrix tables (g_rw_6fea90, g_rw_6f6f90) */
 #define MATRIX_FLAGS_SET (0x20003) /* bits OR-ed into matrix_flags (inferred) */
-#define FLOAT_ONE_BITS (0x3f800000) /* IEEE 754 bit pattern of 1.0f */
 #define SHADOW_RESULT_NONE (0xffffffff) /* marker stored in shadow_result[6] before the probe (inferred) */
 #define SHADOW_POINTS_STRIDE (6) /* floats per object in shadow_points */
 #define SHADOW_RESULT_STRIDE (10) /* floats per object in shadow_result (0x28 bytes) */

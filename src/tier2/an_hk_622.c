@@ -18,7 +18,6 @@ extern char LAB_00491280[];
 
 #define SLOT_CLEAR_COUNT (200)
 #define GRAVITY_Y_BITS (0xc11ccccd)
-#define FONT_INTERGAP_SPACING (0x3f800000)
 
 /* rwp_world_create_once */
 
@@ -69,7 +68,7 @@ int rwp_world_create_once(int default_value,int value)
     field_value = rw_second_field(world);
     FUN_00571810(field_value,cursor);
     /* set the font intergap spacing to 1.0 (inferred) */
-    scratch = FONT_INTERGAP_SPACING;
+    scratch = FLOAT_ONE_BITS;
     field_value = rw_first_field(world);
     Rt2dFontSetIntergapSpacing(field_value,scratch);
     scratch = 0x19;

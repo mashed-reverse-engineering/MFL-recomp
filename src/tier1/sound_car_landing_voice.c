@@ -12,11 +12,7 @@ extern struct VoiceSlot g_voices[210];
 /*006199e4*/ extern undefined4 g_sound_frame_6199e4;
 /*006ae120*/ extern int g_sound_frame_6ae120[];
 /* voice record offsets, in bytes from the voice pointer in g_voices[].voice */
-#define VOICE_OFF_FLAGS (0x34)
-#define VOICE_OFF_HANDLE (0x30)
-#define VOICE_OFF_FREQ (0x3c)
 #define VOICE_FLAG_BUSY (2) /* set = voice busy, sfx not started (inferred) */
-#define SFX_CAR_FREQ (0x46ac4400) /* float bit pattern 22050.0f */
 #define SFX_CAR_FREQ_F (22050.0f)
 /* sound_car_landing_voice */
 
@@ -44,7 +40,7 @@ void sound_car_landing_voice(int car)
       if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_BUSY) == 0) {
         voice_set_position_from_car(slot, car);
         FUN_005b6a40(g_voices[slot].voice, 1);
-        *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = SFX_CAR_FREQ;
+        *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
         stream = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (stream != 0) {
           FUN_005b7300(stream, 4, 1, SFX_CAR_FREQ_F);

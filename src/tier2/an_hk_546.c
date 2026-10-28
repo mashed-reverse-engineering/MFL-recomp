@@ -15,7 +15,6 @@
 /*006a95b8*/ extern undefined g_load_6a95b8;
 #define LAZER_COUNT (4)
 #define LAZER_RECORD_WORDS (0x16) /* words per lazer record: 0x58 bytes (inferred) */
-#define FLOAT_ONE (0x3f800000) /* bit pattern of 1.0f */
 /* RenderWare blend factors: rwBLENDSRCALPHA / rwBLENDINVSRCALPHA (inferred from the call) */
 #define BLEND_SRC_ALPHA (5)
 #define BLEND_INV_SRC_ALPHA (6)
@@ -52,8 +51,8 @@ void headlight_lazer_init(void)
   headlight_texture = (RwTexture *)find_texture_dict_b("Headlight");
   colour.r = 0;
   colour.g = 0;
-  colour.b = FLOAT_ONE;
-  colour.a = FLOAT_ONE;
+  colour.b = FLOAT_ONE_BITS;
+  colour.a = FLOAT_ONE_BITS;
   lazer_index = LAZER_COUNT;
   particle_system_setup_ptank((uint *)&g_particles_6a93e0,0x807,0x19,headlight_texture);
   ptank_set_blend_modes(&g_particles_6a93e0,BLEND_SRC_ALPHA,BLEND_INV_SRC_ALPHA);
@@ -69,8 +68,8 @@ void headlight_lazer_init(void)
     matrix = RwMatrixCreate();
     *lazer = (int)matrix;
     (matrix->at).z = 1.0;
-    *(undefined4 *)(*lazer + 0x14) = FLOAT_ONE;
-    *(undefined4 *)*lazer = FLOAT_ONE;
+    *(undefined4 *)(*lazer + 0x14) = FLOAT_ONE_BITS;
+    *(undefined4 *)*lazer = FLOAT_ONE_BITS;
     *(undefined4 *)(*lazer + 0x10) = 0;
     *(undefined4 *)(*lazer + 8) = 0;
     *(undefined4 *)(*lazer + 4) = 0;

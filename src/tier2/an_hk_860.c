@@ -11,7 +11,6 @@
 #define SPAWN_DIR_COUNT (3)
 #define SPAWN_PARTICLES_PER_DIR (5)
 #define DIR_COMPONENT_MIN (0xbf800000) /* float -1.0 */
-#define DIR_COMPONENT_MAX (0x3f800000) /* float 1.0 */
 #define SPAWN_POS_JITTER_MIN (0xbecccccd) /* float -0.4 */
 #define SPAWN_POS_JITTER_MAX (0x3ecccccd) /* float 0.4 */
 #define BURST_UP_SPEED_MIN (0x3dcccccd) /* float 0.1 (inferred) */
@@ -53,10 +52,10 @@ void __cdecl course_effect_spawn_at(int obj,undefined4 unused_2,undefined4 unuse
   /* One pass per direction: pick a random unit direction, then emit the particles for it */
   do {
     *(undefined4 *)(obj + 4) = 0x40000000;
-    rnd = (double)random_range(DIR_COMPONENT_MIN,DIR_COMPONENT_MAX);
+    rnd = (double)random_range(DIR_COMPONENT_MIN,FLOAT_ONE_BITS);
     dir_vec->x = (float)rnd;
     dir_vec->y = 1.0;
-    rnd = (double)random_range(DIR_COMPONENT_MIN,DIR_COMPONENT_MAX);
+    rnd = (double)random_range(DIR_COMPONENT_MIN,FLOAT_ONE_BITS);
     dir_vec->z = (float)rnd;
     RwV3dNormalize(dir_vec,dir_vec);
     iVar1 = SPAWN_PARTICLES_PER_DIR;

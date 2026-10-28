@@ -22,7 +22,6 @@
 #define BODY_ID_BASE_GROUP_0 (2000)
 #define BODY_ID_BASE_GROUP_1 (0x834)
 #define BODY_ID_BASE_GROUP_2 (0x898)
-#define FLOAT_BITS_1_0 (0x3f800000)
 #define FLOAT_BITS_10_0 (0x41200000)
 #define FLOAT_BITS_25_0 (0x41c80000)
 
@@ -81,7 +80,7 @@ void __cdecl course_highway_physics_objects_create(int game_state)
       frame.pos_y = (&g_course_8c3f64)[frame.group_index * SPAWN_TABLE_STRIDE];
       frame.pos_z = (&g_course_highway_8c3f68)[frame.group_index * SPAWN_TABLE_STRIDE];
       object_id = rwp_object_create_from_atomic
-                        (atomic,&frame.pos_x,0.0,0,FLOAT_BITS_1_0,FLOAT_BITS_25_0,body_index + game_state);
+                        (atomic,&frame.pos_x,0.0,0,FLOAT_ONE_BITS,FLOAT_BITS_25_0,body_index + game_state);
       body_record[3] = object_id;
       object_handle = rwp_object_get_handle(object_id);
       *body_record = object_handle;

@@ -36,15 +36,8 @@ extern struct VoiceSlotP g_voices[210];
 #define SOUND_GROUP_FADE_IN_OFF (0x590)
 #define SOUND_GROUP_SPLINE_OFF (0x500)
 /* offsets inside a voice record (inferred from use) */
-#define VOICE_FLAGS_OFF (0x34)
 #define VOICE_FLAG_SETUP_DONE (2)
-#define VOICE_HANDLE_OFF (0x30)
-#define VOICE_FREQ_OFF (0x3c)
-#define VOICE_POS_X_OFF (0x58)
-#define VOICE_POS_Y_OFF (0x5c)
-#define VOICE_POS_Z_OFF (0x60)
 /* raw IEEE-754 bits of 22050.0f (default playback frequency in Hz, inferred), stored and passed as a DWORD */
-#define VOICE_DEFAULT_FREQ_BITS (0x46ac4400)
 #define VOICE_DEFAULT_FREQ_BITS_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 /* x87 status word bit positions used by the emulated compare (C0, C2, C3) */
 
@@ -82,10 +75,10 @@ void sound_ambience_course_f_24(void)
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_FADE_OUT_OFF);
     voice_rec = g_voices[voice_slot].voice;
     /* First use: set up the voice record (flag bit not set yet) (inferred) */
-    if ((*(byte *)(voice_rec + VOICE_FLAGS_OFF) & VOICE_FLAG_SETUP_DONE) == 0) {
+    if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_SETUP_DONE) == 0) {
       FUN_005b6a40(voice_rec,1);
-      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQ_OFF) = VOICE_DEFAULT_FREQ_BITS;
-      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_HANDLE_OFF);
+      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
         voice_rec = FUN_005b7300(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
@@ -106,10 +99,10 @@ void sound_ambience_course_f_24(void)
     /* Fade-in voice: volume = camera height ratio clamped to [0, 1] (inferred) */
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_FADE_IN_OFF);
     voice_rec = g_voices[voice_slot].voice;
-    if ((*(byte *)(voice_rec + VOICE_FLAGS_OFF) & VOICE_FLAG_SETUP_DONE) == 0) {
+    if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_SETUP_DONE) == 0) {
       FUN_005b6a40(voice_rec,1);
-      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQ_OFF) = VOICE_DEFAULT_FREQ_BITS;
-      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_HANDLE_OFF);
+      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
         voice_rec = FUN_005b7300(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
@@ -127,10 +120,10 @@ void sound_ambience_course_f_24(void)
     voice_set_volume(voice_slot,camera_pos.height_t);
     voice_slot = *(int *)(g_sound_groups + SOUND_GROUP_SPLINE_OFF);
     voice_rec = g_voices[voice_slot].voice;
-    if ((*(byte *)(voice_rec + VOICE_FLAGS_OFF) & VOICE_FLAG_SETUP_DONE) == 0) {
+    if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_SETUP_DONE) == 0) {
       FUN_005b6a40(voice_rec,1);
-      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQ_OFF) = VOICE_DEFAULT_FREQ_BITS;
-      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_HANDLE_OFF);
+      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
         voice_rec = FUN_005b7300(voice_handle,4,1,VOICE_DEFAULT_FREQ_BITS_F);
@@ -158,10 +151,10 @@ void sound_ambience_course_f_24(void)
                 (g_sound_6ad1e4,10,g_sound_ambience_6ae1a8,(RwV3d *)&g_sound_ambience_6ae0a0,
                  (RwV3d *)0x0);
       voice_rec = g_voices[voice_slot].voice;
-      *(undefined4 *)(voice_rec + VOICE_POS_X_OFF) = g_sound_ambience_6ae0a0;
-      *(undefined4 *)(voice_rec + VOICE_POS_Y_OFF) = g_sound_ambience_6ae0a4;
-      *(undefined4 *)(voice_rec + VOICE_POS_Z_OFF) = g_sound_ambience_6ae0a8;
-      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_HANDLE_OFF);
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_X) = g_sound_ambience_6ae0a0;
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = g_sound_ambience_6ae0a4;
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = g_sound_ambience_6ae0a8;
+      voice_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       voice_rec = 0;
       if (voice_handle != 0) {
         voice_rec = FUN_005b72a0(voice_handle,0,1,&g_sound_ambience_6ae0a0);

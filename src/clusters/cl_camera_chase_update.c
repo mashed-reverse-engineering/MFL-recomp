@@ -181,7 +181,7 @@ void camera_chase_update(CameraRecord *rec, int *view)
     offset_to_camera.y = position.y - target.y;
     offset_to_camera.z = position.z - target.z;
     distance = RwV3dLength(&offset_to_camera);
-    if (rec->distance_param <= CHASE_DISTANCE_MODE) {
+    if (!(rec->distance_param > CHASE_DISTANCE_MODE)) {      /* a NaN parameter takes this branch */
         float d = CHASE_MAX_DISTANCE - distance;
 
         if (d < CHASE_MIN_DISTANCE)

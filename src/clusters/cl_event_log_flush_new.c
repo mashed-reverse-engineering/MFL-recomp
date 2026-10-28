@@ -12,7 +12,6 @@ extern struct EventLogArgs g_event_log_args[256];
 #define EVENT_LOG_SIZE (256)
 #define EVENT_LOG_LAST_INDEX (0xff)
 #define EVENT_TYPE_COUNT (0xd)
-#define EVENT_PARAM_BASE (0xff00)
 
 /*
  * event_log_flush_new
@@ -20,7 +19,7 @@ extern struct EventLogArgs g_event_log_args[256];
  * Walks the event log ring buffer backwards from g_event_log_head and dispatches
  * the entries logged in the current frame (time == g_last_frame_ticks), stopping at
  * the first entry from an earlier frame. Type 6 entries are dispatched at most once
- * per param, tracked in dispatched[] at index (param - EVENT_PARAM_BASE) (inferred),
+ * per param, tracked in dispatched[] at index (param - CAR_ID_BASE) (inferred),
  * and only when arg0 is one of the two marker values (inferred).
  *
  * Takes no parameters; returns nothing.
@@ -64,9 +63,9 @@ void event_log_flush_new(void)
         if (event_type == 6) {
           param = (&g_event_log_param)[entry];
           if (((g_event_log_args[entry].arg0 == 0xff0000ff) ||
-              (g_event_log_args[entry].arg0 == 0xffff0080)) && (dispatched[param + -EVENT_PARAM_BASE] == 0)) {
+              (g_event_log_args[entry].arg0 == 0xffff0080)) && (dispatched[param + -CAR_ID_BASE] == 0)) {
             event_log_dispatch_r(entry);
-            dispatched[param + -EVENT_PARAM_BASE] = 1;
+            dispatched[param + -CAR_ID_BASE] = 1;
           }
         }
         else {

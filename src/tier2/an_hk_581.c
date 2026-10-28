@@ -10,14 +10,8 @@ extern struct VoiceSlotP g_voices[210];
 /*006187f8*/ extern undefined4 g_sfx_table;
 
 #define SFX_TABLE_STRIDE (0x25) /* g_sfx_table entries per effect (inferred) */
-#define VOICE_OFF_FLAGS (0x34) /* voice record: flags byte */
 #define VOICE_FLAG_NO_PLAY (2) /* flags bit that skips playback (inferred) */
-#define VOICE_OFF_POS_X (0x58) /* voice record: position x, y, z (inferred) */
-#define VOICE_OFF_POS_Y (0x5c)
-#define VOICE_OFF_POS_Z (0x60)
-#define VOICE_OFF_HANDLE (0x30) /* voice record: handle passed to FUN_005b72a0 / FUN_005b7300 (inferred) */
 #define VOICE_OFF_RATE (0x3c) /* voice record: playback rate (inferred) */
-#define VOICE_DEFAULT_RATE (0x46ac4400) /* 22050.0f as raw bits, the decompiler shows it as int (inferred) */
 #define VOICE_DEFAULT_RATE_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 
 /* sfx_play_voice_at */
@@ -53,7 +47,7 @@ void sfx_play_voice_at(int effect_id,undefined4 *position,int voice_index)
       }
       FUN_005b6a40(g_voices[voice_index].voice,1);
       /* set the default playback rate, then the handle's parameter */
-      *(undefined4 *)(g_voices[voice_index].voice + VOICE_OFF_RATE) = VOICE_DEFAULT_RATE;
+      *(undefined4 *)(g_voices[voice_index].voice + VOICE_OFF_RATE) = VOICE_DEFAULT_FREQ_BITS;
       state_or_handle = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
       set_param_result = 0;
       if (state_or_handle != 0) {

@@ -6,7 +6,6 @@
 #define CAMERA_NEAR_OFFSET (0x80)
 #define CAMERA_FAR_OFFSET (0x84)
 /* 1.0f as raw bits */
-#define FLOAT_ONE_BITS (0x3f800000)
 
 /* camera_view_params_pack */
 

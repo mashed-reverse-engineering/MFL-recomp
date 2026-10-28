@@ -16,7 +16,6 @@
 /*008d8c00*/ extern undefined4 g_gamesave_result_code;
 /*008d8c08*/ extern float g_gamesave_wait_timer;
 /*008d8c10*/ extern undefined4 g_gamesave_status_poll_count;
-#define AUTOSAVE_MESSAGE_COLOUR (0xff460000) /* message_show colour argument (inferred) */
 /* gamesave_autosave_state_machine */
 
 /* "'Waiting for autosave status' / 'status change' state machine" */
@@ -54,7 +53,7 @@ void gamesave_autosave_state_machine(float delta_time)
     break;
   case 3:
     /* step 3: show "saving" message, gather save data, start the wait timer */
-    message_show(0x237,AUTOSAVE_MESSAGE_COLOUR,0,0,0,0);
+    message_show(0x237,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
     gamesave_gather();
     g_gamesave_wait_timer = 0.0;
     g_autosave_step = 4;
@@ -78,7 +77,7 @@ void gamesave_autosave_state_machine(float delta_time)
     /* step 5: show the message that matches the save result code */
     switch(g_gamesave_result_code) {
     case 0:
-      message_show(0x1bc,AUTOSAVE_MESSAGE_COLOUR,0xb,0x2e,0,0);
+      message_show(0x1bc,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
       nop_stub();
       g_autosave_step = 0xb;
       return;
@@ -89,21 +88,21 @@ void gamesave_autosave_state_machine(float delta_time)
       message_id = 0x1ba;
       break;
     case 3:
-      message_show(0x24e,AUTOSAVE_MESSAGE_COLOUR,2,0x2f,0x30,0);
+      message_show(0x24e,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
       g_autosave_step = 8;
       return;
     default:
       message_id = 0x1bb;
     }
-    message_show(message_id,AUTOSAVE_MESSAGE_COLOUR,0xb,0x2e,0,0);
+    message_show(message_id,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
     g_autosave_step = 0;
     return;
   case 6:
-    message_show(0x1c5,AUTOSAVE_MESSAGE_COLOUR,2,0x2f,0x30,0);
+    message_show(0x1c5,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
     g_autosave_step = 7;
     return;
   case 9:
-    message_show(0x280,AUTOSAVE_MESSAGE_COLOUR,2,0x2f,0x30,0);
+    message_show(0x280,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
     g_autosave_step = 10;
     return;
   default:

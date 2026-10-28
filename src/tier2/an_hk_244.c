@@ -10,7 +10,6 @@
 #define OBJ_MATRIX_OFFSET (0x34)
 #define OBJ_TEXTURE_PTR_OFFSET (0xa4)
 #define OBJ_TEXTURED_FLAG_OFFSET (0x118)
-#define FLOAT_ONE_BITS (0x3f800000)
 #define UV_TABLE_HALF_BYTES (0x10)
 
 /* course_quad_render_a */

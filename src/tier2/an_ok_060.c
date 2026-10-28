@@ -248,7 +248,6 @@ typedef struct rwp_object_set_contact_params_contact_layout {
 
 extern RpAtomic * rwp_collision_mesh_to_geometry(char *param_1,char *param_2);
 
-#define FLOAT_1_0_BITS (0x3f800000)
 #define FLOAT_0_5_BITS (0x3f000000)
 
 
@@ -275,8 +274,8 @@ int rwp_object_set_contact_params(int object,undefined4 *value)
     do {
       contact = (rwp_object_set_contact_params_contact_layout *)(*(char **)(*(char **)(body + 0x20) + contact_index * 4));
       contact->f_0x4 = *value;
-      contact->f_0xc = FLOAT_1_0_BITS;
-      contact->f_0x10 = FLOAT_1_0_BITS;
+      contact->f_0xc = FLOAT_ONE_BITS;
+      contact->f_0x10 = FLOAT_ONE_BITS;
       contact->f_0x14 = FLOAT_0_5_BITS;
       contact_index = contact_index + 1;
     } while (contact_index < *(int *)(body + 0x24));

@@ -13,10 +13,7 @@ extern struct VoiceSlotP g_voices[210];
 #define GROUP_RECORD_SIZE (0x90)
 #define GROUP_VOICE_SLOT_OFS (0x6b0)
 #define GROUP_VOICE_TRIES (2)
-#define VOICE_HANDLE_OFS (0x30)
-#define VOICE_FLAGS_OFS (0x34)
 #define VOICE_FLAG_IN_USE (2)
-#define VOICE_POS_X_OFS (0x58)
 #define VOICE_PITCH_OFS (0x3c)
 /* sfx_play_group_voice_at */
 /* "(?, position*, group): starts two voices of a group with a pitch ramp (inferred)" */
@@ -46,10 +43,10 @@ void __cdecl sfx_play_group_voice_at(undefined4 *position,int group)
     do {
       voice = g_voices[app_state].voice;
       /* Only a voice that is not in use is taken. */
-      if ((*(byte *)(voice + VOICE_FLAGS_OFS) & VOICE_FLAG_IN_USE) == 0) {
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & VOICE_FLAG_IN_USE) == 0) {
         /* Copy the position into the voice record. */
-        *(RwV3d *)(voice + VOICE_POS_X_OFS) = *(RwV3d *)position;
-        sample_handle = *(int *)(g_voices[app_state].voice + VOICE_HANDLE_OFS);
+        *(RwV3d *)(voice + VOICE_OFF_POS_X) = *(RwV3d *)position;
+        sample_handle = *(int *)(g_voices[app_state].voice + VOICE_OFF_HANDLE);
         if (sample_handle != 0) {
           FUN_005b72a0(sample_handle,0,1,position);
         }
@@ -58,7 +55,7 @@ void __cdecl sfx_play_group_voice_at(undefined4 *position,int group)
         pitch = (float)tries_left * k_f_2000 + k_f_22050;
         *(float *)(g_voices[app_state].voice + VOICE_PITCH_OFS) = pitch;
         /* From here tries_left holds the sample handle, not a count (reused). */
-        tries_left = *(int *)(g_voices[app_state].voice + VOICE_HANDLE_OFS);
+        tries_left = *(int *)(g_voices[app_state].voice + VOICE_OFF_HANDLE);
         pitch_call_result = 0;
         if (tries_left != 0) {
           pitch_call_result = FUN_005b7300(tries_left,4,1,pitch);

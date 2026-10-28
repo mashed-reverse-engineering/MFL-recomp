@@ -9,7 +9,6 @@ extern char g_fx_emitter_6c51c4[];
 /* ints from one emitter slot to the next in the g_gfx_6c4304 table */
 #define FX_EMITTER_SLOT_INTS (0x1d8)
 /* bit pattern of 1.0f, passed to fx_emitter_init as an int */
-#define FLOAT_ONE_BITS (0x3f800000)
 
 
 /* fx_emitter_spawn_a */

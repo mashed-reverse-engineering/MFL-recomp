@@ -31,8 +31,6 @@ extern int g_sound_groups, g_sound_7dabec;
 extern void *g_sound_7dabe8;
 extern unsigned int g_sound_6ad088[];
 extern int PTR_s_skid_on_wet_tarmac_006229a0[];
-#define VOICE_SOUND_OBJECT_OFFSET (0x30) /* voice record: sound object passed to FUN_005b7300 (0 = none) */
-#define VOICE_FLAGS_OFFSET (0x34) /* voice record flags */
 #define VOICE_FLAG_LOOP (4) /* set when the group loop flag (+0x88) is non-zero (inferred) */
 #define SOUND_GROUP_FIRST_VOICE (0x80) /* group record: index of its first voice slot */
 #define SOUND_GROUP_VOICE_COUNT (0x84)
@@ -107,13 +105,13 @@ void sound_load_course_audio(int course_id)
       } while (group_index != 0);
     }
     for (voice = g_sound_6ad8a4; voice < g_sound_6ad8a4 + g_sound_load_6ad8a0; voice++) {
-      *(unsigned int *)(g_voices[voice].voice + VOICE_FLAGS_OFFSET) |= VOICE_FLAG_LOOP;
-      if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
-        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 8, 1, 1);
+      *(unsigned int *)(g_voices[voice].voice + VOICE_OFF_FLAGS) |= VOICE_FLAG_LOOP;
+      if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
+        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 1);
       }
       *(int *)(g_voices[voice].voice + 0x44) = 0;
-      if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
-        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 10, 1, 0);
+      if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
+        FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 10, 1, 0);
       }
     }
     voice = g_sound_6ad8a4;
@@ -123,20 +121,20 @@ void sound_load_course_audio(int course_id)
       for (i = 0; i < *(unsigned int *)(group_rec + SOUND_GROUP_VOICE_COUNT); i++) {
         FUN_005b6a80(g_voices[voice].voice, g_sound_6ad088[group_index]);
         if (*(int *)(group_rec + SOUND_GROUP_LOOP) == 0) {
-          *(unsigned int *)(g_voices[voice].voice + VOICE_FLAGS_OFFSET) &= ~VOICE_FLAG_LOOP;
-          if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
-            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 8, 1, 0);
+          *(unsigned int *)(g_voices[voice].voice + VOICE_OFF_FLAGS) &= ~VOICE_FLAG_LOOP;
+          if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
+            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 0);
           }
         }
         else {
-          *(unsigned int *)(g_voices[voice].voice + VOICE_FLAGS_OFFSET) |= VOICE_FLAG_LOOP;
-          if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
-            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 8, 1, 1);
+          *(unsigned int *)(g_voices[voice].voice + VOICE_OFF_FLAGS) |= VOICE_FLAG_LOOP;
+          if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
+            FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 8, 1, 1);
           }
         }
         *(int *)(g_voices[voice].voice + 0x74) = *(int *)(group_rec + SOUND_GROUP_VOLUME);
-        if (*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET) != 0) {
-          FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_SOUND_OBJECT_OFFSET), 3, 1, *(int *)(group_rec + SOUND_GROUP_VOLUME));
+        if (*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE) != 0) {
+          FUN_005b7300(*(int *)(g_voices[voice].voice + VOICE_OFF_HANDLE), 3, 1, *(int *)(group_rec + SOUND_GROUP_VOLUME));
         }
         voice++;
       }

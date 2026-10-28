@@ -11,11 +11,6 @@ extern struct VoiceSlotP g_voices[210];
 #define SOUND_GROUP_STRIDE (0x90)
 #define SOUND_GROUP_FIRST_VOICE (0x80)
 #define SOUND_GROUP_VOICE_COUNT (0x84)
-#define VOICE_HANDLE (0x30)
-#define VOICE_FLAGS (0x34)
-#define VOICE_POS_X (0x58)
-#define VOICE_POS_Y (0x5c)
-#define VOICE_POS_Z (0x60)
 /* sfx_play_group_at */
 
 /* "(group, position* or null): starts the voices of a g_sound_groups record (+0x80 first voice,
@@ -40,20 +35,20 @@ void sfx_play_group_at(int group_index,undefined4 *position)
     for (voices_left = *(int *)(voices_left + SOUND_GROUP_VOICE_COUNT); 0 < voices_left; voices_left = voices_left + -1) {
       voice = g_voices[voice_index].voice;
       /* skip voices whose flags have bit 0x2 set (inferred: busy) */
-      if ((*(byte *)(voice + VOICE_FLAGS) & 2) == 0) {
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & 2) == 0) {
         /* optional position: copy the three floats into the voice */
         if (position != (undefined4 *)0x0) {
-          *(undefined4 *)(voice + VOICE_POS_X) = *position;
-          *(undefined4 *)(voice + VOICE_POS_Y) = position[1];
-          *(undefined4 *)(voice + VOICE_POS_Z) = position[2];
-          voices_left = *(int *)(g_voices[voice_index].voice + VOICE_HANDLE);
+          *(undefined4 *)(voice + VOICE_OFF_POS_X) = *position;
+          *(undefined4 *)(voice + VOICE_OFF_POS_Y) = position[1];
+          *(undefined4 *)(voice + VOICE_OFF_POS_Z) = position[2];
+          voices_left = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
           if (voices_left != 0) {
             FUN_005b72a0(voices_left,0,1,position);
           }
         }
         FUN_005b6a40(g_voices[voice_index].voice,1);
-        *(undefined4 *)(g_voices[voice_index].voice + 0x3c) = 0x46ac4400;
-        voices_left = *(int *)(g_voices[voice_index].voice + VOICE_HANDLE);
+        *(undefined4 *)(g_voices[voice_index].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
+        voices_left = *(int *)(g_voices[voice_index].voice + VOICE_OFF_HANDLE);
         fx_result = 0;
         if (voices_left != 0) {
           fx_result = FUN_005b7300(voices_left,4,1,22050.0f);

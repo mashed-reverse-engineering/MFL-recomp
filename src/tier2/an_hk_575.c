@@ -9,10 +9,7 @@ extern struct VoiceSlotP g_voices[210];
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*00618c98*/ extern undefined4 g_sound_618c98;
 #define CAR_MODE_VOICE (2) /* car mode from car_get_mode (inferred) */
-#define VOICE_FLAGS_OFFSET (0x34)
-#define VOICE_HANDLE_OFFSET (0x30)
 #define VOICE_INIT_OFFSET (0x3c)
-#define VOICE_INIT_VALUE (0x46ac4400) /* float bit pattern (inferred) */
 #define VOICE_INIT_VALUE_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 #define VOICE_MODE2_VOLUME (0.7)
 /* sound_car_mode_2_voice */
@@ -39,11 +36,11 @@ void sound_car_mode_2_voice(int car_index)
   car_get_mode(car_index,&car_index,&mode_count);
   if ((car_index == CAR_MODE_VOICE) && (0 < mode_count)) {
     /* only (re)start the voice when flag bit 2 is clear (inferred: not already playing) */
-    if ((*(byte *)(g_voices[voice_slot].voice + VOICE_FLAGS_OFFSET) & 2) == 0) {
+    if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & 2) == 0) {
       voice_set_position_from_car(voice_slot,iVar2);
       FUN_005b6a40(g_voices[voice_slot].voice,1);
-      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_INIT_OFFSET) = VOICE_INIT_VALUE;
-      iVar2 = *(int *)(g_voices[voice_slot].voice + VOICE_HANDLE_OFFSET);
+      *(undefined4 *)(g_voices[voice_slot].voice + VOICE_INIT_OFFSET) = VOICE_DEFAULT_FREQ_BITS;
+      iVar2 = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       handle_result = 0;
       if (iVar2 != 0) {
         handle_result = FUN_005b7300(iVar2,4,1,VOICE_INIT_VALUE_F);

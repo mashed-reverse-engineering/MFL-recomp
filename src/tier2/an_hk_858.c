@@ -46,7 +46,6 @@
 #define BOMB_DAMAGE_BITS (0x42480000) /* float 50.0f, car_set_damage amount (inferred) */
 #define BOMB_BLAST_FX_SCALE_BITS (0x43b40000) /* float 360.0f, fx_emitter_spawn_a_default scale (inferred) */
 #define FX_RING_LARGE_BITS (0x40000000) /* float 2.0f */
-#define FX_RING_SMALL_BITS (0x3f800000) /* float 1.0f */
 
 /* bomb_update */
 
@@ -130,7 +129,7 @@ void bomb_update(void)
     frame.pos_x = frame.pos_x + k_f_0_03;
     car_apply_rwp_impulse(g_bomb_7ef7c8,&frame.sphere,&frame.pos_x);
     fx_ring_add_point(part_position,FX_RING_LARGE_BITS);
-    fx_ring_add_point(part_position,FX_RING_SMALL_BITS);
+    fx_ring_add_point(part_position,FLOAT_ONE_BITS);
     car_kill(0x0);
     g_car_7ef7b0 = 0;
   }

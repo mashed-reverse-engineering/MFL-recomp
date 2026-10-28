@@ -13,7 +13,6 @@
 #define OFFSET_GROUP_SIZE (10)
 #define GROUPS_PER_LANE (4)
 #define COURSE_OBJECT_RECORD_WORDS (0x3f)
-#define FLOAT_1_0_BITS (0x3f800000)
 #define MATRIX_FLAGS_IDENTITY_ORTHONORMAL (rwMATRIXINTERNALIDENTITY | rwMATRIXTYPEORTHONORMAL)
 /* course_object_offsets_init */
 
@@ -168,7 +167,7 @@ void course_object_offsets_init(void)
     record[-0xc] = *(int *)(tmp + 0x20);
     record[-0xb] = *(int *)(tmp + 0x24);
     tmp = *(int *)(tmp + 0x28);
-    record[6] = FLOAT_1_0_BITS;
+    record[6] = FLOAT_ONE_BITS;
     record[0xf] = 1;
     next_record = record + COURSE_OBJECT_RECORD_WORDS;
     object_index = object_index + 1;

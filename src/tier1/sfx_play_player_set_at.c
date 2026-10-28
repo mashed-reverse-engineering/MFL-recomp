@@ -10,10 +10,7 @@ extern struct VoiceSlotP g_voices[210];
 /*005de238*/ extern float k_f_2000;
 /*005df99c*/ extern float k_f_22050;
 /*00618c98*/ extern undefined4 g_sound_618c98;
-#define VOICE_FLAGS_OFF (0x34)
 #define VOICE_FLAG_IN_USE (2) /* (inferred) */
-#define VOICE_EMITTER_OFF (0x30)
-#define VOICE_POS_X_OFF (0x58)
 #define VOICE_PITCH_OFF (0x3c)
 #define VOICE_FULL_VOLUME (1.0)
 #define SFX_SET_VOICE_COUNT (4)
@@ -43,16 +40,16 @@ void __cdecl sfx_play_player_set_at(undefined4 *position)
       voice = g_voices[slot_index].voice;
       /* Free voice (IN_USE flag clear): start it. voices_left is reused here to
        * hold the emitter handle until the set-rate call. */
-      if ((*(byte *)(voice + VOICE_FLAGS_OFF) & VOICE_FLAG_IN_USE) == 0) {
-        *(RwV3d *)(voice + VOICE_POS_X_OFF) = *(RwV3d *)position;
-        emitter = *(int *)(g_voices[slot_index].voice + VOICE_EMITTER_OFF);
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & VOICE_FLAG_IN_USE) == 0) {
+        *(RwV3d *)(voice + VOICE_OFF_POS_X) = *(RwV3d *)position;
+        emitter = *(int *)(g_voices[slot_index].voice + VOICE_OFF_HANDLE);
         if (emitter != 0) {
           FUN_005b72a0(emitter,0,1,position);
         }
         FUN_005b6a40(g_voices[slot_index].voice,1);
         pitch = (float)voices_left * k_f_2000 + k_f_22050;
         *(float *)(g_voices[slot_index].voice + VOICE_PITCH_OFF) = pitch;
-        voices_left = *(int *)(g_voices[slot_index].voice + VOICE_EMITTER_OFF);
+        voices_left = *(int *)(g_voices[slot_index].voice + VOICE_OFF_HANDLE);
         rate_result = 0;
         if (voices_left != 0) {
           rate_result = FUN_005b7300(voices_left,4,1,pitch);

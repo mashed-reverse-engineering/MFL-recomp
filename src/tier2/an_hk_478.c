@@ -25,7 +25,6 @@
 
 #define SPLASH_ATOMICS_PER_SLOT (10)
 #define SLOT_STRIDE_DWORDS (0x29)
-#define FLOAT_ONE_BITS (0x3f800000)
 
 /* Sets up the waterfall and shockwave particle effects. Takes no parameters, returns nothing.
    Creates the "wfall" and "shockwave" particle systems, loads the Splash.dff clump and gives its

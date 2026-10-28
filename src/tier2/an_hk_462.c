@@ -5,7 +5,6 @@
 /*00658d2c*/ extern undefined4 g_load_ghost_658d2c;
 /*00658dac*/ extern char g_score_658dac[];
 
-#define FLOAT_ONE_BITS (0x3f800000) /* IEEE-754 bit pattern of 1.0f */
 /* load_ghost_model */
 
 /* ghost.dff */

@@ -9,7 +9,6 @@
 /*005ddb20*/ extern float k_f_0_9;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*008c58c0*/ extern undefined4 g_course_arctic_8c58c0;
-#define FLOAT_ONE_BITS (0x3f800000) /* bit pattern of 1.0f, upper bound passed to random_range (inferred) */
 /* course_arctic_cb3
  * Per-frame update and render for the arctic course: sky clumps plus a falling-snow effect.
  * Takes no parameters, returns nothing.

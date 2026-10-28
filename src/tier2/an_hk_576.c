@@ -17,12 +17,6 @@ extern struct VoiceSlotP g_voices[210];
 /*00619df0*/ extern undefined4 g_sound_frame_619df0;
 #define SORT_SLOTS (10)
 #define NEAREST_VOICE_COUNT (3)
-#define VOICE_STREAM_OFF (0x30)
-#define VOICE_FLAGS_OFF (0x34)
-#define VOICE_FREQ_OFF (0x3c)
-#define VOICE_POS_X_OFF (0x58)
-#define VOICE_POS_Y_OFF (0x5c)
-#define VOICE_POS_Z_OFF (0x60)
 /* sound_nearest_objects_sort */
 
 /* "computes camera distance of all course objects/fx and bubble-sorts them nearest first" */
@@ -108,10 +102,10 @@ void sound_nearest_objects_sort(void)
       voice_slot = g_sound_frame_619010 + index;
       voice = g_voices[voice_slot].voice;
       /* voice flag bit 2 (meaning unknown) not set: (re)initialise the voice */
-      if ((*(byte *)(voice + VOICE_FLAGS_OFF) & 2) == 0) {
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & 2) == 0) {
         FUN_005b6a40(voice,1);
-        *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQ_OFF) = 0x46ac4400;
-        voice_stream = *(int *)(g_voices[voice_slot].voice + VOICE_STREAM_OFF);
+        *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+        voice_stream = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
         voice = 0;
         if (voice_stream != 0) {
           voice = FUN_005b7300(voice_stream,4,1,22050.0f);
@@ -121,10 +115,10 @@ void sound_nearest_objects_sort(void)
       /* copy the object position into the voice */
       voice = g_voices[voice_slot].voice;
       object_pos_raw = (undefined4 *)frame.object_ptrs[index];
-      *(undefined4 *)(voice + VOICE_POS_X_OFF) = *object_pos_raw;
-      *(undefined4 *)(voice + VOICE_POS_Y_OFF) = object_pos_raw[1];
-      *(undefined4 *)(voice + VOICE_POS_Z_OFF) = object_pos_raw[2];
-      voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_STREAM_OFF);
+      *(undefined4 *)(voice + VOICE_OFF_POS_X) = *object_pos_raw;
+      *(undefined4 *)(voice + VOICE_OFF_POS_Y) = object_pos_raw[1];
+      *(undefined4 *)(voice + VOICE_OFF_POS_Z) = object_pos_raw[2];
+      voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       if (voice_slot != 0) {
         FUN_005b72a0(voice_slot,0,1,object_pos_raw);
       }
@@ -134,10 +128,10 @@ void sound_nearest_objects_sort(void)
     object_count = g_sound_frame_619df0;
     if (frame.fx_flag == 1) {
       voice = g_voices[g_sound_frame_619df0].voice;
-      if ((*(byte *)(voice + VOICE_FLAGS_OFF) & 2) == 0) {
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & 2) == 0) {
         FUN_005b6a40(voice,1);
-        *(undefined4 *)(g_voices[object_count].voice + VOICE_FREQ_OFF) = 0x46ac4400;
-        index = *(int *)(g_voices[object_count].voice + VOICE_STREAM_OFF);
+        *(undefined4 *)(g_voices[object_count].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+        index = *(int *)(g_voices[object_count].voice + VOICE_OFF_HANDLE);
         voice = 0;
         if (index != 0) {
           voice = FUN_005b7300(index,4,1,22050.0f);
@@ -146,10 +140,10 @@ void sound_nearest_objects_sort(void)
       voice_set_volume(object_count,1.0);
       object_pos_raw = (undefined4 *)fx_object_get_position(0);
       voice = g_voices[object_count].voice;
-      *(undefined4 *)(voice + VOICE_POS_X_OFF) = *object_pos_raw;
-      *(undefined4 *)(voice + VOICE_POS_Y_OFF) = object_pos_raw[1];
-      *(undefined4 *)(voice + VOICE_POS_Z_OFF) = object_pos_raw[2];
-      object_count = *(int *)(g_voices[object_count].voice + VOICE_STREAM_OFF);
+      *(undefined4 *)(voice + VOICE_OFF_POS_X) = *object_pos_raw;
+      *(undefined4 *)(voice + VOICE_OFF_POS_Y) = object_pos_raw[1];
+      *(undefined4 *)(voice + VOICE_OFF_POS_Z) = object_pos_raw[2];
+      object_count = *(int *)(g_voices[object_count].voice + VOICE_OFF_HANDLE);
       if (object_count != 0) {
         FUN_005b72a0(object_count,0,1,object_pos_raw);
       }

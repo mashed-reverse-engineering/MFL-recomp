@@ -7,7 +7,6 @@ extern char g_fx_emitter_6c51c4[];
 /* ints from one emitter slot to the next in the g_gfx_6c4304 table */
 #define FX_EMITTER_SLOT_INTS (0x1d8)
 /* bit pattern of 1.0f, passed to fx_emitter_init_r as an int */
-#define FLOAT_ONE_BITS (0x3f800000)
 
 __declspec(naked) int fx_emitter_init_r(int reg_edi, float * param_2, undefined4 param_3, undefined4 unused_4, float unused_5, int unused_6, undefined4 unused_7)
 {

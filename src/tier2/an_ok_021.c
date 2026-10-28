@@ -713,7 +713,6 @@ extern RwCamera * ui_camera_create(RwInt32 width,RwInt32 height,char *param_3);
 
 #define RECT_WIDTH_640 (0x44200000)
 #define RECT_COLOUR_DIM (0xa0000000)
-#define COLOUR_WHITE (0xffffffff)
 #define CREDITS_SCROLL_DELAY (15000)
 
 
@@ -741,8 +740,8 @@ void credits_update_draw(void)
   /* two full-width background panels (inferred), then two white top/bottom bars (inferred) */
   gfx_draw_rect_2d_flat_a(0,0,RECT_WIDTH_640,0x42800000,RECT_COLOUR_DIM);
   gfx_draw_rect_2d_flat_b(0,0x43d00000,RECT_WIDTH_640,0x42800000,RECT_COLOUR_DIM);
-  draw_rect(0,0x43d00000,RECT_WIDTH_640,0x3f800000,COLOUR_WHITE);
-  draw_rect(0,0x42800000,RECT_WIDTH_640,0x3f800000,COLOUR_WHITE);
+  draw_rect(0,0x43d00000,RECT_WIDTH_640,0x3f800000,COLOUR_WHITE_ARGB);
+  draw_rect(0,0x42800000,RECT_WIDTH_640,0x3f800000,COLOUR_WHITE_ARGB);
   /* career row past 11 (inferred: later career progress): four more coloured bars */
   if (0xb < (int)g_career_row) {      /* diffemu: undefined4 global, the original compares signed (jle) */
     draw_rect(0,0x42800000,RECT_WIDTH_640,0x40400000,0x80f7941d);

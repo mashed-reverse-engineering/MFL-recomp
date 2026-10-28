@@ -30,7 +30,6 @@ typedef int CourseId;
 #define ENTRY_VISIBLE_IDX (0x16)
 #define ENTRY_SUBOBJ_COUNT_IDX (-0xf)
 #define SUB_ENTRY_STRIDE (6)
-#define RGBA_WHITE (0xffffffff)
 #define RS_ZWRITE_OFF ((void *)0x0)
 #define RS_ZWRITE_ON ((void *)0x1)
 
@@ -47,7 +46,7 @@ void course_highway_cb2(char *course_data)
   int *entry;
   undefined4 rgba;
 
-  rgba = RGBA_WHITE;
+  rgba = COLOUR_WHITE_ARGB;
   camera = RwCameraGetCurrentCamera();
   func_0x0042b900();
   brush = func_0x0042b910();

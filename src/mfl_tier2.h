@@ -525,6 +525,22 @@ typedef size_t (*vecStrlenFunc)(RwChar *);
 #define WHEELS_PER_CAR 4
 #endif
 
+/* bit patterns / ids / voice record offsets repeated in many sources */
+#ifndef MFL_SHARED_BITS
+#define MFL_SHARED_BITS
+#define FLOAT_ONE_BITS (0x3f800000)         /* IEEE-754 bits of 1.0f, stored through an int-typed slot */
+#define CAR_ID_BASE (0xff00)                /* collider type / event parameter 0xff00 + n denotes car n */
+#define MESSAGE_COLOUR_DARK_RED (0xff460000) /* message_show colour argument (ARGB; inferred) */
+#define COLOUR_WHITE_ARGB (0xffffffff)
+#define VOICE_DEFAULT_FREQ_BITS (0x46ac4400) /* bits of 22050.0f, default voice frequency */
+#define VOICE_OFF_HANDLE (0x30)             /* voice record: sound object / sub voice */
+#define VOICE_OFF_FLAGS (0x34)
+#define VOICE_OFF_FREQ (0x3c)
+#define VOICE_OFF_POS_X (0x58)
+#define VOICE_OFF_POS_Y (0x5c)
+#define VOICE_OFF_POS_Z (0x60)
+#endif
+
 /* ---- data layouts reached through raw offsets (macros expand to the same byte accesses) ---- */
 #ifndef MFL_LAYOUT_MACROS
 #define MFL_LAYOUT_MACROS

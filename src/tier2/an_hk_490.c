@@ -9,7 +9,6 @@ extern struct EventLogArgs g_event_log_args[256];
 /*007ef818*/ extern undefined4 g_last_frame_ticks;
 #define EVENT_LOG_SIZE (0x100)
 #define EVENT_LOG_LAST_INDEX (0xff)
-#define EVENT_ID_BASE (0xff00) /* (inferred) event ids are stored offset by this */
 #define EVENT_TYPE_VOICE_A (0x3ff03) /* (inferred) */
 #define EVENT_TYPE_VOICE_B (0x3ff04) /* (inferred) */
 #define VOICE_QUEUE_KIND (0x13) /* (inferred) first argument of voice_queue_add */
@@ -49,11 +48,11 @@ void sound_event_log_find_current_tick(void)
     }
     if ((&g_event_log_time)[log_index] == current_tick) {
       event_param = (&g_event_log_param)[log_index];
-      event_arg = g_event_log_args[log_index].arg0 - EVENT_ID_BASE;
+      event_arg = g_event_log_args[log_index].arg0 - CAR_ID_BASE;
       /* voice entries: queue both orderings of the id pair */
       if (((&g_event_log_type)[log_index] == EVENT_TYPE_VOICE_A) || ((&g_event_log_type)[log_index] == EVENT_TYPE_VOICE_B)) {
-        voice_queue_add(VOICE_QUEUE_KIND,event_param + -EVENT_ID_BASE,event_arg);
-        voice_queue_add(VOICE_QUEUE_KIND,event_arg,event_param + -EVENT_ID_BASE);
+        voice_queue_add(VOICE_QUEUE_KIND,event_param + -CAR_ID_BASE,event_arg);
+        voice_queue_add(VOICE_QUEUE_KIND,event_arg,event_param + -CAR_ID_BASE);
       }
     }
     else {

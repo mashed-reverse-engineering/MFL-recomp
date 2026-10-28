@@ -19,13 +19,7 @@ extern struct VoiceSlotP g_voices[210];
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* voice record layout (inferred from use): handle, flags, position */
-#define VOICE_HANDLE_OFFSET (0x30)
-#define VOICE_FLAGS_OFFSET (0x34)
 #define VOICE_FLAG_STARTED (2)
-#define VOICE_POS_X_OFFSET (0x58)
-#define VOICE_POS_Y_OFFSET (0x5c)
-#define VOICE_POS_Z_OFFSET (0x60)
-#define VOICE_FREQUENCY_OFFSET (0x3c) /* playback frequency (default 22050.0f = 0x46ac4400) */
 /* ambience: multiplayer gate and random one-shot emitter (inferred) */
 #define MULTIPLAYER_MIN_PLAYERS (2)
 #define RANDOM_EMITTER_ROLL (0x19)
@@ -68,11 +62,11 @@ void sound_ambience_course_1a(void)
     }
     /* group 0x590: volume 0.2, no position written */
     slot = SOUND_GROUP_FIRST_VOICE_OF(9);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -80,11 +74,11 @@ void sound_ambience_course_1a(void)
     voice_set_volume(slot,0.2);
     /* group 0x470: three emitters in a row at x=36.7, y=2.6, z=-13.1 / -19.1 / -26.1 (slot, slot+1, slot+2) */
     slot = SOUND_GROUP_FIRST_VOICE_OF(7);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -94,19 +88,19 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 36.7;
     frame.emitter_pos[1] = 2.6;
     frame.emitter_pos[2] = -13.1;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x4212cccd;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x40266666;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc151999a;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x4212cccd;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x40266666;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc151999a;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (scratch != 0) {
       FUN_005b72a0(scratch,0,1,frame.emitter_pos);
     }
     scratch = slot + 1;
-    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot + 1].voice,1);
     }
-    *(undefined4 *)(g_voices[scratch].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    voice_handle = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    voice_handle = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (voice_handle != 0) {
       handle_call_result = FUN_005b7300(voice_handle,4,1,22050.0f);
@@ -116,19 +110,19 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 36.7;
     frame.emitter_pos[1] = 2.6;
     frame.emitter_pos[2] = -19.1;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x4212cccd;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x40266666;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc198cccd;
-    scratch = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x4212cccd;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x40266666;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc198cccd;
+    scratch = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     if (scratch != 0) {
       FUN_005b72a0(scratch,0,1,frame.emitter_pos);
     }
     scratch = slot + 2;
-    if ((*(byte *)(g_voices[slot + 2].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot + 2].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot + 2].voice,1);
     }
-    *(undefined4 *)(g_voices[scratch].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    slot = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    slot = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (slot != 0) {
       handle_call_result = FUN_005b7300(slot,4,1,22050.0f);
@@ -138,20 +132,20 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 36.7;
     frame.emitter_pos[1] = 2.6;
     frame.emitter_pos[2] = -26.1;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x4212cccd;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x40266666;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc1d0cccd;
-    slot = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x4212cccd;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x40266666;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc1d0cccd;
+    slot = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x500: emitter at (85.6, 0.3, 21.97) */
     slot = SOUND_GROUP_FIRST_VOICE_OF(8);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -161,20 +155,20 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 85.6;
     frame.emitter_pos[1] = 0.3;
     frame.emitter_pos[2] = 21.97;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x42ab3333;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x3e99999a;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0x41afc28f;
-    slot = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x42ab3333;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x3e99999a;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0x41afc28f;
+    slot = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x6b0: emitter at (96.6, 0.8, -22.8) */
     slot = SOUND_GROUP_FIRST_VOICE_OF(11);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -184,20 +178,20 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 96.6;
     frame.emitter_pos[1] = 0.8;
     frame.emitter_pos[2] = -22.8;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x42c13333;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x3f4ccccd;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc1b66666;
-    slot = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x42c13333;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x3f4ccccd;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc1b66666;
+    slot = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x740: emitter at (-1.06, 0.6, -29.32) */
     slot = SOUND_GROUP_FIRST_VOICE_OF(12);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -207,20 +201,20 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = -1.06;
     frame.emitter_pos[1] = 0.6;
     frame.emitter_pos[2] = -29.32;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0xbf87ae14;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x3f19999a;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc1ea8f5c;
-    slot = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0xbf87ae14;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x3f19999a;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc1ea8f5c;
+    slot = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
     /* group 0x620: emitter at (36.7, 3.3, 42.5), and slot+1 at (96.7, 1.3, 14.2) */
     slot = SOUND_GROUP_FIRST_VOICE_OF(10);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -230,19 +224,19 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 36.7;
     frame.emitter_pos[1] = 3.3;
     frame.emitter_pos[2] = 42.5;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x4212cccd;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x40533333;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0x422a0000;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x4212cccd;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x40533333;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0x422a0000;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (scratch != 0) {
       FUN_005b72a0(scratch,0,1,frame.emitter_pos);
     }
     scratch = slot + 1;
-    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot + 1].voice,1);
     }
-    *(undefined4 *)(g_voices[scratch].voice + VOICE_FREQUENCY_OFFSET) = 0x46b41400;
-    slot = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = 0x46b41400;
+    slot = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (slot != 0) {
       handle_call_result = FUN_005b7300(slot,4,1,23050.0f);
@@ -252,10 +246,10 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 96.7;
     frame.emitter_pos[1] = 1.3;
     frame.emitter_pos[2] = 14.2;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x42c16666;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x3fa66666;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0x41633333;
-    slot = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x42c16666;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x3fa66666;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0x41633333;
+    slot = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }
@@ -265,11 +259,11 @@ void sound_ambience_course_1a(void)
       /* pick one of the two random emitter groups */
       slot = rp_random_int_range(0,1);
       slot = *(int *)(slot * RANDOM_EMITTER_STRIDE + RANDOM_EMITTER_BASE + g_sound_groups);
-      if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+      if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
         FUN_005b6a40(g_voices[slot].voice,1);
       }
-      *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-      scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+      *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+      scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
       handle_call_result = 0;
       if (scratch != 0) {
         handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -282,10 +276,10 @@ void sound_ambience_course_1a(void)
       voice_ptr = g_voices[slot].voice;
       frame.emitter_pos[2] = (float)(random_offset - (double)k_f_12);
       frame.emitter_pos[1] = 0.0;
-      *(float *)(voice_ptr + VOICE_POS_X_OFFSET) = emitter_x;
-      *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0;
-      *(float *)(voice_ptr + VOICE_POS_Z_OFFSET) = frame.emitter_pos[2];
-      slot = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+      *(float *)(voice_ptr + VOICE_OFF_POS_X) = emitter_x;
+      *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0;
+      *(float *)(voice_ptr + VOICE_OFF_POS_Z) = frame.emitter_pos[2];
+      slot = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
       frame.emitter_pos[0] = emitter_x;
       if (slot != 0) {
         FUN_005b72a0(slot,0,1,frame.emitter_pos);
@@ -293,11 +287,11 @@ void sound_ambience_course_1a(void)
     }
     /* group 0x8f0: emitters at (63.6, 0.5, -28) and slot+1 at (77.0, 0.5, -28) */
     slot = SOUND_GROUP_FIRST_VOICE_OF(15);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (scratch != 0) {
       handle_call_result = FUN_005b7300(scratch,4,1,22050.0f);
@@ -307,19 +301,19 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 63.6;
     frame.emitter_pos[1] = 0.5;
     frame.emitter_pos[2] = -28.0;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x427e6666;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x3f000000;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc1e00000;
-    scratch = *(int *)(g_voices[slot].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x427e6666;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x3f000000;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc1e00000;
+    scratch = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (scratch != 0) {
       FUN_005b72a0(scratch,0,1,frame.emitter_pos);
     }
     scratch = slot + 1;
-    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_STARTED) == 0) {
+    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[slot + 1].voice,1);
     }
-    *(undefined4 *)(g_voices[scratch].voice + VOICE_FREQUENCY_OFFSET) = 0x46ac4400;
-    slot = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    slot = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     handle_call_result = 0;
     if (slot != 0) {
       handle_call_result = FUN_005b7300(slot,4,1,22050.0f);
@@ -329,10 +323,10 @@ void sound_ambience_course_1a(void)
     frame.emitter_pos[0] = 77.0;
     frame.emitter_pos[1] = 0.5;
     frame.emitter_pos[2] = -28.0;
-    *(undefined4 *)(voice_ptr + VOICE_POS_X_OFFSET) = 0x429a0000;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Y_OFFSET) = 0x3f000000;
-    *(undefined4 *)(voice_ptr + VOICE_POS_Z_OFFSET) = 0xc1e00000;
-    slot = *(int *)(g_voices[scratch].voice + VOICE_HANDLE_OFFSET);
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_X) = 0x429a0000;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Y) = 0x3f000000;
+    *(undefined4 *)(voice_ptr + VOICE_OFF_POS_Z) = 0xc1e00000;
+    slot = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,frame.emitter_pos);
     }

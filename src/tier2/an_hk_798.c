@@ -20,7 +20,6 @@
 #define TEXT_CONTINUE_PROMPT (0x2e)     /* text 46 */
 #define TEXT_BANNER_SUBLINE (0x42)      /* text 66 (inferred) */
 #define COLOUR_ARGB_BLACK (0xff000000)
-#define COLOUR_ARGB_WHITE (0xffffffff)
 /* race_winner_banner_draw */
 
 /* "'Winner' banner with Continue prompt (texts 231, 46)" */
@@ -44,7 +43,7 @@ void race_winner_banner_draw(int continue_prompt_active)
     slide_offset = (double)intro_banner_slide_y();
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
     ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset + k_f_3,373.0f,COLOUR_ARGB_BLACK,1.2f,1);
-    ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset,370.0f,COLOUR_ARGB_WHITE,1.2f,1);
+    ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset,370.0f,COLOUR_WHITE_ARGB,1.2f,1);
     intro_banner_start_cup();
     /* Top box at the slide step (inferred: 640 x 80 black), then the bottom box
        (inferred: 640 x 80 black) with 1-pixel white edge lines at its top and at
@@ -52,16 +51,16 @@ void race_winner_banner_draw(int continue_prompt_active)
     draw_rect(0,*(int *)&g_intro_banner_slide_step,0x44200000,0x42a00000,COLOUR_ARGB_BLACK);
     bottom_box_y = (k_f_480 - g_intro_banner_slide_step) - k_f_64;
     draw_rect(0,*(int *)&bottom_box_y,0x44200000,0x42a00000,COLOUR_ARGB_BLACK);
-    draw_rect(0,*(int *)&bottom_box_y,0x44200000,0x3f800000,COLOUR_ARGB_WHITE);
-    draw_rect(0,(top_box_bottom_y = g_intro_banner_slide_step + k_f_80, *(int *)&top_box_bottom_y),0x44200000,0x3f800000,COLOUR_ARGB_WHITE);
+    draw_rect(0,*(int *)&bottom_box_y,0x44200000,0x3f800000,COLOUR_WHITE_ARGB);
+    draw_rect(0,(top_box_bottom_y = g_intro_banner_slide_step + k_f_80, *(int *)&top_box_bottom_y),0x44200000,0x3f800000,COLOUR_WHITE_ARGB);
     /* Continue prompt and banner text, drawn over the boxes with depth test off. */
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
-    ui_rt2d_text_draw(TEXT_CONTINUE_PROMPT,64.0f,(k_f_480 - g_intro_banner_slide_step) - k_f_52,COLOUR_ARGB_WHITE,
+    ui_rt2d_text_draw(TEXT_CONTINUE_PROMPT,64.0f,(k_f_480 - g_intro_banner_slide_step) - k_f_52,COLOUR_WHITE_ARGB,
                       0.6f,0);
-    ui_rt2d_text_draw(TEXT_BANNER_SUBLINE,64.0f,g_intro_banner_slide_step + float_50_0,COLOUR_ARGB_WHITE,0.8f,
+    ui_rt2d_text_draw(TEXT_BANNER_SUBLINE,64.0f,g_intro_banner_slide_step + float_50_0,COLOUR_WHITE_ARGB,0.8f,
                       0);
     ui_rt2d_text_draw(g_intro_banner_text_id,64.0f,g_intro_banner_slide_step + k_f_68,
-                      COLOUR_ARGB_WHITE,0.6f,0);
+                      COLOUR_WHITE_ARGB,0.6f,0);
     cup_scene_update_light_colour();
     cup_scene_camera_attach();
     return;
@@ -70,7 +69,7 @@ void race_winner_banner_draw(int continue_prompt_active)
   slide_offset = (double)intro_banner_get_x(0x427c0000,0xff000000,0x3f99999a,2);
   ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)(slide_offset + (double)k_f_3), 63.0f, COLOUR_ARGB_BLACK, 1.2f, 0x2);
   slide_offset = (double)intro_banner_get_x(0x42700000,0xffffffff,0x3f99999a,2);
-  ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset, 60.0f, COLOUR_ARGB_WHITE, 1.2f, 0x2);
+  ui_rt2d_text_draw(TEXT_WINNER_TITLE,(float)slide_offset, 60.0f, COLOUR_WHITE_ARGB, 1.2f, 0x2);
   return;
 }
 

@@ -1,5 +1,4 @@
 #include "mfl_tier2.h"
-#define FLOAT_1_0_BITS (0x3f800000) /* 1.0f */
 #define FLOAT_0_01_BITS (0x3c23d70a) /* 0.01f */
 /* vec3_make_from_param
  * Builds an output record from a source vector and a scalar. Parameters:
@@ -26,7 +25,7 @@ undefined4 * vec3_make_from_param(char *src,undefined4 x,undefined4 *out)
   out[8] = 0;
   out[9] = 0;
   out[10] = 0;
-  out[3] = FLOAT_1_0_BITS;
+  out[3] = FLOAT_ONE_BITS;
   out[5] = FLOAT_0_01_BITS;
   *(undefined4 *)(out[0x18] + 0x3c) = 0;
   *(undefined4 *)(out[0x18] + 0x40) = 0;

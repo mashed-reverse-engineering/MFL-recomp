@@ -19,14 +19,10 @@ extern struct VoiceSlot g_voices[210];
 /*00619fac*/ extern undefined4 g_sound_frame_619fac;
 
 /* voice record offsets (no voice struct in mfl_tier2.h; channel/flags names inferred) */
-#define VOICE_CHANNEL_OFFSET (0x30) /* inferred: handle passed to FUN_005b7300 when non-zero */
-#define VOICE_FLAGS_OFFSET (0x34) /* byte field */
-#define VOICE_FREQUENCY_OFFSET (0x3c) /* playback frequency in Hz (float) */
 #define VOICE_FLAG_PLAYING (2) /* inferred: set while the voice is playing */
 
 /* playback frequencies in Hz: the float bits written to the record, and the same value passed to FUN_005b7300 */
 #define VOICE_FREQUENCY_DEFAULT (22050.0f)
-#define VOICE_FREQUENCY_DEFAULT_BITS (0x46ac4400) /* 22050.0f */
 #define VOICE_FREQUENCY_MESSAGE (19845.0f)
 #define VOICE_FREQUENCY_MESSAGE_BITS (0x469b0a00) /* 19845.0f */
 
@@ -62,8 +58,8 @@ void sound_menu_voices_trigger(void)
   check_result = ui_get_menu_69d6a8();
   if (check_result != 0) {
     FUN_005b6a40(g_voices[voice_slot].voice,1);
-    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQUENCY_OFFSET) = VOICE_FREQUENCY_DEFAULT_BITS;
-    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_CHANNEL_OFFSET);
+    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (check_result != 0) {
       fx_result = FUN_005b7300(check_result,4,1,VOICE_FREQUENCY_DEFAULT);
@@ -74,8 +70,8 @@ void sound_menu_voices_trigger(void)
   check_result = race_course_loaded_event_get();
   if (check_result != 0) {
     FUN_005b6a40(g_voices[voice_slot].voice,1);
-    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQUENCY_OFFSET) = VOICE_FREQUENCY_DEFAULT_BITS;
-    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_CHANNEL_OFFSET);
+    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (check_result != 0) {
       fx_result = FUN_005b7300(check_result,4,1,VOICE_FREQUENCY_DEFAULT);
@@ -88,8 +84,8 @@ void sound_menu_voices_trigger(void)
   check_result = ui_get_message_69d6ac();
   if (check_result != 0) {
     FUN_005b6a40(g_voices[voice_slot].voice,1);
-    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQUENCY_OFFSET) = VOICE_FREQUENCY_MESSAGE_BITS;
-    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_CHANNEL_OFFSET);
+    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_FREQUENCY_MESSAGE_BITS;
+    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (check_result != 0) {
       fx_result = FUN_005b7300(check_result,4,1,VOICE_FREQUENCY_MESSAGE);
@@ -100,8 +96,8 @@ void sound_menu_voices_trigger(void)
   check_result = ui_get_menu_69d6b0();
   if (check_result != 0) {
     FUN_005b6a40(g_voices[voice_slot].voice,1);
-    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQUENCY_OFFSET) = VOICE_FREQUENCY_DEFAULT_BITS;
-    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_CHANNEL_OFFSET);
+    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (check_result != 0) {
       fx_result = FUN_005b7300(check_result,4,1,VOICE_FREQUENCY_DEFAULT);
@@ -111,10 +107,10 @@ void sound_menu_voices_trigger(void)
   voice_slot = g_sound_619ba0;
   /* page 13 selected (1): slot g_sound_619ba0, only when that voice is not already playing */
   check_result = menu_is_page_13_selected_1();
-  if ((check_result != 0) && ((*(byte *)(g_voices[voice_slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_PLAYING) == 0)) {
+  if ((check_result != 0) && ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_PLAYING) == 0)) {
     FUN_005b6a40(g_voices[voice_slot].voice,1);
-    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQUENCY_OFFSET) = VOICE_FREQUENCY_DEFAULT_BITS;
-    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_CHANNEL_OFFSET);
+    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (check_result != 0) {
       fx_result = FUN_005b7300(check_result,4,1,VOICE_FREQUENCY_DEFAULT);
@@ -125,17 +121,17 @@ void sound_menu_voices_trigger(void)
   /* page 13 selected (2): slot g_sound_frame_619fac, starts it only when not playing; volume is set at the end */
   check_result = menu_is_page_13_selected_2();
   voice_addr = 0;
-  if ((check_result != 0) && (voice_addr = g_voices[voice_slot].voice, (*(byte *)(voice_addr + VOICE_FLAGS_OFFSET) & VOICE_FLAG_PLAYING) == 0)) {
+  if ((check_result != 0) && (voice_addr = g_voices[voice_slot].voice, (*(byte *)(voice_addr + VOICE_OFF_FLAGS) & VOICE_FLAG_PLAYING) == 0)) {
     FUN_005b6a40(voice_addr,1);
-    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_FREQUENCY_OFFSET) = VOICE_FREQUENCY_DEFAULT_BITS;
-    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_CHANNEL_OFFSET);
+    *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    check_result = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     voice_addr = 0;
     if (check_result != 0) {
       voice_addr = FUN_005b7300(check_result,4,1,VOICE_FREQUENCY_DEFAULT);
     }
   }
   /* slot from g_sound_frame_619fac: if it is playing, apply the option_volume_2 volume */
-  if ((*(byte *)(g_voices[voice_slot].voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_PLAYING) != 0) {
+  if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_PLAYING) != 0) {
     voice_set_volume(voice_slot,(float)option_volume);
   }
   return;

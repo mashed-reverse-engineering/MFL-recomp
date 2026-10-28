@@ -40,7 +40,6 @@ extern struct EventLogData g_event_log_data[256];
 /*007e8764*/ extern undefined4 g_event_log_param;
 /*007ef778*/ extern float g_event_log_7ef778;
 /*007ef77c*/ extern float g_event_log_7ef77c;
-#define EVENT_LOG_CAR_PARAM_BASE (0xff00) /* event param 0xff00+n = car n */
 /* event_log_dispatch */
 
 /* "(index): plays the effects and sounds for one event log entry (switch on the event type: 3 world
@@ -94,7 +93,7 @@ void event_log_dispatch_n(int log_index)
   } frame;
   
   /* car index = event parameter - 0xff00; gravity for the sparks is (0, -0.0002, 0) */
-  car_index = (&g_event_log_param)[log_index] + -EVENT_LOG_CAR_PARAM_BASE;
+  car_index = (&g_event_log_param)[log_index] + -CAR_ID_BASE;
   frame.gravity_x = 0;
   frame.gravity_y = 0xb951b717;
   frame.gravity_z = 0;

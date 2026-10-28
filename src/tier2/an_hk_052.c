@@ -3,7 +3,6 @@ extern int RwEngineInstance;
 extern float float_1_0;
 /*004d7770*/ extern void FUN_004d7770();
 
-#define WHITE_RGBA (0xffffffff)
 #define ALPHA_OPAQUE (0xff)
 #define RWENGINE_SET_RENDER_STATE_FN (0x20) /* vtable slot (inferred) */
 #define RWENGINE_DRAW_TRIANGLE_FN (0x2c) /* vtable slot (inferred) */
@@ -32,7 +31,7 @@ void FUN_004c5860(char *camera, float *rect_min, float *rect_max, unsigned char 
   char *raster;
   unsigned int packed_rgba;
 
-  quad_buf[0] = (int)WHITE_RGBA;
+  quad_buf[0] = (int)COLOUR_WHITE_ARGB;
   quad_buf[5] = 0;
   quad_buf[6] = 0;
   quad_buf[7] = 0;

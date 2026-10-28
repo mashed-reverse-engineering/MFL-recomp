@@ -49,10 +49,10 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
   float dy;
   float dz;
   double angle_deg;
-  double fVar4;
-  double fVar5;
-  double fVar6;
-  double fVar7;
+  double tick_or_wave_fast;
+  double wave_slow;
+  double wave_mid;
+  double deg360_or_wave;
   RwReal horiz_len;
   float dx_or_horiz;
   RwV3d delta;
@@ -113,23 +113,23 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
     angle_deg = (double)k_f_270;
   }
 LAB_0044c474:
-  fVar7 = (double)k_f_360;
-  camera_rec->pitch = (float)(fVar7 - angle_deg);
-  fVar4 = (double)(int)g_tick_number;
-  fVar5 = (double)sin((double)k_f_0_05 * fVar4);
-  fVar6 = (double)sin(fVar4 * (double)k_f_0_012820513);
-  fVar4 = (double)sin(fVar4 * (double)k_f_0_0042918455);
-  *(volatile float *)&sumf = fVar6 + fVar5;
+  deg360_or_wave = (double)k_f_360;
+  camera_rec->pitch = (float)(deg360_or_wave - angle_deg);
+  tick_or_wave_fast = (double)(int)g_tick_number;
+  wave_slow = (double)sin((double)k_f_0_05 * tick_or_wave_fast);
+  wave_mid = (double)sin(tick_or_wave_fast * (double)k_f_0_012820513);
+  tick_or_wave_fast = (double)sin(tick_or_wave_fast * (double)k_f_0_0042918455);
+  *(volatile float *)&sumf = wave_mid + wave_slow;
   camera_rec->pitch =
-       (float)(((double)*(volatile float *)&sumf * (double)k_f_0_5 + fVar4) * (double)k_f_0_5 *
-               (double)dist_sway + (fVar7 - angle_deg));
+       (float)(((double)*(volatile float *)&sumf * (double)k_f_0_5 + tick_or_wave_fast) * (double)k_f_0_5 *
+               (double)dist_sway + (deg360_or_wave - angle_deg));
   angle_deg = (double)sin((double)k_f_0_1 * (double)(int)g_tick_number);
-  fVar7 = (double)sin((double)(int)g_tick_number * (double)k_f_0_012048192);
-  dist_base = (float)(fVar7 + angle_deg * (double)k_f_0_125);
-  fVar7 = (double)random_range(0,0x42700000);
+  deg360_or_wave = (double)sin((double)(int)g_tick_number * (double)k_f_0_012048192);
+  dist_base = (float)(deg360_or_wave + angle_deg * (double)k_f_0_125);
+  deg360_or_wave = (double)random_range(0,0x42700000);
   angle_deg = (double)(int)g_tick_number;
   camera_rec->roll = 0;
-  angle_deg = (double)sin((fVar7 + angle_deg) * (double)k_f_0_016666668);
+  angle_deg = (double)sin((deg360_or_wave + angle_deg) * (double)k_f_0_016666668);
   camera_rec->yaw =
        (float)((angle_deg * (double)k_f_0_0625 + (double)dist_base) * (double)dist_sway +
               (double)camera_rec->yaw);

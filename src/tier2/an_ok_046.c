@@ -221,7 +221,6 @@ extern undefined4 weapon_effect_get_slot_value_b(char *param_1);
 #define FX_GRID_CELL_DWORDS (0xd)             /* dwords per fx cell, 0x34 bytes (inferred) */
 #define FX_GRID_ROWS_PER_PLANE (5)
 #define FX_GRID_CELLS_PER_ROW (5)
-#define FX_RECORD_ONE_FLOAT_BITS (0x3f800000) /* IEEE bits of float 1.0f, stored at record + 0xc (inferred) */
 
 
 /* weapon_fx_grid_clear */
@@ -275,7 +274,7 @@ void weapon_fx_grid_clear(undefined4 *record)
   *record = 0;
   record[5] = 0;
   record[6] = 0;
-  record[3] = FX_RECORD_ONE_FLOAT_BITS;
+  record[3] = FLOAT_ONE_BITS;
   return;
 }
 

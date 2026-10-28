@@ -64,7 +64,6 @@ typedef int CourseId;
 #define PATH_RECORD_WORDS (0xc)
 #define PATH_TAG_OFFSET (7)
 #define CAMERA_INDEX_UNSET (-1)
-#define PATH_TAG_1_0F (0x3f800000)
 #define PATH_TAG_2_0F (0x40000000)
 #define PATH_TAG_3_0F (0x40400000)
 #define RANDOM_MAX_7_0F (0x40e00000)
@@ -172,7 +171,7 @@ void camera_records_init_for_course(void)
       record_tag = path_table + 8;
       do {
         camera_set_from_record(dst_record,record_tag + -PATH_TAG_OFFSET);
-        if ((*record_tag == PATH_TAG_1_0F) && (g_car_8c592c = record_index, g_camera_8c5930 == CAMERA_INDEX_UNSET)) {
+        if ((*record_tag == FLOAT_ONE_BITS) && (g_car_8c592c = record_index, g_camera_8c5930 == CAMERA_INDEX_UNSET)) {
           g_camera_8c5930 = record_index;
         }
         if ((*record_tag == PATH_TAG_2_0F) && (g_car_8c5934 = record_index, g_camera_8c7e20 == CAMERA_INDEX_UNSET)) {

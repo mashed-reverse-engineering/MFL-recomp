@@ -17,7 +17,6 @@
 #define RING_POINTS_BASE_OFFSET        0x30
 
 /* FX ring parameters */
-#define FX_RING_POINT_SCALE_ONE        0x3f800000 /* 1.0f in IEEE-754 */
 
 /* Contact flags */
 #define CONTACT_FLAG_PROCESSED         1
@@ -34,9 +33,9 @@ void rwpcar_ring_add_points_for_contact(char *car_object, char *contact_record)
   {
     /* Traverse ring owner hierarchy (unknown structures) to reach ring points base */
     contact_type_or_ring_base = *(int *)(*(char **)(*(char **)(car_object + OBJECT_OFFSET_RING_OWNER) + RING_OWNER_OFFSET_UNKNOWN_10) + RING_OFFSET_UNKNOWN_8) + RING_POINTS_BASE_OFFSET;
-    fx_ring_add_point(contact_type_or_ring_base, FX_RING_POINT_SCALE_ONE);
-    fx_ring_add_point(contact_type_or_ring_base, FX_RING_POINT_SCALE_ONE);
-    fx_ring_add_point(contact_type_or_ring_base, FX_RING_POINT_SCALE_ONE);
+    fx_ring_add_point(contact_type_or_ring_base, FLOAT_ONE_BITS);
+    fx_ring_add_point(contact_type_or_ring_base, FLOAT_ONE_BITS);
+    fx_ring_add_point(contact_type_or_ring_base, FLOAT_ONE_BITS);
     /* Mark contact as processed in global flag table */
     (&g_rw_6fcdd8)[*(int *)(contact_record + CONTACT_OFFSET_FLAG_INDEX)] = (&g_rw_6fcdd8)[*(int *)(contact_record + CONTACT_OFFSET_FLAG_INDEX)] | CONTACT_FLAG_PROCESSED;
   }

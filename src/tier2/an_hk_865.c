@@ -35,7 +35,6 @@
 #define FIRE_DELAY_DEFAULT_MS (3000)
 #define FIRE_DELAY_MEDIUM_MS (6000)
 #define FIRE_DELAY_LONG_MS (9000)
-#define FLOAT_ONE_BITS (0x3f800000) /* 1.0f as bits, passed to random_range as the upper bound */
 
 
 /* ai_bot_stuck_check */

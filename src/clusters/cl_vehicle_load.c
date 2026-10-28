@@ -56,7 +56,6 @@ typedef unsigned int (__cdecl *VecStrlenFunc)(const char *);
 #define PART_MORPH 0x12
 #define PART_COLLISION_EXTRA 0x40
 #define COLOUR_BLACK 0xff000000
-#define COLOUR_WHITE 0xffffffff
 #define GEOMETRY_USERDATA_PART 0
 #define GEOMETRY_USERDATA_PARTID 1
 
@@ -174,7 +173,7 @@ void vehicle_load(int vehicle, int model)
       *(unsigned int *)(*(unsigned char **)geometry->materials + 4) = frame.colour_black;
     }
     if (part_id == 0x11 || part_id == 0x15 || part_id == 0x18) {
-      frame.colour_white = COLOUR_WHITE;
+      frame.colour_white = COLOUR_WHITE_ARGB;
       FUN_004c53e0(geometry, 0x20, 0);
       FUN_004c53e0(geometry, 0x40, 1);
       *(unsigned int *)(*(unsigned char **)geometry->materials + 4) = frame.colour_white;

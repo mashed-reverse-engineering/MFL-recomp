@@ -1,5 +1,4 @@
 #include "mfl_tier2.h"
-#define FLOAT_ONE_BITS (0x3f800000)
 /* FUN_005c1ad0
  * Initialises a six-word object: sets word 2 to `value`, updates the flags
  * in word 0 (clears bit 3, sets bit 2), zeroes words 3 and 5, sets word 4

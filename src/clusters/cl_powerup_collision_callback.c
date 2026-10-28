@@ -22,7 +22,6 @@
 #define POWERUP_KIND_PICKUP 7       /* trigger kind of a powerup sphere (trigger_obj + 0x10) */
 #define POWERUP_STATE_ACTIVE 1
 #define POWERUP_STATE_TAKEN 2
-#define OBJECT_ID_CAR_FIRST 0xff00  /* the collider ids 0xff00.. + n are the player cars */
 #define RACE_PHASE_RUNNING 6
 #define GAME_MODE_5 5
 #define PICKUP_SOUND 0x1c
@@ -74,7 +73,7 @@ void powerup_collision_callback(int trigger_obj, int collider_obj)
       }
       collider = *(int *)(collider_obj + 0x10);
       if ((collider > 0xfeff) && (collider < 0xff08)) {
-        car = collider - OBJECT_ID_CAR_FIRST;
+        car = collider - CAR_ID_BASE;
         if (race_get_phase() != RACE_PHASE_RUNNING) {
           powerup->state = POWERUP_STATE_TAKEN;
           powerup->respawn_timer = powerup->respawn_time - k_f_1;

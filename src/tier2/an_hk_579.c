@@ -21,15 +21,8 @@ extern struct VoiceSlotP g_voices[210];
 /* Effect whose plays are counted in g_sfx_play_8d9930. */
 #define SFX_ID_PLAY_COUNT (0x1c)
 /* Default voice frequency, bit pattern of 22050.0f. */
-#define DEFAULT_SFX_FREQ (0x46ac4400)
 #define DEFAULT_SFX_FREQ_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 /* Byte offsets into a voice record (struct not in mfl_tier2.h). */
-#define VOICE_OFF_SUB_OBJ (0x30)
-#define VOICE_OFF_FLAGS (0x34)
-#define VOICE_OFF_FREQ (0x3c)
-#define VOICE_OFF_POS_X (0x58)
-#define VOICE_OFF_POS_Y (0x5c)
-#define VOICE_OFF_POS_Z (0x60)
 
 /* sfx_play_at */
 
@@ -61,13 +54,13 @@ void sfx_play_at(int effect_id,undefined4 *position)
         *(undefined4 *)(voice + VOICE_OFF_POS_X) = *position;
         *(undefined4 *)(voice + VOICE_OFF_POS_Y) = position[1];
         *(undefined4 *)(voice + VOICE_OFF_POS_Z) = position[2];
-        voices_left = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB_OBJ);
+        voices_left = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
         if (voices_left != 0) {
           FUN_005b72a0(voices_left,0,1,position);
         }
         FUN_005b6a40(g_voices[voice_slot].voice,1);
-        *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = DEFAULT_SFX_FREQ;
-        voices_left = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB_OBJ);
+        *(undefined4 *)(g_voices[voice_slot].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+        voices_left = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
         freq_set_result = 0;
         if (voices_left != 0) {
           freq_set_result = FUN_005b7300(voices_left,4,1,DEFAULT_SFX_FREQ_F);

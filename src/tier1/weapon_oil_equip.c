@@ -4,7 +4,6 @@
 /*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
 /*006a7c78*/ extern char *g_weapon_6a7c78;
 #define OIL_RECORD_BYTES (0x10)         /* the same stride in bytes */
-#define OIL_FULL_AMMO_BITS (0x3f800000) /* float 1.0 bits written to the record on equip: full ammo (inferred) */
 /* weapon_oil_free_assets */
 /* weapon_oil_equip */
 /* type 0x13; state 0x6A7C78 stride 0x10 */
@@ -18,7 +17,7 @@ undefined4 * weapon_oil_equip(WeaponSlot *slot)
 
   rec = (char *)&g_weapon_6a7c78 + slot->player * OIL_RECORD_BYTES;
   *(WeaponSlot **)(rec + 8) = slot;
-  *(undefined4 *)rec = OIL_FULL_AMMO_BITS;
+  *(undefined4 *)rec = FLOAT_ONE_BITS;
   RpWorldAddClump((RpWorld *)course_get_rpworld_00467e90(),*(RpClump **)(rec + 0xc));
   clump_set_flag_on_atomics(*(RpClump **)(rec + 0xc),1);
   *(undefined4 *)(rec + 4) = 1;

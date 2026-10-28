@@ -32,7 +32,6 @@
 #define FX_SLOT_FIND_ARG4 (0x14) /* (inferred) 4th argument of fx_slot_find_free */
 #define OBJECT_COLOUR_ALL_BITS (0xffffffff) /* (inferred) 1st argument of object_set_colour */
 #define FLOAT_BITS_0_1 (0x3dcccccd) /* bit pattern of 0.1f */
-#define FLOAT_BITS_1_0 (0x3f800000) /* bit pattern of 1.0f */
 /* course_tierra_n_cb0 */
 
 
@@ -79,12 +78,12 @@ void course_tierra_n_cb0(struct CourseWorld *world)
   atomic_or_slot = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[17])));
   g_course_tierra_6a2660 =
        object_frames_create_with_matrices(atomic_or_slot,world->mts_matrix_counts[5],world_addr + MTS_LIST5_START);
-  object_set_colour(g_course_tierra_6a2660,OBJECT_COLOUR_ALL_BITS,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_1_0);
+  object_set_colour(g_course_tierra_6a2660,OBJECT_COLOUR_ALL_BITS,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_ONE_BITS);
   /* clumps[19] atomic, frames from matrix list 6, then coloured */
   atomic_or_slot = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[19])));
   g_course_tierra_6a2664 =
        object_frames_create_with_matrices(atomic_or_slot,world->mts_matrix_counts[6],world_addr + MTS_LIST6_START);
-  object_set_colour(g_course_tierra_6a2664,OBJECT_COLOUR_ALL_BITS,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_1_0);
+  object_set_colour(g_course_tierra_6a2664,OBJECT_COLOUR_ALL_BITS,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_ONE_BITS);
   g_course_tierra_6a2654 = 0;
   /* list 0: one fx slot per record. Here entry_index is the record pointer and entry_ptr the counter;
      the two loops below use the roles the other way round. */

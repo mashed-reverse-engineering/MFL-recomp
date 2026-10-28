@@ -20,7 +20,6 @@
 /* RwCameraClear clear flag: clear the Z buffer (inferred) */
 #define RW_CAMERA_CLEAR_Z (2)
 /* bit pattern of 1.0f, sent as the float value of render state 0x65a9b8 (inferred) */
-#define FLOAT_ONE_BITS (0x3f800000)
 /* cup_scene_render */
 /* "clears the camera and renders the cup scene clump(s)"
  * Draws the cup scene for one car. Clears the viewport camera, points the

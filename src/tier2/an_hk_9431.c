@@ -14,10 +14,6 @@ extern struct VoiceSlot g_voices[210];
 /*00619700*/ extern undefined4 g_sound_frame_619700;
 /*006ae104*/ extern undefined4 g_sound_endpoint_cue_state;
 /* voice record offsets (same as sound_ambience_course_12_18) */
-#define VOICE_OFF_SUB (0x30)
-#define VOICE_OFF_FLAGS (0x34)
-#define VOICE_OFF_FREQUENCY (0x3c) /* playback frequency, float */
-#define VOICE_FREQUENCY_22050 (0x46ac4400) /* float bits of 22050.0f */
 
 /* sound_endpoint_panel_progress_cues */
 
@@ -85,8 +81,8 @@ void sound_endpoint_panel_progress_cues(void)
       return;
     }
     FUN_005b6a40(g_voices[g_sound_frame_619700].voice,1);
-    *(undefined4 *)(g_voices[voice_b_index].voice + VOICE_OFF_FREQUENCY) = VOICE_FREQUENCY_22050;
-    sub_handle = *(int *)(g_voices[voice_b_index].voice + VOICE_OFF_SUB);
+    *(undefined4 *)(g_voices[voice_b_index].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+    sub_handle = *(int *)(g_voices[voice_b_index].voice + VOICE_OFF_HANDLE);
     scratch = voice_b_index;
     goto LAB_0046f8d8;
   case 4:
@@ -101,8 +97,8 @@ void sound_endpoint_panel_progress_cues(void)
 LAB_0046f7eb:
     if ((*(byte *)(g_voices[g_sound_frame_6191cc].voice + VOICE_OFF_FLAGS) & 2) == 0) {
       FUN_005b6a40(g_voices[g_sound_frame_6191cc].voice,1);
-      *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQUENCY) = VOICE_FREQUENCY_22050;
-      sub_handle = *(int *)(g_voices[scratch].voice + VOICE_OFF_SUB);
+      *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
+      sub_handle = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
 LAB_0046f8d8:
       sub_result = 0;
       if (sub_handle != 0) {

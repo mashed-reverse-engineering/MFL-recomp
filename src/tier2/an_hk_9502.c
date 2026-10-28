@@ -11,13 +11,7 @@ extern struct VoiceSlotP g_voices[210];
 /*005b7300*/ extern int FUN_005b7300(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*008bd7b0*/ extern char *g_sound_groups;
 
-#define VOICE_FLAGS_OFFSET (0x34)
 #define VOICE_FLAG_ACTIVE (2) /* inferred: voice is already started / playing */
-#define VOICE_CHILD_OFFSET (0x30) /* inferred: pointer to a sub-voice, 0 if none */
-#define VOICE_FREQ_OFFSET (0x3c) /* inferred: float playback frequency */
-#define VOICE_POS_X_OFFSET (0x58) /* inferred: position vector, x, y, z */
-#define VOICE_POS_Y_OFFSET (0x5c)
-#define VOICE_POS_Z_OFFSET (0x60)
 #define THUNDER_ARCTIC_GROUP_OFFSET (2000) /* inferred: first voice slot index of the thunder sounds is stored here (arctic) */
 #define THUNDER_DEFAULT_GROUP_OFFSET (0x620) /* same for every other course */
 #define COURSE_ARCTIC (0) /* course id 0 */
@@ -48,27 +42,27 @@ void course_storm_cb1_sub_471eb0(float *pos)
       slot = *(int *)(g_sound_groups + THUNDER_DEFAULT_GROUP_OFFSET);
     do {
       voice = g_voices[slot].voice;
-      if ((*(byte *)(voice + VOICE_FLAGS_OFFSET) & VOICE_FLAG_ACTIVE) == 0) {
-        *(float *)(voice + VOICE_POS_X_OFFSET) = pos[0];
-        *(float *)(voice + VOICE_POS_Y_OFFSET) = pos[1];
-        *(float *)(voice + VOICE_POS_Z_OFFSET) = pos[2];
-        child = *(int *)(g_voices[slot].voice + VOICE_CHILD_OFFSET);
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
+        *(float *)(voice + VOICE_OFF_POS_X) = pos[0];
+        *(float *)(voice + VOICE_OFF_POS_Y) = pos[1];
+        *(float *)(voice + VOICE_OFF_POS_Z) = pos[2];
+        child = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (child != 0)
           FUN_005b72a0(child, 0, 1, pos);
         FUN_005b6a40(g_voices[slot].voice, 1);
         freq = random_range(FREQ_MIN_BITS, FREQ_MAX_BITS);
-        *(float *)(g_voices[slot].voice + VOICE_FREQ_OFFSET) = (float)freq;
+        *(float *)(g_voices[slot].voice + VOICE_OFF_FREQ) = (float)freq;
         voice = g_voices[slot].voice;
-        if (*(int *)(voice + VOICE_CHILD_OFFSET) != 0) {
+        if (*(int *)(voice + VOICE_OFF_HANDLE) != 0) {
           freq = random_range(FREQ_MIN_BITS, FREQ_MAX_BITS);
-          FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_CHILD_OFFSET), 4, 1, (float)freq);
+          FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_OFF_HANDLE), 4, 1, (float)freq);
         }
         voice_set_volume(slot, 1.0f);
         voice = g_voices[slot].voice;
-        *(float *)(voice + VOICE_POS_X_OFFSET) = pos[0];
-        *(float *)(voice + VOICE_POS_Y_OFFSET) = pos[1];
-        *(float *)(voice + VOICE_POS_Z_OFFSET) = pos[2];
-        child = *(int *)(g_voices[slot].voice + VOICE_CHILD_OFFSET);
+        *(float *)(voice + VOICE_OFF_POS_X) = pos[0];
+        *(float *)(voice + VOICE_OFF_POS_Y) = pos[1];
+        *(float *)(voice + VOICE_OFF_POS_Z) = pos[2];
+        child = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
         if (child != 0)
           FUN_005b72a0(child, 0, 1, pos);
         remaining = 0;

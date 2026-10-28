@@ -5,7 +5,6 @@
 #define PARTICLE_COLOUR_ARGB (0xffc0c0c0)
 #define PARTICLE_FLAGS (0x1120)
 #define RANDOM_VEL_MIN_BITS (0xbf800000) /* float -1.0 */
-#define RANDOM_VEL_MAX_BITS (0x3f800000) /* float 1.0 */
 #define PARTICLE_UP_VEL_BITS (0x3fc00000) /* float 1.5 */
 #define PARTICLE_GRAVITY_BITS (0xc0100000) /* float -2.25 */
 
@@ -55,8 +54,8 @@ void __cdecl course_particle_init_random(undefined4 *position)
   particle.unk_14 = 0x3f800000;
   particle.unk_38 = 0x3f800000;
   /* random horizontal velocity, x and z in [-1, 1] */
-  rand_x = (double)random_range(RANDOM_VEL_MIN_BITS,RANDOM_VEL_MAX_BITS);
-  rand_z = (double)random_range(RANDOM_VEL_MIN_BITS,RANDOM_VEL_MAX_BITS);
+  rand_x = (double)random_range(RANDOM_VEL_MIN_BITS,FLOAT_ONE_BITS);
+  rand_z = (double)random_range(RANDOM_VEL_MIN_BITS,FLOAT_ONE_BITS);
   particle.vel_z = (float)rand_z;
   particle.vel_y = PARTICLE_UP_VEL_BITS;
   particle.accel_x = 0;

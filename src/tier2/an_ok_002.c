@@ -187,7 +187,6 @@ extern void cup_scene_camera_attach(void);
 #define NO_SLOT (-1)                /* slot_index value for "no player in this slot" (inferred) */
 #define COLOUR_CHANNEL_MAX (0xff)   /* full intensity of one RGBA byte */
 #define RANDOM_MIN_BITS (0xbf800000) /* float -1.0 as bits: lower bound of random_range */
-#define RANDOM_MAX_BITS (0x3f800000) /* float 1.0 as bits: upper bound of random_range */
 #define MATRIX_FLOAT_COUNT (0x10)    /* floats in a 4x4 RwMatrix, copied one by one */
 #define COLOUR_CHANNEL_RANGE (0x100) /* one past COLOUR_CHANNEL_MAX: clamp limit for an int colour value */
 
@@ -246,9 +245,9 @@ void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
     spawn_dy = object_matrix.right.y * side_offset + object_matrix.up.y * k_f_n1_4 + object_matrix.at.y * k_f_1_9;
     spawn_dz = object_matrix.right.z * side_offset + object_matrix.up.z * k_f_n1_4 + object_matrix.at.z * k_f_1_9;
     /* random tilt: two random values in -1..1 scale the at axis (inferred); the third goes to the 3rd argument of gfx_set_vec3_6f2aa8 */
-    scratch = (double)random_range(RANDOM_MIN_BITS,RANDOM_MAX_BITS);
+    scratch = (double)random_range(RANDOM_MIN_BITS,FLOAT_ONE_BITS);
     random_z = (float)(scratch * (double)object_matrix.at.z);      /* the original stores this in a stack slot that gfx_set_vec3_6f2aa8 reads as its 3rd argument */
-    scratch = (double)random_range(RANDOM_MIN_BITS,RANDOM_MAX_BITS);
+    scratch = (double)random_range(RANDOM_MIN_BITS,FLOAT_ONE_BITS);
     gfx_set_vec3_6f2aa8((float)(scratch * (double)object_matrix.at.x),0,random_z);
     RwMatrixRotate(&object_matrix,&object_matrix.up,rotate_degrees,rwCOMBINEPOSTCONCAT);
     translation.x = translation.x * k_f_n1 + spawn_dx;

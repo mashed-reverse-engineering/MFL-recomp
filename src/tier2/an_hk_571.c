@@ -20,12 +20,7 @@ extern struct VoiceSlotP g_voices[210];
 #define SOUND_GROUP_RANDOM_BASE (0x500)
 #define SOUND_GROUP_RANDOM_STRIDE (0x90)
 /* voice record offsets and flags (inferred) */
-#define VOICE_OFF_SUB (0x30)
-#define VOICE_OFF_FLAGS (0x34)
 #define VOICE_FLAG_STARTED (0x2)
-#define VOICE_OFF_POS_X (0x58)
-#define VOICE_OFF_POS_Y (0x5c)
-#define VOICE_OFF_POS_Z (0x60)
 /* random roll: hit when the roll equals AMBIENCE_ROLL_HIT (inferred) */
 #define AMBIENCE_ROLL_SIDES (0x32)
 #define AMBIENCE_ROLL_HIT (0x19)
@@ -68,8 +63,8 @@ void sound_ambience_course_12_18(void)
     if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[voice_slot].voice,1);
     }
-    *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = 0x46ac4400;
-    sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB);
+    *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
+    sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     sub_result = 0;
     if (sub_handle != 0) {
       sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
@@ -80,8 +75,8 @@ void sound_ambience_course_12_18(void)
     if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
       FUN_005b6a40(g_voices[voice_slot].voice,1);
     }
-    *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = 0x46ac4400;
-    sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB);
+    *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
+    sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     sub_result = 0;
     if (sub_handle != 0) {
       sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
@@ -94,7 +89,7 @@ void sound_ambience_course_12_18(void)
     *(undefined4 *)(voice_rec + VOICE_OFF_POS_X) = 0x421ecccd;
     *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = 0xc1a26666;
     *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0x41fc0000;
-    voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB);
+    voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
     if (voice_slot != 0) {
       FUN_005b72a0(voice_slot,0,1,ambience_pos.local_18);
     }
@@ -107,8 +102,8 @@ void sound_ambience_course_12_18(void)
       if ((*(byte *)(g_voices[voice_slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_STARTED) == 0) {
         FUN_005b6a40(g_voices[voice_slot].voice,1);
       }
-      *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = 0x46ac4400;
-      sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB);
+      *(undefined4 *)(g_voices[voice_slot].voice + 0x3c) = VOICE_DEFAULT_FREQ_BITS;
+      sub_handle = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       sub_result = 0;
       if (sub_handle != 0) {
         sub_result = FUN_005b7300(sub_handle,4,1,22050.0f);
@@ -122,7 +117,7 @@ void sound_ambience_course_12_18(void)
       *(float *)(voice_rec + VOICE_OFF_POS_X) = ambience_pos.local_18[0];
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = 0xc1300000;
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0xc1880000;
-      voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_SUB);
+      voice_slot = *(int *)(g_voices[voice_slot].voice + VOICE_OFF_HANDLE);
       if (voice_slot != 0) {
         FUN_005b72a0(voice_slot,0,1,ambience_pos.local_18);
       }

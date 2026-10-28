@@ -11,7 +11,6 @@ extern struct EventLogData g_event_log_data[256];
 /*007ef818*/ extern undefined4 g_last_frame_ticks;
 #define EVENT_LOG_SIZE (256)
 #define EVENT_LOG_LAST_INDEX (0xff)
-#define EVENT_PARAM_BIAS (0xff00)
 #define EVENT_DATA_STRIDE (64)
 /* sound_event_log_process */
 
@@ -48,8 +47,8 @@ void sound_event_log_process(void)
       return;
     }
     if ((&g_event_log_time)[event_index] == frame_ticks) {
-      /* voice_id: the logged param with EVENT_PARAM_BIAS removed (inferred). */
-      voice_id = (&g_event_log_param)[event_index] + -EVENT_PARAM_BIAS;
+      /* voice_id: the logged param with CAR_ID_BASE removed (inferred). */
+      voice_id = (&g_event_log_param)[event_index] + -CAR_ID_BASE;
       /* Dispatch on the event type. */
       switch((&g_event_log_type)[event_index]) {
       case 3:

@@ -15,7 +15,6 @@
 /*005df528*/ extern float k_f_1_8;
 /*0062ac74*/ extern float g_car_62ac74;
 /*007ef7f4*/ extern float g_tick_seconds;
-#define COLLIDER_TYPE_CAR_FIRST (0xff00) /* collider types 0xff00..0xff07 are cars; type - 0xff00 = car index (inferred from car_collision_impulse arg) */
 #define COURSE_OBJECT_TRIGGER_TYPE (29) /* trigger record kind of the course object (see comment in the function) */
 /* course_object_atomic_register_cb_473d50 */
 
@@ -67,13 +66,13 @@ void course_object_atomic_register_cb_473d50(float *hit_pos, char *collider)
   if (result != 0) {
 switchD_00473d7e_caseD_8:
     result = *(int *)(collider + 0x10);
-    if ((0xfeff < result) && (result < COLLIDER_TYPE_CAR_FIRST + 8)) {
+    if ((0xfeff < result) && (result < CAR_ID_BASE + 8)) {
       obj_bounds = (RwBBox *)atomic_plugin_get_bbox(*(undefined4 *)(obj + 0x8c));
       impulse_out.x = 0.0;
       impulse_out.y = 0.0;
       impulse_out.z = 0.0;
       result = car_collision_impulse
-                        (result - COLLIDER_TYPE_CAR_FIRST,obj_bounds,
+                        (result - CAR_ID_BASE,obj_bounds,
                          (RwMatrix *)(*(int *)(*(char **)(obj + 0x8c) + 4) + 0x10),1000.0,
                          &impulse_out.x);
       if (result == 0) {

@@ -17,18 +17,12 @@ extern struct VoiceSlotP g_voices[210];
 /*008d98bc*/ extern int g_sound_player_count;
 
 /* Voice record offsets (inferred from use) */
-#define VOICE_CHILD (0x30)
-#define VOICE_FLAGS (0x34)
 #define VOICE_FLAG_ACTIVE (2)
 #define VOICE_RATE (0x3c)
-#define VOICE_POS_X (0x58)
-#define VOICE_POS_Y (0x5c)
-#define VOICE_POS_Z (0x60)
 /* Sound group table in g_sound_groups (inferred) */
 #define SOUND_GROUP_BASE (0x500)
 #define SOUND_GROUP_STRIDE (0x90)
 /* Float bit patterns and roll ranges (inferred from the calls they appear in) */
-#define VOICE_RATE_DEFAULT (0x46ac4400) /* 22050.0f */
 #define VOICE_RATE_DEFAULT_F (22050.0f) /* the same value as a float argument of FUN_005b7300 (`float p3`; the integer literal would convert to 1.18e9) */
 #define RATE_JITTER_MAX (0x461c4000) /* 10000.0f */
 #define OFFSET_X_RANGE (0x42c80000) /* 100.0f, minus float_50_0 */
@@ -61,13 +55,13 @@ void sound_ambience_course_9_22(void)
   float offset [3];
 
   if ((g_sound_mute_when_multiplayer == 0) || (g_sound_player_count < 2)) {
-    /* Voice A: rate VOICE_RATE_DEFAULT, volume 0.5 (inferred). */
+    /* Voice A: rate VOICE_DEFAULT_FREQ_BITS, volume 0.5 (inferred). */
     slot = SOUND_GROUP_FIRST_VOICE_OF(7);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_RATE) = VOICE_RATE_DEFAULT;
-    iVar6 = *(int *)(g_voices[slot].voice + VOICE_CHILD);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_RATE) = VOICE_DEFAULT_FREQ_BITS;
+    iVar6 = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (iVar6 != 0) {
       fx_result = FUN_005b7300(iVar6,4,1,VOICE_RATE_DEFAULT_F);
@@ -79,15 +73,15 @@ void sound_ambience_course_9_22(void)
     if (slot == ROLL_A_HIT) {
       slot = rp_random_int_range(0,2);
       slot = *(int *)(slot * SOUND_GROUP_STRIDE + SOUND_GROUP_BASE + g_sound_groups);
-      if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
+      if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
         FUN_005b6a40(g_voices[slot].voice,1);
       }
       rand_val = (double)random_range(0,RATE_JITTER_MAX);
       *(float *)(g_voices[slot].voice + VOICE_RATE) = (float)(rand_val + (double)k_f_22050);
       voice_rec = g_voices[slot].voice;
-      if (*(int *)(voice_rec + VOICE_CHILD) != 0) {
+      if (*(int *)(voice_rec + VOICE_OFF_HANDLE) != 0) {
         rand_val = (double)random_range(0,RATE_JITTER_MAX);
-        voice_rec = FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_CHILD),4,1,
+        voice_rec = FUN_005b7300(*(undefined4 *)(g_voices[slot].voice + VOICE_OFF_HANDLE),4,1,
                              (float)(rand_val + (double)k_f_22050));
       }
       voice_set_volume(slot,1.0);
@@ -97,22 +91,22 @@ void sound_ambience_course_9_22(void)
       voice_rec = g_voices[slot].voice;
       offset[2] = (float)(rand_val - (double)k_f_74);
       offset[1] = 0.0;
-      *(float *)(voice_rec + VOICE_POS_X) = offset_x;
-      *(undefined4 *)(voice_rec + VOICE_POS_Y) = 0;
-      *(float *)(voice_rec + VOICE_POS_Z) = offset[2];
-      slot = *(int *)(g_voices[slot].voice + VOICE_CHILD);
+      *(float *)(voice_rec + VOICE_OFF_POS_X) = offset_x;
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = 0;
+      *(float *)(voice_rec + VOICE_OFF_POS_Z) = offset[2];
+      slot = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
       offset[0] = offset_x;
       if (slot != 0) {
         FUN_005b72a0(slot,0,1,offset);
       }
     }
-    /* Voice B: rate VOICE_RATE_DEFAULT, volume 1.0, fixed position (1.32, -7.7, -30.7) (inferred). */
+    /* Voice B: rate VOICE_DEFAULT_FREQ_BITS, volume 1.0, fixed position (1.32, -7.7, -30.7) (inferred). */
     slot = SOUND_GROUP_FIRST_VOICE_OF(11);
-    if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
+    if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
       FUN_005b6a40(g_voices[slot].voice,1);
     }
-    *(undefined4 *)(g_voices[slot].voice + VOICE_RATE) = VOICE_RATE_DEFAULT;
-    iVar6 = *(int *)(g_voices[slot].voice + VOICE_CHILD);
+    *(undefined4 *)(g_voices[slot].voice + VOICE_RATE) = VOICE_DEFAULT_FREQ_BITS;
+    iVar6 = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (iVar6 != 0) {
       fx_result = FUN_005b7300(iVar6,4,1,VOICE_RATE_DEFAULT_F);
@@ -122,20 +116,20 @@ void sound_ambience_course_9_22(void)
     offset[0] = 1.32;
     offset[1] = -7.7;
     offset[2] = -30.7;
-    *(undefined4 *)(voice_rec + VOICE_POS_X) = 0x3fa8f5c3;
-    *(undefined4 *)(voice_rec + VOICE_POS_Y) = 0xc0f66666;
-    *(undefined4 *)(voice_rec + VOICE_POS_Z) = 0xc1f5999a;
-    iVar6 = *(int *)(g_voices[slot].voice + VOICE_CHILD);
+    *(undefined4 *)(voice_rec + VOICE_OFF_POS_X) = 0x3fa8f5c3;
+    *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = 0xc0f66666;
+    *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0xc1f5999a;
+    iVar6 = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
     if (iVar6 != 0) {
       FUN_005b72a0(iVar6,0,1,offset);
     }
     /* Voice C (slot + 1): volume 1.0, fixed position (11.0, -5.7, -61.7) (inferred). */
     iVar6 = slot + 1;
-    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
+    if ((*(byte *)(g_voices[slot + 1].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
       FUN_005b6a40(g_voices[slot + 1].voice,1);
     }
-    *(undefined4 *)(g_voices[iVar6].voice + VOICE_RATE) = VOICE_RATE_DEFAULT;
-    slot = *(int *)(g_voices[iVar6].voice + VOICE_CHILD);
+    *(undefined4 *)(g_voices[iVar6].voice + VOICE_RATE) = VOICE_DEFAULT_FREQ_BITS;
+    slot = *(int *)(g_voices[iVar6].voice + VOICE_OFF_HANDLE);
     fx_result = 0;
     if (slot != 0) {
       fx_result = FUN_005b7300(slot,4,1,VOICE_RATE_DEFAULT_F);
@@ -145,10 +139,10 @@ void sound_ambience_course_9_22(void)
     offset[0] = 11.0;
     offset[1] = -5.7;
     offset[2] = -61.7;
-    *(undefined4 *)(voice_rec + VOICE_POS_X) = 0x41300000;
-    *(undefined4 *)(voice_rec + VOICE_POS_Y) = 0xc0b66666;
-    *(undefined4 *)(voice_rec + VOICE_POS_Z) = 0xc276cccd;
-    slot = *(int *)(g_voices[iVar6].voice + VOICE_CHILD);
+    *(undefined4 *)(voice_rec + VOICE_OFF_POS_X) = 0x41300000;
+    *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = 0xc0b66666;
+    *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = 0xc276cccd;
+    slot = *(int *)(g_voices[iVar6].voice + VOICE_OFF_HANDLE);
     if (slot != 0) {
       FUN_005b72a0(slot,0,1,offset);
     }
@@ -158,11 +152,11 @@ void sound_ambience_course_9_22(void)
     if (slot == ROLL_B_HIT) {
       slot = rp_random_int_range(0,2);
       slot = *(int *)(slot * SOUND_GROUP_STRIDE + SOUND_GROUP_BASE + g_sound_groups);
-      if ((*(byte *)(g_voices[slot].voice + VOICE_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
+      if ((*(byte *)(g_voices[slot].voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
         FUN_005b6a40(g_voices[slot].voice,1);
       }
-      *(undefined4 *)(g_voices[slot].voice + VOICE_RATE) = VOICE_RATE_DEFAULT;
-      iVar6 = *(int *)(g_voices[slot].voice + VOICE_CHILD);
+      *(undefined4 *)(g_voices[slot].voice + VOICE_RATE) = VOICE_DEFAULT_FREQ_BITS;
+      iVar6 = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
       fx_result = 0;
       if (iVar6 != 0) {
         fx_result = FUN_005b7300(iVar6,4,1,VOICE_RATE_DEFAULT_F);
@@ -170,10 +164,10 @@ void sound_ambience_course_9_22(void)
       voice_set_volume(slot,1.0);
       sound_pos = (undefined4 *)sound_get_6af57c();
       voice_rec = g_voices[slot].voice;
-      *(undefined4 *)(voice_rec + VOICE_POS_X) = *sound_pos;
-      *(undefined4 *)(voice_rec + VOICE_POS_Y) = sound_pos[1];
-      *(undefined4 *)(voice_rec + VOICE_POS_Z) = sound_pos[2];
-      slot = *(int *)(g_voices[slot].voice + VOICE_CHILD);
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_X) = *sound_pos;
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = sound_pos[1];
+      *(undefined4 *)(voice_rec + VOICE_OFF_POS_Z) = sound_pos[2];
+      slot = *(int *)(g_voices[slot].voice + VOICE_OFF_HANDLE);
       if (slot != 0) {
         FUN_005b72a0(slot,0,1,sound_pos);
       }

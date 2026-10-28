@@ -27,8 +27,8 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
   int atomic;
   int plugin_ptr;
   struct {
-    undefined1 *puStack_30;
-    int iStack_2c;
+    undefined1 *colour_cursor;
+    int colour_stride;
     undefined4 size_x;
     undefined4 size_y;
     undefined4 sphere_x;
@@ -39,24 +39,24 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
     undefined4 uv_v0;
     undefined4 uv_u1;
     undefined4 uv_v1;
-  } frame_obj;
+  } ptank_init;
   
   frame = RwFrameCreate();
-  frame_obj.uv_u0 = 0;
-  frame_obj.uv_v0 = 0;
-  frame_obj.uv_u1 = 0x3f800000;
-  frame_obj.uv_v1 = 0x3f800000;
-  frame_obj.size_x = 0x3dcccccd;
-  frame_obj.size_y = 0x3dcccccd;
+  ptank_init.uv_u0 = 0;
+  ptank_init.uv_v0 = 0;
+  ptank_init.uv_u1 = 0x3f800000;
+  ptank_init.uv_v1 = 0x3f800000;
+  ptank_init.size_x = 0x3dcccccd;
+  ptank_init.size_y = 0x3dcccccd;
   if (((int *)&g_particles_75cdec)[system] == 0) {
     buffer = RwMalloc(SNOW_PTANK_BUFFER_BYTES,0);
     *(void **)((char *)&g_particles_75cdec + system * 4) = buffer;
   }
   if (((int *)&g_particles_75cdcc)[system] == 0) {
-    frame_obj.sphere_x = 0;
-    frame_obj.sphere_y = 0;
-    frame_obj.sphere_z = 0;
-    frame_obj.sphere_radius = 0x447a0000;
+    ptank_init.sphere_x = 0;
+    ptank_init.sphere_y = 0;
+    ptank_init.sphere_z = 0;
+    ptank_init.sphere_radius = 0x447a0000;
     g_particles_75cddc = texture_in;
     atomic = RpPTankAtomicCreate(SNOW_PTANK_PARTICLES,0x80007,0);
     plugin_ptr = g_ptank_plugin_offset;
@@ -74,23 +74,23 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
      (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4)) + 4) = SNOW_PTANK_PARTICLES;
     RpAtomicSetFrame(*(RpAtomic **)((char *)&g_particles_75cdcc + system * 4),frame);
     plugin_ptr = *(int *)(*(char **)(*(char **)((char *)&g_particles_75cdcc + system * 4) + 0x18) + 0x5c);
-    *(undefined4 *)(plugin_ptr + 4) = frame_obj.sphere_x;
-    *(undefined4 *)(plugin_ptr + 8) = frame_obj.sphere_y;
-    *(undefined4 *)(plugin_ptr + 0xc) = frame_obj.sphere_z;
-    *(undefined4 *)(plugin_ptr + 0x10) = frame_obj.sphere_radius;
+    *(undefined4 *)(plugin_ptr + 4) = ptank_init.sphere_x;
+    *(undefined4 *)(plugin_ptr + 8) = ptank_init.sphere_y;
+    *(undefined4 *)(plugin_ptr + 0xc) = ptank_init.sphere_z;
+    *(undefined4 *)(plugin_ptr + 0x10) = ptank_init.sphere_radius;
     *(undefined4 *)
      (*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4)) + 0xac) = 1;
     plugin_ptr = *(int *)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4));
-    *(undefined4 *)(plugin_ptr + 0xd8) = frame_obj.uv_u0;
-    *(undefined4 *)(plugin_ptr + 0xdc) = frame_obj.uv_v0;
-    *(undefined4 *)(plugin_ptr + 0xe0) = frame_obj.uv_u1;
-    *(undefined4 *)(plugin_ptr + 0xe4) = frame_obj.uv_v1;
+    *(undefined4 *)(plugin_ptr + 0xd8) = ptank_init.uv_u0;
+    *(undefined4 *)(plugin_ptr + 0xdc) = ptank_init.uv_v0;
+    *(undefined4 *)(plugin_ptr + 0xe0) = ptank_init.uv_u1;
+    *(undefined4 *)(plugin_ptr + 0xe4) = ptank_init.uv_v1;
     *(uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4)) + 0x40)
          = *(uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4)) +
                     0x40) | 0x80000;
     plugin_ptr = *(int *)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4));
-    *(undefined4 *)(plugin_ptr + 0xb8) = frame_obj.size_x;
-    *(undefined4 *)(plugin_ptr + 0xbc) = frame_obj.size_y;
+    *(undefined4 *)(plugin_ptr + 0xb8) = ptank_init.size_x;
+    *(undefined4 *)(plugin_ptr + 0xbc) = ptank_init.size_y;
     ptank_flags = (uint *)(*(char **)(g_ptank_plugin_offset + *(char **)((char *)&g_particles_75cdcc + system * 4))
                      + 0x40);
     *ptank_flags = *ptank_flags | 0x4000;
@@ -103,14 +103,14 @@ void fx_snow_ptank_create(int system,RwTexture *texture_in)
                    (*(char **)(*(char **)((char *)&g_particles_75cdcc + system * 4) + 0x18) + 0x20),texture);
     }
     RpPTankAtomicLock_00545d10
-              (((undefined4 *)&g_particles_75cdcc)[system],&frame_obj.puStack_30,2,0x40000000);
+              (((undefined4 *)&g_particles_75cdcc)[system],&ptank_init.colour_cursor,2,0x40000000);
     plugin_ptr = SNOW_PTANK_PARTICLES;
     do {
-      *frame_obj.puStack_30 = 0xff;
-      frame_obj.puStack_30[1] = 0xff;
-      frame_obj.puStack_30[2] = 0xff;
-      frame_obj.puStack_30[3] = 0xff;
-      frame_obj.puStack_30 = frame_obj.puStack_30 + frame_obj.iStack_2c;
+      *ptank_init.colour_cursor = 0xff;
+      ptank_init.colour_cursor[1] = 0xff;
+      ptank_init.colour_cursor[2] = 0xff;
+      ptank_init.colour_cursor[3] = 0xff;
+      ptank_init.colour_cursor = ptank_init.colour_cursor + ptank_init.colour_stride;
       plugin_ptr = plugin_ptr + -1;
     } while (plugin_ptr != 0);
   }

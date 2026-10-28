@@ -18,7 +18,6 @@ struct EventLogRing {
 /* event type stored in EventLogRing.type for this log entry (inferred: name by role) */
 #define EVENT_TYPE_CAR_STATE (6)
 /* added to the car index in EventLogRing.param (car index + 0xff00) (inferred) */
-#define EVENT_PARAM_CAR_BASE (0xff00)
 /* constant stored in the first args word (args.arg0) (inferred, role unknown) */
 #define EVENT_ARG0_MARKER (0xff0000ff)
 /* words per EventLogRing.data record: 16 x 4 = 64 bytes */
@@ -50,7 +49,7 @@ void __cdecl car_log_event_6(int car_index)
       /* fill the header fields and the args record of the current ring slot */
       g_event_log_head.type[g_event_log_head.head] = EVENT_TYPE_CAR_STATE;
       g_event_log_head.time[g_event_log_head.head] = frame_ticks;
-      g_event_log_head.param[g_event_log_head.head] = car_index + EVENT_PARAM_CAR_BASE;
+      g_event_log_head.param[g_event_log_head.head] = car_index + CAR_ID_BASE;
       g_event_log_head.args[g_event_log_head.head].arg0 = EVENT_ARG0_MARKER;
       g_event_log_head.args[g_event_log_head.head].arg1 = buf[1];
       g_event_log_head.args[g_event_log_head.head].arg2 = buf[2];

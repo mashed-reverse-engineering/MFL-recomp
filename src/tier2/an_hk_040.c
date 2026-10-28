@@ -5,7 +5,6 @@
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 
 /* IEEE-754 bit patterns of the float values 1.0f and 360.0f */
-#define FLOAT_ONE_BITS (0x3f800000)
 #define FLOAT_360_BITS (0x43b40000)
 
 /* course_arctic_cb3_object_init */
