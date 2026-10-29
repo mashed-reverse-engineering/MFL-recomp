@@ -2341,3 +2341,6 @@ g_race_start_603f20 00603f20
 g_race_start_603f24 00603f24
 menu_event_column_is_special 00436200
 get_competitor_count 0040cca0
+# T-C10 old names kept resolvable for bridges (gamma applied, voice stop)
+g_menu_volume_applied 0069d6b8
+sfx_voice_is_active 00472bb0

@@ -297,7 +297,7 @@
 004221e0 hud_marker_get_distance hk_485.c
 00460460 weapon_flashbang_clear_effects hk_488.c
 00468c20 sound_event_log_find_current_tick hk_490.c
-00472bb0 sfx_voice_is_active hk_491.c
+00472bb0 sfx_voice_stop hk_491.c
 004756a0 aux_camera_setup hk_492.c
 004a41f0 timer_ticks hk_496.c
 00405ae0 aabb_max_axis_distance_to_point hk_499.c

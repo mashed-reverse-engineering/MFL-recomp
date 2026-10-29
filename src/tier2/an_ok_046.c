@@ -8,7 +8,7 @@
 /*00464c30*/ extern int powerup_place();
 /*00464dd0*/ extern int powerup_set_respawn_time();
 /*00472890*/ extern int sfx_play_voice_at();
-/*00472bb0*/ extern int sfx_voice_is_active();
+/*00472bb0*/ extern int sfx_voice_stop();
 /*0047a5b0*/ extern int car_add_velocity();
 /*0047abb0*/ extern int car_get_velocity_any_mode();
 /*00481fd0*/ extern double random_range();
@@ -318,7 +318,7 @@ void weapon_flamethrower_unequip(WeaponSlot *slot)
   object_set_flag_4(rec->f_0x24,0);
   RpWorldRemoveClump((RpWorld *)course_get_rpworld_00467e90(),rec->f_0x20);
   rec->f_0x0 = 0;
-  sfx_voice_is_active(SFX_VOICE_FLAMETHROWER,slot->player);
+  sfx_voice_stop(SFX_VOICE_FLAMETHROWER,slot->player);
   return;
 }
 

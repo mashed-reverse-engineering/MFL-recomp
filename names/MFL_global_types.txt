@@ -260,7 +260,7 @@ g_menu_draw_69d1dc float
 g_menu_draw_69d28c float
 g_menu_select_flash float
 g_menu_up_69d6bc float
-g_menu_volume_applied float
+g_menu_gamma_applied float
 g_menu_wave_time float
 g_noise_table_8c9ee0 float
 g_noise_table_8c9ee4 float

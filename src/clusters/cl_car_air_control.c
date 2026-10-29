@@ -46,7 +46,7 @@ void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
       }
       angle = (float10)crt_acos_body((double)dot_clamped);
       RwMatrixRotate(matrix,(RwV3d *)&g_car_62ac68,
-                     (float)(-(angle * (float10)(57.295799255371094) - (float10)(90.0)) * (float10)step),
+                     (float)(((float10)(90.0) - angle * (float10)(57.295799255371094)) * (float10)step),
                      rwCOMBINEPRECONCAT);
       dot_a = (matrix->right).z * g_car_62ac7c +
               g_car_62ac74 * (matrix->right).x + (matrix->right).y * g_car_62ac78;

@@ -23,10 +23,10 @@
 #define TEXT_TEAM_1 0xa2
 #define TEXT_TEAM_2 0xa3
 #define TEXT_PLAYER_NAME_REFERENCE 0x37          /* text whose width centres the player number */
-#define TEAM_BOX_WIDTH 0x22                      /* y step per player of a team column */
+#define TEAM_BOX_WIDTH 0x22                      /* x step (34) per player sprite along the Team 1 / Team 2 row at y 108 (TEAM_BOX_BASE_A / _B are the x of its first sprite) */
 #define TEAM_BOX_BASE_A 0xfa
 #define TEAM_BOX_BASE_B 0x1ae
-#define TEAM_SPRITE_STEP 0xb4
+#define TEAM_SPRITE_STEP 0xb4                    /* x step (180) between the undecided / Team 1 / Team 2 positions of a player's sprite in its framed row */
 #define TEAM_SPRITE_SIZE 48.0f
 #define TEAM_SPRITE_ROW_Y 108.0f
 

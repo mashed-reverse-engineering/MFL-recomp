@@ -725,6 +725,9 @@ enum MenuPage {
     MENU_PAGE_CUSTOM_ABILITIES = 0x11, /* ability / airstrike / game length */
     MENU_PAGE_GAME_SETUP_MULTI = 0x12, /* play game / power-ups / game length / extra opponents / vehicle / game mode */
     MENU_PAGE_SOUND = 0x13,        /* music / sfx / insults volume sliders (g_game_state.option_sliders) */
+    MENU_PAGE_TRANSMISSION_INTERRUPTED_A = 0x14, /* title text 72 "Transmission Interrupted" */
+    MENU_PAGE_OPTIONS_INGAME = 0x15, /* title text 40 "Options" (second options page) */
+    MENU_PAGE_TRANSMISSION_INTERRUPTED_B = 0x17, /* title text 72 "Transmission Interrupted" */
     MENU_PAGE_GAME_SETUP_SINGLE = 0x18, /* play game / power-ups / difficulty / vehicle / opponents / game mode */
     MENU_PAGE_GAME_OPTIONS = 0x1a, /* move screen */
     MENU_PAGE_VIBRATION = 0x1c,
@@ -738,6 +741,21 @@ enum MenuPage {
     MENU_PAGE_SCREEN = 0x24,
     MENU_PAGE_LOAD_SAVE = 0x25
 };
+/* markers of the page item token lists (g_menu_records[].item_list, ints, signed so that -0xf90000 == 0xff070000): the list runs to MENU_ITEM_LIST_END;
+   after MENU_ITEM_LIST_INPUT_BEGIN come the input tokens up to MENU_ITEM_LIST_INPUT_END, each enabling one button of the page (menu_update) */
+#define MENU_ITEM_LIST_END (-0xf90000)         /* 0xff070000 */
+#define MENU_ITEM_LIST_ITEM_START (-0xfa0000)  /* 0xff060000: start of an item (menu_count_items counts these) */
+#define MENU_ITEM_LIST_INPUT_BEGIN (-0xf70000) /* 0xff090000 */
+#define MENU_ITEM_LIST_INPUT_END (-0xf60000)   /* 0xff0a0000 */
+#define MENU_INPUT_SELECT (-0xf00000)          /* 0xff100000 enables select */
+#define MENU_INPUT_SELECT_ALT (-0xdd0000)      /* 0xff230000 enables select */
+#define MENU_INPUT_BACK (-0xef0000)            /* 0xff110000 */
+#define MENU_INPUT_PAUSE (-0xee0000)           /* 0xff120000 */
+#define MENU_INPUT_UP (-0xf50000)              /* 0xff0b0000 */
+#define MENU_INPUT_DOWN (-0xf40000)            /* 0xff0c0000 */
+#define MENU_INPUT_LEFT (-0xf30000)            /* 0xff0d0000 */
+#define MENU_INPUT_RIGHT (-0xf20000)           /* 0xff0e0000 */
+#define MENU_INPUT_NEXT (-0xcd0000)            /* 0xff330000 */
 #endif
 
 #ifndef MFL_WEAPON_ENUMS
@@ -1119,14 +1137,14 @@ struct MenuItemAnim {
     int state; /* "0 appearing, 1 idle, 2 disappearing, 0x1000 finished" */
     char _gap_8[4];
     uint colour; /* "RGBA bytes (set to 0xFFFFFFFF in menu_page_enter)" */
-    int anim_counter; /* "animation counter (0x1FF = finished, 400 limit while appearing)" */
+    int anim_counter; /* animation counter (0x1FF = finished); menu_items_animate_update counts it down in states 0 / 2 and up (limit 400, then 0x1FF) in states 1 / 0x1000; frontend_draw passes it to ui_text_draw_fade_alpha */
     float scale; /* "text scale (0.6 default)" */
     float x; /* "x position (64.0 default)" */
     float y; /* "y position (48.0 default; menu_item_y_position + row * 0x1e)" */
     char _gap_20[4];
     int param; /* "item parameter (0 default)" */
-    int ref_a; /* "slot 0 only: result of menu_item_list_find_index_a for the first lookup" */
-    int ref_b; /* "slot 0 only: result of the second lookup" */
+    int ref_a; /* text id drawn while the item is idle or finished (state 1 / 0x1000), -1 = none (frontend_draw); menu_button_prompts_build stores the prompt text here (was: "slot 0 only: result of menu_item_list_find_index_a") */
+    int ref_b; /* text id drawn while the item appears or disappears (state 0 / 2), -1 = none (frontend_draw) (was: "slot 0 only: result of the second lookup") */
     char _gap_30[4];
 };
 

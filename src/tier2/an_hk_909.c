@@ -5,7 +5,7 @@ extern struct FxSlot g_fx_slots[10];
 /*00467ea0*/ extern int weapon_get_rw_801b14();
 /*004682c0*/ extern int __cdecl rocket_surface_hit_test(void *p0, void *p1);
 /*00469cb0*/ extern int sfx_move_playing_voice();
-/*00472bb0*/ extern int sfx_voice_is_active();
+/*00472bb0*/ extern int sfx_voice_stop();
 /*004866b0*/ extern int fx_emitter_spawn_a_default();
 /*0049bf00*/ extern int fx_ribbon_add_point();
 /*004c4e20*/ extern int FUN_004c4e20(undefined4 p0, void *p1, void *p2);
@@ -93,7 +93,7 @@ void fx_update_all(void)
           if ((char *)&g_car_62ac74 + 0x26d73 < (char *)phase_ptr) {
             g_fx_8d98b0 = slot_index - (slot_index & 0xfffffffc);
           }
-          sfx_voice_is_active(0x14,g_fx_8d98b0);
+          sfx_voice_stop(0x14,g_fx_8d98b0);
         }
       }
     }

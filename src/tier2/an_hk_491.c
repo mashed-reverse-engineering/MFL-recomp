@@ -8,9 +8,9 @@ extern struct VoiceSlotP g_voices[210];
 /*006187f8*/ extern undefined4 g_sfx_table;
 #define SFX_TABLE_STRIDE (0x25) /* (inferred) words per effect in g_sfx_table */
 #define VOICE_FLAG_PLAYING (2) /* (inferred) */
-/* sfx_voice_is_active */
+/* sfx_voice_stop */
 
-/* "(effect, voice): voice of the effect is playing (only in state 3)" */
+/* (was "(effect, voice): voice of the effect is playing (only in state 3)": the code mutes and stops the voice, T-C10 rename sfx_voice_is_active -> sfx_voice_stop) */
 
 /*
  * Silences one voice of a sound effect, but only while the game is in the
@@ -19,7 +19,7 @@ extern struct VoiceSlotP g_voices[210];
  * has VOICE_FLAG_PLAYING set, its volume is set to 0 and it is stopped via
  * sound_voice_set_enabled (inferred: stop). Returns nothing.
  */
-void sfx_voice_is_active(int effect_id,int voice_index)
+void sfx_voice_stop(int effect_id,int voice_index)
 
 {
   int app_state;

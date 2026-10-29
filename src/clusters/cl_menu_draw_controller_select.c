@@ -44,7 +44,7 @@ typedef union UiColour {
 
 #define TEAM_COUNT 6
 #define CARD_COUNT 12
-#define CARD_GROUP 6                /* the cards come in two groups of six (one per controller slot of a player) */
+#define CARD_GROUP 6                /* the cards come in two groups of six (inferred: when g_menu_7ef7d0 != 0 the card number shown wraps modulo 6) */
 #define TEAM_ANY 6                  /* team choice 6: the player takes any team */
 #define TEAM_CHIP_FIRST_X 146.0f    /* the six team chips: colour bar behind a 64x64 team picture, 70 units apart */
 #define TEAM_BAR_FIRST_X 143.0f
@@ -85,7 +85,7 @@ static void team_chips_draw(float card_y, UiColour white, UiColour *team_colour)
    standard menu every active card is drawn on the screen; with it only the card of player 0. */
 void menu_draw_controller_select(void)
 {
-    UiColour team_colour[7];    /* 0 grey (default), 1 red, 2 blue, 3 green, 4 yellow, 5 pink, 6 black */
+    UiColour team_colour[7];    /* 0 grey (default), 1..6 = team_color_rgba(0..5) in order (names after team_color_rgba, inferred: red, blue, green, yellow, pink, black; if b[0] is the blue byte of a D3DCOLOR the entries would read blue, tan, green, cyan, lavender, black) */
     UiColour white, black, colour, any_colour;
     unsigned char fade = g_menu_69c97c;
     float flash;

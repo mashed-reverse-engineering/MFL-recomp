@@ -18,7 +18,7 @@ extern int fx_emitter_spawn_b_default(RwV3d *pos, void *axis, float angle, float
 extern int effect_sprite_spawn(int a, int *marker, void *colour, float s0, float s1);
 extern int particle_pool_find_oldest_or_free(int a, int *marker, int b);
 extern int sfx_move_playing_voice(int id, RwV3d *pos, int voice);
-extern int sfx_voice_is_active(int id, int voice);
+extern int sfx_voice_stop(int id, int voice);
 extern int trail_set_param(int slot, int a, int b);
 extern int trigger_sphere_register(void *sphere);
 extern int weapon_get_rw_801b14(void);
@@ -36,7 +36,7 @@ typedef struct TriggerSphere {
 } TriggerSphere;
 
 /* Per frame update of one player marker (esi = the marker record: +0x40 object, +0x44 state 1..4, +0x48 time, +0x4c vehicle, +0x50..+0x5c spin, +0x60 voice): state 1 flies the
-   marker frame along the camera direction with a random scatter and spawns the particles / ray test against the world, state 2 explodes, 3 stops the voice, 4 clears the slot. */
+   marker frame along the camera direction with a random scatter and spawns the particles / ray test against the world, state 2 explodes, 3 stops the marker voice (sfx_voice_stop(0x14, voice)), 4 clears the slot. */
 static int hudpanel_particle_slot_spawn_r(float * p0);
 extern void hudpanel_particle_slot_spawn(void);
 static int hudpanel_marker_ray_cast_r(int * p0, float * p1, int p2);
@@ -213,7 +213,7 @@ void hudpanel_marker_update_n(int *m)
     return;
   case 3:
     m[0x11] = 4;
-    sfx_voice_is_active(0x14, m[0x18]);
+    sfx_voice_stop(0x14, m[0x18]);
     return;
   case 4:
     hudpanel_slot_clear_r(m);

@@ -78,7 +78,7 @@ typedef union UiColour {
 #define LABEL_SCALE 0.52f
 #define LABEL_GAP 2.0f
 #define PAGE_EVENT MENU_PAGE_GAME_SETUP_SINGLE
-#define PAGE_SKILL MENU_PAGE_GAME_SETUP_MULTI
+#define PAGE_MULTI MENU_PAGE_GAME_SETUP_MULTI
 #define SCREEN_WIDTH_UNITS 640              /* the menus are laid out for 640x480 */
 #define SPRITE_SCREEN_FRACTION_Y 0.0020833334f   /* 1/480 */
 #define SPRITE_SCREEN_FRACTION_X 0.0015625f      /* 1/640 */
@@ -101,7 +101,8 @@ static float option_label_draw(int text_id, float scale, float x, float y, UiCol
     return (x - (float)((int)screen_width() * (label_width + 0x12) / SCREEN_WIDTH_UNITS)) + LABEL_GAP;
 }
 
-/* Draws the rows of the event / game mode option pages (arrows and the current value of every option), then the
+/* Draws the rows of the event / game mode option pages (arrows and the current value of every option; the rows are drawn with
+   rgb 0 = black, inferred a shadow layer under the text of menu_panel_draw_*), then the
    powerup icons, statistic bars and the event picture around them.  skip_option_rows: only the second half. */
 void menu_draw_event_icons(int skip_option_rows)
 {
@@ -154,7 +155,7 @@ void menu_draw_event_icons(int skip_option_rows)
             item_count = menu_count_items_r(item_list);
             row_y = ((float)menu_item_y_position_r(item_count, 28) + ROW_STEP_EVENT_PAGE) - EVENT_PAGE_FIRST_ROW_SHIFT;
         }
-        if (page_id == PAGE_SKILL)
+        if (page_id == PAGE_MULTI)
             row_y = row_y - EVENT_PAGE_FIRST_ROW_SHIFT;
         for (i = 1; i < item_count; i++) {
             current = g_menu_current;
@@ -445,6 +446,7 @@ void menu_draw_event_icons(int skip_option_rows)
         draw_rect(342.0f, 227.0f, (stat[3] - 0.8f) * 80.0f, 4.0f, overlay_word);
         draw_rect(342.0f, 252.0f, (stat[0] - 50.0f) * 1.7333333f, 4.0f, overlay_word);
     }
+    /* the same picture 8 px lower on the multiplayer setup page (page id 0x12 = decimal 18, list g_menu_page_18_game_mode; the page_24 list above is page 0x18) */
     if (g_menu_records[g_menu_current].item_list == g_menu_page_18_game_mode) {
         void *picture = find_texture_dict_d(PTR_g_data_6086d8_00608750[course_event_icon_lookup_a(g_menu_event_course_index)]);
 

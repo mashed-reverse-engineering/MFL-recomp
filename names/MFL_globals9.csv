@@ -8,4 +8,4 @@
 0069cfa0,@g_menu_selected_vehicle,"vehicle chosen for player 0 (car_set_field_8(0, value))"
 0069d2d0,@g_menu_career_race_active,"set when a career event was started from the menu; menu_fn_442550 unlocks the next entry when it is non-zero"
 0069ca18,@g_menu_select_flash,"float 1.0 -> 0 selection flash timer (decreases by 0.04 per frame)"
-0069d6b8,@g_menu_volume_applied,"last menu music volume applied to the sound engine"
+0069d6b8,@g_menu_gamma_applied,"last gamma slider value (g_menu_69cfc4) applied to the display via gamma_apply_via_device_scaled"

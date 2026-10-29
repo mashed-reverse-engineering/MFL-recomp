@@ -2019,7 +2019,7 @@ sfx_play_voice_at 00472890
 sfx_set_voice_volume 00472950
 sound_sfx_update_position_volume 00472a10
 sound_sfx_set_volume_clamped 00472b10
-sfx_voice_is_active 00472bb0
+sfx_voice_stop 00472bb0
 sound_ambience_course_21 00472c00
 sound_stuff_init 004733c0
 sound_stop_all_and_release 00473450
@@ -7861,7 +7861,7 @@ g_menu_select_pressed 0069d6a8
 g_message_69d6ac 0069d6ac
 g_menu_69d6b0 0069d6b0
 g_menu_69d6b4 0069d6b4
-g_menu_volume_applied 0069d6b8
+g_menu_gamma_applied 0069d6b8
 g_menu_up_69d6bc 0069d6bc
 g_menu_down_69d6c0 0069d6c0
 g_menu_left_69d6c4 0069d6c4

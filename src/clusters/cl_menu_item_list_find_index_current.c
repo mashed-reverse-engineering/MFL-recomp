@@ -20,7 +20,7 @@ int menu_item_list_find_index_current_n(int item_id, int occurrence)
   match_count = 0;
   pos = 0;
   do {
-    if (entry == -0xf90000) {
+    if (entry == MENU_ITEM_LIST_END) {
       return -1;
     }
     if (entry == item_id) {

@@ -139,10 +139,11 @@ extern void ui_draw_framed_rect(void);
 static void ui_get_triple_r(int p0, int p1, float * p2, int * p3, int * p4);
 extern void ui_get_triple(void);
 /* Draws the end-of-race results screen (no parameters). Depending on the event type it draws either the four
-   stacked panels of a time trial / cup event (lap and total time from time_get_minutes/seconds/fraction,
-   points via player_get_points, with a sign comparison against the previous value) or the per-player / per-
-   team score table in the multiplayer events (team colour names, points, wins, stats formatted through
-   sprintf into ui_rt2d_text_draw). Inferred from the callees and format strings; the meaning of individual
+   stacked panels of a time trial (the best / current time from time_get_minutes/seconds/fraction, with a sign
+   comparison of the two times through ui_compare_sign; cup events draw the plain header row only) or the ranking table of the other events (rank labels, points via player_get_points while g_menu_69cc48 < 3) or the per-player / per-
+   team score table in the multiplayer events (team colour names, wins or stat 0x8b90, stat columns formatted through
+   sprintf into text_draw_plain, a ring of stars (sprite g_frontend_5debd0) around the row of the player g_tutorial_69d2a8 - 1 (inferred)); unless a cup special stage is running it ends with a
+   scrolling help-text ticker (g_tutorial_line_entries, marquee between x 60 and 580 at y 376) in a framed bar, and, while g_menu_69cc48 <= 3, a 256 x 220 panel at the right of the table (purpose inferred: picture frame). Inferred from the callees and format strings; the meaning of individual
    columns is not fully confirmed. */
 void results_screen_draw(void)
 {
@@ -337,7 +338,7 @@ void results_screen_draw(void)
     }
     goto common;
   }
-  /* time trial / cup events: four stacked panels */
+  /* time trial events only (the cup events went to `common` above): four stacked panels */
   ui_draw_framed_rect_r(alpha, px, RESULTS_ROW0_TOP, pw, RESULTS_ROW_HEIGHT);
   ui_rt2d_text_draw(0x151, px + float_10_0, RESULTS_ROW0_TEXT_Y, tint, 0.5f, 0);
   ui_draw_framed_rect_r(alpha, px, RESULTS_ROW1_TOP, pw, RESULTS_ROW_HEIGHT);

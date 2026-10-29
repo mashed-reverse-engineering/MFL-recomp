@@ -61,8 +61,8 @@ typedef struct SpriteBox {
 #define EVENT_LIST_FADE_BOTTOM 250
 #define EVENT_LIST_FADE_SPAN 22
 #define EVENT_LIST_SCROLL_MAX 0x84
-#define EVENT_LIST_MEDAL_ROWS_FROM 0x108        /* y offset from which the rows have a medal (third column) */
-#define EVENT_LIST_MEDAL_BOUNCE_FROM 0xf2
+#define EVENT_LIST_MEDAL_ROWS_FROM 0x108        /* y offset of row 12 (12 * 22): from there the rows are gated by career_progress_event_unlocked instead of menu_event_is_selectable and carry no "new" marker */
+#define EVENT_LIST_MEDAL_BOUNCE_FROM 0xf2       /* y offset of row 11 (11 * 22); the bouncing medal is drawn for cup events (kind 3) from row 12 on */
 #define COLUMN_STEP_UNITS 30                    /* x distance of the three status icons */
 #define COLUMN_COUNT 3
 #define EVENT_TYPE_RACE_FIRST 0xe               /* the event types 0xe..0x11 have a short list of their own */
@@ -94,7 +94,7 @@ static int row_edge_fade(int y)
 /* Everything the three status icons of one list row are drawn from. */
 typedef struct EventRowDraw {
     int row;
-    int state;                  /* 0 locked, 1 not selectable, 2 normal */
+    int state;                  /* 0 locked, 1 not selectable, 2 normal (inferred from the tests that set it) */
     float icon_x, icon_y;       /* icon position, moves right per column */
     float icon_w, icon_h;       /* plain icon size */
     float frame_w, frame_h;     /* size of the icon on the selected row (two icon sizes) */

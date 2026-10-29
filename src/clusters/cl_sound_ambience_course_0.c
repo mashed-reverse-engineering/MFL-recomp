@@ -110,8 +110,8 @@ void sound_ambience_course_0(void)
 {
   float camera[3];
   float volume;
-  float level;
-  float progress;
+  double level;
+  double progress;
   int slot;
   int spline_slot;
   int count;

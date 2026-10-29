@@ -1,10 +1,9 @@
 // cluster-entries: menu_item_list_find_index_a
 /* Installed cluster menu_item_list_find_index_a (tools/cluster_install.py from output/cluster_pilot_zy/menu_item_list_find_index_a.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
-#define MENU_ITEM_LIST_END (-0xf90000) /* terminator id 0xFF0F0000 */
 /* menu_item_list_find_index_a */
 
-/* "(list) index of the item with the current id, -1 at the 0xFF0F0000 terminator or a null list" */
+/* "(list) index of the item with the current id, -1 at the 0xFF070000 terminator or a null list" */
 
 /* Scans list for the nth_match-th entry equal to target_id and returns the entry that follows it (not a position: the quoted summary above is loose; for id / value pairs it is the value); -1 for a null list or when the terminator is reached first. */
 int menu_item_list_find_index_a_n(int *list, int target_id, int nth_match)

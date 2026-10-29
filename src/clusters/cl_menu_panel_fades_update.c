@@ -46,7 +46,7 @@ extern void menu_player_direction_navigate(void);
 extern void tutorial_text_update(void);
 extern void menu_controller_navigation_update(void);
 
-/* Steps the fade of the 20 frontend panels once per frame.  g_menu_select_flash (0..1) is the fade phase: while it is 0 every panel state other than 1 (= fading in)
+/* Steps the fade of the 20 frontend panel states once per frame (the state at 0x69c9d0 is only reset, it has no alpha byte here; the other 19 have one).  g_menu_select_flash (0..1) is the fade phase: while it is 0 every panel state other than 1 (= fading in)
    is reset to 0.  A panel fading in (state 1) gets the alpha byte (1 - flash) * 255, a panel fading out (state 2) flash * 255, any other state 0; four panels also
    run their per frame update while fading in.  (The first alpha of panel 0xc9a8 clears the low byte of the state instead of the alpha: a quirk of the original.) */
 void menu_panel_fades_update(void)

@@ -1686,7 +1686,7 @@
 00472950 sfx_set_voice_volume 191
 00472a10 sound_sfx_update_position_volume 250
 00472b10 sound_sfx_set_volume_clamped 149
-00472bb0 sfx_voice_is_active 74
+00472bb0 sfx_voice_stop 74
 00472c00 sound_ambience_course_21 1977
 004733c0 sound_stuff_init 143
 00473450 sound_stop_all_and_release 242

@@ -17,7 +17,7 @@ extern void point_lerp_to_aux_camera(const float *point, float *out, float t);
 extern float rp_random_float_range(float low, float high);
 extern void fx_emitter_spawn_b_default(const float *position, const float *axis, float angle, float scale);
 extern void explosion_queue(const float *explosion, float a, float b, float c, int kind);
-extern void sfx_voice_is_active(int sound, int voice);
+extern void sfx_voice_stop(int sound, int voice);
 
 static void weapon_fx_clump_remove_b_r(Rocket * p0);
 extern void weapon_fx_clump_remove_b(void);
@@ -39,7 +39,7 @@ void rocket_explode_n(Rocket *rocket)
     explosion.position[2] = rocket->position[2];
     explosion.radius = 1.9f;
     explosion_queue(explosion.position, rp_random_float_range(35.0f, 45.0f), rp_random_float_range(150.0f, 250.0f), rp_random_float_range(200.0f, 300.0f), 2);
-    sfx_voice_is_active(0x14, rocket->voice);
+    sfx_voice_stop(0x14, rocket->voice);
 }
 
 /* weapon_fx_clump_remove_b_r: C -> original weapon_fx_clump_remove_b (registers esi) */

@@ -24,10 +24,10 @@
 #define ITEM_ROW(item) (*(int *)((char *)(item) + 0x20))        /* row of the item in its page list */
 #define ITEM_PAGE(item) (*(char **)((char *)(item) + 0x30))     /* page the item belongs to (address of the page's game mode word) */
 
-#define MENU_ITEM_APPEARING 0
-#define MENU_ITEM_IDLE 1
-#define MENU_ITEM_DISAPPEARING 2
-#define MENU_ITEM_FINISHED 0x1000
+#define MENU_ITEM_STATE_APPEARING 0
+#define MENU_ITEM_STATE_IDLE 1
+#define MENU_ITEM_STATE_DISAPPEARING 2
+#define MENU_ITEM_STATE_FINISHED 0x1000
 #define MENU_ANIM_DONE 0x1ff
 #define MENU_ANIM_LIMIT 400
 #define MENU_ITEM_ID_SLIDE_FAST 0xff040000   /* slides in / out about twice as fast */
@@ -40,8 +40,8 @@ static int item_uses_counter(int id)
   return id == 0xff000000 || id == 0xff100000 || id == 0xff110000 || id == 0xff120000 || id == 0xff130000 || id == 0xff230000;
 }
 
-/* Steps the animation of all 30 menu items by the frame time: appearing / disappearing items count the
-   anim counter down (to 0), finished-looking ones count it up to the limit; the plain items advance a fade angle.
+/* Steps the animation of all 30 menu items by the frame time: items in state 0 / 2 count the
+   anim counter down to 0 (then 0 -> state 1 idle, 2 -> state 0x1000), items in state 1 / 0x1000 count it up to the limit 400 and set 0x1ff (the state names are the header's; which direction is on screen is not confirmed, inferred); the plain items advance a fade angle.
    Item 0xff040000 also recomputes its y position from its page and row after it has appeared.
    Returns 0 while an item is still in the middle of an animation after the race start was requested, else 1. */
 undefined4 menu_items_animate_update(void)
@@ -62,31 +62,31 @@ undefined4 menu_items_animate_update(void)
   }
   result = 1;
   for (item = g_menu_item_anims; item < g_menu_item_anims + 30; item++) {
-    if (((item->item_id != 0) && (item->state != MENU_ITEM_FINISHED)) && (g_menu_start_race_requested != 0)) {
+    if (((item->item_id != 0) && (item->state != MENU_ITEM_STATE_FINISHED)) && (g_menu_start_race_requested != 0)) {
       result = 0;
     }
     if (item->item_id == MENU_ITEM_ID_SLIDE_FAST) {
       state = item->state;
-      if ((state != MENU_ITEM_APPEARING) && (state != MENU_ITEM_DISAPPEARING)) {
+      if ((state != MENU_ITEM_STATE_APPEARING) && (state != MENU_ITEM_STATE_DISAPPEARING)) {
         step = (int)(g_frame_seconds * speed * k_f_1000);
         item->anim_counter = item->anim_counter + step;
         if (MENU_ANIM_LIMIT - 1 < item->anim_counter) {
           item->anim_counter = MENU_ANIM_DONE;
-          item->state = MENU_ITEM_FINISHED;
+          item->state = MENU_ITEM_STATE_FINISHED;
         }
       }
       else {
         step = (int)(g_frame_seconds * speed * k_f_n2000);
         item->anim_counter = item->anim_counter + step;
         if (item->anim_counter < 1) {
-          if (state == MENU_ITEM_DISAPPEARING) {
+          if (state == MENU_ITEM_STATE_DISAPPEARING) {
             item->anim_counter = MENU_ANIM_DONE;
-            item->state = MENU_ITEM_FINISHED;
+            item->state = MENU_ITEM_STATE_FINISHED;
           }
           else {
             row = ITEM_ROW(item);
             item->anim_counter = 0;
-            item->state = MENU_ITEM_IDLE;
+            item->state = MENU_ITEM_STATE_IDLE;
             y = menu_item_y_position_r(g_ai_69d220,0x1e);
             page = ITEM_PAGE(item);
             item->y = (float)y + (float)(row * 0x1e);
@@ -103,25 +103,25 @@ undefined4 menu_items_animate_update(void)
     }
     else if (item_uses_counter(item->item_id)) {
       state = item->state;
-      if ((state != MENU_ITEM_APPEARING) && (state != MENU_ITEM_DISAPPEARING)) {
+      if ((state != MENU_ITEM_STATE_APPEARING) && (state != MENU_ITEM_STATE_DISAPPEARING)) {
         step = (int)(g_frame_seconds * speed * k_f_500);
         item->anim_counter = item->anim_counter + step;
         if (MENU_ANIM_LIMIT - 1 < item->anim_counter) {
           item->anim_counter = MENU_ANIM_DONE;
-          item->state = MENU_ITEM_FINISHED;
+          item->state = MENU_ITEM_STATE_FINISHED;
         }
       }
       else {
         step = (int)(g_frame_seconds * speed * k_f_n800);
         item->anim_counter = item->anim_counter + step;
         if (item->anim_counter < 1) {
-          if (state == MENU_ITEM_DISAPPEARING) {
+          if (state == MENU_ITEM_STATE_DISAPPEARING) {
             item->anim_counter = MENU_ANIM_DONE;
-            item->state = MENU_ITEM_FINISHED;
+            item->state = MENU_ITEM_STATE_FINISHED;
           }
           else {
             item->anim_counter = 0;
-            item->state = MENU_ITEM_IDLE;
+            item->state = MENU_ITEM_STATE_IDLE;
           }
         }
       }
@@ -130,7 +130,7 @@ undefined4 menu_items_animate_update(void)
       ITEM_FADE(item) = g_frame_seconds * k_f_300 + ITEM_FADE(item);
       if (k_f_180 <= ITEM_FADE(item)) {
         *(int *)&ITEM_FADE(item) = 0x43340000; /* 180.0f */
-        item->state = MENU_ITEM_FINISHED;
+        item->state = MENU_ITEM_STATE_FINISHED;
       }
     }
   }

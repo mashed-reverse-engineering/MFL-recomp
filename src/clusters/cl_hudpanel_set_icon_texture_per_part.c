@@ -29,7 +29,7 @@ typedef struct HudIconPanel {
 } HudIconPanel;
 static int time_trial_panel_times_update_r(int p0);
 extern void time_trial_panel_times_update(void);
-/* panel = HUD panel record whose 12 part material pointers (offsets 0x108..0x178) get colour table entry [icon_index] (offset 0x1b4; 0x1b8 caches the last one). */
+/* panel = HUD panel record whose 12 part material pointers (offsets 0x108..0x12c and 0x174, 0x178) get colour table entry [icon_index] (offset 0x1b4; 0x1b8 caches the last one). */
 void hudpanel_set_icon_texture_per_part_n(HudIconPanel *panel)
 
 {

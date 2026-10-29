@@ -27,4 +27,4 @@
 004162f0,trail_set_param,"(player, index, value): trail parameter, default size 0.01"
 004711b0,sound_event_log_process,"walks the event log ring from g_event_log_head and plays impact voices"
 00470f70,sound_play_impact_voice,"(voice, car, ...): positions the voice at the car with speed dependent volume"
-00472bb0,sfx_voice_is_active,"(effect, voice): voice of the effect is playing (only in state 3)"
+00472bb0,sfx_voice_stop,"(effect, voice): voice of the effect is playing (only in state 3)"

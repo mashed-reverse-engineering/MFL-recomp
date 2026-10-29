@@ -16,15 +16,15 @@ int menu_count_items_n(int *list)
   if (list != (int *)0x0) {
     while( true ) {
       entry = *list;
-      while (entry != -0xfa0000) {
-        if (entry == -0xf90000) {
+      while (entry != MENU_ITEM_LIST_ITEM_START) {
+        if (entry == MENU_ITEM_LIST_END) {
           return count;
         }
         piVar1 = list + 1;
         list = list + 1;
         entry = *piVar1;
       }
-      if (*list == -0xf90000) break;
+      if (*list == MENU_ITEM_LIST_END) break;
       count = count + 1;
       list = list + 1;
     }

@@ -105,8 +105,8 @@ static unsigned int category_word(int event)
     return word;
 }
 
-/* Draws the event selection panel of the front end (the 96 px band at the bottom of the screen with a divider
-   in the middle, faded by 'fade'). Per event type (cups, tournaments, time trials, quick races, training, or
+/* Draws the event selection panel of the front end (a 576 x 96 px band at y 300..396 of the 640x480 layout with a divider
+   at x 319 (not for training), faded by 'fade'). Per event type (cups, tournaments, time trials, quick races, training, or
    the multiplayer setups when event_type_uses_standard_menu() is 0) it shows the player/team icons, the
    category of the career row looked up in the g_menu_* category tables (category_word), the track/powerup
    icons and, for time trials, the best time formatted as mm:ss.cc. skip_list is handed to menu_layout_draw_b.
@@ -526,7 +526,7 @@ team_pair:
             }
         }
 cat_icon:
-        /* the icon of the category (bonus kinds 6, 7, 8) */
+        /* the icon of the category: team_color_names index 6 for category 0x70000 (kill the copter), 7 for 0x40000, 8 for 0x50000 (chase the fugitive) (inferred: these indices are reused as category pictures) */
         if (layout == 0x70000) k = 6;
         else if (layout == 0x40000) k = 7;
         else if (layout == 0x50000) k = 8;
@@ -638,7 +638,7 @@ next_icon:
             event = g_event_type;
         }
     }
-    /* the marker of a new event */
+    /* the marker of a new event (inferred: a blinking stamp, sprite 0xee or 0x268 when the career progress is 0, that flies off while g_menu_8c8090 counts down) */
     {
         int ent, st, cnt, row, id;
         float mx, my, mscale, mangle;

@@ -77,7 +77,7 @@
 /*0069d2c0*/ extern int g_menu_update_69d2c0;
 /*0069d2d4*/ extern int g_menu_update_69d2d4;
 /*0069d684*/ extern int g_menu_update_69d684;
-/*0069d6b8*/ extern float g_menu_volume_applied;
+/*0069d6b8*/ extern float g_menu_gamma_applied;
 /*0069d6ac*/ extern int g_message_69d6ac;
 /*0069cfd0*/ extern int g_message_state;
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
@@ -164,9 +164,6 @@ extern int menu_page_enter(int page, int arg);
 #define MENU_EVENT_COL_G6_V2 0x8
 #define MENU_EVENT_COL_USE5_B_V1 0xc
 #define MENU_EVENT_COL_USE5_B_V2 0xd
-#define MENU_PAGE_TRANSMISSION_INTERRUPTED_A 0x14 /* page 20, title text 72 "Transmission Interrupted" */
-#define MENU_PAGE_OPTIONS_INGAME 0x15 /* page 21, title text 40 "Options" (second options page) */
-#define MENU_PAGE_TRANSMISSION_INTERRUPTED_B 0x17 /* page 23, title text 72 "Transmission Interrupted" */
 extern int video_get_default_mode(void);
 /* DECLS-END */
 extern float k_f_n500;
@@ -186,8 +183,8 @@ extern void __cdecl movie_poll_and_set_surface_b(int a);
 #define MENU_ITEM_MSG_34 0xff1f0000 /* "locked" help message 0x34 */
 #define MENU_ITEM_MSG_35_A 0xff200000 /* help message 0x35 */
 #define MENU_ITEM_CHALLENGE_PLAY 0xff240000 /* career challenge: starts, or message 0x39/0xac */
-#define MENU_ITEM_MSG_13B 0xff270000 /* cup 3 message */
-#define MENU_ITEM_MSG_13A 0xff280000 /* cup message */
+#define MENU_ITEM_MSG_13B 0xff270000 /* career challenge select: message 0x13b when career_time_under_target() is 0, then career_race_active = 2 */
+#define MENU_ITEM_MSG_13A 0xff280000 /* message 0x13a when career_time_under_target() is nonzero, then career_race_active = 1 */
 #define MENU_ITEM_MSG_AC 0xff320000 /* message 0xac */
 #define MENU_ITEM_STANDARD_PLAY 0xff2c0000 /* multiplayer standard play (g_team_mode 0) */
 #define MENU_ITEM_TEAM_PLAY 0xff2e0000 /* multiplayer team play (g_team_mode 1) */
@@ -206,7 +203,7 @@ extern void __cdecl movie_poll_and_set_surface_b(int a);
 #define MENU_ITEM_SETUP_USE_4 0xff870000 /* race_setup_use_4, event column 0x10 */
 #define MENU_ITEM_SETUP_USE_1 0xff880000 /* race_setup_use_1, event column 0x11 */
 #define MENU_ITEM_SETUP_INDEX_0 0xff3a0000 /* race_set_setup_index(0) */
-#define MENU_ITEM_RESET_PLAYER_SLOTS 0xff3c0000 /* player_slots_reset_state */
+#define MENU_ITEM_RESET_PLAYER_SLOTS 0xff3c0000 /* player_slots_reset_state: 0x1000 resets the vehicles and opens ABILITY_SELECT, 0..3 show message 0xd9..0xdc */
 #define MENU_ITEM_QUICK_RACE_START 0xff420000 /* quick race 11..13 start */
 #define MENU_ITEM_START_LOADING 0xff440000 /* loading_start_log */
 #define MENU_ITEM_OPEN_SOUND 0xff430000 /* page SOUND */
@@ -215,7 +212,7 @@ extern void __cdecl movie_poll_and_set_surface_b(int a);
 #define MENU_ITEM_OPEN_CHALLENGE_SELECT_B 0xff490000 /* page CHALLENGE_SELECT_B */
 #define MENU_ITEM_START_RACE_SETUP 0xff4a0000 /* starts a race with race phase SETUP */
 #define MENU_ITEM_EXIT_TO_MAIN 0xff4b0000 /* load slot 1, back to the main page */
-#define MENU_ITEM_BACK_FROM_SAVE_LOAD 0xff4c0000 /* load/save screen back item */
+#define MENU_ITEM_BACK_FROM_SAVE_LOAD 0xff4c0000 /* back item: on TRANSMISSION_INTERRUPTED_B returns to the main page (reloads slot 1), else returns to the pause page and saves (gamesave_request_save_a) or logs a load (loading_start_log) depending on g_menu_update_69d2bc/c0 */
 #define MENU_ITEM_MSG_35_B 0xff4e0000 /* help message 0x35 */
 #define MENU_ITEM_OPEN_OPTIONS 0xff500000 /* page OPTIONS */
 #define MENU_ITEM_TEAM_COLOUR_A 0xff710000 /* page TEAM_COLOUR_SELECT, g_menu_7ef7d0 = 0 */
@@ -228,7 +225,7 @@ extern void __cdecl movie_poll_and_set_surface_b(int a);
 #define MENU_ITEM_LOAD_COURSE 0xff840000 /* race_load_course_0042fad0 */
 #define MENU_ITEM_OPEN_TRANSMISSION_INTERRUPTED_A 0xff480000 /* page TRANSMISSION_INTERRUPTED_A (0x14, title text 72) */
 
-/* Frontend menu state machine (0x4463e0): the volume/flash fades, then per frontend state 1..5 the fade in/out of the page, and in state 3 the input handling: the
+/* Frontend menu state machine (0x4463e0): applies the gamma slider value when it changed, decays the select flash, then per frontend state 1..5 the fade in/out of the page, and in state 3 the input handling: the
    position screen, select (the item offset token switch that starts races, opens pages, sets up the player slots), back, up, down, pause, left/right value
    changes per page id, and the next key.  The item list of the current page (g_menu_records) is a token list; select/back/up/down/left/right/next are enabled
    by tokens between the 0xff090000 and 0xff0a0000 markers (select by 0xff100000 or 0xff230000). */
@@ -250,8 +247,8 @@ void menu_update(void)
   float v;
 
   v = menu_get_69cfc4();
-  if (v != g_menu_volume_applied) {
-    g_menu_volume_applied = v;
+  if (v != g_menu_gamma_applied) {
+    g_menu_gamma_applied = v;
     gamma_apply_via_device_scaled(v, 1.0f);
   }
   g_menu_select_flash = g_menu_select_flash - k_f_0_04;
@@ -416,15 +413,15 @@ void menu_update(void)
     g_frontend_state = 4;
   }
   if ((team_mode != 0) && (g_message_state == 0)) {
-    /* scan the page item token list up to its end marker (-0xf90000) or the input marker (-0xf70000); the tokens after the input marker enable select/back/up/down/left/right/pause/next (aux = pause enabled) */
+    /* scan the page item token list up to its end marker (-0xf90000) or the input marker (-0xf70000); the tokens after the input marker enable select/back/up/down/left/right/pause/next (aux = pause token 0xff120000 present; it is also passed to menu_select_pressed_any (inferred: allows pause as select)) */
     tbl = (int *)g_menu_records[g_menu_current].item_list;
     aux = 0;
     team_mode = tbl[0];
-    while (team_mode != -0xf90000 && team_mode != -0xf70000) {
+    while (team_mode != MENU_ITEM_LIST_END && team_mode != MENU_ITEM_LIST_INPUT_BEGIN) {
       aux = aux + 1;
       team_mode = tbl[aux];
     }
-    if (tbl[aux] == -0xf70000) {
+    if (tbl[aux] == MENU_ITEM_LIST_INPUT_BEGIN) {
       tbl = tbl + aux + 1;
       aux = 0;
       next_enabled = false;
@@ -435,30 +432,30 @@ void menu_update(void)
       back_enabled = false;
       select_enabled = 0;
       team_mode = *tbl;
-      while (team_mode != -0xf60000) {
-        if ((team_mode == -0xf00000) || (team_mode == -0xdd0000)) {
+      while (team_mode != MENU_ITEM_LIST_INPUT_END) {
+        if ((team_mode == MENU_INPUT_SELECT) || (team_mode == MENU_INPUT_SELECT_ALT)) {
           select_enabled = 1;
         }
         else {
-          if (team_mode == -0xef0000) {
+          if (team_mode == MENU_INPUT_BACK) {
             back_enabled = true;
           }
-          else if (team_mode == -0xf50000) {
+          else if (team_mode == MENU_INPUT_UP) {
             up_enabled = true;
           }
-          else if (team_mode == -0xf40000) {
+          else if (team_mode == MENU_INPUT_DOWN) {
             down_enabled = true;
           }
-          else if (team_mode == -0xf30000) {
+          else if (team_mode == MENU_INPUT_LEFT) {
             left_enabled = true;
           }
-          else if (team_mode == -0xf20000) {
+          else if (team_mode == MENU_INPUT_RIGHT) {
             right_enabled = true;
           }
-          else if (team_mode == -0xee0000) {
+          else if (team_mode == MENU_INPUT_PAUSE) {
             aux = 1;
           }
-          else if (team_mode == -0xcd0000) {
+          else if (team_mode == MENU_INPUT_NEXT) {
             next_enabled = true;
           }
         }
@@ -1752,7 +1749,7 @@ LAB_0044849c:
         }
         menu_page_enter(MENU_PAGE_PAUSE,1);
       }
-      /* up/down: move the selection; on the challenge pages step the career row */
+      /* up/down: move the selection; up steps the career row on the challenge pages (6, 7) when g_menu_8c8090 == 0, down calls menu_career_row_next without a page test (it may test the page itself, inferred) */
       if ((up_enabled) && (team_mode = menu_up_pressed_any(), team_mode != 0)) {
         g_menu_69d6b0 = 1;
         menu_selection_step(0xffffffff);
@@ -1846,7 +1843,7 @@ LAB_0044849c:
             menu_text_format_and_draw(0x65,g_menu_60ad60);
           }
           break;
-        /* entries: 0 vehicle (0..3), 1 markers on/off, 2 race length (0..2) */
+        /* entries: 0 g_menu_selected_vehicle (0..3; the page header calls the entry ability, so the field may be an ability index, inferred), 1 markers on/off, 2 race length (0..2) */
         case MENU_PAGE_CUSTOM_ABILITIES:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
@@ -2111,7 +2108,7 @@ LAB_0044907d:
             menu_text_format_and_draw(0x65,g_menu_60ad60);
           }
           break;
-        /* entries: 0 vehicle (0..3), 1 markers on/off, 2 race length (0..2) */
+        /* entries: 0 g_menu_selected_vehicle (0..3; the page header calls the entry ability, so the field may be an ability index, inferred), 1 markers on/off, 2 race length (0..2) */
         case MENU_PAGE_CUSTOM_ABILITIES:
           team_mode = g_menu_records[g_menu_current].selected;
           if ((team_mode == 0) &&
