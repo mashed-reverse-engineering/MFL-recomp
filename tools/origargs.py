@@ -107,7 +107,7 @@ def main():
     retn_of = {}
     for l in open(os.path.join(G, "output", "stdcall.txt")):
         q = l.split()
-        if len(q) >= 2: retn_of[int(q[0], 16)] = int(q[1])
+        if len(q) >= 2 and int(q[1]) % 4 == 0: retn_of[int(q[0], 16)] = int(q[1])      # a `ret N` pops whole dwords: stdcall.txt rows 004dc190 / 004dc2a0 (RwStreamClose, plain cdecl `ret`) / 005ac2b0 have 77 / 77 / 90 (scan artefacts) and corrupted the esp depth of every caller (matrix_list_load: 16 slots instead of 2)
     for r in csv.DictReader(open(os.path.join(G, "output", "reginputs2.csv"))): retn_of.setdefault(int(r["addr"], 16), int(r["ret_n"]))
     rows = []
     for lo, hi, n in items:

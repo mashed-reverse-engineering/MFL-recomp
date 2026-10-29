@@ -813,11 +813,11 @@ class Machine:
             args = struct.unpack("<%dI" % len(nat), bytes(uc.mem_read(sp + 4, 4 * len(nat)))) if m.ours else tuple(uc.reg_read(REGS[t]) if t in REGS else struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * int(t[1:]), 4)))[0] for t in nat)
             m.trace.append((c.name, tuple(m.norm(a) for a in args), ()))
         else: m.trace.append((c.name, tuple(m.norm(a) for a in args), tuple(m.norm(uc.reg_read(REGS[r])) for r in c.regs)))
-        for k in writes_through(c.va):      # the ORIGINAL callee stores through its argument k: a destination in read-only memory (.rdata string / literal / code) is a write the stub must not hide (our code passed a string address instead of the buffer / NULL: oil_load_assets)
+        for k in [k_ for k_ in writes_through(c.va) if not c.nargs or k_ < c.nargs]:      # (k beyond the callee's argument count is a frame word the writes_through scan mis-indexed: RwStreamRead "arg 7" = caller frame garbage, differs between the two builds) the ORIGINAL callee stores through its argument k: a destination in read-only memory (.rdata string / literal / code) is a write the stub must not hide (our code passed a string address instead of the buffer / NULL: oil_load_assets)
             a = struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * k, 4)))[0] if k < 12 else 0
             if isro_ptr(a):
                 m.rowrite.append((c.name, k, region(a))); m.writes.append((a, 4))
-                try: uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, "ro", k), 16) % 61))
+                try: m.read(a, 4); uc.mem_write(a, struct.pack("<I", int(sha(c.va, i, m.seed, "ro", k), 16) % 61))      # m.read maps the lazily mapped image page first: the write used to fail silently on the side that never touched the page (powerups_clear: orig wrote 4 bytes into code, ours did not)
                 except UcError: pass
         h = int(sha(c.va, i, m.seed), 16); r = h >> 8
         outs = args

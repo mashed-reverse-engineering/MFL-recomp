@@ -29,7 +29,7 @@ def scan(src_dir, flags, jobs=2, only=None):
     """compile all chunks in src_dir (a copy of src/automatch_near + the headers); -> {name: (ok, detail, (code, masked) or None)}"""
     groups = collections.defaultdict(list)
     for n, (va, ch) in names().items():
-        if only is None or n in only: groups[ch].append((n, va))
+        if (only is None or n in only) and os.path.exists(os.path.join(src_dir, ch)): groups[ch].append((n, va))      # a name whose chunk is gone is mid-move (tier-1 install by another session)
 
     def run(k):
         fp = os.path.join(src_dir, k)

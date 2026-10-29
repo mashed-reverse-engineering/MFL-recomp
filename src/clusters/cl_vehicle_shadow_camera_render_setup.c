@@ -1,7 +1,7 @@
 // cluster-entries: vehicle_shadow_camera_render_setup
 /* Installed cluster vehicle_shadow_camera_render_setup (tools/cluster_install.py from output/cluster_pilot8/vehicle_shadow_camera_render_setup.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
-/*00425fc0*/ extern int vehicle_tyre_marks_collect_triangles();
+/*00425fc0*/ extern void __cdecl vehicle_tyre_marks_collect_triangles(int index, int obj, int query, float scale);      /* 4th argument: the original leaves the float argument of course_get_collision_bsp on the stack and the callee reads it (alpha = scale * 153) */
 /*004265e0*/ extern int vehicle_render_state_set_colour();
 /*00426610*/ extern int vehicle_render_state_set_6614e8();
 /*0042a3f0*/ extern int course_get_rpworld();
@@ -88,7 +88,7 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
                      ((shadow_scale_scaled = (float)(shadow_scale * (float10)vehicle_record->light_factor *
                              (float10)vehicle_record->size_factor), *(int *)&shadow_scale_scaled));
       vehicle_tyre_marks_collect_triangles
-                (vehicle_record->index,*(int *)(vehicle_record->frame + 4) + 0x10,collision_bsp);
+                (vehicle_record->index,*(int *)(vehicle_record->frame + 4) + 0x10,collision_bsp,shadow_scale_scaled);
       RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
       RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
       (**(code **)(part_frame + 0x48))(part_frame);

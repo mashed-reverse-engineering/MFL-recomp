@@ -12,9 +12,9 @@ python3 $T/defectlint.py --quiet 2>&1 | grep "^defectlint:" | sed 's/^/WARNING /
 # stack / call-boundary blind spots of diffemu (frame overflow by a callee's store extent, stack address in a value slot, calls with fewer arguments than the callee's original reads, interior register callees, float literals, cluster register+stack arity): installed code only, warning (output/stack_lint.csv, README 'stack_lint')
 python3 $T/stack_lint.py --csv $W/stack_lint.csv src/automatch_near src/clusters src/bridges src/tier1 > $W/stack_lint.txt 2>&1; grep -E "^stack_lint:|^recomp.*: [A-H][0-9]? \(" $W/stack_lint.txt | head -12 | sed 's/^/WARNING /'
 # defectlint class 10 on a CALL ("is called with N arguments, its original body reads M stack slots") in installed non-identical code is a FAIL as well (typed or `()` declaration alike; the same lost-argument bug as below, an_hk_1036 -> 56e990/56e9b0)
-python3 - $T/../output/defectlint.csv <<'PY' || { echo "defectlint: class 10 call-arity findings in installed code (src/defectlint_allow.txt for checked false positives)"; exit 1; }
+python3 - $T/../output/defectlint.csv <<'PY' || { echo "defectlint: class 10 call-arity / class 14-15 (implicit float call, float/double constant width) findings in installed code (src/defectlint_allow.txt for checked false positives)"; exit 1; }
 import csv, sys
-bad = [r for r in csv.DictReader(open(sys.argv[1])) if r["cls"] == "10" and r["enabled"] == "yes" and r["byte_identical"] == "no" and "is called with" in r["note"]]
+bad = [r for r in csv.DictReader(open(sys.argv[1])) if r["enabled"] == "yes" and r["byte_identical"] == "no" and (r["cls"] == "10" and "is called with" in r["note"] or r["cls"] in ("14", "15") or r["tier"] == "cluster")]      # 14/15 (T-L1), every class in an enabled cluster (T-L2: triaged to zero 2026-10-29): float argument to an undeclared callee / float-vs-double constant width: the T-H2 defects
 for r in bad[:5]: print("%s:%s %s" % (r["file"], r["line"], r["note"][:150]))
 sys.exit(1 if bad else 0)
 PY

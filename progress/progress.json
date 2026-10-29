@@ -61,10 +61,10 @@
   "cluster_functions": 655,
   "hand_functions": 381,
   "library_functions": 343,
-  "tier1_files": 1088,
-  "tier1_functions": 903,
-  "tier2_files": 838,
-  "tier2_functions": 736,
+  "tier1_files": 1095,
+  "tier1_functions": 908,
+  "tier2_files": 831,
+  "tier2_functions": 731,
   "unique_all_kinds": 2936,
   "unique_functions": 2593
  },
@@ -85,18 +85,18 @@
    "verified_bytes_identical": 344
   },
   "tier1": {
-   "bytes": 70147,
-   "functions": 1088,
-   "verified_bytes_identical": 1088
+   "bytes": 70482,
+   "functions": 1095,
+   "verified_bytes_identical": 1095
   },
   "tier2": {
-   "bytes": 243814,
-   "functions": 890,
+   "bytes": 243479,
+   "functions": 883,
    "verified_bytes_identical": 0
   }
  },
  "replaced_unique": {
-  "behaviour_verified": 1343,
+  "behaviour_verified": 1338,
   "by_tier": {
    "agent": {
     "bytes": 8420,
@@ -119,17 +119,17 @@
     "verified_bytes_identical": 344
    },
    "tier1": {
-    "bytes": 68730,
-    "functions": 899,
-    "verified_bytes_identical": 899
+    "bytes": 69105,
+    "functions": 904,
+    "verified_bytes_identical": 904
    },
    "tier2": {
-    "bytes": 247080,
-    "functions": 734,
+    "bytes": 246705,
+    "functions": 729,
     "verified_bytes_identical": 0
    }
   },
-  "byte_identical": 1352,
+  "byte_identical": 1357,
   "bytes": 662239,
   "clusters": 655,
   "clusters_not_in_ledger": 568,

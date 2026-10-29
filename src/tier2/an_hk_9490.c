@@ -1,4 +1,6 @@
 #include "mfl_tier2.h"
+/* tree placement: the radius is a float argument (an implicit declaration would promote it to double) */
+extern void __cdecl func_0x0048db30(void *pos, int count, void *list, float radius);
 extern char UNK_0045d5b0[];
 extern char UNK_005df51c[];
 /*0045c6b0*/ extern int course_atomics_clone_3();

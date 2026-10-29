@@ -50,6 +50,7 @@ undefined4 car_auto_steer_assist_step(uint car_index,int step_count)
     float target_heading;
     float target_spread;
     RwV3d forward_flat;
+    float heading;
   } frame;
   double angle;
   double wrapped;
@@ -87,14 +88,14 @@ undefined4 car_auto_steer_assist_step(uint car_index,int step_count)
           dot = float_1_0;
         }
         acos_result = (double)crt_acos_body(dot);
-        angle = (float)(-(acos_result * (double)(57.295799255371094) - k_f_0) + (double)k_f_90);
+        frame.heading = (float)(-(acos_result * (double)(57.295799255371094) - 90.0) + (double)k_f_90);      /* the original subtracts a double 90.0 constant here (k_f_0 at 5ddc28 is that double, read as float it is 0) */      /* a float variable: the original stores it (rounded) before 360 - heading */
         frame.forward_flat.x = g_fx_62ac70 * player_car[(int)car_index].forward[1] -
                     g_fx_62ac6c * player_car[(int)car_index].forward[2];
         frame.forward_flat.y = g_car_62ac68 * player_car[(int)car_index].forward[2] - g_fx_62ac70 * *car_forward;
         frame.forward_flat.z = g_fx_62ac6c * *car_forward - g_car_62ac68 * player_car[(int)car_index].forward[1];
-        t = angle;
+        t = frame.heading;
         if (frame.forward_flat.y < k_f_0) {
-          t = k_f_360 - angle;
+          t = k_f_360 - frame.heading;
         }
         rank_key = (int)player_rank_key(car_index);
         fx_wander_target(rank_key,&frame.target_heading,&frame.target_spread);
@@ -135,8 +136,11 @@ undefined4 car_auto_steer_assist_step(uint car_index,int step_count)
         if (k_f_45 < spread) {
           spread = k_f_45;
         }
-        angle = angle * step_count_f * k_f_0_016666668 * g_race_update_6292e4 * (k_f_45 - spread) *
-                k_f_0_022222223;      /* the original's multiplication order (angle * count first), another order rounds differently */
+        angle = angle * step_count_f;      /* one statement per factor: a single product chain gets reassociated by cl /O2 (the original multiplies in this order) */
+        angle = angle * k_f_0_016666668;
+        angle = angle * g_race_update_6292e4;
+        angle = angle * (k_f_45 - spread);
+        angle = angle * k_f_0_022222223;
         if (angle != k_f_0) {
           RwMatrixRotate((RwMatrix *)((char *)player_car + player_car[car_index_copy].matrix_current * 0x40 + 0x928 + car_byte_offset),
                          (RwV3d *)&g_car_62ac74,angle,rwCOMBINEPRECONCAT);

@@ -7,7 +7,7 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*004a3490*/ extern int __cdecl app_get_app_76e890_3490(undefined4 p0);
 /*004a34b0*/ extern int app_get_two_size_pairs();
 /*004a34f0*/ extern int app_get_app_76e8a4();
-/*004a3500*/ extern int video_draw_textured_quad();
+/*004a3500*/ extern int __cdecl video_draw_textured_quad(RwCamera *camera, undefined4 *rect_min, undefined4 *rect_max, int unused, undefined4 texture, float ratio_x, float ratio_y);      /* reads 7 stack words: the original leaves the two arguments of app_get_app_76e8a4 (ratio_x, ratio_y) on the stack and they become arguments 6 and 7 */
 /*004a39a0*/ extern undefined __cdecl movie_stop(undefined4 p0);
 /*004a39e0*/ extern int __cdecl movie_poll_and_set_surface(undefined4 p0, undefined4 p1);
 /*004a3fe0*/ extern int video_texture_setup();
@@ -84,7 +84,7 @@ void video_play_loop(void)
         frame.rect_max_y = 0x3f800000;
         frame.ratio_y = frame.size_a_h / frame.size_b_h;
         texture_arg = app_get_app_76e8a4(*(int *)&frame.ratio_x,*(int *)&frame.ratio_y);
-        video_draw_textured_quad(camera,&frame.rect_min_x,&frame.rect_max_x,0,texture_arg);
+        video_draw_textured_quad(camera,&frame.rect_min_x,&frame.rect_max_x,0,texture_arg,frame.ratio_x,frame.ratio_y);
         RwCameraEndUpdate(camera);
       }
     }

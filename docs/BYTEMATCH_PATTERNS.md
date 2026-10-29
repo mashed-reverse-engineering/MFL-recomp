@@ -441,3 +441,22 @@ Cluster census (`tools/bytediff_causes_clusters.py`): the natural C of the 622 e
 reginput_root 288 (the `_n` body takes its register inputs on the stack: differs by construction), control-flow shape 165, x87 form or spill 136, jump table 104, callee-saved set 76, large structure 55,
 small structure 14, byte-identical 14, missing/extra mov 4, instruction order 2, strength reduction 2, stack frame 1.  The 14 byte-identical cluster entries have no promotion path in the ledger (a cluster entry is owned
 by the cluster build and is verified by `diffemu --cluster`, not by RELCHECK), so they stay clusters.
+
+## Round T-M3 (2026-10-29): permuter-style multi-site search (`tools/bytematch_permute.py`)
+
+Single-site rewrites are exhausted, so the search now combines mutations. Per function: hill climb over the source text; a batch of 6 mutants (1-2 mutations each) is compiled as copies `f__v0..v5` in ONE translation unit
+(about 0.3 s per variant), each compared with the original bytes (masked relocations, RELCHECK targets). Score = (instruction-aligned diff count, differing bytes); the best mutant of a batch becomes the current text when its score is
+not worse (plateau moves, because a compare-order edit often only pays off together with an arm-order edit), restart from the best after 25 idle batches; results cached per text hash, resumable.
+Mutators: compare operand mirror (`a < b` -> `b > a`), if/else arm swap (relational conditions are negated as `!( )`, never flipped, so NaN behaviour is kept), operand order of `*` / `+` (only where no regrouping happens),
+swap of two leading declarations, swap of adjacent independent assignments, temp inlining, for<->while (not with `continue`), case-block swap (only terminated blocks), add/drop `(float)` `(double)` `(int)` casts and
+`(float)(double)` round trips on assignments to float locals, float literal width, `a+b+c` <-> `a+(b+c)`, pointer-cast retype (`*(undefined4 *)` <-> float/int/uint).
+Validation: frame_follow_path_step (the known two-edit case: `len < t` -> `t > len` plus arm swap) is rediscovered in 6 variants.
+
+44. Statement order of independent global stores follows the original (video_cfg_path: the byte field is stored last).  Two adjacent-assignment swaps, neither alone changes the score.
+45. Float setup struct (car_probe_ground_distance): store order of the ray fields, `3.0f + y` operand order and dropping two `(double)` casts on a float subtraction, found together (stmt_swap + mul_swap + cast_toggle).
+46. frame_follow_path_step: compare operand order + if/else arm order (see pattern 3/20), first multi-site hit.
+
+Run: 101 functions with <= 12 differing bytes, then 325 functions with an instruction-aligned diff <= 16 (non-/GS), 500-1500 variants each: 3 new byte-identical (video_cfg_path, car_probe_ground_distance,
+frame_follow_path_step) from ~330 functions and ~250,000 variants.  The 37 /GS frame-layout functions start 900+ instructions off (frame size / local order around the cookie): the mutators do not reach them (tried 8, slow, no movement).
+Not reached: functions with no mutation site (tail-call `_forward` wrappers with register-convention `_r` adapters, 24 `obj_get_off<N>` getters: 0 variants beyond the retype); callee-saved set classes where the original local structure is gone.
+Also found while rerunning the census: 4 gap_ functions (tail-call `this` fixes of T-H1) became byte-identical and were promoted.

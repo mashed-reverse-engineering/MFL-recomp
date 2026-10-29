@@ -88,7 +88,6 @@
 0042a470 course_list_scan hk_009.c
 00482330 im2d_draw_quad hk_010.c
 00426e90 ai_editor_brush_select hk_011.c
-004a8580 video_cfg_path hk_014.c
 00437b70 menu_page_enter_set_panel_state hk_020.c
 0045cb40 course_zone_players_transform_update hk_024.c
 0045ccb0 course_zone_contains_matrix hk_026.c
@@ -499,7 +498,6 @@
 00463b30 weapon_mines_fire hk_808.c
 00467e60 player_equip_weapon hk_809.c
 0046f9e0 sound_menu_voices_trigger hk_810.c
-00485030 frame_follow_path_step hk_811.c
 00496ad0 triggers_sort_axis hk_812.c
 0047fe30 hud_labels_render_all hk_818.c
 004a08b0 fx_buffers_alloc hk_819.c
@@ -645,7 +643,6 @@
 0047acc0 car_wheels_vs_triangles hk_1015.c
 0044e4d0 ai_debug_draw_lines hk_1016.c
 004850c0 matrix_to_euler_degrees hk_9201.c
-0047b480 car_probe_ground_distance hk_9204.c
 00469d30 sound_music_volume_update hk_9207.c
 0042a980 course_load_powerups_gold hk_9208.c
 00470f70 sound_play_impact_voice hk_9209.c
@@ -838,14 +835,10 @@
 004aaea0 course_storm_cb1_sub_4aaea0 hk_1097.c
 004aaf40 course_storm_cb1_sub_4aaf40 hk_1098.c
 004ab160 course_storm_cb1_sub_4ab160 hk_1101.c
-004af2f0 gap_4af2f0 hk_1102.c
-004af310 gap_4af310 hk_1103.c
 004b22a0 gap_4b22a0 hk_1104.c
 004b22b0 gap_4b22b0 hk_1105.c
 004b22d0 gap_4b22d0 hk_1106.c
 004b2480 gap_4b2480 hk_1107.c
-004b2490 gap_4b2490 hk_1108.c
-004b24a0 gap_4b24a0 hk_1109.c
 004b24c0 gap_4b24c0 hk_1110.c
 004b24d0 gap_4b24d0 hk_1111.c
 004b24e0 gap_4b24e0 hk_1112.c

@@ -13,5 +13,3 @@ void gap_4af2f0(char *param_1)
   (**(void (**)(char *))(*(char **)component + 4))(component);
   return;
 }
-
-

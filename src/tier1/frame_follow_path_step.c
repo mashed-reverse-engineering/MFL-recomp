@@ -32,20 +32,17 @@ void frame_follow_path_step(int owner,int path,float *path_time,float time_step,
     frame = *(RwFrame **)(owner + OWNER_FRAME_OFFSET);
     /* advance time; wrap once if it passes the path length */
     owner_or_time = time_step + *path_time;
-    if (*(float *)(path + PATH_LENGTH_OFFSET) < owner_or_time) {
+    if (owner_or_time > *(float *)(path + PATH_LENGTH_OFFSET)) {
       owner_or_time = owner_or_time - *(float *)(path + PATH_LENGTH_OFFSET);
     }
     /* build the matrix for this time: spline by default, alternate tween when tween_mode != 0 */
-    if (tween_mode == 0) {
-      spline_tween_b(&tween_matrix,path,owner_or_time);
-    }
-    else {
+    if (tween_mode != 0) {
       hanim_keyframes_sample_at_time(&tween_matrix,path,*(int *)&owner_or_time);
+    } else {
+      spline_tween_b(&tween_matrix,path,owner_or_time);
     }
     *path_time = owner_or_time;
     RwFrameTransform(frame,&tween_matrix,rwCOMBINEREPLACE);
   }
   return;
 }
-
-

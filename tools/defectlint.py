@@ -11,12 +11,14 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
   9 framelayout  `&local_N` (Ghidra stack slot, named by its offset) passed to a call / stored while another local within 0x10 bytes (local_N+-4, +-8, ..) is also used, or `&local_N` indexed / offset (`(&local_N)[1]`, `&local_N + 1`, `(char *)&local_N + k`, `p = &local_N; p[1]`): the original had ONE frame object whose members a callee reads past the passed address (clump_has_uv_anim: {flag, callback, flag ptr}), separate C locals are reordered by the compiler; fix = a struct local
   10 defarity  parameters the C definition declares < stack argument slots the ORIGINAL reads / rewrites ([esp+4+4k] / [ebp+8+4k], `ret N`, tools/origargs.py -> output/orig_stackargs.txt), < the arguments of the function it tail-jumps to, < what its callers push; a tail call in the C body with fewer arguments than the jump target takes (player_equip_weapon_by_index: `void f(void){ g(); }` for a thunk that rewrites [esp+4] and jmps)
   7 regcallee  call of a function with register inputs (output/regsigs.csv, joined by name or by `/*addr*/` of the extern) by its plain name: it is compiled as a cdecl call (needs the F_r adapter or the cluster route); the summary lists the callers per callee
+  14 implicit  call of a function with NO prototype in scope (implicit declaration, or a `name()` K&R declaration in an included header) with a float / double argument: promoted to double, 8 bytes pushed, the callee reads a float (T-H2 course_warzone_cb0 func_0x0048db30)
+  15 fpwidth   a float (double) typed global used by a function whose ORIGINAL instructions read that address only as a qword (dword): k_f_0 at 0x5ddc28 is the double 90.0, read as float it is 0 (T-H2 car_auto_steer_assist_step); output/fp_const_uses.txt = x87 memory operands per original function (gen_fpuse, --regen)
 Class 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
 Exit 0 always (warning tool)."""
 import csv, glob, os, re, subprocess, sys
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, ".."))
-SCOPE = ["src/automatch_near", "src/automatch_agent", "src/tier1", "src/automatch", "src/bridges", "output/tier2_candidates", "output/tier2_candidates2", "output/usercall_candidates*"]
+SCOPE = ["src/automatch_near", "src/automatch_agent", "src/tier1", "src/automatch", "src/bridges", "src/clusters", "output/tier2_candidates", "output/tier2_candidates2", "output/usercall_candidates*"]
 INT_T = {"int", "short", "long", "char", "signed", "ushort_s", "int8_t", "int16_t", "int32_t", "SHORT", "LONG", "INT", "BOOL", "RwInt32", "RwBool", "RwInt16"}
 UNS_T = {"uint", "ulong", "ushort", "uchar", "byte", "DWORD", "UINT", "WORD", "BYTE", "ULONG", "size_t", "unsigned", "RwUInt32", "RwUInt16", "undefined1", "undefined2", "dword", "word"}
 FLT_T = {"float", "double", "float10", "RwReal", "FLOAT", "longdouble"}
@@ -26,7 +28,7 @@ KW = {"if", "while", "for", "return", "else", "switch", "sizeof", "do", "case", 
 def exact_slots(va, k):
     """the ORIGINAL body reads exactly k stack argument slots (orig_stackargs.txt row without tail / addr / dyn / ijmp / w<N> flags): fewer pending pushes than the callers' minimum are then batched `add esp` cleanups, not missing arguments (2026-10-16)"""
     o = ORIG.get(va)
-    return bool(o) and o[0] == k and not o[2] and not (o[3] & {"dyn", "addr", "ijmp"}) and not any(re.match(r"w\d", x) for x in o[3])
+    return bool(o) and o[0] == k and all(t in ORIG and ORIG[t][0] <= k and not ORIG[t][2] and not (ORIG[t][3] & {"dyn", "addr", "ijmp"}) for t in o[2]) and not (o[3] & {"dyn", "addr", "ijmp"}) and not any(re.match(r"w\d", x) for x in o[3])      # a tail target reading no more slots than k (build_info_frame -> sound_streams_resume) keeps it exact
 def strip_comments(t):
     def blank(m): return re.sub(r"[^\n]", " ", m.group(0))
     t = re.sub(r"/\*.*?\*/", blank, t, flags=re.S)
@@ -88,6 +90,8 @@ class Lint:
         self.glob = dict(gdecl)           # file externs override decls.h
         self.protos = {}                  # name -> (nparams or None for (), [types], va)
         self.finds = []
+        self.gva_skip = set(); self.gva = {}                     # file extern name -> /*va*/ of its declaration
+        self.hdr = header_decls(text, os.path.dirname(os.path.join(G, path)))
         self.hints = []                   # mechanical fixes for tools/t2_postfix.py: (kind, line, symbol / function, [argument texts])
         self.parse_top()
 
@@ -106,7 +110,14 @@ class Lint:
                 self.protos[m.group(2)] = (n, ps if n else [], va.group(1).lower() if va else None, base_type(m.group(1)), i + 1)
                 continue
             m = DECL_RE.match(l)
-            if m: self.glob[m.group(2)] = base_type(m.group(1))
+            if m:
+                self.glob[m.group(2)] = base_type(m.group(1))
+                va = re.search(r"/\*([0-9a-fA-F]{8})\*/", raw[i])
+                if va: self.gva[m.group(2)] = va.group(1).lower()
+                continue
+            m = re.match(r"\s*extern\s+((?:(?:const|unsigned|signed|undefined\d?)\s+)*[A-Za-z_]\w*)\s+(\w+(?:\[[^\]]*\])*(?:\s*,\s*\w+(?:\[[^\]]*\])*)+)\s*;", l)      # `extern int a, b, c;`
+            if m:
+                for n in re.split(r"\s*,\s*", m.group(2)): self.glob[n.split("[")[0]] = base_type(m.group(1))
 
     def functions(self):
         """yield (name, params-string, body_start_line_index, body_end_line_index)"""
@@ -313,6 +324,7 @@ class Lint:
             args = split_args(st[m.end():j])
             if n is None:
                 fa = [a for a in args if self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*float\s*\)", a) or (os.environ.get("DL_FEXPR") and not re.fullmatch(r"\s*[\w.]+\s*", a) and self.fexpr(a, env))]      # float typed arithmetic (`g + k_f_80`) too: ONLY when DL_FEXPR is set (t2_postfix.retry): installed code passes such expressions to K&R callees that really take a double (sound_volume_to_directsound_db)
+                fa = [a for a in fa if not re.search(r"\b(?:float|RwReal|double)\s+%s\s*\[" % re.escape(a.strip().split(".")[-1]), self.t)]      # an array decays to a pointer
                 if fa:
                     self.hints.append(("fbits", line, f, [a.strip() for a in fa]))
                     self.add(4, "high", line, fn, f, st, "float argument passed to `%s()` (no prototype): pushed as double" % f)
@@ -435,7 +447,55 @@ class Lint:
             j = balanced_after(st, m.end() - 1)
             if j < 0: continue
             k = len([a for a in split_args(st[m.end():j]) if a.strip()])
+            if pr and pr[1]: k += sum(1 for q in pr[1][:k] if re.match(r"(?:const\s+)?(?:long long|longlong|ulonglong|double|__int64)\b(?!\s*\*)", q.strip()))      # a 64-bit parameter is two stack slots
             if k < sl: self.add(10, "high", line, fn, f, st, "defarity: `%s` is called with %d argument(s), its original body reads %d stack argument slot(s)" % (f, k, sl))
+
+    _NOCALL = KW | FLT_T | INT_T | UNS_T | {"defined", "asm", "__asm", "_asm", "__declspec", "float", "double", "void", "code", "main"} | {
+        "sqrt", "sin", "cos", "tan", "atan", "atan2", "acos", "asin", "fabs", "floor", "ceil", "pow", "exp", "log", "log10", "fmod", "sinh", "cosh", "tanh", "ldexp", "frexp", "modf", "abs"}      # <math.h> functions take / return double anyway (no prototype needed for the promotion to be right)
+    def declared_names(self):
+        if getattr(self, "_decl", None) is None:
+            d = set(self.protos) | set(self.hdr) | {n for n, _, _, _ in self.functions()} | set(self.glob)
+            for l, r in zip(self.t.split("\n"), self.raw.split("\n")):
+                if re.match(r"\s*extern\b", l): d.update(re.findall(r"\b([A-Za-z_]\w*)\s*\(", l)); continue      # also a block scope `extern int f(int, float);`
+                if r[:1].isspace() or r.startswith("}"): continue
+                if l.startswith("#"): d.update(re.findall(r"define\s+(\w+)\(", l))
+                else: d.update(re.findall(r"\b([A-Za-z_]\w*)\s*\(", l))      # every column-0 line is a declaration / definition (bodies are indented), incl. one-line `static T f(..) { .. }`
+            self._decl = d
+        return self._decl
+
+    def check_implicit(self, fn, line, st, env):
+        """class 14: a call of a function with NO prototype in scope (implicit declaration, or a header `name()` K&R declaration) with a float / double argument: the argument is promoted to double (8 bytes pushed), the callee reads a float (T-H2 course_warzone_cb0: func_0x0048db30). Declared-`()` callees of the file itself are class 4."""
+        if re.match(r"^\s*(extern|typedef)\b", st): return
+        for m in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\s*\(", st):
+            f = m.group(1)
+            if f in self._NOCALL or f in env or re.search(r"printf", f) or f in self.protos: continue
+            kr = f in self.hdr and self.hdr[f] is None
+            if f in self.declared_names() and not kr: continue
+            if f in self.glob: continue
+            j = balanced_after(st, m.end() - 1)
+            if j < 0: continue
+            fa = [a.strip() for a in split_args(st[m.end():j]) if not re.search(r"\b(?:float|RwReal|double)\s+%s\s*\[" % re.escape(a.strip().split(".")[-1]), self.t) and self.atom(a, env)[0] == "F" and self.atom(a, env)[1] != "(cast)" or re.match(r"^\s*\(\s*(float|double)\s*\)", a) or (not re.fullmatch(r"\s*[\w.]+\s*", a) and self.fexpr(a, env))]
+            if fa: self.add(14, "high", line, fn, f, st, "float / double argument %s passed to `%s` (%s): promoted to double, the callee reads %s" % (fa[0], f, "`()` declaration in a header" if kr else "no prototype in scope", "a float"))
+
+    def check_fpwidth(self, fn, s, e):
+        """class 15: a float typed global (or a double typed one) used by this function whose ORIGINAL instructions in the same function access that address only as a qword (resp. dword): the C reads / writes the other half-width (k_f_0 at 0x5ddc28 is the double 90.0; read as float it is 0).  output/fp_const_uses.txt (gen_fpuse)"""
+        fva = NAMEVA.get(fn) or NAMEVA.get(fn.removesuffix("_c"))
+        fvs = {int(fva, 16)} if fva else set()
+        if not fva:      # a cluster helper: the original functions of the whole cluster (first line `// cluster-entries: a b`)
+            m = re.match(r"//\s*cluster-entries:\s*(.*)", self.raw.split("\n")[0])
+            fvs = {int(NAMEVA[x], 16) for x in re.split(r"[\s,]+", m.group(1).strip()) if x in NAMEVA} if m else set()
+            if not fvs: return
+        body = "\n".join(self.lines[s:e + 1]); done = set()
+        for m in re.finditer(r"(?<![\w.])([A-Za-z_]\w*)\b(?!\s*\()", body):
+            n = m.group(1)
+            if n in done: continue
+            ty = self.glob.get(n)
+            if ty not in ("float", "double", "RwReal") or n in self.gva_skip: continue
+            done.add(n); cw = 8 if ty == "double" else 4
+            vas = {int(self.gva[n], 16)} if n in self.gva else GVAS.get(n, set())
+            ws = [FPUSE.get((fv, a)) for a in vas for fv in fvs]; ws = [w for w in ws if w]
+            if not ws or any(cw in w for w in ws): continue
+            self.add(15, "high", s + 1 + body[:m.start()].count("\n"), fn, n, n, "`%s` is declared %s but the original function reads its address 0x%s only as a %s (fld %s ptr): width mismatch" % (n, ty, "/".join("%x" % a for a in sorted(vas)), "qword double" if cw == 4 else "dword float", "qword" if cw == 4 else "dword"))
 
     def is_float_name(self, expr, env):
         n = re.sub(r"^\(\s*int\s*\)\s*", "", expr).strip().split(".")[0]
@@ -506,11 +566,11 @@ class Lint:
         if slots: ev.append((slots, "the original reads / rewrites %d stack argument slot(s)%s" % (slots, " (address taken: lower bound)" if "addr" in fl else "")))
         if retn >= 4 and not fn.endswith("_c"): ev.append((retn // 4, "the original returns with `ret %d`" % retn))
         for t in tails:
-            n = max(ORIG.get(t, (0, 0))[0], ORIG.get(t, (0, 0, 0))[1] // 4, GT.get(t, 0), *[int(f[1:]) for f in fl if re.fullmatch(r"w\d+", f)])
+            n = max(ORIG.get(t, (0, 0))[0], ORIG.get(t, (0, 0, 0))[1] // 4, (0 if t in ORIG and exact_slots(t, ORIG[t][0]) else GT.get(t, 0)), *[int(f[1:]) for f in fl if re.fullmatch(r"w\d+", f)])      # exact original slots beat the callers' (batched) count
             if n: ev.append((n, "it tail-jumps to 0x%s which takes %d argument(s)" % (t, n)))
         if va not in REGVA:
             n = GT.get(va) if va in GT else PMALL[va][0] if va in PMALL and PMALL[va][1] >= 3 else 0
-            if n: ev.append((n, "the original callers push %d argument(s)" % n))
+            if n and not exact_slots(va, cn): ev.append((n, "the original callers push %d argument(s)" % n))      # the original reads exactly cn slots: the callers' larger count is batched `add esp` cleanups
         for n, why in ev:
             if cn < n:
                 self.add(10, "high", s + 1, fn, fn, "%s(%s)" % (fn, params), "defarity: the C definition declares %d parameter(s) but %s" % (cn, why)); break
@@ -527,6 +587,7 @@ class Lint:
         for t in tails:
             tn = NAMEOF.get(t)
             n = max(ORIG.get(t, (0, 0))[0], GT.get(t, 0), *[int(f[1:]) for f in fl if re.fullmatch(r"w\d+", f)])
+            if t in ORIG and exact_slots(t, ORIG[t][0]): n = ORIG[t][0]      # the target reads exactly these slots: neither the callers' (batched) count nor the w<N> rewrite of another tail target matters
             if not tn or not n: continue
             for ln, st in self.statements(s, e):
                 for m in re.finditer(r"\b%s\s*\(" % re.escape(tn), st):
@@ -540,9 +601,9 @@ class Lint:
             env = self.local_env(params, s, e)
             vc = []
             for line, st in self.statements(s, e):
-                self.check_stmt(fn, line, st, env); self.check_regcallee(fn, line, st); self.check_krarity(fn, line, st); self.check_calleearity(fn, line, st)
+                self.check_stmt(fn, line, st, env); self.check_regcallee(fn, line, st); self.check_krarity(fn, line, st); self.check_calleearity(fn, line, st); self.check_implicit(fn, line, st, env)
                 vc += [(line, st) + c for c in self.vtable_calls(st)]
-            self.check_vtable(fn, vc)
+            self.check_vtable(fn, vc); self.check_fpwidth(fn, s, e)
             body = "\n".join(self.lines[s:e + 1])      # class 12, nested form: `if (x <= hi) { if (x < lo) x = lo; } else x = hi;` (also >= / else-first) on a float object
             for m in re.finditer(r"if \(\(?\s*([A-Za-z_][\w.\[\]>-]*) (<=|>=) ([\w.]+)\s*\)?\) \{\s*if \(\(?\s*\1 (<|>) ([\w.]+)\s*\)?\) \{\s*\1 = [\w.-]+;\s*\}\s*\}\s*else \{\s*\1 = [\w.-]+;\s*\}", body):
                 k, n = self.atom(m.group(1), env)
@@ -565,7 +626,8 @@ class Lint:
                 self.add(4, "high", line, f, f, self.raw.split("\n")[line - 1], "prototype has %d parameter(s) but every original call site has >= %d pushes pending (call_pushmin.txt): an argument is missing" % (n, PM[va]))
         # file level: a prototype with a different parameter count than output/cdecl_args.txt / stdcall.txt
         for f, (n, ps, va, rt, line) in self.protos.items():
-            if f in used and va and n is not None and va in GT and GT[va] != n:
+            sl = sum(2 if re.match(r"(?:const\s+)?(?:long long|longlong|double|__int64)\b(?!\s*\*)", q.strip()) else 1 for q in ps) if n else 0      # a 64-bit parameter is two stack slots
+            if f in used and va and n is not None and va in GT and GT[va] != n and not exact_slots(va, sl):      # exact original slots = the declared ones: the callers' count is inflated by batched `add esp` cleanups
                 self.add(4, "medium", line, f, f, self.raw.split("\n")[line - 1], "prototype has %d parameter(s), the original callers pass %d (cdecl_args.txt / stdcall.txt)" % (n, GT[va]))
         return self.finds
 
@@ -653,6 +715,44 @@ def gen_indirect():
     open(INDIRECT, "w").write("\n".join(rows) + "\n")
 
 
+FPUSE = {}; GVAS = {}; CLENABLED = set()
+FPUSE_TXT = os.path.join(G, "output", "fp_const_uses.txt")
+
+
+def gen_fpuse():
+    """output/fp_const_uses.txt `funcva addr widths`: for every original function, the absolute data addresses read / written by x87 memory instructions (fld / fst / fadd / fcom .. but not fild / fist) with the access widths (4 = dword float, 8 = qword double).  Used by class 15"""
+    import bisect
+    out = subprocess.run(["objdump", "-d", "-M", "intel", "--start-address=0x401000", "--stop-address=0x5d7000", EXE], capture_output=True, text=True).stdout.split("\n")
+    starts = sorted(int(l.split()[0], 16) for l in open(os.path.join(G, "output", "fnsizes.txt")) if l.split()); use = {}
+    for l in out:
+        m = re.match(r"\s*([0-9a-f]+):\t[0-9a-f ]+\t(f[a-z0-9]+)\s+(DWORD|QWORD) PTR ds:0x([0-9a-f]+)", l)
+        if m and not m.group(2).startswith("fi"):
+            fa = starts[bisect.bisect_right(starts, int(m.group(1), 16)) - 1]
+            use.setdefault((fa, int(m.group(4), 16)), set()).add(4 if m.group(3) == "DWORD" else 8)
+    with open(FPUSE_TXT + ".tmp", "w") as f:
+        for (fa, a), w in sorted(use.items()): f.write("%08x %08x %s\n" % (fa, a, ",".join(map(str, sorted(w)))))
+    os.replace(FPUSE_TXT + ".tmp", FPUSE_TXT)
+
+
+def header_decls(text, here, seen=None):
+    """names the included headers declare: name -> nparams (None = `()` K&R declaration, -1 = macro / function pointer / unknown shape), recursive over `#include "x.h"`"""
+    seen = set() if seen is None else seen; out = {}
+    for inc in re.findall(r'^\s*#\s*include\s+"([^"]+)"', text, flags=re.M):
+        for d in (here, os.path.join(G, "src"), os.path.join(G, "src", "auto"), os.path.join(G, "output")):
+            p = os.path.normpath(os.path.join(d, inc))
+            if os.path.isfile(p):
+                if p not in seen:
+                    seen.add(p); ht = open(p, errors="replace").read(); out.update(header_decls(ht, os.path.dirname(p), seen))
+                    for m in re.finditer(r"^\s*#\s*define\s+(\w+)\(", ht, flags=re.M): out[m.group(1)] = -1
+                    for l in strip_comments(ht).split("\n"):
+                        if l[:1].isspace() or l.startswith("#"): continue
+                        for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\(([^()]*)\)", l):
+                            ps = m.group(2).strip(); out[m.group(1)] = None if ps == "" else 0 if ps == "void" else len(split_args(ps))
+                        for m in re.finditer(r"\(\s*[\w\s]*\*\s*(\w+)\s*\)\s*\(", l): out[m.group(1)] = -1
+                break
+    return out
+
+
 ORIG = {}; NAMEOF = {}
 ENABLED = set(); IND = {}; REGVA = {}; REGNAME = {}; GT = {}; GTCONV = {}; NAMEVA = {}; PM = {}; PMALL = {}; DPROTO = {}
 def load_gt():
@@ -672,6 +772,12 @@ def load_gt():
         q = l.split()
         ORIG[q[0]] = (int(q[1]), int(q[2]), [] if q[3] == "-" else q[3].split(","), set(q[4].split(",")))
     NAMEOF.update({v: k for k, v in NAMEVA.items()})
+    if not os.path.exists(FPUSE_TXT) or "--regen" in sys.argv: gen_fpuse()
+    for l in open(FPUSE_TXT):
+        q = l.split(); FPUSE[(int(q[0], 16), int(q[1], 16))] = {int(x) for x in q[2].split(",")}
+    for l in open(os.path.join(G, "output", "decls.h"), errors="replace"):
+        m = re.match(r"\s*/\*([0-9a-fA-F]{8})\*/\s*extern\s+\w+\s+(\w+)\s*;", l)
+        if m: GVAS.setdefault(m.group(2), set()).add(int(m.group(1), 16))
     if not os.path.exists(INDIRECT) or "--regen" in sys.argv: gen_indirect()
     for l in open(INDIRECT):
         q = l.split()
@@ -707,6 +813,7 @@ def main():
     if "--quiet" in a: a.remove("--quiet"); quiet = True
     load_gt(); gd = load_decls()
     ENABLED.update(l.strip() for l in open(os.path.join(G, "src", "bridges", "enabled.txt")))
+    CLENABLED.update(l.strip() for l in open(os.path.join(G, "src", "clusters", "enabled.txt")))
     files = files_of(a)
     # diffemu verdict per function, and which tiers are byte identical
     verdict = {}
@@ -733,7 +840,7 @@ def main():
         if len(d) > 1:
             mx = max(d)
             for n, sites in d.items():
-                if n < mx:
+                if n < mx and not exact_slots(va, n):      # the smaller declaration is exact (the original reads n slots): the larger one over-declares, harmless in cdecl
                     for rel, line, f in sites:
                         finds.append(dict(cls=4, sev="medium", file=rel, line=line, function=f, symbol=f, text="/*%s*/ %s declared with %d parameter(s)" % (va, f, n), note="other files declare it with %d parameters (%s)" % (mx, d[mx][0][0])))
     allow = set()      # src/defectlint_allow.txt: `function class reason` (a finding that was checked against the original and is fine)
@@ -746,17 +853,17 @@ def main():
     finds = [f for f in finds if (f["function"], str(f["cls"])) not in allow]
     rows = []
     for f in finds:
-        tier = "bridge" if "/bridges" in f["file"] or "usercall" in f["file"] else "tier1" if "/tier1/" in f["file"] else "agent" if "automatch_agent" in f["file"] else "tier2" if "automatch_near" in f["file"] else "candidate"
+        tier = "cluster" if "/clusters/" in f["file"] else "bridge" if "/bridges" in f["file"] or "usercall" in f["file"] else "tier1" if "/tier1/" in f["file"] else "agent" if "automatch_agent" in f["file"] else "tier2" if "automatch_near" in f["file"] else "candidate"
         f["tier"] = tier
         f["byte_identical"] = "yes" if tier in ("tier1", "agent") else "no"
         f["diffemu"] = verdict.get(f["function"], "")
-        f["enabled"] = ("yes" if f["function"].removesuffix("_c") in ENABLED else "no") if f["file"].startswith("src/bridges/") else "yes" if tier in ("tier2", "tier1", "agent") else "no"
+        f["enabled"] = ("yes" if f["function"].removesuffix("_c") in ENABLED else "no") if f["file"].startswith("src/bridges/") else ("yes" if re.sub(r"^cl_|\.c$", "", os.path.basename(f["file"])) in CLENABLED else "no") if tier == "cluster" else "yes" if tier in ("tier2", "tier1", "agent") else "no"
         rows.append(f)
     rows.sort(key=lambda r: (r["cls"], r["file"], r["line"]))
     cols = ["cls", "sev", "tier", "file", "line", "function", "symbol", "diffemu", "enabled", "byte_identical", "text", "note"]
     with open(out_csv, "w", newline="") as fh:
         w = csv.DictWriter(fh, cols, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (

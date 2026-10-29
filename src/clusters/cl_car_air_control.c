@@ -9,7 +9,7 @@
 /*005dd61c*/ extern float k_f_0_001;
 /*005ddad4*/ extern float k_f_90;
 /*005ddafc*/ extern float k_f_0_05;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;      /* the float 0.0 the original compares against (5ddc28 is the low half of the double 90.0) */
 /*0062ac68*/ extern float g_car_62ac68;
 /*0062ac74*/ extern float g_car_62ac74;
 /*0062ac78*/ extern float g_car_62ac78;

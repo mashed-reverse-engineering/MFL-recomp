@@ -42,7 +42,7 @@ try:
         if not m: print("SKIP %s: definition not found" % n); continue
         lines = t[:m.start()].split("\n")      # leading comments: back to the previous function end / declaration line
         k = len(lines)
-        while k > 0 and not re.match(r"^(\}|#include|/\*[0-9a-f]{8}\*/ extern|extern |typedef |\};|.*;\s*$)", lines[k - 1]): k -= 1
+        while k > 0 and (re.match(r"^\s*\*", lines[k - 1]) or not re.match(r"^(\}|#include|/\*[0-9a-f]{8}\*/ extern|extern |typedef |\};|.*;\s*$)", lines[k - 1])): k -= 1      # a ';' inside a leading block comment does not end the walk
         s = len("\n".join(lines[:k])) + (1 if k else 0)
         first = next((x for x in rw.DEF.finditer(t)), None)
         pre = t[:first.start()] if first else ""      # preamble before the first function
@@ -50,12 +50,17 @@ try:
         used = set(re.findall(r"[A-Za-z_]\w*", body))
         if used & {"RW_GLOBAL", "rwsprintf"}: used.add("RwEngineInstance")      # macros of mfl_tier2.h / the preamble expand to it
         keep = []
+        in_c = False
         for l in pre.split("\n"):
+            if in_c:      # continuation line of a multi-line block comment: drop (a line that does not start with ' *' leaked through before)
+                in_c = "*/" not in l; continue
+            if l.startswith("/*") and "*/" not in l: in_c = True; continue
             mm = re.search(r"extern [^;]*?(\w+)\s*(\(|\[|;)", l)
             if l.startswith("/*") and "extern" in l or l.startswith("extern"):
                 if mm and mm.group(1) in used: keep.append(l)
             elif l.startswith(("/* ", "/*\n")) or l.strip() == "" or l.strip().startswith(("*", "/*")): continue
             else: keep.append(l)
+        bl = set(body.split("\n")); keep = [l for l in keep if not (l.startswith("#define") and l in bl)]      # a #define that the body block already carries
         out = os.path.join(tmp, n + ".c")
         open(out, "w", errors="surrogateescape").write(("/* compile: /GS */\n" if gs and "compile: /GS" not in body else "") + "\n".join(keep) + "\n" + body)
         ok, det = cmpfn.check(out, [(n, va)], ["/O2"] + (["/GS"] if gs else []))[n]
@@ -72,4 +77,4 @@ try:
         open(nf, "w").write("".join(L))
     print("installed %d of %d" % (len(removed), len(want)))
 finally:
-    shutil.rmtree(tmp, ignore_errors=True)
+    if not os.environ.get("BMI_KEEP"): shutil.rmtree(tmp, ignore_errors=True)      # BMI_KEEP=1: leave the generated standalone files for debugging

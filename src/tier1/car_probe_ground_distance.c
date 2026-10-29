@@ -22,17 +22,17 @@ double car_probe_ground_distance(float x_then_out,float y,float z,char *world)
     int flag;
   } ray;
 
-  ray.end_y = y - 3.0f;
   ray.end_x = x_then_out;
   ray.end_z = z;
-  ray.start_y = y + 3.0f;
+  ray.end_y = y - 3.0f;
+  ray.flag = 1;
+  ray.start_y = 3.0f + y;
   ray.start_x = x_then_out;
   ray.start_z = z;
-  ray.flag = 1;
   x_then_out = 6.0f;      /* the out value reuses the x parameter slot */
   RpCollisionWorldForAllIntersections(*(undefined4 *)(world + 8),&ray,&LAB_0047b420,&x_then_out);
   if (x_then_out != k_f_6) {
-    return (double)x_then_out - (double)k_f_3;
+    return x_then_out - k_f_3;
   }
-  return k_f_0 - (double)k_f_3;
+  return k_f_0 - k_f_3;
 }
