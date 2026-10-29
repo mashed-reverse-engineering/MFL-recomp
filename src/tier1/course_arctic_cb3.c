@@ -9,6 +9,7 @@
 /*005ddb20*/ extern float k_f_0_9;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*008c58c0*/ extern undefined4 g_course_arctic_8c58c0;
+/* Per-frame update and render for the arctic course: sky clumps plus a falling-snow effect. */
 /* course_arctic_cb3
  * Per-frame update and render for the arctic course: sky clumps plus a falling-snow effect.
  * Takes no parameters, returns nothing.

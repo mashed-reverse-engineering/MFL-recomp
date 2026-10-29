@@ -8,6 +8,7 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 
 
+/* Renders the Tierra course: its clump slots (fields at +0xc110..+0xc168 of the course struct, names unknown), a pass with alpha blending and fog off/on for the objects, then restores ... */
 /* Renders the Tierra course: its clump slots (fields at +0xc110..+0xc168 of the course
    struct, names unknown), a pass with alpha blending and fog off/on for the
    objects, then restores back-face culling. */

@@ -5,6 +5,7 @@
 #define SNOW_GREY (0x6c) /* rgb of the snow tint */
 #define SNOW_SPEED (0.05)
 #define SNOW_WIND (0.025)
+/* Course_training_cb1 (inferred: per-frame draw callback of the training course) Draws the snow particle effect for the current viewport camera. */
 /* course_training_cb1 (inferred: per-frame draw callback of the training course)
  * Draws the snow particle effect for the current viewport camera.
  * course: game state pointer (inferred); field at +0xc134 is passed to func_0x00484960.

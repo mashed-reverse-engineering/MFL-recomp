@@ -8,7 +8,6 @@
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
 /*005dd324*/ extern float k_f_1_7;
-/*005dd328*/ extern float k_f_0_6;
 /*005dd32c*/ extern float k_f_3;
 /*005dd330*/ extern float float_1_0;
 /*005dd334*/ extern float k_f_0_033333335;

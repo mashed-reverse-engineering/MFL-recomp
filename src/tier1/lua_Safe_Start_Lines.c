@@ -4,6 +4,7 @@
 /*006f2af8*/ extern struct CourseLap *g_course_lap;
 
 
+/* Lua Safe_Start_Lines(a, b): stores the last two arguments as 16-bit values in the lap line table, at the slot given by CourseLap.safe_start_count, then increments that count. */
 /* Lua Safe_Start_Lines(a, b): stores the last two arguments as 16-bit values in the
    lap line table, at the slot given by CourseLap.safe_start_count, then increments that count.
    Registered by the script engine. */

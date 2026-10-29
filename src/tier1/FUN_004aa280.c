@@ -2,6 +2,7 @@
 /*00771a90*/ extern float g_data_771a90;
 /*00771a94*/ extern float g_data_771a94;
 /*00771aa8*/ extern undefined4 g_data_771aa8;
+/* Binds the pixel shader in g_data_771aa8 (rwD3D9SetPixelShader), then copies the two 32-bit words at src_pair into the float globals g_data_771a90 and g_data_771a94. */
 /* FUN_004aa280
  * Binds the pixel shader in g_data_771aa8 (rwD3D9SetPixelShader), then copies the
  * two 32-bit words at src_pair into the float globals g_data_771a90 and g_data_771a94.

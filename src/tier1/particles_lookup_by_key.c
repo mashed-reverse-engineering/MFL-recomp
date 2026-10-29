@@ -2,6 +2,7 @@
 /*0071abf4*/ extern char *g_particles_71abf4;
 
 
+/* Walks the list at g_particles_71abf4+4 for an entry whose key (+8) equals the argument and returns that entry's value (+0xC), or -1 if none. List node: [0] = entry ptr, [2] = next. */
 /* Walks the list at g_particles_71abf4+4 for an entry whose key (+8) equals the argument
    and returns that entry's value (+0xC), or -1 if none. List node: [0] = entry ptr, [2] = next. */
 undefined4 particles_lookup_by_key(int key)

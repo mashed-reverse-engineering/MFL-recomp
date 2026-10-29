@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 #define E_POINTER (0x80004003)
+/* Writes 1 (TRUE) through result_flag and returns S_OK (0). */
 /* FUN_004b16a0
  * Writes 1 (TRUE) through result_flag and returns S_OK (0).
  * unused_arg is never read (inferred).

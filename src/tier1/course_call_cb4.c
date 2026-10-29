@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 /*00659d04*/ extern char *g_current_course_entry;
 #define COURSE_ENTRY_CB4_OFFSET (0x24)
+/* Calls the course entry's callback slot (+COURSE_ENTRY_CB4_OFFSET) with cb_arg. Called by course_race_start. (inferred: cb_arg is passed through unchanged) */
 /*
  * course_call_cb4: calls the course entry's callback slot (+COURSE_ENTRY_CB4_OFFSET)
  * with cb_arg. Called by course_race_start. (inferred: cb_arg is passed through unchanged)

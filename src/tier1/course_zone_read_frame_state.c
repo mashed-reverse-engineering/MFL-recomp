@@ -1,6 +1,5 @@
 #include "mfl_tier2.h"
 /*00544430*/ extern int FUN_00544430(undefined4 p0);
-/*005ddacc*/ extern float k_f_360;
 #define ZONE_FRAME_ID_OFFSET (0x50)
 #define ZONE_POS_X (0x38)
 #define ZONE_FRAME_PTR_OFFSET (0x94)

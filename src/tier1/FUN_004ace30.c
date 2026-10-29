@@ -5,6 +5,7 @@ extern char PTR_g_data_6e0049_005e219c[];
 #define OBJECT_MEM_SIZE (8)
 #define HR_E_POINTER (0x80004003)
 #define HR_E_OUTOFMEMORY (0x8007000e)
+/* COM-style creation helper (inferred): allocates an 8-byte object block with CoTaskMemAlloc, stores its address in *out_object, then passes the block and the global ... */
 /* FUN_004ace30
  * COM-style creation helper (inferred): allocates an 8-byte object block with
  * CoTaskMemAlloc, stores its address in *out_object, then passes the block and

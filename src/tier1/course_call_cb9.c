@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 /*00659d04*/ extern char *g_current_course_entry;
 #define COURSE_ENTRY_CB9_OFFSET (0x38)
+/* Forwards callback_arg to the current course's callback at COURSE_ENTRY_CB9_OFFSET inside g_current_course_entry (inferred). */
 /*
  * course_call_cb9: forwards callback_arg to the current course's callback
  * at COURSE_ENTRY_CB9_OFFSET inside g_current_course_entry (inferred).

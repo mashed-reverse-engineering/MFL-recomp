@@ -4,6 +4,7 @@ extern char UNK_005df51c[];
 /*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *p0, int p1, undefined4 p2);
 /*008c5720*/ extern undefined4 g_course_nt1_8c5720;
 #define FLOAT_BITS_NEG_TWO (0xc0000000)
+/* Course setup callback for NT1 that creates the smoke sky atomic. */
 /*
  * course_nt1_s_cb0 (inferred): course setup callback for NT1 that creates the smoke sky atomic.
  * course_state: course/game state pointer (inferred), passed to func_0x00455770.

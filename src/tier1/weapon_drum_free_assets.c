@@ -11,6 +11,7 @@
 /*006a5d30*/ extern char g_weapon_6a5d30[];
 
 
+/* Frees the weapon drum assets: the clump table at 0x6a5c80 (11-word records), the drum record table at 0x6a5a78 (17-word records; each holds an atomic and two frames), then the two ... */
 /* Frees the weapon drum assets: the clump table at 0x6a5c80 (11-word records),
    the drum record table at 0x6a5a78 (17-word records; each holds an atomic and
    two frames), then the two remaining clumps. */

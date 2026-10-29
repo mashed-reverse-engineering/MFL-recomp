@@ -3,6 +3,7 @@
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*0053d050*/ extern undefined __cdecl RtBMPImageRead(undefined4 p0);
 /*005e0bd0*/ extern char s_Reading_texture__s_005e0bd0[];
+/* Logs "Reading texture %s" for texture_name, clears the current RwTexDictionary (RwTexDictionarySetCurrent(NULL)), then reads the BMP image texture_name with RtBMPImageRead. texture_name ... */
 /* texture_read_log: logs "Reading texture %s" for texture_name, clears the current
    RwTexDictionary (RwTexDictionarySetCurrent(NULL)), then reads the BMP image
    texture_name with RtBMPImageRead. texture_name is the image file name (inferred).

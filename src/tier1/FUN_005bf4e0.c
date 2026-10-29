@@ -2,6 +2,7 @@
 #define LIMB_MASK (0x7fffffff)
 #define LIMB_BITS (0x1f)
 #define HIGHER_BITS_MASK (0xfffffffe)
+/* Unsigned 32x32 -> 64-bit multiply (inferred), done by shift-and-add over the bits of `multiplier`. The running sum is kept in 31-bit limbs: lo_sum holds the low 31 bits, hi_sum the ... */
 /* FUN_005bf4e0
  * Unsigned 32x32 -> 64-bit multiply (inferred), done by shift-and-add over the
  * bits of `multiplier`. The running sum is kept in 31-bit limbs: lo_sum holds

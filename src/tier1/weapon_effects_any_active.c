@@ -6,6 +6,7 @@
 
 #define WEAPON_EFFECT_FLAG_COUNT 2   /* leading ints at g_weapon_6a7d28 checked first */
 
+/* Returns 1 if any weapon effect slot is non-zero, 0 otherwise. */
 /* Returns 1 if any weapon effect slot is non-zero, 0 otherwise.
    Checks the flag ints at g_weapon_6a7d28, then the 16-byte-strided entries
    from g_weapon_6a7c7c up to 0x6a7cbc (meaning of the fields: unknown). */

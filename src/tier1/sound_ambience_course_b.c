@@ -18,6 +18,7 @@ extern double sin(double x);
 /*006ae1d8*/ extern float g_sound_ambience_6ae1d8;      /* volume swell phase of voice group +0x470 */
 /*00629290*/ extern float g_sound_ambience_629290;      /* volume swell phase of voice group +0x500 */
 
+/* Ambience of course "b": two looping 22050 Hz voices (group slots +0x470, +0x500) whose volumes swell independently (0.7 - 0.7 sin(phase)), a fixed voice (+0x590) at (-11.9, 1, -19.13), ... */
 /* Ambience of course "b": two looping 22050 Hz voices (group slots +0x470, +0x500) whose volumes swell independently
    (0.7 - 0.7 sin(phase)), a fixed voice (+0x590) at (-11.9, 1, -19.13), random one-shots (+0x6b0 on a 1 in 251 roll at the
    same place, +0x620 on a 1 in 501 roll at (-41.9, 2.8, 41.38)) with a random pitch 22050..25050 Hz, and a fixed

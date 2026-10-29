@@ -11,6 +11,7 @@
 
 #define TIERRA_FX_SLOT_TABLE_LEN 0x40   /* entries in g_course_tierra_8c4b20 */
 
+/* Tears down the Tierra course: destroys its four object frames, releases the fx slots in use (count in g_course_tierra_6a2654), then marks all table entries free (-1). */
 /* Tears down the Tierra course: destroys its four object frames, releases the
    fx slots in use (count in g_course_tierra_6a2654), then marks all table entries free (-1). */
 void course_tierra_n_cb5(void)

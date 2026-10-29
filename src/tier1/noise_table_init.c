@@ -14,6 +14,7 @@
 #define NOISE_RANDOM_MIN_BITS (0xbe800000) /* -0.25f */
 #define NOISE_RANDOM_MAX_BITS (0x3fa00000) /* 1.25f */
 #define NOISE_HALF_TURN_BITS (0x43340000) /* 180.0f (inferred from 360.0f in g_noise_table_8c9ee8) */
+/* Fills the noise table at g_noise_table_653298 with NOISE_TABLE_BYTES / 4 floats in [0.0, 1.0], drawn from RpRandomSeed(NOISE_TABLE_SEED) and random_range(-0.25f, 1.25f), then sets four ... */
 /*
  * noise_table_init: fills the noise table at g_noise_table_653298 with NOISE_TABLE_BYTES / 4 floats in [0.0, 1.0],
  * drawn from RpRandomSeed(NOISE_TABLE_SEED) and random_range(-0.25f, 1.25f), then sets four float globals.

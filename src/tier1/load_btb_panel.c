@@ -10,6 +10,7 @@
 /*00658b48*/ extern undefined4 g_hudpanel_658b48;
 #define BTB_LOAD_STATE_SIZE (0x1c)
 #define BTB_LOOP_COUNT (4)
+/* Loads the "BTBPanel.dff" clump (beat the bomb panel) and sets up the HUD panel state. */
 /*
  * Loads the "BTBPanel.dff" clump (beat the bomb panel) and sets up the HUD panel state.
  * Takes no parameters and returns nothing.

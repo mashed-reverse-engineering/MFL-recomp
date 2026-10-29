@@ -10,6 +10,7 @@
 /*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 p0, RwInt32 p1, RwInt32 p2, RwInt32 p3);
 #define FRAMEBUFFER_RASTER_FLAGS (0x505)
 #define TEXTURE_FILTER_LINEAR (2)
+/* Creates a camera with a colour buffer and a z buffer, plus a texture over the colour buffer (inferred: render target setup). Both buffers are width x height. */
 /* FUN_004c49b0
  * Creates a camera with a colour buffer and a z buffer, plus a texture over the colour buffer
  * (inferred: render target setup). Both buffers are width x height.

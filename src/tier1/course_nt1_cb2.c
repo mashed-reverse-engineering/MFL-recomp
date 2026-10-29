@@ -14,6 +14,7 @@
  * then clump B if set (with stub_return_zero calls around it; stub role inferred from name).
  * course_state: address of the course state block, passed as int (inferred).
  */
+/* Per-frame course draw step: renders clump A, the course objects, then clump B. */
 void course_nt1_cb2(char *course_state)
 {
   /* Clump A: render only when the pointer is non-null. */

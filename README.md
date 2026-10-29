@@ -18,16 +18,16 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 |---|---:|:---|
 | Named | 2,686 | `███████████████████░` 96% |
 | Replaced by recompiled C (all tiers, each function once) | 2,722 | `████████████████████` 98% |
-| ...verified byte identical | 1,384 | `██████████░░░░░░░░░░` 50% |
-| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,338 | `██████████░░░░░░░░░░` 48% |
+| ...verified byte identical | 1,385 | `██████████░░░░░░░░░░` 50% |
+| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,337 | `██████████░░░░░░░░░░` 48% |
 | ...share of the code bytes | 675,409 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 664 | `█████░░░░░░░░░░░░░░░` 24% |
 | **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,857 | `█████████████████████` 103% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,519 | `███████████░░░░░░░░░` 55% |
-| ...tier 1, `src/tier1` (1529 files) | 1,171 | `████████░░░░░░░░░░░░` 42% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,520 | `███████████░░░░░░░░░` 55% |
+| ...tier 1, `src/tier1` (1530 files) | 1,172 | `████████░░░░░░░░░░░░` 42% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (824 files) | 722 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...tier 2, `src/tier2` (823 files) | 721 | `█████░░░░░░░░░░░░░░░` 26% |
 | ...clusters, `src/clusters` (631 files) | 665 | `█████░░░░░░░░░░░░░░░` 24% |
 | ...plus linked library code (VA >= 0x4B0000), not in the percentages | 513 | |
 | ...functions present in two kinds (counted once above) | 87 | |
@@ -45,8 +45,8 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | bridge | 4 | 1,643 | 0 |
 | cluster (not in ledger) | 577 | 331,915 | 0 |
 | hand | 381 | 14,744 | 344 |
-| tier1 | 931 | 71,065 | 931 |
-| tier2 | 720 | 247,596 | 0 |
+| tier1 | 932 | 71,245 | 932 |
+| tier2 | 719 | 247,416 | 0 |
 
 </details>
 <!-- progress:end -->

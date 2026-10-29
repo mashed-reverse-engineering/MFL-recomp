@@ -6,6 +6,7 @@
 
 #define SUPERG_FX_SLOT_TABLE_LEN 0x40   /* entries in g_course_superg_8c5620 */
 
+/* Releases the fx slots in use for the Super G course (count in g_course_superg_6a2154), then marks all table entries free (-1). */
 /* Releases the fx slots in use for the Super G course (count in g_course_superg_6a2154),
    then marks all table entries free (-1). */
 void course_superg_n_cb5(void)

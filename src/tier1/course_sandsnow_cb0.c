@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 /*0040d0d0*/ extern char *__cdecl find_texture_dict_b(RwChar *p0);
 /*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *p0, int p1, undefined4 p2);
+/* Sets up the sky for the SANDSNOW course (inferred from name): looks up the "smoke" texture dictionary entry and creates the sky atomic with scale 1.0f and offset -2.0f (inferred: ... */
 /* course_sandsnow_cb0
  * Sets up the sky for the SANDSNOW course (inferred from name): looks up the "smoke"
  * texture dictionary entry and creates the sky atomic with scale 1.0f and offset -2.0f

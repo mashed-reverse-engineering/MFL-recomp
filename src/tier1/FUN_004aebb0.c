@@ -3,6 +3,7 @@ extern __declspec(dllimport) int __stdcall CoCreateInstance(int, int, int, int, 
 /*005e200c*/ extern undefined g_data_5e200c;
 /*005e210c*/ extern undefined g_data_5e210c;
 #define CLSCTX_INPROC_SERVER (1)
+/* Creates an in-process COM object (inferred) via CoCreateInstance: the class id is g_data_5e210c and the interface id is g_data_5e200c, both globals. No outer aggregate (NULL). The ... */
 /* FUN_004aebb0
  * Creates an in-process COM object (inferred) via CoCreateInstance: the class id is
  * g_data_5e210c and the interface id is g_data_5e200c, both globals. No outer

@@ -8016,7 +8016,6 @@ g_course_physics_6a18dc 006a18dc
 g_course_neustein_6a1d88 006a1d88
 g_course_neustein_6a1d8c 006a1d8c
 g_course_neustein_6a1d90 006a1d90
-g_course_neustein_6a1d94 006a1d94
 g_data_6a1d98 006a1d98
 g_data_6a1d9c 006a1d9c
 g_course_neustein_6a1da0 006a1da0
@@ -9465,7 +9464,6 @@ g_event_log_head 007e7f60
 g_event_log_type 007e7f64
 g_event_log_time 007e8364
 g_event_log_param 007e8764
-g_car_7e8b64 007e8b64
 g_ai_7eeb64 007eeb64
 g_race_7eeb84 007eeb84
 g_race_7eeb88 007eeb88

@@ -3,7 +3,6 @@
 /*004558d0*/ extern int course_object_render_6a1f28_b();
 /*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
 /*0060d8bc*/ extern float g_course_nt1_60d8bc;
-/*006a06e0*/ extern undefined4 g_sky_atomic;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /* course_nt1_s_cb2 */
 /*0044a010*/ extern int course_sky_atomic_render();

@@ -7,6 +7,7 @@
 #define STORM_FX_SLOT_TABLE_LEN 0x40   /* entries in the table at 0x8c52c0 (no extern declared here) */
 
 
+/* Tears down the Storm course: runs func_0x004ab120, releases the fx slots in use (count in g_course_storm_6a263c), then marks all table entries free (-1). */
 /* Tears down the Storm course: runs func_0x004ab120, releases the fx slots in use
    (count in g_course_storm_6a263c), then marks all table entries free (-1). */
 void course_storm_cb5(void)

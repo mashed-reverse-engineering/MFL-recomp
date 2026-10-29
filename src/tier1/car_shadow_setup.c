@@ -17,6 +17,7 @@
 /*0065a9cc*/ extern undefined4 g_particles_65a9cc;
 /*0065a9d0*/ extern undefined4 g_particles_65a9d0;
 /*00659d70*/ extern char g_particles_659d70[];
+/* Sets up the car shadow resources. Takes no parameters, returns nothing. */
 /*
  * Sets up the car shadow resources. Takes no parameters, returns nothing.
  * Fills the global frame slots (g_game_659d60 up to g_particles_659d70) with new RwFrames,

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+/* Initialises a 5-dword record: dword 0 and dword 2 are cleared, dword 1 gets type_id (inferred), dwords 3 and 4 get value_3 and value_4 (inferred). */
 /* FUN_005c43a0
  * Initialises a 5-dword record: dword 0 and dword 2 are cleared, dword 1 gets
  * type_id (inferred), dwords 3 and 4 get value_3 and value_4 (inferred).

@@ -105,6 +105,7 @@ def main():
     if pkl: pickle.dump(res, open(pkl, "wb"))
     nm = names(); rows = []
     for n, (ok, det, last) in sorted(res.items()):
+        if n not in nm: continue      # promoted / renamed by another agent between the scan and now (T-Q2)
         va = nm[n][0]
         if ok: rows.append((n, len(last[0]) if last else 0, 0, "", "MATCH"))
         elif last is None: rows.append((n, 0, "", "", "compile_error"))

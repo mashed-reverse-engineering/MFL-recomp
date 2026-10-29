@@ -1,7 +1,6 @@
 #include "mfl_tier2.h"
 /*00485030*/ extern int frame_follow_path_step(int a, int b, void *params, float t, int d);
 /*005dda1c*/ extern float k_f_3_3333333en4;
-/*005dda20*/ extern float k_f_4_2949673e9;
 /* course_uv_anim_update */
 /* "scales the time by 1/3000 and updates the uv animations" */
 /* world: course world (texture tables at +0xc110 and +0xc9b0); set: animation set with the

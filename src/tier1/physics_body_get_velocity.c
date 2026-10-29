@@ -4,6 +4,7 @@
 #define OWNER_SLOT_COUNT (0x10)
 #define ROW_STRIDE (0x20)
 #define ROW_VEC3_OFFSET (0x10)
+/* Reads the velocity of the physics body owned by one player slot. */
 /*
  * Reads the velocity of the physics body owned by one player slot.
  * out_vec: receives 3 floats (x, y, z) copied from the body's row.

@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 /*005be600*/ extern int __cdecl guid_compare(int a1, int a2);
+/* Returns 1 if `entry` matches `rule`, 0 otherwise. */
 /*
  * FUN_005bcf00: returns 1 if `entry` matches `rule`, 0 otherwise.
  *   rule:  filter record. rule[0] is a key passed to guid_compare, rule[2]..rule[3] are

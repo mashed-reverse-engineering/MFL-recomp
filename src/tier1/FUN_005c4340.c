@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 extern __declspec(dllimport) int __stdcall CreateSemaphoreA(int, int, int, int);
+/* Creates an unnamed Win32 semaphore (inferred from the CreateSemaphoreA call). */
 /* Creates an unnamed Win32 semaphore (inferred from the CreateSemaphoreA call).
  * Parameters:
  *   semaphore_out - receives the semaphore HANDLE (written even on failure)

@@ -11,6 +11,7 @@
  * Returns nothing.
  */
 /* "(src, x, out): out = {x, src+4, 0}" */
+/* Fills the record out from src[1] and the scalar x (out[0] = x, out[1] = src[1], out[3] = 1.0f, out[5] = 0.01f, other slots cleared). */
 undefined4 * vec3_make_from_param(char *src,undefined4 x,undefined4 *out)
 {
   undefined4 src_y;

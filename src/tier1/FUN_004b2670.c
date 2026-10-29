@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 #define NODE_NEXT_OFFSET (4)
 #define NODE_VALUE_OFFSET (8)
+/* Pops the first node off a singly linked list (inferred). */
 /* FUN_004b2670
  * Pops the first node off a singly linked list (inferred).
  * list_head: pointer to the list's head pointer; advanced to the next node.

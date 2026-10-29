@@ -2,6 +2,7 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 #define SLOT_SIZE (4)
 #define ALIGN4_MASK (0xfffffffc)
+/* Allocate `size` bytes through the RenderWare memory hook (rwmalloc, passing `hints` through) and return a 4-byte aligned pointer into the block (inferred). SLOT_SIZE extra bytes are ... */
 /*
  * FUN_005bf0e0: allocate `size` bytes through the RenderWare memory hook
  * (rwmalloc, passing `hints` through) and return a 4-byte aligned pointer

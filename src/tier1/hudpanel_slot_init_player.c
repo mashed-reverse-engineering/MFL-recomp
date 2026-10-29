@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 /*0041c740*/ extern int hudpanel_slot_init_player_b();
+/* Initialises one player's slot in the HUD panel. Forwards both arguments unchanged to hudpanel_slot_init_player_b, which does the work (inferred from the forwarding only). */
 /* Initialises one player's slot in the HUD panel. Forwards both arguments unchanged to
  * hudpanel_slot_init_player_b, which does the work (inferred from the forwarding only).
  * hud_panel: the HUD panel being set up (inferred from the name).

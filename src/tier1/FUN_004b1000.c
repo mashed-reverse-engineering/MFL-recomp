@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 extern __declspec(dllimport) int __stdcall InterlockedIncrement(int);
 #define REF_COUNT_OFFSET (8)
+/* Adds one to the 32-bit reference count stored at REF_COUNT_OFFSET inside obj (atomic, via InterlockedIncrement) and returns the resulting count. */
 /* FUN_004b1000
  * Adds one to the 32-bit reference count stored at REF_COUNT_OFFSET inside obj
  * (atomic, via InterlockedIncrement) and returns the resulting count.

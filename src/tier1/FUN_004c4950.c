@@ -3,6 +3,7 @@
 /*004d1860*/ extern void _rwObjectHasFrameSetFrame(void *p0, struct RwFrame *p1);
 /*004d1e80*/ extern void FUN_004d1e80(void *p0);
 /*004d77e0*/ extern RwBool RwRasterDestroy(struct RwRaster *p0);
+/* Teardown for an RW object (inferred: destructor-style). */
 /* FUN_004c4950
  * Teardown for an RW object (inferred: destructor-style).
  * Detaches and destroys the frame stored at object+0x4, then clears and destroys

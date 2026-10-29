@@ -8,6 +8,7 @@
 /*005e0450*/ extern undefined g_piz_5e0450;
 /*007712f8*/ extern struct VideoCfg g_video_cfg;
 #define VIDEO_CFG_FILE_SIZE (0x200)
+/* Loads the video config file from the path returned by video_cfg_path() and reads VIDEO_CFG_FILE_SIZE bytes of it into g_video_cfg. */
 /* video_cfg_load
    Loads the video config file from the path returned by video_cfg_path() and reads
    VIDEO_CFG_FILE_SIZE bytes of it into g_video_cfg.

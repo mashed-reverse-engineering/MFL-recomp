@@ -1,5 +1,4 @@
 #include "mfl_tier2.h"
-/*00472890*/ extern int sfx_play_voice_at();
 /*00472bb0*/ extern int sfx_voice_stop();
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
 /*00484680*/ extern int object_set_flag_4();

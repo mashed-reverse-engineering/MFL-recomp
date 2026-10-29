@@ -5,6 +5,7 @@
 #define LIST_ENTRIES_OFFSET (0x10)    /* list header -> entry array pointer */
 #define LIST_ENTRY_STRIDE (0x20)      /* bytes per entry */
 #define NOT_FOUND (0xffffffff)        /* return value when no entry accepted */
+/* Walks the entry list stored in owner (owner + OWNER_LIST_OFFSET), calling guid_compare(entry, context) on each non-null entry in order (inferred). */
 /*
  * FUN_005c2180: walks the entry list stored in owner (owner + OWNER_LIST_OFFSET),
  * calling guid_compare(entry, context) on each non-null entry in order (inferred).

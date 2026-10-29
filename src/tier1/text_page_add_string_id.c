@@ -1,5 +1,4 @@
 #include "mfl_tier2.h"
-/*004b4ba7*/ extern int entry();
 /*006c2ee0*/ extern undefined4 g_rwp_trigger_group_count;
 /*006c2ee4*/ extern undefined4 g_car_6c2ee4;
 /*0089de20*/ extern undefined1 g_physics_scenarios;

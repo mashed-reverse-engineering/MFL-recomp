@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+/* Zeroes a block of five 32-bit words (20 bytes) starting at block. */
 /* FUN_005cf210
  * Zeroes a block of five 32-bit words (20 bytes) starting at block.
  * block: pointer to the first word of the block to clear.

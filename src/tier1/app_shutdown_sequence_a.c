@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 /*004a4290*/ extern int platform_init();
+/* Shutdown sequence entry point (name inferred from the function name; body only forwards). */
 /* Shutdown sequence entry point (name inferred from the function name; body only forwards).
  * Passes its six arguments unchanged to platform_init() and returns that result as bool.
  * Parameters: platform_arg_1..platform_arg_6 are forwarded verbatim; their meaning is not in the dossier.

@@ -4,6 +4,7 @@
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
 /*006a60d0*/ extern struct MachinegunState MachinegunState_ARRAY_006a60d0[4];
+/* Removes the player's machinegun when it is unequipped (inferred from the name and the calls). */
 /*
  * weapon_machinegun_unequip: removes the player's machinegun when it is unequipped (inferred from the name and the calls).
  *   weapon_slot: WeaponSlot whose player index selects the MachinegunState entry.

@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 extern char PTR_g_data_746f64_005de9d0[];
 /*0040d0f0*/ extern int __cdecl find_texture_dict_c(RwChar *p0);
+/* Returns the texture dictionary for a menu icon. */
 /*
  * Returns the texture dictionary for a menu icon.
  * icon_index selects the icon: 0 = "lock", 1 = a global string (name unknown, inferred),

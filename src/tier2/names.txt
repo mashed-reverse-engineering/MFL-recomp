@@ -536,7 +536,6 @@
 0041efa0 team_panel_reset hk_875.c
 004207b0 endpoint_panel_reset hk_876.c
 00493b90 hsv_phase_to_rgb hk_877.c
-00492be0 rwp_object_query_ray_hit hk_880.c
 0041d480 btb_panel_slot_init hk_881.c
 0040c320 car_push_from_matrix hk_882.c
 004a6da0 camera_view_params_pack hk_884.c

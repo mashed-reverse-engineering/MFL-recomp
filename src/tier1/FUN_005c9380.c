@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 /*005c4340*/ extern int __cdecl FUN_005c4340(void *a1, int a2, int a3);
+/* Initialises the record at obj: stores id at offset 0, kind (16-bit, inferred) at offset 4, zeroes the 16-bit fields at offsets 6, 8 and 10, then calls FUN_005c4340 on the sub-block at ... */
 /* FUN_005c9380
  * Initialises the record at obj: stores id at offset 0, kind (16-bit,
  * inferred) at offset 4, zeroes the 16-bit fields at offsets 6, 8 and 10, then

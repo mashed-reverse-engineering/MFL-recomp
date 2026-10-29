@@ -3,6 +3,7 @@
 #define PIZ_FS_SUB_PTR_OFS (0x20064)   /* piz_fs -> sub-object pointer (inferred) */
 #define PIZ_FS_SUB_POS_OFS (0x78)      /* sub-object -> uint counter (inferred) */
 #define PIZ_FS_LIMIT_OFS (0x20070)     /* piz_fs -> uint limit (inferred) */
+/* Counts one call in g_piz_fs_8deed4, then tests the end-of-file condition (inferred). */
 /* piz_fs_eof
  * Counts one call in g_piz_fs_8deed4, then tests the end-of-file condition (inferred).
  * piz_fs: piz_fs state block; the sub-object pointer and the limit are read from it.

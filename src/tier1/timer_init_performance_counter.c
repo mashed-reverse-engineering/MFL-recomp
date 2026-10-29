@@ -2,6 +2,7 @@
 extern __declspec(dllimport) int __stdcall QueryPerformanceFrequency(int);
 /*0076ed08*/ extern undefined4 g_app_76ed08;
 /*0076ed0c*/ extern undefined4 g_app_76ed0c;
+/* Reads the high-resolution performance counter frequency (ticks per second) via QueryPerformanceFrequency and stores it as two 32-bit halves: g_app_76ed08 = low part, g_app_76ed0c = high ... */
 /* timer_init_performance_counter
  * Reads the high-resolution performance counter frequency (ticks per second)
  * via QueryPerformanceFrequency and stores it as two 32-bit halves:

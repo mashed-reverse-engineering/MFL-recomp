@@ -13,6 +13,7 @@
 /*008bf044*/ extern undefined4 g_course_warzone_8bf044;
 /*008bf060*/ extern undefined4 g_course_warzone_8bf060;
 /*008bf080*/ extern char g_course_8bf080[];
+/* Tears down the warzone course's runtime objects (inferred from the callees). */
 /* course_warzone_cb5: tears down the warzone course's runtime objects (inferred from the callees).
  * Takes no parameters and returns nothing. */
 void course_warzone_cb5(void)

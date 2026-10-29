@@ -1,6 +1,7 @@
 #include "mfl_tier2.h"
 /*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
 /*006a5e2c*/ extern undefined4 g_weapon_6a5e2c;
+/* Returns the clump (inferred) of the weapon in g_weapon_6a5e2c, or 0 when the global is unset. */
 /* weapon_6a5e2c_get_clump
  * Returns the clump (inferred) of the weapon in g_weapon_6a5e2c, or 0 when the global is unset.
  * No parameters.

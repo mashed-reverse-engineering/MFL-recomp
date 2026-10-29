@@ -23,6 +23,7 @@ extern double sin(double x);
 #define GROUP_FIRST_VOICE(group) (*(int *)(g_sound_groups + (group) * 0x90 + 0x80))
 #define RACE_PHASE_RUNNING 6
 
+/* Silences the four engine / tyre voice groups of `car`; when the car is in mode 4 the two surface voices of wheel 2 play instead: volume from the car speed (field b0c, capped at 100) on a ... */
 /* Silences the four engine / tyre voice groups of `car`; when the car is in mode 4 the two surface voices of
    wheel 2 play instead: volume from the car speed (field b0c, capped at 100) on a sine ramp, pitch 22050 Hz
    minus a random 0..2205 (first voice) or minus volume * 2205 (second voice, only if the lookup found one). */

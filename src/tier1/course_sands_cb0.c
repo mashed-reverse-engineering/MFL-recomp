@@ -17,6 +17,7 @@ extern char UNK_005df51c[];
  * creates the object frames for the first atomic of the clump at 0xc124 into
  * g_course_sands_6a2780. Returns nothing.
  */
+/* Sands course setup callback (cb0): one-time camera and option setup, then object frames from the course clump's first atomic. */
 void course_sands_cb0(char *course)
 {
   char *fog_camera;

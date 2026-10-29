@@ -1,5 +1,4 @@
 #include "mfl_tier2.h"
-/*004b4ba7*/ extern int entry();
 /*006089b0*/ extern undefined4 g_ai_bots_6089b0;
 /*008c9998*/ extern undefined4 g_ai_counter_9998;
 /*008c999c*/ extern float g_ai_skill_bias;

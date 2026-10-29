@@ -2,6 +2,7 @@
 extern char UNK_004537f0[];
 extern char UNK_005df4d8[];
 extern char UNK_00453860[];
+/* Course setup for the Egypt course (inferred): calls func_0x004801f0 twice, first with the "EgyptPushColumn1" string and UNK_004537f0, then with UNK_005df4d8 and UNK_00453860. Takes no ... */
 /* course_egypt_cb12
  * Course setup for the Egypt course (inferred): calls func_0x004801f0 twice,
  * first with the "EgyptPushColumn1" string and UNK_004537f0, then with

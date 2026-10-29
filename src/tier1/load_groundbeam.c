@@ -2,7 +2,6 @@
 /*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*0065c8f8*/ extern undefined g_game_65c8f8;
-/*0065d808*/ extern undefined g_load_groundbeam_65d808;
 /*00660568*/ extern undefined4 g_game_660568;
 /* Size in bytes of one per-slot GroundBeam record (inferred from the stride used for both globals). */
 #define GROUNDBEAM_SLOT_SIZE (0xf1c)

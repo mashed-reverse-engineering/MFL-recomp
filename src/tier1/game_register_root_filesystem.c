@@ -4,6 +4,7 @@
 /*005616f0*/ extern char *FUN_005616f0(undefined4 p0, void *p1, void *p2);
 /*005dd5a2*/ extern undefined g_game_5dd5a2;
 /*006ad084*/ extern undefined4 g_game_6ad084;
+/* Creates the root RtFileSystem (via FUN_005616f0; the returned object is stored in g_game_6ad084) and registers it with the RenderWare file system manager. */
 /*
  * game_register_root_filesystem
  * Creates the root RtFileSystem (via FUN_005616f0; the returned object is stored

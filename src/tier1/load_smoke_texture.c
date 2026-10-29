@@ -9,6 +9,7 @@
 #define PTANK_BUFFER_SIZE (0x440)
 #define SMOKE_PTANK_TYPE (0x895)
 #define SMOKE_PARTICLE_COUNT (0x40)
+/* Sets up the smoke particle tank g_load_6586e8. */
 /*
  * load_smoke_texture: sets up the smoke particle tank g_load_6586e8.
  * Zeroes the tank buffer, attaches the "smoke" texture from the texture

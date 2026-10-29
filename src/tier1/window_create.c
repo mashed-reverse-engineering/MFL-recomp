@@ -16,6 +16,7 @@ extern char LAB_004a9830[];
 #define WINDOW_STYLE_OVERLAPPED (0xcf0000)
 #define CREATE_USE_DEFAULT (0x80000000)
 #define WNDCLASSA_WORD_COUNT (10)
+/* Registers the "DtS" window class and creates the main game window titled "Drive to Survive [D3D9] [Release]". */
 /* Registers the "DtS" window class and creates the main game window titled
  * "Drive to Survive [D3D9] [Release]".
  * hinstance: module instance handle; also stored in g_app_7e7700.

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+/* Initialises a six-word object: sets word 2 to `value`, updates the flags in word 0 (clears bit 3, sets bit 2), zeroes words 3 and 5, sets word 4 to float 1.0 and word 1 to 1 (inferred: ... */
 /* FUN_005c1ad0
  * Initialises a six-word object: sets word 2 to `value`, updates the flags
  * in word 0 (clears bit 3, sets bit 2), zeroes words 3 and 5, sets word 4

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+/* Calls the first `count` function pointers in the table `callbacks` (inferred), in order. */
 /* FUN_005b9fa0
  * Calls the first `count` function pointers in the table `callbacks` (inferred), in order.
  * Returns 0 as soon as one of them returns 0, otherwise 1 (also 1 when `count` is 0, inferred).

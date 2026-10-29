@@ -1,7 +1,6 @@
 #include "mfl_tier2.h"
 /*00472340*/ extern int sfx_play_player_set_at();
 /*00499b40*/ extern int explosion_decal();
-/*004b4ba7*/ extern int entry();
 /*006a4c28*/ extern struct ExplosionEntry g_explosion_queue[100];
 /*006a5a38*/ extern undefined4 g_explosion_queue_6a5a38;
 #define EXPLOSION_DECAL_SIZE (0x3f99999a) /* float 1.2 bit pattern passed to explosion_decal (inferred: decal size) */

@@ -1,5 +1,6 @@
 #include "mfl_tier2.h"
 /*004a5ed0*/ extern int __cdecl video_raster_create(undefined4 p0);
+/* Forwards its first argument (raster_arg) to video_raster_create. */
 /* video_raster_create_forward: forwards its first argument (raster_arg) to video_raster_create.
    unused_arg is never read (inferred). Returns nothing. */
 /* "calls video_raster_create" */

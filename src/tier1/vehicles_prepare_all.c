@@ -13,6 +13,7 @@
 /*0065a9d0*/ extern undefined4 g_particles_65a9d0;
 /*00659d70*/ extern char g_particles_659d70[];
 #define VEHICLE_COUNT (4)
+/* Prepares every vehicle, then tears down the frame slots and particle effects and, when g_game_64d88c is 0, the two load handles, clearing each global after it is released. No parameters, ... */
 /* vehicles_prepare_all
  *
  * Prepares every vehicle, then tears down the frame slots and particle

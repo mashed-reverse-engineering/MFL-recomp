@@ -13,6 +13,7 @@ extern struct VoiceSlot g_voices[210];
 #define VOICE_FLAG_ACTIVE (2) /* set = voice is already playing (bit 2 of the voice flags: free voices have it clear; see sfx_play_voice_at) */
 #define VOICE_POSITION_X_OFFSET (0x58)
 #define VOICE_START_VOLUME (0.5)
+/* Only in app state APP_STATE_RACE. Looks at the VOICE_CANDIDATES voice slots starting at g_sound_618c98 + VOICE_FIRST_SLOT_OFFSET and positions the first one whose VOICE_FLAG_ACTIVE bit ... */
 /* sound_voices_set_position_start: only in app state APP_STATE_RACE. Looks at the
    VOICE_CANDIDATES voice slots starting at g_sound_618c98 + VOICE_FIRST_SLOT_OFFSET and
    positions the first one whose VOICE_FLAG_ACTIVE bit is clear: copies the 3 floats
