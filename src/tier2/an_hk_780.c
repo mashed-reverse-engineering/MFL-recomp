@@ -11,7 +11,8 @@
 /* Draws a filled, alpha blended, untextured screen quad as a tristrip of g_im2d_vertices.
  * x, y, width, height: rectangle in 640x480 reference units, scaled to the current screen size
  *   (inferred from the 1/640 and 1/480 constants).
- * colour: 0xAARRGGBB (inferred), written into each vertex as bytes R, G, B, A.
+ * colour: the int is 0xAABBGGRR, i.e. its bytes in memory are R, G, B, A (b[0] = red, as in team_color_rgba and RwRGBA); it is repacked into the
+ * vertex emissiveColor as D3DCOLOR 0xAARRGGBB (the code swaps the R and B bytes).
  * Returns nothing; the quad is drawn immediately.
  * (was: "(x, y, w, h, colour) in screen fractions; alpha blended quad") */
 
@@ -50,7 +51,7 @@ void draw_rect(float x,float y,float width,float height,uint colour)
   g_im2d_vertices[3].y = g_im2d_vertices[2].y;
   /* Per-vertex setup over the four vertices (the cursor starts at each vertex's z, 7 floats apart;
      the loop ends at &g_training_lesson, the global after the array):
-     emissive colour repacked from 0xAARRGGBB to bytes R, G, B, A; z = zBufferNear; rhw = 1.0 (inferred). */
+     emissive colour repacked from bytes R, G, B, A (int 0xAABBGGRR) to D3DCOLOR 0xAARRGGBB; z = zBufferNear; rhw = 1.0 (inferred). */
   do {
     *(uint *)&vertex_cursor[2] = (((uint)((*(ushort *)((char *)&colour + 2)) >> 8) << 8 | colour & 0xff) << 8 |
                          colour >> 8 & 0xff) << 8 | (*(ushort *)((char *)&colour + 2)) & 0xff;

@@ -481,7 +481,7 @@
 0041fb80 kc_panel_entry_destroy 14
 0041fb90 load_endpoint_panel 102
 0041fc00 kc_panel_init 53
-0041fc40 team_colour_table_init_4 133
+0041fc40 kc_panel_origins_init 133
 0041fcd0 kc_panel_update 101
 0041fd40 kc_panel_render 39
 0041fd70 kc_panel_destroy 43

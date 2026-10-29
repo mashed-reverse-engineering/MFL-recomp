@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /* DECLS-BEGIN */
 /* DECLS-END */
-/* Cluster rt2d_text_pixel_to_uv: 640x480 pixel position to the unit square of the Rt2d text (v flipped). */
+/* Cluster rt2d_text_pixel_to_uv: 640x480 pixel position to the Rt2d text space (u in 0 .. 1.333, v in 0 .. 1, v flipped). */
 extern float k_f_0_0020828124;
 extern float k_f_0_0020833334;
 extern float float_1_0;

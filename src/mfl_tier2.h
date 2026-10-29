@@ -530,7 +530,7 @@ typedef size_t (*vecStrlenFunc)(RwChar *);
 #define MFL_SHARED_BITS
 #define FLOAT_ONE_BITS (0x3f800000)         /* IEEE-754 bits of 1.0f, stored through an int-typed slot */
 #define CAR_ID_BASE (0xff00)                /* collider type / event parameter 0xff00 + n denotes car n */
-#define MESSAGE_COLOUR_DARK_RED (0xff460000) /* message_show colour argument (ARGB; inferred) */
+#define MESSAGE_CODE_FF46 (0xff460000) /* message_show 2nd argument: the message code (g_message_code, compared with 0xff22/0xff21/0xff46 << 16 elsewhere); NOT a colour */
 #define COLOUR_WHITE_ARGB (0xffffffff)
 #define VOICE_DEFAULT_FREQ_BITS (0x46ac4400) /* bits of 22050.0f, default voice frequency */
 #define VOICE_OFF_HANDLE (0x30)             /* voice record: sound object / sub voice */

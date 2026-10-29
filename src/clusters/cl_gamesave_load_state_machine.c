@@ -48,7 +48,7 @@ void gamesave_load_state_machine(float delta_time)
         nop_stub();
         message_close();
       }
-      message_show(0x21a,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
+      message_show(0x21a,MESSAGE_CODE_FF46,2,0x2f,0x30,0);
       g_gamesave_load_step = 7;
     }
     FID_conflict__wprintf("Waiting for load status\n");
@@ -73,7 +73,7 @@ void gamesave_load_state_machine(float delta_time)
     return;
   case 3:
     g_gamesave_load_failed = 0;
-    message_show(0x236,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
+    message_show(0x236,MESSAGE_CODE_FF46,0,0,0,0);
     g_gamesave_wait_timer = 0.0;
     g_gamesave_load_step = 4;
     gamesave_set_result_code(5);
@@ -84,22 +84,22 @@ void gamesave_load_state_machine(float delta_time)
   case 5:
     switch(g_gamesave_result_code) {
     case 0:
-      message_show(0x1c1,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1c1,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       gamesave_apply();
       g_gamesave_load_step = 6;
       return;
     case 1:
-      message_show(0x1bf,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1bf,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       g_gamesave_load_step = 0;
       return;
     default:
-      message_show(0x1c0,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1c0,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       g_gamesave_load_step = 0;
       g_gamesave_load_failed = 1;
       break;
     case 3:
     case 4:
-      message_show(0x1be,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1be,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       g_gamesave_load_step = 0;
       return;
     }

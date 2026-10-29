@@ -308,7 +308,7 @@ extern undefined4 * weapon_flamethrower_equip(WeaponSlot *slot);
  * calls object_set_flag_4 on the player's flame object with flag 0 (inferred), removes the clump from the course
  * world and clears the record's active flag. Parameter: slot (WeaponSlot *). Returns nothing.
  */
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-29 authority=static */
 void weapon_flamethrower_unequip(WeaponSlot *slot)
 {
   weapon_flamethrower_unequip_rec_layout *rec;

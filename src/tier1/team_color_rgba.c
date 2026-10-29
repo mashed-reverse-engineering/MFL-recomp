@@ -9,7 +9,7 @@
  * (was: "(team, out): switch giving the RGBA of a team colour") */
 void team_color_rgba(undefined4 team,undefined1 *rgba)
 {
-  /* One case per team palette entry (inferred: 0 red, 1 blue, 2 olive, 3 yellow, 4 pink, 5 black). Alpha is always opaque. */
+  /* One case per team palette entry (byte order R, G, B, A, checked against draw_rect: 0 red, 1 steel blue, 2 olive green, 3 yellow, 4 pink, 5 black). Alpha is always opaque. */
   switch(team) {
   case 0:
     *rgba = 0x98;

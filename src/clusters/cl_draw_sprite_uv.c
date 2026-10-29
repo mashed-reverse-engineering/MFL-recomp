@@ -9,7 +9,7 @@
 /*005dd624*/ extern float k_f_0_0020833334;
 /*005dfdfc*/ extern float k_f_0_002232143;
 
-/* Draws a textured screen quad (x, y, w, h) with the texture window u0..u1 / v0..v1 and the colour 0xAARRGGBB.  scale_mode 0: pixels, 1: 640x480 units, 2: only y and h are scaled (by height / 448).
+/* Draws a textured screen quad (x, y, w, h) with the texture window u0..u1 / v0..v1 and the colour as bytes R, G, B, A (int 0xAABBGGRR; repacked to the vertex D3DCOLOR 0xAARRGGBB).  scale_mode 0: pixels, 1: 640x480 units, 2: only y and h are scaled (by height / 448).
    texture NULL draws untextured; linear selects the texture filter. */
 void draw_sprite_uv(int *texture, float x, float y, float w, float h, unsigned int colour,
                     float u0, float u1, float v0, float v1, int scale_mode, int linear)

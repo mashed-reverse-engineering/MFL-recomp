@@ -736,12 +736,28 @@ class Machine:
                             if i_ is None: break
                             ins_.append(i_); q += i_.size
                         if q == ra and ins_ and ins_[-1].mnemonic == "call" and len(ins_) >= 3:
+                            seq_ = []
                             for i_ in reversed(ins_[:-1]):
                                 if i_.mnemonic in ("call", "ret", "jmp") or i_.mnemonic.startswith("j"): break
-                                if i_.mnemonic == "push": k_ += 1
+                                seq_.append(i_)
+                            k_ = sum(x.mnemonic == "push" for x in seq_)
+                            if k_ > 1 and not os.environ.get("STDIND_NOSAVE"):      # earliest push = callee-saved register, separated from the next push by other code: a register save of the caller (not an argument)
+                                pi_ = [x for x, y in enumerate(seq_) if y.mnemonic == "push"]; e_ = seq_[pi_[-1]]
+                                if e_.op_str in ("ebx", "esi", "edi", "ebp") and pi_[-1] - pi_[-2] > 1: k_ -= 1
                             break
+                    if k_ and not os.environ.get("STDIND_NOFWD"):      # batched cleanup: scan forward; a later `add esp, N` that covers this call's pushes plus the pushes after it = cdecl whose cleanup is batched, the callee pops nothing
+                        q = ra; later_ = 0
+                        for _ in range(80):
+                            j_ = next(CS.disasm(m.read(q, 16), q, 1), None)
+                            if j_ is None or j_.mnemonic in ("ret", "jmp") or j_.mnemonic.startswith("j"): break
+                            if j_.mnemonic == "push": later_ += 1
+                            elif j_.mnemonic == "add" and j_.op_str.startswith("esp, "):
+                                if int(j_.op_str[5:], 0) // 4 > later_: k_ = 0      # more than the later pushes: the `add esp` also cleans this call's arguments (cdecl, batched)
+                                break
+                            q += j_.size
                     _POPC[key_] = min(k_, 8)
                 k_ = _POPC[key_]
+                if os.environ.get("INDDBG"): sys.stderr.write("POP ra=%x k=%d\n" % (ra, k_))
                 if k_:
                     uc.mem_write(sp + 4 * k_, struct.pack("<I", ra)); uc.reg_write(UC_X86_REG_ESP, sp + 4 * k_)
             except UcError: pass
@@ -881,6 +897,7 @@ class Machine:
         slow = time.time() - t0 >= 1.9 * max(1, MAXINS // 300000)      # wall clock timeout of the emulator (a loaded machine), not a loop: never a DIFF
         eip = uc.reg_read(UC_X86_REG_EIP); r = dict(done=((eip == RET or m.exited) and err is None), exited=m.exited, err=err, eip=eip, wild=m.wild)
         if not r["done"]:
+            if os.environ.get("INDDBG"): sys.stderr.write("FAIL %s eip=%x esp=%x err=%s nullcall=%s\n" % ("ours" if m.ours else "orig", eip, uc.reg_read(UC_X86_REG_ESP), err, m.nullcall))
             if m.nullcall: c = "NULLCALL"
             elif err is None: c = "LOOP"
             elif err.errno == UC_ERR_FETCH_UNMAPPED: c = "INDIRECT_CALL"

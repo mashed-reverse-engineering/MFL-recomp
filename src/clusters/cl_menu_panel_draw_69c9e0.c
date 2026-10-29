@@ -18,7 +18,7 @@ extern int g_hud_69c9e4;
 extern int g_menu_current;
 extern int g_menu_8c8080[4];
 
-/* Draws the controller (rumble) rows of the options panel: for each of the 4 rows that is in use (anim item id not 0xc6) a left arrow, the text "rumble
+/* Draws the controller (rumble) rows of the options panel: for each of the 4 rows that is in use (g_menu_item_anims[row + 1].ref_a, the idle text id, is not 0xc6) a left arrow, all in black, the text "rumble
    off / on" (text id 0x5c + enabled) of the row's player and a second arrow behind the text (placed from the text width).  Rows of disabled entries
    are drawn at a quarter of the alpha.  Nothing is drawn while the panel state is 2, or 0 with the alpha below 0x60. */
 static int menu_count_items_r(char * p0);

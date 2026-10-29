@@ -68,8 +68,10 @@
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /* tutorial_text_update */
 
-/* "runs game_tick for the frame time, then builds the instruction text lines for event types 0..2
-   using text_width (inferred)" */
+/* (was: "runs game_tick for the frame time, then builds the instruction text lines for event types 0..2 using text_width (inferred)")
+   Calls race_start_setup(0x32) ceil(g_frame_ticks / 50) times (not game_tick), then, while the menu panel state is 1 and no line is pending,
+   interprets the current tutorial page script (the basic pages for event types 0..2 = time trials, the event pages for every other type) and
+   collects the text lines with their widths (text_width at scale 0.7). */
 
 void tutorial_text_update(void)
 

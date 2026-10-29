@@ -85,7 +85,7 @@ static void team_chips_draw(float card_y, UiColour white, UiColour *team_colour)
    standard menu every active card is drawn on the screen; with it only the card of player 0. */
 void menu_draw_controller_select(void)
 {
-    UiColour team_colour[7];    /* 0 grey (default), 1..6 = team_color_rgba(0..5) in order (names after team_color_rgba, inferred: red, blue, green, yellow, pink, black; if b[0] is the blue byte of a D3DCOLOR the entries would read blue, tan, green, cyan, lavender, black) */
+    UiColour team_colour[7];    /* 0 grey (default), 1..6 = team_color_rgba(0..5) in order (b[0] is the RED byte: draw_rect / draw_sprite_uv repack bytes R,G,B,A into the D3DCOLOR; so red, steel blue, olive green, yellow, pink, black) */
     UiColour white, black, colour, any_colour;
     unsigned char fade = g_menu_69c97c;
     float flash;

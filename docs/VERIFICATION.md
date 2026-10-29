@@ -33,7 +33,7 @@ The default diffemu run is unchanged; these environment switches make it reach m
 | Switch | Effect |
 |---|---|
 | `OUTSTRUCT=1` | Out-structs written by stubs get plausible values (floats the original compares with, zero, colours) instead of a canary pattern. |
-| `STDCALL_IND=1` | An indirect call with no `add esp` after it is a stdcall COM method: the stub pops the pushes of that call. |
+| `STDCALL_IND=1` | An indirect call with no `add esp` after it is a stdcall COM method: the stub pops the pushes of that call. Caller register saves are not counted, and a later `add esp, N` that is larger than the pushes after the call (batched cdecl cleanup) means the callee pops nothing. |
 | `INDARGC="1:3,2:5"` | Exact stdcall argument count per stubbed indirect call (ordinal = Nth such call of the run); needs `STDCALL_IND`. |
 | `INDOUT="ord:arg:val"` | The stubbed indirect call with that ordinal stores `val` through its stack argument `arg` (0 = this). |
 | `FRETPOOL=1` | Float and zero return values and out-pool values (0, 1, -1, 0.5, ...) for stubs, so compares on callee results see both branches. |

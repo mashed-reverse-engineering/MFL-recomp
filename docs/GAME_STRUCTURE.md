@@ -167,7 +167,7 @@ The frontend is a token driven page system.
 
 - `CAR_ID_BASE` (0xff00): collider type and event parameter `CAR_ID_BASE + n` denotes car `n`.
 - `VOICE_OFF_HANDLE`, `VOICE_OFF_FLAGS`, `VOICE_OFF_FREQ`, `VOICE_OFF_POS_X/Y/Z`: offsets inside a voice record; `VOICE_DEFAULT_FREQ_BITS` is the bit pattern of the default frequency (22050.0f).
-- `MESSAGE_COLOUR_DARK_RED`, `COLOUR_WHITE_ARGB`: ARGB colour arguments of the on-screen message call (the colour meaning is inferred).
+- `MESSAGE_CODE_FF46`: the message code (second argument of message_show, stored in g_message_code; not a colour). `COLOUR_WHITE_ARGB`: white (all channels 0xff) colour argument.
 - `FLOAT_ONE_BITS`: bits of 1.0f stored through an int-typed slot.
 
 Generic small numbers (0x10, 0x20, ...) are strides of different structs and are deliberately not shared.

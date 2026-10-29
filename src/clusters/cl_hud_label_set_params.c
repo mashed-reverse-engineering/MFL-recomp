@@ -13,10 +13,10 @@ typedef struct HudLabel {
     float delta_x;         /* 0x94: (320 - x) * 0.01 */
     float delta_y;         /* 0x98: (240 - y) * 0.01 */
     int flags;             /* 0x9c: always 0x5dc here */
-    int param_a0;          /* 0xa0 */
-    int param_a4;          /* 0xa4 */
-    int param_a8;          /* 0xa8 */
-    int param_ac;          /* 0xac */
+    int param_a0;          /* 0xa0: RGBA bytes copied from *a (callers pass unsigned char[4] colours) */
+    int param_a4;          /* 0xa4: RGBA bytes copied from *b */
+    int param_a8;          /* 0xa8: float bits, text height factor (24.0, 32.0, 10.0 at the callers; hud_labels_render_all passes it as the scale) */
+    int param_ac;          /* 0xac: float bits (0 .. 2.0 at the callers); not read by hud_labels_render_all */
 } HudLabel;
 
 extern float k_f_320;

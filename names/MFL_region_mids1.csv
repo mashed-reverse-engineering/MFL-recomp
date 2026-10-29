@@ -23,7 +23,7 @@
 0041dee0,score_panel_entry_scale_parts_low,"RwFrameScale of parts selected by flag bits 0..5"
 0041e710,team_panel_load_parts,"loads the 0x32 grey colour parts into the team panel"
 0041f090,team_colour_table_init_2,"fills 6 floats (two team colours) at g_race_start_603f1c"
-0041fc40,team_colour_table_init_4,"fills 12 floats (four team colours)"
+0041fc40,kc_panel_origins_init,"fills 12 floats (four team colours)"
 0041fda0,team_endpoint_panel_load_parts,"loads grey 0x32 parts into the endpoint panel"
 00420b30,stopclock_render_timed_parts,"renders parts depending on the timer at +0x2C (thresholds 4, 0.34, 0.82, 1.3, 1.86)"
 00421720,vehicle_markers_render_parts,"renders the marker parts and the per player slots"

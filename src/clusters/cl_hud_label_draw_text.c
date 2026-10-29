@@ -4,7 +4,9 @@
 /* DECLS-BEGIN */
 /* DECLS-END */
 /* Cluster hud_label_draw_text: draws the HUD text labels (8 label slots of 0xb0 bytes) with the Rt2d font: the 640x480 position becomes
-   the unit square of the Rt2d text, alignment 1 centres the text (clamped to 1.33 wide), 2 right-aligns. */
+   the Rt2d text space (1.333 wide, 1 high, v flipped; height = scale / 480), alignment 1 centres the text (kept inside 0 .. 1.33 horizontally);
+   alignment 2 moves the start of the text RIGHT by its width (x + width; not a right-aligned text ending at x).  The four colour arguments are RwRGBA (4 byte) pointers:
+   the label passes its +0xa4 colour as c0 / c1 and its +0xa0 colour as c2 / c3. */
 typedef struct HudLabel {
     unsigned short text[0x40];   /* 0x00: wide string */
     float world[3];              /* 0x80 */
@@ -13,8 +15,8 @@ typedef struct HudLabel {
     float delta_x;               /* 0x94 */
     float delta_y;               /* 0x98 */
     int flags;                   /* 0x9c: nonzero = in use */
-    float colour_a0;             /* 0xa0 */
-    float colour_a4;             /* 0xa4 */
+    float colour_a0;             /* 0xa0: RGBA bytes (the brush corners c2 / c3) */
+    float colour_a4;             /* 0xa4: RGBA bytes (the brush corners c0 / c1) */
     float scale;                 /* 0xa8: text height factor */
     int param_ac;                /* 0xac */
 } HudLabel;

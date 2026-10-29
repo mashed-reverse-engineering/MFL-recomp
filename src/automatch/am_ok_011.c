@@ -53,7 +53,7 @@
 /*005de2f8*/ extern float k_f_n90;
 /*005de398*/ extern float k_f_0_35;
 /*005de39c*/ extern float k_f_2_4;
-/*00603f4c*/ extern undefined4 g_hudpanel_603f4c;
+/*00603f4c*/ extern undefined4 g_kc_panel_origin_table;
 /*00603fc8*/ extern struct CourseEntry g_course_table[28];
 /*006047a8*/ extern int g_course_table_count;
 /*00658300*/ extern undefined4 g_load_658300;
@@ -256,11 +256,11 @@ extern void hudpanel_clump_destroy(void);
 extern void hudpanel_render_if_loaded(void);
 
 
-/* team_colour_table_init_4 */
+/* kc_panel_origins_init */
 
 /* "fills 12 floats (four team colours)" */
 
-extern void team_colour_table_init_4(void);
+extern void kc_panel_origins_init(void);
 
 
 /* kc_panel_render */

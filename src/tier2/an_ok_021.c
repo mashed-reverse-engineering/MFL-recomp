@@ -440,7 +440,7 @@ message_show_now(undefined4 text_id,undefined4 code,undefined4 buttons,undefined
 
 /* message_show */
 
-/* "(message id, colour, ...) shows a HUD message box or queues it when one is open" */
+/* "(message id, message code, ...) shows a HUD message box or queues it when one is open" */
 
 extern void message_show(char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6);
 

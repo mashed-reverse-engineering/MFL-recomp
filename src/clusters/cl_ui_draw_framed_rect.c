@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /* DECLS-BEGIN */
 /* DECLS-END */
-/* Cluster ui_draw_framed_rect: a filled rectangle (half the alpha) with a 2 pixel border (full alpha) drawn from 5 draw_rect calls: the fill,
+/* Cluster ui_draw_framed_rect (colour constants are ints 0xAABBGGRR: fill R,G,B = f0,6e,14 orange, border b4,50,10 dark orange): a filled rectangle (half the alpha) with a 2 pixel border (full alpha) drawn from 5 draw_rect calls: the fill,
    then the left, top, bottom and right edge strips. */
 extern float k_f_2;
 extern float k_f_4;

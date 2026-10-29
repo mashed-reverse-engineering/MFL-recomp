@@ -30,6 +30,8 @@
  *   in_path:  input path, '\' or '/' separators. A drive prefix ("C:") is replaced by
  *             g_game_5dd5a2 (inferred).
  *   out_path: receives the converted path. A leading '\' is stripped (inferred).
+ * Directory parts after the first are upper-cased, and "PS2" / "XBOX" / "PLATFORM" are replaced by g_game_path_5dd580.  The separator is "\\" when the
+ * input contains a ':' (the first slot is then g_game_5dd5a2), else "/".
  * Each directory name is at most DIR_NAME_MAX letters, at most MAX_DIR_LEVELS levels.
  * The file base name is at most BASE_NAME_MAX letters, the extension follows '.'.
  * Returns out_path, or NULL if a name is too long or the total exceeds OUTPUT_PATH_MAX.

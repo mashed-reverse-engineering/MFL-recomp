@@ -238,7 +238,7 @@ extern void __cdecl message_show_now(undefined4 param_1,undefined4 param_2,undef
 
 /* message_show */
 
-/* "(message id, colour, ...) shows a HUD message box or queues it when one is open" */
+/* "(message id, message code, ...) shows a HUD message box or queues it when one is open" */
 
 void message_show(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4,
                  undefined4 param_5,undefined4 param_6)

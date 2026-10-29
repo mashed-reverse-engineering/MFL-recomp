@@ -7,14 +7,15 @@
 /*008c80a0*/ extern struct MenuItemAnim g_menu_item_anims[30];
 /* menu_button_prompts_build */
 
-/* "(page, ...): fills the 0x34 byte button / prompt entries at 0x8C80A0 for the current frontend
-   page (Continue / Back icons)" */
+/* Appends ONE button-prompt entry (a 0x34 byte MenuItemAnim at g_menu_item_anims[*next_slot]) and advances *next_slot.  The entry is the prompt of kind `page`
+   (ref_a = its text id) and, while it appears or disappears, shows the text of the neighbouring prompt kind found in the item list (ref_b).  `expected_id` is compared
+   with frontend_stub_return_0_b() only for kind 1 (Continue: ref_a = -1 when equal, i.e. no text while idle).  Kinds without a case (default) append nothing. */
 
 static int menu_item_list_find_index_current_r(int p0, int p1);
 extern void menu_item_list_find_index_current(void);
 static int menu_text_slot_set_r(int * p0, int p1, int p2, int p3, int p4);
 extern void menu_text_slot_set(void);
-/* Names inferred: direction = in_eax (0 current, 2 as is, else next menu), next_slot = running index into g_menu_item_anims, neighbour_kind = prompt kind found in the item list, page = prompt kind being built (1 continue, 2 back, ...). */
+/* Names inferred: direction = in_eax (0 = look up the neighbour kind in the current menu's list, 2 = look it up but build NOTHING (page is forced to 0), else = look it up in the next menu g_menu_current + 1), next_slot = running index into g_menu_item_anims, neighbour_kind = prompt kind (item list marker 0xFF08, 0 = none), page = prompt kind being built: 1 Continue (text 0x43), 2 Back (0x44), 4 (0x22a), 5 (0x13; the store of 0x49 before it is dead), 6 (0x5b, item id 0xFF11 instead of 0xFF10), 8 (text menu_page_for_game_mode()), 10 (0x138).  Same kind as the neighbour -> ref_b -1 and state 0x1000 (finished); no neighbour -> state 1 idle, counter 0; else state 0 (appearing), counter 0x1ff. */
 void menu_button_prompts_build_n(int direction, int *next_slot, undefined4 page, int expected_id)
 
 {

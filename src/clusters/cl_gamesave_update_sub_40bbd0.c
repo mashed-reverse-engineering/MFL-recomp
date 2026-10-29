@@ -53,7 +53,7 @@ void gamesave_update_sub_40bbd0(float dt)
       }
       result = gamesave_exists(0);
       if (result == 0) {
-        message_show(0x21b,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
+        message_show(0x21b,MESSAGE_CODE_FF46,2,0x2f,0x30,0);
         g_gamesave_save_step = 0xc;
         FID_conflict__wprintf("Waiting for save status\n");
         return;
@@ -87,7 +87,7 @@ void gamesave_update_sub_40bbd0(float dt)
     return;
   case 3:
     g_gamesave_load_failed = 0;
-    message_show(0x238,MESSAGE_COLOUR_DARK_RED,0,0,0,0);
+    message_show(0x238,MESSAGE_CODE_FF46,0,0,0,0);
     gamesave_gather();
     g_gamesave_wait_timer = 0.0;
     g_gamesave_save_step = 4;
@@ -114,31 +114,31 @@ LAB_0040be88:
   case 5:
     switch(g_gamesave_result_code) {
     case 0:
-      message_show(0x1bc,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1bc,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       nop_stub();
       g_gamesave_save_step = 0xb;
       return;
     case 1:
-      message_show(0x1bf,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1bf,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       g_gamesave_save_step = 0;
       return;
     case 2:
-      message_show(0x1ba,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1ba,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       g_gamesave_save_step = 0;
       return;
     case 3:
-      message_show(0x24e,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
+      message_show(0x24e,MESSAGE_CODE_FF46,2,0x2f,0x30,0);
       g_gamesave_save_step = 8;
       return;
     case 6:
-      message_show(0x1bb,MESSAGE_COLOUR_DARK_RED,0xb,0x2e,0,0);
+      message_show(0x1bb,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
       g_gamesave_load_failed = 1;
       g_gamesave_result_code = 7;
       return;
     }
     break;
   case 6:
-    message_show(0x1c5,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
+    message_show(0x1c5,MESSAGE_CODE_FF46,2,0x2f,0x30,0);
     g_gamesave_save_step = 7;
     return;
   case 9:
@@ -148,7 +148,7 @@ LAB_0040be88:
     else {
       message_id = 0x24d;
     }
-    message_show(message_id,MESSAGE_COLOUR_DARK_RED,2,0x2f,0x30,0);
+    message_show(message_id,MESSAGE_CODE_FF46,2,0x2f,0x30,0);
     g_gamesave_save_step = 10;
     return;
   case 0xb:

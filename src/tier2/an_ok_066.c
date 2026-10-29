@@ -346,7 +346,7 @@ extern undefined4 main_loop_init(void);
  * players_by_points holds the player ids in points order (filled by players_get_points).
  * The state meanings are inferred from the callees. */
 
-/* TIER2: unvalidated 2026-10-16 authority=diffemu */
+/* TIER2: unvalidated 2026-10-29 authority=static */
 undefined4 frontend_init_menus(void)
 {
   int player_index;

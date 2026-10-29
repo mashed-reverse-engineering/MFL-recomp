@@ -54,7 +54,7 @@
 /*005de2f8*/ extern float k_f_n90;
 /*005de398*/ extern float k_f_0_35;
 /*005de39c*/ extern float k_f_2_4;
-/*00603f4c*/ extern undefined4 g_hudpanel_603f4c;
+/*00603f4c*/ extern undefined4 g_kc_panel_origin_table;
 /*00603fc8*/ extern struct CourseEntry g_course_table[28];
 /*006047a8*/ extern int g_course_table_count;
 /*00658300*/ extern undefined4 g_load_658300;

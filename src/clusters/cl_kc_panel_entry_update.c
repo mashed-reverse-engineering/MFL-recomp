@@ -12,7 +12,7 @@
 /*005dd9c4*/ extern float k_f_0_15;
 /*005dda20*/ extern float k_f_4_2949673e9;
 /*005de288*/ extern float k_f_1_125;
-/*00603f4c*/ extern undefined4 g_hudpanel_603f4c;
+/*00603f4c*/ extern undefined4 g_kc_panel_origin_table;
 /*006592e0*/ extern undefined g_kc_panel_6592e0;
 /*006592f4*/ extern undefined g_kc_panel_6592f4;
 /*00659308*/ extern undefined g_kc_panel_659308;
@@ -236,7 +236,7 @@ LAB_0041f76a:
   frame.mtx.pos.z = 0.0;
   frame.mtx.pos.y = 0.0;
   frame.mtx.pos.x = 0.0;
-  RwMatrixTranslate(&frame.mtx,(RwV3d *)((char *)&g_hudpanel_603f4c + slot_index * 12),rwCOMBINEREPLACE);
+  RwMatrixTranslate(&frame.mtx,(RwV3d *)((char *)&g_kc_panel_origin_table + slot_index * 12),rwCOMBINEREPLACE);
   RwFrameTransform(entry->frame,&frame.mtx,rwCOMBINEREPLACE);
   frame.scale.x = frame.scale.x * k_f_1_125;
   frame.scale.y = frame.scale.y * k_f_1_125;

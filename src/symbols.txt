@@ -624,7 +624,7 @@ PTR_caseD_1_0041fb60_3 0041fb63
 kc_panel_entry_destroy 0041fb80
 load_endpoint_panel 0041fb90
 kc_panel_init 0041fc00
-team_colour_table_init_4 0041fc40
+kc_panel_origins_init 0041fc40
 kc_panel_update 0041fcd0
 kc_panel_render 0041fd40
 kc_panel_destroy 0041fd70
@@ -6683,7 +6683,7 @@ g_score_panel_603edc 00603edc
 g_team_panel_origin_table 00603f1c
 g_team_panel_origin_table_y 00603f20
 g_team_panel_origin_table_z 00603f24
-g_hudpanel_603f4c 00603f4c
+g_kc_panel_origin_table 00603f4c
 g_endpoint_panel_603f94 00603f94
 g_course_table 00603fc8
 g_course_table_0__course_id 00603fd8

@@ -126,7 +126,7 @@ Metric: cmpfn.check (reloc-masked) via <scratch>; scratch copies src/w_<name>.c;
 2. Struct assignment instead of member-wise copies (atomic_world_bbox_update, smplfzx_object_init_bounds; 2)
    asm: `lea eax,[esi+0xc]; mov ecx,[eax]; ... [eax+4] ... [eax+8]` (3 dword copy through a pointer). edit: `world_inf = bbox->inf;` / `*(RwV3d*)(dst) = *(RwV3d*)(src)`.
    Same with a local 4-float struct typedef (explosion_queue: `*(Vec4F*)dst = *(Vec4F*)src`). Also swap two local-pointer init statements to fix eax/ecx swaps.
-3. Float-typed stores of constants (7: team_colour_table_init_4, sound_spline_create_b, app_counters_clear, ...; ui_colour_a_default partly)
+3. Float-typed stores of constants (7: kc_panel_origins_init, sound_spline_create_b, app_counters_clear, ...; ui_colour_a_default partly)
    asm: original `mov dword [x],0x3f800000` / `mov dword [x],0` immediates; ours hoists repeated int constants/zero into a register (`xor eax,eax` + reg stores, `mov ecx,IMM`).
    edit: store through float: `*(float*)&g = 1.0f;` / `= 0.0f;` or make the local table `float t[12]` with float literals (cl does not CSE float immediates). Script: f32.py converts hex bit patterns to shortest float literal.
 4. Record base pointer + field offsets (ktc_new_copter 23 fields, weapon_oil_equip; same as Round B pattern B)

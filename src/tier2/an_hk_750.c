@@ -44,8 +44,8 @@
  * stat_kind: a STAT_* value; selects the player_stat_get_* callee for the values.
  * ascending: 0 = largest value first, nonzero = smallest value first.
  * Team mode (is_team_mode(), and not STAT_CROWNS / STAT_PANTS / their totals): each slot's value is replaced by
- * its team's sum (slot state 0 or 1, inferred: the two teams), then the top entries are adjusted so that
- * player_order[0..2] do not all share a team (inferred).
+ * its team's sum (slot state 0 or 1, inferred: the two teams).  After the sort, in team mode (any stat kind): when player_order[0] and [1] share
+ * a slot state, player_order[1] is OVERWRITTEN by [2] (not swapped; the old [1] is dropped), and when [0], [1], [2] then still share one, [1] is overwritten by [3].
  * (was: "(player, kind): switch over the statistic kinds")
  */
 
@@ -395,8 +395,7 @@ void __cdecl player_stat_get_by_kind(int *player_order,int stat_kind,int ascendi
       } while (player_idx < stat_value + -1);
     }
   }
-  /* team mode: keep player_order[0] and player_order[1] on different teams (slot state), and if the first three
-     share a team, take player_order[3] (inferred) */
+  /* team mode: when [0] and [1] share a slot state, [1] = [2]; when [0], [1], [2] then share one, [1] = [3] (overwrites, no swap) */
   player_idx = is_team_mode();
   if (player_idx != 0) {
     if (g_player_slots[*player_order].state == g_player_slots[player_order[1]].state) {
