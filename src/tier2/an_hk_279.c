@@ -16,7 +16,7 @@ void __cdecl vector_normalize_copy(RwV3d *out,float *point,RwReal *in_dir)
   out->y = in_dir[1];
   out->z = in_dir[2];
   RwV3dNormalize(out,out);
-  out[1].x = -(out->z * point[2] + out->x * *point + out->y * point[1]);
+  out[1].x = -((out->y * point[1] + out->x * *point) + out->z * point[2]);
   return;
 }
 

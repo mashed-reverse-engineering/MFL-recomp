@@ -1920,7 +1920,7 @@ replay_get_split_time,00413a80,hand,bytes,bytes-reloc,-,5e9b06c732e8,5e9925b901d
 replay_load_compare,00413dd0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,5e9b06c732e8,5e9925b901da,181,0.84,0,0
 replay_record_save_frame,004957f0,agent,bytes-standalone+58c3551bf9ca,bytes-reloc,-,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 replay_records_reset,00413cb0,hand,near-regress-only,static,-,5e9b06c732e8,5e9925b901da,0,0.00,0,0
-replay_save,?,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,4383f4ad08a8,5e9b06c732e8,5e9925b901da,200,1.00,0,0
+replay_save,?,tier1,bytes,bytes-reloc,4383f4ad08a8,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 resource_load,004a9420,tier1,bytes,bytes-reloc,d7b31e96c586,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 rocket_hit_callback,00461370,tier2,compiled+diffemu-DIFF+shadow-never,static,-,5e9b06c732e8,5e9925b901da,27,0.62,0,0
 rocket_hit_spawn_particle,004681f0,tier1,bytes,bytes-reloc,976dc4f54098,5e9b06c732e8,5e9925b901da,0,0.00,0,0

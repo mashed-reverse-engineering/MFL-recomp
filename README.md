@@ -23,11 +23,11 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...share of the code bytes | 662,239 B | `███████████████████░` 97% |
 | ...of these register-argument clusters | 655 | `█████░░░░░░░░░░░░░░░` 24% |
 | **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,593 | `███████████████████░` 93% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,249 | `█████████░░░░░░░░░░░` 45% |
-| ...tier 1, `src/tier1` (1086 files) | 901 | `██████░░░░░░░░░░░░░░` 32% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,250 | `█████████░░░░░░░░░░░` 45% |
+| ...tier 1, `src/tier1` (1087 files) | 902 | `██████░░░░░░░░░░░░░░` 32% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (840 files) | 738 | `█████░░░░░░░░░░░░░░░` 27% |
+| ...tier 2, `src/tier2` (839 files) | 737 | `█████░░░░░░░░░░░░░░░` 26% |
 | ...clusters, `src/clusters` (622 files) | 655 | `█████░░░░░░░░░░░░░░░` 24% |
 | ...plus linked library code (VA >= 0x4B0000), not in the percentages | 343 | |
 | ...functions present in two kinds (counted once above) | 87 | |

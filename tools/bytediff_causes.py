@@ -32,7 +32,9 @@ def scan(src_dir, flags, jobs=2, only=None):
         if only is None or n in only: groups[ch].append((n, va))
 
     def run(k):
-        try: r = cmpfn.check(os.path.join(src_dir, k), groups[k], flags)
+        fp = os.path.join(src_dir, k)
+        gs = ["/GS"] if b"compile: /GS" in open(fp, "rb").read() and "/GS" not in flags else []      # per-file marker (tools/gsfix.py); cmpfn itself does not read it
+        try: r = cmpfn.check(fp, groups[k], flags + gs)
         except Exception as e: return {s: (False, "compile error EXC %s" % e, None) for s, _ in groups[k]}
         return {s: (r[s][0], r[s][1], cmpfn.LAST.get(s)) for s, _ in groups[k]}
     res = {}

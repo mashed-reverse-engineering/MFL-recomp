@@ -11,6 +11,7 @@ typedef int (__cdecl *rwSprintfFn)(RwChar *, const RwChar *, ...);
 /*007d2128*/ extern char *RwEngineInstance;
 /*008d8b08*/ extern undefined4 g_replay_buffer;
 #define REPLAY_ALL_FILE_ID (0x10b) /* "%sAll%d.rep" is written with this fixed number instead of a course id */
+#define REPLAY_ALL_FILE_ID (0x10b) /* "%sAll%d.rep" is written with this fixed number instead of a course id */
 /* compile: /GS */
 
 /*

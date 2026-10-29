@@ -14,6 +14,13 @@ work = os.path.join(os.environ.get("TMPDIR", "/tmp"), "bytematch_rewrite")
 if "--work" in args: i = args.index("--work"); work = args[i + 1]; del args[i:i + 2]
 dry = "--dry" in args
 if dry: args.remove("--dry")
+gs = "--gs" in args      # /GS stack-cookie functions: the tier-1 file gets the `/* compile: /GS */` marker and is verified with cl /GS (tools/gsfix.py)
+if gs: args.remove("--gs")
+if "--find-gs" in args:      # list the tier-2 names whose original code loads the security cookie (0x62c5d8) and whose chunk has no marker
+    for n, (va, ch) in sorted(bc.names().items()):
+        sz = cmpfn.FNSZ.get(va)
+        if sz and b"\xd8\xc5\x62\x00" in cmpfn.exe_bytes(va, sz) and b"compile: /GS" not in open(os.path.join(R, "automatch_near", ch), "rb").read(): print(n)
+    sys.exit(0)
 want = []
 for a in args:
     want += [l.split()[0] for l in open(a[1:]) if l.strip()] if a.startswith("@") else [a]
@@ -41,6 +48,7 @@ try:
         pre = t[:first.start()] if first else ""      # preamble before the first function
         body = t[s:m.end()]
         used = set(re.findall(r"[A-Za-z_]\w*", body))
+        if used & {"RW_GLOBAL", "rwsprintf"}: used.add("RwEngineInstance")      # macros of mfl_tier2.h / the preamble expand to it
         keep = []
         for l in pre.split("\n"):
             mm = re.search(r"extern [^;]*?(\w+)\s*(\(|\[|;)", l)
@@ -49,8 +57,8 @@ try:
             elif l.startswith(("/* ", "/*\n")) or l.strip() == "" or l.strip().startswith(("*", "/*")): continue
             else: keep.append(l)
         out = os.path.join(tmp, n + ".c")
-        open(out, "w", errors="surrogateescape").write("\n".join(keep) + "\n" + body)
-        ok, det = cmpfn.check(out, [(n, va)], ["/O2"])[n]
+        open(out, "w", errors="surrogateescape").write(("/* compile: /GS */\n" if gs and "compile: /GS" not in body else "") + "\n".join(keep) + "\n" + body)
+        ok, det = cmpfn.check(out, [(n, va)], ["/O2"] + (["/GS"] if gs else []))[n]
         if not ok: print("SKIP %s: %s" % (n, det[:90])); continue
         print("OK   %s -> src/tier1/%s.c (%s)" % (n, n, det))
         if not dry:
