@@ -311,6 +311,7 @@ intro_banner_get_x 0040f700
 intro_banner_get_flag 0040f710
 intro_banner_update 0040f730
 intro_banner_get_value 0040f7e0
+replay_save_thunk_40f800 0040f800
 camera_save 0040f810
 camera_restore 0040f900
 race_phase_5_6_render_by_event 0040f940
@@ -406,6 +407,7 @@ replay_best_get_split_time 00413ad0
 replay_current_get_split_time 00413b10
 race_time_trial_record 00413b50
 replay_records_reset 00413cb0
+replay_save_00413d10 00413d10
 replay_load_compare 00413dd0
 LAB_00413f8a 00413f8a
 time_trial_record_step 00414050
@@ -2896,7 +2898,7 @@ log_open_write 004a55e0
 controller_poll_player 004a5680
 LAB_004a5867 004a5867
 joypads_poll_frame 004a5930
-controller_present_004a70c0 004a5b20
+controller_present_thunk_4a5b20 004a5b20
 app_get_app_770fb4 004a5b30
 joypad_get_field_770fb4 004a5b40
 joypad_get_field_770fe8 004a5b50
@@ -5213,6 +5215,7 @@ RtFSManagerGetFileSystemFromName 00560b00
 _rtFSManagerIsFSNameInUse 00560b50
 _rtFSManagerFOpenOnFS 00560bb0
 _rtGetFileSystemFromDeviceName 00560cb0
+FUN_00560cf0 00560cf0
 FUN_00560d00 00560d00
 RwFclose_00560e70 00560e70
 RwFwrite_00560eb0 00560eb0
@@ -6441,6 +6444,7 @@ g_movie_renderer_5e0f84 005e0f84
 s_MASHED_005e0f93_1 005e0f94
 s_Could_not_create_texture_rendere_005e0fbb_1 005e0fbc
 k_f_65535 005e1208
+PTR_g_data_636e75_005e12d8 005e12d8
 k_f_0_13333334 005e12e0
 g_dinput_release_5e12e4 005e12e4
 g_log_open_5e13fc 005e13fc
@@ -6980,10 +6984,18 @@ g_car_default_speed_scale 006292ec
 car_handling_table 006292f0
 g_car_6292f8 006292f8
 g_gfx_629424 00629424
+g_effects_update_629428 00629428
 g_particle_templates_62942c 0062942c
 g_particle_random_629430 00629430
+g_effects_update_629434 00629434
+g_effects_update_629440 00629440
+g_effects_update_629444 00629444
+g_effects_update_629448 00629448
 g_particle_random_62944c 0062944c
 g_particle_random_629450 00629450
+g_effects_update_629454 00629454
+g_effects_update_629458 00629458
+g_effects_update_62945c 0062945c
 g_gfx_629460 00629460
 g_gfx_629468 00629468
 g_gfx_62946c 0062946c
@@ -9037,7 +9049,18 @@ g_dinput_keyboard_770f6c 00770f6c
 g_app_770f70 00770f70
 g_log_770f74 00770f74
 g_app_770fb4 00770fb4
+g_joypads_poll_770fb8 00770fb8
 g_app_770fe8 00770fe8
+g_joypads_poll_770fec 00770fec
+g_joypads_poll_770ff0 00770ff0
+g_joypads_poll_770ff4 00770ff4
+g_joypads_poll_770ff8 00770ff8
+g_joypads_poll_770ffc 00770ffc
+g_joypads_poll_771000 00771000
+g_joypads_poll_771004 00771004
+g_joypads_poll_771008 00771008
+g_joypads_poll_77100c 0077100c
+g_joypads_poll_771010 00771010
 g_app_771030 00771030
 g_app_771034 00771034
 g_app_771038 00771038
@@ -9224,6 +9247,7 @@ g_data_7dc3f0 007dc3f0
 g_data_7dc450 007dc450
 g_data_7dc68c 007dc68c
 g_data_7e06e0 007e06e0
+g_d3d9_draw_7e0700 007e0700
 g_app_7e7700 007e7700
 g_app_7e7704 007e7704
 g_pump_windows_7e7720 007e7720

@@ -247,7 +247,7 @@
 0040f710 intro_banner_get_flag 24
 0040f730 intro_banner_update 176
 0040f7e0 intro_banner_get_value 24
-0040f800 replay_save_00413d10 5
+0040f800 replay_save_thunk_40f800 5
 0040f810 camera_save 229
 0040f900 camera_restore 57
 0040f940 race_phase_5_6_render_by_event 68
@@ -1233,7 +1233,7 @@
 00458170 course_point_in_water_box_test 241
 00458270 course_6a2634_clear 11
 00458280 course_rouabout_cb2 407
-00458420 course_rouabout_cb5 66
+00458420 course_rouabout_cb5 38
 004584a0 course_sandsnow_destroy_frames 13
 004584b0 course_sandsnow_cb0_sub_4584b0 5
 004584c0 course_race_phase_hook 31
@@ -2509,7 +2509,7 @@
 004a55e0 log_open_write 156
 004a5680 controller_poll_player 687
 004a5930 joypads_poll_frame 483
-004a5b20 controller_present_004a70c0 5
+004a5b20 controller_present_thunk_4a5b20 5
 004a5b30 app_get_app_770fb4 6
 004a5b40 joypad_get_field_770fb4 12
 004a5b50 joypad_get_field_770fe8 12

@@ -11,7 +11,7 @@
 /*004824a0*/ extern int draw_rect();
 /*004827a0*/ extern int gfx_draw_rect_2d_flat_a();
 /*00482920*/ extern int gfx_draw_rect_2d_flat_b();
-/*004a5b20*/ extern int __cdecl controller_present_004a70c0(int p0);
+/*004a5b20*/ extern int __cdecl controller_present_thunk_4a5b20(int p0);
 /*004b2a60*/ extern int sprintf();
 /*004b2b48*/ extern int _ftol();
 /*004c7cc0*/ extern undefined __cdecl message(undefined4 p0, undefined4 p1);

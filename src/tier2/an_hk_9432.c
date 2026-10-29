@@ -5,7 +5,7 @@
 /*00435fc0*/ extern int __cdecl career_event_set_progress(undefined4 p0);
 /*00436520*/ extern int player_slots_count_active();
 /*004a20c0*/ extern int get_app_state();
-/*004a5b20*/ extern int __cdecl controller_present_004a70c0(int p0);
+/*004a5b20*/ extern int __cdecl controller_present_thunk_4a5b20(int p0);
 /*0069cc40*/ extern undefined4 g_team_mode;
 /*0069cf90*/ extern undefined4 g_menu_powerup_set;
 /*0069cf94*/ extern undefined4 g_menu_markers_enabled;
@@ -127,7 +127,7 @@ LAB_004387b7:
     g_menu_records[page_index + 1].entry_enabled[3] = 1;
     controller_index = 0;
     do {
-      tmp_value = controller_present_004a70c0(controller_index);
+      tmp_value = controller_present_thunk_4a5b20(controller_index);
       if (tmp_value == 0) {
         *entry_enabled = 0;
       }
