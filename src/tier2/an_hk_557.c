@@ -13,10 +13,10 @@
 
 /* race_phase_4_update */
 
-/* phase 4: waits for the countdown then changes phase */
+/* phase 4: does not wait; on its first call it clears the end-point panel (and, depending on event / team mode, resets the score panel entries) and sets phase 5 */
 
 /*
- * Update for race phase 4: waits for the countdown, then moves the race to RACE_PHASE_NEXT.
+ * Update for race phase 4: no waiting happens here (the 12000 ms timer is set up by race_phase_3_update); every path ends in race_set_phase(RACE_PHASE_NEXT).
  * param_1: not used by the body (inferred); a char * to the caller's race context.
  * Returns nothing.
  */
@@ -29,7 +29,7 @@ void __cdecl race_phase_4_update(char *param_1)
 
   endpoint_panel_clear();
   event_type = get_event_type();
-  /* event types 0-2: no countdown to wait for, clear the HUD and change phase at once */
+  /* event types 0-2: clear the HUD game vars and change phase at once */
   switch(event_type) {
   case 0:
   case 1:

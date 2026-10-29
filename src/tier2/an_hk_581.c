@@ -10,7 +10,7 @@ extern struct VoiceSlotP g_voices[210];
 /*006187f8*/ extern undefined4 g_sfx_table;
 
 #define SFX_TABLE_STRIDE (0x25) /* g_sfx_table entries per effect (inferred) */
-#define VOICE_FLAG_NO_PLAY (2) /* flags bit that skips playback (inferred) */
+#define VOICE_FLAG_ACTIVE (2) /* voice flags bit 2: the voice is already playing; playback is only started on a free voice */
 #define VOICE_OFF_RATE (0x3c) /* voice record: playback rate (inferred) */
 #define VOICE_DEFAULT_RATE_F (22050.0f) /* the same value as a float argument of sound_voice_set_float_param (`float p3`; the integer literal would convert to 1.18e9) */
 
@@ -21,7 +21,7 @@ extern struct VoiceSlotP g_voices[210];
  * effect_id: effect index; g_sfx_table gives the first voice slot of that effect.
  * position: float[3] position, copied into the voice record.
  * voice_index: voice number within the effect.
- * Does nothing unless get_app_state() == 3 and the voice is not flagged no-play. */
+ * Does nothing unless get_app_state() == 3 and the voice is not already playing. */
 
 void sfx_play_voice_at(int effect_id,undefined4 *position,int voice_index)
 
@@ -35,7 +35,7 @@ void sfx_play_voice_at(int effect_id,undefined4 *position,int voice_index)
     /* voice_index becomes the absolute slot in g_voices */
     voice_index = (&g_sfx_table)[effect_id * SFX_TABLE_STRIDE] + voice_index;
     voice_rec = g_voices[voice_index].voice;
-    if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_NO_PLAY) == 0) {
+    if ((*(byte *)(voice_rec + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
       /* store the position in the voice record */
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_X) = *position;
       *(undefined4 *)(voice_rec + VOICE_OFF_POS_Y) = position[1];

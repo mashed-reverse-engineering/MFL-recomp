@@ -19,11 +19,11 @@ __declspec(naked) int team_panel_load_team_colour_r(int reg_ecx)
 
 /* team_colour_table_init_2 */
 
-/* "fills 6 floats (two team colours) at g_race_start_603f1c" */
+/* "fills 6 floats (two team colours) at g_race_start_603f1c" -- the values are positions, see below */
 
-/* Sets up the race-start team colours and team panel colours.
- * Copies a fixed table of 6 floats (two RGB colours, inferred) into g_race_start_603f1c,
- * loads the colour for each team entry from g_team_658fd8 up to g_team_6592b0 (inferred),
+/* Sets up the two team panel origins (naming note: the function and table names say colour, the data is a position).
+ * Copies a fixed table of 6 floats (two panel positions (+-0.45, 0.33, 1.0), x mirrored; not colours) into g_race_start_603f1c,
+ * copies the row of each team panel entry (g_team_658fd8 up to g_team_6592b0) into its origin via team_panel_load_team_colour,
  * then sets g_hudpanel_6592c0 to 0. Takes no parameters, returns nothing. */
 void team_colour_table_init_2(void)
 

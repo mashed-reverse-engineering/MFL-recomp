@@ -66,7 +66,7 @@ typedef int CourseId;
 /* bot steering: target point from ai_find_target_a/b/c with speed and forward vector (variant a).
  * Per frame, for bot car_index: choose a target (route, find_target_a/b/c, trigger zone, hazard,
  * catch-up, stuck fallback), steer towards it, and write the turn/throttle bytes into controls
- * (inferred: controls[0] / [1] = turn left / right, [4] / [5] = throttle / brake).
+ * (controls is a PlayerInput: [0] / [1] = left / right steer strength, [4] / [5] = accelerate / brake).
  * ai_ctx is the AI state (inferred). unused_4 is unused.
  * (was: "bot steering: target point from ai_find_target_a/b/c with speed and forward vector (variant a)")
  */

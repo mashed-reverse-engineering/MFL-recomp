@@ -50,7 +50,7 @@ void hudpanel_score_digits_update(void)
   bar_scale.y = 1.0;
   bar_scale.z = 1.0;
   event_type = get_event_type();
-  /* Stopclock event drives the digit count; any other event uses the AI counters snapshot. */
+  /* The training event (EVENT_TRAINING) sets the digit count with stopclock_set_digit_count; every other event uses ai_counters_snapshot. */
   if (event_type == EVENT_TRAINING) {
     stopclock_set_digit_count_r(&g_hudpanel_659ac0);
   }
@@ -91,7 +91,7 @@ void hudpanel_score_digits_update(void)
   if (((byte)g_tick_number & TICK_BLINK_MASK) != 0) {
     bar_scale.x = bar_scale.x + k_f_0_33333334;
   }
-  /* Range check on the bar value (inferred): clamp small values to 0, out-of-range values to 1. */
+  /* Clamp the bar value to 0..1 (below 0 gives 0, 1 or more gives 1). */
   if (float_1_0 <= bar_scale.x) {
     bar_scale.x = 1.0;
   }

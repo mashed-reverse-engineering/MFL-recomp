@@ -7,7 +7,7 @@
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* team_panel_load_parts */
 
-/* "loads the 0x32 grey colour parts into the team panel" */
+/* "loads the 0x32 grey colour parts into the team panel": stores the clump and its frame, sorts the 29 atomics into panel->part[] by the part slot in their geometry user data, and tints part 2 (the score bar) grey 0x32 */
 
 void team_panel_load_parts_n(int clump, TeamPanelEntry *panel)
 

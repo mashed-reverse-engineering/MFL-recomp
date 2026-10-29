@@ -7,7 +7,7 @@
 /*007ef744*/ extern undefined4 g_game_7ef744;
 /* dat_load_language */
 
-/* "english.dat french.dat German.dat Spanish.dat (the DAT string tables)" */
+/* "english.dat french.dat German.dat Spanish.dat (the DAT string tables)"; g_game_7ef744 = language 0..5 selects english, french, German, Spanish, Italian or USA.dat, read as one 0x10000 byte block; returns 1 on success, 0 on an unknown language or open failure */
 
 undefined4
 dat_load_language(void)

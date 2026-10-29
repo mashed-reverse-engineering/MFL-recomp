@@ -132,8 +132,8 @@ void fx_update_effects(void)
       fx_obj->offset_z = (obj_matrix->pos).z - (mat_a->pos).z;
       RwFrameTransform(*(RwFrame **)(fx_obj->frame_a + 4),obj_matrix,rwCOMBINEREPLACE);
       fl_tmp = (float10)explosion_spawn_fx_r((void *)fx_obj);
-      fx_obj->spin_speed = (float)fl_tmp;
-      if (fx_obj->use_b == 0) {
+      fx_obj->damage_last = (float)fl_tmp;
+      if (fx_obj->exploded == 0) {
         tmp_i = *(int *)(fx_obj->spin_a + 4);
         mat_a = (RwMatrix *)(tmp_i + 0x10);
         frame.pivot_vec.x = *(float *)(tmp_i + 0x40) * k_f_n1;
@@ -230,7 +230,7 @@ void fx_update_effects(void)
           frame.body_pos_y = frame.rot_axis.y * tmp_f + frame.body_pos_y;
           frame.body_pos_z = frame.rot_axis.z * tmp_f + frame.body_pos_z;
           *(float *)&frame.body_link_saved[6] = float_1_0 /
-                              ((fx_obj->spin_speed * k_f_8 + float_5_0) * g_tick_seconds);
+                              ((fx_obj->damage_last * k_f_8 + float_5_0) * g_tick_seconds);
           body_vec = (float *)(*(int *)(*(int *)(*frame.body_link_saved + 0x10) + 8) + 0x10 + frame.body_link_saved[1] * 0x20)
           ;
           *body_vec = frame.body_pos_x;

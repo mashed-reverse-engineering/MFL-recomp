@@ -54,15 +54,15 @@ typedef int CourseId;
 #define COURSE_WARZONE (33)
 #define ROUTE_SEARCH_RADIUS_BITS (0x41200000) /* float 10.0f, passed to ai_route_closest_point_search (inferred radius) */
 #define BOT_STATE_STRIDE (0x14) /* bytes per bot in g_ai_data.bot_state (4 bots x 20 bytes) */
-#define STEER_HOLD_MS (200) /* ms a steer amount is held before it decays (inferred) */
+#define STEER_HOLD_MS (200) /* ms after the last steer on one side before the other side may steer; the opposite input fades meanwhile */
 #define BLINK_DIVISOR (0x3c) /* (inferred) */
 #define BLINK_BIT (0x20U) /* (inferred) */
 
 /* Steering and throttle for AI bot car_index (variant c).
  * Picks a target point (route target, then ai_find_target_a/b/c, trigger zone, and a hazard
  * target on COURSE_WARZONE), steers towards it and writes the control bytes:
- *   controls[0] / controls[1]: left / right steer amount (inferred), 0..255
- *   controls[4] / controls[5]: flags (inferred)
+ *   controls[0] / controls[1]: PlayerInput.left / right steer strength, 0..255
+ *   controls[4] / controls[5]: PlayerInput.accelerate / brake, 0..255
  * ai_ctx is the AI/route context. unused_arg is not read.
  * (was: "bot steering: target point from ai_find_target_a/b/c with speed and forward vector (variant c)") */
 
@@ -299,7 +299,7 @@ LAB_00418fe2:
     controls[4] = 0x40;
     goto LAB_00419560;
   }
-  /* Target kind 5 (leader, inferred): flags from the leader distance, blinking on BLINK_DIVISOR. */
+  /* Target kind 5 (leader, inferred): leader_distance > 4 cuts the throttle (controls[4] = 0), > 6 sets controls[5] (brake) to 0x40; on alternate BLINK_DIVISOR race-clock periods the left steer (controls[0]) is forced to 0xff. */
   if (frame.target_kind == 5) {
     if (k_f_4 < bot->leader_distance) {
       controls[4] = 0;

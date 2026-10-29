@@ -6,7 +6,7 @@
 /*0065c0d0*/ extern undefined g_game_65c0d0;
 extern char g_game_65c8f0[];
 
-/* Size in bytes of one vehicle record (inferred from the loop stride) */
+/* Size in bytes of one record (inferred from the loop stride); the same table is walked as debris banks (2 blocks of 10 slots) by debris_slot_release_by_clump */
 #define VEHICLE_RECORD_SIZE (0x208)
 
 

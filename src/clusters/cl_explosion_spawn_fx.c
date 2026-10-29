@@ -74,7 +74,7 @@ float10 explosion_spawn_fx_n(FxSceneObject *effect)
   frame.colour_a = 0x80;
   if (k_f_3 <= timer) {
     *(undefined4 *)&effect->timer_6c = 0;
-    *(undefined4 *)&effect->f_68 = *(undefined4 *)&effect->spin_speed;
+    *(undefined4 *)&effect->f_68 = *(undefined4 *)&effect->damage_last;
   }
   if (float_1_0 < frame.damage_frac) {
     frame.damage_frac = 1.0;
@@ -82,10 +82,10 @@ float10 explosion_spawn_fx_n(FxSceneObject *effect)
   frame.colour_r = ((int)(frame.rand_b * 128.0f));
   frame.colour_g = frame.colour_r;
   frame.colour_b = ((int)(frame.rand_b * 150.0f));
-  if (effect->use_b == 0) {
+  if (effect->exploded == 0) {
     if (float_1_0 <= frame.damage_frac) {
       g_explosion_651aa4 = g_explosion_651aa4 + 1;
-      *(undefined4 *)&effect->use_b = 1;
+      *(undefined4 *)&effect->exploded = 1;
       *(undefined4 *)&effect->vel.y = 0;
       fx_emitter_spawn_a_default(obj_pos,&g_car_62ac74,0x43b40000);
       sfx_play_player_set_at(obj_pos);

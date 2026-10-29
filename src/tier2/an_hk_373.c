@@ -25,7 +25,7 @@ extern char g_hudpanel_6584f8[];
 extern char g_load_6586e8[];
 
 #define MARKER_SLOT_STRIDE (0x6c)
-#define MARKER_SLOT_ACTIVE_OFFSET (0x34) /* nonzero = slot is drawn (inferred) */
+#define MARKER_SLOT_ACTIVE_OFFSET (0x34) /* marker state: nonzero = slot in use, 2 = marker that needs a camera pixel ray (hudpanel_marker_calc_pixel_ray) */
 #define HUD_PART_STRIDE (0x54)
 #define MATRIX_FLOAT_COUNT (16) /* 4x4 RwMatrix as 16 floats */
 #define MATRIX_FLAGS_IDENTITY_ORTHONORMAL (0x20003) /* rwMATRIXINTERNALIDENTITY | rwMATRIXTYPEORTHONORMAL */
@@ -48,7 +48,7 @@ __declspec(naked) int hudpanel_render_parts_if_active_r(int * reg_eax)
 
 /*
  * Draws the HUD marker overlay for the viewport camera, only when the menu enables markers for the current event.
- * Pass 1 (z write off): the marker slots whose active flag is set, then the marker particles.
+ * Pass 1 (z write off): hudpanel_render_all_slots draws the slots; then each slot with a non-zero state gets its camera pixel ray computed (state 2 only; nothing is drawn by that loop), then the marker particles are drawn.
  * Pass 2 (z test and write off): the HUD parts drawn with the camera switched to a parallel projection,
  * an identity frame transform and a fixed view window (inferred: a 2D overlay space).
  * Restores the camera frame transform, view window and perspective projection at the end.
@@ -74,7 +74,7 @@ void hudpanel_markers_render_all(void)
   if (iVar1 != 0) {
     hudpanel_render_all_slots();
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);
-    /* Walk the marker slot array; draw each slot whose active flag is set. */
+    /* Walk the marker slot array; for each slot in use compute its camera pixel ray (the callee acts on state 2 only, it draws nothing). */
     entry = &g_hudpanel_658538;
     do {
       if (*(int *)(entry + MARKER_SLOT_ACTIVE_OFFSET) != 0) {

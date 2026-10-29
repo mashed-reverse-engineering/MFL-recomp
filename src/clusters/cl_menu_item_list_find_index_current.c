@@ -5,7 +5,7 @@
 /*0069d2e0*/ extern struct MenuRecord g_menu_records[14];
 /* menu_item_list_find_index_current */
 
-/* "index of the id in EBX in the item list of the current menu" */
+/* "index of the id in EBX in the item list of the current menu": returns the list entry that follows the occurrence-th occurrence of item_id (not a position), -1 when the terminator is reached first */
 
 int menu_item_list_find_index_current_n(int item_id, int occurrence)
 

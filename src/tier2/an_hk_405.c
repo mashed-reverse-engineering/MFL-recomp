@@ -22,14 +22,14 @@
 void race_end_check_points(void)
 
 {
-  int points;
+  int result;
 
   /* lesson 0: if g_car_8c86c8 == 1, page 2 when the result is 0, otherwise page 3 */
   if (g_training_lesson == 0) {
     round_setup_limits();
     if (g_car_8c86c8 == 1) {
-      points = race_get_last_active_player();
-      if (points == 0) {
+      result = race_get_last_active_player();
+      if (result == 0) {
         menu_event_0x11_reset_page(2);
         return;
       }
@@ -40,8 +40,8 @@ void race_end_check_points(void)
   else if (g_training_lesson == 1) {
     round_setup_limits();
     if ((g_car_8c86c8 == 1) || (g_car_8c86c8 == 4)) {
-      points = race_get_last_active_player();
-      if (points == 0) {
+      result = race_get_last_active_player();
+      if (result == 0) {
 LAB_0043a1e5:
         menu_event_0x11_reset_page(2);
         return;
@@ -54,13 +54,13 @@ LAB_0043a1b5:
   else {
     /* lesson 2: page 3 when the result is not 0; otherwise page 2 if player_get_points(0) is 6, else page 1 */
     if (g_training_lesson == 2) {
-      points = race_get_last_active_player();
-      if (points != 0) {
+      result = race_get_last_active_player();
+      if (result != 0) {
         round_setup_limits();
         goto LAB_0043a1f5;
       }
-      points = player_get_points(0);
-      if (points == 6) {
+      result = player_get_points(0);
+      if (result == 6) {
         round_setup_limits();
         goto LAB_0043a1e5;
       }
@@ -70,8 +70,8 @@ LAB_0043a1b5:
        and advance g_car_8c807c; otherwise show page 100 */
     if (g_training_lesson == 3) {
       round_setup_limits();
-      points = race_get_last_active_player();
-      if ((points == 0) && (9 < (int)g_hit_shake)) {
+      result = race_get_last_active_player();
+      if ((result == 0) && (9 < (int)g_hit_shake)) {
         menu_event_0x11_reset_page(g_car_8c807c * 2 + 2);
         g_car_8c807c = g_car_8c807c + 1;
         g_car_8c86c4 = 0;
@@ -92,8 +92,8 @@ LAB_0043a1b5:
     /* lesson 4: if g_car_8c86c8 is 1 or 4, page 2 when the result is 0, otherwise page 4 */
     round_setup_limits();
     if ((g_car_8c86c8 == 1) || (g_car_8c86c8 == 4)) {
-      points = race_get_last_active_player();
-      if (points == 0) {
+      result = race_get_last_active_player();
+      if (result == 0) {
         menu_event_0x11_reset_page(2);
         return;
       }
@@ -101,8 +101,8 @@ LAB_0043a1b5:
     }
   }
   /* fallback: page 1 when the result is 0, otherwise page 3 */
-  points = race_get_last_active_player();
-  if (points == 0) {
+  result = race_get_last_active_player();
+  if (result == 0) {
 LAB_0043a27a:
     menu_event_0x11_reset_page(1);
     return;

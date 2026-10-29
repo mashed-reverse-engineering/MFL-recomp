@@ -534,7 +534,7 @@ typedef size_t (*vecStrlenFunc)(RwChar *);
 #define COLOUR_WHITE_ARGB (0xffffffff)
 #define VOICE_DEFAULT_FREQ_BITS (0x46ac4400) /* bits of 22050.0f, default voice frequency */
 #define VOICE_OFF_HANDLE (0x30)             /* voice record: sound object / sub voice */
-#define VOICE_OFF_FLAGS (0x34)
+#define VOICE_OFF_FLAGS (0x34)              /* voice record flags: bit 2 set = the voice is active (playing); free voices have it clear (sfx_play_voice_at, sound_voices_set_position_start, sfx_set_voice_volume) */
 #define VOICE_OFF_FREQ (0x3c)
 #define VOICE_OFF_POS_X (0x58)
 #define VOICE_OFF_POS_Y (0x5c)
@@ -587,35 +587,35 @@ typedef struct TeamPanelEntry {
     int player_count;       /* 0x0c */
     int visible[40];        /* 0x10: per part, rewritten every frame by team_panel_entry_update */
     char *part[40];         /* 0xb0: per part objects (team_panel_load_parts fills the table by the part slot of each atomic) */
-    RwV3d origin;           /* 0x150: panel frame translation, copied from the team colour table by team_panel_load_team_colour */
+    RwV3d origin;           /* 0x150: panel frame translation, copied by team_panel_load_team_colour from the 12-byte rows at g_race_start_603f1c ((+-0.45, 0.33, 1.0), a position, not a colour) */
     int clump;              /* 0x15c */
     int frame;              /* 0x160: RwFrame of the clump */
-    int team;               /* 0x164: index into the team colour table */
-    unsigned int flags;     /* 0x168: bit 0x40000 follows g_team_6592b0[player[0]], 0x3000000 / 0x800000 select button groups, low bits are button bits; team_panel_build_team_mask */
+    int team;               /* 0x164: panel index 0 / 1 (team0panel / team1panel); selects the origin row in g_race_start_603f1c */
+    unsigned int flags;     /* 0x168: bit 0x40000 follows g_team_6592b0[player[0]], 0x800000 << (player_count - 1) selects the 1 / 2 / 3 player layout, and bit (6 * i + team of player i) is the team bit of player slot i; team_panel_build_team_mask */
 } TeamPanelEntry;
 /* effect object record (table g_scene_651250, 0xec bytes each; fx_update_effects, explosion_spawn_fx, the rwp collision callback) */
 typedef struct FxSceneObject {
     char unknown_00[0x10];
     int frame_a;          /* 0x10: +4 is the RwFrame */
     char unknown_14[4];
-    int owner;            /* 0x18 */
+    int owner;            /* 0x18: rwp object handle whose owner object (rwp_owner_object_get) carries the physics body; 0 ends the table; fx_find_object_by_owner matches on it */
     char unknown_1c[4];
-    int spin_a;           /* 0x20 */
-    int spin_b;           /* 0x24 */
+    int spin_a;           /* 0x20: +4 is a node whose matrix (+0x10) is turned 1 degree per update about its axis (+0x20) around its pivot (+0x40), while not exploded */
+    int spin_b;           /* 0x24: second node turned like spin_a */
     char unknown_28[0x14];
     int frame_c;          /* 0x3c: +4 is an RwFrame (explosion_spawn_fx reads its LTM) */
     int frame_d;          /* 0x40 */
     undefined4 rwp_object; /* 0x44 */
-    int use_b;            /* 0x48 */
+    int exploded;         /* 0x48: 0 until the damage fraction reaches 1, then 1 (explosion_spawn_fx; fx_update_effects only drives the body while 0) */
     float age;            /* 0x4c: += tick seconds */
     float offset_x;       /* 0x50: rwp object position minus frame position */
     float offset_y;
     float offset_z;
     float health;         /* 0x5c: percent, explosion_spawn_fx uses (100 - health) / 100 */
-    float spin_speed;     /* 0x60 */
+    float damage_last;    /* 0x60: damage fraction 0..1 returned by explosion_spawn_fx on the last update; fx_update_effects uses it as 1 / ((damage_last * 8 + 5) * dt) body response */
     int flag_64;          /* 0x64: set once the damage fraction passes 0.5 (explosion_spawn_fx) */
-    float f_68;           /* 0x68: reloaded from spin_speed when timer_6c expires */
-    float timer_6c;       /* 0x6c */
+    float f_68;           /* 0x68: copy of damage_last taken whenever timer_6c reaches 3 s (written only, no reader found) */
+    float timer_6c;       /* 0x6c: seconds, restarts at 3 */
     char unknown_70[0x34];
     int flag_a4;          /* 0xa4 */
     char unknown_a8[8];
@@ -623,9 +623,9 @@ typedef struct FxSceneObject {
     int choice[5];        /* 0xb4: random pick of the next entry in the course table (+0xc9b0) */
     int choice_index;     /* 0xc8 */
     int cur;              /* 0xcc: current entry, its +0xc is the duration */
-    float timer;          /* 0xd0 */
+    float timer;          /* 0xd0: time within cur; when it passes cur+0xc a new entry is picked from choice[] */
     float gravity;        /* 0xd4: added to vel.y each step */
-    float timer_rate;     /* 0xd8 */
+    float timer_rate;     /* 0xd8: timer advances by timer_rate * tick seconds */
     RwV3d vel;            /* 0xdc */
     float damping;        /* 0xe8 */
 } FxSceneObject;
@@ -638,7 +638,7 @@ enum RacePhase {
     RACE_PHASE_SETUP = 1,         /* course_race_phase_hook: course marker positions are initialised */
     RACE_PHASE_PRE_LOAD = 2,
     RACE_PHASE_LOADING = 3,       /* race_phase_3_update: camera path plays, then phase 4 (or 6 in training) */
-    RACE_PHASE_INTRO = 4,         /* (inferred) after the loading camera path, 12000 ms timer, then the countdown */
+    RACE_PHASE_INTRO = 4,         /* (inferred) set by race_phase_3_update together with the 12000 ms timer; race_phase_4_update only prepares the panels and moves on to the countdown at once */
     RACE_PHASE_COUNTDOWN = 5,     /* the deterministic test harness seeds the RNG here */
     RACE_PHASE_RACING = 6,
     RACE_PHASE_STANDINGS = 7,
@@ -786,7 +786,7 @@ struct AiBotRecord {
     int target_car; /* car index of the chosen target (car_get_forward argument) */
     int leader_far_ms; /* ms the human player has been further than 2.5 away (ai_find_leader_a returns 1 after 72000) */
     union { float leader_distance; undefined4 field_0x28; }; /* player_distance_get to the human player (type 1 slot), read by ai_drive_* (> 4, > 6) */
-    int steer_side; /* last steer side written by ai_drive_*: 1 = left, 2 = right (inferred) */
+    int steer_side; /* last steer side written by ai_drive_*: 1 = PlayerInput.left (controls[0]), 2 = right (controls[1]) */
     undefined4 field_0x30;
     int steer_amount; /* last steer amount written by ai_drive_* (inferred) */
     int start_random; /* "random start value from the table at 0x603950 (ai_bots_randomise)" */

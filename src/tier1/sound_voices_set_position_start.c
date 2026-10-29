@@ -10,12 +10,12 @@ extern struct VoiceSlot g_voices[210];
 /*00618c98*/ extern undefined4 g_sound_618c98;
 #define VOICE_FIRST_SLOT_OFFSET (4) /* candidates start at g_sound_618c98 + 4 */
 #define VOICE_CANDIDATES (4) /* number of slots tried */
-#define VOICE_FLAG_SKIP_POSITION (2) /* (inferred) set = voice is skipped */
+#define VOICE_FLAG_ACTIVE (2) /* set = voice is already playing (bit 2 of the voice flags: free voices have it clear; see sfx_play_voice_at) */
 #define VOICE_POSITION_X_OFFSET (0x58)
 #define VOICE_START_VOLUME (0.5)
 /* sound_voices_set_position_start: only in app state APP_STATE_RACE. Looks at the
    VOICE_CANDIDATES voice slots starting at g_sound_618c98 + VOICE_FIRST_SLOT_OFFSET and
-   positions the first one whose VOICE_FLAG_SKIP_POSITION bit is clear: copies the 3 floats
+   positions the first one whose VOICE_FLAG_ACTIVE bit is clear: copies the 3 floats
    at position to the voice record, hands the pointer to sound_voice_call_entry (inferred: 3D position),
    starts the voice (sound_voice_set_enabled with 1, inferred), sets its frequency and volume.
    position: 3 floats (x, y, z). unused_arg_2..5: never read.
@@ -37,8 +37,8 @@ void __cdecl sound_voices_set_position_start(undefined4 *position,char *unused_a
     /* try each candidate slot in turn; stop after the first one that gets positioned */
     do {
       voice = g_voices[slot_index].voice;
-      /* skip voices that have VOICE_FLAG_SKIP_POSITION set */
-      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & VOICE_FLAG_SKIP_POSITION) == 0) {
+      /* skip voices that are already playing (VOICE_FLAG_ACTIVE set) */
+      if ((*(byte *)(voice + VOICE_OFF_FLAGS) & VOICE_FLAG_ACTIVE) == 0) {
         /* copy the position into the voice record, then hand it to the handle (inferred: 3D position) */
         *(RwV3d *)(voice + VOICE_POSITION_X_OFFSET) = *(RwV3d *)position;
         voice_handle = *(int *)(g_voices[slot_index].voice + VOICE_OFF_HANDLE);

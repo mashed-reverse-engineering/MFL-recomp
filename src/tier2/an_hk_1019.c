@@ -9,7 +9,7 @@
 
 /* TIER2: unvalidated 2026-10-27 authority=diffemu */
 /* Callback: for player player_ref[0] (stride 0x30c) stores the route-table record index found via hit_info/route_ctx into g_player_8d8ca0 and copies hit_info[0..2] into g_player_route_8d8d3c / 8d8d40 / 8d8d44 (inferred). */
-/* TIER2: unvalidated 2026-10-28 authority=static */
+/* TIER2: unvalidated 2026-10-29 authority=diffemu */
 void player_time_update_cb_408ef0(char *unused_1,char *route_ctx,undefined4 *hit_info,char *unused_4,int *player_ref)
 {
   int player_offset;

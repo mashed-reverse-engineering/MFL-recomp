@@ -2107,7 +2107,7 @@ sound_surface_skid_voice_update,00470bf0,tier2,compiled+shadow-never,static,-,12
 sound_tick_counter_increment,00468780,tier1,bytes,bytes-reloc,2af39daf31b1,126ee480af92,d2d9a701c60d,0,0.00,0,0
 sound_update,00473a40,tier1,bytes,bytes-reloc,dd8f9c0b0fed,126ee480af92,d2d9a701c60d,0,0.00,0,0
 sound_voice_call_entry,?,tier2,compiled+shadow-never,static,-,126ee480af92,d2d9a701c60d,0,0.00,0,0
-sound_voices_set_position_start,00472430,tier1,bytes,bytes-reloc,8f335df61df8,126ee480af92,d2d9a701c60d,0,0.00,0,0
+sound_voices_set_position_start,00472430,tier1,bytes,bytes-reloc,134aa828f08c,126ee480af92,d2d9a701c60d,0,0.00,0,0
 sound_voices_set_position_wide,00472250,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,200,0.90,0,0
 sound_voices_stop_all_but_music,00469a30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,200,1.00,0,0
 soundengine_create_race_streams,0046f5c0,tier1,bytes,bytes-reloc,8e408edaebde,126ee480af92,d2d9a701c60d,0,0.00,0,0

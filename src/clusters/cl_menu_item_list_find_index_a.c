@@ -6,7 +6,7 @@
 
 /* "(list) index of the item with the current id, -1 at the 0xFF0F0000 terminator or a null list" */
 
-/* Scans list for the nth_match-th entry equal to target_id and returns the element following it; -1 for a null list or the terminator (inferred). */
+/* Scans list for the nth_match-th entry equal to target_id and returns the entry that follows it (not a position: the quoted summary above is loose; for id / value pairs it is the value); -1 for a null list or when the terminator is reached first. */
 int menu_item_list_find_index_a_n(int *list, int target_id, int nth_match)
 
 {

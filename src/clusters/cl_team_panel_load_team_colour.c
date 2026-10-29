@@ -6,7 +6,7 @@
 /*00603f24*/ extern undefined g_race_start_603f24;
 /* team_panel_load_team_colour */
 
-/* "copies team colour (table 0x603F1C, 12 bytes per team) into the panel" */
+/* "copies team colour (table 0x603F1C, 12 bytes per team) into the panel" -- the 3 floats are the panel origin (translation applied in team_panel_entry_update), not a colour */
 
 void team_panel_load_team_colour_n(TeamPanelEntry *panel)
 

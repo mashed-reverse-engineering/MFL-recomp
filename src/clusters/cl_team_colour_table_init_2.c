@@ -13,11 +13,11 @@ extern char g_team_6592b0[];
 
 /* team_colour_table_init_2 */
 
-/* "fills 6 floats (two team colours) at g_race_start_603f1c" */
+/* "fills 6 floats (two team colours) at g_race_start_603f1c" -- the values are positions, see below */
 
-/* Sets up the race-start team colours and team panel colours.
- * Copies a fixed table of 6 floats (two RGB colours, inferred) into g_race_start_603f1c,
- * loads the colour for each team entry from g_team_658fd8 up to g_team_6592b0 (inferred),
+/* Sets up the two team panel origins (naming note: the function and table names say colour, the data is a position).
+ * Copies a fixed table of 6 floats (two panel positions (+-0.45, 0.33, 1.0), x mirrored; not colours) into g_race_start_603f1c,
+ * copies the row of each team panel entry (g_team_658fd8 up to g_team_6592b0) into its origin via team_panel_load_team_colour,
  * then sets g_hudpanel_6592c0 to 0. Takes no parameters, returns nothing. */
 static int team_panel_load_team_colour_r(int p0);
 extern void team_panel_load_team_colour(void);
@@ -30,7 +30,7 @@ void team_colour_table_init_2(void)
   undefined4 *dst;
   undefined4 local_18 [RACE_START_COLOUR_FLOATS];
   
-  /* float table: (0.45, 0.33, 1.0) and (-0.45, 0.33, 1.0) (inferred RGB, team 1 and 2) */
+  /* float table: (0.45, 0.33, 1.0) and (-0.45, 0.33, 1.0) (panel origin x, y, z of team panel 0 and 1, not RGB) */
   local_18[0] = 0x3ee66666;
   local_18[1] = 0x3ea8f5c3;
   local_18[2] = 0x3f800000;
