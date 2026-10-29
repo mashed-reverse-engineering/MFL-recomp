@@ -5,7 +5,7 @@
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*004f6bf0*/ extern int rpclump_clone(void *p0);
@@ -71,7 +71,7 @@ void gatling_load_models(void)
     while (atomics_left != 0) {
       atomic_idx = atomics_left + -1;
       atomics_left = atomics_left + -1;
-      uVar2 = FUN_004c52b0(buf.atomics[atomic_idx],0,0);
+      uVar2 = atomic_geometry_user_data_int(buf.atomics[atomic_idx],0,0);
       /* Store the atomic in the slot for its part id (inferred). */
       switch(uVar2) {
       case 0:

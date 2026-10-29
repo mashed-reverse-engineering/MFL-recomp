@@ -6,7 +6,7 @@
 /*005543a0*/ extern int __cdecl FUN_005543a0(int p0, int p1);
 /*005543d0*/ extern char * __cdecl FUN_005543d0(int p0);
 /*005543e0*/ extern int __cdecl FUN_005543e0(int p0);
-/*005543f0*/ extern int __cdecl FUN_005543f0(int p0, int p1);
+/*005543f0*/ extern int __cdecl rp_user_data_array_get_int(int p0, int p1);
 /*00554450*/ extern int __cdecl RpUserDataGetFormatSize(int p0);
 /*00544430*/ extern int __cdecl FUN_00544430(int p0);
 /*00481aa0*/ extern void __cdecl object_set_pipeline_08(void *material, int p1);
@@ -95,7 +95,7 @@ int course_materials_fixup_cb_406690(int material, RwTexDictionary *param_2)
         b = b + 1;
       } while (equal);
       if (equal) {
-        fx->type = FUN_005543f0(ud, 0);
+        fx->type = rp_user_data_array_get_int(ud, 0);
         fx->unused_28 = 0;
         fx->one = 1.0f;
         fx->scale_a = 1.0f / 512.0f;
@@ -118,7 +118,7 @@ int course_materials_fixup_cb_406690(int material, RwTexDictionary *param_2)
         b = b + 1;
       } while (equal);
       if (equal) {
-        fx->blend = FUN_005543f0(ud, 0);
+        fx->blend = rp_user_data_array_get_int(ud, 0);
       }
       remaining = 0x12;
       equal = 1;
@@ -132,7 +132,7 @@ int course_materials_fixup_cb_406690(int material, RwTexDictionary *param_2)
         b = b + 1;
       } while (equal);
       if (equal) {
-        tex_name = (RwChar *)FUN_005543f0(ud, 0);
+        tex_name = (RwChar *)rp_user_data_array_get_int(ud, 0);
         tex = RwTexDictionaryFindNamedTexture(param_2, tex_name);
         fx->fx_texture = tex;
         if (tex == (RwTexture *)0x0) {

@@ -2,7 +2,7 @@
 /*00467ea0*/ extern int weapon_get_rw_801b14();
 /*004682c0*/ extern int __cdecl rocket_surface_hit_test(void *p0, void *p1);
 /*00499100*/ extern int fx_spawn_from_matrix_2();
-/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, void *p1, void *p2);
 /*005dd628*/ extern float k_f_0_25;
@@ -64,7 +64,7 @@ undefined4 explosion_decal(undefined4 *explosion_pos,undefined4 fx_param)
     if (hit == 0) {
       /* impact point along the segment (inferred), then lift it 0.05 off the surface along the normal.
          hit_extra is never written in this function; it is passed uninitialised (inferred: unused flag) */
-      FUN_004c4720(&frame.decal_pos_x,&frame.top_x,&frame.bottom_x,frame.hit_extra);
+      vec3_lerp(&frame.decal_pos_x,&frame.top_x,&frame.bottom_x,frame.hit_extra);
       frame.decal_pos_x = frame.hit_normal_x * k_f_0_05 + frame.decal_pos_x;
       frame.decal_pos_y = frame.hit_normal_y * k_f_0_05 + frame.decal_pos_y;
       frame.decal_pos_z = frame.hit_normal_z * k_f_0_05 + frame.decal_pos_z;

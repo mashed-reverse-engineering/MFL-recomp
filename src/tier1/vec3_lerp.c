@@ -1,10 +1,10 @@
 #include "mfl_tier2.h"
-/* FUN_004c4720 */
-/* Linear interpolation of a 3-component float vector (inferred):
+/* vec3_lerp */
+/* Linear interpolation of a 3-component float vector:
    out = start + t * (end - start). Writes the result to out; out may be
    end but must not be start (start is read after out is written).
    Returns nothing. */
-void FUN_004c4720(float *out,float *start,float *end,float t)
+void vec3_lerp(float *out,float *start,float *end,float t)
 {
   *out = *end - *start;
   out[1] = end[1] - start[1];

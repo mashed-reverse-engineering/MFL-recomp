@@ -6,7 +6,7 @@
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
@@ -75,10 +75,10 @@ void mine_load_assets(void)
     *(undefined4 *)(mine_record + MINE_RECORD_CLUMP_OFFSET) = clump;
     clump_get_atomics(clump,atomics);
     atomic_index = 0;
-    /* for each of the two atomics: set render flag by FUN_004c52b0 result (0 -> flag 1, 1 -> flag 0) */
+    /* for each of the two atomics: set render flag by atomic_geometry_user_data_int result (0 -> flag 1, 1 -> flag 0) */
     do {
       clump = atomics[atomic_index];
-      atomic_slot = FUN_004c52b0(clump,0,0);
+      atomic_slot = atomic_geometry_user_data_int(clump,0,0);
       if (atomic_slot == 0) {
         render_flag = 1;
 LAB_00464161:

@@ -64,7 +64,10 @@ void weapon_oil_slicks_update_render(void)
   byte live_bit;
   RwReal *slick;
   RwReal *copy_src;
-  int slot_or_cam;
+  int slot;
+  int words_left_b;
+  int words_left;
+  int cam_matrix;
   RwMatrix *copy_dst;
   float10 rand_val;
   struct {
@@ -109,17 +112,17 @@ void weapon_oil_slicks_update_render(void)
   } frame;
   
   /* 26 floats per slick record (g_weapon_oil_6a6250): matrix at +0, age at -6, life fraction at -5, scale at -1; liveness bitmap g_weapon_6a7d28 */
-  slot_or_cam = 0;
+  slot = 0;
   frame.slot_index = 0;
   slick = (RwReal *)&g_weapon_oil_6a6250;
   do {
-    live_byte = (&g_weapon_6a7d28)[slot_or_cam >> 3];
-    live_bit = (byte)slot_or_cam & 7;
+    live_byte = (&g_weapon_6a7d28)[slot >> 3];
+    live_bit = (byte)slot & 7;
     if ((live_byte & (byte)(1 << live_bit)) == 0) {
 LAB_00463233:
-      slot_or_cam = frame.slot_index + 1;
+      slot = frame.slot_index + 1;
       slick = slick + 0x1a;
-      frame.slot_index = slot_or_cam;
+      frame.slot_index = slot;
     }
     else {
       slick_age_ptr = slick + -6;
@@ -144,7 +147,7 @@ LAB_00463233:
         frame.scale_vec.x = slick[-1];
         copy_src = slick;
         copy_dst = &frame.slick_matrix;
-        for (slot_or_cam = 0x10; slot_or_cam != 0; slot_or_cam = slot_or_cam + -1) {
+        for (slot = 0x10; slot != 0; slot = slot + -1) {
           (copy_dst->right).x = *copy_src;
           copy_src = copy_src + 1;
           copy_dst = (RwMatrix *)&(copy_dst->right).y;
@@ -158,7 +161,7 @@ LAB_00463233:
         particles_add(&g_weapon_6a7ce8);
         copy_src = slick;
         copy_dst = &frame.slick_matrix;
-        for (slot_or_cam = 0x10; slot_or_cam != 0; slot_or_cam = slot_or_cam + -1) {
+        for (slot = 0x10; slot != 0; slot = slot + -1) {
           (copy_dst->right).x = *copy_src;
           copy_src = copy_src + 1;
           copy_dst = (RwMatrix *)&(copy_dst->right).y;
@@ -183,11 +186,11 @@ LAB_00463233:
         frame.quad_pt3_y = 0x3f000000;
         frame.quad_pt3_z = 0.0;
         RwMatrixTranslate(&frame.slick_matrix,&frame.lift_vec,rwCOMBINEPOSTCONCAT);
-        slot_or_cam = get_viewport_camera_matrix(0);
+        cam_matrix = get_viewport_camera_matrix(0);
         {
-          double dx = (double)*(float *)(slot_or_cam + 0x30) - (double)frame.slick_matrix.pos.x;
-          double dy = (double)*(float *)(slot_or_cam + 0x34) - (double)frame.slick_matrix.pos.y;
-          double dz = (double)*(float *)(slot_or_cam + 0x38) - (double)frame.slick_matrix.pos.z;
+          double dx = (double)*(float *)(cam_matrix + 0x30) - (double)frame.slick_matrix.pos.x;
+          double dy = (double)*(float *)(cam_matrix + 0x34) - (double)frame.slick_matrix.pos.y;
+          double dz = (double)*(float *)(cam_matrix + 0x38) - (double)frame.slick_matrix.pos.z;
           double dd = dy * dy + dx * dx + dz * dz;
           if (dd > (double)k_f_81) dd = (double)k_f_81;
           frame.decal_color_a = (byte)(int)(dd * k_f_0_012345679 * k_f_128 + k_f_15);
@@ -195,8 +198,8 @@ LAB_00463233:
         RwV3dTransformPoints(&frame.quad_pt0,&frame.quad_pt0,4,&frame.slick_matrix);
         {
         double t;
-        #define CU (double)(*(float *)(slot_or_cam + 0x30) * k_f_n0_1 - *(float *)(slot_or_cam + 0x20))
-        #define CV (double)(*(float *)(slot_or_cam + 0x38) * k_f_n0_1 + *(float *)(slot_or_cam + 0x24))
+        #define CU (double)(*(float *)(cam_matrix + 0x30) * k_f_n0_1 - *(float *)(cam_matrix + 0x20))
+        #define CV (double)(*(float *)(cam_matrix + 0x38) * k_f_n0_1 + *(float *)(cam_matrix + 0x24))
         t = (double)frame.quad_pt0.x * k_f_0_5 + CU;
         frame.uv0_u = t + k_f_0_5;
         t = (double)frame.quad_pt0.z * k_f_0_5 + CV;
@@ -251,7 +254,7 @@ LAB_00463233:
         }
         goto LAB_00463233;
       }
-      (&g_weapon_6a7d28)[slot_or_cam >> 3] = ~('\x01' << live_bit) & live_byte;
+      (&g_weapon_6a7d28)[slot >> 3] = ~('\x01' << live_bit) & live_byte;
     }
     if ((int)&g_weapon_6a7c38 + 0x17 < (int)slick) {
       particles_flush(&g_weapon_6a7ce8);

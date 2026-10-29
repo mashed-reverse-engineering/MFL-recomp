@@ -37,7 +37,8 @@ void course_arctic_cb0(int course)
 {
   void *texture_dict;
   RpAtomic *atomic;
-  int row_or_clump;
+  int index;
+  int clump;
   undefined4 smoke_texture;
   RwCamera *camera;
   int col_i;
@@ -78,14 +79,14 @@ void course_arctic_cb0(int course)
   RwFrameSetIdentity(RpClump_object_parent(g_course_arctic_8c5840));
   clump_slot = g_course_arctic_8c5844;
   do {
-    row_or_clump = rpclump_clone((undefined4)g_course_arctic_8c5840);
-    *clump_slot = row_or_clump;
-    RwFrameSetIdentity(*(RwFrame **)(row_or_clump + 4));
+    clump = rpclump_clone((undefined4)g_course_arctic_8c5840);
+    *clump_slot = clump;
+    RwFrameSetIdentity(*(RwFrame **)(clump + 4));
     clump_slot = clump_slot + 1;
   } while ((int)clump_slot < (int)g_course_arctic_8c5844 + 0x60);
   grid_pos.x = -150.0;
   grid_i = 0;
-  row_or_clump = 5;
+  index = 5;
   do {
     grid_pos.z = -150.0;
     col_i = 5;
@@ -96,9 +97,9 @@ void course_arctic_cb0(int course)
       grid_i = grid_i + 1;
       col_i = col_i + -1;
     } while (col_i != 0);
-    row_or_clump = row_or_clump + -1;
+    index = index + -1;
     grid_pos.x = grid_pos.x + k_f_60;
-  } while (row_or_clump != 0);
+  } while (index != 0);
   frame.emit_x = 0xc23af5c3;
   frame.emit_y = 0x3f3f3b64;
   frame.emit_z = 0xc28c245a;
@@ -111,38 +112,38 @@ void course_arctic_cb0(int course)
   smoke_texture = find_texture_dict_b("smoke");
   rain_ptank_create(smoke_texture);
   rain_splash_add(&frame.emit_x,0x3c23d70a,&frame.vel_x,&grid_pos);
-  row_or_clump = 0;
+  index = 0;
   if (0 < COURSE_FX_SOURCE_COUNT(course, 0)) {
     grid_i = course + 0xc30;
     do {
       smoke_texture = fx_slot_find_free(0xc,grid_i,0,0x14);
       (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-      row_or_clump = row_or_clump + 1;
+      index = index + 1;
       grid_i = grid_i + 0x40;
-    } while (row_or_clump < COURSE_FX_SOURCE_COUNT(course, 0));
+    } while (index < COURSE_FX_SOURCE_COUNT(course, 0));
   }
-  row_or_clump = 0;
+  index = 0;
   if (0 < COURSE_FX_SOURCE_COUNT(course, 1)) {
     grid_i = course + 0x1830;
     do {
       smoke_texture = fx_slot_find_free(7,grid_i,0,0x14);
       (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-      row_or_clump = row_or_clump + 1;
+      index = index + 1;
       grid_i = grid_i + 0x40;
-    } while (row_or_clump < COURSE_FX_SOURCE_COUNT(course, 1));
+    } while (index < COURSE_FX_SOURCE_COUNT(course, 1));
   }
-  row_or_clump = 0;
+  index = 0;
   if (0 < COURSE_FX_SOURCE_COUNT(course, 2)) {
     grid_i = course + 0x2430;
     do {
       smoke_texture = fx_slot_find_free(2,grid_i,0,0x14);
       (&g_course_arctic_8c5740)[g_course_arctic_6a0778] = smoke_texture;
       g_course_arctic_6a0778 = g_course_arctic_6a0778 + 1;
-      row_or_clump = row_or_clump + 1;
+      index = index + 1;
       grid_i = grid_i + 0x40;
-    } while (row_or_clump < COURSE_FX_SOURCE_COUNT(course, 2));
+    } while (index < COURSE_FX_SOURCE_COUNT(course, 2));
   }
   frame.emit_x = 0xc204199a;
   frame.emit_y = 0x401147ae;
@@ -155,8 +156,8 @@ void course_arctic_cb0(int course)
     farClip = 800.0;
     camera = (RwCamera *)get_viewport_camera(0);
     RwCameraSetFarClipPlane(camera,farClip);
-    row_or_clump = get_viewport_camera(0);
-    *(undefined4 *)(row_or_clump + 0x88) = 0x43480000;
+    index = get_viewport_camera(0);
+    *(undefined4 *)(index + 0x88) = 0x43480000;
     get_viewport_camera(0);
     game_set_option_flags(0x28,0x2c,0x30);
   }

@@ -46,7 +46,8 @@ void course_falling_objects_update(void)
   float fbits2;
   RwV3d *obj_pos;
   RwFrame *frame;
-  float age_or_dx;
+  float dx;
+  float age;
   float dz_cam;
   float dy_cam;
   char random_int;
@@ -134,9 +135,9 @@ void course_falling_objects_update(void)
             frame_obj.frame_delta.z = frame_obj.half_dt * float_barrier((double)zn + (double)old_z);
             RwFrameTranslate(frame,&frame_obj.frame_delta,rwCOMBINEPOSTCONCAT);
             RwFrameRotate(frame,(RwV3d *)&g_car_62ac68,obj[3],rwCOMBINEPRECONCAT);
-            age_or_dx = g_tick_seconds + obj[-0x12];
-            obj[-0x12] = age_or_dx;
-            obj[-0x13] = age_or_dx * k_f_0_5_5dfd04;
+            age = g_tick_seconds + obj[-0x12];
+            obj[-0x12] = age;
+            obj[-0x13] = age * k_f_0_5_5dfd04;
             /* below ground: impact burst, sound, debris sprite, hide the object and free the slot */
             if (obj[1] < k_f_0) {
               frame_obj.burst_r = -1;
@@ -148,10 +149,10 @@ void course_falling_objects_update(void)
               fx_emitter_spawn_b_default(obj_pos,&g_car_62ac74,0x41f00000,(fbits1 = (float)rand_val, *(int *)&fbits1));
               rand_val = (float10)rp_random_float_range(0x3f800000,0x459c4000);
               sound_voices_set_position_wide(obj_pos,(fbits2 = (float)(rand_val + (float10)k_f_20000), *(int *)&fbits2));
-              age_or_dx = *cam_pos - obj_pos->x;
+              dx = *cam_pos - obj_pos->x;
               dy_cam = cam_pos[1] - RwFrame_modelling(frame).pos.y;
               dz_cam = cam_pos[2] - RwFrame_modelling(frame).pos.z;
-              if (float_5_0 < dz_cam * dz_cam + age_or_dx * age_or_dx + dy_cam * dy_cam) {
+              if (float_5_0 < dz_cam * dz_cam + dx * dx + dy_cam * dy_cam) {
                 rwframe_look_at((undefined4)frame,(undefined4)cam_pos,(undefined4)&g_car_62ac74);
                 random_int = random_int_range(0,0x19);
                 frame_obj.burst_r = frame_obj.burst_r - random_int;

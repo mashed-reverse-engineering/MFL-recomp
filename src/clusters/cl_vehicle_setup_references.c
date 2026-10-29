@@ -84,7 +84,8 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
     float vel_xy [2];
     float vel_z;
   } frame_obj;
-  float angle_or_delta_x;
+  float delta_x;
+  float angle_deg;
   
   vehicle_index = *(int *)&index_or_morph;
   g_particles_659d70 = course_get_directional_light();
@@ -100,22 +101,22 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
   if (g_vehicle_table[*(int *)&index_or_morph].envmap_frame == (&g_game_659d60)[*(int *)&index_or_morph]) {
     car_get_velocity_any_mode(frame_obj.vel_xy,*(int *)&index_or_morph);
     setup_offset = (int)(g_vehicle_table[*(int *)&index_or_morph].frame);
-    angle_or_delta_x = g_vehicle_table[*(int *)&index_or_morph].envmap_angle - (frame_obj.vel_z + frame_obj.vel_xy[0]) * k_f_3_0en4;
-    g_vehicle_table[*(int *)&index_or_morph].envmap_angle = angle_or_delta_x;
+    angle_deg = g_vehicle_table[*(int *)&index_or_morph].envmap_angle - (frame_obj.vel_z + frame_obj.vel_xy[0]) * k_f_3_0en4;
+    g_vehicle_table[*(int *)&index_or_morph].envmap_angle = angle_deg;
     setup_offset = *(int *)(setup_offset + 4);
     frame_obj.envmap_axis.x = *(RwReal *)(setup_offset + 0x10);
     frame_obj.envmap_axis.y = *(RwReal *)(setup_offset + 0x14);
     frame_obj.envmap_axis.z = *(RwReal *)(setup_offset + 0x18);
-    RwFrameRotate((RwFrame *)g_vehicle_table[*(int *)&index_or_morph].envmap_frame,&frame_obj.envmap_axis,angle_or_delta_x,
+    RwFrameRotate((RwFrame *)g_vehicle_table[*(int *)&index_or_morph].envmap_frame,&frame_obj.envmap_axis,angle_deg,
                   rwCOMBINEREPLACE);
   }
   /* Proximity: squared distance from the new position to the slot's setup point (x, y, z in
      g_vehicle_setup_659e30/34/38), scaled by k_f_25 and clamped to 0..1 into index_or_morph. */
   setup_offset = *(int *)&index_or_morph * VEHICLE_SETUP_STRIDE;
-  angle_or_delta_x = (vehicle_transform->pos).x - *(float *)((char *)&g_vehicle_setup_659e30 + setup_offset);
+  delta_x = (vehicle_transform->pos).x - *(float *)((char *)&g_vehicle_setup_659e30 + setup_offset);
   delta_y = (vehicle_transform->pos).y - *(float *)((char *)&g_vehicle_setup_659e34 + setup_offset);
   delta_z = (vehicle_transform->pos).z - *(float *)((char *)&g_vehicle_setup_659e38 + setup_offset);
-  index_or_morph = (delta_z * delta_z + angle_or_delta_x * angle_or_delta_x + delta_y * delta_y) * k_f_25;
+  index_or_morph = (delta_z * delta_z + delta_x * delta_x + delta_y * delta_y) * k_f_25;
   if ((float_1_0 <= index_or_morph) || (k_f_0 <= index_or_morph)) {
     if (float_1_0 <= index_or_morph) {
       index_or_morph = 1.0;

@@ -2,7 +2,7 @@
 /* Installed cluster score_panel_attach_clump (tools/cluster_install.py from output/cluster_pilot10/score_panel_attach_clump.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* score_panel_attach_clump */
 
@@ -23,7 +23,7 @@ void score_panel_attach_clump_n(int clump, int panel)
   i = 0;
   do {
     atomic = atomics[i];
-    part_index = FUN_004c52b0(atomic,0,0);
+    part_index = atomic_geometry_user_data_int(atomic,0,0);
     i = i + 1;
     *(undefined4 *)(panel + part_index * 4) = atomic;
   } while (i < 0x11);

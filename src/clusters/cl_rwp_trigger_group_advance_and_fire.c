@@ -21,7 +21,8 @@
 void rwp_trigger_group_advance_and_fire(void)
 
 {
-  int step_or_set;
+  int step;
+  int set_ptr;
   undefined4 arg;
   int j;
   uint *rec4;
@@ -52,16 +53,16 @@ void rwp_trigger_group_advance_and_fire(void)
     group = g_car_6c2f64;
     do {
       if (group[2] != 0) {
-        step_or_set = group[*group + -0x10];
-        if (-1 < step_or_set + -2000) {
+        step = group[*group + -0x10];
+        if (-1 < step + -2000) {
           arg = course_get_world_object();
-          if ((code *)(&g_gfx_6c33c8)[(step_or_set + -2000) * 0x21] != (code *)0x0) {
-            (*(code *)(&g_gfx_6c33c8)[(step_or_set + -2000) * 0x21])(arg);
+          if ((code *)(&g_gfx_6c33c8)[(step + -2000) * 0x21] != (code *)0x0) {
+            (*(code *)(&g_gfx_6c33c8)[(step + -2000) * 0x21])(arg);
           }
         }
-        step_or_set = *group;
-        *group = step_or_set + 1;
-        if (group[1] <= step_or_set + 1) {
+        step = *group;
+        *group = step + 1;
+        if (group[1] <= step + 1) {
           *group = 0;
         }
       }
@@ -69,12 +70,12 @@ void rwp_trigger_group_advance_and_fire(void)
       frame.step_index = 0;
       if (0 < group[1]) {
         do {
-          step_or_set = group[frame.step_index + -0x20];
-          is_current = (uint)(group[*group + -0x20] == step_or_set);
+          set_ptr = group[frame.step_index + -0x20];
+          is_current = (uint)(group[*group + -0x20] == set_ptr);
           frame.obj_index = 0;
           frame.is_current_saved = is_current;
-          if (0 < *(int *)(step_or_set + 0x144)) {
-            obj_slot = (int *)(step_or_set + 0xc4);
+          if (0 < *(int *)(set_ptr + 0x144)) {
+            obj_slot = (int *)(set_ptr + 0xc4);
             do {
               is_current = frame.is_current_saved;
               in_current = false;
@@ -106,21 +107,21 @@ LAB_004808e2:
               rwp_object_set_active(j,arg);
               frame.obj_index = frame.obj_index + 1;
               obj_slot = obj_slot + 1;
-            } while (frame.obj_index < *(int *)(step_or_set + 0x144));
+            } while (frame.obj_index < *(int *)(set_ptr + 0x144));
           }
           j = 0;
-          if (0 < *(int *)(step_or_set + 0x2428)) {
-            rec4 = (uint *)(step_or_set + 0x14c);
+          if (0 < *(int *)(set_ptr + 0x2428)) {
+            rec4 = (uint *)(set_ptr + 0x14c);
             do {
               rec4[0x115] = 0;
               *rec4 = -(uint)(is_current != 0) & frame.focus_value;
               j = j + 1;
               rec4 = rec4 + 0x117;
-            } while (j < *(int *)(step_or_set + 0x2428));
+            } while (j < *(int *)(set_ptr + 0x2428));
           }
           j = 0;
-          if (0 < *(int *)(step_or_set + 0x250c)) {
-            rec9 = (undefined4 *)(step_or_set + 0x2440);
+          if (0 < *(int *)(set_ptr + 0x250c)) {
+            rec9 = (undefined4 *)(set_ptr + 0x2440);
             do {
               arg = rwp_object_find_index_by_id(rec9[-4]);
               rec9[-5] = arg;
@@ -128,7 +129,7 @@ LAB_004808e2:
               rec9[1] = 0;
               j = j + 1;
               rec9 = rec9 + 7;
-            } while (j < *(int *)(step_or_set + 0x250c));
+            } while (j < *(int *)(set_ptr + 0x250c));
           }
           frame.step_index = frame.step_index + 1;
         } while (frame.step_index < group[1]);

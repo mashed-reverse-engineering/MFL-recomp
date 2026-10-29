@@ -23,7 +23,8 @@ void gfx_render_state_probe(void)
   int *slot;
   int j_next4;
   int j;
-  int base_or_i;
+  int base;
+  int index;
   union {
     char gs_buf[16];
     struct {
@@ -36,7 +37,7 @@ void gfx_render_state_probe(void)
   
   RwRenderStateGet(rwRENDERSTATECULLMODE,&frame.m.old_cull_mode);
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)0x2);
-  base_or_i = g_gfx_89de0c;
+  base = g_gfx_89de0c;
   item_or_count = g_gfx_6c3eac;
   if (0 < (int)g_gfx_6c3eac) {
     frame.m.i = 1;
@@ -50,26 +51,26 @@ void gfx_render_state_probe(void)
         j_next4 = frame.m.i + 3;
         do {
           item_or_count = *slot;
-          if (*(float *)(item_or_count + 0x24 + base_or_i) < *(float *)((g_gfx_6c3da0)[j] + 0x24 + base_or_i))
+          if (*(float *)(item_or_count + 0x24 + base) < *(float *)((g_gfx_6c3da0)[j] + 0x24 + base))
           {
             *slot = (g_gfx_6c3da0)[j];
             (g_gfx_6c3da0)[j] = item_or_count;
           }
           item_or_count = *slot;
-          if (*(float *)(item_or_count + 0x24 + base_or_i) <
-              *(float *)((&g_gfx_render_6c3da4)[j] + 0x24 + base_or_i)) {
+          if (*(float *)(item_or_count + 0x24 + base) <
+              *(float *)((&g_gfx_render_6c3da4)[j] + 0x24 + base)) {
             *slot = (&g_gfx_render_6c3da4)[j];
             (&g_gfx_render_6c3da4)[j] = item_or_count;
           }
           item_or_count = *slot;
-          if (*(float *)(item_or_count + 0x24 + base_or_i) <
-              *(float *)((&g_gfx_render_6c3da8)[j] + 0x24 + base_or_i)) {
+          if (*(float *)(item_or_count + 0x24 + base) <
+              *(float *)((&g_gfx_render_6c3da8)[j] + 0x24 + base)) {
             *slot = (&g_gfx_render_6c3da8)[j];
             (&g_gfx_render_6c3da8)[j] = item_or_count;
           }
           item_or_count = *slot;
-          if (*(float *)(item_or_count + 0x24 + base_or_i) <
-              *(float *)((&g_gfx_render_6c3dac)[j] + 0x24 + base_or_i)) {
+          if (*(float *)(item_or_count + 0x24 + base) <
+              *(float *)((&g_gfx_render_6c3dac)[j] + 0x24 + base)) {
             *slot = (&g_gfx_render_6c3dac)[j];
             (&g_gfx_render_6c3dac)[j] = item_or_count;
           }
@@ -81,7 +82,7 @@ void gfx_render_state_probe(void)
       if (j < item_or_count) {
         do {
           item_or_count = *slot;
-          if (*(float *)(item_or_count + 0x24 + base_or_i) < *(float *)((g_gfx_6c3da0)[j] + 0x24 + base_or_i))
+          if (*(float *)(item_or_count + 0x24 + base) < *(float *)((g_gfx_6c3da0)[j] + 0x24 + base))
           {
             *slot = (g_gfx_6c3da0)[j];
             (g_gfx_6c3da0)[j] = item_or_count;
@@ -95,13 +96,13 @@ void gfx_render_state_probe(void)
       frame.m.outer_left = frame.m.outer_left + -1;
     } while (frame.m.outer_left != 0);
   }
-  base_or_i = 0;
+  index = 0;
   if (0 < item_or_count) {
     do {
-      (*g_gfx_89de08)((g_gfx_6c3da0)[base_or_i]);
+      (*g_gfx_89de08)((g_gfx_6c3da0)[index]);
       g_gfx_6c3ea0 = g_gfx_6c3ea0 + 1;
-      base_or_i = base_or_i + 1;
-    } while (base_or_i < (int)g_gfx_6c3eac);
+      index = index + 1;
+    } while (index < (int)g_gfx_6c3eac);
   }
   g_gfx_6c3eac = 0;
   RwRenderStateSet(rwRENDERSTATECULLMODE,frame.m.old_cull_mode);

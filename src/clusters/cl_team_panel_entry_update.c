@@ -21,7 +21,8 @@ void team_panel_entry_update_n(TeamPanelEntry *panel)
   uint button_group_bits;
   uint flags_or_visible;
   int score_target;
-  int part_index_or_points;
+  int part_index;
+  int points;
   bool button_bit_clear;
   struct {
     RwV3d unit_scale;
@@ -38,10 +39,10 @@ void team_panel_entry_update_n(TeamPanelEntry *panel)
     flags_or_visible = panel->flags | 0x40000;
   }
   panel->flags = flags_or_visible;
-  part_index_or_points = 0;
+  part_index = 0;
   do {
-    if (panel->part[part_index_or_points] == 0) goto LAB_0041ea18;
-    switch(part_index_or_points) {
+    if (panel->part[part_index] == 0) goto LAB_0041ea18;
+    switch(part_index) {
     case 0:
     case 1:
     case 2:
@@ -182,10 +183,10 @@ LAB_0041e8b2:
     }
     flags_or_visible = 0;
 LAB_0041ea14:
-    panel->visible[part_index_or_points] = flags_or_visible;
+    panel->visible[part_index] = flags_or_visible;
 LAB_0041ea18:
-    part_index_or_points = part_index_or_points + 1;
-    if (0x27 < part_index_or_points) {
+    part_index = part_index + 1;
+    if (0x27 < part_index) {
       frame.mtx.flags = frame.mtx.flags | 0x20003;
       frame.mtx.at.z = 1.0;
       frame.mtx.up.y = 1.0;
@@ -202,9 +203,9 @@ LAB_0041ea18:
       RwMatrixTranslate(&frame.mtx,&panel->origin,rwCOMBINEREPLACE);
       RwFrameTransform((RwFrame *)panel->frame,&frame.mtx,rwCOMBINEREPLACE);
       RwFrameScale((RwFrame *)panel->frame,&frame.unit_scale,rwCOMBINEPRECONCAT);
-      part_index_or_points = player_get_points(panel->player[0]);
+      points = player_get_points(panel->player[0]);
       score_target = score_target_a();
-      frame.unit_scale.x = (float)part_index_or_points / (float)score_target;
+      frame.unit_scale.x = (float)points / (float)score_target;
       frame.unit_scale.z = 1.0;
       frame.unit_scale.y = 1.0;
       RwFrameScale(*(RwFrame **)(panel->part[2] + 4),&frame.unit_scale,rwCOMBINEREPLACE);

@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c52f0*/ extern void clump_collect_atomics_by_id(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*00658b30*/ extern undefined g_load_658b30;
@@ -15,7 +15,7 @@
  * Takes no parameters and returns nothing.
  * Stores the clump in g_btb_658b40 and the word at clump + 4 in g_hudpanel_658b44,
  * zeroes the BTB_LOAD_STATE_SIZE-byte block g_load_658b30 (inferred: load state),
- * and passes that block to FUN_004c52f0.
+ * and passes that block to clump_collect_atomics_by_id.
  */
 /* "BTBPanel.dff (beat the bomb panel)" */
 void load_btb_panel(void)
@@ -34,7 +34,7 @@ void load_btb_panel(void)
   g_btb_658b40 = clump;
   g_hudpanel_658b44 = *(undefined4 *)(clump + 4);
   g_hudpanel_658b48 = 1;
-  FUN_004c52f0(clump,&g_load_658b30,4,0,0);
+  clump_collect_atomics_by_id(clump,&g_load_658b30,4,0,0);
   /* Loop over BTB_LOOP_COUNT slots (inferred); `clump` is reused as the loop index here.
      Slot 1 gets a call to FUN_004c5410 with g_hudpanel_658b34. */
   clump = 0;

@@ -11,7 +11,7 @@
 /*00492b20*/ extern int car_apply_rwp_impulse();
 /*004a1680*/ extern int player_rumble();
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
-/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, undefined4 p1, void *p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
@@ -99,7 +99,7 @@ void weapon_shotgun_fire_shot(int *weapon)
     undefined1 hit_t [4]; /* out value of RtLineSphereIntersectionTest */
     undefined1 car_pos [12]; /* car centre from vehicle_get_position_158 */
     float car_sphere_radius; /* scaled by 1.25 but never passed on (inferred, check disassembly) */
-    undefined1 impulse_offset [12]; /* from FUN_004c4720(muzzle_pos, far_pos) */
+    undefined1 impulse_offset [12]; /* from vec3_lerp(muzzle_pos, far_pos) */
     float hit_normal_x; /* surface normal written by FUN_004c4c30 (inferred) */
     float hit_normal_y;
     float hit_normal_z;
@@ -184,7 +184,7 @@ void weapon_shotgun_fire_shot(int *weapon)
         /* hit car: rwp mode, impulse, damage; the local player gets screen shake */
         if (active_or_hit != 0) {
           car_enter_rwp_mode(slot_or_result);
-          FUN_004c4720(shot.impulse_offset,&shot.muzzle_pos,&shot.far_pos_x,0);
+          vec3_lerp(shot.impulse_offset,&shot.muzzle_pos,&shot.far_pos_x,0);
           car_apply_rwp_impulse(slot_or_result,&shot.impulse_x,shot.impulse_offset);
           car_damage_at_world_point(slot_or_result,SHOTGUN_DAMAGE_BITS,&shot.muzzle_pos);
           if (slot_or_result == LOCAL_PLAYER_SLOT) {

@@ -38,7 +38,8 @@ void weapon_drum_drop_n(char *launcher)
   float scaled_y;
   float scaled_z;
   RwMatrix *ltm;
-  int count_or_frame;
+  int count;
+  int owner_ptr;
   RwOpCombineType combine_op;
   struct {
     undefined4 spawn_x;
@@ -65,16 +66,16 @@ void weapon_drum_drop_n(char *launcher)
   owner = *(char **)(launcher + 0xc);
   scaled_x = *(float *)(owner + 0x10) * k_f_3_5;
   scaled_y = *(float *)(owner + 0x14) * k_f_3_5;
-  count_or_frame = *(int *)(launcher + 8);
+  count = *(int *)(launcher + 8);
   scaled_z = *(float *)(owner + 0x18) * k_f_3_5;
-  if (count_or_frame == 2) {
+  if (count == 2) {
     *(undefined4 *)(launcher + 0x24) = 4;
   }
-  else if (count_or_frame == 1) {
+  else if (count == 1) {
     *(undefined4 *)(launcher + 0x28) = 4;
   }
-  *(int *)(launcher + 8) = count_or_frame + -1;
-  drum = *(DrumRecord **)(launcher + (count_or_frame + -1) * 4);
+  *(int *)(launcher + 8) = count + -1;
+  drum = *(DrumRecord **)(launcher + (count + -1) * 4);
   drum->state = 0;
   ltm = RwFrameGetLTM(drum->frame);
   drum->pos.x = (ltm->pos).x;
@@ -82,21 +83,21 @@ void weapon_drum_drop_n(char *launcher)
   drum->pos.z = (ltm->pos).z;
   RwFrameRemoveChild(drum->frame);
   if (*(int *)(launcher + 8) == 1) {
-    count_or_frame = *(int *)(launcher + 0x1c);
+    owner_ptr = *(int *)(launcher + 0x1c);
   }
   else {
     if (*(int *)(launcher + 8) != 0) goto LAB_0045f9a3;
-    count_or_frame = *(int *)(launcher + 0x18);
+    owner_ptr = *(int *)(launcher + 0x18);
   }
   combine_op = rwCOMBINEREPLACE;
-  ltm = RwFrameGetLTM(*(RwFrame **)(count_or_frame + 4));
+  ltm = RwFrameGetLTM(*(RwFrame **)(owner_ptr + 4));
   RwFrameTransform(drum->frame,ltm,combine_op);
 LAB_0045f9a3:
   drum->phase = 2;
-  count_or_frame = *(int *)(launcher + 0xc);
-  dir_y = *(float *)(count_or_frame + 0x94);
-  dir_z = *(float *)(count_or_frame + 0x98);
-  drum->vel.x = *(float *)(count_or_frame + 0x90) * k_f_40 + scaled_x;
+  owner_ptr = *(int *)(launcher + 0xc);
+  dir_y = *(float *)(owner_ptr + 0x94);
+  dir_z = *(float *)(owner_ptr + 0x98);
+  drum->vel.x = *(float *)(owner_ptr + 0x90) * k_f_40 + scaled_x;
   drum->vel.y = dir_y * k_f_40 + scaled_y;
   drum->vel.z = dir_z * k_f_40 + scaled_z;
   *(undefined4 *)(launcher + *(int *)(launcher + 8) * 4) = 0;

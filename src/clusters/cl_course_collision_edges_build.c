@@ -21,7 +21,8 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
   int *mem;
   void *packed;
   int *edge;
-  int index_or_remaining;
+  int remaining;
+  int tri_index;
   int other_tri_or_word_count;
   int *other;
   int edge_count;
@@ -36,7 +37,7 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
   frame.shared_edge_count = 0;
   mem = RwMalloc(tri_count * EDGE_BYTES_PER_TRIANGLE,0);
   memset(mem,0,tri_count * EDGE_BYTES_PER_TRIANGLE);
-  index_or_remaining = 0;
+  tri_index = 0;
   edge = mem;
   if (0 < tri_count) {
     do {
@@ -44,24 +45,24 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
       edge[5] = (uint)tri_idx[1];
       *edge = (int)tri_idx;
       edge[1] = 0;
-      edge[2] = index_or_remaining;
+      edge[2] = tri_index;
       edge[3] = -1;
       edge[10] = (uint)tri_idx[1];
       edge[0xb] = (uint)tri_idx[2];
       edge[6] = (int)tri_idx;
-      edge[8] = index_or_remaining;
+      edge[8] = tri_index;
       edge[7] = 0;
       edge[9] = -1;
       edge[0x10] = (uint)tri_idx[2];
       edge[0x11] = (uint)*tri_idx;
       edge[0xc] = (int)tri_idx;
-      edge[0xe] = index_or_remaining;
+      edge[0xe] = tri_index;
       edge[0xd] = 0;
       edge[0xf] = -1;
-      index_or_remaining = index_or_remaining + 1;
+      tri_index = tri_index + 1;
       tri_idx = tri_idx + 4;
       edge = edge + 0x12;
-    } while (index_or_remaining < tri_count);
+    } while (tri_index < tri_count);
   }
   frame.outer_left = edge_count + -1;
   if (0 < frame.outer_left) {
@@ -69,7 +70,7 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
     edge = mem;
     do {
       if ((*edge != 0) && (frame.outer_index < edge_count)) {
-        index_or_remaining = edge_count - frame.outer_index;
+        remaining = edge_count - frame.outer_index;
         other = edge;
         do {
           other = other + 6;
@@ -82,8 +83,8 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
               other[2] = -1;
             }
           }
-          index_or_remaining = index_or_remaining + -1;
-        } while (index_or_remaining != 0);
+          remaining = remaining + -1;
+        } while (remaining != 0);
       }
       edge = edge + 6;
       frame.outer_index = frame.outer_index + 1;
@@ -91,32 +92,32 @@ void course_collision_edges_build_n(int tri_count, int *out_edges, ushort *tri_i
     } while (frame.outer_left != 0);
   }
   edge = mem;
-  index_or_remaining = edge_count;
+  remaining = edge_count;
   if (0 < edge_count) {
     do {
       if ((*edge != 0) && (edge[1] != 0)) {
         frame.shared_edge_count = frame.shared_edge_count + 1;
       }
-      index_or_remaining = index_or_remaining + -1;
+      remaining = remaining + -1;
       edge = edge + 6;
-    } while (index_or_remaining != 0);
+    } while (remaining != 0);
   }
   packed = RwMalloc(frame.shared_edge_count * EDGE_RECORD_BYTES,0);
   *out_edges = (int)packed;
   out_edges[1] = frame.shared_edge_count;
   if (0 < edge_count) {
-    index_or_remaining = 0;
+    remaining = 0;
     edge = mem;
     do {
       if ((*edge != 0) && (edge[1] != 0)) {
         other = edge;
-        dst = (int *)(*out_edges + index_or_remaining);
+        dst = (int *)(*out_edges + remaining);
         for (other_tri_or_word_count = 6; other_tri_or_word_count != 0; other_tri_or_word_count = other_tri_or_word_count + -1) {
           *dst = *other;
           other = other + 1;
           dst = dst + 1;
         }
-        index_or_remaining = index_or_remaining + EDGE_RECORD_BYTES;
+        remaining = remaining + EDGE_RECORD_BYTES;
       }
       edge = edge + 6;
       edge_count = edge_count + -1;

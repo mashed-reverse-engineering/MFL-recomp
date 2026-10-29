@@ -13,7 +13,7 @@
 /*00498f40*/ extern int fx_ring_add_point();
 /*00499100*/ extern int fx_spawn_from_matrix_2();
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
-/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, undefined4 p1, void *p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -156,7 +156,7 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
   rw_world = weapon_get_rw_801b14();
   tmp_i = FUN_004c4c30(rw_world,piece,hit_buf_ptr);
   if ((tmp_i != 0) && (tmp_i = rocket_surface_hit_test(&frame.hit_normal_x,&frame.smoke_pos_x), tmp_i == 0)) {
-    FUN_004c4720(&frame.impact_x,&frame.probe_start_x,&frame.probe_end_x,(undefined4)frame.hit_tail);
+    vec3_lerp(&frame.impact_x,&frame.probe_start_x,&frame.probe_end_x,(undefined4)frame.hit_tail);
     frame.impact_x = frame.hit_normal_x * k_f_0_05 + frame.impact_x;
     frame.impact_y = frame.hit_normal_y * k_f_0_05 + frame.impact_y;
     frame.impact_z = frame.hit_normal_z * k_f_0_05 + frame.impact_z;

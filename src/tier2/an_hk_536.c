@@ -5,7 +5,7 @@
 /*0049b780*/ extern int __cdecl particles_alloc_system(struct RwTexture *p0, int p1, int p2, uint p3);
 /*0049b860*/ extern int fx_set_blend_modes();
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
 /*004f6bf0*/ extern int rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
@@ -16,7 +16,7 @@
 #define MORTAR_ATOMIC_COUNT (3) /* atomics per mortar clump (inferred) */
 #define WEAPON_SLOT_WORDS (7) /* words per entry of g_weapon_6a29cc (inferred) */
 #define MORTAR_SLOT_WORDS (0x44) /* words per entry of g_mortar_load_6a2a6c (inferred) */
-#define ATOMIC_PART_MAIN (2) /* FUN_004c52b0 result of the atomic kept in slot[1] (inferred) */
+#define ATOMIC_PART_MAIN (2) /* atomic_geometry_user_data_int result of the atomic kept in slot[1] (inferred) */
 #define BLEND_SRC_ALPHA (5) /* RwBlendFunction rwBLENDSRCALPHA (inferred) */
 #define BLEND_INV_SRC_ALPHA (6) /* RwBlendFunction rwBLENDINVSRCALPHA (inferred) */
 /* Loads the smoke texture and the mortar models, then fills two slot tables (inferred):
@@ -57,7 +57,7 @@ void mortar_load_assets(void)
        and is kept in slot[1] (inferred). */
     do {
       last_result = atomics[atomic_index];
-      atomic_part = FUN_004c52b0(last_result,0,0);
+      atomic_part = atomic_geometry_user_data_int(last_result,0,0);
       if (-1 < atomic_part) {
         if (atomic_part < 2) {
           atomic_set_render_flag(last_result,1);

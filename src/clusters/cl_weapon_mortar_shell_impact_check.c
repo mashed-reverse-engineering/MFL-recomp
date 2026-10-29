@@ -7,7 +7,7 @@
 /*00487670*/ extern int effect_sprite_spawn();
 /*00499100*/ extern int fx_spawn_from_matrix_2();
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
-/*004c4720*/ extern void FUN_004c4720(float *p0, float *p1, float *p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(float *p0, float *p1, float *p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(undefined4 p0, float *p1, float *p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(RwMatrix *p0, void *p1, float *p2);
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -80,7 +80,7 @@ undefined4 weapon_mortar_shell_impact_check_n(int shell)
     frame.marker_a = 0x40;
     hit = rocket_surface_hit_test(&frame.hit_normal_x,(float *)(shell + 0x14));
     if (hit == 0) {
-      FUN_004c4720(&frame.impact_x,&frame.seg_start_x,&frame.seg_end_x,frame.hit_t);
+      vec3_lerp(&frame.impact_x,&frame.seg_start_x,&frame.seg_end_x,frame.hit_t);
       frame.impact_x = frame.hit_normal_x * k_f_0_05 + frame.impact_x;
       frame.impact_y = frame.hit_normal_y * k_f_0_05 + frame.impact_y;
       frame.impact_z = frame.hit_normal_z * k_f_0_05 + frame.impact_z;

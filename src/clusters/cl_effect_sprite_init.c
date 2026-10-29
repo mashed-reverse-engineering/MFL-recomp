@@ -12,7 +12,8 @@ void effect_sprite_init_n(undefined4 *sprite, undefined4 *src_matrix, undefined4
 
 {
   byte *bit_byte;
-  int count_or_byte;
+  int count;
+  int byte_index;
   undefined4 *dst_cursor;
   
   sprite[0x13] = extent_a;
@@ -20,16 +21,16 @@ void effect_sprite_init_n(undefined4 *sprite, undefined4 *src_matrix, undefined4
   sprite[0x15] = 0;
   sprite[0x12] = 0;
   dst_cursor = sprite;
-  for (count_or_byte = 0x10; count_or_byte != 0; count_or_byte = count_or_byte + -1) {
+  for (count = 0x10; count != 0; count = count + -1) {
     *dst_cursor = *src_matrix;
     src_matrix = src_matrix + 1;
     dst_cursor = dst_cursor + 1;
   }
   sprite[0x10] = *src_colour;
   if (sprite[0x17] == 0) {
-    count_or_byte = (int)sprite[0x16] >> 3;
-    *(byte *)((char *)&g_gfx_6c57b0 + count_or_byte) =
-         *(byte *)((char *)&g_gfx_6c57b0 + count_or_byte) | '\x01' << ((byte)sprite[0x16] & 7);
+    byte_index = (int)sprite[0x16] >> 3;
+    *(byte *)((char *)&g_gfx_6c57b0 + byte_index) =
+         *(byte *)((char *)&g_gfx_6c57b0 + byte_index) | '\x01' << ((byte)sprite[0x16] & 7);
     return;
   }
   if (sprite[0x17] == 1) {

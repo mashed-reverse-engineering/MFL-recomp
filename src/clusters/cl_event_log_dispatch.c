@@ -54,7 +54,8 @@ void event_log_dispatch_n(int log_index)
   float tmp_a;
   float tmp_b;
   int cam_matrix;
-  uint car_or_count;
+  uint event_arg2;
+  uint car_arg;
   float *pt_out;
   int car_index;
   float *pt_in;
@@ -159,12 +160,12 @@ void event_log_dispatch_n(int log_index)
   case 4:
     rand_val = (float10)random_range(0,0x3f800000);
     if (rand_val <= (float10)k_f_0_5) {
-      car_or_count = g_event_log_args[log_index].arg1;
+      car_arg = g_event_log_args[log_index].arg1;
     }
     else {
-      car_or_count = g_event_log_args[log_index].arg0;
+      car_arg = g_event_log_args[log_index].arg0;
     }
-    car_get_velocity(&frame.vec_a,car_or_count);
+    car_get_velocity(&frame.vec_a,car_arg);
     RwV3dNormalize(&frame.burst_dir,&frame.vec_a);
     speed = RwV3dLength(&frame.vec_a);
     frame.scalar_tmp2 = speed * k_f_2_5en5;
@@ -249,7 +250,7 @@ void event_log_dispatch_n(int log_index)
     break;
   /* (inferred) rwp object hit: rumble or burst above 750 */
   case 8:
-    car_or_count = g_event_log_args[log_index].arg2;
+    event_arg2 = g_event_log_args[log_index].arg2;
     frame.scalar_tmp = g_event_log_data[log_index].w04;
     rwp_object_get_matrix(g_event_log_args[log_index].arg1);
     frame.vec_a.x = EVLOG_F(log_index, 0x24);
@@ -258,20 +259,20 @@ void event_log_dispatch_n(int log_index)
     frame.burst_pos_x = EVLOG_F(log_index, 0x30);
     frame.burst_pos_y = EVLOG_F(log_index, 0x34);
     frame.burst_pos_z = EVLOG_F(log_index, 0x38);
-    if (car_or_count == 0) {
+    if (event_arg2 == 0) {
       if (k_f_750 < frame.scalar_tmp) {
         player_rumble(car_index,1,2,0xff);
         return;
       }
     }
-    else if ((car_or_count == 3) && (k_f_750 < frame.scalar_tmp)) {
+    else if ((event_arg2 == 3) && (k_f_750 < frame.scalar_tmp)) {
       fx_spawn_burst_spread(&frame.vec_a,10,0x3c656042,&frame.burst_pos_x,0x42480000,0,&frame.gravity_x,0x40200000);
       return;
     }
     break;
   /* multi-point impact (arg0 points): burst at every point and between neighbouring points */
   case 0xc:
-    car_or_count = 0;
+    event_arg2 = 0;
     if (!(k_f_85 > EVLOG_F(log_index, 0x38) * EVLOG_F(log_index, 0x38) +
                   EVLOG_F(log_index, 0x30) * EVLOG_F(log_index, 0x30) +
                   EVLOG_F(log_index, 0x34) * EVLOG_F(log_index, 0x34))) {
@@ -288,7 +289,7 @@ void event_log_dispatch_n(int log_index)
           pt_out[1] = tmp_a;
           pt_out[2] = tmp_b;
           fx_spawn_burst_spread(pt_out,2,0x3ccccccd,&frame.burst_pos_x,0x41000000,0,&frame.gravity_x,0x40200000);
-          if (0 < (int)car_or_count) {
+          if (0 < (int)event_arg2) {
             frame.vec_a.x = pt_out[-3] - *pt_out;
             frame.vec_a.y = pt_out[-2] - pt_out[1];
             frame.vec_a.z = pt_out[-1] - pt_out[2];
@@ -310,10 +311,10 @@ void event_log_dispatch_n(int log_index)
             fx_spawn_burst_spread
                       (&frame.vec_b,2,0x3ccccccd,&frame.burst_pos_x,0x41c80000,0,&frame.gravity_x,0x40200000);
           }
-          car_or_count = car_or_count + 1;
+          event_arg2 = event_arg2 + 1;
           pt_in = pt_in + 3;
           pt_out = pt_out + 3;
-        } while (car_or_count < g_event_log_args[log_index].arg0);
+        } while (event_arg2 < g_event_log_args[log_index].arg0);
       }
       if (g_event_log_args[log_index].arg0 == 4) {
         frame.vec_a.x = frame.mat_at_y - frame.fx_mat;

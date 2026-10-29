@@ -14,7 +14,7 @@
 /*0049b960*/ extern int particle_batch_set_uv_b_c();
 /*0049bd50*/ extern int fx_system_flush();
 /*004b2b48*/ extern int _ftol();
-/*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
@@ -179,7 +179,7 @@ void weapon_flamethrower_update(void)
               particle[-2] = particle[-2] - k_f_0_002;
             }
             else {
-              FUN_004c4720((undefined4)&frame_obj.hit_pos_x,(undefined4)&frame_obj.seg_a_x,(undefined4)&frame_obj.seg_b_x,(undefined4)frame_obj.hit_basis_tail);
+              vec3_lerp((undefined4)&frame_obj.hit_pos_x,(undefined4)&frame_obj.seg_a_x,(undefined4)&frame_obj.seg_b_x,(undefined4)frame_obj.hit_basis_tail);
               frame_obj.hit_pos_x = frame_obj.hit_normal_x * k_f_0_02 + frame_obj.hit_pos_x;
               particle[-1] = 0.0;
               tmp_f = frame_obj.hit_normal_y * k_f_0_02;

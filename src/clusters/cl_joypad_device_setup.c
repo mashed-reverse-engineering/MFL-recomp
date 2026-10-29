@@ -45,7 +45,8 @@ void joypad_device_setup_n(undefined4 *pad)
   float stick_y;
   float dead_zone_or_len2;
   int *dev;
-  int hr_or_count;
+  int hr;
+  int loop_count;
   undefined4 *hist_a;
   undefined4 *hist_b;
   float *hist_f;
@@ -55,20 +56,20 @@ void joypad_device_setup_n(undefined4 *pad)
   pf = (float *)pad;
   /* pad: joypad device object (esi); +0x0 IDirectInputDevice, floats [0xb2],[0xb3] = stick x/y, history ring of earlier samples is shifted down each poll, final stick is the 8-sample average (* 0.125) */
   dev = (int *)*pad;
-  hr_or_count = ((DiDeviceCall1)*(int *)(*dev + 100))(dev);      /* Poll */
-  if (hr_or_count < 0) {
-    hr_or_count = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);      /* Acquire */
-    while (hr_or_count == -0x7ff8ffe2) {
-      hr_or_count = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);
+  hr = ((DiDeviceCall1)*(int *)(*dev + 100))(dev);      /* Poll */
+  if (hr < 0) {
+    hr = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);      /* Acquire */
+    while (hr == -0x7ff8ffe2) {
+      hr = ((DiDeviceCall1)*(int *)(*dev + 0x1c))(dev);
     }
   }
-  hr_or_count = ((DiDeviceGetState)*(int *)(*dev + 0x24))(dev, 0x50, &js);      /* GetDeviceState */
-  if (hr_or_count < 0) {
+  hr = ((DiDeviceGetState)*(int *)(*dev + 0x24))(dev, 0x50, &js);      /* GetDeviceState */
+  if (hr < 0) {
     return;
   }
   hist_a = pad + 0xd0;
   hist_b = pad + 0x111;
-  hr_or_count = 0xf;
+  loop_count = 0xf;
   do {
     *hist_b = hist_b[-1];
     hist_b[-0x10] = hist_b[-0x11];
@@ -78,8 +79,8 @@ void joypad_device_setup_n(undefined4 *pad)
     hist_a[0x21] = hist_a[0x1f];
     hist_b = hist_b + -1;
     hist_a = hist_a + -2;
-    hr_or_count = hr_or_count + -1;
-  } while (hr_or_count != 0);
+    loop_count = loop_count + -1;
+  } while (loop_count != 0);
   pad[0xf2] = 0;
   pad[0xb3] = 0;
   pad[0xb2] = 0;
@@ -141,7 +142,7 @@ void joypad_device_setup_n(undefined4 *pad)
     pf[0xb2] = stick_x * dead_zone_or_len2;
     pf[0xb3] = stick_y * dead_zone_or_len2;
   }
-  hr_or_count = 7;
+  hr = 7;
   hist_f = (float *)(pad + 0xa0);
   do {
     *hist_f = hist_f[-2];
@@ -149,8 +150,8 @@ void joypad_device_setup_n(undefined4 *pad)
     hist_f[0x10] = hist_f[0xe];
     hist_f[0x11] = hist_f[0xf];
     hist_f = hist_f + -2;
-    hr_or_count = hr_or_count + -1;
-  } while (hr_or_count != 0);
+    hr = hr + -1;
+  } while (hr != 0);
   stick_x_bits = pad[0xb2];
   pad[0x93] = pad[0xb3];
   pad[0x92] = stick_x_bits;

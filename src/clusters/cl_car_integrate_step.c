@@ -32,7 +32,8 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
   float f;
   float scale;
   float axis_value;
-  int phase_or_percent;
+  int phase;
+  int effect_percent;
   float vx, vy, vz;
   struct { float lo[5]; RwV3d dir; float tmp[3]; } fr;      /* frame layout of the original: dir at esp+0x18 below the return address */
 
@@ -41,9 +42,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
   vx = f * car->velocity[0];
   vy = f * car->velocity[1];
   vz = f * car->velocity[2];
-  phase_or_percent = race_get_phase();
-  if (((phase_or_percent != 6) && (phase_or_percent = race_get_phase(), phase_or_percent != 0xb)) &&
-     (phase_or_percent = race_get_phase(), phase_or_percent != RACE_PHASE_WINNER_DONE)) {
+  phase = race_get_phase();
+  if (((phase != 6) && (phase = race_get_phase(), phase != 0xb)) &&
+     (phase = race_get_phase(), phase != RACE_PHASE_WINNER_DONE)) {
     vz = 0.0f;
     vy = 0.0f;
     vx = 0.0f;
@@ -74,9 +75,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
       if ((car->effect_level[0] != 0) && (axis_value = (float)input[0] + (float)(int)car->effect_level[0], axis_value > k_f_255)) {
         axis_value = k_f_255;
       }
-      phase_or_percent = car->effect_level[4];
-      if (phase_or_percent != 0) {
-        t = float_1_0 - (float)phase_or_percent * k_f_0_01;
+      effect_percent = car->effect_level[4];
+      if (effect_percent != 0) {
+        t = float_1_0 - (float)effect_percent * k_f_0_01;
         axis_value = t * axis_value;
       }
       if (axis_value != k_f_0) {
@@ -89,8 +90,8 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
       if ((car->effect_level[1] != 0) && (axis_value = (float)input[1] + (float)(int)car->effect_level[1], axis_value > k_f_255)) {
         axis_value = k_f_255;
       }
-      if (phase_or_percent != 0) {
-        t = float_1_0 - (float)phase_or_percent * k_f_0_01;
+      if (effect_percent != 0) {
+        t = float_1_0 - (float)effect_percent * k_f_0_01;
         axis_value = t * axis_value;
       }
       if (axis_value != k_f_0) {
@@ -124,8 +125,8 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
     car->velocity_input[1] = vy + car->velocity_input[1];
     car->velocity_input[2] = vz + car->velocity_input[2];
   }
-  phase_or_percent = race_get_phase();
-  if ((phase_or_percent == 7) && (car->active == 1)) {
+  phase = race_get_phase();
+  if ((phase == 7) && (car->active == 1)) {
     f = (dt + dt) * k_f_3_3333333en4 * car->speed * k_f_5_0en4;
     vy = fr.dir.y * f;
     vz = fr.dir.z * f;

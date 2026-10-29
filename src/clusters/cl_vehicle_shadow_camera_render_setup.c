@@ -32,7 +32,8 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
   uint shadow_camera;
   RwFrame *frame;
   RpWorld *rpworld;
-  int light_or_status;
+  int begin_ok;
+  int light_obj;
   undefined4 collision_bsp;
   bool is_mode_2;
   float10 shadow_scale;
@@ -54,7 +55,7 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     frame_obj.clear_colour.green = '\0';
     frame_obj.clear_colour.blue = '\0';
     frame_obj.clear_colour.alpha = '\0';
-    light_or_status = *(int *)(g_particles_659d70 + 4);
+    light_obj = *(int *)(g_particles_659d70 + 4);
     is_mode_2 = vehicle_record->field_298 == 2;
     shadow_camera = (&g_load_65a9b0)[is_mode_2];
     /* Shadow camera/texture pair chosen by field_298 == 2 (is_mode_2); camera sits at the vehicle's world sphere centre offset by -4 * the light object's direction (+0x30..+0x38), then is oriented by rwframe_look_at (inferred). */
@@ -62,9 +63,9 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     vehicle_record->shadow_texture = (&g_game_659d74)[is_mode_2];
     frame = *(RwFrame **)(shadow_camera + 4);
     vehicle_record->shadow_frame = (uint)frame;
-    frame_obj.camera_pos.x = *(float *)(light_or_status + 0x30) * k_f_n4 + vehicle_record->world_sphere[0];
-    frame_obj.camera_pos.y = *(float *)(light_or_status + 0x34) * k_f_n4 + frame_obj.camera_pos.y;
-    frame_obj.camera_pos.z = *(float *)(light_or_status + 0x38) * k_f_n4 + frame_obj.camera_pos.z;
+    frame_obj.camera_pos.x = *(float *)(light_obj + 0x30) * k_f_n4 + vehicle_record->world_sphere[0];
+    frame_obj.camera_pos.y = *(float *)(light_obj + 0x34) * k_f_n4 + frame_obj.camera_pos.y;
+    frame_obj.camera_pos.z = *(float *)(light_obj + 0x38) * k_f_n4 + frame_obj.camera_pos.z;
     RwFrameTranslate(frame,&frame_obj.camera_pos,rwCOMBINEREPLACE);
     rwframe_look_at(vehicle_record->shadow_frame,vehicle_record->world_sphere,&g_car_62ac74);
     RwFrameOrthoNormalize((RwFrame *)vehicle_record->shadow_frame);
@@ -78,8 +79,8 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     camera_to_toggle = (RwCamera *)vehicle_record->shadow_camera;
     rpworld = (RpWorld *)course_get_rpworld();
     RpWorldAddCamera(rpworld,camera_to_toggle);
-    light_or_status = RwCameraBeginUpdate(vehicle_record->shadow_camera);
-    if (light_or_status != 0) {
+    begin_ok = RwCameraBeginUpdate(vehicle_record->shadow_camera);
+    if (begin_ok != 0) {
       /* Render the part frame into the shadow camera with Z test/write off (draw via the frame's virtual call at +0x48), then restore Z state. */
       shadow_scale = (float10)course_get_shadow_scale();
       collision_bsp =

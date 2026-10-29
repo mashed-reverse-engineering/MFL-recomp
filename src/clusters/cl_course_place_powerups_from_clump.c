@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*00464e00*/ extern undefined __cdecl powerup_place_with_respawn(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /* course_place_powerups_from_clump */
 
 /* "for each frame of the clump places a powerup with respawn" */
@@ -23,7 +23,7 @@ void course_place_powerups_from_clump_n(undefined4 clump)
   if (0 < atomic_count) {
     do {
       frame = *(int *)(atomics[i] + 4);
-      atomic_id = FUN_004c52b0(atomics[i],0,0);
+      atomic_id = atomic_geometry_user_data_int(atomics[i],0,0);
       powerup_place_with_respawn(frame + 0x40,atomic_id & 0xff,(fbits1 = (float)(atomic_id >> 8), *(int *)&fbits1));
       i = i + 1;
     } while (i < atomic_count);

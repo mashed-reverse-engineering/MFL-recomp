@@ -3,7 +3,7 @@
 /*0042f780*/ extern char *__cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*0049be00*/ extern int __cdecl fx_system_create(int p0, struct RwTexture *p1, uint p2, int p3, undefined4 *p4, undefined4 p5, undefined4 p6);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*004f6bf0*/ extern int rpclump_clone(void *p0);
@@ -79,12 +79,12 @@ void missile_load_assets(void)
     handle = rpclump_clone(launcher_clump);
     *(undefined4 *)((char *)&g_weapon_6a5fdc + slot_offset) = handle;
     atomics_left = clump_get_atomics((RpClump *)handle,(RpAtomic **)atomics);
-    /* Launcher atomics, last to first: the one FUN_004c52b0 accepts (returns 1)
+    /* Launcher atomics, last to first: the one atomic_geometry_user_data_int accepts (returns 1)
        goes into the slot table at g_weapon_6a5fe4 (inferred). */
     while (atomics_left != 0) {
       scratch = atomics_left + -1;
       atomics_left = atomics_left + -1;
-      scratch = FUN_004c52b0(atomics[scratch],0,0);
+      scratch = atomic_geometry_user_data_int(atomics[scratch],0,0);
       if (scratch == 1) {
         *(int *)((char *)&g_weapon_6a5fe4 + slot_offset) = atomics[atomics_left];
       }
@@ -99,12 +99,12 @@ void missile_load_assets(void)
     handle = fx_system_create(10,smoke_texture,SMOKE_FX_FLAGS,1,(undefined4 *)&fx_block.uStack_48,0x3f000000 /* 0.5f */,0x40000000 /* 2.0f */);
     *(undefined4 *)(record_offset + ((char *)&g_weapon_6a5dc8 + 0x4)) = handle;
     atomics_left = clump_get_atomics((RpClump *)(*(char **)(record_offset + ((char *)&g_weapon_flashbang_6a5db0 + 0x10))),(RpAtomic **)atomics);
-    /* Missile atomics, last to first: the one FUN_004c52b0 accepts (returns 1) is
+    /* Missile atomics, last to first: the one atomic_geometry_user_data_int accepts (returns 1) is
        stored in the record at g_weapon_6a5dc8 and its frame is scaled by (3, 3, 9). */
     while (atomics_left != 0) {
       scratch = atomics_left + -1;
       atomics_left = atomics_left + -1;
-      scratch = FUN_004c52b0(atomics[scratch],0,0);
+      scratch = atomic_geometry_user_data_int(atomics[scratch],0,0);
       if (scratch == 1) {
         scratch = atomics[atomics_left];
         scale.x = 3.0;

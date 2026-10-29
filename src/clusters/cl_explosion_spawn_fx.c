@@ -38,7 +38,8 @@ float10 explosion_spawn_fx_n(FxSceneObject *effect)
   float timer;
   int rwp_matrix;
   RwMatrix *ltm;
-  int owner_or_count;
+  int count;
+  int owner_obj;
   RwV3d *pos_a;
   float *obj_pos;
   float10 rnd;
@@ -90,9 +91,9 @@ float10 explosion_spawn_fx_n(FxSceneObject *effect)
       sfx_play_player_set_at(obj_pos);
       if (effect->owner != 0) {
         rwp_object_set_enabled(effect->rwp_object,1);
-        owner_or_count = rwp_owner_object_get(*(undefined4 *)&effect->owner);
-        rwp_world_set_bit_5c(*(undefined4 *)(owner_or_count + 0x24),owner_or_count,1);
-        body_ptr = *(int **)(*(int *)(owner_or_count + 0x10) + 4);
+        owner_obj = rwp_owner_object_get(*(undefined4 *)&effect->owner);
+        rwp_world_set_bit_5c(*(undefined4 *)(owner_obj + 0x24),owner_obj,1);
+        body_ptr = *(int **)(*(int *)(owner_obj + 0x10) + 4);
         if (body_ptr != (int *)0x0) {
           *(float *)&body_ptr[6] = (float_1_0 / (g_tick_seconds * float_10_0));
           vec_ptr = (undefined4 *)(*(int *)(*(int *)(*body_ptr + 0x10) + 8) + 0x10 + body_ptr[1] * 0x20);
@@ -102,7 +103,7 @@ float10 explosion_spawn_fx_n(FxSceneObject *effect)
           *(float *)&body_ptr[5] = (float_1_0 / (g_tick_seconds * k_f_60));
         }
       }
-      owner_or_count = 6;
+      count = 6;
       do {
         frame.spark_x = *obj_pos;
         frame.spark_y = *(float *)(rwp_matrix + 0x34);
@@ -115,8 +116,8 @@ float10 explosion_spawn_fx_n(FxSceneObject *effect)
         frame.spark_z = (float)(rnd + (float10)frame.spark_z);
         fx_emitter_spawn_a_default(&frame.spark_x,&g_car_62ac74,0x43b40000);
         explosion_decal(&frame.spark_x,0x3f99999a);
-        owner_or_count = owner_or_count + -1;
-      } while (owner_or_count != 0);
+        count = count + -1;
+      } while (count != 0);
       return (float10)frame.damage_frac;
     }
     if (frame.rand_a + frame.rand_a < frame.damage_frac) {

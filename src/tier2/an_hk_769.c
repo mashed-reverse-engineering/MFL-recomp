@@ -4,7 +4,7 @@
 /*00467fd0*/ extern int __cdecl course_surface_id_is_active_check(undefined4 p0);
 /*00472890*/ extern int sfx_play_voice_at();
 /*00481fd0*/ extern double random_range();
-/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(void *p0, void *p1, void *p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, undefined4 p1, void *p2);
 /*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
@@ -112,7 +112,7 @@ void weapon_oil_fire(WeaponSlot *slot)
         return;
       }
       /* Spawn: lift the hit point along the normal, random yaw and jitter, then fire */
-      FUN_004c4720(&ray.fire_x,&ray.ray_start_x,&ray.ray_end_x,(undefined4)ray.hit_param);
+      vec3_lerp(&ray.fire_x,&ray.ray_start_x,&ray.ray_end_x,(undefined4)ray.hit_param);
       ray.fire_x = hit.normal_x * k_f_0_04 + ray.fire_x;
       ray.fire_y = hit.normal_y * k_f_0_04 + ray.fire_y;
       ray.fire_z = hit.normal_z * k_f_0_04 + ray.fire_z;

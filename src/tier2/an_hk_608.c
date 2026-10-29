@@ -3,7 +3,7 @@
 /*004601d0*/ extern int weapon_effects_clear_6a5c60();
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
@@ -67,7 +67,7 @@ void weapon_drum_load_assets(void)
     /* Sort this clump's ATOMIC_PARTS atomics into entry slots by part_index; render flag 1 only for part 0. */
     do {
       clump_or_atomic = atomics[atomic_idx];
-      part_index = FUN_004c52b0(clump_or_atomic,0,0);
+      part_index = atomic_geometry_user_data_int(clump_or_atomic,0,0);
       if (part_index == 0) {
         render_flag = 1;
 LAB_004602a4:

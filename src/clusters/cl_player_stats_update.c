@@ -47,7 +47,8 @@ void __cdecl player_stats_update(int dt_ticks,undefined4 unused_2,undefined4 unu
                    undefined4 unused_5,undefined4 unused_6)
 
 {
-  double dot_or_part;
+  double dot;
+  double part_dot;
   double dot_clamped;
   int tmp_ok;
   undefined4 tmp_u;
@@ -136,11 +137,11 @@ LAB_00428f73:
           course_rec = (float *)course_get_record_base(tmp_u);
           tmp_u = player_record_get_8d8ca0(frame.car_index);
           tmp_i = course_get_record_base(tmp_u);
-          dot_or_part = *(float *)(tmp_i + 4) * frame.fwd_y;
+          part_dot = *(float *)(tmp_i + 4) * frame.fwd_y;
           dot_clamped = frame.fwd_x * *course_rec;
           tmp_u = player_record_get_8d8ca0(frame.car_index);
           tmp_i = course_get_record_base(tmp_u);
-          partial = (float)(dot_clamped + dot_or_part);
+          partial = (float)(dot_clamped + part_dot);
           if (*(float *)(tmp_i + 8) * frame.fwd_z + partial < k_f_0) {
             tmp_i = stats_cursor[1];
             stats_cursor[1] = tmp_i + dt_ticks;
@@ -180,12 +181,12 @@ LAB_00429069:
             }
             car_get_forward(&frame.fwd_x,frame.car_index);
             car_get_forward(&frame.other_fwd_x,tmp_i);
-            dot_or_part = frame.other_fwd_z * frame.fwd_z + frame.other_fwd_x * frame.fwd_x + frame.other_fwd_y * frame.fwd_y;
-            dot_clamped = dot_or_part;      /* clamp to -1..1; NaN passes unchanged (original: fcom / test ah,5 / jp, fcom / test ah,0x41 / jne) */
-            if (dot_or_part < k_f_n1) {
+            dot = frame.other_fwd_z * frame.fwd_z + frame.other_fwd_x * frame.fwd_x + frame.other_fwd_y * frame.fwd_y;
+            dot_clamped = dot;      /* clamp to -1..1; NaN passes unchanged (original: fcom / test ah,5 / jp, fcom / test ah,0x41 / jne) */
+            if (dot < k_f_n1) {
               dot_clamped = k_f_n1;
             }
-            else if (dot_or_part > float_1_0) {
+            else if (dot > float_1_0) {
               dot_clamped = float_1_0;
             }
             angle_deg = (float10)crt_acos_body((double)dot_clamped);

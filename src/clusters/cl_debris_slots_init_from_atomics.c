@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*00424a00*/ extern int debris_body_configure(struct RpAtomic *atomic, float radius, float p2, float p3, int p4);
 /*00424a60*/ extern int debris_model_get_first_clump();
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d1330*/ extern struct RwFrame * RwFrameRemoveChild(struct RwFrame *p0);
 /*004f6100*/ extern void _rpAtomicResyncInterpolatedSphere(struct RpAtomic *p0);
 /*0056e5b0*/ extern void FUN_0056e5b0(undefined4 p0, undefined4 p1);
@@ -27,7 +27,7 @@ void debris_slots_init_from_atomics_n(undefined4 mode, int debris_set, undefined
     atomic = *(RpAtomic **)(atomics + i * 4);
     slot = 0;
     if (atomic != (RpAtomic *)0x0) {
-      atomic_id = FUN_004c52b0(atomic,0,0);
+      atomic_id = atomic_geometry_user_data_int(atomic,0,0);
       if ((((atomic_id < 0x50) || (0x59 < atomic_id)) || (*(int *)(debris_set + 0xf8) == 0)) &&
          (((atomic_id < 0x5a || (99 < atomic_id)) || (*(int *)(debris_set + 0xf8) == 1)))) {
         if (*(int *)(debris_set + 0xf8) == 0) {

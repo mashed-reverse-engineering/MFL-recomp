@@ -18,7 +18,7 @@ extern char s_333_Lap_frames_005df368[];
 /*004b3284*/ extern double acos(double p0);
 /*004c42f0*/ extern void rwframe_look_at(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004b3284*/ extern double crt_acos_body(double p0);   /* acos */
-/*004c4720*/ extern void FUN_004c4720(void *p0, void *p1, void *p2, int p3);
+/*004c4720*/ extern void vec3_lerp(void *p0, void *p1, void *p2, int p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
@@ -234,7 +234,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
       *(float *)((char *)&g_weapon_find_6a9464 + slot_off) = frame_obj.target_pos.z + fcopy;
     }
     else {
-      FUN_004c4720(&frame_obj.delta_vec,&frame_obj.ray_start_x,&frame_obj.ray_end_x,*(int *)&frame_obj2.target_recs[14]);
+      vec3_lerp(&frame_obj.delta_vec,&frame_obj.ray_start_x,&frame_obj.ray_end_x,*(int *)&frame_obj2.target_recs[14]);
       frame_obj.delta_vec.x = frame_obj2.target_recs[0] * k_f_0_02 + frame_obj.delta_vec.x;
       *(undefined4 *)((char *)&g_weapon_find_6a9434 + slot_off) = 1;
       *(RwReal *)((char *)&g_weapon_find_6a945c + slot_off) = frame_obj.delta_vec.x;
@@ -334,7 +334,7 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
     frame_obj.target_pos.y = frame_obj.ray_end_y - frame_obj.ray_start_y;
     frame_obj.target_pos.z = frame_obj.ray_end_z - frame_obj.ray_start_z;
     frame_obj.best_dist = RwV3dLength(&frame_obj.target_pos);
-    FUN_004c4720(&frame_obj.delta_vec,&frame_obj.ray_start_x,&frame_obj.ray_end_x,*(int *)&HIT_RECORD[14]);
+    vec3_lerp(&frame_obj.delta_vec,&frame_obj.ray_start_x,&frame_obj.ray_end_x,*(int *)&HIT_RECORD[14]);
     *(undefined4 *)((char *)&g_weapon_find_6a9434 + slot_off) = 1;
     (&g_weapon_6a9428)[shooter_slot * 0x16] = 0xffffffff;
     frame_obj.delta_vec.x = HIT_RECORD[0] * k_f_0_02 + frame_obj.delta_vec.x;

@@ -45,7 +45,8 @@ void spring_grid_render(void)
   float *node_ptr;
   RwV3d *node_cursor;
   RwV3d *pointsOut;
-  int n_or_pass;
+  int pass_value;
+  int cols_left;
   uint row_last_or_alpha;
   float *vtx_out;
   float *lightv;
@@ -73,7 +74,7 @@ void spring_grid_render(void)
   lightv = (float *)(*(int *)(g_aux_camera + 4) + 0x10);
   node_cursor = (RwV3d *)&g_spring_nodes[0].w08;
   do {
-    n_or_pass = SPRING_GRID_COLS;
+    cols_left = SPRING_GRID_COLS;
     do {
       matrix = (RwMatrix *)g_spring_grid_6f2ab4;
       node_cursor->x = node_cursor->x * k_f_0_1;
@@ -81,13 +82,13 @@ void spring_grid_render(void)
       node_cursor->z = node_cursor->z * k_f_0_1;
       RwV3dTransformPoints(node_cursor,node_cursor,1,matrix);
       node_cursor = (RwV3d *)&node_cursor[5].z;
-      n_or_pass = n_or_pass + -1;
-    } while (n_or_pass != 0);
+      cols_left = cols_left + -1;
+    } while (cols_left != 0);
   } while ((int)node_cursor < 0x891c7d);
   /* Two render passes (pass 0: whole "Checks"-textured grid; pass 1: inner window, texture g_gfx_6f2ab8 if set). Each grid row is drawn as one Im3D triangle strip; vertex colour = squared half-lambert of the surface normal against the aux camera light vector (lightv) as tt*tt*255+25 clamped to 0..255 (grey), alpha byte g_gfx_6299d8 (inferred). */
   frame.pass = 0;
   do {
-    n_or_pass = frame.pass;
+    pass_value = frame.pass;
     if (frame.pass == 0) {
       frame.col_last = 0x16;
       row_first_or_light = 0;
@@ -105,7 +106,7 @@ void spring_grid_render(void)
       tex_ptr = (undefined4 *)find_texture_dict_b("Checks");
       RwDevice_fpRenderStateSet(device)(rwRENDERSTATETEXTURERASTER,(void *)*tex_ptr);
       RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS,(void *)0x1);
-      n_or_pass = frame.pass;
+      pass_value = frame.pass;
     }
     else {
       RwRenderStateSet(rwRENDERSTATETEXTURERASTER,(void *)*g_gfx_6f2ab8);
@@ -205,25 +206,25 @@ void spring_grid_render(void)
         frame.rows_left = frame.rows_left + -1;
       } while (frame.rows_left != 0);
       frame.rows_left = 0;
-      n_or_pass = frame.pass;
+      pass_value = frame.pass;
     }
-    frame.pass = n_or_pass + 1;
+    frame.pass = pass_value + 1;
   } while (frame.pass < 2);
   /* Restore: transform nodes back with the inverse matrix and scale by 10 (undoing the 0.1 scale above). */
   RwMatrixInvert((RwMatrix *)&inv_matrix,(RwMatrix *)g_spring_grid_6f2ab4);
   node_cursor = (RwV3d *)&g_spring_nodes[0].w08;
   do {
-    n_or_pass = SPRING_GRID_COLS;
+    pass_value = SPRING_GRID_COLS;
     pointsOut = node_cursor;
     do {
       RwV3dTransformPoints(pointsOut,pointsOut,1,&inv_matrix);
       node_cursor = (RwV3d *)&pointsOut[5].z;
-      n_or_pass = n_or_pass + -1;
+      pass_value = pass_value + -1;
       pointsOut->x = pointsOut->x * float_10_0;
       pointsOut->y = pointsOut->y * float_10_0;
       pointsOut->z = pointsOut->z * float_10_0;
       pointsOut = node_cursor;
-    } while (n_or_pass != 0);
+    } while (pass_value != 0);
   } while ((int)node_cursor < 0x891c7d);
   RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS,(void *)0x1);
   return;

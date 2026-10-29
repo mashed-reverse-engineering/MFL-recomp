@@ -4,7 +4,7 @@
 /*00467e90*/ extern int course_get_rpworld_00467e90();
 /*00467ea0*/ extern int weapon_get_rw_801b14();
 /*00467fd0*/ extern int __cdecl course_surface_id_is_active_check(undefined4 p0);
-/*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
@@ -87,7 +87,7 @@ void weapon_mine_drop_n(int mine_pool)
                         ((uint)*(ushort *)(*(int *)(frame.hit_sector + 4) + 6 + frame.hit_triangle * 8) +
                         (uint)*(ushort *)(frame.hit_sector + 0x80)) * 4));
     if (tmp_i == 0) {
-      FUN_004c4720(&frame.mine_x,&frame.car_x,&frame.probe_end_x,frame.hit_t);
+      vec3_lerp(&frame.mine_x,&frame.car_x,&frame.probe_end_x,frame.hit_t);
       tmp_i = *(int *)(mine_pool + 8) + -1;
       *(int *)(mine_pool + 8) = tmp_i;
       frame.mine_x = frame.hit_normal_x * k_f_0_005 + frame.mine_x;

@@ -9,14 +9,14 @@
 /*004c7260*/ extern char * lua_tostring(void * p0, int p1);
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004b3284*/ extern double acos(double p0);
 /*004f4920*/ extern RpWorld * clump_get_world(RpClump * p0);
 /*0056b1d0*/ extern void rwp_world_set_bit_5c(int p0, int p1, int p2);
 /*004f6bf0*/ extern int FUN_004f6bf0(undefined4 p0);
 /*004c45c0*/ extern int rp_random_int_range(int p0, int p1);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
-/*004c4720*/ extern void FUN_004c4720(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004c4720*/ extern void vec3_lerp(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c51a0*/ extern void FUN_004c51a0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c42f0*/ extern void FUN_004c42f0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
@@ -35,7 +35,7 @@
 /*004c3d80*/ extern int texdict_load_file(char * p0, int p1, int p2);
 /*004c48b0*/ extern void FUN_004c48b0(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5380*/ extern void FUN_004c5380(undefined4 p0, undefined4 p1);
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c52f0*/ extern void clump_collect_atomics_by_id(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c6600*/ extern void FUN_004c6600(undefined4 p0, undefined4 p1);
 /*004c4460*/ extern void FUN_004c4460(undefined4 p0, undefined4 p1, undefined4 p2);
 /*0056a4b0*/ extern void FUN_0056a4b0(undefined4 p0, undefined4 p1);
@@ -89,9 +89,9 @@
 /*004353e0*/ extern int FUN_004353e0(void);
 /*004c49b0*/ extern void FUN_004c49b0(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*0054d670*/ extern void FUN_0054d670(undefined4 p0, undefined4 p1);
-/*005542c0*/ extern int FUN_005542c0(undefined4 p0);
+/*005542c0*/ extern int rp_geometry_user_data_filled_count(undefined4 p0);
 /*00554120*/ extern void FUN_00554120(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*005542f0*/ extern int FUN_005542f0(undefined4 p0, undefined4 p1);
+/*005542f0*/ extern int rp_geometry_user_data_array_get(undefined4 p0, undefined4 p1);
 /*004c3c60*/ extern int FUN_004c3c60(void);
 /*004c3d20*/ extern int FUN_004c3d20(void);
 /*004c3cc0*/ extern int FUN_004c3cc0(void);

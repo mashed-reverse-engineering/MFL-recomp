@@ -2,7 +2,7 @@
 /* Installed cluster team_endpoint_panel_load_parts (tools/cluster_install.py from output/cluster_pilot10/team_endpoint_panel_load_parts.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5380*/ extern void FUN_004c5380(undefined4 p0, undefined4 p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* team_endpoint_panel_load_parts */
@@ -34,7 +34,7 @@ void team_endpoint_panel_load_parts_n(int clump, int panel)
   i = 0;
   do {
     atomic = frame.local_88[i];
-    part_slot = FUN_004c52b0(atomic,0,0);
+    part_slot = atomic_geometry_user_data_int(atomic,0,0);
     i = i + 1;
     *(undefined4 *)(panel + 0xb0 + part_slot * 4) = atomic;
   } while (i < 0x22);

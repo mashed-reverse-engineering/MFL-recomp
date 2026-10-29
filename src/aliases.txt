@@ -2326,3 +2326,10 @@ hanim_keyframes_sample_at_time 004c48b0
 bitset_clear_first_n 004c6600
 guid_compare 005be600
 crt_fopen_body 004b4531
+# T-C6 callee names (inferred from decompile): RpUserData geometry array accessors; old FUN_ names kept resolvable for bridges
+rp_geometry_user_data_filled_count 005542c0
+rp_geometry_user_data_array_get 005542f0
+rp_user_data_array_get_int 005543f0
+FUN_004c4720 004c4720
+FUN_004c52b0 004c52b0
+FUN_004c52f0 004c52f0

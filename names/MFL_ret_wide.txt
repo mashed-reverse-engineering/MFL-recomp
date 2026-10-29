@@ -110,7 +110,7 @@ FUN_004c4c30
 FUN_004c4c70
 FUN_004c4de0
 FUN_004c4e20
-FUN_004c52b0
+atomic_geometry_user_data_int
 FUN_004c56e0
 FUN_004c7160
 FUN_004c71d0
@@ -218,15 +218,15 @@ FUN_0054d6a0
 FUN_0054f770
 FUN_005504c0
 FUN_005540b0
-FUN_005542c0
-FUN_005542f0
+rp_geometry_user_data_filled_count
+rp_geometry_user_data_array_get
 FUN_00554320
 FUN_00554340
 FUN_00554370
 FUN_005543a0
 FUN_005543d0
 FUN_005543e0
-FUN_005543f0
+rp_user_data_array_get_int
 FUN_00556ec0
 FUN_005598d0
 FUN_00559a00

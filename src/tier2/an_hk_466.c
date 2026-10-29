@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c52f0*/ extern void clump_collect_atomics_by_id(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
@@ -74,7 +74,7 @@ void load_stopclock(void)
   mem_zero(&g_load_659b30,STOPCLOCK_ZERO_BYTES);
   g_load_659ce0 = *(RwFrame **)(clump + 4);
   g_game_659cdc = clump;
-  FUN_004c52f0(clump,&g_load_659c38,0x20,0,0);
+  clump_collect_atomics_by_id(clump,&g_load_659c38,0x20,0,0);
   /* walk the slot table g_load_659c38 up to g_game_659cb8; for each non-null slot call FUN_004c5410 (inferred: per-atomic setup) */
   slot_ptr = &g_load_659c38;
   do {

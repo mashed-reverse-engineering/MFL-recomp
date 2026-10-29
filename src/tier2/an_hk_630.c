@@ -17,7 +17,7 @@ extern struct FxSlot g_fx_slots[10];
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
 /*004c48b0*/ extern void hanim_keyframes_sample_at_time(void *p0, undefined4 p1, undefined4 p2);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*005ddae0*/ extern undefined g_load_copter_5ddae0;
 /*00651268*/ extern undefined4 g_load_651268[0x1000];
@@ -101,7 +101,7 @@ void __cdecl load_copter_models(char *game_state,char *unused_arg)
           atomic_index = remaining_atomics + -1;
           remaining_atomics = remaining_atomics + -1;
           atomic_slot = atomic_slot + -1;
-          FUN_004c52b0(frame.local_ac[atomic_index],0,0);
+          atomic_geometry_user_data_int(frame.local_ac[atomic_index],0,0);
           *atomic_slot = frame.local_ac[remaining_atomics];
         } while (remaining_atomics != 0);
       }

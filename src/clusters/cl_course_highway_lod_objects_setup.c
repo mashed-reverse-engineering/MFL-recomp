@@ -17,22 +17,23 @@
 void course_highway_lod_objects_setup_n(int object_set, char *source_atomics)
 
 {
-  int count_or_row;
+  int count;
+  int row_offset;
   RpAtomic *clone;
   RwFrame *clone_frame;
   int i;
   int *entry;
   
-  count_or_row = *(int *)((char *)((undefined *)&g_course_highway_8c4470) + *(int *)(object_set + 0xac) * 4);
+  count = *(int *)((char *)((undefined *)&g_course_highway_8c4470) + *(int *)(object_set + 0xac) * 4);
   i = 0;
-  *(int *)(object_set + 100) = count_or_row;
-  if (0 < count_or_row) {
+  *(int *)(object_set + 100) = count;
+  if (0 < count) {
     entry = (int *)(object_set + 0xc);
     do {
-      count_or_row = (i + *(int *)(object_set + 0xac) * 4) * 0xc;
-      entry[-3] = *(int *)((char *)((undefined *)&g_course_highway_8c4720) + count_or_row);
-      entry[-2] = *(int *)((char *)((undefined *)&g_course_highway_8c4724) + count_or_row);
-      entry[-1] = *(int *)((char *)((undefined *)&g_course_highway_8c4728) + count_or_row);
+      row_offset = (i + *(int *)(object_set + 0xac) * 4) * 0xc;
+      entry[-3] = *(int *)((char *)((undefined *)&g_course_highway_8c4720) + row_offset);
+      entry[-2] = *(int *)((char *)((undefined *)&g_course_highway_8c4724) + row_offset);
+      entry[-1] = *(int *)((char *)((undefined *)&g_course_highway_8c4728) + row_offset);
       clone = RpAtomicClone(*(RpAtomic **)(source_atomics + i * 4));
       *entry = (int)clone;
       clone_frame = RwFrameCreate();

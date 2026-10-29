@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*00425dc0*/ extern undefined __cdecl bbox_init(undefined4 *p0, struct RpClump *p1);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004f6100*/ extern void _rpAtomicResyncInterpolatedSphere(struct RpAtomic *p0);
 /*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
 /*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
@@ -32,7 +32,7 @@ void vehicle_strip_clump_to_body_parts_n(VehicleRecord *vehicle_record)
   if (0 < atomic_count) {
     do {
       atomic = (RpAtomic *)frame_obj.atomics[i];
-      part_id = FUN_004c52b0(atomic,0,0);
+      part_id = atomic_geometry_user_data_int(atomic,0,0);
       switch(part_id) {
       case 0x25:
       case 0x27:

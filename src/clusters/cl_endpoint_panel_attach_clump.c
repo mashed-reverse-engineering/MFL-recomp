@@ -2,13 +2,13 @@
 /* Installed cluster endpoint_panel_attach_clump (tools/cluster_install.py from output/cluster_pilot11/endpoint_panel_attach_clump.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /* endpoint_panel_attach_clump */
 
 /* "stores clump/frame, clears and fills the part table" */
 
-/* Store clump and its frame in panel (+0x100/+0x104), clear the 0x80-byte part table at panel+0x80, then file each of the clump's 24 atomics into the slot returned by FUN_004c52b0 (inferred part index). */
+/* Store clump and its frame in panel (+0x100/+0x104), clear the 0x80-byte part table at panel+0x80, then file each of the clump's 24 atomics into the slot returned by atomic_geometry_user_data_int (inferred part index). */
 void endpoint_panel_attach_clump_n(int clump, int panel)
 
 {
@@ -24,7 +24,7 @@ void endpoint_panel_attach_clump_n(int clump, int panel)
   atomic_index = 0;
   do {
     atomic = atomics[atomic_index];
-    part_slot = FUN_004c52b0(atomic,0,0);
+    part_slot = atomic_geometry_user_data_int(atomic,0,0);
     atomic_index = atomic_index + 1;
     *(undefined4 *)(panel + 0x80 + part_slot * 4) = atomic;
   } while (atomic_index < 0x18);

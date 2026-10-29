@@ -10,7 +10,7 @@
 /*00496850*/ extern int trigger_sphere_register(float *drum);
 /*004980c0*/ extern int fx_trail_particle_spawn_interpolated();
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
-/*004c4720*/ extern void FUN_004c4720(void *out, void *a, void *b, unsigned int hit_word);
+/*004c4720*/ extern void vec3_lerp(void *out, void *a, void *b, unsigned int hit_word);
 /*004c4de0*/ extern int world_intersect_line(RpWorld * p0, undefined4 p1, undefined4 p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
@@ -53,7 +53,9 @@ void weapon_drum_update_one(undefined4 *drum)
   float vel_x_k;
   RwMatrix *matrix_ptr;
   undefined4 world_ptr;
-  int state_or_tmp;
+  int state;
+  int words_left;
+  int target_obj;
   RwSphere *bound_sphere;
   RpWorld *world;
   RwReal *src_matrix;
@@ -87,16 +89,16 @@ void weapon_drum_update_one(undefined4 *drum)
     code *callback;
   } trigger;
   
-  state_or_tmp = drum[0xb];
-  if (state_or_tmp != 0) {
-    if (state_or_tmp == 1) {
+  state = drum[0xb];
+  if (state != 0) {
+    if (state == 1) {
       matrix_ptr = RwFrameGetLTM((RwFrame *)drum[0xd]);
       *(float *)&drum[4] = (matrix_ptr->pos).x;
       *(float *)&drum[5] = (matrix_ptr->pos).y;
       *(float *)&drum[6] = (matrix_ptr->pos).z;
       return;
     }
-    if (state_or_tmp == 2) {
+    if (state == 2) {
       if (!(*(float *)&drum[0xf] > float_5_0)) {      /* NaN takes the branch (original: jne) */
         pos_ptr = (float *)(drum + 4);
         np.x = g_tick_seconds * *(float *)&drum[7] + *pos_ptr;
@@ -111,8 +113,8 @@ void weapon_drum_update_one(undefined4 *drum)
         seg.to.y = np.y;
         seg.to.z = np.z;
         world_ptr = weapon_get_rw_801b14();
-        state_or_tmp = world_intersect_line(world_ptr,seg_ptr,hit_ptr);
-        if (state_or_tmp == 0) {
+        state = world_intersect_line(world_ptr,seg_ptr,hit_ptr);
+        if (state == 0) {
           bound_sphere = RpAtomicGetWorldBoundingSphere((RpAtomic *)drum[0xc]);
           trigger.sphere.center.x = (bound_sphere->center).x;
           trigger.sphere.center.y = (bound_sphere->center).y;
@@ -125,7 +127,7 @@ void weapon_drum_update_one(undefined4 *drum)
           trigger_sphere_register(&trigger);
           src_matrix = (RwReal *)(drum[0xd] + 0x10);
           matrix_ptr = &particle_mtx;
-          for (state_or_tmp = 0x10; state_or_tmp != 0; state_or_tmp = state_or_tmp + -1) {
+          for (state = 0x10; state != 0; state = state + -1) {
             (matrix_ptr->right).x = *src_matrix;
             src_matrix = src_matrix + 1;
             matrix_ptr = (RwMatrix *)&(matrix_ptr->right).y;
@@ -149,7 +151,7 @@ void weapon_drum_update_one(undefined4 *drum)
         }
         else {
           particle_colour = 0x400080ff;
-          FUN_004c4720(&np,&seg.from,&seg.to,hit.word_38);
+          vec3_lerp(&np,&seg.from,&seg.to,hit.word_38);
           np.x = hit.nx * k_f_0_05 + np.x;
           np.y = hit.ny * k_f_0_05 + np.y;
           np.z = hit.nz * k_f_0_05 + np.z;
@@ -165,11 +167,11 @@ void weapon_drum_update_one(undefined4 *drum)
         }
         particle_colour = 0x40c8c8c8;
         rnd = (float10)rp_random_float_range(0x3e19999a,0x3e4ccccd);
-        state_or_tmp = drum[0xd];
-        np.x = *(float *)(state_or_tmp + 0x10) * k_f_0_125 + *(float *)(state_or_tmp + 0x40);
-        np.y = *(float *)(state_or_tmp + 0x14) * k_f_0_125 + *(float *)(state_or_tmp + 0x44);
+        target_obj = drum[0xd];
+        np.x = *(float *)(target_obj + 0x10) * k_f_0_125 + *(float *)(target_obj + 0x40);
+        np.y = *(float *)(target_obj + 0x14) * k_f_0_125 + *(float *)(target_obj + 0x44);
         particle_flag = 6;
-        np.z = *(float *)(state_or_tmp + 0x18) * k_f_0_125 + *(float *)(state_or_tmp + 0x48);
+        np.z = *(float *)(target_obj + 0x18) * k_f_0_125 + *(float *)(target_obj + 0x48);
         particle_mtx.pos.x = 2.5;
         particle_mtx.flags = particle_colour;
         particle_mtx.up.x = (RwReal)rnd;
@@ -195,7 +197,7 @@ void weapon_drum_update_one(undefined4 *drum)
       drum[0xb] = 3;
       return;
     }
-    if (state_or_tmp == 3) {
+    if (state == 3) {
       drum[0xb] = 4;
       rnd = (float10)rp_random_float_range(0x3fc00000,0x40000000);
       fx_emitter_spawn_b_default(drum + 4,&g_car_62ac74,0x43b40000,(fbits1 = (float)rnd, *(int *)&fbits1));
@@ -210,7 +212,7 @@ void weapon_drum_update_one(undefined4 *drum)
       }
     }
     else {
-      if (state_or_tmp == 4) {
+      if (state == 4) {
         drum[3] = 0x40400000;
         far_power = rp_random_float_range(0x43160000,0x437a0000);
         near_radius = rp_random_float_range(0x42c80000,0x43480000);
@@ -219,7 +221,7 @@ void weapon_drum_update_one(undefined4 *drum)
         drum[0xb] = 5;
         return;
       }
-      if (state_or_tmp == 5) {
+      if (state == 5) {
         drum[0xb] = 0;
         weapon_fx_explosion_slot_clear_r(drum);
       }

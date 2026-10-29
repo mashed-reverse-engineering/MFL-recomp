@@ -51,19 +51,20 @@ void course_tierra_n_cb0(struct CourseWorld *world)
 
 {
   int world_addr = (int)world;
-  undefined4 atomic_or_slot;
+  undefined4 slot;
+  undefined4 atomic;
   float *bbox;
   float half_extent_y;
   int entry_index;
   int entry_ptr;
 
   /* clumps[20] atomic, frames from matrix list 3 */
-  atomic_or_slot = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[20])));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[20])));
   g_course_tierra_6a2658 =
-       object_frames_create_with_matrices(atomic_or_slot,world->mts_matrix_counts[3],world_addr + MTS_LIST3_START);
+       object_frames_create_with_matrices(atomic,world->mts_matrix_counts[3],world_addr + MTS_LIST3_START);
   /* clumps[21] atomic: its bounding box gives the centre values below */
-  atomic_or_slot = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[21])));
-  bbox = (float *)atomic_plugin_get_bbox(atomic_or_slot);
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[21])));
+  bbox = (float *)atomic_plugin_get_bbox(atomic);
   g_course_tierra_6a2648 = (bbox[3] - *bbox) * k_f_0_5;
   half_extent_y = (bbox[4] - bbox[1]) * k_f_0_5;
   g_course_tierra_6a2650 = bbox[5] - bbox[2];
@@ -73,16 +74,16 @@ void course_tierra_n_cb0(struct CourseWorld *world)
   g_course_tierra_6a2650 = g_course_tierra_6a2650 + bbox[2];
   /* same clumps[21] atomic, frames from matrix list 4 */
   g_course_tierra_6a265c =
-       object_frames_create_with_matrices(atomic_or_slot,world->mts_matrix_counts[4],world_addr + MTS_LIST4_START);
+       object_frames_create_with_matrices(atomic,world->mts_matrix_counts[4],world_addr + MTS_LIST4_START);
   /* clumps[17] atomic, frames from matrix list 5, then coloured */
-  atomic_or_slot = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[17])));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[17])));
   g_course_tierra_6a2660 =
-       object_frames_create_with_matrices(atomic_or_slot,world->mts_matrix_counts[5],world_addr + MTS_LIST5_START);
+       object_frames_create_with_matrices(atomic,world->mts_matrix_counts[5],world_addr + MTS_LIST5_START);
   object_set_colour(g_course_tierra_6a2660,OBJECT_COLOUR_ALL_BITS,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_ONE_BITS);
   /* clumps[19] atomic, frames from matrix list 6, then coloured */
-  atomic_or_slot = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[19])));
+  atomic = (undefined4)(clump_first_atomic((RpClump *)(world->clumps[19])));
   g_course_tierra_6a2664 =
-       object_frames_create_with_matrices(atomic_or_slot,world->mts_matrix_counts[6],world_addr + MTS_LIST6_START);
+       object_frames_create_with_matrices(atomic,world->mts_matrix_counts[6],world_addr + MTS_LIST6_START);
   object_set_colour(g_course_tierra_6a2664,OBJECT_COLOUR_ALL_BITS,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_BITS_0_1,FLOAT_ONE_BITS);
   g_course_tierra_6a2654 = 0;
   /* list 0: one fx slot per record. Here entry_index is the record pointer and entry_ptr the counter;
@@ -91,8 +92,8 @@ void course_tierra_n_cb0(struct CourseWorld *world)
     entry_index = world_addr + MTS_LIST0_FIRST_RECORD;
     entry_ptr = 0;
     do {
-      atomic_or_slot = fx_slot_find_free(FX_SLOT_TYPE_LIST0,entry_index,0,FX_SLOT_FIND_ARG4);
-      (&g_course_tierra_8c4b20)[g_course_tierra_6a2654] = atomic_or_slot;
+      slot = fx_slot_find_free(FX_SLOT_TYPE_LIST0,entry_index,0,FX_SLOT_FIND_ARG4);
+      (&g_course_tierra_8c4b20)[g_course_tierra_6a2654] = slot;
       g_course_tierra_6a2654 = g_course_tierra_6a2654 + 1;
       entry_ptr = entry_ptr + 1;
       entry_index = entry_index + MTS_RECORD_STRIDE;
@@ -103,8 +104,8 @@ void course_tierra_n_cb0(struct CourseWorld *world)
   if (0 < world->mts_matrix_counts[1]) {
     entry_ptr = world_addr + MTS_LIST1_FIRST_RECORD;
     do {
-      atomic_or_slot = fx_slot_find_free(FX_SLOT_TYPE_LIST1,entry_ptr,0,FX_SLOT_FIND_ARG4);
-      (&g_course_tierra_8c4b20)[g_course_tierra_6a2654] = atomic_or_slot;
+      slot = fx_slot_find_free(FX_SLOT_TYPE_LIST1,entry_ptr,0,FX_SLOT_FIND_ARG4);
+      (&g_course_tierra_8c4b20)[g_course_tierra_6a2654] = slot;
       g_course_tierra_6a2654 = g_course_tierra_6a2654 + 1;
       entry_index = entry_index + 1;
       entry_ptr = entry_ptr + MTS_RECORD_STRIDE;
@@ -115,8 +116,8 @@ void course_tierra_n_cb0(struct CourseWorld *world)
   if (0 < world->mts_matrix_counts[2]) {
     entry_ptr = world_addr + MTS_LIST2_FIRST_RECORD;
     do {
-      atomic_or_slot = fx_slot_find_free(FX_SLOT_TYPE_LIST2,entry_ptr,0,FX_SLOT_FIND_ARG4);
-      (&g_course_tierra_8c4b20)[g_course_tierra_6a2654] = atomic_or_slot;
+      slot = fx_slot_find_free(FX_SLOT_TYPE_LIST2,entry_ptr,0,FX_SLOT_FIND_ARG4);
+      (&g_course_tierra_8c4b20)[g_course_tierra_6a2654] = slot;
       g_course_tierra_6a2654 = g_course_tierra_6a2654 + 1;
       entry_index = entry_index + 1;
       entry_ptr = entry_ptr + MTS_RECORD_STRIDE;

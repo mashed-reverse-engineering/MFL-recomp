@@ -16,7 +16,8 @@ void course_storm_cb1_sub_4aaf40(void)
 
 {
   uint *ptank_flags;
-  float x_or_scale;
+  float x_value;
+  float size_scale;
   float *particle;
   int alpha;
   int remaining;
@@ -40,13 +41,13 @@ void course_storm_cb1_sub_4aaf40(void)
     do {
       if (*(short *)(particle + -1) != 0) {
         *(short *)((char *)particle + -2) = *(short *)((char *)particle + -2) + 1;
-        x_or_scale = *particle;
-        *particle = particle[3] + x_or_scale;
+        x_value = *particle;
+        *particle = particle[3] + x_value;
         particle[1] = particle[1] + particle[4];
         particle[2] = particle[5] + particle[2];
         particle[4] = particle[4] - k_f_0_0028;
         if (*(short *)((char *)particle + -2) < 0x40) {
-          *frame.pos_cursor = particle[3] + x_or_scale;
+          *frame.pos_cursor = particle[3] + x_value;
           frame.pos_cursor[1] = particle[1];
           frame.pos_cursor[2] = particle[2];
           frame.pos_cursor = (float *)((int)frame.pos_cursor + frame.pos_stride);
@@ -62,9 +63,9 @@ void course_storm_cb1_sub_4aaf40(void)
           }
           frame.color_cursor[3] = (char)alpha;
           frame.color_cursor = frame.color_cursor + frame.color_stride;
-          x_or_scale = (float)(int)*(short *)((char *)particle + -2) * k_f_0_025 + float_1_0;
-          *frame.size_cursor = x_or_scale;
-          frame.size_cursor[1] = x_or_scale;
+          size_scale = (float)(int)*(short *)((char *)particle + -2) * k_f_0_025 + float_1_0;
+          *frame.size_cursor = size_scale;
+          frame.size_cursor[1] = size_scale;
           frame.size_cursor = (float *)((int)frame.size_cursor + frame.size_stride);
           g_data_7e06e0 = g_data_7e06e0 + 1;
         }

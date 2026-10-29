@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c52f0*/ extern void clump_collect_atomics_by_id(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c5380*/ extern void FUN_004c5380(undefined4 p0, void *p1);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
@@ -22,7 +22,7 @@
  * Initialises one BTB panel slot (inferred from the body): zeroes the slot's
  * BTB_PANEL_SLOT_SIZE bytes, stores clump and the word at clump+4 in it, sets
  * the word at slot+0xc0 to 1 (inferred: "in use" flag), registers the handle
- * array with FUN_004c52f0 (inferred), then applies a colour to every non-zero
+ * array with clump_collect_atomics_by_id (inferred), then applies a colour to every non-zero
  * handle.
  * Parameters: slot = panel slot index; clump = clump pointer;
  * colour = RGBA colour, or NULL for the default light grey 0x80C8C8C8.
@@ -47,7 +47,7 @@ void btb_panel_slot_init(int slot,int clump,undefined4 *colour)
   *(undefined4 *)((char *)&g_btb_panel_658c00 + slot) = *(undefined4 *)(clump + 4);
   *(undefined4 *)((char *)&g_btb_panel_658c10 + slot) = 1;
   handle_slot = (int *)((char *)&g_btb_panel_658b90 + slot);
-  FUN_004c52f0(clump,handle_slot,0x10,0,0);
+  clump_collect_atomics_by_id(clump,handle_slot,0x10,0,0);
   /* no colour given: fall back to the default colour block on the stack */
   if (colour == (undefined4 *)0x0) {
     colour = (undefined4 *)&default_colour;

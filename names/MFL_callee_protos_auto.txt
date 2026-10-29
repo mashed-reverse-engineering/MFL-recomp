@@ -53,7 +53,7 @@
 /*004c6760*/ extern int __cdecl FUN_004c6760(void);
 /*004c9ae0*/ extern int __cdecl FUN_004c9ae0(int a1, int a2, int a3);
 /*0054d6a0*/ extern int __cdecl FUN_0054d6a0(int a1);
-/*005543f0*/ extern int __cdecl FUN_005543f0(int a1, int a2);
+/*005543f0*/ extern int __cdecl rp_user_data_array_get_int(int a1, int a2);
 /*00559a00*/ extern int __cdecl FUN_00559a00(int a1);
 /*0056c140*/ extern int __cdecl FUN_0056c140(int a1, int a2, int a3);
 /*0056c3b0*/ extern int __cdecl FUN_0056c3b0(int a1, int a2, int a3, int a4, int a5);

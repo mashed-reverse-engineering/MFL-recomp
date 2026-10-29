@@ -31,7 +31,8 @@ void rain_update_render(RwCamera *camera)
 
 {
   uint *ptank_flags;
-  float old_x_or_size;
+  float old_x;
+  float size;
   void *camera_frame;
   RainDrop *drop;
   int age;
@@ -79,13 +80,13 @@ void rain_update_render(RwCamera *camera)
     for (pool_or_remaining = RAIN_DROP_COUNT; pool_or_remaining != 0; pool_or_remaining--, drop++) {
       if (drop->active == 1) {
         age = drop->age;
-        old_x_or_size = drop->x;
-        drop->x = drop->vx + old_x_or_size;
+        old_x = drop->x;
+        drop->x = drop->vx + old_x;
         drop->age = age + 1;
         drop->y = drop->vy + drop->y;
         drop->z = drop->vz + drop->z;
         if (age + 1 < RAIN_DROP_LIFETIME) {
-          *frame.pos_ptr = drop->vx + old_x_or_size;
+          *frame.pos_ptr = drop->vx + old_x;
           frame.pos_ptr[1] = drop->y;
           frame.pos_ptr[2] = drop->z;
           frame.pos_ptr = (float *)((int)frame.pos_ptr + frame.pos_stride);
@@ -101,9 +102,9 @@ void rain_update_render(RwCamera *camera)
           }
           frame.color_ptr[3] = (char)index_or_alpha;
           frame.color_ptr = frame.color_ptr + frame.color_stride;
-          old_x_or_size = (float)drop->age * k_f_0_02 + k_f_0_2;
-          *frame.size_ptr = old_x_or_size;
-          frame.size_ptr[1] = old_x_or_size;
+          size = (float)drop->age * k_f_0_02 + k_f_0_2;
+          *frame.size_ptr = size;
+          frame.size_ptr[1] = size;
           frame.size_ptr = (float *)((int)frame.size_ptr + frame.size_stride);
           g_app_76e5a8 = g_app_76e5a8 + 1;
         }

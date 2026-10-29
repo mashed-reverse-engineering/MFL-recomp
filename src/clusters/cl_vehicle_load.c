@@ -11,7 +11,7 @@
 /*0042f780*/ extern void *__cdecl clump_load_by_name(const char *name, int unused_a, int unused_b);
 /*0042f860*/ extern void *__cdecl texdict_load_named_b(const char *name, int unused_a, int unused_b);
 /*004c3f90*/ extern int __cdecl FUN_004c3f90(void *clump, int *parts);
-/*004c52b0*/ extern int __cdecl FUN_004c52b0(void *atomic, int a, int b);
+/*004c52b0*/ extern int __cdecl atomic_geometry_user_data_int(void *atomic, int a, int b);
 /*004c53e0*/ extern void __cdecl FUN_004c53e0(void *geometry, int flags, int on);
 /*004c66a0*/ extern void __cdecl FUN_004c66a0(void *memory, int size);
 /*004d16e0*/ extern void __cdecl RwFrameSetIdentity(void *frame);
@@ -23,9 +23,9 @@
 /*00550350*/ extern void __cdecl RpMatFXMaterialSetupEnvMap(void *material, void *texture, void *frame, int use_frame_buffer_alpha, float coefficient);
 /*0054d6a0*/ extern int __cdecl FUN_0054d6a0(void *geometry);
 /*0054da20*/ extern void __cdecl RpCollisionGeometryBuildData(void *geometry, int a);
-/*005542c0*/ extern int __cdecl FUN_005542c0(void *geometry);
+/*005542c0*/ extern int __cdecl rp_geometry_user_data_filled_count(void *geometry);
 /*00554120*/ extern void __cdecl FUN_00554120(void *geometry, const char *name, int a, int b);
-/*005542f0*/ extern void *__cdecl FUN_005542f0(void *geometry, int index);
+/*005542f0*/ extern void *__cdecl rp_geometry_user_data_array_get(void *geometry, int index);
 /*00554410*/ extern void __cdecl RpUserDataArraySetInt(void *array, int index, int value);
 /*00555020*/ extern void __cdecl RpMorphGeometryCreateInterpolators(void *geometry, int count);
 /*005550a0*/ extern void __cdecl RpMorphGeometrySetInterpolator(void *geometry, int index, int start, int end, float scale);
@@ -149,13 +149,13 @@ void vehicle_load(int vehicle, int model)
     atomic = frame.part;
     geometry = (GeometryView *)atomic->geometry;
     part_user_data = atomic->user_data;
-    if (FUN_005542c0(geometry) == 1) {
+    if (rp_geometry_user_data_filled_count(geometry) == 1) {
       FUN_00554120(geometry, g_game_5dd5a2, 1, 2);
     }
-    user_data = FUN_005542f0(geometry, 1);
+    user_data = rp_geometry_user_data_array_get(geometry, 1);
     RpUserDataArraySetInt(user_data, GEOMETRY_USERDATA_PART, (int)record);
     RpUserDataArraySetInt(user_data, GEOMETRY_USERDATA_PARTID, part_user_data);
-    part_id = FUN_004c52b0(atomic, 0, 0);
+    part_id = atomic_geometry_user_data_int(atomic, 0, 0);
     frame.part_id = part_id;
     record->part_frames[part_id] = (int)atomic;
     if (vehicle_part_id_has_damage_model(part_id) != 0) {

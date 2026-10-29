@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c5360*/ extern void atomic_set_render_flag(RpAtomic * p0, int p1);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
@@ -37,7 +37,7 @@ void weapon_shotgun_load_assets(void)
     i = 0;
     do {
       atomic = atomics[i];
-      part_id = FUN_004c52b0(atomic,0,0);
+      part_id = atomic_geometry_user_data_int(atomic,0,0);
       if (part_id == 0) {
         atomic_set_render_flag(atomic,1);
       }

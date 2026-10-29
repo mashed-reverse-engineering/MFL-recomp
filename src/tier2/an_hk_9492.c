@@ -23,7 +23,8 @@ void rain_ptank_create(RwTexture *rain_texture)
   RwTexture *tex;
   RwFrame *frame;
   RpAtomic *ptank_atomic;
-  int counter_or_data;
+  int data;
+  int loop_count;
   /* one contiguous frame: the lock record, the two uv scale words and the bounding sphere are read through the pointer to lock_cursor */
   struct {
     undefined1 *lock_cursor;
@@ -70,16 +71,16 @@ void rain_ptank_create(RwTexture *rain_texture)
   RpMorphTarget_boundingSphere(morph_target).center.z = frame_obj.sphere_z;
   RpMorphTarget_boundingSphere(morph_target).radius = frame_obj.sphere_radius;
   *(undefined4 *)(*(char **)((char *)ptank_atomic + g_ptank_plugin_offset) + 0xac) = 1;
-  counter_or_data = *(int *)((char *)ptank_atomic + g_ptank_plugin_offset);
-  *(undefined4 *)(counter_or_data + 0xd8) = frame_obj.uv_u0;
-  *(undefined4 *)(counter_or_data + 0xdc) = frame_obj.uv_v0;
-  *(undefined4 *)(counter_or_data + 0xe0) = frame_obj.uv_u1;
-  *(undefined4 *)(counter_or_data + 0xe4) = frame_obj.uv_v1;
-  counter_or_data = *(int *)((char *)ptank_atomic + g_ptank_plugin_offset);
-  *(uint *)(counter_or_data + 0x40) = *(uint *)(counter_or_data + 0x40) | 0x80000;
-  counter_or_data = *(int *)((char *)ptank_atomic + g_ptank_plugin_offset);
-  *(undefined4 *)(counter_or_data + 0xb8) = frame_obj.uv_scale_x;
-  *(undefined4 *)(counter_or_data + 0xbc) = frame_obj.uv_scale_y;
+  data = *(int *)((char *)ptank_atomic + g_ptank_plugin_offset);
+  *(undefined4 *)(data + 0xd8) = frame_obj.uv_u0;
+  *(undefined4 *)(data + 0xdc) = frame_obj.uv_v0;
+  *(undefined4 *)(data + 0xe0) = frame_obj.uv_u1;
+  *(undefined4 *)(data + 0xe4) = frame_obj.uv_v1;
+  data = *(int *)((char *)ptank_atomic + g_ptank_plugin_offset);
+  *(uint *)(data + 0x40) = *(uint *)(data + 0x40) | 0x80000;
+  data = *(int *)((char *)ptank_atomic + g_ptank_plugin_offset);
+  *(undefined4 *)(data + 0xb8) = frame_obj.uv_scale_x;
+  *(undefined4 *)(data + 0xbc) = frame_obj.uv_scale_y;
   flags = (uint *)(*(char **)((char *)ptank_atomic + g_ptank_plugin_offset) + 0x40);
   *flags = *flags | 0x4000;
   tex = g_rain_ptank_76e5b0;
@@ -89,21 +90,21 @@ void rain_ptank_create(RwTexture *rain_texture)
     ptank_atomic = g_app_76e5ac;
   }
   RpPTankAtomicLock_00545d10(ptank_atomic,&frame_obj.lock_cursor,2,0x40000000);
-  counter_or_data = 0x200;
+  loop_count = 0x200;
   do {
     *frame_obj.lock_cursor = 0xff;
     frame_obj.lock_cursor[1] = 0xff;
     frame_obj.lock_cursor[2] = 0xff;
     frame_obj.lock_cursor[3] = 0xff;
     frame_obj.lock_cursor = frame_obj.lock_cursor + frame_obj.lock_stride;
-    counter_or_data = counter_or_data + -1;
-  } while (counter_or_data != 0);
-  counter_or_data = 0;
+    loop_count = loop_count + -1;
+  } while (loop_count != 0);
+  data = 0;
   do {
-    *(undefined4 *)(counter_or_data + (int)g_app_885820) = 0;
-    *(undefined4 *)(counter_or_data + 4 + (int)g_app_885820) = 0;
-    counter_or_data = counter_or_data + 0x20;
-  } while (counter_or_data < 0x4000);
+    *(undefined4 *)(data + (int)g_app_885820) = 0;
+    *(undefined4 *)(data + 4 + (int)g_app_885820) = 0;
+    data = data + 0x20;
+  } while (data < 0x4000);
   g_app_76e5a0 = 0;
   rain_slots_clear();
   return;

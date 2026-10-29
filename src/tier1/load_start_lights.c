@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
-/*004c52f0*/ extern void FUN_004c52f0(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
+/*004c52f0*/ extern void clump_collect_atomics_by_id(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*00659a7c*/ extern undefined4 g_load_659a7c;
@@ -31,7 +31,7 @@ void load_start_lights(void)
   mem_zero(&g_load_659a7c,LOAD_LIGHTS_BLOCK_SIZE);
   g_load_659a9c = startlights_clump;
   g_hudpanel_659aa0 = *(undefined4 *)(startlights_clump + 4);
-  FUN_004c52f0(startlights_clump,&g_load_659a7c,8,0,0);
+  clump_collect_atomics_by_id(startlights_clump,&g_load_659a7c,8,0,0);
   light_slot = &g_load_659a7c;
   /* walk the light slots up to g_load_start_659a94, initialising each (inferred) */
   do {

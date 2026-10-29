@@ -49,7 +49,8 @@ void __cdecl race_course_loaded(int event,int round_index)
 {
   bool waiting;
   float load_seconds_ticks;
-  int loaded_or_tmp;
+  int lookup_result;
+  int load_ticks;
   CourseId course_id;
   int start_ticks;
   int menu_flag;
@@ -70,10 +71,10 @@ void __cdecl race_course_loaded(int event,int round_index)
   } frame;
   
   /* event+4+round_index*4 -> pointer to the round's course id; event+200 = cached powerup set. Loads (or reloads) the course, logs the load time, then waits on "waiting" until a player presses select/pause. */
-  loaded_or_tmp = course_get_split_sector_8();
+  lookup_result = course_get_split_sector_8();
   start_ticks = timer_ticks();
   sound_flag_617af0_clear();
-  if (((loaded_or_tmp == 0) ||
+  if (((lookup_result == 0) ||
       (course_id = current_course_id(), **(CourseId **)(event + 4 + round_index * 4) != course_id)) ||
      (menu_flag = ui_get_menu_69cc4c(), menu_flag != 0)) {
     sound_flag_617af0_set();
@@ -83,7 +84,7 @@ void __cdecl race_course_loaded(int event,int round_index)
       *(undefined4 *)(event + 200) = powerup_set_or_course;
     }
     vehicles_any_active();
-    if (loaded_or_tmp != 0) {
+    if (lookup_result != 0) {
       course_unload_current();
     }
     course_load_from_setup(event,round_index);
@@ -101,8 +102,8 @@ void __cdecl race_course_loaded(int event,int round_index)
   }
   else {
     powerup_set_wide = menu_powerup_set_for_event();
-    loaded_or_tmp = race_course_record_for_event(event,round_index);
-    if (loaded_or_tmp != 0) {
+    lookup_result = race_course_record_for_event(event,round_index);
+    if (lookup_result != 0) {
       sound_flag_617af0_set();
       vehicles_any_active();
       race_course_model_path_for_event(event,round_index);
@@ -131,20 +132,20 @@ void __cdecl race_course_loaded(int event,int round_index)
   replay_free_buffers();
   replay_create_buffer(**(int **)(event + 4 + round_index * 4));
   race_set_phase(RACE_PHASE_SETUP);
-  loaded_or_tmp = timer_ticks();
-  loaded_or_tmp = loaded_or_tmp - start_ticks;
-  load_seconds_ticks = (float)loaded_or_tmp;
-  if (loaded_or_tmp < 0) {
+  load_ticks = timer_ticks();
+  load_ticks = load_ticks - start_ticks;
+  load_seconds_ticks = (float)load_ticks;
+  if (load_ticks < 0) {
     load_seconds_ticks = load_seconds_ticks + k_f_4_2949673e9;
   }
-  debug_printf("course LoadTime is %u (%.3f)\n",loaded_or_tmp,(double)(load_seconds_ticks * k_f_3_3333333en7));
-  loaded_or_tmp = get_event_type();
-  if (loaded_or_tmp == 0x12) {
+  debug_printf("course LoadTime is %u (%.3f)\n",load_ticks,(double)(load_seconds_ticks * k_f_3_3333333en7));
+  lookup_result = get_event_type();
+  if (lookup_result == 0x12) {
     return;
   }
   *(Text8 *)frame.m.text = *(const Text8 *)"waiting";
   clear_ptr = frame.m.rest;
-  for (loaded_or_tmp = 0x1e; loaded_or_tmp != 0; loaded_or_tmp = loaded_or_tmp + -1) {
+  for (lookup_result = 0x1e; lookup_result != 0; lookup_result = lookup_result + -1) {
     *clear_ptr = 0;
     clear_ptr = clear_ptr + 1;
   }

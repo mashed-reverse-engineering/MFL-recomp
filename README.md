@@ -22,14 +22,14 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,394 | `██████████░░░░░░░░░░` 50% |
 | ...share of the code bytes | 662,239 B | `███████████████████░` 97% |
 | ...of these register-argument clusters | 655 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,590 | `███████████████████░` 93% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,196 | `█████████░░░░░░░░░░░` 43% |
-| ...tier 1, `src/tier1` (908 files) | 848 | `██████░░░░░░░░░░░░░░` 30% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,593 | `███████████████████░` 93% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,199 | `█████████░░░░░░░░░░░` 43% |
+| ...tier 1, `src/tier1` (908 files) | 851 | `██████░░░░░░░░░░░░░░` 31% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...tier 2, `src/tier2` (1018 files) | 788 | `██████░░░░░░░░░░░░░░` 28% |
 | ...clusters, `src/clusters` (622 files) | 655 | `█████░░░░░░░░░░░░░░░` 24% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 346 | |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 343 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
 **How the numbers are counted.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ: 622 files give 655 functions. The cluster row counts those entry functions; those not yet in the tier ledger are listed as `cluster (not in ledger)` in the by-tier table, the rest are counted under their ledger tier. The *byte identical* rows are exactly the ledger entries with authority `bytes-reloc`; everything else replaced is behaviour verified.

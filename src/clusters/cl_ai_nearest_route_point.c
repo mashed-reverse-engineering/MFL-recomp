@@ -55,7 +55,8 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
   undefined4 camera;
   int i;
   float *tbl_ptr;
-  int cand_or_count;
+  int cand_index;
+  int cand_count;
   float tmp_f;
   int seg_idx;
   int done, blocked_any;
@@ -97,12 +98,12 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
     frame.view_origin_x = g_ai_editor_view_origin_x + k_f_4;
     frame.view_origin_z = g_ai_editor_view_origin_z - k_f_4;
   }
-  cand_or_count = *(int *)(route + 0x200);
+  cand_count = *(int *)(route + 0x200);
   seg_idx = 0;
   i = 0;
   /* 1: nearest route vertex to pos (squared xz distance) */
   frame.best_dist_sq = 100000.0;
-  if (0 < cand_or_count) {
+  if (0 < cand_count) {
     do {
       frame.diff_x = *(float *)(route + i * 8) - *pos;
       frame.diff_z = *(float *)(route + 4 + i * 8) - pos[1];
@@ -113,14 +114,14 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
         frame.best_dist_sq = tmp_f;
       }
       i = i + 1;
-    } while (i < cand_or_count);
+    } while (i < cand_count);
   }
   /* 2: per bot hint: do not jump more than one vertex from the bot's last vertex (bot_state[bot].+4) */
   if (use_bot_hint != 0) {
     *(int *)&frame.sample_x = bot_index * 5;
     i = *(int *)(g_ai_data.bot_state + bot_index * 0x14 + 4);
     hint_diff = seg_idx - i;
-    if ((hint_diff != 1 - cand_or_count) && (((hint_diff < -1 || (1 < hint_diff)) && (i < cand_or_count)))) {
+    if ((hint_diff != 1 - cand_count) && (((hint_diff < -1 || (1 < hint_diff)) && (i < cand_count)))) {
       seg_idx = i;
     }
     *(int *)(g_ai_data.bot_state + bot_index * 0x14 + 4) = seg_idx;
@@ -128,19 +129,19 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
   /* 3: refine on the neighbouring segment: sample points of segment seg_idx and seg_idx-1 near their ends */
   camera_path_sample(route,seg_idx,0x3c23d70a,&frame.sample_x);
   frame.diff_x = frame.sample_x - *pos;
-  cand_or_count = seg_idx + -1;
+  cand_index = seg_idx + -1;
   frame.diff_z = frame.sample_z - pos[1];
   frame.sample_dist_sq = frame.diff_x * frame.diff_x + frame.diff_z * frame.diff_z;
-  if (cand_or_count < 0) {
-    cand_or_count = *(int *)(route + 0x200) + -1;
+  if (cand_index < 0) {
+    cand_index = *(int *)(route + 0x200) + -1;
   }
-  camera_path_sample(route,cand_or_count,0x3f7d70a4,&frame.v2_tmp);
+  camera_path_sample(route,cand_index,0x3f7d70a4,&frame.v2_tmp);
   frame.diff_x = frame.v2_tmp.x - *pos;
   frame.diff_z = frame.v2_tmp.y - pos[1];
   if (frame.diff_x * frame.diff_x + frame.diff_z * frame.diff_z < frame.sample_dist_sq) {
     frame.sample_x = frame.v2_tmp.x;
     frame.sample_z = frame.v2_tmp.y;
-    seg_idx = cand_or_count;
+    seg_idx = cand_index;
   }
   /* 4: 16 step ternary-style search for the nearest parameter t on the segment */
   hi_t = 1.0;
@@ -151,7 +152,7 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
   lo_t = 0.0;
   camera_path_sample(route,seg_idx,0,&frame.walk_x);
   frame.diff_x = frame.walk_x - *pos;
-  cand_or_count = 0x10;
+  cand_index = 0x10;
   frame.diff_z = frame.walk_z - pos[1];
   frame.best_dist_sq = frame.diff_x * frame.diff_x + frame.diff_z * frame.diff_z;
   do {
@@ -169,8 +170,8 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
       frame.diff_z = frame.hi_z - pos[1];
       frame.hi_dist_sq = frame.diff_x * frame.diff_x + frame.diff_z * frame.diff_z;
     }
-    cand_or_count = cand_or_count + -1;
-  } while (cand_or_count != 0);
+    cand_index = cand_index + -1;
+  } while (cand_index != 0);
   if (!(frame.hi_dist_sq > frame.best_dist_sq)) {
     frame.best_z = frame.hi_z;
     frame.best_dist_sq = hi_t;
@@ -210,7 +211,7 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
   /* 5: walk 16 points ahead along the route (0.05 steps), score each by alignment with the walk direction */
   frame.sample_dist_sq = frame.best_dist_sq;
   frame.walk_z = frame.best_z;
-  cand_or_count = 0;
+  cand_index = 0;
   tbl_ptr = frame.cand_pts;
   frame.walk_x = tmp_f;
   do {
@@ -236,7 +237,7 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
     if (float_1_0 < tmp_f) {
       tmp_f = float_1_0;
     }
-    frame.align_score[cand_or_count] = tmp_f;
+    frame.align_score[cand_index] = tmp_f;
     frame.walk_z = frame.sample_z;
     *tbl_ptr = frame.sample_x;
     frame.walk_x = frame.sample_x;
@@ -247,60 +248,60 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
       frame.diff_x = (frame.sample_z - frame.view_origin_z) * k_f_0_125;
       frame.diff_z = (frame.view_origin_x - frame.sample_x) * k_f_0_125;
     }
-    cand_or_count = cand_or_count + 1;
+    cand_index = cand_index + 1;
     tbl_ptr = tbl_ptr + 2;
-  } while (cand_or_count < 0x10);
-  cand_or_count = 0;
+  } while (cand_index < 0x10);
+  cand_index = 0;
   /* pick the candidate with the best (largest) alignment score */
   tbl_ptr = frame.align_score + 1;
   seg_idx = 2;
   tmp_f = k_f_0;
   do {
     if (tmp_f < tbl_ptr[-1]) {
-      cand_or_count = seg_idx + -2;
+      cand_index = seg_idx + -2;
       tmp_f = tbl_ptr[-1];
     }
     if (tmp_f < *tbl_ptr) {
-      cand_or_count = seg_idx + -1;
+      cand_index = seg_idx + -1;
       tmp_f = *tbl_ptr;
     }
     if (tmp_f < tbl_ptr[1]) {
       tmp_f = tbl_ptr[1];
-      cand_or_count = seg_idx;
+      cand_index = seg_idx;
     }
     if (tmp_f < tbl_ptr[2]) {
-      cand_or_count = seg_idx + 1;
+      cand_index = seg_idx + 1;
       tmp_f = tbl_ptr[2];
     }
     if (tmp_f < tbl_ptr[3]) {
-      cand_or_count = seg_idx + 2;
+      cand_index = seg_idx + 2;
       tmp_f = tbl_ptr[3];
     }
     if (tmp_f < tbl_ptr[4]) {
-      cand_or_count = seg_idx + 3;
+      cand_index = seg_idx + 3;
       tmp_f = tbl_ptr[4];
     }
     if (tmp_f < tbl_ptr[5]) {
-      cand_or_count = seg_idx + 4;
+      cand_index = seg_idx + 4;
       tmp_f = tbl_ptr[5];
     }
     if (tmp_f < tbl_ptr[6]) {
-      cand_or_count = seg_idx + 5;
+      cand_index = seg_idx + 5;
       tmp_f = tbl_ptr[6];
     }
     i = seg_idx + 6;
     tbl_ptr = tbl_ptr + 8;
     seg_idx = seg_idx + 8;
   } while (i < 0x10);
-  tmp_f = frame.cand_pts[cand_or_count * 2 + 1];
-  *out_target = frame.cand_pts[cand_or_count * 2];
+  tmp_f = frame.cand_pts[cand_index * 2 + 1];
+  *out_target = frame.cand_pts[cand_index * 2];
   out_target[1] = tmp_f;
   if (debug_draw != 0) {
     frame.dbg_col_b = 0;
     frame.dbg_col_r = 0xff;
     frame.dbg_col_g = 0;
-    frame.diff_x = (frame.cand_pts[cand_or_count * 2 + 1] - frame.view_origin_z) * k_f_0_125;
-    frame.diff_z = (frame.view_origin_x - frame.cand_pts[cand_or_count * 2]) * k_f_0_125;
+    frame.diff_x = (frame.cand_pts[cand_index * 2 + 1] - frame.view_origin_z) * k_f_0_125;
+    frame.diff_z = (frame.view_origin_x - frame.cand_pts[cand_index * 2]) * k_f_0_125;
     if (((((k_f_n1 < frame.diff_x) && (k_f_n1 < frame.dbg_pos_z)) && (frame.diff_x < k_f_2)) &&
         ((frame.dbg_pos_z < k_f_2 && (k_f_n1 < frame.diff_z)))) &&
        ((k_f_n1 < frame.dbg_pos_x && ((frame.diff_z < k_f_2 && (frame.dbg_pos_x < k_f_2)))))) {
@@ -375,31 +376,31 @@ void ai_nearest_route_point(int route,float *pos,float *out_target,int bot_index
         done = 1;
       }
       else {
-        if (cand_or_count == 0 || cand_or_count == 1) {
-          cand_or_count = 0;
+        if (cand_index == 0 || cand_index == 1) {
+          cand_index = 0;
           done = 1;
         }
         else {
-          cand_or_count = cand_or_count - 2;
+          cand_index = cand_index - 2;
         }
-        *(int *)&out_target[0] = *(int *)&frame.cand_pts[cand_or_count * 2];
-        *(int *)&out_target[1] = *(int *)&frame.cand_pts[cand_or_count * 2 + 1];
+        *(int *)&out_target[0] = *(int *)&frame.cand_pts[cand_index * 2];
+        *(int *)&out_target[1] = *(int *)&frame.cand_pts[cand_index * 2 + 1];
       }
     }
-    ai_bot_set_field_24(bot_index, cand_or_count == 0);
+    ai_bot_set_field_24(bot_index, cand_index == 0);
     if (done != 0) {
       if (blocked_any != 0) {
-        if (cand_or_count != 0 && cand_or_count != 1) cand_or_count = cand_or_count - 2;
-        else cand_or_count = 0;
-        *(int *)&out_target[0] = *(int *)&frame.cand_pts[cand_or_count * 2];
-        *(int *)&out_target[1] = *(int *)&frame.cand_pts[cand_or_count * 2 + 1];
+        if (cand_index != 0 && cand_index != 1) cand_index = cand_index - 2;
+        else cand_index = 0;
+        *(int *)&out_target[0] = *(int *)&frame.cand_pts[cand_index * 2];
+        *(int *)&out_target[1] = *(int *)&frame.cand_pts[cand_index * 2 + 1];
       }
       if (debug_draw != 0) {
         frame.dbg_col_b = 0;
         frame.dbg_col_r = 0xff;
         frame.dbg_col_g = 0;
-        frame.diff_x = (frame.cand_pts[cand_or_count * 2 + 1] - frame.view_origin_z) * k_f_0_125;
-        frame.diff_z = (frame.view_origin_x - frame.cand_pts[cand_or_count * 2]) * k_f_0_125;
+        frame.diff_x = (frame.cand_pts[cand_index * 2 + 1] - frame.view_origin_z) * k_f_0_125;
+        frame.diff_z = (frame.view_origin_x - frame.cand_pts[cand_index * 2]) * k_f_0_125;
         if (((((k_f_n1 < frame.diff_x) && (k_f_n1 < frame.dbg_pos_z)) && (frame.diff_x < k_f_2)) &&
             ((frame.dbg_pos_z < k_f_2 && (k_f_n1 < frame.diff_z)))) &&
            ((k_f_n1 < frame.dbg_pos_x && ((frame.diff_z < k_f_2 && (frame.dbg_pos_x < k_f_2)))))) {

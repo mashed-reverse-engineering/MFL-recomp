@@ -5,7 +5,7 @@
 /*0049b780*/ extern int __cdecl particles_alloc_system(struct RwTexture *p0, int p1, int p2, uint p3);
 /*0049b860*/ extern int fx_set_blend_modes();
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
-/*004c52b0*/ extern int FUN_004c52b0(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004f6bf0*/ extern int rpclump_clone(void *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
@@ -40,7 +40,7 @@ void flamethrower_load_assets(void)
     while (atomic_count != 0) {
       atomic_flag = atomic_count + -1;
       atomic_count = atomic_count + -1;
-      atomic_flag = FUN_004c52b0(atomics[atomic_flag],0,0);
+      atomic_flag = atomic_geometry_user_data_int(atomics[atomic_flag],0,0);
       if (atomic_flag == 1) {
         atomic_flag = atomics[atomic_count];
         slot_end[-0x11] = atomic_flag;
