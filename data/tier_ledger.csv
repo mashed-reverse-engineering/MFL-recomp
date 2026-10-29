@@ -1812,7 +1812,7 @@ pool_clear,004977a0,agent,bytes-standalone+832f8962c931,bytes-reloc,-,126ee480af
 pool_create,00497820,tier1,bytes,bytes-reloc,07476cde4d4b,126ee480af92,4608b9e561f7,0,0.00,0,0
 pool_destroy,004977e0,tier1,bytes,bytes-reloc,6a964d92248c,126ee480af92,4608b9e561f7,0,0.00,0,0
 pool_list_destroy,00484ad0,tier1,bytes,bytes-reloc,e7e32f934b18,126ee480af92,4608b9e561f7,0,0.00,0,0
-pool_list_unlink,004976b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a984cf57ba26,126ee480af92,4608b9e561f7,30,0.62,0,0
+pool_list_unlink,004976b0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,a984cf57ba26,126ee480af92,4608b9e561f7,29,0.62,0,0
 pool_push,00497770,tier1,bytes,bytes-reloc,984e2a766725,126ee480af92,4608b9e561f7,0,0.00,0,0
 pool_stack_pop_index,00497750,hand,registers-only,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 powerup_icon_texture,00464330,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.93,0,0
@@ -2212,7 +2212,7 @@ trigger_cb_mark_hit_bit,00459ec0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,
 trigger_grid_build_visible_cells,00496330,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,200,0.83,0,0
 trigger_register_object_type8,00456740,tier1,bytes,bytes-reloc,0622e59de8c9,126ee480af92,4608b9e561f7,0,0.00,0,0
 trigger_sphere_register,00496850,tier2,compiled+diffemu-DIFF+shadow-never,static,-,126ee480af92,4608b9e561f7,0,0.58,0,0
-triggers_assign_ids,004967f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,c12a260d452a,126ee480af92,4608b9e561f7,199,1.00,0,1
+triggers_assign_ids,004967f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,c12a260d452a,126ee480af92,4608b9e561f7,200,1.00,0,1
 triggers_get_array,004967d0,hand,bytes,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0
 triggers_sort_axis,00496ad0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,170,1.00,0,0
 triggers_update_dispatch,00496bd0,agent,bytes-standalone+3e315d3e9864,bytes-reloc,-,126ee480af92,4608b9e561f7,0,0.00,0,0

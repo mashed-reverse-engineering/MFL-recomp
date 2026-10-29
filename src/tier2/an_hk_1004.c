@@ -74,7 +74,7 @@ void weapons_update_frame(void)
   void (__cdecl *callback)(void);
   float old_a[3];
   float old_b[3];
-  float hit_position[3];
+  float hit_record[16]; /* 0x40-byte world hit record: rocket_surface_hit_test reads it as a rocket object (up to +0x3c) */
   
   race_phase = race_get_phase();
   slot_index = 0;
@@ -108,8 +108,8 @@ void weapons_update_frame(void)
           *(undefined4 *)(slot + SLOT_AIM) = *(undefined4 *)(slot + SLOT_POSITION);
           *(undefined4 *)(slot + SLOT_AIM + 4) = *(undefined4 *)(slot + SLOT_POSITION + 4);
           *(undefined4 *)(slot + SLOT_AIM + 8) = *(undefined4 *)(slot + SLOT_POSITION + 8);
-          hit = FUN_004c4c70(weapon_get_rw_801b14(),(float *)(slot + SLOT_AIM),hit_position);
-          if ((hit != 0) && (rocket_surface_hit_test(hit_position,(float *)(slot + SLOT_AIM)) == 0)) {
+          hit = FUN_004c4c70(weapon_get_rw_801b14(),(float *)(slot + SLOT_AIM),hit_record);
+          if ((hit != 0) && (rocket_surface_hit_test(hit_record,(float *)(slot + SLOT_AIM)) == 0)) {
             player_unequip_weapon_r((int)slot);
             fx_emitter_spawn_b_default((float *)(slot + SLOT_AIM),&g_car_62ac74,0x43b40000,
                                        rp_random_float_range(0x3fa00000,0x3fe00000));
