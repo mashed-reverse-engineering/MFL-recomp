@@ -173,7 +173,7 @@ def cluster_main(a):
                 if os.path.exists(old): os.remove(old)      # no stale diff text of an earlier verdict
         for n, r, why in res:
             row = row_of(n, cl.vas[n], r, None, why); row["cluster"] = root; rows.append(row); bad += r["verdict"] == "DIFF"
-            print("%-12s %-12s %-34s cases %3s cov %s/%s %s" % (root, r["verdict"], n, r["cases"], row["coverage_orig"], row["coverage_ours"], row["note"][:200] if r["verdict"] != "EQUAL" else ""))
+            print("%-12s %-12s %-34s cases %3s cov %s/%s %s" % (root, r["verdict"], n, r["cases"], row["coverage_orig"], row["coverage_ours"], row["note"][:200] if (r["verdict"] != "EQUAL" or os.environ.get("DX_NOTE")) else ""))
         print("cluster %s: %s  (%.0fs)" % (root, ", ".join("%s %s" % (n, r["verdict"]) for n, r, _ in res), time.time() - t0)); sys.stdout.flush()
     out = os.path.join(os.path.dirname(specf), "results.csv")
     with open(out, "w", newline="") as f:

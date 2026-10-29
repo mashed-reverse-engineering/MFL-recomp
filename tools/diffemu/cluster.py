@@ -65,7 +65,7 @@ def indirect_pops(va, size, read=None, ours=False):
     callee `ret N`), the stub for a call through data would leave the arguments on the stack (esp delta orig 4 ours 4 ...).  Heuristic: the pushes in the straight line directly before the call, minus the prologue pushes
     (register saves / SEH frame).  A wrong guess unbalances the stack and shows as DIFF, never as a false EQUAL."""
     ins = []; a = va; read = read or core.img_read
-    while a < va + size:
+    while a < va + size or (a < va + size + 24 and ins and ins[-1].mnemonic != "ret"):      # the recorded size can end before the tail (world_render_with_sector_callback: 205 bytes, the last `call [ecx+0x20]; add esp, 8` behind it): read on to the `ret` so the cleanup is seen (else the stub pops the arguments and the return address is lost: NULLCALL)
         i = next(core.CS.disasm(read(a, 16), a, 1), None)
         if i is None: a += 1; continue
         ins.append(i); a += i.size
