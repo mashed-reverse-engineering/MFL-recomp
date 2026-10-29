@@ -12,7 +12,7 @@ typedef signed char sbyte;
 /*005dd410*/ extern float k_f_n2;
 /*005dd61c*/ extern float k_f_0_001;
 /*005ddb20*/ extern float k_f_0_9;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0072dff0*/ extern undefined g_fx_ptank_72dff0;
 /*00745bd8*/ extern undefined4 g_particles_745bd8;
 /*00745bdc*/ extern undefined4 g_particles_745bdc;

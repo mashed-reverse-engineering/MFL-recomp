@@ -15,7 +15,7 @@ extern char PTR_g_data_736579_005df3cc[];
 /*005ddb14*/ extern float float_7_0;
 /*005ddb48*/ extern float k_f_16;
 /*005ddb50*/ extern float k_f_8;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005ddea0*/ extern float k_f_20;
 /*005de890*/ extern float k_f_28;
 /*005df308*/ extern float k_f_410;

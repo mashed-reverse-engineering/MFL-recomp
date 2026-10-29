@@ -20,7 +20,7 @@
 /*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
 /*005dd330*/ extern float float_1_0;
 /*005dd7e4*/ extern float k_f_0_03;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005fb0a8*/ extern float g_bomb_5fb0a8;
 /*005fb0ac*/ extern float g_course_5fb0ac;
 /*005fb0b0*/ extern undefined4 g_bomb_5fb0b0;

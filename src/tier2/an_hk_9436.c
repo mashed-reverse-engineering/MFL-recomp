@@ -11,7 +11,7 @@ extern struct VoiceSlot g_voices[210];
 /*005b6a40*/ extern void sound_voice_set_enabled(unsigned int voice, int enable);
 /*005b7300*/ extern void sound_voice_set_float_param(int sound_object, int param, int enable, float value);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005dfcd0*/ extern float k_f_2_2222222en4;
 /*005dd61c*/ extern float k_f_0_001;
 /*005dfccc*/ extern float k_f_5000;

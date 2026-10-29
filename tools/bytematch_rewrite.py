@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); R = os.path.join(HERE, "..", 
 sys.path.insert(0, HERE)
 import cmpfn, bytediff_causes as bc
 
-DEF = re.compile(r"^(?:[A-Za-z_][\w \*]*\n)?[A-Za-z_][^\n;]*\b(\w+)\(([^;{]*)\)\s*\n\s*\{.*?\n\}\n", re.M | re.S)
+DEF = re.compile(r"^(?:[A-Za-z_][\w \*]*\n)?(?:[A-Za-z_][^\n;]*\b)?(\w+)\(([^;{]*)\)\s*\n\s*\{.*?\n\}\n", re.M | re.S)
 REL = re.compile(r"(?<![<>=!\-])(<=|>=|<|>)(?![<>=])")
 NUM = re.compile(r"^\(?\s*(-?(?:0x[0-9a-fA-F]+|\d+))[uUlL]*\s*\)?$")
 

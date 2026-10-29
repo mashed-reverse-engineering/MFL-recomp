@@ -3,7 +3,7 @@ extern struct VoiceSlot g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int p1, float p2);
 /*004a20c0*/ extern int get_app_state();
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006187f8*/ extern undefined4 g_sfx_table;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;
 /*008d98bc*/ extern int g_sound_player_count;

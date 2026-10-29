@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0044c180*/ extern float player_distance_get();
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 #define RACE_SLOT_COUNT (4)
 #define NO_LEADER_SLOT (-1)
 /* ai_find_leader_b */

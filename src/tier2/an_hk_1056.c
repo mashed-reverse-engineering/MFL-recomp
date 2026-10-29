@@ -5,7 +5,7 @@
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd340*/ extern float k_f_0_5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*007ef7ac*/ extern float g_camera_shake;
 /* course_effect_spawn_at_helper_45c8f0 */
 

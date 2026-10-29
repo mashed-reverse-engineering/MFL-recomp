@@ -13,7 +13,7 @@
 /*00486c40*/ extern int particles_flush();
 /*00496850*/ extern int trigger_sphere_register(float *param_1);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1f8*/ extern float k_f_3_1415927;
 /*005de9c4*/ extern float k_f_0_017453292;
 /*005df830*/ extern float g_powerups_update_5df830;

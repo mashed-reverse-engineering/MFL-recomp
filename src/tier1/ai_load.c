@@ -44,5 +44,3 @@ ai_load(void)
   game_close_piz();
   return uVar2;
 }
-
-

@@ -13,7 +13,7 @@
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005dd374*/ extern float k_f_0_2;
 /*005dd61c*/ extern float k_f_0_001;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de19c*/ extern float k_f_1_0en4;
 /*005de25c*/ extern float k_f_0_005;
 /*005de490*/ extern float k_f_0_02;

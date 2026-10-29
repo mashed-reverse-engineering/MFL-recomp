@@ -5,7 +5,7 @@ extern struct SpringNode g_spring_nodes[460];
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006f2aa8*/ extern float g_gfx_6f2aa8;
 /*006f2aac*/ extern float g_gfx_6f2aac;
 /*006f2ab0*/ extern float g_gfx_6f2ab0;

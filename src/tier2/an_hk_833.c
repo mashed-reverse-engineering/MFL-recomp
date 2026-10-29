@@ -3,7 +3,7 @@
 /*004757a0*/ extern char *get_viewport_camera_matrix();
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd414*/ extern float k_f_4_5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005df448*/ extern float k_f_18;
 /*005e06e0*/ extern float k_f_2_25_5e06e0;
 /*005e06e4*/ extern float k_f_0_93;

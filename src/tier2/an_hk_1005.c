@@ -4,7 +4,7 @@
 /*00434a10*/ extern int is_team_mode();
 /*004a8420*/ extern int debug_printf();
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*008c8ae0*/ extern struct PlayerStatRecord g_player_stats_race[4];
 /*008d8b30*/ extern undefined4 player_count;
 #define PLAYER_STAT_STRIDE_WORDS (0x4e) /* sizeof(PlayerStatRecord)/4 */

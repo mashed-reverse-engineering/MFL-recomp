@@ -60,7 +60,7 @@ typedef int CourseId;
 /*005ddb18*/ extern float float_0_8;
 /*005ddb58*/ extern float k_f_1000;
 /*005ddc18*/ extern float k_f_1_1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1d0*/ extern float k_f_1_25;
 /*005de20c*/ extern float k_f_2_5;
 /*005de290*/ extern float float_50_0;

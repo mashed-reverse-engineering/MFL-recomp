@@ -11,7 +11,7 @@
 /*0049cb60*/ extern int sphere_vs_box_test(float *collider, float *param_3);
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
 /*005dd32c*/ extern float k_f_3;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005df528*/ extern float k_f_1_8;
 /*0062ac74*/ extern float g_car_62ac74;
 /*007ef7f4*/ extern float g_tick_seconds;

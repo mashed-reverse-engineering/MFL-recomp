@@ -30,7 +30,7 @@
 /*005dd374*/ extern float k_f_0_2;
 /*005dd7f8*/ extern float k_f_110;
 /*005ddc1c*/ extern float k_f_0_33333334;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de294*/ extern float k_f_n0_125;
 /*005de2fc*/ extern float k_f_0_04;
 /*005df7e8*/ extern float k_f_n0_02;
@@ -283,44 +283,11 @@ void weapon_fx_grid_clear(undefined4 *record)
 
 extern void weapon_flamethrower_free_assets(void);
 
-#define WEAPON_FLAME_RECORD_STRIDE (0x68)     /* bytes per player's flame record */
 #define FLAME_CLUMP_STRIDE_DWORDS (0x1a)      /* dwords per player's clump slot: 0x68 bytes */
-#define SFX_VOICE_FLAMETHROWER (0x16)         /* voice id passed to sfx_play_voice_at (inferred) */
-/* layout of *rec in weapon_flamethrower_unequip, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
-typedef struct weapon_flamethrower_unequip_rec_layout {
-    undefined4 f_0x0;
-    char pad_0x4[28];
-    RpClump * f_0x20;
-    undefined4 f_0x24;
-} weapon_flamethrower_unequip_rec_layout;
 
 
 
 extern undefined4 * weapon_flamethrower_equip(WeaponSlot *slot);
-
-
-/* weapon_flamethrower_unequip */
-
-/* TIER2: unvalidated 2026-10-11 authority=diffemu */
-
-/*
- * Unequips the flamethrower for the player in slot->player: turns off the player's flame clump atomics flag,
- * calls object_set_flag_4 on the player's flame object with flag 0 (inferred), removes the clump from the course
- * world and clears the record's active flag. Parameter: slot (WeaponSlot *). Returns nothing.
- */
-/* TIER2: unvalidated 2026-10-29 authority=static */
-void weapon_flamethrower_unequip(WeaponSlot *slot)
-{
-  weapon_flamethrower_unequip_rec_layout *rec;
-
-  rec = (weapon_flamethrower_unequip_rec_layout *)((char *)&g_weapon_6a9588 + slot->player * WEAPON_FLAME_RECORD_STRIDE);
-  clump_set_flag_on_atomics(rec->f_0x20,0);
-  object_set_flag_4(rec->f_0x24,0);
-  RpWorldRemoveClump((RpWorld *)course_get_rpworld_00467e90(),rec->f_0x20);
-  rec->f_0x0 = 0;
-  sfx_voice_stop(SFX_VOICE_FLAMETHROWER,slot->player);
-  return;
-}
 
 
 /* weapon_flamethrower_ammo_fraction */

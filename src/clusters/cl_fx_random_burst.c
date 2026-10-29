@@ -5,7 +5,7 @@
 /*00482010*/ extern int random_int_range();
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*005dd340*/ extern float k_f_0_5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*007ef7f4*/ extern float g_tick_seconds;
 /* fx_random_burst */
 

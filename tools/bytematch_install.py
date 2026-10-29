@@ -27,6 +27,7 @@ for a in args:
 nm = bc.names()
 nd = os.path.join(R, "automatch_near"); t1 = os.path.join(R, "tier1")
 texts = {}; removed = []
+RWMAC = {"RW_GLOBAL"} | set(re.findall(r"^#define (\w+)[^\n]*\bRW_GLOBAL\(", open(os.path.join(R, "mfl_tier2.h"), errors="replace").read(), re.M))
 tmp = tempfile.mkdtemp(prefix="bmi_", dir=os.environ.get("TMPDIR", "/tmp"))
 for h in os.listdir(R):
     if h.endswith(".h"): shutil.copy(os.path.join(R, h), tmp)
@@ -48,7 +49,18 @@ try:
         pre = t[:first.start()] if first else ""      # preamble before the first function
         body = t[s:m.end()]
         used = set(re.findall(r"[A-Za-z_]\w*", body))
-        if used & {"RW_GLOBAL", "rwsprintf"}: used.add("RwEngineInstance")      # macros of mfl_tier2.h / the preamble expand to it
+        helpers = []      # (start, end, name) of helper `#define`s / `typedef struct {...} name;` blocks above the function that its body uses (anywhere in the chunk, not only in the leading walk)
+        grow = True
+        while grow:
+            grow = False
+            for hm in re.finditer(r"^(?:/\*[^\n]*\*/\n)?(?:#define (\w+)[^\n]*\n|typedef struct[^{;]*\{.*?\n\}\s*(\w+);\n)", t[:s], re.M | re.S):
+                hn = hm.group(1) or hm.group(2)
+                if hn not in used or any(h[0] == hm.start() for h in helpers): continue
+                helpers.append((hm.start(), hm.end(), hn)); used |= set(re.findall(r"[A-Za-z_]\w*", hm.group(0))); grow = True
+        helpers.sort()
+        hcut = [h for h in helpers if not re.search(r"\b%s\b" % h[2], t[:h[0]] + t[h[1]:s] + t[m.end():])]      # not used by another function of the chunk: cut it there, else only copy
+        body = "".join(t[a_:b_] for a_, b_, _ in helpers) + body
+        if used & RWMAC: used.add("RwEngineInstance")      # macros of mfl_tier2.h / the preamble expand to it (RwFree, RwMalloc, rwsprintf, ...)
         keep = []
         in_c = False
         for l in pre.split("\n"):
@@ -66,9 +78,11 @@ try:
         ok, det = cmpfn.check(out, [(n, va)], ["/O2"] + (["/GS"] if gs else []))[n]
         if not ok: print("SKIP %s: %s" % (n, det[:90])); continue
         print("OK   %s -> src/tier1/%s.c (%s)" % (n, n, det))
+        m_end = m.end()
         if not dry:
             shutil.copy(out, os.path.join(t1, n + ".c"))
-            texts[ch] = t[:s] + t[m.end():]
+            for a_, b_, _ in sorted(hcut, reverse=True): t = t[:a_] + t[b_:]; s -= b_ - a_; m_end -= b_ - a_
+            texts[ch] = t[:s] + t[m_end:]
         removed.append(n)
     if not dry:
         for ch, t in texts.items(): open(os.path.join(nd, ch), "w", errors="surrogateescape").write(t)

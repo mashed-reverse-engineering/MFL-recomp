@@ -7,7 +7,7 @@
 /*0047b360*/ extern int car_wheel_get_field_88_a();
 /*0048e470*/ extern int rwp_object_sync_and_reset();
 /*0049c5f0*/ extern undefined __cdecl fx_snow_ptank_update(int p0, struct RwCamera *p1, undefined1 *p2, float p3, float p4);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006a2164*/ extern undefined4 g_course_rouabout_6a2164;
 /*006a2168*/ extern undefined4 g_course_6a2168;
 /*006a2188*/ extern undefined4 g_course_6a2188[0x1000];

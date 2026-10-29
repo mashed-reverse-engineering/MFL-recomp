@@ -14,7 +14,7 @@ extern struct EventLogData g_event_log_data[256];
 /*0058c8a0*/ extern char * __cdecl rwp_owner_object_get(int p0);
 /*005dd330*/ extern float float_1_0;
 /*005ddb58*/ extern float k_f_1000;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005deb34*/ extern float k_f_300;
 /*006fa7d0*/ extern unsigned int g_rw_6fa7d0;
 /*006fab78*/ extern int g_rw_6fab78;

@@ -53,7 +53,7 @@ extern undefined1 g_time_trial_658d04[];
 /*005dd634*/ extern float k_f_2;
 /*005ddacc*/ extern float k_f_360;
 /*005ddc1c*/ extern float k_f_0_33333334;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1d0*/ extern float k_f_1_25;
 /*005de288*/ extern float k_f_1_125;
 /*005de2f8*/ extern float k_f_n90;

@@ -2,7 +2,7 @@
 /*0056fd20*/ extern float __cdecl FUN_0056fd20(void *a1, void *a2);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de490*/ extern float k_f_0_02;
 /*005f5a74*/ extern float k_f_0_9998;
 extern double fabs(double);

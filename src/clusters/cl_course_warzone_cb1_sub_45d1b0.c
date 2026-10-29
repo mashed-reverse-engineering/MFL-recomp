@@ -15,7 +15,7 @@
 /*00544450*/ extern RwBool RpHAnimHierarchyUpdateMatrices(struct RpHAnimHierarchy *p0);
 /*005dd634*/ extern float k_f_2;
 /*005dda20*/ extern float k_f_4_2949673e9;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005df668*/ extern float k_f_6_66en4;
 /*005df66c*/ extern float k_f_3_33en4;
 /*007ef798*/ extern float g_fx_ptank_7ef798;

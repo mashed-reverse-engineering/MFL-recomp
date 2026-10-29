@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0042b1d0*/ extern char *course_get_record_base();
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* player_route_progress_update */
 
 /* "dot of the course record base vector with the car vector, stores progress at +0xAC, increments

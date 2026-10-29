@@ -33,7 +33,7 @@ extern char s_333_Lap_frames_005df368[];
 /*005dd374*/ extern float k_f_0_2;
 /*005ddaec*/ extern float k_f_57_29578;
 /*005ddaf0*/ extern float k_f_1_0en5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de490*/ extern float k_f_0_02;
 /*005df83c*/ extern float k_f_1_0en6;
 /*006a9424*/ extern undefined4 g_weapon_6a9424;

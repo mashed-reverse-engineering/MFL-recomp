@@ -32,7 +32,7 @@
 /*004d77e0*/ extern RwBool RwRasterDestroy(struct RwRaster *p0);
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006299dc*/ extern undefined4 g_lua_current_type;
 /*006299e0*/ extern float g_lua_current_respawn;
 /*006f2adc*/ extern float g_lua_current_pos;

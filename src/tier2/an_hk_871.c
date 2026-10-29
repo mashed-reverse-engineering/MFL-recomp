@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 #define PLANE_CLASS_GREATER (0)
 #define PLANE_CLASS_EQUAL (1)
 #define PLANE_CLASS_LESS (2)

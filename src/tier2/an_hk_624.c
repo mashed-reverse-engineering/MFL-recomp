@@ -2,7 +2,7 @@
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0044c180*/ extern double player_distance_get();
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de20c*/ extern float k_f_2_5;
 /*007ef7f0*/ extern undefined4 g_tick_count;
 /*008c9ae0*/ extern struct AiBotRecord g_ai_bots[4];

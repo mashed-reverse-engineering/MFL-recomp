@@ -29,5 +29,3 @@ undefined4 clump_load_by_name(char *_Str, undefined4 unused2, undefined4 unused3
   }
   return 0;
 }
-
-

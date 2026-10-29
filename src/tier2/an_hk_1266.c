@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*005ddaf0*/ extern float k_f_1_0en5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* gap_5caf10 */
 
 /* no context */

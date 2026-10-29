@@ -12,7 +12,7 @@
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd62c*/ extern float k_f_100;
 /*005ddb9c*/ extern float k_f_n10;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* fx_trajectory_solve */
 
 /* "inferred: ballistic / aim solution using course_get_record_pos / 1d0 (error string i is too big)" */

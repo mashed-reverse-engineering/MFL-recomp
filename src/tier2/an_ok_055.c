@@ -26,7 +26,7 @@
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd340*/ extern float k_f_0_5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00629460*/ extern undefined4 g_gfx_629460;
 /*00629468*/ extern undefined4 g_gfx_629468;
 /*0062946c*/ extern undefined4 g_gfx_62946c;

@@ -4,7 +4,7 @@
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005dd330*/ extern float float_1_0;
 /*005ddb18*/ extern float float_0_8;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*00843ea0*/ extern undefined4 g_collision_triangles;
 /*00843ea4*/ extern undefined4 g_trail_843ea4;

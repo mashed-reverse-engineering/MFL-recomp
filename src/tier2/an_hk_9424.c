@@ -4,7 +4,7 @@
 /*0046eee0*/ extern int sound_streams_are_idle(void);
 /*005b8a40*/ extern void FUN_005b8a40(int handle, void *info);
 /*005b8c40*/ extern int sound_stream_state(int handle);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0061794c*/ extern float g_sound_frame_61794c;
 /*00617954*/ extern float g_sound_617954;
 /*00629260*/ extern float g_sound_frame_629260[];

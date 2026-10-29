@@ -4,7 +4,7 @@
 /*005dd33c*/ extern float k_f_4;
 /*005dd340*/ extern float k_f_0_5;
 /*005dd41c*/ extern float float_5_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 
 #define PATH_POINT_STRIDE (8)
 #define PATH_POINT_Y_OFFSET (4)

@@ -19,7 +19,7 @@ typedef int CourseId;
 /*0047ac30*/ extern int car_get_mode();
 /*005dd32c*/ extern float k_f_3;
 /*005ddb20*/ extern float k_f_0_9;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005ddf58*/ extern float k_f_1_999;
 /*00652df0*/ extern undefined4 g_intro_652df0;
 /*00652df4*/ extern float g_intro_652df4;

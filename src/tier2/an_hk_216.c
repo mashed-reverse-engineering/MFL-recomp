@@ -4,7 +4,7 @@
 /*00427d20*/ extern int game_get_game_8c8ae0();
 /*00434bb0*/ extern int __fastcall get_event_type(undefined4);
 /*005dd340*/ extern float k_f_0_5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*007ef7b0*/ extern undefined4 g_car_7ef7b0;
 /*007ef7b8*/ extern undefined4 game_mode;
 /*008c9998*/ extern undefined4 g_ai_counter_9998;

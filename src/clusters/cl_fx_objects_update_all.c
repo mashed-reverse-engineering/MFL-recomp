@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*0049cc20*/ extern undefined __cdecl fx_object_update_frame(undefined4 p0, undefined4 p1);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0075f828*/ extern undefined4 g_particles_75f828[0x1000];
 /*007ef7f4*/ extern float g_tick_seconds;
 /* fx_objects_update_all */

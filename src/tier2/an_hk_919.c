@@ -6,7 +6,7 @@ extern struct VoiceSlot g_voices[210];
 /*00469b20*/ extern int sound_music_fade_step();
 /*00469f40*/ extern int sound_master_fade_towards(float param_2);
 /*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00617948*/ extern float g_sound_master_fade;
 /*008bd7b0*/ extern char *g_sound_groups;
 /* sound_music_state_update */

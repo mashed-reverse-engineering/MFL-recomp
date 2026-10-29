@@ -7,7 +7,7 @@
 /*005dd340*/ extern float k_f_0_5;
 /*005dd634*/ extern float k_f_2;
 /*005ddacc*/ extern float k_f_360;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1f8*/ extern float k_f_3_1415927;
 /*007ef7f4*/ extern float g_tick_seconds;
 extern double sin(double);

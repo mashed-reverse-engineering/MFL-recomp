@@ -7,7 +7,7 @@
 /*005ddaf0*/ extern float k_f_1_0en5;
 /*005ddb2c*/ extern float k_f_1_6999999;
 /*005ddb30*/ extern float k_f_0_083333336;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 #define OBJ_PATH_OFFSET (0x10)
 #define PATH_POINT_PTR_OFFSET (0x4)
 #define PATH_POINT_X_OFFSET (0x40)

@@ -13,7 +13,7 @@ extern char LAB_00408ef0[];
 /*005dda20*/ extern float k_f_4_2949673e9;
 /*005ddbb0*/ extern float k_f_99;
 /*005ddbb4*/ extern float k_f_3000000;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00651ab8*/ extern undefined4 g_player_time_651ab8;
 /*007ef7f8*/ extern float g_menu_wave_time;
 /*008d8c20*/ extern undefined4 g_player_time_8d8c20;

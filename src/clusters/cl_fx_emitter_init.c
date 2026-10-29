@@ -4,7 +4,7 @@
 /*004c45e0*/ extern float rp_random_float_range(float p0, float p1);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*005dd628*/ extern float k_f_0_25;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de47c*/ extern float k_f_n0_25;
 /* emitter slot, FX_EMITTER_SLOT_SIZE bytes: four corner points with two random directions each, then the emitter state */
 typedef struct FxEmitterSlot {

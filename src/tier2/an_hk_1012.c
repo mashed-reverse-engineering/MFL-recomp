@@ -28,7 +28,7 @@
 /*005ddaf8*/ extern float k_f_n0_3;
 /*005ddb04*/ extern float k_f_0_023;
 /*005ddb20*/ extern float k_f_0_9;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de2fc*/ extern float k_f_0_04;
 /*005de3e4*/ extern float k_f_40;
 /*006a60d0*/ extern struct MachinegunState MachinegunState_ARRAY_006a60d0[4];

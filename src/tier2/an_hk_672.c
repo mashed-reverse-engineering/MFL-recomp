@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004d46e0*/ extern RwMatrix * RwMatrixScale(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00629424*/ extern undefined4 g_gfx_629424;
 /*006c40a8*/ extern char *g_particles_6c40a8;
 /*006c40b4*/ extern char *g_particles_6c40b4;

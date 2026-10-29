@@ -5,7 +5,7 @@
 /*004d54d0*/ extern RwReal RwV2dLength(struct RwV2d *p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd628*/ extern float k_f_0_25;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 
 /* RwMatrix.pos.x and RwMatrix.pos.z byte offsets (RwMatrixTag: right, flags, up, pad, at, pad, pos) */
 #define RWMATRIX_POS_X_OFFSET (0x30)

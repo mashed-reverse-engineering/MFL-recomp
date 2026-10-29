@@ -1,7 +1,7 @@
 // cluster-entries: controller_action_pressed
 /* Installed cluster controller_action_pressed (tools/cluster_install.py from output/cluster_pilot_kb/controller_action_pressed.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005dd9ac*/ extern float k_f_255;
 /*005e14fc*/ extern float k_f_n255;
 /*007711c4*/ extern undefined1 g_app_7711c4[]; /* joystick button bit sets: 4 bytes per joystick */

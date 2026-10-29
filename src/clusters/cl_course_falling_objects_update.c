@@ -19,7 +19,7 @@ typedef signed char sbyte;
 /*005dd340*/ extern float k_f_0_5;
 /*005dd41c*/ extern float float_5_0;
 /*005ddb60*/ extern float k_f_n8;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005dece4*/ extern float k_f_20000;
 /*005dfd04*/ extern float k_f_0_5_5dfd04;
 /*0062ac68*/ extern float g_car_62ac68;

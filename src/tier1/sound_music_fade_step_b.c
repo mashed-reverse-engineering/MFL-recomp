@@ -3,7 +3,7 @@
 /*004a3930*/ extern int __cdecl sound_volume_to_directsound_db(float v);
 /*005dd330*/ extern float float_1_0;
 /*005dd374*/ extern float k_f_0_2;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006ad8dc*/ extern float g_sound_6ad8dc;
 /*006adcf4*/ extern float g_sound_frame_6adcf4;
 /* sound_music_fade_step_b */

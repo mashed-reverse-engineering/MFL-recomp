@@ -11,7 +11,7 @@ extern struct EventLogData g_event_log_data[256];
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005dd364*/ extern float k_f_n1;
 /*005ddacc*/ extern float k_f_360;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de19c*/ extern float k_f_1_0en4;
 /*005de270*/ extern float k_f_n0_1;
 /*005dfd64*/ extern float k_f_0_2777778;

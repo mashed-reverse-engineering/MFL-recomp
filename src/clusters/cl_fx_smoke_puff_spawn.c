@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*00481fd0*/ extern double random_range();
 /*00486050*/ extern undefined __cdecl random_vector_in_cone(struct RwV3d *p0, float *p1, float p2);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0062ac74*/ extern float g_car_62ac74;
 /*00632ae8*/ extern undefined4 one;
 /*0076beb0*/ extern undefined1 g_particles_76beb0;

@@ -8,7 +8,7 @@ extern char LAB_004069c0[];
 /*005ddacc*/ extern float k_f_360;
 /*005ddad0*/ extern float k_f_180;
 /*005ddad4*/ extern float k_f_90;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005fb15c*/ extern float g_skydome_follow_5fb15c;
 /*005fb160*/ extern float g_skydome_follow_5fb160;
 /*005fb164*/ extern undefined4 g_skydome_follow_5fb164;

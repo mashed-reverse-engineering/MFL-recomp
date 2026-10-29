@@ -3,7 +3,7 @@
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b3284*/ extern double crt_acos_body(double p0);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* layout of *path_cam in camera_path_get_point, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
 typedef struct camera_path_get_point_path_cam_layout {
     char pad_0x0[16];

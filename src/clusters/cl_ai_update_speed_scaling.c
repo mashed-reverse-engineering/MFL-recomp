@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /* DECLS-BEGIN */
 /*008c9ae0*/ extern struct AiBotRecord g_ai_bots[4];
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005dd338*/ extern float k_f_0_01;
 /*005ddb00*/ extern float k_f_0_025;
 /*005dd378*/ extern float k_f_0_1;

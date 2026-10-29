@@ -77,7 +77,7 @@ enum FxBufferIndex {
 /*005dd330*/ extern float float_1_0;
 /*005dd374*/ extern float k_f_0_2;
 /*005ddb24*/ extern float k_f_150;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de490*/ extern float k_f_0_02;
 /*005e0b24*/ extern float k_f_75;
 /*0062ac2c*/ extern float g_app_62ac2c;

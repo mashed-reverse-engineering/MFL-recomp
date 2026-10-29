@@ -34,7 +34,7 @@
 /*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
 /*005dd330*/ extern float float_1_0;
 /*005dd338*/ extern float k_f_0_01;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00609008*/ extern undefined g_race_setup_609008;
 /*006090d8*/ extern undefined g_race_setup_6090d8;
 /*006091f8*/ extern undefined g_race_setup_6091f8;

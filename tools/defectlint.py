@@ -863,6 +863,10 @@ def main():
     cols = ["cls", "sev", "tier", "file", "line", "function", "symbol", "diffemu", "enabled", "byte_identical", "text", "note"]
     with open(out_csv, "w", newline="") as fh:
         w = csv.DictWriter(fh, cols, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
+    if out_csv == os.path.join(G, "output", "defectlint.csv"):      # T-L3: class 15 over EVERY scanned file (tier1 / agent byte-identical ones too, report only; these never fail check_all)
+        with open(os.path.join(G, "output", "fp_width_mismatch.txt"), "w") as fh:
+            for r in rows:
+                if str(r["cls"]) == "15": fh.write("%s:%s [%s%s] %s: %s\n" % (r["file"], r["line"], r["tier"], ", byte-identical" if r["byte_identical"] == "yes" else "", r["function"], r["note"]))
     names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]

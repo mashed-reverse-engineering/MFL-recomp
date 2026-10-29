@@ -4,7 +4,7 @@
 /*0047b6e0*/ extern int car_get_velocity();
 /*004d54d0*/ extern RwReal RwV2dLength(struct RwV2d *p0);
 /*005ddafc*/ extern float k_f_0_05;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* Byte offsets of the first float of two row vectors in the RwMatrix returned by car_current_matrix (inferred RwMatrix layout: right, up, at, pos) */
 #define RWMATRIX_UP_OFFSET (0x10)
 #define RWMATRIX_AT_OFFSET (0x20)

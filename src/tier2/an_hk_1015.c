@@ -5,7 +5,7 @@ extern struct EventLogData g_event_log_data[256];
 /*00477130*/ extern int __cdecl car_wheel_contact_find_index(void *p0, void *p1);
 /*005dd370*/ extern float k_f_0_3;
 /*005dd628*/ extern float k_f_0_25;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de47c*/ extern float k_f_n0_25;
 /*007e7f60*/ extern undefined4 g_event_log_head;
 /*007e7f64*/ extern undefined4 g_event_log_type;

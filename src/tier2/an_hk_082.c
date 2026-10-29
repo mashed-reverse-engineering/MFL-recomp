@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00486ef0*/ extern int particles_render();
 /*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005df8c4*/ extern float k_f_800;
 /*006a8bc0*/ extern struct Powerup g_powerups[25];
 /*006a9390*/ extern undefined g_powerup_glow;

@@ -5,7 +5,7 @@
 /*004dc920*/ extern void * RwIm3DTransform(RwIm3DVertex *p0, RwUInt32 p1, RwMatrix *p2, RwUInt32 p3);
 /*004dc9f0*/ extern RwBool RwIm3DEnd();
 /*004dcb80*/ extern RwBool RwIm3DRenderPrimitive(enum RwPrimitiveType p0);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00632a58*/ extern undefined8 ones;
 /*006c5e18*/ extern undefined4 *g_gfx_6c5e18;
 /*006c60d0*/ extern undefined4 g_gfx_6c60d0[0x1000];

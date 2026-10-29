@@ -96,7 +96,7 @@
 /*00481fc0*/ extern int gfx_set_89ddfc();
 /*004a16e0*/ extern int __cdecl input_player_rumble_set(int p0);
 /*00434a10*/ extern int is_team_mode();
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005dd338*/ extern float k_f_0_01;
 /*005de2fc*/ extern float k_f_0_04;
 /*0040ae80*/ extern int loading_start_log();

@@ -28,5 +28,3 @@ ai_save(void)
   }
   return 0;
 }
-
-

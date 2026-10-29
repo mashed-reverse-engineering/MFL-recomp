@@ -24,7 +24,7 @@ typedef struct DynTriangle {
 /*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*00496f80*/ extern void smplfzx_object_get_position(int handle, RwV3d *out);
 /*005dd364*/ extern float k_f_n1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de19c*/ extern float k_f_1_0en4;
 /*005dfd68*/ extern float k_f_3_6;
 /*005ddb9c*/ extern float k_f_n10;

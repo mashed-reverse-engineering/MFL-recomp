@@ -30,7 +30,7 @@
 /*005dfd64*/ extern float k_f_0_2777778;
 /*005dfd68*/ extern float k_f_3_6;
 /*005dfd78*/ extern float k_f_1_05;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 
 /* rounding point: the original stores the value to a stack float and reloads it */
 static float float_barrier(float v) { return v; }

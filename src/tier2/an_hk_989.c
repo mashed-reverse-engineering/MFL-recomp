@@ -4,7 +4,7 @@
 /*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*005dd330*/ extern float float_1_0;
 /*005ddb10*/ extern float k_f_0_99;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00652d08*/ extern undefined g_course_update_652d08;
 /* car wobble state at g_course_update_652d08, 0x28 bytes per car: a damped oscillation per axis */
 typedef struct {

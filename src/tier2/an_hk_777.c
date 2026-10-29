@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1b4*/ extern float k_f_0_0625;
 /*008b0888*/ extern char player_car_0__wheels_0__field40_0x40[];
 #define MAX_CARS (0x10)

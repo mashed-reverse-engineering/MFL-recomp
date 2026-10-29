@@ -3,7 +3,7 @@
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
 /*005dd378*/ extern float k_f_0_1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 #define ZONE_OBJECT_PTR_OFFSET (0x8) /* (inferred) zone + 8 holds a pointer to an object */
 #define OBJECT_FRAME_PTR_OFFSET (0x4) /* (inferred) object + 4 holds the RwFrame */
 #define ZONE_CORNER_X_OFFSET (0x14) /* (inferred) x of both zone corners */

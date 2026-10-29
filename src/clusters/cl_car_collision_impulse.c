@@ -10,7 +10,7 @@
 /*005dd340*/ extern float k_f_0_5;
 /*005dd364*/ extern float k_f_n1;
 /*005dd62c*/ extern float k_f_100;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005df458*/ extern float k_f_200;
 /*005dfd70*/ extern float k_f_2_0en7;
 /*008b06e0*/ extern struct Car player_car[16];

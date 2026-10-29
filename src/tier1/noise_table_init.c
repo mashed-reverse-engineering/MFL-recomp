@@ -2,7 +2,7 @@
 /*00481fd0*/ extern double random_range();
 /*00544e00*/ extern undefined __cdecl RpRandomSeed(undefined4 p0);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00653298*/ extern undefined4 g_noise_table_653298;
 /*008c9ee0*/ extern float g_noise_table_8c9ee0;
 /*008c9ee4*/ extern float g_noise_table_8c9ee4;

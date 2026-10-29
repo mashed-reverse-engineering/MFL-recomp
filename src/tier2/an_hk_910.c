@@ -9,7 +9,7 @@ extern struct VoiceSlot g_voices[210];
 /*00481fd0*/ extern double random_range(float p0, float p1);
 /*005b6a40*/ extern int sound_voice_set_enabled(undefined4 p0, undefined4 p1);
 /*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de490*/ extern float k_f_0_02;
 /*005df99c*/ extern float k_f_22050;
 /*006ad080*/ extern undefined4 g_sound_mute_when_multiplayer;

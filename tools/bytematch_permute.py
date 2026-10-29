@@ -10,6 +10,8 @@ Search per function: hill climb over the source text.  A batch = B mutants (1-2 
   function (default 400, the original brief asked for up to 3000).  Everything seen is cached in DIR/cache/<name>.json (score per sha1 of the function text, best text): re-running resumes.
   Hits (byte-identical, size ok) are written to DIR/hits/<name>.c (the whole chunk with the function replaced) and listed in DIR/hits.txt; src/ is never touched.
   Install with tools/bytematch_install.py --work DIR/hitsw (hitsw/out/<chunk>) after reviewing the readability of the diff (printed).
+--frame: draw only the frame-layout mutators (T-M4: decl_split/merge/rev/sink/hoist, init_split, array_group, arr_resize, float_double, spill; array_group/arr_resize hits are UGLY: review) plus decl_swap/stmt_swap.
+  --names takes @file lists as well; --gs lists the stack-cookie functions.
 Mutators (each `text -> [variant]`, comments are never edited): rel_swap (a<b -> b>a, mirrored operator: NaN-safe), ifelse_not (swap if/else arms with the condition written !( ) ; == / != / ! are flipped
   directly, relational operators never), mul_swap (a*b, a+b operand order, only where no precedence/float-association changes), decl_swap (two leading local declarations), stmt_swap, inline_temp,
   loop_form (for<->while, not with `continue`), case_swap (adjacent case blocks that both end in break/return/goto and follow a terminated block), cast_toggle (drop a (float)/(double)/(int) cast,
@@ -189,9 +191,168 @@ def m_type_swap(t):
     return out
 
 
+# ---------------------------------------------------------------- frame-layout mutators (T-M4): stack slot allocation follows declaration order, scope and local types in cl 13
+_TL = threading.local()      # .pre = preamble of the chunk being searched (set by prep): the prototypes give the return type of a callee for m_spill
+LDECL = re.compile(r"^(\s{2})((?:unsigned |struct |const )?[A-Za-z_]\w*[\s\*]+)(\**)(\w+)((?:\[\w+\])?)(\s*=\s*[^;]+)?;\s*$")
+
+
+def _lead(t):
+    """(head lines, leading declaration lines, rest lines): declarations are the 2-space indented declarator lines right after the function's opening brace"""
+    head, rest = rw._body_lines(t)
+    n = 0
+    while n < len(rest) and (LDECL.match(rest[n]) or re.match(r"^\s{2}[A-Za-z_][\w \*]*[\s\*]\**\w+(,\s*\**\w+)+;\s*$", rest[n])) and not re.match(r"^\s*(return|goto|else)\b", rest[n]): n += 1
+    return head, rest[:n], rest[n:]
+
+
+def _name(d):
+    m = LDECL.match(d)
+    return m.group(4) if m else None
+
+
+def m_decl_split(t):
+    head, D, R_ = _lead(t); out = []
+    for i, d in enumerate(D):
+        m = re.match(r"^(\s{2}[A-Za-z_][\w ]*?[\s\*]+)((?:\**\w+(?:\[\w+\])?)(?:,\s*\**\w+(?:\[\w+\])?)+);\s*$", d)
+        if not m: continue
+        parts = [x.strip() for x in m.group(2).split(",")]
+        base = m.group(1).rstrip("*").rstrip() + " "
+        mk = lambda ps: [base + p + ";" for p in ps]
+        out.append("\n".join(head + D[:i] + mk(parts) + D[i + 1:] + R_))
+        out.append("\n".join(head + D[:i] + mk(parts[::-1]) + D[i + 1:] + R_))
+    return out
+
+
+def m_decl_merge(t):
+    head, D, R_ = _lead(t); out = []
+    for i in range(len(D) - 1):
+        a, b = LDECL.match(D[i]), LDECL.match(D[i + 1])
+        if a and b and '*' not in a.group(2) and a.group(2).strip() == b.group(2).strip() and not a.group(6) and not b.group(6) and not a.group(5) and not b.group(5) and a.group(3) == b.group(3):
+            out.append("\n".join(head + D[:i] + ["  %s%s%s, %s%s;" % (a.group(2), a.group(3), a.group(4), b.group(3), b.group(4))] + D[i + 2:] + R_))
+    return out
+
+
+def m_decl_rev(t):
+    head, D, R_ = _lead(t); out = []
+    if len(D) < 2: return out
+    for p in (D[::-1], D[1:] + D[:1], D[-1:] + D[:-1]):
+        if p != D and not any(LDECL.match(x) and LDECL.match(x).group(6) for x in D): out.append("\n".join(head + p + R_))
+    return out
+
+
+def _uses(text, x): return [m.start() for m in re.finditer(r"(?<![\w.])%s\b" % re.escape(x), text)]
+
+
+def m_decl_sink(t):
+    """move a leading `T x;` into the innermost nested block that holds every use of it (scope change = slot reuse / allocation order)"""
+    head, D, R_ = _lead(t); out = []
+    body = "\n".join(R_)
+    for i, d in enumerate(D):
+        m = LDECL.match(d)
+        if not m or m.group(6) and False: continue
+        x = m.group(4); u = _uses(body, x)
+        if not u or any("=" in o and re.search(r"\b%s\b" % x, o.split("=", 1)[1]) for o in D if o is not d): continue
+        best = None
+        for bm in re.finditer(r"\{", body):
+            e = rw._block_end(body, bm.start())
+            if e > 0 and all(bm.start() < p < e for p in u) and (best is None or e - bm.start() < best[1] - best[0]): best = (bm.start(), e)
+        if not best: continue
+        j = best[0] + 1
+        ind = re.match(r"\s*", body[body.rfind("\n", 0, best[0]) + 1:]).group(0)
+        nb = body[:j] + "\n" + ind + "  " + d.strip() + body[j:]
+        out.append("\n".join(head + D[:i] + D[i + 1:]) + "\n" + nb)
+    return out
+
+
+def m_decl_hoist(t):
+    """move the first declaration of a nested block to the top of the function"""
+    head, D, R_ = _lead(t); out = []
+    names = {_name(d) for d in D}
+    for i, l in enumerate(R_):
+        m = re.match(r"^(\s{4,})((?:unsigned |struct )?[A-Za-z_]\w*[\s\*]+\**)(\w+)((?:\[\w+\])?);\s*$", l)
+        if not m or m.group(3) in names or re.match(r"^\s*(return|goto|else)\b", l): continue
+        out.append("\n".join(head + D + ["  " + l.strip()] + R_[:i] + R_[i + 1:]))
+    return out
+
+
+def m_init_split(t):
+    """`T x = e;` (leading) <-> `T x;` + `x = e;` as the first statement; and `T x;` + first-statement `x = e;` -> merged"""
+    head, D, R_ = _lead(t); out = []
+    for i, d in enumerate(D):
+        m = LDECL.match(d)
+        if m and m.group(6) and not m.group(5):
+            D2 = D[:i] + ["  %s%s%s;" % (m.group(2), m.group(3), m.group(4))] + D[i + 1:]
+            out.append("\n".join(head + D2 + ["  %s%s;" % (m.group(4), m.group(6))] + R_))
+    if R_:
+        fm = re.match(r"^\s{2}(\w+)(\s*=\s*[^;]+);\s*$", R_[0])
+        if fm:
+            for i, d in enumerate(D):
+                m = LDECL.match(d)
+                if m and m.group(4) == fm.group(1) and not m.group(6) and not m.group(5):
+                    out.append("\n".join(head + D[:i] + ["  %s%s%s%s;" % (m.group(2), m.group(3), m.group(4), fm.group(2))] + D[i + 1:] + R_[1:]))
+    return out
+
+
+def m_array_group(t):
+    """UGLY (review before installing): consecutive same-type scalar locals -> one array `T name_name[N]`"""
+    head, D, R_ = _lead(t); out = []
+    for i in range(len(D) - 1):
+        a, b = LDECL.match(D[i]), LDECL.match(D[i + 1])
+        if not (a and b) or a.group(6) or b.group(6) or a.group(5) or b.group(5) or a.group(2).strip() != b.group(2).strip() or a.group(3) or b.group(3): continue
+        if not re.match(r"(float|int|uint|undefined4|double)$", a.group(2).strip()): continue
+        body = "\n".join(R_); nm = "%s_%s" % (a.group(4), b.group(4))
+        body = re.sub(r"(?<![\w.])%s\b" % a.group(4), nm + "[0]", body); body = re.sub(r"(?<![\w.])%s\b" % b.group(4), nm + "[1]", body)
+        out.append("\n".join(head + D[:i] + ["  %s%s[2];" % (a.group(2), nm)] + D[i + 2:]) + "\n" + body)
+    return out
+
+
+def m_arr_resize(t):
+    out = []; b = rw.body_span(t)
+    for m in re.finditer(r"(?m)^(\s+[A-Za-z_][\w \*]*?\w+\[)(\d+)(\];)", t[b:]):
+        n = int(m.group(2))
+        for d in (-4, -2, -1, 1, 2, 4, 8, 12, 16, 32, 64):
+            if n + d > 0: out.append(t[:b + m.start(2)] + str(n + d) + t[b + m.end(2):])
+    return out
+
+
+def m_float_double(t):
+    head, D, R_ = _lead(t); out = []
+    for i, d in enumerate(D):
+        m = re.match(r"^(\s{2})(float|double)(\s+\w+(?:\[\w+\])?(?:\s*=[^;]+)?;\s*)$", d)
+        if m: out.append("\n".join(head + D[:i] + [m.group(1) + ("double" if m.group(2) == "float" else "float") + m.group(3)] + D[i + 1:] + R_))
+    return out
+
+
+def m_spill(t):
+    """`f(g(a), b)` -> `T tmp = g(a); f(tmp, b)` for a statement-level call whose nested call returns a type known from the preamble prototypes; pre-declared local at the top"""
+    out = []; head, D, R_ = _lead(t)
+    for k, l in enumerate(R_):
+        m = re.match(r"^(\s+)(?:(\w+)\s*=\s*)?(\w+)\((.*)\);\s*$", l)
+        if not m or m.group(3) in ("if", "while", "for", "return", "switch"): continue
+        for cm in re.finditer(r"(?<![\w.])(\w+)\(([^()]*)\)", m.group(4)):
+            pm = re.search(r"extern\s+(?:__cdecl\s+)?((?:struct \w+|unsigned \w+|\w+)[\s\*]+\**)\s*%s\b" % cm.group(1), getattr(_TL, "pre", ""))
+            ty = pm.group(1).strip() if pm else None
+            if not ty or ty == "void" or ty == "undefined": continue
+            rest = m.group(4)[:cm.start()] + m.group(4)[cm.end():]
+            if re.search(r"\w+\s*\(", rest): continue
+            tn = "tmp%d" % (len(out) % 7)
+            decl = "  %s %s;" % (ty if not ty.endswith("*") else ty[:-1].rstrip() + " *", tn)
+            if ty.endswith("*"): decl = "  %s%s;" % (ty[:-1].rstrip() + " *", tn)
+            nl = m.group(1) + (m.group(2) + " = " if m.group(2) else "") + m.group(3) + "(" + m.group(4)[:cm.start()] + tn + m.group(4)[cm.end():] + ");"
+            out.append("\n".join(head + D + [decl] + R_[:k] + [m.group(1) + tn + " = " + cm.group(0) + ";", nl] + R_[k + 1:]))
+    return out
+
+
+FRAME = {"decl_split": m_decl_split, "decl_merge": m_decl_merge, "decl_rev": m_decl_rev, "decl_sink": m_decl_sink, "decl_hoist": m_decl_hoist, "init_split": m_init_split,
+         "array_group": m_array_group, "arr_resize": m_arr_resize, "float_double": m_float_double, "spill": m_spill}
+UGLY = {"array_group", "arr_resize"}      # tags whose hits need a manual readability review
+
+
 MUT = {"type_swap": m_type_swap, "rel_swap": m_rel_swap, "ifelse_not": m_ifelse_not, "mul_swap": m_mul_swap, "decl_swap": m_decl_swap, "stmt_swap": m_stmt_swap, "inline_temp": m_inline_temp,
        "loop_form": m_loop_form, "case_swap": m_case_swap, "cast_toggle": m_cast_toggle, "lit_width": m_lit_width, "regroup": m_regroup}
+MUT.update(FRAME)
 MUT = {k: code_only(v) for k, v in MUT.items()}
+FRAME_ONLY = "--frame" in sys.argv      # --frame: draw only frame-layout mutators (plus decl_swap/stmt_swap)
+
 
 
 def mutants(t, rng, n):
@@ -202,7 +363,7 @@ def mutants(t, rng, n):
             try: cache[k] = MUT[k](t)
             except Exception: cache[k] = []
         return cache[k]
-    live = [k for k in MUT if get(k)]
+    live = [k for k in MUT if (not FRAME_ONLY or k in FRAME or k in ('decl_swap', 'stmt_swap')) and get(k)]
     out = {}
     tries = 0
     while len(out) < n and live and tries < n * 6:
@@ -210,7 +371,7 @@ def mutants(t, rng, n):
         k = rng.choice(live); v = rng.choice(get(k)); tag = k
         if rng.random() < 0.35:      # second mutation on top
             try:
-                k2 = rng.choice(list(MUT)); c = MUT[k2](v)
+                k2 = rng.choice([k for k in MUT if not FRAME_ONLY or k in FRAME or k in ('decl_swap', 'stmt_swap')]); c = MUT[k2](v)
                 if c: v = rng.choice(c); tag += "+" + k2
             except Exception: pass
         if v != t: out[v] = tag
@@ -264,7 +425,7 @@ def prep(name, va, ch, src_dir, flags):
     m = next((m for m in ms if m.group(1) == name), None)
     if not m: return None
     cx.fn = m.group(0); cx.span = (m.start(), m.end()); cx.chunk_text = t
-    cx.pre = t[:ms[0].start()]
+    cx.pre = t[:ms[0].start()]; _TL.pre = cx.pre
     cx.flags = flags + (["/GS"] if "compile: /GS" in t and "/GS" not in flags else [])
     cx.tmp = os.path.join(src_dir, "_tmp"); os.makedirs(cx.tmp, exist_ok=True)
     for h in os.listdir(src_dir):      # headers next to the generated TU
@@ -329,7 +490,7 @@ def main():
         return d
     work = opt("--work", os.path.join(os.environ.get("TMPDIR", "/tmp"), "bytematch_permute")); names_a = opt("--names", None); maxdiff = int(opt("--maxdiff", "0")); maxinsn = int(opt("--maxinsn", "0"))
     budget = int(opt("--budget", "400")); B = int(opt("--batch", "6")); jobs = min(3, int(opt("--jobs", "3"))); seed = int(opt("--seed", "1")); flags = opt("--flags", "/O2").split()
-    lm = float(os.environ.get("LOADMAX", "9")); only_list = "--list" in args; gs = "--gs" in args
+    lm = float(os.environ.get("LOADMAX", "9")); only_list = "--list" in args; args = [a for a in args if a != "--frame"]; gs = "--gs" in args
     src = opt("--src", None) or os.path.join(work, "src"); os.makedirs(src, exist_ok=True)
     if not os.path.exists(os.path.join(src, "mfl_tier2.h")) or "--resync" in args:
         for h in os.listdir(R):

@@ -6,7 +6,7 @@
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
 /*005ddacc*/ extern float k_f_360;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 
 /* radians to degrees: 180 / pi */
 #define RAD_TO_DEG (57.295780181884766)

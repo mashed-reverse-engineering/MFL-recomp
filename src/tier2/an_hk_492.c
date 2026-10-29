@@ -33,18 +33,18 @@ __declspec(naked) RwCamera * aux_camera_create_r(RwInt32 reg_esi, RwInt32 reg_ed
  * aux_camera_setup: creates the auxiliary camera, sets its view window
  * (0.8 x 0.8), near plane (0.5) and far plane (180.0), then clones it into
  * g_car_6c2944 and gives the clone a new frame (g_aux_camera_6c2948).
- * reg_edi / reg_esi are the incoming register values forwarded to
- * aux_camera_create_r (inferred from the naked wrapper).
+ * edi_arg / esi_arg are the two cdecl stack arguments (the original loads esi from the 2nd and edi from the 1st slot) forwarded to
+ * aux_camera_create_r.
  */
 
 /* "aux_camera_create + view window 0.8 x 0.8" */
 
-void aux_camera_setup(undefined4 reg_edi,undefined4 reg_esi)
+void aux_camera_setup(undefined4 edi_arg,undefined4 esi_arg)
 
 {
   RwV2d view_window;
 
-  aux_camera_create_r(reg_esi,reg_edi);
+  aux_camera_create_r(esi_arg,edi_arg);
   view_window.x = AUX_CAMERA_VIEW_WINDOW;
   view_window.y = AUX_CAMERA_VIEW_WINDOW;
   RwCameraSetViewWindow(g_aux_camera,&view_window);

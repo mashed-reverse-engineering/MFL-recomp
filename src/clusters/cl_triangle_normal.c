@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*004d5410*/ extern RwReal _rwSqrt(RwReal p0);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* triangle_normal */
 
 /* "(p0, p1, p2 -> out): normalised cross product" */

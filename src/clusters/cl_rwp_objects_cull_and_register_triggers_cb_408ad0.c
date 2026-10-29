@@ -8,7 +8,7 @@
 /*005ddb58*/ extern float k_f_1000;
 /*005ddb5c*/ extern float k_f_n4;
 /*005ddb60*/ extern float k_f_n8;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00651250*/ extern undefined g_scene_651250;
 /*00651aa8*/ extern undefined4 g_fx_651aa8;
 /* rwp_objects_cull_and_register_triggers_cb_408ad0 */

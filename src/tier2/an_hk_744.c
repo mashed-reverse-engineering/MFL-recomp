@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0041d580*/ extern undefined __cdecl btb_panel_slot_set_position(undefined4 p0, void *p1);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de2f8*/ extern float k_f_n90;
 /*00658d00*/ extern undefined4 g_time_trial_658d00[0x1000];
 /*00658d4c*/ extern undefined4 g_hudpanel_658d4c;

@@ -52,7 +52,7 @@ extern undefined1 g_collision_triangles[];
 /*005dd61c*/ extern float k_f_0_001;
 /*005dd62c*/ extern float k_f_100;
 /*005ddafc*/ extern float k_f_0_05;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1b4*/ extern float k_f_0_0625;
 /*005de47c*/ extern float k_f_n0_25;
 /*005deb34*/ extern float k_f_300;

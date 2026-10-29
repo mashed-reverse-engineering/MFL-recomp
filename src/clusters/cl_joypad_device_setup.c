@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*004c6600*/ extern void bitset_clear_first_n(void *p0, int p1);      /* bzero-like: (buffer, byte count) */
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1ac*/ extern float k_f_0_125;
 /*005e12e0*/ extern float k_f_0_13333334;
 /*00770f60*/ extern float g_app_770f60;

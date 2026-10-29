@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004978d0*/ extern char *__cdecl fx_pool_alloc_particle(void *p0);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005e07f0*/ extern float k_f_0_80999994;
 /*00745ce8*/ extern undefined g_particles_745ce8;
 /*00745cec*/ extern undefined g_particles_745cec;

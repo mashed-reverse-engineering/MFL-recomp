@@ -16,7 +16,7 @@
 /*0056bc20*/ extern void rwp_body_add_force_at_point(int body, RwV3d *impulse, void *trigger);
 /*005dd330*/ extern float float_1_0;
 /*005dd374*/ extern float k_f_0_2;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* explosion_trigger_callback */
 
 /* "(trigger, other): horizontal distance falloff 1 - d/radius, scaled by 1/frames; cars (id 0xFF00

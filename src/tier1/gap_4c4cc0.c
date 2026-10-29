@@ -42,5 +42,3 @@ LAB_004c4d78:
   *count_ptr = *count_ptr + 1;
   return tri;
 }
-
-

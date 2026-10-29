@@ -6,7 +6,7 @@
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd340*/ extern float k_f_0_5;
 /*005dd378*/ extern float k_f_0_1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* time_trial_panel_step_part_b */
 
 /* "per slot distance to the local vehicle matrix *0.1 clamped to [0,0.5]" */

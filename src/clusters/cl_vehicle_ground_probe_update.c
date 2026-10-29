@@ -4,7 +4,7 @@
 /*0042b2e0*/ extern int __cdecl course_world_ray_hit_light_forward(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de1ac*/ extern float k_f_0_125;
 /*005de1b4*/ extern float k_f_0_0625;
 /*005de3e8*/ extern float k_f_0_9375;

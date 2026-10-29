@@ -37,7 +37,6 @@
 00464a20 powerups_reset_all ok_046.c
 00464aa0 powerups_clear ok_046.c
 004661f0 weapon_fx_grid_clear ok_046.c
-00466730 weapon_flamethrower_unequip ok_046.c
 00466a30 weapon_flamethrower_clear_effects ok_046.c
 00467080 weapon_shotgun_equip ok_046.c
 00467180 weapon_shotgun_clear_effects ok_046.c
@@ -686,8 +685,6 @@
 0040f9c0 hud_render_by_event_and_mode hk_9430.c
 0046f740 sound_endpoint_panel_progress_cues hk_9431.c
 00438580 menu_page_update_entry_states hk_9432.c
-00427120 ai_load hk_9405.c
-004270b0 ai_save hk_9409.c
 00420760 load_team_endpoint_panel hk_9412.c
 0045dc20 course_warzone_cb0 hk_9490.c
 00494480 physics_buffer_create hk_9491.c
@@ -713,14 +710,12 @@
 00466530 flamethrower_load_assets hk_9402.c
 0046f940 sound_ambient_pitch_randomise hk_9404.c
 0042b230 course_sky_clumps_update hk_9406.c
-0042f780 clump_load_by_name hk_9407.c
 004523d0 course_arctic_cb1 hk_9411.c
 0044c2c0 camera_record_set_path hk_9497.c
 00416840 course_helper_449c40_sub_416840 hk_1020.c
 004537f0 sound_fn_4537f0 hk_1027.c
 00453860 sound_fn_453860 hk_1028.c
 00456540 load_shadow_models_cb_456540 hk_1043.c
-00458f20 course_forest_cb2_sub_458f20 hk_1051.c
 0045c1f0 course_superg_cb4_sub_45c1f0 hk_1055.c
 0045d720 course_warzone_cb1_sub_45d720 hk_1060.c
 00481b30 material_plugin_register_cb_481b30 hk_1070.c
@@ -807,7 +802,6 @@
 005d9a20 gap_5d9a20 hk_1332.c
 005da500 gap_5da500 hk_1336.c
 00405bb0 clump_for_all_atomics_with_camera_matrix_cb_405bb0 hk_1017.c
-00406910 world_for_all_materials_cb_406910_2 hk_1018.c
 00408ef0 player_time_update_cb_408ef0 hk_1019.c
 00416870 course_helper_449c40_sub_416870 hk_1022.c
 00454460 course_neustein_cb0_sub_454460 hk_1036.c
@@ -828,7 +822,6 @@
 00484850 clump_for_all_materials_uv_anim_cb_484850 hk_1072.c
 00484b20 course_helper_484b20 hk_1075.c
 00491280 rwp_world_create_once_cb_491280 hk_1079.c
-0049c880 course_helper_49c880 hk_1082.c
 0049e170 course_training_cb0_sub_49e170 hk_1083.c
 004a5ba0 course_nt1_helper_4557f0_sub_4a5ba0 hk_1089.c
 004aaca0 course_storm_cb0_sub_4aaca0 hk_1096.c
@@ -842,7 +835,6 @@
 004b24c0 gap_4b24c0 hk_1110.c
 004b24d0 gap_4b24d0 hk_1111.c
 004b24e0 gap_4b24e0 hk_1112.c
-004c4cc0 gap_4c4cc0 hk_1118.c
 004c4e70 gap_4c4e70 hk_1119.c
 004ad220 gap_4ad220 hk_1355.c
 004aec80 gap_4aec80 hk_1356.c

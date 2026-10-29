@@ -5,7 +5,7 @@ extern struct VoiceSlot g_voices[210];
 /*005b7300*/ extern int sound_voice_set_float_param(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
 /*005cc2a0*/ extern void FUN_005cc2a0(undefined4 p0, undefined4 p1);
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00617948*/ extern float g_sound_master_fade;
 /*006190a4*/ extern undefined4 g_sound_frame_6190a4;
 /*00619138*/ extern undefined4 g_sound_frame_619138;

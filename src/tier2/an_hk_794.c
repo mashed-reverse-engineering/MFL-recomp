@@ -11,7 +11,7 @@
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*005dd330*/ extern float float_1_0;
 /*005ddb38*/ extern float k_f_25;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de418*/ extern float k_f_3_0en4;
 /*00659d0c*/ extern undefined4 g_game_659d0c;
 /*00659d60*/ extern undefined4 g_game_659d60;

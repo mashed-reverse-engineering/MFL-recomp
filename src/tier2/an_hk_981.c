@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*004b2b48*/ extern int _ftol();
 /*005dd330*/ extern float float_1_0;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006c60d0*/ extern undefined4 g_gfx_6c60d0[0x1000];
 /*006f1e20*/ extern undefined1 g_gfx_6f1e20;
 /*007ef7f4*/ extern float g_tick_seconds;

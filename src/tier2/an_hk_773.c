@@ -17,7 +17,7 @@ extern struct VoiceSlot g_voices[210];
 /*005dd62c*/ extern float k_f_100;
 /*005ddaf0*/ extern float k_f_1_0en5;
 /*005ddb58*/ extern float k_f_1000;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de398*/ extern float k_f_0_35;
 /*005df458*/ extern float k_f_200;
 /*005df4d0*/ extern float k_f_3_5;

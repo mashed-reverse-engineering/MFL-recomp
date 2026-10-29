@@ -2,7 +2,7 @@
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
 /*0049bdd0*/ extern int fx_system_render();
 /*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006a29d0*/ extern undefined4 g_weapon_6a29d0[0x1000];
 /*006a2a70*/ extern undefined4 g_weapon_6a2a70[0x1000];
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;

@@ -36,7 +36,7 @@
 /*0050b5e0*/ extern int nop_stub();
 /*005dd330*/ extern float float_1_0;
 /*005dd340*/ extern float k_f_0_5;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*00652f68*/ extern undefined4 g_race_phase;
 /*00652f78*/ extern undefined4 g_race_render_652f78;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;

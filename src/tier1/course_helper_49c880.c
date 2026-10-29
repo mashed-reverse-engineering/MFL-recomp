@@ -31,5 +31,3 @@ void course_helper_49c880(int param_1)
   }
   return;
 }
-
-

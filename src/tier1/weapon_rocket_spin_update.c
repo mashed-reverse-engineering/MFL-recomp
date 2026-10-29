@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0062ac80*/ extern undefined g_weapon_62ac80;
 /*007ef7f4*/ extern float g_tick_seconds;
 /* byte offsets inside the rocket object */

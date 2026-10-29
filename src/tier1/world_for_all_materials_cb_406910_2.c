@@ -21,5 +21,3 @@ RpMaterial * world_for_all_materials_cb_406910_2(RpMaterial *param_1,RwTexture *
   }
   return param_1;
 }
-
-

@@ -2,7 +2,7 @@
 /*00493960*/ extern int rwp_cars_sphere_points_generate(int p1, float p2, undefined4 p3);
 /*00493ca0*/ extern int rwp_collision_mesh_to_geometry();
 /*00575200*/ extern void FUN_00575200(undefined4 p0);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* rwp_object_sample_and_lock */
 
 /* "builds the sphere samples and locks the object (when lock_flag non zero)" */

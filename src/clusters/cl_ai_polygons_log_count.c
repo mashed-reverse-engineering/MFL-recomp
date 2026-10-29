@@ -9,7 +9,7 @@
 /*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 static int triangle_normal_cross_array_r(float * reg_eax, RwV3d * reg_ecx, int param_3);
 extern void triangle_normal_cross_array(void);
 __declspec(naked) int triangle_normal_cross_array_r(float * reg_eax, RwV3d * reg_ecx, int param_3)

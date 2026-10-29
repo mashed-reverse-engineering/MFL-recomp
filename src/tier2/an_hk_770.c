@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*004685b0*/ extern int voice_queue_select_tables();
 /*00468b80*/ extern int voice_queue_remove();
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005df934*/ extern float k_f_0_0166;
 /*008bed04*/ extern undefined4 *g_voice_queue_count_ptr;
 /*008bed08*/ extern undefined4 g_voice_queue_entries_ptr;

@@ -11,7 +11,7 @@
 /*00480060*/ extern int hud_label_add_world_text();
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0060da40*/ extern undefined g_rocket_update_60da40;
 /*0060da44*/ extern undefined g_rocket_update_60da44;
 /*006a5ff0*/ extern undefined g_rocket_state;

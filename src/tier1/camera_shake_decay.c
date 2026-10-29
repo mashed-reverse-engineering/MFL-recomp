@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*007ef7ac*/ extern float g_camera_shake;
 /* camera_shake_decay */
 /* "(dt): g_camera_7ef7ac -= dt, clamped to 0" */

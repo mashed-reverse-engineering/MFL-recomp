@@ -25,7 +25,7 @@ extern char LAB_00499120[];
 /*005dd338*/ extern float k_f_0_01;
 /*005dd370*/ extern float k_f_0_3;
 /*005ddb58*/ extern float k_f_1000;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005de290*/ extern float float_50_0;
 /*005de3a0*/ extern float k_f_1_3;
 /*005de490*/ extern float k_f_0_02;

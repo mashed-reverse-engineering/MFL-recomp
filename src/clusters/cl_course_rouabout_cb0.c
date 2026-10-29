@@ -18,7 +18,7 @@
 /*004d1ca0*/ extern struct RwCamera * RwCameraSetFarClipPlane(struct RwCamera *p0, RwReal p1);
 /*005dd340*/ extern float k_f_0_5;
 /*005ddafc*/ extern float k_f_0_05;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*006a2164*/ extern undefined4 g_course_rouabout_6a2164;
 /*006a2168*/ extern undefined4 g_course_6a2168;
 /*006a216c*/ extern undefined4 g_course_6a216c;

@@ -29,7 +29,7 @@ typedef struct FxEffectSlot {
 /*005ddafc*/ extern float k_f_0_05;
 /*005ddb00*/ extern float k_f_0_025;
 /*005ddb04*/ extern float k_f_0_023;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /* bomb_explode */
 
 /* "sfx 0x13 at the bomb position, then car_damage_at_world_point to nearby cars (inferred)" */

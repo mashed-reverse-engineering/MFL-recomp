@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 
 #define EDGE_TABLE_OFFSET (0xf0)
 #define EDGE_ENTRY_SIZE (4)

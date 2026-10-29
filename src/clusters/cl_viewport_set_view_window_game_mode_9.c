@@ -10,7 +10,7 @@
 /*00404b30*/ extern int hud_bomb_timer_text();
 /*0040fdc0*/ extern int race_get_phase();
 /*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*0064d8d8*/ extern float g_course_64d8d8[0x1000];
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*007ef7b8*/ extern undefined4 game_mode;

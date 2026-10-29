@@ -13,7 +13,7 @@
 /*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
-/*005ddc28*/ extern float k_f_0;
+/*005e64a4*/ extern float k_f_0;
 /*005dd378*/ extern float k_f_0_1;
 /*005dd7f0*/ extern float k_f_30;
 /*005ddacc*/ extern float k_f_360;

@@ -22,5 +22,3 @@ void course_forest_cb2_sub_458f20(void)
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)0x2);
   return;
 }
-
-
