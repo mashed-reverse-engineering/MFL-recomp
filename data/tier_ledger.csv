@@ -459,7 +459,7 @@ course_angels_cb1,00451ce0,tier1,bytes,bytes-reloc,d1903845e3d3,126ee480af92,d2d
 course_animated_objects_update,00429e80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,200,1.00,0,0
 course_apply_clip_planes,0042a300,tier1,bytes,bytes-reloc,830cedfd0743,126ee480af92,d2d9a701c60d,0,0.00,0,0
 course_arctic_camera_relative_update,00452bc0,tier1,bytes,bytes-reloc,a2a51782219a,126ee480af92,d2d9a701c60d,0,0.00,0,0
-course_arctic_cb0,00451e80,tier2,compiled+shadow-never,static,-,126ee480af92,d2d9a701c60d,0,0.00,0,0
+course_arctic_cb0,00451e80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,57,0.79,0,0
 course_arctic_cb1,004523d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,200,1.00,0,0
 course_arctic_cb10,00452430,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,200,1.00,0,0
 course_arctic_cb2,00452a20,hand,bytes,bytes-reloc,-,126ee480af92,d2d9a701c60d,0,0.00,0,0
@@ -909,7 +909,7 @@ find_texture_a,0040d130,hand,bytes,bytes-reloc,-,126ee480af92,d2d9a701c60d,0,0.0
 find_texture_dict_b,0040d0d0,hand,bytes,bytes-reloc,-,126ee480af92,d2d9a701c60d,0,0.00,0,0
 find_texture_dict_c,0040d0f0,hand,bytes,bytes-reloc,-,126ee480af92,d2d9a701c60d,0,0.00,0,0
 find_texture_dict_d,0040d110,hand,bytes,bytes-reloc,-,126ee480af92,d2d9a701c60d,0,0.00,0,0
-flamethrower_load_assets,00466530,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,165,1.00,0,0
+flamethrower_load_assets,00466530,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,143,1.00,0,0
 frame_follow_path_step,00485030,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,d2d9a701c60d,200,0.89,0,0
 frame_rotate_around_own_origin,00429dd0,tier2,compiled+diffemu-STALE+shadow-OK,shadow,72feed7ff9c6,126ee480af92,d2d9a701c60d,0,0.00,1,0
 framerate_sample_accumulate,004a17e0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,a6af0e6491cd,126ee480af92,d2d9a701c60d,200,1.00,0,1
