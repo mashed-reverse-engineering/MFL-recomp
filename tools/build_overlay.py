@@ -111,6 +111,9 @@ def main():
         if "--clusters" in extra:        # src/clusters: tools/cluster_install.py output (natural C of a usercall root + its callers, entry thunk of the root); enabled.txt or CLUSTER_ENABLED=a,b
             en_ = os.environ.get("CLUSTER_ENABLED")
             en_ = [x for x in en_.split(",") if x] if en_ is not None else [l.strip() for l in open(os.path.join(RECOMP, "clusters", "enabled.txt")) if l.strip() and not l.startswith("#")]
+            hx_ = os.path.join(RECOMP, "harness", "cluster_exclude.txt")      # harness builds: hook call sites (hooks.txt) inside the ORIGINAL body of these cluster entries cannot be patched once the cluster replaces it (app_main_loop: freeze_hook / frame_end_ticks)
+            if "--harness" in extra and os.path.exists(hx_):
+                en_ = [x for x in en_ if x not in {l.split()[0] for l in open(hx_) if l.strip() and not l.startswith("#")}]
             for n_ in en_:
                 f_ = os.path.join(RECOMP, "clusters", "cl_%s.c" % n_)
                 cl_files.append(f_); cl_entries |= set(open(f_).readline().split(":", 1)[1].split())

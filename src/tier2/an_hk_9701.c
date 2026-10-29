@@ -47,7 +47,7 @@ extern LineVertex g_d3d9_draw_7e0700[LINE_BUFFER_VERTICES];
  * flushes the buffer whenever it is full. Returns 0 without drawing when count is 0, else 1.
  * The final draw submits `count` primitives from the buffer start (the original does that, not the remainder).
  */
-/* TIER2: unvalidated 2026-10-29 authority=diffemu */
+/* TIER2: unvalidated 2026-10-29 authority=shadow */
 int d3d9_draw_with_transform(DebugLine *lines, int count)
 {
   LineVertex *out = g_d3d9_draw_7e0700;

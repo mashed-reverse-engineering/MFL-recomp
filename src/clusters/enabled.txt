@@ -622,3 +622,4 @@ replay_buffer_interpolate_frame
 camera_race_setup
 joypads_poll_frame
 smoke_emitter_update
+app_main_loop

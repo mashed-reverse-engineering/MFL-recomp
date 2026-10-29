@@ -17,7 +17,7 @@ extern __declspec(dllimport) unsigned int __stdcall GetDriveTypeA(const char *ro
  * DRIVE_NO_ROOT_DIR excluded) and makes one of them the default: the current directory's when it has no drive letter,
  * else the one of its drive. Returns 1, or 0 when the directory cannot be read or a registration fails.
  */
-/* TIER2: unvalidated 2026-10-29 authority=diffemu */
+/* TIER2: validated 2026-10-29 authority=diffemu */
 int game_register_native_filesystems(void)
 {
   char cwd[0x104] = {0};
