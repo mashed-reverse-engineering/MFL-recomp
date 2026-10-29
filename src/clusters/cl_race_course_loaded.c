@@ -48,7 +48,7 @@ void __cdecl race_course_loaded(int event,int round_index)
 
 {
   bool waiting;
-  float load_seconds_ticks;
+  float load_ticks_f;
   int lookup_result;
   int load_ticks;
   CourseId course_id;
@@ -134,11 +134,11 @@ void __cdecl race_course_loaded(int event,int round_index)
   race_set_phase(RACE_PHASE_SETUP);
   load_ticks = timer_ticks();
   load_ticks = load_ticks - start_ticks;
-  load_seconds_ticks = (float)load_ticks;
+  load_ticks_f = (float)load_ticks;
   if (load_ticks < 0) {
-    load_seconds_ticks = load_seconds_ticks + k_f_4_2949673e9;
+    load_ticks_f = load_ticks_f + k_f_4_2949673e9;
   }
-  debug_printf("course LoadTime is %u (%.3f)\n",load_ticks,(double)(load_seconds_ticks * k_f_3_3333333en7));
+  debug_printf("course LoadTime is %u (%.3f)\n",load_ticks,(double)(load_ticks_f * k_f_3_3333333en7));
   lookup_result = get_event_type();
   if (lookup_result == 0x12) {
     return;

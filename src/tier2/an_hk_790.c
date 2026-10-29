@@ -107,6 +107,7 @@ undefined4 camera_path_get_point(char *out_cam)
     angle = -angle;
   }
   frame.yaw_deg = (float)angle;
+  /* NOTE: the original prints yaw, roll, pitch under the labels roll, pitch, yaw (kept) */
   FID_conflict__wprintf
             ("roll %f, pitch %f, yaw %f\n",(double)frame.yaw_deg,(double)frame.roll_deg,(double)frame.pitch_deg);
   *(float *)(out_cam + 0x10) = frame.roll_deg;

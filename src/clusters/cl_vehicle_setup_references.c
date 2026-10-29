@@ -40,7 +40,7 @@
 /* vehicle_setup_references */
 
 /* Per-frame update for one vehicle slot, given the slot's new transform.
- *   index_or_morph:    on entry the slot index (int bits); on exit the proximity factor, clamped to 0..1
+ *   index_or_morph:    on entry the slot index (int bits); on exit the distance factor (0 at the setup point, grows with distance), clamped to 0..1
  *                      and passed to vehicle_marker_morph_update
  *   wheel_spin_arg:    passed to vehicle_wheels_spin_update
  *   vehicle_transform: the vehicle's new transform; set on the frame and copied into g_vehicle_setup_659e00
@@ -110,7 +110,7 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
     RwFrameRotate((RwFrame *)g_vehicle_table[*(int *)&index_or_morph].envmap_frame,&frame_obj.envmap_axis,angle_deg,
                   rwCOMBINEREPLACE);
   }
-  /* Proximity: squared distance from the new position to the slot's setup point (x, y, z in
+  /* Distance factor (not a proximity: 0 = at the setup point): squared distance from the new position to the slot's setup point (x, y, z in
      g_vehicle_setup_659e30/34/38), scaled by k_f_25 and clamped to 0..1 into index_or_morph. */
   setup_offset = *(int *)&index_or_morph * VEHICLE_SETUP_STRIDE;
   delta_x = (vehicle_transform->pos).x - *(float *)((char *)&g_vehicle_setup_659e30 + setup_offset);

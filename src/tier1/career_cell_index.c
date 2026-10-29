@@ -12,17 +12,17 @@ int career_cell_index(void)
 {
   int career_row;
   int event_type;
-  int zero;
+  int event_offset;
 
   /* row base: the career row of the current event, scaled to its first cell */
   career_row = get_career_row();
   career_row = career_row * CAREER_CELLS_PER_ROW;
   event_type = get_event_type();
-  zero = 0;
+  event_offset = 0;
   if (event_type == 4) {
-    zero = 1;
+    event_offset = 1;
   } else if (event_type == 5) {
-    zero = 2;
+    event_offset = 2;
   }
-  return zero + career_row;
+  return event_offset + career_row;
 }

@@ -2,7 +2,7 @@
 /*00409eb0*/ extern double player_rank_key();
 /*0040fe20*/ extern int __cdecl race_setup_slot_used(undefined4 p0);
 /*0040ff20*/ extern int race_setup_get_slot_type();
-/* arg0 is a CAR INDEX (the callee passes it to car_get_forward); (a, b, c) are float pairs (x, z); out receives the projected point (x, z) */
+/* car_index (4th parameter) is a CAR INDEX (passed to car_get_forward); line_point_b is a float pair (x, z); projected_out receives the projected point (x, z); the first parameter is unused (older note said "arg0") */
 /*00416e20*/ extern int __cdecl point_project_onto_line_2d(int car_index, float *a, float *b, float *c, float scale, float *out);
 /*0042b0c0*/ extern int course_get_ai_polygon_count();
 /*0047b520*/ extern int car_current_matrix();

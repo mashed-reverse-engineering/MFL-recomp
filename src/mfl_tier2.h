@@ -566,10 +566,10 @@ typedef struct RocketRecord {
     float age;              /* 0x18: drives the sine wobble of straight flight */
     RwV3d vel;              /* 0x1c: per frame movement, set from the frame's at-vector * speed */
     float lift;             /* 0x28: added to vel.y (inferred) */
-    float accel;            /* 0x2c: grows by 1e-4 per frame, capped at 0.005 */
+    float accel;            /* 0x2c: straight flight: +1e-4 per frame, capped at 0.005; homing: +1e-4 or -1e-3 per frame, clamped to 0..0.005 */
     float speed;            /* 0x30 */
-    float target_speed_a;   /* 0x34: car_get_speed of the target (homing; inferred) */
-    float target_speed_b;   /* 0x38 */
+    float target_speed_a;   /* 0x34: 4.878e-5 * car_get_speed of the target (homing; inferred) */
+    float target_speed_b;   /* 0x38: target_speed_a - speed, i.e. a speed difference (homing: below 0.02 -> accel +1e-4, else -1e-3); the name is historical */
     int field_3c;           /* compared with the hit object's id in rocket_hit_callback */
     float pitch_rate;       /* 0x40: homing steering, 0 / +-20 */
     float yaw_rate;         /* 0x44: homing steering, 0 / +-2 */
@@ -642,8 +642,8 @@ enum RacePhase {
     RACE_PHASE_COUNTDOWN = 5,     /* the deterministic test harness seeds the RNG here */
     RACE_PHASE_RACING = 6,
     RACE_PHASE_STANDINGS = 7,
-    RACE_PHASE_FINISHED = 8,      /* (inferred) race ended without a winner camera (race_check_winner_by_game_mode) */
-    RACE_PHASE_WINNER_VIEW = 9,   /* (inferred) winner found: camera on the winner (race_phase_9_update) */
+    RACE_PHASE_FINISHED = 8,      /* (inferred) set by race_phase_7_update (standings) when no winner camera is started (training or no winner) */
+    RACE_PHASE_WINNER_VIEW = 9,   /* (inferred) set by race_phase_7_update when a winner is found (not training): camera on the winner; handler race_phase_9_update */
     RACE_PHASE_WINNER_DONE = 10,  /* (inferred) set by the event handler right after race_phase_9_update; cars stop updating */
     RACE_PHASE_ROUND_END = 11     /* (inferred) race_check_winner_by_game_mode: weapons/powerups off, end-of-round camera */
 };

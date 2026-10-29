@@ -101,7 +101,7 @@ void player_add_points(int player,uint points)
     points = 0;
   }
   ((uint *)&g_round_8d8b60)[player] = points;
-  /* Log the award to the event ring buffer unless the race phase is 1..5 (inferred: not while racing or in results). */
+  /* Log the award to the event ring buffer only when the race phase is not 1..5, i.e. from phase 6 (racing) onwards (inferred). */
   result = race_get_phase();
   frame_ticks = g_last_frame_ticks;
   if ((((result != 1) && (result != 2)) && (result != 3)) && ((result != 4 && (result != 5)))) {

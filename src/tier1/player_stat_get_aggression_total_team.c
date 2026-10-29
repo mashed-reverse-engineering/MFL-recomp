@@ -15,7 +15,7 @@ int player_stat_get_aggression_total_team(int player_index)
   aggression_total = is_team_mode();
   if (aggression_total != 0) {
     /* team mode: start with this player's own total, then add each teammate
-       (same slot state, not this player). Slot 3 returns early; the others fall through. (inferred) */
+       (same slot state, not this player). All four slots are tested in order. */
     slot_state = g_player_slots[player_index].state;
     aggression_total = g_player_stats_total[player_index].aggression;
     if ((g_player_slots[0].state == slot_state) && (player_index != 0)) {

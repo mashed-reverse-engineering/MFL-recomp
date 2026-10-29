@@ -10,7 +10,8 @@
 /*005ddad4*/ extern float k_f_90;
 /*006fd498*/ extern undefined4 g_rw_6fd498;
 /* rwp_object_set_rotation_degrees */
-/* "sets the body matrix rotation (angle*90 about z) and position" */
+/* "sets the body matrix rotation (angle*90 about z) and position"
+   NOTE: despite the name the angle argument is in quarter turns (degrees = quarter_turns * 90) */
 void rwp_object_set_rotation_degrees(int slot,int quarter_turns,RwReal pos_x,RwReal pos_y,RwReal pos_z)
 {
   ushort bit_index;

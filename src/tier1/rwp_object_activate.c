@@ -13,9 +13,9 @@
  * Activates the object held in slot object_index of the g_rw_6fab78 table: puts it into the world,
  * then looks up its owner object and refreshes that owner's world bits and state.
  * object_index: slot in g_rw_6fab78, valid range 0..MAX_OBJECTS-1 (inferred).
- * unused2, unused3: forwarded unchanged to rwp_body_add_force_at_point (inferred).
+ * extra_arg_a, extra_arg_b (named unused, but they are used): forwarded unchanged to rwp_body_add_force_at_point (inferred).
  * Returns nothing. Does nothing if the index is out of range, the slot is empty, or there is no owner. */
-void rwp_object_activate(int object_index, undefined4 unused2, undefined4 unused3)
+void rwp_object_activate(int object_index, undefined4 extra_arg_a, undefined4 extra_arg_b)
 {
   int object;
 
@@ -31,7 +31,7 @@ void rwp_object_activate(int object_index, undefined4 unused2, undefined4 unused
       FUN_0056b300(*(undefined4 *)(object + 0x24),object);
       /* if the owner's sub-record at +0x10 has a non-zero field at +4, run rwp_body_add_force_at_point on it (inferred) */
       if (*(int *)(*(char **)(object + 0x10) + 4) != 0) {
-        rwp_body_add_force_at_point(*(int *)(*(char **)(object + 0x10) + 0x4), unused2, unused3);
+        rwp_body_add_force_at_point(*(int *)(*(char **)(object + 0x10) + 0x4), extra_arg_a, extra_arg_b);
         return;
       }
     }
