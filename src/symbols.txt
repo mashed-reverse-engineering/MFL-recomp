@@ -238,7 +238,7 @@ player_get_stat_8b90 0040cc40
 player_get_wins 0040cc50
 player_get_points 0040cc60
 round_time_accumulate 0040cc70
-get_competitor_count 0040cca0
+placement_counter_increment 0040cca0
 switchD 0040ccd2
 default 0040cd20
 round_get_round_652dbc 0040cd40
@@ -592,7 +592,7 @@ score_panel_render 0041e6b0
 score_panel_destroy 0041e6e0
 team_panel_load_parts 0041e710
 team_panel_build_team_mask 0041e7a0
-team_panel_load_team_colour 0041e7f0
+team_panel_load_origin 0041e7f0
 team_panel_entry_update 0041e820
 switchD 0041e888
 LAB_0041e8aa 0041e8aa
@@ -603,7 +603,7 @@ team_panel_entry_render 0041ecd0
 team_panel_entry_destroy 0041ef30
 load_team_panels 0041ef40
 team_panel_reset 0041efa0
-team_colour_table_init_2 0041f090
+team_panel_origins_init 0041f090
 team_panel_update 0041f110
 team_panel_render 0041f140
 team_panel_destroy 0041f160
@@ -1226,7 +1226,7 @@ career_event_set_progress 00435fc0
 switchD 0043602b
 default 00436162
 PTR_LAB_004361b0 004361b0
-menu_event_column_is_special 00436200
+menu_event_column_progress_unless_special 00436200
 switchD 00436211
 default 0043629f
 career_event_has_entry 004362c0
@@ -6680,9 +6680,9 @@ g_hudpanel_particles_603ed0 00603ed0
 g_score_panel_603ed4 00603ed4
 g_score_panel_603ed8 00603ed8
 g_score_panel_603edc 00603edc
-g_race_start_603f1c 00603f1c
-g_race_start_603f20 00603f20
-g_race_start_603f24 00603f24
+g_team_panel_origin_table 00603f1c
+g_team_panel_origin_table_y 00603f20
+g_team_panel_origin_table_z 00603f24
 g_hudpanel_603f4c 00603f4c
 g_endpoint_panel_603f94 00603f94
 g_course_table 00603fc8

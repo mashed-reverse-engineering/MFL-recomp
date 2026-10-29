@@ -492,11 +492,11 @@ extern undefined4 player_get_wins(char *param_1);
 extern undefined4 player_get_points(char *param_1);
 
 
-/* get_competitor_count */
+/* placement_counter_increment */
 
 /* "2 in team mode (unless game mode 2), else the player count" */
 
-extern void get_competitor_count(char *param_1,char *param_2);
+extern void placement_counter_increment(char *param_1,char *param_2);
 
 
 /* round_get_round_652dbc */

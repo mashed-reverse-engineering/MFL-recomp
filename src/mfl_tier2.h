@@ -587,10 +587,10 @@ typedef struct TeamPanelEntry {
     int player_count;       /* 0x0c */
     int visible[40];        /* 0x10: per part, rewritten every frame by team_panel_entry_update */
     char *part[40];         /* 0xb0: per part objects (team_panel_load_parts fills the table by the part slot of each atomic) */
-    RwV3d origin;           /* 0x150: panel frame translation, copied by team_panel_load_team_colour from the 12-byte rows at g_race_start_603f1c ((+-0.45, 0.33, 1.0), a position, not a colour) */
+    RwV3d origin;           /* 0x150: panel frame translation, copied by team_panel_load_origin from the 12-byte rows at g_team_panel_origin_table ((+-0.45, 0.33, 1.0), a position, not a colour) */
     int clump;              /* 0x15c */
     int frame;              /* 0x160: RwFrame of the clump */
-    int team;               /* 0x164: panel index 0 / 1 (team0panel / team1panel); selects the origin row in g_race_start_603f1c */
+    int team;               /* 0x164: panel index 0 / 1 (team0panel / team1panel); selects the origin row in g_team_panel_origin_table */
     unsigned int flags;     /* 0x168: bit 0x40000 follows g_team_6592b0[player[0]], 0x800000 << (player_count - 1) selects the 1 / 2 / 3 player layout, and bit (6 * i + team of player i) is the team bit of player slot i; team_panel_build_team_mask */
 } TeamPanelEntry;
 /* effect object record (table g_scene_651250, 0xec bytes each; fx_update_effects, explosion_spawn_fx, the rwp collision callback) */

@@ -2333,3 +2333,11 @@ rp_user_data_array_get_int 005543f0
 FUN_004c4720 004c4720
 FUN_004c52b0 004c52b0
 FUN_004c52f0 004c52f0
+# T-C9 old names kept resolvable for bridges (team panel origin, placement counter, menu column progress)
+team_panel_load_team_colour 0041e7f0
+team_colour_table_init_2 0041f090
+g_race_start_603f1c 00603f1c
+g_race_start_603f20 00603f20
+g_race_start_603f24 00603f24
+menu_event_column_is_special 00436200
+get_competitor_count 0040cca0

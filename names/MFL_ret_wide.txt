@@ -1160,7 +1160,7 @@ menu_bot_skill_b_get
 menu_count_items
 menu_current_item_offset
 menu_down_pressed_any
-menu_event_column_is_special
+menu_event_column_progress_unless_special
 menu_event_course_index_get
 menu_event_is_selectable
 menu_event_type_switch_a

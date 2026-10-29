@@ -6,7 +6,7 @@
 #define DAMAGE_EVENT_STRIDE_WORDS (10)
 /* car_damage_events_reset */
 
-/* "clears the 8 byte records of the damage event table at 0x65A9F4"
+/* "clears the damage event table at 0x65A9F4": 4 entries of DAMAGE_EVENT_STRIDE_WORDS (10) words = 40 bytes; only the first 6 words (24 bytes) of each are zeroed, the rest is left alone
  * Takes no parameters and returns nothing. Walks the table from
  * g_car_damage_65a9f4 up to g_car_damage_65aa94 (end of table), one entry
  * at a time, and zeroes each entry. (inferred: entry layout from the stores)

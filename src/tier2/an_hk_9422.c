@@ -2,7 +2,7 @@
 /*0042fc00*/ extern void menu_selection_step(int step);
 /*00434be0*/ extern void event_type_from_menu_choice(void);
 /*00435fc0*/ extern int __cdecl career_event_set_progress(int row);
-/*00436200*/ extern int menu_event_column_is_special(void);
+/*00436200*/ extern int menu_event_column_progress_unless_special(void);
 /*0069cbd0*/ extern int g_menu_current;
 /*0069cbd4*/ extern int g_event_type;
 /*0069cc44*/ extern int g_menu_69cc44;
@@ -80,7 +80,7 @@ again:
         row--;
         goto again;
       }
-    } while (menu_event_column_is_special() == 0);
+    } while (menu_event_column_progress_unless_special() == 0);
     event_type_from_menu_choice();
     type = g_event_type;
     row--;

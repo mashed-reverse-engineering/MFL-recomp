@@ -9,7 +9,7 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*0040cad0*/ extern int players_get_points();
 /*0040cc60*/ extern int player_get_points();
 /*0040cc70*/ extern int round_time_accumulate();
-/*0040cca0*/ extern int get_competitor_count();
+/*0040cca0*/ extern int placement_counter_increment();
 /*0040fdb0*/ extern int get_player_count();
 /*0040fdc0*/ extern int race_get_phase();
 /*0040ff00*/ extern int race_get_race_652dec();
@@ -426,7 +426,7 @@ undefined4 frontend_init_menus(void)
           player_index = 0;
           do {
             player_add_wins(players_by_points[player_index],result);
-            get_competitor_count(players_by_points[player_index],result);
+            placement_counter_increment(players_by_points[player_index],result);
             player_points = player_get_points(players_by_points[player_index]);
             if (player_index < 3) {
               next_points = player_get_points(players_by_points[player_index + 1]);
@@ -451,10 +451,10 @@ undefined4 frontend_init_menus(void)
           tied_count = players_by_points[player_index];
           if (result == g_player_slots[tied_count].state) {
             player_add_wins(tied_count,1);
-            get_competitor_count(players_by_points[player_index],1);
+            placement_counter_increment(players_by_points[player_index],1);
           }
           else {
-            get_competitor_count(tied_count,0);
+            placement_counter_increment(tied_count,0);
           }
           player_index = player_index + 1;
         } while (player_index < MAX_PLAYER_SLOTS);

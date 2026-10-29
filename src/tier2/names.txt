@@ -171,7 +171,7 @@
 0042f620 game_content_exists_prefixed hk_229.c
 00432cc0 menu_state_save hk_231.c
 00435f30 career_time_under_target hk_235.c
-00436200 menu_event_column_is_special hk_236.c
+00436200 menu_event_column_progress_unless_special hk_236.c
 0044a4f0 camera_get_position hk_237.c
 0044c7e0 camera_path_sample hk_238.c
 00453900 course_egypt_cb7 hk_241.c
@@ -251,7 +251,7 @@
 0041e5c0 score_panel_update hk_424.c
 0041e6b0 score_panel_render hk_425.c
 0041e6e0 score_panel_destroy hk_426.c
-0041f090 team_colour_table_init_2 hk_427.c
+0041f090 team_panel_origins_init hk_427.c
 0041f110 team_panel_update hk_428.c
 0041f140 team_panel_render hk_429.c
 0041f160 team_panel_destroy hk_430.c
@@ -451,7 +451,7 @@
 00405230 scene_tables_clear hk_732.c
 004062d0 camera_path_update hk_733.c
 0040bf20 gamesave_cb_save_state hk_734.c
-0040cca0 get_competitor_count hk_735.c
+0040cca0 placement_counter_increment hk_735.c
 0040f090 player_progress_difference hk_737.c
 0040fbf0 race_get_focus_player hk_738.c
 00418870 ai_bot_obstacle_ahead hk_740.c

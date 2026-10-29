@@ -189,7 +189,7 @@
 0040cc50 player_get_wins 12
 0040cc60 player_get_points 12
 0040cc70 round_time_accumulate 48
-0040cca0 get_competitor_count 129
+0040cca0 placement_counter_increment 129
 0040cd40 round_get_round_652dbc 6
 0040cd50 player_get_stat 67
 0040cdb0 round_stats_reset 125
@@ -459,13 +459,13 @@
 0041e6e0 score_panel_destroy 40
 0041e710 team_panel_load_parts 136
 0041e7a0 team_panel_build_team_mask 79
-0041e7f0 team_panel_load_team_colour 39
+0041e7f0 team_panel_load_origin 39
 0041e820 team_panel_entry_update 1037
 0041ecd0 team_panel_entry_render 603
 0041ef30 team_panel_entry_destroy 14
 0041ef40 load_team_panels 87
 0041efa0 team_panel_reset 226
-0041f090 team_colour_table_init_2 117
+0041f090 team_panel_origins_init 117
 0041f110 team_panel_update 46
 0041f140 team_panel_render 29
 0041f160 team_panel_destroy 29
@@ -979,7 +979,7 @@
 00435fb0 ui_get_menu_69d2d0 6
 00435fc0 career_event_set_progress 245
 004360b5 game_fn_4360b5 8
-00436200 menu_event_column_is_special 160
+00436200 menu_event_column_progress_unless_special 160
 004362c0 career_event_has_entry 110
 00436380 menu_event_type_switch_a 69
 00436400 menu_event_type_switch_b 51

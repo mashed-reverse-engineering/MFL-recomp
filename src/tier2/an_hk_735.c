@@ -8,7 +8,7 @@
 /*008d8bc0*/ extern undefined4 g_round_8d8bc0;
 #define TEAM_COMPETITOR_COUNT (2)
 #define COUNTER_ENTRY_BYTES (4)
-/* get_competitor_count */
+/* placement_counter_increment */
 
 /* Adds one to the result counter for (player_index, placement), where placement is
    0-based (inferred: 0 = first place). The table depends on the competitor count, which
@@ -20,7 +20,7 @@
    Other placements, and counts other than 2, 3 or 4, count nothing.
    Each counter is an int at COUNTER_ENTRY_BYTES per player_index. Returns nothing. */
 
-void get_competitor_count(int player_index,int placement)
+void placement_counter_increment(int player_index,int placement)
 
 {
   int competitor_count;

@@ -131,7 +131,7 @@ sprite_slot_destroy_atomic_44
 team_endpoint_panel_load_parts
 team_panel_entry_destroy
 team_panel_entry_render
-team_panel_load_team_colour
+team_panel_load_origin
 ui_get_triple
 vehicle_debris_update_one
 video_state_clear
@@ -303,7 +303,7 @@ hudpanel_markers_update_active
 cup_scene_load_models
 sprite_slots_destroy
 load_endpoint_panel
-team_colour_table_init_2
+team_panel_origins_init
 score_panel_load
 hud_labels_render_all
 sector_table_clear

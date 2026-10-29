@@ -7,7 +7,7 @@
 #define EVENT_TYPE_OFFSET (3)
 #define COLUMNS_PER_ROW (18)
 
-/* menu_event_column_is_special */
+/* menu_event_column_progress_unless_special */
 
 /* Returns 0 when the current menu event column is a special column for the current event type
    (not a playable event slot), otherwise returns the progress state of that event in the current
@@ -16,7 +16,7 @@
    types 6-8 columns 0-5 and 9-17 are special. Event types outside 3-8 return the raw event offset
    (inferred: probably unintended). */
 
-uint menu_event_column_is_special(void)
+uint menu_event_column_progress_unless_special(void)
 
 {
   uint result;

@@ -155,7 +155,7 @@ Metric: cmpfn.check (reloc-masked) via <scratch>; scratch copies src/w_<name>.c;
 - hermite_interpolate 50->2: float literals instead of k_f_* (pattern 4 of Round A); remaining: orig loads `mov eax,[esp+0xc]` before `fld t`.
 - vec3_is_valid_small 39->4, career_time_under_target 65->6, lua_Physics_Scenario_Trigger_Add_Objects 28->8: need exact source expression shape: cl's operand load order is independent of the left-assoc term order (tried all 6 permutations); `lea` vs `add` for `&sym+idx*stride` base pointers not reachable (folded).
 - hudpanel_fuel_meter_update 20->4 (scheduling of a float load across arg pushes), training_text_box_c 21->6 (two byte[4] colour locals: store order differs), car_get_velocity_any_mode 29->19, vector_normalize_copy 21->10, hsv_phase_to_rgb 41->17 (`fld k; fsub st,st(1)` vs `fsubr [k]`), hudpanel_load_indicator_update (register-input callees at the tail: unreachable).
-- Not fixable here: ai_bot_weapon_logic (orig shrink-wraps `push esi` after an early return 0), register-argument callees (weapon_mines_fire, course_city_cb5 tail jmp), loop IV rebase (weapon_mines_course_33_update), menu_select_pressed_any / menu_event_column_is_special (different branch structure, not tried beyond reading), round_stats_reset (three alternating zero registers eax/ecx/edx, unknown source).
+- Not fixable here: ai_bot_weapon_logic (orig shrink-wraps `push esi` after an early return 0), register-argument callees (weapon_mines_fire, course_city_cb5 tail jmp), loop IV rebase (weapon_mines_course_33_update), menu_select_pressed_any / menu_event_column_progress_unless_special (different branch structure, not tried beyond reading), round_stats_reset (three alternating zero registers eax/ecx/edx, unknown source).
 
 ## Round D
 
@@ -267,7 +267,7 @@ Result: 41 of 82 byte-identical (all diffemu EQUAL), 12 improved (fix_improved/,
 - Operand-order / scheduling near-misses: frame_rotate_around_own_origin (struct copy + `* -1.0f` literal ok, fmul/mov interleave differs), car_push_from_matrix (all instructions right, one fmul vs push scheduled
   one slot apart), dot_product_3d_clamped (float arithmetic + fcom m32 ok, `mov ecx,[esp+8]` vs first fld order), pool/particle_system_set_matrix_table (`[ecx+eax]` vs `[eax+ecx]` SIB order of an
   `atomic->4 + g_plugin_offset` expression is canonicalised by cl), ptank_set_size (size pointer in ecx vs eax), btb_panel_slot_set_matrix (flags RMW `or [mem]` vs load/or/store; zero-register compare is automatic).
-- Struct-ish jump-table/branch layout: get_competitor_count (goto-shared blocks A..D are right, the count-3 dispatcher shares the count-2 chain in the original but not in ours), frontend_enter_menu (tail `jmp`).
+- Struct-ish jump-table/branch layout: placement_counter_increment (goto-shared blocks A..D are right, the count-3 dispatcher shares the count-2 chain in the original but not in ours), frontend_enter_menu (tail `jmp`).
 
 ## Round F
 

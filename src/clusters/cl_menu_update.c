@@ -104,7 +104,7 @@
 /*00437f90*/ extern int menu_career_row_next();
 /*0042fe90*/ extern int menu_current_item_offset();
 /*00430380*/ extern int menu_down_pressed_any();
-/*00436200*/ extern int menu_event_column_is_special();
+/*00436200*/ extern int menu_event_column_progress_unless_special();
 /*00430970*/ extern int menu_input_next_pressed();
 /*00438340*/ extern int menu_items_animate_update();
 /*00430510*/ extern int menu_left_pressed_any();
@@ -1809,7 +1809,7 @@ LAB_0044849c:
                   slot_type = active_slots;
                 }
                 g_menu_event_column = slot_type;
-                active_slots = menu_event_column_is_special();
+                active_slots = menu_event_column_progress_unless_special();
                 aux = slot_type;
               } while (active_slots == 0);
             }
@@ -2074,7 +2074,7 @@ LAB_0044907d:
                   slot_type = aux;
                 }
                 g_menu_event_column = slot_type;
-                active_slots = menu_event_column_is_special();
+                active_slots = menu_event_column_progress_unless_special();
                 team_mode = slot_type;
               } while (active_slots == 0);
             }

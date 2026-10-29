@@ -279,11 +279,11 @@ extern undefined4 career_time_under_target(void);
 extern undefined4 ui_get_menu_69d2d0(void);
 
 
-/* menu_event_column_is_special */
+/* menu_event_column_progress_unless_special */
 
 /* "returns whether the event column is one of 0,1,2,6,7,8 depending on the event type" */
 
-extern uint menu_event_column_is_special(void);
+extern uint menu_event_column_progress_unless_special(void);
 
 
 /* career_event_has_entry */

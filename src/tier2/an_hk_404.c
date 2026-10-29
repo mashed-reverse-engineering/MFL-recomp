@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00434be0*/ extern int event_type_from_menu_choice();
 /*00435fc0*/ extern int __cdecl career_event_set_progress(undefined4 p0);
-/*00436200*/ extern int menu_event_column_is_special();
+/*00436200*/ extern int menu_event_column_progress_unless_special();
 /*0069cbd4*/ extern undefined4 g_event_type;
 /*0069cc44*/ extern undefined4 g_menu_69cc44;
 /*0069d688*/ extern undefined4 g_career_row;
@@ -73,7 +73,7 @@ LAB_00438106:
         goto LAB_00438106;
       }
       g_menu_event_column = column;
-      result = menu_event_column_is_special();
+      result = menu_event_column_progress_unless_special();
     } while (result == 0);
     event_type_from_menu_choice();
     g_career_row = row + 1;

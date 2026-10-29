@@ -6,7 +6,7 @@ extern char LAB_0047b420[];
 /*005e64a4*/ extern float k_f_0;
 /* car_probe_ground_distance */
 
-/* "(x, y, z, world): collision ray 3 units up / down, returns the distance to the ground minus 3"
+/* "(x, y, z, world): collision ray 3 units up / down, returns the distance to the ground minus 3" (measured from the top of the ray, so 0 when the ground is at y; when the ray hits nothing it returns -3, not +3)
     */
 
 double car_probe_ground_distance(float x_then_out,float y,float z,char *world)

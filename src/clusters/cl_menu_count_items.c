@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /* menu_count_items */
 
-/* "counts the entries of a menu item list up to its terminator" */
+/* "counts the entries of a menu item list up to its terminator": counts the item-start markers (-0xfa0000) before the end marker (-0xf90000); every other word is skipped */
 
 int menu_count_items_n(int *list)
 
