@@ -2487,7 +2487,7 @@ weapons_effects_render_all,00467820,tier1,bytes,bytes-reloc,3372dbf37fec,126ee48
 weapons_race_start_dispatch,00467d50,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,126ee480af92,4608b9e561f7,15,1.00,0,0
 weapons_reset_all_dispatch,00467860,tier1,bytes,bytes-reloc,8ffc7fb365ec,126ee480af92,4608b9e561f7,0,0.00,0,0
 weapons_unequip_all_a,00467d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,26,1.00,0,0
-weapons_update_frame,00467a60,tier2,compiled+shadow-never,static,-,126ee480af92,4608b9e561f7,0,0.00,0,0
+weapons_update_frame,00467a60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,126ee480af92,4608b9e561f7,57,0.33,0,0
 window_create,004a9c90,tier1,bytes,bytes-reloc,f79c9ba86afc,126ee480af92,4608b9e561f7,0,0.00,0,0
 window_destroy,004a9810,tier1,bytes,bytes-reloc,ae28468a48e2,126ee480af92,4608b9e561f7,0,0.00,0,0
 window_show,004a9360,tier1,bytes,bytes-reloc,8c8d5052b133,126ee480af92,4608b9e561f7,0,0.00,0,0
