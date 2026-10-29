@@ -594,7 +594,6 @@
 0043d7b0 menu_event_is_selectable hk_020.c
 00464e00 powerup_place_with_respawn hk_959.c
 0042d9b0 rw_stream_chunk_copy hk_960.c
-004aee20 FUN_004aee20 hk_964.c
 00424a00 debris_body_configure hk_965.c
 00453420 course_dem_cb1 hk_966.c
 00405d80 gamesave_gather hk_967.c

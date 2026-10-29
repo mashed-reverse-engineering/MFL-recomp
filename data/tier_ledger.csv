@@ -22,7 +22,7 @@ FUN_004ad9e0,004ad9e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,5e9b06
 FUN_004ae050,004ae050,tier1,bytes,bytes-reloc,c7c5ced53635,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 FUN_004aebb0,004aebb0,tier1,bytes,bytes-reloc,e874e70f8c4d,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 FUN_004aebd0,004aebd0,tier2,compiled+shadow-never,static,-,5e9b06c732e8,5e9925b901da,0,0.00,0,0
-FUN_004aee20,004aee20,tier2,compiled+shadow-never,static,-,5e9b06c732e8,5e9925b901da,0,0.00,0,0
+FUN_004aee20,004aee20,tier1,bytes,bytes-reloc,-,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 FUN_004af0f0,004af0f0,tier1,bytes,bytes-reloc,284f29ed0012,5e9b06c732e8,5e9925b901da,0,0.00,0,0
 FUN_004af1f0,004af1f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,5e9b06c732e8,5e9925b901da,200,1.00,0,0
 FUN_004af740,004af740,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,238ab62e85c5,5e9b06c732e8,5e9925b901da,50,0.80,0,0

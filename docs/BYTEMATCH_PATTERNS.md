@@ -423,3 +423,21 @@ Open families (analysed, no rewrite found in two attempts each):
 ## 42. /GS census artifact (stack-cookie functions)
 The plan counted 33 tier-2 near misses as "missing /GS marker". They are not: all 38 tier-2 functions whose original loads the security cookie already sit in chunks with the `/* compile: /GS */` marker. The census (`bytediff_causes.py`) and `cmpfn` do not read the marker, so those chunks were compiled without a cookie and looked far off. The census now adds `/GS` for marked chunks; `bytematch_install.py --find-gs` lists cookie functions in unmarked chunks (none left) and `--gs` installs a function into tier 1 with the marker and a `/GS` check.
 Rescan with the marker: 1 of 38 byte-identical (replay_save, moved to tier 1); the other 37 differ in the frame (`sub esp,N` differs: local array sizes / slot order around the cookie, extra callee-saved push, x87 spills), i.e. the usual local-layout class (patterns 16, 30, 31), not a flag.
+
+## Round T-M2 (2026-10-29): bounded variant search over the register-set, control-flow and jump-table classes
+
+`tools/bytematch_rewrite.py` got five search patterns (<= 200 variants per function and pattern, a variant is kept only when it is byte-identical to the original; parallel via `--jobs`):
+decl_perm (permute the leading local declarations), stmt_swap (swap adjacent independent single-line assignments), ifelse_swap (`if (C) {A} else {B}` -> `if (!C) {B} else {A}`),
+loop_form (`for` <-> `while`), case_swap (swap adjacent `case` blocks that end in break / return).
+Run over the 539 functions of the classes callee-saved register set, control-flow shape, jump table, instruction order, register allocation, missing/extra mov, small structure:
+720 function/pattern pairs, 11,534 variants (decl_perm 328 functions, stmt_swap 173, ifelse_swap 97, loop_form 82, case_swap 40).  Result: ONE byte-identical function.
+
+42. ifelse_swap: the original lays out the not-taken arm first.
+    before: `if (p->x == 0) { *out = 0; } else { *out = p->name; }`   after: `if (p->x != 0) { *out = p->name; } else { *out = 0; }`  (accessor with a name out-parameter; 1 function).
+43. decl_perm / stmt_swap / loop_form / case_swap: 0 hits in 6,000+ variants.  The callee-saved set of cl 13 follows the live ranges of the values, not the declaration order, and
+    the jump-table / compare-chain form follows the case VALUES; both are decided by the original source structure (inlined helpers, merged temporaries), which none of the single-site edits reproduces.
+
+Cluster census (`tools/bytediff_causes_clusters.py`): the natural C of the 622 enabled clusters is compiled with /O2 /Ob0 and compared per entry (861 entries).
+reginput_root 288 (the `_n` body takes its register inputs on the stack: differs by construction), control-flow shape 165, x87 form or spill 136, jump table 104, callee-saved set 76, large structure 55,
+small structure 14, byte-identical 14, missing/extra mov 4, instruction order 2, strength reduction 2, stack frame 1.  The 14 byte-identical cluster entries have no promotion path in the ledger (a cluster entry is owned
+by the cluster build and is verified by `diffemu --cluster`, not by RELCHECK), so they stay clusters.
