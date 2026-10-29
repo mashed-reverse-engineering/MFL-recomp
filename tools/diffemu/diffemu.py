@@ -55,7 +55,7 @@ def compile_obj(src):
         shutil.copy(src, os.path.join(w, "f.c"))
         r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS_ + ["f.c"], capture_output=True, text=True, timeout=300)
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error: " + (r.stdout + r.stderr)[-300:])
-        shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp"); os.replace(obj + ".tmp", obj)      # atomic
+        shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp%d" % os.getpid()); os.replace(obj + ".tmp%d" % os.getpid(), obj)      # atomic (pid-unique tmp: two workers may compile the same source)
     finally: shutil.rmtree(w, ignore_errors=True)
     return obj, key
 

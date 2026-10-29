@@ -395,3 +395,27 @@ NB: `/* compile: /GS */` marker needed for stack-cookie functions (t.py honours 
 Lint notes for the review (tools/defectlint.py on fix/): class 1 `signed` flags `if (g_x > 0)` on undefined4 globals in sound_stop_all_and_release (intended: orig is unsigned jbe, same semantics as != 0);
 class 4 `proto` flags the shrunk prototypes FUN_0056e340 (1 vs 3), sound_frame_begin (1 vs 2), RtBMPImageRead (1 vs 4): the dossier counted args from deferred `add esp`; the bytes are identical (pushes of earlier calls stay on the stack);
 class 6 `vtable_conv` flags FUN_004af0f0 (`__fastcall` slot call: callee takes this in ecx, no stack args).  declcheck.py / cheatgrep.py: no new findings.
+
+## Round T-M1 (2026-10-29): causes census of the tier-2 near misses and the scripted patterns
+
+Census: `python3 tools/bytediff_causes.py <out.csv>` compiles every tier-2 chunk (cl 13.00, /O2, standalone chunk, relocation fields masked, RELCHECK targets) and classifies the first difference per function.
+Of 1076 tier-2 names, 174 were already byte-identical (stale: promoted to tier 1 by `tools/bytematch_install.py`). Categories of the other 902 (count / with <= 8 differing bytes):
+x87 form or spill 226/6, control-flow shape 174/0, prologue / callee-saved register set 154/16, switch / jump table 101/0, large structure 58/0, strength reduction or lea 51/1, missing/extra mov 50/16,
+instruction order 33/15, small structure 26/6, compile error 10, register allocation 9/8, operand form 4/2, order+registers 4/4, stack frame 2/1.
+The big classes (differing callee-saved register set, hoisted loads, jump-table form) are register-pressure / scheduling differences of the original source that no single-site edit changes; the near misses
+(<= 8 bytes, 75 functions) are dominated by the patterns below and by two families without a known fix (see "Open families").
+
+`tools/bytematch_rewrite.py` (dry run lists candidates, `--apply` compiles every single-site variant in a COPY and keeps only byte-identical ones; the patterns are one function each):
+
+38. ret_forward: a void wrapper whose last statement is a call of an int-returning extern.  Original `push imm; call f; add esp,4; ret`, ours `pop ecx` (result dead).
+    before: `void w(void) { f(&g_tbl + 0x4c); return; }`   after: `int w(void) { return f(&g_tbl + 0x4c); }`  (callee extern must be `int`, not `void` / `undefined`).  10 functions (the gap_ wrappers around a table object).
+39. rel_swap: mirrored relational operands, `if (a >= b)` <-> `if (b <= a)` (cmp operand order: `cmp ecx,[mem]` vs `cmp [mem],ecx`, jbe vs jae).  2 functions.
+40. ptr_signed_cmp: a pointer loop bound compared as a signed value.  Original `cmp esi,END; jl`, ours `jb`.
+    before: `while ((char *)cur < (char *)&g_end);`   after: `while ((int)(char *)cur < (int)&g_end);`  Byte-identical (course_sky_clumps_update) but each cast counts in portcheck cc_ptr2int (ratchet), so it is NOT installed
+    (course_city_cb5_helper has six such loops, course_sky_clumps_update one); decide with the portability owner before enabling (`--patterns` selects).
+41. rel_const (`x <= K` <-> `x < K+1`, cmp K / jle vs test / jl), mul_swap (`a * b` <-> `b * a`, fld order), inline_temp (`v = f(); g(v, 1);` -> `g(f(), 1);`): implemented; over ~2,400 single-site variants of all near misses (<= 80 differing bytes) they produced no byte-identical result of their own (rel_swap 2 hits are listed under 39).
+
+Open families (analysed, no rewrite found in two attempts each):
+- obj_get_off<N> getters (24 functions, `void f(char *o, char *unused, T *out) { *out = *(T*)(o + N); }`): original loads `out` ([esp+0xc]) BEFORE the field load; the float variants use `fld/fstp`. Tried: typed struct copy, local temp, array index, float and double-roundtrip casts, return value: cl always schedules the field load first and uses `mov` for float copies. Probably a C++ accessor with a different parameter model.
+- flag setters `p->flags |= C` (13 functions): original `mov ecx,[p+0x28]; or ecx,C; mov [p+0x28],ecx` (load, or, store through a register), ours `or [p+0x28],C`. `volatile` produces it but is forbidden (cheatgrep); temp locals, reversed operand order, pointer local are folded by cl.
+- tail-call thunks (`mov eax,K; jmp f`, usercall arguments): need the naked wrapper, not a source tweak (see round A).

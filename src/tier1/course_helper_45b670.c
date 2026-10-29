@@ -1,0 +1,29 @@
+#include "mfl_tier2.h"
+/*004068f0*/ extern int __cdecl clump_for_all_atomics_cb_4068a0(struct RpClump *p0, void *p1);
+/*004f6bf0*/ extern int rpclump_clone(undefined4 p0);
+/*006a26cc*/ extern undefined4 g_course_clumps_6a26cc;
+/*006a26d0*/ extern undefined4 g_course_clumps_6a26d0;
+/*006a26d4*/ extern undefined4 g_course_clumps_6a26d4;
+/*006a272c*/ extern undefined4 g_course_clumps_6a272c;
+/*006a2730*/ extern undefined4 g_course_clumps_6a2730;
+/*006a2734*/ extern undefined4 g_course_clumps_6a2734;
+/* course_helper_45b670 */
+
+/* callers course_sands_cb0,course_sandsnow_cb0_sub_4584b0 */
+
+/* Refreshes six course clump globals from the handle at +0xc138, then runs clump_for_all_atomics_cb_4068a0 on four clumps (+0xc158/c15c/c160/c168) with the user data at +0xc9d0 (inferred). */
+void course_helper_45b670(char *course_state)
+
+{
+  g_course_clumps_6a26cc = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26d0 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a26d4 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a272c = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a2730 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  g_course_clumps_6a2734 = rpclump_clone(*(undefined4 *)(course_state + 0xc138));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc158),*(void **)(course_state + 0xc9d0));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc15c),*(void **)(course_state + 0xc9d0));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc160),*(void **)(course_state + 0xc9d0));
+  clump_for_all_atomics_cb_4068a0(*(RpClump **)(course_state + 0xc168),*(void **)(course_state + 0xc9d0));
+  return;
+}
