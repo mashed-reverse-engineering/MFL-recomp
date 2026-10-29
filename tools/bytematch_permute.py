@@ -305,6 +305,22 @@ def m_array_group(t):
     return out
 
 
+def m_struct_group(t):
+    """readable cousin of array_group (T-B4): consecutive same-type scalar locals -> one anonymous struct `loop` (members keep their names, a.b order = declaration order);
+    cl 13 allocates the struct as one stack object, i.e. the same slot order as array_group without the [0]/[1] names"""
+    head, D, R_ = _lead(t); out = []
+    for i in range(len(D) - 1):
+        a, b = LDECL.match(D[i]), LDECL.match(D[i + 1])
+        if not (a and b) or a.group(6) or b.group(6) or a.group(5) or b.group(5) or a.group(2).strip() != b.group(2).strip() or a.group(3) or b.group(3): continue
+        if not re.match(r"(float|int|uint|undefined4|double)$", a.group(2).strip()): continue
+        body = "\n".join(R_)
+        for x in (a.group(4), b.group(4)): body = re.sub(r"(?<![\w.])%s\b" % x, "loop." + x, body)
+        for fl in (False, True):
+            m1, m2 = (b, a) if fl else (a, b)
+            out.append("\n".join(head + D[:i] + ["  struct { %s%s; %s%s; } loop;" % (a.group(2), m1.group(4), a.group(2), m2.group(4))] + D[i + 2:]) + "\n" + body)
+    return out
+
+
 def m_arr_resize(t):
     out = []; b = rw.body_span(t)
     for m in re.finditer(r"(?m)^(\s+[A-Za-z_][\w \*]*?\w+\[)(\d+)(\];)", t[b:]):
@@ -342,8 +358,37 @@ def m_spill(t):
     return out
 
 
+def m_live_range(t):
+    """callee-saved-set mutator (T-B4): the set of saved registers follows the live ranges of values across calls.
+    param_copy: `T q = param;` at the top and the later uses of one parameter go through q (extends/changes what is kept across calls);
+    global_cache: a global read >= 2 times and never assigned becomes a local loaded once at the top (type from the preamble extern)."""
+    out = []; head, D, R_ = _lead(t)
+    sig = " ".join(head)
+    m = re.search(r"\(([^()]*)\)\s*\{?\s*$", sig)
+    params = []
+    if m and m.group(1).strip() not in ("", "void"):
+        for a in m.group(1).split(","):
+            mm = re.match(r"^\s*((?:unsigned |struct |const )?[A-Za-z_]\w*[\s\*]+)(\w+)\s*$", a)
+            if mm: params.append((mm.group(1).strip(), mm.group(2)))
+    body = "\n".join(R_)
+    for ty, nm_ in params:
+        n = len(re.findall(r"\b%s\b" % nm_, body))
+        if n < 2 or re.search(r"[&]\s*%s\b" % nm_, body) or re.search(r"\b%s\s*(=[^=]|\+\+|--|[-+*|&]=)" % nm_, body): continue
+        q = nm_ + "_"
+        nb = re.sub(r"\b%s\b" % nm_, q, body)
+        out.append("\n".join(head + D + ["  %s %s;" % (ty, q)] + [("  %s = %s;" % (q, nm_))] + nb.split("\n")))
+    pre = getattr(_TL, "pre", "")
+    for g in sorted(set(re.findall(r"\b(g_\w+)\b", body))):
+        if len(re.findall(r"\b%s\b" % g, body)) < 2 or re.search(r"[&]\s*%s\b" % g, body) or re.search(r"\b%s\s*(\[[^\]]*\])?\s*(=[^=]|\+\+|--|[-+*|&]=)" % g, body): continue
+        pm = re.search(r"extern\s+((?:unsigned \w+|\w+))\s+%s\b" % g, pre)
+        if not pm or pm.group(1) in ("undefined", "void") or re.search(r"\b%s\s*\[" % g, body): continue
+        q = g[2:] + "_c"
+        out.append("\n".join(head + D + ["  %s %s;" % (pm.group(1), q), "  %s = %s;" % (q, g)] + re.sub(r"\b%s\b" % g, q, body).split("\n")))
+    return out
+
+
 FRAME = {"decl_split": m_decl_split, "decl_merge": m_decl_merge, "decl_rev": m_decl_rev, "decl_sink": m_decl_sink, "decl_hoist": m_decl_hoist, "init_split": m_init_split,
-         "array_group": m_array_group, "arr_resize": m_arr_resize, "float_double": m_float_double, "spill": m_spill}
+         "array_group": m_array_group, "arr_resize": m_arr_resize, "float_double": m_float_double, "spill": m_spill, "live_range": m_live_range, "struct_group": m_struct_group}
 UGLY = {"array_group", "arr_resize"}      # tags whose hits need a manual readability review
 
 

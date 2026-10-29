@@ -9,7 +9,6 @@
 00413b50 race_time_trial_record ok_007.c
 00414250 ghost_render ok_009.c
 00416760 noise_value ok_009.c
-00416c40 ai_bots_clear_stats ok_009.c
 00416fb0 ai_bot_weapon_logic ok_009.c
 0041a170 ai_erase_cell ok_009.c
 004209b0 hudpanel_countdown_update ok_011.c

@@ -2347,3 +2347,4 @@ sfx_voice_is_active 00472bb0
 # T-C11 old names kept resolvable for bridges (kc panel origin table)
 team_colour_table_init_4 0041fc40
 g_hudpanel_603f4c 00603f4c
+gap_411f40 00411f40

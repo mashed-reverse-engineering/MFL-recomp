@@ -480,3 +480,16 @@ not the frame alone: in the sampled diffs the original keeps a value in ebx acro
 
 50. float temp width: a local holding a function result that is only used later as `(float)` is `float` in the original (no 80-bit round trip); `double` costs two instructions and a different spill slot.
 51. Instruction scheduling of a dead store: the original loads the next global between the call and the store of its result (`call; mov esi,[g]; fstp [t]`); ours stores first. Neither statement order, a second temp, nor a double temp changes it (3 attempts, 1 function). Not a source-level lever found.
+
+## Round T-B4 (2026-10-29): `--frame` run, callee-saved mutator, struct grouping
+
+`bytematch_permute.py --frame` over the 183 functions with <= 24 differing bytes (budget 200) and over the 121 callee-saved-set / prologue functions <= 200 bytes (budget 250): ONE hit, ai_bots_clear_stats, found as `decl_rev + array_group`.
+The array form (`int entries_left_table_offset[2]`) is unreadable, so it was not installed; the same slot order written as an anonymous struct matches too and was installed.
+
+52. Two loop counters that cl 13 allocates as one stack object (ai_bots_clear_stats): the original keeps both loop variables adjacent in the frame in a fixed order (count at the lower address, offset above, and neither is enregistered).
+    before: `int table_offset; int entries_left;`   after: `struct { int entries_left; int table_offset; } loop;` and uses `loop.table_offset`, `loop.entries_left`.  New mutator `struct_group` (both member orders; readable replacement of array_group, no review needed).
+
+New mutator `live_range` (callee-saved-set cause: the saved registers follow the values that live across calls): `param_copy` (`T p_ = p;` and later uses go through the copy) and `global_cache` (a global read >= 2 times, never assigned, becomes a local loaded once).
+Result: 0 hits on the callee-saved class. Reason, from the sampled diffs: the remaining functions pass arguments to register-convention callees (`_r` adapters, powerup_place*: the original reloads the stack argument after the call, ours keeps it in esi), i.e. a calling-convention difference, not a live-range one;
+no source edit of the caller changes that. Residual classes unchanged (x87 form/spill, control-flow shape: no new scripted pattern found in this round).
+Second pass with struct_group and live_range in the pool: 270 functions (the two lists merged), budget 300: 0 further hits.

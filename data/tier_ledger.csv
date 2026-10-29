@@ -162,7 +162,7 @@ ai_bot_stuck_check,00417d70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,
 ai_bot_update,0041b4e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,aad01a16fff1,800,0.88,0,0
 ai_bot_weapon_logic,00416fb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,aad01a16fff1,200,1.00,0,0
 ai_bots_assign_slots,00416d40,agent,bytes-standalone+5512697e6521,bytes-reloc,-,33bf93632a05,aad01a16fff1,0,0.00,0,0
-ai_bots_clear_stats,00416c40,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,71e5b009d636,33bf93632a05,aad01a16fff1,200,1.00,0,1
+ai_bots_clear_stats,00416c40,tier1,bytes,bytes-reloc,e28f56ebf4f1,33bf93632a05,aad01a16fff1,0,0.00,0,0
 ai_bots_randomise,00416ca0,agent,bytes-standalone+6275079dae70,bytes-reloc,-,33bf93632a05,aad01a16fff1,0,0.00,0,0
 ai_bots_reset,00416a70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,aad01a16fff1,200,1.00,0,0
 ai_catchup_bot_state_update,004173e0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,676da9d1b233,33bf93632a05,aad01a16fff1,200,0.33,0,0

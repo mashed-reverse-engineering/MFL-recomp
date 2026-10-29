@@ -17,7 +17,7 @@ def strip(body):
 WIN32 = {"GetDlgItem": 2, "GetCurrentDirectoryA": 2, "DialogBoxParamA": 5, "LoadBitmapA": 2, "GetVersionExA": 1, "lstrcmpiA": 2, "OutputDebugStringA": 1, "SetWindowTextA": 2, "ShowWindow": 2, "SetWindowLongA": 3,
          "SetWindowPos": 7, "RegOpenKeyExA": 5, "RegCloseKey": 1, "CharUpperA": 1, "InterlockedExchange": 2, "SendMessageA": 4, "SendDlgItemMessageA": 5, "EndDialog": 2, "GetWindowTextA": 3, "SetDlgItemTextA": 3,
          "CheckDlgButton": 3, "IsDlgButtonChecked": 2, "EnableWindow": 2, "GetWindowLongA": 2, "LoadStringA": 4, "MessageBoxA": 4, "GetModuleFileNameA": 3, "CloseHandle": 1, "SetFocus": 1, "GetDC": 1, "ReleaseDC": 2}      # Win32 API arities (names/MFL_import_protos.txt votes the pushes in front of the IAT call and is wrong when a push belongs to an enclosing call)
-ARITY = {"RwStreamClose": 2, "RwStreamRead": 3, "SUB_0045dc10": 1}      # library callees whose Ghidra signature swallowed the caller's frame (unaff_ESI, unaff_retaddr, param_1.. as arguments)
+ARITY = {"RwStreamClose": 2, "RwStreamRead": 3, "SUB_0045dc10": 1, "gamesave_cb_dispatch_b": 0}      # library callees whose Ghidra signature swallowed the caller's frame (unaff_ESI, unaff_retaddr, param_1.. as arguments)
 JUNK = re.compile(r"^(?:unaff_\w+|in_stack_\w+|extraout_\w+)$")
 def _call_args(b, i):
     """b[i] == '(' -> list of (start, end) of the top level arguments, index of the closing ')'"""
@@ -43,7 +43,7 @@ def junkargs(body):
             k = next((i for i, x in enumerate(a) if JUNK.match(x)), None)
             if k is None or k == 0 or len(a) < 3: continue
         if len(a) <= k: continue
-        body = body[:al[k - 1][1]] + body[close:]; changed = True
+        body = (body[:al[k - 1][1]] if k else body[:al[0][0]]) + body[close:]; changed = True
     if not changed: return body
     for v in set(re.findall(r"^[ \t]+[\w ]+ ((?:unaff_|in_stack_|extraout_)\w+);[ \t]*\n", body, re.M)):
         if len(re.findall(r"\b%s\b" % v, body)) == 1: body = re.sub(r"^[ \t]+[\w ]+ %s;[ \t]*\n" % v, "", body, flags=re.M)

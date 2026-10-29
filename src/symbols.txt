@@ -7791,10 +7791,14 @@ g_message_text_id 0069cfd4
 g_message_timer 0069cfe4
 g_message_code 0069cff0
 g_message_buttons 0069cff4
+g_message_box_69cff8 0069cff8
+g_message_box_69cff9 0069cff9
+g_message_box_69cffa 0069cffa
 g_message_button_text_a 0069cffc
 g_message_button_text_b 0069d000
 g_message_show_69d004 0069d004
 g_message_use_text_offset 0069d008
+g_message_box_69d00c 0069d00c
 g_message_text_offset 0069d010
 g_tutorial_ranked_players 0069d014
 player_color_id 0069d028
@@ -7836,6 +7840,9 @@ g_menu_69d228 0069d228
 g_menu_69d22c 0069d22c
 g_message_69d248 0069d248
 g_menu_69d24c 0069d24c
+g_message_box_69d254 0069d254
+g_message_box_69d258 0069d258
+g_message_box_69d25c 0069d25c
 g_menu_69d26c 0069d26c
 g_menu_draw_69d270 0069d270
 g_app_state_69d284 0069d284
@@ -8858,6 +8865,7 @@ g_race_load_752364 00752364
 g_particles_759630 00759630
 g_fx_dust_759640 00759640
 g_fx_dust_759648 00759648
+g_shadow_project_75964c 0075964c
 g_fx_dust_759658 00759658
 g_fx_dust_759660 00759660
 g_fx_ptank_atomic_a 00759698
