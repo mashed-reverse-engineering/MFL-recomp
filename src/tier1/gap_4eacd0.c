@@ -1,0 +1,9 @@
+/* compile: /G5 */
+#include "mfl_tier2.h"
+/*007d51c4*/ extern int g_data_7d51c4;
+/* Module open hook: increments the open count, returns its argument. */
+void *gap_4eacd0(void *p)
+{
+  g_data_7d51c4++;
+  return p;
+}

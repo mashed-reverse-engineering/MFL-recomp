@@ -17,19 +17,19 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,686 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers, each function once) | 2,717 | `████████████████████` 98% |
-| ...verified byte identical | 1,378 | `██████████░░░░░░░░░░` 49% |
-| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,339 | `██████████░░░░░░░░░░` 48% |
-| ...share of the code bytes | 672,910 B | `████████████████████` 99% |
-| ...of these register-argument clusters | 662 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,611 | `███████████████████░` 94% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,272 | `█████████░░░░░░░░░░░` 46% |
-| ...tier 1, `src/tier1` (1112 files) | 924 | `███████░░░░░░░░░░░░░` 33% |
+| Replaced by recompiled C (all tiers, each function once) | 2,722 | `████████████████████` 98% |
+| ...verified byte identical | 1,379 | `██████████░░░░░░░░░░` 50% |
+| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,343 | `██████████░░░░░░░░░░` 48% |
+| ...share of the code bytes | 675,409 B | `████████████████████` 99% |
+| ...of these register-argument clusters | 664 | `█████░░░░░░░░░░░░░░░` 24% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,843 | `████████████████████` 102% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,500 | `███████████░░░░░░░░░` 54% |
+| ...tier 1, `src/tier1` (1495 files) | 1,152 | `████████░░░░░░░░░░░░` 41% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (826 files) | 725 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (629 files) | 663 | `█████░░░░░░░░░░░░░░░` 24% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 343 | |
+| ...tier 2, `src/tier2` (828 files) | 727 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...clusters, `src/clusters` (631 files) | 665 | `█████░░░░░░░░░░░░░░░` 24% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 498 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
 **How the numbers are counted.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ: 622 files give 655 functions. The cluster row counts those entry functions; those not yet in the tier ledger are listed as `cluster (not in ledger)` in the by-tier table, the rest are counted under their ledger tier. The *byte identical* rows are exactly the ledger entries with authority `bytes-reloc`; everything else replaced is behaviour verified.
@@ -43,10 +43,10 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 |---|---:|---:|---:|
 | agent | 109 | 8,446 | 109 |
 | bridge | 4 | 1,643 | 0 |
-| cluster (not in ledger) | 575 | 330,832 | 0 |
+| cluster (not in ledger) | 577 | 331,915 | 0 |
 | hand | 381 | 14,744 | 344 |
-| tier1 | 925 | 70,467 | 925 |
-| tier2 | 723 | 246,778 | 0 |
+| tier1 | 926 | 70,649 | 926 |
+| tier2 | 725 | 248,012 | 0 |
 
 </details>
 <!-- progress:end -->

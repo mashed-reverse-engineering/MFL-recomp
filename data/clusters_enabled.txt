@@ -627,3 +627,5 @@ message_box_update
 race_start_setup
 shadow_project_to_ground_00499dc0
 menu_page_enter
+movie_renderer_create
+video_dialog_fill_modes

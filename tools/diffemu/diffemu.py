@@ -44,7 +44,7 @@ def compile_obj(src):
     """object of a whole C file (headers next to it), cached by source + headers + flags (like build_overlay.py)"""
     d = os.path.dirname(src); h = sha(*[open(os.path.join(d, x), "rb").read() for x in sorted(os.listdir(d)) if x.endswith(".h")])
     gs = [] if b"compile: /GS" not in open(src, "rb").read() else ["/GS"]      # per-file opt-in for /GS stack-cookie functions (tools/gsfix.py)
-    FLAGS_ = FLAGS + gs
+    FLAGS_ = FLAGS + gs + (["/G5"] if b"compile: /G5" in open(src, "rb").read() else [])      # VC6-built RenderWare functions (build_overlay.py)
     key = sha(open(src, "rb").read(), h, " ".join(FLAGS_)); obj = os.path.join(OBJCACHE, key + ".obj")
     if os.path.exists(obj): return obj, key
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True)

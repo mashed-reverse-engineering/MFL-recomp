@@ -10,9 +10,10 @@ import re, csv, datetime, glob, hashlib, os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import shadow_cache
 HERE = os.path.dirname(os.path.abspath(__file__)); R = os.path.join(HERE, "..", "src")
 sym = {}
-for l in open(os.path.join(R, "symbols.txt")):
-    p = l.split()
-    if len(p) == 2: sym.setdefault(p[0], p[1])
+for f_ in ("symbols.txt", "aliases.txt"):      # aliases: SDK / library names of rewritten RenderWare functions (tools/rw_tier1.py)
+    for l in open(os.path.join(R, f_)):
+        p = l.split()
+        if len(p) == 2 and not l.startswith("#"): sym.setdefault(p[0], p[1])
 fnva = {l.split()[0]: l.split()[1] for l in open(os.path.join(HERE, "..", "output", "fnsizes.txt")) if len(l.split()) >= 3}      # VA -> name; a name that carries its own VA suffix and sits there wins over the first-wins symbols.txt line (controller_present_004a70c0: two functions, 0x4a5b20 and 0x4a70c0)
 rows = {}
 def add(n, tier, ev):

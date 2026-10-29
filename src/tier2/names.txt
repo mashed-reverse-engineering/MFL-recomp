@@ -876,3 +876,5 @@
 0042a7f0 course_run_ktc_script hk_9602.c
 004a9e70 d3d9_draw_with_transform hk_9701.c
 004a4720 game_register_native_filesystems hk_9702.c
+004a43d0 game_open_piz hk_9703.c
+004a77d0 controller_dialog_init hk_9704.c
