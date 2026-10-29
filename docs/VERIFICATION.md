@@ -39,6 +39,7 @@ The default diffemu run is unchanged; these environment switches make it reach m
 | `FRETPOOL=1` | Float and zero return values and out-pool values (0, 1, -1, 0.5, ...) for stubs, so compares on callee results see both branches. |
 | `MEMMASK="lo-hex-hi-hex,.."` | Address ranges excluded from the memory-write comparison (known uninitialised stack copies). Use sparingly, with a reason. |
 | `DIFFEMU_MAXINS=n` | Instruction cap per run (default 300000) for long loops. |
+| `SEH=1` | `fs:[0]` exists (own page, chain end -1): functions that register an exception frame (`push handler; mov fs:[0], esp` ... restore) run on both sides, and the chain head at return must be identical (restored to -1 or both still on the stack). No unwinding is modelled. A plain C replacement never touches `fs:[0]`, so it passes when the original restores the chain. |
 
 Spill slots and frame words are still compared; nothing is masked to hide a float-spill difference.
 

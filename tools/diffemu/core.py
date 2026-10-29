@@ -19,6 +19,7 @@ OURS, SCR, ARGBUF, STUBS, IMPSTUB, RET = 0x70000000, 0x71000000, 0x72000000, 0x7
 FPSRC = STUBS + 0x8000
 FPPAGE = 0x76000000      # x87 readout page (J-spill 2026-10-22): mapped on its own, never written by the code under test, never in a compared region (FPOUT used to be STUBS+0x8100: its fstp counted as a function write)
 FPOUT = FPPAGE
+SEH = bool(os.environ.get("SEH")); TEB = 0x77000000      # opt-in fs:[0] model (docs/VERIFICATION.md): frame registration is run and the restored chain head compared
 LITSZ = 256
 MAXINS = int(os.environ.get("DIFFEMU_MAXINS", "300000"))      # opt-in larger instruction cap (spring_grid_prepare); timeout below is 2 s wall
 WIN = 0x200      # default size of the memory window behind a pointer argument
@@ -664,6 +665,8 @@ class Machine:
         if lits: uc.mem_write(SCR, lits)
         uc.mem_write(IMPSTUB, b"\xc3" * 0x10000)
         m.hooked = dict(imports); m.hooked.update(callees)
+        if SEH:      # SEH=1: fs:[0] = exception registration chain head in its own page (end of chain = -1); no unwinding is modelled
+            uc.mem_map(TEB, 0x1000); uc.mem_write(TEB, struct.pack("<I", 0xffffffff)); uc.reg_write(UC_X86_REG_MSR, (0xC0000100, TEB))      # IA32_FS_BASE (UC_X86_REG_FS_BASE is a no-op in Unicorn 2.1.4)
         uc.hook_add(UC_HOOK_MEM_UNMAPPED, m._unmapped); uc.hook_add(UC_HOOK_MEM_WRITE, m._write)
         for a in callees: uc.hook_add(UC_HOOK_CODE, m._callee, begin=a, end=a)
         uc.hook_add(UC_HOOK_CODE, m._callee, begin=IMPSTUB, end=IMPSTUB + 0x10000)
@@ -909,6 +912,7 @@ class Machine:
                  saved=tuple(uc.reg_read(x) for x in (UC_X86_REG_EBX, UC_X86_REG_ESI, UC_X86_REG_EDI, UC_X86_REG_EBP)),
                  fptop=(uc.reg_read(UC_X86_REG_FPSW) >> 11) & 7, trace=m.trace, st0=None)
         r["xs"] = []
+        if SEH: r["fs0"] = struct.unpack("<I", bytes(uc.mem_read(TEB, 4)))[0]
         if r["fptop"]:      # every value left on the x87 stack (the result on top, stale entries below), all 80 bits each, stored to the dedicated FPPAGE
             uc.mem_write(RET + 0x100, b"\xdb\x3d" + struct.pack("<I", FPOUT))
             try:
@@ -1127,6 +1131,8 @@ def frame_allow():
 def compare(fn, mo, ro, mu, ru):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""
     d = []; sg = fn.sig
+    if SEH and ro["exited"] == ru["exited"] == False and ro.get("fs0") != ru.get("fs0") and not (isstack(ro["fs0"]) and isstack(ru["fs0"]) and ro["fs0"] != 0xffffffff):      # the chain head must end identical (normally restored to -1); a still registered frame (stack pointer) on both sides is tolerated
+        d.append("fs:[0] chain head at return: orig %08x ours %08x" % (ro["fs0"], ru["fs0"]))
     if ro["exited"] != ru["exited"]: d.append("noreturn callee (exit): original %s, ours %s" % (ro["exited"], ru["exited"]))
     exited = ro["exited"] and ru["exited"]
     if exited: ro = dict(ro, esp=0, eax=0, edx=0, fptop=0, st0=None, saved=ru["saved"]); ru = dict(ru, esp=0, eax=0, edx=0, fptop=0, st0=None)
