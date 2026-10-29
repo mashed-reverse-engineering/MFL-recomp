@@ -460,3 +460,23 @@ Run: 101 functions with <= 12 differing bytes, then 325 functions with an instru
 frame_follow_path_step) from ~330 functions and ~250,000 variants.  The 37 /GS frame-layout functions start 900+ instructions off (frame size / local order around the cookie): the mutators do not reach them (tried 8, slow, no movement).
 Not reached: functions with no mutation site (tail-call `_forward` wrappers with register-convention `_r` adapters, 24 `obj_get_off<N>` getters: 0 variants beyond the retype); callee-saved set classes where the original local structure is gone.
 Also found while rerunning the census: 4 gap_ functions (tail-call `this` fixes of T-H1) became byte-identical and were promoted.
+
+## Round T-M4 (2026-10-29): frame-layout mutators, installer fixes, the eight "byte-identical but uninstallable" functions
+
+Installer (`bytematch_install.py`) failures behind the eight functions that were byte-identical in the chunk but could not be moved to tier 1 (all fixed generally):
+
+47. Definition regex: the function name was the first token of its line (`type\nname(args)`), and the pattern required a token before the name, so every function written with the return type on its own line was invisible to the rewriter, the permuter and the installer (3 functions).
+48. Macros that expand to the engine instance: `RwFree`, `RwMalloc`, `rwsprintf`, ... use the global instance pointer. Its extern declaration is kept in the standalone file whenever the body uses any macro whose definition contains `RW_GLOBAL` (computed from the header, was a hard-coded pair of names) (3 functions).
+49. Helper definitions between the functions of a chunk: `#define`s and `typedef struct {...} name;` above the function (a reconstructed record layout, stride constants) are moved with it (copied and left in place when another function of the chunk still uses them); a declaration between the typedef and the function used to stop the upward comment walk (1 function).
+
+Frame-layout mutators (`bytematch_permute.py --frame`; they change stack slot allocation, which in cl 13 follows declaration order, scope and the type of each local):
+decl_split (`int a, b;` -> two declarations, both orders), decl_merge, decl_rev (reverse / rotate the declaration block), decl_sink (a top-level local into the innermost block that holds all its uses),
+decl_hoist (the first local of a nested block to the top), init_split (`T x = e;` <-> `T x; x = e;`), float_double (local `float` <-> `double`), spill (a nested call result into a named temp, return type taken from the prototype),
+and two UGLY ones whose hits need a readability review before installing: array_group (adjacent scalars of one type into `T a_b[2]`) and arr_resize (local array size +-1..64).
+
+Run: the 37 /GS functions + 180 other functions whose frame size or number of saved registers differs (census 877 names, rerun first), 300 variants each, then the 45 closest ones with the full mutator set
+(900 variants): 0 byte-identical. The searches do move: sound_menu_voices_trigger 32 -> 2 differing instructions (a `double` temp becomes `float`, pattern 50); the /GS group does not move, because there the diff is
+not the frame alone: in the sampled diffs the original keeps a value in ebx across register-convention callees (extra `push ebx`, batched `add esp`), which no declaration edit changes. No ugly (array_group / arr_resize) hit occurred, so the reject list is empty.
+
+50. float temp width: a local holding a function result that is only used later as `(float)` is `float` in the original (no 80-bit round trip); `double` costs two instructions and a different spill slot.
+51. Instruction scheduling of a dead store: the original loads the next global between the call and the store of its result (`call; mov esi,[g]; fstp [t]`); ours stores first. Neither statement order, a second temp, nor a double temp changes it (3 attempts, 1 function). Not a source-level lever found.
