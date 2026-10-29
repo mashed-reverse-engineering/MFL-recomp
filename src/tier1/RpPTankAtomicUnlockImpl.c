@@ -1,6 +1,5 @@
 /* compile: /G5 */
 #include "mfl_tier2.h"
-extern void (__cdecl *g_rx_7d53c4)(void);
 /*007da6bc*/ extern int g_ptank_plugin_offset;
 #define FLD(p, T, off) (*(T *)((char *)(p) + (off)))
 /* Unlocks a point tank: ORs the lock flags into the dirty flags and clears them; returns the atomic. */

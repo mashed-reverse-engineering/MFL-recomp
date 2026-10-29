@@ -230,18 +230,6 @@ extern void hsv_phase_to_rgb(float *param_1,char *param_2,char *param_3);
 /* "out = (v / (2*length)) + 0.5 for the delta of two 2D points" */
 
 extern void vec2_normalise_to_unit_square(float *param_1,float *param_2,float *param_3);
-/* layout of *contact in rwp_object_set_contact_params, reconstructed from the byte offsets it is accessed at (explicit padding: the offsets are the original ones, every field sits at its natural alignment; fields are named by offset) */
-typedef struct rwp_object_set_contact_params_contact_layout {
-    char pad_0x0[4];
-    undefined4 f_0x4;
-    char pad_0x8[4];
-    undefined4 f_0xc;
-    undefined4 f_0x10;
-    undefined4 f_0x14;
-} rwp_object_set_contact_params_contact_layout;
-
-
-
 /* rwp_collision_mesh_to_geometry */
 
 /* "converts the Rwp collision mesh (strips/vertex tables) to an RpGeometry with normals and uv" */
@@ -253,35 +241,8 @@ extern RpAtomic * rwp_collision_mesh_to_geometry(char *param_1,char *param_2);
 
 /* rwp_object_set_contact_params */
 
-/* "for each contact of the body writes a value, 1.0, 1.0, 0.5" */
-
-/* Sets the contact parameters of the body attached to object (+0x18).
-   object: owner whose body is updated; value: dword copied into +4 of every contact (inferred).
-   Every contact gets +0xC = 1.0, +0x10 = 1.0, +0x14 = 0.5 (inferred meaning).
-   Returns object. */
-
-/* TIER2: validated 2026-10-18 authority=diffemu */
-int rwp_object_set_contact_params(int object,undefined4 *value)
-{
-  char *body;
-  rwp_object_set_contact_params_contact_layout *contact;
-  int contact_index;
-
-  body = *(char **)(object + 0x18);
-  contact_index = 0;
-  /* walk the body's contact array (+0x20, count +0x24) */
-  if (0 < *(int *)(body + 0x24)) {
-    do {
-      contact = (rwp_object_set_contact_params_contact_layout *)(*(char **)(*(char **)(body + 0x20) + contact_index * 4));
-      contact->f_0x4 = *value;
-      contact->f_0xc = FLOAT_ONE_BITS;
-      contact->f_0x10 = FLOAT_ONE_BITS;
-      contact->f_0x14 = FLOAT_0_5_BITS;
-      contact_index = contact_index + 1;
-    } while (contact_index < *(int *)(body + 0x24));
-  }
-  return object;
-}
+typedef struct V3 { float x, y, z; } V3;
+typedef struct Contact { int pad0; int f4; int pad8; V3 v; } Contact;
 
 
 #define ARENA_DWORD_COUNT_MASK (0x3fffffff)

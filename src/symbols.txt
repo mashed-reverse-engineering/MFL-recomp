@@ -2532,8 +2532,6 @@ rwp_collision_mesh_to_geometry 00493ca0
 rwp_object_sample_and_lock 00494230
 rwp_object_set_contact_params 00494290
 rwp_world_callback_a 00494300
-LAB_00494320 00494320
-LAB_00494360 00494360
 rwp_world_register_callbacks 00494380
 rwp_world_clear_arena 004943c0
 physics_buffer_size 00494460
@@ -5232,6 +5230,7 @@ FUN_00560cf0 00560cf0
 FUN_00560d00 00560d00
 RwFclose_00560e70 00560e70
 RwFwrite_00560eb0 00560eb0
+RwFwrite_00560ee0 00560ee0
 RwFseek_00560f10 00560f10
 RwFeof 00561050
 FUN_00561060 00561060
@@ -9285,6 +9284,7 @@ g_data_7d5190 007d5190
 g_data_7d5194 007d5194
 g_data_7d5198 007d5198
 g_data_7d51c4 007d51c4
+g_rw_7d51f0 007d51f0
 g_rp_7d5294 007d5294
 g_rp_7d529c 007d529c
 g_rp_7d52a0 007d52a0
@@ -9330,6 +9330,9 @@ g_rp_7da7b0 007da7b0
 g_rp_7da864 007da864
 g_rp_7da868 007da868
 g_rp_7da87c 007da87c
+g_rt_7da898 007da898
+g_rt_7da89c 007da89c
+g_rt_7da8a8 007da8a8
 g_rt_7da9ec 007da9ec
 g_rt_7da9f8 007da9f8
 g_rt_7da9fc 007da9fc

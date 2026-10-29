@@ -2,7 +2,6 @@
 #include "mfl_tier2.h"
 typedef struct ComObj { void **vtbl; } ComObj;
 /*007d2240*/ extern ComObj *g_d3d9_device;
-extern void (__cdecl *g_rx_7d53c4)(void);
 /*0062e768*/ extern int g_rp_62e768;
 /* Sets the vertex shader unless it is already current; caches it on success. */
 void rwD3D9SetVertexShader(int s)

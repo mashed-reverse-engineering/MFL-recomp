@@ -1,6 +1,5 @@
 /* compile: /G5 */
 #include "mfl_tier2.h"
-extern void (__cdecl *g_rx_7d53c4)(void);
 #define FLD(p, T, off) (*(T *)((char *)(p) + (off)))
 /* Sets the three stream callbacks of the plugin with the given id; returns its offset or -1. */
 int rwPluginRegistryAddPluginStream(void *reg, int id, void *a, void *b, void *c)

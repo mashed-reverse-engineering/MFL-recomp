@@ -13,6 +13,7 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
   7 regcallee  call of a function with register inputs (output/regsigs.csv, joined by name or by `/*addr*/` of the extern) by its plain name: it is compiled as a cdecl call (needs the F_r adapter or the cluster route); the summary lists the callers per callee
   14 implicit  call of a function with NO prototype in scope (implicit declaration, or a `name()` K&R declaration in an included header) with a float / double argument: promoted to double, 8 bytes pushed, the callee reads a float (T-H2 course_warzone_cb0 func_0x0048db30)
   15 fpwidth   a float (double) typed global used by a function whose ORIGINAL instructions read that address only as a qword (dword): k_f_0 at 0x5ddc28 is the double 90.0, read as float it is 0 (T-H2 car_auto_steer_assist_step); output/fp_const_uses.txt = x87 memory operands per original function (gen_fpuse, --regen)
+  16 t1hygiene tier 1 only (report only, byte identical code): no one-line `/* description */` comment before the function, or an `extern` declaration (object / function / function pointer) whose name is never used in the file (draft header residue; T-Q1)
 Class 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
 Exit 0 always (warning tool)."""
@@ -734,6 +735,18 @@ def gen_fpuse():
     os.replace(FPUSE_TXT + ".tmp", FPUSE_TXT)
 
 
+def tier1_hygiene(rel, t):
+    """class 16: missing description comment / unused extern in a tier 1 file"""
+    out = []; body = strip_comments(t)
+    if not re.search(r"^/\* (?!compile:)[A-Za-z].* \*/\s*$", t, re.M): out.append(dict(cls=16, sev="low", file=rel, line=1, function=os.path.basename(rel)[:-2], symbol="", text="", note="no one-line description comment before the function"))
+    for i, ln in enumerate(body.split("\n")):
+        if not ln.lstrip().startswith("extern"): continue
+        m = re.search(r"\(\s*(?:__\w+\s*)?\*\s*(\w+)\s*\)", ln) or re.search(r"(\w+)\s*(?:\[[^\]]*\])?\s*(?:\([^)]*\))?\s*;", ln)
+        if m and m.group(1) != "RwEngineInstance" and len(re.findall(r"\b%s\b" % m.group(1), body)) == 1:
+            out.append(dict(cls=16, sev="low", file=rel, line=i + 1, function=os.path.basename(rel)[:-2], symbol=m.group(1), text=ln.strip(), note="extern `%s` is never used in this file" % m.group(1)))
+    return out
+
+
 def header_decls(text, here, seen=None):
     """names the included headers declare: name -> nparams (None = `()` K&R declaration, -1 = macro / function pointer / unknown shape), recursive over `#include "x.h"`"""
     seen = set() if seen is None else seen; out = {}
@@ -830,6 +843,7 @@ def main():
         else: t = open(f, errors="replace").read()
         texts[rel] = t
         finds += Lint(rel, t, gd).run()
+        if "/tier1/" in rel: finds += tier1_hygiene(rel, t)
     # cross file: one address declared with different parameter counts
     decl = {}
     for rel, t in texts.items():
@@ -867,7 +881,7 @@ def main():
         with open(os.path.join(G, "output", "fp_width_mismatch.txt"), "w") as fh:
             for r in rows:
                 if str(r["cls"]) == "15": fh.write("%s:%s [%s%s] %s: %s\n" % (r["file"], r["line"], r["tier"], ", byte-identical" if r["byte_identical"] == "yes" else "", r["function"], r["note"]))
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (

@@ -2565,7 +2565,7 @@ GeomAnimCtor 00555820
 ImageDetermineExtender 004ddfa0
 MatrixOrthoNormalize 004d3d50
 PTankOpen 00546c40
-RpMatFXWorldSectorEnableEffects 00550190
+RpMatFXAtomicEnableEffects 00550190
 RwMatrixOrthoNormalize 004d3d40
 TkWinFSFileGetStatus 00561880
 WorldCopyClumpExt 004f3f90
@@ -2588,3 +2588,16 @@ rwD3D9RenderStateFlushCache 004e3b30
 rwMatrixClose 004d3b00
 rwPluginRegistryDeInitObject 004e9d40
 rwRasterClose 004d7a30
+D3D9ConvA8L8ToR8G8B8A8 004eef20
+D3D9ConvA8ToR8G8B8A8 004eeed0
+D3D9ConvL8ToR8G8B8A8 004eeeb0
+D3D9ConvV8U8ToR8G8B8A8 004eee30
+D3D9ConvX8B8G8R8ToR8G8B8A8 004eee10
+D3D9ConvX8R8G8B8ToR8G8B8A8 004eedf0
+FreeWrapper 004d3760
+rwD3D9TextureHasAlpha 004dfc90
+StrChr 004ea3d0
+D3D9ConvA4L4ToR8G8B8A8 004eeef0
+IoSpecSearch4Cluster 004f2620
+RpClumpRemoveLight 004f7120
+rtFSManagerIsNewFSRegistrable 00560a30

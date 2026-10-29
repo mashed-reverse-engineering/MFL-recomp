@@ -2,7 +2,6 @@
 #include "mfl_tier2.h"
 /*007d2128*/ extern char *RwEngineInstance;
 typedef void *(__cdecl *RwAllocFn)(unsigned, unsigned);
-extern void (__cdecl *g_rx_7d53c4)(void);
 #define FLD(p, T, off) (*(T *)((char *)(p) + (off)))
 /* Allocates an 8 byte polygon sector record (id -1 and two 16 bit values); NULL on failure. */
 void *BuildPolySectorCreate(short a, short b)

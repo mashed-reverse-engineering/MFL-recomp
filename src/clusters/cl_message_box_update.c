@@ -80,8 +80,8 @@ extern __declspec(dllimport) void __stdcall PostQuitMessage(int exit_code);
 #define MSG_RESTART_RACE 0xff1e0000     /* "restart?" */
 #define MSG_TO_MAIN_MENU 0xff1f0000
 #define MSG_TO_FRONTEND 0xff200000
-#define MSG_INFO_A 0xff210000           /* box closes when any pad releases pause (keeps the pause latches) */
-#define MSG_INFO_B 0xff220000           /* box closes when any pad releases pause */
+#define MSG_INFO_A 0xff210000           /* box waits until every listed pad has pressed pause (each press drops that pad (and, for i < 6, slot i + 6) from g_ui_69cbe8), then closes */
+#define MSG_INFO_B 0xff220000           /* box closes when any pad presses pause (rising edge) */
 #define MSG_START_EVENT 0xff240000
 #define MSG_START_EVENT_B 0xff270000
 #define MSG_TEAM_EVENT 0xff280000

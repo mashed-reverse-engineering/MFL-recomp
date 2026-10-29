@@ -1,6 +1,5 @@
 /* compile: /G5 */
 #include "mfl_tier2.h"
-extern void (__cdecl *g_rx_7d53c4)(void);
 #define FLD(p, T, off) (*(T *)((char *)(p) + (off)))
 /* Calls the copy callback of every plugin of a registry; returns the registry. */
 void *rwPluginRegistryCopyObject(void *reg, void *dst, void *src)

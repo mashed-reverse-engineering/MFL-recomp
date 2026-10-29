@@ -59,7 +59,6 @@
 00487c60 effect_trail_add_point ok_055.c
 0048c1d0 lua_SetClumpAnim ok_058.c
 0048c910 lua_Physics_Scenario_Add_Animated_Object ok_058.c
-00494290 rwp_object_set_contact_params ok_060.c
 00494630 hermite_interpolate ok_060.c
 004967f0 triggers_assign_ids ok_060.c
 00498250 fx_tables_clear ok_062.c
@@ -98,7 +97,6 @@
 004524e0 course_arctic_cb3_object_init hk_040.c
 00452c90 course_arctic_cb4 hk_041.c
 00486b50 particles_add hk_044.c
-00490400 rwp_world_step_pipeline hk_046.c
 004955c0 ghost_draw_markers hk_047.c
 0047a100 car_reset_state hk_048.c
 00491f10 car_apply_throttle_force hk_049.c
@@ -350,8 +348,6 @@
 0047f030 cars_update_all hk_584.c
 00488d80 particle_system_set_current_forward hk_585.c
 0048a680 spring_grid_prepare hk_586.c
-00490ef0 rwp_world_flush hk_587.c
-00494230 rwp_object_sample_and_lock hk_588.c
 0049d060 fx_spawn_burst_default_scale hk_591.c
 004a48f0 joypad_get_axis_info hk_592.c
 00416af0 ai_bot_skill hk_593.c
@@ -379,7 +375,6 @@
 00430740 menu_right_pressed_any hk_617.c
 0043a2c0 training_hint_labels_update hk_618.c
 0044c1a0 camera_get_distance_factor hk_619.c
-00494380 rwp_world_register_callbacks hk_620.c
 004a2880 app_frame_wait hk_621.c
 004912f0 rwp_world_create_once hk_622.c
 0040e760 race_course_record_for_event hk_419.c

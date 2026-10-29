@@ -2,7 +2,6 @@
 #include "mfl_tier2.h"
 typedef struct ComObj { void **vtbl; } ComObj;
 /*007d2240*/ extern ComObj *g_d3d9_device;
-extern void (__cdecl *g_rx_7d53c4)(void);
 /*007d3050*/ extern int g_rw_7d3050[];
 /* Sets a sampler state when it differs from the cached value (14 states per stage). */
 void RwD3D9SetSamplerState(int stage, int type, int value)

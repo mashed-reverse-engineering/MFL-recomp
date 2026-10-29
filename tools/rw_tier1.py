@@ -43,7 +43,7 @@ decls = []      # (name, text)
 for st in re.findall(r"typedef struct[^{;]*\{[^}]*\}\s*\w+;|extern [^;]*;|typedef [^;]*;", re.sub(r"#[^\n]*", "", pre)):
     st = st.strip()
     if st.startswith("typedef"):
-        m = re.search(r"\(\s*(?:__cdecl\s*)?\*\s*(\w+)\s*\)", st) or re.search(r"(\w+)\s*(\[[^\]]*\])?\s*;$", st)
+        m = re.search(r"\(\s*(?:__(?:cdecl|stdcall|fastcall)\s*)?\*\s*(\w+)\s*\)", st) or re.search(r"(\w+)\s*(\[[^\]]*\])?\s*;$", st)
         if m: decls.append((m.group(1), st))
         continue
     body = st[len("extern "):-1]

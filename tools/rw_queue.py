@@ -17,7 +17,8 @@ clus = {l.strip() for l in open(R/'clusters/enabled.txt') if l.strip() and l[0] 
 t2 = {l.split()[0] for l in open(R/'automatch_near_names.txt') if l.strip() and l[0] != '#'}
 courses = {r['name']: r['courses'] for r in csv.DictReader(open(O/'fn_courses.csv'))}
 RWN = re.compile(r'^(_?[Rr][wpx][A-Z_a-z]|RWP|rwp_)')
-isrw = lambda r: r['owner'].startswith('rw') or (r['owner'] == 'game' and RWN.match(r['name']))
+# rpworld.lib:obj\\i386\\* = statically linked D3DX / CRT-like members (d3dxmath, cnode, cpreprocessor, ...): not RenderWare
+isrw = lambda r: not r['member'].startswith('rpworld.lib:obj\\i386') and r['owner'].startswith('rw') or (r['owner'] == 'game' and RWN.match(r['name']))
 callees = collections.defaultdict(set); callers = collections.defaultdict(set); fptr = set()
 for ln in open(O/'delink/ghidra_refs.csv'):
     f, t, ty = ln.split(',')[:3]
