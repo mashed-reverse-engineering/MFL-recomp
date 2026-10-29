@@ -53,8 +53,8 @@ typedef struct ShadowRay {   /* RpIntersection of type line */
 
 /* shadow_project_to_ground_00499dc0 */
 
-/* "Builds the shadow matrix of an object: casts a ray from the object along the directional light, finds the ground triangle (or reuses `cache`, the triangle of the
-   previous cast), orients the matrix along the light and scales it to the object's bounding box seen from the light. Returns 0 when there is no light or no ground." */
+/* "Builds the shadow matrix of an object: casts a ray from the object ray_len the directional light, finds the ground triangle (or reuses `cache`, the triangle of the
+   previous cast), orients the matrix ray_len the light and scales it to the object's bounding box seen from the light. Returns 0 when there is no light or no ground." */
 int __cdecl shadow_project_to_ground_00499dc0(int world, RwMatrix *object, float *bbox, RwMatrix *shadow, ShadowTriangle *cache)
 {
   float light_step[3];
@@ -73,9 +73,9 @@ int __cdecl shadow_project_to_ground_00499dc0(int world, RwMatrix *object, float
   float min_x, max_x, min_y, max_y;
   int light;
   int i;
-  double denom;
-  double along;
-  double fit;
+  double light_dot_plane;
+  double ray_len;
+  double shadow_width;
 
   light_step[0] = 0.0f;
   light_step[1] = 0.0f;
@@ -148,14 +148,14 @@ int __cdecl shadow_project_to_ground_00499dc0(int world, RwMatrix *object, float
   to_vertex[1] = hit.triangle.vertex[0][1] - eye[1];
   to_vertex[2] = hit.triangle.vertex[0][2] - eye[2];
   dist = dot_product_3d_clamped(hit.triangle.plane, to_vertex);
-  denom = dot_product_3d_clamped(hit.triangle.plane, g_shadow_project_75964c);
-  if (denom == k_f_0) {
-    denom = k_f_0_01;
+  light_dot_plane = dot_product_3d_clamped(hit.triangle.plane, g_shadow_project_75964c);
+  if (light_dot_plane == k_f_0) {
+    light_dot_plane = k_f_0_01;
   }
-  along = (double)dist / denom;
-  look.x = (RwReal)((g_shadow_project_75964c[0] * along + eye[0]) - hit.position[0]);
-  look.y = float_barrier(along * g_shadow_project_75964c[1] + eye[1]) - hit.position[1];
-  look.z = float_barrier(along * g_shadow_project_75964c[2] + eye[2]) - hit.position[2];
+  ray_len = (double)dist / light_dot_plane;
+  look.x = (RwReal)((g_shadow_project_75964c[0] * ray_len + eye[0]) - hit.position[0]);
+  look.y = float_barrier(ray_len * g_shadow_project_75964c[1] + eye[1]) - hit.position[1];
+  look.z = float_barrier(ray_len * g_shadow_project_75964c[2] + eye[2]) - hit.position[2];
   RwV3dNormalize(&shadow->right, &look);
   shadow->up.x = shadow->at.y * shadow->right.z - shadow->right.y * shadow->at.z;
   shadow->up.y = shadow->at.z * shadow->right.x - shadow->at.x * shadow->right.z;
@@ -185,10 +185,10 @@ int __cdecl shadow_project_to_ground_00499dc0(int world, RwMatrix *object, float
   }
   width = g_shadow_project_75964c[2] * shadow->right.z + g_shadow_project_75964c[0] * shadow->right.x + g_shadow_project_75964c[1] * shadow->right.y;
   max_y = max_y - min_y;
-  fit = max_y / tan(crt_acos_body(width));
+  shadow_width = max_y / tan(crt_acos_body(width));
   scale.z = 1.0f;
-  width = (float)fit;
-  scale.x = (RwReal)fit;
+  width = (float)shadow_width;
+  scale.x = (RwReal)shadow_width;
   scale.y = (max_x - min_x) * k_f_1_4;
   RwMatrixScale(shadow, &scale, rwCOMBINEPRECONCAT);
   t = width * k_f_0_1;

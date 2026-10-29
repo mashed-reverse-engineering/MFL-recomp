@@ -71,11 +71,11 @@ extern int hudpanel_slot_init_player_b(int a, int b);
 extern int cup_find_entry(int course);
 extern int game_set_game_659d00(int v);
 extern int nop_stub(int arg);
-extern int rw_stream_chunk_copy(int stream, int *out);
-extern int store_u32(int stream, int value);
+extern int rw_stream_chunk_copy(int *stream, int *out);
+extern int store_u32(int *stream, int value);
 extern int course_set_split_sector_6(int v);
 extern int course_set_split_sector_7(int v);
-extern int FUN_005543d0(int stream);
+extern int FUN_005543d0(int *stream);
 extern int course_hook6(int a);
 extern int course_hook7(int a);
 extern int course_hook8(int a);
@@ -84,7 +84,7 @@ extern int get_event_type(void);
 extern int is_team_mode(void);
 extern int current_course_id(void);
 extern int get_player_count(void);
-extern int g_race_phase_arg;
+extern int g_race_phase_arg;   /* the message stream the phase driver polls */
 extern int g_race_phase, g_phase_timer, g_tick_number, g_race_clock_a, g_race_clock_b, g_time_limit_ticks, game_mode, player_count, g_cars_7ef7c0, g_race_7ef7fc, g_race_652f5c, g_camera_shake, g_intro_652df0;
 extern float g_game_652e00, g_tick_seconds, k_f_2;
 
@@ -100,8 +100,9 @@ extern void race_update_common(void);
 /* The setup of phase 1 (0x411f40: a block of race_start_setup that the compiler placed before it and reaches with a jump). */
 void gap_411f40(void)
 {
-  int i;
-  int j;
+  int setup;
+  int slot;
+  int offset;
   float pose[6];
 
   if (get_event_type() == 0x12) {
@@ -111,8 +112,8 @@ void gap_411f40(void)
     race_setup_set_slot_type(3, 0);
   }
   g_race_652f5c = 0;
-  i = race_get_setup_index();
-  course_hook7(**(int **)(g_race_setup + 4 + i * 4));
+  setup = race_get_setup_index();
+  course_hook7(**(int **)(g_race_setup + 4 + setup * 4));
   g_phase_timer = 0xff;
   player_stats_clear_a();
   g_tick_number = 0;
@@ -124,25 +125,25 @@ void gap_411f40(void)
   weapon_slots_6a9424_clear();
   course_objects_reset_transforms();
   player_count = 0;
-  i = 0;
-  j = 0xb8;
+  slot = 0;
+  offset = 0xb8;
   do {
-    if (*(int *)(j + g_race_setup) == 0) {
-      vehicle_set_active(i, 0);
-      car_deactivate(i);
-      player_status_set(i, 4);
+    if (*(int *)(offset + g_race_setup) == 0) {
+      vehicle_set_active(slot, 0);
+      car_deactivate(slot);
+      player_status_set(slot, 4);
     }
     else {
-      vehicle_get_matrix(i, pose);
-      car_set_bounds(i, pose);
-      car_init_dynamics(i);
-      vehicle_set_active(i, 1);
-      player_status_set(i, 1);
+      vehicle_get_matrix(slot, pose);
+      car_set_bounds(slot, pose);
+      car_init_dynamics(slot);
+      vehicle_set_active(slot, 1);
+      player_status_set(slot, 1);
       player_count = player_count + 1;
     }
-    j = j + 4;
-    i = i + 1;
-  } while (j < 200);
+    offset = offset + 4;
+    slot = slot + 1;
+  } while (offset < 200);
   round_setup_limits();
   effects_reset();
   nop_stub(0);
@@ -162,7 +163,7 @@ void gap_411f40(void)
   case 1:
   case 2:
     game_set_game_659d00(1);
-    goto LAB_00412157;
+    break;
   case 3:
   case 4:
   case 5:
@@ -193,11 +194,15 @@ void gap_411f40(void)
     case 9:
       cup_find_entry(current_course_id());
     }
+    /* fall through */
   default:
     if (is_team_mode() != 0) {
       team_panel_reset();
       endpoint_panel_reset();
-      goto LAB_00412157;
+    }
+    else {
+      score_panel_init();
+      kc_panel_init();
     }
     break;
   case 6:
@@ -206,17 +211,16 @@ void gap_411f40(void)
   case 0xb:
   case 0xc:
   case 0xd:
-    if (is_team_mode() != 0) {
-      if (game_mode != 2) {
-        team_panel_reset();
-        endpoint_panel_reset();
-        goto LAB_00412157;
-      }
+    if (is_team_mode() != 0 && game_mode != 2) {
+      team_panel_reset();
+      endpoint_panel_reset();
     }
+    else {
+      score_panel_init();
+      kc_panel_init();
+    }
+    break;
   }
-  score_panel_init();
-  kc_panel_init();
-LAB_00412157:
   powerups_reset_all();
   player_records_clear_all();
   gfx_groups_reset();
@@ -227,7 +231,7 @@ LAB_00412157:
 /* Phase 2: the cars are placed, the event panels are cleared by event type and game mode, and the phase timer decides the next phase. */
 static void race_phase_2_setup(void)
 {
-  int i;
+  int setup;
 
   rwp_objects_reset_all();
   rwp_trigger_group_advance_and_fire();
@@ -240,8 +244,8 @@ static void race_phase_2_setup(void)
   }
   race_spawn_cars();
   g_race_7ef7fc = g_race_clock_a > g_time_limit_ticks;
-  i = race_get_setup_index();
-  course_hook6(**(int **)(g_race_setup + 4 + i * 4));
+  setup = race_get_setup_index();
+  course_hook6(**(int **)(g_race_setup + 4 + setup * 4));
   effects_reset();
   weapons_reset_all_dispatch();
   particle_templates_init_b();
@@ -254,7 +258,7 @@ static void race_phase_2_setup(void)
   case 0:
   case 1:
   case 2:
-    goto switchD_00412267_caseD_0;
+    break;
   case 3:
   case 4:
   case 5:
@@ -283,6 +287,16 @@ static void race_phase_2_setup(void)
     case 10:
       course_powerups_setup();
     }
+    /* fall through */
+  default:
+    if (is_team_mode() != 0) {
+      team_colour_table_init_2();
+      hudpanel_endpoint_659a78_clear();
+    }
+    else {
+      score_panel_clear();
+      kc_panel_origins_init();
+    }
     break;
   case 6:
   case 7:
@@ -290,26 +304,16 @@ static void race_phase_2_setup(void)
   case 0xb:
   case 0xc:
   case 0xd:
-    if (is_team_mode() != 0) {
-      if (game_mode == 2) {
-        goto LAB_004122dd;
-      }
+    if (is_team_mode() != 0 && game_mode != 2) {
       team_colour_table_init_2();
       hudpanel_endpoint_659a78_clear();
-      goto switchD_00412267_caseD_0;
     }
-    goto LAB_004122dd;
+    else {
+      score_panel_clear();
+      kc_panel_origins_init();
+    }
+    break;
   }
-  if (is_team_mode() != 0) {
-    team_colour_table_init_2();
-    hudpanel_endpoint_659a78_clear();
-  }
-  else {
-LAB_004122dd:
-    score_panel_clear();
-    kc_panel_origins_init();
-  }
-switchD_00412267_caseD_0:
   ai_bots_randomise();
   fx_clump_slots_clear();
   fx_objects_reset();
@@ -336,8 +340,10 @@ switchD_00412267_caseD_0:
    countdown / race / finish updates, 8/9 the end of race, 10 replays, 0xb waits for a key press. */
 void race_start_setup(int param_1)
 {
-  int buf;
-  int i;
+  int value;
+  int msg;
+  int setup;
+  int ctrl;
   PlayerSlot *slot;
   double timer;
 
@@ -345,16 +351,16 @@ void race_start_setup(int param_1)
   if (course_get_split_sector_8() == 0) {
     return;
   }
-  i = FUN_005543d0((int)&g_race_phase_arg);
-  if (i == 5) {
-    rw_stream_chunk_copy((int)&g_race_phase_arg, &buf);
-    store_u32((int)&g_race_phase_arg, 0);
-    course_set_split_sector_6(buf);
+  msg = FUN_005543d0(&g_race_phase_arg);
+  if (msg == 5) {
+    rw_stream_chunk_copy(&g_race_phase_arg, &value);
+    store_u32(&g_race_phase_arg, 0);
+    course_set_split_sector_6(value);
   }
-  else if (i == 6) {
-    rw_stream_chunk_copy((int)&g_race_phase_arg, &buf);
-    store_u32((int)&g_race_phase_arg, 0);
-    course_set_split_sector_7(buf);
+  else if (msg == 6) {
+    rw_stream_chunk_copy(&g_race_phase_arg, &value);
+    store_u32(&g_race_phase_arg, 0);
+    course_set_split_sector_7(value);
   }
   switch (g_race_phase) {
   case 1:
@@ -393,8 +399,8 @@ void race_start_setup(int param_1)
       race_end_check_points();
     }
     ai_bots_assign_slots();
-    i = race_get_setup_index();
-    course_hook8(**(int **)(g_race_setup + 4 + i * 4));
+    setup = race_get_setup_index();
+    course_hook8(**(int **)(g_race_setup + 4 + setup * 4));
     weapons_unequip_all_a();
     hud_labels_clear();
     race_set_phase(2);
@@ -417,17 +423,17 @@ void race_start_setup(int param_1)
     if (!(timer < k_f_2)) {
       slot = g_player_slots;
       do {
-        i = slot->controller;
-        if (i != -1) {
-          if ((g_player_inputs[i].menu_select != 0 && g_player_inputs_previous[i].menu_select == 0) ||
-              (g_player_inputs[i].pause != 0 && g_player_inputs_previous[i].pause == 0)) {
+        ctrl = slot->controller;
+        if (ctrl != -1) {
+          if ((g_player_inputs[ctrl].menu_select != 0 && g_player_inputs_previous[ctrl].menu_select == 0) ||
+              (g_player_inputs[ctrl].pause != 0 && g_player_inputs_previous[ctrl].pause == 0)) {
             race_set_phase(9);
             race_set_view_player(1);
             g_intro_652df0 = 0;
           }
         }
         slot = slot + 1;
-      } while ((int)slot < 0x7f023c);
+      } while (slot < &g_player_slots[4]);
     }
     return;
   default:

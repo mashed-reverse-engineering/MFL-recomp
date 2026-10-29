@@ -371,10 +371,8 @@ LAB_00411d7c 00411d7c
 race_update_common 00411dd0
 switchD 004120b0
 switchD 004120e5
-LAB_00412157 00412157
 switchD 00412267
 switchD 0041228d
-LAB_004122dd 004122dd
 race_phase_3_update 004123a0
 race_phase_4_update 00412470
 switchD 00412486

@@ -624,5 +624,6 @@ joypads_poll_frame
 smoke_emitter_update
 app_main_loop
 message_box_update
-shadow_project_to_ground_00499dc0
 race_start_setup
+shadow_project_to_ground_00499dc0
+menu_page_enter

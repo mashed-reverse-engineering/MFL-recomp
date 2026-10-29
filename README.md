@@ -17,18 +17,18 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,686 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers, each function once) | 2,716 | `████████████████████` 98% |
+| Replaced by recompiled C (all tiers, each function once) | 2,717 | `████████████████████` 98% |
 | ...verified byte identical | 1,378 | `██████████░░░░░░░░░░` 49% |
-| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,338 | `██████████░░░░░░░░░░` 48% |
-| ...share of the code bytes | 671,542 B | `████████████████████` 98% |
-| ...of these register-argument clusters | 661 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,610 | `███████████████████░` 94% |
+| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,339 | `██████████░░░░░░░░░░` 48% |
+| ...share of the code bytes | 672,910 B | `████████████████████` 99% |
+| ...of these register-argument clusters | 662 | `█████░░░░░░░░░░░░░░░` 24% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,611 | `███████████████████░` 94% |
 | ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,272 | `█████████░░░░░░░░░░░` 46% |
 | ...tier 1, `src/tier1` (1112 files) | 924 | `███████░░░░░░░░░░░░░` 33% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...tier 2, `src/tier2` (826 files) | 725 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (628 files) | 662 | `█████░░░░░░░░░░░░░░░` 24% |
+| ...clusters, `src/clusters` (629 files) | 663 | `█████░░░░░░░░░░░░░░░` 24% |
 | ...plus linked library code (VA >= 0x4B0000), not in the percentages | 343 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
@@ -43,7 +43,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 |---|---:|---:|---:|
 | agent | 109 | 8,446 | 109 |
 | bridge | 4 | 1,643 | 0 |
-| cluster (not in ledger) | 574 | 329,464 | 0 |
+| cluster (not in ledger) | 575 | 330,832 | 0 |
 | hand | 381 | 14,744 | 344 |
 | tier1 | 925 | 70,467 | 925 |
 | tier2 | 723 | 246,778 | 0 |
