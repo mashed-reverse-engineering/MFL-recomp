@@ -17,14 +17,14 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,686 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers, each function once) | 2,693 | `███████████████████░` 97% |
-| ...verified byte identical | 1,362 | `██████████░░░░░░░░░░` 49% |
+| Replaced by recompiled C (all tiers, each function once) | 2,704 | `███████████████████░` 97% |
+| ...verified byte identical | 1,373 | `██████████░░░░░░░░░░` 49% |
 | ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | 1,331 | `██████████░░░░░░░░░░` 48% |
-| ...share of the code bytes | 662,025 B | `███████████████████░` 97% |
+| ...share of the code bytes | 662,648 B | `███████████████████░` 97% |
 | ...of these register-argument clusters | 655 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,593 | `███████████████████░` 93% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,263 | `█████████░░░░░░░░░░░` 45% |
-| ...tier 1, `src/tier1` (1103 files) | 915 | `███████░░░░░░░░░░░░░` 33% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,597 | `███████████████████░` 93% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,267 | `█████████░░░░░░░░░░░` 46% |
+| ...tier 1, `src/tier1` (1107 files) | 919 | `███████░░░░░░░░░░░░░` 33% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...tier 2, `src/tier2` (824 files) | 724 | `█████░░░░░░░░░░░░░░░` 26% |
@@ -41,11 +41,11 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 
 | Tier | Functions | Code bytes | Verified byte identical |
 |---|---:|---:|---:|
-| agent | 109 | 8,420 | 109 |
+| agent | 109 | 8,446 | 109 |
 | bridge | 4 | 1,643 | 0 |
 | cluster (not in ledger) | 568 | 321,622 | 0 |
 | hand | 381 | 14,744 | 344 |
-| tier1 | 909 | 69,543 | 909 |
+| tier1 | 920 | 70,140 | 920 |
 | tier2 | 722 | 246,053 | 0 |
 
 </details>

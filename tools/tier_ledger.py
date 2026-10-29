@@ -13,6 +13,7 @@ sym = {}
 for l in open(os.path.join(R, "symbols.txt")):
     p = l.split()
     if len(p) == 2: sym.setdefault(p[0], p[1])
+fnva = {l.split()[0]: l.split()[1] for l in open(os.path.join(HERE, "..", "output", "fnsizes.txt")) if len(l.split()) >= 3}      # VA -> name; a name that carries its own VA suffix and sits there wins over the first-wins symbols.txt line (controller_present_004a70c0: two functions, 0x4a5b20 and 0x4a70c0)
 rows = {}
 def add(n, tier, ev):
     rows[n] = (tier, ev)
@@ -32,7 +33,7 @@ for n in open(os.path.join(R, "bridges", "enabled.txt")):
 def defs(path):
     out = []
     for f in glob.glob(path):
-        out += re.findall(r"^[A-Za-z_][\w \*]*?\b(\w+)\([^;{]*\)\s*(?:/\*.*?\*/)?\s*\n\s*\{", open(f, errors="replace").read(), re.M)
+        out += re.findall(r"^(?:[A-Za-z_][\w \*]*?\b)?(\w+)\([^;{]*\)\s*(?:/\*.*?\*/)?\s*\n\s*\{", open(f, errors="replace").read(), re.M)
     return out
 for n in defs(os.path.join(R, "automatch", "*.c")) + defs(os.path.join(R, "tier1", "*.c")): rows.setdefault(n, ("tier1", ["bytes"]))
 av = {}
@@ -133,6 +134,6 @@ with open(os.path.join(OUT, "tier_ledger.csv"), "w") as o:
     o.write("name,va,tier,evidence,authority,src_hash,hdr_hash,harness_hash,cases,cov,stale,validated\n")
     for n, (t, ev) in sorted(rows.items()):
         a, c, cv, st, v = authority(n, t, ev)
-        o.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%.2f,%d,%d\n" % (n, sym.get(n) or (n[-8:] if re.search(r"_[0-9a-f]{8}$", n) else "?"), t, "+".join(ev), a, srch.get(n.split("@")[0], "-"), hdr_hash, harness_hash, c, cv, st, int(v)))
+        o.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%.2f,%d,%d\n" % (n, (n[-8:] if fnva.get(n[-8:]) == n else sym.get(n)) or (n[-8:] if re.search(r"_[0-9a-f]{8}$", n) else "?"), t, "+".join(ev), a, srch.get(n.split("@")[0], "-"), hdr_hash, harness_hash, c, cv, st, int(v)))
 import collections
 print(dict(collections.Counter(t for t, _ in rows.values())), "->", "output/tier_ledger.csv")

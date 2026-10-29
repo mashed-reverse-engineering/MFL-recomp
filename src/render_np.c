@@ -42,12 +42,7 @@ void scene_object_select_set(int object, int param)
     g_scene_select_param = 0;
 }
 
-int scene_object_select_is_active(void)
-{
-    if (g_scene_select_param != 0 && g_scene_select_timer <= *(float *)(g_scene_selected_object + 0xc))
-        return 1;
-    return 0;
-}
+/* scene_object_select_is_active: now recomp/tier1/scene_object_select_is_active.c (byte identical) */
 
 // FUNCTION: MFL 0x0044ba50
 void camera_records_clear(void)

@@ -89,19 +89,4 @@ int powerup_set_respawn_time(int index, float seconds)
     return 0;
 }
 
-int powerup_set_enabled(int index, int enabled)
-{
-    if (index >= 0 && index < 0x19) {
-        struct Powerup *p = &g_powerups[index];
-        if (enabled == 0) {
-            p->state = 3;
-        } else if (p->state == 3) {
-            p->state = 1;
-            p->respawn_timer = 0.0f;
-            return 1;
-        }
-        p->respawn_timer = 0.0f;
-        return 1;
-    }
-    return 0;
-}
+/* powerup_set_enabled: now recomp/tier1/powerup_set_enabled.c (byte identical) */
