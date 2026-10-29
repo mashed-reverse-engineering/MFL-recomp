@@ -40,3 +40,4 @@ python3 $T/declcheck.py > $W/declcheck.txt; [ $? -eq 0 ] || { grep HARD $W/declc
 echo "declcheck clean"
 python3 $T/agent_verify.py > $W/agent_verify.txt 2>&1; tail -1 $W/agent_verify.txt      # before the ledger: the ledger reads its evidence
 python3 $T/tier_ledger.py
+python3 $T/evidence_ledger.py

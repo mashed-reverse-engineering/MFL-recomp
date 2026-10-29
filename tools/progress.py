@@ -93,8 +93,19 @@ def compute():
     for v in allv:
         t = ut[led[v]["tier"] if v in led else "cluster (not in ledger)"]; t["functions"] += 1; t["bytes"] += sz.get(v, 0); t["verified_bytes_identical"] += v in bi
     uniq_tiers = {k: dict(c) for k, c in sorted(ut.items())}
-    uniq = {"functions": len(allv), "bytes": sum(sz.get(v, 0) for v in allv), "byte_identical": len(bi), "behaviour_verified": len(allv - bi),
+    uniq = {"functions": len(allv), "bytes": sum(sz.get(v, 0) for v in allv), "byte_identical": len(bi), "byte_identical_bytes": sum(sz.get(v, 0) for v in bi),
             "clusters": len(clv), "clusters_not_in_ledger": len(clv - set(led)), "by_tier": uniq_tiers}
+    # behaviour verified = rows with evidence (tools/evidence_ledger.py -> behaviour_evidence.csv: diffemu EQUAL, >= 20 cases, coverage >= 0.8, no unresolved DIFF), NOT "replaced minus byte identical"
+    pe = find("behaviour_evidence.csv"); ev = {"rows": 0, "verified": 0, "verified_bytes": 0, "unverified": 0, "flags": {}}
+    if pe:
+        fc = collections.Counter()
+        for r in csv.DictReader(open(pe)):
+            ev["rows"] += 1; ok = r["verified"] == "1"; ev["verified"] += ok; ev["verified_bytes"] += ok * sz.get(r["va"], 0)
+            for f in r["flags"].split(";"):
+                if f: fc[f] += 1
+        ev["unverified"] = ev["rows"] - ev["verified"]; ev["flags"] = dict(sorted(fc.items()))
+        ev["unaccounted"] = len(allv - bi) - ev["rows"]
+    uniq["behaviour_verified"] = ev["verified"]; uniq["behaviour_evidence"] = ev
     return {"exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
             "functions": {"total": len(fn), "game": len(game), "named": named(fn), "game_named": named(game),
                           "game_bytes": sum(s for _, _, s in game)},
@@ -115,7 +126,9 @@ def table(j):
     if u:
         out += ["| Replaced by recompiled C (all tiers, each function once) | %s | %s |" % (format(u["functions"], ","), bar(u["functions"], g)),
                 "| ...verified byte identical | %s | %s |" % (format(u["byte_identical"], ","), bar(u["byte_identical"], g)),
-                "| ...behaviour verified, not byte identical (tier 2 and clusters: diffemu + game gates) | %s | %s |" % (format(u["behaviour_verified"], ","), bar(u["behaviour_verified"], g)),
+                "| ...share of the code bytes that is byte identical | %s B | %s |" % (format(u["byte_identical_bytes"], ","), bar(u["byte_identical_bytes"], f["game_bytes"])),
+                "| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | %s | %s |" % (format(u["behaviour_verified"], ","), bar(u["behaviour_verified"], g)),
+                "| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | %s | %s |" % (format(u["functions"] - u["byte_identical"] - u["behaviour_verified"], ","), bar(u["functions"] - u["byte_identical"] - u["behaviour_verified"], g)),
                 "| ...share of the code bytes | %s B | %s |" % (format(u["bytes"], ","), bar(u["bytes"], f["game_bytes"])),
                 "| ...of these register-argument clusters | %s | %s |" % (format(u["clusters"], ","), bar(u["clusters"], g))]
     pv = j.get("published_verified")
@@ -134,7 +147,9 @@ def table(j):
         if pv.get("library_functions"): out.append("| ...plus linked library code (VA >= 0x4B0000), not in the percentages | %d | |" % pv["library_functions"])
         ov = sum(pv[k] for k in ("tier1_functions", "automatch_functions", "tier2_functions", "cluster_functions")) + pub - tp
         if ov: out.append("| ...functions present in two kinds (counted once above) | %d | |" % ov)
-    out += ["", "**How the numbers are counted.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ: 622 files give 655 functions. The cluster row counts those entry functions; those not yet in the tier ledger are listed as `cluster (not in ledger)` in the by-tier table, the rest are counted under their ledger tier. The *byte identical* rows are exactly the ledger entries with authority `bytes-reloc`; everything else replaced is behaviour verified.", "", "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo. The published sources are all that is needed to read the code; the difference to the whole-pipeline rows is the tier 2 / cluster drafts that are not installed (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). Tier 1, automatch and hand-written `MATCH` code is byte identical; tier 2 and cluster code is behaviour verified, not byte identical.", ""]
+    out += ["", "**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (%d cluster files give %d functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*." % ((pv or {}).get("cluster_files", 0), (pv or {}).get("cluster_functions", 0)), "",
+           "**Layers.** All of the rows above are application code (VA < 0x4B0000). Not counted and still original bytes in the playable build: the C runtime (libcmt, about 81 KB, including 23.6 KB floating-point/exception code without source), RenderWare Rw/Rp/Rx/Rt (about 480 KB; to be replaced by a clean-room librw-mfl, not byte-matched), the RenderWare physics plugin Rwp (121 KB, no source), RtPNG/libpng/zlib, D3DX, Lua 4.0, qhull and DirectShow video code, plus the data, resources and the link without the original image. The D3D9, DirectSound, DirectInput and Win32 platform calls are made directly from the application C. See [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).", "",
+           "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo (see [docs/VERIFICATION.md](docs/VERIFICATION.md)).", ""]
     bt = (u or {}).get("by_tier")
     if bt:
         out += ["", "<details><summary>By tier (whole pipeline, each function once)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]

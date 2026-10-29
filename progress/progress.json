@@ -96,7 +96,23 @@
   }
  },
  "replaced_unique": {
-  "behaviour_verified": 1337,
+  "behaviour_evidence": {
+   "flags": {
+    "CONFLICT": 7,
+    "DIFF": 1,
+    "INCONCLUSIVE": 1,
+    "LADDER": 55,
+    "LOWCOV": 19,
+    "NOEVID": 130,
+    "STDIND": 45
+   },
+   "rows": 1337,
+   "unaccounted": 0,
+   "unverified": 158,
+   "verified": 1179,
+   "verified_bytes": 545245
+  },
+  "behaviour_verified": 1179,
   "by_tier": {
    "agent": {
     "bytes": 8446,
@@ -130,6 +146,7 @@
    }
   },
   "byte_identical": 1385,
+  "byte_identical_bytes": 92353,
   "bytes": 675409,
   "clusters": 664,
   "clusters_not_in_ledger": 577,

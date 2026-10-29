@@ -3,6 +3,15 @@
 Status: design notes from static analysis (2026-10-29). Decision (user): the CRT becomes a swappable library layer,
 open-source libc per platform. Nothing here changes the build.
 
+## Open: which libc
+Two analyses disagree and the choice is open.
+* This document (2026-10-29) recommends musl for string/stdio/malloc/libm.
+* The earlier CRT analysis (ROADMAP, 2026-10-19, libcmt delink split) rejected Wine, ReactOS and musl as sources for the game's CRT and favoured: (A) rebuilding from the VC7 CRT source (private oracle, not publishable), (G) importing the system msvcrt plus a small shim (not bit-exact), and mingw-w64 pieces (public domain) for x87 math and startup.
+Both are kept here until a gate run (determinism sweeps, libm x87) decides. Whatever is chosen must pass the heap and libm gates listed under Plan.
+
+## Code without any source
+About 23.6 KB of the CRT region is the floating-point package (`_ftol`/`_CI*` helpers, FP exception/status handling) and the C++/SEH exception-handling support. No source for it exists anywhere (not in musl, mingw-w64, Wine or the VC7 CRT source we have). It needs a hand lift from the original bytes (decompiler output cleaned to C, x87 operation order kept), with diffemu checks; estimate 15-30 agent hours for the whole CRT layer.
+
 ## What the game links
 VC7 (VS .NET 2002) static multithreaded CRT `libcmt.lib`: 513 functions matched by bytes (`tools/libmatch_lib.py`,
 `output/crt_libmatch.csv`, `output/crt_libsyms.csv` 871 symbols, `names/MFL_crt_names.csv`), 242 members are overlaid
@@ -49,3 +58,9 @@ Not CRT but sits in the same address range and is NOT replaceable by libc: Rende
 1. Introduce a header `mfl_crt.h` with `mfl_memcpy`, `mfl_sprintf`, `mfl_m_acos`... (macro names to the existing CRT symbols on Windows hybrid, to libc on others). No code yet.
 2. Order: string/memory (trivial) -> stdio (file mode) -> malloc (determinism gate) -> libm (x87 gate) -> startup (`entry`).
 3. Gate each step with the determinism sweeps (heap and libm are the risky ones); keep the VC7 CRT bytes as the reference build.
+
+## Other library layers (inventory, 2026-10-30)
+Besides the CRT and RenderWare layers, these pieces of the exe are not application code and still need a layer decision:
+* **D3DX** (statically linked): the shader assembler/tokenizer (about 9 KB), D3DX math folded into RenderWare objects, and the texture-create helper. Inventory is still to be done.
+* **RtPNG / libpng / zlib**: the RenderWare texture-loading path (about 100 KB); zlib is not wired into the source-library build yet.
+* **Platform layers**: Direct3D 9 (device vtable calls by offset in at least 21 files), DirectSound, DirectInput (data formats), and Win32 (window, dialog procedures for the controller and video dialogs). Fine on Windows x86 as is; a platform interface (like `VIDEO_INTERFACE.md`) is needed for any other target. No inventory document exists yet.

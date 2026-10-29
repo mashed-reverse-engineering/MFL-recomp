@@ -2,14 +2,14 @@
 
 Status: static analysis, 2026-10-29. No builds were run. Sources: the librw-mfl notes and reviews (fork of aap/librw, MIT), the game's RenderWare API survey (api_used table: 454 imported or statically linked RW entry points with call-site counts), the Rwp block probe, `recomp/symbols.txt`, `recomp/aliases.txt` and `recomp/*.c`.
 
-Requirement (user): librw-mfl and the RenderWare Physics functions (`rwp_*` game side, Rwp37Active library side) are part of the final all-C tree as library layers, not as original bytes or SDK `.lib` files.
+Requirement (user): librw-mfl (a modified open-source RenderWare alternative for RW 3.x, clean-room reimplementation, NOT byte-matched; see section 7) and the RenderWare Physics functions (`rwp_*` game side, Rwp37Active library side) are part of the final all-C tree as library layers, not as original bytes or SDK `.lib` files.
 
 ## 1. Where RenderWare lives today
 
 | Layer | Form today | In the all-C target |
 |---|---|---|
 | Game code that calls RW (about 1/3 of recomp C) | C in `recomp/*.c`, reaching RW through accessor macros (`RwFrame_modelling`, `RpAtomic_geometry`, ...) and a handful of direct calls | stays C; accessors become the contract with the library layer |
-| RenderWare graphics (rwcore, rpworld, rpcollis, rt2d, rpmatfx, rpptank, ...) | original bytes, or SDK 3.7 d3d9 release `.lib` objects (byte match 39 % of all function bytes, 1851 unique functions) | replaced by librw-mfl (source) |
+| RenderWare graphics (rwcore, rpworld, rpcollis, rt2d, rpmatfx, rpptank, rtpng + libpng + zlib, ...) | original bytes, or SDK 3.7 d3d9 release `.lib` objects (byte match 39 % of all function bytes, 1851 unique functions) | replaced by librw-mfl (source), not byte-matched |
 | Rwp physics (Rwp37Active) | original bytes only (no SDK lib, no headers, never open sourced) | must be lifted or rewritten as source; nothing to link |
 | Game-side physics wrappers `rwp_*` (0x48e390 - 0x495af0, about 70 functions plus the Lua `RWP_Object*` API) | C in recomp (`physics.c` and tier 1/2 clusters) | stays C, becomes the caller of the Rwp source layer |
 
@@ -92,10 +92,10 @@ Recommendation: A, in this order of work: (1) reachability pass over the 144 vta
 | RpWorld API completion: sector render callbacks, `ForAllMaterials`, `WorldInstance`, render order (BACK2FRONT by frustum list; librw draws depth-first), matfx sector flag (46 sectors in 7 files lose it), 0x50E bin mesh | M (2-3 d) | medium (translucent world order) |
 | Small plugins: RpLOD, RpMorph, RpSpline, RpRandom, RpPVS, RpPatch, HAnim update/attach, userdata format size, compressed keyframes, LtMap area light, FSManager replacement | M total (5-7 d); RpRandom needs a bit-exact generator | low each; RpPatch/RpPVS usage unverified |
 | Remove Rx calls from the game, drop dead pipelines (g_app_771054/771048, material pipeline) | S (0.5 d) | low |
-| C facade over librw (C++) and migration of raw offset uses to accessors; 64-bit pointer safety of all game-side RW structs | M-L | medium: the requirement says all-C; whether a C++ library layer with a C ABI is acceptable is not verified with the user |
+| C facade over librw (C++) and migration of raw offset uses to accessors; 64-bit pointer safety of all game-side RW structs | M-L | medium: the requirement says all-C; C++ inside librw-mfl behind a C ABI is accepted (decision 2026-10-29, section 7) |
 
 ## 5. Ranked blockers for the Switch port-readiness document
-1. Rwp has no source and no port: 130 KB of x87, vtable-driven library; lift (10-15 d) with differential checks. Without it the game does not run off x86.
+1. Rwp has no source and no port: 130 KB of x87, vtable-driven library; lift (10-15 d) with differential checks; byte-identical only where realistic. Without it the game does not run off x86.
 2. D3D9 rendering is fixed function in the original and shader-only in librw-mfl: parity layer (7-9 d), then a GL3/GLES port with JaCFX shader translation (weeks).
 3. Collision semantics are guesses until diffed against the original; the physics layer depends on bit-compatible results.
 4. RW struct access by raw offset and 32-bit pointers: accessor/facade migration is a prerequisite for 64-bit ARM.
@@ -111,5 +111,11 @@ Recommendation: A, in this order of work: (1) reachability pass over the 144 vta
 - Whether RpPatch, RpPVS and RpMorph are exercised by shipped data.
 - The effort numbers are estimates in working days of one agent plus review, not measured.
 
-## 7. Original RenderWare code rewritten as C (T-R2, 2026-10-29)
-Before the librw-mfl swap, the RenderWare code inside the exe is being rewritten as C that is byte identical to the original (tier 1), so the swap can be done function by function against a known-good C baseline. 383 library functions are done (rwcore, rpworld, rpcollis, rpmatfx, rpskin, rt2d, rtpng, and the Rwp physics block: plugin registration, module open / close, engine requests, accessors, list iterators, D3D9 state helpers, pixel converters, Rwp pointer stacks). The SDK objects were built by cl 12, so these files carry `/* compile: /G5 */` (see BYTEMATCH_PATTERNS "Round T-R2" for the patterns and what does not match). Ranked work list for the rest (size, state, call-graph height, reachability from game code): `output/rw_rewrite_queue.csv`, produced by `tools/rw_queue.py`; drafts are verified and installed with `tools/rw_tier1.py`.
+## 7. Decision: Rw/Rp/Rx are not byte-matched (2026-10-29)
+The RenderWare SDK (3.7, Rw/Rp/Rx/Rt) has source available, so the game's RenderWare code is NOT being byte-matched. It is reimplemented clean-room in librw-mfl, an external modified open-source RenderWare alternative for RW 3.x (fork of aap/librw, MIT). Only the Rwp physics plugin (Rwp37Active, no SDK source, no headers) is byte-identical work, and even there the byte-identical goal is limited to what is realistic (see `output/rwp_plugin_map.md` in the private tree; the solver bulk is x87-heavy and is a lift candidate).
+
+Consequences:
+* `output/rw_rewrite_queue.csv` / `tools/rw_queue.py` rank RW work for the byte-identical flow. That flow is no longer the plan for Rw/Rp/Rx/Rt; use the queue for rwp rows only.
+* Roughly 400 RW/D3D9/libpng leaf functions were already written as byte-identical tier 1 C in the round T-R2/T-R3 (cl 12 `/G5`, `BYTEMATCH_PATTERNS` "Round T-R2"). They stay as a known-good baseline and as readable documentation of the originals, but no more such files are planned.
+* The open question in 4.2 (whether a C++ library layer with a C ABI is acceptable) is answered: yes, C++ is fine inside librw-mfl; the game side stays C and talks to a C facade.
+* RtPNG / libpng / zlib (the texture path, about 100 KB, called by `texture_read_png`) is part of the RenderWare layer inventory and is not in the gap table above; it needs a replacement (system libpng/zlib in the target) like the rest.
