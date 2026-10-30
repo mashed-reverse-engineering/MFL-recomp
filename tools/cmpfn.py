@@ -202,7 +202,7 @@ def check(src, items, flags):
         for h in os.listdir(d):
             if h.endswith(".h"):
                 shutil.copy(os.path.join(d, h), os.path.join(w, h))
-        env = dict(os.environ, VC7_CL="1310") if b"compile: cl1310" in open(src, "rb").read() else None   # alternate compiler cl 13.10 (marker or VC7_CL=1310 in the environment)
+        _m = open(src, "rb").read(); env = dict(os.environ, VC7_CL="1310_3077") if b"compile: cl1310b" in _m else dict(os.environ, VC7_CL="1310") if b"compile: cl1310" in _m else None   # alternate compiler cl 13.10 (marker or VC7_CL=1310 in the environment)
         try:
             r = subprocess.run([VC7, w, "cl.exe", "/nologo", "/c", "/Gy"] + flags + ["f.c"], capture_output=True, text=True, env=env, timeout=int(os.environ.get("CMPFN_TIMEOUT", "180")))
         except subprocess.TimeoutExpired:

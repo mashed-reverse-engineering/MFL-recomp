@@ -15,7 +15,7 @@
 /*007ef7f4*/ extern float g_tick_seconds;
 #define COLOUR_ALPHA_SHIFT (0x18)
 #define SMOKE_AGE_ARRAY_BYTES (0x400) /* 256 float ages at g_course_particle_6a1418 */
-#define SMOKE_POS_Y_START (0x6a081c) /* y of the first of 256 smoke positions (3 floats each, inferred) */
+#define SMOKE_POS_Y_START ((int)&g_course_smoke_6a07d8 + 0x44) /* y of the first of 256 smoke positions (3 floats each, inferred) */
 /* course_highway_cb1_impl */
 
 /* tail-jump target of thunk course_highway_cb1_sub_453bf0 */

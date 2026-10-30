@@ -1,6 +1,7 @@
 // cluster-entries: spring_grid_render
 /* Installed cluster spring_grid_render (tools/cluster_install.py from output/cluster_pilot_j1/spring_grid_render.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+extern undefined4 g_spring_grid_891c7c;
 extern struct SpringNode g_spring_nodes[460];
 /*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
 /*004b2b48*/ extern int _ftol();
@@ -84,7 +85,7 @@ void spring_grid_render(void)
       node_cursor = (RwV3d *)&node_cursor[5].z;
       cols_left = cols_left + -1;
     } while (cols_left != 0);
-  } while ((int)node_cursor < 0x891c7d);
+  } while ((int)node_cursor < (int)&g_spring_grid_891c7c + 1);
   /* Two render passes (pass 0: whole "Checks"-textured grid; pass 1: inner window, texture g_gfx_6f2ab8 if set). Each grid row is drawn as one Im3D triangle strip; vertex colour = squared half-lambert of the surface normal against the aux camera light vector (lightv) as tt*tt*255+25 clamped to 0..255 (grey), alpha byte g_gfx_6299d8 (inferred). */
   frame.pass = 0;
   do {
@@ -149,8 +150,12 @@ void spring_grid_render(void)
             edge.z = node_ptr[-0xc] - node_ptr[0x17b];
             vtx_out[2] = fVar2;
             RwV3dNormalize(&edge,&edge);
-            tt = ((double)edge.y * lightv[9] + (double)edge.x * lightv[8] + (double)edge.z * lightv[10] + float_1_0) * k_f_0_5;
-            row_first_or_light = (int)(tt * tt * k_f_255 + k_f_25);
+            tt = (double)edge.y * lightv[9];      /* source order (y, x, z); cl would sum x, z, y */
+            tt = tt + (double)edge.x * lightv[8];
+            tt = tt + (double)edge.z * lightv[10];
+            tt = (tt + float_1_0) * k_f_0_5;
+            tt = tt * tt;      /* (tt * tt) * 255, not 255 * tt * tt */
+            row_first_or_light = (int)(tt * k_f_255 + k_f_25);
             if ((int)row_first_or_light < 0x100) {
               if ((int)row_first_or_light < 0) {
                 row_first_or_light = 0;
@@ -174,8 +179,12 @@ void spring_grid_render(void)
             vtx_out[10] = fVar1;
             vtx_out[0xb] = fVar3;
             RwV3dNormalize(&edge,&edge);
-            tt = ((double)edge.y * lightv[9] + (double)edge.x * lightv[8] + (double)edge.z * lightv[10] + float_1_0) * k_f_0_5;
-            row_first_or_light = (int)(tt * tt * k_f_255 + k_f_25);
+            tt = (double)edge.y * lightv[9];      /* source order (y, x, z); cl would sum x, z, y */
+            tt = tt + (double)edge.x * lightv[8];
+            tt = tt + (double)edge.z * lightv[10];
+            tt = (tt + float_1_0) * k_f_0_5;
+            tt = tt * tt;      /* (tt * tt) * 255, not 255 * tt * tt */
+            row_first_or_light = (int)(tt * k_f_255 + k_f_25);
             if ((int)row_first_or_light < 0x100) {
               if ((int)row_first_or_light < 0) {
                 row_first_or_light = 0;
@@ -225,7 +234,7 @@ void spring_grid_render(void)
       pointsOut->z = pointsOut->z * float_10_0;
       pointsOut = node_cursor;
     } while (pass_value != 0);
-  } while ((int)node_cursor < 0x891c7d);
+  } while ((int)node_cursor < (int)&g_spring_grid_891c7c + 1);
   RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS,(void *)0x1);
   return;
 }

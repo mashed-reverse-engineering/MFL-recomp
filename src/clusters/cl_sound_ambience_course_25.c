@@ -127,10 +127,17 @@ void sound_ambience_course_25(void)
   sound_voice_start_22050(slot);
   voice_set_volume(slot, 0.2f);
   if (progress < k_f_30) {
-    voice_set_volume(slot, (progress - k_f_30) * k_f_0_033333335 * k_f_n1 * k_f_0_2 + k_f_0_2);
+    float fade = progress - k_f_30;      /* one product per statement, source order */
+    fade = fade * k_f_0_033333335;
+    fade = fade * k_f_n1;
+    fade = fade * k_f_0_2;
+    voice_set_volume(slot, fade + k_f_0_2);
   }
   if (progress > k_f_70) {
-    voice_set_volume(slot, (progress - k_f_70) * k_f_0_033333335 * k_f_0_2 + k_f_0_2);
+    float fade = progress - k_f_70;
+    fade = fade * k_f_0_033333335;
+    fade = fade * k_f_0_2;
+    voice_set_volume(slot, fade + k_f_0_2);
   }
   sound_voice_fixed_a(0x500, 22050.0f, 1.0f, 0x42860000, 0xc0a00000, 0x42fc0000);
   slot = SOUND_GROUP_FIRST_VOICE_OF(9);

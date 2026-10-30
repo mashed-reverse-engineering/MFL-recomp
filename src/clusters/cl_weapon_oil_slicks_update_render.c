@@ -141,7 +141,8 @@ LAB_00463233:
           t_val = t_val * k_f_0_5 + k_f_1_25;
         }
         else {
-          t_val = t_val * k_f_200 * k_f_1_25;
+          t_val = t_val * k_f_200;      /* one product per statement: cl would fold (200 * 1.25) first */
+          t_val = t_val * k_f_1_25;
         }
         slick[-1] = t_val;
         frame.scale_vec.x = slick[-1];

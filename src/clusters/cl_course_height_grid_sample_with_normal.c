@@ -24,7 +24,7 @@ typedef struct HeightQuery {
 #define CF(off) (*(float *)(cell + (off)))
 #define CI(off) (*(int *)(cell + (off)))
 /* height at map position (i, j): base - sample * (1/511) * scale */
-#define CELL_H(i, j) (CF(0x9f8) - (float)(*(unsigned int *)(cell + ((i) * 0x19 + (j)) * 4) >> 0x17) * 0.0019569471f * CF(0xa0c))
+#define CELL_H_SET(out, i, j) { float s_ = (float)(*(unsigned int *)(cell + ((i) * 0x19 + (j)) * 4) >> 0x17); s_ = s_ * 0.0019569471f; s_ = s_ * CF(0xa0c); out = CF(0x9f8) - s_; }      /* one product per statement: cl would multiply sample * scale first */
 
 /* rounding point: the original stores the value to a stack float and reloads it */
 static float float_barrier(float v) { return v; }
@@ -53,16 +53,17 @@ int course_height_grid_sample_with_normal(HeightQuery *q)
     fz = (z - gz) * CF(0x9f0);
     if (!(fx > k_f_0)) { nx = ix - 1; fx = fx * k_f_n1; } else nx = ix + 1;
     if (!(fz > k_f_0)) { fz = fz * k_f_n1; nz = iz - 1; } else nz = iz + 1;
-    h00 = float_barrier(CELL_H(ix, iz));
-    h0z = float_barrier(CELL_H(ix, nz));
-    hx0 = CELL_H(nx, iz);
+    CELL_H_SET(h00, ix, iz); h00 = float_barrier(h00);
+    CELL_H_SET(h0z, ix, nz); h0z = float_barrier(h0z);
+    CELL_H_SET(hx0, nx, iz);
     dx.x = ((float)nx * CF(0x9e4) + x0) - gx;
     dx.y = hx0 - h00;
     dx.z = gz - *(volatile float *)&gz;      /* 0, or NaN for an infinite gz: the original subtracts two loads */
     dz.x = gx - *(volatile float *)&gx;
     dz.y = h0z - h00;
     dz.z = float_barrier((float)nz * CF(0x9e8) + z0) - gz;
-    height = dz.y * fz + dx.y * fx + h00;
+    height = dx.y * fx + h00;      /* source order of the original: (dx.y * fx + h00) + dz.y * fz */
+    height = height + dz.y * fz;
     if (q->normal != 0) {
         RwV3dNormalize(&dx, &dx);
         RwV3dNormalize(&dz, &dz);

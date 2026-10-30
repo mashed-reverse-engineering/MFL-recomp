@@ -103,7 +103,7 @@ for f_ in ("src/symbols.txt", "src/aliases.txt", "output/delink_sdk/lib_names.tx
     if os.path.exists(os.path.join(G, f_)):
         for l in open(os.path.join(G, f_)):
             q_ = l.split()
-            if len(q_) >= 2: symmap.setdefault(q_[0], int(q_[1], 16))
+            if len(q_) >= 2 and not q_[0].startswith("#"): symmap.setdefault(q_[0], int(q_[1], 16))
 imports = {}
 def rdo(va):           # original bytes (data[] already holds the relocation addends)
     si_ = sec_index(va); return struct.unpack_from("<I", secs[si_][2], va - secs[si_][1])[0]

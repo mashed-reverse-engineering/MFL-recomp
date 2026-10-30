@@ -124,7 +124,6 @@
 004c4620 FUN_004c4620 hk_103.c
 0056f080 FUN_0056f080 hk_112.c
 0056f3a0 FUN_0056f3a0 hk_113.c
-00571810 FUN_00571810 hk_114.c
 005b72a0 sound_voice_call_entry hk_116.c
 005cc2e0 FUN_005cc2e0 hk_119.c
 005cc300 FUN_005cc300 hk_120.c
@@ -132,7 +131,6 @@
 0056f450 FUN_0056f450 hk_129.c
 0056f500 FUN_0056f500 hk_130.c
 0056f900 FUN_0056f900 hk_131.c
-0056fe40 FUN_0056fe40 hk_132.c
 00570e80 FUN_00570e80 hk_133.c
 005b6730 FUN_005b6730 hk_134.c
 005b6a80 FUN_005b6a80 hk_135.c
@@ -717,8 +715,6 @@
 0049c180 course_training_cb1_sub_49c180 hk_1081.c
 004a5d50 course_helper_4a5d50 hk_1090.c
 004aac50 course_storm_cb0_sub_4aac50 hk_1094.c
-0056e990 course_neustein_cb0_sub_56e990 hk_1122.c
-0056e9b0 course_neustein_cb0_sub_56e9b0 hk_1123.c
 005b6b60 gap_5b6b60 hk_1135.c
 005b6bc0 gap_5b6bc0 hk_1137.c
 005b9a40 gap_5b9a40 hk_1167.c

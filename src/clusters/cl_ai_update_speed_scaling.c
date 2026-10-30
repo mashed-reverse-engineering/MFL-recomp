@@ -1,6 +1,7 @@
 // cluster-entries: ai_update_speed_scaling
 /* Installed cluster ai_update_speed_scaling (tools/cluster_install.py from output/cluster_pilot_uc3/ai_update_speed_scaling.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+extern undefined4 g_ai_update_8c9cc4;
 /* DECLS-BEGIN */
 /*008c9ae0*/ extern struct AiBotRecord g_ai_bots[4];
 /*005e64a4*/ extern float k_f_0;
@@ -135,10 +136,12 @@ void ai_update_speed_scaling(void)
       factor = 1.0f;
       c = ai_get_counter(i);
       if (c > k_f_0_75) {
-        factor = (float_10_0 - g_ai_skill) * k_f_0_1 * k_f_0_16666667 + float_1_0;
+        d = (float_10_0 - g_ai_skill) * k_f_0_1;      /* (10 - skill) * 0.1 first, then * k: cl would fold the two constants */
+        factor = d * k_f_0_16666667 + float_1_0;
       }
       if (c > k_f_2) {
-        factor = (float_10_0 - g_ai_skill) * k_f_0_1 * k_f_0_33333334 + factor;
+        d = (float_10_0 - g_ai_skill) * k_f_0_1;
+        factor = d * k_f_0_33333334 + factor;
       }
       if (c < k_f_0_5) {
         factor = factor - k_f_0_15;
@@ -279,7 +282,7 @@ void ai_update_speed_scaling(void)
       bot[1] = 0;
       *bot = 0;
       bot = bot + 0x1e;
-    } while ((int)bot < 0x8c9cc4);
+    } while ((int)bot < (int)&g_ai_update_8c9cc4);
   }
   if (g_ai_catchup_class != 0) {
     return;

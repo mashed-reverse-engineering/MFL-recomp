@@ -36,7 +36,6 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
   int light_obj;
   undefined4 collision_bsp;
   bool is_mode_2;
-  float10 shadow_scale;
   RwCamera *camera_to_toggle;
   struct {
     RwRGBA clear_colour;
@@ -82,11 +81,10 @@ void vehicle_shadow_camera_render_setup_n(VehicleRecord *vehicle_record)
     begin_ok = RwCameraBeginUpdate(vehicle_record->shadow_camera);
     if (begin_ok != 0) {
       /* Render the part frame into the shadow camera with Z test/write off (draw via the frame's virtual call at +0x48), then restore Z state. */
-      shadow_scale = (float10)course_get_shadow_scale();
-      collision_bsp =
-           course_get_collision_bsp
-                     ((shadow_scale_scaled = (float)(shadow_scale * (float10)vehicle_record->light_factor *
-                             (float10)vehicle_record->size_factor), *(int *)&shadow_scale_scaled));
+      shadow_scale_scaled = course_get_shadow_scale();
+      shadow_scale_scaled = shadow_scale_scaled * vehicle_record->light_factor;      /* one product per statement, source order */
+      shadow_scale_scaled = shadow_scale_scaled * vehicle_record->size_factor;
+      collision_bsp = course_get_collision_bsp(*(int *)&shadow_scale_scaled);
       vehicle_tyre_marks_collect_triangles
                 (vehicle_record->index,*(int *)(vehicle_record->frame + 4) + 0x10,collision_bsp,shadow_scale_scaled);
       RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);

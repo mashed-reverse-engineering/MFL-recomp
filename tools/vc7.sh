@@ -6,6 +6,8 @@
 # Needs: docker, the image tianon/wine, and the extracted compiler in toolchain/vc7 (VC7_ROOT) (see ghidra/README.md).
 set -e
 # VC7_CL=1310: the alternate compiler cl 13.10 (VC++ Toolkit 2003, toolchain/vc71) with its own container (<name>_71); default stays cl 13.00
+# VC7_CL=1310_3077: cl 13.10.3077 (VS.NET 2003, toolchain/vc71b), container <name>_71b
+if [ "$VC7_CL" = 1310_3077 ]; then VC7_ROOT=${VC7_ROOT:-$(dirname "$(dirname "$(readlink -f "$0")")")/toolchain/vc71b}; VC7_PFX=${VC7_PFX:-wine_pfx_cc}; [ -n "$VC7_CONTAINER" ] && VC7_CONTAINER=${VC7_CONTAINER}_71b; fi
 if [ "$VC7_CL" = 1310 ]; then VC7_ROOT=${VC7_ROOT:-$(dirname "$(dirname "$(readlink -f "$0")")")/toolchain/vc71}; VC7_PFX=${VC7_PFX:-wine_pfx_cc}; [ -n "$VC7_CONTAINER" ] && VC7_CONTAINER=${VC7_CONTAINER}_71; fi
 # the compiler has its own Wine prefix volume (a clone of wine_pfx): a compile and a game run must never use the same prefix at the same time
 VC7V=${VC7_PFX:-wine_pfx_cc}; docker volume inspect $VC7V >/dev/null 2>&1 || "$(dirname "$(readlink -f "$0")")/wine-run/mkpfx.sh" ${VC7V#wine_pfx_}

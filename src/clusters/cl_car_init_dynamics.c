@@ -53,7 +53,7 @@ int car_init_dynamics(unsigned int index)
   float dx;
   RwReal dist;
   float max_radius;
-  double sum_len, r0, r1, r2, r3, share;      /* unrounded x87 values in the original */
+  float sum_len, r0, r1, r2, r3, share;      /* unrounded x87 values in the original */
   float inertia;
   int count;
   
@@ -169,8 +169,12 @@ int car_init_dynamics(unsigned int index)
     do {
       dx = wheel_it[1] * k_f_0_2777778;
       wheel_it[3] = *wheel_it;
-      dx = *wheel_it * k_f_0_2777778 * *wheel_it * k_f_0_2777778 +
-               dx * dx + wheel_it[-1] * k_f_0_2777778 * wheel_it[-1] * k_f_0_2777778;
+      dy = *wheel_it * k_f_0_2777778;      /* scaled components squared, summed in the original order [-1], [1], [0] */
+      dz = wheel_it[-1] * k_f_0_2777778;
+      dist = dz * dz;
+      dist = dist + dx * dx;
+      dist = dist + dy * dy;
+      dx = dist;
       if (dx != k_f_0) {
         dx = _rwSqrt(dx);
       }
@@ -183,7 +187,10 @@ int car_init_dynamics(unsigned int index)
     car->wheel_extent = max_radius * k_f_1_05;
     row = 4;
     do {
-      dist = _rwSqrt(wheel_pos[1] * wheel_pos[1] + *wheel_pos * *wheel_pos + wheel_pos[-1] * wheel_pos[-1]);
+      dist = wheel_pos[1] * wheel_pos[1];
+      dist = dist + *wheel_pos * *wheel_pos;
+      dist = dist + wheel_pos[-1] * wheel_pos[-1];
+      dist = _rwSqrt(dist);
       wheel_pos[2] = dist;
       wheel_pos = wheel_pos + 0x31;
       row = row + -1;
@@ -194,7 +201,10 @@ int car_init_dynamics(unsigned int index)
       dx = point[-1] - car->com_offset[0];
       dy = *point - car->com_offset[1];
       dz = point[1] - car->com_offset[2];
-      dist = _rwSqrt(dx * dx + dy * dy + dz * dz);
+      dist = dz * dz;      /* z, y, x order of the original */
+      dist = dist + dy * dy;
+      dist = dist + dx * dx;
+      dist = _rwSqrt(dist);
       point = point + 3;
       row = row + -1;
       *wheel_pos = dist * k_f_3_6;
@@ -207,7 +217,10 @@ int car_init_dynamics(unsigned int index)
       dx = wheel_pos[-1] - car->com_offset[0];
       dy = *wheel_pos - car->com_offset[1];
       dz = wheel_pos[1] - car->com_offset[2];
-      dist = _rwSqrt(dx * dx + dy * dy + dz * dz);
+      dist = dz * dz;      /* z, y, x order of the original */
+      dist = dist + dy * dy;
+      dist = dist + dx * dx;
+      dist = _rwSqrt(dist);
       *point = dist * k_f_3_6;
       if (max_radius < dist) {
         max_radius = dist;
@@ -223,24 +236,37 @@ int car_init_dynamics(unsigned int index)
       dx = point[-1] - car->com_offset[0];
       dy = *point - car->com_offset[1];
       dz = point[1] - car->com_offset[2];
-      dist = _rwSqrt(dx * dx + dy * dy + dz * dz);
+      dist = dz * dz;      /* z, y, x order of the original */
+      dist = dist + dy * dy;
+      dist = dist + dx * dx;
+      dist = _rwSqrt(dist);
       point = point + 3;
       row = row + -1;
       *wheel_pos = dist * k_f_3_6;
       wheel_pos = wheel_pos + 0x10;
     } while (row != 0);
     car->bounds_radius = max_radius * k_f_1_05;
-    sum_len = car->wheels[1].pos_length + car->wheels[0].pos_length +
-             car->wheels[2].pos_length + car->wheels[3].pos_length;
+    sum_len = car->wheels[1].pos_length + car->wheels[0].pos_length;
+    sum_len = sum_len + car->wheels[2].pos_length;
+    sum_len = sum_len + car->wheels[3].pos_length;
     r0 = sum_len / car->wheels[0].pos_length;
     r1 = sum_len / car->wheels[1].pos_length;
     r2 = sum_len / car->wheels[2].pos_length;
     r3 = sum_len / car->wheels[3].pos_length;
-    share = car->mass / (r2 + r3 + r1 + r0);
-    inertia = float_barrier(r2 * share * car->wheels[2].pos_length +
-                            r1 * share * car->wheels[1].pos_length +
-                            r0 * share * car->wheels[0].pos_length +
-                            r3 * share * car->wheels[3].pos_length);
+    {
+      float rs = r2 + r3;      /* sums and products as separate statements, original order */
+      rs = rs + r1;
+      rs = rs + r0;
+      share = car->mass / rs;
+    }
+    {
+      float t2 = r2 * share, t1 = r1 * share, t0 = r0 * share, t3 = r3 * share;      /* one product per statement, source order */
+      t2 = t2 * car->wheels[2].pos_length;
+      t1 = t1 * car->wheels[1].pos_length;
+      t0 = t0 * car->wheels[0].pos_length;
+      t3 = t3 * car->wheels[3].pos_length;
+      inertia = float_barrier(t2 + t1 + t0 + t3);
+    }
     car->inertia_sum = inertia;
     car->inertia_inverse = 1.0f / inertia;
     return 1;

@@ -1,6 +1,7 @@
 // cluster-entries: weapon_shotgun_load_assets
 /* Installed cluster weapon_shotgun_load_assets (tools/cluster_install.py from output/cluster_pilot_kc/weapon_shotgun_load_assets.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+extern int g_weapon_shotgun_6aac10;
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*004c3f90*/ extern int clump_get_atomics(RpClump * p0, RpAtomic ** p1);
 /*004c52b0*/ extern int atomic_geometry_user_data_int(undefined4 p0, undefined4 p1, undefined4 p2);
@@ -53,7 +54,7 @@ void weapon_shotgun_load_assets(void)
       *(int *)(slot_cursor + part_id * 4) = atomic;
     } while (i < 3);
     slot_cursor = slot_cursor + 0x24;
-  } while ((int)slot_cursor < 0x6aac10);
+  } while ((int)slot_cursor < (int)&g_weapon_shotgun_6aac10);
   LAB_004676a0();
   return;
 }

@@ -201,7 +201,7 @@ void course_rouabout_cb0(int course)
         dst = dst + 1;
       }
       cursor = cursor + 0x10;
-    } while ((int)object_ptr < 0x6a21c8);
+    } while ((int)object_ptr < (int)&g_course_rouabout_6a21c8);
     scan.tri_group = 0;
     do {
       scan.key_b1 = (char)scan.tri_group + '3';

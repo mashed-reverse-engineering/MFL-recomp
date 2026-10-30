@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Prepare a runnable copy of the MFL install for ghidra/tools/wine-run/run.sh (stdlib only).
-Usage: prepare.py <install dir (the one with App_Executables)> <target dir> [exe to use instead of the install's MFL.exe, e.g. an overlay.py result]
+Usage: prepare.py <install dir (the one with App_Executables)> <target dir> [exe to use instead of the install's MFL.exe, e.g. an overlay.py result [link map of a linked exe]]
 - copies the install (the game writes mashed.log / videocfg.bin / saves next to the exe, so never run the original),
 - patches the copy of MFL.exe so the DirectShow movie code is skipped (Wine has no mpeg decoder in the image):
     0x4A44A0 video_play_loop -> ret, 0x4A3A20 movie_renderer_create -> return 0x80004005, 0x4A3930 sound_volume_to_directsound_db -> ret, 0x4A39A0 movie_stop -> ret, 0x4A3860 movie_renderer_release -> ret
@@ -37,7 +37,23 @@ def recomp_sites(data, va):
 PATCHES = [(0x4A44A0, b"\xC3"), (0x4A3A20, bytes.fromhex("B805400080C3")), (0x4A3930, b"\xC3"), (0x4A39A0, b"\xC3"), (0x4A3860, b"\xC3")]
 
 
-def main(src, dst, exe_src=None):
+MOVIE_NAMES = {"video_play_loop": 0x4A44A0, "movie_renderer_create": 0x4A3A20, "sound_volume_to_directsound_db": 0x4A3930, "movie_stop": 0x4A39A0, "movie_renderer_release": 0x4A3860}
+
+
+def map_sites(map_path):
+    """file offsets of our C copies of the movie functions in a linked exe (link.exe /map: `0001:00001234 _name 00401234 f obj`); the entry jmp
+    of the original address leads there, so the stub has to be written at the map address as well"""
+    import re
+    code = dict(PATCHES); offs = []
+    for l in open(map_path, errors="replace"):
+        q = l.split()
+        if len(q) >= 4 and re.fullmatch(r"[0-9a-f]{8}", q[2]) and q[-1].endswith(".obj"):
+            n = q[1].lstrip("_").split("@")[0]
+            if n in MOVIE_NAMES: offs.append((int(q[2], 16) - 0x400000, code[MOVIE_NAMES[n]]))
+    return offs
+
+
+def main(src, dst, exe_src=None, map_path=None):
     # base image: ONE pristine copy of the install (327 MB), every prepared game directory is a hardlink farm of it (no disk space, no copy time);
     # only MFL.exe and videocfg.bin are written as new files (unlinked first: a write into a hardlinked file would change the base and every other directory)
     base = os.environ.get("MFL_BASE", os.path.expanduser("~/.cache/mfl_base"))
@@ -58,6 +74,8 @@ def main(src, dst, exe_src=None):
     for va, code in PATCHES:
         for off in recomp_sites(data, va) + [va - 0x400000]:      # the C replacement first (found through the entry jmp), then the entry itself
             data[off:off + len(code)] = code
+    for off, code in (map_sites(map_path) if map_path else []):      # linked exe (tools/delink/link_ours.sh): no .recomp section, our C functions are found through the link map
+        data[off:off + len(code)] = code
     os.unlink(exe)
     open(exe, "wb").write(data)
     os.chmod(exe, 0o644)
@@ -77,4 +95,4 @@ def main(src, dst, exe_src=None):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None, sys.argv[4] if len(sys.argv) > 4 else None)

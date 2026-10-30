@@ -1,6 +1,11 @@
 // cluster-entries: menu_update
 /* Installed cluster menu_update (tools/cluster_install.py from output/cluster_pilot_uc3/menu_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+extern undefined4 g_menu_update_8c8770;
+extern undefined4 g_ai_editor_view_origin_z;
+extern undefined4 g_hud_69cab8;
+extern int g_ai_editor_mode;
+extern undefined4 g_menu_update_69d0b8;
 /* DECLS-BEGIN */
 /*00416c40*/ extern int ai_bots_clear_stats();
 /*004a4030*/ extern int __cdecl app_get_app_76e890_4030(int p0);
@@ -485,7 +490,7 @@ LAB_00447824:
                 do {
                   *color_ptr = 0xffffffff;
                   color_ptr = color_ptr + 3;
-                } while ((int)color_ptr < 0x69d0b8);
+                } while ((int)color_ptr < (int)&g_menu_update_69d0b8);
                 goto LAB_004477e2;
               }
               if (token < 0xff260001) {
@@ -1005,7 +1010,7 @@ LAB_00447628:
                         }
                         slot_ptr = slot_ptr + 1;
                         team_mode = team_mode + 1;
-                      } while ((int)slot_ptr < 0x7f023c);
+                      } while ((int)slot_ptr < (int)&g_ai_editor_mode);
                       g_menu_69d6b4 = 1;
                     }
                     else if (((team_mode != 0xb) && (team_mode != 0xc)) && (team_mode != 0xd)) {
@@ -1163,7 +1168,7 @@ LAB_00446b4b:
                     do {
                       *color_ptr = 0xffffffff;
                       color_ptr = color_ptr + 3;
-                    } while ((int)color_ptr < 0x69d0b8);
+                    } while ((int)color_ptr < (int)&g_menu_update_69d0b8);
                     goto LAB_004477dc;
                   }
                   if (token == MENU_ITEM_TIME_TRIAL_STANDARD) goto LAB_00447720;
@@ -1206,7 +1211,7 @@ LAB_00448159:
                   }
                   slot_ptr = slot_ptr + 1;
                   team_mode = team_mode + 1;
-                } while ((int)slot_ptr < 0x7f023c);
+                } while ((int)slot_ptr < (int)&g_ai_editor_mode);
               }
               else if (token < 0xff380001) {
                 if (token == MENU_ITEM_OPEN_JOIN) {
@@ -1244,7 +1249,7 @@ LAB_00448159:
                       do {
                         *color_ptr = 1;
                         color_ptr = color_ptr + 3;
-                      } while ((int)color_ptr < 0x69cab8);
+                      } while ((int)color_ptr < (int)&g_hud_69cab8);
                       team_mode = 0;
                       do {
                         car_set_field_8(team_mode,0);
@@ -1385,7 +1390,7 @@ LAB_00447d20:
                     }
                     slot_ptr = slot_ptr + 1;
                     team_mode = team_mode + 1;
-                  } while ((int)slot_ptr < 0x7f023c);
+                  } while ((int)slot_ptr < (int)&g_ai_editor_mode);
                   if ((g_menu_bot_skill_a != 0) && (g_menu_game_mode_choice != 1)) {
                     team_mode = 0;
                     slot_ptr = g_player_slots;
@@ -1396,7 +1401,7 @@ LAB_00447d20:
                           slot_clash = false;
                           slot_scan = g_player_slots;
                           do {
-                            if (0x7f023b < (int)slot_scan) {
+                            if ((int)&g_ai_editor_mode - 1 < (int)slot_scan) {
                               if (!slot_clash) {
                                 slot_ptr->controller = slot_type;
                               }
@@ -1415,7 +1420,7 @@ LAB_00447d20:
                           slot_clash = false;
                           tbl = &g_player_slots[0].team;
                           do {
-                            if (0x7f0243 < (int)tbl) {
+                            if ((int)&g_ai_editor_view_origin_z - 1 < (int)tbl) {
                               if (!slot_clash) {
                                 slot_ptr->team = slot_type;
                                 goto LAB_00447be5;
@@ -1434,7 +1439,7 @@ LAB_00447d20:
 LAB_00447be5:
                       slot_ptr = slot_ptr + 1;
                       team_mode = team_mode + 1;
-                    } while ((int)slot_ptr < 0x7f023c);
+                    } while ((int)slot_ptr < (int)&g_ai_editor_mode);
 LAB_00447bf5:
                     car_set_field_8(0,g_menu_selected_vehicle);
                   }
@@ -1717,7 +1722,7 @@ LAB_0044849c:
               *dst_word = *src_word;
               src_word = src_word + 1;
               dst_word = dst_word + 0x13;
-            } while ((int)src_word < 0x8c8770);
+            } while ((int)src_word < (int)&g_menu_update_8c8770);
           }
           if ((g_menu_screen_id == MENU_PAGE_AUTOSAVE) || (g_menu_screen_id == MENU_PAGE_ARCADE_MODES)) goto LAB_0044849c;
           break;

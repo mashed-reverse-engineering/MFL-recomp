@@ -1,7 +1,6 @@
 // cluster-entries: rwp_world_initialize
 /* Installed cluster rwp_world_initialize (tools/cluster_install.py from output/cluster_pilot_md/rwp_world_initialize.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
-extern int _g_physics_000000;
 /*0042a3f0*/ extern int course_get_rpworld();
 /*0042a400*/ extern int course_get_collision_bsp();
 /*0042a430*/ extern int course_get_ambient_light();
@@ -121,7 +120,7 @@ void rwp_world_initialize(void)
         count = matrix_list_load(rec + -0x22,(RwMatrix *)((char *)&g_rw_6fea90 + mat_slot * 0x40));
         if (0x30 < count) {
           FID_conflict__wprintf("Too many matrices in mts file %d\n");
-          _g_physics_000000 = 0;
+          *(volatile int *)0 = 0;      /* deliberate crash after the error log */
         }
         *rec = count;
         ambient_light = clump_load_logged(rec + -0x32,(RwChar *)0x0);

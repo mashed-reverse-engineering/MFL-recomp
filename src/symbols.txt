@@ -979,7 +979,6 @@ ui_2d_layout_rects_init 0042bac0
 ui_2d_begin 0042bb50
 ui_2d_destroy 0042bba0
 ui_rt2d_text_x_offset 0042bc00
-LAB_0042bcbb 0042bcbb
 dat_get_string 0042bd00
 ui_rt2d_text_map_special_chars 0042bd20
 ui_rt2d_wide_string_copy 0042bdc0
@@ -5331,6 +5330,7 @@ RtDictDestroy 00569300
 RtDictSchemaStreamReadDict 005693c0
 RtBaryGetTransform 00569610
 RwCameraCalcPixelRay 005698c0
+FUN_0056a170 0056a170
 FUN_0056a190 0056a190
 FUN_0056a1b0 0056a1b0
 FUN_0056a1d0 0056a1d0
@@ -5373,6 +5373,7 @@ FUN_0056e440 0056e440
 FUN_0056e550 0056e550
 FUN_0056e5b0 0056e5b0
 SUB_0056e670 0056e670
+FUN_0056e750 0056e750
 FUN_0056e7c0 0056e7c0
 FUN_0056e890 0056e890
 FUN_0056e8c0 0056e8c0
@@ -5400,6 +5401,9 @@ FUN_00573880 00573880
 FUN_005738a0 005738a0
 FUN_005738c0 005738c0
 FUN_005738e0 005738e0
+LAB_00573940 00573940
+LAB_00573970 00573970
+LAB_005739e0 005739e0
 FUN_00573a00 00573a00
 FUN_00573e50 00573e50
 LAB_00573e80 00573e80
@@ -5416,7 +5420,10 @@ FUN_005749c0 005749c0
 FUN_00575200 00575200
 FUN_005757d0 005757d0
 FUN_00575af0 00575af0
+FUN_00575b20 00575b20
 FUN_00575b80 00575b80
+FUN_00576670 00576670
+FUN_00576c50 00576c50
 FUN_00576f40 00576f40
 FUN_00576f60 00576f60
 FUN_00576f80 00576f80
@@ -6659,7 +6666,6 @@ g_data_5f6450 005f6450
 g_data_5f64e0 005f64e0
 k_f_n3_4028235e38 005f6550
 k_f_1_44en14 005f66d0
-g_data_5f6720 005f6720
 k_f_n1_1754944en38 005f67b0
 k_f_n0_99 005f67b4
 g_data_5f6890 005f6890
@@ -7823,6 +7829,7 @@ g_menu_69ca1c 0069ca1c
 g_menu_layout_69ca20 0069ca20
 g_menu_controller_vehicle 0069ca28
 g_menu_update_69ca34 0069ca34
+g_hud_69cab8 0069cab8
 g_menu_start_race_requested 0069caec
 g_message_69caf0 0069caf0
 g_message_69caf4 0069caf4
@@ -10167,6 +10174,7 @@ g_rwp_world_88a840 0088a840
 g_rw_88a844 0088a844
 g_course_script_88a924 0088a924
 g_spring_grid_891c74 00891c74
+g_spring_grid_891c7c 00891c7c
 g_spring_grid_891ca4 00891ca4
 g_spring_grid_8922a0 008922a0
 g_spring_grid_8922a4 008922a4
@@ -10883,6 +10891,7 @@ g_ui_camera_8c8734 008c8734
 g_ui_camera_8c8738 008c8738
 g_ui_camera_8c873c 008c873c
 g_ai_8c8740 008c8740
+g_menu_update_8c8770 008c8770
 g_menu_layout_8c8780 008c8780
 g_car_8c8788 008c8788
 g_intro_banner_text_id 008c8790
@@ -10949,6 +10958,7 @@ g_ai_skill_score 008c99a0
 g_ai_career_skill_table 008c99a4
 g_ai_career_counter_table 008c9a40
 g_ai_bots 008c9ae0
+g_ai_update_8c9cc4 008c9cc4
 g_ai_bots_8c9cf0 008c9cf0
 g_ai_leader_slots 008c9eb0
 g_car_8c9eb4 008c9eb4

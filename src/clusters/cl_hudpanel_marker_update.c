@@ -156,7 +156,8 @@ void hudpanel_marker_update_n(int *m)
     scale = speed * k_f_15;
     spawn[1] = RwFrame_modelling(frame).at.y * scale;
     spawn[2] = RwFrame_modelling(frame).at.z * scale;
-    pos.x = scale * RwFrame_modelling(frame).at.x * g_tick_seconds + pos.x;
+    { double step_x = scale * RwFrame_modelling(frame).at.x;      /* one product per statement, source order; stays unrounded like the original's x87 register */
+      pos.x = step_x * g_tick_seconds + pos.x; }
     pos.y = spawn[1] * g_tick_seconds + pos.y;
     pos.z = spawn[2] * g_tick_seconds + pos.z;
     RwFrameTranslate(frame, &pos, rwCOMBINEPOSTCONCAT);

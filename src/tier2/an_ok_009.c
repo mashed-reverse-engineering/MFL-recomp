@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+extern unsigned char g_ai_cells[];
 /*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
 /*0040fdb0*/ extern int get_player_count();
 /*0040fdc0*/ extern int race_get_phase();
@@ -407,34 +408,34 @@ undefined4 __cdecl ai_erase_cell(uint world_x,uint world_z)
         return 1;
       }
       /* clear this position's byte: inside the tile, byte (z & 7) * 8 + (x & 7) */
-      *(undefined1 *)((world_x & AI_CELL_MASK) + 0x7f8284 + ((world_z & AI_CELL_MASK) + tile_index * 8) * 8) = AI_EMPTY_BYTE;
+      *(undefined1 *)((world_x & AI_CELL_MASK) + (int)g_ai_cells + ((world_z & AI_CELL_MASK) + tile_index * 8) * 8) = AI_EMPTY_BYTE;
       /* scan the whole tile, 8 rows of 8 bytes: any byte that is not empty keeps the tile */
       tile_has_data = false;
       cell_x = 0;
       tile_offset = tile_index * AI_TILE_BYTES;
       do {
-        if (*(char *)(tile_offset + 0x7f8284 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f8285 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 1 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f8286 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 2 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f8287 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 3 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f8288 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 4 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f8289 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 5 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f828a + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 6 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + 0x7f828b + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (int)g_ai_cells + 7 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
         cell_x = cell_x + 8;

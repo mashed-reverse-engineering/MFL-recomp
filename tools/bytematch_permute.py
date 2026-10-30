@@ -395,6 +395,8 @@ UGLY = {"array_group", "arr_resize"}      # tags whose hits need a manual readab
 MUT = {"type_swap": m_type_swap, "rel_swap": m_rel_swap, "ifelse_not": m_ifelse_not, "mul_swap": m_mul_swap, "decl_swap": m_decl_swap, "stmt_swap": m_stmt_swap, "inline_temp": m_inline_temp,
        "loop_form": m_loop_form, "case_swap": m_case_swap, "cast_toggle": m_cast_toggle, "lit_width": m_lit_width, "regroup": m_regroup}
 MUT.update(FRAME)
+if os.environ.get("X87"):      # tools/x87/mutators.py: x87 source-form mutators (float temp order, hoisting, pointer-local indexing, ...) for the lifted Rwp functions
+    sys.path.insert(0, os.path.join(HERE, "x87")); import mutators as x87mut; MUT.update(x87mut.MUTATORS)
 MUT = {k: code_only(v) for k, v in MUT.items()}
 FRAME_ONLY = "--frame" in sys.argv      # --frame: draw only frame-layout mutators (plus decl_swap/stmt_swap)
 
@@ -544,6 +546,7 @@ def main():
         for f in os.listdir(nd):
             if f.endswith((".c", ".h")) and not os.path.islink(os.path.join(nd, f)): shutil.copy(os.path.join(nd, f), src)
     nm = bc.names(); cand = []
+    if os.environ.get("X87"): nm.update(x87mut.names(src))      # lifted functions: DIR/names.txt `VA NAME`, chunk = DIR/NAME.c
     if names_a:
         cand = [l.split()[0] for l in open(names_a[1:])] if names_a.startswith("@") else names_a.split(",")
     else:

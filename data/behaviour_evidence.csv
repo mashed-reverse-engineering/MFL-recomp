@@ -1012,7 +1012,7 @@ lua_Physics_Scenario_Add_Animated_Object,0048c910,tier2,hs_sweep,EQUAL,1924,1.00
 lua_Physics_Scenario_Trigger_Add_Objects,0048ca40,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 lua_KTC_NewCopter,0048cbb0,tier2,hs_sweep,EQUAL,154,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_edge_side_test,0048cff0,tier2,hs_sweep,EQUAL,2132,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-course_collision_object_push_vectors,0048d0e0,tier2,hs_sweep,EQUAL,534,1.00,1,,hs_sweep:EQUAL|weak_osweep:EQUAL,compiled+shadow-never
+course_collision_object_push_vectors,0048d0e0,tier2,hs_sweep,EQUAL,534,1.00,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 collision_edge_shares_vertex_pair,0048d260,cluster,-,-,0,0,0,NOEVID,,
 course_collision_edges_build,0048d290,cluster,cluster_sweep,EQUAL,57,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:DIFF|pilot:EQUAL,
 course_mesh_triangle_normals_build,0048d450,cluster,pilot,EQUAL,158,1.00,1,,pilot:EQUAL,

@@ -61,12 +61,12 @@
   "cluster_functions": 665,
   "hand_functions": 381,
   "library_functions": 513,
-  "tier1_files": 1530,
-  "tier1_functions": 1172,
-  "tier2_files": 823,
+  "tier1_files": 1607,
+  "tier1_functions": 1245,
+  "tier2_files": 819,
   "tier2_functions": 721,
-  "unique_all_kinds": 3370,
-  "unique_functions": 2857
+  "unique_all_kinds": 3443,
+  "unique_functions": 2930
  },
  "replaced_in_pipeline": {
   "agent": {
@@ -85,13 +85,13 @@
    "verified_bytes_identical": 344
   },
   "tier1": {
-   "bytes": 85926,
-   "functions": 1535,
-   "verified_bytes_identical": 1535
+   "bytes": 90275,
+   "functions": 1592,
+   "verified_bytes_identical": 1592
   },
   "tier2": {
-   "bytes": 257808,
-   "functions": 872,
+   "bytes": 257674,
+   "functions": 868,
    "verified_bytes_identical": 0
   }
  },

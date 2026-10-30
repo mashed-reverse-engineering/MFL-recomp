@@ -50,7 +50,7 @@ car_collision_impulse(int car_index,RwBBox *obstacle_box,RwMatrix *box_matrix,fl
   
   /* centre of the obstacle box */
   frame.box_center_x = ((obstacle_box->inf).x + (obstacle_box->sup).x) * k_f_0_5;
-  car_pos = (float *)(player_car[car_index].matrix_current * 0x40 + car_index * 0xd04 + 0x8b1038);
+  car_pos = (float *)(player_car[car_index].matrix_current * 0x40 + car_index * 0xd04 + (int)player_car + 0x958);
   frame.contact_point.z = 0.0;
   frame.box_center_y = ((obstacle_box->inf).y + (obstacle_box->sup).y) * k_f_0_5;
   frame.contact_point.y = 0.0;

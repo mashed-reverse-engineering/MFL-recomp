@@ -44,7 +44,9 @@ void car_update_n(Car *car, int arg0, float dt, unsigned char *input, int unused
   if (car->speed == 0.0f) {
     CAR_INT(car, 0xb0c) = 0;
   } else {
-    dot = car->forward[0] * car->velocity[0] + car->forward[1] * car->velocity[1] + car->forward[2] * car->velocity[2];
+    dot = car->forward[1] * car->velocity[1];      /* y, x, z order of the original */
+    dot = dot + car->forward[0] * car->velocity[0];
+    dot = dot + car->forward[2] * car->velocity[2];
     if (dot < 0.0f) {
       dot = -dot;
     }

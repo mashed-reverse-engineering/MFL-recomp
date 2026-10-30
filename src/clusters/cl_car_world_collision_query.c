@@ -85,7 +85,7 @@ undefined4 car_world_collision_query(int car_index,int collision_ctx)
   RwV3dTransformPoints((RwV3d *)&g_car_8bd740,&query.origin,1,prev_matrix);
   RwV3dTransformPoints((RwV3d *)&g_car_8bd760,(RwV3d *)&g_car_8b06a0,4,prev_matrix);
   /* &player_car[car_index].up (sizeof(struct Car) = 0xd04) */
-  triangle_normal_r(&g_car_8bd760,&g_car_8bd778,&g_car_8bd784,car_index * 0xd04 + 0x8b10a8);
+  triangle_normal_r(&g_car_8bd760,&g_car_8bd778,&g_car_8bd784,car_index * 0xd04 + (int)player_car + 0x9c8);
   query.intersect_type = 3;
   /* bounding sphere: centre = car position in world, radius = bounds_radius */
   query.sphere_x = (prev_matrix->pos).x;

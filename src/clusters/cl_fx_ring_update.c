@@ -259,7 +259,8 @@ void fx_ring_update(void)
         point_dist_sq = frame.cam_pos_x - point->x;
         cam_dy = frame.cam_pos_y - point->y;
         cam_dz = frame.cam_pos_z - point->z;
-        point_dist_sq = cam_dz * cam_dz + point_dist_sq * point_dist_sq + cam_dy * cam_dy;
+        point_dist_sq = cam_dy * cam_dy + point_dist_sq * point_dist_sq;      /* y, x, z order of the original */
+        point_dist_sq = point_dist_sq + cam_dz * cam_dz;
         if (frame.nearest_count < 4) {
           frame.nearest_dist_sq[frame.nearest_count] = point_dist_sq;
           frame.nearest_pts[frame.nearest_count] = point;

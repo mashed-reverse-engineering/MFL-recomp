@@ -22,33 +22,44 @@ void ui_rt2d_text_x_offset_n(undefined4 text, float *out_pos, float x, float y, 
 
 {
   short screen_dim;
-  int screen_w;
-  float10 x_px;
-  float10 text_w_px;
+  float screen_w;
+  float screen_h;
+  float x_px;
+  float text_w_px;
+  float y_px;
   
   screen_dim = screen_width();
-  screen_w = (int)screen_dim;
+  screen_w = (float)(int)screen_dim;
   screen_dim = screen_height();
+  screen_h = (float)(int)screen_dim;
+  /* one product per statement: cl would reorder (w * k) * x to (k * x) * w; x_px stays in a register per branch like the original */
   if (align == 1) {
-    text_w_px = (float10)Rt2dFontGetStringWidth(g_ui_font,text,scale * k_f_0_0708);
-    x_px = (float10)screen_w * (float10)k_f_0_0015625 * (float10)x;
-    text_w_px = (text_w_px / (float10)g_ui_layout_scale_x) * (float10)screen_w;
+    text_w_px = Rt2dFontGetStringWidth(g_ui_font,text,scale * k_f_0_0708);
+    x_px = screen_w * k_f_0_0015625;
+    x_px = x_px * x;
+    text_w_px = text_w_px / g_ui_layout_scale_x;
+    text_w_px = text_w_px * screen_w;
+    x_px = x_px - text_w_px;
+  }
+  else if (align == 2) {
+    text_w_px = Rt2dFontGetStringWidth(g_ui_font,text,scale * k_f_0_0708);
+    x_px = screen_w * k_f_0_0015625;
+    x_px = x_px * x;
+    text_w_px = text_w_px / g_ui_layout_scale_x;
+    text_w_px = text_w_px * screen_w;
+    text_w_px = text_w_px * k_f_0_5;
+    x_px = x_px - text_w_px;
   }
   else {
-    if (align != 2) {
-      x_px = (float10)screen_w * (float10)k_f_0_0015625 * (float10)x;
-      goto LAB_0042bcbb;
-    }
-    text_w_px = (float10)Rt2dFontGetStringWidth(g_ui_font,text,scale * k_f_0_0708);
-    x_px = (float10)screen_w * (float10)k_f_0_0015625 * (float10)x;
-    text_w_px = (text_w_px / (float10)g_ui_layout_scale_x) * (float10)screen_w * (float10)k_f_0_5;
+    x_px = screen_w * k_f_0_0015625;
+    x_px = x_px * x;
   }
-  x_px = x_px - text_w_px;
-LAB_0042bcbb:
-  *out_pos = (float)((x_px / (float10)screen_w) * (float10)g_ui_layout_scale_x);
-  out_pos[1] = (float_1_0 -
-               (((float)(int)screen_dim * k_f_0_0020833334 * y) / (float)(int)screen_dim) *
-               g_ui_layout_scale_y) - scale * k_f_0_025;
+  x_px = x_px / screen_w;
+  *out_pos = x_px * g_ui_layout_scale_x;
+  y_px = screen_h * k_f_0_0020833334;
+  y_px = y_px * y;
+  y_px = y_px / screen_h;
+  out_pos[1] = (float_1_0 - y_px * g_ui_layout_scale_y) - scale * k_f_0_025;
   return;
 }
 

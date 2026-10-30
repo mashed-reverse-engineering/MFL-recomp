@@ -157,7 +157,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
       matrix_slot = self_car->matrix_current;
       other_car_off = *(int *)((int)player_car[0].velocity + other_car_byte_off + -8) * 0x40;
       other_car_matrix_off = other_car_off + other_car_byte_off;
-      frame.rel_pos.x = *(float *)(other_car_off + 0x8b1038 + other_car_byte_off) - self_car->matrices[matrix_slot * 0x10 + 0xc];
+      frame.rel_pos.x = *(float *)(other_car_off + (int)player_car + 0x958 + other_car_byte_off) - self_car->matrices[matrix_slot * 0x10 + 0xc];
       frame.rel_pos.y = *(float *)((int)player_car[0].matrices + other_car_matrix_off + 0x34) -
                    self_car->matrices[matrix_slot * 0x10 + 0xd];
       frame.other_vel.x = *(float *)((int)player_car[0].velocity + other_car_byte_off);

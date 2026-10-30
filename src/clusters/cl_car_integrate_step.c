@@ -29,6 +29,7 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
 
 {
   float t;
+  double t0;
   float f;
   float scale;
   float axis_value;
@@ -37,8 +38,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
   float vx, vy, vz;
   struct { float lo[5]; RwV3d dir; float tmp[3]; } fr;      /* frame layout of the original: dir at esp+0x18 below the return address */
 
-  t = dt * k_f_3_3333333en4;
-  f = dt * k_f_3_3333333en4 * k_f_0_0027778;
+  t0 = dt * k_f_3_3333333en4;
+  t = (float)t0;      /* stored copy; the product itself stays unrounded for f */
+  f = (float)(t0 * k_f_0_0027778);      /* (dt * k) * k2: cl would multiply the two constants first */
   vx = f * car->velocity[0];
   vy = f * car->velocity[1];
   vz = f * car->velocity[2];
@@ -113,7 +115,10 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
       vx = t * car->angular_velocity[0] + vx;
       vz = t * car->angular_velocity[2] + vz;
     }
-    if ((car->forward[2] * car->velocity[2] + car->forward[0] * car->velocity[0] + car->forward[1] * car->velocity[1] < k_f_n0_1) &&
+    f = car->forward[1] * car->velocity[1];      /* y, x, z order of the original */
+    f = f + car->forward[0] * car->velocity[0];
+    f = f + car->forward[2] * car->velocity[2];
+    if ((f < k_f_n0_1) &&
        ((input[4] == 0 || (input[5] == 0)))) {
       vx = -vx;
       vy = -vy;

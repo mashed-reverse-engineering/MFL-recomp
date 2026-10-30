@@ -45,7 +45,9 @@ void vehicle_wheels_spin_update_n(VehicleRecord *vehicle, unsigned int ticks)
         wheel_frame = *(RwFrame **)(part + 4);
         car_wheel_get_field_3c(&frame.wheel_rotation, vehicle->index, wheel);
         frame.ticks_copy = ticks;
-        angle = (float)ticks * k_f_3_3333333en4 * (float)frame.wheel_rotation + spin[wheel];
+        angle = (float)ticks * k_f_3_3333333en4;      /* one product per statement, source order */
+        angle = angle * (float)frame.wheel_rotation;
+        angle = angle + spin[wheel];
         spin[wheel] = angle;
         if (k_f_360 < angle)
             spin[wheel] = angle - k_f_360;

@@ -1,6 +1,7 @@
 // cluster-entries: course_highway_cb0
 /* Installed cluster course_highway_cb0 (tools/cluster_install.py from output/cluster_pilot_uc3/course_highway_cb0.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+extern undefined4 g_course_highway_cars;
 #define COURSE_HIGHWAYN (12)
 typedef int CourseId;
 #define MTS_LIST_BYTES 0xc00 /* one matrix list of CourseWorld.mts_matrices (0x30 RwMatrix) */
@@ -73,7 +74,7 @@ typedef int CourseId;
 /*008c479c*/ extern int g_course_highway_8c479c;
 /*008c47a0*/ extern int g_course_highway_8c47a0;
 #define LOD_OBJ_SIZE (0xfc) /* bytes per highway LOD scenery object */
-#define LOD_OBJ_POOL (0x8bf0a0) /* address of the first LOD object (80 consecutive objects) */
+#define LOD_OBJ_POOL ((int)&g_course_highway_cars) /* address of the first LOD object (80 consecutive objects) */
 #define LOD_OBJ_TIER (0xac) /* obj field: lod_tier 0..2 */
 #define LOD_OBJ_ROW (0xb0)
 #define LOD_OBJ_COL (0xb4)
@@ -444,7 +445,7 @@ LAB_0045b28a:
           idx = idx + -1;
           *(int *)(*chain_last + LOD_OBJ_NEXT) = *chain_first;
         } while (idx != 0);
-      } while ((int)chain < 0x8c4448);
+      } while ((int)chain < (int)&g_course_highway_8c4448);
       course_object_offsets_init();
       course_highway_physics_objects_create(course);
       course_car_shadow_particles_create();

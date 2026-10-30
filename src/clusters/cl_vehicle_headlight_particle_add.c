@@ -65,7 +65,8 @@ void vehicle_headlight_particle_add_n(VehicleLightView *vehicle)
     dot = car->up.x * k_f_0 + car->up.y + car->up.z * k_f_0;
     if (k_f_0 >= dot)
         dot = k_f_0;
-    f.colour[3] = (unsigned char)(int)(dot * vehicle->light_factor * k_f_255);
+    dot = dot * vehicle->light_factor;      /* one product per statement, source order */
+    f.colour[3] = (unsigned char)(int)(dot * k_f_255);
     particles_set_color(f.colour);
     gfx_set_fx_matrix(&f.matrix);
     particles_add(g_particles_65a9d0);
