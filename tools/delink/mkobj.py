@@ -45,6 +45,7 @@ rel = collections.defaultdict(list)
 stat = collections.Counter()
 taken = {}
 SKIP = {int(l.split()[0], 16) for l in open(opt["--skip"]) if l.strip()} if "--skip" in opt else set()     # sites to leave alone (bisecting)
+IMPUSED = set()
 IMPSYM = {}      # --imports-as-symbols <dir of the <dll>.def files of tools/mk_importlibs.py>: IAT slot VA -> `_Name@N`; the 856 import sites then reference `__imp__Name@N` (the import libs define it), the original IAT and import tables are zero filled and the linker builds the import table
 if "--imports-as-symbols" in opt:
     _dec = {}
@@ -85,7 +86,7 @@ for r in rows:
         off = site - secs[si][1]
         if any(site + k in taken for k in range(4)): stat["overlap dropped"] += 1; continue
         for k in range(4): taken[site + k] = 1
-        struct.pack_into("<I", data[si], off, 0); rel[si].append((off, IMPSYM[t], 6)); undef_syms.append(IMPSYM[t]); stat["imports as symbols"] += 1; continue
+        struct.pack_into("<I", data[si], off, 0); rel[si].append((off, IMPSYM[t], 6)); IMPUSED.add(IMPSYM[t]); stat["imports as symbols"] += 1; continue
     if any(site + k in taken for k in range(4)): stat["overlap dropped"] += 1; continue
     for k in range(4): taken[site + k] = 1
     off = site - secs[si][1]
@@ -151,6 +152,7 @@ while any(rdo(imp + k) for k in (0, 12, 16)):
         t_ += 4; slot_ += 4
     imp += 20
 objdef, objundef, aliases, undef_syms, missing = {}, set(), [], [], set()
+undef_syms += sorted(IMPUSED)
 commons = set()
 memdefs = collections.defaultdict(set)          # lib member key (objs line "lib:<key> <obj>") -> external names it defines
 # --drop-members <file of member keys> [--drop-items <csv>]: split those library members out of the image WITH their data (tools/delink_sdk/plan_split.py
