@@ -353,9 +353,13 @@ if "--drop-app" in opt:
             if ty == 6 and isinstance(ti, int) and ti not in DSEC:
                 t = secs[ti][1] + struct.unpack_from("<i", data[si], off)[0]
                 if cand_of(t) is not None: absr.append((secs[si][1] + off, t, cand_of(t)))
-    for v_, p_ in _w:                  # raw words (value only): the same test on every word of the image that equals an address inside a body
+    for r in csv.DictReader(open(os.path.join(GD, "raw.csv"))):      # reloc sites the generator keeps as raw words (value only, code_interior ...): they still hold the original address
+        si_ = sec_index(int(r["site"], 16)); v_ = struct.unpack_from("<I", secs[si_][2], int(r["site"], 16) - secs[si_][1])[0]
         f_ = cand_of(v_)
-        if f_ is not None: absr.append((p_, v_, f_))
+        if f_ is not None: absr.append((int(r["site"], 16), v_, f_))
+    for nm_, a_ in aliases:            # symbols our objects / the generated data name at an address inside a body (labels, unlisted functions): the symbol would point at int3
+        f_ = cand_of(a_)
+        if f_ is not None: absr.append((0, a_, f_))
     gp = [r for r in csv.DictReader(open(os.path.join(GD, "ptrs.csv")))]
     _by = {n_: a_ for a_, n_ in redir_at.items()}
     for r in gp:                                           # generated pointers `function + addend` (addend != 0): the symbol would resolve to our C
@@ -403,7 +407,7 @@ KEEP = [i for i in range(len(secs)) if i not in DSEC]           # --drop-app rem
 NEWI = {i: k for k, i in enumerate(KEEP)}
 for i, s in enumerate(secs):
     if i in DSEC: continue
-    syms += name8(s[0]) + struct.pack("<IhHBB", 0, i + 1, 0, 3, 1)
+    syms += name8(s[0]) + struct.pack("<IhHBB", 0, NEWI[i] + 1, 0, 3, 1)
     syms += struct.pack("<IHHIHBB", s[3], len(rel[i]) if len(rel[i]) < 0xFFFF else 0xFFFF, 0, 0, 0, 0, 0).ljust(18, b"\0")
 seen = collections.Counter()
 # names: src/symbols.txt (ExportSymbols.java: functions and data labels; the same table the overlay resolves with, so a name means the same

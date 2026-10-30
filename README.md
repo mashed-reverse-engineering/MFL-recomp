@@ -24,14 +24,14 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 157 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 675,409 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 664 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,945 | `█████████████████████` 106% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,608 | `████████████░░░░░░░░` 58% |
-| ...tier 1, `src/tier1` (1622 files) | 1,260 | `█████████░░░░░░░░░░░` 45% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,955 | `█████████████████████` 106% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,618 | `████████████░░░░░░░░` 58% |
+| ...tier 1, `src/tier1` (1632 files) | 1,270 | `█████████░░░░░░░░░░░` 46% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (815 files) | 721 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...tier 2, `src/tier2` (814 files) | 721 | `█████░░░░░░░░░░░░░░░` 26% |
 | ...clusters, `src/clusters` (631 files) | 665 | `█████░░░░░░░░░░░░░░░` 24% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 509 | |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 508 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
 **What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (631 cluster files give 665 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.

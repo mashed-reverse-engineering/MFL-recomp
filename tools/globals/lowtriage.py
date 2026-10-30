@@ -4,7 +4,7 @@ A low word becomes a pointer only if it is on src/globals_reloc_allow.txt.  Rule
   base   reloc kind data/fntable/string, resolved to a symbol or generated item (never code_interior: odd code offsets, 118+ false positives seen)
   align  value % 4 == 0 (string pointers excepted): rejects colours / packed constants such as 0x005dffff, 0x00804000
   proof  one of: target is exactly a symbol/item start (E1); another non-low reloc (code or data) targets the same address (E2);
-         a neighbouring word (+-4) is a medium/high pointer (E3); the same target value occurs in >= 3 low words (E4, jump tables / node pools)
+         a neighbouring word (+-4) is a medium/high pointer (E3); the same target value occurs in >= 3 low words (E4, jump tables / node pools); E5 the word lies in a library span (variant L), E6 it points into its own item
 Without --write only the counts are printed.  Remaining low words stay raw numbers (listed in raw.csv, reason 'low')."""
 import collections, csv, os, sys
 G = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -17,6 +17,8 @@ for r in rs:
     v = int(r["value"], 16)
     if r["reloc_kind"] == "code_interior": rest["code_interior"] += 1; continue
     if r["kind"] == "raw": rest["unresolved"] += 1; continue
+    if r["item"].startswith("g_libspan_"): ok.append((r, ["E5"])); continue          # library spans: the delinker (mkobj) moved every such word and 15/15 courses ran; a stride-16 table of qhull / D3DX node pointers stayed raw and crashed (T-E3)
+    if r["item"] == r["symbol"] and v % 4 == 0: ok.append((r, ["E6"])); continue      # self-referential (list heads, node pools inside one object)
     if v % 4 and r["reloc_kind"] != "string": rest["unaligned data word"] += 1; continue
     nb = r["prev_conf"] in ("high", "medium") or r["next_conf"] in ("high", "medium")
     ev = [n for n, c in (("E1", r["off"] == "0"), ("E2", v in nl), ("E3", nb), ("E4", lowc[v] >= 3)) if c]

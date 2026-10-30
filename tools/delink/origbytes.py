@@ -119,6 +119,8 @@ for L in LAYERS:
 md += ["", "## Application code that is still original", "",
        "- Replaced by C, but body kept (live reference into the interior), all layers: %d functions (bodies counted under their layer above); app only: %d functions, %s bytes." % (len(legacy), sum(1 for r in legacy if H(r["va"]) < 0x4b0000), format(sum(fsz[H(r["va"])] for r in legacy if H(r["va"]) < 0x4b0000), ",")),
        "- Never replaced (no C): %d functions below 0x4b0000, %s bytes." % (len(app_unreplaced), format(sum(s for _, _, s in app_unreplaced), ",")), "",
+       "- Rest of the original app code bytes (%s): padding, jump tables and unlisted code behind sized bodies that a raw pointer or a symbol still reaches (the extension of a dropped body stops there)." % format(code["app"]["original"] - sum(fsz[H(r["va"])] for r in legacy if H(r["va"]) < 0x4b0000) - sum(s_ for _, _, s_ in app_unreplaced), ","),
+       "- Honesty notes: data rows generated as C are not counted as original, but their initial values were extracted from the image by tools/globals; the library rows (kind lib) are the original bytes re-emitted as C; the resources are the original .rsrc (S3 not done); the 5 byte stubs are generated but each replaces original code bytes.", "",
        "### Legacy list (replaced by C, body kept; all layers)", "", "| VA | Size | Function | Reason |", "|---|---:|---|---|"]
 for r in sorted(legacy, key=lambda r: H(r["va"])):
     it = item_at(H(r["va"])); md.append("| %s | %s | %s | %s (%s) |" % (r["va"], r["size"], r["name"], r["reason"], layer(H(r["va"]), it[3], it[4]) if it else "other"))

@@ -18,6 +18,7 @@ import cmpfn
 from disx import dis
 
 class Unsupported(Exception): pass
+READDR = int(os.environ.get('X87_READDR', '0'))      # T-X90 (RWP-X20): computed bases (index << k + base) are re-addressed at every use instead of cached in a pointer local (fixes the eax/ecx roles, rwp_farfield_00576bf0)
 PAREN = int(os.environ.get('X87_PAREN', '0'))      # T-X89: parenthesise the left part of 3+ term sum chains (RWP-X14)
 
 REGS = ["eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"]
@@ -69,9 +70,9 @@ class N:      # x87 value
 
 class State:
     def __init__(s):
-        s.regs = {}; s.fp = []; s.delta = 0; s.flags = None; s.pend = []; s.slots = {}; s.dead = False; s.fcmp = None; s.axf = None
+        s.lastcall = None; s.regs = {}; s.fp = []; s.delta = 0; s.flags = None; s.pend = []; s.slots = {}; s.dead = False; s.fcmp = None; s.axf = None
     def fork(s):
-        n = State(); n.regs = dict(s.regs); n.fp = list(s.fp); n.delta = s.delta; n.flags = s.flags; n.pend = list(s.pend); n.dead = s.dead; n.fcmp = s.fcmp; n.axf = s.axf
+        n = State(); n.regs = dict(s.regs); n.fp = list(s.fp); n.delta = s.delta; n.flags = s.flags; n.pend = list(s.pend); n.dead = s.dead; n.fcmp = s.fcmp; n.axf = s.axf; n.lastcall = s.lastcall
         return n
 
 class Lifter:
@@ -79,8 +80,13 @@ class Lifter:
         s.va = va; s.name = name or symbols().get(va, "FUN_%08x" % va)
         s.ins = dis(va, size); s.idx = {a: i for i, (a, *_r) in enumerate(s.ins)}
         s.args = {}; s.slots = {}; s.stmts = []; s.seq = 0; s.ptrs = []; s.tmps = []; s.regargs = {}
-        s.blocks = set(); s.retf = False; s.reti = False; s.callee = {}; s.stdcall = 0; s.alias = {}; s.floatcalls = set(); s.entry_push = set(); s.lastcall = None; s.midsub = False
+        s.blocks = set(); s.retf = False; s.reti = False; s.callee = {}; s.stdcall = 0; s.alias = {}; s.floatcalls = set(); s.entry_push = set(); s.midsub = False
         s.st = State(); s.pstates = []
+
+    @property
+    def lastcall(s): return s.st.lastcall      # T-X90: per path (a float result pending on one arm of a branch is still pending on the other)
+    @lastcall.setter
+    def lastcall(s, v): s.st.lastcall = v
 
     # ---------------------------------------------------------------- helpers
     def emit(s, st): s.out.append(st)
@@ -161,6 +167,7 @@ class Lifter:
     def base_var(s, iv, reg=None):
         """materialise a computed base so it becomes a pointer local (only when the base is a bare register value)"""
         if iv[0] == "var": return iv
+        if READDR and iv[0] in ("add", "shl", "mul", "sub"): return iv
         if iv[0] in ("add", "shl", "mul", "sub"):
             v = s.newp(); s.emit(("decl", v, iv))
             if reg:
@@ -244,7 +251,9 @@ class Lifter:
                 return
             mo = s.parse_mem(ops[0]); kind = {4: "f", 8: "d"}.get(mo[1])
             if not kind: raise Unsupported("fstp %s" % ops[0])
-            n = s.sti(0) if not st.fp == [] else s.pop()
+            popped = not st.fp      # T-X90: a pending call result popped for the operand is the fstp's pop
+            n = s.sti(0) if st.fp else s.pop()
+            if popped: pop = False
             if s.midsub and mo[0] == "m" and mo[2] == "esp" and mo[3] is None:
                 if pop: s.pop()
                 st.pend.append(("farg", n, kind)); return

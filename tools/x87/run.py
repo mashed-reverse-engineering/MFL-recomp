@@ -29,13 +29,22 @@ def main():
     for va, rn, sz, x in cands:
         name = L.symbols().get(va, "FUN_%08x" % va)
         try:
-            L.PAREN = 0; src = L.lift(va)
+            L.PAREN = 0; L.READDR = 0; src = L.lift(va)
+            try:      # T-X90: re-addressed computed bases (RWP-X20) as a variant; kept for the sum chain spellings when it matches
+                L.READDR = 1; src3 = L.lift(va)
+                if src3 != src:
+                    fp3 = os.path.join(work, name + ".r.c"); open(fp3, "w").write(src3)
+                    if cmpfn.check(fp3, [(name, va)], flags)[name][0]: src = src3
+                    else: L.READDR = 0
+                else: L.READDR = 0
+            except L.Unsupported: L.READDR = 0
             for mode in (1, 2):      # T-X89: flat / parenthesised (RWP-X14) / reversed flat sum chains; the first one that matches is kept
                 L.PAREN = mode; src2 = L.lift(va); L.PAREN = 0
                 if src2 != src:
                     fp2 = os.path.join(work, name + ".p%d.c" % mode); open(fp2, "w").write(src2)
                     ok2, det2 = cmpfn.check(fp2, [(name, va)], flags)[name]
                     if ok2: src = src2; break
+            L.READDR = 0
         except L.Unsupported as e: rows.append((name, "%08x" % va, sz, x, "UNSUPPORTED", str(e))); print(rows[-1], flush=True); continue
         except Exception as e: rows.append((name, "%08x" % va, sz, x, "CRASH", repr(e))); print(rows[-1], flush=True); continue
         fp = os.path.join(work, name + ".c"); open(fp, "w").write(src)

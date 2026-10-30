@@ -14,6 +14,8 @@ def main():
     txt = open(src).read()
     if "compile: /G5" not in txt: txt = "/* compile: /G5 */\n" + txt
     tmp = tempfile.mkdtemp(prefix="x87i_"); fp = os.path.join(tmp, name + ".c"); open(fp, "w").write(txt)
+    for h in os.listdir(R):      # T-X90: headers (mfl_tier2.h) for files that include them
+        if h.endswith(".h"): shutil.copy(os.path.join(R, h), os.path.join(tmp, h))
     ok, det = cmpfn.check(fp, [(name, va)], ["/O2", "/G5"])[name]
     if not ok: print("SKIP %s: %s" % (name, det[:100])); shutil.rmtree(tmp); return 1
     print("OK   %s %s" % (name, det))
