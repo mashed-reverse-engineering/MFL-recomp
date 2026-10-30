@@ -35,7 +35,7 @@ extern char s_fff_fff_fff__0062ab1c[];
 /* word index of the in-use flag in a slot (+0x14) */
 #define FX_SLOT_IN_USE (5)
 /* first address past the end of the slot pool (inferred) */
-#define FX_SLOT_POOL_END ((int)&g_particles_8885a0 - 1)
+#define FX_SLOT_POOL_END ((LONG_PTR)&g_particles_8885a0 - 1)
 /* fx_slot_find_free
  *
  * Claims the first free slot in the particle/effect pool (g_particles_8869a0),

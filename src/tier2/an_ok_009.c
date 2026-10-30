@@ -391,7 +391,7 @@ undefined4 __cdecl ai_erase_cell(uint world_x,uint world_z)
   bool tile_has_data;
   int cell_z;
   int cell_x;
-  char *tile_offset;
+  int tile_offset;
 
   /* world position -> cell column: (x + 512) / 8, rounded toward zero */
   cell_x = (int)(world_x + AI_WORLD_HALF + ((int)(world_x + AI_WORLD_HALF) >> AI_SIGN_SHIFT & 7U)) >> AI_CELL_SHIFT;
@@ -408,34 +408,34 @@ undefined4 __cdecl ai_erase_cell(uint world_x,uint world_z)
         return 1;
       }
       /* clear this position's byte: inside the tile, byte (z & 7) * 8 + (x & 7) */
-      *(undefined1 *)((world_x & AI_CELL_MASK) + (int)g_ai_cells + ((world_z & AI_CELL_MASK) + tile_index * 8) * 8) = AI_EMPTY_BYTE;
+      *(undefined1 *)((world_x & AI_CELL_MASK) + (char *)g_ai_cells + ((world_z & AI_CELL_MASK) + tile_index * 8) * 8) = AI_EMPTY_BYTE;
       /* scan the whole tile, 8 rows of 8 bytes: any byte that is not empty keeps the tile */
       tile_has_data = false;
       cell_x = 0;
       tile_offset = tile_index * AI_TILE_BYTES;
       do {
-        if (*(char *)(tile_offset + (int)g_ai_cells + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 1 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 1 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 2 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 2 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 3 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 3 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 4 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 4 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 5 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 5 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 6 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 6 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
-        if (*(char *)(tile_offset + (int)g_ai_cells + 7 + cell_x) != AI_EMPTY) {
+        if (*(char *)(tile_offset + (char *)g_ai_cells + 7 + cell_x) != AI_EMPTY) {
           tile_has_data = true;
         }
         cell_x = cell_x + 8;

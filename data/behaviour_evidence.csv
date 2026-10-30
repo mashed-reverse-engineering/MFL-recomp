@@ -167,7 +167,7 @@ ai_drive_a,00418dd0,tier2,weak_osweep,EQUAL,6501,0.81,1,,weak_tweak:EQUAL|hs_swe
 ai_drive_b,004195b0,tier2,weak_tweak,EQUAL,1559,0.84,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 ai_bot_stage_state_update,00419d00,cluster,pilot,EQUAL,800,0.90,1,,pilot:EQUAL,
 ai_paint_cell,0041a090,tier2,weak_tweak,EQUAL,1200,0.88,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-ai_erase_cell,0041a170,tier2,hs_sweep,EQUAL,1600,0.96,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-UNTESTED
+ai_erase_cell,0041a170,tier2,hs_sweep,EQUAL,1600,0.96,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
 ai_bot_course_0x21_target_check,0041a280,tier2,weak_tweak,EQUAL,1559,0.80,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 race_ai_slot_assign_or_adjust,0041a390,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 ai_update_speed_scaling,0041a490,cluster,weak_tweak,EQUAL,3000,0.93,1,,weak_tweak:EQUAL|weak_osweep:EQUAL|pilot:EQUAL,
@@ -984,7 +984,7 @@ effect_slot_free,00487960,cluster,-,-,0,0,0,NOEVID,,
 effect_trails_update_all,004879a0,tier2,hs_sweep,EQUAL,380,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 effect_trails_render_all,00487a90,cluster,cluster_sweep,EQUAL,134,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
 effect_slot_alloc,00487be0,tier2,weak_tweak,EQUAL,1200,0.80,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
-effect_trail_add_point,00487c60,tier2,hs_sweep,EQUAL,2129,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
+effect_trail_add_point,00487c60,tier2,hs_sweep,EQUAL,2129,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
 triangle_normal_cross,00487ee0,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
 vector_normalize_copy,00487f80,tier2,hs_sweep,EQUAL,439,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 plane_classify_point,00487fd0,tier2,hs_sweep,EQUAL,2132,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never

@@ -66,7 +66,7 @@ void course_warzone_cb0(struct CourseWorld *course)
     handle = func_0x0045d750(course->clumps[17],0x10);
     *src = handle;
     src = src + 1;
-  } while ((int)src < (int)&g_course_warzone_8bf060 + 0x20);
+  } while ((LONG_PTR)src < (LONG_PTR)&g_course_warzone_8bf060 + 0x20);
   g_course_warzone_8bf044 = func_0x0045d6b0(course->mts_matrix_counts[4],COURSE_MTS_LIST(course, 4));
   func_0x0045dc10(course);
   v.pos_x = ((RwMatrix *)course->mts_matrices)->pos.x;

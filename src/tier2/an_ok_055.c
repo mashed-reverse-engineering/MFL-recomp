@@ -507,20 +507,20 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
     work_vec.y = half_width * side_vec[1] + work_vec.y;
     work_vec.z = half_width * side_vec[2] + work_vec.z;
     *(float *)((char *)&g_gfx_6c5e20 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES + slot_offset) = work_vec.x;
-    *(float *)(slot_offset + (int)&g_gfx_6c5e20 + 4 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = work_vec.y;
-    *(float *)(slot_offset + (int)&g_gfx_6c5e20 + 8 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = work_vec.z;
+    *(float *)(slot_offset + (char *)&g_gfx_6c5e20 + 4 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = work_vec.y;
+    *(float *)(slot_offset + (char *)&g_gfx_6c5e20 + 8 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = work_vec.z;
     *(undefined4 *)((char *)&g_shockwave_load_6c5e3c + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES + slot_offset) = 0;
-    *(float *)(slot_offset + (int)&g_shockwave_load_6c5e3c + 4 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) =
+    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 4 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) =
          (float)(int)(&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE];
     width = -width;
     /* half_width is reused here for side_vec.y */
     half_width = side_vec[1];
     dir_z = side_vec[2];
-    *(float *)(slot_offset + (int)&g_shockwave_load_6c5e3c + 8 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * *side_vec + work_vec.x;
-    *(float *)(slot_offset + (int)&g_shockwave_load_6c5e3c + 12 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * half_width + work_vec.y;
-    *(float *)(slot_offset + (int)&g_shockwave_load_6c5e3c + 16 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * dir_z + work_vec.z;
-    *(undefined4 *)(slot_offset + (int)&g_shockwave_load_6c5e3c + 36 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = 0x3f800000;
-    *(float *)(slot_offset + (int)&g_shockwave_load_6c5e3c + 40 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) =
+    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 8 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * *side_vec + work_vec.x;
+    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 12 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * half_width + work_vec.y;
+    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 16 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * dir_z + work_vec.z;
+    *(undefined4 *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 36 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = 0x3f800000;
+    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 40 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) =
          (float)(int)(&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE];
     (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] = (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] + 1;
     return slot_id;

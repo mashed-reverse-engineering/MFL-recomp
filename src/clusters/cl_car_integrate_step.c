@@ -83,7 +83,11 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
         axis_value = t * axis_value;
       }
       if (axis_value != k_f_0) {
-        t = axis_value * dt * g_car_handling_param_b8 * scale * k_f_1_0en4 * k_f_3_3333333en4;
+        t = axis_value * dt;      /* one product per statement: cl shares dt * b8 between the two chains */
+        t = t * g_car_handling_param_b8;
+        t = t * scale;
+        t = t * k_f_1_0en4;
+        t = t * k_f_3_3333333en4;
         vx = fr.dir.x * t;
         vy = fr.dir.y * t;
         vz = fr.dir.z * t;
@@ -97,7 +101,11 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
         axis_value = t * axis_value;
       }
       if (axis_value != k_f_0) {
-        t = axis_value * dt * g_car_handling_param_b8 * scale * k_f_1_0en4 * k_f_3_3333333en4;
+        t = axis_value * dt;      /* one product per statement: cl shares dt * b8 between the two chains */
+        t = t * g_car_handling_param_b8;
+        t = t * scale;
+        t = t * k_f_1_0en4;
+        t = t * k_f_3_3333333en4;
         scale = -t;
         fr.tmp[1] = scale * fr.dir.y;
         fr.tmp[2] = scale * fr.dir.z;
@@ -132,7 +140,9 @@ void car_integrate_step_n(Car *car, float *old_m, float *new_m, float dt, unsign
   }
   phase = race_get_phase();
   if ((phase == 7) && (car->active == 1)) {
-    f = (dt + dt) * k_f_3_3333333en4 * car->speed * k_f_5_0en4;
+    f = (dt + dt) * k_f_3_3333333en4;      /* one product per statement */
+    f = f * car->speed;
+    f = f * k_f_5_0en4;
     vy = fr.dir.y * f;
     vz = fr.dir.z * f;
     vx = fr.dir.x * f;

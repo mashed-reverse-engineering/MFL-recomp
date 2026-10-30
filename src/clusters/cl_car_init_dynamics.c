@@ -265,7 +265,10 @@ int car_init_dynamics(unsigned int index)
       t1 = t1 * car->wheels[1].pos_length;
       t0 = t0 * car->wheels[0].pos_length;
       t3 = t3 * car->wheels[3].pos_length;
-      inertia = float_barrier(t2 + t1 + t0 + t3);
+      t2 = t2 + t1;      /* summed in the original order T2, T1, T0, T3 */
+      t2 = t2 + t0;
+      t2 = t2 + t3;
+      inertia = float_barrier(t2);
     }
     car->inertia_sum = inertia;
     car->inertia_inverse = 1.0f / inertia;
