@@ -1145,7 +1145,7 @@ dinput_release_object_004a4710,004a4710,tier1,bytes,bytes-reloc,b0ddcef91364,33b
 distance_between_points,00484770,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 distances_update,0044bf20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 dot_product_2d_clamped,00482030,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
-dot_product_3d_clamped,00482070,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
+dot_product_3d_clamped,00482070,tier1,bytes,bytes-reloc,66edc345265c,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 draw_rect,004824a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 draw_sprite,00483130,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,bf40a6efac5f,33bf93632a05,4d76d555f9f8,200,0.88,0,1
 draw_textured_quad_uv,0045bdd0,tier2,compiled+diffemu-STALE+shadow-OK,shadow,029de3497d65,33bf93632a05,4d76d555f9f8,0,0.00,1,0
@@ -2414,7 +2414,7 @@ rwp_grid_00576f90,00576f90,tier1,bytes,bytes-reloc,3cb7803262c3,33bf93632a05,4d7
 rwp_grid_00577060,00577060,tier1,bytes,bytes-reloc,3d725c84a55f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577110,00577110,tier1,bytes,bytes-reloc,0d576b41f074,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577150,00577150,tier1,bytes,bytes-reloc,872b64fd4f65,33bf93632a05,4d76d555f9f8,0,0.00,0,0
-rwp_grid_005771f0,005771f0,tier1,bytes,bytes-reloc,f789cd3f2b2c,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+rwp_grid_005771f0,005771f0,tier1,bytes,bytes-reloc,43393c124cd3,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_005772c0,005772c0,tier1,bytes,bytes-reloc,95536e3235db,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577350,00577350,tier1,bytes,bytes-reloc,1ffbf27244d2,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577c80,00577c80,tier1,bytes,bytes-reloc,ff1ce50c08a9,33bf93632a05,4d76d555f9f8,0,0.00,0,0

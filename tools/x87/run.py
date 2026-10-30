@@ -23,6 +23,7 @@ def main():
         return d
     work = opt("--work", "x87work"); flags = opt("--flags", "/O2 /G5").split(); lo = int(opt("--min", "10")); hi = int(opt("--max", "49")); maxsize = int(opt("--maxsize", "100000"))
     os.makedirs(work, exist_ok=True)
+    import shutil; shutil.copy(os.path.join(HERE, "..", "..", "src", "mfl_tier2.h"), work)      # T-X91: the macro variants include it
     cands = [c for c in candidates(lo, hi) if c[2] <= maxsize]
     if a: cands = [c for c in cands if "%08x" % c[0] in [x.lower().zfill(8) for x in a]]
     rows = []
@@ -45,6 +46,12 @@ def main():
                     ok2, det2 = cmpfn.check(fp2, [(name, va)], flags)[name]
                     if ok2: src = src2; break
             L.READDR = 0
+            if src.count("\n") and os.environ.get("X87_MACROS", "1") == "1":      # T-X91 (RWP-X28): SDK vector macros variant; kept when cl says byte identical
+                import macros as M
+                src4 = M.macroize(src)
+                if src4 != src:
+                    fp4 = os.path.join(work, name + ".m.c"); open(fp4, "w").write(src4)
+                    if cmpfn.check(fp4, [(name, va)], flags)[name][0]: src = src4
         except L.Unsupported as e: rows.append((name, "%08x" % va, sz, x, "UNSUPPORTED", str(e))); print(rows[-1], flush=True); continue
         except Exception as e: rows.append((name, "%08x" % va, sz, x, "CRASH", repr(e))); print(rows[-1], flush=True); continue
         fp = os.path.join(work, name + ".c"); open(fp, "w").write(src)

@@ -10,13 +10,15 @@ R = os.path.join(HERE, "..", "..", "src")
 def main():
     a = sys.argv[1:]; dry = "--dry" in a
     if dry: a.remove("--dry")
+    o2 = "--O2" in a      # T-X91: game code (no /G5 marker, flags /O2)
+    if o2: a.remove("--O2")
     src, name, va = a[0], a[1], int(a[2], 16)
     txt = open(src).read()
-    if "compile: /G5" not in txt: txt = "/* compile: /G5 */\n" + txt
+    if "compile: /G5" not in txt and not o2: txt = "/* compile: /G5 */\n" + txt
     tmp = tempfile.mkdtemp(prefix="x87i_"); fp = os.path.join(tmp, name + ".c"); open(fp, "w").write(txt)
     for h in os.listdir(R):      # T-X90: headers (mfl_tier2.h) for files that include them
         if h.endswith(".h"): shutil.copy(os.path.join(R, h), os.path.join(tmp, h))
-    ok, det = cmpfn.check(fp, [(name, va)], ["/O2", "/G5"])[name]
+    ok, det = cmpfn.check(fp, [(name, va)], ["/O2"] if o2 else ["/O2", "/G5"])[name]
     if not ok: print("SKIP %s: %s" % (name, det[:100])); shutil.rmtree(tmp); return 1
     print("OK   %s %s" % (name, det))
     if dry: shutil.rmtree(tmp); return 0

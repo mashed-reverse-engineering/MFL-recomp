@@ -88,6 +88,8 @@ typedef struct RwV3d { float x, y, z; } RwV3d;
 #define RwV3dSubMacro(o, a, b) do { (o)->x = (((a)->x) - ( (b)->x)); (o)->y = (((a)->y) - ( (b)->y)); (o)->z = (((a)->z) - ( (b)->z)); } while (0)
 #define RwV3dAddMacro(o, a, b) do { (o)->x = (((a)->x) + ( (b)->x)); (o)->y = (((a)->y) + ( (b)->y)); (o)->z = (((a)->z) + ( (b)->z)); } while (0)
 #define RwV3dScaleMacro(o, a, s) do { (o)->x = (((a)->x) * ( (s))); (o)->y = (((a)->y) * ( (s))); (o)->z = (((a)->z) * ( (s))); } while (0)
+#define RwV3dIncrementScaledMacro(o, a, s) do { (o)->x += (((a)->x) * ( (s))); (o)->y += (((a)->y) * ( (s))); (o)->z += (((a)->z) * ( (s))); } while (0)
+#define RwV3dNegateMacro(o, a) do { (o)->x = -(a)->x; (o)->y = -(a)->y; (o)->z = -(a)->z; } while (0)
 #define RwV3dDotProductMacro(a, b) ((((( (((a)->x) * ((b)->x))) + ( (((a)->y) * ((b)->y))))) + ( (((a)->z) * ((b)->z)))))
 #define RwV3dCrossProductMacro(o, a, b) do { \
     (o)->x = (( (((a)->y) * ( (b)->z))) - ( (((a)->z) * ( (b)->y)))); \

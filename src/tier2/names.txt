@@ -113,7 +113,6 @@
 00464940 powerups_render hk_082.c
 00467ef0 shadow_project_to_ground hk_085.c
 0047fb10 load_ingame_font hk_086.c
-00482070 dot_product_3d_clamped hk_087.c
 004821a0 vec3_is_valid_small hk_088.c
 00484770 distance_between_points hk_090.c
 0049b910 particle_batch_set_uv_a hk_094.c

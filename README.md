@@ -18,18 +18,18 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 |---|---:|:---|
 | Named | 2,696 | `███████████████████░` 96% |
 | Replaced by recompiled C (all tiers, each function once) | 2,732 | `████████████████████` 98% |
-| ...verified byte identical | 1,385 | `██████████░░░░░░░░░░` 50% |
-| ...share of the code bytes that is byte identical | 92,353 B | `███░░░░░░░░░░░░░░░░░` 13% |
-| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,184 | `████████░░░░░░░░░░░░` 42% |
-| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 163 | `█░░░░░░░░░░░░░░░░░░░` 6% |
+| ...verified byte identical | 1,386 | `██████████░░░░░░░░░░` 50% |
+| ...share of the code bytes that is byte identical | 92,425 B | `███░░░░░░░░░░░░░░░░░` 14% |
+| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,182 | `████████░░░░░░░░░░░░` 42% |
+| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 677,596 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 675 | `█████░░░░░░░░░░░░░░░` 24% |
 | **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,971 | `█████████████████████` 106% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,623 | `████████████░░░░░░░░` 58% |
-| ...tier 1, `src/tier1` (1637 files) | 1,275 | `█████████░░░░░░░░░░░` 46% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,624 | `████████████░░░░░░░░` 58% |
+| ...tier 1, `src/tier1` (1638 files) | 1,276 | `█████████░░░░░░░░░░░` 46% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (814 files) | 721 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...tier 2, `src/tier2` (813 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
 | ...clusters, `src/clusters` (639 files) | 676 | `█████░░░░░░░░░░░░░░░` 24% |
 | ...plus linked library code (VA >= 0x4B0000), not in the percentages | 508 | |
 | ...functions present in two kinds (counted once above) | 87 | |
@@ -49,8 +49,8 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | bridge | 4 | 1,643 | 0 |
 | cluster (not in ledger) | 587 | 334,102 | 0 |
 | hand | 381 | 14,744 | 344 |
-| tier1 | 932 | 71,245 | 932 |
-| tier2 | 719 | 247,416 | 0 |
+| tier1 | 933 | 71,317 | 933 |
+| tier2 | 718 | 247,344 | 0 |
 
 </details>
 <!-- progress:end -->
