@@ -384,7 +384,7 @@ extern double ai_get_float_8c9980(void);
    the grid entry is reset to AI_EMPTY so the tile can be reused. Returns 1 when the
    position is inside the grid (also when it has no tile), 0 when it is outside. */
 
-/* TIER2: unvalidated 2026-10-17 authority=diffemu */
+/* TIER2: unvalidated 2026-10-30 authority=static */
 undefined4 __cdecl ai_erase_cell(uint world_x,uint world_z)
 {
   short tile_index;

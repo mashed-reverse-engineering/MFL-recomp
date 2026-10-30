@@ -13,7 +13,7 @@ semantics-preserving in general (hoisting a load across a store): a byte-identic
   tmp_float_double / int_cast: the generic float_double of bytematch_permute covers the temp type"""
 import re
 
-DECL = re.compile(r"^  (float|double|int)( \*?)(\w+);$")
+DECL = re.compile(r"^  (float|double|int)( \*?)(\w+)(\[\d+\])?;$")
 def _split(t):
     """(head, decl lines, body lines, tail): declarations are the 2-space lines right after `{`"""
     L = t.split("\n"); i = next((k for k, l in enumerate(L) if l.strip() == "{"), None)
@@ -198,7 +198,62 @@ def m_ternary(t):
         out.append(t[:m.start()] + "%sif (%s) {\n%s  %s = %s;\n%s} else {\n%s  %s = %s;\n%s}" % (p_, m.group(3), p_, m.group(2), m.group(4), p_, p_, m.group(2), m.group(5), p_) + t[m.end():])
     return out
 
-MUTATORS = {"ternary": m_ternary, "temp_order": m_temp_order, "temp_decl": m_temp_decl, "hoist": m_hoist, "unhoist": m_unhoist, "split": m_split, "ptr_split": m_ptr_split,
+ARRDECL = re.compile(r"^  (float|int) (\w+)\[(\d+)\];$")
+def m_arr_size(t):
+    """RWP-X1/X8: the frame size follows the memory-resident float array / the address-taken out buffer: `float fv[n];` and `float f12[3];` grow / shrink by 1 or 2 elements (indices stay valid)"""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []
+    for i, l in enumerate(d):
+        m = ARRDECL.match(l)
+        if not m: continue
+        n = int(m.group(3)); used = [int(x) for x in re.findall(r"\b%s\[(\d+)\]" % re.escape(m.group(2)), "\n".join(b))] or [0]
+        for k in (n - 2, n - 1, n + 1, n + 2):
+            if k >= 1 and k > max(used) and k != n:
+                nd = list(d); nd[i] = "  %s %s[%d];" % (m.group(1), m.group(2), k); out.append("\n".join(h + nd + b + tl))
+    return out
+
+def m_decl_order(t):
+    """swap two adjacent local declarations of any type (stack slot order: fv array, spilled int, out buffer ...)"""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []
+    for i in range(len(d) - 1):
+        if d[i].strip() and d[i + 1].strip() and d[i] != d[i + 1]:
+            nd = list(d); nd[i], nd[i + 1] = nd[i + 1], nd[i]; out.append("\n".join(h + nd + b + tl))
+    return out
+
+def m_decl_sink(t):
+    """move one declaration to the front / back of the declaration block"""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []; ds = [k for k, l in enumerate(d) if l.strip()]
+    for k in ds:
+        for pos in (ds[0], ds[-1]):
+            if pos != k:
+                nd = list(d); x = nd.pop(k); nd.insert(pos, x); out.append("\n".join(h + nd + b + tl))
+    return out
+
+def m_param_copy(t):
+    """RWP-X8: a parameter copied into a local (`q = a2;`) at the top changes the register / operand choices of the x87 sums (rwp_aggregate_005895c0); and the reverse"""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []
+    sig = "\n".join(h)
+    for m in re.finditer(r"\b(float \*|int )(a\d+)\b", sig):
+        ty, p = m.group(1), m.group(2)
+        if sum(len(re.findall(r"\b%s\b" % p, l)) for l in b) < 2: continue
+        n = 1 + max([int(x) for x in re.findall(r"\bq(\d+)\b", t)] or [0])
+        nb = [re.sub(r"\b%s\b" % p, "q%d" % n, l) for l in b]
+        out.append("\n".join(h + d + ["  %sq%d;" % (ty, n)] + ["  q%d = %s;" % (n, p)] + nb + tl))
+    for i, l in enumerate(b):
+        m = re.match(r"^  (q\d+) = (a\d+);$", l)
+        if m:
+            nb = [re.sub(r"\b%s\b" % m.group(1), m.group(2), x) for j, x in enumerate(b) if j != i]
+            out.append("\n".join(h + [x for x in d if not re.match(r"^  (float \*|int )%s;$" % m.group(1), x)] + nb + tl))
+    return out
+
+MUTATORS = {"arr_size": m_arr_size, "decl_order": m_decl_order, "decl_sink": m_decl_sink, "param_copy": m_param_copy, "ternary": m_ternary, "temp_order": m_temp_order, "temp_decl": m_temp_decl, "hoist": m_hoist, "unhoist": m_unhoist, "split": m_split, "ptr_split": m_ptr_split,
             "ptr_merge": m_ptr_merge, "cache_expr": m_cache_expr, "uncache_expr": m_uncache_expr}
 
 def names(src_dir):

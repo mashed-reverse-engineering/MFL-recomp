@@ -75,7 +75,7 @@ class Lifter:
         s.va = va; s.name = name or symbols().get(va, "FUN_%08x" % va)
         s.ins = dis(va, size); s.idx = {a: i for i, (a, *_r) in enumerate(s.ins)}
         s.args = {}; s.slots = {}; s.stmts = []; s.seq = 0; s.ptrs = []; s.tmps = []; s.regargs = {}
-        s.retf = False; s.reti = False; s.callee = {}; s.stdcall = 0; s.alias = {}; s.floatcalls = set(); s.entry_push = set(); s.lastcall = None; s.midsub = False
+        s.blocks = set(); s.retf = False; s.reti = False; s.callee = {}; s.stdcall = 0; s.alias = {}; s.floatcalls = set(); s.entry_push = set(); s.lastcall = None; s.midsub = False
         s.st = State(); s.pstates = []
 
     # ---------------------------------------------------------------- helpers
@@ -389,7 +389,9 @@ class Lifter:
         m = a.fork()
         for k, (x, y) in enumerate(zip(a.fp, b.fp)):
             if x is not y:
-                if cond is None: raise Unsupported("x87 stack differs at join")
+                if cond is None and thenb is None: raise Unsupported("x87 stack differs at join")
+                if cond is None:
+                    v = s.tmp("f"); thenb.append(("fassign", v, x)); elseb.append(("fassign", v, y)); jn = N("jv", seq=0); jn.temp = True; jn.var = v; m.fp[k] = jn; continue
                 m.fp[k] = s.mk("sel", cond, x, y)
         for r in set(a.regs) | set(b.regs):
             x, y = a.regs.get(r), b.regs.get(r)
@@ -440,7 +442,7 @@ class Lifter:
                 st.pend = []; st.regs[ops[0]] = "unk"; i = nxt; continue      # stack clean-up of an argument / scratch slot
             if m == "sub" and ops[0] == "esp":
                 n = int(ops[1], 0)
-                if i < 6 and not s.args_started: s.frame = n; st.delta -= n
+                if i < 6 and not s.args_started: s.frame = n; s.frame_hi = st.delta; st.delta -= n
                 else: s.midsub = True; st.delta -= n
                 i = nxt; continue
             if m == "add" and ops[0] == "esp":
@@ -476,6 +478,35 @@ class Lifter:
                 iv = a_[1]
                 if a_[2]: iv = ("add", iv, ("imm", a_[2])) if iv is not None else ("imm", a_[2])
                 s.mark_other(iv); st.regs[ops[0]] = iv; st.regs["eax_defined"] = ops[0] == "eax" or st.regs.get("eax_defined"); i = nxt; continue
+            if m == "neg" and ops[0] in REGS and i + 2 < end and s.ins[i + 1][1] == "sbb" and s.ins[i + 2][1] == "neg":      # neg r; sbb r,r; neg r  =  (r != 0)  (RWP-X9)
+                r = ops[0]; cur = s.reg(r); s.mark_other(cur); v = ("cond", ("icmp", "!=", cur, ("imm", 0)))
+                st.regs[r] = v; st.flags = ("test", v, v); st.regs["eax_defined"] = r == "eax" or st.regs.get("eax_defined"); i += 3; continue
+            if m == "sbb" and len(ops) == 2 and ops[0] == ops[1] and ops[0] in REGS:      # sbb r,r after cmp a,b = -(a <u b)
+                f = st.flags
+                if not (f and f[0] == "cmp"): raise Unsupported("sbb without cmp")
+                st.regs[ops[0]] = ("un", "neg", ("cond", ("icmp", "<u", f[1], f[2]))); st.flags = None; st.regs["eax_defined"] = ops[0] == "eax" or st.regs.get("eax_defined"); i = nxt; continue
+            if m.startswith("set") and ops[0] in SUBREG and m[3:] in ("e", "ne", "l", "le", "g", "ge", "b", "be", "a", "ae", "s", "ns"):
+                j_ = "j" + m[3:]; fall = s.jcc_fall(j_); r = SUBREG[ops[0]]
+                st.regs[r] = ("cond", ("not", fall) if fall[0] != "not" else fall[1]); st.regs["eax_defined"] = r == "eax" or st.regs.get("eax_defined"); i = nxt; continue
+            if m in ("shl", "sar", "shr") and ops[0] in REGS and ops[1] == "cl":      # shift by cl
+                r = ops[0]; cur = s.reg(r); cnt = s.reg("ecx"); s.mark_other(cur); s.mark_other(cnt)
+                st.regs[r] = ("shv", cur, cnt, m); st.flags = None; st.regs["eax_defined"] = r == "eax" or st.regs.get("eax_defined"); i = nxt; continue
+            if m == "imul" and len(ops) == 2 and ops[0] in REGS and ops[1] in REGS:
+                r = ops[0]; cur = s.reg(r); o2 = s.reg(ops[1]); s.mark_other(cur); s.mark_other(o2)
+                st.regs[r] = ("bin", "mul", cur, o2); st.flags = None; st.regs["eax_defined"] = r == "eax" or st.regs.get("eax_defined"); i = nxt; continue
+            if m in ("movs", "rep") and (m == "movs" or o.startswith("movs")) and "DWORD" in o:      # struct copy (RWP-X9)
+                cnt = 1
+                if m == "rep":
+                    c_ = st.regs.get("ecx")
+                    if not (isinstance(c_, tuple) and c_[0] == "imm"): raise Unsupported("rep movs count")
+                    cnt = c_[1]
+                src, dst = s.reg("esi"), s.reg("edi")
+                if any(x[0] == "var" and x[1].name.startswith("in_") for x in (src, dst)): raise Unsupported("struct copy through an unknown register (by-value argument)")
+                s.mark_other(src); s.mark_other(dst)
+                s.flush(); s.emit(("copy", dst, src, cnt)); s.blocks.add(cnt)
+                st.regs["esi"] = ("add", src, ("imm", 4 * cnt)); st.regs["edi"] = ("add", dst, ("imm", 4 * cnt))
+                if m == "rep": st.regs["ecx"] = ("imm", 0)
+                i = nxt; continue
             if m in ("add", "sub", "shl", "imul", "inc", "dec", "and", "or") and ops[0] in REGS:
                 r = ops[0]
                 if m == "and" and r in ("eax", "ax") and st.axf is not None and re.fullmatch(r"0x[0-9a-f]+", ops[1]) and int(ops[1], 16) in (0x100, 0x400, 0x4000, 0x4100, 0x4500, 0x500, 0x4400):
@@ -495,7 +526,7 @@ class Lifter:
                     else: new = (m if m != "add" else "add", cur, s.iv_of(ops[1]))
                 s.mark_other(cur);
                 if new[0] in ("and", "or"): new = ("bin", m, cur, new[2])
-                st.regs[r] = new; st.regs["eax_defined"] = r == "eax" or st.regs.get("eax_defined"); st.flags = None; i = nxt; continue
+                st.regs[r] = new; st.regs["eax_defined"] = r == "eax" or st.regs.get("eax_defined"); st.flags = ("test", new, new) if m in ("and", "or") else None; i = nxt; continue
             if m == "cmp" or m == "test":
                 if "PTR" in ops[0]: a1 = s.load_int(s.parse_mem(ops[0]), 4)
                 elif ops[0] == "ah": st.flags = ("ah", int(ops[1], 0)) if m == "test" else None; i = nxt; continue
@@ -508,7 +539,8 @@ class Lifter:
             if m in ("sar", "shr") and ops[0] in REGS and re.fullmatch(r"0x[0-9a-f]+|\d+", ops[1]):
                 st.regs[ops[0]] = ("shr", s.reg(ops[0]), int(ops[1], 0), m == "sar"); st.flags = None; i = nxt; continue
             if m in ("neg", "not") and ops[0] in REGS:
-                st.regs[ops[0]] = ("un", m, s.reg(ops[0])); st.flags = None; i = nxt; continue
+                cur = s.reg(ops[0])
+                st.regs[ops[0]] = cur[2] if (m == "neg" and cur[0] == "un" and cur[1] == "neg") else ("un", m, cur); st.flags = None; i = nxt; continue
             if m == "sahf": st.flags = ("sahf",); i = nxt; continue
             if m == "ret":
                 s.do_ret(s.ins[i]); i = nxt; continue
@@ -543,14 +575,12 @@ class Lifter:
                     s.run(nxt, ti - 1, thenb); sT = s.st; s.st = st0.fork(); elseb = []; s.run(ti, u, elseb); sE = s.st
                     s.emit(("if", cond, thenb, elseb)); pos = len(s.out) - 1
                     s.merge(sT, sE, cond, thenb, elseb)
-                    if not thenb and not elseb: del s.out[pos]
                     i = u; continue
                 if ti > end:
                     s.emit(("goto_if", ("not", cond), t)); s.pending.setdefault(t, []).append(s.st.fork()); i = nxt; continue
                 s.run(nxt, ti, thenb); sT = s.st; s.st = st0.fork()
                 elseb = []; s.emit(("if", cond, thenb, elseb)); pos = len(s.out) - 1
                 s.merge(sT, s.st, None, thenb, elseb)
-                if not thenb and not elseb: del s.out[pos]
                 i = ti; continue
             raise Unsupported("insn %s %s" % (m, o))
         return i
@@ -617,6 +647,7 @@ class Lifter:
             if m.startswith("j") and re.fullmatch(r"0x[0-9a-f]+", o) and int(o, 16) <= a and int(o, 16) in s.idx: s.loops[int(o, 16)] = max(s.loops.get(int(o, 16), 0), k)
         try: s.run(0, len(s.ins), s.stmts)
         except Unsupported as e: raise Unsupported("%s @%x" % (e, getattr(s, "cur", 0)))
+        except (ValueError, KeyError, IndexError) as e: raise Unsupported("operand form %r @%x" % (e, getattr(s, "cur", 0)))
         return s.render()
 
     # ---------------------------------------------------------------- rendering
@@ -634,8 +665,13 @@ class Lifter:
         if k == "un": return {"neg": "-", "not": "~"}[v[1]] + s.iv(v[2], False)
         if k == "shl": return ("%s << %d" % (s.iv(v[1], False), v[2])) if top else "(%s << %d)" % (s.iv(v[1], False), v[2])
         if k == "mul": return ("%s * %d" % (s.iv(v[1], False), v[2])) if top else "(%s * %d)" % (s.iv(v[1], False), v[2])
-        if k == "bin": return "%s %s %s" % (s.iv(v[2], False), {"and": "&", "or": "|"}[v[1]], s.iv(v[3], False))
+        if k == "bin": return "%s %s %s" % (s.iv(v[2], False), {"and": "&", "or": "|", "mul": "*"}[v[1]], s.iv(v[3], False))
         if k == "ld": return s.load_txt(v[1], v[2], v[3])
+        if k == "cond":
+            c = v[1]
+            if c[0] == "icmp" and c[1] in ("==", "!=") and c[3] == ("imm", 0): return "(%s %s 0)" % (s.iv(c[2], False), c[1])
+            return "(%s)" % s.cond_txt(c)
+        if k == "shv": return "(%s %s %s)" % (s.iv(v[1], False), {"shl": "<<", "sar": ">>", "shr": ">>"}[v[3]], s.iv(v[2], False))
         if k == "ftol": return "(int)" + s.fx(v[1], True)
         raise Unsupported("render iv %s" % (k,))
     def vname(s, v):
@@ -741,12 +777,16 @@ class Lifter:
                 if st[1] is None: out.append(pad + "return;")
                 elif st[1] == "f": out.append("%sreturn %s;" % (pad, s.fx(st[2])))
                 else: out.append("%sreturn %s;" % (pad, s.iv(st[2])))
+            elif k == "copy":
+                _, dst, src, cnt = st; out.append("%s*(Blk%d *)(%s) = *(Blk%d *)(%s);" % (pad, cnt, s.iv(dst, False), cnt, s.iv(src, False)))
+            elif k == "fassign": out.append("%s%s = %s;" % (pad, st[1].name, s.fx(st[2])))
             elif k == "label": out.append("%sL_%x:;" % ("  " * max(ind - 1, 0), st[1]))
             elif k == "goto": out.append("%sgoto L_%x;" % (pad, st[1]))
             elif k == "goto_if": out.append("%sif (%s) goto L_%x;" % (pad, s.cond_txt(st[1]), st[2]))
             elif k == "dowhile":
                 out.append(pad + "do {"); out += s.lines(st[1], ind + 1); out.append("%s} while (%s);" % (pad, s.cond_txt(st[2])))
             elif k == "if":
+                if not st[2] and not st[3]: continue      # arms filled lazily by phi declarations: an if that stayed empty is dropped at render time
                 out.append("%sif (%s) {" % (pad, s.cond_txt(st[1]))); out += s.lines(st[2], ind + 1)
                 if st[3]: out.append(pad + "} else {"); out += s.lines(st[3], ind + 1)
                 out.append(pad + "}")
@@ -762,6 +802,14 @@ class Lifter:
             for e, v in fs: v.name = "fv[%d]" % ((e - emin) // 4)
             s.fvec = n
             s.slots = {e: v for e, v in s.slots.items() if not (v.kind == "f" and not getattr(v, "addr_taken", False))}
+        # RWP-X8: an address-taken frame slot is an object the callee fills (a vec3 out parameter): the array spans up to the next used slot / the top of the frame
+        used = sorted(set(list(s.slots) + [e for e in s.alias if e < 0]))
+        top = getattr(s, "frame_hi", None)
+        for e in sorted(s.slots):
+            v = s.slots[e]
+            if getattr(v, "addr_taken", False) and top is not None:
+                nxt = min([x for x in used if x > e] + [top]); n = (nxt - e) // 4
+                if n > 1: v.arr = n; v.base = v.name; v.name = v.name + "[0]"
         # variable types
         decls = []
         body = s.lines(s.stmts, 1)
@@ -771,7 +819,9 @@ class Lifter:
             return "float*" if v.isf() else "int"
         locs = []
         for v in s.ptrs: locs.append("  %s %s;" % (vt(v), v.name) if not vt(v).endswith("*") else "  %s%s;" % (vt(v)[:-1] + " *", v.name))
-        for e in sorted(s.slots, reverse=True): v = s.slots[e]; locs.append("  %s %s;" % ("float" if v.kind == "f" else "int", v.name))
+        for e in sorted(s.slots, reverse=True):
+            v = s.slots[e]; ty = "float" if v.kind == "f" else "int"
+            locs.append("  %s %s[%d];" % (ty, v.base, v.arr) if getattr(v, "arr", 0) else "  %s %s;" % (ty, v.name))
         for e in sorted(s.alias): v = s.alias[e]; locs.append("  %s %s;" % ("float" if v.kind == "f" else "int", v.name))
         # float temps in creation order
         for v in s.tmps: locs.append("  float %s;" % v.name)
@@ -786,6 +836,7 @@ class Lifter:
         ext = ["/*%08x*/ extern %s %s();" % (s.callee[c], "float" if c in s.floatcalls else "int", c) for c in sorted(s.callee)]
         hdr = "/* %s: lifted from the original code (tools/x87/lift.py) */\n" % s.name + "%s %s%s(%s)" % (rt, cc, s.name, ", ".join(params) or "void")
         body, locs = inline_single_use(body, locs)
+        ext = ["typedef struct { int d[%d]; } Blk%d;" % (n, n) for n in sorted(s.blocks)] + ext
         return "\n".join(["#include <math.h>"] + ext + [hdr, "{"] + locs + [""] * bool(locs) + body + ["}", ""])
 
 def inline_single_use(body, locs):

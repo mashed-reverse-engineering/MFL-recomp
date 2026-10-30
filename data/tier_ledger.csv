@@ -151,12 +151,10 @@ FUN_0056e250,0056e250,tier1,bytes,bytes-reloc,e032773f6dc4,33bf93632a05,4d76d555
 FUN_0056e400,0056e400,tier1,bytes,bytes-reloc,a33c34ebf6ed,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 FUN_0056e640,0056e640,tier1,bytes,bytes-reloc,f6951e2c1141,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 FUN_0056e7c0,0056e7c0,tier1,bytes,bytes-reloc,30eaffe26ed4,33bf93632a05,4d76d555f9f8,0,0.00,0,0
-FUN_0056f080,0056f080,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 FUN_0056f0d0,0056f0d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 FUN_0056f3a0,0056f3a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 FUN_0056f450,0056f450,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 FUN_0056f500,0056f500,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
-FUN_0056f900,0056f900,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 FUN_0056fe40,0056fe40,tier1,bytes,bytes-reloc,24f8ba8fb4e2,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 FUN_00570e80,00570e80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 FUN_00571810,00571810,tier1,bytes,bytes-reloc,be29bc94110b,33bf93632a05,4d76d555f9f8,0,0.00,0,0
@@ -2386,6 +2384,7 @@ rwp_batch_0057c080,0057c080,tier1,bytes,bytes-reloc,aa2ea45661af,33bf93632a05,4d
 rwp_batch_0057c0e0,0057c0e0,tier1,bytes,bytes-reloc,d192138b52a6,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057c1e0,0057c1e0,tier1,bytes,bytes-reloc,f1ef8cf65b1a,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057d640,0057d640,tier1,bytes,bytes-reloc,e0cf484efd81,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+rwp_batch_0057da00,0057da00,tier1,bytes,bytes-reloc,39fcbb3b9c2d,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057f5e0,0057f5e0,tier1,bytes,bytes-reloc,ae53ee75f708,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057f670,0057f670,tier1,bytes,bytes-reloc,cd6aab412934,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057f6d0,0057f6d0,tier1,bytes,bytes-reloc,2f27a12459c8,33bf93632a05,4d76d555f9f8,0,0.00,0,0
@@ -2407,7 +2406,9 @@ rwp_grid_00576f90,00576f90,tier1,bytes,bytes-reloc,3cb7803262c3,33bf93632a05,4d7
 rwp_grid_00577060,00577060,tier1,bytes,bytes-reloc,3d725c84a55f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577110,00577110,tier1,bytes,bytes-reloc,0d576b41f074,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577c80,00577c80,tier1,bytes,bytes-reloc,ff1ce50c08a9,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+rwp_math_0056f080,0056f080,tier1,bytes,bytes-reloc,c1d9fa8e3e3d,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_math_0056f180,0056f180,tier1,bytes,bytes-reloc,487b2f82967f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+rwp_math_0056f900,0056f900,tier1,bytes,bytes-reloc,27a198975794,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_mgr_0056a120,0056a120,tier1,bytes,bytes-reloc,9199eeee83bc,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_obj_0056e280,0056e280,tier1,bytes,bytes-reloc,0c490d85a8e2,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_obj_0056e340,0056e340,tier1,bytes,bytes-reloc,b964c0d39b51,33bf93632a05,4d76d555f9f8,0,0.00,0,0

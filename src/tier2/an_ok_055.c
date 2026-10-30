@@ -448,7 +448,7 @@ int effect_slot_alloc(void)
    strip vertices (NULL uses the default g_gfx_6294a8). width: strip width, half of it on each side of the point.
    max_dist: the point is refused when it is further than this from the previous one. Returns slot_id on success,
    0 when the slot is not in use, the trail is full or the point is too far (inferred). */
-/* TIER2: validated 2026-10-18 authority=diffemu */
+/* TIER2: unvalidated 2026-10-30 authority=static */
 int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,float max_dist)
 {
   int slot_index;
