@@ -324,9 +324,44 @@ def m_double_one(t):
                 out.append("\n".join(h + d + nb.split("\n") + tl))
     return out
 
+def _chain(e):
+    """split the top-level `a + b - c` chain of an expression into (terms, ops); terms keep their own parentheses"""
+    terms, ops, d, cur, i = [], [], 0, "", 0
+    while i < len(e):
+        c = e[i]
+        if c in "([": d += 1
+        elif c in ")]": d -= 1
+        if d == 0 and e[i:i + 3] in (" + ", " - "): terms.append(cur); ops.append(e[i + 1]); cur = ""; i += 3; continue
+        cur += c; i += 1
+    terms.append(cur)
+    return terms, ops
+
+def m_paren(t):
+    """T-X89 (RWP-X12): cl reorders the operands of a FLAT sum chain (`y*y + x*x + z*z` comes out z, y, x) but evaluates an explicitly parenthesised left pair in source order:
+    `(y*y + x*x) + z*z` is y, x, z.  Variants: first pair in parentheses (rest flat), first k terms nested, and the reverse (drop parentheses of a left chain)."""
+    out = []; L = t.split("\n")
+    for i, l in enumerate(L):
+        m = re.match(r"^(\s*(?:\w[\w\[\]\.>-]* = |return |if \())(.*?)(\)? \{|;)$", l)
+        if not m or "(float)" in m.group(2) and False: continue
+        terms, ops = _chain(m.group(2))
+        if len(terms) < 3: continue
+        def build(k, nest):
+            if nest:
+                s = terms[0]
+                for j in range(1, k): s = "(%s %s %s)" % (s, ops[j - 1], terms[j]) if j > 1 or True else s
+                head = s
+            else: head = "(%s %s %s)" % (terms[0], ops[0], terms[1]); k = 2
+            return head + "".join(" %s %s" % (ops[j - 1], terms[j]) for j in range(k, len(terms)))
+        for k, nest in [(2, False)] + [(k, True) for k in range(3, len(terms))]:
+            nl = list(L); nl[i] = m.group(1) + build(k, nest) + m.group(3); out.append("\n".join(nl))
+        # drop one level of parentheses of a leading `(a + b)` term
+        if re.fullmatch(r"\([^()]*\)", terms[0]) and ops[0] == "+":
+            nl = list(L); nl[i] = m.group(1) + terms[0][1:-1] + "".join(" %s %s" % (o, x) for o, x in zip(ops, terms[1:])) + m.group(3); out.append("\n".join(nl))
+    return out
+
 def m_pair(t):
     """T-X89: two moves at once (the single-site hill climb never reaches pairs such as split + (float) cast, param_copy + ptr_split): every ordered pair of different pair-moves, capped"""
-    mv = [m_split, m_double_one, m_param_copy, m_temps_double, m_temp_reuse, m_ptr_split, m_temp_order, m_decl_order, m_ternary]
+    mv = [m_paren, m_split, m_double_one, m_param_copy, m_temps_double, m_temp_reuse, m_ptr_split, m_temp_order, m_decl_order, m_ternary]
     out = []; seen = {t}
     for a in mv:
         for v1 in a(t)[:8]:
@@ -336,7 +371,7 @@ def m_pair(t):
                     if v2 not in seen: seen.add(v2); out.append(v2)
     return out[:400]
 
-MUTATORS = {"pair": m_pair, "double_one": m_double_one, "temp_reuse": m_temp_reuse, "temps_double": m_temps_double, "ret_ternary": m_ret_ternary, "arr_size": m_arr_size, "decl_order": m_decl_order, "decl_sink": m_decl_sink, "param_copy": m_param_copy, "ternary": m_ternary, "temp_order": m_temp_order, "temp_decl": m_temp_decl, "hoist": m_hoist, "unhoist": m_unhoist, "split": m_split, "ptr_split": m_ptr_split,
+MUTATORS = {"paren": m_paren, "pair": m_pair, "double_one": m_double_one, "temp_reuse": m_temp_reuse, "temps_double": m_temps_double, "ret_ternary": m_ret_ternary, "arr_size": m_arr_size, "decl_order": m_decl_order, "decl_sink": m_decl_sink, "param_copy": m_param_copy, "ternary": m_ternary, "temp_order": m_temp_order, "temp_decl": m_temp_decl, "hoist": m_hoist, "unhoist": m_unhoist, "split": m_split, "ptr_split": m_ptr_split,
             "ptr_merge": m_ptr_merge, "cache_expr": m_cache_expr, "uncache_expr": m_uncache_expr}
 
 def names(src_dir):
