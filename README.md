@@ -24,9 +24,9 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 677,596 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 675 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,971 | `█████████████████████` 106% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,624 | `████████████░░░░░░░░` 58% |
-| ...tier 1, `src/tier1` (1638 files) | 1,276 | `█████████░░░░░░░░░░░` 46% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,972 | `█████████████████████` 106% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,625 | `████████████░░░░░░░░` 58% |
+| ...tier 1, `src/tier1` (1639 files) | 1,277 | `█████████░░░░░░░░░░░` 46% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...tier 2, `src/tier2` (813 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |

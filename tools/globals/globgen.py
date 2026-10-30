@@ -193,6 +193,12 @@ def main(out):
         for l in open(ALLOW):
             p = l.split()
             if p and l[0] != "#": allow.add(int(p[0], 16))
+    # T-E6: value-only words that hold a real code address (hand classified, evidence in the file): they become `symbol + offset` pointers
+    CODEW = os.path.join(G, "src", "globals_code_words.txt")
+    if os.path.exists(CODEW):
+        for l in open(CODEW):
+            p = l.split()
+            if p and l[0] != "#": allow.add(int(p[0], 16))
     fn = []
     for l in open(os.path.join(G, "output/fnsizes.txt")):
         p = l.split()
@@ -325,6 +331,7 @@ def main(out):
         k = bisect.bisect_right(fn_starts, t) - 1
         if k >= 0 and fn[k][0] <= t < fn[k][0] + max(fn[k][1], 1) and re.fullmatch(r"[A-Za-z_]\w*", fn[k][2]): return ("ext", fn[k][2], t - fn[k][0], None)
         if t in names: return ("ext", names[t][0], 0, None)
+        if 0x401000 <= t < 0x5dc451: return ("ext", "func_0x%08x" % t, 0, None)      # T-E6: code address without a symbol (label inside a body): mkobj defines func_0x<va> at that address
         return ("raw", None, 0, None)
 
     ptrs = []             # site, symbol, link symbol, addend, original value, conf

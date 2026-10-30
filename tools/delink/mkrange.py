@@ -78,6 +78,13 @@ def blk(va):
     return i
 def bname(i): return "__rng_%08x" % runs[i][0]
 
+# ---- block order in the output section (T-E6): default = address order; LAYOUT="L1,L2,..." (names of tools/delink/layers.py LAYERS, layer-grouped, listed layers first in that
+# order, the others behind in the default order) or LAYOUT=rev (layers in reverse order of first appearance) puts whole layers behind each other, so the two-layout test can move/swap them ----
+_lay_order = [x for x in os.environ.get("LAYOUT", "").split(",") if x]
+if _lay_order == ["rev"]: _lay_order = list(reversed(list(dict.fromkeys(r[2] for r in runs if secs[r[3]]["name"] != "_rwcseg"))))
+_rank = lambda bi: (_lay_order.index(runs[bi][2]) if runs[bi][2] in _lay_order else len(_lay_order)) if _lay_order else 0
+_ord = sorted((bi for bi in range(len(runs)) if secs[runs[bi][3]]["name"] != "_rwcseg"), key=lambda bi: (_rank(bi), bi))
+POS = {bi: k for k, bi in enumerate(_ord)}
 # ---- output objects ----
 class Obj:
     def __init__(s, path): s.path, s.secs, s.sym, s.symi, s.strtab = path, [], bytearray(), {}, bytearray(4)
@@ -122,8 +129,8 @@ for bi, (lo, hi, lay, si) in enumerate(runs):
     o = obj_for(lay); osec = secs[si]
     if osec["name"] == "_rwcseg": nm, fl = "_rwcseg", osec["flags"]
     else:
-        nm = ".text$%05d" % bi; fl = (osec["flags"] & ~0x00F00000) | 0x00100000        # 1 byte alignment ...
-        if bi == 0: fl = (fl & ~0x00F00000) | 0x00D00000                               # ... except the first block, page aligned like .text
+        nm = ".text$%05d" % POS[bi]; fl = (osec["flags"] & ~0x00F00000) | 0x00100000        # 1 byte alignment ...
+        if POS[bi] == 0: fl = (fl & ~0x00F00000) | 0x00D00000                               # ... except the first block, page aligned like .text
     b0 = lo - CODE[si]
     o.secs.append(dict(name=nm, size=hi - lo, data=osec["data"][b0:hi - CODE[si]], flags=fl, rels=[]))
     bsec.append((o, len(o.secs)))

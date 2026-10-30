@@ -1,29 +1,27 @@
 /* compile: /G5 */
-/* Grows the bounding sphere s to include the point p and stores the result in out: if p lies outside, the new sphere touches the far side of s and p, otherwise s is copied. */
-typedef struct { float x, y, z; } V3;
-typedef struct { V3 c; float r; } RwpSphere;
-/*004d53a0*/ extern float RwV3dLength(V3 *v);
-RwpSphere *rwp_math_0056f0d0(RwpSphere *out, RwpSphere *s, V3 *p)
+#include "mfl_tier2.h"
+typedef struct RwpSphere { RwV3d center; float radius; } RwpSphere;
+extern float RwV3dLength();
+/* Grows the sphere in so that it contains the point p (result in out; out may be in). (Rwp library) */
+RwpSphere *rwp_math_0056f0d0(RwpSphere *out, RwpSphere *in, RwV3d *p)
 {
-  V3 d;
+  RwV3d d;
   float len;
 
-  d.x = p->x - s->c.x;
-  d.y = p->y - s->c.y;
-  d.z = p->z - s->c.z;
+  RwV3dSubMacro(&d, p, &in->center);
   len = RwV3dLength(&d);
-  if (len > s->r) {
-    out->c.x = (len - s->r) / (len + len) * d.x + s->c.x;
-    out->c.y = (len - s->r) / (len + len) * d.y + s->c.y;
-    out->c.z = (len - s->r) / (len + len) * d.z + s->c.z;
-    out->r = (len + s->r) * 0.5f;
+  if (len > in->radius) {
+    out->center.x = (len - in->radius) / (len + len) * d.x + in->center.x;
+    out->center.y = (len - in->radius) / (len + len) * d.y + in->center.y;
+    out->center.z = (len - in->radius) / (len + len) * d.z + in->center.z;
+    out->radius = (len + in->radius) * 0.5f;
     return out;
   }
-  if (out != s) {
-    out->c.x = s->c.x;
-    out->c.y = s->c.y;
-    out->c.z = s->c.z;
-    out->r = s->r;
+  if (out != in) {
+    out->center.x = in->center.x;
+    out->center.y = in->center.y;
+    out->center.z = in->center.z;
+    out->radius = in->radius;
   }
   return out;
 }

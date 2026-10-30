@@ -14,3 +14,18 @@
 00636478  16 bit table halfwords in g_libspan_00632a30 (005d0123)
 0045303c  code padding: window 00 8d 49 00 across `lea esp,[esp+0]; lea ecx,[ecx+0]` (value 00498d00), relocation removed
 005c6b0c  code padding: same lea pair (value 00498d00), relocation removed
+005ffcf0 byte stream bytes (19 11 51 00), same table
+005ffef0 byte stream bytes (1d 11 51 00), same table
+00629e4c byte mask fields of g_sector_table_629dc8 (00804000)
+0062a0d4 byte mask fields (00804080)
+0062a20c byte mask fields of g_sector_table_62a208 (00808040)
+0062a2d0 byte mask fields (00804080)
+0062a658 byte mask fields (00804000)
+0062a790 byte mask fields (00808040)
+0062a7c8 byte mask fields (00808000)
+0062c5d4 pixel bytes (78 80 88 00) before 4ee640bb
+0062d494 16 bit code point table halfwords (a2e4 a2e5 a2e8) in g_libspan_0062cca8 (005ba2e8)
+00631c6c 16 bit table halfwords in g_libspan_006312b0 (ffff 4d00 -> 004dffff)
+0063607c 16 bit table halfwords in g_libspan_00632a30 (005b011a)
+00636318 16 bit table halfwords in g_libspan_00632a30 (005bffff)
+00636a0c 16 bit table halfwords in g_libspan_00632a30 (005bffff)
