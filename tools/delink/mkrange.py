@@ -80,9 +80,11 @@ def bname(i): return "__rng_%08x" % runs[i][0]
 
 # ---- block order in the output section (T-E6): default = address order; LAYOUT="L1,L2,..." (names of tools/delink/layers.py LAYERS, layer-grouped, listed layers first in that
 # order, the others behind in the default order) or LAYOUT=rev (layers in reverse order of first appearance) puts whole layers behind each other, so the two-layout test can move/swap them ----
-_lay_order = [x for x in os.environ.get("LAYOUT", "").split(",") if x]
+_lay_order = [x for x in os.environ.get("LAYOUT", "").split(",") if x and not x.startswith("end:")]
 if _lay_order == ["rev"]: _lay_order = list(reversed(list(dict.fromkeys(r[2] for r in runs if secs[r[3]]["name"] != "_rwcseg"))))
-_rank = lambda bi: (_lay_order.index(runs[bi][2]) if runs[bi][2] in _lay_order else len(_lay_order)) if _lay_order else 0
+_END = os.environ.get("LAYOUT", "").startswith("end:")      # LAYOUT=end:L1,L2: only these layers move behind all the others (everything else keeps its address order)
+if _END: _lay_order = []; _endset = os.environ["LAYOUT"][4:].split(",")
+_rank = (lambda bi: int(runs[bi][2] in _endset)) if _END else lambda bi: (_lay_order.index(runs[bi][2]) if runs[bi][2] in _lay_order else len(_lay_order)) if _lay_order else 0
 _ord = sorted((bi for bi in range(len(runs)) if secs[runs[bi][3]]["name"] != "_rwcseg"), key=lambda bi: (_rank(bi), bi))
 POS = {bi: k for k, bi in enumerate(_ord)}
 # ---- output objects ----
