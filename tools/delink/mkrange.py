@@ -199,8 +199,10 @@ for c, base in CODE.items():       # byte scan of code outside every sized funct
     for i in range(len(b) - 6):
         k = 1 if b[i] in (0xE8, 0xE9) else 2 if b[i] == 0x0F and 0x80 <= b[i + 1] <= 0x8F else 0
         if k and not in_sized(base + i): cand.add((base + i, (base + i + k + 4 + struct.unpack_from("<i", b, i + k)[0]) & 0xFFFFFFFF))
+NONBR = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonbranch_sites.txt")) if l.strip() and not l.startswith("#")}      # byte patterns that only look like a branch
 short = []
 for site, t in sorted(cand):
+    if site in NONBR: continue
     c, off = code_at(site)
     if c is None or code_at(t)[0] is None: continue
     bs, bt = blk(site), blk(t)

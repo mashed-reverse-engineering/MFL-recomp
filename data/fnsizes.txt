@@ -1122,6 +1122,7 @@
 00452c90 course_arctic_cb4 379
 00452e10 course_dem_cb2 133
 00452ea0 course_dem_state_reset 50
+00452ee0 course_dem_update 1326
 00453410 course_dem_cb0 1326
 00453420 course_dem_cb1 89
 00453560 course_dump_cb2_sub_453560 50
@@ -1223,6 +1224,7 @@
 00457430 course_spline_objects_create 99
 004574a0 course_spline_objects_update 121
 00457520 spline_objects_reset 121
+004575a0 spline_objects_destroy 28
 004575c0 gap_4575c0 36
 004575f0 course_rouabout_cb12 34
 00457620 load_shadow_models 394

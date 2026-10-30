@@ -1,15 +1,15 @@
 {
  "clusters": {
-  "bytes": 344914,
-  "functions": 676
+  "bytes": 346268,
+  "functions": 678
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
-  "game": 2792,
-  "game_bytes": 683136,
-  "game_named": 2694,
-  "named": 5425,
-  "total": 7095
+  "game": 2794,
+  "game_bytes": 684490,
+  "game_named": 2696,
+  "named": 5427,
+  "total": 7097
  },
  "published_source": {
   "by_module": {
@@ -57,16 +57,16 @@
  "published_verified": {
   "automatch_files": 5,
   "automatch_functions": 5,
-  "cluster_files": 638,
-  "cluster_functions": 674,
+  "cluster_files": 639,
+  "cluster_functions": 676,
   "hand_functions": 381,
   "library_functions": 508,
-  "tier1_files": 1636,
-  "tier1_functions": 1274,
+  "tier1_files": 1637,
+  "tier1_functions": 1275,
   "tier2_files": 814,
   "tier2_functions": 721,
-  "unique_all_kinds": 3476,
-  "unique_functions": 2968
+  "unique_all_kinds": 3479,
+  "unique_functions": 2971
  },
  "replaced_in_pipeline": {
   "agent": {
@@ -85,9 +85,9 @@
    "verified_bytes_identical": 344
   },
   "tier1": {
-   "bytes": 96870,
-   "functions": 1641,
-   "verified_bytes_identical": 1641
+   "bytes": 97024,
+   "functions": 1642,
+   "verified_bytes_identical": 1642
   },
   "tier2": {
    "bytes": 256983,
@@ -103,17 +103,17 @@
     "INCONCLUSIVE": 1,
     "LADDER": 55,
     "LOWCOV": 19,
-    "NOEVID": 130,
+    "NOEVID": 136,
     "OVERRIDDEN_DIFF": 9,
     "STDIND": 47
    },
-   "rows": 1344,
-   "unaccounted": 1,
-   "unverified": 157,
-   "verified": 1187,
-   "verified_bytes": 545869
+   "rows": 1347,
+   "unaccounted": 0,
+   "unverified": 163,
+   "verified": 1184,
+   "verified_bytes": 547101
   },
-  "behaviour_verified": 1187,
+  "behaviour_verified": 1184,
   "by_tier": {
    "agent": {
     "bytes": 8446,
@@ -126,8 +126,8 @@
     "verified_bytes_identical": 0
    },
    "cluster (not in ledger)": {
-    "bytes": 332748,
-    "functions": 585,
+    "bytes": 334102,
+    "functions": 587,
     "verified_bytes_identical": 0
    },
    "hand": {
@@ -148,9 +148,9 @@
   },
   "byte_identical": 1385,
   "byte_identical_bytes": 92353,
-  "bytes": 676242,
-  "clusters": 673,
-  "clusters_not_in_ledger": 585,
-  "functions": 2730
+  "bytes": 677596,
+  "clusters": 675,
+  "clusters_not_in_ledger": 587,
+  "functions": 2732
  }
 }

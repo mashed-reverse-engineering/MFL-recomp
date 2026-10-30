@@ -1,0 +1,2 @@
+# site why: E8 / E9 / 0F 8x byte patterns that are not branches (mkobj --drop-app and mkrange.py ignore them)
+004b7917 last byte of `mov esp,[ebp-0x18]` (8b 65 e8) + `orl [ebp-4],-1` in the SEH handler of the init table walker at 0x4b78f0 (CRT, no sized function): reads as call 0x47c69f, the inside of car_apply_forces

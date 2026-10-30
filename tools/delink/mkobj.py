@@ -379,7 +379,8 @@ if "--drop-app" in opt:
             s_ = _tx[1] + i; j_ = bisect.bisect_right(_fs, s_) - 1
             if j_ >= 0 and s_ < _fs[j_] + fsz[_fs[j_]] and (s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF) not in brs: continue     # inside a sized function body only Ghidra's own flow refs count (else tables / immediates that look like E8 xx xx xx xx)
             brs.add((s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF))
-    brs = [(s_, t_, cand_of(t_)) for s_, t_ in sorted(brs)]; brs = [x for x in brs if x[2] is not None]
+    NONBR = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonbranch_sites.txt")) if l.strip() and not l.startswith("#")}      # byte patterns that only look like a branch
+    brs = [(s_, t_, cand_of(t_)) for s_, t_ in sorted(brs) if s_ not in NONBR]; brs = [x for x in brs if x[2] is not None]
     absr = []                  # (site, target) of DIR32 words in kept sections that point into a candidate body
     for si in range(len(secs)):
         if si in DSEC: continue

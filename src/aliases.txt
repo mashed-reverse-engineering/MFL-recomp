@@ -2939,3 +2939,6 @@ course_sandsnow_object_create 00458450
 course_sandsnow_object_render 00458490
 sky_directions_init 00449b50
 course_dump_emitters_update 00453600
+course_dem_update 00452ee0
+spline_object_destroy 004573f0
+spline_objects_destroy 004575a0

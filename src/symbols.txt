@@ -1449,6 +1449,7 @@ course_arctic_camera_relative_update 00452bc0
 course_arctic_cb4 00452c90
 course_dem_cb2 00452e10
 course_dem_state_reset 00452ea0
+SUB_00452ee0 00452ee0
 course_dem_cb0 00453410
 course_dem_cb1 00453420
 course_atomics_destroy_6a07c4 004535a0

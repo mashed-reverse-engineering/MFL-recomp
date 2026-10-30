@@ -6,7 +6,12 @@ LAYERS = ["app", "CRT", "RenderWare", "rwp", "Lua", "qhull", "zlib/PNG/TIFF", "D
 ZLIB = ("deflate", "inflate", "inftrees", "infblock", "infcodes", "inffast", "infutil", "adler32", "crc32", "trees", "zutil", "compress", "uncompr", "gzio", "tif", "fax3", "lzw", "jpeg")
 H = lambda s: int(s, 16)
 
+# 0x4ab230-0x4ac4f0 (4,800 bytes, ownership item gap_4ab230 "code"): no code, DIOBJECTDATAFORMAT tables of the DirectInput library (c_rgodfDIJoy / DIKeyboard / DIMouse style entries {guid ptr, ofs, type, flags}
+# = 300 x 16 bytes) that the linker of the game put in .text; library data, not application code
+LIBDATA_IN_TEXT = [(0x4ab230, 0x4ac4f0, "other")]
 def layer(va, owner, member):
+    for lo, hi, L in LIBDATA_IN_TEXT:
+        if lo <= va < hi: return L
     if 0x569b30 <= va < 0x58ede0: return "rwp"
     if 0x5b5eb0 <= va < 0x5d09d0: return "D3DX"
     if (0x5d2b40 <= va < 0x5dc451 or 0x4ac600 <= va < 0x4b0b70) and owner == "game": return "DirectShow"      # strmbase + the movie filters (ROADMAP l.820)

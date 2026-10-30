@@ -606,7 +606,6 @@ car_damage_smoke_spawn
 course_collision_object_build
 spline_object_init
 course_storm_cb0
-course_dem_cb0
 cup_scene_update_players
 fx_ptank_a_lock_and_fill
 vehicle_load
@@ -631,8 +630,10 @@ movie_renderer_create
 video_dialog_fill_modes
 weapon_shotgun_slots_release
 weapon_flashbang_units_release
-spline_objects_reset
 clump_set_texture
 course_sandsnow_object_create
 sky_directions_init
 course_dump_emitters_update
+course_dem_update
+course_dem_cb0
+spline_objects_reset

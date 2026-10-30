@@ -1,10 +1,11 @@
-// cluster-entries: spline_objects_reset
+// cluster-entries: spline_objects_reset spline_objects_destroy
 /* Installed cluster spline_objects_reset (tools/cluster_install.py from output/cluster_pilot_te5/spline_objects_reset.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*00457170*/ extern void __cdecl spline_object_update(void *obj, float dt);
 /*004573d0*/ extern void __cdecl spline_object_set_position(void *obj, float position);
 /*0048e720*/ extern void __cdecl rwp_object_set_matrix(void *object, RwMatrix *matrix);
 /*00492d10*/ extern void __cdecl rwp_object_set_active(void *object, int active);
+/*004573f0*/ extern void __cdecl spline_object_destroy(void *obj);
 /*004d4870*/ extern RwMatrix * __cdecl RwMatrixTranslate(RwMatrix *matrix, const RwV3d *translation, RwOpCombineType combineOp);
 
 #define SPLINE_OBJECT_COUNT 3
@@ -53,6 +54,16 @@ void spline_objects_reset(void)
     RwMatrixTranslate(&matrix, &obj->translation, rwCOMBINEPOSTCONCAT);
     rwp_object_set_matrix(obj->rwp_object, &matrix);
     rwp_object_set_active(obj->rwp_object, 0);
+  }
+}
+
+/* spline_objects_destroy: releases every spline object (called from the course teardown) */
+void spline_objects_destroy(void)
+{
+  int i;
+
+  for (i = 0; i < SPLINE_OBJECT_COUNT; i++) {
+    spline_object_destroy(g_course_spline_8c5500[i]);
   }
 }
 

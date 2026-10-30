@@ -494,7 +494,7 @@ training_mode_update,00445180,cluster,pilot,EQUAL,200,0.89,1,,pilot:EQUAL,
 message_box_update,00445bc0,cluster,pilot,EQUAL,2133,0.99,1,,pilot:EQUAL,
 menu_update,004463e0,cluster,weak_tweak,EQUAL,3000,0.82,1,,weak_tweak:EQUAL|weak_osweep:EQUAL|pilot:EQUAL,
 course_sky_atomic_create,00449700,tier2,hs_sweep,EQUAL,240,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-sky_directions_init,00449b50,cluster,pilot,EQUAL,464,1.00,1,,pilot:EQUAL,
+sky_directions_init,00449b50,cluster,-,-,0,0,0,NOEVID,,
 course_helper_449c40,00449c40,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 camera_debug_adjust_scale,0044a0f0,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 camera_apply_rotation,0044a470,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -528,9 +528,11 @@ course_arctic_cb3_object_init,004524e0,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_swee
 course_arctic_snow_quad_draw,004525b0,tier2,hs_sweep,EQUAL,881,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
 viewport_camera_sync_to_main,00452b90,hand,-,-,0,0,0,NOEVID,,near-regress-only
 course_arctic_cb4,00452c90,tier2,hs_sweep,EQUAL,3582,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-course_dem_cb0,00453410,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+course_dem_update,00452ee0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+course_dem_cb0,00453410,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL|pilot:EQUAL,
 course_dem_cb1,00453420,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
 course_dump_cb0,004535e0,tier2,hs_sweep,EQUAL,1287,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
+course_dump_emitters_update,00453600,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 course_dump_cb1,00453730,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 sound_fn_4537f0,004537f0,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 sound_fn_453860,00453860,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -577,13 +579,14 @@ spline_object_init,00457070,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 spline_objects_resolve_pair,004572c0,cluster,weak_tweak,EQUAL,3992,0.86,1,,weak_tweak:EQUAL,
 course_spline_objects_update,004574a0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 spline_objects_reset,00457520,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+spline_objects_destroy,004575a0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 load_shadow_models,00457620,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 course_rouabout_cb0,00457820,cluster,pilot,EQUAL,159,1.00,1,,pilot:EQUAL,
 course_rouabout_cb6,00457ef0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 course_rouabout_cb1,00457f80,tier2,hs_sweep,EQUAL,705,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_point_in_water_box_test,00458170,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-course_sandsnow_object_create,00458450,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
-course_sandsnow_object_render,00458490,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+course_sandsnow_object_create,00458450,cluster,-,-,0,0,0,NOEVID,,
+course_sandsnow_object_render,00458490,cluster,-,-,0,0,0,NOEVID,,
 course_sandsnow_cb2,00458570,tier2,hs_sweep,EQUAL,1351,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_storm_cb0,00458630,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 course_storm_cb1,00458810,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
@@ -675,7 +678,7 @@ weapon_flashbang_state_step,004605a0,cluster,pilot,EQUAL,1200,0.93,1,,pilot:EQUA
 weapon_flashbang_flare_particles,00460610,cluster,pilot,EQUAL,200,0.58,0,LOWCOV,pilot:EQUAL,
 weapon_flashbang_fire,004606f0,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
 weapon_flashbang_update,00460740,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
-weapon_flashbang_units_release,00460780,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+weapon_flashbang_units_release,00460780,cluster,-,-,0,0,0,NOEVID,,
 flashunit_load_assets,004607b0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 weapon_effect_slot_reset_6a5dd0,004608e0,cluster,-,-,0,0,0,NOEVID,,
 weapon_fx_clump_remove_b,00460930,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
@@ -755,7 +758,7 @@ weapon_shotgun_clear_effects,00467180,tier2,hs_sweep,EQUAL,687,1.00,1,,hs_sweep:
 weapon_fx_clump_remove_c,004671d0,cluster,-,-,0,0,0,NOEVID,,
 weapon_shotgun_fire_shot,00467200,tier2,hs_sweep,EQUAL,1002,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 weapon_shotgun_update,00467590,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
-weapon_shotgun_slots_release,004676a0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+weapon_shotgun_slots_release,004676a0,cluster,-,-,0,0,0,NOEVID,,
 weapon_shotgun_load_assets,004676c0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 weapon_fx_state_clear,004678d0,cluster,pilot,EQUAL,200,1.00,1,,pilot:EQUAL,
 weapon_find_descriptor,00467960,cluster,-,-,0,0,0,NOEVID,,
@@ -940,7 +943,7 @@ object_set_flag_4,00484680,hand,-,-,0,0,0,NOEVID,,near-regress-only
 point_lerp_to_aux_camera,004846e0,tier2,hs_sweep,EQUAL,2129,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
 distance_between_points,00484770,tier2,hs_sweep,EQUAL,2132,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 clump_for_all_materials_uv_anim_cb_484850,00484850,tier2,hs_sweep,EQUAL,2129,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-clump_set_texture,00484960,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+clump_set_texture,00484960,cluster,-,-,0,0,0,NOEVID,,
 atomic_set_material_alpha_value_cb_484990,00484990,tier2,hs_sweep,EQUAL,3992,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_helper_4849e0,004849e0,tier2,hs_sweep,EQUAL,877,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_helper_484b20,00484b20,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never

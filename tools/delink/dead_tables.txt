@@ -1,2 +1,4 @@
 # va size why: jump tables inside the code section that are dead in a link (see mkobj.py --drop-app)
 00436168 144 career_event_set_progress: both switch tables (recomp/clusters/cl_career_event_set_progress.c compiles its own switches; the original indirect jmps are in the filled body)
+0043602e 4 career_event_set_progress: operand of its first `jmp [eax*4+0x436168]` (inside the replaced body, filled anyway; the reference must not keep the case code behind the function alive)
+004360ae 4 career_event_set_progress: operand of its second `jmp [eax*4+0x4361b0]`
