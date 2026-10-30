@@ -203,6 +203,8 @@ for r in csv.reader(open(os.path.join(L.G, "output", "delink", "ghidra_refs.csv"
         try: flow.add((int(r[0], 16), int(r[1], 16)))
         except ValueError: pass
 cand = set(flow)
+for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "extra_branches.txt")):      # call sites Ghidra has no flow ref for
+    if l.strip() and not l.startswith("#"): cand.add((L.H(l.split()[0]), L.H(l.split()[1])))
 for c, base in CODE.items():       # byte scan of code outside every sized function (undecoded gaps); inside sized bodies only Ghidra's flow refs count (immediates look like E8 xx xx xx xx)
     b = secs[c]["data"]
     for i in range(len(b) - 6):

@@ -44,13 +44,15 @@ def map_sites(map_path):
     """file offsets of our C copies of the movie functions in a linked exe (link.exe /map: `0001:00001234 _name 00401234 f obj`); the entry jmp
     of the original address leads there, so the stub has to be written at the map address as well"""
     import re
-    code = dict(PATCHES); offs = []
+    code = dict(PATCHES); offs = []; orig = set(); ib = 0x400000
     for l in open(map_path, errors="replace"):
         q = l.split()
+        if len(q) >= 5 and q[:3] == ["Preferred", "load", "address"]: ib = int(q[4], 16)      # a relinked exe may sit at another base (file offset = VA - base)
         if len(q) >= 4 and re.fullmatch(r"[0-9a-f]{8}", q[2]) and q[-1].endswith(".obj"):
             n = q[1].lstrip("_").split("@")[0]
-            if n in MOVIE_NAMES: offs.append((int(q[2], 16) - 0x400000, code[MOVIE_NAMES[n]]))
-    return offs
+            if n in MOVIE_NAMES: offs.append((int(q[2], 16) - ib, code[MOVIE_NAMES[n]]))
+            elif n.endswith("_orig") and n[:-5] in MOVIE_NAMES: offs.append((int(q[2], 16) - ib, code[MOVIE_NAMES[n[:-5]]])); orig.add(MOVIE_NAMES[n[:-5]])      # the original entry, wherever the layout put it (layer swaps)
+    return offs, orig
 
 
 def main(src, dst, exe_src=None, map_path=None):
@@ -71,10 +73,11 @@ def main(src, dst, exe_src=None, map_path=None):
     shutil.copytree(base, dst, copy_function=os.link)
     exe = os.path.join(dst, "App_Executables", "MFL.exe")
     data = bytearray(open(exe_src or exe, "rb").read())
+    msites, morig = map_sites(map_path) if map_path else ([], set())
     for va, code in PATCHES:
-        for off in recomp_sites(data, va) + [va - 0x400000]:      # the C replacement first (found through the entry jmp), then the entry itself
+        for off in recomp_sites(data, va) + ([] if va in morig else [va - 0x400000]):      # the C replacement first (found through the entry jmp), then the entry itself (a link map names it `_<fn>_orig`: moved layers)
             data[off:off + len(code)] = code
-    for off, code in (map_sites(map_path) if map_path else []):      # linked exe (tools/delink/link_ours.sh): no .recomp section, our C functions are found through the link map
+    for off, code in msites:      # linked exe (tools/delink/link_ours.sh): no .recomp section, our C functions are found through the link map
         data[off:off + len(code)] = code
     os.unlink(exe)
     open(exe, "wb").write(data)

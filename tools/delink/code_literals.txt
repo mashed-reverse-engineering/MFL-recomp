@@ -1,0 +1,6 @@
+# T-E6: raw code addresses in recompiled C (see litreloc.py).  source  bytes-before  address  what
+an_hk_612.c    68      004a2b30  push 0x4a2b30: FUN_004dbdc0(0x4a2b30) registers rw_engine_init_cb_4a2b30 (LAB_004a2b30)
+an_hk_622.c    68      00491280  push 0x491280: rwp_world_create_once_cb_491280
+ag_atomic_set_render_callback.c  c74048  004f60d0  mov [eax+0x48], AtomicDefaultRenderCallBack
+freeze.c       b8      00467e60  mov eax, player_equip_weapon; call eax (harness)
+freeze.c       b8      0040ce80  mov eax, score_target_b; call eax (harness)

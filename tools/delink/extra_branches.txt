@@ -1,0 +1,15 @@
+# T-E6: real call rel32 in the original image that Ghidra gave no flow reference (they sit inside sized functions, where mkrange.py trusts only the flow refs): site target.
+# Found by comparing a layer-reversed link with the original (stale displacement), checked: the site decodes as call, the target is a function entry (symbol in output/fnsizes.txt).
+005ca930 004b2c30   D3DX pow
+005caa6e 004b2c30   D3DX pow
+005d2da1 004bf3e2   DirectShow _resetstkoflw
+005d4d92 004bf3e2   DirectShow _resetstkoflw
+005d4d99 004b45eb   DirectShow _malloc
+005d86b0 005bb5d0   DirectShow -> D3DX FUN_005bb5d0
+005d8c54 005b7300   DirectShow -> D3DX FUN_005b7300
+005d8cbf 005b7370   DirectShow -> D3DX FUN_005b7370
+005da4ea 005bf130   DirectShow -> D3DX FUN_005bf130
+005da59f 005ba5c0   DirectShow -> D3DX FUN_005ba5c0
+005da5a8 005bd230   DirectShow -> D3DX FUN_005bd230
+005da5c0 005bc030   DirectShow -> D3DX FUN_005bc030
+005da5e9 005bcf60   DirectShow -> D3DX FUN_005bcf60
