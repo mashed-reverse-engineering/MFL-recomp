@@ -315,6 +315,19 @@ if "--drop-app" in opt:
     cand = {a_: min(_tend, _fs[bisect.bisect_right(_fs, a_)] if bisect.bisect_right(_fs, a_) < len(_fs) else _tend) for a_ in redir_at if fsz.get(a_, 0) >= 6 and sec_index(a_) == tsec}
     # Unlisted functions hide in these gaps (reached by raw function pointers, e.g. 0x500510 from a code_interior data word): an extension stays only if no word anywhere in the image
     # (any offset of the code sections, aligned words of the data sections) outside the function's own extent holds an address inside the gap.
+    # raw words that were checked by hand to be bitmap / table bytes that only look like an address into a function interior (tools/delink/nonptr_words.txt: site + why)
+    NONPTR = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonptr_words.txt")) if l.strip() and not l.startswith("#")}
+    # relocations the delinker put on code bytes that are not addresses (a 4 byte window across `lea esp,[esp+0]` / `lea ecx,[ecx+0]` alignment padding): drop them, keep the original bytes
+    for si_ in range(len(secs)):
+        if si_ in DSEC or not rel[si_]: continue
+        keep_ = []
+        for off_, ti_, ty_ in rel[si_]:
+            if ty_ == 6 and isinstance(ti_, int) and secs[si_][1] + off_ in NONPTR and ti_ not in DSEC:
+                struct.pack_into("<I", data[si_], off_, (secs[ti_][1] + struct.unpack_from("<i", data[si_], off_)[0]) & 0xFFFFFFFF); stat["drop-app: padding relocations removed"] += 1
+            else: keep_.append((off_, ti_, ty_))
+        rel[si_] = keep_
+    # a data word is an address only if the generator emitted it as a pointer (ptrs.csv) or kept it raw (raw.csv); every other aligned word is a float / int / bitmap byte
+    _dp = {int(r["site"], 16) for f_ in ("ptrs.csv", "raw.csv") for r in csv.DictReader(open(os.path.join(GD, f_)))} - NONPTR
     _w = []
     for si_, s_ in enumerate(secs):
         if s_[2] is None or s_[0] in (".pad",) or s_[0] == ".rdata" and s_[1] > 0xF0000000: continue
@@ -324,6 +337,7 @@ if "--drop-app" in opt:
         for i in range(0, len(_bb) - 3, _st):
             v_ = _bb[i] | _bb[i + 1] << 8 | _bb[i + 2] << 16 | _bb[i + 3] << 24
             if 0x401000 <= v_ < _tend:
+                if _rs is None and s_[1] + i not in _dp: continue
                 if _rs is not None and i not in _rs:
                     j_ = bisect.bisect_right(_fs, s_[1] + i) - 1
                     if j_ >= 0 and s_[1] + i + 3 < _fs[j_] + fsz[_fs[j_]]: continue
@@ -360,6 +374,7 @@ if "--drop-app" in opt:
                 t = secs[ti][1] + struct.unpack_from("<i", data[si], off)[0]
                 if cand_of(t) is not None: absr.append((secs[si][1] + off, t, cand_of(t)))
     for r in csv.DictReader(open(os.path.join(GD, "raw.csv"))):      # reloc sites the generator keeps as raw words (value only, code_interior ...): they still hold the original address
+        if int(r["site"], 16) in NONPTR: continue
         si_ = sec_index(int(r["site"], 16)); v_ = struct.unpack_from("<I", secs[si_][2], int(r["site"], 16) - secs[si_][1])[0]
         f_ = cand_of(v_)
         if f_ is not None: absr.append((int(r["site"], 16), v_, f_))
@@ -371,26 +386,35 @@ if "--drop-app" in opt:
     for r in gp:                                           # generated pointers `function + addend` (addend != 0): the symbol would resolve to our C
         n_ = r["symbol"]
         if r["addend"] != "0" and n_ in _by and _by[n_] in cand: legacy[_by[n_]] = "generated data points into it (%s+%s)" % (n_, r["addend"])
+    # keep_from[f]: first byte of the tail that live code reaches (nothing kept = the extent end).  [f + 5, keep_from) is filled.  A tail that is entered from outside is a function
+    # Ghidra did not split off; it stays original until it has its own C, but the body in front of it goes.  A reference from the kept tail back into the filled part moves keep_from down.
+    keep_from = {a_: cand[a_] for a_ in cand}
+    for a_ in legacy: keep_from[a_] = a_ + 5                       # generated data points at function + addend: the whole body stays
+    reason = dict(legacy)
+    def live(s_):              # a site is dead when it lies in the entry jmp or the filled part of a candidate (all of it is replaced)
+        if s_ == 0: return True
+        i = bisect.bisect_right(_cl, s_) - 1
+        return not (i >= 0 and _cl[i] <= s_ < keep_from[_cl[i]])
     changed = True
     while changed:
         changed = False
         for s_, t_, f in brs + absr:
-            if f in legacy: continue
-            sf = cand_of(s_)
-            if sf is not None and sf not in legacy: continue          # sited in a body that is filled: dead
-            legacy[f] = "interior ref from %08x to %08x" % (s_, t_); changed = True
-    with open(OUT + ".legacy_refs.csv", "w") as lf:      # every live reference into a kept body (the first one is the reason in dropapp.csv): what has to change before the body can go
+            if t_ >= keep_from[f] or not live(s_): continue
+            if keep_from[f] == cand[f]: reason[f] = "interior ref from %08x to %08x" % (s_, t_)
+            keep_from[f] = max(t_, f + 5); changed = True
+    legacy = {a_: reason[a_] for a_ in cand if keep_from[a_] < cand[a_]}
+    with open(OUT + ".legacy_refs.csv", "w") as lf:      # live references from OUTSIDE a kept tail into it: what has to change (own C, or a new entry) before the tail can go
         lf.write("function,site,target,kind\n"); _bs = set(brs)
         for s_, t_, f in brs + absr:
-            sf = cand_of(s_)
-            if f in legacy and (sf is None or sf in legacy): lf.write("%08x,%08x,%08x,%s\n" % (f, s_, t_, "alias" if s_ == 0 else "branch" if (s_, t_, f) in _bs else "word"))
+            if f in legacy and t_ >= keep_from[f] and not (f <= s_ < cand[f] and s_ >= keep_from[f]) and live(s_): lf.write("%08x,%08x,%08x,%s\n" % (f, s_, t_, "alias" if s_ == 0 else "branch" if (s_, t_, f) in _bs else "word"))
     for a_ in sorted(cand):
-        if a_ in legacy: continue
-        hi = cand[a_]; off = a_ - secs[tsec][1]
-        rel[tsec] = [r_ for r_ in rel[tsec] if not off + 5 <= r_[0] < hi - secs[tsec][1]]
-        data[tsec][off + 5:hi - secs[tsec][1]] = b"\xcc" * (hi - a_ - 5); stat["drop-app: code bytes filled"] += hi - a_ - 5; stat["drop-app: functions dropped"] += 1
-        DAPP.append((a_, hi - a_, redir_at[a_], "dropped", ""))
-    for a_ in sorted(legacy): DAPP.append((a_, cand[a_] - a_, redir_at[a_], "legacy", legacy[a_]))
+        if keep_from[a_] > a_ + 5:
+            hi = keep_from[a_]; off = a_ - secs[tsec][1]
+            rel[tsec] = [r_ for r_ in rel[tsec] if not off + 5 <= r_[0] < hi - secs[tsec][1]]
+            data[tsec][off + 5:hi - secs[tsec][1]] = b"\xcc" * (hi - a_ - 5); stat["drop-app: code bytes filled"] += hi - a_ - 5
+        if a_ not in legacy: stat["drop-app: functions dropped"] += 1; DAPP.append((a_, cand[a_] - a_, redir_at[a_], "dropped", ""))
+        elif keep_from[a_] > a_ + 5: DAPP.append((a_, keep_from[a_] - a_, redir_at[a_], "partial", "tail from %08x kept (%d bytes): %s" % (keep_from[a_], cand[a_] - keep_from[a_], legacy[a_])))
+        else: DAPP.append((a_, cand[a_] - a_, redir_at[a_], "legacy", legacy[a_]))
     stat["drop-app: functions kept (interior refs)"] = len(legacy)
     blockers = []
     for si in range(len(secs)):

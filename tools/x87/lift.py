@@ -526,6 +526,8 @@ class Lifter:
                 st.regs["esi"] = ("add", src, ("imm", 4 * cnt)); st.regs["edi"] = ("add", dst, ("imm", 4 * cnt))
                 if m == "rep": st.regs["ecx"] = ("imm", 0)
                 i = nxt; continue
+            if m in ("and", "or") and ops[0] in ("al", "cl", "dl", "bl") and re.fullmatch(r"0x[0-9a-f]+", ops[1]):      # T-X90: low byte flag edit = full register op (or: same; and: keep the upper 24 bits)
+                ops = [SUBREG[ops[0]], ("0x%x" % (int(ops[1], 16) | 0xffffff00)) if m == "and" else ops[1]]
             if m in ("add", "sub", "shl", "imul", "inc", "dec", "and", "or") and ops[0] in REGS:
                 r = ops[0]
                 if m == "and" and r in ("eax", "ax") and st.axf is not None and re.fullmatch(r"0x[0-9a-f]+", ops[1]) and int(ops[1], 16) in (0x100, 0x400, 0x4000, 0x4100, 0x4500, 0x500, 0x4400):

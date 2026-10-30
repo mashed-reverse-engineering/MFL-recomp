@@ -1,0 +1,16 @@
+# Raw (unrelocated) 4 byte words that equal an address inside a replaced function but are bitmap / table bytes, not pointers (checked 2026-10-30 against their neighbours).
+# mkobj --drop-app ignores them when it decides whether a function body must stay.  Format: site  what.
+005f615c  bitmap bytes in g_libspan_005f5dac__t (neighbours 381c0e07 00406070 00000000 30303c00)
+0062a50c  byte fields of g_sector_table_62a208 (00408000)
+0062a6cc  byte fields of g_sector_table_62a208 (00408040)
+005fedf0  glyph bitmap bytes in g_skydome_follow_5fb164__t (neighbours 4c758787 0042111d 00000000)
+005febf0  glyph bitmap bytes in g_skydome_follow_5fb164__t (0043271d)
+005fecf0  glyph bitmap bytes in g_skydome_follow_5fb164__t (0043271b)
+005feb70  glyph bitmap bytes in g_skydome_follow_5fb164__t (00481c22)
+00636080  16 bit table halfwords in g_libspan_00632a30 (005d011c = 005d, 011c)
+0062a748  byte fields of g_sector_table_62a208 (00408000)
+005feef0  glyph bitmap bytes in g_skydome_follow_5fb164__t (0043271b)
+00600170  glyph bitmap bytes in g_skydome_follow_5fb164__t (00481c22)
+00636478  16 bit table halfwords in g_libspan_00632a30 (005d0123)
+0045303c  code padding: window 00 8d 49 00 across `lea esp,[esp+0]; lea ecx,[ecx+0]` (value 00498d00), relocation removed
+005c6b0c  code padding: same lea pair (value 00498d00), relocation removed

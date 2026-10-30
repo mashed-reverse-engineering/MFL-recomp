@@ -4,7 +4,8 @@ float rwp_aggregate_00585890(float *p, float *q, float *r)
 {
   float v[3];
   float c[3];
-  double dx, dy, dz; float l2;
+  double dx, dy, dz;
+  float l2;
   dx = q[0] - p[0];
   dy = q[1] - p[1];
   dz = q[2] - p[2];
