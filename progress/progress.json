@@ -104,7 +104,8 @@
     "LADDER": 55,
     "LOWCOV": 19,
     "NOEVID": 130,
-    "STDIND": 45
+    "OVERRIDDEN_DIFF": 9,
+    "STDIND": 49
    },
    "rows": 1337,
    "unaccounted": 0,

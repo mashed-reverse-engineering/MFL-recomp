@@ -60,8 +60,10 @@ void text_draw_box(undefined4 string_id,float x,float y,float width,float height
   Rt2dCTMPush();
   Rt2dBrushSetRGBA(g_ui_text_brush,&colour_rgba,&colour_rgba,&colour_rgba,&colour_rgba);
   /* box rectangle: x and width scale by 1/640, y and height by 1/480; the bottom edge is 1 - y/480 - height */
-  frame.m.box_width = width * k_f_0_0015625 * g_ui_layout_scale_x;
-  frame.m.box_height = height * k_f_0_0020833334 * g_ui_layout_scale_y;
+  frame.m.box_width = width * k_f_0_0015625;
+  frame.m.box_width = frame.m.box_width * g_ui_layout_scale_x;
+  frame.m.box_height = height * k_f_0_0020833334;
+  frame.m.box_height = frame.m.box_height * g_ui_layout_scale_y;
   frame.m.box_left = x * k_f_0_0015625;
   frame.m.box_bottom = (float_1_0 - y * k_f_0_0020833334) - frame.m.box_height;
   Rt2dFontFlow((void *)g_ui_font,(void *)frame.m.text_buf,text_scale * k_f_0_0708,(void *)&frame.m.box_left,1,(void *)g_ui_text_brush);

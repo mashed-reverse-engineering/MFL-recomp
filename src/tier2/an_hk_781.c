@@ -36,14 +36,18 @@ void gfx_draw_rect_2d_flat_a(float rect_x,float rect_y,float rect_w,float rect_h
 
   RwRenderStateSet(rwRENDERSTATECULLMODE,RS_CULL_MODE_NONE);
   screen_px = screen_width();
-  left_px = (float)(int)screen_px * rect_x * k_f_0_0015625;
+  left_px = (float)(int)screen_px * rect_x;
+  left_px = left_px * k_f_0_0015625;
   screen_px = screen_height();
-  top_px = (float)(int)screen_px * rect_y * k_f_0_0020833334;
+  top_px = (float)(int)screen_px * rect_y;
+  top_px = top_px * k_f_0_0020833334;
   screen_px = screen_width();
-  width_px = (float)(int)screen_px * rect_w * k_f_0_0015625;
+  width_px = (float)(int)screen_px * rect_w;
+  width_px = width_px * k_f_0_0015625;
   screen_px = screen_height();
   engine = RwEngineInstance;
-  height_px = (float)(int)screen_px * rect_h * k_f_0_0020833334;
+  height_px = (float)(int)screen_px * rect_h;
+  height_px = height_px * k_f_0_0020833334;
   g_im2d_vertices[1].x = width_px + left_px;
   g_im2d_vertices[2].y = height_px + top_px;
   vertex_cursor = &g_im2d_vertices[0].z;

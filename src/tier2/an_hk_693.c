@@ -39,15 +39,19 @@ void gfx_draw_rect_2d_gradient_rgb(float x,float y,float width,float height,uint
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)rwCULLMODECULLNONE);
   /* 640x480 units to screen pixels: multiply by screen size / 640 (x) and / 480 (y) */
   screen_size = screen_width();
-  left_px = (float)(int)screen_size * x * k_f_0_0015625;
+  left_px = (float)(int)screen_size * x;
+  left_px = left_px * k_f_0_0015625;
   screen_size = screen_height();
-  top_px = (float)(int)screen_size * y * k_f_0_0020833334;
+  top_px = (float)(int)screen_size * y;
+  top_px = top_px * k_f_0_0020833334;
   screen_size = screen_width();
-  width_px = (float)(int)screen_size * width * k_f_0_0015625;
+  width_px = (float)(int)screen_size * width;
+  width_px = width_px * k_f_0_0015625;
   screen_size = screen_height();
   engine = RwEngineInstance;
   green = rgba >> 8 & 0xff;
-  height_px = (float)(int)screen_size * height * k_f_0_0020833334;
+  height_px = (float)(int)screen_size * height;
+  height_px = height_px * k_f_0_0020833334;
   /* right edge and bottom edge: the size is added to the origin */
   g_im2d_vertices[1].x = width_px + left_px;
   g_im2d_vertices[2].y = height_px + top_px;

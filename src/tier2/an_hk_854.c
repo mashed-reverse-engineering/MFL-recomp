@@ -139,7 +139,8 @@ void __cdecl weapon_flame_push_cars(int flame_arg,undefined4 unused_2,undefined4
     /* push the owner car unless it belongs to the chosen player; push = owner vector * substep * k_f_0_2 * k_f_110 */
     slot = *(int *)(flame + 4);
     if (*(int *)(slot + CAR_PLAYER_ID_OFFSET) != tmp) {
-      rand_b = (double)*(int *)(flame + FLAME_SUBSTEP_OFFSET) * (double)k_f_0_2 * (double)k_f_110;
+      rand_b = (double)*(int *)(flame + FLAME_SUBSTEP_OFFSET) * (double)k_f_0_2;
+      rand_b = rand_b * (double)k_f_110;
       vec.dir_x = (float)(rand_b * (double)*(float *)(slot + CAR_VEC_X_OFFSET));
       vec.dir_y = (float)((double)*(float *)(slot + CAR_VEC_Y_OFFSET) * rand_b);
       vec.dir_z = (float)((double)*(float *)(slot + CAR_VEC_Z_OFFSET) * rand_b);

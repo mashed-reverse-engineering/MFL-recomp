@@ -31,6 +31,7 @@ void fx_smoke_puffs_update(void)
 
 {
   float life_t;
+  float scaled_age;
   float life_for_alpha;
   byte mask_byte;
   char alpha_byte;
@@ -116,9 +117,10 @@ LAB_0049d8b5:
   life_t = g_tick_seconds + *(float *)&(&g_particles_76c508)[byte_index * 0xd];
   *(float *)&(&g_particles_76c508)[byte_index * 0xd] = life_t;
   *(float *)&(&g_fx_slots_76c504)[byte_index * 0xd] = life_t;
-  frame.pos_x = *(float *)((char *)&g_particles_76c4e0 + record_offset + 0xc) * life_t * *(float *)((char *)&g_fx_systems_76c50c + record_offset) +
+  scaled_age = life_t * *(float *)((char *)&g_fx_systems_76c50c + record_offset);
+  frame.pos_x = *(float *)((char *)&g_particles_76c4e0 + record_offset + 0xc) * scaled_age +
             *(float *)&(&g_particles_76c4e0)[byte_index * 0xd];
-  frame.pos_z = *(float *)((char *)&g_particles_76c4e0 + record_offset + 0x14) * life_t * *(float *)((char *)&g_fx_systems_76c50c + record_offset) +
+  frame.pos_z = *(float *)((char *)&g_particles_76c4e0 + record_offset + 0x14) * scaled_age +
             *(float *)&(&g_fx_slots_76c4e8)[byte_index * 0xd];
   frame.pos_y = (float)(wobble * (double)*(float *)((char *)&g_particles_76c4e0 + record_offset + 0x30) +
                    (double)*(float *)&(&g_fx_slots_76c4e4)[byte_index * 0xd]);

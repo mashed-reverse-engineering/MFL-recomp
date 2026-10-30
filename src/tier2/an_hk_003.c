@@ -203,11 +203,13 @@ void time_trial_panel_wheel_spin(char *slot_objs)
     }
     else {
       spin_step = RwV3dNormalize(&delta,&delta);
-      heading_dot = *(float *)(slot_obj + OBJ_AXIS_Z) * delta.z +
-                 *(float *)(slot_obj + OBJ_AXIS_X) * delta.x + *(float *)(slot_obj + OBJ_AXIS_Y) * delta.y;
+      heading_dot = *(float *)(slot_obj + OBJ_AXIS_Y) * delta.y;
+      heading_dot = heading_dot + *(float *)(slot_obj + OBJ_AXIS_X) * delta.x;
+      heading_dot = heading_dot + *(float *)(slot_obj + OBJ_AXIS_Z) * delta.z;
     }
     /* spin step for this slot, in degrees; each part adds it and wraps at 360 */
-    spin_step = spin_step * heading_dot * k_f_360;
+    spin_step = spin_step * heading_dot;
+    spin_step = spin_step * k_f_360;
     /* the four parts: add the step, subtract 360 once if it reached 360 */
     angle = spin_step + spin_ptr[-1];
     spin_ptr[-1] = angle;

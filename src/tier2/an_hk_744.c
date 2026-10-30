@@ -34,6 +34,7 @@ void __cdecl time_trial_panel_step_part_a(char *car_matrix_array,char *unused_ar
   undefined4 *slot_out;
   float *panel_pos;
   float dist_to_car;
+  float side_sum;
   struct {
     float side_dot;
     RwV3d panel_to_car;
@@ -56,11 +57,14 @@ void __cdecl time_trial_panel_step_part_a(char *car_matrix_array,char *unused_ar
     /* Normalise in place (RwV3dNormalize returns the distance), then project on the car's right axis */
     else {
       dist_to_car = RwV3dNormalize(&frame.panel_to_car,&frame.panel_to_car);
-      frame.side_dot = car_matrix[2] * frame.panel_to_car.z + frame.panel_to_car.x * *car_matrix + car_matrix[1] * frame.panel_to_car.y;
+      side_sum = car_matrix[1] * frame.panel_to_car.y;
+      side_sum = side_sum + car_matrix[0] * frame.panel_to_car.x;
+      frame.side_dot = side_sum + car_matrix[2] * frame.panel_to_car.z;
     }
     *slot_out = 0;
     slot_out[1] = 0;
-    *(float *)&slot_out[2] = frame.side_dot * dist_to_car * k_f_n90;
+    side_sum = frame.side_dot * dist_to_car;
+    *(float *)&slot_out[2] = side_sum * k_f_n90;
     btb_panel_slot_set_position(slot_index,slot_out);
     panel_pos = panel_pos + PANEL_POINT_STRIDE;
     slot_index = slot_index + 1;

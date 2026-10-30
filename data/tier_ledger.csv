@@ -1284,7 +1284,7 @@ fx_smoke_particle_spawn_tinted,0049fd50,tier2,compiled+diffemu-EQUAL+shadow-neve
 fx_smoke_puffs_update,0049d820,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 fx_snow_ptank_create,0049c280,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 fx_spawn_burst_default_scale,0049d060,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
-fx_spawn_burst_spread,0049d090,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,72,1.00,0,0
+fx_spawn_burst_spread,0049d090,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,74,1.00,0,0
 fx_spawn_from_matrix_2,00499100,tier1,bytes,bytes-reloc,c4f9b59c7b8c,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 fx_spritecomp_create,004983b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 fx_style_init_a,0049f440,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
@@ -1592,10 +1592,10 @@ get_viewport_camera,00475730,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,
 get_viewport_camera_matrix,004757a0,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 gfx_draw_rect_2d_flat_a,004827a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 gfx_draw_rect_2d_flat_b,00482920,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
-gfx_draw_rect_2d_gradient_a,00482aa0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,7bdb1fd739ca,33bf93632a05,4d76d555f9f8,200,1.00,0,1
-gfx_draw_rect_2d_gradient_b,00482c40,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,1732cbc6d19b,33bf93632a05,4d76d555f9f8,200,1.00,0,1
-gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,8e6ea6c07e22,33bf93632a05,4d76d555f9f8,200,1.00,0,1
-gfx_draw_triangle_2d,00482610,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,7d3592cf8dba,33bf93632a05,4d76d555f9f8,200,1.00,0,1
+gfx_draw_rect_2d_gradient_a,00482aa0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,c3e8cb54c5e2,33bf93632a05,4d76d555f9f8,200,1.00,0,1
+gfx_draw_rect_2d_gradient_b,00482c40,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,90cf0c863b59,33bf93632a05,4d76d555f9f8,200,1.00,0,1
+gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,5db29bacda22,33bf93632a05,4d76d555f9f8,200,1.00,0,1
+gfx_draw_triangle_2d,00482610,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,79cb624fa3d0,33bf93632a05,4d76d555f9f8,200,1.00,0,1
 gfx_frame_counters_rotate,00480e50,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 gfx_groups_reset,004809f0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,7d5692dc5438,33bf93632a05,4d76d555f9f8,166,0.57,0,1
 gfx_render_state_probe,00480e70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,165,0.58,0,0

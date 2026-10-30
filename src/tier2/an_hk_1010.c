@@ -45,6 +45,7 @@ void cup_scene_update_object(float blend,int car_index)
   bool on_period;
   double side_offset;
   double cos_part;
+  float angle_step;
   undefined *car_vel_ptr;
   struct {
     RwV3d target_pos;
@@ -86,8 +87,10 @@ void cup_scene_update_object(float blend,int car_index)
     side_offset = side_offset * (double)g_cup_scene_64cb10 * (double)g_cup_scene_64cb08;
     cos_part = (double)cos((double)g_cup_scene_64cb04);
     frame.fwd_offset = (float)(cos_part * (double)g_cup_scene_64cb08);
-    g_cup_scene_64cb04 =
-         g_cup_scene_64cb04 - g_tick_seconds * g_cup_scene_64cb0c * g_cup_scene_64cb14 * k_f_0_2;
+    angle_step = g_tick_seconds * g_cup_scene_64cb0c;
+    angle_step = angle_step * g_cup_scene_64cb14;
+    angle_step = angle_step * k_f_0_2;
+    g_cup_scene_64cb04 = g_cup_scene_64cb04 - angle_step;
     frame.target_pos.x = frame.car_mtx[4] * k_f_0_3 +
                  (float)((double)frame.car_pos_x +
                         (double)frame.car_mtx[8] * (double)frame.fwd_offset + side_offset * (double)*frame.car_mtx);

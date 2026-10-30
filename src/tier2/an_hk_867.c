@@ -50,11 +50,14 @@ void fx_spawn_burst_spread(char *spawn_pos,int burst_count,float speed,float *co
       burst_state.direction.z = burst_state.direction.z + cone_axis[2];
       RwV3dNormalize(&burst_state.direction,&burst_state.direction);
       scratch = (double)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
-      burst_state.vel_x = (float)(scratch * (double)speed * (double)burst_state.direction.x);
+      scratch = scratch * (double)speed;
+      burst_state.vel_x = (float)(scratch * (double)burst_state.direction.x);
       scratch = (double)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
-      burst_state.vel_y = (float)(scratch * (double)speed * (double)burst_state.direction.y);
+      scratch = scratch * (double)speed;
+      burst_state.vel_y = (float)(scratch * (double)burst_state.direction.y);
       scratch = (double)random_range(SPEED_JITTER_MIN_BITS,SPEED_JITTER_MAX_BITS);
-      burst_state.vel_z = (float)(scratch * (double)speed * (double)burst_state.direction.z);
+      scratch = scratch * (double)speed;
+      burst_state.vel_z = (float)(scratch * (double)burst_state.direction.z);
       fx_spawn_burst((float *)spawn_pos,1,&burst_state.vel_x,fx_ptr_a,fx_ptr_b,fx_scale);
       burst_state.remaining = burst_state.remaining + -1;
     } while (burst_state.remaining != 0);

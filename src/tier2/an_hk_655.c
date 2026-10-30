@@ -77,8 +77,10 @@ void __cdecl ui_text_draw_boxed(undefined4 string_id,float x,float y,float w,flo
   Rt2dBrushSetRGBA(g_ui_text_brush,&colour,&colour,&colour,&colour);
   /* box to Rt2d units: width/height scaled by the layout scale, origin moved to the
      bottom left (y flipped against the 480 height) */
-  frame.box.width = w * k_f_0_0015625 * g_ui_layout_scale_x;
-  frame.box.height = h * k_f_0_0020833334 * g_ui_layout_scale_y;
+  frame.box.width = w * k_f_0_0015625;
+  frame.box.width = frame.box.width * g_ui_layout_scale_x;
+  frame.box.height = h * k_f_0_0020833334;
+  frame.box.height = frame.box.height * g_ui_layout_scale_y;
   frame.box.left = x * k_f_0_0015625;
   frame.box.bottom = (float_1_0 - y * k_f_0_0020833334) - frame.box.height;
   Rt2dFontFlow((void *)g_ui_font,(void *)frame.box.text_buf,font_scale * k_f_0_0708,(void *)&frame.box.left,flow_align,(void *)g_ui_text_brush);

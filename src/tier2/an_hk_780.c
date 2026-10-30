@@ -31,14 +31,18 @@ void draw_rect(float x,float y,float width,float height,uint colour)
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)rwCULLMODECULLNONE);
   /* Scale to pixels: x and width by screen_width / 640, y and height by screen_height / 480. */
   screen_dim = screen_width();
-  left_px = (float)(int)screen_dim * x * k_f_0_0015625;
+  left_px = (float)(int)screen_dim * x;
+  left_px = left_px * k_f_0_0015625;
   screen_dim = screen_height();
-  top_px = (float)(int)screen_dim * y * k_f_0_0020833334;
+  top_px = (float)(int)screen_dim * y;
+  top_px = top_px * k_f_0_0020833334;
   screen_dim = screen_width();
-  width_px = (float)(int)screen_dim * width * k_f_0_0015625;
+  width_px = (float)(int)screen_dim * width;
+  width_px = width_px * k_f_0_0015625;
   screen_dim = screen_height();
   rw_globals = RwEngineInstance;
-  height_px = (float)(int)screen_dim * height * k_f_0_0020833334;
+  height_px = (float)(int)screen_dim * height;
+  height_px = height_px * k_f_0_0020833334;
   /* Corners in tristrip order: 0 top-left, 1 top-right, 2 bottom-left, 3 bottom-right. */
   g_im2d_vertices[1].x = width_px + left_px;
   g_im2d_vertices[2].y = height_px + top_px;

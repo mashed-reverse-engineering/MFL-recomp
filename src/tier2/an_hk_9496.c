@@ -27,6 +27,7 @@ void build_info_display_draw_wave_grid(void)
   float sy1;
   float sx2;
   float sy2;
+  float sy3;
   float sx3;
   short screen_dim;
   RwReal *vtx_cursor;
@@ -106,21 +107,29 @@ void build_info_display_draw_wave_grid(void)
         *(volatile float *)&x2f = *(volatile float *)&s1r + (double)cell_x;
         *(volatile float *)&x3f = wave2 * amp2 + *(volatile float *)&i21f;
         screen_dim = screen_width();
-        wave_time2_or_sx0 = (float)(int)screen_dim * *(volatile float *)&x0f * k_f_0_0015625;
+        wave_time2_or_sx0 = (float)(int)screen_dim * *(volatile float *)&x0f;
+        wave_time2_or_sx0 = wave_time2_or_sx0 * k_f_0_0015625;
         screen_dim = screen_height();
-        sy0 = (float)(int)screen_dim * y0 * k_f_0_0020833334;
+        sy0 = (float)(int)screen_dim * y0;
+        sy0 = sy0 * k_f_0_0020833334;
         screen_dim = screen_width();
-        sx1 = (float)(int)screen_dim * *(volatile float *)&x1f * k_f_0_0015625;
+        sx1 = (float)(int)screen_dim * *(volatile float *)&x1f;
+        sx1 = sx1 * k_f_0_0015625;
         screen_dim = screen_height();
-        sy1 = (float)(int)screen_dim * y1 * k_f_0_0020833334;
+        sy1 = (float)(int)screen_dim * y1;
+        sy1 = sy1 * k_f_0_0020833334;
         screen_dim = screen_width();
-        sx2 = (float)(int)screen_dim * *(volatile float *)&x2f * k_f_0_0015625;
+        sx2 = (float)(int)screen_dim * *(volatile float *)&x2f;
+        sx2 = sx2 * k_f_0_0015625;
         screen_dim = screen_height();
-        sy2 = (float)(int)screen_dim * y2 * k_f_0_0020833334;
+        sy2 = (float)(int)screen_dim * y2;
+        sy2 = sy2 * k_f_0_0020833334;
         screen_dim = screen_width();
-        sx3 = (float)(int)screen_dim * *(volatile float *)&x3f * k_f_0_0015625;
+        sx3 = (float)(int)screen_dim * *(volatile float *)&x3f;
+        sx3 = sx3 * k_f_0_0015625;
         screen_dim = screen_height();
-        g_im2d_vertices[3].y = (float)(int)screen_dim * y3 * k_f_0_0020833334;
+        sy3 = (float)(int)screen_dim * y3;
+        g_im2d_vertices[3].y = sy3 * k_f_0_0020833334;
         g_im2d_vertices[0].emissiveColor =
              (((uint)(frame.colour_hi >> 8) << 8 | colour_in & 0xff) << 8 | colour_in >> 8 & 0xff) << 8 |
              frame.colour_hi & 0xff;

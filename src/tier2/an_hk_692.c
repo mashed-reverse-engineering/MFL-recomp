@@ -41,14 +41,18 @@ void gfx_draw_rect_2d_gradient_b(float x,float y,float width,float height,uint c
 
   RwRenderStateSet(rwRENDERSTATECULLMODE,(void *)rwCULLMODECULLNONE);
   screen_extent = screen_width();
-  left = (float)(int)screen_extent * x * k_f_0_0015625;
+  left = (float)(int)screen_extent * x;
+  left = left * k_f_0_0015625;
   screen_extent = screen_height();
-  top = (float)(int)screen_extent * y * k_f_0_0020833334;
+  top = (float)(int)screen_extent * y;
+  top = top * k_f_0_0020833334;
   screen_extent = screen_width();
-  scaled_width = (float)(int)screen_extent * width * k_f_0_0015625;
+  scaled_width = (float)(int)screen_extent * width;
+  scaled_width = scaled_width * k_f_0_0015625;
   screen_extent = screen_height();
   engine = RwEngineInstance;
-  scaled_height = (float)(int)screen_extent * height * k_f_0_0020833334;
+  scaled_height = (float)(int)screen_extent * height;
+  scaled_height = scaled_height * k_f_0_0020833334;
   g_im2d_vertices[1].x = scaled_width + left;
   g_im2d_vertices[2].y = scaled_height + top;
   vertex_z = &g_im2d_vertices[0].z;

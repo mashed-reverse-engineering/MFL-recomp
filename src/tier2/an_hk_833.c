@@ -36,6 +36,7 @@
 void trigger_grid_build_visible_cells(void)
 
 {
+  float cone_dot;
   float tmp_x;
   float cam_z;
   float row_x;
@@ -97,19 +98,19 @@ void trigger_grid_build_visible_cells(void)
       /* Assume visible; the cone test below clears this to 0 or sets it to 1. */
       *cull_flag = 0;
       /* Cone test: dot(normalised direction, view) >= 0.93 means the cell is inside the view cone. */
-      if (!(scan.dir.z * *(float *)(view_matrix + MATRIX_AT_Z) +
-          scan.dir.x * *(float *)(view_matrix + MATRIX_AT_X) +
-          scan.dir.y * *(float *)(view_matrix + MATRIX_AT_Y) < k_f_0_93)) {      /* NaN counts as inside the cone (original: jp to the body) */
-        tmp_x = *cam_pos;
-        cam_z = cam_pos[2];
-        *min_x = (scan.cell_x + tmp_x) - k_f_2_25_5e06e0;
+      cone_dot = scan.dir.y * *(float *)(view_matrix + MATRIX_AT_Y);
+      cone_dot = cone_dot + scan.dir.x * *(float *)(view_matrix + MATRIX_AT_X);
+      cone_dot = cone_dot + scan.dir.z * *(float *)(view_matrix + MATRIX_AT_Z);
+      if (!(cone_dot < k_f_0_93)) {      /* NaN counts as inside the cone (original: jp to the body) */
+        tmp_x = scan.cell_x + *cam_pos;
+        cam_z = scan.cell_z + cam_pos[2];
+        *min_x = tmp_x - k_f_2_25_5e06e0;
         half_extent = k_f_2_25_5e06e0;
         *center_y = cam_pos[1];
-        *scan.min_z = (scan.cell_z + cam_z) - half_extent;
-        *scan.max_x = k_f_2_25_5e06e0 + scan.cell_x + tmp_x;
-        tmp_x = k_f_2_25_5e06e0;
+        *scan.min_z = cam_z - half_extent;
+        *scan.max_x = k_f_2_25_5e06e0 + tmp_x;
         *scan.base_y = cam_pos[1];
-        *scan.max_z = tmp_x + scan.cell_z + cam_z;
+        *scan.max_z = k_f_2_25_5e06e0 + cam_z;
         *scan.flag_m8 = 0;
         *scan.cell = 0;
         *scan.flag_m1 = 0;

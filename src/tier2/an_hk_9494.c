@@ -27,6 +27,7 @@ void __cdecl fx_ptank_b_lock_and_fill(RwMatrix *camera_mtx,undefined4 unused_2)
 {
   int entry_mtx;
   float size_scale;
+  float fade_sum;
   int *entry_ptr;
   RwReal dist;
   struct {
@@ -70,9 +71,9 @@ void __cdecl fx_ptank_b_lock_and_fill(RwMatrix *camera_mtx,undefined4 unused_2)
         else {
           RwV3dTransformPoints(&frame.entry_pos,(RwV3d *)(entry_ptr + -10),1,(RwMatrix *)*entry_ptr);
           entry_mtx = *entry_ptr;
-          frame.fade = *(float *)(entry_mtx + 0x28) * camera_mtx->at.z +
-                     *(float *)(entry_mtx + 0x20) * camera_mtx->at.x +
-                     *(float *)(entry_mtx + 0x24) * camera_mtx->at.y;
+          fade_sum = *(float *)(entry_mtx + 0x20) * camera_mtx->at.x;
+          fade_sum = fade_sum + *(float *)(entry_mtx + 0x24) * camera_mtx->at.y;
+          frame.fade = fade_sum + *(float *)(entry_mtx + 0x28) * camera_mtx->at.z;
         }
         frame.fade = frame.fade * *(float *)&entry_ptr[-5];
         if (frame.fade < k_f_0) {

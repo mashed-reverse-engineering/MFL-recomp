@@ -14,13 +14,18 @@ void gfx_draw_rect_2d_four_alpha(float x, float y, float w, float h, unsigned in
 {
   unsigned int c_b, c_g, c_r;
   int i;
+  float px_pre, py_pre, pw_pre, ph_pre;
   volatile float px, py, pw, ph;  /* ponytail: the original keeps the scaled values as 32-bit floats in memory */
 
   RwRenderStateSet(rwRENDERSTATECULLMODE, (void *)0x1);
-  px = (float)(int)screen_width() * x * k_f_0_0015625;
-  py = (float)(int)screen_height() * y * k_f_0_0020833334;
-  pw = (float)(int)screen_width() * w * k_f_0_0015625;
-  ph = (float)(int)screen_height() * h * k_f_0_0020833334;
+  px_pre = (float)(int)screen_width() * x;
+  px = px_pre * k_f_0_0015625;
+  py_pre = (float)(int)screen_height() * y;
+  py = py_pre * k_f_0_0020833334;
+  pw_pre = (float)(int)screen_width() * w;
+  pw = pw_pre * k_f_0_0015625;
+  ph_pre = (float)(int)screen_height() * h;
+  ph = ph_pre * k_f_0_0020833334;
   c_r = colour >> 0x10 & 0xff;
   c_b = colour & 0xff;
   c_g = colour >> 8 & 0xff;

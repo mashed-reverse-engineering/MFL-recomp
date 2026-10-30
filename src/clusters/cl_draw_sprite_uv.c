@@ -14,6 +14,7 @@
 void draw_sprite_uv(int *texture, float x, float y, float w, float h, unsigned int colour,
                     float u0, float u1, float v0, float v1, int scale_mode, int linear)
 {
+  float px_pre, py_pre, pw_pre, ph_pre;
   volatile float px, py, pw, ph;  /* ponytail: the original keeps the scaled values as 32-bit floats in its parameter slots */
   int i;
 
@@ -24,13 +25,19 @@ void draw_sprite_uv(int *texture, float x, float y, float w, float h, unsigned i
   ph = h;
   if (scale_mode != 0) {
     if (scale_mode == 2) {
-      py = (float)(int)screen_height() * y * k_f_0_002232143;
-      ph = (float)(int)screen_height() * h * k_f_0_002232143;
+      py_pre = (float)(int)screen_height() * y;
+      py = py_pre * k_f_0_002232143;
+      ph_pre = (float)(int)screen_height() * h;
+      ph = ph_pre * k_f_0_002232143;
     } else {
-      px = (float)(int)screen_width() * x * k_f_0_0015625;
-      py = (float)(int)screen_height() * y * k_f_0_0020833334;
-      pw = (float)(int)screen_width() * w * k_f_0_0015625;
-      ph = (float)(int)screen_height() * h * k_f_0_0020833334;
+      px_pre = (float)(int)screen_width() * x;
+      px = px_pre * k_f_0_0015625;
+      py_pre = (float)(int)screen_height() * y;
+      py = py_pre * k_f_0_0020833334;
+      pw_pre = (float)(int)screen_width() * w;
+      pw = pw_pre * k_f_0_0015625;
+      ph_pre = (float)(int)screen_height() * h;
+      ph = ph_pre * k_f_0_0020833334;
     }
   }
   g_im2d_vertices[1].x = pw + px;

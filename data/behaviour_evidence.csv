@@ -212,7 +212,7 @@ score_panel_entry_reset,0041dea0,cluster,-,-,0,0,0,NOEVID,,
 score_panel_entry_scale_parts_low,0041dee0,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
 score_panel_entry_scale_parts,0041df80,cluster,-,-,0,0,0,NOEVID,,
 score_panel_entry_update,0041dfd0,cluster,pilot,EQUAL,400,0.95,1,,pilot:EQUAL,
-score_panel_entry_render,0041e3c0,cluster,cluster_sweep,EQUAL,306,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
+score_panel_entry_render,0041e3c0,cluster,cluster_sweep,EQUAL,306,1.00,1,LADDER;OVERRIDDEN_DIFF,cluster_sweep:EQUAL|pilot:EQUAL,
 score_panel_entry_destroy,0041e4c0,cluster,pilot,EQUAL,200,0.25,0,LOWCOV,pilot:EQUAL,
 score_panel_load,0041e4d0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
 score_panel_init,0041e550,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -261,7 +261,7 @@ stopclock_render_timed_parts_forward,00420c00,tier2,hs_sweep,EQUAL,1600,1.00,1,,
 ai_counters_snapshot,00420cb0,cluster,-,-,0,0,0,NOEVID,,
 stopclock_set_digit_count,00420d20,cluster,weak_tweak,EQUAL,3895,1.00,1,,weak_tweak:EQUAL|pilot:DIFF,
 hudpanel_score_digits_update,00420d50,tier2,hs_sweep,EQUAL,1753,0.94,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
-stopclock_render_parts_by_team,00420f50,cluster,cluster_sweep,EQUAL,317,1.00,1,LADDER,cluster_sweep:EQUAL,
+stopclock_render_parts_by_team,00420f50,cluster,cluster_sweep,EQUAL,317,1.00,1,LADDER;OVERRIDDEN_DIFF,cluster_sweep:EQUAL,
 stopclock_render,00420fa0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 load_stopclock,00420fc0,tier2,hs_sweep,EQUAL,656,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 time_pack_centiseconds,00421220,cluster,-,-,0,0,0,NOEVID,,
@@ -269,7 +269,7 @@ time_unpack_centiseconds,00421240,cluster,-,-,0,0,0,NOEVID,,
 time_make,00421290,cluster,-,-,0,0,0,NOEVID,,
 time_trial_panel_times_update,004212b0,cluster,weak_tweak,EQUAL,3895,0.80,1,,weak_tweak:EQUAL|weak_osweep:EQUAL,
 hudpanel_set_icon_texture_per_part,004215a0,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
-vehicle_markers_render_parts,00421720,cluster,cluster_sweep,EQUAL,229,0.82,1,LADDER,cluster_sweep:EQUAL|weak_tweak:EQUAL,
+vehicle_markers_render_parts,00421720,cluster,cluster_sweep,EQUAL,229,0.82,1,LADDER;OVERRIDDEN_DIFF,cluster_sweep:EQUAL|weak_tweak:EQUAL,
 hudpanel_load_indicator_update,004217b0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
 vehicle_markers_render_if_loaded,00421940,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 vehicle_prepare_parts,00421d50,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -547,7 +547,7 @@ course_neustein_cb0_sub_454650,00454650,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_swe
 course_neustein_cb0_sub_4546e0,004546e0,tier2,hs_sweep,EQUAL,2126,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_neustein_cb1_sub_4548b0,004548b0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_neustein_cb1_sub_454970,00454970,cluster,pilot,EQUAL,600,0.98,1,,pilot:EQUAL,
-course_neustein_cb2_sub_455060,00455060,cluster,pilot,EQUAL,600,0.95,1,,pilot:EQUAL|pilot:EQUAL,
+course_neustein_cb2_sub_455060,00455060,cluster,pilot,EQUAL,600,0.95,1,OVERRIDDEN_DIFF,pilot:EQUAL|pilot:EQUAL,
 course_physics_objects_reset,00455370,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_neustein_cb0,00455400,tier2,weak_tweak,EQUAL,10666,1.00,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-UNTESTED
 course_nt1_helper_455770,00455770,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
@@ -916,12 +916,12 @@ vec3_is_valid_small,004821a0,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|le
 matrix_is_valid_small,00482220,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
 im2d_draw_quad,00482330,tier2,hs_sweep,EQUAL,651,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 draw_rect,004824a0,tier2,hs_sweep,EQUAL,538,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-gfx_draw_triangle_2d,00482610,tier2,hs_sweep,EQUAL,501,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
+gfx_draw_triangle_2d,00482610,tier2,hs_sweep,EQUAL,501,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
 gfx_draw_rect_2d_flat_a,004827a0,tier2,hs_sweep,EQUAL,532,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 gfx_draw_rect_2d_flat_b,00482920,tier2,hs_sweep,EQUAL,532,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-gfx_draw_rect_2d_gradient_a,00482aa0,tier2,hs_sweep,EQUAL,529,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
-gfx_draw_rect_2d_gradient_b,00482c40,tier2,hs_sweep,EQUAL,529,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
-gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,hs_sweep,EQUAL,546,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
+gfx_draw_rect_2d_gradient_a,00482aa0,tier2,hs_sweep,EQUAL,529,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+gfx_draw_rect_2d_gradient_b,00482c40,tier2,hs_sweep,EQUAL,529,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,hs_sweep,EQUAL,546,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
 gfx_draw_rect_2d_four_alpha,00482f70,cluster,cluster_sweep,EQUAL,122,1.00,1,LADDER,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
 draw_sprite,00483130,tier2,hs_sweep,EQUAL,1145,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 draw_sprite_uv,004832d0,cluster,pilot,EQUAL,800,1.00,1,,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
@@ -944,7 +944,7 @@ matrix_to_euler_degrees,004850c0,tier2,weak_tweak,DIFF,0,0.83,0,DIFF,weak_tweak:
 course_training_cb0_sub_485180,00485180,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 course_storm_cb1_helper_485250,00485250,tier2,hs_sweep,EQUAL,2129,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 file_read_into_buffer,00485300,tier2,hs_sweep,EQUAL,3992,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
-matrix_interpolate_rotation_translation,00485350,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
+matrix_interpolate_rotation_translation,00485350,cluster,pilot,EQUAL,800,1.00,1,OVERRIDDEN_DIFF,pilot:EQUAL,
 particle_pool_add,004855b0,tier2,hs_sweep,EQUAL,2123,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 particle_pool_counts_reset,00485610,tier2,hs_sweep,EQUAL,2026,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 particle_pool_find_oldest_or_free,00485660,tier2,hs_sweep,EQUAL,2355,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -1031,7 +1031,7 @@ course_neustein_cb1_sub_48e5a0,0048e5a0,tier2,hs_sweep,EQUAL,1905,1.00,1,,hs_swe
 rwp_object_get_handle,0048e6d0,hand,-,-,0,0,0,NOEVID,,near-regress-only
 rwp_cars_setup_bodies_from_bounds,0048e960,tier2,weak_tweak,EQUAL,1559,0.89,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 rwp_car_collision_response,0048ebf0,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
-rwp_collision_update,0048f4a0,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL|pilot:EQUAL,
+rwp_collision_update,0048f4a0,cluster,pilot,EQUAL,1200,1.00,1,OVERRIDDEN_DIFF,pilot:EQUAL|pilot:EQUAL,
 car_set_physics_matrix,004904a0,tier2,hs_sweep,EQUAL,2133,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 rwp_cars_update,00490570,cluster,pilot,EQUAL,1200,0.98,1,,pilot:EQUAL,
 rwp_world_create,00490f70,tier2,hs_sweep,EQUAL,1524,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -1105,7 +1105,7 @@ fx_ring_update,00499320,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 fx_ring_clear,00499a80,tier2,hs_sweep,EQUAL,1156,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 explosion_decal,00499b40,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 fx_dust_create,00499c90,cluster,-,-,0,0,0,NOEVID,,
-shadow_project_to_ground_00499dc0_cb_499cc0,00499cc0,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
+shadow_project_to_ground_00499dc0_cb_499cc0,00499cc0,cluster,pilot,EQUAL,600,1.00,1,OVERRIDDEN_DIFF,pilot:EQUAL,
 shadow_project_to_ground_00499dc0,00499dc0,cluster,pilot,EQUAL,4807,0.75,0,LOWCOV,pilot:EQUAL,
 fx_dust_create_default,0049a940,cluster,-,-,0,0,0,NOEVID,,
 fx_slot_find_free,0049a9b0,tier2,hs_sweep,EQUAL,3895,0.95,1,STDIND,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -1181,7 +1181,7 @@ movie_renderer_poll,004a37f0,tier2,weak_tweak,EQUAL,377,1.00,1,,weak_tweak:EQUAL
 movie_renderer_delete,004a3910,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
 sound_volume_to_directsound_db,004a3930,cluster,cluster_sweep,EQUAL,265,0.83,1,LADDER,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
 video_state_clear,004a3a10,cluster,-,-,0,0,0,NOEVID,,
-movie_renderer_create,004a3a20,cluster,pilot,EQUAL,198,0.76,0,LOWCOV,pilot:EQUAL,
+movie_renderer_create,004a3a20,cluster,pilot,EQUAL,198,0.76,0,LOWCOV;OVERRIDDEN_DIFF,pilot:EQUAL,
 d3dx_texture_create,004a3d80,cluster,pilot,EQUAL,290,0.96,1,,pilot:EQUAL,
 gamma_table_build,004a4080,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL|pilot:EQUAL,
 gamma_apply_via_device,004a4110,cluster,cluster_sweep,EQUAL,318,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:DIFF|pilot:EQUAL,
@@ -1321,7 +1321,7 @@ FUN_004aedc0,004aedc0,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
 gap_4aede0,004aede0,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
 FUN_004aef40,004aef40,cluster,pilot,EQUAL,1200,1.00,1,,pilot:DIFF|pilot:EQUAL,
 thunk_FUN_004b27b0,004aefa0,tier2,hs_sweep,EQUAL,3895,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
-FUN_004aefb0,004aefb0,cluster,cluster_sweep,EQUAL,311,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
+FUN_004aefb0,004aefb0,cluster,cluster_sweep,EQUAL,311,1.00,1,LADDER;OVERRIDDEN_DIFF,cluster_sweep:EQUAL|pilot:EQUAL,
 FUN_004af0c0,004af0c0,cluster,cluster_sweep,EQUAL,309,1.00,1,LADDER,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
 FUN_004af120,004af120,cluster,cluster_sweep,EQUAL,311,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:DIFF|pilot:EQUAL,
 FUN_004af1f0,004af1f0,tier2,hs_sweep,EQUAL,2071,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never

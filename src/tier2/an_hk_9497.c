@@ -78,9 +78,10 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
   delta.z = dz;
   RwV3dLength(&delta);
   wave_value = (double)sin((double)(int)g_tick_number * (double)k_f_0_05);
-  camera_rec->distance =
-       (float)((wave_value + (double)float_1_0) * (double)dist_base * (double)dist_sway *
-               (double)k_f_0_05 + (double)*(volatile float *)&dist_base);
+  wave_value = (wave_value + (double)float_1_0) * (double)dist_base;
+  wave_value = wave_value * (double)dist_sway;
+  wave_value = wave_value * (double)k_f_0_05;
+  camera_rec->distance = (float)(wave_value + (double)*(volatile float *)&dist_base);
   if (dz == k_f_0) {
     if (!((double)dx_or_horiz < k_f_0)) {      /* NaN takes the 90 branch (as atan2_degrees) */
       yaw_deg = (double)k_f_90;

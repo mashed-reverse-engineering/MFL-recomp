@@ -68,7 +68,8 @@ void __cdecl sound_voices_set_position_wide(undefined4 *position,float frequency
         }
         sound_voice_set_enabled(g_voices[slot_index].voice,1);
         /* frequency stored at +0x3c and passed to the source */
-        frequency = (float)app_state * k_f_2000 + frequency_offset + k_f_22050;
+        frequency = (float)app_state * k_f_2000 + frequency_offset;
+        frequency = frequency + k_f_22050;
         *(float *)(g_voices[slot_index].voice + 0x3c) = frequency;
         app_state = *(int *)(g_voices[slot_index].voice + 0x30);
         call_result = 0;
