@@ -916,12 +916,12 @@ vec3_is_valid_small,004821a0,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|le
 matrix_is_valid_small,00482220,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
 im2d_draw_quad,00482330,tier2,hs_sweep,EQUAL,651,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 draw_rect,004824a0,tier2,hs_sweep,EQUAL,538,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-gfx_draw_triangle_2d,00482610,tier2,hs_sweep,EQUAL,501,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+gfx_draw_triangle_2d,00482610,tier2,hs_sweep,EQUAL,501,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 gfx_draw_rect_2d_flat_a,004827a0,tier2,hs_sweep,EQUAL,532,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 gfx_draw_rect_2d_flat_b,00482920,tier2,hs_sweep,EQUAL,532,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-gfx_draw_rect_2d_gradient_a,00482aa0,tier2,hs_sweep,EQUAL,529,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
-gfx_draw_rect_2d_gradient_b,00482c40,tier2,hs_sweep,EQUAL,529,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
-gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,hs_sweep,EQUAL,546,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+gfx_draw_rect_2d_gradient_a,00482aa0,tier2,hs_sweep,EQUAL,529,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
+gfx_draw_rect_2d_gradient_b,00482c40,tier2,hs_sweep,EQUAL,529,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
+gfx_draw_rect_2d_gradient_rgb,00482de0,tier2,hs_sweep,EQUAL,546,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 gfx_draw_rect_2d_four_alpha,00482f70,cluster,cluster_sweep,EQUAL,122,1.00,1,LADDER,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
 draw_sprite,00483130,tier2,hs_sweep,EQUAL,1145,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 draw_sprite_uv,004832d0,cluster,pilot,EQUAL,800,1.00,1,,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
