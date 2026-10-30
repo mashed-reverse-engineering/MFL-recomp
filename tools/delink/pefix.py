@@ -16,7 +16,9 @@ def secva(d, e, ns, osz, name):
         so = e + 24 + osz + i * 40
         if d[so:so + 8].rstrip(b"\0") == name: return struct.unpack_from("<I", d, so + 12)[0]
 delta = secva(n, ne, nns, nosz, b".rdata") - secva(o, oe, ons, oosz, b".rdata")   # mkobj --pad moves the data sections (and .rsrc behind them) by the same amount
+NORSRC = bool(os.environ.get("NO_RSRC"))               # NO_RSRC=1: mfl.res was on the link line (S3), the linker made .rsrc: keep its directory, append nothing
 for i in (1, 2, 12):                                   # import, resource, IAT directories (a linker built import table, mkobj --imports-as-symbols, is kept)
+    if NORSRC and i == 2: continue
     if i != 2 and struct.unpack_from("<I", n, ne + 24 + 96 + 8 * i)[0]: continue
     va, sz = struct.unpack_from("<II", o, oe + 24 + 96 + 8 * i)
     struct.pack_into("<II", n, ne + 24 + 96 + 8 * i, va + delta if va else 0, sz)
@@ -25,7 +27,7 @@ for i in range(nns):                                   # link.exe makes the mkob
     if n[so:so + 8].rstrip(b"\0") == b".pad": struct.pack_into("<I", n, so + 36, 0x00000080)
 for i in range(ons):
     so = oe + 24 + oosz + i * 40
-    if o[so:so + 8].rstrip(b"\0") != b".rsrc": continue
+    if NORSRC or o[so:so + 8].rstrip(b"\0") != b".rsrc": continue
     vs, va, rs, rp = struct.unpack_from("<IIII", o, so + 8)
     rsrc = bytearray(o[rp:rp + rs])
     def walk(off):                                     # resource data entries hold RVAs

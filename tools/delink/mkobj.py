@@ -316,12 +316,18 @@ if "--drop-app" in opt:
     # Unlisted functions hide in these gaps (reached by raw function pointers, e.g. 0x500510 from a code_interior data word): an extension stays only if no word anywhere in the image
     # (any offset of the code sections, aligned words of the data sections) outside the function's own extent holds an address inside the gap.
     _w = []
-    for s_ in secs:
+    for si_, s_ in enumerate(secs):
         if s_[2] is None or s_[0] in (".pad",) or s_[0] == ".rdata" and s_[1] > 0xF0000000: continue
         _bb = s_[2]; _st = 1 if s_[0] in (".text", "_rwcseg") else 4
+        # inside a sized code body the unaligned words are instruction operands (immediates, displacements, byte patterns): only a relocated one is an address
+        _rs = {o_ for o_, ti_, ty_ in rel[si_] if ty_ == 6} if _st == 1 else None
         for i in range(0, len(_bb) - 3, _st):
             v_ = _bb[i] | _bb[i + 1] << 8 | _bb[i + 2] << 16 | _bb[i + 3] << 24
-            if 0x401000 <= v_ < _tend: _w.append((v_, s_[1] + i))
+            if 0x401000 <= v_ < _tend:
+                if _rs is not None and i not in _rs:
+                    j_ = bisect.bisect_right(_fs, s_[1] + i) - 1
+                    if j_ >= 0 and s_[1] + i + 3 < _fs[j_] + fsz[_fs[j_]]: continue
+                _w.append((v_, s_[1] + i))
     _w.sort(); _wv = [x[0] for x in _w]
     for a_ in list(cand):
         g0, g1 = a_ + fsz[a_], cand[a_]
@@ -373,6 +379,11 @@ if "--drop-app" in opt:
             sf = cand_of(s_)
             if sf is not None and sf not in legacy: continue          # sited in a body that is filled: dead
             legacy[f] = "interior ref from %08x to %08x" % (s_, t_); changed = True
+    with open(OUT + ".legacy_refs.csv", "w") as lf:      # every live reference into a kept body (the first one is the reason in dropapp.csv): what has to change before the body can go
+        lf.write("function,site,target,kind\n"); _bs = set(brs)
+        for s_, t_, f in brs + absr:
+            sf = cand_of(s_)
+            if f in legacy and (sf is None or sf in legacy): lf.write("%08x,%08x,%08x,%s\n" % (f, s_, t_, "alias" if s_ == 0 else "branch" if (s_, t_, f) in _bs else "word"))
     for a_ in sorted(cand):
         if a_ in legacy: continue
         hi = cand[a_]; off = a_ - secs[tsec][1]
