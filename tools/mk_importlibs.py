@@ -19,13 +19,15 @@ for l in txt.splitlines():
     m = re.match(r"\s*DLL Name: (\S+)", l)
     if m: dll = m.group(1); imports[dll] = []; continue
     m = re.match(r"\s+[0-9a-f]+\s+(\d+)\s+(\w+)\s*$", l)       # hint  name
-    if m and dll: imports[dll].append(m.group(2))
+    if m and dll: imports[dll].append(m.group(2)); continue
+    m = re.match(r"\s+[0-9a-f]+\s+(\d+)\s+<none>\s*$", l)       # import by ordinal: symbol __imp__Ordinal_<n>, `Ordinal_<n> @<n> NONAME` in the def
+    if m and dll: imports[dll].append("Ordinal_" + m.group(1))
 extra = os.environ.get("EXTRA_USER32", "")      # imports used by the SDK libs but not by the game exe (comma list): added to user32
 if extra: imports.setdefault("USER32.dll", []).extend(extra.split(","))
 for d, names in imports.items():
     base = os.path.splitext(d)[0].lower()
     with open(os.path.join(out, base + ".def"), "w") as f:
         f.write("LIBRARY %s\nEXPORTS\n" % d)
-        for n in sorted(set(names)): f.write("%s@%d\n" % (n, 4 * nargs.get(n, 0)))      # decorated entry: the import is by the undecorated name (NAME_UNDECORATE)
+        for n in sorted(set(names)): f.write(("%s @%s NONAME\n" % (n, n[8:])) if n.startswith("Ordinal_") else ("%s@%d\n" % (n, 4 * nargs.get(n, 0))))      # decorated entry: the import is by the undecorated name (NAME_UNDECORATE)
     r = subprocess.run([os.path.join(HERE, "vc7.sh"), out, "lib.exe", "/nologo", "/machine:ix86", "/def:%s.def" % base, "/out:%s.lib" % base], capture_output=True, text=True, env=dict(os.environ, VC7_CONTAINER=os.environ.get("VC7_CONTAINER", "ac")))
     print("%-14s %4d imports  %s" % (d, len(set(names)), (r.stdout + r.stderr).strip().splitlines()[-1] if (r.stdout + r.stderr).strip() else ""))

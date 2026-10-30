@@ -45,6 +45,34 @@ rel = collections.defaultdict(list)
 stat = collections.Counter()
 taken = {}
 SKIP = {int(l.split()[0], 16) for l in open(opt["--skip"]) if l.strip()} if "--skip" in opt else set()     # sites to leave alone (bisecting)
+IMPSYM = {}      # --imports-as-symbols <dir of the <dll>.def files of tools/mk_importlibs.py>: IAT slot VA -> `_Name@N`; the 856 import sites then reference `__imp__Name@N` (the import libs define it), the original IAT and import tables are zero filled and the linker builds the import table
+if "--imports-as-symbols" in opt:
+    _dec = {}
+    for _f in os.listdir(opt["--imports-as-symbols"]):
+        if _f.endswith(".def"):
+            for _l in open(os.path.join(opt["--imports-as-symbols"], _f)):
+                _m = re.match(r"(\w+)@(\d+)$", _l.strip())
+                if _m: _dec[_m.group(1)] = _l.strip()
+                _m = re.match(r"(Ordinal_\d+) @", _l)
+                if _m: _dec[_m.group(1)] = _m.group(1)
+    def _rd0(va):
+        si_ = sec_index(va); return struct.unpack_from("<I", secs[si_][2], va - secs[si_][1])[0]
+    def _zero(va, n):
+        si_ = sec_index(va); data[si_][va - secs[si_][1]:va - secs[si_][1] + n] = bytes(n)
+    def _cstr(va):
+        si_ = sec_index(va); o_ = va - secs[si_][1]; return secs[si_][2].index(0, o_) - o_ + 1
+    _imp = base + struct.unpack_from("<I", d, e + 24 + 96 + 8)[0]; _zl = [(_imp, struct.unpack_from("<I", d, e + 24 + 96 + 12)[0])]    # descriptor table
+    while any(_rd0(_imp + k) for k in (0, 12, 16)):
+        _t0 = _t = base + _rd0(_imp + (0 if _rd0(_imp) else 16)); _slot = base + _rd0(_imp + 16)
+        _zl.append((base + _rd0(_imp + 12), _cstr(base + _rd0(_imp + 12))))      # DLL name
+        while _rd0(_t):
+            if _rd0(_t) & 0x80000000: IMPSYM[_slot] = "__imp__Ordinal_%d" % (_rd0(_t) & 0xFFFF); _t += 4; _slot += 4; continue
+            _h = base + _rd0(_t) + 2; _nm = _cstr(_h) - 1
+            IMPSYM[_slot] = "__imp__" + _dec[secs[sec_index(_h)][2][_h - secs[sec_index(_h)][1]:][:_nm].decode()]
+            _zl.append((_h - 2, 2 + _nm + 1)); _t += 4; _slot += 4
+        _zl.append((_t0, _t - _t0 + 4)); _imp += 20      # INT incl. terminator
+    _zl.append((base + struct.unpack_from("<I", d, e + 24 + 96 + 8 * 12)[0], struct.unpack_from("<I", d, e + 24 + 96 + 8 * 12 + 4)[0]))      # IAT
+    for _va, _n in _zl: _zero(_va, _n)
 rows = sorted(csv.DictReader(open(os.path.join(G, "output", "delink_relocs.csv"))), key=lambda r: ["high", "medium", "low"].index(r["confidence"]))
 for r in rows:
     site, t = int(r["site"], 16), int(r["target"], 16)
@@ -52,6 +80,12 @@ for r in rows:
     if ["high", "medium", "low"].index(r["confidence"]) > MINC or r["kind"] in DROP or r["kind"] == "rva": stat["skipped " + r["kind"] + "/" + r["confidence"]] += 1; continue
     si, ti = sec_index(site), sec_index(t)
     if si is None or ti is None or data[si] is None: stat["outside sections"] += 1; continue
+    if IMPSYM and r["kind"] == "import":          # S2: the operand is the address of an IAT slot -> `__imp__Name@N`, resolved by the import libs
+        assert t in IMPSYM, "import site %x: %x is no IAT slot" % (site, t)
+        off = site - secs[si][1]
+        if any(site + k in taken for k in range(4)): stat["overlap dropped"] += 1; continue
+        for k in range(4): taken[site + k] = 1
+        struct.pack_into("<I", data[si], off, 0); rel[si].append((off, IMPSYM[t], 6)); undef_syms.append(IMPSYM[t]); stat["imports as symbols"] += 1; continue
     if any(site + k in taken for k in range(4)): stat["overlap dropped"] += 1; continue
     for k in range(4): taken[site + k] = 1
     off = site - secs[si][1]
@@ -71,7 +105,7 @@ def rva_reloc(fva):
 imp = base + struct.unpack_from("<I", d, e + 24 + 96 + 8)[0]
 def rd(va):
     si = sec_index(va); return struct.unpack_from("<I", data[si], va - secs[si][1])[0]
-while any(rd(imp + k) for k in (0, 12, 16)):
+while not IMPSYM and any(rd(imp + k) for k in (0, 12, 16)):
     for k in (0, 16):
         t = base + rd(imp + k)
         if rd(imp + k):
@@ -174,6 +208,7 @@ if "--objs" in opt:
                 if n_: DROPNAMES.setdefault(lo_, n_)
     alt = []                         # /alternatename pairs: our C names an address by its Ghidra name, the split member defines it by the lib name
     for nm_ in sorted(objundef - set(objdef) - commons):
+        if nm_.startswith("__imp_") and IMPSYM: continue          # S2: defined by the import libs
         if nm_.startswith("__imp_"):
             u = undecorate(nm_[6:])
             if u in imports: aliases.append((nm_, imports[u])); continue
