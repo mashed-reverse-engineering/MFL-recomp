@@ -60,8 +60,9 @@ class Var:
 
 class N:      # x87 value
     def __init__(s, kind, *a, seq=0):
-        s.kind = kind; s.a = a; s.refs = 0; s.temp = False; s.seq = seq; s.var = None
+        s.kind = kind; s.a = a; s.dbl = False; s.refs = 0; s.temp = False; s.seq = seq; s.var = None
     def has_load(s):
+        if s.kind == "cp": return False
         if s.kind in ("mem", "callf", "i"): return True
         return any(x.has_load() for x in s.a if isinstance(x, N))
 
@@ -219,7 +220,7 @@ class Lifter:
         if m in ("fwait", "wait", "fnclex"): return
         if m == "fld":
             if ops[0].startswith("st"):
-                i = int(re.search(r"\((\d)\)", ops[0]).group(1)); n = s.sti(i); n.refs += 1; n.temp = True; st.fp.append(n)
+                i = int(re.search(r"\((\d)\)", ops[0]).group(1)); n = s.sti(i); n.refs += 1; n.temp = True; st.fp.append(s.mk("cp", n))     # cp = a var-first copy (RWP-X11)
             else:
                 mo = s.parse_mem(ops[0]); kind = {4: "f", 8: "d"}.get(mo[1])
                 if not kind: raise Unsupported("fld %s" % ops[0])
@@ -285,6 +286,7 @@ class Lifter:
             b0, b1 = raw[0], raw[1]; i = b1 & 7; r = (b1 >> 3) & 7
             if b0 == 0xD8:
                 A = s.sti(0); B = s.sti(i); rv = r in (5, 7)
+                if A.kind == "mem" and i > 0 and B.kind != "cp": B.dbl = True      # RWP-X11: `fld [m]; fop st,st(i)` = the x87 resident operand is a double
                 s.setsti(0, s.mk("bin", {0: "+", 1: "*", 4: "-", 5: "-", 6: "/", 7: "/"}[r], B, A) if rv else s.mk("bin", {0: "+", 1: "*", 4: "-", 5: "-", 6: "/", 7: "/"}[r], A, B)); return
             if b0 in (0xDC, 0xDE):
                 symt = {0: "+", 1: "*", 4: "-", 5: "-", 6: "/", 7: "/"}[r]; rv = r in (4, 6)      # DC E0 = sti = st0 - sti ; DC E8 = sti - st0
@@ -345,7 +347,11 @@ class Lifter:
             n = st.fp[-1]; s.retf = True; s.emit(("return", "f", n)); st.fp = []
         else:
             x = st.regs.get("eax")
-            if isinstance(x, tuple) and x[0] == "phi" and x[1][0] == "imm" and x[2][0] == "imm": x = s.reg("eax")
+            if isinstance(x, tuple) and x[0] == "phi" and x[1][0] == "imm" and x[2][0] == "imm" and len(x) > 5 and x[5] is not None:      # RWP-X10: `return c ? A : B;`
+                c, A, B = x[5], x[1], x[2]
+                if c[0] == "fcmp" and c[1] in ("<=", "<"): c, A, B = ("fcmp", s.NEG[c[1]], c[2], c[3]), B, A      # the positive spelling `a > b ? ... : ...`
+                x = ("sel", c, A, B)
+            elif isinstance(x, tuple) and x[0] == "phi" and x[1][0] == "imm" and x[2][0] == "imm": x = s.reg("eax")
             if isinstance(x, tuple) and x[0] != "phi" and st.regs.get("eax_defined"): s.reti = True; s.emit(("return", "i", x))
             else: s.emit(("return", None, None))
         st.dead = True
@@ -383,7 +389,7 @@ class Lifter:
             elif m in ("je", "jne"): return ("tst", m == "je", a, b)
         raise Unsupported("jcc %s without known flags" % m)
 
-    def merge(s, a, b, cond=None, thenb=None, elseb=None):
+    def merge(s, a, b, cond=None, thenb=None, elseb=None, pc=None):
         """join two live states into self.st; registers that differ become variables assigned at the end of each arm"""
         if a.dead: s.st = b; return
         if b.dead: s.st = a; return
@@ -399,7 +405,7 @@ class Lifter:
         for r in set(a.regs) | set(b.regs):
             x, y = a.regs.get(r), b.regs.get(r)
             if x is y or x == y: continue
-            if r in REGS and thenb is not None and isinstance(x, tuple) and isinstance(y, tuple): m.regs[r] = ("phi", x, y, thenb, elseb)
+            if r in REGS and thenb is not None and isinstance(x, tuple) and isinstance(y, tuple): m.regs[r] = ("phi", x, y, thenb, elseb, pc)
             else: m.regs[r] = "unk"
         m.flags = None; s.st = m
 
@@ -577,13 +583,13 @@ class Lifter:
                     u = s.idx[int(last[2], 16)]
                     s.run(nxt, ti - 1, thenb); sT = s.st; s.st = st0.fork(); elseb = []; s.run(ti, u, elseb); sE = s.st
                     s.emit(("if", cond, thenb, elseb)); pos = len(s.out) - 1
-                    s.merge(sT, sE, cond, thenb, elseb)
+                    s.merge(sT, sE, cond, thenb, elseb, cond)
                     i = u; continue
                 if ti > end:
                     s.emit(("goto_if", ("not", cond), t)); s.pending.setdefault(t, []).append(s.st.fork()); i = nxt; continue
                 s.run(nxt, ti, thenb); sT = s.st; s.st = st0.fork()
                 elseb = []; s.emit(("if", cond, thenb, elseb)); pos = len(s.out) - 1
-                s.merge(sT, s.st, None, thenb, elseb)
+                s.merge(sT, s.st, None, thenb, elseb, cond)
                 i = ti; continue
             raise Unsupported("insn %s %s" % (m, o))
         return i
@@ -651,7 +657,39 @@ class Lifter:
         try: s.run(0, len(s.ins), s.stmts)
         except Unsupported as e: raise Unsupported("%s @%x" % (e, getattr(s, "cur", 0)))
         except (ValueError, KeyError, IndexError) as e: raise Unsupported("operand form %r @%x" % (e, getattr(s, "cur", 0)))
+        s.tail_merge(s.stmts)
         return s.render()
+
+    def tail_merge(s, stmts):
+        """RWP-X10: `if (c) { X = k1 * v; return r; } X = k2 * v; return r;` (arms identical but for literals) is ONE statement with a ternary factor `(c ? k1 : k2) * v`"""
+        def mn(c, a, b):
+            if a is b: return a
+            if a.kind != b.kind: return None
+            if a.kind == "k": return N("sel", c, a, b) if a.a != b.a else a
+            if a.kind == "bin" and a.a[0] == b.a[0]:
+                x, y = mn(c, a.a[1], b.a[1]), mn(c, a.a[2], b.a[2])
+                if x is None or y is None: return None
+                if x is a.a[1] and y is a.a[2]: return a
+                return N("bin", a.a[0], x, y)
+            if a.kind == "mem" and a.a == b.a: return a
+            return None
+        for st in stmts:
+            if st[0] == "if": s.tail_merge(st[2]); s.tail_merge(st[3])
+        for i, st in enumerate(stmts):
+            if st[0] != "if" or st[3] or not st[2] or st[2][-1][0] != "return": continue
+            keep = lambda x: not (x[0] == "maybe" and not x[1].temp and x[1].refs == 0)
+            T = [x for x in st[2] if keep(x)]; R = [x for x in stmts[i + 1:] if keep(x)]
+            if len(T) != len(R) or len(T) < 2 or T[-1] != R[-1] or T[-1][1] == "f": continue
+            out = []
+            for a, b in zip(T[:-1], R[:-1]):
+                if a == b: out.append(b)
+                elif a[0] == b[0] == "store" and a[1] == b[1] and a[3] == b[3]:
+                    n = mn(st[1], a[2], b[2])
+                    if n is None: break
+                    out.append(("store", a[1], n, a[3]))
+                else: break
+            else:
+                stmts[i:] = out + [R[-1]]; return
 
     # ---------------------------------------------------------------- rendering
     def iv(s, v, top=True):
@@ -682,6 +720,7 @@ class Lifter:
             if c[0] == "icmp" and c[1] in ("==", "!=") and c[3] == ("imm", 0): return "(%s %s 0)" % (s.iv(c[2], False), c[1])
             return "(%s)" % s.cond_txt(c)
         if k == "shv": return "(%s %s %s)" % (s.iv(v[1], False), {"shl": "<<", "sar": ">>", "shr": ">>"}[v[3]], s.iv(v[2], False))
+        if k == "sel": return "%s ? %s : %s" % (s.cond_txt(v[1]), s.iv(v[2], False), s.iv(v[3], False))
         if k == "ftol": return "(int)" + s.fx(v[1], True)
         raise Unsupported("render iv %s" % (k,))
     def vname(s, v):
@@ -708,6 +747,7 @@ class Lifter:
     def fxp(s, n):
         k = n.kind
         if k == "k": return flit(n.a[0], n.a[1]), 9
+        if k == "cp": return s.fx(n.a[0]), 9
         if k == "mem":
             ad, kind = n.a
             return s.addr(ad, "float" if kind == "f" else "double"), 9
@@ -724,6 +764,8 @@ class Lifter:
         if k == "bin":
             op, A, B = n.a; pr = s.PREC[op]
             at, ap = (s.fx(A), 9 if A.temp else s.fxp(A)[1]); bt, bp = (s.fx(B), 9 if B.temp else s.fxp(B)[1])
+            if A.kind == "cp" and A.a[0].dbl: at = "(float)" + at
+            if B.kind == "cp" and B.a[0].dbl: bt = "(float)" + bt
             if ap < pr: at = "(" + at + ")"
             if bp <= pr and not (bp == pr and op in "+*" and False): bt = "(" + bt + ")" if bp < 9 else bt
             return "%s %s %s" % (at, op, bt), pr
@@ -750,7 +792,7 @@ class Lifter:
             if st[0] == "maybe":
                 n = st[1]
                 if n.refs > 0 or n.temp:
-                    if n.kind not in ("k",): n.temp = True; n.var = s.tmp("f")
+                    if n.kind not in ("k", "cp"): n.temp = True; n.var = s.tmp("f"); n.var.dbl = n.dbl
             elif st[0] == "if": s.prepare(st[2]); s.prepare(st[3])
             elif st[0] == "dowhile": s.prepare(st[1])
         return stmts
@@ -834,7 +876,7 @@ class Lifter:
             locs.append("  %s %s[%d];" % (ty, v.base, v.arr) if getattr(v, "arr", 0) else "  %s %s;" % (ty, v.name))
         for e in sorted(s.alias): v = s.alias[e]; locs.append("  %s %s;" % ("float" if v.kind == "f" else "int", v.name))
         # float temps in creation order
-        for v in s.tmps: locs.append("  float %s;" % v.name)
+        for v in s.tmps: locs.append("  %s %s;" % ("double" if getattr(v, "dbl", False) else "float", v.name))
         if s.fvec: locs.insert(0, "  float fv[%d];" % s.fvec)
         params = []
         for e in sorted(s.args):
