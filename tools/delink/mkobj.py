@@ -326,6 +326,19 @@ if "--drop-app" in opt:
                 struct.pack_into("<I", data[si_], off_, (secs[ti_][1] + struct.unpack_from("<i", data[si_], off_)[0]) & 0xFFFFFFFF); stat["drop-app: padding relocations removed"] += 1
             else: keep_.append((off_, ti_, ty_))
         rel[si_] = keep_
+    # dead jump tables (tools/delink/dead_tables.txt: `va size why`): tables in the code section whose only reader (an indirect jmp in a replaced function) is gone because our C compiles
+    # the switch itself; their words would keep the case labels (interior of replaced bodies) alive.  Relocations sited in them vanish, the bytes are int3.
+    DEAD = []
+    _dtf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dead_tables.txt")
+    for l_ in (open(_dtf) if os.path.exists(_dtf) else []):
+        if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), l_.split(None, 2)[2].strip() if len(l_.split(None, 2)) > 2 else ""))
+    _deadset = set()
+    for va_, n_, why_ in DEAD:
+        si_ = sec_index(va_); assert si_ is not None and si_ == tsec, "dead table %x outside .text" % va_
+        o_ = va_ - secs[si_][1]
+        rel[si_] = [r_ for r_ in rel[si_] if not o_ - 3 <= r_[0] < o_ + n_]
+        data[si_][o_:o_ + n_] = b"\xcc" * n_; stat["drop-app: dead table bytes filled"] += n_; _deadset.update(range(va_ - 3, va_ + n_))
+    open(OUT + ".dead.csv", "w").write("va,size,why\n" + "".join("%08x,%d,%s\n" % x for x in DEAD))
     # a data word is an address only if the generator emitted it as a pointer (ptrs.csv) or kept it raw (raw.csv); every other aligned word is a float / int / bitmap byte
     _dp = {int(r["site"], 16) for f_ in ("ptrs.csv", "raw.csv") for r in csv.DictReader(open(os.path.join(GD, f_)))} - NONPTR
     _w = []
@@ -335,6 +348,7 @@ if "--drop-app" in opt:
         # inside a sized code body the unaligned words are instruction operands (immediates, displacements, byte patterns): only a relocated one is an address
         _rs = {o_ for o_, ti_, ty_ in rel[si_] if ty_ == 6} if _st == 1 else None
         for i in range(0, len(_bb) - 3, _st):
+            if s_[1] + i in _deadset: continue
             v_ = _bb[i] | _bb[i + 1] << 8 | _bb[i + 2] << 16 | _bb[i + 3] << 24
             if 0x401000 <= v_ < _tend:
                 if _rs is None and s_[1] + i not in _dp: continue
@@ -374,7 +388,7 @@ if "--drop-app" in opt:
                 t = secs[ti][1] + struct.unpack_from("<i", data[si], off)[0]
                 if cand_of(t) is not None: absr.append((secs[si][1] + off, t, cand_of(t)))
     for r in csv.DictReader(open(os.path.join(GD, "raw.csv"))):      # reloc sites the generator keeps as raw words (value only, code_interior ...): they still hold the original address
-        if int(r["site"], 16) in NONPTR: continue
+        if int(r["site"], 16) in NONPTR or int(r["site"], 16) in _deadset: continue
         si_ = sec_index(int(r["site"], 16)); v_ = struct.unpack_from("<I", secs[si_][2], int(r["site"], 16) - secs[si_][1])[0]
         f_ = cand_of(v_)
         if f_ is not None: absr.append((int(r["site"], 16), v_, f_))

@@ -1056,6 +1056,7 @@
 004463e0 menu_update 11612
 004492b0 lua_register_course_functions 1093
 00449700 course_sky_atomic_create 1102
+00449b50 sky_directions_init 228
 00449c40 course_helper_449c40 975
 0044a010 course_sky_atomic_render 15
 0044a020 course_sky_atomic_destroy 26
@@ -1126,6 +1127,7 @@
 00453560 course_dump_cb2_sub_453560 50
 004535a0 course_atomics_destroy_6a07c4 50
 004535e0 course_dump_cb0 236
+00453600 course_dump_emitters_update 295
 00453730 course_dump_cb1 12
 00453740 course_dump_cb2 148
 004537e0 course_atomics_destroy_6a07c4_004537e0 5
@@ -1220,6 +1222,7 @@
 004573f0 course_rouabout_cb5_sub_4573f0 57
 00457430 course_spline_objects_create 99
 004574a0 course_spline_objects_update 121
+00457520 spline_objects_reset 121
 004575c0 gap_4575c0 36
 004575f0 course_rouabout_cb12 34
 00457620 load_shadow_models 394
@@ -1234,6 +1237,8 @@
 00458270 course_6a2634_clear 11
 00458280 course_rouabout_cb2 407
 00458420 course_rouabout_cb5 38
+00458450 course_sandsnow_object_create 59
+00458490 course_sandsnow_object_render 13
 004584a0 course_sandsnow_destroy_frames 13
 004584b0 course_sandsnow_cb0_sub_4584b0 5
 004584c0 course_race_phase_hook 31
@@ -1413,6 +1418,7 @@
 00460610 weapon_flashbang_flare_particles 222
 004606f0 weapon_flashbang_fire 77
 00460740 weapon_flashbang_update 63
+00460780 weapon_flashbang_units_release 48
 004607b0 flashunit_load_assets 298
 004608b0 weapon_flashbang_race_start 5
 004608c0 weapon_6a5e2c_get_clump 22
@@ -1549,6 +1555,7 @@
 00467200 weapon_shotgun_fire_shot 873
 00467570 weapon_shotgun_fire 32
 00467590 weapon_shotgun_update 272
+004676a0 weapon_shotgun_slots_release 24
 004676c0 weapon_shotgun_load_assets 255
 004677b0 weapon_shotgun_race_start 5
 004677c0 weapons_effects_destroy_all 83
@@ -1905,7 +1912,8 @@
 004848b0 clump_for_all_materials 28
 004848d0 clump_has_uv_anim 50
 00484910 clump_for_all_materials_uv_anim 45
-00484940 gap_484940 32
+00484940 material_set_texture_cb 32
+00484960 clump_set_texture 45
 00484990 atomic_set_material_alpha_value_cb_484990 20
 004849b0 atomic_set_material_alpha_value 45
 004849e0 course_helper_4849e0 239

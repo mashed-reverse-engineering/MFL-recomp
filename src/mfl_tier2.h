@@ -83,6 +83,16 @@ typedef struct RwRGBA { unsigned char red, green, blue, alpha; } RwRGBA;
 typedef RwInt32 RwBool;
 typedef char RwChar;
 typedef struct RwV3d { float x, y, z; } RwV3d;
+/* RenderWare SDK vector macros (rwcore.h, RW 3.7) with the SDK's parentheses: the Rwp library uses them and the
+   parentheses decide the cl 13.00 instruction schedule (BYTEMATCH_PATTERNS RWP-X27) */
+#define RwV3dSubMacro(o, a, b) do { (o)->x = (((a)->x) - ( (b)->x)); (o)->y = (((a)->y) - ( (b)->y)); (o)->z = (((a)->z) - ( (b)->z)); } while (0)
+#define RwV3dAddMacro(o, a, b) do { (o)->x = (((a)->x) + ( (b)->x)); (o)->y = (((a)->y) + ( (b)->y)); (o)->z = (((a)->z) + ( (b)->z)); } while (0)
+#define RwV3dScaleMacro(o, a, s) do { (o)->x = (((a)->x) * ( (s))); (o)->y = (((a)->y) * ( (s))); (o)->z = (((a)->z) * ( (s))); } while (0)
+#define RwV3dDotProductMacro(a, b) ((((( (((a)->x) * ((b)->x))) + ( (((a)->y) * ((b)->y))))) + ( (((a)->z) * ((b)->z)))))
+#define RwV3dCrossProductMacro(o, a, b) do { \
+    (o)->x = (( (((a)->y) * ( (b)->z))) - ( (((a)->z) * ( (b)->y)))); \
+    (o)->y = (( (((a)->z) * ( (b)->x))) - ( (((a)->x) * ( (b)->z)))); \
+    (o)->z = (( (((a)->x) * ( (b)->y))) - ( (((a)->y) * ( (b)->x)))); } while (0)
 typedef struct RwBBox { RwV3d sup, inf; } RwBBox;
 typedef struct _RTL_CRITICAL_SECTION _RTL_CRITICAL_SECTION;
 typedef ushort WORD;

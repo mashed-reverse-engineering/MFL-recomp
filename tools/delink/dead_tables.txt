@@ -1,0 +1,2 @@
+# va size why: jump tables inside the code section that are dead in a link (see mkobj.py --drop-app)
+00436168 144 career_event_set_progress: both switch tables (recomp/clusters/cl_career_event_set_progress.c compiles its own switches; the original indirect jmps are in the filled body)
