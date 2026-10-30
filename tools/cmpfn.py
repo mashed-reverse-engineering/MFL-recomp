@@ -202,8 +202,9 @@ def check(src, items, flags):
         for h in os.listdir(d):
             if h.endswith(".h"):
                 shutil.copy(os.path.join(d, h), os.path.join(w, h))
+        env = dict(os.environ, VC7_CL="1310") if b"compile: cl1310" in open(src, "rb").read() else None   # alternate compiler cl 13.10 (marker or VC7_CL=1310 in the environment)
         try:
-            r = subprocess.run([VC7, w, "cl.exe", "/nologo", "/c", "/Gy"] + flags + ["f.c"], capture_output=True, text=True, timeout=int(os.environ.get("CMPFN_TIMEOUT", "180")))
+            r = subprocess.run([VC7, w, "cl.exe", "/nologo", "/c", "/Gy"] + flags + ["f.c"], capture_output=True, text=True, env=env, timeout=int(os.environ.get("CMPFN_TIMEOUT", "180")))
         except subprocess.TimeoutExpired:
             return {s: (False, "compile error: timeout") for s, _ in items}
         if not os.path.exists(os.path.join(w, "f.obj")):
@@ -277,7 +278,7 @@ def main():
             for n in sorted(os.listdir(base)):
                 if n.endswith(".h") or n == f:
                     h.update(n.encode() + open(os.path.join(base, n), "rb").read())
-            h.update(repr((fl, items)).encode() + open(__file__, "rb").read() + open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "asmdiff.py"), "rb").read())
+            h.update(os.environ.get("VC7_CL", "").encode() + repr((fl, items)).encode() + open(__file__, "rb").read() + open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "asmdiff.py"), "rb").read())
             cp = os.path.join(CACHE, h.hexdigest() + ".pkl")
             if os.path.exists(cp):
                 return pickle.load(open(cp, "rb"))

@@ -24,8 +24,8 @@ void __cdecl course_collision_object_push_vectors(char *obj,float *point,RwV3d *
   byte second;
   RwV3d sum;
   double scale;
-  volatile float scaled_y;
-  volatile float scaled_z;
+  float scaled_y;
+  float scaled_z;
   RwV3d target;
   char *edges;
   

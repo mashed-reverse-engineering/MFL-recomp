@@ -445,9 +445,9 @@ ai_cell_is_value2,00417c30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,3
 ai_clear,004271a0,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 ai_debug_draw_lines,0044e4d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,199,0.70,0,0
 ai_debug_draw_marker_box,0044c6f0,tier2,compiled+shadow-never,static,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
-ai_drive_a,00418dd0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,800,0.73,0,0
-ai_drive_b,004195b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,800,0.84,0,0
-ai_drive_c,0041ad20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,800,0.78,0,0
+ai_drive_a,00418dd0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.73,0,0
+ai_drive_b,004195b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.76,0,0
+ai_drive_c,0041ad20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.73,0,0
 ai_editor,004271e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.62,0,0
 ai_editor_brush_select,00426e90,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ccd2c271c4e8,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 ai_editor_cursor_move,00426de0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.95,0,0
@@ -786,7 +786,7 @@ course_city_cb5,004563f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33b
 course_city_cb5_helper_455aa0,00455aa0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 course_clump_render_with_physics,0045d560,hand,bytes,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 course_clumps_destroy,0045b730,agent,bytes-standalone+9f10d37d0c5b,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
-course_collision_object_push_vectors,0048d0e0,tier2,compiled+shadow-never,static,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+course_collision_object_push_vectors,0048d0e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.29,0,0
 course_collision_objects_build,0048d6c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,1.00,0,0
 course_collision_objects_cull,0048d730,agent,bytes-standalone+8853051f40e8,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 course_collision_tables_clear,0048d680,agent,bytes-standalone+116d0f003134,bytes-reloc,-,33bf93632a05,4d76d555f9f8,0,0.00,0,0

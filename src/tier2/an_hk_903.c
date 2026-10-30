@@ -241,7 +241,10 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_x = STEER_HOLD_MS - result;
-        controls[1] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)bot->steer_amount);
+        {
+          float fade = (float)(int)frame.candidate_x * k_f_0_005;      /* cl reassociated (steer_amount * k) * cand; the original rounds cand * k first (24-bit) */
+          controls[1] = (undefined1)(int)(fade * (float)bot->steer_amount);
+        }
       }
     }
   }
@@ -270,7 +273,10 @@ LAB_00418fe2:
       }
       else {
         frame.candidate_x = STEER_HOLD_MS - result;
-        controls[0] = (undefined1)(int)((double)frame.candidate_x * (double)k_f_0_005 * (double)bot->steer_amount);
+        {
+          float fade = (float)(int)frame.candidate_x * k_f_0_005;      /* cl reassociated (steer_amount * k) * cand; the original rounds cand * k first (24-bit) */
+          controls[0] = (undefined1)(int)(fade * (float)bot->steer_amount);
+        }
       }
     }
   }

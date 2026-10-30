@@ -5,6 +5,8 @@
 # VC7_SHELL=1: the arguments are a shell command line run inside the container (used for parallel cl runs).
 # Needs: docker, the image tianon/wine, and the extracted compiler in toolchain/vc7 (VC7_ROOT) (see ghidra/README.md).
 set -e
+# VC7_CL=1310: the alternate compiler cl 13.10 (VC++ Toolkit 2003, toolchain/vc71) with its own container (<name>_71); default stays cl 13.00
+if [ "$VC7_CL" = 1310 ]; then VC7_ROOT=${VC7_ROOT:-$(dirname "$(dirname "$(readlink -f "$0")")")/toolchain/vc71}; VC7_PFX=${VC7_PFX:-wine_pfx_cc}; [ -n "$VC7_CONTAINER" ] && VC7_CONTAINER=${VC7_CONTAINER}_71; fi
 # the compiler has its own Wine prefix volume (a clone of wine_pfx): a compile and a game run must never use the same prefix at the same time
 VC7V=${VC7_PFX:-wine_pfx_cc}; docker volume inspect $VC7V >/dev/null 2>&1 || "$(dirname "$(readlink -f "$0")")/wine-run/mkpfx.sh" ${VC7V#wine_pfx_}
 # VC7_CONTAINER=<name>: run in a long lived container (docker exec) instead of a new one per call: `docker create` alone costs 2-15 s on this host.

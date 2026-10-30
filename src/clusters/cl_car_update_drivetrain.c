@@ -148,8 +148,11 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 unused_ar
   wheel_index = 0;
   gear_max = 0;
   gear_probe = 0;
-  scratch_f4 = car->handling_c4 * k_f_0_5 * scratch_f3 * k_f_6_6666666en4;
-  scratch_f3 = scratch_f3 * k_f_6_6666666en4 * car->handling_c0 * k_f_0_5;
+  /* the original shares f3 * k between the two products: f4 = (c4 * 0.5) * (f3 * k), f3 = ((f3 * k) * c0) * 0.5 */
+  { float f3k = scratch_f3 * k_f_6_6666666en4, c4h = car->handling_c4 * k_f_0_5;
+    scratch_f4 = c4h * f3k;
+    scratch_f3 = f3k * car->handling_c0;
+    scratch_f3 = scratch_f3 * k_f_0_5; }
   do {
     if (car->handling_params[gear_probe] != k_f_0) {
       if (gear_probe == 0) {
@@ -384,7 +387,8 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 unused_ar
           if (((Wheel *)(wheel + -0xf))->state == 2) {
             scratch_f3 = (float)*(byte *)(controls + 5);
             if (car->effect_level[2] != 0) {
-              scratch_f3 = scratch_f3 * (float)(int)(100 - car->effect_level[2]) * k_f_0_01;
+              scratch_f3 = scratch_f3 * (float)(int)(100 - car->effect_level[2]);      /* one product per statement: cl would form (100 - level) * 0.01 first */
+              scratch_f3 = scratch_f3 * k_f_0_01;
             }
             if (k_f_160 < scratch_f3) {
               scratch_f3 = k_f_160;
@@ -477,7 +481,11 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 unused_ar
           xv = side_dir.x * vv;
           yv = side_dir.y * vv;
           zv = vv * side_dir.z;
-          coef = PF(0x1b) * k_f_3 * g_car_8bd730 * (float)(int)wheel_flags * k_f_0_001953125 * k_f_1_1;
+          { float cf = PF(0x1b) * k_f_3;      /* one product per statement, source order (cl hoists the flag count first) */
+            cf = cf * g_car_8bd730;
+            cf = cf * (float)(int)wheel_flags;
+            cf = cf * k_f_0_001953125;
+            coef = cf * k_f_1_1; }
           if (boost_active) {
             coef = coef * k_f_0_5;
           }
@@ -539,7 +547,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 unused_ar
     wheel_index = wheel_index + 1;
     wheel = wheel + 0x31;
   } while (wheel_index < 4);
-  tqs = dt * car->inertia_inverse * k_f_9_259333en7;      /* never stored in the original (x87 register) */
+  { float tqf = dt * car->inertia_inverse; tqs = tqf * k_f_9_259333en7; }      /* never stored in the original (x87 register); source order, cl would multiply (inertia * k) * dt */
   tmp_vec.x = torque_sum.x * tqs;
   tmp_vec.y = torque_sum.y * tqs;
   tmp_vec.z = tqs * torque_sum.z;
@@ -562,7 +570,7 @@ void car_update_drivetrain_n(Car *car,int car_slot,float dt,undefined4 unused_ar
   }
   vel_ptr = car->velocity;
   { volatile float t_a4 = CFLD(car, 0xb1c) + zacc; force_z = t_a4; }      /* stored as a float in the original */
-  dt_scaled = dt * car->time_step_const * k_f_3_3333333en4;
+  { float dts = dt * car->time_step_const; dt_scaled = dts * k_f_3_3333333en4; }      /* source order: cl would multiply (const * k) * dt */
   slip_energy = (float)dt_scaled;
   v8c = (float)(dt_scaled * (CFLD(car, 0xb14) + force_x));      /* stored as a float in the original */
   *vel_ptr = v8c + *vel_ptr;

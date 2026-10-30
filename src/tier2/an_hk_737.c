@@ -20,7 +20,7 @@ void __cdecl player_progress_difference(undefined4 player_a,undefined4 player_b,
 {
   double progress_left;
   double progress_right;
-  volatile float left_f;
+  float left_f;
 
   /* wrap-aware compare: if one value is above 80 and the other below 20,
      the one above 80 is shifted down by 100 (the 80/20/100 values are inferred from the names) */

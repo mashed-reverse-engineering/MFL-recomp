@@ -28,7 +28,7 @@
 void course_zone_corners_to_world(int zone)
 
 {
-  volatile float z_step_offset; /* volatile in the original build: kept in memory (inferred) */
+  float z_step_offset; /* volatile in the original build: kept in memory (inferred) */
   float step_index;
   RwMatrix *frame_ltm;
   struct {

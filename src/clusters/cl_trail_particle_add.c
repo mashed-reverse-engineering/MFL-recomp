@@ -53,7 +53,9 @@ void trail_particle_add_n(RwV3d *particle, int camera, float view_scale)
   float half_w;
   float x_min;
   int quad_index;
-  float10 half_w_base;
+  float half_w_base;
+  float inv_scale;
+  float inv_z;
   undefined4 packed_color;
   int quad_byte_off;
   struct {
@@ -88,11 +90,22 @@ void trail_particle_add_n(RwV3d *particle, int camera, float view_scale)
   RwV3dTransformPoints(&frame.view_pos,particle,1,(RwMatrix *)(camera + 0x20));
   if ((frame.view_pos.z > near_z) && (frame.view_pos.z < far_z)) {
     /* screen rectangle (x_screen, y_screen +- half size), clipped to the screen; the uv range is cut by the same fraction */
-    frame.x_screen = (float_1_0 / frame.view_pos.z) * screen_w * frame.view_pos.x;
-    frame.y_screen = (float_1_0 / frame.view_pos.z) * screen_h * frame.view_pos.y;
-    half_w_base = screen_w * (float_1_0 / view_scale) * float_0_8 * particle[1].x * (float_1_0 / frame.view_pos.z);
+    inv_z = float_1_0 / frame.view_pos.z;
+    frame.x_screen = inv_z * screen_w;
+    frame.x_screen = frame.x_screen * frame.view_pos.x;
+    frame.y_screen = inv_z * screen_h;
+    frame.y_screen = frame.y_screen * frame.view_pos.y;
+    /* one multiplication per statement: cl would share (1/view_scale * p1x * 1/z * 0.8) between half_w and half_h, the original rounds w*iv and iv*h first */
+    inv_scale = float_1_0 / view_scale;
+    half_w_base = screen_w * inv_scale;
+    half_w_base = half_w_base * float_0_8;
+    half_w_base = half_w_base * particle[1].x;
+    half_w_base = half_w_base * inv_z;
     half_w = half_w_base * (screen_w / screen_h);
-    half_h = (float_1_0 / view_scale) * screen_h * float_0_8 * particle[1].x * (float_1_0 / frame.view_pos.z);
+    half_h = inv_scale * screen_h;
+    half_h = half_h * float_0_8;
+    half_h = half_h * particle[1].x;
+    half_h = half_h * inv_z;
     if ((-half_w < frame.x_screen) &&
        (((frame.x_screen < half_w + screen_w && (-half_h < frame.y_screen)) && (frame.y_screen < half_h + screen_h)))) {
       frame.uv_u1 = particle[2].x;
