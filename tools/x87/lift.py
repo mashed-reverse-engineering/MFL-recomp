@@ -18,6 +18,7 @@ import cmpfn
 from disx import dis
 
 class Unsupported(Exception): pass
+PAREN = int(os.environ.get('X87_PAREN', '0'))      # T-X89: parenthesise the left part of 3+ term sum chains (RWP-X14)
 
 REGS = ["eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"]
 SUBREG = {"ax": "eax", "cx": "ecx", "dx": "edx", "bx": "ebx", "al": "eax", "cl": "ecx", "dl": "edx", "bl": "ebx", "ah": "eax"}
@@ -658,14 +659,35 @@ class Lifter:
         except Unsupported as e: raise Unsupported("%s @%x" % (e, getattr(s, "cur", 0)))
         except (ValueError, KeyError, IndexError) as e: raise Unsupported("operand form %r @%x" % (e, getattr(s, "cur", 0)))
         s.tail_merge(s.stmts)
+        s.join_store(s.stmts)
         return s.render()
+
+    def join_store(s, stmts):
+        """RWP-X15: `if (c) { A; } else { B; }` followed by a store of the joined x87 value `c ? p : q`: the original source has the store in BOTH arms (cl shares the fstp itself),
+        the ternary spelling changes the code (rwp_math_0056f500)"""
+        for st in stmts:
+            if st[0] == "if": s.join_store(st[2]); s.join_store(st[3])
+        i = 0
+        while i < len(stmts) - 1:
+            st = stmts[i]
+            if st[0] == "if" and st[3]:
+                j = i + 1
+                while j < len(stmts) and stmts[j][0] == "maybe": j += 1
+                if j < len(stmts) and stmts[j][0] == "store" and stmts[j][2].kind == "sel" and stmts[j][2].a[0] == st[1]:
+                    sx = stmts[j]; n = sx[2]
+                    st[2].append(("store", sx[1], n.a[1], sx[3])); st[3].append(("store", sx[1], n.a[2], sx[3]))
+                    del stmts[j]; continue
+            i += 1
 
     def tail_merge(s, stmts):
         """RWP-X10: `if (c) { X = k1 * v; return r; } X = k2 * v; return r;` (arms identical but for literals) is ONE statement with a ternary factor `(c ? k1 : k2) * v`"""
+        allow_mem = [False]
         def mn(c, a, b):
             if a is b: return a
-            if a.kind != b.kind: return None
+            if a.kind != b.kind:
+                return N("sel", c, a, b) if (a.kind == "k" or allow_mem[0]) and (b.kind == "k" or allow_mem[0]) and a.kind in ("k", "mem") and b.kind in ("k", "mem") else None
             if a.kind == "k": return N("sel", c, a, b) if a.a != b.a else a
+            if a.kind == "mem" and a.a != b.a: return N("sel", c, a, b) if allow_mem[0] else None
             if a.kind == "bin" and a.a[0] == b.a[0]:
                 x, y = mn(c, a.a[1], b.a[1]), mn(c, a.a[2], b.a[2])
                 if x is None or y is None: return None
@@ -680,7 +702,7 @@ class Lifter:
             keep = lambda x: not (x[0] == "maybe" and not x[1].temp and x[1].refs == 0)
             T = [x for x in st[2] if keep(x)]; R = [x for x in stmts[i + 1:] if keep(x)]
             if len(T) != len(R) or len(T) < 2 or T[-1] != R[-1] or T[-1][1] == "f": continue
-            out = []
+            out = []; allow_mem[0] = len(T) == 2      # a lone differing store is a ternary; with more statements the arms stay (rwp_math_0056f500)
             for a, b in zip(T[:-1], R[:-1]):
                 if a == b: out.append(b)
                 elif a[0] == b[0] == "store" and a[1] == b[1] and a[3] == b[3]:
@@ -761,12 +783,16 @@ class Lifter:
         if k == "fn2": return "(float)%s(%s, %s)" % (n.a[0], s.fx(n.a[1]), s.fx(n.a[2])), 9
         if k == "sel":
             c, A, B = n.a; return "%s ? %s : %s" % (s.cond_txt(c), s.fx(A), s.fx(B)), 0
+        if k == "bin" and PAREN == 2 and n.a[0] == "+":      # RWP-X14: cl evaluates a FLAT sum chain `t0 + t1 + t2` as t2, t1, t0: the spelling of an evaluation order e0, e1, e2 is `e2 + e1 + e0`
+            def chain(x): return chain(x.a[1]) + [x.a[2]] if x.kind == "bin" and x.a[0] == "+" and not x.temp and x.var is None else [x]
+            ts = chain(n)
+            if len(ts) >= 3: return " + ".join(("(%s)" % s.fx(x)) if (not x.temp and s.fxp(x)[1] < 2) else s.fx(x) for x in reversed(ts)), 1
         if k == "bin":
             op, A, B = n.a; pr = s.PREC[op]
             at, ap = (s.fx(A), 9 if A.temp else s.fxp(A)[1]); bt, bp = (s.fx(B), 9 if B.temp else s.fxp(B)[1])
             if A.kind == "cp" and A.a[0].dbl: at = "(float)" + at
             if B.kind == "cp" and B.a[0].dbl: bt = "(float)" + bt
-            if ap < pr: at = "(" + at + ")"
+            if ap < pr or (ap == pr and PAREN == 1 and A.kind == "bin" and not A.temp and pr == 1): at = "(" + at + ")"      # RWP-X14: cl evaluates a parenthesised left pair in source order, a flat chain reordered
             if bp <= pr and not (bp == pr and op in "+*" and False): bt = "(" + bt + ")" if bp < 9 else bt
             return "%s %s %s" % (at, op, bt), pr
         raise Unsupported("render " + k)
@@ -839,8 +865,10 @@ class Lifter:
                 out.append(pad + "do {"); out += s.lines(st[1], ind + 1); out.append("%s} while (%s);" % (pad, s.cond_txt(st[2])))
             elif k == "if":
                 if not st[2] and not st[3]: continue      # arms filled lazily by phi declarations: an if that stayed empty is dropped at render time
-                out.append("%sif (%s) {" % (pad, s.cond_txt(st[1]))); out += s.lines(st[2], ind + 1)
-                if st[3]: out.append(pad + "} else {"); out += s.lines(st[3], ind + 1)
+                la, lb = s.lines(st[2], ind + 1), s.lines(st[3], ind + 1)
+                if not la and not lb: continue      # arms that only held x87 value nodes (the ternary took them over)
+                out.append("%sif (%s) {" % (pad, s.cond_txt(st[1]))); out += la
+                if lb: out.append(pad + "} else {"); out += lb
                 out.append(pad + "}")
         return out
 

@@ -13,6 +13,15 @@ def find(name):
         p = os.path.join(G, d, name)
         if os.path.exists(p): return p
 
+def standalone():
+    """tools/delink/origbytes.py output (output/zero_original_bytes.json): original bytes still linked in the standalone-link build; absent = no key."""
+    p = find("zero_original_bytes.json")
+    if not p: return {}
+    j = json.load(open(p)); t = j["totals"]; c = j["code"]
+    return {"standalone": {"date": j["date"], "code_total": sum(sum(x.values()) for x in c.values()), "code_original": t["code_original"], "app_code_original": t["app_code_original"],
+                           "data_lib_original": t["data_original_lib"], "data_generated_c": t["data_generated_c"], "resources_original": j["resources"]["rsrc_original_bytes"],
+                           "code_original_by_layer": {k: v.get("original", 0) for k, v in c.items()}}}
+
 def compute():
     fn = [(int(l.split()[0], 16), l.split()[1], int(l.split()[2])) for l in open(find("fnsizes.txt")) if len(l.split()) >= 3]
     size = {va: sz for va, _, sz in fn}
@@ -110,7 +119,7 @@ def compute():
             "functions": {"total": len(fn), "game": len(game), "named": named(fn), "game_named": named(game),
                           "game_bytes": sum(s for _, _, s in game)},
             "published_source": {"by_status": dict(man), "by_module": dict(sorted(by_mod.items()))},
-            "replaced_in_pipeline": rep, "replaced_unique": uniq, "clusters": cl, "published_verified": pub}
+            "replaced_in_pipeline": rep, "replaced_unique": uniq, "clusters": cl, "published_verified": pub, **standalone()}
 
 def bar(n, d, w=20):
     k = round(w * n / d) if d else 0
@@ -150,6 +159,16 @@ def table(j):
     out += ["", "**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (%d cluster files give %d functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*." % ((pv or {}).get("cluster_files", 0), (pv or {}).get("cluster_functions", 0)), "",
            "**Layers.** All of the rows above are application code (VA < 0x4B0000). Not counted and still original bytes in the playable build: the C runtime (libcmt, about 81 KB, including 23.6 KB floating-point/exception code without source), RenderWare Rw/Rp/Rx/Rt (about 480 KB; to be replaced by a clean-room librw-mfl, not byte-matched), the RenderWare physics plugin Rwp (121 KB, no source), RtPNG/libpng/zlib, D3DX, Lua 4.0, qhull and DirectShow video code, plus the data, resources and the link without the original image. The D3D9, DirectSound, DirectInput and Win32 platform calls are made directly from the application C. See [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).", "",
            "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo (see [docs/VERIFICATION.md](docs/VERIFICATION.md)).", ""]
+    sa = j.get("standalone")
+    if sa:
+        out += ["", "**Original bytes still in the linked exe** (`tools/delink/origbytes.py`, build of %s: app code and app data from C, library layers and resources still original)\n" % sa["date"],
+                "| Part | Original bytes | Share |", "|---|---:|:---|",
+                "| Code (.text + _rwcseg), all layers | %s | %s |" % (format(sa["code_original"], ","), bar(sa["code_original"], sa["code_total"])),
+                "| ...application code (VA < 0x4B0000) | %s | |" % format(sa["app_code_original"], ","),
+                "| Library data (.rdata/.data/.bss rows copied as bytes) | %s | |" % format(sa["data_lib_original"], ","),
+                "| Application data generated as C | %s | |" % format(sa["data_generated_c"], ","),
+                "| Resources (.rsrc from the original) | %s | |" % format(sa["resources_original"], ","),
+                "| Code by layer | " + ", ".join("%s %s" % (k, format(v, ",")) for k, v in sa["code_original_by_layer"].items() if v) + " | |"]
     bt = (u or {}).get("by_tier")
     if bt:
         out += ["", "<details><summary>By tier (whole pipeline, each function once)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]

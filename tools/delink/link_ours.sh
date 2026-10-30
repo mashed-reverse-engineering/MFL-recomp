@@ -36,9 +36,17 @@ while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.ob
 # IMPLIBS=1 (S2): the import table is built by the linker from generated import libs (tools/mk_importlibs.py): every import site references __imp__Name@N, the original IAT and import tables are dropped
 IMPLIBS_ARG=; IMPLIBS_LNK=
 [ -n "$IMPLIBS" ] && { OBJLIST=$W/objs_local.txt python3 $G/tools/mk_importlibs.py $W/imp > $W/mk_importlibs.log 2>&1; IMPLIBS_ARG="--imports-as-symbols $W/imp"; IMPLIBS_LNK="/libpath:imp $(cd $W && ls imp/*.lib | tr '\n' ' ')"; }
-python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $MKOBJ_ARGS 2> $W/mkobj.err | tee $W/mkobj.log | head -12
+# GEN_DATA=1 (S5, needs IMPLIBS=1): the data layout comes from tools/globals/globgen.py (app data and library spans as generated C), mkobj --drop-app removes .rdata/.data/.bss and the replaced function bodies from the image object
+GEN_ARG=; GEN_OBJ=
+if [ -n "$GEN_DATA" ]; then
+  mkdir -p $W/gen; python3 -I $G/tools/globals/globgen.py $W/gen > $W/gen/globgen.log 2>&1 || { tail -5 $W/gen/globgen.log; exit 1; }
+  (cd $W/gen && VC7_CONTAINER=ac $G/tools/vc7.sh $W/gen cl.exe /nologo /c /Od /Zl rdata.c data.c bss.c > cl.log 2>&1; for x in rdata data bss; do objcopy $(tr '\n' ' ' < objcopy_$x.txt) $x.obj $x.o2 && mv $x.o2 $x.obj; done)
+  [ -f $W/gen/bss.obj ] || { echo "gen compile failed"; tail -5 $W/gen/cl.log; exit 1; }
+  GEN_ARG="--drop-app $W/gen"; GEN_OBJ="gen/rdata.obj gen/data.obj gen/bss.obj"
+fi
+python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $GEN_ARG $MKOBJ_ARGS 2> $W/mkobj.err | tee $W/mkobj.log | head -12
 (cd $W && ls o/*.obj) > $W/link.rsp
-VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:mfl_entry /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe mfl.obj @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true
+VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:mfl_entry /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe mfl.obj $GEN_OBJ @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true
 echo "link: $(grep -c -E "error" $W/link.log || true) errors, $(grep -c LNK4006 $W/link.log || true) LNK4006"; grep -E "error" $W/link.log | head -8
 grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | head -5; echo "mkobj: references not found"; exit 1; }
 [ -f $W/ours.exe ] || { echo "link failed"; exit 1; }

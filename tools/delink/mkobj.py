@@ -160,6 +160,8 @@ memdefs = collections.defaultdict(set)          # lib member key (objs line "lib
 # them becomes a symbol reference (function start or external data symbol + offset; rel32 calls / jumps from output/delink/ghidra_refs.csv);
 # the member objects (lib:<key> lines of --objs) supply the code and data.  References that have no symbol are listed as blockers.
 DROP = []
+redir_at = {}          # address -> name of every function redirected to our objects
+DSEC = set()           # --drop-app: indices of the sections that leave the image (.rdata .data .bss); the generated data objects define them
 if "--drop-members" in opt:
     _dm = {l.strip() for l in open(opt["--drop-members"]) if l.strip()}
     DROP = sorted(((int(r["lo"], 16), int(r["hi"], 16), r) for r in csv.DictReader(open(opt.get("--drop-items", os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))))
@@ -177,6 +179,12 @@ if "--objs" in opt:
             if sec_ > 0: objdef.setdefault(nm_, code_)
             elif sec_ == 0 and val_ == 0: objundef.add(nm_)
             elif sec_ == 0: commons.add(nm_)            # COMMON (uninitialised, size in value): the linker allocates it unless someone defines it
+    if "--drop-app" in opt:         # the generated data objects reference functions / labels of the image by name (pointer words): define those too
+        _gd, _gu = set(), set()
+        for x_ in ("rdata", "data", "bss"):
+            for nm_, sec_, val_, code_ in coff_syms(os.path.join(opt["--drop-app"], x_ + ".obj")):
+                (_gu if sec_ == 0 and val_ == 0 else _gd).add(nm_)
+        objundef |= _gu - _gd
     tsec = 0 if not PAD or "--pad-code" not in _a else 1
     redirected = set()
     for nm_, code_ in objdef.items():
@@ -187,7 +195,7 @@ if "--objs" in opt:
         off = a - secs[tsec][1]
         rel[tsec] = [r_ for r_ in rel[tsec] if not off - 3 <= r_[0] < off + 5]       # pointer fields inside the 5 patched bytes are gone with them
         data[tsec][off:off + 5] = b"\xe9\0\0\0\0"
-        rel[tsec].append((off + 1, nm_, 0x14)); undef_syms.append(nm_); redirected.add(u)
+        rel[tsec].append((off + 1, nm_, 0x14)); undef_syms.append(nm_); redirected.add(u); redir_at[a] = u
     stat["functions redirected to our objects"] = len(redirected)
     byu = {undecorate(n_): n_ for n_ in objdef}
     for fk, ty_ in (("--hook-calls", 0x14), ("--dwords", 0x6)):      # harness lists "<VA>=<symbol>": retarget a 5 byte E8 call (REL32) / store the symbol's address in a 4 byte operand (DIR32)
@@ -220,7 +228,7 @@ if "--objs" in opt:
         elif any(c_ in symmap and sec_index(symmap[c_]) is not None and not dropped(symmap[c_]) for c_ in (u, nm_, nm_.lstrip("_"))):
             aliases.append((nm_, next(symmap[c_] for c_ in (u, nm_, nm_.lstrip("_")) if c_ in symmap and sec_index(symmap[c_]) is not None and not dropped(symmap[c_]))))
         elif u in symmap and dropped(symmap[u]) and DROPNAMES.get(symmap[u]): alt.append((nm_, DROPNAMES[symmap[u]]))
-        elif nm_ == "__fltused": aliases.append((nm_, secs[[s_[0] for s_ in secs].index(".data")][1]))     # only its existence matters (CRT float marker)
+        elif nm_ == "__fltused": aliases.append((nm_, secs[0 if "--drop-app" in opt else [s_[0] for s_ in secs].index(".data")][1]))     # only its existence matters (CRT float marker)
         else: missing.add(nm_)
     stat["object references via /alternatename"] = len(alt)
     undef_syms += [t_ for _, t_ in alt]       # weak externals (alias) are written behind the undefined symbols (VC7 link has no /alternatename option)
@@ -282,6 +290,108 @@ if DROP:
         data[si][o_:o_ + n_] = (b"\xcc" if r["kind"] == "code" else b"\0") * n_; stat["drop: bytes filled"] += n_
     stat["drop: blockers (live refs without symbol)"] = len(blockers)
     if blockers: open(OUT + ".blockers.txt", "w").write("\n".join(blockers) + "\n"); print("drop blockers: %d (%s.blockers.txt)" % (len(blockers), OUT), file=sys.stderr)
+
+# --drop-app <gen dir> (S5, variant L): the image no longer carries app code that our objects replace, nor ANY .rdata/.data/.bss (tools/globals/globgen.py
+# generates the whole data layout, library spans as bytes included).  (a) Code: every function redirected to our objects is filled with int3 behind its
+# 5 byte entry jmp, unless live code reaches its interior (branch / absolute word), then it stays (legacy, listed in <out>.dropapp.csv); iterated to a fixed
+# point because a kept body keeps its own references.  (b) Data: all three sections are removed from the object; every live relocation that pointed into them
+# becomes `_<generated name> + offset` (globals_layout.csv rows tile the sections), relocations sited in them vanish (the generated pointers replace them).
+DAPP = []
+if "--drop-app" in opt:
+    assert "--objs" in opt and IMPSYM, "--drop-app needs --objs and --imports-as-symbols"
+    GD = opt["--drop-app"]
+    lay = sorted(((int(r["va"], 16), int(r["va"], 16) + int(r["size"]), r["name"], r["kind"]) for r in csv.DictReader(open(os.path.join(GD, "globals_layout.csv")))))
+    _lo = [x[0] for x in lay]
+    DSEC = {i for i, s_ in enumerate(secs) if s_[0] in (".rdata", ".data", ".bss")}
+    # The linker puts the IAT (.idata$5) at the start of .rdata, ahead of the generated rdata.  Keep the generated data at the original offset modulo 16 (SSE tables are
+    # read with movapd): a filler contribution of the right size in front of it.  .data / .bss start page aligned and need nothing.
+    _iat = struct.unpack_from("<I", d, e + 24 + 96 + 8 * 12 + 4)[0]; _padn = (-_iat) % 16
+    if _padn: secs.append([".rdata", 0xF2000000, bytes(_padn), _padn, 0x40000040 | 0x00100000]); data.append(bytearray(_padn)); stat["drop-app: .rdata alignment filler"] = _padn
+    fsz = {}
+    for l in open(os.path.join(G, "output", "fnsizes.txt")):
+        a_, n_, z_ = l.split(); fsz[int(a_, 16)] = int(z_)
+    _fs = sorted(fsz); _tend = secs[tsec][1] + secs[tsec][3]
+    # extent = up to the next listed function: out-of-line blocks, jump tables and padding behind the sized body belong to it (Ghidra sizes stop at the first ret); live refs into them make the function stay
+    cand = {a_: min(_tend, _fs[bisect.bisect_right(_fs, a_)] if bisect.bisect_right(_fs, a_) < len(_fs) else _tend) for a_ in redir_at if fsz.get(a_, 0) >= 6 and sec_index(a_) == tsec}
+    # Unlisted functions hide in these gaps (reached by raw function pointers, e.g. 0x500510 from a code_interior data word): an extension stays only if no word anywhere in the image
+    # (any offset of the code sections, aligned words of the data sections) outside the function's own extent holds an address inside the gap.
+    _w = []
+    for s_ in secs:
+        if s_[2] is None or s_[0] in (".pad",) or s_[0] == ".rdata" and s_[1] > 0xF0000000: continue
+        _bb = s_[2]; _st = 1 if s_[0] in (".text", "_rwcseg") else 4
+        for i in range(0, len(_bb) - 3, _st):
+            v_ = _bb[i] | _bb[i + 1] << 8 | _bb[i + 2] << 16 | _bb[i + 3] << 24
+            if 0x401000 <= v_ < _tend: _w.append((v_, s_[1] + i))
+    _w.sort(); _wv = [x[0] for x in _w]
+    for a_ in list(cand):
+        g0, g1 = a_ + fsz[a_], cand[a_]
+        if g1 > g0 and any(not a_ <= _w[k][1] < g1 for k in range(bisect.bisect_left(_wv, g0), bisect.bisect_left(_wv, g1))):
+            cand[a_] = g0; stat["drop-app: extensions cancelled (word points into the gap)"] += 1
+    _cl = sorted(cand)
+    def cand_of(a):            # candidate function whose body (behind the entry jmp) contains a, or None
+        i = bisect.bisect_right(_cl, a) - 1
+        return _cl[i] if i >= 0 and _cl[i] < a < cand[_cl[i]] else None
+    legacy = {}                # function start -> reason
+    # branches into interiors: Ghidra flow refs + the E8 / E9 / 0F 8x byte scan (as in --drop-members)
+    brs = set()
+    for r in csv.reader(open(os.path.join(G, "output", "delink", "ghidra_refs.csv"))):
+        if len(r) < 3 or r[2] not in ("UNCONDITIONAL_CALL", "UNCONDITIONAL_JUMP", "CONDITIONAL_JUMP"): continue
+        try: brs.add((int(r[0], 16), int(r[1], 16)))
+        except ValueError: continue
+    _tx = secs[tsec]; _b = _tx[2]
+    for i in range(len(_b) - 6):
+        k = 1 if _b[i] in (0xE8, 0xE9) else 2 if _b[i] == 0x0F and 0x80 <= _b[i + 1] <= 0x8F else 0
+        if k:
+            s_ = _tx[1] + i; j_ = bisect.bisect_right(_fs, s_) - 1
+            if j_ >= 0 and s_ < _fs[j_] + fsz[_fs[j_]] and (s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF) not in brs: continue     # inside a sized function body only Ghidra's own flow refs count (else tables / immediates that look like E8 xx xx xx xx)
+            brs.add((s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF))
+    brs = [(s_, t_, cand_of(t_)) for s_, t_ in sorted(brs)]; brs = [x for x in brs if x[2] is not None]
+    absr = []                  # (site, target) of DIR32 words in kept sections that point into a candidate body
+    for si in range(len(secs)):
+        if si in DSEC: continue
+        for off, ti, ty in rel[si]:
+            if ty == 6 and isinstance(ti, int) and ti not in DSEC:
+                t = secs[ti][1] + struct.unpack_from("<i", data[si], off)[0]
+                if cand_of(t) is not None: absr.append((secs[si][1] + off, t, cand_of(t)))
+    for v_, p_ in _w:                  # raw words (value only): the same test on every word of the image that equals an address inside a body
+        f_ = cand_of(v_)
+        if f_ is not None: absr.append((p_, v_, f_))
+    gp = [r for r in csv.DictReader(open(os.path.join(GD, "ptrs.csv")))]
+    _by = {n_: a_ for a_, n_ in redir_at.items()}
+    for r in gp:                                           # generated pointers `function + addend` (addend != 0): the symbol would resolve to our C
+        n_ = r["symbol"]
+        if r["addend"] != "0" and n_ in _by and _by[n_] in cand: legacy[_by[n_]] = "generated data points into it (%s+%s)" % (n_, r["addend"])
+    changed = True
+    while changed:
+        changed = False
+        for s_, t_, f in brs + absr:
+            if f in legacy: continue
+            sf = cand_of(s_)
+            if sf is not None and sf not in legacy: continue          # sited in a body that is filled: dead
+            legacy[f] = "interior ref from %08x to %08x" % (s_, t_); changed = True
+    for a_ in sorted(cand):
+        if a_ in legacy: continue
+        hi = cand[a_]; off = a_ - secs[tsec][1]
+        rel[tsec] = [r_ for r_ in rel[tsec] if not off + 5 <= r_[0] < hi - secs[tsec][1]]
+        data[tsec][off + 5:hi - secs[tsec][1]] = b"\xcc" * (hi - a_ - 5); stat["drop-app: code bytes filled"] += hi - a_ - 5; stat["drop-app: functions dropped"] += 1
+        DAPP.append((a_, hi - a_, redir_at[a_], "dropped", ""))
+    for a_ in sorted(legacy): DAPP.append((a_, cand[a_] - a_, redir_at[a_], "legacy", legacy[a_]))
+    stat["drop-app: functions kept (interior refs)"] = len(legacy)
+    blockers = []
+    for si in range(len(secs)):
+        keep = []
+        for off, ti, ty in rel[si]:
+            if si in DSEC: stat["drop-app: relocations sited in dropped data"] += 1; continue
+            if ty == 6 and isinstance(ti, int) and ti in DSEC:
+                t = secs[ti][1] + struct.unpack_from("<i", data[si], off)[0]
+                j = bisect.bisect_right(_lo, t) - 1
+                if j < 0 or t >= lay[j][1] or lay[j][3] == "pe": blockers.append("%08x -> %08x (data, %s)" % (secs[si][1] + off, t, "no layout row" if j < 0 or t >= lay[j][1] else "pe span")); keep.append((off, ti, ty)); continue
+                struct.pack_into("<i", data[si], off, t - lay[j][0]); keep.append((off, "_" + lay[j][2], 6)); undef_syms.append("_" + lay[j][2]); stat["drop-app: data refs -> generated symbols"] += 1; continue
+            keep.append((off, ti, ty))
+        rel[si] = keep
+    stat["drop-app: blockers"] = len(blockers)
+    open(OUT + ".dropapp.csv", "w").write("va,size,name,status,reason\n" + "".join("%08x,%d,%s,%s,%s\n" % x for x in DAPP))
+    if blockers: open(OUT + ".blockers.txt", "w").write("\n".join(blockers) + "\n"); print("drop-app blockers: %d (%s.blockers.txt)" % (len(blockers), OUT), file=sys.stderr)
 # symbols: section symbols first (index 2 * i: symbol + aux), then externals
 strtab = bytearray(4)
 def name8(s):
@@ -289,7 +399,10 @@ def name8(s):
     if len(b) <= 8: return b.ljust(8, b"\0")
     o = len(strtab); strtab.extend(b + b"\0"); return b"\0\0\0\0" + struct.pack("<I", o)
 syms = bytearray()
+KEEP = [i for i in range(len(secs)) if i not in DSEC]           # --drop-app removes the data sections; section symbol k sits at index 2 * k
+NEWI = {i: k for k, i in enumerate(KEEP)}
 for i, s in enumerate(secs):
+    if i in DSEC: continue
     syms += name8(s[0]) + struct.pack("<IhHBB", 0, i + 1, 0, 3, 1)
     syms += struct.pack("<IHHIHBB", s[3], len(rel[i]) if len(rel[i]) < 0xFFFF else 0xFFFF, 0, 0, 0, 0, 0).ljust(18, b"\0")
 seen = collections.Counter()
@@ -312,34 +425,35 @@ ext += [(n, a) for n, a in aliases if n not in {x for x, _ in ext}]
 nsym_ext = 0
 for n, a in ext:
     i = sec_index(a)
-    if i is None or (DROP and dropped(a)): continue           # .bss symbols too; nothing inside split bytes (globals without an initial value)
+    if i is None or i in DSEC or (DROP and dropped(a)): continue           # .bss symbols too; nothing inside split bytes (globals without an initial value)
     seen[n] += 1
     if seen[n] > 1: n = "%s_%x" % (n, a)
-    syms += name8(n) + struct.pack("<IhHBB", a - secs[i][1], i + 1, 0x20, 2, 0); nsym_ext += 1
+    syms += name8(n) + struct.pack("<IhHBB", a - secs[i][1], NEWI[i] + 1, 0x20, 2, 0); nsym_ext += 1
 symidx = {}
 for n in sorted(set(undef_syms)):
     symidx[n] = len(syms) // 18; syms += name8(n) + struct.pack("<IhHBB", 0, 0, 0x20, 2, 0)
 for n, t_ in (alt if "--objs" in opt else []):      # IMAGE_SYM_CLASS_WEAK_EXTERNAL, aux: TagIndex = target, IMAGE_WEAK_EXTERN_SEARCH_ALIAS
     syms += name8(n) + struct.pack("<IhHBB", 0, 0, 0, 105, 1) + struct.pack("<II", symidx[t_], 3).ljust(18, b"\0")
-for i in range(len(secs)):         # relocation counts in the section symbols' aux records (redirects added some)
-    struct.pack_into("<H", syms, 18 * (2 * i + 1) + 4, min(len(rel[i]), 0xFFFF))
+for i in KEEP:         # relocation counts in the section symbols' aux records (redirects added some)
+    struct.pack_into("<H", syms, 18 * (2 * NEWI[i] + 1) + 4, min(len(rel[i]), 0xFFFF))
 nsyms = len(syms) // 18
 # layout: header, section table, per section raw data + relocations, symbols, strings
-hdr_end = 20 + 40 * len(secs)
+hdr_end = 20 + 40 * len(KEEP)
 body, shdr, p = bytearray(), bytearray(), hdr_end
 for i, s in enumerate(secs):
+    if i in DSEC: continue
     raw = bytes(data[i]) if data[i] is not None else b""
     rp = p if raw else 0; p += len(raw); body += raw
     flags = s[4]
     rels = sorted(rel[i], key=lambda r_: r_[0])
-    rl = b"".join(struct.pack("<IIH", off, symidx[ti] if isinstance(ti, str) else 2 * ti, ty) for off, ti, ty in rels)
+    rl = b"".join(struct.pack("<IIH", off, symidx[ti] if isinstance(ti, str) else 2 * NEWI[ti], ty) for off, ti, ty in rels)
     nrel = len(rels)
     if nrel >= 0xFFFF:         # IMAGE_SCN_LNK_NRELOC_OVFL: the real count is in the VirtualAddress of the first relocation
         rl = struct.pack("<IIH", nrel + 1, 0, 0) + rl; flags |= 0x01000000; nrel = 0xFFFF
     rptr = p if rels else 0; p += len(rl); body += rl
     shdr += name8(s[0]) + struct.pack("<IIIIIIHHI", 0, 0, s[3], rp, rptr, 0, nrel, 0, flags)
 struct.pack_into("<I", strtab, 0, len(strtab))
-coff = struct.pack("<HHIIIHH", 0x14C, len(secs), 0, hdr_end + len(body), nsyms, 0, 0) + shdr + body + syms + strtab
+coff = struct.pack("<HHIIIHH", 0x14C, len(KEEP), 0, hdr_end + len(body), nsyms, 0, 0) + shdr + body + syms + strtab
 open(OUT, "wb").write(coff)
 print("%s: %d sections, %d relocations, %d symbols (%d named functions and data labels), %d bytes" % (OUT, len(secs), stat["relocated"], nsyms, nsym_ext, len(coff)))
 for k, v in sorted(stat.items()):
