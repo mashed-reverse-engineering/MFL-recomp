@@ -224,7 +224,7 @@ for site, t in sorted(cand):
         continue
     if (CODE[c] + fo + 4 + struct.unpack_from("<i", b, fo)[0]) & 0xFFFFFFFF != t: stat["branch decode mismatch (patched / data)"] += 1; continue
     o, sn = bsec[bs]; sc = o.secs[sn - 1]; boff = fo - (runs[bs][0] - CODE[c])
-    if boff in covered[bs] or any(k in covered[bs] for k in range(boff, boff + 4)): stat["branch already relocated"] += 1; continue
+    if boff in covered[bs]: stat["branch already relocated"] += 1; continue
     struct.pack_into("<i", sc["data"], boff, t - runs[bt][0]); sc["rels"].append((boff, o.ref(bname(bt)), 0x14)); covered[bs].update(range(boff, boff + 4)); stat["rel32 branches across blocks"] += 1
 open(os.path.join(outd, "short_branches.txt"), "w").write("".join("%08x -> %08x\n" % x for x in short))
 stat["short branches across blocks (not relocatable)"] = len(short)
