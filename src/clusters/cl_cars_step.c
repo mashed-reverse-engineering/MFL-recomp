@@ -237,12 +237,30 @@ LAB_0047f3f4:
           avg_x_sum = k_f_0;
           do {
             inner_i = inner_i + -1;
-            avg_x_sum = avg_x_sum + history_src[-3] + *history_src + history_src[3] + history_src[6] + history_src[9] + history_src[0xc]
-                     + history_src[0xf] + history_src[0x12];
-            tmp_f = tmp_f + history_src[-2] + history_src[1] + history_src[4] + history_src[7] + history_src[10] +
-                    history_src[0xd] + history_src[0x10] + history_src[0x13];
-            avg_z_sum = avg_z_sum + history_src[-1] + history_src[2] + history_src[5] + history_src[8] + history_src[0xb] +
-                    history_src[0xe] + history_src[0x11] + history_src[0x14];
+            avg_x_sum = avg_x_sum + history_src[-3];
+            avg_x_sum = avg_x_sum + history_src[0];
+            avg_x_sum = avg_x_sum + history_src[3];
+            avg_x_sum = avg_x_sum + history_src[6];
+            avg_x_sum = avg_x_sum + history_src[9];
+            avg_x_sum = avg_x_sum + history_src[0xc];
+            avg_x_sum = avg_x_sum + history_src[0xf];
+            avg_x_sum = avg_x_sum + history_src[0x12];
+            tmp_f = tmp_f + history_src[-2];
+            tmp_f = tmp_f + history_src[1];
+            tmp_f = tmp_f + history_src[4];
+            tmp_f = tmp_f + history_src[7];
+            tmp_f = tmp_f + history_src[10];
+            tmp_f = tmp_f + history_src[0xd];
+            tmp_f = tmp_f + history_src[0x10];
+            tmp_f = tmp_f + history_src[0x13];
+            avg_z_sum = avg_z_sum + history_src[-1];
+            avg_z_sum = avg_z_sum + history_src[2];
+            avg_z_sum = avg_z_sum + history_src[5];
+            avg_z_sum = avg_z_sum + history_src[8];
+            avg_z_sum = avg_z_sum + history_src[0xb];
+            avg_z_sum = avg_z_sum + history_src[0xe];
+            avg_z_sum = avg_z_sum + history_src[0x11];
+            avg_z_sum = avg_z_sum + history_src[0x14];
             history_src = history_src + 0x18;
           } while (inner_i != 0);
           *(float *)&car_cursor[0x53] = (avg_x_sum * k_f_0_0625);

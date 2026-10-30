@@ -187,6 +187,11 @@ def short_string(site):
     nb = [word(site + k) for k in (-4, 4)]
     if any(w is not None and LO <= w < HI for w in nb): return False
     return any(w is not None and all(32 <= x < 127 or x == 0 for x in w.to_bytes(4, "little")) and sum(32 < x < 127 for x in w.to_bytes(4, "little")) >= 3 for w in nb)
+def pair_run(site):
+    """a word of two small 16-bit values (< 0x200) between two more such words: a ctype style table row (0x5e6db0 = 0x0020, 0x0048 = "pointer" 0x480020, the address of a real function, which
+    made the rule below keep it: relocated by the delta, the space entry 0x48 became 0x48 + (delta >> 16), 'digit' for some deltas = the parked delta dependent crashes of 2026-10-10)"""
+    small = lambda w: w is not None and (w & 0xFFFF) < 0x200 and (w >> 16) < 0x200
+    return small(word(site)) and small(word(site - 4)) and small(word(site + 4))
 def u16_array(site):
     """inside an array of small 16-bit values (< 0x200; the bison tables of the D3DX shader assembler at 0x631000-0x636300: 0x0044010f, 0x00630164 ...)"""
     small = lambda w: w is not None and (w >> 9) & 0x7F == 0 and w >> 25 == 0      # both halves < 0x200
@@ -195,12 +200,14 @@ def u16_array(site):
 rows, rejected, u16rej = [], collections.Counter(), {}
 for site, (v, src, ia) in sorted(cand.items()):
     jt = sec_of(site)["fl"] & 0x20 and sec_of(v) and sec_of(v)["fl"] & 0x20 and abs(v - site) < 0x10000     # jump table shape: never text
+    if src == "data" and not jt and v in fnstart and word(site).to_bytes(4, "little")[1::2] == b"\0\0" and pair_run(site):
+        rejected["u16 pair (function start by chance)"] += 1; u16rej[site] = v; continue      # 0x5e6db0 / 0x5e6fb8 / 0x5e70b8: ctype rows 0x0020, 0x0048 = 0x480020 = a function start
     if src == "data" and not jt and v not in fnstart:   # even Ghidra "pointer" typed words: 0x5e0be4 "png\0" was typed pointer     # a word naming a function start stays (0x62e7cc -> 0x4e5070 = "pPN\0" is the RW D3D9 render state getter)
         if looks_text(site): rejected["text"] += 1; continue
         if short_string(site): rejected["short string"] += 1; continue
         if u16_array(site) and v not in fnstart and v not in labels: rejected["u16 array"] += 1; u16rej[site] = v; continue
         b = word(site).to_bytes(4, "little")
-        if b[1] == 0 and b[3] == 0 and v not in fnstart and v not in labels and v not in reftargets:
+        if b[1] == 0 and b[3] == 0 and (v not in fnstart and v not in labels and v not in reftargets or pair_run(site)):
             rejected["u16 pair"] += 1; u16rej[site] = v; continue      # two 16-bit values (the CRT ctype table: 0x0081,0x0081 = "pointer" 0x810081 broke Lua's lexer)
         if sec_of(v) and sec_of(v)["name"] == ".rsrc": rejected["data->rsrc"] += 1; continue     # resources are reached by RVA through the resource directory, never by a stored VA
     ts = sec_of(v)

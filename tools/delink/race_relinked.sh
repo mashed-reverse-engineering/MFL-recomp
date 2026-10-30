@@ -10,6 +10,7 @@ import re, sys
 d = $D
 mv = lambda m: '0x%x' % (int(m.group(0), 16) + d) if 0x5dd000 <= int(m.group(0), 16) < 0x9f9000 else m.group(0)
 for l in sys.stdin: sys.stdout.write(re.sub(r'0x[0-9a-fA-F]+', mv, l))" > $OUT/script.txt
+[ -n "$GDBFILE" ] && sed -i "1i gdbfile $GDBFILE" $OUT/script.txt     # GDBFILE=name: gdb command file $OUT/run/<name> (play_inner gdbfile)
 [ -n "$GDBCRASH" ] && sed -i "1i gdbcrash $GDBCRASH" $OUT/script.txt     # GDBCRASH=N: gdb dumps registers + stack at the next N faults (run/gdbcrash.txt)
 printf 'hold Up %s\nshot race_mid\nwait 3\nshot race_end\n' ${DRIVE_S:-10} >> $OUT/script.txt
 $WR/gameslot.sh timeout -k 10 300 $WR/play.sh $GAME $OUT/script.txt $OUT/run > $OUT/play.log 2>&1

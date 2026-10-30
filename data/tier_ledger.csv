@@ -2388,6 +2388,7 @@ rwp_batch_0057da00,0057da00,tier1,bytes,bytes-reloc,39fcbb3b9c2d,33bf93632a05,4d
 rwp_batch_0057f5e0,0057f5e0,tier1,bytes,bytes-reloc,ae53ee75f708,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057f670,0057f670,tier1,bytes,bytes-reloc,cd6aab412934,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_batch_0057f6d0,0057f6d0,tier1,bytes,bytes-reloc,2f27a12459c8,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+rwp_box_0056d320,0056d320,tier1,bytes,bytes-reloc,7e796e3ff0b7,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_camera_destroy_frame,00495af0,tier1,bytes,bytes-reloc,288df11e107b,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_capsule_00574c60,00574c60,tier1,bytes,bytes-reloc,61e50ba19a90,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_capsule_00575860,00575860,tier1,bytes,bytes-reloc,a00fda2e3a9b,33bf93632a05,4d76d555f9f8,0,0.00,0,0
@@ -2396,6 +2397,7 @@ rwp_car_apply_forces,00492100,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,
 rwp_cars_setup_bodies_from_bounds,0048e960,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.89,0,0
 rwp_constraints_0057f750,0057f750,tier1,bytes,bytes-reloc,9616700cf9f5,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_contact_collect,00491180,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,4d76d555f9f8,200,0.89,0,0
+rwp_cylinder_0056fd20,0056fd20,tier1,bytes,bytes-reloc,98cb588aca1f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_cylinder_0056fe70,0056fe70,tier1,bytes,bytes-reloc,b3e3c87ae2c4,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_dyn_0056a170,0056a170,tier1,bytes,bytes-reloc,e3ca0386ba2c,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_dyn_0056a710,0056a710,tier1,bytes,bytes-reloc,79a8ccaee19e,33bf93632a05,4d76d555f9f8,0,0.00,0,0
@@ -2406,6 +2408,7 @@ rwp_grid_00576f90,00576f90,tier1,bytes,bytes-reloc,3cb7803262c3,33bf93632a05,4d7
 rwp_grid_00577060,00577060,tier1,bytes,bytes-reloc,3d725c84a55f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577110,00577110,tier1,bytes,bytes-reloc,0d576b41f074,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_grid_00577c80,00577c80,tier1,bytes,bytes-reloc,ff1ce50c08a9,33bf93632a05,4d76d555f9f8,0,0.00,0,0
+rwp_math_0056f020,0056f020,tier1,bytes,bytes-reloc,8631a8fad30f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_math_0056f080,0056f080,tier1,bytes,bytes-reloc,c1d9fa8e3e3d,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_math_0056f180,0056f180,tier1,bytes,bytes-reloc,487b2f82967f,33bf93632a05,4d76d555f9f8,0,0.00,0,0
 rwp_math_0056f900,0056f900,tier1,bytes,bytes-reloc,27a198975794,33bf93632a05,4d76d555f9f8,0,0.00,0,0

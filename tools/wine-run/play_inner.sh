@@ -34,6 +34,7 @@ while read -r cmd a b c d e f; do
     keywait) for try in 1 2; do xdotool key --delay 150 $a; perl $TOOLS/memwait.pl $PID $b $c ${d:-4} && break; done ;;
     pressuntil) end=$(( $(date +%s) + $(lsc ${d:-20}) )); until perl $TOOLS/memwait.pl $PID $b $c 0.05; do [ $(date +%s) -ge $end ] && break; xdotool key --delay 100 $a; sleep ${e:-0.4}; done ;;
     trace) timeout $a strace -f -tt -e trace=openat -p $PID -o $OUT/trace.txt >/dev/null 2>&1 & ;;
+    gdbfile) gdb -batch -p $PID -x $OUT/$a > $OUT/gdbfile.txt 2>&1 & ;;   # gdbfile NAME: background gdb with the command file $OUT/NAME (breakpoint dumps etc.); output $OUT/gdbfile.txt
     gdbcrash) { echo "handle SIGSEGV stop nopass"; for i in $(seq 1 ${a:-20}); do echo "continue"; echo "info registers eip eax ebx ecx edx esi edi esp ebp"; echo "x/48xw \$esp"; echo "signal SIGSEGV"; done; } > /tmp/gdbc.cmd; gdb -batch -p $PID -x /tmp/gdbc.cmd > $OUT/gdbcrash.txt 2>&1 & ;;   # gdbcrash N: background gdb that dumps registers + stack at each of the next N SIGSEGVs (Wine exceptions) and passes them on
     gdbsample) for i in $(seq 1 $a); do gdb -batch -p $PID -ex "thread apply all bt 8" -ex "info sharedlibrary" > $OUT/gdb_$i.txt 2>&1; done ;;
     fill32) perl -e 'print pack("V*", (oct($ARGV[1]) ) x $ARGV[0])' $b $c | dd of=/proc/$PID/mem bs=1 seek=$((a)) conv=notrunc 2>/dev/null ;;

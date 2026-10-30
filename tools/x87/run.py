@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""run.py [--work DIR] [--flags "/O2 /G5"] [--min N --max N] [VA ...]: lift the Rwp functions with MIN..MAX x87 instructions (default 10..49), compile each lifted C with cl and compare with the original.
+"""run.py [--work DIR] [--flags "/O2 /G5"] [--min N --max N] [--maxsize BYTES] [VA ...]: lift the Rwp functions with MIN..MAX x87 instructions (default 10..49), compile each lifted C with cl and compare with the original.
 Writes DIR/<name>.c and DIR/results.csv (name, va, size, x87, status, differing bytes / reason)."""
 import csv, json, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..")); sys.path.insert(0, HERE)
@@ -21,9 +21,9 @@ def main():
     def opt(k, d):
         if k in a: i = a.index(k); v = a[i + 1]; del a[i:i + 2]; return v
         return d
-    work = opt("--work", "x87work"); flags = opt("--flags", "/O2 /G5").split(); lo = int(opt("--min", "10")); hi = int(opt("--max", "49"))
+    work = opt("--work", "x87work"); flags = opt("--flags", "/O2 /G5").split(); lo = int(opt("--min", "10")); hi = int(opt("--max", "49")); maxsize = int(opt("--maxsize", "100000"))
     os.makedirs(work, exist_ok=True)
-    cands = candidates(lo, hi)
+    cands = [c for c in candidates(lo, hi) if c[2] <= maxsize]
     if a: cands = [c for c in cands if "%08x" % c[0] in [x.lower().zfill(8) for x in a]]
     rows = []
     for va, rn, sz, x in cands:

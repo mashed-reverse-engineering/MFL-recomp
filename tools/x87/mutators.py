@@ -253,7 +253,78 @@ def m_param_copy(t):
             out.append("\n".join(h + [x for x in d if not re.match(r"^  (float \*|int )%s;$" % m.group(1), x)] + nb + tl))
     return out
 
-MUTATORS = {"arr_size": m_arr_size, "decl_order": m_decl_order, "decl_sink": m_decl_sink, "param_copy": m_param_copy, "ternary": m_ternary, "temp_order": m_temp_order, "temp_decl": m_temp_decl, "hoist": m_hoist, "unhoist": m_unhoist, "split": m_split, "ptr_split": m_ptr_split,
+def m_ret_ternary(t):
+    """RWP-X10: `mov eax,A; jcc; mov eax,B` is an integer conditional: `if (c) { r = A; } else { r = B; } return r;` -> `return c ? A : B;` (and the condition negated / arms swapped)"""
+    out = []
+    pat = re.compile(r"^(\s*)if \((.+)\) \{\n\s*(\w+) = ([^;]+);\n\s*\} else \{\n\s*\3 = ([^;]+);\n\s*\}\n\s*return \3;$", re.M)
+    for m in pat.finditer(t):
+        c = m.group(2)
+        rel = re.fullmatch(r"!\((\S+) (<=|>=|<|>) (\S+)\)", c)
+        if rel: c = "%s %s %s" % (rel.group(1), {"<=": ">", ">=": "<", "<": ">=", ">": "<="}[rel.group(2)], rel.group(3))      # NaN: only the spelling of the original decides, the search tries both
+        arms = [(c, m.group(4), m.group(5)), (m.group(2), m.group(4), m.group(5))]
+        rel2 = re.fullmatch(r"(\S+) (<=|>=|<|>) (\S+)", m.group(2))
+        if rel2: arms.append(("%s %s %s" % (rel2.group(1), {"<=": ">", ">=": "<", "<": ">=", ">": "<="}[rel2.group(2)], rel2.group(3)), m.group(5), m.group(4)))
+        for cc, a_, b_ in arms:
+            v = t[:m.start()] + "%sreturn %s ? %s : %s;" % (m.group(1), cc, a_, b_) + t[m.end():]
+            v = re.sub(r"\n  int %s;" % m.group(3), "", v)
+            if v not in out: out.append(v)
+    return out
+
+def m_temps_double(t):
+    """RWP-X11: float temps that stay on the x87 stack across stores are `double` locals in the original (memory operand first: `fld [m]; fmul st,st(i)`, pops at the end of the live range;
+    rwp_convexhullmassprops_00583ca0).  All float temps at once (the search only changes one site at a time and each single change is worse), and the reverse."""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []
+    ft = [k for k, l in enumerate(d) if re.match(r"^  float [fsht]\d+;$", l) or re.match(r"^  float f_a\d+;$", l)]
+    dt = [k for k, l in enumerate(d) if re.match(r"^  double [fsht]\d+;$", l) or re.match(r"^  double f_a\d+;$", l)]
+    if len(ft) >= 2:
+        out.append("\n".join(h + [l.replace("float", "double", 1) if k in ft else l for k, l in enumerate(d)] + b + tl))
+        out.append("\n".join(h + [l.replace("float", "double", 1) if k in ft[:len(ft) // 2 + 1] else l for k, l in enumerate(d)] + b + tl))
+    if dt: out.append("\n".join(h + [l.replace("double", "float", 1) if k in dt else l for k, l in enumerate(d)] + b + tl))
+    return out
+
+def m_temp_reuse(t):
+    """RWP-X8: cl gives two float locals with disjoint live ranges the same frame slot only when the source uses ONE variable (rwp_aggregate_005891c0: `f1 = f8 - ...` lives in f8's slot):
+    rename B to A when B's first assignment follows A's last use (floats only, plain scalar locals, not address-taken, not arrays)."""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []
+    names = [m.group(1) for l in d for m in [re.match(r"^  float (\w+);$", l)] if m]
+    body = "\n".join(b)
+    for A in names:
+        if re.search(r"&%s\b" % A, body): continue
+        ua = [i for i, l in enumerate(b) if re.search(r"\b%s\b" % A, l)]
+        if not ua: continue
+        for B in names:
+            if A == B or re.search(r"&%s\b" % B, body): continue
+            ub = [i for i, l in enumerate(b) if re.search(r"\b%s\b" % B, l)]
+            if not ub or min(ub) <= max(ua): continue
+            if not re.match(r"^\s+%s = " % B, b[min(ub)]) or re.search(r"\b%s\b" % B, b[min(ub)].split(" = ", 1)[1]): continue
+            if any(b[i].strip().startswith(("}", "else")) or "if (" in b[i] for i in range(max(ua) + 1, min(ub))) and False: continue
+            nb = [re.sub(r"\b%s\b" % B, A, l) for l in b]
+            out.append("\n".join(h + [x for x in d if not re.match(r"^  float %s;$" % B, x)] + nb + tl))
+    return out
+
+def m_double_one(t):
+    """RWP-X11: one float temp <-> double (the all-at-once temps_double covers the group); for a double temp, `(float)` on one use flips the var-first / memory-first operand form
+    (rwp_cylinder_0056fd20: `(float)inv * in->x` for the first use only)."""
+    sp = _split(t)
+    if not sp: return []
+    h, d, b, tl = sp; out = []; body = "\n".join(b)
+    for k, l in enumerate(d):
+        m = re.match(r"^  float ((?:f|s|h|t)\d+|f_a\d+);$", l)
+        if m: out.append("\n".join(h + d[:k] + [l.replace("float", "double", 1)] + d[k + 1:] + b + tl))
+        m = re.match(r"^  double (\w+);$", l)
+        if m:
+            v = m.group(1); out.append("\n".join(h + d[:k] + [l.replace("double", "float", 1)] + d[k + 1:] + b + tl))
+            uses = [x for x in re.finditer(r"(?<![\w\]])%s\b(?!\s*=[^=])" % re.escape(v), body)]
+            for u in uses[:6]:
+                nb = body[:u.start()] + "(float)" + v + body[u.end():]
+                out.append("\n".join(h + d + nb.split("\n") + tl))
+    return out
+
+MUTATORS = {"double_one": m_double_one, "temp_reuse": m_temp_reuse, "temps_double": m_temps_double, "ret_ternary": m_ret_ternary, "arr_size": m_arr_size, "decl_order": m_decl_order, "decl_sink": m_decl_sink, "param_copy": m_param_copy, "ternary": m_ternary, "temp_order": m_temp_order, "temp_decl": m_temp_decl, "hoist": m_hoist, "unhoist": m_unhoist, "split": m_split, "ptr_split": m_ptr_split,
             "ptr_merge": m_ptr_merge, "cache_expr": m_cache_expr, "uncache_expr": m_uncache_expr}
 
 def names(src_dir):

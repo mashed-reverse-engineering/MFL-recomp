@@ -38,6 +38,7 @@ for i in range(ons):
     last = ne + 24 + nosz + (nns - 1) * 40
     lvs, lva = struct.unpack_from("<II", n, last + 8)
     rdelta = max(delta, (lva + lvs + sa - 1) // sa * sa - va)       # behind the last section when the image grew more than .rdata moved (M2 lib split)
+    rdelta += int(os.environ.get("RSRC_PAD", "0"), 16)        # E2 experiment: move only the image END (the .rsrc section), code and data stay
     if rdelta: walk(0)
     va += rdelta
     struct.pack_into("<I", n, ne + 24 + 96 + 8 * 2, va)

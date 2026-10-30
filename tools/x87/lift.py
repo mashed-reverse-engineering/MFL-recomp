@@ -9,6 +9,8 @@ Rules (BYTEMATCH_PATTERNS.md RWP-X1..):
     other bases are ints with byte offsets;
   * operand order follows the instruction (`fsubr [m]` = m - top); register forms are decoded from the opcode bytes (objdump's intel syntax swaps fsub/fsubr for the st(i) destination forms);
   * constants read from .rdata become float literals (pattern 4/13); sqrt/sin/cos/atan2 are `(float)sqrt(x)` etc.
+  * T-X88 (RWP-X8..X13): address-taken frame slots become arrays up to the next slot / frame top; neg+sbb+neg, sbb r,r, setcc, shift by cl, imul r,r, rep movs (struct copy `BlkN`) and
+    float-stack joins (temp assigned in each arm) are lifted; esp read as a value (by-value struct argument) stays Unsupported;
   * mutators for the permuter: tools/x87/mutators.py (they work on this exact text shape)."""
 import os, re, struct, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..")); sys.path.insert(0, HERE)
@@ -107,6 +109,7 @@ class Lifter:
         v = s.st.regs.get(r, "none")
         if v == "none":
             if r in ("ecx", "edx", "eax"): s.regargs[r] = Var("p", {"ecx": "this", "edx": "edx_in", "eax": "eax_in"}[r]); v = ("var", s.regargs[r]); s.st.regs[r] = v
+            elif r == "esp": raise Unsupported("esp read as a value (by-value struct argument / outgoing area)")
             else: v = ("var", Var("p", "in_" + r)); s.st.regs[r] = v     # callee-saved register read before written: left as a variable (will fail at lint)
         if v == "unk": raise Unsupported("register %s unknown after join" % r)
         if v[0] == "phi":
@@ -653,6 +656,11 @@ class Lifter:
     # ---------------------------------------------------------------- rendering
     def iv(s, v, top=True):
         k = v[0]
+        if k in ("add", "sub") and any(x[0] == "var" and x[1].isf() for x in v[1:] if isinstance(x, tuple)):      # byte arithmetic on a float * base: RWP-X9
+            r = v[2]; l0 = ("(char *)" + v[1][1].name) if v[1][0] == "var" and v[1][1].isf() else s.iv(v[1], False)
+            r0 = ("(char *)" + r[1].name) if r[0] == "var" and r[1].isf() else s.iv(r, False)
+            txt = "%s %s %s" % (l0, "+" if k == "add" else "-", r0)
+            return txt if top else "(" + txt + ")"
         if k == "addrof": return "&" + v[1].name
         if k == "imm": return str(v[1]) if -9 < v[1] < 10 else ("0x%x" % v[1] if v[1] >= 0 else str(v[1]))
         if k == "var": return s.vname(v[1])
@@ -665,7 +673,9 @@ class Lifter:
         if k == "un": return {"neg": "-", "not": "~"}[v[1]] + s.iv(v[2], False)
         if k == "shl": return ("%s << %d" % (s.iv(v[1], False), v[2])) if top else "(%s << %d)" % (s.iv(v[1], False), v[2])
         if k == "mul": return ("%s * %d" % (s.iv(v[1], False), v[2])) if top else "(%s * %d)" % (s.iv(v[1], False), v[2])
-        if k == "bin": return "%s %s %s" % (s.iv(v[2], False), {"and": "&", "or": "|", "mul": "*"}[v[1]], s.iv(v[3], False))
+        if k == "bin":
+            txt = "%s %s %s" % (s.iv(v[2], False), {"and": "&", "or": "|", "mul": "*"}[v[1]], s.iv(v[3], False))
+            return txt if top else "(" + txt + ")"      # RWP-X9: `(a2 & 0xffff) << 5`, not `a2 & 0xffff << 5`
         if k == "ld": return s.load_txt(v[1], v[2], v[3])
         if k == "cond":
             c = v[1]
