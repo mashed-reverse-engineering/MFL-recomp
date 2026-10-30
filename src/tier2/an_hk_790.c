@@ -51,6 +51,7 @@ undefined4 camera_path_get_point(char *out_cam)
   camera_path_get_point_path_cam_layout *path_cam;
   float *cam_up;
   double angle;
+  float dot;
   struct {
     RwV3d dir;
     float roll_deg;
@@ -73,9 +74,10 @@ undefined4 camera_path_get_point(char *out_cam)
   frame.dir.z = path_cam->f_0x28;
   frame.dir.x = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  angle = (double)crt_acos_body((double)(frame.dir.z * path_cam->f_0x28 +
-                                        frame.dir.y * path_cam->f_0x24 +
-                                        path_cam->f_0x20 * frame.dir.x));
+  dot = frame.dir.x * path_cam->f_0x20;
+  dot = dot + frame.dir.y * path_cam->f_0x24;
+  dot = dot + path_cam->f_0x28 * frame.dir.z;
+  angle = (double)crt_acos_body((double)dot);
   angle = angle * (double)RAD_TO_DEG;
   if (!(k_f_0 > frame.dir.y)) {
     angle = -angle;
@@ -87,7 +89,10 @@ undefined4 camera_path_get_point(char *out_cam)
   frame.dir.z = path_cam->f_0x38;
   frame.dir.y = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  angle = (double)crt_acos_body((double)(frame.dir.x * k_f_0 + frame.dir.y * k_f_0 + frame.dir.z));
+  dot = frame.dir.y * k_f_0;
+  dot = dot + frame.dir.x * k_f_0;
+  dot = dot + frame.dir.z;
+  angle = (double)crt_acos_body((double)dot);
   angle = angle * (double)RAD_TO_DEG;
   if (!(frame.dir.z > k_f_0)) {
     angle = -angle;
@@ -99,9 +104,10 @@ undefined4 camera_path_get_point(char *out_cam)
   frame.dir.y = path_cam->f_0x14;
   frame.dir.z = 0.0;
   RwV3dNormalize(&frame.dir,&frame.dir);
-  angle = (double)crt_acos_body((double)(path_cam->f_0x18 * frame.dir.z +
-                                        frame.dir.y * path_cam->f_0x14 + frame.dir.x * *cam_up
-                                        ));
+  dot = *cam_up * frame.dir.x;
+  dot = dot + frame.dir.y * path_cam->f_0x14;
+  dot = dot + frame.dir.z * path_cam->f_0x18;
+  angle = (double)crt_acos_body((double)dot);
   angle = angle * (double)RAD_TO_DEG;
   if (!(frame.dir.x > k_f_0)) {
     angle = -angle;

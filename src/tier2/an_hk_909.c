@@ -26,6 +26,7 @@ extern struct FxSlot g_fx_slots[10];
 void fx_update_all(void)
 
 {
+  float ray_sum;
   float fbits1;
   float fVar1;
   float step;
@@ -72,8 +73,10 @@ void fx_update_all(void)
       }
       sfx_move_playing_voice(0x14,*(int *)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4) + 0x40,g_fx_8d98b0)
       ;
-      frame.ray_len = (frame.move.z * frame.move.z + frame.move.x * frame.move.x + frame.move.y * frame.move.y) *
-                 k_f_1_5 + k_f_0_05;
+      ray_sum = frame.move.x * frame.move.x;
+      ray_sum = ray_sum + frame.move.y * frame.move.y;
+      ray_sum = ray_sum + frame.move.z * frame.move.z;
+      frame.ray_len = ray_sum * k_f_1_5 + k_f_0_05;
       clump_frame_or_hit = *(int *)(((char *)((FxSlot *)(phase_ptr + -2))->clump) + 4);
       frame.ray_x = *(undefined4 *)(clump_frame_or_hit + 0x40);
       frame.ray_y = *(undefined4 *)(clump_frame_or_hit + 0x44);

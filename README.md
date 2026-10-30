@@ -20,8 +20,8 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Replaced by recompiled C (all tiers, each function once) | 2,722 | `████████████████████` 98% |
 | ...verified byte identical | 1,385 | `██████████░░░░░░░░░░` 50% |
 | ...share of the code bytes that is byte identical | 92,353 B | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,179 | `████████░░░░░░░░░░░░` 42% |
-| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 158 | `█░░░░░░░░░░░░░░░░░░░` 6% |
+| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,180 | `████████░░░░░░░░░░░░` 42% |
+| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 157 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 675,409 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 664 | `█████░░░░░░░░░░░░░░░` 24% |
 | **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,857 | `█████████████████████` 103% |

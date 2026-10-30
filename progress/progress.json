@@ -98,7 +98,7 @@
  "replaced_unique": {
   "behaviour_evidence": {
    "flags": {
-    "CONFLICT": 7,
+    "CONFLICT": 6,
     "DIFF": 1,
     "INCONCLUSIVE": 1,
     "LADDER": 55,
@@ -109,11 +109,11 @@
    },
    "rows": 1337,
    "unaccounted": 0,
-   "unverified": 158,
-   "verified": 1179,
-   "verified_bytes": 545245
+   "unverified": 157,
+   "verified": 1180,
+   "verified_bytes": 545331
   },
-  "behaviour_verified": 1179,
+  "behaviour_verified": 1180,
   "by_tier": {
    "agent": {
     "bytes": 8446,

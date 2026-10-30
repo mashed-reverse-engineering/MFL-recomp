@@ -141,7 +141,7 @@ trail_particles_flush,00416080,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|
 hud_icon_uv_rect_get,00416240,cluster,-,-,0,0,0,NOEVID,,
 hud_pickup_icons_update_render,00416330,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
 noise_interp_cos,004166d0,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-noise_sample_row,00416700,tier2,ledger,EQUAL,200,1.00,0,CONFLICT,hs_sweep:DIFF|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
+noise_sample_row,00416700,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 noise_value,00416760,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
 course_helper_449c40_sub_4167c0,004167c0,cluster,pilot,EQUAL,200,1.00,1,,pilot:EQUAL,
 course_helper_449c40_sub_416840,00416840,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never

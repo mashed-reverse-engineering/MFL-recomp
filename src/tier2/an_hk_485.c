@@ -25,6 +25,7 @@ undefined4 __cdecl hud_marker_get_distance(int vehicle_index,RwReal *out_dist,fl
 {
   hud_marker_get_distance_camera_frame_layout *camera_frame;
   RwReal dist;
+  float sq;
   RwV3d delta;
 
   /* no render camera: the marker was never rendered this frame */
@@ -36,7 +37,9 @@ undefined4 __cdecl hud_marker_get_distance(int vehicle_index,RwReal *out_dist,fl
     delta.z = g_vehicle_table[vehicle_index].world_sphere[2] - camera_frame->f_0x48;
     /* squared distance, only when the caller asked for it */
     if (out_dist_sq != (float *)0x0) {
-      *out_dist_sq = delta.z * delta.z + delta.x * delta.x + delta.y * delta.y;
+      sq = delta.y * delta.y;
+      sq = sq + delta.x * delta.x;
+      *out_dist_sq = sq + delta.z * delta.z;
     }
     /* length, only when the caller asked for it */
     if (out_dist != (RwReal *)0x0) {

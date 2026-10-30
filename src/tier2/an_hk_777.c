@@ -32,8 +32,14 @@ undefined4 car_get_wheel_average(float *out_average,uint car_index,uint wheel_in
     /* Each pass adds 8 samples and advances by 8 floats. */
     do {
       remaining_passes = remaining_passes + -1;
-      wheel_sum = wheel_sum + sample[-1] + *sample + sample[1] + sample[2] + sample[3] + sample[4] +
-              sample[5] + sample[6];
+      wheel_sum = wheel_sum + sample[-1];
+      wheel_sum = wheel_sum + *sample;
+      wheel_sum = wheel_sum + sample[1];
+      wheel_sum = wheel_sum + sample[2];
+      wheel_sum = wheel_sum + sample[3];
+      wheel_sum = wheel_sum + sample[4];
+      wheel_sum = wheel_sum + sample[5];
+      wheel_sum = wheel_sum + sample[6];
       sample = sample + 8;
     } while (remaining_passes != 0);
     *out_average = wheel_sum * k_f_0_0625;
