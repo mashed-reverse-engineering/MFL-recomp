@@ -662,6 +662,90 @@ def import_stubs():
 
 # ---------------------------------------------------------------------------------------------------------- the emulator
 SNAP = None      # set by seed.py
+
+# ---------------------------------------------------------------------------------------------------------- real game memory (B3, 2026-11-01)
+# DIFFEMU_DUMP="<dir>:<delta hex>": dir = a `dumpall` of a frozen frame (tools/asset_oracle/scene.sh KEEP=1: mem.maps + mem.<start>.bin) of a harness exe linked with that DELTA.
+# Cases whose seed is in DUMPSEEDS (gen_cases) get their heap / .data pages from the dump (both sides, same bytes): pointers into the shifted data section are shifted back
+# (scene.sh remap range 0x5dd000..0x9f9000), the pointer arguments are real objects chosen by dump_find() (coverage of the original), stored in output/diffemu_dumpargs/<va>.txt.
+_DD = os.path.expanduser("~/.cache/mfl_dumps/c0")      # default dump: course 0 frozen frame, harness DELTA 119000 (copy of scene.sh KEEP=1 output); DIFFEMU_DUMP=none turns it off
+_DS = os.environ.get("DIFFEMU_DUMP", _DD + ":119000" if os.path.exists(os.path.join(_DD, "mem.maps")) else "").replace("none", "").rpartition(":"); DUMPDIR, DUMPD = (_DS[0], int(_DS[2], 16)) if _DS[0] else ("", 0)
+DLO, DHI = 0x5dd000, 0x9f9000
+DUMPSEEDS = set(); DUMPARGS = {}; _DREG = []; _DPG = {}
+DARGDIR = os.path.join(ROOT, "output", "diffemu_dumpargs")
+
+def dump_regions():
+    if not _DREG and DUMPDIR:
+        for l in open(os.path.join(DUMPDIR, "mem.maps")):
+            s, e = (int(x, 16) for x in l.split()[0].split("-"))
+            if os.path.exists(os.path.join(DUMPDIR, "mem.%08x.bin" % s)): _DREG.append((s, e))
+        _DREG.sort()
+    return _DREG
+
+def dump_raw(a, n=0x1000):
+    for s, e in dump_regions():
+        if s <= a < e:
+            with open(os.path.join(DUMPDIR, "mem.%08x.bin" % s), "rb") as f: f.seek(a - s); return f.read(min(n, e - a))
+    return None
+
+def dump_page(p):
+    """the page p of the emulated process from the dump (None = not in it); image data lives shifted by DUMPD in the dump"""
+    img = BASE <= p < IMGEND
+    if p in _DPG: return _DPG[p]
+    b = dump_raw(p + (DUMPD if img else 0))
+    if b is not None and len(b) == 0x1000:
+        w = array.array("I", b)
+        for i, v in enumerate(w):
+            if DLO + DUMPD <= v < DHI + DUMPD: w[i] = v - DUMPD
+        b = w.tobytes()
+    else: b = None
+    _DPG[p] = b
+    return b
+
+def dump_find(fn, n=1200, top=6):
+    """real objects for the pointer arguments of fn: coordinate ascent over dump pointers (most referenced first + random), scored by the blocks of the ORIGINAL reached.
+    -> {param index: [address..]}, also written to output/diffemu_dumpargs/<va>.txt"""
+    from collections import Counter
+    regs = dump_regions(); lo, hi = regs[0][0], regs[-1][1]; cnt = Counter()
+    for s, e in regs:
+        if s <= DLO + DUMPD < e or e - s > 0x1000000: continue      # the image data and the huge pools (textures, vertex data) hold no objects
+        a = array.array("I"); a.frombytes(dump_raw(s, e - s)); cnt.update(v for v in a if lo <= v < hi and not v & 3 and v not in (0,))
+    byref = [v for v, _ in cnt.most_common(n // 2)]; rest = list(cnt); random.Random(7).shuffle(rest)
+    sb = set(byref); cands = byref + [v for v in rest if v not in sb][:n - len(byref)]
+    ptrs = [i for i, p in enumerate(fn.sig.params) if p[0] == "p"]; nreg = len(fn.sig.regargs)
+    base = gen_cases(fn.sig, 1, 1)[0]; cur = {i: (base.regs.get(("ecx", "edx")[i]) if i < nreg else base.args[i - nreg]) for i in ptrs}
+    def run(vals, seed=0x7ffd0001):
+        c = Case(seed, 0, 0xA5, list(base.args), dict(base.regs), list(base.wins))
+        for i, v in vals.items():
+            if i < nreg: c.regs[("ecx", "edx")[i]] = v
+            else: c.args[i - nreg] = v
+        DUMPSEEDS.add(seed); m, r = side(fn, c, False)
+        return len(covered(fn.leaders_o, m.blocks)) if r["done"] else -1
+    best = run(cur); top_ = {i: [] for i in ptrs}
+    for rnd in range(2):
+        for i in ptrs:
+            sc = []
+            for v in cands:
+                k = run({**cur, i: v}); sc.append((k, v))
+            sc.sort(key=lambda t: -t[0]); top_[i] = [v for k, v in sc[:top] if k >= best]
+            if sc and sc[0][0] > best: best, cur[i] = sc[0]
+    os.makedirs(DARGDIR, exist_ok=True)
+    with open(os.path.join(DARGDIR, "%08x.txt" % fn.va), "w") as f:
+        f.write("# cov %d of %d blocks\n" % (best, len(fn.leaders_o)))
+        for i in ptrs:
+            vs = [v for v in [cur[i]] + [x for x in top_[i] if x != cur[i]] if not ARGBUF <= v < ARGBUF + 0x40000]      # real objects only (a window left in the pool would mix noise with the real heap: loops over random counts)
+            if vs: f.write("%d %s\n" % (i, " ".join("%08x" % v for v in vs)))
+    return best
+
+def dump_args(key):
+    """{param index: [addresses]} of function va `key` (file written by dump_find); {} when none"""
+    if key not in DUMPARGS:
+        d = {}; f = os.path.join(DARGDIR, "%08x.txt" % key)
+        if os.path.exists(f):
+            for l in open(f):
+                if l[0] != "#": x = l.split(); d[int(x[0])] = [int(y, 16) for y in x[1:]]
+        DUMPARGS[key] = d
+    return DUMPARGS[key]
+
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
@@ -705,7 +789,12 @@ class Machine:
             uc.mem_write(p, b"\xc3" * 0x1000); uc.hook_add(UC_HOOK_CODE, m._indirect, begin=p, end=p + 0xfff); return True
         try: uc.mem_map(p, 0x1000)
         except UcError: return False
-        uc.mem_write(p, SNAP(p, m.page(p), m.seed) if SNAP else m.page(p))      # seed.py: game-state snapshot pages
+        dp = dump_page(p) if m.seed in DUMPSEEDS else None      # real game memory (gen_cases marks the seeds)
+        if dp is not None and BASE <= p < IMGEND:
+            dp = bytearray(dp)
+            for slot, a in m.islots.items():
+                if p <= slot < p + 0x1000: dp[slot - p:slot - p + 4] = struct.pack("<I", a)
+        uc.mem_write(p, dp if dp is not None else SNAP(p, m.page(p), m.seed) if SNAP else m.page(p))      # seed.py: game-state snapshot pages
         for a, v in m.patch.items():      # loop-bound retry (core.retry_case): dwords of this page that the case overrides
             if a & ~0xfff == p: uc.mem_write(a, struct.pack("<I", v))
         return True
@@ -967,7 +1056,7 @@ class Fn:
         unk = [c.name for c in f.callees.values() if not c.known]
         if unk: f.notes.append("callee args unknown: " + ",".join(unk[:3]))
         if f.regin: f.notes.append("register inputs " + "|".join(f.regin))
-        f.cov_o, f.cov_u = set(), set()
+        f.cov_o, f.cov_u = set(), set(); sig.dumpkey = va
         f.mutate = None      # (offset, byte) patch of our code
 
 
@@ -1102,9 +1191,16 @@ def gen_cases(sig, n, k, seed0=0):
                             q_, c_ = ws_[r.randrange(len(ws_))]; b_[j_:j_ + 4] = struct.pack("<I", q_ + 4 * r.randrange(0, len(c_) // 4 - 2) if r.random() < 0.5 else q_ + 0x10 * r.randrange(0, len(c_) // 0x10 - 1))
                 wins = [(p_, bytes(b_)) for p_, b_ in ws_]
             regs = {}; nreg = len(sig.regargs)
+            dpatch = {}; dpool = dump_args(sig.dumpkey) if DUMPDIR and getattr(sig, "dumpkey", 0) else {}
+            if dpool and seed % 4 < 3 and all(len(v) == 1 for v in flat):      # 3 of 4 cases: real objects from the dump for the pointer arguments that have some (the rest keep their windows)
+                for j, pool in dpool.items():
+                    if j < len(flat):
+                        flat[j] = [r.choice(pool[:1 + seed % 3 * 2])]
+                        if r.random() < 0.3: dpatch[flat[j][0] + 4 * r.randrange(8)] = r.choice((0xffff, 0, 1, 2, 0xffffffff))      # a flag / id / count dword in the head of a real object (real objects never hold the sentinel values themselves)
+                DUMPSEEDS.add(seed)
             for q, v in zip(("ecx", "edx"), flat[:nreg]): regs[q] = v[0]
             stack = [w for v in flat[nreg:] for w in v]
-            cases.append(Case(seed, (i + si) % 3, FILLS[(i + si) % 4], stack, regs, wins))
+            cases.append(Case(seed, (i + si) % 3, FILLS[(i + si) % 4], stack, regs, wins)); cases[-1].patch = dpatch
     return cases
 
 
@@ -1152,6 +1248,7 @@ def frame_allow():
         _FA.append(s)
     return _FA[0]
 
+FNMASK = {"car_wheels_vs_triangles": [(0x7eab64, 0x7eab64 + 256 * 0x40)]}      # B3: g_event_log_data (256 x 0x40) holds 0x40 byte copies of uninitialised locals of the event record; never compared for this function
 def compare(fn, mo, ro, mu, ru):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""
     d = []; sg = fn.sig
@@ -1210,7 +1307,7 @@ def compare(fn, mo, ro, mu, ru):
                 if bo[x - p] != bu[x - p]:
                     off = x & 0xffc; wo = struct.unpack("<I", bo[off:off + 4])[0]; wu = struct.unpack("<I", bu[off:off + 4])[0]
                     if isstack(wo) and isstack(wu): continue      # a pointer to a local: the two frames differ
-                    if any(l_ <= x < h_ for l_, h_ in MEMMASK): continue      # opt-in (MEMMASK=lo-hi,...): bytes known to hold uninitialised stack copies (car_wheels_vs_triangles g_event_log_data)
+                    if any(l_ <= x < h_ for l_, h_ in MEMMASK + FNMASK.get(getattr(fn, "name", ""), [])): continue      # MEMMASK=lo-hi,... (opt-in) and FNMASK (always): bytes known to hold uninitialised stack copies
                     diffs.append((x, bo[x - p], bu[x - p]))
         if diffs: d.append("memory: %d bytes differ: %s" % (len(diffs), ", ".join("%08x %02x/%02x" % x for x in diffs[:10])))
     return d
