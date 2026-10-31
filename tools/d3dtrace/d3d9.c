@@ -31,6 +31,7 @@ static CRITICAL_SECTION cs;
 static int cfg_start_phase, cfg_stop_racef, cfg_max_frames, cfg_geom = 1, cfg_vclock = 1, cfg_step_us = 20, cfg_stop_phase;
 static u32 cfg_phase_addr = 0x652f68, cfg_racef_addr;
 static int active, nframes, ndraws, nunhooked;
+static char cfg_rwtap[260], cfg_rwtap_out[260] = "rwtap.log"; static unsigned cfg_rwtap_delta;   /* rwtap=<funcs.txt> rwtap_delta=<hex>: load mfltap.dll (tools/rwtap) next to the exe, log RW calls */
 static volatile LONGLONG vt_us;
 static void *orig_dev[128], *orig_d3d[24], *orig_tex[24], *orig_vb[16], *orig_ib[16];
 
@@ -454,6 +455,9 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "anchor_phase")) cfg_anchor_phase = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "stop_phase")) cfg_stop_phase = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "step_us")) cfg_step_us = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "rwtap")) strncpy(cfg_rwtap, e, 259);
+        else if (!strcmp(ln, "rwtap_out")) strncpy(cfg_rwtap_out, e, 259);
+        else if (!strcmp(ln, "rwtap_delta")) cfg_rwtap_delta = (unsigned)strtoul(e, 0, 16);
         else if (!strcmp(ln, "geom")) cfg_geom = (int)strtol(e, 0, 0);
     }
     if (f) fclose(f);
@@ -472,6 +476,10 @@ __declspec(dllexport) IDirect3D9 *WINAPI Direct3DCreate9(UINT ver) {
         setvbuf(lg, NULL, _IOFBF, 1 << 20);
         L("TRACE d3dtrace 1 sdk=%u start_phase=%d stop_racef=%d geom=%d\n", ver, cfg_start_phase, cfg_stop_racef, cfg_geom);
         if (!cfg_start_phase && !cfg_stop_racef && !cfg_stop_phase) { active = 1; }
+        if (cfg_rwtap[0]) {
+            HMODULE tm = LoadLibraryA("mfltap.dll"); int (*ti)(const char *, const char *, unsigned, volatile int *, volatile int *, volatile int *) = tm ? (void *)GetProcAddress(tm, "rwtap_init") : NULL;
+            L("RWTAP hooks=%d\n", ti ? ti(cfg_rwtap, cfg_rwtap_out, cfg_rwtap_delta, &active, &ndraws, &nframes) : -2);
+        }
     }
     void *d3d = (void *)real_create(ver);
     if (d3d) {

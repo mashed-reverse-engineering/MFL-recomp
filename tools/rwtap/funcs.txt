@@ -1,0 +1,52 @@
+RwCameraSetViewOffset 4d1ba0 5 2 p1:8
+RwCameraSetNearClipPlane 4d1bd0 5 1
+RwCameraSetFarClipPlane 4d1ca0 5 1
+RwCameraClear 4d1d40 9 1
+RwCameraShowRaster 4d1d70 8 1
+RwCameraSetProjection 4d1da0 7 2
+RwCameraSetViewWindow 4d1e10 5 1 p1:8
+RwRasterShowRaster 4d78c0 5 3
+_rwD3D9BeginScene 4d9e60 5 0
+RwD3D9CameraAttachWindow 4da0f0 6 2
+RwD3D9GetCurrentD3DDevice 4dafe0 8 0
+RwD3D9SetRenderTarget 4db110 5 2
+_rwD3D9SetVertexDeclaration 4db1b0 5 1
+RwD3D9SetStreamSource 4db270 7 4
+_rwD3D9SetStreams 4db2d0 5 2
+RwD3D9SetTransform 4db470 5 1 p1:64
+RwD3D9GetTransform 4db5d0 5 2
+RwD3D9SetTransformWorld 4db600 6 1 p0:64
+RwD3D9SetLight 4db740 5 2 p1:104
+RwD3D9EnableLight 4db830 9 2
+RwD3D9IndexBufferCreate 4db980 9 2
+RwD3D9CreateVertexDeclaration 4db9e0 6 2
+RwD3D9DeleteVertexDeclaration 4dbbc0 6 1
+RwD3D9CreateVertexShader 4dbc10 9 2
+RwD3D9DeletePixelShader 4dbc40 5 1
+RwD3D9CreatePixelShader 4dbc70 9 2
+RwD3D9CameraIsSphereFullyInsideFrustum 4dbcb0 8 3
+RwD3D9CameraIsBBoxFullyInsideFrustum 4dbd10 8 2
+RwIm3DTransform 4dc920 7 4 p0:n1*36 p2:64
+RwIm3DEnd 4dc9f0 6 0
+RwIm3DRenderIndexedPrimitive 4dca20 5 3 p1:n2*2
+RwIm3DRenderPrimitive 4dcb80 6 1
+RwIm3DRenderLine 4dcce0 5 2
+rwD3D9RasterRenderGeneric 4e0410 7 4
+rwD3D9RasterRenderQuad 4e0560 5 4
+_rwD3D9RenderStateFlushCache 4e3b30 5 0
+RwD3D9SetRenderState 4e3c00 8 2
+RwD3D9GetRenderState 4e3c50 8 2
+RwD3D9SetTextureStageState 4e3c70 8 3
+RwD3D9SetSamplerState 4e3cd0 5 3
+RwD3D9SetSurfaceProperties 4e3d10 8 3
+RwRenderStateGet 4e5070 5 2
+RwRenderStateSet 4e5be0 5 2
+RwIm2DRenderLine 4eb6d0 8 4 p0:56
+RwIm2DRenderTriangle 4eb960 8 5 p0:84
+RwIm2DRenderPrimitive 4ebb80 8 3 p1:n2*28
+RwIm2DRenderIndexedPrimitive 4ebdb0 8 5 p1:n2*28 p3:n4*2
+RwD3D9CreateVertexBuffer 4ec6d0 5 4
+RwD3D9DynamicVertexBufferCreate 4ecbc0 5 2
+RwD3D9DynamicVertexBufferDestroy 4ecca0 5 1
+RwD3D9DynamicVertexBufferLock 4eccd0 9 5
+RwD3D9DynamicVertexBufferUnlock 4ece50 5 1

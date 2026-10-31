@@ -210,7 +210,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
       TRIPLE(c2, ea, u, nrm);
       if (adv != 0) {
         if (c2 * prev2 <= 0.0f || c3 * prev3 <= 0.0f) {
-          if (!(fabs(c1) < EPS)) {
+          if (fabs(c1) >= EPS) {
             r = 1.0f / c1;
             q[0] = pa_i[0] - pb_i[0];
             q[1] = pa_i[1] - pb_i[1];
@@ -272,7 +272,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
           pn = flag_a != 0 ? nb : na;
           goto project;
         }
-        if (!(dist2 < 3.4028235e38f)) return 0;
+        if (dist2 >= 3.4028235e38f) return 0;
         {
           float *p0 = a + 4 * NEXT(best_ia, na), *p1 = a + 4 * best_ia;
           float *q0 = b + 4 * NEXT(best_ib, nb), *q1 = b + 4 * best_ib;
@@ -293,7 +293,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
     if (count != 0) return count;
   }
 done:
-  if (!(*margin < 0.0f) && !(dist2 <= 1.17549435e-38f) && !(pair->a.flags & 0x20) && !(pair->b.flags & 0x20)) {
+  if (*margin >= 0.0f && dist2 > 1.17549435e-38f && !(pair->a.flags & 0x20) && !(pair->b.flags & 0x20)) {
     r = 1.0f / sqrt(dist2);
     *margin = dist2 * r;
     nx = d[0] * r;

@@ -47,6 +47,8 @@ case $SC in menu|title) START=0; RF=0;; *) STOP=$FR;; esac
 # default SEG=race logs phases 5+6 up to race frame <frames> (the race itself diverges slightly between runs, see README: use diff.py --mask)
 [ "${SEG:-race}" = countdown ] && { STOPPH=6; STOP=0; }
 { echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-5}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; } > $AE/d3dtrace.cfg
+# RWTAP=1: also hook the RW layer (tools/rwtap, mfltap.dll + funcs.txt next to the exe), log -> $OUT/rwtap.log (standalone: the hooks get the link delta)
+RT_=$(readlink -f $T/../rwtap); [ -n "$RWTAP" ] && { [ -f $RT_/mfltap.dll ] || make -C $RT_ >/dev/null || exit 1; cp $RT_/mfltap.dll $RT_/funcs.txt $AE/; echo "rwtap=funcs.txt" >> $AE/d3dtrace.cfg; [ -n "$SA_DELTA" ] && echo "rwtap_delta=$SA_DELTA" >> $AE/d3dtrace.cfg; }
 # ---- the play.sh script
 DRIVE=${DRIVE-9}
 case $SC in
@@ -66,7 +68,7 @@ $WR/mkpfx.sh ${SLOT:-1}
 RT=$(awk -v t=${RUN_TIMEOUT:-240} -v l=$(cut -d" " -f1 /proc/loadavg) 'BEGIN{s=l/4; if(s<1)s=1; if(s>3)s=3; print int(t*s)}')
 T0=$(date +%s)
 PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT $WR/play.sh $W/run $W/script.txt $OUT/game >/dev/null 2>&1; RC=$?
-cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null
+cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null
 { echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $T/d3d9.dll | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; } | tee $OUT/run.txt
 [ -s $OUT/trace.raw ] || { echo "NO TRACE (override not active or game failed): see $OUT/game/wine.log"; exit 1; }
 python3 $T/normalise.py $OUT/trace.raw $OUT/trace.d3d.gz
