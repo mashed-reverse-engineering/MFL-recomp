@@ -1,4 +1,10 @@
-# G0 candidates checked but not (yet) swapped: RwMatrixInvert / RtIntersectionLineTriangle / RtLineSphereIntersectionTest / RtBaryGetTransform are librw code, not bit-checked by L1
+# checked but NOT swapped (rw_g0_check.sh reads this file too).
+# RwV3dTransformPoint(s): the game picks the vector-multiply variant from its CPU flags at start-up (4d85f3 -> 4d4ed0): SSE variants 4ec5c0/4ec490 (or 4ec3a0/4ec280) differ from the x87 default the DLL reproduces (60 percent of cases); DRIVE=31 state compare: cars 420 diffs.  Needs the DLL to reproduce the SSE op order (and FTZ).
+# RwV3dTransformVector(s): equal to every variant on finite inputs, but FTZ (the game sets MXCSR bit 15) vs denormals is not covered: not swapped yet.
+RwV3dTransformPoint
+RwV3dTransformPoints
+RwV3dTransformVector
+RwV3dTransformVectors
 RwMatrixInvert
 RtIntersectionLineTriangle
 RtLineSphereIntersectionTest

@@ -55,7 +55,7 @@ def call(tgt, args):
 call(0x4d5770, [0, B])
 # the game's start-up (4d85f3) replaces the vector-multiply pointers by the variant its CPU flags select: A = SSE (4ec530..), B = 4ec310.., C = plain x87 (5dc000..); default = the ctor's 4d5010..
 VAR = {"A": (0x4ec530, 0x4ec650, 0x4ec490, 0x4ec5c0), "B": (0x4ec310, 0x4ec420, 0x4ec280, 0x4ec3a0), "C": (0x5dc07f, 0x5dc160, 0x5dc000, 0x5dc0ef)}
-if opt.get("--variant", "default") != "default": call(0x4d4ed0, list(VAR[opt["--variant"]]))
+if opt.get("--variant", "default") != "default": call(0x4d4ed0, list(reversed(VAR[opt["--variant"]])))      # pushed last-first in the game (arg 1 = the 4th address)
 MODE = 0      # 0 = finite inputs only (the bit-exact bar), 1 = specials too: inf / NaN / random bit patterns (reported separately)
 def fl():
     r = random.random()
