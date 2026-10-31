@@ -183,7 +183,7 @@ struct RtAnimAnimation *anim_read_from_file(void *name, RwUInt32 *length, RwUInt
 }
 
 /* Loads the first clump chunk of a memory image (start, length passed by value). */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 struct RpClump *clump_read_from_memory(void *start, RwUInt32 length, RwUInt32 *chunkLength, RwUInt32 *version)
 {
   struct MflRwMemoryRange range;
@@ -204,7 +204,7 @@ struct RpClump *clump_read_from_memory(void *start, RwUInt32 length, RwUInt32 *c
 }
 
 /* Loads the first platform independent texture dictionary chunk of a memory image. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 struct RwTexDictionary *texdict_read_from_memory(void *start, RwUInt32 length, RwUInt32 *chunkLength, RwUInt32 *version)
 {
   struct MflRwMemoryRange range;
@@ -225,7 +225,7 @@ struct RwTexDictionary *texdict_read_from_memory(void *start, RwUInt32 length, R
 }
 
 /* Collects the child frames of `frame` into `array` (may be NULL = count only); returns how many there are. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int frame_collect_children(struct RwFrame *frame, void **array)
 {
   int count = 0;
@@ -250,7 +250,7 @@ struct RpAtomic *clump_first_atomic(struct RpClump *clump)
 }
 
 /* Collects the atomics of the clump into `array` (may be NULL = count only); returns how many there are. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int clump_get_atomics(struct RpClump *clump, struct RpAtomic **array)
 {
   int count = 0;
@@ -263,7 +263,7 @@ int clump_get_atomics(struct RpClump *clump, struct RpAtomic **array)
 }
 
 /* Collects the lights of the clump into `array` (may be NULL = count only); returns how many there are. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int clump_get_lights(struct RpClump *clump, struct RpLight **array)
 {
   int count = 0;
@@ -333,7 +333,7 @@ int atomic_count_materials(struct RpAtomic *atomic)
 }
 
 /* Collects the world sectors of the world (NULL world = 0). */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_collect_sectors(struct RpWorld *world, void **array)
 {
   int count = 0;
@@ -348,7 +348,7 @@ int world_collect_sectors(struct RpWorld *world, void **array)
 }
 
 /* Collects the materials of the world (NULL world = 0). */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_collect_materials(struct RpWorld *world, void **array)
 {
   int count = 0;
@@ -363,7 +363,7 @@ int world_collect_materials(struct RpWorld *world, void **array)
 }
 
 /* Collects the clumps of the world (NULL world = 0). */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_collect_clumps(struct RpWorld *world, void **array)
 {
   int count = 0;
@@ -390,7 +390,7 @@ struct RwTexture *texdict_first_texture(struct RwTexDictionary *dict)
 }
 
 /* Collects the textures of the dictionary (NULL dict = 0). */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int texdict_collect_textures(struct RwTexDictionary *dict, void **array)
 {
   int count = 0;

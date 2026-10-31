@@ -1,0 +1,6 @@
+RwV3dNormalize
+RwV3dLength
+RwV2dNormalize
+RwV2dLength
+_rwSqrt
+_rwInvSqrt

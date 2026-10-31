@@ -26,6 +26,10 @@ for l in txt.splitlines():
     if m and dll: imports[dll].append(m.group(2)); continue
     m = re.match(r"\s+[0-9a-f]+\s+(\d+)\s+<none>\s*$", l)       # import by ordinal: symbol __imp__Ordinal_<n>, `Ordinal_<n> @<n> NONAME` in the def
     if m and dll: imports[dll].append("Ordinal_" + m.group(1))
+RW = set()      # LIB_RW (L2, tools/delink/link_ours.sh): mflrw.dll = the librw facade DLL, C ABI (cdecl, undecorated exports): data imports `__imp__Name` only (NAME_NO_PREFIX strips the `_`), the code thunk `_Name` is link_ours.sh's own object (a lib thunk of the same name would clash with the exe function)
+if os.environ.get("RW_DLL"):
+    RW = {m.group(1) for m in (re.match(r"\t\[\s*\d+\] (\S+)\s*$", l) for l in subprocess.run(["i686-w64-mingw32-objdump", "-p", os.environ["RW_DLL"]], capture_output=True, text=True).stdout.splitlines()) if m}
+    imports["mflrw.dll"] = sorted(RW)
 extra = os.environ.get("EXTRA_USER32", "")      # imports used by the SDK libs but not by the game exe (comma list): added to user32
 if extra: imports.setdefault("USER32.dll", []).extend(extra.split(","))
 def write_implib(path, dll, names, nargs):
@@ -44,6 +48,9 @@ def write_implib(path, dll, names, nargs):
     for n in names:
         if n.startswith("Ordinal_"):
             sym = "_" + n; hdr = struct.pack("<HHHHIIHH", 0, 0xFFFF, 0, 0x14C, 0, len(sym) + len(dll) + 2, int(n[8:]), 1 | (0 << 2))      # DATA, ordinal
+            syms = ["__imp_" + sym]
+        elif n in RW:
+            sym = "_" + n; hdr = struct.pack("<HHHHIIHH", 0, 0xFFFF, 0, 0x14C, 0, len(sym) + len(dll) + 2, 0, 1 | (2 << 2))      # DATA, name no prefix
             syms = ["__imp_" + sym]
         else:
             sym = "_%s@%d" % (n, 4 * nargs.get(n, 0)); hdr = struct.pack("<HHHHIIHH", 0, 0xFFFF, 0, 0x14C, 0, len(sym) + len(dll) + 2, 0, 0 | (3 << 2))      # CODE, undecorate
@@ -69,7 +76,7 @@ for d, names in imports.items():
     base = os.path.splitext(d)[0].lower()
     with open(os.path.join(out, base + ".def"), "w") as f:
         f.write("LIBRARY %s\nEXPORTS\n" % d)
-        for n in sorted(set(names)): f.write(("%s @%s NONAME\n" % (n, n[8:])) if n.startswith("Ordinal_") else ("%s@%d\n" % (n, 4 * nargs.get(n, 0))))      # decorated entry: the import is by the undecorated name (NAME_UNDECORATE)
+        for n in sorted(set(names)): f.write(("%s @%s NONAME\n" % (n, n[8:])) if n.startswith("Ordinal_") else (n + "\n") if n in RW else ("%s@%d\n" % (n, 4 * nargs.get(n, 0))))      # decorated entry: the import is by the undecorated name (NAME_UNDECORATE)
     subprocess.run([os.path.join(HERE, "vc7.sh"), out, "lib.exe", "/nologo", "/machine:ix86", "/def:%s.def" % base, "/out:%s.lib" % base], capture_output=True, text=True, env=dict(os.environ, VC7_CONTAINER=os.environ.get("VC7_CONTAINER", "ac")))
     write_implib(os.path.join(out, base + ".lib"), d, sorted(set(names)), nargs)
     print("%-14s %4d imports  %s.lib" % (d, len(set(names)), base))

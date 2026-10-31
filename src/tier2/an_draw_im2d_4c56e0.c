@@ -15,7 +15,7 @@ extern float float_1_0;
 #define COLOR_OPAQUE 0xff       /* alpha value that needs no alpha blending */
 
 /* Draws a line from `from` to `to` (unit screen coordinates; defaults (0,0) and (1,1)) in the colour rgba (default white). */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void im2d_draw_line(void *camera, float *from, float *to, unsigned char *rgba)
 {
   float defaultPoints[4];

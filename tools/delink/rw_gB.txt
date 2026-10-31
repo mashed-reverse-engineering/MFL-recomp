@@ -1,0 +1,4 @@
+RwV3dTransformPoint
+RwV3dTransformPoints
+RwV3dTransformVector
+RwV3dTransformVectors

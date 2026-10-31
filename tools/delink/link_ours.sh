@@ -43,6 +43,17 @@ set -- "$@" ; [ $# -eq 0 ] && set -- $FULL; set -- "$@" --src=$W/harness/freeze.
 JOBS=${JOBS:-4} OBJLIST=$W/objs.txt TMPDIR=$W python3 $G/tools/build_overlay.py $W/ovl.exe ${@:-$FULL} > $W/build_overlay.log 2>&1
 python3 $G/tools/wine-run/prepare.py $INST $W/game >/dev/null
 cp $W/game/App_Executables/MFL.exe $W/mfl_patched.exe
+# LIB_RW=librw:<group> (L2, plan_librw_integration 2.3; needs IMPLIBS=1 and RW_DLL=<mflrw.dll>): the functions named in tools/delink/rw_<group>.txt (g0 = stateless math) come from the librw facade DLL.  A thunk object (gas) defines
+# each under the exe function's own name (`_Name: jmp *__imp__Name`), so mkobj puts its usual 5 byte entry jmp at the original address like for any object of ours; mk_importlibs.py builds mflrw.lib from the DLL's exports.
+# Without LIB_RW nothing changes (the A/B reference).  The DLL is copied next to ours.exe at the end.
+if [ -n "$LIB_RW" ]; then
+  RWG=${LIB_RW#librw:}; RWL=$T/rw_$RWG.txt
+  [ "$RWG" != "$LIB_RW" ] && [ -f $RWL ] && [ -n "$IMPLIBS" ] && [ -f "$RW_DLL" ] || { echo "LIB_RW=librw:<group> needs $T/rw_<group>.txt, IMPLIBS=1 and RW_DLL=<mflrw.dll>"; exit 1; }
+  mkdir -p $W/rw; export RW_DLL=$(readlink -f $RW_DLL)
+  grep -v '^#' $RWL | awk 'NF{printf ".text\n.globl _%s\n_%s:\n\tjmp *__imp__%s\n", $1, $1, $1}' > $W/rw/thunks.s
+  i686-w64-mingw32-as -o $W/rw/thunks.obj $W/rw/thunks.s || exit 1
+  { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "rw:thunks $W/rw/thunks.obj"; } > $W/rw/extra_objs.txt; EXTRA_OBJS=$W/rw/extra_objs.txt
+else unset RW_DLL; fi
 : > $W/objs_local.txt; n=0
 while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.obj" >> $W/objs_local.txt; done < <(cat $W/objs.txt ${EXTRA_OBJS:-})      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)
@@ -76,6 +87,8 @@ MFLOBJ=mfl.obj
 [ -n "$MKRANGE" ] && { python3 $T/mkrange.py $W/mfl.obj $W/layers > $W/mkrange.log || { tail -3 $W/mkrange.log; exit 1; }; python3 $T/mkrange.py --rename-text $W/o/*.obj
   MFLOBJ="layers/rest.obj $(cd $W && ls layers/*.obj | grep -v rest.obj | tr '\n' ' ')"; }
 (cd $W && ls o/*.obj) > $W/link.rsp
+# LIB_RW: the thunk object goes FIRST so its definition wins over our own C definition of the same function (link.exe keeps the first one; LNK4006 "second definition ignored" otherwise depends on the file name sort)
+[ -n "$LIB_RW" ] && { T1=$(awk '$1=="rw:thunks"{print $2}' $W/objs_local.txt); T1=${T1#$W/}; { echo $T1; grep -vxF $T1 $W/link.rsp; } > $W/link.rsp.new && mv $W/link.rsp.new $W/link.rsp; }
 VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:mfl_entry /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true
 echo "link: $(grep -c -E "error" $W/link.log || true) errors, $(grep -c LNK4006 $W/link.log || true) LNK4006"; grep -E "error" $W/link.log | head -8
 grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | head -5; echo "mkobj: references not found"; exit 1; }
@@ -84,6 +97,7 @@ grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | hea
 [ -n "$GEN_DATA" ] && { A=$(awk '$2=="_g_pespan_005dd000"{print $3}' $W/ours.map); [ -n "$A" ] && [ $((0x$A % 16)) -eq 0 ] || { echo "FAIL: generated .rdata starts at 0x$A, not 0 mod 16"; exit 1; }; }
 python3 $T/pefix.py $W/ours.exe $W/mfl_patched.exe >/dev/null
 python3 $G/tools/wine-run/prepare.py $INST $W/game $W/ours.exe $W/ours.map >/dev/null      # movie stubs also at our C copies (found through the link map)
+[ -n "$LIB_RW" ] && cp $RW_DLL $W/game/App_Executables/mflrw.dll      # next to ours.exe (Wine loads it from the exe's directory)
 D=$(objdump -h $W/ours.exe | python3 -c "import sys; print('%x' % next(int(l.split()[3], 16) - 0x5fb000 for l in sys.stdin if len(l.split()) > 3 and l.split()[1] == '.data'))")
 echo "linked: $W/ours.exe (.data moved by 0x$D: the script delta)"
 [ -n "$HARNESS" ] && [ "$D" != "${DELTA:-b000}" ] && { echo "DELTA mismatch: rerun with DELTA=$D"; exit 2; }

@@ -28,7 +28,7 @@
     (m)->pos.z = 0.0f; (m)->pos.y = 0.0f; (m)->pos.x = 0.0f; } while (0)
 
 /* Draws a line from `from` to `to` (default both the origin) in the colour rgba (default white). */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void im3d_draw_line(float *from, float *to, unsigned char *rgba)
 {
   float origin[6];
@@ -82,7 +82,7 @@ void im3d_draw_line(float *from, float *to, unsigned char *rgba)
 
 /* Draws the three axes of `matrix` (right, up, at; each `scale` long) from its position: red, green, blue, or all in
    the one colour rgba when given. */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void im3d_draw_matrix_axes(RwMatrix *matrix, unsigned char *rgba, float scale)
 {
   unsigned char axisColors[3][4];
@@ -152,7 +152,7 @@ void im3d_draw_matrix_axes(RwMatrix *matrix, unsigned char *rgba, float scale)
 
 /* Draws the 12 edges of the box [-half, +half] (default half extents 0.5) in the colour rgba (default white),
    transformed by `matrix` when given.  Corner i has the bits x = 1, y = 2, z = 4 for the positive side. */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void im3d_draw_wire_box(float *half, RwMatrix *matrix, unsigned char *rgba)
 {
   float defaultHalf[3];
@@ -239,7 +239,7 @@ void im3d_draw_wire_box(float *half, RwMatrix *matrix, unsigned char *rgba)
 }
 
 /* Draws the box with corners bbox->sup and bbox->inf as wire frame in the colour rgba (default white). */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void im3d_draw_bbox(RwBBox *bbox, unsigned char *rgba)
 {
   RwV3d half;
@@ -275,7 +275,7 @@ struct WireMeshView {
 };
 
 /* Draws the triangle edges of the mesh (at most 0x2000 vertices / triangles) in the colour rgba (default white). */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void im3d_draw_wire_mesh(struct WireMeshView *mesh, unsigned char *rgba)
 {
   RwV3d *vertices = mesh->vertices;

@@ -105,3 +105,13 @@ xf.2=~-0.999988973 ~0.00259134243 ... xf.256=~1 ~0 ~0 ~0 ~0 ~1 ~0 ~0 ~0 ~0 ~1 ~0
 ```
 (course 0, first race draw: no vs/ps, `tex.1=none`, `rs.7=0` ZENABLE, `mat` ambient 0.1.)
 Unit check without a game: `python3 selftest.py` -> `selftest ok`.
+
+## Standalone exe (T-L3, 2026-10-31)
+`SA_EXE=<link dir>/ours.exe SA_DELTA=<hex .data delta> ./run.sh title|course:<N> <out> <frames>` records the standalone link (game dir = `<link dir>/game`, harness addresses from `ours.map`, script addresses moved by the delta
+as in `tools/delink/state_compare.sh`; the phase address moves too; `anchor_phase` defaults to 5 there, `ANCHOR=n` changes it).  New scenario `title`: title/menu start, frame locked by `frames_total` (comparable run to run).
+`tocsv.py trace.d3d.gz <prefix>` writes `<prefix>.draws.csv` (draw,frame,phase,racef,call,prim,hash,mhash) and `<prefix>.frames.csv`; `mhash` leaves out the keys that follow the clock / physics (xf.2, xf.16-23, xf.256, vh, ih, rt, dynamic ring start index).
+Results with `<link dir>/ours.exe` (LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1, delta 112000), `ref/`: caps profile `caps_wine.txt` (Wine/wined3d, spoofed GTX 470, SM3.0), draw hashes `title.draws.csv.gz`, `c0_drive31*.draws.csv.gz`.
+* `title 300`: 12299 draws, 292 frames, two runs **byte-identical** (draws.csv).
+* `course:0 DRIVE=31 90`: 46652 draws, two runs: exact hash differs in 35942 draws (only camera / car / texture-transform / geometry keys), `mhash` differs in 1 draw (rs.136 once).
+* countdown only (`SEG=countdown DRIVE=9`): the standalone is NOT identical (the ctrl build is: 25183 draws, 2258 differ late).  Camera start position differs run to run from draw 0 (cause open: not the IAT clock, anchor 3/4/5 tried); masked: 19 of 25391 differ (a 64x64 texture creation-order id).
+* The full menu walk is not frame locked (1.1M vs 1.6M draws): only the `title` window is an oracle there.

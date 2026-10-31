@@ -6,14 +6,14 @@
 extern void *memset(void *, int, unsigned int);
 
 /* Projects the one camera space point to the screen position out[0..1]. */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void camera_project_point(struct RwCamera *camera, struct RwV3d *point, float *out)
 {
   camera_project_points(camera, point, out, 1);
 }
 
 /* Clears the first `count` bits of the bit set (bit 0 of a byte is the first one of it). */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void bitset_clear_first_n(unsigned char *bits, int count)
 {
   int mask;
@@ -37,7 +37,7 @@ void bitset_clear_first_n(unsigned char *bits, int count)
 }
 
 /* Zeroes `size` bytes at `buffer`. */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void *mem_zero(void *buffer, unsigned int size)
 {
   return FUN_004c6660(buffer, 0, size);

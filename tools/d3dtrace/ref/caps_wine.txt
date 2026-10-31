@@ -1,0 +1,17 @@
+# TRACE d3dtrace 1 sdk=31 start_phase=0 stop_racef=0 geom=1
+# CREATEDEVICE adapter=0 type=1 behavior=54 bb=640x480 fmt=21 count=1 swap=2 windowed=0 autods=1 dsfmt=75 flags=0 hz=0 interval=80000000 -> ok
+# CAPS adapter="NVIDIA GeForce GTX 470" driver="nvd3dum.dll"
+# CAPS DeviceType=1 Caps=0 Caps2=60020000 Caps3=320 PresentationIntervals=80000001
+# CAPS DevCaps=19aff0 PrimitiveMiscCaps=2ecff2 RasterCaps=7332191 ZCmpCaps=ff SrcBlendCaps=3fff DestBlendCaps=27ff AlphaCmpCaps=ff
+# CAPS ShadeCaps=84208 TextureCaps=1ec85 TextureFilterCaps=7030700 CubeTextureFilterCaps=7030700 VolumeTextureFilterCaps=3030300 TextureAddressCaps=3f LineCaps=1f
+# CAPS MaxTextureWidth=16384 MaxTextureHeight=16384 MaxVolumeExtent=2048 MaxTextureRepeat=32768 MaxTextureAspectRatio=16384 MaxAnisotropy=16
+# CAPS StencilCaps=1ff FVFCaps=100008 TextureOpCaps=3feffff MaxTextureBlendStages=8 MaxSimultaneousTextures=8 VertexProcessingCaps=13b
+# CAPS MaxActiveLights=8 MaxUserClipPlanes=8 MaxVertexBlendMatrices=4 MaxVertexBlendMatrixIndex=0 MaxPrimitiveCount=5592405 MaxVertexIndex=16777215 MaxStreams=16 MaxStreamStride=1024
+# CAPS VertexShaderVersion=fffe0300 PixelShaderVersion=ffff0300 MaxVertexShaderConst=256 NumSimultaneousRTs=4 PS20Caps=1f VS20Caps=1
+# CAPS GuardBandLeft -32768 -32768 32768 32768 MaxPointSize 256 PixelShader1xMaxValue 3.40282347e+38 ExtentsAdjust 0
+# CHECKFMT adapter=0 type=1 adapterfmt=22 usage=0 rtype=3 fmt=21 -> ok x730
+# CHECKFMT adapter=0 type=1 adapterfmt=22 usage=0 rtype=3 fmt=22 -> ok x168
+# CHECKFMT adapter=0 type=1 adapterfmt=22 usage=0 rtype=3 fmt=41 -> fail x197
+# CHECKFMT adapter=0 type=1 adapterfmt=22 usage=1 rtype=3 fmt=21 -> ok x2
+# CHECKFMT adapter=0 type=1 adapterfmt=22 usage=2 rtype=1 fmt=75 -> ok x4
+# CHECKFMT adapter=0 type=1 adapterfmt=22 usage=400 rtype=3 fmt=21 -> ok x1

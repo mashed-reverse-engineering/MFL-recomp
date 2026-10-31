@@ -34,6 +34,19 @@ for _f in glob.glob(os.path.join(W, "lib", "*", "items.csv")):
 _dp_ = os.path.join(W, "mfl.obj.dead.csv")
 for r in (csv.DictReader(open(_dp_)) if os.path.exists(_dp_) else []):      # dead jump tables (mkobj dead_tables.txt): filled
     for k in range(int(r["size"])): status[sidx(H(r["va"]) + k)] = 1
+# T-N18: 5 byte `E9 rel32` thunks that stayed in the app block (the linker relocates the jmp, no game content) and the 0x90 alignment fill behind them / between functions
+# (app layer only): the thunk counts as stub, the fill as filled.  A thunk is a 16-aligned E9 followed by 0x90 up to the next 16-aligned boundary.
+_img = open(os.path.join(G, "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe"), "rb").read()
+_b = lambda v: _img[v - 0x400000]
+_app = lambda v: (lambda it: layer(v, it[3], it[4]) if it else other_layer(v))(item_at(v)) == "app"
+for va in range(TEXT, TEXT + TSZ):
+    if status[sidx(va)] != 0 or _b(va) not in (0xE9, 0xFF, 0x90) or not _app(va): continue
+    tl = 5 if _b(va) == 0xE9 else 6 if _b(va) == 0xFF and _b(va + 1) == 0x25 else 0      # jmp rel32 / jmp [IAT slot]
+    if va % 16 == 0 and tl and all(_b(va + k) in (0x90, 0xCC) for k in range(tl, 16)) and all(status[sidx(va + k)] == 0 for k in range(tl, 16)):
+        for k in range(tl): status[sidx(va + k)] = 2
+        for k in range(tl, 16): status[sidx(va + k)] = 1
+    elif _b(va) == 0x90 and va % 16 and all(status[sidx(va + k)] == 0 and _b(va + k) == 0x90 for k in range(0, 16 - va % 16)) and _b(va - 1) in (0x90, 0xC3, 0xCC):
+        for k in range(0, 16 - va % 16): status[sidx(va + k)] = 1
 code = collections.defaultdict(collections.Counter)         # layer -> {original, filled, stub}
 total_code = collections.Counter()
 for base, n in ((TEXT, TSZ), (RWC, RSZ)):

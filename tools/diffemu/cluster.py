@@ -136,6 +136,12 @@ class Cluster:
         member_vas = set(c.vas.values()); real = core.real_helpers(); ext_o, ext_u = set(), set(); c.leaders_o, c.leaders_u = set(), set()
         for n, va in c.vas.items():
             l, e = core.scan(core.img_read, va, va, va + c.sz[n]); c.leaders_o |= l; ext_o |= e
+        # T-N18: stub option `name=real`: a register-convention helper of the original that our C inlines (piz_note_result ...): its original bytes run for real inside the members (no stub, no trace entry); its own outside callees are stubbed
+        c.real_vas = {}
+        for n_, v_ in spec["stubret"].items():
+            if v_ == "real":
+                va_ = entry_va(tb, n_); c.real_vas[n_] = (va_, tb.size.get(va_) or entry_size(n_, va_)); member_vas.add(va_)
+                ext_o |= core.scan(core.img_read, va_, va_, va_ + c.real_vas[n_][1])[1]
         for n, (o, s) in c.lay.items():
             l, e = core.scan(lambda a, k: c.code[a - OURS:a - OURS + k], OURS + o, OURS, OURS + len(c.code)); c.leaders_u |= l; ext_u |= e
         try:      # <spec dir>/frame_allow.txt: `function callee argindex reason` (same format as src/diffemu_frame_allow.txt): frame objects whose neighbouring words are residue of the original's C++ EH frame
@@ -164,7 +170,7 @@ class Cluster:
     def entry(c, name, sig):
         """a Fn-like object for one entry point"""
         f = Fn.__new__(Fn); tb = T(); va = c.vas[name]
-        f.name, f.va, f.sig, f.notes = name, va, sig, []; f.hi = max(v + c.sz[n] for n, v in c.vas.items()); f.olo = min(c.vas.values())
+        f.name, f.va, f.sig, f.notes = name, va, sig, []; f.hi = max([v + c.sz[n] for n, v in c.vas.items()] + [v + z for v, z in c.real_vas.values()]); f.olo = min(list(c.vas.values()) + [v for v, _ in c.real_vas.values()])
         f.code, f.lits, f.oentry = c.code, c.lits, OURS + c.lay[name][0]
         f.imports, f.islots, f.callees = c.imports, c.islots, c.callees; f.indpop, f.indpop_u = c.indpop, c.indpop_u
         # coverage per entry: only the blocks of THIS function (the span between root and caller holds other functions: root coverage 0.1 for a cluster whose caller is far away)

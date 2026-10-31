@@ -4,7 +4,7 @@
 # Usage: sweep.sh <exe> <delta hex> <out dir> [courses="0 3"] [P=2]
 T=$(dirname "$(readlink -f "$0")"); EXE=$(readlink -f "$1"); D=$2; O=$(readlink -f "$3"); CS=${4:-0 3}; P=${5:-2}; [ $P -gt 3 ] && P=3
 INST=$T/../../../MashedGame/FullyLoaded/installed; mkdir -p $O; MAP=${EXE%.exe}.map; [ -f $MAP ] || MAP=
-for i in $(seq 1 $P); do $T/../wine-run/mkpfx.sh 7$i; python3 $T/../wine-run/prepare.py $INST $O/game$i $EXE $MAP >/dev/null; done
+for i in $(seq 1 $P); do $T/../wine-run/mkpfx.sh 7$i; python3 $T/../wine-run/prepare.py $INST $O/game$i $EXE $MAP >/dev/null; [ -f $(dirname $EXE)/game/App_Executables/mflrw.dll ] && cp $(dirname $EXE)/game/App_Executables/mflrw.dll $O/game$i/App_Executables/mflrw.dll; done      # LIB_RW link: the facade DLL next to the exe
 set -- $CS; i=0
 while [ $# -gt 0 ]; do
   L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L, waiting"; sleep 20; continue; }

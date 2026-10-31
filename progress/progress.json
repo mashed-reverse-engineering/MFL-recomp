@@ -1,7 +1,7 @@
 {
  "clusters": {
-  "bytes": 346342,
-  "functions": 679
+  "bytes": 347679,
+  "functions": 684
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
@@ -57,15 +57,15 @@
  "published_verified": {
   "automatch_files": 5,
   "automatch_functions": 5,
-  "cluster_files": 640,
+  "cluster_files": 641,
   "cluster_functions": 677,
   "hand_functions": 381,
-  "library_functions": 617,
+  "library_functions": 657,
   "tier1_files": 1639,
   "tier1_functions": 1280,
-  "tier2_files": 851,
+  "tier2_files": 886,
   "tier2_functions": 720,
-  "unique_all_kinds": 3593,
+  "unique_all_kinds": 3633,
   "unique_functions": 2976
  },
  "replaced_in_pipeline": {
@@ -90,8 +90,8 @@
    "verified_bytes_identical": 1644
   },
   "tier2": {
-   "bytes": 279124,
-   "functions": 974,
+   "bytes": 289848,
+   "functions": 1009,
    "verified_bytes_identical": 0
   }
  },

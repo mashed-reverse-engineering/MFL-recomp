@@ -1,0 +1,15 @@
+# G0 = stateless RW 3.7 functions on caller-owned data (plan_librw_integration_2026-10-31 section 2.3): swapped by LIB_RW=librw:g0.  One name per line (recomp/symbols.txt|aliases.txt spelling = the DLL export, cdecl, undecorated).
+# Only functions that tools/delink/rw_g0_check.sh found bit-equal to the original (24-bit x87, CW 0x7f) belong here.  Tables live in the DLL (static init), not in the engine instance.
+RwV3dNormalize
+RwV3dLength
+RwV2dNormalize
+RwV2dLength
+_rwSqrt
+_rwInvSqrt
+RwV3dTransformPoint
+RwV3dTransformPoints
+RwV3dTransformVector
+RwV3dTransformVectors
+RwMatrixUpdate
+RwMatrixTranslate
+RwMatrixScale

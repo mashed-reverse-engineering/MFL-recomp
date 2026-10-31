@@ -70,7 +70,7 @@ typedef void *(*RpIntersectionTriangleCallBack)(struct MflRpIntersection *isect,
 /*004f5e10*/ extern struct RpWorld *RpWorldForAllWorldSectors(struct RpWorld *world, RpWorldSectorCallBack callback, void *data);
 
 /* Collects up to `limit` triangle hits of the intersection with the world; returns how many were hit. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_collect_triangle_hits(void *world, struct MflRpIntersection *isect, struct CollisionHit *hits, int limit)
 {
   int count = 0;
@@ -85,7 +85,7 @@ int world_collect_triangle_hits(void *world, struct MflRpIntersection *isect, st
 }
 
 /* Line (6 floats) against the world, collecting up to `limit` hits. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_collect_line_hits(void *world, const float *line, struct CollisionHit *hits, int limit)
 {
   struct MflRpIntersection isect;
@@ -99,7 +99,7 @@ int world_collect_line_hits(void *world, const float *line, struct CollisionHit 
 }
 
 /* Sphere (center, radius) against the world, collecting up to `limit` hits. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_collect_sphere_hits(void *world, const float *sphere, struct CollisionHit *hits, int limit)
 {
   struct MflRpIntersection isect;
@@ -113,7 +113,7 @@ int world_collect_sphere_hits(void *world, const float *sphere, struct Collision
 }
 
 /* Line against the world, first hit only. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_line_first_hit(void *world, const float *line, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
@@ -127,7 +127,7 @@ int world_line_first_hit(void *world, const float *line, struct CollisionHit *hi
 }
 
 /* Sphere against the world, first hit only. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_sphere_first_hit(void *world, const float *sphere, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
@@ -141,7 +141,7 @@ int world_sphere_first_hit(void *world, const float *sphere, struct CollisionHit
 }
 
 /* Closest triangle hit of the intersection with the world; returns the number of triangles that were hit. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int world_closest_triangle_hit(void *world, struct MflRpIntersection *isect, struct CollisionHit *hit)
 {
   int count = 0;
@@ -157,7 +157,7 @@ int world_closest_triangle_hit(void *world, struct MflRpIntersection *isect, str
 }
 
 /* Line against the world, closest hit. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 void world_line_closest_hit(void *world, const float *line, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
@@ -171,7 +171,7 @@ void world_line_closest_hit(void *world, const float *line, struct CollisionHit 
 }
 
 /* Sphere against the world, closest hit. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 void world_sphere_closest_hit(void *world, const float *sphere, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
@@ -185,7 +185,7 @@ void world_sphere_closest_hit(void *world, const float *sphere, struct Collision
 }
 
 /* Closest triangle hit of the intersection with one atomic. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int atomic_closest_triangle_hit(void *atomic, struct MflRpIntersection *isect, struct CollisionHit *hit)
 {
   int count = 0;
@@ -201,7 +201,7 @@ int atomic_closest_triangle_hit(void *atomic, struct MflRpIntersection *isect, s
 }
 
 /* Line against one atomic, closest hit. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 void atomic_line_closest_hit(void *atomic, const float *line, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;

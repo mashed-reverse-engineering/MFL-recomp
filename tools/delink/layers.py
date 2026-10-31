@@ -27,7 +27,7 @@ def layer(va, owner, member):
     if 0x5b5eb0 <= va < 0x5d09d0: return "D3DX"
     if _ds(va): return "DirectShow"      # the dead movie code (strmbase + RwaDS + the renderer class, tools/delink/dshow_dead.txt = dshow_drop.py closure); the rest of the old range 0x5d2b40-0x5dc451 is not DirectShow (called by RenderWare / D3DX / CRT)
     o = owner.rstrip("?~")
-    if o == "game": return "app" if va < 0x4ac600 else other_layer(va)
+    if o == "game": return "app" if va < 0x4ac600 and not 0x4ab230 <= va < 0x4ac4f0 else other_layer(va)      # T-N18: 0x4ab230-0x4ac4f0 = dinput8.lib DIOBJECTDATAFORMAT tables (other_layer csv: D3DX), not app
     if o == "crt": return "CRT"
     if va in (0x52f2b0, 0x52f790): return "zlib/PNG/TIFF"      # A5: png_write_oFFs / png_write_pHYs (pngwutil), no member in the ownership
     if o in ("lua", "qhull"): return "Lua" if o == "lua" else "qhull"

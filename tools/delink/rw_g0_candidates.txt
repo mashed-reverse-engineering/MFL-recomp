@@ -1,0 +1,5 @@
+# G0 candidates checked but not (yet) swapped: RwMatrixInvert / RtIntersectionLineTriangle / RtLineSphereIntersectionTest / RtBaryGetTransform are librw code, not bit-checked by L1
+RwMatrixInvert
+RtIntersectionLineTriangle
+RtLineSphereIntersectionTest
+RtBaryGetTransform
