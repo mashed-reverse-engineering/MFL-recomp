@@ -43,6 +43,7 @@ while read -r cmd a b c d e f; do
     keychange) old=$(perl $TOOLS/memread.pl $PID $b); xdotool key --delay 150 $a; perl $TOOLS/memwait.pl $PID $b !$old ${c:-2} || { xdotool key --delay 150 $a; perl $TOOLS/memwait.pl $PID $b !$old ${c:-2}; } ;;
     waitframes) f0=$(perl $TOOLS/memread.pl $PID $a); end=$(( $(date +%s) + $(lsc ${c:-5}) )); until [ $(perl $TOOLS/memread.pl $PID $a) -ge $((f0 + b)) ] || [ $(date +%s) -ge $end ]; do sleep 0.02; done ;;
     waitmem) perl $TOOLS/memwait.pl $PID $a $b ${c:-30} $d $e ;;
+    dumpall) : > $OUT/$a.maps; while read -r rng perm _; do case "$perm" in rw*) ;; *) continue;; esac; s=$((0x${rng%-*})); e=$((0x${rng#*-})); [ $e -le $((0x7fff0000)) ] && [ $((e-s)) -le $((0x10000000)) ] || continue; echo "$rng" >> $OUT/$a.maps; dd if=/proc/$PID/mem of=$OUT/$a.$(printf %08x $s).bin bs=65536 iflag=skip_bytes,count_bytes skip=$s count=$((e-s)) 2>/dev/null; done < /proc/$PID/maps ;;   # dumpall NAME: every rw* region below 0x7fff0000 (<= 256 MB) -> NAME.<start hex>.bin + NAME.maps (S2-b asset oracle, tools/asset_oracle/walk.py)
     dump) dd if=/proc/$PID/mem of=$OUT/$a.bin bs=4096 iflag=skip_bytes,count_bytes skip=$((b)) count=$((c)) 2>/dev/null ;;
   esac
   echo "$(echo "$(date +%s.%N) $T_START" | awk "{printf \"%.1f\", \$1-\$2}") $cmd $a $b" >> $OUT/steps.txt

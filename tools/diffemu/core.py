@@ -169,6 +169,7 @@ def tclass(t, td, depth=0):
     if t.startswith("enum"): return "i4", ""
     if t.startswith(("struct", "union")): return "?", ""
     if t in SCAL: return SCAL[t], ""
+    if re.search(r"ByVal\d+$", t): return "b" + re.search(r"(\d+)$", t).group(1), ""      # T-N20: a struct passed by value, named <Name>ByVal<N> (N dwords on the stack): N words of small ints / floats
     if t in td and depth < 8: return tclass(td[t], td, depth + 1)
     return ("i4", "") if t == "" or t[:1].isupper() else ("?", "")
 
@@ -980,9 +981,17 @@ def bounds(c):
         v &= (1 << w) - 1; sv = v - (1 << w) if v >> (w - 1) else v; out.add(sv & 0xffffffff)      # sign extended to a pushed dword
     return sorted(out)
 
+PTRFILL = float(os.environ.get("DIFFEMU_PTRFILL", "0"))      # percent of window dwords that become pointers into the windows (gen_cases)
+BV_NWIN = 0      # number of pointer windows of the signature being generated (gen_cases): <Name>ByVal<N> words may hold addresses inside them
 FPOOL = [0.0, 1.0, -1.0, 0.5, -0.5, 2.0, 10.0, 100.0, 1000.0, -100.0, 0.001, 3.14159, 255.0, 0.25]
 
 def gen_value(c, rnd):
+    if c[:1] == "b" and c[1:].isdigit():      # <Name>ByVal<N> (tclass): words of floats, small ints and (when the signature has pointer windows) addresses inside the argument windows (window k at ARGBUF + k * 0x240, see gen_cases)
+        def w_():
+            r_ = rnd.random()
+            if r_ < 0.3 and BV_NWIN: return ARGBUF + 0x240 * rnd.randrange(BV_NWIN) + 4 * rnd.randrange(0, 0x40)
+            return gen_value("f", rnd)[0] if r_ < 0.6 else rnd.choice((0, 0, 1, 2, 3, 4, 8, rnd.randrange(0, 100)))
+        return [w_() for _ in range(int(c[1:]))]
     if c in ("i1", "i2", "i4"):
         r = rnd.random(); b = bounds(c)
         if r < 0.55: return [rnd.choice(b)]
@@ -1068,6 +1077,8 @@ def cmp_offsets(fn):
 def gen_cases(sig, n, k, seed0=0):
     """n argument sets x k memory seeds.  all-small-int signatures (1-2 arguments): the boundary values come first (cartesian); pointers get memory windows (struct sized when
     the pointee is a struct of names/MFL_structs*.txt)"""
+    global BV_NWIN
+    BV_NWIN = sum(1 for p in sig.params if p[0] == "p")      # pointer windows an <Name>ByVal<N> argument may point into
     rnd = random.Random(seed0 * 7919 + len(sig.params)); cls = [p[0] for p in sig.params]; argsets = []
     if cls and len(cls) <= 2 and all(c in ("i1", "i2", "i4") for c in cls):
         import itertools
@@ -1083,6 +1094,13 @@ def gen_cases(sig, n, k, seed0=0):
                 if r.random() < 0.08: flat.append([0]); continue
                 size = max(0x40, (T().structs[x[1]] + 15) & ~15) if x[1] in T().structs else WIN
                 wins.append((pos, window(r, size, x[2]))); flat.append([pos]); pos += size + 0x40
+            if PTRFILL and wins:      # T-N20, opt-in DIFFEMU_PTRFILL=<percent>: that share of the dwords of every window points into one of the windows (linked records: hash buckets -> entries -> objects), the rest is unchanged
+                ws_ = [(p_, bytearray(b_)) for p_, b_ in wins]
+                for p_, b_ in ws_:
+                    for j_ in range(0, len(b_) - 3, 4):
+                        if r.random() * 100 < PTRFILL:
+                            q_, c_ = ws_[r.randrange(len(ws_))]; b_[j_:j_ + 4] = struct.pack("<I", q_ + 4 * r.randrange(0, len(c_) // 4 - 2) if r.random() < 0.5 else q_ + 0x10 * r.randrange(0, len(c_) // 0x10 - 1))
+                wins = [(p_, bytes(b_)) for p_, b_ in ws_]
             regs = {}; nreg = len(sig.regargs)
             for q, v in zip(("ecx", "edx"), flat[:nreg]): regs[q] = v[0]
             stack = [w for v in flat[nreg:] for w in v]
