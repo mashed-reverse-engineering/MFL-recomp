@@ -56,13 +56,13 @@ extern void rwp_aggregate_00585170(MflShapePair *pair, float *res, unsigned int 
 /* Contact between the two shapes of a pair: runs the shape query (586f20) with the radii sum as bound, rejects it when the distance is above
    `limit` or nothing was found, fills in the result (point, shape ids, the smaller lower bounds, shape kinds 0 point / 1 type 2 / 2 other),
    lets 585170 build the contact records and flips the contact normal to the oriented shape's side.  Returns 1 when a contact was found. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-10-31 authority=static */
 int rwp_aggregate_00585950(MflShapePair *p, float limit, MflHit *out)
 {
   float sum, diff, marg;
   int kind_a, kind_b;
   unsigned int count, i;
-  float res[16];
+  float res[60]; /* the original frame holds 0xec bytes (59 floats) for the shape query results; 586f20 writes up to that many */
   float lo1;
   unsigned short ta = p->a.type, tb = p->b.type;
   unsigned short fa;
