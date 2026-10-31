@@ -637,3 +637,4 @@ course_dump_emitters_update
 course_dem_update
 course_dem_cb0
 spline_objects_reset
+controller_dialog_start_key_capture

@@ -1,15 +1,15 @@
 {
  "clusters": {
-  "bytes": 346268,
-  "functions": 678
+  "bytes": 346342,
+  "functions": 679
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
   "game": 2794,
   "game_bytes": 684477,
   "game_named": 2696,
-  "named": 5427,
-  "total": 7097
+  "named": 5506,
+  "total": 7113
  },
  "published_source": {
   "by_module": {
@@ -57,16 +57,16 @@
  "published_verified": {
   "automatch_files": 5,
   "automatch_functions": 5,
-  "cluster_files": 639,
-  "cluster_functions": 676,
+  "cluster_files": 640,
+  "cluster_functions": 677,
   "hand_functions": 381,
-  "library_functions": 518,
+  "library_functions": 617,
   "tier1_files": 1639,
-  "tier1_functions": 1277,
-  "tier2_files": 823,
+  "tier1_functions": 1280,
+  "tier2_files": 851,
   "tier2_functions": 720,
-  "unique_all_kinds": 3490,
-  "unique_functions": 2972
+  "unique_all_kinds": 3593,
+  "unique_functions": 2976
  },
  "replaced_in_pipeline": {
   "agent": {
@@ -85,13 +85,13 @@
    "verified_bytes_identical": 344
   },
   "tier1": {
-   "bytes": 97303,
+   "bytes": 97380,
    "functions": 1644,
    "verified_bytes_identical": 1644
   },
   "tier2": {
-   "bytes": 261051,
-   "functions": 872,
+   "bytes": 279124,
+   "functions": 974,
    "verified_bytes_identical": 0
   }
  },
@@ -107,13 +107,13 @@
     "OVERRIDDEN_DIFF": 9,
     "STDIND": 47
    },
-   "rows": 1346,
+   "rows": 1347,
    "unaccounted": 0,
    "unverified": 164,
-   "verified": 1182,
-   "verified_bytes": 546915
+   "verified": 1183,
+   "verified_bytes": 546989
   },
-  "behaviour_verified": 1182,
+  "behaviour_verified": 1183,
   "by_tier": {
    "agent": {
     "bytes": 8446,
@@ -126,8 +126,8 @@
     "verified_bytes_identical": 0
    },
    "cluster (not in ledger)": {
-    "bytes": 334102,
-    "functions": 587,
+    "bytes": 334176,
+    "functions": 588,
     "verified_bytes_identical": 0
    },
    "hand": {
@@ -148,9 +148,9 @@
   },
   "byte_identical": 1386,
   "byte_identical_bytes": 92425,
-  "bytes": 677583,
-  "clusters": 675,
-  "clusters_not_in_ledger": 587,
-  "functions": 2732
+  "bytes": 677657,
+  "clusters": 676,
+  "clusters_not_in_ledger": 588,
+  "functions": 2733
  }
 }

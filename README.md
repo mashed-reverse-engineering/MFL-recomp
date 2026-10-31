@@ -17,24 +17,24 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,696 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers, each function once) | 2,732 | `████████████████████` 98% |
+| Replaced by recompiled C (all tiers, each function once) | 2,733 | `████████████████████` 98% |
 | ...verified byte identical | 1,386 | `██████████░░░░░░░░░░` 50% |
 | ...share of the code bytes that is byte identical | 92,425 B | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,182 | `████████░░░░░░░░░░░░` 42% |
+| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,183 | `████████░░░░░░░░░░░░` 42% |
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
-| ...share of the code bytes | 677,583 B | `████████████████████` 99% |
-| ...of these register-argument clusters | 675 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,972 | `█████████████████████` 106% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,625 | `████████████░░░░░░░░` 58% |
-| ...tier 1, `src/tier1` (1639 files) | 1,277 | `█████████░░░░░░░░░░░` 46% |
+| ...share of the code bytes | 677,657 B | `████████████████████` 99% |
+| ...of these register-argument clusters | 676 | `█████░░░░░░░░░░░░░░░` 24% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,976 | `█████████████████████` 107% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,628 | `████████████░░░░░░░░` 58% |
+| ...tier 1, `src/tier1` (1639 files) | 1,280 | `█████████░░░░░░░░░░░` 46% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (823 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (639 files) | 676 | `█████░░░░░░░░░░░░░░░` 24% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 518 | |
+| ...tier 2, `src/tier2` (851 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...clusters, `src/clusters` (640 files) | 677 | `█████░░░░░░░░░░░░░░░` 24% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 617 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
-**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (639 cluster files give 676 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
+**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (640 cluster files give 677 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
 
 **Layers.** All of the rows above are application code (VA < 0x4B0000). Not counted and still original bytes in the playable build: the C runtime (libcmt, about 81 KB, including 23.6 KB floating-point/exception code without source), RenderWare Rw/Rp/Rx/Rt (about 480 KB; to be replaced by a clean-room librw-mfl, not byte-matched), the RenderWare physics plugin Rwp (121 KB, no source), RtPNG/libpng/zlib, D3DX, Lua 4.0, qhull and DirectShow video code, plus the data, resources and the link without the original image. The D3D9, DirectSound, DirectInput and Win32 platform calls are made directly from the application C. See [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
 
@@ -47,7 +47,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 |---|---:|---:|---:|
 | agent | 109 | 8,446 | 109 |
 | bridge | 4 | 1,643 | 0 |
-| cluster (not in ledger) | 587 | 334,102 | 0 |
+| cluster (not in ledger) | 588 | 334,176 | 0 |
 | hand | 381 | 14,744 | 344 |
 | tier1 | 933 | 71,317 | 933 |
 | tier2 | 718 | 247,331 | 0 |

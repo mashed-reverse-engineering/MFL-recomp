@@ -2,3 +2,4 @@
 00569610 0 64  RtBaryGetTransform writes a 4x4 matrix
 004c4de0 2 64  world_intersect_line hit record: the intersect callback stores 0x40 bytes (+0x3c last word)
 004682c0 0 64  rocket_surface_hit_test 64 bytes
+0058ad00 1 12  rwp_gjk_0058ad00 stores a direction vector (3 floats) through its second argument on every path (via a copy of the pointer in ecx / ebx)

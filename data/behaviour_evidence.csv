@@ -1234,6 +1234,7 @@ controller_action_pressed,004a6f80,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 dialog_controller_device_changed,004a70e0,cluster,pilot,EQUAL,200,1.00,1,,pilot:EQUAL,
 controller_dialog_set_item_texts,004a7120,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 controller_dialog_start_key_capture_cb_4a7310,004a7310,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
+controller_dialog_start_key_capture,004a7780,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL|pilot:EQUAL,
 controller_dialog_init,004a77d0,tier2,ledger,EQUAL,200,1.00,1,,ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 controller_dialog_close_cb_4a7c40,004a7c40,cluster,pilot,EQUAL,450,1.00,1,,pilot:EQUAL,
 controller_dialog_close,004a7f10,tier2,hs_sweep,EQUAL,2018,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
