@@ -10,7 +10,7 @@
 #   bridge       check_all + shadow of the bridges (BRIDGE_ENABLED=names, --shadow, course 0 + targeted courses) + targeted courses
 #   cluster      check_all (4th strict build with --clusters) + targeted courses + DRIVE=31 courses 0,3 of a build with --clusters (names = cluster names = roots; none = all enabled in src/clusters/enabled.txt); no shadow (a cluster has no original-vs-C shadow), diffemu --cluster is the conformance proof
 #   milestone    check_all + full sweep RUNS=2 with --count (refreshes output/fn_courses.csv) + DRIVE=31 sweep + win/lose (DRIVE=33 / 65) crash-only + full tier 2 shadow
-#   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (DELTA ba000, retried with the printed delta) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
+#   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1 by default, =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
 # --dry-run prints the plan with the estimated minutes (rough: check_all 4, course 0.5 incl. cached control, sweep of 15 on P=2 about 6).  Exit 0 = all steps passed.
@@ -73,7 +73,7 @@ esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
 echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
-[ -n "$DRY" ] && exit 0
+[ -n "$DRY" ] && { [ $KIND = standalone ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW:-} RW_DLL=${RW_DLL:-} (LIB_*=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
 mkdir -p $D; $T/provenance.sh $D; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
@@ -118,11 +118,14 @@ diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (n
   ! grep -q "^DIFF " $D/diffemu.log || { echo "diffemu: DIFF verdict"; return 1; }
   grep -q "^INCONCLUSIVE " $D/diffemu.log && echo "WARNING diffemu: INCONCLUSIVE verdicts (see $D/diffemu.log)"; return 0
 }
-standalone_link() {      # fresh harness link; DELTA ba000 (T-E5), once more with the delta link_ours.sh prints on "DELTA mismatch"
-  local d=${DELTA:-ba000} k out
-  for k in link link2; do
-    MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
-    [ $out = 0 ] && { echo $d > $D/delta.txt; [ $k = link2 ] && { mv $D/link $D/link1 && ln -s link2 $D/link; }; return 0; }      # T-N13: `ln -sfn link2 $D/link` onto the existing DIRECTORY link made link/link2: the gate then ran origbytes + the sweep on the first, wrong-delta link
+standalone_link() {      # fresh harness link; target configuration by default (B1): LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1, A/B with LIB_*=orig DROP_DSHOW=0; LIB_RW / RW_DLL pass through (unset = off).
+  # DELTA starts at $DELTA, else the last converged delta (output/gate/standalone_delta.txt), else ba000; retried with the printed delta until stable, at most 4 links
+  local d=${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null)}; d=${d:-ba000}; local k out
+  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1}; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
+  echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${LIB_RW:-} RW_DLL=${RW_DLL:-} DELTA start $d"
+  for k in link link2 link3 link4; do
+    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz DROP_DSHOW=$dd MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
+    [ $out = 0 ] && { echo $d > $D/delta.txt; mkdir -p $R/output/gate; echo $d > $R/output/gate/standalone_delta.txt; [ $k != link ] && { mv $D/link $D/link1 && ln -s $k $D/link; }; return 0; }      # T-N13: `ln -sfn` onto the existing DIRECTORY link made link/link2: the gate then ran origbytes + the sweep on the first, wrong-delta link
     d=$(sed -n 's/.*DELTA mismatch: rerun with DELTA=\([0-9a-f]*\).*/\1/p' $D/$k.log); [ -n "$d" ] || return 1
   done; return 1
 }
@@ -165,11 +168,11 @@ bridgeshadow() {  # bridgeshadow '<courses>' names...: the bridged functions as 
   local f ok=0; for f in $D/bridge_shadow/c*/out_ovl_1/shadowlog.bin; do python3 $W/shadow_report.py $f $R/src/bridges_shadow/shadow_names.txt | tee -a $D/bridge_shadow/report.txt | grep -iE "diff" | grep -E "$(IFS='|'; echo "$*")" && ok=1; done
   [ $ok = 0 ]
 }
-export -f standalone_link origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
+export LIB_RW RW_DLL; export -f standalone_link origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
 i=0
 for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"
   echo "=== [$(date +%H:%M)] step $i/${#PLAN[@]}: $l"
   timeout -k 10 $(awk -v l=$(cut -d" " -f1 /proc/loadavg) "BEGIN{s=l/4; if(s<1)s=1; if(s>2)s=2; print int(${STEP_TIMEOUT:-$(awk "BEGIN{print 3*$m+5}")}*60*s)}") bash -c "$c" & CHILD=$!; wait $CHILD; rc=$?; CHILD=
-  [ $rc = 0 ] || { echo "GATE FAILED at step $i ($l), exit $rc; logs in $D"; echo "  next: groupsearch only on the failing course (wine-run/percourse.sh / groupsearch.py)"; exit 1; }
+  [ $rc = 0 ] || { [ "$l" = check_all ] && { echo "check_all failing check:"; grep -E "FAIL|fail|grew|mismatch|hard|objscan:|declcheck:|portcheck:|stacklint|defectlint" $D/gate.log | grep -v "^===" | tail -4; }; echo "GATE FAILED at step $i ($l), exit $rc; logs in $D"; echo "  next: groupsearch only on the failing course (wine-run/percourse.sh / groupsearch.py)"; exit 1; }
 done
 echo "GATE $KIND PASSED ($i steps)"
