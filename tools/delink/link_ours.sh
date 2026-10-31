@@ -47,10 +47,11 @@ cp $W/game/App_Executables/MFL.exe $W/mfl_patched.exe
 # each under the exe function's own name (`_Name: jmp *__imp__Name`), so mkobj puts its usual 5 byte entry jmp at the original address like for any object of ours; mk_importlibs.py builds mflrw.lib from the DLL's exports.
 # Without LIB_RW nothing changes (the A/B reference).  The DLL is copied next to ours.exe at the end.
 if [ -n "$LIB_RW" ]; then
-  RWG=${LIB_RW#librw:}; RWL=$T/rw_$RWG.txt
-  [ "$RWG" != "$LIB_RW" ] && [ -f $RWL ] && [ -n "$IMPLIBS" ] && [ -f "$RW_DLL" ] || { echo "LIB_RW=librw:<group> needs $T/rw_<group>.txt, IMPLIBS=1 and RW_DLL=<mflrw.dll>"; exit 1; }
+  RWG=${LIB_RW#librw:}; RWL=; for g_ in ${RWG//,/ }; do [ -f $T/rw_$g_.txt ] && RWL="$RWL $T/rw_$g_.txt" || RWL=; [ -n "$RWL" ] || break; done      # LIB_RW=librw:g0,stream = several lists
+  : ${RW_DLL:=/tmp/claude-$(id -u)/s2d/dll/mflrw.dll}      # default: a DLL built by librw-mfl/tools/build_mflrw.sh <dir>
+  [ "$RWG" != "$LIB_RW" ] && [ -n "$RWL" ] && [ -n "$IMPLIBS" ] && [ -f "$RW_DLL" ] || { echo "LIB_RW=librw:<group>[,<group>] needs $T/rw_<group>.txt, IMPLIBS=1 and RW_DLL=<mflrw.dll>"; exit 1; }
   mkdir -p $W/rw; export RW_DLL=$(readlink -f $RW_DLL)
-  grep -v '^#' $RWL | awk 'NF{printf ".text\n.globl _%s\n_%s:\n\tjmp *__imp__%s\n", $1, $1, $1}' > $W/rw/thunks.s
+  cat $RWL | grep -v '^#' | awk 'NF{split($1,a,"="); d=(a[2]!=""?a[2]:a[1]); printf ".text\n.globl _%s\n_%s:\n\tjmp *__imp__%s\n", a[1], a[1], d}' > $W/rw/thunks.s      # "exe_name=dll_export" when they differ
   i686-w64-mingw32-as -o $W/rw/thunks.obj $W/rw/thunks.s || exit 1
   { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "rw:thunks $W/rw/thunks.obj"; } > $W/rw/extra_objs.txt; EXTRA_OBJS=$W/rw/extra_objs.txt
 else unset RW_DLL; fi

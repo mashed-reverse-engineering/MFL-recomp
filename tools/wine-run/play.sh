@@ -20,7 +20,7 @@ mkdir -p "$OUT"
 case "$PERSIST" in slot[0-9]*) PERSIST=slot$GAMESLOT_HELD; PFX=wine_pfx_$GAMESLOT_HELD; "$(dirname "$(readlink -f "$0")")/mkpfx.sh" $GAMESLOT_HELD; echo $GAMESLOT_HELD > "$OUT/slot.txt";; esac
 T=$(dirname "$(readlink -f "$0")")
 OVR="mscoree,mshtml="; [ -n "$NOAUDIO" ] && OVR="mscoree,mshtml=;winepulse.drv=;winealsa.drv=;wineoss.drv=;winejack.drv="   # NOAUDIO=1: no audio device at all (sound completion events are timing dependent)
-ENVS="-e WINEDLLOVERRIDES=$OVR -e WINEPREFIX=/wpfx -e WINEDEBUG=${WDBG:--all} -e XDG_RUNTIME_DIR=/tmp/xdg -e LIBGL_ALWAYS_SOFTWARE=1 -e vblank_mode=${VBLANK:-1} -e DBG=$DBG -e CRASHWAIT=$CRASHWAIT"
+ENVS="-e WINEDLLOVERRIDES=$OVR -e WINEPREFIX=/wpfx -e WINEDEBUG=${WDBG:--all} ${MFLRW_TRACE:+-e MFLRW_TRACE=$MFLRW_TRACE} -e XDG_RUNTIME_DIR=/tmp/xdg -e LIBGL_ALWAYS_SOFTWARE=1 -e vblank_mode=${VBLANK:-1} -e DBG=$DBG -e CRASHWAIT=$CRASHWAIT"
 # PERSIST=<name>: use a long lived container (docker create alone costs 2-15 s on this host, docker exec ~0.3 s).  $TMPDIR and
 # $MASHED_ROOT are mounted at the same paths (NOT /tmp: its X11 socket must stay private per container), so game dir, script and out dir
 # must live below one of them, otherwise a normal per-run container is used.

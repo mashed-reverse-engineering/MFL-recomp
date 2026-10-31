@@ -1,0 +1,14 @@
+# Group "texdict" (S2-d): texture dictionaries + textures + rasters (create/destroy; textures own a raster) + the platform independent texdict reader.  Cumulative: link with LIB_RW=librw:g0,stream,texdict.
+# Only Y rows of output/librw_facade_coverage.csv (RtPITexDictionaryStreamRead and FindNamedTexture are asset-oracle verified).
+RwTexDictionaryFindNamedTexture
+RwTexDictionarySetCurrent
+RwTexDictionaryForAllTextures
+RwTexDictionaryDestroy_004d5ac0_4d5ac0=RwTexDictionaryDestroy
+RwTexDictionaryStreamRead
+RtPITexDictionaryStreamRead
+RwTextureRead
+RwTextureCreate
+RwTextureDestroy
+RwTextureSetRaster
+RwRasterCreate
+RwRasterDestroy

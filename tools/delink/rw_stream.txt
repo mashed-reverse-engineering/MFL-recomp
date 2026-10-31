@@ -1,0 +1,24 @@
+# Group "stream" (S2-d): RwStream + RtFS file system manager + RwF* (state: the DLL RtFS list + shadow engine, so ALL are swapped together).  Format: name[=dll_export]; name = a symbols.txt/aliases.txt name that mkobj resolves to the ORIGINAL function VA (symmap, first wins); a C-defined duplicate (FUN_00560cf0 / FUN_00560d00 are C bodies in 76.obj / 77.obj) must be named exactly like the C symbol.
+# 0x560eb0 is called RwFwrite in aliases.txt but is a READ (-> RwFread); the real RwFwrite 0x560ee0 only has the symbol RwFwrite_00560ee0.
+RwStreamOpen
+RwStreamClose
+RwStreamRead
+RwStreamWrite
+RwStreamSkip
+RwStreamFindChunk
+RwStreamReadInt32=RwStreamReadReal
+_rwStreamWriteVersionedChunkHeader=rwStreamWriteVersionedChunkHeader
+FUN_00560d10=RwFopen
+RwFclose
+RwFwrite=RwFread
+RwFwrite_00560ee0=RwFwrite
+RwFseek
+_rtFSInit=rtFSInit
+RtFSManagerRegister
+FUN_00560cf0=RtFSManagerSetDefaultFileSystem
+FUN_00560d00=RtFSManagerGetDefaultFileSystem
+RtFSManagerSyncAllFiles
+FUN_00560980=RtFSManagerOpen
+RtFSManagerGetFileSystemFromName
+FUN_005609c0
+FUN_00561060
