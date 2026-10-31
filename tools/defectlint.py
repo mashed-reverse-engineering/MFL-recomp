@@ -14,7 +14,7 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
   14 implicit  call of a function with NO prototype in scope (implicit declaration, or a `name()` K&R declaration in an included header) with a float / double argument: promoted to double, 8 bytes pushed, the callee reads a float (T-H2 course_warzone_cb0 func_0x0048db30)
   15 fpwidth   a float (double) typed global used by a function whose ORIGINAL instructions read that address only as a qword (dword): k_f_0 at 0x5ddc28 is the double 90.0, read as float it is 0 (T-H2 car_auto_steer_assist_step); output/fp_const_uses.txt = x87 memory operands per original function (gen_fpuse, --regen)
   16 t1hygiene tier 1 only (report only, byte identical code): no one-line `/* description */` comment before the function, or an `extern` declaration (object / function / function pointer) whose name is never used in the file (draft header residue; T-Q1)
-Class 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
+  17 framesize (`--framesize`, own run: needs the diffemu venv + object cache; `--all-tier2` = all automatch_near functions, default rwp_*) tier 2 function whose compiled prologue frame (sub esp / push ecx / chkstk) is > 8 bytes smaller than the ORIGINAL's: a local array / struct passed to a call is too small for the callee's stores (585950 `float res[16]` for 0xec bytes).  Output output/frameaudit.csv; baseline = output/frameaudit_2026-11-01.csv (status fixed / justified per flagged function)\nClass 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
 Exit 0 always (warning tool)."""
 import csv, glob, os, re, subprocess, sys
@@ -747,6 +747,47 @@ def tier1_hygiene(rel, t):
     return out
 
 
+def prologue_frame(b):
+    """(bytes of locals reserved, aligned) from the first instructions of a function: [push ebp; mov ebp,esp] then sub esp,N / push ecx / mov eax,N+call __chkstk / and esp,-16; callee-saved pushes skipped"""
+    i = 0; n = 0; al = False
+    for _ in range(14):
+        c = b[i:i + 6]
+        if c[:1] == b"\x55" or c[:1] in (b"\x53", b"\x56", b"\x57") : i += 1
+        elif c[:2] == b"\x8b\xec": i += 2
+        elif c[:1] == b"\x51": n += 4; i += 1
+        elif c[:2] == b"\x83\xec": n += c[2]; i += 3
+        elif c[:2] == b"\x81\xec": n += int.from_bytes(c[2:6], "little"); i += 6
+        elif c[:1] == b"\xb8" and b[i + 5:i + 6] == b"\xe8": n += int.from_bytes(b[i + 1:i + 5], "little"); i += 10      # mov eax,N; call __chkstk
+        elif c[:2] == b"\x83\xe4": al = True; i += 3
+        else: break
+    return n, al
+
+
+def framesize(a):
+    """class 17 (--framesize): tier 2 function whose frame (prologue `sub esp,N` / push ecx / chkstk) is smaller than the ORIGINAL's by more than 8 bytes: a local array / struct is too small for what a callee writes through its address (585950: float res[16] for the 0xec bytes 586f20 stores).  Needs the diffemu venv + the compile cache (tools/diffemu/diffemu.py compile_obj)."""
+    try: import capstone
+    except ImportError:
+        py = os.environ.get("DIFFEMU_PY") or os.path.expanduser("~/.cache/mfl_diffemu_venv/bin/python"); os.execv(py, [py] + sys.argv)
+    sys.path[:0] = [os.path.join(H, "diffemu"), H]
+    import diffemu, cmpfn
+    rows = []; byfile = {}
+    for l in open(os.path.join(G, "src", "automatch_near_names.txt")):
+        q = l.split()
+        if len(q) == 3 and "rwp" in q[1] or len(q) == 3 and "--all-tier2" in a: byfile.setdefault(q[2], []).append((q[1], int(q[0], 16)))
+    for f, fns in sorted(byfile.items()):
+        src = os.path.join(G, "src", "automatch_near", f)
+        if not os.path.exists(src): f = "an_" + f; src = os.path.join(G, "src", "automatch_near", f)
+        if not os.path.exists(src): continue
+        try: obj, _ = diffemu.compile_obj(src)
+        except Exception as e: print("framesize: %s: %s" % (f, e)); continue
+        for nm, va in fns:
+            try: ob = cmpfn.obj_function(obj, nm)[0]
+            except SystemExit: continue
+            ours, oal = prologue_frame(ob); orig, ral = prologue_frame(cmpfn.exe_bytes(va, 64))
+            rows.append(dict(cls=17, sev="high" if ours < orig - 8 else "info", file="src/automatch_near/" + f, line=1, function=nm, symbol="%08x" % va, text="frame ours %d orig %d%s" % (ours, orig, " (aligned frame)" if ral else ""), note="our frame is %d bytes smaller than the original's: a local passed to a call is probably too small" % (orig - ours) if ours < orig - 8 else "ok"))
+    return rows
+
+
 def header_decls(text, here, seen=None):
     """names the included headers declare: name -> nparams (None = `()` K&R declaration, -1 = macro / function pointer / unknown shape), recursive over `#include "x.h"`"""
     seen = set() if seen is None else seen; out = {}
@@ -823,6 +864,14 @@ def main():
     a_all = "--all" in a
     if a_all: a.remove("--all")
     if "--regen" in a: a.remove("--regen")
+    if "--framesize" in a:      # class 17: separate run (needs the diffemu venv + object cache); `--all-tier2` = every automatch_near function, default rwp_*.  Output: output/frameaudit.csv
+        a.remove("--framesize"); allow17 = {r["function"] for r in csv.DictReader(open(os.path.join(G, "output", "frameaudit_2026-11-01.csv"))) if r["status"] in ("justified", "fixed")}      # baseline: the audited flagged functions
+        rows = [r for r in framesize(a) if r["function"] not in allow17 or r["sev"] == "info"]
+        with open(os.path.join(G, "output", "frameaudit.csv"), "w", newline="") as fh:
+            w = csv.DictWriter(fh, ["cls", "sev", "file", "function", "symbol", "text", "note"], extrasaction="ignore"); w.writeheader(); w.writerows(rows)
+        bad = [r for r in rows if r["sev"] == "high"]
+        for r in bad: print("%s: class 17 (framesize) %s: %s" % (r["file"], r["function"], r["text"]))
+        print("defectlint framesize: %d function(s) compared, %d flagged -> output/frameaudit.csv" % (len(rows), len(bad))); return 0
     if "--quiet" in a: a.remove("--quiet"); quiet = True
     load_gt(); gd = load_decls()
     ENABLED.update(l.strip() for l in open(os.path.join(G, "src", "bridges", "enabled.txt")))
@@ -881,7 +930,7 @@ def main():
         with open(os.path.join(G, "output", "fp_width_mismatch.txt"), "w") as fh:
             for r in rows:
                 if str(r["cls"]) == "15": fh.write("%s:%s [%s%s] %s: %s\n" % (r["file"], r["line"], r["tier"], ", byte-identical" if r["byte_identical"] == "yes" else "", r["function"], r["note"]))
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (
