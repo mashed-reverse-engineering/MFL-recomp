@@ -1,0 +1,6 @@
+# functions that run before the D3D9 device exists (x87 at 53-bit precision control, CW 0x27f); everything else runs at 0x7f (24-bit). Source: ROADMAP T-F1. One va per line.
+004b2b2f _fpmath
+004b30f3 _cinit
+004b5dd3 _setdefaultprecision
+0051925a CPreProcessor_ctor
+005192f0 CPreProcessor_dtor

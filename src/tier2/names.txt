@@ -862,3 +862,13 @@
 004a4720 game_register_native_filesystems hk_9702.c
 004a43d0 game_open_piz hk_9703.c
 004a77d0 controller_dialog_init hk_9704.c
+00577750 rwp_grid_00577750 rwp_00577750.c
+0057f410 rwp_batch_0057f410 rwp_0057f410.c
+0056ea00 rwp_obj_0056ea00 rwp_0056ea00.c
+0057c530 rwp_batch_0057c530 rwp_0057c530.c
+00585f20 rwp_aggregate_00585f20 rwp_00585f20.c
+00580550 rwp_constraints_00580550 rwp_00580550.c
+00588280 rwp_aggregate_00588280 rwp_00588280.c
+00572c80 rwp_pipeline_00572c80 rwp_00572c80.c
+0056c5d0 rwp_sphere_0056c5d0 rwp_0056c5d0.c
+00586200 rwp_aggregate_00586200 rwp_00586200.c

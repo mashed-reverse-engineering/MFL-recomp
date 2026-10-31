@@ -9,6 +9,18 @@ T=$(dirname "$(readlink -f "$0")"); G=$T/../..; W=$(readlink -f "$1"); B=${2:-0x
 mkdir -p $W/o
 # an_hk_975 (FUN_004acca0, DirectShow) writes the fs:0 pseudo global ExceptionList: it stays original in a linked build (the movie code is stubbed anyway)
 export SKIP_FILES=an_hk_975.c${SKIP_FILES:+,$SKIP_FILES}
+# LIB_ZLIB=src (A5): zlib 1.1.3 + libpng 1.0.12 (RenderWare rtpng.lib members, not the rtpng.obj wrapper), same mechanism.
+# LIB_LUA=src LIB_QHULL=src (A4, MKRANGE/GEN_DATA builds): Lua 4.0 / qhull 2002.1 come from upstream source (output/libmatch2/build_libs.sh, cl 13.00 /G5 /O2 /Ob0), the exe's code range of the lib is dropped
+# (tools/delink_sdk/plan_srclib.py, libs.cfg) and the lib's old data rows are not emitted (LIBSRC=1 for globgen/origbytes).  Without them the image keeps the original bytes of the lib.
+LSRC=; for L in lua qhull zlib; do eval "v=\$LIB_$(echo $L | tr a-z A-Z)"; [ "$v" = src ] && LSRC="$LSRC $L"; done
+if [ -n "$LSRC" ]; then
+  export LIBSRC="${LSRC# }"; mkdir -p $W/lib; ITEMS=
+  VC7_CONTAINER=libsrc $G/output/libmatch2/build_libs.sh $W/lib/src $LSRC > $W/lib/src.log 2>&1 || { tail -3 $W/lib/src.log; exit 1; }
+  : > $W/lib/extra_objs.txt; : > $W/lib/members.txt
+  for L in $LSRC; do python3 $G/tools/delink_sdk/plan_srclib.py $L $W/lib/src/$L/_o $W/lib/$L $ITEMS | tail -1; cat $W/lib/$L/extra_objs.txt >> $W/lib/extra_objs.txt; cat $W/lib/$L/members.txt >> $W/lib/members.txt; ITEMS=$W/lib/$L/items.csv; done
+  cp $G/tools/delink_sdk/stubs.c $W/lib/; VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt      # stdio the exe does not link (dead in Lua / qhull), IID_IUnknown, errno
+  EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt --drop-items $ITEMS"; export LIBSRC_ITEMS=$ITEMS
+fi
 # default build = the full gate build
 FULL="--automatch --automatch-near --bridges --clusters"
 INST=$G/../MashedGame/FullyLoaded/installed
@@ -34,9 +46,14 @@ cp $W/game/App_Executables/MFL.exe $W/mfl_patched.exe
 : > $W/objs_local.txt; n=0
 while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.obj" >> $W/objs_local.txt; done < <(cat $W/objs.txt ${EXTRA_OBJS:-})      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)
+# DROP_DSHOW=1 (A7): the DirectShow movie code is dead (the game plays movies through src/video/mfl_video): its objects leave the link, mkobj fills the functions, globgen zeroes the pointers to them
+[ -n "$DROP_DSHOW" ] && { python3 $T/dshow_drop.py filter $W; export DROP_DSHOW; }
 [ -n "$MKRANGE" ] && python3 $T/litreloc.py $W/objs_local.txt
 # GEN_DATA: initialised .data of the harness object would sit between the generated .data and .bss and shift the bss delta (the race scripts use ONE delta): give it a section of its own
 [ -n "$GEN_DATA" ] && [ -n "$HARNESS" ] && while read -r src obj; do case $src in freeze.c) objcopy --rename-section .data=.hdat $obj;; esac; done < $W/objs_local.txt
+# T-N13: the source-built libs' own initialised .data (zlib 0x14fc B, ...) would likewise sit between the generated .data and .bss and give the bss a bigger delta than .data (harness / race scripts use ONE delta: the
+# game then ran with the harness patches at wrong bss addresses = fullscreen ChangeDisplaySettings, exit): own section behind everything
+[ -n "$LSRC" ] && while read -r src obj; do case $src in lib:*|stub:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt
 # IMPLIBS=1 (S2): the import table is built by the linker from generated import libs (tools/mk_importlibs.py): every import site references __imp__Name@N, the original IAT and import tables are dropped
 IMPLIBS_ARG=; IMPLIBS_LNK=
 [ -n "$IMPLIBS" ] && { OBJLIST=$W/objs_local.txt python3 $G/tools/mk_importlibs.py $W/imp > $W/mk_importlibs.log 2>&1; IMPLIBS_ARG="--imports-as-symbols $W/imp"; IMPLIBS_LNK="/libpath:imp $(cd $W && ls imp/*.lib | tr '\n' ' ')"; }
@@ -52,6 +69,7 @@ fi
 RESF=; [ -z "$RES" ] && [ -n "$GEN_DATA" ] && [ -f $G/output/res/mfl.res ] && RES=$G/output/res/mfl.res
 [ "$RES" = 0 ] && RES=; [ -n "$RES" ] && { cp $RES $W/mfl.res; RESF=mfl.res; export NO_RSRC=1; }
 python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $GEN_ARG $MKOBJ_ARGS 2> $W/mkobj.err | tee $W/mkobj.log | head -12
+[ -n "$LSRC" ] && python3 $G/tools/delink_sdk/undup.py $W/objs_local.txt      # A5: library functions our C defines as well get another name after mkobj (it resolves the references to dropped lib code by the lib objects' names), so no LNK4006
 # MKRANGE=1 (Brief G): the code of the image goes into one object per layer (mkrange.py: RenderWare.obj, app.obj, ...), blocks `.text$NNNNN` that link.exe sorts into address order; our own plain `.text`
 # must sort behind them (.text$zz)
 MFLOBJ=mfl.obj
@@ -62,6 +80,8 @@ VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:wi
 echo "link: $(grep -c -E "error" $W/link.log || true) errors, $(grep -c LNK4006 $W/link.log || true) LNK4006"; grep -E "error" $W/link.log | head -8
 grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | head -5; echo "mkobj: references not found"; exit 1; }
 [ -f $W/ours.exe ] || { echo "link failed"; exit 1; }
+# the generated .rdata (first symbol g_pespan_005dd000) must start 0 mod 16: SSE tables (_pow_pentium4 movapd) fault otherwise (T-N11)
+[ -n "$GEN_DATA" ] && { A=$(awk '$2=="_g_pespan_005dd000"{print $3}' $W/ours.map); [ -n "$A" ] && [ $((0x$A % 16)) -eq 0 ] || { echo "FAIL: generated .rdata starts at 0x$A, not 0 mod 16"; exit 1; }; }
 python3 $T/pefix.py $W/ours.exe $W/mfl_patched.exe >/dev/null
 python3 $G/tools/wine-run/prepare.py $INST $W/game $W/ours.exe $W/ours.map >/dev/null      # movie stubs also at our C copies (found through the link map)
 D=$(objdump -h $W/ours.exe | python3 -c "import sys; print('%x' % next(int(l.split()[3], 16) - 0x5fb000 for l in sys.stdin if len(l.split()) > 3 and l.split()[1] == '.data'))")

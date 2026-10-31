@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs inside the container (called by scen_play.sh; = play_inner.sh + gdbcov).  Env: GAME OUT SCRIPT TOOLS (container paths), DBG.
 mkdir -p /tmp/xdg; chmod 700 /tmp/xdg
-wineserver -k >/dev/null 2>&1; while pgrep -f '^MFL.exe' >/dev/null; do sleep 0.1; done
+wineserver -k >/dev/null 2>&1; while pgrep -f '(^|\\)MFL.exe' >/dev/null; do sleep 0.1; done
 T_BOOT=$(date +%s.%N)
 # Xvfb and pulseaudio stay up between runs in a persistent container
 [ -S /tmp/.X11-unix/X99 ] || Xvfb :99 -screen 0 640x480x24 >/dev/null 2>&1 &
@@ -17,10 +17,10 @@ rm -f $OUT/crashed $OUT/done
 # crash watcher: Wine logs "Unhandled ..." the moment the game faults; the run is then aborted at once (a crashing build used to wait out every timeout of the script, ~65 s)
 ( until grep -q "Unhandled" $OUT/wine.log 2>/dev/null || [ -f $OUT/done ]; do sleep 0.25; done; [ -f $OUT/done ] || { sleep ${CRASHWAIT:-0}; touch $OUT/crashed; kill -TERM $$ 2>/dev/null; } ) &   # CRASHWAIT=s: let winedbg --auto write the crash dump to wine.log first
 WATCH=$!
-cleanup() { kill $WATCH 2>/dev/null; wineserver -k >/dev/null 2>&1; while pgrep -f '^MFL.exe' >/dev/null; do sleep 0.1; done; }
+cleanup() { kill $WATCH 2>/dev/null; wineserver -k >/dev/null 2>&1; while pgrep -f '(^|\\)MFL.exe' >/dev/null; do sleep 0.1; done; }
 trap 'echo "crash: aborted" >> $OUT/steps.txt; cleanup; exit 3' TERM
 T_START=$(date +%s.%N)
-until PID=$(pgrep -n -f "^MFL.exe"); [ -n "$PID" ]; do sleep 0.2; done
+until PID=$(pgrep -n -f '(^|\\)MFL.exe'); [ -n "$PID" ]; do sleep 0.2; done
 echo "process up after $(echo "$(date +%s.%N) $T_START" | awk "{printf \"%.1f\", \$1-\$2}")s (after xvfb)" >> $OUT/timing.txt
 lsc() { awk -v t=$1 '{s=$1/4; if(s<1)s=1; if(s>4)s=4; printf "%d", t*s+0.999}' /proc/loadavg; }      # timeout scaled by the load (x1 up to load 4, max x4)
 while read -r cmd a b c d e f; do

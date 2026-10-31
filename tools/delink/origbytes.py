@@ -25,6 +25,12 @@ for r in drop:
     for k in range(5): status[sidx(va) + k] = 2
     if r["status"] in ("dropped", "partial"):          # partial: the body in front of a kept tail is filled, sz = bytes up to the tail
         for k in range(5, sz): status[sidx(va) + k] = 1
+import glob      # A4 LIB_LUA=src / LIB_QHULL=src (link_ours.sh): the code items of the source-built libs (member "<lib>:src") are filled, the objects supply the code
+for _f in glob.glob(os.path.join(W, "lib", "*", "items.csv")):
+    for r in csv.DictReader(open(_f)):
+        if r["member"].endswith(":src") and r["kind"] == "code":
+            for v in range(H(r["lo"]), H(r["hi"])):
+                if status[sidx(v)] == 0: status[sidx(v)] = 1
 _dp_ = os.path.join(W, "mfl.obj.dead.csv")
 for r in (csv.DictReader(open(_dp_)) if os.path.exists(_dp_) else []):      # dead jump tables (mkobj dead_tables.txt): filled
     for k in range(int(r["size"])): status[sidx(H(r["va"]) + k)] = 1
@@ -34,7 +40,7 @@ for base, n in ((TEXT, TSZ), (RWC, RSZ)):
     va = base
     while va < base + n:
         it = item_at(va); end = min(it[1] if it else va + 1, base + n)
-        L = layer(va, it[3], it[4]) if it else "other"
+        L = layer(va, it[3], it[4]) if it else other_layer(va)
         for v in range(va, end):
             code[L][("original", "filled", "stub")[status[sidx(v)]]] += 1
         va = end
@@ -59,7 +65,7 @@ for r in lay:
         v = va
         while v < va + sz:
             it = item_at(v); e = min(it[1], va + sz) if it else va + sz
-            L = "qhull" if 0x63a526 <= v < 0x64c190 else (layer(v, it[3], it[4]) if it and it[3] in ("crt", "rw", "crt?", "rw?") else "other")
+            L = "qhull" if 0x63a610 <= v < 0x649138 else (layer(v, it[3], it[4]) if it and it[3] in ("crt", "rw", "crt?", "rw?") else other_layer(v, "data"))
             dlib[L][sec] += e - v; v = e
 RSRC = 0xad7a8
 res = {"rsrc_original_bytes": RSRC}
@@ -125,7 +131,7 @@ with open(os.path.join(OUT, "zero_original_ranges.csv"), "w") as f:
         va = base; cur = None
         while va < base + n:
             it = item_at(va); end = min(it[1] if it else va + 1, base + n)
-            L = layer(va, it[3], it[4]) if it else "other"
+            L = layer(va, it[3], it[4]) if it else other_layer(va)
             for v in range(va, end):
                 if status[sidx(v)] != 0: continue
                 if cur and cur[0] == L and cur[2] == v: cur[2] = v + 1

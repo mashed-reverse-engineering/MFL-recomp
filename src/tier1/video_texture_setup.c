@@ -14,9 +14,8 @@ void video_texture_setup(undefined4 param_1_unused,undefined4 movie_resource_id,
   /* Create raster with default dimensions and camera texture format */
   g_app_76e8a4 = RwRasterCreate(0,0,0,RWRASTER_FORMAT_DEFAULT_CAMERATEXTURE);
   /* Initialize the movie rendering pipeline using the provided movie identifier */
-  movie_renderer_create(movie_resource_id);
-  /* Mark video texture system as active and save display flag */
-  g_app_76e890 = 1;
+  /* active only when the movie player could open the movie (the null backend never does: the movie is skipped) */
+  g_app_76e890 = (movie_renderer_create(movie_resource_id) == 0);
   g_app_76e894 = display_flag;
   return;
 }

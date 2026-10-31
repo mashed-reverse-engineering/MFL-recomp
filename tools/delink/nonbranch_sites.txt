@@ -1,2 +1,5 @@
 # site why: E8 / E9 / 0F 8x byte patterns that are not branches (mkobj --drop-app and mkrange.py ignore them)
 004b7917 last byte of `mov esp,[ebp-0x18]` (8b 65 e8) + `orl [ebp-4],-1` in the SEH handler of the init table walker at 0x4b78f0 (CRT, no sized function): reads as call 0x47c69f, the inside of car_apply_forces
+004ac379 DirectInput keyboard table c_rgodfDIKeyboard (0x4ab4f0, in .text, no sized function): the dwType word of the entry with dwOfs 0xE8 (`0c e8 00 80 00 00`) reads as call 0x4b437e. A REL32 here changed the dwType (0x8000e80c -> 0x7ff0e80c at a layout shift of 16), the device format was rejected, DirectInput never acquired the keyboard and the front end ignored keys for ~13 s (A2, ROADMAP T-N2)
+004ac389 same table, entry dwOfs 0xE9 (`0c e9 00 80 00 00`): reads as jmp 0x4b438e
+00416c87 displacement of `jnz -0x18` (75 e8) followed by `cmp eax,0xb4`: reads as call 0x4220c9 (same block, harmless, listed for completeness)

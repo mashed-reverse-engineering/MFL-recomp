@@ -29,3 +29,4 @@
 0063607c 16 bit table halfwords in g_libspan_00632a30 (005b011a)
 00636318 16 bit table halfwords in g_libspan_00632a30 (005bffff)
 00636a0c 16 bit table halfwords in g_libspan_00632a30 (005bffff)
+0063607c  index bytes in an rpworld table (..ffff0116 0119ffff 005b011a 005d011c 011f011e..), not a pointer into qhull code (FUN_005afc60)

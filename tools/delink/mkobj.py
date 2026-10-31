@@ -250,6 +250,7 @@ if DROP:
         for a_, n_, nm_ in dsym[r["member"]]:
             if a_ <= t < a_ + n_ and nm_ in memdefs.get(key, ()): return nm_, t - a_
         return None, "static/interior data %s" % r["name"]
+    _NP = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonptr_words.txt")) if l.strip() and not l.startswith("#")}      # table bytes that look like an address of dropped code
     for si in range(len(secs)):
         keep = []
         for off, ti, ty in rel[si]:
@@ -257,6 +258,7 @@ if DROP:
             if dropped(site): stat["drop: relocations inside split bytes"] += 1; continue
             if ty == 6 and isinstance(ti, int):
                 t = secs[ti][1] + struct.unpack_from("<i", data[si], off)[0]
+                if site in _NP and dropped(t): stat["drop: non-pointer words"] += 1; continue
                 if dropped(t):
                     n_, a_ = symfor(t)
                     if n_:
@@ -303,10 +305,7 @@ if "--drop-app" in opt:
     lay = sorted(((int(r["va"], 16), int(r["va"], 16) + int(r["size"]), r["name"], r["kind"]) for r in csv.DictReader(open(os.path.join(GD, "globals_layout.csv")))))
     _lo = [x[0] for x in lay]
     DSEC = {i for i, s_ in enumerate(secs) if s_[0] in (".rdata", ".data", ".bss")}
-    # The linker puts the IAT (.idata$5) at the start of .rdata, ahead of the generated rdata.  Keep the generated data at the original offset modulo 16 (SSE tables are
-    # read with movapd): a filler contribution of the right size in front of it.  .data / .bss start page aligned and need nothing.
-    _iat = struct.unpack_from("<I", d, e + 24 + 96 + 8 * 12 + 4)[0]; _padn = (-_iat) % 16
-    if _padn: secs.append([".rdata", 0xF2000000, bytes(_padn), _padn, 0x40000040 | 0x00100000]); data.append(bytearray(_padn)); stat["drop-app: .rdata alignment filler"] = _padn
+    # .rdata alignment: the generated rdata.obj carries `.rdata` aligned 16 (globgen objcopy_rdata.txt), so it starts 0 mod 16 behind the linker's IAT, whatever its size.  .data / .bss start page aligned.
     fsz = {}
     for l in open(os.path.join(G, "output", "fnsizes.txt")):
         a_, n_, z_ = l.split(); fsz[int(a_, 16)] = int(z_)
@@ -332,6 +331,9 @@ if "--drop-app" in opt:
     _dtf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dead_tables.txt")
     for l_ in (open(_dtf) if os.path.exists(_dtf) else []):
         if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), l_.split(None, 2)[2].strip() if len(l_.split(None, 2)) > 2 else ""))
+    if os.environ.get("DROP_DSHOW"):      # A7: the DirectShow movie code is dead (dshow_drop.py closure): filled like a dead table, its objects are not linked
+        for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "dshow_dead.txt")):
+            if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "dshow " + l_.split()[2]))
     _deadset = set()
     for va_, n_, why_ in DEAD:
         si_ = sec_index(va_); assert si_ is not None and si_ == tsec, "dead table %x outside .text" % va_

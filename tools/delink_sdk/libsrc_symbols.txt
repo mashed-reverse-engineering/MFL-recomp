@@ -1,0 +1,5 @@
+# C names (no leading underscore) that the source-built libs (Lua, qhull) link against, data of the original image: "<name> <va>" (globgen LIBSRC=1 defines them as objcopy aliases)
+_iob 0062c690
+_pctype 0062d13c
+__mb_cur_max 0062d150
+qh_qh 00949480

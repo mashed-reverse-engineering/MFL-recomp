@@ -8,7 +8,7 @@ import configparser, csv, glob, os, sys
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..", "..")); O = os.path.join(G, "output")
 LIB, OBJD, OUT = sys.argv[1:4]; IN = sys.argv[4] if len(sys.argv) > 4 else os.path.join(O, "delink_sdk", "ownership_items.csv")      # IN: items.csv of a previous lib (chain)
 cfg = configparser.ConfigParser(); cfg.read(os.path.join(H, "libs.cfg")); c = cfg[LIB]
-lo, hi = (int(x, 16) for x in c["region"].split("-")); KEY = LIB + ":src"
+lo, hi = (int(x, 16) for x in c["region"].split("-")) if "region" in c else (0, 0); KEY = LIB + ":src"
 name = {}
 for f in c.get("ns", "").split():
     for r in csv.reader(open(os.path.join(G, f))):
@@ -26,7 +26,8 @@ rows = list(csv.DictReader(open(IN)))
 mine = []
 for r in rows:
     a = int(r["lo"], 16)
-    if r["kind"] == "code" and lo <= a < hi:
+    inreg = lo <= a < hi if "region" in c else r["member"].startswith(c["member_prefix"]) and not r["member"].endswith(c["member_skip"]) and r["lo"] not in c.get("skip_items", "").split() or r["lo"] in c.get("extra", "").split()      # zlib; extra = unowned items (owner rw?) of the lib: members instead of one address range
+    if r["kind"] == "code" and inreg:
         mine.append({"lo": r["lo"], "hi": r["hi"], "kind": "code", "owner": LIB, "member": KEY, "name": name.get(a, r["name"])})
 with open(os.path.join(OUT, "items.csv"), "w") as f:
     w = csv.DictWriter(f, ["lo", "hi", "kind", "owner", "member", "name"]); w.writeheader(); w.writerows(rows); w.writerows(mine)

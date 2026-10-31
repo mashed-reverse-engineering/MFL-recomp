@@ -30,7 +30,7 @@ FL=("" "--automatch --bridges" "--automatch --automatch-near --bridges")
 [ -s $T/../src/clusters/enabled.txt ] && FL+=("--automatch --automatch-near --bridges --clusters")      # installed clusters (tools/cluster_install.py): a 4th strict build, only when some are enabled
 for flags in "${FL[@]}"; do
   i=$((i+1)); mkdir -p $W/b$i
-  ( echo "build [$flags]:"; OBJLIST=$W/b$i/objs.txt python3 $T/build_overlay.py $W/b$i/b.exe $flags 2>&1 | grep -E "relocation check|RELCHECK |rror|more than one" | cut -c1-160; [ ${PIPESTATUS[0]} -eq 0 ] || echo "FAILED build $i" ) > $W/b$i.log 2>&1 &
+  ( echo "build [$flags]:"; OBJLIST=$W/b$i/objs.txt python3 $T/build_overlay.py $W/b$i/b.exe $flags 2>&1 | grep -E "relocation check|RELCHECK|rror|more than one" | cut -c1-160; [ ${PIPESTATUS[0]} -eq 0 ] || echo "FAILED build $i" ) > $W/b$i.log 2>&1 &
   PIDS+=($!)
   if [ ${#PIDS[@]} -ge ${BUILD_PAR:-1} ]; then wait ${PIDS[0]}; PIDS=("${PIDS[@]:1}"); fi
 done

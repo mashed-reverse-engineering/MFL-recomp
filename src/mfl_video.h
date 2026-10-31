@@ -1,4 +1,4 @@
-/* mfl_video.h - platform independent movie interface (DESIGN ONLY: not included by any build yet).
+/* mfl_video.h - platform independent movie interface (built in: recomp/video/mfl_video_null.c is the dispatcher + null backend).
  * Replaces the statically linked DirectShow code (strmbase + Criterion RwaDS, 0x4ac600..0x4b0b70,
  * 0x5b5eb0..0x5d09d0) on non-Windows targets. Backends (FFmpeg, libVLC, DirectShow shim) implement
  * struct mfl_video_backend. See public/docs/VIDEO_INTERFACE.md for the call-site mapping.

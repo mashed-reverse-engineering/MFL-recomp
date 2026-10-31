@@ -37,6 +37,33 @@ def word(v):
     return struct.unpack_from("<I", s["raw"], v - s["va"])[0]
 IAT = (BASE + DIRS[12][0], BASE + DIRS[12][0] + DIRS[12][1])
 
+# --guard [--allow file]: check the written OUT (no re-classification, exit 1 on a violation) for the two failure shapes of the parked delta crashes (T-E2): a relocated non-const word whose
+# 16-bit halves are both < 0x200 (a ctype / u16 table row, broken by any delta), or a relocation that sits on code padding (int3 / nop / lea reg,[reg+0] filler, corrupted by a move).
+# Known false alarms (value really is a pointer, e.g. 0x00480020 = a function) go into tools/delink/guard_allow.txt (site hex, # why).
+if "--guard" in sys.argv:
+    allow = {int(l.split()[0], 16) for l in open(os.path.join(H, "guard_allow.txt")) if l.strip() and not l.startswith("#")} if os.path.exists(os.path.join(H, "guard_allow.txt")) else set()
+    PAD = re.compile(rb"\xcc+|\x90+|\x8d[\x40\x49\x52\x5b\x64\x6d\x76\x7f][\x00]|\x8d\x64\x24\x00|\x8d[\x80\x89\x92\x9b\xa4\xad\xb6\xbf]\x00\x00\x00\x00|\x8d\xa4\x24\x00\x00\x00\x00")
+    bad = []
+    for r in csv.DictReader(open(OUT)):
+        if r["kind"] in ("const", "rel32", "rva", "header"): continue
+        site = int(r["site"], 16)
+        if site in allow: continue
+        w = word(site); s = sec_of(site)
+        if r["src"] == "data" and r["confidence"] != "high" and w is not None and (w & 0xFFFF) < 0x200 and (w >> 16) < 0x200: bad.append((site, "halves < 0x200 (%08x)" % w)); continue
+        if s and s["fl"] & 0x20 and r["src"] != "data":      # code section: does a padding match cover the site?
+            a = max(0, site - s["va"] - 8); chunk = s["raw"][a:site - s["va"] + 12]
+            for m in PAD.finditer(chunk):
+                lo, hi = s["va"] + a + m.start(), s["va"] + a + m.end()
+                if lo <= site < hi or lo < site + 4 <= hi:
+                    # a match is padding only when it fills the gap between functions: a run of >= 2 filler bytes, or an lea filler directly after a ret / int3 / another filler
+                    pre = s["raw"][lo - s["va"] - 1] if lo > s["va"] else 0
+                    if lo >= site and hi <= site + 4: continue      # the filler look-alike is inside the relocated word itself (an immediate with 90 90 bytes)
+                    if m.group()[0] in (0xcc, 0x90) and len(m.group()) < 2: continue
+                    if m.group()[0] == 0x8d and pre not in (0xc3, 0xc2, 0xcc, 0x90, 0x00): continue
+                    bad.append((site, "on padding %08x-%08x" % (lo, hi))); break
+    for site, why in bad: print("GUARD %08x %s" % (site, why))
+    print("classify guard: %d violation(s)" % len(bad)); sys.exit(1 if bad else 0)
+
 # --- Ghidra data
 refs, runs, labels, fnstart = collections.defaultdict(set), [], {}, set()
 reftypes = {}

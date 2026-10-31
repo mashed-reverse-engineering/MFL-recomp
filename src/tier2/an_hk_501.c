@@ -18,6 +18,8 @@ hud_player_marker_position_calc_with_facing
 
 {
   float base_z;
+  float dot_sq;
+  float dot_sq_255;
   volatile float zprod;      /* rounds the z product to float like the original's stack temp (it is stored, then reloaded for the sum) */
   double fdot;      /* the original keeps the callee's x87 result unrounded */
   undefined1 alpha;
@@ -60,7 +62,9 @@ hud_player_marker_position_calc_with_facing
     *(undefined1 *)(marker + 9) = *color_rgb;
     *(undefined1 *)((char *)marker + 0x25) = color_rgb[1];
     *(undefined1 *)((char *)marker + 0x26) = color_rgb[2];
-    alpha = (int)(fdot * fdot * 255.0f * *(float *)&alpha_scale_bits);
+    dot_sq = (float)(fdot * fdot);      /* 24-bit x87: every product is rounded to float before the next one */
+    dot_sq_255 = dot_sq * 255.0f;
+    alpha = (int)(dot_sq_255 * *(float *)&alpha_scale_bits);
     *(undefined1 *)((char *)marker + 0x27) = alpha;
     marker[10] = extra_value;
     *marker_count = *marker_count + 1;

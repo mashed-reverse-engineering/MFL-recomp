@@ -90,8 +90,8 @@ def main():
         for h in ("ghidra_types.h", "prelude.h"):
             shutil.copy(os.path.join(RECOMP, "auto", h), work)
         objs = []
-        srcs = sorted(glob.glob(os.path.join(RECOMP, "*.c")))
-        if "--auto" in extra:            # src/auto: autocompile.py chunks (unverified machine output, six of the seven bugs of the course sweep came from them): opt-in only
+        srcs = sorted(glob.glob(os.path.join(RECOMP, "*.c"))) + sorted(glob.glob(os.path.join(RECOMP, "video", "*.c")))      # src/video: mfl_video backend dispatcher + null backend
+        if "--auto" in extra:           # src/auto: autocompile.py chunks (unverified machine output, six of the seven bugs of the course sweep came from them): opt-in only
             srcs += sorted(glob.glob(os.path.join(RECOMP, "auto", "*.c")))
             for h in glob.glob(os.path.join(RECOMP, "auto", "*.h")):
                 copy_hdr(h, work)
@@ -170,7 +170,9 @@ def main():
         flags = ["/nologo", "/c", "/O2", "/Gy"]
         hdr = hashlib.sha1()
         for h in sorted(glob.glob(os.path.join(work, "*.h"))):
+            if os.path.basename(h) == "mfl_video.h": continue      # only src/video and the movie functions include it: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
             hdr.update(open(h, "rb").read())
+        vh_ = open(os.path.join(work, "mfl_video.h"), "rb").read() if os.path.exists(os.path.join(work, "mfl_video.h")) else b""
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
         todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set()
@@ -191,7 +193,7 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode()).hexdigest()
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + (vh_ if b"mfl_video.h" in open(os.path.join(work, nm), "rb").read() else b"") + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode()).hexdigest()
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)

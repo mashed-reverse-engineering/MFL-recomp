@@ -396,7 +396,7 @@ class Lifter:
                 if m == "jg": return ("icmp", "<=", a, ("imm", 0))
                 if m == "jbe": return ("icmp", "!=", a, ("imm", 0))
                 if m == "ja": return ("icmp", "==", a, ("imm", 0))
-            elif m in ("je", "jne"): return ("tst", m == "je", a, b)
+            elif m in ("je", "jne"): return ("tst", m == "jne", a, b)      # T-N6: same convention as the icmp cases (condition of the fall-through); was inverted (je -> !(a & b))
         raise Unsupported("jcc %s without known flags" % m)
 
     def merge(s, a, b, cond=None, thenb=None, elseb=None, pc=None):
@@ -851,6 +851,8 @@ class Lifter:
                 _, ad, v, sz = st
                 if ad[0] == "slot" and ad[1].kind == "f" and v[0] == "imm":
                     out.append("%s%s = %s;" % (pad, ad[1].name, flit(struct.unpack("<f", struct.pack("<I", v[1] & 0xffffffff))[0], "f")))
+                elif ad[0] == "slot" and ad[1].kind == "f" and sz == 4:      # T-N6: raw dword copy into a float slot (mov reg,[m]; mov [esp+k],reg): not an int -> float conversion
+                    out.append("%s*(int *)&%s = %s;" % (pad, ad[1].name, s.iv(v)))
                 else: out.append("%s%s = %s;" % (pad, s.addr(ad, {4: "int", 2: "short", 1: "char"}[sz]), s.iv(v)))
             elif k == "decl":
                 _, v, e = st; x = s.iv(e)

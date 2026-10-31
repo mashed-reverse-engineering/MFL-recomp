@@ -1,6 +1,10 @@
 # Video interface (replacement for the statically linked DirectShow)
 
-Status: design only (2026-10-29). `recomp/mfl_video.h` is not part of any build; no behaviour change.
+Status (2026-10-31): the interface is built in. `recomp/video/mfl_video_null.c` is the dispatcher plus the default null backend (no backend
+registered: `mfl_video_open` returns NULL, the game skips every movie); the movie functions of the table below call it (`movie_renderer_create`,
+`movie_renderer_poll`, `movie_renderer_release`, `movie_stop`, `movie_poll_and_set_surface`, `video_texture_setup`, `sound_volume_to_directsound_db`).
+With `DROP_DSHOW=1` (tools/delink/link_ours.sh) the DirectShow movie code is not in the linked exe any more (`tools/delink/dshow_drop.py`,
+`tools/delink/dshow_dead.txt`). Frame transfer (`mfl_video_acquire_frame` into the raster) is not written yet: it comes with the first real backend.
 Decision (user, 2026-10-29): DirectShow is replaced by a small platform independent interface; FFmpeg and libVLC are
 later backends. On Windows x86 the original DirectShow code can stay as one backend (or a shim over the original bytes).
 

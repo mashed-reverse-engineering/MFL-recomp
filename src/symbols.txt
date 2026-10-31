@@ -1536,6 +1536,7 @@ course_point_in_water_box_test 00458170
 course_6a2634_clear 00458270
 course_rouabout_cb2 00458280
 course_rouabout_cb5 00458420
+gap_458490 00458490
 course_sandsnow_destroy_frames 004584a0
 course_race_phase_hook 004584c0
 course_sandsnow_cb0 004584e0
@@ -6496,8 +6497,6 @@ PTR_FUN_005e0e80 005e0e80
 PTR_LAB_005e0ec0 005e0ec0
 g_movie_renderer_5e0f84 005e0f84
 s_MASHED_005e0f93_1 005e0f94
-g_movie_renderer_5e0f9c 005e0f9c
-g_movie_renderer_5e0fac 005e0fac
 s_Could_not_create_texture_rendere_005e0fbb_1 005e0fbc
 k_f_65535 005e1208
 PTR_g_data_636e75_005e12d8 005e12d8
@@ -6532,7 +6531,6 @@ g_data_5e1c4c 005e1c4c
 g_dinput_keyboard_5e1e54 005e1e54
 g_dinput_keyboard_5e1ecc 005e1ecc
 g_dinput_create_5e1f6c 005e1f6c
-g_movie_renderer_5e1f9c 005e1f9c
 g_data_5e1fdc 005e1fdc
 g_data_5e1fec 005e1fec
 g_data_5e200c 005e200c
@@ -6540,13 +6538,11 @@ g_data_5e201c 005e201c
 g_data_5e203c 005e203c
 g_data_5e204c 005e204c
 g_video_5e209c 005e209c
-g_movie_renderer_5e20ac 005e20ac
 g_data_5e20ec 005e20ec
 g_data_5e20f0 005e20f0
 g_data_5e20f4 005e20f4
 g_data_5e20f8 005e20f8
 g_data_5e210c 005e210c
-g_movie_renderer_5e212c 005e212c
 g_data_5e217c 005e217c
 g_data_5e2180 005e2180
 g_data_5e2184 005e2184
@@ -9119,12 +9115,6 @@ g_d3dx_76e89c 0076e89c
 g_app_76e8a0 0076e8a0
 g_app_76e8a4 0076e8a4
 g_movie_renderer_76e8a8 0076e8a8
-g_app_76e8ac 0076e8ac
-g_movie_renderer_76e8b0 0076e8b0
-g_movie_renderer_76e8b4 0076e8b4
-g_movie_renderer_76e8b8 0076e8b8
-g_movie_renderer_76e8bc 0076e8bc
-g_movie_renderer_76e8c0 0076e8c0
 g_app_76e8dc 0076e8dc
 g_app_76e8e0 0076e8e0
 g_video_select_76ece8 0076ece8

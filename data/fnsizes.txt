@@ -1247,7 +1247,7 @@
 004584e0 course_sandsnow_cb0 58
 00458520 course_race_phase_hook_b 5
 00458530 course_sandsnow_cb1 61
-00458570 course_sandsnow_cb2 138
+00458570 course_sandsnow_cb2 125
 004585f0 course_sandsnow_cb10 20
 00458610 course_sandsnow_cb5 23
 00458630 course_storm_cb0 475

@@ -1,24 +1,15 @@
 #include "mfl_tier2.h"
-/*004a2d20*/ extern int rw_set_value_at_root_plus_947144();
-/*004a34f0*/ extern int app_get_app_76e8a4();
+#include "mfl_video.h"
 /*004a37f0*/ extern int movie_renderer_poll();
-/*0062ad50*/ extern undefined4 g_app_62ad50;
-/*0076e89c*/ extern undefined4 g_d3dx_76e89c;
-/*004a2d20*/ extern int rw_set_value_at_root_plus_947144();
-/*004a34f0*/ extern int app_get_app_76e8a4();
-/*004a37f0*/ extern int movie_renderer_poll();
-/*0062ad50*/ extern undefined4 g_app_62ad50;
-/*0076e89c*/ extern undefined4 g_d3dx_76e89c;
+extern mfl_video *g_movie_video;
 /* movie_poll_and_set_surface */
 
-/* "movie_renderer_poll and sets the current surface via app_fn_4a2d20" */
+/* polls the movie player; returns 0 while there is no movie (the play loop then draws nothing).
+   TODO(first real backend): mfl_video_acquire_frame + copy the pixels into the raster (docs/VIDEO_INTERFACE.md, Frame transfer). */
 
 undefined4 __cdecl movie_poll_and_set_surface(undefined4 unused_1,undefined4 unused_2)
 {
-  undefined4 raster;
-  
+  if (g_movie_video == 0) return 0;
   movie_renderer_poll();
-  raster = app_get_app_76e8a4((&g_d3dx_76e89c)[g_app_62ad50]);
-  rw_set_value_at_root_plus_947144(raster);
   return 1;
 }

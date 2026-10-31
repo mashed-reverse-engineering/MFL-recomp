@@ -74,10 +74,12 @@ def main(src, dst, exe_src=None, map_path=None):
     exe = os.path.join(dst, "App_Executables", "MFL.exe")
     data = bytearray(open(exe_src or exe, "rb").read())
     msites, morig = map_sites(map_path) if map_path else ([], set())
+    stubs = bool(os.environ.get("MOVIE_STUBS"))      # default: only functions that are still the ORIGINAL (control exe, pristine MFL.exe) are stubbed; a replaced one (entry jmp to our C) runs the mfl_video null backend (src/video, A7 2026-10-31); MOVIE_STUBS=1 = the old behaviour
     for va, code in PATCHES:
+        if not stubs and data[va - 0x400000] == 0xE9: continue
         for off in recomp_sites(data, va) + ([] if va in morig else [va - 0x400000]):      # the C replacement first (found through the entry jmp), then the entry itself (a link map names it `_<fn>_orig`: moved layers)
             data[off:off + len(code)] = code
-    for off, code in msites:      # linked exe (tools/delink/link_ours.sh): no .recomp section, our C functions are found through the link map
+    for off, code in (msites if stubs else []):      # linked exe (tools/delink/link_ours.sh): no .recomp section, our C functions are found through the link map
         data[off:off + len(code)] = code
     os.unlink(exe)
     open(exe, "wb").write(data)

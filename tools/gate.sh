@@ -1,6 +1,6 @@
 #!/bin/bash
 # gate.sh [--dry-run] <kind> [names...]   the checks of ROADMAP "When to run which game check", nothing more.
-#   kind: readability | tier1 | header | infra | tier2 | bridge | cluster | milestone
+#   kind: readability | tier1 | header | infra | tier2 | bridge | cluster | milestone | standalone
 #   names: functions touched (tier2 / bridge / tier1; cluster: ignored, all enabled clusters are always gated); tier2 without names = the functions tools/shadow_cache.py says changed. '@file' = names from a file.
 #   readability  check_all.sh
 #   tier1        check_all + course 0 crash smoke
@@ -10,6 +10,7 @@
 #   bridge       check_all + shadow of the bridges (BRIDGE_ENABLED=names, --shadow, course 0 + targeted courses) + targeted courses
 #   cluster      check_all (4th strict build with --clusters) + targeted courses + DRIVE=31 courses 0,3 of a build with --clusters (names = cluster names = roots; none = all enabled in src/clusters/enabled.txt); no shadow (a cluster has no original-vs-C shadow), diffemu --cluster is the conformance proof
 #   milestone    check_all + full sweep RUNS=2 with --count (refreshes output/fn_courses.csv) + DRIVE=31 sweep + win/lose (DRIVE=33 / 65) crash-only + full tier 2 shadow
+#   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (DELTA ba000, retried with the printed delta) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
 # --dry-run prints the plan with the estimated minutes (rough: check_all 4, course 0.5 incl. cached control, sweep of 15 on P=2 about 6).  Exit 0 = all steps passed.
@@ -17,7 +18,7 @@ export LC_ALL=C
 T=$(dirname "$(readlink -f "$0")"); R=$T/..; W=$T/wine-run
 DRY=; [ "$1" = --dry-run ] && { DRY=1; shift; }
 KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat "${x:1}")) || NAMES+=("$x"); done
-case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
+case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|standalone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)
@@ -56,6 +57,11 @@ case $KIND in
              step "targeted courses ($CL)" $(awk "BEGIN{print 0.6*$(nc $CL)}") "courses targeted '$CL' $CRASH";;
   cluster)   step "targeted courses ($CL), clusters ${NAMES[*]}" $(awk "BEGIN{print 0.6*$(nc $CL)}") "courses targeted '$CL' $CRASH"
              step "DRIVE=31 courses 0,3" 1.4 "courses drive31 '0 3' $CRASH DRIVE=31";;
+  standalone) step "classify guard" 0.2 "python3 $T/delink/classify.py --guard"
+             step "MKRANGE GEN_DATA IMPLIBS HARNESS link" 8 "standalone_link"
+             step "origbytes vs baseline" 1 "origcheck"
+             step "crash-only 15 courses on the linked exe" 12 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ]"
+             step "DRIVE=31 course 0 state compare" 5 "statecheck";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
              step "fn_courses refresh" 0.1 "python3 $T/fn_courses.py build $D/full"
              step "DRIVE=31 sweep" 6 "sweep drive31 0 14 $CRASH DRIVE=31"
@@ -112,13 +118,54 @@ diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (n
   ! grep -q "^DIFF " $D/diffemu.log || { echo "diffemu: DIFF verdict"; return 1; }
   grep -q "^INCONCLUSIVE " $D/diffemu.log && echo "WARNING diffemu: INCONCLUSIVE verdicts (see $D/diffemu.log)"; return 0
 }
+standalone_link() {      # fresh harness link; DELTA ba000 (T-E5), once more with the delta link_ours.sh prints on "DELTA mismatch"
+  local d=${DELTA:-ba000} k out
+  for k in link link2; do
+    MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
+    [ $out = 0 ] && { echo $d > $D/delta.txt; [ $k = link2 ] && { mv $D/link $D/link1 && ln -s link2 $D/link; }; return 0; }      # T-N13: `ln -sfn link2 $D/link` onto the existing DIRECTORY link made link/link2: the gate then ran origbytes + the sweep on the first, wrong-delta link
+    d=$(sed -n 's/.*DELTA mismatch: rerun with DELTA=\([0-9a-f]*\).*/\1/p' $D/$k.log); [ -n "$d" ] || return 1
+  done; return 1
+}
+origcheck() {      # origbytes of the link vs output/zero_original_baseline.txt ("key bytes" lines); GATE_BASELINE_WRITE=1 writes it
+  python3 $T/delink/origbytes.py $D/link --out $D > $D/origbytes.log 2>&1 || { tail -5 $D/origbytes.log; return 1; }
+  python3 -I - $D/zero_original_bytes.json $R/output/zero_original_baseline.txt ${GATE_BASELINE_WRITE:-0} <<'PY'
+import json, os, sys
+j = json.load(open(sys.argv[1])); bf, wr = sys.argv[2], sys.argv[3] == "1"
+cur = {"code:" + L: v.get("original", 0) for L, v in j["code"].items()}
+for L, secs in j["data_lib_by_layer"].items():
+    for sec, n in secs.items(): cur["datalib:%s:%s" % (L, sec)] = n
+for sec, v in j["data_by_section"].items():
+    for k in ("lib", "gap"): cur["data:%s:%s" % (sec, k)] = v.get(k, 0)
+cur["rsrc"] = j["resources"]["rsrc_original_bytes"]
+old = {}
+if os.path.exists(bf):
+    for l in open(bf):
+        if l.strip() and l[0] != "#" and not l.startswith("state "): k, n = l.rsplit(None, 1); old[k] = int(n)
+for k in sorted(cur): print("%-34s %9d %s" % (k, cur[k], "" if k not in old else "(baseline %d%s)" % (old[k], ", FELL" if cur[k] < old[k] else "")))
+if wr:
+    keep = [l for l in open(bf) if l.startswith("state ")] if os.path.exists(bf) else []
+    open(bf, "w").write("# gate.sh standalone: original bytes per layer of the MKRANGE harness link, %s; a layer that grows fails the gate (GATE_BASELINE_WRITE=1 rewrites after a deliberate change)\n" % j.get("date", "?") + "".join("%s %d\n" % kv for kv in sorted(cur.items())) + "".join(keep)); print("baseline written"); sys.exit(0)
+bad = [k for k in cur if k in old and cur[k] > old[k]] + [k for k in cur if k not in old]
+for k in bad: print("GROWN/NEW", k, cur[k], old.get(k))
+sys.exit(1 if bad else 0)
+PY
+}
+statecheck() {      # DRIVE=31 course 0: ctrl vs linked, masked diff of cars / vehicles <= max(control-control noise, baseline "state <file> N" row)
+  DRIVE=31 $T/delink/state_compare.sh $D/state $D/link/ours.exe $(cat $D/delta.txt) 0 90 > $D/state.log 2>&1; tail -3 $D/state.log | cut -c1-200
+  local f rc=0 nm cc ref; for f in cars vehicles; do
+    nm=$(sed -n "s/^$f:.*noise-masked \([0-9]*\)  ctrl1-lnk2.*/\1/p" $D/state/result_c0.txt); cc=$(sed -n "s/^$f: ctrl1-ctrl2 \([0-9]*\) .*/\1/p" $D/state/result_c0.txt)
+    ref=$(sed -n "s/^state $f \([0-9]*\)$/\1/p" $R/output/zero_original_baseline.txt); ref=${ref:-0}
+    [ -n "$nm" ] || { echo "state $f: no result"; rc=1; continue; }
+    echo "state $f: masked diff $nm, control noise $cc, baseline $ref"; [ $nm -le $(( cc > ref ? cc : ref )) ] || { echo "state $f: above the control noise"; rc=1; }
+  done; return $rc
+}
 bridgeshadow() {  # bridgeshadow '<courses>' names...: the bridged functions as shadow build (--shadow, only the named bridges enabled)
   local list=$1; shift; local en; en=$(IFS=,; echo "$*")
   courses bridge_shadow "$list" $CRASH EXTRA_OVL="--automatch --bridges --shadow" BRIDGE_ENABLED="$en" RELCHECK=off || return 1
   local f ok=0; for f in $D/bridge_shadow/c*/out_ovl_1/shadowlog.bin; do python3 $W/shadow_report.py $f $R/src/bridges_shadow/shadow_names.txt | tee -a $D/bridge_shadow/report.txt | grep -iE "diff" | grep -E "$(IFS='|'; echo "$*")" && ok=1; done
   [ $ok = 0 ]
 }
-export -f courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
+export -f standalone_link origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
 i=0
 for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"
   echo "=== [$(date +%H:%M)] step $i/${#PLAN[@]}: $l"

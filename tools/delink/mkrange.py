@@ -61,6 +61,8 @@ for si, s in enumerate(secs):
     elif s["name"] == "_rwcseg": CODE[si] = L.RWC; assert s["size"] == L.RSZ
 assert len(CODE) == 2, "need .text and _rwcseg (a mkobj --drop-app object)"
 runs = []       # (lo, hi, layer, code section index)
+# A2 bisection: CUTS=0x4a0000,0x4a8000 splits a layer run at these addresses (function starts), LAYOUT=endva:lo-hi,lo-hi (hex VAs) moves only the runs that start inside a range behind all others
+_cuts = sorted(int(x, 16) for x in os.environ.get("CUTS", "").split(",") if x)
 for si, base in CODE.items():
     n = secs[si]["size"]; va = base
     while va < base + n:
@@ -69,7 +71,8 @@ for si, base in CODE.items():
             nxt = min([x[0] for x in L.items if x[0] > va] + [base + n]); hi = min(nxt, base + n); lay = "other"
         else:
             hi = min(it[1], base + n); lay = L.layer(va, it[3], it[4])
-        if runs and runs[-1][2] == lay and runs[-1][1] == va and runs[-1][3] == si: runs[-1] = (runs[-1][0], hi, lay, si)
+        hi = min([hi] + [c for c in _cuts if c > va])
+        if runs and runs[-1][2] == lay and runs[-1][1] == va and runs[-1][3] == si and va not in _cuts: runs[-1] = (runs[-1][0], hi, lay, si)
         else: runs.append((va, hi, lay, si))
         va = hi
 blk_lo = [r[0] for r in runs]
@@ -80,11 +83,12 @@ def bname(i): return "__rng_%08x" % runs[i][0]
 
 # ---- block order in the output section (T-E6): default = address order; LAYOUT="L1,L2,..." (names of tools/delink/layers.py LAYERS, layer-grouped, listed layers first in that
 # order, the others behind in the default order) or LAYOUT=rev (layers in reverse order of first appearance) puts whole layers behind each other, so the two-layout test can move/swap them ----
-_lay_order = [x for x in os.environ.get("LAYOUT", "").split(",") if x and not x.startswith("end:")]
+_ENDVA = [tuple(int(y, 16) for y in x.split("-")) for x in os.environ["LAYOUT"][6:].split(",")] if os.environ.get("LAYOUT", "").startswith("endva:") else None
+_lay_order = [x for x in os.environ.get("LAYOUT", "").split(",") if x and not x.startswith("end:") and not _ENDVA]
 if _lay_order == ["rev"]: _lay_order = list(reversed(list(dict.fromkeys(r[2] for r in runs if secs[r[3]]["name"] != "_rwcseg"))))
 _END = os.environ.get("LAYOUT", "").startswith("end:")      # LAYOUT=end:L1,L2: only these layers move behind all the others (everything else keeps its address order)
 if _END: _lay_order = []; _endset = os.environ["LAYOUT"][4:].split(",")
-_rank = (lambda bi: int(runs[bi][2] in _endset)) if _END else lambda bi: (_lay_order.index(runs[bi][2]) if runs[bi][2] in _lay_order else len(_lay_order)) if _lay_order else 0
+_rank = (lambda bi: int(any(a <= runs[bi][0] < b for a, b in _ENDVA))) if _ENDVA else (lambda bi: int(runs[bi][2] in _endset)) if _END else lambda bi: (_lay_order.index(runs[bi][2]) if runs[bi][2] in _lay_order else len(_lay_order)) if _lay_order else 0
 _ord = sorted((bi for bi in range(len(runs)) if secs[runs[bi][3]]["name"] != "_rwcseg"), key=lambda bi: (_rank(bi), bi))
 POS = {bi: k for k, bi in enumerate(_ord)}
 # ---- output objects ----

@@ -113,6 +113,13 @@ def lib_spans():
 
 
 # --- names ----------------------------------------------------------------------------------------------------------------------------------
+# dead lib data (zero fill): the source-built lib has its own data.  (section, lo, hi): qhull 0x63a610-0x649138; zlib/PNG (A5): rtpng.lib's .rdata (png, pngerror, deflate, crc32, trees, infblock, inftrees) and
+# .data (pngwrite .. infutil, without the rtpng.obj wrapper data at 0x6373b4); only rows of kind lib inside are zeroed (the libpng strings are app rows)
+LIBSRC_DEAD_RANGES = [("data", 0x63a610, 0x649138)] * ("qhull" in os.environ.get("LIBSRC", "")) + [("rdata", 0x5f4700, 0x5f4880), ("rdata", 0x5f48b8, 0x5f5a18), ("data", 0x6373bc, 0x63a194)] * ("zlib" in os.environ.get("LIBSRC", "").split())
+LIBSRC_DEAD = {x for _, a, b in LIBSRC_DEAD_RANGES for x in (a, b)}      # range edges stay item edges
+def libsrc_dead(sec, it): return any(s_ == sec and a <= it["va"] and it["va"] + it["ext"] <= b for s_, a, b in LIBSRC_DEAD_RANGES)
+
+
 def load_names():
     names = collections.defaultdict(list)
     seen = {}      # a name used at several addresses (the _imp__ thunk labels) keeps its first one
@@ -123,6 +130,10 @@ def load_names():
                 try: a = int(p[1], 16)
                 except ValueError: continue
                 if 0x401000 <= a < 0x949d64 and re.fullmatch(r"[A-Za-z_]\w*", p[0]) and p[0] not in names[a] and seen.setdefault(p[0], a) == a: names[a].append(p[0])
+    if os.environ.get("LIBSRC"):      # A4: names the source-built libs link against (CRT data, qh_qh): tools/delink_sdk/libsrc_symbols.txt "<C name> <va>"
+        for l in open(os.path.join(G, "tools", "delink_sdk", "libsrc_symbols.txt")):
+            p = l.split()
+            if len(p) >= 2 and l[0] != "#" and p[0] not in names[int(p[1], 16)]: names[int(p[1], 16)].append(p[0])
     return {a: v for a, v in names.items() if v}
 
 
@@ -209,13 +220,24 @@ def main(out):
     for r in csv.DictReader(open(os.path.join(G, "output/delink_relocs.csv"))):
         if r["kind"] in ("const", "header", "rel32"): continue
         relocs[int(r["site"], 16)] = (int(r["target"], 16), r["kind"], r["confidence"], r["why"])
+    if os.environ.get("DROP_DSHOW"):      # A7: pointers into the dead DirectShow movie code (tools/delink/dshow_drop.py): vtables, EH tables, the 12 XCU entries become 0 (_initterm skips NULL)
+        dead = sorted((int(l.split()[0], 16), int(l.split()[0], 16) + int(l.split()[1])) for l in open(os.path.join(G, "tools/delink/dshow_dead.txt")) if l.strip() and not l.startswith("#"))
+        dst = [x[0] for x in dead]; nz = 0
+        for s_ in sorted(relocs):
+            t_ = relocs[s_][0]; j_ = bisect.bisect_right(dst, t_) - 1
+            if j_ >= 0 and t_ < dead[j_][1] and SECT["rdata"][0] <= s_ < SECT["bss"][1]:
+                for nm_, (a_, vs_, raw_) in SECS.items():
+                    if a_ <= s_ < a_ + vs_:
+                        raw_ = bytearray(raw_); raw_[s_ - a_:s_ - a_ + 4] = bytes(4); SECS[nm_] = (a_, vs_, bytes(raw_)); break
+                del relocs[s_]; nz += 1
+        print("DROP_DSHOW: %d pointers into dead movie code zeroed" % nz)
 
     # items per section
     items = {}      # sec -> list of dict(va, ext, names, kind app/gap/lib/pe, ...)
     carved = 0
     for sec, (lo, hi, _) in SECT.items():
         sp = spans[sec]
-        bounds = {lo, hi} | {x for a, b, c in sp for x in (a, b)} | {a for a in names if lo <= a < hi}
+        bounds = {lo, hi} | {x for a, b, c in sp for x in (a, b)} | {a for a in names if lo <= a < hi} | {x for x in LIBSRC_DEAD if lo <= x < hi}
         bs = sorted(bounds)
         its = []
         for a, b in zip(bs, bs[1:]):
@@ -223,7 +245,7 @@ def main(out):
             nm = names.get(a, [])
             if cls == "lib" and any(n in used for n in nm): cls = None; carved += 1      # F3: a name our C uses is app data, also inside a library span
             if cls:
-                if its and its[-1]["kind"] == cls and its[-1]["va"] + its[-1]["ext"] == a:
+                if its and its[-1]["kind"] == cls and its[-1]["va"] + its[-1]["ext"] == a and a not in LIBSRC_DEAD:      # LIBSRC_DEAD: the edges of the dead qhull data stay item edges
                     its[-1]["ext"] += b - a
                     continue
                 its.append(dict(va=a, ext=b - a, kind=cls, names=[], name=("g_libspan_%08x" if cls == "lib" else "g_pespan_%08x") % a))
@@ -496,11 +518,13 @@ def main(out):
         if sec == "data": f.write('#pragma data_seg(".data")\n')
         f.write("\n".join(pre) + "\n\n")
         for it, r in rendered:
+            if r is not None and it["kind"] == "lib" and libsrc_dead(sec, it):
+                r = None; it["kind"] = "dead"      # LIBSRC=qhull (A4): the lib is compiled from source with its own data, its old data rows are zero fill
             if r is None:
                 ext = it["ext"]
                 f.write("/* PESPAN %08x +%x */\n%sunsigned char %s[%d]%s;\n" % (it["va"], ext, "const " if sec == "rdata" else "", it["name"], ext, " = {0}"))
-                lay.write("%08x,%d,%s,%s,pe,\n" % (it["va"], ext, sec, it["name"]))
-                cnt[sec + " pe bytes"] += ext
+                lay.write("%08x,%d,%s,%s,%s,\n" % (it["va"], ext, sec, it["name"], "dead" if it["kind"] == "dead" else "pe"))
+                cnt[sec + " " + ("dead" if it["kind"] == "dead" else "pe") + " bytes"] += ext
                 continue
             sd, ty, suf, ini = r
             if sd: f.write(sd)
@@ -545,6 +569,8 @@ def main(out):
         if nm in done: continue
         for sec, (lo, hi, sn) in SECT.items():
             if lo <= va < hi: oc[sec].append("--add-symbol _%s=%s:0x%x,global" % (nm, sn, va - lo))
+    # SSE tables in .rdata are read with movapd: the generated .rdata (original start 0x5dd000, 16-aligned) must start 0 mod 16 whatever size the linker's IAT in front of it has
+    oc["rdata"].append("--set-section-alignment .rdata=16")
     for sec, ls in oc.items():
         open(os.path.join(out, "objcopy_%s.txt" % sec), "w").write("\n".join(ls) + "\n")
     codefns = sorted(n for n, va in ext_syms.items() if not any(lo <= va < hi for lo, hi, _ in SECT.values()))
