@@ -85,7 +85,9 @@ for r in lay:
         v = va
         while v < va + sz:
             it = item_at(v); e = min(it[1], va + sz) if it else va + sz
-            L = "qhull" if 0x63a610 <= v < 0x649138 else (layer(v, it[3], it[4]) if it and it[3] in ("crt", "rw", "crt?", "rw?") else other_layer(v, "data"))
+            sp_ = next(((a_, b_) for a_, b_ in ((0x771ac0, 0x771f78),) if not it and a_ <= v < b_), None)      # CRT bss spans (globgen): gap bytes between split items are CRT
+            if sp_: e = min(sp_[1], va + sz)
+            L = "CRT" if sp_ else "qhull" if 0x63a610 <= v < 0x649138 else (layer(v, it[3], it[4]) if it and it[3] in ("crt", "rw", "crt?", "rw?") else other_layer(v, "data"))
             dlib[L][sec] += e - v; v = e
 RSRC = 0xad7a8
 res = {"rsrc_original_bytes": RSRC}
