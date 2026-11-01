@@ -1049,3 +1049,6 @@
 00580240 rwp_constraints_00580240 rwp_00580240.c
 00586f20 rwp_aggregate_00586f20 rwp_00586f20.c
 00580740 rwp_constraints_00580740 rwp_00580740.c
+0057b2f0 rwp_batch_0057b2f0 rwp_0057b2f0.c
+0056af70 rwp_volume_0056af70 rwp_0056af70.c
+0057ae50 rwp_batch_0057ae50 rwp_0057ae50.c

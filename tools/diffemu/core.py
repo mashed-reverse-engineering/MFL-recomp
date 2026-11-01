@@ -898,6 +898,7 @@ class Machine:
         if c.name in NORETURN:
             m.trace.append((c.name, tuple(m.norm(a) for a in struct.unpack("<%dI" % min(c.nargs, 4), bytes(uc.mem_read(sp + 4, 4 * min(c.nargs, 4))))), ())); m.exited = True; uc.emu_stop(); return
         args = struct.unpack("<%dI" % c.nargs, bytes(uc.mem_read(sp + 4, 4 * c.nargs))) if c.nargs else ()
+        if c.name in HALFARGS: args = tuple(a & 0xffff if k in HALFARGS[c.name] else a for k, a in enumerate(args))      # the callee reads only 16 bits of these (the caller pushes a 32 bit register whose upper half is stale)
         pf = PRINTF.get(c.name)
         if pf is not None and len(args) > pf:      # printf-like: the arguments are the format and what its conversions consume (not a fixed count: the words behind are frame garbage that differs between the two builds)
             try:
@@ -1248,6 +1249,7 @@ def frame_allow():
         _FA.append(s)
     return _FA[0]
 
+HALFARGS = {"FUN_00575a30": (1,)}      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
 FNMASK = {"car_wheels_vs_triangles": [(0x7eab64, 0x7eab64 + 256 * 0x40)]}      # B3: g_event_log_data (256 x 0x40) holds 0x40 byte copies of uninitialised locals of the event record; never compared for this function
 def compare(fn, mo, ro, mu, ru):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""
