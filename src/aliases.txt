@@ -3048,3 +3048,4 @@ piz_stricmp 004c6c90
 camera_project_point 004c54d0
 frame_cb_find_hanim_hierarchy_at_entry 004c47c0
 g_rwp_simplex_face_lists 0063a580
+$I10_OUTPUT 004c25a9

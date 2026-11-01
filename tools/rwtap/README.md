@@ -33,3 +33,8 @@ Only logged while the proxy is `active` (same window as trace.raw).
   its D3D9 side is the `rs.N` block of the same draw in `d3dtrace/normalise.py` output (join on `d=`).
 * The replay of the RW stream into mflrw.dll (real D3D9 device) is NOT built yet: it needs mflrw exports for the device table entries (RwRenderStateSet / Get, Im2D*) and RwRaster / RwCamera objects built from
   the log (pointer arguments are heap addresses of the original, only camera 256 B and vertex / index / matrix data are dumped). Planned: B8 adds the exports, a replayer maps the `p` blobs to calls and records its own d3d9 trace with the same proxy, `d3dtrace/diff.py --mask` then gives the per-draw mhash diff.
+
+## Replay (B9)
+`rwreplay_gen.py rwtap.log trace.d3d.gz > replay.txt` + `librw-mfl/tests/rwreplay.cpp` (`tests/build_rwreplay.sh <build dir>`, static link of the d3d9 objects, fixed function) + `rwreplay.sh log orig.d3d.gz <build dir> <work dir>`:
+replays Camera clear / show, RwRenderStateSet, RwD3D9Set{RenderState,TextureStageState,SamplerState}, RwIm2D* into librw under Wine with the d3dtrace proxy and diffs the per-draw traces
+(tex content hashes blanked: the log has no texture data; rasters are created from the tex.0 size of the original trace).  Needs the docker image mfl-wine and the volume wine_pfx_rp (`tools/wine-run/mkpfx.sh rp`).

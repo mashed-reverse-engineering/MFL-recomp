@@ -224,7 +224,8 @@ if "--objs" in opt:
             if u in imports: aliases.append((nm_, imports[u])); continue
         u = undecorate(nm_)
         m_ = re.match(r"func_0x([0-9a-f]{8})$", u)          # decompiler names for functions without a symbol
-        if m_: aliases.append((nm_, int(m_.group(1), 16)))
+        if m_ and dropped(int(m_.group(1), 16)) and DROPNAMES.get(int(m_.group(1), 16)): alt.append((nm_, DROPNAMES[int(m_.group(1), 16)]))      # B5: our C calls a split CRT function by its decompiler name (tolower)
+        elif m_: aliases.append((nm_, int(m_.group(1), 16)))
         elif any(c_ in symmap and sec_index(symmap[c_]) is not None and not dropped(symmap[c_]) for c_ in (u, nm_, nm_.lstrip("_"))):
             aliases.append((nm_, next(symmap[c_] for c_ in (u, nm_, nm_.lstrip("_")) if c_ in symmap and sec_index(symmap[c_]) is not None and not dropped(symmap[c_]))))
         elif u in symmap and dropped(symmap[u]) and DROPNAMES.get(symmap[u]): alt.append((nm_, DROPNAMES[symmap[u]]))

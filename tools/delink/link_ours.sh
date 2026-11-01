@@ -21,6 +21,19 @@ if [ -n "$LSRC" ]; then
   cp $G/tools/delink_sdk/stubs.c $W/lib/; VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt      # stdio the exe does not link (dead in Lua / qhull), IID_IUnknown, errno
   EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt --drop-items $ITEMS"; export LIBSRC_ITEMS=$ITEMS
 fi
+# LIB_CRT=libcmt (B5, D3: VC7 libcmt now): the libcmt.lib members that plan_split.py can split out WITH their data (libs.cfg [crt], tools/delink_sdk/ownership.py with the wide-twin fix) replace the exe's CRT code and
+# data; blocked members (wincrt0 / crt0init start-up, members needing imports the exe lacks, unanchored data) stay original.  Same plumbing as the source libs: EXTRA_OBJS + mkobj --drop-members.
+CRTSPLIT=
+if [ "$LIB_CRT" = libcmt ]; then
+  CRTSPLIT=1; export CRT_SPLIT=$W/lib/crt; mkdir -p $W/lib; [ -s $W/lib/extra_objs.txt ] || { : > $W/lib/extra_objs.txt; : > $W/lib/members.txt; }
+  python3 $G/tools/rw_overlay_prep.py $W/lib/obj > /dev/null || { echo "rw_overlay_prep failed"; exit 1; }
+  python3 $G/tools/delink_sdk/plan_split.py crt $W/lib/obj $W/lib/crt | tail -1
+  cat $W/lib/crt/extra_objs.txt >> $W/lib/extra_objs.txt; cat $W/lib/crt/members.txt >> $W/lib/members.txt
+  if [ -z "$LSRC" ]; then      # the stubs (IID_IUnknown, errno) the source libs block would have built
+    cp $G/tools/delink_sdk/stubs.c $W/lib/; VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt
+    EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt${ITEMS:+ --drop-items $ITEMS}"
+  fi
+fi
 # default build = the full gate build
 FULL="--automatch --automatch-near --bridges --clusters"
 INST=$G/../MashedGame/FullyLoaded/installed
@@ -65,7 +78,7 @@ while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.ob
 [ -n "$GEN_DATA" ] && [ -n "$HARNESS" ] && while read -r src obj; do case $src in freeze.c) objcopy --rename-section .data=.hdat $obj;; esac; done < $W/objs_local.txt
 # T-N13: the source-built libs' own initialised .data (zlib 0x14fc B, ...) would likewise sit between the generated .data and .bss and give the bss a bigger delta than .data (harness / race scripts use ONE delta: the
 # game then ran with the harness patches at wrong bss addresses = fullscreen ChangeDisplaySettings, exit): own section behind everything
-[ -n "$LSRC" ] && while read -r src obj; do case $src in lib:*|stub:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt
+[ -n "$LSRC$CRTSPLIT" ] && while read -r src obj; do case $src in lib:*|stub:*|pull:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt
 # IMPLIBS=1 (S2): the import table is built by the linker from generated import libs (tools/mk_importlibs.py): every import site references __imp__Name@N, the original IAT and import tables are dropped
 IMPLIBS_ARG=; IMPLIBS_LNK=
 [ -n "$IMPLIBS" ] && { OBJLIST=$W/objs_local.txt python3 $G/tools/mk_importlibs.py $W/imp > $W/mk_importlibs.log 2>&1; IMPLIBS_ARG="--imports-as-symbols $W/imp"; IMPLIBS_LNK="/libpath:imp $(cd $W && ls imp/*.lib | tr '\n' ' ')"; }
@@ -81,7 +94,7 @@ fi
 RESF=; [ -z "$RES" ] && [ -n "$GEN_DATA" ] && [ -f $G/output/res/mfl.res ] && RES=$G/output/res/mfl.res
 [ "$RES" = 0 ] && RES=; [ -n "$RES" ] && { cp $RES $W/mfl.res; RESF=mfl.res; export NO_RSRC=1; }
 python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $GEN_ARG $MKOBJ_ARGS 2> $W/mkobj.err | tee $W/mkobj.log | head -12
-[ -n "$LSRC" ] && python3 $G/tools/delink_sdk/undup.py $W/objs_local.txt      # A5: library functions our C defines as well get another name after mkobj (it resolves the references to dropped lib code by the lib objects' names), so no LNK4006
+[ -n "$LSRC$CRTSPLIT" ] && python3 $G/tools/delink_sdk/undup.py $W/objs_local.txt      # A5: library functions our C defines as well get another name after mkobj (it resolves the references to dropped lib code by the lib objects' names), so no LNK4006
 # MKRANGE=1 (Brief G): the code of the image goes into one object per layer (mkrange.py: RenderWare.obj, app.obj, ...), blocks `.text$NNNNN` that link.exe sorts into address order; our own plain `.text`
 # must sort behind them (.text$zz)
 MFLOBJ=mfl.obj

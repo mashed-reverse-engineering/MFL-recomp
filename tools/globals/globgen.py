@@ -116,6 +116,18 @@ def lib_spans():
 # dead lib data (zero fill): the source-built lib has its own data.  (section, lo, hi): qhull 0x63a610-0x649138; zlib/PNG (A5): rtpng.lib's .rdata (png, pngerror, deflate, crc32, trees, infblock, inftrees) and
 # .data (pngwrite .. infutil, without the rtpng.obj wrapper data at 0x6373b4); only rows of kind lib inside are zeroed (the libpng strings are app rows)
 LIBSRC_DEAD_RANGES = [("data", 0x63a610, 0x649138)] * ("qhull" in os.environ.get("LIBSRC", "")) + [("rdata", 0x5f4700, 0x5f4880), ("rdata", 0x5f48b8, 0x5f5a18), ("data", 0x6373bc, 0x63a194)] * ("zlib" in os.environ.get("LIBSRC", "").split())
+CRT_SPLIT = os.environ.get("CRT_SPLIT")      # B5 LIB_CRT=libcmt: dir of plan_split.py crt output; the data (rdata / data / bss) of its split members is dead here (libcmt objects bring their own), the rest of the CRT data keeps its bytes and gets the lib's names
+def _crt_dead():
+    if not CRT_SPLIT: return []
+    import csv as _c
+    mem = {l.strip() for l in open(os.path.join(CRT_SPLIT, "members.txt"))}; out = []
+    for r in _c.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
+        if r["member"] in mem and r["kind"] != "code" and r["owner"] == "crt":
+            lo, hi = int(r["lo"], 16), int(r["hi"], 16)
+            for k_, (a_, b_, _n) in SECT.items():
+                if a_ <= lo < b_: out.append((k_, lo, min(hi, b_)))
+    return out
+LIBSRC_DEAD_RANGES = LIBSRC_DEAD_RANGES + _crt_dead()
 LIBSRC_DEAD = {x for _, a, b in LIBSRC_DEAD_RANGES for x in (a, b)}      # range edges stay item edges
 def libsrc_dead(sec, it): return any(s_ == sec and a <= it["va"] and it["va"] + it["ext"] <= b for s_, a, b in LIBSRC_DEAD_RANGES)
 
@@ -134,6 +146,14 @@ def load_names():
         for l in open(os.path.join(G, "tools", "delink_sdk", "libsrc_symbols.txt")):
             p = l.split()
             if len(p) >= 2 and l[0] != "#" and p[0] not in names[int(p[1], 16)]: names[int(p[1], 16)].append(p[0])
+    if CRT_SPLIT:      # names the split libcmt members link against: located CRT data of the image (ownership.py lib_names), not in a dead range
+        for l in open(os.path.join(G, "output", "delink_sdk", "lib_names.txt")):
+            p = l.split()
+            if len(p) < 2: continue
+            a = int(p[1], 16); n = p[0] if p[0].startswith("_") or not p[0][0].isalpha() else p[0]
+            if SECT["rdata"][0] <= a < SECT["bss"][1] and re.fullmatch(r"[A-Za-z_]\w*", p[0]) and not any(s_ <= a < e_ for _, s_, e_ in LIBSRC_DEAD_RANGES) and p[0] not in names[a] and seen.setdefault(p[0], a) == a: names[a].append(p[0])
+    if CRT_SPLIT:      # the split members define these symbols themselves (_iob, __d_inf, ...): a name here would win the link and bring the zero-filled dead row
+        for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _crt_dead())]: names[a] = []
     return {a: v for a, v in names.items() if v}
 
 

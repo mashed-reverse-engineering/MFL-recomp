@@ -31,6 +31,13 @@ for _f in glob.glob(os.path.join(W, "lib", "*", "items.csv")):
         if r["member"].endswith(":src") and r["kind"] == "code":
             for v in range(H(r["lo"]), H(r["hi"])):
                 if status[sidx(v)] == 0: status[sidx(v)] = 1
+_cm = os.path.join(W, "lib", "crt", "members.txt")      # B5 LIB_CRT=libcmt: the code of the split libcmt members is filled (the member objects supply it)
+if os.path.exists(_cm):
+    _mem = {l.strip() for l in open(_cm)}
+    for r in csv.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
+        if r["member"] in _mem and r["kind"] == "code" and r["owner"] == "crt":
+            for v in range(H(r["lo"]), H(r["hi"])):
+                if status[sidx(v)] == 0: status[sidx(v)] = 1
 _dp_ = os.path.join(W, "mfl.obj.dead.csv")
 for r in (csv.DictReader(open(_dp_)) if os.path.exists(_dp_) else []):      # dead jump tables (mkobj dead_tables.txt): filled
     for k in range(int(r["size"])): status[sidx(H(r["va"]) + k)] = 1
