@@ -124,6 +124,7 @@ def _crt_dead():
     for r in _c.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
         if r["member"] in mem and r["kind"] != "code" and r["owner"] == "crt":
             lo, hi = int(r["lo"], 16), int(r["hi"], 16)
+            if r["kind"] == "common" and any(rd(lo, hi - lo)): continue      # a COMMON the image holds initialised by an unsplit member (crt0dat's __FPinit = &_fpmath, set up by _cinit): keep bytes + name, the member's zero COMMON loses to it (dead = _fpmath never ran = black screen)
             for k_, (a_, b_, _n) in SECT.items():
                 if a_ <= lo < b_: out.append((k_, lo, min(hi, b_)))
     return out
