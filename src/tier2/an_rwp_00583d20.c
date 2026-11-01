@@ -1,16 +1,6 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
-typedef struct MflAggBox {
-  float min[3];
-  float pad0;
-  float max[3];
-  float pad1;
-} MflAggBox;
-typedef struct MflAggHandle {
-  void *ptr;
-  unsigned short id;   /* 0x4 */
-  unsigned short pad;
-} MflAggHandle;
 /* The aggregate collector context embedded at 0x37c of the world object (see 586300). */
 typedef struct MflPairRef {
   int first;

@@ -1,13 +1,7 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 /* Work area cursor (next free byte at 0x8) and the base of the block carved for the step (see 577a00). */
-typedef struct MflWorkArea {
-  unsigned char pad00[8];
-  unsigned int cur;   /* 0x8 */
-} MflWorkArea;
-typedef struct MflWorkBase {
-  char *base;   /* 0x0 */
-} MflWorkBase;
 /* Nine array descriptors of 12 bytes: pointer, a zero word and the element stride. */
 typedef struct MflArraySlot {
   char *ptr;

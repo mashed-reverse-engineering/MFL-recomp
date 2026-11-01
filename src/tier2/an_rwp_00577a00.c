@@ -1,13 +1,7 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 /* The work area cursor of the solver (the next free byte is at 0x8) and the pointer to the block carved for one step. */
-typedef struct MflWorkArea {
-  unsigned char pad00[8];
-  unsigned int cur;   /* 0x8 */
-} MflWorkArea;
-typedef struct MflWorkBase {
-  char *base;   /* 0x0 */
-} MflWorkBase;
 /* Arrays of the first solver table set: pointers into the block (0 when it did not fit) and the element strides (bytes). */
 typedef struct MflStepTables {
   char *p00;   /* 0x00 */

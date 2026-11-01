@@ -60,7 +60,7 @@ case $KIND in
   standalone) step "classify guard" 0.2 "python3 $T/delink/classify.py --guard"
              step "MKRANGE GEN_DATA IMPLIBS HARNESS link" 8 "standalone_link"
              step "origbytes vs baseline" 1 "origcheck"
-             step "crash-only 15 courses on the linked exe" 12 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ]"
+             step "crash-only 15 courses on the linked exe" 12 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
              step "DRIVE=31 course 0 state compare" 5 "statecheck";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
              step "fn_courses refresh" 0.1 "python3 $T/fn_courses.py build $D/full"

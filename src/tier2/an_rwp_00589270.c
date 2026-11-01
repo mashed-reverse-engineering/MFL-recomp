@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 typedef struct MflBodyRef {
   int id0, id1;
@@ -8,10 +9,6 @@ typedef struct MflBodyRef {
 } MflBodyRef;
 
 /* A direction with the interval [lo, hi] that the first body covers along it. */
-typedef struct MflAxis {
-  float n[3];
-  float lo, hi;
-} MflAxis;
 
 extern void rwp_sphere_0056c8a0(void *shape, float *xf, MflAxis *axis, float *far_end, float *near_end);
 

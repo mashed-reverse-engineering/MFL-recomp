@@ -1,17 +1,11 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 extern void rwp_batch_0057c230(float *q, float *axis, float angle);
 extern void rwp_batch_0057c390(float *q, float *omega, float dt);
 extern RwMatrix *RwMatrixUpdate(RwMatrix *m);
 
-typedef struct MflV3 {
-  float v[3];
-} MflV3;
 /* A list of body indices. */
-typedef struct MflIndexList {
-  int *items;
-  unsigned int count;   /* 0x4 */
-} MflIndexList;
 
 /* Integrates the orientation and position of the listed bodies over dt.  For every index in the list: the body's 32 byte record in
    recs holds its velocity (0x0) and angular velocity (0x10); when the flag byte of the body (flags[4 * index], bit 0) is set the angular velocity is

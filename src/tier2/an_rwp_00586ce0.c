@@ -1,12 +1,7 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 /* A pair filter: a bit set indexed by stride * first id + second id (the bits start at 0xc). */
-typedef struct MflPairFilter {
-  int pad0;
-  int stride;   /* 0x4 */
-  int pad8;
-  unsigned int bits[1];   /* 0xc */
-} MflPairFilter;
 /* An object's descriptor: a 16 bit id at 0x5a. */
 typedef struct MflItemObj {
   unsigned char pad00[0x5a];

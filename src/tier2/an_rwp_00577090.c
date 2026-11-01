@@ -1,11 +1,6 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
-typedef struct MflExt7 {
-  int w[7];
-} MflExt7;
-typedef struct MflAxis3 {
-  int w[3];
-} MflAxis3;
 typedef struct MflAggData {
   unsigned char pad00[0xc];
   int src_a;   /* 0xc */

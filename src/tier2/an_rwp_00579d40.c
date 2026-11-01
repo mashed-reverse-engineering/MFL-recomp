@@ -1,9 +1,7 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 /* The 0x88 byte argument block (34 dwords) that the row solver functions take by value and pass on unchanged. */
-typedef struct MflSolveByVal34 {
-  int w[34];
-} MflSolveByVal34;
 
 extern void rwp_batch_0057a540(float *acc, int a4, int a5, MflSolveByVal34 blk, float delta, int idx);
 

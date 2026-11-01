@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 extern void rwp_sphere_0056c350(void *obj, int a, int b, float *box);
 extern int rwp_volume_0056b420(void *owner, void *shape);
@@ -36,12 +37,6 @@ typedef struct MflObjB {
   void *owner;   /* 0x24 */
 } MflObjB;
 /* Pairs already known: a bit set indexed by stride * object index + id. */
-typedef struct MflPairFilter {
-  int pad0;
-  int stride;   /* 0x4 */
-  int pad8;
-  unsigned int bits[1];   /* 0xc */
-} MflPairFilter;
 typedef struct MflBatchCtx {
   MflWorldParams **world;   /* 0x0 */
   MflPairStore *store;   /* 0x4 */

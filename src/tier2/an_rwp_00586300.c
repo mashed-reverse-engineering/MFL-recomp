@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
 /* A 4x4 matrix record (64 bytes); flags at 0xc as in a RenderWare matrix. */
 typedef struct MflAggMat {
@@ -12,18 +13,7 @@ typedef struct MflAggMat {
   unsigned int pad3;
 } MflAggMat;
 /* Bounding box record (32 bytes): min at 0, max at 0x10. */
-typedef struct MflAggBox {
-  float min[3];
-  float pad0;
-  float max[3];
-  float pad1;
-} MflAggBox;
 /* Handle of an aggregate: the object (or child list) and a 16 bit id (0xffff = single object). */
-typedef struct MflAggHandle {
-  void *ptr;
-  unsigned short id;   /* 0x4 */
-  unsigned short pad;
-} MflAggHandle;
 /* Type data of an object: bounds callback at 0x10, flags at 0x40 (bit 0 = has children, bit 1 = matrix is the entry matrix). */
 typedef struct MflAggData {
   unsigned char pad00[0x10];

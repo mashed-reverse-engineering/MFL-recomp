@@ -167,7 +167,7 @@ ai_drive_a,00418dd0,tier2,weak_osweep,EQUAL,6501,0.81,1,,weak_tweak:EQUAL|hs_swe
 ai_drive_b,004195b0,tier2,weak_tweak,EQUAL,1559,0.84,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 ai_bot_stage_state_update,00419d00,cluster,pilot,EQUAL,800,0.90,1,,pilot:EQUAL,
 ai_paint_cell,0041a090,tier2,weak_tweak,EQUAL,1200,0.88,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-ai_erase_cell,0041a170,tier2,hs_sweep,EQUAL,1600,0.96,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+ai_erase_cell,0041a170,tier2,hs_sweep,EQUAL,1600,0.96,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-STALE
 ai_bot_course_0x21_target_check,0041a280,tier2,weak_tweak,EQUAL,1559,0.80,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 race_ai_slot_assign_or_adjust,0041a390,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 ai_update_speed_scaling,0041a490,cluster,weak_tweak,EQUAL,3000,0.93,1,,weak_tweak:EQUAL|weak_osweep:EQUAL|pilot:EQUAL,
@@ -464,7 +464,7 @@ menu_team_choice_step,004377b0,cluster,weak_tweak,EQUAL,2995,0.94,1,,weak_tweak:
 menu_options_defaults_reset,00437930,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 menu_page_enter_set_panel_state,00437b70,tier2,hs_sweep,EQUAL,1600,0.95,1,STDIND,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 frontend_pause_input_poll,00437cd0,tier2,weak_tweak,EQUAL,1002,1.00,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
-menu_career_row_next,00437f90,tier2,weak_tweak,EQUAL,1014,1.00,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+menu_career_row_next,00437f90,tier2,weak_tweak,EQUAL,1014,1.00,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-STALE
 career_row_previous,004380f0,tier2,hs_sweep,EQUAL,1600,0.96,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 controller_missing_message_update,00438220,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 menu_items_animate_update,00438340,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
@@ -797,7 +797,7 @@ sound_ambience_course_2_6_b,0046a430,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL
 sound_ambience_course_8_19,0046a960,tier2,hs_sweep,EQUAL,3906,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 sound_ambience_course_16_17,0046afc0,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 sound_ambience_course_1_1e,0046b170,tier2,hs_sweep,EQUAL,3922,0.98,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
-sound_ambience_course_11_14,0046b790,tier2,hs_sweep,EQUAL,3911,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-UNTESTED
+sound_ambience_course_11_14,0046b790,tier2,hs_sweep,EQUAL,3911,1.00,1,STDIND,hs_sweep:EQUAL|ledger:INCONCLUSIVE,compiled+diffemu-INCONCLUSIVE+shadow-UNTESTED
 sound_ambience_course_5_27,0046bfc0,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 sound_ambience_course_9_22,0046c470,tier2,hs_sweep,EQUAL,3935,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 sound_ambience_course_3_4,0046c830,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
@@ -1171,7 +1171,7 @@ app_initialise_on_bootup,004a1710,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_swe
 framerate_sample_accumulate,004a17e0,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
 game_options_reset,004a1890,tier2,hs_sweep,EQUAL,33,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 frontend_attract_menu_input,004a1b70,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-frontend_init_menus,004a1d80,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-never
+frontend_init_menus,004a1d80,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 app_state_frontend_frame,004a20e0,tier2,hs_sweep,EQUAL,1107,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 app_state_menu_render,004a2240,tier2,hs_sweep,EQUAL,3786,0.88,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 app_frame_timing,004a2790,tier2,hs_sweep,EQUAL,1600,0.94,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never

@@ -1,11 +1,6 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 
-typedef struct MflExt7 {
-  int w[7];
-} MflExt7;
-typedef struct MflAxis3 {
-  int w[3];
-} MflAxis3;
 typedef struct MflAggData {
   int src_a;   /* 0x0 */
   int src_b;   /* 0x4 */
