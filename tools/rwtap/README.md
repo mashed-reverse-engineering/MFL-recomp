@@ -5,7 +5,7 @@ together with the D3D9 draw trace, so a librw piece can be checked against the o
 
 | file | purpose |
 |---|---|
-| `gen_funcs.py` | writes `funcs.txt` (52 hooks; line `name va len nargs spec`) from recomp/symbols.txt + the device table at 0x62e7c8 (RenderStateSet 4e5be0, Get 4e5070, Im2D Line / Triangle / Primitive / IndexedPrimitive 4eb6d0 / 4eb960 / 4ebb80 / 4ebdb0); needs the diffemu venv (capstone) |
+| `gen_funcs.py` | writes `funcs.txt` (56 hooks; line `name va len nargs spec`) from recomp/symbols.txt + the device table at 0x62e7c8 (RenderStateSet 4e5be0, Get 4e5070, Im2D Line / Triangle / Primitive / IndexedPrimitive 4eb6d0 / 4eb960 / 4ebb80 / 4ebdb0); needs the diffemu venv (capstone) |
 | `rwtap.c`, `Makefile` | `mfltap.dll`: inline detours (displaced prologue + jmp back, `VirtualAlloc` stubs), logs on entry; return values are NOT captured |
 | `rwcheck.py` | summary of one log, call-by-call diff of two logs, `--states` CSV of the RW render-state table at every Im2D / Im3D draw |
 | `pe.py` | PE reader for gen_funcs |
@@ -38,3 +38,17 @@ Only logged while the proxy is `active` (same window as trace.raw).
 `rwreplay_gen.py rwtap.log trace.d3d.gz > replay.txt` + `librw-mfl/tests/rwreplay.cpp` (`tests/build_rwreplay.sh <build dir>`, static link of the d3d9 objects, fixed function) + `rwreplay.sh log orig.d3d.gz <build dir> <work dir>`:
 replays Camera clear / show, RwRenderStateSet, RwD3D9Set{RenderState,TextureStageState,SamplerState}, RwIm2D* into librw under Wine with the d3dtrace proxy and diffs the per-draw traces
 (tex content hashes blanked: the log has no texture data; rasters are created from the tex.0 size of the original trace).  Needs the docker image mfl-wine and the volume wine_pfx_rp (`tools/wine-run/mkpfx.sh rp`).
+
+## Atomic replay (T-P9, course 4)
+rwtap 2 logs (`RWTAP 2` header) also record every atomic the D3D9 default render callback (0x4faeb0, hooked as `rxD3D9DefaultRenderCallback`, exit hook by return address swap) draws:
+```
+M <ptr> col=<rgba hex> sp=<ambient,specular,diffuse floats hex> tex=<name|-> fa=<filterAddressing> rw= rh=   RpMaterial + texture name / raster size
+G <ptr> flags= nt= nv= nm= ntc= nmat= mats=<ptr,..> tri= lit= tc0= tc1= sph= verts= norm= mesh=<flags>:<n>;<mat>:<count>:<u16 indices hex>;..   RpGeometry (morph target 0) + RpMeshHeader
+A <seq> d= f= atom= geo= fl= hdr= ltm=<64 B> inst=<primType>:<numMeshes>:<36 B per mesh> bs=<object sphere> amb=<3 floats at 0x62e738>
+X <seq> d= f=                                                                        the callback returned (every C record between A and X was made BY the callback)
+```
+G / M are written once per (pointer, content hash).  RwCameraBeginUpdate / EndUpdate (4d1b90 / 4d1b80, 8 byte wrappers) and RwD3D9RWSetTexture (4e55d0, sampler effect of a texture) are hooked too.
+`ATOMS=1 tools/rwtap/rwreplay.sh rwtap.log trace.d3d.gz <librw build dir> <work dir> 200`: `rwreplay_gen.py --atoms` rebuilds the atomics of the main camera (the one cleared once per frame) as librw objects
+(`mat` / `geo` / `atom` / `render` commands of `librw-mfl/tests/rwreplay.cpp`, lights from the logged SetLight / EnableLight plus the ambient sum, camera view from the D3D transform logged after BeginUpdate),
+renders them through `defaultRenderCB_Fix`, `rwfilter.py` cuts the original trace to exactly those draws and `rwcause.py replay.d3d orig.d3d` sorts every differing key into a cause (exit 1 = unexplained draws remain).
+Course 4 (40 frames, DRIVE=31): 4302 atomic draws, 0 unexplained.  Recordings of the same scenario differ in length between runs (28,720 / 38,976 / 34,021 draws seen), a replay only compares with its own recording.

@@ -4453,6 +4453,7 @@ init_D3DXVec3TransformCoordArray 004fbc4f
 c_D3DXVec4Hermite 004fbee6
 c_D3DXVec4CatmullRom 004fbfe1
 c_D3DXVec4BaryCentric 004fc103
+thunk_FUN_004fc3cd 004fc3da
 thunk_FUN_004fc616 004fc623
 c_D3DXMatrixRotationX 004fcdc1
 c_D3DXMatrixRotationY 004fce57
@@ -5434,6 +5435,9 @@ FUN_005782f0 005782f0
 FUN_005793a0 005793a0
 FUN_00579480 00579480
 FUN_00579680 00579680
+LAB_005797f0 005797f0
+LAB_00579ea0 00579ea0
+LAB_0057b9c0 0057b9c0
 FUN_005850c0 005850c0
 FUN_00585160 00585160
 FUN_0058c840 0058c840
@@ -9345,6 +9349,8 @@ g_rt_7da8a8 007da8a8
 g_rt_7da9ec 007da9ec
 g_rt_7da9f8 007da9f8
 g_rt_7da9fc 007da9fc
+g_data_7daa08 007daa08
+g_data_7daa0c 007daa0c
 g_data_7daa18 007daa18
 g_data_7daa94 007daa94
 g_data_7daaa0 007daaa0

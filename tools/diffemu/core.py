@@ -861,6 +861,23 @@ class Machine:
                     uc.mem_write(sp + 4 * k_, struct.pack("<I", ra)); uc.reg_write(UC_X86_REG_ESP, sp + 4 * k_)
             except UcError: pass
         h = int(sha("ind", addr, len(m.trace), m.seed), 16); uc.reg_write(UC_X86_REG_EAX, (0, 1, h % 50, u32(h))[h % 4]); uc.reg_write(UC_X86_REG_EDX, u32(h >> 20))
+        try:      # T-P5: straight-line x87 depth walk behind the call site (original or ours, <= 40 instructions, ends at a call / jump / ret): when an instruction needs more x87 entries than the code between pushed, the call returns a float in ST0; push one like a stubbed direct float returner, else the consumer underflows and the stale entries compared at return are garbage
+            d_ = 0; n_ = 0
+            for i_ in CS.disasm(m.read(ra, 160), ra):
+                n_ += 1; mn_ = i_.mnemonic
+                if n_ > 40 or mn_ in ("call", "ret", "retn") or mn_.startswith("j") or mn_ == "loop": break
+                if not mn_.startswith("f") or mn_ in ("fnstsw", "fnstcw", "fldcw", "fwait", "fnclex", "fninit", "fldenv", "fnstenv", "fnsave", "frstor"): continue
+                sts_ = [int(x) for x in re.findall(r"st\((\d)\)", i_.op_str)]; mem_ = "[" in i_.op_str
+                if mn_.startswith("fld") or mn_.startswith("fild"): req_, dl_ = (max(sts_) + 1 if sts_ else 0), 1
+                elif mn_ in ("fcompp", "fucompp"): req_, dl_ = 2, -2
+                elif mn_ in ("fcomp", "ficomp", "fucomp"): req_, dl_ = max([1] + [x + 1 for x in sts_]), -1
+                elif mn_.endswith("p") and mn_ not in ("fprem", "fptan", "fpatan") or mn_ in ("fistp", "fisttp"): req_, dl_ = max([1] + [x + 1 for x in sts_]), -1      # fstp / fistp / faddp / fmulp ...
+                elif mn_ == "fxch": req_, dl_ = max([1] + [x + 1 for x in sts_]), 0
+                else: req_, dl_ = max([1] + [x + 1 for x in sts_]), 0      # fst / fadd [m] / fchs / fcom ...
+                if d_ < req_:
+                    uc.mem_write(FPSRC, struct.pack("<d", ((h >> 4) % 4000 - 2000) / 8.0)); uc.reg_write(UC_X86_REG_EIP, m.stubaddr(0, True)); break
+                d_ += dl_
+        except (UcError, ValueError): pass
 
     def _nullcode(m, uc, addr, size, ud):
         m.nullcall = True; uc.emu_stop()
@@ -1249,9 +1266,9 @@ def frame_allow():
         _FA.append(s)
     return _FA[0]
 
-HALFARGS = {"FUN_00575a30": (1,)}      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
+HALFARGS = {"FUN_00575a30": (1,), "FUN_00576b10": (3,), "FUN_00576b50": (2,)}      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
 FNMASK = {"car_wheels_vs_triangles": [(0x7eab64, 0x7eab64 + 256 * 0x40)]}      # B3: g_event_log_data (256 x 0x40) holds 0x40 byte copies of uninitialised locals of the event record; never compared for this function
-def compare(fn, mo, ro, mu, ru):
+def compare(fn, mo, ro, mu, ru, case=None):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""
     d = []; sg = fn.sig
     if SEH and ro["exited"] == ru["exited"] == False and ro.get("fs0") != ru.get("fs0") and not (isstack(ro["fs0"]) and isstack(ru["fs0"]) and ro["fs0"] != 0xffffffff):      # the chain head must end identical (normally restored to -1); a still registered frame (stack pointer) on both sides is tolerated
@@ -1300,6 +1317,7 @@ def compare(fn, mo, ro, mu, ru):
             wo, wu = struct.unpack("<I", mo.read(w, 4))[0], struct.unpack("<I", mu.read(w, 4))[0]
             if wo != wu and not (isstack(wo) and isstack(wu)) and not (BASE <= wo < IMGEND and OURS <= wu < OURS + 0x10000): bad.append((w, wo, wu, w in mo.sw, w in mu.sw))
         if bad: d.append("stack: %d frame words differ (written by orig/ours): %s" % (len(bad), ", ".join("%08x %08x/%08x %s%s" % (w, a_, b_, "o" if o_ else "-", "u" if u_ else "-") for w, a_, b_, o_, u_ in bad[:6])))
+    wild = [v_ for v_ in ((list(case.args) + list(case.regs.values())) if case else []) if isinstance(v_, int) and v_ >= 0x1000 and not (ARGBUF <= v_ < ARGBUF + 0x40000 or isstack(v_) or BASE <= v_ < IMGEND or OURS <= v_ < RET + 0x1000)]
     addrs = sorted({x + i for w in (mo.writes, mu.writes) for x, n in w for i in range(n)})
     if addrs:
         diffs = []      # final bytes of every touched page in both machines
@@ -1309,6 +1327,7 @@ def compare(fn, mo, ro, mu, ru):
                 if bo[x - p] != bu[x - p]:
                     off = x & 0xffc; wo = struct.unpack("<I", bo[off:off + 4])[0]; wu = struct.unpack("<I", bu[off:off + 4])[0]
                     if isstack(wo) and isstack(wu): continue      # a pointer to a local: the two frames differ
+                    if any(v_ - 0x40 < x < v_ + 0x40 for v_ in wild): continue      # T-P5: a stub store through a random integer argument used as a pointer (a1 = 0x3ff, a2 = 0x3fffff): which register the stub writes through depends on the allocation, not the source; real objects and windows are still compared
                     if any(l_ <= x < h_ for l_, h_ in MEMMASK + FNMASK.get(getattr(fn, "name", ""), [])): continue      # MEMMASK=lo-hi,... (opt-in) and FNMASK (always): bytes known to hold uninitialised stack copies
                     diffs.append((x, bo[x - p], bu[x - p]))
         if diffs: d.append("memory: %d bytes differ: %s" % (len(diffs), ", ".join("%08x %02x/%02x" % x for x in diffs[:10])))
@@ -1387,12 +1406,12 @@ def run_case(fn, case):
     fn.cov_o |= covered(fn.leaders_o, mo.blocks)
     mu, ru = side(fn, case, True)
     fn.cov_u |= covered(fn.leaders_u, mu.blocks)
-    if (mo.uninit or mu.uninit) and ru["done"]:      # uninitialised stack read on either side under the random pre-fill: the two frames legitimately differ in size / layout, so the garbage differs.  Both sides rerun at the same ESP over a CONSTANT pre-fill, identical wherever neither side wrote (rule: README diffemu "stack").  Written words are never masked.
+    if (mo.uninit or mu.uninit) and (ru["done"] or mu.uninit):    # uninitialised stack read on either side under the random pre-fill: the two frames legitimately differ in size / layout, so the garbage differs.  Both sides rerun at the same ESP over a CONSTANT pre-fill, identical wherever neither side wrote (rule: README diffemu "stack").  Written words are never masked.
         fn.uninit_cases = getattr(fn, "uninit_cases", 0) + 1
         c2 = Case(case.seed, case.mode, (0xA5, 0x00)[case.seed & 1], case.args, case.regs, case.wins); c2.patch, c2.small = case.patch, case.small
         mo, ro = side(fn, c2, False); mu, ru = side(fn, c2, True)
         if not ro["done"]: return "skip", ro["cause"]
     if not ru["done"] and ru["cause"] == "TIMEOUT": return "skip", "TIMEOUT"
     if not ru["done"]: return "diff", ["ours does not return (%s, eip %08x%s) while the original does" % (ru["cause"], ru["eip"], ", " + str(ru["err"]) if ru["err"] else "")]
-    d = compare(fn, mo, ro, mu, ru)
+    d = compare(fn, mo, ro, mu, ru, case)
     return ("diff", d) if d else ("equal", None)

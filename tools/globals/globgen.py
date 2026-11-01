@@ -126,7 +126,8 @@ def _crt_dead():
     if not CRT_SPLIT: return []
     import csv as _c
     mem = {l.strip() for l in open(os.path.join(CRT_SPLIT, "members.txt"))}; out = []
-    for r in _c.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
+    _ci = os.path.join(CRT_SPLIT, "items.csv")      # B7: ownership + plan_split's anchored data rows
+    for r in _c.DictReader(open(_ci if os.path.exists(_ci) else os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
         if r["member"] in mem and r["kind"] != "code" and r["owner"] == "crt":
             lo, hi = int(r["lo"], 16), int(r["hi"], 16)
             if r["kind"] == "common" and any(rd(lo, hi - lo)): continue      # a COMMON the image holds initialised by an unsplit member (crt0dat's __FPinit = &_fpmath, set up by _cinit): keep bytes + name, the member's zero COMMON loses to it (dead = _fpmath never ran = black screen)

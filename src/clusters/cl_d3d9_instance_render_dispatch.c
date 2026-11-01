@@ -6,7 +6,7 @@
 extern int FUN_004aa220(void);
 extern int FUN_004aa250(float *v);
 extern int FUN_004aa280(float *v);
-extern int FUN_004aa2b0(void *instance, void *mesh, int a, int b, int c, int d);
+extern int d3d9_instance_draw_vertex_shader_pass(void *instance, void *mesh, int a, int b, int c, int d);
 extern int FUN_004aa530(void *instance, void *mesh, int a, int b, int c, int d);
 extern int FUN_004aa740(void *instance, void *mesh, int a, int b, int c, int d);
 extern int app_get_app_771058(void);
@@ -72,7 +72,7 @@ void d3d9_instance_render_dispatch_n(char *obj, int callback_arg, int shader_pat
         a = *(int *)(data + 4);
         b = *(int *)(data + 8);
         FUN_004aa220();
-        FUN_004aa2b0(instance, mesh, shader_path_arg, a, b, callback_arg);
+        d3d9_instance_draw_vertex_shader_pass(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       else if (mode == 2) {
@@ -91,7 +91,7 @@ void d3d9_instance_render_dispatch_n(char *obj, int callback_arg, int shader_pat
         v[1] = *(float *)(data + 0x24);
         b = *(int *)(data + 8);
         FUN_004aa280(v);
-        FUN_004aa2b0(instance, mesh, shader_path_arg, a, b, callback_arg);
+        d3d9_instance_draw_vertex_shader_pass(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       else if (mode == 2) {
@@ -114,7 +114,7 @@ void d3d9_instance_render_dispatch_n(char *obj, int callback_arg, int shader_pat
         v[1] = *(float *)(data + 0x24);
         b = *(int *)(data + 8);
         FUN_004aa250(v);
-        FUN_004aa2b0(instance, mesh, shader_path_arg, a, b, callback_arg);
+        d3d9_instance_draw_vertex_shader_pass(instance, mesh, shader_path_arg, a, b, callback_arg);
         plugin = g_app_89de04;
       }
       else if (mode == 2) {

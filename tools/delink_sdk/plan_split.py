@@ -33,6 +33,118 @@ def decorated(name, mem):      # libmatch names: leading '_' / '@N' decoration d
     return ndefs[mem].get(norm(name))
 VAR = os.environ.get("VARIANTS") == "1"     # also split members whose variant functions (owner "<lib>~", other source revision) the SDK version replaces
 items = [r for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))) if (r["owner"] == LIB or (VAR and r["owner"] == LIB + "~")) and r["member"] in objof]
+# B7: static functions of a member (no external symbol, libmatch names only the exported ones: acos.obj = CIacos 20 B + two unnamed pieces = 203 B) are unowned 'crt?' code rows next to the named
+# ones.  When the unowned rows directly behind (or before) the member's named code add up to exactly the object's code size, they are the member's code: extra rows (written to <out>/items.csv for
+# mkobj --drop-items) so that references from inside the member are internal and the bytes leave the image with it.
+def codesize(path):
+    d = open(path, "rb").read(); n, opt = struct.unpack_from("<H", d, 2)[0], struct.unpack_from("<H", d, 16)[0]
+    return sum(struct.unpack_from("<I", d, 20 + opt + k * 40 + 16)[0] for k in range(n) if struct.unpack_from("<I", d, 20 + opt + k * 40 + 36)[0] & 0x20)
+_all = list(csv.DictReader(open(os.environ.get("ITEMS_IN") or os.path.join(O, "delink_sdk", "ownership_items.csv"))))      # ITEMS_IN: items.csv of the source libs (link_ours chain)
+_code = sorted(((int(r["lo"], 16), int(r["hi"], 16), r) for r in _all if r["kind"] == "code"), key=lambda x: x[:2])
+EXT = []; ANCH = {}
+def fnsyms(path):      # offset -> external function name of an object with ONE code section (static pieces of a member get the name its object gives that offset)
+    d = open(path, "rb").read(); n, so, ns = struct.unpack_from("<H", d, 2)[0], *struct.unpack_from("<II", d, 8); opt = struct.unpack_from("<H", d, 16)[0]; st = so + ns * 18
+    cs = [k + 1 for k in range(n) if struct.unpack_from("<I", d, 20 + opt + k * 40 + 36)[0] & 0x20]
+    if len(cs) != 1: return {}
+    out = {}; i = 0
+    while i < ns:
+        o = so + i * 18; raw = d[o:o + 8]; val, sec, typ, cls, aux = struct.unpack_from("<IhHBB", d, o + 8)
+        if cls == 2 and sec == cs[0]:
+            out[val] = d[st + struct.unpack_from("<I", raw, 4)[0]:d.index(b"\0", st + struct.unpack_from("<I", raw, 4)[0])].decode("latin1") if raw[:4] == b"\0\0\0\0" else raw.rstrip(b"\0").decode("latin1")
+        i += 1 + aux
+    return out
+if LIB == "crt" and not os.environ.get("NOEXT"):
+    VARM = [] if os.environ.get("NOVAR") else cfg[LIB].get("variants", "").split()      # libs.cfg: members whose near-match ('crt~') code the libcmt version replaces too (pentium4 libm: other compiler revision, same source)
+    _own = lambda r, m: r["member"] == m and (r["owner"] == LIB or (r["owner"] == LIB + "~" and any(fnmatch.fnmatch(m, x) for x in VARM)))
+    _free = lambda r: r["owner"] == LIB + "?" and not r["member"]
+    _by = collections.defaultdict(list)
+    # identical code in several places of one member only (ld12tod / ld12tof differ in the relocation only): libmatch lists every candidate at the address; all candidates in ONE member = that member's code,
+    # the k-th such address gets the k-th candidate name of the object (object order = link order)
+    _cand = collections.defaultdict(list)
+    for r in csv.reader(open(os.path.join(O, "crt_libmatch.csv"))):
+        if r[4] and r[2] in objof: _cand[int(r[0], 16)].append((r[1], r[2]))
+    _amb = collections.defaultdict(list)
+    for i, (lo_, hi_, r) in enumerate(_code):
+        if _free(r) and lo_ in _cand and len({m for _, m in _cand[lo_]}) == 1: _amb[_cand[lo_][0][1]].append(i)
+    AMBNAME = {}
+    for m, idx in _amb.items():
+        names = [n for n, _ in _cand[_code[idx[0]][0]]]
+        for k, i in enumerate(idx): AMBNAME[i] = names[k] if len(idx) == len(names) else None
+    for i, (lo_, hi_, r) in enumerate(_code):
+        if _own(r, r["member"]) and r["member"] in objof: _by[r["member"]].append(i)
+    for m, idx in _amb.items(): _by[m] += idx
+    PARTIAL = cfg[LIB].get("partial", "").split()      # libs.cfg: /Gy members of which the exe holds only the referenced functions (code size of the object > what is in the exe)
+    for m, idx in _by.items():
+        D = codesize(objof[m]) - sum(_code[i][1] - _code[i][0] for i in idx)
+        take = list(_amb.get(m, []))
+        if D > 0:
+            have = set(idx); tot = 0
+            # (a) unowned runs between two code rows of this member, (b) the run behind the last / before the first row; alignment padding of up to 15 bytes may be inside the last piece taken
+            cand = []
+            for i in sorted(have):
+                for d in (1, -1):
+                    j = i + d; run = []
+                    while 0 <= j < len(_code) and j not in have and _free(_code[j][2]) and (not run and _code[j][0 if d > 0 else 1] == _code[i][1 if d > 0 else 0] or run and _code[j][0 if d > 0 else 1] == _code[run[-1]][1 if d > 0 else 0]): run.append(j); j += d
+                    if run and ((0 <= j < len(_code) and j in have) or not any((k in have) for k in (min(have) - 1, max(have) + 1) if False)): cand.append((run, 0 <= j < len(_code) and j in have))
+            seen = set()
+            for run, between in sorted(cand, key=lambda c: (not c[1], len(c[0]))):      # sandwiched runs first
+                if seen & set(run): continue
+                sz = sum(_code[k][1] - _code[k][0] for k in run)
+                if between and tot + sz <= D + 15: take += run; tot += sz; seen |= set(run)
+            for run, between in sorted(cand, key=lambda c: len(c[0])):
+                if between or seen & set(run) or tot >= D: continue
+                part = []
+                for k in run:
+                    part.append(k); tot += _code[k][1] - _code[k][0]
+                    if tot >= D: break
+                if D <= tot < D + 16: take += part; seen |= set(part)
+                elif any(fnmatch.fnmatch(m, x) for x in PARTIAL):      # greedy: whole pieces while they fit
+                    while part and tot > D + 15: tot -= _code[part[-1]][1] - _code[part[-1]][0]; part.pop()
+                    take += part; seen |= set(part)
+                else: tot -= sum(_code[k][1] - _code[k][0] for k in part)
+        if take:
+            fs = fnsyms(objof[m]); base = min(_code[i][0] for i in set(idx) | set(take))
+            for k in sorted(set(take)):
+                r = _code[k][2]; nm = AMBNAME.get(k) or (fs.get(_code[k][0] - base) if fs else None)
+                EXT.append(dict(r, owner=LIB, member=m, name=nm or (r["name"] + "$static")))
+    for i in set().union(*_by.values()) if _by else ():      # variant rows of the listed members become plain rows
+        r = _code[i][2]
+        if r["owner"] == LIB + "~": EXT.append(dict(r, owner=LIB))
+    # libs.cfg `anchor = <member glob>:<section>:<hex va>`: writable data the ownership never anchored but whose address the code shows (push offset); verified against the object's bytes
+    PE = open(os.path.join(G, "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe"), "rb").read()
+    def pebytes(va, n):
+        pe = struct.unpack_from("<I", PE, 0x3c)[0]; ns_ = struct.unpack_from("<H", PE, pe + 6)[0]; ob = struct.unpack_from("<H", PE, pe + 20)[0]; base = struct.unpack_from("<I", PE, pe + 52)[0]
+        for k in range(ns_):
+            h = pe + 24 + ob + k * 40; vs, rv, rs, ro = struct.unpack_from("<IIII", PE, h + 8)
+            if base + rv <= va < base + rv + vs: return PE[ro + va - base - rv: ro + va - base - rv + n]
+    def objsec(path, name):
+        d = open(path, "rb").read(); n, opt = struct.unpack_from("<H", d, 2)[0], struct.unpack_from("<H", d, 16)[0]
+        for k in range(n):
+            h = 20 + opt + k * 40
+            if d[h:h + 8].rstrip(b"\0").decode() == name: sz, ptr = struct.unpack_from("<II", d, h + 16); return k + 1, d[ptr:ptr + sz]
+    ANCH = collections.defaultdict(set)      # member -> section numbers now anchored
+    for spec in cfg[LIB].get("anchor", "").split():
+        pat, sec_, va_ = spec.rsplit(":", 2)
+        for m in objof:
+            if fnmatch.fnmatch(m, pat):
+                sn, by = objsec(objof[m], sec_)
+                if pebytes(int(va_, 16), len(by)) == by:
+                    ANCH[m].add(sn); EXT.append({"lo": va_, "hi": "%08x" % (int(va_, 16) + len(by)), "kind": "data", "owner": LIB, "member": m, "name": sec_}); print("anchor %s %s at %s (%d bytes)" % (m.split("\\")[-1], sec_, va_, len(by)))
+                else: print("anchor %s %s at %s: bytes differ, ignored" % (m, sec_, va_))
+    print("ext: %d code rows assigned to %d members (%d bytes)" % (len(EXT), len({r["member"] for r in EXT}), sum(int(r["hi"], 16) - int(r["lo"], 16) for r in EXT)))
+    with open(os.path.join(OUT, "items.csv"), "w") as f:
+        w = csv.DictWriter(f, fieldnames=["lo", "hi", "kind", "owner", "member", "name"]); w.writeheader(); w.writerows(_all); w.writerows(EXT)
+items += [r for r in EXT if r["member"] in objof]
+_rowsAll = sorted((int(r["lo"], 16), int(r["hi"], 16)) for r in _all if r["kind"] != "code")
+def _unlisted(a):
+    i = bisect.bisect_right([x[0] for x in _rowsAll], a) - 1
+    return not (i >= 0 and a < _rowsAll[i][1])
+SELFT_FREE = {}      # (site, site + 4): data word in no ownership row, pointing INTO (not at the start of) a static piece of a member
+_ex = sorted((int(r["lo"], 16), int(r["hi"], 16)) for r in EXT); _exm = {(int(r["lo"], 16), int(r["hi"], 16)): r["member"] for r in EXT}
+for r_ in csv.DictReader(open(os.path.join(O, "delink_relocs.csv"))):
+    if r_["kind"] not in ("const", "header", "rsrc", "import"):
+        t_ = int(r_["target"], 16); j_ = bisect.bisect_right([x[0] for x in _ex], t_) - 1
+        if j_ >= 0 and _ex[j_][0] < t_ < _ex[j_][1] and _unlisted(int(r_["site"], 16)) and int(r_["site"], 16) >= 0x5dd000: SELFT_FREE[int(r_["site"], 16), int(r_["site"], 16) + 4] = _exm[_ex[j_]]
 shm = collections.defaultdict(set)
 for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))):
     if r["owner"] == "shared" and r["kind"] in ("rdata", "data") and r["member"] in objof: shm[int(r["lo"], 16), int(r["hi"], 16)].add(r["member"])
@@ -41,6 +153,7 @@ SHL = [x[0] for x in shit]; SELFT = set()
 def selftable(s, member):      # the site is in a shared table of the very member it points into: dead once the member is split (its object brings the table)
     i = bisect.bisect_right(SHL, s) - 1
     if i >= 0 and s < shit[i][1] and member in shit[i][2]: SELFT.add(shit[i][:2]); return True
+    if SELFT_FREE.get((s, s + 4)) == member: SELFT.add((s, s + 4)); return True
     return False
 allit = sorted((int(r["lo"], 16), int(r["hi"], 16), r["member"]) for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))) if r["member"]); ALL = [x[0] for x in allit]
 def member_at(a):
@@ -74,7 +187,7 @@ for i in range(0x1000, 0x1000 + 0x1db000 - 6):          # .text + _rwcseg raw = 
 # ambiguous (identical code) matches: splitting it would give those original functions the old data and the member's code a new copy
 unanch = collections.defaultdict(set)      # member -> section numbers of writable data with no known address in the exe
 for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "sections.csv"))):
-    if r["kind"] in ("data", "bss") and not r["comdat"] and not r["addr"] and int(r["size"]) > 0: unanch[r["member"]].add(int(r["secno"]))
+    if r["kind"] in ("data", "bss") and not r["comdat"] and not r["addr"] and int(r["size"]) > 0 and int(r["secno"]) not in ANCH.get(r["member"], ()): unanch[r["member"]].add(int(r["secno"]))
 ambn = collections.defaultdict(set)        # member -> function names that match the exe only ambiguously (identical code elsewhere)
 for f in ("rw_libmatch.csv", "crt_libmatch.csv"):
     for r in csv.reader(open(os.path.join(O, f))):
@@ -193,7 +306,9 @@ for rnd in range(50):
 open(os.path.join(OUT, "pulled.txt"), "w").write("".join(k + "\n" for k in sorted(pulled)))
 open(os.path.join(OUT, "new_imports.txt"), "w").write("".join(k + "\n" for k in sorted(newimp)))
 print("closure: %d lib members pulled that are not in the exe, %d imports the exe does not have" % (len(pulled), len(newimp)))
-open(os.path.join(OUT, "selftables.txt"), "w").write("".join("%08x %08x\n" % (a, b) for a, b, ms in shit if (a, b) in SELFT and ms <= M))      # globgen: dead (zero fill)
+def _pad4(a, b):      # 12 byte SEH scope table entries sit 16 aligned: the 4 zero bytes of padding behind a dead table are dead with it (else they stay behind as 4 byte "gap" remnants)
+    return b + 4 if LIB == "crt" and not os.environ.get("NOEXT") and b % 16 == 12 and _unlisted(b) and pebytes(b, 4) == bytes(4) else b
+open(os.path.join(OUT, "selftables.txt"), "w").write("".join("%08x %08x\n" % (a, _pad4(a, b)) for a, b, ms in sorted(shit + [(a_, b_, {SELFT_FREE[a_, b_]}) for a_, b_ in SELFT_FREE]) if (a, b) in SELFT and ms <= M))      # globgen: dead (zero fill)
 open(os.path.join(OUT, "members.txt"), "w").write("".join(m + "\n" for m in sorted(M)))
 os.makedirs(os.path.join(OUT, "pulled"), exist_ok=True)
 for i, k in enumerate(sorted(pulled)): open(os.path.join(OUT, "pulled", "p%d.obj" % i), "wb").write(libbody[k])

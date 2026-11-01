@@ -639,3 +639,4 @@ course_dem_cb0
 spline_objects_reset
 controller_dialog_start_key_capture
 piz_fs_read
+video_present_frame

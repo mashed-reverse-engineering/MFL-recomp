@@ -217,14 +217,14 @@ def _ind_w(m, uc, addr, size, ud):
         sp = uc.reg_read(UC_X86_REG_ESP); ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]; n = pops.get(ra, (0, 0))[0]
         if n: uc.reg_write(UC_X86_REG_ESP, sp + 4 + 4 * n); uc.reg_write(UC_X86_REG_EIP, ra)
 _cmp = core.compare
-def _cmp_w(fn, mo, ro, mu, ru):
+def _cmp_w(fn, mo, ro, mu, ru, case=None):
     """ecx of an indirect call is only compared where the ORIGINAL sets it (`mov ecx, this`): a passed-through ecx (`mov eax,[ecx]; call [eax+N]`) is not visible in the code, our side may set it or not"""
     to, tu = ro.get("trace"), ru.get("trace")
     if to and tu:
         tu = ru["trace"] = list(tu)
         for i, (a, b) in enumerate(zip(to, tu)):
             if a[0].startswith("indirect") and b[0].startswith("indirect") and isinstance(a[2], tuple) and len(a[2]) == 2 and a[2][0] is None and isinstance(b[2], tuple) and len(b[2]) == 2: tu[i] = (b[0], b[1], (None, b[2][1]))
-    return _cmp(fn, mo, ro, mu, ru)
+    return _cmp(fn, mo, ro, mu, ru, case)
 core.compare = _cmp_w
 core.side, core.Machine._indirect = _side_w, _ind_w
 _HR = []

@@ -1,10 +1,12 @@
+RwCameraEndUpdate 4d1b80 8 1 p0:256
+RwCameraBeginUpdate 4d1b90 8 1 p0:256
 RwCameraSetViewOffset 4d1ba0 5 2 p1:8
-RwCameraSetNearClipPlane 4d1bd0 5 1
-RwCameraSetFarClipPlane 4d1ca0 5 1
-RwCameraClear 4d1d40 9 1
-RwCameraShowRaster 4d1d70 8 1
+RwCameraSetNearClipPlane 4d1bd0 5 2
+RwCameraSetFarClipPlane 4d1ca0 5 2
+RwCameraClear 4d1d40 9 3
+RwCameraShowRaster 4d1d70 8 3
 RwCameraSetProjection 4d1da0 7 2
-RwCameraSetViewWindow 4d1e10 5 1 p1:8
+RwCameraSetViewWindow 4d1e10 5 2 p1:8
 RwRasterShowRaster 4d78c0 5 3
 _rwD3D9BeginScene 4d9e60 5 0
 RwD3D9CameraAttachWindow 4da0f0 6 2
@@ -40,6 +42,7 @@ RwD3D9SetTextureStageState 4e3c70 8 3
 RwD3D9SetSamplerState 4e3cd0 5 3
 RwD3D9SetSurfaceProperties 4e3d10 8 3
 RwRenderStateGet 4e5070 5 2
+RwD3D9RWSetTexture 4e55d0 5 2 p0:96
 RwRenderStateSet 4e5be0 5 2
 RwIm2DRenderLine 4eb6d0 8 4 p0:56
 RwIm2DRenderTriangle 4eb960 8 5 p0:84
@@ -50,3 +53,4 @@ RwD3D9DynamicVertexBufferCreate 4ecbc0 5 2
 RwD3D9DynamicVertexBufferDestroy 4ecca0 5 1
 RwD3D9DynamicVertexBufferLock 4eccd0 9 5
 RwD3D9DynamicVertexBufferUnlock 4ece50 5 1
+rxD3D9DefaultRenderCallback 4faeb0 5 4

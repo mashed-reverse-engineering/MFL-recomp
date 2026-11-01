@@ -1,42 +1,9 @@
 #include "mfl_tier2.h"
+#include "rwp_common.h"
 #include <math.h>
 
 /* Joint constraint builder: for one joint (pair) between two bodies, appends the solver rows (27 words each, see MflRow) that hold the
    joint together or drive it: linear axes, angular limits, motors and soft limits.  The solver state counts the rows in s->count. */
-
-/* The solver's row stream (the part used here; the row store is rwp_constraints_0057f8a0). */
-typedef struct MflSolver {
-  unsigned char pad00[0xac];
-  int (*pairs)[2];   /* 0xac: body ids of the two sides per block (-1 = none) */
-  unsigned char padb0[0x8];
-  int *words;   /* 0xb8: rows used per block */
-  int count;   /* 0xbc */
-  unsigned char padc0[0x38];
-  int cursor;   /* 0xf8 */
-} MflSolver;
-
-/* One constraint row, 27 words, initialised from the table g_rwp_constraint_padding. */
-typedef struct MflRow {
-  float lin1[3];   /* 0x0: Jacobian, linear part of side 1 */
-  int pad0c;
-  float ang1[3];   /* 0x10 */
-  int pad1c;
-  float lin2[3];   /* 0x20 */
-  int pad2c;
-  float ang2[3];   /* 0x30 */
-  int pad3c;
-  float rhs;   /* 0x40: target (error) */
-  float vel;   /* 0x44: target velocity */
-  float cfm;   /* 0x48 */
-  float erp;   /* 0x4c */
-  float lo2;   /* 0x50 */
-  float hi2;   /* 0x54 */
-  float lo;   /* 0x58 */
-  float hi;   /* 0x5c */
-  int tol;   /* 0x60: 0x3f4ccccd = 0.8f, or 0 */
-  int pad64;
-  int pad68;
-} MflRow;
 
 /* Joint description (the part used here). */
 typedef struct MflJointDef {

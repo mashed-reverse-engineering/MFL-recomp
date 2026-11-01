@@ -3,3 +3,4 @@
 004ac379 DirectInput keyboard table c_rgodfDIKeyboard (0x4ab4f0, in .text, no sized function): the dwType word of the entry with dwOfs 0xE8 (`0c e8 00 80 00 00`) reads as call 0x4b437e. A REL32 here changed the dwType (0x8000e80c -> 0x7ff0e80c at a layout shift of 16), the device format was rejected, DirectInput never acquired the keyboard and the front end ignored keys for ~13 s (A2, ROADMAP T-N2)
 004ac389 same table, entry dwOfs 0xE9 (`0c e9 00 80 00 00`): reads as jmp 0x4b438e
 00416c87 displacement of `jnz -0x18` (75 e8) followed by `cmp eax,0xb4`: reads as call 0x4220c9 (same block, harmless, listed for completeness)
+0056a676 last byte of `shr ecx,5` (c1 e9 05) in the function at 0x56a670 + `mov ebp,1` (bd 01 00 00 00): reads as jmp 0x586380, the inside of rwp_aggregate_00586300 (B3b)

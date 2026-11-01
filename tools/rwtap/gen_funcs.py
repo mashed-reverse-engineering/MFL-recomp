@@ -18,12 +18,13 @@ for f_ in ('cdecl_args.txt', 'call_pushmin.txt'):     # stack argument counts (o
     for l in open(R + '/output/' + f_):
         w = l.split()
         if len(w) >= 2 and int(w[0], 16) not in na: na[int(w[0], 16)] = int(w[1])
-na.update({0x4eb6d0: 4, 0x4eb960: 5, 0x4ebdb0: 5})      # Im2D Line / Triangle / IndexedPrimitive: not in the tables
+na.update({0x4e55d0: 2, 0x4d1b80: 1, 0x4d1b90: 1, 0x4d1d40: 3, 0x4d1d70: 3, 0x4d1da0: 2, 0x4d1e10: 2, 0x4d1ba0: 2, 0x4d1bd0: 2, 0x4d1ca0: 2, 0x4d1b80: 1, 0x4d1b90: 1, 0x4faeb0: 4, 0x4eb6d0: 4, 0x4eb960: 5, 0x4ebdb0: 5})      # Im2D Line / Triangle / IndexedPrimitive: not in the tables
 # device table at 0x62e7a8 (RwEngineInstance + 0x20 is dOpenDevice.fpRenderStateSet = [0x62e7c8]): not in symbols.txt
 dev = {'RwRenderStateSet': 0x4e5be0, 'RwRenderStateGet': 0x4e5070, 'RwIm2DRenderLine': 0x4eb6d0, 'RwIm2DRenderTriangle': 0x4eb960,
-       'RwIm2DRenderPrimitive': 0x4ebb80, 'RwIm2DRenderIndexedPrimitive': 0x4ebdb0}
+       'RwIm2DRenderPrimitive': 0x4ebb80, 'RwIm2DRenderIndexedPrimitive': 0x4ebdb0,
+       'rxD3D9DefaultRenderCallback': 0x4faeb0, 'RwD3D9RWSetTexture': 0x4e55d0, 'RwCameraEndUpdate': 0x4d1b80, 'RwCameraBeginUpdate': 0x4d1b90}   # 8 B wrappers (mov eax,[esp+4]; mov [esp+4],eax; jmp [eax+0x1c|0x20]); 4d1b80 jumps through +0x1c = endUpdate (checked against the call order in a log)   # not in symbols.txt: the D3D9 atomic / sector render callback (resEntry, object, type, flags); rwtap.c dumps atomics (G / M / A / X records)
 V28 = 28   # RwIm2DVertex
-spec = {'RwIm2DRenderPrimitive': 'p1:n2*28', 'RwIm2DRenderIndexedPrimitive': 'p1:n2*28 p3:n4*2', 'RwIm2DRenderLine': 'p0:56', 'RwIm2DRenderTriangle': 'p0:84',
+spec = {'RwD3D9RWSetTexture': 'p0:96', 'RwIm2DRenderPrimitive': 'p1:n2*28', 'RwIm2DRenderIndexedPrimitive': 'p1:n2*28 p3:n4*2', 'RwIm2DRenderLine': 'p0:56', 'RwIm2DRenderTriangle': 'p0:84',
         'RwIm3DTransform': 'p0:n1*36 p2:64', 'RwIm3DRenderIndexedPrimitive': 'p1:n2*2', 'RwD3D9SetTransform': 'p1:64', 'RwD3D9SetTransformWorld': 'p0:64',
         'RwD3D9SetLight': 'p1:104', 'RwCameraSetViewWindow': 'p1:8', 'RwCameraSetViewOffset': 'p1:8', 'RwCameraBeginUpdate': 'p0:256', 'RwCameraEndUpdate': 'p0:256'}
 want = re.compile(r'^(RwD3D9(Set|Get|Enable|Camera|Dynamic|IndexBuffer|Create|Delete)|_rwD3D9(SetStreams|SetVertexDeclaration|BeginScene|RenderStateFlushCache)|rwD3D9RasterRender|'

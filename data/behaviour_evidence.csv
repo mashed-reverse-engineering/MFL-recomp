@@ -1215,6 +1215,7 @@ object_frames_create_forward,004a5cd0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep
 course_helper_4a5d50,004a5d50,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 object_set_colour,004a5e50,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 video_draw_textured_quad_b,004a5f30,cluster,cluster_sweep,EQUAL,171,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
+video_present_frame,004a61a0,cluster,pilot,EQUAL,269,1.00,1,,pilot:EQUAL,
 d3d9_instance_render_callback_a,004a62a0,cluster,cluster_sweep,EQUAL,400,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
 d3d9_instance_render_callback_b,004a63b0,cluster,cluster_sweep,EQUAL,400,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
 d3d9_instance_render_dispatch,004a64c0,cluster,pilot,EQUAL,1599,1.00,1,,pilot:EQUAL|pilot:EQUAL,

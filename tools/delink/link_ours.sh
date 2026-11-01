@@ -27,7 +27,10 @@ CRTSPLIT=
 if [ "$LIB_CRT" = libcmt ]; then
   CRTSPLIT=1; export CRT_SPLIT=$W/lib/crt; mkdir -p $W/lib; [ -s $W/lib/extra_objs.txt ] || { : > $W/lib/extra_objs.txt; : > $W/lib/members.txt; }
   python3 $G/tools/rw_overlay_prep.py $W/lib/obj > /dev/null || { echo "rw_overlay_prep failed"; exit 1; }
-  python3 $G/tools/delink_sdk/plan_split.py crt $W/lib/obj $W/lib/crt | tail -1
+  ITEMS_IN=$ITEMS python3 $G/tools/delink_sdk/plan_split.py crt $W/lib/obj $W/lib/crt | tail -1
+  if [ -s $W/lib/crt/items.csv ]; then      # B7: + the static code pieces of split members (chains after the source libs' items.csv)
+    [ -n "$ITEMS" ] && { old_="--drop-items $ITEMS"; MKOBJ_ARGS="${MKOBJ_ARGS/"$old_"/--drop-items $W/lib/crt/items.csv}"; }; ITEMS=$W/lib/crt/items.csv
+  fi
   cat $W/lib/crt/extra_objs.txt >> $W/lib/extra_objs.txt; cat $W/lib/crt/members.txt >> $W/lib/members.txt
   if [ -z "$LSRC" ]; then      # the stubs (IID_IUnknown, errno) the source libs block would have built
     cp $G/tools/delink_sdk/stubs.c $W/lib/; VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt
@@ -59,9 +62,10 @@ cp $W/game/App_Executables/MFL.exe $W/mfl_patched.exe
 # LIB_RW=librw:<group> (L2, plan_librw_integration 2.3; needs IMPLIBS=1 and RW_DLL=<mflrw.dll>): the functions named in tools/delink/rw_<group>.txt (g0 = stateless math) come from the librw facade DLL.  A thunk object (gas) defines
 # each under the exe function's own name (`_Name: jmp *__imp__Name`), so mkobj puts its usual 5 byte entry jmp at the original address like for any object of ours; mk_importlibs.py builds mflrw.lib from the DLL's exports.
 # Without LIB_RW nothing changes (the A/B reference).  The DLL is copied next to ours.exe at the end.
+[ "$LIB_RW" = orig ] && LIB_RW=      # escape: LIB_RW=orig = no librw swap (A/B reference)
 if [ -n "$LIB_RW" ]; then
   RWG=${LIB_RW#librw:}; RWL=; for g_ in ${RWG//,/ }; do [ -f $T/rw_$g_.txt ] && RWL="$RWL $T/rw_$g_.txt" || RWL=; [ -n "$RWL" ] || break; done      # LIB_RW=librw:g0,stream = several lists
-  : ${RW_DLL:=/tmp/claude-$(id -u)/s2d/dll/mflrw.dll}      # default: a DLL built by librw-mfl/tools/build_mflrw.sh <dir>
+  : ${RW_DLL:=$T/../../output/librw/mflrw.dll}      # pinned build (B8 2026-11-01, sha256 in output/librw/mflrw.dll.sha256); rebuild: GEN=<ghidra> librw-mfl/tools/build_mflrw.sh <dir>, copy the d3d9 mflrw.dll over it deliberately
   [ "$RWG" != "$LIB_RW" ] && [ -n "$RWL" ] && [ -n "$IMPLIBS" ] && [ -f "$RW_DLL" ] || { echo "LIB_RW=librw:<group>[,<group>] needs $T/rw_<group>.txt, IMPLIBS=1 and RW_DLL=<mflrw.dll>"; exit 1; }
   mkdir -p $W/rw; export RW_DLL=$(readlink -f $RW_DLL)
   cat $RWL | grep -v '^#' | awk 'NF{split($1,a,"="); d=(a[2]!=""?a[2]:a[1]); printf ".text\n.globl _%s\n_%s:\n\tjmp *__imp__%s\n", a[1], a[1], d}' > $W/rw/thunks.s      # "exe_name=dll_export" when they differ

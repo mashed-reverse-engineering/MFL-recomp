@@ -34,7 +34,8 @@ for _f in glob.glob(os.path.join(W, "lib", "*", "items.csv")):
 _cm = os.path.join(W, "lib", "crt", "members.txt")      # B5 LIB_CRT=libcmt: the code of the split libcmt members is filled (the member objects supply it)
 if os.path.exists(_cm):
     _mem = {l.strip() for l in open(_cm)}
-    for r in csv.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
+    _ci = os.path.join(W, "lib", "crt", "items.csv")      # B7: plan_split's items (ownership + static pieces of split members)
+    for r in csv.DictReader(open(_ci if os.path.exists(_ci) else os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))):
         if r["member"] in _mem and r["kind"] == "code" and r["owner"] == "crt":
             for v in range(H(r["lo"]), H(r["hi"])):
                 if status[sidx(v)] == 0: status[sidx(v)] = 1

@@ -2,3 +2,7 @@
 00436168 144 career_event_set_progress: both switch tables (recomp/clusters/cl_career_event_set_progress.c compiles its own switches; the original indirect jmps are in the filled body)
 0043602e 4 career_event_set_progress: operand of its first `jmp [eax*4+0x436168]` (inside the replaced body, filled anyway; the reference must not keep the case code behind the function alive)
 004360ae 4 career_event_set_progress: operand of its second `jmp [eax*4+0x4361b0]`
+004c6890 87 piz_open_file: register helper (eax = path) of piz_open_archive, inlined as a static in the piz clusters / an_piz_4c6740.c; every caller is a replaced body (B6 2026-11-01)
+004c6c80 3 piz_note_result: register helper (ecx, eax), callers all replaced (piz_fs_open / read / seek / close / eof)
+004c6ca0 110 piz_fill_cache: register helper (eax, ebx, ecx), only caller piz_fs_read is replaced (cl_piz_fs_read.c inlines it)
+004c6d10 7 piz_align_down: register helper (eax, ecx), callers in piz_fs_read are replaced
