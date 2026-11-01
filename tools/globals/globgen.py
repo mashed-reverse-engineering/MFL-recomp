@@ -157,12 +157,12 @@ def load_names():
             if len(p) >= 2 and l[0] != "#" and p[0] not in names[int(p[1], 16)]: names[int(p[1], 16)].append(p[0])
     if CRT_SPLIT:      # names the split libcmt members link against: located CRT data of the image (ownership.py lib_names), not in a dead range
         import csv as _c
-        cr = [(int(r["lo"], 16), int(r["hi"], 16)) for r in _c.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))) if r["member"].startswith("libcmt.lib") and r["kind"] != "code"]      # lib_names also holds RenderWare names: those would only add item borders (+12 B RenderWare bss)
+        cr = [(int(r["lo"], 16), int(r["hi"], 16)) for r in _c.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))) if r["owner"].startswith("rw") and r["kind"] != "code"]      # lib_names also holds RenderWare names: those would only add item borders (+12 B RenderWare bss)
         for l in open(os.path.join(G, "output", "delink_sdk", "lib_names.txt")):
             p = l.split()
             if len(p) < 2: continue
             a = int(p[1], 16)
-            if not any(x <= a < y for x, y in cr): continue
+            if any(x <= a < y for x, y in cr): continue
             if SECT["rdata"][0] <= a < SECT["bss"][1] and re.fullmatch(r"[A-Za-z_]\w*", p[0]) and not any(s_ <= a < e_ for _, s_, e_ in LIBSRC_DEAD_RANGES) and p[0] not in names[a] and seen.setdefault(p[0], a) == a: names[a].append(p[0])
     if CRT_SPLIT:      # the split members define these symbols themselves (_iob, __d_inf, ...): a name here would win the link and bring the zero-filled dead row
         for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _crt_dead())]: names[a] = []
