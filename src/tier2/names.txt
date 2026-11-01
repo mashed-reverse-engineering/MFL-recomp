@@ -1052,3 +1052,5 @@
 0057b2f0 rwp_batch_0057b2f0 rwp_0057b2f0.c
 0056af70 rwp_volume_0056af70 rwp_0056af70.c
 0057ae50 rwp_batch_0057ae50 rwp_0057ae50.c
+00583f40 rwp_convexhullmassprops_00583f40 rwp_00583f40.c
+00573650 rwp_pipeline_00573650 rwp_00573650.c

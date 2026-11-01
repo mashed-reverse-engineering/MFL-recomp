@@ -94,6 +94,8 @@ def lib_spans():
         if r["kind"] in ("bss", "common") and r["owner"] in ("crt", "rw"): rows.append((lo, hi))
         if r["kind"] in ("rdata", "data") and r["owner"] == "shared": shared.append((lo, hi))
     sp["bss"] += [r for r in rows if r[0] >= 0x64d000]
+    st = _selftables()      # B5: a split member's own SEH / jump tables (shared rows pointing into its code) are lib bytes, dead (zero fill) like the rest of its data
+    for k_ in ("rdata", "data"): sp[k_] += [(a, b) for a, b in st if SECT[k_][0] <= a < SECT[k_][1]]
 
     def cut(spans, holes):
         for h0, h1 in holes:
@@ -107,7 +109,7 @@ def lib_spans():
     out = {}
     for k, v in sp.items():
         v = [(max(a, SECT[k][0]), min(b, SECT[k][1])) for a, b in v if b > SECT[k][0] and a < SECT[k][1]]
-        v = cut(merge(v), pe + (merge(shared) if k != "bss" else []))
+        v = cut(merge(v), pe + (cut(merge(shared), st) if k != "bss" else []))
         out[k] = sorted([(a, b, "lib") for a, b in v] + ([(max(a, SECT[k][0]), min(b, SECT[k][1]), "pe") for a, b in pe if b > SECT[k][0] and a < SECT[k][1]] if k == "rdata" else []))
     return out
 
@@ -117,6 +119,9 @@ def lib_spans():
 # .data (pngwrite .. infutil, without the rtpng.obj wrapper data at 0x6373b4); only rows of kind lib inside are zeroed (the libpng strings are app rows)
 LIBSRC_DEAD_RANGES = [("data", 0x63a610, 0x649138)] * ("qhull" in os.environ.get("LIBSRC", "")) + [("rdata", 0x5f4700, 0x5f4880), ("rdata", 0x5f48b8, 0x5f5a18), ("data", 0x6373bc, 0x63a194)] * ("zlib" in os.environ.get("LIBSRC", "").split())
 CRT_SPLIT = os.environ.get("CRT_SPLIT")      # B5 LIB_CRT=libcmt: dir of plan_split.py crt output; the data (rdata / data / bss) of its split members is dead here (libcmt objects bring their own), the rest of the CRT data keeps its bytes and gets the lib's names
+def _selftables():
+    f = os.path.join(CRT_SPLIT or "", "selftables.txt")
+    return [(int(l.split()[0], 16), int(l.split()[1], 16)) for l in open(f) if l.strip()] if CRT_SPLIT and os.path.exists(f) else []
 def _crt_dead():
     if not CRT_SPLIT: return []
     import csv as _c
@@ -127,6 +132,9 @@ def _crt_dead():
             if r["kind"] == "common" and any(rd(lo, hi - lo)): continue      # a COMMON the image holds initialised by an unsplit member (crt0dat's __FPinit = &_fpmath, set up by _cinit): keep bytes + name, the member's zero COMMON loses to it (dead = _fpmath never ran = black screen)
             for k_, (a_, b_, _n) in SECT.items():
                 if a_ <= lo < b_: out.append((k_, lo, min(hi, b_)))
+    for lo, hi in _selftables():
+        for k_, (a_, b_, _n) in SECT.items():
+            if a_ <= lo < b_: out.append((k_, lo, min(hi, b_)))
     return out
 LIBSRC_DEAD_RANGES = LIBSRC_DEAD_RANGES + _crt_dead()
 LIBSRC_DEAD = {x for _, a, b in LIBSRC_DEAD_RANGES for x in (a, b)}      # range edges stay item edges
@@ -148,10 +156,13 @@ def load_names():
             p = l.split()
             if len(p) >= 2 and l[0] != "#" and p[0] not in names[int(p[1], 16)]: names[int(p[1], 16)].append(p[0])
     if CRT_SPLIT:      # names the split libcmt members link against: located CRT data of the image (ownership.py lib_names), not in a dead range
+        import csv as _c
+        cr = [(int(r["lo"], 16), int(r["hi"], 16)) for r in _c.DictReader(open(os.path.join(G, "output", "delink_sdk", "ownership_items.csv"))) if r["member"].startswith("libcmt.lib") and r["kind"] != "code"]      # lib_names also holds RenderWare names: those would only add item borders (+12 B RenderWare bss)
         for l in open(os.path.join(G, "output", "delink_sdk", "lib_names.txt")):
             p = l.split()
             if len(p) < 2: continue
-            a = int(p[1], 16); n = p[0] if p[0].startswith("_") or not p[0][0].isalpha() else p[0]
+            a = int(p[1], 16)
+            if not any(x <= a < y for x, y in cr): continue
             if SECT["rdata"][0] <= a < SECT["bss"][1] and re.fullmatch(r"[A-Za-z_]\w*", p[0]) and not any(s_ <= a < e_ for _, s_, e_ in LIBSRC_DEAD_RANGES) and p[0] not in names[a] and seen.setdefault(p[0], a) == a: names[a].append(p[0])
     if CRT_SPLIT:      # the split members define these symbols themselves (_iob, __d_inf, ...): a name here would win the link and bring the zero-filled dead row
         for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _crt_dead())]: names[a] = []

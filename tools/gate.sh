@@ -10,7 +10,7 @@
 #   bridge       check_all + shadow of the bridges (BRIDGE_ENABLED=names, --shadow, course 0 + targeted courses) + targeted courses
 #   cluster      check_all (4th strict build with --clusters) + targeted courses + DRIVE=31 courses 0,3 of a build with --clusters (names = cluster names = roots; none = all enabled in src/clusters/enabled.txt); no shadow (a cluster has no original-vs-C shadow), diffemu --cluster is the conformance proof
 #   milestone    check_all + full sweep RUNS=2 with --count (refreshes output/fn_courses.csv) + DRIVE=31 sweep + win/lose (DRIVE=33 / 65) crash-only + full tier 2 shadow
-#   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1 by default, =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
+#   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src LIB_CRT=libcmt DROP_DSHOW=1 by default, =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
 # --dry-run prints the plan with the estimated minutes (rough: check_all 4, course 0.5 incl. cached control, sweep of 15 on P=2 about 6).  Exit 0 = all steps passed.
@@ -19,6 +19,7 @@ T=$(dirname "$(readlink -f "$0")"); R=$T/..; W=$T/wine-run
 DRY=; [ "$1" = --dry-run ] && { DRY=1; shift; }
 KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat "${x:1}")) || NAMES+=("$x"); done
 case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|standalone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
+[ $KIND = standalone ] && : ${STEP_TIMEOUT:=60}      # a cold-delta link (up to 4 links of the DELTA retry) outlasts the 3x estimate
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)
@@ -73,7 +74,7 @@ esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
 echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
-[ -n "$DRY" ] && { [ $KIND = standalone ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW:-} RW_DLL=${RW_DLL:-} (LIB_*=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
+[ -n "$DRY" ] && { [ $KIND = standalone ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW:-} RW_DLL=${RW_DLL:-} (LIB_*=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
 mkdir -p $D; $T/provenance.sh $D; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
@@ -121,10 +122,10 @@ diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (n
 standalone_link() {      # fresh harness link; target configuration by default (B1): LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1, A/B with LIB_*=orig DROP_DSHOW=0; LIB_RW / RW_DLL pass through (unset = off).
   # DELTA starts at $DELTA, else the last converged delta (output/gate/standalone_delta.txt), else ba000; retried with the printed delta until stable, at most 4 links
   local d=${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null)}; d=${d:-ba000}; local k out
-  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1}; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
-  echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${LIB_RW:-} RW_DLL=${RW_DLL:-} DELTA start $d"
+  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt}; [ $lc = orig ] && lc=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
+  echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} LIB_CRT=${lc:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${LIB_RW:-} RW_DLL=${RW_DLL:-} DELTA start $d"
   for k in link link2 link3 link4; do
-    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz DROP_DSHOW=$dd MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
+    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc DROP_DSHOW=$dd MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
     [ $out = 0 ] && { echo $d > $D/delta.txt; mkdir -p $R/output/gate; echo $d > $R/output/gate/standalone_delta.txt; [ $k != link ] && { mv $D/link $D/link1 && ln -s $k $D/link; }; return 0; }      # T-N13: `ln -sfn` onto the existing DIRECTORY link made link/link2: the gate then ran origbytes + the sweep on the first, wrong-delta link
     d=$(sed -n 's/.*DELTA mismatch: rerun with DELTA=\([0-9a-f]*\).*/\1/p' $D/$k.log); [ -n "$d" ] || return 1
   done; return 1

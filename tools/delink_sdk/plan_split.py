@@ -33,6 +33,23 @@ def decorated(name, mem):      # libmatch names: leading '_' / '@N' decoration d
     return ndefs[mem].get(norm(name))
 VAR = os.environ.get("VARIANTS") == "1"     # also split members whose variant functions (owner "<lib>~", other source revision) the SDK version replaces
 items = [r for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))) if (r["owner"] == LIB or (VAR and r["owner"] == LIB + "~")) and r["member"] in objof]
+shm = collections.defaultdict(set)
+for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))):
+    if r["owner"] == "shared" and r["kind"] in ("rdata", "data") and r["member"] in objof: shm[int(r["lo"], 16), int(r["hi"], 16)].add(r["member"])
+shit = sorted((a, b, ms) for (a, b), ms in shm.items())      # a member's own tables (SEH scope tables, switch jump tables) that sit in 'shared' rows
+SHL = [x[0] for x in shit]; SELFT = set()
+def selftable(s, member):      # the site is in a shared table of the very member it points into: dead once the member is split (its object brings the table)
+    i = bisect.bisect_right(SHL, s) - 1
+    if i >= 0 and s < shit[i][1] and member in shit[i][2]: SELFT.add(shit[i][:2]); return True
+    return False
+allit = sorted((int(r["lo"], 16), int(r["hi"], 16), r["member"]) for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "ownership_items.csv"))) if r["member"]); ALL = [x[0] for x in allit]
+def member_at(a):
+    i = bisect.bisect_right(ALL, a) - 1
+    while i >= 0 and i > bisect.bisect_right(ALL, a) - 4:      # a few candidates (duplicate ranges)
+        if a < allit[i][1]: return allit[i][2]
+        i -= 1
+def one_past_end(s, t, member):      # `cmp reg, offset _table + size` of ANOTHER member's code: the address is the end of the previous object that happens to be the start of this member's data; the dead row keeps its place, so the compare still holds
+    m = member_at(s); return m is not None and m != member and member_at(t - 1) == m
 dsyms = collections.defaultdict(list)
 for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "symbols.csv"))):
     if r["addr"] and r["member"] in objof and r["binding"] in ("ext", "common"): dsyms[r["member"]].append((int(r["addr"], 16), max(1, int(r["size"] or 1)), r["symbol"]))
@@ -92,16 +109,18 @@ def ref_fix(M, tag):
         def hit(a):
             i = bisect.bisect_right(DL, a) - 1
             return D[i] if i >= 0 and a < D[i][1] else None
-        bad = collections.defaultdict(list); nsym = collections.Counter()
+        bad = collections.defaultdict(list); nsym = collections.Counter(); SELFT.clear()
         for s, t, how in refs:
             h = hit(t)
             if not h or hit(s): continue
             r = h[2]
+            if selftable(s, r["member"]): continue
             if r["kind"] == "code":
                 if t == h[0] and decorated(r["name"], r["member"]): nsym["code " + how] += 1; continue
                 why = "interior code %s+0x%x" % (r["name"], t - h[0]) if t != h[0] else "static function " + r["name"]
             else:
                 if any(a <= t < a + n for a, n, _ in dsyms[r["member"]]): nsym["data " + how] += 1; continue
+                if t == h[0] and one_past_end(s, t, r["member"]): nsym["data end " + how] += 1; continue
                 why = "static/interior data in %s" % r["name"]
             bad[r["member"]].append("%08x -> %08x %s (%s)" % (s, t, why, how))
         if not bad: break
@@ -174,6 +193,7 @@ for rnd in range(50):
 open(os.path.join(OUT, "pulled.txt"), "w").write("".join(k + "\n" for k in sorted(pulled)))
 open(os.path.join(OUT, "new_imports.txt"), "w").write("".join(k + "\n" for k in sorted(newimp)))
 print("closure: %d lib members pulled that are not in the exe, %d imports the exe does not have" % (len(pulled), len(newimp)))
+open(os.path.join(OUT, "selftables.txt"), "w").write("".join("%08x %08x\n" % (a, b) for a, b, ms in shit if (a, b) in SELFT and ms <= M))      # globgen: dead (zero fill)
 open(os.path.join(OUT, "members.txt"), "w").write("".join(m + "\n" for m in sorted(M)))
 os.makedirs(os.path.join(OUT, "pulled"), exist_ok=True)
 for i, k in enumerate(sorted(pulled)): open(os.path.join(OUT, "pulled", "p%d.obj" % i), "wb").write(libbody[k])
