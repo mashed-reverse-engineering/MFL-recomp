@@ -1,9 +1,10 @@
+/* rwp_gjk_separating_direction (0x0058ad00): separating direction of a pair of bodies */
 #include "mfl_tier2.h"
 
 extern float rwp_cylinder_0056fd20(float *out, float *in);
 extern void *RpDMorphTargetGetBoundingSphere(void *o);
 extern void rwp_sphere_0056c340(void *shape, void *xf, int unused, float *out);
-extern float rwp_aggchildren_0058a3f0(float *out, float *dir, int mode, void *pair, int flag);
+extern float rwp_pair_support_points(float *out, float *dir, int mode, void *pair, int flag);
 
 typedef struct MflMat { unsigned short kind; } MflMat;
 typedef struct MflShp {
@@ -21,10 +22,10 @@ typedef struct MflBody {
 
 /* Separating direction of a pair of bodies (pair[0], pair[1]), written to dir: a material kind 4 shape with flag 1 gives its fixed vector
    (negated for the first body); otherwise the difference of the two shapes' mid points, normalised by rwp_cylinder_0056fd20.
-   The direction and the three axes (sign of the difference component) are then scored with rwp_aggchildren_0058a3f0 and the one with the
+   The direction and the three axes (sign of the difference component) are then scored with rwp_pair_support_points and the one with the
    smallest negated score is kept in dir.  Returns that score. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_gjk_0058ad00(MflBody **pair, float *dir)
+float rwp_gjk_separating_direction(MflBody **pair, float *dir)
 {
   MflShp *s1 = pair[0]->shape, *s2;
   float *v;
@@ -58,12 +59,12 @@ float rwp_gjk_0058ad00(MflBody **pair, float *dir)
       rwp_cylinder_0056fd20(dir, m);
     }
   }
-  best = -rwp_aggchildren_0058a3f0(scratch, dir, -1, pair, 0);
+  best = -rwp_pair_support_points(scratch, dir, -1, pair, 0);
 
   cand[0] = !(m[0] < 0.0f) ? 1.0f : -1.0f;
   cand[1] = 0.0f;
   cand[2] = 0.0f;
-  nv = -rwp_aggchildren_0058a3f0(scratch, cand, -1, pair, 0);
+  nv = -rwp_pair_support_points(scratch, cand, -1, pair, 0);
   if (best > nv) {
     best = nv;
     dir[0] = cand[0]; dir[1] = cand[1]; dir[2] = cand[2];
@@ -71,7 +72,7 @@ float rwp_gjk_0058ad00(MflBody **pair, float *dir)
   cand[0] = 0.0f;
   cand[1] = !(m[1] < 0.0f) ? 1.0f : -1.0f;
   cand[2] = 0.0f;
-  nv = -rwp_aggchildren_0058a3f0(scratch, cand, -1, pair, 0);
+  nv = -rwp_pair_support_points(scratch, cand, -1, pair, 0);
   if (best > nv) {
     best = nv;
     dir[0] = cand[0]; dir[1] = cand[1]; dir[2] = cand[2];
@@ -79,7 +80,7 @@ float rwp_gjk_0058ad00(MflBody **pair, float *dir)
   cand[0] = 0.0f;
   cand[1] = 0.0f;
   cand[2] = !(m[2] < 0.0f) ? 1.0f : -1.0f;
-  nv = -rwp_aggchildren_0058a3f0(scratch, cand, -1, pair, 0);
+  nv = -rwp_pair_support_points(scratch, cand, -1, pair, 0);
   if (best > nv) {
     dir[0] = cand[0]; dir[1] = cand[1]; dir[2] = cand[2];
     return nv;

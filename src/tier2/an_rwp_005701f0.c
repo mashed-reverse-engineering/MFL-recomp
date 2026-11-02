@@ -1,3 +1,4 @@
+/* rwp_cylinder_support_points (0x005701f0): support points of a cylinder lying along an axis */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -31,7 +32,7 @@ typedef struct MflCylOut {
    mirrored by `flip` when z < 0), nearly perpendicular (|z| <= 0.02): the two end points +-half along z (kind 2), otherwise one end point
    (kind 1).  Returns out. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-MflCylOut *rwp_cylinder_005701f0(MflCylParams *p, int flip, float *axis, MflCylOut *o)
+MflCylOut *rwp_cylinder_support_points(MflCylParams *p, int flip, float *axis, MflCylOut *o)
 {
   MflCylV3 v;
   float vz, s, R, D, q;

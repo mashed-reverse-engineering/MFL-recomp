@@ -1,3 +1,4 @@
+/* rwp_hull_prepare (0x00575330): prepare a hull: edge lengths, bounding box and bounding sphere */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -36,7 +37,7 @@ typedef struct MflHullData {
 /* Prepares a hull: inverse edge lengths (0 stays 0), the bounding box of the vertices, the bounding sphere (box centre, half of the
    largest box extent, then grown over every vertex by rwp_math_0056f0d0), and marks the hull as prepared (flags |= 1). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_capsule_00575330(MflHullData *h)
+void rwp_hull_prepare(MflHullData *h)
 {
   double acc, len, dx, dy, dz, ex, m;
   float ext[2];

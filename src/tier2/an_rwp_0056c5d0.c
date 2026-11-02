@@ -1,3 +1,4 @@
+/* rwp_shape_support_point_world (0x0056c5d0): support point of a shape in a world direction */
 #include "mfl_tier2.h"
 
 /* vtable slot of a shape: support function */
@@ -8,7 +9,7 @@ typedef struct RwpSupportShape { unsigned char pad00[0x5c]; RwpShapeVtbl *vtbl; 
    transpose of the rotation part of `xf` (when given), the shape's support function is called, and the point is
    moved back by `xf`.  Returns the point (the support function's own buffer, modified in place). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_sphere_0056c5d0(RwpSupportShape *shape, RwMatrix *xf, RwV3d *dir, int arg)
+float *rwp_shape_support_point_world(RwpSupportShape *shape, RwMatrix *xf, RwV3d *dir, int arg)
 {
   double acc;
   float local[6];

@@ -1,6 +1,7 @@
+/* rwp_simplex_subset_closest_point (0x0058a2a0): closest point of a vertex subset of a simplex */
 #include "mfl_tier2.h"
 
-/* The simplex of the distance search (see rwp_aggchildren_0058a8f0): vertices of 6 floats (difference, support B) and
+/* The simplex of the distance search (see rwp_gjk_closest_simplex): vertices of 6 floats (difference, support B) and
    the barycentric weights lam[mask][vertex] of every vertex subset. */
 typedef struct MflSimplex {
   float vert[4][6];
@@ -11,7 +12,7 @@ typedef struct MflSimplex {
 /* Closest point of the vertex subset 'mask' of the simplex: out = sum(lam[mask][i] * vertex i) / sum(lam) (the support B part of the
    vertices when flag is set).  Returns 1 when the smallest weight is above -1e-5 * the largest weight (all weights usable). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggchildren_0058a2a0(float *out, int mask, int flag, MflSimplex *sx)
+int rwp_simplex_subset_closest_point(float *out, int mask, int flag, MflSimplex *sx)
 {
   float sum = 0.0f, maxw = -1.0f, w, inv;
   double minw = 0.0;

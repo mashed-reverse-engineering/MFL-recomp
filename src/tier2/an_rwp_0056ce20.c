@@ -1,3 +1,4 @@
+/* rwp_box_centre_and_radius (0x0056ce20): mass centre and bounding radius of a box record */
 #include "mfl_tier2.h"
 
 extern float RwV3dLength(float *v);
@@ -5,7 +6,7 @@ extern float RwV3dLength(float *v);
 /* Mass centre and bounding radius of a box record (half sizes at 16..18, margin at 19): centre (0, 0, 0), radius = |half sizes| + margin.
    Returns `out`. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_box_0056ce20(float *box, float *out)
+float *rwp_box_centre_and_radius(float *box, float *out)
 {
   float half[3];
 

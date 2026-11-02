@@ -1,3 +1,4 @@
+/* rwp_quat_combine_products (0x00580550): quaternion product pair used by the joint builders */
 #include "mfl_tier2.h"
 /* Quaternion q = (x, y, z, w) combined with r: prod = the 16 cross products arranged as a Hamilton-style product
    (4 components) and half = 0.5 * the same sums with the opposite sign pattern (the 12 floats of the second
@@ -5,7 +6,7 @@
    spills to the frame are floats; qy_rx_m_qz_rw is volatile because the original rounds it to a frame float
    between two uses (denormal / overflow results differ otherwise). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_constraints_00580550(float *q, float *r, float *prod, float *half)
+void rwp_quat_combine_products(float *q, float *r, float *prod, float *half)
 {
   double acc0, qz_rz;
   double qw_rw, qw_rx, qw_ry, qw_rz, qx_ry, qy_rw, qy_rx;

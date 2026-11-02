@@ -1,3 +1,4 @@
+/* rwp_poly_root_bracketed (0x0056f980): safeguarded Newton root of a polynomial inside a bracket */
 #include "mfl_tier2.h"
 
 /* One root of the polynomial poly (degree n, coefficients ascending) inside the bracket [x0, x1] with f0 = P(x0), f1 = P(x1) of opposite sign
@@ -5,7 +6,7 @@
    at most 23 iterations; stops when the step is below about 1.2e-7 of the value.  Returns the root (the midpoint when the bracket is invalid or the
    function is exactly zero there).  mid is the x87 value of the first iteration (unrounded), x the later ones (stored floats). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_math_0056f980(float x0, float x1, float f0, float f1, int n, float *poly, float *dpoly)
+float rwp_poly_root_bracketed(float x0, float x1, float f0, float f1, int n, float *poly, float *dpoly)
 {
   double mid, p, d, t;
   volatile float x, delta;

@@ -1,3 +1,4 @@
+/* rwp_solver_argmax_lanes (0x0057a900): arg-max search over float4 triples for the row solver */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -5,7 +6,7 @@
    or whose c*b is below -m, and raises m to |b| of that lane (so the search ends on the lane with the largest bound).  The entry /
    lane of the last improvement are stored (both -1 when n == 0 or nothing improves). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057a900(int *best_index, int *best_axis, float *b, unsigned int n, int a5, int a6, int a7, int a8, int a9, int a10,
+void rwp_solver_argmax_lanes(int *best_index, int *best_axis, float *b, unsigned int n, int a5, int a6, int a7, int a8, int a9, int a10,
                         int a11, int a12, int a13, int a14, float *a, int a16, int a17, float *c, int a19, int a20, float m)
 {
   int bi = -1, bx = -1;

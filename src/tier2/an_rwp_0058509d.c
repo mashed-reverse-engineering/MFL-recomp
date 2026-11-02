@@ -1,8 +1,9 @@
+/* rwp_aggregate_vslot_nop_b (0x0058509d): aggregate shape virtual method: does nothing, reports success */
 #include "mfl_tier2.h"
 
 /* Virtual method slot of the aggregate shape that does nothing and reports success. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggregate_0058509d(void)
+int rwp_aggregate_vslot_nop_b(void)
 {
   return 1;
 }

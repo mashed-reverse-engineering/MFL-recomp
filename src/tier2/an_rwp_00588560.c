@@ -1,10 +1,11 @@
+/* rwp_segment_segment_closest (0x00588560): closest points of two segments */
 #include "mfl_tier2.h"
 
 /* Closest points of two segments p1 + s*d1 (s in [smin, smax]) and p2 + t*d2 (t in [tmin, tmax]), the parameters are returned in *s_out / *t_out.
    Returns 1 when the lines are not parallel and the unconstrained solution is used (possibly clamped on one side), 0 otherwise;
    *overlap is set to 0 or, for the parallel case, to the length of the parameter interval that stays within the range. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggregate_00588560(float *p1, float *d1, float smin, float smax, float *p2, float *d2, float tmin, float tmax, float *s_out, float *t_out, float *overlap)
+int rwp_segment_segment_closest(float *p1, float *d1, float smin, float smax, float *p2, float *d2, float tmin, float tmax, float *s_out, float *t_out, float *overlap)
 {
   double acc0;
   float len1, len2, w[3], dot, det, wd1, wd2, num, inv, q, r, near_t, s0, s1, g, num2;

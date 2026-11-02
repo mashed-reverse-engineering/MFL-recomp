@@ -1,3 +1,4 @@
+/* rwp_shape_frame_relative_to_body (0x00580240): frame of a shape relative to its body */
 #include "mfl_tier2.h"
 
 /* Four words that are moved as integers and used as floats. */
@@ -54,7 +55,7 @@ extern void RtQuatConvertFromMatrix(MflQuat *q, float *mat);
    rotation matrix of qout to mout (flags 3, position set from the offset qb[4..6] - local position, rotated by the body matrix, plus
    the body position) and stores the address of the body matrix' position in *pos_out.  Returns the body record, or 0. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-MflBodyEntry *rwp_constraints_00580240(MflShapeHandle *h, float *qb, float *qout, float **pos_out, float *mout)
+MflBodyEntry *rwp_shape_frame_relative_to_body(MflShapeHandle *h, float *qb, float *qout, float **pos_out, float *mout)
 {
   MflBodyEntry *body;
   MflWorldTables *tabs;

@@ -1,3 +1,4 @@
+/* rwp_contact_points_collect (0x00585e70): collect the contact points of a pair */
 #include "mfl_tier2.h"
 
 typedef struct MflBodyRef {
@@ -26,7 +27,7 @@ extern int rwp_sphere_0056c800(void *shape, void *xf, int mode, float *dir, void
    something, the start slot is set (beyond the first 4 points: base + 16 * count) and the shape of body 1 is queried along the normal
    (mode 1) into the point buffer. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_aggregate_00585e70(MflBodyRef **pair, MflManifold *m)
+void rwp_contact_points_collect(MflBodyRef **pair, MflManifold *m)
 {
   float neg[3];
   unsigned int base;

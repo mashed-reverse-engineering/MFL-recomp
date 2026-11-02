@@ -1,3 +1,4 @@
+/* rwp_solver_argmax_lanes_sse (0x0057b2f0): four-lane running arg-max over float4 elements (SSE) */
 #include "mfl_tier2.h"
 #include <xmmintrin.h>
 
@@ -7,7 +8,7 @@
    element index are written to *out_idx / *out_lane (-1 / -1 when no lane beat thr).  Returns the sum
    of squares of all the floats of `a`. */
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-float rwp_batch_0057b2f0(int *out_idx, int *out_lane,
+float rwp_solver_argmax_lanes_sse(int *out_idx, int *out_lane,
                          __m128 *a, int count, int a_pad,
                          int v1_0, int v1_1, int v1_2,
                          __m128 *b, int b_count, int b_pad,

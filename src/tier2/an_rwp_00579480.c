@@ -1,6 +1,7 @@
+/* rwp_pair_table_rebuild (0x00579480): rebuild the surface pair table from the contact set */
 #include "mfl_tier2.h"
 
-/* The surface pair table (see rwp_batch_00579680): buckets, bucket count (a power of two) and the entry pool (40 bytes each, from 0xc). */
+/* The surface pair table (see rwp_pair_table_pick_best_direction): buckets, bucket count (a power of two) and the entry pool (40 bytes each, from 0xc). */
 typedef struct MflPairEnt {
   struct MflMat *mat_a;   /* 0x0 */
   int id_a;   /* 0x4 */
@@ -55,9 +56,9 @@ typedef struct MflContactSet {
 
 /* Rebuilds the pair table from the contact set: clears the buckets, then for every unflagged contact record and every object of its chain
    fills the next pool entry (materials, ids, normal, and the signed distance along the object's plane, clamped at 0) and links it at the
-   head of the bucket of the object's two surface ids (see rwp_batch_00579680 for the hash).  Returns the table. */
+   head of the bucket of the object's two surface ids (see rwp_pair_table_pick_best_direction for the hash).  Returns the table. */
 /* TIER2: unvalidated 2026-10-31 authority=static */
-MflPairHash *rwp_batch_00579480(MflPairHash *h, MflContactSet *cs)
+MflPairHash *rwp_pair_table_rebuild(MflPairHash *h, MflContactSet *cs)
 {
   unsigned int i, k, n, e1, e2, key;
   MflContactRec *rec;

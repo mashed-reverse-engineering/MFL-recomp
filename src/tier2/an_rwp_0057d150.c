@@ -1,3 +1,4 @@
+/* rwp_joint_accumulators_rebuild (0x0057d150): rebuild the per-slot accumulators of a joint solve step */
 #include "mfl_tier2.h"
 
 /* Half of a body record: three floats, a pad word, three floats, a pad word (32 bytes). */
@@ -45,13 +46,13 @@ typedef struct MflBodyPair {
   int b;
 } MflBodyPair;
 
-extern void rwp_batch_0057cf90(MflPair64 *rec, MflJointRow *row, float *w, int i);
+extern void rwp_rows_add_weighted(MflPair64 *rec, MflJointRow *row, float *w, int i);
 
 /* Rebuilds the per-slot accumulators of a joint solve step: clears the first n body records and matrices, lets 57cf90 add the impulse of every
    joint row to the records of its (up to) two bodies, copies the n3 source slots into acc and clears the same number of entries of out, and finally
    adds the halves of the body records and matrices of every body to the slot accumulators acc / out. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057d150(MflHalf *acc, int a2, MflHalfTable *out, MflPtrTable *bodies, MflPairTable *mats, MflHalf *src,
+void rwp_joint_accumulators_rebuild(MflHalf *acc, int a2, MflHalfTable *out, MflPtrTable *bodies, MflPairTable *mats, MflHalf *src,
                         MflSlotMap *slots, MflJointRow *rows, int rows_bytes, int a10, int a11, MflBodyPair *pairs, int n,
                         int a14, float *vec_a, int a16, int a17, float *vec_b)
 {
@@ -95,12 +96,12 @@ void rwp_batch_0057d150(MflHalf *acc, int a2, MflHalfTable *out, MflPtrTable *bo
       ia = rows[k].has_a;
       ib = rows[k].has_b;
       if (ia != -1) {
-        rwp_batch_0057cf90(bodies->items[rows[k].body_a], &rows[k], vec_a + 4 * k, 0);
-        rwp_batch_0057cf90(mats->items + rows[k].body_a, &rows[k], vec_b + 4 * k, 0);
+        rwp_rows_add_weighted(bodies->items[rows[k].body_a], &rows[k], vec_a + 4 * k, 0);
+        rwp_rows_add_weighted(mats->items + rows[k].body_a, &rows[k], vec_b + 4 * k, 0);
       }
       if (ib != -1) {
-        rwp_batch_0057cf90(bodies->items[rows[k].body_b], &rows[k], vec_a + 4 * k, 1);
-        rwp_batch_0057cf90(mats->items + rows[k].body_b, &rows[k], vec_b + 4 * k, 1);
+        rwp_rows_add_weighted(bodies->items[rows[k].body_b], &rows[k], vec_a + 4 * k, 1);
+        rwp_rows_add_weighted(mats->items + rows[k].body_b, &rows[k], vec_b + 4 * k, 1);
       }
     }
   }

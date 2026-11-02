@@ -1,0 +1,134 @@
+00569b30,rwp_dynworld_memory_size,number of bytes a world of a given size needs
+00569ba0,rwp_dynworld_build,build a dyn world inside a work arena (tables; space; bit sets; node pools)
+0056a210,rwp_world_activate_object,register a body in the world under an id (-1 = lowest free)
+0056a4b0,rwp_world_deactivate_object,unregister a body from the world and reset it
+0056af70,rwp_pairs_emit_near_neighbours,pair generator: emits (source; neighbour) body records for each listed object
+0056b650,rwp_body_init,initialise a body of a world from a description and optional start matrix
+0056ba70,rwp_body_store_world_inertia,store the world inertia tensor and its inverse into the owner tables
+0056bc20,rwp_body_add_force_at_point,apply a force at a world point (linear and angular accumulators)
+0056bd20,rwp_body_point_velocity,velocity of a world point of a body (linear + angular x r)
+0056bf10,rwp_shape_ref_fill_scaled,fill a shape ref (centre; v; q) for a requested scale
+0056c0b0,rwp_shape_local_point_to_world,object local point moved to world space with a 4x3 matrix
+0056c140,rwp_shape_world_point_with_matrix,world point of an object with the matrix to use selected by shape flags
+0056c3b0,rwp_shape_segment_cast,cast a segment against a shape (into its frame when it has none)
+0056c5d0,rwp_shape_support_point_world,support point of a shape in a world direction
+0056c6c0,rwp_hull_transform,move a convex hull by a matrix; vertices rotated and translated in place
+0056c8a0,rwp_shape_interval_along_dir,interval of a shape along a world direction
+0056c950,rwp_shape_reset_identity,reset a shape object to the identity frame and set its vtable
+0056c9b0,rwp_shape_interval_from_support_points,interval of a shape along a direction from two support point queries
+0056cb50,rwp_sphere_mass_props,mass properties of a sphere record
+0056cc90,rwp_sphere_vslot_zero,sphere shape virtual method returning 0.0
+0056ce20,rwp_box_centre_and_radius,mass centre and bounding radius of a box record
+0056d8c0,rwp_box_support_extent,support extent of a box along a direction
+0056ea00,rwp_inertia_world_tensor,world-space inertia tensor R * diag * R^T of a body
+0056ebe0,rwp_jacobi_eigen_sweeps,cyclic Jacobi sweeps on a symmetric 3x3 matrix
+0056ef10,rwp_inertia_diagonalize,diagonalise a symmetric 3x3 inertia tensor into moments and an orientation quaternion
+0056f200,rwp_triangle_incircle,incentre and inradius of a triangle
+0056f5b0,rwp_box_extent_in_frame_transposed,extent of a box in the frame of a matrix (transposed variant)
+0056f760,rwp_box_extent_in_frame,extent of a box along the axes of a matrix
+0056f980,rwp_poly_root_bracketed,safeguarded Newton root of a polynomial inside a bracket
+0056fb00,rwp_poly_real_roots,real roots of a polynomial inside an interval
+0056fd90,rwp_vector_perpendicular,a vector perpendicular to v
+0056fea0,rwp_cylinder_mass_props,mass properties of a cylinder with margin
+0056ff10,rwp_cylinder_bounds,bounding box of a cylinder placed with a matrix
+005701f0,rwp_cylinder_support_points,support points of a cylinder lying along an axis
+005705c0,rwp_cylinder_support_extent,extent of a cylinder along a unit direction
+00571070,rwp_world_layout_sizes,lay out the memory block of a physics world (sizes and offsets)
+00571990,rwp_groups_mark_sleepable,flag groups whose bodies; contacts and joints touch no wanted body as sleepable
+00571bf0,rwp_rows_gather_strided,strided gather of selected entries into an output row table
+00572a40,rwp_solver_rows_build_batched,run the solver row builder over groups in batches bounded by the row capacity
+00572c80,rwp_item_ray_cast_world,cast against an item and move the hit to world space
+00573650,rwp_items_update_sleep,put items to sleep or wake them from their angular/linear state
+00573a00,rwp_sector_triangles_query,query the collision world with the incircle of every triangle of a sector
+00573d70,rwp_triangle_setup_incircle,set up a triangle: normal; incircle and margin
+00574030,rwp_trilist_vslot_clear_typedata,triangle list shape virtual method: clear type data; return 1
+005748c0,rwp_trilist_append_triangle,append a triangle record to the triangle list shape
+005749f0,rwp_capsule_centre_and_radius,centre of mass and bounding radius of a capsule record
+00574a10,rwp_capsule_mass_props,mass properties of a capsule record
+00574b30,rwp_capsule_support_point,support point of a capsule along a direction
+00574c90,rwp_capsule_support_extent,support extent of a capsule along a direction
+00575230,rwp_hull_alloc,allocate a hull block and fill in its header
+00575330,rwp_hull_prepare,prepare a hull: edge lengths; bounding box and bounding sphere
+005754f0,rwp_body_extent_along_min_inertia_axis,extent of a body along the axis of its smallest principal inertia
+00575d00,rwp_farfield_boxes_shrink,shrink two boxes towards each other and classify the cut positions
+00577090,rwp_shape_bounding_data_b,bounding data virtual method of the second aggregate shape type
+00577400,rwp_ray_sphere_test,ray against a sphere
+00577550,rwp_line_quadric_intersect,line against a sphere / cylinder-like quadric
+00577750,rwp_ray_torus_root_test,ray against a torus-like surface (quartic root test)
+00577a00,rwp_solver_work_carve_step1,carve the work arrays of the first solver step out of the work area
+00577da0,rwp_solver_work_carve_step2,carve the work arrays of the second solver step out of the work area
+00578ca0,rwp_groups_union,union of two body groups by rank
+00579480,rwp_pair_table_rebuild,rebuild the surface pair table from the contact set
+00579680,rwp_pair_table_pick_best_direction,pick the best pair table entry per contact record from the hash buckets
+00579d40,rwp_solver_row_update_clamped,one clamped row update of the solver
+0057a540,rwp_solver_apply_multiplier_delta,apply one multiplier change to the body accumulators of a constraint
+0057a900,rwp_solver_argmax_lanes,arg-max search over float4 triples for the row solver
+0057ae50,rwp_solver_scatter_lane_impulse,scatter one constraint lane impulse back into the velocity accumulators
+0057b190,rwp_solver_row_update_clamped_sse,one clamped row update of the solver (SSE flags)
+0057b2f0,rwp_solver_argmax_lanes_sse,four-lane running arg-max over float4 elements (SSE)
+0057be50,rwp_broadphase_pairs,broad phase: test listed objects against objects; append overlapping pairs
+0057c230,rwp_quat_rotate_axis_angle,rotate a quaternion by an axis-angle rotation
+0057c390,rwp_quat_integrate_angular,integrate a quaternion by an angular velocity over dt and renormalise
+0057c530,rwp_body_integrate_step,one integration step of a body (orientation; position; rotation matrix)
+0057c750,rwp_bodies_integrate_list,integrate orientation and position of the listed bodies over dt
+0057c9c0,rwp_bodies_integrate_list_ordered,integrate listed bodies with velocity records walked in list order
+0057cc30,rwp_joint_matrix_columns_build,build the joint matrix products per list entry
+0057cf90,rwp_rows_add_weighted,add weighted rows of one 8-float-per-row table into another
+0057d150,rwp_joint_accumulators_rebuild,rebuild the per-slot accumulators of a joint solve step
+0057f410,rwp_mat3_triple_product,3x3 rotation product p = lhs * rhs; dst = p * rhs^T
+0057f8a0,rwp_constraint_store,store one constraint (27 words) into the constraint stream
+00580180,rwp_constraint_rows_two_body,fill the rows of a two-body constraint for a direction
+00580240,rwp_shape_frame_relative_to_body,frame of a shape relative to its body
+00580550,rwp_quat_combine_products,quaternion product pair used by the joint builders
+00580740,rwp_constraint_linear_row_axis,joint constraint builder: linear row along a world axis
+00583d20,rwp_narrowphase_entries,narrow phase for a list of broad phase entries
+00583f40,rwp_hull_mass_props,mass properties of a convex hull from its integrals
+005847e0,rwp_aggregate_vslot_get_hull_words,aggregate shape virtual method returning four hull words
+00584820,rwp_aggregate_bounding_data,bounding data virtual method of the aggregate shape
+00584f40,rwp_mat3_add_scaled,acc[k] += scale * v[k] for the nine floats of a 3x3 matrix
+0058501e,rwp_aggregate_vslot_nop_a,aggregate shape virtual method: does nothing; reports success
+0058509d,rwp_aggregate_vslot_nop_b,aggregate shape virtual method: does nothing; reports success
+005857c0,rwp_contact_list_add_point,add a contact point to a list of at most 4 records
+00585950,rwp_shape_pair_contact,contact between the two shapes of a pair
+00585c00,rwp_contacts_generate,contact generation for a list of shape pair records
+00585e70,rwp_contact_points_collect,collect the contact points of a pair
+00585f20,rwp_contact_set_add_pair,add the contact between the two bodies of a pair to the contact set
+00586200,rwp_face_direction,direction from a face point vector rotated by the owner matrix
+00586ce0,rwp_item_pairs_generate,pair generation between outer and inner items with filters
+00586f20,rwp_ring_closest_features,closest features of two convex vertex rings along a direction
+00588280,rwp_line_closest_param,parameter of the point of a line closest to a point; clamped
+00588350,rwp_polygon_closest_point,closest point of a polygon outline to a point
+00588560,rwp_segment_segment_closest,closest points of two segments
+00588b40,rwp_polyline_add_point,add a point to a polyline point list along a direction
+00589270,rwp_axis_separation_a,separation along one axis of a pair (first body shifted)
+00589350,rwp_axis_separation_b,separation along one axis of a pair (second body shifted)
+00589430,rwp_direction_projected_on_plane,direction from b to a projected onto a plane
+005894f0,rwp_pair_test_separating_axis,pair test with the separating-axis query; collecting contacts
+0058a1f0,rwp_plane_vs_first_contact,test a plane against the first contact of a list
+0058a2a0,rwp_simplex_subset_closest_point,closest point of a vertex subset of a simplex
+0058a3f0,rwp_pair_support_points,support points of the two shapes of a pair along a direction
+0058a4f0,rwp_simplex_gram_update,add dot products of the newest simplex vertex to the gram table
+0058a580,rwp_simplex_subset_determinants,update simplex subset determinants for the vertex just added
+0058a8f0,rwp_gjk_closest_simplex,iterative closest point search of a simplex (GJK style)
+0058ad00,rwp_gjk_separating_direction,separating direction of a pair of bodies
+0058b040,rwp_gjk_separation_query,separation query for a pair of bodies
+0058b450,rwp_gjk_pair_test,pair test with the distance search; collecting contacts
+0058b4d0,rwp_triangle_bounding_sphere,bounding sphere of a triangle
+0058c5c0,rwp_segment_swept_sphere_test,segment against a sphere swept along a direction
+0058c860,rwp_null_shape_mass_props,mass properties of the null shape
+0056e640,rwp_objdef_create,physics object parameter block: defaults; flag/limit setters and solver interior-pointer accessors
+0056e670,rwp_objdef_set_defaults
+0056e770,rwp_objdef_set_flags
+0056e780,rwp_objdef_get_vec3
+0056e7a0,rwp_obj_vec_at_40
+0056e7b0,rwp_obj_vec_at_54
+0056e800,rwp_obj_vec_at_14
+0056e810,rwp_obj_vec_at_20
+0056e820,rwp_obj_vec_at_2c
+0056e7c0,rwp_param_set_x
+0056e7d0,rwp_param_set_y
+0056e7e0,rwp_param_set_z
+0056e7f0,rwp_param_set_word0
+0056e830,rwp_param_set_cone_cos_2
+0056e850,rwp_param_set_cone_cos_3
+0056e870,rwp_param_set_cone_cos_4

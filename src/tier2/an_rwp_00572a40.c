@@ -1,3 +1,4 @@
+/* rwp_solver_rows_build_batched (0x00572a40): run the solver row builder over groups in batches bounded by the row capacity */
 #include "mfl_tier2.h"
 
 /* A (value, pointer) pair of the row tables; the copy handed to the solver points every pair at the one output window. */
@@ -82,7 +83,7 @@ extern int rwp_pipeline_00571c60(MflRowSet *rs, void *a1, void *a2, void *a3, vo
 /* Runs the solver row builder (571c60) over the groups in batches whose row counts (group +0x1c) add up to at most w->cap; each run writes into
    the row storage after the rows already used and advances `used`. Returns w, or 0 when a single group is already above the cap. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-MflRowWorld *rwp_pipeline_00572a40(MflRowWorld *w)
+MflRowWorld *rwp_solver_rows_build_batched(MflRowWorld *w)
 {
   MflRowTables *t;
   struct { MflRowSet rs; MflRowWin win; MflRowBatch b; } f;      /* one block: the original keeps the three in this order in its frame (the solver gets pointers into it) */

@@ -1,3 +1,4 @@
+/* rwp_constraint_linear_row_axis (0x00580740): joint constraint builder: linear row along a world axis */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 #include <math.h>
@@ -62,9 +63,9 @@ typedef struct MflBodyRec {
 } MflBodyRec;
 
 extern MflRow g_rwp_constraint_padding;
-extern MflBodyRec *rwp_constraints_00580240(void *handle, float *frame, float *q_out, float **pos_out, float *m_out);
-extern void rwp_constraints_00580550(float *q, float *r, float *prod, float *half);
-extern void rwp_constraints_0057f8a0(MflSolver *s, MflRow *row);
+extern MflBodyRec *rwp_shape_frame_relative_to_body(void *handle, float *frame, float *q_out, float **pos_out, float *m_out);
+extern void rwp_quat_combine_products(float *q, float *r, float *prod, float *half);
+extern void rwp_constraint_store(MflSolver *s, MflRow *row);
 extern void rwp_constraints_0057f750(MflSolver *s);
 extern float rwp_cylinder_0056fd20(float *out, float *in);
 
@@ -96,7 +97,7 @@ extern float rwp_cylinder_0056fd20(float *out, float *in);
       (row).ang2[2] = (r)[1] * (rb)[0] - (r)[0] * (rb)[1]; } } while (0)
 
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
+void rwp_constraint_linear_row_axis(MflSolver *s, MflJoint *p, float rate, float dt)
 {
   MflRow row, row2, row3;
   MflBodyRec *body_a, *body_b;
@@ -114,8 +115,8 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
 
   h = rate * dt;
   rows = 0;
-  body_a = rwp_constraints_00580240(&p->handleA, p->def->frameA, qa, &pos_a, ma);
-  body_b = rwp_constraints_00580240(&p->handleB, p->def->frameB, qb, &pos_b, mb);
+  body_a = rwp_shape_frame_relative_to_body(&p->handleA, p->def->frameA, qa, &pos_a, ma);
+  body_b = rwp_shape_frame_relative_to_body(&p->handleB, p->def->frameB, qb, &pos_b, mb);
   has_a = body_a != 0;
   has_b = body_b != 0;
   /* lever arms from the body positions to the joint anchor, and the anchor distance vector */
@@ -134,7 +135,7 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
   s->pairs[s->cursor][1] = body_b ? (int)body_b->id : -1;
 
   /* relative orientation q of the two frames; (rel0, rel4, rel8) = first column of its rotation matrix; ec = anchor error in B's axes */
-  rwp_constraints_00580550(qa, qb, q, half);
+  rwp_quat_combine_products(qa, qb, q, half);
   xx = q[0] * q[0];
   yy = q[1] * q[1];
   zz = q[2] * q[2];
@@ -162,7 +163,7 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
       row.hi2 = FMAX;
       row.rhs = -e;
       row.tol = 0x3f4ccccd;
-      rwp_constraints_0057f8a0(s, &row);
+      rwp_constraint_store(s, &row);
       rows++;
     }
   }
@@ -177,7 +178,7 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
     row.hi2 = FMAX;
     row.rhs = -q[0];
     row.tol = 0x3f4ccccd;
-    rwp_constraints_0057f8a0(s, &row);
+    rwp_constraint_store(s, &row);
     rows++;
   }
   u = JD->flags & 6;
@@ -193,7 +194,7 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
     row.lo2 = -FMAX;
     row.hi2 = FMAX;
     row.tol = 0x3f4ccccd;
-    rwp_constraints_0057f8a0(s, &row);
+    rwp_constraint_store(s, &row);
     rows++;
   } else if (u == 4) {
     v[0] = ma[1] * mb[10] - ma[2] * mb[9];
@@ -207,7 +208,7 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
     row.lo2 = -FMAX;
     row.hi2 = FMAX;
     row.tol = 0x3f4ccccd;
-    rwp_constraints_0057f8a0(s, &row);
+    rwp_constraint_store(s, &row);
     rows++;
   } else if (u == 6) {
     row = g_rwp_constraint_padding;
@@ -221,8 +222,8 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
     row.tol = row2.tol = 0x3f4ccccd;
     row.rhs = -q[1];
     row2.rhs = -q[2];
-    rwp_constraints_0057f8a0(s, &row);
-    rwp_constraints_0057f8a0(s, &row2);
+    rwp_constraint_store(s, &row);
+    rwp_constraint_store(s, &row2);
     rows += 2;
   }
 
@@ -271,7 +272,7 @@ void rwp_constraints_00580740(MflSolver *s, MflJoint *p, float rate, float dt)
       row.erp = f * dt * JD->dist_hi_stiff.f;
     }
     row.tol = 0x3f4ccccd;
-    rwp_constraints_0057f8a0(s, &row);
+    rwp_constraint_store(s, &row);
     rows++;
   }
 dist_done:
@@ -299,7 +300,7 @@ dist_done:
         CFM(row, f);
         row.tol = 0x3f4ccccd;
         row.erp = f * JD->lin_stiff * dt;
-        rwp_constraints_0057f8a0(s, &row);
+        rwp_constraint_store(s, &row);
         rows++;
       }
     }
@@ -370,9 +371,9 @@ dist_done:
         row.erp = f * JD->rot_stiff * dt;
         row2.cfm = row3.cfm = row.cfm;
         row2.erp = row3.erp = row.erp;
-        rwp_constraints_0057f8a0(s, &row);
-        rwp_constraints_0057f8a0(s, &row2);
-        rwp_constraints_0057f8a0(s, &row3);
+        rwp_constraint_store(s, &row);
+        rwp_constraint_store(s, &row2);
+        rwp_constraint_store(s, &row3);
         rows += 3;
       }
     } else {
@@ -409,7 +410,7 @@ dist_done:
           CFM(row, f);
           row.tol = 0x3f4ccccd;
           row.erp = f * JD->twistx_stiff * dt;
-          rwp_constraints_0057f8a0(s, &row);
+          rwp_constraint_store(s, &row);
           rows++;
         }
       }
@@ -469,7 +470,7 @@ dist_done:
             CFM(row, f);
             row.tol = 0x3f4ccccd;
             row.erp = f * JD->rot_stiff * dt;
-            rwp_constraints_0057f8a0(s, &row);
+            rwp_constraint_store(s, &row);
             rows++;
           }
         }
@@ -497,7 +498,7 @@ dist_done:
             CFM(row, f);
             row.tol = 0x3f4ccccd;
             row.erp = f * JD->rot_stiff * dt;
-            rwp_constraints_0057f8a0(s, &row);
+            rwp_constraint_store(s, &row);
             rows++;
           }
         }
@@ -540,7 +541,7 @@ dist_done:
     }
     row.hi2 = 0;
     row.tol = 0x3f4ccccd;
-    rwp_constraints_0057f8a0(s, &row);
+    rwp_constraint_store(s, &row);
     rows++;
   }
 twist_done:
@@ -611,7 +612,7 @@ twist_done:
   }
   row.lo2 = 0;
   row.tol = 0x3f4ccccd;
-  rwp_constraints_0057f8a0(s, &row);
+  rwp_constraint_store(s, &row);
   rows++;
 swing_done:
 
@@ -623,7 +624,7 @@ swing_done:
     row.lo2 = 0;
     row.hi2 = 0;
     row.tol = 0;
-    rwp_constraints_0057f8a0(s, &row);
+    rwp_constraint_store(s, &row);
   }
   rwp_constraints_0057f750(s);
 }

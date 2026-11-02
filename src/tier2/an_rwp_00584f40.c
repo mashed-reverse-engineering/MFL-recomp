@@ -1,8 +1,9 @@
+/* rwp_mat3_add_scaled (0x00584f40): acc[k] += scale * v[k] for the nine floats of a 3x3 matrix */
 #include "mfl_tier2.h"
 
 /* acc[k] += scale * v[k] for the nine floats of a 3x3 matrix. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_aggregate_00584f40(float *acc, float *v, float scale)
+void rwp_mat3_add_scaled(float *acc, float *v, float scale)
 {
   acc[0] = scale * v[0] + acc[0];
   acc[1] = v[1] * scale + acc[1];

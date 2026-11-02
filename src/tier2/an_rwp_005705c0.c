@@ -1,3 +1,4 @@
+/* rwp_cylinder_support_extent (0x005705c0): extent of a cylinder along a unit direction */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -9,7 +10,7 @@ typedef struct MflCylSize {
 
 /* Extent of a cylinder (half height, radius) along the unit direction v: hi = sqrt(|1 - vz^2|) * radius + vz * half, lo = -hi.  Returns 1. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-int rwp_cylinder_005705c0(MflCylSize *p, float *v, float *lo, float *hi)
+int rwp_cylinder_support_extent(MflCylSize *p, float *v, float *lo, float *hi)
 {
   float vz = v[2];
   float e;

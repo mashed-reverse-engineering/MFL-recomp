@@ -1,10 +1,11 @@
+/* rwp_hull_mass_props (0x00583f40): mass properties of a convex hull from its integrals */
 #include "mfl_tier2.h"
 extern float rwp_convexhullmassprops_00584080();
 
-/* rwp_convexhullmassprops_00583f40: mass properties of a convex hull from the integrals of 584080.
+/* rwp_hull_mass_props: mass properties of a convex hull from the integrals of 584080.
    *mass = volume, com = centre of mass, inertia = the 3x3 inertia tensor (row major, per unit mass) about the centre of mass. */
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-int rwp_convexhullmassprops_00583f40(int hull, float *com, float *inertia, float *mass)
+int rwp_hull_mass_props(int hull, float *com, float *inertia, float *mass)
 {
   float cross[3];      /* integral of xy, yz, zx */
   float first[3];      /* integral of x, y, z */

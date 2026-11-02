@@ -1,3 +1,4 @@
+/* rwp_vector_perpendicular (0x0056fd90): a vector perpendicular to v */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -5,7 +6,7 @@
    magnitudes through the packed table 0x21312300) and the two others are swapped with a sign change.  Returns the index of the
    component that received v's third component. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_cylinder_0056fd90(float *out, float *v)
+int rwp_vector_perpendicular(float *out, float *v)
 {
   float az;
   int a_gt_b, c_lt_a, c_lt_b, k, k1, k2;

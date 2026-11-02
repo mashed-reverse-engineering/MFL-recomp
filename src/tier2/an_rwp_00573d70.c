@@ -1,7 +1,8 @@
+/* rwp_triangle_setup_incircle (0x00573d70): set up a triangle: normal, incircle and margin */
 #include "mfl_tier2.h"
 
 extern float rwp_cylinder_0056fd20(float *out, float *in);
-extern float rwp_math_0056f200(float *out, float *a, float *b, float *c);
+extern float rwp_triangle_incircle(float *out, float *a, float *b, float *c);
 
 /* A triangle: index, plugin data and sector (set by the caller), the three vertex pointers at 0xc, a margin at 0x18 and the unit normal at 0x1c. */
 typedef struct MflTriangle {
@@ -23,7 +24,7 @@ typedef struct MflIncircle {
 /* Sets up a triangle: normal n (cross product of its edges, normalised), the incircle of the triangle into s (kind 3), margin = a tenth
    of the inradius, and the radius of s widened by 20% but at least 5% of the longest side. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_pipeline_00573d70(MflTriangle *t, MflIncircle *s)
+void rwp_triangle_setup_incircle(MflTriangle *t, MflIncircle *s)
 {
   float *a = t->v[0], *b = t->v[1], *c = t->v[2];
   double acc, widened;
@@ -42,7 +43,7 @@ void rwp_pipeline_00573d70(MflTriangle *t, MflIncircle *s)
   acc = acc + (a[1] - b[1]) * c[0];
   t->n[2] = acc;
   rwp_cylinder_0056fd20(t->n, t->n);
-  longest = rwp_math_0056f200((float *)s, t->v[0], t->v[1], t->v[2]);
+  longest = rwp_triangle_incircle((float *)s, t->v[0], t->v[1], t->v[2]);
   t->margin = s->radius * 0.1f;
   widened = s->radius * 1.2f;
   s->kind = 3;

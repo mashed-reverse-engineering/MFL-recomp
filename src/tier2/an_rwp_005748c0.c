@@ -1,3 +1,4 @@
+/* rwp_trilist_append_triangle (0x005748c0): append a triangle record to the triangle list shape */
 #include "mfl_tier2.h"
 
 extern int rwp_pipeline_005738a0(void *owner);
@@ -35,7 +36,7 @@ typedef struct MflTriList {
 /* Appends a record for the triangle tri owned by owner to the list (returns 0 when it is full, else tri).  The nibble of the owner's
    flag table for the triangle's code is stored in the record (0xf without a table). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-MflTriIn *rwp_trilist_005748c0(int unused1, void *owner, MflTriIn *tri, int unused4, MflTriList *list)
+MflTriIn *rwp_trilist_append_triangle(int unused1, void *owner, MflTriIn *tri, int unused4, MflTriList *list)
 {
   unsigned int i = list->count;
   MflTriRec *r;

@@ -1,3 +1,4 @@
+/* rwp_inertia_world_tensor (0x0056ea00): world-space inertia tensor R * diag * R^T of a body */
 #include "mfl_tier2.h"
 /* r = a1*a2*a3 + b1*b2*b3 + c1*c2*c3, each product and sum in the written order (cl would regroup a plain expression) */
 #define SUMP3(r, a1, a2, a3, b1, b2, b3, c1, c2, c3) do { (r) = (a1) * (a2); (r) = (r) * (a3); t_ = (b1) * (b2); t_ = t_ * (b3); (r) = (r) + t_; t_ = (c1) * (c2); t_ = t_ * (c3); (r) = (r) + t_; } while (0)
@@ -6,7 +7,7 @@
    R = rotation matrix of the (conjugated) quaternion prop[3..6] = x, y, z, w.  The quaternion products that
    cl keeps in x87 registers (yw, zw) are doubles, the ones stored to the frame are floats. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_obj_0056ea00(float *dst, float *prop)
+int rwp_inertia_world_tensor(float *dst, float *prop)
 {
   double qx = -prop[3], qy = -prop[4], qw = prop[6];
   float qz = -prop[5];

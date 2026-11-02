@@ -1,3 +1,4 @@
+/* rwp_shape_ref_fill_scaled (0x0056bf10): fill a shape ref (centre, v, q) for a requested scale */
 #include "mfl_tier2.h"
 
 /*0056c1c0*/ extern float rwp_sphere_0056c1c0(int obj, void *out, float *centre);
@@ -22,7 +23,7 @@ typedef struct RwpSphereRef {
    without it, the largest component of v times scale becomes ref->extent and bit 1 is cleared (both only when scale > FLT_MIN).
    Returns scale / r, or FLT_MAX when r < FLT_MIN. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_sphere_0056bf10(RwpSphereRef *ref, float scale, int keep)
+float rwp_shape_ref_fill_scaled(RwpSphereRef *ref, float scale, int keep)
 {
   RwpSupportOut o;
   float c[3];

@@ -1,3 +1,4 @@
+/* rwp_ray_sphere_test (0x00577400): ray against a sphere */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -5,7 +6,7 @@
    out[1] = |dir|^2) when the ray hits it, 0 when it misses, -1 when it points away from it; a start inside the
    sphere gives out = (0, 1) and 1.  With out == 0 only "starts inside" is returned. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_grid_00577400(float *out, float *center, float *dir, float *origin, float radius)
+int rwp_ray_sphere_test(float *out, float *center, float *dir, float *origin, float radius)
 {
   double acc, a, t;
   float mx, my, mz, c, b, disc;

@@ -54,3 +54,4 @@ RwD3D9DynamicVertexBufferDestroy 4ecca0 5 1
 RwD3D9DynamicVertexBufferLock 4eccd0 9 5
 RwD3D9DynamicVertexBufferUnlock 4ece50 5 1
 rxD3D9DefaultRenderCallback 4faeb0 5 4
+D3DXAssembleShader 50cf85 5 7 p0:n1*1

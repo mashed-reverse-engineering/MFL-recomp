@@ -1,3 +1,4 @@
+/* rwp_cylinder_bounds (0x0056ff10): bounding box of a cylinder placed with a matrix */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -13,7 +14,7 @@ typedef struct MflCylBound {
    half extents e = (r, r, h) unplaced, a sphere bound sqrt(h^2 + r^2) when `exact` is 0, else per axis sqrt(|1 - a^2|) r + |a| h for the z axis a of m; the margin
    is added; out[0..2] = t + e, out[4..6] = t - e.  Returns out. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-float *rwp_cylinder_0056ff10(MflCylBound *p, float *m, int exact, float *out)
+float *rwp_cylinder_bounds(MflCylBound *p, float *m, int exact, float *out)
 {
   float r = p->radius;
   float h = p->half;

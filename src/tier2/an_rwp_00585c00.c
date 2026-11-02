@@ -1,3 +1,4 @@
+/* rwp_contacts_generate (0x00585c00): contact generation for a list of shape pair records */
 #include "mfl_tier2.h"
 
 struct MflContactLink;
@@ -40,7 +41,7 @@ typedef struct MflHitSlot {
   unsigned char b[0xe0];
 } MflHitSlot;
 
-extern int rwp_aggregate_00585950(MflPairRec *p, float limit, MflHitSlot *out);
+extern int rwp_shape_pair_contact(MflPairRec *p, float limit, MflHitSlot *out);
 extern int rwp_generalprimitive_00589690(MflHitSlot *hits1, unsigned int n, int v7c, MflHitSlot *hits, unsigned int cap, int v74);
 
 /* Contact generation for n shape pair records: each pair is run through 585950 into the next hit slot (unless one of the objects has flag
@@ -48,7 +49,7 @@ extern int rwp_generalprimitive_00589690(MflHitSlot *hits1, unsigned int n, int 
    (this object, the other one, the other id, the hit) is pushed on the object's link list (and the context's link array, while it has room).
    Returns the number of hits that survived the reduction. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggregate_00585c00(MflPairCtx *ctx, MflPairRec *pairs, unsigned int n, MflHitSlot *hits, unsigned int cap)
+int rwp_contacts_generate(MflPairCtx *ctx, MflPairRec *pairs, unsigned int n, MflHitSlot *hits, unsigned int cap)
 {
   unsigned int i, found, k, nk;
   unsigned int fa, fb, ia, ib;
@@ -95,7 +96,7 @@ int rwp_aggregate_00585c00(MflPairCtx *ctx, MflPairRec *pairs, unsigned int n, M
   found = 0;
   for (i = 0; i < n; i++, p++) {
     if (found >= cap - 1) break;
-    if (rwp_aggregate_00585950(p, ctx->limit, out)) {
+    if (rwp_shape_pair_contact(p, ctx->limit, out)) {
       found++;
       out++;
     }

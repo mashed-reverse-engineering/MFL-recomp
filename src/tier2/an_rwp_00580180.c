@@ -1,9 +1,10 @@
+/* rwp_constraint_rows_two_body (0x00580180): fill the rows of a two-body constraint for a direction */
 #include "mfl_tier2.h"
 
 /* Fills the rows of a two-body constraint for the direction n: the linear row of body A is n, its angular row is r_a x n; body B
    gets -n and n x r_b.  Each half is only written when its flag is set.  Returns n. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_constraints_00580180(float *row, float *n, float *r_a, float *r_b, int use_a, int use_b)
+float *rwp_constraint_rows_two_body(float *row, float *n, float *r_a, float *r_b, int use_a, int use_b)
 {
   if (use_a) {
     *(int *)&row[0] = *(int *)&n[0];

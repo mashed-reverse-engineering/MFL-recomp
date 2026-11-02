@@ -1,3 +1,4 @@
+/* rwp_dynworld_build (0x00569ba0): build a dyn world inside a work arena (tables, space, bit sets, node pools) */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -5,7 +6,7 @@ extern int rwp_capsule_005757e0(MflWorkArea *ar, int nbits, int n);
 extern void *rwp_farfield_00575fa0(MflWorkArea *ar, void *graph, int nbits, int a2, float size);
 extern int rwp_capsule_00575af0(void *p, int v, int n);
 
-/* What a world is sized from (the same record rwp_mgr_00569b30 measures). */
+/* What a world is sized from (the same record rwp_dynworld_memory_size measures). */
 typedef struct MflDynCfg {
   unsigned char pad00[8];
   int nbits;   /* 0x8: ids (bits of every set) */
@@ -29,7 +30,7 @@ typedef struct MflDynCfg {
 /* Builds a dyn world inside the work arena `ar` (16 byte aligned allocations, zeroed where needed): the world record, its row tables, the space (575fa0),
    the bit sets, the node pools with their free lists, the link chains and the id arrays.  Returns the world. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-MflDynWorld *rwp_mgr_00569ba0(MflWorkArea *ar, MflDynCfg *cfg, int a2, float a3, int a4)
+MflDynWorld *rwp_dynworld_build(MflWorkArea *ar, MflDynCfg *cfg, int a2, float a3, int a4)
 {
   MflDynWorld *w;
   int *t;

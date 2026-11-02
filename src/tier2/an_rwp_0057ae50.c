@@ -1,3 +1,4 @@
+/* rwp_solver_scatter_lane_impulse (0x0057ae50): scatter one constraint lane impulse back into the velocity accumulators */
 #include "mfl_tier2.h"
 #include <xmmintrin.h>
 
@@ -9,7 +10,7 @@
    The parameters between `a5` and `delta` are a 34 dword MflSolveByVal34 passed by value (see 57b190); only the members
    named here are used: jac (w0), row_first (w4), acc_index (w7), row_count (w16), pairs (w25), slots (w28). */
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-void rwp_batch_0057ae50(__m128 *acc, int a4, int a5,
+void rwp_solver_scatter_lane_impulse(__m128 *acc, int a4, int a5,
                         float *jac, int w1, int w2, int w3, int *row_first, int w5, int w6, int *acc_index,
                         int w8, int w9, int w10, int w11, int w12, int w13, int w14, int w15,
                         int *row_count, int w17, int w18, int w19, int w20, int w21, int w22, int w23, int w24,

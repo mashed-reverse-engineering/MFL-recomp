@@ -1,3 +1,4 @@
+/* rwp_axis_separation_b (0x00589350): separation along one axis of a pair (second body shifted) */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -10,17 +11,17 @@ typedef struct MflBodyRef {
 
 /* A direction with the interval [lo, hi] that the second body covers along it. */
 
-extern void rwp_sphere_0056c8a0(void *shape, float *xf, MflAxis *axis, float *far_end, float *near_end);
+extern void rwp_shape_interval_along_dir(void *shape, float *xf, MflAxis *axis, float *far_end, float *near_end);
 
-/* Mirror of rwp_aggregate_00589270: the interval of the first body along axis is compared with the second body's interval
+/* Mirror of rwp_axis_separation_a: the interval of the first body along axis is compared with the second body's interval
    shifted by the position of the second body. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_aggregate_00589350(MflBodyRef **pair, MflAxis *axis, float *out_n, float *out_t)
+float rwp_axis_separation_b(MflBodyRef **pair, MflAxis *axis, float *out_n, float *out_t)
 {
   float *xf = pair[1]->xf;
   float centre, lo, hi, near_end, far_end, overlap;
 
-  rwp_sphere_0056c8a0(pair[0]->shape, pair[0]->xf, axis, &far_end, &near_end);
+  rwp_shape_interval_along_dir(pair[0]->shape, pair[0]->xf, axis, &far_end, &near_end);
   centre = xf[13] * axis->n[1] + xf[12] * axis->n[0] + xf[14] * axis->n[2];
   lo = centre + axis->lo;
   hi = centre + axis->hi;

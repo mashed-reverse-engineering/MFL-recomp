@@ -1,0 +1,8 @@
+# Group "d3dx" (S1): the SSE2 variants of the statically linked D3DX math the exe's slot table (0x62ec88) holds on this host class (see librw-mfl/capi/d3dxmath.cpp).  Format as rw_stream.txt: exe_name=dll_export.
+# The slots point at these addresses through immediates of the installer 0x50c60e; mkobj leaves a 5 byte jmp at each address, so the table and the callers need no change.  The names are aliases (recomp/aliases.txt).
+# A host the installer would give the 3DNow (x3d) table (PF 7) or the plain x86 one (no SSE2) would not reach these entries; D3DXCpuOptimizations itself stays original (it fills the other 60 slots).
+sse_D3DXMatrixMultiply=D3DXMatrixMultiply
+sse_D3DXMatrixMultiplyTranspose=D3DXMatrixMultiplyTranspose
+sse_D3DXVec3TransformNormal=D3DXVec3TransformNormal
+sse_D3DXVec3TransformCoord=D3DXVec3TransformCoord
+c_D3DXMatrixTranspose=D3DXMatrixTranspose

@@ -1,3 +1,4 @@
+/* rwp_quat_rotate_axis_angle (0x0057c230): rotate a quaternion by an axis-angle rotation */
 #include "mfl_tier2.h"
 #include <math.h>
 #pragma intrinsic(sin, cos)
@@ -8,7 +9,7 @@
    n = v / |v|, skipped when |v| < 1e-4.  The values the original keeps on the x87 stack are doubles (nz, the half angle); the frame floats nx, ny, sin
    live in k[], cos and the cross term (k4) are volatile (cl would keep them in a register unrounded; cs2 = cs makes it reload cos like the original). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057c230(float *q, float *v, float angle)
+void rwp_quat_rotate_axis_angle(float *q, float *v, float angle)
 {
   float k[3], q0, q1, q2;
   volatile float cs, cs2, k4;

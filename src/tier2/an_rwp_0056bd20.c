@@ -1,3 +1,4 @@
+/* rwp_body_point_velocity (0x0056bd20): velocity of a world point of a body (linear + angular x r) */
 #include "mfl_tier2.h"
 
 typedef struct MflVel { float lin[3], pad3, ang[3], pad7; } MflVel;   /* 32 bytes */
@@ -18,7 +19,7 @@ typedef struct MflBodyHandle {
 
 /* Velocity of the point p of a body: out = linear + angular x (p - position). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_sphere_0056bd20(MflBodyHandle *h, float *p, float *out)
+void rwp_body_point_velocity(MflBodyHandle *h, float *p, float *out)
 {
   float cross[2];
   double dx, dy, dz, cz;

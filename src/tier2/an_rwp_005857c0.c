@@ -1,3 +1,4 @@
+/* rwp_contact_list_add_point (0x005857c0): add a contact point to a list of at most 4 records */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -20,7 +21,7 @@ typedef struct MflContactList {
 /* Adds the contact point pos (tag as given) to the list of at most 4 records.  When mindist >= 0 and the list is not empty, the new
    point is dropped (result 0) if it is within mindist (sum of the axis distances) of the first or of the last record.  Returns 1 when added. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggregate_005857c0(float *pos, int tag, MflContactList *list, float mindist)
+int rwp_contact_list_add_point(float *pos, int tag, MflContactList *list, float mindist)
 {
   unsigned int n = list->count;
   double acc;

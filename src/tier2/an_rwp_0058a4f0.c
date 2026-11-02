@@ -1,6 +1,7 @@
+/* rwp_simplex_gram_update (0x0058a4f0): add dot products of the newest simplex vertex to the gram table */
 #include "mfl_tier2.h"
 
-/* The simplex of the distance search (see rwp_aggchildren_0058a8f0): vertices of 6 floats (difference first), the table of
+/* The simplex of the distance search (see rwp_gjk_closest_simplex): vertices of 6 floats (difference first), the table of
    their dot products and the mask / slot / bit state. */
 typedef struct MflSimplex {
   float vert[4][6];
@@ -13,7 +14,7 @@ typedef struct MflSimplex {
 
 /* Adds the dot products of the newly added vertex (sx->slot) with every vertex of the subset to the symmetric table gram. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_aggchildren_0058a4f0(MflSimplex *sx)
+void rwp_simplex_gram_update(MflSimplex *sx)
 {
   double acc;
   int b, i = 0;

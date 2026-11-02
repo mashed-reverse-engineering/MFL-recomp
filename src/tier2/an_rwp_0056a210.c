@@ -1,3 +1,4 @@
+/* rwp_world_activate_object (0x0056a210): register a body in the world under an id (-1 = lowest free) */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -8,7 +9,7 @@ extern int rwp_farfield_00576670(void *space, unsigned int id, int what);
    and world, clears the wanted / awake / second bit sets and, when the body answers its vtable[6] query, registers it with the space; then
    flags bit 0 sets "wanted", bit 1 sets bits_c (else the body is removed from the awake set first), bit 2 wakes the body when there is room.  Returns w. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-MflDynWorld *rwp_dyn_0056a210(MflDynWorld *w, MflDynBody *body, unsigned int id, unsigned int flags)
+MflDynWorld *rwp_world_activate_object(MflDynWorld *w, MflDynBody *body, unsigned int id, unsigned int flags)
 {
   unsigned int i, word, bit;
   int out[8];      /* the original frame has 0x20 bytes here; the vtable[6] callee writes a 6 float box */

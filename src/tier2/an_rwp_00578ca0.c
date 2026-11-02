@@ -1,3 +1,4 @@
+/* rwp_groups_union (0x00578ca0): union of two body groups by rank */
 #include "mfl_tier2.h"
 
 /* A member of a group's chain of entries: the group entry it belongs to (0), the group record that owns the chain (4) and the next
@@ -33,7 +34,7 @@ typedef struct MflUfTable {
    item lists), the group count drops by one and the last record of the table moves into the freed slot.  The items item1 / item2 (when
    given) are appended to the merged group's lists 1 / 2.  With a == b only the items are appended. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_00578ca0(MflUfTable *t, MflUfGroup *a, MflUfGroup *b, MflUfItem *item1, MflUfItem *item2)
+void rwp_groups_union(MflUfTable *t, MflUfGroup *a, MflUfGroup *b, MflUfItem *item1, MflUfItem *item2)
 {
   MflUfGroup *win, *lose;
   unsigned int ra, rb;

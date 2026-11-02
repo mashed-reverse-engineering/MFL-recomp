@@ -1,6 +1,7 @@
+/* rwp_body_store_world_inertia (0x0056ba70): store the world inertia tensor and its inverse into the owner tables */
 #include "mfl_tier2.h"
 
-/*0056ea00*/ extern int rwp_obj_0056ea00(float *dst, float *prop);
+/*0056ea00*/ extern int rwp_inertia_world_tensor(float *dst, float *prop);
 
 typedef struct RwpInertiaProps {
   float e[3];   /* 0x0 principal values (non zero) */
@@ -24,7 +25,7 @@ typedef struct RwpSlot {
 /* Stores the world inertia tensor of props (R * diag(e) * R^T) and of the inverse (diag(1/sqrt(e)) with the same quaternion) as 3 rows of
    3 floats (16 bytes apart) into the two per-body tables of the owner, slot->index * 48 bytes in.  Returns 0 when one of the three values is 0. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_volume_0056ba70(RwpSlot *slot, RwpInertiaProps *props)
+int rwp_body_store_world_inertia(RwpSlot *slot, RwpInertiaProps *props)
 {
   RwpInertiaProps inv;
   float tensor[9], tensor_inv[9];
@@ -39,8 +40,8 @@ int rwp_volume_0056ba70(RwpSlot *slot, RwpInertiaProps *props)
     inv.e[0] = 1.0f / sqrt(props->e[0]);
     inv.e[1] = 1.0f / sqrt(props->e[1]);
     inv.e[2] = 1.0f / sqrt(props->e[2]);
-    rwp_obj_0056ea00(tensor, (float *)props);
-    rwp_obj_0056ea00(tensor_inv, (float *)&inv);
+    rwp_inertia_world_tensor(tensor, (float *)props);
+    rwp_inertia_world_tensor(tensor_inv, (float *)&inv);
     for (i = 0; i < 3; i++) {
       row = (float *)(slot->owner->tables->table_a + slot->index * 48 + i * 16);
       row[0] = tensor[3 * i];

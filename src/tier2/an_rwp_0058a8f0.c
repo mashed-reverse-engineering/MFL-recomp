@@ -1,11 +1,12 @@
+/* rwp_gjk_closest_simplex (0x0058a8f0): iterative closest point search of a simplex (GJK style) */
 #include "mfl_tier2.h"
 #include <math.h>
 
 extern float rwp_cylinder_0056fd20(float *out, float *in);
-extern float rwp_aggchildren_0058a3f0(float *out, float *dir, int mode, void *pair, void *flag);
-extern int rwp_aggchildren_0058a2a0(float *out, int mask, int flag, void *simplex);
-extern void rwp_aggchildren_0058a4f0(void *simplex);
-extern void rwp_aggchildren_0058a580(void *simplex);
+extern float rwp_pair_support_points(float *out, float *dir, int mode, void *pair, void *flag);
+extern int rwp_simplex_subset_closest_point(float *out, int mask, int flag, void *simplex);
+extern void rwp_simplex_gram_update(void *simplex);
+extern void rwp_simplex_subset_determinants(void *simplex);
 extern int *g_rwp_simplex_face_lists[16];
 
 /* The simplex of the distance search: up to four vertices (24 bytes each, the point first), the mask of the used vertices and the
@@ -23,7 +24,7 @@ typedef struct MflSimplex {
    when the support distance exceeds t (result 2) or the estimate is good enough (result 1); more than 50 rounds or more than 5 repeated vertices give 0.
    On a result 1 / 2 exit point = the closest point direction, *out_a = point . best + dist * 0.5 and *out_depth = dist (the last support distance). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggchildren_0058a8f0(void *pair, void *flag, float t, MflSimplex *sx, float *point, float *out_a, float *out_depth, float step)
+int rwp_gjk_closest_simplex(void *pair, void *flag, float t, MflSimplex *sx, float *point, float *out_a, float *out_depth, float step)
 {
   float tol, lim, gmax, dist, bestlen, len2;
   float best[3] = { 0.5f, 0.6f, 0.6244998f }, hist[2][3], c[3];
@@ -56,7 +57,7 @@ int rwp_aggchildren_0058a8f0(void *pair, void *flag, float t, MflSimplex *sx, fl
       sx->bit = bit;
     }
     v = sx->vert[sx->slot];
-    dist = rwp_aggchildren_0058a3f0(v, best, -1, pair, flag);
+    dist = rwp_pair_support_points(v, best, -1, pair, flag);
     if (dist > t) { res = 2; goto done; }
     if (dist > gmax) gmax = dist;
     if (gmax * 1.01f > lim) { res = 1; goto done; }
@@ -85,8 +86,8 @@ int rwp_aggchildren_0058a8f0(void *pair, void *flag, float t, MflSimplex *sx, fl
     *(int *)&hist[iter & 1][0] = *(int *)&v[0];
     *(int *)&hist[iter & 1][1] = *(int *)&v[1];
     *(int *)&hist[iter & 1][2] = *(int *)&v[2];
-    rwp_aggchildren_0058a4f0(sx);
-    rwp_aggchildren_0058a580(sx);
+    rwp_simplex_gram_update(sx);
+    rwp_simplex_subset_determinants(sx);
     bestface = 0;
     k = 0;
     do {
@@ -100,7 +101,7 @@ int rwp_aggchildren_0058a8f0(void *pair, void *flag, float t, MflSimplex *sx, fl
         *(int *)&c[0] = *(int *)&v[0];
         *(int *)&c[1] = *(int *)&v[1];
         *(int *)&c[2] = *(int *)&v[2];
-      } else if (!rwp_aggchildren_0058a2a0(c, sx->bit | face, 0, sx)) {
+      } else if (!rwp_simplex_subset_closest_point(c, sx->bit | face, 0, sx)) {
         k++;
         continue;
       }
@@ -127,7 +128,7 @@ done:
   *(int *)&point[0] = *(int *)&best[0];
   *(int *)&point[1] = *(int *)&best[1];
   *(int *)&point[2] = *(int *)&best[2];
-  rwp_aggchildren_0058a2a0(best, sx->mask, 1, sx);
+  rwp_simplex_subset_closest_point(best, sx->mask, 1, sx);
   acc = point[1] * best[1];
   acc = acc + best[0] * point[0];
   acc = acc + point[2] * best[2];

@@ -1,6 +1,7 @@
+/* rwp_gjk_pair_test (0x0058b450): pair test with the distance search, collecting contacts */
 #include "mfl_tier2.h"
 
-/* Contact manifold of a pair (see rwp_aggregate_00585e70): the separating direction at 0x100 with its offset at 0x10c and depth at 0x110. */
+/* Contact manifold of a pair (see rwp_contact_points_collect): the separating direction at 0x100 with its offset at 0x10c and depth at 0x110. */
 typedef struct MflManifold {
   unsigned char pad00[0x100];
   float dir[3];   /* 0x100 */
@@ -8,20 +9,20 @@ typedef struct MflManifold {
   float depth;   /* 0x110 */
 } MflManifold;
 
-extern int rwp_gjk_0058b040(int unused, void *pair, float margin, float *dir, float *pa, float *pb, float step);
-extern void rwp_aggregate_00585e70(void *pair, MflManifold *m);
+extern int rwp_gjk_separation_query(int unused, void *pair, float margin, float *dir, float *pa, float *pb, float step);
+extern void rwp_contact_points_collect(void *pair, MflManifold *m);
 
-/* Pair test with the distance search rwp_gjk_0058b040 (limit t, step size step): when it finds a depth below t, the contact points are
-   collected (rwp_aggregate_00585e70).  Returns 1 in that case, else 0.  Same flow as rwp_aggregate_005894f0. */
+/* Pair test with the distance search rwp_gjk_separation_query (limit t, step size step): when it finds a depth below t, the contact points are
+   collected (rwp_contact_points_collect).  Returns 1 in that case, else 0.  Same flow as rwp_pair_test_separating_axis. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_gjk_0058b450(int unused, void *pair, float t, MflManifold *m, float step)
+int rwp_gjk_pair_test(int unused, void *pair, float t, MflManifold *m, float step)
 {
   int hit = 0;
 
-  if (rwp_gjk_0058b040(unused, pair, t, m->dir, &m->offset, &m->depth, step)) {
+  if (rwp_gjk_separation_query(unused, pair, t, m->dir, &m->offset, &m->depth, step)) {
     if (m->depth < t) {
       hit = 1;
-      rwp_aggregate_00585e70(pair, m);
+      rwp_contact_points_collect(pair, m);
       return hit;
     }
   }

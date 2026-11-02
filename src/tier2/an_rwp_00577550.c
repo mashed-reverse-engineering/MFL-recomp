@@ -1,3 +1,4 @@
+/* rwp_line_quadric_intersect (0x00577550): line against a sphere / cylinder-like quadric */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -7,7 +8,7 @@
    Returns 1 with a hit, 0 without, -1 when flag a7 is clear and g <= 0, and the plain inside test (q < 0) when out is NULL.
    (The frame floats b, q, g, disc, u are stored and reloaded by the original; plain floats gave the same results, EQUAL at ext.) */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_grid_00577550(float *out, float *a2, float *v, float *a4, float *dir, float r, int a7, int a8)
+int rwp_line_quadric_intersect(float *out, float *a2, float *v, float *a4, float *dir, float r, int a7, int a8)
 {
   float d[3];
   float b, q, g, disc, u;

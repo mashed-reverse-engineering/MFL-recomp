@@ -1,3 +1,4 @@
+/* rwp_items_update_sleep (0x00573650): put items to sleep or wake them from their angular/linear state */
 #include "mfl_tier2.h"
 
 /* Two float3 (at 0 and 0x10) of a body table entry (32 bytes). */
@@ -60,7 +61,7 @@ extern void rwp_volume_0056b1d0(void *owner, MflSleepItem *item, int awake);
    its bodies have squared angular / linear state vectors below the squared limits (spin a / b: thr[0] / thr[1], velocity a / b: thr[2] /
    thr[3]); 56b1d0 is told the result (awake = 1 for items that do not sleep).  Returns the world. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-MflSleepWorld *rwp_pipeline_00573650(MflSleepWorld *w)
+MflSleepWorld *rwp_items_update_sleep(MflSleepWorld *w)
 {
   float t[4];
   double l;

@@ -1,3 +1,4 @@
+/* rwp_hull_alloc (0x00575230): allocate a hull block and fill in its header */
 #include "mfl_tier2.h"
 
 #define RWP_MEM_HINT 0x30900                /* allocation hint used by all Rwp objects */
@@ -24,7 +25,7 @@ typedef struct MflHullBlock {
 /* Allocates a hull block for nverts vertices, nedges edges and nfaces faces and fills in its header (the table offsets are
    rounded up to 16, 2 and 4 byte boundaries), ready = 1.  Returns the block. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-MflHullBlock *rwp_capsule_00575230(int nverts, int nedges, int nfaces)
+MflHullBlock *rwp_hull_alloc(int nverts, int nedges, int nfaces)
 {
   int o1, o2, o3, o4;
   volatile int o5, total;

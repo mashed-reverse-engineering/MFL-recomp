@@ -1,3 +1,4 @@
+/* rwp_box_extent_in_frame (0x0056f760): extent of a box along the axes of a matrix */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -6,7 +7,7 @@
    Half sizes / centre are rounded to frame floats like the original (volatile: overflow / denormal results differ
    in a register), the y half size and the sums kept on the x87 stack are doubles. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_math_0056f760(float *out, float *box, float *m)
+void rwp_box_extent_in_frame(float *out, float *box, float *m)
 {
   double acc;
   volatile float hx, hz, cx, cy, cz; float ex, ey, d0, d1;

@@ -1,9 +1,10 @@
+/* rwp_line_closest_param (0x00588280): parameter of the point of a line closest to a point, clamped */
 #include "mfl_tier2.h"
 
 /* Parameter t of the point of the line `origin + t * dir` closest to `point`, clamped to [t_min, t_max] (the
    bounds are scaled by |dir|^2 so the division is only done for the unclamped case); out = origin + t * dir. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_aggregate_00588280(RwV3d *origin, RwV3d *dir, float t_min, float t_max, RwV3d *point, RwV3d *out)
+void rwp_line_closest_param(RwV3d *origin, RwV3d *dir, float t_min, float t_max, RwV3d *point, RwV3d *out)
 {
   float dd, dp, t;
   double dy, dz;

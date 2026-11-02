@@ -1,3 +1,4 @@
+/* rwp_shape_interval_along_dir (0x0056c8a0): interval of a shape along a world direction */
 #include "mfl_tier2.h"
 
 typedef struct MflShapeOps {
@@ -12,7 +13,7 @@ typedef struct MflShape {
 /* Interval [*lo, *hi] of a shape along the direction dir given in world space: dir is rotated into the frame of xf (when given) for the
    shape's own query (ops->support_interval), the result is shifted by the translation of xf along dir. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_sphere_0056c8a0(MflShape *shape, float *xf, float *dir, float *lo, float *hi)
+int rwp_shape_interval_along_dir(MflShape *shape, float *xf, float *dir, float *lo, float *hi)
 {
   float shift[2];
   float local[3];

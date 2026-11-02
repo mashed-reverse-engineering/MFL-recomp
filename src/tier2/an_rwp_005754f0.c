@@ -1,7 +1,8 @@
+/* rwp_body_extent_along_min_inertia_axis (0x005754f0): extent of a body along the axis of its smallest principal inertia */
 #include "mfl_tier2.h"
 
-/*00583f40*/ extern int rwp_convexhullmassprops_00583f40(void *body, float *a, float *m, float *b);
-/*0056ef10*/ extern int rwp_obj_0056ef10(float *out, float *m);
+/*00583f40*/ extern int rwp_hull_mass_props(void *body, float *a, float *m, float *b);
+/*0056ef10*/ extern int rwp_inertia_diagonalize(float *out, float *m);
 /*00557340*/ extern int RtQuatTransformVectors(float *out, float *in, int count, float *quat);
 /*00575670*/ extern float rwp_capsule_00575670(void *body, float *dir, float lo, float hi, float *extra);
 
@@ -10,7 +11,7 @@
    (the table 0x21312300 maps the three compare bits to 0, 1, 2), rotated into the world by the quaternion at body+0x74, and the support
    extent in both directions (575670, +dir and -dir) is added into body+0x58.  Marks body+0x88 |= 2 and returns the new flags. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_capsule_005754f0(unsigned char *body)
+int rwp_body_extent_along_min_inertia_axis(unsigned char *body)
 {
   float m[9], axis[3], dir[3], extra;
   float *pv = (float *)(body + 0x68);
@@ -18,8 +19,8 @@ int rwp_capsule_005754f0(unsigned char *body)
   float y, z, r1, r2;
   int c1, c2, c3, a, flags;
 
-  rwp_convexhullmassprops_00583f40(body, (float *)(body + 0x5c), m, (float *)(body + 0x54));
-  rwp_obj_0056ef10(pv, m);
+  rwp_hull_mass_props(body, (float *)(body + 0x5c), m, (float *)(body + 0x54));
+  rwp_inertia_diagonalize(pv, m);
   x = pv[0] * -1.0f;
   y = pv[1] * -1.0f;
   z = pv[2] * -1.0f;

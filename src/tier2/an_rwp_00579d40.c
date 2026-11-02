@@ -1,15 +1,16 @@
+/* rwp_solver_row_update_clamped (0x00579d40): one clamped row update of the solver */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
 /* The 0x88 byte argument block (34 dwords) that the row solver functions take by value and pass on unchanged. */
 
-extern void rwp_batch_0057a540(float *acc, int a4, int a5, MflSolveByVal34 blk, float delta, int idx);
+extern void rwp_solver_apply_multiplier_delta(float *acc, int a4, int a5, MflSolveByVal34 blk, float delta, int idx);
 
 /* One clamped row update of the solver: lambda = clamp(hi - lo, min, max) is stored in lam[idx] (idx = *row + 4 * *col), the two flag arrays
    get 0.0 when lambda sits on the lower / upper limit and 1.0 otherwise, the row solver 57a540 is run with the change (lambda - hi) and the
    accumulator entry acc[idx] gets (scale * weight + bias) * change added. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_00579d40(int *col, int *row, float *acc, int a4, int a5, float *at_lo, int a7, int a8, float *at_hi, int a10,
+void rwp_solver_row_update_clamped(int *col, int *row, float *acc, int a4, int a5, float *at_lo, int a7, int a8, float *at_hi, int a10,
                         int a11, float *lam, int a13, int a14, MflSolveByVal34 blk, int a49, int a50, int a51, int a52, int a53, int a54, float lo, float lim_min, float lim_max,
                         float hi, float scale, float bias, float weight)
 {
@@ -23,6 +24,6 @@ void rwp_batch_00579d40(int *col, int *row, float *acc, int a4, int a5, float *a
   if (d == lim_max) at_hi[*row + *col * 4] = 0; else at_hi[*row + *col * 4] = 1.0f;
   lim_min = d - hi;
   idx = *row + *col * 4;
-  rwp_batch_0057a540(acc, a4, a5, blk, lim_min, idx);
+  rwp_solver_apply_multiplier_delta(acc, a4, a5, blk, lim_min, idx);
   acc[*row + *col * 4] += (scale * weight + bias) * lim_min;
 }

@@ -1,3 +1,4 @@
+/* rwp_dynworld_memory_size (0x00569b30): number of bytes a world of a given size needs */
 #include "mfl_tier2.h"
 
 extern int rwp_capsule_005757d0(unsigned int a, unsigned int b);
@@ -16,7 +17,7 @@ typedef struct MflWorldDesc {
 /* Number of bytes of memory a world of the given size needs: the sum of the sub-allocations (per group 328 + 48 bytes, bodies rounded
    up to a multiple of 32, 160 per joint, 16 + 4/32 per set entry, 12 per body) plus a fixed 0xc11c. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-unsigned int rwp_mgr_00569b30(MflWorldDesc *d)
+unsigned int rwp_dynworld_memory_size(MflWorldDesc *d)
 {
   unsigned int total;
 

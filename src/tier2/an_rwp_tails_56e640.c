@@ -1,6 +1,7 @@
+/* rwp_objdef_* (0x0056e640): physics object parameter block: defaults, flag/limit setters and solver interior-pointer accessors */
 #include "mfl_tier2.h"
 /* Physics (Rwp) object parameter block: 0xb4 bytes from the RenderWare memory functions.  Only the fields the functions below touch
-   are named.  Defaults written by rwp_obj_0056e670: reference count 1, 1.0f in four slots, flags 0x38, cos(pi / 8) in six slots and
+   are named.  Defaults written by rwp_objdef_set_defaults: reference count 1, 1.0f in four slots, flags 0x38, cos(pi / 8) in six slots and
    "unbounded" limits (1e30f, with FLT_MAX in every third word) in the tail. */
 struct RwpObjDef {
   int refCount;       /* 0x00 */
@@ -25,23 +26,23 @@ struct RwpObjDef {
 #define RWP_UNBOUNDED 0x7149f2ca            /* 1e30f */
 #define RWP_FLT_MAX 0x7f7fffff
 #define BITS(f, v) (*(int *)&(f) = (v))
-extern void rwp_obj_0056e670(struct RwpObjDef *def);
+extern void rwp_objdef_set_defaults(struct RwpObjDef *def);
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 extern double cos(double);
 #define RWP_DEFAULT_CONE_ANGLE 0.39269909262657166   /* pi / 8 */
 
 /* Allocates and initialises an object parameter block. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-struct RwpObjDef *rwp_obj_0056e640(void)
+struct RwpObjDef *rwp_objdef_create(void)
 {
   struct RwpObjDef *def = (struct RwpObjDef *)RwMalloc(RWP_OBJ_DEF_SIZE, RWP_MEM_HINT);
-  rwp_obj_0056e670(def);
+  rwp_objdef_set_defaults(def);
   return def;
 }
 
 /* Sets every field of a fresh parameter block to its default. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e670(struct RwpObjDef *def)
+void rwp_objdef_set_defaults(struct RwpObjDef *def)
 {
   float cone = (float)cos(RWP_DEFAULT_CONE_ANGLE);
   int i;
@@ -80,80 +81,80 @@ void rwp_obj_0056e670(struct RwpObjDef *def)
 
 /* Sets the flag word. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e770(struct RwpObjDef *def, int flags)
+void rwp_objdef_set_flags(struct RwpObjDef *def, int flags)
 {
   def->flags = flags;
 }
 
 /* Address of the first (ordinary) or the second (alternate) float triple. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_obj_0056e780(struct RwpObjDef *def, int alternate)
+float *rwp_objdef_get_vec3(struct RwpObjDef *def, int alternate)
 {
   return alternate ? def->f20 : def->f04;
 }
 
 /* Interior pointers handed to the solver: the objects they belong to are not typed yet. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_obj_0056e7a0(char *obj)
+float *rwp_obj_vec_at_40(char *obj)
 {
   return (float *)(obj + 0x40);
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_obj_0056e7b0(char *obj)
+float *rwp_obj_vec_at_54(char *obj)
 {
   return (float *)(obj + 0x54);
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_obj_0056e800(char *obj)
+float *rwp_obj_vec_at_14(char *obj)
 {
   return (float *)(obj + 0x14);
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_obj_0056e810(char *obj)
+float *rwp_obj_vec_at_20(char *obj)
 {
   return (float *)(obj + 0x20);
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_obj_0056e820(char *obj)
+float *rwp_obj_vec_at_2c(char *obj)
 {
   return (float *)(obj + 0x2c);
 }
 
 /* Plain setters of the first three floats / the first word of a small parameter record. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e7c0(float *rec, float v)
+void rwp_param_set_x(float *rec, float v)
 {
   rec[0] = v;
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e7d0(float *rec, float v)
+void rwp_param_set_y(float *rec, float v)
 {
   rec[1] = v;
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e7e0(float *rec, float v)
+void rwp_param_set_z(float *rec, float v)
 {
   rec[2] = v;
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e7f0(int *rec, int v)
+void rwp_param_set_word0(int *rec, int v)
 {
   rec[0] = v;
 }
 
 /* Cone limit setters: the record keeps cos(angle / 2) (angle in radians). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e830(float *rec, float angle)
+void rwp_param_set_cone_cos_2(float *rec, float angle)
 {
   rec[2] = (float)cos(angle * 0.5f);
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e850(float *rec, float angle)
+void rwp_param_set_cone_cos_3(float *rec, float angle)
 {
   rec[3] = (float)cos(angle * 0.5f);
 }
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_obj_0056e870(float *rec, float angle)
+void rwp_param_set_cone_cos_4(float *rec, float angle)
 {
   rec[4] = (float)cos(angle * 0.5f);
 }

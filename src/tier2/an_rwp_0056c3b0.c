@@ -1,3 +1,4 @@
+/* rwp_shape_segment_cast (0x0056c3b0): cast a segment against a shape (into its frame when it has none) */
 #include "mfl_tier2.h"
 
 /*004d3cd0*/ extern RwMatrix * RwMatrixMultiply(RwMatrix *p0, RwMatrix *p1, RwMatrix *p2);
@@ -8,9 +9,9 @@
    hit point (hit[1..3]) and normal (hit[4..6]) are moved back by that matrix.  Returns the query result.  The vector temporaries
    are frame floats (an array keeps them rounded and in memory like the original). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_sphere_0056c3b0(void *o, void *other, float *p0, float *p1, float *hit)
+int rwp_shape_segment_cast(void *o, void *other, float *p0, float *p1, float *hit)
 {
-  float buf[13];
+  float buf[16];
   float v[7];
   float *m;
   float *a, *b;

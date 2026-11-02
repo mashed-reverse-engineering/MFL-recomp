@@ -1,3 +1,4 @@
+/* rwp_narrowphase_entries (0x00583d20): narrow phase for a list of broad phase entries */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -50,7 +51,7 @@ typedef struct MflShapeObj {
 extern void rwp_sphere_0056c350(void *obj, int a, int b, float *box);
 extern int rwp_volume_0056b180(void *owner, void *shape, float *box);
 extern int rwp_aggregate_00586300(MflAggCtx *ctx, MflAggHandle *h, MflAggBox *src, MflAggBox *one, MflAggBox *ref, void *extra);
-extern unsigned int rwp_aggregate_00586ce0(MflAggCtx *ctx, unsigned int split, unsigned int n_inner, void *f_id, int f_obj);
+extern unsigned int rwp_item_pairs_generate(MflAggCtx *ctx, unsigned int split, unsigned int n_inner, void *f_id, int f_obj);
 extern int rwp_constraints_00583050(MflPhysWorld *w, MflPairRef *pair, void *info_a, void *info_b);
 
 /* Narrow phase for a list of n broad phase entries: for every entry the per-body slots (a map from the shape's 16 bit slot to a record, only
@@ -58,7 +59,7 @@ extern int rwp_constraints_00583050(MflPhysWorld *w, MflPairRef *pair, void *inf
    into the world's collector (586300 twice), the surviving pairs are produced by 586ce0 and each one is resolved by 583050.  Returns the sum of
    the 583050 results. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_convexhullmassprops_00583d20(MflPhysWorld *w, MflBroadEntry *entries, unsigned int n, unsigned short *slot_map, MflAggBox *recs,
+int rwp_narrowphase_entries(MflPhysWorld *w, MflBroadEntry *entries, unsigned int n, unsigned short *slot_map, MflAggBox *recs,
                                      int *infos, int a7)
 {
   int total = 0;
@@ -108,7 +109,7 @@ int rwp_convexhullmassprops_00583d20(MflPhysWorld *w, MflBroadEntry *entries, un
     if (!c1) continue;
     c2 = rwp_aggregate_00586300(agg, &e->b, rec_b, &box_b, &box_a, &e->a);
     if (!c2) continue;
-    np = rwp_aggregate_00586ce0(agg, c1, c2, e->filter, world->params->cap);
+    np = rwp_item_pairs_generate(agg, c1, c2, e->filter, world->params->cap);
     for (k = 0; k < np; k++)
       total += rwp_constraints_00583050(w, agg->pairs + k, info_a, info_b);
   }

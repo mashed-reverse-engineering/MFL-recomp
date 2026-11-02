@@ -1,3 +1,4 @@
+/* rwp_body_integrate_step (0x0057c530): one integration step of a body (orientation, position, rotation matrix) */
 #include "mfl_tier2.h"
 /* body set of the Rwp batch: parallel arrays indexed by the body number */
 typedef struct RwpQuat { float x, y, z, w; } RwpQuat;
@@ -13,15 +14,15 @@ typedef struct RwpBodySet {
   int pad1c[13];
   RwpQuat *axis;        /* 0x50 */
 } RwpBodySet;
-/*0057c230*/ extern int rwp_batch_0057c230(RwpQuat *quat, RwpQuat *axis, float angle);
-/*0057c390*/ extern int rwp_batch_0057c390(RwpQuat *quat, RwV3d *ang_vel, float dt);
+/*0057c230*/ extern int rwp_quat_rotate_axis_angle(RwpQuat *quat, RwpQuat *axis, float angle);
+/*0057c390*/ extern int rwp_quat_integrate_angular(RwpQuat *quat, RwV3d *ang_vel, float dt);
 /*004d3cc0*/ extern int RwMatrixUpdate(RwMatrix *m);
 
 /* One integration step of body `i`: removes the angular velocity component along the constraint axis (and
    rotates the orientation by it), integrates the orientation and the position over dt, and rebuilds the body's
    rotation matrix from the unit quaternion (R from q with s = 2 / |q|^2). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_batch_0057c530(RwpBodySet *b, int i, float dt)
+int rwp_body_integrate_step(RwpBodySet *b, int i, float dt)
 {
   RwMatrix *m = b->matrix + i;
   RwpBodyVel *vel = b->vel + i;
@@ -40,13 +41,13 @@ int rwp_batch_0057c530(RwpBodySet *b, int i, float dt)
     acc = acc + ax->z * w.z;
     d = acc;      /* stored to the frame as a float (the original spills here: overflow / denormals round) */
     acc = acc * dt;
-    rwp_batch_0057c230(q, ax, acc);
+    rwp_quat_rotate_axis_angle(q, ax, acc);
     nd = -d;
     w.x = nd * ax->x + w.x;
     w.y = ax->y * nd + w.y;
     w.z = ax->z * nd + w.z;
   }
-  rwp_batch_0057c390(q, &w, dt);
+  rwp_quat_integrate_angular(q, &w, dt);
   np.x = dt * vel->lin.x + m->pos.x;
   np.y = dt * vel->lin.y + m->pos.y;
   np.z = dt * vel->lin.z + m->pos.z;

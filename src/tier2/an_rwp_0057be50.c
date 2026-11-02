@@ -1,3 +1,4 @@
+/* rwp_broadphase_pairs (0x0057be50): broad phase: test listed objects against objects, append overlapping pairs */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -48,7 +49,7 @@ typedef struct MflBatchCtx {
    three axes, pair not yet marked in flt) and the overlapping pairs are appended to the pair table until it is full.  Returns the
    number of pairs added. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-unsigned int rwp_batch_0057be50(MflBatchCtx *ctx, MflObjB **objs, unsigned int n, MflPairFilter *flt)
+unsigned int rwp_broadphase_pairs(MflBatchCtx *ctx, MflObjB **objs, unsigned int n, MflPairFilter *flt)
 {
   MflPairStore *st = ctx->store;
   unsigned int start, i, j, bit_idx;

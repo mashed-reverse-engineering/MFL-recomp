@@ -1,3 +1,4 @@
+/* rwp_constraint_store (0x0057f8a0): store one constraint (27 words) into the constraint stream */
 #include "mfl_tier2.h"
 
 /* The constraint stream: constraint rows in a structure-of-arrays layout (rows of 16 words, one word per constraint in each of the
@@ -36,7 +37,7 @@ typedef struct MflConstraintState {
 
 /* Stores one constraint (27 words) into the slot (base + words[cursor]) of the stream's arrays and counts it in words[cursor]. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_constraints_0057f8a0(MflConstraintState *s, int *c)
+void rwp_constraint_store(MflConstraintState *s, int *c)
 {
   int k, idx;
   int *row;

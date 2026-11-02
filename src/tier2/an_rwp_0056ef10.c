@@ -1,7 +1,8 @@
+/* rwp_inertia_diagonalize (0x0056ef10): diagonalise a symmetric 3x3 inertia tensor into moments and an orientation quaternion */
 #include "mfl_tier2.h"
 
 extern int RtQuatConvertFromMatrix(void *quat, void *matrix);
-extern int rwp_obj_0056ebe0(float *m, float *v, int max_iterations, float eps);
+extern int rwp_jacobi_eigen_sweeps(float *m, float *v, int max_iterations, float eps);
 
 typedef struct MflMat3 { float f[9]; } MflMat3;
 /* A matrix as RenderWare lays it out: three rows of three floats and a pad word each. */
@@ -16,11 +17,11 @@ typedef struct MflPrincipal {
   float quat[4];   /* 0xc */
 } MflPrincipal;
 
-/* Diagonalises the symmetric 3x3 inertia tensor t with the Jacobi iteration rwp_obj_0056ebe0 (25 sweeps, eps 1e-6): the eigenvalues go to
+/* Diagonalises the symmetric 3x3 inertia tensor t with the Jacobi iteration rwp_jacobi_eigen_sweeps (25 sweeps, eps 1e-6): the eigenvalues go to
    out->moments and the eigenvector matrix (transposed into row form) is converted to the quaternion out->quat.  Returns 0 when the
    iteration failed, else 1. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_obj_0056ef10(MflPrincipal *out, MflMat3 *t)
+int rwp_inertia_diagonalize(MflPrincipal *out, MflMat3 *t)
 {
   MflMat3 m, v;
   MflRows3 rows;
@@ -30,7 +31,7 @@ int rwp_obj_0056ef10(MflPrincipal *out, MflMat3 *t)
   v.f[0] = 1.0f; v.f[1] = 0.0f; v.f[2] = 0.0f;
   v.f[3] = 0.0f; v.f[4] = 1.0f; v.f[5] = 0.0f;
   v.f[6] = 0.0f; v.f[7] = 0.0f; v.f[8] = 1.0f;
-  if (!rwp_obj_0056ebe0(m.f, v.f, 25, 1.0e-6f)) return 0;
+  if (!rwp_jacobi_eigen_sweeps(m.f, v.f, 25, 1.0e-6f)) return 0;
   rows.r0[0] = vi[0]; rows.r0[1] = vi[3]; rows.r0[2] = vi[6];
   rows.r1[0] = vi[1]; rows.r1[1] = vi[4]; rows.r1[2] = vi[7];
   rows.r2[0] = vi[2]; rows.r2[1] = vi[5]; rows.r2[2] = vi[8];

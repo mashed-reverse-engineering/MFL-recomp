@@ -1,10 +1,11 @@
+/* rwp_box_extent_in_frame_transposed (0x0056f5b0): extent of a box in the frame of a matrix (transposed variant) */
 #include "mfl_tier2.h"
 #include <math.h>
 
-/* Same as rwp_math_0056f760 with the matrix transposed (columns 0, 1, 2 of rows 0, 4, 8 swapped for rows): extent of the
+/* Same as rwp_box_extent_in_frame with the matrix transposed (columns 0, 1, 2 of rows 0, 4, 8 swapped for rows): extent of the
    box a2 = (max xyz, min xyz) in the frame of m; out[0..2] = centre + extent, out[4..6] = centre - extent. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_math_0056f5b0(float *out, float *box, float *m)
+void rwp_box_extent_in_frame_transposed(float *out, float *box, float *m)
 {
   double acc;
   volatile float hx, hz, cx, cy, cz;

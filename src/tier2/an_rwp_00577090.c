@@ -1,3 +1,4 @@
+/* rwp_shape_bounding_data_b (0x00577090): bounding data virtual method of the second aggregate shape type */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -20,7 +21,7 @@ extern float rwp_aggregate_00584960(int src_a, int src_b, MflExt7 *ext, MflAxis3
 /* Virtual method of the second aggregate shape type (same as 584820, other offsets): bounding data of the shape.  The radius is computed on first use (584960); the extent record (7 words)
    and the axis (3 words) are copied out, the radius is returned. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_grid_00577090(MflAggShape *s, MflExt7 *ext, MflAxis3 *axis)
+float rwp_shape_bounding_data_b(MflAggShape *s, MflExt7 *ext, MflAxis3 *axis)
 {
   MflAggData *d = s->data;
 

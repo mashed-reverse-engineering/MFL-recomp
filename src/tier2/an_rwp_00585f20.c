@@ -1,3 +1,4 @@
+/* rwp_contact_set_add_pair (0x00585f20): add the contact between the two bodies of a pair to the contact set */
 #include "mfl_tier2.h"
 /* Rwp collision: contact generation for one shape pair into the contact set (record layouts reconstructed from the code, unnamed bytes are padding) */
 typedef struct RwpPoint { float v[4]; } RwpPoint;
@@ -81,15 +82,15 @@ typedef struct RwpQuery {
   RwpQueryObj *obj;   /* 0x70 */
 } RwpQuery;
 #define SUM3(r, a, b, c) do { (r) = (a); (r) = (r) + (b); (r) = (r) + (c); } while (0)
-/*0058b450*/ extern int rwp_gjk_0058b450(void *shape, RwpPair *pair, float limit, RwpContact *c, float tol);
-/*005894f0*/ extern int rwp_aggregate_005894f0(void *shape, RwpPair *pair, float limit, RwpContact *c, float tol);
-/*00586200*/ extern int rwp_aggregate_00586200(RwpBodyRef *b, RwpBodyRef *a, RwV3d *normal, unsigned short *kind);
-/*0056c8a0*/ extern int rwp_sphere_0056c8a0(void *shape, RwMatrix *xf, RwV3d *dir, float *lo, float *hi);
+/*0058b450*/ extern int rwp_gjk_pair_test(void *shape, RwpPair *pair, float limit, RwpContact *c, float tol);
+/*005894f0*/ extern int rwp_pair_test_separating_axis(void *shape, RwpPair *pair, float limit, RwpContact *c, float tol);
+/*00586200*/ extern int rwp_face_direction(RwpBodyRef *b, RwpBodyRef *a, RwV3d *normal, unsigned short *kind);
+/*0056c8a0*/ extern int rwp_shape_interval_along_dir(void *shape, RwMatrix *xf, RwV3d *dir, float *lo, float *hi);
 
 /* Adds the contact between the two bodies of `pair` (distance <= limit) to the set; fails (0) when the set or the
    point pool is full or the narrow phase finds nothing. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggregate_00585f20(RwpContactSet *cs, RwpQuery *query, RwpPair *pair, float limit)
+int rwp_contact_set_add_pair(RwpContactSet *cs, RwpQuery *query, RwpPair *pair, float limit)
 {
   RwpContact *c;
   RwpBodyRef *a, *b;
@@ -108,9 +109,9 @@ int rwp_aggregate_00585f20(RwpContactSet *cs, RwpQuery *query, RwpPair *pair, fl
   c->points = cs->points + cs->points_used;
   lo = cs->tolerance;
   if ((pair->b->shape->material->flags | pair->a->shape->material->flags) & 0x10)
-    hit = rwp_gjk_0058b450(query->obj->shape, pair, limit, c, lo);
+    hit = rwp_gjk_pair_test(query->obj->shape, pair, limit, c, lo);
   else
-    hit = rwp_aggregate_005894f0(query->obj->shape, pair, limit, c, lo);
+    hit = rwp_pair_test_separating_axis(query->obj->shape, pair, limit, c, lo);
   if (!hit)
     return 0;
   if (!(c->distance <= limit))
@@ -150,7 +151,7 @@ int rwp_aggregate_00585f20(RwpContactSet *cs, RwpQuery *query, RwpPair *pair, fl
       SUM3(acc, xf->at.z * sa->dir.z, xf->right.z * sa->dir.x, xf->up.z * sa->dir.y);
       c->normal.z = acc;
       if (!(c->a_kind & 1)) {
-        rwp_sphere_0056c8a0(b->shape, b->xf, &c->normal, &lo, &hi);
+        rwp_shape_interval_along_dir(b->shape, b->xf, &c->normal, &lo, &hi);
         xf = a->xf;
         SUM3(centre, sa->center.y * sa->dir.y, sa->center.x * sa->dir.x, sa->center.z * sa->dir.z);
         SUM3(acc, xf->pos.y * c->normal.y, xf->pos.x * c->normal.x, xf->pos.z * c->normal.z);
@@ -175,6 +176,6 @@ int rwp_aggregate_00585f20(RwpContactSet *cs, RwpQuery *query, RwpPair *pair, fl
   c->b_f50 = sb->f50;
   c->b_kind = 0;
   if (c->b_flags & 0x40)
-    rwp_aggregate_00586200(pair->b, pair->a, &c->b_normal, &c->b_kind);
+    rwp_face_direction(pair->b, pair->a, &c->b_normal, &c->b_kind);
   return 1;
 }

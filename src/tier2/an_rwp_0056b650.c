@@ -1,3 +1,4 @@
+/* rwp_body_init (0x0056b650): initialise a body of a world from a description and optional start matrix */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -63,7 +64,7 @@ typedef struct MflBodyDesc {
   unsigned int flags;   /* 0x48 */
 } MflBodyDesc;
 
-extern int rwp_volume_0056ba70(MflBodyHandle *b, float *inertia);
+extern int rwp_body_store_world_inertia(MflBodyHandle *b, float *inertia);
 extern RwMatrix *RwMatrixTranslate(RwMatrix *m, void *v, int op);
 extern void RtQuatConvertFromMatrix(MflRow4 *q, float *m);
 
@@ -75,7 +76,7 @@ extern void RtQuatConvertFromMatrix(MflRow4 *q, float *m);
    the local offsets from the description, the start matrix (m or the identity) with its quaternion, the matrix translated by the local offset,
    the scaled inverse mass of the body and zeroed velocities.  Returns b. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-MflBodyHandle *rwp_volume_0056b650(MflBodyHandle *b, MflBodyOwner *owner, MflBodyDesc *desc, float *m)
+MflBodyHandle *rwp_body_init(MflBodyHandle *b, MflBodyOwner *owner, MflBodyDesc *desc, float *m)
 {
   double inv;
 
@@ -90,7 +91,7 @@ MflBodyHandle *rwp_volume_0056b650(MflBodyHandle *b, MflBodyOwner *owner, MflBod
       inv = sqrt(desc->mass2);
       TAB->inv_mass[IDX].f[11] = 1.0f / inv;
     } else {
-      rwp_volume_0056ba70(b, desc->inertia);
+      rwp_body_store_world_inertia(b, desc->inertia);
     }
     b->damp_lin = desc->damp_lin;
     b->damp_ang = desc->damp_ang;

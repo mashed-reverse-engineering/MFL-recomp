@@ -1,3 +1,4 @@
+/* rwp_aggregate_vslot_get_hull_words (0x005847e0): aggregate shape virtual method returning four hull words */
 #include "mfl_tier2.h"
 
 typedef struct MflAggData {
@@ -16,7 +17,7 @@ typedef struct MflAggShape {
 /* Virtual method of the aggregate shape: when its data has the bit 8 flag and a hull, copies the four words at 0x28 to `out` and returns `out`,
    otherwise returns 0. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int *rwp_aggregate_005847e0(MflAggShape *s, int *out)
+int *rwp_aggregate_vslot_get_hull_words(MflAggShape *s, int *out)
 {
   MflAggData *d = s->data;
 

@@ -1,3 +1,4 @@
+/* rwp_jacobi_eigen_sweeps (0x0056ebe0): cyclic Jacobi sweeps on a symmetric 3x3 matrix */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -8,7 +9,7 @@ extern void rwp_obj_0056ee50(float *m, int i, int j, float c, float s);
    (angle from the diagonal difference), applied to the eigenvector matrix v (set to the identity first) and to a. Returns the number of
    sweeps left. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_obj_0056ebe0(float *a, float *v, int maxit, float tol)
+int rwp_jacobi_eigen_sweeps(float *a, float *v, int maxit, float tol)
 {
   float tol2 = tol * tol;
   volatile float cs[2], crd;      /* cosine, sine: frame floats (the original stores the cosine and forms the sine from the stored, rounded value) */

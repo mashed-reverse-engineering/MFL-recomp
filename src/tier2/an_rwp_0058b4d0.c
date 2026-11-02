@@ -1,3 +1,4 @@
+/* rwp_triangle_bounding_sphere (0x0058b4d0): bounding sphere of a triangle */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -5,7 +6,7 @@
    the centroid goes to out[0..2], out[3] = distance of the vertex selected by the ordering of the three squared distances
    (table lookup) plus the margin.  Returns out. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float *rwp_triangle_0058b4d0(float *s, float *out)
+float *rwp_triangle_bounding_sphere(float *s, float *out)
 {
   double o0, o1, o2, t0, t1, t2, acc;
   float d[3], t2c;

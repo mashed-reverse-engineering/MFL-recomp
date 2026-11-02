@@ -1,3 +1,4 @@
+/* rwp_shape_reset_identity (0x0056c950): reset a shape object to the identity frame and set its vtable */
 #include "mfl_tier2.h"
 
 /* A shape object: orientation rows, position, flags, two scale factors and the vtable at 0x5c. */
@@ -18,7 +19,7 @@ typedef struct MflShapeObj {
 
 /* Resets a shape object to the identity frame at the origin (flags |= 0x20003, scales 0.2) and sets its vtable. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_sphere_0056c950(MflShapeObj *o, void *ops)
+void rwp_shape_reset_identity(MflShapeObj *o, void *ops)
 {
   o->f4c = 0.0f;
   o->s5a = 0;

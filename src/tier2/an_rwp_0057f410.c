@@ -1,9 +1,10 @@
+/* rwp_mat3_triple_product (0x0057f410): 3x3 rotation product p = lhs * rhs, dst = p * rhs^T */
 #include "mfl_tier2.h"
 #define SUM3(r, a, b, c) do { (r) = (a); (r) = (r) + (b); (r) = (r) + (c); } while (0)
 /* 3x3 rotation product: p = lhs * rhs, dst = p * rhs^T (all three rows; translation row and flags of dst are untouched).
    Each dot product is summed in the order written (see SUM3). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057f410(RwMatrix *dst, RwMatrix *lhs, RwMatrix *rhs)
+void rwp_mat3_triple_product(RwMatrix *dst, RwMatrix *lhs, RwMatrix *rhs)
 {
   float p[9];
   double acc;

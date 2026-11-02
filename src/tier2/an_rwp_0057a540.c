@@ -1,3 +1,4 @@
+/* rwp_solver_apply_multiplier_delta (0x0057a540): apply one multiplier change to the body accumulators of a constraint */
 #include "mfl_tier2.h"
 
 typedef struct MflRowPair {
@@ -25,7 +26,7 @@ typedef struct MflRowSetByVal34 {
    delta are accumulated into the float4 of every row of both bodies:  acc[slot[j]] += sum over the six float4 of row j (v[g] * row[g]),
    with v[g] = delta * selrow[g][lane].  The scalar version of 57ae50. */
 /* TIER2: unvalidated 2026-10-31 authority=static */
-void rwp_batch_0057a540(float *acc, int a2, int a3, MflRowSetByVal34 s, float delta, int idx)
+void rwp_solver_apply_multiplier_delta(float *acc, int a2, int a3, MflRowSetByVal34 s, float delta, int idx)
 {
   int w = idx / 4;
   int lane = idx % 4;

@@ -1,3 +1,4 @@
+/* rwp_rows_add_weighted (0x0057cf90): add weighted rows of one 8-float-per-row table into another */
 #include "mfl_tier2.h"
 
 /* Row i of two 8-float-per-row tables: A[0..2] += sum_j B[16j + 0..2] * w[j] and A[4..6] += sum_j B[16j + 4..6] * w[j]
@@ -5,7 +6,7 @@
    volatile floats, the ones it keeps on the x87 stack are doubles (an unrounded partial sum differs from the spilled one
    in overflow cases). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057cf90(int a1, int a2, float *w, int i)
+void rwp_rows_add_weighted(int a1, int a2, float *w, int i)
 {
   float *A = (float *)(a1 + (i << 5));
   float *B = (float *)(a2 + (i << 5));

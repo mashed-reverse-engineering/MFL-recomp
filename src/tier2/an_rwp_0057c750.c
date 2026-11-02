@@ -1,8 +1,9 @@
+/* rwp_bodies_integrate_list (0x0057c750): integrate orientation and position of the listed bodies over dt */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
-extern void rwp_batch_0057c230(float *q, float *axis, float angle);
-extern void rwp_batch_0057c390(float *q, float *omega, float dt);
+extern void rwp_quat_rotate_axis_angle(float *q, float *axis, float angle);
+extern void rwp_quat_integrate_angular(float *q, float *omega, float dt);
 extern RwMatrix *RwMatrixUpdate(RwMatrix *m);
 
 /* A list of body indices. */
@@ -13,7 +14,7 @@ extern RwMatrix *RwMatrixUpdate(RwMatrix *m);
    that component is removed from omega.  The quaternion is then integrated by omega (57c390) and written as the rotation of the 4x4 matrix
    mats[index] (flags 3), whose position becomes velocity * dt added to the position it had. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057c750(float *mats, int a2, float *quats, int a4, float *recs, MflIndexList *list, float *axes, int a8,
+void rwp_bodies_integrate_list(float *mats, int a2, float *quats, int a4, float *recs, MflIndexList *list, float *axes, int a8,
                         unsigned char *flags, int a10, float dt)
 {
   unsigned int i;
@@ -37,13 +38,13 @@ void rwp_batch_0057c750(float *mats, int a2, float *quats, int a4, float *recs, 
       dot = dot + ax[0] * b[0];
       dot = dot + ax[2] * b[2];
       t = dot;
-      rwp_batch_0057c230(quats + idx * 4, ax, dot * dt);
+      rwp_quat_rotate_axis_angle(quats + idx * 4, ax, dot * dt);
       b[0] = b[0] - t * ax[0];
       b[1] = b[1] - t * ax[1];
       b[2] = b[2] - t * ax[2];
     }
     q = quats + idx * 4;
-    rwp_batch_0057c390(q, b, dt);
+    rwp_quat_integrate_angular(q, b, dt);
     m = mats + idx * 16;
     oldpos = *(MflV3 *)(m + 12);
     s = q[0] * q[0];

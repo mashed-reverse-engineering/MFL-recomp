@@ -1,8 +1,9 @@
+/* rwp_gjk_separation_query (0x0058b040): separation query for a pair of bodies */
 #include "mfl_tier2.h"
 
-/*0056c5d0*/ extern float *rwp_sphere_0056c5d0(void *shape, float *xf, float *dir, float *out);
-/*0058a8f0*/ extern int rwp_aggchildren_0058a8f0(void *pair, RwV3d *dir, float t, float *contacts, RwV3d *point, float *out_a, float *out_depth, float step);
-/*0058ad00*/ extern float rwp_gjk_0058ad00(void *pair, float *dir);
+/*0056c5d0*/ extern float *rwp_shape_support_point_world(void *shape, float *xf, float *dir, float *out);
+/*0058a8f0*/ extern int rwp_gjk_closest_simplex(void *pair, RwV3d *dir, float t, float *contacts, RwV3d *point, float *out_a, float *out_depth, float step);
+/*0058ad00*/ extern float rwp_gjk_separating_direction(void *pair, float *dir);
 
 typedef struct RwpMat { unsigned short kind; } RwpMat;
 typedef struct RwpShp {
@@ -19,11 +20,11 @@ typedef struct RwpBody {
 } RwpBody;
 
 /* Separation query for a pair of bodies (pair[0], pair[1]): a sphere-like shape (material kind 1) is answered directly from the support point of
-   the other shape; otherwise the direction n from rwp_gjk_0058ad00 is searched for the contact distance with at most four rounds of
-   bracketing (t between lo and hi) around rwp_aggchildren_0058a8f0.  *pa receives the mid point and *pb the distance (both relative to the radii).
+   the other shape; otherwise the direction n from rwp_gjk_separating_direction is searched for the contact distance with at most four rounds of
+   bracketing (t between lo and hi) around rwp_gjk_closest_simplex.  *pa receives the mid point and *pb the distance (both relative to the radii).
    Returns 0 when no contact was found, 1 otherwise. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_gjk_0058b040(int unused, RwpBody **pair, float margin, float *dir, float *pa, float *pb, float step)
+int rwp_gjk_separation_query(int unused, RwpBody **pair, float margin, float *dir, float *pa, float *pb, float step)
 {
   double acc0;
   RwpBody *b1 = pair[0], *b2 = pair[1];
@@ -40,7 +41,7 @@ int rwp_gjk_0058b040(int unused, RwpBody **pair, float margin, float *dir, float
     dir[0] = -b1->xf[8];
     dir[1] = -b1->xf[9];
     dir[2] = -b1->xf[10];
-    rwp_sphere_0056c5d0(b2->shape, b2->xf, dir, sup);
+    rwp_shape_support_point_world(b2->shape, b2->xf, dir, sup);
     acc0 = dir[1] * sup[1];
     acc0 = acc0 + sup[0] * dir[0];
     acc0 = acc0 + dir[2] * sup[2];
@@ -52,7 +53,7 @@ int rwp_gjk_0058b040(int unused, RwpBody **pair, float margin, float *dir, float
     dir[0] = b2->xf[8];
     dir[1] = b2->xf[9];
     dir[2] = b2->xf[10];
-    rwp_sphere_0056c5d0(b1->shape, b1->xf, dir, sup);
+    rwp_shape_support_point_world(b1->shape, b1->xf, dir, sup);
     acc0 = dir[1] * sup[1];
     acc0 = acc0 + sup[0] * dir[0];
     acc0 = acc0 + dir[2] * sup[2];
@@ -64,7 +65,7 @@ int rwp_gjk_0058b040(int unused, RwpBody **pair, float margin, float *dir, float
   *pb = B - A;
   return 1;
 L_58b1a6:;
-  d_a = rwp_gjk_0058ad00(pair, n);
+  d_a = rwp_gjk_separating_direction(pair, n);
   f4 = step * 0.01f;
   if (d_a > f4) f4 = f4 + d_a;
   hi = f4;
@@ -78,7 +79,7 @@ L_58b1a6:;
     sup[0] = n[0] * t;
     sup[1] = n[1] * t;
     sup[2] = n[2] * t;
-    if (rwp_aggchildren_0058a8f0(pair, supv, limit + t, rest, ptv, &d_a, &depth, step) && depth > 0.0f) {
+    if (rwp_gjk_closest_simplex(pair, supv, limit + t, rest, ptv, &d_a, &depth, step) && depth > 0.0f) {
       hi = t;
       found = 1;
       dir[0] = pt[0];

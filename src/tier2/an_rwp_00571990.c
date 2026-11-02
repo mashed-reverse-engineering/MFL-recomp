@@ -1,3 +1,4 @@
+/* rwp_groups_mark_sleepable (0x00571990): flag groups whose bodies, contacts and joints touch no wanted body as sleepable */
 #include "mfl_tier2.h"
 
 #define BIT_TEST(bits, id) ((bits)[(id) >> 5] & (1 << ((id) & 0x1f)))
@@ -74,7 +75,7 @@ extern int rwp_batch_00578310(void *a, int *d8, int dc, int e0, int w74, int w78
 /* Marks every group whose bodies, contacts and joints touch no wanted body (bit set 0x5c of the body's owner) with flag bit 0 (= "can sleep / is static"):
    the flag is cleared first, set again only when the scan finds nothing wanted.  Runs 578310 on the world first.  Returns the world. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-MflIslWorld *rwp_pipeline_00571990(MflIslWorld *w)
+MflIslWorld *rwp_groups_mark_sleepable(MflIslWorld *w)
 {
   unsigned int i, j;
   MflIslGroup *g;

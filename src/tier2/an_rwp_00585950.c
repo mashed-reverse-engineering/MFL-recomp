@@ -1,3 +1,4 @@
+/* rwp_shape_pair_contact (0x00585950): contact between the two shapes of a pair */
 #include "mfl_tier2.h"
 
 /* One of the two shapes of a contact pair (0x80 bytes, only the fields used here). */
@@ -49,7 +50,7 @@ typedef struct MflHit {
   unsigned short pad_ce;
 } MflHit;
 
-extern int rwp_aggregate_00586f20(int id_a, int type_a, int id_b, int type_b, float diff, int v10c, float *pos, float *margin, int *kind_a,
+extern int rwp_ring_closest_features(int id_a, int type_a, int id_b, int type_b, float diff, int v10c, float *pos, float *margin, int *kind_a,
                                   int *kind_b, MflShapePair *pair, float *res);
 extern void rwp_aggregate_00585170(MflShapePair *pair, float *res, unsigned int count, float limit, float sum, MflHit *out);
 
@@ -57,7 +58,7 @@ extern void rwp_aggregate_00585170(MflShapePair *pair, float *res, unsigned int 
    `limit` or nothing was found, fills in the result (point, shape ids, the smaller lower bounds, shape kinds 0 point / 1 type 2 / 2 other),
    lets 585170 build the contact records and flips the contact normal to the oriented shape's side.  Returns 1 when a contact was found. */
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-int rwp_aggregate_00585950(MflShapePair *p, float limit, MflHit *out)
+int rwp_shape_pair_contact(MflShapePair *p, float limit, MflHit *out)
 {
   float sum, diff, marg;
   int kind_a, kind_b;
@@ -72,7 +73,7 @@ int rwp_aggregate_00585950(MflShapePair *p, float limit, MflHit *out)
   marg = p->margin + sum;
   kind_a = ta == 1 ? 0 : (ta != 2) + 1;
   kind_b = tb == 1 ? 0 : (tb != 2) + 1;
-  count = rwp_aggregate_00586f20(p->a.id, ta, p->b.id, tb, diff, p->v10c, p->pos, &marg, &kind_a, &kind_b, p, res);
+  count = rwp_ring_closest_features(p->a.id, ta, p->b.id, tb, diff, p->v10c, p->pos, &marg, &kind_a, &kind_b, p, res);
   if (marg - sum > limit) return 0;
   if (count < 1) return 0;
   out->point[0] = p->pos[0];

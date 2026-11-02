@@ -1,3 +1,4 @@
+/* rwp_item_pairs_generate (0x00586ce0): pair generation between outer and inner items with filters */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -41,7 +42,7 @@ typedef struct MflBroadCtx {
    or the boxes are apart by more than the tolerance on an axis (the same box always counts as overlapping).  The pairs go to ctx->out until
    ctx->capacity is reached (ctx->full is set); ctx->count receives the number of pairs.  Returns that number. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-unsigned int rwp_aggregate_00586ce0(MflBroadCtx *ctx, unsigned int split, unsigned int n_inner, MflPairFilter *f_id, MflPairFilter *f_obj)
+unsigned int rwp_item_pairs_generate(MflBroadCtx *ctx, unsigned int split, unsigned int n_inner, MflPairFilter *f_id, MflPairFilter *f_obj)
 {
   unsigned int n = 0, i, j, idx;
   MflItem *a = ctx->items, *b;

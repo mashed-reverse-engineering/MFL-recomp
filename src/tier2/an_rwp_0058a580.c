@@ -1,6 +1,7 @@
+/* rwp_simplex_subset_determinants (0x0058a580): update simplex subset determinants for the vertex just added */
 #include "mfl_tier2.h"
 
-/* The simplex of the distance search (see rwp_aggchildren_0058a8f0): the table of dot products gram and the determinants lam
+/* The simplex of the distance search (see rwp_gjk_closest_simplex): the table of dot products gram and the determinants lam
    of every vertex subset (the weights of the subset's closest point), plus the mask / slot / bit state. */
 typedef struct MflSimplex {
   float vert[4][6];
@@ -15,7 +16,7 @@ typedef struct MflSimplex {
 /* Updates the subset determinants for the vertex just added (slot, bit): the Johnson / Cramer recursion of the GJK distance
    subalgorithm.  With all four vertices in use (mask | bit == 15) the four weights of the full subset are summed up at the end. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_aggchildren_0058a580(MflSimplex *sx)
+void rwp_simplex_subset_determinants(MflSimplex *sx)
 {
   double acc;
   int slot = sx->slot, bit = sx->bit;

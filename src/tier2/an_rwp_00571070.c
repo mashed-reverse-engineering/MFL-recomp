@@ -1,3 +1,4 @@
+/* rwp_world_layout_sizes (0x00571070): lay out the memory block of a physics world (sizes and offsets) */
 #include "mfl_tier2.h"
 
 extern int rwp_pipeline_00570f20(void *w);
@@ -8,7 +9,7 @@ extern int rwp_batch_005792f0(void *w);
 extern int rwp_grid_00577ce0(void *w);
 extern int rwp_grid_00577970(void *w);
 
-/* The sizes of a world description (counts in n..) and the byte offsets of its parts (o..) filled in by rwp_pipeline_00571070. */
+/* The sizes of a world description (counts in n..) and the byte offsets of its parts (o..) filled in by rwp_world_layout_sizes. */
 typedef struct MflWorldLayout {
   unsigned int flags;   /* 0x0 feature flags (a bit set */
   unsigned char pad04[0x4];
@@ -43,7 +44,7 @@ typedef struct MflWorldLayout {
 /* Lays out the memory block of a physics world: every part not excluded by a feature flag gets a 16 byte aligned size, stored as
    offset / size field in the description, and the sum of all sizes is returned. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_pipeline_00571070(MflWorldLayout *w)
+int rwp_world_layout_sizes(MflWorldLayout *w)
 {
   int total, a, b, c, d, e, n;
   unsigned int f;

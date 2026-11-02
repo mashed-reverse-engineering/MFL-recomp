@@ -1,14 +1,15 @@
+/* rwp_polygon_closest_point (0x00588350): closest point of a polygon outline to a point */
 #include "mfl_tier2.h"
 
-/*00588280*/ extern int rwp_aggregate_00588280(float *origin, float *dir, float t_min, float t_max, float *point, float *out);
+/*00588280*/ extern int rwp_line_closest_param(float *origin, float *dir, float t_min, float t_max, float *point, float *out);
 
 /* Closest point of the polygon outline poly[0..n-1] (16 byte vertices, xyz first) to the point p, for a point lying (nearly)
    in the plane with normal nrm: picks the edge whose side test (edge . (d x nrm), d = p - vertex) is non-negative and has the
    largest squared distance ratio (T^2 / |edge|^2, compared by cross multiplication against the running best), stores its
-   index in *edge and returns the segment query rwp_aggregate_00588280 on it (out = closest point).  When no edge qualifies
+   index in *edge and returns the segment query rwp_line_closest_param on it (out = closest point).  When no edge qualifies
    (*edge == n, the point is inside), out = p projected onto the plane through poly[0] and the return value is 2. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_aggregate_00588350(float *poly, unsigned n, float *nrm, float *p, float *out, unsigned *edge)
+int rwp_polygon_closest_point(float *poly, unsigned n, float *nrm, float *p, float *out, unsigned *edge)
 {
   unsigned i, next, k;
   float best_score, best_len2, len2;
@@ -65,5 +66,5 @@ int rwp_aggregate_00588350(float *poly, unsigned n, float *nrm, float *p, float 
   e[0] = w[0] - v[0];
   e[1] = w[1] - v[1];
   e[2] = w[2] - v[2];
-  return rwp_aggregate_00588280(v, e, 0.0f, 1.0f, p, out);
+  return rwp_line_closest_param(v, e, 0.0f, 1.0f, p, out);
 }

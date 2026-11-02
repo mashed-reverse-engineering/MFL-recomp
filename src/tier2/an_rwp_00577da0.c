@@ -1,3 +1,4 @@
+/* rwp_solver_work_carve_step2 (0x00577da0): carve the work arrays of the second solver step out of the work area */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -89,7 +90,7 @@ typedef struct MflStepArrays3 {
 /* Carves the work arrays of the second solver step out of the work area: a5 rows, a6 / a7 / a8 element counts.  Like 577a00, every array takes its size
    rounded up to 16 bytes in turn, an array that would pass the total reserved size is left 0, and the strides / counts are stored next to the pointers. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_00577da0(MflWorkArea *area, MflStepArrays2 *t2, MflStepArrays3 *t3, MflWorkBase *wb, int a5, int a6, int a7, int a8)
+void rwp_solver_work_carve_step2(MflWorkArea *area, MflStepArrays2 *t2, MflStepArrays3 *t3, MflWorkBase *wb, int a5, int a6, int a7, int a8)
 {
   int q = a5 / 4;
   int A = al16(a5 * 4);

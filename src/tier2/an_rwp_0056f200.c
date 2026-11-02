@@ -1,3 +1,4 @@
+/* rwp_triangle_incircle (0x0056f200): incentre and inradius of a triangle */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -5,7 +6,7 @@
    out[3] = area / half perimeter (Heron).  Returns the longest side.  The side lengths of a4a2 and a2a3 and the area are
    rounded to frame floats (volatile); the first side stays a double on the x87 stack. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_math_0056f200(float *out, float *a2, float *a3, float *a4)
+float rwp_triangle_incircle(float *out, float *a2, float *a3, float *a4)
 {
   double acc, s, guard, r, k, len_bc, len_ab_d;
   volatile float len_ca, len_ab, area;

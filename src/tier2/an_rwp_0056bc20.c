@@ -1,3 +1,4 @@
+/* rwp_body_add_force_at_point (0x0056bc20): apply a force at a world point (linear and angular accumulators) */
 #include "mfl_tier2.h"
 
 /* Per body accumulator: linear and angular parts (two float3 padded to 4 floats). */
@@ -26,7 +27,7 @@ typedef struct MflBodyRef {
 /* Applies the force f at the world point p to the body: the force is added to the body's linear accumulator and the torque (p - position) x f to
    its angular accumulator. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_volume_0056bc20(MflBodyRef *b, float *f, float *p)
+void rwp_body_add_force_at_point(MflBodyRef *b, float *f, float *p)
 {
   float *pos;
   float t[2];

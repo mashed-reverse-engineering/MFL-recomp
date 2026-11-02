@@ -1,3 +1,4 @@
+/* rwp_pair_table_pick_best_direction (0x00579680): pick the best pair table entry per contact record from the hash buckets */
 #include "mfl_tier2.h"
 
 /* An entry of the surface pair table: the two ids, a direction (0x14), a result value (0x20) and the next entry of the bucket. */
@@ -54,7 +55,7 @@ typedef struct MflContactSet {
    hash bucket of the object's two surface ids (in either order), the one whose direction has the largest projection on the object's
    normal and stores its value in the object (0 when none). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-MflPairHash *rwp_batch_00579680(MflPairHash *h, MflContactSet *cs)
+MflPairHash *rwp_pair_table_pick_best_direction(MflPairHash *h, MflContactSet *cs)
 {
   unsigned int i, e1, e2, k;
   MflContactRec *rec;

@@ -1,3 +1,4 @@
+/* rwp_world_deactivate_object (0x0056a4b0): unregister a body from the world and reset it */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -7,7 +8,7 @@ extern int rwp_farfield_00576c50(void *space, unsigned int id);
    clears the id from the used / wanted / second bit sets, from the space (576c50) when registered there, empties the id slot and resets the
    body (id 0xffff, no owner).  Returns w. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-MflDynWorld *rwp_dyn_0056a4b0(MflDynWorld *w, MflDynBody *b)
+MflDynWorld *rwp_world_deactivate_object(MflDynWorld *w, MflDynBody *b)
 {
   unsigned int id = b->id;
   MflDynWorld *owner;

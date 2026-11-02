@@ -1,3 +1,4 @@
+/* rwp_rows_gather_strided (0x00571bf0): strided gather of selected entries into an output row table */
 #include "mfl_tier2.h"
 
 /* Destination: rows of 4 words and a row count. */
@@ -14,7 +15,7 @@ typedef struct MflGatherList {
 /* For every selected entry idx[i] of the source table (16 bytes per unit of 4): out row i = words 0, 3, 6, 9 at that position
    (four words 12 bytes apart: a strided gather); then the row count is set. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_pipeline_00571bf0(MflGatherOut *out, char *table, int unused3, int unused4, MflGatherList *list)
+void rwp_rows_gather_strided(MflGatherOut *out, char *table, int unused3, int unused4, MflGatherList *list)
 {
   unsigned int i;
   int *src;

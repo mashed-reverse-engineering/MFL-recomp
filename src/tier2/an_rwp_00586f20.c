@@ -1,6 +1,7 @@
+/* rwp_ring_closest_features (0x00586f20): closest features of two convex vertex rings along a direction */
 #include "mfl_tier2.h"
 /* Layouts as in recomp/include/rwp_types.h (copied: a new header in this directory would change the object key of every cached tier 2 object; move to the shared header when that cost is accepted). */
-/* Contact plane written by the shape query (rwp_aggregate_00586f20): unit normal and its distance. */
+/* Contact plane written by the shape query (rwp_ring_closest_features): unit normal and its distance. */
 typedef struct MflPlane {
   float n[3];   /* 0x0 */
   float d;      /* 0xc */
@@ -34,10 +35,10 @@ typedef struct MflShapePair {
 } MflShapePair;
 
 extern float rwp_cylinder_0056fd20(float *out, float *in);
-extern int rwp_aggregate_00588280(float *origin, float *dir, float t_min, float t_max, float *point, float *out);
-extern int rwp_aggregate_00588350(float *poly, unsigned n, float *nrm, float *p, float *out, unsigned *edge);
-extern int rwp_aggregate_00588560(float *p1, float *d1, float smin, float smax, float *p2, float *d2, float tmin, float tmax, float *s_out, float *t_out, float *overlap);
-extern int rwp_aggregate_00588b40(unsigned int *count, float *pts, float *p, float *d, float level);
+extern int rwp_line_closest_param(float *origin, float *dir, float t_min, float t_max, float *point, float *out);
+extern int rwp_polygon_closest_point(float *poly, unsigned n, float *nrm, float *p, float *out, unsigned *edge);
+extern int rwp_segment_segment_closest(float *p1, float *d1, float smin, float smax, float *p2, float *d2, float tmin, float tmax, float *s_out, float *t_out, float *overlap);
+extern int rwp_polyline_add_point(unsigned int *count, float *pts, float *p, float *d, float level);
 
 #define EPS 1.0e-6f
 #define NEXT(i, n) ((((int)((i) - (n) + 1)) >> 31) & ((i) + 1))     /* (i + 1) mod n */
@@ -59,7 +60,7 @@ extern int rwp_aggregate_00588b40(unsigned int *count, float *pts, float *p, flo
    plane between them, and the planes of both shapes (pair->a.plane, pair->b.plane) are written from the edge directions;
    *kind_a / *kind_b are 0 for a vertex hit, 1 for an interior edge point, 2 / the 588350 result for a polygon.  Returns the number of points in res. */
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float diff, float off, float *nrm, float *margin, int *kind_a, int *kind_b,
+int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, float diff, float off, float *nrm, float *margin, int *kind_a, int *kind_b,
                            MflShapePair *pair, float *res)
 {
   unsigned count = 0, cap = na + nb;
@@ -89,12 +90,12 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
       db[0] = b[4] - b[0];
       db[1] = b[5] - b[1];
       db[2] = b[6] - b[2];
-      *kind_b = rwp_aggregate_00588280(b, db, 0.0f, 1.0f, a, pb);
+      *kind_b = rwp_line_closest_param(b, db, 0.0f, 1.0f, a, pb);
     } else {
-      *kind_b = rwp_aggregate_00588350(b, nb, nrm, a, pb, &idx);
+      *kind_b = rwp_polygon_closest_point(b, nb, nrm, a, pb, &idx);
       if (*kind_b == 2) {
         if (count >= cap) return count;
-        rwp_aggregate_00588b40(&count, res, pb, nrm, off);
+        rwp_polyline_add_point(&count, res, pb, nrm, off);
         return count;
       }
       if (*kind_b == 1) {
@@ -114,12 +115,12 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
       da[0] = a[4] - a[0];
       da[1] = a[5] - a[1];
       da[2] = a[6] - a[2];
-      *kind_a = rwp_aggregate_00588280(a, da, 0.0f, 1.0f, b, pa);
+      *kind_a = rwp_line_closest_param(a, da, 0.0f, 1.0f, b, pa);
     } else {
-      *kind_a = rwp_aggregate_00588350(a, na, nrm, b, pa, &idx);
+      *kind_a = rwp_polygon_closest_point(a, na, nrm, b, pa, &idx);
       if (*kind_a == 2) {
         if (count >= cap) return count;
-        rwp_aggregate_00588b40(&count, res, pa, nrm, off);
+        rwp_polyline_add_point(&count, res, pa, nrm, off);
         return count;
       }
       if (*kind_a == 1) {
@@ -142,7 +143,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
     da[0] = ea[4] - ea[0];
     da[1] = ea[5] - ea[1];
     da[2] = ea[6] - ea[2];
-    rwp_aggregate_00588560(eb, db, 0.0f, 1.0f, ea, da, 0.0f, 1.0f, &sb, &ta, &ov);
+    rwp_segment_segment_closest(eb, db, 0.0f, 1.0f, ea, da, 0.0f, 1.0f, &sb, &ta, &ov);
     pa[0] = ta * da[0] + ea[0];
     pa[1] = ta * da[1] + ea[1];
     pa[2] = ta * da[2] + ea[2];
@@ -175,7 +176,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
       if (adv != 1) SUB3(eb, b + 4 * ib1, b + 4 * ib);
       pa_i = a + 4 * ia;
       pb_i = b + 4 * ib;
-      rwp_aggregate_00588560(pb_i, eb, 0.0f, 1.0f, pa_i, ea, 0.0f, 1.0f, &sb, &ta, &ovc);
+      rwp_segment_segment_closest(pb_i, eb, 0.0f, 1.0f, pa_i, ea, 0.0f, 1.0f, &sb, &ta, &ovc);
       pa[0] = ta * ea[0] + pa_i[0];
       pa[1] = ta * ea[1] + pa_i[1];
       pa[2] = ta * ea[2] + pa_i[2];
@@ -231,7 +232,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
               pt[1] = lam * ea[1] + pa_i[1];
               pt[2] = lam * ea[2] + pa_i[2];
               if (count >= cap) return count;
-              if (rwp_aggregate_00588b40(&count, res, pt, nrm, off)) return count;
+              if (rwp_polyline_add_point(&count, res, pt, nrm, off)) return count;
               mode = c1 < 0.0f ? 1 : 2;
             }
           }
@@ -260,7 +261,7 @@ int rwp_aggregate_00586f20(float *a, unsigned na, float *b, unsigned nb, float d
       }
       if (mode == adv) {
         if (count >= cap) return count;
-        if (rwp_aggregate_00588b40(&count, res, pnext, nrm, off)) return count;
+        if (rwp_polyline_add_point(&count, res, pnext, nrm, off)) return count;
       }
       prev3 = c3;
       prev2 = c2;
@@ -307,12 +308,12 @@ done:
     dot = dot + nz * pb[2];
     off = dot + (diff + *margin) * 0.5f;
   }
-  if (count < cap) rwp_aggregate_00588b40(&count, res, pb, nrm, off);
+  if (count < cap) rwp_polyline_add_point(&count, res, pb, nrm, off);
   if (ov > 0.0f && count < cap) {
     pb[0] = ov * db[0] + pb[0];
     pb[1] = ov * db[1] + pb[1];
     pb[2] = ov * db[2] + pb[2];
-    rwp_aggregate_00588b40(&count, res, pb, nrm, off);
+    rwp_polyline_add_point(&count, res, pb, nrm, off);
     *kind_a = 1;
     *kind_b = 1;
   } else if (*kind_a == 0) {

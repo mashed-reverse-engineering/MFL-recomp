@@ -1,3 +1,4 @@
+/* rwp_hull_transform (0x0056c6c0): move a convex hull by a matrix, vertices rotated and translated in place */
 #include "mfl_tier2.h"
 
 /* A convex hull shape: centre of mass (and plane offset w) at 0, vertices (16 bytes each) at 0x50, vertex count at 0x54. */
@@ -12,7 +13,7 @@ typedef struct MflHull {
    translated in place, the centre is rotated (without translation), and c[3] receives the dot product of the first vertex with the
    new centre (the translation with the centre when the hull has no vertices). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_sphere_0056c6c0(MflHull *h, float *m)
+void rwp_hull_transform(MflHull *h, float *m)
 {
   double x, y, z, acc;
   volatile float zs;

@@ -1,3 +1,4 @@
+/* rwp_plane_vs_first_contact (0x0058a1f0): test a plane against the first contact of a list */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -16,7 +17,7 @@ typedef struct MflContactList {
 /* Tests a plane (normal plane[0..2] through the point plane[3..5], extent plane[6]) against the first contact of the list: returns 1 when
    the list is empty or the contact lies within half the larger extent plus a tenth of tol of the plane, else 0. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_generalprimitive_0058a1f0(float *plane, MflContactList *list, float tol)
+int rwp_plane_vs_first_contact(float *plane, MflContactList *list, float tol)
 {
   float d[3];
   float ea, eb, e;

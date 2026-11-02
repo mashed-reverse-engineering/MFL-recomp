@@ -1,3 +1,4 @@
+/* rwp_shape_local_point_to_world (0x0056c0b0): object local point moved to world space with a 4x3 matrix */
 #include "mfl_tier2.h"
 
 typedef struct MflSphereTypeVt {
@@ -13,7 +14,7 @@ typedef struct MflSphereObjP {
 /* Asks the object's type (vtable slot 2) for its local point (written to / returned as `out`) and moves it to world space with the 4x3 matrix `m`
    (row vectors; translation in the last row): out = out * m + t.  Returns the point (0 when the type has none); m == 0 leaves it untouched. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-float *rwp_sphere_0056c0b0(MflSphereObjP *obj, float *m, float *out)
+float *rwp_shape_local_point_to_world(MflSphereObjP *obj, float *m, float *out)
 {
   float *p;
   float s0, s1, t2;

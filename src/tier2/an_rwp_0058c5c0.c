@@ -1,16 +1,17 @@
+/* rwp_segment_swept_sphere_test (0x0058c5c0): segment against a sphere swept along a direction */
 #include "mfl_tier2.h"
 #include <math.h>
 
 extern float rwp_cylinder_0056fd20(float *a, float *b);
-extern int rwp_grid_00577550(float *hit, float *center, float *dir, float *p0, float *d, float radius, int flag0, int flag1);
-extern int rwp_grid_00577400(float *hit, float *center, float *dir, float *origin, float radius);
+extern int rwp_line_quadric_intersect(float *hit, float *center, float *dir, float *p0, float *d, float radius, int flag0, int flag1);
+extern int rwp_ray_sphere_test(float *hit, float *center, float *dir, float *origin, float radius);
 
-/* Segment p0..p1 against the sphere (center, radius) swept along dir: first the closest-approach query rwp_grid_00577550
+/* Segment p0..p1 against the sphere (center, radius) swept along dir: first the closest-approach query rwp_line_quadric_intersect
    against the segment direction; the foot point s along the segment is clamped to the end points (s < 0: p0, s*s > len2:
-   p1) and the sphere ray test rwp_grid_00577400 is run against that end point; otherwise out = foot point.
+   p1) and the sphere ray test rwp_ray_sphere_test is run against that end point; otherwise out = foot point.
    Returns the hit time (distance ratio) or 2.0 for no hit. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_null_0058c5c0(float *out, float *center, float *dir, float *p0, float *p1, float radius)
+float rwp_segment_swept_sphere_test(float *out, float *center, float *dir, float *p0, float *p1, float radius)
 {
   double acc, t, px, py, vy;
   float d[3], hit[2], len2, s;
@@ -24,7 +25,7 @@ float rwp_null_0058c5c0(float *out, float *center, float *dir, float *p0, float 
   acc = acc + d[2] * d[2];
   len2 = acc;
   rwp_cylinder_0056fd20(d, d);
-  if (rwp_grid_00577550(hit, center, dir, p0, d, radius, 0, 0) > 0) {
+  if (rwp_line_quadric_intersect(hit, center, dir, p0, d, radius, 0, 0) > 0) {
     t = hit[0] / hit[1];
     px = t * dir[0] + center[0];
     py = t * dir[1] + center[1];
@@ -49,7 +50,7 @@ float rwp_null_0058c5c0(float *out, float *center, float *dir, float *p0, float 
       out[2] = s * d[2] + p0[2];
       return t;
     }
-    if (rwp_grid_00577400(hit, center, dir, out, radius) > 0)
+    if (rwp_ray_sphere_test(hit, center, dir, out, radius) > 0)
       return hit[0] / hit[1];
   }
   return 2.0f;

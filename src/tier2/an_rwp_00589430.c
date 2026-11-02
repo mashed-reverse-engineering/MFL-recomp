@@ -1,14 +1,15 @@
+/* rwp_direction_projected_on_plane (0x00589430): direction from b to a projected onto a plane */
 #include "mfl_tier2.h"
 #include <math.h>
 
 extern float rwp_cylinder_0056fd20(float *out, float *in);
-extern int rwp_cylinder_0056fd90(float *out, float *v);
+extern int rwp_vector_perpendicular(float *out, float *v);
 
 /* Direction from b to a projected onto the plane with normal n: d = a - b, d += n * -(n . d), then normalised.  When the projection
    is tiny against the removed part (|t| > FLT_MIN and length / |t| <= 0.001) or the removed part is tiny, d is replaced by an
-   arbitrary unit vector perpendicular to n (rwp_cylinder_0056fd90).  Result in d. */
+   arbitrary unit vector perpendicular to n (rwp_vector_perpendicular).  Result in d. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_aggregate_00589430(float *a, float *b, float *n, float *d)
+void rwp_direction_projected_on_plane(float *a, float *b, float *n, float *d)
 {
   volatile float t;      /* the original rounds t to a frame float (volatile keeps the rounding) */
   double len, dz;
@@ -27,6 +28,6 @@ void rwp_aggregate_00589430(float *a, float *b, float *n, float *d)
   if (fabs(t) > 1.1754944e-38f) {
     if (len / fabs(t) > 0.001f) return;
   }
-  rwp_cylinder_0056fd90(d, n);
+  rwp_vector_perpendicular(d, n);
   rwp_cylinder_0056fd20(d, d);
 }

@@ -1,3 +1,4 @@
+/* rwp_cylinder_mass_props (0x0056fea0): mass properties of a cylinder with margin */
 #include "mfl_tier2.h"
 
 typedef struct MflCylMass {
@@ -11,7 +12,7 @@ typedef struct MflCylMass {
 /* Mass properties of a cylinder with margin (unit density): centre of mass = 0, inertia diagonal (Ixx = Iyy = (4 H^2 + 3 r^2) / 12, Izz = r^2 / 2 with
    H = 2 (half + margin), r = radius + margin), the other inertia entries 0 and the last (inverse scale) 1.  Returns the volume pi r^2 H. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-float rwp_cylinder_0056fea0(MflCylMass *p, float *inertia, float *com)
+float rwp_cylinder_mass_props(MflCylMass *p, float *inertia, float *com)
 {
   float r, h, hh, rr, ixx;
 

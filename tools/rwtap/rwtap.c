@@ -89,7 +89,7 @@ static void on_atomic(const unsigned *a, unsigned *ra) {
 }
 /* called by the stub with the idx and a pointer at the return address; args follow it */
 static void __cdecl on_call(unsigned idx, unsigned *ra) {
-    if (!*p_active) return;
+    if (!*p_active && strncmp(names[idx], "D3DX", 4)) return;   /* D3DX* hooks log always (shader assembly happens during loading, before the draw window) */
     const unsigned *a = ra + 1; EnterCriticalSection(&cs);
     fprintf(lg, "C %u %s d=%d f=%d a=", seq++, names[idx], *p_ndraws, *p_nframes);
     for (unsigned i = 0; i < nargs[idx]; i++) fprintf(lg, i ? ",%x" : "%x", a[i]);

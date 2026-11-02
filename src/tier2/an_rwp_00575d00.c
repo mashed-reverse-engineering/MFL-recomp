@@ -1,3 +1,4 @@
+/* rwp_farfield_boxes_shrink (0x00575d00): shrink two boxes towards each other and classify the cut positions */
 #include "mfl_tier2.h"
 
 extern int _rand(void);
@@ -16,7 +17,7 @@ typedef struct MflClipBox {
    which of the blended or original corner is kept per axis.  Writes the new box to `out` and returns the axis selection mask (0..7),
    or 0xffff when the outcodes do not cover all three axes. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_farfield_00575d00(MflClipBox *out, MflClipBox *b, MflClipBox *a)
+int rwp_farfield_boxes_shrink(MflClipBox *out, MflClipBox *b, MflClipBox *a)
 {
   int r = _rand();
   float hx, hz, lx, lz;

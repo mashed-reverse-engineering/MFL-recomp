@@ -1,3 +1,4 @@
+/* rwp_pairs_emit_near_neighbours (0x0056af70): pair generator: emits (source, neighbour) body records for each listed object */
 #include "mfl_tier2.h"
 
 typedef struct MflPairScan {
@@ -40,7 +41,7 @@ extern int rwp_capsule_00575a30(void *graph, unsigned short id, unsigned short *
    class is (bits_c set ? 1 : 2) << (bits_b set ? 0 : 2) and must be a bit of `mask`.  Stops after max_out records and returns
    the number written (0 for an empty mask). */
 /* TIER2: unvalidated 2026-11-01 authority=diffemu */
-int rwp_volume_0056af70(MflPairScan *s, MflPairSrc **list, unsigned int count, MflPairRec *out, unsigned int max_out, unsigned int mask)
+int rwp_pairs_emit_near_neighbours(MflPairScan *s, MflPairSrc **list, unsigned int count, MflPairRec *out, unsigned int max_out, unsigned int mask)
 {
   unsigned int i, j, k, n, cnt, bit;
   unsigned int nid, id;

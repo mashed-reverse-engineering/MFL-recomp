@@ -1,6 +1,7 @@
+/* rwp_pair_support_points (0x0058a3f0): support points of the two shapes of a pair along a direction */
 #include "mfl_tier2.h"
 
-extern float *rwp_sphere_0056c5d0(void *shape, void *xf, float *dir, float *out);
+extern float *rwp_shape_support_point_world(void *shape, void *xf, float *dir, float *out);
 
 typedef struct MflShapeRef {
   int id0, id1;
@@ -13,7 +14,7 @@ typedef struct MflShapeRef {
    out[3..5] = support B (kept for the caller).  *offset, when given, is added to the difference.
    Returns the difference projected on dir. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_aggchildren_0058a3f0(float *out, float *dir, int mode, MflShapeRef **pair, float *offset)
+float rwp_pair_support_points(float *out, float *dir, int mode, MflShapeRef **pair, float *offset)
 {
   float neg[3], supa[3];
   double d0, acc;
@@ -23,11 +24,11 @@ float rwp_aggchildren_0058a3f0(float *out, float *dir, int mode, MflShapeRef **p
   neg[1] = -dir[1];
   neg[2] = -dir[2];
   if (mode > 0) {
-    rwp_sphere_0056c5d0(pair[0]->shape, pair[0]->xf, dir, supa);
-    rwp_sphere_0056c5d0(pair[1]->shape, pair[1]->xf, neg, &out[3]);
+    rwp_shape_support_point_world(pair[0]->shape, pair[0]->xf, dir, supa);
+    rwp_shape_support_point_world(pair[1]->shape, pair[1]->xf, neg, &out[3]);
   } else {
-    rwp_sphere_0056c5d0(pair[0]->shape, pair[0]->xf, neg, supa);
-    rwp_sphere_0056c5d0(pair[1]->shape, pair[1]->xf, dir, &out[3]);
+    rwp_shape_support_point_world(pair[0]->shape, pair[0]->xf, neg, supa);
+    rwp_shape_support_point_world(pair[1]->shape, pair[1]->xf, dir, &out[3]);
   }
   d0 = supa[0] - out[3];
   out[0] = d0;

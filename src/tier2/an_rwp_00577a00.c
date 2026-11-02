@@ -1,3 +1,4 @@
+/* rwp_solver_work_carve_step1 (0x00577a00): carve the work arrays of the first solver step out of the work area */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 
@@ -57,7 +58,7 @@ typedef struct MflStepTables2 {
    its size rounded up to 16 bytes in turn; an array that would pass the total reserved size is left 0.  The strides of the
    arrays are stored next to the pointers. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_grid_00577a00(MflWorkArea *area, MflStepTables2 *t2, MflStepTables *t, MflWorkBase *wb, int n5, int n6, int n7)
+void rwp_solver_work_carve_step1(MflWorkArea *area, MflStepTables2 *t2, MflStepTables *t, MflWorkBase *wb, int n5, int n6, int n7)
 {
   int q = n5 / 4;
   int a = align16(q * 8);

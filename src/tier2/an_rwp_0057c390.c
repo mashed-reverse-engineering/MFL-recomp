@@ -1,3 +1,4 @@
+/* rwp_quat_integrate_angular (0x0057c390): integrate a quaternion by an angular velocity over dt and renormalise */
 #include "mfl_tier2.h"
 #include <math.h>
 
@@ -6,7 +7,7 @@
    (q_w_new) is volatile: the original rounds it to a frame float that is read twice (norm, final scale),
    so overflow / denormal results differ in a register. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_batch_0057c390(float *q, float *omega, float dt)
+void rwp_quat_integrate_angular(float *q, float *omega, float dt)
 {
   double acc, dw, dx;
   float inv_len;
