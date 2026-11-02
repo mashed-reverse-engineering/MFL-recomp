@@ -67,7 +67,8 @@ void menu_page_enter(int page, int kind)
   int cur;
   int i;
   int next_slot;      /* number of g_menu_item_anims entries filled so far (the running slot index) */
-  int row_count;      /* rows that were matched in the item lists so far (stored as the entry_count of the page record) */
+  volatile int slots; /* next_slot as seen by menu_button_prompts_build (its slot index in/out); volatile: MSVC analyses the static naked wrapper as not reading *p1 and drops the stores to a plain local */
+  int row_count;    /* rows that were matched in the item lists so far (stored as the entry_count of the page record) */
   int idx;            /* record index of the page below the one that is built (the record rec[idx + 1] is the page of the rows) */
   char *old_list;     /* item list that is left (kind 0: the current page) */
   char *new_list;     /* item list that is entered */
@@ -232,7 +233,9 @@ void menu_page_enter(int page, int kind)
           g_ai_69d220 = g_menu_records[idx].entry_count;
         }
         new_row = menu_item_list_find_index_a_r(new_list, ITEM_ID_PROMPT, 0);
-        menu_button_prompts_build_r(kind, &next_slot, new_row, page);
+        /* MSVC drops the `next_slot = next_slot + 1` stores of the loop (the prompt entry then overwrote slot 1 and the Select hint was lost): derive it from the entry pointer */
+        slots = (int)(anim - g_menu_item_anims);
+        menu_button_prompts_build_r(kind, (int *)&slots, new_row, page);
         if (kind == 0) {
           g_menu_current = g_menu_current + 1;
         }

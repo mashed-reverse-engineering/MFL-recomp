@@ -28,6 +28,8 @@ def main():
             for m in (0x928, 0x968):
                 for pad in (0x1C, 0x2C, 0x3C):
                     ign.update(range(base + m + pad, base + m + pad + 4))
+    elif kind == "gs":      # GameState (0xB64): +0xB00..0xB0B = two time / random seeded words that change between two runs of the same exe (options_all, 2026-11-02: only appear after a sound slider moved)
+        ign.update(range(0xB00, 0xB0C))
     elif kind == "powerups":
         for r in range(25):
             ign.update(range(r * 0x50, r * 0x50 + 4))

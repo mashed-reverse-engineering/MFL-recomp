@@ -80,8 +80,8 @@ int rwp_cylinder_sweep(MflCylCast *cyl, float *p, float *q, MflCylContact *out)
     if (!(f.dz > 0.0f))
       f.sg = 0.0f;
   }
-  if (-f.h < f.pz) {
-    if (f.pz < f.h) {
+  if (!(f.pz <= -f.h)) {
+    if (!(f.pz >= f.h)) {
       f.zone = 0.0f;
       flags = 1;
     } else {

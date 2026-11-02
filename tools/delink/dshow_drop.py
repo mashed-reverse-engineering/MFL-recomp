@@ -202,8 +202,8 @@ def pool(W, out=RWDEAD):
                 m2 = re.search(r"_(?:0x)?([0-9a-f]{6,8})$", n); a = int(m2.group(1), 16) if m2 else None
             if a is None: miss[n] += 1; continue
             add(roots, a)
-    # D3DX dispatch table (60+ slots at SLOT0, filled by D3DXCpuOptimizations from one *_InitFastTable): the InitFastTable of the CPU class this port targets is sse2 (x86-64 hosts always have SSE2; the 3DNow, SSE
-    # and plain x86 variants are cut), and a slot's installed function stays alive only while live code outside the installer reads that slot.  The default table (0x62eda8, copied first) is an ordinary row.
+    # D3DX dispatch table (60+ slots at SLOT0, filled by D3DXCpuOptimizations from one *_InitFastTable): the x86 InitFastTable always runs first, then sse2 on the CPU class this port targets (x86-64 hosts always have SSE2; the 3DNow and
+    # SSE-only variants are cut), and a slot's installed function stays alive only while live code outside the installer reads that slot.  The default table (0x62eda8, copied first) is an ordinary row.
     nidx = {n: i for i, (a, n, z) in enumerate(fn)}; inst = {}
     for nm in INSTALLERS:
         if nm not in nidx: continue
@@ -223,7 +223,7 @@ def pool(W, out=RWDEAD):
         fedge[i] -= {("f", t) for s_, t in pairs}
     cpu = nidx.get("D3DXCpuOptimizations")
     if cpu is not None:
-        fedge[cpu] -= {("f", nidx[x]) for x in INSTALLERS if x in nidx and "sse2" not in x}
+        fedge[cpu] -= {("f", nidx[x]) for x in INSTALLERS if x in nidx and x.split("_")[0] in ("sse", "x3d")}      # x86_ is called unconditionally first (base layer), sse2_ replaces sse_ / x3d_ on this host class
         dflt = ridx(DEFTAB)      # the default table (copied into the slots first) keeps its function words only for slots something reads
         fedge[cpu].discard(("r", dflt)); dpairs = []
         for k in range(0x47):

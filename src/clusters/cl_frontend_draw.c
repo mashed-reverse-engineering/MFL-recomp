@@ -99,7 +99,7 @@ static void button_text(MenuItemAnim *it, int id, unsigned int *pcolour)
    framed buttons with the highlighted / enabled state) and the panels. */
 void frontend_draw(void)
 {
-  unsigned int colour;
+  volatile unsigned int colour; /* course_flag_30_set_r writes it through a pointer; volatile or MSVC drops the store seen by the naked wrapper */
   int i;
   int bn;
   int rec;
@@ -206,7 +206,7 @@ button:
         }
         rec = g_menu_current - row;
         if (g_menu_records[rec + 1].entry_enabled[bn - 1] == 0) {
-          course_flag_30_set_r(&colour);
+          course_flag_30_set_r((unsigned int *)&colour);
         }
         if (bn - 1 == g_menu_records[rec + 1].selected) {
           if (id != 0x229) {
@@ -225,13 +225,13 @@ button:
           colour = (colour & 0xff000000) | 0x501513;
           button_border(&g, colour, 1);
         }
-        button_text(it, id, &colour);
+        button_text(it, id, (unsigned int *)&colour);
       }
       if (it->state != 0 && it->state != 2 && it->ref_a != -1) {
         id = it->ref_a;
         selected_rec = g_menu_current;
         if (g_menu_records[selected_rec].entry_enabled[bn - 1] == 0) {
-          course_flag_30_set_r(&colour);
+          course_flag_30_set_r((unsigned int *)&colour);
         }
         if (bn - 1 == g_menu_records[selected_rec].selected) {
           if (id == 0x229) {
@@ -257,7 +257,7 @@ button:
           colour = (colour & 0xff000000) | 0x501513;
           button_border(&g, colour, 0);
         }
-        button_text(it, it->ref_a, &colour);
+        button_text(it, it->ref_a, (unsigned int *)&colour);
       }
     }
     hud_menu_draw_all_panels();

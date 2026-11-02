@@ -5,11 +5,7 @@
 # Usage: race_relinked.sh <game dir> <out dir> <delta hex> [course]   (one game process; hard timeout 300 s)
 T=$(dirname "$(readlink -f "$0")"); WR=$T/../wine-run; GAME=$1; OUT=$2; D=$((0x$3)); C=${4:-0}
 mkdir -p $OUT
-COURSE=$C SHOTS=0 $WR/race_script.sh 0 0 0 /dev/null | sed '/^shot race_start/q' | python3 -c "
-import re, sys
-d = $D
-mv = lambda m: '0x%x' % (int(m.group(0), 16) + d) if 0x5dd000 <= int(m.group(0), 16) < 0x9f9000 else m.group(0)
-for l in sys.stdin: sys.stdout.write(re.sub(r'0x[0-9a-fA-F]+', mv, l))" > $OUT/script.txt
+COURSE=$C SHOTS=0 $WR/race_script.sh 0 0 0 /dev/null | sed '/^shot race_start/q' | python3 $WR/addrmove.py $3 > $OUT/script.txt
 [ -n "$GDBFILE" ] && sed -i "1i gdbfile $GDBFILE" $OUT/script.txt     # GDBFILE=name: gdb command file $OUT/run/<name> (play_inner gdbfile)
 [ -n "$GDBCRASH" ] && sed -i "1i gdbcrash $GDBCRASH" $OUT/script.txt     # GDBCRASH=N: gdb dumps registers + stack at the next N faults (run/gdbcrash.txt)
 printf 'hold Up %s\nshot race_mid\nwait 3\nshot race_end\n' ${DRIVE_S:-10} >> $OUT/script.txt

@@ -317,18 +317,18 @@ Rt2dObjectSetDepth,00571840,tier1,bytes,bytes-reloc,2544d3a910c2,33bf93632a05,32
 RtAnimInitialize,0053de30,tier1,bytes,bytes-reloc,dd20833b7648,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RtAnimInterpolatorDestroy,0053e3b0,tier1,bytes,bytes-reloc,8a33ef26ae90,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RtAnimInterpolatorSetAnimLoopCallBack,0053e480,tier1,bytes,bytes-reloc,fbec41487f70,33bf93632a05,32e2b02b83a3,0,0.00,0,0
-RtBaryGetTransform,00569610,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,88619a985474,33bf93632a05,32e2b02b83a3,200,1.00,0,0
+RtBaryGetTransform,00569610,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,88619a985474,33bf93632a05,32e2b02b83a3,200,1.00,0,1
 RtCharsetClose,00568a40,tier1,bytes,bytes-reloc,0a43b424096e,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RtDictSchemaDestruct,00569250,tier1,bytes,bytes-reloc,84f3dbefcbc3,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RtDictSchemaGetCurrentDict,005625a0,tier1,bytes,bytes-reloc,806366916a41,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RtDictSchemaInit,00569220,tier1,bytes,bytes-reloc,d5ce4f211247,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RtDictSchemaSetCurrentDict,00569270,tier1,bytes,bytes-reloc,a5a348db2138,33bf93632a05,32e2b02b83a3,0,0.00,0,0
-RtDictSchemaStreamReadDict,005693c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,61d61ddf5f53,33bf93632a05,32e2b02b83a3,534,0.85,0,0
+RtDictSchemaStreamReadDict,005693c0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,61d61ddf5f53,33bf93632a05,32e2b02b83a3,146,0.89,0,1
 RtLineSphereIntersectionTest,00569110,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,35bc8f5b0726,33bf93632a05,32e2b02b83a3,200,1.00,0,0
 RtLtMapMaterialGetAreaLightColor,00559a00,tier1,bytes,bytes-reloc,d64f5fe2819d,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RwBBoxInitialize,004d1990,tier1,bytes,bytes-reloc,45ffdd63dce3,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RwCameraBeginUpdate,004d1b90,tier1,bytes,bytes-reloc,27b97e4e0eda,33bf93632a05,32e2b02b83a3,0,0.00,0,0
-RwCameraCalcPixelRay,005698c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,96c28d6a47fd,33bf93632a05,32e2b02b83a3,200,1.00,0,0
+RwCameraCalcPixelRay,005698c0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,96c28d6a47fd,33bf93632a05,32e2b02b83a3,200,1.00,0,0
 RwCameraClear,004d1d40,tier1,bytes,bytes-reloc,32544f5eed4e,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RwCameraDestroy,004d1e80,tier1,bytes,bytes-reloc,90eef539fcde,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 RwCameraEndUpdate,004d1b80,tier1,bytes,bytes-reloc,62958c50f7dc,33bf93632a05,32e2b02b83a3,0,0.00,0,0
@@ -1937,7 +1937,7 @@ mine_load_assets,004640a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33
 missile_load_assets,00460d40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,32e2b02b83a3,200,1.00,0,0
 mortar_load_assets,0045e480,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,32e2b02b83a3,200,1.00,0,0
 movie_guid_compare,004a3155,bridge,enabled-list (game + shadow test results not recorded per function),none,-,33bf93632a05,32e2b02b83a3,0,0.00,0,0
-movie_poll_and_set_surface,004a39e0,tier1,bytes,bytes-reloc,20b7e14674bc,33bf93632a05,32e2b02b83a3,0,0.00,0,0
+movie_poll_and_set_surface,004a39e0,tier1,bytes,bytes-reloc,2b10703e72b6,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 movie_poll_and_set_surface_b,004a4050,tier1,bytes,bytes-reloc,c045ed2cb37b,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 movie_present_frame,004041f0,tier2,compiled+shadow-never,static,-,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 movie_renderer_poll,004a37f0,tier2,compiled+shadow-never,static,-,33bf93632a05,32e2b02b83a3,0,0.00,0,0
@@ -2421,7 +2421,7 @@ rwp_aggregate_00585160,00585160,tier1,bytes,bytes-reloc,cbaa57814586,33bf93632a0
 rwp_aggregate_00585170,00585170,tier2,compiled+shadow-never,static,7c32de9c8c10,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_aggregate_00585890,00585890,tier1,bytes,bytes-reloc,818f0c7ac95a,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_aggregate_00586300,00586300,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,c0a91c7bda1d,33bf93632a05,32e2b02b83a3,163,0.28,0,0
-rwp_aggregate_00586680,00586680,tier2,compiled+shadow-never,static,-,33bf93632a05,32e2b02b83a3,0,0.00,0,0
+rwp_aggregate_00586680,00586680,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,32e2b02b83a3,195,0.41,0,0
 rwp_aggregate_00588cb0,00588cb0,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,43dfc1e602ae,33bf93632a05,32e2b02b83a3,4,0.21,0,0
 rwp_aggregate_005891c0,005891c0,tier1,bytes,bytes-reloc,e328f7d8d1b4,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_aggregate_00589560,00589560,tier1,bytes,bytes-reloc,b9eb0e680aa5,33bf93632a05,32e2b02b83a3,0,0.00,0,0
@@ -2489,7 +2489,7 @@ rwp_constraint_linear_row_axis,00580740,tier2,compiled+shadow-never,static,01e4a
 rwp_constraint_rows_two_body,00580180,tier2,compiled+shadow-never,static,8bf5ae3cd820,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_constraint_store,0057f8a0,tier2,compiled+shadow-never,static,34dc6a4bba6b,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_constraints_0057f750,0057f750,tier1,bytes,bytes-reloc,9616700cf9f5,33bf93632a05,32e2b02b83a3,0,0.00,0,0
-rwp_constraints_0057fa00,0057fa00,tier2,compiled+shadow-never,static,22f62592aee5,33bf93632a05,32e2b02b83a3,0,0.00,0,0
+rwp_constraints_0057fa00,0057fa00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,22f62592aee5,33bf93632a05,32e2b02b83a3,69,0.94,0,0
 rwp_constraints_00583050,00583050,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,3ecc87100055,33bf93632a05,32e2b02b83a3,193,0.98,0,0
 rwp_contact_collect,00491180,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,32e2b02b83a3,200,0.89,0,0
 rwp_contact_list_add_point,005857c0,tier2,compiled+shadow-never,static,dbe36f01abc0,33bf93632a05,32e2b02b83a3,0,0.00,0,0
@@ -2504,7 +2504,7 @@ rwp_cylinder_bounds,0056ff10,tier2,compiled+shadow-never,static,4a401d85dea1,33b
 rwp_cylinder_mass_props,0056fea0,tier2,compiled+shadow-never,static,4ab5352fecc8,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_cylinder_support_extent,005705c0,tier2,compiled+shadow-never,static,a61efa9f8fb8,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_cylinder_support_points,005701f0,tier2,compiled+shadow-never,static,a24a17a085f1,33bf93632a05,32e2b02b83a3,0,0.00,0,0
-rwp_cylinder_sweep,00570620,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,ea26dc009897,33bf93632a05,32e2b02b83a3,800,0.97,0,0
+rwp_cylinder_sweep,00570620,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,384b350f1c6d,33bf93632a05,32e2b02b83a3,200,0.95,0,0
 rwp_direction_projected_on_plane,00589430,tier2,compiled+shadow-never,static,6ad507ac9d95,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_dyn_0056a170,0056a170,tier1,bytes,bytes-reloc,e3ca0386ba2c,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_dyn_0056a710,0056a710,tier1,bytes,bytes-reloc,79a8ccaee19e,33bf93632a05,32e2b02b83a3,0,0.00,0,0
@@ -2634,7 +2634,7 @@ rwp_pipeline_00571850,00571850,tier1,bytes,bytes-reloc,80c10f0a554a,33bf93632a05
 rwp_pipeline_005718a0,005718a0,tier1,bytes,bytes-reloc,998e3ef63472,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_pipeline_00571970,00571970,tier1,bytes,bytes-reloc,fb7a67f2a995,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_pipeline_00571c60,00571c60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,32e2b02b83a3,117,0.97,0,0
-rwp_pipeline_00572d90,00572d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,2f9da4c12833,33bf93632a05,32e2b02b83a3,226,0.90,0,0
+rwp_pipeline_00572d90,00572d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,2f9da4c12833,33bf93632a05,32e2b02b83a3,150,0.90,0,0
 rwp_plane_vs_first_contact,0058a1f0,tier2,compiled+shadow-never,static,e24db8a1109b,33bf93632a05,32e2b02b83a3,0,0.00,0,0
 rwp_poly_real_roots,0056fb00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,62064265a443,33bf93632a05,32e2b02b83a3,84,0.98,0,0
 rwp_poly_root_bracketed,0056f980,tier2,compiled+shadow-never,static,670850dedf30,33bf93632a05,32e2b02b83a3,0,0.00,0,0

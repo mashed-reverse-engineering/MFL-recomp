@@ -15,13 +15,14 @@ extern void **_rwSListGetEnd(void *list);
 extern void **_rwSListGetEntry(void *list, int index);
 extern void _rwSListDestroyEndEntries(void *list, int n);
 
-typedef struct MflDictSchema RtDictSchema;
+typedef struct RtDictSchema RtDictSchema;
 typedef struct RtDict {
   RtDictSchema *schema;   /* 0x0 */
   void *entries;   /* 0x4: SList of the entries */
 } RtDict;
 
-struct MflDictSchema {
+struct RtDictSchema
+{
   int pad0;
   unsigned int hint;   /* 0x4: memory hint */
   int chunkType;   /* 0x8: chunk id of one entry */

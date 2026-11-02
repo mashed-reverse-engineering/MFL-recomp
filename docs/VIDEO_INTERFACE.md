@@ -1,7 +1,9 @@
 # Video interface (replacement for the statically linked DirectShow)
 
 Status (2026-10-31): the interface is built in. `recomp/video/mfl_video_null.c` is the dispatcher plus the default null backend (no backend
-registered: `mfl_video_open` returns NULL, the game skips every movie); the movie functions of the table below call it (`movie_renderer_create`,
+registered: the built-in "blank" backend, 2026-11-02: `mfl_video_open` succeeds with a movie that has no pixels and is finished at once; the menu
+background movie stays active (keep flag) and the game draws its untextured white 512x512 video quad as the first draw of every menu frame, exactly like
+the original with a renderer that delivers nothing; the intro movies end after the first poll and are skipped without a drawn frame); the movie functions of the table below call it (`movie_renderer_create`,
 `movie_renderer_poll`, `movie_renderer_release`, `movie_stop`, `movie_poll_and_set_surface`, `video_texture_setup`, `sound_volume_to_directsound_db`).
 With `DROP_DSHOW=1` (tools/delink/link_ours.sh) the DirectShow movie code is not in the linked exe any more (`tools/delink/dshow_drop.py`,
 `tools/delink/dshow_dead.txt`). Frame transfer (`mfl_video_acquire_frame` into the raster) is not written yet: it comes with the first real backend.

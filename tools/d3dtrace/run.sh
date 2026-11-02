@@ -42,11 +42,11 @@ cp $T/d3d9.dll $AE/d3dp.dll
 START=${PHASE_MIN:-5}; STOP=0; RF=0x$(mapva race_frames)
 PHA=; [ -n "$SA_EXE" ] && { PHA=$(printf 0x%x $((0x652f68 + 0x$SA_DELTA))); RF=$(awk '$1=="race_frames"{print "0x"$3}' $W/fake.map); }
 STOPPH=0; [ "$SC" = title ] && MAX_FRAMES=${MAX_FRAMES:-$FR}
-case $SC in menu|title) START=0; RF=0;; *) STOP=$FR;; esac
+case $SC in menu|title|mainmenu) START=0; RF=0;; *) STOP=$FR;; esac
 # SEG=countdown: log only race phase 5 (loading is skipped, camera fly-over of the finished course: deterministic, byte-identical between runs);
 # default SEG=race logs phases 5+6 up to race frame <frames> (the race itself diverges slightly between runs, see README: use diff.py --mask)
 [ "${SEG:-race}" = countdown ] && { STOPPH=6; STOP=0; }
-{ echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-5}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; } > $AE/d3dtrace.cfg
+{ echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-5}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; [ -n "$VDUMP" ] && echo "vdump=1"; } > $AE/d3dtrace.cfg
 # RWTAP=1: also hook the RW layer (tools/rwtap, mfltap.dll + funcs.txt next to the exe), log -> $OUT/rwtap.log (standalone: the hooks get the link delta)
 RT_=$(readlink -f $T/../rwtap); [ -n "$RWTAP" ] && { [ -f $RT_/mfltap.dll ] || make -C $RT_ >/dev/null || exit 1; cp $RT_/mfltap.dll $RT_/funcs.txt $AE/; echo "rwtap=funcs.txt" >> $AE/d3dtrace.cfg; [ -n "$SA_DELTA" ] && echo "rwtap_delta=$SA_DELTA" >> $AE/d3dtrace.cfg; }
 # ---- the play.sh script
@@ -58,10 +58,11 @@ case $SC in
   title) . $WR/scenarios/lib.sh; { scenario_header; echo "waitframes 0x$(mapva frames_total) $((FR+40)) 90"; echo "shot final"; } | satr > $W/script.txt ;;   # title screen, frozen by frame count (frames_total + FR): comparable between runs
   menu) . $WR/scenarios/lib.sh; . $WR/scenarios/menus_main.sh
         { scenario_header; scenario; echo "shot final"; } | satr > $W/script.txt ;;
+  mainmenu) . $WR/scenarios/lib.sh; { scenario_header; to_single; to_main; echo "wait 3"; echo "shot final"; } | satr > $W/script.txt ;;   # main menu at rest (Game Type Select)
   script:*) cp ${SC#script:} $W/script.txt ;;
   *) echo "unknown scenario $SC"; exit 2 ;;
 esac
-case $SC in menu|title) ;; *) echo "dump course $(printf 0x%x $((0x69cfb0 + 0x${SA_DELTA:-0}))) 4" >> $W/script.txt ;; esac     # g_menu_event_course_index -> game/course.bin (little endian dword)
+case $SC in menu|title|mainmenu) ;; *) echo "dump course $(printf 0x%x $((0x69cfb0 + 0x${SA_DELTA:-0}))) 4" >> $W/script.txt ;; esac     # g_menu_event_course_index -> game/course.bin (little endian dword)
 # every run starts from the same snapshot (the game rewrites its saves): warm prefix marker as in regress.sh
 [ -f $HOME/.cache/mfl_warm_done ] || { printf 'wait 14\nkey Return\nwait 2\n' > $W/warm.txt; PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 90 $WR/play.sh $W/run $W/warm.txt $W/out_warm >/dev/null 2>&1; touch $HOME/.cache/mfl_warm_done; }
 $WR/mkpfx.sh ${SLOT:-1}

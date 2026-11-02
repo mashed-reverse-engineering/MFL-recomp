@@ -19,8 +19,8 @@ int FUN_004ade80_n(int *self, int arg_a, int arg_b)
   int handle;
   int *sibling;
   void *obj_mem;
-  int status;
-  
+  volatile int status; /* out parameter of the naked wrapper: volatile or MSVC drops the status = 0 store and the status < 0 test */
+
   lpCriticalSection = (LPCRITICAL_SECTION)(self + 0x31);
   EnterCriticalSection(lpCriticalSection);
   handle = self[0x14];
@@ -38,7 +38,7 @@ int FUN_004ade80_n(int *self, int arg_a, int arg_b)
       else {
         handle = (int)sibling + 0xc;
       }
-      handle = FUN_004b2520_r(obj_mem,0,self[1],&status,handle);
+      handle = FUN_004b2520_r(obj_mem,0,self[1],(int *)&status,handle);
     }
     self[0x14] = handle;
     if (handle == 0) {

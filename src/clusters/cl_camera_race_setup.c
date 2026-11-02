@@ -95,8 +95,8 @@ static int race_code_generate(void)
   char key_1[11] = "LFDGUYVDEU";
   char key_2[11] = "MDXKHDIGNX";
   char key_3[11] = "PSOLPEBCYB";
-  int minutes, seconds, number, rest, i, value, sum, triple_a, triple_b, result;
-  float triple_fraction;
+  int minutes, seconds, number, rest, i, value, sum, result;
+  volatile struct { int a; int b; float fraction; } triple; /* out parameters of the naked ui_get_triple_r: volatile struct, or MSVC merges the slots with its int-to-float temp and drops the stores */
   char *key;
   int digit;
 
@@ -119,8 +119,8 @@ static int race_code_generate(void)
   time_code[3] = (char)(digit + CODE_FIRST_LETTER);
   time_code[4] = (char)(rest - digit * CODE_ALPHABET + CODE_FIRST_LETTER);
   time_code[5] = 0;
-  ui_get_triple_r(&triple_fraction, &triple_b, &triple_a, 0, 1);
-  value = (int)((float)(triple_a * 10000) + (float)(triple_b * 100) + triple_fraction * CODE_TIME_SCALE);
+  ui_get_triple_r((float *)&triple.fraction, (int *)&triple.b, (int *)&triple.a, 0, 1);
+  value = (int)((float)(triple.a * 10000) + (float)(triple.b * 100) + triple.fraction * CODE_TIME_SCALE);
   digit = value / CODE_DIVISOR_1;
   triple_code[0] = (char)(digit + CODE_FIRST_LETTER);
   rest = value - digit * CODE_DIVISOR_1;

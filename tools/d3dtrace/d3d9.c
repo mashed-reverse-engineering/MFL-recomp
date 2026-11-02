@@ -243,7 +243,13 @@ static u64 ihash(UINT si, UINT n) {
     return fnv(o->shadow + (size_t)si * isz, (size_t)n * isz, FNV0);
 }
 /* draws: one D line.  D <index> <kind> <prim> <args...> */
-static HRESULT WINAPI h_DrawPrimitive(void *d, D3DPRIMITIVETYPE t, UINT sv, UINT pc) { ACT { L("D %d DP %d %u %u vh=%016llx\n", ndraws, t, sv, pc, (unsigned long long)vhash(sv, vcount(t, pc))); ndraws++; } return C(HRESULT (WINAPI *)(void *, D3DPRIMITIVETYPE, UINT, UINT), 81, d, t, sv, pc); }
+static int cfg_vdump;
+static void vdump(UINT sv, UINT n) {   /* VDUMP=1 (cfg vdump=1): raw stream-0 vertices of each DP, for A/B debugging (not part of the normalised trace: line starts with "# VD") */
+    if (!cfg_vdump) return;
+    Obj *o = st_o[0]; if (!o || !o->shadow || !st[0].stride) return; long b = (long)st[0].off + (long)sv * st[0].stride, len = (long)n * st[0].stride; if (b < 0 || b + len > o->size) return;
+    L("# VD %d", ndraws); for (long i = 0; i < len; i++) L("%s%02x", i % st[0].stride ? "" : " ", (unsigned char)o->shadow[b + i]); L("\n");
+}
+static HRESULT WINAPI h_DrawPrimitive(void *d, D3DPRIMITIVETYPE t, UINT sv, UINT pc) { ACT { vdump(sv, vcount(t, pc)); L("D %d DP %d %u %u vh=%016llx\n", ndraws, t, sv, pc, (unsigned long long)vhash(sv, vcount(t, pc))); ndraws++; } return C(HRESULT (WINAPI *)(void *, D3DPRIMITIVETYPE, UINT, UINT), 81, d, t, sv, pc); }
 static HRESULT WINAPI h_DrawIndexedPrimitive(void *d, D3DPRIMITIVETYPE t, INT bv, UINT mi, UINT nv, UINT si, UINT pc) { ACT { L("D %d DIP %d %d %u %u %u %u vh=%016llx ih=%016llx\n", ndraws, t, bv, mi, nv, si, pc, (unsigned long long)vhash(bv + mi, nv), (unsigned long long)ihash(si, vcount(t, pc))); ndraws++; } return C(HRESULT (WINAPI *)(void *, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT), 82, d, t, bv, mi, nv, si, pc); }
 static HRESULT WINAPI h_DrawPrimitiveUP(void *d, D3DPRIMITIVETYPE t, UINT pc, const void *data, UINT stride) {
     ACT { L("D %d DPUP %d %u %u %016llx\n", ndraws, t, pc, stride, (unsigned long long)fnv(data, (size_t)vcount(t, pc) * stride, FNV0)); ndraws++; }
@@ -450,6 +456,7 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "phase_addr")) cfg_phase_addr = (u32)strtoul(e, 0, 0);
         else if (!strcmp(ln, "racef_addr")) cfg_racef_addr = (u32)strtoul(e, 0, 0);
         else if (!strcmp(ln, "stop_racef")) cfg_stop_racef = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "vdump")) cfg_vdump = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "max_frames")) cfg_max_frames = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "vclock")) cfg_vclock = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "anchor_phase")) cfg_anchor_phase = (int)strtol(e, 0, 0);

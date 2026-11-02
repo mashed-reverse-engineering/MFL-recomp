@@ -19,22 +19,23 @@ int FUN_004ae3c0_n(char *obj, int arg_or_hr)
   int child;
   void *obj_mem;
   int *new_child;
-  
+  volatile int hr; /* out parameter of the naked wrapper: volatile or MSVC drops the hr = 0 store and the hr test */
+
   obj_cs = (LPCRITICAL_SECTION)(obj + 0xc4);
   EnterCriticalSection(obj_cs);
   if (arg_or_hr == 0) {
     if (*(int *)(obj + 0x78) == 0) {
-      arg_or_hr = 0;
+      hr = 0;
       obj_mem = operator_new(CHILD_OBJECT_BYTES);
       if (obj_mem == (void *)0x0) {
         new_child = (int *)0x0;
       }
       else {
-        new_child = FUN_004acbb0_r(obj_mem,(int)obj,&arg_or_hr,PTR_g_data_6e0049_005e219c);
+        new_child = FUN_004acbb0_r(obj_mem,(int)obj,(int *)&hr,PTR_g_data_6e0049_005e219c);
       }
       *(int **)(obj + 0x78) = new_child;
       if (new_child != (int *)0x0) {
-        if (-1 < arg_or_hr) goto LAB_004ae46f;
+        if (-1 < hr) goto LAB_004ae46f;
         (*(ThisMethod1 *)(*new_child + 0xc))(new_child,0,1);
         *(int *)(obj + 0x78) = 0;
       }
