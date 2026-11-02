@@ -53,7 +53,7 @@ typedef struct D3d9Mesh {
   int *material;            /* word 0: texture; +4: RGBA colour; +0xc: surface properties */
   int unknown_04;
   int vertex_shader;
-  int min_index;
+  int base_index;           /* word 3: BaseVertexIndex (the original passes MinVertexIndex = 0) */
   int num_vertices;
   int start_index;
   int primitive_count;
@@ -130,7 +130,7 @@ void d3d9_pipeline_create_default_cb_4a9ff0(D3d9InstanceHeader *header, int unus
         thunk_FUN_004fc616(&world, &world);
         RwD3D9SetTransform(D3DTS_WORLD, &world);
         _rwD3D9RenderStateFlushCache();
-        ((D3DMethod6)D3DDEV_METHOD(D3DDEV_DRAW_INDEXED_PRIMITIVE))(g_d3d9_device, header->primitive_type, 0, mesh->min_index,
+        ((D3DMethod6)D3DDEV_METHOD(D3DDEV_DRAW_INDEXED_PRIMITIVE))(g_d3d9_device, header->primitive_type, mesh->base_index, 0,
                                                                   mesh->num_vertices, mesh->start_index, mesh->primitive_count);
       }
       mesh++;
