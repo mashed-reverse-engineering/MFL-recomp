@@ -11,6 +11,7 @@
 #   cluster      check_all (4th strict build with --clusters) + targeted courses + DRIVE=31 courses 0,3 of a build with --clusters (names = cluster names = roots; none = all enabled in src/clusters/enabled.txt); no shadow (a cluster has no original-vs-C shadow), diffemu --cluster is the conformance proof
 #   milestone    check_all + full sweep RUNS=2 with --count (refreshes output/fn_courses.csv) + DRIVE=31 sweep + win/lose (DRIVE=33 / 65) crash-only + full tier 2 shadow
 #   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src LIB_CRT=libcmt DROP_DSHOW=1 by default, =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
+#                + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), d3dtrace render compare vs control, scenario smoke
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
 # --dry-run prints the plan with the estimated minutes (rough: check_all 4, course 0.5 incl. cached control, sweep of 15 on P=2 about 6).  Exit 0 = all steps passed.
@@ -62,7 +63,9 @@ case $KIND in
              step "MKRANGE GEN_DATA IMPLIBS HARNESS link" 8 "standalone_link"
              step "origbytes vs baseline" 1 "origcheck"
              step "crash-only 15 courses on the linked exe" 12 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
-             step "DRIVE=31 course 0 state compare" 5 "statecheck";;
+             step "DRIVE=31 course 0 state compare" 5 "statecheck"
+             step "render oracle: d3dtrace course 0 vs control" 1.5 "$T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"
+             step "scenario smoke (options_all, pause_all training, menus_main, arcade_win)" 6 "$T/delink/sa_oracles.sh scen $D/link \$(cat $D/delta.txt) $D/scen";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
              step "fn_courses refresh" 0.1 "python3 $T/fn_courses.py build $D/full"
              step "DRIVE=31 sweep" 6 "sweep drive31 0 14 $CRASH DRIVE=31"
@@ -74,7 +77,7 @@ esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
 echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
-[ -n "$DRY" ] && { [ $KIND = standalone ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
+[ -n "$DRY" ] && { [ $KIND = standalone ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
 mkdir -p $D; $T/provenance.sh $D; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
@@ -122,15 +125,16 @@ diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (n
 standalone_link() {      # fresh harness link; target configuration by default (B1): LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1, A/B with LIB_*=orig DROP_DSHOW=0; LIB_RW / RW_DLL pass through (unset = off).
   # DELTA starts at $DELTA, else the last converged delta (output/gate/standalone_delta.txt), else ba000; retried with the printed delta until stable, at most 4 links
   local d=${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null)}; d=${d:-ba000}; local k out
-  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
+  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx,g1}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
   echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} LIB_CRT=${lc:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${lr:-orig} RW_DLL=${RW_DLL:-pinned} DELTA start $d"
   for k in link link2 link3 link4; do
-    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc LIB_RW=$lr DROP_DSHOW=$dd MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
+    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc LIB_RW=$lr DROP_DSHOW=$dd DROP_RW=${DROP_RW:-1} DROP_DINPUT=${DROP_DINPUT:-1} MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
     [ $out = 0 ] && { echo $d > $D/delta.txt; mkdir -p $R/output/gate; echo $d > $R/output/gate/standalone_delta.txt; [ $k != link ] && { mv $D/link $D/link1 && ln -s $k $D/link; }; return 0; }      # T-N13: `ln -sfn` onto the existing DIRECTORY link made link/link2: the gate then ran origbytes + the sweep on the first, wrong-delta link
     d=$(sed -n 's/.*DELTA mismatch: rerun with DELTA=\([0-9a-f]*\).*/\1/p' $D/$k.log); [ -n "$d" ] || return 1
   done; return 1
 }
-origcheck() {      # origbytes of the link vs output/zero_original_baseline.txt ("key bytes" lines); GATE_BASELINE_WRITE=1 writes it
+origcheck() {      # .data length of ours.map (T-P15) + origbytes of the link vs output/zero_original_baseline.txt ("key bytes" lines); GATE_BASELINE_WRITE=1 writes it
+  $T/delink/sa_oracles.sh data $D/link $(cat $D/delta.txt) $D || return 1
   python3 $T/delink/origbytes.py $D/link --out $D > $D/origbytes.log 2>&1 || { tail -5 $D/origbytes.log; return 1; }
   python3 -I - $D/zero_original_bytes.json $R/output/zero_original_baseline.txt ${GATE_BASELINE_WRITE:-0} <<'PY'
 import json, os, sys

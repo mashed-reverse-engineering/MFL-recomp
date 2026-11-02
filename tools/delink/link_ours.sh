@@ -72,6 +72,12 @@ if [ -n "$LIB_RW" ]; then
   i686-w64-mingw32-as -o $W/rw/thunks.obj $W/rw/thunks.s || exit 1
   { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "rw:thunks $W/rw/thunks.obj"; } > $W/rw/extra_objs.txt; EXTRA_OBJS=$W/rw/extra_objs.txt
 else unset RW_DLL; fi
+# DROP_DINPUT=1 (S7, default off; needs GEN_DATA): the dinput8.lib object-format tables in .text (0x4ab230, 4,800 B, tools/delink/dinput_dead.txt) come from src/dinput/dinput_formats.c (const data,
+# mingw-compiled): it defines func_0x004ab230 / func_0x004ab4f0, which the generated .rdata DIDATAFORMAT structures reference; mkobj fills the old bytes.
+if [ -n "$DROP_DINPUT" ]; then
+  mkdir -p $W/dinput; i686-w64-mingw32-gcc -c -O1 -fno-ident -o $W/dinput/dinput_formats.obj $G/src/dinput/dinput_formats.c || exit 1
+  { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "dinput:formats $W/dinput/dinput_formats.obj"; } > $W/dinput/extra_objs.txt; EXTRA_OBJS=$W/dinput/extra_objs.txt; export DROP_DINPUT
+fi
 : > $W/objs_local.txt; n=0
 while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.obj" >> $W/objs_local.txt; done < <(cat $W/objs.txt ${EXTRA_OBJS:-})      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)

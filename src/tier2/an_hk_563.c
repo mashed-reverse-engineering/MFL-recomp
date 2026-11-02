@@ -99,8 +99,8 @@ void course_city_cb1(void)
   bool tick_is_even;
   double rand_value;
   RwV3d dir;
-  RwV3d pos;
-  RwV3d fx_pos;
+  volatile RwV3d pos;      /* in parameters of the naked wrappers: volatile, or MSVC drops the stores (defectlint class 18) */
+  volatile RwV3d fx_pos;
 
   /* tick_is_even (inferred): bit 0 of the tick count is clear */
   user_data = g_tick_number & TICK_PARITY_MASK;
@@ -115,7 +115,7 @@ void course_city_cb1(void)
     tick_is_even = (user_data - 1 | 0xfffffffe) == 0xffffffff;
   }
   if (tick_is_even) {
-    func_0x00455ee0_r(&pos);
+    func_0x00455ee0_r((RwV3d *)&pos);
   }
   /* random unit vector in the xz plane, scaled and offset from the base point */
   rand_value = (double)random_range(FLOAT_BITS_NEG_ONE,FLOAT_ONE_BITS);
@@ -129,7 +129,7 @@ void course_city_cb1(void)
   dir.z = dir.z * k_f_0_4;
   pos.x = dir.x + k_f_85_38;
   pos.z = dir.z + k_f_21_829;
-  func_0x00455fd0_r(&pos);
+  func_0x00455fd0_r((RwV3d *)&pos);
   /* table A: 26 slots, fx slot at NT1_A_FX_BASE, object at NT1_A_OBJ_BASE; y offset g_course_city_60d8c8 */
   slot_offset = 0;
   do {
@@ -140,7 +140,7 @@ void course_city_cb1(void)
         fx_pos.x = *(float *)(matrix + MATRIX_POS_X);
         fx_pos.y = *(float *)(matrix + MATRIX_POS_Y) - g_course_city_60d8c8;
         fx_pos.z = *(float *)(matrix + MATRIX_POS_Z);
-        func_0x00455e60_r(&fx_pos);
+        func_0x00455e60_r((RwV3d *)&fx_pos);
         fx_slot_release(*(undefined4 *)(slot_offset + ((LONG_PTR)&g_course_nt1_6a1f2c + NT1_A_FX_BASE)));
         *(undefined4 *)(slot_offset + ((LONG_PTR)&g_course_nt1_6a1f2c + NT1_A_FX_BASE)) = SLOT_EMPTY;
       }
@@ -157,7 +157,7 @@ void course_city_cb1(void)
         fx_pos.x = *(float *)(matrix + MATRIX_POS_X);
         fx_pos.y = *(float *)(matrix + MATRIX_POS_Y) - g_course_city_60d8d4;
         fx_pos.z = *(float *)(matrix + MATRIX_POS_Z);
-        func_0x00455e60_r(&fx_pos);
+        func_0x00455e60_r((RwV3d *)&fx_pos);
         fx_slot_release(*(undefined4 *)(slot_offset + ((LONG_PTR)&g_course_nt1_6a1f2c + NT1_B_FX_BASE)));
         *(undefined4 *)(slot_offset + ((LONG_PTR)&g_course_nt1_6a1f2c + NT1_B_FX_BASE)) = SLOT_EMPTY;
       }
@@ -174,7 +174,7 @@ void course_city_cb1(void)
         fx_pos.x = *(float *)(matrix + MATRIX_POS_X);
         fx_pos.y = *(float *)(matrix + MATRIX_POS_Y) - g_course_city_60d8e0;
         fx_pos.z = *(float *)(matrix + MATRIX_POS_Z);
-        func_0x00455e60_r(&fx_pos);
+        func_0x00455e60_r((RwV3d *)&fx_pos);
         fx_slot_release(*(undefined4 *)(slot_offset + ((LONG_PTR)&g_course_nt1_6a1f2c + NT1_C_FX_BASE)));
         *(undefined4 *)(slot_offset + ((LONG_PTR)&g_course_nt1_6a1f2c + NT1_C_FX_BASE)) = SLOT_EMPTY;
       }
@@ -198,7 +198,7 @@ void course_city_cb1(void)
           fx_pos.x = *(float *)(slot_offset + MATRIX_POS_X);
           fx_pos.y = *(float *)(slot_offset + MATRIX_POS_Y) - *ref_height_ptr;
           fx_pos.z = *(float *)(slot_offset + MATRIX_POS_Z);
-          func_0x00455e60_r(&fx_pos);
+          func_0x00455e60_r((RwV3d *)&fx_pos);
           fx_slot_release(*fx_slot_ptr);
           *fx_slot_ptr = SLOT_EMPTY;
         }

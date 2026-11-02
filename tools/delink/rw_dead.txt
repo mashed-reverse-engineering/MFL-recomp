@@ -1,4 +1,6 @@
 # va size name: dead RenderWare/D3DX pool code (dshow_drop.py pool), see ROADMAP T-S3
+004d4580 352 MatrixInvertGeneric
+004d4d50 240 MatrixQueryRotateDegenerateUnitAxis
 004fb60b 42 FUN_004fb60b
 004fb635 142 c_D3DXVec2Hermite
 004fb6c3 42 FUN_004fb6c3
@@ -338,6 +340,9 @@
 00523a0a 1951 FindDecl
 005241a9 94 TypeSize_005241a9
 00524207 729 EmitTypeInfo
+00557220 96 QuatFromXDiagDomMatrix
+00557280 96 QuatFromYDiagDomMatrix
+005572e0 96 QuatFromZDiagDomMatrix
 00560b50 96 _rtFSManagerIsFSNameInUse
 00560bb0 240 _rtFSManagerFOpenOnFS
 00560cb0 64 _rtGetFileSystemFromDeviceName

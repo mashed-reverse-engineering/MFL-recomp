@@ -5,7 +5,6 @@ RwV3dTransformPoint
 RwV3dTransformPoints
 RwV3dTransformVector
 RwV3dTransformVectors
-RwMatrixInvert
-RtIntersectionLineTriangle
+# RwMatrixInvert, RtIntersectionLineTriangle: disasm-exact in librw-mfl/capi/g1.cpp now, group g1 (tools/delink/rw_g1.txt, check rw_g1_check.sh)
 RtLineSphereIntersectionTest
 RtBaryGetTransform

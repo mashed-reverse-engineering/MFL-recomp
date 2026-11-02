@@ -1,0 +1,27 @@
+# Group "g1" (S4 first group, plan_librw_d3dx): stateless RenderWare functions from librw-mfl/capi/g1.cpp, written op for op from the disassembly; opt-in with LIB_RW=librw:g0,stream,d3dx,g1 and an RW_DLL built
+# from a librw-mfl tree that has g1.cpp.  Format as rw_stream.txt: exe_name[=dll_export].  Proof: tools/delink/rw_g1_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine
+# at CW 0x7f, every pointer argument may alias): all EQUAL.  Engine state the originals read is constant in the DLL (identity mask 0x20000, multiply = x87 routine 0x5dc2a0, tolerances 0.01).
+# RpRandom state lives in the DLL: the exe's plugin ctor 0x544fa0 stays original and warms the DLL state up through RpRandom (the DLL starts seeded 0x9a319039, not warmed).
+# RwMatrixOrthoNormalize 0x4d3d40 is a 5 byte jmp to the body 0x4d3d50 (alias MatrixOrthoNormalize): both are listed.
+# The static helpers only these functions call become dead with the swap (left to the S3 closure, rw_dead.txt regen): 0x4d4580 general inverse (338 B), 0x4d4d50 QueryRotate degenerate axis (234 B),
+# 0x557220/0x557280/0x5572e0 quat from the dominant diagonal (3 x 93 B).
+# Left for later: RtIntersectionSphereTriangle 0x557a80 (1,951 B) and RtIntersectionBBoxTriangle 0x558220 (5,807 B); RwMatrixCreate/Destroy (free list); RtLineSphereIntersectionTest / RtBaryGetTransform are recomp C already.
+_rwMatrixDeterminant
+_rwMatrixOrthogonalError
+_rwMatrixNormalError
+_rwMatrixIdentityError
+RwMatrixOptimize
+RwMatrixMultiply
+RwMatrixOrthoNormalize
+MatrixOrthoNormalize=RwMatrixOrthoNormalize
+RwMatrixRotateOneMinusCosineSine
+RwMatrixRotate
+RwMatrixInvert
+RwMatrixTransform
+RwMatrixQueryRotate
+RtQuatConvertFromMatrix
+RtQuatTransformVectors
+RtQuatSetupSlerpCache
+RtIntersectionLineTriangle
+RpRandomSeed
+RpRandom

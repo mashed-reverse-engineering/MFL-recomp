@@ -68,7 +68,7 @@ void course_collision_object_build(CollisionRecord *record, CollisionOwner *owne
   unsigned short *triangles = mesh->triangles;
   int face_count = mesh->face_count;
   int point_count = mesh->point_count;
-  EdgeInfo edge_info;
+  volatile EdgeInfo edge_info;      /* in/out of the naked wrapper: volatile, or MSVC drops the zero stores and folds edge_count to 0 (defectlint class 18) */
   float *normals;
   int i;
 
@@ -76,7 +76,7 @@ void course_collision_object_build(CollisionRecord *record, CollisionOwner *owne
   edge_info.count = 0;
   normals = (float *)RwMalloc(face_count * 12, 0);
   course_mesh_triangle_normals_build_r(triangles, normals, vertices, face_count);
-  course_collision_edges_build_r(face_count, &edge_info, triangles);
+  course_collision_edges_build_r(face_count, (void *)&edge_info, triangles);
   record->face_count_copy = face_count;
   record->point_count = point_count;
   RwV3dTransformPoints(&record->points[0][0], vertices, point_count, RwFrameGetLTM(owner->frame));

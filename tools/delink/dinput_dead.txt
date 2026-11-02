@@ -1,0 +1,2 @@
+# va size why: S7 (DROP_DINPUT=1, default off): dinput8.lib object-format tables in .text, replaced by recomp/dinput/dinput_formats.c (const data); mkobj fills them like a dead table
+004ab230 4800 c_rgodfDIJoystick[44]+c_rgodfDIKeyboard[256]

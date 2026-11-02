@@ -14,6 +14,8 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
   14 implicit  call of a function with NO prototype in scope (implicit declaration, or a `name()` K&R declaration in an included header) with a float / double argument: promoted to double, 8 bytes pushed, the callee reads a float (T-H2 course_warzone_cb0 func_0x0048db30)
   15 fpwidth   a float (double) typed global used by a function whose ORIGINAL instructions read that address only as a qword (dword): k_f_0 at 0x5ddc28 is the double 90.0, read as float it is 0 (T-H2 car_auto_steer_assist_step); output/fp_const_uses.txt = x87 memory operands per original function (gen_fpuse, --regen)
   16 t1hygiene tier 1 only (report only, byte identical code): no one-line `/* description */` comment before the function, or an `extern` declaration (object / function / function pointer) whose name is never used in the file (draft header residue; T-Q1)
+  18 nakedaddr `&local` passed to a `__declspec(naked)` wrapper defined in the same file, local not volatile and its address going to no other (extern) function: MSVC drops the stores / reads around the call (T-P16/T-P17 menu_page_enter)
+  19 comargs   indirect `[reg+disp]` (COM vtable) call whose literal / field arguments contradict every original call site's pushes of that disp in the function (T-P18 DrawIndexedPrimitive Base/MinVertexIndex swap)
   17 framesize (`--framesize`, own run: needs the diffemu venv + object cache; `--all-tier2` = all automatch_near functions, default rwp_*) tier 2 function whose compiled prologue frame (sub esp / push ecx / chkstk) is > 8 bytes smaller than the ORIGINAL's: a local array / struct passed to a call is too small for the callee's stores (585950 `float res[16]` for 0xec bytes).  Output output/frameaudit.csv; baseline = output/frameaudit_2026-11-01.csv (status fixed / justified per flagged function)\nClass 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
 Exit 0 always (warning tool)."""
@@ -596,13 +598,140 @@ class Lint:
                     k = len([a for a in split_args(st[m.end():j]) if a.strip()]) if j > 0 else 0
                     if k < n: self.add(10, "high", ln, fn, tn, st, "defarity: tail call `%s` passes %d argument(s), the original jumps there with %d (frame arguments)" % (tn, k, n))
 
+    def check_nakedaddr(self, fn, line, st, env, body, params):
+        """class 18 (T-P16 / T-P17): `&local` passed to a `__declspec(naked)` function DEFINED in this file: MSVC sees the naked body as not reading its parameters, so the store before the call / the read after it is dropped or the slot is shared (cl_menu_page_enter slot index -1). Fix: `volatile` local + cast at the call"""
+        nk = self.naked
+        if not nk or re.match(r"^\s*extern\b", st): return
+        for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\(", st):
+            if m.group(1) not in nk or m.group(1) == fn: continue
+            j = balanced_after(st, m.end() - 1)
+            seen = set()
+            for a in split_args(st[m.end():j] if j > 0 else ""):
+                for mm in re.finditer(r"&\s*([A-Za-z_]\w*)\b(?!\s*->)", a):
+                    x = mm.group(1)
+                    if x not in env or x in seen or re.search(r"\*\s*\([^()]*\*\s*\)\s*$", a[:mm.start()]): continue      # `*(int *)&f` passes the value; `&p->m` is not a local
+                    seen.add(x)
+                    if self.escapes(x, body): continue
+                    vol =any(re.search(r"\b%s\b" % re.escape(x), re.sub(r"\{[^{}]*\}", "", d)) for d in re.findall(r"\bvolatile\b[^;{]*(?:\{[^{}]*\}[^;]*)?;", body + ";" + params.replace(",", ";")))
+                    if not vol: self.add(18, "high", line, fn, x, st, "address of the non-volatile local `%s` goes to the naked wrapper `%s` defined in this file: MSVC may drop the store before / the read after the call (declare it volatile, cast at the call)" % (x, m.group(1)))
+
+    def escapes(self, x, body):
+        """`&x` (or `&x.m`, `&x[i]`) also goes to a function that is NOT defined in this file: MSVC then treats x as address-taken for the whole function and keeps its stores / reloads (fx_decal_stamp_matrix: RwMatrixTranslate(&matrix, ..))"""
+        if getattr(self, "_defs", None) is None: self._defs = {n for n, _, _, _ in self.functions()}
+        for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\(", body):
+            f = m.group(1)
+            if f in KW or f in self._defs or f in self.naked: continue
+            j = balanced_after(body, m.end() - 1)
+            if j > 0 and re.search(r"&\s*%s\b(?!\s*->)" % re.escape(x), body[m.end():j]): return True
+        return False
+
+    _OSITES = {}
+    @staticmethod
+    def orig_com_sites(va):
+        """{disp: [[push operand of arg0 (last push), arg1, ..]]} of the `call [reg+disp]` sites of the ORIGINAL function at va (pushes collected backwards up to the previous call / jmp / ret)"""
+        if va in Lint._OSITES: return Lint._OSITES[va]
+        sz = FNSIZE.get(va, 0); out = {}
+        if sz:
+            a0 = int(va, 16)
+            ins = [(m.group(1), m.group(2).strip()) for m in re.finditer(r"^\s*[0-9a-f]+:\t[0-9a-f ]+\t(\S+)\s*(.*)$", subprocess.run(["objdump", "-d", "-M", "intel", "--start-address=0x%x" % a0, "--stop-address=0x%x" % (a0 + sz), EXE], capture_output=True, text=True).stdout, flags=re.M)]
+            for i, (op, r) in enumerate(ins):
+                m = re.match(r"DWORD PTR \[e(?:[a-d]x|[sd]i|bp)(?:\+0x([0-9a-f]+))?\]$", r) if op == "call" else None
+                if not m: continue
+                ps = []
+                for k in range(i - 1, -1, -1):
+                    op2, r2 = ins[k]
+                    if op2 in ("call", "jmp") or op2.startswith("ret"): break
+                    if op2 != "push": continue
+                    if re.fullmatch(r"e[a-d]x|e[sd]i|ebx|ebp", r2):      # `mov edx,[esi+4]; push edx`: the value of the last write of that register
+                        for op3, r3 in reversed(ins[:k]):
+                            if op3 in ("call", "jmp") or op3.startswith("ret"): break
+                            q = r3.split(",", 1)
+                            if q[0] != r2 or len(q) < 2: continue
+                            r2 = q[1] if op3 == "mov" and not re.fullmatch(r"e[a-d]x|e[sd]i|ebx|ebp", q[1]) else "0x0" if op3 == "xor" and q[1] == r2 else r2
+                            break
+                    ps.append(r2)
+                out.setdefault(int(m.group(1) or "0", 16), []).append(ps)
+        Lint._OSITES[va] = out
+        return out
+
+    def check_comargs(self, fn, line, st):
+        """class 19 (T-P18): indirect (COM vtable) call whose argument kinds contradict EVERY original `call [reg+disp]` site of the same displacement: a C literal where the original pushes a memory operand / another immediate, or a field where it pushes an immediate (DrawIndexedPrimitive with BaseVertexIndex / MinVertexIndex swapped)"""
+        vas = self.fn_vas(fn)
+        if not vas: return
+        x = self.expand(st)
+        for m in re.finditer(r"\)\s*\(", x):
+            i = m.start(); d = 0; o = -1
+            for j in range(i, -1, -1):
+                if x[j] == ")": d += 1
+                elif x[j] == "(":
+                    d -= 1
+                    if d == 0: o = j; break
+            cal = x[o:i + 1] if o >= 0 else ""
+            n = re.search(r"\[[\s(]*(0x[0-9a-fA-F]+|\d+)[\s)]*/\s*4\s*\]\s*\)*$", cal) or re.search(r"\+\s*(0x[0-9a-fA-F]+|\d+)\s*\)\s*\)$", cal)
+            if not n or "*" not in cal: continue
+            disp = int(n.group(1), 0); b = balanced_after(x, m.end() - 1)
+            if b < 0: continue
+            args = [self.argkind(a) for a in split_args(x[m.end():b])]
+            sites = [ps for va in vas for ps in self.orig_com_sites(va).get(disp, []) if len(ps) >= len(args)]
+            if not sites: continue
+            bad = []
+            for ps in sites:
+                c = [k for k, (ca, op) in enumerate(zip(args, ps)) if self.conflict(ca, op)]
+                if not c: break
+                bad.append((ps, c))
+            else:
+                ps, c = bad[0]
+                self.add(19, "high", line, fn, "+0x%x" % disp, st, "indirect call [+0x%x]: argument(s) %s contradict the original pushes (%s): swapped / wrong argument" % (disp, ",".join(str(k) for k in c), "; ".join("arg%d=%s" % (k, ps[k]) for k in c)))
+
+    @staticmethod
+    def conflict(ca, op):
+        oi = re.fullmatch(r"(0x[0-9a-f]+)", op); om = "PTR [" in op or "PTR ds:" in op
+        if ca[0] == "imm": return bool(oi) and int(oi.group(1), 16) & 0xffffffff != ca[1] & 0xffffffff or om
+        return ca[0] == "mem" and bool(oi)
+
+    def argkind(self, a):
+        a = a.strip()
+        while True:
+            m = re.match(r"^\(\s*[A-Za-z_][\w\s]*\**\s*\)\s*(.*)$", a, flags=re.S)      # (cast)
+            if m and m.group(1): a = m.group(1).strip(); continue
+            if a.startswith("(") and balanced_after(a, 0) == len(a) - 1: a = a[1:-1].strip(); continue
+            break
+        if re.fullmatch(r"-?(0[xX][0-9a-fA-F]+|\d+)[uUlL]*", a): return ("imm", int(a.rstrip("uUlL"), 0))
+        if a == "NULL": return ("imm", 0)
+        if not a.startswith("&") and re.fullmatch(r"\*?[\w\s\.\[\]>-]+", a) and ("->" in a or "[" in a or a.startswith("*")) and not re.search(r"(?<!-)[+*/]|-(?!>)", a.lstrip("*")): return ("mem", a)
+        return ("?", a)
+
+    def expand(self, st):
+        if getattr(self, "_mac", None) is None:
+            self._mac = {}
+            for m in re.finditer(r"^\s*#\s*define\s+(\w+)(\((\w+)\))?\s+(.+)$", self.raw, flags=re.M):
+                self._mac[m.group(1)] = (m.group(3), strip_comments(m.group(4)).strip())
+        for _ in range(3):
+            def sub(m):
+                p, v = self._mac[m.group(1)]
+                if p is None: return "(" + v + ")"
+                return m.group(0)
+            st = re.sub(r"\b(%s)\b" % "|".join(map(re.escape, self._mac)) if self._mac else r"(?!)", sub, st)
+            for nm, (p, v) in self._mac.items():
+                if p is None: continue
+                st = re.sub(r"\b%s\s*\(([^()]*(?:\([^()]*\))?[^()]*)\)" % re.escape(nm), lambda m: "(" + re.sub(r"\b%s\b" % re.escape(p), "(" + m.group(1) + ")", v) + ")", st)
+        return st
+
+    def fn_vas(self, fn):
+        v = NAMEVA.get(fn) or NAMEVA.get(re.sub(r"_[cn]$", "", fn))
+        if v: return [v]
+        m = re.match(r"//\s*cluster-entries:\s*(.*)", self.raw.split("\n")[0])
+        return [NAMEVA[x] for x in re.split(r"[\s,]+", m.group(1).strip()) if x in NAMEVA] if m else []
+
     def run(self):
+        self.naked = set(re.findall(r"__declspec\(\s*naked\s*\)[^;{(]*?\b(\w+)\s*\(", self.t))
         for fn, params, s, e in self.functions():
             self.check_framelayout(fn, s, e); self.check_defarity(fn, params, s, e)
             env = self.local_env(params, s, e)
-            vc = []
+            vc = []; body = "\n".join(self.lines[s:e + 1])
             for line, st in self.statements(s, e):
                 self.check_stmt(fn, line, st, env); self.check_regcallee(fn, line, st); self.check_krarity(fn, line, st); self.check_calleearity(fn, line, st); self.check_implicit(fn, line, st, env)
+                self.check_nakedaddr(fn, line, st, env, body, params); self.check_comargs(fn, line, st)
                 vc += [(line, st) + c for c in self.vtable_calls(st)]
             self.check_vtable(fn, vc); self.check_fpwidth(fn, s, e)
             body = "\n".join(self.lines[s:e + 1])      # class 12, nested form: `if (x <= hi) { if (x < lo) x = lo; } else x = hi;` (also >= / else-first) on a float object
@@ -814,7 +943,7 @@ def header_decls(text, here, seen=None):
 
 
 ORIG = {}; NAMEOF = {}
-ENABLED = set(); IND = {}; REGVA = {}; REGNAME = {}; GT = {}; GTCONV = {}; NAMEVA = {}; PM = {}; PMALL = {}; DPROTO = {}
+FNSIZE = {}; ENABLED = set(); IND = {}; REGVA = {}; REGNAME = {}; GT = {}; GTCONV = {}; NAMEVA = {}; PM = {}; PMALL = {}; DPROTO = {}
 def load_gt():
     if not os.path.exists(PUSHMIN) or "--regen" in sys.argv: gen_pushmin()
     for l in open(PUSHMIN):
@@ -827,6 +956,7 @@ def load_gt():
     for l in open(os.path.join(G, "output", "fnsizes.txt")):
         q = l.split()
         if len(q) >= 2: NAMEVA[q[1]] = q[0].lower()
+        if len(q) >= 3: FNSIZE[q[0].lower()] = int(q[2])
     if not os.path.exists(ORIGARGS) or "--regen" in sys.argv: subprocess.run([sys.executable, os.path.join(H, "origargs.py")], check=True)
     for l in open(ORIGARGS):
         q = l.split()
@@ -939,7 +1069,7 @@ def main():
         with open(os.path.join(G, "output", "fp_width_mismatch.txt"), "w") as fh:
             for r in rows:
                 if str(r["cls"]) == "15": fh.write("%s:%s [%s%s] %s: %s\n" % (r["file"], r["line"], r["tier"], ", byte-identical" if r["byte_identical"] == "yes" else "", r["function"], r["note"]))
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize", 18: "nakedaddr", 19: "comargs"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (
