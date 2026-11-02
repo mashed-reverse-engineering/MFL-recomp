@@ -1,17 +1,46 @@
 {
   "$schema": "https://recomp.fyi/schema/v1.json",
   "game": "Mashed: Fully Loaded",
-  "system": "Windows",
+  "wikidata": "Q3850787",
+  "system": "PC (Windows)",
   "type": "decomp",
-  "original": { "sha1": "d52ca4a5995875b6d052707188e2c6d065f41766" },
+  "original": {
+    "sha1": "d52ca4a5995875b6d052707188e2c6d065f41766"
+  },
   "project": "MFL-recomp",
   "status": "in-progress",
-  "targets": ["Windows"],
-  "toolchain": ["Ghidra", "MSVC 13.00", "diffemu"],
+  "targets": [
+    "Windows"
+  ],
+  "toolchain": [
+    "Ghidra",
+    "MSVC 13.00",
+    "diffemu"
+  ],
   "approach": "Readable C checked per function against the original: byte identical to MSVC 13.00 output or differentially tested in an emulator",
-  "maintainers": [{ "name": "SciLor", "link": "https://github.com/SciLor" }],
-  "links": [{ "label": "Repository", "url": "https://github.com/mashed-reverse-engineering/MFL-recomp" }],
-  "help": ["Replacing RenderWare with a clean-room library", "Rewriting the physics plugin as verified C", "Audio and video backends", "Switch/ARM port"],
-  "tags": ["racing", "directx9", "x87", "renderware"],
+  "maintainers": [
+    {
+      "name": "SciLor",
+      "link": "https://github.com/SciLor"
+    }
+  ],
+  "links": [
+    {
+      "label": "Repository",
+      "url": "https://github.com/mashed-reverse-engineering/MFL-recomp"
+    }
+  ],
+  "help": [
+    "Replacing RenderWare with a clean-room library",
+    "Rewriting the physics plugin as verified C",
+    "Audio and video backends",
+    "Switch/ARM port"
+  ],
+  "tags": [
+    "racing",
+    "directx9",
+    "x87",
+    "renderware"
+  ],
   "notes": "A Windows x86 build made from the C source runs all 15 courses in the regression runs; about two thirds of its code is generated from the C, the rest is still taken from the original executable."
 }
