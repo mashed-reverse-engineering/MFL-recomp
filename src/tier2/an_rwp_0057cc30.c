@@ -11,7 +11,7 @@ typedef struct RwpIndexList {
    float, hence the float array, one slot per stored value) and into x87 temporaries (double t..).  dst row b (8 floats): [0..2] = w^2 * src row, [4..6] = the
    transform of src[4..6]; rows[i] (8 floats) is scaled by w^2 and its [4..6] transformed the same way, in place.  r[] is the rep movs copy of rows[i]. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_joint_matrix_columns_build(float *dst, int a2, float *rows, int a4, int a5, float *src, RwpIndexList *list, float *mats)
+void rwp_joint_matrix_columns_build(float *dst, int a2, float *rows, int a4, int a5, float *src, RwpIndexList *list, float *mats, int a8, int a9)
 {
   int i, b, k;
   float *m, *row, *d, *sr;

@@ -785,6 +785,12 @@ def framesize(a):
             except SystemExit: continue
             ours, oal = prologue_frame(ob); orig, ral = prologue_frame(cmpfn.exe_bytes(va, 64))
             rows.append(dict(cls=17, sev="high" if ours < orig - 8 else "info", file="src/automatch_near/" + f, line=1, function=nm, symbol="%08x" % va, text="frame ours %d orig %d%s" % (ours, orig, " (aligned frame)" if ral else ""), note="our frame is %d bytes smaller than the original's: a local passed to a call is probably too small" % (orig - ours) if ours < orig - 8 else "ok"))
+    try:      # callee store-extent audit (tools/frameaudit.py): every local address handed to a call, our room vs the original's room / the callee's decoded extent
+        import frameaudit
+        for r in frameaudit.main(["--all-tier2"] if "--all-tier2" in a else []):
+            if r["status"] in ("CHECK", "OVERFLOW"):
+                rows.append(dict(cls=17, sev="high", file="src/automatch_near/" + r["file"], line=1, function=r["function"], symbol="%s:%s" % (r["callee"], r["arg"]), text="callee %s arg %s: our room %s < original %s, required %s" % (r["callee"], r["arg"], r["room_ours"], r["room_orig"], r["required"]), note=r["note"]))
+    except Exception as e: print("framesize: frameaudit: %s %s" % (type(e).__name__, e))
     return rows
 
 
@@ -865,8 +871,11 @@ def main():
     if a_all: a.remove("--all")
     if "--regen" in a: a.remove("--regen")
     if "--framesize" in a:      # class 17: separate run (needs the diffemu venv + object cache); `--all-tier2` = every automatch_near function, default rwp_*.  Output: output/frameaudit.csv
-        a.remove("--framesize"); allow17 = {r["function"] for r in csv.DictReader(open(os.path.join(G, "output", "frameaudit_2026-11-01.csv"))) if r["status"] in ("justified", "fixed")}      # baseline: the audited flagged functions
-        rows = [r for r in framesize(a) if r["function"] not in allow17 or r["sev"] == "info"]
+        a.remove("--framesize"); allow17 = set(); allowc = set()      # baselines output/frameaudit_2026-11-*.csv: `frame` = a callee:arg key (call level, tools/frameaudit.py) or the frame text (function level); status justified / fixed
+        for bl in sorted(glob.glob(os.path.join(G, "output", "frameaudit_2026-11-*.csv"))):
+            for r in csv.DictReader(open(bl)):
+                if r["status"] in ("justified", "fixed"): (allowc.add((r["function"], r["frame"])) if re.fullmatch(r"[0-9a-f]{8}:a?\w+", r["frame"]) else allow17.add(r["function"]))
+        rows = [r for r in framesize(a) if r["sev"] == "info" or ((r["function"], r["symbol"]) not in allowc if ":" in r["symbol"] else r["function"] not in allow17)]
         with open(os.path.join(G, "output", "frameaudit.csv"), "w", newline="") as fh:
             w = csv.DictWriter(fh, ["cls", "sev", "file", "function", "symbol", "text", "note"], extrasaction="ignore"); w.writeheader(); w.writerows(rows)
         bad = [r for r in rows if r["sev"] == "high"]

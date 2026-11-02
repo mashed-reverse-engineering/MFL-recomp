@@ -335,6 +335,9 @@ if "--drop-app" in opt:
     if os.environ.get("DROP_DSHOW"):      # A7: the DirectShow movie code is dead (dshow_drop.py closure): filled like a dead table, its objects are not linked
         for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "dshow_dead.txt")):
             if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "dshow " + l_.split()[2]))
+    if os.environ.get("DROP_RW"):      # S3: dead RenderWare/D3DX pool code (dshow_drop.py pool -> tools/delink/rw_dead.txt), same treatment
+        for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rw_dead.txt")):
+            if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "rwpool " + l_.split()[2]))
     _deadset = set()
     for va_, n_, why_ in DEAD:
         si_ = sec_index(va_); assert si_ is not None and si_ == tsec, "dead table %x outside .text" % va_

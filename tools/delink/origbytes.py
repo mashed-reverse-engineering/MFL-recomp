@@ -8,7 +8,7 @@ kind app|gap|lib|pe), output/delink_sdk/ownership_items.csv (code / data owners)
   stub       5 byte entry jmp to our C (generated, no original content)
   C-gen      app data rows generated as C (initial values were extracted from the image, no original bytes are linked)
   linker     linker generated (IAT, import tables)
-Code layers: app (VA < 0x4ac600; 0x4ac600-0x4b0b70 is DirectShow), CRT, RenderWare, rwp, Lua, qhull, zlib/PNG/TIFF, DirectShow, D3DX, other (game owned islands >= 0x4b0000)."""
+Code layers: app (VA < 0x4ac600; 0x4ac600-0x4b0b70 is DirectShow), CRT, RenderWare, rwp, Lua, qhull, zlib/PNG/TIFF, DirectShow, D3DX (rpworld.lib bundled D3DX9 obj\i386 + stub block 0x4fb4b0-0x4fdfa0), Audio (streaming audio lib 0x5b5eb0-0x5d09d0 + 0x5d7c80-0x5dc000), other (game owned islands >= 0x4b0000)."""
 import collections, csv, json, os, sys, datetime
 G = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 W = os.path.abspath(sys.argv[1]); a = sys.argv[2:]

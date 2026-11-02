@@ -253,8 +253,9 @@ def main(out):
     for r in csv.DictReader(open(os.path.join(G, "output/delink_relocs.csv"))):
         if r["kind"] in ("const", "header", "rel32"): continue
         relocs[int(r["site"], 16)] = (int(r["target"], 16), r["kind"], r["confidence"], r["why"])
-    if os.environ.get("DROP_DSHOW"):      # A7: pointers into the dead DirectShow movie code (tools/delink/dshow_drop.py): vtables, EH tables, the 12 XCU entries become 0 (_initterm skips NULL)
-        dead = sorted((int(l.split()[0], 16), int(l.split()[0], 16) + int(l.split()[1])) for l in open(os.path.join(G, "tools/delink/dshow_dead.txt")) if l.strip() and not l.startswith("#"))
+    for env_, f_ in (("DROP_DSHOW", "dshow_dead.txt"), ("DROP_RW", "rw_dead.txt")):      # A7 / S3: pointers into dead code (DirectShow movie code, RenderWare/D3DX pool) become 0 (vtables, EH tables, XCU entries; _initterm skips NULL)
+        if not os.environ.get(env_): continue
+        dead = sorted((int(l.split()[0], 16), int(l.split()[0], 16) + int(l.split()[1])) for l in open(os.path.join(G, "tools/delink", f_)) if l.strip() and not l.startswith("#"))
         dst = [x[0] for x in dead]; nz = 0
         for s_ in sorted(relocs):
             t_ = relocs[s_][0]; j_ = bisect.bisect_right(dst, t_) - 1
@@ -263,7 +264,7 @@ def main(out):
                     if a_ <= s_ < a_ + vs_:
                         raw_ = bytearray(raw_); raw_[s_ - a_:s_ - a_ + 4] = bytes(4); SECS[nm_] = (a_, vs_, bytes(raw_)); break
                 del relocs[s_]; nz += 1
-        print("DROP_DSHOW: %d pointers into dead movie code zeroed" % nz)
+        print("%s: %d pointers into dead code zeroed" % (env_, nz))
 
     # items per section
     items = {}      # sec -> list of dict(va, ext, names, kind app/gap/lib/pe, ...)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Brief G: split the code of the image object (mkobj.py output of a GEN_DATA/--drop-app link) into one COFF object per layer.
 Usage: mkrange.py <mfl.obj> <out dir> [--rewrite]
-Writes <out>/<layer>.obj (RenderWare, qhull, rwp, zlib_png_tiff, D3DX, CRT, Lua, DirectShow, other, app) and <out>/rest.obj (everything of mfl.obj that is not code:
+Writes <out>/<layer>.obj (RenderWare, qhull, rwp, zlib_png_tiff, D3DX, Audio, CRT, Lua, DirectShow, other, app) and <out>/rest.obj (everything of mfl.obj that is not code:
 _rwdseg, .rdata filler, weak externals).  Code is cut into BLOCKS = maximal address runs of one layer (tools/delink/layers.py, the metric's classification); every block is
 a section `.text$NNNNN` (NNNNN = address order; link.exe sorts the contributions of one output section by the suffix, so the pinned layout stays) with a 1 byte alignment
 (the first block keeps the page alignment) in the object of its layer, and an external symbol `__rng_<va>` at its start.  `_rwcseg` (the 0x451 byte RW tail segment) is one block.

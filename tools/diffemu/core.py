@@ -670,7 +670,7 @@ SNAP = None      # set by seed.py
 _DD = os.path.expanduser("~/.cache/mfl_dumps/c0")      # default dump: course 0 frozen frame, harness DELTA 119000 (copy of scene.sh KEEP=1 output); DIFFEMU_DUMP=none turns it off
 _DS = os.environ.get("DIFFEMU_DUMP", _DD + ":119000" if os.path.exists(os.path.join(_DD, "mem.maps")) else "").replace("none", "").rpartition(":"); DUMPDIR, DUMPD = (_DS[0], int(_DS[2], 16)) if _DS[0] else ("", 0)
 DLO, DHI = 0x5dd000, 0x9f9000
-DUMPSEEDS = set(); DUMPARGS = {}; _DREG = []; _DPG = {}
+DUMPSEEDS = set(); DUMPARGS = {}; DARGPATCH = {}; _DREG = []; _DPG = {}
 DARGDIR = os.path.join(ROOT, "output", "diffemu_dumpargs")
 
 def dump_regions():
@@ -742,7 +742,10 @@ def dump_args(key):
         d = {}; f = os.path.join(DARGDIR, "%08x.txt" % key)
         if os.path.exists(f):
             for l in open(f):
-                if l[0] != "#": x = l.split(); d[int(x[0])] = [int(y, 16) for y in x[1:]]
+                if l[0] == "#": continue
+                x = l.split()
+                if x[0] in ("p", "P"): DARGPATCH.setdefault(key, []).append((int(x[1], 16), [int(y, 16) for y in x[2:]], x[0] == "P"))      # P = always (scratch objects), p = 60% of the dump cases      # `p ADDR V1 V2..`: dword of the dump world (an item flag / count) that dump cases may overwrite with one of the values (both sides)
+                else: d[int(x[0])] = [int(y, 16) for y in x[1:]]
         DUMPARGS[key] = d
     return DUMPARGS[key]
 
@@ -787,6 +790,8 @@ class Machine:
             try: uc.mem_map(p, 0x1000)
             except UcError: return False
             uc.mem_write(p, b"\xc3" * 0x1000); uc.hook_add(UC_HOOK_CODE, m._indirect, begin=p, end=p + 0xfff); return True
+        if p == 0 and m.seed in DUMPSEEDS:      # a data access through a NULL object pointer in the REAL game world: only patched / corrupt states get there (the game would crash), the two compilers legitimately differ (cl assumes a dereferenced pointer is not NULL): skip like NULLCALL
+            m.nullcall = True; uc.emu_stop(); return False
         try: uc.mem_map(p, 0x1000)
         except UcError: return False
         dp = dump_page(p) if m.seed in DUMPSEEDS else None      # real game memory (gen_cases marks the seeds)
@@ -794,6 +799,7 @@ class Machine:
             dp = bytearray(dp)
             for slot, a in m.islots.items():
                 if p <= slot < p + 0x1000: dp[slot - p:slot - p + 4] = struct.pack("<I", a)
+            dp = bytes(dp)      # Unicorn mem_write rejects a bytearray (the mapped page stayed zero: every dump-seeded image page was lost)
         uc.mem_write(p, dp if dp is not None else SNAP(p, m.page(p), m.seed) if SNAP else m.page(p))      # seed.py: game-state snapshot pages
         for a, v in m.patch.items():      # loop-bound retry (core.retry_case): dwords of this page that the case overrides
             if a & ~0xfff == p: uc.mem_write(a, struct.pack("<I", v))
@@ -1214,7 +1220,9 @@ def gen_cases(sig, n, k, seed0=0):
                 for j, pool in dpool.items():
                     if j < len(flat):
                         flat[j] = [r.choice(pool[:1 + seed % 3 * 2])]
-                        if r.random() < 0.3: dpatch[flat[j][0] + 4 * r.randrange(8)] = r.choice((0xffff, 0, 1, 2, 0xffffffff))      # a flag / id / count dword in the head of a real object (real objects never hold the sentinel values themselves)
+                        if r.random() < 0.3 and len(dpool) == 1: dpatch[flat[j][0] + 4 * r.randrange(8)] = r.choice((0xffff, 0, 1, 2, 0xffffffff))      # a flag / id / count dword in the head of a real object (real objects never hold the sentinel values themselves)
+                for a_, vs_, always_ in DARGPATCH.get(sig.dumpkey, ()):
+                    if always_ or r.random() < 0.6: dpatch[a_] = r.choice(vs_)
                 DUMPSEEDS.add(seed)
             for q, v in zip(("ecx", "edx"), flat[:nreg]): regs[q] = v[0]
             stack = [w for v in flat[nreg:] for w in v]

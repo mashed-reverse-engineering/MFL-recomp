@@ -142,13 +142,14 @@ for sec, v in j["data_by_section"].items():
     for k in ("lib", "gap"): cur["data:%s:%s" % (sec, k)] = v.get(k, 0)
 cur["rsrc"] = j["resources"]["rsrc_original_bytes"]
 old = {}
+pf = bf.replace(".txt", ".proposed.txt")      # S0: a pending proposed baseline (layer relabel) is compared instead of the old one until it is moved over the baseline
 if os.path.exists(bf):
-    for l in open(bf):
+    for l in open(pf if os.path.exists(pf) and not wr else bf):
         if l.strip() and l[0] != "#" and not l.startswith("state "): k, n = l.rsplit(None, 1); old[k] = int(n)
 for k in sorted(cur): print("%-34s %9d %s" % (k, cur[k], "" if k not in old else "(baseline %d%s)" % (old[k], ", FELL" if cur[k] < old[k] else "")))
 if wr:
     keep = [l for l in open(bf) if l.startswith("state ")] if os.path.exists(bf) else []
-    open(bf, "w").write("# gate.sh standalone: original bytes per layer of the MKRANGE harness link, %s; a layer that grows fails the gate (GATE_BASELINE_WRITE=1 rewrites after a deliberate change)\n" % j.get("date", "?") + "".join("%s %d\n" % kv for kv in sorted(cur.items())) + "".join(keep)); print("baseline written"); sys.exit(0)
+    open(bf, "w").write("# gate.sh standalone: original bytes per layer of the MKRANGE harness link, %s; a layer that grows fails the gate (GATE_BASELINE_WRITE=1 rewrites after a deliberate change)\n" % j.get("date", "?") + "".join("%s %d\n" % kv for kv in sorted(cur.items())) + "".join(keep)); print("baseline written"); os.path.exists(pf) and os.remove(pf); sys.exit(0)
 bad = [k for k in cur if k in old and cur[k] > old[k]] + [k for k in cur if k not in old]
 for k in bad: print("GROWN/NEW", k, cur[k], old.get(k))
 sys.exit(1 if bad else 0)

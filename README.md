@@ -1,17 +1,49 @@
 # MFL-recomp
 
-Reverse engineering and recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
+A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-The goal is a playable recompilation with readable, maintainable source code that can later take bug fixes and enhancements.
-Machine-code matching (byte-identical output from the original compiler, MSVC 13.00.9466 = Visual C++ .NET 2002) is used as the
-safety net while the source is made readable.
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly two thirds of its code is already generated from the C in this repository, the rest is still taken from the original executable (details below).
+
+## What this project is
+
+The goal is a playable recompilation with **readable, maintainable source** that can take bug fixes and enhancements, and later be ported (a Switch/ARM port is the long term target).
+To get there safely, every function is checked against the original: a function is either *byte identical* to what the original compiler (MSVC 13.00.9466, Visual C++ .NET 2002) produces, or *behaviour verified* by running it side by side with the original code in an emulator (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). This checking is scaffolding; the deliverable is the readable source.
 
 **No game files are included.** You need your own copy of the game; see [docs/LEGAL.md](docs/LEGAL.md).
 Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6d052707188e2c6d065f41766` (`python3 tools/check_exe.py path/to/MFL.exe`).
 
-## Progress
+## Roadmap
+
+| Milestone | State |
+|---|---|
+| Name functions, globals and structs of the game code | done for about 96% of the game functions |
+| Recompile the game code as C (byte identical or behaviour verified) | about 98% of the game functions; the rest are tiny stubs |
+| Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
+| Replace the C runtime (libcmt) | mostly done; the math tables are left |
+| Rewrite the RenderWare physics plugin (rwp) as verified C | in progress, about 75% of it |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; the first function groups are swapped, the rest follows |
+| Replace the streaming audio library, add a real video backend | planned |
+| Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
+
+## Progress (generated)
+
+The numbers below are regenerated with every source drop by `tools/progress.py`.
 
 <!-- progress:start -->
+### Status at a glance
+
+**Game code** (2,794 functions, the part above address 0x4B0000 that is the game itself):
+
+| | Functions | |
+|---|---:|:---|
+| Named | 2,696 | `███████████████████░` 96% |
+| Replaced by C | 2,735 | `████████████████████` 98% |
+| of these byte identical to the original compiler output | 1,387 | `██████████░░░░░░░░░░` 50% |
+| of these behaviour verified (differential test, not byte identical) | 1,184 | `████████░░░░░░░░░░░░` 42% |
+| of these only weakly verified | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
+
+<details><summary>Function level detail, tiers and how the numbers are counted</summary>
+
 **2,794 application functions** (VA < 0x4B0000, the rest is linked library code)
 
 | Stage | Functions | Progress |
@@ -29,14 +61,14 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | ...tier 1, `src/tier1` (1640 files) | 1,281 | `█████████░░░░░░░░░░░` 46% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (965 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...tier 2, `src/tier2` (971 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
 | ...clusters, `src/clusters` (642 files) | 678 | `█████░░░░░░░░░░░░░░░` 24% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 736 | |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 742 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
 **What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (642 cluster files give 678 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
 
-**Layers.** All of the rows above are application code (VA < 0x4B0000). Not counted and still original bytes in the playable build: the C runtime (libcmt, about 81 KB, including 23.6 KB floating-point/exception code without source), RenderWare Rw/Rp/Rx/Rt (about 480 KB; to be replaced by a clean-room librw-mfl, not byte-matched), the RenderWare physics plugin Rwp (121 KB, no source), RtPNG/libpng/zlib, D3DX, Lua 4.0, qhull and DirectShow video code, plus the data, resources and the link without the original image. The D3D9, DirectSound, DirectInput and Win32 platform calls are made directly from the application C. See [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
+**Layers.** All rows here are application code (VA < 0x4B0000). The library layers are in the table above; see [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
 
 *Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo (see [docs/VERIFICATION.md](docs/VERIFICATION.md)).
 
@@ -51,6 +83,8 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | hand | 381 | 14,744 | 344 |
 | tier1 | 934 | 71,946 | 934 |
 | tier2 | 718 | 247,331 | 0 |
+
+</details>
 
 </details>
 <!-- progress:end -->

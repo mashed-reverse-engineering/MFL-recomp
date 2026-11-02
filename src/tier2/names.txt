@@ -1088,3 +1088,9 @@
 00579040 rwp_batch_00579040 rwp_00579040.c
 0057d720 rwp_batch_0057d720 rwp_0057d720.c
 00570620 rwp_cylinder_sweep rwp_00570620.c
+005693c0 RtDictSchemaStreamReadDict rwp_005693c0.c
+0057fa00 rwp_constraints_0057fa00 rwp_0057fa00.c
+00569610 RtBaryGetTransform rwp_00569610.c
+00586680 rwp_aggregate_00586680 rwp_00586680.c
+00572d90 rwp_pipeline_00572d90 rwp_00572d90.c
+00571c60 rwp_pipeline_00571c60 rwp_00571c60.c

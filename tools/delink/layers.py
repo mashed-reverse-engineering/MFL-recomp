@@ -2,13 +2,13 @@
 import bisect, csv, os
 G = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 H = lambda s: int(s, 16)
-LAYERS = ["app", "CRT", "RenderWare", "rwp", "Lua", "qhull", "zlib/PNG/TIFF", "DirectShow", "D3DX", "other"]
+LAYERS = ["app", "CRT", "RenderWare", "rwp", "Lua", "qhull", "zlib/PNG/TIFF", "DirectShow", "D3DX", "Audio", "other"]
 ZLIB = ("deflate", "inflate", "inftrees", "infblock", "infcodes", "inffast", "infutil", "adler32", "crc32", "trees", "zutil", "compress", "uncompr", "gzio", "tif", "fax3", "lzw", "jpeg")
 H = lambda s: int(s, 16)
 
-# A8: layer "other" is classified by output/other_layer_2026-10-31.csv (tools/delink/other_layer_classify.py): code regions (e.g. 0x4ab230-0x4ac4f0 DirectInput DIOBJECTDATAFORMAT tables in .text)
+# A8: layer "other" is classified by output/other_layer_2026-11-02.csv (tools/delink/other_layer_classify.py): code regions (e.g. 0x4ab230-0x4ac4f0 DirectInput DIOBJECTDATAFORMAT tables in .text)
 # and library data runs without ownership item, each with a layer and evidence.  other_layer(va) = that layer, "other" if not covered.
-OTHER = sorted((H(r["lo"]), H(r["hi"]), r["layer"], r["kind"]) for r in csv.DictReader(open(os.path.join(G, "output", "other_layer_2026-10-31.csv"))))
+OTHER = sorted((H(r["lo"]), H(r["hi"]), r["layer"], r["kind"]) for r in csv.DictReader(open(os.path.join(G, "output", "other_layer_2026-11-02.csv"))))
 _OL = {k: [x for x in OTHER if x[3] == k] for k in ("code", "data")}
 def other_layer(va, kind="code"):
     for lo, hi, L, _ in _OL[kind]:
@@ -24,7 +24,7 @@ def layer(va, owner, member):
     if va == 0x5021c0: return "RenderWare"     # A5: the map's "gztell" is RpBuildMeshGenerateDefaultTriStrip
     if va < 0x5dc451 and other_layer(va) != "other" and (owner == "game" and va >= 0x4ac600 or not owner): return other_layer(va)
     if 0x569b30 <= va < 0x58ede0: return "rwp"
-    if 0x5b5eb0 <= va < 0x5d09d0: return "D3DX"
+    if 0x5b5eb0 <= va < 0x5d09d0: return "Audio"      # S0: streaming audio library (threads/semaphores/COM imports, called by soundengine_create_race_streams / sound_streams_pause), 0 d3dx9.lib matches; was mislabelled D3DX
     if _ds(va): return "DirectShow"      # the dead movie code (strmbase + RwaDS + the renderer class, tools/delink/dshow_dead.txt = dshow_drop.py closure); the rest of the old range 0x5d2b40-0x5dc451 is not DirectShow (called by RenderWare / D3DX / CRT)
     o = owner.rstrip("?~")
     if o == "game": return "app" if va < 0x4ac600 and not 0x4ab230 <= va < 0x4ac4f0 else other_layer(va)      # T-N18: 0x4ab230-0x4ac4f0 = dinput8.lib DIOBJECTDATAFORMAT tables (other_layer csv: D3DX), not app
@@ -32,6 +32,7 @@ def layer(va, owner, member):
     if va in (0x52f2b0, 0x52f790): return "zlib/PNG/TIFF"      # A5: png_write_oFFs / png_write_pHYs (pngwutil), no member in the ownership
     if o in ("lua", "qhull"): return "Lua" if o == "lua" else "qhull"
     if o in ("rw", "shared"):
+        if "obj\\i386" in member or 0x4fb4b0 <= va < 0x4fdfa0: return "D3DX"      # S0: the D3DX9 bundled in rpworld.lib (members obj\i386\*) + the public D3DX stub block 0x4fb4b0-0x4fdfa0 (owner rw?); was RenderWare
         lib = member.split(":")[0].lower(); base = member.replace("\\", "/").split("/")[-1].lower().replace(".obj", "")
         if base == "rtpng": return "RenderWare"      # A8: rtpng.obj = RW wrapper (RtPNGImageRead/Write, PNGMalloc/Free), zlib_png_map.csv class "RW wrapper"
         if lib in ("rtpng.lib", "rttiff.lib") or base in ZLIB: return "zlib/PNG/TIFF"

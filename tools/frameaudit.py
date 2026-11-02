@@ -200,8 +200,10 @@ def audit_function(obj, sym, va, symva):
     return rows, flag
 
 
-def main():
-    a = sys.argv[1:]; allt = "--all-tier2" in a; want = [x for x in a if not x.startswith("--")]
+def main(a=None):
+    a = list(sys.argv[1:] if a is None else a); allt = "--all-tier2" in a; D = os.path.join(G, "src", "automatch_near")
+    if "--dir" in a: i = a.index("--dir"); D = os.path.abspath(a[i + 1]); del a[i:i + 2]      # sources (and their headers) of another directory, e.g. a scratch copy under test
+    want = [x for x in a if not x.startswith("--")]
     syms = {}
     for f in ("symbols.txt", "aliases.txt"):
         for l in open(os.path.join(G, "src", f)):
@@ -221,19 +223,18 @@ def main():
         q = l.split()
         if len(q) >= 2: fsz.setdefault(q[1], int(q[0], 16))
     for k_, v_ in list(known.items()) + list(fsz.items()): syms.setdefault(k_, v_)
-    for path in sorted(glob.glob(os.path.join(G, "src", "automatch_near", "an_*.c"))):
+    for path in sorted(glob.glob(os.path.join(D, "an_*.c"))):
         f = os.path.basename(path)
-        if not (allt or f.startswith("an_rwp_")): continue
         try: dfs = list(core.defs(path))
         except Exception: continue
         m = re.match(r"an_rwp_([0-9a-f]{8})\.c", f)
         for nm_ in dfs:
             va = known.get(nm_) or fsz.get(nm_) or (syms.get(nm_)) or (int(m.group(1), 16) if m and len(dfs) == 1 else None)
-            if va is None or (want and nm_ not in want): continue
+            if va is None or (want and nm_ not in want) or not (allt or f.startswith("an_rwp_") or "rwp" in nm_): continue
             byfile.setdefault(f, []).append((nm_, va))
     out = []
     for f, fns in sorted(byfile.items()):
-        src = os.path.join(G, "src", "automatch_near", f)
+        src = os.path.join(D, f)
         try: obj, _ = diffemu.compile_obj(src)
         except Exception as e: print("frameaudit: %s: %s" % (f, e), file=sys.stderr); continue
         for nm_, va in fns:

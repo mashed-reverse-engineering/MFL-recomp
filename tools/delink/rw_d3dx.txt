@@ -6,3 +6,4 @@ sse_D3DXMatrixMultiplyTranspose=D3DXMatrixMultiplyTranspose
 sse_D3DXVec3TransformNormal=D3DXVec3TransformNormal
 sse_D3DXVec3TransformCoord=D3DXVec3TransformCoord
 c_D3DXMatrixTranspose=D3DXMatrixTranspose
+D3DXAssembleShader

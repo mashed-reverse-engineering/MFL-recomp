@@ -3,3 +3,5 @@
 004c4de0 2 64  world_intersect_line hit record: the intersect callback stores 0x40 bytes (+0x3c last word)
 004682c0 0 64  rocket_surface_hit_test 64 bytes
 0058ad00 1 12  rwp_gjk_0058ad00 stores a direction vector (3 floats) through its second argument on every path (via a copy of the pointer in ecx / ebx)
+004d3cd0 0 64  RwMatrixMultiply writes the 16 words of its RwMatrix destination (rep movsd 0x10 on the cached paths, the vtable multiply otherwise); rwp_shape_segment_cast had buf[13] (frameaudit 2026-11-02)
+0056fb00 0 16  rwp_poly_real_roots stores up to 4 roots (degree 4) through its first argument (rwp_ray_torus_root_test had a 12 byte RwV3d)

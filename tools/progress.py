@@ -20,7 +20,7 @@ def standalone():
     j = json.load(open(p)); t = j["totals"]; c = j["code"]
     return {"standalone": {"date": j["date"], "code_total": sum(sum(x.values()) for x in c.values()), "code_original": t["code_original"], "app_code_original": t["app_code_original"],
                            "data_lib_original": t["data_original_lib"], "data_generated_c": t["data_generated_c"], "resources_original": j["resources"]["rsrc_original_bytes"],
-                           "code_original_by_layer": {k: v.get("original", 0) for k, v in c.items()}}}
+                           "code_original_by_layer": {k: v.get("original", 0) for k, v in c.items()}, "code_total_by_layer": {k: sum(v.values()) for k, v in c.items()}}}
 
 def compute():
     fn = [(int(l.split()[0], 16), l.split()[1], int(l.split()[2])) for l in open(find("fnsizes.txt")) if len(l.split()) >= 3]
@@ -125,7 +125,7 @@ def bar(n, d, w=20):
     k = round(w * n / d) if d else 0
     return "`%s%s` %.0f%%" % ("█" * k, "░" * (w - k), 100 * n / d if d else 0)
 
-def table(j):
+def detail_table(j):
     f, m = j["functions"], j["published_source"]["by_status"]
     pub = sum(m.values()); rep = j["replaced_in_pipeline"]; g = f["game"]
     out = ["**%s application functions** (VA < 0x4B0000, the rest is linked library code)\n" % format(g, ","),
@@ -157,23 +157,54 @@ def table(j):
         ov = sum(pv[k] for k in ("tier1_functions", "automatch_functions", "tier2_functions", "cluster_functions")) + pub - tp
         if ov: out.append("| ...functions present in two kinds (counted once above) | %d | |" % ov)
     out += ["", "**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (%d cluster files give %d functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*." % ((pv or {}).get("cluster_files", 0), (pv or {}).get("cluster_functions", 0)), "",
-           "**Layers.** All of the rows above are application code (VA < 0x4B0000). Not counted and still original bytes in the playable build: the C runtime (libcmt, about 81 KB, including 23.6 KB floating-point/exception code without source), RenderWare Rw/Rp/Rx/Rt (about 480 KB; to be replaced by a clean-room librw-mfl, not byte-matched), the RenderWare physics plugin Rwp (121 KB, no source), RtPNG/libpng/zlib, D3DX, Lua 4.0, qhull and DirectShow video code, plus the data, resources and the link without the original image. The D3D9, DirectSound, DirectInput and Win32 platform calls are made directly from the application C. See [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).", "",
+           "**Layers.** All rows here are application code (VA < 0x4B0000). The library layers are in the table above; see [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).", "",
            "*Whole pipeline* rows above count everything the private working tree has replaced; *Published* rows are the part whose C source is in this repo (see [docs/VERIFICATION.md](docs/VERIFICATION.md)).", ""]
-    sa = j.get("standalone")
-    if sa:
-        out += ["", "**Original bytes still in the linked exe** (`tools/delink/origbytes.py`, build of %s: app code and app data from C, library layers and resources still original)\n" % sa["date"],
-                "| Part | Original bytes | Share |", "|---|---:|:---|",
-                "| Code (.text + _rwcseg), all layers | %s | %s |" % (format(sa["code_original"], ","), bar(sa["code_original"], sa["code_total"])),
-                "| ...application code (VA < 0x4B0000) | %s | |" % format(sa["app_code_original"], ","),
-                "| Library data (.rdata/.data/.bss rows copied as bytes) | %s | |" % format(sa["data_lib_original"], ","),
-                "| Application data generated as C | %s | |" % format(sa["data_generated_c"], ","),
-                "| Resources (.rsrc from the original) | %s | |" % format(sa["resources_original"], ","),
-                "| Code by layer | " + ", ".join("%s %s" % (k, format(v, ",")) for k, v in sa["code_original_by_layer"].items() if v) + " | |"]
     bt = (u or {}).get("by_tier")
     if bt:
         out += ["", "<details><summary>By tier (whole pipeline, each function once)</summary>\n", "| Tier | Functions | Code bytes | Verified byte identical |", "|---|---:|---:|---:|"]
         out += ["| %s | %d | %s | %d |" % (k, t["functions"], format(t["bytes"], ","), t["verified_bytes_identical"]) for k, t in bt.items()]
         out.append("\n</details>")
+    return "\n".join(out)
+
+LAYERS = [  # (key, label, what it is / plan)
+    ("RenderWare", "RenderWare (Rw/Rp/Rx/Rt)", "graphics engine; being replaced by the clean-room `librw-mfl` (not byte-matched)"),
+    ("D3DX", "D3DX9", "Microsoft helper library; only 5 math entry points are live, they move to `librw-mfl`, the rest is dead code"),
+    ("Audio", "Streaming audio library", "closed sound middleware; to be replaced by an audio backend"),
+    ("rwp", "RenderWare physics plugin", "rewritten function by function as verified C (no source exists)"),
+    ("CRT", "C runtime (libcmt)", "split into library members; the rest are math tables"),
+    ("app", "Game code", "the game itself; what is left are jump stubs"),
+    ("other", "Data tables", "DirectInput tables stored in the code section"),
+    ("Lua", "Lua 4.0", "built from open-source Lua"),
+    ("qhull", "qhull", "built from open-source qhull"),
+    ("zlib/PNG/TIFF", "zlib / libpng / libtiff", "built from open-source zlib and libpng"),
+    ("DirectShow", "DirectShow video", "removed; video goes through a replaceable interface"),
+]
+
+def glance(j):
+    f = j["functions"]; u = j.get("replaced_unique"); sa = j.get("standalone")
+    out = ["### Status at a glance", ""]
+    if u:
+        out += ["**Game code** (%s functions, the part above address 0x4B0000 that is the game itself):" % format(f["game"], ","), "",
+                "| | Functions | |", "|---|---:|:---|",
+                "| Named | %s | %s |" % (format(f["game_named"], ","), bar(f["game_named"], f["game"])),
+                "| Replaced by C | %s | %s |" % (format(u["functions"], ","), bar(u["functions"], f["game"])),
+                "| of these byte identical to the original compiler output | %s | %s |" % (format(u["byte_identical"], ","), bar(u["byte_identical"], f["game"])),
+                "| of these behaviour verified (differential test, not byte identical) | %s | %s |" % (format(u["behaviour_verified"], ","), bar(u["behaviour_verified"], f["game"])),
+                "| of these only weakly verified | %s | %s |" % (format(u["functions"] - u["byte_identical"] - u["behaviour_verified"], ","), bar(u["functions"] - u["byte_identical"] - u["behaviour_verified"], f["game"])), ""]
+    if sa:
+        tot, org = sa["code_total"], sa["code_original"]
+        out += ["**The whole executable** (build of %s): %s KB of code, **%d%% is generated from C**, %d%% is still original machine code (%s KB). The build links and runs all 15 courses." % (sa["date"], format(round(tot / 1024), ","), round(100 * (tot - org) / tot), round(100 * org / tot), format(round(org / 1024), ",")), "",
+                "| Layer | Original code left | Total | Share original | What it is / plan |", "|---|---:|---:|:---|---|"]
+        by = sa["code_original_by_layer"]; tl = sa["code_total_by_layer"]
+        for k, label, note in LAYERS:
+            if k not in tl: continue
+            out.append("| %s | %s KB | %s KB | %s | %s |" % (label, format(round(by.get(k, 0) / 1024, 1), ","), format(round(tl[k] / 1024, 1), ","), bar(by.get(k, 0), tl[k], 10), note))
+        out += ["", "A layer at 0 KB is no longer taken from the original executable. \"Generated from C\" includes open-source libraries (Lua, qhull, zlib, libpng) and verified rewrites; the original image is still used as the source for the layers listed above, and the data and resources (%s KB of resources, %s KB of library data) are copied bytes." % (format(round(sa["resources_original"] / 1024), ","), format(round(sa["data_lib_original"] / 1024), ",")), ""]
+    return out
+
+def table(j):
+    out = glance(j)
+    out += ["<details><summary>Function level detail, tiers and how the numbers are counted</summary>\n", detail_table(j), "\n</details>"]
     return "\n".join(out)
 
 def run(check, readme):
