@@ -17,6 +17,7 @@ WSEC = [(BASE + s.VirtualAddress, BASE + s.VirtualAddress + ((max(s.Misc_Virtual
 STACK, STK = 0x60000000, 0x40000      # emulator memory map; everything else is lazy
 OURS, SCR, ARGBUF, STUBS, IMPSTUB, RET = 0x70000000, 0x71000000, 0x72000000, 0x73000000, 0x74000000, 0x7f000000
 FPSRC = STUBS + 0x8000
+DEEPRET = STUBS + 0x7000      # DEEP: return address given to a callee that runs for real (Machine._deepret)
 FPPAGE = 0x76000000      # x87 readout page (J-spill 2026-10-22): mapped on its own, never written by the code under test, never in a compared region (FPOUT used to be STUBS+0x8100: its fstp counted as a function write)
 FPOUT = FPPAGE
 SEH = bool(os.environ.get("SEH")); TEB = 0x77000000      # opt-in fs:[0] model (docs/VERIFICATION.md): frame registration is run and the restored chain head compared
@@ -28,6 +29,11 @@ FPU53 = {int(l.split()[0], 16) for l in open(_F53) if l.strip() and l[0] != "#"}
 def fpucw(fn): return 0x27f if (FPUCW == 0x7f and not _E and fn.va in FPU53) else FPUCW
 MAXINS = int(os.environ.get("DIFFEMU_MAXINS", "300000"))      # opt-in larger instruction cap (spring_grid_prepare); timeout below is 2 s wall
 WIN = 0x200      # default size of the memory window behind a pointer argument
+DEEP = int(os.environ.get("DIFFEMU_DEEP", "0") or 0)      # N3 deep-callee mode (opt-in, depth 1 recommended): original-code callees run for real on BOTH sides up to this depth (deep_closure / Machine._callee)
+def _globs(f):
+    try: return [l.split()[0] for l in open(os.path.join(HERE, f)) if l.strip() and l[0] != "#"]
+    except OSError: return []
+DEEP_DENY, DEEP_ALLOW = _globs("deep_deny.txt"), _globs("deep_allow.txt")      # `name glob` or 8-digit hex va per line; allow beats deny
 
 
 FRAMEWIN = 8      # words (32 bytes) compared behind every pointer argument that points into the stack
@@ -127,7 +133,7 @@ class Tables:
                      *[open(_out(f), "rb").read() for f in ("orig_stackargs.txt", "reginputs_interior.csv") if os.path.exists(_out(f))],      # the callee tables below are part of the verdict cache key
                      open(os.path.join(ROOT, "names", "MFL_import_protos.txt"), "rb").read(), open(os.path.join(ROOT, "names", "MFL_conv_fix.txt"), "rb").read(), *[open(os.path.join(ROOT, "output", f), "rb").read() for f in ("call_pushmin.txt", "cdecl_args.txt")], open(os.path.join(ROOT, "names", "MFL_lib_protos.txt"), "rb").read() if os.path.exists(os.path.join(ROOT, "names", "MFL_lib_protos.txt")) else b"", *[open(os.path.join(ROOT, "src", f), "rb").read() for f in ("symbols.txt", "aliases.txt")],
                      *[open(p, "rb").read() for p in [os.path.join(os.environ.get("T2_OVERLAY_DIR", "/nonexistent"), "aliases.txt")] if os.path.exists(p)],
-                     repr(FPUCW).encode(), open(_F53, "rb").read())      # x87 control word (default + env) and the 53-bit function list are part of the verdict cache key
+                     repr(FPUCW).encode(), open(_F53, "rb").read(), repr((DEEP, DEEP_DENY, DEEP_ALLOW)).encode())      # x87 control word (default + env) and the 53-bit function list are part of the verdict cache key
 
 _T = []
 def T():
@@ -142,6 +148,29 @@ def real_helpers():
                   "_CIsin", "_CIcos", "_CIasin", "_CIacos", "_CIsqrt", "_CIpow_pentium4", "_CIatan_pentium4", "_CIexp_pentium4"):
             _REAL.update(T().sym.get(n, ()))
     return _REAL
+
+def deep_ok(va):
+    """DIFFEMU_DEEP: may the original callee at va run for real?  Not: outside the image (imports), real helpers (run anyway), noreturn, LAB_ code, deep_deny.txt (D3D device, heap, file I/O) unless deep_allow.txt names it"""
+    import fnmatch
+    nm = T().rev.get(va, "FUN_%08x" % va); hit = lambda L: any(g == "%08x" % va or fnmatch.fnmatchcase(nm, g) for g in L)
+    if not (BASE <= va < IMGEND) or va in real_helpers() or nm in NORETURN or nm.startswith("LAB_"): return False
+    return hit(DEEP_ALLOW) or not hit(DEEP_DENY)
+
+def deep_closure(fn):
+    """set of callee VAs that run for real (levels 1..DEEP); the callees of the deepest level get stub Callee entries in fn.callees (hooked like the function's own callees)"""
+    tb = T(); real = real_helpers(); lo, hi = getattr(fn, "olo", fn.va), fn.hi
+    deep, front = set(), [t for t, c in fn.callees.items() if deep_ok(t) and not getattr(c, "natural", None)]      # cluster mode: a `natural` callee has its arguments on the stack on our side only: stubbed
+    for _ in range(DEEP):
+        nxt = []
+        for t in front:
+            if t in deep: continue
+            deep.add(t)
+            for x in sorted(scan(img_read, t, t, t + (tb.size.get(t) or 0x400))[1] - real):
+                if not (BASE <= x < IMGEND) or lo <= x < hi or tb.rev.get(x, "").startswith("LAB_"): continue      # the function under test / cluster span: runs unhooked on both sides
+                if x not in fn.callees: fn.callees[x] = callee_info(x)
+                if deep_ok(x): nxt.append(x)
+        front = nxt
+    return deep
 
 
 # ---------------------------------------------------------------------------------------------------------- C signatures
@@ -752,12 +781,14 @@ def dump_args(key):
 class Machine:
     """one emulated process: lazy pages (image data as in the file / random small ints / sprinkled, wild memory random), same seed -> same pages on both sides"""
     def __init__(m, seed, mode, lits, callees, imports, islots, wildfn=None):
+        m.dstack, m.lastfault = [], None      # DEEP: active real callees [(return address, esp at entry)]
         m.sw, m.frames, m.sp0, m.rowrite = set(), [], 0, []; m.track = False; m.wb = set(); m.uninit = set(); m.patch = {}; m.reads = None; m.small = False
         m.seed, m.mode, m.wild, m.trace, m.writes, m.cnt, m.islots, m.stub, m.wildfn = seed, mode, 0, [], [], {}, islots, {}, wildfn
         uc = m.uc = Uc(UC_ARCH_X86, UC_MODE_32)
         for a, n in sorted(((STACK, STK), (RET, 0x1000), (ARGBUF, 0x40000), (OURS, 0x10000), (SCR, 0x10000), (STUBS, 0x10000), (IMPSTUB, 0x10000), (FPPAGE, 0x1000))): uc.mem_map(a, n)      # ascending: with RET (0x7f000000) mapped before ARGBUF / OURS Unicorn 2.1.4 re-executes the first store into ARGBUF after a memory hook and loses the flags (cmp; mov [eax], imm; ja took the wrong branch: time_trial_default_record_b)
         if lits: uc.mem_write(SCR, lits)
         uc.mem_write(IMPSTUB, b"\xc3" * 0x10000)
+        if DEEP: uc.mem_write(DEEPRET, b"\xc3"); uc.hook_add(UC_HOOK_CODE, m._deepret, begin=DEEPRET, end=DEEPRET)
         m.hooked = dict(imports); m.hooked.update(callees)
         if SEH:      # SEH=1: fs:[0] = exception registration chain head in its own page (end of chain = -1); no unwinding is modelled
             uc.mem_map(TEB, 0x1000); uc.mem_write(TEB, struct.pack("<I", 0xffffffff)); uc.reg_write(UC_X86_REG_MSR, (0xC0000100, TEB))      # IA32_FS_BASE (UC_X86_REG_FS_BASE is a no-op in Unicorn 2.1.4)
@@ -793,7 +824,7 @@ class Machine:
         if p == 0 and m.seed in DUMPSEEDS:      # a data access through a NULL object pointer in the REAL game world: only patched / corrupt states get there (the game would crash), the two compilers legitimately differ (cl assumes a dereferenced pointer is not NULL): skip like NULLCALL
             m.nullcall = True; uc.emu_stop(); return False
         try: uc.mem_map(p, 0x1000)
-        except UcError: return False
+        except UcError: m.lastfault = addr; return False
         dp = dump_page(p) if m.seed in DUMPSEEDS else None      # real game memory (gen_cases marks the seeds)
         if dp is not None and BASE <= p < IMGEND:
             dp = bytearray(dp)
@@ -811,7 +842,25 @@ class Machine:
         except UcError:
             if m._unmapped(m.uc, UC_MEM_WRITE_UNMAPPED, a, 4, 0, None): m.uc.mem_write(a, struct.pack("<I", v))
 
-    indirect = True; ours = False; indargs = True
+    indirect = True; ours = False; indargs = True; deepset = frozenset()
+
+    def _deepret(m, uc, addr, size, ud):
+        """DEEP: a real callee returned (to DEEPRET): continue at its real return address"""
+        if not m.dstack: m.lastfault = addr; uc.emu_stop(); return
+        ra, sp = m.dstack.pop()[:2]; m._refill(sp - 0x10000, sp + 4); uc.reg_write(UC_X86_REG_EIP, ra)
+
+    def _guard(m, uc, access, addr, size, val, ud):
+        """DEEP: access of a real callee to the frame guard (return address / pre-pushed registers of the function under test); a callee entered by a tail jump owns that area"""
+        if m.dstack and addr >= m.dstack[0][1] + 4 and len(m.guard) < 8: m.guard.append(("write" if access == UC_MEM_WRITE else "read", addr - m.sp0))
+
+    def _refill(m, lo, hi):
+        """DEEP: dead stack below esp gets the case's pre-fill back.  The real callee's frame sits at a different address on the two sides (our frame size differs), so its residue (and the
+        return addresses / arguments of earlier calls) would be read as different 'uninitialised' locals by the next real callee; the pre-fill is identical on both sides at every address"""
+        lo = max(lo, STACK)
+        if hi <= lo: return
+        m.uc.mem_write(lo, m.fill[lo - STACK:hi - STACK])
+        m.sw = {a for a in m.sw if not lo <= a < hi}      # dead words are no longer 'written by the function' (frame windows of stubbed calls inside the next real callee)
+        if m.track: m.wb = {a for a in m.wb if not lo <= a < hi}
 
     def _indirect(m, uc, addr, size, ud):
         sp = uc.reg_read(UC_X86_REG_ESP); ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]; n = 0
@@ -917,7 +966,9 @@ class Machine:
     def _callee(m, uc, addr, size, ud):
         c = m.hooked.get(addr)
         if c is None: m._indirect(uc, addr, size, ud); return      # a wild jump into the middle of the import stub area (the bytes there are `ret`): a stubbed indirect call like any other
-        sp = uc.reg_read(UC_X86_REG_ESP); i = m.cnt[addr] = m.cnt.get(addr, -1) + 1
+        sp = uc.reg_read(UC_X86_REG_ESP)
+        if m.dstack and m.dstack[-1][1] == sp and m.dstack[-1][3] == addr: return      # DEEP: Unicorn re-runs the hooked first instruction after the hook wrote memory (the DEEPRET slot): the entry is already done (rain_ptank_create traced its Lock call twice)
+        i = m.cnt[addr] = m.cnt.get(addr, -1) + 1
         if c.name in NORETURN:
             m.trace.append((c.name, tuple(m.norm(a) for a in struct.unpack("<%dI" % min(c.nargs, 4), bytes(uc.mem_read(sp + 4, 4 * min(c.nargs, 4))))), ())); m.exited = True; uc.emu_stop(); return
         args = struct.unpack("<%dI" % c.nargs, bytes(uc.mem_read(sp + 4, 4 * c.nargs))) if c.nargs else ()
@@ -936,6 +987,14 @@ class Machine:
             args = struct.unpack("<%dI" % len(nat), bytes(uc.mem_read(sp + 4, 4 * len(nat)))) if m.ours else tuple(uc.reg_read(REGS[t]) if t in REGS else struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * int(t[1:]), 4)))[0] for t in nat)
             m.trace.append((c.name, tuple(m.norm(a) for a in args), ()))
         else: m.trace.append((c.name, tuple(m.norm(a) for a in args), tuple(m.norm(uc.reg_read(REGS[r])) for r in c.regs)))
+        if addr in m.deepset and not nat:      # DEEP: run the original bytes (same on both sides); the call stays in the trace with its arguments, its writes land in m.writes like the function's own
+            ra = struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0]
+            if ra == DEEPRET and m.dstack:      # tail jump of a real callee into this one: it takes over that entry's return
+                e_ = m.dstack.pop(); ra = e_[0]
+                if e_[4] == len(m.trace) - 2: del m.trace[-2]      # a thunk (`jmp f` before any call: ours links the alias 49a960, the original calls 545d10 directly): the call is traced once, under its target
+            if len(m.dstack) < DEEP:      # return address -> DEEPRET (hook _deepret pops the entry and jumps to the real one): the depth is exact whatever the esp of the caller
+                m.dstack.append((ra, sp, sp + 4 + 4 * c.nargs, addr, len(m.trace) - 1)); uc.mem_write(sp, struct.pack("<I", DEEPRET)); m._refill(sp - 0x10000, sp)
+                return
         for k in [k_ for k_ in writes_through(c.va) if not c.nargs or k_ < c.nargs]:      # (k beyond the callee's argument count is a frame word the writes_through scan mis-indexed: RwStreamRead "arg 7" = caller frame garbage, differs between the two builds) the ORIGINAL callee stores through its argument k: a destination in read-only memory (.rdata string / literal / code) is a write the stub must not hide (our code passed a string address instead of the buffer / NULL: oil_load_assets)
             a = struct.unpack("<I", bytes(uc.mem_read(sp + 4 + 4 * k, 4)))[0] if k < 12 else 0
             if isro_ptr(a):
@@ -954,6 +1013,7 @@ class Machine:
             if isstack(a):
                 snap = []
                 nxt = min([(b - a) // 4 for b in outs if isstack(b) and b > a] + [FRAMEWIN] + ([c.lim[k]] if k < len(c.lim) and c.lim[k] else []))      # typed pointer parameter: the window ends with the object (ptr_limits)      # another pointer argument into the stack starts a separate object (RtIntersectionLineTriangle(&start, &delta, ..))
+                if m.dstack: continue      # DEEP: a stub called by a real callee: no frame window (the real callee's own reads of the objects are emulated; behind its locals / argument slots sit its saved registers = the caller's register values, and an 8 word window past the function's object is layout noise: rwp_gjk_separation_query 58a8f0 -> 58a3f0)
                 for j in range(nxt):
                     w = a + 4 * j
                     if not isstack(w) or (w + 4 > m.sp0 and (w & ~3) not in m.sw): break      # the return address / arguments of the function itself are shared by the two sides (unless the function wrote them: a frame object compiled into its own argument slot, cluster weapon_flashbang_flare_particles)
@@ -1007,11 +1067,18 @@ class Machine:
     def run(m, entry, args, regs, fill, lo, hi, count=MAXINS):
         """call entry (stack arguments `args`, initial registers `regs`, stack pre-fill bytes) until it returns to RET; dict of everything that is compared"""
         uc = m.uc; sp = STACK + STK - 0x200
-        uc.mem_write(STACK, fill)
+        uc.mem_write(STACK, fill); m.fill = fill
         uc.mem_write(sp, struct.pack("<%dI" % (1 + len(args)), RET, *[u32(x) for x in args]))
         for r, v in regs.items(): uc.reg_write(REGS[r], u32(v))
         uc.reg_write(UC_X86_REG_ESP, sp); m.blocks = {}; m.exited = False; m.sp0 = sp
         if m.track: uc.hook_add(UC_HOOK_MEM_READ, m._rd, begin=STACK, end=sp - 1)
+        m.guard = []
+        if DEEP:      # the return address and the registers pushed before the frame is set up (push ebp / push esi ..., always above the locals): a real callee that reaches them went past a frame object
+            npre = 0
+            for ins in CS.disasm(m.read(entry, 16), entry):
+                if ins.mnemonic != "push" or ins.operands[0].type != CX.X86_OP_REG or ins.op_str not in ("ebx", "esi", "edi", "ebp"): break      # `push ecx` at the entry is MSVC's 4 byte local, not a save (rwp_contact_set_add_pair: `hi` lives there)
+                npre += 1
+            uc.hook_add(UC_HOOK_MEM_READ | UC_HOOK_MEM_WRITE, m._guard, begin=sp - 4 * npre, end=sp + 3)
         if count >= MAXINS // 7: uc.hook_add(UC_HOOK_BLOCK, lambda uc, a, s, u: m.blocks.__setitem__(a, max(s, m.blocks.get(a, 0))), begin=lo, end=hi)      # only the 12000 instruction trial runs of retry_case need no coverage (the hook used to stop after 3 runaway cases: count MAXINS // 7 > coverage ~0.4 whatever the case count)
         err = None
         t0 = time.time()
@@ -1027,7 +1094,9 @@ class Machine:
             elif err.errno == UC_ERR_EXCEPTION: c = "EXCEPTION"
             elif err.errno in (UC_ERR_READ_UNMAPPED, UC_ERR_WRITE_UNMAPPED): c = "UNMAPPED"
             else: c = "OTHER"
-            r["cause"] = "TIMEOUT" if slow and c == "LOOP" else ("WILD_" if m.wild and c in ("LOOP", "EXCEPTION") else "") + c; return r
+            r["cause"] = "TIMEOUT" if slow and c == "LOOP" else ("WILD_" if m.wild and c in ("LOOP", "EXCEPTION") else "") + c
+            if m.dstack and r["cause"] not in ("TIMEOUT", "NULLCALL"): r["cause"] = "DEEP_MAXINS" if c == "LOOP" else "DEEP_FAULT@%08x" % (m.lastfault if m.lastfault is not None else eip)      # inside a real callee: never a DIFF (run_case), the cause is the triage column
+            return r
         r.update(eax=uc.reg_read(UC_X86_REG_EAX), edx=uc.reg_read(UC_X86_REG_EDX), esp=uc.reg_read(UC_X86_REG_ESP) - sp,
                  saved=tuple(uc.reg_read(x) for x in (UC_X86_REG_EBX, UC_X86_REG_ESI, UC_X86_REG_EDI, UC_X86_REG_EBP)),
                  fptop=(uc.reg_read(UC_X86_REG_FPSW) >> 11) & 7, trace=m.trace, st0=None)
@@ -1241,9 +1310,10 @@ def _fill(f, r):
     return defloat(r.randbytes(STK - 0x200))
 
 def side(fn, case, ours, count=MAXINS):
+    if DEEP and not hasattr(fn, "deep"): fn.deep = deep_closure(fn)      # before the Machine: it hooks fn.callees, which deep_closure extends
     m = Machine(case.seed, case.mode, fn.lits if ours else b"", fn.callees, fn.imports, fn.islots); m.ours = ours; _cw = fpucw(fn); _cw is None or m.uc.reg_write(UC_X86_REG_FPCW, _cw); m.indargs = not getattr(fn, "noindargs", False); m.track = case.fill == "rand" and not os.environ.get("DIFFEMU_NOUNINIT")      # random pre-fill: watch the reads of unwritten stack bytes (run_case)
     for a, b in case.wins: m.uc.mem_write(a, b)
-    m.patch = case.patch; m.small = case.small
+    m.patch = case.patch; m.small = case.small; m.deepset = getattr(fn, "deep", frozenset())
     for a, v in case.patch.items(): m.poke(a, v)
     args, cregs = fn.mapcase(case, ours) if getattr(fn, "mapcase", None) else (case.args, case.regs)      # cluster mode: register arguments of the original, stack arguments of ours
     if getattr(fn, "pushn", 0) > len(args): args = list(args) + [int(sha(case.seed, "pad", i), 16) % 61 + (0x1000 if ours else 0) for i in range(len(args), fn.pushn)]      # a dropped stack argument: the stack slots the ORIGINAL callers push / its body reads are seeded beyond the declared parameters; OUR side gets different values there, so a C definition that declares fewer parameters (an undeclared slot reaches a callee through a tail jump, or the call drops it) differs at the stubbed callee
@@ -1274,7 +1344,7 @@ def frame_allow():
         _FA.append(s)
     return _FA[0]
 
-HALFARGS = {"FUN_00575a30": (1,), "FUN_00576b10": (3,), "FUN_00576b50": (2,)}      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
+HALFARGS = {"FUN_00575a30": (1,), "FUN_00576b10": (3,), "FUN_00576b50": (2,), "FUN_00576f40": (1,), "FUN_00576c50": (1,)}      # 576f40 / 576c50: `and reg, 0xffff` on argument 1 (DEEP 2026-11-03: the real 57be50 callees push it from a register with a stale upper half)      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
 FNMASK = {"car_wheels_vs_triangles": [(0x7eab64, 0x7eab64 + 256 * 0x40)]}      # B3: g_event_log_data (256 x 0x40) holds 0x40 byte copies of uninitialised locals of the event record; never compared for this function
 def compare(fn, mo, ro, mu, ru, case=None):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""
@@ -1342,7 +1412,7 @@ def compare(fn, mo, ro, mu, ru, case=None):
     return d
 
 OUTWORDS = {"RwV3dTransformPoints": 9, "RwV3dTransformVectors": 3, "world_intersect_line": 8, "car_get_velocity_any_mode": 3, "FUN_005ba5c0": 16}      # record sizes in words (hit record / velocity vector / sound caps)
-LOOPY = ("LOOP", "WILD_LOOP", "TIMEOUT")
+LOOPY = ("LOOP", "WILD_LOOP", "TIMEOUT", "DEEP_MAXINS")
 PATCHES = [(v, k) for k in (4, 16, 64) for v in (0, 1, 2, 4)]      # (dword value, number of candidate addresses)
 
 def probe_reads(fn, case):
@@ -1419,7 +1489,9 @@ def run_case(fn, case):
         c2 = Case(case.seed, case.mode, (0xA5, 0x00)[case.seed & 1], case.args, case.regs, case.wins); c2.patch, c2.small = case.patch, case.small
         mo, ro = side(fn, c2, False); mu, ru = side(fn, c2, True)
         if not ro["done"]: return "skip", ro["cause"]
-    if not ru["done"] and ru["cause"] == "TIMEOUT": return "skip", "TIMEOUT"
+    if mo.guard: return "skip", "DEEP_FRAMEGUARD"      # the ORIGINAL's real callee ran past a frame object of the original (a stub value outside the real domain: a count of 21 for a 0xec byte buffer)
+    if mu.guard: return "diff", ["a real callee %s our frame's return address / pre-pushed registers (%s), the original's stays inside its frame on the same input: a frame object passed to it is smaller than the original's (%s)" % ("writes" if any(k == "write" for k, _ in mu.guard) else "reads", sorted(set(mu.guard))[:4], ru.get("cause") or "ours returns")]      # 585950 float res[16] class (585170 reads entry 5 of a 16 float buffer); checked before the ours-side DEEP_ causes (clobbered locals make ours loop inside the callee)
+    if not ru["done"] and (ru["cause"] == "TIMEOUT" or ru["cause"].startswith("DEEP_")): return "skip", ru["cause"]
     if not ru["done"]: return "diff", ["ours does not return (%s, eip %08x%s) while the original does" % (ru["cause"], ru["eip"], ", " + str(ru["err"]) if ru["err"] else "")]
     d = compare(fn, mo, ro, mu, ru, case)
     return ("diff", d) if d else ("equal", None)

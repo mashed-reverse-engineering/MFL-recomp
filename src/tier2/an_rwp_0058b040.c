@@ -30,7 +30,7 @@ int rwp_gjk_separation_query(int unused, RwpBody **pair, float margin, float *di
   RwpBody *b1 = pair[0], *b2 = pair[1];
   RwpShp *s1 = b1->shape, *s2 = b2->shape;
   float r1 = s1->radius, r2 = s2->radius;
-  float sup[3], n[3], pt[3], rest[100];
+  float sup[3], n[3], pt[3], rest[108];      /* the original's frame has 432 bytes of room: the real callee 58a8f0 writes rest[100..102] (frameaudit; DIFFEMU_DEEP found it 2026-11-03) */
   RwV3d *supv = (RwV3d *)sup, *ptv = (RwV3d *)pt;
   float t, lo, hi, d_a, depth, dotn, rfar, rsum, limit;
   int found, i;

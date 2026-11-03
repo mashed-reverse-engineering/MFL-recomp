@@ -112,7 +112,7 @@ Recommendation: A, in this order of work: (1) reachability pass over the 144 vta
 - The effort numbers are estimates in working days of one agent plus review, not measured.
 
 ## 7. Decision: Rw/Rp/Rx are not byte-matched (2026-10-29)
-The RenderWare SDK (3.7, Rw/Rp/Rx/Rt) has source available, so the game's RenderWare code is NOT being byte-matched. It is reimplemented clean-room in librw-mfl, an external modified open-source RenderWare alternative for RW 3.x (fork of aap/librw, MIT). Only the Rwp physics plugin (Rwp37Active, no SDK source, no headers) is byte-identical work, and even there the byte-identical goal is limited to what is realistic (see `output/rwp_plugin_map.md` in the private tree; the solver bulk is x87-heavy and is a lift candidate).
+The game's RenderWare code (Rw/Rp/Rx/Rt) is NOT being byte-matched. Note that there is no engine source in the SDK: the RenderWare 3.7 SDK copies contain headers, prebuilt libraries and examples only. The engine is reimplemented clean-room in librw-mfl, an external modified open-source RenderWare alternative for RW 3.x (fork of aap/librw, MIT), using the headers, the file formats and the original binary as references. Only the Rwp physics plugin (Rwp37Active, not in the SDK at all: no headers, no libs) is byte-identical work, and even there the byte-identical goal is limited to what is realistic (see `output/rwp_plugin_map.md` in the private tree; the solver bulk is x87-heavy and is a lift candidate).
 
 Consequences:
 * `output/rw_rewrite_queue.csv` / `tools/rw_queue.py` rank RW work for the byte-identical flow. That flow is no longer the plan for Rw/Rp/Rx/Rt; use the queue for rwp rows only.

@@ -8,7 +8,7 @@ extern float rwp_aggregate_00585890(float *a, float *b, float *c);
    and the direction c at +0x100; V = n vertices (16 bytes each) of a polygon.  The signed distance of a vertex is w = (tb - ta) - f4 - f5 with tb / ta the
    plane distances along c; the polygon is clipped to w <= 0 (Sutherland-Hodgman, the vertex of smallest w is kept), reduced to 4 points by repeatedly
    dropping the vertex whose triangle (585890) is smallest, and every remaining point is added to the contact list with tag f4 + w (5857c0).
-   n == 1: that single point is added with tag (tb - ta) - f5.  Returns 1. */
+   n == 1: that single point is added with tag (tb - ta) - f5 and the result of that add is returned.  Returns 1 otherwise. */
 typedef struct MflSlab {
   float a[3];
   float a_off;       /* 0xc */
@@ -52,8 +52,7 @@ int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float
     ta = s / d2;
     tag = tb - ta;
     tag = tag - f5;
-    rwp_aggregate_005857c0(V, tag, list, 0.0f);
-    return 1;
+    return rwp_aggregate_005857c0(V, tag, list, 0.0f);      /* the original returns the add's result here (eax not reloaded) */
   }
   acc = 0.0;
   best = 0;

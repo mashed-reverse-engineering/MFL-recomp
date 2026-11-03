@@ -1,3 +1,4 @@
+# trapcheck.py 2026-11-03: removed DefaultGeomAnimCB, PVSWorldSectorNodeFn, RpLODAtomicSetCurrentLOD, RpLODAtomicUnHookRender, RpMatFXMaterialSetEnvMapTexture, RpSplineDestroy, RtAnimInterpolatorSubAnimTime, RtBMPImageWrite, RtCharsetPrintBuffered, RtPNGImageWrite (referenced by installed C, see tools/trapcheck.py)
 # va size name: S5 trap-fill candidates: live original RenderWare code with 0 executions in 33 coverage runs (gdbcov, link 1102_2152 + T-A2), plugin/tool
 # libraries only (rwcore/rpworld except palquant excluded), *PluginAttach kept original. NOT wired into any default (see ROADMAP lane E / S5).
 004e7520 784 RwPalQuantAddImage
@@ -17,13 +18,10 @@
 004e8f10 176 RwPalQuantInit
 004e8fc0 116 RwPalQuantTerm
 004e9040 84 DeleteOctTree
-005244e0 821 RtPNGImageWrite
-0053da80 679 RtBMPImageWrite
 0053dd30 255 BMPWriteRow
 0053e230 178 RtAnimAnimationStreamWrite
 0053e2f0 17 RtAnimAnimationStreamGetSize
 0053e4a0 45 RtAnimInterpolatorCopy
-0053e4d0 356 RtAnimInterpolatorSubAnimTime
 0053ebc0 98 FUN_0053ebc0
 0053ec30 75 SkinGeometrySize
 0053ec80 240 SkinGeometryWrite
@@ -87,7 +85,6 @@
 00548910 15 rpPTankGENInsEnding
 00548ea0 82 PVSSectorWriteChunk
 00548f90 53 PVSWorldWriteChunk
-005490b0 204 PVSWorldSectorNodeFn
 0054acd0 21 RpCollisionGeometryForAllIntersections
 0054bdc0 1590 GeometryForAllTriIntsecBBox
 0054c400 2013 GeometryForAllTriIntsecSphere
@@ -99,15 +96,12 @@
 0054f340 163 MatFXMaterialCopy
 0054f7c0 534 MatFXMaterialStreamWrite
 0054ff40 141 MatFXMaterialStreamGetSize
-005506a0 114 RpMatFXMaterialSetEnvMapTexture
 00550aa0 166 _rpMatFXD3D9AtomicMatFXRenderBlack
 00554d10 519 UserDataObjectStreamWrite
 00554f20 253 UserDataObjectGetSize
 00555580 100 GeomAnimCopy
 005555f0 178 GeomAnimWriteStream
 00555800 31 GeomAnimSizeStream
-00555850 50 DefaultGeomAnimCB
-00556950 87 RpSplineDestroy
 0055a0d0 126 _rpPatchGeometryCreateFromPatchMesh
 0055a660 57 rpPatchGeometryCopy
 0055a6a0 29 rpPatchGeometryGetSize
@@ -152,10 +146,7 @@
 00567890 1494 DefaultPathStroke2d_00567890
 005681c0 100 LODAtomicCallBackWriteChunk
 00568230 71 LODAtomicCallBackGetChunkSize
-00568580 87 RpLODAtomicSetCurrentLOD
-00568710 51 RpLODAtomicUnHookRender
 00568b20 407 RtCharsetBufferFlush
-00568cc0 362 RtCharsetPrintBuffered
 00568e30 729 CharsetProcessString
 005d6100 383 RpCollSectorBBoxItInit
 005d6280 416 RpCollSectorBBoxItFindNextEntries

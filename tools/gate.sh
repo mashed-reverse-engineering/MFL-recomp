@@ -1,6 +1,6 @@
 #!/bin/bash
 # gate.sh [--dry-run] <kind> [names...]   the checks of ROADMAP "When to run which game check", nothing more.
-#   kind: readability | tier1 | header | infra | tier2 | bridge | cluster | milestone | standalone
+#   kind: readability | tier1 | header | infra | tier2 | bridge | cluster | milestone | standalone | full
 #   names: functions touched (tier2 / bridge / tier1; cluster: ignored, all enabled clusters are always gated); tier2 without names = the functions tools/shadow_cache.py says changed. '@file' = names from a file.
 #   readability  check_all.sh
 #   tier1        check_all + course 0 crash smoke
@@ -10,9 +10,13 @@
 #   bridge       check_all + shadow of the bridges (BRIDGE_ENABLED=names, --shadow, course 0 + targeted courses) + targeted courses
 #   cluster      check_all (4th strict build with --clusters) + targeted courses + DRIVE=31 courses 0,3 of a build with --clusters (names = cluster names = roots; none = all enabled in src/clusters/enabled.txt); no shadow (a cluster has no original-vs-C shadow), diffemu --cluster is the conformance proof
 #   milestone    check_all + full sweep RUNS=2 with --count (refreshes output/fn_courses.csv) + DRIVE=31 sweep + win/lose (DRIVE=33 / 65) crash-only + full tier 2 shadow
-#   standalone   classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src LIB_CRT=libcmt DROP_DSHOW=1 by default, =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + crash-only 15 courses on that exe + DRIVE=31 course 0 state compare (cars / vehicles masked diff <= max(control noise, baseline 'state' rows))
-#                + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), mini course sweep through the menus (arcade + cup rows 0-14,
-#                DRIVE=31, black-frame check), d3dtrace render compare vs cached control + ours vs ours (tools/d3dtrace/render_limits.txt: course:0 course:7 course:12 title), scenario smoke
+#   standalone   the per-commit standard tier (plan_speedup_2026-11-03 section 3, ~20 min): classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src LIB_CRT=libcmt DROP_DSHOW=1 by default,
+#                =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable; started in the background beside check_all when the 1-minute load is below 8, the gate fails
+#                when either fails) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + DRIVE=31 course 0 state compare (cars / vehicles masked
+#                diff <= max(control noise, baseline 'state' rows)) + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), mini course sweep through the menus (arcade + cup
+#                rows 0-14, DRIVE=31, black-frame check), d3dtrace render compare of course:0 only (ours vs cached control + ours vs ours2), scenario smoke.  No 15-course crash sweep (the mini sweep covers all courses).
+#   full         standalone + crash-only 15 courses on the linked exe + render of all tools/d3dtrace/render_limits.txt targets (course:0 course:7 course:12 title).  Nightly and before tools/publish.sh
+#                (publish.sh refuses unless the newest full gate in output/gate/ passed on the same tree hash).
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
 # --dry-run prints the plan with the estimated minutes (rough: check_all 4, course 0.5 incl. cached control, sweep of 15 on P=2 about 6).  Exit 0 = all steps passed.
@@ -20,14 +24,17 @@ export LC_ALL=C
 T=$(dirname "$(readlink -f "$0")"); R=$T/..; W=$T/wine-run
 DRY=; [ "$1" = --dry-run ] && { DRY=1; shift; }
 KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat "${x:1}")) || NAMES+=("$x"); done
-case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|standalone) ;; *) sed -n 2,3p "$0"; exit 2;; esac
-[ $KIND = standalone ] && : ${STEP_TIMEOUT:=60}      # a cold-delta link (up to 4 links of the DELTA retry) outlasts the 3x estimate
+case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|standalone|full) ;; *) sed -n 2,3p "$0"; exit 2;; esac
+SA=; [ $KIND = standalone -o $KIND = full ] && SA=1
+[ -n "$SA" ] && : ${STEP_TIMEOUT:=60}      # a cold-delta link (up to 4 links of the DELTA retry) outlasts the 3x estimate
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)
 CRASH="RUNS=1 SHOTS_RUNS=0 THRESH=100000 COUNT= COURSE_TIMEOUT=300"      # COUNT= : no coverage counters unless a step wants them
 declare -a PLAN; est=0
 step() { PLAN+=("$1|$2|$3"); est=$(awk "BEGIN{print $est+$2}"); }      # label | minutes | command (run with eval)
+load1() { python3 -c 'import os; print(int(os.getloadavg()[0]))'; }
+PARLINK=; [ -n "$SA" ] && { L1=$(load1); [ "$L1" -lt 8 ] && PARLINK=1; }      # standalone / full: the link runs beside check_all unless the machine is busy (plan_speedup item 5)
 [ $KIND = bridge ] && [ ${#NAMES[@]} = 0 ] && { echo "bridge needs the bridge names"; exit 2; }
 # ---- course lists
 if [ $KIND = cluster ]; then      # names = cluster roots; the course lists use their entries; only those clusters are built in
@@ -60,14 +67,17 @@ case $KIND in
              step "targeted courses ($CL)" $(awk "BEGIN{print 0.6*$(nc $CL)}") "courses targeted '$CL' $CRASH";;
   cluster)   step "targeted courses ($CL), clusters ${NAMES[*]}" $(awk "BEGIN{print 0.6*$(nc $CL)}") "courses targeted '$CL' $CRASH"
              step "DRIVE=31 courses 0,3" 1.4 "courses drive31 '0 3' $CRASH DRIVE=31";;
-  standalone) step "classify guard" 0.2 "python3 $T/delink/classify.py --guard"
-             step "MKRANGE GEN_DATA IMPLIBS HARNESS link" 8 "standalone_link"
+  standalone|full)      # estimates from the 2026-11-03 gates with the globgen fix (plan_speedup_2026-11-03 section 1)
+             step "classify guard" 0.2 "python3 $T/delink/classify.py --guard"
+             if [ -n "$PARLINK" ]; then step "MKRANGE GEN_DATA IMPLIBS HARNESS link (started beside check_all, load $L1 < 8)" 3 "linkwait"
+             else step "MKRANGE GEN_DATA IMPLIBS HARNESS link (sequential, load $L1 >= 8)" 6 "standalone_link"; fi
              step "origbytes vs baseline" 1 "origcheck"
-             step "crash-only 15 courses on the linked exe" 12 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
-             step "mini sweep: arcade + cup rows 0-14 through the menus, DRIVE=31" 6 "$T/delink/sa_oracles.sh sweep $D/link \$(cat $D/delta.txt) $D/minisweep"      # plan 2026-11-03 item 3; replaces the step above after one gate where both agree
-             step "DRIVE=31 course 0 state compare" 5 "statecheck"
-             step "render oracle: d3dtrace course:0/7/12 + title vs cached control, ours vs ours" 3 "$T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"
-             step "scenario smoke (options_all, pause_all training, menus_main, arcade_win)" 6 "$T/delink/sa_oracles.sh scen $D/link \$(cat $D/delta.txt) $D/scen";;
+             [ $KIND = full ] && step "crash-only 15 courses on the linked exe" 6 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
+             step "mini sweep: arcade + cup rows 0-14 through the menus, DRIVE=31" 5 "$T/delink/sa_oracles.sh sweep $D/link \$(cat $D/delta.txt) $D/minisweep"
+             step "DRIVE=31 course 0 state compare" 2 "statecheck"
+             if [ $KIND = full ]; then step "render oracle: d3dtrace course:0/7/12 + title vs cached control, ours vs ours" 3 "$T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"
+             else step "render oracle: d3dtrace course:0 vs cached control, ours vs ours2" 1.5 "RENDER_TARGETS=course:0 $T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"; fi
+             step "scenario smoke (options_all, pause_all training, menus_main, arcade_win)" 5 "$T/delink/sa_oracles.sh scen $D/link \$(cat $D/delta.txt) $D/scen";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
              step "fn_courses refresh" 0.1 "python3 $T/fn_courses.py build $D/full"
              step "DRIVE=31 sweep" 6 "sweep drive31 0 14 $CRASH DRIVE=31"
@@ -79,10 +89,11 @@ esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
 echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
-[ -n "$DRY" ] && { [ $KIND = standalone ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
+[ -n "$DRY" ] && { [ -n "$SA" ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
-mkdir -p $D; $T/provenance.sh $D; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
+mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
+trap '[ -n "$LPID" ] && kill -TERM $LPID 2>/dev/null' EXIT      # a background link (PARLINK) never outlives the gate (timeout relays the TERM to its process group)
 failcheck() { grep -E "regress failed|timed out|INVALID| [1-9][0-9]* warnings" "$1"; }      # lines that mean a crash / stall / non-frozen run
 courses() {       # courses <tag> '<list>' [ENV=..]...: one courses.sh call per course (sequential, PAR=4 inside), a progress line each
   local tag=$1 list=$2; shift 2; local c n=0 tot=$(nc $list)
@@ -135,6 +146,10 @@ standalone_link() {      # fresh harness link; target configuration by default (
     d=$(sed -n 's/.*DELTA mismatch: rerun with DELTA=\([0-9a-f]*\).*/\1/p' $D/$k.log); [ -n "$d" ] || return 1
   done; return 1
 }
+linkwait() {      # the link step of a PARLINK gate: wait for the background standalone_link started before check_all, its log, its exit status
+  while [ ! -f $D/link.rc ] && kill -0 $LPID 2>/dev/null; do sleep 10; done
+  cat $D/link_bg.log; [ -f $D/link.rc ] || { echo "background link ended without a result (timeout / killed)"; return 1; }; return $(cat $D/link.rc)
+}
 origcheck() {      # .data length of ours.map (T-P15) + origbytes of the link vs output/zero_original_baseline.txt ("key bytes" lines); GATE_BASELINE_WRITE=1 writes it
   $T/delink/sa_oracles.sh data $D/link $(cat $D/delta.txt) $D || return 1
   python3 $T/delink/origbytes.py $D/link --out $D > $D/origbytes.log 2>&1 || { tail -5 $D/origbytes.log; return 1; }
@@ -176,7 +191,11 @@ bridgeshadow() {  # bridgeshadow '<courses>' names...: the bridged functions as 
   local f ok=0; for f in $D/bridge_shadow/c*/out_ovl_1/shadowlog.bin; do python3 $W/shadow_report.py $f $R/src/bridges_shadow/shadow_names.txt | tee -a $D/bridge_shadow/report.txt | grep -iE "diff" | grep -E "$(IFS='|'; echo "$*")" && ok=1; done
   [ $ok = 0 ]
 }
-export LIB_RW RW_DLL; export -f standalone_link origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
+export LIB_RW RW_DLL; export -f standalone_link linkwait origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
+if [ -n "$PARLINK" ]; then      # the link beside check_all (both need ~5 min); the link step later only waits for it (linkwait)
+  echo "=== [$(date +%H:%M)] link started in the background beside check_all (load $L1 < 8; log $D/link_bg.log)"
+  timeout -k 10 $((STEP_TIMEOUT * 120)) bash -c "standalone_link > $D/link_bg.log 2>&1; echo \$? > $D/link.rc" & LPID=$!; export LPID
+fi
 i=0
 for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"
   echo "=== [$(date +%H:%M)] step $i/${#PLAN[@]}: $l"

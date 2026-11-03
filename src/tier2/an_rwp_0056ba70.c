@@ -23,9 +23,9 @@ typedef struct RwpSlot {
 } RwpSlot;
 
 /* Stores the world inertia tensor of props (R * diag(e) * R^T) and of the inverse (diag(1/sqrt(e)) with the same quaternion) as 3 rows of
-   3 floats (16 bytes apart) into the two per-body tables of the owner, slot->index * 48 bytes in.  Returns 0 when one of the three values is 0. */
+   3 floats (16 bytes apart) into the two per-body tables of the owner, slot->index * 48 bytes in.  Returns slot, or 0 when one of the three values is 0. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-int rwp_body_store_world_inertia(RwpSlot *slot, RwpInertiaProps *props)
+RwpSlot *rwp_body_store_world_inertia(RwpSlot *slot, RwpInertiaProps *props)
 {
   RwpInertiaProps inv;
   float tensor[9], tensor_inv[9];
@@ -54,7 +54,7 @@ int rwp_body_store_world_inertia(RwpSlot *slot, RwpInertiaProps *props)
       row[1] = tensor_inv[3 * i + 1];
       row[2] = tensor_inv[3 * i + 2];
     }
-    return 1;
+    return slot;
   }
   return 0;
 }

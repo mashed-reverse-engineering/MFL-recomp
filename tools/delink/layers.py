@@ -22,9 +22,15 @@ def _ds(va):
 def layer(va, owner, member):
     if va == 0x4c9c30: return "Lua"            # A5: the map's "gzputs" is a Lua function (strlen + lua call, called from the Lua range); ownership says rtpng gzio
     if va == 0x5021c0: return "RenderWare"     # A5: the map's "gztell" is RpBuildMeshGenerateDefaultTriStrip
+    # Phase 6a (output/audio_identification_2026-11-03.md): Audio = RenderWare Audio (RWA).  0x5b5eb0 is qhull's qh_setfeasible ("halfspace intersection needs a feasible point",
+    # called by qhull 0x59fbb0); 0x5b5fa0-0x5b6500 is an Rwp object type (vtable 0x649110 with an 'rwpO' type tag, rwp callees, nop padding); RWA starts at 0x5b6500 (its module
+    # table 0x649140 = codfh unk_42E628) and runs on through the RwaDS DirectShow pins/allocators 0x5d09d0-0x5d2ba0 (rwa.dll similarity 1.0 for 35 of 49 functions,
+    # owners were rw? guesses / D3DX by caller vote); explicit rw items in there (two 10 byte D3DX COMDATs) keep their layer.
+    if 0x5b5eb0 <= va < 0x5b5fa0: return "qhull"
+    if 0x5b5fa0 <= va < 0x5b6500: return "rwp"
+    if 0x5b6500 <= va < 0x5d2ba0 and owner != "rw": return "Audio"
     if va < 0x5dc451 and other_layer(va) != "other" and (owner == "game" and va >= 0x4ac600 or not owner): return other_layer(va)
     if 0x569b30 <= va < 0x58ede0: return "rwp"
-    if 0x5b5eb0 <= va < 0x5d09d0: return "Audio"      # S0: streaming audio library (threads/semaphores/COM imports, called by soundengine_create_race_streams / sound_streams_pause), 0 d3dx9.lib matches; was mislabelled D3DX
     if _ds(va): return "DirectShow"      # the dead movie code (strmbase + RwaDS + the renderer class, tools/delink/dshow_dead.txt = dshow_drop.py closure); the rest of the old range 0x5d2b40-0x5dc451 is not DirectShow (called by RenderWare / D3DX / CRT)
     o = owner.rstrip("?~")
     if o == "game": return "app" if va < 0x4ac600 and not 0x4ab230 <= va < 0x4ac4f0 else other_layer(va)      # T-N18: 0x4ab230-0x4ac4f0 = dinput8.lib DIOBJECTDATAFORMAT tables (other_layer csv: D3DX), not app

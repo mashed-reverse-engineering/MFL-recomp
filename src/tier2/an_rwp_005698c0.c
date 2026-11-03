@@ -2,9 +2,10 @@
 
 /* RwCameraCalcPixelRay: the world-space ray (line = start xyz, end xyz) through pixel `pix` of the camera's raster.  u = x / width, v = y / height
    interpolate bilinearly between the four corners of the near frustum face (camera + 0x124, 12 bytes each) for the start and of the far face
-   (camera + 0x154) for the end.  The volatile floats are the frame spills of the original (every spilled partial result is rounded to float). */
+   (camera + 0x154) for the end.  The volatile floats are the frame spills of the original (every spilled partial result is rounded to float).
+   Returns the camera (this build leaves cam in eax; the only caller, hudpanel_marker_calc_pixel_ray, passes it on and its caller ignores it). */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-float *RwCameraCalcPixelRay(char *cam, float *line, float *pix)
+char *RwCameraCalcPixelRay(char *cam, float *line, float *pix)
 {
   int *raster = *(int **)(cam + 0x60);
   float u = pix[0] / (float)raster[3];
@@ -49,5 +50,5 @@ float *RwCameraCalcPixelRay(char *cam, float *line, float *pix)
   p1 = (m1 - s1) * v;
   line[4] = p1 + s1;
   line[5] = (c[0x2c / 4] + e2 * u - s2) * v + s2;
-  return line;
+  return cam;
 }

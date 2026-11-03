@@ -1,0 +1,33 @@
+diffemu deep-callee mode (DIFFEMU_DEEP, tools/diffemu/core.py) - negative fixtures, V4 / PLAN-NEW-TECHNIQUES Phase 3 (N3), 2026-11-03
+=====================================================================================================================================
+
+Proposed line for tools/delink/negtest.sh (main session; NOT applied, negtest.sh is not edited by agents), after the `# lints` block:
+
+  # diffemu deep-callee mode (about 2-3 min; only with the unicorn venv)
+  [ -x ~/.cache/mfl_diffemu_venv/bin/python ] && { python3 $N/diffemu_deep/run.py --work $O/dd > $O/dd.txt 2>&1 && ok "diffemu_deep: $(grep -c '^diffemu_deep ok' $O/dd.txt) fixtures" || bad "diffemu_deep: $(grep FAIL $O/dd.txt | head -3)"; } || echo "negtest note: no diffemu venv, diffemu_deep skipped"
+
+Fixtures (run.py; each is compiled with the headers of its home directory and run with DIFFEMU_DEEP=0 and =1, results in --work, never in output/):
+  rwp_585950_res16.c           rwp_aggregate_00585950 before ada96ece (float res[16]; the real 586f20 writes 0xec bytes)   DEEP=0 EQUAL, DEEP=1 DIFF (must)
+                               verdict line: "a real callee reads our frame's return address ... the original's stays inside its frame on the same input"
+                               control: installed rwp_shape_pair_contact (res[60]) DEEP=1 EQUAL 75 cases
+  menu_page_enter_novolatile.c cl_menu_page_enter.c at e216980d (no `volatile int slots`)                                  DEEP=0 EQUAL, DEEP=1 DIFF (must)
+                               the real menu_button_prompts_build reads the never-stored next_slot: memory DIFF at 0x8c8070 = g_menu_item_anims[-1]
+                               control: installed recomp/clusters/cl_menu_page_enter.c via `diffemu.py --src` DEEP=1 EQUAL 177 cases
+                               clsweep cannot run this fixture: clsteer.run() replaces the naked `_r` wrappers by the pilot form (extern + register
+                               spec), so the wrapper that causes the store drop is gone; the plain `diffemu.py --src` path keeps it (core.our_code adapters).
+  tp19_timer_ticks.c           an_hk_496.c at 1f41b265 (__allmul/__alldiv declared int, timer_ticks void)                  DEEP=0 EQUAL, DEEP=1 EQUAL (documented, not `must`)
+                               why DEEP cannot see it: the helpers are real_helpers() (they always ran for real), QueryPerformanceCounter is an import
+                               (stubbed in every mode), and the only observable effect is edx:eax of a function declared void (not compared; with
+                               DIFFEMU_VOID_EAX=1 still EQUAL: the stub's out word is 0..60, so the 64-bit product stays below 2^31 and `cdq`
+                               reproduces the real high dword). The class (return width of a callee declared int) is visible only in the CALLERS of
+                               timer_ticks with a typed return; needs a signature check (sigs.txt ret 8 bytes vs decls int), not DEEP.
+
+Proposals (main session decides):
+  1. diffemu.py: a `cause` column in diffemu_results.csv (first token of the "skipped" note: DEEP_MAXINS, DEEP_FAULT@addr, DEEP_FRAMEGUARD,
+     NULLCALL ...). Agents may edit only core.py, so today the cause is in the note ("skipped N: DEEP_MAXINS 60, ..."); output/diffemu_deep_*.csv
+     carries it as a column.
+  2. Gate integration (plan: only if INCONCLUSIVE rises < 10 %): it rose 22 -> 37 on the 216 names (+68 %; DEEP=1 causes: DEEP_MAXINS 14,
+     NULLCALL 13, WILD_LOOP 4, TIMEOUT 4, LOOP 2: real callees that walk lists / loop over counts read from random memory), so NOT as a gate pass yet; run it as an opt-in audit (weekly / on new rwp installs).
+  3. recomp fix (real defect found by DEEP): recomp/automatch_near/an_rwp_0058b040.c rwp_gjk_separation_query `float rest[100]` -> `float rest[108]`
+     (frameaudit room_orig 432 bytes; the real 58a8f0 writes rest[100..102], in ours that is the incoming parameter slots pa/pb/step: the next
+     58a8f0 calls get step = 1 instead of 0.25). Verified in scratch: DEEP=1 EQUAL 182 cases, DEEP=0 EQUAL 200. Needs a tier2 gate (main session).

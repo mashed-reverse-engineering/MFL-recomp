@@ -1,0 +1,57 @@
+# DIFFEMU_DEEP deny list (tools/diffemu/core.py deep_ok): callees that stay STUBBED in deep mode although they are original code.
+# One token per line: a name glob (fnmatch, case sensitive, names of recomp/symbols.txt) or an 8-digit hex va.  deep_allow.txt (optional, same format) wins over this file.
+# D3D device / RenderWare D3D9 driver layer (device state, COM calls through a device that is not seeded)
+*D3D9*
+*d3d9*
+d3dx_texture_create
+gamma_apply_via_device*
+video_get_device_pointer
+_rwDeviceSystemRequest
+# heap allocators (CRT, RenderWare free lists / RxHeap / resource heap, png / zlib allocators)
+_malloc
+_calloc
+_realloc
+_free*
+__heap_alloc
+__nh_malloc
+___sbh_*
+__heap_init
+___heap_select
+alloc_zeroed
+RwFreeList*
+_rwFreeList*
+FreeListCreate*
+RxHeap*
+_rxHeap*
+HeapAllocFrom
+HeapSuperBlockReset
+HeapFreeBlocksNewEntry
+_rwResHeap*
+png_malloc
+png_zalloc
+png_free*
+zcalloc
+zcfree
+# file I/O wrappers (CRT FILE, RenderWare file system / streams, piz archive, game file helpers) and logging
+_fopen
+_fclose
+_fread
+_fwrite
+_fseek
+__f*_lk
+__lock_file*
+__unlock_file*
+__fcloseall
+RwF*
+_rtFS*
+_rtGet*FromDeviceName
+RwStream*
+_rwStream*
+stream_read_file
+stream_write_file
+piz_*
+file_read_into_buffer
+log_file_close
+debug_printf
+log_printf
+*printf

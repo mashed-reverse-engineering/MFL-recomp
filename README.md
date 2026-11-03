@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly three quarters of its code is already generated from the C in this repository (about 496 KB of 1,945 KB is still original), the rest is still taken from the original executable (details below).
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly three quarters of its code is already generated from the C in this repository (about 485 KB of 1,945 KB is still original), the rest is still taken from the original executable (details below).
 
 ## What this project is
 
@@ -21,7 +21,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
 | Replace the C runtime (libcmt) | mostly done; the math tables are left |
 | Rewrite the RenderWare physics plugin (rwp) as verified C | in progress; 24 KB of original code left |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 15 KB, RenderWare to 338 KB (math, streaming and the stateless groups are swapped, never-used code is removed); the camera, D3D9 and world code is next |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 15 KB, RenderWare to 332 KB (math, streaming and the stateless groups are swapped, never-used code is removed); the camera, D3D9 and world code is next |
 | Replace the streaming audio library, add a real video backend | planned |
 | Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
 
@@ -71,9 +71,9 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 678,488 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 677 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 2,978 | `█████████████████████` 107% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,629 | `████████████░░░░░░░░` 58% |
-| ...tier 1, `src/tier1` (1640 files) | 1,281 | `█████████░░░░░░░░░░░` 46% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,111 | `██████████████████████` 111% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,762 | `█████████████░░░░░░░` 63% |
+| ...tier 1, `src/tier1` (1763 files) | 1,414 | `██████████░░░░░░░░░░` 51% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...tier 2, `src/tier2` (971 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
@@ -118,6 +118,9 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 ## Acknowledgements
 
 Many thanks to **L2KSolkov** and the contributors of [codfh-win32](https://github.com/L2KSolkov/codfh-win32), a Win32 port of Call of Duty: Finest Hour. Its `src/rwa/` directory is a byte-identical decompilation of Criterion's RenderWare Audio (RWA), the library behind the audio layer of `MFL.exe`. It let us identify the library and match a large part of our audio code exactly with the same compiler. Where we use or adapt that code, the file header says so and names the repository.
+
+Many thanks to **tgsm** and the contributors of [pbg](https://github.com/tgsm/pbg), the CC0-licensed decompilation of Piglet's Big Game. The RWA headers `src/tier1/rwa.h` and `src/tier1/rwaint.h` take the basic RenderWare types, `RwLLLink`, `RwV3d`, `RwaUUID`, `RwaLLNode`, `RwaParamType`, `RwaParamTypeHandle` and `RwaType` from its `include/rwsdk` and `include/rwa` headers; the other structures there hold only the members our sources use, at the offsets measured in `MFL.exe`.
+
 ## Naming data
 
 Apply with Ghidra 12.1.4 (headless) in this order: `RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`. Details: [docs/NAMING.md](docs/NAMING.md).

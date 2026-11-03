@@ -166,7 +166,8 @@ def load_names():
             if any(x <= a < y for x, y in cr): continue
             if SECT["rdata"][0] <= a < SECT["bss"][1] and re.fullmatch(r"[A-Za-z_]\w*", p[0]) and not any(s_ <= a < e_ for _, s_, e_ in LIBSRC_DEAD_RANGES) and p[0] not in names[a] and seen.setdefault(p[0], a) == a: names[a].append(p[0])
     if CRT_SPLIT:      # the split members define these symbols themselves (_iob, __d_inf, ...): a name here would win the link and bring the zero-filled dead row
-        for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _crt_dead())]: names[a] = []
+        _cd = list(_crt_dead())      # once: calling _crt_dead() per name re-read the CRT csv ~60k times (15 min of every libcmt link, found 2026-11-03)
+        for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _cd)]: names[a] = []
     return {a: v for a, v in names.items() if v}
 
 

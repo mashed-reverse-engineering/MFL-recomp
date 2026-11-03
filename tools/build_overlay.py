@@ -85,7 +85,7 @@ def main():
     skip |= {x for x in os.environ.get("SKIP_FILES", "").split(",") if x}   # e.g. SKIP_FILES=batch7.c,batch8.c (bisecting)
     work = tempfile.mkdtemp(prefix="overlay_", dir=os.environ.get("TMPDIR", "/tmp/claude-%d" % os.getuid()))
     try:
-        for h in glob.glob(os.path.join(RECOMP, "*.h")):
+        for h in glob.glob(os.path.join(RECOMP, "*.h")) + glob.glob(os.path.join(RECOMP, "tier1", "*.h")):      # tier1/*.h: library headers of tier 1 sources (rwa.h / rwaint.h: RenderWare Audio, codfh-win32)
             copy_hdr(h, work)
         for h in ("ghidra_types.h", "prelude.h"):
             shutil.copy(os.path.join(RECOMP, "auto", h), work)
@@ -169,10 +169,12 @@ def main():
         # object cache: key = source + all headers + flags; only the changed files are compiled, in ONE cl call (a docker/wine start costs ~8 s)
         flags = ["/nologo", "/c", "/O2", "/Gy"]
         hdr = hashlib.sha1()
+        LOCAL_H = ("mfl_video.h", "rwa.h", "rwaint.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
         for h in sorted(glob.glob(os.path.join(work, "*.h"))):
-            if os.path.basename(h) == "mfl_video.h": continue      # only src/video and the movie functions include it: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
+            if os.path.basename(h) in LOCAL_H: continue
             hdr.update(open(h, "rb").read())
-        vh_ = open(os.path.join(work, "mfl_video.h"), "rb").read() if os.path.exists(os.path.join(work, "mfl_video.h")) else b""
+        lh_ = {n_: open(os.path.join(work, n_), "rb").read() for n_ in LOCAL_H if os.path.exists(os.path.join(work, n_))}
+        vh_ = lambda src_: b"".join(v_ for n_, v_ in sorted(lh_.items()) if n_.encode() in src_)
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
         todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set()
@@ -193,7 +195,7 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + (vh_ if b"mfl_video.h" in open(os.path.join(work, nm), "rb").read() else b"") + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode()).hexdigest()
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode()).hexdigest()
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
@@ -210,7 +212,7 @@ def main():
                     sys.exit(1)
             for nm, cp in keyed:
                 if nm in todo:
-                    shutil.copy(os.path.join(work, nm[:-2] + ".obj"), cp)
+                    tmp_ = "%s.%d.tmp" % (cp, os.getpid()); shutil.copy(os.path.join(work, nm[:-2] + ".obj"), tmp_); os.replace(tmp_, cp)      # atomic: concurrent builds (check_all BUILD_PAR) never see a half-written cache object
         for nm, cp in keyed:
             o = os.path.join(work, nm[:-2] + ".obj")
             if os.path.exists(o):
