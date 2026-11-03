@@ -156,9 +156,9 @@ int world_closest_triangle_hit(void *world, struct MflRpIntersection *isect, str
   return count;
 }
 
-/* Line against the world, closest hit. */
+/* Line against the world, closest hit; returns the hit count (0 or 1: the callers test `== 1`). */
 /* TIER2: unvalidated 2026-10-31 authority=static */
-void world_line_closest_hit(void *world, const float *line, struct CollisionHit *hit)
+int world_line_closest_hit(void *world, const float *line, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
   int i;
@@ -167,12 +167,12 @@ void world_line_closest_hit(void *world, const float *line, struct CollisionHit 
   for (i = 0; i < 6; i++) {
     isect.shape[i] = line[i];
   }
-  world_closest_triangle_hit(world, &isect, hit);
+  return world_closest_triangle_hit(world, &isect, hit);
 }
 
-/* Sphere against the world, closest hit. */
+/* Sphere against the world, closest hit; returns the hit count (0 or 1). */
 /* TIER2: unvalidated 2026-10-31 authority=static */
-void world_sphere_closest_hit(void *world, const float *sphere, struct CollisionHit *hit)
+int world_sphere_closest_hit(void *world, const float *sphere, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
 
@@ -181,7 +181,7 @@ void world_sphere_closest_hit(void *world, const float *sphere, struct Collision
   isect.shape[2] = sphere[2];
   isect.shape[3] = sphere[3];
   isect.type = RP_INTERSECT_SPHERE;
-  world_closest_triangle_hit(world, &isect, hit);
+  return world_closest_triangle_hit(world, &isect, hit);
 }
 
 /* Closest triangle hit of the intersection with one atomic. */
@@ -200,9 +200,9 @@ int atomic_closest_triangle_hit(void *atomic, struct MflRpIntersection *isect, s
   return count;
 }
 
-/* Line against one atomic, closest hit. */
+/* Line against one atomic, closest hit; returns the hit count (vehicle_part_set_effect passes it on to its caller 0x465470). */
 /* TIER2: unvalidated 2026-10-31 authority=static */
-void atomic_line_closest_hit(void *atomic, const float *line, struct CollisionHit *hit)
+int atomic_line_closest_hit(void *atomic, const float *line, struct CollisionHit *hit)
 {
   struct MflRpIntersection isect;
   int i;
@@ -211,7 +211,7 @@ void atomic_line_closest_hit(void *atomic, const float *line, struct CollisionHi
   for (i = 0; i < 6; i++) {
     isect.shape[i] = line[i];
   }
-  atomic_closest_triangle_hit(atomic, &isect, hit);
+  return atomic_closest_triangle_hit(atomic, &isect, hit);
 }
 
 /* Collects up to `limit` world triangles whose material colour equals *color; returns the count. */

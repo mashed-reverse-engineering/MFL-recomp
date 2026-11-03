@@ -1,0 +1,10 @@
+# Group "g2" (S4): RenderWare functions from librw-mfl/capi/g2.cpp, written op for op from the disassembly; opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2 and an RW_DLL built from a librw-mfl tree
+# that has g2.cpp.  Format as rw_stream.txt: exe_name[=dll_export].  Proof: tools/delink/rw_g2_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f,
+# pointer arguments may alias): all EQUAL; mutation test 26 of 26 caught (scratch mutation script; one candidate dropped as equivalent at CW 0x7f).
+# RtIntersectionSphereTriangle / BBoxTriangle: callers are the collision callbacks 0x54a36c..0x54d5b0; they call only _rwInvSqrt (g0), no static helper becomes dead.
+# RwMatrixCreate / Destroy: the matrix memory moves into the DLL (malloc / free).  The exe's matrix free list (static RwFreeList 0x7d212c, created by the matrix module open 0x4d3b40) is used by
+# these two only (all xrefs of 0x7d2150 / 0x7d212c checked), so it stays created and empty; both must be swapped together.  recomp/tier1/RwMatrixDestroy.c defines the same name: the thunk wins (LNK4006).
+RtIntersectionSphereTriangle
+RtIntersectionBBoxTriangle
+RwMatrixCreate
+RwMatrixDestroy

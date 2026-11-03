@@ -1,0 +1,28 @@
+# Group "g3" (plan_texdict_2026-11-03 T1 + T2): the device independent RW 3.7 raster / texture / texture dictionary layer from librw-mfl/capi/g3.cpp, written op for op from the disassembly, on the exe's own
+# objects (RW 3.7 byte layout, capi/rw37.h); the D3D9 raster driver stays the exe's (called through the engine's standard-function table), memory stays the exe's module free lists (engine +0x118 / +0x11c).
+# Opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3 and an RW_DLL built from a librw-mfl tree that has g3.cpp.  NEEDS the mflrw_exe_bind call in rw_engine_init (recomp/automatch_near/an_hk_612.c) before
+# RwEngineInit: without it the first g3 call aborts with "[mflrw] g3 called before mflrw_exe_bind".  Format as rw_stream.txt: exe_name[=dll_export]; the DLL exports carry the rw37_ prefix because the plain
+# names are the librw-object facade (rwobj.cpp).  C-defined duplicates are named like the C symbol (recomp/tier1 RwRasterDestroy / Lock / Unlock / UnlockPalette / GetOffset (= FUN_004d7770) / destroyTexture
+# (= FUN_004df790)): the thunk object goes first in the link and wins (LNK4006), those six C files leave the link with this group.  0x4d5ac0 has mkobj's deduplicated name (symbols.txt names 0x485240 the same).
+# Proof: tools/delink/rw_g3_check.sh <mflrw.dll> 200 3000 (original code mapped at its own address, run natively under Wine; 200 random operation sequences of 3000 steps run through the DLL and through the
+# original with logging stand-ins for the driver / free lists / plugin ctors / string functions; call logs, objects, engine instance, registries, error state): EQUAL, 17.5 M log words; mutation test 8 of 8 caught.
+RwRasterCreate=rw37_RwRasterCreate
+RwRasterDestroy=rw37_RwRasterDestroy
+RwRasterSubRaster=rw37_RwRasterSubRaster
+RwRasterGetNumLevels=rw37_RwRasterGetNumLevels
+RwRasterLock=rw37_RwRasterLock
+RwRasterUnlock=rw37_RwRasterUnlock
+RwRasterLockPalette=rw37_RwRasterLockPalette
+RwRasterUnlockPalette=rw37_RwRasterUnlockPalette
+RwRasterGetCurrentContext=rw37_RwRasterGetCurrentContext
+RwRasterGetOffset=rw37_RwRasterGetOffset
+RwTextureGetAutoMipmapping=rw37_RwTextureGetAutoMipmapping
+RwTexDictionaryCreate=rw37_RwTexDictionaryCreate
+RwTexDictionaryDestroy_004d5ac0_4d5ac0=rw37_RwTexDictionaryDestroy
+RwTextureCreate=rw37_RwTextureCreate
+RwTextureDestroy=rw37_RwTextureDestroy
+destroyTexture=rw37_destroyTexture
+RwTextureSetName=rw37_RwTextureSetName
+RwTextureSetMaskName=rw37_RwTextureSetMaskName
+RwTexDictionaryAddTexture=rw37_RwTexDictionaryAddTexture
+RwTexDictionaryFindNamedTexture=rw37_RwTexDictionaryFindNamedTexture

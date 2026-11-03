@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""drawcmp.py <ours trace.d3d.gz> <ctrl trace.d3d.gz> [max prim] [max mhash] [max unmatched]: render oracle of gate.sh standalone (T-P18).
+"""drawcmp.py <ours trace.d3d.gz> <ctrl trace.d3d.gz> [max prim] [max mhash] [max unmatched] [key prefix...]: render oracle of gate.sh standalone (T-P18).
+Extra key prefixes are left out of mhash as well (`vsc`: vertex shader constants = camera matrices, which drift run to run on courses 7 / 12 while the
+car drives, also control vs control; tools/d3dtrace/render_limits.txt).
 The draws of each frame are aligned (difflib) on a key that does not contain the vertex / index ranges (call, fvf, texture 0 content hash, primitive type,
 NumVertices, primCount); every aligned pair is compared on
   prim   the full prim field (type|BaseVertexIndex|MinVertexIndex|NumVertices|startIndex|primCount): T-P18 swapped Base / MinVertexIndex
@@ -8,6 +10,7 @@ NumVertices, primCount); every aligned pair is compared on
 Draws that align with nothing (extra / missing draws) are counted as unmatched.  Prints the totals and the first differences; exit 1 when a total exceeds its limit."""
 import collections, difflib, gzip, hashlib, re, sys
 MASK = {"xf.2", "xf.16", "xf.17", "xf.18", "xf.19", "xf.20", "xf.21", "xf.22", "xf.23", "xf.256", "vh", "ih", "rt", "zs", "frame", "racef"}      # tocsv.py MASK + zs (render target / depth surface ids)
+XMASK = ()      # extra key prefixes (command line)
 ID = re.compile(r"#-?\d+"); FL = re.compile(r"~(-?[0-9.e+-]+)")
 def fl(m):
     try: return "~%.5g" % float(m.group(1))
@@ -20,7 +23,7 @@ def load(p):
         d = dict(kv); prim = d.get("prim", ""); pp = prim.split("|")
         if "#dyn" in d.get("ib", "") and len(pp) > 5: pp[4] = "dyn"; prim = "|".join(pp)      # ring index buffer: the start depends on history
         key = (d.get("call"), d.get("fvf"), ID.sub("", d.get("tex.0", "")), pp[0], pp[3] if len(pp) > 5 else "", pp[5] if len(pp) > 5 else "")
-        mh = hashlib.md5("\t".join("%s=%s" % (k, prim if k == "prim" else FL.sub(fl, ID.sub("#", v))) for k, v in kv if k not in MASK).encode()).hexdigest()[:16]
+        mh = hashlib.md5("\t".join("%s=%s" % (k, prim if k == "prim" else FL.sub(fl, ID.sub("#", v))) for k, v in kv if k not in MASK and not k.startswith(XMASK)).encode()).hexdigest()[:16]
         fr[int(d.get("frame", -1))].append((key, prim, mh, d.get("call", "")))
     return fr
 def main(a, b, lim):
@@ -43,4 +46,6 @@ def main(a, b, lim):
     print("drawcmp: " + ("FAIL" if bad else "ok")); return 1 if bad else 0
 if __name__ == "__main__":
     if len(sys.argv) < 3: sys.exit(__doc__)
+    XMASK = tuple(p + "." for p in sys.argv[6:])
+    if XMASK: print("drawcmp: also masked: %s" % " ".join(sys.argv[6:]))
     sys.exit(main(sys.argv[1], sys.argv[2], ([int(x) for x in sys.argv[3:6]] + [0, 0, 0])[:3]))

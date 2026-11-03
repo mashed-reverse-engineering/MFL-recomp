@@ -157,6 +157,5 @@
 00568b20 407 RtCharsetBufferFlush
 00568cc0 362 RtCharsetPrintBuffered
 00568e30 729 CharsetProcessString
-00569300 182 RtDictDestroy
 005d6100 383 RpCollSectorBBoxItInit
 005d6280 416 RpCollSectorBBoxItFindNextEntries

@@ -1297,7 +1297,7 @@ def compare(fn, mo, ro, mu, ru, case=None):
         k0 = 1 if sg.ret in ("f", "d") else 0
         xo, xu = ro.get("xs", [])[k0:], ru.get("xs", [])[k0:]
         if xo != xu and len(xo) == len(xu): d.append("stale x87 stack entry %d orig %s ours %s" % (k0 + next(i for i in range(len(xo)) if xo[i] != xu[i]), *[x[next(i for i in range(len(xo)) if xo[i] != xu[i])].hex() for x in (xo, xu)]))
-    elif sg.ret != "v" or os.environ.get("DIFFEMU_VOID_EAX"):      # DIFFEMU_VOID_EAX=1: also compare EAX of void functions (the original may leave a live result there: sweep-only functions have no caller to prove it)
+    if sg.ret not in ("f", "d") and (sg.ret != "v" or os.environ.get("DIFFEMU_VOID_EAX")) and not exited:      # (was an elif behind `if not exited` since 7b60423ed: the eax/edx compare never ran, fixed 2026-11-03) DIFFEMU_VOID_EAX=1: also compare EAX of void functions (the original may leave a live result there: sweep-only functions have no caller to prove it)
         mask = {"i1": 0xff, "i2": 0xffff}.get(sg.ret, 0xffffffff)
         if ro["eax"] & mask != ru["eax"] & mask: d.append("eax orig %08x ours %08x" % (ro["eax"], ru["eax"]))
         if sg.ret == "ll" and ro["edx"] != ru["edx"]: d.append("edx orig %08x ours %08x" % (ro["edx"], ru["edx"]))

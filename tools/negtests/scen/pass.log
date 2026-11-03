@@ -1,0 +1,7 @@
+control: cached (oracle/neg_scen/scen/_ctrlcache/options_all-422e0c579d5e0941)
+scenario options_all_sa on standalone exe (control cached)
+ctrl: clean  rc 0
+ours: clean  rc 0
+final screenshot ctrl vs ours mean diff: 53.5 (limit 70)
+GameState dumps ctrl vs ours differing bytes: 23 dumps, 0 differ
+RESULT: PASS

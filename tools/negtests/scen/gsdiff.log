@@ -1,0 +1,6 @@
+scenario pause_all_sa_training on standalone exe (control fresh)
+ctrl: clean  rc 0
+ours: clean  rc 0
+final screenshot ctrl vs ours mean diff: 17.6 (limit 30)
+GameState dumps ctrl vs ours differing bytes: 1 dumps, 1 differ  quit=13
+RESULT: FAIL (GameState differs)

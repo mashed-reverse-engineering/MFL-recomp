@@ -1,0 +1,6 @@
+control: cached (oracle/neg_scen/scen/_ctrlcache/menus_main-43f67cc4c8c91aa2)
+scenario menus_main_sa on standalone exe (control cached)
+ctrl: clean  rc 0
+ours: clean  rc 0
+final screenshot ctrl vs ours mean diff: 67.5 (limit 30)
+RESULT: FAIL (final screenshot differs)

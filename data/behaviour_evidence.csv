@@ -1211,7 +1211,7 @@ controller_poll_player,004a5680,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 joypads_poll_frame,004a5930,cluster,pilot,EQUAL,300,1.00,1,,pilot:EQUAL,
 course_nt1_helper_4557f0_sub_4a5ba0,004a5ba0,tier2,hs_sweep,EQUAL,36,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 object_frames_create,004a5c20,tier2,hs_sweep,EQUAL,1315,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-object_frames_create_forward,004a5cd0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
+object_frames_create_forward,004a5cd0,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
 course_helper_4a5d50,004a5d50,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 object_set_colour,004a5e50,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 video_draw_textured_quad_b,004a5f30,cluster,cluster_sweep,EQUAL,171,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,

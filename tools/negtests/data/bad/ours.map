@@ -1,0 +1,4 @@
+ ours: T-P15 (an initialised writable static in a new object grew .data by 4 and shifted the original bss: every course crashed)
+
+  Address         Publics by Value              Rva+Base     Lib:Object
+ 0004:00000000 00052004H .data                   DATA

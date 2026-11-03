@@ -6,17 +6,26 @@ import glob, os, re, struct, sys
 # standalone mode: scen_union.py standalone [fns csv = output/standalone_fns.csv from standalone_fns.py]
 # -> output/fn_scenarios_standalone.csv (name,va,size,layer,scenarios): scenarios = output/scenario/<name>_cov_<tag>/out/gdbcov.txt (scen_cov.sh, "HIT name" per function of the standalone ours.exe), label <name>_<tag>.
 # Prints per scenario and for the union the table layer, functions, bytes, executed (functions / bytes).
+# Optional: scen_union.py standalone <fns csv> <scenario dir (default output/scenario; sasweep.py --cov: <out>/scen)> <out csv> <never-run out>
+# (never-run = names never hit, minus output/never_exec_expected.txt; lines "name va size").
 if sys.argv[1:2] == ["standalone"]:
     import collections, csv
     O = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "output")
-    rows = list(csv.DictReader(open(sys.argv[2] if len(sys.argv) > 2 else O + "/standalone_fns.csv"))); byn = {r["name"]: r for r in rows}; ran = {}
-    for g in sorted(glob.glob(O + "/scenario/*_cov_*/out/gdbcov.txt")):
+    A = sys.argv[2:] + [None] * 4
+    rows = list(csv.DictReader(open(A[0] or O + "/standalone_fns.csv"))); byn = {r["name"]: r for r in rows}; ran = {}
+    for g in sorted(glob.glob((A[1] or O + "/scenario") + "/*_cov_*/out/gdbcov.txt")):
         lab = os.path.basename(os.path.dirname(os.path.dirname(g))).replace("_cov_", "_")
         for l in open(g, errors="replace"):
             if l.startswith("HIT ") and l.split()[1] in byn: ran.setdefault(l.split()[1], set()).add(lab)
-    with open(O + "/fn_scenarios_standalone.csv", "w") as f:
+    with open(A[2] or O + "/fn_scenarios_standalone.csv", "w") as f:
         w = csv.writer(f); w.writerow(["name", "va", "size", "layer", "scenarios"])
         for r in rows: w.writerow([r["name"], r["va"], r["size"], r["layer"], ";".join(sorted(ran.get(r["name"], ())))])
+    if A[3]:
+        exp = {l.strip() for l in open(O + "/never_exec_expected.txt") if l.strip() and not l.startswith("#")}
+        nv = [r for r in rows if r["name"] not in ran and r["name"] not in exp]
+        open(A[3], "w").write("# never run in any of %d coverage runs (%s), expected-dead excluded: name va size\n" % (len({x for v in ran.values() for x in v}), A[1] or "output/scenario")
+                              + "".join("%s %s %s\n" % (r["name"], r["va"], r["size"]) for r in nv))
+        print("never run: %d of %d -> %s" % (len(nv), len(rows), A[3]))
     labs = sorted({x for v in ran.values() for x in v})
     for lab in labs + ["UNION"]:
         T = collections.defaultdict(lambda: [0, 0, 0, 0])

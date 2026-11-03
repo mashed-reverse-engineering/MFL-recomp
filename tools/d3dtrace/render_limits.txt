@@ -1,0 +1,16 @@
+# render oracle targets and limits of tools/delink/sa_oracles.sh render (gate.sh standalone): one line per target (the default RENDER_TARGETS list)
+# <target of run.sh> <frames> <max prim> <max mhash> <max unmatched> [key prefixes left out of mhash, also for ours vs ours]
+# Limits = max of ours vs control over 3 ctrl x 3 ours runs (link 1103_0951, 2026-11-03); ours vs ours must be 0 0 0 (M3) with the same masks.
+# Measured noise (prim mhash unmatched):        ctrl vs ctrl   ours vs ours   ours vs ctrl
+#   course:0                                    0 0 0          0 0 0          0 1 0      (frame 0 draw 0 pre.events: our intro runs the null video backend)
+#   course:7  unmasked                          0 12210 0      0 8210 0       0 14260 0  (vsc = camera matrices drift while the car drives, from race frame ~104)
+#   course:7  vsc masked                        0 0 0          0 0 0          0 1 0
+#   course:12 unmasked                          0 5566 0       0 24255 0      0 24256 0
+#   course:12 vsc masked                        0 0 0          0 0 0          0 1 0
+#   mainmenu  (run.sh mainmenu, keys real-time) 5133..24414 prim, 1390..4946 unmatched even ctrl vs ctrl, also over the last 60 frames at rest: NOT usable
+#   title 300 (frame-locked, no keys; 2+2 runs) 0 0 0          0 0 0          2704 2721 1350 (ours has 4 frames fewer before the title: our intro, so the
+#                                               title frames are shifted by 4; the counts are identical run to run, a regression adds to them)
+course:0  40  0 1 0
+course:7  40  0 1 0  vsc
+course:12 40  0 1 0  vsc
+title     300 2704 2721 1350

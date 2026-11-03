@@ -28,6 +28,17 @@ extern char LAB_004a2b40[];
 /*00568a90*/ extern int RtCharsetOpen();
 /*0076e864*/ extern undefined4 g_rw_engine_76e864;
 /*0076e868*/ extern undefined4 g_rw_engine_76e868;
+/* mflrw.dll g3 binding (librw-mfl/capi/g3.cpp): the RW 3.7 raster / texture layer in the DLL works on these exe globals */
+extern __declspec(dllimport) int __stdcall GetModuleHandleA(const char *name);
+extern __declspec(dllimport) void *__stdcall GetProcAddress(int module, const char *name);
+/*007d2128*/ extern char *RwEngineInstance;
+/*007d21d8*/ extern int g_rw_7d21d8;
+/*007d2184*/ extern int g_rw_7d2184;
+/*0062e718*/ extern char g_rw_62e718[];
+/*0062e6d0*/ extern char g_rw_62e6d0[];
+/*0062e6e8*/ extern char g_rw_62e6e8[];
+/*004ea160*/ extern void *__cdecl RwErrorSet(void *error);
+typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
 #define VIDEO_MEMORY_BYTES (0x400000)
@@ -49,6 +60,8 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
 
 {
   RwMemoryFunctions *memFuncs;
+  int mflrw;
+  MflrwExeBind bind;
   RwUInt32 initFlags;
   RwBool ok;
   int status;
@@ -67,6 +80,14 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   RwEngineOpenParams open_params;
   undefined1 stub_buf [16];
   RwVideoMode mode_info;
+
+  /* Step 0 (not in MFL.exe): when mflrw.dll is loaded, hand it the addresses of the RenderWare globals its raster / texture layer works on.
+     No DLL (original-only builds) or an older DLL without the export: nothing happens. */
+  mflrw = GetModuleHandleA("mflrw.dll");
+  bind = mflrw ? (MflrwExeBind)GetProcAddress(mflrw, "mflrw_exe_bind") : 0;
+  if (bind != 0) {
+    bind(&RwEngineInstance, &g_rw_7d21d8, &g_rw_7d2184, g_rw_62e718, g_rw_62e6d0, g_rw_62e6e8, (void *)RwErrorSet);
+  }
 
   /* Step 1: core RenderWare init with the default resource arena. */
   stub_return_zero(stub_buf);

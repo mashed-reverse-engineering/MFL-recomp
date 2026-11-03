@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly three quarters of its code is already generated from the C in this repository (about 504 KB of 1,945 KB is still original), the rest is still taken from the original executable (details below).
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly three quarters of its code is already generated from the C in this repository (about 496 KB of 1,945 KB is still original), the rest is still taken from the original executable (details below).
 
 ## What this project is
 
@@ -21,9 +21,24 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
 | Replace the C runtime (libcmt) | mostly done; the math tables are left |
 | Rewrite the RenderWare physics plugin (rwp) as verified C | in progress; 24 KB of original code left |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 15 KB, RenderWare to 347 KB (math, streaming and the stateless groups are swapped, never-used code is removed); the camera, D3D9 and world code is next |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 15 KB, RenderWare to 338 KB (math, streaming and the stateless groups are swapped, never-used code is removed); the camera, D3D9 and world code is next |
 | Replace the streaming audio library, add a real video backend | planned |
 | Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
+
+## How each part is produced
+
+| Part | Approach |
+|---|---|
+| Game code, byte-identical (tier 1, automatch, hand-written, agent) | **Byte matching** with the original compiler (MSVC .NET 2002, 13.00.9466), checked function by function with a relocation-aware compare. This is scaffolding: it decides which functions are trusted fully. |
+| Game code, behaviour-verified (tier 2) | **Differential testing**: the original bytes and our compiled C run side by side in an emulator on the same inputs. |
+| Game code with register arguments (clusters) | Readable C behind a small entry stub, checked by a cluster sweep. |
+| Lua, qhull, zlib, libpng, TIFF | **Open source**, built from source. |
+| C runtime | Microsoft's VC7 `libcmt` for now; the libc step comes with the port. |
+| Movie playback | The DirectShow code is dropped; the game calls a small video interface (blank backend, a real one later). |
+| RenderWare physics plugin | Our hand-written C, differentially tested. |
+| RenderWare graphics and D3DX | `librw-mfl` (our fork of the MIT-licensed [librw](https://github.com/aap/librw)) as `mflrw.dll`: math, streaming, object groups and the D3DX math entry points are swapped in. The rest is planned as a clean-room reimplementation. |
+| Audio (RenderWare Audio) | Functions byte-identical to the public [codfh-win32](https://github.com/L2KSolkov/codfh-win32) decompilation, used with attribution; the PC-only DirectShow/DXAudio backend is planned as a platform layer over a swappable audio library. |
+| Test harness | Our own code, for tests only; it is not part of the game. |
 
 ## Progress (generated)
 
@@ -100,6 +115,9 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
 | `docs/` | Building, naming workflow, toolchain, verification, enum constants, legal note. Start here to understand the game: [docs/GAME_STRUCTURE.md](docs/GAME_STRUCTURE.md) (main loop, race phases, cars, camera, course loading, menus, weapons, effects, audio) and [docs/STRUCTS.md](docs/STRUCTS.md) (record layouts). |
 
+## Acknowledgements
+
+Many thanks to **L2KSolkov** and the contributors of [codfh-win32](https://github.com/L2KSolkov/codfh-win32), a Win32 port of Call of Duty: Finest Hour. Its `src/rwa/` directory is a byte-identical decompilation of Criterion's RenderWare Audio (RWA), the library behind the audio layer of `MFL.exe`. It let us identify the library and match a large part of our audio code exactly with the same compiler. Where we use or adapt that code, the file header says so and names the repository.
 ## Naming data
 
 Apply with Ghidra 12.1.4 (headless) in this order: `RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`. Details: [docs/NAMING.md](docs/NAMING.md).

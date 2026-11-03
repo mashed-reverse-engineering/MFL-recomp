@@ -78,14 +78,13 @@ extern undefined4 d3d9_pipeline_destroy_default(void);
 
 /* "calls object_frames_create" */
 
-/* Forwards (base, count) unchanged to object_frames_create and returns nothing.
+/* Forwards (base, count) unchanged to object_frames_create and returns its result (the created object, 0 when count > 0x30).
    base: first object/frame argument (inferred), count: number of frames (inferred) */
 
 /* TIER2: validated 2026-10-18 authority=diffemu */
-void object_frames_create_forward(undefined4 base,undefined4 count)
+int object_frames_create_forward(undefined4 base,undefined4 count)
 {
-  object_frames_create(base,count);
-  return;
+  return object_frames_create(base,count);
 }
 
 

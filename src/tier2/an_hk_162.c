@@ -12,11 +12,11 @@
  *   pool[3]  = number of entries (capacity, inferred)
  *   pool + 4 = pointer to the entry array, POOL_ENTRY_SIZE bytes per entry
  *
- * Returns nothing; the entry is modified in place. If the cursor already
+ * Returns the entry (both callers use it). If the cursor already
  * equals the capacity the pool is exhausted, entry stays NULL and the store
  * below faults (caller must check first, inferred).
  */
-void FUN_005c1f80(byte *pool)
+uint *FUN_005c1f80(byte *pool)
 
 {
   byte head;
@@ -38,7 +38,7 @@ void FUN_005c1f80(byte *pool)
   }
   /* clear the flag bit on the entry's first word */
   *entry = *entry & ENTRY_FLAGS_CLEAR_08_MASK;
-  return;
+  return entry;
 }
 
 

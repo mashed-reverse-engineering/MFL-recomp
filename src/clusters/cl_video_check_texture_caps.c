@@ -29,8 +29,8 @@ extern ComObject *g_app_64d8c0;       /* the created texture */
 
 /* Probes whether the card can create a texture of the back buffer's size and format (non power of two textures and StretchRect from textures are
    both needed): logs the findings, creates the texture into g_app_64d8c0 and clears g_log_64d898 on success (set to 1 otherwise).
-   Always ends with the creation of a 0x84 flag raster. */
-void video_check_texture_caps(void)
+   Always ends with the creation of a 0x84 flag raster and returns it (the only caller, 0x403f20, stores it into 0x64d8c8). */
+struct RwRaster *video_check_texture_caps(void)
 {
   unsigned int caps[76];          /* D3DCAPS9: TextureCaps at [15], DevCaps2 at [53] */
   ComObject *surface = 0;
@@ -92,6 +92,6 @@ void video_check_texture_caps(void)
       g_log_64d898 = 1;
     }
   }
-  RwRasterCreate(0, 0, 0, 0x84);
+  return RwRasterCreate(0, 0, 0, 0x84);
 }
 

@@ -6,7 +6,7 @@
 #     --count alone misses a replaced function that is only called by another replaced function (C -> C calls bypass the entry jmp), 581 "never executed" functions were mostly that.
 #     gdb attaches ~1 s after the process starts: code that runs before that (CRT / engine init) is only seen by --count.
 #   - verdict: a Wine "Unhandled" in out_ovl/wine.log = CRASH (the function is named by crashfn.py); the control must not crash; the final screenshots (taken by the script as `final`)
-#     differ by imgdiff.py mean (< 30 = same scene; menus are deterministic, races are not: use SCEN_IMGTHRESH=n to change the limit).
+#     differ by imgdiff.py mean (< 30 = same scene; menus are deterministic, races are not: use SCEN_IMGTHRESH=n to change the limit, SCEN_IMGTHRESH=off to skip it for race scenarios).
 # SCEN_EXE=<ours.exe> SCEN_DELTA=<hex> [SCEN_RWDLL=..] [NOCACHE=1]: run on a standalone link instead (see the SCEN_EXE block below); control cached in output/scenario/_ctrlcache/.
 # Env: NOCTRL=1 (skip the control run: coverage only), REBUILD=1 (rebuild the cached exes in output/scenario/_build), NEVER=file (list of names to report on, default output/never_exec.txt),
 #      GDB_EXTRA="course_unload race_load_course_0042fad0" (also break on these original functions),
@@ -77,7 +77,8 @@ if rc("ours") != "0": bad.append("ours rc %s" % rc("ours"))
 if not title("ours"): bad.append("title waitmem not reached (wrong DELTA / harness address?)")
 if cc or rc("ctrl") != "0" or not title("ctrl"): bad.append("control unhealthy (not cached)")
 a, b = W + "/out_ctrl/final.png", W + "/out_ours/final.png"
-if os.path.exists(a) and os.path.exists(b):
+if os.environ.get("SCEN_IMGTHRESH") == "off": print("final screenshot: not judged (SCEN_IMGTHRESH=off)")      # race scenarios: the race picture differs run to run (render oracle covers it)
+elif os.path.exists(a) and os.path.exists(b):
     d = subprocess.run(["python3", T + "/imgdiff.py", a, b], capture_output=True, text=True).stdout.strip(); lim = float(os.environ.get("SCEN_IMGTHRESH", "30"))
     print("final screenshot ctrl vs ours mean diff: %s (limit %g)" % (d, lim))
     try:
@@ -155,8 +156,8 @@ co, cc = crash("ovl"), (crash("ctrl") if os.path.isdir(W + "/out_ctrl") else "sk
 print("scenario %s: executed %d (counters %d, gdb adds %d) of %d replaced; of the %d never-executed list: %d" % (os.path.basename(W), len(ex), ncnt, ngdb, len(names), len(never), len(ex & set(never))))
 print("ctrl: %s" % ("clean" if cc is None else cc)); print("ovl : %s" % ("clean" if co is None else "CRASH " + co))
 sh = ""
-if os.path.exists(W + "/out_ctrl/final.png") and os.path.exists(W + "/out_ovl/final.png"):
-    sh = subprocess.run(["python3", T + "/imgdiff.py", W + "/out_ctrl/final.png", W + "/out_ovl/final.png"], capture_output=True, text=True).stdout.strip()
+if os.environ.get("SCEN_IMGTHRESH") != "off" and os.path.exists(W + "/out_ctrl/final.png") and os.path.exists(W + "/out_ovl/final.png"):
+    sh =subprocess.run(["python3", T + "/imgdiff.py", W + "/out_ctrl/final.png", W + "/out_ovl/final.png"], capture_output=True, text=True).stdout.strip()
 print("final screenshot ctrl vs ovl mean diff: %s (limit %s)" % (sh or "n/a", os.environ.get("SCEN_IMGTHRESH", "30")))
 if os.path.exists(W + "/out_ctrl/cars.bin") and os.path.exists(W + "/out_ovl/cars.bin"):
     print("cars dump differing bytes (cmpdump, masked fields ignored): " + subprocess.run(["python3", T + "/cmpdump.py", "cars", W + "/out_ctrl/cars.bin", W + "/out_ovl/cars.bin"], capture_output=True, text=True).stdout.strip())

@@ -15,10 +15,10 @@
  *   position     - current position, updated in place and clamped to [POS_MIN, POS_MAX]
  *   speed_index  - index into the step table g_data_64aa20 (step size); updated in place
  *                  by the per-move delta from g_data_64aa00 and clamped to [0, SPEED_INDEX_MAX]
- * Returns nothing.
+ * Returns move_code (MOVE_* bits) in al: the caller 0x5c7a20 packs it into bits 28..31 of a word.
  */
 
-void FUN_005c7150(short target_pos,int *position,int *speed_index)
+byte FUN_005c7150(short target_pos,int *position,int *speed_index)
 
 {
   byte move_code;
@@ -71,12 +71,12 @@ void FUN_005c7150(short target_pos,int *position,int *speed_index)
   /* clamp speed index to [0, SPEED_INDEX_MAX] */
   if (step < 0) {
     *speed_index = 0;
-    return;
+    return move_code;
   }
   if (SPEED_INDEX_MAX < step) {
     *speed_index = SPEED_INDEX_MAX;
   }
-  return;
+  return move_code;
 }
 
 

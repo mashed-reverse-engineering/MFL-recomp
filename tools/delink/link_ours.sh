@@ -91,6 +91,11 @@ while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.ob
 # HARNESS: freeze.c's controller_present (scen_flags bit 128: two human players) replaces 0x4A5B20; mkobj's entry jmp only catches the image's callers, our C calls
 # that function by name (controller_present_thunk_4a5b20), so those callers are pointed at the harness too (the defining tier1 object is left alone)
 [ -n "$HARNESS" ] && while read -r src obj; do if nm $obj 2>/dev/null | grep -q " U _controller_present_thunk_4a5b20$"; then objcopy --redefine-sym _controller_present_thunk_4a5b20=_controller_present $obj; fi; done < $W/objs_local.txt
+# HARNESS: dwords.txt / hooks.txt patch the ORIGINAL bodies of menu_update + menu_items_animate_update (every g_frame_seconds read -> fast_ui_seconds) and
+# app_state_menu_render (every call of RwCameraBeginUpdate = 0x4d1b90 -> begin_update_hook).  Where our C replaces such a function that body is dead (int3), so the
+# same redirect is made in our object by renaming the symbol (the lists name EVERY original site in these functions, so the rename is exactly the patch).
+# Without HARNESS nothing changes.  harness_drift.py checks that each such object references the harness symbol.
+[ -n "$HARNESS" ] && nm -A -g --defined-only $(cut -d' ' -f2 $W/objs_local.txt) 2>/dev/null | awk '{n=index($1,":"); o=substr($1,1,n-1)} $2=="T" && $3=="_app_state_menu_render" {print o, "_RwCameraBeginUpdate=_begin_update_hook"} $2=="T" && ($3=="_menu_update" || $3=="_menu_items_animate_update") {print o, "_g_frame_seconds=_fast_ui_seconds"}' | while read -r obj ren; do objcopy --redefine-sym $ren $obj; done
 # T-N13: the source-built libs' own initialised .data (zlib 0x14fc B, ...) would likewise sit between the generated .data and .bss and give the bss a bigger delta than .data (harness / race scripts use ONE delta: the
 # game then ran with the harness patches at wrong bss addresses = fullscreen ChangeDisplaySettings, exit): own section behind everything
 [ -n "$LSRC$CRTSPLIT" ] && while read -r src obj; do case $src in lib:*|stub:*|pull:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt

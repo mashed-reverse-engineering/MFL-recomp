@@ -18,6 +18,9 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
   20 regentry  callee side of regcallee: a cluster entry / tier 2 definition installed at the original address that is plain cdecl (or keeps an `in_<reg>` parameter) although the
               original reads register inputs at entry (regsigs.csv, reginputs2.csv, reginputs_interior.csv, cluster_pilot*/clusters.txt): needs `<fn>_n` + naked entry thunk (fix14 455e60)
   19 comargs   indirect `[reg+disp]` (COM vtable) call whose literal / field arguments contradict every original call site's pushes of that disp in the function (T-P18 DrawIndexedPrimitive Base/MinVertexIndex swap)
+  21 argkind   DIRECT call whose literal / field arguments contradict every original call site of that callee in the function (output/call_sites.txt pushes; class 19 = the indirect COM form)
+  22 retwidth  the C returns / declares <= 32 bits but the original callers read edx after the call (edx:eax result: T-P19 timer_ticks, __allmul / __alldiv declared int), or returns void while they read eax
+  --selftest   runs the negative fixtures tools/negtests/defectlint/*.c (`// expect: class N` must fire, `// expect: clean class N` must not; `// path: src/..` = the path the snippet is linted as)
   17 framesize (`--framesize`, own run: needs the diffemu venv + object cache; `--all-tier2` = all automatch_near functions, default rwp_*) tier 2 function whose compiled prologue frame (sub esp / push ecx / chkstk) is > 8 bytes smaller than the ORIGINAL's: a local array / struct passed to a call is too small for the callee's stores (585950 `float res[16]` for 0xec bytes).  Output output/frameaudit.csv; baseline = output/frameaudit_2026-11-01.csv (status fixed / justified per flagged function)\nClass 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
 Exit 0 always (warning tool)."""
@@ -739,6 +742,68 @@ class Lint:
         m = re.match(r"//\s*cluster-entries:\s*(.*)", self.raw.split("\n")[0])
         return [NAMEVA[x] for x in re.split(r"[\s,]+", m.group(1).strip()) if x in NAMEVA] if m else []
 
+    def callee_va(self, f):
+        if f in self.protos and self.protos[f][2]: return self.protos[f][2]
+        h = re.fullmatch(r"(?:func_0x|FUN_)([0-9a-f]{8})", f)
+        return h.group(1) if h else NAMEVA.get(f) or ALIASVA.get(f)
+
+    def ret_type(self, f):
+        """return type text of a prototype / definition of f in this file ('' = none; 'int' for an undeclared callee), conventions and storage classes removed"""
+        m = re.search(r"^(?:/\*[0-9a-fA-F]{8}\*/\s*)?((?:__declspec\([^)]*\)\s*)?[A-Za-z_][\w \t\*]*?)\b%s\s*\(" % re.escape(f), self.raw, flags=re.M)      # column 0 only: declarations / definitions (bodies are indented)
+        if not m: return "" if f in self.declared_names() or f in self.hdr else "int"
+        r = re.sub(r"__declspec\([^)]*\)|\b(extern|static|inline|__inline|__forceinline|__cdecl|__stdcall|__fastcall|__thiscall|const|volatile|struct|enum|union)\b", " ", m.group(1))
+        return " ".join(r.replace("*", " * ").split())
+
+    def check_argkind(self, fn, line, st):
+        """class 21 (argkind): a DIRECT call whose literal / memory arguments contradict EVERY original call site of the same callee in the original function (output/call_sites.txt pushes; class 19 does the same for
+        indirect COM calls): a C literal where the original pushes a memory operand / another immediate, a field where it pushes an immediate (swapped arguments, T-P18 style)"""
+        vas = self.fn_vas(fn)
+        if not vas or re.match(r"^\s*(extern|typedef)\b", st): return
+        if not any((va, self.callee_va(f)) in CSITES for f in re.findall(r"(?<![\w.>])([A-Za-z_]\w*)\s*\(", st) if f not in KW for va in vas): return      # macro expansion is the slow part
+        x = self.expand(st)
+        for m in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\s*\(", x):
+            f = m.group(1)
+            if f in KW or f == fn: continue
+            cva = self.callee_va(f)
+            j = balanced_after(x, m.end() - 1)
+            if not cva or j < 0: continue
+            args = [self.argkind(a) for a in split_args(x[m.end():j]) if a.strip()]
+            sites = [ps for va in vas for _, _, ps in CSITES.get((va, cva), [])]
+            if not args or not sites or any(len(ps) < len(args) for ps in sites): continue      # a site whose pushes are not all known (hoisted before a branch target) could be the matching one
+            bad = []
+            for ps in sites:      # only literal-vs-literal and field-vs-literal count: a C literal where the original pushes a memory operand is often a constant kept in a stack temp / register / .rdata
+                c = [k for k, (ca, op) in enumerate(zip(args, ps)) if re.fullmatch(r"0x[0-9a-f]+", op) and (ca[0] == "mem" and not 0x400000 <= int(op, 16) < 0xa00000 or ca[0] == "imm" and int(op, 16) & 0xffffffff != ca[1] & 0xffffffff)]      # `tab[i].name` (an array member) is an image address, not a memory read
+                if not c: break
+                bad.append((ps, c))
+            else:
+                ps, c = bad[0]
+                self.add(21, "high", line, fn, f, st, "argkind: argument(s) %s of `%s` contradict every original call site in this function (%d; %s): swapped / wrong argument" % (",".join(map(str, c)), f, len(sites), "; ".join("arg%d=%s" % (k, ps[k]) for k in c)))
+
+    def check_retwidth_call(self, fn, line, st):
+        """class 22 (retwidth, call side): the C declares the callee returning <= 32 bits (or void) but the original function reads edx right after calling it (64-bit edx:eax result: T-P19 timer_ticks, __allmul / __alldiv declared int)"""
+        vas = self.fn_vas(fn)
+        if not vas or re.match(r"^\s*(extern|typedef)\b", st): return
+        for m in re.finditer(r"(?<![\w.>])([A-Za-z_]\w*)\s*\(", st):
+            f = m.group(1)
+            if f in KW or f == fn: continue
+            cva = self.callee_va(f)
+            ss = [s_ for va in vas for s_ in CSITES.get((va, cva), [])] if cva else []
+            k = sum(1 for s_ in ss if s_[1] == "r")
+            if not k: continue
+            rt = self.ret_type(f)
+            if rt and not WIDE_T.search(rt): self.add(22, "high", line, fn, f, st, "retwidth: `%s` is declared returning `%s` but the original %s reads edx after %d of its %d call(s) of it (64-bit edx:eax result): declare it __int64" % (f, rt, fn, k, len(ss)))
+
+    def check_retwidth_def(self, fn, s):
+        """class 22 (retwidth, definition side): a C definition installed at an original address returns <= 32 bits while original callers read edx after calling it (edx:eax result), or returns void while they read eax"""
+        if fn in self.naked or fn.endswith("_c"): return
+        va = NAMEVA.get(fn) or ALIASVA.get(fn)
+        sites = CSBYCALLEE.get(va or "", [])
+        rt = self.ret_type(fn)
+        if not sites or not rt: return
+        ke = sum(1 for x in sites if x[2] == "r"); ka = sum(1 for x in sites if x[1] == "r")
+        if ke and not WIDE_T.search(rt): self.add(22, "high", s + 1, fn, va, "%s %s(..)" % (rt, fn), "retwidth: returns `%s` but %d of the %d original call site(s) read edx after the call (edx:eax result, e.g. caller 0x%s): return __int64" % (rt, ke, len(sites), next(x[0] for x in sites if x[2] == "r")))
+        elif ka * 2 >= len(sites) and rt == "void": self.add(22, "medium", s + 1, fn, va, "void %s(..)" % fn, "retwidth: returns void but %d of the %d original call site(s) read eax after the call (e.g. caller 0x%s): the original returns a value" % (ka, len(sites), next(x[0] for x in sites if x[1] == "r")))
+
     def run(self):
         self.naked = set(re.findall(r"__declspec\(\s*naked\s*\)[^;{(]*?\b(\w+)\s*\(", self.t))
         for fn, params, s, e in self.functions():
@@ -748,9 +813,9 @@ class Lint:
             vc = []; body = "\n".join(self.lines[s:e + 1])
             for line, st in self.statements(s, e):
                 self.check_stmt(fn, line, st, env); self.check_regcallee(fn, line, st); self.check_krarity(fn, line, st); self.check_calleearity(fn, line, st); self.check_implicit(fn, line, st, env)
-                self.check_nakedaddr(fn, line, st, env, body, params); self.check_comargs(fn, line, st)
+                self.check_nakedaddr(fn, line, st, env, body, params); self.check_comargs(fn, line, st); self.check_argkind(fn, line, st); self.check_retwidth_call(fn, line, st)
                 vc += [(line, st) + c for c in self.vtable_calls(st)]
-            self.check_vtable(fn, vc); self.check_fpwidth(fn, s, e)
+            self.check_vtable(fn, vc); self.check_fpwidth(fn, s, e); self.check_retwidth_def(fn, s)
             body = "\n".join(self.lines[s:e + 1])      # class 12, nested form: `if (x <= hi) { if (x < lo) x = lo; } else x = hi;` (also >= / else-first) on a float object
             for m in re.finditer(r"if \(\(?\s*([A-Za-z_][\w.\[\]>-]*) (<=|>=) ([\w.]+)\s*\)?\) \{\s*if \(\(?\s*\1 (<|>) ([\w.]+)\s*\)?\) \{\s*\1 = [\w.-]+;\s*\}\s*\}\s*else \{\s*\1 = [\w.-]+;\s*\}", body):
                 k, n = self.atom(m.group(1), env)
@@ -881,6 +946,83 @@ def gen_fpuse():
     os.replace(FPUSE_TXT + ".tmp", FPUSE_TXT)
 
 
+CALLSITES_TXT = os.path.join(G, "output", "call_sites.txt"); CSITES = {}; CSBYCALLEE = {}
+_FAM = {"eax": ("eax", "ax", "al", "ah"), "edx": ("edx", "dx", "dl", "dh")}
+def reg_rw(op, rest, reg):
+    """'r' when the instruction reads `reg` (eax / edx family) before writing it, 'w' when it only writes it, None when it does not touch it"""
+    fam = _FAM[reg]
+    if op == "cdq": return "r" if reg == "eax" else "w"
+    if op in ("div", "idiv"): return "r"
+    if op == "mul" or op == "imul" and "," not in rest: return "r" if reg == "eax" else "w"
+    if reg == "eax":
+        if op in ("cwde", "cbw", "sahf") or re.match(r"(rep\w*\s+)?(stos|scas)", op + " " + rest): return "r"
+        if op in ("fnstsw", "lahf"): return "w"
+    if not set(re.findall(r"\w+", rest)) & set(fam): return None
+    q = rest.split(",", 1); dst = q[0].strip(); src = q[1] if len(q) > 1 else ""
+    if set(re.findall(r"\w+", src)) & set(fam) and not (op in ("xor", "sub", "sbb") and src.strip() == dst) or "[" in dst and set(re.findall(r"\w+", dst)) & set(fam): return "r"
+    if op in ("xor", "sub", "sbb") and src.strip() == dst or op in ("mov", "movzx", "movsx", "lea", "pop") or op.startswith("set"): return "w"
+    return "r"
+def gen_callsites():
+    """output/call_sites.txt `caller callee eax edx push0|push1|..` for every direct `call` of the original: eax / edx = what the caller does with the register after the call on the straight path
+    (r read first, w written first, R reaches `ret` untouched, ? unknown: next call / jmp / 40 instructions); pushes = operands pushed since the previous call / jmp / ret (arg 0 first), a pushed register resolved
+    to the operand of its last `mov` (classes 21 argkind, 22 retwidth)"""
+    import bisect
+    out = subprocess.run(["objdump", "-d", "-M", "intel", "--start-address=0x401000", "--stop-address=0x5d7000", EXE], capture_output=True, text=True).stdout.split("\n")
+    ins = []
+    for l in out:
+        m = re.match(r"\s*([0-9a-f]+):\t[0-9a-f ]+\t(\S+)\s*(.*)$", l)
+        if m: ins.append((int(m.group(1), 16), m.group(2), m.group(3).strip()))
+    starts = sorted(int(l.split()[0], 16) for l in open(os.path.join(G, "output", "fnsizes.txt")) if l.split()); fs = set(starts)
+    size = {int(l.split()[0], 16): int(l.split()[2]) for l in open(os.path.join(G, "output", "fnsizes.txt")) if len(l.split()) >= 3}
+    clob = {}      # function -> registers its ORIGINAL body may write (a call / an outside jmp = both): a callee that never writes edx cannot return edx, the caller may keep a value in it across the call (screen_width)
+    for a, op, rest in ins:
+        fa = starts[bisect.bisect_right(starts, a) - 1]
+        if fa + size.get(fa, 0) <= a: continue
+        j = re.match(r"0x([0-9a-f]+)$", rest) if op == "jmp" else None
+        if op == "call" or j and not fa <= int(j.group(1), 16) < fa + size.get(fa, 0): clob.setdefault(fa, set()).update(("eax", "edx")); continue
+        if op in ("cdq", "mul", "div", "idiv") or op == "imul" and "," not in rest: clob.setdefault(fa, set()).add("edx")
+        if op in ("mul", "div", "idiv", "fnstsw", "lahf") or op == "imul" and "," not in rest or op.startswith("lods"): clob.setdefault(fa, set()).add("eax")
+        d = rest.split(",", 1)[0].strip()
+        for reg, fam in _FAM.items():
+            if d in fam: clob.setdefault(fa, set()).add(reg)
+    rows = []; jt = {int(m.group(1), 16) for _, op, rest in ins if op.startswith("j") for m in [re.match(r"0x([0-9a-f]+)$", rest)] if m}
+    for i, (a, op, rest) in enumerate(ins):
+        t = re.match(r"0x([0-9a-f]+)$", rest) if op == "call" else None
+        if not t: continue
+        fa = starts[bisect.bisect_right(starts, a) - 1]; st = {}
+        for reg in ("eax", "edx"):
+            v = "?"
+            for b, op2, r2 in ins[i + 1:i + 41]:
+                if b in fs or b in jt: break      # a merge point: the register may come from another path
+                if op2.startswith("ret"): v = "R"; break
+                if op2 in ("call", "jmp", "leave"): break
+                x = reg_rw(op2, r2, reg)
+                if x: v = x; break
+            if v in "rR" and int(t.group(1), 16) in size and reg not in clob.get(int(t.group(1), 16), ()): v = "k"      # kept across a callee that never writes it: not a result
+            st[reg] = v
+        ps = []
+        for k in range(i - 1, -1, -1):      # pushes / register values are only followed back to the nearest branch target: before it they belong to one incoming path
+            b, op2, r2 = ins[k]
+            if b < fa or op2 in ("call", "jmp") or op2.startswith("ret"): break
+            if op2 == "push":
+                if re.fullmatch(r"e[a-d]x|e[sd]i|ebx|ebp", r2) and b not in jt:
+                    for b3, op3, r3 in reversed(ins[max(0, k - 60):k]):
+                        if b3 < fa or op3 in ("call", "jmp") or op3.startswith("ret") or op3.startswith(("rep", "movs", "stos", "lods", "cdq", "mul", "div", "idiv")) or op3 == "imul" and "," not in r3: break      # implicit register writers: unknown
+                        q = r3.split(",", 1)
+                        if q[0] == r2:      # the last write: a mov / xor zero gives the value, anything else (inc, add, pop, ..) leaves it unknown
+                            if len(q) == 2: r2 = q[1] if op3 == "mov" and not re.fullmatch(r"e[a-d]x|e[sd]i|ebx|ebp", q[1]) else "0x0" if op3 == "xor" and q[1] == r2 else r2
+                            break
+                        if b3 in jt: break
+                ps.append(r2)
+            if b in jt: break
+        rows.append("%08x\t%08x\t%s\t%s\t%s" % (fa, int(t.group(1), 16), st["eax"], st["edx"], "|".join(ps)))
+    with open(CALLSITES_TXT + ".tmp", "w") as f: f.write("\n".join(rows) + "\n")
+    os.replace(CALLSITES_TXT + ".tmp", CALLSITES_TXT)
+
+
+WIDE_T = re.compile(r"\b(__int64|longlong|ulonglong|undefined8|int64_t|uint64_t|LONGLONG|ULONGLONG|long\s+long)\b")
+
+
 def tier1_hygiene(rel, t):
     """class 16: missing description comment / unused extern in a tier 1 file"""
     out = []; body = strip_comments(t)
@@ -986,6 +1128,12 @@ def load_gt():
     for l in open(os.path.join(G, "output", "decls.h"), errors="replace"):
         m = re.match(r"\s*/\*([0-9a-fA-F]{8})\*/\s*extern\s+\w+\s+(\w+)\s*;", l)
         if m: GVAS.setdefault(m.group(2), set()).add(int(m.group(1), 16))
+    if not os.path.exists(CALLSITES_TXT) or "--regen" in sys.argv: gen_callsites()
+    for l in open(CALLSITES_TXT):
+        q = l.rstrip("\n").split("\t")
+        if len(q) == 5:
+            CSITES.setdefault((q[0], q[1]), []).append((q[2], q[3], q[4].split("|") if q[4] else []))
+            CSBYCALLEE.setdefault(q[1], []).append((q[0], q[2], q[3]))
     if not os.path.exists(INDIRECT) or "--regen" in sys.argv: gen_indirect()
     for l in open(INDIRECT):
         q = l.split()
@@ -1031,8 +1179,25 @@ def files_of(args):
     return out
 
 
+def selftest():
+    """negative fixtures tools/negtests/defectlint/*.c: `// expect: class N` must produce class N, `// expect: clean class N` must not; every lintable class needs both (5 x87 precision and 17 framesize are not part of it)"""
+    load_gt(); gd = load_decls(); bad = 0; seen = set()
+    for p in sorted(glob.glob(os.path.join(H, "negtests", "defectlint", "*.c"))):
+        t = open(p).read(); x = re.search(r"//\s*expect:\s*(clean\s+)?class\s+(\d+)", t); pm = re.search(r"//\s*path:\s*(\S+)", t)
+        if not x: print("FAIL %s: no `// expect:` line" % os.path.basename(p)); bad += 1; continue
+        rel = pm.group(1) if pm else "src/automatch_near/" + os.path.basename(p)
+        got = sorted({int(f["cls"]) for f in Lint(rel, t, gd).run() + (tier1_hygiene(rel, t) if "/tier1/" in rel else [])})
+        c = int(x.group(2)); ok = (c in got) != bool(x.group(1)); bad += not ok; seen.add((c, bool(x.group(1))))
+        print("%s %-26s expect %s class %d, got %s" % ("ok  " if ok else "FAIL", os.path.basename(p), "no" if x.group(1) else "a", c, got))
+    miss = [c for c in range(1, 23) if c not in (5, 17) and not {(c, True), (c, False)} <= seen]
+    if miss: print("FAIL classes without a fixture pair: %s" % miss); bad += 1
+    print("defectlint selftest: %d fixture(s), %s" % (len(seen), "OK" if not bad else "%d FAILED" % bad)); return 1 if bad else 0
+
+
 def main():
-    a = sys.argv[1:]; ref = None; out_csv = os.environ.get("DEFECTLINT_OUT") or os.path.join(G, "output", "defectlint.csv"); quiet = False
+    a = sys.argv[1:]; ref = None
+    out_csv = os.environ.get("DEFECTLINT_OUT") or os.path.join(G, "output", "defectlint.csv"); quiet = False
+    if "--selftest" in a: return selftest()
     if "--ref" in a: i = a.index("--ref"); ref = a[i + 1]; del a[i:i + 2]; out_csv = os.path.join(os.environ.get("TMPDIR", "/tmp/claude-%d" % os.getuid()), "defectlint_ref.csv")
     a_all = "--all" in a
     if a_all: a.remove("--all")
@@ -1106,7 +1271,7 @@ def main():
         with open(os.path.join(G, "output", "fp_width_mismatch.txt"), "w") as fh:
             for r in rows:
                 if str(r["cls"]) == "15": fh.write("%s:%s [%s%s] %s: %s\n" % (r["file"], r["line"], r["tier"], ", byte-identical" if r["byte_identical"] == "yes" else "", r["function"], r["note"]))
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize", 18: "nakedaddr", 19: "comargs", 20: "regentry"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize", 18: "nakedaddr", 19: "comargs", 20: "regentry", 21: "argkind", 22: "retwidth"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (

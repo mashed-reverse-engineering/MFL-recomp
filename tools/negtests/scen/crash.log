@@ -1,0 +1,5 @@
+scenario pause_all_sa_training on standalone exe (control fresh)
+ctrl: clean  rc 0
+ours: CRASH Unhandled exception  rc 3
+GameState dumps ctrl vs ours differing bytes: 1 dumps, 1 differ  quit=n/a
+RESULT: FAIL (ours crashed; ours rc 3; final.png only on one side; GameState differs)

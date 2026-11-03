@@ -1,0 +1,2 @@
+scenario arcade_sa_win on standalone exe (control cached)
+ctrl: clean  rc 0
