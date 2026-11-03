@@ -82,8 +82,9 @@ if os.path.exists(a) and os.path.exists(b):
     print("final screenshot ctrl vs ours mean diff: %s (limit %g)" % (d, lim))
     try:
         if float(d.split()[0]) >= lim: bad.append("final screenshot differs")
-    except Exception: bad.append("imgdiff failed: " + d)
-elif os.path.exists(a) != os.path.exists(b): bad.append("final.png only on one side")
+    except Exception:
+        if d or os.environ.get("SCEN_LAST") != "quitgame": bad.append("imgdiff failed: " + d)      # quitgame: the game has quit, final.png can be an empty shot
+elif os.path.exists(a) != os.path.exists(b) and os.environ.get("SCEN_LAST") != "quitgame": bad.append("final.png only on one side")
 os.environ["CMP_DELTA"] = os.environ.get("SCEN_DELTA", "")      # data pointers in the dumps moved by DELTA, heap pointers by the image size
 gs = sorted(f for f in os.listdir(W + "/out_ctrl") if f.startswith("gs_") and f.endswith(".bin")) if os.path.isdir(W + "/out_ctrl") else []
 if gs:      # GameState dumps (options_all, pause_all): byte compare with the control

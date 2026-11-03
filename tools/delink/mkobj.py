@@ -338,7 +338,10 @@ if "--drop-app" in opt:
     if os.environ.get("DROP_RW"):      # S3: dead RenderWare/D3DX pool code (dshow_drop.py pool -> tools/delink/rw_dead.txt), same treatment
         for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rw_dead.txt")):
             if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "rwpool " + l_.split()[2]))
-    if os.environ.get("DROP_DINPUT"):      # S7: the DirectInput tables in .text (tools/delink/dinput_dead.txt) come from src/dinput/dinput_formats.c (link_ours.sh links it, it defines func_0x004ab230 / func_0x004ab4f0)
+    if os.environ.get("DROP_RWTRAP"):      # S5: RenderWare plugin code no scenario has ever run (tools/delink/rw_trap.txt): int3 fill, pointers into it stay (globgen does not zero them) so a hit is a loud trap
+        for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rw_trap.txt")):
+            if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "rwtrap " + l_.split()[2]))
+    if os.environ.get("DROP_DINPUT"):    # S7: the DirectInput tables in .text (tools/delink/dinput_dead.txt) come from src/dinput/dinput_formats.c (link_ours.sh links it, it defines func_0x004ab230 / func_0x004ab4f0)
         for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "dinput_dead.txt")):
             if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "dinput " + l_.split()[2]))
     _deadset = set()

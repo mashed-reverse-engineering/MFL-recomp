@@ -128,7 +128,7 @@ standalone_link() {      # fresh harness link; target configuration by default (
   local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx,g1}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
   echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} LIB_CRT=${lc:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${lr:-orig} RW_DLL=${RW_DLL:-pinned} DELTA start $d"
   for k in link link2 link3 link4; do
-    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc LIB_RW=$lr DROP_DSHOW=$dd DROP_RW=${DROP_RW:-1} DROP_DINPUT=${DROP_DINPUT:-1} MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
+    LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc LIB_RW=$lr DROP_DSHOW=$dd DROP_RW=${DROP_RW:-1} DROP_RWTRAP=${DROP_RWTRAP:-1} DROP_DINPUT=${DROP_DINPUT:-1} MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}
     [ $out = 0 ] && { echo $d > $D/delta.txt; mkdir -p $R/output/gate; echo $d > $R/output/gate/standalone_delta.txt; [ $k != link ] && { mv $D/link $D/link1 && ln -s $k $D/link; }; return 0; }      # T-N13: `ln -sfn` onto the existing DIRECTORY link made link/link2: the gate then ran origbytes + the sweep on the first, wrong-delta link
     d=$(sed -n 's/.*DELTA mismatch: rerun with DELTA=\([0-9a-f]*\).*/\1/p' $D/$k.log); [ -n "$d" ] || return 1
   done; return 1

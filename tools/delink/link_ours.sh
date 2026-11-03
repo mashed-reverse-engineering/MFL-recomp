@@ -83,10 +83,14 @@ while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.ob
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)
 # DROP_DSHOW=1 (A7): the DirectShow movie code is dead (the game plays movies through src/video/mfl_video): its objects leave the link, mkobj fills the functions, globgen zeroes the pointers to them
 [ -n "$DROP_DSHOW" ] && { python3 $T/dshow_drop.py filter $W; export DROP_DSHOW; }
-[ -n "$DROP_RW" ] && export DROP_RW      # S3 (default off): dead RenderWare/D3DX pool code (tools/delink/rw_dead.txt, dshow_drop.py pool) filled by mkobj, pointers zeroed by globgen
+[ -n "$DROP_RWTRAP" ] && export DROP_RWTRAP      # S5 (default off): tools/delink/rw_trap.txt filled by mkobj with int3, pointers kept
+[ -n "$DROP_RW" ] && export DROP_RW    # S3 (default off): dead RenderWare/D3DX pool code (tools/delink/rw_dead.txt, dshow_drop.py pool) filled by mkobj, pointers zeroed by globgen
 [ -n "$MKRANGE" ] && python3 $T/litreloc.py $W/objs_local.txt
 # GEN_DATA: initialised .data of the harness object would sit between the generated .data and .bss and shift the bss delta (the race scripts use ONE delta): give it a section of its own
 [ -n "$GEN_DATA" ] && [ -n "$HARNESS" ] && while read -r src obj; do case $src in freeze.c) objcopy --rename-section .data=.hdat $obj;; esac; done < $W/objs_local.txt
+# HARNESS: freeze.c's controller_present (scen_flags bit 128: two human players) replaces 0x4A5B20; mkobj's entry jmp only catches the image's callers, our C calls
+# that function by name (controller_present_thunk_4a5b20), so those callers are pointed at the harness too (the defining tier1 object is left alone)
+[ -n "$HARNESS" ] && while read -r src obj; do if nm $obj 2>/dev/null | grep -q " U _controller_present_thunk_4a5b20$"; then objcopy --redefine-sym _controller_present_thunk_4a5b20=_controller_present $obj; fi; done < $W/objs_local.txt
 # T-N13: the source-built libs' own initialised .data (zlib 0x14fc B, ...) would likewise sit between the generated .data and .bss and give the bss a bigger delta than .data (harness / race scripts use ONE delta: the
 # game then ran with the harness patches at wrong bss addresses = fullscreen ChangeDisplaySettings, exit): own section behind everything
 [ -n "$LSRC$CRTSPLIT" ] && while read -r src obj; do case $src in lib:*|stub:*|pull:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt

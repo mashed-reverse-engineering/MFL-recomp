@@ -4,7 +4,9 @@
 #           that original-byte code addresses absolutely (T-P15: 00052004H, every course crashed).  Change DATA_LEN only when the DELTA contract changes.
 #   render  d3dtrace course:0 DRIVE=31, 40 race frames, of ours.exe and of the control (both deterministic run to run), compared by d3dtrace/drawcmp.py:
 #           prim / mhash per aligned draw pair, unmatched draws.  Limits RENDER_LIMITS="prim mhash unmatched" (link 1659 vs control: 24 305 762;
-#           T-P18 swapped Base/MinVertexIndex, link 1556: 6712 6993 736).
+#           T-P18 swapped Base/MinVertexIndex, link 1556: 6712 6993 736; T-P19 timer_ticks lost the high dword, race camera off: 24 305 813).
+#           Noise floor (T-P19, overlay with the fix): ctrl vs ctrl 0 0 0, ours vs ours 0 0 0, ours vs ctrl 0 1 0 (frame 0 draw 0 `pre.events`: our
+#           intro loop runs with the null video backend, the control's is stubbed by prepare.py, so ours has two extra device resets).
 #   scen    tools/wine-run/scenario.sh on the link: options_all, pause_all training, menus_main, arcade_win (control cached in output/scenario/_ctrlcache).
 #           FAIL on a Wine Unhandled, rc != 0, title not reached, unhealthy control or a GameState dump difference; the final screenshot is NOT judged
 #           (race shots differ run to run, render covers the picture); a non-crash failure is retried once.  T-P17 (link 1228, menu_page_enter without volatile): pause_all training crashes.
@@ -15,7 +17,7 @@ case $K in
     for s in ours ctrl; do
       ( [ $s = ours ] && export SA_EXE=$L/ours.exe SA_DELTA=$DL; DRIVE=31 $R/tools/d3dtrace/run.sh course:0 $O/$s 40 > $O/$s.log 2>&1 ) & done; wait
     for s in ours ctrl; do [ -s $O/$s/trace.d3d.gz ] || { echo "render: no trace for $s"; tail -3 $O/$s.log; exit 1; }; done
-    python3 $R/tools/d3dtrace/drawcmp.py $O/ours/trace.d3d.gz $O/ctrl/trace.d3d.gz ${RENDER_LIMITS:-100 1000 1500};;
+    python3 $R/tools/d3dtrace/drawcmp.py $O/ours/trace.d3d.gz $O/ctrl/trace.d3d.gz ${RENDER_LIMITS:-0 1 0};;
   scen)
     mkdir -p $O/scen; for x in _build _ctrlcache; do [ -e $O/scen/$x ] || ln -s $R/output/scenario/$x $O/scen/$x; done
     S=$R/tools/wine-run/scenario.sh; A="SCEN_EXE=$L/ours.exe SCEN_DELTA=$DL SCEN_OUT=$O/scen"

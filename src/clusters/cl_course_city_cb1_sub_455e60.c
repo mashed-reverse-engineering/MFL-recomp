@@ -5,8 +5,8 @@
 /*00461cc0*/ extern void __cdecl weapon_particle_spark_emit(undefined4 p0, float p1);
 /* course_city_cb1_sub_455e60 */
 
-/* "single caller course_city_cb1: a burst of 25 grey sparks from the object in esi, then one spark emit" */
-void course_city_cb1_sub_455e60(undefined4 in_esi)
+/* "single caller course_city_cb1: a burst of 25 grey sparks at the position in esi, then one spark emit" */
+void course_city_cb1_sub_455e60_n(undefined4 pos)
 {
   struct {
     unsigned char colour[4];
@@ -24,7 +24,17 @@ void course_city_cb1_sub_455e60(undefined4 in_esi)
   frame.velocity[0] = 0.0f;
   frame.velocity[1] = -0.001f;
   frame.velocity[2] = 0.0f;
-  fx_spawn_burst_spread(in_esi, 0x19, 0.06f, frame.position, 45.0f, frame.colour, frame.velocity, 10.0f);
-  weapon_particle_spark_emit(in_esi, 1.0f);
+  fx_spawn_burst_spread(pos, 0x19, 0.06f, frame.position, 45.0f, frame.colour, frame.velocity, 10.0f);
+  weapon_particle_spark_emit(pos, 1.0f);
 }
 
+/* entry thunk at the original address of course_city_cb1_sub_455e60: register inputs (esi) -> natural C course_city_cb1_sub_455e60_n; ret 0 */
+__declspec(naked) void course_city_cb1_sub_455e60(void)
+{
+    __asm {
+        push esi
+        call course_city_cb1_sub_455e60_n
+        add esp, 4
+        ret
+    }
+}

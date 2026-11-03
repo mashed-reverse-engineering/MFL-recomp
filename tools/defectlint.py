@@ -15,6 +15,8 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
   15 fpwidth   a float (double) typed global used by a function whose ORIGINAL instructions read that address only as a qword (dword): k_f_0 at 0x5ddc28 is the double 90.0, read as float it is 0 (T-H2 car_auto_steer_assist_step); output/fp_const_uses.txt = x87 memory operands per original function (gen_fpuse, --regen)
   16 t1hygiene tier 1 only (report only, byte identical code): no one-line `/* description */` comment before the function, or an `extern` declaration (object / function / function pointer) whose name is never used in the file (draft header residue; T-Q1)
   18 nakedaddr `&local` passed to a `__declspec(naked)` wrapper defined in the same file, local not volatile and its address going to no other (extern) function: MSVC drops the stores / reads around the call (T-P16/T-P17 menu_page_enter)
+  20 regentry  callee side of regcallee: a cluster entry / tier 2 definition installed at the original address that is plain cdecl (or keeps an `in_<reg>` parameter) although the
+              original reads register inputs at entry (regsigs.csv, reginputs2.csv, reginputs_interior.csv, cluster_pilot*/clusters.txt): needs `<fn>_n` + naked entry thunk (fix14 455e60)
   19 comargs   indirect `[reg+disp]` (COM vtable) call whose literal / field arguments contradict every original call site's pushes of that disp in the function (T-P18 DrawIndexedPrimitive Base/MinVertexIndex swap)
   17 framesize (`--framesize`, own run: needs the diffemu venv + object cache; `--all-tier2` = all automatch_near functions, default rwp_*) tier 2 function whose compiled prologue frame (sub esp / push ecx / chkstk) is > 8 bytes smaller than the ORIGINAL's: a local array / struct passed to a call is too small for the callee's stores (585950 `float res[16]` for 0xec bytes).  Output output/frameaudit.csv; baseline = output/frameaudit_2026-11-01.csv (status fixed / justified per flagged function)\nClass 5 (x87 precision of a float local) is not lintable.  tier 1 / agent sources are byte identical (check_all manifest + relocation check), so classes 1-3 cannot hide there:
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
@@ -415,6 +417,20 @@ class Lint:
             if va in REGVA:
                 self.add(7, "high", line, fn, f, st, "`%s` takes its input in registers (%s, regsigs.csv) but is called as cdecl: needs the F_r adapter or the cluster route" % (f, REGVA[va]))
 
+    def check_regentry(self, fn, params, s):
+        """class 20 (callee side of regcallee): a C definition installed AT the original address (cluster entry, tier 2 name) that is a plain cdecl function although the
+        original reads register inputs at entry (regsigs / reginputs2 / reginputs_interior / clusters.txt column 4), or that still has a Ghidra `in_<reg>` / `unaff_<reg>` parameter:
+        the C reads a stack slot the register callers never pushed (T-fix14 course_city_cb1_sub_455e60: ESI position read as [esp+4] = saved ESI 0x24, row 14 crash).  Fix: `<fn>_n` + naked entry thunk."""
+        if fn in self.naked: return
+        m = re.match(r"//\s*cluster-entries:\s*(.*)", self.raw.split("\n")[0])
+        if not ((m and fn in re.split(r"[\s,]+", m.group(1).strip())) or ("/automatch_near/" in self.path and fn in T2NAMES)): return
+        va = ALIASVA.get(fn) or NAMEVA.get(fn)
+        regs = set(REGIN.get(va, ())); res = set(re.findall(r"\b(?:in|unaff)_(eax|ebx|ecx|edx|esi|edi|ebp)\b", params))
+        conv = re.search(r"\b(__fastcall|__thiscall)\s+\**\s*%s\s*\(" % re.escape(fn), self.t)
+        if conv: regs -= {"ecx", "edx"} if conv.group(1) == "__fastcall" else {"ecx"}
+        if not (regs or res): return
+        self.add(20, "high", s + 1, fn, va or fn, re.sub(r"\s+", " ", "%s(%s)" % (fn, params)), "the original %s takes %s in register(s) at entry, but the installed C definition is a plain cdecl function (stack parameters: `%s`): register callers' values never reach it; needs `%s_n` + a naked entry thunk (push reg; call; add esp; ret)" % (va or "?", "/".join(sorted(regs | res)), params.strip() or "void", fn))
+
     def check_krarity(self, fn, line, st):
         """class 8: call through a `()` prototype (file extern or decls.h): argument count vs the pushes every original call site has pending (call_pushmin.txt) / cdecl_args.txt / stdcall.txt"""
         if re.match(r"^\s*extern\b", st): return
@@ -726,6 +742,7 @@ class Lint:
     def run(self):
         self.naked = set(re.findall(r"__declspec\(\s*naked\s*\)[^;{(]*?\b(\w+)\s*\(", self.t))
         for fn, params, s, e in self.functions():
+            self.check_regentry(fn, params, s)
             self.check_framelayout(fn, s, e); self.check_defarity(fn, params, s, e)
             env = self.local_env(params, s, e)
             vc = []; body = "\n".join(self.lines[s:e + 1])
@@ -943,6 +960,7 @@ def header_decls(text, here, seen=None):
 
 
 ORIG = {}; NAMEOF = {}
+REGIN = {}; ALIASVA = {}; T2NAMES = set(); REGS_RE = re.compile(r"\b(eax|ebx|ecx|edx|esi|edi|ebp)\b")
 FNSIZE = {}; ENABLED = set(); IND = {}; REGVA = {}; REGNAME = {}; GT = {}; GTCONV = {}; NAMEVA = {}; PM = {}; PMALL = {}; DPROTO = {}
 def load_gt():
     if not os.path.exists(PUSHMIN) or "--regen" in sys.argv: gen_pushmin()
@@ -974,6 +992,25 @@ def load_gt():
         if len(q) == 4: IND.setdefault(q[0], {}).setdefault(int(q[1]), []).append((int(q[2]), q[3]))
     for r in csv.DictReader(open(os.path.join(G, "output", "regsigs.csv"))):
         REGVA[r["addr"].lower()] = r["regs"]; REGNAME[r["name"]] = r["addr"].lower()
+    # class 20: register inputs of the ORIGINAL at its entry, union of every source (regsigs.csv missed 455e60: its reginputs.csv row had a merged 608-byte body)
+    for r in csv.DictReader(open(os.path.join(G, "output", "regsigs.csv"))): REGIN.setdefault(r["addr"].lower(), set()).update(REGS_RE.findall(r["regs"]))
+    for f_, col in (("reginputs2.csv", "reg_inputs"), ("reginputs_interior.csv", "regs")):
+        p = os.path.join(G, "output", f_)
+        if os.path.exists(p):
+            for r in csv.DictReader(open(p)):
+                if r.get("entry", "1") == "1" and r[col]: REGIN.setdefault(r["addr"].lower(), set()).update(REGS_RE.findall(r[col]))
+    for l in open(os.path.join(G, "src", "aliases.txt")):
+        q = l.split()
+        if len(q) == 2: ALIASVA.setdefault(q[0], q[1].lower())
+    for l in open(os.path.join(G, "src", "automatch_near_names.txt")):
+        q = l.split()
+        if len(q) == 3: ALIASVA[q[1]] = q[0].lower(); T2NAMES.add(q[1])
+    for p in glob.glob(os.path.join(G, "output", "cluster_pilot*", "clusters.txt")):      # the cluster harness's register model of each root (column 4)
+        for l in open(p):
+            q = [x.strip() for x in l.split("|")]
+            if len(q) >= 4 and not l.startswith("#"):
+                va = NAMEVA.get(q[0]) or ALIASVA.get(q[0])
+                if va and REGS_RE.findall(q[3]): REGIN.setdefault(va, set()).update(REGS_RE.findall(q[3]))
     for l in open(os.path.join(G, "output", "stdcall.txt")):
         q = l.split()
         if len(q) >= 2 and int(q[1]) > 0: GTCONV[q[0].lower()] = int(q[1])
@@ -1069,7 +1106,7 @@ def main():
         with open(os.path.join(G, "output", "fp_width_mismatch.txt"), "w") as fh:
             for r in rows:
                 if str(r["cls"]) == "15": fh.write("%s:%s [%s%s] %s: %s\n" % (r["file"], r["line"], r["tier"], ", byte-identical" if r["byte_identical"] == "yes" else "", r["function"], r["note"]))
-    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize", 18: "nakedaddr", 19: "comargs"}
+    names = {1: "signed", 2: "floatbits", 3: "ftol", 4: "proto", 6: "vtable_conv", 7: "regcallee", 8: "krarity", 9: "framelayout", 10: "defarity", 11: "intfloat", 12: "nanclamp", 13: "mixedwidth", 14: "implicit", 15: "fpwidth", 16: "t1hygiene", 17: "framesize", 18: "nakedaddr", 19: "comargs", 20: "regentry"}
     live = [r for r in rows if r["byte_identical"] == "no" and r["enabled"] == "yes"]       # installed tier 2 / enabled bridges (a diffemu EQUAL does not exclude: random inputs never made frontend_enter_menu negative, nor passed a float to a `()` callee)
     rest = [r for r in rows if r["byte_identical"] == "no" and r not in live]
     summ = "defectlint: %d finding(s): %d in installed / enabled code [%s], %d in candidates / disabled bridges, %d in byte identical tier 1 / agent code" % (

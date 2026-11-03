@@ -3,7 +3,7 @@
 #include "mfl_tier2.h"
 /*00435ec0*/ extern int event_type_uses_standard_menu(void);
 /*0040ff20*/ extern int race_setup_get_slot_type(int slot);
-/*004a70c0*/ extern int controller_present_004a70c0(int index);
+/*004a5b20*/ extern int controller_present_thunk_4a5b20(int index);   /* the original calls the jump stub at 0x4a5b20 (439335 / 439371), not 0x4a70c0: the test harness replaces the stub */
 /*004a5b30*/ extern int app_get_app_770fb4(void);
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
 /*007efce0*/ extern struct PlayerInput g_player_inputs_previous[12];
@@ -93,7 +93,7 @@ void menu_controller_input_update(void)
   if (g_menu_7ef7d0 != 0) {
     present = 0;
     for (i = 0; i < 12; i++) {
-      if (controller_present_004a70c0(i) != 0) {
+      if (controller_present_thunk_4a5b20(i) != 0) {
         present++;
       }
     }
@@ -101,7 +101,7 @@ void menu_controller_input_update(void)
   }
   for (i = 0; i < 12; i++) {
     slot = &player_color_id[i];
-    if (controller_present_004a70c0(i) == 0) {
+    if (controller_present_thunk_4a5b20(i) == 0) {
       slot->color_id = -1;
     } else {
       if (slot->color_id == -1) {
