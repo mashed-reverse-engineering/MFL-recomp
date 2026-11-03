@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly two thirds of its code is already generated from the C in this repository, the rest is still taken from the original executable (details below).
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; roughly three quarters of its code is already generated from the C in this repository (about 504 KB of 1,945 KB is still original), the rest is still taken from the original executable (details below).
 
 ## What this project is
 
@@ -20,8 +20,8 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Recompile the game code as C (byte identical or behaviour verified) | about 98% of the game functions; the rest are tiny stubs |
 | Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
 | Replace the C runtime (libcmt) | mostly done; the math tables are left |
-| Rewrite the RenderWare physics plugin (rwp) as verified C | in progress, about 75% of it |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; the first function groups are swapped, the rest follows |
+| Rewrite the RenderWare physics plugin (rwp) as verified C | in progress; 24 KB of original code left |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 15 KB, RenderWare to 347 KB (math, streaming and the stateless groups are swapped, never-used code is removed); the camera, D3D9 and world code is next |
 | Replace the streaming audio library, add a real video backend | planned |
 | Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
 
