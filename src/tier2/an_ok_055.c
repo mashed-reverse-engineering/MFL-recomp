@@ -518,7 +518,7 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
     dir_z = side_vec[2];
     *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 8 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * *side_vec + work_vec.x;
     *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 12 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * half_width + work_vec.y;
-    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 16 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * dir_z + work_vec.z;
+    *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 16 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = width * dir_z + *(volatile float *)&work_vec.z;      /* read back from the frame like the original: cl kept z in an x87 register, so a sum past FLT_MAX did not become inf before the second vertex */
     *(undefined4 *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 36 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) = 0x3f800000;
     *(float *)(slot_offset + (char *)&g_shockwave_load_6c5e3c + 40 + (&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] * TRAIL_POINT_BYTES) =
          (float)(int)(&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE];

@@ -14,7 +14,7 @@ fs.append(os.path.join(G, "..", "MashedGame", "FullyLoaded", "installed", "App_E
 for f in sorted(fs):
     h.update(os.path.relpath(f, G).encode() + b"\0")
     if os.path.isfile(f): h.update(hashlib.sha1(open(f, "rb").read()).digest())
-for v in ("SKIP_FILES", "T2_SHADOW_DIR", "CLUSTER_ENABLED", "BRIDGE_ENABLED", "FIX_RULES", "LIBOBJ_DIR", "SECTION_PAD", "OBJCACHE", "VC7_CONTAINER"):
+for v in ("SKIP_FILES", "T2_SHADOW_DIR", "CLUSTER_ENABLED", "BRIDGE_ENABLED", "FIX_RULES", "LIBOBJ_DIR", "SECTION_PAD", "OBJCACHE", "VC7_CONTAINER", "VC7_CL"):
     h.update(("%s=%s\0" % (v, os.environ.get(v))).encode())
 h.update("\0".join(sys.argv[1:]).encode())
 print(h.hexdigest())

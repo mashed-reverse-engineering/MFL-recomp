@@ -44,8 +44,9 @@ def compile_obj(src):
     """object of a whole C file (headers next to it), cached by source + headers + flags (like build_overlay.py)"""
     d = os.path.dirname(src); h = sha(*[open(os.path.join(d, x), "rb").read() for x in sorted(os.listdir(d)) if x.endswith(".h")])
     gs = [] if b"compile: /GS" not in open(src, "rb").read() else ["/GS"]      # per-file opt-in for /GS stack-cookie functions (tools/gsfix.py)
-    FLAGS_ = FLAGS + gs + (["/G5"] if b"compile: /G5" in open(src, "rb").read() else [])      # VC6-built RenderWare functions (build_overlay.py)
-    key = sha(open(src, "rb").read(), h, " ".join(FLAGS_)); obj = os.path.join(OBJCACHE, key + ".obj")
+    FLAGS_ = FLAGS + gs + (["/G5"] if b"compile: /G5" in open(src, "rb").read() else []) + (["/DMFL_DIFFEMU"] if b"diffemu-define: MFL_DIFFEMU" in open(src, "rb").read() else [])      # MFL_DIFFEMU: the diffemu object leaves out code that is not in MFL.exe (mflrw bind)      # VC6-built RenderWare functions (build_overlay.py)
+    _m = open(src, "rb").read(); cc = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant (vc7.sh VC7_CL), same rule as tools/cmpfn.py / build_overlay.py
+    key = sha(open(src, "rb").read(), h, " ".join(FLAGS_) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")      # variant in the key: a cl 13.00 object of a cl1310 file is never reused; default keys unchanged
     if os.path.exists(obj): return obj, key
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True)
     w = tempfile.mkdtemp(prefix="dx_", dir=core.cmpfn.WORKROOT)
@@ -53,7 +54,7 @@ def compile_obj(src):
         for x in os.listdir(d):
             if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
         shutil.copy(src, os.path.join(w, "f.c"))
-        r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS_ + ["f.c"], capture_output=True, text=True, timeout=300)
+        r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS_ + ["f.c"], capture_output=True, text=True, timeout=300, env=dict(os.environ, VC7_CL=cc))
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error: " + (r.stdout + r.stderr)[-300:])
         shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp%d" % os.getpid()); os.replace(obj + ".tmp%d" % os.getpid(), obj)      # atomic (pid-unique tmp: two workers may compile the same source)
     finally: shutil.rmtree(w, ignore_errors=True)

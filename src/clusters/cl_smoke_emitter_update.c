@@ -89,7 +89,9 @@ void smoke_emitter_update(SmokeEmitter *e)
       d0 = g_particles_6c50c0[0] - e->pos[0];
       d1 = g_particles_6c50c0[1] - e->pos[1];
       d2 = g_particles_6c50c0[2] - e->pos[2];
-      d2 = d0 * d0 + d1 * d1 + d2 * d2;
+      /* (y*y + x*x) + z*z in two statements: cl reorders a single three-term sum (1 ulp off at 24-bit precision) */
+      d1 = d1 * d1 + d0 * d0;
+      d2 = d1 + d2 * d2;
       if (d2 < k_f_4) {
         e->intensity = (float_1_0 - (k_f_4 - d2) * k_f_0_25) * e->distance_scale;
       }
@@ -117,15 +119,20 @@ void smoke_emitter_update(SmokeEmitter *e)
       e->burst_pending = 0;
     }
     if (age < g_effects_update_629434) {
-      size[0] = g_effects_update_629448 * root * e->intensity + g_effects_update_629444;
+      size[0] = g_effects_update_629448 * root;      /* (k * root) * intensity: one product per statement, cl folds the chain as (k * intensity) * root */
+      size[0] = size[0] * e->intensity + g_effects_update_629444;
       size[1] = size[0];
       colour[3] = colour[2] = colour[1] = colour[0] = (unsigned char)(int)((float_1_0 - age / g_effects_update_629434) * k_f_255);
       particles_set_size(size);
       particles_set_color(colour);
       for (i = 0; i < PUFFS; i++) {
-        e->puff_pos[i][0] = g_tick_seconds * g_effects_update_629428 * e->puff_vel[i][0] + e->puff_pos[i][0];
-        e->puff_pos[i][1] = g_tick_seconds * g_effects_update_629428 * e->puff_vel[i][1] + e->puff_pos[i][1];
-        e->puff_pos[i][2] = g_tick_seconds * g_effects_update_629428 * e->puff_vel[i][2] + e->puff_pos[i][2];
+        /* (tick * speed) * velocity: the product is a separate statement so cl keeps that order */
+        step = g_tick_seconds * g_effects_update_629428;
+        e->puff_pos[i][0] = step * e->puff_vel[i][0] + e->puff_pos[i][0];
+        step = g_tick_seconds * g_effects_update_629428;
+        e->puff_pos[i][1] = step * e->puff_vel[i][1] + e->puff_pos[i][1];
+        step = g_tick_seconds * g_effects_update_629428;
+        e->puff_pos[i][2] = step * e->puff_vel[i][2] + e->puff_pos[i][2];
         particles_set_position(e->puff_pos[i]);
         angle = ((i & 1) == 0) ? -age : age;
         gfx_set_gfx_6c50c8(angle);
@@ -142,9 +149,12 @@ void smoke_emitter_update(SmokeEmitter *e)
           e->layer2_dir[i][1] = 1.0f;
           RwV3dNormalize((struct RwV3d *)e->layer2_dir[i], (struct RwV3d *)e->layer2_dir[i]);
         }
-        e->layer2_pos[i][0] = g_tick_seconds * g_effects_update_629428 * e->layer2_dir[i][0] + e->layer2_pos[i][0];
-        e->layer2_pos[i][1] = g_tick_seconds * g_effects_update_629428 * e->layer2_dir[i][1] + e->layer2_pos[i][1];
-        e->layer2_pos[i][2] = g_tick_seconds * g_effects_update_629428 * e->layer2_dir[i][2] + e->layer2_pos[i][2];
+        step = g_tick_seconds * g_effects_update_629428;
+        e->layer2_pos[i][0] = step * e->layer2_dir[i][0] + e->layer2_pos[i][0];
+        step = g_tick_seconds * g_effects_update_629428;
+        e->layer2_pos[i][1] = step * e->layer2_dir[i][1] + e->layer2_pos[i][1];
+        step = g_tick_seconds * g_effects_update_629428;
+        e->layer2_pos[i][2] = step * e->layer2_dir[i][2] + e->layer2_pos[i][2];
         particles_set_position(e->layer2_pos[i]);
         angle = ((i & 1) == 0) ? -age : age;
         gfx_set_gfx_6c50c8(angle);

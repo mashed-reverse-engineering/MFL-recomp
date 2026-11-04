@@ -27,6 +27,7 @@ void course_helper_45bad0_sub_45b7a0(int anim)
   double sine_x87;
   double sin_twice;
   float half;
+  float angle;
   int index;
   RwV3d pos;
   RwV3d axis;
@@ -49,8 +50,9 @@ void course_helper_45bad0_sub_45b7a0(int anim)
       pos.z = pos_row[2] * inv_progress + pos_row[0xb];
       pos.y = pos_row[10] + sin_twice;
       RwFrameTranslate(frame,&pos,rwCOMBINEREPLACE);
-      RwFrameRotate(frame,&axis,((float)index + k_f_4) * half * k_f_360,
-                    rwCOMBINEPRECONCAT);
+      angle = ((float)index + k_f_4) * half;      /* ((index + 4) * half) * 360: one product per statement, cl would multiply by 360 first */
+      angle = angle * k_f_360;
+      RwFrameRotate(frame,&axis,angle,rwCOMBINEPRECONCAT);
       index = index + 1;
       frame_slot = frame_slot + 1;
       pos_row = pos_row + 3;

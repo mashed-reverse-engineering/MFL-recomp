@@ -27,6 +27,12 @@ def default_jobs():
     j += ["%s_r%dc%d %s SCEN_ROW=%d SCEN_RIGHT=%d SCEN_DRIVE=31" % (m, r, c, m, r, c) for m in ("arcade", "cup") for r in range(15) for c in range(3)]
     return j
 
+def gate_held():     # a gate holds the lock: start no game (running ones finish)
+    import fcntl
+    with open(os.environ.get("GATE_LOCK", "/tmp/claude-%d/gate.lock" % os.getuid()), "a") as f:
+        try: fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB); return False
+        except OSError: return True
+
 def load1():
     m = re.search(r"load averages?: (\d+)[.,](\d+)", subprocess.run(["uptime"], capture_output=True, text=True).stdout)
     return float("%s.%s" % m.groups()) if m else 99.0
@@ -100,6 +106,7 @@ def main():
         over = a.budget and time.time() - t0 > a.budget
         if over and not run: break
         n = int(os.environ["GAME_SLOTS"]) if load1() < float(os.environ.get("SWEEP_LOAD", "12")) else 1
+        if queue and not over and len(run) < n and gate_held(): print("sasweep: gate running, pausing at the run boundary", flush=True); time.sleep(30); continue
         if queue and not over and len(run) < n: run.append(start(*queue.pop(0))); continue
         time.sleep(3)
     left = sum(1 for j in jobs if j[0] not in {l.split("\t")[0] for l in open(res)}) if os.path.exists(res) else len(jobs)

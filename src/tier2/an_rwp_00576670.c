@@ -29,12 +29,16 @@ unsigned char *rwp_farfield_00576670(unsigned char *f, unsigned int id, MflFfBox
   if ((unsigned short)sel == 0xffff) goto own_list;
   for (;;) {
     cell = sub;
-    w = FF_SLOT(f, ci & 0xffff, sel & 0xffff);
+    k = (ci & 0xffff) * 10 + (sel & 0xffff);
+    w = *(unsigned short *)(f + 0x9820 + k * 2);      /* FF_SLOT(f, ci, sel) */
     if (w & 0x8000) {
       if ((unsigned short)sel != 0xffff) goto leaf;
       break;
     }
-    ci = w;
+    /* The original keeps cell numbers in the low half of a 32-bit register (`mov ax, word ptr [...]`); the high half left over from the slot
+       index (k) travels with it and reaches the callees' unsigned short argument slots below (they mask it).  Kept so the call arguments are
+       bit-identical. */
+    ci = (k & 0xffff0000) | w;
     sel = rwp_farfield_00575d00(&sub, e, &cell);
     if ((unsigned short)sel == 0xffff) break;
   }
@@ -63,14 +67,14 @@ leaf:
   *p = w;
   w = *p;
   if ((w & 0x7c00) <= 0xc00) return f;
-  nc = FF_FREECELL(f);
-  if (nc == 0x3ff) return f;
+  nc = ((ci << 6) & 0xffff0000) | FF_FREECELL(f);      /* `mov bx, word ptr` into the register that held ci << 6 for the tag: its high half stays (see above) */
+  if ((unsigned short)nc == 0x3ff) return f;
   L = w & 0x3ff;
-  hd = FF_HEAD(f, nc);
+  hd = FF_HEAD(f, nc & 0xffff);
   FF_FREECELL(f) = (unsigned short)hd;
   *p = (unsigned short)nc;
-  FF_HEAD(f, nc) = ((((sel & 0xffff) << 10) | (ci & 0xffff)) << 10) | 0x3ff;
-  for (k = 0; k < 8; k++) FF_SLOT(f, nc, k) = 0x83ff;
+  FF_HEAD(f, nc & 0xffff) = ((((sel & 0xffff) << 10) | (ci & 0xffff)) << 10) | 0x3ff;
+  for (k = 0; k < 8; k++) FF_SLOT(f, nc & 0xffff, k) = 0x83ff;
   if ((unsigned short)L == 0x3ff) return f;
   cur = L;
   do {
@@ -79,7 +83,7 @@ leaf:
     o = w & 0x3ff;
     if (w & 0x8000) {
       sel2 = (unsigned short)rwp_farfield_00575d00(&sub, FF_E(f, o), &cell);
-      FF_NEXT(f, cur) = FF_SLOT(f, nc, sel2) & 0x3ff;
+      FF_NEXT(f, cur) = FF_SLOT(f, nc & 0xffff, sel2) & 0x3ff;
       rwp_farfield_00576b10(f, nc, sel2, cur);
       FF_TAG(f, o) = (sel2 & 0x3f) | (nc << 6);
       if (rwp_farfield_00575ba0(FF_E(f, o), &sub)) rwp_farfield_00576ba0(f, nc, sel2);

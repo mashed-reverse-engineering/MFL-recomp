@@ -55,7 +55,10 @@ typedef struct SlerpCache {
 #define QUAT_TO_MATRIX(matrix, q) \
   do { \
     float s, xs, ys, zs, wx, wy, wz, xx, yy, zz, yz, xz, xy; \
-    s = 2.0f / ((q)[0] * (q)[0] + (q)[1] * (q)[1] + (q)[2] * (q)[2] + (q)[3] * (q)[3]); \
+    s = (q)[0] * (q)[0] + (q)[1] * (q)[1];      /* one addition per statement: cl evaluates a single four-term sum from the right */ \
+    s = s + (q)[2] * (q)[2]; \
+    s = s + (q)[3] * (q)[3]; \
+    s = 2.0f / s; \
     xs = (q)[0] * s; \
     ys = s * (q)[1]; \
     zs = s * (q)[2]; \
@@ -87,7 +90,10 @@ typedef struct SlerpCache {
 #define QUAT_TO_MATRIX_D(matrix, q) \
   do { \
     float s, xs, ys, zs, wx, wy, wz, xx, yy, zz, yz, xz, xy; \
-    s = 2.0f / ((q)[1] * (q)[1] + (q)[0] * (q)[0] + (q)[2] * (q)[2] + (q)[3] * (q)[3]); \
+    s = (q)[1] * (q)[1] + (q)[0] * (q)[0]; \
+    s = s + (q)[2] * (q)[2]; \
+    s = s + (q)[3] * (q)[3]; \
+    s = 2.0f / s; \
     xs = (q)[0] * s; \
     ys = s * (q)[1]; \
     zs = s * (q)[2]; \
@@ -143,7 +149,7 @@ void __cdecl replay_buffer_interpolate_frame(ReplaySampler *sampler, unsigned in
   } frame;
   ReplayKey *first = sampler->keys;
   ReplayKey *key, *next, *after;
-  float weight_from, weight_to, angle, s;
+  float weight_from, weight_to, angle, s, poly, cube;
   float *q;
 
   frame.previous_key = 0;
@@ -200,12 +206,18 @@ void __cdecl replay_buffer_interpolate_frame(ReplaySampler *sampler, unsigned in
     weight_to = frame.alpha;
     if (frame.select == 0) {
       /* sin(x) as a Taylor series: weight = sin(t * omega) */
+      /* angle + (s * angle) * poly(s): the series and the product are separate statements (in one expression cl factors
+         it as angle * (s * poly + 1), see spline_tween) */
       angle = weight_from * frame.cache.omega;
       s = angle * angle;
-      weight_from = s * angle * (((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667) + angle;
+      poly = ((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667;
+      cube = s * angle;
+      weight_from = cube * poly + angle;
       angle = frame.cache.omega * frame.alpha;
       s = angle * angle;
-      weight_to = s * angle * (((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667) + angle;
+      poly = ((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667;
+      cube = s * angle;
+      weight_to = cube * poly + angle;
     }
     frame.quat[0] = frame.cache.to[0] * weight_to + frame.cache.from[0] * weight_from;
     frame.quat[1] = frame.cache.to[1] * weight_to + frame.cache.from[1] * weight_from;

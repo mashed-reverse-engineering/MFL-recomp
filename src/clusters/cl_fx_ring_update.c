@@ -230,7 +230,8 @@ void fx_ring_update(void)
       }
       frame.particle_pos_x = point->x;
       if (frame.any_attached == 0) {
-        frame.particle_pos_y = (float_1_0 - point[2].z) * k_f_0_3 * point[2].y + point->y;
+        frame.particle_pos_y = (float_1_0 - point[2].z) * k_f_0_3;      /* ((1 - t) * 0.3) * lift + y: the first product is its own statement so cl keeps the order */
+        frame.particle_pos_y = frame.particle_pos_y * point[2].y + point->y;
       }
       else {
         frame.particle_pos_y = point->y;

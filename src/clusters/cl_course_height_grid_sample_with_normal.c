@@ -38,15 +38,21 @@ int course_height_grid_sample_with_normal(HeightQuery *q)
     double hx0;      /* the only height the original keeps unrounded */
     RwV3d dx, dz;
 
-    cx = (int)((x - g_car_6c2894) * g_car_6c28a8 * (float)g_car_6c28b4);
-    cz = (int)((z - g_car_6c289c) * g_car_6c28ac * (float)g_car_6c28b0);
+    /* ((p - origin) * scale) * count: the first product is its own statement, in one expression cl multiplies by the
+       integer count first (fimul), 1 ulp off at 24-bit precision */
+    fx = (x - g_car_6c2894) * g_car_6c28a8;
+    cx = (int)(fx * (float)g_car_6c28b4);
+    fz = (z - g_car_6c289c) * g_car_6c28ac;
+    cz = (int)(fz * (float)g_car_6c28b0);
     if (cx >= g_car_6c28b4 || cz >= g_car_6c28b0 || cx < 0 || cz < 0) return 0;
     cell = g_car_6c2884[g_car_6c28b4 * cz + cx];
     if (cell == 0) return 0;
     x0 = CF(0xa00);
     z0 = CF(0xa08);
-    ix = (int)((x - x0) * CF(0x9dc) * (float)(CI(0x9c4) - 1) + 0.5f);
-    iz = (int)((z - z0) * CF(0x9e0) * (float)(CI(0x9c8) - 1) + 0.5f);
+    fx = (x - x0) * CF(0x9dc);      /* same: ((x - x0) * scale) * (n - 1) + 0.5 */
+    ix = (int)(fx * (float)(CI(0x9c4) - 1) + 0.5f);
+    fz = (z - z0) * CF(0x9e0);
+    iz = (int)(fz * (float)(CI(0x9c8) - 1) + 0.5f);
     gx = (float)ix * CF(0x9e4) + x0;
     fx = (x - gx) * CF(0x9ec);
     gz = (float)iz * CF(0x9e8) + z0;

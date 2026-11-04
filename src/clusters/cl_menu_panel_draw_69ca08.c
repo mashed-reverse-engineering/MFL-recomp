@@ -87,7 +87,9 @@ void menu_panel_draw(int state, int fade, int (*arrow_flag)(void))
   } else {
     width_total = (float)(sum + k_f_20);
   }
-  x = (float)((float)screen_width() * width_total * k_f_0_0015625);
+  /* one product per statement: cl folds `(screen * width) * k` into `(screen * k) * width` (1 ulp off at 24-bit precision) */
+  x = (float)screen_width() * width_total;
+  x = x * k_f_0_0015625;
   y = (float)((y_float - k_f_8) * (float)screen_height() * k_f_0_0020833334);
   w = (float)((float)screen_width() * k_f_0_025);
   h = (float)((float)screen_height() * k_f_0_033333335);
@@ -95,7 +97,10 @@ void menu_panel_draw(int state, int fade, int (*arrow_flag)(void))
   text_id = (arrow_flag() != 0) + MENU_PANEL_ARROW_TEXT;
   ui_rt2d_text_draw(text_id, width_total + k_f_20, y_float, colour, 0.7f, 0);
   text_width_int = (int)text_width(text_id, 0.7f);
-  x2 = (float)((float)screen_width() * ((float)text_width_int + width_total + k_f_26) * k_f_0_0015625);
+  x2 = (float)text_width_int + width_total;      /* (text + width) + 26, then screen * that * k: same order as the original */
+  x2 = x2 + k_f_26;
+  x2 = (float)screen_width() * x2;
+  x2 = x2 * k_f_0_0015625;
   draw_sprite(find_texture_dict_c("Arrow"), x2, y, w, h, colour, 1);
   RwRenderStateSet(ZTEST_ENABLE, (void *)1);
   RwRenderStateSet(ZWRITE_ENABLE, (void *)1);

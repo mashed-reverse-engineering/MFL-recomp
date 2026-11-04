@@ -23,7 +23,8 @@ def sha(*parts):
 def compile_obj(src):
     d = os.path.dirname(os.path.abspath(src))
     hs = sha(*[open(os.path.join(d, x), "rb").read() for x in sorted(os.listdir(d)) if x.endswith(".h")])
-    key = sha(open(src, "rb").read(), hs, " ".join(FLAGS)); obj = os.path.join(OBJCACHE, key + ".obj")
+    _m = open(src, "rb").read(); cc = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant, same rule as tools/cmpfn.py / build_overlay.py
+    key = sha(open(src, "rb").read(), hs, " ".join(FLAGS) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")
     if os.path.exists(obj): return obj
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(WORKROOT, exist_ok=True)
     w = tempfile.mkdtemp(prefix="rc_", dir=WORKROOT)
@@ -31,7 +32,7 @@ def compile_obj(src):
         for x in os.listdir(d):
             if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
         shutil.copy(src, os.path.join(w, "f.c"))
-        r = subprocess.run([VC7, w, "cl.exe"] + FLAGS + ["f.c"], capture_output=True, text=True, timeout=600)
+        r = subprocess.run([VC7, w, "cl.exe"] + FLAGS + ["f.c"], capture_output=True, text=True, timeout=600, env=dict(os.environ, VC7_CL=cc))
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error in %s:\n%s" % (src, (r.stdout + r.stderr)[-1500:]))
         shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp"); os.replace(obj + ".tmp", obj)
     finally: shutil.rmtree(w, ignore_errors=True)

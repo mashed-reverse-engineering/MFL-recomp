@@ -15,8 +15,9 @@ undefined4 __cdecl career_event_set_progress(int player)
   uint type = g_event_type;
   int *progress = &g_game_state.progress[player * 0x12];
 
+  /* every range check is unsigned (`cmp ecx,0x11; ja`): an out-of-range type, negative included, returns 0 */
   if (type == 3 || type == 4 || type == 5 || type == 0xe || type == 0xf || type == 0x10) {
-    if (0x11 < (int)type) return 0;
+    if (0x11 < type) return 0;
   }
   else if (type != 0x11) {
     if ((&g_menu_608428)[g_career_row * 0xc] == -1) {
@@ -33,7 +34,7 @@ undefined4 __cdecl career_event_set_progress(int player)
       default: break;     /* 3, 4, 5, 9, 10: fall to the range check */
       }
     }
-    else if (0x11 < (int)type) return 0;
+    else if (0x11 < type) return 0;
   }
   /* second jump table: read the entry */
   if (type == 9 || type == 10) return 0;

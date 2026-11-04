@@ -69,6 +69,7 @@ static void spline_tween(RwMatrix *out, KeyAnimation *anim, float t, int wrap)
   float weight_from;
   float weight_to;
   float angle;
+  float poly, cube;
   float s, xs, ys, zs, wx, wy, wz, xx, yy, zz, xy, xz, yz;
 
   if (t <= 0.0f) {
@@ -107,13 +108,19 @@ static void spline_tween(RwMatrix *out, KeyAnimation *anim, float t, int wrap)
     weight_from = 1.0f - u;
     weight_to = u;
     if (slerp.select == 0) {
-      /* sin(x) as a Taylor series: weight = sin(t * omega) */
+      /* sin(x) as a Taylor series: weight = sin(t * omega) = angle + (s * angle) * poly(s).  The series and the
+         (s * angle) product are separate statements: in one expression cl factors it as angle * (s * poly + 1),
+         which rounds differently at 24-bit precision. */
       angle = weight_from * slerp.cache.omega;
       s = angle * angle;
-      weight_from = s * angle * (((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667) + angle;
+      poly = ((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667;
+      cube = s * angle;
+      weight_from = cube * poly + angle;
       angle = slerp.cache.omega * u;
       s = angle * angle;
-      weight_to = s * angle * (((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667) + angle;
+      poly = ((((k_f_1_589691en10 * s - k_f_2_505076en8) * s + k_f_2_7557314en6) * s - k_f_1_984127en4) * s + k_f_0_008333334) * s - k_f_0_16666667;
+      cube = s * angle;
+      weight_to = cube * poly + angle;
     }
     q[0] = slerp.cache.to[0] * weight_to + slerp.cache.from[0] * weight_from;
     q[1] = slerp.cache.to[1] * weight_to + slerp.cache.from[1] * weight_from;
@@ -122,7 +129,11 @@ static void spline_tween(RwMatrix *out, KeyAnimation *anim, float t, int wrap)
   }
   hermite_interpolate(u, position, before->position, from->position, to->position, after->position);
   /* quaternion (x y z w) to rotation matrix; s = 2 / |q|^2 */
-  s = 2.0f / (q[1] * q[1] + q[0] * q[0] + q[2] * q[2] + q[3] * q[3]);
+  /* ((y*y + x*x) + z*z) + w*w, one addition per statement: cl evaluates a single four-term sum from the right (w*w first) */
+  s = q[1] * q[1] + q[0] * q[0];
+  s = s + q[2] * q[2];
+  s = s + q[3] * q[3];
+  s = 2.0f / s;
   xs = q[0] * s;
   ys = s * q[1];
   zs = s * q[2];

@@ -141,8 +141,11 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   if (self_car->speed < k_f_1_0en4) {
     scale_tmp = k_f_0;
   }
-  scale_tmp = *(float *)((char *)self_car + 0x150) * self_car->speed_scale * *(float *)((char *)self_car + 0x158)
-           * scale_tmp;
+  /* ((f150 * speed_scale) * f158) * speed, one product per statement: cl evaluates a single product chain of
+     memory operands from the right (f158 first), 1 ulp off at 24-bit precision */
+  tmp_f = *(float *)((char *)self_car + 0x150) * self_car->speed_scale;
+  tmp_f = tmp_f * *(float *)((char *)self_car + 0x158);
+  scale_tmp = tmp_f * scale_tmp;
   if (*(int *)&self_car->wheels_in_contact != 0x40800000 /* 4.0f as an int word */) {
     scale_tmp = scale_tmp * k_f_0_5;
   }
@@ -150,7 +153,9 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   index_tmp = 0;
   frame.proximity_factor = 1.0;
   other_car_byte_off = 0;
-  scale_tmp = scale_tmp * self_car->time_step_const * dt * k_f_3_3333333en4;
+  scale_tmp = scale_tmp * self_car->time_step_const;      /* ((scale * step) * dt) * k in this order */
+  scale_tmp = scale_tmp * dt;
+  scale_tmp = scale_tmp * k_f_3_3333333en4;
   do {
     if ((index_tmp != self_car->index) &&
        (*(int *)((int)player_car[0].effect_level + other_car_byte_off + -0x1c) == 1)) {
@@ -265,7 +270,8 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
   self_car->velocity[0] = speed_keep * self_car->velocity[0];
   self_car->velocity[1] = speed_keep * self_car->velocity[1];
   self_car->velocity[2] = speed_keep * self_car->velocity[2];
-  frame.rel_pos.z = dt * self_car->speed * k_f_1_0en5;
+  frame.rel_pos.z = dt * self_car->speed;      /* (dt * speed) * k: two statements, see above */
+  frame.rel_pos.z = frame.rel_pos.z * k_f_1_0en5;
   if (k_f_2 < frame.rel_pos.z) {
     frame.rel_pos.z = k_f_2;
   }
@@ -468,8 +474,9 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
           frame.rel_pos.x = frame.rel_pos.z * wheel_ground_pos->x;
           frame.rel_pos.y = frame.rel_pos.z * wheel_force_ptr[9];
           frame.rel_pos.z = frame.rel_pos.z * wheel_force_ptr[10];
-          tmp_f = (frame.rel_pos.z * wheel_force_ptr[0xd] + frame.rel_pos.x * wheel_force_ptr[0xb] + frame.rel_pos.y * wheel_force_ptr[0xc]
-                  ) * scale_tmp;
+          tmp_f = frame.rel_pos.y * wheel_force_ptr[0xc] + frame.rel_pos.x * wheel_force_ptr[0xb];      /* (y + x) + z, two statements */
+          tmp_f = tmp_f + frame.rel_pos.z * wheel_force_ptr[0xd];
+          tmp_f = tmp_f * scale_tmp;
           wheel_ground_pos->x = tmp_f * wheel_force_ptr[0xb];
           wheel_force_ptr[9] = tmp_f * wheel_force_ptr[0xc];
           tmp_f = tmp_f * wheel_force_ptr[0xd];
@@ -494,8 +501,9 @@ LAB_0047cad1:
     if (wheels_left == 0) {
       if (self_car->wheels_in_contact < k_f_3) {
         *(undefined4 *)((char *)self_car + 0xb20) = 1;
+        scale_tmp = scale_tmp * self_car->mass;      /* (g * mass) * 3000: two statements, see above */
         *(float *)((char *)self_car + 0xb18) =
-             *(float *)((char *)self_car + 0xb18) - scale_tmp * self_car->mass * k_f_3000;
+             *(float *)((char *)self_car + 0xb18) - scale_tmp * k_f_3000;
       }
       return;
     }

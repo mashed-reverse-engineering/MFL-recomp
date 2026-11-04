@@ -15,7 +15,7 @@ undefined4 course_world_ray_hit_light_sample(char *course, float *line_start, fl
 {
   ushort *tri_indices;
   int vertices;
-  float light;
+  float light, w0, w1, w2, c0, c1, c2;
   int vertex_colors_or_hit;
   struct {
     undefined1 bary_transform_dummy [4];
@@ -68,12 +68,17 @@ undefined4 course_world_ray_hit_light_sample(char *course, float *line_start, fl
           frame.hit_z = frame2.seg_dz * frame2.hit_t + line_start[2];
           RtBaryGetTransform(&frame.bary_m00,frame.bary_transform_dummy,vertices + (uint)*tri_indices * 0xc,
                              vertices + (uint)tri_indices[1] * 0xc,vertices + (uint)tri_indices[2] * 0xc);
-          light = (float)(*(uint *)(vertex_colors_or_hit + (uint)*tri_indices * 4) & 0xff) * k_f_0_003921569 *
-                  (frame.bary_m00 * frame.hit_x + frame.bary_m10 * frame.hit_y + frame.bary_m20 * frame.hit_z + frame.bary_m30) +
-                  (float)(*(uint *)(vertex_colors_or_hit + (uint)tri_indices[1] * 4) & 0xff) * k_f_0_003921569 *
-                  (frame.bary_m01 * frame.hit_x + frame.bary_m11 * frame.hit_y + frame.bary_m21 * frame.hit_z + frame.bary_m31) +
-                  (float)(*(uint *)(vertex_colors_or_hit + (uint)tri_indices[2] * 4) & 0xff) * k_f_0_003921569 *
-                  (frame.bary_m02 * frame.hit_x + frame.bary_m12 * frame.hit_y + frame.bary_m22 * frame.hit_z + frame.bary_m32);
+          /* summation order of the original: each weight z, y, x then the row-3 term; the three colour terms from the last vertex back */
+          w0 = frame.bary_m20 * frame.hit_z + frame.bary_m10 * frame.hit_y + frame.bary_m00 * frame.hit_x + frame.bary_m30;
+          w1 = frame.bary_m21 * frame.hit_z + frame.bary_m11 * frame.hit_y + frame.bary_m01 * frame.hit_x + frame.bary_m31;
+          w2 = frame.bary_m22 * frame.hit_z + frame.bary_m12 * frame.hit_y + frame.bary_m02 * frame.hit_x + frame.bary_m32;
+          /* colour byte / 255 per vertex, one statement each: in one expression cl factors the 1/255 out of the sum (other rounding) */
+          c0 = (float)(int)(*(uint *)(vertex_colors_or_hit + (uint)*tri_indices * 4) & 0xff) * k_f_0_003921569;
+          c1 = (float)(int)(*(uint *)(vertex_colors_or_hit + (uint)tri_indices[1] * 4) & 0xff) * k_f_0_003921569;
+          c2 = (float)(int)(*(uint *)(vertex_colors_or_hit + (uint)tri_indices[2] * 4) & 0xff) * k_f_0_003921569;
+          light = c2 * w2;
+          light = light + c1 * w1;
+          light = light + c0 * w0;
           if (light <= float_1_0) {
             *out_light = light;
             return 1;

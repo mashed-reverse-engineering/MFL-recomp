@@ -22,14 +22,17 @@ typedef struct MflSlab {
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
 int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float f5, void *list)
 {
-  float w[16];       /* distances, later the triangle costs (-1 = dropped) */
-  float w2[24];      /* distance of every clipped point */
-  float out[68];     /* clipped polygon, 3 floats each */
-  float d1, d2, tb, ta, s, num, eps, mn, t, cur_w, prev_w, tag;
+  /* the three arrays lie back to back in the original frame (esp+0x38 / +0x78 / +0xd8, out up to the saved registers at +0x1f8); nothing
+     bounds n or the clipped count, so a polygon of more than 16 vertices runs w into w2 and out exactly as there: one block keeps that layout */
+  float blk[16 + 24 + 72];
+  float *w = blk;           /* [16] distances, later the triangle costs (-1 = dropped) */
+  float *w2 = blk + 16;     /* [24] distance of every clipped point */
+  float *out = blk + 40;    /* [72] clipped polygon, 3 floats each */
+  float d1, d2, tb, ta, s, num, eps, mn, t, tag;
   double acc;
   volatile double db, da;      /* the original keeps the two divisors in x87 registers and divides per vertex; cl turns a division by a loop invariant into a reciprocal multiply */
-  float *v, *pv, *q, *r;
-  unsigned int k, j, m, best, best_out, a, b, c, cnt, nx1, nx2, pv1, pv2, rounds;
+  float *v, *q, *r;
+  unsigned int k, j, jp, m, best, best_out, a, b, c, cnt, nx1, nx2, pv1, pv2, rounds;
   int *iw = (int *)w;
 
   if (n == 0) return 1;
@@ -87,36 +90,35 @@ int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float
   eps = (float)((0.01f / (double)(n - 1)) * acc);
   best_out = 16;
   m = 0;
-  pv = &w[n - 1];
+  jp = n - 1;      /* previous vertex */
   q = V + 4 * (n - 1);
+  /* w[j] and w[jp] are read again after every store to w2: with n > 16 they alias w2[m] (see blk), and the original reads them from memory */
   for (j = 0, cnt = n; cnt != 0; cnt--, j++) {
-    cur_w = w[j];
-    prev_w = *pv;
     v = V + 4 * j;
-    if (cur_w <= 0.0f) {
-      if (prev_w > 0.0f) {
+    if (w[j] <= 0.0f) {
+      if (w[jp] > 0.0f) {
         w2[m] = 0.0f;
-        t = prev_w / (prev_w - cur_w);
+        t = w[jp] / (w[jp] - w[j]);
         out[3 * m] = (v[0] - q[0]) * t + q[0];
         out[3 * m + 1] = (v[1] - q[1]) * t + q[1];
         out[3 * m + 2] = (v[2] - q[2]) * t + q[2];
         m++;
       }
       out[3 * m] = v[0]; out[3 * m + 1] = v[1]; out[3 * m + 2] = v[2];
-      w2[m] = cur_w;
+      w2[m] = w[j];
       if (best == j) best_out = m;
       m++;
     } else {
-      if (prev_w <= 0.0f) {
+      if (w[jp] <= 0.0f) {
         w2[m] = 0.0f;
-        t = prev_w / (prev_w - cur_w);
+        t = w[jp] / (w[jp] - w[j]);
         out[3 * m] = (v[0] - q[0]) * t + q[0];
         out[3 * m + 1] = (v[1] - q[1]) * t + q[1];
         out[3 * m + 2] = (v[2] - q[2]) * t + q[2];
         m++;
       }
     }
-    pv = &w[j];
+    jp = j;
     q = v;
   }
   if (m > 4) {

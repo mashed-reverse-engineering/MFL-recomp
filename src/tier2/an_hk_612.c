@@ -83,11 +83,13 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
 
   /* Step 0 (not in MFL.exe): when mflrw.dll is loaded, hand it the addresses of the RenderWare globals its raster / texture layer works on.
      No DLL (original-only builds) or an older DLL without the export: nothing happens. */
+#ifndef MFL_DIFFEMU      /* diffemu-define: MFL_DIFFEMU (the verification object leaves this block out; it is not in MFL.exe) */
   mflrw = GetModuleHandleA("mflrw.dll");
   bind = mflrw ? (MflrwExeBind)GetProcAddress(mflrw, "mflrw_exe_bind") : 0;
   if (bind != 0) {
     bind(&RwEngineInstance, &g_rw_7d21d8, &g_rw_7d2184, g_rw_62e718, g_rw_62e6d0, g_rw_62e6e8, (void *)RwErrorSet);
   }
+#endif
 
   /* Step 1: core RenderWare init with the default resource arena. */
   stub_return_zero(stub_buf);

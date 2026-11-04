@@ -169,7 +169,7 @@ def main():
         # object cache: key = source + all headers + flags; only the changed files are compiled, in ONE cl call (a docker/wine start costs ~8 s)
         flags = ["/nologo", "/c", "/O2", "/Gy"]
         hdr = hashlib.sha1()
-        LOCAL_H = ("mfl_video.h", "rwa.h", "rwaint.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
+        LOCAL_H = ("mfl_video.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
         for h in sorted(glob.glob(os.path.join(work, "*.h"))):
             if os.path.basename(h) in LOCAL_H: continue
             hdr.update(open(h, "rb").read())
@@ -177,7 +177,7 @@ def main():
         vh_ = lambda src_: b"".join(v_ for n_, v_ in sorted(lh_.items()) if n_.encode() in src_)
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
-        todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set()
+        todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set(); ccv = {}
         OB0 = ["/Ob0"]      # clusters / tier 2 replace functions that the original CALLS (tools/diffemu verifies them with /Ob0 and hooks every callee): no inlining of their static helpers, so the shipped object is the verified one (2026-10-24, F-o2). Tier 1 / automatch stay /O2: their byte identity was proven with inlining.
         for c in srcs:
             nm = os.path.basename(c)
@@ -188,6 +188,7 @@ def main():
             shutil.copy(c, os.path.join(work, nm))
             if b"compile: /GS" in open(c, "rb").read(): gs_files.add(nm)      # /GS stack-cookie functions (tools/gsfix.py): this file alone gets cl /GS
             if b"compile: /G5" in open(c, "rb").read(): g5_files.add(nm)      # RenderWare SDK functions were built by cl 12 (VC6, /G5 scheduling: no partial register xor, params loaded in source order): this file alone gets cl /G5 (BYTEMATCH_PATTERNS "RW library")
+            _m = open(c, "rb").read(); ccv[nm] = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant (vc7.sh VC7_CL), same rule as tools/cmpfn.py: `/* compile: cl1310 */` = cl 13.10 (toolchain/vc71), `cl1310b` = cl 13.10.3077 (vc71b), default cl 13.00
             if any(os.sep + d_ + os.sep in c for d_ in ("clusters", "automatch_near")): ob0_files.add(nm)
             if cl_entries and c not in cl_files:
                 t_ = open(c, errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in cl_entries if re.search(r"\b%s\b" % n_, t_)])
@@ -195,20 +196,24 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode()).hexdigest()
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
         if todo:
             # one container, several wine cl processes in parallel (same prefix/wineserver); 1 file per cl would waste the 8 s start per process
-            njobs = min(len(todo), int(os.environ.get("JOBS", os.cpu_count() or 1)))
-            chunks = [todo[i::njobs] for i in range(njobs)]
-            cmd = " ".join("wine cl.exe %s %s &" % (" ".join(flags + (["/GS"] if g else []) + (OB0 if o else []) + (["/G5"] if v else [])), " ".join(f_)) for c in chunks for g in (0, 1) for o in (0, 1) for v in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o) and (x in g5_files) == bool(v)]] if f_) + " wait"
-            r = subprocess.run([os.path.join(HERE, "vc7.sh"), work, cmd], capture_output=True, text=True, env=dict(os.environ, VC7_SHELL="1"))
+            out_ = ""
+            for cv_ in sorted(set(ccv[x] for x in todo)):      # one vc7.sh call per compiler variant (each has its own toolchain root / container)
+                todo_ = [x for x in todo if ccv[x] == cv_]
+                njobs = min(len(todo_), int(os.environ.get("JOBS", os.cpu_count() or 1)))
+                chunks = [todo_[i::njobs] for i in range(njobs)]
+                cmd = " ".join("wine cl.exe %s %s &" % (" ".join(flags + (["/GS"] if g else []) + (OB0 if o else []) + (["/G5"] if v else [])), " ".join(f_)) for c in chunks for g in (0, 1) for o in (0, 1) for v in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o) and (x in g5_files) == bool(v)]] if f_) + " wait"
+                r = subprocess.run([os.path.join(HERE, "vc7.sh"), work, cmd], capture_output=True, text=True, env=dict(os.environ, VC7_SHELL="1", VC7_CL=cv_))
+                out_ += r.stdout + r.stderr
             for nm in todo:
                 o = os.path.join(work, nm[:-2] + ".obj")
                 if not os.path.exists(o):
-                    print("compile error in", nm, (r.stdout + r.stderr)[-int(os.environ.get("ERRLEN", "600")):], file=sys.stderr)
+                    print("compile error in", nm, out_[-int(os.environ.get("ERRLEN", "600")):], file=sys.stderr)
                     sys.exit(1)
             for nm, cp in keyed:
                 if nm in todo:

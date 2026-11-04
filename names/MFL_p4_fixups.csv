@@ -1,0 +1,7 @@
+# address,name,comment  P4 2026-11-03 fixups, apply after MFL_audio_p4_names.csv with scripts/RenameFns.java.
+# Thunks inherit their target's name in Ghidra, so the P4 renames would export three duplicate names (build_overlay would resolve RwaWaveDestroy to a thunk).
+005bbd60,thunk__rwaRwStreamCancel_5bbd60,P4: thunk to 005bbc70; explicit name so symbols.txt has no duplicate; was thunk_FUN_005bbc70
+005ccc00,thunk_RwaWaveDestroy_5ccc00,P4: thunk to 005bc0a0; explicit name so symbols.txt has no duplicate; was thunk_FUN_005bc0a0
+005da4a0,thunk_RwaWaveDestroy_5da4a0,P4: thunk to 005bc0a0; explicit name so symbols.txt has no duplicate; was thunk_FUN_005bc0a0
+# Live-project drift (not P4): 0041b960 carries the name of 0041d0e0 (duplicate); restore the name recomp/symbols.txt has now. Breaks the cluster strict build otherwise.
+0041b960,hudpanel_load_assets_0041b960,P4 fixup: was duplicate hudpanel_load_assets_0041d0e0 (name of 0041d0e0); restored to the recomp/symbols.txt name

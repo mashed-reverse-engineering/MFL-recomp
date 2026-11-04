@@ -1,0 +1,625 @@
+# address,name,comment  P4 2026-11-03: merge of rwa_renames.csv (375) + A3 MFL_audio_rwad_names.csv (503) + 19 rwad globals; priority rwad high > rwa.dll>=0.9/codfh name > rwad medium > neutral; apply with scripts/RenameFns.java
+005b6500,_RwaCoreOpenPlatform,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005b6500
+005b6560,_RwaCoreClosePlatform,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_base_005b6560; was LAB_005b6560
+005b6580,_RwaCoreCloseModuleCallback,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_base_005b6580; was FUN_005b6580
+005b65f0,rwa_base_005b65f0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005b65f0
+005b6630,rwa_base_005b6630,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005b6630
+005b6650,RwaCoreUpdateStart,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaCoreUpdateStart; was FUN_005b6650
+005b6680,RwaCoreUpdateFinish,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaCoreUpdateFinish; was FUN_005b6680
+005b6730,RwaSizeOf,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_base_005b6730; was FUN_005b6730
+005b6800,_rwaCoreOpen,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b6800
+005b68e0,RwaVirtualVoiceCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b68e0
+005b6910,RwaVirtualVoiceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b6910
+005b6940,rwa_virtualvoiceobj_005b6940,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005b6940
+005b69e0,rwa_virtualvoiceobj_005b69e0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005b69e0
+005b6a30,_RwaVirtualVoiceSetWave,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_virtualvoiceobj_005b6a30; was LAB_005b6a30
+005b6a40,_rwaVirtualVoiceSetTrigger,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_virtualvoiceobj_005b6a40; was FUN_005b6a40
+005b6a80,_rwaVirtualVoiceSetWave,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_virtualvoiceobj_005b6a80; was FUN_005b6a80
+005b6ae0,_RwaVirtualVoiceSetMaxDistance,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_virtualvoiceobj_005b6ae0; was -
+005b6af0,rwa_virtualvoiceobj_005b6af0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6b00,rwa_virtualvoiceobj_005b6b00,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6b10,rwa_virtualvoiceobj_005b6b10,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6b20,rwa_virtualvoiceobj_005b6b20,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6b60,rwa_unit23cc10_005b6b60,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6b80,rwa_virtualvoiceobj_005b6b80,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6bc0,rwa_virtualvoiceobj_005b6bc0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6be0,rwa_virtualvoiceobj_005b6be0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6c10,rwa_virtualvoiceobj_005b6c10,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6c20,rwa_virtualvoiceobj_005b6c20,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6c50,rwa_virtualvoiceobj_005b6c50,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6c60,rwa_virtualvoiceobj_005b6c60,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6ca0,rwa_virtualvoiceobj_005b6ca0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6cd0,rwa_virtualvoiceobj_005b6cd0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6d20,_RwaVirtualVoiceSetFreq,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_virtualvoiceobj_005b6d20; was -
+005b6d40,rwa_virtualvoiceobj_005b6d40,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6d70,rwa_virtualvoiceobj_005b6d70,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6db0,_RwaVirtualVoiceGetBias,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_virtualvoiceobj_005b6db0; was -
+005b6df0,_RwaVirtualVoiceSetGain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_virtualvoiceobj_005b6df0; was -
+005b6e10,_RwaVirtualVoiceGetPos,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005b6e30,rwa_virtualvoiceobj_005b6e30,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6e40,rwa_virtualvoiceobj_005b6e40,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6e70,rwa_virtualvoiceobj_005b6e70,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6e80,rwa_virtualvoiceobj_005b6e80,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6e90,rwa_virtualvoiceobj_005b6e90,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6ec0,rwa_virtualvoiceobj_005b6ec0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b6ee0,_RwaVirtualVoiceRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b6ee0
+005b7120,RwaVirtualVoiceRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaVirtualVoiceRegister; was FUN_005b7120
+005b71a0,_rwaObjHandleOpenModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaObjHandleOpenModule; was LAB_005b71a0
+005b71e0,RwaObjHandleRelease,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b71e0
+005b72a0,RwaObjHandleSetParamData,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_object_005b72a0; was FUN_005b72a0
+005b72d0,RwaObjHandleGetParamData,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_object_005b72d0; was FUN_005b72d0
+005b7300,RwaObjHandleSetParamInt16,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaObjHandleSetParamUInt8; was FUN_005b7300
+005b7370,RwaObjHandleGetParamInt32,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaObjGetParamUInt32; was FUN_005b7370
+005b7400,_rwaObjHandleCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.97=_rwaObjHandleCloseModule; was FUN_005b7400
+005b7450,RwaObjHandleCreateUsingObj,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b7450
+005b7560,_rwaVoiceManagerOpenModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.9=_rwaVoiceManagerOpenModule; was LAB_005b7560
+005b75a0,_rwaVoiceManagerCloseModule,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005b75a0
+005b75b0,_rwaVoiceManagerUpdateTimeStamp,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b75b0
+005b7640,rwa_unit23e610_005b7640,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005b7640
+005b7650,RwaVoiceManagerRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_voicemanager_005b7650; was FUN_005b7650
+005b77f0,RwaVoiceManagerUnregister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.971=RwaVoiceManagerUnregister; was FUN_005b77f0
+005b7860,RwaVoiceManagerRegisterVoice,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_voicemanager_005b7860; was FUN_005b7860
+005b78a0,_RwaVoiceManagerStartVoice,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b78a0
+005b7bb0,_rwaVoiceManagerUpdate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b7bb0
+005b7e60,rwa_voicemanager_005b7e60,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005b7e60
+005b7eb0,rwa_voicemanager_005b7eb0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005b7eb0
+005b7ef0,_rwaWaveDictCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.914=_rwaWaveDictCreate; was FUN_005b7ef0
+005b7f70,RwaWaveDictUsingAllWaveDef,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaWaveDictUsingAllWaveDef; was FUN_005b7f70
+005b7fb0,RwaWaveDictFindWaveByName,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaWaveDictFindWaveByName; was FUN_005b7fb0
+005b8000,RwaWaveDictGetWaveCount,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b8000
+005b8010,RwaWaveDictRemoveWave,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b8010
+005b8050,RwaWaveDictGetCurrent,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b8050
+005b8060,RwaWaveDictRemoveAllWave,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaWaveDictRemoveAllWave; was FUN_005b8060
+005b8090,_rwaWaveDictCreateFromPack,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b8090
+005b8120,_rwaWaveDictOpenModule,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005b8120
+005b81c0,RwaWaveDictDestroy,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b81c0
+005b82b0,_rwaWaveDictStreamRead,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b82b0
+005b8590,_rwaWaveDictCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.955=_rwaWaveDictCloseModule; was LAB_005b8590
+005b8600,RwaStreamCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b8600
+005b8630,RwaStreamUnregister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.973=RwaStreamUnregister; was LAB_005b8630
+005b8840,rwa_unit23fad0_005b8840,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005b8840
+005b8960,_RwaDSUnknownInit,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit23fad0_005b8960; was LAB_005b8960
+005b8980,_rwaStreamSetStreamPos,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b8980
+005b8a40,_rwaStreamGetStreamPos,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b8a40
+005b8b30,_rwaStreamSetMedia,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b8b30
+005b8c40,rwa_unit23fad0_005b8c40,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005b8c40
+005b8c50,_rwaStreamGetStatus,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit23fad0_005b8c50; was FUN_005b8c50
+005b8c60,_rwaStreamGetMediaStatus,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit23fad0_005b8c60; was FUN_005b8c60
+005b8c70,_rwaStreamSetStreamGain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.962=_rwaStreamSetStreamGain; was FUN_005b8c70
+005b8cc0,_rwaStreamGetSegmentInfo,RenderWare Audio P4: rwad-high (rwad-high); was -
+005b8df0,_rwaStreamGetSubStreamInfo,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005b9030,_rwaStreamNodeObjGetInputConnection,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005b9150,_RwaStreamRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005b9150
+005b9480,rwa_unit23fad0_005b9480,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005b9480
+005b9500,RwaListenerCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaListenerCreate; was FUN_005b9500
+005b9530,RwaListenerUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005b9530
+005b9630,_rwaListenerCalculateVoiceAttributes,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005b9630
+005b9a40,rwa_unit23cc10_005b9a40,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b9a70,_RwaDXAudioVoiceSetZoomFXBoxLT,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit23cc10_005b9a70; was -
+005b9a90,rwa_unit23cc10_005b9a90,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b9ac0,_RwaDXAudioVoiceSetZoomFXBoxRB,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit23cc10_005b9ac0; was -
+005b9ae0,_RwaListenerSetOrientation,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit23cc10_005b9ae0; was -
+005b9b40,_RwaDXAudioVoiceSetZoomFXBoxOrient,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit23cc10_005b9b40; was -
+005b9bf0,_RwaDXAudioVoiceSetZoomFXBoxAt,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit23cc10_005b9bf0; was -
+005b9c70,rwa_unit23cc10_005b9c70,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b9c90,rwa_unit23cc10_005b9c90,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b9cb0,rwa_unit23cc10_005b9cb0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b9cc0,rwa_unit23cc10_005b9cc0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005b9f20,rwa_unit23cc10_005b9f20,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005b9f20
+005b9fa0,_rwaObjDefRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaWaveDefUnregister; was FUN_005b9fa0
+005b9fd0,RwaObjDefSetInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.95=RwaObjDefSetInterface; was FUN_005b9fd0
+005ba000,RwaObjDefAssignID,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaObjDefAssignID; was FUN_005ba000
+005ba030,RwaObjDefGetDefaultCreationParams,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaObjDefGetDefaultCreationParams; was FUN_005ba030
+005ba050,_rwaObjDefCreateInstanceAllocator,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba050; was FUN_005ba050
+005ba0f0,_rwaObjDefAllocObj,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.952=_rwaObjDefAllocObj; was FUN_005ba0f0
+005ba140,_rwaObjDefFreeObj,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba140; was FUN_005ba140
+005ba1d0,_rwaObjDefCreateSupported,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba1d0; was FUN_005ba1d0
+005ba200,RwaObjDefEnum,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba200; was FUN_005ba200
+005ba2b0,_RwaObjDefBuildSupportedListCallback,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba2b0; was FUN_005ba2b0
+005ba310,rwa_objdef_005ba310,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005ba310
+005ba330,_RwaObjDefParamsFree,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba330; was FUN_005ba330
+005ba3c0,_RwaObjDefFree,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba3c0; was FUN_005ba3c0
+005ba420,RwaObjDefDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.945=RwaObjDefDestroy; was FUN_005ba420
+005ba5c0,RwaObjDefFindByUUID,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005ba5c0
+005ba620,RwaObjDefSetupParams,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaObjDefSetupParams; was FUN_005ba620
+005ba740,_RwaObjDefInitParam,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba740; was FUN_005ba740
+005ba7e0,_rwaObjDefCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaObjDefCloseModule; was LAB_005ba7e0
+005ba820,_RwaObjDefInit,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_objdef_005ba820; was FUN_005ba820
+005ba8d0,RwaObjDefCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005ba8d0
+005ba9f0,_rwaObjDefOpenModule,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005ba9f0
+005bab10,_rwaObjFindByObjDefCallback,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_obj_005bab10; was LAB_005bab10
+005bac10,rwa_obj_005bac10,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005bac10
+005bac30,RwaObjEnum,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_obj_005bac30; was FUN_005bac30
+005bac70,_rwaObjStartExecute,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_obj_005bac70; was FUN_005bac70
+005bace0,_rwaObjFinishExecute,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_obj_005bace0; was FUN_005bace0
+005bad50,rwa_obj_005bad50,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005bad50
+005bad70,RwaObjAddObjToExecutionList,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_obj_005bad70; was FUN_005bad70
+005bad90,RwaObjDisconnectParamIndex,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bad90
+005bae80,RwaObjGetTopLevelObject,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bae80
+005bae90,_rwaObjCalcSize,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bae90
+005baf50,_rwaObjFindFixed,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 0.909); was FUN_005baf50
+005baf80,RwaObjDestroy,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005baf80
+005bb060,_rwaObjCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaObjCloseModule; was LAB_005bb060
+005bb0a0,RwaObjCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bb0a0
+005bb2e0,_rwaObjOpenModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.971=_rwaObjOpenModule; was LAB_005bb2e0
+005bb370,_RwaParamTypeSetupAtomics,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005bb370
+005bb3e0,rwa_unit244790_005bb3e0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005bb3e0
+005bb400,_RwaNULLWaveDownload,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit244790_005bb400; was LAB_005bb400
+005bb430,rwa_unit244790_005bb430,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005bb430
+005bb460,_rwaNULLWaveRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaNULLWaveRegister; was LAB_005bb460
+005bb4b0,RwaVoice3DInterfaceRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaVoice3DInterfaceRegister; was -
+005bb500,RwaVoice3DInterfaceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005bb6b0,_rwaRwStreamGetPos,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit2449c0_005bb6b0; was fileno
+005bb6c0,_rwaRwStreamReadChunkHeaderInfoSync,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.904=_rwaRwStreamReadChunkHeaderInfoSync; was FUN_005bb6c0
+005bb750,_rwaRwStreamFindChunkSync,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.963=_rwaRwStreamFindChunkSync; was FUN_005bb750
+005bb7e0,_rwaRwStreamCacheOpenModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaRwStreamCacheOpenModule; was LAB_005bb7e0
+005bb850,_rwaRwStreamCacheCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaRwStreamCacheCloseModule; was LAB_005bb850
+005bbb70,_rwaRwStreamSeek,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bbb70
+005bbbc0,_rwaRwStreamCacheReadAsync,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bbbc0
+005bbc70,_rwaRwStreamCancel,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bbc70
+005bbd70,rwa_unit2449c0_005bbd70,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005bbd70
+005bbeb0,_rwaRwStreamOpen,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 0.943); was FUN_005bbeb0
+005bbf20,rwa_unit2449c0_005bbf20,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005bbf20
+005bbf50,rwa_unit2449c0_005bbf50,RenderWare Audio P4: neutral (rwa:neutral); was -
+005bbfa0,rwa_unit2449c0_005bbfa0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005bbfe0,_rwaWaveOpenModule,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005bbfe0
+005bc010,_rwaWaveCloseModule,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005bc010
+005bc030,RwaWaveDefAssignID,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaWaveDefAssignID; was FUN_005bc030
+005bc060,_RwaWaveFree,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bc060
+005bc0a0,RwaWaveDestroy,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bc0a0
+005bc120,RwaWaveDownload,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bc120
+005bc260,RwaWaveUploadBusy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit2422b0_005bc260; was FUN_005bc260
+005bc290,RwaWaveCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.908=RwaWaveCreate; was FUN_005bc290
+005bc520,RwaWaveUpload,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bc520
+005bc620,_rwaWaveCreateFromPack,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bc620
+005bcbb0,_rwaWaveDefOpenModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaWaveDefOpenModule; was LAB_005bcbb0
+005bcbf0,RwaWaveFormatCompare,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit242910_005bcbf0; was FUN_005bcbf0
+005bcc50,RwaWaveFormatGetFrameSize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.934=RwaWaveFormatGetFrameSize; was FUN_005bcc50
+005bcd50,_rwaWaveFormatFreeMiscData,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.914=_rwaWaveFormatFreeMiscData; was FUN_005bcd50
+005bcd80,_rwaWaveDefFindByObjCallback,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005bcd80
+005bcdd0,RwaWaveDefDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.979=RwaWaveDefDestroy; was FUN_005bcdd0
+005bce50,_RwaWaveDefFindByUUIDCallback,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bce50
+005bcea0,_rwaWaveDefFormatCopyToWaveFormat,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.919=_rwaWaveDefFormatCopyToWaveFormat; was FUN_005bcea0
+005bcf00,RwaWaveDefFormatWaveFormatCompare,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit242910_005bcf00; was FUN_005bcf00
+005bcf60,RwaWaveDefAssignSupportedFormats,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bcf60
+005bcfa0,_rwaWaveFormatGetSize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.909=_rwaWaveFormatGetSize; was FUN_005bcfa0
+005bcfc0,_rwaWaveDefIsTargetFormatSupported,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bcfc0
+005bd050,_rwaWaveFormatFindUUID,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 0.957); also rwad-medium=_rwaWaveFormatFindUUID; was FUN_005bd050
+005bd090,RwaWaveFormatGetSamplesPerAudioFrame,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.94=RwaWaveFormatGetSamplesPerAudioFrame; was FUN_005bd090
+005bd230,RwaWaveDefCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bd230
+005bd2e0,RwaWaveDefFindByUUID,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 0.929); was FUN_005bd2e0
+005bd310,_rwaWaveFormatSerialize,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bd310
+005bd580,RwaWaveFormatGetSamples,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bd580
+005bd650,_rwaWaveDefCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaWaveDefCloseModule; was LAB_005bd650
+005bd680,_rwaObjInterfaceOpenModule,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005bd680
+005bd6c0,RwaObjInterfaceRemove,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.93=RwaObjInterfaceRemove; was FUN_005bd6c0
+005bd700,_rwaObjInterfaceDefSupported,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bd700
+005bd810,RwaObjInterfaceDefSetup,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit243b40_005bd810; was FUN_005bd810
+005bd930,RwaWaveDictAssignID,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaWaveDictAssignID; was FUN_005bd930
+005bd960,RwaObjInterfaceDefCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.951=RwaObjInterfaceDefCreate; was FUN_005bd960
+005bd9e0,RwaObjInterfaceDefDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit243b40_005bd9e0; was FUN_005bd9e0
+005bda80,RwaObjInterfaceDefFindByUUID,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit243b40_005bda80; was FUN_005bda80
+005bdad0,_rwaObjInterfaceCloseModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.971=_rwaObjInterfaceCloseModule; was LAB_005bdad0
+005bdb30,RwaObjInterfaceAttach,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bdb30
+005bdd60,RwaAtomicAlloc,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.973=RwaAtomicAlloc; was FUN_005bdd60
+005bdda0,RwaAtomicFree,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.97=RwaAtomicFree; was FUN_005bdda0
+005bdde0,_RwaParamTypeFree,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_param_005bdde0; was FUN_005bdde0
+005bdeb0,_rwaParamTypeCloseModule,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_param_005bdeb0; was LAB_005bdeb0
+005bdf40,_rwaParamTypeHandleRefreshType,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaParamTypeHandleRefreshType; was FUN_005bdf40
+005bdf70,RwaParamTypeCreateArray,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bdf70
+005be0b0,RwaParamTypeCreatePointer,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005be0b0
+005be160,RwaParamTypeCreateAlias,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_param_005be160; was FUN_005be160
+005be1d0,_rwaParamTypeCreateByTypeDefs,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005be1d0
+005be360,_rwaParamTypeOpenModule,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.945=_rwaParamTypeOpenModule; was LAB_005be360
+005be450,_rwaLListModuleOpen,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_rwaLListModuleOpen; was LAB_005be450
+005be480,_rwaLListModuleClose,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005be480
+005be4a0,RwaLListAddData,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.941=RwaLListAddData; was FUN_005be4a0
+005be4e0,RwaLListRemoveData,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.926=RwaLListRemoveData; was FUN_005be4e0
+005be530,RwaLListFindDataIndex,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_llist_005be530; was FUN_005be530
+005be560,RwaLListEmpty,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005be560
+005be5a0,RwaLListGetCount,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005be5a0
+005be5c0,rwLinkListGetCount,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_llist_005be5c0; was FUN_005be5c0
+005be600,RwaUUIDCompare,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaUUIDCompare; was FUN_005be600
+005be660,_rwaUniqueIDModuleOpen,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005be660
+005be690,_rwaUniqueIDModuleClose,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005be690
+005be6b0,_rwaUniqueIDInitialize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_uuid_005be6b0; was FUN_005be6b0
+005be6c0,_rwaUUIDSerialize,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005be6c0
+005be770,_rwamemicmp,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_uuid_005be770; was FUN_005be770
+005be7d0,_rwaUniqueIDFreeName,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005be7d0
+005be810,_rwaUniqueIDFreeUUID,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005be810
+005be850,_rwaUniqueIDFreeData,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005be850
+005be8a0,_rwaHeapModuleOpen,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005be8a0
+005be8e0,RwaHeapBlockAlloc,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit244220_005be8e0; was FUN_005be8e0
+005be970,RwaHeapBlockFree,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit244220_005be970; was FUN_005be970
+005be9b0,_RwaHeapAddBlock,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005be9b0
+005bea00,RwaHeapDestroy,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bea00
+005bea60,RwaHeapAlloc,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bea60
+005beac0,RwaHeapFree,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005beac0
+005beb30,_rwaHeapModuleClose,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.968=_rwaHeapModuleClose; was LAB_005beb30
+005bec50,rwa_unit243670_005bec50,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005bec50
+005bed80,RwaFreeListFree,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit243670_005bed80; was FUN_005bed80
+005bee60,rwa_unit243670_005bee60,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005bee60
+005beec0,RwaFreeListDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit243670_005beec0; was FUN_005beec0
+005beee0,_rwaFreeListModuleClose,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005beee0
+005bef40,RwaFreeListCreate,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit243670_005bef40; was FUN_005bef40
+005bf070,_rwaFreeListModuleOpen,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.902=_rwaFreeListModuleOpen; was LAB_005bf070
+005bf170,rwa_memory_005bf170,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005bf170
+005bf250,RwaVirtualVoiceInterfaceRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaVirtualVoiceInterfaceRegister; was FUN_005bf250
+005bf2a0,RwaVirtualVoiceInterfaceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bf2a0
+005bf2b0,RwaMathConvertLinearToLog,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bf2b0
+005bf360,RwaMemEndianSwap,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bf360
+005bf460,RwaV3dLength,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005bf460
+005bf4e0,RwaMul32By32,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit241f90_005bf4e0; was FUN_005bf4e0
+005bf560,RwaFindLSB,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaFindLSB; was FUN_005bf560
+005bf580,rwa_unit245240_005bf580,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005bf580
+005bf940,_rwaGetFilenameExt,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit2449c0_005bf940; was FUN_005bf940
+005bfdc0,_rwaStreamContainerEnumRenderChains,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005bfdc0
+005bfe40,_rwaStreamContainerEnumSourceChain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.919=_rwaStreamContainerEnumSourceChain; was FUN_005bfe40
+005bfe70,_rwaStreamContainerEnumNodeChain,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit2452a0_005bfe70; was FUN_005bfe70
+005bfeb0,rwa_unit2452a0_005bfeb0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005bfeb0
+005bff30,_RwaStreamContainerGetRenderStatus,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit2452a0_005bff30; was FUN_005bff30
+005c0060,rwa_unit2452a0_005c0060,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c0060
+005c00a0,rwa_unit2452a0_005c00a0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c00a0
+005c0130,_rwaStreamContainerStateUpdateCurrentStatus,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c0130
+005c01a0,_rwaRwStreamReadChunkHeader,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit2452a0_005c01a0; was LAB_005c01a0
+005c01c0,rwa_unit2452a0_005c01c0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c01c0
+005c0220,_rwaStreamContainerSetPitch,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c0220
+005c0560,rwa_unit2452a0_005c0560,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c0560
+005c0620,_RwaStreamContainerCreateCodec,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit2452a0_005c0620; was FUN_005c0620
+005c06b0,_rwaStreamContainerInstaniateSource,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c06b0
+005c0760,_rwaStreamContainerRendererPlaybackEnd,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005c0760
+005c0780,_RwaStreamContainerNodeCreateEx,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit2452a0_005c0780; was FUN_005c0780
+005c07f0,_RwaStreamContainerNodeListPurge,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c07f0
+005c0880,_rwaStreamContainerStateCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.94=_rwaStreamContainerStateCreate; was FUN_005c0880
+005c0950,_rwaDSUnknownQueryRefCount,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c0950
+005c0960,_RwaStreamContainerUpdateStreamPos,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c0960
+005c0aa0,_RwaStreamContainerPreinstanceCodecs,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c0aa0
+005c1720,_rwaStreamContainerStateMachine,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c1720
+005c1820,_rwaStreamContainerCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.96=_rwaStreamContainerCreate; was FUN_005c1820
+005c1870,_rwaStreamContainerStateFinishExecute,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c1870
+005c1980,_rwaStreamContainerExecute,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit2452a0_005c1980; was FUN_005c1980
+005c19b0,_rwaStreamContainerCommandInitialize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=rwaStreamContainerCommandInitialize; was FUN_005c19b0
+005c19d0,rwa_unit246d50_005c19d0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c19d0
+005c1ad0,_rwaStreamContainerCommandSetMedia,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246d50_005c1ad0; was FUN_005c1ad0
+005c1b00,rwa_unit246d50_005c1b00,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c1b00
+005c1b10,_rwaStreamContainerCommandSetPitch,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246d50_005c1b10; was -
+005c1b30,_rwaStreamContainerCommandSetStreamGain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.922=_rwaStreamContainerCommandSetStreamGain; was FUN_005c1b30
+005c1be0,rwa_unit246d50_005c1be0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005c1bf0,rwa_unit246d50_005c1bf0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c1bf0
+005c1c10,rwa_unit246d50_005c1c10,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c1c10
+005c1c30,_rwaStreamNodeGetStatusString,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.951=_RwaStreamNodeCreate; was FUN_005c1c30
+005c1cb0,_RwaStreamNodeCreationComplete,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaStreamNodeCreationComplete; was FUN_005c1cb0
+005c1d00,_rwaStreamNodeProcessComplete,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.963=_rwaStreamNodeProcessComplete; was FUN_005c1d00
+005c1d50,_RwaStreamNodeGetParams,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaStreamNodeGetParams; was FUN_005c1d50
+005c1d80,_RwaStreamNodeDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1d80; was FUN_005c1d80
+005c1d90,_rwaDSPClearGetData,RenderWare Audio P4: rwad-high (rwad-high); was -
+005c1da0,_rwaStreamNodeObjGetStatus,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1da0; was -
+005c1dc0,_rwaStreamNodeObjSetProcessState,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1dc0; was FUN_005c1dc0
+005c1e30,_rwaStreamNodeObjSetOutputConnection,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.9=_rwaStreamNodeObjSetOutputConnection; was -
+005c1e50,_rwaStreamNodeGetInputConnection,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1e50; was -
+005c1e60,RwaStreamConnectionGetPacket,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaStreamConnectionGetPacket; was FUN_005c1e60
+005c1e80,RwaObjIntSetParamData,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1e80; was FUN_005c1e80
+005c1eb0,RwaObjIntSetParamPointer,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1eb0; was FUN_005c1eb0
+005c1ee0,RwaObjIntGetParamData,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c1ee0
+005c1f10,RwaObjIntSetParamBool,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1f10; was FUN_005c1f10
+005c1f30,RwaObjIntGetParamBool,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaObjIntGetParamUInt32; was FUN_005c1f30
+005c1f60,RwaStreamPacketListInitialize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaStreamPacketQueueInitialize; was FUN_005c1f60
+005c1f80,RwaStreamPacketListAlloc,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit246fd0_005c1f80; was FUN_005c1f80
+005c1fc0,rwa_unit246fd0_005c1fc0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c1fc0
+005c2040,rwa_unit246fd0_005c2040,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c2040
+005c2050,_rwaStreamSourceCreationParamsInit,RenderWare Audio P4: rwa.dll/codfh (rwa:codfh name); was FUN_005c2050
+005c20a0,_RwaStreamSourceFree,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c20a0
+005c2180,__rwaStreamSourceGetSegmentIndexByUUID,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c2180
+005c21e0,__rwaStreamSourceGetSegmentIndexByName,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c21e0
+005c2240,_RwaStreamSourceExecuteRequest,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit247430_005c2240; was FUN_005c2240
+005c22d0,_RwaStreamSourceReinterleave,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c22d0
+005c28c0,__rwaStreamSourceLockStreamBlock,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.933=__rwaStreamSourceLockStreamBlock; was FUN_005c28c0
+005c2a70,__rwaStreamSourceUnlockStreamBlock,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c2a70
+005c2b90,__rwaStreamSourceSeekRead,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c2b90
+005c2bd0,_RwaStreamSourceSeekReadCallback,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c2bd0
+005c2c90,__rwaStreamSourceSeek,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c2c90
+005c3020,__rwaStreamSourceGetSamplePosUsingPos,RenderWare Audio P4: rwad-high (rwad-high); was -
+005c3090,__rwaStreamSourceSetSegmentByName,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c3090
+005c30c0,__rwaStreamSourceSetSegmentByUUID,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c30c0
+005c30f0,__rwaStreamSourceProcess,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.92=__rwaStreamSourceProcess; was FUN_005c30f0
+005c3200,__rwaStreamSourceRead,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c3200
+005c4340,RwaSemaphoreCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaSemaphoreCreate; was FUN_005c4340
+005c4370,_rwaSemaphorePoll,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.923=_rwaSemaphorePoll; was FUN_005c4370
+005c43a0,_RwaThreadCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=_RwaThreadCreate; was FUN_005c43a0
+005c4400,_RwaThreadStart,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c4400
+005c4440,_rwaLockedCountCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaLockedCountCreate; was FUN_005c4440
+005c44c0,RwaObjDefAliasDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.933=RwaObjDefAliasDestroy; was FUN_005c44c0
+005c44f0,rwa_symboltable_005c44f0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c44f0
+005c4510,rwa_symboltable_005c4510,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c4510
+005c4550,rwa_symboltable_005c4550,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c4550
+005c4590,rwa_symboltable_005c4590,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c4590
+005c45e0,rwa_symboltable_005c45e0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c45e0
+005c4680,rwa_unit249490_005c4680,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c4680
+005c4930,_rwaWaveConvGetOffsetLength,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c4930
+005c4ac0,_rwaWaveConvGetTargetOffset,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c4ac0
+005c4af0,_rwaWaveConvGetTargetSize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaWaveConvGetTargetSize; was FUN_005c4af0
+005c4b10,_rwaWaveConv,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c4b10
+005c4e50,_RwaWaveConvSizePCM,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c4e50
+005c4f40,_RwaWaveConvOffsetPCM,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c4f40
+005c4fd0,_RwaWaveConvChannelPCM,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c4fd0
+005c51e0,_RwaWaveConvResamplePCM,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c51e0
+005c5620,_RwaWaveConvBitDepthPCM,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c5620
+005c5be0,_RwaWaveConvSizePCM_5c5be0,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit249490_005c5be0; was FUN_005c5be0
+005c5d20,_RwaWaveConvGCNADPCMEncodeHeader,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c5d20
+005c5ef0,_RwaWaveConvGCNADPCMEncode,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c5ef0
+005c67c0,_RwaWaveConvGCNADPCMDecode,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit249490_005c67c0; was FUN_005c67c0
+005c6990,rwa_unit249490_005c6990,RenderWare Audio P4: neutral (rwa:neutral); was -
+005c6a70,_RwaWaveConvVAGEncode,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c6a70
+005c7080,_RwaWaveConvVAGDecode,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c7080
+005c7150,_rwaWaveConvXADPCMEncodeSample,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit249490_005c7150; was FUN_005c7150
+005c7200,_rwaWaveConvXADPCMDecodeSample,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit249490_005c7200; was FUN_005c7200
+005c7280,_RwaWaveConvVAGGCNADPCM,RenderWare Audio P4: rwad-high (rwad-high); was -
+005c7310,_RwaWaveConvGCNADPCM,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005c7310
+005c7630,_RwaWaveConvVAG,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit249490_005c7630; was LAB_005c7630
+005c7960,_rwaWaveConvXADPCMDecodeMono,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit249490_005c7960; was FUN_005c7960
+005c7a20,_rwaWaveConvXADPCMEncodeMono,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit249490_005c7a20; was FUN_005c7a20
+005c7b00,_rwaWaveConvXADPCMDecodeStereo,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_unit249490_005c7b00; was FUN_005c7b00
+005c7c40,_RwaWaveConvXBoxADPCM,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c7c40
+005c7ff0,RwaStreamFanOutUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005c7ff0
+005c8000,_RwaStreamFanOutCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit24cc50_005c8000; was FUN_005c8000
+005c8030,rwa_unit24cc50_005c8030,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c8030
+005c80d0,_RwaStreamFanOutGetCreationParams,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit24cc50_005c80d0; was FUN_005c80d0
+005c8220,_RwaStreamFanOutPacketCompletionCallback,RenderWare Audio P4: rwad-high (rwad-high); also rwa:neutral=rwa_unit24cc50_005c8220; was LAB_005c8220
+005c8350,rwa_unit24cc50_005c8350,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c8350
+005c8510,_RwaStreamFanOutRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c8510
+005c8760,rwa_unit24cc50_005c8760,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c8760
+005c87c0,RwaStreamSourceInterfaceRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaStreamSourceInterfaceRegister; was FUN_005c87c0
+005c8810,RwaStreamSourceInterfaceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c8810
+005c8820,RwaStreamSourceUnregister,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was LAB_005c8820
+005c8840,rwa_streamsourceobj_005c8840,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c8840
+005c8950,rwa_streamsourceobj_005c8950,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c8950
+005c89f0,rwa_streamsourceobj_005c89f0,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c89f0
+005c8a40,_rwaStreamSourceGetStreamPacket,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_streamsourceobj_005c8a40; was -
+005c8ae0,_rwaStreamSourceSetStreamPos,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c8ae0
+005c8bf0,_rwaStreamSourceGetStreamPos,RenderWare Audio P4: rwad-medium (rwad-medium); also rwa:neutral=rwa_streamsourceobj_005c8bf0; was -
+005c8d20,_rwaStreamSourceSetOutputConnection,RenderWare Audio P4: rwad-high (rwad-high); was -
+005c8dc0,rwa_streamsourceobj_005c8dc0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c8dc0
+005c8e80,rwa_streamsourceobj_005c8e80,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005c8e80
+005c8fa0,_RwaStreamSourceRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c8fa0
+005c91f0,rwa_streamsourceobj_005c91f0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005c91f0
+005c92c0,RwaStreamRendererInterfaceRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaStreamRendererInterfaceRegister; was LAB_005c92c0
+005c9310,RwaStreamRendererInterfaceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005c9310
+005c9320,RwaStreamNodeInterfaceRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:codfh name=RwaStreamNodeInterfaceRegister; was LAB_005c9320
+005c9370,RwaStreamNodeInterfaceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005c9370
+005c9380,_rwaStreamFileRequestQueueCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.905=_rwaStreamFileRequestQueueCreate; was FUN_005c9380
+005c93c0,_rwaStreamFileRequestQueueDestroy,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c93c0
+005c93d0,_rwaStreamFileRequestQueueAdd,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c93d0
+005c9470,_rwaStreamFileRequestQueueGet,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.902=_rwaStreamFileRequestQueueGet; was FUN_005c9470
+005c9500,_rwaStreamFileRequestQueueEmpty,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.938=_rwaStreamFileRequestQueueEmpty; was FUN_005c9500
+005c98e0,RwaDXAudioVoiceCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c98e0
+005c9910,RwaDXAudioVoiceRegister,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005c9910
+005c9950,RwaDXAudioVoiceRegisterUsingInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaSoftVoiceRegisterUsingInterface; was LAB_005c9950
+005c99f0,_RwaDXAudioVoiceRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c99f0
+005c9c50,RwaDXAudioOutputInterfaceRegister,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005c9c50
+005c9c80,RwaDXAudioVoiceUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005c9c80
+005c9f50,_RwaDXAudioVoiceCreate,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005c9f50
+005c9fb0,_RwaDXAudioVoiceFinishExecute,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005c9fb0
+005ca650,_rwaDXAudioVoiceSetTrigger,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceSetTrigger; was FUN_005ca650
+005ca690,_rwaDXAudioVoiceGetPlaying,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceGetPlaying; was FUN_005ca690
+005ca710,_rwaDXAudioVoiceSetWavePos,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceSetWavePos; was FUN_005ca710
+005ca780,_rwaDXAudioVoiceSetLoop,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceSetLoop; was FUN_005ca780
+005ca7d0,_rwaDXAudioVoiceSetWave,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceSetWave; was FUN_005ca7d0
+005ca890,_rwaDXAudioVoiceSetReverbSendGain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceSetReverbSendGain; was -
+005ca8f0,_rwaDXAudioVoiceGetReverbSendGain,RenderWare Audio P4: rwad-high (rwad-high); was -
+005ca940,_RwaDXAudioVoiceSetConeOrient,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005ca970,_RwaDXAudioVoiceGetConeOrient,RenderWare Audio P4: rwad-high (rwad-high); was -
+005ca9c0,_RwaDXAudioVoiceSetVel,RenderWare Audio P4: rwad-high (rwad-high); was -
+005ca9e0,_RwaDXAudioVoiceSetConeInnerAngle,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005caa00,_RwaDXAudioVoiceGetConeInnerAngle,RenderWare Audio P4: rwad-high (rwad-high); was -
+005caa20,_RwaDXAudioVoiceSetConeOuterGain,RenderWare Audio P4: rwad-high (rwad-high); was -
+005caa50,_RwaDXAudioVoiceSetMaxDistance,RenderWare Audio P4: rwad-high (rwad-high); was -
+005caa80,_RwaDXAudioVoiceSetMacroFXGain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.927=_rwaDXAudioVoiceSetMacroFXGain; was -
+005caad0,_RwaDXAudioVoiceSetFreq,RenderWare Audio P4: rwad-high (rwad-high); was -
+005caaf0,_rwaDXAudioVoiceSetZoomFXBoxLT,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cab20,_RwaDXAudioVoiceGetZoomFXBoxLT,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cab50,_rwaDXAudioVoiceSetZoomFXBoxRB,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cab80,_RwaDXAudioVoiceGetZoomFXBoxRB,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cabb0,_rwaDXAudioVoiceSetZoomFXBoxOrient,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioVoiceSetZoomFXBoxOrient; was -
+005cac00,_RwaDXAudioVoiceGetZoomFXBoxOrient,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cac50,_rwaDXAudioVoiceSetZoomFXBoxAt,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cac80,_RwaDXAudioVoiceGetZoomFXBoxAt,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cacb0,_RwaDXAudioVoiceSetZoomFXBoxUp,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cace0,_RwaDXAudioVoiceGetZoomFXBoxUp,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cad60,_RwaDXAudioVoiceGetEnvDirect,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cae10,_RwaDXAudioVoiceSetWave,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cae30,_rwaDXAudioVoiceGetEnvironment,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cae50,_rwaDXAudioVoiceSetPos,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cae80,_rwaDXAudioVoiceGetPos,RenderWare Audio P4: rwad-high (rwad-high); was -
+005caeb0,_rwaDXAudioVoiceSetVel,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005caf10,_RwaDXAudioVoiceSetReverbSendGain,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cb030,_RwaDXAudioVoiceSetTrigger,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cb070,_RwaDXAudioVoiceSetWavePos,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cb150,_RwaSoftVoiceSetLoopStart,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cb190,_RwaSoftVoiceGetPos,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cb1b0,_RwaSoftVoiceSetVel,RenderWare Audio P4: rwad-high (rwad-high); was -
+005cb240,RwaDXAudioOutputRegisterUsingInterface,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was LAB_005cb240
+005cb2d0,_RwaDXAudioOutputRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cb2d0
+005cb570,RwaDXAudioOutputUnregister,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005cb570
+005cbb20,_RwaDXAudioOutputCreate,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005cbb20
+005cbb90,_RwaDXAudioOutputFinishExecute,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005cbb90
+005cbe00,_RwaDXAudioOutputSetReverb,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cbe00
+005cbfa0,_RwaDXAudioOutputGetReverbSupport,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cbfa0
+005cc0d0,_RwaDXAudioOutputGetCreationParams,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005cc0d0
+005cc2a0,_rwaDXAudioOutputSetGain,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioOutputSetGain; was FUN_005cc2a0
+005cc2e0,_rwaDXAudioOutputSetListener,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioOutputSetListener; was FUN_005cc2e0
+005cc300,_rwaDXAudioOutputSetSpeakerConfig,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioOutputSetSpeakerConfig; was FUN_005cc300
+005cc3a0,_rwaDXAudioOutputGetSpeakerConfig,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDXAudioOutputSetMixerCallback; was FUN_005cc3a0
+005cc720,_rwaDXAudioOutputGetFreeVoice,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005cc720
+005ccc10,RwaDXAudioWaveRegister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaDXAudioWaveRegister; was LAB_005ccc10
+005cccb0,RwaDXAudioWaveUnregister,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005ccee0,RwaDXAudioRegisterUsingInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaDXAudioRegister; was FUN_005ccee0
+005ccf30,RwaDXAudioUnregister,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=RwaDXAudioUnregister; was FUN_005ccf30
+005ccfd0,_rwaDSPrimaryBufferSetFormat,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSPrimaryBufferSetFormat; was FUN_005ccfd0
+005cd110,_rwaDSGetPrimaryBuffer,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSGetPrimaryBuffer; was FUN_005cd110
+005cd170,_rwaDSBufferCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferCreate; was FUN_005cd170
+005cd290,_rwaDSBufferGetInterfaces,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferGetInterfaces; was FUN_005cd290
+005cd2f0,_rwaDSBufferDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferDestroy; was FUN_005cd2f0
+005cd320,_rwaDSBufferDuplicate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferDuplicate; was FUN_005cd320
+005cd380,_rwaDSBufferSupportsZoomFX,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferSupportsZoomFX; was FUN_005cd380
+005cd3e0,_rwaDSBufferIsPlaying,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferIsPlaying; was FUN_005cd3e0
+005cd410,_rwaDSBufferUpload,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferUpload; was FUN_005cd410
+005cd4b0,_rwaDSBufferDownload,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSBufferDownload; was FUN_005cd4b0
+005cd550,_rwaEnvironmentGetEAXEnvironment,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaEnvironmentGetEAXEnvironment; was FUN_005cd550
+005cd7c0,_rwaDSGetListenerInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSGetListenerInterface; was FUN_005cd7c0
+005cd810,_rwaDSDMOInit,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cd810
+005cd830,_rwaDSDMOCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOCreate; was FUN_005cd830
+005cda00,_rwaDSDMODestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMODestroy; was FUN_005cda00
+005cda50,_rwaDSDMOProcess,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOProcess; was FUN_005cda50
+005cdb10,_rwaDSDMOSetI3DLReverbParams,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOSetI3DLReverbParams; was FUN_005cdb10
+005cdc20,_rwaDSOpen,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSOpen; was FUN_005cdc20
+005cdc40,_rwaDSClose,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005cdc40
+005cdc50,_rwaMediaTypeCopy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaMediaTypeCopy; was FUN_005cdc50
+005cdcc0,_rwaMediaTypeFree,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaMediaTypeFree; was FUN_005cdcc0
+005cdce0,_rwaMediaTypeCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaMediaTypeCreate; was FUN_005cdce0
+005cde70,_RwaMediaTypeAssignUsingWaveFormatEx,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cde70
+005cdf40,_RwaFOURCCMap,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cdf40
+005cdf70,_rwaMediaTypeDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaMediaTypeDestroy; was FUN_005cdf70
+005cdfa0,_rwaDSSampleQueueCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSampleQueueCreate; was FUN_005cdfa0
+005ce030,_rwaDSSampleQueueDestroy,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSampleQueueDestroy; was FUN_005ce030
+005ce060,_rwaDSSampleQueueAdd,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSampleQueueAdd; was FUN_005ce060
+005ce0d0,_rwaDSSampleQueueRemove,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSampleQueueRemove; was FUN_005ce0d0
+005ce140,_rwaDSSampleQueueEmpty,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSampleQueueEmpty; was FUN_005ce140
+005ce160,_rwaDSSampleQueueGetCount,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSampleQueueGetCount; was FUN_005ce160
+005ce1e0,RwaDXAudioCodecRegister,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005ce1e0
+005ce240,_RwaDXAudioCodecRegisterCommon,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005ce240
+005ce2b0,RwaDXAudioCodecUnregister,RenderWare Audio P4: rwad-high (rwad-high); was LAB_005ce2b0
+005ce8c0,_RwaDXAudioCodecCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005ce8c0
+005ce9d0,_RwaDXAudioCodecReleaseFilter,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005ce9d0
+005cee40,_rwaDXAudioCodecGetInputFormat,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cee50,_rwaDXAudioCodecGetOutputFormat,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cee90,_rwaDXAudioCodecSetOutputConnection,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cee90
+005cf030,_rwaDXAudioCodecSetFlush,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was FUN_005cf030
+005cf0c0,_rwaDXAudioCodecSetFlush_5cf0c0,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005cf0c0
+005cf1d0,_RwaDXAudioCodecSetOutputConnection,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cf1f0,_RwaDXAudioCodecSetFlush,RenderWare Audio P4: rwad-medium (rwad-medium); was -
+005cf210,_RwaDXAudioCodecSampleInit,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaSoftVoiceVolRampInitialize; was FUN_005cf210
+005cf230,_RwaDXAudioCodecSampleAssign,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf230
+005cf2b0,_RwaDXAudioCodecSampleRelease,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf2b0
+005cf300,_RwaDXAudioCodecSampleIsComplete,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf300
+005cf3b0,_RwaDXAudioCodecSampleCopy,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf3b0
+005cf440,_RwaDXAudioCodecSampleIsLast,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf440
+005cf4b0,_rwaDSDMOBufferCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOBufferCreate; was FUN_005cf4b0
+005cf500,_rwaDSDMOBufferSetBuffer,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf500
+005cf520,_rwaDSDMOBufferRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOBufferRelease; was FUN_005cf520
+005cf550,_RwaDSDMOBufferInit,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cf550
+005cf570,_rwaDSDMOBufferQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOBufferQueryInterface; was FUN_005cf570
+005cf5b0,_rwaDSDMOBufferSetLength,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOBufferSetLength; was LAB_005cf5b0
+005cf5d0,_rwaDSDMOBufferGetMaxLength,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOBufferGetMaxLength; was LAB_005cf5d0
+005cf5f0,_rwaDSDMOBufferGetBufferAndLength,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSDMOBufferGetBufferAndLength; was LAB_005cf5f0
+005cf620,_rwaDSSourceCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 0.977=_rwaDSSourceCreate; was FUN_005cf620
+005cf810,_rwaDSSourceRelease,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was FUN_005cf810
+005cf900,_rwaDSSourceGetSample,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSourceGetSample; was FUN_005cf900
+005cf9b0,_rwaDSSourceDeliverSample,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSourceDeliverSample; was FUN_005cf9b0
+005cf9f0,_rwaDSSourceGetPacketSize,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSourceGetPacketSize; was FUN_005cf9f0
+005cfa40,_rwaDSSourceOutputPinLength,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSSourceOutputPinLength; was LAB_005cfa40
+005cfc80,_rwaDSEnumPinsCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cfc80
+005cfcf0,_rwaDSEnumPinsQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSEnumPinsQueryInterface; was FUN_005cfcf0
+005cfd40,_rwaDSEnumPinsRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSEnumPinsRelease; was FUN_005cfd40
+005cfda0,_rwaDSEnumPinsNext,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSEnumPinsNext; was FUN_005cfda0
+005cfe10,_rwaDSEnumPinsClone,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005cfe10
+005cfe50,_rwaDSFilterCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterCreate; was FUN_005cfe50
+005cfec0,_RwaDSFilterInit,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005cfec0
+005cff10,_rwaDSFilterQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterQueryInterface; was FUN_005cff10
+005cff80,_rwaDSFilterRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterRelease; was FUN_005cff80
+005d0000,_rwaDSFilterGetClassID,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterGetClassID; was LAB_005d0000
+005d00a0,_rwaDSFilterRun,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterRun; was LAB_005d00a0
+005d0130,_rwaDSFilterSetSyncSource,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterSetSyncSource; was FUN_005d0130
+005d0180,_rwaDSFilterGetSyncSource,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterGetSyncSource; was LAB_005d0180
+005d01c0,_rwaDSFilterEnumPins,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSPinEnumMediaTypes; was LAB_005d01c0
+005d01f0,_rwaDSFilterFindPin,RenderWare Audio P4: rwad-medium (rwad-medium); was LAB_005d01f0
+005d0290,_rwaDSFilterQueryFilterInfo,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterQueryFilterInfo; was FUN_005d0290
+005d02d0,_rwaDSFilterJoinFilterGraph,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterJoinFilterGraph; was LAB_005d02d0
+005d0370,_rwaDSFilterQueryVendorInfo,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterQueryVendorInfo; was FUN_005d0370
+005d03c0,_rwaDSFilterSendEndOfStream,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterSendEndOfStream; was FUN_005d03c0
+005d0430,_rwaDSFilterSendNewSegment,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterSendNewSegment; was FUN_005d0430
+005d04d0,_rwaDSFilterFindPinByDirection,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSFilterFindPinByDirection; was FUN_005d04d0
+005d05a0,_rwaDSRendererCreate,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005d05a0
+005d06c0,_rwaDSRendererGetSample,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSRendererGetSample; was FUN_005d06c0
+005d06e0,_rwaDSRendererRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSRendererRelease; was FUN_005d06e0
+005d0730,_rwaDSRendererInputPinReceive,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSRendererInputPinReceive; was LAB_005d0730
+005d0790,_rwaDSRendererInputPinGetAllocatorRequirements,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSRendererInputPinGetAllocatorRequirements; was LAB_005d0790
+005d0840,_rwaDSRendererInputPinBeginFlush,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSRendererInputPinBeginFlush; was FUN_005d0840
+005d08b0,_rwaDSRendererInputPinNotifyAllocator,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSRendererInputPinNotifyAllocator; was LAB_005d08b0
+005d0980,_rwaDSUnknownCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSUnknownCreate; was FUN_005d0980
+005d09e0,_rwaDSUnknownAddRef,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005d09e0
+005d0a00,_rwaDSUnknownRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSUnknownRelease; was FUN_005d0a00
+005d0a40,_rwaDSUnknownQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSUnknownQueryInterface; was FUN_005d0a40
+005d0a80,_rwaDSOutputPinCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSOutputPinCreate; was FUN_005d0a80
+005d0b40,_rwaDSOutputPinSetMode,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d0b40
+005d0bd0,_rwaDSOutputPinRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSOutputPinRelease; was FUN_005d0bd0
+005d0c00,_rwaDSOutputPinDisconnect,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSOutputPinDisconnect; was FUN_005d0c00
+005d0c50,_rwaDSOutputPinCompleteConnect,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSOutputPinCompleteConnect; was FUN_005d0c50
+005d0d80,_rwaDSOutputPinDeliverSample,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSOutputPinDeliverSample; was FUN_005d0d80
+005d0da0,_rwaDSOutputPinRequestAllocator,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d0da0
+005d0e80,_rwaDSOutputGetSampleTimePos,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d0e80
+005d0ef0,_rwaDSOutputPinCompleteRequest,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d0ef0
+005d1070,_rwaDSMemInputPinCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d1070
+005d11d0,_rwaDSMemInputPinGetAllocator,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMemInputPinGetAllocator; was FUN_005d11d0
+005d1240,_rwaDSMemInputPinNotifyAllocator,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d1240
+005d12b0,_rwaDSMemInputPinReceive,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d12b0
+005d14b0,_rwaDSPinCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSPinCreate; was FUN_005d14b0
+005d15c0,_rwaDSPinQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d15c0
+005d1610,_rwaDSPinRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSPinRelease; was FUN_005d1610
+005d1670,_RwaDSPinSetMediaType,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d1670
+005d16b0,_rwaDSPinConnect,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSPinConnect; was FUN_005d16b0
+005d17e0,_RwaDSPinNegiotiateMediaType,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d17e0
+005d1950,_rwaDSPinReceiveConnection,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSPinReceiveConnection; was FUN_005d1950
+005d1a80,_rwaDSPinDisconnect,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d1a80
+005d1b40,_rwaDSPinConnectionMediaType,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d1b40
+005d1f80,_rwaDSEnumMediaTypesCreate,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d1f80
+005d2000,_rwaDSEnumMediaTypesQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2000
+005d2050,_rwaDSEnumMediaTypesAddRef,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005d2050
+005d20d0,_rwaDSEnumMediaTypesNext,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d20d0
+005d2190,_rwaDSEnumMediaTypesClone,RenderWare Audio P4: rwad-medium (rwad-medium); was FUN_005d2190
+005d21d0,_rwaDSMemAllocatorCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMemAllocatorCreate; was FUN_005d21d0
+005d2210,_RwaDSMemAllocator,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2210
+005d2240,_rwaDSMemAllocatorQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2240
+005d2290,_rwaDSMemAllocatorRelease,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMemAllocatorRelease; was FUN_005d2290
+005d22c0,_rwaDSMemAllocatorSetProperties,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d22c0
+005d2510,_rwaDSMemAllocatorDecommit,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2510
+005d2750,_rwaDSMemAllocatorReleaseBuffer,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMemAllocatorReleaseBuffer; was FUN_005d2750
+005d2790,_RwaDSMemAllocatorReleaseBufferFinal,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2790
+005d27f0,_rwaDSMediaSampleCreate,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMediaSampleCreate; was FUN_005d27f0
+005d2850,_RwaDSMediaSampleInit,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2850
+005d2890,_rwaDSMediaSampleQueryInterface,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMediaSampleQueryInterface; was FUN_005d2890
+005d28f0,_rwaDSPinAddRef,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); also rwad-medium=_rwaDSMediaSampleAddRef; was FUN_005d28f0
+005d2910,_rwaDSMediaSampleRelease,RenderWare Audio P4: rwad-high (rwad-high); was FUN_005d2910
+005d2b40,_rwaDSMediaSampleSetMediaType,RenderWare Audio P4: rwad-high (rwad-high); also rwa:rwa.dll 1.0=_rwaDSMediaSampleSetMediaType; was FUN_005d2b40
+005d8110,RwaDSPResampleCreate,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was FUN_005d8110
+005d84f0,_rwaSoftVoiceSetTrigger,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was FUN_005d84f0
+005d85d0,rwa_unit23cc10_005d85d0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005d8620,rwa_unit23cc10_005d8620,RenderWare Audio P4: neutral (rwa:neutral); was -
+005d8640,rwa_unit23cc10_005d8640,RenderWare Audio P4: neutral (rwa:neutral); was -
+005d8c30,rwa_unit2fdb00_005d8c30,RenderWare Audio P4: neutral (rwa:neutral); was -
+005d8ca0,rwa_unit2fdb00_005d8ca0,RenderWare Audio P4: neutral (rwa:neutral); was -
+005d8da0,RwaSoftOutputCreate,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was FUN_005d8da0
+005d9860,rwa_unit2fdb00_005d9860,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005d9860
+005d9880,rwa_unit2fdb00_005d9880,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005d9880
+005da3f0,rwa_unit2fdb00_005da3f0,RenderWare Audio P4: neutral (rwa:neutral); was LAB_005da3f0
+005da590,RwaSoftWaveRegister,RenderWare Audio P4: rwa.dll/codfh (rwa:rwa.dll 1.0); was -
+005da720,rwaAllocBitmapDestroy,RenderWare Audio P4: rwa.dll/codfh (rwa:codfh name); was FUN_005da720
+005da750,rwa_unit2fd5d0_005da750,RenderWare Audio P4: neutral (rwa:neutral); was FUN_005da750
+007daa9c,@rwabase_updating,A3 rwad 0x1021b024 rwabase.c (users 3/3); Burnout 3 PS2 map: _updating rwabase.o .sbss 4; was g_data_7daa9c
+007dab24,@rwavirtualvoiceobj_objDefRegistered,A3 rwad 0x1021bab8 rwavirtualvoiceobj.c (users 2/2); was g_data_7dab24
+007dab6c,@rwavoicemanager_moduleOpen,A3 rwad 0x1021bb58 rwavoicemanager.c (users 2/2); Burnout 3 PS2 map: _moduleOpen rwavoicemanager .sbss 4; was g_data_7dab6c
+007dac00,@rwastream_objDefRegistered,A3 rwad 0x1021b79c rwastream.c (users 8/10); was g_data_7dac00
+007dadfc,@rwaobjdef_nullObjDef,A3 rwad 0x1021b380 rwaobjdef.c (users 2/2); Burnout 3 PS2 map: _nullObjDef rwaobjdef.o .bss 92; was g_data_7dadfc
+007daeb4,@_rwaVoice3DIntDef,A3 rwad 0x1021baec rwavoice3d.c (users 2/2); Burnout 3 PS2 map: _rwaVoice3DIntDef rwavoice3d.o .bss 40; was -
+007daedc,@_rwaVoiceIntDef,A3 rwad 0x1021bb18 rwavoice.c (users 2/2); Burnout 3 PS2 map: _rwaVoiceIntDef rwavoice.o .bss 40; was -
+007daf04,@_rwaOutputIntDef,A3 rwad 0x1021b4d0 rwaoutput.c (users 2/2); Burnout 3 PS2 map: _rwaOutputIntDef rwaoutput.o .bss 40; was g_data_7daf04
+007db79c,@rwawave_moduleOpen,A3 rwad 0x1021bbac rwawave.c (users 2/2); Burnout 3 PS2 map: _moduleOpen rwawave.o .sbss 4; was g_data_7db79c
+007db7c4,@rwawavedef_moduleOpen,A3 rwad 0x1021bbd8 rwawavedef.c (users 2/2); Burnout 3 PS2 map: _moduleOpen rwawavedef.o .sbss 4; was g_data_7db7c4
+007dbb64,@rwallist_linkListOpen,A3 rwad 0x1021b258 rwallist.c (users 2/2); Burnout 3 PS2 map: _linkListOpen rwallist.o .sbss 4; was g_data_7dbb64
+007dbb8c,@rwauuid_moduleOpen,A3 rwad 0x1021ba18 rwauuid.c (users 2/2); Burnout 3 PS2 map: _moduleOpen rwauuid.o .sbss 4; was g_data_7dbb8c
+007dbbf4,@_rwaVirtualVoiceIntDef,A3 rwad 0x1021bac0 rwavirtualvoice.c (users 2/2); Burnout 3 PS2 map: _rwaVirtualVoiceIntDef rwavirtualvoice .bss 40; was g_data_7dbbf4
+007dbc1c,@_rwaStreamIntDef,A3 rwad 0x1021b82c rwastreamint.c (users 2/2); Burnout 3 PS2 map: _rwaStreamIntDef rwastreamint.o .bss 40; was g_data_7dbc1c
+007dbc9c,@_rwaListenerIntDef,A3 rwad 0x1021b2e8 rwalistener.c (users 2/2); Burnout 3 PS2 map: _rwaListenerIntDef rwalistener.o .bss 40; was g_data_7dbc9c
+007dbec4,@_rwaStreamSourceIntDef,A3 rwad 0x1021b9c4 rwastreamsourceint.c (users 2/2); Burnout 3 PS2 map: _rwaStreamSourceIntDef rwastreamsource .bss 40; was g_data_7dbec4
+007dbf6c,@_rwaStreamCodecIntDef,A3 rwad 0x1021b6c0 rwastreamcodecint.c (users 2/2); was g_data_7dbf6c
+007dbf94,@_rwaStreamRendererIntDef,A3 rwad 0x1021b910 rwastreamrendererint.c (users 2/2); Burnout 3 PS2 map: _rwaStreamRendererIntDef rwastreamrender .bss 40; was g_data_7dbf94
+007dbfbc,@_rwaStreamNodeIntDef,A3 rwad 0x1021b858 rwastreamnodeint.c (users 2/2); Burnout 3 PS2 map: _rwaStreamNodeIntDef rwastreamnodein .bss 40; was g_data_7dbfbc

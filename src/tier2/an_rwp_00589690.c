@@ -73,15 +73,28 @@ extern int rwp_generalprimitive_0058a1f0(MflHit *plane, MflHit *list, float tol)
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
 int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHit *out, unsigned int cap, float tol)
 {
+  /* sumn is passed to 56fd20 by address; the 32 bytes behind it in the original frame hold these locals (esp+0x20..0x3c), so they are kept
+     together in the same order.  x38 is the slot the original reuses for the last `fa` flag of the grouping and the list walk of the merge. */
+  struct {
+    float sumn[3];
+    unsigned int nout;
+    MflHitPt *pmin2, *pmax2;
+    int x38;
+    MflHitPt *pmin1;
+  } fr;
   MflHit *heads[16];
   MflHit *p, *q, *r, *g, *rep, *o, **pp;
-  MflHitPt *pbest = 0, *pmin1 = 0, *pmax2 = 0, *pmin2 = 0, *pt;
+  MflHitPt *pbest = 0, *pt;
   unsigned int nb, live, i, j, b, sum, last, nout, total, key, cnt, k;
-  float sumn[10], cv[3], u[3], w[3], mind, max1, max2, min1, min2, s1, s2;
+  float cv[3], u[3], w[3], mind, max1, max2, min1, min2, s1, s2;
   float d[3], dot, t1, t2, tol2, sa, sb, inv, wt, usum;
   int fa, fb, pdone;
+#define sumn fr.sumn
+#define pmin1 fr.pmin1
+#define pmax2 fr.pmax2
+#define pmin2 fr.pmin2
 
-  /* sumn is passed to 56fd20, which is given a 32 byte window behind it: the original frame holds other locals there (sumn[3..9] only keeps the frame size) */
+  pmin1 = 0; pmax2 = 0; pmin2 = 0;
   if (n == 0 || cap == 0) return 0;
   if (n == 1) {
     if (recs[0].count == 0) return 0;
@@ -168,6 +181,7 @@ int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHi
       t1 = r->n[2] * d[2];
       sa = sa + t1;
       fa = fabs(sa) < tol2;
+      fr.x38 = fa;
       sb = g->n[1] * d[1];
       t1 = d[0] * g->n[0];
       sb = sb + t1;
@@ -186,6 +200,7 @@ int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHi
       r->next = 0;
     }
   }
+  fr.nout = nout;
   if (nout == 0) return 0;
   for (b = 0; b < nout; b++) {
     o = &out[b];
@@ -225,6 +240,7 @@ int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHi
       for (r = rep->next; r; r = r->next) {
         for (cnt = r->count, pt = &r->pt[0]; cnt > 0; cnt--, pt++) HIT_ADD_PT(pt);
       }
+      fr.x38 = 0;      /* the walk pointer the original keeps there ends at the list's null */
       o->n[0] = sumn[0];
       o->n[1] = sumn[1];
       o->n[2] = sumn[2];
@@ -283,4 +299,8 @@ int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHi
     if (pmin2 != pbest && pmin2 != pmax2 && pmin2 != pmin1) HIT_ADD_PT(pmin2);
   }
   return nout;
+#undef sumn
+#undef pmin1
+#undef pmax2
+#undef pmin2
 }

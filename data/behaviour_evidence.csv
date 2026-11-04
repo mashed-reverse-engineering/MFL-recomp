@@ -423,7 +423,7 @@ message_box_active_count,004316a0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQU
 ui_format_number_999,00431b60,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 tutorial_text_format_ratio,00431c20,tier2,weak_tweak,EQUAL,1200,1.00,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 tutorial_state_reset,00431d70,tier2,hs_sweep,EQUAL,2327,0.96,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-team_names_string_build,00432060,tier2,weak_tweak,EQUAL,171,0.82,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-UNTESTED
+team_names_string_build,00432060,tier2,weak_tweak,EQUAL,171,0.82,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:INCONCLUSIVE,compiled+diffemu-INCONCLUSIVE+shadow-UNTESTED
 tutorial_text_update,00432200,tier2,weak_tweak,EQUAL,2702,0.95,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 menu_state_save,00432cc0,tier2,hs_sweep,EQUAL,2017,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 menu_table_clear_a,00432d20,hand,-,-,0,0,0,NOEVID,,near-regress-only
@@ -797,7 +797,7 @@ sound_ambience_course_2_6_b,0046a430,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL
 sound_ambience_course_8_19,0046a960,tier2,hs_sweep,EQUAL,3906,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 sound_ambience_course_16_17,0046afc0,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 sound_ambience_course_1_1e,0046b170,tier2,hs_sweep,EQUAL,3922,0.98,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
-sound_ambience_course_11_14,0046b790,tier2,hs_sweep,EQUAL,3911,1.00,1,STDIND,hs_sweep:EQUAL|ledger:INCONCLUSIVE,compiled+diffemu-INCONCLUSIVE+shadow-UNTESTED
+sound_ambience_course_11_14,0046b790,tier2,hs_sweep,EQUAL,3911,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-UNTESTED
 sound_ambience_course_5_27,0046bfc0,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 sound_ambience_course_9_22,0046c470,tier2,hs_sweep,EQUAL,3935,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 sound_ambience_course_3_4,0046c830,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
@@ -993,7 +993,7 @@ effect_slot_free,00487960,cluster,-,-,0,0,0,NOEVID,,
 effect_trails_update_all,004879a0,tier2,hs_sweep,EQUAL,380,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 effect_trails_render_all,00487a90,cluster,cluster_sweep,EQUAL,134,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
 effect_slot_alloc,00487be0,tier2,weak_tweak,EQUAL,1200,0.80,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
-effect_trail_add_point,00487c60,tier2,hs_sweep,EQUAL,2129,1.00,1,STDIND,hs_sweep:EQUAL|ledger:DIFF,compiled+diffemu-DIFF+shadow-STALE
+effect_trail_add_point,00487c60,tier2,hs_sweep,EQUAL,2129,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
 triangle_normal_cross,00487ee0,cluster,pilot,EQUAL,1200,1.00,1,,pilot:EQUAL,
 vector_normalize_copy,00487f80,tier2,hs_sweep,EQUAL,439,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 plane_classify_point,00487fd0,tier2,hs_sweep,EQUAL,2132,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -1211,7 +1211,7 @@ controller_poll_player,004a5680,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 joypads_poll_frame,004a5930,cluster,pilot,EQUAL,300,1.00,1,,pilot:EQUAL,
 course_nt1_helper_4557f0_sub_4a5ba0,004a5ba0,tier2,hs_sweep,EQUAL,36,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 object_frames_create,004a5c20,tier2,hs_sweep,EQUAL,1315,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-object_frames_create_forward,004a5cd0,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_sweep:EQUAL|ledger:STALE,compiled+diffemu-STALE+shadow-STALE
+object_frames_create_forward,004a5cd0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-STALE
 course_helper_4a5d50,004a5d50,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 object_set_colour,004a5e50,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL,
 video_draw_textured_quad_b,004a5f30,cluster,cluster_sweep,EQUAL,171,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,

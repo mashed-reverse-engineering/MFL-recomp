@@ -47,7 +47,8 @@ if [ -n "$SCEN_EXE" ]; then
   runx() {  # runx <run dir> <script> <out dir> <slot> <rc file>
     PFX=wine_pfx_$4 PERSIST=slot$4 NOSHOW=${NOSHOW-} $T/gameslot.sh timeout -k 5 $RT $T/scen_play.sh $1 $2 $3 > /dev/null 2>&1; echo $? > $5; }
   $T/mkpfx.sh $SLOT
-  if [ -f $CC/rc_ctrl ] && [ -z "$NOCACHE" ]; then echo "control: cached ($CC)"; CACHED=1
+  # a cached control of a race_freeze scenario without cars.bin is a stalled run stored by an older script: ignore it
+  if [ -f $CC/rc_ctrl ] && [ -z "$NOCACHE" ] && { ! grep -q "^dump cars" $W/script_ctrl.txt || [ -f $CC/out_ctrl/cars.bin ]; }; then echo "control: cached ($CC)"; CACHED=1
   else
     $T/mkpfx.sh $((SLOT+1)); python3 $T/prepare.py $INST $W/run_ctrl $B/ctrl.exe > /dev/null || exit 1; rm -rf $W/out_ctrl
     runx $W/run_ours $W/script_ours.txt $W/out_ours $SLOT $W/rc_ours & P1=$!
@@ -76,6 +77,9 @@ if co: bad.append("ours crashed")
 if rc("ours") != "0": bad.append("ours rc %s" % rc("ours"))
 if not title("ours"): bad.append("title waitmem not reached (wrong DELTA / harness address?)")
 if cc or rc("ctrl") != "0" or not title("ctrl"): bad.append("control unhealthy (not cached)")
+if "dump cars" in open(W + "/script_ctrl.txt").read():      # race_freeze scenario: each side must have reached the freeze (cars.bin), else a stalled run (lost keys) passes
+    for k in ("ctrl", "ours"):
+        if not os.path.exists("%s/out_%s/cars.bin" % (W, k)): bad.append("%s did not reach the race freeze (no cars.bin, stalled)" % k)
 a, b = W + "/out_ctrl/final.png", W + "/out_ours/final.png"
 if os.environ.get("SCEN_IMGTHRESH") == "off": print("final screenshot: not judged (SCEN_IMGTHRESH=off)")      # race scenarios: the race picture differs run to run (render oracle covers it)
 elif os.path.exists(a) and os.path.exists(b):
