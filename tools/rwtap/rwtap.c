@@ -70,6 +70,22 @@ static void dump_geometry(unsigned gp) {
     } else fputs("-", lg);
     fputc('\n', lg);
 }
+/* rwatap (audio, AU1): hooks named AUD_* log always (the mixer runs from start-up, not only in the draw window).  AUD_mix = the RWA mix
+ * callback 0x5d8d00 (bytes, user) -> RwaMixerData {numBusses, busses}: on return one `P <seq> n=<bytes> b=<numBusses> d=<fnv dry> w=<fnv reverb send>`
+ * record per mixed period.  It runs on the audio thread only, so it has its own return stack and exit stub. */
+static unsigned aud_mix_idx = ~0u, aud_ret[16], aud_len[16]; static int aud_sp; static u8 *aud_exit_stub; static unsigned aud_seq;
+static void aud_exit_hook(unsigned *slot) {
+    if (aud_sp <= 0) { *slot = 0; return; }
+    aud_sp--; *slot = aud_ret[aud_sp];
+    const unsigned *m = (const unsigned *)(uintptr_t)slot[-2];      /* eax of the hooked function (pushad area) */
+    unsigned n = aud_len[aud_sp], d = 0, w = 0, nb = rd(m, 8) ? m[0] : 0;
+    const unsigned *b = rd(m, 8) ? (const unsigned *)(uintptr_t)m[1] : NULL;
+    if (b && rd(b, 8)) {
+        if (rd((void *)(uintptr_t)b[0], n)) d = fnv((const u8 *)(uintptr_t)b[0], n, 2166136261u);
+        if (nb > 1 && rd((void *)(uintptr_t)b[1], n)) w = fnv((const u8 *)(uintptr_t)b[1], n, 2166136261u);
+    }
+    EnterCriticalSection(&cs); fprintf(lg, "P %u n=%u b=%u d=%08x w=%08x\n", aud_seq++, n, nb, d, w); fflush(lg); LeaveCriticalSection(&cs);   /* ~12 per second: flushing keeps the tail on a crash */
+}
 static void exit_hook(unsigned *slot) { *slot = rsp > 0 ? retstk[--rsp] : 0; if (active_()) { EnterCriticalSection(&cs); fprintf(lg, "X %u d=%d f=%d\n", seq++, *p_ndraws, *p_nframes); LeaveCriticalSection(&cs); } }
 /* object of type 1 = RpAtomic: RpGeometry at +0x18, RwFrame at +4 (ltm at +0x50), flags +2.  type 2 (world sector) is counted by the plain C line only. */
 static void on_atomic(const unsigned *a, unsigned *ra) {
@@ -89,8 +105,10 @@ static void on_atomic(const unsigned *a, unsigned *ra) {
 }
 /* called by the stub with the idx and a pointer at the return address; args follow it */
 static void __cdecl on_call(unsigned idx, unsigned *ra) {
-    if (!*p_active && strncmp(names[idx], "D3DX", 4)) return;   /* D3DX* hooks log always (shader assembly happens during loading, before the draw window) */
-    const unsigned *a = ra + 1; EnterCriticalSection(&cs);
+    if (!*p_active && strncmp(names[idx], "D3DX", 4) && strncmp(names[idx], "AUD_", 4)) return;   /* D3DX* hooks log always (shader assembly happens during loading, before the draw window), AUD_* too */
+    const unsigned *a = ra + 1;
+    if (idx == aud_mix_idx) { if (aud_sp < 16) { aud_len[aud_sp] = a[0]; aud_ret[aud_sp++] = *ra; *ra = (unsigned)(uintptr_t)aud_exit_stub; } return; }   /* logged on return (P record) */
+    EnterCriticalSection(&cs);
     fprintf(lg, "C %u %s d=%d f=%d a=", seq++, names[idx], *p_ndraws, *p_nframes);
     for (unsigned i = 0; i < nargs[idx]; i++) fprintf(lg, i ? ",%x" : "%x", a[i]);
     char sp[96]; strcpy(sp, specs[idx]);
@@ -104,10 +122,10 @@ static void __cdecl on_call(unsigned idx, unsigned *ra) {
     LeaveCriticalSection(&cs);
 }
 static int active_(void) { return *p_active; }
-static u8 *make_exit_stub(void) {   /* push 0 (slot for the original return address); pushfd; pushad; lea eax,[esp+36]; push eax; call exit_hook; add esp,4; popad; popfd; ret */
+static u8 *make_exit_stub_for(void (*hk)(unsigned *)) {   /* push 0 (slot for the original return address); pushfd; pushad; lea eax,[esp+36]; push eax; call hk; add esp,4; popad; popfd; ret */
     u8 *s = VirtualAlloc(NULL, 64, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE), *q = s; if (!s) return NULL;
     *q++ = 0x6a; *q++ = 0; *q++ = 0x9c; *q++ = 0x60; *q++ = 0x8d; *q++ = 0x44; *q++ = 0x24; *q++ = 0x24; *q++ = 0x50;
-    *q++ = 0xb8; void *f = (void *)exit_hook; memcpy(q, &f, 4); q += 4; *q++ = 0xff; *q++ = 0xd0; *q++ = 0x83; *q++ = 0xc4; *q++ = 0x04; *q++ = 0x61; *q++ = 0x9d; *q++ = 0xc3;
+    *q++ = 0xb8; void *f = (void *)hk; memcpy(q, &f, 4); q += 4; *q++ = 0xff; *q++ = 0xd0; *q++ = 0x83; *q++ = 0xc4; *q++ = 0x04; *q++ = 0x61; *q++ = 0x9d; *q++ = 0xc3;
     return s;
 }
 static int hook(unsigned idx, u8 *fn, unsigned len) {
@@ -134,7 +152,8 @@ __declspec(dllexport) int rwtap_init(const char *funcs, const char *out, unsigne
         if (ln[0] == '#') continue; char nm[64], sp[200] = ""; unsigned va, len, na_;
         char *e = ln + strcspn(ln, "\r\n"); *e = 0;
         int k = sscanf(ln, "%47s %x %u %u %95[^\n]", nm, &va, &len, &na_, sp); if (k < 4) continue; nargs[ncall] = na_ > 8 ? 8 : na_;
-        strcpy(names[ncall], nm); if (!strcmp(nm, "rxD3D9DefaultRenderCallback")) { atomic_idx = ncall; if (!exit_stub) exit_stub = make_exit_stub(); } strcpy(specs[ncall], k > 4 ? sp : "");
+        strcpy(names[ncall], nm); if (!strcmp(nm, "rxD3D9DefaultRenderCallback")) { atomic_idx = ncall; if (!exit_stub) exit_stub = make_exit_stub_for(exit_hook); } strcpy(specs[ncall], k > 4 ? sp : "");
+        if (!strcmp(nm, "AUD_mix")) { aud_mix_idx = ncall; if (!aud_exit_stub) aud_exit_stub = make_exit_stub_for(aud_exit_hook); }
         if (hook(ncall, (u8 *)(uintptr_t)(va + delta), len)) { fprintf(lg, "H %u %s %x\n", ncall, nm, va + delta); n++; }
         ncall++;
     }

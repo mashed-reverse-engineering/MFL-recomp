@@ -6093,6 +6093,7 @@ RwaFreeListCreate 005bef40
 _rwaFreeListModuleOpen 005bf070
 FUN_005bf0e0 005bf0e0
 FUN_005bf120 005bf120
+FUN_005bf130 005bf130
 rwa_memory_005bf170 005bf170
 RwaVirtualVoiceInterfaceRegister 005bf250
 RwaVirtualVoiceInterfaceUnregister 005bf2a0
@@ -6306,6 +6307,8 @@ FUN_005cb1d0 005cb1d0
 RwaDXAudioOutputRegisterUsingInterface 005cb240
 _RwaDXAudioOutputRegisterCommon 005cb2d0
 RwaDXAudioOutputUnregister 005cb570
+FUN_005cbac0 005cbac0
+FUN_005cbb00 005cbb00
 _RwaDXAudioOutputCreate 005cbb20
 _RwaDXAudioOutputFinishExecute 005cbb90
 switchD 005cbd97
@@ -6552,6 +6555,7 @@ RwaSoftOutputCreate 005d8da0
 rwa_unit2fdb00_005d9860 005d9860
 rwa_unit2fdb00_005d9880 005d9880
 rwa_unit2fdb00_005da3f0 005da3f0
+thunk_RwaWaveDestroy_5da4a0 005da4a0
 RwaSoftWaveRegister 005da590
 rwaAllocBitmapDestroy 005da720
 rwa_unit2fd5d0_005da750 005da750
@@ -7461,6 +7465,7 @@ g_data_5f6cd0 005f6cd0
 k_f_n0_9 005f6cdc
 k_f_1_1443742en28 005f6d78
 g_data_5f72b0 005f72b0
+g_data_5f72f4 005f72f4
 k_f_n0_7071 005f7300
 k_f_0_7071 005f7304
 g_data_5f7350 005f7350
@@ -8108,10 +8113,13 @@ defaultSurfaceProperties 0062ec5c
 _rpMaterialFreeListBlockSize 0062ec68
 _rpMaterialFreeListPreallocBlocks 0062ec6c
 geometryTKList 0062ec70
+PTR_FUN_0062ec88 0062ec88
+PTR_c_D3DXVec2Transform_0062eda8 0062eda8
 PTR_s_nodeD3D9AtomicAllInOne_csl_0062eee8 0062eee8
 PTR_s_nodeD3D9WorldSectorAllInOne_csl_0062ef48 0062ef48
 sectorTKList 0062ef88
 MeshopStatic 0062efa4
+g_d3dxcpuoptimizations_62efc4 0062efc4
 D3D9Transform 0062ff50
 D3D9InverseTransform 0062ff90
 D3D9InverseNormalizedTransform 0062ffd0
@@ -8221,6 +8229,9 @@ _rpLODAtomicCacheFreeListBlockSize 0063a51c
 _rpLODAtomicCacheFreeListPreallocBlocks 0063a520
 g_data_63a548 0063a548
 g_data_63a54c 0063a54c
+g_data_63a5d4 0063a5d4
+g_data_63a5dc 0063a5dc
+PTR_LAB_0063a5f0 0063a5f0
 s_in__d_d__006424e8_0x38 00642520
 qh_rand_seed 00642840
 s_ppearance___edge__normal_normsca_00646e30_2 00646e32
@@ -10539,6 +10550,7 @@ _rpCollisionNumInstances 007da6e4
 _rpCollisionGlobalRefOffset 007da6e8
 g_rp_7da6ec 007da6ec
 _rpCollisionGeometryDataOffset 007da6f0
+g_worldforalltriintsecsphere_7da6f4 007da6f4
 _rpMatFXMaterialDataFreeList 007da6f8
 MatFXMaterialDataOffset 007da71c
 MatFXAtomicDataOffset 007da72c
@@ -10615,9 +10627,11 @@ g_data_7daa08 007daa08
 g_data_7daa0c 007daa0c
 g_data_7daa18 007daa18
 qhmem 007daa20
+g_data_7daa88 007daa88
 g_data_7daa94 007daa94
 rwabase_updating 007daa9c
 g_data_7daaa0 007daaa0
+g_data_7daac0 007daac0
 rwavirtualvoiceobj_objDefRegistered 007dab24
 g_data_7dab28 007dab28
 g_data_7dab2c 007dab2c
@@ -10638,6 +10652,7 @@ g_data_7dabf0 007dabf0
 g_data_7dabf8 007dabf8
 g_data_7dabfc 007dabfc
 rwastream_objDefRegistered 007dac00
+g_data_7dac48 007dac48
 g_data_7dacb8 007dacb8
 g_data_7dad2c 007dad2c
 g_data_7dad30 007dad30
@@ -10703,6 +10718,8 @@ g_data_7dc0e4 007dc0e4
 g_data_7dc0e8 007dc0e8
 g_data_7dc1a8 007dc1a8
 start_tics 007dc298
+g_data_7dc2d0 007dc2d0
+g_data_7dc370 007dc370
 g_data_7dc3f0 007dc3f0
 g_data_7dc450 007dc450
 g_data_7dc68c 007dc68c

@@ -1,0 +1,14 @@
+# Group "bezpat" (D1c): the RtBezPat matrix kernels and the RpPatch refiners from librw-mfl/capi/bezpat.cpp, written op for op from the disassembly (the four Bezier kernels
+# are tools/x87/lift.py output); opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat and an RW_DLL built from a librw-mfl tree that has bezpat.cpp.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_bezpat_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f; the output with the bytes around
+# it, the inputs, the return value and the control word compared word for word): all eight EQUAL; negative fixture (stepU <-> stepV) DIFF.
+# Callers: the refiners and GenerateQuadIndex from _rpPatchInstanceAtomic 0x55a750; the Bezier kernels from the refiners and 0x55c050 / 0x55c3d0.  No exe state, no binding.
+RtBezierQuadBernsteinWeight3d=rw37_RtBezierQuadBernsteinWeight3d
+RtBezierQuadBernsteinWeight4d=rw37_RtBezierQuadBernsteinWeight4d
+RtBezierQuadOriginDifference3d=rw37_RtBezierQuadOriginDifference3d
+RtBezierQuadOriginDifference4d=rw37_RtBezierQuadOriginDifference4d
+_rpPatchRefineQuadVector=rw37__rpPatchRefineQuadVector
+_rpPatchRefineQuadColor=rw37__rpPatchRefineQuadColor
+_rpPatchRefineQuadTexCoords=rw37__rpPatchRefineQuadTexCoords
+_rpPatchGenerateQuadIndex=rw37__rpPatchGenerateQuadIndex

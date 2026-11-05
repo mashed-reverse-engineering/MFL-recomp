@@ -71,17 +71,17 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 678,488 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 677 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,245 | `███████████████████████` 116% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,896 | `██████████████░░░░░░` 68% |
-| ...tier 1, `src/tier1` (1936 files) | 1,548 | `███████████░░░░░░░░░` 55% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,232 | `███████████████████████` 116% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,883 | `█████████████░░░░░░░` 67% |
+| ...tier 1, `src/tier1` (1936 files) | 1,535 | `███████████░░░░░░░░░` 55% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (971 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (642 files) | 678 | `█████░░░░░░░░░░░░░░░` 24% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 906 | |
+| ...tier 2, `src/tier2` (1046 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...clusters, `src/clusters` (644 files) | 678 | `█████░░░░░░░░░░░░░░░` 24% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 1029 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
-**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (642 cluster files give 678 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
+**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (644 cluster files give 678 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
 
 **Layers.** All rows here are application code (VA < 0x4B0000). The library layers are in the table above; see [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
 

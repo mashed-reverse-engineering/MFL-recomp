@@ -89,7 +89,7 @@ esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
 echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
-[ -n "$DRY" ] && { [ -n "$SA" ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
+[ -n "$DRY" ] && { [ -n "$SA" ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
 mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
@@ -138,7 +138,7 @@ diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (n
 standalone_link() {      # fresh harness link; target configuration by default (B1): LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1, A/B with LIB_*=orig DROP_DSHOW=0; LIB_RW / RW_DLL pass through (unset = off).
   # DELTA starts at $DELTA, else the last converged delta (output/gate/standalone_delta.txt), else ba000; retried with the printed delta until stable, at most 4 links
   local d=${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null)}; d=${d:-ba000}; local k out
-  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
+  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
   echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} LIB_CRT=${lc:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${lr:-orig} RW_DLL=${RW_DLL:-pinned} DELTA start $d"
   for k in link link2 link3 link4; do
     LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc LIB_RW=$lr DROP_DSHOW=$dd DROP_RW=${DROP_RW:-1} DROP_RWTRAP=${DROP_RWTRAP:-1} DROP_DINPUT=${DROP_DINPUT:-1} MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}

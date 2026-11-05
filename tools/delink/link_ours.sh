@@ -50,10 +50,11 @@ s = re.sub(r"\b0x[0-9A-Fa-f]{6}\b", lambda m: "(0x%X + %d)" % (int(m.group(0), 1
 s = s.replace("extern void __stdcall Sleep", "__declspec(dllimport) void __stdcall Sleep")      # the linked exe has no thunk for it: use the IAT slot
 open(sys.argv[1], "w").write(s)
 PY
-# the harness hooks patch call sites inside the ORIGINAL body of these cluster entries (src/harness/cluster_exclude.txt): leave those clusters out (build_overlay does this only for --harness)
+# the harness hooks patch call sites inside the ORIGINAL body of these cluster entries (src/harness/cluster_exclude.txt): leave those clusters out (build_overlay does this only for --harness),
+# except app_main_loop / message_box_update: the objcopy renames below carry their hooks into our object (B3 2026-11-04)
 export CLUSTER_ENABLED=$(python3 -c "
 import sys
-x = {l.split()[0] for l in open(sys.argv[2]) if l.strip() and not l.startswith('#')}
+x = {l.split()[0] for l in open(sys.argv[2]) if l.strip() and not l.startswith('#')} - {'app_main_loop', 'message_box_update'}
 print(','.join(n for n in (l.strip() for l in open(sys.argv[1])) if n and not n.startswith('#') and n not in x))" $G/src/clusters/enabled.txt $G/src/harness/cluster_exclude.txt)
 set -- "$@" ; [ $# -eq 0 ] && set -- $FULL; set -- "$@" --src=$W/harness/freeze.c; HMK="--hook-calls $G/src/harness/hooks.txt --dwords $G/src/harness/dwords.txt"; fi
 JOBS=${JOBS:-4} OBJLIST=$W/objs.txt TMPDIR=$W python3 $G/tools/build_overlay.py $W/ovl.exe ${@:-$FULL} > $W/build_overlay.log 2>&1
@@ -94,8 +95,10 @@ while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.ob
 # HARNESS: dwords.txt / hooks.txt patch the ORIGINAL bodies of menu_update + menu_items_animate_update (every g_frame_seconds read -> fast_ui_seconds) and
 # app_state_menu_render (every call of RwCameraBeginUpdate = 0x4d1b90 -> begin_update_hook).  Where our C replaces such a function that body is dead (int3), so the
 # same redirect is made in our object by renaming the symbol (the lists name EVERY original site in these functions, so the rename is exactly the patch).
+# B3: message_box_update (dwords 0x445bf9 / 0x445eeb = its two g_frame_seconds reads) and app_main_loop (hooks 0x4a15e9 input_update -> input_hook, 0x4a15fd app_frame_wait -> freeze_hook, 0x4a1602 timer_ticks ->
+# frame_end_ticks; the C loop calls timer_ticks twice, frame_end_ticks fast-forwards only the call right after freeze_hook, see freeze.c).
 # Without HARNESS nothing changes.  harness_drift.py checks that each such object references the harness symbol.
-[ -n "$HARNESS" ] && nm -A -g --defined-only $(cut -d' ' -f2 $W/objs_local.txt) 2>/dev/null | awk '{n=index($1,":"); o=substr($1,1,n-1)} $2=="T" && $3=="_app_state_menu_render" {print o, "_RwCameraBeginUpdate=_begin_update_hook"} $2=="T" && ($3=="_menu_update" || $3=="_menu_items_animate_update") {print o, "_g_frame_seconds=_fast_ui_seconds"}' | while read -r obj ren; do objcopy --redefine-sym $ren $obj; done
+[ -n "$HARNESS" ] && nm -A -g --defined-only $(cut -d' ' -f2 $W/objs_local.txt) 2>/dev/null | awk '{n=index($1,":"); o=substr($1,1,n-1)} $2=="T" && $3=="_app_state_menu_render" {print o, "_RwCameraBeginUpdate=_begin_update_hook"} $2=="T" && ($3=="_menu_update" || $3=="_menu_items_animate_update" || $3=="_message_box_update") {print o, "_g_frame_seconds=_fast_ui_seconds"} $2=="T" && $3=="_app_main_loop" {print o, "_app_frame_wait=_freeze_hook"; print o, "_timer_ticks=_frame_end_ticks"; print o, "_input_update=_input_hook"}' | while read -r obj ren; do objcopy --redefine-sym $ren $obj; done
 # T-N13: the source-built libs' own initialised .data (zlib 0x14fc B, ...) would likewise sit between the generated .data and .bss and give the bss a bigger delta than .data (harness / race scripts use ONE delta: the
 # game then ran with the harness patches at wrong bss addresses = fullscreen ChangeDisplaySettings, exit): own section behind everything
 [ -n "$LSRC$CRTSPLIT" ] && while read -r src obj; do case $src in lib:*|stub:*|pull:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt

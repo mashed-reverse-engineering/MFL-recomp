@@ -1,0 +1,8 @@
+# rwatap (AU1): RWA audio boundary hooks for mfltap.dll (cfg rwtap=aud_funcs.txt; line `name va len nargs spec`, see README.md).
+# All three stay ORIGINAL code in both the control exe and a build with recomp/clusters/cl_rwa_dxaudio_out.c, so the same list taps both.
+# AUD_mix: RWA mix callback (RwaSoftOutput, 0x5d8d00; prologue push ebx / mov ebx,[esp+0xc]) -> one P record per mixed period (CRC of dry + reverb bus)
+AUD_mix 5d8d00 5 2
+# soft output create (0x5d8f10, prologue sub esp,0xc / push ebx / push ebp): p2 = {output obj, numVoices, sampleRate, periodMs}
+AUD_softOutputInit 5d8f10 5 3 p2:16
+# _rwaDXAudioOutputSetEnvironment (0x5ccb30, prologue mov eax,[esp+4] / push esi): p2 = the 12 I3DL2 fields the reverb gets
+AUD_setEnvironment 5ccb30 5 3 p2:48

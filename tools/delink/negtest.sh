@@ -32,5 +32,23 @@ python3 $G/tools/stack_lint.py --selftest > $O/sl.txt 2>&1 && ok "$(tail -1 $O/s
 python3 $T/harness_drift.py --selftest > $O/hd.txt 2>&1 && ok "$(tail -1 $O/hd.txt)" || bad "$(tail -1 $O/hd.txt)"
 python3 $T/../trapcheck.py --selftest > $O/tc.txt 2>&1 && ok "$(tail -1 $O/tc.txt)" || { grep FAIL $O/tc.txt | head -5; bad "$(tail -1 $O/tc.txt)"; }
 python3 $T/../clean_scan.py --selftest > $O/cs.txt 2>&1 && ok "$(tail -1 $O/cs.txt)" || bad "$(tail -1 $O/cs.txt)"
+# collis (D1): rw_collis_check.sh must FAIL on the line-flip fixture (the DLL's line entries get start/end swapped) and pass without it; ~30 s, docker
+RD=$G/output/librw/mflrw.dll; CL=WorldForAllTriIntsecLine,GeometryForAllTriIntsecLine
+if ! grep -q mflrw_collis_bind $RD 2>/dev/null; then echo "negtest note: $RD has no collis exports, collis fixture skipped"; else
+  OUT=$O/cg $T/rw_collis_check.sh $RD 2000 $CL > $O/cg.txt 2>&1 && ok "collis good: $(grep -c EQUAL $O/cg.txt) line entries EQUAL" || bad "collis good rejected: $(grep -E 'DIFF|MISSING' $O/cg.txt | head -2)"
+  OUT=$O/cn $T/rw_collis_check.sh $RD 2000 $CL neg > $O/cn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/cn.txt) = 2 ] && ok "collis line-flip: both line entries DIFF" || bad "collis line-flip fixture not caught: $(grep -E 'finite cases' $O/cn.txt | head -2)"
+fi
+# splanim (D1b): rw_splanim_check.sh must FAIL on the path-swap fixture (the DLL's FindPosition / FindMatrix get path 10 <-> 11) and pass without it; ~30 s, docker
+RD=$G/output/librw/mflrw.dll; SL=RpSplineFindPosition,RpSplineFindMatrix
+if ! grep -q mflrw_splanim_bind $RD 2>/dev/null; then echo "negtest note: $RD has no splanim exports, splanim fixture skipped"; else
+  OUT=$O/sg $T/rw_splanim_check.sh $RD 2000 $SL > $O/sg.txt 2>&1 && ok "splanim good: $(grep -c EQUAL $O/sg.txt) spline entries EQUAL" || bad "splanim good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/sg.txt | head -2)"
+  OUT=$O/sn $T/rw_splanim_check.sh $RD 2000 $SL neg > $O/sn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/sn.txt) = 2 ] && ok "splanim path-swap: both spline entries DIFF" || bad "splanim path-swap fixture not caught: $(grep -E 'finite cases' $O/sn.txt | head -2)"
+fi
+# bezpat (D1c): rw_bezpat_check.sh must FAIL on the step-swap fixture (the DLL's OriginDifference3d / 4d get stepU <-> stepV) and pass without it; ~20 s, docker
+RD=$G/output/librw/mflrw.dll; BL=RtBezierQuadOriginDifference3d,RtBezierQuadOriginDifference4d
+if ! grep -q rw37_RtBezierQuadOriginDifference4d $RD 2>/dev/null; then echo "negtest note: $RD has no bezpat exports, bezpat fixture skipped"; else
+  OUT=$O/bg $T/rw_bezpat_check.sh $RD 2000 $BL > $O/bg.txt 2>&1 && ok "bezpat good: $(grep -c EQUAL $O/bg.txt) entries EQUAL" || bad "bezpat good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/bg.txt | head -2)"
+  OUT=$O/bn $T/rw_bezpat_check.sh $RD 2000 $BL neg > $O/bn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/bn.txt) = 2 ] && ok "bezpat step-swap: both entries DIFF" || bad "bezpat step-swap fixture not caught: $(grep -E 'finite cases' $O/bn.txt | head -2)"
+fi
 rm -r $O
 exit $rc

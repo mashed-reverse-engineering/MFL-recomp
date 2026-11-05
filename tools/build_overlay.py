@@ -91,6 +91,7 @@ def main():
             shutil.copy(os.path.join(RECOMP, "auto", h), work)
         objs = []
         srcs = sorted(glob.glob(os.path.join(RECOMP, "*.c"))) + sorted(glob.glob(os.path.join(RECOMP, "video", "*.c")))      # src/video: mfl_video backend dispatcher + null backend
+        srcs += glob.glob(os.path.join(RECOMP, "audio", "mfl_audio_null.c"))      # src/audio: only the mfl_audio dispatcher + null backend go into the exe (miniaudio = optional DLL, tests = host builds)
         if "--auto" in extra:           # src/auto: autocompile.py chunks (unverified machine output, six of the seven bugs of the course sweep came from them): opt-in only
             srcs += sorted(glob.glob(os.path.join(RECOMP, "auto", "*.c")))
             for h in glob.glob(os.path.join(RECOMP, "auto", "*.h")):
@@ -169,7 +170,7 @@ def main():
         # object cache: key = source + all headers + flags; only the changed files are compiled, in ONE cl call (a docker/wine start costs ~8 s)
         flags = ["/nologo", "/c", "/O2", "/Gy"]
         hdr = hashlib.sha1()
-        LOCAL_H = ("mfl_video.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
+        LOCAL_H = ("mfl_video.h", "mfl_audio.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
         for h in sorted(glob.glob(os.path.join(work, "*.h"))):
             if os.path.basename(h) in LOCAL_H: continue
             hdr.update(open(h, "rb").read())

@@ -176,7 +176,7 @@ if "--objs" in opt:
         if not l.strip(): continue
         for nm_, sec_, val_, code_ in coff_syms(l.split()[-1]):
             if l.startswith("lib:") and (sec_ > 0 or val_ > 0): memdefs[l.split()[0][4:]].add(nm_)
-            if sec_ > 0: objdef.setdefault(nm_, code_)
+            if sec_ > 0 or sec_ == -1: objdef.setdefault(nm_, code_)      # -1: absolute (exsup.obj's __except_list = fs:[0] offset 0, B3)
             elif sec_ == 0 and val_ == 0: objundef.add(nm_)
             elif sec_ == 0: commons.add(nm_)            # COMMON (uninitialised, size in value): the linker allocates it unless someone defines it
     if "--drop-app" in opt:         # the generated data objects reference functions / labels of the image by name (pointer words): define those too
@@ -456,6 +456,16 @@ if "--drop-app" in opt:
             keep.append((off, ti, ty))
         rel[si] = keep
     stat["drop-app: blockers"] = len(blockers)
+    # B3: a redirected function shorter than 6 bytes (`xor eax,eax; ret`, a 5 byte `jmp` thunk) is no candidate above (nothing behind the entry jmp to fill), but the jmp covers
+    # the whole body: listed as dropped (only when the jmp ends before the next function), size = body + the nop / int3 padding up to the next function, so origbytes
+    # counts the jmp as entry stub and the padding as filled (the same split as its T-N18 rule for aligned app thunks, which then no longer sees them)
+    for a_ in sorted(redir_at):
+        if a_ not in cand and sec_index(a_) == tsec and 0 < fsz.get(a_, 0) < 6:
+            j_ = bisect.bisect_right(_fs, a_); nx_ = _fs[j_] if j_ < len(_fs) else _tend
+            if nx_ - a_ < 5: continue
+            e_ = a_ + 5
+            while e_ < nx_ and data[tsec][e_ - secs[tsec][1]] in (0x90, 0xCC): e_ += 1
+            DAPP.append((a_, e_ - a_, redir_at[a_], "dropped", "short body under the entry jmp")); stat["drop-app: short functions under their entry jmp"] += 1
     open(OUT + ".dropapp.csv", "w").write("va,size,name,status,reason\n" + "".join("%08x,%d,%s,%s,%s\n" % x for x in DAPP))
     if blockers: open(OUT + ".blockers.txt", "w").write("\n".join(blockers) + "\n"); print("drop-app blockers: %d (%s.blockers.txt)" % (len(blockers), OUT), file=sys.stderr)
 # symbols: section symbols first (index 2 * i: symbol + aux), then externals

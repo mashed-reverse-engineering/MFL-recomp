@@ -1,0 +1,17 @@
+# Group "splanim" (D1b, plan_librw_engine_switch_2026-11-03_v2 "spline FindPosition/FindMatrix" + "HAnim KeyFrameInterpolate, RtAnim Add/SubAnimTime"): the RpSpline,
+# HAnim keyframe interpolator and RtAnim interpolator clock kernels from librw-mfl/capi/splanim.cpp, written op for op from the disassembly;
+# opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim and an RW_DLL built from a librw-mfl tree that has splanim.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_splanim_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f; outputs, object arena,
+# RwErrorSet reports, RwMalloc/RwFree sequence and RtAnim callback logs compared word for word): all eight EQUAL; negative fixture (path 10 <-> 11) DIFF.
+# Callers: _rwV3dNormalize has many exe callers (camera, frames, spline); _splCreateSpline: RpSplineCreate (tier1 C) / RpSplineStreamRead; KeyFrameInterpolate: through the
+# HAnim interpolation scheme's function pointer (mkobj's entry jmp); the RtAnim three: game C and RpHAnim.  Their callees (g0 RwV3dNormalize / _rwSqrt / _rwInvSqrt,
+# g1 RwMatrixOptimize) are already DLL functions in the game link.  Nothing becomes dead.
+# Needs the tables: rw_engine_init (recomp/automatch_near/an_hk_612.c) calls mflrw_splanim_bind(&RwEngineInstance, rapGTable (0x7da7bc), RwErrorSet) when the DLL exports it.
+_rwV3dNormalize=rw37__rwV3dNormalize
+_splCreateSpline=rw37__splCreateSpline
+RpSplineFindPosition=rw37_RpSplineFindPosition
+RpSplineFindMatrix=rw37_RpSplineFindMatrix
+RpHAnimKeyFrameInterpolate=rw37_RpHAnimKeyFrameInterpolate
+RtAnimInterpolatorSetCurrentAnim=rw37_RtAnimInterpolatorSetCurrentAnim
+RtAnimInterpolatorAddAnimTime=rw37_RtAnimInterpolatorAddAnimTime
+RtAnimInterpolatorSubAnimTime=rw37_RtAnimInterpolatorSubAnimTime

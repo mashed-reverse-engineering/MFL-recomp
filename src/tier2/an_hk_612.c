@@ -38,6 +38,13 @@ extern __declspec(dllimport) void *__stdcall GetProcAddress(int module, const ch
 /*0062e6d0*/ extern char g_rw_62e6d0[];
 /*0062e6e8*/ extern char g_rw_62e6e8[];
 /*004ea160*/ extern void *__cdecl RwErrorSet(void *error);
+/* mflrw.dll collis binding (librw-mfl/capi/collis.cpp): the collision plugin data offsets of world sectors / geometries */
+/*007da6f4*/ extern int g_worldforalltriintsecsphere_7da6f4;
+/*007da6f0*/ extern int _rpCollisionGeometryDataOffset;
+typedef void (__cdecl *MflrwCollisBind)(int *sectorOffset, int *geometryOffset);
+/* mflrw.dll splanim binding (librw-mfl/capi/splanim.cpp): the spline plugin's table block (rapGTable[11] and the 12 basis table pointers behind it) */
+/*007da7bc*/ extern unsigned char rapGTable[];
+typedef void (__cdecl *MflrwSplanimBind)(char **engine, void *splineTables, void *errorSet);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
@@ -88,6 +95,14 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   bind = mflrw ? (MflrwExeBind)GetProcAddress(mflrw, "mflrw_exe_bind") : 0;
   if (bind != 0) {
     bind(&RwEngineInstance, &g_rw_7d21d8, &g_rw_7d2184, g_rw_62e718, g_rw_62e6d0, g_rw_62e6e8, (void *)RwErrorSet);
+  }
+  {
+    MflrwCollisBind cbind = mflrw ? (MflrwCollisBind)GetProcAddress(mflrw, "mflrw_collis_bind") : 0;
+    if (cbind != 0) cbind(&g_worldforalltriintsecsphere_7da6f4, &_rpCollisionGeometryDataOffset);
+  }
+  {
+    MflrwSplanimBind sbind = mflrw ? (MflrwSplanimBind)GetProcAddress(mflrw, "mflrw_splanim_bind") : 0;
+    if (sbind != 0) sbind(&RwEngineInstance, rapGTable, (void *)RwErrorSet);
   }
 #endif
 

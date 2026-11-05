@@ -640,3 +640,5 @@ spline_objects_reset
 controller_dialog_start_key_capture
 piz_fs_read
 video_present_frame
+rwa_dxaudio_out
+_control87
