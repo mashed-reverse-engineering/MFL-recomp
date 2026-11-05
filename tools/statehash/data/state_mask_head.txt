@@ -1,0 +1,14 @@
+# state_mask.txt (N1): control words that differ between two runs of the SAME exe (MFL.exe + freeze harness, run.sh STATEHASH=1, course 0 DRIVE=31,
+# vclock + vsnap=2 + srand + state_pins.txt).  Format: <orig va> <nwords> <symbol> | <evidence>.  statecmp.py refuses rows on car / physics /
+# world-transform / camera state (DENY_RANGES, DENY_NAME).  Evidence files: p6/cc_<tag>.txt (statecmp output of the pair p6/runs/<tag>_1, _2).
+# --- live words, by hand
+00771d80 65 g_data_771d80 | path buffer (MAX_PATH): ...\App_Executables\MFL.exe of the run copy; the run directory name differs per run (poke_vs_ctrl: 9 words at frame 0, cc_sp4 'slot' digits)
+0076e818 1 g_app_state_76e818 | frame counter since boot (app_state_menu_render, +1 per frame); cc_sp4 0x5c0-class values differ by the menu frame count in every frame
+007daa98 1 g_data_7daa98 | RenderWare frame counter (+1 per Present, not referenced by app C); cc_sp4 0x695 vs 0x583 = menu frame count
+007d51f8 5 g_rw_7d51f8 | RenderWare D3D9 dynamic vertex buffer ring (index / offsets 7d51f8..7d5208, g_d3d9dynamicvertexbuffermanagercreate): position depends on everything drawn since boot; cc_pf1, cc_vs2 differ from frame 0
+007d5238 1 g_rw_7d5238 | RenderWare D3D9 dynamic buffer offset (writes 59 of 232 frames); cc_sp4 differs from frame 0
+007dab7c 2 g_data_7dab7c | RenderWare counters (0xc vs 0xb, from frame ~45, 27 frames); cc_sp4, cc_pf1
+00617948 1 g_sound_master_fade | audio: fade driven by the stream state of the RWA audio thread (real time, not the vclock); cc_sp4 from frame 126
+00617954 1 g_sound_617954 | audio state (same source); cc_sp4 from frame 125
+006ae0e4 1 g_sound_6ae0e4 | audio state machine 6 vs 3 (same source); cc_sp4 from frame 125
+0061223c 6 g_sound_frame_611418+0xe24 | audio frame block +0xe24..+0xe38 (same source); cc_sp4 from frame 134

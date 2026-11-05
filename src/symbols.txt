@@ -5642,7 +5642,9 @@ FUN_0058cab0 0058cab0
 FUN_0058cad0 0058cad0
 FUN_0058cb40 0058cb40
 FUN_0058cbe0 0058cbe0
+FUN_0058cc40 0058cc40
 RxPacketCacheDestroy 0058cce0
+FUN_0058cd00 0058cd00
 FUN_0058d0c0 0058d0c0
 qh_check_bestdist 0058d1c0
 qh_check_maxout 0058d520
@@ -5911,6 +5913,7 @@ RwaObjHandleCreateUsingObj 005b7450
 _rwaVoiceManagerOpenModule 005b7560
 _rwaVoiceManagerCloseModule 005b75a0
 _rwaVoiceManagerUpdateTimeStamp 005b75b0
+rwa_unit23e610_005b7640 005b7640
 RwaVoiceManagerRegister 005b7650
 RwaVoiceManagerUnregister 005b77f0
 RwaVoiceManagerRegisterVoice 005b7860
@@ -5931,6 +5934,7 @@ _rwaWaveDictStreamRead 005b82b0
 _rwaWaveDictCloseModule 005b8590
 RwaStreamCreate 005b8600
 RwaStreamUnregister 005b8630
+rwa_unit23fad0_005b8840 005b8840
 _RwaDSUnknownInit 005b8960
 _rwaStreamSetStreamPos 005b8980
 _rwaStreamGetStreamPos 005b8a40
@@ -5968,6 +5972,7 @@ rwa_objdef_005ba310 005ba310
 _RwaObjDefParamsFree 005ba330
 _RwaObjDefFree 005ba3c0
 RwaObjDefDestroy 005ba420
+FUN_005ba4f0 005ba4f0
 RwaObjDefFindByUUID 005ba5c0
 RwaObjDefSetupParams 005ba620
 _RwaObjDefInitParam 005ba740
@@ -5976,6 +5981,7 @@ _RwaObjDefInit 005ba820
 RwaObjDefCreate 005ba8d0
 _rwaObjDefOpenModule 005ba9f0
 _rwaObjFindByObjDefCallback 005bab10
+rwa_obj_005bac10 005bac10
 RwaObjEnum 005bac30
 _rwaObjStartExecute 005bac70
 _rwaObjFinishExecute 005bace0
@@ -5996,6 +6002,7 @@ rwa_unit244790_005bb430 005bb430
 _rwaNULLWaveRegister 005bb460
 RwaVoice3DInterfaceRegister 005bb4b0
 RwaVoice3DInterfaceUnregister 005bb500
+FUN_005bb5d0 005bb5d0
 FUN_005bb600 005bb600
 _rwaRwStreamGetPos 005bb6b0
 _rwaRwStreamReadChunkHeaderInfoSync 005bb6c0
@@ -6005,6 +6012,7 @@ _rwaRwStreamCacheCloseModule 005bb850
 _rwaRwStreamSeek 005bbb70
 _rwaRwStreamCacheReadAsync 005bbbc0
 _rwaRwStreamCancel 005bbc70
+thunk__rwaRwStreamCancel_5bbd60 005bbd60
 rwa_unit2449c0_005bbd70 005bbd70
 _rwaRwStreamOpen 005bbeb0
 rwa_unit2449c0_005bbf20 005bbf20
@@ -6017,9 +6025,11 @@ _RwaWaveFree 005bc060
 RwaWaveDestroy 005bc0a0
 RwaWaveDownload 005bc120
 RwaWaveUploadBusy 005bc260
+FUN_005bc280 005bc280
 RwaWaveCreate 005bc290
 RwaWaveUpload 005bc520
 _rwaWaveCreateFromPack 005bc620
+FUN_005bc950 005bc950
 _rwaWaveDefOpenModule 005bcbb0
 RwaWaveFormatCompare 005bcbf0
 RwaWaveFormatGetFrameSize 005bcc50
@@ -6052,6 +6062,7 @@ RwaObjInterfaceAttach 005bdb30
 RwaAtomicAlloc 005bdd60
 RwaAtomicFree 005bdda0
 _RwaParamTypeFree 005bdde0
+FUN_005bde10 005bde10
 _rwaParamTypeCloseModule 005bdeb0
 _rwaParamTypeHandleRefreshType 005bdf40
 RwaParamTypeCreateArray 005bdf70
@@ -6091,6 +6102,7 @@ RwaFreeListDestroy 005beec0
 _rwaFreeListModuleClose 005beee0
 RwaFreeListCreate 005bef40
 _rwaFreeListModuleOpen 005bf070
+FUN_005bf0d0 005bf0d0
 FUN_005bf0e0 005bf0e0
 FUN_005bf120 005bf120
 FUN_005bf130 005bf130
@@ -6098,12 +6110,14 @@ rwa_memory_005bf170 005bf170
 RwaVirtualVoiceInterfaceRegister 005bf250
 RwaVirtualVoiceInterfaceUnregister 005bf2a0
 RwaMathConvertLinearToLog 005bf2b0
+FUN_005bf320 005bf320
 RwaMemEndianSwap 005bf360
 FUN_005bf3e0 005bf3e0
 RwaV3dLength 005bf460
 RwaMul32By32 005bf4e0
 RwaFindLSB 005bf560
 rwa_unit245240_005bf580 005bf580
+FUN_005bf6f0 005bf6f0
 FUN_005bf930 005bf930
 _rwaGetFilenameExt 005bf940
 FUN_005bfc50 005bfc50
@@ -6121,6 +6135,7 @@ switchD 005c014e
 _rwaRwStreamReadChunkHeader 005c01a0
 rwa_unit2452a0_005c01c0 005c01c0
 _rwaStreamContainerSetPitch 005c0220
+rwa_unit2452a0_005c0560 005c0560
 _RwaStreamContainerCreateCodec 005c0620
 _rwaStreamContainerInstaniateSource 005c06b0
 _rwaStreamContainerRendererPlaybackEnd 005c0760
@@ -6137,6 +6152,7 @@ _rwaStreamContainerExecute 005c1980
 _rwaStreamContainerCommandInitialize 005c19b0
 rwa_unit246d50_005c19d0 005c19d0
 _rwaStreamContainerCommandSetMedia 005c1ad0
+rwa_unit246d50_005c1b00 005c1b00
 _rwaStreamContainerCommandSetPitch 005c1b10
 _rwaStreamContainerCommandSetStreamGain 005c1b30
 rwa_unit246d50_005c1c10 005c1c10
@@ -6548,12 +6564,15 @@ _rwSListGetEntry 005d60d0
 _rwSListGetEnd 005d60f0
 RpCollSectorBBoxItInit 005d6100
 RpCollSectorBBoxItFindNextEntries 005d6280
+FUN_005d7e80 005d7e80
 RwaDSPResampleCreate 005d8110
 _rwaSoftVoiceSetTrigger 005d84f0
 rwa_unit2fdb00_005d8ca0 005d8ca0
 RwaSoftOutputCreate 005d8da0
+FUN_005d8f10 005d8f10
 rwa_unit2fdb00_005d9860 005d9860
 rwa_unit2fdb00_005d9880 005d9880
+FUN_005da030 005da030
 rwa_unit2fdb00_005da3f0 005da3f0
 thunk_RwaWaveDestroy_5da4a0 005da4a0
 RwaSoftWaveRegister 005da590
@@ -7486,6 +7505,8 @@ k_f_n5_189695e11 005f7530
 g_data_5f765c 005f765c
 k_f_340 005f768c
 k_f_n150 005f7690
+g_data_5f7694 005f7694
+g_data_5f76a4 005f76a4
 g_data_5f7914 005f7914
 g_data_5f7924 005f7924
 g_data_5f7934 005f7934
@@ -7498,7 +7519,14 @@ k_f_0_0038909912 005f81dc
 k_f_255_99219 005f81e0
 k_f_255_9961 005f81e4
 k_f_2048 005f81e8
+g_data_5f81ec 005f81ec
+g_data_5f81fc 005f81fc
+g_data_5f826c 005f826c
+g_data_5f829c 005f829c
+g_data_5f82ec 005f82ec
+g_data_5f834c 005f834c
 g_sound_5f835c 005f835c
+g_data_5f836c 005f836c
 k_f_4_4 005f861c
 k_f_3_95 005f8620
 k_f_2_8 005f8624
@@ -7520,6 +7548,7 @@ k_f_n0_9999 005f8f4c
 k_f_100000000 005f8f50
 k_f_0_999995 005f8f54
 k_f_n0_999995 005f8f58
+g_data_5f8f7c 005f8f7c
 __xc_a 005fb000
 __xc_z 005fb038
 __xi_a 005fb03c
@@ -8236,6 +8265,8 @@ s_in__d_d__006424e8_0x38 00642520
 qh_rand_seed 00642840
 s_ppearance___edge__normal_normsca_00646e30_2 00646e32
 g_sound_card_649138 00649138
+g_data_6497cc 006497cc
+PTR_rwa_unit246d50_005c1c10_0064a80c 0064a80c
 g_data_64a998 0064a998
 g_data_64a99c 0064a99c
 g_data_64aa00 0064aa00
@@ -8244,6 +8275,7 @@ PTR_g_data_720043_0064bed0 0064bed0
 _OP_FMODjmptab 0064c190
 _HUGE 0064c1e8
 _rwFrameListDirtyListUpdate 0064c270
+g_data_64c620 0064c620
 g_cup_scene_64cb04 0064cb04
 g_cup_scene_64cb08 0064cb08
 g_cup_scene_64cb0c 0064cb0c
@@ -10587,6 +10619,7 @@ userDataTextureOffset 007da7a4
 userDataTextureStreamOffset 007da7a8
 g_rp_7da7ac 007da7ac
 geomAnimOffset 007da7b0
+g_data_7da7b8 007da7b8
 rapGTable 007da7bc
 rpGBsplinePosition0 007da7e8
 rpGBsplinePosition1 007da7ec
@@ -10641,7 +10674,13 @@ g_data_7dab58 007dab58
 g_data_7dab5c 007dab5c
 g_data_7dab60 007dab60
 g_data_7dab64 007dab64
+g_data_7dab68 007dab68
 rwavoicemanager_moduleOpen 007dab6c
+g_data_7dab70 007dab70
+g_data_7dab74 007dab74
+g_data_7dab78 007dab78
+g_data_7dab90 007dab90
+g_data_7dab94 007dab94
 g_data_7dab98 007dab98
 g_data_7dabbc 007dabbc
 g_data_7dabc0 007dabc0
@@ -10652,7 +10691,11 @@ g_data_7dabf0 007dabf0
 g_data_7dabf8 007dabf8
 g_data_7dabfc 007dabfc
 rwastream_objDefRegistered 007dac00
+g_data_7dac04 007dac04
+g_data_7dac24 007dac24
 g_data_7dac48 007dac48
+g_data_7daca4 007daca4
+g_data_7daca8 007daca8
 g_data_7dacb8 007dacb8
 g_data_7dad2c 007dad2c
 g_data_7dad30 007dad30
@@ -10661,7 +10704,9 @@ g_data_7dadb4 007dadb4
 g_data_7dadd8 007dadd8
 rwaobjdef_nullObjDef 007dadfc
 g_data_7dae00 007dae00
+g_data_7dae04 007dae04
 g_data_7dae08 007dae08
+g_data_7dae30 007dae30
 g_data_7dae38 007dae38
 g_data_7dae3c 007dae3c
 g_data_7dae60 007dae60
@@ -10690,6 +10735,9 @@ g_data_7db7c8 007db7c8
 g_data_7db7ec 007db7ec
 g_data_7db7f0 007db7f0
 g_data_7db7f4 007db7f4
+g_data_7dbae8 007dbae8
+g_data_7dbaf4 007dbaf4
+g_data_7dbb60 007dbb60
 rwallist_linkListOpen 007dbb64
 g_data_7dbb68 007dbb68
 rwauuid_moduleOpen 007dbb8c
@@ -10704,6 +10752,10 @@ g_data_7dbbec 007dbbec
 g_data_7dbbf0 007dbbf0
 _rwaVirtualVoiceIntDef 007dbbf4
 _rwaStreamIntDef 007dbc1c
+g_data_7dbc48 007dbc48
+g_data_7dbc50 007dbc50
+g_data_7dbc54 007dbc54
+g_data_7dbc58 007dbc58
 _rwaListenerIntDef 007dbc9c
 g_data_7dbe48 007dbe48
 _rwaStreamSourceIntDef 007dbec4
@@ -12489,7 +12541,12 @@ RpLODAtomicGlobals 009488d0
 g_rp_9488d4 009488d4
 g_rp_9488dc 009488dc
 g_data_9488e4 009488e4
+g_qh_949bfc 00949bfc
+g_qh_949c24 00949c24
 g_data_949d20 00949d20
+g_data_949d50 00949d50
+g_data_949d5c 00949d5c
+g_data_949d60 00949d60
 Rsrc_Dialog_65_809 0094dcf0
 Rsrc_Dialog_67_809 0094df58
 Rsrc_Dialog_68_809 0094e230

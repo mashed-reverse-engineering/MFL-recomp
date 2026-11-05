@@ -285,3 +285,21 @@
 005d2910 95 FUN_005d2910
 005d2b40 96 FUN_005d2b40
 005da600 32 FUN_005da600
+# TRAP2 2026-11-05 (Audio, never-hit format code): wave converters / DirectShow pin methods for source formats no shipped asset holds (VAG 0x5f7914, GameCube ADPCM 0x5f7944, float 0x5f7934, DirectShow pins); 0 hits in the 9-run widened coverage union, only reachable through the wave-conv table 0x64aad8 / DirectShow vtables, closure with those edges cut unreaches them, no reference from installed C (trapcheck); proof: trap2/pending/candidates.csv
+005c5a50 389 FUN_005c5a50
+005c5ef0 2235 FUN_005c5ef0
+005c6a70 1192 FUN_005c6a70
+005c6f30 325 FUN_005c6f30
+005c7310 799 gap_5c7310
+005c7630 815 gap_5c7630
+005d0c00 73 FUN_005d0c00
+005d1a30 77 FUN_005d1a30
+005d1a80 113 FUN_005d1a80
+# TRAP3 (AU7 2026-11-05): PCM->PCM wave converters, no asset or device format needs them (au7 trap3 README)
+005c4fd0 497 FUN_005c4fd0 PCM channel converter (mono<->stereo, 8/16 bit): wave-conv rows only, no asset needs a PCM->PCM conversion (TRAP3)
+005c51e0 1025 FUN_005c51e0 PCM same-format converter (copy, 8/16 bit 1/2/4/6 ch): wave-conv rows only (TRAP3)
+005c5be0 315 FUN_005c5be0 PCM bit depth / sign converter: wave-conv rows only (TRAP3)
+005c5620 1065 FUN_005c5620 PCM converter helper, only caller 005c5be0 (TRAP3)
+005c4e50 232 FUN_005c4e50 PCM converter helper, callers 005c4f40 005c4fd0 005c51e0 005c5be0 only (TRAP3)
+005c4f40 140 FUN_005c4f40 PCM converter helper, callers 005c4fd0 005c51e0 005c5620 only (TRAP3)
+005c4650 42 FUN_005c4650 PCM converter helper, only caller 005c5620 (TRAP3)

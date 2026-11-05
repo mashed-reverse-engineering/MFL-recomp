@@ -1,0 +1,12 @@
+# Group "uvanim" (rw6, output/rw_next_family_2026-11-05.md row 9): the RpUVAnim material update and the two UV keyframe interpolate callbacks from
+# librw-mfl/capi/rwuvanim.cpp, written op for op from the disassembly (x87 as in rwcolltree.cpp); exe-layout adapter mflrw_uvanim_bind (plugin offset,
+# interpolator info blocks, pivots, matrix functions).  The two interpolators are unsplit in Ghidra: fnsizes rows from the rw6 install.  Opt-in with
+# LIB_RW=librw:...,resample,uvanim and an RW_DLL built from a librw-mfl tree that has rwuvanim.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_uvanim_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine, matrix callees as loggers,
+# x87 CW 0x7f and 0x27f): all 4 EQUAL; negative fixture (two input words swapped) DIFF on all 4.
+# Callers: game material UV update 0x484878 (an_hk_1072.c, RpMaterialUVAnimApplyUpdate), UVAnimRead 0x561fc8 (_rpUVAnimCreateConsistantMatrices), RtAnim interpolator
+# info blocks 0x63a3d4 / 0x63a404 (the interpolate callbacks).
+_rpUVAnimCreateConsistantMatrices=rw37__rpUVAnimCreateConsistantMatrices
+RpMaterialUVAnimApplyUpdate=rw37_RpMaterialUVAnimApplyUpdate
+RpUVAnimParamKeyFrameInterpolate=rw37_RpUVAnimParamKeyFrameInterpolate
+RpUVAnimLinearKeyFrameInterpolate=rw37_RpUVAnimLinearKeyFrameInterpolate

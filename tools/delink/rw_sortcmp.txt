@@ -1,0 +1,9 @@
+# Group "sortcmp" (rw6): the two qsort comparators the rw5 groups left in the exe (a word in another body points at them, so mkobj cancelled the gap
+# extension of TriStripMeshGenerate / FuzzyExtentScore over them).  fnsizes rows (rw6 install) make them functions of their own; the DLL exports its
+# copies (librw-mfl capi/rwtristrip.cpp cmpTris, capi/rwcolltree.cpp cmpValue).  Opt-in with LIB_RW=librw:...,resample,sortcmp and an RW_DLL that has them.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_sortcmp_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine, x87 CW 0x7f and 0x27f):
+# both EQUAL; negative fixture (arguments swapped) DIFF on both.
+# Callers: qsort through TriStripMeshGenerate 0x5021e0 / BuildTreeGenerate 0x54e4c0 (both in the DLL since rw5) and the exe's push words.
+TriStripSortCompare=rw37_TriStripSortCompare
+CollTreeValueCompare=rw37_CollTreeValueCompare

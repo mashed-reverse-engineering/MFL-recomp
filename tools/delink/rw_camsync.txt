@@ -1,0 +1,7 @@
+# Group "camsync" (rw6, output/rw_next_family_2026-11-05.md row 10): the camera frame sync callback 0x4d1f70 (perspective view matrix, clip planes,
+# frustum bbox; RwCameraCreate stores it at camera +0x10) from librw-mfl/capi/rwcamsync.cpp, written op for op from the disassembly; exe-layout adapter
+# mflrw_camsync_bind (the five exe functions it calls).  Unsplit in Ghidra: fnsizes row CameraSync from the rw6 install.  Opt-in with
+# LIB_RW=librw:...,resample,camsync and an RW_DLL built from a librw-mfl tree that has rwcamsync.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_camsync_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine, callees as loggers,
+# x87 CW 0x7f and 0x27f): EQUAL; negative fixture (two input words swapped) DIFF.
+CameraSync=rw37_CameraSync

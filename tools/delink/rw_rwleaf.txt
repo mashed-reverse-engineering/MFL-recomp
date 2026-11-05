@@ -1,0 +1,12 @@
+# Group "rwleaf" (rw6): stateless RenderWare leafs from librw-mfl/capi/rwleaf.cpp, written op for op from the disassembly (x87 as in rwcolltree.cpp);
+# exe-layout adapter mflrw_rwleaf_bind (the exe's CRT qsort for the triangle list sort; its comparator 0x4fa790 sits in FUN_004fa760's extent and goes with it).
+# Opt-in with LIB_RW=librw:...,resample,rwleaf and an RW_DLL built from a librw-mfl tree that has rwleaf.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_rwleaf_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine, x87 CW 0x7f and 0x27f):
+# all 5 EQUAL; negative fixture (two input words swapped) DIFF on all 5.
+# Callers: _rx_rxRadixExchangeSort <- 0x4f3072 (pipeline unlock; runs in every scenario); the other four never ran in a T-A2 scenario
+# (output/fn_scenarios_standalone.csv), their oracle is the harness only.
+_rx_rxRadixExchangeSort=rw37__rx_rxRadixExchangeSort
+_rwD3D9MeshGetNumVerticesMinIndex=rw37__rwD3D9MeshGetNumVerticesMinIndex
+FUN_004fa760=rw37_D3D9SortTriList
+_rwD3D9ConvertToTriList=rw37__rwD3D9ConvertToTriList
+D3D9MatrixInvertOrthoNormalized=rw37_D3D9MatrixInvertOrthoNormalized

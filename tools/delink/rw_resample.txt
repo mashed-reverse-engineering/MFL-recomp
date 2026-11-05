@@ -1,0 +1,9 @@
+# Group "resample" (rw5, output/rw_next_family_2026-11-05.md row 6, the resampler): RwImageResample / ImageResampleGetSpan from librw-mfl/capi/rwresample.cpp,
+# written op for op from the disassembly (x87 as in hanimcam.cpp; no exe state, no bind).  Opt-in with
+# LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image,resample and an RW_DLL built from a librw-mfl tree
+# that has rwresample.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_resample_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine, x87 CW 0x7f and 0x27f;
+# destination pixels / span output, return value and CW compared): both EQUAL; negative fixture (two source pixels swapped) DIFF on both.
+# Callers: RwImageCreateResample 0x4eb400, the raster-from-image path at 0x4d6bab, the MatFX texture mask path at 0x54ef33 (image size fitting).
+RwImageResample=rw37_RwImageResample
+ImageResampleGetSpan=rw37_ImageResampleGetSpan

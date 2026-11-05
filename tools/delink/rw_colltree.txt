@@ -1,0 +1,16 @@
+# Group "colltree" (rw5, output/rw_next_family_2026-11-05.md row 8): the RpCollision tree builder from librw-mfl/capi/rwcolltree.cpp, written op for op from the
+# disassembly (x87 as in hanimcam.cpp, the exe's heap through the engine's malloc / free, the exe's qsort); exe-layout adapter mflrw_colltree_bind.  Opt-in with
+# LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree and an RW_DLL built from a librw-mfl tree that has
+# rwcolltree.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_colltree_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine on a harness heap, x87 CW 0x7f and
+# 0x27f; the used heap, the call log, the return value incl. the 80-bit st0 of the two score functions and the CW compared): all 13 EQUAL; negative fixture
+# (two input words swapped) DIFF on all 13.  Only the six below are swapped: the other seven (_rpCollTreeCreate, BuildTreeDestroy, FuzzyExtentScore,
+# SortPolygons, BuildPolySectorCreate, BuildPlaneSectorCreate, BuildTreeCountLeafNodes) are recomp/tier1 C already (byte identical, no original bytes left; a
+# swap row would define them twice, LNK4006); the DLL calls its own copies.  The unnamed qsort comparator 0x54ecf0 is part of the DLL.
+# Callers: RpCollisionGeometryBuildData 0x54da20 (geometry collision data when a clump has none).
+BuildTriListCollTree=rw37_BuildTriListCollTree
+_rpCollTreeBuild=rw37__rpCollTreeBuild
+BuildTreeGenerate=rw37_BuildTreeGenerate
+GetClipStats=rw37_GetClipStats
+DivisionScore=rw37_DivisionScore
+BuildDataDestroy=rw37_BuildDataDestroy

@@ -1,0 +1,37 @@
+mfl_video_ffmpeg.dll - third-party source and licence record
+===========================================================
+
+Upstream
+  FFmpeg 7.1  (release tarball, not a git snapshot)
+  URL     https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz
+  sha256  40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6   (checked by build_ffmpeg.sh before every build)
+  (upstream detached signature: https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz.asc)
+  The tarball is downloaded into tools/video/work/upstream/ at build time. Neither the upstream sources nor any binary are stored in this repo.
+
+configure flags (build_ffmpeg.sh; both targets identical except the cross flags)
+  --disable-everything --disable-programs --disable-doc --disable-network --disable-autodetect --disable-asm
+  --disable-debug --disable-avdevice --disable-avfilter --disable-swresample --disable-postproc
+  --disable-pthreads --disable-w32threads --disable-os2threads
+  --enable-static --disable-shared
+  --enable-protocol=file --enable-demuxer=mpegps,mpegvideo --enable-parser=mpegvideo,mpegaudio
+  --enable-decoder=mpeg1video,mp2 --enable-swscale
+  win32 target adds: --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-
+  native target adds: --enable-pic (offline test harness only, not shipped)
+  NOT given: --enable-gpl, --enable-version3, --enable-nonfree, any external library (--enable-libx264 etc.).
+  configure prints "License: LGPL version 2.1 or later"; build_ffmpeg.sh refuses to continue if it does not.
+
+Our code in this directory
+  src/mfl_video_ffmpeg.c   backend glue (calls FFmpeg through its public API), src/harness.c test harness: project code, built into the DLL / harness only.
+
+LGPL notes (FFmpeg is LGPL 2.1 or later in this configuration)
+  * Built LGPL-only: no GPL component is enabled, so the combined DLL is LGPL, not GPL.
+  * Delivered as a SEPARATE DLL (mfl_video_ffmpeg.dll) that the game exe loads at run time with LoadLibrary
+    (see recomp/video/mfl_video_null.c). The exe itself contains no FFmpeg code and is not linked against it.
+    The DLL is optional: without it the exe uses the blank video backend.
+  * FFmpeg is statically linked INSIDE the DLL (--disable-shared, one file to ship). The DLL is user-replaceable: anyone can rebuild it from the
+    scripts here and the upstream tarball above and drop it next to the exe. That is the relinking opportunity LGPL 6 asks for.
+  * If a binary DLL is distributed publicly, ship with it: this SOURCES file, build_ffmpeg.sh, build_dll.sh, src/, the unmodified upstream
+    tarball (or a written offer for it), and the LGPL 2.1 text; mention "This software uses code of FFmpeg licensed under the LGPLv2.1".
+  * FFmpeg is used unmodified (no patches applied to the tarball).
+  * Patent/codec note (not a licence matter): only MPEG-1 video and MPEG-1 Layer II audio decoders are compiled in.
+  * No binary (DLL, harness, import lib, static libs) is ever committed to this repo; tools/video/work/ is a build directory and must stay untracked.

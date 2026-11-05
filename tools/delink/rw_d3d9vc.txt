@@ -1,0 +1,8 @@
+# Group "d3d9vc" (rw7): the compressed-normal instancing converter rpD3D9VertexDeclarationInstV3dComp 0x506ad0 (4 signed bytes per vertex -> D3DDECLTYPE 0..14),
+# in librw-mfl/capi/d3d9vd.cpp next to the d3d9vd converters (layout-neutral kernel, no exe state, no adapter).  Needs the fnsizes row 0x506ad0 (rw7 install step 5:
+# Ghidra did not split it off from _rpD3D9VertexDeclarationInstV3d, whose kept tail it was).
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3d9vc_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f / 0x27f; output with the bytes
+# around it, the input, the return value and the control word compared word for word): EQUAL; negative fixture (bytes x <-> y swapped) DIFF.
+# Caller: the world-sector instance callback 0x5005b0 (call at 0x50085e, normals of a sector with rpWORLDNORMALS).
+rpD3D9VertexDeclarationInstV3dComp=rw37__rpD3D9VertexDeclarationInstV3dComp

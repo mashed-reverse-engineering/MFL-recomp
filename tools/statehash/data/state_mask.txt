@@ -1,0 +1,133 @@
+# state_mask.txt (N1): control words that differ between two runs of the SAME exe (MFL.exe + freeze harness, run.sh STATEHASH=1, course 0 DRIVE=31,
+# vclock + vsnap=2 + srand + state_pins.txt).  Format: <orig va> <nwords> <symbol> | <evidence>.  statecmp.py refuses rows on car / physics /
+# world-transform / camera state (DENY_RANGES, DENY_NAME).  Evidence files: p6/cc_<tag>.txt (statecmp output of the pair p6/runs/<tag>_1, _2).
+# --- live words, by hand
+00771d80 65 g_data_771d80 | path buffer (MAX_PATH): ...\App_Executables\MFL.exe of the run copy; the run directory name differs per run (poke_vs_ctrl: 9 words at frame 0, cc_sp4 'slot' digits)
+0076e818 1 g_app_state_76e818 | frame counter since boot (app_state_menu_render, +1 per frame); cc_sp4 0x5c0-class values differ by the menu frame count in every frame
+007daa98 1 g_data_7daa98 | RenderWare frame counter (+1 per Present, not referenced by app C); cc_sp4 0x695 vs 0x583 = menu frame count
+007d51f8 5 g_rw_7d51f8 | RenderWare D3D9 dynamic vertex buffer ring (index / offsets 7d51f8..7d5208, g_d3d9dynamicvertexbuffermanagercreate): position depends on everything drawn since boot; cc_pf1, cc_vs2 differ from frame 0
+007d5238 1 g_rw_7d5238 | RenderWare D3D9 dynamic buffer offset (writes 59 of 232 frames); cc_sp4 differs from frame 0
+007dab7c 2 g_data_7dab7c | RenderWare counters (0xc vs 0xb, from frame ~45, 27 frames); cc_sp4, cc_pf1
+00617948 1 g_sound_master_fade | audio: fade driven by the stream state of the RWA audio thread (real time, not the vclock); cc_sp4 from frame 126
+00617954 1 g_sound_617954 | audio state (same source); cc_sp4 from frame 125
+006ae0e4 1 g_sound_6ae0e4 | audio state machine 6 vs 3 (same source); cc_sp4 from frame 125
+0061223c 6 g_sound_frame_611418+0xe24 | audio frame block +0xe24..+0xe38 (same source); cc_sp4 from frame 134
+# --- framerate sample slots (framerate_sample_accumulate over g_app_state_883ea0, stride 0x44, field +0x28): profiling, cc_sp4 all 96 differ every frame
+00883ec8 1 g_app_state_883ea0+0x28 | framerate sample slot 0 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00883f0c 1 g_app_state_883ea0+0x6c | framerate sample slot 1 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00883f50 1 g_app_state_883ea0+0xb0 | framerate sample slot 2 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00883f94 1 g_app_state_883ea0+0xf4 | framerate sample slot 3 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00883fd8 1 g_app_state_883ea0+0x138 | framerate sample slot 4 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088401c 1 g_app_state_883ea0+0x17c | framerate sample slot 5 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884060 1 g_app_state_883ea0+0x1c0 | framerate sample slot 6 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008840a4 1 g_app_state_883ea0+0x204 | framerate sample slot 7 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008840e8 1 g_app_state_883ea0+0x248 | framerate sample slot 8 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088412c 1 g_app_state_883ea0+0x28c | framerate sample slot 9 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884170 1 g_app_state_883ea0+0x2d0 | framerate sample slot 10 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008841b4 1 g_app_state_883ea0+0x314 | framerate sample slot 11 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008841f8 1 g_app_state_883ea0+0x358 | framerate sample slot 12 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088423c 1 g_app_state_883ea0+0x39c | framerate sample slot 13 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884280 1 g_app_state_883ea0+0x3e0 | framerate sample slot 14 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008842c4 1 g_app_state_883ea0+0x424 | framerate sample slot 15 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884308 1 g_app_state_883ea0+0x468 | framerate sample slot 16 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088434c 1 g_app_state_883ea0+0x4ac | framerate sample slot 17 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884390 1 g_app_state_883ea0+0x4f0 | framerate sample slot 18 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008843d4 1 g_app_state_883ea0+0x534 | framerate sample slot 19 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884418 1 g_app_state_883ea0+0x578 | framerate sample slot 20 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088445c 1 g_app_state_883ea0+0x5bc | framerate sample slot 21 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008844a0 1 g_app_state_883ea0+0x600 | framerate sample slot 22 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008844e4 1 g_app_state_883ea0+0x644 | framerate sample slot 23 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884528 1 g_app_state_883ea0+0x688 | framerate sample slot 24 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088456c 1 g_app_state_883ea0+0x6cc | framerate sample slot 25 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008845b0 1 g_app_state_883ea0+0x710 | framerate sample slot 26 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008845f4 1 g_app_state_883ea0+0x754 | framerate sample slot 27 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884638 1 g_app_state_883ea0+0x798 | framerate sample slot 28 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088467c 1 g_app_state_883ea0+0x7dc | framerate sample slot 29 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008846c0 1 g_app_state_883ea0+0x820 | framerate sample slot 30 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884704 1 g_app_state_883ea0+0x864 | framerate sample slot 31 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884748 1 g_app_state_883ea0+0x8a8 | framerate sample slot 32 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088478c 1 g_app_state_883ea0+0x8ec | framerate sample slot 33 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008847d0 1 g_app_state_883ea0+0x930 | framerate sample slot 34 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884814 1 g_app_state_883ea0+0x974 | framerate sample slot 35 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884858 1 g_app_state_883ea0+0x9b8 | framerate sample slot 36 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088489c 1 g_app_state_883ea0+0x9fc | framerate sample slot 37 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008848e0 1 g_app_state_883ea0+0xa40 | framerate sample slot 38 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884924 1 g_app_state_883ea0+0xa84 | framerate sample slot 39 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884968 1 g_app_state_883ea0+0xac8 | framerate sample slot 40 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008849ac 1 g_app_state_883ea0+0xb0c | framerate sample slot 41 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008849f0 1 g_app_state_883ea0+0xb50 | framerate sample slot 42 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884a34 1 g_app_state_883ea0+0xb94 | framerate sample slot 43 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884a78 1 g_app_state_883ea0+0xbd8 | framerate sample slot 44 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884abc 1 g_app_state_883ea0+0xc1c | framerate sample slot 45 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884b00 1 g_app_state_883ea0+0xc60 | framerate sample slot 46 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884b44 1 g_app_state_883ea0+0xca4 | framerate sample slot 47 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884b88 1 g_app_state_883ea0+0xce8 | framerate sample slot 48 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884bcc 1 g_app_state_883ea0+0xd2c | framerate sample slot 49 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884c10 1 g_app_state_883ea0+0xd70 | framerate sample slot 50 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884c54 1 g_app_state_883ea0+0xdb4 | framerate sample slot 51 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884c98 1 g_app_state_883ea0+0xdf8 | framerate sample slot 52 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884cdc 1 g_app_state_883ea0+0xe3c | framerate sample slot 53 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884d20 1 g_app_state_883ea0+0xe80 | framerate sample slot 54 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884d64 1 g_app_state_883ea0+0xec4 | framerate sample slot 55 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884da8 1 g_app_state_883ea0+0xf08 | framerate sample slot 56 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884dec 1 g_app_state_883ea0+0xf4c | framerate sample slot 57 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884e30 1 g_app_state_883ea0+0xf90 | framerate sample slot 58 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884e74 1 g_app_state_883ea0+0xfd4 | framerate sample slot 59 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884eb8 1 g_app_state_883ea0+0x1018 | framerate sample slot 60 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884efc 1 g_app_state_883ea0+0x105c | framerate sample slot 61 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884f40 1 g_app_state_883ea0+0x10a0 | framerate sample slot 62 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884f84 1 g_app_state_883ea0+0x10e4 | framerate sample slot 63 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00884fc8 1 g_app_state_883ea0+0x1128 | framerate sample slot 64 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088500c 1 g_app_state_883ea0+0x116c | framerate sample slot 65 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885050 1 g_app_state_883ea0+0x11b0 | framerate sample slot 66 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885094 1 g_app_state_883ea0+0x11f4 | framerate sample slot 67 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008850d8 1 g_app_state_883ea0+0x1238 | framerate sample slot 68 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088511c 1 g_app_state_883ea0+0x127c | framerate sample slot 69 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885160 1 g_app_state_883ea0+0x12c0 | framerate sample slot 70 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008851a4 1 g_app_state_883ea0+0x1304 | framerate sample slot 71 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008851e8 1 g_app_state_883ea0+0x1348 | framerate sample slot 72 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088522c 1 g_app_state_883ea0+0x138c | framerate sample slot 73 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885270 1 g_app_state_883ea0+0x13d0 | framerate sample slot 74 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008852b4 1 g_app_state_883ea0+0x1414 | framerate sample slot 75 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008852f8 1 g_app_state_883ea0+0x1458 | framerate sample slot 76 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088533c 1 g_app_state_883ea0+0x149c | framerate sample slot 77 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885380 1 g_app_state_883ea0+0x14e0 | framerate sample slot 78 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008853c4 1 g_app_state_883ea0+0x1524 | framerate sample slot 79 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885408 1 g_app_state_883ea0+0x1568 | framerate sample slot 80 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088544c 1 g_app_state_883ea0+0x15ac | framerate sample slot 81 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885490 1 g_app_state_883ea0+0x15f0 | framerate sample slot 82 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008854d4 1 g_app_state_883ea0+0x1634 | framerate sample slot 83 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885518 1 g_app_state_883ea0+0x1678 | framerate sample slot 84 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088555c 1 g_app_state_883ea0+0x16bc | framerate sample slot 85 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008855a0 1 g_app_state_883ea0+0x1700 | framerate sample slot 86 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008855e4 1 g_app_state_883ea0+0x1744 | framerate sample slot 87 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885628 1 g_app_state_883ea0+0x1788 | framerate sample slot 88 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088566c 1 g_app_state_883ea0+0x17cc | framerate sample slot 89 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008856b0 1 g_app_state_883ea0+0x1810 | framerate sample slot 90 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008856f4 1 g_app_state_883ea0+0x1854 | framerate sample slot 91 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885738 1 g_app_state_883ea0+0x1898 | framerate sample slot 92 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+0088577c 1 g_app_state_883ea0+0x18dc | framerate sample slot 93 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+008857c0 1 g_app_state_883ea0+0x1920 | framerate sample slot 94 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+00885804 1 g_app_state_883ea0+0x1964 | framerate sample slot 95 field +0x28 (profiling counter, menu-frame dependent); cc_sp4, cc_sp3
+# --- stale menu residue (statecmp.py --mkstale over the pairs: sp5 sp4 sp3 sp2 srand1 pall2 pall vs2 pf1 pin3 snap0), first evidence row per word
+0064d884 1 g_cup_scene_64d884 | stale menu residue: 43090000 vs 43020000 at frame 0, written in no frame of either control run (cc_sp4)
+0064d8a8 1 g_attract_timer_64d8a8 | stale menu residue: 3f266660 vs 3e6eeeee at frame 0, written in no frame of either control run (cc_sp4)
+0064d8bc 1 g_hud_flash_64d8bc | stale menu residue: 407ffff9 vs 3fc00002 at frame 0, written in no frame of either control run (cc_sp4)
+0069ba28 1 g_build_info_69ba28 | stale menu residue: 00000089 vs 00000082 at frame 0, written in no frame of either control run (cc_sp4)
+0069ca20 1 g_menu_layout_69ca20 | stale menu residue: 00000002 vs 00000004 at frame 0, written in no frame of either control run (cc_sp4)
+0069cc30 1 g_menu_layout_69cc30 | stale menu residue: 00000002 vs 00000004 at frame 0, written in no frame of either control run (cc_srand1)
+0069cc3c 1 g_menu_draw_69cc3c | stale menu residue: 408ddde2 vs 40819993 at frame 0, written in no frame of either control run (cc_sp4)
+0069d1dc 1 g_menu_draw_69d1dc | stale menu residue: 403eeee4 vs 4035554b at frame 0, written in no frame of either control run (cc_sp4)
+0069d28c 1 g_menu_draw_69d28c | stale menu residue: 406eeee1 vs 4058887c at frame 0, written in no frame of either control run (cc_sp4)
+0069d660 1 g_menu_layout_69d660 | stale menu residue: 00000005 vs 00000003 at frame 0, written in no frame of either control run (cc_snap0)
+0069d664 1 g_hud_69d664 | stale menu residue: 00000003 vs 00000001 at frame 0, written in no frame of either control run (cc_sp5)
+006f6118 1 g_course_6f60c8+0x50 | stale menu residue: 3f0e6274 vs 3f0e5a97 at frame 0, written in no frame of either control run (cc_sp4)
+006f611c 1 g_course_6f60c8+0x54 | stale menu residue: 3f54c397 vs 3f54cc20 at frame 0, written in no frame of either control run (cc_sp5)
+006f6124 1 g_course_6f60c8+0x5c | stale menu residue: c0d84c3a vs c0d84ab9 at frame 0, written in no frame of either control run (cc_sp5)
+006f6128 1 g_course_6f60c8+0x60 | stale menu residue: bdfbf0d8 vs bdfc1f00 at frame 0, written in no frame of either control run (cc_sp5)
+006f6130 1 g_course_6f60c8+0x68 | stale menu residue: 3f3bd73b vs 3f3bd767 at frame 0, written in no frame of either control run (cc_sp5)
+006f6134 1 g_course_6f60c8+0x6c | stale menu residue: 409eae70 vs 409eb16c at frame 0, written in no frame of either control run (cc_sp5)
+00771db4 1 g_data_771d80+0x34 | stale menu residue: 315f3470 vs 325f3470 at frame 0, written in no frame of either control run (cc_sp4)
+00771db8 1 g_data_771d80+0x38 | stale menu residue: 5c315f31 vs 5c325f31 at frame 0, written in no frame of either control run (cc_srand1)
+007e7730 1 g_window_destroy_7e7728+0x8 | stale menu residue: 5d5dd515 vs 5d5e28ed at frame 0, written in no frame of either control run (cc_sp5)
+008c86c0 1 g_menu_layout_8c86c0 | stale menu residue: 000012f0 vs 00001210 at frame 0, written in no frame of either control run (cc_sp4)

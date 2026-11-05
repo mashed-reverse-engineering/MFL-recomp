@@ -1,0 +1,16 @@
+# Group "d3d9vd" (plan_next_18h_2026-11-05_v2 item 10): the D3D9 vertex-declaration instancing converters from librw-mfl/capi/d3d9vd.cpp, written from the disassembly
+# (layout-neutral kernels, no exe state, no adapter); opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd and an RW_DLL built from a librw-mfl tree that has d3d9vd.cpp.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3d9vd_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f; the output with the bytes around
+# it, the inputs, the return value and the control word compared word for word): all eight EQUAL; negative fixture (InstV3d / InstV2d read x <-> y swapped) DIFF.
+# Callers (direct calls, no function-pointer table): the D3D9 atomic / world-sector instance callbacks 0x4fffcf..0x5002be, the skin instance 0x540d2d..0x541120,
+# the morph / uninstance paths 0x552c43..0x553771.  Not in the group: FUN_00508600 (tangents: engine allocator, D3D9 index buffer lock, RwV3dLength / _rwInvSqrt;
+# 0 executions) and rpD3D9VertexDeclarationInstV3dComp 0x506ad0 (no caller, no symbol).
+_rpD3D9VertexDeclarationInstV3d=rw37__rpD3D9VertexDeclarationInstV3d
+_rpD3D9VertexDeclarationInstV2d=rw37__rpD3D9VertexDeclarationInstV2d
+_rpD3D9VertexDeclarationInstV3dMorph=rw37__rpD3D9VertexDeclarationInstV3dMorph
+_rpD3D9VertexDeclarationInstWeights=rw37__rpD3D9VertexDeclarationInstWeights
+_rpD3D9VertexDeclarationInstColor=rw37__rpD3D9VertexDeclarationInstColor
+_rpD3D9VertexDeclarationInstIndicesRemap=rw37__rpD3D9VertexDeclarationInstIndicesRemap
+_rpD3D9VertexDeclarationUnInstV3d=rw37__rpD3D9VertexDeclarationUnInstV3d
+_rpD3D9VertexDeclarationUnInstV2d=rw37__rpD3D9VertexDeclarationUnInstV2d

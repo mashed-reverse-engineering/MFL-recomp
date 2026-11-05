@@ -20,6 +20,9 @@ python3 $T/portcheck.py --quiet 2>&1 | tail -2 | sed 's/^/WARNING /'; [ ${PIPEST
 # negative fixtures (plan_testing item 2, ~5 s): every defectlint class, stack_lint, the harness drift lint and the whole-program oracles (.data length, drawcmp, scenario verdict) must still FAIL on their stored bad inputs (tools/negtests, tools/d3dtrace/ref/neg_*)
 $T/delink/negtest.sh > $W/negtest.txt 2>&1 || { grep -E "FAIL" $W/negtest.txt | head -8; echo "negtest: an oracle no longer fires on its negative fixture ($W/negtest.txt)"; exit 1; }
 echo "negtest: $(grep -c '^negtest ok' $W/negtest.txt) negative / positive fixtures behave"
+# sse_align (2026-11-05): no aligned SSE memory operand (movaps / mulps / addps xmmword ptr [esp+x] ...) in a pinned-DLL function that does not realign the stack (`and esp,-16`); the exe calls the DLL with a 4 byte aligned stack (sseMany: every sweep row crashed, gate 1105_0841).  Verified exceptions: tools/delink/sse_align_allow.txt
+SAPY=~/.cache/mfl_diffemu_venv/bin/python; [ -x $SAPY ] || { echo "sse_align: diffemu venv $SAPY missing (capstone / pefile)"; exit 1; }
+$SAPY $T/delink/sse_align_check.py || { echo "sse_align: aligned SSE operand in a DLL function without stack realign (force_align_arg_pointer, or tools/delink/sse_align_allow.txt with a reason)"; exit 1; }
 # ---- strict builds (independent of each other; compile jobs inside build_overlay are parallel as well)
 FL=("" "--automatch --bridges" "--automatch --automatch-near --bridges")
 [ -s $T/../src/clusters/enabled.txt ] && FL+=("--automatch --automatch-near --bridges --clusters")      # installed clusters (tools/cluster_install.py): a 4th strict build, only when some are enabled

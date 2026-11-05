@@ -1,0 +1,13 @@
+# Group "hanimcam" (L6, plan_next_18h_2026-11-05_v2 item 11): RpHAnimHierarchyUpdateMatrices and the camera module's frustum builders from librw-mfl/capi/hanimcam.cpp, written op for op from
+# the disassembly; opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,hanimcam and an RW_DLL built from a librw-mfl tree that has hanimcam.cpp.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Needs the exe binding: rw_engine_init (recomp/automatch_near/an_hk_612.c) calls mflrw_hanimcam_bind(&RwEngineInstance, FUN_00542fe0 = RpHAnimKeyFrameApply, RwFrameDirty, RwFrameGetLTM,
+# RwFrameUpdateObjects, RwV3dTransformPoints) when the DLL exports it; without it the first call aborts with "[mflrw] hanimcam called before mflrw_hanimcam_bind".
+# Proof: tools/delink/rw_hanimcam_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f; objects with the bytes around them, the
+# engine's dirty frame list, the frame / transform / apply callback log, the return value and the control word compared word for word): all three EQUAL; negative fixture
+# (near <-> far, first quaternion x <-> y on the DLL side) DIFF on all three.
+# Callers: CameraBuildPerspClipPlanes / CameraBuildParallelClipPlanes (static in bacamera) only from the camera frustum update at 0x4d20c9 / 0x4d20da; RpHAnimHierarchyUpdateMatrices
+# from game code (0x45ca2c, 0x45caf5, 0x45d1f2, 0x45d2a4, 0x45d40c, 0x4c487c, 0x4c48a4; recomp/tier1/anim_update_hierarchy.c and the warzone course callbacks).  Nothing becomes dead.
+CameraBuildPerspClipPlanes=rw37_CameraBuildPerspClipPlanes
+CameraBuildParallelClipPlanes=rw37_CameraBuildParallelClipPlanes
+RpHAnimHierarchyUpdateMatrices=rw37_RpHAnimHierarchyUpdateMatrices

@@ -1,0 +1,7 @@
+# state_pins.txt (N1): words the d3d9 proxy sets when the race phase first becomes 3 (loading starts), in the control AND in ours (va + sh_delta).
+# They hold menu-path residue: their value at the start of loading depends on how many menu frames the real-time key script took, and they
+# feed the race later (so a mask would hide real state).  Pinning starts every run from the same values; the evolution after the pin is checked.
+# Format: <phase>:<orig va>:<value hex> <symbol> | <evidence> (ctrl-vs-ctrl runs in p6/runs, statecmp output cc_*.txt)
+3:7ef7d8:0 g_camera_7ef7d8 | global tick counter (+50 per frame, read by race_get_time_seconds = ticks/3000 - g_race_652de8); cc_snap0: 0xdf3e vs 0xd548 at frame 0 (menu frames), countdown camera off by 1-6000 ulp; pinned (cc_pin3) -> g_race_652de8 and race time equal
+3:76e804:0 g_debug_keys_76e804 | frame counter mod 60 of debug_keys_and_profile; cc_snap0 3 vs 0xc at frame 0, copied into the 95 framerate sample slots
+3:76e820:0 g_debug_keys_76e820 | timer delta accumulator of debug_keys_and_profile (reset every 60 frames); cc_snap0 0x168 vs 0x5a0

@@ -1,0 +1,13 @@
+# Group "image" (rw5, output/rw_next_family_2026-11-05.md row 6 without the resampler): the RwImage pixel leafs from librw-mfl/capi/rwimage.cpp, written op for op
+# from the disassembly (integer only, the exe's heap / image free list, plugin registry and RwImageAllocatePixels through the bind); exe-layout adapter
+# mflrw_image_bind.  Opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image and an RW_DLL built
+# from a librw-mfl tree that has rwimage.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_image_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine on a harness heap; the used heap, the
+# engine block, the call log and the return value compared): all six EQUAL; negative fixture (two input words swapped) DIFF on all six.  Only the four below are
+# swapped: RwImageMakeMask and ImageStraightCopy are recomp/tier1 C already (a swap row would define them twice, LNK4006); the DLL calls its own copies.
+# Callers: texture / raster image paths (RwImageGammaCorrect from the raster setters, RwImageCopy from raster <-> image conversion and the resampler,
+# RwImageApplyMask from RwImageReadMaskedImage and the MatFX mask, ImageConvertDepth only from RwImageApplyMask).
+RwImageApplyMask=rw37_RwImageApplyMask
+ImageConvertDepth=rw37_ImageConvertDepth
+RwImageCopy=rw37_RwImageCopy
+RwImageGammaCorrect=rw37_RwImageGammaCorrect

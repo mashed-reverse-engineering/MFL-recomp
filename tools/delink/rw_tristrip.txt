@@ -1,0 +1,17 @@
+# Group "tristrip" (rw5, output/rw_next_family_2026-11-05.md row 7): the RpBuildMesh tri-strip / tri-list mesh builders from librw-mfl/capi/tristrip.cpp, written op
+# for op from the disassembly (integer only, the exe's heap through the engine's memory / free-list functions, the exe's qsort); exe-layout adapter
+# mflrw_tristrip_bind.  Opt-in with LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip and an RW_DLL built from a
+# librw-mfl tree that has tristrip.cpp.  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_tristrip_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine on a harness heap; the whole used
+# heap, the engine block, the call log of every malloc / free / free-list call and the return value compared): all eight EQUAL; negative fixture (two input
+# words swapped) DIFF on all eight.  The six internals are only called by the two entry points; listing them lets mkobj fill their bodies too.  The two unnamed
+# statics (sort comparator 0x502650, tri-list reorder callback 0x503af0) are part of the DLL; 0x503af0 lies in _rpTriListMeshGenerate's extent and goes with it.
+# Callers: RpBuildMeshGenerateDefaultTriStrip 0x5021c0 (geometry instancing on every load), _rpMeshOptimise 0x503d30 (tri-list).
+TriStripMeshGenerate=rw37_TriStripMeshGenerate
+TriStripStripTris=rw37_TriStripStripTris
+TriStripBinEntryArrayCreate=rw37_TriStripBinEntryArrayCreate
+TriStripAddEdge=rw37_TriStripAddEdge
+TriStripMarkTriUsed=rw37_TriStripMarkTriUsed
+TriStripFollow=rw37_TriStripFollow
+TriStripJoin=rw37_TriStripJoin
+_rpTriListMeshGenerate=rw37__rpTriListMeshGenerate

@@ -7,4 +7,4 @@ python3 $T/rw_g0_check.py gen $O/vec.bin $N | tail -40
 i686-w64-mingw32-gcc -O1 -mfpmath=387 -w -o $O/g0_replay.exe $T/rw_g0_replay.c
 cp $DLL $O/mflrw.dll
 docker run --rm -e XDG_RUNTIME_DIR=/tmp/xdg -e WINEDEBUG=-all -v $O:/t tianon/wine:latest wine /t/g0_replay.exe Z:\\t\\mflrw.dll Z:\\t\\vec.bin 2>&1 | grep -v -E "^error: XDG|fixme" | tee $O/replay.log
-! grep -q -E "DIFF|MISSING" $O/replay.log
+if grep -q -E "DIFF|MISSING" $O/replay.log; then exit 1; fi      # (not `! grep`: set -e ignores a negated command)

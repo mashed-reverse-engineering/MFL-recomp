@@ -1,0 +1,4 @@
+# sse_align_check.py allow list: "<export name or sub_<rva hex>> <reason>" for a function whose aligned SSE memory operand is verified safe
+# although the function has no `and esp,-16` (e.g. only ever called from a realigned function, or the operand is a 16 aligned global).  A reason is mandatory.
+# sub_<rva> names are tied to the pinned DLL build (output/librw/mflrw.dll); re-verify after every re-pin.  Empty on purpose:
+# D3DXMatrixMultiply / D3DXMatrixMultiplyTranspose and the rwmath helpers (sseMany / sseSingle) realign themselves.

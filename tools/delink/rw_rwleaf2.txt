@@ -1,0 +1,12 @@
+# Group "rwleaf2" (rw7): RenderWare leafs from librw-mfl/capi/rwleaf2.cpp, written op for op from the disassembly: Rt2dBrushSetRGBA, BMPImageSetSpan,
+# PVSCalculateSectorBounds, RpLightGetConeAngle and FUN_00542fe0 (the RpHAnim keyframe -> matrix callback; hanimcam's bind passes its address, which stays the
+# entry stub into the DLL).  Needs the exe binding: rw_engine_init (recomp/automatch_near/an_hk_612.c) calls mflrw_rwleaf2_bind(RwErrorSet, _rwSqrt, RwV3dLength,
+# &g_pvscalculatesectorbounds_947ae8).
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_rwleaf2_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f / 0x27f; arena, return
+# value incl. the 80-bit st0 of RpLightGetConeAngle, the error log and the control word compared): all five EQUAL; negative fixture (a changed input) DIFF.
+Rt2dBrushSetRGBA=rw37_Rt2dBrushSetRGBA
+BMPImageSetSpan=rw37_BMPImageSetSpan
+PVSCalculateSectorBounds=rw37_PVSCalculateSectorBounds
+RpLightGetConeAngle=rw37_RpLightGetConeAngle
+FUN_00542fe0=rw37_HAnimKeyFrameToMatrix

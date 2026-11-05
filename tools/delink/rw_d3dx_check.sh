@@ -5,4 +5,4 @@ T=$(dirname "$(readlink -f "$0")"); DLL=$(readlink -f "$1"); N=${2:-100000}; O=$
 i686-w64-mingw32-gcc -O1 -msse2 -w -o $O/d3dx_check.exe $T/rw_d3dx_check.c
 cp $DLL $O/mflrw.dll; cp $T/../../game/MFL.exe $O/MFL.exe
 docker run --rm -e XDG_RUNTIME_DIR=/tmp/xdg -e WINEDEBUG=-all -v $O:/t tianon/wine:latest wine /t/d3dx_check.exe Z:\\t\\mflrw.dll Z:\\t\\MFL.exe $N 2>&1 | grep -v -E "^error: XDG|fixme" | tee $O/replay.log
-! grep -q -E "DIFF|MISSING" $O/replay.log
+if grep -q -E "DIFF|MISSING" $O/replay.log; then exit 1; fi      # (not `! grep`: set -e ignores a negated command)

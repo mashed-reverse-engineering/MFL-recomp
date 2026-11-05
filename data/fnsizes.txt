@@ -3333,7 +3333,7 @@
 004c205e ___shr_12 45
 004c208b __mtold12 228
 004c216f __strgtold12 1034
-004c25a9 $I10_OUTPUT 660
+004c25a9 crt_i10_output 660
 004c283d siglookup 46
 004c286b _raise 356
 004c29a6 $L19674 13
@@ -3850,6 +3850,7 @@
 004d1e50 FUN_004d1e50 39
 004d1e80 FUN_004d1e80 54
 004d1ec0 RwCameraCreate 171
+004d1f70 CameraSync 401
 004d2110 CameraBuildPerspClipPlanes 1682
 004d27b0 CameraBuildParallelClipPlanes 1040
 004d2bc0 CameraBuildParallelViewMatrix 334
@@ -4523,6 +4524,7 @@
 00502130 _rpWorldSectorNativeSize 138
 005021c0 RpBuildMeshGenerateDefaultTriStrip 18
 005021e0 TriStripMeshGenerate 1134
+00502650 TriStripSortCompare 334
 005027a0 TriStripStripTris 2302
 005030a0 TriStripBinEntryArrayCreate 273
 005031c0 TriStripAddEdge 151
@@ -4562,6 +4564,7 @@
 00505c30 FUN_00505c30 12
 00505c40 _rpD3D9VertexDeclarationInstWeights 1908
 005063f0 _rpD3D9VertexDeclarationInstV3d 1700
+00506ad0 rpD3D9VertexDeclarationInstV3dComp 2480
 00507480 _rpD3D9VertexDeclarationInstV3dMorph 2370
 00507e00 _rpD3D9VertexDeclarationInstV2d 1467
 00508400 _rpD3D9VertexDeclarationInstColor 85
@@ -5152,6 +5155,7 @@
 0054ea50 GetClipStats 391
 0054ebf0 DivisionScore 182
 0054ecb0 FuzzyExtentScore 51
+0054ecf0 CollTreeValueCompare 27
 0054ed10 SortPolygons 63
 0054ed50 BuildPolySectorCreate 48
 0054ed80 BuildPlaneSectorCreate 44
@@ -5213,6 +5217,8 @@
 00556950 RpSplineDestroy 87
 005569b0 RpSplineCreate 427
 00556b60 RpSplinePluginAttach 35
+00556b90 SplineClose 91
+00556bf0 SplineOpen 715
 00556ec0 FUN_00556ec0 633
 00557140 RtQuatConvertFromMatrix 214
 00557220 QuatFromXDiagDomMatrix 93
@@ -5308,9 +5314,11 @@
 005625a0 FUN_005625a0 8
 005625b0 RpMaterialUVAnimAddAnimTime 55
 005625f0 RpMaterialUVAnimExists 39
+005626c0 RpUVAnimParamKeyFrameInterpolate 158
 00562800 RpUVAnimParamKeyFrameDataInitFromMatrix 174
 005628b0 RpUVAnimKeyFrameInit 92
 00562a70 RpUVAnimKeyFrameStreamGetSize 32
+00562ae0 RpUVAnimLinearKeyFrameInterpolate 114
 00562cf0 RpUVAnimLinearKeyFrameDataInitFromMatrix 43
 00562d20 Rt2dCTMSetIdentity 238
 00562e10 Rt2dCTMRotate 79
@@ -5468,6 +5476,7 @@
 0056d790 rwp_box_0056d790 191
 0056d850 rwp_box_0056d850 106
 0056d8c0 rwp_box_support_extent 65
+0056d910 rwp_box_sweep_sphere 2354
 0056e250 FUN_0056e250 43
 0056e280 FUN_0056e280 184
 0056e340 FUN_0056e340 99
@@ -6840,6 +6849,7 @@
 005d1070 FUN_005d1070 136
 005d11d0 FUN_005d11d0 102
 005d1240 FUN_005d1240 81
+005d12a0 dsample_not_implemented 8
 005d12b0 FUN_005d12b0 293
 005d14b0 FUN_005d14b0 166
 005d1560 FUN_005d1560 81
@@ -6871,6 +6881,9 @@
 005d2890 FUN_005d2890 83
 005d28f0 FUN_005d28f0 24
 005d2910 FUN_005d2910 95
+005d2990 dsample_get_size 10
+005d2ad0 dsample_get_actual_length 10
+005d2ae0 dsample_set_actual_length 29
 005d2b40 FUN_005d2b40 86
 005d2ba0 FUN_005d2ba0 17
 005d2bc0 gap_5d2bc0 63
