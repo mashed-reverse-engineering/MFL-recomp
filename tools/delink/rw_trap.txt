@@ -303,3 +303,45 @@
 005c4e50 232 FUN_005c4e50 PCM converter helper, callers 005c4f40 005c4fd0 005c51e0 005c5be0 only (TRAP3)
 005c4f40 140 FUN_005c4f40 PCM converter helper, callers 005c4fd0 005c51e0 005c5620 only (TRAP3)
 005c4650 42 FUN_005c4650 PCM converter helper, only caller 005c5620 (TRAP3)
+# RT1 2026-11-06 (L1 class W + L, 13 rows, 6,176 B): RenderWare code no coverage run executed (0 HIT in 158 gdbcov runs + T-A2), unreached from every live root of link 1105_1959_full (class W without any edge cut; class L once the asset-format branch named in output/rw_asset_formats_2026-11-06.md is cut), no installed-C reference (trapcheck 0); proofs per row: output/rw_trap_round_2026-11-06.csv; a hit is named by tools/delink/traphit.py
+004dc820 144 RwStreamWriteReal
+004df250 256 RwTextureStreamWrite
+004ea440 112 _rwStringStreamWrite
+004f2060 208 _rwPluginRegistryWriteDataChunks
+004f8600 256 RpMaterialStreamWrite
+004f9190 64 RpGeometryStreamGetSize
+004f91d0 112 GeometryStreamGetSizeActual
+004f9240 688 RpGeometryStreamWrite
+00503f70 336 _rpMaterialListStreamWrite
+0054df40 640 _rpCollTreeStreamReadPre36001
+00560390 976 rtpitexdImage2TextureReadLegacy
+005665a0 1072 FontReadMetrics2d1
+00567240 1312 FontReadMetrics2d3
+# L4 2026-11-06 (D3DX Float16, 4c): reachable only through dispatch slots 57 / 58 (0x62ec88 + 0xe4 / 0xe8), whose only readers are the public stubs 0x4fb4b7 / 0x4fb553 (`jmp [slot]`): no E8/E9 call and no absolute reference to either stub in MFL.exe, none in recomp/ or librw-mfl. The direct call 0x518379 -> 0x4fb4bd sits in FUN_00518200 (B2 trap row). Slot 58 is written by sse2_D3DXInitFastTable (0x50c715, mov [eax+0xe8], 0x5109a7); slot 57 keeps the default c_ body
+004fb4bd 143 c_D3DXFloat32To16Array
+005108b6 241 SSEFloat16Conversion8_005108b6
+005109a7 210 sse2_D3DXFloat16To32Array
+# RT2 2026-11-06 (L1 round 2, class L + gap pieces, 6 rows, 1,360 B): class L rows: 0 HIT in the 172-run coverage union (incl. output/scenario/rwcov_2026-11-06.csv), unreached from every live root of link 1106_0711_standalone once the asset-format branch is cut (l1/cuts_L2.txt; no asset holds a 0x116 skin / 0x05 camera / 0x1A1 path chunk, output/rw_asset_formats_2026-11-06.md "Round 2"); gap rows: code Ghidra did not split off, whose only references come from bodies that are replaced by C (no original caller left); trapcheck 0; proofs: output/rw_trap_round_2026-11-06.csv (rows class L2 / GAP)
+00540470 208 _rpSkinGeometryNativeRead
+005406d0 352 _rpSkinSplitDataStreamRead
+005647d0 400 Rt2dPathStreamRead
+005d5950 272 RwCameraStreamRead
+004f4600 64 gap_4f4600
+004f4690 64 gap_4f4690
+# RT2-optional 2026-11-06 (main decides; 10 rows, 1,584 B): skin vertex-shader helpers whose only callers are S5 rw_trap rows (not class W/L; offered in round 1 as class C); 0 HIT, unreached on link 1106_0711_standalone, trapcheck 0
+00505c30 16 FUN_00505c30
+005092f0 144 _rpD3D9GetMinMaxValuesV2d
+00509380 240 _rpD3D9FindFormatV2d
+00509590 144 _rpD3D9GetNumConstantsUsed
+0050bd00 256 _rpD3D9VertexShaderUpdateLightsColors
+0050be00 144 _rpD3D9VertexShaderUpdateMaterialColor
+0050be90 192 _rpD3D9VertexShaderUpdateFogData
+0050bf50 144 _rwD3D9VSSetActiveWorldMatrix
+0050bfe0 80 _rwD3D9VSGetComposedTransformMatrix
+0050c030 224 _rwD3D9VSGetInverseWorldMatrix
+# RT3 2026-11-06 (L1 round 3, 5 rows, 4,224 B; ONLY together with the pending3 C edits, install.py): NATIVEDATA (0x510) read/write bodies and the png image writer; 0 HIT in the 172-run coverage union, unreached on link 1106_0711_standalone once the C forwarders no longer name them and the 0x510 callback registrations are cut (l1/cuts_L3.txt: write slot reader _rwPluginRegistryWriteDataChunks is an RT1 int3 row; no asset has a 0x510 chunk; png write callback is NULL), trapcheck 0 with the edited objects; proofs: output/rw_trap_round_2026-11-06.csv (class L3/W3)
+00501380 640 _rpGeometryNativeWrite
+00501600 1072 _rpGeometryNativeRead
+00501aa0 656 _rpWorldSectorNativeWrite
+00501d30 1024 _rpWorldSectorNativeRead
+005244e0 832 RtPNGImageWrite

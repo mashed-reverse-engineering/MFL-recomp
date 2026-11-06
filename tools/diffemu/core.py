@@ -285,6 +285,16 @@ class Coff:
 
 class Unresolved(Exception): pass
 
+class Lit:
+    """Machine.norm of a value in the literal range: equal when the contents match (two builds place a literal at different addresses) OR the raw
+    values match (a float such as 0x7100xxxx that only looks like an SCR address: ours has its own literal there, the original zeros; rwp_box_sweep_sphere seed 32)"""
+    __slots__ = ("b", "v")
+    def __init__(s, b, v): s.b, s.v = b, v
+    def __eq__(s, o): return isinstance(o, Lit) and (s.b == o.b or s.v == o.v)
+    def __ne__(s, o): return not s == o
+    __hash__ = lambda s: 0x11      # equality is content OR raw: one bucket
+    def __repr__(s): return repr(("lit", s.b))
+
 _LS = {}
 def libsyms():
     """name -> address of output/*_libsyms.csv (rw_libsyms, crt_libsyms ...)"""
@@ -293,7 +303,7 @@ def libsyms():
         for fn in sorted(glob.glob(os.path.join(ROOT, "output", "*_libsyms.csv"))):
             for l in open(fn):
                 q = l.strip().split(",")
-                if len(q) >= 2 and q[1] != "00000000":
+                if len(q) >= 2:      # __except_list is the absolute symbol 0 (fs:[0]), a real value
                     try: _LS.setdefault(q[0], int(q[1], 16))
                     except ValueError: pass
         try:      # RW library functions the byte matcher found (output/rw_libmatch.csv `va,name,..`) that rw_libsyms.csv (relocation derived) lacks: _rwD3D9SetVertexShaderConstant
@@ -336,7 +346,7 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
             vas = tb.sym.get(un) or tb.sym.get("_" + un)
             if vas: t = sorted(vas)[0] + add
             elif (fm := re.fullmatch(r"_?(?:func_0x|FUN_)([0-9a-f]{8})", n)): t = int(fm.group(1), 16) + add      # decompiler name of an unnamed function: the address is the name (build_overlay.py does the same); stubbed like every callee
-            elif (lv := libsyms().get(n) or libsyms().get(un) or libsyms().get("_" + un)): t = lv + add      # SDK library / CRT symbol (output/*_libsyms.csv: derived from the relocations of byte matched library functions): the original's address
+            elif (lv := next((x for x in (libsyms().get(n), libsyms().get(un), libsyms().get("_" + un)) if x is not None), None)) is not None: t = lv + add      # SDK library / CRT symbol (output/*_libsyms.csv: derived from the relocations of byte matched library functions): the original's address
             elif un in tb.iat: t = impstub(un) + add      # direct `call _WaitForSingleObject@8` of an import: the same import stub the original's `call [IAT]` reaches (name + arguments traced identically on both sides)
             else: raise Unresolved("symbol " + n)
         struct.pack_into("<I", code, off, u32(t if rt == 6 else t - (base + off + 4)))
@@ -960,7 +970,7 @@ class Machine:
         if SCR <= v < SCR + 0x10000 or isro(v):
             try: b = bytes(m.uc.mem_read(v, 24)) if v >= SCR else bytes(IMG[v - BASE:v - BASE + 24])
             except UcError: return v
-            z = b.find(b"\0"); return ("lit", b[:z + 1] if 0 <= z < 24 else b[:8])
+            z = b.find(b"\0"); return Lit(b[:z + 1] if 0 <= z < 24 else b[:8], v)
         return v
 
     def _callee(m, uc, addr, size, ud):
@@ -1344,7 +1354,7 @@ def frame_allow():
         _FA.append(s)
     return _FA[0]
 
-HALFARGS = {"FUN_00575a30": (1,), "FUN_00576b10": (3,), "FUN_00576b50": (2,), "FUN_00576f40": (1,), "FUN_00576c50": (1,)}      # 576f40 / 576c50: `and reg, 0xffff` on argument 1 (DEEP 2026-11-03: the real 57be50 callees push it from a register with a stale upper half)      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
+HALFARGS = {"FUN_00575a30": (1,), "FUN_00576b10": (3,), "FUN_00576b50": (2,), "FUN_00576f40": (1,), "FUN_00576c50": (1,), "rwp_hull_alloc": (0, 2)}      # rwp_hull_alloc: 58d0c0 pushes the 16 bit qh num_vertices / num_facets from eax / edx (stale upper halves), the callee uses only the low 16 bits (masked / short stores; lv 2026-11-05)      # 576f40 / 576c50: `and reg, 0xffff` on argument 1 (DEEP 2026-11-03: the real 57be50 callees push it from a register with a stale upper half)      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
 FNMASK = {"car_wheels_vs_triangles": [(0x7eab64, 0x7eab64 + 256 * 0x40)]}      # B3: g_event_log_data (256 x 0x40) holds 0x40 byte copies of uninitialised locals of the event record; never compared for this function
 def compare(fn, mo, ro, mu, ru, case=None):
     """list of difference descriptions between original (o) and ours (u); empty = equal"""

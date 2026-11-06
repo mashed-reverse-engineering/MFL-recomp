@@ -1,0 +1,7 @@
+# Group "imgread" (L3c): the BMP image file reader from librw-mfl/capi/rwimgread.cpp, written op for op from the disassembly: RtBMPImageRead 0x53d050.
+# Needs the exe binding: rw_engine_init (recomp/automatch_near/an_hk_612.c) calls mflrw_imgread_bind(&RwEngineInstance, RwStreamOpen, RwStreamRead, RwStreamSkip,
+# RwStreamClose, RwImageCreate, RwImageDestroy, RwImageAllocatePixels, BMPImageSetSpan, RwErrorSet).
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_imgread_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine; arena, call log incl. every stream
+# read / skip and image call, return value compared): EQUAL; negative fixture (two pixel bytes swapped on the DLL side) DIFF.
+RtBMPImageRead=rw37_RtBMPImageRead

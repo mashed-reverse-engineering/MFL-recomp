@@ -5559,6 +5559,7 @@ FUN_00576f40 00576f40
 FUN_00576f60 00576f60
 FUN_00576f80 00576f80
 rwp_shape_bounding_data_b 00577090
+FUN_00577350 00577350
 rwp_ray_sphere_test 00577400
 rwp_line_quadric_intersect 00577550
 rwp_ray_torus_root_test 00577750
@@ -5908,6 +5909,7 @@ RwaObjHandleGetParamData 005b72d0
 RwaObjHandleSetParamInt16 005b7300
 FUN_005b7330 005b7330
 RwaObjHandleGetParamInt32 005b7370
+FUN_005b73b0 005b73b0
 _rwaObjHandleCloseModule 005b7400
 RwaObjHandleCreateUsingObj 005b7450
 _rwaVoiceManagerOpenModule 005b7560
@@ -5918,6 +5920,7 @@ RwaVoiceManagerRegister 005b7650
 RwaVoiceManagerUnregister 005b77f0
 RwaVoiceManagerRegisterVoice 005b7860
 _RwaVoiceManagerStartVoice 005b78a0
+FUN_005b7960 005b7960
 _rwaVoiceManagerUpdate 005b7bb0
 rwa_voicemanager_005b7eb0 005b7eb0
 _rwaWaveDictCreate 005b7ef0
@@ -6107,6 +6110,7 @@ FUN_005bf0e0 005bf0e0
 FUN_005bf120 005bf120
 FUN_005bf130 005bf130
 rwa_memory_005bf170 005bf170
+FUN_005bf230 005bf230
 RwaVirtualVoiceInterfaceRegister 005bf250
 RwaVirtualVoiceInterfaceUnregister 005bf2a0
 RwaMathConvertLinearToLog 005bf2b0
@@ -6125,6 +6129,8 @@ FUN_005bfcf0 005bfcf0
 _rwaStreamContainerEnumRenderChains 005bfdc0
 _rwaStreamContainerEnumSourceChain 005bfe40
 _rwaStreamContainerEnumNodeChain 005bfe70
+rwa_unit2452a0_005bfeb0 005bfeb0
+FUN_005bfee0 005bfee0
 _RwaStreamContainerGetRenderStatus 005bff30
 switchD 005bff43
 switchD 005c006b
@@ -6134,7 +6140,9 @@ _rwaStreamContainerStateUpdateCurrentStatus 005c0130
 switchD 005c014e
 _rwaRwStreamReadChunkHeader 005c01a0
 rwa_unit2452a0_005c01c0 005c01c0
+FUN_005c01e0 005c01e0
 _rwaStreamContainerSetPitch 005c0220
+FUN_005c02a0 005c02a0
 rwa_unit2452a0_005c0560 005c0560
 _RwaStreamContainerCreateCodec 005c0620
 _rwaStreamContainerInstaniateSource 005c06b0
@@ -6144,7 +6152,9 @@ _RwaStreamContainerNodeListPurge 005c07f0
 _rwaStreamContainerStateCreate 005c0880
 _rwaDSUnknownQueryRefCount 005c0950
 _RwaStreamContainerUpdateStreamPos 005c0960
+FUN_005c09e0 005c09e0
 _RwaStreamContainerPreinstanceCodecs 005c0aa0
+FUN_005c10b0 005c10b0
 _rwaStreamContainerStateMachine 005c1720
 _rwaStreamContainerCreate 005c1820
 _rwaStreamContainerStateFinishExecute 005c1870
@@ -8261,11 +8271,17 @@ g_data_63a54c 0063a54c
 g_data_63a5d4 0063a5d4
 g_data_63a5dc 0063a5dc
 PTR_LAB_0063a5f0 0063a5f0
+s_qhull_s_Pp_0063a604 0063a604
 s_in__d_d__006424e8_0x38 00642520
 qh_rand_seed 00642840
 s_ppearance___edge__normal_normsca_00646e30_2 00646e32
 g_sound_card_649138 00649138
+PTR_RwaListenerUnregister_006491d4 006491d4
+PTR_LAB_006491d8 006491d8
+PTR__RwaParamTypeSetupAtomics_006491e4 006491e4
+g_data_6494a0 006494a0
 g_data_6497cc 006497cc
+g_data_64a0e0 0064a0e0
 PTR_rwa_unit246d50_005c1c10_0064a80c 0064a80c
 g_data_64a998 0064a998
 g_data_64a99c 0064a99c
@@ -10679,6 +10695,11 @@ rwavoicemanager_moduleOpen 007dab6c
 g_data_7dab70 007dab70
 g_data_7dab74 007dab74
 g_data_7dab78 007dab78
+g_data_7dab7c 007dab7c
+g_data_7dab80 007dab80
+g_data_7dab84 007dab84
+g_data_7dab88 007dab88
+g_data_7dab8c 007dab8c
 g_data_7dab90 007dab90
 g_data_7dab94 007dab94
 g_data_7dab98 007dab98
@@ -10688,6 +10709,7 @@ g_data_7dabc4 007dabc4
 g_sound_7dabe8 007dabe8
 g_sound_7dabec 007dabec
 g_data_7dabf0 007dabf0
+g_data_7dabf4 007dabf4
 g_data_7dabf8 007dabf8
 g_data_7dabfc 007dabfc
 rwastream_objDefRegistered 007dac00
@@ -10768,6 +10790,8 @@ g_data_7dc064 007dc064
 g_data_7dc068 007dc068
 g_data_7dc0e4 007dc0e4
 g_data_7dc0e8 007dc0e8
+g_data_7dc134 007dc134
+g_data_7dc15c 007dc15c
 g_data_7dc1a8 007dc1a8
 start_tics 007dc298
 g_data_7dc2d0 007dc2d0
@@ -12543,6 +12567,8 @@ g_rp_9488dc 009488dc
 g_data_9488e4 009488e4
 g_qh_949bfc 00949bfc
 g_qh_949c24 00949c24
+g_qh_949c30 00949c30
+g_qh_949c34 00949c34
 g_data_949d20 00949d20
 g_data_949d50 00949d50
 g_data_949d5c 00949d5c

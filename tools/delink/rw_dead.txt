@@ -347,3 +347,5 @@
 00560bb0 240 _rtFSManagerFOpenOnFS
 00560cb0 64 _rtGetFileSystemFromDeviceName
 00561ae0 64 _rtFileSystemTriggerCallBack
+0050e758 298 SSEFloat16Conversion8
+0050e882 212 sse_D3DXFloat16To32Array

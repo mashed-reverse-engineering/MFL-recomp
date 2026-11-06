@@ -107,6 +107,19 @@ typedef void (__cdecl *MflrwRwleaf2Bind)(void *errorSet, void *sqrtFn, void *v3d
 /* mflrw.dll splopen binding (librw-mfl/capi/rwsplopen.cpp): the engine (allocator), the spline plugin's open counter and rapGTable (splanim lines above), RwErrorSet */
 /*007da7b8*/ extern int g_data_7da7b8;
 typedef void (__cdecl *MflrwSplopenBind)(char **engine, int *openCount, void *rapGTable, void *errorSet);
+/* mflrw.dll single heap (librw-mfl/capi/core.cpp): the DLL allocates through the exe's RW memory table (engine +0x108..+0x114, filled by RwEngineInit) */
+/*004e9940*/ extern void *RwOsGetMemoryInterface(void);
+typedef void (__cdecl *MflrwMemBind)(void *exeTable);
+/* mflrw.dll imgread binding (librw-mfl/capi/rwimgread.cpp): the engine (allocator), the stream and image functions RtBMPImageRead calls, BMPImageSetSpan, RwErrorSet */
+/*004dc370*/ extern void *__cdecl RwStreamOpen(int type, int access, const void *data);
+/*004dbe70*/ extern unsigned int __cdecl RwStreamRead(void *stream, void *buffer, unsigned int length);
+/*004dc190*/ extern void *__cdecl RwStreamSkip(void *stream, unsigned int offset);
+/*004dc2a0*/ extern int __cdecl RwStreamClose(void *stream, void *data);
+/*004dd550*/ extern void *__cdecl RwImageCreate(int width, int height, int depth);
+/*004dd5b0*/ extern int __cdecl RwImageDestroy(void *image);
+/*0053d6c0*/ extern int __cdecl BMPImageSetSpan(void *image, int y, const void *src, int bpp, int bgr);
+typedef void (__cdecl *MflrwImgreadBind)(char **engine, void *open, void *read, void *skip, void *close, void *create, void *destroy, void *allocPixels,
+                                         void *setSpan, void *errorSet);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
@@ -215,6 +228,11 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
     MflrwSplopenBind obind = mflrw ? (MflrwSplopenBind)GetProcAddress(mflrw, "mflrw_splopen_bind") : 0;
     if (obind != 0) obind(&RwEngineInstance, &g_data_7da7b8, rapGTable, (void *)RwErrorSet);
   }
+  {
+    MflrwImgreadBind ibind2 = mflrw ? (MflrwImgreadBind)GetProcAddress(mflrw, "mflrw_imgread_bind") : 0;
+    if (ibind2 != 0) ibind2(&RwEngineInstance, (void *)RwStreamOpen, (void *)RwStreamRead, (void *)RwStreamSkip, (void *)RwStreamClose, (void *)RwImageCreate,
+                            (void *)RwImageDestroy, (void *)RwImageAllocatePixels, (void *)BMPImageSetSpan, (void *)RwErrorSet);
+  }
 #endif
 
   /* Step 1: core RenderWare init with the default resource arena. */
@@ -225,6 +243,12 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   initFlags = stub_return_zero();
   ok = RwEngineInit(memFuncs,initFlags,resArenaSize);
   if (ok != 0) {
+#ifndef MFL_DIFFEMU      /* not in MFL.exe: hand mflrw.dll the exe's memory table (one heap for DLL and exe, as in the original) */
+    {
+      MflrwMemBind mbind = mflrw ? (MflrwMemBind)GetProcAddress(mflrw, "mflrw_mem_bind") : 0;
+      if (mbind != 0) mbind(RwOsGetMemoryInterface());
+    }
+#endif
     /* Step 2: file system manager, native file system, then plugins. */
     msg = "Calling RtFSManagerOpen\n";
     log_print("Calling RtFSManagerOpen\n");

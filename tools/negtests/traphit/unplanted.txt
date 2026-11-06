@@ -1,0 +1,3 @@
+# UNPLANT fixture: rows next to the hit but not covering 0065ade0 or 0065addf: traphit must say "not a filled row"
+0065adc0 31 BEFORE
+0065ade1 16 AFTER

@@ -1,0 +1,3 @@
+# PLANT fixture: wine.log is the real int3 hit of output/delink/ls6/probe/c0/run/wine.log (_qh_qhull entry in that link); this row covers it
+0065ade0 16 PLANTED_qh_qhull
+0065ae00 16 NEIGHBOUR

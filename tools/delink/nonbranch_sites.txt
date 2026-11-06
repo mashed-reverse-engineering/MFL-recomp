@@ -6,4 +6,6 @@
 00585026 last byte of `mov esp,[ebp-0x18]` (8b 65 e8) in the SEH unwind funclet at 0x585024 (no sized function): reads as call 0x5495f2, the inside of WorldForAllTriIntsecLine
 005850a5 same funclet at 0x5850a3: reads as call 0x549671, the inside of WorldForAllTriIntsecLine
 00556bdd displacement byte e8 of `mov [0x7da7e8],0` (c7 05 e8 a7 7d 00 ...) in RpSplinePluginAttach's tail: reads as call 0x55e989, the inside of RtBezierQuadBernsteinWeight4d
+004b9a81 last byte of `mov esp,[ebp-0x18]` (8b 65 e8) at 0x4b9a7f + `jmp 0x4ba172` (e9 eb 06 00 00) in the CRT catch funclet behind ___DestructExceptionObject (no sized function): reads as call 0x52866f, the inside of png_destroy_read_struct (rw6 falsebr, L4 4d)
+004b9dc1 same pair at 0x4b9dbf (8b 65 e8 e9 ab 03 00 00) behind BuildCatchObject: reads as call 0x4f49af, the inside of RpWorldRemoveLight (rw6 falsebr, L4 4d)
 0056a676 last byte of `shr ecx,5` (c1 e9 05) in the function at 0x56a670 + `mov ebp,1` (bd 01 00 00 00): reads as jmp 0x586380, the inside of rwp_aggregate_00586300 (B3b)

@@ -1,0 +1,3 @@
+put precisepos 3,0.000000
+put precisepos 0,0.000000
+put precisepos 1,wine: Unhandled exception 0x80000003 in thread 24 at address 0065ADE0 (thread 0024), starting debugger...

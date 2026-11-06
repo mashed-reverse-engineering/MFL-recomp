@@ -11,6 +11,7 @@
  *   vclock=1 step_us=20 anchor_phase=3   virtual clock for the main thread (see below)
  *   max_frames=<n>        stop after n logged Presents (0 = unlimited)
  *   geom=1                hash vertex/index buffer contents at Unlock (default 1)
+ *   statehash=1 sh_delta=<hex> [sh_base= sh_end= sh_out= sh_poke=<frame>:<va>:<xor>]   N1 per-frame state pages (see statehash_frame)
  * Everything printed is deterministic: ids are creation order, floats %.9g, no pointers, no times.
  * Build: make (i686-w64-mingw32-gcc). */
 #define WIN32_LEAN_AND_MEAN
@@ -215,11 +216,44 @@ static int cfg_anchor_phase = 3, anchored;     /* anchor_phase=n: when the race 
 static HRESULT WINAPI h_BeginScene(void *d) {
     if (cfg_vclock && cfg_anchor_phase && !anchored) { DWORD ph, rf; game_vars(&ph, &rf); if ((int)ph >= cfg_anchor_phase && (int)ph < 100) { anchored = 1; vt_us = (vt_us / 100000000 + 1) * 100000000; L("ANCHOR %lld\n", (long long)vt_us); } }
     check_active(); if (active) { DWORD ph, rf; game_vars(&ph, &rf); L("SCENE %u %u\n", ph, rf); } return C(HRESULT (WINAPI *)(void *), 41, d); }
+/* ---- N1 state hash (statehash=1): at every logged Present the game's writable image range [sh_base, sh_end) (+ sh_delta in the standalone
+ * link) is compared page by page with a shadow copy; the changed 4 KB pages are appended to sh_out (default statehash.bin, read by statecmp.py),
+ * frame 0 writes all pages.  Record: u32 "SHF1" frame phase racef npages nreg imgbase imgsize base delta, nreg x (base size) of the committed
+ * private memory (heap ranges), npages x (u32 page index, 4096 bytes; the last page of the range is zero padded).
+ * sh_poke=<frame>:<orig VA>:<xor>: after recording frame <frame> the dword at VA + sh_delta is xored (negative fixture: a perturbed car). */
+static int cfg_sh, cfg_poke_frame = -1; static u32 cfg_sh_base = 0x5fb000, cfg_sh_end = 0x949d64, cfg_sh_delta, cfg_poke_va, cfg_poke_xor;
+static char cfg_sh_out[260] = "statehash.bin";
+static int is_main(void); static int cfg_vsnap;
+static void statehash_frame(int fr, DWORD ph, DWORD rf) {
+    static unsigned char *shadow; static FILE *f; static u32 reg[2 * 4096], idx[4096];
+    u32 n = cfg_sh_end - cfg_sh_base, np = (n + 4095) / 4096, nr = 0, nc = 0, hd[10];
+    unsigned char *b = (unsigned char *)(uintptr_t)(cfg_sh_base + cfg_sh_delta), page[4096];
+    if (!cfg_sh || np > 4096) return;
+    if (!f) { f = fopen(cfg_sh_out, "wb"); shadow = calloc(np, 4096); if (!f || !shadow) { cfg_sh = 0; return; } setvbuf(f, NULL, _IOFBF, 1 << 22); }
+    MEMORY_BASIC_INFORMATION mi;
+    for (uintptr_t a = 0x10000; a < 0x7fff0000 && VirtualQuery((void *)a, &mi, sizeof mi); a = (uintptr_t)mi.BaseAddress + mi.RegionSize)
+        if (mi.State == MEM_COMMIT && mi.Type == MEM_PRIVATE && nr < 4096) {
+            if (nr && reg[2 * nr - 2] + reg[2 * nr - 1] == (u32)(uintptr_t)mi.BaseAddress) reg[2 * nr - 1] += mi.RegionSize;
+            else { reg[2 * nr] = (u32)(uintptr_t)mi.BaseAddress; reg[2 * nr + 1] = mi.RegionSize; nr++; } }
+    for (u32 i = 0; i < np; i++) {
+        u32 len = n - i * 4096 < 4096 ? n - i * 4096 : 4096;
+        memset(page, 0, sizeof page); memcpy(page, b + i * 4096, len);
+        if (fr == 0 || memcmp(page, shadow + i * 4096, 4096)) { memcpy(shadow + i * 4096, page, 4096); idx[nc++] = i; }
+    }
+    unsigned char *m = (unsigned char *)GetModuleHandleA(NULL); IMAGE_NT_HEADERS *nt = (void *)(m + ((IMAGE_DOS_HEADER *)m)->e_lfanew);
+    hd[0] = 0x31464853; hd[1] = fr; hd[2] = ph; hd[3] = rf; hd[4] = nc; hd[5] = nr; hd[6] = (u32)(uintptr_t)m; hd[7] = nt->OptionalHeader.SizeOfImage; hd[8] = cfg_sh_base; hd[9] = cfg_sh_delta;
+    fwrite(hd, 4, 10, f); fwrite(reg, 8, nr, f);
+    for (u32 k = 0; k < nc; k++) { fwrite(&idx[k], 4, 1, f); fwrite(shadow + idx[k] * 4096, 1, 4096, f); }
+    fflush(f);
+    if (fr == cfg_poke_frame) { DWORD *p = (DWORD *)(uintptr_t)(cfg_poke_va + cfg_sh_delta); DWORD old; VirtualProtect(p, 4, PAGE_READWRITE, &old); *p ^= cfg_poke_xor; L("POKE frame=%d va=%x xor=%x\n", fr, cfg_poke_va, cfg_poke_xor); }
+}
 static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, const RGNDATA *c) {
-    HRESULT r = C(HRESULT (WINAPI *)(void *, const RECT *, const RECT *, HWND, const RGNDATA *), 17, d, a, b, w, c);
     DWORD ph = 0, rf = 0;
     if (!IsBadReadPtr((void *)(uintptr_t)cfg_phase_addr, 4)) ph = *(DWORD *)(uintptr_t)cfg_phase_addr;
     if (cfg_racef_addr && !IsBadReadPtr((void *)(uintptr_t)cfg_racef_addr, 4)) rf = *(DWORD *)(uintptr_t)cfg_racef_addr;
+    if (active) statehash_frame(nframes, ph, rf);      /* before the real Present: the state the frame was drawn from */
+    if (cfg_vclock && cfg_vsnap >= 2 && is_main()) vt_us = (vt_us / 50000 + 1) * 50000;   /* vsnap=2: every frame starts on a 50 ms grid, a clock-call count that differs inside one frame does not carry over */
+    HRESULT r = C(HRESULT (WINAPI *)(void *, const RECT *, const RECT *, HWND, const RGNDATA *), 17, d, a, b, w, c);
     if (active) { L("PRESENT %d phase=%u racef=%u draws=%d\n", nframes++, ph, rf, ndraws); fflush(lg); }
     return r;
 }
@@ -425,7 +459,23 @@ static HRESULT WINAPI h_d3d_CreateDevice(void *d3d, UINT a, D3DDEVTYPE t, HWND w
  * its own calls (step_us per time call) and by its Sleep()s, so two runs of the same script see the same times.  Other threads see the unmodified value. */
 static DWORD main_tid; static LONGLONG qpf;
 static int is_main(void) { return GetCurrentThreadId() == main_tid; }
-static LONGLONG vnow(void) { if (is_main()) vt_us += cfg_step_us; return vt_us; }
+/* vsnap=1 (N1): when the main thread reads the clock and the race phase changed since its last read, the clock jumps to the next whole second:
+ * times stored after a phase change (race start ticks, countdown camera) do not depend on how many clock calls the loading code made before it */
+/* pin=<phase>:<orig va>:<value> (repeatable, max NPIN): at the same moment (first main-thread clock read after the phase changed to <phase>) the dword at
+ * va + sh_delta is set to value: counters that ran during the menus (their count depends on real-time key timing) start the race equal in every run */
+/* srand=<phase>:<va>:<seed>: at that moment the game's own CRT srand (absolute va: 0x5d365e in MFL.exe, `_srand` of the link map) is called on the
+ * main thread: the CRT rand() state lives in the per-thread data (heap), menus consume it frame by frame, loading uses it (course setup) */
+static DWORD cfg_srand_ph, cfg_srand_va, cfg_srand_seed;
+#define NPIN 8192
+static int npin; static DWORD vs_phase = 0xFFFFFFFF; static struct { DWORD ph, va, v; } pins[NPIN];
+static LONGLONG vnow(void) {
+    if (!is_main()) return vt_us;
+    if ((cfg_vsnap || npin || cfg_srand_va) &&!IsBadReadPtr((void *)(uintptr_t)cfg_phase_addr, 4)) { DWORD ph = *(DWORD *)(uintptr_t)cfg_phase_addr; if (ph != vs_phase) {
+        vs_phase = ph; if (cfg_vsnap) vt_us = (vt_us / 1000000 + 1) * 1000000;
+        for (int i = 0; i < npin; i++) if (pins[i].ph == ph) *(DWORD *)(uintptr_t)(pins[i].va + cfg_sh_delta) = pins[i].v;
+        if (cfg_srand_va && ph == cfg_srand_ph) ((void (__cdecl *)(unsigned))(uintptr_t)cfg_srand_va)(cfg_srand_seed); } }
+    return vt_us += cfg_step_us;
+}
 static BOOL WINAPI v_QPC(LARGE_INTEGER *c) { c->QuadPart = vnow() * qpf / 1000000; return TRUE; }
 static DWORD WINAPI v_GetTickCount(void) { return (DWORD)(vnow() / 1000) + 100000; }
 static DWORD WINAPI v_timeGetTime(void) { return (DWORD)(vnow() / 1000) + 100000; }
@@ -448,7 +498,7 @@ static void patch_iat(HMODULE m) {
 /* ---- entry point -------------------------------------------------------------------------------------------------------------- */
 static void read_cfg(const char **outp, char *outbuf) {
     FILE *f = fopen("d3dtrace.cfg", "r"); char ln[512];
-    strcpy(outbuf, "d3dtrace.log");
+    strcpy(outbuf, "d3dtrace.log"); npin = 0;
     while (f && fgets(ln, sizeof ln, f)) {
         char *e = strchr(ln, '='); if (!e) continue; *e++ = 0; e[strcspn(e, "\r\n")] = 0;
         if (!strcmp(ln, "out")) strncpy(outbuf, e, 500);
@@ -466,6 +516,15 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "rwtap_out")) strncpy(cfg_rwtap_out, e, 259);
         else if (!strcmp(ln, "rwtap_delta")) cfg_rwtap_delta = (unsigned)strtoul(e, 0, 16);
         else if (!strcmp(ln, "geom")) cfg_geom = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "statehash")) cfg_sh = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "vsnap")) cfg_vsnap = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "srand")) sscanf(e, "%u:%x:%u", &cfg_srand_ph, &cfg_srand_va, &cfg_srand_seed);
+        else if (!strcmp(ln, "pin") && npin < NPIN && sscanf(e, "%u:%x:%x", &pins[npin].ph, &pins[npin].va, &pins[npin].v) == 3) npin++;
+        else if (!strcmp(ln, "sh_base")) cfg_sh_base = (u32)strtoul(e, 0, 16);
+        else if (!strcmp(ln, "sh_end")) cfg_sh_end = (u32)strtoul(e, 0, 16);
+        else if (!strcmp(ln, "sh_delta")) cfg_sh_delta = (u32)strtoul(e, 0, 16);
+        else if (!strcmp(ln, "sh_out")) strncpy(cfg_sh_out, e, 259);
+        else if (!strcmp(ln, "sh_poke")) sscanf(e, "%d:%x:%x", &cfg_poke_frame, &cfg_poke_va, &cfg_poke_xor);
     }
     if (f) fclose(f);
     *outp = outbuf;

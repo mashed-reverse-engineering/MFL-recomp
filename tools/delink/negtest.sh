@@ -141,5 +141,11 @@ if ! grep -q mflrw_splopen_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/spenxg $T/rw_splopen_check.sh $RD 2000 > $O/spenxg.txt 2>&1 && ok "splopen good: $(grep -c EQUAL $O/spenxg.txt) entries EQUAL" || bad "splopen good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/spenxg.txt | head -2)"
   OUT=$O/spenxn $T/rw_splopen_check.sh $RD 2000 all neg > $O/spenxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/spenxn.txt) = 3 ] && ok "splopen swap: all 3 entries DIFF" || bad "splopen swap fixture not caught: $(grep -c 'finite cases DIFF' $O/spenxn.txt) of 3 DIFF"
 fi
+# imgread (L3c): rw_imgread_check.sh must FAIL on the swap fixture (the DLL reads two distinct pixel bytes swapped) and pass without it; ~30 s, docker
+RD=$G/output/librw/mflrw.dll
+if ! grep -q mflrw_imgread_bind $RD 2>/dev/null; then echo "negtest note: $RD has no imgread exports, imgread fixture skipped"; else
+  OUT=$O/ig $T/rw_imgread_check.sh $RD 20000 > $O/ig.txt 2>&1 && ok "imgread good: $(grep -c EQUAL $O/ig.txt) entries EQUAL" || bad "imgread good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/ig.txt | head -2)"
+  OUT=$O/in $T/rw_imgread_check.sh $RD 20000 all neg > $O/in.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/in.txt) = 1 ] && ok "imgread swap: the entry DIFF" || bad "imgread swap fixture not caught: $(grep -E 'finite cases' $O/in.txt | head -2)"
+fi
 rm -r $O
 exit $rc

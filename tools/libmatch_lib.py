@@ -4,9 +4,10 @@ Unlike libmatch.py it needs no source and also finds the hand written assembler 
 Usage: libmatch_lib.py <out.csv> <lib> [<lib> ...]
 Output csv: VA(hex),function name,library:member,size[,note]; unique byte matches only, ambiguous ones get a note.  Names starting with '$' or '??' are skipped."""
 import os, re, struct, sys, tempfile, collections
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "libmatch.py")).read().replace("\nmain()\n", "\n")
-ns = {"__file__": os.path.join(os.path.dirname(os.path.abspath(__file__)), "libmatch.py")}
+TD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, TD)
+src = open(os.path.join(TD, "libmatch.py")).read().replace("\nmain()\n", "\n")
+ns = {"__file__": os.path.join(TD, "libmatch.py")}
 exec(compile(src, "libmatch", "exec"), ns)
 text_of_exe, obj_functions = ns["text_of_exe"], ns["obj_functions"]
 
@@ -46,9 +47,31 @@ def main():
                     n += 1
         print("%s: %d functions found" % (lib, n))
     os.unlink(os.path.join(tmp, "m.obj")) if os.path.exists(os.path.join(tmp, "m.obj")) else None
+    sr = sec_rows(rows, libs, text, base); rows += sr
+    print("%d MASM section rows: %s" % (len(sr), " ".join(r[1] for r in sr)))
     with open(out, "w") as f:
         for va, name, mem, sz, note in sorted(rows):
             f.write("%08x,%s,%s,%d,%s\n" % (va, name, mem, sz, note))
     print(len(rows), "rows ->", out)
+
+def sec_rows(rows, libs, text, base):
+    """MASM members (87tran.obj, 87trigh.obj) whose only symbol at .text offset 0 is the section label `$$$00001`: obj_functions yields the whole
+    section under that name, which main() skips as a `$` name, so the member is invisible to ownership / plan_split.  Matched here as `<member>$text`,
+    only for members without any other matched function (members that have one keep their function rows unchanged)."""
+    have = {r[2] for r in rows}; add = []
+    tmp = tempfile.mkdtemp(prefix="libmatch_lib_")
+    for lib in libs:
+        for mem, body in members(lib):
+            key = "%s:%s" % (os.path.basename(lib), mem)
+            if key in have: continue
+            f = os.path.join(tmp, "m.obj"); open(f, "wb").write(body)
+            try: fns = list(obj_functions(f))
+            except Exception: continue
+            for name, code, masked in fns:
+                if not re.fullmatch(r"\$\$\$\d+", name) or len(code) < 16: continue
+                pat = b"".join(b"." if i in masked else re.escape(bytes([b])) for i, b in enumerate(code))
+                hits = [m.start() for m in re.finditer(pat, text, re.S)]
+                if len(hits) == 1: add.append((base + hits[0], "%s$text" % os.path.splitext(os.path.basename(mem.replace("\\", "/")))[0], key, len(code), ""))
+    return add
 
 main()
