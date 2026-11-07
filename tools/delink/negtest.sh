@@ -68,6 +68,29 @@ RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_rwmath_bind $RD 2>/dev/null; then echo "negtest note: $RD has no rwmath exports, rwmath fixture skipped"; else
   OUT=$O/rwg $T/rw_rwmath_check.sh $RD 2000 > $O/rwg.txt 2>&1 && ok "rwmath good: $(grep -c EQUAL $O/rwg.txt) entries EQUAL" || bad "rwmath good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/rwg.txt | head -2)"
   OUT=$O/rwn $T/rw_rwmath_check.sh $RD 2000 all neg > $O/rwn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/rwn.txt) = 26 ] && ok "rwmath swap: all 26 entries DIFF" || bad "rwmath swap fixture not caught: $(grep -c 'finite cases DIFF' $O/rwn.txt) of 26 DIFF"
+  # R1: planted unbalanced fld1 in front of each DLL entry: the callee-saved / x87 TOP + tag check must give REGDIFF on all 26
+  OUT=$O/rwf $T/rw_rwmath_check.sh $RD 2000 all fld > $O/rwf.txt 2>&1; [ $(grep -c 'regs/x87 REGDIFF' $O/rwf.txt) = 26 ] && ok "rwmath fld plant: all 26 entries REGDIFF" || bad "rwmath fld plant not caught: $(grep -c 'regs/x87 REGDIFF' $O/rwf.txt) of 26 REGDIFF"
+fi
+# rt2d (R2): rw_rt2d_check.sh must FAIL on the input-change fixture (DIFF on all 9) and the planted unbalanced fld (REGDIFF on all 9) and pass without them; ~40 s, docker
+RD=$G/output/librw/mflrw.dll
+if ! grep -q mflrw_rt2d_bind $RD 2>/dev/null; then echo "negtest note: $RD has no rt2d exports, rt2d fixture skipped"; else
+  OUT=$O/r2g $T/rw_rt2d_check.sh $RD 2000 > $O/r2g.txt 2>&1 && ok "rt2d good: $(grep -c 'finite cases EQUAL' $O/r2g.txt) entries EQUAL" || bad "rt2d good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/r2g.txt | head -2)"
+  OUT=$O/r2n $T/rw_rt2d_check.sh $RD 2000 all neg > $O/r2n.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/r2n.txt) = 9 ] && ok "rt2d input fixture: all 9 entries DIFF" || bad "rt2d input fixture not caught: $(grep -c 'finite cases DIFF' $O/r2n.txt) of 9 DIFF"
+  OUT=$O/r2f $T/rw_rt2d_check.sh $RD 2000 all fld > $O/r2f.txt 2>&1; [ $(grep -c 'regs/x87 REGDIFF' $O/r2f.txt) = 9 ] && ok "rt2d fld plant: all 9 entries REGDIFF" || bad "rt2d fld plant not caught: $(grep -c 'regs/x87 REGDIFF' $O/r2f.txt) of 9 REGDIFF"
+fi
+# pngread (R3): rw_pngread_check.sh must pass on the game's PNGs + corrupt variants and FAIL on the IHDR fixture; ~3 min, docker
+RD=$G/output/librw/mflrw.dll
+if ! grep -q mflrw_pngread_bind $RD 2>/dev/null; then echo "negtest note: $RD has no pngread exports, pngread fixture skipped"; else
+  OUT=$O/pgg $T/rw_pngread_check.sh $RD 10 > $O/pgg.txt 2>&1 && ok "pngread good: $(grep -c 'B  EQUAL' $O/pgg.txt) files EQUAL" || bad "pngread good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/pgg.txt | head -2)"
+  OUT=$O/pgn $T/rw_pngread_check.sh $RD 0 neg > $O/pgn.txt 2>&1; [ $(grep -c 'B  DIFF' $O/pgn.txt) = $(grep -c 'B  EQUAL' $O/pgg.txt) ] && ok "pngread IHDR fixture: every file DIFF" || bad "pngread IHDR fixture not caught: $(grep -c 'B  DIFF' $O/pgn.txt) files DIFF"
+fi
+# lod (R4): rw_lod_check.sh must FAIL on the input fixture (DIFF on all 4), the fld plant (REGDIFF on all 4) and the lrintf fixture DLL (DIFF on the selector); ~40 s, docker
+RD=$G/output/librw/mflrw.dll
+if ! grep -q mflrw_lod_bind $RD 2>/dev/null; then echo "negtest note: $RD has no lod exports, lod fixture skipped"; else
+  OUT=$O/lg $T/rw_lod_check.sh $RD 2000 > $O/lg.txt 2>&1 && ok "lod good: $(grep -c 'finite cases EQUAL' $O/lg.txt) entries EQUAL" || bad "lod good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/lg.txt | head -2)"
+  OUT=$O/ln $T/rw_lod_check.sh $RD 2000 all neg > $O/ln.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/ln.txt) = 4 ] && ok "lod input fixture: all 4 entries DIFF" || bad "lod input fixture not caught: $(grep -c 'finite cases DIFF' $O/ln.txt) of 4 DIFF"
+  OUT=$O/lf $T/rw_lod_check.sh $RD 2000 all fld > $O/lf.txt 2>&1; [ $(grep -c 'regs/x87 REGDIFF' $O/lf.txt) = 4 ] && ok "lod fld plant: all 4 entries REGDIFF" || bad "lod fld plant not caught: $(grep -c 'regs/x87 REGDIFF' $O/lf.txt) of 4 REGDIFF"
+  OUT=$O/lr $T/rw_lod_check.sh lrintf 2000 > $O/lr.txt 2>&1; grep -q 'LODAtomicCallBackSelectLOD .*finite cases DIFF' $O/lr.txt && ok "lod lrintf fixture: selector DIFF" || bad "lod lrintf fixture not caught"
 fi
 # pixfmt (rw4): rw_pixfmt_check.sh must FAIL on the swap fixture (input bytes 0 <-> 2 swapped on the DLL side, inputs restored after the call) and pass without it; ~60 s, docker
 RD=$G/output/librw/mflrw.dll

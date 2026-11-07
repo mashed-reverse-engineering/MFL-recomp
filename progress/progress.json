@@ -1,15 +1,15 @@
 {
  "clusters": {
   "bytes": 352805,
-  "functions": 733
+  "functions": 745
  },
  "exe_sha1": "d52ca4a5995875b6d052707188e2c6d065f41766",
  "functions": {
   "game": 2794,
   "game_bytes": 684477,
   "game_named": 2696,
-  "named": 5587,
-  "total": 7185
+  "named": 5766,
+  "total": 7364
  },
  "published_source": {
   "by_module": {
@@ -57,16 +57,16 @@
  "published_verified": {
   "automatch_files": 5,
   "automatch_functions": 5,
-  "cluster_files": 660,
-  "cluster_functions": 713,
+  "cluster_files": 670,
+  "cluster_functions": 725,
   "hand_functions": 381,
-  "library_functions": 1156,
-  "tier1_files": 1936,
-  "tier1_functions": 1535,
-  "tier2_files": 1168,
+  "library_functions": 1217,
+  "tier1_files": 1935,
+  "tier1_functions": 1495,
+  "tier2_files": 1190,
   "tier2_functions": 720,
-  "unique_all_kinds": 4423,
-  "unique_functions": 3267
+  "unique_all_kinds": 4456,
+  "unique_functions": 3239
  },
  "replaced_in_pipeline": {
   "agent": {
@@ -85,13 +85,13 @@
    "verified_bytes_identical": 344
   },
   "tier1": {
-   "bytes": 140443,
-   "functions": 1992,
-   "verified_bytes_identical": 1992
+   "bytes": 141596,
+   "functions": 1991,
+   "verified_bytes_identical": 1991
   },
   "tier2": {
-   "bytes": 424750,
-   "functions": 1318,
+   "bytes": 426752,
+   "functions": 1340,
    "verified_bytes_identical": 0
   }
  },

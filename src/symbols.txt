@@ -6012,6 +6012,7 @@ _rwaRwStreamReadChunkHeaderInfoSync 005bb6c0
 _rwaRwStreamFindChunkSync 005bb750
 _rwaRwStreamCacheOpenModule 005bb7e0
 _rwaRwStreamCacheCloseModule 005bb850
+FUN_005bb8a0 005bb8a0
 _rwaRwStreamSeek 005bbb70
 _rwaRwStreamCacheReadAsync 005bbbc0
 _rwaRwStreamCancel 005bbc70
@@ -6133,6 +6134,7 @@ rwa_unit2452a0_005bfeb0 005bfeb0
 FUN_005bfee0 005bfee0
 _RwaStreamContainerGetRenderStatus 005bff30
 switchD 005bff43
+rwa_unit2452a0_005c0060 005c0060
 switchD 005c006b
 switchD 005c00af
 default 005c0117
@@ -7531,6 +7533,7 @@ k_f_255_9961 005f81e4
 k_f_2048 005f81e8
 g_data_5f81ec 005f81ec
 g_data_5f81fc 005f81fc
+g_data_5f825c 005f825c
 g_data_5f826c 005f826c
 g_data_5f829c 005f829c
 g_data_5f82ec 005f82ec
@@ -8094,6 +8097,7 @@ cameraTKList 0062e534
 _rwCameraFreeListBlockSize 0062e54c
 _rwCameraFreeListPreallocBlocks 0062e550
 engineTKList 0062e578
+g_data_62e594 0062e594
 _rwMatrixFreeListBlockSize 0062e6ac
 _rwMatrixFreeListPreallocBlocks 0062e6b0
 textureTKList 0062e6d0
@@ -8276,6 +8280,9 @@ s_in__d_d__006424e8_0x38 00642520
 qh_rand_seed 00642840
 s_ppearance___edge__normal_normsca_00646e30_2 00646e32
 g_sound_card_649138 00649138
+PTR_rwa_unit23cc10_005b9f20_006491c0 006491c0
+PTR_LAB_006491c4 006491c4
+PTR__rwaNULLWaveRegister_006491d0 006491d0
 PTR_RwaListenerUnregister_006491d4 006491d4
 PTR_LAB_006491d8 006491d8
 PTR__RwaParamTypeSetupAtomics_006491e4 006491e4

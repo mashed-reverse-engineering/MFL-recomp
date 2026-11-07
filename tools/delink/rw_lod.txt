@@ -1,0 +1,11 @@
+# Group "lod" (R4, plan_next_24h_2026-11-06_v2 lane R): the RpLODAtomic per-atomic LOD switch from librw-mfl/capi/rwlod.cpp, op for op from the disassembly:
+# geometry / range setters, the render hook 0x568140 and the default selector 0x568030 (camera distance along the view axis * 10 / range, chop, 0..9).
+# State stays in the exe atomic extension (RpLODAtomicGlobals 0x9488d0: extension offset, free list); the DLL stores the exe addresses of the hook and the
+# selector (bound), as the exe's stream read callback does.  Needs R5a (fnsizes rows LODAtomicCallBackRender / LODAtomicCallBackSelectLOD).
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_lod_check.sh <mflrw.dll> 100000: all 4 EQUAL (+ regs/x87); neg DIFF on all 4; fld REGDIFF on all 4; the lrintf fixture DLL
+# (rwlod.cpp -DMFL_FIXTURE_LOD_LRINTF) DIFF on LODAtomicCallBackSelectLOD.
+RpLODAtomicSetGeometry=rw37_RpLODAtomicSetGeometry
+RpLODAtomicSetRange=rw37_RpLODAtomicSetRange
+LODAtomicCallBackRender=rw37_LODAtomicCallBackRender
+LODAtomicCallBackSelectLOD=rw37_LODAtomicCallBackSelectLOD

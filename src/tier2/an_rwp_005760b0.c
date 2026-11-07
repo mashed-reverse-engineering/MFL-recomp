@@ -1,3 +1,4 @@
+/* rwp_farfield_report_overlaps (0x005760b0): report the pairs of an object box with every farfield object whose box overlaps it */
 #include "mfl_tier2.h"
 #include "rwp_common.h"
 #include "rwp_farfield.h"
@@ -12,7 +13,7 @@ extern void rwp_capsule_00575860(void *pool, unsigned short va, unsigned short v
    children overlap: the lower child covers the first 60% of an axis, the upper one the last 60%): a leaf octant's list is tested, a child
    cell is pushed with its sub box.  g_data_7daa08 counts the box tests, g_data_7daa0c the reported pairs. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-void rwp_farfield_005760b0(unsigned char *f, MflFfBox *q, unsigned int id)
+void rwp_farfield_report_overlaps(unsigned char *f, MflFfBox *q, unsigned int id)
 {
   unsigned short stk_cell[320];
   MflFfBox stk_box[320];

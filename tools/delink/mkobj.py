@@ -186,16 +186,17 @@ if "--objs" in opt:
                 (_gu if sec_ == 0 and val_ == 0 else _gd).add(nm_)
         objundef |= _gu - _gd
     tsec = 0 if not PAD or "--pad-code" not in _a else 1
+    CSECS = {tsec} | {i for i, s_ in enumerate(secs) if s_[0] == "_rwcseg"}       # R1: the RW asm segment's functions (x87 vector / matrix routines) get the entry jmp + fill too
     redirected = set()
     for nm_, code_ in objdef.items():
         u = undecorate(nm_)
         a = symmap.get(u)
-        if not code_ or a is None or sec_index(a) != tsec or dropped(a): continue
+        if not code_ or a is None or sec_index(a) not in CSECS or dropped(a): continue
         if REDIR is not None and u not in REDIR: continue
-        off = a - secs[tsec][1]
-        rel[tsec] = [r_ for r_ in rel[tsec] if not off - 3 <= r_[0] < off + 5]       # pointer fields inside the 5 patched bytes are gone with them
-        data[tsec][off:off + 5] = b"\xe9\0\0\0\0"
-        rel[tsec].append((off + 1, nm_, 0x14)); undef_syms.append(nm_); redirected.add(u); redir_at[a] = u
+        cs_ = sec_index(a); off = a - secs[cs_][1]
+        rel[cs_] = [r_ for r_ in rel[cs_] if not off - 3 <= r_[0] < off + 5]       # pointer fields inside the 5 patched bytes are gone with them
+        data[cs_][off:off + 5] = b"\xe9\0\0\0\0"
+        rel[cs_].append((off + 1, nm_, 0x14)); undef_syms.append(nm_); redirected.add(u); redir_at[a] = u
     stat["functions redirected to our objects"] = len(redirected)
     byu = {undecorate(n_): n_ for n_ in objdef}
     for fk, ty_ in (("--hook-calls", 0x14), ("--dwords", 0x6)):      # harness lists "<VA>=<symbol>": retarget a 5 byte E8 call (REL32) / store the symbol's address in a 4 byte operand (DIR32)
@@ -310,9 +311,11 @@ if "--drop-app" in opt:
     fsz = {}
     for l in open(os.path.join(G, "output", "fnsizes.txt")):
         a_, n_, z_ = l.split(); fsz[int(a_, 16)] = int(z_)
-    _fs = sorted(fsz); _tend = secs[tsec][1] + secs[tsec][3]
+    _fs = sorted(fsz)
+    _send = lambda a_: secs[sec_index(a_)][1] + secs[sec_index(a_)][3]          # end of the code section holding a_ (.text or _rwcseg)
+    _cend = max(secs[i][1] + secs[i][3] for i in CSECS)
     # extent = up to the next listed function: out-of-line blocks, jump tables and padding behind the sized body belong to it (Ghidra sizes stop at the first ret); live refs into them make the function stay
-    cand = {a_: min(_tend, _fs[bisect.bisect_right(_fs, a_)] if bisect.bisect_right(_fs, a_) < len(_fs) else _tend) for a_ in redir_at if fsz.get(a_, 0) >= 6 and sec_index(a_) == tsec}
+    cand = {a_: min(_send(a_), _fs[bisect.bisect_right(_fs, a_)] if bisect.bisect_right(_fs, a_) < len(_fs) else _send(a_)) for a_ in redir_at if fsz.get(a_, 0) >= 6 and sec_index(a_) in CSECS}
     # Unlisted functions hide in these gaps (reached by raw function pointers, e.g. 0x500510 from a code_interior data word): an extension stays only if no word anywhere in the image
     # (any offset of the code sections, aligned words of the data sections) outside the function's own extent holds an address inside the gap.
     # raw words that were checked by hand to be bitmap / table bytes that only look like an address into a function interior (tools/delink/nonptr_words.txt: site + why)
@@ -362,7 +365,7 @@ if "--drop-app" in opt:
         for i in range(0, len(_bb) - 3, _st):
             if s_[1] + i in _deadset: continue
             v_ = _bb[i] | _bb[i + 1] << 8 | _bb[i + 2] << 16 | _bb[i + 3] << 24
-            if 0x401000 <= v_ < _tend:
+            if 0x401000 <= v_ < _cend:
                 if _rs is None and s_[1] + i not in _dp: continue
                 if _rs is not None and i not in _rs:
                     j_ = bisect.bisect_right(_fs, s_[1] + i) - 1
@@ -380,17 +383,19 @@ if "--drop-app" in opt:
     legacy = {}                # function start -> reason
     # branches into interiors: Ghidra flow refs + the E8 / E9 / 0F 8x byte scan (as in --drop-members)
     brs = set()
+    UNAN = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "fnsizes_unanalysed.txt")) if l.strip() and not l.startswith("#")}      # rows Ghidra never analysed (R5a): byte-scan branches inside them count
     for r in csv.reader(open(os.path.join(G, "output", "delink", "ghidra_refs.csv"))):
         if len(r) < 3 or r[2] not in ("UNCONDITIONAL_CALL", "UNCONDITIONAL_JUMP", "CONDITIONAL_JUMP"): continue
         try: brs.add((int(r[0], 16), int(r[1], 16)))
         except ValueError: continue
-    _tx = secs[tsec]; _b = _tx[2]
-    for i in range(len(_b) - 6):
-        k = 1 if _b[i] in (0xE8, 0xE9) else 2 if _b[i] == 0x0F and 0x80 <= _b[i + 1] <= 0x8F else 0
-        if k:
-            s_ = _tx[1] + i; j_ = bisect.bisect_right(_fs, s_) - 1
-            if j_ >= 0 and s_ < _fs[j_] + fsz[_fs[j_]] and (s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF) not in brs: continue     # inside a sized function body only Ghidra's own flow refs count (else tables / immediates that look like E8 xx xx xx xx)
-            brs.add((s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF))
+    for _tx in (secs[i] for i in sorted(CSECS)):
+        _b = _tx[2]
+        for i in range(len(_b) - 6):
+            k = 1 if _b[i] in (0xE8, 0xE9) else 2 if _b[i] == 0x0F and 0x80 <= _b[i + 1] <= 0x8F else 0
+            if k:
+                s_ = _tx[1] + i; j_ = bisect.bisect_right(_fs, s_) - 1
+                if j_ >= 0 and s_ < _fs[j_] + fsz[_fs[j_]] and _fs[j_] not in UNAN and (s_,(s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF) not in brs: continue     # inside a sized function body only Ghidra's own flow refs count (else tables / immediates that look like E8 xx xx xx xx)
+                brs.add((s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF))
     NONBR = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonbranch_sites.txt")) if l.strip() and not l.startswith("#")}      # byte patterns that only look like a branch
     brs = [(s_, t_, cand_of(t_)) for s_, t_ in sorted(brs) if s_ not in NONBR]; brs = [x for x in brs if x[2] is not None]
     absr = []                  # (site, target) of DIR32 words in kept sections that point into a candidate body
@@ -436,9 +441,10 @@ if "--drop-app" in opt:
             if f in legacy and t_ >= keep_from[f] and not (f <= s_ < cand[f] and s_ >= keep_from[f]) and live(s_): lf.write("%08x,%08x,%08x,%s\n" % (f, s_, t_, "alias" if s_ == 0 else "branch" if (s_, t_, f) in _bs else "word"))
     for a_ in sorted(cand):
         if keep_from[a_] > a_ + 5:
-            hi = keep_from[a_]; off = a_ - secs[tsec][1]
-            rel[tsec] = [r_ for r_ in rel[tsec] if not off + 5 <= r_[0] < hi - secs[tsec][1]]
-            data[tsec][off + 5:hi - secs[tsec][1]] = b"\xcc" * (hi - a_ - 5); stat["drop-app: code bytes filled"] += hi - a_ - 5
+            cs_ = sec_index(a_); hi = keep_from[a_]; off = a_ - secs[cs_][1]
+            rel[cs_] = [r_ for r_ in rel[cs_] if not off + 5 <= r_[0] < hi - secs[cs_][1]]
+            data[cs_][off + 5:hi - secs[cs_][1]] = b"\xcc" * (hi - a_ - 5); stat["drop-app: code bytes filled"] += hi - a_ - 5
+            if cs_ != tsec: stat["drop-app: _rwcseg bytes filled"] += hi - a_ - 5
         if a_ not in legacy: stat["drop-app: functions dropped"] += 1; DAPP.append((a_, cand[a_] - a_, redir_at[a_], "dropped", ""))
         elif keep_from[a_] > a_ + 5: DAPP.append((a_, keep_from[a_] - a_, redir_at[a_], "partial", "tail from %08x kept (%d bytes): %s" % (keep_from[a_], cand[a_] - keep_from[a_], legacy[a_])))
         else: DAPP.append((a_, cand[a_] - a_, redir_at[a_], "legacy", legacy[a_]))
@@ -460,11 +466,11 @@ if "--drop-app" in opt:
     # the whole body: listed as dropped (only when the jmp ends before the next function), size = body + the nop / int3 padding up to the next function, so origbytes
     # counts the jmp as entry stub and the padding as filled (the same split as its T-N18 rule for aligned app thunks, which then no longer sees them)
     for a_ in sorted(redir_at):
-        if a_ not in cand and sec_index(a_) == tsec and 0 < fsz.get(a_, 0) < 6:
-            j_ = bisect.bisect_right(_fs, a_); nx_ = _fs[j_] if j_ < len(_fs) else _tend
+        if a_ not in cand and sec_index(a_) in CSECS and 0 < fsz.get(a_, 0) < 6:
+            cs_ = sec_index(a_); j_ = bisect.bisect_right(_fs, a_); nx_ = min(_fs[j_] if j_ < len(_fs) else _send(a_), _send(a_))
             if nx_ - a_ < 5: continue
             e_ = a_ + 5
-            while e_ < nx_ and data[tsec][e_ - secs[tsec][1]] in (0x90, 0xCC): e_ += 1
+            while e_ < nx_ and data[cs_][e_ - secs[cs_][1]] in (0x90, 0xCC): e_ += 1
             DAPP.append((a_, e_ - a_, redir_at[a_], "dropped", "short body under the entry jmp")); stat["drop-app: short functions under their entry jmp"] += 1
     open(OUT + ".dropapp.csv", "w").write("va,size,name,status,reason\n" + "".join("%08x,%d,%s,%s,%s\n" % x for x in DAPP))
     if blockers: open(OUT + ".blockers.txt", "w").write("\n".join(blockers) + "\n"); print("drop-app blockers: %d (%s.blockers.txt)" % (len(blockers), OUT), file=sys.stderr)

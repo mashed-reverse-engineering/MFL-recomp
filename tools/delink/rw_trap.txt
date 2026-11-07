@@ -345,3 +345,12 @@
 00501aa0 656 _rpWorldSectorNativeWrite
 00501d30 1024 _rpWorldSectorNativeRead
 005244e0 832 RtPNGImageWrite
+# S4 2026-11-06 (lane S, 1 row, 32 B): rtpng.obj static png write-data callback between PNGFree and RtPNGImageRead (ownership rw? lib_524860: io_ptr = png+0x54; stream ? jmp RwStreamWrite : png_error(png, NULL)); its only reference in the whole image is the push at 0x5245da inside RtPNGImageWrite (png_set_write_fn arg), which is the RT3 int3 row above; no installed C names it; proofs: output/rw_trap_round_2026-11-06.csv (class S4)
+00524860 32 lib_524860
+# S3 2026-11-06 (lane S, 1 row, 1,040 B incl. its own 16 B jump table at 0x5748b0): rwp trilist DEFAULT shape callback. Only reference in the image: `mov [esi+0x48], 0x5744b0` at 0x574020 in rwp_trilist_00573ff0 (create); 573ff0's only caller 0x4913a0 (rwp_world_create_once, original and an_hk_622.c alike) overwrites shape+0x48 at once with 56ca60(shape, 0x491280). ONLY together with removing recomp/tier1/rwp_trilist_00573ff0.c (else trapcheck flags it); proofs: output/rw_trap_round_2026-11-06.csv (class S3)
+005744b0 1040 rwp_trilist_callback_005744b0
+# R5b 2026-11-06 (lane R-check, 2 rows, 1,439 B; append to tools/delink/rw_trap.txt): never-run RenderWare writer code of r5a/r5_class.csv still original in link 1106_2043_standalone.
+# Proofs per row: output/rw_trap_round rows in rw_trap_round_r5b.csv (same dir). Coverage: rc/r5b_cov.csv. Not proposed: RtBMPImageWrite (screenshot key 5 -> video_mode_name_format -> RwImageWrite, live; installed C names it),
+# PVSSectorGetChunkSize (C), and the 6 rows of the class that are rw_trap rows already (rxD3D9SkinInstance head, HAnimWrite, CollisionDataStreamWrite, MatFXMaterialStreamWrite, GeomAnimWriteStream, LODAtomicCallBackGetChunkSize).
+004ed400 896 rwD3D9NativeTextureWrite
+005409a1 543 _switchD_5409a1

@@ -1,0 +1,2 @@
+005760b0,rwp_farfield_report_overlaps,report the pairs of an object box with every farfield object whose box overlaps it
+00576670,rwp_farfield_insert_object,insert an object with its box into the farfield cell tree (splitting full leaf cells)

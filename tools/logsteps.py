@@ -37,8 +37,9 @@ def parse(lines, end_hm):
 
 def bad_lines(body, limit=16):
     hits = [l for l in body if BAD.search(l) and not NOT_BAD.search(l)]
-    if "check_all failing check:" in body:      # gate.sh prints the culprit lines after this marker
-        hits = body[body.index("check_all failing check:") + 1:]
+    marks = [i for i, l in enumerate(body) if l.startswith("check_all failing check")]
+    if marks:      # gate.sh prints the last 12 log lines (the failing check names itself last) after this marker
+        hits = body[marks[0] + 1:]
         hits = [l for l in hits if not l.startswith(("GATE FAILED", "  next:"))]
     return hits[-limit:]
 
@@ -90,7 +91,7 @@ GATE FAILED at step 3 (crash-only 15 courses), exit 1; logs in /x
     assert r["failed_step"] == 3 and r["verdict"].startswith("GATE FAILED")
     assert bad_lines(r["steps"][2][4]) == ["course 14: race not reached (crash: aborted)"], bad_lines(r["steps"][2][4])
     assert bad_lines(r["steps"][1][4]) == [] and bad_lines(r["steps"][0][4]) == []
-    ca = ["check_all failing check:", "FAIL declcheck: x.c", "GATE FAILED at step 1 (check_all), exit 1"]
+    ca = ["check_all failing check (last 12 log lines; x):", "FAIL declcheck: x.c", "GATE FAILED at step 1 (check_all), exit 1"]
     assert bad_lines(["noise fail"] + ca) == ["FAIL declcheck: x.c"]
     r = parse(["=== [10:00] step 1/1: x\n", "GATE tier1 PASSED (1 steps)\n"], 10 * 60 + 5)
     assert r["failed_step"] is None and r["steps"][0][3] == 5 and "PASSED" in r["verdict"]

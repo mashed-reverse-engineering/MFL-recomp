@@ -3,7 +3,7 @@
 #include "rwp_common.h"
 
 extern int g_rwp_world_full_warned;
-extern int rwp_farfield_00576670(void *space, unsigned int id, int what);
+extern int rwp_farfield_insert_object(void *space, unsigned int id, int what);
 
 /* Registers a body in the world under `id` (id = -1: the lowest free id; 0 when none is free or it is above the capacity): marks the id used, links body
    and world, clears the wanted / awake / second bit sets and, when the body answers its vtable[6] query, registers it with the space; then
@@ -40,7 +40,7 @@ MflDynWorld *rwp_world_activate_object(MflDynWorld *w, MflDynBody *body, unsigne
   w->bits_awake[id >> 5] &= ~(1 << (id & 0x1f));
   r = body->vtbl[6](body, out);
   if (r) {
-    rwp_farfield_00576670(w->space, id, r);
+    rwp_farfield_insert_object(w->space, id, r);
     w->bits_space[id >> 5] |= 1 << (id & 0x1f);
   } else {
     w->bits_space[id >> 5] &= ~(1 << (id & 0x1f));

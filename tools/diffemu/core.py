@@ -145,7 +145,8 @@ def real_helpers():
     """pure code helpers (x87 / 64 bit arithmetic / stack probe) run for real, never stubbed"""
     if not _REAL:
         for n in ("_ftol", "_ftol2", "__ftol", "__allmul", "__alldiv", "__allrem", "__aulldiv", "__aullrem", "__aulldvrm", "__aullshr", "__allshl", "__allshr", "__chkstk", "_chkstk",
-                  "_CIsin", "_CIcos", "_CIasin", "_CIacos", "_CIsqrt", "_CIpow_pentium4", "_CIatan_pentium4", "_CIexp_pentium4"):
+                  "_CIsin", "_CIcos", "_CIasin", "_CIacos", "_CIsqrt", "_CIpow_pentium4", "_CIatan_pentium4", "_CIexp_pentium4",
+                  "__SEH_prolog", "__SEH_epilog"):      # S2 2026-11-06: the libcmt __try frame builders (size optimised CRT, e.g. raise): pure stack / fs:[0] code that moves its own return address, a stub leaves no frame
             _REAL.update(T().sym.get(n, ()))
     return _REAL
 

@@ -4,8 +4,8 @@
 # LIB_RW=librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath and an RW_DLL built from a librw-mfl tree that has rwmath.cpp.
 # Format as rw_stream.txt: exe_name[=dll_export].
 # Proof: tools/delink/rw_rwmath_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f, MXCSR 0x9fc0 / 0x1f80;
-# the objects with the bytes around them, the engine's dirty list, the return value and CW / MXCSR compared word for word): all 26 checked entries EQUAL (21
-# listed below + the 5 _rwcseg routines); negative fixture (two input words swapped on the DLL side) DIFF on all 26.
+# the objects with the bytes around them, the engine's dirty list, the return value and CW / MXCSR compared word for word): all 26 checked entries EQUAL (all
+# listed below, the 5 _rwcseg routines last); negative fixture (two input words swapped on the DLL side) DIFF on all 26.
 # Callers: RwFrame* from game C and RW (55 / 44 / 24 / 35 / 22 / 1 sites); the vector routines through the engine's vector module pointers (installed by the
 # CPU probe at engine open), the matrix product through the matrix module; the camera tests from the world / atomic render paths.
 RwFrameTranslate=rw37_RwFrameTranslate
@@ -29,7 +29,11 @@ _rwIntelSSEP4V3dTransformVectors=rw37__rwIntelSSEP4V3dTransformVectors
 _rwIntelSSEP4V3dTransformPoint=rw37__rwIntelSSEP4V3dTransformPoint
 _rwIntelSSEP4V3dTransformVector=rw37__rwIntelSSEP4V3dTransformVector
 RpMorphTargetCalcBoundingSphere=rw37_RpMorphTargetCalcBoundingSphere
-# Not listed (DLL kernels exist and are checked, 1e5 EQUAL): the x87 vector / matrix routines in _rwcseg (_rwIntelx86AsmV3dTransform{Points,Vectors,Point,Vector}
-# 0x5dc000..0x5dc160, _rwIntelx86AsmMatrixMultiply 0x5dc2a0).  mkobj's drop-app fills replaced bodies in .text only, so their _orig bodies stay in _rwcseg and the
-# swap saves 0 bytes (scratch link 2026-11-05).  Add the five rows when mkobj fills _rwcseg bodies:
-#   _rwIntelx86AsmV3dTransformPoints=rw37__rwIntelx86AsmV3dTransformPoints  (and ...Vectors / ...Point / ...Vector / _rwIntelx86AsmMatrixMultiply likewise)
+# R1 (2026-11-06): the x87 vector / matrix routines in _rwcseg (0x5dc000..0x5dc160, 0x5dc2a0; 805 B).  mkobj now puts the entry jmp and the drop-app fill into
+# _rwcseg as well (CSECS).  Extra proof: rw_rwmath_check.c compares ebx/esi/edi/ebp and the x87 TOP / tag word after every call (plant = an unbalanced fld1 in
+# front of the DLL entry, must give REGDIFF on every entry).
+_rwIntelx86AsmV3dTransformPoints=rw37__rwIntelx86AsmV3dTransformPoints
+_rwIntelx86AsmV3dTransformVectors=rw37__rwIntelx86AsmV3dTransformVectors
+_rwIntelx86AsmV3dTransformPoint=rw37__rwIntelx86AsmV3dTransformPoint
+_rwIntelx86AsmV3dTransformVector=rw37__rwIntelx86AsmV3dTransformVector
+_rwIntelx86AsmMatrixMultiply=rw37__rwIntelx86AsmMatrixMultiply

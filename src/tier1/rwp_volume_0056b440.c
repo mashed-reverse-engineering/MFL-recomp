@@ -8,7 +8,7 @@ typedef struct RwpFarState { int w[8]; } RwpFarState;
 extern void rwp_farfield_00576f60(int *far_field, unsigned short id, unsigned short arg);
 extern void rwp_farfield_00576bf0(int *far_field, unsigned short id, RwpFarState *out);
 extern void rwp_farfield_00576c50(int *far_field, unsigned short id);
-extern void rwp_farfield_00576670(int *far_field, unsigned short id, RwpFarState *in);
+extern void rwp_farfield_insert_object(int *far_field, unsigned short id, RwpFarState *in);
 /* Moves a body's far-field entry: saves its state if active, resets it, removes the old entry and re-adds the saved state. (Rwp library) */
 RwpWorld *rwp_volume_0056b440(RwpWorld *w, RwpBody *b, unsigned short arg)
 {
@@ -22,7 +22,7 @@ RwpWorld *rwp_volume_0056b440(RwpWorld *w, RwpBody *b, unsigned short arg)
   }
   if (BIT_TEST(w->active_bits, b->id)) rwp_farfield_00576c50(w->far_field, b->id);
   if (saved) {
-    rwp_farfield_00576670(w->far_field, b->id, saved);
+    rwp_farfield_insert_object(w->far_field, b->id, saved);
     BIT_SET(w->active_bits, b->id);
   }
   return w;

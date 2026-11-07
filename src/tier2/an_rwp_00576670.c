@@ -1,3 +1,4 @@
+/* rwp_farfield_insert_object (0x00576670): insert an object with its box into the farfield cell tree (splitting full leaf cells) */
 #include "mfl_tier2.h"
 #include "rwp_farfield.h"
 
@@ -7,7 +8,7 @@
    new child cell (the flagged records are redistributed into the child's octants, the others go on the child's own list).  An object that
    straddles the centre of a cell is kept on that cell's own list.  Returns the index block. */
 /* TIER2: unvalidated 2026-11-02 authority=diffemu */
-unsigned char *rwp_farfield_00576670(unsigned char *f, unsigned int id, MflFfBox *box)
+unsigned char *rwp_farfield_insert_object(unsigned char *f, unsigned int id, MflFfBox *box)
 {
   MflFfBox *e = FF_E(f, id & 0xffff);
   MflFfBox cell, sub;
@@ -21,7 +22,7 @@ unsigned char *rwp_farfield_00576670(unsigned char *f, unsigned int id, MflFfBox
   e->max[0] = FF_MARGIN(f) + box->max[0];
   e->max[1] = box->max[1] + FF_MARGIN(f);
   e->max[2] = box->max[2] + FF_MARGIN(f);
-  rwp_farfield_005760b0(f, e, id);
+  rwp_farfield_report_overlaps(f, e, id);
   cell = *FF_E(f, 0x3ff);
   if (!(e->min[0] >= cell.min[0]) || !(e->max[0] <= cell.max[0]) || !(e->min[1] >= cell.min[1]) || !(e->max[1] <= cell.max[1])
       || !(e->min[2] >= cell.min[2]) || !(e->max[2] <= cell.max[2])) goto own_list;      /* an object outside the world stays on the root's list */

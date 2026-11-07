@@ -474,6 +474,14 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
   slot_offset = slot_index * TRAIL_SLOT_BYTES;
   /* trail not full: record the point */
   if ((&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] != TRAIL_MAX_POINTS) {
+#ifdef MFL_FIX_TRAIL_NAN
+    /* MFL_FIX_TRAIL_NAN (default off, differs from the original): a NaN / infinite point is refused. The original stores it, the strip then holds
+       NaN vertices and the next distance test is false for NaN, so every following point is accepted into the corrupt trail too.
+       (x + y + z) - (x + y + z) is 0 for a finite sum, NaN for NaN / inf. */
+    if (!((*point + point[1] + point[2]) - (*point + point[1] + point[2]) == 0.0f)) {
+      return 0;
+    }
+#endif
     /* first point: only remember it as the last point, no segment length yet */
     if ((&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] == 0) {
       *(float *)((char *)&g_gfx_6c60c0 + slot_offset) = *point;
@@ -488,9 +496,15 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
       work_vec.z = *(float *)((char *)&g_gfx_6c60c8 + slot_offset) - point[2];
       segment_len = RwV3dLength(&work_vec);
       /* too far from the last point */
+#ifdef MFL_FIX_TRAIL_NAN
+      if (!(segment_len <= max_dist)) {      /* MFL_FIX_TRAIL_NAN: a NaN length (stored last point is NaN) is refused too */
+        return 0;
+      }
+#else
       if (max_dist < segment_len) {
         return 0;
       }
+#endif
       *(float *)&(&g_gfx_6c60cc)[slot_index * EFFECT_SLOT_STRIDE] = segment_len;      /* diffemu: a float store into an undefined4 array became an int conversion */
     }
     /* the point becomes the trail centre; two strip vertices sit at +/- half width along side_vec (inferred) */

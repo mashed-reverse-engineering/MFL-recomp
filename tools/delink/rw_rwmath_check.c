@@ -12,7 +12,11 @@
    outputs, random bytes around them), the engine's dirty list head, the return value (not for the matrix product: the original returns
    the caller's eax) and the control word / MXCSR.
    neg = negative fixture (negtest.sh): the DLL side gets two input words swapped (vector x <-> y, near <-> far, bbox sup.x <-> inf.x, ...;
-   for SetIdentity the root's flag bit 0 flipped); the check must report DIFF for every entry. */
+   for SetIdentity the root's flag bit 0 flipped); the check must report DIFF for every entry.
+   R1 (2026-11-06): every call goes through an asm trampoline that loads sentinels into ebx / esi / edi / ebp and reads them back after the call,
+   together with the x87 TOP (status word bits 11-13) and the tag word (fnstenv).  Per entry, over all cases (finite and special): the four registers
+   must come back unchanged on both sides and TOP / tag must equal the original's, else REGDIFF.  fld = planted fixture: an unbalanced fld1 runs in
+   front of the DLL entry; the check must report REGDIFF for every entry. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -128,6 +132,22 @@ static u8 *mkcamera(void) {      /* camera: frame with LTM, projection, recip vi
   return c;
 }
 
+/* call trampoline: g_fn(g_args[0..3]) with ebx / esi / edi / ebp = g_sent; afterwards g_out = those registers, g_ret = eax, g_env = fnstenv image
+   (then fninit + the call's control word: an unbalanced callee does not leave the harness with a dirty x87 stack).  plant_fld: the fld fixture's unbalanced push in front of g_fn2. */
+u32 g_fn, g_fn2, g_args[4], g_ret, g_sent[4], g_out[4], g_savesp; u16 g_env[14];
+u32 tramp(void); extern char plant_fld[];
+__asm__(".text\n.globl _tramp\n_tramp:\n"
+        " pushl %ebx\n pushl %esi\n pushl %edi\n pushl %ebp\n movl %esp, _g_savesp\n"
+        " pushl _g_args+12\n pushl _g_args+8\n pushl _g_args+4\n pushl _g_args\n"
+        " movl _g_sent, %ebx\n movl _g_sent+4, %esi\n movl _g_sent+8, %edi\n movl _g_sent+12, %ebp\n"
+        " call *_g_fn\n"
+        " movl %ebx, _g_out\n movl %esi, _g_out+4\n movl %edi, _g_out+8\n movl %ebp, _g_out+12\n movl %eax, _g_ret\n"
+        " fnstenv _g_env\n fninit\n fldcw _g_env\n"
+        " movl _g_savesp, %esp\n popl %ebp\n popl %edi\n popl %esi\n popl %ebx\n ret\n"
+        ".globl _plant_fld\n_plant_fld:\n fld1\n jmp *_g_fn2\n");
+static u32 call4(void *fn, u32 a, u32 b, u32 c, u32 d) { g_fn = (u32)(uintptr_t)fn; g_args[0] = a; g_args[1] = b; g_args[2] = c; g_args[3] = d; return tramp(); }
+#define P(x) ((u32)(uintptr_t)(x))
+
 static void swap32(void *a, void *b) { u32 t; memcpy(&t, a, 4); memcpy(a, b, 4); memcpy(b, &t, 4); }
 static void *nega, *negb; static int negflip;
 
@@ -137,7 +157,7 @@ static DWORD WINAPI watchdog(LPVOID p) { Sleep((DWORD)(uintptr_t)p); printf("TIM
 static LONG WINAPI crash(EXCEPTION_POINTERS *e) { printf("CRASH (cannot continue) %08lx at %p in %s case %d side %d\n", e->ExceptionRecord->ExceptionCode, e->ExceptionRecord->ExceptionAddress, T[cur_fi].name, cur_case, side); fflush(stdout); ExitProcess(4); return 0; }
 
 int main(int argc, char **argv) {
-  HMODULE m = LoadLibraryA(argv[1]); int N = argc > 3 ? atoi(argv[3]) : 100000, fi, bad_total = 0, neg = argc > 5 && !strcmp(argv[5], "neg"); const char *only = argc > 4 && strcmp(argv[4], "all") ? argv[4] : 0; Bind bind;
+  HMODULE m = LoadLibraryA(argv[1]); int N = argc > 3 ? atoi(argv[3]) : 100000, fi, bad_total = 0, neg = argc > 5 && !strcmp(argv[5], "neg"), fld = argc > 5 && !strcmp(argv[5], "fld"); const char *only = argc > 4 && strcmp(argv[4], "all") ? argv[4] : 0; Bind bind;
   setvbuf(stdout, NULL, _IONBF, 0);
   SetUnhandledExceptionFilter(crash); SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
   CreateThread(NULL, 0, watchdog, (LPVOID)(uintptr_t)(120000u + (u32)N * 40u), 0, NULL);
@@ -152,14 +172,14 @@ int main(int argc, char **argv) {
   if (!bind) { printf("mflrw_rwmath_bind MISSING export\n"); return 1; }
   bind((void *)0x7d2128, (void *)0x4d18d0);
   cw_set(0x7f); mx_set(0x9fc0);
-  printf("control word 0x%x, exe mapped, DLL %s%s\n", cw_now(), argv[1], neg ? "  NEGATIVE FIXTURE: the DLL gets two input words swapped" : "");
+  printf("control word 0x%x, exe mapped, DLL %s%s\n", cw_now(), argv[1], neg ? "  NEGATIVE FIXTURE: the DLL gets two input words swapped" : fld ? "  PLANTED FIXTURE: unbalanced fld1 in front of the DLL entry" : "");
   for (fi = 0; fi < NK; fi++) {
-    void *dll = (void *)GetProcAddress(m, T[fi].name), *orig = (void *)(uintptr_t)T[fi].va; int i, k, bad = 0, badsp = 0, kind = T[fi].kind; long cov[4] = {0};
+    void *dll = (void *)GetProcAddress(m, T[fi].name), *orig = (void *)(uintptr_t)T[fi].va; int i, k, bad = 0, badsp = 0, badreg = 0, kind = T[fi].kind; long cov[4] = {0};
     if (only && !strstr(only, T[fi].name + 5)) continue;
     if (!dll) { printf("%-46s MISSING export\n", T[fi].name); bad_total++; continue; }
     rs = 12345 + 7919 * fi;
     for (i = 0; i < N + N / 5; i++) {
-      void *a0 = 0, *a1 = 0, *a2 = 0; int32_t n = 0, op = 0; float ang = 0; u32 ret[2], eh[2], mxc = i % 2 ? 0x1f80 : 0x9fc0, lnk;
+      void *a0 = 0, *a1 = 0, *a2 = 0; int32_t n = 0, op = 0; float ang = 0; u32 ret[2], eh[2], x87[2], regbad = 0, mxc = i % 2 ? 0x1f80 : 0x9fc0, lnk, angb;
       cur_fi = fi; cur_case = i; special = i >= N; an = 0; nega = negb = 0; negflip = 0;
       ext = rnd() % 6 ? 1.0f : (float)ldexp(1.0, (rnd() % 2 ? 1 : -1) * (int)(40 + rnd() % 80));
       lnk = rnd() % 3 ? 0 : (u32)(uintptr_t)allocr(16);      /* the engine's dirty list: empty (head -> itself) or one foreign link */
@@ -210,15 +230,20 @@ int main(int argc, char **argv) {
         if (neg && !side) { if (nega) swap32(nega, negb); if (negflip) ((u8 *)*(u8 **)((u8 *)a0 + 0xa0))[3] ^= 1; }
         cw_set(0x7f); mx_set(mxc);
         stackwipe();
-        switch (kind) {
-        case K_FTR: case K_FSC: case K_FTF: r = ((F3i)fn)(a0, a1, op); break;
-        case K_FRO: r = ((FRot)fn)(a0, a1, ang, op); break;
-        case K_FID: case K_FON: case K_ZSS: case K_PVM: r = ((F1)fn)(a0); break;
-        case K_BBP: case K_FTS: case K_ISS: case K_IBB: case K_BSP: r = ((F2)fn)(a0, a1); break;
-        case K_VPS: case K_VVS: r = ((F4)fn)(a0, a1, n, a2); break;
-        case K_VP: case K_VV: r = ((F3)fn)(a0, a1, a2); break;
-        case K_MM: ((F3)fn)(a0, a1, a2); r = 0; break;
+        if (fld && !side) { g_fn2 = (u32)(uintptr_t)fn; fn = plant_fld; }
+        for (k = 0; k < 4; k++) g_sent[k] = 0x5e000000u ^ (u32)i * 0x9e3779b1u ^ (u32)k << 28 ^ (u32)side << 20;
+        memcpy(&angb, &ang, 4);
+        switch (kind) {      /* every entry is cdecl with up to 4 word arguments; the trampoline pushes 4 (the extra ones are harmless) */
+        case K_FTR: case K_FSC: case K_FTF: r = call4(fn, P(a0), P(a1), (u32)op, 0); break;
+        case K_FRO: r = call4(fn, P(a0), P(a1), angb, (u32)op); break;
+        case K_FID: case K_FON: case K_ZSS: case K_PVM: r = call4(fn, P(a0), 0, 0, 0); break;
+        case K_BBP: case K_FTS: case K_ISS: case K_IBB: case K_BSP: r = call4(fn, P(a0), P(a1), 0, 0); break;
+        case K_VPS: case K_VVS: r = call4(fn, P(a0), P(a1), (u32)n, P(a2)); break;
+        case K_VP: case K_VV: r = call4(fn, P(a0), P(a1), P(a2), 0); break;
+        case K_MM: call4(fn, P(a0), P(a1), P(a2), 0); r = 0; break;
         }
+        for (k = 0; k < 4; k++) regbad |= g_out[k] != g_sent[k];
+        x87[side] = (u32)(g_env[2] >> 11 & 7) << 16 | g_env[4];      /* TOP, tag word */
         if (side && (kind == K_BBP || kind == K_FTS || kind == K_ISS || kind == K_IBB)) cov[r & 3]++;      /* coverage: the original's answers */
         if (side && kind == K_PVM) cov[(*(u32 *)((u8 *)a0 + 0x2c) & 3)]++;
         r = aoff((void *)(uintptr_t)r) ^ ((u32)cw_now() << 16) ^ (mx_now() & 0xffff ^ mxc); cw_set(0x7f); mx_set(0x9fc0);
@@ -226,6 +251,9 @@ int main(int argc, char **argv) {
         ret[side] = r; eh[side] = aoff(*(u8 **)(eng + 0xbc)) ^ aoff(*(u8 **)(eng + 0xc0)) << 1;
         if (lnk) eh[side] ^= aoff(*(u8 **)(uintptr_t)(lnk + 4)) * 3;
         if (!side) memcpy(after0, arena, an);
+      }
+      if (regbad || x87[0] != x87[1]) {      /* counted in finite and special cases alike */
+        if (++badreg <= 3) printf("  REGDIFF %s case %d: callee-saved %s, x87 TOP/tag dll %05x orig %05x\n", T[fi].name, i, regbad ? "CHANGED" : "kept", x87[0], x87[1]);
       }
       if (ret[0] == ret[1] && eh[0] == eh[1] && !memcmp(after0, arena, an)) continue;
       if (special) { badsp++; continue; }
@@ -236,7 +264,9 @@ int main(int argc, char **argv) {
       }
     }
     printf("%-46s %7d finite cases %s", T[fi].name, N, bad ? "DIFF" : "EQUAL"); if (bad) printf(" (%d mismatches)", bad);
-    printf("; coverage %ld %ld %ld %ld; %d of %d special cases differ\n", cov[0], cov[1], cov[2], cov[3], badsp, N / 5); bad_total += bad != 0;
+    printf("; coverage %ld %ld %ld %ld; %d of %d special cases differ; regs/x87 %s", cov[0], cov[1], cov[2], cov[3], badsp, N / 5, badreg ? "REGDIFF" : "EQUAL");
+    if (badreg) printf(" (%d cases)", badreg);
+    printf("\n"); bad_total += bad != 0 || badreg != 0;
   }
   printf("DONE\n");
   return bad_total != 0;

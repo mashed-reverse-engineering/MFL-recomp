@@ -3,7 +3,7 @@
 # the SSE / x87 vector module routines, RpMorphTargetCalcBoundingSphere; librw-mfl capi/rwmath.cpp) vs the original code of MFL.exe (mapped at its image base), both run
 # natively under Wine in a fresh container (docker run --rm: no mfl_* container touched).  x87 CW 0x7f.
 # Exit 1 on any finite DIFF, a TIMEOUT or a CRASH.  neg = the negative fixture (the DLL gets two input words swapped): must exit 1 with DIFF on every entry
-# (negtest.sh).  Output dir: $OUT (default /tmp/rw_rwmath_check); $EXE overrides the MFL.exe path.  Same mechanism as rw_hanimcam_check.sh.
+# (negtest.sh).  fld = the planted fixture (an unbalanced fld1 in front of the DLL entry): must exit 1 with REGDIFF on every entry.  Output dir: $OUT (default /tmp/rw_rwmath_check); $EXE overrides the MFL.exe path.  Same mechanism as rw_hanimcam_check.sh.
 set -e
 T=$(dirname "$(readlink -f "$0")"); DLL=$(readlink -f "$1"); N=${2:-100000}; O=${OUT:-/tmp/rw_rwmath_check}; E=${EXE:-$T/../../game/MFL.exe}; mkdir -p $O
 i686-w64-mingw32-gcc -O1 -mfpmath=387 -w -Wl,--image-base,0x400000 -Wl,--disable-dynamicbase -o $O/rwmath_check.exe $T/rw_rwmath_check.c

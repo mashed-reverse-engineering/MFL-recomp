@@ -120,6 +120,36 @@ typedef void (__cdecl *MflrwMemBind)(void *exeTable);
 /*0053d6c0*/ extern int __cdecl BMPImageSetSpan(void *image, int y, const void *src, int bpp, int bgr);
 typedef void (__cdecl *MflrwImgreadBind)(char **engine, void *open, void *read, void *skip, void *close, void *create, void *destroy, void *allocPixels,
                                          void *setSpan, void *errorSet);
+/* mflrw.dll rt2d binding (librw-mfl/capi/rwrt2d.cpp): the engine (free list alloc / free, free), Rt2dGlobals from brushFreeList on, the SList functions that
+   allocate, Rt2dPathLock, Rt2dBrushSetUV, RwTextureDestroy, _rwSqrt (above) / _rwInvSqrt, the matrix functions _rt2dCTMGet uses, RwFrameGetLTM (above) */
+/*00948060*/ extern int g_rt_948060;
+/*005d5e90*/ extern void *__cdecl _rwSListGetNewEntry(void *list, unsigned int hint);
+/*005d6030*/ extern int __cdecl _rwSListDestroy(void *list);
+/*00564510*/ extern void *__cdecl Rt2dPathLock(void *path);
+/*00564d90*/ extern void *__cdecl Rt2dBrushSetUV(void *brush, const void *uv0, const void *uv1, const void *uv2, const void *uv3);
+/*004d5bf0*/ extern int __cdecl RwTextureDestroy(void *texture);
+/*004d5470*/ extern float __cdecl _rwInvSqrt(float x);
+/*004d3cd0*/ extern void *__cdecl RwMatrixMultiply(void *dst, const void *a, const void *b);
+/*004d46e0*/ extern void *__cdecl RwMatrixScale(void *matrix, const void *scale, int combineOp);
+/*004d4490*/ extern void *__cdecl RwMatrixInvert(void *dst, const void *src);
+typedef void (__cdecl *MflrwRt2dBind)(char **engine, void *globals, void *slistNewEntry, void *slistDestroy, void *pathLock, void *brushSetUV, void *textureDestroy,
+                                      void *sqrtFn, void *invSqrtFn, void *matMultiply, void *matScale, void *matTranslate, void *matInvert, void *frameGetLTM);
+/* mflrw.dll pngread binding (librw-mfl/capi/rwpngread.cpp): the engine (malloc / free), the stream and image functions RtPNGImageRead calls, RwErrorSet, the
+   error code helper (_rwerror, identical-code folded at 0x53eac0); the stream / image ones are declared with the imgread lines above */
+/*004dd6d0*/ extern void *__cdecl RwImageFreePixels(void *image);
+/*0053eac0*/ extern int __cdecl FUN_0053eac0(int code);
+typedef void (__cdecl *MflrwPngreadBind)(char **engine, void *open, void *read, void *close, void *create, void *allocPixels, void *freePixels, void *destroy,
+                                         void *errorSet, void *errorCode);
+/* mflrw.dll lod binding (librw-mfl/capi/rwlod.cpp): the engine (camera, free list), RpLODAtomicGlobals, the geometry reference functions, RpAtomicSetGeometry,
+   RwFrameGetLTM (above), and the exe addresses of the default LOD selector and the render hook (stored into atomics) */
+/*009488d0*/ extern int RpLODAtomicGlobals;
+/*004f9050*/ extern void *__cdecl RpGeometryAddRef(void *geometry);
+/*004f9060*/ extern int __cdecl RpGeometryDestroy(void *geometry);
+/*004f69e0*/ extern void *__cdecl RpAtomicSetGeometry(void *atomic, void *geometry, unsigned int flags);
+/*00568030*/ extern int __cdecl LODAtomicCallBackSelectLOD(void *atomic);
+/*00568140*/ extern void *__cdecl LODAtomicCallBackRender(void *atomic);
+typedef void (__cdecl *MflrwLodBind)(char **engine, void *globals, void *geomAddRef, void *geomDestroy, void *atomicSetGeometry, void *frameGetLTM, void *defaultSelect,
+                                     void *renderHook);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
@@ -232,6 +262,22 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
     MflrwImgreadBind ibind2 = mflrw ? (MflrwImgreadBind)GetProcAddress(mflrw, "mflrw_imgread_bind") : 0;
     if (ibind2 != 0) ibind2(&RwEngineInstance, (void *)RwStreamOpen, (void *)RwStreamRead, (void *)RwStreamSkip, (void *)RwStreamClose, (void *)RwImageCreate,
                             (void *)RwImageDestroy, (void *)RwImageAllocatePixels, (void *)BMPImageSetSpan, (void *)RwErrorSet);
+  }
+  {
+    MflrwRt2dBind rbind = mflrw ? (MflrwRt2dBind)GetProcAddress(mflrw, "mflrw_rt2d_bind") : 0;
+    if (rbind != 0) rbind(&RwEngineInstance, &g_rt_948060, (void *)_rwSListGetNewEntry, (void *)_rwSListDestroy, (void *)Rt2dPathLock, (void *)Rt2dBrushSetUV,
+                          (void *)RwTextureDestroy, (void *)_rwSqrt, (void *)_rwInvSqrt, (void *)RwMatrixMultiply, (void *)RwMatrixScale, (void *)RwMatrixTranslate,
+                          (void *)RwMatrixInvert, (void *)RwFrameGetLTM);
+  }
+  {
+    MflrwPngreadBind pbind2 = mflrw ? (MflrwPngreadBind)GetProcAddress(mflrw, "mflrw_pngread_bind") : 0;
+    if (pbind2 != 0) pbind2(&RwEngineInstance, (void *)RwStreamOpen, (void *)RwStreamRead, (void *)RwStreamClose, (void *)RwImageCreate, (void *)RwImageAllocatePixels,
+                            (void *)RwImageFreePixels, (void *)RwImageDestroy, (void *)RwErrorSet, (void *)FUN_0053eac0);
+  }
+  {
+    MflrwLodBind lodbind = mflrw ? (MflrwLodBind)GetProcAddress(mflrw, "mflrw_lod_bind") : 0;
+    if (lodbind != 0) lodbind(&RwEngineInstance, &RpLODAtomicGlobals, (void *)RpGeometryAddRef, (void *)RpGeometryDestroy, (void *)RpAtomicSetGeometry,
+                              (void *)RwFrameGetLTM, (void *)LODAtomicCallBackSelectLOD, (void *)LODAtomicCallBackRender);
   }
 #endif
 

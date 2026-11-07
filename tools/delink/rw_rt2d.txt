@@ -1,0 +1,20 @@
+# Group "rt2d" (R2, plan_next_24h_2026-11-06_v2 lane R): the Rt2d kernels the game runs that had no C yet, from librw-mfl/capi/rwrt2d.cpp, written op for op
+# from the disassembly: _rt2dCTMGet (current transform cache), path build (Empty / Moveto / Lineto / Close / Destroy), path bounds (GetBBox, the flat sub path
+# extender), Rt2dBrushCreate.  The CTM stack itself (SetIdentity / Rotate / Push / Pop / Scale / Translate), Rt2dPathCreate / Lock, the brush colour / UV
+# setters are tier1 C or rwleaf2 already.  State: all fields stay in the exe's Rt2dGlobals (mflrw_rt2d_bind gets &g_rt_948060 = brushFreeList, the block up to
+# viewCamera 0x94826c), allocations through the exe engine (free list alloc / free, free), no render state.  Font / charset render stays exe code.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_rt2d_check.sh <mflrw.dll> 100000 (original code mapped at its own address, run natively under Wine at CW 0x7f; one harness bump heap
+# behind the engine's memory functions, its log, the arena, Rt2dGlobals, the return value, callee-saved registers and x87 TOP / tag compared): all 9 EQUAL;
+# negative fixture `neg` (one input changed on the DLL side) DIFF on all 9; planted `fld` (unbalanced fld1) REGDIFF on all 9.
+# Not in the DLL: _rt2dSubPathFlatten (never run, trapped): rw37_Rt2dPathGetBBox aborts on a curved sub path, which only the trapped Rt2dPathCurveto makes.
+# Callers: the UI text / HUD label boxes and the 2D clip path (Rt2dDeviceGetClippath, game C), font flow / bitmap show (exe code).
+_rt2dCTMGet=rw37__rt2dCTMGet
+Rt2dPathEmpty=rw37_Rt2dPathEmpty
+Rt2dPathMoveto=rw37_Rt2dPathMoveto
+Rt2dPathLineto=rw37_Rt2dPathLineto
+Rt2dPathClose=rw37_Rt2dPathClose
+_rt2dFlatSubPathExtendBBox=rw37__rt2dFlatSubPathExtendBBox
+Rt2dPathGetBBox=rw37_Rt2dPathGetBBox
+Rt2dPathDestroy=rw37_Rt2dPathDestroy
+Rt2dBrushCreate=rw37_Rt2dBrushCreate

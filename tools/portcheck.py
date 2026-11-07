@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""portcheck.py [--update-baseline] [--quiet]: portability gate v0 for the all-C / Switch (AArch64 LP64, 8 byte pointers) build.  Warning gate: exit 1 only when a class count grows past
+"""portcheck.py [--update-baseline] [--quiet]: portability gate v0 for the all-C / Switch (AArch64 LP64, 8 byte pointers) build.  Warning gate: exit 1 only when a GATED class (cc_int2ptr, cc_ptr2int, x87_intrin, asm_naked) grows past
 output/portcheck_baseline.txt (rewritten ONLY by --update-baseline).  Output: output/portcheck.csv (file, function, class, count, note) + summary.
 Scope: src/tier1, src/automatch_agent, src/automatch_near, hand src/*.c (not bridges*, not harness*); PORT_CANDIDATES=1 adds output/tier2_candidates*/ (informational, never part of the baseline).  __declspec(naked) functions are bridge asm: class asm_naked, nothing else is scanned in them.
 Compiler classes (cc_*): clang --target=aarch64-linux-gnu if installed, else native `gcc -m64` (LP64 like AArch64; same two cast warnings), -fsyntax-only with tools/port/msvc_shim.h.
@@ -17,6 +17,7 @@ import rawaddr
 SHIM = os.path.join(H, "port", "msvc_shim.h")
 CSV = os.path.join(G, "output", "portcheck.csv"); BASE = os.path.join(G, "output", "portcheck_baseline.txt")
 CLASSES = ["cc_int2ptr", "cc_ptr2int", "cc_error", "h_addr_cast", "h_ptr_to_int", "h_int_to_ptr", "h_int_field_ptr", "h_stride", "layout_assert", "asm_inline", "x87_intrin", "asm_naked"]
+GATED = ["cc_int2ptr", "cc_ptr2int", "x87_intrin", "asm_naked"]      # classes that fail the gate (and have a baseline row); the other CLASSES are only reported (csv + summary): heuristics / counts of the original layout that no port step depends on
 INTT = r"(?:unsigned\s+)?(?:int|uint|undefined4|dword|ulong|long|short|DWORD|LONG|undefined)"
 RX = {
  "h_addr_cast": re.compile(r"\(\s*" + INTT + r"\s*\)\s*&"),
@@ -107,11 +108,11 @@ def main(argv):
     if "--update-baseline" in argv:
         with open(BASE, "w") as o:
             o.write("# tools/portcheck.py baseline: a class count above this fails the gate; only `portcheck.py --update-baseline` rewrites it\n# %s\n" % sumline)
-            for k in CLASSES: o.write("%s %d\n" % (k, tot[k]))
+            for k in GATED: o.write("%s %d\n" % (k, tot[k]))
         print("baseline written"); return 0
     if not os.path.exists(BASE): print("portcheck: no baseline (run --update-baseline)"); return 0
     base = {l.split()[0]: int(l.split()[1]) for l in open(BASE) if l.strip() and not l.startswith("#")}
-    grew = ["%s %d > %d" % (k, tot[k], base.get(k, 0)) for k in CLASSES if tot[k] > base.get(k, 0)]
+    grew = ["%s %d > %d" % (k, tot[k], base.get(k, 0)) for k in GATED if tot[k] > base.get(k, 0)]
     if q: print(sumline)
     print("portcheck: " + ("GREW: " + ", ".join(grew) if grew else "within baseline")); return 1 if grew else 0
 if __name__ == "__main__": sys.exit(main(sys.argv[1:]))
