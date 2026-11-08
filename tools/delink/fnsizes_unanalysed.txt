@@ -181,3 +181,8 @@
 00568420 LODAtomicCallBackOpen
 00568460 LODAtomicCallBackClose
 004ef150 _rwD3D9ImageFindRasterFormat
+004ea370 StrUpr
+004ea3a0 StrLwr
+004ea3d0 StrChr
+004ea3f0 StrRChr
+004e3200 rwD3D9RasterGetMipLevels

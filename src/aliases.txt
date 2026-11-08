@@ -5373,3 +5373,15 @@ _SEH_epilog 004b59af
 _exit 004b323c
 _getptd 004b8800
 _rwD3D9ImageFindRasterFormat 004ef150
+StrUpr 004ea370
+StrLwr 004ea3a0
+StrChr 004ea3d0
+StrRChr 004ea3f0
+strncpy 004b34a0
+strstr 004b3850
+strncmp 004b3a80
+strlen 004ba2b0
+strcmp 004c0320
+sscanf 005d368d
+strncat 005d36d0
+rwD3D9RasterGetMipLevels 004e3200

@@ -207,6 +207,33 @@ extern void __cdecl RwRasterGetCurrentContext(void), _rwD3D9SetVertexDeclaration
   FUN_004db400(void), RwD3D9CreateVertexDeclaration(void), RwD3D9DeleteVertexDeclaration(void), RwD3D9SetTextureStageState(void), _rwD3D9RenderStateFlushCache(void),
   _rwD3D9RWGetRasterStage(void);
 typedef int (__cdecl *MflrwD3dim2dBind)(int n, void *const *table);
+/* mflrw.dll d3dras binding (librw-mfl/capi/d3dras.cpp): the raster create / lock / destroy core of d3d9raster works on the exe's device, IDirect3D9 object, adapter,
+   caps / display / depth formats, the pixel format tables, the d3d9raster bss (palette index stack, palette free list, video-memory raster list), its 3 error strings
+   and these exe callees (table order = d3dras.cpp enum B; the last entry 0 = GetClientRect from the DLL's own user32 import) */
+/*004e32c0*/ extern unsigned char RwD3D9RasterCreate[];      /* a jmp [__imp_] thunk (ff 25) when LIB_RW lists d3dras */
+extern int _RwDirect3DObject, _RwD3DAdapterIndex, _RwD3DAdapterType, WindowHandle, _RwD3D9DepthStencilSurface, _RwD3D9RenderSurface;      /* 0x7d2234..0x7d2248, 0x62e748 */
+extern int g_rw_9475f0, _RwD3D9ZBufferDepth, g_rw_947748, g_rw_947768;      /* adapter format, z-buffer depth, display format, depth-stencil format */
+extern int NumPaletteIndexFree, MaxPaletteIndexFree, MaxPaletteIndex, PaletteIndexFree, PaletteFreeList, VideoMemoryRasters, VideoMemoryRastersFreeList;      /* 0x7d27f4.. */
+extern char s_Camera_raster_is_too_big__0062e8b4[], s_Failed_to_create_texture__0062e8d0[], s_Palletized_texture_can_only_be_r_0062e8f0[];
+extern void __cdecl RwRasterCreate(void), RwRasterDestroy(void), _rwD3D9CheckRasterSize(void), _rwD3D9CheckValidCameraTextureFormat(void),
+  _rwD3D9CheckValidZBufferTextureFormat(void), _rwD3D9CheckAutoMipmapGenTextureFormat(void), _rwD3D9CheckAutoMipmapGenCameraTextureFormat(void),
+  rwD3D9CreateCameraTextureRaster(void), rwD3D9CreateZBufferRaster(void), RwTextureRasterGenerateMipmaps(void), _rwD3D9RWSetRasterStage(void);
+/* mflrw.dll d3dlights binding (librw-mfl/capi/d3dlights.cpp): the D3D9 world lights and the device light setters work on the exe's device, engine (current world,
+   memory table), the d3d9lights bss block (addressed from D3D9LightOffset 0x7d54a0, the only symbol of the span), the ambient colour, MaxNumLights / LightsCache and
+   these exe callees (table order = d3dlights.cpp enum B; RwFrameGetLTM and RwD3D9SetRenderState declared above) */
+/*004db740*/ extern unsigned char RwD3D9SetLight[];      /* a jmp [__imp_] thunk (ff 25) when LIB_RW lists d3dlights */
+/*007d54a0*/ extern int g_rw_7d54a0;
+/*007d269c*/ extern int g_rw_7d269c;
+/*007d26a0*/ extern int g_rw_7d26a0;
+/*004dbca0*/ extern void __cdecl FUN_004dbca0(void);      /* RwD3D9GetCaps */
+/*004f4a70*/ extern float __cdecl RpLightGetConeAngle(const void *light);
+/* mflrw.dll d3dxform binding (librw-mfl/capi/d3dxform.cpp): the transform / stream / declaration caches of d3d9device work on the exe's device, engine (free-list
+   alloc / free), these cache variables and RwFreeListCreate (declared above) / Purge (table order = d3dxform.cpp enum B) */
+/*004db5d0*/ extern unsigned char RwD3D9GetTransform[];      /* a jmp [__imp_] thunk (ff 25) when LIB_RW lists d3dxform */
+extern int _rwD3D9LastFVFUsed, _rwD3D9LastVertexDeclarationUsed, _rwD3D9LastVertexShaderUsed, _rwD3D9LastPixelShaderUsed, _rwD3D9LastIndexBufferUsed;      /* 0x62e760.. */
+extern int LastVertexStreamUsed[], LastWorldMatrixUsedIdentity, LastMatrixUsed[], MatrixFreeList;      /* 0x7d21f0, 0x7d2284, 0x7d2288 (0x104), 0x7d2698 */
+extern char IdentityMatrix[], g_rw_62e7f0[];      /* 0x5ea090, the world D3DMATRIX scratch 0x62e7f0 */
+/*004e9510*/ extern void __cdecl RwFreeListPurge(void);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
@@ -383,6 +410,53 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
     int ok = (char *)DynamicVertexBufferManager - (char *)&UseOwnVertexBuffer == 0x54 && ibind3 != 0 && ibind3(21, d3dim2dTable);
     if (linked && !ok) {
       MessageBoxA(0, "mflrw.dll has no usable mflrw_d3dim2d_bind, but this exe takes the D3D9 Im2D renderer / vertex buffer manager (LIB_RW group d3dim2d) from it.", "MFL", 0x10);
+      ExitProcess(3);
+    }
+  }
+  {
+    /* d3dras: as d3dim2d, a missing or refused bind is fatal when the group is linked, optional when it is not */
+    static void *const d3drasTable[44] = {
+      &g_d3d9_device, &_RwDirect3DObject, &_RwD3DAdapterIndex, &_RwD3DAdapterType, &WindowHandle, &_RwD3D9DepthStencilSurface, &_RwD3D9RenderSurface,
+      &RwEngineInstance, &_RwD3D9RasterExtOffset, _RwD3D9DeviceCaps, &g_rw_9475f0, &g_rw_9475f4, &_RwD3D9ZBufferDepth, &g_rw_947748, &g_rw_947768,
+      _rwD3D9PixelFormatInfo, _rwRasterConvTable, &NumPaletteIndexFree, &MaxPaletteIndexFree, &MaxPaletteIndex, &PaletteIndexFree, &PaletteFreeList,
+      &VideoMemoryRasters, &VideoMemoryRastersFreeList,
+      s_Camera_raster_is_too_big__0062e8b4, s_Failed_to_create_texture__0062e8d0, s_Palletized_texture_can_only_be_r_0062e8f0,
+      (void *)RwErrorSet, (void *)FUN_0053eac0, (void *)RwFreeListCreate, (void *)RwRasterCreate, (void *)RwRasterDestroy, (void *)_rwD3D9CheckRasterSize,
+      (void *)_rwD3D9CheckValidTextureFormat, (void *)_rwD3D9CheckValidCameraTextureFormat, (void *)_rwD3D9CheckValidZBufferTextureFormat,
+      (void *)_rwD3D9CheckAutoMipmapGenTextureFormat, (void *)_rwD3D9CheckAutoMipmapGenCameraTextureFormat, (void *)rwD3D9CreateCameraTextureRaster,
+      (void *)rwD3D9CreateZBufferRaster, (void *)RwTextureRasterGenerateMipmaps, (void *)_rwD3D9RWGetRasterStage, (void *)_rwD3D9RWSetRasterStage, 0};
+    MflrwD3dim2dBind rbind3 = mflrw ? (MflrwD3dim2dBind)GetProcAddress(mflrw, "mflrw_d3dras_bind") : 0;
+    int linked = RwD3D9RasterCreate[0] == 0xff && RwD3D9RasterCreate[1] == 0x25;
+    int ok = rbind3 != 0 && rbind3(44, d3drasTable);
+    if (linked && !ok) {
+      MessageBoxA(0, "mflrw.dll has no usable mflrw_d3dras_bind, but this exe takes the D3D9 raster create / lock / destroy functions (LIB_RW group d3dras) from it.", "MFL", 0x10);
+      ExitProcess(3);
+    }
+  }
+  {
+    /* d3dlights: as d3dim2d, a missing or refused bind is fatal when the group is linked, optional when it is not */
+    static void *const d3dlightsTable[10] = {
+      &g_d3d9_device, &RwEngineInstance, &g_rw_7d54a0, g_rw_62e718 + 0x20 /* ambient colour 0x62e738 */, &g_rw_7d269c, &g_rw_7d26a0,
+      (void *)FUN_004dbca0, (void *)RwFrameGetLTM, (void *)RpLightGetConeAngle, (void *)RwD3D9SetRenderState};
+    MflrwD3dim2dBind lbind3 = mflrw ? (MflrwD3dim2dBind)GetProcAddress(mflrw, "mflrw_d3dlights_bind") : 0;
+    int linked = RwD3D9SetLight[0] == 0xff && RwD3D9SetLight[1] == 0x25;
+    int ok = lbind3 != 0 && lbind3(10, d3dlightsTable);
+    if (linked && !ok) {
+      MessageBoxA(0, "mflrw.dll has no usable mflrw_d3dlights_bind, but this exe takes the D3D9 world lights / light setters (LIB_RW group d3dlights) from it.", "MFL", 0x10);
+      ExitProcess(3);
+    }
+  }
+  {
+    /* d3dxform: as d3dim2d, a missing or refused bind is fatal when the group is linked, optional when it is not */
+    static void *const d3dxformTable[15] = {
+      &g_d3d9_device, &RwEngineInstance, &_rwD3D9LastFVFUsed, &_rwD3D9LastVertexDeclarationUsed, &_rwD3D9LastVertexShaderUsed, &_rwD3D9LastPixelShaderUsed,
+      &_rwD3D9LastIndexBufferUsed, LastVertexStreamUsed, &LastWorldMatrixUsedIdentity, LastMatrixUsed, &MatrixFreeList, IdentityMatrix, g_rw_62e7f0,
+      (void *)RwFreeListCreate, (void *)RwFreeListPurge};
+    MflrwD3dim2dBind xbind3 = mflrw ? (MflrwD3dim2dBind)GetProcAddress(mflrw, "mflrw_d3dxform_bind") : 0;
+    int linked = RwD3D9GetTransform[0] == 0xff && RwD3D9GetTransform[1] == 0x25;
+    int ok = xbind3 != 0 && xbind3(15, d3dxformTable);
+    if (linked && !ok) {
+      MessageBoxA(0, "mflrw.dll has no usable mflrw_d3dxform_bind, but this exe takes the D3D9 transform / stream / declaration caches (LIB_RW group d3dxform) from it.", "MFL", 0x10);
       ExitProcess(3);
     }
   }

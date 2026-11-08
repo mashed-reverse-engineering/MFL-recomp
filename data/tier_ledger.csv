@@ -10,6 +10,7 @@ BuildPolySectorCreate,0054ed50,tier1,bytes,bytes-reloc,aaa6b608de16,33bf93632a05
 BuildTreeCountLeafNodes,0054ee10,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
 BuildTreeDestroy,0054e470,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
 CalculateIndexCharacter,?,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
+ChunkIsComplex,004dc630,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,698055b3fe66,33bf93632a05,8145f58143ac,200,0.75,0,1
 CollisionAtomicInit,0054da00,tier1,bytes,bytes-reloc,3e3be0c2b5f9,33bf93632a05,8145f58143ac,0,0.00,0,0
 CollisionClose,0054d800,tier1,bytes,bytes-reloc,e14a6244203f,33bf93632a05,8145f58143ac,0,0.00,0,0
 CollisionDataDestructor,0054d810,tier1,bytes,bytes-reloc,232753d80d61,33bf93632a05,8145f58143ac,0,0.00,0,0
@@ -632,6 +633,9 @@ _rwResourcesPurge,004ea8e0,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0
 _rwSListCreate,005d5db0,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
 _rwSListGetNewEntries,005d5f40,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
 _rwSListGetNewEntry,005d5e90,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
+_rwStreamReadChunkHeader,004dc540,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,44bbe3a127a6,33bf93632a05,8145f58143ac,200,1.00,0,1
+_rwStringOpen,004ea210,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,167ec1b72def,33bf93632a05,8145f58143ac,200,1.00,0,1
+_rwStringStreamFindAndRead,004ea4b0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,8ce5c0940605,33bf93632a05,8145f58143ac,200,0.10,0,1
 _rwVectorSetMultFn,004d4ed0,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
 _rwaHeapModuleClose,005beb30,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0
 _rwaNULLWaveRegister,005bb460,tier1,bytes,bytes-reloc,-,33bf93632a05,8145f58143ac,0,0.00,0,0

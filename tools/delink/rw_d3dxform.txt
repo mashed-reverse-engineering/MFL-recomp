@@ -1,0 +1,14 @@
+# Group "d3dxform" (plan_engine_switch_window2_2026-11-08 v1/v2, D4): the transform / stream / vertex declaration caches of d3d9device.obj (D3D9ClearCacheShaders /
+# Matrix 0x4d87e0..0x4d88d0, 0x4db1b0..0x4db1f0, 0x4db270..0x4db400, 0x4db470..0x4db740) from librw-mfl/capi/d3dxform.cpp, written op for op from the disassembly;
+# kernel on exe state (last FVF / declaration / shaders / index buffer 0x62e760..0x62e770, stream caches 0x7d21f0, world identity flag 0x7d2284, matrix pointers
+# 0x7d2288, matrix free list 0x7d2698, world scratch 0x62e7f0 stay in the exe), the device and the free list are the exe's.  Needs mflrw_d3dxform_bind (rw_engine_init,
+# recomp/automatch_near/an_hk_612.c: fatal if this group is linked and the bind is missing or refused).  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3dxform_check.sh <mflrw.dll> (fake device tools/delink/fakedev.c; original code and DLL run the same op sequences natively under Wine).
+D3D9ClearCacheShaders=rw37_D3D9ClearCacheShaders
+D3D9ClearCacheMatrix=rw37_D3D9ClearCacheMatrix
+_rwD3D9SetVertexDeclaration=rw37__rwD3D9SetVertexDeclaration
+RwD3D9SetStreamSource=rw37_RwD3D9SetStreamSource
+_rwD3D9SetStreams=rw37__rwD3D9SetStreams
+RwD3D9SetTransform=rw37_RwD3D9SetTransform
+RwD3D9GetTransform=rw37_RwD3D9GetTransform
+RwD3D9SetTransformWorld=rw37_RwD3D9SetTransformWorld

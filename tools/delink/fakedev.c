@@ -72,6 +72,13 @@ static long __stdcall fd_DrawPrimitive(void *self, uint32_t type, uint32_t start
 static long __stdcall fd_DrawIndexedPrimitive(void *self, uint32_t type, int32_t base, uint32_t minIdx, uint32_t nv, uint32_t start, uint32_t count) {
   fakedev_log(FAKEDEV_TAG | 82); fakedev_log(type); fakedev_log((uint32_t)base); fakedev_log(minIdx); fakedev_log(nv); fakedev_log(start); fakedev_log(count); return fakedev_hr;
 }
+/* ---- lane D3 recorders (d3dlights): 51 SetLight (index + the 26 words of the D3DLIGHT9), 53 LightEnable */
+static long __stdcall fd_SetLight(void *self, uint32_t i, const uint32_t *l) { int k; fakedev_log(FAKEDEV_TAG | 51); fakedev_log(i); for (k = 0; k < 26; k++) fakedev_log(l[k]); return fakedev_hr; }
+static long __stdcall fd_LightEnable(void *self, uint32_t i, int32_t e) { fakedev_log(FAKEDEV_TAG | 53); fakedev_log(i); fakedev_log((uint32_t)e); return fakedev_hr; }
+/* ---- lane D4 recorders (d3dxform): 44 SetTransform (state + the 16 words of the matrix), 87 SetVertexDeclaration, 100 SetStreamSource */
+static long __stdcall fd_SetTransform(void *self, uint32_t st, const uint32_t *m) { int k; fakedev_log(FAKEDEV_TAG | 44); fakedev_log(st); for (k = 0; k < 16; k++) fakedev_log(m[k]); return fakedev_hr; }
+static long __stdcall fd_SetVertexDeclaration(void *self, uint32_t d) { fakedev_log(FAKEDEV_TAG | 87); fakedev_log(d); return fakedev_hr; }
+static long __stdcall fd_SetStreamSource(void *self, uint32_t s, uint32_t vb, uint32_t off, uint32_t stride) { fakedev_log(FAKEDEV_TAG | 100); fakedev_log(s); fakedev_log(vb); fakedev_log(off); fakedev_log(stride); return fakedev_hr; }
 void fakedev_reset_bufs(void) { fd_nbuf = 0; fakedev_createhr = 0; fakedev_lockhr = 0; }
 
 void *fakedev_init(void) {
@@ -82,6 +89,8 @@ void *fakedev_init(void) {
   /* ---- other lanes: add their slots here */
   fakedev_vtbl[4] = (void *)fd_GetAvailableTextureMem; fakedev_vtbl[26] = (void *)fd_CreateVertexBuffer; fakedev_vtbl[27] = (void *)fd_CreateIndexBuffer;
   fakedev_vtbl[81] = (void *)fd_DrawPrimitive; fakedev_vtbl[82] = (void *)fd_DrawIndexedPrimitive;
+  fakedev_vtbl[51] = (void *)fd_SetLight; fakedev_vtbl[53] = (void *)fd_LightEnable;
+  fakedev_vtbl[44] = (void *)fd_SetTransform; fakedev_vtbl[87] = (void *)fd_SetVertexDeclaration; fakedev_vtbl[100] = (void *)fd_SetStreamSource;
   { void *const t[16] = { (void *)fb_trap_0, (void *)fb_trap_1, (void *)fb_Release, (void *)fb_trap_3, (void *)fb_trap_4, (void *)fb_trap_5, (void *)fb_trap_6, (void *)fb_trap_7,
                           (void *)fb_trap_8, (void *)fb_trap_9, (void *)fb_trap_10, (void *)fb_Lock, (void *)fb_Unlock, (void *)fb_trap_13, (void *)fb_trap_14, (void *)fb_trap_15 };
     for (i = 0; i < 16; i++) fd_bufvtbl[i] = t[i]; }

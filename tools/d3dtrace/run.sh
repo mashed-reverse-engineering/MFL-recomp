@@ -4,13 +4,14 @@
 # Scenarios: menu | title (FR frames_total frames of title/menu start, frame-locked) | cup | course:<N> (quick battle, course page moved down N times, see wine-run/race_script.sh) | script:<file> (own play.sh script, no freeze)
 # Env: SEG (race|countdown), DRIVE (scen_flags mask, default 9 = accelerate + opponents frozen), SCEN_ROW/SCEN_RIGHT (cup), PHASE_MIN (first race phase logged, default 5 = countdown),
 #      GEOM (1/0 hash vertex/index buffers), SLOT (local slot name, default 1: the global slot decides), CTRL_BUILD (dir with ctrl.exe + ctrl.exe.map),
+#      ALOCK=1 (worker threads in lockstep, d3d9.c alock), D3DP_DLL (proxy build to use instead of d3d9.dll here),
 #      MFL_INSTALL (install dir with App_Executables), MAX_FRAMES, RUN_TIMEOUT (s, default 240), TMPDIR (scratch mounted into the containers).
 # SA_EXE=<link dir>/ours.exe SA_DELTA=<hex> (e.g. <link dir>/ours.exe, 112000): record the standalone link (game dir <link dir>/game, harness addresses from ours.map) instead of the ctrl build.
 # Result: <out dir>/trace.raw (change stream), <out dir>/run.txt (params, exit code), screenshots (wine-run shots) when taken.  Then: normalise.py trace.raw.
 T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f "$T/../.."); WR=$(readlink -f "$T/../wine-run")
 # N1: STATEHASH=1 -> statehash=1 in the cfg (sh_delta = SA_DELTA), result <out dir>/statehash.bin (tools/d3dtrace/statecmp.py); SH_POKE=<frame>:<va>:<xor> perturbs one dword
 # gate exclusion: refuse while a gate holds the gate lock file (as run.py does for tools/wine-run)
-[ -n "$MFL_IN_GATE" ] || flock -n ${GATE_LOCK:-/tmp/claude-$(id -u)/gate.lock} true || { echo "run.sh: REFUSED: a gate is running (gate.lock held)"; exit 2; }
+[ -n "$MFL_IN_GATE" ] || flock -s -n ${GATE_LOCK:-/tmp/claude-$(id -u)/gate.lock} true || { echo "run.sh: REFUSED: a gate is running (gate.lock held)"; exit 2; }
 SC=${1:?scenario}; OUT=$(readlink -f "${2:?out dir}"); FR=${3:-120}
 export TMPDIR=${TMPDIR:-/tmp/claude-$(id -u)}; export MASHED_ROOT=${MASHED_ROOT:-$(readlink -f "$R/..")}
 MFL_INSTALL=${MFL_INSTALL:-$R/../MashedGame/FullyLoaded/installed}
@@ -35,13 +36,14 @@ def mv(m):
 for l in sys.stdin: sys.stdout.write(re.sub(r'0x[0-9a-fA-F]+', mv, l))"; }
 else cp $CTRL_BUILD/ctrl.exe $CTRL_BUILD/ctrl.exe.map $W/; MAP=$W/ctrl.exe.map; export MAP; satr() { cat; }; fi
 mapva() { grep "^$1 " $MAP | cut -d' ' -f2; }
-[ -f $T/d3d9.dll ] || make -C $T >/dev/null || { echo "no d3d9.dll (make failed)"; exit 1; }
+DLL=${D3DP_DLL:-$T/d3d9.dll}   # D3DP_DLL=<file>: a test build of the proxy instead of the shared one
+[ -f $DLL ] || make -C $T >/dev/null || { echo "no d3d9.dll (make failed)"; exit 1; }
 if [ -n "$SA_EXE" ]; then $WR/clone.sh $(dirname $SA_EXE)/game $W/run; [ -f $W/run/App_Executables/MFL.exe ] || exit 1; else python3 $WR/prepare.py $MFL_INSTALL $W/run $W/ctrl.exe >/dev/null || exit 1; fi
 AE=$W/run/App_Executables
 # play.sh hard-codes WINEDLLOVERRIDES (no d3d9=n,b possible without editing it, and Wine prefers its builtin d3d9 over a native file in the app dir):
 # the import of the run copy of MFL.exe is renamed d3d9.dll -> d3dp.dll and the proxy is installed under that name (it loads the real d3d9 from system32)
 python3 $T/patch_import.py $AE/MFL.exe d3dp.dll || exit 1
-cp $T/d3d9.dll $AE/d3dp.dll
+cp $DLL $AE/d3dp.dll
 START=${PHASE_MIN:-5}; STOP=0; RF=0x$(mapva race_frames)
 PHA=; [ -n "$SA_EXE" ] && { PHA=$(printf 0x%x $((0x652f68 + 0x$SA_DELTA))); RF=$(awk '$1=="race_frames"{print "0x"$3}' $W/fake.map); }
 STOPPH=0; [ "$SC" = title ] && MAX_FRAMES=${MAX_FRAMES:-$FR}
@@ -49,7 +51,7 @@ case $SC in menu|title|mainmenu) START=0; RF=0;; *) STOP=$FR;; esac
 # SEG=countdown: log only race phase 5 (loading is skipped, camera fly-over of the finished course: deterministic, byte-identical between runs);
 # default SEG=race logs phases 5+6 up to race frame <frames> (the race itself diverges slightly between runs, see README: use diff.py --mask)
 [ "${SEG:-race}" = countdown ] && { STOPPH=6; STOP=0; }
-{ echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-3}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; [ -n "$VDUMP" ] && echo "vdump=1"; [ -n "$STATEHASH" ] && { echo "statehash=1"; echo "sh_delta=${SA_DELTA:-0}"; echo "vsnap=${VSNAP:-2}"; [ "${SRAND:-1}" != 0 ] && echo "srand=3:$([ -n "$SA_EXE" ] && awk '$2=="_srand"{print $3; exit}' ${SA_EXE%.exe}.map || echo 5d365e):1"; for p in $PINS $([ -n "$PINFILE" ] && grep -v '^#' $PINFILE | cut -d' ' -f1); do echo "pin=$p"; done; }; [ -n "$SH_POKE" ] && echo "sh_poke=$SH_POKE"; } > $AE/d3dtrace.cfg
+{ echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-3}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; [ -n "$VDUMP" ] && echo "vdump=1"; [ -n "$STATEHASH" ] && { echo "statehash=1"; echo "sh_delta=${SA_DELTA:-0}"; echo "vsnap=${VSNAP:-2}"; [ "${SRAND:-1}" != 0 ] && echo "srand=3:$([ -n "$SA_EXE" ] && awk '$2=="_srand"{print $3; exit}' ${SA_EXE%.exe}.map || echo 5d365e):1"; for p in $PINS $([ -n "$PINFILE" ] && grep -v '^#' $PINFILE | cut -d' ' -f1); do echo "pin=$p"; done; }; [ -n "$SH_POKE" ] && echo "sh_poke=$SH_POKE"; [ -n "$ALOCK" ] && echo "alock=$ALOCK"; } > $AE/d3dtrace.cfg
 # RWTAP=1: also hook the RW layer (tools/rwtap, mfltap.dll + funcs.txt next to the exe), log -> $OUT/rwtap.log (standalone: the hooks get the link delta)
 RT_=$(readlink -f $T/../rwtap); [ -n "$RWTAP" ] && { [ -f $RT_/mfltap.dll ] || make -C $RT_ >/dev/null || exit 1; cp $RT_/mfltap.dll $RT_/funcs.txt $AE/; echo "rwtap=funcs.txt" >> $AE/d3dtrace.cfg; [ -n "$SA_DELTA" ] && echo "rwtap_delta=$SA_DELTA" >> $AE/d3dtrace.cfg; }
 # ---- the play.sh script
@@ -73,6 +75,6 @@ RT=$(awk -v t=${RUN_TIMEOUT:-240} -v l=$(cut -d" " -f1 /proc/loadavg) 'BEGIN{s=l
 T0=$(date +%s)
 PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT $WR/play.sh $W/run $W/script.txt $OUT/game >/dev/null 2>&1; RC=$?
 cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$STATEHASH" ] && mv $AE/statehash.bin $OUT/statehash.bin;[ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null
-{ echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $T/d3d9.dll | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; } | tee $OUT/run.txt
+{ echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $DLL | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; } | tee $OUT/run.txt
 [ -s $OUT/trace.raw ] || { echo "NO TRACE (override not active or game failed): see $OUT/game/wine.log"; exit 1; }
 python3 $T/normalise.py $OUT/trace.raw $OUT/trace.d3d.gz

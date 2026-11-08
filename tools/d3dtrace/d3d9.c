@@ -11,6 +11,7 @@
  *   vclock=1 step_us=20 anchor_phase=3   virtual clock for the main thread (see below)
  *   max_frames=<n>        stop after n logged Presents (0 = unlimited)
  *   geom=1                hash vertex/index buffer contents at Unlock (default 1)
+ *   alock=1               worker threads in lockstep with the main thread (V6, see alock_step; default off)
  *   statehash=1 sh_delta=<hex> [sh_base= sh_end= sh_out= sh_poke=<frame>:<va>:<xor>]   N1 per-frame state pages (see statehash_frame)
  * Everything printed is deterministic: ids are creation order, floats %.9g, no pointers, no times.
  * Build: make (i686-w64-mingw32-gcc). */
@@ -224,6 +225,7 @@ static HRESULT WINAPI h_BeginScene(void *d) {
 static int cfg_sh, cfg_poke_frame = -1; static u32 cfg_sh_base = 0x5fb000, cfg_sh_end = 0x949d64, cfg_sh_delta, cfg_poke_va, cfg_poke_xor;
 static char cfg_sh_out[260] = "statehash.bin";
 static int is_main(void); static int cfg_vsnap;
+static int cfg_alock, ato; static volatile LONG nth; static void alock_step(int settle);
 static void statehash_frame(int fr, DWORD ph, DWORD rf) {
     static unsigned char *shadow; static FILE *f; static u32 reg[2 * 4096], idx[4096];
     u32 n = cfg_sh_end - cfg_sh_base, np = (n + 4095) / 4096, nr = 0, nc = 0, hd[10];
@@ -251,6 +253,7 @@ static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, c
     DWORD ph = 0, rf = 0;
     if (!IsBadReadPtr((void *)(uintptr_t)cfg_phase_addr, 4)) ph = *(DWORD *)(uintptr_t)cfg_phase_addr;
     if (cfg_racef_addr && !IsBadReadPtr((void *)(uintptr_t)cfg_racef_addr, 4)) rf = *(DWORD *)(uintptr_t)cfg_racef_addr;
+    if (cfg_alock && is_main()) { alock_step(1); if (active && nframes % 100 == 0) L("ALOCK threads=%d timeouts=%d\n", (int)nth, ato); }
     if (active) statehash_frame(nframes, ph, rf);      /* before the real Present: the state the frame was drawn from */
     if (cfg_vclock && cfg_vsnap >= 2 && is_main()) vt_us = (vt_us / 50000 + 1) * 50000;   /* vsnap=2: every frame starts on a 50 ms grid, a clock-call count that differs inside one frame does not carry over */
     HRESULT r = C(HRESULT (WINAPI *)(void *, const RECT *, const RECT *, HWND, const RGNDATA *), 17, d, a, b, w, c);
@@ -480,11 +483,55 @@ static BOOL WINAPI v_QPC(LARGE_INTEGER *c) { c->QuadPart = vnow() * qpf / 100000
 static DWORD WINAPI v_GetTickCount(void) { return (DWORD)(vnow() / 1000) + 100000; }
 static DWORD WINAPI v_timeGetTime(void) { return (DWORD)(vnow() / 1000) + 100000; }
 static void WINAPI v_GetSystemTimeAsFileTime(FILETIME *ft) { ULONGLONG t = 132000000000000000ull + (ULONGLONG)vnow() * 10; ft->dwLowDateTime = (DWORD)t; ft->dwHighDateTime = (DWORD)(t >> 32); }
-static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { vt_us += (LONGLONG)ms * 1000; Sleep(0); } else Sleep(ms); }
+/* alock=1 (V6, harness only, default off): the other threads of the exe (RWA audio / stream workers) run in lockstep with the main thread.
+ * A non-main Sleep, or a timed wait that would block, parks the thread until the main thread releases it: at each Present and at each main-thread
+ * Sleep / wait, the parked threads are released one at a time (registration order) and the main thread waits until each one parks again
+ * (500 ms cap, counted in ato).  Infinite or wait-all waits count as parked while they block.  Wine's own threads (dsound mixer) are not covered. */
+#define NTH 32
+static int cfg_alock, ato; static CRITICAL_SECTION acs;
+static struct { DWORD tid; volatile LONG st; HANDLE ev; } th[NTH];     /* st: 0 running, 1 parked (released by main), 2 blocked in a real wait */
+static volatile LONG nth;
+static int th_slot(void) {
+    DWORD t = GetCurrentThreadId(); int i;
+    for (i = 0; i < nth; i++) if (th[i].tid == t) return i;
+    EnterCriticalSection(&acs); i = nth; if (i < NTH) { th[i].ev = CreateEventA(NULL, FALSE, FALSE, NULL); th[i].tid = t; nth = i + 1; } LeaveCriticalSection(&acs);
+    return i < NTH ? i : -1;
+}
+static void alock_step(int settle) {
+    for (int i = 0; i < nth; i++) {
+        if (InterlockedCompareExchange(&th[i].st, 0, 1) != 1) continue;
+        SetEvent(th[i].ev); DWORD t0 = GetTickCount();
+        while (th[i].st == 0) { if (GetTickCount() - t0 > 500) { ato++; break; } Sleep(0); }
+    }
+    if (settle) { DWORD t0 = GetTickCount(); for (int i = 0; i < nth; i++) while (th[i].st == 0 && GetTickCount() - t0 < 50) Sleep(0); }   /* threads woken by another one */
+}
+static DWORD await(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) {    /* non-main thread, alock */
+    int i = th_slot(); DWORD r = n ? WaitForMultipleObjects(n, hs, all, 0) : WAIT_TIMEOUT;
+    if (i < 0) { if (!n) { Sleep(ms); return 0; } return r != WAIT_TIMEOUT ? r : WaitForMultipleObjects(n, hs, all, ms); }   /* registry full: unchanged */
+    if (r != WAIT_TIMEOUT || (n && ms == 0)) return r;
+    if (all || ms == INFINITE || n >= MAXIMUM_WAIT_OBJECTS) { th[i].st = 2; r = WaitForMultipleObjects(n, hs, all, ms); th[i].st = 0; return r; }
+    HANDLE h2[MAXIMUM_WAIT_OBJECTS]; memcpy(h2, hs, n * sizeof *hs); h2[n] = th[i].ev;
+    th[i].st = 1; r = WaitForMultipleObjects(n + 1, h2, FALSE, INFINITE);
+    if (r != WAIT_OBJECT_0 + n && InterlockedCompareExchange(&th[i].st, 0, 1) != 1) WaitForSingleObject(th[i].ev, INFINITE);   /* main released it meanwhile: eat the event */
+    th[i].st = 0;
+    return r == WAIT_OBJECT_0 + n ? WAIT_TIMEOUT : r;
+}
+static DWORD mwait(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) {    /* main thread, alock: the workers may be what it waits for */
+    DWORD r = WaitForMultipleObjects(n, hs, all, 0);
+    if (r != WAIT_TIMEOUT || ms == 0) return r;
+    alock_step(0);
+    if (ms != INFINITE) return WaitForMultipleObjects(n, hs, all, ms);
+    while ((r = WaitForMultipleObjects(n, hs, all, 20)) == WAIT_TIMEOUT) alock_step(0);
+    return r;
+}
+static DWORD WINAPI v_WaitForMultipleObjects(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) { return !cfg_alock ? WaitForMultipleObjects(n, hs, all, ms) : is_main() ? mwait(n, hs, all, ms) : await(n, hs, all, ms); }
+static DWORD WINAPI v_WaitForSingleObject(HANDLE h, DWORD ms) { return !cfg_alock ? WaitForSingleObject(h, ms) : v_WaitForMultipleObjects(1, &h, FALSE, ms); }
+static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { vt_us += (LONGLONG)ms * 1000; if (cfg_alock) alock_step(0); Sleep(0); } else if (cfg_alock) await(0, NULL, FALSE, ms); else Sleep(ms); }
 static void patch_iat(HMODULE m) {
     unsigned char *b = (unsigned char *)m; IMAGE_DOS_HEADER *dh = (void *)b; IMAGE_NT_HEADERS *nt = (void *)(b + dh->e_lfanew);
     IMAGE_DATA_DIRECTORY *dd = &nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
-    struct { const char *name; void *fn; } hk[] = { {"QueryPerformanceCounter", v_QPC}, {"GetTickCount", v_GetTickCount}, {"timeGetTime", v_timeGetTime}, {"GetSystemTimeAsFileTime", v_GetSystemTimeAsFileTime}, {"Sleep", v_Sleep} };
+    struct { const char *name; void *fn; } hk[] = { {"QueryPerformanceCounter", v_QPC}, {"GetTickCount", v_GetTickCount}, {"timeGetTime", v_timeGetTime}, {"GetSystemTimeAsFileTime", v_GetSystemTimeAsFileTime}, {"Sleep", v_Sleep},
+                                                    {"WaitForSingleObject", v_WaitForSingleObject}, {"WaitForMultipleObjects", v_WaitForMultipleObjects} };
     for (IMAGE_IMPORT_DESCRIPTOR *d = (void *)(b + dd->VirtualAddress); dd->VirtualAddress && d->Name; d++) {
         IMAGE_THUNK_DATA *ot = (void *)(b + (d->OriginalFirstThunk ? d->OriginalFirstThunk : d->FirstThunk)), *ft = (void *)(b + d->FirstThunk);
         for (; ot->u1.AddressOfData; ot++, ft++) {
@@ -518,6 +565,7 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "geom")) cfg_geom = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "statehash")) cfg_sh = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "vsnap")) cfg_vsnap = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "alock")) cfg_alock = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "srand")) sscanf(e, "%u:%x:%u", &cfg_srand_ph, &cfg_srand_va, &cfg_srand_seed);
         else if (!strcmp(ln, "pin") && npin < NPIN && sscanf(e, "%u:%x:%x", &pins[npin].ph, &pins[npin].va, &pins[npin].v) == 3) npin++;
         else if (!strcmp(ln, "sh_base")) cfg_sh_base = (u32)strtoul(e, 0, 16);
@@ -558,6 +606,7 @@ __declspec(dllexport) IDirect3D9 *WINAPI Direct3DCreate9(UINT ver) {
 BOOL WINAPI DllMain(HINSTANCE h, DWORD why, void *r) {
     if (why == DLL_PROCESS_ATTACH) {
         char ob[512]; const char *o; read_cfg(&o, ob);       /* cfg is re-read in Direct3DCreate9 for the log file; the clock must be installed before the game starts */
+        InitializeCriticalSection(&acs);
         if (cfg_vclock) { LARGE_INTEGER f; QueryPerformanceFrequency(&f); qpf = f.QuadPart; main_tid = GetCurrentThreadId(); patch_iat(GetModuleHandleA(NULL)); }
     }
     if (why == DLL_PROCESS_DETACH && lg) fflush(lg);

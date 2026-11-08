@@ -16,7 +16,7 @@ def text_sha(p):
     def off(rva): return next(rp + rva - va for _, va, sz, rp in secs if va <= rva < va + sz)
     _, tva, tsz, trp = next(s for s in secs if s[0] == b".text")
     t = bytearray(d[trp:trp + tsz]); nrel = 0
-    o, end = off(rel_rva), off(rel_rva) + rel_sz
+    o, end = (off(rel_rva), off(rel_rva) + rel_sz) if rel_rva else (0, 0)      # no .reloc (fixed-base exe, e.g. ours.exe): nothing to rebase
     while o < end:
         page, bs = struct.unpack_from("<II", d, o)
         if bs < 8: break

@@ -4087,6 +4087,7 @@
 004e2a30 rwD3D9CreateCameraTextureRaster 426
 004e2be0 rwD3D9CreateZBufferRaster 608
 004e2e40 _rwD3D9RasterDestroy 922
+004e3200 rwD3D9RasterGetMipLevels 117
 004e32c0 RwD3D9RasterCreate 914
 004e3660 _rwD3D9CheckValidTextureFormat 51
 004e36a0 _rwD3D9CheckValidCameraTextureFormat 93
@@ -4185,6 +4186,10 @@
 004ea1c0 RwErrorGet 74
 004ea210 _rwStringOpen 272
 004ea320 FUN_004ea320 72
+004ea370 StrUpr 42
+004ea3a0 StrLwr 42
+004ea3d0 StrChr 26
+004ea3f0 StrRChr 26
 004ea410 _rwStringStreamGetSize 34
 004ea440 _rwStringStreamWrite 99
 004ea4b0 _rwStringStreamFindAndRead 609

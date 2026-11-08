@@ -5,7 +5,7 @@
  * function, the declarations it needs copied from the codfh headers named in the comments (PC build: no _XBOX, no RWDEBUG).
  * Changes: no renames; data definitions of the unit are extern declarations here.
  * P7 (near-miss pilot) fixes for MFL's PC build: RWALIGN is empty (no __declspec(align(16)) on RwMatrix/RwCamera), RwGlobals has no
- * RW 3.6 fileFuncs table (stringFuncs at +0xf4, memoryFuncs at +0x118), Rt2dGlobals has no codfh `unknown` field.
+ * RW 3.6 fileFuncs table (stringFuncs at +0xc4 (vecStrlen +0xf4), memoryFuncs at +0x108, memoryAlloc +0x118), Rt2dGlobals has no codfh `unknown` field.
  * Byte-identical to MFL.exe 0x00565c80 (tools/cmpfn.py /O2 /G5, relocations masked). */
 #include <string.h>
 #include <stdarg.h>
@@ -670,7 +670,7 @@ struct RwGlobals
 
         /* All of the frames which have been updated */
         RwLinkList          dirtyFrameList;
-        /* P7: no RW 3.6 fileFuncs table here in MFL (memoryFuncs at +0x118) */
+        /* P7: no RW 3.6 fileFuncs table here in MFL (stringFuncs at +0xc4 (vecStrlen +0xf4), memoryFuncs at +0x108, memoryAlloc +0x118) */
 		
         /* The string functions */
         RwStringFunctions   stringFuncs;

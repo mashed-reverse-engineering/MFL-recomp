@@ -1,0 +1,14 @@
+# Group "d3dras" (plan_engine_switch_window2_2026-11-08 v2, X2): the raster create / lock / destroy core of d3d9raster.obj (the RW 3.7 D3D9 driver) from
+# librw-mfl/capi/d3dras.cpp, written op for op from the disassembly; kernel on exe state (rasters + D3D9 extension, VideoMemoryRasters list, PaletteFreeList and the
+# palette index stack 0x7d27f4..0x7d280c stay the exe's), the device, the IDirect3D9 object and the free lists are the exe's.  Needs mflrw_d3dras_bind
+# (rw_engine_init, recomp/automatch_near/an_hk_612.c: fatal if this group is linked and the bind is missing or refused).  The rest of d3d9raster.obj (format checks,
+# camera-texture / z-buffer creators, video-memory list release / restore, render quad / clear, ...) stays exe code.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3dras_check.sh <mflrw.dll> (fake device tools/delink/fakedev.c + fakedev_raster.c; original code and DLL run the same op sequences natively under Wine).
+_rwD3D9RasterLock=rw37__rwD3D9RasterLock
+_rwD3D9RasterUnlock=rw37__rwD3D9RasterUnlock
+_rwD3D9FindCorrectRasterFormat=rw37__rwD3D9FindCorrectRasterFormat
+_rwD3D9RasterCreate=rw37__rwD3D9RasterCreate
+rwD3D9CreateTextureRaster=rw37_rwD3D9CreateTextureRaster
+_rwD3D9RasterDestroy=rw37__rwD3D9RasterDestroy
+RwD3D9RasterCreate=rw37_RwD3D9RasterCreate

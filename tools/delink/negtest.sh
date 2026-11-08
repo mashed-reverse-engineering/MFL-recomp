@@ -193,5 +193,28 @@ if ! grep -q mflrw_d3dim2d_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/d2a $T/rw_d3dim2d_check.sh $RD 10 1000 4ecdfc:28 > $O/d2a.txt 2>&1; grep -q 'compared; DIFF' $O/d2a.txt && ok "d3dim2d discard flag: DIFF" || bad "d3dim2d discard-flag fixture not caught"
   OUT=$O/d2b $T/rw_d3dim2d_check.sh $RD 10 1000 4ec9de:03 > $O/d2b.txt 2>&1; grep -q 'compared; DIFF' $O/d2b.txt && ok "d3dim2d ring wrap: DIFF" || bad "d3dim2d ring-wrap fixture not caught"
 fi
+# d3dras (engine switch window 2, X2): rw_d3dras_check.sh must pass and DIFF on two mutations of the original: (a) a palettised PAL8 raster with a given colour format gets
+# depth 4 instead of 8 (mov [esi+0x14],8 -> 4 at 0x4e2284 in _rwD3D9RasterCreate), (b) CreateTextureRaster drops the mip count (levels = 0 always: and esi,1 -> 0 at
+# 0x4e28f7); ~1 min, docker
+if ! grep -q mflrw_d3dras_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dras exports, d3dras fixtures skipped"; else
+  OUT=$O/xrg $T/rw_d3dras_check.sh $RD 10 1000 > $O/xrg.txt 2>&1 && ok "d3dras good: $(grep -c EQUAL $O/xrg.txt) run EQUAL" || bad "d3dras good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/xrg.txt | head -2)"
+  OUT=$O/xra $T/rw_d3dras_check.sh $RD 10 1000 4e2284:04 > $O/xra.txt 2>&1; grep -q 'compared; DIFF' $O/xra.txt && ok "d3dras palettised depth 8 -> 4: DIFF" || bad "d3dras palettised-depth fixture not caught"
+  OUT=$O/xrb $T/rw_d3dras_check.sh $RD 10 1000 4e28f7:00 > $O/xrb.txt 2>&1; grep -q 'compared; DIFF' $O/xrb.txt && ok "d3dras mip count dropped: DIFF" || bad "d3dras mip-count fixture not caught"
+fi
+# d3dlights (engine switch window 2, D3): rw_d3dlights_check.sh must pass and DIFF on two mutations of the original: (a) LightsEnable drops the LightEnable(FALSE) of a
+# light gone since the last frame (call 0x4db830 at 0x505b77 -> 5 nops), (b) RwD3D9SetLight skips the LightsEqual compare (jne at 0x4db7eb -> 2 nops: an unchanged
+# light is sent again); ~1 min, docker
+if ! grep -q mflrw_d3dlights_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dlights exports, d3dlights fixtures skipped"; else
+  OUT=$O/d3g $T/rw_d3dlights_check.sh $RD 10 1000 > $O/d3g.txt 2>&1 && ok "d3dlights good: $(grep -c EQUAL $O/d3g.txt) run EQUAL" || bad "d3dlights good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d3g.txt | head -2)"
+  OUT=$O/d3a $T/rw_d3dlights_check.sh $RD 10 1000 505b77:90 505b78:90 505b79:90 505b7a:90 505b7b:90 > $O/d3a.txt 2>&1; grep -q 'compared; DIFF' $O/d3a.txt && ok "d3dlights dropped LightEnable(FALSE): DIFF" || bad "d3dlights LightEnable(FALSE) fixture not caught"
+  OUT=$O/d3b $T/rw_d3dlights_check.sh $RD 10 1000 4db7eb:90 4db7ec:90 > $O/d3b.txt 2>&1; grep -q 'compared; DIFF' $O/d3b.txt && ok "d3dlights LightsEqual compare skipped: DIFF" || bad "d3dlights LightsEqual fixture not caught"
+fi
+# d3dxform (engine switch window 2, D4): rw_d3dxform_check.sh must pass and DIFF on two mutations of the original: (a) RwD3D9SetTransform drops the cache compare
+# (jne -> jmp at 0x4db4a1: an unchanged matrix is sent again), (b) _rwD3D9SetStreams passes a wrong stride (push edx -> push ecx at 0x4db31b); ~1 min, docker
+if ! grep -q mflrw_d3dxform_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dxform exports, d3dxform fixtures skipped"; else
+  OUT=$O/d4g $T/rw_d3dxform_check.sh $RD 10 1000 > $O/d4g.txt 2>&1 && ok "d3dxform good: $(grep -c EQUAL $O/d4g.txt) run EQUAL" || bad "d3dxform good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d4g.txt | head -2)"
+  OUT=$O/d4a $T/rw_d3dxform_check.sh $RD 10 1000 4db4a1:eb > $O/d4a.txt 2>&1; grep -q 'compared; DIFF' $O/d4a.txt && ok "d3dxform transform cache compare dropped: DIFF" || bad "d3dxform transform-cache fixture not caught"
+  OUT=$O/d4b $T/rw_d3dxform_check.sh $RD 10 1000 4db31b:51 > $O/d4b.txt 2>&1; grep -q 'compared; DIFF' $O/d4b.txt && ok "d3dxform wrong stream stride: DIFF" || bad "d3dxform stream-stride fixture not caught"
+fi
 rm -r $O
 exit $rc

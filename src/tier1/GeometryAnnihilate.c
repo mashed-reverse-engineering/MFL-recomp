@@ -674,7 +674,7 @@ struct RwGlobals
 
         /* All of the frames which have been updated */
         RwLinkList          dirtyFrameList;
-        /* P7: no RW 3.6 fileFuncs table here in MFL (memoryFuncs at +0x118) */
+        /* P7: no RW 3.6 fileFuncs table here in MFL (stringFuncs at +0xc4 (vecStrlen +0xf4), memoryFuncs at +0x108, memoryAlloc +0x118) */
 		
         /* The string functions */
         RwStringFunctions   stringFuncs;

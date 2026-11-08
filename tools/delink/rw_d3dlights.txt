@@ -1,0 +1,17 @@
+# Group "d3dlights" (plan_engine_switch_window2_2026-11-08 v1/v2, D3): the 8 functions of d3d9lights.obj (rpworld, 0x505180..0x505c30, the RW 3.7 D3D9 world
+# lights) and the 3 light setters of d3d9device.obj (0x4db740..0x4db980) from librw-mfl/capi/d3dlights.cpp, written op for op from the disassembly; kernel on exe
+# state (light templates, index free list, active / previous index lists stay in the exe's bss 0x7d53d0..0x7d54d0, the light cache in MaxNumLights / LightsCache,
+# the ambient colour at 0x62e738), the device and the RW memory table are the exe's.  Needs mflrw_d3dlights_bind (rw_engine_init,
+# recomp/automatch_near/an_hk_612.c: fatal if this group is linked and the bind is missing or refused).  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3dlights_check.sh <mflrw.dll> (fake device tools/delink/fakedev.c; original code and DLL run the same op sequences natively under Wine).
+LAB_00505180=rw37_rpD3D9LightDestructor
+LAB_00505270=rw37_rpD3D9LightCopy
+_rwD3D9LightsOpen=rw37__rwD3D9LightsOpen
+_rwD3D9LightsClose=rw37__rwD3D9LightsClose
+rwD3D9LightsGlobalEnable=rw37__rwD3D9LightsGlobalEnable
+_rwD3D9LightDirectionalEnable=rw37__rwD3D9LightDirectionalEnable
+_rwD3D9LightLocalEnable=rw37__rwD3D9LightLocalEnable
+_rwD3D9LightsEnable=rw37__rwD3D9LightsEnable
+RwD3D9SetLight=rw37_RwD3D9SetLight
+RwD3D9EnableLight=rw37_RwD3D9EnableLight
+_rwD3D9LightsEqual=rw37__rwD3D9LightsEqual

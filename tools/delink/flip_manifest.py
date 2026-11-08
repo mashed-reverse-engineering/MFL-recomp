@@ -9,6 +9,8 @@ object basename), scenario coverage (output/scenario/rwcov_*.csv, newest), the r
   trap   0 hits in the coverage union and not a device path: candidate only, the three proofs are still needed
 Rows already in a tools/delink/rw_<group>.txt list get that list's name in `planned` (e.g. d3drs from lane D).
 Also writes the rw_engine.txt draft: the flip rows whose exe name has a librw facade export (librw-mfl capi/rwmfl.def), exe_name=export.
+codfh_file / codfh: the codfh-win32 C file named after the group (rwref/codfh-win32/src/rw/**/<group>.c, --codfh <dir>) and y/n whether `<name>(`
+appears in it (name scan only, body not checked: an upper bound for tier-2 candidates; the md sums it per route, tier2_codfh = the tier2 rows with y).
 Outputs default to output/engine_flip_manifest_<date>.csv / .md and output/rw_engine_draft.txt. Rerunnable; reads only."""
 import collections, csv, datetime, glob, ntpath, os, re, sys
 G = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -16,6 +18,13 @@ A = sys.argv[1:]
 def opt(k, d=None): return A[A.index(k) + 1] if k in A else d
 DEF = opt("--def", os.path.join(G, "..", "librw-mfl", "capi", "rwmfl.def"))
 TODAY = datetime.date.today().isoformat()
+CODFH = opt("--codfh", os.path.join(G, "..", "rwref", "codfh-win32"))
+
+def codfh_files():
+    fs = {}
+    for p in sorted(glob.glob(os.path.join(CODFH, "src", "rw", "**", "*.c"), recursive=True)):
+        fs.setdefault(os.path.splitext(os.path.basename(p))[0].lower(), p)
+    return fs
 
 def newest_gate():
     c = [p for p in glob.glob(os.path.join(G, "output", "gate", "*", "zero_original_ranges.csv"))]
@@ -69,6 +78,7 @@ def main():
             l = l.split("#")[0].strip()
             if l: planned.setdefault(l.split("=")[0].split()[0], g)
     exports = {l.split()[0].split("=")[0] for l in open(DEF) if l.strip() and not l.lstrip().startswith((";", "EXPORTS", "LIBRARY"))} if os.path.exists(DEF) else set()
+    cfs, ctext = codfh_files(), {}
     rows, last_member = [], ""
     for it in items:
         member = it["member"] or ""
@@ -85,6 +95,11 @@ def main():
         blk = GROUP_BLOCK[grp] if rt_final != "trap" and grp in GROUP_BLOCK else BLOCK[rt_final]
         rows.append({"va": "%08x" % it["lo"], "name": name, "bytes": n, "lib": lib, "group": grp, "member_guess": "" if member else "1",
                      "hit": "" if hit is None else hit, "jobs": jobs, "route": rt_final, "route_if_hit": rt, "planned": planned.get(name, ""), "blocker": blk})
+        cf = cfs.get(grp)
+        if cf and cf not in ctext: ctext[cf] = open(cf, errors="replace").read()
+        found = bool(cf) and re.search(r"(?<![A-Za-z0-9])_*%s\s*\(" % re.escape(name.lstrip("_")), ctext[cf]) is not None
+        rows[-1]["codfh_file"] = os.path.relpath(cf, CODFH) if cf else ""
+        rows[-1]["codfh"] = "y" if found else "n"
     out = opt("--out", os.path.join(G, "output", "engine_flip_manifest_%s.csv" % TODAY))
     with open(out, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
@@ -96,6 +111,10 @@ def main():
           "trap = 0 hits in the coverage union (KES rows are never trap candidates); route_if_hit in the csv keeps the route it would have otherwise.", "",
           "| route | KB | rows |", "|---|---:|---:|"]
     for k in ("KES", "flip", "tier2", "trap"): md.append("| %s | %.1f | %d |" % (k, byr[k] / 1024, sum(1 for r in rows if r["route"] == k)))
+    cy = [r for r in rows if r["codfh"] == "y"]
+    md += ["", "codfh name found in the group's codfh-win32 file (codfh = y, name scan, body not checked; upper bound): " +
+           ", ".join("%s %.1f KB / %d" % (k, sum(r["bytes"] for r in cy if r["route"] == k) / 1024, sum(1 for r in cy if r["route"] == k)) for k in ("tier2", "flip", "KES", "trap")) +
+           "; tier2_codfh = %.1f KB." % (sum(r["bytes"] for r in cy if r["route"] == "tier2") / 1024)]
     md += ["", "Routes: " + "; ".join("%s = %s" % (k, v) for k, v in BLOCK.items()), "", "| route | group | KB | rows | planned |", "|---|---|---:|---:|---|"]
     for (rt, g), (b, n) in sorted(by.items(), key=lambda x: (x[0][0], -x[1][0])):
         pl = sorted({r["planned"] for r in rows if r["route"] == rt and r["group"] == g and r["planned"]})

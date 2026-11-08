@@ -8120,6 +8120,7 @@ _rwD3D9LastVertexShaderUsed 0062e768
 _rwD3D9LastPixelShaderUsed 0062e76c
 _rwD3D9LastIndexBufferUsed 0062e770
 _RwD3D9D3D9ProjTransform 0062e778
+g_rw_62e7f0 0062e7f0
 _rwStreamFreeListBlockSize 0062e838
 _rwStreamFreeListPreallocBlocks 0062e83c
 imageTKList 0062e848
@@ -8130,6 +8131,9 @@ _rxHeapInitialSize 0062e870
 _rxPipelineMaxNodes 0062e874
 _rxPipesFreeListBlockSize 0062e878
 _rxPipesFreeListPreallocBlocks 0062e87c
+s_Camera_raster_is_too_big__0062e8b4 0062e8b4
+s_Failed_to_create_texture__0062e8d0 0062e8d0
+s_Palletized_texture_can_only_be_r_0062e8f0 0062e8f0
 QuantDepth 0062e9b8
 FreeListsEnabled 0062e9bc
 _rwPluginRegFreeListBlockSize 0062e9c0
@@ -12551,10 +12555,13 @@ _rwIm3DModule 00947360
 _RwD3D9D3D9ViewTransform 00947380
 dgGGlobals 009473c0
 _RwD3D9AdapterInformation 009473e0
+g_rw_9475f0 009475f0
 g_rw_9475f4 009475f4
 _RwD3D9ZBufferDepth 009475fc
 _RwD3D9DeviceCaps 00947600
 Present 00947740
+g_rw_947748 00947748
+g_rw_947768 00947768
 meshModule 00947778
 RtAnimAnimationFreeListSpace 00947780
 RtAnimInterpolatorInfoBlock 009477c0
