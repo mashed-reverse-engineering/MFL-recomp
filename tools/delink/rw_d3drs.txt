@@ -1,0 +1,29 @@
+# Group "d3drs" (plan_engine_switch_2026-11-07_v2 section 2, D1): the 22 still-original functions of d3d9rendst.obj (0x4e3b30..0x4e63c0, the RW 3.7 D3D9
+# render-state module) from librw-mfl/capi/d3d9rs.cpp, written op for op from the disassembly; kernel on exe state (caches / dirty lists stay in the exe's bss
+# 0x7d2810..0x7d4d1c), the device is the exe's.  Needs mflrw_d3d_bind (rw_engine_init, recomp/automatch_near/an_hk_612.c: fatal if this group is linked and
+# the bind is missing).  The 7 rendst functions that are C in the exe (RwD3D9SetRenderState / GetRenderState / SetSamplerState, SrcBlend, DestBlend,
+# GetRasterStage, IsVertexAlphaEnable) stay.  Engine entries: fpRenderStateSet / Get (RwEngineInstance +0x20 / +0x24) through the driver's device block
+# (0x62e7c8 -> FUN_004e5be0).  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3drs_check.sh <mflrw.dll> (fake device tools/delink/fakedev.c; original code and DLL run the same op sequences natively under Wine).
+_rwD3D9RenderStateFlushCache=rw37__rwD3D9RenderStateFlushCache
+RwD3D9SetTextureStageState=rw37_RwD3D9SetTextureStageState
+RwD3D9SetSurfaceProperties=rw37_RwD3D9SetSurfaceProperties
+_rwD3D9RenderStateOpen=rw37__rwD3D9RenderStateOpen
+_rwD3D9RenderStateReset=rw37__rwD3D9RenderStateReset
+_rwD3D9RWGetRenderState=rw37__rwD3D9RWGetRenderState
+_rwD3D9RenderStateTextureFilter=rw37__rwD3D9RenderStateTextureFilter
+_rwD3D9RWSetRasterStage=rw37__rwD3D9RWSetRasterStage
+FUN_004e55d0=rw37_RwD3D9SetTexture
+_rwD3D9RenderStateVertexAlphaEnable=rw37__rwD3D9RenderStateVertexAlphaEnable
+FUN_004e5960=rw37__rwD3D9RenderStateStencilEnable
+FUN_004e59b0=rw37__rwD3D9RenderStateStencilFail
+FUN_004e5a00=rw37__rwD3D9RenderStateStencilZFail
+FUN_004e5a50=rw37__rwD3D9RenderStateStencilPass
+FUN_004e5aa0=rw37__rwD3D9RenderStateStencilFunction
+FUN_004e5af0=rw37__rwD3D9RenderStateStencilFunctionRef
+FUN_004e5b40=rw37__rwD3D9RenderStateStencilFunctionMask
+FUN_004e5b90=rw37__rwD3D9RenderStateStencilFunctionWriteMask
+FUN_004e5be0=rw37__rwD3D9RWSetRenderState
+rwD3D9RenderStateZTestEnable=rw37_rwD3D9RenderStateZTestEnable
+FUN_004e6320=rw37__rwD3D9RenderStateShadeMode
+FUN_004e6370=rw37__rwD3D9RenderStateCullMode

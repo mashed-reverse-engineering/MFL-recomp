@@ -18,6 +18,8 @@ python3 $G/tools/d3dtrace/drawcmp.py $R/neg_good.d3d.gz $R/neg_ctrl.d3d.gz $LIM 
 for t in tp18 tp19; do
   python3 $G/tools/d3dtrace/drawcmp.py $R/neg_$t.d3d.gz $R/neg_ctrl.d3d.gz $LIM > $O/r$t.txt && bad "render neg_$t accepted: $(head -1 $O/r$t.txt)" || ok "render neg_$t: $(head -1 $O/r$t.txt | cut -c1-140)"
 done
+python3 $G/tools/d3dtrace/drawcmp.py $R/neg_ringshift.d3d.gz $R/neg_ctrl.d3d.gz $LIM > $O/rrs.txt && ok "render ringshift (dyn VB ring moved): $(head -1 $O/rrs.txt | cut -c1-140)" || bad "render ringshift rejected: $(head -2 $O/rrs.txt)"
+python3 $G/tools/d3dtrace/drawcmp.py $R/neg_ringbad.d3d.gz $R/neg_ctrl.d3d.gz $LIM | grep -q "(vh) differs 1 " && ok "render ringbad: ring content counter 1" || bad "render ringbad: ring content counter not 1"
 # scenario verdict
 eval "$(sed -n '/^ *verdict() {/,/; }$/p' $T/sa_oracles.sh)"
 if ! type verdict > /dev/null 2>&1; then bad "scen: verdict() not found in sa_oracles.sh"; else
@@ -98,6 +100,12 @@ if ! grep -q mflrw_pixfmt_bind $RD 2>/dev/null; then echo "negtest note: $RD has
   OUT=$O/pig $T/rw_pixfmt_check.sh $RD 2000 > $O/pig.txt 2>&1 && ok "pixfmt good: $(grep -c EQUAL $O/pig.txt) entries EQUAL" || bad "pixfmt good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/pig.txt | head -2)"
   OUT=$O/pin $T/rw_pixfmt_check.sh $RD 2000 all neg > $O/pin.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/pin.txt) = 8 ] && ok "pixfmt swap: all 8 entries DIFF" || bad "pixfmt swap fixture not caught: $(grep -c 'finite cases DIFF' $O/pin.txt) of 8 DIFF"
 fi
+# d3dconv (engine switch X1): rw_d3dconv_check.sh must FAIL on the channel swap fixture (bytes 1 <-> 3 of the DLL's pixel / palette inputs) on all 11 pixel
+# entries and pass without it; ~10 s, docker
+if ! grep -q mflrw_d3dconv_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dconv exports, d3dconv fixture skipped"; else
+  OUT=$O/dcg $T/rw_d3dconv_check.sh $RD 2000 > $O/dcg.txt 2>&1 && ok "d3dconv good: $(grep -c EQUAL $O/dcg.txt) entries EQUAL" || bad "d3dconv good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/dcg.txt | head -2)"
+  OUT=$O/dcn $T/rw_d3dconv_check.sh $RD 2000 all neg > $O/dcn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/dcn.txt) = 11 ] && ok "d3dconv swap: all 11 pixel entries DIFF" || bad "d3dconv swap fixture not caught: $(grep -c 'finite cases DIFF' $O/dcn.txt) of 11 DIFF"
+fi
 # tristrip (rw5): rw_tristrip_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~2 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_tristrip_bind $RD 2>/dev/null; then echo "negtest note: $RD has no tristrip exports, tristrip fixture skipped"; else
@@ -169,6 +177,21 @@ RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_imgread_bind $RD 2>/dev/null; then echo "negtest note: $RD has no imgread exports, imgread fixture skipped"; else
   OUT=$O/ig $T/rw_imgread_check.sh $RD 20000 > $O/ig.txt 2>&1 && ok "imgread good: $(grep -c EQUAL $O/ig.txt) entries EQUAL" || bad "imgread good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/ig.txt | head -2)"
   OUT=$O/in $T/rw_imgread_check.sh $RD 20000 all neg > $O/in.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/in.txt) = 1 ] && ok "imgread swap: the entry DIFF" || bad "imgread swap fixture not caught: $(grep -E 'finite cases' $O/in.txt | head -2)"
+fi
+# d3drs (engine switch D1): rw_d3drs_check.sh must pass and DIFF on two mutations of the original: (a) FlushCache skips its redundant-state compare
+# (je 0x4e3b5e -> nop nop: an extra device SetRenderState), (b) the stencil-enable setter drops its dirty-list append (inc eax 0x4e5996 -> nop); ~1 min, docker
+RD=$G/output/librw/mflrw.dll
+if ! grep -q mflrw_d3d_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3drs exports, d3drs fixtures skipped"; else
+  OUT=$O/d3rg $T/rw_d3drs_check.sh $RD 10 1000 > $O/d3rg.txt 2>&1 && ok "d3drs good: $(grep -c EQUAL $O/d3rg.txt) run EQUAL" || bad "d3drs good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d3rg.txt | head -2)"
+  OUT=$O/d3ra $T/rw_d3drs_check.sh $RD 10 1000 4e3b5e:90 4e3b5f:90 > $O/d3ra.txt 2>&1; grep -q 'compared; DIFF' $O/d3ra.txt && ok "d3drs redundant-compare skip: DIFF" || bad "d3drs redundant-compare fixture not caught"
+  OUT=$O/d3rb $T/rw_d3drs_check.sh $RD 10 1000 4e5996:90 > $O/d3rb.txt 2>&1; grep -q 'compared; DIFF' $O/d3rb.txt && ok "d3drs dropped dirty append: DIFF" || bad "d3drs dirty-append fixture not caught"
+fi
+# d3dim2d (engine switch D2): rw_d3dim2d_check.sh must pass and DIFF on two mutations of the original: (a) the dynamic ring lock appends with DISCARD instead of
+# NOOVERWRITE (push 0x1800 -> 0x2800 at 0x4ecdfc: a wrong discard flag), (b) ForceDiscard wraps the ring after 3 slots (cmp eax,4 -> 3 at 0x4ec9de); ~1 min, docker
+if ! grep -q mflrw_d3dim2d_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dim2d exports, d3dim2d fixtures skipped"; else
+  OUT=$O/d2g $T/rw_d3dim2d_check.sh $RD 10 1000 > $O/d2g.txt 2>&1 && ok "d3dim2d good: $(grep -c EQUAL $O/d2g.txt) run EQUAL" || bad "d3dim2d good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d2g.txt | head -2)"
+  OUT=$O/d2a $T/rw_d3dim2d_check.sh $RD 10 1000 4ecdfc:28 > $O/d2a.txt 2>&1; grep -q 'compared; DIFF' $O/d2a.txt && ok "d3dim2d discard flag: DIFF" || bad "d3dim2d discard-flag fixture not caught"
+  OUT=$O/d2b $T/rw_d3dim2d_check.sh $RD 10 1000 4ec9de:03 > $O/d2b.txt 2>&1; grep -q 'compared; DIFF' $O/d2b.txt && ok "d3dim2d ring wrap: DIFF" || bad "d3dim2d ring-wrap fixture not caught"
 fi
 rm -r $O
 exit $rc

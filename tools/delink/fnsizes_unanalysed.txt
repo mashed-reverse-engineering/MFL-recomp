@@ -180,3 +180,4 @@
 00568360 LODAtomicCallBackDestructor
 00568420 LODAtomicCallBackOpen
 00568460 LODAtomicCallBackClose
+004ef150 _rwD3D9ImageFindRasterFormat

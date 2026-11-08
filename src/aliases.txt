@@ -5372,3 +5372,4 @@ _SEH_prolog 004b5974
 _SEH_epilog 004b59af
 _exit 004b323c
 _getptd 004b8800
+_rwD3D9ImageFindRasterFormat 004ef150

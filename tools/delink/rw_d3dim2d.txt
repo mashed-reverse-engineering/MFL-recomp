@@ -1,0 +1,24 @@
+# Group "d3dim2d" (plan_engine_switch_2026-11-07_v2 section 3, D2): the 17 still-original functions of d3d92drend.obj (0x4eb500..0x4ec263, the RW 3.7 D3D9 Im2D
+# renderer) and d3d9vertexbuffer.obj (0x4ec6d0..0x4ed0a7, managed / dynamic vertex buffers and the 4-slot dynamic ring) from librw-mfl/capi/d3dim2d.cpp, written op for
+# op from the disassembly; kernel on exe state (2D buffers, base index, stride / dynamic lists, ring offsets / sizes / buffers stay in the exe's bss 0x7d51c8..0x7d522c),
+# the device and the free lists are the exe's.  Needs mflrw_d3dim2d_bind (rw_engine_init, recomp/automatch_near/an_hk_612.c: fatal if this group is linked and the bind
+# is missing or refused).  The 2 module functions that are C in the exe (RwD3D9DynamicVertexBufferDestroy 0x4ecca0, RwD3D9DynamicVertexBufferUnlock 0x4ece50) stay.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3dim2d_check.sh <mflrw.dll> (fake device tools/delink/fakedev.c; original code and DLL run the same op sequences natively under Wine).
+_rwD3D9Im2DRenderOpen=rw37__rwD3D9Im2DRenderOpen
+_rwD3D9Im2DRenderClose=rw37__rwD3D9Im2DRenderClose
+LAB_004eb6d0=rw37_rwD3D9Im2DRenderLine
+rxD3D9Im2DRenderFlush=rw37_rxD3D9Im2DRenderFlush
+LAB_004eb960=rw37_rwD3D9Im2DRenderTriangle
+_rwD3D9Im2DRenderPrimitive=rw37__rwD3D9Im2DRenderPrimitive
+LAB_004ebdb0=rw37_rwD3D9Im2DRenderIndexedPrimitive
+RwD3D9CreateVertexBuffer=rw37_RwD3D9CreateVertexBuffer
+RwD3D9DestroyVertexBuffer=rw37_RwD3D9DestroyVertexBuffer
+FUN_004ec9c0=rw37__rwD3D9DynamicVertexBufferManagerForceDiscard
+_rwD3D9DynamicVertexBufferRelease=rw37__rwD3D9DynamicVertexBufferRelease
+_rwD3D9DynamicVertexBufferRestore=rw37__rwD3D9DynamicVertexBufferRestore
+D3D9DynamicVertexBufferManagerCreate=rw37_D3D9DynamicVertexBufferManagerCreate
+RwD3D9DynamicVertexBufferCreate=rw37_RwD3D9DynamicVertexBufferCreate
+RwD3D9DynamicVertexBufferLock=rw37_RwD3D9DynamicVertexBufferLock
+_rwD3D9VertexBufferManagerOpen=rw37__rwD3D9VertexBufferManagerOpen
+_rwD3D9VertexBufferManagerClose=rw37__rwD3D9VertexBufferManagerClose

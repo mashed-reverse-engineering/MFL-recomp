@@ -150,6 +150,63 @@ typedef void (__cdecl *MflrwPngreadBind)(char **engine, void *open, void *read, 
 /*00568140*/ extern void *__cdecl LODAtomicCallBackRender(void *atomic);
 typedef void (__cdecl *MflrwLodBind)(char **engine, void *globals, void *geomAddRef, void *geomDestroy, void *atomicSetGeometry, void *frameGetLTM, void *defaultSelect,
                                      void *renderHook);
+/* mflrw.dll d3dconv binding (librw-mfl/capi/d3dconv.cpp): the callees and data of the image <-> raster conversion functions of d3d9convrt.obj and the exe's
+   per-pixel converters, as one table in the order of d3dconv.cpp enum B (RwErrorSet, _rwerror, RwImageCreate / Destroy / AllocatePixels declared above) */
+/*004d79f0*/ extern void __cdecl RwRasterLock(void);
+/*004d7850*/ extern void __cdecl RwRasterLockPalette(void);
+/*004d7790*/ extern void __cdecl RwRasterUnlock(void);
+/*004d77b0*/ extern void __cdecl RwRasterUnlockPalette(void);
+/*004e3660*/ extern void __cdecl _rwD3D9CheckValidTextureFormat(void);
+/*004e1ad0*/ extern void __cdecl _rwD3D9CheckRasterFormat(void);
+/*004eb400*/ extern void __cdecl RwImageCreateResample(void);
+/*00947144*/ extern int _RwD3D9RasterExtOffset;
+/*00947160*/ extern char _rwD3D9PixelFormatInfo[];
+/*005ea0f0*/ extern char _rwRasterConvTable[];
+/*009475f4*/ extern int g_rw_9475f4;
+/*00947600*/ extern char _RwD3D9DeviceCaps[];
+/*0062e9f4*/ extern char s_Conversion_from_rasters_to_4bit_i_0062e9f4[];
+/*0062ea30*/ extern char s_Conversion_from_non_palettised_r_0062ea30[];
+/*0062ea78*/ extern char s_Conversion_from_compressed_raste_0062ea78[];
+/*0062eab0*/ extern char s_Conversion_to_compressed_rasters_0062eab0[];
+extern void __cdecl D3D9ConvR8G8B8A8ToR5G5B5(void), D3D9ConvR8G8B8A8ToR5G6B5(void), D3D9ConvR8G8B8A8ToA1R5G5B5(void), D3D9ConvR8G8B8A8ToA4R4G4B4(void),
+  D3D9ConvR8G8B8A8ToA8R3G3B2(void), D3D9ConvR8G8B8A8ToR4G4B4(void), D3D9ConvR8G8B8A8ToL6V5U5(void), D3D9ConvR8G8B8A8ToX8R8G8B8(void),
+  D3D9ConvR8G8B8A8ToX8B8G8R8(void), D3D9ConvR8G8B8A8ToA8R8G8B8(void), D3D9ConvR8G8B8A8ToA8B8G8R8(void), D3D9ConvR8G8B8A8ToV8U8(void),
+  D3D9ConvR8G8B8A8ToL8(void), D3D9ConvR8G8B8A8ToA8L8(void), D3D9ConvR8G8B8A8ToL16(void);      /* 0x4ef990..0x4efc80 */
+extern void __cdecl D3D9ConvR5G5B5ToR8G8B8A8(void), D3D9ConvR5G6B5ToR8G8B8A8(void), D3D9ConvL6V5U5ToR8G8B8A8(void), D3D9ConvA1R5G5B5ToR8G8B8A8(void),
+  D3D9ConvA4R4G4B4ToR8G8B8A8(void), D3D9ConvA8R3G3B2ToR8G8B8A8(void), D3D9ConvR3G3B2ToR8G8B8A8(void), D3D9ConvX4R4G4B4ToR8G8B8A8(void),
+  D3D9ConvX8R8G8B8ToR8G8B8A8(void), D3D9ConvX8B8G8R8ToR8G8B8A8(void), D3D9ConvV8U8ToR8G8B8A8(void), D3D9ConvA8R8G8B8ToR8G8B8A8(void),
+  D3D9ConvA8B8G8R8ToR8G8B8A8(void), D3D9ConvL8ToR8G8B8A8(void), D3D9ConvA8ToR8G8B8A8(void), D3D9ConvA4L4ToR8G8B8A8(void), D3D9ConvA8L8ToR8G8B8A8(void),
+  D3D9ConvL16ToR8G8B8A8(void);                                                                   /* 0x4eec40..0x4eef40 */
+typedef void (__cdecl *MflrwD3dconvBind)(int n, void *const *table);
+/* mflrw.dll d3drs binding (librw-mfl/capi/d3d9rs.cpp): the D3D9 render-state module (d3d9rendst) works on the exe's device, its bss block, the caps,
+   the raster extension offset, the ambient colour, 1/255, its rdata tables and the 4 rendst functions that are C in the exe */
+extern __declspec(dllimport) int __stdcall MessageBoxA(int wnd, const char *text, const char *caption, unsigned int type);
+extern __declspec(dllimport) void __stdcall ExitProcess(unsigned int code);
+/*004e5be0*/ extern unsigned char FUN_004e5be0[];      /* rwD3D9RWSetRenderState: a jmp [__imp_] thunk (ff 25) when LIB_RW lists d3drs */
+/*007d2240*/ extern int g_d3d9_device;
+/*007d3258*/ extern int g_rw_7d3258[];      /* the rendst dirty list; its bss block starts 0xa48 bytes before (lib spans have no symbol in the overlay) */
+/*00947600*/ extern char g_data_947600[];
+/*00947144*/ extern int g_rw_947144;
+/*005dff00*/ extern float k_f_0_003921569;
+/*005ea148*/ extern int g_rw_5ea148[];
+/*004e3c00*/ extern void __cdecl RwD3D9SetRenderState(int state, int value);
+/*004e3cd0*/ extern void __cdecl RwD3D9SetSamplerState(int stage, int type, int value);
+/*004e53a0*/ extern int __cdecl rwD3D9RenderStateSrcBlend(int v);
+/*004e53f0*/ extern int __cdecl rwD3D9RenderStateDestBlend(int v);
+typedef void (__cdecl *MflrwD3dBind)(void *deviceVar, void *rsBss, void *caps, void *rasExtOffset, void *ambient, void *k255, void *tables,
+                                     void *setRenderState, void *setSamplerState, void *srcBlend, void *destBlend);
+/* mflrw.dll d3dim2d binding (librw-mfl/capi/d3dim2d.cpp): the Im2D renderer and the vertex buffer manager work on the exe's device, caps, engine (free-list
+   alloc / free), their bss block 0x7d51c8..0x7d522c, DefaultVBSize, the current camera, the primitive type table and these exe callees (table order = d3dim2d.cpp enum B) */
+/*004ec9c0*/ extern unsigned char FUN_004ec9c0[];      /* _rwD3D9DynamicVertexBufferManagerForceDiscard: a jmp [__imp_] thunk (ff 25) when LIB_RW lists d3dim2d */
+/*007d51c8*/ extern int UseOwnVertexBuffer;
+/*007d521c*/ extern int DynamicVertexBufferManager[];
+/*0062e9d0*/ extern int DefaultVBSize;
+/*009473c0*/ extern int dgGGlobals;
+/*005ea28c*/ extern int g_rw_5ea28c[];
+extern void __cdecl RwRasterGetCurrentContext(void), _rwD3D9SetVertexDeclaration(void), FUN_004db1f0(void), FUN_004db230(void), RwD3D9SetStreamSource(void),
+  FUN_004db400(void), RwD3D9CreateVertexDeclaration(void), RwD3D9DeleteVertexDeclaration(void), RwD3D9SetTextureStageState(void), _rwD3D9RenderStateFlushCache(void),
+  _rwD3D9RWGetRasterStage(void);
+typedef int (__cdecl *MflrwD3dim2dBind)(int n, void *const *table);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
@@ -278,6 +335,56 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
     MflrwLodBind lodbind = mflrw ? (MflrwLodBind)GetProcAddress(mflrw, "mflrw_lod_bind") : 0;
     if (lodbind != 0) lodbind(&RwEngineInstance, &RpLODAtomicGlobals, (void *)RpGeometryAddRef, (void *)RpGeometryDestroy, (void *)RpAtomicSetGeometry,
                               (void *)RwFrameGetLTM, (void *)LODAtomicCallBackSelectLOD, (void *)LODAtomicCallBackRender);
+  }
+  {
+    static void *const d3dconvTable[59] = {
+      (void *)RwErrorSet, (void *)FUN_0053eac0, (void *)RwRasterLock, (void *)RwRasterLockPalette, (void *)RwRasterUnlock, (void *)RwRasterUnlockPalette,
+      (void *)_rwD3D9CheckValidTextureFormat, (void *)_rwD3D9CheckRasterFormat, (void *)RwImageCreateResample, (void *)RwImageCreate, (void *)RwImageAllocatePixels,
+      (void *)RwImageDestroy,
+      /* RwPalQuantInit/AddImage/ResolvePalette/MatchImage/Term are trap rows (rw_trap.txt: never reached in 172 coverage runs, no shipped asset needs them);
+         the table keeps 0 so that no kept code names a trapped function (trapcheck). A call through 0 faults, as the trap did. */
+      0, 0, 0, 0, 0,
+      &_RwD3D9RasterExtOffset, _rwD3D9PixelFormatInfo, _rwRasterConvTable, &g_rw_9475f4, _RwD3D9DeviceCaps,
+      s_Conversion_from_rasters_to_4bit_i_0062e9f4, s_Conversion_from_non_palettised_r_0062ea30, s_Conversion_from_compressed_raste_0062ea78,
+      s_Conversion_to_compressed_rasters_0062eab0,
+      (void *)D3D9ConvR8G8B8A8ToR5G5B5, (void *)D3D9ConvR8G8B8A8ToR5G6B5, (void *)D3D9ConvR8G8B8A8ToA1R5G5B5, (void *)D3D9ConvR8G8B8A8ToA4R4G4B4,
+      (void *)D3D9ConvR8G8B8A8ToA8R3G3B2, (void *)D3D9ConvR8G8B8A8ToR4G4B4, (void *)D3D9ConvR8G8B8A8ToL6V5U5, (void *)D3D9ConvR8G8B8A8ToX8R8G8B8,
+      (void *)D3D9ConvR8G8B8A8ToX8B8G8R8, (void *)D3D9ConvR8G8B8A8ToA8R8G8B8, (void *)D3D9ConvR8G8B8A8ToA8B8G8R8, (void *)D3D9ConvR8G8B8A8ToV8U8,
+      (void *)D3D9ConvR8G8B8A8ToL8, (void *)D3D9ConvR8G8B8A8ToA8L8, (void *)D3D9ConvR8G8B8A8ToL16,
+      (void *)D3D9ConvR5G5B5ToR8G8B8A8, (void *)D3D9ConvR5G6B5ToR8G8B8A8, (void *)D3D9ConvL6V5U5ToR8G8B8A8, (void *)D3D9ConvA1R5G5B5ToR8G8B8A8,
+      (void *)D3D9ConvA4R4G4B4ToR8G8B8A8, (void *)D3D9ConvA8R3G3B2ToR8G8B8A8, (void *)D3D9ConvR3G3B2ToR8G8B8A8, (void *)D3D9ConvX4R4G4B4ToR8G8B8A8,
+      (void *)D3D9ConvX8R8G8B8ToR8G8B8A8, (void *)D3D9ConvX8B8G8R8ToR8G8B8A8, (void *)D3D9ConvV8U8ToR8G8B8A8, (void *)D3D9ConvA8R8G8B8ToR8G8B8A8,
+      (void *)D3D9ConvA8B8G8R8ToR8G8B8A8, (void *)D3D9ConvL8ToR8G8B8A8, (void *)D3D9ConvA8ToR8G8B8A8, (void *)D3D9ConvA4L4ToR8G8B8A8, (void *)D3D9ConvA8L8ToR8G8B8A8,
+      (void *)D3D9ConvL16ToR8G8B8A8};
+    MflrwD3dconvBind xbind = mflrw ? (MflrwD3dconvBind)GetProcAddress(mflrw, "mflrw_d3dconv_bind") : 0;
+    if (xbind != 0) xbind(59, d3dconvTable);
+  }
+  {
+    /* d3drs: the original rendst bytes are gone when the group is linked, so a missing bind is fatal there (no silent fallback); unlisted, it stays optional */
+    MflrwD3dBind dbind = mflrw ? (MflrwD3dBind)GetProcAddress(mflrw, "mflrw_d3d_bind") : 0;
+    if (dbind != 0) {
+      dbind(&g_d3d9_device, (char *)g_rw_7d3258 - 0xa48, g_data_947600, &g_rw_947144, g_rw_62e718 + 0x20 /* ambient colour 0x62e738 */, &k_f_0_003921569, g_rw_5ea148,
+            (void *)RwD3D9SetRenderState, (void *)RwD3D9SetSamplerState, (void *)rwD3D9RenderStateSrcBlend, (void *)rwD3D9RenderStateDestBlend);
+    } else if (FUN_004e5be0[0] == 0xff && FUN_004e5be0[1] == 0x25) {
+      MessageBoxA(0, "mflrw.dll has no mflrw_d3d_bind, but this exe takes the D3D9 render-state module (LIB_RW group d3drs) from it.", "MFL", 0x10);
+      ExitProcess(3);
+    }
+  }
+  {
+    /* d3dim2d: as d3drs, a missing or refused bind is fatal when the group is linked (its original bytes are gone), optional when it is not.  The DLL addresses the
+       bss block from UseOwnVertexBuffer, so the ring array must sit at its original distance (0x54) in this link's data layout. */
+    static void *const d3dim2dTable[21] = {
+      &g_d3d9_device, _RwD3D9DeviceCaps, &RwEngineInstance, &UseOwnVertexBuffer, &DefaultVBSize, &dgGGlobals, g_rw_5ea28c,
+      (void *)RwRasterGetCurrentContext, (void *)_rwD3D9SetVertexDeclaration, (void *)FUN_004db1f0, (void *)FUN_004db230, (void *)RwD3D9SetStreamSource,
+      (void *)FUN_004db400, (void *)RwD3D9CreateVertexDeclaration, (void *)RwD3D9DeleteVertexDeclaration, (void *)RwD3D9SetRenderState,
+      (void *)RwD3D9SetTextureStageState, (void *)_rwD3D9RenderStateFlushCache, (void *)_rwD3D9RWGetRasterStage, (void *)RwFreeListCreate, (void *)RwFreeListDestroy};
+    MflrwD3dim2dBind ibind3 = mflrw ? (MflrwD3dim2dBind)GetProcAddress(mflrw, "mflrw_d3dim2d_bind") : 0;
+    int linked = FUN_004ec9c0[0] == 0xff && FUN_004ec9c0[1] == 0x25;
+    int ok = (char *)DynamicVertexBufferManager - (char *)&UseOwnVertexBuffer == 0x54 && ibind3 != 0 && ibind3(21, d3dim2dTable);
+    if (linked && !ok) {
+      MessageBoxA(0, "mflrw.dll has no usable mflrw_d3dim2d_bind, but this exe takes the D3D9 Im2D renderer / vertex buffer manager (LIB_RW group d3dim2d) from it.", "MFL", 0x10);
+      ExitProcess(3);
+    }
   }
 #endif
 

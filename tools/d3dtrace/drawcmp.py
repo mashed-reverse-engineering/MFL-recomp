@@ -7,6 +7,10 @@ NumVertices, primCount); every aligned pair is compared on
   prim   the full prim field (type|BaseVertexIndex|MinVertexIndex|NumVertices|startIndex|primCount): T-P18 swapped Base / MinVertexIndex
   mhash  the draw record without the MASK keys of tocsv.py (camera / car / geometry values of the game clock) and without `zs`, with the object ids
          (`#N`, creation order of textures / buffers / declarations: differ between the standalone and the control) removed and floats rounded to 5 digits
+Dynamic VB ring (a src.N of the draw is `#dyn`): the raw ring position depends on history (which other draws filled the ring before), so DP StartVertex /
+DIP BaseVertexIndex and the stream offset are replaced by `ring`; MinVertexIndex, NumVertices, startIndex, primCount stay raw.  A ring shift passes, a
+Base/MinVertexIndex swap (T-P18) still fails.  The content at the ring position (vh) is counted report-only: it follows the game clock like every vh
+(course:0 ctrl vs ctrl 111 of 34450 draws from frame 102 on; ours vs ctrl one 112-vertex draw in every frame), so it cannot sit in prim.
 Draws that align with nothing (extra / missing draws) are counted as unmatched.  Prints the totals and the first differences; exit 1 when a total exceeds its limit."""
 import collections, difflib, gzip, hashlib, re, sys
 MASK = {"xf.2", "xf.16", "xf.17", "xf.18", "xf.19", "xf.20", "xf.21", "xf.22", "xf.23", "xf.256", "vh", "ih", "rt", "zs", "frame", "racef"}      # tocsv.py MASK + zs (render target / depth surface ids)
@@ -22,9 +26,13 @@ def load(p):
         kv = [x.split("=", 1) for x in ln.rstrip("\n").split("\t")[1:] if "=" in x]
         d = dict(kv); prim = d.get("prim", ""); pp = prim.split("|")
         if "#dyn" in d.get("ib", "") and len(pp) > 5: pp[4] = "dyn"; prim = "|".join(pp)      # ring index buffer: the start depends on history
+        if d.get("call") in ("DP", "DIP") and any(k.startswith("src.") and v.endswith("|#dyn") for k, v in kv):    # V2: dynamic VB ring (D3DUSAGE_DYNAMIC stream)
+            pp[1] = "ring"; prim = "|".join(pp); ring = d.get("vh", "?")     # DP StartVertex / DIP BaseVertexIndex dropped, MinVertexIndex stays raw (T-P18 swap)
+            kv = [(k, "ring|" + v.split("|", 1)[1]) if k.startswith("src.") and v.endswith("|#dyn") else (k, v) for k, v in kv]   # stream offset dropped
+        else: ring = None
         key = (d.get("call"), d.get("fvf"), ID.sub("", d.get("tex.0", "")), pp[0], pp[3] if len(pp) > 5 else "", pp[5] if len(pp) > 5 else "")
         mh = hashlib.md5("\t".join("%s=%s" % (k, prim if k == "prim" else FL.sub(fl, ID.sub("#", v))) for k, v in kv if k not in MASK and not k.startswith(XMASK)).encode()).hexdigest()[:16]
-        fr[int(d.get("frame", -1))].append((key, prim, mh, d.get("call", "")))
+        fr[int(d.get("frame", -1))].append((key, prim, mh, d.get("call", ""), ring))
     return fr
 def main(a, b, lim):
     A, B = load(a), load(b); tot = collections.Counter(); first = {}
@@ -38,8 +46,10 @@ def main(a, b, lim):
                 tot["draws"] += 1
                 if x[i][1] != y[j][1]: tot["prim"] += 1; first.setdefault("prim", "frame %d draw %d/%d %s: ours %s ctrl %s" % (f, i, j, x[i][3], x[i][1], y[j][1]))
                 if x[i][2] != y[j][2]: tot["mhash"] += 1; first.setdefault("mhash", "frame %d draw %d/%d %s" % (f, i, j, x[i][3]))
+                if x[i][4] or y[j][4]: tot["ring"] += 1; tot["ringvh"] += x[i][4] != y[j][4]
     print("drawcmp: %d common frames (ours %d, ctrl %d), %d draw pairs: prim differs %d (limit %d), mhash differs %d (limit %d), unmatched draws %d (limit %d)"
           % (len(common), len(A), len(B), tot["draws"], tot["prim"], lim[0], tot["mhash"], lim[1], tot["unmatched"], lim[2]))
+    print("drawcmp: ring draws %d, ring vertex content (vh) differs %d (report-only: game-clock noise, ctrl vs ctrl too)" % (tot["ring"], tot["ringvh"]))
     for k in ("prim", "mhash", "unmatched"):
         if k in first: print("  first %s difference: %s" % (k, first[k]))
     bad = not tot["draws"] or tot["prim"] > lim[0] or tot["mhash"] > lim[1] or tot["unmatched"] > lim[2]

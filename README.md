@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; about 88% of its code is no longer taken from the original executable (234 KB of 1,945 KB is still original machine code, measured 2026-11-07), the rest comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Data and resources are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; about 89% of its code is no longer taken from the original executable (210 KB of 1,945 KB is still original machine code, measured 2026-11-08), the rest comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Data and resources are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
 
 ## What this project is
 
@@ -21,7 +21,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
 | Replace the C runtime (libcmt) | mostly done; the math tables are left |
 | Rewrite the RenderWare physics plugin (rwp) as verified C | nearly done; 1.6 KB of original code left |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 1.2 KB, RenderWare to 212 KB (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D and LOD groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); what is left is mostly stateful engine and D3D9 device code, which needs the engine switch |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 1.2 KB, RenderWare to 188 KB (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion and 2D renderer groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); what is left is mostly the stateful engine core and more D3D9 device code, which needs the engine switch |
 | Replace the streaming audio library, add a real video backend | audio in progress (19 KB left, from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
 | Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
 
@@ -44,15 +44,15 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 
 Original machine code still linked into the standalone build (the number we drive to zero), measured with `tools/delink/origbytes.py` at each full regression gate:
 
-| Layer | 2026-11-07 | What is left |
+| Layer | 2026-11-08 | What is left |
 |---|---:|---|
-| RenderWare (graphics, world, camera, D3D9) | 211.5 KB | the engine itself; replaced by `librw-mfl` in steps |
+| RenderWare (graphics, world, camera, D3D9) | 187.5 KB | the engine itself; replaced by `librw-mfl` in steps |
 | Audio (RenderWare Audio) | 18.5 KB | DirectSound voice and buffer code, thread and semaphore glue |
 | rwp (RenderWare physics) | 1.6 KB | CPU feature probes, a few helpers that need hand-written C |
 | D3DX | 1.2 KB | |
 | C runtime | 0.9 KB | startup and exception frame |
 | Game code | 0 KB | done |
-| **Total** | **233.7 KB** | of about 1,945 KB (12%) |
+| **Total** | **209.7 KB** | of about 1,945 KB (11%) |
 
 How the total moved (code only; data and the resources are tracked separately):
 
@@ -63,6 +63,7 @@ How the total moved (code only; data and the resources are tracked separately):
 | 2026-11-05 | 273.0 KB | about 120 new `librw-mfl` entry points in 18 groups (collision, spline/animation, bezier/patch, vertex declarations, mesh building, image, camera and others); D3DX CPU variants removed; audio output layer, mixer, voices and wave code; rwp and C runtime rewrites |
 | 2026-11-06 | 246.4 KB | about 40 more audio functions as C; never-run RenderWare stream writers, legacy-format and skin readers removed (each proven unused by 172 coverage runs, an asset format scan and a call-graph check); D3DX half-float code removed; a BMP image reader in `librw-mfl`; RenderWare allocations now come from the game's own heap (a step toward the engine switch) |
 | 2026-11-07 | 233.7 KB | 31 more audio functions as C (21 tier 2, 10 register clusters); `librw-mfl` groups for 2D path/brush kernels, PNG reading (libpng inside the DLL) and LOD; five x87 math routines; 179 RenderWare gap functions named so their bodies can be removed; the CRT `raise` function as C (with an exception-frame model in the checker); a few more never-run writers removed with proofs |
+| 2026-11-08 | 209.7 KB | three D3D9 driver groups in `librw-mfl` (render state, image/raster conversion, 2D renderer with the dynamic vertex buffer ring; 51 functions, 24.0 KB), run on the game's own engine state and checked op for op against the original under Wine; the draw comparison now normalises the dynamic vertex buffer ring |
 
 Roughly 35 KB of the 2026-11-05 drop is code removed rather than rewritten (DirectShow, unused CPU variants, never-used wave converters): it is proven unused by coverage runs, an asset format scan and a call-graph closure proof, and every removal sits in a list that can be reverted on its own. Treat that part as the least certain. Every `librw-mfl` entry point is checked bit-exact against the original code on at least 100,000 random inputs, with negative tests that must fail.
 

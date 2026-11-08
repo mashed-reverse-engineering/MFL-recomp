@@ -13,4 +13,4 @@
 course:0  40  0 1 0
 course:7  40  0 1 0  vsc
 course:12 40  0 1 0  vsc
-title     300 2704 2721 1350
+title     300 0 9 254

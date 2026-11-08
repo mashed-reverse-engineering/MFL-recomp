@@ -4178,6 +4178,7 @@ rwD3D9RenderStateStencilFunction 004e5aa0
 rwD3D9RenderStateStencilFunctionRef 004e5af0
 rwD3D9RenderStateStencilFunctionMask 004e5b40
 rwD3D9RenderStateStencilFunctionWriteMask 004e5b90
+FUN_004e5be0 004e5be0
 switchD 004e5bf4
 rwD3D9RenderStateZTestEnable 004e6220
 rwD3D9RenderStateShadeMode 004e6320
@@ -7360,6 +7361,7 @@ _RwD3D9CmpFuncConvTable 005ea24c
 k_f_255_99 005ea278
 nullString 005ea284
 k_f_1_5258789en5 005ea288
+g_rw_5ea28c 005ea28c
 k_f_7_5497894en8 005ea2c8
 k_f_0_077038154 005ea2d8
 k_f_0_040055536 005ea2e4
@@ -8135,6 +8137,10 @@ _rwPluginRegListPreallocBlocks 0062e9c4
 _rwChunkGroupFListBlockSize 0062e9c8
 _rwChunkGroupFListPreallocBlocks 0062e9cc
 DefaultVBSize 0062e9d0
+s_Conversion_from_rasters_to_4bit_i_0062e9f4 0062e9f4
+s_Conversion_from_non_palettised_r_0062ea30 0062ea30
+s_Conversion_from_compressed_raste_0062ea78 0062ea78
+s_Conversion_to_compressed_rasters_0062eab0 0062eab0
 PTR_s_ImmInstance_csl_0062eaf8 0062eaf8
 PTR_s_nodeD3D9SubmitNoLight_csl_0062eb58 0062eb58
 _rpTieFreeListBlockSize 0062ebbc
@@ -12545,6 +12551,7 @@ _rwIm3DModule 00947360
 _RwD3D9D3D9ViewTransform 00947380
 dgGGlobals 009473c0
 _RwD3D9AdapterInformation 009473e0
+g_rw_9475f4 009475f4
 _RwD3D9ZBufferDepth 009475fc
 _RwD3D9DeviceCaps 00947600
 Present 00947740
