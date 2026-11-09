@@ -9,7 +9,7 @@ object basename), scenario coverage (output/scenario/rwcov_*.csv, newest), the r
   trap   0 hits in the coverage union and not a device path: candidate only, the three proofs are still needed
 Rows already in a tools/delink/rw_<group>.txt list get that list's name in `planned` (e.g. d3drs from lane D).
 Also writes the rw_engine.txt draft: the flip rows whose exe name has a librw facade export (librw-mfl capi/rwmfl.def), exe_name=export.
-codfh_file / codfh: the codfh-win32 C file named after the group (rwref/codfh-win32/src/rw/**/<group>.c, --codfh <dir>) and y/n whether `<name>(`
+codfh_file / codfh: the codfh-win32 C file named after the group (<codfh dir>/src/rw/**/<group>.c, --codfh <dir>) and y/n whether `<name>(`
 appears in it (name scan only, body not checked: an upper bound for tier-2 candidates; the md sums it per route, tier2_codfh = the tier2 rows with y).
 Outputs default to output/engine_flip_manifest_<date>.csv / .md and output/rw_engine_draft.txt. Rerunnable; reads only."""
 import collections, csv, datetime, glob, ntpath, os, re, sys
@@ -18,7 +18,7 @@ A = sys.argv[1:]
 def opt(k, d=None): return A[A.index(k) + 1] if k in A else d
 DEF = opt("--def", os.path.join(G, "..", "librw-mfl", "capi", "rwmfl.def"))
 TODAY = datetime.date.today().isoformat()
-CODFH = opt("--codfh", os.path.join(G, "..", "rwref", "codfh-win32"))
+CODFH = opt("--codfh", os.path.join(G, "..", "rw" + "ref", "codfh-win32"))
 
 def codfh_files():
     fs = {}

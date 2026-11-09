@@ -55,7 +55,7 @@ nc() { echo $#; }
 NF=-; [ ${#NAMES[@]} -gt 0 -o $KIND = tier2 ] && NF=$D/names.txt
 # ---- steps
 step "check_all" 9 "$T/check_all.sh $D/check"
-if [ $KIND = tier2 -a -f $T/diffemu/diffemu.py -a ${#NAMES[@]} -gt 0 ]; then step "diffemu ${#NAMES[@]} names" 3 "diffemu $NF"; fi
+if [ $KIND = tier2 -a -f $T/diffemu/diffemu.py -a ${#NAMES[@]} -gt 0 ]; then step "diffemu ${#NAMES[@]} names" $(awk "BEGIN{e=${#NAMES[@]}*(\"${HS:-}\"!=\"\"?0.6:0.1); print (e<3?3:e)}") "diffemu $NF"; fi      # 0.55 min/name measured with HS=1 (41 names 23 min, 1109_1356); timeout stays 3x est
 case $KIND in
   tier1|header) step "smoke course 0" 0.7 "courses 'smoke' '0' $CRASH";;
   infra)     step "union sweep 0-14" 6 "sweep union 0 14 $CRASH"; step "DRIVE=31 courses 0,3" 1.4 "courses drive31 '0 3' $CRASH DRIVE=31";;
@@ -92,6 +92,7 @@ echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
 [ -n "$DRY" ] && { [ -n "$SA" ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image,resample,sortcmp,uvanim,camsync,rwleaf,d3d9vc,rwleaf2,splopen,imgread,rt2d,pngread,lod,d3drs,d3dconv,d3dim2d,d3dras,d3dlights,d3dxform,d3d9pipe,d3dras2,d3d9texdic,d3d9vdtan} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
+WIP=$(git -C $R status --porcelain --untracked-files=all -- recomp); [ -n "$WIP" ] && { echo "src/ has uncommitted / untracked files (lane WIP belongs in agents/<lane>/ or a scratch dir, linked via T2_SHADOW_DIR / --src); not starting:"; echo "$WIP"; exit 2; }      # window 4: a stray WIP file cost a 25-min check_all (cheatgrep)
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
 mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
 trap '[ -n "$LPID" ] && kill -TERM $LPID 2>/dev/null' EXIT      # a background link (PARLINK) never outlives the gate (timeout relays the TERM to its process group)
@@ -153,10 +154,12 @@ linkwait() {      # the link step of a PARLINK gate: wait for the background sta
 }
 origcheck() {      # .data length of ours.map (T-P15) + origbytes of the link vs output/zero_original_baseline.txt ("key bytes" lines); GATE_BASELINE_WRITE=1 writes it
   $T/delink/sa_oracles.sh data $D/link $(cat $D/delta.txt) $D || return 1
+  python3 $T/trapcheck.py --selftest $D/link || return 1      # the trap fixture on this gate's own link (negtest inside check_all runs before the link exists)
   python3 $T/delink/origbytes.py $D/link --out $D > $D/origbytes.log 2>&1 || { tail -5 $D/origbytes.log; return 1; }
-  python3 -I - $D/zero_original_bytes.json $R/output/zero_original_baseline.txt ${GATE_BASELINE_WRITE:-0} <<'PY'
+  python3 -I - $D/zero_original_bytes.json $R/output/zero_original_baseline.txt ${GATE_BASELINE_WRITE:-0} $(readlink -f $D/link) <<'PY'
 import json, os, sys
 j = json.load(open(sys.argv[1])); bf, wr = sys.argv[2], sys.argv[3] == "1"
+lk = os.path.relpath(sys.argv[4], os.path.dirname(os.path.dirname(os.path.abspath(bf))))      # "# link <path>" line: negtest.sh runs the trapcheck selftest on the baseline link
 cur = {"code:" + L: v.get("original", 0) for L, v in j["code"].items()}
 for L, secs in j["data_lib_by_layer"].items():
     for sec, n in secs.items(): cur["datalib:%s:%s" % (L, sec)] = n
@@ -171,7 +174,7 @@ if os.path.exists(bf):
 for k in sorted(cur): print("%-34s %9d %s" % (k, cur[k], "" if k not in old else "(baseline %d%s)" % (old[k], ", FELL" if cur[k] < old[k] else "")))
 if wr:
     keep = [l for l in open(bf) if l.startswith("state ")] if os.path.exists(bf) else []
-    open(bf, "w").write("# gate.sh standalone: original bytes per layer of the MKRANGE harness link, %s; a layer that grows fails the gate (GATE_BASELINE_WRITE=1 rewrites after a deliberate change)\n" % j.get("date", "?") + "".join("%s %d\n" % kv for kv in sorted(cur.items())) + "".join(keep)); print("baseline written"); os.path.exists(pf) and os.remove(pf); sys.exit(0)
+    open(bf, "w").write("# gate.sh standalone: original bytes per layer of the MKRANGE harness link, %s; a layer that grows fails the gate (GATE_BASELINE_WRITE=1 rewrites after a deliberate change)\n# link %s\n" % (j.get("date", "?"), lk) + "".join("%s %d\n" % kv for kv in sorted(cur.items())) + "".join(keep)); print("baseline written"); os.path.exists(pf) and os.remove(pf); sys.exit(0)
 bad = [k for k in cur if k in old and cur[k] > old[k]] + [k for k in cur if k not in old]
 for k in bad: print("GROWN/NEW", k, cur[k], old.get(k))
 sys.exit(1 if bad else 0)

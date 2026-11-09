@@ -3854,6 +3854,8 @@ lua_mathlibopen 004d06a0
 luaL_argerror 004d0740
 luaL_openlib 004d0850
 luaL_verror 004d0890
+LAB_004d08d0 004d08d0
+LAB_004d0950 004d0950
 _rwFrameCloneAndLinkClones 004d0990
 rwFrameCloneRecurse 004d0a30
 _rwFramePurgeClone 004d0b80
@@ -3883,6 +3885,7 @@ RwBBoxCalculate 004d18d0
 RwBBoxInitialize 004d1990
 RwBBoxAddPoint 004d19d0
 RwBBoxContainsPoint 004d1a50
+LAB_004d1b10 004d1b10
 RwCameraEndUpdate 004d1b80
 RwCameraBeginUpdate 004d1b90
 RwCameraSetViewOffset 004d1ba0
@@ -3903,6 +3906,7 @@ RwCameraClone 004d2d80
 _rwDeviceSystemRequest 004d2e20
 switchD 004d2e57
 default 004d2eb4
+FUN_004d2f00 004d2f00
 RwEngineGetVersion_like 004d2f10
 RwEngineRegisterPlugin 004d2f20
 RwEngineGetNumSubSystems 004d2f70
@@ -3991,6 +3995,7 @@ RwRasterCreate 004d7950
 RwRasterLock 004d79f0
 _rwD3D9SetDepthStencilSurface 004d7b80
 _rwD3D9SetRenderTarget 004d7bb0
+_rwD3D9RasterPluginAttach_004df7b0 004d7bf0
 switchD 004d7c16
 switchD 004d7c99
 switchD 004d7dff
@@ -4013,6 +4018,7 @@ RwD3D9EngineSetRefreshRate 004da040
 FUN_004da0e0 004da0e0
 RwD3D9CameraAttachWindow 004da0f0
 switchD 004dab06
+FUN_004dafd0 004dafd0
 RwD3D9GetCurrentD3DDevice 004dafe0
 RwD3D9SetRenderTarget 004db110
 _rwD3D9SetVertexDeclaration 004db1b0
@@ -4042,6 +4048,7 @@ FUN_004dbda0 004dbda0
 FUN_004dbdb0 004dbdb0
 FUN_004dbdc0 004dbdc0
 FUN_004dbdd0 004dbdd0
+LAB_004dbde0 004dbde0
 RwStreamRead 004dbe70
 switchD 004dbe87
 default 004dbf84
@@ -4113,6 +4120,7 @@ RwTextureStreamGetSize 004df210
 RwTextureStreamWrite 004df250
 RwTextureStreamRead 004df350
 RwTexDictionaryStreamRead 004df580
+_rwD3D9RasterPluginAttach_004df7b0 004df7b0
 _rwD3D9RasterOpen 004dfbd0
 _rwD3D9RasterClose 004dfbf0
 _rwD3D9TextureHasAlpha 004dfc90
@@ -4215,9 +4223,11 @@ GetIndex 004e8ed0
 RwPalQuantInit 004e8f10
 RwPalQuantTerm 004e8fc0
 DeleteOctTree 004e9040
+FUN_004e90a0 004e90a0
 RwFreeListCreate 004e90b0
 FreeListCreate 004e90e0
 RwFreeListDestroy 004e92b0
+LAB_004e9340 004e9340
 _rwFreeListFreeReal 004e9460
 RwFreeListPurge 004e9510
 RwFreeListForAllUsed 004e95a0
@@ -4247,6 +4257,7 @@ _rwStringStreamFindAndRead 004ea4b0
 RwResourcesFreeResEntry 004ea870
 _rwResourcesPurge 004ea8e0
 RwResourcesEmptyArena 004eab50
+LAB_004eac40 004eac40
 RwImageResample 004eacf0
 ImageResampleGetSpan 004eb110
 RwImageCreateResample 004eb400
@@ -8279,6 +8290,7 @@ _rt2dFontFreeListBlockSize 0063a438
 _rt2dFontFreeListPreallocBlocks 0063a43c
 _rt2dFontDictNodeFreeListBlockSize 0063a440
 _rt2dFontDictNodeFreeListPreallocBlocks 0063a444
+s_fonts__0063a448 0063a448
 _rt2dObjectFreeListBlockSize 0063a504
 _rt2dObjectFreeListPreallocBlocks 0063a508
 _rt2dTriPolyFreeListBlockSize 0063a50c

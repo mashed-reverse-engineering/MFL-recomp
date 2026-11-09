@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """trapcheck.py: static check that no int3-filled original code is referenced by the installed C.
   trapcheck.py [W] [--objs LIST] [--list FILE]...   W = a link_ours.sh work dir (default: newest output/gate/*_standalone/link); exit 1 on any violation
-  trapcheck.py --selftest                           tools/negtests/trap: the old rw_trap.txt with RtDictDestroy (tworaces int3, cl_course_destroy_world.c) must fail, the current copy must pass
+  trapcheck.py --selftest [W]                       (W missing its link files = FAIL; no W = newest link, skipped if none) tools/negtests/trap: the old rw_trap.txt with RtDictDestroy (tworaces int3, cl_course_destroy_world.c) must fail, the current copy must pass
 The filled lists (`va size name|why`): tools/delink/rw_trap.txt (DROP_RWTRAP), rw_dead.txt (DROP_RW), dshow_dead.txt (DROP_DSHOW), dead_tables.txt (always), dinput_dead.txt (DROP_DINPUT).
 Referrers = every object of W/objs_local.txt (or LIST, `src obj` per line, e.g. check_all's b4/objs.txt): clusters, automatch_near, tier1, hand files, bridges, harness, lib sources.
   name / VA:  an undefined symbol no scanned object defines (so it binds to the original bytes in mfl.obj) whose name is a listed name, or resolves (mfl.obj symbols, output/fnsizes.txt,
@@ -133,9 +133,13 @@ def newest_link():
     c = sorted(p for p in glob.glob(os.path.join(G, "output", "gate", "*_standalone", "link")) if os.path.exists(os.path.join(p, "objs_local.txt")) and os.path.exists(os.path.join(p, "gen", "globals_layout.csv")))
     return c[-1] if c else None
 
-def selftest():
-    W = newest_link()
-    if not W: print("trapcheck selftest: skipped (no standalone link under output/gate)"); return 0
+def selftest(W=None):
+    if W:      # an explicit link (gate.sh: its own $D/link; negtest.sh: the baseline link) must be usable: missing = error, never a skip
+        miss = [f for f in ("objs_local.txt", os.path.join("gen", "globals_layout.csv")) if not os.path.exists(os.path.join(W, f))]
+        if miss: print("trapcheck selftest: FAIL, link %s has no %s" % (W, ", ".join(miss))); return 1
+    else:      # manual run without W: newest link, skip when there is none
+        W = newest_link()
+        if not W: print("trapcheck selftest: skipped (no standalone link under output/gate)"); return 0
     N = os.path.join(T, "negtests", "trap"); rc = 0
     bad = check(W, [os.path.join(N, "rw_trap_bad.txt")])
     if any(x[0][2] == "RtDictDestroy" and x[1] == "cl_course_destroy_world.c" for x in bad): print("selftest ok   bad list: RtDictDestroy <- cl_course_destroy_world.c flagged")
@@ -148,7 +152,7 @@ def selftest():
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if a[:1] == ["--selftest"]: sys.exit(selftest())
+    if a[:1] == ["--selftest"]: sys.exit(selftest(a[1] if len(a) > 1 else None))
     objlist = None; lists = []; W = None
     while a:
         x = a.pop(0)
