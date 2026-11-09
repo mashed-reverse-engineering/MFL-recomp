@@ -235,6 +235,10 @@ extern int LastVertexStreamUsed[], LastWorldMatrixUsedIdentity, LastMatrixUsed[]
 extern char IdentityMatrix[], g_rw_62e7f0[];      /* 0x5ea090, the world D3DMATRIX scratch 0x62e7f0 */
 /*004e9510*/ extern void __cdecl RwFreeListPurge(void);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
+#include "an_hk_612_d3d9pipe.inc"
+#include "an_hk_612_d3d9texdic.inc"
+#include "an_hk_612_d3d9vdtan.inc"
+#include "an_hk_612_d3dras2.inc"
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
 #define VIDEO_MEMORY_BYTES (0x400000)
@@ -460,6 +464,10 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
       ExitProcess(3);
     }
   }
+  hk_bind_d3d9pipe(mflrw);
+  hk_bind_d3d9texdic(mflrw);
+  hk_bind_d3d9vdtan(mflrw);
+  hk_bind_d3dras2(mflrw);
 #endif
 
   /* Step 1: core RenderWare init with the default resource arena. */

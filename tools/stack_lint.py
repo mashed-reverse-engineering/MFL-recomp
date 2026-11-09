@@ -431,7 +431,7 @@ def main():
     rows = []
     for f in files_of(a):
         rel = os.path.relpath(f, G)
-        try: rows += Finder(rel, open(f, errors="replace").read(), gd).run()
+        try: rows += Finder(rel, D.incexpand.read_expanded(f), gd).run()      # an_hk_612_<grp>.inc is linted with its includer
         except Exception as e: print("stack_lint: %s: %s %s" % (rel, type(e).__name__, e), file=sys.stderr)
     for gen in ("origargs.py", "reginputs2.py"):      # stale generated data
         if os.path.getmtime(os.path.join(G, "output", "orig_stackargs.txt")) < os.path.getmtime(os.path.join(H, gen)):

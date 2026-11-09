@@ -79,6 +79,10 @@ static long __stdcall fd_LightEnable(void *self, uint32_t i, int32_t e) { fakede
 static long __stdcall fd_SetTransform(void *self, uint32_t st, const uint32_t *m) { int k; fakedev_log(FAKEDEV_TAG | 44); fakedev_log(st); for (k = 0; k < 16; k++) fakedev_log(m[k]); return fakedev_hr; }
 static long __stdcall fd_SetVertexDeclaration(void *self, uint32_t d) { fakedev_log(FAKEDEV_TAG | 87); fakedev_log(d); return fakedev_hr; }
 static long __stdcall fd_SetStreamSource(void *self, uint32_t s, uint32_t vb, uint32_t off, uint32_t stride) { fakedev_log(FAKEDEV_TAG | 100); fakedev_log(s); fakedev_log(vb); fakedev_log(off); fakedev_log(stride); return fakedev_hr; }
+/* ---- lane D5 recorders (d3d9pipe): 92 SetVertexShader, 104 SetIndices, 107 SetPixelShader */
+static long __stdcall fd_SetVertexShader(void *self, uint32_t s) { fakedev_log(FAKEDEV_TAG | 92); fakedev_log(s); return fakedev_hr; }
+static long __stdcall fd_SetIndices(void *self, uint32_t ib) { fakedev_log(FAKEDEV_TAG | 104); fakedev_log(ib); return fakedev_hr; }
+static long __stdcall fd_SetPixelShader(void *self, uint32_t s) { fakedev_log(FAKEDEV_TAG | 107); fakedev_log(s); return fakedev_hr; }
 void fakedev_reset_bufs(void) { fd_nbuf = 0; fakedev_createhr = 0; fakedev_lockhr = 0; }
 
 void *fakedev_init(void) {
@@ -91,6 +95,7 @@ void *fakedev_init(void) {
   fakedev_vtbl[81] = (void *)fd_DrawPrimitive; fakedev_vtbl[82] = (void *)fd_DrawIndexedPrimitive;
   fakedev_vtbl[51] = (void *)fd_SetLight; fakedev_vtbl[53] = (void *)fd_LightEnable;
   fakedev_vtbl[44] = (void *)fd_SetTransform; fakedev_vtbl[87] = (void *)fd_SetVertexDeclaration; fakedev_vtbl[100] = (void *)fd_SetStreamSource;
+  fakedev_vtbl[92] = (void *)fd_SetVertexShader; fakedev_vtbl[104] = (void *)fd_SetIndices; fakedev_vtbl[107] = (void *)fd_SetPixelShader;
   { void *const t[16] = { (void *)fb_trap_0, (void *)fb_trap_1, (void *)fb_Release, (void *)fb_trap_3, (void *)fb_trap_4, (void *)fb_trap_5, (void *)fb_trap_6, (void *)fb_trap_7,
                           (void *)fb_trap_8, (void *)fb_trap_9, (void *)fb_trap_10, (void *)fb_Lock, (void *)fb_Unlock, (void *)fb_trap_13, (void *)fb_trap_14, (void *)fb_trap_15 };
     for (i = 0; i < 16; i++) fd_bufvtbl[i] = t[i]; }

@@ -5,7 +5,7 @@ Scope (default): src/{automatch_agent,automatch_near,tier1,automatch}/*.c (not h
 token = file basename or function name (a reason is mandatory).  Exit 1 when anything unallowed is found."""
 import glob, os, re, sys
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, ".."))
-sys.path.insert(0, H); import rawaddr
+sys.path.insert(0, H); import rawaddr, incexpand
 SCOPE = ("automatch_agent", "automatch_near", "tier1", "automatch")
 PAT = [("asm", re.compile(r"\b__asm\b|\b_asm\b|\b_{1,2}emit\b")), ("pragma", re.compile(r"^[ \t]*#[ \t]*pragma\b", re.M)),
        ("rawptr", re.compile(r"\*\s*\(\s*[A-Za-z_][\w \*]*\*\s*\)\s*\(?\s*0[xX][0-9a-fA-F]{6}\b"))]
@@ -34,7 +34,7 @@ def adapter_spans(m):
         sp.append((x.start(), i))
     return sp
 def scan(path):
-    t = open(path, errors="surrogateescape").read(); m = rawaddr.mask(t); fs = rawaddr.functions(m); out = []
+    t = incexpand.read_expanded(path); m = rawaddr.mask(t); fs = rawaddr.functions(m); out = []
     def fn(pos): return next((f[0] for f in fs if f[1] <= pos < f[2]), "")
     ad = adapter_spans(m)      # generated call adapters for register-input callees (`static __declspec(naked) ... F_r(...)`, the register-callee route): their __asm is by design, not a cheat
     for k, rx in PAT:

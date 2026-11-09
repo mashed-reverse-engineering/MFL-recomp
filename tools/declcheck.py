@@ -3,7 +3,9 @@
 convention, the number of arguments or the size class of the return type differ between the definition and a declaration, the callers push / pop differently than the callee: byte identical callers still
 crash (found with `copters_load`: matched the original byte for byte, but called our stdcall `load_copter_model` as cdecl).  Usage: declcheck.py   (prints the mismatches, exit 1 if any)"""
 import glob, os, re, sys
-HERE = os.path.dirname(os.path.abspath(__file__)); R = os.path.join(HERE, "..", "src")
+HERE = os.path.dirname(os.path.abspath(__file__))
+from incexpand import read_expanded      # an_hk_612_<grp>.inc decls + bind blocks count as part of the file that includes them
+R = os.path.join(HERE, "..", "src")
 files = [f for pat in ("*.c", "automatch/*.c", "automatch_agent/*.c", "automatch_near/*.c", "bridges/*.c") for f in glob.glob(os.path.join(R, pat))]
 if os.environ.get("DECLCHECK_EXTRA"): files += glob.glob(os.path.join(os.environ["DECLCHECK_EXTRA"], "b*.c"))     # e.g. output/usercall_candidates (not part of src/)
 def split_params(s):
@@ -32,7 +34,7 @@ def parse(sig):
 defs, decls = {}, {}
 bodies = {}      # file -> text of everything that is not an extern line: a mismatching declaration only matters when a function of that file calls the name
 for f in files:
-    L = open(f, errors="replace").read().split("\n")
+    L = read_expanded(f).split("\n")
     bodies[os.path.relpath(f, R)] = "\n".join(x for x in L if not re.match(r"^(/\*\w+\*/ )?extern", x))
     for i, l in enumerate(L):
         if re.match(r"^\s", l) or l.startswith(("#", "/*", "}", "{", "typedef", "static")): 
@@ -62,7 +64,7 @@ import csv
 reg = {r["name"] for r in csv.DictReader(open(os.path.join(HERE, "..", "output", "reginputs.csv"))) if r["reg_inputs"]}
 regcallers = []
 for f in glob.glob(os.path.join(R, "automatch_near", "an_*.c")):
-    t = open(f, errors="replace").read()
+    t = read_expanded(f)
     for m in re.finditer(r"^([A-Za-z_][\w \*]*?)\b(\w+)\([^;{]*\)\s*\n\s*\{", t, re.M):
         i, depth = m.end(), 1
         while depth and i < len(t): depth += (t[i] == "{") - (t[i] == "}"); i += 1

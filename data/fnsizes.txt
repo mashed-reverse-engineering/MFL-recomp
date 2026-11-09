@@ -3836,6 +3836,8 @@
 004d1990 RwBBoxInitialize 52
 004d19d0 RwBBoxAddPoint 125
 004d1a50 RwBBoxContainsPoint 113
+004d1ad0 rwCameraClose 61
+004d1b10 rwCameraOpen 100
 004d1b80 FUN_004d1b80 11
 004d1b90 FUN_004d1b90 11
 004d1ba0 RwCameraSetViewOffset 40
@@ -3874,6 +3876,8 @@
 004d3240 RwEngineOpen 447
 004d3400 RwEngineTerm 50
 004d3440 RwEngineInit 768
+004d3740 MallocWrapper 21
+004d3760 FreeWrapper 25
 004d3780 FUN_004d3780 35
 004d37b0 MatrixMultiply 314
 004d38f0 _rwMatrixDeterminant 69
@@ -4006,6 +4010,8 @@
 004dbdb0 FUN_004dbdb0 6
 004dbdc0 FUN_004dbdc0 10
 004dbdd0 FUN_004dbdd0 6
+004dbde0 rwStreamModuleOpen 96
+004dbe40 rwStreamModuleClose 43
 004dbe70 RwStreamRead 318
 004dbfc0 RwStreamWrite 445
 004dc190 RwStreamSkip 250
@@ -4088,6 +4094,8 @@
 004e2be0 rwD3D9CreateZBufferRaster 608
 004e2e40 _rwD3D9RasterDestroy 922
 004e3200 rwD3D9RasterGetMipLevels 117
+004e3280 rwD3D9TextureSetRaster 16
+004e3290 rwD3D9RasterSubRaster 45
 004e32c0 RwD3D9RasterCreate 914
 004e3660 _rwD3D9CheckValidTextureFormat 51
 004e36a0 _rwD3D9CheckValidCameraTextureFormat 93
@@ -4097,6 +4105,8 @@
 004e3810 _rwD3D9CheckAutoMipmapGenCameraTextureFormat 65
 004e3860 _rwD3D9CheckAutoMipmapGenCubeTextureFormat 65
 004e38b0 _rwD3D9RasterConvertToNonPalettized 585
+004e3b00 rwRenderPipelineOpen 25
+004e3b20 rwRenderPipelineClose 10
 004e3b30 _rwD3D9RenderStateFlushCache 195
 004e3c00 RwD3D9SetRenderState 67
 004e3c50 RwD3D9GetRenderState 18
@@ -4168,6 +4178,9 @@
 004e95a0 RwFreeListForAllUsed 254
 004e96a0 RwFreeListPurgeAllFreeLists 51
 004e96e0 _rwMemoryOpen 199
+004e97b0 HMalloc 14
+004e97c0 HRealloc 19
+004e97e0 HCalloc 19
 004e9800 _rwMemoryClose 312
 004e9940 FUN_004e9940 11
 004e9950 _rwPluginRegistryOpen 61
@@ -4182,6 +4195,8 @@
 004e9fe0 FrameSyncHierarchyRecurseNoLTM 80
 004ea030 _rwFrameSyncHierarchyLTM 127
 004ea0b0 FrameSyncHierarchyLTMRecurse 88
+004ea110 rwErrorOpen 59
+004ea150 rwErrorClose 16
 004ea160 RwErrorSet 86
 004ea1c0 RwErrorGet 74
 004ea210 _rwStringOpen 272
@@ -4199,6 +4214,9 @@
 004ea8e0 _rwResourcesPurge 118
 004ea960 RwResourcesAllocateResEntry 482
 004eab50 RwResourcesEmptyArena 240
+004eac40 rwChunkGroupOpen 96
+004eaca0 rwChunkGroupClose 43
+004eacd0 gap_4eacd0 16
 004eacf0 RwImageResample 1045
 004eb110 ImageResampleGetSpan 741
 004eb400 RwImageCreateResample 252
@@ -4322,6 +4340,8 @@
 004f2d10 _ForAllNodesWriteClusterAllocations 884
 004f30c0 _rwResHeapInit 68
 004f3110 _rwResHeapFree 125
+004f3190 _rwResHeapAlloc 119
+004f3210 splitBlock 99
 004f3280 _rx_rxRadixExchangeSort 598
 004f34e0 _rpLightTieDestroy 68
 004f3530 _rpTieDestroy 81
@@ -4343,7 +4363,9 @@
 004f3fe0 WorldLightSync 513
 004f41f0 WorldCopyLightExt 85
 004f4250 FUN_004f4250 89
+004f42b0 writeGeometryMesh 27
 004f42d0 FUN_004f42d0 36
+004f4300 sizeGeometryMesh 18
 004f43c0 FUN_004f43c0 35
 004f43f0 FUN_004f43f0 42
 004f4420 FUN_004f4420 26
@@ -4370,7 +4392,9 @@
 004f4d50 RpLightStreamRead 338
 004f4eb0 RpLightDestroy 54
 004f4ef0 RpLightCreate 144
+004f4f80 rpLightClose 84
 004f4fe0 FUN_004f4fe0 49
+004f5020 rpLightOpen 100
 004f5090 _rpWorldSectorDeinstanceAll 165
 004f5140 _rpWorldSectorDestroyRecurse 364
 004f52b0 _rpSectorDefaultRenderCallBack 72
@@ -4398,6 +4422,8 @@
 004f6430 FUN_004f6430 372
 004f65b0 FUN_004f65b0 122
 004f6700 _rpClumpRegisterExtensions 75
+004f6750 lib_4f6750 23
+004f6770 lib_4f6770 23
 004f6790 RpClumpGetNumLights 43
 004f67c0 RpClumpRender 65
 004f6810 RpClumpForAllAtomics 57
@@ -4429,6 +4455,9 @@
 004f7f90 RpAtomicInstance 88
 004f7ff0 FUN_004f7ff0 60
 004f8030 _rpWriteMaterialRights 62
+004f8070 rpSizeMaterialRights 27
+004f8090 rpMaterialOpen 100
+004f8100 rpMaterialClose 61
 004f8140 RpMaterialCreate 131
 004f81d0 RpMaterialDestroy 94
 004f8230 RpMaterialSetTexture 39
@@ -4461,13 +4490,18 @@
 004f9a10 GeometryAnnihilate 117
 004f9a90 FUN_004f9a90 60
 004f9ad0 FUN_004f9ad0 62
+004f9b10 rpSizeWorldRights 27
 004f9b30 FUN_004f9b30 60
 004f9b70 _rpWriteSectRights 62
+004f9bb0 rpSizeSectRights 27
 004f9bd0 RpWorldStreamRead 1156
 004fa060 WorldSectorStreamRead 980
 004fa440 PlaneSectorStreamRead 663
+004fa6e0 rpBinaryWorldClose 16
+004fa6f0 rpBinaryWorldOpen 16
 004fa700 _rwD3D9MeshGetNumVerticesMinIndex 85
 004fa760 FUN_004fa760 33
+004fa790 SortTriangles 137
 004fa820 _rwD3D9ConvertToTriList 296
 004fa950 _rwD3D9ResourceEntryInstanceDataDestroy 196
 004faa20 rxD3D9Instance 1064
@@ -4591,6 +4625,8 @@
 00500a00 RpAtomicSetDefaultPipeline 46
 00500a30 FUN_00500a30 15
 00500a40 _rpWorldPipelineOpen 194
+00500b10 rpSectorOpen 16
+00500b20 rpSectorClose 16
 00500b30 FUN_00500b30 11
 00500b40 RpWorldSectorRegisterPlugin 39
 00500b70 RpWorldSectorRegisterPluginStream 34
@@ -4635,6 +4671,7 @@
 00504430 _rpD3D9AddDynamicGeometry 99
 005044a0 _rpD3D9RemoveDynamicGeometry 85
 00504500 _rxWorldDevicePluginAttach 55
+00504540 D3D9WorldRestoreCallback 39
 00504570 _rpCreatePlatformWorldSectorPipelines 110
 005045e0 _rpDestroyPlatformWorldSectorPipelines 58
 00504620 _rpCreatePlatformAtomicPipelines 124
@@ -4669,6 +4706,9 @@
 005092f0 _rpD3D9GetMinMaxValuesV2d 131
 00509380 _rpD3D9FindFormatV2d 227
 00509470 _rpD3D9UsageFlagPluginAttach 119
+005094f0 rpD3D9UsageFlagCopy 19
+00509510 rpD3D9UsageFlagOpen 16
+00509520 rpD3D9UsageFlagClose 16
 00509530 FUN_00509530 18
 00509550 RpD3D9GeometryGetUsageFlags 14
 00509560 FUN_00509560 18
@@ -4972,6 +5012,8 @@
 005241a9 TypeSize_005241a9 94
 00524207 EmitTypeInfo 606
 005244e0 RtPNGImageWrite 821
+00524820 PNGMalloc 26
+00524840 PNGFree 19
 00524880 RtPNGImageRead 1039
 00524cd0 png_write_info_before_PLTE 414
 00524e70 png_write_info 677
@@ -5175,6 +5217,7 @@
 0053e340 RtAnimInterpolatorCreate 108
 0053e3b0 FUN_0053e3b0 12
 0053e3c0 RtAnimInterpolatorSetCurrentAnim 189
+0053e480 RtAnimInterpolatorSetAnimLoopCallBack 19
 0053e4a0 RtAnimInterpolatorCopy 45
 0053e4d0 RtAnimInterpolatorSubAnimTime 356
 0053e640 RtAnimInterpolatorAddAnimTime 471
@@ -5185,6 +5228,8 @@
 0053ea40 SkinGeometryConstructor 18
 0053ea60 SkinGeometryDestructor 96
 0053eac0 FUN_0053eac0 5
+0053eaf0 SkinAtomicDestructor 24
+0053eb10 SkinAtomicCopy 21
 0053ebc0 FUN_0053ebc0 98
 0053ed70 SkinGeometryRead 609
 0053efe0 SkinFindNumUsedBones 205
@@ -5192,6 +5237,7 @@
 0053f1c0 SkinAtomicRead 593
 0053f420 RpSkinGeometrySetSkin 69
 005402d0 FUN_005402d0 45
+00540300 BonesUsedSort 19
 00540320 _rpSkinInitialize 213
 00540400 _rpSkinGeometryNativeWrite 98
 00540470 _rpSkinGeometryNativeRead 202
@@ -5212,6 +5258,7 @@
 00542fe0 FUN_00542fe0 281
 00543100 RpHAnimKeyFrameInterpolate 1043
 00543920 RpHAnimKeyFrameStreamRead 116
+00543a10 RpHAnimKeyFrameStreamGetSize 14
 00543c50 RpHAnimPluginAttach 111
 00543cc0 HAnimOpen 172
 00543d70 HAnimClose 33
@@ -5226,6 +5273,7 @@
 00544e00 RpRandomSeed 123
 00544e80 RpRandom 166
 00544f30 RpRandomPluginAttach 40
+00544fa0 RandomOpen 229
 00545090 RpPTankPluginAttach 79
 00545170 RpPTankAtomicCreate 402
 00545310 _rpPTankAtomicCreateCustom 1569
@@ -5261,6 +5309,7 @@
 00548e10 PVSSectorConstructor 43
 00548e40 PVSSectorDestructor 63
 00548e80 PVSSectorGetChunkSize 26
+00548f70 PVSWorldGetChunkSize 21
 00549090 FUN_00549090 19
 00549180 _rpPVSDestroyPolyList 40
 005491b0 _rpPVSDestroyPoly 40
@@ -5281,7 +5330,11 @@
 0054d670 FUN_0054d670 41
 0054d6a0 FUN_0054d6a0 20
 0054d6c0 RpCollisionPluginAttach 269
+0054d7d0 CollisionOpen 34
+0054d800 CollisionClose 16
 0054d810 FUN_0054d810 38
+0054d840 rpD3D9UsageFlagDest 16
+0054d850 CollisionDataStreamGetSize 31
 0054d870 CollisionDataStreamWrite 81
 0054d8d0 CollisionDataStreamRead 292
 0054da00 CollisionAtomicInit 18
@@ -5306,14 +5359,24 @@
 0054ee10 BuildTreeCountLeafNodes 64
 0054ee50 _rpMatFXTextureMaskCreate 614
 0054f0c0 RpMatFXPluginAttach 266
+0054f260 lib_54f260 18
 0054f2c0 MatFXMaterialDataClean 105
 0054f340 MatFXMaterialCopy 1064
 0054f770 FUN_0054f770 76
 0054f7c0 MatFXMaterialStreamWrite 534
 0054f9e0 MatFXMaterialStreamRead 1361
+0054ffd0 lib_54ffd0 18
+0054fff0 lib_54fff0 29
+00550010 lib_550010 38
 00550040 FUN_00550040 80
+00550090 lib_550090 21
+005500b0 lib_5500b0 18
+005500d0 lib_5500d0 29
+005500f0 lib_5500f0 38
 00550120 FUN_00550120 80
+00550170 lib_550170 21
 00550190 FUN_00550190 48
+005501c0 lib_5501c0 14
 005501d0 RpMatFXMaterialSetEffects 356
 00550350 RpMatFXMaterialSetupEnvMap 354
 005504c0 FUN_005504c0 21
@@ -5370,6 +5433,7 @@
 00555540 GeomAnimDtor 56
 005555f0 GeomAnimWriteStream 178
 005556b0 GeomAnimReadStream 325
+00555820 GeomAnimCtor 33
 00555890 RpSplineStreamRead 214
 00555970 _splCreateSpline 1663
 00555ff0 RpSplineFindPosition 880
@@ -5413,6 +5477,8 @@
 0055a0c0 FUN_0055a0c0 14
 0055a0d0 _rpPatchGeometryCreateFromPatchMesh 126
 0055a150 _rpPatchGeometryTransferFromPatchMesh 1203
+0055a610 rpPatchGeometryConstructor 26
+0055a720 rpPatchGeometryAlways 33
 0055a750 _rpD3D9PatchInstanceAtomic 2315
 0055b060 rwD3D9PatchAtomicAllInOneNodeNode 2316
 0055b970 _rpPatchSmoothNormal 739
@@ -5463,7 +5529,9 @@
 00561480 FUN_00561480 296
 005615b0 FUN_005615b0 62
 005615f0 TkWinFSystemFSync 240
+005616e0 TkWinFSystemAbort 13
 005616f0 FUN_005616f0 368
+00561860 TkWinFSClose 23
 00561880 FUN_00561880 27
 005618a0 FUN_005618a0 90
 00561900 _rtFSInit 216
@@ -5565,6 +5633,7 @@
 00568460 LODAtomicCallBackClose 33
 00568490 RpLODAtomicSetGeometry 226
 00568580 RpLODAtomicSetCurrentLOD 87
+005685e0 RpLODAtomicGetCurrentLOD 24
 00568600 RpLODAtomicSetRange 204
 005686d0 RpLODAtomicHookRender 63
 00568710 RpLODAtomicUnHookRender 51

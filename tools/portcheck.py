@@ -10,10 +10,10 @@ Heuristic classes (Ghidra style, text based, per function; declared pointer / in
   h_stride       line with a pointer cast and a `* 4` / `* 0x78` / `<< 2` constant stride    layout_assert  sizeof()== / C_ASSERT (struct size fixed by the original layout)
   asm_inline     `__asm`        x87_intrin  `_ftol` / `_CI*` / float10      asm_naked  __declspec(naked) functions
 A function is `portable as is` when no class (compiler or heuristic, naked included) is hit in it.  Float results are not bit-exact across x87 / SSE / NEON (diffemu needs a tolerance mode there)."""
-import csv, glob, os, re, shutil, subprocess, sys
+import csv, glob, os, re, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..")); sys.path.insert(0, H)
-import rawaddr
+import rawaddr, incexpand
 SHIM = os.path.join(H, "port", "msvc_shim.h")
 CSV = os.path.join(G, "output", "portcheck.csv"); BASE = os.path.join(G, "output", "portcheck_baseline.txt")
 CLASSES = ["cc_int2ptr", "cc_ptr2int", "cc_error", "h_addr_cast", "h_ptr_to_int", "h_int_to_ptr", "h_int_field_ptr", "h_stride", "layout_assert", "asm_inline", "x87_intrin", "asm_naked"]
@@ -51,10 +51,13 @@ def heur(body, hdr):
     return {k: v for k, v in c.items() if v}
 
 def compile_diag(path, cc):
-    d = os.path.dirname(path); R = os.path.join(G, "src")
-    cmd = cc + ["-fsyntax-only", "-include", SHIM, "-I", d, "-I", os.path.join(R, "auto"), "-I", R, "-Wint-to-pointer-cast", "-Wpointer-to-int-cast", "-fmax-errors=0", "-ferror-limit=0", path] if cc[0] == "clang" else \
-          cc + ["-fsyntax-only", "-include", SHIM, "-I", d, "-I", os.path.join(R, "auto"), "-I", R, "-Wint-to-pointer-cast", "-Wpointer-to-int-cast", "-fmax-errors=0", path]
+    d = os.path.dirname(path); R = os.path.join(G, "src"); src = path
+    if incexpand.incs(open(path, errors="replace").read()):      # a KES group's an_hk_612_<grp>.inc: compile the inlined text, so its diagnostics land on the lines scan() sees
+        fd, src = tempfile.mkstemp(suffix=".c"); os.write(fd, incexpand.read_expanded(path).encode("utf-8")); os.close(fd)
+    cmd = cc + ["-fsyntax-only", "-include", SHIM, "-I", d, "-I", os.path.join(R, "auto"), "-I", R, "-Wint-to-pointer-cast", "-Wpointer-to-int-cast", "-fmax-errors=0", "-ferror-limit=0", src] if cc[0] == "clang" else \
+          cc + ["-fsyntax-only", "-include", SHIM, "-I", d, "-I", os.path.join(R, "auto"), "-I", R, "-Wint-to-pointer-cast", "-Wpointer-to-int-cast", "-fmax-errors=0", src]
     r = subprocess.run(cmd, capture_output=True, text=True, errors="replace"); out = []
+    if src != path: os.remove(src); path = src
     for l in r.stderr.split("\n"):
         m = re.match(r"(.*?):(\d+):\d+: (warning|error|fatal error): (.*)", l)
         if not m or os.path.realpath(m.group(1)) != os.path.realpath(path): continue
@@ -63,7 +66,7 @@ def compile_diag(path, cc):
     return out
 
 def scan(path, diags):
-    t = open(path, errors="surrogateescape").read(); m = rawaddr.mask(t).replace("__declspec(naked)", "naked_attr_______"); rows = []; lines = []
+    t = incexpand.read_expanded(path) if incexpand.incs(open(path, errors="replace").read()) else open(path, errors="surrogateescape").read(); m = rawaddr.mask(t).replace("__declspec(naked)", "naked_attr_______"); rows = []; lines = []
     for name, s, e in rawaddr.functions(m):
         body = m[s:e]; b0 = body.find("{"); hdr, bd = body[:b0], body[b0:]; l0 = m[:s].count("\n") + 1; l1 = l0 + body.count("\n"); lines.append((l0, l1, name))
         if "naked_attr" in hdr: rows.append((name, "asm_naked", 1, "")); continue

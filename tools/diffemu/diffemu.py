@@ -14,7 +14,8 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import core, seed
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))      # tools/ last (incexpand only; stdlib and diffemu/ modules win)
+import core, seed, incexpand
 from core import ROOT, T, sha
 
 OUT = os.path.join(ROOT, "output")
@@ -46,13 +47,14 @@ def compile_obj(src):
     gs = [] if b"compile: /GS" not in open(src, "rb").read() else ["/GS"]      # per-file opt-in for /GS stack-cookie functions (tools/gsfix.py)
     FLAGS_ = FLAGS + gs + (["/G5"] if b"compile: /G5" in open(src, "rb").read() else []) + (["/DMFL_DIFFEMU"] if b"diffemu-define: MFL_DIFFEMU" in open(src, "rb").read() else [])      # MFL_DIFFEMU: the diffemu object leaves out code that is not in MFL.exe (mflrw bind)      # VC6-built RenderWare functions (build_overlay.py)
     _m = open(src, "rb").read(); cc = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant (vc7.sh VC7_CL), same rule as tools/cmpfn.py / build_overlay.py
-    key = sha(open(src, "rb").read(), h, " ".join(FLAGS_) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")      # variant in the key: a cl 13.00 object of a cl1310 file is never reused; default keys unchanged
+    if incexpand.incs(open(src, errors="replace").read()): h = sha(h, incexpand.read_expanded(src).encode("utf-8"))      # an_hk_612_<grp>.inc: the inlined text joins the key (files without .inc: key unchanged)
+    key = sha(open(src, "rb").read(), h," ".join(FLAGS_) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")      # variant in the key: a cl 13.00 object of a cl1310 file is never reused; default keys unchanged
     if os.path.exists(obj): return obj, key
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True)
     w = tempfile.mkdtemp(prefix="dx_", dir=core.cmpfn.WORKROOT)
     try:
         for x in os.listdir(d):
-            if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
+            if x.endswith((".h", ".inc")): shutil.copy(os.path.join(d, x), w)
         shutil.copy(src, os.path.join(w, "f.c"))
         r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS_ + ["f.c"], capture_output=True, text=True, timeout=300, env=dict(os.environ, VC7_CL=cc))
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error: " + (r.stdout + r.stderr)[-300:])

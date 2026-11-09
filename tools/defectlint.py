@@ -25,7 +25,8 @@ Scope (default): src/{automatch_near,automatch_agent,tier1,bridges}, output/tier
 they are listed (column `byte_identical`) but a byte identical function never counts as an open finding.  --ref REV lints the files as of a git revision (tuning on the pre-fix text).
 Exit 0 always (warning tool)."""
 import csv, glob, os, re, subprocess, sys
-H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, ".."))
+H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..")); sys.path.append(H)
+import incexpand
 SCOPE = ["src/automatch_near", "src/automatch_agent", "src/tier1", "src/automatch", "src/bridges", "src/clusters", "output/tier2_candidates", "output/tier2_candidates2", "output/usercall_candidates*"]
 INT_T = {"int", "short", "long", "char", "signed", "ushort_s", "int8_t", "int16_t", "int32_t", "SHORT", "LONG", "INT", "BOOL", "RwInt32", "RwBool", "RwInt16"}
 UNS_T = {"uint", "ulong", "ushort", "uchar", "byte", "DWORD", "UINT", "WORD", "BYTE", "ULONG", "size_t", "unsigned", "RwUInt32", "RwUInt16", "undefined1", "undefined2", "dword", "word"}
@@ -337,6 +338,7 @@ class Lint:
                     self.hints.append(("fbits", line, f, [a.strip() for a in fa]))
                     self.add(4, "high", line, fn, f, st, "float argument passed to `%s()` (no prototype): pushed as double" % f)
                 continue
+            if ptypes and ptypes[-1] == "..." and len(args) >= n - 1: continue      # variadic (`code, ...`): the named parameters are the minimum
             if len(args) != n and not (n == 0 and not args):
                 if len(args) > n > 0: self.hints.append(("dropextra", line, f, [n]))
                 self.add(4, "high", line, fn, f, st, "%s called with %d argument(s), prototype has %d" % (f, len(args), n))
@@ -1229,8 +1231,11 @@ def main():
         if ref:
             r = subprocess.run(["git", "-C", G, "show", "%s:%s" % (ref, rel)], capture_output=True, text=True, errors="replace")
             if r.returncode: continue
-            t = r.stdout
-        else: t = open(f, errors="replace").read()
+            def show(p):
+                r_ = subprocess.run(["git", "-C", G, "show", "%s:%s" % (ref, os.path.relpath(p, G))], capture_output=True, text=True, errors="replace")
+                return None if r_.returncode else r_.stdout
+            t = incexpand.expand(r.stdout, os.path.dirname(f), show)
+        else: t = incexpand.read_expanded(f)      # a KES group's an_hk_612_<grp>.inc is linted as part of the file that includes it
         texts[rel] = t
         finds += Lint(rel, t, gd).run()
         if "/tier1/" in rel: finds += tier1_hygiene(rel, t)

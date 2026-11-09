@@ -12,7 +12,10 @@
    a hash of every live raster, the d3d9raster bss block 0x7d27f4..0x7d280c, a walk of the video-memory list and the palette index stack, the stage table.
    Extra arguments va:byte patch the ORIGINAL's code first (negative fixtures: must give DIFF).  Exit 1 on DIFF.
    Classes: every (type, format nibble, palette bits, mipmap bits) request that reaches _rwD3D9RasterCreate / FindCorrectRasterFormat / RwD3D9RasterCreate is
-   counted; the summary lists how many non-palettised and palettised classes were run. */
+   counted; the summary lists how many non-palettised and palettised classes were run.
+   Window 3 (group d3dras2, librw-mfl capi/d3dras2.cpp, rw_d3dras2.txt): the format checks, CheckRasterFormat, the camera-texture / z-buffer creators, mip levels,
+   texture set raster, sub raster and the video-memory list release / restore are under test too: d3dras's bind table points the DLL side at the DLL's own
+   d3dras2 exports (as in the game when both groups are linked), the original side runs the original code (no recorder on the creators any more). */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,6 +67,11 @@ static int load_image(const char *path) {
 #define VIDLIST 0x7d2808u
 #define VIDFL 0x7d280cu
 #define CLIENTRECT_IAT 0x5dd2b4u
+#define PRESENT 0x947740u      /* D3DPRESENT_PARAMETERS (14 words; +8 = DISPFMT, +0x28 = DEPTHFMT) */
+#define DISPW 0x9475e4u
+#define DISPH 0x9475e8u
+#define OOVM ((int32_t)0x8876017c)
+#define INVCALL ((int32_t)0x8876086c)
 #define T 0xc0de0000u      /* recorder tags */
 #define RSZ 0x58u          /* raster + D3D9 extension (RwRaster37 0x34 + ext 0x24) */
 #define EXT(r) ((u8 *)(r) + 0x34)
@@ -77,10 +85,18 @@ static u32 rs;
 static u32 rnd(void) { rs ^= rs << 13; rs ^= rs >> 17; rs ^= rs << 5; return rs; }
 
 /* entries under test: [0] DLL export, [1] original */
-enum { RCREATE, RDESTROY, LOCK, UNLOCK, FIND, CTEX, DCREATE, NF };
+enum { RCREATE, RDESTROY, LOCK, UNLOCK, FIND, CTEX, DCREATE,
+       VTEX, VCAM, VZ, VCUBE, AMTEX, AMCAM, AMCUBE, CRFMT, CAMTEX, ZRAS, GETMIP, TEXSET, SUBRAS, VIDREL, VIDRES, NF };
 static const struct { const char *dll; u32 va; } F[NF] = {
   {"rw37__rwD3D9RasterCreate", 0x4e20f0}, {"rw37__rwD3D9RasterDestroy", 0x4e2e40}, {"rw37__rwD3D9RasterLock", 0x4dfcd0}, {"rw37__rwD3D9RasterUnlock", 0x4e0040},
-  {"rw37__rwD3D9FindCorrectRasterFormat", 0x4e13f0}, {"rw37_rwD3D9CreateTextureRaster", 0x4e2730}, {"rw37_RwD3D9RasterCreate", 0x4e32c0}};
+  {"rw37__rwD3D9FindCorrectRasterFormat", 0x4e13f0}, {"rw37_rwD3D9CreateTextureRaster", 0x4e2730}, {"rw37_RwD3D9RasterCreate", 0x4e32c0},
+  {"rw37__rwD3D9CheckValidTextureFormat", 0x4e3660}, {"rw37__rwD3D9CheckValidCameraTextureFormat", 0x4e36a0},
+  {"rw37__rwD3D9CheckValidZBufferTextureFormat", 0x4e3700}, {"rw37__rwD3D9CheckValidCameraCubeTextureFormat", 0x4e3760},
+  {"rw37__rwD3D9CheckAutoMipmapGenTextureFormat", 0x4e37c0}, {"rw37__rwD3D9CheckAutoMipmapGenCameraTextureFormat", 0x4e3810},
+  {"rw37__rwD3D9CheckAutoMipmapGenCubeTextureFormat", 0x4e3860}, {"rw37__rwD3D9CheckRasterFormat", 0x4e1ad0},
+  {"rw37_rwD3D9CreateCameraTextureRaster", 0x4e2a30}, {"rw37_rwD3D9CreateZBufferRaster", 0x4e2be0}, {"rw37_rwD3D9RasterGetMipLevels", 0x4e3200},
+  {"rw37_rwD3D9TextureSetRaster", 0x4e3280}, {"rw37_rwD3D9RasterSubRaster", 0x4e3290}, {"rw37__rxD3D9VideoMemoryRasterListRelease", 0x4e1b20},
+  {"rw37__rxD3D9VideoMemoryRasterListRestore", 0x4e1be0}};
 typedef u32 (__cdecl *G4)(u32, u32, u32, u32);
 static void *fn[2][NF];
 static long ncalls[NF], nok[NF];
@@ -91,7 +107,7 @@ static volatile int cur_step, cur_op;
 static u8 *arena; static u32 narena;
 #define ARENA 0x1000000u
 static u8 *bump(u32 n) { u8 *p; n = (n + 15) & ~7u; if (narena + n > ARENA) { printf("ARENA full\n"); fflush(stdout); ExitProcess(6); } p = arena + narena + 8; ((u32 *)p)[-1] = n - 8; narena += n; return p; }
-static u32 eng[0x50], vidfl[2], lists[256][2], nlists, stage[8], camtex_ok, z_ok, crect[4];
+static u32 eng[0x50], vidfl[2], lists[256][2], nlists, stage[8], crect[4];
 static void *__cdecl fe_malloc(u32 size, u32 hint) { u8 *p = bump(size); lg(T | 0x108); lg(size); lg(hint); memset(p, 0, size); lg((u32)(uintptr_t)p); return p; }
 static void *__cdecl fe_realloc(u8 *old, u32 size, u32 hint) { u8 *p = bump(size); u32 o = ((u32 *)old)[-1]; lg(T | 0x110); lg((u32)(uintptr_t)old); lg(size); lg(hint); memset(p, 0, size); memcpy(p, old, o < size ? o : size); lg((u32)(uintptr_t)p); return p; }
 static void *__cdecl fe_alloc(u32 *list, u32 hint) { u8 *p; lg(T | 0x118); lg((u32)(uintptr_t)list); lg(hint); p = bump(list[0]); memset(p, 0xcd, list[0]); lg((u32)(uintptr_t)p); return p; }
@@ -118,25 +134,16 @@ static u32 __cdecl st_rascreate(u32 w, u32 h, u32 depth, u32 flags) {      /* Rw
   return ok ? (u32)(uintptr_t)r : 0;
 }
 static u32 __cdecl st_rasdestroy(u8 *r) { lg(T | 5); lg((u32)(uintptr_t)r); lg(((G4)fn[side][RDESTROY])(0, (u32)(uintptr_t)r, 0, 0)); return 1; }
-static u32 __cdecl st_createcamtex(u8 *r, u8 *e) {
-  lg(T | 6); lg((u32)(uintptr_t)r); lg((u32)(uintptr_t)e); lg(camtex_ok);
-  if (!camtex_ok) return 0;
-  *(void **)e = fakedev_texture_new(*(u32 *)(r + 0xc), *(u32 *)(r + 0x10), r[0x23] & 0x80 ? 0 : 1, 1, W(DISPFMT), 0); *(u32 *)(e + 0x18) = W(DISPFMT);
-  return 1;
-}
-static u32 __cdecl st_createz(u8 *r, u8 *e) {
-  lg(T | 7); lg((u32)(uintptr_t)r); lg((u32)(uintptr_t)e); lg(z_ok);
-  if (!z_ok) return 0;
-  *(void **)e = z_ok == 2 ? (void *)W(DEPTHSURF) : fakedev_surface_new(*(u32 *)(r + 0xc), *(u32 *)(r + 0x10), W(DEPTHFMT), 2); *(u32 *)(e + 0x18) = W(DEPTHFMT);
-  return 1;
-}
+/* the DLL side reaches its creators through d3dras's bind table: count them there */
+static u32 __cdecl w_camtex(u8 *r, u8 *e) { u32 k = ((u32 (__cdecl *)(u8 *, u8 *))fn[0][CAMTEX])(r, e); ncalls[CAMTEX]++; if (k) nok[CAMTEX]++; return k; }
+static u32 __cdecl w_zras(u8 *r, u8 *e) { u32 k = ((u32 (__cdecl *)(u8 *, u8 *))fn[0][ZRAS])(r, e); ncalls[ZRAS]++; if (k) nok[ZRAS]++; return k; }
 static void __cdecl st_genmips(u32 r, u32 x) { lg(T | 8); lg(r); lg(x); }
 static u32 __cdecl st_getstage(u32 s) { lg(T | 9); lg(s); return s < 8 ? stage[s] : 0; }
 static void __cdecl st_setstage(u32 r, u32 s) { lg(T | 10); lg(r); lg(s); if (s < 8) stage[s] = r; }
 static long __stdcall st_clientrect(u32 hwnd, u32 *rc) { lg(T | 11); lg(hwnd); memcpy(rc, crect, 16); return 1; }
 static const struct { u32 va; void *fn; } STUB[] = {
   {0x4ea160, st_errorset}, {0x53eac0, st_errcode}, {0x4e90b0, st_flcreate}, {0x4d7950, st_rascreate}, {0x4d77e0, st_rasdestroy},
-  {0x4e2a30, st_createcamtex}, {0x4e2be0, st_createz}, {0x4d5f60, st_genmips}, {0x4e55c0, st_getstage}, {0x4e5440, st_setstage}};
+  {0x4d5f60, st_genmips}, {0x4e55c0, st_getstage}, {0x4e5440, st_setstage}};
 static void patch_jmp(u32 va, void *f) { u8 *p = (u8 *)(uintptr_t)va; p[0] = 0xe9; *(u32 *)(p + 1) = (u32)(uintptr_t)f - (va + 5); }
 
 /* rasters the generator knows */
@@ -160,6 +167,9 @@ static void reset(u32 seed, unsigned short cw) {
   { static const u32 mx[] = { 2048, 4096, 1024, 256 }; W(CAPS + 0x58) = mx[rnd() % 4]; W(CAPS + 0x5c) = mx[rnd() % 4]; }
   W(CAPS + 0x3c) = rnd() & 0x1a2;                       /* POW2 2, SQUAREONLY 0x20, ALPHAPALETTE 0x80, NONPOW2CONDITIONAL 0x100 */
   W(CAPS + 0xc) = rnd() % 2 ? 0x40000000 : 0;
+  for (i = 0; i < 14; i++) W(PRESENT + 4 * i) = rnd() % 4 ? rnd() % 8 : rnd();      /* DISPFMT / DEPTHFMT set below */
+  W(PRESENT) = rnd() % 4 ? 640 + rnd() % 1400 : rnd() % 4096; W(PRESENT + 4) = rnd() % 4 ? 480 + rnd() % 1000 : rnd() % 4096;
+  W(DISPW) = rnd() % 4 ? 320 + rnd() % 2000 : 0; W(DISPH) = rnd() % 4 ? 240 + rnd() % 1500 : 0;
   { static const u32 dd[] = { 16, 32, 32, 24, 15 }, zd[] = { 16, 32, 24, 16 }, af[] = { 0x16, 0x17, 0x15, 0x16 };
     static const u32 df[] = { 0x16, 0x17, 0x15, 0x23, 0x18, 0x19, 0x1a, 0 }, dsf[] = { 0x50, 0x4b, 0x4d, 0x47 };
     W(DISPDEPTH) = dd[rnd() % 5]; W(ZDEPTH) = zd[rnd() % 4]; W(ADAPTERFMT) = af[rnd() % 4];
@@ -204,19 +214,24 @@ static void pool_add(u8 *r, int sub) { if (r && npool < NPOOL) { pool[npool].r =
 static void pool_del(u8 *r) { int i; for (i = 0; i < npool; i++) if (pool[i].r == r) { pool[i] = pool[--npool]; return; } }
 
 static void run(int sd, u32 seed, int steps, unsigned short cw) {
-  void **f = fn[sd]; int s;
+  void **f = fn[sd]; int s, lost = 0;
   side = sd;
   reset(seed, cw);
   for (s = 0; s < steps; s++) {
     u32 a0 = 0, a1 = 0, a2 = 0, a3 = 0, r, out = 0xeeeeeeee, q = rnd() % 100; int k; u8 *ras = 0;
-    k = q < 22 ? RCREATE : q < 30 ? DCREATE : q < 36 ? CTEX : q < 54 ? LOCK : q < 72 ? UNLOCK : q < 82 ? RDESTROY : q < 92 ? FIND : -1;
+    k = q < 20 ? RCREATE : q < 27 ? DCREATE : q < 32 ? CTEX : q < 47 ? LOCK : q < 62 ? UNLOCK : q < 71 ? RDESTROY : q < 78 ? FIND : q < 84 ? VTEX + (int)(rnd() % 7) :
+        q < 87 ? CRFMT : q < 90 ? GETMIP : q < 91 ? TEXSET : q < 93 ? VIDREL : q < 96 ? VIDRES : -1;
     if ((k == RCREATE || k == DCREATE || k == -1) && npool >= NPOOL) k = RDESTROY;
-    if ((k == LOCK || k == UNLOCK || k == RDESTROY || k == CTEX) && !npool) k = FIND;
+    if ((k == LOCK || k == UNLOCK || k == RDESTROY || k == CTEX || k == GETMIP || k == TEXSET) && !npool) k = FIND;
+    if (lost && k != VIDREL && rnd() % 2) k = VIDRES;      /* a lost device mostly gets reset soon */
+    lost = k == VIDREL ? 1 : k == VIDRES ? 0 : lost;
+    if (k == VIDREL || k == VIDRES) { int i; for (i = 0; i < npool; i++) if (*(u32 *)(pool[i].r + 4)) k = UNLOCK; }      /* a device reset sees no locked raster */
     /* device state for this op */
-    fakedev_texhr = rnd() % 12 == 0 ? (int32_t)0x8876017c : 0; fakedev_offhr = rnd() % 15 == 0 ? (int32_t)0x8876017c : 0;
-    fakedev_levelhr = rnd() % 25 == 0 ? (int32_t)0x8876086c : 0; fakedev_surflockhr = rnd() % 20 == 0 ? (int32_t)0x8876086c : 0;
+    fakedev_texhr = rnd() % 12 == 0 ? (rnd() % 2 ? OOVM : INVCALL) : 0; fakedev_texonce = rnd() % 2; fakedev_offhr = rnd() % 15 == 0 ? OOVM : 0;
+    fakedev_levelhr = rnd() % 25 == 0 ? INVCALL : 0; fakedev_surflockhr = rnd() % 20 == 0 ? INVCALL : 0;
+    fakedev_dshr = rnd() % 10 == 0 ? (rnd() % 2 ? OOVM : INVCALL) : 0; fakedev_swaphr = rnd() % 10 == 0 ? (rnd() % 2 ? INVCALL : 1) : 0;
     fakedev_fmtflip = rnd() % 30 == 0;
-    camtex_ok = rnd() % 8 ? 1 : 0; z_ok = rnd() % 8 ? 1 + (rnd() % 3 == 0) : 0;
+    { static u32 caps0; if (s == 0) caps0 = fakedev_capsseed; fakedev_capsseed = rnd() % 6 ? caps0 : rnd(); }      /* now and then another driver answer table for one op */
     crect[0] = 0; crect[1] = 0; crect[2] = rnd() % 2 ? 4096 : rnd() % 2048; crect[3] = rnd() % 2 ? 4096 : rnd() % 2048;
     if (rnd() % 6 == 0 && npool) stage[rnd() % 8] = (u32)(uintptr_t)pick();
     if (k == -1) {      /* generator step: a sub raster of a live raster (header as RwRasterSubRaster, ext through the original rwD3D9RasterSubRaster) */
@@ -229,7 +244,7 @@ static void run(int sd, u32 seed, int steps, unsigned short cw) {
       if (!r) continue;
       *(u32 *)(sr + 0xc) = 1 + rnd() % (w - x); *(u32 *)(sr + 0x10) = 1 + rnd() % (h - y);
       *(u16 *)(sr + 0x1c) = (u16)(*(u16 *)(p + 0x1c) + x); *(u16 *)(sr + 0x1e) = (u16)(*(u16 *)(p + 0x1e) + y);
-      ((G4)(uintptr_t)0x4e3290)((u32)(uintptr_t)sr, (u32)(uintptr_t)p, 0, 0);
+      r = ((G4)f[SUBRAS])((u32)(uintptr_t)sr, (u32)(uintptr_t)p, 0, 0); lg(r); ncalls[SUBRAS]++; if (r) nok[SUBRAS]++;
       *(u32 *)sr = *(u32 *)p;
       pool_add(sr, 1); dump_raster(sr);
       continue;
@@ -237,14 +252,23 @@ static void run(int sd, u32 seed, int steps, unsigned short cw) {
   op:
     switch (k) {
     case RCREATE: { u32 fl = rflags(); u32 d = rnd() % 3 ? 0 : rnd() % 33;
-      ras = new_raster(rdim(), rdim(), d); a1 = (u32)(uintptr_t)ras; a2 = fl; count_class(fl, fl); break; }
+      ras = new_raster(rdim(), rdim(), d); a1 = (u32)(uintptr_t)ras; a2 = fl; count_class(fl, fl);
+      if (rnd() % 3 == 0) { crect[2] = *(u32 *)(ras + 0xc); crect[3] = *(u32 *)(ras + 0x10); }      /* a window-sized z buffer shares the depth surface */
+      break; }
+    case VTEX: case VCAM: case VZ: case VCUBE: case AMTEX: case AMCAM: case AMCUBE: {
+      static const u32 fm[] = { 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1c, 0x20, 0x21, 0x28, 0x29, 0x32, 0x33, 0x3c, 0x46, 0x47, 0x49, 0x4b, 0x4d, 0x4f, 0x50, 0x31545844 };
+      a0 = rnd() % 8 ? fm[rnd() % (sizeof fm / 4)] : rnd(); break; }
+    case CRFMT: ras = new_raster(rdim(), rdim(), rnd() % 33); a0 = (u32)(uintptr_t)ras; a1 = rflags() | (rnd() % 4 == 0 ? rnd() & 0xffff00ffu : 0); count_class(a1, a1); break;
+    case GETMIP: case TEXSET: a0 = (u32)(uintptr_t)&out; ras = pick(); a1 = (u32)(uintptr_t)ras; a2 = rnd() % 3; break;
+    case VIDREL: case VIDRES: break;
     case DCREATE: { static const u32 fm[] = { 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1c, 0x20, 0x21, 0x28, 0x29, 0x29, 0x32, 0x33, 0x3c, 0x46, 0x47, 0x48, 0x49, 0x4b,
                                                  0x4d, 0x4f, 0x50, 0x31545844, 0x32545844, 0x33545844, 0x34545844, 0x35545844, 0x7f, 0x80, 0x200 };
       a0 = rdim(); a1 = rdim(); if (!a0) a0 = 1; if (!a1) a1 = 1;
       a2 = rnd() % 10 ? fm[rnd() % (sizeof fm / 4)] : rnd() % 0x90; a3 = rflags(); count_class(a3, a3); break; }
     case CTEX: { int i, n = 0; u8 *c[NPOOL];
       for (i = 0; i < npool; i++)      /* (size 0 becomes 0x80000000 in _rwD3D9CheckRasterSize, and a negative size never ends there: as the original, not reached by the game) */
-        if (!pool[i].sub && (pool[i].r[0x20] == 0 || pool[i].r[0x20] == 4) && !*(u32 *)EXT(pool[i].r) && *(int32_t *)(pool[i].r + 0xc) > 0 && *(int32_t *)(pool[i].r + 0x10) > 0)
+        if (!pool[i].sub && (pool[i].r[0x20] == 0 || pool[i].r[0x20] == 4) && !*(u32 *)EXT(pool[i].r) && *(u32 *)(EXT(pool[i].r) + 0x18) - 0x46 > 0xa      /* not a released depth texture: the restore would make it a plain one again */
+            && *(int32_t *)(pool[i].r + 0xc) > 0 && *(int32_t *)(pool[i].r + 0x10) > 0)
           c[n++] = pool[i].r;
       if (!n) { k = FIND; goto op; }
       ras = c[rnd() % n];
@@ -269,14 +293,18 @@ static void run(int sd, u32 seed, int steps, unsigned short cw) {
     lg(0x57e90000u + s); lg(k); lg(a0); lg(a1); lg(a2); lg(a3);
     cur_step = s; cur_op = k;
     cw_set(cw);
-    r = ((G4)f[k])(a0, a1, a2, a3); ncalls[k]++; if (r) nok[k]++;
+    r = ((G4)f[k])(a0, a1, a2, a3); if (k == VIDREL) r = 0;      /* void */
+    ncalls[k]++; if (r) nok[k]++;
     lg(r); lg(cw_now()); lg(out);
     cw_set(0x27f);
     switch (k) {      /* generator state */
     case RCREATE:
       if (r) {
         pool_add(ras, 0);
-        if ((ras[0x20] & 7) == 2 && rnd() % 3 == 0) { *(void **)EXT(ras) = fakedev_surface_new(*(u32 *)(ras + 0xc), *(u32 *)(ras + 0x10), W(DISPFMT), 1); *(u32 *)(EXT(ras) + 0x1c) = 1; }
+        if ((ras[0x20] & 7) == 2 && rnd() % 3 == 0) {      /* a window camera: its own swap chain, its back buffer, its window */
+          *(void **)EXT(ras) = fakedev_surface_new(*(u32 *)(ras + 0xc), *(u32 *)(ras + 0x10), W(DISPFMT), 1);
+          *(void **)(EXT(ras) + 0x1c) = fakedev_swapchain_new(*(u32 *)(ras + 0xc), *(u32 *)(ras + 0x10), W(DISPFMT)); *(u32 *)(EXT(ras) + 0x20) = 0x777 + npool;
+        }
       }
       break;
     case DCREATE: ras = (u8 *)(uintptr_t)r; pool_add(ras, 0); break;
@@ -311,7 +339,7 @@ static int compare(u32 seed, unsigned short cw) {
 static void sink(u32 w) { lg(w); }
 static volatile int cur_seed;
 static DWORD WINAPI watchdog(LPVOID p) { Sleep((DWORD)(uintptr_t)p); printf("TIMEOUT at seed %d side %d step %d op %d\n", cur_seed, side, cur_step, cur_op); fflush(stdout); ExitProcess(3); return 0; }
-static LONG WINAPI crash(EXCEPTION_POINTERS *e) { printf("CRASH %08lx at %p seed %d side %d\n", e->ExceptionRecord->ExceptionCode, e->ExceptionRecord->ExceptionAddress, cur_seed, side); fflush(stdout); ExitProcess(4); return 0; }
+static LONG WINAPI crash(EXCEPTION_POINTERS *e) { printf("CRASH %08lx at %p seed %d side %d step %d op %d\n", e->ExceptionRecord->ExceptionCode, e->ExceptionRecord->ExceptionAddress, cur_seed, side, cur_step, cur_op); fflush(stdout); ExitProcess(4); return 0; }
 
 int main(int argc, char **argv) {
   HMODULE m = LoadLibraryA(argv[1]); int seeds = argc > 3 ? atoi(argv[3]) : 200, steps = argc > 4 ? atoi(argv[4]) : 3000, i, bad = 0, ci, seed0 = 1; u32 seed; long tot = 0;
@@ -342,12 +370,23 @@ int main(int argc, char **argv) {
                                 DEPTHFMT, PFI, FMTTAB, PALCOUNT, PALCAP, PALNEXT, PALARRAY, PALFL, VIDLIST, VIDFL, 0x62e8b4, 0x62e8d0, 0x62e8f0,
                                 0x4ea160, 0x53eac0, 0x4e90b0, 0x4d7950, 0x4d77e0, 0x4eddd0, 0x4e3660, 0x4e36a0, 0x4e3700, 0x4e37c0, 0x4e3810,
                                 0x4e2a30, 0x4e2be0, 0x4d5f60, 0x4e55c0, 0x4e5440 };
+    for (i = 0; i < NF; i++) { fn[0][i] = (void *)GetProcAddress(m, F[i].dll); if (!fn[0][i]) { printf("%s MISSING export\n", F[i].dll); bad++; } }
+    if (bad) return 1;
     for (i = 0; i < 43; i++) table[i] = (void *)(uintptr_t)data[i];
-    table[43] = (void *)st_clientrect; }
+    table[43] = (void *)st_clientrect;
+    /* d3dras2's functions: the DLL's own (the game links both groups) */
+    table[33] = fn[0][VTEX]; table[34] = fn[0][VCAM]; table[35] = fn[0][VZ]; table[36] = fn[0][AMTEX]; table[37] = fn[0][AMCAM];
+    table[38] = (void *)w_camtex; table[39] = (void *)w_zras; }
   if (bind(43, table)) { printf("mflrw_d3dras_bind accepted a short table (DIFF)\n"); return 1; }
   if (!bind(44, table)) { printf("mflrw_d3dras_bind refused the table (DIFF)\n"); return 1; }
-  for (i = 0; i < NF; i++) { fn[0][i] = (void *)GetProcAddress(m, F[i].dll); if (!fn[0][i]) { printf("%s MISSING export\n", F[i].dll); bad++; } }
-  if (bad) return 1;
+  { static void *t2[26]; int (__cdecl *bind2)(int, void *const *) = (void *)GetProcAddress(m, "mflrw_d3dras2_bind");
+    static const u32 data2[] = { DEVVAR, D3DVAR, ADAPTER, DEVTYPE, HWNDVAR, DEPTHSURF, EXTOFF, CAPS, ADAPTERFMT, DISPDEPTH, ZDEPTH, DEPTHFMT, PFI, FMTTAB,
+                                 VIDLIST, PRESENT, DISPW, DISPH, 0x62e938, 0x62e96c, 0x62e988, 0x4ea160, 0x53eac0, 0x4eddd0 };
+    if (!bind2) { printf("mflrw_d3dras2_bind MISSING export\n"); return 1; }
+    for (i = 0; i < 24; i++) t2[i] = (void *)(uintptr_t)data2[i];
+    t2[24] = fn[0][FIND]; t2[25] = (void *)st_clientrect;
+    if (bind2(25, t2)) { printf("mflrw_d3dras2_bind accepted a short table (DIFF)\n"); return 1; }
+    if (!bind2(26, t2)) { printf("mflrw_d3dras2_bind refused the table (DIFF)\n"); return 1; } }
   printf("DLL %s, %d seeds x %d steps x CW 0x7f / 0x27f\n", argv[1], seeds, steps);
   for (ci = 0; ci < 2; ci++)
     for (seed = (u32)seed0; seed <= (u32)seeds; seed++) {

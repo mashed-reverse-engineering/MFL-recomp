@@ -9,31 +9,36 @@
    is one consistent device, plus per-call overrides.  Every call logs its slot (FAKEDEV_TAG | 0x2000 | slot for objects) and its arguments.
    Failure injection (set by the check before an op): fakedev_texhr (Create*Texture), fakedev_offhr (CreateOffscreenPlainSurface), fakedev_levelhr
    (GetSurfaceLevel / GetCubeMapSurface), fakedev_surflockhr (LockRect); 0 = succeed. */
-#define FDR_OBJS 16384
+/* window 3 (d3dras2): device slots 5 EvictManagedResources, 13 CreateAdditionalSwapChain (fakedev_swaphr, also SetPaletteEntries), 29 CreateDepthStencilSurface
+   (fakedev_dshr), 71 SetPaletteEntries; texture / cube 13 GetLevelCount; swap chain objects (2 Release, 5 GetBackBuffer: a new surface); fakedev_texonce != 0:
+   fakedev_texhr fails only the next Create*Texture. */
+#define FDR_OBJS 65536
 struct fdr_obj { void **vtbl; uint32_t id, kind, w, h, levels, usage, fmt, pool, refs, pitch, locked; };
-enum { FDR_TEX = 1, FDR_CUBE, FDR_SURF };
-static void *fdr_texvtbl[22], *fdr_cubevtbl[22], *fdr_surfvtbl[17], *fdr_d3dvtbl[17];
+enum { FDR_TEX = 1, FDR_CUBE, FDR_SURF, FDR_SWAP };
+static void *fdr_texvtbl[22], *fdr_cubevtbl[22], *fdr_surfvtbl[17], *fdr_d3dvtbl[17], *fdr_swapvtbl[10];
 static struct fdr_obj *fdr_objs;
 static int fdr_nobj;
 static void *fdr_d3dobj[2];
 void *fakedev_d3d9 = fdr_d3dobj;
 uint32_t fakedev_capsseed;
-int32_t fakedev_texhr, fakedev_offhr, fakedev_levelhr, fakedev_surflockhr, fakedev_fmtflip;
+int32_t fakedev_texhr, fakedev_offhr, fakedev_levelhr, fakedev_surflockhr, fakedev_fmtflip, fakedev_texonce, fakedev_dshr, fakedev_swaphr;
 
-static void fdr_trap(int k, int n) { printf("TRAP unexpected %s method %d\n", k == 0 ? "IDirect3D9" : k == FDR_SURF ? "surface" : "texture", n); fflush(stdout); ExitProcess(5); }
+static void fdr_trap(int k, int n) { printf("TRAP unexpected %s method %d\n", k == 0 ? "IDirect3D9" : k == FDR_SURF ? "surface" : k == FDR_SWAP ? "swap chain" : "texture", n); fflush(stdout); ExitProcess(5); }
 #define FT_D(n) static long __stdcall fdt_d##n(void *s) { fdr_trap(0, n); return (long)0x8876086c; }
 #define FT_T(n) static long __stdcall fdt_t##n(void *s) { fdr_trap(FDR_TEX, n); return (long)0x8876086c; }
 #define FT_S(n) static long __stdcall fdt_s##n(void *s) { fdr_trap(FDR_SURF, n); return (long)0x8876086c; }
 FT_D(0) FT_D(1) FT_D(2) FT_D(3) FT_D(4) FT_D(5) FT_D(6) FT_D(7) FT_D(8) FT_D(9) FT_D(11) FT_D(13) FT_D(14) FT_D(15) FT_D(16)
 FT_T(0) FT_T(1) FT_T(3) FT_T(4) FT_T(5) FT_T(6) FT_T(7) FT_T(8) FT_T(9) FT_T(10) FT_T(11) FT_T(12) FT_T(13) FT_T(14) FT_T(15) FT_T(16) FT_T(17) FT_T(19) FT_T(20) FT_T(21)
 FT_S(0) FT_S(1) FT_S(3) FT_S(4) FT_S(5) FT_S(6) FT_S(7) FT_S(8) FT_S(9) FT_S(10) FT_S(11) FT_S(15) FT_S(16)
+#define FT_W(n) static long __stdcall fdt_w##n(void *s) { fdr_trap(FDR_SWAP, n); return (long)0x8876086c; }
+FT_W(0) FT_W(1) FT_W(3) FT_W(4) FT_W(6) FT_W(7) FT_W(8) FT_W(9)
 
 static uint32_t fdr_id(void *o) { return o ? ((struct fdr_obj *)o)->id : 0; }
 static struct fdr_obj *fdr_new(int kind, uint32_t w, uint32_t h, uint32_t levels, uint32_t usage, uint32_t fmt, uint32_t pool) {
   struct fdr_obj *o;
   if (fdr_nobj == FDR_OBJS) { printf("fakedev_raster: object pool full\n"); fflush(stdout); ExitProcess(6); }
   o = &fdr_objs[fdr_nobj]; o->id = 0x7e500000u + fdr_nobj++; o->kind = kind;
-  o->vtbl = kind == FDR_TEX ? fdr_texvtbl : kind == FDR_CUBE ? fdr_cubevtbl : fdr_surfvtbl;
+  o->vtbl = kind == FDR_TEX ? fdr_texvtbl : kind == FDR_CUBE ? fdr_cubevtbl : kind == FDR_SWAP ? fdr_swapvtbl : fdr_surfvtbl;
   o->w = w; o->h = h; o->levels = levels; o->usage = usage; o->fmt = fmt; o->pool = pool; o->refs = 1; o->locked = 0;
   o->pitch = ((w ? w : 1) * 4 + 3) & ~3u; o->pitch += (o->id & 3) * 64;      /* pads like a real driver's, differs per surface */
   fakedev_log(o->id);
@@ -41,6 +46,7 @@ static struct fdr_obj *fdr_new(int kind, uint32_t w, uint32_t h, uint32_t levels
 }
 void *fakedev_surface_new(uint32_t w, uint32_t h, uint32_t fmt, uint32_t usage) { return fdr_new(FDR_SURF, w, h, 1, usage, fmt, 0); }
 void *fakedev_texture_new(uint32_t w, uint32_t h, uint32_t levels, uint32_t usage, uint32_t fmt, uint32_t pool) { return fdr_new(FDR_TEX, w, h, levels, usage, fmt, pool); }
+void *fakedev_swapchain_new(uint32_t w, uint32_t h, uint32_t fmt) { return fdr_new(FDR_SWAP, w, h, 1, 1, fmt, 0); }
 
 /* objects */
 static unsigned long __stdcall fdr_Release(struct fdr_obj *o) { fakedev_log(FAKEDEV_TAG | 0x2002); fakedev_log(o->id); if (o->refs) o->refs--; else fakedev_log(0xdead0bad); fakedev_log(o->refs); return o->refs; }
@@ -69,19 +75,42 @@ static long __stdcall fdr_LockRect(struct fdr_obj *s, int32_t *lr, const int32_t
   return 0;
 }
 static long __stdcall fdr_UnlockRect(struct fdr_obj *s) { fakedev_log(FAKEDEV_TAG | 0x200e); fakedev_log(s->id); fakedev_log(s->locked); if (s->locked) s->locked--; return 0; }
+static uint32_t __stdcall fdr_GetLevelCount(struct fdr_obj *t) { fakedev_log(FAKEDEV_TAG | 0x400d); fakedev_log(t->id); fakedev_log(fdr_chain(t)); return fdr_chain(t); }
+static long __stdcall fdr_GetBackBuffer(struct fdr_obj *c, uint32_t i, uint32_t type, void **pp) {
+  fakedev_log(FAKEDEV_TAG | 0x5005); fakedev_log(c->id); fakedev_log(i); fakedev_log(type);
+  *pp = fdr_new(FDR_SURF, c->w, c->h, 1, 1, c->fmt, 0);
+  return 0;
+}
+static long __stdcall fdr_Evict(void *d) { fakedev_log(FAKEDEV_TAG | 5); return 0; }
+static long __stdcall fdr_CreateAdditionalSwapChain(void *d, uint32_t *pp, void **out) {
+  int i;
+  fakedev_log(FAKEDEV_TAG | 13); for (i = 0; i < 14; i++) fakedev_log(pp[i]); fakedev_log((uint32_t)fakedev_swaphr);
+  if (fakedev_swaphr < 0) { *out = 0; return fakedev_swaphr; }
+  *out = fdr_new(FDR_SWAP, pp[0], pp[1], 1, 1, pp[2], 0);
+  return fakedev_swaphr;      /* may be positive: the caller tests != 0 */
+}
+static long __stdcall fdr_CreateDepthStencilSurface(void *d, uint32_t w, uint32_t h, uint32_t fmt, uint32_t ms, uint32_t msq, int32_t discard, void **pp, void *share) {
+  fakedev_log(FAKEDEV_TAG | 29); fakedev_log(w); fakedev_log(h); fakedev_log(fmt); fakedev_log(ms); fakedev_log(msq); fakedev_log((uint32_t)discard);
+  fakedev_log((uint32_t)(uintptr_t)share); fakedev_log((uint32_t)fakedev_dshr);
+  if (fakedev_dshr < 0) { *pp = 0; return fakedev_dshr; }
+  *pp = fdr_new(FDR_SURF, w, h, 1, 2, fmt, 0);
+  return 0;
+}
+static long __stdcall fdr_SetPaletteEntries(void *d, uint32_t n, const void *pal) { fakedev_log(FAKEDEV_TAG | 71); fakedev_log(n); fakedev_log((uint32_t)(uintptr_t)pal); fakedev_log((uint32_t)fakedev_swaphr); return fakedev_swaphr; }
+static long fdr_texfail(void) { long r = fakedev_texhr; if (fakedev_texonce) fakedev_texhr = 0; return r; }
 
 /* device slots */
 static long __stdcall fdr_CreateTexture(void *d, uint32_t w, uint32_t h, uint32_t levels, uint32_t usage, uint32_t fmt, uint32_t pool, void **pp, void *share) {
   fakedev_log(FAKEDEV_TAG | 23); fakedev_log(w); fakedev_log(h); fakedev_log(levels); fakedev_log(usage); fakedev_log(fmt); fakedev_log(pool);
   fakedev_log((uint32_t)(uintptr_t)share); fakedev_log((uint32_t)fakedev_texhr);
-  if (fakedev_texhr < 0) { *pp = 0; return fakedev_texhr; }
+  if (fakedev_texhr < 0) { *pp = 0; return fdr_texfail(); }
   *pp = fdr_new(FDR_TEX, w, h, levels, usage, fmt, pool);
   return 0;
 }
 static long __stdcall fdr_CreateCubeTexture(void *d, uint32_t edge, uint32_t levels, uint32_t usage, uint32_t fmt, uint32_t pool, void **pp, void *share) {
   fakedev_log(FAKEDEV_TAG | 25); fakedev_log(edge); fakedev_log(levels); fakedev_log(usage); fakedev_log(fmt); fakedev_log(pool);
   fakedev_log((uint32_t)(uintptr_t)share); fakedev_log((uint32_t)fakedev_texhr);
-  if (fakedev_texhr < 0) { *pp = 0; return fakedev_texhr; }
+  if (fakedev_texhr < 0) { *pp = 0; return fdr_texfail(); }
   *pp = fdr_new(FDR_CUBE, edge, edge, levels, usage, fmt, pool);
   return 0;
 }
@@ -120,7 +149,10 @@ static long __stdcall fdr_CheckDepthStencilMatch(void *o, uint32_t ad, uint32_t 
   return r;
 }
 
-void fakedev_raster_reset(uint32_t capsseed) { fdr_nobj = 0; fakedev_capsseed = capsseed; fakedev_texhr = fakedev_offhr = fakedev_levelhr = fakedev_surflockhr = fakedev_fmtflip = 0; }
+void fakedev_raster_reset(uint32_t capsseed) {
+  fdr_nobj = 0; fakedev_capsseed = capsseed;
+  fakedev_texhr = fakedev_offhr = fakedev_levelhr = fakedev_surflockhr = fakedev_fmtflip = fakedev_texonce = fakedev_dshr = fakedev_swaphr = 0;
+}
 void fakedev_raster_init(void) {
   int i;
   void *const d[17] = { (void *)fdt_d0, (void *)fdt_d1, (void *)fdt_d2, (void *)fdt_d3, (void *)fdt_d4, (void *)fdt_d5, (void *)fdt_d6, (void *)fdt_d7, (void *)fdt_d8,
@@ -131,12 +163,18 @@ void fakedev_raster_init(void) {
                         (void *)fdt_t17, (void *)fdr_GetSurfaceLevel, (void *)fdt_t19, (void *)fdt_t20, (void *)fdt_t21 };
   void *const s[17] = { (void *)fdt_s0, (void *)fdt_s1, (void *)fdr_Release, (void *)fdt_s3, (void *)fdt_s4, (void *)fdt_s5, (void *)fdt_s6, (void *)fdt_s7, (void *)fdt_s8,
                         (void *)fdt_s9, (void *)fdt_s10, (void *)fdt_s11, (void *)fdr_GetDesc, (void *)fdr_LockRect, (void *)fdr_UnlockRect, (void *)fdt_s15, (void *)fdt_s16 };
+  void *const w[10] = { (void *)fdt_w0, (void *)fdt_w1, (void *)fdr_Release, (void *)fdt_w3, (void *)fdt_w4, (void *)fdr_GetBackBuffer, (void *)fdt_w6, (void *)fdt_w7,
+                        (void *)fdt_w8, (void *)fdt_w9 };
   for (i = 0; i < 17; i++) { fdr_d3dvtbl[i] = d[i]; fdr_surfvtbl[i] = s[i]; }
   for (i = 0; i < 22; i++) { fdr_texvtbl[i] = t[i]; fdr_cubevtbl[i] = t[i]; }
+  for (i = 0; i < 10; i++) fdr_swapvtbl[i] = w[i];
   fdr_cubevtbl[18] = (void *)fdr_GetCubeMapSurface;
+  fdr_texvtbl[13] = fdr_cubevtbl[13] = (void *)fdr_GetLevelCount;
   fdr_d3dobj[0] = fdr_d3dvtbl;
   fakedev_vtbl[23] = (void *)fdr_CreateTexture; fakedev_vtbl[25] = (void *)fdr_CreateCubeTexture; fakedev_vtbl[30] = (void *)fdr_UpdateSurface;
   fakedev_vtbl[32] = (void *)fdr_GetRenderTargetData; fakedev_vtbl[36] = (void *)fdr_CreateOffscreenPlainSurface;
+  fakedev_vtbl[5] = (void *)fdr_Evict; fakedev_vtbl[13] = (void *)fdr_CreateAdditionalSwapChain; fakedev_vtbl[29] = (void *)fdr_CreateDepthStencilSurface;
+  fakedev_vtbl[71] = (void *)fdr_SetPaletteEntries;
   if (!fdr_objs) fdr_objs = calloc(FDR_OBJS, sizeof *fdr_objs);      /* heap, not .bss (the check maps the exe image over its own .bss block) */
   fakedev_raster_reset(0);
 }

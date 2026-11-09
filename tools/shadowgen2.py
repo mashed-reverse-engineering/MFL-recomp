@@ -39,12 +39,12 @@ def tramp(addr):
 
 os.makedirs(out, exist_ok=True)
 for f in os.listdir(out):
-    if f.endswith((".c", ".h", ".txt")): os.remove(os.path.join(out, f))
+    if f.endswith((".c", ".h", ".inc", ".txt")): os.remove(os.path.join(out, f))
 names, skipped, hdr = [], [], []
 DEF = re.compile(r"^(?!extern|/\*|typedef|static)([A-Za-z_][\w \*]*?)\b(\w+)\((.*)\)$")
 for fn in sorted(os.listdir(src)):
-    if not fn.endswith((".c", ".h")): continue
-    if fn.endswith(".h"): shutil.copy(os.path.join(src, fn), os.path.join(out, fn)); continue
+    if not fn.endswith((".c", ".h", ".inc")): continue
+    if fn.endswith((".h", ".inc")): shutil.copy(os.path.join(src, fn), os.path.join(out, fn)); continue
     lines = open(os.path.join(src, fn), errors="replace").read().split("\n")
     res, i = [], 0
     while i < len(lines):

@@ -6,6 +6,7 @@ src/aliases.txt ("<name> <hex VA>") adds names the C code uses that are not Ghid
 import glob, hashlib, os, re, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(HERE); import incexpand
 RECOMP = os.path.join(HERE, "..", "src")
 EXE = os.path.join(HERE, "..", "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe")
 
@@ -108,6 +109,8 @@ def main():
             if os.environ.get("T2_SHADOW_DIR") and "--shadow" not in extra and not os.path.exists(os.path.join(t2dir, "an_shadow_rt.c")): srcs.append(os.path.join(RECOMP, "harness_shadow", "shadow.c"))
             for h in glob.glob(os.path.join(t2dir, "*.h")):
                 copy_hdr(h, work)
+            for h in glob.glob(os.path.join(t2dir, "*.inc")):      # KES group decls + bind blocks (an_hk_612_<grp>.inc): hashed into the key of the file that includes them, below
+                shutil.copy(h, os.path.join(work, os.path.basename(h)))
         cl_files, cl_entries = [], set()
         if "--clusters" in extra:        # src/clusters: tools/cluster_install.py output (natural C of a usercall root + its callers, entry thunk of the root); enabled.txt or CLUSTER_ENABLED=a,b
             en_ = os.environ.get("CLUSTER_ENABLED")
@@ -176,6 +179,7 @@ def main():
             hdr.update(open(h, "rb").read())
         lh_ = {n_: open(os.path.join(work, n_), "rb").read() for n_ in LOCAL_H if os.path.exists(os.path.join(work, n_))}
         vh_ = lambda src_: b"".join(v_ for n_, v_ in sorted(lh_.items()) if n_.encode() in src_)
+        inc_ = lambda p_: incexpand.read_expanded(p_).encode("utf-8") if incexpand.incs(open(p_, errors="replace").read()) else b""      # a source with .inc includes: the inlined text joins its key (others: key unchanged)
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
         todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set(); ccv = {}
@@ -197,7 +201,7 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + inc_(os.path.join(work, nm)) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)

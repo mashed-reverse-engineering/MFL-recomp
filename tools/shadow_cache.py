@@ -8,7 +8,8 @@
   shadow_cache.py --selftest
 Hash = sha1 of the definition text (signature to closing brace, whitespace trimmed) in the tier 2 source: a changed header / typedef is not seen (use a full shadow at milestones)."""
 import hashlib, os, re, sys
-HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.join(HERE, "..")
+HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.join(HERE, ".."); sys.path.append(HERE)
+import incexpand
 CSV = os.path.join(ROOT, "output", "shadow_cache.csv")
 DEF = re.compile(r"^(?!extern|/\*|typedef|static)([A-Za-z_][\w \*]*?)\b(\w+)\((.*)\)$")      # same as shadowgen2.py
 
@@ -16,7 +17,8 @@ def hashes(src=os.path.join(ROOT, "src", "automatch_near")):
     h = {}
     for fn in sorted(os.listdir(src)):
         if not fn.endswith(".c") or fn == "an_shadow_rt.c": continue
-        L = open(os.path.join(src, fn), errors="replace").read().split("\n"); i = 0
+        t = open(os.path.join(src, fn), errors="replace").read(); L = t.split("\n"); i = 0
+        inc = "".join("\n" + open(os.path.join(src, x), errors="replace").read() for x in incexpand.incs(t) if os.path.exists(os.path.join(src, x)))      # an_hk_612_<grp>.inc: joins the hash of every definition of its includer (files without .inc: hashes unchanged)
         while i < len(L):
             m = DEF.match(L[i])
             if m and i + 1 < len(L) and L[i + 1].startswith("{"):
@@ -24,7 +26,7 @@ def hashes(src=os.path.join(ROOT, "src", "automatch_near")):
                 while True:
                     d += L[j].count("{") - L[j].count("}"); j += 1
                     if d == 0 or j >= len(L): break
-                h[m.group(2)] = hashlib.sha1("\n".join(x.rstrip() for x in L[i:j]).encode()).hexdigest()[:12]
+                h[m.group(2)] = hashlib.sha1(("\n".join(x.rstrip() for x in L[i:j]) + inc).encode()).hexdigest()[:12]
                 i = j; continue
             i += 1
     return h

@@ -20,5 +20,6 @@ extern uint32_t fakedev_texmem;
 extern int32_t fakedev_createhr, fakedev_lockhr;
 void fakedev_reset_bufs(void);            /* empties the buffer pool (per seed) */
 /* lane D3 (d3dlights): 51 SetLight (logs the index and the whole D3DLIGHT9), 53 LightEnable
-   lane D4 (d3dxform): 44 SetTransform (logs the state and the whole matrix), 87 SetVertexDeclaration, 100 SetStreamSource */
+   lane D4 (d3dxform): 44 SetTransform (logs the state and the whole matrix), 87 SetVertexDeclaration, 100 SetStreamSource
+   lane D5 (d3d9pipe): 92 SetVertexShader, 104 SetIndices, 107 SetPixelShader */
 #endif

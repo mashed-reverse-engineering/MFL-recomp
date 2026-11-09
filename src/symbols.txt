@@ -4170,6 +4170,7 @@ _rwD3D9RWSetRasterStage 004e5440
 _rwD3D9RWGetRasterStage 004e55c0
 FUN_004e55d0 004e55d0
 _rwD3D9RenderStateVertexAlphaEnable 004e5860
+FUN_004e5950 004e5950
 rwD3D9RenderStateStencilEnable 004e5960
 rwD3D9RenderStateStencilFail 004e59b0
 rwD3D9RenderStateStencilZFail 004e5a00
@@ -4611,6 +4612,7 @@ _rpD3D9VertexDeclarationInstColor 00508400
 _rpD3D9VertexDeclarationInstIndicesRemap 00508460
 switchD 00508478
 default 005085d6
+FUN_00508600 00508600
 _rpD3D9VertexDeclarationUnInstV3d 00508cb0
 switchD 00508cc1
 default 00509045
@@ -7375,7 +7377,9 @@ s_ntel_005ec35c_8 005ec364
 s__005ec35c_0xc 005ec368
 D3D9VertexTypeSize 005ec388
 k_f_32767 005ec3cc
+k_f_0_0078125 005ec3d0
 k_f_0_9999 005ec3d4
+k_f_n1_0842022en19_5ec3d8 005ec3d8
 k_f_1_0en12 005ec3e0
 k_f_3_051851en5 005ec3e4
 D3D9IdentityMatrix 005ec460
@@ -8134,6 +8138,9 @@ _rxPipesFreeListPreallocBlocks 0062e87c
 s_Camera_raster_is_too_big__0062e8b4 0062e8b4
 s_Failed_to_create_texture__0062e8d0 0062e8d0
 s_Palletized_texture_can_only_be_r_0062e8f0 0062e8f0
+s_rwRASTERTYPECAMERATEXTURE_can_no_0062e938 0062e938
+s_Failed_to_create_raster__0062e96c 0062e96c
+s_Out_of_video_memory__Failed_to_c_0062e988 0062e988
 QuantDepth 0062e9b8
 FreeListsEnabled 0062e9bc
 _rwPluginRegFreeListBlockSize 0062e9c0
@@ -12555,6 +12562,8 @@ _rwIm3DModule 00947360
 _RwD3D9D3D9ViewTransform 00947380
 dgGGlobals 009473c0
 _RwD3D9AdapterInformation 009473e0
+g_rx_9475e4 009475e4
+g_rx_9475e8 009475e8
 g_rw_9475f0 009475f0
 g_rw_9475f4 009475f4
 _RwD3D9ZBufferDepth 009475fc

@@ -9,7 +9,7 @@ Prints `SAME <fn>` per function, or `DIFF <fn>: ...` with the first differing of
 import os, re, shutil, struct, subprocess, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 os.environ.setdefault("VC7_CONTAINER", "cmpfn")
-import hashlib
+import hashlib, incexpand
 VC7 = os.path.join(HERE, "vc7.sh")
 WORKROOT = os.path.join(os.environ.get("TMPDIR", "/tmp/claude-%d" % os.getuid()), "readable_check")
 OBJCACHE = os.environ.get("DIFFEMU_OBJ", os.path.expanduser("~/.cache/mfl_diffemu_obj"))      # shared with diffemu (same key)
@@ -24,13 +24,14 @@ def compile_obj(src):
     d = os.path.dirname(os.path.abspath(src))
     hs = sha(*[open(os.path.join(d, x), "rb").read() for x in sorted(os.listdir(d)) if x.endswith(".h")])
     _m = open(src, "rb").read(); cc = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant, same rule as tools/cmpfn.py / build_overlay.py
-    key = sha(open(src, "rb").read(), hs, " ".join(FLAGS) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")
+    if incexpand.incs(_m.decode("utf-8", "replace")): hs = sha(hs, incexpand.read_expanded(src))      # an_hk_612_<grp>.inc joins the key (others unchanged)
+    key = sha(open(src, "rb").read(), hs," ".join(FLAGS) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")
     if os.path.exists(obj): return obj
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(WORKROOT, exist_ok=True)
     w = tempfile.mkdtemp(prefix="rc_", dir=WORKROOT)
     try:
         for x in os.listdir(d):
-            if x.endswith(".h"): shutil.copy(os.path.join(d, x), w)
+            if x.endswith((".h", ".inc")): shutil.copy(os.path.join(d, x), w)
         shutil.copy(src, os.path.join(w, "f.c"))
         r = subprocess.run([VC7, w, "cl.exe"] + FLAGS + ["f.c"], capture_output=True, text=True, timeout=600, env=dict(os.environ, VC7_CL=cc))
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error in %s:\n%s" % (src, (r.stdout + r.stderr)[-1500:]))

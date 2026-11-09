@@ -1,0 +1,6 @@
+# Group "d3d9vdtan" (plan_engine_switch_window3_2026-11-09 v1/v2, D6): the tangent instancer FUN_00508600 of d3d9vertexdeclaration.obj (rpworld; no symbol, 0 executions in
+# every scenario: native proof only) from librw-mfl/capi/d3d9vdtan.cpp, written op for op from the disassembly (x87 load / store / rounding points as the original).
+# Kernel on exe state: the engine allocator, six rdata constants and RwV3dLength / _rwInvSqrt / _rpD3D9VertexDeclarationInstV3d stay the exe's.  Needs
+# mflrw_d3d9vdtan_bind (rw_engine_init, recomp/automatch_near/an_hk_612_d3d9vdtan.inc: fatal if this group is linked and the bind is missing or refused).
+# Proof: tools/delink/rw_d3d9vdtan_check.sh <mflrw.dll> (original code and DLL natively under Wine, x87 CW 0x7f and 0x27f).
+FUN_00508600=rw37__rpD3D9VertexDeclarationInstTangent

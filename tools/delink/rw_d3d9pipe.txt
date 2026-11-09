@@ -1,0 +1,12 @@
+# Group "d3d9pipe" (plan_engine_switch_window3_2026-11-09 v1/v2, D5): the still-original functions of D3D9pipe.obj (rpworld, the RW 3.7 D3D9 world pipeline,
+# 0x4fa790..0x4fb440; FUN_004fa760 / _rwD3D9ConvertToTriList / _rwD3D9MeshGetNumVerticesMinIndex are group rwleaf) from librw-mfl/capi/d3d9pipe.cpp, written op for
+# op from the disassembly; the comparator SortTriangles (no symbols.txt row; fnsizes row added for this group) is rw37_SortTriangles of capi/rwleaf.cpp.  Kernel on
+# exe state: resource entries, mesh module bytes, primitive table 0x5ea2f4, the cache words 0x62e760..0x62e770 and the device are the exe's; every callee stays an exe
+# call (render state, texture, frustum, vertex buffer, resource arena, CRT qsort).  Needs mflrw_d3d9pipe_bind (rw_engine_init,
+# recomp/automatch_near/an_hk_612_d3d9pipe.inc: fatal if this group is linked and the bind is missing or refused).  Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3d9pipe_check.sh <mflrw.dll> (fake device tools/delink/fakedev.c; original code and DLL run the same op sequences natively under Wine).
+SortTriangles=rw37_SortTriangles
+_rwD3D9ResourceEntryInstanceDataDestroy=rw37__rwD3D9ResourceEntryInstanceDataDestroy
+rxD3D9Instance=rw37_rxD3D9Instance
+_rwD3D9EnableClippingIfNeeded=rw37__rwD3D9EnableClippingIfNeeded
+rxD3D9DefaultRenderCallback=rw37_rxD3D9DefaultRenderCallback

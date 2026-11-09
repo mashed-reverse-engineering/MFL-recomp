@@ -1,0 +1,21 @@
+# Group "d3dras2" (plan_engine_switch_window3_2026-11-09 v2, lane X slice 1): the rest of d3d9raster.obj next to group d3dras, from librw-mfl/capi/d3dras2.cpp, written
+# op for op from the disassembly; kernel on exe state (rasters + D3D9 extension, the VideoMemoryRasters list, the device, IDirect3D9, the present parameters stay the exe's).
+# Needs mflrw_d3dras2_bind (rw_engine_init, recomp/automatch_near/an_hk_612_d3dras2.inc: fatal if this group is linked and the bind is missing or refused).
+# Still exe code: _rwD3D9RasterOpen / Close, PluginAttach, TextureHasAlpha, LockPalette / UnlockPalette, the raster render / copy / clear functions, ConvertToNonPalettized.
+# Format as rw_stream.txt: exe_name[=dll_export].
+# Proof: tools/delink/rw_d3dras_check.sh <mflrw.dll> (d3dras + d3dras2 together; negative fixtures: agents/laneX_w3_negs.py, negtest.sh d3dras2 block).
+_rwD3D9CheckValidTextureFormat=rw37__rwD3D9CheckValidTextureFormat
+_rwD3D9CheckValidCameraTextureFormat=rw37__rwD3D9CheckValidCameraTextureFormat
+_rwD3D9CheckValidZBufferTextureFormat=rw37__rwD3D9CheckValidZBufferTextureFormat
+_rwD3D9CheckValidCameraCubeTextureFormat=rw37__rwD3D9CheckValidCameraCubeTextureFormat
+_rwD3D9CheckAutoMipmapGenTextureFormat=rw37__rwD3D9CheckAutoMipmapGenTextureFormat
+_rwD3D9CheckAutoMipmapGenCameraTextureFormat=rw37__rwD3D9CheckAutoMipmapGenCameraTextureFormat
+_rwD3D9CheckAutoMipmapGenCubeTextureFormat=rw37__rwD3D9CheckAutoMipmapGenCubeTextureFormat
+_rwD3D9CheckRasterFormat=rw37__rwD3D9CheckRasterFormat
+rwD3D9CreateCameraTextureRaster=rw37_rwD3D9CreateCameraTextureRaster
+rwD3D9CreateZBufferRaster=rw37_rwD3D9CreateZBufferRaster
+rwD3D9RasterGetMipLevels=rw37_rwD3D9RasterGetMipLevels
+rwD3D9TextureSetRaster=rw37_rwD3D9TextureSetRaster
+rwD3D9RasterSubRaster=rw37_rwD3D9RasterSubRaster
+_rxD3D9VideoMemoryRasterListRelease=rw37__rxD3D9VideoMemoryRasterListRelease
+_rxD3D9VideoMemoryRasterListRestore=rw37__rxD3D9VideoMemoryRasterListRestore

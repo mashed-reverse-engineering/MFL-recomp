@@ -196,7 +196,14 @@ fi
 # d3dras (engine switch window 2, X2): rw_d3dras_check.sh must pass and DIFF on two mutations of the original: (a) a palettised PAL8 raster with a given colour format gets
 # depth 4 instead of 8 (mov [esi+0x14],8 -> 4 at 0x4e2284 in _rwD3D9RasterCreate), (b) CreateTextureRaster drops the mip count (levels = 0 always: and esi,1 -> 0 at
 # 0x4e28f7); ~1 min, docker
-if ! grep -q mflrw_d3dras_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dras exports, d3dras fixtures skipped"; else
+# Window 3 (d3dras2, the check runs both groups): 8 more mutations, one per new path (agents/laneX_w3_negs.py lists them): camera texture retry format (DISPFMT read ->
+# BackBufferHeight, 4e2b03 / restore 4e1d1d), z buffer D24X8 fallback 0x4d -> 0x4e (4e2d61), restore D24S8 choice 0x4b -> 0x4c (4e1e5e), swap chain EnableAutoDepthStencil 0 -> 1 (4e1ff9),
+# back buffer depth byte -> alpha byte (4e207b), release depth range 0x50 -> 0x4f (4e1b67), mip levels inc edx -> inc ecx (4e3264)
+if ! grep -q mflrw_d3dras2_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dras2 exports, d3dras / d3dras2 fixtures skipped"; else
+  for m in 4e2b03:44 4e1d1d:44 4e2d61:4e 4e1ff9:01 4e207b:60 4e1b67:4f 4e3264:41 4e1e5e:4c; do
+    n="10 1000"; [ $m = 4e1e5e:4c ] && n="20 3000"      # a released own-surface z buffer restored on a 32-bit z device: first seen at seed 20
+    OUT=$O/xr2 $T/rw_d3dras_check.sh $RD $n $m > $O/xr2.txt 2>&1; grep -q 'compared; DIFF' $O/xr2.txt && ok "d3dras2 $m: DIFF" || bad "d3dras2 fixture $m not caught"
+  done
   OUT=$O/xrg $T/rw_d3dras_check.sh $RD 10 1000 > $O/xrg.txt 2>&1 && ok "d3dras good: $(grep -c EQUAL $O/xrg.txt) run EQUAL" || bad "d3dras good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/xrg.txt | head -2)"
   OUT=$O/xra $T/rw_d3dras_check.sh $RD 10 1000 4e2284:04 > $O/xra.txt 2>&1; grep -q 'compared; DIFF' $O/xra.txt && ok "d3dras palettised depth 8 -> 4: DIFF" || bad "d3dras palettised-depth fixture not caught"
   OUT=$O/xrb $T/rw_d3dras_check.sh $RD 10 1000 4e28f7:00 > $O/xrb.txt 2>&1; grep -q 'compared; DIFF' $O/xrb.txt && ok "d3dras mip count dropped: DIFF" || bad "d3dras mip-count fixture not caught"
@@ -215,6 +222,29 @@ if ! grep -q mflrw_d3dxform_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/d4g $T/rw_d3dxform_check.sh $RD 10 1000 > $O/d4g.txt 2>&1 && ok "d3dxform good: $(grep -c EQUAL $O/d4g.txt) run EQUAL" || bad "d3dxform good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d4g.txt | head -2)"
   OUT=$O/d4a $T/rw_d3dxform_check.sh $RD 10 1000 4db4a1:eb > $O/d4a.txt 2>&1; grep -q 'compared; DIFF' $O/d4a.txt && ok "d3dxform transform cache compare dropped: DIFF" || bad "d3dxform transform-cache fixture not caught"
   OUT=$O/d4b $T/rw_d3dxform_check.sh $RD 10 1000 4db31b:51 > $O/d4b.txt 2>&1; grep -q 'compared; DIFF' $O/d4b.txt && ok "d3dxform wrong stream stride: DIFF" || bad "d3dxform stream-stride fixture not caught"
+fi
+# d3d9pipe (engine switch window 3, D5): rw_d3d9pipe_check.sh must pass and DIFF on three mutations of the original: (a) InstanceDataDestroy drops the owner type 8
+# test (jne -> nops at 0x4fa97f: the atomic's geometry is not looked up), (b) rxD3D9Instance sorts on primitive type 5 instead of 4 (0x4fad10 04 -> 05),
+# (c) rxD3D9DefaultRenderCallback resets stage 1 on the wrong condition (jne -> je at 0x4fb364); ~1 min, docker
+if ! grep -q mflrw_d3d9pipe_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9pipe exports, d3d9pipe fixtures skipped"; else
+  OUT=$O/d5g $T/rw_d3d9pipe_check.sh $RD 10 1000 > $O/d5g.txt 2>&1 && ok "d3d9pipe good: $(grep -c EQUAL $O/d5g.txt) run EQUAL" || bad "d3d9pipe good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d5g.txt | head -2)"
+  OUT=$O/d5a $T/rw_d3d9pipe_check.sh $RD 10 1000 4fa97f:90 4fa980:90 > $O/d5a.txt 2>&1; grep -q 'compared; DIFF' $O/d5a.txt && ok "d3d9pipe destroy owner type test dropped: DIFF" || bad "d3d9pipe destroy-owner fixture not caught"
+  OUT=$O/d5b $T/rw_d3d9pipe_check.sh $RD 10 1000 4fad10:05 > $O/d5b.txt 2>&1; grep -q 'compared; DIFF' $O/d5b.txt && ok "d3d9pipe instance sort on wrong primitive type: DIFF" || bad "d3d9pipe instance-sort fixture not caught"
+  OUT=$O/d5c $T/rw_d3d9pipe_check.sh $RD 10 1000 4fb364:74 > $O/d5c.txt 2>&1; grep -q 'compared; DIFF' $O/d5c.txt && ok "d3d9pipe render stage-1 reset inverted: DIFF" || bad "d3d9pipe render-stage fixture not caught"
+fi
+# d3d9texdic (engine switch window 3, D6): rw_d3d9texdic_check.sh must pass and DIFF on two mutations of the original: (a) NativeTextureRead steps the cube face index
+# by 2 (0x4edd09 10 -> 20), (b) NativeTextureGetSize counts a PAL4 header one byte too big (0x4ed2a6 e4 -> e5); ~1 min, docker
+if ! grep -q mflrw_d3d9texdic_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9texdic exports, d3d9texdic fixtures skipped"; else
+  OUT=$O/d6g $T/rw_d3d9texdic_check.sh $RD 10 1000 > $O/d6g.txt 2>&1 && ok "d3d9texdic good: $(grep -c EQUAL $O/d6g.txt) run EQUAL" || bad "d3d9texdic good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d6g.txt | head -2)"
+  OUT=$O/d6a $T/rw_d3d9texdic_check.sh $RD 10 1000 4edd09:20 > $O/d6a.txt 2>&1; grep -q 'compared; DIFF' $O/d6a.txt && ok "d3d9texdic cube face step wrong: DIFF" || bad "d3d9texdic face-step fixture not caught"
+  OUT=$O/d6b $T/rw_d3d9texdic_check.sh $RD 10 1000 4ed2a6:e5 > $O/d6b.txt 2>&1; grep -q 'compared; DIFF' $O/d6b.txt && ok "d3d9texdic PAL4 header size wrong: DIFF" || bad "d3d9texdic header-size fixture not caught"
+fi
+# d3d9vdtan (engine switch window 3, D6): rw_d3d9vdtan_check.sh must pass and DIFF on two mutations of the original FUN_00508600: (a) the tangent cosine merge test
+# inverted (jne -> je at 0x508b51), (b) the x determinant test inverted (jne -> je at 0x508805); ~1 min, docker
+if ! grep -q mflrw_d3d9vdtan_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vdtan exports, d3d9vdtan fixtures skipped"; else
+  OUT=$O/d7g $T/rw_d3d9vdtan_check.sh $RD 10 1000 > $O/d7g.txt 2>&1 && ok "d3d9vdtan good: $(grep -c EQUAL $O/d7g.txt) run EQUAL" || bad "d3d9vdtan good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d7g.txt | head -2)"
+  OUT=$O/d7a $T/rw_d3d9vdtan_check.sh $RD 10 1000 508b51:74 > $O/d7a.txt 2>&1; grep -q 'compared; DIFF' $O/d7a.txt && ok "d3d9vdtan tangent merge test inverted: DIFF" || bad "d3d9vdtan merge fixture not caught"
+  OUT=$O/d7b $T/rw_d3d9vdtan_check.sh $RD 10 1000 508805:74 > $O/d7b.txt 2>&1; grep -q 'compared; DIFF' $O/d7b.txt && ok "d3d9vdtan det test inverted: DIFF" || bad "d3d9vdtan det fixture not caught"
 fi
 rm -r $O
 exit $rc
