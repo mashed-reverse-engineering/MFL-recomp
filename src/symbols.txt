@@ -6254,6 +6254,7 @@ _RwaWaveConvBitDepthPCM 005c5620
 _RwaWaveConvGCNADPCMEncodeHeader 005c5d20
 _RwaWaveConvGCNADPCMEncode 005c5ef0
 _RwaWaveConvGCNADPCMDecode 005c67c0
+rwa_unit249490_005c6990 005c6990
 _RwaWaveConvVAGEncode 005c6a70
 _RwaWaveConvVAGDecode 005c7080
 _rwaWaveConvXADPCMEncodeSample 005c7150
@@ -7532,6 +7533,7 @@ k_f_8_0en5 005f7518
 k_f_2_938736en39 005f7528
 k_f_n5_189695e11 005f7530
 g_data_5f765c 005f765c
+g_data_5f766c 005f766c
 k_f_340 005f768c
 k_f_n150 005f7690
 g_data_5f7694 005f7694
@@ -8114,6 +8116,7 @@ cameraTKList 0062e534
 _rwCameraFreeListBlockSize 0062e54c
 _rwCameraFreeListPreallocBlocks 0062e550
 engineTKList 0062e578
+g_data_62e590 0062e590
 g_data_62e594 0062e594
 _rwMatrixFreeListBlockSize 0062e6ac
 _rwMatrixFreeListPreallocBlocks 0062e6b0
@@ -8316,6 +8319,7 @@ PTR_RwaListenerUnregister_006491d4 006491d4
 PTR_LAB_006491d8 006491d8
 PTR__RwaParamTypeSetupAtomics_006491e4 006491e4
 g_data_6494a0 006494a0
+g_data_649614 00649614
 g_data_6497cc 006497cc
 g_data_64a0e0 0064a0e0
 PTR_rwa_unit246d50_005c1c10_0064a80c 0064a80c
@@ -10569,12 +10573,16 @@ _rpLightFreeList 007d52ac
 lightModule 007d52d0
 _rpWorldListFreeList 007d52d8
 worldModule 007d52fc
+g_clumpatomicstreamread_7d5304 007d5304
 _rpAtomicFreeList 007d5308
+g_clumpatomicstreamread_7d532c 007d532c
 clumpModule 007d5330
 _rpClumpFreeList 007d5338
 _rpClumpCameraExtOffset 007d535c
 _rpClumpLightExtOffset 007d5360
+g_rp_7d5364 007d5364
 _rpMaterialFreeList 007d5368
+g_rp_7d538c 007d538c
 materialModule 007d5390
 g_data_7d5394 007d5394
 geometryModule 007d5398
@@ -10750,6 +10758,7 @@ g_data_7dabf8 007dabf8
 g_data_7dabfc 007dabfc
 rwastream_objDefRegistered 007dac00
 g_data_7dac04 007dac04
+g_data_7dac08 007dac08
 g_data_7dac24 007dac24
 g_data_7dac48 007dac48
 g_data_7daca4 007daca4

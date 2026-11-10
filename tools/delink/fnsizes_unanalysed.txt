@@ -340,3 +340,14 @@
 005da4d0 gap_5da4d0
 005da500 gap_5da500
 005da590 gap_5da590
+00548130 rpPTankGENInsColorPP
+0053ead0 SkinAtomicConstructor
+0053eb30 SkinAtomicAlways
+00544380 RpHAnimHierarchyAttach
+00548ea0 PVSSectorWriteChunk
+00548f90 PVSWorldWriteChunk
+00555580 GeomAnimCopy
+00555800 GeomAnimSizeStream
+004f5fc0 WorldClose
+004f6010 WorldOpen
+004d2d40 CameraBeginUpdate

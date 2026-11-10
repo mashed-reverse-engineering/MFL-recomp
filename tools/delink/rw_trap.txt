@@ -37,7 +37,6 @@
 00540400 98 _rpSkinGeometryNativeWrite
 00540580 60 _rwD3D9SkinNeedsAManagedVertexBuffer
 005405c0 60 _rwD3D9SkinUseVertexShader
-00540600 56 _rpSkinSplitDataDestroy
 00540640 137 _rpSkinSplitDataStreamWrite
 00540830 28 FUN_00540830
 00540850 337 rxD3D9SkinInstance
@@ -83,8 +82,6 @@
 00548550 111 rpPTankGENInsNormals
 005485c0 844 rpPTankGENInsSetup
 00548910 15 rpPTankGENInsEnding
-00548ea0 82 PVSSectorWriteChunk
-00548f90 53 PVSWorldWriteChunk
 0054acd0 21 RpCollisionGeometryForAllIntersections
 0054bdc0 1590 GeometryForAllTriIntsecBBox
 0054c400 2013 GeometryForAllTriIntsecSphere
@@ -99,9 +96,6 @@
 00550aa0 166 _rpMatFXD3D9AtomicMatFXRenderBlack
 00554d10 519 UserDataObjectStreamWrite
 00554f20 253 UserDataObjectGetSize
-00555580 100 GeomAnimCopy
-005555f0 178 GeomAnimWriteStream
-00555800 31 GeomAnimSizeStream
 0055a0d0 126 _rpPatchGeometryCreateFromPatchMesh
 0055a660 57 rpPatchGeometryCopy
 0055a6a0 29 rpPatchGeometryGetSize

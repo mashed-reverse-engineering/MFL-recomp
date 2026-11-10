@@ -3856,6 +3856,7 @@
 004d2110 CameraBuildPerspClipPlanes 1682
 004d27b0 CameraBuildParallelClipPlanes 1040
 004d2bc0 CameraBuildParallelViewMatrix 334
+004d2d40 CameraBeginUpdate 57
 004d2d80 RwCameraClone 157
 004d2e20 _rwDeviceSystemRequest 191
 004d2f00 FUN_004d2f00 6
@@ -4415,6 +4416,8 @@
 004f5e70 FUN_004f5e70 39
 004f5ea0 FUN_004f5ea0 34
 004f5ed0 RpWorldPluginAttach 237
+004f5fc0 WorldClose 66
+004f6010 WorldOpen 121
 004f6090 FUN_004f6090 60
 004f60d0 AtomicDefaultRenderCallBack 47
 004f6100 _rpAtomicResyncInterpolatedSphere 318
@@ -5228,8 +5231,10 @@
 0053ea40 SkinGeometryConstructor 18
 0053ea60 SkinGeometryDestructor 96
 0053eac0 FUN_0053eac0 5
+0053ead0 SkinAtomicConstructor 19
 0053eaf0 SkinAtomicDestructor 24
 0053eb10 SkinAtomicCopy 21
+0053eb30 SkinAtomicAlways 142
 0053ebc0 FUN_0053ebc0 98
 0053ed70 SkinGeometryRead 609
 0053efe0 SkinFindNumUsedBones 205
@@ -5268,6 +5273,7 @@
 00543f20 HAnimWrite 290
 00544050 HAnimRead 482
 00544280 RpHAnimHierarchyCreate 247
+00544380 RpHAnimHierarchyAttach 80
 00544430 FUN_00544430 8
 00544450 RpHAnimHierarchyUpdateMatrices 2467
 00544e00 RpRandomSeed 123
@@ -5297,6 +5303,7 @@
 005475f0 rpPTankGENInsPosNCPSPR 528
 00547c20 rpPTankGENInsPosCCPSPR 632
 00547ea0 rpPTankGENInsPosNCPM 289
+00548130 rpPTankGENInsColorPP 84
 00548330 rpPTankGENInsColorPPC 71
 00548380 rpPTankGENInsUV2 106
 005483f0 rpPTankGENInsUV4 128
@@ -5309,7 +5316,9 @@
 00548e10 PVSSectorConstructor 43
 00548e40 PVSSectorDestructor 63
 00548e80 PVSSectorGetChunkSize 26
+00548ea0 PVSSectorWriteChunk 82
 00548f70 PVSWorldGetChunkSize 21
+00548f90 PVSWorldWriteChunk 53
 00549090 FUN_00549090 19
 00549180 _rpPVSDestroyPolyList 40
 005491b0 _rpPVSDestroyPoly 40
@@ -5431,8 +5440,10 @@
 00555410 DMorphAtomicCtor 23
 00555430 AtomicAnimCopy 261
 00555540 GeomAnimDtor 56
+00555580 GeomAnimCopy 100
 005555f0 GeomAnimWriteStream 178
 005556b0 GeomAnimReadStream 325
+00555800 GeomAnimSizeStream 31
 00555820 GeomAnimCtor 33
 00555890 RpSplineStreamRead 214
 00555970 _splCreateSpline 1663
