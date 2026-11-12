@@ -52,7 +52,7 @@ RW_LAYOUT_ASSERT(rw_assert_mf_calloc, RW_OFFSETOF(RwMemoryFunctions, rwcalloc) =
 /*004e97c0*/ extern void *HRealloc(void *mem, size_t newSize, RwUInt32 hint);
 /*004e97e0*/ extern void *HCalloc(size_t numObj, size_t sizeObj, RwUInt32 hint);
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool _rwMemoryOpen(const RwMemoryFunctions *memFuncs)
 {
     /* _rwFreeListModuleOpen() */

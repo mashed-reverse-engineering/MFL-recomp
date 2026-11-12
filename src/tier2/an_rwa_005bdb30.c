@@ -40,7 +40,7 @@ typedef struct RwaIntfBinding {
 typedef void *(*RwaAllocFn)(RwUInt32 size, void *data);
 
 /* Returns the binding, NULL when the definition does not support the interface or the allocation fails. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 RwaIntfBinding *rwa_obj_interface_attach_005bdb30(RwaIntfDef *intf, char *objDef, RwaAllocFn alloc, void *allocData)
 {
   RwaDefIntfs *defs = *(RwaDefIntfs **)(objDef + 0x4c);

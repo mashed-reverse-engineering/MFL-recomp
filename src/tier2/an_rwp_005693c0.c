@@ -39,7 +39,7 @@ struct RtDictSchema
 /* Reads the struct chunk (entry count), then `count` entries (each: a chunk of schema->chunkType read by schema->readEntry) into a new dictionary that is
    registered in schema->dicts.  Any failure unregisters and frees what was built and returns 0.  The entry count is read into the argument slot of
    `stream` (the original reuses it), `s` is the stream. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RtDict *RtDictSchemaStreamReadDict(RtDictSchema *schema, void *stream)
 {
   struct {

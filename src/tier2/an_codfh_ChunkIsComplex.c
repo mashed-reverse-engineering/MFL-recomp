@@ -26,7 +26,7 @@ enum {
     rwID_LIGHT = 0x12, rwID_ATOMIC = 0x14, rwID_GEOMETRYLIST = 0x1a
 };
 
-/* TIER2: unvalidated 2026-11-08 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool ChunkIsComplex(RwChunkHeaderInfo *chunkHeaderInfo)
 {
     switch (chunkHeaderInfo->type)

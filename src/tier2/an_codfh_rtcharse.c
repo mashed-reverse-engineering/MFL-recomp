@@ -92,7 +92,7 @@ const RtGlyphRow *CharsetGlyphSet(const RtGlyphRow *charBitsIn, RtCharsetDesc *d
         while ((size) < (tileheight_ * rtATARI_HEIGHT_INTERNAL));          \
     }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 const RtGlyphRow *CharsetGlyphSet(const RtGlyphRow *charBitsIn, RtCharsetDesc *desc, RwUInt8 *charRow, RwInt32 stride)
 {
     RtGlyphRow charPixels;
@@ -117,7 +117,7 @@ const RtGlyphRow *CharsetGlyphSet(const RtGlyphRow *charBitsIn, RtCharsetDesc *d
     return charBitsIn;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void *RtCharsetCreate(const RwUInt32 *foreGround, const RwUInt32 *backGround)
 {
     void *result = NULL;
@@ -186,7 +186,7 @@ void *RtCharsetCreate(const RwUInt32 *foreGround, const RwUInt32 *backGround)
     return result;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool RtCharsetOpen(void)
 {
     /* Create the triangle buffer */

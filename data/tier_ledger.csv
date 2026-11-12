@@ -19,6 +19,7 @@ CollisionAtomicInit,0054da00,tier1,bytes,bytes-reloc,3e3be0c2b5f9,33bf93632a05,5
 CollisionClose,0054d800,tier1,bytes,bytes-reloc,e14a6244203f,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 CollisionDataDestructor,0054d810,tier1,bytes,bytes-reloc,232753d80d61,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 CollisionDataStreamGetSize,0054d850,tier1,bytes,bytes-reloc,f2a5aef5deb0,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+CollisionDataStreamWrite,0054d870,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,f9cceee68379,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 CollisionOpen,0054d7d0,tier1,bytes,bytes-reloc,cbf9aa6bc0a7,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 D3D9ConvA4L4ToR8G8B8A8,004eeef0,tier1,bytes,bytes-reloc,7ccd9b194680,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 D3D9ConvA8B8G8R8ToR8G8B8A8,004eee80,tier1,bytes,bytes-reloc,da986e5bbbb7,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -314,11 +315,15 @@ RpAtomicSetFrame,004f7f70,tier1,bytes,bytes-reloc,78db5fdc7b4c,33bf93632a05,5a88
 RpAtomicSetGeometry,004f69e0,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpClumpAddAtomic,004f70c0,tier1,bytes,bytes-reloc,fe7476a00c16,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpClumpCreate,004f6ec0,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+RpClumpForAllCameras,004f6850,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,00cf8750c726,33bf93632a05,5a881beb8eb3,108,1.00,0,1
+RpClumpForAllLights,004f68a0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,5418610ab36c,33bf93632a05,5a881beb8eb3,108,1.00,0,1
 RpClumpRemoveAtomic,004f70f0,tier1,bytes,bytes-reloc,3aba92d977b2,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpClumpRemoveLight,004f7120,tier1,bytes,bytes-reloc,da8ad851c6c8,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpClumpRender,004f67c0,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpClumpSetCallBack,?,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpCollisionBuildParamInitDefaults,005d09d0,tier1,bytes,bytes-reloc,aa2c1b0c0b9d,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+RpCollisionPluginAttach,0054d6c0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,8fa70055f190,33bf93632a05,5a881beb8eb3,200,1.00,0,1
+RpCollisionWorldForAllIntersections,00549290,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,8dc0ead97dcc,33bf93632a05,5a881beb8eb3,200,0.86,0,1
 RpCollisionWorldSectorDestroyData,0054d670,tier1,bytes,bytes-reloc,28a01eca6351,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpCollisionWorldSectorQueryData,0054d6a0,tier1,bytes,bytes-reloc,46b566e57b9f,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpD3D9GeometryGetUsageFlags,00509550,tier1,bytes,bytes-reloc,95bd969267dc,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -373,6 +378,7 @@ RpMorphAtomicSetCurrentInterpolator,00555100,tier1,bytes,bytes-reloc,-,33bf93632
 RpMorphGeometryCreateInterpolators,00555020,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpMorphGeometrySetInterpolator,005550a0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,688b521b2800,33bf93632a05,5a881beb8eb3,200,0.67,0,1
 RpMorphPluginAttach,00555350,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,63c309a9d3a3,33bf93632a05,5a881beb8eb3,200,1.00,0,1
+RpPTankAtomicDestroy,00545d00,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,832e715bd6f6,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 RpPTankAtomicLock_0049a960,0049a960,tier1,bytes,bytes-reloc,4b823a9d1889,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpPTankAtomicUnlockImpl,00545f20,tier1,bytes,bytes-reloc,1fbd86c2180c,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpPTankAtomicUnlock_0049a970,0049a970,tier1,bytes,bytes-reloc,6f178db761c4,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -393,6 +399,7 @@ RpUserDataArrayGetString,005543f0,tier1,bytes,bytes-reloc,b67b3e99ae85,33bf93632
 RpUserDataArraySetInt,00554410,tier1,bytes,bytes-reloc,6e12d1450fd2,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpUserDataArraySetReal,00554430,tier1,bytes,bytes-reloc,c6835b05f960,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpUserDataGetFormatSize,00554450,tier1,bytes,bytes-reloc,d3fa6f81c224,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+RpUserDataPluginAttach,00554470,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,b6adafd02ed5,33bf93632a05,5a881beb8eb3,200,0.93,0,1
 RpWorldAddAtomic,004f44a0,tier1,bytes,bytes-reloc,401020100c69,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpWorldAddCamera,004f4440,tier1,bytes,bytes-reloc,c55dcceadd72,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RpWorldAddClump,004f4570,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -437,6 +444,7 @@ Rt2dObjectSetDepth,00571840,tier1,bytes,bytes-reloc,2544d3a910c2,33bf93632a05,5a
 Rt2dOpen,00563130,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 Rt2dPathCreate,005644c0,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 Rt2dPathLock,00564510,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+Rt2dPathUnlock,005645e0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,ce7ee7f5c290,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 Rt2dSetPipelineFlags,?,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RtAnimAnimationGetNumNodes,0053e310,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 RtAnimAnimationStreamRead,0053e040,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,cfa08da30087,33bf93632a05,5a881beb8eb3,200,0.12,0,1
@@ -642,6 +650,8 @@ UVAnimDestructor,00561cb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,0da9
 UVAnimOpen,00561be0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,cb122146815b,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 UserDataClose,005546f0,tier1,bytes,bytes-reloc,cda677948c41,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 UserDataObjectConstruct,00554700,tier1,bytes,bytes-reloc,1008d8315f67,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+UserDataObjectGetSize,00554f20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,0303641d6f4b,33bf93632a05,5a881beb8eb3,141,0.65,0,0
+UserDataObjectStreamWrite,00554d10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,0fd6c4a616c0,33bf93632a05,5a881beb8eb3,140,0.60,0,0
 UserDataOpen,005546e0,tier1,bytes,bytes-reloc,46e87db9f26d,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 VectorMultPoint,004d5010,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 VectorMultVector,004d5160,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -670,6 +680,7 @@ _rpBuildMeshDestroy,00500e00,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3
 _rpClumpRegisterExtensions,004f6700,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 _rpCollTreeCreate,0054dbc0,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 _rpCollTreeStreamRead,0054de40,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,381e3aa2447b,33bf93632a05,5a881beb8eb3,200,0.70,0,1
+_rpCollTreeStreamWrite,0054dce0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,e166849defde,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 _rpMaterialListAppendMaterial,00503e10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 _rpMaterialListDeinitialize,00503d90,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 _rpMaterialListStreamGetSize,00503f10,tier1,bytes,bytes-reloc,-,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -2687,12 +2698,17 @@ rpMeshGetNextSerialNumber,00501360,tier1,bytes,bytes-reloc,fcb73541d16a,33bf9363
 rpMeshHeaderCreate,00500ba0,tier1,bytes,bytes-reloc,a499761e4374,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 rpMeshOpen,00500bf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,93cec64bebf1,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 rpPTankGENInsColorPP,00548130,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,5a881beb8eb3,31,1.00,0,0
+rpPTankGENInsNormals,00548550,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,2eb3477cf11e,33bf93632a05,5a881beb8eb3,31,1.00,0,0
+rpPTankGENInsPosCCPM,00547fd0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,c038ad7d868e,33bf93632a05,5a881beb8eb3,26,1.00,0,0
+rpPTankGENInsPosCCPSNR,00547a70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,b47f2bb8f6f2,33bf93632a05,5a881beb8eb3,25,1.00,0,0
 rpPTankGENInsPosNCCSNR,00546f50,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,33bf93632a05,5a881beb8eb3,16,1.00,0,0
 rpPTankGENInsPosNCPM,00547ea0,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,33bf93632a05,5a881beb8eb3,18,1.00,0,0
 rpPTankGENInsPosNCPSNR,005474a0,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,33bf93632a05,5a881beb8eb3,17,1.00,0,0
+rpPTankGENInsPosNCPSPR,005475f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,2358edc4d725,33bf93632a05,5a881beb8eb3,32,1.00,0,0
 rpPTankGENInsUV2,00548380,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,5a881beb8eb3,27,1.00,0,0
 rpPTankGENInsUV2C,00548470,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,5a881beb8eb3,43,1.00,0,0
 rpPTankGENInsUV4,005483f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,5a881beb8eb3,31,1.00,0,0
+rpPTankGENInsUV4C,005484e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,429cf8308f9e,33bf93632a05,5a881beb8eb3,49,1.00,0,0
 rpPTankGENInstance,00546ca0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,5a881beb8eb3,200,0.76,0,0
 rpPVSDestroyPoly,005491b0,tier1,bytes,bytes-reloc,01c79030f0d2,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 rpPVSDestroyPolyList,00549180,tier1,bytes,bytes-reloc,48f1a2b50744,33bf93632a05,5a881beb8eb3,0,0.00,0,0
@@ -2711,6 +2727,7 @@ rpWorldPipelineClose,00500a30,tier1,bytes,bytes-reloc,0bd790c0cdf0,33bf93632a05,
 rp_random_float_range,004c45e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,9b6647b21053,33bf93632a05,5a881beb8eb3,200,0.67,0,0
 rp_random_int_range,004c45c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,a91d2d9593ba,33bf93632a05,5a881beb8eb3,200,1.00,0,0
 rt2dBrushClose,00564960,tier1,bytes,bytes-reloc,c39bcfb55253,33bf93632a05,5a881beb8eb3,0,0.00,0,0
+rt2dFontShowBitmap,005653f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,48171fe9f85b,33bf93632a05,5a881beb8eb3,185,1.00,0,0
 rt2dObjectClose,00567790,tier1,bytes,bytes-reloc,c44447ab5b3b,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 rt2dTriangulateClose,005677f0,tier1,bytes,bytes-reloc,cddb48a7c89a,33bf93632a05,5a881beb8eb3,0,0.00,0,0
 rt2d_stream_find_chunk,0047fa80,tier1,bytes,bytes-reloc,ed8c30c78e09,33bf93632a05,5a881beb8eb3,0,0.00,0,0

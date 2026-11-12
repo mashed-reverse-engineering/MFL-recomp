@@ -15,7 +15,7 @@ typedef struct RwPluginRegistry RwPluginRegistry;
 /*004dc540*/ extern RwBool _rwStreamReadChunkHeader(RwStream *stream, RwUInt32 *type, RwUInt32 *length, RwUInt32 *version, RwUInt32 *buildNum);
 /*004dc190*/ extern RwStream *RwStreamSkip(RwStream *stream, RwUInt32 offset);
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 const RwPluginRegistry *_rwPluginRegistrySkipDataChunks(const RwPluginRegistry *reg, RwStream *stream)
 {
     RwUInt32 length;

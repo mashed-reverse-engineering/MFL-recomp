@@ -109,7 +109,7 @@ void *rwIm3DOpen(void *instance, RwInt32 offset, RwInt32 size)
         return RWIMMEDIGLOBAL(im3DRenderPipelines).slot; \
     }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void *RwIm3DSetRenderPipeline(void *pipeline, RwInt32 primType)
 {
     RwError error;

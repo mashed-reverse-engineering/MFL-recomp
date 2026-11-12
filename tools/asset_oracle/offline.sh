@@ -14,5 +14,5 @@ done < <(find "$R" -type d | sort)
 args=("${args[@]:1}")
 if [ -n "$WINE" ]; then
   printf '%s\n' "${args[@]}" > "$OUT.args"      # @listfile: the Wine command line is too short for the ~1000 paths
-  docker run --rm -v "$R":"$R":ro -v "$(dirname "$OUT")":/o -v "$(dirname "$EXE")":/t tianon/wine:latest wine /t/$(basename "$EXE") /o/$(basename "$OUT") @/o/$(basename "$OUT").args
+  docker run --rm -v "$R":"$R":ro -v "$(dirname "$OUT")":/o -v "$(dirname "$EXE")":/t tianon/wine@sha256:878222fee186d28e06b6c34996590e786d5d073de24b8ee5ac4bcb9cddb18497 wine /t/$(basename "$EXE") /o/$(basename "$OUT") @/o/$(basename "$OUT").args
 else "$EXE" "$OUT" "${args[@]}"; fi

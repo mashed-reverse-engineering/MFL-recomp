@@ -1,0 +1,16 @@
+# Group "matfx" (lane K window 5, effectpipesd3d9 batches 2 and 3): user data arrays, bump map setup, instance / render callbacks, default / env / bump map render, env map matrix,
+# pipelines create from librw-mfl/capi/rwmatfx.cpp (op for op, on the exe's own memory and device).  Needs LIB_RW ...,matfx and the mflrw_matfx_bind call in
+# recomp/automatch_near/an_hk_612.c (80 slots, enum M of rwmatfx.cpp).  Format as rw_g3.txt: exe_name=dll_export.  rwD3D9AtomicMatFXRenderCallback is an aliases.txt name.
+# Proof: tools/delink/rw_matfx_check.sh <mflrw.dll> 200 300 (fakedev.c device; unrecorded methods trap in the check): EQUAL.
+FUN_00554140=rw37_UserDataArrayAdd
+FUN_00554120=rw37_UserDataGeometryArrayAdd
+FUN_00554320=rw37_UserDataWorldSectorArrayAdd
+_rpMatFXSetupBumpMapTexture=rw37_rpMatFXSetupBumpMapTexture
+LAB_00553ee0=rw37_D3D9AtomicMatFXInstanceCallback
+LAB_00553f60=rw37_D3D9WorldSectorMatFXInstanceCallback
+rwD3D9AtomicMatFXRenderCallback=rw37_rwD3D9AtomicMatFXRenderCallback
+_rpMatFXD3D9AtomicMatFXDefaultRender=rw37_rpMatFXD3D9AtomicMatFXDefaultRender
+FUN_005520e0=rw37_ApplyEnvMapTextureMatrix
+_rpMatFXPipelinesCreate=rw37_rpMatFXPipelinesCreate
+_rpMatFXD3D9AtomicMatFXBumpMapRender=rw37_rpMatFXD3D9AtomicMatFXBumpMapRender
+_rpMatFXD3D9AtomicMatFXEnvRender=rw37_rpMatFXD3D9AtomicMatFXEnvRender

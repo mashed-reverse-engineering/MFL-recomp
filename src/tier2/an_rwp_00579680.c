@@ -54,7 +54,7 @@ typedef struct MflContactSet {
 /* For every contact record that is not flagged (flags & 3) and every object of its chain: finds, among the pair table entries of the
    hash bucket of the object's two surface ids (in either order), the one whose direction has the largest projection on the object's
    normal and stores its value in the object (0 when none). */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 MflPairHash *rwp_pair_table_pick_best_direction(MflPairHash *h, MflContactSet *cs)
 {
   unsigned int i, e1, e2, k;

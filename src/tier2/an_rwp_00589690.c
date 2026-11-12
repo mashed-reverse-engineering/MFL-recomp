@@ -70,7 +70,7 @@ extern int rwp_generalprimitive_0058a1f0(MflHit *plane, MflHit *list, float tol)
    of the other plane); each group becomes one output hit: a single hit is copied, up to 4 points are merged (duplicates dropped, normal =
    normalised sum weighted by the point counts), more points are reduced to the extremes along the direction from the deepest point to the
    centroid and along the normal times it.  Returns the number of output hits. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHit *out, unsigned int cap, float tol)
 {
   /* sumn is passed to 56fd20 by address; the 32 bytes behind it in the original frame hold these locals (esp+0x20..0x3c), so they are kept

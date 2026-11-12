@@ -336,7 +336,7 @@ class Finder:
             if not o and pm and pm[0] > k and pm[1] >= 2 and (pr is None or pr[0] is None) and not re.search(r"printf", f) and va not in D.GT:
                 self.add("C", "medium" if pm[1] < 3 else "high", line, fn, f, st, "callarity: `%s` is called with %d argument(s), every original call site (%d) has >= %d pushes pending (call_pushmin.txt; no orig_stackargs row)" % (f, k, pm[1], pm[0]))
             return
-        fl = o[3]
+        fl = o[3] if o else {"-"}      # no original-body row but a gsfix.ARITY slot count: treat as exact slots
         if not (fl & {"addr", "dyn"}) and (pr is not None or f in D.DPROTO): return      # exact slots + a declaration: defectlint class 8 / 10
         if k < sl: self.add("C", "high", line, fn, f, st, "callarity: `%s` is called with %d argument(s), its original body reads %d stack slot(s) (orig_stackargs.txt%s)" % (f, k, sl, ", " + ",".join(sorted(fl)) if fl != {"-"} else ""))
 

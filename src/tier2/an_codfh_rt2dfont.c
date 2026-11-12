@@ -183,13 +183,13 @@ extern void *memset(void *dest, int c, size_t count);
 #define rwMEMHINT_2DPLUGIN_EVENT 0x30190      /* rwMEMHINTDUR_EVENT | rwID_2DPLUGIN */
 #define rwID_2DPATH 0x1a1
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 Rt2dFont *Rt2dFontShow(Rt2dFont *font, const RwChar *string, RwReal height, RwV2d *anchor, Rt2dBrush *brush)
 {
     return font->fontshowCB(font, string, height, anchor, brush);
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool _rt2dFontOpen(void)
 {
     RwInt32 i;
@@ -254,7 +254,7 @@ pathdone:
     return 1;      /* TRUE */
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 Rt2dFont *Rt2dFontFlow(Rt2dFont *font, RwChar *string, RwReal height, Rt2dBBox *bbox, RwInt32 format, Rt2dBrush *brush)
 {
     RwReal bwidth;

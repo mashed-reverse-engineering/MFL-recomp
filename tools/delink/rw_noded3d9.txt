@@ -1,0 +1,17 @@
+# Group "noded3d9" (lane K window 5 batch 6, noded3d9worldsectorallinone / noded3d9atomicallinone buckets of the flip manifest, without the two instance callbacks): world
+# sector all-in-one node, atomic all-in-one node, the two pipeline init functions, world sector / atomic default lighting callbacks, vertex element sort compare, atomic
+# reinstance callback, from librw-mfl/capi/rwnoded3d9.cpp (op for op, on the exe's own engine, resource list and callbacks; no device call).  Needs LIB_RW ...,noded3d9 and
+# the mflrw_noded3d9_bind call in recomp/automatch_near/an_hk_612.c (an_hk_612_noded3d9.inc, 19 slots, enum E of rwnoded3d9.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names: fnsizes_unanalysed.txt names for the two nodes, the two init functions and the world sector lighting callback; _rwD3D9AtomicDefaultLightingCallback and LAB_00500310
+# (= D3D9VertexElementSortCB) are symbols.txt names; D3D9AtomicDefaultReinstanceCallback 0x500340 needs the fnsizes_unanalysed.txt line and the aliases.txt line of
+# rows_fnsizes_unanalysed.txt first (else drop that row).  None of these rows is in tools/delink/rw_trap.txt (grep of the 8 addresses: no hit).
+# Still original: D3D9AtomicDefaultInstanceCallback 0x4ff980 (2448), D3D9WorldSectorDefaultInstanceCallback 0x5005b0 (1040).
+# Proof: tools/delink/rw_noded3d9_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev" (the two x87 rows at control word 0x7f and 0x27f, chosen per call).
+D3D9WorldSectorAllInOneNode=rw37_D3D9WorldSectorAllInOneNode
+D3D9WorldSectorAllInOnePipelineInit=rw37_D3D9WorldSectorAllInOnePipelineInit
+D3D9WorldSectorDefaultLightingCallback=rw37_D3D9WorldSectorDefaultLightingCallback
+D3D9AtomicAllInOneNode=rw37_D3D9AtomicAllInOneNode
+D3D9AtomicAllInOnePipelineInit=rw37_D3D9AtomicAllInOnePipelineInit
+_rwD3D9AtomicDefaultLightingCallback=rw37_rwD3D9AtomicDefaultLightingCallback
+LAB_00500310=rw37_D3D9VertexElementSortCB
+D3D9AtomicDefaultReinstanceCallback=rw37_D3D9AtomicDefaultReinstanceCallback

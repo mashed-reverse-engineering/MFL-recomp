@@ -5,7 +5,7 @@
    column 0 / 1 / 2 hold the barycentric weights of the corners 0 / 1 / 2 as an affine function (m[12..14] their constant parts, the 1 - u - v of
    corner 2 in m[14]), column 3 the unit normal and m[15] its offset to the centroid.  *len receives the area measure |(p0 - p1) x (p1 - p2)|, or 0
    when it is not larger than 2^-12; the function then returns 0 (the matrix is still written, with a zero normal scale), otherwise 1. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 int RtBaryGetTransform(float *m, float *len, float *p2, float *p0, float *p1)
 {
   volatile float g0, g1, g2, u0, u1, u2;

@@ -55,7 +55,7 @@ typedef struct RwaStreamFormat {
    uuid, own name, sub stream array, the subs' format slot arrays, uuids, names, item arrays, the items' uuids and names, the
    format array, the serialized wave formats, the formats' uuids and names.  Xbox / IMA ADPCM stereo streams get 64 sample
    blocks of 36 bytes (4 aligned).  Returns fmt, NULL when a wave format does not read. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 RwaStreamFormat *rwa_stream_format_unpack_005c9530(RwaStreamFormat *fmt)
 {
   char *p = fmt->data;

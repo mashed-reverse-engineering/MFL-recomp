@@ -1,4 +1,6 @@
 # trapcheck.py 2026-11-03: removed DefaultGeomAnimCB, PVSWorldSectorNodeFn, RpLODAtomicSetCurrentLOD, RpLODAtomicUnHookRender, RpMatFXMaterialSetEnvMapTexture, RpSplineDestroy, RtAnimInterpolatorSubAnimTime, RtBMPImageWrite, RtCharsetPrintBuffered, RtPNGImageWrite (referenced by installed C, see tools/trapcheck.py)
+# window 5 G1/G2 2026-11-10: removed CollisionDataStreamWrite, _rpCollTreeStreamWrite, UserDataObjectStreamWrite, UserDataObjectGetSize, Rt2dPathUnlock, rpPTankGENInsPosCCPSNR, rpPTankGENInsPosCCPM, rpPTankGENInsUV4C, rpPTankGENInsNormals (installed as C, codfh rows) and RwStreamWriteReal (called by the installed UserDataObjectStreamWrite)
+# window 5 fable_rows 2026-11-11: removed rpPTankGENInsPosCCPSNR, rpPTankGENInsPosCCPM again (installed as C, codfh rows; the HS DIFF of G2 1110_1633 was a harness artefact, hs spec s_codfh_fable_w5.py)
 # va size name: S5 trap-fill candidates: live original RenderWare code with 0 executions in 33 coverage runs (gdbcov, link 1102_2152 + T-A2), plugin/tool
 # libraries only (rwcore/rpworld except palquant excluded), *PluginAttach kept original. NOT wired into any default (see ROADMAP lane E / S5).
 004e7520 784 RwPalQuantAddImage
@@ -72,14 +74,10 @@
 005470e0 440 rpPTankGENInsPosCCCSNR
 005472a0 503 rpPTankGENInsPosNCCSPR
 00547800 619 rpPTankGENInsPosCCCSPR
-00547a70 431 rpPTankGENInsPosCCPSNR
 00547c20 632 rpPTankGENInsPosCCPSPR
-00547fd0 339 rpPTankGENInsPosCCPM
 00548190 190 rpPTankGENInsColorPV
 00548250 215 rpPTankGENInsColorPVC
 00548330 71 rpPTankGENInsColorPPC
-005484e0 105 rpPTankGENInsUV4C
-00548550 111 rpPTankGENInsNormals
 005485c0 844 rpPTankGENInsSetup
 00548910 15 rpPTankGENInsEnding
 0054acd0 21 RpCollisionGeometryForAllIntersections
@@ -88,14 +86,10 @@
 0054ccf0 1490 MorphGeomForAllTriIntsecLine
 0054d2d0 189 AtomicForAllTriIntsecSphere
 0054d390 694 MorphGeomForAllTriIntsecSphere
-0054d870 81 CollisionDataStreamWrite
-0054dce0 342 _rpCollTreeStreamWrite
 0054f340 163 MatFXMaterialCopy
 0054f7c0 534 MatFXMaterialStreamWrite
 0054ff40 141 MatFXMaterialStreamGetSize
 00550aa0 166 _rpMatFXD3D9AtomicMatFXRenderBlack
-00554d10 519 UserDataObjectStreamWrite
-00554f20 253 UserDataObjectGetSize
 0055a0d0 126 _rpPatchGeometryCreateFromPatchMesh
 0055a660 57 rpPatchGeometryCopy
 0055a6a0 29 rpPatchGeometryGetSize
@@ -131,7 +125,6 @@
 00563bf0 626 _rt2dSubPathFlatten
 00563e70 936 Flatten2d
 005643d0 115 _rt2dPathOptimize
-005645e0 56 Rt2dPathUnlock
 00564720 166 FUN_00564720
 005652a0 333 rt2dFontShowOutline
 005669d0 204 FontCompressIndex
@@ -298,7 +291,6 @@
 005c4f40 140 FUN_005c4f40 PCM converter helper, callers 005c4fd0 005c51e0 005c5620 only (TRAP3)
 005c4650 42 FUN_005c4650 PCM converter helper, only caller 005c5620 (TRAP3)
 # RT1 2026-11-06 (L1 class W + L, 13 rows, 6,176 B): RenderWare code no coverage run executed (0 HIT in 158 gdbcov runs + T-A2), unreached from every live root of link 1105_1959_full (class W without any edge cut; class L once the asset-format branch named in output/rw_asset_formats_2026-11-06.md is cut), no installed-C reference (trapcheck 0); proofs per row: output/rw_trap_round_2026-11-06.csv; a hit is named by tools/delink/traphit.py
-004dc820 144 RwStreamWriteReal
 004df250 256 RwTextureStreamWrite
 004ea440 112 _rwStringStreamWrite
 004f2060 208 _rwPluginRegistryWriteDataChunks

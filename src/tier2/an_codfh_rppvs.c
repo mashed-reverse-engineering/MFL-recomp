@@ -218,7 +218,7 @@ RwStream *PVSWorldWriteChunk(RwStream *s, RwInt32 len, RpWorldHead *wpWorld, RwI
     return s;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool RpPVSPluginAttach(void)
 {
     /* Note the plugin id is should be rwID_GPVSPLUGIN to avoid problems with the retired PVS plugin */

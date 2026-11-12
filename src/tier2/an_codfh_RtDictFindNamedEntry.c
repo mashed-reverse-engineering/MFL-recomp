@@ -35,7 +35,7 @@ RW_LAYOUT_ASSERT(rw_assert_dict_entries, RW_OFFSETOF(RtDict, entries) == 4);
 /*005d60f0*/ extern void **_rwSListGetEnd(void *sList);
 /*005543d0*/ extern void **rwSListGetBegin(void *sList);
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void *RtDictFindNamedEntry(RtDict *dict, const RwChar *name)
 {
     RtDictEntryGetNameCallBack getNameCB = dict->schema->getNameCB;

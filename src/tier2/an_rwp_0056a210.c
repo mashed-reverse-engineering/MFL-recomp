@@ -8,7 +8,7 @@ extern int rwp_farfield_insert_object(void *space, unsigned int id, int what);
 /* Registers a body in the world under `id` (id = -1: the lowest free id; 0 when none is free or it is above the capacity): marks the id used, links body
    and world, clears the wanted / awake / second bit sets and, when the body answers its vtable[6] query, registers it with the space; then
    flags bit 0 sets "wanted", bit 1 sets bits_c (else the body is removed from the awake set first), bit 2 wakes the body when there is room.  Returns w. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 MflDynWorld *rwp_world_activate_object(MflDynWorld *w, MflDynBody *body, unsigned int id, unsigned int flags)
 {
   unsigned int i, word, bit;

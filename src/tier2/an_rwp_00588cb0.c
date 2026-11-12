@@ -37,7 +37,7 @@ extern float rwp_aggregate_005891c0(MflPairBody **pair, float *dir, float *out);
    a half space (kind 2) uses its normal; otherwise the face planes of both shapes (589270 / 589350) and the edge cross products are tried, or
    when the shapes report no features the closest-point direction (589430).  *offset is only written when the depth is not above t.
    Returns 1.  The unnamed a1 / a5 arguments are not used. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 int rwp_aggregate_00588cb0(void *a1, MflPairBody **pair, float t, float *dir, float *offset, float *depth, void *a5)
 {
   MflShapeData *da = pair[0]->shape->data;

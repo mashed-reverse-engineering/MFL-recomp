@@ -6,7 +6,7 @@ typedef struct RwaLListEntry { struct RwaLListEntry *next, *prev; void *data; } 
 /*00949d20*/ extern undefined g_data_949d20;      /* free list of the list entries */
 /*005bed80*/ extern void FUN_005bed80(void *freelist, void *p);      /* RwaFreeListFree */
 
-/* TIER2: unvalidated 2026-11-06 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 RwaLListEntry *rwa_llist_remove_data_005be4e0(RwaLListEntry *list, void *data)
 {
   RwaLListEntry *e = list->prev;

@@ -66,14 +66,14 @@ void __cdecl _mtdeletelocks(void)
     }
 }
 
-/* TIER2: unvalidated 2026-11-04 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void __cdecl _unlock(int locknum)
 {
     LeaveCriticalSection(_locktable[locknum].lock);
 }
 
 /* create the critical section of slot `locknum` (once; another thread may win the race under the table lock); 0 = out of memory (errno ENOMEM) */
-/* TIER2: unvalidated 2026-11-04 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 int __cdecl _mtinitlocknum(int locknum)
 {
     struct lock_slot *slot = &_locktable[locknum];

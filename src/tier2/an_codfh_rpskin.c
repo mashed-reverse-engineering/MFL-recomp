@@ -2,8 +2,8 @@
  * the engine open / close (SkinOpen / SkinClose), the geometry destructor, the atomic constructor, the atomic stream "always"
  * callback and _rpSkinSplitDataDestroy (an rw_trap row, ported so the destructor does not reference int3 code).
  * RpSkinPluginAttach stays original: its geometry stream writer / size / rights callbacks are rw_trap rows with trapped callees.
- * Adapted from codfh-win32 by L2KSolkov, https://github.com/L2KSolkov/codfh-win32, src/rw/plugin/skin2/rpskin.c and bsplit.c
- * @e578672, not byte-identical, changes: RWFUNCTION / RWRETURN / RWASSERT expanded (release build), MatfxPluginIsAttached / ToonPluginIsAttached / RpSkinDestroy / SkinAtomicSetup /
+ * Adapted from codfh-win32 by L2KSolkov, https://github.com/L2KSolkov/codfh-win32, src/rw/plugin/skin2/rpskin.c @e578672
+ * and src/rw/plugin/skin2/bsplit.c @e578672, not byte-identical, changes: RWFUNCTION / RWRETURN / RWASSERT expanded (release build), MatfxPluginIsAttached / ToonPluginIsAttached / RpSkinDestroy / SkinAtomicSetup /
  * SkinAtomicAttachBestPipeForAttachedPlugins inlined (as in the exe; RwDebugSendMessage is not in the release build),
  * RwMalloc / RwFree / RwFreeListFree through the engine function table (+0x108 / +0x10c / +0x11c), the exe folds
  * SkinAtomicWrite, SkinGeometryCopy and _rpSkinDeinitialize into one `return first argument` function (0x0053eac0), the

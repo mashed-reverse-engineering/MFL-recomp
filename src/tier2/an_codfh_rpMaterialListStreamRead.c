@@ -77,7 +77,7 @@ RW_LAYOUT_ASSERT(rw_assert_matlist_space, RW_OFFSETOF(RpMaterialList, space) == 
         (matList)->space = 0;                                                   \
     } while (0)
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpMaterialList *_rpMaterialListStreamRead(RwStream *stream, RpMaterialList *matList)
 {
     RwInt32 i, len, *matindex;

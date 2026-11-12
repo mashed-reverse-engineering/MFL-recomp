@@ -47,6 +47,7 @@ RW_LAYOUT_ASSERT(rw_assert_module_instances, RW_OFFSETOF(RwModuleInfo, numInstan
 
 /* TIER2: unvalidated 2026-11-09 authority=diffemu */
 /* multMatFn is an rwMatrixMultFn (a void * here: diffemu's signature parser takes no function typedefs) */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool rwMatrixSetMultFn(void *multMatFn)
 {
     rwMatrixMultFn multMat = (rwMatrixMultFn)multMatFn;

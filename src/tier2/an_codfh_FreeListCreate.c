@@ -47,7 +47,7 @@ typedef RwFreeList *(*RwFreeListFreeFunc)(RwFreeList *, void *);
 /*007d5128*/ extern RwLLLink _freeListList;
 /*007d5158*/ extern RwFreeList *_masterFreeListPtr;
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwFreeList *FreeListCreate(RwUInt32 entrySize, RwUInt32 entriesPerBlock, RwUInt32 alignment, RwUInt32 blocks, RwFreeList *freeList, RwUInt32 hint)
 {
     RwUInt32 alignedBlockSize;

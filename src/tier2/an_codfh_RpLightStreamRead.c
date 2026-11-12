@@ -60,7 +60,7 @@ RW_LAYOUT_ASSERT(rw_assert_light_cos, RW_OFFSETOF(RpLight, minusCosAngle) == 0x2
 /*0053eac0*/ extern RwInt32 _rwerror(RwInt32 code, ...);
 /*004ea160*/ extern RwError *RwErrorSet(RwError *code);
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpLight *RpLightStreamRead(RwStream *stream)
 {
     RwUInt32 size;

@@ -49,7 +49,7 @@ extern float rwp_grid_005771f0(float *out, float *in, float *axis, float fallbac
    front of a face, 3 = inside) picks the primitive the sphere can hit first (corner sphere, edge cylinder, face plane, all grown by the
    margin); a hit on a bounding plane of that region's slab moves the start to the plane and continues in the neighbouring region, at most
    6 times.  Fills hit (point, normal, hit->t += fraction along start -> end) and returns 1, or returns 0 when there is no contact. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 int rwp_box_sweep_sphere(MflBoxShape *box, float *start, float *end, MflSweepHit *hit)
 {
   MflBoxSweep f;

@@ -157,7 +157,7 @@ RW_LAYOUT_ASSERT(rw_assert_geom_morph, RW_OFFSETOF(RpGeometry, morphTarget) == 0
         }                                                                       \
     } while (0)
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpGeometry *RpGeometryStreamRead(RwStream *stream)
 {
     RpGeometry *geometry;

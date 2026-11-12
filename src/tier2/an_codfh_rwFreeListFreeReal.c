@@ -34,7 +34,7 @@ RW_LAYOUT_ASSERT(rw_assert_fl_size, sizeof(RwFreeList) == 0x24);
 
 /*007d2128*/ extern void *RwEngineInstance;
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwFreeList *_rwFreeListFreeReal(RwFreeList *freeList, void *entry)
 {
     RwUInt32 heapEntries;

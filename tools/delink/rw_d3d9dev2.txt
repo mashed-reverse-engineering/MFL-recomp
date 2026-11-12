@@ -1,0 +1,33 @@
+# Group "d3d9dev2" (lane K window 5 batch 5, d3d9device + d3d9raster buckets of the flip manifest, rows not taken by group d3d9dev): vertex declaration create, 32 bit index buffer,
+# camera attach window / clear / begin update, device stop, begin scene, release video memory, standards table fill, display modes list, show raster, present parameters and the
+# small raster driver functions (ctor, dtor, close, palette lock / unlock, render generic / fast / scaled, clear rect, clear, set context, convert to non palettized) from librw-mfl/capi/rwd3d9dev2.cpp (op for op, on
+# the exe's own globals and its Direct3D / device objects).  Needs LIB_RW ...,d3d9dev2 and the mflrw_d3d9dev2_bind call in recomp/automatch_near/an_hk_612.c (an_hk_612_d3d9dev2.inc,
+# 113 slots, enum E of rwd3d9dev2.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names without a symbols.txt name are aliases.txt names (rwD3D9CameraClear, rwD3D9CameraBeginUpdate, rwD3D9RasterShowRaster: fnsizes_unanalysed.txt rows; rwD3D9RasterCtor / Dtor /
+# RenderFast / RenderScaled / ClearRect / LockPalette / UnlockPalette: aliases.txt) or LAB_ names.  rwD3D9IndexBuffer32bitsCreate 0x4db9b0 needs the fnsizes_unanalysed.txt line and
+# the aliases.txt line of rows_fnsizes_unanalysed.txt first.  None of these rows is in tools/delink/rw_trap.txt (checked: no 0x004d.. / 0x004e0.. / 0x004e1.. rw_trap row).
+# Proof: tools/delink/rw_d3d9dev2_check.sh <mflrw.dll> 200 300 (fakedev.c device with the recorders of the check, fake IDirect3D9 / swap chain / surfaces): EQUAL.
+RwD3D9CreateVertexDeclaration=rw37_RwD3D9CreateVertexDeclaration
+rwD3D9IndexBuffer32bitsCreate=rw37_rwD3D9IndexBuffer32bitsCreate
+RwD3D9CameraAttachWindow=rw37_RwD3D9CameraAttachWindow
+D3D9DeviceSystemStop=rw37_D3D9DeviceSystemStop
+_rwD3D9BeginScene=rw37_rwD3D9BeginScene
+D3D9DeviceReleaseVideoMemory=rw37_D3D9DeviceReleaseVideoMemory
+D3D9DeviceSystemStandards=rw37_D3D9DeviceSystemStandards
+D3D9CreateDisplayModesList=rw37_D3D9CreateDisplayModesList
+rwD3D9RasterShowRaster=rw37_rwD3D9RasterShowRaster
+FUN_004d8990=rw37_D3D9SetPresentParameters
+rwD3D9CameraClear=rw37_rwD3D9CameraClear
+rwD3D9CameraBeginUpdate=rw37_rwD3D9CameraBeginUpdate
+rwD3D9RasterCtor=rw37_rwD3D9RasterCtor
+rwD3D9RasterDtor=rw37_rwD3D9RasterDtor
+_rwD3D9RasterClose=rw37_rwD3D9RasterClose
+rwD3D9RasterLockPalette=rw37_rwD3D9RasterLockPalette
+rwD3D9RasterUnlockPalette=rw37_rwD3D9RasterUnlockPalette
+rwD3D9RasterRenderFast=rw37_rwD3D9RasterRenderFast
+rwD3D9RasterRenderScaled=rw37_rwD3D9RasterRenderScaled
+rwD3D9RasterClearRect=rw37_rwD3D9RasterClearRect
+rwD3D9RasterRenderGeneric=rw37_rwD3D9RasterRenderGeneric
+_rwD3D9RasterConvertToNonPalettized=rw37__rwD3D9RasterConvertToNonPalettized
+LAB_004e13a0=rw37_rwD3D9RasterClear
+LAB_004e13e0=rw37_rwD3D9SetRasterContext

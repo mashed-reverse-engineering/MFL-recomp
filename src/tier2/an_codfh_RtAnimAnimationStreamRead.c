@@ -78,7 +78,7 @@ RW_LAYOUT_ASSERT(rw_assert_anim_size, sizeof(RtAnimAnimation) == 0x18);
         }                                                                       \
     } while (0)
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RtAnimAnimation *RtAnimAnimationStreamRead(RwStream *stream)
 {
     RwInt32 streamVersion;

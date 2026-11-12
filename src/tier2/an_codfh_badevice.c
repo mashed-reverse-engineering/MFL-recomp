@@ -131,7 +131,7 @@ enum { rwDEVICESYSTEMOPEN = 0x00, rwDEVICESYSTEMSTART = 0x02, rwDEVICESYSTEMSTOP
 
 #define REGISTER(size, id, open, close) _rwPluginRegistryAddPlugin(&engineTKList, (size), (id), (void *)(open), (void *)(close), NULL)
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void *RwEngineGetSubSystemInfo(void *subSystemInfo, RwInt32 subSystemIndex)
 {
     if (!_rwDeviceSystemRequest(&RWSRCGLOBAL(dOpenDevice), rwDEVICESYSTEMGETSUBSYSTEMINFO, subSystemInfo, NULL, subSystemIndex))
@@ -142,7 +142,7 @@ void *RwEngineGetSubSystemInfo(void *subSystemInfo, RwInt32 subSystemIndex)
     return subSystemInfo;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void *RwEngineGetVideoModeInfo(void *modeinfo, RwInt32 modeIndex)
 {
     if (!_rwDeviceSystemRequest(&RWSRCGLOBAL(dOpenDevice), rwDEVICESYSTEMGETMODEINFO, modeinfo, NULL, modeIndex))
@@ -153,7 +153,7 @@ void *RwEngineGetVideoModeInfo(void *modeinfo, RwInt32 modeIndex)
     return modeinfo;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool RwEngineStart(void)
 {
     RwDeviceHead *const device = &RWSRCGLOBAL(dOpenDevice);
@@ -177,7 +177,7 @@ RwBool RwEngineStart(void)
     return 0;      /* FALSE */
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool RwEngineOpen(void *initParams)
 {
     RwBool result;
@@ -257,7 +257,7 @@ RwBool RwEngineOpen(void *initParams)
     return result;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool RwEngineInit(const RwMemoryFunctions *memFuncs, RwUInt32 openFlags, RwUInt32 resArenaSize)
 {
     RwBool result = 0;      /* FALSE */

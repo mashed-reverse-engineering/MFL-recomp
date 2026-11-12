@@ -1,0 +1,21 @@
+# Group "texread2" (lane K window 5, batches 2 and 3): rtpitexd readers, gamma, BMP writer, image / texture / raster plugin open and close, mipmap helpers and the default
+# texture read path from librw-mfl/capi/rwtexread2.cpp (op for op, on the exe's own memory).  Needs LIB_RW ...,texread,texread2 and the mflrw_texread2_bind call in
+# recomp/automatch_near/an_hk_612.c (71 slots, enum B2 of rwtexread2.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names RtBMPImageWrite, rwImageClose, rwTextureClose, rwRasterOpen, rwTextureOpen, rwImageOpen, TextureDefaultRead, TextureRasterDefaultBuildMipmaps are aliases.txt names
+# (symbols.txt has LAB_<va> for them; precedent destroyTexture in rw_g3.txt).
+# Proof: tools/delink/rw_texread2_check.sh <mflrw.dll> 200 300 (superset of rw_texread_check.sh, re-runs the texread rows too): EQUAL.
+rtpitexdTextureStreamReadPre=rw37_rtpitexdTextureStreamReadPre
+RtPITexDictionaryStreamRead=rw37_RtPITexDictionaryStreamRead
+RwImageSetGamma=rw37_RwImageSetGamma
+RtBMPImageWrite=rw37_RtBMPImageWrite
+rwImageClose=rw37_rwImageClose
+rwTextureClose=rw37_rwTextureClose
+rwRasterOpen=rw37_rwRasterOpen
+rwTextureOpen=rw37_rwTextureOpen
+rwImageOpen=rw37_rwImageOpen
+TextureDefaultMipmapName=rw37_TextureDefaultMipmapName
+PalettizeMipmaps=rw37_PalettizeMipmaps
+TextureImageReadAndSize=rw37_TextureImageReadAndSize
+TextureRasterDefaultBuildMipmaps=rw37_TextureRasterDefaultBuildMipmaps
+TextureDefaultRead=rw37_TextureDefaultRead
+TextureDefaultMipmapRead=rw37_TextureDefaultMipmapRead

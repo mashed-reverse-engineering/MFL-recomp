@@ -351,3 +351,5 @@
 004f5fc0 WorldClose
 004f6010 WorldOpen
 004d2d40 CameraBeginUpdate
+004db9b0 rwD3D9IndexBuffer32bitsCreate
+00500340 D3D9AtomicDefaultReinstanceCallback

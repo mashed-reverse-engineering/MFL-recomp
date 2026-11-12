@@ -64,7 +64,7 @@ RW_LAYOUT_ASSERT(rw_assert_reg_first, RW_OFFSETOF(RwPluginRegistry, firstRegEntr
 /*0053eac0*/ extern RwInt32 _rwerror(RwInt32 code, ...);
 /*004ea160*/ extern RwError *RwErrorSet(RwError *code);
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 const RwPluginRegistry *_rwPluginRegistryReadDataChunks(const RwPluginRegistry *reg, RwStream *stream, void *object)
 {
     RwUInt32 length, version;

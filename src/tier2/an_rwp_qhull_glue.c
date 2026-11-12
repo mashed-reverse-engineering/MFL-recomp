@@ -114,7 +114,7 @@ int FUN_0058cce0(const char *s, void *fp)
    oriented so that `face` is that facet), then per vertex the ring of its outgoing edges, walked face to face around the vertex.
    The qhull vertex / facet visitid fields are used as indices.  Returns the hull (after rwp_hull_prepare), or NULL when a table is
    missing. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 MflHullTables *FUN_0058cd00(MflHullTables *hull)
 {
   QhVertex *v;

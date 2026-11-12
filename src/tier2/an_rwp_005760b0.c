@@ -12,7 +12,7 @@ extern void rwp_capsule_00575860(void *pool, unsigned short va, unsigned short v
    walk keeps a stack of (cell, box): the objects on the cell's own list are tested, then the octants of the cell the query reaches (the
    children overlap: the lower child covers the first 60% of an axis, the upper one the last 60%): a leaf octant's list is tested, a child
    cell is pushed with its sub box.  g_data_7daa08 counts the box tests, g_data_7daa0c the reported pairs. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 void rwp_farfield_report_overlaps(unsigned char *f, MflFfBox *q, unsigned int id)
 {
   unsigned short stk_cell[320];

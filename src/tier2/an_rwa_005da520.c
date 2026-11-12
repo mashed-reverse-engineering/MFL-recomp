@@ -6,7 +6,7 @@
    +0x38 = bits per sample, +0x39 = channels, +0x45 != 0 = looping wave.  For a one-shot wave the first 16-bit sample of
    each channel is copied behind the data (the interpolating mixer reads one sample ahead).  The guard index is the
    frame count in 16-bit units, as the original computes it. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 char *rwa_soft_wave_write_005da520(char *wave, RwUInt32 offset, const void *src, RwUInt32 bytes)
 {
   short *data = *(short **)(wave + 0x4c);

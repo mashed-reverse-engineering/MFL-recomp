@@ -12,7 +12,7 @@ extern size_t strlen(const char *string);      /* /O2 implies /Oi: inline repne 
 /*007d2128*/ extern void *RwEngineInstance;
 #define rwstrcpy(dst, src) ((*(RwStrcpyFn *)((RwUInt8 *)RwEngineInstance + RW_GLOBALS_STRCPY))((dst), (src)))
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwChar *_rtFSBuildFileName(RwChar *buffer, RwInt32 bufferLength, const RwChar *driveName, const RwChar *filePath, RwChar cSeparator)
 {
     RwInt32 driveLength = strlen(driveName);

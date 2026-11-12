@@ -9,7 +9,7 @@ typedef struct D3DXMATRIX {
 } D3DXMATRIX;
 
 /* out = transpose(m); out may be m (the off-diagonal pairs are swapped, the diagonal is copied only when out != m). */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 D3DXMATRIX * __stdcall c_D3DXMatrixTranspose(D3DXMATRIX *out, const D3DXMATRIX *m)
 {
   float f;

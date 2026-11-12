@@ -77,7 +77,7 @@ RW_LAYOUT_ASSERT(rw_assert_matrix_size, sizeof(RwMatrix) == 0x40);
         }                                                                           \
     }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=shadow */
 RwBool _rwFrameSyncDirty(void)
 {
     RwLLLink *cur = RWSRC_DIRTYLIST->link.next, *end = &RWSRC_DIRTYLIST->link;
@@ -142,7 +142,7 @@ RwBool _rwFrameSyncDirty(void)
     return 1;      /* TRUE */
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void _rwFrameSyncHierarchyLTM(RwFrame *frame)
 {
     RwInt32 oldFlags = frame->object.privateFlags;

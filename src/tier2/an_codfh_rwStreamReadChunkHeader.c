@@ -43,7 +43,7 @@ RW_LAYOUT_ASSERT(rw_assert_error_code, RW_OFFSETOF(RwError, errorCode) == 4);
 /*0053eac0*/ extern RwInt32 _rwerror(RwInt32 code, ...);
 /*004ea160*/ extern RwError *RwErrorSet(RwError *code);
 
-/* TIER2: unvalidated 2026-11-08 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool _rwStreamReadChunkHeader(RwStream *stream, RwUInt32 *type, RwUInt32 *length, RwUInt32 *version, RwUInt32 *buildNum)
 {
     RwMark mark;

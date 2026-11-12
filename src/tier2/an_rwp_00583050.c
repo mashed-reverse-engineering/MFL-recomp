@@ -162,6 +162,7 @@ extern RwMatrix *RwMatrixTransform(RwMatrix *m, RwMatrix *tr, int op);
     ((int *)tr_)[0] = st0_; ((int *)tr_)[1] = st1_; ((int *)tr_)[2] = st2_; \
   } while (0)
 
+/* TIER2: unvalidated 2026-11-10 authority=diffemu */
 int rwp_constraints_00583050(MflSweepWorld *w, MflSweepPair *pair, float *info_a, float *info_b)
 {
   float sphere_a[4], sphere_b[4], gap[3], dir[3], rel[3];

@@ -12,7 +12,7 @@
 /*0069d6b0*/ extern int g_menu_69d6b0;
 /* menu_career_row_next */
 /* "menu_selection_step(1) and advances g_career_row/column with wrap and event type update" */
-/* TIER2: unvalidated 2026-10-29 authority=static */
+/* TIER2: unvalidated 2026-11-10 authority=diffemu */
 void menu_career_row_next(void)
 {
   int type;

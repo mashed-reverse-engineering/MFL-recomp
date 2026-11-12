@@ -1,0 +1,6 @@
+# Group "matfx2" (lane K window 5 batch 4, effectpipesd3d9): the two big MatFX render rows from librw-mfl/capi/rwmatfx2.cpp (op for op, on the exe's own memory and device).
+# Needs LIB_RW ...,matfx2 and the mflrw_matfx2_bind call in recomp/automatch_near/an_hk_612.c (an_hk_612_matfx2.inc, 30 slots, enum X of rwmatfx2.cpp).  Format as rw_g3.txt:
+# exe_name=dll_export.  Both exe names are Ghidra names with a leading underscore as in rw_matfx.txt / aliases.
+# Proof: tools/delink/rw_matfx2_check.sh <mflrw.dll> 200 300 (fakedev.c device; unrecorded methods trap in the check; CalculatePerturbedUVs at x87 control word 0x7f and 0x27f): EQUAL.
+_rpMatFXD3D9AtomicMatFXDualPassRender=rw37_rpMatFXD3D9AtomicMatFXDualPassRender
+CalculatePerturbedUVs=rw37_CalculatePerturbedUVs

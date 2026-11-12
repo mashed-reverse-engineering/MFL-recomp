@@ -117,7 +117,7 @@ int rwp_artic_destroy(MflArtic *o)
 }
 
 /* Takes every part and joint of the object out of the simulation and uncounts the object.  Returns o. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 MflArtic *rwp_artic_disable(MflArtic *o)
 {
   int i;
@@ -130,7 +130,7 @@ MflArtic *rwp_artic_disable(MflArtic *o)
 }
 
 /* Bounding box of all parts (rwp_sphere_0056c350 per part, merged by rwp_math_0056f450).  Returns box, or 0 when no part gave a box. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 MflAggBox *rwp_artic_bounding_box(MflArtic *o, MflAggBox *box)
 {
   MflAggBox part;
@@ -149,7 +149,7 @@ MflAggBox *rwp_artic_bounding_box(MflArtic *o, MflAggBox *box)
 
 /* Copies the simulated matrix of every part to the matrix the part follows (moved back by the centre of mass offset), then, for a
    hierarchy, rebuilds the world matrix of every node with a parent from its local matrix and the parent's world matrix.  Returns o. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 MflArtic *rwp_artic_sync_matrices(MflArtic *o)
 {
   MflArticDef *d = o->def;

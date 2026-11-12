@@ -92,7 +92,7 @@ def check(L, read=None, undefs=None):
 
 
 def newest():
-    c = sorted(p for p in glob.glob(os.path.join(G, "output", "gate", "*_standalone", "link")) if os.path.exists(os.path.join(p, "ours.map")) and os.path.isdir(os.path.join(os.path.dirname(p), "link", "harness")))
+    c = sorted(p for p in glob.glob(os.path.join(G, "output", "gate", "*_standalone", "link")) if os.path.exists(os.path.join(p, "ours.map")) and os.path.exists(os.path.join(p, "ours.exe")) and os.path.isdir(os.path.join(os.path.dirname(p), "link", "harness")))
     return c[-1] if c else None
 
 

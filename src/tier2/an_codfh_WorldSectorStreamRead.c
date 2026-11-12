@@ -113,7 +113,7 @@ RW_LAYOUT_ASSERT(rw_assert_world_ntc, RW_OFFSETOF(RpWorld, numTexCoordSets) == 0
 /* BinaryWorldMalloc: from the pool of pre-allocated memory */
 #define BinaryWorldMalloc(addr, size) ((void *)((*(addr) += (size)) - (size)))
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpWorldSector *WorldSectorStreamRead(RwStream *stream, RwUInt8 **binaryWorldMallocAddr, RpWorld *world, RwUInt32 flags)
 {
     RpWorldSector *worldSector;

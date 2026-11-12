@@ -1,0 +1,9 @@
+# Group "d3d9sys" (lane K window 5 batch 6, d3d9device bucket of the flip manifest): D3D9System 0x4d7c00, the 23 request device system dispatcher (open: Direct3DCreate9, adapter
+# with HAL caps, mode counts, desktop mode, CPU flags; start: present parameters, caps, behaviour flags, CreateDevice, back buffer surfaces, driver modules open; mode list
+# requests; use mode / set adapter with the multisampling levels; focus; finalize start: SSE / matrix / vector functions; ...) from librw-mfl/capi/rwd3d9sys.cpp (op for op, on
+# the exe's own globals and its Direct3D / device objects).  Needs LIB_RW ...,d3d9sys and the mflrw_d3d9sys_bind call in recomp/automatch_near/an_hk_612.c
+# (an_hk_612_d3d9sys.inc, 62 slots, enum E of rwd3d9sys.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# D3D9System is the aliases.txt name of 0x4d7c00 (symbols.txt: LAB_004d7c00; fnsizes_unanalysed.txt row).  The row covers the function and its jump tables (0x4d86fc ..
+# 0x4d87d2): the C++ has its own switches, nothing reads the tables.  Not in tools/delink/rw_trap.txt (grep 004d7c00: no hit).
+# Proof: tools/delink/rw_d3d9sys_check.sh <mflrw.dll> 200 300 (fake IDirect3D9 behind the Direct3DCreate9 import slot, fakedev.c device): EQUAL, also with "rev".
+D3D9System=rw37_D3D9System

@@ -3998,6 +3998,7 @@
 004db830 RwD3D9EnableLight 78
 004db880 _rwD3D9LightsEqual 244
 004db980 RwD3D9IndexBufferCreate 41
+004db9b0 rwD3D9IndexBuffer32bitsCreate 42
 004db9e0 RwD3D9CreateVertexDeclaration 480
 004dbbc0 RwD3D9DeleteVertexDeclaration 76
 004dbc10 RwD3D9CreateVertexShader 48
@@ -4618,6 +4619,7 @@
 004ff6b0 D3D9AtomicAllInOneNode 663
 004ff950 D3D9AtomicAllInOnePipelineInit 40
 004ff980 FUN_004ff980 2438
+00500340 D3D9AtomicDefaultReinstanceCallback 107
 005003b0 FUN_005003b0 6
 005003c0 D3D9WorldSectorAllInOneNode 332
 00500510 D3D9WorldSectorAllInOnePipelineInit 40

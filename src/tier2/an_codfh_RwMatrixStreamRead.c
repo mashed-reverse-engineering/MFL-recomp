@@ -44,7 +44,7 @@ RW_LAYOUT_ASSERT(rw_assert_error_code, RW_OFFSETOF(RwError, errorCode) == 4);
 
 #define RWERROR_SET(code) { RwError error; error.pluginID = rwID_COREPLUGIN; error.errorCode = _rwerror(code); RwErrorSet(&error); }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwMatrix *RwMatrixStreamRead(RwStream *stream, RwMatrix *matrix)
 {
     RwUInt32 size;

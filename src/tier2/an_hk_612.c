@@ -239,6 +239,14 @@ typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *text
 #include "an_hk_612_d3d9texdic.inc"
 #include "an_hk_612_d3d9vdtan.inc"
 #include "an_hk_612_d3dras2.inc"
+#include "an_hk_612_texread.inc"
+#include "an_hk_612_matfx.inc"
+#include "an_hk_612_matfx2.inc"
+#include "an_hk_612_d3d9dev.inc"
+#include "an_hk_612_d3d9dev2.inc"
+#include "an_hk_612_d3d9rasq.inc"
+#include "an_hk_612_d3d9sys.inc"
+#include "an_hk_612_noded3d9.inc"
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
 #define VIDEO_MEMORY_BYTES (0x400000)
@@ -468,6 +476,14 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   hk_bind_d3d9texdic(mflrw);
   hk_bind_d3d9vdtan(mflrw);
   hk_bind_d3dras2(mflrw);
+  hk_bind_texread(mflrw);
+  hk_bind_matfx(mflrw);
+  hk_bind_matfx2(mflrw);
+  hk_bind_d3d9dev(mflrw);
+  hk_bind_d3d9dev2(mflrw);
+  hk_bind_d3d9rasq(mflrw);
+  hk_bind_d3d9sys(mflrw);
+  hk_bind_noded3d9(mflrw);
 #endif
 
   /* Step 1: core RenderWare init with the default resource arena. */

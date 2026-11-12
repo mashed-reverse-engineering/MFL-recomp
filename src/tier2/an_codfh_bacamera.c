@@ -106,7 +106,7 @@ RwCameraHead *RwCameraSetProjection(RwCameraHead *camera, RwInt32 projection)
     }
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwCameraHead *RwCameraCreate(void)
 {
     RwCameraHead *camera = (RwCameraHead *)RwFreeListAlloc(RWCAMERAGLOBAL_FREELIST, rwCAMERA_HINT);

@@ -4,7 +4,7 @@ Every still-original RenderWare byte range of the gate's zero_original_ranges.cs
 ownership items of output/delink_sdk/ownership_items.csv; each function row gets: va, bytes still original, SDK member object, group (= member
 object basename), scenario coverage (output/scenario/rwcov_*.csv, newest), the route and the blocker:
   KES    D3D9 driver module (state = file statics + the device): a DLL kernel on exe state, proven natively against a fake device
-  flip   object layout / lifecycle shared with game C (frame, clump, atomic, geometry, world, camera, light, Rx pipelines, plugins on those objects)
+  librw  (was "flip" until W5; csv columns unchanged, old csvs still say flip) object layout / lifecycle shared with game C (frame, clump, atomic, geometry, world, camera, light, Rx pipelines, plugins on those objects)
   tier2  device independent core without shared layout (math, stream, image, plugin registry, ...): codfh tier 2 (user decision 1) or a KES leaf
   trap   0 hits in the coverage union and not a device path: candidate only, the three proofs are still needed
 Rows already in a tools/delink/rw_<group>.txt list get that list's name in `planned` (e.g. d3drs from lane D).
@@ -34,7 +34,7 @@ def newest_gate():
 ROUTES = [
     (r"^(baframe|baclump|baworld|bacamera|bacamval|baatomic|bageomet|bamateri|bamatlst|balight|bamesh|bameshop|wrldsect|baworobj|basector|nodeworld|wrldpipe|bapipe|bapipew|"
      r"p2|nodes|nodeatom|nodewsec|nodeinstance|nodeimmi|rpskin|skin|rphanim|hanim|rpmatfx|matfx|rpuvanim|rppvs|rpptank|ptank|rplodatm|rpcollis|ctbsp|rpdmorph|rpsplit|rtanim|anim|"
-     r"effectpipes|noded3d9|patch|rppatch|rpmorph|rpusrdat|babinwor|coll|ctquery|ctdata|im3dpipe|rpspline|stdkey|linear|param|ssematbl|bsplit|rpnormmap)", "flip"),
+     r"effectpipes|noded3d9|patch|rppatch|rpmorph|rpusrdat|babinwor|coll|ctquery|ctdata|im3dpipe|rpspline|stdkey|linear|param|ssematbl|bsplit|rpnormmap)", "librw"),
     (r"^(d3d9|d3d8|devd3d|d3dx)", "KES"),
     (r"^(baraster|batextur|babintex|rtpitexd|baimage|babinras|native|baresamp|palquant|rtbmp|rtpng|gzio)$", "KES"),   # exe-layout objects mirrored in capi/rw37.h (as g3)
 ]
@@ -42,12 +42,12 @@ FLIP_PREFIX = re.compile(r"^_?_?(Rp|Rx|_rx|_rp|rx|rp)")       # Rx / Rp names ar
 def route_of(group, name):
     for rx, r in ROUTES:
         if re.match(rx, group): return r
-    if FLIP_PREFIX.match(name or ""): return "flip"
+    if FLIP_PREFIX.match(name or ""): return "librw"
     return "tier2"
 
 BLOCK = {
     "KES": "DLL kernel on exe state: driver rows need fake device slots for the methods they call, core rows (raster / texture / image) a g3-style native check; never trapped (device paths)",
-    "flip": "librw object layout = RW 3.7 (layout_check.cpp TODO rows: Raster, Texture, Atomic, Light, Camera, Stream) and lifecycle owned by librw",
+    "librw": "librw object layout = RW 3.7 (layout_check.cpp TODO rows: Raster, Texture, Atomic, Light, Camera, Stream) and lifecycle owned by librw",
     "tier2": "user decision 1 (codfh tier 2) or a KES leaf port",
     "trap": "three trap proofs (coverage union, assets, call-graph closure); traphit 0 on the gate",
 }
@@ -110,10 +110,10 @@ def main():
     md = ["# Engine flip manifest %s" % TODAY, "", "Source: %s (RenderWare %d B still original, %d B of it inside code items = the rows; the rest is padding / non-code items), %s, %s. Script: tools/delink/flip_manifest.py." % (os.path.relpath(gate, G), ztot, tot, "output/delink_sdk/ownership_items.csv", os.path.relpath(covf, G)), "",
           "trap = 0 hits in the coverage union (KES rows are never trap candidates); route_if_hit in the csv keeps the route it would have otherwise.", "",
           "| route | KB | rows |", "|---|---:|---:|"]
-    for k in ("KES", "flip", "tier2", "trap"): md.append("| %s | %.1f | %d |" % (k, byr[k] / 1024, sum(1 for r in rows if r["route"] == k)))
+    for k in ("KES", "librw", "tier2", "trap"): md.append("| %s | %.1f | %d |" % (k, byr[k] / 1024, sum(1 for r in rows if r["route"] == k)))
     cy = [r for r in rows if r["codfh"] == "y"]
     md += ["", "codfh name found in the group's codfh-win32 file (codfh = y, name scan, body not checked; upper bound): " +
-           ", ".join("%s %.1f KB / %d" % (k, sum(r["bytes"] for r in cy if r["route"] == k) / 1024, sum(1 for r in cy if r["route"] == k)) for k in ("tier2", "flip", "KES", "trap")) +
+           ", ".join("%s %.1f KB / %d" % (k, sum(r["bytes"] for r in cy if r["route"] == k) / 1024, sum(1 for r in cy if r["route"] == k)) for k in ("tier2", "librw", "KES", "trap")) +
            "; tier2_codfh = %.1f KB." % (sum(r["bytes"] for r in cy if r["route"] == "tier2") / 1024)]
     md += ["", "Routes: " + "; ".join("%s = %s" % (k, v) for k, v in BLOCK.items()), "", "| route | group | KB | rows | planned |", "|---|---|---:|---:|---|"]
     for (rt, g), (b, n) in sorted(by.items(), key=lambda x: (x[0][0], -x[1][0])):
@@ -123,7 +123,7 @@ def main():
     eng = opt("--engine", os.path.join(G, "output", "rw_engine_draft.txt"))
     auto = re.compile(r"^(FUN_|lib_|LAB_)|_[0-9a-f]{6,8}$")         # auto names in rwmfl.def are api_used.csv mislabels (not RW API)
     fst = {r["api"]: r["status"] for r in csv.DictReader(open(os.path.join(G, "output", "librw_facade_coverage.csv")))}
-    fl = [r for r in rows if r["route_if_hit"] == "flip" and r["name"].lstrip("_") in exports and not r["planned"] and not auto.search(r["name"])]
+    fl = [r for r in rows if r["route_if_hit"] == "librw" and r["name"].lstrip("_") in exports and not r["planned"] and not auto.search(r["name"])]
     with open(eng, "w") as f:
         f.write("# DRAFT group \"engine\" (flip, plan_engine_switch_2026-11-07 P3), generated by tools/delink/flip_manifest.py: still-original flip-route RenderWare\n"
                 "# functions whose name is a librw facade export of capi/rwmfl.def (the librw object, not the exe's). NOT installable as is: the flip needs\n"
@@ -132,6 +132,6 @@ def main():
         for r in fl:
             s = fst.get(r["name"].lstrip("_"), "?")
             f.write("%s%s=%s\n" % ("" if s == "Y" else "#%s " % s, r["name"], r["name"].lstrip("_")))
-    print("%d rows, %d B: %s; engine draft %d rows -> %s" % (len(rows), tot, ", ".join("%s %d" % (k, byr[k]) for k in ("KES", "flip", "tier2", "trap")), len(fl), out))
+    print("%d rows, %d B: %s; engine draft %d rows -> %s" % (len(rows), tot, ", ".join("%s %d" % (k, byr[k]) for k in ("KES", "librw", "tier2", "trap")), len(fl), out))
 
 if __name__ == "__main__": main()

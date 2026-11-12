@@ -52,7 +52,7 @@ struct DsMediaSample {
 #define SAMPLE_MEDIA_TIME_VALID 0x02
 
 /* SetDiscontinuity(on): flag the sample (and remember a non-sync sample), or clear both flags */
-/* TIER2: unvalidated 2026-11-04 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 HRESULT __stdcall gap_5d2bc0(DsMediaSample *sample, int discontinuity)
 {
     if (discontinuity) {

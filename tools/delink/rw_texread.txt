@@ -1,0 +1,29 @@
+# Group "texread" (plan_w5_laneK): the device independent image / texture read layer of RW 3.7 (baimage, batextur, babintex, rtpitexd) from librw-mfl/capi/rwtexread.cpp,
+# written op for op from the disassembly, on the exe's own memory (RW 3.7 byte layout).  Device parts stay the exe's (engine standard-function table, stream, free lists).
+# Opt-in with LIB_RW=librw:...,texread and an RW_DLL built from a librw-mfl tree that has rwtexread.cpp.  NEEDS the mflrw_texread_bind call in rw_engine_init
+# (recomp/automatch_near/an_hk_612.c, next to the imgread one): without it the first call aborts with "[mflrw] texread called before mflrw_texread_bind".
+# Format as rw_g3.txt: exe_name=dll_export; DLL exports carry the rw37_ prefix.  (tools/delink/rw_texdict.txt is the old S2-d list and is not in LIB_RW.)
+# Proof: tools/delink/rw_texread_check.sh <mflrw.dll> 200 300 (original code mapped at its own address, run natively under Wine; seeded operation sequences through the
+# DLL and the original with logging stand-ins for the string functions / allocator / readers; call logs, arena, engine instance): EQUAL.
+# Stage 1 (image path search)
+ImageGetScratchMem=rw37_ImageGetScratchMem
+ImagePathForAllFullNames=rw37_ImagePathForAllFullNames
+ImageAttempRead=rw37_ImageAttempRead
+RwImageFindFileType=rw37_RwImageFindFileType
+RwImageRead=rw37_RwImageRead
+RwImageStreamRead=rw37_RwImageStreamRead
+RwImageReadMaskedImage=rw37_RwImageReadMaskedImage
+# Stage 2 (texture module: current dictionary, read, default find; TextureDefaultFind is an aliases.txt name, 0x4d7620 is LAB_004d7620 in symbols.txt)
+RwTexDictionarySetCurrent=rw37_RwTexDictionarySetCurrent
+RwTexDictionaryGetCurrent=rw37_RwTexDictionaryGetCurrent
+RwTextureRasterGenerateMipmaps=rw37_RwTextureRasterGenerateMipmaps
+FUN_004d5f30=rw37_RwTextureRegisterPlugin
+RwTextureRead=rw37_RwTextureRead
+TextureDefaultFind=rw37_TextureDefaultFind
+RwTextureSetMipmapping=rw37_RwTextureSetMipmapping
+RwTextureGetMipmapping=rw37_RwTextureGetMipmapping
+RwTextureSetAutoMipmapping=rw37_RwTextureSetAutoMipmapping
+RwTextureSetRaster=rw37_RwTextureSetRaster
+# Stage 3 (stream readers: texture and texture dictionary; native texture reader and chunk readers stay the exe's)
+RwTextureStreamRead=rw37_RwTextureStreamRead
+RwTexDictionaryStreamRead=rw37_RwTexDictionaryStreamRead

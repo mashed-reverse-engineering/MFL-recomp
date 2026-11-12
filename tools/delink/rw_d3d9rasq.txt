@@ -1,0 +1,15 @@
+# Group "d3d9rasq" (lane K window 5 batch 6, the d3d9raster rows of the flip manifest that group d3d9dev2 left): raster plugin attach (extension registration + pixel format
+# table), render quad (textured quad through Im2D, StretchRect fallback), copy quad (UpdateSurface / GetRenderTargetData / StretchRect), clear generic (device Clear / ColorFill /
+# locked fill incl. nearest palette index) and the two small rows raster open / raster render, from librw-mfl/capi/rwd3d9rasq.cpp (op for op, on the exe's own globals and its
+# device / texture / surface objects).  Needs LIB_RW ...,d3d9rasq and the mflrw_d3d9rasq_bind call in recomp/automatch_near/an_hk_612.c (an_hk_612_d3d9rasq.inc, 33 slots, enum E
+# of rwd3d9rasq.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names: rwD3D9RasterPluginAttach is the aliases.txt / lib_names.txt name of 0x4df7b0 (the symbols.txt name _rwD3D9RasterPluginAttach_004df7b0 is listed twice, first for the 16
+# byte jmp tail 0x4d7bf0, and mkobj takes the first: that name would put the thunk on the jmp tail); LAB_004e03f0 = rwD3D9RasterRender (aliases.txt, fnsizes_unanalysed.txt row); _rwD3D9RasterOpen 0x4dfbd0 is a symbols.txt name (not in the 2026-11-10 manifest: drop
+# the row if it has no fnsizes extent).  None of these rows is in tools/delink/rw_trap.txt (grep of 004df7b0 004e0560 004e0ab0 004e0dd0 004e03f0 004dfbd0: no hit).
+# Proof: tools/delink/rw_d3d9rasq_check.sh <mflrw.dll> 200 300 (fakedev.c device with the recorders of the check, fake textures / surfaces): EQUAL, also with "rev".
+rwD3D9RasterPluginAttach=rw37_rwD3D9RasterPluginAttach
+rwD3D9RasterRenderQuad=rw37_rwD3D9RasterRenderQuad
+rwD3D9RasterCopyQuad=rw37_rwD3D9RasterCopyQuad
+D3D9RasterClearGeneric=rw37_D3D9RasterClearGeneric
+_rwD3D9RasterOpen=rw37_rwD3D9RasterOpen
+LAB_004e03f0=rw37_rwD3D9RasterRender

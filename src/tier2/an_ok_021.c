@@ -551,7 +551,7 @@ extern void __cdecl frontend_set_69d1f4(char *param_1,char *param_2);
    Up to three matching slots are used, in slot order (inferred): first, second and third team.
    Their names are joined with '/'. Dat strings are length-prefixed: element 0 holds the length
    and the characters start at element 1. Returns nothing. */
-/* TIER2: unvalidated 2026-10-16 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 void team_names_string_build(int slot_state)
 {
   short third_len;

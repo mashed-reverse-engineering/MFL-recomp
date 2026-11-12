@@ -6,7 +6,7 @@ typedef struct MflSlotPool { unsigned int n, m; MflPoolRec *recs; unsigned short
 
 /* Walks the ring that starts behind record `head` (the slot pool of rwp_capsule_005757e0) and appends every record value whose bit
    in `mask` is clear to `out`.  With `sort` set the result is bubble-sorted ascending.  Returns the number of values. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 unsigned int rwp_capsule_00575a30(MflSlotPool *pool, unsigned short head, unsigned short *out, unsigned int *mask, int sort)
 {
   unsigned int n = 0, j, k;

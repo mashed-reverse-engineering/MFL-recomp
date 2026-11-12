@@ -7,7 +7,7 @@ typedef int (__stdcall *ComReleaseFn)(void *self);
 
 /* The record holds three interface pointers: { buffer, 3D buffer, notify } (+0, +4, +8); released in reverse order.
    The result is the last Release's count, or 0 when the buffer pointer is NULL. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 int rwa_ds_buffer_destroy_005cd2f0(void **rec)
 {
   if (rec[2] != 0)

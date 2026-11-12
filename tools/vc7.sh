@@ -22,7 +22,7 @@ if [ -n "$VC7_CONTAINER" ]; then
   C=mfl_$VC7_CONTAINER
   if ! docker inspect -f '{{.State.Running}}' $C 2>/dev/null | grep -q true; then
     docker rm -f $C >/dev/null 2>&1
-    docker run -d --init --name $C -v "$ROOT":/vs:ro -v "$TMPDIR":"$TMPDIR" -v "$MASHED_ROOT":"$MASHED_ROOT" -v ${VC7_PFX:-wine_pfx_cc}:/wpfx tianon/wine:latest sleep infinity >/dev/null 2>&1 || true
+    docker run -d --init --name $C -v "$ROOT":/vs:ro -v "$TMPDIR":"$TMPDIR" -v "$MASHED_ROOT":"$MASHED_ROOT" -v ${VC7_PFX:-wine_pfx_cc}:/wpfx tianon/wine@sha256:878222fee186d28e06b6c34996590e786d5d073de24b8ee5ac4bcb9cddb18497 sleep infinity >/dev/null 2>&1 || true
   fi
   exec docker exec -w "$WORK" -e WINEPREFIX=/wpfx -e XDG_RUNTIME_DIR=/tmp/xdg -e WINEDEBUG=-all -e VC7_SHELL="$VC7_SHELL" \
     -e 'WINEPATH=Z:\vs\Common7\IDE;Z:\vs\Vc7\bin' -e 'INCLUDE=Z:\vs\Vc7\include;Z:\vs\Vc7\atlmfc\include' -e 'LIB=Z:\vs\Vc7\lib;Z:\vs\Vc7\atlmfc\lib' \
@@ -33,4 +33,4 @@ docker run --rm -e VC7_SHELL -v "$ROOT":/vs:ro -v "$WORK":/work -v ${VC7_PFX:-wi
   -e 'WINEPATH=Z:\vs\Common7\IDE;Z:\vs\Vc7\bin' \
   -e 'INCLUDE=Z:\vs\Vc7\include;Z:\vs\Vc7\atlmfc\include' \
   -e 'LIB=Z:\vs\Vc7\lib;Z:\vs\Vc7\atlmfc\lib' \
-  -w /work tianon/wine:latest bash -c 'mkdir -p /tmp/xdg; if [ -n "$VC7_SHELL" ]; then eval "$@"; else wine "$@"; fi' _ "$@"
+  -w /work tianon/wine@sha256:878222fee186d28e06b6c34996590e786d5d073de24b8ee5ac4bcb9cddb18497 bash -c 'mkdir -p /tmp/xdg; if [ -n "$VC7_SHELL" ]; then eval "$@"; else wine "$@"; fi' _ "$@"

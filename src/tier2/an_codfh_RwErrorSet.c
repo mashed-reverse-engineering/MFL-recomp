@@ -29,7 +29,7 @@ RW_LAYOUT_ASSERT(rw_assert_module_instances, RW_OFFSETOF(RwModuleInfo, numInstan
 /*007d518c*/ extern RwModuleInfo errorModule;
 #define RWERRORGLOBAL(var) (((rwErrorGlobals *)((RwUInt8 *)RwEngineInstance + errorModule.globalsOffset))->var)
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwError *RwErrorSet(RwError *code)
 {
     if ((RWERRORGLOBAL(errorCode).pluginID == 0x0) &&

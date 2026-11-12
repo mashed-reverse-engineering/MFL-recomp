@@ -10,6 +10,6 @@ i686-w64-mingw32-gcc -O1 -w -Wl,--image-base,0x400000 -Wl,--disable-dynamicbase 
 cp $DLL $O/mflrw.dll; cp $E $O/MFL.exe
 i=0; : > $O/png/list.txt
 while IFS= read -r f; do n=$(printf "%03d_%s" $i "$(basename "$f")"); cp "$f" "$O/png/$n"; echo "$n" >> $O/png/list.txt; i=$((i+1)); done < <(find "$GAME" -iname '*.png' | sort)
-docker run --rm -e XDG_RUNTIME_DIR=/tmp/xdg -e WINEDEBUG=-all -v $O:/t tianon/wine:latest wine /t/png_check.exe Z:\\t\\mflrw.dll Z:\\t\\MFL.exe Z:\\t\\png $V $3 2>&1 | grep -v -E "^error: XDG|fixme" | tee $O/replay.log
+docker run --rm -e XDG_RUNTIME_DIR=/tmp/xdg -e WINEDEBUG=-all -v $O:/t tianon/wine@sha256:878222fee186d28e06b6c34996590e786d5d073de24b8ee5ac4bcb9cddb18497 wine /t/png_check.exe Z:\\t\\mflrw.dll Z:\\t\\MFL.exe Z:\\t\\png $V $3 2>&1 | grep -v -E "^error: XDG|fixme" | tee $O/replay.log
 if grep -q -E "DIFF|MISSING|cannot|TIMEOUT|CRASH" $O/replay.log; then exit 1; fi
 grep -q "^DONE" $O/replay.log

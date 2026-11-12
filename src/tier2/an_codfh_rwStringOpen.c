@@ -75,7 +75,7 @@ extern int sscanf(const char *buffer, const char *format, ...);
 /*004ea370*/ extern RwChar *StrUpr(RwChar *s);
 /*004ea3a0*/ extern RwChar *StrLwr(RwChar *s);
 
-/* TIER2: unvalidated 2026-11-08 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool _rwStringOpen(void)
 {
     /* Install ANSI char string system */

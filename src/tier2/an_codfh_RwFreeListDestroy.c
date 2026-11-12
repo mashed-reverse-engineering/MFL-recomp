@@ -36,7 +36,7 @@ typedef RwFreeList *(*RwFreeListFreeFunc)(RwFreeList *, void *);
 /*007d2128*/ extern void *RwEngineInstance;
 /*007d5158*/ extern RwFreeList *_masterFreeListPtr;
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=shadow */
 RwBool RwFreeListDestroy(RwFreeList *freeList)
 {
     RwLLLink *link;

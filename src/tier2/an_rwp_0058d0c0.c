@@ -31,7 +31,7 @@ extern MflHullTables *FUN_0058cd00(MflHullTables *hull);
 /* Convex hull of npoints points (3 floats each) through qhull ("qhull s Pp" unless options are given; messages to `out`), copied
    into a new rwp hull block (edges = sum of the facets' neighbour counts).  qhull's memory is freed in any case.  Returns the hull
    or NULL.  rwp_hull_alloc uses only the low 16 bits of the two counts (the original passes them with stale upper halves). */
-/* TIER2: unvalidated 2026-11-06 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 MflHullTables *FUN_0058d0c0(int npoints, float *points, char *options, int out)
 {
   MflHullTables *hull;

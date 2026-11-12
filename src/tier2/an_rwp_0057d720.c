@@ -45,7 +45,7 @@ typedef struct MflBatchTables {
    indices of the pair are at +0xc and +0x2c, -1 = none).  Pass 1 counts the rows of every body, pass 2 gives each body its first row (running
    sum over everything and over the group), pass 3 walks the groups (ng, with the number of constraints of each in lens) and for every block
    gathers the rows of its two bodies (57d640) into the next free row of the body, recording block, slot and the row relative to the group. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 void rwp_batch_0057d720(MflBatchTables *t, char *recs, unsigned nrec, int n, int a4, int *lens, int ng, int a7, int *cnt, int ncnt, int a10)
 {
   int i, a, b, e, g, run, grp, s, idx, tot, k;

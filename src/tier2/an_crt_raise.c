@@ -66,7 +66,7 @@ static MflXcptAction *crt_signal_find_action(int signum, MflXcptAction *tab)
    of the thread's table) and called; SIGFPE handlers get the FPE code (FPE_EXPLICITGEN) as a second argument.  SIGINT / SIGBREAK /
    SIGABRT / SIGTERM handlers are global (reset under the signal lock), SIGFPE / SIGILL / SIGSEGV ones per thread (the exception
    pointers are hidden from the handler while it runs).  Returns 0, or -1 for an unknown signal. */
-/* TIER2: unvalidated 2026-11-06 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 int crt_raise(int signum)
 {
   MflSigHandler action, *slot;

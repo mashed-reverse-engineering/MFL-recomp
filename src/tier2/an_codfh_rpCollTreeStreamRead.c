@@ -52,7 +52,7 @@ RW_LAYOUT_ASSERT(rw_assert_tree_map, RW_OFFSETOF(RpCollTree, map) == 0x24);
 
 #define RwStreamReadInt16(stream, shorts, numBytes) RwStreamReadInt32((stream), (RwInt32 *)(shorts), (numBytes))
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpCollTree *_rpCollTreeStreamRead(RwStream *stream)
 {
     RpCollTree *tree;

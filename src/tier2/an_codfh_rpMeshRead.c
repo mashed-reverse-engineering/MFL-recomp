@@ -71,7 +71,7 @@ RW_LAYOUT_ASSERT(rw_assert_meshobj_flags, RW_OFFSETOF(rpMeshObject, flags) == 8)
     (((rpGEOMETRY == ((const rpMeshObject *)(object))->type) && !(rpGEOMETRYNATIVE & ((const rpMeshObject *)(object))->flags)) || \
      ((rpWORLD == ((const rpMeshObject *)(object))->type) && !(rpWORLDNATIVE & ((const rpMeshObject *)(object))->flags)))
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpMeshHeader *_rpMeshRead(RwStream *stream, const void *object, const RpMaterialList *matList)
 {
     binMeshHeader bmh;

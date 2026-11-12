@@ -46,7 +46,7 @@ RwBool rwa_stream_cache_close_module_005bb850(void)
 }
 
 /* destroy every wave definition of the list at owner+0x20 (link at +0x40 in the definition); list callback, returns NULL */
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 void *rwa_wave_def_list_destroy_005bd200(void *data, char *owner)
 {
   RwaDLink *head = (RwaDLink *)(owner + 0x20), *l = head->next, *next;
@@ -60,7 +60,7 @@ void *rwa_wave_def_list_destroy_005bd200(void *data, char *owner)
 }
 
 /* RwaHeapDestroy: free every block, take the heap out of the heap list, give a dynamic heap back to the free list */
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 void rwa_heap_destroy_005bea00(RwaHeap *heap)
 {
   RwaDLink *b;

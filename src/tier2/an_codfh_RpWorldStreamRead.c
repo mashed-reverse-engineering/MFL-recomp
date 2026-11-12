@@ -122,7 +122,7 @@ RW_LAYOUT_ASSERT(rw_assert_world_pipeline, RW_OFFSETOF(RpWorld, pipeline) == 0x6
 
 #define RWERROR_SET(args) { RwError error; error.pluginID = rwID_WORLDPLUGIN; error.errorCode = _rwerror args; RwErrorSet(&error); }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpWorld *RpWorldStreamRead(RwStream *stream)
 {
     RpWorld *world;

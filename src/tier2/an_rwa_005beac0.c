@@ -21,7 +21,7 @@ typedef struct RwaHeap {
 /*005be970*/ extern void RwaHeapBlockFree(RwaHeapBlock *block, void *p);
 /*005bf120*/ extern void FUN_005bf120(void *block);      /* RWA free */
 
-/* TIER2: unvalidated 2026-11-06 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 void rwa_heap_free_005beac0(RwaHeap *heap, char *p)
 {
   RwaHeapBlock *head = &heap->blocks, *b;

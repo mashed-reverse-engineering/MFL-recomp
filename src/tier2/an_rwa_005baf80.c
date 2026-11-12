@@ -22,7 +22,7 @@ typedef struct RwaObj {
   RwUInt32 flags;          /* +0x1c bit 0: parameters connected */
 } RwaObj;
 
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 int rwa_obj_destroy_005baf80(RwaObj *obj, void *a2, void *a3)
 {
   RwaLink *n;

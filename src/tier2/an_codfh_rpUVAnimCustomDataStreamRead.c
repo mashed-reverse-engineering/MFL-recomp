@@ -31,7 +31,7 @@ typedef void *(*RwFreeListAllocFunc)(void *, RwUInt32);
 /*004dbe70*/ extern RwUInt32 RwStreamRead(RwStream *stream, void *buffer, RwUInt32 length);
 /*004dc8d0*/ extern RwStream *RwStreamReadInt32(RwStream *stream, RwInt32 *ints, RwUInt32 numBytes);
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 _rpUVAnimCustomData *_rpUVAnimCustomDataStreamRead(RwStream *stream)
 {
     _rpUVAnimCustomData *customData;

@@ -149,7 +149,7 @@ typedef void *(*RwFreeListFreeFunc)(void *, void *);
         RwFreeListFree(RWCLUMPGLOBAL(atomicFreeList), (atomic));                \
     } while (0)
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpAtomic *ClumpAtomicStreamRead(RwStream *stream, rwFrameList *fl, rpGeometryList *gl)
 {
     RwBool status;

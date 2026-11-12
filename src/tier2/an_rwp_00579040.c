@@ -51,7 +51,7 @@ extern unsigned rwp_aggregate_00586ce0(void *ctx, unsigned split, unsigned n_inn
 extern int rwp_aggregate_00585f20(void *cs, void *query, void *pair, float limit);
 extern int rwp_aggregate_00585c00(void *ctx, MflPairRec *pairs, unsigned n, void *hits, unsigned cap);
 
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 unsigned rwp_batch_00579040(char *ctx, MflPairHandle *handles, unsigned nhandles, char *hits, unsigned cap)
 {
   MflNarrow *nw;

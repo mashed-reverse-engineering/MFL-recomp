@@ -147,7 +147,7 @@ void *piz_fs_get_object(int fs, int index)
 }
 
 /* Creates and registers the "piz" file system; flags bit 0 selects stdio reads. */
-/* TIER2: unvalidated 2026-10-31 authority=static */
+/* TIER2: unvalidated 2026-11-10 authority=diffemu */
 void piz_fs_create_impl(unsigned flags)
 {
   struct MflRtFileSystem *fs;

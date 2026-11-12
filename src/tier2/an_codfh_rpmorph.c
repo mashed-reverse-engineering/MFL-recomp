@@ -97,7 +97,7 @@ typedef struct rpBinaryAnimInterpolator {      /* _rpBinaryAnimInterpolator: the
     ((ip)->flags |= (rpINTERPOLATORDIRTYINSTANCE | rpINTERPOLATORDIRTYSPHERE),                                  \
      (!((ip)->flags & rpINTERPOLATORNOFRAMEDIRTY) ? ((ap)->frame ? RwFrameUpdateObjects((ap)->frame) : NULL) : NULL))
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 void *RpMorphGeometrySetInterpolator(void *geometry, RwInt32 interpNum, RwInt32 startKey, RwInt32 endKey, RwReal time)
 {
     RpMorphGeometryAnim *geomAnim = RPGEOMETRYGETANIM(geometry);
@@ -257,7 +257,7 @@ RwInt32 GeomAnimSizeStream(const void *object, RwInt32 offsetInObject, RwInt32 s
     return 0;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RwBool RpMorphPluginAttach(void)
 {
     RwInt32 offset;

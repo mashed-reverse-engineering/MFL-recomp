@@ -69,7 +69,7 @@ RW_LAYOUT_ASSERT(rw_assert_world_pflags, RW_OFFSETOF(RpWorld, privateFlags) == 3
 
 #define RWERROR_SET(args) { RwError error; error.pluginID = rwID_WORLDPLUGIN; error.errorCode = _rwerror args; RwErrorSet(&error); }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-10 authority=diffemu */
 RpPlaneSector *PlaneSectorStreamRead(RwStream *stream, RwUInt8 **binaryWorldMallocAddr, RpWorld *world, RwUInt32 flags)
 {
     RpPlaneSector *planeSector;

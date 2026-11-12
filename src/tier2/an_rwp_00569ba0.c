@@ -29,7 +29,7 @@ typedef struct MflDynCfg {
 
 /* Builds a dyn world inside the work arena `ar` (16 byte aligned allocations, zeroed where needed): the world record, its row tables, the space (575fa0),
    the bit sets, the node pools with their free lists, the link chains and the id arrays.  Returns the world. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-10 authority=static */
 MflDynWorld *rwp_dynworld_build(MflWorkArea *ar, MflDynCfg *cfg, int a2, float a3, int a4)
 {
   MflDynWorld *w;

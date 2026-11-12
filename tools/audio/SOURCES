@@ -1,0 +1,10 @@
+mfl_audio_miniaudio.dll - third-party source record
+===================================================
+
+Upstream
+  miniaudio v0.11.21 (single header miniaudio.h; public domain / MIT-0)
+  URL     https://raw.githubusercontent.com/mackron/miniaudio/0.11.21/miniaudio.h
+  sha256  6b2029714f8634c4d7c70cc042f45074e0565766113fc064f20cd27c986be9c9   (checked by build_dll.sh before every build)
+  Downloaded into tools/audio/work/ at build time (untracked). Neither the header nor any binary is stored in this repo.
+
+Our code: recomp/audio/mfl_audio_miniaudio.c (backend glue), built as its own DLL by build_dll.sh (i686 mingw, static libgcc).
