@@ -349,10 +349,12 @@ if "--drop-app" in opt:
             if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "dinput " + l_.split()[2]))
     _deadset = set()
     for va_, n_, why_ in DEAD:
-        si_ = sec_index(va_); assert si_ is not None and si_ == tsec, "dead table %x outside .text" % va_
+        si_ = sec_index(va_)      # W7 T16: _rwcseg rows too (gap_5dc1c4); the row must lie inside ONE code section
+        assert si_ in CSECS and va_ + n_ <= secs[si_][1] + secs[si_][3], "dead row %x+%d outside the code sections (.text, _rwcseg)" % (va_, n_)
         o_ = va_ - secs[si_][1]
         rel[si_] = [r_ for r_ in rel[si_] if not o_ - 3 <= r_[0] < o_ + n_]
         data[si_][o_:o_ + n_] = b"\xcc" * n_; stat["drop-app: dead table bytes filled"] += n_; _deadset.update(range(va_ - 3, va_ + n_))
+        if si_ != tsec: stat["drop-app: _rwcseg dead bytes filled"] += n_
     open(OUT + ".dead.csv", "w").write("va,size,why\n" + "".join("%08x,%d,%s\n" % x for x in DEAD))
     # a data word is an address only if the generator emitted it as a pointer (ptrs.csv) or kept it raw (raw.csv); every other aligned word is a float / int / bitmap byte
     _dp = {int(r["site"], 16) for f_ in ("ptrs.csv", "raw.csv") for r in csv.DictReader(open(os.path.join(GD, f_)))} - NONPTR

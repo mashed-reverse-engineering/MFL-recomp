@@ -14,6 +14,8 @@ $T/provenance.sh $W
 python3 $T/cheatgrep.py | tail -5; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "cheatgrep: forbidden constructs (src/cheat_allow.txt for legitimate ones)"; exit 1; }
 # bind tables (W6 T6): no 0 slot in a mflrw.dll bind table of an_hk_612.c / an_hk_612_*.inc unless src/automatch_near/bind_zero_allow.txt lists it with a reason (a trap row's slot is its trap stub)
 python3 $T/bindzero.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "bindzero: a bind table slot is 0 (tools/bindzero.py)"; exit 1; }
+# W7 T8: every bind / LIB_RW export the exe asks for is in the pinned DLL, every installed tier 2 / LIB_RW row has an fnsizes row (tools/rowcheck_allow.txt for exceptions)
+python3 $T/rowcheck.py | tail -8; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "rowcheck: missing DLL export or fnsizes row (tools/rowcheck.py)"; exit 1; }
 # the Wine image is pinned by digest / local tag (tools/pin_wine_image.py): a floating tag lets a docker pull change every Wine verdict unnoticed
 python3 $T/pin_wine_image.py --check || { echo "pin: a tools/ script names the floating Wine image tag (python3 tools/pin_wine_image.py <reference>)"; exit 1; }
 python3 $T/declcheck.py > $W/declcheck.txt; [ $? -eq 0 ] || { grep HARD $W/declcheck.txt; echo "declcheck: hard mismatches"; exit 1; }
@@ -27,8 +29,8 @@ python3 $T/aliascheck.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "aliasc
 python3 $T/stack_lint.py --csv $W/stack_lint.csv src/automatch_near src/clusters src/bridges src/tier1 > $W/stack_lint.txt 2>&1 & SLP=$!
 # raw image data addresses in the C (`return 0x68b028;`) break in a linked build (tools/delink/link_ours.sh): warn only until all are rewritten (tools/rawaddr.py --rewrite --check)
 python3 $T/rawaddr.py --quiet 2>&1 | tail -1 | sed 's/^/WARNING /'
-# readability ratchet (W5: report-only; FAIL from W6 only if the O audit passed). Baseline output/readability_baseline.txt, only `readability_ratchet.py --update-baseline` writes it (M, at the freeze)
-python3 $T/readability_ratchet.py --quiet 2>&1 | tail -1 | sed 's/^/WARNING /'
+# readability ratchet (W5/W6 report-only; binding since W7 T7, bind tables an_hk_612_*.inc exempt). Baseline output/readability_baseline.txt, only `readability_ratchet.py --update-baseline` writes it (M, at the freeze)
+python3 $T/readability_ratchet.py --quiet 2>&1 | tail -2; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "readability ratchet: a tier/class count grew past output/readability_baseline.txt (rename the Ghidra / generic tokens)"; exit 1; }
 # diffemu defect classes (unsigned compare of undefined4, float/int bit confusion, _ftol() without argument, wrong prototypes) in installed tier 2 / enabled bridges / candidates: warning only (output/defectlint.csv)
 python3 $T/defectlint.py --quiet 2>&1 | grep "^defectlint:" | sed 's/^/WARNING /'
 wait $SLP; grep -E "^stack_lint:|^recomp.*: [A-H][0-9]? \(" $W/stack_lint.txt | head -12 | sed 's/^/WARNING /'

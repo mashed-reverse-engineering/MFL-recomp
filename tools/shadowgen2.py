@@ -41,6 +41,14 @@ os.makedirs(out, exist_ok=True)
 for f in os.listdir(out):
     if f.endswith((".c", ".h", ".inc", ".txt")): os.remove(os.path.join(out, f))
 names, skipped, hdr = [], [], []
+# W7: tools/shadow_exclude.txt `name  # reason` (reason required): functions the shadow method cannot judge (code run on another thread or with
+# OS-level side effects that the data snapshot does not undo, e.g. the RWA async read callbacks); they keep their diffemu stock / HS proof only
+EXCL = {}
+for l in open(os.path.join(HERE, "shadow_exclude.txt")) if os.path.exists(os.path.join(HERE, "shadow_exclude.txt")) else []:
+    n_, _, why_ = l.partition("#")
+    if n_.strip():
+        assert why_.strip(), "shadow_exclude.txt: %s has no reason" % n_.strip()
+        EXCL[n_.strip()] = why_.strip()
 DEF = re.compile(r"^(?!extern|/\*|typedef|static)([A-Za-z_][\w \*]*?)\b(\w+)\((.*)\)$")
 for fn in sorted(os.listdir(src)):
     if not fn.endswith((".c", ".h", ".inc")): continue
@@ -54,8 +62,9 @@ for fn in sorted(os.listdir(src)):
             conv = "__stdcall" if "__stdcall" in pre else "__fastcall" if "__fastcall" in pre or "__thiscall" in pre else "__cdecl"
             ret = re.sub(r"\b__(stdcall|cdecl|fastcall|thiscall)\b", "", pre).strip()
             plist = [] if params in ("", "void") else [x.strip() for x in params.split(",")]
-            why = None
-            if conv == "__fastcall" or "(" in params or "[" in params or "..." in params: why = "parameters not expressible"
+            why = "shadow_exclude.txt" if name in EXCL else None
+            if why: pass
+            elif conv == "__fastcall" or "(" in params or "[" in params or "..." in params: why = "parameters not expressible"
             elif re.match(r"(longlong|ulonglong|undefined8|double|float10)$", ret) and False: why = ""
             elif re.match(r"(longlong|ulonglong|undefined8)$", ret): why = "64 bit return"
             args = [re.search(r"(\w+)$", p).group(1) if re.search(r"(\w+)$", p) else None for p in plist]

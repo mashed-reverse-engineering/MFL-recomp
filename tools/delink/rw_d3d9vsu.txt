@@ -1,0 +1,8 @@
+# Group "d3d9vsu" (lane K3 window 7, rpworld d3d9vertexshaderutils bucket of the flip manifest): the vertex shader utilities, from librw-mfl/capi/d3d9vsu.cpp (op for
+# op, on the exe's active transform, inverse caches / buffers and callees).  Needs LIB_RW ...,d3d9vsu and the mflrw_d3d9vsu_bind call in
+# recomp/automatch_near/an_hk_612.c (an_hk_612_d3d9vsu.inc, 12 slots, enum U of d3d9vsu.cpp).  Format as rw_g3.txt: exe_name=dll_export.  Names: symbols.txt
+# (fnsizes 308 / 234 / 203).  None of the three rows is in tools/delink/rw_trap.txt.  All three have 0 hits in the 118 coverage jobs: proven natively only.
+# Proof: tools/delink/rw_d3d9vsu_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev" (every call at x87 control word 0x7f, 0x27f or 0x37f).
+_rwD3D9VSGetNormalInLocalSpace=rw37__rwD3D9VSGetNormalInLocalSpace
+_rwD3D9VSGetPointInLocalSpace=rw37__rwD3D9VSGetPointInLocalSpace
+_rwD3D9VSGetRadiusInLocalSpace=rw37__rwD3D9VSGetRadiusInLocalSpace

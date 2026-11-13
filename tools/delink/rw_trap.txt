@@ -57,9 +57,7 @@
 00542c40 163 rpD3D9SkinVertexShaderBeginCallBack
 00542e30 432 rpSkinPrepareAtomicMatrix
 00543520 1024 RtCompressedKeyFrameBlend
-00543a20 338 RpHAnimKeyFrameMulRecip
 00543b80 196 RtCompressedKeyFrameAdd
-00544240 59 HAnimSize
 005461e0 210 rpPTankD3D9InsSetup_spr
 00546a10 93 rpPTankD3D9InsPosNCCSNR_spr
 00546a70 65 rpPTankD3D9InsPosCCCSNR_spr
@@ -82,12 +80,9 @@
 0054f7c0 534 MatFXMaterialStreamWrite
 0054ff40 141 MatFXMaterialStreamGetSize
 00550aa0 166 _rpMatFXD3D9AtomicMatFXRenderBlack
-0055a0d0 126 _rpPatchGeometryCreateFromPatchMesh
 0055a660 57 rpPatchGeometryCopy
 0055a6a0 29 rpPatchGeometryGetSize
 0055a700 28 rpPatchGeometryWrite
-0055b970 739 _rpPatchSmoothNormal
-0055bc60 150 PatchSmoothIdxTableAddIdx
 0055bd00 100 _rpPatchMeshStreamGetSize
 0055bef0 344 _rpPatchMeshStreamWrite
 0055c050 896 _rpPatchRefineTriVector
@@ -107,21 +102,13 @@
 00562b60 109 RpUVAnimLinearKeyFrameBlend
 00562bd0 173 RpUVAnimLinearKeyFrameMulRecip
 00562c80 99 RpUVAnimLinearKeyFrameAdd
-00562e60 142 _rt2dGetTolerance
 005637c0 469 Rt2dPathCurveto
-00563b60 134 _rt2dScratchPath
-00563bf0 626 _rt2dSubPathFlatten
-00563e70 936 Flatten2d
 005643d0 115 _rt2dPathOptimize
 00564720 166 FUN_00564720
-005652a0 333 rt2dFontShowOutline
 005669d0 204 FontCompressIndex
 00566aa0 1946 FUN_00566aa0
-00567880 5 DefaultPathStroke2d_00567890
-00567890 1494 DefaultPathStroke2d_00567890
 005681c0 100 LODAtomicCallBackWriteChunk
 00568230 71 LODAtomicCallBackGetChunkSize
-00568e30 729 CharsetProcessString
 005d6100 383 RpCollSectorBBoxItInit
 005d6280 416 RpCollSectorBBoxItFindNextEntries
 # B2 2026-11-05 (D3DX, one CPU class = SSE2): x3d/x86 dispatch variants, CPU probes and default-only C bodies, unreachable once recomp/d3dx_dispatch.c installs only the SSE2 table
@@ -406,3 +393,34 @@
 0050e956 62 sse_D3DXVec2Transform
 0050e994 87 sse_D3DXVec2TransformCoord
 0050e9eb 55 sse_D3DXVec2TransformNormal
+# AU W7 2026-11-13 (lane AU, plan W7 2.7 item 1, codec_params fallback; append to tools/delink/rw_trap.txt next to the AU carve W6 block): the RWA
+# DirectShow pin enumerator: its constructor _rwaDSEnumPinsCreate 0x5cfc80 and the two vtable-only methods 0x5d2150 / 0x5d2180 that W6 kept because
+# the then-planned tier 2 C of 0x5cfc80 named the vtable 0x64be68.  3 rows, 171 B.  Option (b) (vtable by constant address) is impossible: the
+# standalone link moves the vtable (output/gate/1113_0320_full/link/ours.map: PTR__rwaDSEnumPinsQueryInterface_0064be68 at 0x7cae68, data.obj).
+# Proof (agents/au_w6/carve.py --va 5cfc80 5d2150 5d2180 5d01c0 64be68, byte scan of game/MFL.exe: abs dwords in every section + E8/E9/0F8x rel32):
+#   0x5cfc80 is called from 0x5cfe1d (rw_trap FUN_005cfe10) and 0x5d01c9 (gap_5d01c0, installed C automatch_near/an_hk_1367.c, which now calls it
+#   by its constant address: agents/au_w7/an_hk_1367.c, diffemu EQUAL).  The vtable 0x64be68 is stored only by 0x5cfc80 (0x5cfcd9) and 0x5cfe83
+#   (rw_trap FUN_005cfe50).  gap_5d01c0 is reached only through vtable slots 0x64bdd8+0x40 (referrers: dead_tables AU2 FUN_005cf4b0, rw_trap
+#   FUN_005cf620; 0x4619de = the known false positive in weapon_rocket_update), 0x64be68+0x44 (above) and 0x64bef8+0x28 (rw_trap FUN_005d05a0).
+#   0x5d2150 / 0x5d2180 are referenced only as slots 4 / 5 of 0x64be68 and slots 22 / 23 of 0x64c0a8 (referrers rw_trap FUN_005d14b0, FUN_005d1f80).
+#   So the cycle 0x5cfc80 -> 0x64be68 -> 0x5d01c0 -> 0x5cfc80 is entered only from int3 / dead rows.  Coverage: 0x5cfc80 0 hits in
+#   agents/pc_w6/rwcov_w6.csv (118 jobs); 0x5d2150 / 0x5d2180 / 0x5d01c0 are not instrumented: transitive (their only callers trap in every job,
+#   traphit 0 in the gate).  Installed C naming these: none after the an_hk_1367.c replacement (grep of recomp/ for FUN_005cfc80 / _rwaDSEnumPinsCreate /
+#   005d2150 / 005d2180: an_hk_1367.c only).
+005cfc80 110 FUN_005cfc80
+005d2150 45 gap_5d2150
+005d2180 16 gap_5d2180
+# S w7 2026-11-13 (lane S; append to tools/delink/rw_trap.txt). Proofs: agents/s_w7/proofs/<name>.md (plan 2.3 checks 1-5). Needs rows_fnsizes_added.txt.
+# init_D3DXFloat16To32Array: D3DX init stub of slot 58, the only reader of slot 58 is the stub itself.
+004fb54c 13 init_D3DXFloat16To32Array
+# dsample_get_media_type: CMediaSample::GetMediaType, slot of the media-sample vtable 0x64c138 that only FUN_005d27f0 (rw_trap AU2) installs.
+005d2b00 64 dsample_get_media_type
+# lane TR W7 2026-11-13 (plan W7 2.3): 0-hit RenderWare rows with the five checks, proofs in agents/tr_w7/proofs/<name>.md; sizes = the zero-original range of each member (padding to the next function included)
+# p2dep: only reachable when a pipeline node definition has a non-zero input requirement; every node definition in MFL.exe has 0 clusters of interest (agents/tr_w7/nodedefs.py), so the branch from the hit _rxChaseDependencies is statically dead
+# rpworld cpudetect (cpuid helper FUN_00504f75, already a trap row since B2): catch(...) funclet and the post-try continuation; only entered from 0x504f75 (agents/tr_w7/cpudetect_check.py)
+00504faf 12 Catch@00504faf
+00504fbb 95 FUN_00504fbb
+# S w7 2026-11-13 (lane S; append to tools/delink/rw_trap.txt). ONLY together with batch/trapcheck_xspan.diff. Proof: agents/s_w7/proofs/rwp_simd_probe_except.md.
+# __except handler blocks of the trapped rwp probes 584fc0 / 585050 (W6 (a) block); reached only via the scope tables 0x5f6e48 / 0x5f6e58 those probes push.
+00585024 44 rwp_aggregate_00584fc0_except
+005850a3 29 rwp_aggregate_00585050_except

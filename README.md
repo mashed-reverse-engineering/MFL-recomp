@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; about 97% of its code is no longer taken from the original executable (61 KB of 1,945 KB is still original machine code, measured 2026-11-13), the rest comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Data and resources are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; about 98.5% of its code is no longer taken from the original executable (28 KB of 1,945 KB is still original machine code, measured 2026-11-13), the rest comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Data and resources are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
 
 ## What this project is
 
@@ -20,9 +20,9 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Recompile the game code as C (byte identical or behaviour verified) | about 98% of the game functions; the rest are tiny stubs |
 | Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
 | Replace the C runtime (libcmt) | mostly done; the math tables are left |
-| Rewrite the RenderWare physics plugin (rwp) as verified C | nearly done; 1.1 KB of original code left |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 0.2 KB, RenderWare to 49 KB (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit and particle tank groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); what is left is mostly the stateful engine core and more D3D9 device code, which needs the engine switch |
-| Replace the streaming audio library, add a real video backend | audio in progress (9.8 KB left, from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
+| Rewrite the RenderWare physics plugin (rwp) as verified C | **done**; no original code left |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | in progress; D3DX is down to 5 bytes, RenderWare to 24 KB (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit, particle tank and vertex shader cache groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); what is left is mostly the stateful engine core and more D3D9 device code, which needs the engine switch |
+| Replace the streaming audio library, add a real video backend | audio in progress (4.2 KB left, from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
 | Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
 
 ## How each part is produced
@@ -46,13 +46,13 @@ Original machine code still linked into the standalone build (the number we driv
 
 | Layer | 2026-11-13 | What is left |
 |---|---:|---|
-| RenderWare (graphics, world, camera, D3D9) | 49.1 KB | the engine itself; replaced by `librw-mfl` in steps |
-| Audio (RenderWare Audio) | 9.8 KB | DirectSound voice and buffer code, thread and semaphore glue |
-| rwp (RenderWare physics) | 1.1 KB | a few helpers that need hand-written C |
-| D3DX | 0.2 KB | |
-| C runtime | 0.9 KB | startup and exception frame |
+| RenderWare (graphics, world, camera, D3D9) | 23.7 KB | the vertex shader generator and render callbacks, stream readers that call still-original code, D3D9 device code |
+| Audio (RenderWare Audio) | 4.2 KB | the async I/O thread, two hook sites, a few DirectSound helpers |
+| rwp (RenderWare physics) | 0 KB | done |
+| D3DX | 5 B | |
+| C runtime | 0.5 KB | startup |
 | Game code | 0 KB | done |
-| **Total** | **61.1 KB** | of about 1,945 KB (3%) |
+| **Total** | **28.4 KB** | of about 1,945 KB (1.5%) |
 
 How the total moved (code only; data and the resources are tracked separately):
 
@@ -69,11 +69,12 @@ How the total moved (code only; data and the resources are tracked separately):
 | 2026-11-10 | 152.9 KB | 76 more RenderWare functions adapted from codfh-win32 (plugin callbacks, stream readers, frame/world/geometry/material lifecycle, particle tank, material effects setters; 19.3 KB of RenderWare code in total); 10 more audio functions as C plus 4 register clusters (2.1 KB) |
 | 2026-11-12 | 104.6 KB | nine more groups in `librw-mfl` (texture and image reading, material effects, D3D9 device and device system, raster quads, the all-in-one pipeline nodes; 94 functions), checked against the original with a fake Direct3D device; 17 more RenderWare functions adapted from codfh-win32 (collision and user data plugins, particle tank, 2D font); 48.4 KB of RenderWare code in total |
 | 2026-11-13 | 61.1 KB | four more D3D9 groups in `librw-mfl` (patch, default instance callbacks, submit and immediate-mode nodes, particle tank; 12 functions, about 13 KB); 68 more RenderWare functions adapted from codfh-win32 (pipelines, world, material effects, UV animation, 2D; about 11.5 KB) and 8 Windows file system functions; 18 more audio functions as C, 36 never-run DirectShow COM methods removed (2.9 KB); CPU feature probes as C for one CPU class (SSE2, no 3DNow); never-used physics convex code removed; padding behind removed bodies is now removed with them |
+| 2026-11-13 (second run) | 28.4 KB | 59 more RenderWare functions adapted from codfh-win32 (engine start/stop, clump/world/light lifecycle, pipeline building, heaps, user data, material effects, HAnim, 2D outline drawing; about 19 KB); about 25 patch-mesh functions and the Windows file system init written by hand from the disassembly; two vertex shader cache groups in `librw-mfl`; about 15 more audio functions as C plus 6 register clusters; the last rwp and D3DX stubs; a few more never-reached functions trapped after a static proof |
 
 Roughly 35 KB of the 2026-11-05 drop is code removed rather than rewritten (DirectShow, unused CPU variants, never-used wave converters): it is proven unused by coverage runs, an asset format scan and a call-graph closure proof, and every removal sits in a list that can be reverted on its own. Treat that part as the least certain. Every `librw-mfl` entry point is checked bit-exact against the original code on at least 100,000 random inputs, with negative tests that must fail.
 
 Where to look:
-- [`progress/progress.json`](progress/progress.json) and the generated tables below: function counts per tier, regenerated with every source drop.
+- [`progress/progress.json`](progress/progress.json) and the generated tables below: function counts per tier, regenerated with every source drop. A function counts as game code or library code by its address in `data/fnsizes.txt`, so a new row there can move a function from the game count to the library count (six RenderWare / rwp functions moved this way in November 2026: tier 1 1435 -> 1429).
 - The git log of this repository: one commit per source drop, with the number of published functions.
 - [docs/VERIFICATION.md](docs/VERIFICATION.md): what "verified" means and where it stops. Nothing here claims the whole game is verified.
 - Next steps, in order: the remaining RenderWare groups in `librw-mfl`, the audio mixer, the engine switch to `librw-mfl`, then the video backend and data, then readability and bug fixing, then the Switch/ARM port.
@@ -109,17 +110,17 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 678,488 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 677 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,179 | `███████████████████████` 114% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,186 | `███████████████████████` 114% |
 | ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,777 | `█████████████░░░░░░░` 64% |
 | ...tier 1, `src/tier1` (1935 files) | 1,429 | `██████████░░░░░░░░░░` 51% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (1347 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (674 files) | 731 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 1531 | |
+| ...tier 2, `src/tier2` (1428 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...clusters, `src/clusters` (679 files) | 738 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 1648 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
-**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (674 cluster files give 731 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
+**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (679 cluster files give 738 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
 
 **Layers.** All rows here are application code (VA < 0x4B0000). The library layers are in the table above; see [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
 

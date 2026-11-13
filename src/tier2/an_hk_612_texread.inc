@@ -2,8 +2,8 @@
    search, image / texture / texture dictionary stream readers, texture module accessors, rtpitexd readers, gamma, BMP writer, plugin open / close and mipmap helpers
    work on the exe's engine, image module (imageModule), texture module (0x7d2184), free lists and these exe callees (table orders = rwtexread.cpp enum and
    rwtexread2.cpp enum B2).  Functions already declared above (stream, image create / destroy, raster, texture create / name, free list destroy) are not repeated.
-   RwPalQuant*, BMPWriteRow and rtpitexdImage2TextureReadLegacy are trap rows (rw_trap.txt): their slots stay 0 so that no kept code names a trapped function
-   (trapcheck); a call through 0 faults, as the trap did (precedent: the d3dconv table).  The default texture callbacks are passed by their original addresses
+   RwPalQuant*, BMPWriteRow and rtpitexdImage2TextureReadLegacy are trap rows (rw_trap.txt): no kept code may name a trapped function (trapcheck), so their slots
+   are the trap stubs of an_hk_612.c (W7 T17; a call faults in a named function, as the trap did).  The default texture callbacks are passed by their original addresses
    (LAB_ names / the aliases.txt name TextureDefaultMipmapName_004d62d0), as the original plugin open stores them, also when the texread rows replace those functions. */
 #ifndef MFL_DIFFEMU
 /*004b2c30*/ extern double __cdecl _pow(double x, double y);      /* the CRT function (as cl_hud_pickup_icons_update_render.c) */
@@ -29,18 +29,19 @@ static void hk_bind_texread(int mflrw)
     (void *)RwTexDictionaryForAllTextures, (void *)RwTexDictionaryDestroy_004d5ac0, (void *)FUN_004df790, g_rw_62e6e8};
   static void *const texread2Table[71] = {
     (void *)RwErrorSet, (void *)RwStreamFindChunk, (void *)RwStreamRead, (void *)_rwPluginRegistrySkipDataChunks, (void *)_rwStringStreamFindAndRead, g_rw_62e6d0,
-    (void *)RwTextureCreate, (void *)RwTextureSetName, (void *)RwTextureSetMaskName, (void *)RwTexDictionaryCreate, 0 /* rtpitexdImage2TextureReadLegacy (trap) */,
+    (void *)RwTextureCreate, (void *)RwTextureSetName, (void *)RwTextureSetMaskName, (void *)RwTexDictionaryCreate, (void *)mfl_trap_rtpitexdImage2TextureReadLegacy_00560390,
     (void *)RwImageStreamRead, (void *)RwImageGammaCorrect, (void *)RwImageFindRasterFormat, (void *)RwRasterCreate, (void *)RwRasterDestroy,
     (void *)RwRasterGetNumLevels, (void *)RwImageCreateResample, (void *)RwImageDestroy, (void *)RwRasterLock, (void *)RwRasterSetFromImage, (void *)RwRasterUnlock,
     (void *)RwTextureSetRaster, (void *)_rwPluginRegistryReadDataChunks, (void *)RwTexDictionaryAddTexture, (void *)_pow, &imageModule,
-    (void *)RwStreamOpen, (void *)RwStreamWrite, (void *)RwStreamWriteInt32, 0 /* BMPWriteRow (trap) */, (void *)RwStreamClose,
+    (void *)RwStreamOpen, (void *)RwStreamWrite, (void *)RwStreamWriteInt32, (void *)mfl_trap_BMPWriteRow_0053dd30, (void *)RwStreamClose,
     &g_data_7d2728, &g_data_7d21b0, &g_data_7d2188, (void *)RwFreeListDestroy, (void *)RwTextureDestroy, (void *)_rwPluginRegistryDeInitObject,
     g_rw_62e6e8, (void *)FreeListCreate_004e92a0, g_rw_62e718, imageTKList, g_data_62e700, _rwRasterFreeListBlockSize,
     _rwImageFreeListBlockSize, &g_data_7d218c, &g_data_7d2160, &_rwRasterFreeList, &_rwImageFreeList,
     &_rwImageFormatFreeList, &g_data_7d21dc, &g_rw_7d21d8, LAB_004d7620, LAB_004d6340, LAB_004d7390,
     TextureDefaultMipmapName_004d62d0,
-    /* 56.. : palette quantizer (trap rows: 0), image helpers, the mipmap functions' callees */
-    0, 0, 0, 0, 0, (void *)RwImageCreate,
+    /* 56.. : palette quantizer (trap rows: trap stubs), image helpers, the mipmap functions' callees */
+    (void *)mfl_trap_RwPalQuantInit_004e8f10, (void *)mfl_trap_RwPalQuantAddImage_004e7520, (void *)mfl_trap_RwPalQuantResolvePalette_004e7a00,
+    (void *)mfl_trap_RwPalQuantMatchImage_004e89c0, (void *)mfl_trap_RwPalQuantTerm_004e8fc0, (void *)RwImageCreate,
     (void *)RwImageAllocatePixels, (void *)RwImageFindFileType, (void *)RwImageReadMaskedImage, (void *)RwImageCopy, (void *)RwImageResample,
     (void *)PalettizeMipmaps, (void *)RwImageSetFromRaster, (void *)TextureDefaultMipmapRead, g_qh_7d1f9c};
   MflrwTexreadBind b1 = mflrw ? (MflrwTexreadBind)GetProcAddress(mflrw, "mflrw_texread_bind") : 0;

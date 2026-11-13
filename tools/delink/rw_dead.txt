@@ -375,3 +375,17 @@
 005d6a10 32 rwp_convex_op8_005d6a10
 005d6a40 48 rwp_convex_op9_005d6a40
 005d6a70 4192 FUN_005d6a70
+# S w7 2026-11-13 (lane S; append to tools/delink/rw_dead.txt, format `va size name`). 1 row, 220 B.
+# gap_5dc1c4: _rwcseg x87 asm 4x4 matrix multiply. Needs W7 T16 (mkobj DEAD rows in _rwcseg, committed 31d28987).
+#   agents/s_w6/deadproof.py 5dc1c4-5dc2a0 (rerun 2026-11-13): abs 0, rel 0, reloc 0, C 0, rwcov rows 0; only name recomp/aliases.txt gap_5dc1c4.
+#   fnsizes row exists (`005dc1c4 gap_5dc1c4 220`). Stock trapcheck with this row: 0 (notes.md).
+005dc1c4 220 gap_5dc1c4
+# S w7 2026-11-13 (lane S; append to tools/delink/rw_dead.txt). ONLY together with batch/trapcheck_xspan.diff (stock trapcheck flags it through
+# FUN_005738c0.c -> g_data_63a54c -> whole g_libspan_0063a610). 2 rows, 32 B.
+# gap_5b64e0 / gap_5b64f0 (rwp): `jmp rwp_artic_bounding_box` / `jmp rwp_artic_sync_matrices` stubs (5 B + 11 B padding each; fnsizes rows exist).
+#   deadproof.py 5b64e0-5b6500: only references = slot words 0x649118 / 0x64911c of the Rwp object type record "rwpOBJTYPERAGDOLL" at 0x649100
+#   ({1, name 0x649120, -1, 0, gap_5b5fe0, rwp_artic_disable, these two}).  deadproof.py --data 6490f0-649140: nothing references the record
+#   (only hit is g_sound_card_649138 just behind it), so the ragdoll type is never registered; the record also lies in g_libspan_0063a610, which
+#   the standalone link zero-fills (globals_layout kind "dead", qhull LIBSRC).  No C names 0x5b64e0 / 0x5b64f0; not instrumented in rwcov.
+005b64e0 16 gap_5b64e0
+005b64f0 16 gap_5b64f0

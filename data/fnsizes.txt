@@ -3335,8 +3335,7 @@
 004c216f __strgtold12 1034
 004c25a9 crt_i10_output 660
 004c283d siglookup 46
-004c286b crt_raise 356
-004c29a6 $L19674 13
+004c286b crt_raise 377
 004c29f0 ___ascii_stricmp 78
 004c2a3e __getlocaleinfo 305
 004c2b6f __stricmp 105
@@ -4049,6 +4048,7 @@
 004dde80 ImageGetScratchMem 179
 004ddf40 FUN_004ddf40 45
 004ddf70 RwImageFindFileType 39
+004ddfa0 ImageDetermineExtender 145
 004de040 RwImageRegisterImageFormat 328
 004de190 RwImageWrite 133
 004de220 RwImageReadMaskedImage 375
@@ -4387,6 +4387,7 @@
 004f44d0 RpWorldRemoveAtomic 135
 004f4560 RpAtomicGetWorld 14
 004f4570 RpWorldAddClump 143
+004f4640 WorldAddClumpLight 71
 004f46d0 RpWorldRemoveClump 160
 004f4770 WorldRemoveClumpAtomic 155
 004f4810 WorldRemoveClumpLight 132
@@ -4529,6 +4530,7 @@
 004fb470 FUN_004fb470 11
 004fb480 WithinEpsilon 48
 004fb4bd c_D3DXFloat32To16Array 143
+004fb54c init_D3DXFloat16To32Array 13
 004fb559 c_D3DXFloat16To32Array 165
 004fb60b FUN_004fb60b 42
 004fb635 c_D3DXVec2Hermite 142
@@ -5232,6 +5234,8 @@
 0053da80 RtBMPImageWrite 679
 0053dd30 BMPWriteRow 255
 0053de30 RtAnimInitialize 35
+0053de60 LAB_0053de60 50
+0053dea0 LAB_0053dea0 43
 0053ded0 RtAnimRegisterInterpolationScheme 160
 0053df70 RtAnimAnimationCreate 202
 0053e040 RtAnimAnimationStreamRead 492
@@ -5284,6 +5288,7 @@
 00543920 RpHAnimKeyFrameStreamRead 116
 005439a0 RpHAnimKeyFrameStreamWrite 107
 00543a10 RpHAnimKeyFrameStreamGetSize 14
+00543a20 RpHAnimKeyFrameMulRecip 338
 00543c50 RpHAnimPluginAttach 111
 00543cc0 HAnimOpen 172
 00543d70 HAnimClose 33
@@ -5292,9 +5297,12 @@
 00543e80 HAnimCopy 154
 00543f20 HAnimWrite 290
 00544050 HAnimRead 482
+00544240 HAnimSize 59
 00544280 RpHAnimHierarchyCreate 247
 00544380 RpHAnimHierarchyAttach 80
+005443d0 HAnimFramesLinkToHierarchy 81
 00544430 FUN_00544430 8
+00544440 rwframe_plugin_object_get 15
 00544450 RpHAnimHierarchyUpdateMatrices 2467
 00544e00 RpRandomSeed 123
 00544e80 RpRandom 166
@@ -5522,11 +5530,14 @@
 00559f30 RpPatchSetDefaultLODCallBackRange 112
 00559fa0 _rpPatchPipelinesCreate 127
 0055a020 FUN_0055a020 45
+0055a050 D3D9PatchPipelineNodeInitFn 41
 0055a080 _rwD3D9PatchPipelineCreateGeneric 56
 0055a0c0 FUN_0055a0c0 14
 0055a0d0 _rpPatchGeometryCreateFromPatchMesh 126
 0055a150 _rpPatchGeometryTransferFromPatchMesh 1203
 0055a610 rpPatchGeometryConstructor 26
+0055a630 rpPatchGeometryDestructor 48
+0055a6c0 rpPatchGeometryRead 50
 0055a720 rpPatchGeometryAlways 33
 0055a750 _rpD3D9PatchInstanceAtomic 2315
 0055b060 rwD3D9PatchAtomicAllInOneNodeNode 2316
@@ -6016,8 +6027,10 @@
 00584f40 rwp_mat3_add_scaled 123
 00584fc0 rwp_aggregate_00584fc0 94
 0058501e rwp_aggregate_vslot_nop_a 6
+00585024 rwp_aggregate_00584fc0_except 29
 00585050 rwp_aggregate_00585050 77
 0058509d rwp_aggregate_vslot_nop_b 6
+005850a3 rwp_aggregate_00585050_except 29
 005850c0 rwp_aggregate_005850c0 148
 00585160 FUN_00585160 6
 00585170 FUN_00585170 1615
@@ -6081,6 +6094,8 @@
 0058cb40 FUN_0058cb40 71
 0058cb90 FUN_0058cb90 75
 0058cbe0 FUN_0058cbe0 62
+0058cc20 rwp_object_type_bounding_box 5
+0058cc30 rwp_object_type_sync_matrix 5
 0058cc40 FUN_0058cc40 159
 0058cce0 FUN_0058cce0 19
 0058cd00 FUN_0058cd00 960
@@ -6708,6 +6723,7 @@
 005bf130 FUN_005bf130 11
 005bf170 FUN_005bf170 49
 005bf1b0 FUN_005bf1b0 111
+005bf220 nullsub_6 1
 005bf230 FUN_005bf230 23
 005bf250 FUN_005bf250 68
 005bf2a0 FUN_005bf2a0 14
@@ -7200,6 +7216,8 @@
 005d2050 FUN_005d2050 24
 005d2070 gap_5d2070 82
 005d20d0 FUN_005d20d0 116
+005d2150 gap_5d2150 45
+005d2180 gap_5d2180 16
 005d2190 FUN_005d2190 52
 005d21d0 FUN_005d21d0 63
 005d2210 FUN_005d2210 34
@@ -7227,6 +7245,7 @@
 005d2aa0 gap_5d2aa0 37
 005d2ad0 dsample_get_actual_length 10
 005d2ae0 dsample_set_actual_length 29
+005d2b00 dsample_get_media_type 63
 005d2b40 FUN_005d2b40 86
 005d2ba0 FUN_005d2ba0 17
 005d2bc0 gap_5d2bc0 63

@@ -240,6 +240,16 @@ typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *text
    "trap 0xc0000005 at <addr> in _mfl_trap_<function>_<va>+<off>" and ends with exit code 3, like an int3 of the trap fill. */
 #ifndef MFL_DIFFEMU
 #define HK_TRAP_STUB(fn) void __cdecl fn(void) { *(volatile int *)0 = 0; }
+/* W7 T17: the trap-row slots of the older tables (d3dconv below, an_hk_612_matfx.inc, an_hk_612_texread.inc) were 0; the kernels only call these slots,
+   never test them for 0 (lane K3 W7, agents/k3_w7/notes.md T17), so they get named trap stubs like the newer tables */
+HK_TRAP_STUB(mfl_trap_RwPalQuantInit_004e8f10)
+HK_TRAP_STUB(mfl_trap_RwPalQuantAddImage_004e7520)
+HK_TRAP_STUB(mfl_trap_RwPalQuantResolvePalette_004e7a00)
+HK_TRAP_STUB(mfl_trap_RwPalQuantMatchImage_004e89c0)
+HK_TRAP_STUB(mfl_trap_RwPalQuantTerm_004e8fc0)
+HK_TRAP_STUB(mfl_trap__rpMatFXD3D9AtomicMatFXRenderBlack_00550aa0)
+HK_TRAP_STUB(mfl_trap_rtpitexdImage2TextureReadLegacy_00560390)
+HK_TRAP_STUB(mfl_trap_BMPWriteRow_0053dd30)
 #endif
 #include "an_hk_612_d3d9pipe.inc"
 #include "an_hk_612_d3d9texdic.inc"
@@ -257,6 +267,8 @@ typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *text
 #include "an_hk_612_d3d9submit.inc"
 #include "an_hk_612_d3d9patch.inc"
 #include "an_hk_612_d3d9ptank.inc"
+#include "an_hk_612_d3d9vsu.inc"
+#include "an_hk_612_d3d9vs.inc"
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
 #define VIDEO_MEMORY_BYTES (0x400000)
@@ -391,8 +403,9 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
       (void *)_rwD3D9CheckValidTextureFormat, (void *)_rwD3D9CheckRasterFormat, (void *)RwImageCreateResample, (void *)RwImageCreate, (void *)RwImageAllocatePixels,
       (void *)RwImageDestroy,
       /* RwPalQuantInit/AddImage/ResolvePalette/MatchImage/Term are trap rows (rw_trap.txt: never reached in 172 coverage runs, no shipped asset needs them);
-         the table keeps 0 so that no kept code names a trapped function (trapcheck). A call through 0 faults, as the trap did. */
-      0, 0, 0, 0, 0,
+         no kept code may name a trapped function (trapcheck): the slots are trap stubs (W7 T17), a call faults in a named function, as the trap did. */
+      (void *)mfl_trap_RwPalQuantInit_004e8f10, (void *)mfl_trap_RwPalQuantAddImage_004e7520, (void *)mfl_trap_RwPalQuantResolvePalette_004e7a00,
+      (void *)mfl_trap_RwPalQuantMatchImage_004e89c0, (void *)mfl_trap_RwPalQuantTerm_004e8fc0,
       &_RwD3D9RasterExtOffset, _rwD3D9PixelFormatInfo, _rwRasterConvTable, &g_rw_9475f4, _RwD3D9DeviceCaps,
       s_Conversion_from_rasters_to_4bit_i_0062e9f4, s_Conversion_from_non_palettised_r_0062ea30, s_Conversion_from_compressed_raste_0062ea78,
       s_Conversion_to_compressed_rasters_0062eab0,
@@ -498,6 +511,8 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   hk_bind_d3d9submit(mflrw);
   hk_bind_d3d9patch(mflrw);
   hk_bind_d3d9ptank(mflrw);
+  hk_bind_d3d9vsu(mflrw);
+  hk_bind_d3d9vs(mflrw);
 #endif
 
   /* Step 1: core RenderWare init with the default resource arena. */

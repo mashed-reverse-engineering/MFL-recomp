@@ -3,7 +3,8 @@
 Counts Ghidra-default identifier tokens (uVar/iVar/param_/DAT_/FUN_ ...) plus generic rename-dodges (v1, a2, tmp3, local_8 ...)
 in code (comments and string/char literals masked), per tier directory (portcheck scope: tier1, automatch_agent, automatch_near, hand src/*.c).
 Baseline output/readability_baseline.txt (`tier class count` rows); ONLY --update-baseline writes it (M only).
-Exit 1 when a tier/class count grows past the baseline (check_all prefixes the output with WARNING in W5: report-only), 0 otherwise.
+Exit 1 when a tier/class count grows past the baseline (binding in check_all and preflight since W7 T7; W5/W6: report-only), 0 otherwise.
+The generated bind tables src/automatch_near/an_hk_612_*.inc are not counted (EXEMPT).
 Counting every token occurrence (not just definitions) is deliberate: a trivial rename to v1/a1 lands in class `generic` and still counts."""
 import glob, os, re, sys
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..")); sys.path.insert(0, H)
@@ -28,7 +29,11 @@ def other_files():
     for d, ds, fs in os.walk(R):
         ds[:] = sorted(x for x in ds if not x.endswith("_shadow"))
         res += [os.path.join(d, f) for f in sorted(fs) if f.endswith((".c", ".h", ".inc"))]
-    return [p for p in res if p not in named and os.path.isfile(p)]
+    return [p for p in res if p not in named and os.path.isfile(p) and not EXEMPT(p)]
+
+# W7 T7: the mflrw.dll bind tables an_hk_612_*.inc are generated lists of exe addresses (FUN_ / LAB_ names of callees and callback labels the
+# original passes by address): not readable code to improve, so they are not counted
+EXEMPT = lambda p: re.match(r"an_hk_612_\w+\.inc$", os.path.basename(p)) is not None
 
 def scan():
     out = {}
@@ -57,6 +62,8 @@ def selftest():
     assert not any(os.sep not in n and n.endswith(".c") for n in names), "top-level .c belongs to hand"
     assert not any(n.startswith(("tier1" + os.sep, "automatch_agent" + os.sep, "automatch_near" + os.sep)) and n.endswith(".c") for n in names)
     assert any(n.endswith((".h", ".inc")) for n in names)
+    assert not any(os.path.basename(n).startswith("an_hk_612_") and n.endswith(".inc") for n in names), "bind tables exempt (T7)"
+    assert EXEMPT("x/an_hk_612_matfx.inc") and not EXEMPT("x/an_hk_612.c") and not EXEMPT("x/an_hk_1367.c") and not EXEMPT("x/other.inc")
     print("readability_ratchet selftest ok"); return 0
 
 def main(argv):

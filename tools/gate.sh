@@ -29,6 +29,10 @@ case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|stan
 SA=; [ $KIND = standalone -o $KIND = full ] && SA=1
 if [ $KIND = full ]; then export FORCE_NEGTEST=1; fi      # kind full never uses the negtest DLL-group cache (check_all.sh, tools/negtest_key.py)
 [ -n "$SA" ] && : ${STEP_TIMEOUT:=60}      # a cold-delta link (up to 4 links of the DELTA retry) outlasts the 3x estimate
+# W7 T-STEP: a negtest key MISS (or `MISS error`) means check_all runs the docker negtest groups (~30+ min), and kind full always does (FORCE_NEGTEST): step limit at least 90 min then
+NK=$(python3 $T/negtest_key.py --check 2>/dev/null); NK=${NK:-MISS error}
+{ [ "${NK%% *}" != HIT ] || [ $KIND = full ]; } && [ "${STEP_TIMEOUT:-0}" -lt 90 ] && STEP_TIMEOUT=90
+TOLINE="negtest key ${NK:0:14}, kind $KIND -> step limit ${STEP_TIMEOUT:-3x estimate + 5} min (x load/4, 1..2)"
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)
@@ -91,13 +95,13 @@ case $KIND in
              step "full tier 2 shadow, all courses" 10 "shadow race '$(seq -s' ' 0 14)' -";;
 esac
 [ $KIND = tier2 -a ${#NAMES[@]} = 0 ] && echo "note: no changed tier 2 functions, shadow steps will be skipped"
-echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"
+echo "gate $KIND: ${#PLAN[@]} steps, about $est min, output $D"; echo "$TOLINE"
 i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo "  $i. $l  (~$m min)"; [ -n "$DRY" ] && echo "       ${c:0:230}"; done
-[ -n "$DRY" ] && { [ -n "$SA" ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image,resample,sortcmp,uvanim,camsync,rwleaf,d3d9vc,rwleaf2,splopen,imgread,rt2d,pngread,lod,d3drs,d3dconv,d3dim2d,d3dras,d3dlights,d3dxform,d3d9pipe,d3dras2,d3d9texdic,d3d9vdtan,texread,texread2,matfx,matfx2,d3d9dev,d3d9dev2,d3d9rasq,d3d9sys,noded3d9,noded3d9i,d3d9submit,d3d9patch,d3d9ptank} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
+[ -n "$DRY" ] && { [ -n "$SA" ] && echo "default env: LIB_LUA=${LIB_LUA:-src} LIB_QHULL=${LIB_QHULL:-src} LIB_ZLIB=${LIB_ZLIB:-src} LIB_CRT=${LIB_CRT:-libcmt} DROP_DSHOW=${DROP_DSHOW:-1} LIB_RW=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image,resample,sortcmp,uvanim,camsync,rwleaf,d3d9vc,rwleaf2,splopen,imgread,rt2d,pngread,lod,d3drs,d3dconv,d3dim2d,d3dras,d3dlights,d3dxform,d3d9pipe,d3dras2,d3d9texdic,d3d9vdtan,texread,texread2,matfx,matfx2,d3d9dev,d3d9dev2,d3d9rasq,d3d9sys,noded3d9,noded3d9i,d3d9submit,d3d9patch,d3d9ptank,d3d9vsu,d3d9vs} RW_DLL=${RW_DLL:-pinned output/librw/mflrw.dll} (LIB_*=orig / LIB_RW=orig / DROP_DSHOW=0 for A/B), DELTA start ${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null || echo ba000)}"; exit 0; }
 # ---- guards
 WIP=$(git -C $R status --porcelain --untracked-files=all -- recomp); [ -n "$WIP" ] && { echo "src/ has uncommitted / untracked files (lane WIP belongs in agents/<lane>/ or a scratch dir, linked via T2_SHADOW_DIR / --src); not starting:"; echo "$WIP"; exit 2; }      # window 4: a stray WIP file cost a 25-min check_all (cheatgrep)
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
-mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
+mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; echo "$TOLINE"; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
 trap '[ -n "$LPID" ] && kill -TERM $LPID 2>/dev/null' EXIT      # a background link (PARLINK) never outlives the gate (timeout relays the TERM to its process group)
 failcheck() { grep -E "regress failed|timed out|INVALID| [1-9][0-9]* warnings" "$1"; }      # lines that mean a crash / stall / non-frozen run
 courses() {       # courses <tag> '<list>' [ENV=..]...: one courses.sh call per course (sequential, PAR=4 inside), a progress line each
@@ -130,20 +134,21 @@ shadow() {        # shadow <race|early> '<courses>' <names file|->: shadowgen2 -
   ! grep -q " DIFF " $g/table.txt
 }
 diffemu() {       # diffemu <names file>: DIFF fails, INCONCLUSIVE only warns (needs the unicorn venv, see README)
-  python3 $T/diffemu/diffemu.py --names $1 2>&1 | tee $D/diffemu.log | tail -15
+  python3 $T/diffemu/diffemu.py --names $1 2>&1 | tee $D/diffemu.log $D/diffemu_stock.log | tail -15
   if [ -n "${HS:-}" ]; then      # HS=1 (opt-in): additionally the state-seeded harness of tools/diffemu_audit/tweak (README there); same DIFF / INCONCLUSIVE rules
-    ~/.cache/mfl_diffemu_venv/bin/python $T/diffemu_audit/tweak/gate_hs.py $1 ${HS_CASES:-1500} ${HS_BUDGET:-300} 2>&1 | tee -a $D/diffemu.log | tail -15
+    ~/.cache/mfl_diffemu_venv/bin/python $T/diffemu_audit/tweak/gate_hs.py $1 ${HS_CASES:-1500} ${HS_BUDGET:-300} 2>&1 | tee -a $D/diffemu.log $D/diffemu_hs.log | tail -15
   fi
   # NaN-form ratchet (T-weak3): a tier 2 function with a compare that treats NaN the other way than the original (tools/diffemu_audit/tweak/nancmp.py --flips; src/nancmp_allow.txt for justified cases)
   ~/.cache/mfl_diffemu_venv/bin/python $T/diffemu_audit/tweak/nancmp.py --flips $(cat $1) 2>&1 | tee -a $D/diffemu.log | tail -8
   ! grep "^FLIP " $D/diffemu.log | grep -qv "(allowed)" || { echo "nancmp: NaN-form FLIP (a compare takes NaN the other side than the original)"; return 1; }
-  ! grep -q "^DIFF " $D/diffemu.log || { echo "diffemu: DIFF verdict"; return 1; }
-  grep -q "^INCONCLUSIVE " $D/diffemu.log && echo "WARNING diffemu: INCONCLUSIVE verdicts (see $D/diffemu.log)"; return 0
+  # W7 T14: verdicts by tools/diffemu_audit/hs_only.py: any DIFF fails, except a stock DIFF / INCONCLUSIVE of a function listed in hs_only.txt whose HS run of THIS gate is EQUAL; unlisted INCONCLUSIVE warns
+  python3 $T/diffemu_audit/hs_only.py $D/diffemu_stock.log $([ -n "${HS:-}" ] && echo $D/diffemu_hs.log) 2>&1 | tee -a $D/diffemu.log | grep -v "^note" | tail -15
+  [ ${PIPESTATUS[0]} = 0 ] || { echo "diffemu: DIFF verdict (hs_only.py)"; return 1; }; return 0
 }
 standalone_link() {      # fresh harness link; target configuration by default (B1): LIB_LUA/QHULL/ZLIB=src DROP_DSHOW=1, A/B with LIB_*=orig DROP_DSHOW=0; LIB_RW / RW_DLL pass through (unset = off).
   # DELTA starts at $DELTA, else the last converged delta (output/gate/standalone_delta.txt), else ba000; retried with the printed delta until stable, at most 4 links
   local d=${DELTA:-$(cat $R/output/gate/standalone_delta.txt 2>/dev/null)}; d=${d:-ba000}; local k out
-  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image,resample,sortcmp,uvanim,camsync,rwleaf,d3d9vc,rwleaf2,splopen,imgread,rt2d,pngread,lod,d3drs,d3dconv,d3dim2d,d3dras,d3dlights,d3dxform,d3d9pipe,d3dras2,d3d9texdic,d3d9vdtan,texread,texread2,matfx,matfx2,d3d9dev,d3d9dev2,d3d9rasq,d3d9sys,noded3d9,noded3d9i,d3d9submit,d3d9patch,d3d9ptank}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
+  local ls=${LIB_LUA:-src} lq=${LIB_QHULL:-src} lz=${LIB_ZLIB:-src} dd=${DROP_DSHOW:-1} lc=${LIB_CRT:-libcmt} lr=${LIB_RW-librw:g0,stream,d3dx,g1,g2,g3,collis,splanim,bezpat,d3d9vd,hanimcam,rwmath,pixfmt,tristrip,colltree,image,resample,sortcmp,uvanim,camsync,rwleaf,d3d9vc,rwleaf2,splopen,imgread,rt2d,pngread,lod,d3drs,d3dconv,d3dim2d,d3dras,d3dlights,d3dxform,d3d9pipe,d3dras2,d3d9texdic,d3d9vdtan,texread,texread2,matfx,matfx2,d3d9dev,d3d9dev2,d3d9rasq,d3d9sys,noded3d9,noded3d9i,d3d9submit,d3d9patch,d3d9ptank,d3d9vsu,d3d9vs}; [ $lc = orig ] && lc=; [ $lr = orig ] && lr=; [ $ls = orig ] && ls=; [ $lq = orig ] && lq=; [ $lz = orig ] && lz=; [ $dd = 0 ] && dd=
   echo "standalone env: LIB_LUA=${ls:-orig} LIB_QHULL=${lq:-orig} LIB_ZLIB=${lz:-orig} LIB_CRT=${lc:-orig} DROP_DSHOW=${dd:-0} LIB_RW=${lr:-orig} RW_DLL=${RW_DLL:-pinned} DELTA start $d"
   for k in link link2 link3 link4; do
     LIB_LUA=$ls LIB_QHULL=$lq LIB_ZLIB=$lz LIB_CRT=$lc LIB_RW=$lr DROP_DSHOW=$dd DROP_RW=${DROP_RW:-1} DROP_RWTRAP=${DROP_RWTRAP:-1} DROP_DINPUT=${DROP_DINPUT:-1} MKRANGE=1 GEN_DATA=1 IMPLIBS=1 HARNESS=1 DELTA=$d $T/delink/link_ours.sh $D/$k 2>&1 | tee $D/$k.log | tail -4; out=${PIPESTATUS[0]}

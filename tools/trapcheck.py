@@ -81,12 +81,15 @@ def check(W, lists, objlist=None):
     words += [(int(r["site"], 16), int(r["target"], 16), True) for r in csv.DictReader(open(os.path.join(G, "output", "delink_relocs.csv"))) if r["kind"] not in ("const", "header", "rel32")]
     starts = {int(l.split()[0], 16) for l in open(os.path.join(G, "output", "fnsizes.txt"))} | set(tst)
     redge = {}
+    def xedge(t):      # S w7: a pointer from another row into the middle of a coarse g_libspan row reaches only the part at that address (its sub-row, resolved in the walk), like a same-span pointer
+        r = ridx(t)
+        return ("p", t) if rows[r][2].startswith("g_libspan") and t != rows[r][0] else ("r", r)
     sys.path.insert(0, D); from dshow_drop import SLOT0, DEFTAB
     for s, t, isrel in words:
         r = ridx(s)
         if r is None or not TLO <= t < THI or SLOT0 <= s < DEFTAB + 0x11c: continue      # ponytail: the D3DX slot table / its default copy are skipped (runtime-installed, dshow_drop.py pool models them); a C reader of a slot is not checked
         if tr(t) and (isrel or t in starts): redge.setdefault(r, set()).add(("t", t))      # a raw data word counts as a code pointer only at a known start (floats / ints in byte spans hit code ranges by chance)
-        elif ridx(t) is not None and ridx(t) != r: redge.setdefault(r, set()).add(("r", ridx(t)))
+        elif ridx(t) is not None and ridx(t) != r: redge.setdefault(r, set()).add(xedge(t))
     # a C data symbol inside a coarse g_libspan row of W's layout (no C named it when W was linked; globgen gives it a row of its own once C does):
     # its own sub-row from its address to the next known symbol, so the rest of the span's pointers do not count (gate 1112_1838: 22 false hits)
     symaddr = sorted(set(sym.values())); subk = {}
@@ -100,7 +103,7 @@ def check(W, lists, objlist=None):
             if not a <= s < end or not TLO <= t < THI or SLOT0 <= s < DEFTAB + 0x11c: continue
             if tr(t) and (isrel or t in starts): redge.setdefault(k, set()).add(("t", t))
             elif ridx(t) == r: redge.setdefault(k, set()).add(("r", subrow(t, r)))      # into the same span: again only the part at that address
-            elif ridx(t) is not None: redge.setdefault(k, set()).add(("r", ridx(t)))
+            elif ridx(t) is not None: redge.setdefault(k, set()).add(xedge(t))
         return k
     # objects
     lst = objlist or os.path.join(W, "objs_local.txt")
@@ -126,6 +129,7 @@ def check(W, lists, objlist=None):
         nxt = []
         for r in work:
             for k, v in sorted(redge.get(r, ())):
+                if k == "p": k, v = "r", subrow(v, ridx(v))
                 if k == "r" and v not in seen: seen[v] = r; nxt.append(v)
                 elif k == "t" and v not in cdef:
                     ch = [r]

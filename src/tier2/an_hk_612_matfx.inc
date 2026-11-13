@@ -1,7 +1,7 @@
 /* mflrw.dll matfx binding (librw-mfl/capi/rwmatfx.cpp; LIB_RW group matfx, engine switch window 5 lane K): the rpmatfx user data arrays, bump map setup, D3D9 instance /
    render callbacks, default / env / bump map render, env map matrix and pipelines create work on the exe's engine, device, matfx / video card globals, shader data and
    these exe callees (table order = rwmatfx.cpp enum M, 80 slots; functions declared above are not repeated).  _rpMatFXD3D9AtomicMatFXRenderBlack is a trap row
-   (rw_trap.txt): its slot stays 0 (trapcheck; a call through 0 faults, as the trap did).  The instance / render callbacks the pipelines store are passed by their
+   (rw_trap.txt): its slot is the trap stub mfl_trap__rpMatFXD3D9AtomicMatFXRenderBlack_00550aa0 (an_hk_612.c, W7 T17; trapcheck forbids the name).  The instance / render callbacks the pipelines store are passed by their
    original addresses (the aliases.txt names *_00553ee0 / *_00553f60, LAB_00553a90), as the original PipelinesCreate stores them, also when the matfx rows replace those functions. */
 #ifndef MFL_DIFFEMU
 extern int userDataGeometryOffset, userDataWorldSectorOffset, MatFXMaterialDataOffset, VideoCardSupportsTangents, D3D9DefaultInstanceCallbackAtomic,
@@ -26,7 +26,7 @@ static void hk_bind_matfx(int mflrw)
     (void *)FUN_00509560, (void *)RwD3D9RasterIsCompressed, (void *)_rpMatFXTextureMaskCreate, (void *)_rwD3D9EnableClippingIfNeeded, (void *)RwD3D9GetRenderState,
     (void *)FUN_004e55d0, (void *)RwD3D9SetRenderState, (void *)RwD3D9SetTextureStageState, (void *)_rwD3D9SetStreams, (void *)_rwD3D9RenderStateVertexAlphaEnable,
     (void *)RwD3D9SetSurfaceProperties, (void *)_rpMatFXD3D9AtomicMatFXBumpMapRender, (void *)_rpMatFXD3D9AtomicMatFXEnvRender, (void *)_rpMatFXD3D9AtomicMatFXDualPassRender,
-    (void *)_rpMatFXD3D9AtomicMatFXDefaultRender, 0 /* _rpMatFXD3D9AtomicMatFXRenderBlack (trap) */, &_rwD3D9LastIndexBufferUsed, &_rwD3D9LastVertexDeclarationUsed,
+    (void *)_rpMatFXD3D9AtomicMatFXDefaultRender, (void *)mfl_trap__rpMatFXD3D9AtomicMatFXRenderBlack_00550aa0 /* trap row (W7 T17 stub) */, &_rwD3D9LastIndexBufferUsed, &_rwD3D9LastVertexDeclarationUsed,
     &_rwD3D9LastFVFUsed, &g_d3d9_device,
     /* 29.. */ (void *)RwD3D9SetTransform, (void *)_rwD3D9RenderStateFlushCache, &_rwD3D9LastPixelShaderUsed, &_rwD3D9LastVertexShaderUsed, g_rp_63a2d0,
     /* 34.. */ (void *)rwD3D9RasterIsCubeRaster, (void *)RwFrameGetLTM, (void *)RwMatrixInvert, (void *)RwMatrixMultiply, g_data_5f5d48,

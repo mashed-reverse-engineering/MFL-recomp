@@ -1,0 +1,2 @@
+# rowcheck_allow.txt (W7 T8): installed rows that need no output/fnsizes.txt row at their address.  `name  # reason` (reason required by review, not by the tool)
+c_D3DXMatrixTranspose  # entry 0x4fc629 lies 13 B into the D3DX stub pair 4fc616/4fc623; the body behind the entry jmp is trapped as rw_trap row 004fc62e 104

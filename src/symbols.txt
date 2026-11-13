@@ -4530,7 +4530,9 @@ c_D3DXVec2BaryCentric 004fb7cb
 c_D3DXVec3Hermite 004fb8b7
 c_D3DXVec3CatmullRom 004fb98f
 c_D3DXVec3BaryCentric 004fba8f
+thunk_FUN_004fbc3c 004fbc49
 init_D3DXVec3TransformCoordArray 004fbc4f
+thunk_FUN_004fbc66 004fbc73
 c_D3DXVec4Hermite 004fbee6
 c_D3DXVec4CatmullRom 004fbfe1
 c_D3DXVec4BaryCentric 004fc103
@@ -6168,6 +6170,7 @@ RwaMul32By32 005bf4e0
 RwaFindLSB 005bf560
 rwa_unit245240_005bf580 005bf580
 FUN_005bf6f0 005bf6f0
+FUN_005bf8f0 005bf8f0
 FUN_005bf930 005bf930
 _rwaGetFilenameExt 005bf940
 FUN_005bfc50 005bfc50
@@ -7296,6 +7299,9 @@ g_d3d9_shaders_5e19f0 005e19f0
 k_f_0_0028 005e1a5c
 g_data_5e1c4c 005e1c4c
 g_dinput_keyboard_5e1e54 005e1e54
+g_data_5e1e7c 005e1e7c
+g_data_5e1e9c 005e1e9c
+g_data_5e1eac 005e1eac
 g_dinput_keyboard_5e1ecc 005e1ecc
 g_dinput_create_5e1f6c 005e1f6c
 g_data_5e1fdc 005e1fdc
@@ -7329,6 +7335,7 @@ PTR_LAB_005e2464 005e2464
 PTR_LAB_005e2484 005e2484
 IID_IUnknown 005e2614
 g_data_5e2624 005e2624
+g_data_5e2634 005e2634
 NegOne 005e2690
 NegZero 005e26a0
 __lookuptable 005e2790
@@ -8322,6 +8329,7 @@ _rpPatchAtomicFreeListBlockSize 0063a310
 _rpPatchAtomicFreeListPreallocBlocks 0063a314
 _rpPatchGeometryFreeListBlockSize 0063a318
 _rpPatchGeometryFreeListPreallocBlocks 0063a31c
+g_data_63a380 0063a380
 _rpUVAnimCustomDataFreeListBlockSize 0063a384
 _rpUVAnimCustomDataFreeListPreallocBlocks 0063a388
 _rpUVAnimDictSchema 0063a38c
@@ -10850,6 +10858,7 @@ g_data_7daf4c 007daf4c
 g_data_7daf50 007daf50
 g_data_7daf54 007daf54
 g_data_7daf58 007daf58
+g_data_7daf60 007daf60
 g_data_7db760 007db760
 g_data_7db764 007db764
 g_data_7db768 007db768
@@ -10880,10 +10889,12 @@ g_data_7dbbec 007dbbec
 g_data_7dbbf0 007dbbf0
 _rwaVirtualVoiceIntDef 007dbbf4
 _rwaStreamIntDef 007dbc1c
+g_data_7dbc44 007dbc44
 g_data_7dbc48 007dbc48
 g_data_7dbc50 007dbc50
 g_data_7dbc54 007dbc54
 g_data_7dbc58 007dbc58
+g_data_7dbc74 007dbc74
 _rwaListenerIntDef 007dbc9c
 g_data_7dbe48 007dbe48
 _rwaStreamSourceIntDef 007dbec4
