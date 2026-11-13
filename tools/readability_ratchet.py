@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""readability_ratchet.py [--update-baseline] [--quiet] [--selftest]: readability can only improve.
+"""readability_ratchet.py [--update-baseline] [--quiet] [--selftest] [--files f ...]: readability can only improve.  (--files, last option: also print the counts of these files)
 Counts Ghidra-default identifier tokens (uVar/iVar/param_/DAT_/FUN_ ...) plus generic rename-dodges (v1, a2, tmp3, local_8 ...)
 in code (comments and string/char literals masked), per tier directory (portcheck scope: tier1, automatch_agent, automatch_near, hand src/*.c).
 Baseline output/readability_baseline.txt (`tier class count` rows); ONLY --update-baseline writes it (M only).
@@ -61,6 +61,10 @@ def selftest():
 
 def main(argv):
     if "--selftest" in argv: return selftest()
+    if "--files" in argv:      # run.py preflight: token counts of the given files (a lane's WIP), then the tree verdict as usual
+        i = argv.index("--files")
+        for f in argv[i + 1:]: print("  %s  %s" % (" ".join("%s=%d" % kv for kv in count(open(f, errors="surrogateescape").read()).items()), f))
+        argv = argv[:i]
     cur = scan(); tot = sum(sum(c.values()) for c in cur.values())
     line = "readability: %d tokens (%s)" % (tot, ", ".join("%s %d" % (t, sum(c.values())) for t, c in cur.items()))
     if "--update-baseline" in argv:

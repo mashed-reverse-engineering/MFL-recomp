@@ -23,7 +23,6 @@
 0053dd30 255 BMPWriteRow
 0053e230 178 RtAnimAnimationStreamWrite
 0053e2f0 17 RtAnimAnimationStreamGetSize
-0053e4a0 45 RtAnimInterpolatorCopy
 0053ebc0 98 FUN_0053ebc0
 0053ec30 75 SkinGeometrySize
 0053ec80 240 SkinGeometryWrite
@@ -58,12 +57,9 @@
 00542c40 163 rpD3D9SkinVertexShaderBeginCallBack
 00542e30 432 rpSkinPrepareAtomicMatrix
 00543520 1024 RtCompressedKeyFrameBlend
-005439a0 107 RpHAnimKeyFrameStreamWrite
 00543a20 338 RpHAnimKeyFrameMulRecip
 00543b80 196 RtCompressedKeyFrameAdd
-00543f20 290 HAnimWrite
 00544240 59 HAnimSize
-00544280 247 RpHAnimHierarchyCreate
 005461e0 210 rpPTankD3D9InsSetup_spr
 00546a10 93 rpPTankD3D9InsPosNCCSNR_spr
 00546a70 65 rpPTankD3D9InsPosCCCSNR_spr
@@ -82,10 +78,6 @@
 00548910 15 rpPTankGENInsEnding
 0054acd0 21 RpCollisionGeometryForAllIntersections
 0054bdc0 1590 GeometryForAllTriIntsecBBox
-0054c400 2013 GeometryForAllTriIntsecSphere
-0054ccf0 1490 MorphGeomForAllTriIntsecLine
-0054d2d0 189 AtomicForAllTriIntsecSphere
-0054d390 694 MorphGeomForAllTriIntsecSphere
 0054f340 163 MatFXMaterialCopy
 0054f7c0 534 MatFXMaterialStreamWrite
 0054ff40 141 MatFXMaterialStreamGetSize
@@ -105,10 +97,6 @@
 0055d760 915 rpPatchReInstanceAtomic
 0055fa40 1216 RtBezierQuadFromTriangle
 00560f80 193 FUN_00560f80
-00561b20 77 FUN_00561b20
-00561d40 207 UVAnimCopy
-00561e10 167 FUN_00561e10
-005621c0 65 UVAnimSize
 00562270 53 _rpUVAnimCustomDataStreamWrite
 00562620 159 RpUVAnimParamKeyFrameApply
 00562760 153 RpUVAnimParamKeyFrameBlend
@@ -133,7 +121,6 @@
 00567890 1494 DefaultPathStroke2d_00567890
 005681c0 100 LODAtomicCallBackWriteChunk
 00568230 71 LODAtomicCallBackGetChunkSize
-00568b20 407 RtCharsetBufferFlush
 00568e30 729 CharsetProcessString
 005d6100 383 RpCollSectorBBoxItInit
 005d6280 416 RpCollSectorBBoxItFindNextEntries
@@ -340,3 +327,82 @@
 # PVSSectorGetChunkSize (C), and the 6 rows of the class that are rw_trap rows already (rxD3D9SkinInstance head, HAnimWrite, CollisionDataStreamWrite, MatFXMaterialStreamWrite, GeomAnimWriteStream, LODAtomicCallBackGetChunkSize).
 004ed400 896 rwD3D9NativeTextureWrite
 005409a1 543 _switchD_5409a1
+# S w6 2026-11-12 (lane S, plan 2.5 "S"; append to tools/delink/rw_trap.txt): 3 rows, 375 B.
+# Proof method (byte scan of game/MFL.exe with agents/au_w6/carve.py --va: abs dwords in every section + E8/E9/0F8x rel32; agents/s_w6/listed.py for
+# the filled lists and agents/pc_w6/rwcov_w6.csv): none of these VAs is instrumented in rwcov_w6.csv (0 rows), so the coverage proof is transitive:
+# every referrer is replaced by C or is itself a filled row.  `grep -rlE "00584fc0|00585050|00510a79|rwp_aggregate_00584fc0|rwp_aggregate_00585050|FUN_00510a79" recomp --include=*.c`: no hit.
+#
+# (a) rwp cpuid probes: ONLY together with the C rwp_simd_detect_005850c0 (agents/s_w6/an_rwp_simd_detect.c).  584fc0 / 585050 are called only from
+#     0x5850cf / 0x585132 inside 0x5850c0 (one CPU class: the C stores 1, no probe); the __except handlers 0x585024 / 0x5850a3 are reached only through
+#     the SEH scope tables 0x5f6e48 / 0x5f6e58 that only 584fc0 / 585050 push.  The installed filter funclets an_rwp_0058501e.c / an_rwp_0058509d.c stay
+#     (6 B each, same tables; removable later).  Evidence of the CPU-class constant: agents/s_w6/cpuclass_check.py (original bytes run for real).
+#     The two __except handler blocks 0x585024 / 0x5850a3 (29 B each) are NOT trapped: trapcheck follows the data chain installed an_rwp_0058a8f0.c
+#     -> g_rwp_simplex_face_lists -> g_libspan_005f6cd4 (one .rdata span that also holds the scope tables) -> handlers.  Coarse span, real chain
+#     is dead, but they stay original until the span is split.
+00584fc0 94 rwp_aggregate_00584fc0
+00585050 77 rwp_aggregate_00585050
+# (b) D3DX dead-code trap rows of lane S (0x510a79 + the Vec2Transform trio): batch G3 (M, 2026-11-12).
+# AU carve W6 2026-11-12 (lane AU, plan 2.5 step 2; append to tools/delink/rw_trap.txt next to the AU2 block): code Ghidra did not carve inside the
+# AU2-trapped DXAudio codec / DirectShow block 0x5d0b59-0x5d2ad0: COM methods and their this-adjust thunks of the DMO buffer / filter / pin /
+# enum / allocator / media-sample objects only the trapped AU2 code builds.  36 rows, 2,894 B.
+# Proof (agents/au_w6/carve.py, byte scan of game/MFL.exe: abs dwords in every section + E8/E9/0F8x rel32): every entry is referenced ONLY from
+#   vtable slots, and every referrer of every slot of those pointer runs is an int3 row already (rw_trap AU2: FUN_005d05a0, FUN_005d0a80, FUN_005d1070,
+#   FUN_005d14b0, FUN_005d1f80, FUN_005d21d0, FUN_005d27f0, FUN_005cf620; dead_tables AU2: FUN_005cf4b0); the hit at 0x4619de (+0x10 of 0x64bdd8)
+#   is a false positive (bytes of `call 0x467ea0` in weapon_rocket_update).  Installed C: none of these names exists in recomp/; no installed C names
+#   any of the vtables 0x64bdd8 / 0x64bf38 / 0x64bfc0 / 0x64c038 / 0x64c0a8 / 0x64c110 / 0x64c138 (grep of recomp/ for the addresses: only
+#   symbols.txt / aliases.txt lines).  Coverage: none of these 36 entries is in the pc_w6 names list (agents/pc_w6/rwcov_w6.csv, 118/118 jobs); their
+#   only callers are int3 rows that would trap in every one of those jobs, so traphit 0 in the gate covers them transitively.
+# NOT carved (stay original): FUN_005d0ef0 (30 B, called by installed C gap_5cfc10 in automatch_near/an_hk_1296.c), 0x5d1ea0 (8 B, slot 13 of
+#   PTR_FUN_005e21e0, which installed C clusters/cl_FUN_004acbb0.c names), 0x5d2150 / 0x5d2180 (45 + 16 B, slots of the enum-pins vtable 0x64be68 that
+#   the tier 2 row _rwaDSEnumPinsCreate 0x5cfc80 (an_rwa_dxaudio_codec_params.c) names); 0x5d0c49 (7), 0x5d1291 (15), 0x5d1a7d (3): padding only (T13 crumbs).
+005d0b60 16 gap_5d0b60
+005d0b70 68 gap_5d0b70
+005d0bc0 16 gap_5d0bc0
+005d0e10 106 gap_5d0e10
+005d0f10 118 gap_5d0f10
+005d0f90 54 gap_5d0f90
+005d0fd0 79 gap_5d0fd0
+005d1060 8 gap_5d1060
+005d1100 68 gap_5d1100
+005d1150 16 gap_5d1150
+005d1160 16 gap_5d1160
+005d1170 67 gap_5d1170
+005d11c0 16 gap_5d11c0
+005d13e0 65 gap_5d13e0
+005d1430 123 gap_5d1430
+005d1b00 49 gap_5d1b00
+005d1bc0 37 gap_5d1bc0
+005d1bf0 18 gap_5d1bf0
+005d1c10 63 gap_5d1c10
+005d1c50 540 gap_5d1c50
+005d1e70 40 gap_5d1e70
+005d1eb0 33 gap_5d1eb0
+005d1ee0 33 gap_5d1ee0
+005d1f10 33 gap_5d1f10
+005d1f40 63 gap_5d1f40
+005d2070 82 gap_5d2070
+005d2330 38 gap_5d2330
+005d2360 426 gap_5d2360
+005d2600 324 gap_5d2600
+005d2970 18 gap_5d2970
+005d29a0 53 gap_5d29a0
+005d29e0 76 gap_5d29e0
+005d2a30 15 gap_5d2a30
+005d2a40 63 gap_5d2a40
+005d2a80 17 gap_5d2a80
+005d2aa0 37 gap_5d2aa0
+# S w6 2026-11-12 (lane S), G3 part of agents/s_w6/rows_trap.txt (the (a) rows 584fc0 / 585050 came with G2):
+# (b) D3DX sse2 Vec4Transform 0x510a79 (stdcall 12: out, v, m): referrers = slot words of sse_D3DXInitFastTable 0x50c4a5 (rw_dead) and sse2_D3DXInitFastTable
+#     0x50c613 (slots 2 and 34), calls from sse_D3DXVec4TransformArray 0x50dde2 and sse2_D3DXVec4TransformArray 0x510498 (both rw_dead).  Readers of slot 2
+#     (0x62ec90): 0x4fc183 c_D3DXVec4BaryCentric (rw_dead); of slot 34 (0x62ed10): 0x4fde12 thunk_FUN_004fdbb2 (rw_dead).  Same pattern as
+#     sse2_D3DXFloat16To32Array (L4 2026-11-06).  Independent of the sse2_D3DXInitFastTable C fragment (that writes the address as a constant).
+00510a79 204 sse2_D3DXVec4Transform
+# (c) D3DX SSE Vec2Transform / Vec2TransformCoord / Vec2TransformNormal 0x50e956 / 0x50e994 / 0x50e9eb (62 + 87 + 55 = 204 B, needs the fnsizes rows of
+#     rows_fnsizes_added.txt).  deadproof.py 50e956-50ea22 (all sections, any offset, rel32, relocs, recomp/): the only references are the slot-word
+#     immediates of sse_D3DXInitFastTable 0x50c4b9 / 4d5 / 4e3 (rw_dead) and sse2_D3DXInitFastTable 0x50c627 / 643 / 651 (slots 0 / 5 / 9; the C fragment
+#     writes them as constants).  deadproof.py on the slot words: slot 0 0x62ec88 is read by FUN_004fb80e / thunk 0x4fb817 / 0x4fb81d (rw_dead) and
+#     used as the table base by D3DXCpuOptimizations 0x505030 / 0x505061 (copy loop, no call through it; same in recomp/d3dx_dispatch.c); slot 5 0x62ec9c
+#     only by FUN_004fb856 / thunk (rw_dead); slot 9 0x62ecac only by FUN_004fb832 / thunk (rw_dead).  Not instrumented in rwcov_w6.csv; no C reference.
+0050e956 62 sse_D3DXVec2Transform
+0050e994 87 sse_D3DXVec2TransformCoord
+0050e9eb 55 sse_D3DXVec2TransformNormal

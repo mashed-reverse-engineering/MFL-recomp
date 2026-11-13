@@ -16,8 +16,13 @@ typedef int int32_t;
 typedef unsigned int uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
+#ifdef __LP64__                 /* mfl_uptr: an unsigned integer as wide as a pointer, for integer <-> pointer casts */
+typedef unsigned long mfl_uptr; /* 64 bit targets (the portability check compiles the sources as LP64) */
+#else
+typedef unsigned int mfl_uptr;  /* cl 13 / x86: 32 bit, the same code as a cast through unsigned int */
+#endif
 
-typedef uint8_t undefined;      /* "undefinedN": N bytes of unknown type (an unsigned integer of that size) */
+typedef uint8_t undefined;     /* "undefinedN": N bytes of unknown type (an unsigned integer of that size) */
 typedef uint8_t undefined1;
 typedef uint16_t undefined2;
 typedef uint32_t undefined3;    /* 3 byte values only appear in casts of the CONCAT31 kind below */

@@ -50,7 +50,7 @@ for fn in sorted(os.listdir(src)):
     while i < len(lines):
         l = lines[i]; m = DEF.match(l)
         if m and i + 1 < len(lines) and lines[i + 1].startswith("{") and m.group(2) in sym and (only is None or m.group(2) in only):
-            pre, name, params = m.group(1), m.group(2), m.group(3).strip()
+            pre, name, params = m.group(1), m.group(2), re.sub(r"\s*\b__RWUNUSED__\b", "", m.group(3)).strip()      # RenderWare's empty unused-parameter marker (codfh rows, rw37_slim.h): not the parameter name
             conv = "__stdcall" if "__stdcall" in pre else "__fastcall" if "__fastcall" in pre or "__thiscall" in pre else "__cdecl"
             ret = re.sub(r"\b__(stdcall|cdecl|fastcall|thiscall)\b", "", pre).strip()
             plist = [] if params in ("", "void") else [x.strip() for x in params.split(",")]

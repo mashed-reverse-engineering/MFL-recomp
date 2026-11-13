@@ -1,0 +1,11 @@
+# Group "d3d9submit" (lane K1 window 6, noded3d9submitnolight bucket of the flip manifest): the Im3D submit node of the D3D9 driver and its open / close / instance
+# rows, from librw-mfl/capi/d3d9submit.cpp (op for op, on the exe's device pointer, device caps, Im3D globals, "last used" caches and callees; device and index
+# buffer through their COM vtables only).  Needs LIB_RW ...,d3d9submit and the mflrw_d3d9submit_bind call in recomp/automatch_near/an_hk_612.c
+# (an_hk_612_d3d9submit.inc, 27 slots, enum E of d3d9submit.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names: output/fnsizes.txt (98 / 578 / 1788 incl. the two jump tables / 18).  None of the rows is in tools/delink/rw_trap.txt.  _rwD3D9Im3DRenderOpen / Close are
+# also slots of the d3d9dev2 bind table (an_hk_612_d3d9dev2.inc): with this group in LIB_RW those slots reach the DLL rows through the exe names.
+# Proof: tools/delink/rw_d3d9submit_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev" and per row (row:0 .. row:3).  No floating point in the group.
+D3D9ImmInstanceNode=rw37_D3D9ImmInstanceNode
+_rwD3D9Im3DRenderClose=rw37_rwD3D9Im3DRenderClose
+_rwD3D9Im3DRenderOpen=rw37_rwD3D9Im3DRenderOpen
+rxD3D9SubmitNode=rw37_rxD3D9SubmitNode

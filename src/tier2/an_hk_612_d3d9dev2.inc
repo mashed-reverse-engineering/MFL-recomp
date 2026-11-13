@@ -34,15 +34,17 @@ extern void __cdecl _rwD3D9RasterSetFromImage(void), _rwD3D9ImageGetFromRaster(v
 extern void __cdecl _rwD3D9RasterLock(void), _rwD3D9RasterUnlock(void), LAB_004e02d0(void), LAB_004e0360(void), LAB_004e13a0(void), LAB_004e0db0(void), LAB_004e03f0(void);
 extern void __cdecl LAB_004e0d90(void), LAB_004e0d70(void), LAB_004e13e0(void), LAB_004e3290(void), _rwD3D9NativeTextureGetSize(void), LAB_004ed780(void), LAB_004e3200(void);
 typedef void (__cdecl *MflrwD3d9dev2Bind)(char **engine, void *const *table);
+HK_TRAP_STUB(mfl_trap_rwD3D9NativeTextureWrite_004ed400)
 static void hk_bind_d3d9dev2(int mflrw)
 {
   /* the original's 27 index / function pairs of D3D9DeviceSystemStandards, in the order of its constant pairs (the stub first).  rwD3D9NativeTextureWrite 0x4ed400 is a trap
-     row (rw_trap.txt): its slot stays 0 so that no kept code names a trapped function (trapcheck); a call through 0 faults, as the trap did (precedent: the texread table). */
+     row (rw_trap.txt): no kept code may name a trapped function (trapcheck), so its slot is a trap stub (HK_TRAP_STUB, an_hk_612.c): a call faults inside a function whose
+     name carries the row's name and address, which the release exe's filter logs (recomp/release/mfl_trap.c). */
   static void *const d3d9dev2Std[28] = {
     (void *)stub_return_zero, (void *)LAB_004da2a0, (void *)LAB_004dac70, (void *)LAB_004d9420, (void *)LAB_004dad50, (void *)_rwD3D9RGBToPixel, (void *)_rwD3D9PixelToRGB,
     (void *)_rwD3D9RasterSetFromImage, (void *)_rwD3D9ImageGetFromRaster, (void *)_rwD3D9RasterDestroy, (void *)_rwD3D9RasterCreate, (void *)LAB_004ef150, (void *)LAB_004e3280,
     (void *)_rwD3D9RasterLock, (void *)_rwD3D9RasterUnlock, (void *)LAB_004e02d0, (void *)LAB_004e0360, (void *)LAB_004e13a0, (void *)LAB_004e0db0, (void *)LAB_004e03f0,
-    (void *)LAB_004e0d90, (void *)LAB_004e0d70, (void *)LAB_004e13e0, (void *)LAB_004e3290, (void *)_rwD3D9NativeTextureGetSize, 0 /* rwD3D9NativeTextureWrite (trap) */, (void *)LAB_004ed780,
+    (void *)LAB_004e0d90, (void *)LAB_004e0d70, (void *)LAB_004e13e0, (void *)LAB_004e3290, (void *)_rwD3D9NativeTextureGetSize, (void *)mfl_trap_rwD3D9NativeTextureWrite_004ed400, (void *)LAB_004ed780,
     (void *)LAB_004e3200};
   static void *d3d9dev2Imp[8];      /* GetWindowRect, GetClientRect, IsIconic, GetWindowLongA, SetWindowLongA, GetMenu, AdjustWindowRectEx, SetWindowPos */
   static void *const d3d9dev2Table[113] = {

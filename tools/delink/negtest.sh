@@ -393,6 +393,91 @@ if ! grep -q mflrw_noded3d9_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/e6nl $T/rw_noded3d9_check.sh $RD 20 300 4ff88c:70 > $O/e6nl.txt 2>&1; grep -q 'compared; DIFF' $O/e6nl.txt && ok "noded3d9 atomic node row length lower bound wrong: DIFF" || bad "noded3d9 fixture l not caught"
   OUT=$O/e6nm $T/rw_noded3d9_check.sh $RD 20 300 4ff8b9:00 > $O/e6nm.txt 2>&1; grep -q 'compared; DIFF' $O/e6nm.txt && ok "noded3d9 atomic node second row operand wrong: DIFF" || bad "noded3d9 fixture m not caught"
 fi
+# noded3d9i group (window 6, lane K1): the check must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; full lists agents/k1_w6/
+# mut_ws/summary.txt 145 DIFF, mut_at/summary.txt 323 DIFF; the lines below take the constants a port most easily gets wrong).
+# World sector callback: (a) normals world flag 0x10 -> 0x11 (5005fa), (b) compressed normal declaration type 0xe -> 0xf (500642), (c) texture set 0 flag mask 0x84 -> 0x85
+# (5006af), (d) tangent usage bit 0x10000 -> 0x10001 (500724), (e) vertex buffer lock flags 0 -> 1 (5007f8), (f) colour element size 4 -> 5 (5008d8).
+# Atomic callback: (g) pipeline plugin id 0x12e -> 0x12f (4ffa66), (h) morphing geometry usage |= 6 -> 4 (4ffa76), (i) stream offset caps bit test 1 -> 0 (4ffd13),
+# (j) dynamic buffer lock flags 0x2800 -> 0x2801 (4ffe97), (k) interpolator scale == 0 test mask 0x44 -> 0x45 (4fff0f; x87 compare), (l) position morph writer call ->
+# the plain position writer (4fffd0 + 4fffd1).
+if ! grep -q mflrw_noded3d9i_bind $RD 2>/dev/null; then echo "negtest note: $RD has no noded3d9i exports, noded3d9i fixtures skipped"; else
+  OUT=$O/e7i $T/rw_noded3d9i_check.sh $RD 20 300 > $O/e7i.txt 2>&1 && ok "noded3d9i good: $(grep -c EQUAL $O/e7i.txt) run EQUAL" || bad "noded3d9i good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/e7i.txt | head -2)"
+  OUT=$O/e7ia $T/rw_noded3d9i_check.sh $RD 20 300 5005fa:11 > $O/e7ia.txt 2>&1; grep -q 'compared; DIFF' $O/e7ia.txt && ok "noded3d9i world sector normals flag wrong: DIFF" || bad "noded3d9i fixture a not caught"
+  OUT=$O/e7ib $T/rw_noded3d9i_check.sh $RD 20 300 500642:0f > $O/e7ib.txt 2>&1; grep -q 'compared; DIFF' $O/e7ib.txt && ok "noded3d9i world sector compressed normal type wrong: DIFF" || bad "noded3d9i fixture b not caught"
+  OUT=$O/e7ic $T/rw_noded3d9i_check.sh $RD 20 300 5006af:85 > $O/e7ic.txt 2>&1; grep -q 'compared; DIFF' $O/e7ic.txt && ok "noded3d9i world sector texture flag mask wrong: DIFF" || bad "noded3d9i fixture c not caught"
+  OUT=$O/e7id $T/rw_noded3d9i_check.sh $RD 20 300 500724:01 > $O/e7id.txt 2>&1; grep -q 'compared; DIFF' $O/e7id.txt && ok "noded3d9i world sector tangent usage bit wrong: DIFF" || bad "noded3d9i fixture d not caught"
+  OUT=$O/e7ie $T/rw_noded3d9i_check.sh $RD 20 300 5007f8:01 > $O/e7ie.txt 2>&1; grep -q 'compared; DIFF' $O/e7ie.txt && ok "noded3d9i world sector lock flags wrong: DIFF" || bad "noded3d9i fixture e not caught"
+  OUT=$O/e7if $T/rw_noded3d9i_check.sh $RD 20 300 5008d8:05 > $O/e7if.txt 2>&1; grep -q 'compared; DIFF' $O/e7if.txt && ok "noded3d9i world sector colour size wrong: DIFF" || bad "noded3d9i fixture f not caught"
+  OUT=$O/e7ig $T/rw_noded3d9i_check.sh $RD 20 300 4ffa66:2f > $O/e7ig.txt 2>&1; grep -q 'compared; DIFF' $O/e7ig.txt && ok "noded3d9i atomic pipeline plugin id wrong: DIFF" || bad "noded3d9i fixture g not caught"
+  OUT=$O/e7ih $T/rw_noded3d9i_check.sh $RD 20 300 4ffa76:04 > $O/e7ih.txt 2>&1; grep -q 'compared; DIFF' $O/e7ih.txt && ok "noded3d9i atomic morph usage bits wrong: DIFF" || bad "noded3d9i fixture h not caught"
+  OUT=$O/e7ii $T/rw_noded3d9i_check.sh $RD 20 300 4ffd13:00 > $O/e7ii.txt 2>&1; grep -q 'compared; DIFF' $O/e7ii.txt && ok "noded3d9i atomic stream offset caps test wrong: DIFF" || bad "noded3d9i fixture i not caught"
+  OUT=$O/e7ij $T/rw_noded3d9i_check.sh $RD 20 300 4ffe97:01 > $O/e7ij.txt 2>&1; grep -q 'compared; DIFF' $O/e7ij.txt && ok "noded3d9i atomic dynamic lock flags wrong: DIFF" || bad "noded3d9i fixture j not caught"
+  OUT=$O/e7ik $T/rw_noded3d9i_check.sh $RD 20 300 4fff0f:45 > $O/e7ik.txt 2>&1; grep -q 'compared; DIFF' $O/e7ik.txt && ok "noded3d9i atomic morph scale test wrong: DIFF" || bad "noded3d9i fixture k not caught"
+  OUT=$O/e7il $T/rw_noded3d9i_check.sh $RD 20 300 4fffd0:1c 4fffd1:64 > $O/e7il.txt 2>&1; grep -q 'compared; DIFF' $O/e7il.txt && ok "noded3d9i atomic morph writer call wrong: DIFF" || bad "noded3d9i fixture l not caught"
+fi
+# d3d9submit group (window 6, lane K1): the check must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; full lists agents/k1_w6/
+# mut_imm / mut_close / mut_open / mut_submit summary.txt).
+# (a) ImmInstanceNode return 1 -> 0 (4f1397), (b) RenderClose old declaration address 0x7d5240 -> 0x7d5241 (4f0a19), (c) RenderOpen index buffer size 0x1fffe -> 0x1ffff
+# (4f0a71), (d) RenderOpen usage 0x208 -> 0x209 (4f0a6c), (e) RenderOpen pool shift 0xf -> 0xe (4f0a55), (f) SubmitNode render state 0x88 -> 0x89 (4f0d17),
+# (g) SubmitNode 8 index limit -> 9 (4f0e84), (h) SubmitNode index count limit 0xffff -> 0xfffe (4f0f9a), (i) index buffer lock flags 0x2800 -> 0x2801 (4f1069),
+# (j) 0x1800 -> 0x1801 (4f108a), (k) DrawIndexedPrimitiveUP index format 0x65 -> 0x64 (4f11ca), (l) DrawPrimitiveUP stride 0x24 -> 0x25 (4f134a).
+if ! grep -q mflrw_d3d9submit_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9submit exports, d3d9submit fixtures skipped"; else
+  OUT=$O/e7s $T/rw_d3d9submit_check.sh $RD 20 300 > $O/e7s.txt 2>&1 && ok "d3d9submit good: $(grep -c EQUAL $O/e7s.txt) run EQUAL" || bad "d3d9submit good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/e7s.txt | head -2)"
+  OUT=$O/e7sa $T/rw_d3d9submit_check.sh $RD 20 300 4f1397:00 > $O/e7sa.txt 2>&1; grep -q 'compared; DIFF' $O/e7sa.txt && ok "d3d9submit instance node result wrong: DIFF" || bad "d3d9submit fixture a not caught"
+  OUT=$O/e7sb $T/rw_d3d9submit_check.sh $RD 20 300 4f0a19:41 > $O/e7sb.txt 2>&1; grep -q 'compared; DIFF' $O/e7sb.txt && ok "d3d9submit close declaration address wrong: DIFF" || bad "d3d9submit fixture b not caught"
+  OUT=$O/e7sc $T/rw_d3d9submit_check.sh $RD 20 300 4f0a71:ff > $O/e7sc.txt 2>&1; grep -q 'compared; DIFF' $O/e7sc.txt && ok "d3d9submit open index buffer size wrong: DIFF" || bad "d3d9submit fixture c not caught"
+  OUT=$O/e7sd $T/rw_d3d9submit_check.sh $RD 20 300 4f0a6c:09 > $O/e7sd.txt 2>&1; grep -q 'compared; DIFF' $O/e7sd.txt && ok "d3d9submit open index buffer usage wrong: DIFF" || bad "d3d9submit fixture d not caught"
+  OUT=$O/e7se $T/rw_d3d9submit_check.sh $RD 20 300 4f0a55:0e > $O/e7se.txt 2>&1; grep -q 'compared; DIFF' $O/e7se.txt && ok "d3d9submit open pool test wrong: DIFF" || bad "d3d9submit fixture e not caught"
+  OUT=$O/e7sf $T/rw_d3d9submit_check.sh $RD 20 300 4f0d17:89 > $O/e7sf.txt 2>&1; grep -q 'compared; DIFF' $O/e7sf.txt && ok "d3d9submit render state id wrong: DIFF" || bad "d3d9submit fixture f not caught"
+  OUT=$O/e7sg $T/rw_d3d9submit_check.sh $RD 20 300 4f0e84:09 > $O/e7sg.txt 2>&1; grep -q 'compared; DIFF' $O/e7sg.txt && ok "d3d9submit 8 index limit wrong: DIFF" || bad "d3d9submit fixture g not caught"
+  OUT=$O/e7sh $T/rw_d3d9submit_check.sh $RD 20 300 4f0f9a:fe > $O/e7sh.txt 2>&1; grep -q 'compared; DIFF' $O/e7sh.txt && ok "d3d9submit index count limit wrong: DIFF" || bad "d3d9submit fixture h not caught"
+  OUT=$O/e7si $T/rw_d3d9submit_check.sh $RD 20 300 4f1069:01 > $O/e7si.txt 2>&1; grep -q 'compared; DIFF' $O/e7si.txt && ok "d3d9submit discard lock flags wrong: DIFF" || bad "d3d9submit fixture i not caught"
+  OUT=$O/e7sj $T/rw_d3d9submit_check.sh $RD 20 300 4f108a:01 > $O/e7sj.txt 2>&1; grep -q 'compared; DIFF' $O/e7sj.txt && ok "d3d9submit append lock flags wrong: DIFF" || bad "d3d9submit fixture j not caught"
+  OUT=$O/e7sk $T/rw_d3d9submit_check.sh $RD 20 300 4f11ca:64 > $O/e7sk.txt 2>&1; grep -q 'compared; DIFF' $O/e7sk.txt && ok "d3d9submit UP index format wrong: DIFF" || bad "d3d9submit fixture k not caught"
+  OUT=$O/e7sl $T/rw_d3d9submit_check.sh $RD 20 300 4f134a:25 > $O/e7sl.txt 2>&1; grep -q 'compared; DIFF' $O/e7sl.txt && ok "d3d9submit UP stride wrong: DIFF" || bad "d3d9submit fixture l not caught"
+fi
+# d3d9patch group (lane K2 window 6): the check must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; verified with agents/k2_w6/mut_a.sh /
+# mut_b.sh, full lists in agents/k2_w6/notes.md; the block takes five per function).  Insert after the noded3d9 block of tools/delink/negtest.sh; $RD must be a DLL built
+# with d3d9patch.cpp (the bind export).  va:byte list (each must give DIFF):
+# _rpD3D9PatchInstanceAtomic: (a) tri / quad compare: equal test mask 0x44 -> 0x40 (55a8a9:40), (b) mesh split limit 0xffff -> 0x7fff (55a8c5:7f), (c) strip join copies
+# index -2 instead of -1 (55a915:fc), (d) quad colour byte 1 <-> 2 (55ae65:02), (e) quad texcoord corner index 12 -> 13 (55af2a:1a).
+# rwD3D9PatchAtomicAllInOneNodeNode: (f) meshes per 0xffff indices: divisor shift 15 -> 14 (55b1a9:0e), (g) colour element usage 10 -> 11 (55b283:0b), (h) 32 bit index
+# limit jbe -> jb (55b495:72), (i) primitive type 5 -> 4 (55b4e9:04), (j) row length upper bound 1.1 -> 1.006 (55b8a2:80).
+if ! grep -q mflrw_d3d9patch_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9patch exports, d3d9patch fixtures skipped"; else
+  OUT=$O/e7p $T/rw_d3d9patch_check.sh $RD 20 300 > $O/e7p.txt 2>&1 && ok "d3d9patch good: $(grep -c EQUAL $O/e7p.txt) run EQUAL" || bad "d3d9patch good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH|ABORT' $O/e7p.txt | head -2)"
+  OUT=$O/e7pa $T/rw_d3d9patch_check.sh $RD 20 300 55a8a9:40 > $O/e7pa.txt 2>&1; grep -q 'compared; DIFF' $O/e7pa.txt && ok "d3d9patch instance tri / quad test wrong: DIFF" || bad "d3d9patch fixture a not caught"
+  OUT=$O/e7pb $T/rw_d3d9patch_check.sh $RD 20 300 55a8c5:7f > $O/e7pb.txt 2>&1; grep -q 'compared; DIFF' $O/e7pb.txt && ok "d3d9patch instance mesh split limit wrong: DIFF" || bad "d3d9patch fixture b not caught"
+  OUT=$O/e7pc $T/rw_d3d9patch_check.sh $RD 20 300 55a915:fc > $O/e7pc.txt 2>&1; grep -q 'compared; DIFF' $O/e7pc.txt && ok "d3d9patch instance strip join index wrong: DIFF" || bad "d3d9patch fixture c not caught"
+  OUT=$O/e7pd $T/rw_d3d9patch_check.sh $RD 20 300 55ae65:02 > $O/e7pd.txt 2>&1; grep -q 'compared; DIFF' $O/e7pd.txt && ok "d3d9patch instance quad colour byte wrong: DIFF" || bad "d3d9patch fixture d not caught"
+  OUT=$O/e7pe $T/rw_d3d9patch_check.sh $RD 20 300 55af2a:1a > $O/e7pe.txt 2>&1; grep -q 'compared; DIFF' $O/e7pe.txt && ok "d3d9patch instance quad texcoord corner wrong: DIFF" || bad "d3d9patch fixture e not caught"
+  OUT=$O/e7pf $T/rw_d3d9patch_check.sh $RD 20 300 55b1a9:0e > $O/e7pf.txt 2>&1; grep -q 'compared; DIFF' $O/e7pf.txt && ok "d3d9patch node mesh count divisor wrong: DIFF" || bad "d3d9patch fixture f not caught"
+  OUT=$O/e7pg $T/rw_d3d9patch_check.sh $RD 20 300 55b283:0b > $O/e7pg.txt 2>&1; grep -q 'compared; DIFF' $O/e7pg.txt && ok "d3d9patch node colour element usage wrong: DIFF" || bad "d3d9patch fixture g not caught"
+  OUT=$O/e7ph $T/rw_d3d9patch_check.sh $RD 20 300 55b495:72 > $O/e7ph.txt 2>&1; grep -q 'compared; DIFF' $O/e7ph.txt && ok "d3d9patch node 32 bit index limit wrong: DIFF" || bad "d3d9patch fixture h not caught"
+  OUT=$O/e7pi $T/rw_d3d9patch_check.sh $RD 20 300 55b4e9:04 > $O/e7pi.txt 2>&1; grep -q 'compared; DIFF' $O/e7pi.txt && ok "d3d9patch node primitive type wrong: DIFF" || bad "d3d9patch fixture i not caught"
+  OUT=$O/e7pj $T/rw_d3d9patch_check.sh $RD 20 300 55b8a2:80 > $O/e7pj.txt 2>&1; grep -q 'compared; DIFF' $O/e7pj.txt && ok "d3d9patch node row length bound wrong: DIFF" || bad "d3d9patch fixture j not caught"
+fi
+# d3d9ptank group (lane K2 window 6): the check must pass and DIFF on mutations of the original (20 seeds x 300 steps; verified with agents/k2_w6/mut_c.sh, full
+# list agents/k2_w6/mut_d3d9ptank.txt, results agents/k2_w6/mut_c/result.txt).  $RD must be a DLL built with d3d9ptank.cpp (the bind export).  va:byte list:
+# (a) InsEnding unlocks block word +4 instead of the vertex buffer (545f51:c4), (b) InsSetup base vertex size 12 -> 16 (545fc8:10), (c) InsSetup rotated up axis uses
+# the cosine twice (5460f0:3c), (d) InsSetup locks into another block word (54615a:c8), (e) Create: max point size == 1.0 no longer drops point sprites (5467ca:01),
+# (f) Create index buffer regrow test jge -> jg (546887:8f), (g) Create last index of a quad +3 -> +4 (54690a:04), (h) Create stores another sprite position function
+# (54697f:c1), (i) RenderCallBack texture factor render state 0x3c -> 0x3d (5463ac:3d), (j) RenderCallBack SetFVF goes to another device slot (5464f0:70),
+# (k) RenderCallBack point run limit 0xffff -> 0xfeff (546659:fe), (l) RenderCallBack indexed run limit 0xfffc -> 0xfff8 (5466e7:f8).
+if ! grep -q mflrw_d3d9ptank_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9ptank exports, d3d9ptank fixtures skipped"; else
+  OUT=$O/e7t $T/rw_d3d9ptank_check.sh $RD 20 300 > $O/e7t.txt 2>&1 && ok "d3d9ptank good: $(grep -c EQUAL $O/e7t.txt) run EQUAL" || bad "d3d9ptank good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH|ABORT' $O/e7t.txt | head -2)"
+  OUT=$O/e7ta $T/rw_d3d9ptank_check.sh $RD 20 300 545f51:c4 > $O/e7ta.txt 2>&1; grep -q 'compared; DIFF' $O/e7ta.txt && ok "d3d9ptank ending buffer word wrong: DIFF" || bad "d3d9ptank fixture a not caught"
+  OUT=$O/e7tb $T/rw_d3d9ptank_check.sh $RD 20 300 545fc8:10 > $O/e7tb.txt 2>&1; grep -q 'compared; DIFF' $O/e7tb.txt && ok "d3d9ptank setup vertex size wrong: DIFF" || bad "d3d9ptank fixture b not caught"
+  OUT=$O/e7tc $T/rw_d3d9ptank_check.sh $RD 20 300 5460f0:3c > $O/e7tc.txt 2>&1; grep -q 'compared; DIFF' $O/e7tc.txt && ok "d3d9ptank setup rotation operand wrong: DIFF" || bad "d3d9ptank fixture c not caught"
+  OUT=$O/e7td $T/rw_d3d9ptank_check.sh $RD 20 300 54615a:c8 > $O/e7td.txt 2>&1; grep -q 'compared; DIFF' $O/e7td.txt && ok "d3d9ptank setup lock target wrong: DIFF" || bad "d3d9ptank fixture d not caught"
+  OUT=$O/e7te $T/rw_d3d9ptank_check.sh $RD 20 300 5467ca:01 > $O/e7te.txt 2>&1; grep -q 'compared; DIFF' $O/e7te.txt && ok "d3d9ptank create point size test wrong: DIFF" || bad "d3d9ptank fixture e not caught"
+  OUT=$O/e7tf $T/rw_d3d9ptank_check.sh $RD 20 300 546887:8f > $O/e7tf.txt 2>&1; grep -q 'compared; DIFF' $O/e7tf.txt && ok "d3d9ptank create index buffer regrow test wrong: DIFF" || bad "d3d9ptank fixture f not caught"
+  OUT=$O/e7tg $T/rw_d3d9ptank_check.sh $RD 20 300 54690a:04 > $O/e7tg.txt 2>&1; grep -q 'compared; DIFF' $O/e7tg.txt && ok "d3d9ptank create quad index wrong: DIFF" || bad "d3d9ptank fixture g not caught"
+  OUT=$O/e7th $T/rw_d3d9ptank_check.sh $RD 20 300 54697f:c1 > $O/e7th.txt 2>&1; grep -q 'compared; DIFF' $O/e7th.txt && ok "d3d9ptank create sprite function wrong: DIFF" || bad "d3d9ptank fixture h not caught"
+  OUT=$O/e7ti $T/rw_d3d9ptank_check.sh $RD 20 300 5463ac:3d > $O/e7ti.txt 2>&1; grep -q 'compared; DIFF' $O/e7ti.txt && ok "d3d9ptank render texture factor state wrong: DIFF" || bad "d3d9ptank fixture i not caught"
+  OUT=$O/e7tj $T/rw_d3d9ptank_check.sh $RD 20 300 5464f0:70 > $O/e7tj.txt 2>&1; grep -q 'compared; DIFF' $O/e7tj.txt && ok "d3d9ptank render SetFVF slot wrong: DIFF" || bad "d3d9ptank fixture j not caught"
+  OUT=$O/e7tk $T/rw_d3d9ptank_check.sh $RD 20 300 546659:fe > $O/e7tk.txt 2>&1; grep -q 'compared; DIFF' $O/e7tk.txt && ok "d3d9ptank render point run limit wrong: DIFF" || bad "d3d9ptank fixture k not caught"
+  OUT=$O/e7tl $T/rw_d3d9ptank_check.sh $RD 20 300 5466e7:f8 > $O/e7tl.txt 2>&1; grep -q 'compared; DIFF' $O/e7tl.txt && ok "d3d9ptank render indexed run limit wrong: DIFF" || bad "d3d9ptank fixture l not caught"
+fi
 fi      # NEGTEST_SKIP_DLL
 rm -r $O
 exit $rc

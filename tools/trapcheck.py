@@ -87,6 +87,21 @@ def check(W, lists, objlist=None):
         if r is None or not TLO <= t < THI or SLOT0 <= s < DEFTAB + 0x11c: continue      # ponytail: the D3DX slot table / its default copy are skipped (runtime-installed, dshow_drop.py pool models them); a C reader of a slot is not checked
         if tr(t) and (isrel or t in starts): redge.setdefault(r, set()).add(("t", t))      # a raw data word counts as a code pointer only at a known start (floats / ints in byte spans hit code ranges by chance)
         elif ridx(t) is not None and ridx(t) != r: redge.setdefault(r, set()).add(("r", ridx(t)))
+    # a C data symbol inside a coarse g_libspan row of W's layout (no C named it when W was linked; globgen gives it a row of its own once C does):
+    # its own sub-row from its address to the next known symbol, so the rest of the span's pointers do not count (gate 1112_1838: 22 false hits)
+    symaddr = sorted(set(sym.values())); subk = {}
+    def subrow(a, r):
+        lo, hi = rows[r][0], rows[r][0] + max(rows[r][1], 1)
+        if a == lo or not rows[r][2].startswith("g_libspan"): return r
+        if a in subk: return subk[a]
+        i = bisect.bisect_right(symaddr, a); end = min(symaddr[i] if i < len(symaddr) else hi, hi)
+        k = subk[a] = len(rows); rows.append((a, end - a, "%s@%08x" % (rows[r][2], a)))
+        for s, t, isrel in words:
+            if not a <= s < end or not TLO <= t < THI or SLOT0 <= s < DEFTAB + 0x11c: continue
+            if tr(t) and (isrel or t in starts): redge.setdefault(k, set()).add(("t", t))
+            elif ridx(t) == r: redge.setdefault(k, set()).add(("r", subrow(t, r)))      # into the same span: again only the part at that address
+            elif ridx(t) is not None: redge.setdefault(k, set()).add(("r", ridx(t)))
+        return k
     # objects
     lst = objlist or os.path.join(W, "objs_local.txt")
     objs = [(s, o.strip()) for s, o in (l.split(None, 1) for l in open(lst) if l.strip())]
@@ -103,7 +118,7 @@ def check(W, lists, objlist=None):
             a = va(n); x = byname.get(n) or (tr(a) if a is not None and a not in cdef else None)
             if x: viol.append((x, src, "symbol %s" % n)); continue
             r = ridx(a) if a is not None else None
-            if r is not None: rowseed.setdefault(r, []).append((src, n))
+            if r is not None: rowseed.setdefault(subrow(a, r), []).append((src, n))
     # rows referenced by C: breadth-first through row pointers, report every listed target with its shortest chain
     seen = {}; work = []
     for r, refs in rowseed.items(): seen[r] = None; work.append(r)

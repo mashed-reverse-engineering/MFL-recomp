@@ -23,6 +23,70 @@ typedef void (*D3DXMathFn)(void);
 /*0062efc4*/ extern int g_d3dxcpuoptimizations_62efc4;                               /* selected CPU class */
 /*0050c60e*/ extern void __cdecl sse2_D3DXInitFastTable(D3DXMathFn *table);
 
+/* sse2_D3DXInitFastTable 0x0050c60e (lane S, window 6; diffemu EQUAL 200 cases 7f / 27f, HS 3895): the SSE2 installer.  Slot meanings from
+ * the default C table 0x62eda8.  Only four slots have a live reader (public stubs `jmp [slot]` in live code): 3, 4, 6, 10, filled with the SSE
+ * matrix / vector entry points that the pinned librw DLL replaces (tools/delink/rw_d3dx.txt).  Every other slot's readers are dead-filled /
+ * trap rows, and so are the functions written into them: those words are written as constants (D3DX_CODE), so no installed C names a filled
+ * body (trapcheck); the standalone link keeps original code at its original address, so the table is word for word the original's. */
+#define D3DX_CODE(va) ((D3DXMathFn)(va))      /* address of original D3DX code that no live code calls (filled in the standalone link) */
+
+/*00510b45*/ extern void __stdcall sse_D3DXMatrixMultiply(void);
+/*0050f872*/ extern void __stdcall sse_D3DXMatrixMultiplyTranspose(void);
+/*0050f5d9*/ extern void __stdcall sse_D3DXVec3TransformNormal(void);
+/*00511050*/ extern void __stdcall sse_D3DXVec3TransformCoord(void);
+
+/* Overwrites the SSE2 / SSE entries over the C defaults already in the table (slot = byte offset / 4). */
+/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+void __cdecl sse2_D3DXInitFastTable(D3DXMathFn *table)
+{
+  /* live slots */
+  table[3] = (D3DXMathFn)sse_D3DXMatrixMultiply;
+  table[4] = (D3DXMathFn)sse_D3DXMatrixMultiplyTranspose;
+  table[6] = (D3DXMathFn)sse_D3DXVec3TransformNormal;
+  table[10] = (D3DXMathFn)sse_D3DXVec3TransformCoord;
+
+  /* slots without a live reader */
+  table[2] = D3DX_CODE(0x00510a79);   /* sse2 Vec4Transform (also slot 34) */
+  table[34] = D3DX_CODE(0x00510a79);
+  table[0] = D3DX_CODE(0x0050e956);   /* sse Vec2Transform */
+  table[1] = D3DX_CODE(0x0050f6ae);
+  table[5] = D3DX_CODE(0x0050e9eb);   /* sse Vec2TransformNormal */
+  table[9] = D3DX_CODE(0x0050e994);   /* sse Vec2TransformCoord */
+  table[7] = D3DX_CODE(0x0050f782);   /* sse Vec3Normalize */
+  table[8] = D3DX_CODE(0x0050edde);   /* sse_D3DXVec4Normalize */
+  table[21] = D3DX_CODE(0x00511153);
+  table[16] = D3DX_CODE(0x00510c79);
+  table[20] = D3DX_CODE(0x0050d139);  /* sse_D3DXQuaternionNormalize */
+  table[19] = D3DX_CODE(0x0050d0c0);  /* sse_D3DXQuaternionMultiply */
+  table[24] = D3DX_CODE(0x005114f1);
+  table[25] = D3DX_CODE(0x0051142f);  /* sse2_D3DXQuaternionRotationYawPitchRoll */
+  table[22] = D3DX_CODE(0x0050f31f);  /* sse_D3DXPlaneIntersectLine */
+  table[18] = D3DX_CODE(0x0050ea22);
+  table[49] = D3DX_CODE(0x0050f054);  /* sse_D3DXVec3Hermite */
+  table[50] = D3DX_CODE(0x0050ee78);  /* sse_D3DXVec3CatmullRom */
+  table[51] = D3DX_CODE(0x0050f227);  /* sse Vec3BaryCentric */
+  table[52] = D3DX_CODE(0x0050f107);  /* sse_D3DXVec4Hermite */
+  table[53] = D3DX_CODE(0x0050efaf);  /* sse_D3DXVec4CatmullRom */
+  table[54] = D3DX_CODE(0x0050f284);  /* sse Vec4BaryCentric */
+  table[17] = D3DX_CODE(0x0050f1a1);  /* sse_D3DXVec2Hermite */
+  table[47] = D3DX_CODE(0x0050ef2a);  /* sse_D3DXVec2CatmullRom */
+  table[48] = D3DX_CODE(0x0050f2cd);  /* sse Vec2BaryCentric */
+  table[11] = D3DX_CODE(0x00510d39);
+  table[27] = D3DX_CODE(0x00511268);  /* sse MatrixShadow */
+  table[13] = D3DX_CODE(0x00510e44);
+  table[28] = D3DX_CODE(0x00510f44);  /* sse MatrixReflect */
+  table[58] = D3DX_CODE(0x005109a7);  /* sse2_D3DXFloat16To32Array */
+  table[69] = D3DX_CODE(0x0050e200);  /* sse_D3DXPSGPUpdateSkinnedMesh */
+  table[59] = D3DX_CODE(0x0050fe73);  /* sse2_D3DXVec2TransformArray */
+  table[60] = D3DX_CODE(0x00510001);  /* sse2_D3DXVec2TransformCoordArray */
+  table[61] = D3DX_CODE(0x00510167);  /* sse2_D3DXVec2TransformNormalArray */
+  table[62] = D3DX_CODE(0x0050fc6d);  /* sse2_D3DXVec3TransformArray */
+  table[63] = D3DX_CODE(0x00510685);  /* sse2_D3DXVec3TransformCoordArray */
+  table[64] = D3DX_CODE(0x005104b5);  /* sse2_D3DXVec3TransformNormalArray */
+  table[65] = D3DX_CODE(0x00510277);  /* sse2_D3DXVec4TransformArray (also slot 68) */
+  table[68] = D3DX_CODE(0x00510277);
+}
+
 /* enable = 0: back to the plain C table.  Otherwise: fill the table once, return the CPU class. */
 int __stdcall D3DXCpuOptimizations(int enable)
 {

@@ -235,6 +235,12 @@ extern int LastVertexStreamUsed[], LastWorldMatrixUsedIdentity, LastMatrixUsed[]
 extern char IdentityMatrix[], g_rw_62e7f0[];      /* 0x5ea090, the world D3DMATRIX scratch 0x62e7f0 */
 /*004e9510*/ extern void __cdecl RwFreeListPurge(void);
 typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *textureModule, void *rasterTK, void *textureTK, void *texDictTK, void *errorSet);
+/* Trap stub of a bind table slot (W6 T6): the slot of a trap row (tools/delink/rw_trap.txt) must not name the trapped function (trapcheck) and must not be 0
+   (tools/bindzero.py).  HK_TRAP_STUB(mfl_trap_<function>_<va>) defines a function that faults at once; the release exe's filter (recomp/release/mfl_trap.c) then logs
+   "trap 0xc0000005 at <addr> in _mfl_trap_<function>_<va>+<off>" and ends with exit code 3, like an int3 of the trap fill. */
+#ifndef MFL_DIFFEMU
+#define HK_TRAP_STUB(fn) void __cdecl fn(void) { *(volatile int *)0 = 0; }
+#endif
 #include "an_hk_612_d3d9pipe.inc"
 #include "an_hk_612_d3d9texdic.inc"
 #include "an_hk_612_d3d9vdtan.inc"
@@ -247,6 +253,10 @@ typedef void (__cdecl *MflrwExeBind)(char **engine, int *rasterModule, int *text
 #include "an_hk_612_d3d9rasq.inc"
 #include "an_hk_612_d3d9sys.inc"
 #include "an_hk_612_noded3d9.inc"
+#include "an_hk_612_noded3d9i.inc"
+#include "an_hk_612_d3d9submit.inc"
+#include "an_hk_612_d3d9patch.inc"
+#include "an_hk_612_d3d9ptank.inc"
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
 #define VIDEO_MEMORY_BYTES (0x400000)
@@ -484,6 +494,10 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   hk_bind_d3d9rasq(mflrw);
   hk_bind_d3d9sys(mflrw);
   hk_bind_noded3d9(mflrw);
+  hk_bind_noded3d9i(mflrw);
+  hk_bind_d3d9submit(mflrw);
+  hk_bind_d3d9patch(mflrw);
+  hk_bind_d3d9ptank(mflrw);
 #endif
 
   /* Step 1: core RenderWare init with the default resource arena. */

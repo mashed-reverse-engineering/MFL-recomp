@@ -1,0 +1,10 @@
+# Group "d3d9ptank" (lane K2 window 6, rpptank ptankd3d9 bucket of the flip manifest): the D3D9 driver rows of the particle tank plugin, from
+# librw-mfl/capi/d3d9ptank.cpp (op for op, on the exe's own engine, device, device state caches, the ptank d3d9 bss block and callees).  Needs LIB_RW ...,d3d9ptank and
+# the mflrw_d3d9ptank_bind call in recomp/automatch_near/an_hk_612.c (an_hk_612_d3d9ptank.inc, 44 slots, enum E of d3d9ptank.cpp).  Format as rw_g3.txt:
+# exe_name=dll_export.  Names: aliases.txt / fnsizes_unanalysed.txt names (fnsizes 13 / 640 / 645 / 1211).  None of the four rows is in tools/delink/rw_trap.txt.
+# Trap rows among the values the rows store / compare (bind slots = trap stubs): the seven rpPTankD3D9Ins*_spr functions and rpPTankGENInsPosCCCSNR.
+# Proof: tools/delink/rw_d3d9ptank_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev" (every call at x87 control word 0x7f, 0x27f or 0x37f).
+rpPTankD3D9InsEnding=rw37_rpPTankD3D9InsEnding
+rpPTankD3D9InsSetup=rw37_rpPTankD3D9InsSetup
+rpPTankD3D9Create=rw37_rpPTankD3D9Create
+rpPTankD3D9RenderCallBack=rw37_rpPTankD3D9RenderCallBack

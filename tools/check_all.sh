@@ -12,6 +12,8 @@ trap 'kill $(jobs -p) 2>/dev/null' EXIT      # a failing check leaves no strict 
 $T/provenance.sh $W
 # ---- seconds-long checks, static FAIL classes first
 python3 $T/cheatgrep.py | tail -5; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "cheatgrep: forbidden constructs (src/cheat_allow.txt for legitimate ones)"; exit 1; }
+# bind tables (W6 T6): no 0 slot in a mflrw.dll bind table of an_hk_612.c / an_hk_612_*.inc unless src/automatch_near/bind_zero_allow.txt lists it with a reason (a trap row's slot is its trap stub)
+python3 $T/bindzero.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "bindzero: a bind table slot is 0 (tools/bindzero.py)"; exit 1; }
 # the Wine image is pinned by digest / local tag (tools/pin_wine_image.py): a floating tag lets a docker pull change every Wine verdict unnoticed
 python3 $T/pin_wine_image.py --check || { echo "pin: a tools/ script names the floating Wine image tag (python3 tools/pin_wine_image.py <reference>)"; exit 1; }
 python3 $T/declcheck.py > $W/declcheck.txt; [ $? -eq 0 ] || { grep HARD $W/declcheck.txt; echo "declcheck: hard mismatches"; exit 1; }

@@ -807,6 +807,10 @@ class Machine:
         for a in callees: uc.hook_add(UC_HOOK_CODE, m._callee, begin=a, end=a)
         uc.hook_add(UC_HOOK_CODE, m._callee, begin=IMPSTUB, end=IMPSTUB + 0x10000)
         m.nullcall = False; uc.hook_add(UC_HOOK_CODE, m._nullcode, begin=0, end=0xfff)      # code in the null page: a call through a pointer the function zeroed itself (malloc stub returned a small value, rep stos cleared the table): garbage execution, the case is skipped (NULLCALL)
+        m.hpage = None      # first access of the ORIGINAL side to the OURS / SCR pages (our code / literals: zero bytes on its side): the two sides see different bytes there by construction, the case is skipped (HARNESS_PAGE, run_case)
+        for p_ in (OURS, SCR):      # the two 0x10000 mappings only: the demand-mapped pages between them (0x7001.... - 0x70ff....) hold the same bytes on both sides
+            uc.hook_add(UC_HOOK_MEM_READ | UC_HOOK_MEM_WRITE, m._hpage, begin=p_, end=p_ + 0xffff)
+            uc.hook_add(UC_HOOK_BLOCK, m._hpage_x, begin=p_, end=p_ + 0xffff)
 
     def page(m, p):
         r = random.Random(p * 2654435761 ^ m.seed * 40503 ^ 0x5bd1e995)
@@ -947,6 +951,12 @@ class Machine:
 
     def _nullcode(m, uc, addr, size, ud):
         m.nullcall = True; uc.emu_stop()
+
+    def _hpage(m, uc, access, addr, size, val, ud):
+        if not getattr(m, "ours", True) and m.hpage is None: m.hpage = addr
+
+    def _hpage_x(m, uc, addr, size, ud):
+        if not getattr(m, "ours", True) and m.hpage is None: m.hpage = addr
 
     def _write(m, uc, access, addr, size, val, ud):
         if m.track:
@@ -1500,6 +1510,7 @@ def run_case(fn, case):
         c2 = Case(case.seed, case.mode, (0xA5, 0x00)[case.seed & 1], case.args, case.regs, case.wins); c2.patch, c2.small = case.patch, case.small
         mo, ro = side(fn, c2, False); mu, ru = side(fn, c2, True)
         if not ro["done"]: return "skip", ro["cause"]
+    if mo.hpage is not None: return "skip", "HARNESS_PAGE"      # the original touched our code / literal pages (UVAnimCopy seed 35, rt2dFontShowBitmap seed 8812): no meaning for the comparison
     if mo.guard: return "skip", "DEEP_FRAMEGUARD"      # the ORIGINAL's real callee ran past a frame object of the original (a stub value outside the real domain: a count of 21 for a 0xec byte buffer)
     if mu.guard: return "diff", ["a real callee %s our frame's return address / pre-pushed registers (%s), the original's stays inside its frame on the same input: a frame object passed to it is smaller than the original's (%s)" % ("writes" if any(k == "write" for k, _ in mu.guard) else "reads", sorted(set(mu.guard))[:4], ru.get("cause") or "ours returns")]      # 585950 float res[16] class (585170 reads entry 5 of a 16 float buffer); checked before the ours-side DEEP_ causes (clobbered locals make ours loop inside the callee)
     if not ru["done"] and (ru["cause"] == "TIMEOUT" or ru["cause"].startswith("DEEP_")): return "skip", ru["cause"]

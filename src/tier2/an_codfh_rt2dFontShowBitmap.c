@@ -326,7 +326,7 @@ Rt2dFont *rt2dFontShowBitmap(Rt2dFont *font, const RwChar *string, RwReal height
 
                     if (cr->tex != currTex)
                     {
-                        RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void *)(size_t)(((RwTextureHead *)cr->tex)->filterAddressing & 0xff));
+                        RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void *)(mfl_uptr)(((RwTextureHead *)cr->tex)->filterAddressing & 0xff));
                         RwRenderStateSet(rwRENDERSTATETEXTURERASTER, ((RwTextureHead *)cr->tex)->raster);
                         currTex = cr->tex;
                     }

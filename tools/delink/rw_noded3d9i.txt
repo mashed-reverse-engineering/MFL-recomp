@@ -1,0 +1,9 @@
+# Group "noded3d9i" (lane K1 window 6, noded3d9worldsectorallinone / noded3d9atomicallinone buckets of the flip manifest): the two default instance callbacks of the
+# all-in-one nodes (vertex declaration build, vertex buffer create, lock, element writers, unlock), from librw-mfl/capi/noded3d9i.cpp (op for op, on the exe's own
+# engine, device caps and callees; the buffers are reached through their COM vtables only).  Needs LIB_RW ...,noded3d9i and the mflrw_noded3d9i_bind call in
+# recomp/automatch_near/an_hk_612.c (an_hk_612_noded3d9i.inc, 17 slots, enum E of noded3d9i.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names: D3D9WorldSectorDefaultInstanceCallback is the fnsizes_unanalysed.txt / aliases.txt name of 0x5005b0 (fnsizes 1037); FUN_004ff980 is the symbols.txt name of
+# D3D9AtomicDefaultInstanceCallback 0x4ff980 (fnsizes 2438).  Neither row is in tools/delink/rw_trap.txt.
+# Proof: tools/delink/rw_noded3d9i_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev" and with cw:7f / cw:27f / cw:37f (the atomic row has one x87 multiply).
+D3D9WorldSectorDefaultInstanceCallback=rw37_D3D9WorldSectorDefaultInstanceCallback
+FUN_004ff980=rw37_D3D9AtomicDefaultInstanceCallback

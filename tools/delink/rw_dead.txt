@@ -349,3 +349,29 @@
 00561ae0 64 _rtFileSystemTriggerCallBack
 0050e758 298 SSEFloat16Conversion8
 0050e882 212 sse_D3DXFloat16To32Array
+# S w6 2026-11-12 (lane S, step 2; append to tools/delink/rw_dead.txt, format `va size name`, size = to the next fnsizes start like dshow_drop.py pool):
+# Rwp volume type RwpConvex (src/core/volume/src/RwpConvex.c, id string 0x5f8e40), 9 rows, 5,792 B.  Needs the fnsizes rows of rows_fnsizes_added.txt.
+# Its ops table (type 7 at 0x5f8e78, method words 0x5f8e7c..0x5f8ea0) sits in the data row g_gap_005f8e30 (0x5f8e30..0x5f8f4c, kind gap).
+# Proof (agents/s_w6/deadproof.py: every 4-byte value at ANY byte offset of EVERY section of MFL.exe incl. .rdata/.data/.rsrc, every E8/E9/0F8x rel32 in
+# .text/_rwcseg, every output/delink_relocs.csv target, every 8-digit address in recomp/ .c/.h/.inc/.txt, agents/pc_w6/rwcov_w6.csv):
+#   deadproof.py 5f8e30-5f8f4c: abs 0, rel 0, reloc 0, C 0 -> the ops table row is referenced by nothing (one recomp/globals_reloc_allow.txt line
+#     is a pointer FROM the row at 0x5f8eb0 outward, not into it).
+#   deadproof.py 5d6420-5d7ad0 5f8e74-5f8eac: C 0, names only in recomp/symbols.txt (LAB_ / FUN_005d6a70).  Hits checked by hand:
+#     rel 0x5baece / 0x5baef8 (FUN_005bae90) and 0x5d6334 / 0x5d635f (RpCollSectorBBoxItFindNextEntries): E9/E8 bytes inside `shr ecx,0x1c` /
+#     `mov ebp,2` / `mov esi,1` operands, not branches (objdump);
+#     abs 0x5e15d2 / 0x5e15e1 / 0x5e15ed / 0x5e15fd / 0x5e182e (.rdata string rows: ASCII "ed]", "e]" ...) and 0x94ce08 (.rsrc): text bytes, not pointers;
+#     abs + reloc 0x5f6e20 -> 0x5d6a30: slot 7 of the ops table 0x5f6e04 inside the LIVE span g_libspan_005f6cd4__t.  0x5d6a30 (`jmp 0x56c9b0`, 5 B + 11 pad)
+#     is therefore NOT a row here; nothing else in the span points into the block (pool() would keep only 0x5d6a30 alive through it).
+#   Internal: FUN_005d6a70's only caller is 0x5d6a5b in 0x5d6a40 (ops slot 9), itself dead.
+#   Coverage: the one instrumented name of the block, FUN_005d6a70, has hit=0 in rwcov_w6.csv (118/118 jobs); the other entries are not instrumented,
+#   unreferenced code cannot run.
+#   trapcheck --list rows_dead.txt (gate link 1112_1439): see notes.md.
+005d6420 32 rwp_convex_op0_005d6420
+005d6440 64 rwp_convex_op1_005d6440
+005d6480 80 rwp_convex_op2_005d6480
+005d64d0 144 rwp_convex_op3_005d64d0
+005d6560 96 rwp_convex_op4_005d6560
+005d65c0 1104 rwp_convex_op5_005d65c0
+005d6a10 32 rwp_convex_op8_005d6a10
+005d6a40 48 rwp_convex_op9_005d6a40
+005d6a70 4192 FUN_005d6a70

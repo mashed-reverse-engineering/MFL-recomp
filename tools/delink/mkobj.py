@@ -397,6 +397,7 @@ if "--drop-app" in opt:
                 if j_ >= 0 and s_ < _fs[j_] + fsz[_fs[j_]] and _fs[j_] not in UNAN and (s_,(s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF) not in brs: continue     # inside a sized function body only Ghidra's own flow refs count (else tables / immediates that look like E8 xx xx xx xx)
                 brs.add((s_, (s_ + k + 4 + struct.unpack_from("<i", _b, i + k)[0]) & 0xFFFFFFFF))
     NONBR = {int(l.split()[0], 16) for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonbranch_sites.txt")) if l.strip() and not l.startswith("#")}      # byte patterns that only look like a branch
+    _bt = sorted({t_ for s_, t_ in brs if s_ not in NONBR})      # every branch target (the padding fill below)
     brs = [(s_, t_, cand_of(t_)) for s_, t_ in sorted(brs) if s_ not in NONBR]; brs = [x for x in brs if x[2] is not None]
     absr = []                  # (site, target) of DIR32 words in kept sections that point into a candidate body
     for si in range(len(secs)):
@@ -448,6 +449,21 @@ if "--drop-app" in opt:
         if a_ not in legacy: stat["drop-app: functions dropped"] += 1; DAPP.append((a_, cand[a_] - a_, redir_at[a_], "dropped", ""))
         elif keep_from[a_] > a_ + 5: DAPP.append((a_, keep_from[a_] - a_, redir_at[a_], "partial", "tail from %08x kept (%d bytes): %s" % (keep_from[a_], cand[a_] - keep_from[a_], legacy[a_])))
         else: DAPP.append((a_, cand[a_] - a_, redir_at[a_], "legacy", legacy[a_]))
+    # W6 T13 (crumbs): alignment padding behind a filled extent.  A dead / trap row is filled with exactly its size and a dropped body whose extension was cancelled ends at its sized end, so the
+    # pad up to the next function stayed "original".  Filled too: the leading run of single byte 0x90 / 0xCC behind the extent, at most up to the next 16-aligned address or listed function.
+    # Not filled: a run that a word, a branch or a symbol points into; an extent that ends 16-aligned; anything behind the first other byte (unlisted code, a tail the row size cut short:
+    # agents/fill_w6/crumb_samples.txt, negative samples).  The runs join <out>.dead.csv as "pad <row>", so origbytes.py counts them as filled and traphit.py can name them.
+    _al = sorted([a_ for _, a_ in aliases] + list(redir_at)); PADS = []      # symbols and entry jmps (a redirected function without an fnsizes row)
+    for g0, nm_ in sorted(set([(va_ + n_, (why_.split() or ["-"])[-1]) for va_, n_, why_ in DEAD] + [(cand[a_], redir_at[a_]) for a_ in cand if a_ not in legacy and keep_from[a_] > a_ + 5])):
+        si_ = sec_index(g0)
+        if si_ is None or si_ not in CSECS or g0 % 16 == 0 or (PADS and PADS[-1][0] == g0): continue
+        j_ = bisect.bisect_left(_fs, g0); g1 = min((g0 | 15) + 1, _fs[j_] if j_ < len(_fs) else _cend, secs[si_][1] + secs[si_][3])
+        o_ = g0 - secs[si_][1]; n_ = 0
+        while g0 + n_ < g1 and secs[si_][2][o_ + n_] in (0x90, 0xCC): n_ += 1
+        if not n_ or any(bisect.bisect_left(l_, g0) != bisect.bisect_left(l_, g0 + n_) for l_ in (_wv, _bt, _al)): continue
+        rel[si_] = [r_ for r_ in rel[si_] if not o_ - 3 <= r_[0] < o_ + n_]
+        data[si_][o_:o_ + n_] = b"\xcc" * n_; stat["drop-app: padding bytes filled"] += n_; PADS.append((g0, n_, "pad " + nm_))
+    open(OUT + ".dead.csv", "a").write("".join("%08x,%d,%s\n" % x for x in PADS))
     stat["drop-app: functions kept (interior refs)"] = len(legacy)
     blockers = []
     for si in range(len(secs)):

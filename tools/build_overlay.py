@@ -173,7 +173,7 @@ def main():
         # object cache: key = source + all headers + flags; only the changed files are compiled, in ONE cl call (a docker/wine start costs ~8 s)
         flags = ["/nologo", "/c", "/O2", "/Gy"]
         hdr = hashlib.sha1()
-        LOCAL_H = ("mfl_video.h", "mfl_audio.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
+        LOCAL_H = ("mfl_video.h", "mfl_audio.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h", "rw37_slim.h")      # included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
         for h in sorted(glob.glob(os.path.join(work, "*.h"))):
             if os.path.basename(h) in LOCAL_H: continue
             hdr.update(open(h, "rb").read())
@@ -212,7 +212,12 @@ def main():
                 todo_ = [x for x in todo if ccv[x] == cv_]
                 njobs = min(len(todo_), int(os.environ.get("JOBS", os.cpu_count() or 1)))
                 chunks = [todo_[i::njobs] for i in range(njobs)]
-                cmd = " ".join("wine cl.exe %s %s &" % (" ".join(flags + (["/GS"] if g else []) + (OB0 if o else []) + (["/G5"] if v else [])), " ".join(f_)) for c in chunks for g in (0, 1) for o in (0, 1) for v in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o) and (x in g5_files) == bool(v)]] if f_) + " wait"
+                # every cl job gets its own TMP/TEMP below the work dir: cl names its intermediate files C:\...\Temp\_CL_<pid>..., and concurrent builds
+                # (check_all BUILD_PAR, each a separate container = separate wineserver on the one prefix) reuse the same Windows pids -> C1083 (G0, 2026-11-12).
+                # Set inside cmd /c (Wine replaces a unix TMP/TEMP by the prefix's registry value); %CD% = the work dir in both vc7.sh modes.
+                jobs_ = [(" ".join(flags + (["/GS"] if g else []) + (OB0 if o else []) + (["/G5"] if v else [])), " ".join(f_)) for c in chunks for g in (0, 1) for o in (0, 1) for v in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o) and (x in g5_files) == bool(v)]] if f_]
+                for j_ in range(len(jobs_)): os.makedirs(os.path.join(work, "cltmp%d" % j_), exist_ok=True)
+                cmd = " ".join('wine cmd /c "set TMP=%%CD%%\\cltmp%d&&set TEMP=%%CD%%\\cltmp%d&&cl.exe %s %s" &' % (j_, j_, fl_, fs_) for j_, (fl_, fs_) in enumerate(jobs_)) + " wait"
                 r = subprocess.run([os.path.join(HERE, "vc7.sh"), work, cmd], capture_output=True, text=True, env=dict(os.environ, VC7_SHELL="1", VC7_CL=cv_))
                 out_ += r.stdout + r.stderr
             for nm in todo:

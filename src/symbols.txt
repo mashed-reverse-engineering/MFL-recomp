@@ -4574,6 +4574,7 @@ c_D3DXMatrixShadow 004fef4d
 c_D3DXMatrixReflect 004ff027
 _rwD3D9AtomicDefaultLightingCallback 004ff4c0
 FUN_004ff980 004ff980
+LAB_00500310 00500310
 FUN_005003b0 005003b0
 FUN_005009c0 005009c0
 RpWorldSetDefaultSectorPipeline 005009d0
@@ -6211,6 +6212,7 @@ _rwaStreamContainerCommandSetMedia 005c1ad0
 rwa_unit246d50_005c1b00 005c1b00
 _rwaStreamContainerCommandSetPitch 005c1b10
 _rwaStreamContainerCommandSetStreamGain 005c1b30
+rwa_unit246d50_005c1be0 005c1be0
 rwa_unit246d50_005c1c10 005c1c10
 _rwaStreamNodeGetStatusString 005c1c30
 _RwaStreamNodeCreationComplete 005c1cb0
@@ -10754,6 +10756,7 @@ _rpPatchGlobals 007da860
 g_rp_7da864 007da864
 g_rp_7da868 007da868
 g_rp_7da87c 007da87c
+g_rp_7da890 007da890
 fsm 007da894
 g_rt_7da898 007da898
 g_rt_7da89c 007da89c
@@ -10776,7 +10779,10 @@ g_data_7daa0c 007daa0c
 g_data_7daa18 007daa18
 qhmem 007daa20
 g_data_7daa88 007daa88
+g_data_7daa8c 007daa8c
+g_data_7daa90 007daa90
 g_data_7daa94 007daa94
+g_data_7daa98 007daa98
 rwabase_updating 007daa9c
 g_data_7daaa0 007daaa0
 g_data_7daac0 007daac0
