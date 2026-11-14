@@ -18,6 +18,7 @@ RW_LAYOUT_ASSERT(rw37_row_0, sizeof(RpHAnimFrameExtension) == 8 && RW_OFFSETOF(R
 #define rpHANIMDEFAULTFRAMEID -1
 extern RpHAnimAtomicGlobalVars RpHAnimAtomicGlobals;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 HAnimSize(const void *object, RwInt32 __RWUNUSED__ offsetInObject, RwInt32 __RWUNUSED__ sizeInObject)
 {
     RwBool              needToStream;

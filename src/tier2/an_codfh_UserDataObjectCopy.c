@@ -164,6 +164,7 @@ RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(RpUserDataArray, data) == 0xc);      /
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpUserDataArray, format) == 4 && RW_OFFSETOF(RpUserDataArray, numElements) == 8 && RW_OFFSETOF(RpUserDataList, userData) == 4);      /* MFL.exe 0x554958 format [esi+4], 0x55495e numElements [esi+8]; 0x55481f list->userData [object+offset+4], 0x5548fd numElements [object+offset] */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * UserDataObjectCopy(void *destinationObject, const void *sourceObject, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {
     RpUserDataList     *dstList;

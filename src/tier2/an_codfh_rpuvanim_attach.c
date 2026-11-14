@@ -223,7 +223,7 @@ RwInt32 UVAnimSize(const void *object, RwInt32 offsetInObject, RwInt32 sizeInObj
     return 0;
 }
 
-/* TIER2: unvalidated 2026-11-09 authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpUVAnimPluginAttach(void)
 {
     RwInt32 success;

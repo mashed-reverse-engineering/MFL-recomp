@@ -30,7 +30,7 @@ typedef struct RwaMemoryFunctions {      /* the four words of RwGlobals.memoryFu
 /*007daa9c*/ extern RwInt32 rwabase_updating;      /* an object update is open */
 
 /* Ends an open update of the top level object, then closes the modules from the last to the first. */
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void rwa_base_close_005b6860(void)
 {
   RwUInt32 i;

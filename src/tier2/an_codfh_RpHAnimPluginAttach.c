@@ -45,6 +45,7 @@ extern RwStream * HAnimWrite(RwStream * stream, RwInt32 __RWUNUSED__ binaryLengt
 extern RwStream * HAnimRead(RwStream * stream, RwInt32 __RWUNUSED__ binaryLength, void *object, RwInt32 __RWUNUSED__ offsetInObject, RwInt32 __RWUNUSED__ sizeInObject);
 extern RwInt32 HAnimSize(const void *object, RwInt32 __RWUNUSED__ offsetInObject, RwInt32 __RWUNUSED__ sizeInObject);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpHAnimPluginAttach(void)
 {
     RwInt32             success = 0;

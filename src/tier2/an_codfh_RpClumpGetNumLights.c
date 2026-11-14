@@ -14,6 +14,7 @@ typedef struct RpLight RpLight;
 
 extern RwInt32  _rpClumpLightExtOffset;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=shadow */
 RwInt32 RpClumpGetNumLights(RpClump * clump)
 {
     RwInt32             nNumLights = 0;

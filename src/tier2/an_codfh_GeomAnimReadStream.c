@@ -53,6 +53,7 @@ extern RwInt32      geomAnimOffset;
 RW_LAYOUT_ASSERT(rw37_priv_0, sizeof(RpMorphInterpolator) == 0x14);      /* an_codfh_rpmorph.c */
 RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(RpMorphGeometryAnim, allInterps) == 8);      /* an_codfh_rpmorph.c */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * GeomAnimReadStream(RwStream * stream, RwInt32 __RWUNUSED__ binaryLength, void *object, RwInt32 __RWUNUSED__ offsetInObject, RwInt32 __RWUNUSED__ sizeInObject)
 {
     RpMorphGeometryAnim *geomAnim;

@@ -94,6 +94,7 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldLightExt, oldSync) == 4);      /
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(RpWorld, lightList) == 0x34 && RW_OFFSETOF(RpWorld, directionalLightList) == 0x3c && RW_OFFSETOF(RpLight, inWorld) == 0x34);      /* MFL.exe 0x4f4659 world + 0x3c (directional), 0x4f466e world + 0x34 (positional), 0x4f4673 light->inWorld [esi+0x34] */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpLight * WorldAddClumpLight(RpLight *light, void *data)
 {
     /* RpWorldAddLight((RpWorld *) data, light), inlined in MFL.exe: the light joins the world's directional or positional list */

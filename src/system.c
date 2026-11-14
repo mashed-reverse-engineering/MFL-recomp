@@ -139,11 +139,14 @@ void message_show_controller_missing(void)
     message_show_now(MSG_CONTROLLER_MISSING, 0xff210000, 0, 0, 0, 0);
 }
 
+/* 0x4d5ac0: MFL.exe 0x431b0a calls RwTexDictionaryDestroy directly, not its jmp thunk 0x485240 (W8 T-REL, lane L sweep v2) */
+extern void RwTexDictionaryDestroy_4d5ac0(void *dict);
+
 // FUNCTION: MFL 0x00431b00
 void frontend_world_destroy(void)
 {
     if (g_frontend_world_69cbe4 != 0)
-        RwTexDictionaryDestroy(g_frontend_world_69cbe4);
+        RwTexDictionaryDestroy_4d5ac0(g_frontend_world_69cbe4);
     if (g_frontend_world_69cbd8 != 0)
         RpWorldDestroy(g_frontend_world_69cbd8);
 }

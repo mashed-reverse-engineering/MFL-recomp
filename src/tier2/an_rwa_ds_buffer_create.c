@@ -39,7 +39,7 @@ typedef struct DSBufferDesc {       /* DSBUFFERDESC (DirectX 7+ layout, 0x24 byt
 
 /* Queries the 3D buffer (want3d) and the property set (wantProps) interfaces of set->buffer.  1: ok; 0: a query failed (the 3D
    interface is released again when the property set query fails). */
-/* TIER2: unvalidated 2026-11-13 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwBool _rwaDSBufferGetInterfaces(RwaDSBufferSet *set, RwBool want3d, RwBool wantProps)
 {
   if (want3d && COM(set->buffer, 0, ComQueryInterface)(set->buffer, &g_data_5e1eac, &set->buffer3d) < 0)
@@ -54,7 +54,7 @@ RwBool _rwaDSBufferGetInterfaces(RwaDSBufferSet *set, RwBool want3d, RwBool want
 
 /* Creates a sound buffer of `format` (PCM, sized for the format's data) on the DirectSound object `ds` with `flags` (3D caps added
    when want3d) and gets its interfaces into `set`.  1: ok; 0: creation or an interface query failed (the buffer is released). */
-/* TIER2: unvalidated 2026-11-13 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwBool _rwaDSBufferCreate(ComObj *ds, const RwaWaveFormat *format, RwBool want3d, RwBool wantProps, RwUInt32 flags, RwaDSBufferSet *set)
 {
   WaveFormatEx wfx;

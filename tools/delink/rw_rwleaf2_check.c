@@ -4,8 +4,8 @@
    image mapping and harness arena).  The DLL is bound (mflrw_rwleaf2_bind) to the exe's RwErrorSet 0x4ea160 (jmp-patched to a logger that
    writes its two words into the arena), _rwSqrt 0x4d5410 and RwV3dLength 0x4d53a0 (original code; their sqrt table hangs off a harness engine
    block: RwEngineInstance 0x7d2128, table offset 0x7d2158) and the PVS plugin offset 0x947ae8 (set per case).  Each side rebuilds the case from
-   the same seed; compared: the used arena incl. slack, the return value (RpLightGetConeAngle: the 80-bit st0), the x87 control word (CW 0x7f on
-   even and 0x27f on odd cases).  Inputs: brush colours equal / one byte apart / random; BMP rows for every depth / bpp key (and invalid ones),
+   the same seed; compared: the used arena incl. slack, the return value (RpLightGetConeAngle: the 80-bit st0), the x87 control word (CW 0x7f /
+   0x27f / 0x37f for seed % 3 = 0 / 1 / 2; 0x37f since W8 T19).  Inputs: brush colours equal / one byte apart / random; BMP rows for every depth / bpp key (and invalid ones),
    widths 0..40, both 24-bit orders; sector trees of depth 0..4 with plane types 0 / 4 / 8 / other, boxes with inf / NaN / sNaN; cone cosines
    around 0, +-0.5, +-1, tiny, inf / NaN / random bits; keyframes with unit / random / special quaternions.
    usage: rw_rwleaf2_check.exe <mflrw.dll> <MFL.exe> [N=100000] [name,name|all] [neg]
@@ -86,7 +86,7 @@ static u32 mktree(int depth) {
 
 static u32 cwlog[2]; static u8 xret[2][10];
 static u32 run_case(int kind, void *fn, int isdll, int neg, u32 seed, int *cov) {
-  u32 r = 0, k; unsigned short cw = (seed & 1) ? 0x27f : 0x7f; int dneg = neg && isdll;
+  u32 r = 0, k; unsigned short cw = seed % 3 == 2 ? 0x37f : seed % 3 ? 0x27f : 0x7f; int dneg = neg && isdll;
   rs = seed; cov[0] = cov[1] = 0;
   elog = halloc(40); memset(elog, 0, 40);
   cw_set(cw);

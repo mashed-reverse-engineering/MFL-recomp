@@ -92,6 +92,7 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwR
 
 extern void _PropDownElimPath(RxPipeline * pipeline, RxPipelineNode * node, RxClusterDefinition * clusterDef);      /* recursive: declared for the gate's shadow build */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void _PropDownElimPath(RxPipeline * pipeline, RxPipelineNode * node, RxClusterDefinition * clusterDef)
 {
     RwUInt32    i;

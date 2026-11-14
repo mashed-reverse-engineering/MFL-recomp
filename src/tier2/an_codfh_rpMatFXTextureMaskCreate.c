@@ -148,6 +148,7 @@ RW_LAYOUT_ASSERT(rw37_row_7, sizeof(RwImage) == 0x1c);      /* exe: exe static i
 /* ---- end of the generated declarations ---- */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwTexture * rpMatFXTextureMaskCreate(const RwTexture * baseTexture, const RwTexture * maskTexture)
 {
     RwRaster           *baseRaster = (RwRaster *)NULL;

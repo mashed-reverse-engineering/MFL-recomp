@@ -16,7 +16,7 @@ struct DSBufferVtbl {      /* IDirectSoundBuffer: only the slots used here are t
 };
 
 /* 1 while the buffer plays (DSBSTATUS_PLAYING), 0 when it does not or the status call fails. */
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwUInt32 _rwaDSBufferIsPlaying(DSBuffer **buffer)
 {
   RwUInt32 status = 0;
@@ -26,7 +26,7 @@ RwUInt32 _rwaDSBufferIsPlaying(DSBuffer **buffer)
 }
 
 /* Copies `bytes` from `data` into the buffer at `offset` (two parts when the range wraps).  1: ok, 0: lock or unlock failed. */
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwBool _rwaDSBufferUpload(DSBuffer **buffer, RwUInt32 offset, const char *data, RwUInt32 bytes)
 {
   void *part1, *part2;
@@ -39,7 +39,7 @@ RwBool _rwaDSBufferUpload(DSBuffer **buffer, RwUInt32 offset, const char *data, 
 }
 
 /* Copies `bytes` at `offset` out of the buffer into `data`.  1: ok, 0: lock or unlock failed. */
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwBool _rwaDSBufferDownload(DSBuffer **buffer, RwUInt32 offset, char *data, RwUInt32 bytes)
 {
   void *part1, *part2;

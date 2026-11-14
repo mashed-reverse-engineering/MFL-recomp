@@ -97,6 +97,7 @@ extern RwInt32 stub_return_one(void *data, RwInt32 state);
 #define _rpMatFXSetupDualRenderState(dualData, state) stub_return_one((dualData), (state))
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpMaterial * RpMatFXMaterialSetEffects(RpMaterial * material, RpMatFXMaterialFlags flags)
 {
     rpMatFXMaterialData *materialData;

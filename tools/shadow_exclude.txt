@@ -2,3 +2,25 @@
 # snapshot restored is not a valid comparison.  `name  # reason` (reason required).  They keep their diffemu proof (stock / HS in every tier2 gate).
 FUN_005bb8a0  # RWA async read completion callback (an_rwa_stream_read_cb.c): the original run already queues the next OS async read (rwa_async_file_read 0x5bf7b0 / queue 0x5bf850, I/O thread), which the snapshot restore cannot undo, so the C run sees the request moved on (gate 1113_1501: 7daf58 / 7db760 swapped); diffemu HS EQUAL 3464 (hs_only.txt)
 _rwaRwStreamCancel  # waits on and releases the RWA stream mutex / semaphores (WaitForSingleObject 0x7db770 / 0x7daf4c, _rwaSemaphorePoll 0x7daf48): kernel object state is not in the snapshot, and while it blocks the game and audio threads keep writing (gate 1113_1501: 1781 unrelated words such as g_time_652f94 differ); diffemu stock + HS EQUAL 3895
+_RwaThreadStart  # starts an OS thread (_beginthread 0x5d4159 + SetThreadPriority): a second run would start a second worker thread; diffemu stock EQUAL 200 cov 1.0 (an_rwa_thread_start.c)
+gap_5c43d0  # the worker thread's procedure: runs the work function, ReleaseSemaphore, then Sleep(INFINITE) (never returns on a thread); not callable twice in the game; diffemu stock EQUAL 124 cov 1.0
+thunk__rwaRwStreamCancel_5bbd60  # jump thunk to _rwaRwStreamCancel (already excluded: kernel semaphore / mutex waits); diffemu stock EQUAL 200
+_rwaDSOpen  # creates the DirectSound module heap (rwa_heap_create_005beb70, OS heap): a second run allocates a second heap; diffemu stock EQUAL 200
+rwa_timer_module_open_005bb620  # QueryPerformanceCounter / timeGetTime: a second run reads a later tick, so the start tick differs by design; diffemu stock EQUAL 200
+rwa_timer_module_close_005bb680  # QueryPerformanceCounter / timeGetTime (no state written, but the result is a host call); diffemu stock EQUAL 200
+rwa_memory_malloc_005bf140  # CRT malloc: a second run returns a different block (the first one leaks); diffemu stock EQUAL 200
+rwa_memory_realloc_005bf150  # CRT realloc frees / moves the block: a second run on the restored snapshot uses a freed pointer; diffemu stock EQUAL 200
+_rwaDSUnknownAddRef  # InterlockedIncrement on a COM reference count (not undone by the .data snapshot when the object is on the heap); diffemu stock EQUAL 200
+WorldSectorRender  # renders the sector and its atomics through the D3D9 device: the first run sets atomic->renderFrame (heap objects, not in the .data snapshot) and the device state caches, so the second run skips the atomics and sees other last-used state (gate 1114_0749 c0: only _rwD3D9LastVertexDeclarationUsed / _rwD3D9LastIndexBufferUsed / g_rw_62e820 words differ, return equal); diffemu HS EQUAL 3990 cov 1.0 (s_p_w8.py), stock INCONCLUSIVE (timeouts)
+_rpMatFXPipelinesDestroy # releases the D3D9 pixel shaders (COM) and destroys the matfx pipelines: plugin close at engine shutdown, a shadow call would free live device objects
+_rpSkinD3D9CreatePlainPipe # reads the device caps and creates a pipeline (allocations owned by the skin globals): plugin open only
+FontDefaultRead # opens / reads / closes the font metrics file through RwFopen / RwFgets / RwFclose (file side effects)
+CameraEndUpdate # calls the device's camera end-update (EndScene): a shadow call would end the frame twice
+rwa_async_io_thread_005bf970  # the RWA async file i/o thread procedure (an_rwa_async_thread.c): endless semaphore loop on its own thread, opens / reads files; never callable twice; diffemu HS EQUAL 1878 / 1462 (7f / 27f) with the loop-ending spec
+_rwaDSUnknownCreate  # allocates the object (rwa_malloc_005bf0d0) when none is given: a second run leaks / returns another block; diffemu stock EQUAL 200
+_rwaDSBufferDuplicate  # IDirectSound::DuplicateSoundBuffer + QueryInterface: creates COM objects (not in the .data snapshot); diffemu HS EQUAL 3997
+_rwaDSOutputPinCompleteRequest  # ReleaseSemaphore + IUnknown::Release: kernel / COM state is not in the snapshot; diffemu stock EQUAL 175, HS EQUAL 3680
+rwa_dxaudio_output_speaker_mode_005cc330  # IDirectSound::GetSpeakerConfig (COM call on the device; host state); diffemu HS EQUAL 3997
+rwD3D9FpuSaveAndSetSingle  # saves the x87 control word into 0x94a004 and loads single precision: the FPU register state is not in the .data snapshot, so the second (C) run saves the word the original run already set (0x94a004 differs); diffemu stock EQUAL 200 (0x7f / 0x27f / 0x37f / 0xc60)
+rwa_soft_output_mix_005d8d00  # the software mixer's period callback (an_rwa_soft_output.c): waits on / releases the mixer semaphore and runs on the audio output's thread; diffemu stock + HS
+rwa_soft_output_create_005d8f10  # allocates the mixer buffers (rwa_calloc_005bf130), creates a semaphore and possibly a DirectX output object, installs the mixer callback: not repeatable on a .data snapshot

@@ -96,6 +96,7 @@ MACRO_STOP
 RW_LAYOUT_ASSERT(rw37_own_2, RW_OFFSETOF(RpWorldLightExt, oldSync) == 4);      /* MFL.exe 0x4f3ff8 call [esi+0x4] (WorldLightSync: lightExt->oldSync), lightExt->world at +0 (0x4f4824 / 0x4f482f) */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpLight * WorldRemoveClumpLight(RpLight * light, void *data)
 {
     RpWorld * const     world = (RpWorld *)data;

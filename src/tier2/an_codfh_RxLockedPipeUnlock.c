@@ -184,6 +184,7 @@ RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(P2MemoryLimits, StalacMiteBase) == 4); 
 RW_LAYOUT_ASSERT(rw37_own_2, sizeof(rxReq) == 0x14 && sizeof(RwReqEntry) == 0x24 && sizeof(RwScopeTrace) == 0x10);      /* MFL.exe 0x4e65bb..0x4e65cf: per node and cluster (0x24 + 0x10) * numClusters + 0x14 (CalcTempDepChaseMemSize) */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RxPipeline * RxLockedPipeUnlock(RxPipeline * pipeline)
 {
 

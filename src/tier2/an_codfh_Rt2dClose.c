@@ -185,6 +185,7 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(Rt2dGlobalVars, ctm) == 0x584 && RW_OFF
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(_rt2dTriIndex) == 8);      /* derived: currFontTexDictionary 0x520 and layerDepth 0x6e0 (an_codfh_rt2dfont.c) leave 8 bytes for triVertIndex */
 RW_LAYOUT_ASSERT(rw37_own_2, sizeof(Rt2dStrBuffer) == 0x408);      /* derived: layerDepth 0x6e0 and fontReadFunc 0xc00 (an_codfh_rt2dfont.c) hold with six 16 byte cluster definitions and this size */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void Rt2dClose(void)
 {
     RwInt32 i;

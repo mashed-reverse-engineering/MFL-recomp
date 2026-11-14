@@ -11,6 +11,7 @@ extern RwBool
 _rwPluginRegistryClose(void);
 extern RwUInt32     engineInstancesOpened;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool RwEngineTerm(void)
 {
     RwBool result;

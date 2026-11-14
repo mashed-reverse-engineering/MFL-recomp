@@ -21,6 +21,7 @@ RW_LAYOUT_ASSERT(rw37_row_1, RW_OFFSETOF(RxPipelineCluster, creationAttributes) 
 #define EMBEDDEDPACKETBETWEENNODESMACRO(result,pipeline,nodeFrom,Index) MACRO_START { RwUInt32 outputIndex = nodeFrom->outputs[Index]; if (outputIndex != (RwUInt32) - 1) { RxPacket *packet; RxPipelineNode *nodeTo; RwUInt32 outputMask; nodeTo = &pipeline->nodes[outputIndex]; if (pipeline->embeddedPacketState > rxPKST_UNUSED) { outputMask = 1U << Index; packet = pipeline->embeddedPacket; if (!(packet->slotsContinue[0] & outputMask)) { RwUInt32 n = packet->numClusters; do { if (!(packet->slotsContinue[n] & outputMask)) { CLUSTERTERMINATE(&packet->clusters[n - 1]); } } while (--n); } packet->inputToClusterSlot = nodeTo->inputToClusterSlot; packet->slotsContinue = nodeTo->slotsContinue; packet->slotClusterRefs = nodeTo->slotClusterRefs; pipeline->embeddedPacketState = rxPKST_PENDING; } result = nodeTo; } else { result = (RxPipelineNode *)NULL; } } MACRO_STOP
 extern RxHeap      *_rxHeapGlobal;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RxPipelineNode * rxEmbeddedPacketBetweenNodes(RxPipeline * pipeline, RxPipelineNode * nodeFrom, RwUInt32 whichOutput)
 {
     RxPipelineNode *result;

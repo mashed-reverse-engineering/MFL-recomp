@@ -29,7 +29,7 @@ typedef struct RwaDataNode {      /* node of a data list; the list head is the f
    wave list backwards); a wave is destroyed twice when no other dictionary exists at all, as the original does.  Then empties
    the wave list, moves the current dictionary back to the default one when it was this one, frees the unique id data and
    releases the memory according to the flag byte. */
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void RwaWaveDictDestroy(char *dict)
 {
   RwaLink *link = (RwaLink *)(dict + 0x1c), *other;

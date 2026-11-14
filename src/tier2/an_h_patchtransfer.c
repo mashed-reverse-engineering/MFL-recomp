@@ -30,6 +30,7 @@ typedef struct PatchSmoothIdxTable {      /* per control point: the other contro
 } PatchSmoothIdxTable;
 
 /* Appends value to the list of entry i (grown by 8 when full; the allocation is not checked, as in the exe). */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 PatchSmoothIdxTable *PatchSmoothIdxTableAddIdx(PatchSmoothIdxTable *table, RwUInt32 i, RwUInt32 value)
 {
   PatchSmoothIdxTable *entry = &table[i];
@@ -55,6 +56,7 @@ PatchSmoothIdxTable *PatchSmoothIdxTableAddIdx(PatchSmoothIdxTable *table, RwUIn
 /* Smooths the normals across control points that share a position (each coordinate within +-tolerance): every
    such normal whose dot product with this one is at least min_dot is added, the sum normalised.  in / out NULL =
    the mesh's own normals.  A point without partners keeps its normal (copied when in != out). */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpPatchMesh *_rpPatchSmoothNormal(RpPatchMesh *mesh, RwReal tolerance, RwReal min_dot, RwV3d *in, RwV3d *out)
 {
   RwUInt32 num_points, i, j, k;
@@ -127,6 +129,7 @@ RpPatchMesh *_rpPatchSmoothNormal(RpPatchMesh *mesh, RwReal tolerance, RwReal mi
 /* Copies the parts of the patch mesh named by its lock mode into its geometry: the patches become one mesh per
    material (16 indices per patch), positions (plus a new bounding sphere), normals (copied or smoothed),
    pre-light colours and tex coords.  Returns the mesh (the one _rpPatchSmoothNormal hands back). */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpPatchMesh *_rpPatchGeometryTransferFromPatchMesh(RpPatchMesh *mesh)
 {
   RwUInt32 num_points = mesh->definition.num_control_points;

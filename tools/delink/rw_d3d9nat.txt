@@ -1,0 +1,16 @@
+# Group "d3d9nat" (lane K4 window 8; rpworld native / d3d9usage rows of the flip manifest): _rpD3D9UsageFlagPluginAttach, the two native-size rows and
+# RpBuildMeshGenerateDefaultTriStrip, from librw-mfl/capi/d3d9nat.cpp (op for op, on the exe's plugin offsets and callees).  Needs LIB_RW ...,d3d9nat and the
+# mflrw_d3d9nat_bind call in recomp/automatch_near/an_hk_612.c (an_hk_612_d3d9nat.inc, 11 slots, enum V of d3d9nat.cpp).  Format as rw_g3.txt: exe_name=dll_export.
+# Names: symbols.txt (fnsizes 119 / 106 / 138 / 18).  0x5021c0 is RpBuildMeshGenerateDefaultTriStrip (the map's "gztell" is wrong: tools/delink_sdk/libs.cfg line 49,
+# layers.py A5); it calls TriStripMeshGenerate 0x5021e0 (group tristrip) by its exe address.
+# Last line: no kernel.  0x4d7bf0 is a 16-byte `jmp 0x4df7b0` tail (rwD3D9RasterPluginAttach, group d3d9rasq); symbols.txt lists _rwD3D9RasterPluginAttach_004df7b0
+# first for 0x4d7bf0 and mkobj takes the first, so this line puts the DLL thunk of rw37_rwD3D9RasterPluginAttach on the jmp tail (rw_d3d9rasq.txt lines 6-7).
+# Needs d3d9rasq in LIB_RW.  ASM: confirm with origbytes that the thunk lands on 0x4d7bf0, else drop the line.
+# None of these rows is in tools/delink/rw_trap.txt.  Coverage (manifest 2026-11-13): usage attach hit (59 jobs), 0x5021c0 hit (124 jobs), both native sizes 0 hits
+# (native-only), 0x4d7bf0 0 hits (native-only).
+# Proof: tools/delink/rw_d3d9nat_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev".
+_rpD3D9UsageFlagPluginAttach=rw37__rpD3D9UsageFlagPluginAttach
+_rpGeometryNativeSize=rw37__rpGeometryNativeSize
+_rpWorldSectorNativeSize=rw37__rpWorldSectorNativeSize
+RpBuildMeshGenerateDefaultTriStrip=rw37_RpBuildMeshGenerateDefaultTriStrip
+_rwD3D9RasterPluginAttach_004df7b0=rw37_rwD3D9RasterPluginAttach

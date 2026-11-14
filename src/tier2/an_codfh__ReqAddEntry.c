@@ -53,6 +53,7 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwR
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(RwScopeTrace) == 0x10);      /* MFL.exe 0x4e65bb (RxLockedPipeUnlock): per node and cluster 0x24 + 0x10 */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwReqEntry * _ReqAddEntry(rxReq *req, RxClusterDefinition *clusterDef, RxClusterValidityReq required, RwUInt32 inputs, RxPipelineNode *originatingNode)
 {
     RwReqEntry *reqentry = (RwReqEntry *) NULL;

@@ -35,7 +35,7 @@ extern void rwp_capsule_00575950(void *pool, unsigned int v);
 /* Removes object v: its edges are unlinked (575950), its record is taken out of the list of its cell (or of its slot list, adjusting the flag count)
    and pushed on the free record list; a cell whose head list is empty and whose 8 slots are all empty is released to the free cell list and
    cleared in its parent's slot. */
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void rwp_farfield_00576c50(unsigned char *f, unsigned int v)
 {
   MflFfTag tag;

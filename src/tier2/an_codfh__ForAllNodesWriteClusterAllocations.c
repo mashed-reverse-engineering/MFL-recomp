@@ -108,6 +108,7 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwR
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(RwScopeTrace) == 0x10 && RW_OFFSETOF(RwScopeTrace, next) == 8);      /* MFL.exe 0x4f2d7b / 0x4f2d89 st->next [+8], st->head [+0] (0x4f2d71) */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=shadow */
 RwUInt32 _ForAllNodesWriteClusterAllocations(RxPipeline *pipeline, RwScopeTrace *stHead)
 {
     RwUInt32            numPipelineRequiresClusters;

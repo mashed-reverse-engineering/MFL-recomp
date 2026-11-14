@@ -234,11 +234,14 @@ void course_destroy_extra_clumps(void)
     } while ((int)rec < ((int)&g_player_stats_race));
 }
 
+/* 0x545d00 (RpPTankAtomicDestroy): MFL.exe 0x44a02a calls it, not RpAtomicDestroy 0x4f6a60 (W8 F0) */
+extern int RpAtomicDestroy_00545d00(int atomic);
+
 // FUNCTION: MFL 0x0044a020
 void course_sky_atomic_destroy(void)
 {
     int frame = *(int *)(g_sky_atomic + 4);
-    RpAtomicDestroy(g_sky_atomic);
+    RpAtomicDestroy_00545d00(g_sky_atomic);
     RwFrameDestroy(frame);
 }
 

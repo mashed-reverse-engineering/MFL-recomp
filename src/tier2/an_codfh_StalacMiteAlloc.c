@@ -17,6 +17,7 @@ struct P2MemoryLimits
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(P2MemoryLimits, StalacMiteBase) == 4);      /* MFL.exe 0x4e6424 / 0x4e6430: StalacMiteBase at 0x7d4d20, StalacTiteBase at 0x7d4d1c = gMemoryLimits */
 extern P2MemoryLimits gMemoryLimits;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 void * StalacMiteAlloc(RwUInt32 size)
 {
 

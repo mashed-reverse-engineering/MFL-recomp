@@ -169,6 +169,7 @@ extern RwUInt32 _TraceClusterScopes(RxPipeline * pipeline, RwScopeTrace ** sthea
 extern RwUInt32 _AssignClusterSlots(RxPipeline * pipeline, RwScopeTrace ** stheadref);
 extern RwUInt32 _ForAllNodesWriteClusterAllocations(RxPipeline *pipeline, RwScopeTrace *stHead);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwUInt32 rxChaseDependencies(RxPipeline * pipeline)
 {
     RwScopeTrace       *sthead = (RwScopeTrace *)NULL;

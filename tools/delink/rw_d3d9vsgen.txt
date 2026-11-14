@@ -1,0 +1,8 @@
+# Group "d3d9vsgen" (lane K3b window 8, rpworld d3d9vertexshader bucket of the flip manifest): the vertex shader generator, from librw-mfl/capi/d3d9vsgen.cpp
+# (structured C written from the disassembly; same text line for line, so the same token stream).  Needs LIB_RW ...,d3d9vsgen and the mflrw_d3d9vsgen_bind call in
+# recomp/automatch_near/an_hk_612.c (an_hk_612_d3d9vsgen.inc, 8 slots, enum V of d3d9vsgen.cpp).  Format as rw_g3.txt: exe_name=dll_export.  Name: aliases.txt
+# (fnsizes 7276, jump tables 0x50b498..0x50b4db inside).  Its only caller rpD3D9GetVertexShader (group d3d9vs) binds it by address: with this group in LIB_RW that
+# slot must point at the DLL export (or d3d9vs.cpp calls rw37_rpD3D9GenerateVertexShader directly), see agents/k3b_w8/notes.md "Apply".  Not in
+# tools/delink/rw_trap.txt (rule (a)).  Coverage: 0 hits in 118 jobs (native-only; caps select the VS path, assets carry no skin data in those scenarios).
+# Proof: tools/delink/rw_d3d9vsgen_check.sh <mflrw.dll> 200 300: EQUAL, also with "rev"; mutations agents/k3b_w8/mut_main / mut_eng.
+rpD3D9GenerateVertexShader=rw37_rpD3D9GenerateVertexShader

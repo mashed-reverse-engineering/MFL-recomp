@@ -403,6 +403,7 @@ MACRO_START                                                             \
 MACRO_STOP
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * MatFXMaterialStreamRead(RwStream *stream, RwInt32 binaryLength __RWUNUSEDRELEASE__, void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__)
 {
     RpMaterial             *material;

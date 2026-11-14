@@ -28,6 +28,7 @@ void *_rpPatchGeometryCreateFromPatchMesh(RpPatchMesh *mesh);
 RpPatchMesh *_rpPatchMeshStreamRead(void *stream);
 
 /* Allocates a patch mesh with all arrays the definition asks for in one zeroed block; NULL (error set) on failure. */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpPatchMesh *_rpPatchMeshCreate(RpPatchMeshDefinition *definition)
 {
   RwUInt32 vertex_words, size, i;
@@ -89,6 +90,7 @@ RpPatchMesh *_rpPatchMeshCreate(RpPatchMeshDefinition *definition)
 
 /* Drops a reference.  At one reference left the cached geometry goes (its destroy result is returned); at zero the
    mesh itself. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rpPatchMeshDestroy(RpPatchMesh *mesh)
 {
   RwInt32 count = --mesh->ref_count;
@@ -108,6 +110,7 @@ RwBool rpPatchMeshDestroy(RpPatchMesh *mesh)
 }
 
 /* The geometry the mesh refines to, created on first use. */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 void *_rpPatchMeshGetGeometry(RpPatchMesh *mesh)
 {
   if (mesh->geometry == NULL) {
@@ -117,6 +120,7 @@ void *_rpPatchMeshGetGeometry(RpPatchMesh *mesh)
 }
 
 /* Ends a lock: changed data moves to the geometry first. */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpPatchMesh *RpPatchMeshUnlock(RpPatchMesh *mesh)
 {
   if (mesh->lock_mode & rpPATCHMESHLOCKALL) {
@@ -129,6 +133,7 @@ RpPatchMesh *RpPatchMeshUnlock(RpPatchMesh *mesh)
 /* A geometry with one vertex per control point and the matching format flags (positions, normals, prelight,
    textured, light, modulate, tex coord set count); it holds a reference to the mesh.  Not checked for NULL, as in
    the exe. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *_rpPatchGeometryCreateFromPatchMesh(RpPatchMesh *mesh)
 {
   RwUInt32 flag = mesh->definition.flag;
@@ -143,6 +148,7 @@ void *_rpPatchGeometryCreateFromPatchMesh(RpPatchMesh *mesh)
   return geometry;
 }
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *rpPatchGeometryDestructor(void *geometry, RwInt32 offset, RwInt32 size)
 {
   PatchGeometryData *data = GEOMETRY_PATCH_DATA(geometry);
@@ -157,6 +163,7 @@ void *rpPatchGeometryDestructor(void *geometry, RwInt32 offset, RwInt32 size)
 
 /* Reads a patch mesh into the geometry; the mesh keeps a reference to the geometry.  Like the exe, a failed read
    is not checked. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *rpPatchGeometryRead(void *stream, RwInt32 length, void *geometry, RwInt32 offset, RwInt32 size)
 {
   PatchGeometryData *data = GEOMETRY_PATCH_DATA(geometry);
@@ -169,6 +176,7 @@ void *rpPatchGeometryRead(void *stream, RwInt32 length, void *geometry, RwInt32 
 
 /* Reads a patch mesh: definition, control point arrays (all tex coord sets in one read), quad and triangle
    patches, then the material list.  NULL when a read fails (the partly read mesh is not freed, as in the exe). */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpPatchMesh *_rpPatchMeshStreamRead(void *stream)
 {
   RpPatchMeshDefinition definition;

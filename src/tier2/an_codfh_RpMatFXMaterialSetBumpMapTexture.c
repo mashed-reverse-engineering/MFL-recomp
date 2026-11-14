@@ -164,6 +164,7 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(MatFXBumpMapData, texture) == 4 && RW_O
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(MatFXDualData) <= 0x14 && sizeof(MatFXUVAnimData) <= 0x14);      /* members of the 0x14 byte union MatFXEffectUnion (flag at +0x14, stride 0x18: 0x55050c) */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpMaterial * RpMatFXMaterialSetBumpMapTexture(RpMaterial * material, RwTexture * bumpTexture)
 {
     MatFXBumpMapData   *bumpMapData;

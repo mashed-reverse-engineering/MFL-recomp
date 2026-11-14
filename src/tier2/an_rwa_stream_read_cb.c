@@ -51,7 +51,7 @@ typedef struct RwaBufRead {        /* at stream + 4 */
 /*005bf850*/ extern void rwa_async_queue_read_005bf850(void *file, RwUInt32 offset, RwaAsyncCallback callback, void *data);
 /*005bb8a0*/ extern void FUN_005bb8a0(void *file, RwUInt32 done, RwUInt32 result, RwUInt32 op, void *data);      /* it passes itself as the read callback; declared for the gate's shadow build (shadowgen2 renames the definition) */
 
-/* TIER2: unvalidated 2026-11-13 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void FUN_005bb8a0(void *file, RwUInt32 done, RwUInt32 result, RwUInt32 op, void *data)
 {
   RwaBufRead *r = (RwaBufRead *)((char *)data + 4);

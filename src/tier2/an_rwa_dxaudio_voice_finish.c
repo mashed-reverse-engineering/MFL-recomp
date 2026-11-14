@@ -91,7 +91,7 @@ typedef RwInt32 (__stdcall *KsSet)(void *self, const void *guid, RwUInt32 id, vo
 /* pan -1..1 -> DirectSound pan in hundredths of a dB (-10000..10000) */
 #define DS_PAN(p) ((((p) * 0.5f + 1.0f) * 10000.0f) - 10000.0f)
 
-/* TIER2: unvalidated 2026-11-13 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwaDXVoice *rwa_dxaudio_voice_finish_execute_005c9fb0(RwaDXVoice *v)
 {
   char *o = v->owner;

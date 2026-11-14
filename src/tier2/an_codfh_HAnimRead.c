@@ -26,6 +26,7 @@ RW_LAYOUT_ASSERT(rw37_row_0, sizeof(RpHAnimFrameExtension) == 8 && RW_OFFSETOF(R
 #define ROUNDUP16(x) (((mfl_uptr)(x) + 16 - 1) & ~(mfl_uptr)(16 - 1))
 extern RpHAnimAtomicGlobalVars RpHAnimAtomicGlobals;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * HAnimRead(RwStream * stream, RwInt32 __RWUNUSED__ binaryLength, void *object, RwInt32 __RWUNUSED__ offsetInObject, RwInt32 __RWUNUSED__ sizeInObject)
 {
     RwInt32             i;

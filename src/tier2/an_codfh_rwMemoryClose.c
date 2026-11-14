@@ -46,6 +46,7 @@ MACRO_START                                                             \
 MACRO_STOP
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void rwMemoryClose(void)
 {
     /* _rwFreeListModuleClose(), static in bamemory.c, inlined in MFL.exe */

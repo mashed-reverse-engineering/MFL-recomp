@@ -133,6 +133,7 @@ RwBool _rpPatchPipelinesCreate(RwUInt32 type);
 RwBool rpPatchPipelinesDestroy(void);
 void *_rwD3D9PatchPipelineCreateGeneric(void);
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *PatchEngineOpen(void *instance, RwInt32 offset, RwInt32 size)
 {
   RpPatchLODRange range;
@@ -162,6 +163,7 @@ void *PatchEngineOpen(void *instance, RwInt32 offset, RwInt32 size)
   return instance;
 }
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *PatchEngineClose(void *instance, RwInt32 offset, RwInt32 size)
 {
   if (--_rpPatchGlobals.module_num_instances == 0) {
@@ -176,6 +178,7 @@ void *PatchEngineClose(void *instance, RwInt32 offset, RwInt32 size)
 
 /* Default LOD callback: the refinement falls linearly with the camera-space depth of the atomic, from max_lod at
    min_range to min_lod at max_range. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 rpPatchLODAtomicDefaultSelectLOD(void *atomic, void *user_data)
 {
   PatchEngineData *data = PATCH_ENGINE_DATA();
@@ -193,6 +196,7 @@ RwInt32 rpPatchLODAtomicDefaultSelectLOD(void *atomic, void *user_data)
   return RwFastRealToUInt32_r(lod);
 }
 
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpPatchSetDefaultLODCallBackRange(RpPatchLODRange *range)
 {
   PatchEngineData *data = PATCH_ENGINE_DATA();
@@ -209,6 +213,7 @@ RwBool RpPatchSetDefaultLODCallBackRange(RpPatchLODRange *range)
 
 /* Builds the patch pipelines (only the generic one exists in this build) and notes the device's T&L and vertex
    shader support.  The type argument is not used. */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool _rpPatchPipelinesCreate(RwUInt32 type)
 {
   D3D9Caps *caps;
@@ -232,6 +237,7 @@ RwBool _rpPatchPipelinesCreate(RwUInt32 type)
   return TRUE;
 }
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rpPatchPipelinesDestroy(void)
 {
   void **pipeline;
@@ -246,6 +252,7 @@ RwBool rpPatchPipelinesDestroy(void)
 }
 
 /* Pipeline node init of the patch all-in-one node: the default D3D9 render callback, no instance callbacks. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool D3D9PatchPipelineNodeInitFn(RxPipelineNodePart *node)
 {
   D3D9InstanceNodeData *data;
@@ -261,6 +268,7 @@ RwBool D3D9PatchPipelineNodeInitFn(RxPipelineNodePart *node)
   return TRUE;
 }
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *_rwD3D9PatchPipelineCreateGeneric(void)
 {
   RxPipelinePart *pipeline = RxPipelineCreate();

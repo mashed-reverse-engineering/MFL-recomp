@@ -23,11 +23,7 @@
 0053dd30 255 BMPWriteRow
 0053e230 178 RtAnimAnimationStreamWrite
 0053e2f0 17 RtAnimAnimationStreamGetSize
-0053ebc0 98 FUN_0053ebc0
-0053ec30 75 SkinGeometrySize
 0053ec80 240 SkinGeometryWrite
-0053efe0 205 SkinFindNumUsedBones
-0053f0b0 269 SkinCreateSkinData
 0053f420 69 RpSkinGeometrySetSkin
 0053f470 8 RtFileSystemGetDeviceName
 0053f480 743 rpD3D9SkinVertexShaderMatrixUpdate
@@ -39,7 +35,6 @@
 00540580 60 _rwD3D9SkinNeedsAManagedVertexBuffer
 005405c0 60 _rwD3D9SkinUseVertexShader
 00540640 137 _rpSkinSplitDataStreamWrite
-00540830 28 FUN_00540830
 00540850 337 rxD3D9SkinInstance
 00540bc0 1459 FUN_00540bc0
 00541180 1810 _rpD3D9SkinAtomicCreateVertexBuffer
@@ -74,11 +69,8 @@
 00548330 71 rpPTankGENInsColorPPC
 005485c0 844 rpPTankGENInsSetup
 00548910 15 rpPTankGENInsEnding
-0054acd0 21 RpCollisionGeometryForAllIntersections
 0054bdc0 1590 GeometryForAllTriIntsecBBox
-0054f340 163 MatFXMaterialCopy
 0054f7c0 534 MatFXMaterialStreamWrite
-0054ff40 141 MatFXMaterialStreamGetSize
 00550aa0 166 _rpMatFXD3D9AtomicMatFXRenderBlack
 0055a660 57 rpPatchGeometryCopy
 0055a6a0 29 rpPatchGeometryGetSize
@@ -104,11 +96,8 @@
 00562c80 99 RpUVAnimLinearKeyFrameAdd
 005637c0 469 Rt2dPathCurveto
 005643d0 115 _rt2dPathOptimize
-00564720 166 FUN_00564720
 005669d0 204 FontCompressIndex
 00566aa0 1946 FUN_00566aa0
-005681c0 100 LODAtomicCallBackWriteChunk
-00568230 71 LODAtomicCallBackGetChunkSize
 005d6100 383 RpCollSectorBBoxItInit
 005d6280 416 RpCollSectorBBoxItFindNextEntries
 # B2 2026-11-05 (D3DX, one CPU class = SSE2): x3d/x86 dispatch variants, CPU probes and default-only C bodies, unreachable once recomp/d3dx_dispatch.c installs only the SSE2 table
@@ -117,7 +106,6 @@
 004fb5fe 13 func_0x004fb5fe
 004fbc79 102 c_D3DXVec3TransformNormal_4fbc79
 004fc3e0 566 c_D3DXMatrixMultiply_body_4fc3e0
-004fc62e 104 c_D3DXMatrixTranspose_tail_behind_entry_jmp
 004fc6a9 566 c_D3DXMatrixMultiplyTranspose_body_4fc6a9
 004fe361 188 c_D3DXVec3TransformCoord
 00504f18 93 GetD3DRegValue
@@ -248,8 +236,8 @@
 005da600 32 FUN_005da600
 # TRAP2 2026-11-05 (Audio, never-hit format code): wave converters / DirectShow pin methods for source formats no shipped asset holds (VAG 0x5f7914, GameCube ADPCM 0x5f7944, float 0x5f7934, DirectShow pins); 0 hits in the 9-run widened coverage union, only reachable through the wave-conv table 0x64aad8 / DirectShow vtables, closure with those edges cut unreaches them, no reference from installed C (trapcheck); proof: trap2/pending/candidates.csv
 005c5a50 389 FUN_005c5a50
-005c5ef0 2235 FUN_005c5ef0
-005c6a70 1192 FUN_005c6a70
+005c5ef0 2245 FUN_005c5ef0
+005c6a70 1205 FUN_005c6a70
 005c6f30 325 FUN_005c6f30
 005c7310 799 gap_5c7310
 005c7630 815 gap_5c7630
@@ -257,8 +245,8 @@
 005d1a30 77 FUN_005d1a30
 005d1a80 113 FUN_005d1a80
 # TRAP3 (AU7 2026-11-05): PCM->PCM wave converters, no asset or device format needs them (au7 trap3 README)
-005c4fd0 497 FUN_005c4fd0 PCM channel converter (mono<->stereo, 8/16 bit): wave-conv rows only, no asset needs a PCM->PCM conversion (TRAP3)
-005c51e0 1025 FUN_005c51e0 PCM same-format converter (copy, 8/16 bit 1/2/4/6 ch): wave-conv rows only (TRAP3)
+005c4fd0 514 FUN_005c4fd0 PCM channel converter (mono<->stereo, 8/16 bit): wave-conv rows only, no asset needs a PCM->PCM conversion (TRAP3)
+005c51e0 1076 FUN_005c51e0 PCM same-format converter (copy, 8/16 bit 1/2/4/6 ch): wave-conv rows only (TRAP3)
 005c5be0 315 FUN_005c5be0 PCM bit depth / sign converter: wave-conv rows only (TRAP3)
 005c5620 1065 FUN_005c5620 PCM converter helper, only caller 005c5be0 (TRAP3)
 005c4e50 232 FUN_005c4e50 PCM converter helper, callers 005c4f40 005c4fd0 005c51e0 005c5be0 only (TRAP3)
@@ -284,7 +272,6 @@
 # RT2 2026-11-06 (L1 round 2, class L + gap pieces, 6 rows, 1,360 B): class L rows: 0 HIT in the 172-run coverage union (incl. output/scenario/rwcov_2026-11-06.csv), unreached from every live root of link 1106_0711_standalone once the asset-format branch is cut (l1/cuts_L2.txt; no asset holds a 0x116 skin / 0x05 camera / 0x1A1 path chunk, output/rw_asset_formats_2026-11-06.md "Round 2"); gap rows: code Ghidra did not split off, whose only references come from bodies that are replaced by C (no original caller left); trapcheck 0; proofs: output/rw_trap_round_2026-11-06.csv (rows class L2 / GAP)
 00540470 208 _rpSkinGeometryNativeRead
 005406d0 352 _rpSkinSplitDataStreamRead
-005647d0 400 Rt2dPathStreamRead
 005d5950 272 RwCameraStreamRead
 004f4600 64 gap_4f4600
 004f4690 64 gap_4f4690
@@ -424,3 +411,7 @@
 # __except handler blocks of the trapped rwp probes 584fc0 / 585050 (W6 (a) block); reached only via the scope tables 0x5f6e48 / 0x5f6e58 those probes push.
 00585024 44 rwp_aggregate_00584fc0_except
 005850a3 29 rwp_aggregate_00585050_except
+# S w8 2026-11-14 (lane S, handed over by AU): C++ EH frame handler of the trapped D3DX CPU probe FUN_00504f75 (IsIntelSSEProcessor, rw_trap B2
+# row); its only reference is `mov eax, 0x5db8d5; call EH_prolog` at 0x504f75 inside that row (deadproof 5db8d5-5db8e0), so it can run only if
+# the probe runs (W7 precedent 585024 / 5850a3).
+005db8d5 11 eh_frame_handler_5db8d5

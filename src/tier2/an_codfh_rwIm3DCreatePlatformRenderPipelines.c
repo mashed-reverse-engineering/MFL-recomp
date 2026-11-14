@@ -41,6 +41,7 @@ extern RxNodeDefinition *RxNodeDefinitionGetD3D9SubmitNoLight(void);      /* MFL
 extern RwBool _rwD3D9Im3DRenderOpen(void);
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rwIm3DCreatePlatformRenderPipelines(rwIm3DRenderPipelines *globalPipes)
 {
     RxPipeline  *pipe;

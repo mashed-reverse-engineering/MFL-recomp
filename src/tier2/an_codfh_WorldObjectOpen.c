@@ -87,6 +87,7 @@ extern RwInt32 _rpLightTieFreeListBlockSize;
 extern RwInt32 _rpLightTieFreeListPreallocBlocks;
 extern RwFreeList _rpLightTieFreeList;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * WorldObjectOpen(void *instance, RwInt32 offset, RwInt32 size __RWUNUSED__)
 {
 

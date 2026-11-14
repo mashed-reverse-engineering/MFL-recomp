@@ -46,6 +46,7 @@ extern RpWorld *RpAtomicGetWorld(const RpAtomic *atomic);
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rpClumpGlobals, clumpFreeList) == 4);      /* MFL.exe 0x4f7e6a atomic free list [globals+0]; 0x4f70a1 (RpClumpDestroy) clump free list [globals+4] */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpAtomic * DestroyClumpAtomic(RpAtomic * atomic, void * pData __RWUNUSED__)
 {
     /* RpAtomicDestroy(atomic) with RpAtomicSetGeometry(atomic, NULL, 0), inlined in MFL.exe */

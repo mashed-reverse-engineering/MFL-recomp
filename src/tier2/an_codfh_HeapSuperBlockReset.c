@@ -7,6 +7,7 @@
 
 extern rxHeapFreeBlock * HeapFreeBlocksNewEntry(RxHeap *heap);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool HeapSuperBlockReset(rxHeapSuperBlockDescriptor * superBlock, rxHeapSuperBlockDescriptor * attach2SuperBlock, RxHeap * heap)
 {
     rxHeapFreeBlock *freeEntry;

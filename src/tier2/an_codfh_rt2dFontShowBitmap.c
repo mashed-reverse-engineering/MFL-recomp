@@ -242,7 +242,7 @@ static RwUInt32 RwFastRealToUInt32_r(RwReal x)
     } while (0)
 
 /* TIER2: unvalidated authority=diffemu */
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 Rt2dFont *rt2dFontShowBitmap(Rt2dFont *font, const RwChar *string, RwReal height, RwV2d *anchor, Rt2dBrush *brush)
 {
     RwIm3DVertex *vdst;

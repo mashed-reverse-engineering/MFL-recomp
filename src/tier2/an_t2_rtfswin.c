@@ -89,6 +89,7 @@ extern __declspec(dllimport) DWORD __stdcall GetFileAttributesA(const char *name
 /* Ends the pending asynchronous operation of file: calls its completion callback (file, position for op 4 else the
    bytes transferred, status, op, callback data) and marks it idle (op 1).  0x561b20; was a trap row, ported here
    because FRead / FSync call it. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void _rtFSAsyncNotify(WinFSFile *file)
 {
   RwInt32 op;
@@ -107,6 +108,7 @@ void _rtFSAsyncNotify(WinFSFile *file)
 }
 
 /* Opens name on fs into file.  flags: 1 read, 2 write, 8 append, 0x10 asynchronous.  -> 1 ok, 3 open failed, 5 name too long. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 TkWinFSystemFOpen(WinFSystem *fs, WinFSFile *file, const RwChar *name, RwUInt32 flags)
 {
   RwChar path[0x100];
@@ -157,6 +159,7 @@ RwInt32 TkWinFSystemFOpen(WinFSystem *fs, WinFSFile *file, const RwChar *name, R
   return 1;
 }
 
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool TkWinFSystemFClose(WinFSFile *file)
 {
   file->status = WINFS_CLOSED;
@@ -165,6 +168,7 @@ RwBool TkWinFSystemFClose(WinFSFile *file)
 
 /* Reads size bytes at the file position.  Asynchronous files start an overlapped read and return 0 (the result
    arrives through TkWinFSystemFSync); synchronous files return the bytes read. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwUInt32 TkWinFSystemFRead(WinFSFile *file, void *buffer, RwUInt32 size)
 {
   WinFSFileFuncs *funcs;
@@ -221,6 +225,7 @@ RwUInt32 TkWinFSystemFRead(WinFSFile *file, void *buffer, RwUInt32 size)
 }
 
 /* Writes size bytes at the file position; -> the bytes written. */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwUInt32 TkWinFSystemFWrite(WinFSFile *file, const void *buffer, RwUInt32 size)
 {
   WinFSFileFuncs *funcs;
@@ -266,6 +271,7 @@ RwUInt32 TkWinFSystemFWrite(WinFSFile *file, const void *buffer, RwUInt32 size)
 }
 
 /* mode 1 = from the start, 2 = from the current position, else from the end; -> the new position (high word 0). */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 uint64_t TkWinFSystemSetPosition(WinFSFile *file, RwInt32 offset, RwInt32 mode)
 {
   DWORD method;
@@ -281,6 +287,7 @@ uint64_t TkWinFSystemSetPosition(WinFSFile *file, RwInt32 offset, RwInt32 mode)
 }
 
 /* Completes a pending asynchronous request (waits for it when wait is set); -> the file status. */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwInt32 TkWinFSystemFSync(WinFSFile *file, RwBool wait)
 {
   WinFSFileFuncs *funcs;
@@ -312,6 +319,17 @@ RwInt32 TkWinFSystemFSync(WinFSFile *file, RwBool wait)
   return file->status;
 }
 
+/* 0x561ab0 (is_eof): end of file when the position is -1 (all 64 bits) or at / behind the length (signed 64 bit compare). */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
+RwBool TkWinFSystemFEof(WinFSFile *file)
+{
+  int64_t length = (int64_t)(((uint64_t)file->length_hi << 32) | file->length_lo);
+  int64_t pos = (int64_t)(((uint64_t)file->pos_hi << 32) | file->pos_lo);
+
+  return pos == -1 || pos >= length;
+}
+
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool TkWinFSystemFileExists(WinFSystem *fs, const RwChar *name)
 {
   RwChar path[0x100];

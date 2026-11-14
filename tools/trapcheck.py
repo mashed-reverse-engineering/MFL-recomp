@@ -8,8 +8,16 @@ Referrers = every object of W/objs_local.txt (or LIST, `src obj` per line, e.g. 
               src/aliases.txt + symbols.txt, W/gen/globals_layout.csv, `<name>_<hex va>` / func_0x<va>) to an address inside a listed range;
   data:       such a symbol that resolves to an original data row (W/gen/globals_layout.csv) whose pointer words (output/delink_relocs.csv sites + aligned .data/.rdata words of game/MFL.exe),
               followed through further rows, reach a listed range (vtables, dispatch / plugin tables): flagged with the row chain.
+  const:      (W8 T-CA) an unrelocated instruction operand of a scanned object (objdump -d -r) inside a listed range: a call / push by constant address (`((void (*)(void))0x5cf230)()`).
+Caller allow (W8 T-TCA): tools/delink/trap_caller_allow.txt (or --allow FILE), lines `<C symbol> <caller VA> <trap row name | VA> [<data VA>]  # reason`.  A violation of an object that defines
+  <C symbol> against that trap row is not reported.  Each line is proved, else it is itself a violation: reason present, the trap row is still in a list (stale otherwise), <C symbol> resolves
+  to <caller VA>, <caller VA> starts an output/fnsizes.txt row, and the original bytes of that row (objdump of game/MFL.exe) reference the trap row (call / jmp target or any operand);
+  with <data VA>: the MFL.exe word there points into the trap row and the caller references the same globals row.  ponytail: per object, not per function (an object that defines
+  <C symbol> may reach the row from another of its functions); objdump-per-function if that ever matters.
+  trapcheck.py --selftest-allow OBJLIST [W]: the T-TCA / T-CA negatives on a strict build's object list (needs an_rwa_dxaudio_codec_output.c and an_hk_1367.c in it).
 Pointers from original code into the lists are not checked here: rw_trap is by construction code the original live code can reach but no coverage run executed."""
 import bisect, csv, glob, os, re, struct, subprocess, sys
+from concurrent.futures import ThreadPoolExecutor
 T = os.path.dirname(os.path.abspath(__file__)); G = os.path.dirname(T); D = os.path.join(T, "delink")
 LISTS = ["rw_trap.txt", "rw_dead.txt", "dshow_dead.txt", "dead_tables.txt", "dinput_dead.txt"]
 NONAME = {"dead_tables.txt", "dinput_dead.txt"}      # third column is a reason, not a function name
@@ -40,7 +48,37 @@ def syms(objs):
             if m and cur in r and not m.group(2).startswith("__imp_"): r[cur][m.group(1) == "0"].add(norm(m.group(2)))
     return r
 
-def check(W, lists, objlist=None):
+def consts(o):
+    """unrelocated operand values >= TLO of object o (objdump -d -r, objscan.py's reading)"""
+    out = subprocess.run(["objdump", "-d", "-r", "-M", "intel", o], capture_output=True, text=True).stdout.splitlines(); r = set()
+    for i, l in enumerate(out):
+        m = re.match(r"\s+([0-9a-f]+):\t([0-9a-f ]+)\t(.*)", l)
+        if not m or i + 1 < len(out) and re.search(r"dir32|DISP32|IMAGE_REL|R_386", out[i + 1]) and not re.match(r"\s+[0-9a-f]+:\t", out[i + 1]): continue
+        if m.group(3).split()[:1] not in (["push"], ["mov"], ["lea"], ["call"], ["jmp"], ["cmp"]): continue      # an address is pushed / stored / called / compared; `or eax,0x501513` is a colour (W8 G1: cl_frontend_draw.c, cl_menu_draw_team_select.c)
+        r |= {int(v, 16) for v in re.findall(r"0x([0-9a-f]{6,8})\b", m.group(3)) if TLO <= int(v, 16) < THI}
+    return r
+
+def orig_refs(va, size):
+    """every operand value / branch target in the original bytes [va, va+size) of game/MFL.exe"""
+    out = subprocess.run(["objdump", "-d", "-M", "intel", "--start-address=0x%x" % va, "--stop-address=0x%x" % (va + size), os.path.join(G, "game", "MFL.exe")], capture_output=True, text=True).stdout
+    return {int(v, 16) for l in out.splitlines() if re.match(r"\s+[0-9a-f]+:\t", l) for v in re.findall(r"0x([0-9a-f]+)\b", l.split("\t")[-1])}
+
+def load_allow(p):
+    """-> [(line no, raw line, C symbol, caller VA, trap row text, data VA | None, problem | None)]"""
+    r = []
+    for i, l in enumerate(open(p), 1):
+        body, hsh, why = l.partition("#")
+        w = body.split()
+        if not w: continue
+        try:
+            assert len(w) in (3, 4), "need <C symbol> <caller VA> <trap row> [<data VA>]"
+            assert why.strip(), "reason (# ...) missing"
+            r.append((i, l.strip(), w[0], int(w[1], 16), w[2], int(w[3], 16) if len(w) == 4 else None, None))
+        except (AssertionError, ValueError) as e:
+            r.append((i, l.strip(), w[0], 0, "", None, str(e)))
+    return r
+
+def check(W, lists, objlist=None, allow=None, scan_consts=False):
     trap = load_lists(lists); tst = [x[0] for x in trap]
     def tr(a):
         i = bisect.bisect_right(tst, a) - 1
@@ -72,9 +110,10 @@ def check(W, lists, objlist=None):
     # row -> pointer targets (rows / listed ranges)
     d = open(os.path.join(G, "game", "MFL.exe"), "rb").read()
     e = struct.unpack_from("<I", d, 0x3c)[0]; ns = struct.unpack_from("<H", d, e + 6)[0]; so = struct.unpack_from("<H", d, e + 20)[0]
-    words = []
+    words = []; secs = []
     for k in range(ns):
         h = e + 24 + so + 40 * k
+        secs.append(struct.unpack_from("<IIII", d, h + 8))
         if d[h:h + 8].rstrip(b"\0") not in (b".data", b".rdata"): continue
         vs, sva, rs, rp = struct.unpack_from("<IIII", d, h + 8)
         words += [(0x400000 + sva + i, struct.unpack_from("<I", d, rp + i)[0], False) for i in range(0, min(vs, rs) - 3, 4)]
@@ -108,20 +147,24 @@ def check(W, lists, objlist=None):
     # objects
     lst = objlist or os.path.join(W, "objs_local.txt")
     objs = [(s, o.strip()) for s, o in (l.split(None, 1) for l in open(lst) if l.strip())]
-    sy = syms([o for s, o in objs]); per = []; defined = set()
+    sy = syms([o for s, o in objs]); per = []; defined = set(); sdef = {}
     dsh = {int(l.split()[0], 16) for l in open(os.path.join(D, "dshow_dead.txt")) if l.strip() and not l.startswith("#")}
     for src, o in objs:
         dd, uu = sy[o]; vs = {va(n) for n in dd} - {None}
         if vs and vs <= dsh: continue      # dshow_drop.py filter: link_ours.sh (DROP_DSHOW) does not link C that only replaces dead movie code (matters for --objs of an overlay build)
-        defined |= dd; per.append((src, uu))
-    cdef = {va(n) for n in defined} - {None}      # original addresses our objects define (replaced bodies, func_0x004ab230 of dinput_formats.c, DLL thunks): pointers to them bind to the C
+        defined |= dd; per.append((src, uu, o)); sdef.setdefault(src, set()).update(dd)
+    cdef = {va(n) for n in defined if not n.startswith("mfl_trap_")} - {None}      # (W8: an_hk_612's trap stub mfl_trap_<name>_<va> replaces nothing: func_0x005470e0 was missed) original addresses our objects define (replaced bodies, func_0x004ab230 of dinput_formats.c, DLL thunks): pointers to them bind to the C
     viol = []; rowseed = {}
-    for src, uu in per:
+    for src, uu, o in per:
         for n in sorted(uu - defined):
             a = va(n); x = byname.get(n) or (tr(a) if a is not None and a not in cdef else None)
             if x: viol.append((x, src, "symbol %s" % n)); continue
             r = ridx(a) if a is not None else None
             if r is not None: rowseed.setdefault(subrow(a, r), []).append((src, n))
+    if scan_consts:      # T-CA: a trap row called / pushed by its constant address carries no symbol
+        with ThreadPoolExecutor(4) as ex:
+            for (src, uu, o), cs in zip(per, ex.map(consts, [o for s, u, o in per])):
+                viol += [(tr(v), src, "const %08x" % v) for v in sorted(cs) if tr(v) and v not in cdef]
     # rows referenced by C: breadth-first through row pointers, report every listed target with its shortest chain
     seen = {}; work = []
     for r, refs in rowseed.items(): seen[r] = None; work.append(r)
@@ -140,7 +183,34 @@ def check(W, lists, objlist=None):
     out, seen_ = [], set()      # one line per (listed entry, referrer object)
     for x in viol:
         if (x[0], x[1]) not in seen_: seen_.add((x[0], x[1])); out.append(x)
-    return out
+    if not allow: return out
+    # T-TCA: prove each allow line, then drop the violations it covers
+    fns = {}
+    for l in open(os.path.join(G, "output", "fnsizes.txt")):
+        w = l.split()
+        if len(w) >= 3 and w[-1].isdigit(): fns.setdefault(int(w[0], 16), int(w[-1]))
+    def word(a):
+        for vs, sva, rs, rp in secs:
+            if 0x400000 + sva <= a < 0x400000 + sva + min(vs, rs) - 3: return struct.unpack_from("<I", d, rp + a - 0x400000 - sva)[0]
+    bad, ok = [], []
+    for i, raw, sym_, cva, trow, dva, prob in load_allow(allow):
+        hit = [x for x in trap if x[3] not in NONAME and (x[2] == trow or re.fullmatch(r"(0x)?[0-9a-fA-F]{6,8}", trow) and x[0] == int(trow, 16))] if not prob else []
+        if not prob and not hit: prob = "stale: trap row %s is in no list" % trow
+        sva_ = va(sym_) if va(sym_) is not None else va(norm(sym_)); sym_ = norm(sym_)      # object names are compared normalised (syms())
+        if not prob and sva_ != cva: prob = "%s resolves to %s, not %08x" % (sym_, "%08x" % sva_ if sva_ is not None else "nothing", cva)
+        if not prob and cva not in fns: prob = "caller %08x has no output/fnsizes.txt row" % cva
+        if not prob:
+            t = hit[0]; refs = orig_refs(cva, fns[cva])
+            if dva is None:
+                if not any(t[0] <= v < t[1] for v in refs): prob = "original %08x..%08x never references %s %08x" % (cva, cva + fns[cva], t[2], t[0])
+            elif not (word(dva) is not None and t[0] <= word(dva) < t[1]): prob = "MFL.exe word at %08x does not point into %s" % (dva, t[2])
+            elif ridx(dva) is None or not any(ridx(v) == ridx(dva) for v in refs if TLO <= v): prob = "original %08x never references the row holding %08x" % (cva, dva)
+        if prob: bad.append(((0, 0, "allow line %d" % i, os.path.basename(allow)), raw[:60], prob))
+        else: ok.append((sym_, hit[0][0]))
+    out = [x for x in out if not any(x[0][0] == a and s in sdef.get(x[1], ()) for s, a in ok)]
+    for s, a in ok:
+        if not any(s in v for v in sdef.values()): print("trapcheck: allow %s -> %08x unused (no scanned object defines %s)" % (s, a, s))
+    return out + bad
 
 def report(viol):
     for (lo, hi, name, lf), src, via in viol:
@@ -160,24 +230,71 @@ def selftest(W=None):
         W = newest_link()
         if not W: print("trapcheck selftest: skipped (no standalone link under output/gate)"); return 0
     N = os.path.join(T, "negtests", "trap"); rc = 0
-    bad = check(W, [os.path.join(N, "rw_trap_bad.txt")])
+    bad = check(W, [os.path.join(N, "rw_trap_bad.txt")], scan_consts=False)      # names only: the constant scan (objdump -d of every object) is --selftest-allow's
     if any(x[0][2] == "RtDictDestroy" and x[1] == "cl_course_destroy_world.c" for x in bad): print("selftest ok   bad list: RtDictDestroy <- cl_course_destroy_world.c flagged")
     else: print("selftest FAIL bad list: RtDictDestroy not flagged"); rc = 1
-    good = check(W, [os.path.join(N, "rw_trap_good.txt")])
-    if not good: print("selftest ok   good list: 0 violations")
+    # W8 G1 (gate 1114_0950): the good list is a copy of rw_trap.txt, so the T-TCA pairs (trap_caller_allow.txt) are violations there unless the allow file
+    # is applied, like the gate form does; allow lines whose trap row the fixture does not list are "stale" only relative to the fixture: ignored here
+    al = ALLOW if os.path.exists(ALLOW) else None
+    raw = check(W, [os.path.join(N, "rw_trap_good.txt")], scan_consts=False)
+    good = [x for x in check(W, [os.path.join(N, "rw_trap_good.txt")], allow=al, scan_consts=False) if not (al and x[0][3] == os.path.basename(al) and x[2].startswith("stale"))]
+    if not good: print("selftest ok   good list: 0 violations (allow file removes %d T-TCA pair(s))" % len(raw))
     else: report(good); print("selftest FAIL good list flagged"); rc = 1
+    if al and raw:      # negative: the same check with the allow line of one flagged pair removed must flag that pair again
+        import tempfile
+        x0 = raw[0]
+        def names_row(l):      # the line's trap row field is x0's row (by name or VA)
+            w = l.split("#")[0].split()
+            return len(w) >= 3 and (w[2] == x0[0][2] or re.fullmatch(r"(0x)?[0-9a-fA-F]{6,8}", w[2]) is not None and int(w[2], 16) == x0[0][0])
+        keep = [l for l in open(al) if not names_row(l)]
+        p = tempfile.mkstemp(suffix="_allow.txt")[1]; open(p, "w").write("".join(keep))
+        neg = [x for x in check(W, [os.path.join(N, "rw_trap_good.txt")], allow=p, scan_consts=False) if x[0][3] != os.path.basename(p)]
+        os.remove(p)
+        if any(x[0][0] == x0[0][0] for x in neg): print("selftest ok   allow line for %s removed: flagged again" % x0[0][2])
+        else: print("selftest FAIL allow line for %s removed but not flagged" % x0[0][2]); rc = 1
     print("trapcheck selftest: %s (%s)" % ("FAIL" if rc else "ok", os.path.relpath(W, G)))
+    return rc
+
+ALLOW = os.path.join(D, "trap_caller_allow.txt")
+
+def selftest_allow(objlist, W=None):
+    """T-TCA / T-CA behaviour test on a real strict build: the two W7 constant-address callers must be flagged without their allow lines and pass with them;
+    an unlisted pair, a stale trap row, a caller whose original never references the row, a wrong caller VA and a line without reason must each FAIL."""
+    import tempfile
+    W = W or newest_link(); L = [os.path.join(D, f) for f in LISTS[:4]]; rc = 0
+    tmp = tempfile.mkdtemp(prefix="tca_")
+    def run(name, text):
+        p = os.path.join(tmp, name); open(p, "w").write(text)
+        return [x for x in check(W, L, objlist, p, scan_consts=True) if x[1] in ("an_rwa_dxaudio_codec_output.c", "an_hk_1367.c") or x[0][3] == name]
+    def want(label, got, cond):
+        nonlocal rc
+        print("selftest %-4s %s" % ("ok" if cond else "FAIL", label))
+        if not cond: rc = 1; report(got)
+    good = "".join(l for l in open(ALLOW) if re.match(r"(rwa_dxaudio_codec_fill_packet_005cee90|gap_5d01c0) ", l))
+    v = run("none.txt", "")
+    want("T-CA: constant-address calls flagged without allow lines (5cf230 5cf2b0 5cf300 5d06c0 5cfc80)",
+         v, {x[0][0] for x in v if x[2].startswith("const ")} >= {0x5cf230, 0x5cf2b0, 0x5cf300, 0x5d06c0, 0x5cfc80})
+    v = run("good.txt", good); want("listed pairs pass", v, not v)
+    v = run("part.txt", "".join(l for l in good.splitlines(True) if "5d06c0" not in l)); want("unlisted pair still FAILs", v, [x[0][0] for x in v] == [0x5d06c0])
+    v = run("stale.txt", good + "gap_5d01c0 5d01c0 FUN_00000000_gone  # stale\n"); want("stale trap row FAILs", v, len(v) == 1 and "stale" in v[0][2])
+    v = run("noref.txt", good + "gap_5d01c0 5d01c0 FUN_005cf300  # 5d01c0 does not call 5cf300\n"); want("never-referenced pair FAILs (5cf300 from 5d01c0)", v, len(v) == 1 and "never references" in v[0][2])
+    v = run("wrongva.txt", good + "gap_5d01c0 5cee90 FUN_005cf230  # wrong caller VA\n"); want("symbol / caller VA mismatch FAILs", v, len(v) == 1 and "resolves to" in v[0][2])
+    v = run("noreason.txt", good + "gap_5d01c0 5d01c0 FUN_005cfc80\n"); want("line without reason FAILs", v, len(v) == 1 and "reason" in v[0][2])
+    print("trapcheck selftest-allow: %s" % ("FAIL" if rc else "ok"))
     return rc
 
 if __name__ == "__main__":
     a = sys.argv[1:]
     if a[:1] == ["--selftest"]: sys.exit(selftest(a[1] if len(a) > 1 else None))
-    objlist = None; lists = []; W = None
+    if a[:1] == ["--selftest-allow"]: sys.exit(selftest_allow(a[1], a[2] if len(a) > 2 else None))
+    objlist = None; lists = []; W = None; allow = ALLOW if os.path.exists(ALLOW) else None; cs = True
     while a:
         x = a.pop(0)
         if x == "--objs": objlist = a.pop(0)
         elif x == "--list": lists.append(a.pop(0))
+        elif x == "--allow": allow = a.pop(0)
+        elif x == "--no-consts": cs = False      # T-CA constant scan: on by default since W8 G1 (the existing constant-address users have allow lines)
         else: W = x
     W = W or newest_link()
-    print("trapcheck: link %s, objects %s" % (W, objlist or "objs_local.txt"))
-    sys.exit(report(check(W, lists or [os.path.join(D, f) for f in LISTS], objlist)))
+    print("trapcheck: link %s, objects %s, allow %s%s" % (W, objlist or "objs_local.txt", allow, ", constant scan" if cs else ""))
+    sys.exit(report(check(W, lists or [os.path.join(D, f) for f in LISTS], objlist, allow, cs)))

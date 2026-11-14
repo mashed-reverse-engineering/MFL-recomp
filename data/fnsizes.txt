@@ -3805,6 +3805,8 @@
 004d0800 FUN_004d0800 78
 004d0850 luaL_openlib 58
 004d0890 luaL_verror 54
+004d08d0 rwFrameOpen 108
+004d0950 rwFrameClose 45
 004d0990 _rwFrameCloneAndLinkClones 153
 004d0a30 rwFrameCloneRecurse 334
 004d0b80 _rwFramePurgeClone 98
@@ -3855,6 +3857,7 @@
 004d2110 CameraBuildPerspClipPlanes 1682
 004d27b0 CameraBuildParallelClipPlanes 1040
 004d2bc0 CameraBuildParallelViewMatrix 334
+004d2d10 CameraEndUpdate 47
 004d2d40 CameraBeginUpdate 57
 004d2d80 RwCameraClone 157
 004d2e20 _rwDeviceSystemRequest 191
@@ -4227,6 +4230,7 @@
 004eac40 rwChunkGroupOpen 96
 004eaca0 rwChunkGroupClose 43
 004eacd0 gap_4eacd0 16
+004eace0 gap_4eace0 16
 004eacf0 RwImageResample 1045
 004eb110 ImageResampleGetSpan 741
 004eb400 RwImageCreateResample 252
@@ -4378,6 +4382,12 @@
 004f42b0 writeGeometryMesh 27
 004f42d0 FUN_004f42d0 36
 004f4300 sizeGeometryMesh 18
+004f4320 writeGeometryNative 19
+004f4340 readGeometryNative 27
+004f4360 sizeGeometryNative 14
+004f4370 writeWorldSectorNative 19
+004f4390 readWorldSectorNative 27
+004f43b0 sizeWorldSectorNative 14
 004f43c0 FUN_004f43c0 35
 004f43f0 FUN_004f43f0 42
 004f4420 FUN_004f4420 26
@@ -4453,6 +4463,7 @@
 004f6ae0 RpAtomicClone 258
 004f6bf0 FUN_004f6bf0 592
 004f6e40 DestroyClumpLight 52
+004f6e80 DestroyClumpCamera 52
 004f6ec0 RpClumpCreate 113
 004f6f40 RpClumpDestroy 377
 004f70c0 RpClumpAddAtomic 37
@@ -4570,6 +4581,7 @@
 004fc3da thunk_FUN_004fc3cd 6
 004fc616 FUN_004fc616 13
 004fc623 thunk_FUN_004fc616 6
+004fc629 c_D3DXMatrixTranspose 109
 004fc696 FUN_004fc696 13
 004fc6a3 thunk_FUN_004fc696 6
 004fc8df FUN_004fc8df 13
@@ -4651,8 +4663,7 @@
 00500b40 RpWorldSectorRegisterPlugin 39
 00500b70 RpWorldSectorRegisterPluginStream 34
 00500ba0 _rpMeshHeaderCreate 26
-00500bc0 rpMeshClose 13
-00500bcd lib_500bcd 33
+00500bc0 rpMeshClose 46
 00500bf0 rpMeshOpen 282
 00500d10 _rpBuildMeshCreate 234
 00500e00 _rpBuildMeshDestroy 64
@@ -5259,6 +5270,7 @@
 0053eb10 SkinAtomicCopy 21
 0053eb30 SkinAtomicAlways 142
 0053ebc0 FUN_0053ebc0 98
+0053ec30 SkinGeometrySize 75
 0053ed70 SkinGeometryRead 609
 0053efe0 SkinFindNumUsedBones 205
 0053f0b0 SkinCreateSkinData 269
@@ -5282,6 +5294,7 @@
 00541180 _rpD3D9SkinAtomicCreateVertexBuffer 1810
 00542580 _rpSkinIntelSSEMatrixBlend1Matrix 171
 00542630 _rpSkinIntelSSEMatrixBlend1Weight 220
+00542cf0 rxSkinD3D9AtomicAllInOnePipelineInit 92
 00542d50 _rpSkinD3D9CreatePlainPipe 212
 00542fe0 FUN_00542fe0 281
 00543100 RpHAnimKeyFrameInterpolate 1043
@@ -5415,6 +5428,7 @@
 0054f770 FUN_0054f770 76
 0054f7c0 MatFXMaterialStreamWrite 534
 0054f9e0 MatFXMaterialStreamRead 1361
+0054ff40 MatFXMaterialStreamGetSize 141
 0054ffd0 lib_54ffd0 18
 0054fff0 lib_54fff0 29
 00550010 lib_550010 38
@@ -5597,6 +5611,7 @@
 00561900 _rtFSInit 216
 005619e0 _rtGetFileNameFromDeviceName 66
 00561a30 _rtFSBuildFileName 127
+00561ab0 TkWinFSystemFEof 46
 00561ae0 _rtFileSystemTriggerCallBack 50
 00561b20 FUN_00561b20 77
 00561b70 RpUVAnimPluginAttach 111
@@ -5622,6 +5637,7 @@
 005626c0 RpUVAnimParamKeyFrameInterpolate 158
 00562800 RpUVAnimParamKeyFrameDataInitFromMatrix 174
 005628b0 RpUVAnimKeyFrameInit 92
+00562910 RpUVAnimKeyFrameStreamRead 163
 00562a70 RpUVAnimKeyFrameStreamGetSize 32
 00562ae0 RpUVAnimLinearKeyFrameInterpolate 114
 00562cf0 RpUVAnimLinearKeyFrameDataInitFromMatrix 43
@@ -5689,6 +5705,7 @@
 00567ef0 LODAtomicCallBackReadChunk 317
 00568030 LODAtomicCallBackSelectLOD 260
 00568140 LODAtomicCallBackRender 113
+005681c0 LODAtomicCallBackWriteChunk 100
 00568230 LODAtomicCallBackGetChunkSize 71
 00568280 LODAtomicCallBackCopy 209
 00568360 LODAtomicCallBackDestructor 181
@@ -6721,6 +6738,8 @@
 005bf0e0 FUN_005bf0e0 50
 005bf120 FUN_005bf120 12
 005bf130 FUN_005bf130 11
+005bf140 rwa_memory_malloc_005bf140 14
+005bf150 rwa_memory_realloc_005bf150 19
 005bf170 FUN_005bf170 49
 005bf1b0 FUN_005bf1b0 111
 005bf220 nullsub_6 1
@@ -6745,7 +6764,7 @@
 005bf8f0 FUN_005bf8f0 50
 005bf930 FUN_005bf930 8
 005bf940 FUN_005bf940 43
-005bf970 gap_5bf970 545
+005bf970 rwa_async_io_thread_005bf970 548
 005bfba0 FUN_005bfba0 66
 005bfbf0 FUN_005bfbf0 86
 005bfc50 FUN_005bfc50 151
@@ -6861,16 +6880,16 @@
 005c4b10 FUN_005c4b10 811
 005c4e50 FUN_005c4e50 232
 005c4f40 FUN_005c4f40 140
-005c4fd0 FUN_005c4fd0 497
-005c51e0 FUN_005c51e0 1025
+005c4fd0 FUN_005c4fd0 514
+005c51e0 FUN_005c51e0 1076
 005c5620 FUN_005c5620 1065
 005c5a50 FUN_005c5a50 389
 005c5be0 FUN_005c5be0 315
 005c5d20 FUN_005c5d20 453
-005c5ef0 FUN_005c5ef0 2235
+005c5ef0 FUN_005c5ef0 2245
 005c67c0 FUN_005c67c0 460
 005c6990 gap_5c6990 217
-005c6a70 FUN_005c6a70 1192
+005c6a70 FUN_005c6a70 1205
 005c6f30 FUN_005c6f30 325
 005c7080 FUN_005c7080 207
 005c7150 FUN_005c7150 164
@@ -7018,7 +7037,7 @@
 005cc2a0 FUN_005cc2a0 62
 005cc2e0 FUN_005cc2e0 29
 005cc300 FUN_005cc300 38
-005cc330 FUN_005cc330 46
+005cc330 rwa_dxaudio_output_speaker_mode_005cc330 104
 005cc3a0 _rwaDXAudioOutputGetSpeakerConfig 883
 005cc720 _rwaDXAudioOutputGetFreeVoice 550
 005cc950 FUN_005cc950 382
@@ -7206,6 +7225,7 @@
 005d1c10 gap_5d1c10 63
 005d1c50 gap_5d1c50 540
 005d1e70 gap_5d1e70 40
+005d1ea0 rwa_com_not_implemented_005d1ea0 8
 005d1eb0 gap_5d1eb0 33
 005d1ee0 gap_5d1ee0 33
 005d1f10 gap_5d1f10 33

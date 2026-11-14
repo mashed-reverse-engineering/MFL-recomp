@@ -518,6 +518,45 @@ if ! grep -q mflrw_d3d9vs_bind $RD 2>/dev/null; then echo "negtest note: $RD has
   OUT=$O/e7wn $T/rw_d3d9vs_check.sh $RD 20 300 50974b:74 > $O/e7wn.txt 2>&1; grep -q 'compared; DIFF' $O/e7wn.txt && ok "d3d9vs mutation 50974b:74: DIFF" || bad "d3d9vs fixture 50974b:74 not caught"
   OUT=$O/e7wo $T/rw_d3d9vs_check.sh $RD 20 300 50978e:72 > $O/e7wo.txt 2>&1; grep -q 'compared; DIFF' $O/e7wo.txt && ok "d3d9vs mutation 50978e:72: DIFF" || bad "d3d9vs fixture 50978e:72 not caught"
 fi
+# d3d9vsgen group (lane K3b window 8): the vertex shader generator rpD3D9GenerateVertexShader (assembly text + D3DX args compared).  Mutation results
+# agents/k3b_w8/mut_main, mut_r2, mut_eng (630: 578 DIFF + 52 classified).  Five: vs_1_1 version compare, first light constant, directional base, tangent oT2, effect 3.
+if ! grep -q mflrw_d3d9vsgen_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vsgen exports, d3d9vsgen fixtures skipped"; else
+  OUT=$O/e8g $T/rw_d3d9vsgen_check.sh $RD 20 300 > $O/e8g.txt 2>&1 && ok "d3d9vsgen good: $(grep -c EQUAL $O/e8g.txt) run EQUAL" || bad "d3d9vsgen good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH|ABORT' $O/e8g.txt | head -2)"
+  OUT=$O/e8ga $T/rw_d3d9vsgen_check.sh $RD 20 300 5099f5:0b > $O/e8ga.txt 2>&1; grep -q 'compared; DIFF' $O/e8ga.txt && ok "d3d9vsgen mutation 5099f5:0b: DIFF" || bad "d3d9vsgen fixture 5099f5:0b not caught"
+  OUT=$O/e8gb $T/rw_d3d9vsgen_check.sh $RD 20 300 509932:04 > $O/e8gb.txt 2>&1; grep -q 'compared; DIFF' $O/e8gb.txt && ok "d3d9vsgen mutation 509932:04: DIFF" || bad "d3d9vsgen fixture 509932:04 not caught"
+  OUT=$O/e8gc $T/rw_d3d9vsgen_check.sh $RD 20 300 50a32c:07 > $O/e8gc.txt 2>&1; grep -q 'compared; DIFF' $O/e8gc.txt && ok "d3d9vsgen mutation 50a32c:07: DIFF" || bad "d3d9vsgen fixture 50a32c:07 not caught"
+  OUT=$O/e8gd $T/rw_d3d9vsgen_check.sh $RD 20 300 50ac89:ed > $O/e8gd.txt 2>&1; grep -q 'compared; DIFF' $O/e8gd.txt && ok "d3d9vsgen mutation 50ac89:ed: DIFF" || bad "d3d9vsgen fixture 50ac89:ed not caught"
+  OUT=$O/e8ge $T/rw_d3d9vsgen_check.sh $RD 20 300 50b006:03 > $O/e8ge.txt 2>&1; grep -q 'compared; DIFF' $O/e8ge.txt && ok "d3d9vsgen mutation 50b006:03: DIFF" || bad "d3d9vsgen fixture 50b006:03 not caught"
+fi
+# d3d9nat group (lane K4 window 8): _rpD3D9UsageFlagPluginAttach, _rpGeometryNativeSize, _rpWorldSectorNativeSize, RpBuildMeshGenerateDefaultTriStrip.
+# Mutation results agents/k4_w8/mut_nat/result.txt (56: 50 DIFF + 6 crash by construction).  Three for the attach, two per other row.
+if ! grep -q mflrw_d3d9nat_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9nat exports, d3d9nat fixtures skipped"; else
+  OUT=$O/e8n $T/rw_d3d9nat_check.sh $RD 20 300 > $O/e8n.txt 2>&1 && ok "d3d9nat good: $(grep -c EQUAL $O/e8n.txt) run EQUAL" || bad "d3d9nat good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH|ABORT' $O/e8n.txt | head -2)"
+  OUT=$O/e8na $T/rw_d3d9nat_check.sh $RD 20 300 509471:21 > $O/e8na.txt 2>&1; grep -q 'compared; DIFF' $O/e8na.txt && ok "d3d9nat mutation 509471:21: DIFF" || bad "d3d9nat fixture 509471:21 not caught"
+  OUT=$O/e8nb $T/rw_d3d9nat_check.sh $RD 20 300 50948b:7c > $O/e8nb.txt 2>&1; grep -q 'compared; DIFF' $O/e8nb.txt && ok "d3d9nat mutation 50948b:7c: DIFF" || bad "d3d9nat fixture 50948b:7c not caught"
+  OUT=$O/e8nc $T/rw_d3d9nat_check.sh $RD 20 300 5094e0:dd > $O/e8nc.txt 2>&1; grep -q 'compared; DIFF' $O/e8nc.txt && ok "d3d9nat mutation 5094e0:dd: DIFF" || bad "d3d9nat fixture 5094e0:dd not caught"
+  OUT=$O/e8nd $T/rw_d3d9nat_check.sh $RD 20 300 501a43:75 > $O/e8nd.txt 2>&1; grep -q 'compared; DIFF' $O/e8nd.txt && ok "d3d9nat mutation 501a43:75: DIFF" || bad "d3d9nat fixture 501a43:75 not caught"
+  OUT=$O/e8ne $T/rw_d3d9nat_check.sh $RD 20 300 501a7b:f9 > $O/e8ne.txt 2>&1; grep -q 'compared; DIFF' $O/e8ne.txt && ok "d3d9nat mutation 501a7b:f9: DIFF" || bad "d3d9nat fixture 501a7b:f9 not caught"
+  OUT=$O/e8nf $T/rw_d3d9nat_check.sh $RD 20 300 50215a:75 > $O/e8nf.txt 2>&1; grep -q 'compared; DIFF' $O/e8nf.txt && ok "d3d9nat mutation 50215a:75: DIFF" || bad "d3d9nat fixture 50215a:75 not caught"
+  OUT=$O/e8ng $T/rw_d3d9nat_check.sh $RD 20 300 502190:f9 > $O/e8ng.txt 2>&1; grep -q 'compared; DIFF' $O/e8ng.txt && ok "d3d9nat mutation 502190:f9: DIFF" || bad "d3d9nat fixture 502190:f9 not caught"
+  OUT=$O/e8nh $T/rw_d3d9nat_check.sh $RD 20 300 5021c5:00 > $O/e8nh.txt 2>&1; grep -q 'compared; DIFF' $O/e8nh.txt && ok "d3d9nat mutation 5021c5:00: DIFF" || bad "d3d9nat fixture 5021c5:00 not caught"
+  OUT=$O/e8ni $T/rw_d3d9nat_check.sh $RD 20 300 5021c7:01 > $O/e8ni.txt 2>&1; grep -q 'compared; DIFF' $O/e8ni.txt && ok "d3d9nat mutation 5021c7:01: DIFF" || bad "d3d9nat fixture 5021c7:01 not caught"
+fi
+# d3d9vs2 group (lane K4 window 8): rxD3D9VertexShaderDefaultMeshRenderCallBack, LightingCallBack (x87 incl. fcos).  Mutation results agents/k4_w8/mut_vs2,
+# mut_vs2b result.txt (279: 241 DIFF + 38 crash / hang by construction).  Five per row; 50b82d / 50bc33 need the dense mode of fixture round 2.
+if ! grep -q mflrw_d3d9vs2_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vs2 exports, d3d9vs2 fixtures skipped"; else
+  OUT=$O/e8s $T/rw_d3d9vs2_check.sh $RD 20 300 > $O/e8s.txt 2>&1 && ok "d3d9vs2 good: $(grep -c EQUAL $O/e8s.txt) run EQUAL" || bad "d3d9vs2 good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH|ABORT' $O/e8s.txt | head -2)"
+  OUT=$O/e8sa $T/rw_d3d9vs2_check.sh $RD 20 300 50b617:75 > $O/e8sa.txt 2>&1; grep -q 'compared; DIFF' $O/e8sa.txt && ok "d3d9vs2 mutation 50b617:75: DIFF" || bad "d3d9vs2 fixture 50b617:75 not caught"
+  OUT=$O/e8sb $T/rw_d3d9vs2_check.sh $RD 20 300 50b656:03 > $O/e8sb.txt 2>&1; grep -q 'compared; DIFF' $O/e8sb.txt && ok "d3d9vs2 mutation 50b656:03: DIFF" || bad "d3d9vs2 fixture 50b656:03 not caught"
+  OUT=$O/e8sc $T/rw_d3d9vs2_check.sh $RD 20 300 50b6cf:69 > $O/e8sc.txt 2>&1; grep -q 'compared; DIFF' $O/e8sc.txt && ok "d3d9vs2 mutation 50b6cf:69: DIFF" || bad "d3d9vs2 fixture 50b6cf:69 not caught"
+  OUT=$O/e8sd $T/rw_d3d9vs2_check.sh $RD 20 300 50b70d:19 > $O/e8sd.txt 2>&1; grep -q 'compared; DIFF' $O/e8sd.txt && ok "d3d9vs2 mutation 50b70d:19: DIFF" || bad "d3d9vs2 fixture 50b70d:19 not caught"
+  OUT=$O/e8se $T/rw_d3d9vs2_check.sh $RD 20 300 50b735:15 > $O/e8se.txt 2>&1; grep -q 'compared; DIFF' $O/e8se.txt && ok "d3d9vs2 mutation 50b735:15: DIFF" || bad "d3d9vs2 fixture 50b735:15 not caught"
+  OUT=$O/e8sf $T/rw_d3d9vs2_check.sh $RD 20 300 50b7f2:cd > $O/e8sf.txt 2>&1; grep -q 'compared; DIFF' $O/e8sf.txt && ok "d3d9vs2 mutation 50b7f2:cd: DIFF" || bad "d3d9vs2 fixture 50b7f2:cd not caught"
+  OUT=$O/e8sg $T/rw_d3d9vs2_check.sh $RD 20 300 50b8d5:31 > $O/e8sg.txt 2>&1; grep -q 'compared; DIFF' $O/e8sg.txt && ok "d3d9vs2 mutation 50b8d5:31: DIFF" || bad "d3d9vs2 fixture 50b8d5:31 not caught"
+  OUT=$O/e8sh $T/rw_d3d9vs2_check.sh $RD 20 300 50b9b4:cd > $O/e8sh.txt 2>&1; grep -q 'compared; DIFF' $O/e8sh.txt && ok "d3d9vs2 mutation 50b9b4:cd: DIFF" || bad "d3d9vs2 fixture 50b9b4:cd not caught"
+  OUT=$O/e8si $T/rw_d3d9vs2_check.sh $RD 20 300 50b82d:0e > $O/e8si.txt 2>&1; grep -q 'compared; DIFF' $O/e8si.txt && ok "d3d9vs2 mutation 50b82d:0e: DIFF" || bad "d3d9vs2 fixture 50b82d:0e not caught"
+  OUT=$O/e8sj $T/rw_d3d9vs2_check.sh $RD 20 300 50bc33:01 > $O/e8sj.txt 2>&1; grep -q 'compared; DIFF' $O/e8sj.txt && ok "d3d9vs2 mutation 50bc33:01: DIFF" || bad "d3d9vs2 fixture 50bc33:01 not caught"
+fi
 fi      # NEGTEST_SKIP_DLL
 rm -r $O
 exit $rc

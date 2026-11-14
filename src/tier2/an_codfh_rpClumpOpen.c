@@ -128,6 +128,7 @@ extern RwInt32 _rpClumpFreeListBlockSize;
 extern RwInt32 _rpClumpFreeListPreallocBlocks;
 extern RwFreeList _rpClumpFreeList;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * rpClumpOpen(void *instance, RwInt32 offset, RwInt32 size __RWUNUSED__)
 {
 

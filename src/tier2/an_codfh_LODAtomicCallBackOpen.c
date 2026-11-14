@@ -36,6 +36,7 @@ extern RwFreeList _rpLODAtomicCacheFreeList;
 RW_LAYOUT_ASSERT(rw37_own_0, sizeof(struct _rpLODAtomicCache) == 0x40);      /* MFL.exe 0x56843e: push 0x40, entry size of the cache free list */
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(struct _rpLODAtomicGlobalVars, atmCacheFreeList) == 0xc);      /* MFL.exe 0x568448: mov ds:0x9488dc,eax; RpLODAtomicGlobals is at 0x9488d0 */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * LODAtomicCallBackOpen(void *ptr, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size)
 {
     void               *result;

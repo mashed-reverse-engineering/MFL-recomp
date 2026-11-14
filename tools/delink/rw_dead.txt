@@ -389,3 +389,23 @@
 #   the standalone link zero-fills (globals_layout kind "dead", qhull LIBSRC).  No C names 0x5b64e0 / 0x5b64f0; not instrumented in rwcov.
 005b64e0 16 gap_5b64e0
 005b64f0 16 gap_5b64f0
+# S w8 2026-11-14 (lane S; format `va size name`, size = to the next fnsizes start).  5 rows, 90 B.  Proofs: agents/s_w6/deadproof.py on MFL.exe
+# (every 4-byte value at any offset of every section, rel32 branches, delink relocs, recomp sources, rwcov); evidence agents/s_w8/notes.md.
+# siglookup 0x4c283d (CRT, winsig.obj static helper of raise): one reference, the rel call 0x4c28de inside crt_raise 0x4c286b, which is C
+#   (an_crt_raise.c carries its own static copy, crt_signal_find_action).  Register convention (esi / edx): no C row possible, none needed.
+# Ordinal_11 0x5d2cf0 / RtlUnwind 0x5d2cf6 (CRT layer, `jmp [IAT]` import thunks): DSOUND ordinal 11 (DirectSoundCreate8) is called only by
+#   0x5cb666 / 0x5cc117 (RwaDXAudioOutputUnregister / _RwaDXAudioOutputGetCreationParams, replaced: cl_rwa_dxaudio_out.c, mfl_audio);
+#   RtlUnwind only by 0x4b3c76 / 0x4b3f94 (_UnwindNestedFrames / __global_unwind2, libcmt members linked from the toolchain).  rwcov hit 0 both.
+# Direct3DCreate9 0x4ed260 (`jmp [0x5dd2d4]` + int3 pad): one reference, rel call 0x4d7f9c in D3D9System, which is C (an_hk_612_d3d9sys.inc
+#   calls the dllimport directly).
+# rwp_convex_op7_005d6a30 (`jmp rwp_shape_interval_from_support_points` + pad): only references = slot 7 of the RwpAggregate type record
+#   0x5f6e00 (word 0x5f6e20) and of the dead RwpConvex record (0x5f8e98, W6).  deadproof --data 5f6e00-5f6e2c: abs 0 rel 0 reloc 0 C 0, so no
+#   pointer to the aggregate record exists (no table word, no code immediate): no type index can select it.  Neighbour references
+#   (deadproof --data 5f6b00-5f6e70) are scalar fmul operands (0x5f6cdc, 0x5f6d78..0x5f6db0, 0x5f6c38..0x5f6cd0) and the SEH scope tables
+#   0x5f6e48 / 0x5f6e58 (read at positive offsets): no base + offset path into 0x5f6e00..0x5f6e2c.  The record's methods 5847c0..584950 are
+#   referenced only by the record.  Needs trapcheck's xspan sub-row rule (W7; the span word 0x5f6e20 is not reached from live code).
+004c283d 46 siglookup
+005d2cf0 6 Ordinal_11
+005d2cf6 6 RtlUnwind
+004ed260 16 Direct3DCreate9
+005d6a30 16 rwp_convex_op7_005d6a30

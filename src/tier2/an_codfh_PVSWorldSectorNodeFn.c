@@ -193,6 +193,7 @@ RW_LAYOUT_ASSERT(rw37_priv_0, sizeof(RpPVSCache) == 0x2c);      /* an_codfh_rppv
 RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(RpPVSGlobalVars, InSector) == 0x20);      /* an_codfh_rppvs.c */
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpPVS, vismap) == 0xc);      /* MFL.exe 0x5490d9: mov edx,[eax+esi+0xc] (pvs->vismap != NULL), sectorID at [eax+esi] (0x5490e8) */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 PVSWorldSectorNodeFn(RxPipelineNodeInstance * self __RWUNUSED__, const RxPipelineNodeParam * params)
 {
     RwBool              visible;

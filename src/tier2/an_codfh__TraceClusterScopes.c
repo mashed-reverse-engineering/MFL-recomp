@@ -166,6 +166,7 @@ MACRO_START                                                             \
 MACRO_STOP
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=shadow */
 RwUInt32 _TraceClusterScopes(RxPipeline * pipeline, RwScopeTrace ** stheadref)
 {
     RwUInt32            i, j, k;

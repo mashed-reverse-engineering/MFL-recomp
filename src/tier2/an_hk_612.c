@@ -269,6 +269,9 @@ HK_TRAP_STUB(mfl_trap_BMPWriteRow_0053dd30)
 #include "an_hk_612_d3d9ptank.inc"
 #include "an_hk_612_d3d9vsu.inc"
 #include "an_hk_612_d3d9vs.inc"
+#include "an_hk_612_d3d9vsgen.inc"
+#include "an_hk_612_d3d9nat.inc"
+#include "an_hk_612_d3d9vs2.inc"
 
 #define DEFAULT_RES_ARENA_SIZE (0x200000)
 #define VIDEO_MEMORY_BYTES (0x400000)
@@ -513,6 +516,9 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
   hk_bind_d3d9ptank(mflrw);
   hk_bind_d3d9vsu(mflrw);
   hk_bind_d3d9vs(mflrw);
+  hk_bind_d3d9vsgen(mflrw);
+  hk_bind_d3d9nat(mflrw);
+  hk_bind_d3d9vs2(mflrw);
 #endif
 
   /* Step 1: core RenderWare init with the default resource arena. */

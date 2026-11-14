@@ -62,6 +62,7 @@ typedef enum RwMemoryHintFlag RwMemoryHintFlag;
 #define rwPLUGIN_ID rwID_COREPLUGIN
 #define _PTRINC(_ptr,_type,_numbytes) (((_type *)NULL == (_ptr))? ((_type *)NULL): ((_ptr) = (_type *)(((RwUInt8 *)_ptr) + (_numbytes))) )
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool ReallocAndFixupSuperBlock(RxPipeline *pipeline, RwUInt32 newSize)
 {
     void    *oldBlock, *newBlock;

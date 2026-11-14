@@ -10,6 +10,7 @@
 
 #define ISNODELIVE(_node) ( NULL != ( (_node)->nodeDef) )
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RxPipelineNode * RxPipelineFindNodeByName(RxPipeline * pipeline, const RwChar * name, RxPipelineNode * start, RwInt32 * nodeIndex)
 {
     RwBool              check;

@@ -4663,6 +4663,9 @@ default 005092a4
 _rpD3D9GetMinMaxValuesV2d 005092f0
 _rpD3D9FindFormatV2d 00509380
 _rpD3D9UsageFlagPluginAttach 00509470
+LAB_005094f0 005094f0
+LAB_00509510 00509510
+LAB_00509520 00509520
 FUN_00509530 00509530
 RpD3D9GeometryGetUsageFlags 00509550
 FUN_00509560 00509560
@@ -6400,6 +6403,7 @@ FUN_005cc330 005cc330
 _rwaDXAudioOutputGetSpeakerConfig 005cc3a0
 _rwaDXAudioOutputGetFreeVoice 005cc720
 FUN_005cc950 005cc950
+thunk_RwaWaveDestroy_5ccc00 005ccc00
 RwaDXAudioWaveRegister 005ccc10
 RwaDXAudioWaveUnregister 005cccb0
 RwaDXAudioRegisterUsingInterface 005ccee0
@@ -7611,6 +7615,7 @@ k_f_0_22 005f862c
 k_f_0_51 005f8630
 k_f_0_17 005f8634
 k_f_1_66 005f8638
+g_data_5f864c 005f864c
 One 005f8740
 Zero 005f8760
 emask 005f8800
@@ -8161,6 +8166,7 @@ _rwCameraFreeListBlockSize 0062e54c
 _rwCameraFreeListPreallocBlocks 0062e550
 engineTKList 0062e578
 g_data_62e590 0062e590
+g_data_62e591 0062e591
 g_data_62e594 0062e594
 _rwMatrixFreeListBlockSize 0062e6ac
 _rwMatrixFreeListPreallocBlocks 0062e6b0
@@ -8369,6 +8375,7 @@ PTR_RwaListenerUnregister_006491d4 006491d4
 PTR_LAB_006491d8 006491d8
 PTR__RwaParamTypeSetupAtomics_006491e4 006491e4
 g_data_6494a0 006494a0
+g_data_649610 00649610
 g_data_649614 00649614
 g_data_6497cc 006497cc
 g_data_64a0e0 0064a0e0
@@ -8377,6 +8384,7 @@ g_data_64a998 0064a998
 g_data_64a99c 0064a99c
 g_data_64aa00 0064aa00
 g_data_64aa20 0064aa20
+g_data_64bd98 0064bd98
 PTR_g_data_720043_0064bed0 0064bed0
 _OP_FMODjmptab 0064c190
 _HUGE 0064c1e8
@@ -10490,6 +10498,7 @@ g_piz_7d1f94 007d1f94
 g_piz_7d1f98 007d1f98
 g_qh_7d1f9c 007d1f9c
 frameModule 007d1fa0
+g_data_7d1fa8 007d1fa8
 _rwCameraFreeList 007d1fcc
 cameraModule 007d1ff0
 g_data_7d1ff4 007d1ff4
@@ -10680,6 +10689,7 @@ g_data_7d54d4 007d54d4
 _rpD3D9GeometryUsageFlagOffset 007d54d8
 _rpD3D9WorldSectorUsageFlagOffset 007d54dc
 VertexShaderCache 007d54e0
+g_data_7d68e0 007d68e0
 D3D9NumConstantsEffect 007d78e0
 NumShadersInCache 007d79e0
 LastVertexShaderDesc 007d79e4
@@ -10852,6 +10862,7 @@ _rwaVoice3DIntDef 007daeb4
 _rwaVoiceIntDef 007daedc
 _rwaOutputIntDef 007daf04
 g_data_7daf30 007daf30
+g_data_7daf38 007daf38
 g_data_7daf40 007daf40
 g_data_7daf48 007daf48
 g_data_7daf4c 007daf4c
@@ -10891,10 +10902,14 @@ _rwaVirtualVoiceIntDef 007dbbf4
 _rwaStreamIntDef 007dbc1c
 g_data_7dbc44 007dbc44
 g_data_7dbc48 007dbc48
+g_data_7dbc4c 007dbc4c
 g_data_7dbc50 007dbc50
 g_data_7dbc54 007dbc54
 g_data_7dbc58 007dbc58
+g_data_7dbc5c 007dbc5c
+g_data_7dbc60 007dbc60
 g_data_7dbc74 007dbc74
+g_data_7dbc98 007dbc98
 _rwaListenerIntDef 007dbc9c
 g_data_7dbe48 007dbe48
 _rwaStreamSourceIntDef 007dbec4
@@ -10902,14 +10917,21 @@ g_data_7dbef0 007dbef0
 _rwaStreamCodecIntDef 007dbf6c
 _rwaStreamRendererIntDef 007dbf94
 _rwaStreamNodeIntDef 007dbfbc
+g_data_7dbfe8 007dbfe8
+g_data_7dc000 007dc000
 g_data_7dc008 007dc008
 g_data_7dc064 007dc064
 g_data_7dc068 007dc068
+g_data_7dc0c4 007dc0c4
+g_data_7dc0cc 007dc0cc
 g_data_7dc0e4 007dc0e4
 g_data_7dc0e8 007dc0e8
 g_data_7dc134 007dc134
 g_data_7dc15c 007dc15c
+g_data_7dc184 007dc184
+g_data_7dc1a0 007dc1a0
 g_data_7dc1a8 007dc1a8
+g_data_7dc204 007dc204
 start_tics 007dc298
 g_data_7dc2d0 007dc2d0
 g_data_7dc370 007dc370

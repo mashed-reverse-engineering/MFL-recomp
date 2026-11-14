@@ -83,6 +83,7 @@ extern const RtGlyphRow *_rtCharsetAtariFontGet(RtCharsetDesc * desc,
 #define GETCHARSETBITS(_desc_ptr,rasSizePtr) _rtCharsetAtariFontGet((_desc_ptr), (rasSizePtr))
 extern RwChar charsetProcessStringSpace[2];
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 CharsetProcessString(const RwChar * string, RwUInt32 length, RtCharset * charSet, RwInt32 x, RwInt32 y, RwIm2DVertex * vertices, RwImVertexIndex * indices, RwImVertexIndex indexOffset, RwBool hideSpaces)
 {
     /* the function-local static `space` (" ", cleared below when spaces are drawn) is MFL.exe data at 0x63a524 */

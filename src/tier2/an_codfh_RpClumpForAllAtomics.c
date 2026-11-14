@@ -13,6 +13,7 @@ typedef RpAtomic *(*RpAtomicCallBack) (RpAtomic * atomic, void *data);
 /* ---- end of the generated declarations ---- */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpClump * RpClumpForAllAtomics(RpClump * clump, RpAtomicCallBack callback, void *pData)
 {
     RwLLLink           *cur, *end, *next;

@@ -11,7 +11,7 @@
 #define OUTPUT_KIND(voice) (*(RwUInt8 *)(*(char **)((voice) + 0x94) + 0x50))
 #define DIRTY_REVERB_SEND 0x10
 
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 void _rwaDXAudioVoiceSetReverbSendGain(char *voice, RwReal gain)
 {
   if (OUTPUT_KIND(voice) & 8) {

@@ -23,6 +23,7 @@ RwFrameGetLTM(RwFrame * frame);
 extern void GeometryForAllTriIntsecSphere(RpGeometry *geometry, const RwSphere *sphere, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data);
 extern void MorphGeomForAllTriIntsecSphere(RpGeometry *geom, RpInterpolator *interp, RwSphere *sphere, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void AtomicForAllTriIntsecSphere(RpAtomic *atomic, const RwSphere *sphere, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data)
 {
     RpGeometry         *geom;

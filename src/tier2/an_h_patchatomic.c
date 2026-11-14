@@ -26,6 +26,7 @@ typedef struct PatchGlobals {
 #define ATOMIC_PATCH_DATA(atomic) ((PatchAtomicData *)((char *)(atomic) + _rpPatchGlobals.atomic_offset))
 #define GEOMETRY_PATCH_MESH(geometry) (*(RpPatchMesh **)((char *)(geometry) + _rpPatchGlobals.geometry_offset))
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *rpPatchAtomicConstructor(void *atomic, RwInt32 offset, RwInt32 size)
 {
   PatchAtomicData *data = ATOMIC_PATCH_DATA(atomic);
@@ -36,6 +37,7 @@ void *rpPatchAtomicConstructor(void *atomic, RwInt32 offset, RwInt32 size)
   return atomic;
 }
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *rpPatchAtomicDestructor(void *atomic, RwInt32 offset, RwInt32 size)
 {
   PatchAtomicData *data = ATOMIC_PATCH_DATA(atomic);
@@ -49,6 +51,7 @@ void *rpPatchAtomicDestructor(void *atomic, RwInt32 offset, RwInt32 size)
   return atomic;
 }
 
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void *rpPatchAtomicCopy(void *dst, const void *src, RwInt32 offset, RwInt32 size)
 {
   const PatchAtomicData *from = ATOMIC_PATCH_DATA(src);
@@ -64,6 +67,7 @@ void *rpPatchAtomicCopy(void *dst, const void *src, RwInt32 offset, RwInt32 size
 }
 
 /* Stream "always" callback: an atomic whose geometry carries a patch mesh takes a reference and the patch pipeline. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rpPatchAtomicAlways(void *atomic, RwInt32 offset, RwInt32 size)
 {
   RpPatchMesh *mesh = GEOMETRY_PATCH_MESH(RpAtomic_geometry(atomic));
@@ -77,6 +81,7 @@ RwBool rpPatchAtomicAlways(void *atomic, RwInt32 offset, RwInt32 size)
 }
 
 /* Stream rights callback: as above, with the pipeline type from the rights chunk. */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rpPatchAtomicRights(void *atomic, RwInt32 offset, RwInt32 size, RwUInt32 extra_data)
 {
   RpPatchMesh *mesh = GEOMETRY_PATCH_MESH(RpAtomic_geometry(atomic));

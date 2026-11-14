@@ -48,6 +48,7 @@ extern void TkWinFSGetFileObject(void), TkWinFSClose(void), TkWinFSystemFOpen(vo
 
 /* Creates the native file system fs_name on device_name with max_files file slots; NULL when the name is taken,
    memory runs out or the RtFS initialisation fails. */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 WinFSystem *RtWinFSystemInit(RwInt32 max_files, RwChar *device_name, const RwChar *fs_name)
 {
   RwChar root[0x100];

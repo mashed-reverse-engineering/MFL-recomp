@@ -29,6 +29,7 @@ RW_LAYOUT_ASSERT(rw37_row_1, RW_OFFSETOF(RpHAnimKeyFrame, q) == 8 && sizeof(RtQu
 /* ---- end of the generated declarations ---- */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool RpHAnimKeyFrameStreamWrite(const RtAnimAnimation * pAnimation, RwStream * stream)
 {
     RwInt32             i;

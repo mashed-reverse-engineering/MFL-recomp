@@ -85,6 +85,7 @@ MACRO_START                                                             \
 MACRO_STOP
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 void * WorldDeInitLightExt(void *object, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {
     RpLight            *light = (RpLight *) object;

@@ -26,6 +26,7 @@ RW_LAYOUT_ASSERT(rw37_row_0, RW_OFFSETOF(RpCollisionData, tree) == 0);      /* M
 /* _rpCollTreeDestroy is folded in MFL.exe: 0x53e3b0 is also RtAnimInterpolatorDestroy (call at 0x54da5e) */
 extern RpCollTree * BuildTriListCollTree(void *object, RwUInt32 numVerts, RwV3d *verts, RwUInt32 numTris, RpTriangle *tris, RpTriangle *sortTris, RpCollisionBuildParam *param);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RpGeometry * RpCollisionGeometryBuildData(RpGeometry *geometry, RpCollisionBuildParam *param)
 {
     RpCollTree  *oldTree, *collTree;

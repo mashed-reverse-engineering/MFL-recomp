@@ -171,6 +171,7 @@ extern RwModuleInfo worldObjModule;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldAtomicExt, oldSync) == 4 && RW_OFFSETOF(rpWorldObjGlobals, tieFreeList) == 0);      /* MFL.exe 0x4f3d38 call [esi+0x4] (atomicExt->oldSync), 0x4f3d46 atomicExt->world [esi]; 0x4f3d9f / 0x4f3e46 tie free list [globals+0] */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=static */
 RwObjectHasFrame * WorldAtomicSync(RwObjectHasFrame * type)
 {
     RpAtomic           *atomic = (RpAtomic *) type;

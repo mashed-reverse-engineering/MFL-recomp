@@ -407,6 +407,7 @@ static RwUInt32 RwFastRealToUInt32_r(RwReal x)
 #endif
 }
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 Rt2dPath * DefaultPathStroke2d(Rt2dPath * path, Rt2dBrush * brush)
 {
     Rt2dPath           *flat;
@@ -602,6 +603,7 @@ Rt2dPath * DefaultPathStroke2d(Rt2dPath * path, Rt2dBrush * brush)
 }
 
 /* stroke.c: the public entry (MFL.exe 00567880, a jump to DefaultPathStroke2d) */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 Rt2dPath * Rt2dPathStroke(Rt2dPath * path, Rt2dBrush * brush)
 {
     return (DefaultPathStroke2d(path, brush));

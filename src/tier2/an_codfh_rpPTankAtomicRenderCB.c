@@ -6,6 +6,7 @@
 #include "rw37_slim.h"
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpAtomic * rpPTankAtomicRenderCB(RpAtomic *atomic)
 {
     RwBool callDefault = TRUE;

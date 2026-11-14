@@ -57,6 +57,7 @@ RW_LAYOUT_ASSERT(rw37_row_10, RW_OFFSETOF(RwPluginRegEntry, alwaysCB) == 0x18); 
 /* ---- end of the generated declarations ---- */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void rwDestroyEntry(void *object, void *freelist)
 {
     RwPluginRegEntry *entry = (RwPluginRegEntry *) object;

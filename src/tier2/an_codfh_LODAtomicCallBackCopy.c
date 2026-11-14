@@ -37,6 +37,7 @@ extern RwInt32 LODAtomicCallBackSelectLOD(RpAtomic * atomic);
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(struct _rpLODAtomicCache, atomicSelectLOD) == 8 && RW_OFFSETOF(struct _rpLODAtomicCache, curLOD) == 0x14 && RW_OFFSETOF(struct _rpLODAtomicCache, lodGeometry) == 0x18);      /* MFL.exe 0x5682c3..0x5682ec (LODAtomicCallBackCopy, inlined LODAtomicInitCache): farRange / invFarRange +0xc / +0x10, atomicSelectLOD +8, curLOD +0x14, lodGeometry[10] from +0x18 */
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(struct _rpLODAtomicGlobalVars, atmCacheFreeList) == 0xc);      /* MFL.exe 0x5682a2: atmCacheFreeList at 0x9488dc; RpLODAtomicGlobals is at 0x9488d0 */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * LODAtomicCallBackCopy(RpAtomic * dstAtomic, RpAtomic * srcAtomic, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {
     RpLODAtomicCache   *rpSrcLODAtomicCache, *rpDstLODAtomicCache;

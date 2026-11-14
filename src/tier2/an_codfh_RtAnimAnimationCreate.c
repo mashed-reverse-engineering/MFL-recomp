@@ -150,6 +150,7 @@ extern RwInt32 RtAnimInterpolatorInfoBlockNumEntries;
 extern RtAnimInterpolatorInfo
     RtAnimInterpolatorInfoBlock[RTANIMINTERPOLATORINFOBLOCKMAXENTRIES];
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RtAnimAnimation * RtAnimAnimationCreate(RwInt32 typeID, RwInt32 numFrames, RwInt32 flags, RwReal duration)
 {
     RtAnimAnimation           *pAnimation;

@@ -29,6 +29,7 @@ RW_LAYOUT_ASSERT(rw37_priv_0, sizeof(RpMorphInterpolator) == 0x14);      /* an_c
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpMorphAtomicAnim, lastGeom) == 8);      /* MFL.exe 0x555233 / 0x55523c (RpMorphAtomicSetTime): mov eax,[atomicAnimOffset + atomic + 0x8]; interp at +0 here (0x55585f) */
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(RpMorphInterpolator, time) == 8 && RW_OFFSETOF(RpMorphInterpolator, next) == 0x10);      /* MFL.exe 0x555862 fsub [ecx+0x8]; 0x55587a mov eax,[ecx+0x10] */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwReal DefaultGeomAnimCB(RpAtomic * atomic, RwReal position)
 {
     RpMorphAtomicAnim  *atomicAnim;

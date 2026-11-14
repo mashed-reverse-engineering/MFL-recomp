@@ -8,25 +8,25 @@
  * MMX / SSE / SSE2; current AMD and all Intel parts report no 3DNow).  The answers are therefore constants; no inline assembly. */
 #include "mfl_tier2.h"
 
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool _rwCPUHaveMMX(void)
 {
   return 1;
 }
 
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool _rwCPUHaveSSE(void)
 {
   return 1;
 }
 
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool _rwCPUHaveSSE2(void)
 {
   return 1;
 }
 
-/* TIER2: unvalidated 2026-11-12 authority=diffemu */
+/* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool _rwCPUHave3DNow(void)
 {
   return 0;

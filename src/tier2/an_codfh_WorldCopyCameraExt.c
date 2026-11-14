@@ -32,6 +32,7 @@ extern RwInt32      cameraExtOffset;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldCameraExt, space) == 4 && RW_OFFSETOF(RpWorldCameraExt, position) == 8 && RW_OFFSETOF(RpWorldCameraExt, world) == 0xc);      /* MFL.exe 0x4f3c67..0x4f3c6f: [ext] / [ext+4] / [ext+8] = 0, src world [ext+0xc]; 0x4f3c8f dst world [ext+0xc] */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * WorldCopyCameraExt(void *dstObject, const void *srcObject, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__)
 {
     RpWorldCameraExt   *dstCameraExt =

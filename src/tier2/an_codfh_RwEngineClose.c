@@ -43,6 +43,7 @@ extern void               *RwEngineInstance;
 extern RwGlobals    staticGlobals;
 extern RwBool _rwDeviceSystemRequest(RwDevice * device, RwInt32 requestID, void *pOut, void *pInOut, RwInt32 numIn);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool RwEngineClose(void)
 {
     RwBool              result = FALSE;

@@ -16,6 +16,8 @@ python3 $T/cheatgrep.py | tail -5; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "cheatgr
 python3 $T/bindzero.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "bindzero: a bind table slot is 0 (tools/bindzero.py)"; exit 1; }
 # W7 T8: every bind / LIB_RW export the exe asks for is in the pinned DLL, every installed tier 2 / LIB_RW row has an fnsizes row (tools/rowcheck_allow.txt for exceptions)
 python3 $T/rowcheck.py | tail -8; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "rowcheck: missing DLL export or fnsizes row (tools/rowcheck.py)"; exit 1; }
+# W8 T15b: the four mfl_tier2.h copies (src/, tier1/, automatch_near/, clusters/) are identical (no symlinks: the docker compiler sees each directory alone)
+for h in tier1 automatch_near clusters; do cmp -s $T/../src/mfl_tier2.h $T/../src/$h/mfl_tier2.h || { echo "mfl_tier2.h: src/$h/mfl_tier2.h differs from src/mfl_tier2.h (copy the edited one to all four)"; exit 1; }; done
 # the Wine image is pinned by digest / local tag (tools/pin_wine_image.py): a floating tag lets a docker pull change every Wine verdict unnoticed
 python3 $T/pin_wine_image.py --check || { echo "pin: a tools/ script names the floating Wine image tag (python3 tools/pin_wine_image.py <reference>)"; exit 1; }
 python3 $T/declcheck.py > $W/declcheck.txt; [ $? -eq 0 ] || { grep HARD $W/declcheck.txt; echo "declcheck: hard mismatches"; exit 1; }

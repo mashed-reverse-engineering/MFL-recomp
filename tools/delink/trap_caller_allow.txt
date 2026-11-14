@@ -1,0 +1,88 @@
+# trapcheck.py caller allow (W8 T-TCA): `<C symbol> <caller VA> <trap row name | VA> [<data VA>]  # reason`.
+# A reference from an object that defines <C symbol> to that trap row is not a violation.  trapcheck proves every line from game/MFL.exe
+# (the original bytes of the caller's fnsizes row reference the trap row; with <data VA>: that word points into the row and the caller references
+# the globals row holding it) and fails stale lines (trap row in no list).  Only for rows EQUAL in stock + HS diffemu (plan W8 section 4, ASM check 12).
+# W7 AU constant-address callers (T-CA): the original 0x5cee90 calls these four rows by rel32; EQUAL in stock + HS (W7 G1, asm_w7 notes s3).
+rwa_dxaudio_codec_fill_packet_005cee90 5cee90 FUN_005cf230  # original call 5ceee7 / 5cef25; W7 AU codec_output, EQUAL stock 200 + HS 1500
+rwa_dxaudio_codec_fill_packet_005cee90 5cee90 FUN_005cf2b0  # original call 5cf00e; W7 AU codec_output, EQUAL stock 200 + HS 1500
+rwa_dxaudio_codec_fill_packet_005cee90 5cee90 FUN_005cf300  # original call 5cefb6; W7 AU codec_output, EQUAL stock 200 + HS 1500
+rwa_dxaudio_codec_fill_packet_005cee90 5cee90 FUN_005d06c0  # original call 5ceed7; W7 AU codec_output, EQUAL stock 200 + HS 1500
+gap_5d01c0 5d01c0 FUN_005cfc80  # original 5d01c0 calls 5cfc80 (pin enumerator constructor); W7 AU an_hk_1367.c, EQUAL stock + HS
+CollisionDataStreamRead 0054d8d0 _rpCollTreeStreamReadPre36001  # original calls it (54d999 call 0x54df40, pre-3.6.0.1 collision tree branch); row EQUAL stock + HS (lane P W7/W8); trap proof unchanged
+HAnimOpen 00543cc0 RtCompressedKeyFrameAdd  # original registers it as interpolator callback (543d2d mov [esp+0x20],0x543b80, C name RpHAnimKeyFrameAdd = alias of 0x543b80); row EQUAL stock + HS; trap proof unchanged
+HAnimOpen 00543cc0 RtCompressedKeyFrameBlend  # original registers it as interpolator callback (543d1d mov [esp+0x18],0x543520, C name RpHAnimKeyFrameBlend = alias of 0x543520); row EQUAL stock + HS; trap proof unchanged
+RpClumpStreamRead 004f7560 RwCameraStreamRead  # original calls it (4f7c02 call 0x5d5950, camera chunk in a clump stream); row EQUAL stock + HS; trap proof unchanged
+RpMatFXPluginAttach 0054f0c0 MatFXMaterialStreamWrite  # original registers it as material plugin stream write callback (54f10f push 0x54f7c0); 534 B, no port; row EQUAL stock + HS; trap proof unchanged
+SkinAtomicRead 0053f1c0 _rpSkinInitialize  # original calls it (53f3bf call 0x540320); no codfh gen source; row EQUAL stock + HS; trap proof unchanged
+SkinGeometryRead 0053ed70 _rpSkinGeometryNativeRead  # original calls it (53efa6 call 0x540470, native skin data); row EQUAL stock + HS; trap proof unchanged
+SkinGeometryRead 0053ed70 _rpSkinInitialize  # original calls it (53ef8f call 0x540320); no codfh gen source; row EQUAL stock + HS; trap proof unchanged
+SkinGeometryRead 0053ed70 _rpSkinSplitDataStreamRead  # original calls it (53ef4e call 0x5406d0, skin split data chunk); 352 B, no port; row EQUAL stock + HS; trap proof unchanged
+RpSkinPluginAttach 0053e870 SkinGeometryWrite  # original registers it as geometry plugin stream write callback (53e905 push 0x53ec80); 240 B, no codfh gen source; row EQUAL stock + HS; trap proof unchanged
+LODAtomicCallBackWriteChunk 005681c0 RpGeometryStreamWrite  # original calls it (568206 call 0x4f9240) for each LOD geometry; caller is a ported trap row (codfh, EQUAL stock + HS); trap proof unchanged
+LODAtomicCallBackGetChunkSize 00568230 RpGeometryStreamGetSize  # original calls it (56825b call 0x4f9190) for each LOD geometry; caller is a ported trap row (EQUAL stock + HS); trap proof unchanged
+sse2_D3DXInitFastTable 50c60e 50d0c0  # T-CA const 50d0c0: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50d139  # T-CA const 50d139: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50e200  # T-CA const 50e200: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50e956  # T-CA const 50e956: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50e994  # T-CA const 50e994: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50e9eb  # T-CA const 50e9eb: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50ea22  # T-CA const 50ea22: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50edde  # T-CA const 50edde: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50ee78  # T-CA const 50ee78: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50ef2a  # T-CA const 50ef2a: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50efaf  # T-CA const 50efaf: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50f054  # T-CA const 50f054: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50f107  # T-CA const 50f107: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50f1a1  # T-CA const 50f1a1: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50f31f  # T-CA const 50f31f: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50f6ae  # T-CA const 50f6ae: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50f782  # T-CA const 50f782: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50fc6d  # T-CA const 50fc6d: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 50fe73  # T-CA const 50fe73: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510001  # T-CA const 510001: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510167  # T-CA const 510167: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510277  # T-CA const 510277: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 5104b5  # T-CA const 5104b5: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510685  # T-CA const 510685: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 5109a7  # T-CA const 5109a7: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510a79  # T-CA const 510a79: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510c79  # T-CA const 510c79: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510d39  # T-CA const 510d39: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510e44  # T-CA const 510e44: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 510f44  # T-CA const 510f44: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 511153  # T-CA const 511153: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 511268  # T-CA const 511268: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 51142f  # T-CA const 51142f: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+sse2_D3DXInitFastTable 50c60e 5114f1  # T-CA const 5114f1: original installer writes the same code word into the D3DX table (mov [table+x], imm); slot has no live reader (d3dx_dispatch.c header)
+rwp_trilist_create_00573ff0 573ff0 5744b0  # T-CA const 5744b0: original stores the same default callback word 0x5744b0 (replaced at once by the only caller); EQUAL stock + HS (S3 W6)
+RpUVAnimKeyFrameInit 005628b0 RpUVAnimParamKeyFrameDataInitFromMatrix  # original calls it (5628fe call 0x562800) for param-type UV key frames; 174 B fpatan matrix code, not ported; row EQUAL stock + HS; trap proof unchanged
+writeGeometryNative 004f4320 _rpGeometryNativeWrite  # original calls it (4f432a call 0x501380): D3D9 native geometry writer, 640 B device-data code, not ported; row EQUAL stock + HS; trap proof unchanged
+readGeometryNative 004f4340 _rpGeometryNativeRead  # original calls it (4f434b call 0x501600): D3D9 native geometry reader, 1072 B, not ported; row EQUAL stock + HS; trap proof unchanged
+writeWorldSectorNative 004f4370 _rpWorldSectorNativeWrite  # original calls it (4f437a call 0x501aa0): D3D9 native sector writer, 656 B, not ported; row EQUAL stock + HS; trap proof unchanged
+readWorldSectorNative 004f4390 _rpWorldSectorNativeRead  # original calls it (4f439b call 0x501d30): D3D9 native sector reader, 1024 B, not ported; row EQUAL stock + HS; trap proof unchanged
+RpCollisionGeometryForAllIntersections 0x54acd0 GeometryForAllTriIntsecBBox # original calls 0x54bdc0 at 0x54ad3c (rpINTERSECTBOX case); row EQUAL stock 200 x2 + HS
+_rpSkinD3D9CreatePlainPipe 0x542d50 rwSkinD3D9AtomicAllInOneNode 0x63a1cc # the original pushes the node definition 0x63a1c8 (its nodeMethods.nodeBody word 0x63a1cc -> 0x53f770) at 0x542dfb as RxLockedPipeAddFragment's node; same object referenced
+RpPatchPluginAttach 0x559c70 rpPatchGeometryCopy # original pushes 0x55a660 at 0x559ce5 (RpGeometryRegisterPlugin copy callback); registration only, the callback stays trapped
+RpPatchPluginAttach 0x559c70 rpPatchGeometryGetSize # original pushes 0x55a6a0 at 0x559d00 (RpGeometryRegisterPluginStream size callback); stays trapped
+RpPatchPluginAttach 0x559c70 rpPatchGeometryWrite # original pushes 0x55a700 at 0x559d05 (RpGeometryRegisterPluginStream write callback); stays trapped
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsSetup # original stores 0x5485c0 at 0x546d9d (insSetupCB); address store only, callback stays trapped
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsEnding # original stores 0x548910 at 0x546f2d (insEndingCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosCCCSNR # original stores 0x5470e0 at 0x546e65 (insPosCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosCCCSPR # original stores 0x547800 at 0x546e21 (insPosCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosNCCSPR # original stores 0x5472a0 at 0x546e2a (insPosCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosCCPSPR # original stores 0x547c20 at 0x546e08 (insPosCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsColorPV # original stores 0x548190 at 0x546f02 (insColorsCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsColorPVC # original stores 0x548250 at 0x546f17 (insColorsCB)
+rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsColorPPC # original stores 0x548330 at 0x546f20 (insColorsCB)
+FontDefaultRead 0x5663c0 FUN_00560f80 # original calls RwFgets 0x560f80 at 0x5664aa (first line of the metrics file)
+FontDefaultRead 0x5663c0 FontReadMetrics2d1 # original calls 0x5665a0 at 0x5664de (METRICS1 file)
+FontDefaultRead 0x5663c0 FUN_00566aa0 # original calls FontReadMetrics2d2 0x566aa0 at 0x566511 (METRICS2 file)
+FontDefaultRead 0x5663c0 FontReadMetrics2d3 # original calls 0x567240 at 0x566544 (METRICS3 file)
+_RwaDXAudioCodecRegisterCommon 005ce240 005ce2b0  # AU G2: original stores the method address into the codec definition (mov [esi+0x28], 0x5ce2b0); EQUAL stock 200 0x7f / 0x27f
+_RwaDXAudioCodecRegisterCommon 005ce240 005cea00  # AU G2: original mov [esi+0x34], 0x5cea00; EQUAL stock 200
+_RwaDXAudioCodecRegisterCommon 005ce240 005ceab0  # AU G2: original mov [esi+0x30], 0x5ceab0; EQUAL stock 200
+_RwaDXAudioCodecRegisterCommon 005ce240 005ceda0  # AU G2: original mov [esi+0x3c], 0x5ceda0; EQUAL stock 200
+RwaDXAudioCodecRegister 005ce1e0 005cf1f0 0064bd34  # AU G2: data word 0x64bd34 of the codec parameter table 0x64bcf0 (original push 0x64bcf0) holds the handler 0x5cf1f0; EQUAL stock 200
+_rwaDSUnknownCreate 005d0980 005d0a00 0064bfb8  # AU G2: data word 0x64bfb8 (IUnknown vtable 0x64bfb0 slot 2 Release; original mov [esi], 0x64bfb0); EQUAL stock 200
+_rwaDSUnknownCreate 005d0980 005d0a40 0064bfb0  # AU G2: data word 0x64bfb0 (same vtable, slot 0 QueryInterface); EQUAL stock 200
+rxSkinD3D9AtomicAllInOnePipelineInit 0x542cf0 rpD3D9SkinVertexShaderBeginCallBack # original stores 0x542c40 at 0x542d0e (vertex shader begin callback of the skin all-in-one node); address store only, the callback stays trapped

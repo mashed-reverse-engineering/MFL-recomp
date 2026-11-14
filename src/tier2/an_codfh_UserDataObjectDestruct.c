@@ -68,6 +68,7 @@ RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(RpUserDataArray, data) == 0xc);      /
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpUserDataArray, format) == 4 && RW_OFFSETOF(RpUserDataArray, numElements) == 8 && RW_OFFSETOF(RpUserDataList, userData) == 4);      /* MFL.exe 0x554773 format [esi+4] == 3, 0x554779 numElements [esi+8]; 0x554731 list->userData [object+offset+4], 0x554745 numElements [object+offset] */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * UserDataObjectDestruct(void *object, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {
     RpUserDataList  *userDataList;

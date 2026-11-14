@@ -20,6 +20,7 @@ RW_LAYOUT_ASSERT(rw37_row_1, RW_OFFSETOF(_rpUVAnimCustomData, refCount) == 0x40)
 /* ---- end of the generated declarations ---- */
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpUVAnim * RpUVAnimAddRef(RpUVAnim *anim)
 {
 

@@ -117,6 +117,7 @@ static const RwInt32 datasize[] =      /* MFL.exe .rdata 0x5f5a48; the uses are 
 extern RwBool rpPTankAStructAlloc(RpPTankAtomicExtPrv *ptankGlobal, RwUInt32 dataFlags,RwUInt32 platFlags __RWUNUSED__);
 extern RpAtomic * rpPTankAtomicRenderCB(RpAtomic *atomic);
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpAtomic* rpPTankAtomicCreateCustom(RwInt32 maxParticleNum, RwUInt32 dataFlags, RwUInt32 platFlags, RpPTankCallBacks *callbacks)
 {
     RwBool aResult = FALSE;

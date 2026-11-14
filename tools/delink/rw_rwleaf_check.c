@@ -4,7 +4,7 @@
    MFL.exe, both run natively (Wine) on the same CPU.  Made from rw_camsync_check.c (same image mapping and harness arena).  The DLL's sort
    calls the exe's qsort (original code, mflrw_rwleaf_bind).  Each side rebuilds the case from the same seed; compared: the used arena incl.
    slack, the return value (not for the radix sort and the triangle sort: void, the original's eax is a leftover), the x87 control word
-   (CW 0x7f on even and 0x27f on odd cases).  Inputs: radix sort 0..200 elements of 4..20 bytes, keys with duplicates, full / narrow key
+   (CW 0x7f / 0x27f / 0x37f for seed % 3 = 0 / 1 / 2; 0x37f since W8 T19).  Inputs: radix sort 0..200 elements of 4..20 bytes, keys with duplicates, full / narrow key
    ranges, the invalid-parameter returns; tri-strips with degenerate triangles and minIndex 0 / random; matrices with inf / NaN / -0 and dst == src.
    usage: rw_rwleaf_check.exe <mflrw.dll> <MFL.exe> [N=100000] [name,name|all] [neg]
    neg = negative fixture (negtest.sh): the DLL side gets two input words swapped; every entry must DIFF. */
@@ -64,7 +64,7 @@ static void swap2(u16 *a, u16 *b) { u16 t = *a; *a = *b; *b = t; }
 
 static u32 cwlog[2];
 static u32 run_case(int kind, void *fn, int isdll, int neg, u32 seed, int *cov) {
-  u32 r = 0, k; unsigned short cw = (seed & 1) ? 0x27f : 0x7f; int dneg = neg && isdll;
+  u32 r = 0, k; unsigned short cw = seed % 3 == 2 ? 0x37f : seed % 3 ? 0x27f : 0x7f; int dneg = neg && isdll;
   rs = seed; cov[0] = cov[1] = 0;
   cw_set(cw);
   switch (kind) {

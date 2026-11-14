@@ -3,8 +3,8 @@
    the ORIGINAL code of MFL.exe, both run natively (Wine) on the same CPU.  Made from rw_camsync_check.c (same image mapping and harness arena).
    Inputs: two element pointers into the arena; tri-strip: build triangles {+8 material, +0xc..+0x12 four u16 indices} with materials from a
    small pool (equal / NULL / no texture, raster format byte +0x23 of the texture's raster, colour alpha +7); colltree: vertex infos {+8 float}
-   with random floats incl. inf / NaN / -0 / denormals.  Compared: the return value, the arena incl. slack, the x87 control word; CW 0x7f on
-   even and 0x27f on odd cases.
+   with random floats incl. inf / NaN / -0 / denormals.  Compared: the return value, the arena incl. slack, the x87 control word; CW 0x7f /
+   0x27f / 0x37f for seed % 3 = 0 / 1 / 2 (0x37f since W8 T19).
    usage: rw_sortcmp_check.exe <mflrw.dll> <MFL.exe> [N=100000] [name,name|all] [neg]
    neg = negative fixture (negtest.sh): the DLL side gets its two arguments swapped; every entry must DIFF. */
 #include <stdio.h>
@@ -56,7 +56,7 @@ static float rf(void) {
 
 static u32 cwlog[2];
 static u32 run_case(int kind, void *fn, int isdll, int neg, u32 seed, int *cov) {
-  u32 r, *pa = halloc(4), *pb = halloc(4), k; unsigned short cw = (seed & 1) ? 0x27f : 0x7f;
+  u32 r, *pa = halloc(4), *pb = halloc(4), k; unsigned short cw = seed % 3 == 2 ? 0x37f : seed % 3 ? 0x27f : 0x7f;
   rs = seed;
   if (kind == K_TRI) {
     u32 *mats[4], *e[2];

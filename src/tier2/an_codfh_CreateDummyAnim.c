@@ -93,6 +93,7 @@ RW_LAYOUT_ASSERT(rw37_row_4, RW_OFFSETOF(_rpUVAnimCustomData, refCount) == 0x40)
 extern RwFreeList *_rpUVAnimCustomDataFreeList;
 extern RtAnimInterpolatorInfo _rpUVAnimLinearInterpolatorInfo;
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpUVAnim * CreateDummyAnim(const RwChar *name)
 {
     RpUVAnim *anim;

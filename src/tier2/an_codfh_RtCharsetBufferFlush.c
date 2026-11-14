@@ -38,6 +38,7 @@ typedef struct _RtCharsetBuffer RtCharsetBuffer;
 extern RtCharsetBuffer _rtgBuffer;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(struct _RtCharsetBuffer, numChars) == 8 && RW_OFFSETOF(struct _RtCharsetBuffer, vertices) == 0xc && RW_OFFSETOF(struct _RtCharsetBuffer, indices) == 0x10);      /* MFL.exe 0x568b20 / 0x568c0f / 0x568c03: numChars 0x7da9f4, vertices 0x7da9f8, indices 0x7da9fc; _rtgBuffer is at 0x7da9ec */
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool RtCharsetBufferFlush(void)
 {
 

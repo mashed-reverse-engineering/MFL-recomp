@@ -677,3 +677,5 @@ rwa_async_queue_remove_005bf6b0
 rwa_async_queue_init_005bf5e0
 _rwaRwStreamCacheReadAsync
 rwa_stream_read_step_005bbda0
+rwa_async_queue_destroy_005bfba0
+_rwaStreamContainerSetPitch

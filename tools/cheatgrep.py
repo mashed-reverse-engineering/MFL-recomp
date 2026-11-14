@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""cheatgrep.py [files...]: flags constructs that make a 'match' meaningless in agent / tier 1 / tier 2 sources: __asm / _emit, any #pragma, volatile in a function body,
+"""cheatgrep.py [files...]: flags constructs that make a 'match' meaningless in agent / tier 1 / tier 2 sources: __asm / _emit, any #pragma, volatile in a function body or a #define body,
 raw `*(T*)0x......` pointers, raw image data address literals (rawaddr.py), byte/dword arrays (>= 16 constants) that occur in the original MFL.exe.
 Scope (default): src/{automatch_agent,automatch_near,tier1,automatch}/*.c (not hand code, bridges, keep_*).  Allowlist: src/cheat_allow.txt, `token reason` per line,
 token = file basename or function name (a reason is mandatory).  Exit 1 when anything unallowed is found."""
@@ -43,6 +43,8 @@ def scan(path):
             out.append((k, fn(x.start()), m[:x.start()].count("\n") + 1))
     for x in re.finditer(r"\bvolatile\b", m):
         if fn(x.start()): out.append(("volatile", fn(x.start()), m[:x.start()].count("\n") + 1))
+    for x in re.finditer(r"^[ \t]*#[ \t]*define[ \t]+(\w+)((?:[^\n]*\\\n)*[^\n]*)", m, re.M):      # W8: a macro body expands into a function body (P batch 4: volatile locals in #define)
+        if re.search(r"\bvolatile\b", x.group(2)): out.append(("volatile", x.group(1), m[:x.start()].count("\n") + 1))
     for x in ARR.finditer(m):
         v = [int(s, 16) for s in re.findall(r"0[xX][0-9a-fA-F]+", x.group(1))]
         for w in (1, 4):

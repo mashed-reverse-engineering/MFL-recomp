@@ -131,6 +131,7 @@ MACRO_START                                                             \
 MACRO_STOP
 
 /* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpAtomic * WorldRemoveClumpAtomic(RpAtomic * atomic, void *data)
 {
     RpWorld * const     world = (RpWorld *)data;
