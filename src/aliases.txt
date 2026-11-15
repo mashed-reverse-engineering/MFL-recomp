@@ -5704,3 +5704,5 @@ rwa_soft_output_mix_005d8d00 005d8d00
 rwa_soft_output_create_005d8f10 005d8f10
 rxSkinD3D9AtomicAllInOnePipelineInit 00542cf0
 rpD3D9SkinVertexShaderBeginCallBack 00542c40
+WinMain 004a1710
+WinMainCRTStartup 004b4ba7

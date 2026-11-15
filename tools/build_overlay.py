@@ -182,7 +182,7 @@ def main():
         inc_ = lambda p_: incexpand.read_expanded(p_).encode("utf-8") if incexpand.incs(open(p_, errors="replace").read()) else b""      # a source with .inc includes: the inlined text joins its key (others: key unchanged)
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
-        todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set(); ccv = {}
+        todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set(); op_files = set(); ccv = {}
         OB0 = ["/Ob0"]      # clusters / tier 2 replace functions that the original CALLS (tools/diffemu verifies them with /Ob0 and hooks every callee): no inlining of their static helpers, so the shipped object is the verified one (2026-10-24, F-o2). Tier 1 / automatch stay /O2: their byte identity was proven with inlining.
         for c in srcs:
             nm = os.path.basename(c)
@@ -193,6 +193,7 @@ def main():
             shutil.copy(c, os.path.join(work, nm))
             if b"compile: /GS" in open(c, "rb").read(): gs_files.add(nm)      # /GS stack-cookie functions (tools/gsfix.py): this file alone gets cl /GS
             if b"compile: /G5" in open(c, "rb").read(): g5_files.add(nm)      # RenderWare SDK functions were built by cl 12 (VC6, /G5 scheduling: no partial register xor, params loaded in source order): this file alone gets cl /G5 (BYTEMATCH_PATTERNS "RW library")
+            if b"compile: /Op" in open(c, "rb").read(): op_files.add(nm)      # W9 T-OP: /Op (improve float consistency: every float result stored where the source stores it), this file alone (an_p_vectormult.c, the exe's spill points)
             _m = open(c, "rb").read(); ccv[nm] = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant (vc7.sh VC7_CL), same rule as tools/cmpfn.py: `/* compile: cl1310 */` = cl 13.10 (toolchain/vc71), `cl1310b` = cl 13.10.3077 (vc71b), default cl 13.00
             if any(os.sep + d_ + os.sep in c for d_ in ("clusters", "automatch_near")): ob0_files.add(nm)
             if cl_entries and c not in cl_files:
@@ -201,10 +202,11 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + inc_(os.path.join(work, nm)) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + inc_(os.path.join(work, nm)) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else []) + (["/Op"] if nm in op_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
+        print("objects: %d from the cache, %d to compile%s" % (len(keyed) - len(todo), len(todo), " (/Op: %s)" % ",".join(sorted(op_files)) if op_files else ""), file=sys.stderr)      # W9 T-OP test: an unmarked file's key is unchanged = cache hit
         if todo:
             # one container, several wine cl processes in parallel (same prefix/wineserver); 1 file per cl would waste the 8 s start per process
             out_ = ""
@@ -215,7 +217,7 @@ def main():
                 # every cl job gets its own TMP/TEMP below the work dir: cl names its intermediate files C:\...\Temp\_CL_<pid>..., and concurrent builds
                 # (check_all BUILD_PAR, each a separate container = separate wineserver on the one prefix) reuse the same Windows pids -> C1083 (G0, 2026-11-12).
                 # Set inside cmd /c (Wine replaces a unix TMP/TEMP by the prefix's registry value); %CD% = the work dir in both vc7.sh modes.
-                jobs_ = [(" ".join(flags + (["/GS"] if g else []) + (OB0 if o else []) + (["/G5"] if v else [])), " ".join(f_)) for c in chunks for g in (0, 1) for o in (0, 1) for v in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o) and (x in g5_files) == bool(v)]] if f_]
+                jobs_ = [(" ".join(flags + (["/GS"] if g else []) + (OB0 if o else []) + (["/G5"] if v else []) + (["/Op"] if p else [])), " ".join(f_)) for c in chunks for g in (0, 1) for o in (0, 1) for v in (0, 1) for p in (0, 1) for f_ in [[x for x in c if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o) and (x in g5_files) == bool(v) and (x in op_files) == bool(p)]] if f_]
                 for j_ in range(len(jobs_)): os.makedirs(os.path.join(work, "cltmp%d" % j_), exist_ok=True)
                 cmd = " ".join('wine cmd /c "set TMP=%%CD%%\\cltmp%d&&set TEMP=%%CD%%\\cltmp%d&&cl.exe %s %s" &' % (j_, j_, fl_, fs_) for j_, (fl_, fs_) in enumerate(jobs_)) + " wait"
                 r = subprocess.run([os.path.join(HERE, "vc7.sh"), work, cmd], capture_output=True, text=True, env=dict(os.environ, VC7_SHELL="1", VC7_CL=cv_))

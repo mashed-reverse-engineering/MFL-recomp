@@ -278,7 +278,8 @@ def mkhit(M):
         i = bisect.bisect_right(DL, a) - 1
         return i >= 0 and a < D[i][1]
     return hit
-STUBS = {"__fltused", "_IID_IUnknown", "_errno", "__except_list"}      # mkobj defines __fltused; the link adds a stub object for IID_IUnknown / errno; __except_list = absolute 0 of exsup.obj (B3)
+STUBS = {"__fltused", "_IID_IUnknown", "_errno", "__except_list", "_WinMain@16"}      # mkobj defines __fltused; the link adds a stub object for IID_IUnknown / errno; __except_list = absolute 0 of exsup.obj (B3)
+# _WinMain@16 (wincrt0.obj, W9 E): mkobj binds it to app_initialise_on_bootup through src/aliases.txt "WinMain 004a1710" (same stdcall signature)
 for rnd in range(50):
     M, _ = ref_fix(M, "closure %d: refs " % rnd)
     drop_names = {norm(r["name"]) for r in items if r["member"] in M}; hit = mkhit(M)       # names whose image copy is split out (only the member defines them then)

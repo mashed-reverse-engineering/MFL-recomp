@@ -78,7 +78,7 @@ char *rwa_soft_output_mix_005d8d00(void *unused, char *mixer)
 
 /* creates the software mixer of output object obj (+0x28) for params; an existing DirectX output is looked up first, else one is
    created (flag bit 0).  obj, or NULL on failure (a created output is destroyed again) */
-/* TIER2: unvalidated 2026-11-14 authority=static */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 char *rwa_soft_output_create_005d8f10(char *obj, void *unused, RwaSoftParams *params, void *arg_d, void *arg_e)
 {
   RwaSoftOutput *s = (RwaSoftOutput *)(obj + 0x28);

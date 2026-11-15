@@ -22,8 +22,10 @@ if [ -n "$LSRC" ]; then
   EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt --drop-items $ITEMS"; export LIBSRC_ITEMS=$ITEMS
 fi
 # LIB_CRT=libcmt (B5, D3: VC7 libcmt now): the libcmt.lib members that plan_split.py can split out WITH their data (libs.cfg [crt], tools/delink_sdk/ownership.py with the wide-twin fix) replace the exe's CRT code and
-# data; blocked members (wincrt0 / crt0init start-up, members needing imports the exe lacks, unanchored data) stay original.  Same plumbing as the source libs: EXTRA_OBJS + mkobj --drop-members.
-CRTSPLIT=
+# data; blocked members (members needing imports the exe lacks, unanchored data) stay original.  Same plumbing as the source libs: EXTRA_OBJS + mkobj --drop-members.
+# W9 E: wincrt0.obj splits too (its _WinMain@16 = app_initialise_on_bootup, src/aliases.txt "WinMain"): the entry is then libcmt's WinMainCRTStartup.  crt0init is not linked:
+# _cinit (crt0dat) walks the original initialiser tables at 0x5fb000 through __xi_a / __xi_z / __xc_a / __xc_z (symbols.txt).  Without the split the entry stays the original one (`entry`).
+CRTSPLIT=; ENTRY=entry
 if [ "$LIB_CRT" = libcmt ]; then
   CRTSPLIT=1; export CRT_SPLIT=$W/lib/crt; mkdir -p $W/lib; [ -s $W/lib/extra_objs.txt ] || { : > $W/lib/extra_objs.txt; : > $W/lib/members.txt; }
   python3 $G/tools/rw_overlay_prep.py $W/lib/obj > /dev/null || { echo "rw_overlay_prep failed"; exit 1; }
@@ -32,6 +34,7 @@ if [ "$LIB_CRT" = libcmt ]; then
     [ -n "$ITEMS" ] && { old_="--drop-items $ITEMS"; MKOBJ_ARGS="${MKOBJ_ARGS/"$old_"/--drop-items $W/lib/crt/items.csv}"; }; ITEMS=$W/lib/crt/items.csv
   fi
   cat $W/lib/crt/extra_objs.txt >> $W/lib/extra_objs.txt; cat $W/lib/crt/members.txt >> $W/lib/members.txt
+  grep -q 'wincrt0\.obj$' $W/lib/crt/members.txt && ENTRY=WinMainCRTStartup
   if [ -z "$LSRC" ]; then      # the stubs (IID_IUnknown, errno) the source libs block would have built
     cp $G/tools/delink_sdk/stubs.c $W/lib/; VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt
     EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt${ITEMS:+ --drop-items $ITEMS}"
@@ -126,7 +129,7 @@ MFLOBJ=mfl.obj
 (cd $W && ls o/*.obj) > $W/link.rsp
 # LIB_RW: the thunk object goes FIRST so its definition wins over our own C definition of the same function (link.exe keeps the first one; LNK4006 "second definition ignored" otherwise depends on the file name sort)
 [ -n "$LIB_RW" ] && { T1=$(awk '$1=="rw:thunks"{print $2}' $W/objs_local.txt); T1=${T1#$W/}; { echo $T1; grep -vxF $T1 $W/link.rsp; } > $W/link.rsp.new && mv $W/link.rsp.new $W/link.rsp; }
-VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:mfl_entry /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true
+VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:$ENTRY /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true
 echo "link: $(grep -c -E "error" $W/link.log || true) errors, $(grep -c LNK4006 $W/link.log || true) LNK4006"; grep -E "error" $W/link.log | head -8
 grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | head -5; echo "mkobj: references not found"; exit 1; }
 [ -f $W/ours.exe ] || { echo "link failed"; exit 1; }

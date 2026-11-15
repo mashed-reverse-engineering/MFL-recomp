@@ -12,7 +12,7 @@ cp $W/game/App_Executables/MFL.exe $W/mfl_patched.exe
 python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe ${PAD:+--pad $PAD} $MKOBJ_ARGS | head -1     # MKOBJ_ARGS="--min-conf medium" etc. for bisecting
 [ -n "$PAD" ] && B=0x400000
 for b in $(echo 0x400000 $B | tr ' ' '\n' | sort -u); do
-  VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:mfl_entry /fixed /base:$b /nodefaultlib /map:mfl_$b.map /out:mfl_$b.exe mfl.obj
+  VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:entry /fixed /base:$b /nodefaultlib /map:mfl_$b.map /out:mfl_$b.exe mfl.obj
   python3 $T/pefix.py $W/mfl_$b.exe $W/mfl_patched.exe >/dev/null
 done
 [ -z "$PAD" ] && echo "original base build vs input, differing bytes outside the PE header: $(cmp -l $W/mfl_0x400000.exe $W/mfl_patched.exe | awk '$1 > 4096' | wc -l)"

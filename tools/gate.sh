@@ -31,8 +31,11 @@ if [ $KIND = full ]; then export FORCE_NEGTEST=1; fi      # kind full never uses
 [ -n "$SA" ] && : ${STEP_TIMEOUT:=60}      # a cold-delta link (up to 4 links of the DELTA retry) outlasts the 3x estimate
 # W7 T-STEP: a negtest key MISS (or `MISS error`) means check_all runs the docker negtest groups (~30+ min), and kind full always does (FORCE_NEGTEST): step limit at least 90 min then
 NK=$(python3 $T/negtest_key.py --check 2>/dev/null); NK=${NK:-MISS error}
-{ [ "${NK%% *}" != HIT ] || [ $KIND = full ]; } && [ "${STEP_TIMEOUT:-0}" -lt 90 ] && STEP_TIMEOUT=90
-TOLINE="negtest key ${NK:0:14}, kind $KIND -> step limit ${STEP_TIMEOUT:-3x estimate + 5} min (x load/4, 1..2)"
+# W9 T-STEP2: the limit then follows the timed scratch MISS run of the same key (negtest_key.py --store-time / --miss-limit: x 1.3, floor 90; no timing: 120)
+NW=
+if [ "${NK%% *}" != HIT ] || [ $KIND = full ]; then NL=$(python3 $T/negtest_key.py --miss-limit "${NK#* }" 2>/dev/null) || NL="120 negtest_key --miss-limit failed"; NL=${NL:-120 no output}
+  [ "${STEP_TIMEOUT:-0}" -lt "${NL%% *}" ] && STEP_TIMEOUT=${NL%% *}; NW=" (MISS limit ${NL})"; fi
+TOLINE="negtest key ${NK:0:14}, kind $KIND -> step limit ${STEP_TIMEOUT:-3x estimate + 5} min (x load/4, 1..2)$NW"
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)

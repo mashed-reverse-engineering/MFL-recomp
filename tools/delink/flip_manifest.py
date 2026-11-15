@@ -62,6 +62,8 @@ GROUP_BLOCK = {"bacamera": "Camera.frustumCorners 0x124 / recipViewWindow / view
                "d3d9raster": "X2 slice (d3dras): palettised depth (_rwD3D9RasterCreate port), texture create / lock through the device",
                "d3d9vertexshader": "vertex shader creation on the device; MFL draws fixed function (check coverage before porting)"}
 
+FIELDS = ["va", "name", "bytes", "lib", "group", "member_guess", "hit", "jobs", "route", "route_if_hit", "planned", "blocker", "codfh_file", "codfh"]
+
 def main():
     gate = opt("--gate") or newest_gate()
     zr = [(int(r["lo"], 16), int(r["hi"], 16)) for r in csv.DictReader(open(os.path.join(gate, "zero_original_ranges.csv"))) if r["layer"] == "RenderWare"]
@@ -102,7 +104,7 @@ def main():
         rows[-1]["codfh"] = "y" if found else "n"
     out = opt("--out", os.path.join(G, "output", "engine_flip_manifest_%s.csv" % TODAY))
     with open(out, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
+        w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else FIELDS); w.writeheader(); w.writerows(rows)      # W9: zero original RenderWare code = a header-only csv
     # summary
     by = collections.defaultdict(lambda: [0, 0]); byr = collections.Counter()
     for r in rows: by[(r["route"], r["group"])][0] += r["bytes"]; by[(r["route"], r["group"])][1] += 1; byr[r["route"]] += r["bytes"]

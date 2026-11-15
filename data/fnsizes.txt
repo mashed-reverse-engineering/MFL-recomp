@@ -3020,7 +3020,7 @@
 004b4b54 FUN_004b4b54 10
 004b4b5e __amsg_exit 34
 004b4b83 fast_error_exit 36
-004b4ba7 entry 423
+004b4ba7 entry 466
 004b4d79 purecall 9
 004b4d90 __aulldvrm 149
 004b4e30 __aulldiv 104
@@ -3906,7 +3906,9 @@
 004d4e40 RwMatrixDestroy 35
 004d4e70 RwMatrixCreate 83
 004d4ed0 _rwVectorSetMultFn 122
+004d4f50 VectorMultPoints 183
 004d5010 FUN_004d5010 150
+004d50b0 VectorMultVectors 163
 004d5160 FUN_004d5160 133
 004d51f0 _rwV3dNormalize 149
 004d5290 RwV3dNormalize 271
@@ -6885,7 +6887,7 @@
 005c5620 FUN_005c5620 1065
 005c5a50 FUN_005c5a50 389
 005c5be0 FUN_005c5be0 315
-005c5d20 FUN_005c5d20 453
+005c5d20 FUN_005c5d20 460
 005c5ef0 FUN_005c5ef0 2245
 005c67c0 FUN_005c67c0 460
 005c6990 gap_5c6990 217

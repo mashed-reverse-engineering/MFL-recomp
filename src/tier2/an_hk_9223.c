@@ -71,7 +71,9 @@
 /* (was: "runs game_tick for the frame time, then builds the instruction text lines for event types 0..2 using text_width (inferred)")
    Calls race_start_setup(0x32) ceil(g_frame_ticks / 50) times (not game_tick), then, while the menu panel state is 1 and no line is pending,
    interprets the current tutorial page script (the basic pages for event types 0..2 = time trials, the event pages for every other type) and
-   collects the text lines with their widths (text_width at scale 0.7). */
+   collects the text lines with their widths (text_width at scale 0.7).
+   Width sums: (text_width + width) + pad in that order (the original's fld / fadd / fadd chain); written as one expression cl adds pad + width
+   first and the float result can differ by one ulp (W9 lane D, HS seed 768249574), so the partial sum is its own statement. */
 
 void tutorial_text_update(void)
 
@@ -129,8 +131,8 @@ LAB_00432313:
             (&g_tutorial_line_entries)[g_tutorial_line_count] = *frame.script_cursor;
             g_tutorial_line_count = g_tutorial_line_count + 1;
             text_w = (double)text_width(*frame.script_cursor,0x3f333333);
-            g_tutorial_line_width =
-                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            text_w = text_w + (double)g_tutorial_line_width;
+            g_tutorial_line_width = (float)(text_w + (double)k_f_8);
           }
           break;
         case 2:
@@ -158,8 +160,8 @@ LAB_00432313:
               (&g_tutorial_line_entries)[g_tutorial_line_count] = text_id_b;
               text_w = (double)text_width(text_id_b,0x3f333333);
             }
-            g_tutorial_line_width =
-                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            text_w = text_w + (double)g_tutorial_line_width;
+            g_tutorial_line_width = (float)(text_w + (double)k_f_8);
             if (*frame.script_cursor == 0) {
               stat_value = player_stat_get_crowns(*ranked_player);
             }
@@ -191,8 +193,8 @@ LAB_00432313:
             ranked_player = ranked_player + 1;
             opcode_or_text = opcode_or_text + 1;
             frame.rows_left = frame.rows_left + -1;
-            g_tutorial_line_width =
-                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            text_w = text_w + (double)g_tutorial_line_width;
+            g_tutorial_line_width = (float)(text_w + (double)k_f_8);
           } while (frame.rows_left != 0);
           goto LAB_00432894;
         case 3:
@@ -229,8 +231,8 @@ LAB_00432313:
               text_w = (double)text_width(opcode_or_text,0x3f333333);
               opcode_or_text = frame.ratio_ref;
             }
-            g_tutorial_line_width =
-                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            text_w = text_w + (double)g_tutorial_line_width;
+            g_tutorial_line_width = (float)(text_w + (double)k_f_8);
             if (*frame.script_cursor == 2) {
               opcode_or_text = player_stat_get_place_team(*ranked_player);
               opcode_or_text = opcode_or_text * 2000;
@@ -276,8 +278,8 @@ LAB_00432313:
             ranked_player = ranked_player + 1;
             text_id_b = text_id_b + 1;
             frame.rows_left = frame.rows_left + -1;
-            g_tutorial_line_width =
-                 (float)(text_w + (double)g_tutorial_line_width + (double)k_f_8);
+            text_w = text_w + (double)g_tutorial_line_width;
+            g_tutorial_line_width = (float)(text_w + (double)k_f_8);
           } while (frame.rows_left != 0);
 LAB_00432894:
           frame.script_cursor = page_script + 1;
@@ -320,8 +322,8 @@ LAB_00432894:
 LAB_00432624:
           frame.script_cursor = page_script + 1;
           g_tutorial_line_count = g_tutorial_line_count + 2;
-          g_tutorial_line_width =
-               (float)(text_w + (double)g_tutorial_line_width + (double)k_f_16);
+          text_w = text_w + (double)g_tutorial_line_width;
+          g_tutorial_line_width = (float)(text_w + (double)k_f_16);
         }
         goto switchD_004322dc_default;
       }

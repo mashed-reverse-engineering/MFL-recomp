@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Delinker step 1 round trip: write the whole MFL.exe image as ONE relocatable COFF object: the sections as raw bytes (.text, _rwcseg, .rdata,
 .data + .bss for its uninitialised tail, _rwdseg), one IMAGE_REL_I386_DIR32 relocation per pointer site of output/delink_relocs.csv (against the
-target's section symbol, the addend stored in place), one external symbol per function (output/fnsizes.txt) and _mfl_entry at the entry point.
+target's section symbol, the addend stored in place), one external symbol per function (output/fnsizes.txt).
 The VC7 link.exe can then place it at any base; check_roundtrip.py compares the result with the original.
 Usage: mkobj.py <out.obj> [--min-conf high|medium|low] [--drop-kinds header,rsrc,unknown] [--exe <patched copy of MFL.exe, e.g. prepare.py's>]
        [--skip <file of hex sites>] [--rename <file: name new_name>] [--objs <list of our .obj files (last word per line)>] [--grow-text <hex size>] [--pad <hex size> [--pad-code]: no access section in front, e.g. 5f8000 = the whole old address range 0x401000-0x9f9000 traps at base 0x400000]"""
@@ -508,7 +508,7 @@ for i, s in enumerate(secs):
 seen = collections.Counter()
 # names: src/symbols.txt (ExportSymbols.java: functions and data labels; the same table the overlay resolves with, so a name means the same
 # address in both builds), then the newer output/fnsizes.txt names that symbols.txt does not have
-ext = [("_mfl_entry", entry)]
+ext = []      # W9 E: no _mfl_entry any more; the entry is `entry` (symbols.txt) or libcmt's WinMainCRTStartup (link_ours.sh)
 known = set()
 for l in open(os.path.join(G, "src", "symbols.txt")):
     n, a = l.split(); a = int(a, 16)

@@ -8382,6 +8382,7 @@ g_data_64a0e0 0064a0e0
 PTR_rwa_unit246d50_005c1c10_0064a80c 0064a80c
 g_data_64a998 0064a998
 g_data_64a99c 0064a99c
+g_data_64a9c0 0064a9c0
 g_data_64aa00 0064aa00
 g_data_64aa20 0064aa20
 g_data_64bd98 0064bd98

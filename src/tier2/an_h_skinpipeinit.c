@@ -37,7 +37,7 @@ typedef struct SkinGlobalsVS {            /* _rpSkinGlobals (0x7da640), the fiel
 /*0050b610*/ extern void rxD3D9VertexShaderDefaultMeshRenderCallBack(void);
 /*0050b5e0*/ extern void rxD3D9VertexShaderDefaultEndCallBack(void);
 
-/* TIER2: unvalidated 2026-11-14 authority=static */
+/* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rxSkinD3D9AtomicAllInOnePipelineInit(RxPipelineNodePart *node)
 {
   SkinAllInOneNodeData *data = node->private_data;

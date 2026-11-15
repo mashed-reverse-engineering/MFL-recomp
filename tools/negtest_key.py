@@ -12,7 +12,12 @@ output/gate/negtest_ok.key (written only after all groups passed).  Inputs, by c
   image    every `<image> wine /t/` reference in the rw_*_check.sh (the pinned Wine image)
   compiler `i686-w64-mingw32-gcc --version` and g++ (the harness exes are built by the host compiler on every run)
 --key prints the key (nothing and exit 1 on any error), --check prints `HIT <key>` or `MISS <key>` (`MISS error` on any error: fail-open),
---store writes the key file."""
+--store writes the key file.
+W9 T-STEP2 (step limit after a MISS):
+  --store-time MINUTES   after a timed MISS run of the staged fixtures in a scratch tree (check_all with the negtest groups, wall minutes):
+                         write "<current key> <minutes>" to output/gate/negtest_miss_time.txt (scratch output/gate = the real directory)
+  --miss-limit KEY       print "<limit> <why>": a timing for KEY -> max(90, ceil(minutes x 1.3)); none -> 120 (plan W9 timeout rule)
+  NEGTEST_TIME_FILE overrides the timing file (tests)."""
 import glob, hashlib, os, re, subprocess, sys
 
 T = os.path.dirname(os.path.abspath(__file__))
@@ -133,10 +138,45 @@ def selftest():
     return 1 if bad else 0
 
 
+TF = os.environ.get("NEGTEST_TIME_FILE") or os.path.join(G, "output", "gate", "negtest_miss_time.txt")
+
+
+def miss_limit(tf, k):
+    """-> (minutes, why) for the gate's step limit after a negtest MISS of key k"""
+    try:
+        rec = dict(l.split()[:2] for l in open(tf) if len(l.split()) >= 2)
+    except OSError:
+        rec = {}
+    if k in rec:
+        m = float(rec[k])
+        return max(90, int(-(-m * 1.3 // 1))), "timed MISS %.0f min x 1.3, floor 90" % m
+    return 120, "no timed MISS run for this key (fallback)"
+
+
+def limit_selftest():
+    import tempfile
+    tf = tempfile.mktemp()
+    open(tf, "w").write("a" * 64 + " 100\n" + "b" * 64 + " 20\n")
+    run = 100      # a fake negtest step that takes as long as the timed run
+    old = 90
+    new, _ = miss_limit(tf, "a" * 64)
+    r = [("old form (90) times out on a 100-min run", run > old), ("new form (%d) passes it" % new, run <= new and new == 130),
+         ("short timing keeps floor 90", miss_limit(tf, "b" * 64)[0] == 90), ("unknown key -> 120", miss_limit(tf, "c" * 64)[0] == 120),
+         ("no file -> 120", miss_limit(tf + ".none", "a" * 64)[0] == 120)]
+    os.remove(tf)
+    for what, ok in r: print("%-4s %s" % ("ok" if ok else "FAIL", what))
+    return 0 if all(ok for _, ok in r) else 1
+
+
 if __name__ == "__main__":
     a = sys.argv[1:2]
     if a == ["--selftest"]:
-        sys.exit(selftest())
+        sys.exit(selftest() | limit_selftest())
+    if a == ["--limit-selftest"]:
+        sys.exit(limit_selftest())
+    if a == ["--miss-limit"]:
+        print("%d %s" % miss_limit(TF, sys.argv[2] if len(sys.argv) > 2 else "error"))
+        sys.exit(0)
     try:
         k = key(items())
     except Exception as e:      # fail-open: the caller runs negtest
@@ -152,5 +192,9 @@ if __name__ == "__main__":
     elif a == ["--store"] and re.fullmatch(r"[0-9a-f]{64}", sys.argv[2] if len(sys.argv) > 2 else ""):
         os.makedirs(os.path.dirname(KF), exist_ok=True)
         open(KF, "w").write(sys.argv[2] + "\n")
+    elif a == ["--store-time"] and re.fullmatch(r"\d+(\.\d+)?", sys.argv[2] if len(sys.argv) > 2 else ""):
+        os.makedirs(os.path.dirname(TF), exist_ok=True)
+        open(TF, "w").write("%s %s\n" % (k, sys.argv[2]))
+        print("stored %s %s min -> step limit %d (%s)" % (k[:12], sys.argv[2], *miss_limit(TF, k)))
     else:
         sys.exit(__doc__)

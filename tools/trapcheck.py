@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """trapcheck.py: static check that no int3-filled original code is referenced by the installed C.
   trapcheck.py [W] [--objs LIST] [--list FILE]...   W = a link_ours.sh work dir (default: newest output/gate/*_standalone/link); exit 1 on any violation
-  trapcheck.py --selftest [W]                       (W missing its link files = FAIL; no W = newest link, skipped if none) tools/negtests/trap: the old rw_trap.txt with RtDictDestroy (tworaces int3, cl_course_destroy_world.c) must fail, the current copy must pass
+  trapcheck.py --selftest [W]                       (W missing its link files = FAIL; no W = newest link, skipped if none) bad case built from W at run time (bad_selftest: one library function's defining object left out, the function listed: its C caller must fail; W9, replaces the
+                                                    RtDictDestroy fixture rw_trap_bad.txt that G1's C port retired), tools/negtests/trap/rw_trap_good.txt must pass
 The filled lists (`va size name|why`): tools/delink/rw_trap.txt (DROP_RWTRAP), rw_dead.txt (DROP_RW), dshow_dead.txt (DROP_DSHOW), dead_tables.txt (always), dinput_dead.txt (DROP_DINPUT).
 Referrers = every object of W/objs_local.txt (or LIST, `src obj` per line, e.g. check_all's b4/objs.txt): clusters, automatch_near, tier1, hand files, bridges, harness, lib sources.
   name / VA:  an undefined symbol no scanned object defines (so it binds to the original bytes in mfl.obj) whose name is a listed name, or resolves (mfl.obj symbols, output/fnsizes.txt,
@@ -222,6 +223,34 @@ def newest_link():
     c = sorted(p for p in glob.glob(os.path.join(G, "output", "gate", "*_standalone", "link")) if os.path.exists(os.path.join(p, "objs_local.txt")) and os.path.exists(os.path.join(p, "gen", "globals_layout.csv")))
     return c[-1] if c else None
 
+def bad_selftest(W, good):
+    """W9 (gate 1114_2129: the fixed fixture row RtDictDestroy became C in G1, so its negative stopped firing): the bad case is built from the link at run time,
+    so no C port can retire it.  Pick the lowest-VA library function (fnsizes row >= 0x4b0000) that exactly one object B defines and another object A calls;
+    leave B out of the object list and list the function as a trap row (good list + that row): A's reference now binds to the original address -> must be flagged.
+    The same reduced object list with the good list alone must not flag it (the flag comes from the added row)."""
+    import tempfile
+    objs = [(s, o.strip()) for s, o in (l.split(None, 1) for l in open(os.path.join(W, "objs_local.txt")) if l.strip())]
+    sy = syms([o for s, o in objs]); defs, users = {}, {}
+    for s, o in objs:
+        for n in sy[o][0]: defs.setdefault(n, []).append((s, o))
+        for n in sy[o][1]: users.setdefault(n, set()).add(s)
+    fns = {}
+    for l in open(os.path.join(G, "output", "fnsizes.txt")):
+        w = l.split()
+        if len(w) >= 3 and w[-1].isdigit(): fns.setdefault(w[1], (int(w[0], 16), int(w[-1])))
+    c = sorted((fns[n][0], n) for n in fns if fns[n][0] >= 0x4b0000 and len(defs.get(n, ())) == 1 and users.get(n, set()) - {defs[n][0][0]})
+    if not c: print("selftest FAIL bad list: no library function defined by one object and called from another in %s" % W); return 1
+    a, n = c[0]; bsrc, bobj = defs[n][0]
+    ol = tempfile.mkstemp(suffix="_objs.txt")[1]; open(ol, "w").write("".join("%s %s\n" % so for so in objs if so[1] != bobj))
+    bl = tempfile.mkstemp(suffix="_rw_trap_bad.txt")[1]; open(bl, "w").write(open(good).read() + "%08x %d %s\n" % (a, fns[n][1], n))
+    try:
+        hit = [x for x in check(W, [bl], objlist=ol, scan_consts=False) if x[0][2] == n]      # names only: the constant scan (objdump -d of every object) is --selftest-allow's
+        ctl = [x for x in check(W, [good], objlist=ol, scan_consts=False) if x[0][2] == n]
+    finally:
+        os.remove(ol); os.remove(bl)
+    if hit and not ctl: print("selftest ok   bad list: %s %08x (defined by %s, left out) <- %s flagged; good list alone: not flagged" % (n, a, bsrc, hit[0][1])); return 0
+    print("selftest FAIL bad list: %s %08x not flagged (hits %d, control hits %d)" % (n, a, len(hit), len(ctl))); return 1
+
 def selftest(W=None):
     if W:      # an explicit link (gate.sh: its own $D/link; negtest.sh: the baseline link) must be usable: missing = error, never a skip
         miss = [f for f in ("objs_local.txt", os.path.join("gen", "globals_layout.csv")) if not os.path.exists(os.path.join(W, f))]
@@ -230,9 +259,7 @@ def selftest(W=None):
         W = newest_link()
         if not W: print("trapcheck selftest: skipped (no standalone link under output/gate)"); return 0
     N = os.path.join(T, "negtests", "trap"); rc = 0
-    bad = check(W, [os.path.join(N, "rw_trap_bad.txt")], scan_consts=False)      # names only: the constant scan (objdump -d of every object) is --selftest-allow's
-    if any(x[0][2] == "RtDictDestroy" and x[1] == "cl_course_destroy_world.c" for x in bad): print("selftest ok   bad list: RtDictDestroy <- cl_course_destroy_world.c flagged")
-    else: print("selftest FAIL bad list: RtDictDestroy not flagged"); rc = 1
+    rc |= bad_selftest(W, os.path.join(N, "rw_trap_good.txt"))
     # W8 G1 (gate 1114_0950): the good list is a copy of rw_trap.txt, so the T-TCA pairs (trap_caller_allow.txt) are violations there unless the allow file
     # is applied, like the gate form does; allow lines whose trap row the fixture does not list are "stale" only relative to the fixture: ignored here
     al = ALLOW if os.path.exists(ALLOW) else None

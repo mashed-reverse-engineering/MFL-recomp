@@ -479,3 +479,5 @@
 00561ab0 TkWinFSystemFEof
 004fc629 c_D3DXMatrixTranspose
 00542cf0 rxSkinD3D9AtomicAllInOnePipelineInit
+004d4f50 VectorMultPoints
+004d50b0 VectorMultVectors

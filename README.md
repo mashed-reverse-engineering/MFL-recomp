@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; about 99.8% of its code is no longer taken from the original executable (3.3 KB of 1,945 KB is still original machine code, measured 2026-11-14), the rest comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Data and resources are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; none of its machine code is taken from the original executable any more (0 of 1,945 KB, measured 2026-11-15 on the standalone and the release build): it comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Not covered by that statement: library data copied from the original (130,473 B, plus 3,760 B of padding between data rows) and the resources (710,568 B) are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
 
 ## What this project is
 
@@ -19,11 +19,12 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Name functions, globals and structs of the game code | done for about 96% of the game functions |
 | Recompile the game code as C (byte identical or behaviour verified) | about 98% of the game functions; the rest are tiny stubs |
 | Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
-| Replace the C runtime (libcmt) | mostly done; the math tables are left |
+| Replace the C runtime (libcmt) | **done** for code: the start-up is libcmt's own (`WinMainCRTStartup`); its data tables are still copied |
 | Rewrite the RenderWare physics plugin (rwp) as verified C | **done**; no original code left |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | nearly done; D3DX is done, RenderWare is down to 2.3 KB (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit, particle tank, vertex shader cache, vertex shader generator and render callback groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); what is left is nine functions (vector math helpers, pipeline building, a dictionary destructor) |
-| Replace the streaming audio library, add a real video backend | audio nearly done (0.5 KB left, from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
-| Zero original code, then readability and bug fixing, then the Switch/ARM port | planned |
+| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | **done** for code: no original RenderWare or D3DX code is left (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit, particle tank, vertex shader cache, vertex shader generator and render callback groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); the last nine functions (vector math helpers, pipeline building, a dictionary destructor) are C since 2026-11-15 |
+| Replace the streaming audio library, add a real video backend | audio done for code (from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
+| Zero original code | **done** 2026-11-15 (code; library data and resources are still copied) |
+| Readability and bug fixing, then the Switch/ARM port | next |
 
 ## How each part is produced
 
@@ -44,15 +45,17 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 
 Original machine code still linked into the standalone build (the number we drive to zero), measured with `tools/delink/origbytes.py` at each full regression gate:
 
-| Layer | 2026-11-14 | What is left |
+| Layer | 2026-11-15 | What is left |
 |---|---:|---|
-| RenderWare (graphics, world, camera, D3D9) | 2.3 KB | four vector math helpers, a stream writer, two pipeline building functions, a dynamic geometry helper, a dictionary destructor |
-| Audio (RenderWare Audio) | 0.5 KB | a header encoder and a voice interface table |
+| RenderWare (graphics, world, camera, D3D9) | 0 KB | done |
+| Audio (RenderWare Audio) | 0 KB | done |
 | rwp (RenderWare physics) | 0 KB | done |
 | D3DX | 0 KB | done |
-| C runtime | 0.5 KB | startup (`_entry`) |
+| C runtime | 0 KB | done |
 | Game code | 0 KB | done |
-| **Total** | **3.3 KB** | of about 1,945 KB (0.2%) |
+| **Total** | **0 KB** | of about 1,945 KB |
+
+Still copied from the original executable, and not part of the zero above: library data (130,473 B of library tables and variables, mostly D3DX 73 KB and RenderWare 33 KB, the rest C runtime, audio, Lua, qhull and physics, plus 3,760 B of padding between data rows) and the resources (710,568 B, byte-identical game data).
 
 How the total moved (code only; data and the resources are tracked separately):
 
@@ -71,6 +74,7 @@ How the total moved (code only; data and the resources are tracked separately):
 | 2026-11-13 | 61.1 KB | four more D3D9 groups in `librw-mfl` (patch, default instance callbacks, submit and immediate-mode nodes, particle tank; 12 functions, about 13 KB); 68 more RenderWare functions adapted from codfh-win32 (pipelines, world, material effects, UV animation, 2D; about 11.5 KB) and 8 Windows file system functions; 18 more audio functions as C, 36 never-run DirectShow COM methods removed (2.9 KB); CPU feature probes as C for one CPU class (SSE2, no 3DNow); never-used physics convex code removed; padding behind removed bodies is now removed with them |
 | 2026-11-13 (second run) | 28.4 KB | 59 more RenderWare functions adapted from codfh-win32 (engine start/stop, clump/world/light lifecycle, pipeline building, heaps, user data, material effects, HAnim, 2D outline drawing; about 19 KB); about 25 patch-mesh functions and the Windows file system init written by hand from the disassembly; two vertex shader cache groups in `librw-mfl`; about 15 more audio functions as C plus 6 register clusters; the last rwp and D3DX stubs; a few more never-reached functions trapped after a static proof |
 | 2026-11-14 | 3.3 KB | the D3D9 vertex shader generator (7.3 KB), the vertex shader render and lighting callbacks and the native size / usage-flag functions in `librw-mfl` (checked against the original on the full descriptor space); about 65 more RenderWare functions adapted from codfh-win32 or written from the disassembly (stream readers, plugin attach functions, 2D path and font reading, skin and material effects pipelines); the audio async I/O thread, codec registration and the soft output sites as C plus 2 register clusters; the x87 control-word helpers; two call targets in game code corrected to the original's |
+| 2026-11-15 | 0 KB | the last nine RenderWare functions (vector math helpers built with the original's float consistency flag, a stream writer, two pipeline building functions, a dynamic geometry helper, a dictionary destructor), the last two audio functions (one as a register cluster), and the C runtime start-up taken from libcmt itself; four functions whose differential tests had shown differences were re-checked, one of them corrected to the original's evaluation order |
 
 Roughly 35 KB of the 2026-11-05 drop is code removed rather than rewritten (DirectShow, unused CPU variants, never-used wave converters): it is proven unused by coverage runs, an asset format scan and a call-graph closure proof, and every removal sits in a list that can be reverted on its own. Treat that part as the least certain. Every `librw-mfl` entry point is checked bit-exact against the original code on at least 100,000 random inputs, with negative tests that must fail.
 
@@ -111,17 +115,17 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 678,488 B | `████████████████████` 99% |
 | ...of these register-argument clusters | 677 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,191 | `███████████████████████` 114% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,192 | `███████████████████████` 114% |
 | ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,776 | `█████████████░░░░░░░` 64% |
 | ...tier 1, `src/tier1` (1935 files) | 1,428 | `██████████░░░░░░░░░░` 51% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...tier 2, `src/tier2` (1483 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (681 files) | 744 | `█████░░░░░░░░░░░░░░░` 27% |
-| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 1747 | |
+| ...tier 2, `src/tier2` (1489 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
+| ...clusters, `src/clusters` (682 files) | 745 | `█████░░░░░░░░░░░░░░░` 27% |
+| ...plus linked library code (VA >= 0x4B0000), not in the percentages | 1757 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
-**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (681 cluster files give 744 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
+**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (682 cluster files give 745 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
 
 **Layers.** All rows here are application code (VA < 0x4B0000). The library layers are in the table above; see [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
 

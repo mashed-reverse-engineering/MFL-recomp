@@ -679,3 +679,4 @@ _rwaRwStreamCacheReadAsync
 rwa_stream_read_step_005bbda0
 rwa_async_queue_destroy_005bfba0
 _rwaStreamContainerSetPitch
+_RwaWaveConvGCNADPCMEncodeHeader
