@@ -76,9 +76,9 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
 {
   MflObj *A, *B;
   float *posA, *posB;
-  float F0, F2;
+  float F0, limit_f;
   double z, xx, yy, zz, ss;
-  float p[3], p2;
+  float p[3], cross_z;
   float dA[3], dB[3], rA[3], rB[3], w[3], t[3], u[3], v[3];
   float c[30];      /* 57f8a0 stores 27 words; the original frame leaves 120 bytes behind c */
   unsigned i;
@@ -97,7 +97,7 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
   s->pairs[s->cursor][1] = B ? B->slot : -1;
   for (i = 0, rec = blk->contact; i < blk->count; i++, rec++) {
     MflContactProps *pr = rec->props;
-    float F1;
+    float damp_f;
     rA[0] = rA[1] = rA[2] = 0;
     rB[0] = rB[1] = rB[2] = 0;
     if (pr && (pr->flags & 8)) continue;
@@ -119,9 +119,9 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
       *(int *)&c[18] = pr->c18;
       *(int *)&c[24] = pr->c24;
       *(int *)&c[19] = pr->c19;
-      F1 = pr->damping;
+      damp_f = pr->damping;
     } else {
-      F1 = blk->damp;
+      damp_f = blk->damp;
       c[18] = 0;
       c[19] = 0;
       c[24] = 0.8f;
@@ -132,7 +132,7 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
     c[20] = 0;
     {
       float dot = blk->normal[1] * w[1] + w[0] * blk->normal[0] + blk->normal[2] * w[2];
-      if (dot < dt * -0.001f) c[17] = -(dot * F1);
+      if (dot < dt * -0.001f) c[17] = -(dot * damp_f);
       else c[17] = 0;
     }
     rwp_constraint_store(s, c);
@@ -167,13 +167,13 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
       z = z * (1.0f / sqrt(ss));
       p[0] = blk->normal[2] * v[1] - blk->normal[1] * z;
       p[1] = z * blk->normal[0] - blk->normal[2] * v[0];
-      p2 = blk->normal[1] * v[0] - v[1] * blk->normal[0];
+      cross_z = blk->normal[1] * v[0] - v[1] * blk->normal[0];
       t[0] = (p[0] + v[0]) * 0.70710677f;
       t[1] = (p[1] + v[1]) * 0.70710677f;
-      t[2] = p2 + z;
+      t[2] = cross_z + z;
       u[0] = v[0] - p[0];
       u[1] = (v[1] - p[1]) * 0.70710677f;
-      u[2] = z - p2;
+      u[2] = z - cross_z;
       t[2] *= 0.70710677f;
       u[0] *= 0.70710677f;
       u[2] *= 0.70710677f;
@@ -181,13 +181,13 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
     if (pr && (pr->flags & 2)) {
       *(int *)&c[18] = pr->c18f;
       *(int *)&c[23] = *(int *)&pr->limit;
-      F2 = pr->limit;
+      limit_f = pr->limit;
     } else {
-      F2 = F0 * blk->stiff * 0.70710677f;
+      limit_f = F0 * blk->stiff * 0.70710677f;
       c[18] = 0;
-      c[23] = F2;
+      c[23] = limit_f;
     }
-    c[22] = -F2;
+    c[22] = -limit_f;
     rwp_constraint_rows_two_body(c, t, dA, dB, A, B);
     rwp_constraint_store(s, c);
     if (pr && (pr->flags & 2)) {

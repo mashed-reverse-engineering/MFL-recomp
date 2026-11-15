@@ -96,19 +96,19 @@ void sound_ducking_adjust_by_event(undefined4 voice_class,int class_index,int pa
           ((float *)&g_weapon_8be720)[cell_index] = primary_offset + ((float *)&g_weapon_8be720)[cell_index];
         }
         /* Row == class: cell [class][partner] += pair_offset.
-           Other rows: cell [row][partner] += partner_offset. Both paths reach the add at LAB_004688de. */
+           Other rows: cell [row][partner] += partner_offset. Both paths reach the add at add_pending_offset. */
         if (row == class_index) {
           if (col == partner_index) {
             cell_index = class_index * DUCK_MATRIX_SIZE;
             pending_offset = pair_offset;
-LAB_004688de:
+add_pending_offset:
             ((float *)&g_weapon_8be720)[partner_index + cell_index] = pending_offset + ((float *)&g_weapon_8be720)[partner_index + cell_index];
           }
         }
         else {
           cell_index = row_base;
           pending_offset = partner_offset;
-          if (col == partner_index) goto LAB_004688de;
+          if (col == partner_index) goto add_pending_offset;
         }
         skip_column = row == partner_index;
       }

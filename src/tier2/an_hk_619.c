@@ -41,7 +41,7 @@ double camera_get_distance_factor(int player_index,char *unused_arg,float distan
         return (double)k_f_0_6 * (double)distance + (double)float_1_0;
       }
       if (leader_field_8 == 2) {
-LAB_0044c240:
+scale_half_distance:
         return (double)k_f_0_5 * (double)distance + (double)float_1_0;
       }
       if (leader_field_8 == 1) {
@@ -49,7 +49,7 @@ LAB_0044c240:
       }
     }
     else if (player_field_8 == 1) {
-      if (leader_field_8 == 3) goto LAB_0044c240;
+      if (leader_field_8 == 3) goto scale_half_distance;
       if (leader_field_8 == 2) {
         return (double)k_f_0_25 * (double)distance + (double)float_1_0;
       }

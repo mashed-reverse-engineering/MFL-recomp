@@ -90,7 +90,7 @@ typedef struct MflStepArrays3 {
 /* Carves the work arrays of the second solver step out of the work area: a5 rows, a6 / a7 / a8 element counts.  Like 577a00, every array takes its size
    rounded up to 16 bytes in turn, an array that would pass the total reserved size is left 0, and the strides / counts are stored next to the pointers. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_solver_work_carve_step2(MflWorkArea *area, MflStepArrays2 *t2, MflStepArrays3 *t3, MflWorkBase *wb, int a5, int a6, int a7, int a8)
+void rwp_solver_work_carve_step2(MflWorkArea *area, MflStepArrays2 *arrays2, MflStepArrays3 *arrays3, MflWorkBase *wb, int a5, int a6, int a7, int a8)
 {
   int q = a5 / 4;
   int A = al16(a5 * 4);
@@ -114,75 +114,75 @@ void rwp_solver_work_carve_step2(MflWorkArea *area, MflStepArrays2 *t2, MflStepA
   area->cur = al16(area->cur + total);
   off = 0;
 
-  CARVE(t2->s[2].ptr, A)
-  CARVE(t2->s[3].ptr, A)
-  CARVE(t2->s[4].ptr, C)
-  CARVE(t2->s[6].ptr, H)
-  CARVE(t2->s[5].ptr, E)
-  CARVE(t2->s[1].ptr, J)
-  CARVE(t2->s[0].ptr, J)
-  CARVE(t2->s[7].ptr, I)
-  CARVE(t2->s[8].ptr, I)
-  t2->s[4].stride = a6;
-  t2->s[6].stride = a7;
-  t2->s[3].stride = al16(a5);
-  t2->s[2].stride = al16(a5);
-  t2->s[1].stride = al16(a5);
-  t2->s[0].stride = al16(a5);
-  t2->s[5].stride = a7;
-  t2->s[7].stride = a8;
-  t2->s[8].stride = a8;
-  t2->s[3].zero = 0;
-  t2->s[2].zero = 0;
-  t2->s[4].zero = 0;
-  t2->s[6].zero = 0;
-  t2->s[5].zero = 0;
-  t2->s[1].zero = 0;
-  t2->s[0].zero = 0;
-  t2->s[7].zero = 0;
-  t2->s[8].zero = 0;
-  CARVE(t3->p118, D)
-  CARVE(t3->p10c, C)
-  CARVE(t3->p000, B)
-  CARVE(t3->p010, A)
-  CARVE(t3->p01c, A)
-  CARVE(t3->p028, A)
-  CARVE(t3->p034, A)
-  CARVE(t3->p040, A)
-  CARVE(t3->p04c, A)
-  CARVE(t3->p058, A)
-  CARVE(t3->p088, A)
-  CARVE(t3->p064, A)
-  CARVE(t3->p070, A)
-  CARVE(t3->p07c, A)
-  CARVE(t3->p094, A)
-  CARVE(t3->p0a0, K)
-  CARVE(t3->p0ac, G)
-  CARVE(t3->p0b8, E)
-  CARVE(t3->p0c4, I)
-  CARVE(t3->p0d0, I)
-  CARVE(t3->p0dc, I)
-  t3->n120 = a6;
-  t3->n114 = a6;
-  CARVE(t3->p0e8, I)
-  t3->n00c = a5;
-  t3->n018 = a5;
-  t3->n024 = a5;
-  t3->n030 = a5;
-  t3->n03c = a5;
-  t3->n048 = a5;
-  t3->n054 = a5;
-  t3->n060 = a5;
-  t3->n090 = a5;
-  t3->n06c = a5;
-  t3->n078 = a5;
-  t3->n084 = a5;
-  t3->n09c = a5;
-  t3->n0b4 = a7;
-  t3->n0c0 = a7;
-  t3->n0a8 = (a5 / 3);
-  t3->n0cc = a8;
-  t3->n0d8 = a8;
-  t3->n0e4 = a8;
-  t3->n0f0 = a8;
+  CARVE(arrays2->s[2].ptr, A)
+  CARVE(arrays2->s[3].ptr, A)
+  CARVE(arrays2->s[4].ptr, C)
+  CARVE(arrays2->s[6].ptr, H)
+  CARVE(arrays2->s[5].ptr, E)
+  CARVE(arrays2->s[1].ptr, J)
+  CARVE(arrays2->s[0].ptr, J)
+  CARVE(arrays2->s[7].ptr, I)
+  CARVE(arrays2->s[8].ptr, I)
+  arrays2->s[4].stride = a6;
+  arrays2->s[6].stride = a7;
+  arrays2->s[3].stride = al16(a5);
+  arrays2->s[2].stride = al16(a5);
+  arrays2->s[1].stride = al16(a5);
+  arrays2->s[0].stride = al16(a5);
+  arrays2->s[5].stride = a7;
+  arrays2->s[7].stride = a8;
+  arrays2->s[8].stride = a8;
+  arrays2->s[3].zero = 0;
+  arrays2->s[2].zero = 0;
+  arrays2->s[4].zero = 0;
+  arrays2->s[6].zero = 0;
+  arrays2->s[5].zero = 0;
+  arrays2->s[1].zero = 0;
+  arrays2->s[0].zero = 0;
+  arrays2->s[7].zero = 0;
+  arrays2->s[8].zero = 0;
+  CARVE(arrays3->p118, D)
+  CARVE(arrays3->p10c, C)
+  CARVE(arrays3->p000, B)
+  CARVE(arrays3->p010, A)
+  CARVE(arrays3->p01c, A)
+  CARVE(arrays3->p028, A)
+  CARVE(arrays3->p034, A)
+  CARVE(arrays3->p040, A)
+  CARVE(arrays3->p04c, A)
+  CARVE(arrays3->p058, A)
+  CARVE(arrays3->p088, A)
+  CARVE(arrays3->p064, A)
+  CARVE(arrays3->p070, A)
+  CARVE(arrays3->p07c, A)
+  CARVE(arrays3->p094, A)
+  CARVE(arrays3->p0a0, K)
+  CARVE(arrays3->p0ac, G)
+  CARVE(arrays3->p0b8, E)
+  CARVE(arrays3->p0c4, I)
+  CARVE(arrays3->p0d0, I)
+  CARVE(arrays3->p0dc, I)
+  arrays3->n120 = a6;
+  arrays3->n114 = a6;
+  CARVE(arrays3->p0e8, I)
+  arrays3->n00c = a5;
+  arrays3->n018 = a5;
+  arrays3->n024 = a5;
+  arrays3->n030 = a5;
+  arrays3->n03c = a5;
+  arrays3->n048 = a5;
+  arrays3->n054 = a5;
+  arrays3->n060 = a5;
+  arrays3->n090 = a5;
+  arrays3->n06c = a5;
+  arrays3->n078 = a5;
+  arrays3->n084 = a5;
+  arrays3->n09c = a5;
+  arrays3->n0b4 = a7;
+  arrays3->n0c0 = a7;
+  arrays3->n0a8 = (a5 / 3);
+  arrays3->n0cc = a8;
+  arrays3->n0d8 = a8;
+  arrays3->n0e4 = a8;
+  arrays3->n0f0 = a8;
 }

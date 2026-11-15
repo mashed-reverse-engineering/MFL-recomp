@@ -67,12 +67,12 @@ void course_load_powerups_gold(undefined4 course_id)
     powerup_set = game_content_exists_prefixed(0,script_name,1);
     if (powerup_set == 0) {
       powerup_set = game_content_exists_prefixed(0,"powerups.lua",1);
-      if (powerup_set == 0) goto LAB_0042aac5;
+      if (powerup_set == 0) goto close_piz;
       script_name = "powerups.lua";
     }
     lua_run_course_script(script_name);
   }
-LAB_0042aac5:
+close_piz:
   game_close_piz();
   return;
 }

@@ -2,20 +2,20 @@
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0040ff40*/ extern int race_setup_set_slot_type();
 /*0042bd00*/ extern void * dat_get_string();
-/*00432f20*/ extern undefined __cdecl credits_draw(undefined4 p0);
+/*00432f20*/ extern undefined __cdecl credits_draw(undefined4 current_time);
 /*004755b0*/ extern int aux_frame_destroy();
 /*004824a0*/ extern int draw_rect();
 /*004827a0*/ extern int gfx_draw_rect_2d_flat_a();
 /*00482920*/ extern int gfx_draw_rect_2d_flat_b();
-/*004a5b20*/ extern int __cdecl controller_present_thunk_4a5b20(int p0);
+/*004a5b20*/ extern int __cdecl controller_present_thunk_4a5b20(int index);
 /*004b2a60*/ extern int sprintf();
 /*004b2b48*/ extern int _ftol();
 /*004b4ba7*/ extern int entry();
 /*004c7cc0*/ extern undefined __cdecl message(undefined4 p0, undefined4 p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
-/*004d1860*/ extern void _rwObjectHasFrameSetFrame(void *p0, struct RwFrame *p1);
+/*004d1860*/ extern void _rwObjectHasFrameSetFrame(void *object, struct RwFrame *frame);
 /*004d1ec0*/ extern struct RwCamera * RwCameraCreate();
-/*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 p0, RwInt32 p1, RwInt32 p2, RwInt32 p3);
+/*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
 /*005de9b4*/ extern undefined g_frontend_5de9b4;
 /*005de9b8*/ extern undefined g_ui_5de9b8;
 /*005de9c0*/ extern undefined g_ui_5de9c0;
@@ -84,7 +84,7 @@ extern undefined1 menu_get_69d1e4(void);
 
 /* "(delta): moves the selected entry of the current menu, wrapping around" */
 
-extern void menu_selection_step(char *param_1);
+extern void menu_selection_step(char *delta);
 
 
 /* menu_current_item_offset */
@@ -99,7 +99,7 @@ extern undefined4 menu_current_item_offset(void);
 /* "edge detect of menu_select on any of the 12 player inputs (blocked while a message is closing)"
     */
 
-extern undefined4 __cdecl menu_select_pressed_any(char *param_1);
+extern undefined4 __cdecl menu_select_pressed_any(char *str);
 extern char g_hud_8c86bc[];
 extern char g_message_box_69cc1c[];
 extern char g_ai_editor_view_origin_x[];
@@ -184,14 +184,14 @@ extern undefined4 menu_input_next_pressed(void);
 
 /* "g_ui_69cc2c = param_1; return;" */
 
-extern void ui_set_ui_69cc2c(undefined2 param_1);
+extern void ui_set_ui_69cc2c(undefined2 value);
 
 
 /* ui_set_ui_69cc2e */
 
 /* "g_ui_69cc2e = param_1; return;" */
 
-extern void ui_set_ui_69cc2e(undefined2 param_1);
+extern void ui_set_ui_69cc2e(undefined2 value);
 
 
 /* screen_width */
@@ -261,7 +261,7 @@ extern undefined4 ui_get_menu_69d1ec(void);
 
 /* "g_menu_69d1ec = param_1; return;" */
 
-extern void ui_set_menu_69d1ec(undefined4 param_1);
+extern void ui_set_menu_69d1ec(undefined4 menu_screen_id);
 
 
 /* ui_input_mode_menu */
@@ -442,7 +442,7 @@ message_show_now(undefined4 text_id,undefined4 code,undefined4 buttons,undefined
 
 /* "(message id, message code, ...) shows a HUD message box or queues it when one is open" */
 
-extern void message_show(char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6);
+extern void message_show(char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6);
 
 /* address just past the message box table (the table starts at g_ui_69cbec - 4) */
 #define MESSAGE_BOX_TABLE_END (((int)&g_message_box_69cc1c))
@@ -497,7 +497,7 @@ void message_box_active_count(void)
 
 /* "for the tutorial event resets menu record 0 and the page id" */
 
-extern void menu_event_0x11_reset_page(char *param_1);
+extern void menu_event_0x11_reset_page(char *unknown);
 
 
 /* ui_get_message_state */
@@ -532,7 +532,7 @@ extern undefined4 ui_get_ui_69d1f4(void);
 
 /* "stores param in g_ui_69d1f4" */
 
-extern void __cdecl frontend_set_69d1f4(char *param_1,char *param_2);
+extern void __cdecl frontend_set_69d1f4(char *str_a, char *str_b);
 
 #define TEAM_NAMES_OUT_STRING_BASE (0xa7)
 #define TEAM_NAME_STRING_BASE (0x7c)
@@ -642,7 +642,7 @@ void team_names_string_build(int slot_state)
 }
 
 
-extern void ui_format_number_string(char *param_1,char *param_2,char *param_3,char *param_4);
+extern void ui_format_number_string(char *value, char *centi, char *out_a, char *out_b);
 
 
 /* ui_get_menu_69cc48 */
@@ -709,7 +709,7 @@ void menu_table_clear_b(void)
 
 /* "(width, height, ...): RwCamera with frame and raster for the frontend" */
 
-extern RwCamera * ui_camera_create(RwInt32 width,RwInt32 height,char *param_3);
+extern RwCamera * ui_camera_create(RwInt32 width, RwInt32 height, char *str);
 
 #define RECT_WIDTH_640 (0x44200000)
 #define RECT_COLOUR_DIM (0xa0000000)

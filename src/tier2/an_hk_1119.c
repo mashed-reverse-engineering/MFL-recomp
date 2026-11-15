@@ -17,7 +17,7 @@ undefined4 * gap_4c4e70(char *unused_1,undefined4 *hit,float distance,int *ctx)
   if (*count_ptr == 0) {
     *(float *)ctx[2] = distance;
   }
-  else if (!(distance < *(float *)ctx[2])) goto LAB_004c4f27;      /* original: fcomp, test ah,5, jp (NaN skips) */
+  else if (!(distance < *(float *)ctx[2])) goto count_hit;      /* original: fcomp, test ah,5, jp (NaN skips) */
   if (out_record != (undefined4 *)0x0) {
     *out_record = *hit;
     out_record[1] = hit[1];
@@ -38,7 +38,7 @@ undefined4 * gap_4c4e70(char *unused_1,undefined4 *hit,float distance,int *ctx)
     *count_ptr = *count_ptr + 1;
     return hit;
   }
-LAB_004c4f27:
+count_hit:
   *count_ptr = *count_ptr + 1;
   return hit;
 }

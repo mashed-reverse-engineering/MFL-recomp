@@ -80,7 +80,7 @@ int course_animated_objects_update(uint dt_ms)
           if (emitter_i == 0) {
             path_or_tmp = tick_number / 0x3c;
             on_second = tick_number % 0x3c == 0;
-LAB_00429fcb:
+emit_on_second:
             if (on_second) {
               RwV3dTransformPoint(&frame_obj.emit_pos,
                                   (RwV3d *)((char *)&g_race_update_609550 + (emitter_i + object_ptr[2] * 3) * 0xc),
@@ -106,13 +106,13 @@ LAB_00429fcb:
             if (emitter_i == 1) {
               path_or_tmp = tick_number / 100;
               on_second = tick_number % 100 == 10;
-              goto LAB_00429fcb;
+              goto emit_on_second;
             }
             path_or_tmp = emitter_i + -2;
             if (path_or_tmp == 0) {
               path_or_tmp = tick_number / 100;
               on_second = tick_number % 100 == 0xf;
-              goto LAB_00429fcb;
+              goto emit_on_second;
             }
           }
           emitter_i = emitter_i + 1;

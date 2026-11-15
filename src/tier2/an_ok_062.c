@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00405e40*/ extern int stub_return_zero();
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *name);
 /*00481fd0*/ extern double random_range();
 /*004846e0*/ extern int point_lerp_to_aux_camera();
 /*00486710*/ extern int particles_destroy();
@@ -11,16 +11,16 @@
 /*00486b50*/ extern int particles_add();
 /*00486c40*/ extern int particles_flush();
 /*00486ef0*/ extern int particles_render();
-/*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
-/*00496ea0*/ extern int __cdecl smplfzx_get_object(undefined4 p0);
+/*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *bits_a, uint bits_b, uint bits_c, struct RwTexture *texture);
+/*00496ea0*/ extern int __cdecl smplfzx_get_object(undefined4 i);
 /*00496ee0*/ extern int smplfzx_current_object_get_field(undefined4 p0);
-/*00496fc0*/ extern undefined __cdecl atomic_bbox_calculate_from_geometry(struct RwBBox *p0, int p1);
+/*00496fc0*/ extern undefined __cdecl atomic_bbox_calculate_from_geometry(struct RwBBox *box, int atomic);
 /*00497750*/ extern int pool_stack_pop_index();
-/*00497820*/ extern int __cdecl pool_create(undefined4 p0);
+/*00497820*/ extern int __cdecl pool_create(undefined4 capacity);
 /*00498770*/ extern int vehicle_part_position_by_index();
-/*00498fe0*/ extern undefined fx_decal_stamp_matrix(undefined4 p0, RwReal *p1, float p2, int p3);
+/*00498fe0*/ extern undefined fx_decal_stamp_matrix(undefined4 p0, RwReal *value_a, float value_b, int p3);
 /*00499c90*/ extern undefined fx_dust_create(undefined4 p0);
-/*0049b780*/ extern int __cdecl particles_alloc_system(struct RwTexture *p0, int p1, int p2, uint p3);
+/*0049b780*/ extern int __cdecl particles_alloc_system(struct RwTexture *texture, int particle_count, int life_frames, uint particle_flags);
 /*0049b860*/ extern int fx_set_blend_modes();
 /*0049b870*/ extern int particle_batch_mark_current_active();
 /*0049b890*/ extern int particle_batch_add();
@@ -32,9 +32,9 @@
 /*004a8420*/ extern int debug_printf();
 /*004b2b48*/ extern int _ftol();
 /*004b4ba7*/ extern int entry();
-/*004d1990*/ extern struct RwBBox * RwBBoxInitialize(struct RwBBox *p0, struct RwV3d *p1);
-/*004d19d0*/ extern struct RwBBox * RwBBoxAddPoint(struct RwBBox *p0, struct RwV3d *p1);
-/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
+/*004d1990*/ extern struct RwBBox * RwBBoxInitialize(struct RwBBox *p0, struct RwV3d *vec);
+/*004d19d0*/ extern struct RwBBox * RwBBoxAddPoint(struct RwBBox *boundBox, struct RwV3d *vertex);
+/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
 /*005dd330*/ extern float float_1_0;
 /*005dd628*/ extern float k_f_0_25;
 /*005dd7e4*/ extern float k_f_0_03;
@@ -102,21 +102,21 @@ extern undefined * smplfzx_get_71c1e0(void);
 
 /* "(index): prints 'SmplFzx : Not an active SmplFzx object %d' when absent" */
 
-extern undefined4 __cdecl smplfzx_check_active(char *param_1,char *param_2,char *param_3);
+extern undefined4 __cdecl smplfzx_check_active(char *str_a, char *str_b, char *str_c);
 
 
 /* smplfzx_object_get_position */
 
 /* "copies the position vector of the smplfzx object" */
 
-extern undefined4 smplfzx_object_get_position(char *param_1,undefined4 *param_2);
+extern undefined4 smplfzx_object_get_position(char *str, undefined4 *words);
 
 
 /* atomic_world_bbox_update */
 
 /* "(atomic, bbox): geometry bbox transformed into world space" */
 
-extern void atomic_world_bbox_update(char *param_1,RwBBox *boundBox);
+extern void atomic_world_bbox_update(char *atomic, RwBBox *boundBox);
 
 /* object field offsets (from the obj pointer); bbox layout inferred from the copies below */
 #define OBJ_BBOX_MIN_Y (0x43c)
@@ -128,17 +128,17 @@ extern void atomic_world_bbox_update(char *param_1,RwBBox *boundBox);
 extern undefined4 pool_push(int *pool,undefined4 value);
 
 
-extern void vec3_make_from_param(char *param_1,char *param_2,undefined4 *param_3);
+extern void vec3_make_from_param(char *src, char *x, undefined4 *out);
 
 
-extern undefined4 __cdecl pool_list_unlink(short *param_1,int param_2,char *param_3,char *param_4);
+extern undefined4 __cdecl pool_list_unlink(short *half, int param_2, char *str_a, char *str_b);
 
 
 /* pool_clear */
 
 /* "clears the pool header and its entries" */
 
-extern void __cdecl pool_clear(undefined4 *param_1);
+extern void __cdecl pool_clear(undefined4 *words);
 
 
 /* fx_pool_create */
@@ -153,7 +153,7 @@ extern void fx_pool_create(void);
 /* "(out index): pops a free index (0..0x4FF) from g_particles_7519b8 and returns its 0x4C byte
    record" */
 
-extern undefined4 * __cdecl fx_pool_alloc_particle(int *param_1);
+extern undefined4 * __cdecl fx_pool_alloc_particle(int *out);
 
 
 /* fx_trail_particle_spawn */
@@ -161,14 +161,14 @@ extern undefined4 * __cdecl fx_pool_alloc_particle(int *param_1);
 /* "spawns a trail particle (white, type 3), rate limited by distance to the last emission point of
    the emitter slot" */
 
-extern float * fx_trail_particle_spawn(float *param_1,float param_2,float param_3,char *param_4);
+extern float * fx_trail_particle_spawn(float *pos, float emit_gate, float scale, char *emitter_slot);
 
 
 /* fx_trail_particle_spawn_interpolated */
 
 /* "copies a template particle and lerps its position along the last emission point" */
 
-extern void fx_trail_particle_spawn_interpolated(float *param_1,float param_2,float param_3,char *param_4);
+extern void fx_trail_particle_spawn_interpolated(float *floats, float value_a, float value_b, char *str);
 
 
 #define PARTICLE_TABLE_DWORD_COUNT (0x5f00)
@@ -225,7 +225,7 @@ extern void fx_explosion_systems_init(void);
 
 /* "spawns an explosion in system unused_1 slot unused_2 (4 sub puffs)" */
 
-extern void fx_explosion_spawn(int param_1,int param_2,char *param_3,char *param_4);
+extern void fx_explosion_spawn(int param_1, int param_2, char *str_a, char *str_b);
 
 
 /* fx_trail_batches_update */
@@ -308,7 +308,7 @@ extern void fx_ring_add_point(undefined4 *pos,undefined4 value);
 
 /* "particles_fn_498fe0(matrix, ?, 2)" */
 
-extern void fx_spawn_from_matrix_2(RwReal *param_1,char *param_2);
+extern void fx_spawn_from_matrix_2(RwReal *value, char *str);
 
 
 /* fx_ring_clear */
@@ -376,7 +376,7 @@ extern void fx_dust_reset_count(void);
 
 /* "adds one dust quad when the pool has room (alpha in the high byte)" */
 
-extern void fx_dust_add(char *param_1,byte param_2);
+extern void fx_dust_add(char *matrix, byte alpha);
 
 
 /* fx_dust_flush */
@@ -404,16 +404,16 @@ extern void fx_dust_render_0049a930(void);
 
 /* "particles_fn_499c90(&g_particles_759640)" */
 
-extern void __cdecl fx_dust_create_default(char *param_1,char *param_2,char *param_3);
+extern void __cdecl fx_dust_create_default(char *str_a, char *str_b, char *str_c);
 
 
 /* RpPTankAtomicLock_00545d10 */
 
-extern undefined4 RpPTankAtomicLock_00545d10(char *param_1,int *param_2,char *param_3,char *param_4);
+extern undefined4 RpPTankAtomicLock_00545d10(char *str_a, int *words, char *str_b, char *str_c);
 
 
 /* RpPTankAtomicUnlock_00545f20 */
 
-extern void RpPTankAtomicUnlock_00545f20(char *param_1);
+extern void RpPTankAtomicUnlock_00545f20(char *str);
 
 

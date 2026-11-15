@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; none of its machine code is taken from the original executable any more (0 of 1,945 KB, measured 2026-11-15 on the standalone and the release build): it comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. Not covered by that statement: library data copied from the original (130,473 B, plus 3,760 B of padding between data rows) and the resources (710,568 B) are still copied bytes. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; none of its machine code is taken from the original executable any more (0 of 1,945 KB, measured 2026-11-15 on the standalone and the release build): it comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. The build contains no original resources either: the dialogs, texts and pictures are read at runtime from your own copy of `MFL.exe` (measured 2026-11-15: 0 B of resources in the exe). Not covered by these statements: library data copied from the original (130,473 B, plus 3,760 B of padding between data rows) is still copied bytes; it is planned to become typed C. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
 
 ## What this project is
 
@@ -11,6 +11,9 @@ To get there safely, every function is checked against the original: a function 
 
 **No game files are included.** You need your own copy of the game; see [docs/LEGAL.md](docs/LEGAL.md).
 Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6d052707188e2c6d065f41766` (`python3 tools/check_exe.py path/to/MFL.exe`).
+To run a build, put a copy of your original `MFL.exe` next to the game exe as `MFL_original.exe` (or leave the original `MFL.exe` there and give the build another name): the build reads its resources from that file and shows a message box naming the expected place when no original is found.
+
+**Note on the earlier release:** the source drop 4c1168d (2026-11-15) could produce links with two library calls bound to the wrong C runtime function (`exit` to `_exit`, and a vector helper to `tolower`), because our object writer chose between two similarly named runtime functions in hash order. The choice now follows the original address, and links are reproducible.
 
 ## Roadmap
 
@@ -23,7 +26,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 | Rewrite the RenderWare physics plugin (rwp) as verified C | **done**; no original code left |
 | Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | **done** for code: no original RenderWare or D3DX code is left (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit, particle tank, vertex shader cache, vertex shader generator and render callback groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); the last nine functions (vector math helpers, pipeline building, a dictionary destructor) are C since 2026-11-15 |
 | Replace the streaming audio library, add a real video backend | audio done for code (from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
-| Zero original code | **done** 2026-11-15 (code; library data and resources are still copied) |
+| Zero original code | **done** 2026-11-15 (code; resources are read at runtime from your `MFL.exe`; library data is still copied) |
 | Readability and bug fixing, then the Switch/ARM port | next |
 
 ## How each part is produced
@@ -55,9 +58,9 @@ Original machine code still linked into the standalone build (the number we driv
 | Game code | 0 KB | done |
 | **Total** | **0 KB** | of about 1,945 KB |
 
-Still copied from the original executable, and not part of the zero above: library data (130,473 B of library tables and variables, mostly D3DX 73 KB and RenderWare 33 KB, the rest C runtime, audio, Lua, qhull and physics, plus 3,760 B of padding between data rows) and the resources (710,568 B, byte-identical game data).
+Still copied from the original executable, and not part of the zero above: library data (130,473 B of library tables and variables, mostly D3DX 73 KB and RenderWare 33 KB, the rest C runtime, audio, Lua, qhull and physics, plus 3,760 B of padding between data rows); it is planned to become typed C. The resources (710,568 B) are no longer in the exe: they are read at runtime from your own `MFL.exe`.
 
-How the total moved (code only; data and the resources are tracked separately):
+How the total moved (code only; data is tracked separately):
 
 | Date | Original code | What moved it |
 |---|---:|---|
@@ -82,7 +85,7 @@ Where to look:
 - [`progress/progress.json`](progress/progress.json) and the generated tables below: function counts per tier, regenerated with every source drop. A function counts as game code or library code by its address in `data/fnsizes.txt`, so a new row there can move a function from the game count to the library count (six RenderWare / rwp functions moved this way in November 2026: tier 1 1435 -> 1429).
 - The git log of this repository: one commit per source drop, with the number of published functions.
 - [docs/VERIFICATION.md](docs/VERIFICATION.md): what "verified" means and where it stops. Nothing here claims the whole game is verified.
-- Next steps, in order: the remaining RenderWare groups in `librw-mfl`, the audio mixer, the engine switch to `librw-mfl`, then the video backend and data, then readability and bug fixing, then the Switch/ARM port.
+- Next steps, in order: library data as typed C, deterministic replays over whole races as a test, readability (module layout, plain calling conventions instead of the matching scaffolding), then bug fixing behind switches that are off by default, then the Switch/ARM port.
 
 ## Progress (generated)
 

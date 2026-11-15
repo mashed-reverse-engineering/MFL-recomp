@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*0040d130*/ extern int __cdecl find_texture_a(RwChar *p0);
+/*0040d130*/ extern int __cdecl find_texture_a(RwChar *name);
 /*004169f0*/ extern int career_event_slot_table();
 /*0042c440*/ extern int ui_rt2d_text_draw();
 /*0042ebd0*/ extern double time_get_fraction();
@@ -8,7 +8,7 @@
 /*00430ab0*/ extern int screen_width();
 /*00430ac0*/ extern int screen_height();
 /*00475730*/ extern int get_viewport_camera();
-/*004d78f0*/ extern struct RwRaster * RwRasterSubRaster(struct RwRaster *p0, struct RwRaster *p1, struct RwRect *p2);
+/*004d78f0*/ extern struct RwRaster * RwRasterSubRaster(struct RwRaster *raster_a, struct RwRaster *raster_b, struct RwRect *p2);
 /*005dd7e8*/ extern float k_f_60;
 /*006091a4*/ extern undefined g_career_row_6091a4;
 /*006091b8*/ extern undefined g_career_row_6091b8;
@@ -52,10 +52,10 @@
 /*008c873c*/ extern undefined4 g_ui_camera_8c873c;
 
 
-extern undefined4 medal_asset_names(char *param_1);
+extern undefined4 medal_asset_names(char *str);
 
 
-extern int __cdecl career_row_title_string_id(char *param_1);
+extern int __cdecl career_row_title_string_id(char *str);
 
 
 extern undefined4 is_team_mode(void);
@@ -126,7 +126,7 @@ extern void menu_controller_navigation_update(void);
 
 /* "NFLRed NFLBluejay NFLMelon NFLGold" */
 
-extern void team_color_names(char *param_1);
+extern void team_color_names(char *team);
 
 
 /* menu_markers_enabled_for_event */
@@ -332,7 +332,7 @@ extern double menu_get_69cfc4(void);
 
 /*  */
 
-extern void menu_set_69cfc4(char *param_1);
+extern void menu_set_69cfc4(char *str);
 
 
 /* option_get_slider_4 */

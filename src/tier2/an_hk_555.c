@@ -107,7 +107,7 @@ void course_powerups_setup(void)
       g_bomb_64d8e0 = 0;
       g_course_64d8e4 = 1;
       g_course_64d8d8 = slot_value;
-LAB_00405192:
+count_powerup:
       g_course_powerups_5fb0b4 = g_course_powerups_5fb0b4 + 1;
     }
     else {
@@ -122,7 +122,7 @@ LAB_00405192:
         if ((int)g_course_5fb0b8 < slot_count) {
           g_course_5fb0b8 = slot_count;
         }
-        goto LAB_00405192;
+        goto count_powerup;
       }
     }
     slot = slot + 1;

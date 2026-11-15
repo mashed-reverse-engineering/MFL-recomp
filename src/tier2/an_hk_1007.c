@@ -112,7 +112,7 @@ void __cdecl particle_emit_textured(float *emit_pos,undefined4 *default_tex_pair
       emit_y = emit_pos[1];
       frame.emit_z_or_size_z = emit_pos[2];
       slot_or_tex = *default_tex_pair;
-      goto LAB_004a0037;
+      goto find_free_particle;
     }
     part_id = 0x34;
   }
@@ -122,7 +122,7 @@ void __cdecl particle_emit_textured(float *emit_pos,undefined4 *default_tex_pair
   emit_y = *(float *)(pool_byte_off + 0x34);
   frame.emit_z_or_size_z = *(float *)(pool_byte_off + 0x38);
   slot_or_tex = *(int *)frame.team_color_table[pool_index];
-LAB_004a0037:
+find_free_particle:
   /* find a free entry of the particle pool (80 byte records at g_app_886020); give up when full */
   pool_index = 0;
   pool_entry = g_app_886020;

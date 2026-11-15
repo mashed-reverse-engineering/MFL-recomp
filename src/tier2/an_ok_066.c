@@ -34,7 +34,7 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*00431b50*/ extern undefined __cdecl frontend_set_69d1f4(undefined4 p0, undefined4 p1);
 /*00434a10*/ extern int is_team_mode();
 /*00434bb0*/ extern int get_event_type();
-/*00437cd0*/ extern int __cdecl frontend_pause_input_poll(undefined4 p0);
+/*00437cd0*/ extern int __cdecl frontend_pause_input_poll(undefined4 next_page);
 /*00438f50*/ extern int frontend_enter_menu();
 /*00439040*/ extern int frontend_enter_race_menu();
 /*00445180*/ extern int training_mode_update();
@@ -43,12 +43,12 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*00451c50*/ extern int camera_records_warmup();
 /*00475730*/ extern int get_viewport_camera();
 /*004757a0*/ extern int get_viewport_camera_matrix();
-/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
+/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *dictionary);
 /*0049a960*/ extern int RpPTankAtomicLock_00545d10();
 /*0049a970*/ extern int RpPTankAtomicUnlock_00545f20();
-/*004a03e0*/ extern undefined __cdecl line_rain_error(undefined4 p0, undefined4 p1);
-/*004a04e0*/ extern undefined __cdecl ui_colour_a_set(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
-/*004a0510*/ extern undefined __cdecl ui_colour_b_set(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004a03e0*/ extern undefined __cdecl line_rain_error(undefined4 message, undefined4 error_code);
+/*004a04e0*/ extern undefined __cdecl ui_colour_a_set(undefined4 r, undefined4 g, undefined4 b, undefined4 a);
+/*004a0510*/ extern undefined __cdecl ui_colour_b_set(undefined4 r, undefined4 g, undefined4 b, undefined4 a);
 /*004a0540*/ extern int lua_RainSetPosition_impl();
 /*004a0580*/ extern int lua_RainSetScale_impl();
 /*004a05a0*/ extern int lua_RainSetCameraScale_impl();
@@ -70,10 +70,10 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*004a4710*/ extern int dinput_release_object_004a4710();
 /*004a5160*/ extern int dinput_release_all();
 /*004a5520*/ extern int dinput_release_keyboard_004a5520();
-/*004a5530*/ extern undefined __cdecl log_print(char *p0);
+/*004a5530*/ extern undefined __cdecl log_print(char *str);
 /*004a5550*/ extern int log_printf();
 /*004a5930*/ extern int joypads_poll_frame();
-/*004a5b40*/ extern int __cdecl joypad_get_field_770fb4(undefined4 p0);
+/*004a5b40*/ extern int __cdecl joypad_get_field_770fb4(undefined4 field_index);
 /*004a84d0*/ extern undefined __cdecl video_mode_name_format(undefined4 p0, undefined4 p1);
 /*004a87d0*/ extern int video_dialog_free();
 /*004a8860*/ extern int app_get_app_7712f4();
@@ -83,12 +83,12 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*004a9c90*/ extern int window_create();
 /*004c7150*/ extern int lua_gettop();
 /*004c7220*/ extern double lua_tonumber();
-/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
-/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
+/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *camera, struct RwSphere *sphere);
+/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *camera, struct RwV2d *view_window);
 /*004d4e70*/ extern RwMatrix * RwMatrixCreate();
-/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
+/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *tex_dict);
 /*0050b5e0*/ extern int nop_stub();
 /*00524880*/ extern undefined __cdecl RtPNGImageRead(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*0053d050*/ extern undefined __cdecl RtBMPImageRead(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
@@ -165,42 +165,42 @@ extern void rain_drops_update_and_respawn(void);
 
 /* Lua function RainSetHeadColour (registered by the script engine) */
 
-extern undefined4 lua_RainSetHeadColour(char *param_1);
+extern undefined4 lua_RainSetHeadColour(char *str);
 
 
 /* lua_RainSetTailColour */
 
 /* Lua function RainSetTailColour (registered by the script engine) */
 
-extern undefined4 lua_RainSetTailColour(char *param_1);
+extern undefined4 lua_RainSetTailColour(char *L);
 
 
 /* lua_RainSetPosition */
 
 /* "'Usage : RainSetPosition(xmin, xmax, ymin ...)' Lua function" */
 
-extern undefined4 lua_RainSetPosition(char *param_1);
+extern undefined4 lua_RainSetPosition(char *lua_state);
 
 
 /* lua_RainSetScale */
 
 /* Lua function RainSetScale (registered by the script engine) */
 
-extern undefined4 lua_RainSetScale(char *param_1);
+extern undefined4 lua_RainSetScale(char *str);
 
 
 /* lua_RainSetCameraScale */
 
 /* Lua function RainSetCameraScale (registered by the script engine) */
 
-extern undefined4 lua_RainSetCameraScale(char *param_1);
+extern undefined4 lua_RainSetCameraScale(char *str);
 
 
 /* lua_RainSetDirection */
 
 /* "'Usage : RainSetDirection(xmin, xmax, ymin ...)' Lua function" */
 
-extern undefined4 lua_RainSetDirection(char *param_1);
+extern undefined4 lua_RainSetDirection(char *lua_state);
 
 
 /* rain_splash_add */
@@ -261,7 +261,7 @@ extern undefined4 app_main_loop(void);
 
 /* "'Calling AppInitialiseOnBootup' ... boot sequence" */
 
-extern undefined4 app_initialise_on_bootup (char *param_1,char *param_2,char *param_3,char *param_4);
+extern undefined4 app_initialise_on_bootup (char *hinstance, char *prev_instance, char *cmd_line, char *show_cmd);
 
 #define MAX_PLAYER_SLOTS (4)
 #define FRAMERATE_SAMPLE_COUNT (0x3c)
@@ -635,17 +635,17 @@ extern void app_flag_76e7fc_set(void);
 extern void app_state_set_1(void);
 
 
-extern void texture_read_log(char *param_1);
+extern void texture_read_log(char *texture_name);
 
 
-extern void texture_read_png_logged(char *param_1);
+extern void texture_read_png_logged(char *texture_name);
 
 
 /* app_get_app_76e890_3490 */
 
 /* "return g_app_76e890;" */
 
-extern undefined4 __cdecl app_get_app_76e890_3490(char *param_1);
+extern undefined4 __cdecl app_get_app_76e890_3490(char *str);
 
 
 /* stub_return_one */
@@ -667,6 +667,6 @@ extern undefined4 app_get_app_76e8a4(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "screen quad with uv rect and colour using the movie/video texture in the viewport" */
 
-extern void video_draw_textured_quad (char *param_1,float *param_2,float *param_3,undefined1 *param_4,void *param_5, char *param_6,char *param_7);
+extern void video_draw_textured_quad (char *str_a, float *floats_a, float *floats_b, undefined1 *byte_value, void *data, char *str_b, char *str_c);
 
 

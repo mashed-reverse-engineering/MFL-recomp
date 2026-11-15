@@ -67,7 +67,7 @@ void race_render_viewport(void)
       /* scene_progress = clamp(race_time * 0.5, 0, 1): the cup scene takes two seconds to run (inferred) */
       race_time = (double)race_get_time_seconds();
       if ((double)float_1_0 <= race_time * (double)k_f_0_5) {
-LAB_00412e65:
+scene_progress_scaled:
         race_time = (double)race_get_time_seconds();
         if (!(race_time * (double)k_f_0_5 >= (double)float_1_0)) {      /* NaN takes the scaled value (original: test ah,1; jne) */
           race_time = (double)race_get_time_seconds();
@@ -79,7 +79,7 @@ LAB_00412e65:
       }
       else {
         race_time = (double)race_get_time_seconds();
-        if ((double)k_f_0 <= race_time * (double)k_f_0_5) goto LAB_00412e65;
+        if ((double)k_f_0 <= race_time * (double)k_f_0_5) goto scene_progress_scaled;
         scene_progress = 0.0;
       }
       cup_scene_update_object(*(int *)&scene_progress,camera);
@@ -165,13 +165,13 @@ LAB_00412e65:
     g_game_state.mirror_mode = 1;
   }
   race_phase = race_get_phase();
-  if (race_phase != 7) goto LAB_0041318c;
+  if (race_phase != 7) goto present_mirror_frame;
   race_phase = race_get_last_active_player();
-  if (race_phase == -1) goto LAB_0041318c;
+  if (race_phase == -1) goto present_mirror_frame;
   camera = race_get_last_active_player();
   race_time = (double)race_get_time_seconds();
   if ((double)float_1_0 <= race_time * (double)k_f_0_5) {
-LAB_00413135:
+mirror_scene_progress_scaled:
     race_time = (double)race_get_time_seconds();
     if (!(race_time * (double)k_f_0_5 >= (double)float_1_0)) {      /* NaN takes the scaled value (original: test ah,1; jne) */
       race_time = (double)race_get_time_seconds();
@@ -183,12 +183,12 @@ LAB_00413135:
   }
   else {
     race_time = (double)race_get_time_seconds();
-    if ((double)k_f_0 <= race_time * (double)k_f_0_5) goto LAB_00413135;
+    if ((double)k_f_0 <= race_time * (double)k_f_0_5) goto mirror_scene_progress_scaled;
     scene_progress = 0.0;
   }
   cup_scene_place_object(*(int *)&scene_progress,g_game_state.mirror_mode,camera);
   cup_scene_render(*(int *)&scene_progress,camera);
-LAB_0041318c:
+present_mirror_frame:
   /* present the mirror frame unless the race is in phase 9 or 10 */
   if (((g_race_phase != RACE_PHASE_WINNER_VIEW) && (g_race_phase != RACE_PHASE_WINNER_DONE)) && (g_game_state.mirror_mode != 0)) {
     movie_present_frame();

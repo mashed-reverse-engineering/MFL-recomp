@@ -199,7 +199,7 @@ void __cdecl ai_bot_update(int slot_index,char *unused_arg)
     scratch = -1;
     event_type = training_lesson_get();
     if (event_type != 5) {
-LAB_0041b575:
+check_accelerate_timer:
       if ((0x4a - scratch) * 100 <= stage_or_timer) {
         return;
       }
@@ -208,7 +208,7 @@ LAB_0041b575:
     }
     scratch = 9;
   }
-  else if (scratch < 0) goto LAB_0041b575;
+  else if (scratch < 0) goto check_accelerate_timer;
   if ((scratch + 0x40) * 100 <= stage_or_timer) {
     return;
   }

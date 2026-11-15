@@ -37,7 +37,7 @@ typedef struct MflShapePair {
 extern float rwp_cylinder_0056fd20(float *out, float *in);
 extern int rwp_line_closest_param(float *origin, float *dir, float t_min, float t_max, float *point, float *out);
 extern int rwp_polygon_closest_point(float *poly, unsigned n, float *nrm, float *p, float *out, unsigned *edge);
-extern int rwp_segment_segment_closest(float *p1, float *d1, float smin, float smax, float *p2, float *d2, float tmin, float tmax, float *s_out, float *t_out, float *overlap);
+extern int rwp_segment_segment_closest(float *origin_a, float *dir_a, float smin, float smax, float *origin_b, float *dir_b, float tmin, float tmax, float *s_out, float *t_out, float *overlap);
 extern int rwp_polyline_add_point(unsigned int *count, float *pts, float *p, float *d, float level);
 
 #define EPS 1.0e-6f
@@ -99,8 +99,8 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
         return count;
       }
       if (*kind_b == 1) {
-        float *p0 = b + 4 * NEXT(idx, nb), *p1 = b + 4 * idx;
-        SUB3(db, p0, p1);
+        float *v_next = b + 4 * NEXT(idx, nb), *v_cur = b + 4 * idx;
+        SUB3(db, v_next, v_cur);
       }
     }
     pa[0] = a[0]; pa[1] = a[1]; pa[2] = a[2];
@@ -124,8 +124,8 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
         return count;
       }
       if (*kind_a == 1) {
-        float *p0 = a + 4 * NEXT(idx, na), *p1 = a + 4 * idx;
-        SUB3(da, p0, p1);
+        float *v_next = a + 4 * NEXT(idx, na), *v_cur = a + 4 * idx;
+        SUB3(da, v_next, v_cur);
       }
     }
     SUB3(d, pa, b);
@@ -164,7 +164,7 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
     float ea[3], eb[3], pt[3];
     volatile float dd[3], w[3];   /* the original keeps these in frame slots (float rounding at the spill, visible at extended precision only); cheat_allow.txt */
     double q[3], acc;
-    float c1, c2, c3, lam, mu, d2, ovc, sb, ta, cx, cy;
+    float trip_ea_eb, trip_ea_u, trip_eb_w, lam, mu, cand_dist2, ovc, sb, ta, cx, cy;
     double u[3], cz;
     float *pa_i, *pb_i, *pnext;
 
@@ -186,8 +186,8 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
       dd[0] = pa[0] - pb[0];
       dd[1] = pa[1] - pb[1];
       dd[2] = pa[2] - pb[2];
-      SQ3(d2, dd);
-      if (d2 < dist2 + EPS) {
+      SQ3(cand_dist2, dd);
+      if (cand_dist2 < dist2 + EPS) {
         if (ov == 0.0f || ovc != 0.0f) {
           ka = (unsigned short)(ta * ta != ta);
           kb = (unsigned short)(sb * sb != sb);
@@ -197,22 +197,22 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
           ov = ovc;
           best_sb = sb;
           d[0] = dd[0]; d[1] = dd[1]; d[2] = dd[2];
-          dist2 = d2;
+          dist2 = cand_dist2;
         }
       }
       w[0] = a[4 * ia1] - pb_i[0];
       w[1] = a[4 * ia1 + 1] - pb_i[1];
       w[2] = a[4 * ia1 + 2] - pb_i[2];
-      TRIPLE(c1, ea, eb, nrm);
-      TRIPLE(c3, eb, w, nrm);
+      TRIPLE(trip_ea_eb, ea, eb, nrm);
+      TRIPLE(trip_eb_w, eb, w, nrm);
       u[0] = b[4 * ib1] - pa_i[0];
       u[1] = b[4 * ib1 + 1] - pa_i[1];
       u[2] = b[4 * ib1 + 2] - pa_i[2];
-      TRIPLE(c2, ea, u, nrm);
+      TRIPLE(trip_ea_u, ea, u, nrm);
       if (adv != 0) {
-        if (c2 * prev2 <= 0.0f || c3 * prev3 <= 0.0f) {
-          if (fabs(c1) >= EPS) {
-            r = 1.0f / c1;
+        if (trip_ea_u * prev2 <= 0.0f || trip_eb_w * prev3 <= 0.0f) {
+          if (fabs(trip_ea_eb) >= EPS) {
+            r = 1.0f / trip_ea_eb;
             q[0] = pa_i[0] - pb_i[0];
             q[1] = pa_i[1] - pb_i[1];
             q[2] = pa_i[2] - pb_i[2];
@@ -233,23 +233,23 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
               pt[2] = lam * ea[2] + pa_i[2];
               if (count >= cap) return count;
               if (rwp_polyline_add_point(&count, res, pt, nrm, off)) return count;
-              mode = c1 < 0.0f ? 1 : 2;
+              mode = trip_ea_eb < 0.0f ? 1 : 2;
             }
           }
         }
       }
       if (mode == 1) {
-        if (c3 < 0.0f && c2 > 0.0f) mode = 2;
-        else if (c2 < 0.0f && c3 < 0.0f) mode = 0;
+        if (trip_eb_w < 0.0f && trip_ea_u > 0.0f) mode = 2;
+        else if (trip_ea_u < 0.0f && trip_eb_w < 0.0f) mode = 0;
       } else if (mode == 2) {
-        if (c2 < 0.0f) {
-          if (c3 > 0.0f) mode = 1;
-          else if (c3 < 0.0f) mode = 0;
+        if (trip_ea_u < 0.0f) {
+          if (trip_eb_w > 0.0f) mode = 1;
+          else if (trip_eb_w < 0.0f) mode = 0;
         }
       }
-      if (c1 > 0.0f) adv = c2 > 0.0f ? 1 : 2;
-      else adv = c3 > 0.0f ? 2 : 1;
-      if (c2 == 0.0f && c3 == 0.0f) adv = mode != 1 ? 1 : 2;
+      if (trip_ea_eb > 0.0f) adv = trip_ea_u > 0.0f ? 1 : 2;
+      else adv = trip_eb_w > 0.0f ? 2 : 1;
+      if (trip_ea_u == 0.0f && trip_eb_w == 0.0f) adv = mode != 1 ? 1 : 2;
       if (adv == 1) {
         ia = ia1;
         ia1 = NEXT(ia, na);
@@ -263,10 +263,10 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
         if (count >= cap) return count;
         if (rwp_polyline_add_point(&count, res, pnext, nrm, off)) return count;
       }
-      prev3 = c3;
-      prev2 = c2;
-      flag_b |= c2 <= 0.0f;
-      flag_a |= c3 <= 0.0f;
+      prev3 = trip_eb_w;
+      prev2 = trip_ea_u;
+      flag_b |= trip_ea_u <= 0.0f;
+      flag_a |= trip_eb_w <= 0.0f;
       if (count == 0 && ct < cap) {
         if (flag_a != 0 ? flag_b == 0 : flag_b != 0) {
           pv = flag_a != 0 ? b : a;
@@ -275,16 +275,16 @@ int rwp_ring_closest_features(float *a, unsigned na, float *b, unsigned nb, floa
         }
         if (dist2 >= 3.4028235e38f) return 0;
         {
-          float *p0 = a + 4 * NEXT(best_ia, na), *p1 = a + 4 * best_ia;
-          float *q0 = b + 4 * NEXT(best_ib, nb), *q1 = b + 4 * best_ib;
-          SUB3(da, p0, p1);
-          SUB3(db, q0, q1);
-          pa[0] = best_ta * da[0] + p1[0];
-          pa[1] = best_ta * da[1] + p1[1];
-          pa[2] = best_ta * da[2] + p1[2];
-          pb[0] = best_sb * db[0] + q1[0];
-          pb[1] = best_sb * db[1] + q1[1];
-          pb[2] = best_sb * db[2] + q1[2];
+          float *v_next = a + 4 * NEXT(best_ia, na), *v_cur = a + 4 * best_ia;
+          float *u_next = b + 4 * NEXT(best_ib, nb), *u_cur = b + 4 * best_ib;
+          SUB3(da, v_next, v_cur);
+          SUB3(db, u_next, u_cur);
+          pa[0] = best_ta * da[0] + v_cur[0];
+          pa[1] = best_ta * da[1] + v_cur[1];
+          pa[2] = best_ta * da[2] + v_cur[2];
+          pb[0] = best_sb * db[0] + u_cur[0];
+          pb[1] = best_sb * db[1] + u_cur[1];
+          pb[2] = best_sb * db[2] + u_cur[2];
           *kind_a = ka;
           *kind_b = kb;
           goto done;

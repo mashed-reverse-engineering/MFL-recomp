@@ -115,19 +115,19 @@ void message_box_draw(void)
     break;
   case 2:
     ui_rt2d_text_draw(g_message_button_text_a,MESSAGE_BUTTON_A_X,MESSAGE_BUTTON_Y,frame.m.text_colour,MESSAGE_BUTTON_TEXT_SCALE,0);
-    goto LAB_0043a0e6;
+    goto draw_button_b;
   case 7:
     ui_rt2d_text_draw(g_message_button_text_a,MESSAGE_BUTTON_A_X,MESSAGE_BUTTON_Y,frame.m.text_colour,MESSAGE_BUTTON_TEXT_SCALE,0);
     break;
   case 9:
     ui_rt2d_text_draw(g_message_button_text_a,MESSAGE_BUTTON_A_X,MESSAGE_BUTTON_Y,frame.m.text_colour,MESSAGE_BUTTON_TEXT_SCALE,0);
-    goto LAB_0043a0e6;
+    goto draw_button_b;
   case 0xb:
     ui_rt2d_text_draw(g_message_button_text_a,MESSAGE_BUTTON_A_X,MESSAGE_BUTTON_Y,frame.m.text_colour,MESSAGE_BUTTON_TEXT_SCALE,0);
     break;
   case 0xc:
     ui_rt2d_text_draw(g_message_button_text_a,MESSAGE_BUTTON_A_X,MESSAGE_BUTTON_Y,frame.m.text_colour,MESSAGE_BUTTON_TEXT_SCALE,0);
-LAB_0043a0e6:
+draw_button_b:
     ui_rt2d_text_draw(g_message_button_text_b,MESSAGE_BUTTON_B_X,MESSAGE_BUTTON_Y,frame.m.text_colour,MESSAGE_BUTTON_TEXT_SCALE,0);
   }
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);

@@ -1,17 +1,17 @@
 #include "mfl_tier2.h"
 /*00475760*/ extern int aux_camera_get_position();
 /*0047a470*/ extern int car_set_wheel_contact();
-/*00481620*/ extern undefined __cdecl atomic_render_with_culling(struct RpAtomic *p0);
+/*00481620*/ extern undefined __cdecl atomic_render_with_culling(struct RpAtomic *atomic);
 /*004b38f7*/ extern int finite();
-/*004d18d0*/ extern struct RwBBox * RwBBoxCalculate(struct RwBBox *p0, struct RwV3d *p1, RwInt32 p2);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004dbfc0*/ extern struct RwStream * RwStreamWrite(struct RwStream *p0, void *p1, RwUInt32 p2);
-/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
-/*004f8b60*/ extern struct RpGeometry * RpGeometryForAllMaterials(struct RpGeometry *p0, RpMaterialCallBack p1, void *p2);
+/*004d18d0*/ extern struct RwBBox * RwBBoxCalculate(struct RwBBox *p0, struct RwV3d *vec, RwInt32 value);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004dbfc0*/ extern struct RwStream * RwStreamWrite(struct RwStream *stream, void *data, RwUInt32 bits);
+/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *clump);
+/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *clump, RpAtomicCallBack atomic, void *data);
+/*004f8b60*/ extern struct RpGeometry * RpGeometryForAllMaterials(struct RpGeometry *geometry, RpMaterialCallBack callback, void *data);
 /*00544e80*/ extern int RpRandom();
-/*00555ff0*/ extern struct RwV3d * RpSplineFindPosition(struct RpSpline *p0, RwInt32 p1, RwReal p2, struct RwV3d *p3, struct RwV3d *p4);
-/*005625f0*/ extern RwBool __cdecl RpMaterialUVAnimExists(struct RpMaterial *p0);
+/*00555ff0*/ extern struct RwV3d * RpSplineFindPosition(struct RpSpline *spline, RwInt32 segments, RwReal t, struct RwV3d *position, struct RwV3d *tangent);
+/*005625f0*/ extern RwBool __cdecl RpMaterialUVAnimExists(struct RpMaterial *material);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
 /*005dd61c*/ extern float k_f_0_001;
@@ -65,7 +65,7 @@
 
 /* "RwBBoxCalculate of the atomic's geometry vertices" */
 
-extern RwBBox * __cdecl atomic_bbox_calculate(RwBBox *boundBox,char *param_2);
+extern RwBBox * __cdecl atomic_bbox_calculate(RwBBox *boundBox, char *atomic);
 
 
 /* atomic_set_render_callback */
@@ -73,35 +73,35 @@ extern RwBBox * __cdecl atomic_bbox_calculate(RwBBox *boundBox,char *param_2);
 /* WARNING: Removing unreachable block (ram,0x0048177d) */
 /* "stores the old callback at g_gfx_89de08 and installs atomic_render_with_culling" */
 
-extern void __cdecl atomic_set_render_callback(char *param_1,char *param_2);
+extern void __cdecl atomic_set_render_callback(char *str_a, char *str_b);
 
 
 /* atomic_plugin_get_bbox */
 
 /* "address of the plugin bbox (+8)" */
 
-extern int atomic_plugin_get_bbox(char *param_1);
+extern int atomic_plugin_get_bbox(char *atomic_offset);
 
 
 /* atomic_plugin_get_flags */
 
 /* "plugin data +0x20 of the atomic" */
 
-extern undefined4 __cdecl atomic_plugin_get_flags(char *param_1);
+extern undefined4 __cdecl atomic_plugin_get_flags(char *atomic_offset);
 
 
 /* atomic_plugin_set_float_24 */
 
 /*  */
 
-extern double atomic_plugin_set_float_24(char *param_1,float param_2);
+extern double atomic_plugin_set_float_24(char *offset, float value);
 
 
 /* atomic_plugin_construct */
 
 /* "plugin constructor: bbox min (-1, 0, 10000)" */
 
-extern int atomic_plugin_construct(char *param_1);
+extern int atomic_plugin_construct(char *atomic_offset);
 
 
 /* atomic_plugin_copy */
@@ -136,7 +136,7 @@ atomic_plugin_copy(char *dst_offset,char *src_offset,char *unused_3,char *unused
 
 /* "reads 0x2C bytes of the atomic plugin data" */
 
-extern RwStream * atomic_plugin_stream_read(RwStream *stream,char *param_2,char *param_3);
+extern RwStream * atomic_plugin_stream_read(RwStream *stream, char *str_a, char *str_b);
 
 #define ATOMIC_PLUGIN_BBOX_OFFSET (8)
 #define ATOMIC_PLUGIN_BBOX_INF_OFFSET (0x14)
@@ -186,28 +186,28 @@ uint atomic_plugin_stream_write(RwStream *stream,undefined4 param_2,char *plugin
 
 /* TIER2: validated 2026-10-18 authority=diffemu */
 typedef struct { undefined4 d[12]; } Dw12m;
-extern RwStream * material_plugin_stream_read(RwStream *stream,undefined4 param_2,char *plugin_offset);
+extern RwStream * material_plugin_stream_read(RwStream *stream, undefined4 param_2, char *plugin_offset);
 
 
 /* material_plugin_stream_write */
 
 /*  */
 
-extern uint material_plugin_stream_write(RwStream *stream,char *param_2,char *param_3);
+extern uint material_plugin_stream_write(RwStream *stream, char *str_a, char *str_b);
 
 
 /* material_plugin_copy */
 
 /*  */
 
-extern void material_plugin_copy(char *param_1,char *param_2);
+extern void material_plugin_copy(char *str_a, char *str_b);
 
 
 /* material_plugin_clear_12 */
 
 /* "clears 3 dwords of the plugin data" */
 
-extern undefined4 material_plugin_clear_12(char *param_1);
+extern undefined4 material_plugin_clear_12(char *object);
 
 
 /* surface_flag_table_init */
@@ -223,21 +223,21 @@ extern void surface_flag_table_init(void);
 
 /*  */
 
-extern undefined4 player_marker_get_clump(char *param_1);
+extern undefined4 player_marker_get_clump(char *player_index);
 
 
 /* table_get_6c3f38 */
 
 /* "int at 0x6C3F38 + i * 16" */
 
-extern undefined4 __cdecl table_get_6c3f38(char *param_1);
+extern undefined4 __cdecl table_get_6c3f38(char *index);
 
 
 /* player_marker_set_enabled */
 
 /* "(player, flag): enables the marker of the player" */
 
-extern void player_marker_set_enabled(char *param_1,char *param_2);
+extern void player_marker_set_enabled(char *player, char *flag);
 
 
 /* player_markers_render */
@@ -284,7 +284,7 @@ void car_wheel_contacts_clear_all(void)
 
 /*  */
 
-extern void gfx_set_89ddfc(char *param_1);
+extern void gfx_set_89ddfc(char *value);
 
 
 /* random_range */
@@ -292,7 +292,7 @@ extern void gfx_set_89ddfc(char *param_1);
 /* WARNING: Removing unreachable block (ram,0x00481fe7) */
 /* "(min, max) float from RpRandom" */
 
-extern double __fastcall random_range(char *param_1,float param_2,float param_3);
+extern double __fastcall random_range(char *str, float value_a, float value_b);
 
 
 /* dot_product_3d_clamped */
@@ -300,21 +300,21 @@ extern double __fastcall random_range(char *param_1,float param_2,float param_3)
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "dot product of two 3D vectors clamped to [-1, 1]" */
 
-extern double dot_product_3d_clamped(float *param_1,float *param_2);
+extern double dot_product_3d_clamped(float *a, float *b);
 
 
 /* vec3_is_valid_small */
 
 /* "all components finite and the squared length below 1e-6" */
 
-extern undefined4 __cdecl vec3_is_valid_small(float *param_1);
+extern undefined4 __cdecl vec3_is_valid_small(float *floats);
 
 
 /* matrix_is_valid_small */
 
 /* "vec3_is_valid_small for the four rows (+0x20,+0x10,+0,+0x30)" */
 
-extern bool __cdecl matrix_is_valid_small(char *param_1,char *param_2);
+extern bool __cdecl matrix_is_valid_small(char *str_a, char *str_b);
 
 
 /* spline_get_length */
@@ -329,28 +329,28 @@ extern double spline_get_length(RpSpline *spline);
 
 /* "(a, out, t): out = a + (aux camera position - a) * t" */
 
-extern void point_lerp_to_aux_camera(float *param_1,float *param_2,float param_3);
+extern void point_lerp_to_aux_camera(float *a, float *out, float t);
 
 
 /* distance_between_points */
 
 /* "RwV3dLength of the difference of two points" */
 
-extern double distance_between_points(float *param_1,float *param_2,float *param_3);
+extern double distance_between_points(float *line_start, float *line_end, float *point);
 
 
 /* material_uv_anim_check */
 
 /* "RpMaterialUVAnimExists: sets the flag when present" */
 
-extern RpMaterial * material_uv_anim_check(RpMaterial *material,undefined4 *param_2);
+extern RpMaterial * material_uv_anim_check(RpMaterial *material, undefined4 *has_uv_anim);
 
 
 /* geometry_for_all_materials_cb */
 
 /* "RpGeometryForAllMaterials(callback from the pair)" */
 
-extern int __cdecl geometry_for_all_materials_cb(char *param_1,undefined4 *param_2);
+extern int __cdecl geometry_for_all_materials_cb(char *atomic, undefined4 *callback_pair);
 
 
 /* clump_for_all_materials */

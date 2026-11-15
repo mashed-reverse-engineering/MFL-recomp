@@ -212,11 +212,33 @@ if "--objs" in opt:
         for r in csv.DictReader(open(os.path.join(G, "output", "delink_sdk", "symbols.csv"))):
             if r["addr"] and r["binding"] in ("ext", "common") and dropped(int(r["addr"], 16)): DROPNAMES.setdefault(int(r["addr"], 16), r["symbol"])
         _nm = lambda n: n if n.startswith("?") else n.lstrip("_@").split("@")[0]
-        _nd = {k: {_nm(n): n for n in v} for k, v in memdefs.items()}
+        # W10 GK: _nm folds _exit / __exit (and _tolower / __tolower) to one key.  The winner used to follow the set's iteration order (per-process hash
+        # seed), so the /alternatename target of FUN_004b322b / func_0x0056e810 varied between links.  Now every candidate is kept and pick() decides by VA.
+        _nd = collections.defaultdict(lambda: collections.defaultdict(list))
+        for k, v in memdefs.items():
+            for n in sorted(v): _nd[k][_nm(n)].append(n)
+        _ln = os.path.join(G, "output", "delink_sdk", "lib_names.txt")
+        LIBVA = {q_[0]: int(q_[1], 16) for q_ in (l.split() for l in (open(_ln) if os.path.exists(_ln) else [])) if len(q_) >= 2 and not q_[0].startswith("#")}
+        def pick(cands, lo_):
+            """the member name whose original VA is lo_, by its undecorated (C) name: lib_names.txt first (the library's own names; symbols.txt has Ghidra
+            spellings such as _tolower for tolower), then symmap; else the only candidate no other VA claims (elimination); else the sorted first with a
+            WARNING.  -> (name, evidence)"""
+            if len(cands) == 1: return cands[0], None
+            for src_, m_ in (("lib_names", LIBVA), ("symmap", symmap)):
+                at = {n: m_.get(undecorate(n)) for n in cands}
+                hit = [n for n in cands if at[n] == lo_]
+                if len(hit) == 1: return hit[0], "%s = %s at %08x (%s)" % (hit[0], undecorate(hit[0]), lo_, src_)
+                free = [n for n in cands if at[n] is None]
+                if len(free) == 1 and not hit and all(at[n] != lo_ for n in cands if n != free[0]):
+                    return free[0], "%s by elimination (%s, %s)" % (free[0], ", ".join("%s at %08x" % (undecorate(n), at[n]) for n in cands if n != free[0]), src_)
+            return sorted(cands)[0], "WARNING no VA evidence, sorted first of %s" % " ".join(sorted(cands))
         for lo_, hi_, r in DROP:                      # split functions: our C may call them by a Ghidra spelling (_strstr for strstr)
             if r["kind"] == "code":
-                n_ = _nd.get(r["member"].replace(" ", "_"), {}).get(_nm(r["name"]))
-                if n_: DROPNAMES.setdefault(lo_, n_)
+                c_ = _nd.get(r["member"].replace(" ", "_"), {}).get(_nm(r["name"]))
+                if c_:
+                    n_, ev_ = pick(c_, lo_)
+                    if ev_ and lo_ not in DROPNAMES: print("alias pick %08x %s -> %s: %s" % (lo_, r["name"], n_, ev_), file=sys.stderr)
+                    DROPNAMES.setdefault(lo_, n_)
     alt = []                         # /alternatename pairs: our C names an address by its Ghidra name, the split member defines it by the lib name
     for nm_ in sorted(objundef - set(objdef) - commons):
         if nm_.startswith("__imp_") and IMPSYM: continue          # S2: defined by the import libs

@@ -9,22 +9,22 @@
 /*00474230*/ extern undefined course_object_pair_build_clump(undefined4 p0, undefined4 p1, int p2, int p3);
 /*0047a100*/ extern int car_reset_state();
 /*0047bb00*/ extern int car_world_collision_query();
-/*0047fc10*/ extern undefined hud_label_draw_text(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, float p7, int p8);
+/*0047fc10*/ extern undefined hud_label_draw_text(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, float value, int p8);
 /*0048e410*/ extern int rwp_object_find_index_by_id();
 /*0048e650*/ extern int rwp_object_set_in_world();
-/*00490c10*/ extern int __cdecl physics_body_get_position(void *p0, undefined4 p1);
+/*00490c10*/ extern int __cdecl physics_body_get_position(void *out_pos, undefined4 car_index);
 /*00491d70*/ extern int car_reset_physics();
-/*00492b50*/ extern undefined __cdecl car_add_velocity_impl(undefined4 p0, undefined4 p1);
+/*00492b50*/ extern undefined __cdecl car_add_velocity_impl(undefined4 velocity_delta, undefined4 player_index);
 /*00492d10*/ extern int rwp_object_set_active();
 /*004a5da0*/ extern int object_destroy_frames();
 /*004b2b48*/ extern int _ftol();
-/*004b3850*/ extern char * __cdecl _strstr(char *p0, char *p1);
+/*004b3850*/ extern char * __cdecl _strstr(char *str_a, char *str_b);
 /*004b4ba7*/ extern int entry();
-/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*004f44d0*/ extern struct RpWorld * __cdecl RpWorldRemoveAtomic(struct RpWorld *p0, struct RpAtomic *p1);
-/*004f4560*/ extern struct RpWorld * __cdecl RpAtomicGetWorld(struct RpAtomic *p0);
-/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
+/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *frame, RwMatrix *matrix, enum RwOpCombineType combine_op);
+/*004d56d0*/ extern struct RwV3d * RwV3dTransformVectors(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
+/*004f44d0*/ extern struct RpWorld * __cdecl RpWorldRemoveAtomic(struct RpWorld *world, struct RpAtomic *atomic);
+/*004f4560*/ extern struct RpWorld * __cdecl RpAtomicGetWorld(struct RpAtomic *atomic);
+/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *atomic);
 /*005dd340*/ extern float k_f_0_5;
 /*005dd370*/ extern float k_f_0_3;
 /*005dd61c*/ extern float k_f_0_001;
@@ -84,7 +84,7 @@ extern void course_object_pair_counts_clear(void);
 
 /* "builds a clump for every object pair entry" */
 
-extern void __cdecl course_object_pairs_build_clumps (char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6,char *param_7,char *param_8, char *param_9,char *param_10,char *param_11,char *param_12, char *param_13,char *param_14,char *param_15,char *param_16);
+extern void __cdecl course_object_pairs_build_clumps (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11, char *param_12, char *param_13, char *param_14, char *param_15, char *param_16);
 
 
 /* course_objects_reset_transforms */
@@ -105,7 +105,7 @@ extern void course_objects_destroy_atomics(void);
 
 /* "packs four float values into a 7/9/7/7 bit key" */
 
-extern uint __cdecl course_cell_hash_pack (char *param_1,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7);
+extern uint __cdecl course_cell_hash_pack (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7);
 
 
 /* course_cell_bounds_from_position */
@@ -113,7 +113,7 @@ extern uint __cdecl course_cell_hash_pack (char *param_1,char *param_2,char *par
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes cell indices and fills the cell min/max bounds" */
 
-extern void course_cell_bounds_from_position(char *param_1,float *param_2,int *param_3,int *param_4);
+extern void course_cell_bounds_from_position(char *position, float *bounds, int *cell_x, int *cell_z);
 
 
 /* car_get_car_6c2944 */
@@ -127,7 +127,7 @@ extern undefined4 car_get_car_6c2944(void);
 
 /* called when the leader car touches the car in game mode 1 */
 
-extern void __cdecl car_hit_by_leader(char *param_1);
+extern void __cdecl car_hit_by_leader(char *car_index);
 
 
 /* car_set_bounds */
@@ -135,28 +135,28 @@ extern void __cdecl car_hit_by_leader(char *param_1);
 /* fills the 8 corner points (+0x90) and the derived edge/face points of a car from its min/max box
     */
 
-extern undefined4 car_set_bounds(char *param_1,float *param_2);
+extern undefined4 car_set_bounds(char *str, float *floats);
 
 
 /* car_get_wheel_average */
 
 /* "(out, car, wheel): average of the 16 per wheel floats at Car + 0x890 (stride 0xC4)" */
 
-extern undefined4 car_get_wheel_average(float *param_1,char *param_2,char *param_3);
+extern undefined4 car_get_wheel_average(float *out, char *car, char *wheel);
 
 
 /* car_add_velocity */
 
 /* "(delta vec, car): adds to Car.velocity, or applies an impulse in RWP mode" */
 
-extern undefined4 car_add_velocity(float *param_1,char *param_2);
+extern undefined4 car_add_velocity(float *delta, char *car);
 
 
 /* car_reset_full */
 
 /* "car_fn_491d70 + car_reset_state, returns 1" */
 
-extern undefined4 __cdecl car_reset_full(char *param_1);
+extern undefined4 __cdecl car_reset_full(char *car);
 
 #define MAX_CAR_INDEX (0xf) /* last valid index into player_car (16 cars) */
 
@@ -202,21 +202,21 @@ undefined4 car_get_velocity_any_mode(float *out_velocity,uint car_index)
 
 /* "_ftol of a car float field into the output" */
 
-extern undefined4 car_get_int_from_float_field(undefined4 *param_1,char *param_2);
+extern undefined4 car_get_int_from_float_field(undefined4 *words, char *str);
 
 
 /* car_set_matrices_from_floats */
 
 /* "(car, float[...]) copies 16 floats to player_car[car].matrices and more" */
 
-extern undefined4 car_set_matrices_from_floats(char *param_1,float *param_2);
+extern undefined4 car_set_matrices_from_floats(char *str, float *floats);
 
 
 /* car_get_forward */
 
 /* "(&out, car): transforms (0,0,1) by the current matrix, stored at +0x9D4" */
 
-extern undefined4 car_get_forward(float *param_1,char *param_2);
+extern undefined4 car_get_forward(float *floats, char *str);
 
 
 /* car_turbo_spend */
@@ -224,7 +224,7 @@ extern undefined4 car_get_forward(float *param_1,char *param_2);
 /* "(car): if the turbo charge is above 1000 spends it (state 2), else converts the charge (state 1,
    +1000); adds the used charge to the player's turbo_used statistic" */
 
-extern undefined4 car_turbo_spend(char *param_1);
+extern undefined4 car_turbo_spend(char *car);
 
 
 /* car_turbo_charge_update */
@@ -232,7 +232,7 @@ extern undefined4 car_turbo_spend(char *param_1);
 /* "(car, dt): turbo_charge += 2 * dt while the accelerate input is above 160, then -= dt, clamped
    to 0..3000" */
 
-extern undefined4 __cdecl car_turbo_charge_update(char *param_1,char *param_2,char *param_3);
+extern undefined4 __cdecl car_turbo_charge_update(char *str_a, char *str_b, char *str_c);
 
 
 /* car_resolve_triangle_contacts */
@@ -240,7 +240,7 @@ extern undefined4 __cdecl car_turbo_charge_update(char *param_1,char *param_2,ch
 /* "(car, triangle list at 0x843EA0 collected by car_world_collision_query): contact response of the
    car body points against the triangles (inferred)" */
 
-extern int car_resolve_triangle_contacts(char *param_1,char *param_2);
+extern int car_resolve_triangle_contacts(char *car, char *triangle);
 
 
 /* car_get_6292ec */
@@ -485,6 +485,6 @@ void gfx_groups_reset(void)
 
 /* "RpMaterial callback: colour alpha = 0xFF - (int)value" */
 
-extern int material_set_alpha_callback(char *param_1);
+extern int material_set_alpha_callback(char *str);
 
 

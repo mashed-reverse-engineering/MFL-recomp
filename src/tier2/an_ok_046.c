@@ -12,19 +12,19 @@
 /*0047a5b0*/ extern int car_add_velocity();
 /*0047abb0*/ extern int car_get_velocity_any_mode();
 /*00481fd0*/ extern double random_range();
-/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
+/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *clump, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
 /*00484680*/ extern int object_set_flag_4();
-/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
+/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *dictionary);
 /*00486710*/ extern int particles_destroy();
 /*0049bd90*/ extern int fx_system_destroy();
 /*0049bdd0*/ extern int fx_system_render();
-/*0049ff00*/ extern undefined __cdecl particle_emit_textured(float *p0, undefined4 *p1, int p2, int p3, struct RwTexture *p4, float p5, float *p6);
-/*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
-/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d4e40*/ extern RwBool RwMatrixDestroy(RwMatrix *p0);
-/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
-/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
+/*0049ff00*/ extern undefined __cdecl particle_emit_textured(float *floats_a, undefined4 *words, int p2, int p3, struct RwTexture *texture, float value, float *floats_b);
+/*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *frame);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *matrix, struct RwV3d *vec, enum RwOpCombineType combine_op);
+/*004d4e40*/ extern RwBool RwMatrixDestroy(RwMatrix *matrix);
+/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *world, struct RpClump *clump);
+/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *world, struct RpClump *clump);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
 /*005dd330*/ extern float float_1_0;
 /*005dd33c*/ extern float k_f_4;
 /*005dd374*/ extern float k_f_0_2;
@@ -91,7 +91,7 @@ extern void powerups_destroy(void);
 
 /* spawns 10 icon particles of the powerup type at the pick-up position */
 
-extern void powerup_pickup_fx(char *param_1);
+extern void powerup_pickup_fx(char *powerup);
 
 #define POWERUP_STRIDE_FLOATS (0x14)          /* floats per struct Powerup record: 0x50 bytes */
 
@@ -179,14 +179,14 @@ void powerups_clear(void)
 
 /* "(index, enable): disabled = state 3; enabling sets state 1 again" */
 
-extern undefined4 __cdecl powerup_set_enabled(char *param_1,char *param_2);
+extern undefined4 __cdecl powerup_set_enabled(char *index, char *enable);
 
 
 /* powerup_place_with_respawn */
 
 /* "powerup_place + powerup_set_respawn_time" */
 
-extern void __cdecl powerup_place_with_respawn(char *param_1,char *param_2,char *param_3);
+extern void __cdecl powerup_place_with_respawn(char *position, char *powerup_type, char *respawn_time);
 
 
 /* weapon_effects_destroy_6a9458 */
@@ -200,21 +200,21 @@ extern void weapon_effects_destroy_6a9458(void);
 
 /* "(slot): active = 0, id = -1" */
 
-extern void weapon_effect_slot_clear(char *param_1);
+extern void weapon_effect_slot_clear(char *slot);
 
 
 /* weapon_effect_get_slot_value_a */
 
 /* "(player 0..3): g_weapon_6a942c[player * 0x58] or -1" */
 
-extern undefined4 weapon_effect_get_slot_value_a(char *param_1);
+extern undefined4 weapon_effect_get_slot_value_a(char *player);
 
 
 /* weapon_effect_get_slot_value_b */
 
 /* "(player 0..3): g_weapon_6a9428[player * 0x58] or -1" */
 
-extern undefined4 weapon_effect_get_slot_value_b(char *param_1);
+extern undefined4 weapon_effect_get_slot_value_b(char *player);
 
 #define FX_GRID_PLANE_DWORDS (0x145)          /* dwords per plane of the fx table: FX_GRID_ROWS_PER_PLANE rows */
 #define FX_GRID_ROW_DWORDS (0x41)             /* dwords per row: FX_GRID_CELLS_PER_ROW cells */
@@ -292,14 +292,14 @@ extern undefined4 * weapon_flamethrower_equip(WeaponSlot *slot);
 
 /* weapon_flamethrower_ammo_fraction */
 
-extern double weapon_flamethrower_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_flamethrower_ammo_fraction(WeaponSlot *slot);
 
 
 /* weapon_flame_push_cars */
 
 /* "flame boost: adds velocity to the player car and cars inside the flame (car_add_velocity)" */
 
-extern void __cdecl weapon_flame_push_cars(char *param_1,char *param_2,char *param_3,char *param_4);
+extern void __cdecl weapon_flame_push_cars(char *param_1, char *param_2, char *param_3, char *param_4);
 
 
 /* weapon_flamethrower_clear_effects */
@@ -405,7 +405,7 @@ undefined * weapon_shotgun_equip(WeaponSlot *slot)
 
 /* weapon_shotgun_ammo_fraction */
 
-extern double weapon_shotgun_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_shotgun_ammo_fraction(WeaponSlot *slot);
 
 #define SHOTGUN_RECORDS_END (((LONG_PTR)&g_weapon_shotgun_6aac14))     /* address one past the last shotgun effect record (4 records of 0x24 bytes from 0x6AAB84) */
 
@@ -445,7 +445,7 @@ void weapon_shotgun_clear_effects(void)
 
 /* "(player): g_player_status[player]" */
 
-extern undefined4 __cdecl player_status_get(char *param_1);
+extern undefined4 __cdecl player_status_get(char *player);
 
 
 /* course_get_rpworld_00467e90 */

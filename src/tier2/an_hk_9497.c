@@ -107,7 +107,7 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
       if (k_f_0 < horiz_len) {
         elevation_deg = elevation_deg + (double)k_f_180;
       }
-      goto LAB_0044c474;
+      goto set_pitch_from_elevation;
     }
   }
   if (!(dy < k_f_0)) {      /* NaN takes the 90 branch (original: fcomp / test ah,5 / jp) */
@@ -116,7 +116,7 @@ void __cdecl camera_record_set_path(CameraRecord *camera_rec,float end_x,float e
   else {
     elevation_deg = (double)k_f_270;
   }
-LAB_0044c474:
+set_pitch_from_elevation:
   pitch_base_then_jitter = (double)k_f_360;
   camera_rec->pitch = (float)(pitch_base_then_jitter - elevation_deg);
   tick_value = (double)(int)g_tick_number;

@@ -72,7 +72,9 @@ def main(src, dst, exe_src=None, map_path=None):
         shutil.rmtree(dst)
     shutil.copytree(base, dst, copy_function=os.link)
     exe = os.path.join(dst, "App_Executables", "MFL.exe")
-    data = bytearray(open(exe_src or exe, "rb").read())
+    # W10 Z-rsrc: an exe linked without .rsrc (link_ours.sh RES=none) reads the resources from the original beside it: hardlink of the read-only base, never written
+    os.link(os.path.join(base, "App_Executables", "MFL.exe"), os.path.join(dst, "App_Executables", "MFL_original.exe"))
+    data =bytearray(open(exe_src or exe, "rb").read())
     msites, morig = map_sites(map_path) if map_path else ([], set())
     stubs = bool(os.environ.get("MOVIE_STUBS"))      # default: only functions that are still the ORIGINAL (control exe, pristine MFL.exe) are stubbed; a replaced one (entry jmp to our C) runs the mfl_video null backend (src/video, A7 2026-10-31); MOVIE_STUBS=1 = the old behaviour
     for va, code in PATCHES:

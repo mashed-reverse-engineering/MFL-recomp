@@ -59,23 +59,23 @@ RwTexture *menu_texture_dict_load(int item_index)
   if (event_column == 0x10) {
     return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Tierra_PiedraNight1_006083e0)[texture_index]));
   }
-  /* Columns 8, 0xd, 2 (goto LAB_0043ce61): PTR_s_Training1_00608228 with TEXTURE_SET_B_OFFSET. */
+  /* Columns 8, 0xd, 2 (goto texture_set_b): PTR_s_Training1_00608228 with TEXTURE_SET_B_OFFSET. */
   if (event_column == 8) {
-LAB_0043ce61:
+texture_set_b:
     return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00608228)[item_index + TEXTURE_SET_B_OFFSET +g_career_row * 2]));
   }
-  /* Columns 1, 7, 0xc: TEXTURE_SET_A_OFFSET. Columns 6, 0xb and all others: no offset (goto LAB_0043ce7f). */
+  /* Columns 1, 7, 0xc: TEXTURE_SET_A_OFFSET. Columns 6, 0xb and all others: no offset (goto texture_lookup). */
   if (event_column != 7) {
-    if (event_column == 6) goto LAB_0043ce7f;
-    if (event_column == 0xd) goto LAB_0043ce61;
+    if (event_column == 6) goto texture_lookup;
+    if (event_column == 0xd) goto texture_set_b;
     if (event_column != 0xc) {
-      if (event_column == 0xb) goto LAB_0043ce7f;
-      if (event_column == 2) goto LAB_0043ce61;
-      if (event_column != 1) goto LAB_0043ce7f;
+      if (event_column == 0xb) goto texture_lookup;
+      if (event_column == 2) goto texture_set_b;
+      if (event_column != 1) goto texture_lookup;
     }
   }
   texture_index = item_index + TEXTURE_SET_A_OFFSET +g_career_row * 2;
-LAB_0043ce7f:
+texture_lookup:
   return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00608228)[texture_index]));
 }
 

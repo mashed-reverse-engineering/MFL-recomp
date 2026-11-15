@@ -69,7 +69,7 @@ void particle_system_set_current(int sys,undefined4 render_arg)
   switch(command) {
   case 3:
     target = &g_particle_system_7036d4;
-    goto LAB_004961bf;
+    goto copy_chunk_to_target;
   default:
     goto switchD_0049613d_caseD_4;
   case 0x14:
@@ -94,10 +94,10 @@ void particle_system_set_current(int sys,undefined4 render_arg)
     break;
   case 0x19:
     target = &g_physics_7036c0;
-    goto LAB_004961bf;
+    goto copy_chunk_to_target;
   case 0x1a:
     target = &g_particles_7036c4;
-LAB_004961bf:
+copy_chunk_to_target:
     rw_stream_chunk_copy((int)g_race_phase_arg,target);
     store_u32((int)g_race_phase_arg,0);
     goto switchD_0049613d_caseD_4;

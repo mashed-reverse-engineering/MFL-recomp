@@ -149,7 +149,7 @@ char * game_path_to_8_3_upper(char *out_path,char *in_path)
           dst = dst + 1;
         } while (matched);
         if (matched) {
-LAB_0040364f:
+format_save_path:
           sprintf(cursor,&g_game_5dd618,&g_game_path_5dd580);
         }
         else {
@@ -164,7 +164,7 @@ LAB_0040364f:
             pos = pos + 1;
             dst = dst + 1;
           } while (matched);
-          if (matched) goto LAB_0040364f;
+          if (matched) goto format_save_path;
           n_left = 9;
           matched = true;
           pos = cursor;
@@ -176,7 +176,7 @@ LAB_0040364f:
             pos = pos + 1;
             dst = dst + 1;
           } while (matched);
-          if (matched) goto LAB_0040364f;
+          if (matched) goto format_save_path;
         }
         cursor = cursor + DIR_SLOT_SIZE;
         dir_idx = dir_idx + -1;

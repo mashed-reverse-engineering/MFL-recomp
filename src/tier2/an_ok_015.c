@@ -4,7 +4,7 @@
 /*0041b810*/ extern int race_mark_ai_slots();
 /*0041b9d0*/ extern int hudpanel_slot_init_player();
 /*004222e0*/ extern int vehicle_get_matrix_ltm_b();
-/*00423fe0*/ extern undefined damage_add_clamped(undefined4 p0, undefined4 p1, undefined4 p2, float p3);
+/*00423fe0*/ extern undefined damage_add_clamped(undefined4 p0, undefined4 p1, undefined4 p2, float value);
 /*00424190*/ extern undefined debris_slot_clear(undefined4 p0);
 /*004246f0*/ extern int car_set_damage();
 /*00424ab0*/ extern int rwp_world_current_deactivate();
@@ -14,10 +14,10 @@
 /*00426de0*/ extern int ai_editor_cursor_move();
 /*00426e90*/ extern int ai_editor_brush_select();
 /*004271e0*/ extern int ai_editor();
-/*004276b0*/ extern int __cdecl player_stat_get_crowns(undefined4 p0);
-/*004276d0*/ extern int __cdecl player_stat_get_pants(undefined4 p0);
-/*004276f0*/ extern int __cdecl player_stat_get_crowns_total(undefined4 p0);
-/*00427710*/ extern int __cdecl player_stat_get_pants_total(undefined4 p0);
+/*004276b0*/ extern int __cdecl player_stat_get_crowns(undefined4 p);
+/*004276d0*/ extern int __cdecl player_stat_get_pants(undefined4 p);
+/*004276f0*/ extern int __cdecl player_stat_get_crowns_total(undefined4 p);
+/*00427710*/ extern int __cdecl player_stat_get_pants_total(undefined4 p);
 /*00428a20*/ extern int cars_step_race_phase_and_respawn();
 /*00428e30*/ extern undefined __cdecl player_stats_update(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5);
 /*00467890*/ extern int player_status_set();
@@ -26,12 +26,12 @@
 /*0047f300*/ extern int cars_step();
 /*00481fd0*/ extern int random_range();
 /*004b3430*/ extern int __chkstk();
-/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
-/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*004dc920*/ extern void * RwIm3DTransform(RwIm3DVertex *p0, RwUInt32 p1, RwMatrix *p2, RwUInt32 p3);
+/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *matrix_a, RwMatrix *matrix_b);
+/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
+/*004dc920*/ extern void * RwIm3DTransform(RwIm3DVertex *pVerts, RwUInt32 numVerts, RwMatrix *ltm, RwUInt32 flags);
 /*004dc9f0*/ extern RwBool RwIm3DEnd();
-/*004dcb80*/ extern RwBool RwIm3DRenderPrimitive(enum RwPrimitiveType p0);
-/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
+/*004dcb80*/ extern RwBool RwIm3DRenderPrimitive(enum RwPrimitiveType primType);
+/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *clump, RpAtomicCallBack atomic, void *data);
 /*005dd330*/ extern float float_1_0;
 /*005dd338*/ extern float k_f_0_01;
 /*005e64a4*/ extern float k_f_0;
@@ -80,28 +80,28 @@
 /*008d8b30*/ extern undefined4 player_count;
 
 
-extern void __cdecl car_damage_at_local_point (char *param_1,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8,char *param_9, char *param_10,char *param_11);
+extern void __cdecl car_damage_at_local_point (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11);
 
 
-extern void car_damage_at_world_point(char *param_1,char *param_2,RwV3d *pointsIn);
+extern void car_damage_at_world_point(char *str_a, char *str_b, RwV3d *pointsIn);
 
 
-extern void debris_slot_clear_forward(char *param_1);
+extern void debris_slot_clear_forward(char *str);
 
 
-extern void __cdecl debris_slot_list_update_visible(char *param_1);
+extern void __cdecl debris_slot_list_update_visible(char *debris_list);
 
 
 extern void debris_any_active_all_vehicles(void);
 
 
-extern void __cdecl vehicle_tyre_marks_render(char *param_1,char *param_2);
+extern void __cdecl vehicle_tyre_marks_render(char *str_a, char *str_b);
 
 
-extern void __cdecl player_stat_add_turbo_used(char *param_1,char *param_2);
+extern void __cdecl player_stat_add_turbo_used(char *str_a, char *str_b);
 
 
-extern undefined4 car_kill(char *param_1);
+extern undefined4 car_kill(char *car_index);
 
 
 extern void ai_editor_update(void);
@@ -111,7 +111,7 @@ extern void ai_editor_update(void);
 
 /* "result table place (team sum over controllers in use)" */
 
-extern int player_stat_get_place_team(char *param_1);
+extern int player_stat_get_place_team(char *player_index);
 
 
 /* game_get_game_8c8ae0 */
@@ -125,14 +125,14 @@ extern int game_get_game_8c8ae0(void);
 
 /* "0x8C94A0" */
 
-extern int player_stat_get_team_l(char *param_1);
+extern int player_stat_get_team_l(char *player_index);
 
 
 /* player_stat_get_by_kind */
 
 /* "(player, kind): switch over the statistic kinds" */
 
-extern void __cdecl player_stat_get_by_kind(int *param_1,char *param_2,char *param_3);
+extern void __cdecl player_stat_get_by_kind(int *player_order, char *stat_kind, char *ascending);
 
 
 /* player_stats_copy_to_totals */
@@ -154,7 +154,7 @@ extern void player_stats_accumulate(void);
 /* "ai_editor_update, race_mark_ai_slots, cars_step, race_events_process_log, player_stats_update"
     */
 
-extern undefined4 __cdecl race_update_cars_and_stats(char *param_1);
+extern undefined4 __cdecl race_update_cars_and_stats(char *str);
 
 
 /* race_setup_struct_1 */
@@ -243,7 +243,7 @@ extern undefined4 atomic_lookup_error(undefined4 atomic,int *lookup_state);
 
 /* "RpClumpForAllAtomics(clump, atomic_lookup_error)" */
 
-extern void clump_check_atomics_lookup(undefined4 *param_1);
+extern void clump_check_atomics_lookup(undefined4 *clump_info);
 #undef local_8
 #undef local_4
 

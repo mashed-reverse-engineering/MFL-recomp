@@ -1,31 +1,31 @@
 #include "mfl_tier2.h"
 #include <math.h>
 
-/* RtBaryGetTransform: the barycentric frame of the triangle (p0, p1, p2).  Writes the 4x4 matrix `m` (16 floats; row i = x, y, z of a column):
+/* RtBaryGetTransform: the barycentric frame of the triangle (corner0, corner1, corner2).  Writes the 4x4 matrix `m` (16 floats; row i = x, y, z of a column):
    column 0 / 1 / 2 hold the barycentric weights of the corners 0 / 1 / 2 as an affine function (m[12..14] their constant parts, the 1 - u - v of
-   corner 2 in m[14]), column 3 the unit normal and m[15] its offset to the centroid.  *len receives the area measure |(p0 - p1) x (p1 - p2)|, or 0
+   corner 2 in m[14]), column 3 the unit normal and m[15] its offset to the centroid.  *len receives the area measure |(corner0 - corner1) x (corner1 - corner2)|, or 0
    when it is not larger than 2^-12; the function then returns 0 (the matrix is still written, with a zero normal scale), otherwise 1. */
 /* TIER2: validated 2026-11-10 authority=diffemu */
-int RtBaryGetTransform(float *m, float *len, float *p2, float *p0, float *p1)
+int RtBaryGetTransform(float *m, float *len, float *corner2, float *corner0, float *corner1)
 {
-  volatile float g0, g1, g2, u0, u1, u2;
-  volatile float a0, a1, a2, b0, b1, b2, n0, n1, n2, w0, w1, w2, tx, x2;
+  volatile float cen_x, cen_y, cen_z, u0, u1, u2;
+  volatile float edge_a_x, edge_a_y, edge_a_z, edge_b_x, edge_b_y, edge_b_z, nrm_x, nrm_y, nrm_z, wgt_x, wgt_y, wgt_z, tx, x2;
   double s, k, ty, tz, n0k, n1k, n2k;
   int ok;
   volatile int iu;
 
-  a0 = p0[0] - p1[0];
-  a1 = p0[1] - p1[1];
-  a2 = p0[2] - p1[2];
-  b0 = p1[0] - p2[0];
-  b1 = p1[1] - p2[1];
-  b2 = p1[2] - p2[2];
-  n0 = a1 * b2 - a2 * b1;
-  n1 = a2 * b0 - a0 * b2;
-  n2 = a0 * b1 - a1 * b0;
-  s = n1 * n1;
-  s = s + n0 * n0;
-  s = s + n2 * n2;
+  edge_a_x = corner0[0] - corner1[0];
+  edge_a_y = corner0[1] - corner1[1];
+  edge_a_z = corner0[2] - corner1[2];
+  edge_b_x = corner1[0] - corner2[0];
+  edge_b_y = corner1[1] - corner2[1];
+  edge_b_z = corner1[2] - corner2[2];
+  nrm_x = edge_a_y * edge_b_z - edge_a_z * edge_b_y;
+  nrm_y = edge_a_z * edge_b_x - edge_a_x * edge_b_z;
+  nrm_z = edge_a_x * edge_b_y - edge_a_y * edge_b_x;
+  s = nrm_y * nrm_y;
+  s = s + nrm_x * nrm_x;
+  s = s + nrm_z * nrm_z;
   if (s > 0.000244140625) {
     ok = 1;
     k = sqrt(s);
@@ -36,54 +36,54 @@ int RtBaryGetTransform(float *m, float *len, float *p2, float *p0, float *p1)
     *(int *)len = 0;
     k = 0.0;
   }
-  n0k = n0 * k;
-  n1k = n1 * k;
-  n2k = n2 * k;
-  x2 = (float)(a0 * n1k - a1 * n0k);
-  tx = (float)((a1 * n2k - n1k * a2) * k);
-  ty = (n0k * a2 - n2k * a0) * k;
+  n0k = nrm_x * k;
+  n1k = nrm_y * k;
+  n2k = nrm_z * k;
+  x2 = (float)(edge_a_x * n1k - edge_a_y * n0k);
+  tx = (float)((edge_a_y * n2k - n1k * edge_a_z) * k);
+  ty = (n0k * edge_a_z - n2k * edge_a_x) * k;
   tz = x2 * k;
-  u0 = n2k * b1 - n1k * b2;
+  u0 = n2k * edge_b_y - n1k * edge_b_z;
   iu = *(volatile int *)&u0;
-  w0 = *(float *)&iu * k;
-  u1 = n0k * b2 - n2k * b0;
+  wgt_x = *(float *)&iu * k;
+  u1 = n0k * edge_b_z - n2k * edge_b_x;
   iu = *(volatile int *)&u1;
-  w1 = *(float *)&iu * k;
-  u2 = n1k * b0 - n0k * b1;
+  wgt_y = *(float *)&iu * k;
+  u2 = n1k * edge_b_x - n0k * edge_b_y;
   iu = *(volatile int *)&u2;
-  w2 = *(float *)&iu * k;
-  g0 = p2[0] + p0[0];
-  g1 = p2[1] + p0[1];
-  g2 = p2[2] + p0[2];
-  g0 = (g0 + p1[0]) * 0.3333333432674408f;
-  g1 = p1[1] + g1;
-  g2 = p1[2] + g2;
-  g1 = g1 * 0.3333333432674408f;
-  g2 = g2 * 0.3333333432674408f;
+  wgt_z = *(float *)&iu * k;
+  cen_x = corner2[0] + corner0[0];
+  cen_y = corner2[1] + corner0[1];
+  cen_z = corner2[2] + corner0[2];
+  cen_x = (cen_x + corner1[0]) * 0.3333333432674408f;
+  cen_y = corner1[1] + cen_y;
+  cen_z = corner1[2] + cen_z;
+  cen_y = cen_y * 0.3333333432674408f;
+  cen_z = cen_z * 0.3333333432674408f;
   m[0] = tx;
-  m[1] = w0;
-  m[2] = -(w0 + tx);
+  m[1] = wgt_x;
+  m[2] = -(wgt_x + tx);
   m[3] = (float)n0k;
   m[4] = (float)ty;
-  m[5] = w1;
-  m[6] = (float)-(w1 + ty);
+  m[5] = wgt_y;
+  m[6] = (float)-(wgt_y + ty);
   m[7] = (float)n1k;
   m[8] = (float)tz;
-  m[9] = w2;
-  m[10] = (float)-(w2 + tz);
+  m[9] = wgt_z;
+  m[10] = (float)-(wgt_z + tz);
   m[11] = (float)n2k;
-  s = p1[1] * ty;
-  s = s + tx * p1[0];
-  s = s + p1[2] * tz;
+  s = corner1[1] * ty;
+  s = s + tx * corner1[0];
+  s = s + corner1[2] * tz;
   m[12] = (float)-s;
-  s = p2[1] * w1;
-  s = s + w0 * p2[0];
-  s = s + p2[2] * w2;
+  s = corner2[1] * wgt_y;
+  s = s + wgt_x * corner2[0];
+  s = s + corner2[2] * wgt_z;
   m[13] = (float)-s;
   m[14] = 1.0f - (m[13] + m[12]);
-  s = g1 * n1k;
-  s = s + g0 * n0k;
-  s = s + g2 * n2k;
+  s = cen_y * n1k;
+  s = s + cen_x * n0k;
+  s = s + cen_z * n2k;
   m[15] = (float)-s;
   return ok;
 }

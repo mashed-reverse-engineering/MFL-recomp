@@ -86,7 +86,7 @@ int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHi
   MflHit *p, *q, *r, *g, *rep, *o, **pp;
   MflHitPt *pbest = 0, *pt;
   unsigned int nb, live, i, j, b, sum, last, nout, total, key, cnt, k;
-  float cv[3], u[3], w[3], mind, max1, max2, min1, min2, s1, s2;
+  float cv[3], u[3], w[3], mind, max1, max2, min1, min2, proj_u, proj_w;
   float d[3], dot, t1, t2, tol2, sa, sb, inv, wt, usum;
   int fa, fb, pdone;
 #define sumn fr.sumn
@@ -260,30 +260,30 @@ int rwp_generalprimitive_00589690(MflHit *recs, unsigned int n, int merge, MflHi
     for (r = rep; r; r = r->next) {
       for (k = 0; k < r->count; k++) {
         pt = &r->pt[k];
-        s1 = pt->p[1] * u[1];
+        proj_u = pt->p[1] * u[1];
         t1 = u[0] * pt->p[0];
-        s1 = s1 + t1;
+        proj_u = proj_u + t1;
         t1 = pt->p[2] * u[2];
-        s1 = s1 + t1;
-        if (s1 > max1) {
-          max1 = s1;
+        proj_u = proj_u + t1;
+        if (proj_u > max1) {
+          max1 = proj_u;
           pbest = pt;
         }
-        if (s1 < min1) {
-          min1 = s1;
+        if (proj_u < min1) {
+          min1 = proj_u;
           pmin1 = pt;
         }
-        s2 = pt->p[1] * w[1];
+        proj_w = pt->p[1] * w[1];
         t1 = w[0] * pt->p[0];
-        s2 = s2 + t1;
+        proj_w = proj_w + t1;
         t1 = pt->p[2] * w[2];
-        s2 = s2 + t1;
-        if (s2 > max2) {
-          max2 = s2;
+        proj_w = proj_w + t1;
+        if (proj_w > max2) {
+          max2 = proj_w;
           pmax2 = pt;
         }
-        if (s2 < min2) {
-          min2 = s2;
+        if (proj_w < min2) {
+          min2 = proj_w;
           pmin2 = pt;
         }
       }

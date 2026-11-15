@@ -70,12 +70,12 @@ void weapon_drum_load_assets(void)
       part_index = atomic_geometry_user_data_int(clump_or_atomic,0,0);
       if (part_index == 0) {
         render_flag = 1;
-LAB_004602a4:
+set_part_render_flag:
         atomic_set_render_flag(clump_or_atomic,render_flag);
       }
       else if ((0 < part_index) && (part_index < ATOMIC_PARTS)) {
         render_flag = 0;
-        goto LAB_004602a4;
+        goto set_part_render_flag;
       }
       atomic_idx = atomic_idx + 1;
       *(undefined4 *)(entry + part_index * 4 + CLUMP_ENTRY_PART_OFFSET) = clump_or_atomic;

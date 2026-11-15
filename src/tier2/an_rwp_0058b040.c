@@ -27,9 +27,9 @@ typedef struct RwpBody {
 int rwp_gjk_separation_query(int unused, RwpBody **pair, float margin, float *dir, float *pa, float *pb, float step)
 {
   double acc0;
-  RwpBody *b1 = pair[0], *b2 = pair[1];
-  RwpShp *s1 = b1->shape, *s2 = b2->shape;
-  float r1 = s1->radius, r2 = s2->radius;
+  RwpBody *body_a = pair[0], *body_b = pair[1];
+  RwpShp *shape_a = body_a->shape, *shape_b = body_b->shape;
+  float rad_a = shape_a->radius, rad_b = shape_b->radius;
   float sup[3], n[3], pt[3], rest[108];      /* the original's frame has 432 bytes of room: the real callee 58a8f0 writes rest[100..102] (frameaudit; DIFFEMU_DEEP found it 2026-11-03) */
   RwV3d *supv = (RwV3d *)sup, *ptv = (RwV3d *)pt;
   float t, lo, hi, d_a, depth, dotn, rfar, rsum, limit;
@@ -37,29 +37,29 @@ int rwp_gjk_separation_query(int unused, RwpBody **pair, float margin, float *di
   double A, B, f4, f8;
   float dd;
 
-  if (s1->material->kind == 1) {
-    dir[0] = -b1->xf[8];
-    dir[1] = -b1->xf[9];
-    dir[2] = -b1->xf[10];
-    rwp_shape_support_point_world(b2->shape, b2->xf, dir, sup);
+  if (shape_a->material->kind == 1) {
+    dir[0] = -body_a->xf[8];
+    dir[1] = -body_a->xf[9];
+    dir[2] = -body_a->xf[10];
+    rwp_shape_support_point_world(body_b->shape, body_b->xf, dir, sup);
     acc0 = dir[1] * sup[1];
     acc0 = acc0 + sup[0] * dir[0];
     acc0 = acc0 + dir[2] * sup[2];
-    acc0 = acc0 + r2;
+    acc0 = acc0 + rad_b;
     A = acc0;
-    B = b1->xf[13] * dir[1] + b1->xf[12] * dir[0] + b1->xf[14] * dir[2] - r1;
+    B = body_a->xf[13] * dir[1] + body_a->xf[12] * dir[0] + body_a->xf[14] * dir[2] - rad_a;
   } else {
-    if (!(s2->material->kind == 1)) goto L_58b1a6;
-    dir[0] = b2->xf[8];
-    dir[1] = b2->xf[9];
-    dir[2] = b2->xf[10];
-    rwp_shape_support_point_world(b1->shape, b1->xf, dir, sup);
+    if (!(shape_b->material->kind == 1)) goto L_58b1a6;
+    dir[0] = body_b->xf[8];
+    dir[1] = body_b->xf[9];
+    dir[2] = body_b->xf[10];
+    rwp_shape_support_point_world(body_a->shape, body_a->xf, dir, sup);
     acc0 = dir[1] * sup[1];
     acc0 = acc0 + sup[0] * dir[0];
     acc0 = acc0 + dir[2] * sup[2];
-    acc0 = acc0 + r1;
+    acc0 = acc0 + rad_a;
     A = acc0;
-    B = b2->xf[13] * dir[1] + b2->xf[12] * dir[0] + b2->xf[14] * dir[2] - r2;
+    B = body_b->xf[13] * dir[1] + body_b->xf[12] * dir[0] + body_b->xf[14] * dir[2] - rad_b;
   }
   *pa = (B + A) * 0.5f;
   *pb = B - A;
@@ -69,11 +69,11 @@ L_58b1a6:;
   f4 = step * 0.01f;
   if (d_a > f4) f4 = f4 + d_a;
   hi = f4;
-  rsum = r2 + r1;
+  rsum = rad_b + rad_a;
   lo = 0.0f;
   t = 0.0f;
   rfar = rsum;
-  limit = (r2 + r1) + margin;
+  limit = (rad_b + rad_a) + margin;
   found = 0;
   for (i = 0; i < 4; i++) {
     sup[0] = n[0] * t;
@@ -117,7 +117,7 @@ L_58b3dc:;
     *pb = *pb - dd;
   }
 L_58b41f:;
-  *pa = *pa - (r1 - r2) * 0.5f;
+  *pa = *pa - (rad_a - rad_b) * 0.5f;
   *pb = *pb - rsum;
   return 1;
 }

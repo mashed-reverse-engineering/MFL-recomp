@@ -92,13 +92,13 @@ void rocket_hit_callback(float *trigger,float *other)
     if (target_type == 18) {
       return;
     }
-    if (target_type != 21) goto LAB_00461442;
+    if (target_type != 21) goto classify_target_hit;
     scratch_i = sphere_vs_box_test((float *)(*(int *)&other[5] + 0x68),trigger);
   }
   if (scratch_i == 0) {
     return;
   }
-LAB_00461442:
+classify_target_hit:
   target_type = *(int *)&other[4];
   /* car hit (types 0xff00..0xff07): spawn hit particle + sprites + screen shake unless it is the rocket's own car (field_3c) */
   if ((CAR_ID_BASE - 1 < target_type) && (target_type < CAR_ID_BASE + 8)) {

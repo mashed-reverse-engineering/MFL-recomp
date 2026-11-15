@@ -126,12 +126,12 @@ void weapon_rocket_fire(WeaponSlot *slot,int event_type)
       fx_index = fx_find_index_by_rwp_id(fx_index,player_id);
       *(undefined4 *)((char *)&g_weapon_rocket_6a5e28 + rocket_off) = fx_index;
       *(undefined4 *)((char *)&g_weapon_rocket_6a5e24 + rocket_off) = FX_INDEX_NONE;
-      goto LAB_00460b34;
+      goto set_spawn_position;
     }
     *(undefined4 *)((char *)&g_weapon_rocket_6a5e28 + rocket_off) = FX_INDEX_NONE;
   }
   *(int *)((char *)&g_weapon_rocket_6a5e24 + rocket_off) = value_b;
-LAB_00460b34:
+set_spawn_position:
   /* spawn_pos = translation of the LTM of the frame at (*(g_weapon_rocket_6a6010 + player_off) + 4) (inferred) */
   spawn_pos = (RwV3d *)((char *)&g_weapon_rocket_6a5ddc + rocket_off);
   ltm =RwFrameGetLTM(*(RwFrame **)(*(char **)((char *)&g_weapon_rocket_6a6010 + player_off) + 4));

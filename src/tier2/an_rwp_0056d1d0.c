@@ -8,7 +8,7 @@
 void rwp_box_0056d1d0(float *box, float *frame, void *unused, float *out)
 {
   float m[3], h[3];
-  float e0, e1, e2;
+  float sum_x, sum_y, sum_z;
 
   m[0] = box[19];
   m[1] = box[19];
@@ -20,27 +20,27 @@ void rwp_box_0056d1d0(float *box, float *frame, void *unused, float *out)
     out[0] = (float)fabs(frame[8]) * h[2] + (float)fabs(frame[4]) * h[1] + (float)fabs(frame[0]) * h[0];
     out[1] = (float)fabs(frame[9]) * h[2] + (float)fabs(frame[5]) * h[1] + (float)fabs(frame[1]) * h[0];
     out[2] = (float)fabs(frame[10]) * h[2] + (float)fabs(frame[6]) * h[1] + (float)fabs(frame[2]) * h[0];
-    e0 = m[0] + out[0];
-    out[0] = e0;
-    e1 = out[1] + m[1];
-    out[1] = e1;
-    e2 = out[2] + m[2];
-    out[2] = e2;
-    out[4] = frame[12] - e0;
-    out[5] = frame[13] - e1;
-    out[6] = frame[14] - e2;
-    out[0] = frame[12] + e0;
-    out[1] = frame[13] + e1;
-    out[2] = frame[14] + e2;
+    sum_x = m[0] + out[0];
+    out[0] = sum_x;
+    sum_y = out[1] + m[1];
+    out[1] = sum_y;
+    sum_z = out[2] + m[2];
+    out[2] = sum_z;
+    out[4] = frame[12] - sum_x;
+    out[5] = frame[13] - sum_y;
+    out[6] = frame[14] - sum_z;
+    out[0] = frame[12] + sum_x;
+    out[1] = frame[13] + sum_y;
+    out[2] = frame[14] + sum_z;
   } else {
-    e0 = m[0] + h[0];
-    out[0] = e0;
-    e1 = h[1] + m[1];
-    out[1] = e1;
-    e2 = h[2] + m[2];
-    out[2] = e2;
-    out[4] = -e0;
-    out[5] = -e1;
-    out[6] = -e2;
+    sum_x = m[0] + h[0];
+    out[0] = sum_x;
+    sum_y = h[1] + m[1];
+    out[1] = sum_y;
+    sum_z = h[2] + m[2];
+    out[2] = sum_z;
+    out[4] = -sum_x;
+    out[5] = -sum_y;
+    out[6] = -sum_z;
   }
 }

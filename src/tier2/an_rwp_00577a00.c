@@ -58,16 +58,16 @@ typedef struct MflStepTables2 {
    its size rounded up to 16 bytes in turn; an array that would pass the total reserved size is left 0.  The strides of the
    arrays are stored next to the pointers. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-void rwp_solver_work_carve_step1(MflWorkArea *area, MflStepTables2 *t2, MflStepTables *t, MflWorkBase *wb, int n5, int n6, int n7)
+void rwp_solver_work_carve_step1(MflWorkArea *area, MflStepTables2 *tables2, MflStepTables *t, MflWorkBase *wb, int n5, int n6, int n7)
 {
   int q = n5 / 4;
   int a = align16(q * 8);
-  int e1 = align16(q * 16);
+  int quad_bytes = align16(q * 16);
   int c = align16(n6 * 4);
   int d = align16(n7 * 4);
   int f = align16((n5 / 3) * 64);
   int g = align16(q * 192);
-  int total = e1 + f * 2 + e1 * 4 + a * 2 + d + c * 4 + a * 2 + g;
+  int total = quad_bytes + f * 2 + quad_bytes * 4 + a * 2 + d + c * 4 + a * 2 + g;
   int off;
   unsigned int cur;
   char *p;
@@ -108,20 +108,20 @@ void rwp_solver_work_carve_step1(MflWorkArea *area, MflStepTables2 *t2, MflStepT
   if (off + a <= total) { p = wb->base + off; off += a; }
   t->p64 = p;
   p = 0;
-  if (off + e1 <= total) { p = wb->base + off; off += e1; }
+  if (off + quad_bytes <= total) { p = wb->base + off; off += quad_bytes; }
   t->p88 = p;
   p = 0;
-  if (off + e1 <= total) { p = wb->base + off; off += e1; }
+  if (off + quad_bytes <= total) { p = wb->base + off; off += quad_bytes; }
   t->p94 = p;
   p = 0;
-  if (off + e1 <= total) { p = wb->base + off; off += e1; }
-  t2->p00 = p;
+  if (off + quad_bytes <= total) { p = wb->base + off; off += quad_bytes; }
+  tables2->p00 = p;
   p = 0;
-  if (off + e1 <= total) { p = wb->base + off; off += e1; }
-  t2->p0c = p;
+  if (off + quad_bytes <= total) { p = wb->base + off; off += quad_bytes; }
+  tables2->p0c = p;
   t->s24 = t->s30 = align16(q * 2);
   t->s3c = t->s18 = t->s48 = t->s0c = align16(n6);
   t->s54 = align16(n7);
   t->s78 = t->s6c = align16(q);
-  t->s90 = t->s9c = t2->s08 = t2->s14 = align16(n5);
+  t->s90 = t->s9c = tables2->s08 = tables2->s14 = align16(n5);
 }

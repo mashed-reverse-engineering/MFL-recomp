@@ -129,7 +129,7 @@ undefined4 cars_step_race_phase_and_respawn(int step_ticks)
           }
           respawn_count = active_count;
           if (game_mode == GAME_MODE_SURVIVAL) {
-            if (car_index == 0) goto LAB_00428da3;
+            if (car_index == 0) goto next_car_index;
             frame.car_timer[car_index] = 0;
             frame.car_mode[car_index] = 0;
             car_set_mode(car_index,0,0);
@@ -173,7 +173,7 @@ undefined4 cars_step_race_phase_and_respawn(int step_ticks)
         }
       }
     }
-LAB_00428da3:
+next_car_index:
     car_index = car_index + 1;
     if (3 < (int)car_index) {
       /* pass 3: if every car in a mode has hit respawn, kill the cars still flagged

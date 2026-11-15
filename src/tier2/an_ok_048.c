@@ -11,7 +11,7 @@
 /*0044a4f0*/ extern int camera_get_position();
 /*00467eb0*/ extern int __cdecl player_has_no_weapon(undefined4 p0);
 /*004687f0*/ extern int sound_ducking_adjust_by_event();
-/*00468a20*/ extern int __cdecl car_is_playable(undefined4 p0);
+/*00468a20*/ extern int __cdecl car_is_playable(undefined4 car);
 /*00468ac0*/ extern int voice_queue_add();
 /*00468b80*/ extern int voice_queue_remove();
 /*00468cd0*/ extern int voice_queue_update();
@@ -22,14 +22,14 @@
 /*004720c0*/ extern int voice_queue_play_pending();
 /*00473450*/ extern int sound_stop_all_and_release();
 /*004757a0*/ extern int get_viewport_camera_matrix();
-/*00481ed0*/ extern int __cdecl table_get_6c3f38(undefined4 p0);
+/*00481ed0*/ extern int __cdecl table_get_6c3f38(undefined4 index);
 /*004821a0*/ extern int __cdecl vec3_is_valid_small(undefined4 p0);
 /*00482220*/ extern int __cdecl matrix_is_valid_small(undefined4 p0, undefined4 p1);
 /*004a5da0*/ extern int object_destroy_frames();
 /*004b4ba7*/ extern int entry();
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
-/*005569b0*/ extern struct RpSpline * RpSplineCreate(RwInt32 p0, RwInt32 p1, struct RwV3d *p2);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *atomic);
+/*005569b0*/ extern struct RpSpline * RpSplineCreate(RwInt32 numCtrlPoints, RwInt32 type, struct RwV3d *ctrlPoints);
 /*005dd330*/ extern float float_1_0;
 /*005dd338*/ extern float k_f_0_01;
 /*005dd340*/ extern float k_f_0_5;
@@ -92,14 +92,14 @@
 
 /* "maps the surface colour code (0xff0N3cff/0xff0Nffff ...) to the table_get_6c3f38 flags" */
 
-extern uint __cdecl course_surface_id_is_active_check(char *param_1);
+extern uint __cdecl course_surface_id_is_active_check(char *surface);
 
 
 /* player_has_weapon */
 
 /* "nonzero when the player (car index) already carries a weapon, so a pick-up is refused" */
 
-extern bool __cdecl player_has_weapon(char *param_1);
+extern bool __cdecl player_has_weapon(char *str);
 
 /* dword count of the g_weapon_8be720 table (6 per row, 6 rows) (inferred) */
 #define WEAPON_8BE720_WORD_COUNT (0x24)
@@ -146,14 +146,14 @@ void voice_queue_tables_clear(void)
 
 /* "(value, array, count): index of value or -1" */
 
-extern int array_find_index(char *param_1,int *param_2,char *param_3);
+extern int array_find_index(char *value, int *array, char *count);
 
 
 /* sound_find_active_voice_for_slot */
 
 /* "searches the 4 voice records for an active one with matching id and slot" */
 
-extern undefined4 __cdecl sound_find_active_voice_for_slot(char *param_1,char *param_2);
+extern undefined4 __cdecl sound_find_active_voice_for_slot(char *str_a, char *str_b);
 extern char g_sound_8be7c4[];
 
 /* bytes per record of g_weapon_610dfc (inferred) */
@@ -235,7 +235,7 @@ undefined4 __cdecl weapon_stack_collect_types(int chain_index,char *seed_record)
 /* "(player, line): points g_sound_8be7c0[player] at the record of the line, table chosen by the
    player's team" */
 
-extern void voice_queue_assign_slot(char *param_1,char *param_2);
+extern void voice_queue_assign_slot(char *player, char *line);
 
 
 /* sound_phase_change_check */
@@ -336,7 +336,7 @@ undefined4 __cdecl player_voice_counter_increment(int player)
 /* "per player: counts frames (player_voice_counter_increment), updates its queue entries and
    voices" */
 
-extern void voice_queue_player_update(char *param_1);
+extern void voice_queue_player_update(char *player_index);
 
 
 /* voice_queue_final_lines */
@@ -369,14 +369,14 @@ extern void sound_listener_update(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(dir): g_sound_6ad8ac -= 0.2 / += 0.2 / -= 0.01, clamped to 1.0" */
 
-extern void sound_music_fade_step(char *param_1);
+extern void sound_music_fade_step(char *dir);
 
 
 /* sound_get_8d9960 */
 
 /* "g_sound_8d9960[index]" */
 
-extern undefined4 sound_get_8d9960(char *param_1);
+extern undefined4 sound_get_8d9960(char *str);
 
 
 /* player_voice_progress_gap_check */
@@ -384,7 +384,7 @@ extern undefined4 sound_get_8d9960(char *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "true when the progress gap between two players is in (-15, 10)" */
 
-extern undefined4 __cdecl player_voice_progress_gap_check(char *param_1);
+extern undefined4 __cdecl player_voice_progress_gap_check(char *str);
 
 
 /* sound_spline_create_a */

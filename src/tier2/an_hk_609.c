@@ -81,12 +81,12 @@ void mine_load_assets(void)
       atomic_slot = atomic_geometry_user_data_int(clump,0,0);
       if (atomic_slot == 0) {
         render_flag = 1;
-LAB_00464161:
+set_atomic_render_flag:
         atomic_set_render_flag(clump,render_flag);
       }
       else if (atomic_slot == 1) {
         render_flag = 0;
-        goto LAB_00464161;
+        goto set_atomic_render_flag;
       }
       atomic_index = atomic_index + 1;
       *(undefined4 *)(mine_record + atomic_slot * 4 + MINE_RECORD_ATOMICS_OFFSET) = clump;

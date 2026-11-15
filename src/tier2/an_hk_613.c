@@ -68,7 +68,7 @@ void viewport_set_view_window_game_mode_9(void)
     if (((race_phase == 5) || (race_phase = race_get_phase(), race_phase == 4)) ||
        (race_phase = race_get_phase(), race_phase == 3)) {
       training_text_box_c();
-      goto LAB_00404d2e;
+      goto restore_render_state;
     }
   }
   else {
@@ -137,7 +137,7 @@ void viewport_set_view_window_game_mode_9(void)
          (race_phase = race_get_phase(), race_phase == 3)) {
         training_text_box_d();
       }
-      goto LAB_00404d2e;
+      goto restore_render_state;
     }
     camera = RwCameraGetCurrentCamera();
     RwCameraEndUpdate(camera);
@@ -156,7 +156,7 @@ void viewport_set_view_window_game_mode_9(void)
     if (((race_phase == 5) || (race_phase = race_get_phase(), race_phase == 4)) ||
        (race_phase = race_get_phase(), race_phase == 3)) {
       training_text_box_a();
-      goto LAB_00404d2e;
+      goto restore_render_state;
     }
   }
   race_phase = race_get_phase();
@@ -164,7 +164,7 @@ void viewport_set_view_window_game_mode_9(void)
     hud_bomb_timer_text();
   }
   /* restore: z test and z write back on, then put the saved view window back */
-LAB_00404d2e:
+restore_render_state:
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
   RwCameraEndUpdate(camera);

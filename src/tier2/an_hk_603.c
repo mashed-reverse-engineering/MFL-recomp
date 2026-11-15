@@ -89,12 +89,12 @@ void race_update_by_event_type(void)
   case 0xc:
   case 0xd:
     result = is_team_mode();
-    if (result == 0) goto LAB_00411d7c;
+    if (result == 0) goto update_solo_panels;
     solo_panels = game_mode == GAME_MODE_HARE_AND_HOUNDS;
-    goto LAB_00411d70;
+    goto choose_panels;
   case 0x11:
     result = training_lesson_get();
-    if (result != 4) goto LAB_00411d7c;
+    if (result != 4) goto update_solo_panels;
 switchD_00411d2b_caseD_4:
     hudpanel_score_digits_update();
     return;
@@ -103,14 +103,14 @@ switchD_00411d2b_caseD_4:
   }
   result = is_team_mode();
   solo_panels = result == 0;
-LAB_00411d70:
+choose_panels:
   /* team mode shows the team and endpoint panels; otherwise the score and kc panels */
   if (!solo_panels) {
     team_panel_update();
     endpoint_panel_update();
     return;
   }
-LAB_00411d7c:
+update_solo_panels:
   score_panel_update();
   kc_panel_update();
   return;

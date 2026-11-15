@@ -140,8 +140,8 @@ void __cdecl ai_drive_b(undefined4 route_set,int car_index,undefined1 *inputs,un
       result = ai_find_target_c(route_set,&frame.target_x,&frame.candidate_x,car_index);
       if (result == 1) {
         result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
-        if (result == 0) goto LAB_00418f37;
-LAB_00418f66:
+        if (result == 0) goto try_trigger_zone_target;
+use_target_c:
         frame.target_x = frame.candidate_x;
         frame.target_z = frame.candidate_z;
         frame.steer_mode = STEER_MODE_TARGET_C;
@@ -152,18 +152,18 @@ LAB_00418f66:
           inputs[5] = INPUT_MAX;
           return;
         }
-LAB_00418f37:
+try_trigger_zone_target:
         result = ai_trigger_zone_target_for_car(route_set,&frame.target_x,&frame.candidate_x,car_index);
         if (result == 1) {
           result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
-          if (result != 0) goto LAB_00418f66;
+          if (result != 0) goto use_target_c;
         }
         else if ((result == 2) &&
                 (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
           frame.target_x = frame.candidate_x;
           frame.target_z = frame.candidate_z;
           frame.steer_mode = STEER_MODE_ZONE_TARGET;
-          goto LAB_00418fe2;
+          goto warzone_override;
         }
         result = ai_cell_is_value2(&frame.car_pos_x,car_index);
         if (result == 1) {
@@ -182,7 +182,7 @@ LAB_00418f37:
     frame.target_z = frame.candidate_z;
     frame.steer_mode = STEER_MODE_TARGET_A;
   }
-LAB_00418fe2:
+warzone_override:
   /* race phase 6 while the camera is not on this car: with no weapon reset the weapon timers, else run the stuck check (inferred) */
   if ((frame.race_phase == 6) && (result = camera_get_car_8c747c(), result == 0)) {
     if (player_weapon_slots[car_index].descriptor == 0) {
@@ -294,7 +294,7 @@ LAB_00418fe2:
   }
   if (frame.steer_mode == STEER_MODE_ZONE_TARGET) {
     inputs[4] = INPUT_PARTIAL;
-    goto LAB_00419560;
+    goto catchup_scaling;
   }
   /* mode 5 is never assigned in this function (inferred: leftover from another path) */
   if (frame.steer_mode == 5) {
@@ -306,7 +306,7 @@ LAB_00418fe2:
     }
     if ((g_race_clock_b / BLINK_DIVISOR & BLINK_BIT) != 0) {
       *inputs = INPUT_MAX;
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
   }
   else {
@@ -318,10 +318,10 @@ LAB_00418fe2:
       if (k_f_1250 < frame.car_speed) {
         inputs[4] = 0;
       }
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
     /* only target B continues: compare the route record direction with the car forward vector (inferred) */
-    if (frame.steer_mode != STEER_MODE_TARGET_B) goto LAB_00419560;
+    if (frame.steer_mode != STEER_MODE_TARGET_B) goto catchup_scaling;
     route_record = (float *)player_route_get_record_ptr(car_index);
     car_get_forward(&frame.car_fwd_x,car_index);
     route_dot = route_record[1] * frame.car_fwd_y + frame.car_fwd_x * *route_record + frame.car_fwd_z * route_record[2];
@@ -337,15 +337,15 @@ LAB_00418fe2:
       if (route_dot < float_0_8) {
         *inputs = INPUT_MAX;
       }
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
     if (route_dot < k_f_0_9) {
       *inputs = 0;
     }
-    if (!(route_dot < float_0_8)) goto LAB_00419560;
+    if (!(route_dot < float_0_8)) goto catchup_scaling;
   }
   inputs[1] = INPUT_MAX;
-LAB_00419560:
+catchup_scaling:
   /* catch-up class 1: scale input [4] by a factor (inferred) */
   if (g_ai_catchup_class == 1) {
     frame.candidate_x = (uint)(byte)inputs[4];

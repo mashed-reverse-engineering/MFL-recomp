@@ -1167,7 +1167,7 @@ rain_ptank_create,004a0f20,tier2,hs_sweep,EQUAL,2316,1.00,1,,hs_sweep:EQUAL|ledg
 rain_emit_random,004a1170,cluster,pilot,EQUAL,800,1.00,1,,pilot:DIFF|pilot:EQUAL|pilot:DIFF|pilot:EQUAL,
 rain_update_render,004a1220,cluster,pilot,EQUAL,600,0.91,1,,pilot:EQUAL|pilot:EQUAL|pilot:EQUAL,
 app_main_loop,004a15b0,cluster,pilot,EQUAL,300,1.00,1,,pilot:EQUAL,
-app_initialise_on_bootup,004a1710,tier2,hs_sweep,EQUAL,1600,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
+app_initialise_on_bootup,004a1710,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 framerate_sample_accumulate,004a17e0,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
 game_options_reset,004a1890,tier2,hs_sweep,EQUAL,33,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 frontend_attract_menu_input,004a1b70,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never

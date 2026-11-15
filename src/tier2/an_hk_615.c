@@ -47,7 +47,7 @@ undefined4 menu_down_pressed_any(void)
             (g_player_inputs[2].direction_flags[DIR_DOWN] != 0 ||
             (g_player_inputs[1].direction_flags[DIR_DOWN] != 0 ||
             g_player_inputs[0].direction_flags[DIR_DOWN] != 0)))));
-    if (g_player_inputs[7].direction_flags[DIR_DOWN] == 0) goto LAB_00430439;
+    if (g_player_inputs[7].direction_flags[DIR_DOWN] == 0) goto check_down_held;
   }
   else {
     slot_index = 0;
@@ -61,10 +61,10 @@ undefined4 menu_down_pressed_any(void)
       player_slot = player_slot + 1;
       slot_index = slot_index + 1;
     } while ((LONG_PTR)player_slot < ((LONG_PTR)&g_ai_editor_mode));
-LAB_00430439:
+check_down_held:
     if (!any_down_held) {
       g_menu_down_69d6c0 = 0.0;
-      goto LAB_00430491;
+      goto check_down_fresh_press;
     }
   }
   /* Auto-repeat: while down is held on menu pages 6-7 (page_id strictly between 5 and 8),
@@ -75,7 +75,7 @@ LAB_00430439:
     g_menu_down_69d6c0 = MENU_DOWN_REPEAT_RESET;
     return 1;
   }
-LAB_00430491:
+check_down_fresh_press:
   /* Fresh press: find the first player whose down is held now but was not held last frame.
      Return 0 if none is found */
   if (g_input_mode == 0x1000) {

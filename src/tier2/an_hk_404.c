@@ -29,7 +29,7 @@ void career_row_previous(void)
 
   saved_menu_69cc44 = g_menu_69cc44;
   column = g_menu_event_column;
-LAB_00438106:
+step_back_row:
   /* step back one row; wrap at 0 and reset g_menu_69d6b0 (inferred) */
   do {
     g_career_row = g_career_row + -1;
@@ -70,7 +70,7 @@ LAB_00438106:
         event_type_from_menu_choice();
         g_career_row = row + 1;
         column = target_column;
-        goto LAB_00438106;
+        goto step_back_row;
       }
       g_menu_event_column = column;
       result = menu_event_column_progress_unless_special();

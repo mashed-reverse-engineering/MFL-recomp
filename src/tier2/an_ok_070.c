@@ -9,21 +9,21 @@ extern __declspec(dllimport) int __stdcall WaitMessage(void);
 /*004a5c20*/ extern int object_frames_create();
 /*004a6ae0*/ extern void _rxPipelineDestroy_004deff0(struct RxPipeline *p0);
 /*004b2a60*/ extern int sprintf();
-/*004b3bca*/ extern void __cdecl _free_004b45fd(void *p0);
+/*004b3bca*/ extern void __cdecl _free_004b45fd(void *block);
 /*004b4ba7*/ extern int entry();
-/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
-/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
-/*004d77e0*/ extern RwBool RwRasterDestroy(struct RwRaster *p0);
-/*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 p0, RwInt32 p1, RwInt32 p2, RwInt32 p3);
-/*004dbc40*/ extern void __cdecl RwD3D9DeletePixelShader(void *p0);
+/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *frame);
+/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *frame, RwMatrix *matrix, enum RwOpCombineType combine_op);
+/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *matrix_a, RwMatrix *matrix_b);
+/*004d77e0*/ extern RwBool RwRasterDestroy(struct RwRaster *raster);
+/*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
+/*004dbc40*/ extern void __cdecl RwD3D9DeletePixelShader(void *shader);
 /*004def80*/ extern struct RxPipeline * RxPipelineCreate();
-/*004e64f0*/ extern struct RxPipeline * RxLockedPipeUnlock(RxLockedPipe *p0);
-/*004e6f40*/ extern RxLockedPipe * RxPipelineLock(struct RxPipeline *p0);
-/*004e7100*/ extern RxLockedPipe * RxLockedPipeAddFragment(RxLockedPipe *p0, RwUInt32 *p1, struct RxNodeDefinition *p2);
+/*004e64f0*/ extern struct RxPipeline * RxLockedPipeUnlock(RxLockedPipe *pipeline);
+/*004e6f40*/ extern RxLockedPipe * RxPipelineLock(struct RxPipeline *pipeline);
+/*004e7100*/ extern RxLockedPipe * RxLockedPipeAddFragment(RxLockedPipe *p0, RwUInt32 *bits, struct RxNodeDefinition *p2);
 /*004f68f0*/ extern struct RpAtomic * RpAtomicCreate();
-/*004f69e0*/ extern struct RpAtomic * RpAtomicSetGeometry(struct RpAtomic *p0, struct RpGeometry *p1, RwUInt32 p2);
-/*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
+/*004f69e0*/ extern struct RpAtomic * RpAtomicSetGeometry(struct RpAtomic *atomic, struct RpGeometry *geometry, RwUInt32 flags);
+/*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *atomic, struct RwFrame *frame);
 /*0062c5c8*/ extern undefined4 g_app_62c5c8;
 /*0062c5cc*/ extern undefined4 g_app_62c5cc;
 /*0064d894*/ extern undefined4 g_course_64d894;
@@ -64,7 +64,7 @@ extern __declspec(dllimport) int __stdcall WaitMessage(void);
 
 /* "(index): g_app_770fe8[index]" */
 
-extern undefined4 __cdecl joypad_get_field_770fe8(char *param_1);
+extern undefined4 __cdecl joypad_get_field_770fe8(char *index);
 
 
 /* d3d9_pipeline_destroy_default */
@@ -92,14 +92,14 @@ int object_frames_create_forward(undefined4 base,undefined4 count)
 
 /* "(object, index, matrix): RwFrameTransform replace" */
 
-extern void __cdecl object_frame_set_transform(char *param_1,char *param_2,RwMatrix *param_3);
+extern void __cdecl object_frame_set_transform(char *object, char *index, RwMatrix *matrix);
 
 
 /* object_frames_create_with_matrices */
 
 /* "(base, count, matrices): object_frames_create and sets the transform of every frame" */
 
-extern undefined4 object_frames_create_with_matrices(char *param_1,char *param_2,char *param_3);
+extern undefined4 object_frames_create_with_matrices(char *base, char *count, char *matrices);
 #undef uVar1
 #undef iVar2
 
@@ -108,14 +108,14 @@ extern undefined4 object_frames_create_with_matrices(char *param_1,char *param_2
 
 /* "(object, index): creates an atomic on frame index sharing the geometry of the object" */
 
-extern RpAtomic * object_atomic_create(char *param_1,char *param_2);
+extern RpAtomic * object_atomic_create(char *object, char *index);
 
 
 /* video_raster_create */
 
 /* "g_app_771038 = RwRasterCreate flag raster" */
 
-extern undefined4 __cdecl video_raster_create(char *param_1);
+extern undefined4 __cdecl video_raster_create(char *unknown);
 
 
 /* video_raster_destroy */
@@ -175,7 +175,7 @@ extern undefined4 app_get_app_771058(void);
 
 /* "g_app_771058 = param" */
 
-extern void d3d9_set_shader_flag(char *param_1);
+extern void d3d9_set_shader_flag(char *shader_flag);
 
 
 /* rx_pipeline_create_c */
@@ -189,21 +189,21 @@ extern RxPipeline * __cdecl rx_pipeline_create_c(RxNodeDefinition *nodeDef0);
 
 /* "inverts the frame LTM and writes the 4x4 view matrix (x/y/z axis negated)" */
 
-extern void camera_view_matrix_from_frame(float *param_1,char *param_2);
+extern void camera_view_matrix_from_frame(float *view_out, char *camera);
 
 
 /* matrix_transpose_row_copy */
 
 /* "copies the 4 elements of a matrix column into a row vector" */
 
-extern void matrix_transpose_row_copy(undefined4 *param_1,undefined4 *param_2);
+extern void matrix_transpose_row_copy(undefined4 *words_a, undefined4 *words_b);
 
 
 /* camera_view_params_pack */
 
 /* "packs the +0x70/+0x74 fields of a camera into an 8 dword structure (zeroing the rest)" */
 
-extern void __cdecl camera_view_params_pack (undefined4 *param_1,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6);
+extern void __cdecl camera_view_params_pack (undefined4 *words, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6);
 
 
 /* controller_cfg_path */
@@ -303,7 +303,7 @@ extern bool pump_windows_messages(void);
 
 /* "ShowWindow + UpdateWindow(g_app_7e7704)" */
 
-extern void window_show(char *param_1);
+extern void window_show(char *show_cmd);
 
 
 /* app_get_app_7e7704 */
@@ -331,14 +331,14 @@ extern undefined * app_get_71908(void);
 
 /* "(out w, out h) from g_app_771a10 / 771a14" */
 
-extern void video_get_window_size_a(undefined4 *param_1);
+extern void video_get_window_size_a(undefined4 *out_size);
 
 
 /* video_get_window_size_b */
 
 /* "(out w, out h) from g_app_771a24 / 771a28" */
 
-extern void video_get_window_size_b(undefined4 *param_1,undefined4 *param_2);
+extern void video_get_window_size_b(undefined4 *out_a, undefined4 *out_b);
 
 
 

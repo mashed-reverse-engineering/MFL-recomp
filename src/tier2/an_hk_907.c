@@ -88,10 +88,10 @@ void gamesave_load_menu_state(float delta_time)
     break;
   case 4:
     message_id = 0x281;
-    goto LAB_0040b1cc;
+    goto show_gamesave_message;
   case 5:
     message_id = 0x289;
-LAB_0040b1cc:
+show_gamesave_message:
     message_show(message_id,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
     g_gamesave_format_step = 0;
     g_gamesave_flag_c0c = 0;
@@ -128,30 +128,30 @@ LAB_0040b1cc:
       if (float_1_0 < g_gamesave_wait_timer) {
         message_close();
         g_gamesave_format_step = 0xf;
-        goto LAB_0040b376;
+        goto advance_wait_timer;
       }
-LAB_0040b27c:
+poll_gamesave_status:
       gamesave_poll_status(*(int *)&delta_time);
       log_text = "Waiting for time to elapse\n";
     }
     else {
       log_text = "Waiting for load to complete\n";
     }
-    goto LAB_0040b36e;
+    goto log_wait_text;
   case 0xe:
     result = gamesave_write();
     if (result == 0) {
       if (float_1_0 < g_gamesave_wait_timer) {
         message_close();
         g_gamesave_format_step = 0x10;
-        goto LAB_0040b376;
+        goto advance_wait_timer;
       }
-      goto LAB_0040b27c;
+      goto poll_gamesave_status;
     }
     log_text = "Waiting for save to complete\n";
-LAB_0040b36e:
+log_wait_text:
     FID_conflict__wprintf(log_text);
-LAB_0040b376:
+advance_wait_timer:
     g_gamesave_wait_timer = g_gamesave_wait_timer + delta_time;
     return;
   case 0xf:

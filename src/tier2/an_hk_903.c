@@ -133,8 +133,8 @@ void __cdecl ai_drive_c(undefined4 ai_ctx,int car_index,undefined1 *controls,und
       result = ai_find_target_c(ai_ctx,&frame.target_x,&frame.candidate_x,car_index);
       if (result == 1) {
         result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
-        if (result == 0) goto LAB_00418f37;
-LAB_00418f66:
+        if (result == 0) goto try_trigger_zone_target;
+use_target_c:
         frame.target_x = frame.candidate_x;
         frame.target_z = frame.candidate_z;
         frame.target_kind = 3;
@@ -145,18 +145,18 @@ LAB_00418f66:
           controls[5] = 0xff;
           return;
         }
-LAB_00418f37:
+try_trigger_zone_target:
         result = ai_trigger_zone_target_for_car(ai_ctx,&frame.target_x,&frame.candidate_x,car_index);
         if (result == 1) {
           result = ai_target_check(&frame.car_pos_x,&frame.candidate_x);
-          if (result != 0) goto LAB_00418f66;
+          if (result != 0) goto use_target_c;
         }
         else if ((result == 2) &&
                 (result = ai_target_check(&frame.car_pos_x,&frame.candidate_x), result != 0)) {
           frame.target_x = frame.candidate_x;
           frame.target_z = frame.candidate_z;
           frame.target_kind = 7;
-          goto LAB_00418fe2;
+          goto warzone_override;
         }
         result = ai_cell_is_value2(&frame.car_pos_x,car_index);
         if (result == 1) {
@@ -175,7 +175,7 @@ LAB_00418f37:
     frame.target_z = frame.candidate_z;
     frame.target_kind = 1;
   }
-LAB_00418fe2:
+warzone_override:
   course = current_course_id();
   if ((course == COURSE_WARZONE) &&
      (result = ai_hazard_target_for_car(ai_ctx,&frame.target_x,&frame.candidate_x,car_index), result != 0)) {
@@ -303,7 +303,7 @@ LAB_00418fe2:
   }
   if (frame.target_kind == 7) {
     controls[4] = 0x40;
-    goto LAB_00419560;
+    goto catchup_scaling;
   }
   /* Target kind 5 (leader, inferred): leader_distance > 4 cuts the throttle (controls[4] = 0), > 6 sets controls[5] (brake) to 0x40; on alternate BLINK_DIVISOR race-clock periods the left steer (controls[0]) is forced to 0xff. */
   if (frame.target_kind == 5) {
@@ -315,7 +315,7 @@ LAB_00418fe2:
     }
     if ((g_race_clock_b / BLINK_DIVISOR & BLINK_BIT) != 0) {
       *controls = 0xff;
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
   }
   else {
@@ -327,11 +327,11 @@ LAB_00418fe2:
       if (k_f_1250 < frame.car_speed) {
         controls[4] = 0;
       }
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
     /* Target kind 2: route follow. route_dot is the dot product of the route direction and the
      * car's forward vector (along the route); route_cross is the 2D cross product (side). */
-    if (frame.target_kind != 2) goto LAB_00419560;
+    if (frame.target_kind != 2) goto catchup_scaling;
     route_dir = (float *)player_route_get_record_ptr(car_index);
     car_get_forward(&frame.car_fwd_x,car_index);
     route_dot = route_dir[1] * frame.car_fwd_y + frame.car_fwd_x * *route_dir + frame.car_fwd_z * route_dir[2];
@@ -347,16 +347,16 @@ LAB_00418fe2:
       if (route_dot < float_0_8) {
         *controls = 0xff;
       }
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
     if (route_dot < k_f_0_9) {
       *controls = 0;
     }
-    if (!(route_dot < float_0_8)) goto LAB_00419560;
+    if (!(route_dot < float_0_8)) goto catchup_scaling;
   }
   controls[1] = 0xff;
   /* Clear controls[4] and controls[5] unless the race phase is 5, 6, 9, 10 or 11 (inferred). */
-LAB_00419560:
+catchup_scaling:
   if ((((frame.race_phase != 6) && (frame.race_phase != 5)) && (frame.race_phase != 9)) &&
      ((frame.race_phase != 10 && (frame.race_phase != 0xb)))) {
     controls[4] = 0;

@@ -80,7 +80,7 @@ void hud_render_by_event_and_mode(void)
     case 0xc:
     case 0xd:
       query_result = is_team_mode();
-      if (query_result == 0) goto LAB_0040fa58;
+      if (query_result == 0) goto render_kc_panel;
       use_single_panel = game_mode == GAME_MODE_HARE_AND_HOUNDS;
       break;
     case 0x11:
@@ -92,13 +92,13 @@ void hud_render_by_event_and_mode(void)
       if (query_result == 4) {
         return;
       }
-      goto LAB_0040fa58;
+      goto render_kc_panel;
     }
     if (!use_single_panel) {
       endpoint_panel_render();
       return;
     }
-LAB_0040fa58:
+render_kc_panel:
     kc_panel_render();
     return;
   }
@@ -141,19 +141,19 @@ LAB_0040fa58:
     query_result = is_team_mode();
     if (query_result != 0) {
       use_single_panel = game_mode == GAME_MODE_HARE_AND_HOUNDS;
-      goto LAB_0040fb20;
+      goto choose_panel_set;
     }
-    goto LAB_0040fb29;
+    goto render_score_panel;
   default:
 switchD_0040fa80_caseD_9:
     query_result = is_team_mode();
     use_single_panel = query_result == 0;
-LAB_0040fb20:
+choose_panel_set:
     if (!use_single_panel) {
       team_panel_render();
       break;
     }
-LAB_0040fb29:
+render_score_panel:
     score_panel_render();
     break;
   case 0x11:
@@ -162,7 +162,7 @@ LAB_0040fb29:
        (((query_result = training_lesson_get(), query_result == 1 && (query_result = ui_get_car_8c86c8(), query_result != 1)) &&
         (query_result = ui_get_car_8c86c8(), query_result != 4)))) break;
     query_result = training_lesson_get();
-    if (query_result != 4) goto LAB_0040fb29;
+    if (query_result != 4) goto render_score_panel;
 switchD_0040fab4_caseD_4:
     stopclock_render(1);
     break;

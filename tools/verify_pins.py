@@ -16,7 +16,9 @@ PINNED = ["tools/cmpfn.py", "tools/asmdiff.py",                     # manifest b
           "tools/overlay.py", "tools/build_overlay.py",             # RELCHECK (overlay.py) + the strict builds / flags that feed it
           "tools/check_all.sh", "tools/gate.sh", "tools/tier_ledger.py",
           "tools/defectlint.py", "tools/diffemu/core.py", "tools/delink/sa_oracles.sh",
-          "tools/d3dtrace/drawcmp.py", "tools/wine-run/scenario.sh"]
+          "tools/d3dtrace/drawcmp.py", "tools/wine-run/scenario.sh",
+          "tools/trapcheck.py", "tools/diffemu_audit/tweak/hs.py", "tools/diffemu_audit/tweak/gate_hs.py",      # W10 Phase 0: trap / HS verdicts
+          "tools/export_public.py", "tools/delink/origbytes.py", "tools/audio/pcm_check2.py"]                    # publish deny + zero-code count + V7 audio
 STRONG = ("bytes-reloc", "diffemu", "shadow")
 RANK = {"bytes-reloc": 3, "diffemu": 2, "shadow": 1, "verified": 1}
 

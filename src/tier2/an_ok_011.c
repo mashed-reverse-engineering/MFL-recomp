@@ -10,7 +10,7 @@
 /*0041c0d0*/ extern int hudpanel_counters_clear(undefined4 p0);
 /*0041c460*/ extern undefined hudpanel_render_parts_if_active(undefined4 p0);
 /*0041d480*/ extern int btb_panel_slot_init();
-/*0041d580*/ extern undefined __cdecl btb_panel_slot_set_position(undefined4 p0, undefined4 p1);
+/*0041d580*/ extern undefined __cdecl btb_panel_slot_set_position(undefined4 slot, undefined4 p);
 /*0041d5d0*/ extern int btb_panel_slot_set_scale();
 /*0041f350*/ extern undefined hudpanel_render_group(undefined4 p0);
 /*0041fa20*/ extern int kc_panel_entry_render();
@@ -22,21 +22,21 @@
 /*004212b0*/ extern undefined time_trial_panel_times_update(undefined4 p0);
 /*004215a0*/ extern undefined hudpanel_set_icon_texture_per_part(undefined4 p0);
 /*00421720*/ extern undefined vehicle_markers_render_parts(undefined4 p0);
-/*0042f780*/ extern int __cdecl clump_load_by_name(char *p0);
+/*0042f780*/ extern int __cdecl clump_load_by_name(char *str);
 /*00434bb0*/ extern int get_event_type();
 /*004353e0*/ extern int menu_markers_enabled_for_event();
 /*00475730*/ extern int get_viewport_camera();
 /*00486710*/ extern int particles_destroy();
 /*00486ef0*/ extern int particles_render();
 /*004b4ba7*/ extern int entry();
-/*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d1da0*/ extern struct RwCamera * RwCameraSetProjection(struct RwCamera *p0, enum RwCameraProjection p1);
-/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
-/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
-/*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
+/*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *frame, struct RwV3d *scale, enum RwOpCombineType combine);
+/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *frame, RwMatrix *matrix, enum RwOpCombineType combine_op);
+/*004d1da0*/ extern struct RwCamera * RwCameraSetProjection(struct RwCamera *camera, enum RwCameraProjection projection);
+/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *camera, struct RwV2d *view_window);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *matrix, struct RwV3d *vec, enum RwOpCombineType combine_op);
+/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
+/*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *atomic, struct RwFrame *frame);
 /*005dd32c*/ extern float k_f_3;
 /*005dd330*/ extern float float_1_0;
 /*005dd40c*/ extern float k_f_1_5;
@@ -172,19 +172,19 @@ extern void btb_panel_destroy(void);
 extern void hudpanel_render_if_loaded_b(void);
 
 
-extern void btb_panel_slot_set_matrix(char *param_1,undefined4 *param_2);
+extern void btb_panel_slot_set_matrix(char *slot, undefined4 *matrix);
 
 
-extern void __cdecl btb_panel_slot_render(char *param_1);
+extern void __cdecl btb_panel_slot_render(char *slot_index);
 
 
-extern void load_ghost_model(char *param_1,char *param_2);
+extern void load_ghost_model(char *str_a, char *str_b);
 
 
-extern void __cdecl time_trial_panel_step_part_a(char *param_1,char *param_2);
+extern void __cdecl time_trial_panel_step_part_a(char *str_a, char *str_b);
 
 
-extern void time_trial_panel_wheel_spin(char *param_1);
+extern void time_trial_panel_wheel_spin(char *slot_objs);
 
 
 extern void score_panel_clear(void);
@@ -278,7 +278,7 @@ extern void team_endpoint_panel_destroy(void);
 
 /* "(out): g_hudpanel_659aa8" */
 
-extern void endpoint_panel_get_value(undefined4 *param_1);
+extern void endpoint_panel_get_value(undefined4 *out);
 
 
 /* stopclock_render_timed_parts_forward */
@@ -307,7 +307,7 @@ extern void stopclock_destroy(void);
 
 /* "renders the stop clock clump when 0x659B08 is set" */
 
-extern void __cdecl stopclock_render(char *param_1);
+extern void __cdecl stopclock_render(char *str);
 
 
 /* hud_game_vars_clear */
@@ -359,20 +359,20 @@ extern void vehicle_markers_render_if_loaded(void);
 
 /* "(course id): g_current_course_entry = the g_course_table record with that id" */
 
-extern void __cdecl course_table_select(char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6,char *param_7,char *param_8, char *param_9,char *param_10,char *param_11);
+extern void __cdecl course_table_select(char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11);
 
 
 /* course_call_cb0 */
 
 /* "jmp [entry+0x14]: post load, called by course_open_and_run_scripts" */
 
-extern void __cdecl course_call_cb0(char *param_1);
+extern void __cdecl course_call_cb0(char *str);
 
 
 /* course_call_cb1 */
 
 /* "jmp [entry+0x18]: per frame update, called by course_update" */
 
-extern void __cdecl course_call_cb1(char *param_1,char *param_2);
+extern void __cdecl course_call_cb1(char *str_a, char *str_b);
 
 

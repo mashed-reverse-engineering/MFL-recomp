@@ -90,7 +90,12 @@ for r in lay:
             if sp_: e = min(sp_[1], va + sz)
             L = "CRT" if sp_ else "qhull" if 0x63a610 <= v < 0x649138 else (layer(v, it[3], it[4]) if it and it[3] in ("crt", "rw", "crt?", "rw?") else other_layer(v, "data"))
             dlib[L][sec] += e - v; v = e
-RSRC = 0xad7a8
+def rsrc_size(exe):      # W10 A5: VirtualSize of the linked exe's .rsrc (was the constant 0xad7a8 = the original's); 0 when the link has none (Z-rsrc: loaded from MFL.exe at run time)
+    import struct
+    b = open(exe, "rb").read(); pe = struct.unpack_from("<I", b, 0x3c)[0]; n, osz = struct.unpack_from("<H", b, pe + 6)[0], struct.unpack_from("<H", b, pe + 20)[0]
+    return sum(struct.unpack_from("<I", b, s + 8)[0] for s in (pe + 24 + osz + 40 * i for i in range(n)) if b[s:s + 8].rstrip(b"\0") == b".rsrc")
+RSRC = rsrc_size(os.path.join(W, "ours.exe"))
+if RSRC not in (0, 0xad7a8): sys.exit("origbytes: .rsrc of %s/ours.exe is %d B: neither the original's 710,568 (mfl.res / pefix) nor 0 (no resources)" % (W, RSRC))      # the old constant stays as a check
 res = {"rsrc_original_bytes": RSRC}
 tot = lambda c: sum(c.values())
 js = {"date": DATE, "code": {L: dict(code[L]) for L in LAYERS}, "data_by_section": {s: dict(c) for s, c in data.items()},
@@ -117,7 +122,7 @@ md = ["# Original bytes still in the linked exe (%s)" % DATE, "",
       "| ...library data rows, bytes from the original image (layers below) | %s |" % format(dorig, ","),
       "| ...app data generated as C (`gen`: app + gap rows) | %s |" % format(dapp, ","),
       "| ...linker generated (IAT, imports) | %s |" % format(dpe, ","),
-      "| resources (.rsrc linked from output/res/mfl.res = rc.exe output; entries byte-identical to the original, they are game data) | %s |" % format(RSRC, ","), "",
+      "| resources (.rsrc in the linked exe: output/res/mfl.res = rc.exe output, entries byte-identical to the original game data; 0 = read at run time from the user's MFL.exe) | %s |" % format(RSRC, ","), "",
       "## Code per layer", "", "| Layer | Original | Filled | Stub | Total |", "|---|---:|---:|---:|---:|"]
 for L in LAYERS:
     c = code[L]; md.append("| %s | %s | %s | %s | %s |" % (L, format(c["original"], ","), format(c["filled"], ","), format(c["stub"], ","), format(tot(c), ",")))

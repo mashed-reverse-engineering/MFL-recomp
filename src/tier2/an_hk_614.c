@@ -47,7 +47,7 @@ undefined4 menu_up_pressed_any(void)
             (g_player_inputs[2].direction_flags[DIR_FLAG_UP] != 0 ||
             (g_player_inputs[1].direction_flags[DIR_FLAG_UP] != 0 ||
             g_player_inputs[0].direction_flags[DIR_FLAG_UP] != 0)))));
-    if (g_player_inputs[7].direction_flags[DIR_FLAG_UP] == 0) goto LAB_004302a9;
+    if (g_player_inputs[7].direction_flags[DIR_FLAG_UP] == 0) goto check_up_held;
   }
   else {
     slot_index = 0;
@@ -61,10 +61,10 @@ undefined4 menu_up_pressed_any(void)
       slot = slot + 1;
       slot_index = slot_index + 1;
     } while ((LONG_PTR)slot < ((LONG_PTR)&g_ai_editor_mode));
-LAB_004302a9:
+check_up_held:
     if (!any_up_held) {
       g_menu_up_69d6bc = 0.0;
-      goto LAB_00430301;
+      goto check_up_fresh_press;
     }
   }
   /* Auto-repeat: on menu pages 6 and 7 (inferred), accumulate hold time; once it passes the threshold, fire and restart the interval. */
@@ -73,7 +73,7 @@ LAB_004302a9:
     g_menu_up_69d6bc = MENU_REPEAT_INTERVAL;
     return 1;
   }
-LAB_00430301:
+check_up_fresh_press:
   /* Fresh press: return 1 if some player holds up now but did not hold it in g_player_inputs_previous; 0 if none did. */
   if (g_input_mode == INPUT_MODE_MENU) {
     prev_up_flag = g_player_inputs_previous[0].direction_flags + DIR_FLAG_UP;

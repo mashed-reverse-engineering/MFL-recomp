@@ -3,16 +3,16 @@
 #include <math.h>
 #pragma intrinsic(sin, cos)
 
-/*004d5410*/ extern float _rwSqrt(float p0);
+/*004d5410*/ extern float _rwSqrt(float value);
 
 /* Rotates the quaternion q = (x, y, z, w) by the axis-angle rotation (axis v, angle = |v| * angle * 0.5 as half angle): q = q (cos h, sin h * n) with
    n = v / |v|, skipped when |v| < 1e-4.  The values the original keeps on the x87 stack are doubles (nz, the half angle); the frame floats nx, ny, sin
-   live in k[], cos and the cross term (k4) are volatile (cl would keep them in a register unrounded; cs2 = cs makes it reload cos like the original). */
+   live in k[], cos and the cross term (cross_z) are volatile (cl would keep them in a register unrounded; cs2 = cs makes it reload cos like the original). */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void rwp_quat_rotate_axis_angle(float *q, float *v, float angle)
 {
-  float k[3], q0, q1, q2;
-  volatile float cs, cs2, k4;
+  float k[3], qx, qy, qz;
+  volatile float cs, cs2, cross_z;
   float len;
   double len2, inv, nz, h, t, cr, w;
 
@@ -22,9 +22,9 @@ void rwp_quat_rotate_axis_angle(float *q, float *v, float angle)
   len = _rwSqrt(len2);
   if (!(fabs(len) < 9.99999974737875e-5f)) {
     inv = 1.0f / len;
-    q0 = q[0];
-    q1 = q[1];
-    q2 = q[2];
+    qx = q[0];
+    qy = q[1];
+    qz = q[2];
     k[0] = inv * v[0];
     k[1] = inv * v[1];
     nz = inv * v[2];
@@ -34,25 +34,25 @@ void rwp_quat_rotate_axis_angle(float *q, float *v, float angle)
     cs = cos(h);
     cs2 = cs;
     w = cs * q[3];
-    t = q1 * k[1];
-    t = t + q0 * k[0];
-    t = t + q2 * nz;
+    t = qy * k[1];
+    t = t + qx * k[0];
+    t = t + qz * nz;
     t = t * k[2];
     w = w - t;
-    cr = q2 * k[1];
-    cr = cr - q1 * nz;
-    k4 = q1 * k[0] - q0 * k[1];
+    cr = qz * k[1];
+    cr = cr - qy * nz;
+    cross_z = qy * k[0] - qx * k[1];
     t = k[0] * q[3] + cr;
     t = t * k[2];
-    t = t + q0 * cs;
+    t = t + qx * cs;
     q[0] = t;
-    t = k[1] * q[3] + ((q0 * nz) - (q2 * k[0]));
+    t = k[1] * q[3] + ((qx * nz) - (qz * k[0]));
     t = t * k[2];
-    t = t + q1 * cs;
+    t = t + qy * cs;
     q[1] = t;
-    t = nz * q[3] + k4;
+    t = nz * q[3] + cross_z;
     t = t * k[2];
-    t = t + q2 * cs;
+    t = t + qz * cs;
     q[2] = t;
     q[3] = w;
   }

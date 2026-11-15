@@ -16,7 +16,7 @@
 /*00421fe0*/ extern int vehicle_set_field_198();
 /*004221c0*/ extern double vehicle_get_float_184();
 /*00422350*/ extern int vehicle_part_ltm();
-/*00423c90*/ extern undefined __cdecl vehicle_render(int p0, struct RwCamera *p1);
+/*00423c90*/ extern undefined __cdecl vehicle_render(int vehicle_index, struct RwCamera *camera);
 /*004246f0*/ extern int car_set_damage();
 /*00426b40*/ extern int car_kill();
 /*0042a3f0*/ extern int course_get_rpworld();
@@ -43,8 +43,8 @@
 /*0048a060*/ extern int spring_grid_reset_constants();
 /*0048a0b0*/ extern int gfx_set_gfx_6f2ab8();
 /*0048a0c0*/ extern int spring_grid_build();
-/*0048a660*/ extern int gfx_set_vec3_6f2aa8(float p0, int p1, float p2);      /* defarity: the original body reads three stack slots (stores x, y, z to 0x6f2aa8); the call site passes (rr*at.x, 0, rr*at.z), the 2nd and 3rd are the leftover slots of the batched cleanup; the float arguments are dwords (with `()` they were pushed as doubles) */
-/*0048a9e0*/ extern int spring_grid_update(float p0, void *p1);      /* defectlint: was `()`: g_tick_seconds was pushed as a double, the matrix pointer arrived in the wrong slot */
+/*0048a660*/ extern int gfx_set_vec3_6f2aa8(float x, int y, float z);      /* defarity: the original body reads three stack slots (stores x, y, z to 0x6f2aa8); the call site passes (rr*at.x, 0, rr*at.z), the 2nd and 3rd are the leftover slots of the batched cleanup; the float arguments are dwords (with `()` they were pushed as doubles) */
+/*0048a9e0*/ extern int spring_grid_update(float dt, void *matrix);      /* defectlint: was `()`: g_tick_seconds was pushed as a double, the matrix pointer arrived in the wrong slot */
 /*0048b030*/ extern int spring_grid_render();
 /*0048b4d0*/ extern int gfx_set_6299d8();
 /*0048e3b0*/ extern int rwp_object_set_user_data();
@@ -57,24 +57,24 @@
 /*004b2f90*/ extern double floor();
 /*004b4ba7*/ extern int entry();
 /*004c7cc0*/ extern undefined __cdecl message(undefined4 p0, undefined4 p1);
-/*004d1860*/ extern void _rwObjectHasFrameSetFrame(void *p0, struct RwFrame *p1);
-/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
-/*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
-/*004d1d70*/ extern struct RwCamera * RwCameraShowRaster(struct RwCamera *p0, void *p1, RwUInt32 p2);
-/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *p0, struct RwCamera *p1);
-/*004f4470*/ extern struct RpWorld * RpWorldRemoveCamera(struct RpWorld *p0, struct RwCamera *p1);
-/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
+/*004d1860*/ extern void _rwObjectHasFrameSetFrame(void *object, struct RwFrame *frame);
+/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *camera, struct RwSphere *sphere);
+/*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *cam, struct RwRGBA *rgba, RwInt32 mode);
+/*004d1d70*/ extern struct RwCamera * RwCameraShowRaster(struct RwCamera *cam, void *a, RwUInt32 b);
+/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *matrix, struct RwV3d *vec, RwReal value, enum RwOpCombineType combine_op);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *matrix, struct RwV3d *vec, enum RwOpCombineType combine_op);
+/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *world, struct RwCamera *camera);
+/*004f4470*/ extern struct RpWorld * RpWorldRemoveCamera(struct RpWorld *world, struct RwCamera *camera);
+/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *clump);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
 /*004f8140*/ extern struct RpMaterial * RpMaterialCreate();
-/*004f81d0*/ extern RwBool RpMaterialDestroy(struct RpMaterial *p0);
-/*004f8800*/ extern struct RpMorphTarget * RpMorphTargetCalcBoundingSphere(struct RpMorphTarget *p0, struct RwSphere *p1);
-/*004f8b00*/ extern struct RpGeometry * RpGeometryTriangleSetMaterial(struct RpGeometry *p0, struct RpTriangle *p1, struct RpMaterial *p2);
-/*004f8bd0*/ extern struct RpGeometry * RpGeometryUnlock(struct RpGeometry *p0);
-/*004f8e30*/ extern struct RpGeometry * RpGeometryCreate(RwInt32 p0, RwInt32 p1, RwUInt32 p2);
+/*004f81d0*/ extern RwBool RpMaterialDestroy(struct RpMaterial *material);
+/*004f8800*/ extern struct RpMorphTarget * RpMorphTargetCalcBoundingSphere(struct RpMorphTarget *morph, struct RwSphere *sphere);
+/*004f8b00*/ extern struct RpGeometry * RpGeometryTriangleSetMaterial(struct RpGeometry *geometry, struct RpTriangle *p1, struct RpMaterial *material);
+/*004f8bd0*/ extern struct RpGeometry * RpGeometryUnlock(struct RpGeometry *geometry);
+/*004f8e30*/ extern struct RpGeometry * RpGeometryCreate(RwInt32 value_a, RwInt32 value_b, RwUInt32 bits);
 /*0050b5e0*/ extern int nop_stub();
 /*005dd330*/ extern float float_1_0;
 /*005dd354*/ extern float k_f_637_5;
@@ -300,7 +300,7 @@ void cup_scene_place_object(undefined4 alpha_float,int flip,int slot_index)
 
 /* "clears the camera and renders the cup scene clump(s)" */
 
-extern void cup_scene_render(float param_1,char *param_2);
+extern void cup_scene_render(float threshold, char *car_index);
 
 #define CUP_RECORD_SIZE (0x68)
 #define CUP_RECORD_TABLE_SIZE (0xc98)
@@ -379,7 +379,7 @@ extern RpGeometry * geometry_build_pointer(void);
 
 /* "RwCameraClear black for each of the 4 viewports, then RwCameraShowRaster" */
 
-extern void __cdecl cup_scene_clear_screen (char *param_1,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8,char *param_9);
+extern void __cdecl cup_scene_clear_screen (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9);
 
 
 /* scene_get_log_64d898 */
@@ -404,7 +404,7 @@ extern void attract_timer_update(void);
    pause or quit menu; unequips all weapons" */
 
 /* pause_input_update: promoted to a byte-identical agent file (recomp/automatch_agent/ag_pause_input_update.c) */
-extern void __cdecl pause_input_update(float param_1);
+extern void __cdecl pause_input_update(float dt);
 
 
 /* scene_get_bomb_5fb0a8 */
@@ -501,7 +501,7 @@ extern void scene_tables_clear(void);
 /* "(box min/max, point): per axis distance to the nearer side, vec3_multiply_components squares,
    returns the max" */
 
-extern double __cdecl aabb_max_axis_distance_to_point (float *param_1,float *param_2,char *param_3,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8,char *param_9, char *param_10,char *param_11,char *param_12);
+extern double __cdecl aabb_max_axis_distance_to_point (float *floats_a, float *floats_b, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11, char *param_12);
 
 
 /* stub_return_zero */
@@ -516,7 +516,7 @@ extern undefined4 stub_return_zero(void);
 
 /* "stores the selected object and its parameter or clears them when null" */
 
-extern void __cdecl scene_object_select_set (char *param_1,char *param_2,char *param_3,char *param_4,char *param_5);
+extern void __cdecl scene_object_select_set (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5);
 
 
 /* scene_select_timer_clear */
@@ -539,7 +539,7 @@ extern undefined4 scene_object_select_is_active(void);
 
 /* "(object, dt): object +0x5C -= dt" */
 
-extern void __cdecl fx_object_timer_subtract (char *param_1,float param_2,char *param_3,char *param_4,char *param_5);
+extern void __cdecl fx_object_timer_subtract (char *param_1, float value, char *param_3, char *param_4, char *param_5);
 
 
 /* fx_distance_check */
@@ -547,7 +547,7 @@ extern void __cdecl fx_object_timer_subtract (char *param_1,float param_2,char *
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "distance to the first camera path point against a threshold (inferred)" */
 
-extern void fx_distance_check(float param_1);
+extern void fx_distance_check(float value);
 
 
 /* scene_get_fx_651aa0 */
@@ -561,7 +561,7 @@ extern undefined4 scene_get_fx_651aa0(void);
 
 /* "(index, out xyzr): position of the object frame and radius 2.0; returns whether inactive" */
 
-extern bool __cdecl fx_object_get_sphere(char *param_1,undefined4 *param_2);
+extern bool __cdecl fx_object_get_sphere(char *index, undefined4 *out);
 
 
 /* fx_current_object_get_float */
@@ -575,7 +575,7 @@ extern double fx_current_object_get_float(void);
 
 /* "walks the course token list for the entry containing the id and returns its index" */
 
-extern int course_token_list_find_entry(char *param_1);
+extern int course_token_list_find_entry(char *id);
 
 
 /* player_route_progress_update */
@@ -583,6 +583,6 @@ extern int course_token_list_find_entry(char *param_1);
 /* "dot of the course record base vector with the car vector, stores progress at +0xAC, increments
    the wrong-way counter at +0xA8 when negative" */
 
-extern void player_route_progress_update(char *param_1,char *param_2);
+extern void player_route_progress_update(char *player_state, char *car_state);
 
 

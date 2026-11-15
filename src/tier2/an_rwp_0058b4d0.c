@@ -8,9 +8,9 @@
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
 float *rwp_triangle_bounding_sphere(float *s, float *out)
 {
-  double o0, o1, o2, t0, t1, t2, acc;
-  float d[3], t2c;
-  int c01, c02, c12, sel;
+  double ctr_x, ctr_y, ctr_z, dx, dy, dz, acc;
+  float d[3], dz_c;
+  int cmp_01, cmp_02, cmp_12, sel;
 
   out[0] = s[4] + s[0];
   out[1] = s[5] + s[1];
@@ -18,37 +18,37 @@ float *rwp_triangle_bounding_sphere(float *s, float *out)
   out[0] = s[8] + out[0];
   out[1] = s[9] + out[1];
   out[2] = s[10] + out[2];
-  o0 = out[0] * 0.33333334f;
-  out[0] = o0;
-  o1 = out[1] * 0.33333334f;
-  out[1] = o1;
-  o2 = out[2] * 0.33333334f;
-  out[2] = o2;
-  t2 = o2 - s[2];
-  t1 = o1 - s[1];
-  t0 = o0 - s[0];
-  acc = t0 * t0;
-  acc = acc + t1 * t1;
-  acc = acc + t2 * t2;
+  ctr_x = out[0] * 0.33333334f;
+  out[0] = ctr_x;
+  ctr_y = out[1] * 0.33333334f;
+  out[1] = ctr_y;
+  ctr_z = out[2] * 0.33333334f;
+  out[2] = ctr_z;
+  dz = ctr_z - s[2];
+  dy = ctr_y - s[1];
+  dx = ctr_x - s[0];
+  acc = dx * dx;
+  acc = acc + dy * dy;
+  acc = acc + dz * dz;
   d[0] = -acc;
-  t2 = o2 - s[6];
-  t1 = o1 - s[5];
-  t0 = o0 - s[4];
-  acc = t0 * t0;
-  acc = acc + t1 * t1;
-  acc = acc + t2 * t2;
+  dz = ctr_z - s[6];
+  dy = ctr_y - s[5];
+  dx = ctr_x - s[4];
+  acc = dx * dx;
+  acc = acc + dy * dy;
+  acc = acc + dz * dz;
   d[1] = -acc;
-  t2c = o2 - s[10];
-  t1 = o1 - s[9];
-  t0 = o0 - s[8];
-  acc = t0 * t0;
-  acc = acc + t1 * t1;
-  acc = acc + t2c * t2c;
+  dz_c = ctr_z - s[10];
+  dy = ctr_y - s[9];
+  dx = ctr_x - s[8];
+  acc = dx * dx;
+  acc = acc + dy * dy;
+  acc = acc + dz_c * dz_c;
   d[2] = -acc;
-  c01 = d[0] > d[1];
-  c02 = d[0] > d[2];
-  c12 = d[1] > d[2];
-  sel = (0x21312300 >> ((((c01 << 1) | c02) << 1 | c12) << 2)) & 3;
+  cmp_01 = d[0] > d[1];
+  cmp_02 = d[0] > d[2];
+  cmp_12 = d[1] > d[2];
+  sel = (0x21312300 >> ((((cmp_01 << 1) | cmp_02) << 1 | cmp_12) << 2)) & 3;
   out[3] = sqrt(-d[sel]) + s[19];
   return out;
 }

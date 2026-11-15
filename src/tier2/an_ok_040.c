@@ -1,10 +1,10 @@
 #include "mfl_tier2.h"
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *name);
 /*0040fdb0*/ extern int get_player_count();
 /*0040fdc0*/ extern int race_get_phase();
-/*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *p0, int p1, undefined4 p2);
+/*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *texture, int p1, undefined4 p2);
 /*00456b20*/ extern int course_rotating_object_update();
-/*00457010*/ extern undefined __cdecl spline_object_register_trigger_sphere(undefined4 p0);
+/*00457010*/ extern undefined __cdecl spline_object_register_trigger_sphere(undefined4 spline_obj);
 /*004574a0*/ extern int course_spline_objects_update();
 /*004577c0*/ extern int course_tierra_n_rotating_object_update();
 /*004577e0*/ extern int course_objects_render();
@@ -16,32 +16,32 @@
 /*0047a470*/ extern int car_set_wheel_contact();
 /*0047b360*/ extern int car_wheel_get_field_88_a();
 /*00481fd0*/ extern double random_range();
-/*00482270*/ extern undefined __stdcall spline_get_length(struct RpSpline *p0);
+/*00482270*/ extern undefined __stdcall spline_get_length(struct RpSpline *spline);
 /*0048e470*/ extern int rwp_object_sync_and_reset();
-/*0048e720*/ extern undefined __cdecl rwp_object_set_matrix(int p0, RwMatrix *p1);
+/*0048e720*/ extern undefined __cdecl rwp_object_set_matrix(int p0, RwMatrix *matrix);
 /*00492d10*/ extern int rwp_object_set_active();
 /*0049a980*/ extern int fx_slot_release();
 /*0049a9b0*/ extern int fx_slot_find_free();
-/*0049c5f0*/ extern undefined __cdecl fx_snow_ptank_update(int p0, struct RwCamera *p1, undefined1 *p2, float p3, float p4);
+/*0049c5f0*/ extern undefined __cdecl fx_snow_ptank_update(int system, struct RwCamera *camera, undefined1 *color_rgb, float alpha_base, float alpha_per_age);
 /*004a5d70*/ extern int object_render();
 /*004a5da0*/ extern int object_destroy_frames();
 /*004b4ba7*/ extern int entry();
-/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d1a50*/ extern RwBool __cdecl RwBBoxContainsPoint(struct RwBBox *p0, struct RwV3d *p1);
-/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*004dc920*/ extern void * RwIm3DTransform(RwIm3DVertex *p0, RwUInt32 p1, RwMatrix *p2, RwUInt32 p3);
+/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *frame, struct RwV3d *translation, enum RwOpCombineType combine);
+/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *frame, RwMatrix *matrix, enum RwOpCombineType combine_op);
+/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *frame, struct RwV3d *axis, RwReal angle, enum RwOpCombineType combine);
+/*004d1a50*/ extern RwBool __cdecl RwBBoxContainsPoint(struct RwBBox *p0, struct RwV3d *vec);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *matrix, struct RwV3d *vec, enum RwOpCombineType combine_op);
+/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
+/*004dc920*/ extern void * RwIm3DTransform(RwIm3DVertex *pVerts, RwUInt32 numVerts, RwMatrix *ltm, RwUInt32 flags);
 /*004dc9f0*/ extern RwBool RwIm3DEnd();
-/*004dcb80*/ extern RwBool RwIm3DRenderPrimitive(enum RwPrimitiveType p0);
-/*004f6100*/ extern void _rpAtomicResyncInterpolatedSphere(struct RpAtomic *p0);
-/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
+/*004dcb80*/ extern RwBool RwIm3DRenderPrimitive(enum RwPrimitiveType primType);
+/*004f6100*/ extern void _rpAtomicResyncInterpolatedSphere(struct RpAtomic *atomic);
+/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *clump);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
 /*0050b5e0*/ extern int nop_stub();
-/*00556360*/ extern RwReal RpSplineFindMatrix(struct RpSpline *p0, RwInt32 p1, RwReal p2, struct RwV3d *p3, RwMatrix *p4);
+/*00556360*/ extern RwReal RpSplineFindMatrix(struct RpSpline *spline, RwInt32 value_a, RwReal value_b, struct RwV3d *vec, RwMatrix *matrix);
 /*00557860*/ extern int __cdecl RtIntersectionLineTriangle(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5);
-/*005686d0*/ extern undefined __cdecl RpLODAtomicHookRender(undefined4 p0);
+/*005686d0*/ extern undefined __cdecl RpLODAtomicHookRender(undefined4 p);
 /*005dd330*/ extern float float_1_0;
 /*005dd374*/ extern float k_f_0_2;
 /*005dd61c*/ extern float k_f_0_001;
@@ -111,21 +111,21 @@
 
 /* "rotates the frame about x/z by the stored angles and integrates damped angular velocities" */
 
-extern void course_rotating_object_integrate(char *param_1,float param_2);
+extern void course_rotating_object_integrate(char *rot_obj, float dt);
 
 
 /* course_quad_render_a */
 
 /* "transforms 4 points and draws a textured Im3D triangle strip with the object's texture" */
 
-extern void course_quad_render_a(char *param_1);
+extern void course_quad_render_a(char *obj);
 
 
 /* course_quad_render_b */
 
 /* "same quad draw for the second quad set (+0xE8 points, texture at +0x118)" */
 
-extern void __cdecl course_quad_render_b(char *param_1,char *param_2,char *param_3);
+extern void __cdecl course_quad_render_b(char *str_a, char *str_b, char *str_c);
 
 
 /* course_get_matrix_pos_8c53e0 */
@@ -140,7 +140,7 @@ extern int course_get_matrix_pos_8c53e0(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "RpSplineFindMatrix of the spline object and sets its frame transform" */
 
-extern void spline_object_update(undefined4 *param_1,float param_2);
+extern void spline_object_update(undefined4 *words, float value);
 
 
 /* course_rouabout_cb7 */
@@ -152,7 +152,7 @@ extern void course_rouabout_cb7(void);
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
-extern void course_rouabout_cb1(char *param_1,char *param_2);
+extern void course_rouabout_cb1(char *str_a, char *str_b);
 
 
 /* course_point_in_water_box_test */
@@ -183,7 +183,7 @@ extern void course_sandsnow_destroy_frames(void);
 
 /* course_sandsnow_cb0 */
 
-extern void course_sandsnow_cb0(char *param_1);
+extern void course_sandsnow_cb0(char *course_ctx);
 
 
 /* course_race_phase_hook_b */
@@ -195,19 +195,19 @@ extern void course_race_phase_hook_b(void);
 
 /* course_sandsnow_cb2 */
 
-extern void course_sandsnow_cb2(char *param_1);
+extern void course_sandsnow_cb2(char *course_data);
 
 
 /* course_storm_cb0 */
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
-extern void course_storm_cb0(char *param_1);
+extern void course_storm_cb0(char *world);
 
 
 /* course_storm_cb2 */
 
-extern void course_storm_cb2(char *param_1);
+extern void course_storm_cb2(char *course);
 
 
 /* course_storm_cb5 */
@@ -229,12 +229,12 @@ extern void course_tierra_n_cb7(void);
 
 /* course_tierra_n_cb1 */
 
-extern void course_tierra_n_cb1(char *param_1,char *param_2);
+extern void course_tierra_n_cb1(char *str_a, char *str_b);
 
 
 /* course_tierra_n_cb2 */
 
-extern void course_tierra_n_cb2(char *param_1);
+extern void course_tierra_n_cb2(char *course);
 
 
 /* course_tierra_n_cb5 */
@@ -244,7 +244,7 @@ extern void course_tierra_n_cb5(void);
 
 /* course_forest_cb2 */
 
-extern void course_forest_cb2(char *param_1);
+extern void course_forest_cb2(char *course_ctx);
 
 
 /* course_c26_stub_return_0 */
@@ -258,14 +258,14 @@ extern undefined4 course_c26_stub_return_0(void);
 
 /* "(index): float of the object record" */
 
-extern double course_object_get_float_16c(char *param_1);
+extern double course_object_get_float_16c(char *index);
 
 
 /* course_c26_checkpoint_scale_value */
 
 /* "a float table entry * 1/6" */
 
-extern double course_c26_checkpoint_scale_value(char *param_1);
+extern double course_c26_checkpoint_scale_value(char *slot);
 
 
 /* course_object_offsets_init */

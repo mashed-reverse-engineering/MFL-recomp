@@ -108,7 +108,7 @@ void sound_car_engine_update(int car_index)
   case 3:
   case 0xd:
     g_sound_car_6ae18c = 1;
-    goto LAB_0046ff1d;
+    goto set_engine_freq_base_high;
   case 2:
   case 6:
   case 8:
@@ -118,7 +118,7 @@ void sound_car_engine_update(int car_index)
     break;
   default:
     g_sound_car_6ae18c = 0;
-LAB_0046ff1d:
+set_engine_freq_base_high:
     g_sound_car_629244 = ENGINE_FREQ_BASE_HIGH;
   }
   /* random jitter on the base frequency (wave_level is reused as scratch here) */
@@ -235,12 +235,12 @@ LAB_0046ff1d:
   if (((int *)&g_sound_car_6ae17c)[car_index] == 2) {
     if (*(float *)((char *)&g_sound_car_6291d8 + scratch_int) < *engine_freq - prev_freq) {
       frame.smoothed_freq = *(float *)((char *)&g_sound_car_6291d8 + scratch_int);
-      goto LAB_004702b5;
+      goto add_prev_freq;
     }
   }
   else if (*(float *)((char *)((undefined *)&g_sound_car_6291b0) + scratch_int) < *engine_freq - prev_freq) {
     frame.smoothed_freq = frame.car_index_f * float_10_0 + *(float *)((char *)((undefined *)&g_sound_car_6291b0) + scratch_int);
-LAB_004702b5:
+add_prev_freq:
     frame.smoothed_freq = frame.smoothed_freq + prev_freq;
   }
   if (*engine_freq - prev_freq < -*(float *)((char *)((undefined *)&g_sound_car_6291c4) + scratch_int)) {
@@ -260,12 +260,12 @@ LAB_004702b5:
   if (*(int *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) == 0) {
     if (wave_level < (double)(WAVE_LEVEL_FLOOR)) {
       wave_level = (double)(WAVE_LEVEL_FLOOR);
-      goto LAB_00470356;
+      goto apply_second_voice_volume;
     }
-    if (wave_level <= (double)float_1_0) goto LAB_00470356;
+    if (wave_level <= (double)float_1_0) goto apply_second_voice_volume;
   }
   wave_level = (double)float_1_0;
-LAB_00470356:
+apply_second_voice_volume:
   if (g_sound_car_62923c != 0) {
     if (*(int *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) == 0) {
       voice_set_volume(voice_index + VOICE_SECOND_OFFSET,

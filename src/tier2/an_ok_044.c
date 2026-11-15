@@ -2,7 +2,7 @@
 /*004089e0*/ extern int fx_object_get_rwp_id();
 /*0040fdc0*/ extern int race_get_phase();
 /*0040fe20*/ extern int __cdecl race_setup_slot_used(undefined4 p0);
-/*00458170*/ extern int __cdecl course_point_in_water_box_test(struct RwV3d *p0);
+/*00458170*/ extern int __cdecl course_point_in_water_box_test(struct RwV3d *vertex);
 /*0045d590*/ extern int course_zone_contains_matrix_in_zone_6a2888();
 /*0045f880*/ extern undefined weapon_fx_explosion_slot_clear(undefined4 p0);
 /*0045f8f0*/ extern undefined weapon_drum_drop(undefined4 p0);
@@ -31,23 +31,23 @@
 /*0047b520*/ extern int car_current_matrix();
 /*0047b6e0*/ extern int car_get_velocity();
 /*0047b7c0*/ extern int car_set_field_144();
-/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
+/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *clump, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
 /*00484680*/ extern int object_set_flag_4();
 /*00486710*/ extern int particles_destroy();
-/*00486880*/ extern int gfx_set_gfx_6c50c8(float p0);      /* defectlint: was `()`: the float was pushed as a double */
+/*00486880*/ extern int gfx_set_gfx_6c50c8(float value);      /* defectlint: was `()`: the float was pushed as a double */
 /*00486c40*/ extern int particles_flush();
 /*00486ef0*/ extern int particles_render();
 /*0049c0f0*/ extern int fx_system_render_no_zwrite();
 /*0049c120*/ extern int fx_buffers_free();
-/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
-/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
-/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
+/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *frame);
+/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *frame, RwMatrix *matrix, enum RwOpCombineType combine_op);
+/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *frame, struct RwV3d *axis, RwReal angle, enum RwOpCombineType combine);
+/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *matrix_a, RwMatrix *matrix_b);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
+/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *world, struct RpClump *clump);
+/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *world, struct RpClump *clump);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
 /*005dd32c*/ extern float k_f_3;
 /*005dd330*/ extern float float_1_0;
 /*005dd378*/ extern float k_f_0_1;
@@ -165,7 +165,7 @@ void weapon_drum_clear_effects(void)
 
 /* weapon_drum_fire */
 
-extern void weapon_drum_fire(WeaponSlot *param_1,char *param_2);
+extern void weapon_drum_fire(WeaponSlot *weapon_slot, char *action);
 
 
 /* weapon_drum_update */
@@ -229,7 +229,7 @@ extern void weapon_flashbang_free_assets(void);
 
 /* weapon_flashbang_fire */
 
-extern void weapon_flashbang_fire(WeaponSlot *param_1,char *param_2);
+extern void weapon_flashbang_fire(WeaponSlot *slot, char *event);
 
 
 /* weapon_flashbang_update */
@@ -244,12 +244,12 @@ extern void weapon_flashbang_race_start(void);
 
 /* weapon_rocket_unequip */
 
-extern void weapon_rocket_unequip(WeaponSlot *param_1);
+extern void weapon_rocket_unequip(WeaponSlot *weapon_slot);
 
 
 /* weapon_rocket_ammo_fraction */
 
-extern double weapon_rocket_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_rocket_ammo_fraction(WeaponSlot *slot);
 
 
 /* weapon_rocket_free_assets */
@@ -278,7 +278,7 @@ extern void weapon_rocket_reset_all(void);
 
 /* weapon_machinegun_unequip */
 
-extern void weapon_machinegun_unequip(WeaponSlot *param_1);
+extern void weapon_machinegun_unequip(WeaponSlot *weapon_slot);
 
 
 /* weapon_machinegun_free_assets */
@@ -329,14 +329,14 @@ extern void weapon_oil_free_assets(void);
 
 /* weapon_oil_is_finished */
 
-extern undefined4 weapon_oil_is_finished(WeaponSlot *param_1);
+extern undefined4 weapon_oil_is_finished(WeaponSlot *slot);
 
 
 /* weapon_oil_ammo_fraction */
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
-extern double weapon_oil_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_oil_ammo_fraction(WeaponSlot *slot);
 
 
 /* weapon_oil_course_2_update */
@@ -391,7 +391,7 @@ extern void weapon_oil_update(void);
 
 /* "calls weapon_oil_pick_slot" */
 
-extern void weapon_oil_pick_slot_forward(char *param_1);
+extern void weapon_oil_pick_slot_forward(char *str);
 
 
 /* weapon_mines_equip */
@@ -493,7 +493,7 @@ extern void weapon_mines_course_2_update(void);
 
 /* weapon_mines_fire */
 
-extern void weapon_mines_fire(WeaponSlot *param_1,char *param_2);
+extern void weapon_mines_fire(WeaponSlot *slot, char *fire_event);
 
 
 /* weapon_mines_reset_all */

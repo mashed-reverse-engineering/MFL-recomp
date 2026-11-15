@@ -161,7 +161,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
         do {
           /* integrate the car, update the wheel contacts and the world collision */
           while( true ) {
-            if (1 < retry_count) goto LAB_0047f2d7;
+            if (1 < retry_count) goto next_car;
             no_collision = true;
             car_integrate_step_r(car,car->matrices + cur_matrix * 0x10,car->matrices + prev_matrix * 0x10,dt
                                ,&frame.input->left);
@@ -216,7 +216,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
         player_car[frame.car_index].matrix_current = cur_matrix - 1 & 1;
       }
     }
-LAB_0047f2d7:
+next_car:
     frame.car_index = frame.car_index + 1;
     if ((MAX_CARS - 1) < frame.car_index) {
       return;

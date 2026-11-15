@@ -70,10 +70,10 @@ void replay_load_compare(int update_flag)
                  (double)((float)*(uint *)(g_replay_652f88 + 0x174) * k_f_3_3333333en4));
     debug_printf("\nSplitTime 0 is %f\n",(double)((float)*(uint *)(g_replay_652f8c + 0x17c) * k_f_3_3333333en4));
     debug_printf("\nSplitTime 1 is %f\n",(double)((float)*(uint *)(g_replay_652f8c + 0x180) * k_f_3_3333333en4));
-    if (*(uint *)(g_replay_652f88 + 0x174) <= *(uint *)(g_replay_652f8c + 0x174)) goto LAB_00413f8a;
+    if (*(uint *)(g_replay_652f88 + 0x174) <= *(uint *)(g_replay_652f8c + 0x174)) goto check_best_time;
   }
   beats_compare_replay = true;
-LAB_00413f8a:
+check_best_time:
   time_s = (float)*(int *)(g_replay_652f8c + 0x174);
   if (*(int *)(g_replay_652f8c + 0x174) < 0) {
     time_s = time_s + k_f_4_2949673e9;

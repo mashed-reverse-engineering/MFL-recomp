@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
 /*00408900*/ extern int fx_objects_destroy();
 /*004219e0*/ extern undefined __cdecl course_call_cb4(undefined4 p0);
-/*004219f0*/ extern undefined __cdecl course_call_cb5(undefined4 p0);
+/*004219f0*/ extern undefined __cdecl course_call_cb5(undefined4 unload_context);
 /*00421a00*/ extern int course_call_cb6();
-/*00421a10*/ extern undefined __cdecl course_call_cb7(undefined4 p0);
+/*00421a10*/ extern undefined __cdecl course_call_cb7(undefined4 arg);
 /*00421a20*/ extern int course_call_cb8();
 /*00421a30*/ extern int course_call_cb9();
 /*00421a40*/ extern int course_call_cb10();
@@ -18,7 +18,7 @@
 /*00421b60*/ extern int course_has_cb10();
 /*00421b70*/ extern int course_has_cb11();
 /*00429c20*/ extern int vehicle_slot_set();
-/*00429cd0*/ extern undefined __stdcall load_copter_model(char *p0);
+/*00429cd0*/ extern undefined __stdcall load_copter_model(char *model_name);
 /*0042a110*/ extern int course_destroy_extra_clumps();
 /*00434a20*/ extern int get_second_camera();
 /*0046a010*/ extern int sound_stop_all_voices_and_streams();
@@ -27,25 +27,25 @@
 /*00475510*/ extern int course_grid_buffers_free();
 /*00475730*/ extern int get_viewport_camera();
 /*00485030*/ extern int frame_follow_path_step();
-/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
-/*00488da0*/ extern undefined __cdecl course_destroy_world(struct CourseWorld *p0, struct CourseCounts *p1);
+/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *dictionary);
+/*00488da0*/ extern undefined __cdecl course_destroy_world(struct CourseWorld *world, struct CourseCounts *counts);
 /*00490ef0*/ extern int rwp_world_flush();
 /*00490f30*/ extern int rwp_world_destroy();
 /*00492e00*/ extern int rwp_objects_reset_all();
 /*004a0850*/ extern int fx_buffer_free();
 /*004a1860*/ extern int game_set_option_flags();
 /*004a1880*/ extern int game_get_62ad2c();
-/*004a43d0*/ extern undefined __cdecl game_open_piz(char *p0);
+/*004a43d0*/ extern undefined __cdecl game_open_piz(char *path);
 /*004b2b48*/ extern int _ftol();
-/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d1bd0*/ extern struct RwCamera * RwCameraSetNearClipPlane(struct RwCamera *p0, RwReal p1);
-/*004d1ca0*/ extern struct RwCamera * RwCameraSetFarClipPlane(struct RwCamera *p0, RwReal p1);
-/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
-/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*004d56a0*/ extern struct RwV3d * RwV3dTransformVector(struct RwV3d *p0, struct RwV3d *p1, RwMatrix *p2);
-/*004f6240*/ extern struct RwSphere * RpAtomicGetWorldBoundingSphere(struct RpAtomic *p0);
+/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *frame, struct RwV3d *translation, enum RwOpCombineType combine);
+/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *frame, struct RwV3d *axis, RwReal angle, enum RwOpCombineType combine);
+/*004d1bd0*/ extern struct RwCamera * RwCameraSetNearClipPlane(struct RwCamera *cam, RwReal v);
+/*004d1ca0*/ extern struct RwCamera * RwCameraSetFarClipPlane(struct RwCamera *cam, RwReal v);
+/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *camera, struct RwSphere *sphere);
+/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *matrix, struct RwV3d *vec, RwReal value, enum RwOpCombineType combine_op);
+/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
+/*004d56a0*/ extern struct RwV3d * RwV3dTransformVector(struct RwV3d *out, struct RwV3d *in, RwMatrix *m);
+/*004f6240*/ extern struct RwSphere * RpAtomicGetWorldBoundingSphere(struct RpAtomic *atomic);
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
 /*005dda1c*/ extern float k_f_3_3333333en4;
@@ -242,28 +242,28 @@ extern void copters_load(void);
 
 /* "g_course_lap_data.split_sectors[6] = value" */
 
-extern void course_set_split_sector_6(char *param_1);
+extern void course_set_split_sector_6(char *str);
 
 
 /* course_hook10 */
 
 /* "cb10 when the course is loaded (split_sectors[8] != 0)" */
 
-extern void course_hook10(char *param_1);
+extern void course_hook10(char *str);
 
 
 /* course_set_split_sector_7 */
 
 /* "g_course_lap_data.split_sectors[7] = value (camera in the collision world flag)" */
 
-extern void __cdecl course_set_split_sector_7 (char *param_1,char *param_2,char *param_3,char *param_4,char *param_5);
+extern void __cdecl course_set_split_sector_7 (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5);
 
 
 /* course_uv_anim_update */
 
 /* "scales the time by 1/3000 and updates the uv animations" */
 
-extern void course_uv_anim_update(char *param_1,char *param_2,char *param_3);
+extern void course_uv_anim_update(char *world, char *set, char *time);
 
 
 /* course_camera_roll_update */
@@ -271,14 +271,14 @@ extern void course_uv_anim_update(char *param_1,char *param_2,char *param_3);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "computes the camera roll factor from the camera facing and calls game_set_option_flags" */
 
-extern void course_camera_roll_update(char *param_1,RwCamera *camera);
+extern void course_camera_roll_update(char *course, RwCamera *camera);
 
 
 /* course_unload */
 
 /* "(course id): cb5, then course_destroy and the per-course resets" */
 
-extern void __cdecl course_unload(char *param_1);
+extern void __cdecl course_unload(char *course);
 
 
 /* course_get_split_sector_8 */
@@ -313,14 +313,14 @@ extern void course_hook7(void);
 
 /* "cb6 when present" */
 
-extern void __cdecl course_hook6(char *param_1);
+extern void __cdecl course_hook6(char *str);
 
 
 /* course_hook9 */
 
 /* "cb9 when present" */
 
-extern void __cdecl course_hook9(char *param_1);
+extern void __cdecl course_hook9(char *course);
 
 
 /* course_hook8 */
@@ -334,21 +334,21 @@ extern void course_hook8(void);
 
 /* "cb11 when present" */
 
-extern void __cdecl course_hook11(char *param_1);
+extern void __cdecl course_hook11(char *course);
 
 
 /* course_get_record_pos */
 
 /* "(i): 0x681834 + i * 0x4C" */
 
-extern int course_get_record_pos(char *param_1);
+extern int course_get_record_pos(char *i);
 
 
 /* course_get_record_base */
 
 /* "(i): 0x681828 + i * 0x4C" */
 
-extern int course_get_record_base(char *param_1);
+extern int course_get_record_base(char *i);
 
 
 /* course_get_68b8b4_ptr */

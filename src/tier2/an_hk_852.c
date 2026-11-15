@@ -91,7 +91,7 @@ void __cdecl camera_editor_setup_parallel(char *cam_state)
       if (k_f_0 < horiz_len) {
         angle = angle + (double)k_f_180;
       }
-      goto LAB_0044a815;
+      goto set_pitch_from_angle;
     }
   }
   if (dy < k_f_0) {
@@ -101,7 +101,7 @@ void __cdecl camera_editor_setup_parallel(char *cam_state)
     angle = (double)k_f_90;
   }
   /* shared exit: pitch = 360 - angle */
-LAB_0044a815:
+set_pitch_from_angle:
   full_turn = (double)k_f_360;
   *(undefined4 *)(cam_state + CAM_ROLL_DEG_OFF) = 0;
   *(float *)(cam_state + CAM_PITCH_DEG_OFF) = (float)(full_turn - angle);

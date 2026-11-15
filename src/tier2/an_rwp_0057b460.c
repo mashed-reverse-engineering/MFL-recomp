@@ -25,20 +25,20 @@ void rwp_batch_0057b460(int *obj, int *pp, MflSolveByVal34 blk,
   int v1_data, v1_cnt, v1_pad, v2_data, v2_cnt, v2_pad, v3_data, v3_cnt, v3_pad, v4_data, v4_cnt, v4_pad;
   int idx, lane, off;
   unsigned int i, j, k, lim;
-  float sum, a, b, l1, l2, prev, fcnt, g_lo, g_hi, g_min, g_max, g_scale, q, d, e, lf;
-  __m128 x0, x1;
+  float sum, a, b, run_max, run_min, prev, fcnt, g_lo, g_hi, g_min, g_max, g_scale, q, d, e, lf;
+  __m128 lane_c, lane_a;
 
   v1_data = obj[0]; v1_cnt = obj[1]; v1_pad = obj[2];
   v2_data = obj[3]; v2_cnt = obj[4]; v2_pad = obj[5];
   v3_data = pp[0]; v3_cnt = pp[1]; v3_pad = pp[2];
   v4_data = pp[3]; v4_cnt = pp[4]; v4_pad = pp[5];
   for (i = 0; i < n; i++) {
-    x0 = src_c[i];
-    x1 = src_a[i];
-    ((__m128 *)v2_data)[i] = x1;
-    ((__m128 *)v1_data)[i] = x0;
-    ((__m128 *)v3_data)[i] = _mm_cmpneq_ps(x0, ((__m128 *)ref_lo)[i]);
-    ((__m128 *)v4_data)[i] = _mm_cmpneq_ps(x0, ((__m128 *)ref_hi)[i]);
+    lane_c = src_c[i];
+    lane_a = src_a[i];
+    ((__m128 *)v2_data)[i] = lane_a;
+    ((__m128 *)v1_data)[i] = lane_c;
+    ((__m128 *)v3_data)[i] = _mm_cmpneq_ps(lane_c, ((__m128 *)ref_lo)[i]);
+    ((__m128 *)v4_data)[i] = _mm_cmpneq_ps(lane_c, ((__m128 *)ref_hi)[i]);
   }
   sum = rwp_batch_0057b2f0(&idx, &lane, v2_data, v2_cnt, v2_pad, v1_data, v1_cnt, v1_pad, v3_data, v3_cnt, v3_pad, v4_data, v4_cnt, v4_pad, thr);
   prev = sum;
@@ -49,8 +49,8 @@ void rwp_batch_0057b460(int *obj, int *pp, MflSolveByVal34 blk,
   g_max = ref_hi[off];
   g_scale = gb0[off];
   a = 0.0f;
-  l1 = 0.0f;
-  l2 = sum;
+  run_max = 0.0f;
+  run_min = sum;
   k = 0;
   lim = v2_cnt + 1;
   fcnt = (float)(unsigned int)v2_cnt;
@@ -81,21 +81,21 @@ void rwp_batch_0057b460(int *obj, int *pp, MflSolveByVal34 blk,
           prev = a;
           a = (a + a) * 0.5f;
           q = 1.0f / a;
-          d = l1 - l2;
+          d = run_max - run_min;
           e = q * d * 100.0f + 1.0f;
           if ((double)lim > e) {
             lf = q * d * fcnt;
             lim = _mm_cvtss_si32(_mm_load_ss(&lf)) + 1;
           }
-          l1 = b;
-          l2 = b;
+          run_max = b;
+          run_min = b;
         } else {
           idx = -1;
         }
       }
       a = (b - a) * 0.5f + a;
-      if (b > l1) l1 = b;
-      if (b < l2) l2 = b;
+      if (b > run_max) run_max = b;
+      if (b < run_min) run_min = b;
     }
     j++;
   } while (j < iters);

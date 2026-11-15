@@ -22,35 +22,35 @@ int rwp_farfield_boxes_shrink(MflClipBox *out, MflClipBox *b, MflClipBox *a)
   int r = _rand();
   float hx, hz, lx, lz;
   float lyf;
-  volatile float t18, t2;      /* the third corner terms are rounded to frame floats like the original (fstp, reloaded by fadd) */
+  volatile float hz_term, lz_term;      /* the third corner terms are rounded to frame floats like the original (fstp, reloaded by fadd) */
   double hy, ly;
-  int c1, c2, common, sel;
-  int b0, b1, b2;
+  int code_hi, code_lo, common, sel;
+  int bit_x, bit_y, bit_z;
 
   hy = a->max[1] * 0.6f;
-  t18 = a->max[2] * 0.6f;
+  hz_term = a->max[2] * 0.6f;
   hx = a->min[0] * 0.39999998f + a->max[0] * 0.6f;
   hy = a->min[1] * 0.39999998f + hy;
-  hz = a->min[2] * 0.39999998f + t18;
+  hz = a->min[2] * 0.39999998f + hz_term;
   ly = a->min[1] * 0.6f;
-  t2 = a->min[2] * 0.6f;
+  lz_term = a->min[2] * 0.6f;
   lx = a->max[0] * 0.39999998f + a->min[0] * 0.6f;
   ly = a->max[1] * 0.39999998f + ly;
   lyf = ly;
-  lz = a->max[2] * 0.39999998f + t2;
-  c1 = (b->max[0] > hx) + 2 * ((b->max[1] > hy) + 2 * (b->max[2] > hz));
-  c2 = (lx > b->min[0]) + 2 * ((ly > b->min[1]) + 2 * (lz > b->min[2]));
-  if (((c1 | c2) & 0xffff) != 7) return 0xffff;
-  common = c1 & c2;
-  sel = (c1 & ~common) | (r & common);
-  b0 = sel & 1;
-  b1 = (sel >> 1) & 1;
-  b2 = (sel >> 2) & 1;
-  out->max[0] = (1 - b0) * a->max[0] + b0 * hx;
-  out->max[1] = (1 - b1) * a->max[1] + b1 * hy;
-  out->max[2] = (1 - b2) * a->max[2] + b2 * hz;
-  out->min[0] = b0 * a->min[0] + (1 - b0) * lx;
-  out->min[1] = b1 * a->min[1] + (1 - b1) * lyf;
-  out->min[2] = b2 * a->min[2] + (1 - b2) * lz;
+  lz = a->max[2] * 0.39999998f + lz_term;
+  code_hi = (b->max[0] > hx) + 2 * ((b->max[1] > hy) + 2 * (b->max[2] > hz));
+  code_lo = (lx > b->min[0]) + 2 * ((ly > b->min[1]) + 2 * (lz > b->min[2]));
+  if (((code_hi | code_lo) & 0xffff) != 7) return 0xffff;
+  common = code_hi & code_lo;
+  sel = (code_hi & ~common) | (r & common);
+  bit_x = sel & 1;
+  bit_y = (sel >> 1) & 1;
+  bit_z = (sel >> 2) & 1;
+  out->max[0] = (1 - bit_x) * a->max[0] + bit_x * hx;
+  out->max[1] = (1 - bit_y) * a->max[1] + bit_y * hy;
+  out->max[2] = (1 - bit_z) * a->max[2] + bit_z * hz;
+  out->min[0] = bit_x * a->min[0] + (1 - bit_x) * lx;
+  out->min[1] = bit_y * a->min[1] + (1 - bit_y) * lyf;
+  out->min[2] = bit_z * a->min[2] + (1 - bit_z) * lz;
   return sel;
 }

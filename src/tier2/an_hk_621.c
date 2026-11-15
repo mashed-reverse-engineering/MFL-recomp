@@ -59,13 +59,13 @@ undefined4 app_frame_wait(void)
   /* leftover >= 48 ticks rounds up to one more step; leftover of 3..47 is kept for the next frame;
      leftover of 2 or less is dropped */
   if ((int)g_app_frame_76e860 < 0x30) {
-    if (2 < (int)g_app_frame_76e860) goto LAB_004a2911;
+    if (2 < (int)g_app_frame_76e860) goto publish_step_time;
   }
   else {
     step_count = step_count + 1;
   }
   g_app_frame_76e860 = 0;
-LAB_004a2911:
+publish_step_time:
   /* publish the step count as ticks and as seconds */
   g_frame_ticks = step_count * TICKS_PER_STEP;
   g_frame_seconds = (float)(int)(step_count * TICKS_PER_STEP) * k_f_3_3333333en4;

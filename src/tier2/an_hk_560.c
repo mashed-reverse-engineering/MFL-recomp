@@ -26,7 +26,7 @@ void ai_editor_cursor_move(void)
     cursor_max = 3;
   }
   else if (g_ai_editor_mode == 4) {
-LAB_00426e24:
+cursor_max_5:
     cursor_max = 5;
   }
   else if (g_ai_editor_mode == 2) {
@@ -37,13 +37,13 @@ LAB_00426e24:
   }
   else {
     if (g_ai_editor_mode != 5) {
-      if (g_ai_editor_mode != 6) goto LAB_00426e2e;
-      goto LAB_00426e24;
+      if (g_ai_editor_mode != 6) goto menu_down_edge;
+      goto cursor_max_5;
     }
     cursor_max = 3;
   }
   cursor_min = 2;
-LAB_00426e2e:
+menu_down_edge:
   /* down edge: advance, wrap to cursor_min past cursor_max */
   if ((((*(byte *)((char *)&g_player_inputs[0] + 57)) != '\0') && ((*(byte *)((char *)&g_player_inputs_previous[0] + 57)) == '\0')) &&
      (g_ai_editor_menu_cursor = g_ai_editor_menu_cursor + 1, cursor_max < (int)g_ai_editor_menu_cursor)) {

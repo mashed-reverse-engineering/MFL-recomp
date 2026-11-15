@@ -77,7 +77,7 @@ uint game_mode_end_check(void)
   switch(game_mode) {
   case 4:
     counter_below_limit = !(ai_get_counter(0) >= k_f_3);
-    goto LAB_00413226;
+    goto check_counter_limit;
   case 5:
     result = car_is_active(0);
     if (result == 0) {
@@ -144,7 +144,7 @@ uint game_mode_end_check(void)
       return 1;
     }
     counter_below_limit = !(ai_get_counter(0) >= k_f_1_999);
-LAB_00413226:
+check_counter_limit:
     if (!counter_below_limit) {
       return 1;
     }

@@ -79,7 +79,7 @@ undefined4 __cdecl ai_find_target_c(char *unused_arg,char *line_point_b,char *pr
         if (!(rank_key - (double)frame.target_x > k_f_0)) {      /* NaN takes the branch (original: test ah,0x41; je) */
           slot_used = course_get_ai_polygon_count();
           frame.target_distance = (RwReal)(5 - slot_used);
-          if (!((float)(int)frame.target_distance > rank_gap)) goto LAB_0041768b;      /* NaN skips the candidate (original: jne) */
+          if (!((float)(int)frame.target_distance > rank_gap)) goto next_slot_candidate;      /* NaN skips the candidate (original: jne) */
         }
         /* keep the closest candidate so far */
         if (rank_gap < frame.best_rank_gap) {
@@ -88,7 +88,7 @@ undefined4 __cdecl ai_find_target_c(char *unused_arg,char *line_point_b,char *pr
         }
       }
     }
-LAB_0041768b:
+next_slot_candidate:
     slot_index = slot_index + 1;
     if (3 < slot_index) {
       if (slot_type != NO_SLOT) {

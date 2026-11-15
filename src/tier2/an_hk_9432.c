@@ -87,7 +87,7 @@ void menu_page_update_entry_states(int page_index)
     if (g_menu_game_mode_choice == 1) {
       g_menu_records[page_index + 1].entry_enabled[3] = 0;
       g_menu_bot_skill_a = 0;
-LAB_0043872d:
+check_two_players:
       controller_index = player_slots_count_active();
       if (controller_index == 2) {
         g_menu_records[page_index + 1].entry_enabled[5] = 0;
@@ -95,7 +95,7 @@ LAB_0043872d:
       }
     }
     else {
-      if (g_menu_bot_skill_a == 0) goto LAB_0043872d;
+      if (g_menu_bot_skill_a == 0) goto check_two_players;
       g_menu_records[page_index + 1].entry_enabled[5] = 1;
     }
     if (g_game_state.progress[g_career_row * 0x12 + 9] == 0) {
@@ -113,11 +113,11 @@ LAB_0043872d:
     controller_index = player_slots_count_active();
     if ((controller_index != 4) && (controller_index = is_team_mode(), controller_index == 0))
     break;
-    goto LAB_004387b7;
+    goto disable_entry_3;
   case MENU_PAGE_GAME_SETUP_SINGLE:
     controller_index = career_event_set_progress(1);
     if (controller_index != 0) break;
-LAB_004387b7:
+disable_entry_3:
     g_menu_records[page_index + 1].entry_enabled[3] = 0;
     break;
   case MENU_PAGE_VIBRATION:

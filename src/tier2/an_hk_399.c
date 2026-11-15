@@ -32,7 +32,7 @@ undefined4 __cdecl ai_paint_cell(uint world_x,uint world_z,undefined4 value)
     tile = g_ai_data.grid[grid_index];
     /* cell already has a tile: skip the allocation and paint into it */
     if (0 < tile) {
-LAB_0041a12b:
+paint_tile_cell:
       /* paint: track the highest tile used, then write the byte at tile * 64 + local_z * 8 + local_x */
       cell_x = (int)tile;
       if (g_ai_data.tiles_used < cell_x) {
@@ -54,7 +54,7 @@ LAB_0041a12b:
             return 0;
           }
           g_ai_data.grid[grid_index] = tile;
-          goto LAB_0041a12b;
+          goto paint_tile_cell;
         }
         /* tile holds data: try the next tile */
         if (*(char *)(cell_x + ((LONG_PTR)&g_ai_cells) + tile * TILE_BYTES) != TILE_EMPTY) break;

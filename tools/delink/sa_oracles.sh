@@ -1,5 +1,5 @@
 #!/bin/bash
-# sa_oracles.sh <data|render|scen|sweep> <link dir> <delta> <out dir>: whole-program oracles of `gate.sh standalone` (plan 2026-11-03 lane A). Exit 0 = ok.
+# sa_oracles.sh <data|render|scen|sweep|training> <link dir> <delta> <out dir>: whole-program oracles of `gate.sh standalone` (plan 2026-11-03 lane A). Exit 0 = ok.
 #   data    <link dir>/ours.map: .data length must be 00052000H.  An initialised writable static in a new object grows .data and shifts the original bss
 #           that original-byte code addresses absolutely (T-P15: 00052004H, every course crashed).  Change DATA_LEN only when the DELTA contract changes.
 #   render  d3dtrace of every RENDER_TARGETS (default: the targets of tools/d3dtrace/render_limits.txt, course:0 course:7 course:12 title; races DRIVE=31,
@@ -14,8 +14,12 @@
 #           (race scenarios run with SCEN_IMGTHRESH=off).  T-P17 (link 1228, menu_page_enter without volatile): pause_all training crashes.
 #   sweep   mini course sweep through the menus: arcade rows 0-14 (RIGHT 0) and cup rows 0-14 (RIGHT row%3), SCEN_DRIVE=31, freeze at race frame 300;
 #           scenario.sh verdicts (no screenshot compare) + colorcheck of every race_start.png.  SWEEP_P parallel scenarios (default 4, gameslot.sh caps), SWEEP_ROWS (default 0..14).
-# scen / sweep: a crash fails at once, any other failure is retried once; a PASS on the retry is appended to output/scenario/flaky.tsv (the flaky ledger, shared with
-# wine-run/sasweep.py; FLAKY_TSV overrides).
+#   training training lessons played to the end (scenarios/training_tt.sh, SCEN_DRIVE 287), TT_P parallel (default 2), TT_SECS (default 200).  Judged rows (TT_ROWS,
+#           default 0 2 3): scenario.sh RESULT + wine-run/tt_check.py (done mark, retry-free step / text-id progression, GameState; UNJUDGED fails).
+#           Crash-only rows (TT_CRASHONLY, default 5: its outcome is noise in the control too): Wine crash / rc only.
+# scen / sweep / training: a crash fails at once, any other failure is retried once; a PASS on the retry is appended to output/scenario/flaky.tsv (the flaky ledger, shared with
+# wine-run/sasweep.py; FLAKY_TSV overrides).  Wine kinds refuse to start while a gate holds gate.lock, unless the gate calls them (MFL_IN_GATE).  The control exe
+# output/scenario/_build/ctrl.exe is built once here when missing or REBUILD=1 (then REBUILD is dropped: parallel scenario.sh runs would all rebuild the same file).
 T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f $T/../..); K=$1; L=$(readlink -f "${2:?link dir}"); DL=${3:?delta}; O=${4:?out dir}; mkdir -p $O
 S=$R/tools/wine-run/scenario.sh; A="SCEN_EXE=$L/ours.exe SCEN_DELTA=$DL SCEN_OUT=$O/scen"
 verdict() {   # verdict <log>: the failure reasons (empty = ok)
@@ -31,7 +35,10 @@ one() {       # one <name> <scenario.sh args>: a crash fails at once; any other 
 report() {    # report <name>: verdict line, FAIL line -> rc 1
   local r=$(verdict $O/$1.log); cat $O/$1.retry 2>/dev/null
   echo "scen $1: $(grep -h "^RESULT:" $O/$1.log)$(grep -h "^GameState" $O/$1.log | sed 's/^/  /')"; [ -z "$r" ] || { echo "scen $1: FAIL: $r"; return 1; }; }
-scenlinks() { mkdir -p $O/scen; for x in _build _ctrlcache; do [ -e $O/scen/$x ] || ln -s $R/output/scenario/$x $O/scen/$x; done; }
+scenlinks() { mkdir -p $O/scen; for x in _build _ctrlcache; do [ -e $O/scen/$x ] || ln -s $R/output/scenario/$x $O/scen/$x; done
+  local B=$R/output/scenario/_build; if [ ! -f $B/ctrl.exe ] || [ -n "$REBUILD" ]; then mkdir -p $B
+    python3 $R/tools/build_overlay.py $B/ctrl.exe --no-recomp --harness > $B/build_ctrl.log 2>&1 || { echo "ctrl build failed ($B/build_ctrl.log)"; exit 1; }; fi; unset REBUILD; }
+case $K in render|scen|sweep|training) [ -n "$MFL_IN_GATE" ] || flock -s -n ${GATE_LOCK:-/tmp/claude-$(id -u)/gate.lock} true || { echo "sa_oracles.sh: REFUSED: a gate is running (gate.lock held)"; exit 2; };; esac
 case $K in
   data) n=$(awk '$3==".data" && $4 ~ /^DATA/ {print $2; exit}' $L/ours.map); echo ".data length ${n:-missing} (want ${DATA_LEN:-00052000H})"; [ "$n" = "${DATA_LEN:-00052000H}" ];;
   render)
@@ -60,5 +67,16 @@ case $K in
       ls $O/scen/*_sa_$f/out_ours/race_start.png > /dev/null 2>&1 || { echo "scen $f: FAIL: no race_start.png"; rc=1; continue; }; np=$((np+1)); done
     echo "sweep: $np of ${#J[@]} scenarios passed"
     python3 -I $T/colorcheck.py $O/scen 1000 '*_sa_sw_*/out_ours/race_start.png' || rc=1; exit $rc;;
-  *) sed -n 2,18p $0; exit 2;;
+  training)
+    scenlinks; rc=0; JR=${TT_ROWS-0 2 3}; CR=${TT_CRASHONLY-5}
+    for r in $JR $CR; do while [ $(jobs -rp | wc -l) -ge ${TT_P:-2} ]; do wait -n; done
+      case " $CR " in *" $r "*) $S $A SCEN_TAG=tt$r SCEN_ROW=$r SCEN_SECS=${TT_SECS:-200} SCEN_IMGTHRESH=off training_tt > $O/tt$r.log 2>&1 &;;
+                      *) one tt$r SCEN_ROW=$r SCEN_SECS=${TT_SECS:-200} SCEN_IMGTHRESH=off training_tt &;; esac; done; wait
+    for r in $CR; do l=$(grep -h "^ours:" $O/tt$r.log); echo "training row $r (crash-only): ${l:-no ours: line ($(tail -1 $O/tt$r.log))}"
+      echo "$l" | grep -q "^ours: clean  rc 0$" || rc=1; done
+    for r in $JR; do report tt$r || rc=1      # tt_check judges the final try only (one: the retry overwrote the run dir)
+      python3 -I $R/tools/wine-run/tt_check.py $O/scen/training_tt_sa_tt$r > $O/tt$r.check 2>&1; echo "training row $r: $(tail -1 $O/tt$r.check)"
+      grep -q "^TT: PASS" $O/tt$r.check || { grep -E "^  [^ ]" $O/tt$r.check | head -3; rc=1; }; done
+    exit $rc;;
+  *) sed -n 2,22p $0; exit 2;;
 esac

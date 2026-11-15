@@ -14,11 +14,12 @@
 #                =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable; started in the background beside check_all when the 1-minute load is below 8, the gate fails
 #                when either fails) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + DRIVE=31 course 0 state compare (cars / vehicles masked
 #                diff <= max(control noise, baseline 'state' rows)) + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), mini course sweep through the menus (arcade + cup
-#                rows 0-14, DRIVE=31, black-frame check), d3dtrace render compare of course:0 only (ours vs cached control + ours vs ours2), scenario smoke.  No 15-course crash sweep (the mini sweep covers all courses).
-#   full         standalone + crash-only 15 courses on the linked exe + render of all tools/d3dtrace/render_limits.txt targets (course:0 course:7 course:12 title) + V7 last (tools/wine-run/release_v7.sh: release link, smoke title + race, no trap log, pcm_check2).  Nightly and before tools/publish.sh
+#                rows 0-14, DRIVE=31, black-frame check), d3dtrace render compare of course:0 only (ours vs cached control + ours vs ours2), scenario smoke, training lessons 0 and 3 to the end (tt_check).  No 15-course crash sweep (the mini sweep covers all courses).
+#   full         standalone + crash-only 15 courses on the linked exe + render of all tools/d3dtrace/render_limits.txt targets (course:0 course:7 course:12 title) + training lessons 0 2 3 + lesson 5 crash-only + V7 last (tools/wine-run/release_v7.sh: release link, smoke title + race, no trap log, pcm_check2).  Nightly and before tools/publish.sh
 #                (publish.sh refuses unless the newest full gate in output/gate/ passed on the same tree hash).
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
+# Tree guard (W10, agent_rules 17): HEAD or a tracked file outside output/ changing during the gate prints TREE CHANGED; kind full then FAILS, others warn.
 # --dry-run prints the plan with the estimated minutes (rough: check_all 4, course 0.5 incl. cached control, sweep of 15 on P=2 about 6).  Exit 0 = all steps passed.
 export LC_ALL=C
 export MFL_IN_GATE=1   # tools/d3dtrace/run.sh refuses to start while a gate holds gate.lock, unless it is called by the gate itself
@@ -87,6 +88,8 @@ case $KIND in
              if [ $KIND = full ]; then step "render oracle: d3dtrace course:0/7/12 + title vs cached control, ours vs ours" 3 "$T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"
              else step "render oracle: d3dtrace course:0 vs cached control, ours vs ours2" 1.5 "RENDER_TARGETS=course:0 $T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"; fi
              step "scenario smoke (options_all, pause_all training, menus_main, arcade_win)" 5 "$T/delink/sa_oracles.sh scen $D/link \$(cat $D/delta.txt) $D/scen"
+             if [ $KIND = full ]; then step "training: lessons 0 2 3 to the end (tt_check) + lesson 5 crash-only" 9 "$T/delink/sa_oracles.sh training $D/link \$(cat $D/delta.txt) $D/training"
+             else step "training: lessons 0 and 3 to the end (tt_check)" 5 "TT_ROWS='0 3' TT_CRASHONLY= $T/delink/sa_oracles.sh training $D/link \$(cat $D/delta.txt) $D/training"; fi
              # V7 (plan W6 section 4, T9): release link + release_smoke title/race, MFL_TRAP_NOBOX=1, no mfl_trap.log, pcm_check2 on the dump; hard 30 min
              [ $KIND = full ] && step "V7 release smoke: link_release + title + race, no trap log, pcm_check2" 12 "timeout -k 10 1800 $W/release_v7.sh $D/v7";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
@@ -106,6 +109,10 @@ WIP=$(git -C $R status --porcelain --untracked-files=all -- recomp); [ -n "$WIP"
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
 mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; echo "$TOLINE"; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
 trap '[ -n "$LPID" ] && kill -TERM $LPID 2>/dev/null' EXIT      # a background link (PARLINK) never outlives the gate (timeout relays the TERM to its process group)
+# W10 tree guard (agent_rules 17): HEAD + every tracked path outside output/ (the gate itself rewrites ledgers there) must not change while the gate runs.
+# Checked after every step; a change prints TREE CHANGED once; kind full then ends with GATE FAILED (publish.sh needs the start tree), the other kinds only warn.
+treesig() { echo "$(git -C $R rev-parse HEAD) $(git -C $R ls-tree $($T/tree_hash.sh) | grep -v $'\toutput$' | sha1sum | cut -c1-12)"; }
+SIG0=$(treesig); TCH=
 failcheck() { grep -E "regress failed|timed out|INVALID| [1-9][0-9]* warnings" "$1"; }      # lines that mean a crash / stall / non-frozen run
 courses() {       # courses <tag> '<list>' [ENV=..]...: one courses.sh call per course (sequential, PAR=4 inside), a progress line each
   local tag=$1 list=$2; shift 2; local c n=0 tot=$(nc $list)
@@ -216,5 +223,8 @@ for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"
   echo "=== [$(date +%H:%M)] step $i/${#PLAN[@]}: $l"
   timeout -k 10 $(awk -v l=$(cut -d" " -f1 /proc/loadavg) "BEGIN{s=l/4; if(s<1)s=1; if(s>2)s=2; print int(${STEP_TIMEOUT:-$(awk "BEGIN{print 3*$m+5}")}*60*s)}") bash -c "$c" & CHILD=$!; wait $CHILD; rc=$?; CHILD=
   [ $rc = 0 ] || { [ "$l" = check_all ] && { echo "check_all failing check (last 12 log lines; the failing check prints its own name and reason last):"; grep -v "^===" $D/gate.log | tail -12; }; echo "GATE FAILED at step $i ($l), exit $rc; logs in $D"; echo "  next: groupsearch only on the failing course (wine-run/percourse.sh / groupsearch.py)"; exit 1; }
+  [ -z "$TCH" ] && [ "$(treesig)" != "$SIG0" ] && { TCH="after step $i ($l): start $SIG0, now $(treesig)"; echo "TREE CHANGED $TCH (a commit or a tracked edit outside output/ during the gate)"; git -C $R status --porcelain --untracked-files=no -- . ':!output' | head -5; }
 done
+[ -n "$TCH" ] && [ $KIND = full ] && { echo "GATE FAILED at step $i (tree changed $TCH): the steps passed on a mixed tree, publish.sh needs a full gate on one tree; rerun"; exit 1; }
+[ -n "$TCH" ] && echo "WARNING: tree changed $TCH; this gate tested a mixed tree"
 echo "GATE $KIND PASSED ($i steps)"

@@ -120,13 +120,13 @@ void __cdecl rwp_cars_setup_bodies_from_bounds(char *world,undefined4 unused_2)
     rwp_world_activate_object(tmp_w, body, 0xffffffff, 6);
     course_id = current_course_id();
     if (course_id == COURSE_HIGHWAY) {
-LAB_0048ebbc:
+select_highway_shape:
       tmp_w = *(undefined4 *)(body + 0x24);
       shape_index = car_index + 2;
     }
     else {
       course_id = current_course_id();
-      if (course_id == COURSE_HIGHWAYN) goto LAB_0048ebbc;
+      if (course_id == COURSE_HIGHWAYN) goto select_highway_shape;
       tmp_w = *(undefined4 *)(body + 0x24);
       shape_index = 1;
     }

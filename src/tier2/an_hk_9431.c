@@ -47,7 +47,7 @@ void sound_endpoint_panel_progress_cues(void)
       return;
     }
     g_sound_endpoint_cue_state = 1;
-    goto LAB_0046f7eb;
+    goto enable_cue_voice;
   case 1:
     reached_next_step = k_f_0_82 <= panel_value;
     if (reached_next_step) {
@@ -84,7 +84,7 @@ void sound_endpoint_panel_progress_cues(void)
     *(undefined4 *)(g_voices[voice_b_index].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
     sub_handle = *(int *)(g_voices[voice_b_index].voice + VOICE_OFF_HANDLE);
     scratch = voice_b_index;
-    goto LAB_0046f8d8;
+    goto set_voice_param;
   case 4:
     if (k_f_1_86 <= panel_value) {
       return;
@@ -94,12 +94,12 @@ void sound_endpoint_panel_progress_cues(void)
     return;
   }
   if (reached_next_step) {
-LAB_0046f7eb:
+enable_cue_voice:
     if ((*(byte *)(g_voices[g_sound_frame_6191cc].voice + VOICE_OFF_FLAGS) & 2) == 0) {
       sound_voice_set_enabled(g_voices[g_sound_frame_6191cc].voice,1);
       *(undefined4 *)(g_voices[scratch].voice + VOICE_OFF_FREQ) = VOICE_DEFAULT_FREQ_BITS;
       sub_handle = *(int *)(g_voices[scratch].voice + VOICE_OFF_HANDLE);
-LAB_0046f8d8:
+set_voice_param:
       sub_result = 0;
       if (sub_handle != 0) {
         sub_result = sound_voice_set_float_param(sub_handle,4,1,22050.0f);

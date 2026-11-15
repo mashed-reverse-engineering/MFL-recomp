@@ -114,7 +114,7 @@ void sound_language_path(undefined4 language)
         name_word_b = (*(uint *)((char *)&s_spanish__005dfa18 + 4));
         name_byte = s_spanish__005dfa18[8];
       } while (*str_end != '\0');
-      goto LAB_0046ee4a;
+      goto copy_name_words;
     case LANG_ITALIAN:
       str_pos = (char *)(slot_offset + ((LONG_PTR)&g_sound_frame_6adcf4 + SLOT_PATH_OFFSET));
       do {
@@ -134,7 +134,7 @@ void sound_language_path(undefined4 language)
         name_word_b = (*(uint *)((char *)&s_english__005dfa40 + 4));
         name_byte = s_english__005dfa40[8];
       } while (*str_end != '\0');
-LAB_0046ee4a:
+copy_name_words:
       *(undefined4 *)str_pos = name_word_a;
       *(undefined4 *)(str_pos + 4) = name_word_b;
       str_pos[8] = name_byte;

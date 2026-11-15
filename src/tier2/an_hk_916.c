@@ -15,6 +15,7 @@
 /*004a9810*/ extern int window_destroy();
 /*004a9c90*/ extern int window_create(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*0076e7e4*/ extern char *g_app_76e7e4;
+extern void mfl_resources_attach(void);
 /* app_initialise_on_bootup */
 
 /* "'Calling AppInitialiseOnBootup' ... boot sequence" */
@@ -27,6 +28,7 @@ undefined4 __stdcall app_initialise_on_bootup(undefined4 hinstance, undefined4 p
   undefined4 exit_code;
   
   window_create(hinstance,prev_instance,cmd_line,show_cmd);
+  mfl_resources_attach();      /* not in the original: g_app_7e7700 = the user's MFL.exe (resources), recomp/mfl_resources.c */
   app_parse_command_line();
   step_ok = app_shutdown_sequence_a(0,0);
   if (step_ok != 0) {

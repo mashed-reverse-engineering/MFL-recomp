@@ -2,7 +2,7 @@
 /*00406b90*/ extern undefined __cdecl ktc_add_pickup(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9, undefined4 p10, undefined4 p11, undefined4 p12, undefined4 p13, undefined4 p14, undefined4 p15, undefined4 p16);
 /*004357e0*/ extern int __cdecl career_record_ptr(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9, undefined4 p10, undefined4 p11, undefined4 p12, undefined4 p13, undefined4 p14, undefined4 p15, undefined4 p16);
 /*004492b0*/ extern int lua_register_course_functions();
-/*00474340*/ extern undefined __cdecl course_object_pair_add(undefined4 p0, undefined4 p1, undefined4 p2);
+/*00474340*/ extern undefined __cdecl course_object_pair_add(undefined4 a, undefined4 b, undefined4 c);
 /*00480130*/ extern int text_page_reset_line();
 /*00480150*/ extern int text_page_next();
 /*00480190*/ extern int text_page_add_string_id();
@@ -32,7 +32,7 @@
 
 /*  */
 
-extern void gfx_set_6299d8(undefined1 param_1);
+extern void gfx_set_6299d8(undefined1 value);
 
 
 /* lua_run_course_script */
@@ -40,98 +40,98 @@ extern void gfx_set_6299d8(undefined1 param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "resets the lua current pos/type and runs the script with lua_register_course_functions" */
 
-extern void __cdecl lua_run_course_script(char *param_1);
+extern void __cdecl lua_run_course_script(char *script_path);
 
 
 /* lua_Lap_Variations */
 
 /* Lua function Lap_Variations (registered by the script engine) */
 
-extern undefined4 lua_Lap_Variations(char *param_1);
+extern undefined4 lua_Lap_Variations(char *lua_state);
 
 
 /* lua_Split_Sector */
 
 /* Lua function Split_Sector (registered by the script engine) */
 
-extern undefined4 lua_Split_Sector(char *param_1);
+extern undefined4 lua_Split_Sector(char *lua_state);
 
 
 /* lua_Lap_Line */
 
 /* Lua function Lap_Line (registered by the script engine) */
 
-extern undefined4 lua_Lap_Line(char *param_1);
+extern undefined4 lua_Lap_Line(char *str);
 
 
 /* lua_Safe_Start_Lines */
 
 /* Lua function Safe_Start_Lines (registered by the script engine) */
 
-extern undefined4 lua_Safe_Start_Lines(char *param_1);
+extern undefined4 lua_Safe_Start_Lines(char *L);
 
 
 /* lua_Clump_Mts_Pair */
 
 /* Lua function Clump_Mts_Pair (registered by the script engine) */
 
-extern undefined4 lua_Clump_Mts_Pair(char *param_1);
+extern undefined4 lua_Clump_Mts_Pair(char *lua_state);
 
 
 /* lua_Physics_Object */
 
 /* Lua function Physics_Object (registered by the script engine) */
 
-extern undefined4 lua_Physics_Object(char *param_1);
+extern undefined4 lua_Physics_Object(char *lua_state);
 
 
 /* lua_Clump_Exclude_From_World */
 
 /* Lua function Clump_Exclude_From_World (registered by the script engine) */
 
-extern undefined4 lua_Clump_Exclude_From_World(char *param_1);
+extern undefined4 lua_Clump_Exclude_From_World(char *lua_state);
 
 
 /* lua_Ambient_RGB */
 
 /* Lua function Ambient_RGB (registered by the script engine) */
 
-extern undefined4 lua_Ambient_RGB(char *param_1);
+extern undefined4 lua_Ambient_RGB(char *lua_state);
 
 
 /* lua_Setup_Fog */
 
 /* Lua function Setup_Fog (registered by the script engine) */
 
-extern undefined4 lua_Setup_Fog(char *param_1);
+extern undefined4 lua_Setup_Fog(char *lua_state);
 
 
 /* lua_Modify_Fog */
 
 /* Lua function Modify_Fog (registered by the script engine) */
 
-extern undefined4 lua_Modify_Fog(char *param_1);
+extern undefined4 lua_Modify_Fog(char *L);
 
 
 /* lua_Vehicle_Shininess_Range */
 
 /* Lua function Vehicle_Shininess_Range (registered by the script engine) */
 
-extern undefined4 lua_Vehicle_Shininess_Range(char *param_1);
+extern undefined4 lua_Vehicle_Shininess_Range(char *L);
 
 
 /* lua_Shine_Scale */
 
 /* Lua function Shine_Scale (registered by the script engine) */
 
-extern undefined4 lua_Shine_Scale(char *param_1);
+extern undefined4 lua_Shine_Scale(char *lua_state);
 
 
 /* lua_Shadow_Scale */
 
 /* Lua function Shadow_Scale (registered by the script engine) */
 
-extern undefined4 lua_Shadow_Scale(char *param_1);
+extern undefined4 lua_Shadow_Scale(char *lua_state);
 
 
 /* lua_Vehicle_Body_Dirt_Texture__Vehicle_Wheel_Dirt_Texture */
@@ -139,7 +139,7 @@ extern undefined4 lua_Shadow_Scale(char *param_1);
 /* Lua function Vehicle_Body_Dirt_Texture, Vehicle_Wheel_Dirt_Texture (registered by the script
    engine) */
 
-extern undefined4 lua_Vehicle_Body_Dirt_Texture__Vehicle_Wheel_Dirt_Texture(char *param_1);
+extern undefined4 lua_Vehicle_Body_Dirt_Texture__Vehicle_Wheel_Dirt_Texture(char *lua_state);
 
 #define CLUMP_ANIM_ENTRY_SIZE (0xc)
 #define SET_CLUMP_ANIM_ARGS_WITH_ID (3)
@@ -195,56 +195,56 @@ undefined4 lua_SetClumpAnim(undefined4 lua_state)
 
 /* Lua function RWP_Object_Box (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_Box(char *param_1);
+extern undefined4 lua_RWP_Object_Box(char *lua_state);
 
 
 /* lua_RWP_Object_Cylinder */
 
 /* Lua function RWP_Object_Cylinder (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_Cylinder(char *param_1);
+extern undefined4 lua_RWP_Object_Cylinder(char *lua_state);
 
 
 /* lua_RWP_Object_Sphere */
 
 /* Lua function RWP_Object_Sphere (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_Sphere(char *param_1);
+extern undefined4 lua_RWP_Object_Sphere(char *str);
 
 
 /* lua_RWP_Object_Capsule */
 
 /* Lua function RWP_Object_Capsule (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_Capsule(char *param_1);
+extern undefined4 lua_RWP_Object_Capsule(char *lua_state);
 
 
 /* lua_RWP_Object_Properties */
 
 /* Lua function RWP_Object_Properties (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_Properties(char *param_1);
+extern undefined4 lua_RWP_Object_Properties(char *L);
 
 
 /* lua_RWP_Object_CentreOfMassOffset */
 
 /* Lua function RWP_Object_CentreOfMassOffset (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_CentreOfMassOffset(char *param_1);
+extern undefined4 lua_RWP_Object_CentreOfMassOffset(char *lua_state);
 
 
 /* lua_RWP_Object_BaseLabel */
 
 /* Lua function RWP_Object_BaseLabel (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_BaseLabel(char *param_1);
+extern undefined4 lua_RWP_Object_BaseLabel(char *str);
 
 
 /* lua_RWP_Object_ShatterVel */
 
 /* Lua function RWP_Object_ShatterVel (registered by the script engine) */
 
-extern undefined4 lua_RWP_Object_ShatterVel(char *param_1);
+extern undefined4 lua_RWP_Object_ShatterVel(char *str);
 
 
 /* lua_Set_Current_Position */
@@ -252,42 +252,42 @@ extern undefined4 lua_RWP_Object_ShatterVel(char *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* Lua function Set_Current_Position (registered by the script engine) */
 
-extern undefined4 lua_Set_Current_Position(char *param_1);
+extern undefined4 lua_Set_Current_Position(char *lua_state);
 
 
 /* lua_Set_Current_Type */
 
 /* Lua function Set_Current_Type (registered by the script engine) */
 
-extern undefined4 lua_Set_Current_Type(char *param_1);
+extern undefined4 lua_Set_Current_Type(char *lua_state);
 
 
 /* lua_Set_Current_Respawn_Time */
 
 /* Lua function Set_Current_Respawn_Time (registered by the script engine) */
 
-extern undefined4 lua_Set_Current_Respawn_Time(char *param_1);
+extern undefined4 lua_Set_Current_Respawn_Time(char *lua_state);
 
 
 /* lua_Set_Track_Powerups */
 
 /* Lua function Set_Track_Powerups (registered by the script engine) */
 
-extern undefined4 lua_Set_Track_Powerups(char *param_1);
+extern undefined4 lua_Set_Track_Powerups(char *L);
 
 
 /* lua_Physics_Scenario_Set_Sequence */
 
 /* Lua function Physics_Scenario_Set_Sequence (registered by the script engine) */
 
-extern undefined4 lua_Physics_Scenario_Set_Sequence(char *param_1);
+extern undefined4 lua_Physics_Scenario_Set_Sequence(char *str);
 
 
 /* lua_Physics_Scenario_Add_Objects */
 
 /* Lua function Physics_Scenario_Add_Objects (registered by the script engine) */
 
-extern undefined4 lua_Physics_Scenario_Add_Objects(char *param_1);
+extern undefined4 lua_Physics_Scenario_Add_Objects(char *str);
 
 #define SCENARIO_STRIDE_WORDS (0x944)
 #define SCENARIO_STRIDE_BYTES (0x2510)
@@ -333,35 +333,35 @@ undefined4 lua_Physics_Scenario_Add_Animated_Object(undefined4 param_1)
 
 /* Lua function Physics_Scenario_Create_Trigger (registered by the script engine) */
 
-extern undefined4 lua_Physics_Scenario_Create_Trigger(char *param_1);
+extern undefined4 lua_Physics_Scenario_Create_Trigger(char *L);
 
 
 /* lua_Physics_Scenario_Trigger_Add_Objects */
 
 /* Lua function Physics_Scenario_Trigger_Add_Objects (registered by the script engine) */
 
-extern undefined4 lua_Physics_Scenario_Trigger_Add_Objects(char *param_1);
+extern undefined4 lua_Physics_Scenario_Trigger_Add_Objects(char *lua_state);
 
 
 /* lua_Physics_Scenario_Trigger_Set_AI_Poly */
 
 /* Lua function Physics_Scenario_Trigger_Set_AI_Poly (registered by the script engine) */
 
-extern undefined4 lua_Physics_Scenario_Trigger_Set_AI_Poly(char *param_1);
+extern undefined4 lua_Physics_Scenario_Trigger_Set_AI_Poly(char *L);
 
 
 /* lua_KTC_AddPickUp */
 
 /* Lua function KTC_AddPickUp (registered by the script engine) */
 
-extern undefined4 lua_KTC_AddPickUp(char *param_1);
+extern undefined4 lua_KTC_AddPickUp(char *L);
 
 
 /* lua_ExpObj_Clump_Mts_Pair */
 
 /* Lua function ExpObj_Clump_Mts_Pair (registered by the script engine) */
 
-extern undefined4 lua_ExpObj_Clump_Mts_Pair(char *param_1);
+extern undefined4 lua_ExpObj_Clump_Mts_Pair(char *lua_state);
 
 
 

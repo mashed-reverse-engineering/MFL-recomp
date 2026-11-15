@@ -102,14 +102,14 @@ void menu_layout_draw_b(int alpha,int compact)
   }
   if (wave_phase < 0xe0) {
     fade_b_or_flag = 0;
-LAB_0043d357:
+set_full_fade:
     fade_a_or_event = 0xff;
   }
   else if (wave_phase < 0x100) {
     fade_b_or_flag = wave_phase - 0xe0;
     if (fade_b_or_flag < 0x10) {
       fade_b_or_flag = fade_b_or_flag * 0x10;
-      goto LAB_0043d357;
+      goto set_full_fade;
     }
     fade_a_or_event = (0x1f - fade_b_or_flag) * 0x10;
     fade_b_or_flag = 0xff;
@@ -122,7 +122,7 @@ LAB_0043d357:
     fade_a_or_event = wave_phase - 0x1e0;
     if (0xf < fade_a_or_event) {
       fade_b_or_flag = (0x1f - fade_a_or_event) * 0x10;
-      goto LAB_0043d357;
+      goto set_full_fade;
     }
     fade_a_or_event = fade_a_or_event * 0x10;
     fade_b_or_flag = 0xff;
@@ -168,29 +168,29 @@ LAB_0043d357:
   frame.colour = CONCAT13((char)alpha,(undefined3)frame.colour);
   if (g_menu_event_column == 5) {
     compact = compact + 8;
-    goto LAB_0043d5dc;
+    goto draw_event_icons;
   }
   if (g_menu_event_column != 4) {
     if (g_menu_event_column == 8) {
       compact = compact + 8;
-      goto LAB_0043d5dc;
+      goto draw_event_icons;
     }
     if (g_menu_event_column != 7) {
       if (g_menu_event_column == 0xd) {
         compact = compact + 8;
-        goto LAB_0043d5dc;
+        goto draw_event_icons;
       }
       if (g_menu_event_column != 0xc) {
         if (g_menu_event_column == 2) {
           compact = compact + 8;
-          goto LAB_0043d5dc;
+          goto draw_event_icons;
         }
-        if (g_menu_event_column != 1) goto LAB_0043d5dc;
+        if (g_menu_event_column != 1) goto draw_event_icons;
       }
     }
   }
   compact = compact + 4;
-LAB_0043d5dc:
+draw_event_icons:
   /* from here on fade_a_or_event / fade_b_or_flag are reused: event type, layout-table entry (non-zero = slot has an icon) */
   slot = 0;
   g_game_state.mirror_mode = 0;
@@ -199,7 +199,7 @@ LAB_0043d5dc:
   do {
     if (((fade_a_or_event == EVENT_CUP_3) || (fade_a_or_event == EVENT_CUP_4)) || (fade_a_or_event == EVENT_CUP_5)) {
       fade_b_or_flag = *(int *)((char *)&g_menu_layout_607e68 + (compact + slot) * 4);
-LAB_0043d730:
+check_slot_icon:
       if (fade_b_or_flag != 0) {
         if (slot == 3) {
           g_game_state.mirror_mode = 1;
@@ -292,7 +292,7 @@ LAB_0043d730:
       }
       if ((fade_a_or_event != EVENT_TRAINING) && (!event_handled)) {
         fade_b_or_flag = *(int *)((char *)&g_menu_layout_608408 + (compact + slot) * 4);
-        goto LAB_0043d730;
+        goto check_slot_icon;
       }
     }
     slot = slot + 1;

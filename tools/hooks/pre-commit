@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""tools/hooks/pre-commit (W10 A3, agent_rules 17): refuse a commit in the ghidra repo while a gate holds the gate lock (tools/run.py LOCK).
+Install (M, once): cp tools/hooks/pre-commit .git/hooks/pre-commit (keep mode 755); git runs it from the top of the work tree.
+GATE_LOCK=<file> overrides the lock path (selftest only).  Emergency bypass: git commit --no-verify (say so in the commit message).
+--selftest: a held fake lock refuses, a free one accepts."""
+import fcntl, os, subprocess, sys, tempfile
+
+def held(p):
+    with open(p, "a") as f:
+        try: fcntl.flock(f, fcntl.LOCK_SH | fcntl.LOCK_NB); return False
+        except OSError: return True
+
+if sys.argv[1:] == ["--selftest"]:
+    p = tempfile.mkstemp(suffix="_gate.lock")[1]; me = [sys.executable, os.path.abspath(__file__)]; env = dict(os.environ, GATE_LOCK=p)
+    free = subprocess.run(me, env=env, capture_output=True).returncode
+    with open(p, "a") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        busy = subprocess.run(me, env=env, capture_output=True).returncode
+    os.remove(p)
+    print("pre-commit selftest: free lock -> exit %d (want 0), held lock -> exit %d (want 1): %s" % (free, busy, "ok" if (free, busy) == (0, 1) else "FAIL"))
+    sys.exit(0 if (free, busy) == (0, 1) else 1)
+if "GATE_LOCK" in os.environ: LOCK = os.environ["GATE_LOCK"]
+else: sys.path.insert(0, os.path.join(os.getcwd(), "tools")); from run import LOCK
+if held(LOCK):
+    sys.exit("pre-commit: REFUSED, a gate holds %s (agent_rules 17: no commit while a gate runs; wait for `run.py gatestate` = free)" % LOCK)

@@ -18,12 +18,12 @@ void gap_5c8bf0(char *obj,uint *slot)
     if (slot[1] != 2) {
       slot[1] = 3;
       *slot = (uint)(*entry - *(int *)(*(char **)(obj + 0x174) + 0x10)) >> 5;
-      goto LAB_005c8c43;
+      goto set_slot_state_2;
     }
     value = *(uint *)*entry;
   }
   *slot = value;
-LAB_005c8c43:
+set_slot_state_2:
   slot[3] = 2;
   value = gap_5c3020(obj + 0x5c,entry,0);
   slot[2] = value;

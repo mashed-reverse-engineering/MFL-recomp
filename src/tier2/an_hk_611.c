@@ -176,7 +176,7 @@ undefined4 app_state_menu_render(void)
       message_box_draw();
       viewport_cam = 0xffffffff;
     }
-    goto LAB_004a26d6;
+    goto end_camera_update;
   case APP_STATE_COURSE_LOADED:
     g_app_state_76e854 = 4;
     break;
@@ -238,7 +238,7 @@ undefined4 app_state_menu_render(void)
     viewport_cam = get_viewport_camera(0);
     last_result = RwCameraBeginUpdate(viewport_cam);
     if (last_result == 0) break;
-    goto LAB_004a26d0;
+    goto draw_message_box;
   /* State 4: frontend page, plus the options menu when the menu id is 0x20. */
   case APP_STATE_MENU:
     camera_set_default_view_window();
@@ -250,10 +250,10 @@ undefined4 app_state_menu_render(void)
     if (last_result == 0x20) {
       options_menu_draw();
     }
-LAB_004a26d0:
+draw_message_box:
     message_box_draw();
     viewport_cam = 0;
-LAB_004a26d6:
+end_camera_update:
     viewport_cam = get_viewport_camera(viewport_cam);
     RwCameraEndUpdate(viewport_cam);
     break;

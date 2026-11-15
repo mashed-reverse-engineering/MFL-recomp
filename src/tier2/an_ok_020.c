@@ -2,12 +2,12 @@
 /*0040f700*/ extern double intro_banner_get_x();
 /*00413ad0*/ extern int replay_best_get_split_time();
 /*004219c0*/ extern undefined __cdecl course_call_cb2(undefined4 p0);
-/*004219d0*/ extern undefined __cdecl course_call_cb3(undefined4 p0);
+/*004219d0*/ extern undefined __cdecl course_call_cb3(undefined4 arg);
 /*00421aa0*/ extern int course_select();
 /*00421ae0*/ extern int course_has_cb2();
 /*00421af0*/ extern int course_has_cb3();
-/*0042ab20*/ extern undefined __cdecl course_camera_add_to_collision_world(struct RwCamera *p0);
-/*0042ab60*/ extern undefined __cdecl course_camera_remove_from_collision_world(struct RwCamera *p0);
+/*0042ab20*/ extern undefined __cdecl course_camera_add_to_collision_world(struct RwCamera *camera);
+/*0042ab60*/ extern undefined __cdecl course_camera_remove_from_collision_world(struct RwCamera *camera);
 /*0042c440*/ extern int ui_rt2d_text_draw(int id, float x, float y, unsigned int colour, float scale, int flags);      /* 6 stack args (id,x,y,rgba,scale,flags); x/y/scale are real floats */
 /*0042c8e0*/ extern double text_width();
 /*0042cdd0*/ extern int ui_draw_texture_640_default();
@@ -19,31 +19,31 @@
 /*004364c0*/ extern int ui_set_triple();
 /*004693c0*/ extern int sound_streams_pause();
 /*00469400*/ extern int sound_streams_resume();
-/*00473550*/ extern undefined __cdecl sound_frame_begin(undefined4 p0, undefined4 p1);
+/*00473550*/ extern undefined __cdecl sound_frame_begin(undefined4 flag, undefined4 pause);
 /*00475730*/ extern int get_viewport_camera();
 /*004757a0*/ extern int get_viewport_camera_matrix();
-/*004817c0*/ extern undefined __cdecl atomic_plugin_get_flags(undefined4 p0);
-/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
-/*004882d0*/ extern undefined __cdecl course_ribbons_render(undefined4 p0);
+/*004817c0*/ extern undefined __cdecl atomic_plugin_get_flags(undefined4 atomic_offset);
+/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *dictionary);
+/*004882d0*/ extern undefined __cdecl course_ribbons_render(undefined4 course);
 /*00488d80*/ extern undefined __cdecl particle_system_set_current_forward(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004891b0*/ extern undefined __cdecl course_world_ray_hit_light_sample(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004891b0*/ extern undefined __cdecl course_world_ray_hit_light_sample(undefined4 course, undefined4 line_start, undefined4 out_light, undefined4 out_hit_t);
 /*004a07d0*/ extern int rain_render();
 /*004a1880*/ extern int game_get_62ad2c();
 /*004a5550*/ extern int log_printf();
 /*004a5930*/ extern int joypads_poll_frame();
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b4ba7*/ extern int entry();
-/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
-/*004d5bf0*/ extern RwBool RwTextureDestroy(struct RwTexture *p0);
-/*004d5e40*/ extern struct RwTexture * RwTextureRead(RwChar *p0, RwChar *p1);
-/*004ddb80*/ extern RwChar * RwImageSetPath(RwChar *p0);
-/*004f5780*/ extern struct RpWorld * RpWorldRender(struct RpWorld *p0);
-/*004f5d10*/ extern RwBool RpWorldInstance(struct RpWorld *p0);
-/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
-/*004f7f90*/ extern RwBool __cdecl RpAtomicInstance(struct RpAtomic *p0);
+/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *frame, struct RwV3d *translation, enum RwOpCombineType combine);
+/*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *frame, struct RwV3d *axis, RwReal angle, enum RwOpCombineType combine);
+/*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *frame);
+/*004d5bf0*/ extern RwBool RwTextureDestroy(struct RwTexture *texture);
+/*004d5e40*/ extern struct RwTexture * RwTextureRead(RwChar *name_a, RwChar *name_b);
+/*004ddb80*/ extern RwChar * RwImageSetPath(RwChar *path);
+/*004f5780*/ extern struct RpWorld * RpWorldRender(struct RpWorld *world);
+/*004f5d10*/ extern RwBool RpWorldInstance(struct RpWorld *world);
+/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *clump);
+/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *clump, RpAtomicCallBack atomic, void *data);
+/*004f7f90*/ extern RwBool __cdecl RpAtomicInstance(struct RpAtomic *atomic);
 /*00562d20*/ extern int Rt2dCTMSetIdentity();
 /*00562ef0*/ extern int Rt2dDeviceGetClippath();
 /*00563030*/ extern int Rt2dDeviceSetCamera();
@@ -93,22 +93,22 @@
 /*008c879c*/ extern undefined4 g_course_8c879c;
 
 
-extern int course_get_record_point(char *param_1,char *param_2);
+extern int course_get_record_point(char *str_a, char *str_b);
 
 
-extern void course_sky_clumps_update(char *param_1);
+extern void course_sky_clumps_update(char *camera_matrix);
 
 
 extern void course_sky_clumps_render(void);
 
 
-extern void __cdecl course_world_ray_hit_light_forward(char *param_1,char *param_2,char *param_3);
+extern void __cdecl course_world_ray_hit_light_forward(char *str_a, char *str_b, char *str_c);
 
 
 extern double course_get_shadow_scale(void);
 
 
-extern RpAtomic * atomic_log_not_instancing(RpAtomic *atomic,int *param_2);
+extern RpAtomic * atomic_log_not_instancing(RpAtomic *atomic, int *atomic_index);
 
 
 extern void instancing_clump_log(void);
@@ -117,14 +117,14 @@ extern void instancing_clump_log(void);
 extern void course_world_instance_for_viewport(void);
 
 
-extern void course_render_cb3_dispatch(char *param_1);
+extern void course_render_cb3_dispatch(char *str);
 
 
 /* ui_2d_begin */
 
 /* "Rt2dDeviceSetCamera + CTM push / identity" */
 
-extern void ui_2d_begin(char *param_1);
+extern void ui_2d_begin(char *camera);
 
 
 /* ui_2d_destroy */
@@ -138,7 +138,7 @@ extern void ui_2d_destroy(void);
 
 /* "(index): entry of the DAT string table at 0x68B9F8 (offset table followed by the strings)" */
 
-extern undefined * dat_get_string(char *param_1);
+extern undefined * dat_get_string(char *index);
 
 
 /* course_get_dat_69ba20 */
@@ -152,7 +152,7 @@ extern undefined4 course_get_dat_69ba20(void);
 
 /* "g_build_info page index (0 / 1 ...)" */
 
-extern void build_info_set_page(char *param_1);
+extern void build_info_set_page(char *page);
 
 
 /* speaker_mode_names */
@@ -187,7 +187,7 @@ extern void build_info_frame(void);
 
 /* "*dst = value" */
 
-extern void store_u32(undefined4 *param_1,char *param_2);
+extern void store_u32(undefined4 *words, char *str);
 
 
 /* hud_get_8c8798 */
@@ -202,7 +202,7 @@ extern double hud_get_8c8798(void);
 /* "(track, out fraction, out seconds, out minutes): default record time of a track (the first
    table, a different value when g_game_state.mirror_mode is set)" */
 
-extern void time_trial_default_record_a (char *param_1,undefined4 *param_2,undefined4 *param_3,undefined4 *param_4);
+extern void time_trial_default_record_a (char *track, undefined4 *out_a, undefined4 *out_b, undefined4 *out_c);
 
 
 /* time_trial_default_record_b */
@@ -210,7 +210,7 @@ extern void time_trial_default_record_a (char *param_1,undefined4 *param_2,undef
 /* "(track, out fraction, out seconds, out minutes): second default time table, same output layout,
    starts from 9:59.99" */
 
-extern void time_trial_default_record_b (char *param_1,undefined4 *param_2,undefined4 *param_3,undefined4 *param_4);
+extern void time_trial_default_record_b (char *track, undefined4 *out_a, undefined4 *out_b, undefined4 *out_c);
 
 
 /* race_lose_banner_draw */
@@ -240,7 +240,7 @@ void race_lose_banner_draw(void)
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(t): 470 - (1 - min(t,30)/30) * 500, vertical slide of the intro banner" */
 
-extern double __fastcall intro_banner_slide_y(char *param_1);
+extern double __fastcall intro_banner_slide_y(char *t);
 
 
 /* course_get_course_8c879c */
@@ -271,7 +271,7 @@ extern void time_set_current_max(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* stores the current race time in the best time tables */
 
-extern void __cdecl best_time_store(float fraction,uint seconds,uint minutes,char *param_4,char *param_5, char *param_6,char *param_7,char *param_8);
+extern void __cdecl best_time_store(float fraction, uint seconds, uint minutes, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8);
 
 
 /* best_time_store_previous */
@@ -285,21 +285,21 @@ extern void best_time_store_previous(void);
 
 /* "(index): fraction of the time slot" */
 
-extern double time_get_fraction(char *param_1);
+extern double time_get_fraction(char *index);
 
 
 /* time_get_minutes */
 
 /* "(index): minutes of the time slot" */
 
-extern undefined4 time_get_minutes(char *param_1);
+extern undefined4 time_get_minutes(char *index);
 
 
 /* time_get_seconds */
 
 /* "(index): seconds of the time slot" */
 
-extern undefined4 time_get_seconds(char *param_1);
+extern undefined4 time_get_seconds(char *index);
 
 
 /* best_time_load_current */
@@ -313,6 +313,6 @@ extern void best_time_load_current(void);
 
 /* "Searching piz for %s": pc/ then raw then xbox/ ps2/ gamecube/ */
 
-extern undefined4 game_content_find(char *param_1,char *param_2);
+extern undefined4 game_content_find(char *buf, char *name);
 
 

@@ -40,7 +40,7 @@ void __cdecl fx_floating_text_spawn(undefined4 *pos,undefined4 lifetime,undefine
     if ((&g_particles_76bec0)[slot_index] == 0) {
       slot = (undefined4 *)((char *)&g_effects_update_76b830 + slot_index * FX_SLOT_STRIDE);
       (&g_particles_76bec0)[slot_index] = 1;
-      if (slot != (undefined4 *)0x0) goto LAB_0049db62;
+      if (slot != (undefined4 *)0x0) goto init_fx_slot;
       break;
     }
     slot_index = slot_index + 1;
@@ -82,7 +82,7 @@ void __cdecl fx_floating_text_spawn(undefined4 *pos,undefined4 lifetime,undefine
   }
   slot = (undefined4 *)((char *)&g_effects_update_76b830 + replace_index * FX_SLOT_STRIDE);
   (&g_particles_76bec0)[replace_index] = 1;
-LAB_0049db62:
+init_fx_slot:
   /* Common setup for both paths: lifetime at +0x14, zero +0x0c and +0x10 (age/timer reset), copy pos to
      +0x00..+0x08, then raise y (slot[1]) by k_f_0_1 (inferred: floats the text upward). */
   slot[5] = lifetime;

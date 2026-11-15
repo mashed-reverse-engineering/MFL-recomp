@@ -2,33 +2,33 @@
 #include "mfl_tier2.h"
 #include <math.h>
 
-/* Incentre and inradius of the triangle a2, a3, a4: out[0..2] = (|a3a4| a2 + |a4a2| a3 + |a2a3| a4) / perimeter,
+/* Incentre and inradius of the triangle pt_a, pt_b, pt_c: out[0..2] = (|a3a4| pt_a + |a4a2| pt_b + |a2a3| pt_c) / perimeter,
    out[3] = area / half perimeter (Heron).  Returns the longest side.  The side lengths of a4a2 and a2a3 and the area are
    rounded to frame floats (volatile); the first side stays a double on the x87 stack. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
-float rwp_triangle_incircle(float *out, float *a2, float *a3, float *a4)
+float rwp_triangle_incircle(float *out, float *pt_a, float *pt_b, float *pt_c)
 {
   double acc, s, guard, r, k, len_bc, len_ab_d;
   volatile float len_ca, len_ab, area;
   float dx, dy, dz;
 
-  dz = a3[2] - a4[2];
-  dy = a3[1] - a4[1];
-  dx = a3[0] - a4[0];
+  dz = pt_b[2] - pt_c[2];
+  dy = pt_b[1] - pt_c[1];
+  dx = pt_b[0] - pt_c[0];
   acc = dx * dx;
   acc = acc + dy * dy;
   acc = acc + dz * dz;
   len_bc = sqrt(acc);
-  dz = a4[2] - a2[2];
-  dy = a4[1] - a2[1];
-  dx = a4[0] - a2[0];
+  dz = pt_c[2] - pt_a[2];
+  dy = pt_c[1] - pt_a[1];
+  dx = pt_c[0] - pt_a[0];
   acc = dx * dx;
   acc = acc + dy * dy;
   acc = acc + dz * dz;
   len_ca = sqrt(acc);
-  dz = a2[2] - a3[2];
-  dy = a2[1] - a3[1];
-  dx = a2[0] - a3[0];
+  dz = pt_a[2] - pt_b[2];
+  dy = pt_a[1] - pt_b[1];
+  dx = pt_a[0] - pt_b[0];
   acc = dx * dx;
   acc = acc + dy * dy;
   acc = acc + dz * dz;
@@ -49,15 +49,15 @@ float rwp_triangle_incircle(float *out, float *a2, float *a3, float *a4)
     guard = s;
   r = 1.0f / guard;
   out[3] = area * r;
-  out[0] = len_bc * a2[0];
-  out[1] = a2[1] * len_bc;
-  out[2] = a2[2] * len_bc;
-  out[0] = len_ca * a3[0] + out[0];
-  out[1] = a3[1] * len_ca + out[1];
-  out[2] = a3[2] * len_ca + out[2];
-  out[0] = len_ab * a4[0] + out[0];
-  out[1] = a4[1] * len_ab + out[1];
-  out[2] = a4[2] * len_ab + out[2];
+  out[0] = len_bc * pt_a[0];
+  out[1] = pt_a[1] * len_bc;
+  out[2] = pt_a[2] * len_bc;
+  out[0] = len_ca * pt_b[0] + out[0];
+  out[1] = pt_b[1] * len_ca + out[1];
+  out[2] = pt_b[2] * len_ca + out[2];
+  out[0] = len_ab * pt_c[0] + out[0];
+  out[1] = pt_c[1] * len_ab + out[1];
+  out[2] = pt_c[2] * len_ab + out[2];
   k = r * 0.5f;
   out[0] = k * out[0];
   out[1] = out[1] * k;

@@ -6,7 +6,7 @@
 /*0045c7f0*/ extern int course_atomics_render_3();
 /*0045d560*/ extern int course_clump_render_with_physics();
 /*0045e440*/ extern int weapon_pickups_clear();
-/*0045f330*/ extern undefined __cdecl explosion_trigger_callback(struct RwV3d *p0, float *p1);
+/*0045f330*/ extern undefined __cdecl explosion_trigger_callback(struct RwV3d *trig, float *other);
 /*00467a60*/ extern int weapons_update_frame();
 /*00467e90*/ extern void * course_get_rpworld_00467e90();
 /*00472340*/ extern int sfx_play_player_set_at();
@@ -17,7 +17,7 @@
 /*00481ea0*/ extern int player_marker_set_clump();
 /*00481ee0*/ extern int player_marker_set_enabled();
 /*00481fd0*/ extern double random_range();
-/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0);
+/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *clump);
 /*00484ad0*/ extern int pool_list_destroy();
 /*00495c30*/ extern int viewport_get_camera();
 /*00496850*/ extern int trigger_sphere_register();
@@ -25,29 +25,29 @@
 /*00499b40*/ extern int explosion_decal();
 /*0049bd90*/ extern int fx_system_destroy();
 /*0049bdd0*/ extern int fx_system_render();
-/*0049c5f0*/ extern undefined __cdecl fx_snow_ptank_update(int p0, struct RwCamera *p1, undefined1 *p2, float p3, float p4);
+/*0049c5f0*/ extern undefined __cdecl fx_snow_ptank_update(int system, struct RwCamera *camera, undefined1 *color_rgb, float alpha_base, float alpha_per_age);
 /*0049c8f0*/ extern int particle_slot_call_render_method();
 /*004a5d70*/ extern int object_render();
 /*004a5da0*/ extern int object_destroy_frames();
 /*004b4ba7*/ extern int entry();
 /*004b5a47*/ extern int positive();
-/*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *p0);
-/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
-/*004d1160*/ extern struct RwFrame * RwFrameAddChild(struct RwFrame *p0, struct RwFrame *p1);
-/*004d1330*/ extern struct RwFrame * RwFrameRemoveChild(struct RwFrame *p0);
-/*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
-/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
-/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *p0, RwMatrix *p1);
-/*004d49c0*/ extern RwMatrix * RwMatrixTransform(RwMatrix *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *p0, struct RwCamera *p1);
-/*004f4470*/ extern struct RpWorld * RpWorldRemoveCamera(struct RpWorld *p0, struct RwCamera *p1);
-/*004f44a0*/ extern struct RpWorld * RpWorldAddAtomic(struct RpWorld *p0, struct RpAtomic *p1);
-/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
-/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
-/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *p0);
-/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
+/*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *frame);
+/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *frame);
+/*004d1160*/ extern struct RwFrame * RwFrameAddChild(struct RwFrame *frame_a, struct RwFrame *frame_b);
+/*004d1330*/ extern struct RwFrame * RwFrameRemoveChild(struct RwFrame *frame);
+/*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *cam, struct RwRGBA *rgba, RwInt32 mode);
+/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *camera, struct RwV2d *view_window);
+/*004d4490*/ extern RwMatrix * RwMatrixInvert(RwMatrix *matrix_a, RwMatrix *matrix_b);
+/*004d49c0*/ extern RwMatrix * RwMatrixTransform(RwMatrix *matrix_a, RwMatrix *matrix_b, enum RwOpCombineType combine_op);
+/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
+/*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *world, struct RwCamera *camera);
+/*004f4470*/ extern struct RpWorld * RpWorldRemoveCamera(struct RpWorld *world, struct RwCamera *camera);
+/*004f44a0*/ extern struct RpWorld * RpWorldAddAtomic(struct RpWorld *w, struct RpAtomic *atomic);
+/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *world, struct RpClump *clump);
+/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *world, struct RpClump *clump);
+/*004f67c0*/ extern struct RpClump * RpClumpRender(struct RpClump *clump);
+/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *atomic);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
 /*005dd340*/ extern float k_f_0_5;
 /*005dd378*/ extern float k_f_0_1;
 /*005dda20*/ extern float k_f_4_2949673e9;
@@ -90,65 +90,65 @@
 /*008bf088*/ extern undefined4 g_course_sands_8bf088;
 /*008d8b30*/ extern undefined4 player_count;
 
-extern void course_sands_cb1(char *param_1,char *param_2);
+extern void course_sands_cb1(char *str_a, char *str_b);
 
 
-extern void course_sands_cb2(char *param_1);
+extern void course_sands_cb2(char *str);
 
 
-extern void course_sands_cb5(char *param_1);
+extern void course_sands_cb5(char *str);
 
 
 extern void course_superg_cb1(void);
 
 
-extern void course_superg_cb4(char *param_1);
+extern void course_superg_cb4(char *str);
 
 
-extern void course_training_cb1(char *param_1,char *param_2);
+extern void course_training_cb1(char *str_a, char *str_b);
 
 
-extern void course_training_cb2(char *param_1);
+extern void course_training_cb2(char *course);
 
 
-extern void course_training_cb10(char *param_1);
+extern void course_training_cb10(char *course);
 
 
-extern void __cdecl course_particle_init_random(undefined4 *param_1);
+extern void __cdecl course_particle_init_random(undefined4 *position);
 
 
-extern void anim_set_callback(char *param_1,char *param_2);
+extern void anim_set_callback(char *anim, char *callback);
 
 
-extern void course_zone_players_transform_update(char *param_1);
+extern void course_zone_players_transform_update(char *zone);
 
 
 /* course_zone_contains_matrix */
 
 /* "transforms a matrix into zone space and tests x/z against the zone bounds" */
 
-extern undefined4 course_zone_contains_matrix(char *param_1,RwMatrix *param_2,RwReal *param_3);
+extern undefined4 course_zone_contains_matrix(char *str, RwMatrix *matrix, RwReal *value);
 
 
 /* anim_stop */
 
 /* "state 0 and calls the callback with 0" */
 
-extern void anim_stop(char *param_1);
+extern void anim_stop(char *anim);
 
 
 /* course_zone_corners_to_world */
 
 /* "transforms the zone corner points with the frame LTM and derives step sizes (0.1)" */
 
-extern void course_zone_corners_to_world(char *param_1);
+extern void course_zone_corners_to_world(char *zone);
 
 
 /* course_zone_contains_matrix_in_zone_6a2888 */
 
 /* "course_zone_contains_matrix on the zone record at g_course_6a2888" */
 
-extern void course_zone_contains_matrix_in_zone_6a2888(char *param_1,char *param_2);
+extern void course_zone_contains_matrix_in_zone_6a2888(char *str_a, char *str_b);
 
 
 /* course_get_matrix_pos_6a291c */
@@ -162,19 +162,19 @@ extern int course_get_matrix_pos_6a291c(void);
 
 /* "assigns the 8 marker clumps of the world record and enables them" */
 
-extern void __cdecl course_player_markers_setup (char *param_1,char *param_2,char *param_3,char *param_4,char *param_5, char *param_6);
+extern void __cdecl course_player_markers_setup (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6);
 
 
 /* course_warzone_cb2 */
 
-extern void course_warzone_cb2(char *param_1);
+extern void course_warzone_cb2(char *course);
 
 
 /* course_get_8bf050 */
 
 /* "g_car_8bf050[index]" */
 
-extern undefined4 __cdecl course_get_8bf050(char *param_1);
+extern undefined4 __cdecl course_get_8bf050(char *index);
 
 
 /* course_get_6a2950 */
@@ -192,17 +192,17 @@ extern void weapon_mortar_free_assets(void);
 
 /* weapon_mortar_is_finished */
 
-extern undefined4 weapon_mortar_is_finished(WeaponSlot *param_1);
+extern undefined4 weapon_mortar_is_finished(WeaponSlot *slot);
 
 
 /* weapon_mortar_unequip */
 
-extern void weapon_mortar_unequip(WeaponSlot *param_1);
+extern void weapon_mortar_unequip(WeaponSlot *slot);
 
 
 /* weapon_mortar_ammo_fraction */
 
-extern double weapon_mortar_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_mortar_ammo_fraction(WeaponSlot *slot);
 
 
 /* weapon_mortar_clear_effects */
@@ -340,7 +340,7 @@ undefined * weapon_drum_equip(WeaponSlot *weapon_slot)
 
 /* weapon_drum_ammo_fraction */
 
-extern double weapon_drum_ammo_fraction(WeaponSlot *param_1);
+extern double weapon_drum_ammo_fraction(WeaponSlot *slot);
 
 
 /* weapon_drum_free_assets */

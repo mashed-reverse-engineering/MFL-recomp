@@ -103,8 +103,8 @@ void cars_exhaust_and_damage_fx_update(void)
           fx_explosion_spawn(car_index,6,0x3e4ccccd,0x3dcccccd);
         }
         if (*damage_ptr == 0) {
-LAB_0040e42d:
-          if (fx_flag == 2) goto LAB_0040e434;
+check_fx_flag:
+          if (fx_flag == 2) goto set_race_phase_flag;
         }
         else {
           tmp = *damage_ptr + -0x18;
@@ -148,10 +148,10 @@ LAB_0040e42d:
                          0x41c00000,0x3f800000);
               *(undefined4 *)((char *)((undefined *)&g_effects_reset_652dc0) + car_index * 4) = 1;
             }
-            goto LAB_0040e42d;
+            goto check_fx_flag;
           }
           frame.field_b0c = 0x43480000;
-LAB_0040e434:
+set_race_phase_flag:
           fx_flag = frame.race_phase == 6;
           frame.speed = 500.0;
         }

@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*00403860*/ extern int attract_timer_reset();
 /*00405e40*/ extern int stub_return_zero();
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *name);
 /*0040fbd0*/ extern int race_set_setup_index();
 /*0040fbf0*/ extern int race_get_focus_player();
 /*0040fdc0*/ extern int race_get_phase();
@@ -37,10 +37,10 @@
 /*004420a0*/ extern int menu_draw_team_select();
 /*00442580*/ extern int menu_draw_event_icons();
 /*00444c10*/ extern int menu_page_enter();
-/*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *p0, int p1, undefined4 p2);
-/*0044aa50*/ extern undefined __cdecl camera_chase_update(undefined4 p0, undefined4 p1);
-/*0044b110*/ extern undefined __cdecl camera_follow_update(undefined4 p0, undefined4 p1);
-/*0044ef90*/ extern undefined __cdecl camera_record_update(undefined4 p0, undefined4 p1);
+/*00449700*/ extern undefined __cdecl course_sky_atomic_create(struct RwTexture *texture, int p1, undefined4 p2);
+/*0044aa50*/ extern undefined __cdecl camera_chase_update(undefined4 rec, undefined4 view);
+/*0044b110*/ extern undefined __cdecl camera_follow_update(undefined4 rec, undefined4 view);
+/*0044ef90*/ extern undefined __cdecl camera_record_update(undefined4 rec, undefined4 view);
 /*00475730*/ extern int get_viewport_camera();
 /*0047a830*/ extern int car_is_active();
 /*0047ac30*/ extern int car_get_mode();
@@ -117,11 +117,11 @@
 /*004a0d90*/ extern int lua_RainSetDirection();
 /*004b2b48*/ extern int _ftol();
 /*004c7cc0*/ extern undefined __cdecl message(undefined4 p0, undefined4 p1);
-/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *p0);
-/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
-/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
+/*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *frame, struct RwV3d *translation, enum RwOpCombineType combine);
+/*004d16e0*/ extern struct RwFrame * RwFrameSetIdentity(struct RwFrame *frame);
+/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *camera, struct RwV2d *view_window);
+/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *matrix, struct RwV3d *vec, RwReal value, enum RwOpCombineType combine_op);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *matrix, struct RwV3d *vec, enum RwOpCombineType combine_op);
 /*005dd32c*/ extern float k_f_3;
 /*005dd330*/ extern float float_1_0;
 /*005dd33c*/ extern float k_f_4;
@@ -263,7 +263,7 @@ extern void menu_panel_states_decay(void);
 
 /* "calls ui_fn_4379c0 and sets the panel state flag for page types 4..8" */
 
-extern void __cdecl menu_page_enter_set_panel_state(char *param_1);
+extern void __cdecl menu_page_enter_set_panel_state(char *page_id);
 
 
 /* training_lesson_get */
@@ -298,7 +298,7 @@ extern undefined4 ui_get_car_8c8070(void);
 
 /* "sets g_hit_shake (inferred name)" */
 
-extern void screen_shake_set(char *param_1);
+extern void screen_shake_set(char *shake);
 
 
 /* ui_get_car_8c8788 */
@@ -312,7 +312,7 @@ extern undefined4 ui_get_car_8c8788(void);
 
 /* "if the message differs from the shown one copies the new state, closes and shows it" */
 
-extern void __cdecl message_replace_if_changed (char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6);
+extern void __cdecl message_replace_if_changed (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6);
 
 /* message id of the "controller missing" message (0x218) */
 #define MESSAGE_CONTROLLER_MISSING (0x218)
@@ -441,14 +441,14 @@ void frontend_enter_menu(undefined4 next_page)
 
 /* "state 0 -> 1, menu id 0x21, scene setup" */
 
-extern void frontend_enter_race_menu(char *param_1);
+extern void frontend_enter_race_menu(char *next_page);
 
 
 /* menu_event_is_selectable */
 
 /* "false for event 0xE, else depends on ui_fn_435ec0 (event type is a career event)" */
 
-extern bool __cdecl menu_event_is_selectable(char *param_1);
+extern bool __cdecl menu_event_is_selectable(char *event_row);
 
 
 /* career_mark_row_unlocked */
@@ -491,49 +491,49 @@ extern void course_sky_atomic_render(void);
 
 /* "view window from the camera's fov / aspect, 0.75 factor except for the AI editor slot" */
 
-extern void camera_update_view_window(char *param_1);
+extern void camera_update_view_window(char *camera);
 
 
 /* camera_apply_rotation */
 
 /* "sets fov, view window and rotates the camera frame by pitch / yaw" */
 
-extern void camera_apply_rotation(char *param_1);
+extern void camera_apply_rotation(char *camera);
 
 
 /* camera_get_position */
 
 /* "(out xyz): position of the viewport camera 0" */
 
-extern void camera_get_position(undefined4 *param_1);
+extern void camera_get_position(undefined4 *out);
 
 
 /* camera_set_from_record */
 
 /* "copies position and quaternion from a camera record" */
 
-extern void camera_set_from_record(undefined4 *param_1,RwReal *param_2);
+extern void camera_set_from_record(undefined4 *camera, RwReal *record);
 
 
 /* camera_get_target_position */
 
 /* "position of the followed car (or the override at +0x1C)" */
 
-extern void camera_get_target_position(float *param_1,char *param_2);
+extern void camera_get_target_position(float *floats, char *str);
 
 
 /* camera_record_add */
 
 /* "adds one camera record to the ring at 0x8C7440 (mask 0xFFF)" */
 
-extern void __cdecl camera_record_add(char *param_1);
+extern void __cdecl camera_record_add(char *camera);
 
 
 /* camera_apply_matrix */
 
 /* "copies the 4x4 camera matrix into the camera frame" */
 
-extern void __cdecl camera_apply_matrix(char *param_1);
+extern void __cdecl camera_apply_matrix(char *str);
 
 
 /* player_distance_warning */
@@ -542,7 +542,7 @@ extern void __cdecl camera_apply_matrix(char *param_1);
 /* returns 1 in race mode when distance_to_leader[p] > 7.0 (trainer warning threshold patch at
    0044c16b) */
 
-extern undefined4 __cdecl player_distance_warning(char *param_1);
+extern undefined4 __cdecl player_distance_warning(char *str);
 
 
 /* camera_get_8c7e00 */
@@ -579,7 +579,7 @@ extern undefined4 camera_get_car_8c7460(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "(path, index, t, out): interpolates between the ring buffer points of a camera path" */
 
-extern void camera_path_sample(char *param_1,char *param_2,float param_3,float *param_4);
+extern void camera_path_sample(char *path, char *index, float t, float *out);
 
 
 /* camera_get_8c7e0c */
@@ -594,7 +594,7 @@ extern double camera_get_8c7e0c(void);
 
 /* "calls camera_record_update for every active record" */
 
-extern void __cdecl camera_records_update_all(char *param_1);
+extern void __cdecl camera_records_update_all(char *str);
 
 
 /* course_angels_cb0 */

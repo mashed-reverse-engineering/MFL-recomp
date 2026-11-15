@@ -130,11 +130,11 @@ switchD_004a1c85_default:
         g_frontend_init_76e80c = 0;
         return;
       }
-      goto LAB_004a1d27;
+      goto check_sequence_complete;
     }
   }
   g_frontend_init_76e80c = g_frontend_init_76e80c + 1;
-LAB_004a1d27:
+check_sequence_complete:
   /* sequence complete: mark all progress cells done and set option_flags[0] (inferred meaning) */
   if (g_frontend_init_76e80c == KEY_SEQUENCE_LEN) {
     cell = &g_game_state;

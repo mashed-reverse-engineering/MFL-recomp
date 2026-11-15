@@ -44,27 +44,27 @@ void ui_format_number_999(int value,undefined4 string_id)
   /* tens digit is zero: 1-digit form, or hundreds form with a zero tens digit */
   if (tens == 0) {
     if (hundreds != 0) {
-LAB_00431bad:
+write_tens_digit:
       text[2] = (short)tens + ASCII_ZERO;
-      if (hundreds == 0) goto LAB_00431bb8;
-      goto LAB_00431beb;
+      if (hundreds == 0) goto check_tens_zero;
+      goto write_ones_digit;
     }
-LAB_00431bbc:
+one_digit_form:
     *text = LEN_1_DIGIT;
     text[1] = ones + ASCII_ZERO;
   }
   /* tens digit is non-zero: 2-digit form, or 3-digit form */
   else {
-    if (hundreds != 0) goto LAB_00431bad;
+    if (hundreds != 0) goto write_tens_digit;
     *text = LEN_2_DIGITS;
     text[1] = (short)tens + ASCII_ZERO;
-LAB_00431bb8:
-    if (tens == 0) goto LAB_00431bbc;
+check_tens_zero:
+    if (tens == 0) goto one_digit_form;
     if (hundreds == 0) {
       text[2] = ones + ASCII_ZERO;
-      goto LAB_00431bfb;
+      goto write_trailing_space;
     }
-LAB_00431beb:
+write_ones_digit:
     text[3] = ones + ASCII_ZERO;
   }
   /* trailing space goes right after the last digit written */
@@ -72,7 +72,7 @@ LAB_00431beb:
     text[4] = ASCII_SPACE;
     return;
   }
-LAB_00431bfb:
+write_trailing_space:
   if (tens != 0) {
     text[3] = ASCII_SPACE;
     return;

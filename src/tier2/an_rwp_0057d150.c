@@ -49,7 +49,7 @@ typedef struct MflBodyPair {
 extern void rwp_rows_add_weighted(MflPair64 *rec, MflJointRow *row, float *w, int i);
 
 /* Rebuilds the per-slot accumulators of a joint solve step: clears the first n body records and matrices, lets 57cf90 add the impulse of every
-   joint row to the records of its (up to) two bodies, copies the n3 source slots into acc and clears the same number of entries of out, and finally
+   joint row to the records of its (up to) two bodies, copies the nslots source slots into acc and clears the same number of entries of out, and finally
    adds the halves of the body records and matrices of every body to the slot accumulators acc / out. */
 /* TIER2: unvalidated 2026-10-31 authority=diffemu */
 void rwp_joint_accumulators_rebuild(MflHalf *acc, int a2, MflHalfTable *out, MflPtrTable *bodies, MflPairTable *mats, MflHalf *src,
@@ -57,7 +57,7 @@ void rwp_joint_accumulators_rebuild(MflHalf *acc, int a2, MflHalfTable *out, Mfl
                         int a14, float *vec_a, int a16, int a17, float *vec_b)
 {
   int i, j, k, t;
-  unsigned int n2, n3;
+  unsigned int nwords, nslots;
   MflHalf loc;
   MflHalf *d;
   int ia, ib;
@@ -90,9 +90,9 @@ void rwp_joint_accumulators_rebuild(MflHalf *acc, int a2, MflHalfTable *out, Mfl
   }
   bodies->count = n;
   mats->count = n;
-  n2 = (unsigned int)rows_bytes >> 2;
-  if (n2) {
-    for (k = 0; k != (int)n2; k++) {
+  nwords = (unsigned int)rows_bytes >> 2;
+  if (nwords) {
+    for (k = 0; k != (int)nwords; k++) {
       ia = rows[k].has_a;
       ib = rows[k].has_b;
       if (ia != -1) {
@@ -105,8 +105,8 @@ void rwp_joint_accumulators_rebuild(MflHalf *acc, int a2, MflHalfTable *out, Mfl
       }
     }
   }
-  n3 = slots->count;
-  if (n3) {
+  nslots = slots->count;
+  if (nslots) {
     j = 0;
     do {
       t = slots->index[j];
@@ -127,29 +127,29 @@ void rwp_joint_accumulators_rebuild(MflHalf *acc, int a2, MflHalfTable *out, Mfl
       out->items[j].w[6] = 0;
       out->items[j].w[7] = 0;
       j++;
-    } while (j != (int)n3);
+    } while (j != (int)nslots);
   }
-  out->count = n3;
+  out->count = nslots;
   if (n) {
     for (i = 0; i != n; i++) {
-      int p0 = pairs[i].a, p1 = pairs[i].b;
-      if (p0 != -1) {
+      int body_a = pairs[i].a, body_b = pairs[i].b;
+      if (body_a != -1) {
         loc = bodies->items[i]->lo;
-        d = acc + slots->index[p0];
+        d = acc + slots->index[body_a];
         d->f[0] = loc.f[0] + d->f[0]; d->f[1] = loc.f[1] + d->f[1]; d->f[2] = loc.f[2] + d->f[2];
         d->f[4] = loc.f[4] + d->f[4]; d->f[5] = loc.f[5] + d->f[5]; d->f[6] = loc.f[6] + d->f[6];
         loc = mats->items[i].lo;
-        d = out->items + p0;
+        d = out->items + body_a;
         d->f[0] = loc.f[0] + d->f[0]; d->f[1] = loc.f[1] + d->f[1]; d->f[2] = loc.f[2] + d->f[2];
         d->f[4] = loc.f[4] + d->f[4]; d->f[5] = loc.f[5] + d->f[5]; d->f[6] = loc.f[6] + d->f[6];
       }
-      if (p1 != -1) {
+      if (body_b != -1) {
         loc = bodies->items[i]->hi;
-        d = acc + slots->index[p1];
+        d = acc + slots->index[body_b];
         d->f[0] = loc.f[0] + d->f[0]; d->f[1] = loc.f[1] + d->f[1]; d->f[2] = loc.f[2] + d->f[2];
         d->f[4] = loc.f[4] + d->f[4]; d->f[5] = loc.f[5] + d->f[5]; d->f[6] = loc.f[6] + d->f[6];
         loc = mats->items[i].hi;
-        d = out->items + p1;
+        d = out->items + body_b;
         d->f[0] = loc.f[0] + d->f[0]; d->f[1] = loc.f[1] + d->f[1]; d->f[2] = loc.f[2] + d->f[2];
         d->f[4] = loc.f[4] + d->f[4]; d->f[5] = loc.f[5] + d->f[5]; d->f[6] = loc.f[6] + d->f[6];
       }

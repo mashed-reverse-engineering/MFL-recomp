@@ -4,21 +4,21 @@
 /*0040aeb0*/ extern int gamesave_request_save_a();
 /*0040aef0*/ extern int gamesave_request_delete();
 /*0040af20*/ extern int autosave_request();
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *name);
 /*0040fdb0*/ extern int get_player_count();
 /*00416200*/ extern int trail_particles_create();
 /*0041a380*/ extern int ai_ftol_noop_wrapper();
 /*004241e0*/ extern int car_damage_smoke_create();
 /*0042b0d0*/ extern int course_get_safe_start_count();
 /*0042b0e0*/ extern int course_get_lap_line();
-/*0042f860*/ extern int __cdecl texdict_load_named_b(char *p0);
+/*0042f860*/ extern int __cdecl texdict_load_named_b(char *str);
 /*004316f0*/ extern int message_close();
 /*00434a10*/ extern int is_team_mode();
 /*0047a5b0*/ extern int car_add_velocity();
 /*0047b520*/ extern int car_current_matrix();
 /*0047b6e0*/ extern int car_get_velocity();
 /*00485560*/ extern int particle_pools_init();
-/*004855b0*/ extern undefined __cdecl particle_pool_add(struct RwTexture *p0, uint p1);
+/*004855b0*/ extern undefined __cdecl particle_pool_add(struct RwTexture *texture, uint count);
 /*004860c0*/ extern int smoke_particles_init();
 /*00487480*/ extern int shockwave_load_models();
 /*00487ec0*/ extern int effect_pool_init();
@@ -31,15 +31,15 @@
 /*0049d1e0*/ extern int load_waterfall_fx();
 /*0049dfc0*/ extern int fx_texture_load();
 /*0049fe00*/ extern int tri_model_load();
-/*004a43d0*/ extern undefined __cdecl game_open_piz(char *p0);
+/*004a43d0*/ extern undefined __cdecl game_open_piz(char *path);
 /*004a4440*/ extern int game_close_piz();
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b2ccd*/ extern undefined __cdecl start(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004b322b*/ extern int exit();
-/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
-/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
-/*004d54d0*/ extern RwReal RwV2dLength(struct RwV2d *p0);
-/*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
+/*004d43f0*/ extern RwMatrix * RwMatrixRotate(RwMatrix *matrix, struct RwV3d *vec, RwReal value, enum RwOpCombineType combine_op);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *matrix, struct RwV3d *vec, enum RwOpCombineType combine_op);
+/*004d54d0*/ extern RwReal RwV2dLength(struct RwV2d *v);
+/*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *tex_dict);
 /*0050b5e0*/ extern int nop_stub();
 /*005dd330*/ extern float float_1_0;
 /*005dd364*/ extern float k_f_n1;
@@ -128,28 +128,28 @@
 
 /* float used to sort the 4 players (g_rank_order) */
 
-extern double player_rank_key(char *param_1);
+extern double player_rank_key(char *str);
 
 
 /* player_set_precise_position */
 
 /* "logs put precisepos and stores the integer into the per player record" */
 
-extern undefined4 player_set_precise_position(char *param_1,float param_2);
+extern undefined4 player_set_precise_position(char *player_index, float precise_position);
 
 
 /* player_progress_b */
 
 /* "float at 0x8D8D4C + i * 0x30C" */
 
-extern double player_progress_b(char *param_1);
+extern double player_progress_b(char *str);
 
 
 /* course_lap_line_find_index */
 
 /* "loops course_get_lap_line over the safe start count and returns the matching index" */
 
-extern void course_lap_line_find_index(int *param_1);
+extern void course_lap_line_find_index(int *lap_pos);
 
 
 /* gamesave_ptr_to_line_exceptions */
@@ -163,7 +163,7 @@ extern undefined4 * gamesave_ptr_to_line_exceptions(void);
 
 /* "stores g_gamesave_result_code" */
 
-extern void gamesave_set_result_code(char *param_1);
+extern void gamesave_set_result_code(char *result_code);
 
 
 /* gamesave_poll_status */
@@ -191,7 +191,7 @@ extern void gamesave_cb_dispatch_a(void);
 
 /*  */
 
-extern void gamesave_cb_dispatch_b (char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6,char *param_7,char *param_8, char *param_9,char *param_10,char *param_11,char *param_12, char *param_13,char *param_14,char *param_15,char *param_16);
+extern void gamesave_cb_dispatch_b (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7, char *param_8, char *param_9, char *param_10, char *param_11, char *param_12, char *param_13, char *param_14, char *param_15, char *param_16);
 
 
 /* nop_a */
@@ -212,14 +212,14 @@ extern undefined4 nop_b(void);
 
 /* "0x8D8C0C = value (autosave_request only acts when it is set)" */
 
-extern void __cdecl gamesave_set_autosave_enabled(char *param_1);
+extern void __cdecl gamesave_set_autosave_enabled(char *enabled);
 
 
 /* car_scale_velocity */
 
 /* "(car, factor): reads the velocity, multiplies it and writes it back" */
 
-extern void __cdecl car_scale_velocity(char *param_1,float param_2);
+extern void __cdecl car_scale_velocity(char *car, float factor);
 #undef local_c
 #undef local_8
 #undef local_4
@@ -229,14 +229,14 @@ extern void __cdecl car_scale_velocity(char *param_1,float param_2);
 
 /* "(car, a, b): velocity change along the car's matrix axes scaled by 360 (inferred)" */
 
-extern void __cdecl car_push_from_matrix(char *param_1,float param_2,float param_3);
+extern void __cdecl car_push_from_matrix(char *car, float a, float b);
 
 
 /* car_apply_speed_boost_along_forward */
 
 /* "adds a velocity along the car's forward vector scaled by 0.05 * horizontal speed" */
 
-extern void __cdecl car_apply_speed_boost_along_forward(char *param_1,char *param_2);
+extern void __cdecl car_apply_speed_boost_along_forward(char *str_a, char *str_b);
 
 
 /* car_wobble_tilt_update */
@@ -322,10 +322,10 @@ void round_setup_limits(void)
 extern void round_scores_reset(void);
 
 
-extern undefined4 player_get_points_change(char *param_1);
+extern undefined4 player_get_points_change(char *str);
 
 
-extern undefined4 player_get_points_change_visual(char *param_1);
+extern undefined4 player_get_points_change_visual(char *str);
 
 
 /* players_get_points */
@@ -475,28 +475,28 @@ void players_get_stat_8b90(char *out_player_order)
 
 /* "0x8D8B90[player]" */
 
-extern undefined4 player_get_stat_8b90(char *param_1);
+extern undefined4 player_get_stat_8b90(char *str);
 
 
 /* player_get_wins */
 
 /* "0x8D8B50[player]" */
 
-extern undefined4 player_get_wins(char *param_1);
+extern undefined4 player_get_wins(char *str);
 
 
 /* player_get_points */
 
 /* "player_points[i]" */
 
-extern undefined4 player_get_points(char *param_1);
+extern undefined4 player_get_points(char *str);
 
 
 /* placement_counter_increment */
 
 /* "2 in team mode (unless game mode 2), else the player count" */
 
-extern void placement_counter_increment(char *param_1,char *param_2);
+extern void placement_counter_increment(char *player_index, char *placement);
 
 
 /* round_get_round_652dbc */
@@ -546,7 +546,7 @@ void round_stats_reset(void)
 
 /* "(out[4]): flag when player_points >= score_target_b" */
 
-extern void players_reached_target(undefined4 *param_1);
+extern void players_reached_target(undefined4 *words);
 
 
 /* race_load_common_assets */

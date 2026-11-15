@@ -21,18 +21,18 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 /*004a5190*/ extern int joypads_search();
 /*004a5500*/ extern int dinput_keyboard_init();
 /*004a5520*/ extern int dinput_release_keyboard_004a5520();
-/*004a8180*/ extern undefined __stdcall controller_dialog_run(int p0, int p1);
+/*004a8180*/ extern undefined __stdcall controller_dialog_run(int show_dialog, int bitmap_set);
 /*004a8420*/ extern int debug_printf();
 /*004a87d0*/ extern int video_dialog_free();
 /*004a8860*/ extern int app_get_app_7712f4();
 /*004a9380*/ extern int app_get_app_7e7704();
 /*004ab220*/ extern int DirectInput8Create();
-/*004b4244*/ extern int __cdecl _fputs(char *p0, FILE *p1);
-/*004b4358*/ extern int __cdecl _fclose(FILE *p0);
+/*004b4244*/ extern int __cdecl _fputs(char *str, FILE *p1);
+/*004b4358*/ extern int __cdecl _fclose(FILE *f);
 /*004b4ba7*/ extern int entry();
-/*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
-/*004d1d70*/ extern struct RwCamera * RwCameraShowRaster(struct RwCamera *p0, void *p1, RwUInt32 p2);
-/*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 p0, RwInt32 p1, RwInt32 p2, RwInt32 p3);
+/*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *cam, struct RwRGBA *rgba, RwInt32 mode);
+/*004d1d70*/ extern struct RwCamera * RwCameraShowRaster(struct RwCamera *cam, void *a, RwUInt32 b);
+/*004d7950*/ extern struct RwRaster * RwRasterCreate(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
 /*0050b5e0*/ extern int nop_stub();
 /*005e12e4*/ extern undefined g_dinput_release_5e12e4;
 /*005e1f6c*/ extern undefined g_dinput_create_5e1f6c;
@@ -66,14 +66,14 @@ extern __declspec(dllimport) int __stdcall Sleep(int);
 
 /* "movie_renderer_poll and sets the current surface via app_fn_4a2d20" */
 
-extern undefined4 __cdecl movie_poll_and_set_surface(char *param_1,char *param_2);
+extern undefined4 __cdecl movie_poll_and_set_surface(char *str_a, char *str_b);
 
 
 /* video_texture_setup */
 
 /* "creates the 0x84 flag raster and the video texture graph" */
 
-extern void video_texture_setup(char *param_1,char *param_2,char *param_3);
+extern void video_texture_setup(char *str_a, char *str_b, char *str_c);
 
 
 /* stub_return_one_004a4020 */
@@ -87,21 +87,21 @@ extern undefined4 stub_return_one_004a4020(void);
 
 /* "return g_app_76e890;" */
 
-extern undefined4 __cdecl app_get_app_76e890_4030(char *param_1);
+extern undefined4 __cdecl app_get_app_76e890_4030(char *index);
 
 
 /* video_texture_setup_004a4040 */
 
 /* duplicate name: was video_texture_setup (first address 004a3fe0) */
 
-extern void video_texture_setup_004a4040(char *param_1,char *param_2,char *param_3);
+extern void video_texture_setup_004a4040(char *str_a, char *str_b, char *str_c);
 
 
 /* movie_poll_and_set_surface_b */
 
 /* "identical wrapper" */
 
-extern undefined4 __cdecl movie_poll_and_set_surface_b(char *param_1,char *param_2);
+extern undefined4 __cdecl movie_poll_and_set_surface_b(char *str_a, char *str_b);
 
 
 /* video_get_default_mode */
@@ -129,7 +129,7 @@ extern bool filesystem_register_native(void);
 
 /* "stores the device pointer (app_get_app_7e7704)" */
 
-extern void video_get_device_pointer(undefined4 *param_1);
+extern void video_get_device_pointer(undefined4 *out_device_ptr);
 
 
 /* video_play_loop */
@@ -178,7 +178,7 @@ extern undefined4 app_get_app_770f64(void);
 
 /* "(joypad, axis, out): axis record 0x89 entries x 8 bytes per joypad" */
 
-extern undefined4 __cdecl joypad_get_axis_info (char *param_1,char *param_2,undefined4 *param_3,undefined4 *param_4,undefined4 *param_5);
+extern undefined4 __cdecl joypad_get_axis_info (char *str_a, char *str_b, undefined4 *words_a, undefined4 *words_b, undefined4 *words_c);
 
 #define CONTROLLER_ENTRY_SIZE (0x448)
 
@@ -217,7 +217,7 @@ undefined4 controller_dialog_copy_name(int entry_index,int dest)
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "stores the HWND and searches the joypads" */
 
-extern undefined4 joypads_init(char *param_1);
+extern undefined4 joypads_init(char *window);
 
 
 /* log_print */
@@ -250,7 +250,7 @@ extern undefined4 app_get_app_770fb4(void);
 
 /* "(index): g_app_770fb4[index]" */
 
-extern undefined4 __cdecl joypad_get_field_770fb4(char *param_1);
+extern undefined4 __cdecl joypad_get_field_770fb4(char *index);
 
 
 

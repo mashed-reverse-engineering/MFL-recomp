@@ -36,10 +36,10 @@ debris_apply_velocity_b
   world = *(char **)(owner + 0x24);
   if (world != 0) {
     if ((*(uint *)(*(char **)(world + 0x60) + (uint)(*(ushort *)(owner + 0x20) >> 5) * 4) &
-        1 << ((byte)*(ushort *)(owner + 0x20) & 0x1f)) != 0) goto LAB_00424998;
+        1 << ((byte)*(ushort *)(owner + 0x20) & 0x1f)) != 0) goto apply_force_at_point;
   }
   FUN_0056b300(world,owner);
-LAB_00424998:
+apply_force_at_point:
   link = *(int **)(*(char **)(owner + 0x10) + 4);
   if (matrix == 0) {
     matrix = **(int **)(*link + 0x10) + 0x30 + link[1] * 0x40;

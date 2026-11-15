@@ -87,7 +87,7 @@ int fx_slot_find_free(undefined4 fx_type,undefined4 *position,undefined4 owner_i
     slot[8] = &g_fx_slot_62a9e4;
     slot[10] = &g_fx_slot_62aa28;
     slot[9] = &g_fx_slot_62aa04;
-    goto LAB_0049aba7;
+    goto slot_set_mode_2;
   case 2:
     slot[4] = 1;
     slot[7] = s_33s_33s_33s__0062aa58;
@@ -100,7 +100,7 @@ int fx_slot_find_free(undefined4 fx_type,undefined4 *position,undefined4 owner_i
     slot[8] = &g_fx_slot_62aa48;
     slot[10] = &g_fx_slot_62aa88;
     slot[9] = &g_fx_slot_7596a8;
-    goto LAB_0049aba7;
+    goto slot_set_mode_2;
   case 4:
     slot[4] = 3;
     slot[7] = &g_fx_slot_62aab8;
@@ -145,14 +145,14 @@ int fx_slot_find_free(undefined4 fx_type,undefined4 *position,undefined4 owner_i
     goto switchD_0049aa06_caseD_8;
   case 0xc:
     slot[10] = &g_fx_slot_62ab2c;
-    goto LAB_0049ab92;
+    goto slot_set_tables;
   case 0xd:
     slot[10] = &g_fx_slot_62ab4c;
-LAB_0049ab92:
+slot_set_tables:
     slot[7] = s_fff_fff_fff__0062ab1c;
     slot[8] = &g_fx_slot_62ab0c;
     slot[9] = &g_fx_slot_7596cc;
-LAB_0049aba7:
+slot_set_mode_2:
     slot[4] = 2;
   }
   /* common default for word 6 (+0.5) when the type did not set it */

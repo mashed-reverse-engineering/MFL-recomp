@@ -2,9 +2,9 @@
 /*00408e60*/ extern int player_record_get_value();
 /*00409f30*/ extern double player_progress_b();
 /*0040c820*/ extern int player_add_points();
-/*0040d0b0*/ extern undefined __cdecl atomic_set_envmap(int p0, void *p1);
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
-/*0040ea10*/ extern undefined __cdecl atomic_instance_filter(struct RpAtomic *p0);
+/*0040d0b0*/ extern undefined __cdecl atomic_set_envmap(int clump, void *tex);
+/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *name);
+/*0040ea10*/ extern undefined __cdecl atomic_instance_filter(struct RpAtomic *atomic);
 /*004138a0*/ extern int time_split();
 /*004146c0*/ extern int trail_clumps_call_update();
 /*00414f00*/ extern int trail_update_00414f00();
@@ -13,8 +13,8 @@
 /*004165d0*/ extern int trail_particles_render();
 /*0041da00*/ extern int btb_panel_destroy_extra();
 /*00421d50*/ extern int vehicle_prepare_parts();
-/*00422380*/ extern int __cdecl vehicle_get_frame_16c(undefined4 p0);
-/*00422400*/ extern int __cdecl vehicle_get_active_flag(undefined4 p0);
+/*00422380*/ extern int __cdecl vehicle_get_frame_16c(undefined4 v);
+/*00422400*/ extern int __cdecl vehicle_get_active_flag(undefined4 v);
 /*004231b0*/ extern int vehicle_model_path();
 /*00423320*/ extern int vehicle_load();
 /*004241b0*/ extern int car_damage_smoke_reset();
@@ -28,7 +28,7 @@
 /*00429660*/ extern int race_setup_struct_4();
 /*00429670*/ extern int race_setup_struct_5();
 /*0042a3f0*/ extern int course_get_rpworld();
-/*0042ab20*/ extern undefined __cdecl course_camera_add_to_collision_world(struct RwCamera *p0);
+/*0042ab20*/ extern undefined __cdecl course_camera_add_to_collision_world(struct RwCamera *camera);
 /*0042fa80*/ extern int course_content_path_build();
 /*00434bb0*/ extern int get_event_type();
 /*00463270*/ extern int weapon_particles_render();
@@ -38,7 +38,7 @@
 /*0047ac30*/ extern int car_get_mode();
 /*0047b520*/ extern int car_current_matrix();
 /*00481fd0*/ extern double random_range();
-/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
+/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *dictionary);
 /*00485610*/ extern int particle_pool_counts_reset();
 /*00485900*/ extern int particles_render_all_no_zwrite();
 /*00485960*/ extern int particles_destroy_all();
@@ -48,7 +48,7 @@
 /*00487620*/ extern int sprite_slots_clear();
 /*004877e0*/ extern int effect_sprites_render_all();
 /*004878f0*/ extern int sprite_slots_destroy();
-/*00494520*/ extern undefined __cdecl replay_buffer_record_frame(int p0, RwMatrix *p1, undefined4 p2, int p3);
+/*00494520*/ extern undefined __cdecl replay_buffer_record_frame(int buffer, RwMatrix *matrix, undefined4 value, int sample_index);
 /*00498250*/ extern int fx_tables_clear();
 /*00498330*/ extern int fx_render();
 /*00498370*/ extern int fx_atomics_destroy();
@@ -70,19 +70,19 @@
 /*0049feb0*/ extern int fx_clumps_destroy();
 /*004a0370*/ extern int clumps_render_all_886024();
 /*004a03b0*/ extern int fx_clump_slots_clear();
-/*004a43d0*/ extern undefined __cdecl game_open_piz(char *p0);
+/*004a43d0*/ extern undefined __cdecl game_open_piz(char *path);
 /*004a4440*/ extern int game_close_piz();
 /*004a8420*/ extern int debug_printf();
 /*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004b2ccd*/ extern undefined __cdecl start(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004b322b*/ extern int exit();
-/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
-/*004d1da0*/ extern struct RwCamera * RwCameraSetProjection(struct RwCamera *p0, enum RwCameraProjection p1);
-/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *p0, struct RwCamera *p1);
-/*004f4470*/ extern struct RpWorld * RpWorldRemoveCamera(struct RpWorld *p0, struct RwCamera *p1);
-/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
+/*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *frame, RwMatrix *matrix, enum RwOpCombineType combine_op);
+/*004d1da0*/ extern struct RwCamera * RwCameraSetProjection(struct RwCamera *camera, enum RwCameraProjection projection);
+/*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *camera, struct RwV2d *view_window);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *world, struct RwCamera *camera);
+/*004f4470*/ extern struct RpWorld * RpWorldRemoveCamera(struct RpWorld *world, struct RwCamera *camera);
+/*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *clump, RpAtomicCallBack atomic, void *data);
 /*0050b5e0*/ extern int nop_stub();
 /*005dd330*/ extern float float_1_0;
 /*005dd370*/ extern float k_f_0_3;
@@ -171,7 +171,7 @@ extern void effects_render(void);
 
 /* "maps 0xFFA08080 -> 7, 0xFF1A3380 -> ... (the car colour constants) to a small index" */
 
-extern undefined4 color_code_to_index(char *param_1);
+extern undefined4 color_code_to_index(char *c);
 
 
 /* course_slots_active_count */
@@ -185,7 +185,7 @@ extern int course_slots_active_count(void);
 
 /*  */
 
-extern void load_shine_texture(RpClump *clump,char *param_2,char *param_3);
+extern void load_shine_texture(RpClump *clump, char *str_a, char *str_b);
 
 
 /* race_setup_use_0 */
@@ -249,7 +249,7 @@ extern void vehicle_prepare_parts_0(void);
 
 /* "(model): opens the vehicle piz of vehicle_model_path and loads the vehicle (FUN_00423320)" */
 
-extern void vehicle_load_from_piz(char *param_1);
+extern void vehicle_load_from_piz(char *model);
 
 
 /* camera_world_attach */
@@ -270,7 +270,7 @@ extern undefined4 race_get_race_setup(void);
 
 /* "difference of two player_progress_b values with wrap around at 100 (inferred)" */
 
-extern void __cdecl player_progress_difference(char *param_1,char *param_2,char *param_3,char *param_4);
+extern void __cdecl player_progress_difference(char *player_a, char *player_b, char *player_c, char *points);
 
 
 /* race_get_intro_652df0 */
@@ -308,7 +308,7 @@ extern void camera_save(RwCamera *camera);
 
 /* "0x652F58 = index of the current race in the race setup" */
 
-extern void race_set_setup_index(char *param_1);
+extern void race_set_setup_index(char *str);
 
 
 /* race_get_setup_index */
@@ -323,7 +323,7 @@ extern undefined4 race_get_setup_index(void);
 /* "(out player, out ?): active car with mode 0 selected by position, used for camera / AI focus
    (inferred)" */
 
-extern void race_get_focus_player(int *param_1,int *param_2);
+extern void race_get_focus_player(int *out_a, int *out_b);
 
 
 /* get_player_count */
@@ -352,7 +352,7 @@ extern double race_get_time_seconds(void);
 
 /* "(team, out): switch giving the RGBA of a team colour" */
 
-extern void team_color_rgba(char *param_1,undefined1 *param_2);
+extern void team_color_rgba(char *team, undefined1 *out);
 
 
 /* race_get_race_652dec */
@@ -366,7 +366,7 @@ extern undefined4 race_get_race_652dec(void);
 
 /* "0x652DEC = player index shown by the camera" */
 
-extern void race_set_view_player(char *param_1);
+extern void race_set_view_player(char *player);
 
 
 /* race_get_phase_timer */
@@ -394,7 +394,7 @@ extern void race_course_loaded_event_clear(void);
 
 /* "'Time trial recording error time %d'" */
 
-extern void race_time_trial_record(char *param_1);
+extern void race_time_trial_record(char *str);
 
 
 

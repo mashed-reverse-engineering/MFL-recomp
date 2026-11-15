@@ -61,16 +61,16 @@ void player_stats_debug_log(void)
     if (player_count == 4) {
       if (points != 10) {
         is_match = points == 0xb;
-LAB_00428785:
-        if (!is_match) goto LAB_0042878d;
+check_match:
+        if (!is_match) goto team_mode_bonus;
       }
       stat_word_ptr[0x3a] = stat_word_ptr[0x3a] + 1;
     }
     else if ((player_count == 3) || (player_count == 2)) {
       is_match = points == 7;
-      goto LAB_00428785;
+      goto check_match;
     }
-LAB_0042878d:
+team_mode_bonus:
     team_mode = is_team_mode();
     if (((team_mode != 0) && (player_count == 4)) && (points == 7)) {
       stat_word_ptr[0x3a] = stat_word_ptr[0x3a] + 1;

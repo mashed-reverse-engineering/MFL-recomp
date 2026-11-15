@@ -10,6 +10,7 @@ WR=$(dirname "$(readlink -f "$0")"); G=$WR/../..; O=$(readlink -f "$1"); mkdir -
 AUDIO_DLL=1 TRAP=1 DLLS="$G/tools/audio/work/out/null/mfl_audio_miniaudio.dll $G/tools/video/work/out/mfl_video_ffmpeg.dll" \
   $G/tools/delink/link_release.sh $O/rel > $O/link.log 2>&1 || { tail -5 $O/link.log; echo "V7: FAIL release link (log $O/link.log)"; exit 1; }
 A=$O/rel/game/App_Executables; rm -f $A/mfl_trap.log
+[ -f $A/MFL_original.exe ] || { echo "V7: FAIL no MFL_original.exe beside the release exe in $A (the resources are read from it at run time)"; exit 1; }
 export DENV="-e MFL_TRAP_NOBOX=1 -e MFL_AUDIO_DUMP=/out/audio.pcm"
 t=$(BOOT_S=150 $WR/release_smoke.sh $O/rel $O/title title); echo "$t"
 r=$($WR/release_smoke.sh $O/rel $O/race race); echo "$r"      # race_relinked.sh exits 0 always: judged by its line

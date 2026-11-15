@@ -77,8 +77,8 @@ typedef struct MflRowWorld {
   unsigned char b408[4];   /* 0x408 */
 } MflRowWorld;
 
-extern int rwp_pipeline_00571c60(MflRowSet *rs, void *a1, void *a2, void *a3, void *a4, void *a5, void *a6, MflRowBatch *b, MflRowWorld *w,
-                                 int a9, int a10, int a11, int a12, void *a13);
+extern int rwp_pipeline_00571c60(MflRowSet *rs, void *idlist, void *S, void *a3, void *a4, void *a5, void *a6, MflRowBatch *b, MflRowWorld *w,
+                                 int dt_step, void *fn_step, void *w_f8, void *fn_post, void *a13);
 
 /* Runs the solver row builder (571c60) over the groups in batches whose row counts (group +0x1c) add up to at most w->cap; each run writes into
    the row storage after the rows already used and advances `used`. Returns w, or 0 when a single group is already above the cap. */

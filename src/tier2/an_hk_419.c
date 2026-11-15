@@ -37,15 +37,15 @@ undefined4 __cdecl race_course_record_for_event(char *record_table,int entry_ind
   /* events 0xB, 0xC, 0xD: the course comes from the menu, not from entry_index */
   event_or_team = get_event_type();
   if (event_or_team == EVENT_QUICK_RACE_11) {
-LAB_0040e7a8:
+read_quick_race_record:
     record_value = menu_event_course_index_get();
     record_value = *(int *)(*(char **)(record_table + 4 + record_value * 4) + 4);
   }
   else {
     event_or_team = get_event_type();
-    if (event_or_team == EVENT_QUICK_RACE_12) goto LAB_0040e7a8;
+    if (event_or_team == EVENT_QUICK_RACE_12) goto read_quick_race_record;
     event_or_team = get_event_type();
-    if (event_or_team == EVENT_QUICK_RACE_13) goto LAB_0040e7a8;
+    if (event_or_team == EVENT_QUICK_RACE_13) goto read_quick_race_record;
   }
   /* events 6, 7, 8: the course comes from the menu as well */
   event_or_team = get_event_type();
@@ -53,12 +53,12 @@ LAB_0040e7a8:
     event_or_team = get_event_type();
     if (event_or_team != EVENT_MULTIPLAYER_7) {
       event_or_team = get_event_type();
-      if (event_or_team != EVENT_MULTIPLAYER_8) goto LAB_0040e7fe;
+      if (event_or_team != EVENT_MULTIPLAYER_8) goto record_to_group;
     }
   }
   record_value = menu_event_course_index_get();
   record_value = *(int *)(*(char **)(record_table + 4 + record_value * 4) + 4);
-LAB_0040e7fe:
+record_to_group:
   /* record value -> group number */
   record_value = record_value / RECORD_GROUP_STRIDE;
   /* event 0xE: group forced to 12 (inferred) */
@@ -78,12 +78,12 @@ LAB_0040e7fe:
     }
     call_result = vehicle_get_active_flag(slot);
     if (call_result == 0) {
-LAB_0040e842:
+mark_mismatch:
       mismatch_found = 1;
     }
     else {
       call_result = vehicle_get_object_field_80(slot);
-      if (call_result != event_or_team + record_value * RECORD_GROUP_STRIDE) goto LAB_0040e842;
+      if (call_result != event_or_team + record_value * RECORD_GROUP_STRIDE) goto mark_mismatch;
     }
     team_ptr = team_ptr + 4;
     slot = slot + 1;

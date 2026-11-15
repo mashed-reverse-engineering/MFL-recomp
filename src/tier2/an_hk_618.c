@@ -152,7 +152,7 @@ void training_hint_labels_update(void)
   /* lesson 3 (inferred): weapon training. Once per run, hand out the powerup for the
      current slot; then hint on the weapon player 1 holds and set g_car_8c8788 to a
      weapon category (1 fire-type, 2 machinegun/missile/mortar, 3 mine/depthcharge, 4 shotgun) */
-  if (g_training_lesson != 3) goto LAB_0043a5ab;
+  if (g_training_lesson != 3) goto lesson_4_hints;
   if (g_car_8c86c4 == 0) {
     if ((int)g_car_8c807c < TRAINING_POWERUP_COUNT) {
       training_powerups_setup(frame.powerup_weapons[g_car_8c807c]);
@@ -179,7 +179,7 @@ void training_hint_labels_update(void)
         hud_label_add_world_text(0x317,&frame.label_pos_x,&frame.colour_red_r,&frame.colour_yellow_r,0x42000000,0x3f000000);
       }
     }
-LAB_0043a57e:
+hint_category_2:
     g_car_8c8788 = 2;
   }
   else {
@@ -187,7 +187,7 @@ LAB_0043a57e:
        (held_weapon == WEAPON_FLARE)) {
       g_car_8c8788 = 1;
     }
-    if ((held_weapon == WEAPON_MISSILE) || (held_weapon == WEAPON_MORTAR)) goto LAB_0043a57e;
+    if ((held_weapon == WEAPON_MISSILE) || (held_weapon == WEAPON_MORTAR)) goto hint_category_2;
   }
   if ((held_weapon == WEAPON_MINE) || (held_weapon == WEAPON_DEPTHCHARGE)) {
     g_car_8c8788 = 3;
@@ -195,7 +195,7 @@ LAB_0043a57e:
   if (held_weapon == WEAPON_SHOTGUN) {
     g_car_8c8788 = 4;
   }
-LAB_0043a5ab:
+lesson_4_hints:
   /* lesson 4 (inferred): speed and rank-band hints for player 1. Returns early unless
      g_car_8c86c8 is 1 or 4 (inferred: active stage) */
   if (g_training_lesson != 4) {

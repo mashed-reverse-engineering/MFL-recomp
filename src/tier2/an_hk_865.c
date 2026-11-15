@@ -114,7 +114,7 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 unused_1,undefined4 unused_2,un
       random_roll = random_range(0,FLOAT_ONE_BITS);
       tmp_a = ((int)(g_ai_skill));
       if (!((random_roll) < (double)float_1_0 - ((double)float_10_0 - (double)tmp_a) * (double)k_f_0_06666667)) {
-LAB_00418283:
+fire_delay_default:
         g_ai_bots[iBot].fire_delay = FIRE_DELAY_DEFAULT_MS;
         return 0;
       }
@@ -126,7 +126,7 @@ LAB_00418283:
     /* burst: start a burst at random or when must_fire is set, hold fire until the weapon effect ends */
     if (g_ai_bots[iBot].burst_active == 0) {
       if (g_ai_bots[iBot].must_fire != 0) {
-LAB_00418304:
+begin_burst:
         g_ai_bots[iBot].burst_active = 1;
         return 0;
       }
@@ -138,7 +138,7 @@ LAB_00418304:
           g_ai_bots[iBot].burst_active = 1;
           return 0;
         }
-        goto LAB_00418283;
+        goto fire_delay_default;
       }
     }
     else {
@@ -166,9 +166,9 @@ LAB_00418304:
         return 0;
       }
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
-      if (!(roll_or_dist < (double)k_f_0_9)) goto LAB_00418177;
+      if (!(roll_or_dist < (double)k_f_0_9)) goto fire_delay_medium;
     }
-    goto LAB_004181f2;
+    goto fire_now_delay_1500;
   case WEAPON_MISSILE:
     if (g_ai_bots[iBot].must_fire != 0) {
       player_input->fire = 1;
@@ -182,7 +182,7 @@ LAB_00418304:
         player_input->fire = 1;
         return 0;
       }
-LAB_00418177:
+fire_delay_medium:
       g_ai_bots[iBot].fire_delay = FIRE_DELAY_MEDIUM_MS;
       return 0;
     }
@@ -201,37 +201,37 @@ LAB_00418177:
       }
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
       if (!(roll_or_dist < (double)k_f_0_75)) {
-LAB_0041835d:
+fire_delay_long:
         g_ai_bots[iBot].fire_delay = FIRE_DELAY_LONG_MS;
         return 0;
       }
     }
-LAB_004181f2:
+fire_now_delay_1500:
     player_input->fire = 1;
     g_ai_bots[iBot].fire_delay = 0x5dc;
     return 0;
   case WEAPON_FLAMETHROWER:
     if (g_ai_bots[iBot].burst_active != 0) {
-LAB_004182e3:
+fire_burst:
       player_input->fire = 1;
       return 0;
     }
-    if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
+    if (g_ai_bots[iBot].must_fire != 0) goto begin_burst;
     if (((g_ai_bots[iBot].fire_delay == 0) && (k_f_2000 < bot_index_then_speed)) &&
        (tmp_b = ai_find_leader_b(iBot,0x40400000,0x41200000), tmp_b != 0)) {
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
       if (roll_or_dist < (double)k_f_0_5) {
-LAB_0041834a:
+begin_burst_on_roll:
         g_ai_bots[iBot].burst_active = 1;
         return 0;
       }
-      goto LAB_00418283;
+      goto fire_delay_default;
     }
     break;
   case WEAPON_SHOTGUN:
     /* shotgun: fire when the bot is roughly level with the route direction (route_offset in (-0.75, 0.75)) */
     if (g_ai_bots[iBot].must_fire != 0) {
-LAB_004180e3:
+fire_shotgun:
       player_input->fire = 1;
       g_ai_bots[iBot].fire_delay = 500;
       return 0;
@@ -249,8 +249,8 @@ LAB_004180e3:
       route_offset = -((route_record[2] * frame.to_player0_dir.z + frame.to_player0_dir.x * *route_record + route_record[1] * frame.to_player0_dir.y) * frame.to_player0_length);
       if ((k_f_n0_75 < route_offset) && (route_offset < k_f_0_75)) {
         roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
-        if (!(roll_or_dist < (double)k_f_0_9)) goto LAB_00418283;
-        goto LAB_004180e3;
+        if (!(roll_or_dist < (double)k_f_0_9)) goto fire_delay_default;
+        goto fire_shotgun;
       }
     }
     break;
@@ -260,17 +260,17 @@ LAB_004180e3:
     }
     if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)range_value)) {
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
-      if (!(roll_or_dist < (double)k_f_0_5)) goto LAB_0041835d;
-      goto LAB_004182e3;
+      if (!(roll_or_dist < (double)k_f_0_5)) goto fire_delay_long;
+      goto fire_burst;
     }
     break;
   case WEAPON_OIL:
-    if (g_ai_bots[iBot].burst_active != 0) goto LAB_004182e3;
-    if (g_ai_bots[iBot].must_fire != 0) goto LAB_00418304;
+    if (g_ai_bots[iBot].burst_active != 0) goto fire_burst;
+    if (g_ai_bots[iBot].must_fire != 0) goto begin_burst;
     if ((g_ai_bots[iBot].fire_delay == 0) && (k_f_80 < (float)range_value)) {
       roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
-      if (roll_or_dist < (double)k_f_0_5) goto LAB_0041834a;
-      goto LAB_0041835d;
+      if (roll_or_dist < (double)k_f_0_5) goto begin_burst_on_roll;
+      goto fire_delay_long;
     }
   }
   return 0;

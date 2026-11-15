@@ -3,7 +3,7 @@
 
 typedef struct MflSphereTypeVt {
   void *slot[2];
-  float *(*local_point)();   /* 0x8: (obj, out) -> pointer to the local point */
+  float *(*point_in_local)();   /* 0x8: (obj, out) -> pointer to the local point */
 } MflSphereTypeVt;
 
 typedef struct MflSphereObjP {
@@ -17,24 +17,24 @@ typedef struct MflSphereObjP {
 float *rwp_shape_local_point_to_world(MflSphereObjP *obj, float *m, float *out)
 {
   float *p;
-  float s0, s1, t2;
-  volatile float s2;      /* a frame float in the original (rounded to float before the translation is added) */
+  float rot_x, rot_y, rot_z;
+  volatile float rot_z_f;      /* a frame float in the original (rounded to float before the translation is added) */
 
-  p = obj->type->local_point(obj, out);
+  p = obj->type->point_in_local(obj, out);
   if (p && m) {
-    s0 = m[8] * p[2];
-    s0 = s0 + m[4] * p[1];
-    s0 = s0 + m[0] * p[0];
-    s1 = m[9] * p[2];
-    s1 = s1 + m[1] * p[0];
-    s1 = s1 + m[5] * p[1];
-    t2 = m[10] * p[2];
-    t2 = t2 + m[2] * p[0];
-    t2 = t2 + m[6] * p[1];
-    s2 = t2;
-    p[0] = m[12] + s0;
-    p[1] = m[13] + s1;
-    p[2] = m[14] + s2;
+    rot_x = m[8] * p[2];
+    rot_x = rot_x + m[4] * p[1];
+    rot_x = rot_x + m[0] * p[0];
+    rot_y = m[9] * p[2];
+    rot_y = rot_y + m[1] * p[0];
+    rot_y = rot_y + m[5] * p[1];
+    rot_z = m[10] * p[2];
+    rot_z = rot_z + m[2] * p[0];
+    rot_z = rot_z + m[6] * p[1];
+    rot_z_f = rot_z;
+    p[0] = m[12] + rot_x;
+    p[1] = m[13] + rot_y;
+    p[2] = m[14] + rot_z_f;
   }
   return p;
 }

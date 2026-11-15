@@ -94,7 +94,7 @@ void trail_update(void)
       }
       else {
         frame_obj.record_index = *(int *)(frame_obj.course_record_table + -4 + trail_index * 4);
-        if (frame_obj.record_index < 1) goto LAB_00414c52;
+        if (frame_obj.record_index < 1) goto next_trail;
       }
       object_a_handle = g_trails[trail_index].object_a;
       g_trails[trail_index].active = 1;
@@ -216,7 +216,7 @@ void trail_update(void)
       *(RwReal *)((char *)&g_trail_update_652fc4 + scratch) = frame_obj.trail_matrix.pos.z;
       trail_index = frame_obj.saved_trail_index;
     }
-LAB_00414c52:
+next_trail:
     /* next slot; also the jump target when a slot's record index is below 1 (skips that slot's body) */
     trail_index = trail_index + 1;
     frame_obj.saved_trail_index = trail_index;

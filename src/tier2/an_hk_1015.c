@@ -158,7 +158,7 @@ void car_wheels_vs_triangles(int *car,float *tri)
                              (&frame.stack_w0)[phase_or_idx];
                         phase_or_idx = next_i;
                       } while (next_i < EVENT_DATA_WORDS);
-                      goto LAB_0047b30d;
+                      goto advance_event_log_head;
                     }
                   }
                   else if (((((car[0x27c] == 1) && (tri_mark != TRI_MARK_FFFF0080)) && (0x32 < car[0x27d]))
@@ -183,7 +183,7 @@ void car_wheels_vs_triangles(int *car,float *tri)
                            (&frame.stack_w0)[phase_or_idx];
                       phase_or_idx = next_i;
                     } while (next_i < EVENT_DATA_WORDS);
-LAB_0047b30d:
+advance_event_log_head:
                     g_event_log_head = g_event_log_head + 1;
                     if (0xff < g_event_log_head) {
                       g_event_log_head = 0;

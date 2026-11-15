@@ -179,9 +179,9 @@ void race_status_messages_draw(void)
   case 5:
     scratch_int = fx_objects_all_exploded();
     if (scratch_int == 0) {
-LAB_0042f22a:
+draw_lose_banner:
       race_lose_banner_draw();
-      goto LAB_0042f393;
+      goto restore_view_window;
     }
     race_winner_banner_draw(draw_team_text);
     draw_team_text = 1;
@@ -191,8 +191,8 @@ LAB_0042f22a:
     break;
   case 8:
     scratch_int = ai_ftol_noop_wrapper(0);
-    if (scratch_int == -1) goto LAB_0042f22a;
-    goto LAB_0042f370;
+    if (scratch_int == -1) goto draw_lose_banner;
+    goto draw_winner_banner;
   case 9:
     if (g_car_7ef7b0 == 0) {
       race_lose_banner_draw();
@@ -210,20 +210,20 @@ LAB_0042f22a:
       ui_rt2d_text_draw(0x215, 320.0f, 98.0f, shadow_colour, 1.0f, 2);
       ui_rt2d_text_draw(0x215, 320.0f, 95.0f, frame.colour_white, 1.0f, 2);
     }
-    goto LAB_0042f393;
+    goto restore_view_window;
   case 10:
     if (g_car_7ef7b0 == 0) {
       race_lose_banner_draw();
       ui_rt2d_text_draw(0x231, intro_banner_get_x() + k_f_3, 98.0f, shadow_colour, 1.0f, 2);
       ui_rt2d_text_draw(0x231, intro_banner_get_x(), 95.0f, *(int *)&text_colour, 1.0f, 2);
-      goto LAB_0042f393;
+      goto restore_view_window;
     }
-LAB_0042f370:
+draw_winner_banner:
     race_winner_banner_draw(draw_team_text);
     draw_team_text = 1;
   }
   intro_banner_draw_team_text(&frame.colour_white,draw_team_text);
-LAB_0042f393:
+restore_view_window:
   RwCameraEndUpdate(camera);
   RwCameraSetViewWindow(camera,&view_window_saved);
   RwCameraBeginUpdate(camera);

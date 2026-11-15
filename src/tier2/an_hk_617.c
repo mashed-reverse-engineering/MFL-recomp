@@ -39,7 +39,7 @@ undefined4 menu_right_pressed_any(void)
             (g_player_inputs[2].direction_flags[1] != 0 ||
             (g_player_inputs[1].direction_flags[1] != 0 ||
             g_player_inputs[0].direction_flags[1] != 0)))));
-    if (g_player_inputs[7].direction_flags[1] == 0) goto LAB_004307fb;
+    if (g_player_inputs[7].direction_flags[1] == 0) goto check_right_held;
   }
   else {
     /* otherwise: each player slot with a controller and slot type != 2 (inferred) */
@@ -54,10 +54,10 @@ undefined4 menu_right_pressed_any(void)
       slot = slot + 1;
       index = index + 1;
     } while ((LONG_PTR)slot < ((LONG_PTR)&g_ai_editor_mode));
-LAB_004307fb:
+check_right_held:
     if (!right_held_any) {
       g_menu_right_69d6c8 = 0;
-      goto LAB_00430849;
+      goto check_right_edge;
     }
   }
   /* options page: entries 0..2 accept right outright; other entries fall through to the edge check */
@@ -67,11 +67,11 @@ LAB_004307fb:
       if (index == 2) {
         return 1;
       }
-      goto LAB_00430849;
+      goto check_right_edge;
     }
   }
   else if (g_menu_records[g_menu_current].page_id != MENU_PAGE_GAMMA) {
-LAB_00430849:
+check_right_edge:
     /* edge check: right held now but not in the previous frame (inferred) */
     if (g_input_mode == 0x1000) {
       if ((g_player_inputs[0].direction_flags[1] != 0) &&

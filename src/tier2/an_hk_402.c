@@ -86,15 +86,15 @@ int player_slots_reset_state(void)
         if (state1_count == 1) {
           return 0x1000;
         }
-        goto LAB_00430e92;
+        goto class_from_state1;
       }
-LAB_00430e82:
+check_state0_empty:
       if (state0_count == 0) {
         return 1;
       }
-      goto LAB_00430e92;
+      goto class_from_state1;
     }
-LAB_00430e8d:
+check_state1_pair:
     state1_matches = state1_count == 2;
   }
   else {
@@ -102,15 +102,15 @@ LAB_00430e8d:
     if (active_count != 4) {
       return -1;
     }
-    if (state0_count == 2) goto LAB_00430e8d;
+    if (state0_count == 2) goto check_state1_pair;
     if (state0_count != 1) {
       if (state0_count == 3) {
         if (state1_count == 1) {
           return 0x1000;
         }
-        goto LAB_00430e92;
+        goto class_from_state1;
       }
-      goto LAB_00430e82;
+      goto check_state0_empty;
     }
     state1_matches = state1_count == 3;
   }
@@ -118,7 +118,7 @@ LAB_00430e8d:
   if (state1_matches) {
     return 0x1000;
   }
-LAB_00430e92:
+class_from_state1:
   return (state1_count != 0) + 2;
 }
 

@@ -161,7 +161,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.force_y = 425.0;
     frame.offset.y = player_car[car_index].forward[1] * k_f_0_22222222;
     frame.offset.z = player_car[car_index].forward[2] * k_f_0_22222222;
-    goto LAB_004929af;
+    goto apply_offset_to_at;
   case 6:
     dir_ptr = (float *)(*(char **)(*(char **)(*body_ptr + 0x10) + 8) + body_ptr[1] * 0x20);
     frame.offset.x = *dir_ptr * k_f_n6_6666666en4;
@@ -187,7 +187,7 @@ void rwp_car_apply_forces(int car_or_matrix,undefined4 force_kind)
     frame.force_y = 125.0;
     frame.offset.y = player_car[car_index].forward[1] * k_f_n0_22222222;
     frame.offset.z = player_car[car_index].forward[2] * k_f_n0_22222222;
-LAB_004929af:
+apply_offset_to_at:
     frame.at_x = frame.offset.x + frame.at_x;
     frame.at_y = frame.offset.y + frame.at_y;
     frame.force_x = 0.0;

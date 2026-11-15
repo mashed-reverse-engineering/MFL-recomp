@@ -41,7 +41,7 @@ undefined4 menu_left_pressed_any(void)
             (g_player_inputs[2].direction_flags[0] != 0 ||
             (g_player_inputs[1].direction_flags[0] != 0 ||
             g_player_inputs[0].direction_flags[0] != 0)))));
-    if (g_player_inputs[7].direction_flags[0] == 0) goto LAB_004305cb;
+    if (g_player_inputs[7].direction_flags[0] == 0) goto check_left_held;
   }
   else {
     /* Slot mode: any active player slot holding left, skipping slot type 2 (inferred).
@@ -57,10 +57,10 @@ undefined4 menu_left_pressed_any(void)
       slot = slot + 1;
       slot_index = slot_index + 1;
     } while ((LONG_PTR)slot < ((LONG_PTR)&g_ai_editor_mode));
-LAB_004305cb:
+check_left_held:
     if (!any_left_held) {
       g_menu_left_69d6c4 = 0;
-      goto LAB_00430619;
+      goto check_left_edge;
     }
   }
   /* Options page: entries 0-2 consume the press, other entries go to the edge check.
@@ -71,11 +71,11 @@ LAB_004305cb:
       if (slot_index == 2) {
         return 1;
       }
-      goto LAB_00430619;
+      goto check_left_edge;
     }
   }
   else if (g_menu_records[g_menu_current].page_id != MENU_PAGE_GAMMA) {
-LAB_00430619:
+check_left_edge:
     /* Edge check, both modes: left newly pressed this frame. Player 7 returns at once. */
     if (g_input_mode == INPUT_MODE_MENU) {
       if ((g_player_inputs[0].direction_flags[0] != 0) &&

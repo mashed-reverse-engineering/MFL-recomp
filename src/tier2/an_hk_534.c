@@ -397,7 +397,7 @@ void __cdecl credits_draw(int current_time)
       else {
         elapsed = FADE_OUT_END_MS - elapsed;
         /* fade-out has ended: skip drawing this entry */
-        if (elapsed < 0) goto LAB_00433d02;
+        if (elapsed < 0) goto next_entry;
         alpha = (byte)((int)(elapsed + (elapsed >> 0x1f & 3U)) >> 2);
       }
       /* elapsed is reused here for this entry's x */
@@ -409,7 +409,7 @@ void __cdecl credits_draw(int current_time)
       ui_rt2d_text_draw(string_id,(shadow_x = (float)(elapsed + SHADOW_X_OFFSET), *(int *)&shadow_x),(shadow_y = (float)(y + SHADOW_Y_OFFSET), *(int *)&shadow_y),colours.shadow_colour,TEXT_SCALE_BITS,2);
       ui_rt2d_text_draw(string_id,(text_x = (float)(elapsed + TEXT_X_OFFSET), *(int *)&text_x),(text_y = (float)y, *(int *)&text_y),colours.text_colour,TEXT_SCALE_BITS,2);
     }
-LAB_00433d02:
+next_entry:
     string_id = entry[2];
     entry = entry + 4;
     if (string_id == END_OF_TABLE) {

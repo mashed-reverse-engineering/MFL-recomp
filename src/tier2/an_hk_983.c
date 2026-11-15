@@ -37,12 +37,12 @@ void course_editor_read_vec_chunk(void)
     chunk_dest = &g_course_update_603578;
   }
   else {
-    if (chunk_id != 0x12) goto LAB_0040c65d;
+    if (chunk_id != 0x12) goto update_cars_wobble;
     chunk_dest = (undefined *)&g_course_update_652db8;
   }
   rw_stream_chunk_copy(((char *)&g_race_phase_arg),chunk_dest);
   store_u32(((char *)&g_race_phase_arg),0);
-LAB_0040c65d:
+update_cars_wobble:
   car_index = 0;
   do {
     car_wobble_tilt_update(car_index);

@@ -51,7 +51,7 @@ void tutorial_text_format_ratio(int count_a,int count_b,undefined4 string_id,int
   /* clamp mode (inferred): zero counts become 1; both_one is set when both end up 1 */
   if (clamp_zero_counts != 0) {
     if (count_a == 0) {
-      if (count_b == 0) goto LAB_00431d06;
+      if (count_b == 0) goto ratio_text_one;
       count_a = 1;
     }
     if (count_b == 0) {
@@ -70,7 +70,7 @@ void tutorial_text_format_ratio(int count_a,int count_b,undefined4 string_id,int
   count_a = tmp_a;
   /* "1.0": count_a is zero (or both were zero in clamp mode) */
   if (count_a == 0) {
-LAB_00431d06:
+ratio_text_one:
     *text_out = RATIO_TEXT_LEN_FIXED;
     text_out[1] = RATIO_CHAR_ONE;
     text_out[3] = RATIO_CHAR_ZERO;
@@ -79,7 +79,7 @@ LAB_00431d06:
   }
   /* "0.0": count_b is zero */
   if (count_b == 0) {
-LAB_00431d41:
+ratio_text_zero:
     *text_out = RATIO_TEXT_LEN_FIXED;
     text_out[1] = RATIO_CHAR_ZERO;
     text_out[3] = RATIO_CHAR_ZERO;
@@ -90,9 +90,9 @@ LAB_00431d41:
   shown_ratio = k_f_0_75;
   /* ratio exactly 1.0 -> "1.0"; ratio <= 0.01 (k_f_0_009999) -> "0.0"; otherwise formatted. both_one shows the fixed k_f_0_75 */
   if (!both_one) {
-    if (ratio_b_over_a == float_1_0) goto LAB_00431d06;
+    if (ratio_b_over_a == float_1_0) goto ratio_text_one;
     shown_ratio = ratio_b_over_a;
-    if (ratio_b_over_a <= k_f_0_009999) goto LAB_00431d41;
+    if (ratio_b_over_a <= k_f_0_009999) goto ratio_text_zero;
   }
   /* format the fraction, then copy its last two digits into the string */
   sprintf(frame.m.int_part,&g_tutorial_text_5de9ac,(double)shown_ratio);

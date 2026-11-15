@@ -6,7 +6,7 @@
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486c40*/ extern int particles_flush();
 /*00486ef0*/ extern int particles_render();
-/*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
+/*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *bits_a, uint bits_b, uint bits_c, struct RwTexture *texture);
 /*00497fa0*/ extern int fx_trail_particle_spawn();
 /*0049a960*/ extern int RpPTankAtomicLock_00545d10();
 /*0049a970*/ extern int RpPTankAtomicUnlock_00545f20();
@@ -14,8 +14,8 @@
 /*0049b9c0*/ extern int fx_ribbon_flush_spline();
 /*0049c520*/ extern undefined particles_emit_random(undefined4 p0);
 /*0049c950*/ extern undefined fx_object_apply_transform(undefined4 p0);
-/*0049cc20*/ extern undefined __cdecl fx_object_update_frame(undefined4 p0, undefined4 p1);
-/*0049cd60*/ extern undefined fx_spawn_burst(undefined4 p0, float *p1, int p2, float *p3, undefined4 *p4, undefined4 *p5, float p6);
+/*0049cc20*/ extern undefined __cdecl fx_object_update_frame(undefined4 fx_object_ptr, undefined4 fade_fraction);
+/*0049cd60*/ extern undefined fx_spawn_burst(undefined4 p0, float *floats_a, int p2, float *floats_b, undefined4 *words_a, undefined4 *words_b, float value);
 /*0049f440*/ extern int fx_style_init_a();
 /*0049f470*/ extern int fx_style_init_b();
 /*0049f4a0*/ extern int fx_style_init_c();
@@ -29,15 +29,15 @@
 /*004a8420*/ extern int debug_printf();
 /*004b322b*/ extern int exit();
 /*004b4ba7*/ extern int entry();
-/*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *p0);
-/*004d1330*/ extern struct RwFrame * RwFrameRemoveChild(struct RwFrame *p0);
-/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
-/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
-/*004d5bf0*/ extern RwBool RwTextureDestroy(struct RwTexture *p0);
-/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
-/*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
+/*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *frame);
+/*004d1330*/ extern struct RwFrame * RwFrameRemoveChild(struct RwFrame *frame);
+/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *camera, struct RwSphere *sphere);
+/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *vec_a, struct RwV3d *vec_b, RwInt32 value, RwMatrix *matrix);
+/*004d5bf0*/ extern RwBool RwTextureDestroy(struct RwTexture *texture);
+/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *atomic);
+/*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *atomic, struct RwFrame *frame);
 /*005dd32c*/ extern float k_f_3;
 /*005dd330*/ extern float float_1_0;
 /*005dd33c*/ extern float k_f_4;
@@ -129,10 +129,10 @@
 /*008885a0*/ extern undefined4 g_particles_8885a0;
 
 
-extern void __cdecl fx_ptank_b_lock_and_fill(char *param_1,char *param_2);
+extern void __cdecl fx_ptank_b_lock_and_fill(char *str_a, char *str_b);
 
 
-extern void fx_ptank_a_lock_and_fill(char *param_1);
+extern void fx_ptank_a_lock_and_fill(char *world);
 
 
 extern void fx_ptank_render_b(void);
@@ -143,7 +143,7 @@ extern void fx_ptank_render_b(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "finds a free system record (0x68 bytes), sets texture and dimensions" */
 
-extern int * particles_alloc_system(RwTexture *texture,char *param_2,char *param_3,char *param_4);
+extern int * particles_alloc_system(RwTexture *texture, char *particle_count, char *life_frames, char *particle_flags);
 
 
 /* fx_set_blend_modes */
@@ -157,42 +157,42 @@ extern void fx_set_blend_modes(void);
 
 /* "increments the count and sets 1 in the current 0x30 byte entry" */
 
-extern void particle_batch_mark_current_active(int *param_1);
+extern void particle_batch_mark_current_active(int *batch);
 
 
 /* particle_batch_add */
 
 /* "appends a particle (position, colour) to the batch if it is not full" */
 
-extern void particle_batch_add(int *param_1,undefined4 *param_2,undefined1 *param_3);
+extern void particle_batch_add(int *words_a, undefined4 *words_b, undefined1 *byte_value);
 
 
 /* particle_batch_set_uv_a */
 
 /* "stores 2 floats into the current entry" */
 
-extern void particle_batch_set_uv_a(int *param_1,undefined4 *param_2);
+extern void particle_batch_set_uv_a(int *words_a, undefined4 *words_b);
 
 
 /* particle_batch_set_size */
 
 /* "stores a value into the current entry" */
 
-extern void particle_batch_set_size(int *param_1,char *param_2);
+extern void particle_batch_set_size(int *batch, char *size);
 
 
 /* particle_batch_set_uv_b_c */
 
 /* "stores 2+2 floats into the current entry" */
 
-extern void particle_batch_set_uv_b_c(int *param_1,undefined4 *param_2,undefined4 *param_3);
+extern void particle_batch_set_uv_b_c(int *batch, undefined4 *uv_b, undefined4 *uv_c);
 
 
 /* particle_batch_clear */
 
 /* "zeroes fields +8, +0xC, +0x54" */
 
-extern void particle_batch_clear(char *param_1);
+extern void particle_batch_clear(char *batch);
 
 
 /* fx_system_flush */
@@ -200,42 +200,42 @@ extern void particle_batch_clear(char *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "flushes the pending particles of the system and stores its count" */
 
-extern void fx_system_flush(char *param_1);
+extern void fx_system_flush(char *str);
 
 
 /* fx_system_render */
 
 /* "renders the particles of the system and clears the active flag" */
 
-extern void fx_system_render(char *param_1);
+extern void fx_system_render(char *str);
 
 
 /* fx_system_create */
 
 /* "allocates an fx system (three buffers, slot via particles_fn_49b780)" */
 
-extern undefined4 * fx_system_create(char *param_1,RwTexture *texture,char *param_3,char *param_4,undefined4 *param_5, char *param_6,char *param_7);
+extern undefined4 * fx_system_create(char *param_1, RwTexture *texture, char *param_3, char *param_4, undefined4 *words, char *param_6, char *param_7);
 
 
 /* fx_system_reset_positions */
 
 /* "sets every vertex position to the given point and clears the offsets" */
 
-extern void fx_system_reset_positions(int *param_1,undefined4 *param_2);
+extern void fx_system_reset_positions(int *fx_system, undefined4 *pos);
 
 
 /* particles_slot_set_vectors */
 
 /* "stores three vectors into slot (system, index) (max 16 each)" */
 
-extern undefined4 particles_slot_set_vectors (char *param_1,undefined4 *param_2,char *param_3,undefined4 *param_4, undefined4 *param_5);
+extern undefined4 particles_slot_set_vectors (char *str_a, undefined4 *words_a, char *str_b, undefined4 *words_b, undefined4 *words_c);
 
 
 /* fx_slot_table_clear */
 
 /* "clears 0x200 entries of the per player table" */
 
-extern void __cdecl fx_slot_table_clear(char *param_1);
+extern void __cdecl fx_slot_table_clear(char *player_idx);
 
 
 /* fx_snow_ptank_update */
@@ -244,14 +244,14 @@ extern void __cdecl fx_slot_table_clear(char *param_1);
 /* "spawns/updates the particles of system n near the camera, ages them (0x80 steps) and locks the
    ptank" */
 
-extern void fx_snow_ptank_update (char *param_1,RwCamera *camera,undefined1 *param_3,float param_4,float param_5);
+extern void fx_snow_ptank_update (char *system, RwCamera *camera, undefined1 *color_rgb, float alpha_base, float alpha_per_age);
 
 
 /* particle_slot_call_render_method */
 
 /* "calls virtual method 0x48 of the slot object when both tables are set" */
 
-extern void particle_slot_call_render_method(char *param_1);
+extern void particle_slot_call_render_method(char *str);
 
 
 /* fx_objects_clear */
@@ -273,14 +273,14 @@ extern void fx_objects_update_all(void);
 
 /* "fx_spawn_burst(..., 1.0f)" */
 
-extern void fx_spawn_burst_default_scale (float *param_1,char *param_2,char *param_3,undefined4 *param_4, undefined4 *param_5,float param_6);
+extern void fx_spawn_burst_default_scale (float *floats, char *str_a, char *str_b, undefined4 *words_a, undefined4 *words_b, float value);
 
 
 /* fx_systems_destroy_all */
 
 /* "particles_destroy of the systems at 0x76BE30 / 0x76BE70 / 0x76BFC0" */
 
-extern void __fastcall fx_systems_destroy_all(char *param_1);
+extern void __fastcall fx_systems_destroy_all(char *str);
 
 
 /* fx_systems_render_all */
@@ -379,7 +379,7 @@ void fx_styles_init_all(void)
 
 /* "spawns a grey (0x20) type 6 particle with scale 1.4" */
 
-extern void __cdecl fx_smoke_particle_spawn_grey (char *param_1,char *param_2,char *param_3,char *param_4, char *param_5,char *param_6,char *param_7);
+extern void __cdecl fx_smoke_particle_spawn_grey (char *param_1, char *param_2, char *param_3, char *param_4, char *param_5, char *param_6, char *param_7);
 
 
 /* fx_smoke_particle_spawn_tinted */
@@ -387,14 +387,14 @@ extern void __cdecl fx_smoke_particle_spawn_grey (char *param_1,char *param_2,ch
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "spawns a type 6 particle with a given colour and size+1" */
 
-extern void fx_smoke_particle_spawn_tinted (char *param_1,char *param_2,undefined4 *param_3,char *param_4, float param_5);
+extern void fx_smoke_particle_spawn_tinted (char *str_a, char *str_b, undefined4 *words, char *str_c, float value);
 
 
 /* line_rain_error */
 
 /*  */
 
-extern void __cdecl line_rain_error(char *param_1,char *param_2);
+extern void __cdecl line_rain_error(char *message, char *error_code);
 
 
 /* ui_colour_a_default */

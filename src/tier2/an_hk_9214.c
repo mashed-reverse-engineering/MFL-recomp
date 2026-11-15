@@ -50,12 +50,12 @@ void fx_smoke_puffs_update(void)
   
   /* Walks the live-puff bitmask (bit per slot, 0x80 slots); for each live puff: advance its age (life_t, written to +0x504/+0x508 words), compute position (velocity*age + base, plus sin(age*pi) sideways wobble), size and fade alpha, and queue it with particles_add; puffs whose age exceeds 1.0 are cleared from the mask. byte_index is reused: mask byte index while scanning, then slot index (inferred). */
   puff_index = 0;
-LAB_0049d830:
+begin_puff_scan:
   frame.size_w = 0.5;
   frame.size_h = 0.5;
   do {
     while( true ) {
-      if (PUFF_POOL_SIZE - 1 < (int)puff_index) goto LAB_0049d9f7;
+      if (PUFF_POOL_SIZE - 1 < (int)puff_index) goto flush_puffs;
       if (*(int *)((char *)&g_particles_76beb0 + ((int)puff_index >> 5) * 4) != 0) break;
       puff_index = (((int)puff_index >> 5) + 1) * 0x20;
     }
@@ -65,7 +65,7 @@ LAB_0049d830:
       switch(puff_index & 7) {
       case 0:
         puff_index = puff_index + 1;
-        if ((mask_byte & 1) != 0) goto LAB_0049d8b5;
+        if ((mask_byte & 1) != 0) goto update_live_puff;
         break;
       case 1:
         break;
@@ -108,8 +108,8 @@ switchD_0049d87d_caseD_7:
 switchD_0049d87d_default:
     puff_index = byte_index * 8 + 8;
   } while( true );
-LAB_0049d8b5:
-  if ((int)puff_index < 0) goto LAB_0049d9f7;
+update_live_puff:
+  if ((int)puff_index < 0) goto flush_puffs;
   byte_index = puff_index - 1;
   record_offset = byte_index * PUFF_RECORD_SIZE;
   frame.colour_rgba = *(undefined4 *)((char *)&g_particles_76c4e0 + record_offset + 0x18);
@@ -146,11 +146,11 @@ LAB_0049d8b5:
     puff_index = puff_index + 1;
   }
   if ((int)puff_index < 1) {
-LAB_0049d9f7:
+flush_puffs:
     particles_flush(&g_particles_76be70);
     return;
   }
-  goto LAB_0049d830;
+  goto begin_puff_scan;
 }
 
 

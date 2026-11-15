@@ -175,7 +175,7 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
           self_bot = &g_ai_bots[self_car];
           self_bot->target_valid = 1;
           self_bot->target_car = best_car;
-          goto LAB_004186d3;
+          goto report_target_position;
         }
       }
     }
@@ -208,7 +208,7 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
         return 0;
       }
       best_car = g_ai_bots[*(int *)&bot_index].target_car;
-LAB_004186d3:
+report_target_position:
       car_current_matrix(&frame.matrix_addr,best_car);
       *target_pos = *(undefined4 *)(frame.matrix_addr + MATRIX_POS_X);
       target_pos[1] = *(undefined4 *)(frame.matrix_addr + MATRIX_POS_Z);

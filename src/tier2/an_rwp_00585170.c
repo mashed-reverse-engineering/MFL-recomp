@@ -23,12 +23,12 @@ typedef struct MflSlab {
 int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float f5, void *list)
 {
   /* the three arrays lie back to back in the original frame (esp+0x38 / +0x78 / +0xd8, out up to the saved registers at +0x1f8); nothing
-     bounds n or the clipped count, so a polygon of more than 16 vertices runs w into w2 and out exactly as there: one block keeps that layout */
+     bounds n or the clipped count, so a polygon of more than 16 vertices runs w into w_clip and out exactly as there: one block keeps that layout */
   float blk[16 + 24 + 72];
   float *w = blk;           /* [16] distances, later the triangle costs (-1 = dropped) */
-  float *w2 = blk + 16;     /* [24] distance of every clipped point */
+  float *w_clip = blk + 16;     /* [24] distance of every clipped point */
   float *out = blk + 40;    /* [72] clipped polygon, 3 floats each */
-  float d1, d2, tb, ta, s, num, eps, mn, t, tag;
+  float dot_bc, dot_ca, tb, ta, s, num, eps, mn, t, tag;
   double acc;
   volatile double db, da;      /* the original keeps the two divisors in x87 registers and divides per vertex; cl turns a division by a loop invariant into a reciprocal multiply */
   float *v, *q, *r;
@@ -41,18 +41,18 @@ int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float
     s = s + P->b[0] * V[0];
     s = s + P->b[2] * V[2];
     s = s - P->b_off;
-    d1 = P->b[1] * P->c[1];
-    d1 = d1 + P->c[0] * P->b[0];
-    d1 = d1 + P->c[2] * P->b[2];
-    tb = s / d1;
+    dot_bc = P->b[1] * P->c[1];
+    dot_bc = dot_bc + P->c[0] * P->b[0];
+    dot_bc = dot_bc + P->c[2] * P->b[2];
+    tb = s / dot_bc;
     s = V[1] * P->a[1];
     s = s + P->a[0] * V[0];
     s = s + P->a[2] * V[2];
     s = s - P->a_off;
-    d2 = P->c[1] * P->a[1];
-    d2 = d2 + P->c[0] * P->a[0];
-    d2 = d2 + P->a[2] * P->c[2];
-    ta = s / d2;
+    dot_ca = P->c[1] * P->a[1];
+    dot_ca = dot_ca + P->c[0] * P->a[0];
+    dot_ca = dot_ca + P->a[2] * P->c[2];
+    ta = s / dot_ca;
     tag = tb - ta;
     tag = tag - f5;
     return rwp_aggregate_005857c0(V, tag, list, 0.0f);      /* the original returns the add's result here (eax not reloaded) */
@@ -92,12 +92,12 @@ int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float
   m = 0;
   jp = n - 1;      /* previous vertex */
   q = V + 4 * (n - 1);
-  /* w[j] and w[jp] are read again after every store to w2: with n > 16 they alias w2[m] (see blk), and the original reads them from memory */
+  /* w[j] and w[jp] are read again after every store to w_clip: with n > 16 they alias w_clip[m] (see blk), and the original reads them from memory */
   for (j = 0, cnt = n; cnt != 0; cnt--, j++) {
     v = V + 4 * j;
     if (w[j] <= 0.0f) {
       if (w[jp] > 0.0f) {
-        w2[m] = 0.0f;
+        w_clip[m] = 0.0f;
         t = w[jp] / (w[jp] - w[j]);
         out[3 * m] = (v[0] - q[0]) * t + q[0];
         out[3 * m + 1] = (v[1] - q[1]) * t + q[1];
@@ -105,12 +105,12 @@ int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float
         m++;
       }
       out[3 * m] = v[0]; out[3 * m + 1] = v[1]; out[3 * m + 2] = v[2];
-      w2[m] = w[j];
+      w_clip[m] = w[j];
       if (best == j) best_out = m;
       m++;
     } else {
       if (w[jp] <= 0.0f) {
-        w2[m] = 0.0f;
+        w_clip[m] = 0.0f;
         t = w[jp] / (w[jp] - w[j]);
         out[3 * m] = (v[0] - q[0]) * t + q[0];
         out[3 * m + 1] = (v[1] - q[1]) * t + q[1];
@@ -165,9 +165,9 @@ int rwp_aggregate_00585170(MflSlab *P, float *V, unsigned int n, float f4, float
       }
     }
     for (k = 0; k < m; k++)
-      if (iw[k] != 0xbf800000) rwp_aggregate_005857c0(&out[3 * k], f4 + w2[k], list, eps);
+      if (iw[k] != 0xbf800000) rwp_aggregate_005857c0(&out[3 * k], f4 + w_clip[k], list, eps);
     return 1;
   }
-  for (k = 0; k < m; k++) rwp_aggregate_005857c0(&out[3 * k], f4 + w2[k], list, eps);
+  for (k = 0; k < m; k++) rwp_aggregate_005857c0(&out[3 * k], f4 + w_clip[k], list, eps);
   return 1;
 }

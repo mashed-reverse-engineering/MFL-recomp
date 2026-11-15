@@ -103,10 +103,10 @@ void sound_ambience_course_c_26(void)
         course_object_get_position(obj_index,&g_sound_ambience_6ad8e0);
         fdist = g_sound_ambience_6ad8e8 - frame.camera_z;
         if (!(fdist > k_f_0)) {
-          if (k_f_n10 < fdist) goto LAB_0046ddf9;
+          if (k_f_n10 < fdist) goto emit_ambient_sound;
         }
         else if (fdist < float_10_0) {
-LAB_0046ddf9:
+emit_ambient_sound:
           /* at most AMBIENT_SLOT_COUNT emitters per frame */
           if (emitter_idx < AMBIENT_SLOT_COUNT) {
             ret_f10 = (double)course_object_get_float_16c(obj_index);

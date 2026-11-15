@@ -138,8 +138,8 @@ void __cdecl ai_drive_a(undefined4 ai_ctx,int car_index,undefined1 *controls,und
       result = ai_find_target_c(ai_ctx,&frame.target_a,&frame.candidate_a,car_index);
       if (result == 1) {
         result = ai_target_check(&frame.car_pos_x,&frame.candidate_a);
-        if (result == 0) goto LAB_00418f37;
-LAB_00418f66:
+        if (result == 0) goto try_trigger_zone_target;
+use_target_c:
         frame.target_a = frame.candidate_a;
         frame.target_b = frame.candidate_b;
         frame.target_mode = STEER_MODE_TARGET_C;
@@ -150,18 +150,18 @@ LAB_00418f66:
           controls[5] = 0xff;
           return;
         }
-LAB_00418f37:
+try_trigger_zone_target:
         result = ai_trigger_zone_target_for_car(ai_ctx,&frame.target_a,&frame.candidate_a,car_index);
         if (result == 1) {
           result = ai_target_check(&frame.car_pos_x,&frame.candidate_a);
-          if (result != 0) goto LAB_00418f66;
+          if (result != 0) goto use_target_c;
         }
         else if ((result == 2) &&
                 (result = ai_target_check(&frame.car_pos_x,&frame.candidate_a), result != 0)) {
           frame.target_a = frame.candidate_a;
           frame.target_b = frame.candidate_b;
           frame.target_mode = STEER_MODE_TRIGGER_ZONE;
-          goto LAB_00418fe2;
+          goto warzone_override;
         }
         result = ai_cell_is_value2(&frame.car_pos_x,car_index);
         if (result == 1) {
@@ -180,7 +180,7 @@ LAB_00418f37:
     frame.target_b = frame.candidate_b;
     frame.target_mode = STEER_MODE_TARGET_A;
   }
-LAB_00418fe2:
+warzone_override:
   /* Warzone hazard override. */
   current_course = current_course_id();
   if ((current_course == COURSE_WARZONE) &&
@@ -314,7 +314,7 @@ LAB_00418fe2:
   /* Mode overrides: trigger zone, leader chase, cell-value2 (inferred). */
   if (frame.target_mode == STEER_MODE_TRIGGER_ZONE) {
     controls[4] = 0x40;
-    goto LAB_00419560;
+    goto catchup_scaling;
   }
   if (frame.target_mode == STEER_MODE_LEADER) {
     if (k_f_4 < bot->leader_distance) {
@@ -325,7 +325,7 @@ LAB_00418fe2:
     }
     if ((g_race_clock_b / 0x3c & 0x20U) != 0) {
       *controls = 0xff;
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
   }
   else {
@@ -337,9 +337,9 @@ LAB_00418fe2:
       if (k_f_1250 < frame.speed) {
         controls[4] = 0;
       }
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
-    if (frame.target_mode != STEER_MODE_TARGET_B) goto LAB_00419560;
+    if (frame.target_mode != STEER_MODE_TARGET_B) goto catchup_scaling;
     route_record = (float *)player_route_get_record_ptr(car_index);
     car_get_forward(&frame.fwd_x,car_index);
     route_dot = route_record[1] * frame.fwd_y + frame.fwd_x * *route_record + frame.fwd_z * route_record[2];
@@ -355,15 +355,15 @@ LAB_00418fe2:
       if (route_dot < float_0_8) {
         *controls = 0xff;
       }
-      goto LAB_00419560;
+      goto catchup_scaling;
     }
     if (route_dot < k_f_0_9) {
       *controls = 0;
     }
-    if (!(route_dot < float_0_8)) goto LAB_00419560;
+    if (!(route_dot < float_0_8)) goto catchup_scaling;
   }
   controls[1] = 0xff;
-LAB_00419560:
+catchup_scaling:
   /* Catch-up class 1 scales controls[4] by k_f_0_4. */
   if (g_ai_catchup_class == 1) {
     frame.candidate_a = (uint)(byte)controls[4];

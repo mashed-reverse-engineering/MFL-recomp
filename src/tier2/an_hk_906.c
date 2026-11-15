@@ -185,7 +185,7 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     if (g_sound_frame_6ae11c == 0) {
       sound_music_fade_step(1);
     }
-    goto LAB_00473980;
+    goto reset_master_fade;
   case APP_STATE_RACE:
   case APP_STATE_RACE_MESSAGE:
     index_or_byte_offset = sound_music_state_update();
@@ -311,14 +311,14 @@ void __cdecl sound_frame_begin(undefined4 param_1,undefined4 param_2)
     g_sound_frame_6ae100 = 0;
     if ((index_or_byte_offset == 2) || (index_or_byte_offset == 3)) {
       app_state = 1;
-LAB_00473958:
+music_fade_step:
       index_or_byte_offset = sound_music_fade_step_b(app_state);
     }
     else {
       index_or_byte_offset = index_or_byte_offset + -4;
       if (index_or_byte_offset == 0) {
         app_state = 0;
-        goto LAB_00473958;
+        goto music_fade_step;
       }
     }
     sound_master_fade_towards(0.0);
@@ -374,7 +374,7 @@ LAB_00473958:
   case APP_STATE_RACE_START:
     sound_music_fade_step_b(2);
     ui_state_is_5();
-LAB_00473980:
+reset_master_fade:
     g_sound_master_fade = 0;
   }
   sound_global_fade_update();

@@ -98,11 +98,11 @@ void fx_ribbon_flush_spline(int *ribbon)
       run_len = points_base + -2;
       walk.run_pos = 0;
       if ((points_base < 2) || (0 < run_len)) {
-        if (0 < run_len) goto LAB_0049ba40;
+        if (0 < run_len) goto find_run_end;
       }
       else {
         run_len = 1;
-LAB_0049ba40:
+find_run_end:
         do {
           points_base = walk.run_end;
           /* find where this run ends: the first flagged point at or after run_start, else the last point */

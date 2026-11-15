@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 extern unsigned char g_ai_cells[];
-/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
+/*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *name);
 /*0040fdb0*/ extern int get_player_count();
 /*0040fdc0*/ extern int race_get_phase();
 /*0040fe20*/ extern int __cdecl race_setup_slot_used(undefined4 p0);
@@ -8,10 +8,10 @@ extern unsigned char g_ai_cells[];
 /*0040ff70*/ extern int race_get_last_active_player();
 /*004131d0*/ extern int game_mode_end_check();
 /*004162f0*/ extern int trail_set_param();
-/*004166d0*/ extern float __cdecl noise_interp_cos(float p0, float p1, float p2);      /* diffemu: float arguments (were undefined4: the compiler converted them with _ftol), result in ST0 */
-/*00416700*/ extern float __cdecl noise_sample_row(undefined4 p0, float p1);      /* diffemu: was `()`: the float argument was pushed as a double */
+/*004166d0*/ extern float __cdecl noise_interp_cos(float value_a, float value_b, float t);      /* diffemu: float arguments (were undefined4: the compiler converted them with _ftol), result in ST0 */
+/*00416700*/ extern float __cdecl noise_sample_row(undefined4 noise_context, float position_bits);      /* diffemu: was `()`: the float argument was pushed as a double */
 /*00416e20*/ extern int point_project_onto_line_2d(undefined4 p0);
-/*00417b70*/ extern int __cdecl ai_find_leader_a(undefined4 p0);
+/*00417b70*/ extern int __cdecl ai_find_leader_a(undefined4 bot_index);
 /*0041ba10*/ extern int hudpanel_slot_reset(undefined4 p0);
 /*0041be10*/ extern int hudpanel_slots_clear();
 /*0041be30*/ extern int hudpanel_values_init();
@@ -37,23 +37,23 @@ extern unsigned char g_ai_cells[];
 /*0047b590*/ extern int car_get_forward();
 /*00481fd0*/ extern double random_range();
 /*00482070*/ extern int dot_product_3d_clamped();
-/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
+/*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *dictionary);
 /*00486710*/ extern int particles_destroy();
 /*00486b00*/ extern int ptank_set_blend_modes();
-/*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
+/*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *bits_a, uint bits_b, uint bits_c, struct RwTexture *texture);
 /*004955c0*/ extern int ghost_draw_markers();
 /*004967d0*/ extern int triggers_get_array();
-/*0049cb60*/ extern int sphere_vs_box_test(undefined4 p0, float *p1, float *p2);
+/*0049cb60*/ extern int sphere_vs_box_test(undefined4 p0, float *floats_a, float *floats_b);
 /*004b2b48*/ extern int _ftol();
 /*004b2ccd*/ extern undefined __cdecl start(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004b4ba7*/ extern int entry();
-/*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *p0);
-/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *p0, struct RwV3d *p1);
-/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *p0);
-/*004d54d0*/ extern RwReal RwV2dLength(struct RwV2d *p0);
-/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
-/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
-/*00544e00*/ extern undefined __cdecl RpRandomSeed(undefined4 p0);
+/*004d0d40*/ extern RwBool RwFrameDestroy(struct RwFrame *frame);
+/*004d5290*/ extern RwReal RwV3dNormalize(struct RwV3d *out, struct RwV3d *in);
+/*004d53a0*/ extern RwReal RwV3dLength(struct RwV3d *vec);
+/*004d54d0*/ extern RwReal RwV2dLength(struct RwV2d *v);
+/*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *atomic);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *clump);
+/*00544e00*/ extern undefined __cdecl RpRandomSeed(undefined4 seed);
 /*005dd32c*/ extern float k_f_3;
 /*005dd330*/ extern float float_1_0;
 /*005dd340*/ extern float k_f_0_5;
@@ -152,7 +152,7 @@ extern void ghost_update(void);
 
 /* "(a, b, out xyz): three floats of the record at 0x652FB0 (stride 0xC)" */
 
-extern void __cdecl trail_get_triple(char *param_1,char *param_2,undefined4 *param_3);
+extern void __cdecl trail_get_triple(char *a, char *b, undefined4 *out);
 
 
 /* trail_indices_init */
@@ -166,7 +166,7 @@ extern void trail_indices_init(void);
 
 /* "as hud_player_marker_position_calc but also computes the facing dot product" */
 
-extern void __cdecl hud_player_marker_position_calc_with_facing (float *param_1,char *param_2,char *param_3,char *param_4,float param_5,float param_6, undefined1 *param_7,int *param_8,char *param_9,char *param_10, char *param_11);
+extern void __cdecl hud_player_marker_position_calc_with_facing (float *floats, char *param_2, char *param_3, char *param_4, float value_a, float value_b, undefined1 *byte_value, int *words, char *param_9, char *param_10, char *param_11);
 
 
 /* hud_player_marker_position_calc */
@@ -175,7 +175,7 @@ extern void __cdecl hud_player_marker_position_calc_with_facing (float *param_1,
 /* "world position between two cars scaled by param_5, distance*10, fills one marker entry (limit
    0x7f)" */
 
-extern void __cdecl hud_player_marker_position_calc (float *param_1,char *param_2,char *param_3,char *param_4,float param_5,float param_6, undefined1 *param_7,int *param_8,char *param_9,char *param_10, char *param_11);
+extern void __cdecl hud_player_marker_position_calc (float *floats, char *param_2, char *param_3, char *param_4, float value_a, float value_b, undefined1 *byte_value, int *words, char *param_9, char *param_10, char *param_11);
 
 
 /* hud_player_markers_update */
@@ -184,7 +184,7 @@ extern void __cdecl hud_player_marker_position_calc (float *param_1,char *param_
 /* "per player distance to the camera and flashing (tick & 0x1F) used for the markers above the cars
    (inferred)" */
 
-extern void hud_player_markers_update(char *param_1);
+extern void hud_player_markers_update(char *marker_context);
 
 
 /* trail_particles_create */
@@ -242,7 +242,7 @@ extern void ai_bots_reset(void);
 
 /* "(bot or -1 for all): sets the bot state bytes to defaults (0x3E8 ...)" */
 
-extern void __cdecl ai_bot_state_reset(char *param_1);
+extern void __cdecl ai_bot_state_reset(char *bot);
 
 
 /* ai_bots_randomise */
@@ -306,21 +306,21 @@ ai_bot_weapon_logic(int bot,float *bot_pos_xz,char *unused_3,float *target_pos_x
 
 /* "scans the trigger array for type 7 boxes the car is in and projects a target onto the line" */
 
-extern undefined4 __cdecl ai_trigger_zone_target_for_car (char *param_1,char *param_2,char *param_3,char *param_4);
+extern undefined4 __cdecl ai_trigger_zone_target_for_car (char *param_1, char *param_2, char *param_3, char *param_4);
 
 
 /* ai_cell_is_value2 */
 
 /* "danger data cell value == 2 at a world position" */
 
-extern undefined4 __cdecl ai_cell_is_value2(float *param_1,char *param_2);
+extern undefined4 __cdecl ai_cell_is_value2(float *floats, char *str);
 
 
 /* ai_find_leader_b */
 
 /* "variant of ai_find_leader_a" */
 
-extern undefined4 __cdecl ai_find_leader_b(char *param_1,float param_2,float param_3);
+extern undefined4 __cdecl ai_find_leader_b(char *player_index, float min_distance, float max_distance);
 
 
 /* ai_player0_distance_is_zero */
@@ -335,7 +335,7 @@ extern undefined4 ai_player0_distance_is_zero(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "inferred: tests the point 2 forward vectors ahead of the car" */
 
-extern undefined4 __cdecl ai_bot_obstacle_ahead(char *param_1);
+extern undefined4 __cdecl ai_bot_obstacle_ahead(char *car_index);
 
 
 /* ai_target_check */
@@ -343,14 +343,14 @@ extern undefined4 __cdecl ai_bot_obstacle_ahead(char *param_1);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "inferred: validates a candidate target (position, target)" */
 
-extern undefined4 __cdecl ai_target_check(float *param_1,float *param_2);
+extern undefined4 __cdecl ai_target_check(float *origin, float *target);
 
 
 /* ai_route_target_for_car */
 
 /* "(bot, out, car): ai_nearest_route_point from the car position with the per bot hint" */
 
-extern void ai_route_target_for_car(char *param_1,char *param_2,char *param_3);
+extern void ai_route_target_for_car(char *bot, char *out, char *car);
 #undef local_c
 #undef local_8
 #undef local_4
@@ -455,7 +455,7 @@ undefined4 __cdecl ai_erase_cell(uint world_x,uint world_z)
 
 /* "float at 0x8C9EC0 + index * 4 (the per player countdown used by game_mode_end_check)" */
 
-extern double ai_get_counter(char *param_1);
+extern double ai_get_counter(char *str);
 
 
 /* ai_ftol_noop_wrapper */
@@ -470,7 +470,7 @@ extern void ai_ftol_noop_wrapper(void);
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 /* "for non-career events adjusts g_ai_8c999c by +-0.5 or calls ai_bots_assign_slots" */
 
-extern void __fastcall race_ai_slot_assign_or_adjust(char *param_1);
+extern void __fastcall race_ai_slot_assign_or_adjust(char *str);
 
 
 /* hudpanel_reset_all */

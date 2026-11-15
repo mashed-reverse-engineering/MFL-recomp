@@ -36,22 +36,22 @@ void race_update_cameras(undefined4 camera_arg)
     tmp = tmp + 1;
   } while (tmp < 4);
   if (((*(byte *)((char *)&g_player_inputs[1] + 29)) == '\0') || ((*(byte *)((char *)&g_player_inputs_previous[1] + 29)) != '\0')) {
-    if (g_race_652f64 == 0) goto LAB_00410e4e;
+    if (g_race_652f64 == 0) goto setup_race_camera;
   }
   else {
     if (g_race_652f64 != 0) {
       g_race_652f64 = 0;
-LAB_00410e4e:
+setup_race_camera:
       car_matrix_array = frame.car_matrix_by_player;
       camera = (RwCamera *)get_viewport_camera(0);
       camera_race_setup((struct RwCamera *)camera,(undefined4)car_matrix_array,camera_arg);
-      goto LAB_00410e6b;
+      goto apply_mirror_flip;
     }
     g_race_652f64 = 1;
   }
   camera = (RwCamera *)get_viewport_camera(0);
   camera_debug_adjust_scale(camera);
-LAB_00410e6b:
+apply_mirror_flip:
   tmp = race_get_phase();
   if ((tmp != 7) && (g_game_state.option_flags[2] != 0)) {
     tmp = get_viewport_camera(0);

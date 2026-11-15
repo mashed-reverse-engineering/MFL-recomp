@@ -79,10 +79,10 @@ void __cdecl ai_bot_skill(void)
     bot_skill = TRAINING_BOT_SKILL;
     event_type = training_lesson_get();
     g_ai_skill = k_f_9;
-    if (event_type == 5) goto LAB_00416c05;
+    if (event_type == 5) goto reset_leader_slots;
   }
   g_ai_skill = bot_skill;
-LAB_00416c05:
+reset_leader_slots:
   g_ai_leader_slots = (-1.0f);
   g_car_8c9eb4 = (-1.0f);
   g_car_8c9eb8 = (-1.0f);

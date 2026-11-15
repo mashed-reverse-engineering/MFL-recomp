@@ -107,11 +107,11 @@ void rwp_constraint_linear_row_axis(MflSolver *s, MflJoint *p, float rate, float
   float qa[4], qb[4], q[4], half[12];
   float *pos_a, *pos_b, *r;
   float ma[16], mb[16];
-  float ra[3], rb[3], d[3], ec[3], dir[3], v[3], c0[3], c1[3], c2[3], g[3], dq[4], pr[3], jm[9];
+  float ra[3], rb[3], d[3], ec[3], dir[3], v[3], cross0[3], cross1[3], cross2[3], g[3], dq[4], pr[3], jm[9];
   float xx, yy, zz, yw, rel0, rel4, rel8, qx, qy, qz, qw, wx, wy, wz;
   volatile float tp0, tp1, p1, p2, u1, u2, ka, kb, sq;
   double w0, w1, w2, tn;
-  float t1, t2, s6, s8, i5, i9, r4, r7, lim, sa, sb, ca, cb, cc, cd, sw1, sw2, ta, tb, m1, m2, s1, ia, ib, x, y;
+  float t1, t2, rot_xw_sq4, rot_xw_sq2, i5, i9, r4, r7, lim, sa, sb, ca, cb, cc, cd, swing_lo_a_clamped, swing_hi_a_clamped, ta, tb, m1, m2, s1, ia, ib, x, y;
 
   h = rate * dt;
   rows = 0;
@@ -235,26 +235,26 @@ void rwp_constraint_linear_row_axis(MflSolver *s, MflJoint *p, float rate, float
   else if ((JD->lo_flags & 0x38) && (e = dist - JD->dist_lo, 0 < e)) side = 1;
   if (side) {
     row = g_rwp_constraint_padding;
-    c0[1] = dir[0] * ra[2] - dir[2] * ra[0];
-    c0[2] = dir[1] * ra[0] - dir[0] * ra[1];
-    c1[0] = dir[2] * rb[1] - dir[1] * rb[2];
-    c1[1] = dir[0] * rb[2] - dir[2] * rb[0];
-    c1[2] = dir[1] * rb[0] - dir[0] * rb[1];
+    cross0[1] = dir[0] * ra[2] - dir[2] * ra[0];
+    cross0[2] = dir[1] * ra[0] - dir[0] * ra[1];
+    cross1[0] = dir[2] * rb[1] - dir[1] * rb[2];
+    cross1[1] = dir[0] * rb[2] - dir[2] * rb[0];
+    cross1[2] = dir[1] * rb[0] - dir[0] * rb[1];
     if (has_a) {
       row.lin1[0] = -dir[0];
       row.lin1[1] = -dir[1];
       row.lin1[2] = -dir[2];
       row.ang1[0] = -(dir[2] * ra[1] - dir[1] * ra[2]);
-      row.ang1[1] = -c0[1];
-      row.ang1[2] = -c0[2];
+      row.ang1[1] = -cross0[1];
+      row.ang1[2] = -cross0[2];
     }
     if (has_b) {
       row.lin2[0] = dir[0];
       row.lin2[1] = dir[1];
       row.lin2[2] = dir[2];
-      row.ang2[0] = c1[0];
-      row.ang2[1] = c1[1];
-      row.ang2[2] = c1[2];
+      row.ang2[0] = cross1[0];
+      row.ang2[1] = cross1[1];
+      row.ang2[2] = cross1[2];
     }
     if (side != 2 || (JD->lo_flags & 0x38) == 0 || !(dist - JD->dist_lo > 0) || JD->dist_hi_stiff.bits == 0x7f7fffff)
       row.lo = 0;
@@ -322,9 +322,9 @@ dist_done:
     dq[3] = (wz * qw + (qy * wx - qx * wy)) * 0.5f;
     if ((JD->flags & 7) == 0 && (u & 0x7000000) != 0) {
       /* all three angular axes free: three rows from the drive orientation */
-      c0[0] = qw * q[0] + qx * q[3] + (qz * q[1] - qy * q[2]);
-      c0[1] = qw * q[1] + qy * q[3] + (qx * q[2] - qz * q[0]);
-      c0[2] = qw * q[2] + qz * q[3] + (qy * q[0] - qx * q[1]);
+      cross0[0] = qw * q[0] + qx * q[3] + (qz * q[1] - qy * q[2]);
+      cross0[1] = qw * q[1] + qy * q[3] + (qx * q[2] - qz * q[0]);
+      cross0[2] = qw * q[2] + qz * q[3] + (qy * q[0] - qx * q[1]);
       g[0] = dq[0] * q[0] + dq[1] * q[3] + (dq[3] * q[1] - dq[2] * q[2]);
       g[1] = dq[0] * q[1] + dq[2] * q[3] + (dq[1] * q[2] - dq[3] * q[0]);
       g[2] = dq[0] * q[2] + dq[3] * q[3] + (dq[2] * q[0] - dq[1] * q[1]);
@@ -341,9 +341,9 @@ dist_done:
       row2 = g_rwp_constraint_padding;
       row3 = g_rwp_constraint_padding;
       if (u & 7) {
-        row.rhs = -c0[0];
-        row2.rhs = -c0[1];
-        row3.rhs = -c0[2];
+        row.rhs = -cross0[0];
+        row2.rhs = -cross0[1];
+        row3.rhs = -cross0[2];
       }
       if (u & 0x700) {
         row.vel = g[0];
@@ -420,14 +420,14 @@ dist_done:
         t1 = rel0 + 1.0f;
         qz = p->rot[2];
         t2 = t1 + t1;
-        s6 = (p->rot[0] * p->rot[0] + p->rot[3] * p->rot[3]) * 4.0f;
+        rot_xw_sq4 = (p->rot[0] * p->rot[0] + p->rot[3] * p->rot[3]) * 4.0f;
         r4 = sqrt(t2);
-        r7 = sqrt(s6);
+        r7 = sqrt(rot_xw_sq4);
         i5 = 1.0f / (r4 + t1);
-        s8 = s6 * 0.5f;
-        i9 = 1.0f / (r7 + s8);
+        rot_xw_sq2 = rot_xw_sq4 * 0.5f;
+        i9 = 1.0f / (r7 + rot_xw_sq2);
         ca = (1.0f + r4) / ((t2 + t2 + (rel0 + 3.0f) * r4) * t1);
-        cb = (r7 + 1.0f) / ((s6 + s6 + (s8 + 2.0f) * r7) * s8);
+        cb = (r7 + 1.0f) / ((rot_xw_sq4 + rot_xw_sq4 + (rot_xw_sq2 + 2.0f) * r7) * rot_xw_sq2);
         e = qz * qz + qy * qy;
         pr[0] = 1.0f - (e + e);
         pr[1] = qw * qz + qy * qx;
@@ -437,25 +437,25 @@ dist_done:
         dq[1] = pr[2] * wy - pr[1] * wz;
         dq[2] = wz * pr[0] - pr[2] * wx;
         dq[3] = pr[1] * wx - wy * pr[0];
-        c0[0] = ma[1] * mb[2] - ma[2] * mb[1];
-        c0[1] = ma[2] * mb[0] - ma[0] * mb[2];
-        c0[2] = ma[0] * mb[1] - ma[1] * mb[0];
-        c1[0] = ma[1] * mb[6] - ma[2] * mb[5];
-        c1[1] = ma[2] * mb[4] - ma[0] * mb[6];
-        c1[2] = ma[0] * mb[5] - ma[1] * mb[4];
-        c2[0] = ma[1] * mb[10] - ma[2] * mb[9];
-        c2[1] = ma[2] * mb[8] - ma[0] * mb[10];
-        c2[2] = ma[0] * mb[9] - ma[1] * mb[8];
+        cross0[0] = ma[1] * mb[2] - ma[2] * mb[1];
+        cross0[1] = ma[2] * mb[0] - ma[0] * mb[2];
+        cross0[2] = ma[0] * mb[1] - ma[1] * mb[0];
+        cross1[0] = ma[1] * mb[6] - ma[2] * mb[5];
+        cross1[1] = ma[2] * mb[4] - ma[0] * mb[6];
+        cross1[2] = ma[0] * mb[5] - ma[1] * mb[4];
+        cross2[0] = ma[1] * mb[10] - ma[2] * mb[9];
+        cross2[1] = ma[2] * mb[8] - ma[0] * mb[10];
+        cross2[2] = ma[0] * mb[9] - ma[1] * mb[8];
         if ((nm & 2) != 0 && 0.01f < t2) {
           u = JD->drive;
           row = g_rwp_constraint_padding;
           if (u & 2) row.rhs = i5 * rel4 - pr[1] * i9;
           if (u & 0x200) row.vel = dq[2] * i9 - dq[1] * pr[1] * cb;
           f = ca * rel4;
-          c1[0] = c0[0] * f + c1[0] * i5;
-          c1[1] = c0[1] * f + c1[1] * i5;
-          c1[2] = c0[2] * f + c1[2] * i5;
-          ANG(row, c1[0], c1[1], c1[2]);
+          cross1[0] = cross0[0] * f + cross1[0] * i5;
+          cross1[1] = cross0[1] * f + cross1[1] * i5;
+          cross1[2] = cross0[2] * f + cross1[2] * i5;
+          ANG(row, cross1[0], cross1[1], cross1[2]);
           if ((u & 0x20000) == 0) {
             row.lo = -FMAX;
             row.hi = FMAX;
@@ -480,10 +480,10 @@ dist_done:
           if (u & 4) row.rhs = i5 * rel8 - pr[2] * i9;
           if (u & 0x400) row.vel = dq[3] * i9 - dq[1] * pr[2] * cb;
           f = ca * rel8;
-          c2[0] = c0[0] * f + c2[0] * i5;
-          c2[1] = c0[1] * f + c2[1] * i5;
-          c2[2] = c0[2] * f + c2[2] * i5;
-          ANG(row, c2[0], c2[1], c2[2]);
+          cross2[0] = cross0[0] * f + cross2[0] * i5;
+          cross2[1] = cross0[1] * f + cross2[1] * i5;
+          cross2[2] = cross0[2] * f + cross2[2] * i5;
+          ANG(row, cross2[0], cross2[1], cross2[2]);
           if ((u & 0x40000) == 0) {
             row.lo = -FMAX;
             row.hi = FMAX;
@@ -547,10 +547,10 @@ dist_done:
 twist_done:
 
   /* swing limit (cone): the limits (cos) of both sides become the radii cA..cD of an ellipse; the row pushes back to its rim */
-  sw1 = (JD->swing_lo_a < 0.999999f) ? JD->swing_lo_a : 0.999999f;
+  swing_lo_a_clamped = (JD->swing_lo_a < 0.999999f) ? JD->swing_lo_a : 0.999999f;
   ta = 0.999999f;
   if (JD->swing_lo_b < ta) ta = JD->swing_lo_b;
-  sw2 = (JD->swing_hi_a < 0.999999f) ? JD->swing_hi_a : 0.999999f;
+  swing_hi_a_clamped = (JD->swing_hi_a < 0.999999f) ? JD->swing_hi_a : 0.999999f;
   tb = 0.999999f;
   if (JD->swing_hi_b < tb) tb = JD->swing_hi_b;
   r4 = sqrt(q[3] * q[3] + xx);
@@ -560,8 +560,8 @@ twist_done:
   s1 = s1 * s1;
   i5 = 1.0f / (1.0f + r4);
   t1 = r7 * r4 + r7 * r4;
-  ca = ((sw2 + 1.0f) * rel4) / (1.0f - sw2);
-  cb = ((sw1 + 1.0f) * rel4) / (1.0f - sw1);
+  ca = ((swing_hi_a_clamped + 1.0f) * rel4) / (1.0f - swing_hi_a_clamped);
+  cb = ((swing_lo_a_clamped + 1.0f) * rel4) / (1.0f - swing_lo_a_clamped);
   cc = ((1.0f + tb) * rel8) / (1.0f - tb);
   cd = ((1.0f + ta) * rel8) / (1.0f - ta);
   m1 = ca * rel4 + cc * rel8;
@@ -592,12 +592,12 @@ twist_done:
   w0 = mb[8] * kb + mb[4] * ka + mb[0] * TN;
   w1 = mb[9] * kb + u1;
   w2 = mb[10] * kb + u2;
-  c0[0] = ma[2] * w1 - ma[1] * w2;
-  c0[1] = ma[0] * w2 - ma[2] * w0;
-  c0[2] = ma[1] * w0 - ma[0] * w1;
+  cross0[0] = ma[2] * w1 - ma[1] * w2;
+  cross0[1] = ma[0] * w2 - ma[2] * w0;
+  cross0[2] = ma[1] * w0 - ma[0] * w1;
   row = g_rwp_constraint_padding;
   row.rhs = -e;
-  ANG(row, c0[0], c0[1], c0[2]);
+  ANG(row, cross0[0], cross0[1], cross0[2]);
   row.lo = 0;
   row.hi = FMAX;
   if (side == 1) {

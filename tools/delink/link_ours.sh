@@ -117,7 +117,10 @@ if [ -n "$GEN_DATA" ]; then
   GEN_ARG="--drop-app $W/gen"; GEN_OBJ="gen/rdata.obj gen/data.obj gen/bss.obj"
 fi
 # S3: the resources come from output/res/mfl.res (tools/res/build_res.sh) on the link line, pefix appends no .rsrc.  RES=<path> overrides, RES=0 keeps the old pefix .rsrc
-RESF=; [ -z "$RES" ] && [ -n "$GEN_DATA" ] && [ -f $G/output/res/mfl.res ] && RES=$G/output/res/mfl.res
+# W10 A5: RES=none = no resources at all (no .res on the line, NO_RSRC=1: pefix appends nothing); the exe reads them from MFL_original.exe beside it (Z-rsrc, prepare.py)
+# W10 GZ: RES=none is the default of GEN_DATA links (src/mfl_resources.c); RES=$G/output/res/mfl.res = the old S3 form (control for this window)
+RESF=; [ -z "$RES" ] && [ -n "$GEN_DATA" ] && RES=none
+[ "$RES" = none ] && { RES=; export NO_RSRC=1; }
 [ "$RES" = 0 ] && RES=; [ -n "$RES" ] && { cp $RES $W/mfl.res; RESF=mfl.res; export NO_RSRC=1; }
 python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $GEN_ARG $MKOBJ_ARGS 2> $W/mkobj.err | tee $W/mkobj.log | head -12
 [ -n "$LSRC$CRTSPLIT" ] && python3 $G/tools/delink_sdk/undup.py $W/objs_local.txt      # A5: library functions our C defines as well get another name after mkobj (it resolves the references to dropped lib code by the lib objects' names), so no LNK4006
@@ -138,6 +141,7 @@ grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | hea
 python3 $T/pefix.py $W/ours.exe $W/mfl_patched.exe >/dev/null
 python3 $G/tools/wine-run/prepare.py $INST $W/game $W/ours.exe $W/ours.map >/dev/null      # movie stubs also at our C copies (found through the link map)
 [ -n "$LIB_RW" ] && cp $RW_DLL $W/game/App_Executables/mflrw.dll      # next to ours.exe (Wine loads it from the exe's directory)
+[ -f $W/game/App_Executables/MFL_original.exe ] || { echo "FAIL: no MFL_original.exe beside the exe in $W/game/App_Executables (prepare.py; the resources are read from it at run time)"; exit 1; }
 D=$(objdump -h $W/ours.exe | python3 -c "import sys; print('%x' % next(int(l.split()[3], 16) - 0x5fb000 for l in sys.stdin if len(l.split()) > 3 and l.split()[1] == '.data'))")
 echo "linked: $W/ours.exe (.data moved by 0x$D: the script delta)"
 [ -n "$HARNESS" ] && [ "$D" != "${DELTA:-b000}" ] && { echo "DELTA mismatch: rerun with DELTA=$D"; exit 2; }

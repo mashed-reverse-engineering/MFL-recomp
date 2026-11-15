@@ -50,7 +50,7 @@ void __cdecl race_phase_4_update(char *param_1)
   case 0xc:
   case 0xd:
     team_mode = is_team_mode();
-    if (team_mode == 0) goto LAB_004124cc;
+    if (team_mode == 0) goto reset_scores_next_phase;
     reset_score_panel = game_mode == GAME_MODE_HARE_AND_HOUNDS;
   }
   if (!reset_score_panel) {
@@ -58,7 +58,7 @@ void __cdecl race_phase_4_update(char *param_1)
     race_set_phase(RACE_PHASE_NEXT);
     return;
   }
-LAB_004124cc:
+reset_scores_next_phase:
   score_panel_reset_entries();
   race_set_phase(RACE_PHASE_NEXT);
   return;

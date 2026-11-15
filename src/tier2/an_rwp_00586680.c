@@ -31,9 +31,9 @@ typedef struct MflAggChildren {
 } MflAggChildren;
 /* A face handed back by the +0x48 callback (0x4c bytes): three vertices 16 bytes apart, the plane normal at 0x30. */
 typedef struct MflAggFace {
-  float v0[3]; float pad0c;
-  float v1[3]; float pad1c;
-  float v2[3]; float pad2c;
+  float vtx_a[3]; float pad0c;
+  float vtx_b[3]; float pad1c;
+  float vtx_c[3]; float pad2c;
   float n[3];   /* 0x30 */
   unsigned char pad3c[8];
   int index;   /* 0x44 */
@@ -42,9 +42,9 @@ typedef struct MflAggFace {
 } MflAggFace;
 /* Plane record (0x60 bytes): the face with the plane offset at 0x1c, three words and the id of the object, and a tag pointer. */
 typedef struct MflAggPlane {
-  float v0[3]; float pad0c;
-  float v1[3]; float d;   /* 0x1c */
-  float v2[3]; float pad2c;
+  float vtx_a[3]; float pad0c;
+  float vtx_b[3]; float d;   /* 0x1c */
+  float vtx_c[3]; float pad2c;
   float n[3];   /* 0x30 */
   unsigned char pad3c[8];
   int index;   /* 0x44 */
@@ -195,23 +195,23 @@ int rwp_aggregate_00586680(MflAggCtx *ctx, MflAggHandle *h, int id, MflAggObj *o
       pl->w54 = obj->w54;
       pl->id5a = obj->id5a;
       if (ctx->flags & 2) {
-        ss = (face->v1[2] - face->v2[2]) * face->v0[1];
-        ss += (face->v0[2] - face->v1[2]) * face->v2[1];
-        ss += (face->v2[2] - face->v0[2]) * face->v1[1];
+        ss = (face->vtx_b[2] - face->vtx_c[2]) * face->vtx_a[1];
+        ss += (face->vtx_a[2] - face->vtx_b[2]) * face->vtx_c[1];
+        ss += (face->vtx_c[2] - face->vtx_a[2]) * face->vtx_b[1];
         pl->n[0] = ss;
-        ss = (face->v1[0] - face->v2[0]) * face->v0[2];
-        ss += (face->v2[0] - face->v0[0]) * face->v1[2];
-        ss += (face->v0[0] - face->v1[0]) * face->v2[2];
+        ss = (face->vtx_b[0] - face->vtx_c[0]) * face->vtx_a[2];
+        ss += (face->vtx_c[0] - face->vtx_a[0]) * face->vtx_b[2];
+        ss += (face->vtx_a[0] - face->vtx_b[0]) * face->vtx_c[2];
         pl->n[1] = ss;
-        ss = (face->v0[1] - face->v1[1]) * face->v2[0];
-        ss += (face->v1[1] - face->v2[1]) * face->v0[0];
-        ss += (face->v2[1] - face->v0[1]) * face->v1[0];
+        ss = (face->vtx_a[1] - face->vtx_b[1]) * face->vtx_c[0];
+        ss += (face->vtx_b[1] - face->vtx_c[1]) * face->vtx_a[0];
+        ss += (face->vtx_c[1] - face->vtx_a[1]) * face->vtx_b[0];
         pl->n[2] = ss;
         rwp_cylinder_0056fd20(pl->n, pl->n);
       }
-      ss = pl->n[1] * face->v0[1];
-      ss += pl->n[0] * face->v0[0];
-      ss += pl->n[2] * face->v0[2];
+      ss = pl->n[1] * face->vtx_a[1];
+      ss += pl->n[0] * face->vtx_a[0];
+      ss += pl->n[2] * face->vtx_a[2];
       pl->d = ss;
       rr = ctx->recs + ctx->nrec;
       rr->owner = h->ptr;
