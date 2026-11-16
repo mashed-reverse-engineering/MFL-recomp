@@ -6,8 +6,8 @@
 /*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*005749c0*/ extern void FUN_005749c0(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
-/*0058c990*/ extern char *FUN_0058c990(void *p0);
+/*0058c8b0*/ extern void rwp_atomic_set_object(undefined4 p0, void *p1);
+/*0058c990*/ extern char *rwp_object_create(void *p0);
 /*0058cb90*/ extern void * rwp_body_create(void);
 /*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
@@ -58,14 +58,14 @@ void __cdecl rwp_objects_create_capsule_group(int count,char *unused_2,undefined
   if (0 < count) {
     /* one iteration per object: create it, attach it to the body and register it */
     do {
-      geom = FUN_0058c990(body);
+      geom = rwp_object_create(body);
       slot = g_rw_6fa7d0;
       (&g_rw_6fa4b0)[g_rw_6fa7d0] = g_rwp_objects[object_type].base_label + i;
       (&g_rw_6fd0f8)[slot] = object_type;
       (&g_rw_6fa858)[slot] = 1;
       handle = object_atomic_create((&g_rw_6fa7d8)[g_rw_701c94],i);
       (&g_rw_6fab78)[g_rw_6fa7d0] = handle;
-      FUN_0058c8b0(handle,geom);
+      rwp_atomic_set_object(handle,geom);
       *(uint *)(geom + 8) = *(uint *)(geom + 8) & GEOM_FLAGS_KEEP_MASK;
       handle = rw_first_field(rw_list);
       rwp_world_activate_object(handle, geom, 0xffffffff, 2);

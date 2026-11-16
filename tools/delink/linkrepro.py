@@ -14,7 +14,7 @@ T = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.joi
 def gate_env():
     lr = re.search(r"lr=\$\{LIB_RW-([^}]*)\}", open(os.path.join(G, "tools", "gate.sh")).read())      # one owner of the default group list: gate.sh (as run.py preflight)
     if not lr: sys.exit("linkrepro: no LIB_RW default in tools/gate.sh")
-    return {"LIB_LUA": "src", "LIB_QHULL": "src", "LIB_ZLIB": "src", "LIB_CRT": "libcmt", "LIB_RW": lr.group(1), "DROP_DSHOW": "1", "DROP_RW": "1",
+    return {"LIB_LUA": "src", "LIB_QHULL": "src", "LIB_ZLIB": "src", "LIB_CRT": "libcmt", "LIB_RW": lr.group(1), "DROP_RW": "1",
             "DROP_RWTRAP": "1", "DROP_DINPUT": "1", "MKRANGE": "1", "GEN_DATA": "1", "IMPLIBS": "1", "HARNESS": "1"}
 
 def link(form, seed, w):

@@ -25,5 +25,6 @@ for h, regs, pages in statecmp.records(ref):
         break
 with open(dst, "w") as f:
     for va, nm in vas:
-        f.write("%d:%x:%x %s | menu residue: differs between the two control runs at loading frame 0 (cc_ph3), value = reference run ph3_1 at loading frame 0\n" % (phase, va, struct.unpack_from("<I", mem, va - h["base"])[0], nm))
+        f.write("%d:%x:%x %s | menu residue: differs between the two control runs at loading frame 0 (%s), value = reference run %s at loading frame 0\n" % (
+            phase, va, struct.unpack_from("<I", mem, va - h["base"])[0], nm, os.path.splitext(os.path.basename(out))[0], os.path.basename(os.path.dirname(os.path.abspath(ref)))))
 print(len(vas), "pins")

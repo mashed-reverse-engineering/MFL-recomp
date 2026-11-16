@@ -5,7 +5,7 @@
    run the shared "objects visible" step with 1 (cb7) or 0 (cb6) */
 
 static void SUB_00455b80_r(int p0);
-extern void SUB_00455b80(void);
+extern void course_city_helper_455b80(void);
 static void SUB_00455dd0_r(int p0);
 extern void SUB_00455dd0(void);
 void course_city_cb7(int course)
@@ -20,13 +20,13 @@ void course_city_cb6(int course)
     SUB_00455dd0_r(0);
 }
 
-/* SUB_00455b80_r: C -> original SUB_00455b80 (registers ebx) */
+/* SUB_00455b80_r: C -> course_city_helper_455b80 (registers ebx) */
 __declspec(naked) void SUB_00455b80_r(int p0)
 {
     __asm {
         push ebx
         mov ebx, dword ptr [esp + 8]
-        call SUB_00455b80
+        call course_city_helper_455b80
         pop ebx
         ret
     }

@@ -87,8 +87,8 @@ python3 $T/objnames.py $W/objs.txt ${EXTRA_OBJS:-} > $W/objnames.txt || exit 1
 : > $W/objs_local.txt
 while read -r src obj nm; do cp $obj $W/o/$nm; echo "$src $W/o/$nm" >> $W/objs_local.txt; done < $W/objnames.txt      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)
-# DROP_DSHOW=1 (A7): the DirectShow movie code is dead (the game plays movies through src/video/mfl_video): its objects leave the link, mkobj fills the functions, globgen zeroes the pointers to them
-[ -n "$DROP_DSHOW" ] && { python3 $T/dshow_drop.py filter $W; export DROP_DSHOW; }
+# A7 (always, W12 DS2: the DROP_DSHOW=0 form is gone): the DirectShow movie code is dead (the game plays movies through src/video/mfl_video): its objects leave the link, mkobj fills the functions, globgen zeroes the pointers to them
+python3 $T/dshow_drop.py filter $W; export DROP_DSHOW=1      # the env var is only the channel to mkobj.py / globgen.py
 [ -n "$DROP_RWTRAP" ] && export DROP_RWTRAP      # S5 (default off): tools/delink/rw_trap.txt filled by mkobj with int3, pointers kept
 [ -n "$DROP_RW" ] && export DROP_RW    # S3 (default off): dead RenderWare/D3DX pool code (tools/delink/rw_dead.txt, dshow_drop.py pool) filled by mkobj, pointers zeroed by globgen
 [ -n "$MKRANGE" ] && python3 $T/litreloc.py $W/objs_local.txt

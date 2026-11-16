@@ -48,8 +48,8 @@ void course_highway_cb2(char *course_data)
 
   rgba = COLOUR_WHITE_ARGB;
   camera = RwCameraGetCurrentCamera();
-  func_0x0042b900();
-  brush = func_0x0042b910();
+  course_highway_cb2_sub_42b900();
+  brush = course_highway_cb2_sub_42b910();
   g_course_highway_6a267c = camera;
   Rt2dBrushSetRGBA(brush,&rgba,&rgba,&rgba,&rgba);
   entry = &g_course_8bf140;
@@ -84,13 +84,13 @@ void course_highway_cb2(char *course_data)
   if (g_course_highway_6a26b4 != 0) {
     RpClumpRender(*(RpClump **)(course_data + HIGHWAY_CLUMP_OFFSET));
   }
-  func_0x004541a0();
+  course_highway_cb2_sub_4541a0();
   /* shadow particles only on the highway course */
   current_course = current_course_id();
   if (current_course == COURSE_HIGHWAYN) {
     course_shadow_particles_render();
   }
-  func_0x00453c00();
+  course_highway_cb2_sub_453c00();
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,RS_ZWRITE_ON);
   object_render(g_course_highway_6a2690);
   object_render(g_course_highway_6a2694);

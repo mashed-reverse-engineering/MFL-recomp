@@ -1,3 +1,5 @@
+#define MFL_AUDIO_RNG_SITES      /* sound code: under MFL_FIX_DETERMINISTIC_AUDIO_RNG its random draws use the audio stream (mfl_fix.h) */
+#include "mfl_fix.h"
 #include "mfl_tier2.h"
 /* typed view of VoiceSlot (header: uint voice): record pointer as a real pointer, same 8 byte layout on x86 */
 struct VoiceSlotP { char *voice; float volume; };

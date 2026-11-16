@@ -52,7 +52,10 @@ else
   n=(x x x x x menu_colour menu_course menu_mode)   # depth 5 player colour select, 6 course select (Challenge Select, three medals per course), 7 Game Mode page
   for d in 5 6 7; do
     echo "keywait Return $CUR $d 3"; [ "$SHOTS" != 0 ] && echo "waitframes 0x$(mapva frames_total) 40" && echo "shot ${n[$d]}"
-    if [ $d = 6 ]; then for c in $(seq 1 ${COURSE:-0}); do echo "keychange Down 0x69d688 2"; done; fi   # g_career_row (0x69D688, selected row 0..14; rows that are not selectable are skipped)
+    # g_career_row (0x69D688, selected row 0..14; rows that are not selectable are skipped).  W12: Down until the row IS COURSE (the event), not N
+    # keychange presses: under load keychange's second press moved two rows, and three course:7 control runs landed on three different courses
+    # (g_data_622e60 course name "training" / "dump" / another; output/statehash/runs/c7np_1, c7np_2, agents/rep_w12/runs/gc7_ctrl).
+    if [ $d = 6 ] && [ "${COURSE:-0}" != 0 ]; then echo "waitframes 0x$(mapva frames_total) 20"; echo "pressuntil Down 0x69d688 ${COURSE} 30 0.7"; fi
   done   # Quick Battle, course select (menu_colour = "Challenge Select"), game mode
   # VARIANT="mode=1,pu=2,skill=4,len=2,mk=1": the choices of the Game Mode page, written just before the race is started (power-up set 0..2 @0x69CF90,
   # markers 0/1 @0x69CF94, bot skill 0..4 @0x69CF98, race length 0..2 @0x69CF9C, game mode 0..2 @0x69CFA4; mode 2 only exists for courses with that mode unlocked)

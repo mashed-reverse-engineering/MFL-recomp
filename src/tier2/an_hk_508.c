@@ -7,8 +7,8 @@ extern char UNK_005df51c[];
 /*006a1f2c*/ extern undefined4 g_course_nt1_6a1f2c;
 /*008c5720*/ extern undefined4 g_course_nt1_8c5720;
 /* course_nt1_cb0: course NT1 per-frame update (inferred). Runs the nop stub and
-   func_0x00455770 on game_state, stores a value derived from game_state + 0xc9d0 into
-   g_course_nt1_8c5720, then stores into g_course_nt1_6a1f2c the result of func_0x004a5d50
+   course_nt1_helper_455770 on game_state, stores a value derived from game_state + 0xc9d0 into
+   g_course_nt1_8c5720, then stores into g_course_nt1_6a1f2c the result of course_helper_4a5d50
    over the first atomic of the clump at game_state + 0xc120 and the light values.
    Parameter: game_state (inferred), the course state pointer. No return value. */
 
@@ -19,13 +19,13 @@ void course_nt1_cb0(char *game_state)
   undefined4 light_value;
 
   nop_stub(game_state);
-  g_course_nt1_8c5720 = func_0x004849e0(&UNK_005df51c,*(undefined4 *)(game_state + 0xc9d0));
-  func_0x00455770(game_state);
+  g_course_nt1_8c5720 = course_helper_4849e0(&UNK_005df51c,*(undefined4 *)(game_state + 0xc9d0));
+  course_nt1_helper_455770(game_state);
   /* Lighting: directional light first, then ambient light fed the directional value. */
   first_atomic = clump_first_atomic(*(undefined4 *)(game_state + 0xc120));
   light_value = course_get_directional_light();
   light_value = course_get_ambient_light(light_value);
   g_course_nt1_6a1f2c =
-       func_0x004a5d50(first_atomic,*(undefined4 *)(game_state + 0xc004),game_state + 0xc00,light_value);
+       course_helper_4a5d50(first_atomic,*(undefined4 *)(game_state + 0xc004),game_state + 0xc00,light_value);
   return;
 }

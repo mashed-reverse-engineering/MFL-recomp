@@ -730,10 +730,52 @@ static void patch_iat(HMODULE m) {
     }
 }
 
+/* ---- audiorng=1 (TEST ONLY, control runs only, default off; output/determinism_2026-11-16.md): the audio/gameplay random split in the original.
+ * Every `audiorng_site=<va>:<target>` row is a `call rel32` in MFL.exe's sound code to random_range (0x481fd0) or rp_random_int_range (0x4c45c0)
+ * (agents/rep_w12/audiosites.py -> tools/statehash/data/audio_rng_sites.txt).  In memory only, the call is pointed at a thunk that swaps
+ * RpRandom's state (plugin data at [0x7d2128] + [0x7da6b8] = {table, ptrA, ptrB, end}, table of 31 words) with the sound stream, runs the
+ * ORIGINAL wrapper, and swaps back.  The sound stream is recomp/tier1/mfl_audio_rng.h, the same code ours uses under
+ * MFL_FIX_DETERMINISTIC_AUDIO_RNG, so the split control and the flagged ours draw the same numbers.  MFL.exe on disk is never changed. */
+#include "../../recomp/tier1/mfl_audio_rng.h"
+#define NARS 256
+static int cfg_audiorng, n_ars; static DWORD ars_va[NARS], ars_to[NARS];
+static MflAudioRng ar_sound, ar_game;
+DWORD ar_to_rr = 0x481fd0, ar_to_ri = 0x4c45c0;
+static DWORD *ar_data(void) { return (DWORD *)(uintptr_t)(*(DWORD *)0x7d2128 + *(DWORD *)0x7da6b8); }
+static void ar_save(MflAudioRng *g, DWORD *d) { memcpy(g->t, (void *)(uintptr_t)d[0], sizeof g->t); g->a = (int)(d[1] - d[0]) / 4; g->b = (int)(d[2] - d[0]) / 4; }
+static void ar_load(const MflAudioRng *g, DWORD *d) { memcpy((void *)(uintptr_t)d[0], g->t, sizeof g->t); d[1] = d[0] + 4 * g->a; d[2] = d[0] + 4 * g->b; }
+void ar_in(void) { DWORD *d = ar_data(); if (!ar_sound.seeded) mfl_audio_rng_seed(&ar_sound, MFL_AUDIO_RNG_SEED); ar_save(&ar_game, d); ar_load(&ar_sound, d); }
+void ar_out(void) { DWORD *d = ar_data(); ar_save(&ar_sound, d); ar_load(&ar_game, d); }
+/* ar_in / ar_out are integer code: the wrapper's float result stays in st(0); eax / edx are kept around ar_out.  No global slot: both wrappers
+   take exactly two dword arguments (cdecl), so the thunk pushes copies of them and calls the original; its own return address stays on the stack.
+   All 102 sites are reached from the main loop only (agents/rep_w12/callroots.py: no caller in the RWA thread code; roots entry and the
+   course_storm_cb1 callback), as the shared RpRandom state itself requires. */
+#define AR_THUNK(name, target) __asm__(".globl _" #name "\n_" #name ":\n call _ar_in\n pushl 8(%esp)\n pushl 8(%esp)\n call *_" #target "\n addl $8, %esp\n" \
+                                      " pushl %eax\n pushl %edx\n call _ar_out\n popl %edx\n popl %eax\n ret\n")
+AR_THUNK(ar_thunk_rr, ar_to_rr);
+AR_THUNK(ar_thunk_ri, ar_to_ri);
+extern char ar_thunk_rr[], ar_thunk_ri[];
+static int ar_ok, ar_total, ar_bad1 = -1;     /* patched sites, first refused site (logged in Direct3DCreate9: the log is not open yet in DllMain) */
+#ifdef AUDIORNG_BUILTIN      /* lane test build (agents/rep_w12/d3d9_ar.dll): audiorng on with the site list compiled in, so the tree's run.sh can use it via D3DP_DLL */
+#include AUDIORNG_BUILTIN
+#endif
+static void ar_patch(void) {
+#ifdef AUDIORNG_BUILTIN
+    if (!n_ars) for (unsigned i = 0; i < sizeof ar_builtin / sizeof *ar_builtin && n_ars < NARS; i++, n_ars++) { ars_va[n_ars] = ar_builtin[i][0]; ars_to[n_ars] = ar_builtin[i][1]; }
+#endif
+    ar_total = n_ars;
+    for (int i = 0; i < n_ars; i++) {
+        unsigned char *p = (unsigned char *)(uintptr_t)ars_va[i]; DWORD old;
+        char *th = ars_to[i] == 0x481fd0 ? ar_thunk_rr : ars_to[i] == 0x4c45c0 ? ar_thunk_ri : NULL;
+        if (!th || IsBadReadPtr(p, 5) || p[0] != 0xe8 || ars_va[i] + 5 + *(int *)(p + 1) != ars_to[i]) { if (ar_bad1 < 0) ar_bad1 = (int)ars_va[i]; continue; }
+        VirtualProtect(p, 5, PAGE_EXECUTE_READWRITE, &old); *(int *)(p + 1) = (int)((uintptr_t)th - (ars_va[i] + 5)); VirtualProtect(p, 5, old, &old); ar_ok++;
+    }
+}
+
 /* ---- entry point -------------------------------------------------------------------------------------------------------------- */
 static void read_cfg(const char **outp, char *outbuf) {
     FILE *f = fopen("d3dtrace.cfg", "r"); char ln[512];
-    strcpy(outbuf, "d3dtrace.log"); npin = 0;
+    strcpy(outbuf, "d3dtrace.log"); npin = 0; n_ars = 0;
     while (f && fgets(ln, sizeof ln, f)) {
         char *e = strchr(ln, '='); if (!e) continue; *e++ = 0; e[strcspn(e, "\r\n")] = 0;
         if (!strcmp(ln, "out")) strncpy(outbuf, e, 500);
@@ -766,6 +808,8 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "sh_delta")) cfg_sh_delta = (u32)strtoul(e, 0, 16);
         else if (!strcmp(ln, "sh_out")) strncpy(cfg_sh_out, e, 259);
         else if (!strcmp(ln, "sh_poke")) sscanf(e, "%d:%x:%x", &cfg_poke_frame, &cfg_poke_va, &cfg_poke_xor);
+        else if (!strcmp(ln, "audiorng")) cfg_audiorng = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "audiorng_site") && n_ars < NARS && sscanf(e, "%x:%x", &ars_va[n_ars], &ars_to[n_ars]) == 2) n_ars++;
     }
     if (f) fclose(f);
     *outp = outbuf;
@@ -782,6 +826,8 @@ __declspec(dllexport) IDirect3D9 *WINAPI Direct3DCreate9(UINT ver) {
         lg = fopen(out, "wb"); if (!lg) return NULL;
         setvbuf(lg, NULL, _IOFBF, 1 << 20);
         L("TRACE d3dtrace 1 sdk=%u start_phase=%d stop_racef=%d geom=%d\n", ver, cfg_start_phase, cfg_stop_racef, cfg_geom);
+        if (cfg_audiorng) L("AUDIORNG patched %d of %d sites%s\n", ar_ok, ar_total, ar_bad1 >= 0 ? " (some refused)" : "");
+        if (cfg_audiorng && ar_bad1 >= 0) L("AUDIORNG first refused site %x\n", (unsigned)ar_bad1);
         if (!cfg_start_phase && !cfg_stop_racef && !cfg_stop_phase) { active = 1; }
         if (cfg_rwtap[0]) {
             HMODULE tm = LoadLibraryA("mfltap.dll"); int (*ti)(const char *, const char *, unsigned, volatile int *, volatile int *, volatile int *) = tm ? (void *)GetProcAddress(tm, "rwtap_init") : NULL;
@@ -800,6 +846,10 @@ BOOL WINAPI DllMain(HINSTANCE h, DWORD why, void *r) {
     if (why == DLL_PROCESS_ATTACH) {
         char ob[512]; const char *o; read_cfg(&o, ob);       /* cfg is re-read in Direct3DCreate9 for the log file; the clock must be installed before the game starts */
         InitializeCriticalSection(&acs);
+#ifdef AUDIORNG_BUILTIN
+        cfg_audiorng = 1;
+#endif
+        if (cfg_audiorng) ar_patch();
         if (cfg_vclock) { LARGE_INTEGER f; QueryPerformanceFrequency(&f); qpf = f.QuadPart; main_tid = GetCurrentThreadId(); patch_iat(GetModuleHandleA(NULL)); }
     }
     if (why == DLL_PROCESS_DETACH && lg) fflush(lg);

@@ -2,8 +2,8 @@
 """trapcheck.py: static check that no int3-filled original code is referenced by the installed C.
   trapcheck.py [W] [--objs LIST] [--list FILE]...   W = a link_ours.sh work dir (default: newest output/gate/*_standalone/link); exit 1 on any violation
   trapcheck.py --selftest [W]                       (W missing its link files = FAIL; no W = newest link, skipped if none) bad case built from W at run time (bad_selftest: one library function's defining object left out, the function listed: its C caller must fail; W9, replaces the
-                                                    RtDictDestroy fixture rw_trap_bad.txt that G1's C port retired), tools/negtests/trap/rw_trap_good.txt must pass
-The filled lists (`va size name|why`): tools/delink/rw_trap.txt (DROP_RWTRAP), rw_dead.txt (DROP_RW), dshow_dead.txt (DROP_DSHOW), dead_tables.txt (always), dinput_dead.txt (DROP_DINPUT).
+                                                    RtDictDestroy fixture rw_trap_bad.txt that G1's C port retired); good list = tools/delink/rw_trap.txt at run time (W12; rows added after W's commit left out) must pass
+The filled lists (`va size name|why`): tools/delink/rw_trap.txt (DROP_RWTRAP), rw_dead.txt (DROP_RW), dshow_dead.txt (always), dead_tables.txt (always), dinput_dead.txt (DROP_DINPUT).
 Referrers = every object of W/objs_local.txt (or LIST, `src obj` per line, e.g. check_all's b4/objs.txt): clusters, automatch_near, tier1, hand files, bridges, harness, lib sources.
   name / VA:  an undefined symbol no scanned object defines (so it binds to the original bytes in mfl.obj) whose name is a listed name, or resolves (mfl.obj symbols, output/fnsizes.txt,
               src/aliases.txt + symbols.txt, W/gen/globals_layout.csv, `<name>_<hex va>` / func_0x<va>) to an address inside a listed range;
@@ -152,7 +152,7 @@ def check(W, lists, objlist=None, allow=None, scan_consts=False):
     dsh = {int(l.split()[0], 16) for l in open(os.path.join(D, "dshow_dead.txt")) if l.strip() and not l.startswith("#")}
     for src, o in objs:
         dd, uu = sy[o]; vs = {va(n) for n in dd} - {None}
-        if vs and vs <= dsh: continue      # dshow_drop.py filter: link_ours.sh (DROP_DSHOW) does not link C that only replaces dead movie code (matters for --objs of an overlay build)
+        if vs and vs <= dsh: continue      # dshow_drop.py filter: link_ours.sh does not link C that only replaces dead movie code (matters for --objs of an overlay build)
         defined |= dd; per.append((src, uu, o)); sdef.setdefault(src, set()).update(dd)
     cdef = {va(n) for n in defined if not n.startswith("mfl_trap_")} - {None}      # (W8: an_hk_612's trap stub mfl_trap_<name>_<va> replaces nothing: func_0x005470e0 was missed) original addresses our objects define (replaced bodies, func_0x004ab230 of dinput_formats.c, DLL thunks): pointers to them bind to the C
     viol = []; rowseed = {}
@@ -258,13 +258,38 @@ def selftest(W=None):
     else:      # manual run without W: newest link, skip when there is none
         W = newest_link()
         if not W: print("trapcheck selftest: skipped (no standalone link under output/gate)"); return 0
-    N = os.path.join(T, "negtests", "trap"); rc = 0
-    rc |= bad_selftest(W, os.path.join(N, "rw_trap_good.txt"))
+    rc = 0; gl = good_list(W)
+    try: rc = selftest_on(W, gl)
+    finally: os.remove(gl)
+    print("trapcheck selftest: %s (%s)" % ("FAIL" if rc else "ok", os.path.relpath(W, G)))
+    return rc
+
+def good_list(W):
+    """W12 (G5 lesson): the good list is tools/delink/rw_trap.txt at run time, never a stored copy.  On an older link (negtest.sh: the baseline link) rows added
+    to the list after that link's commit (W/../provenance.txt `git <sha>`) are left out: they may come with the C change that removes their callers."""
+    import tempfile
+    live = [l for l in open(os.path.join(D, "rw_trap.txt")) if l.split()[:1] and not l.startswith("#")]
+    pv = os.path.join(os.path.dirname(W), "provenance.txt"); c = None
+    if os.path.exists(pv):
+        c = next((l.split()[1] for l in open(pv) if l.startswith("git ")), None)
+    old = subprocess.run(["git", "-C", G, "show", "%s:tools/delink/rw_trap.txt" % c], capture_output=True, text=True) if c else None
+    if old and old.returncode == 0:
+        va = {l.split()[0] for l in old.stdout.splitlines() if l.split()[:1] and not l.startswith("#")}
+        new = [l for l in live if l.split()[0] not in va]; live = [l for l in live if l.split()[0] in va]
+        print("selftest note good list: rw_trap.txt, %d rows (%d added after the link's commit %s left out)" % (len(live), len(new), c))
+    else:
+        print("selftest note good list: rw_trap.txt, %d rows" % len(live))
+    p = tempfile.mkstemp(suffix="_rw_trap_good.txt")[1]; open(p, "w").write("".join(live))
+    return p
+
+def selftest_on(W, GL):
+    rc = 0
+    rc |= bad_selftest(W, GL)
     # W8 G1 (gate 1114_0950): the good list is a copy of rw_trap.txt, so the T-TCA pairs (trap_caller_allow.txt) are violations there unless the allow file
     # is applied, like the gate form does; allow lines whose trap row the fixture does not list are "stale" only relative to the fixture: ignored here
     al = ALLOW if os.path.exists(ALLOW) else None
-    raw = check(W, [os.path.join(N, "rw_trap_good.txt")], scan_consts=False)
-    good = [x for x in check(W, [os.path.join(N, "rw_trap_good.txt")], allow=al, scan_consts=False) if not (al and x[0][3] == os.path.basename(al) and x[2].startswith("stale"))]
+    raw = check(W, [GL], scan_consts=False)
+    good = [x for x in check(W, [GL], allow=al, scan_consts=False) if not (al and x[0][3] == os.path.basename(al) and x[2].startswith("stale"))]
     if not good: print("selftest ok   good list: 0 violations (allow file removes %d T-TCA pair(s))" % len(raw))
     else: report(good); print("selftest FAIL good list flagged"); rc = 1
     if al and raw:      # negative: the same check with the allow line of one flagged pair removed must flag that pair again
@@ -275,11 +300,10 @@ def selftest(W=None):
             return len(w) >= 3 and (w[2] == x0[0][2] or re.fullmatch(r"(0x)?[0-9a-fA-F]{6,8}", w[2]) is not None and int(w[2], 16) == x0[0][0])
         keep = [l for l in open(al) if not names_row(l)]
         p = tempfile.mkstemp(suffix="_allow.txt")[1]; open(p, "w").write("".join(keep))
-        neg = [x for x in check(W, [os.path.join(N, "rw_trap_good.txt")], allow=p, scan_consts=False) if x[0][3] != os.path.basename(p)]
+        neg = [x for x in check(W, [GL], allow=p, scan_consts=False) if x[0][3] != os.path.basename(p)]
         os.remove(p)
         if any(x[0][0] == x0[0][0] for x in neg): print("selftest ok   allow line for %s removed: flagged again" % x0[0][2])
         else: print("selftest FAIL allow line for %s removed but not flagged" % x0[0][2]); rc = 1
-    print("trapcheck selftest: %s (%s)" % ("FAIL" if rc else "ok", os.path.relpath(W, G)))
     return rc
 
 ALLOW = os.path.join(D, "trap_caller_allow.txt")

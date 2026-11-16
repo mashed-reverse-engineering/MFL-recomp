@@ -34,12 +34,12 @@
 #define NT1_D_FX_END (0xb4)
 #define SPLINE_REF_OFFSET (0xc)
 #define SPLINE_REF_END (0x8)
-/* func_0x00455ee0 / func_0x00455fd0 take the effect position (a vector in the caller's frame) in EDI,
- * func_0x00455e60 in ESI (the original: `lea edi|esi,[esp+..]` before each call); adapters load the
+/* course_city_cb1_sub_455ee0 / course_city_cb1_sub_455fd0 take the effect position (a vector in the caller's frame) in EDI,
+ * course_city_cb1_sub_455e60 in ESI (the original: `lea edi|esi,[esp+..]` before each call); adapters load the
  * register and keep the caller's value. */
-extern void func_0x00455ee0(void);
-extern void func_0x00455fd0(void);
-extern void func_0x00455e60(void);
+extern void course_city_cb1_sub_455ee0(void);
+extern void course_city_cb1_sub_455fd0(void);
+extern void course_city_cb1_sub_455e60(void);
 static void func_0x00455ee0_r(RwV3d *reg_edi);
 static void func_0x00455fd0_r(RwV3d *reg_edi);
 static void func_0x00455e60_r(RwV3d *reg_esi);
@@ -48,7 +48,7 @@ __declspec(naked) void func_0x00455ee0_r(RwV3d *reg_edi)
     __asm {
         push edi
         mov edi, dword ptr [esp + 8]
-        call func_0x00455ee0
+        call course_city_cb1_sub_455ee0
         pop edi
         ret
     }
@@ -58,7 +58,7 @@ __declspec(naked) void func_0x00455fd0_r(RwV3d *reg_edi)
     __asm {
         push edi
         mov edi, dword ptr [esp + 8]
-        call func_0x00455fd0
+        call course_city_cb1_sub_455fd0
         pop edi
         ret
     }
@@ -68,7 +68,7 @@ __declspec(naked) void func_0x00455e60_r(RwV3d *reg_esi)
     __asm {
         push esi
         mov esi, dword ptr [esp + 8]
-        call func_0x00455e60
+        call course_city_cb1_sub_455e60
         pop esi
         ret
     }

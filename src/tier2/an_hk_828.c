@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*004b2b48*/ extern int _ftol();
-/*004c40c0*/ extern int FUN_004c40c0(undefined4 p0);
+/*004c40c0*/ extern int atomic_first_material(undefined4 p0);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*006aaba0*/ extern undefined4 g_weapon_shotgun_6aaba0[0x1000];
@@ -37,7 +37,7 @@ __declspec(naked) int weapon_fx_clump_remove_c_r(void *reg_esi)
  *   slot[-1]  object whose +4 is the transform target frame
  *   slot[0]   countdown for state 1
  * Takes no parameters, returns nothing.
- * `state` is reused for the FUN_004c40c0 result of object A (inferred). */
+ * `state` is reused for the atomic_first_material result of object A (inferred). */
 
 void weapon_shotgun_update(void)
 
@@ -76,8 +76,8 @@ void weapon_shotgun_update(void)
         spin_axis.z = 1.0;
         RwFrameRotate(frame_a,&spin_axis,SHOTGUN_SPIN_DEGREES,rwCOMBINEPRECONCAT);
         RwFrameRotate(frame_b,&spin_axis,SHOTGUN_SPIN_DEGREES,rwCOMBINEPRECONCAT);
-        state = FUN_004c40c0(slot[-7]);
-        colour_b = FUN_004c40c0(slot[-6]);
+        state = atomic_first_material(slot[-7]);
+        colour_b = atomic_first_material(slot[-6]);
         /* alpha falls from ALPHA_MAX to 0 over 8 fade steps (inferred); colour is alpha<<24 | white */
         if ((state != 0) && (colour_b != 0)) {
           alpha = ((int)(ALPHA_MAX - (((float)*(int *)((char *)slot - SLOT_FADE_BYTES) * SHOTGUN_FADE_STEP) * ALPHA_MAX)));

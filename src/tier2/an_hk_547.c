@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, undefined4 p1);
-/*004c5440*/ extern int __cdecl FUN_004c5440(int a1, int a2, int a3);
+/*004c5440*/ extern int __cdecl clump_set_geometry_flags(int a1, int a2, int a3);
 /*006a9424*/ extern undefined4 g_weapon_6a9424;
 /*006a9584*/ extern char g_weapon_6a9584[];
 #define WEAPON_SLOT_STRIDE (0x16) /* words per slot record: 0x58 bytes */
@@ -15,7 +15,7 @@
  * words long; its clump pointer is at word WEAPON_SLOT_CLUMP. Per record: clears
  * words 0 and 3, sets words 1 and 2 to 0xffffffff, clears the clump's atomic flag
  * (clump_set_flag_on_atomics, flag 0), sets the byte at +0x30 to 0xff and clears
- * the bytes at +0x31..+0x33, then calls FUN_004c5440 on the clump (inferred: detach).
+ * the bytes at +0x31..+0x33, then calls clump_set_geometry_flags on the clump (inferred: detach).
  */
 void weapon_slots_6a9424_clear(void)
 
@@ -38,7 +38,7 @@ void weapon_slots_6a9424_clear(void)
     *(undefined1 *)((char *)weapon_slot + 0x31) = 0;
     *(undefined1 *)((char *)weapon_slot + 0x32) = 0;
     *(undefined1 *)((char *)weapon_slot + 0x33) = 0;
-    FUN_004c5440(weapon_slot[WEAPON_SLOT_CLUMP],0x40,1);
+    clump_set_geometry_flags(weapon_slot[WEAPON_SLOT_CLUMP],0x40,1);
     weapon_slot = weapon_slot + WEAPON_SLOT_STRIDE;
   } while ((LONG_PTR)weapon_slot < ((LONG_PTR)&g_weapon_6a9584));
   return;

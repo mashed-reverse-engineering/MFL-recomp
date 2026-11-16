@@ -2,7 +2,7 @@
 extern char *PTR_g_game_5de410_00609a08;
 /*0042f6e0*/ extern int game_content_find();
 /*004b2ed0*/ extern char * __cdecl _strchr(char *p0, int p1);
-/*004c3d20*/ extern int FUN_004c3d20();
+/*004c3d20*/ extern int texdict_read_from_file();
 /*004c3d80*/ extern int texdict_load_file(char * p0, int p1, int p2);
 /*0069c178*/ extern undefined g_texdict_load_69c178;
 /*0069c378*/ extern undefined g_texdict_load_69c378;
@@ -18,7 +18,7 @@ extern char *PTR_g_game_5de410_00609a08;
  * the default extension (PTR_g_game_5de410_00609a08, inferred). Then asks
  * game_content_find for the full name, and:
  *   find result 1: loads it with texdict_load_file(path, extra_arg_2, extra_arg_3)
- *   other non-zero: hands it to FUN_004c3d20 (inferred: alternate loader)
+ *   other non-zero: hands it to texdict_read_from_file (inferred: alternate loader)
  *   0: not found, returns 0.
  * extra_arg_2 / extra_arg_3 are only passed through (inferred).
  * Returns the loader's result, or 0 if the content was not found.
@@ -46,7 +46,7 @@ undefined4 texdict_load_named_b(char *file_name, undefined4 extra_arg_2, undefin
   }
   /* other non-zero result: alternate path (inferred) */
   if (find_result != 0) {
-    load_result = FUN_004c3d20(((char *)&g_texdict_load_69c378), extra_arg_2, extra_arg_3);
+    load_result = texdict_read_from_file(((char *)&g_texdict_load_69c378), extra_arg_2, extra_arg_3);
     return load_result;
   }
   return 0;

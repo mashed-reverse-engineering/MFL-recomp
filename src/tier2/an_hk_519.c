@@ -74,10 +74,10 @@ void course_superg_cb4(char *param_1)
     if (*(RpClump **)(param_1 + BACKGROUND_CLUMP_OFFSET) != (RpClump *)0x0) {
       RpClumpRender(*(RpClump **)(param_1 + BACKGROUND_CLUMP_OFFSET));
     }
-    /* foreground: depth writes back on, then the per-player pass (func_0x0045c1f0, inferred) */
+    /* foreground: depth writes back on, then the per-player pass (course_superg_cb4_sub_45c1f0, inferred) */
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
     scratch = get_player_count();
-    func_0x0045c1f0(scratch);
+    course_superg_cb4_sub_45c1f0(scratch);
     if (*(RpClump **)(param_1 + FOREGROUND_CLUMP_OFFSET) != (RpClump *)0x0) {
       RpClumpRender(*(RpClump **)(param_1 + FOREGROUND_CLUMP_OFFSET));
     }

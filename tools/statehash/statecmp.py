@@ -3,11 +3,17 @@
 The file holds, per Present, the changed 4 KB pages of the game's writable image (.data + .bss, original VA 0x5fb000-0x949d64, + sh_delta in the
 standalone link) and the committed private memory ranges (heap).  Both sides are reconstructed frame by frame and compared word by word.
 
-  statecmp.py A.bin B.bin [--map-b ours.map] [--ptr state_ptrwords.txt] [--mask state_mask.txt] [--frames N] [--show K]
+  statecmp.py A.bin B.bin [--map-b ours.map] [--ptr state_ptrwords.txt] [--mask state_mask.txt] [--frames N] [--show K] [--rwpad state_rwpad.txt]
       A = control.  B = control again (determinism) or ours (--map-b: the link map, pointers in B are translated to original VAs).
       A word counts as equal when the values are equal, or the word is listed in --ptr and both values are heap pointers of their own run
       or B's value translates (ours.map) to A's value, or the word is listed in --mask (reported as masked, never silently).
       Output: first divergent frame + its words (symbol, values, float view, ulp), per-word summary, VERDICT line.
+      --rwpad (compare mode "rwpad", off by default; user decision 2026-11-16): rows `<base va> <count> <symbol> | <evidence>` name RwMatrix
+      instances (count consecutive 0x40-byte records); only their pad1 / pad2 / pad3 words (+0x1c / +0x2c / +0x3c) are skipped, never flags or
+      floats.  Allowed only for instances with a read check (static scan + gdb read watch, agents/rep_w12/notes.md).  Counted as "rwpad words".
+      --sound (compare mode "sound", off by default; user decision 2026-11-16): rows `<va> <nwords> <symbol> | <evidence>` (state_sound.txt) name
+      sound-timing words (voice queue, voice slots, sound frame records).  Their differences are printed on a SOUND line (shown, never a failure);
+      every other word must still be identical.  Rows on car / physics / transform names or the car / vehicle / AI ranges are refused.
   statecmp.py --mkptr A.bin [A2.bin ...] > state_ptrwords.txt     words whose every non-zero value in every frame is a pointer (image or heap)
   statecmp.py --mkstale A.bin A2.bin state_ptrwords.txt <tag>     mask rows for stale menu residue (differs at frame 0, never written in the window)
   statecmp.py --peek A.bin <frame> <va> [n]                         n dwords at an original VA at that frame (e.g. a car's matrix_current)
@@ -145,6 +151,43 @@ def read_mask(path, syms):
     return m
 
 
+RWPAD_OFFS = (0x1c, 0x2c, 0x3c)     # RwMatrix pad1 / pad2 / pad3; the only words the rwpad mode may skip
+
+
+def read_rwpad(path):
+    """--rwpad file -> {va: row}: the pad words of every listed RwMatrix instance; rows without evidence or with an unaligned base are refused"""
+    out, bad = {}, []
+    for l in open(path):
+        if not l.strip() or l.startswith("#"):
+            continue
+        s = l.split()
+        if len(s) < 3 or not s[1].isdigit() or "|" not in l or not l.split("|", 1)[1].strip() or int(s[0], 16) & 3:
+            bad.append(l.strip())
+            continue
+        for k in range(int(s[1])):
+            for o in RWPAD_OFFS:
+                out[int(s[0], 16) + 0x40 * k + o] = l.strip()
+    if bad:
+        sys.exit("statecmp: REFUSED rwpad rows (need `<va> <count> <symbol> | <evidence>`, 4-aligned va):\n  " + "\n  ".join(bad))
+    return out
+
+
+def read_sound(path, syms):
+    """--sound file (rows as --mask: `<va> <nwords> <symbol> | <evidence>`) -> {va: row}: sound-timing words (voice queue, voice slots, sound
+    frame records) whose differences go on the SOUND line instead of the VERDICT. Same refusals as masks (car / physics / transform names and
+    the car / vehicle / AI dump ranges, rows without evidence): gameplay state can never be listed here."""
+    m = read_words(path)
+    # `misnamed:` in the evidence skips only the symbols.txt name test (Ghidra names like g_weapon_ai_8be7f0 on voice-queue words); the row's own
+    # name column, the deny ranges and the evidence test always apply, and the evidence must then say which code references the words
+    bad = ["%08x %s" % (va, syms.name(va)) for va, row in sorted(m.items())
+           if any(lo <= va < hi for lo, hi, _ in DENY_RANGES) or DENY_NAME.search(row.split("|")[0])
+           or (DENY_NAME.search(syms.name(va)) and "misnamed:" not in row)
+           or "|" not in row or not row.split("|", 1)[1].strip()]
+    if bad:
+        sys.exit("statecmp: REFUSED sound rows (gameplay names / ranges, or no evidence):\n  " + "\n  ".join(bad))
+    return m
+
+
 def dead_layer_fn(names):
     """--dead-layers Lua,qhull,...: data words owned by library layers that the standalone link REPLACES (tools/delink/layers.py, the link's
     LIB_* settings): ours never reads the original copies, so only the control writes them.  Counted and reported, never silently."""
@@ -161,8 +204,12 @@ def dead_layer_fn(names):
     return f
 
 
-def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.stdout, dead=None):
+def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.stdout, dead=None, rwpad=None, sound=None):
     syms = Syms()
+    padw = read_rwpad(rwpad) if rwpad else {}
+    tot_pad = 0
+    soundw = read_sound(sound, syms) if sound else {}
+    snd = {}            # va -> [first frame, frames differing]: sound-timing class, reported on the SOUND line, never a divergence
     deadf = dead_layer_fn(dead)
     tot_dead = 0
     stale0 = set()
@@ -218,7 +265,7 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
                 continue
             wa = struct.unpack("<1024I", A)
             wb = struct.unpack("<1024I", B)
-            dl, ml, np_, nd = [], [], 0, 0
+            dl, ml, np_, nd, npad, sl = [], [], 0, 0, 0, []
             for w in range(1024):
                 c, o = wa[w], wb[w]
                 if c == o:
@@ -231,13 +278,23 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
                 if va in maskw:
                     ml.append(va)
                     continue
+                if va in padw:
+                    npad += 1
+                    continue
+                if va in soundw:
+                    sl.append(va)
+                    continue
                 if deadf and (deadf(va) or (o == 0 and va in stale0)):
                     nd += 1
                     continue
                 dl.append((va, c, o))
-            cache[p] = (dl, ml, np_, nd)
+            cache[p] = (dl, ml, np_, nd, npad, sl)
         fd = [x for p in sorted(cache) for x in cache[p][0]]
+        for va in (x for p in cache for x in cache[p][5]):
+            r = snd.setdefault(va, [nfr, 0])
+            r[1] += 1
         fm = sum(len(cache[p][1]) for p in cache)
+        tot_pad = max(tot_pad, sum(cache[p][4] for p in cache))
         tot_mask = max(tot_mask, fm)
         tot_dead = max(tot_dead, sum(cache[p][3] for p in cache))
         tot_ptr = max(tot_ptr, sum(cache[p][2] for p in cache))
@@ -263,8 +320,13 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
         print("words that ever differ: %d (va symbol first-frame frames-differing A B at first, writes = frames in which A's value changed)" % len(per_word), file=out)
         for va, (f0, k, c, o, mu) in sorted(per_word.items(), key=lambda x: (x[1][0], x[0]))[:max(show, 40)]:
             print("  %08x %-44s %4d %4d %08x %08x writes %d maxulp %s" % (va, syms.name(va), f0, k, c, o, wr.get(va, 0), mu if mu < 1 << 31 else "-"), file=out)
-    print("VERDICT: %s over %d frames (first divergent frame %s; masked words %d, pointer-normalised words %d, dead-layer words %d%s)" % (
-        "IDENTICAL" if not first else "DIVERGENT", nfr, first[0] if first else "-", tot_mask, tot_ptr, tot_dead, " [%s]" % dead if dead else ""), file=out)
+    if sound:       # shown, never a failure (user decision 2026-11-16); every other word still decides the VERDICT
+        print("SOUND: %d sound-timing words differ%s (report only, never fails)" % (len(snd), ", first frame %d" % min(r[0] for r in snd.values()) if snd else ""), file=out)
+        for va, (f0, k) in sorted(snd.items(), key=lambda x: (x[1][0], x[0]))[:show]:
+            print("  sound %08x %-44s first %4d frames %4d" % (va, syms.name(va), f0, k), file=out)
+    print("VERDICT: %s over %d frames (first divergent frame %s; masked words %d, pointer-normalised words %d, dead-layer words %d%s%s)" % (
+        "IDENTICAL" if not first else "DIVERGENT", nfr, first[0] if first else "-", tot_mask, tot_ptr, tot_dead, " [%s]" % dead if dead else "",
+        "; mode rwpad: %d RwMatrix pad words skipped" % tot_pad if rwpad else ""), file=out)
     return first[0] if first else -1
 
 
@@ -369,6 +431,31 @@ def selftest():
     assert compare(d + "/a", d + "/c", out=null) == 0
     assert compare(d + "/a", d + "/c", ptr=d + "/ptr", out=null) == -1
     assert ulp(0x3f800000, 0x3f800001) == 1
+    # rwpad mode: an RwMatrix at 0x5fc100; pad1/2/3 differences are skipped, a pos float or the flags word still DIFF
+    open(d + "/rwpad", "w").write("005fc100 1 test_matrix | selftest\n")
+    def one(off, v):
+        q = bytearray(PAGE); struct.pack_into("<I", q, 0x100 + off, v)
+        return bytes(q)
+    wr(d + "/m0", [{0: z, 1: one(0x30, 0x3f800000)}])
+    for off, want in ((0x1c, -1), (0x2c, -1), (0x3c, -1), (0x30, 0), (0x0c, 0), (0x40 + 0x1c, 0)):
+        wr(d + "/m1", [{0: z, 1: bytes(a ^ b for a, b in zip(one(0x30, 0x3f800000), one(off, 0x614ca614)))}])
+        assert compare(d + "/m0", d + "/m1", rwpad=d + "/rwpad", out=null) == want, hex(off)
+        assert compare(d + "/m0", d + "/m1", out=null) == 0      # default mode: every difference counts
+    # sound mode: a listed sound word differs -> IDENTICAL + SOUND line; an unlisted word next to it -> DIVERGENT; default mode -> DIVERGENT
+    import io
+    open(d + "/sound", "w").write("005fc200 2 test_voice_queue | selftest\n")
+    wr(d + "/s1", [{0: z, 1: bytes(a ^ b for a, b in zip(one(0x30, 0x3f800000), one(0x104, 1)))}])
+    buf = io.StringIO()
+    assert compare(d + "/m0", d + "/s1", sound=d + "/sound", out=buf) == -1 and "SOUND: 1 sound-timing words differ" in buf.getvalue()
+    assert compare(d + "/m0", d + "/s1", out=null) == 0
+    wr(d + "/s2", [{0: z, 1: bytes(a ^ b for a, b in zip(one(0x30, 0x3f800000), one(0x108, 1)))}])
+    assert compare(d + "/m0", d + "/s2", sound=d + "/sound", out=null) == 0
+    open(d + "/sound_bad", "w").write("008b1038 1 player_car_0__matrices_12_ | must be refused\n")
+    try:
+        read_sound(d + "/sound_bad", Syms())
+        assert False, "car row accepted"
+    except SystemExit:
+        pass
     print("selftest ok")
 
 
@@ -395,5 +482,5 @@ if __name__ == "__main__":
                 i += 1
         if len(pos) != 2:
             sys.exit(__doc__)
-        r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"))
+        r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"), rwpad=opt.get("rwpad"), sound=opt.get("sound"))
         sys.exit(0 if r < 0 else 1)

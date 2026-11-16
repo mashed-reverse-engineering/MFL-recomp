@@ -3,7 +3,7 @@
 /*0042f780*/ extern char *__cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
-/*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c5410*/ extern void atomic_set_geometry_flags(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c6600*/ extern void bitset_clear_first_n(void *p0, undefined4 p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004d1160*/ extern struct RwFrame * RwFrameAddChild(struct RwFrame *p0, struct RwFrame *p1);
@@ -97,7 +97,7 @@ void load_waterfall_fx(void)
       *atomic_slot = atomic_clone;
       RpAtomicSetFrame(atomic_clone,frame);
       RwFrameAddChild((RwFrame *)*slot,frame);
-      FUN_004c5410(*atomic_slot,0x40,1);
+      atomic_set_geometry_flags(*atomic_slot,0x40,1);
       RpMorphAtomicSetCurrentInterpolator(*atomic_slot,0);
       RpMorphAtomicSetTime(*atomic_slot,0);
       slot_cursor[0x15] = 0;

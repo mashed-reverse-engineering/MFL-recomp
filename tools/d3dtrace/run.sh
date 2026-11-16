@@ -7,7 +7,8 @@
 #      STEP_US=<us> (virtual clock advance per main-thread clock call, d3d9.c step_us, default 20; 0 = the clock moves only by Sleep / vsnap),
 #      ALOCK=1 (worker threads in lockstep, d3d9.c alock), SNDPIN=1 (with ALOCK=1: virtual dsound cursor snapped at race-phase changes + apoll/aio/vst,
 #      control vs control 0 diff over a race, lane v2_w11), D3DP_DLL (proxy build to use instead of d3d9.dll here),
-#      MFL_INSTALL (install dir with App_Executables), MAX_FRAMES, RUN_TIMEOUT (s, default 240), TMPDIR (scratch mounted into the containers).
+#      MFL_INSTALL (install dir with App_Executables), MAX_FRAMES, RUN_TIMEOUT (s, default 240), TMPDIR (scratch mounted into the containers),
+#      AUDIORNG=1 (control only, test only: sound code draws from its own random stream, d3d9.c audiorng).
 # SA_EXE=<link dir>/ours.exe SA_DELTA=<hex> (e.g. <link dir>/ours.exe, 112000): record the standalone link (game dir <link dir>/game, harness addresses from ours.map) instead of the ctrl build.
 # Result: <out dir>/trace.raw (change stream), <out dir>/run.txt (params, exit code), screenshots (wine-run shots) when taken.  Then: normalise.py trace.raw.
 T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f "$T/../.."); WR=$(readlink -f "$T/../wine-run")
@@ -53,9 +54,20 @@ case $SC in menu|title|mainmenu) START=0; RF=0;; *) STOP=$FR;; esac
 # SEG=countdown: log only race phase 5 (loading is skipped, camera fly-over of the finished course: deterministic, byte-identical between runs);
 # default SEG=race logs phases 5+6 up to race frame <frames> (the race itself diverges slightly between runs, see README: use diff.py --mask)
 [ "${SEG:-race}" = countdown ] && { STOPPH=6; STOP=0; }
+# SPLIT=1 = the audio/gameplay split acceptance form (REP 2026-11-16: control pairs ar0_3 / ar0_4 IDENTICAL only with STEP_US=0): the control gets
+# AUDIORNG=1, ours (SA_EXE: a link built with MFL_FIX_DEFINES=/DMFL_FIX_DETERMINISTIC_AUDIO_RNG=1) no shim; both sides default STEP_US=0.
+# AUDIORNG=1 alone also defaults STEP_US to 0.  An explicit STEP_US wins.
+[ -n "$SPLIT" ] && [ -z "$SA_EXE" ] && AUDIORNG=1
+[ -n "$SPLIT$AUDIORNG" ] && STEP_US=${STEP_US:-0}
 { echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-3}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; [ -n "$VDUMP" ] && echo "vdump=1"; [ -n "$STATEHASH" ] && { echo "statehash=1"; echo "sh_delta=${SA_DELTA:-0}"; echo "vsnap=${VSNAP:-2}"; [ "${SRAND:-1}" != 0 ] && echo "srand=3:$([ -n "$SA_EXE" ] && awk '$2=="_srand"{print $3; exit}' ${SA_EXE%.exe}.map || echo 5d365e):1"; for p in $PINS $([ -n "$PINFILE" ] && grep -v '^#' $PINFILE | cut -d' ' -f1); do echo "pin=$p"; done; }; [ -n "$SH_POKE" ] && echo "sh_poke=$SH_POKE"; [ -n "$ALOCK" ] && echo "alock=$ALOCK"; [ -n "$SNDPIN" ] && printf 'vds=1\napoll=1\naio=1\nvst=1\nvdssnap=1\n'; [ -n "$STEP_US" ] && echo "step_us=$STEP_US"; } > $AE/d3dtrace.cfg
 # RWTAP=1: also hook the RW layer (tools/rwtap, mfltap.dll + funcs.txt next to the exe), log -> $OUT/rwtap.log (standalone: the hooks get the link delta)
 RT_=$(readlink -f $T/../rwtap); [ -n "$RWTAP" ] && { [ -f $RT_/mfltap.dll ] || make -C $RT_ >/dev/null || exit 1; cp $RT_/mfltap.dll $RT_/funcs.txt $AE/; echo "rwtap=funcs.txt" >> $AE/d3dtrace.cfg; [ -n "$SA_DELTA" ] && echo "rwtap_delta=$SA_DELTA" >> $AE/d3dtrace.cfg; }
+# AUDIORNG=1 (TEST ONLY, control build only; output/determinism_2026-11-16.md): d3d9.c audiorng, the sound code's random draws go to the sound
+# stream (in memory, sites from tools/statehash/data/audio_rng_sites.txt).  Ours gets the same split from MFL_FIX_DETERMINISTIC_AUDIO_RNG, not from here.
+if [ -n "$AUDIORNG" ]; then
+  [ -n "$SA_EXE" ] && { echo "run.sh: AUDIORNG is for the control build only (ours: build with MFL_FIX_DETERMINISTIC_AUDIO_RNG=1)"; exit 2; }
+  echo "audiorng=1" >> $AE/d3dtrace.cfg; awk '/^[0-9a-f]{8} /{print "audiorng_site=" $1 ":" $2}' $R/tools/statehash/data/audio_rng_sites.txt >> $AE/d3dtrace.cfg
+fi
 # ---- the play.sh script
 DRIVE=${DRIVE-9}
 case $SC in

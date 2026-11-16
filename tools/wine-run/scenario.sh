@@ -16,15 +16,18 @@
 #      RUN_TIMEOUT (s, default 300, scaled by load/4), SLOT=n (local slot index, default 1; the control uses n+1).  Max 2 game processes per call, the global limit of 4 is enforced by gameslot.sh.
 # leading NAME=VALUE arguments are exported (replaces an `env NAME=VALUE scenario.sh` prefix, which asks the user for confirmation): scenario.sh SCEN_TAG=x SCEN_MODE=arcade pause_all
 while [[ "$1" =~ ^[A-Z][A-Z0-9_]*=.*$ ]]; do export "$1"; shift; done
-T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f $T/../..); N=$1; [ -f "$T/scenarios/$N.sh" ] || { echo "usage: scenario.sh <name> (scenarios/*.sh: $(ls $T/scenarios | sed 's/\.sh$//' | tr '\n' ' '))"; exit 2; }
+T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f $T/../..); N=$1; [ "$N" = --ctrl ] || [ -f "$T/scenarios/$N.sh" ] || { echo "usage: scenario.sh <name> (scenarios/*.sh: $(ls $T/scenarios | sed 's/\.sh$//' | tr '\n' ' '))"; exit 2; }
 export MASHED_ROOT=${MASHED_ROOT:-$(readlink -f $R/..)}
 EXTRA_OVL=${EXTRA_OVL- --automatch --automatch-near --bridges --clusters}
-OVL_ARGS="--count$EXTRA_OVL"; SC=${SCEN_OUT:-$R/output/scenario}; B=$SC/_build; W=$SC/$N${SCEN_TAG:+_$SCEN_TAG}; mkdir -p $B $W
+OVL_ARGS="--count$EXTRA_OVL"; SC=${SCEN_OUT:-$R/output/scenario}; B=$SC/_build; W=$SC/$N${SCEN_TAG:+_$SCEN_TAG}; mkdir -p $B; [ "$N" = --ctrl ] || mkdir -p $W
 SLOT=${SLOT:-1}; NEVER=${NEVER:-output/never_exec.txt}
-# W11 B3: ctrl.exe is (re)built when it is missing or REBUILD=1 is set, and in the tree's own build dir (no SCEN_OUT) also when its ctrl.exe.build.json source
-# hashes are not the tree's harness sources (a harness change no longer needs REBUILD=1 by hand).  A ctrl.exe in a lane's SCEN_OUT may be built from other
-# sources on purpose (a staged freeze.c): it is never replaced automatically, only a note is printed (W11 lesson: Q3 ran on a silently rebuilt control).
-# Built in a private dir and moved in, so parallel calls never run a half-written exe.  Returns 1 = rebuilt, 0 = kept, 2 = build failed.
+# ctrl.exe is (re)built when it is missing, REBUILD=1 is set, or its ctrl.exe.build.json source hashes are not the harness sources of the tree that runs
+# this script (any SCEN_OUT).  W12 (harness review finding 1): the old rule kept every ctrl.exe under a SCEN_OUT, and sa_oracles.sh always sets SCEN_OUT,
+# so gates ran ours against a control built from the old harness ("kept (lane build)" in 38 logs of gate 1116_0556, never in gate.log).
+# A lane that runs a control built from other sources on purpose (a staged freeze.c) says so with SCEN_CTRL_KEEP=1: then it is kept with a loud
+# "CTRL STALE" line; inside a gate (MFL_IN_GATE) that is refused.  `scenario.sh --ctrl` runs only this check (sa_oracles.sh calls it once, before its
+# parallel scenarios, so the line reaches the gate log).  Built in a private dir and moved in, so parallel calls never run a half-written exe.
+# Returns 1 = rebuilt, 0 = kept, 2 = build failed, 3 = stale and refused.
 ctrl_srcs_equal() {      # 0 when every source in ctrl.exe.build.json has the tree's content (sha1, 12 hex, as build_overlay.py writes it)
   python3 - $B/ctrl.exe.build.json $R/src <<'PY'
 import hashlib, json, os, sys
@@ -36,12 +39,24 @@ PY
 ctrl_build() {
   if [ -f $B/ctrl.exe ] && [ -z "$REBUILD" ]; then
     ctrl_srcs_equal && return 0
-    [ -n "$SCEN_OUT" ] && { echo "note: $B/ctrl.exe was not built from this tree's harness sources (ctrl.exe.build.json): kept (lane build; REBUILD=1 rebuilds it)" >&2; return 0; }
+    if [ "$SCEN_CTRL_KEEP" = 1 ]; then
+      [ -n "$MFL_IN_GATE" ] && { echo "CTRL STALE: $B/ctrl.exe was not built from this tree's harness sources; SCEN_CTRL_KEEP=1 is refused in a gate" >&2; return 3; }
+      echo "CTRL STALE: $B/ctrl.exe was not built from this tree's harness sources (ctrl.exe.build.json): KEPT because SCEN_CTRL_KEEP=1" >&2; return 0
+    fi
+    echo "ctrl.exe stale ($B/ctrl.exe.build.json differs from $R/src harness sources): rebuilding" >&2
   fi
   local t=$B/.ctrl.$$; rm -rf $t; mkdir -p $t
   python3 $R/tools/build_overlay.py $t/ctrl.exe --no-recomp --harness > $B/build_ctrl.log 2>&1 || { rm -rf $t; return 2; }
   for f in ctrl.exe.map ctrl.exe.build.json ctrl.exe; do [ -f $t/$f ] && mv -f $t/$f $B/$f; done; rm -rf $t; echo "ctrl.exe rebuilt ($B)" >&2; return 1
 }
+# ctrl_key <script_ctrl.txt>: 16 hex digits over the script, ctrl.exe, the run machinery and the env values that change a run (hx2).
+ctrl_key() {
+  { cat "$1"; md5sum < $B/ctrl.exe
+    for f in scen_play.sh scen_inner.sh memwait.pl memread.pl probe.pl prepare.py gameslot.sh mkpfx.sh; do [ -f $T/$f ] && { echo "== $f"; cat $T/$f; }; done
+    [ -n "$SCEN_PIN" ] && { cat $T/scen_pin.sh ${SCEN_PIN_DLL:-$T/../d3dtrace/d3d9.dll} $R/tools/statehash/data/state_pins.txt; }
+    echo "env NOAUDIO=$NOAUDIO VBLANK=$VBLANK VIDEO_QUALITY=$VIDEO_QUALITY WDBG=$WDBG SCEN_PIN=$SCEN_PIN"; } | sha1sum | cut -c1-16; }
+if [ "$N" = --ctrl ]; then ctrl_build; r=$?; case $r in 2) echo "ctrl build failed ($B/build_ctrl.log)" >&2; exit 1;; 3) exit 1;; esac
+  echo "control: $B/ctrl.exe sources $(grep -o '"[^"]*\.[ch]": "[0-9a-f]*"' $B/ctrl.exe.build.json | tr -d '"' | tr '\n' ' ')" >&2; exit 0; fi
 # ---- SCEN_EXE mode: run the scenario on a standalone link (delink gate link/ours.exe) instead of the overlay build.
 #   SCEN_EXE=<ours.exe> SCEN_DELTA=<hex> [SCEN_RWDLL=<mflrw.dll to copy next to the exe, default: the link's own game/App_Executables/mflrw.dll>] scenario.sh <name>
 #   Script addresses: literals in 0x5dd000..0x9f9000 moved by DELTA (addrmove.py, like race_relinked.sh); harness symbols (scen_flags, fast_menu_scale, frames_total...) from <exe>.map minus DELTA
@@ -60,7 +75,10 @@ if [ -n "$SCEN_EXE" ]; then
   declare -f scenario_footer | grep -q count_table && scenario_footer() { echo "wait ${SCEN_END_WAIT:-1}"; echo "shot final"; }
   { scenario_header; scenario; scenario_footer; } 2>$W/gen.err | python3 $T/addrmove.py $SCEN_DELTA > $W/script_ours.txt
   grep -q "not in" $W/gen.err && { cat $W/gen.err; echo "RESULT: FAIL (harness symbols missing)"; exit 1; }
-  KEY=$( (cat $W/script_ctrl.txt; md5sum < $B/ctrl.exe; [ -n "$SCEN_PIN" ] && cat $T/scen_pin.sh ${SCEN_PIN_DLL:-$T/../d3dtrace/d3d9.dll}) | sha1sum | cut -c1-16 ); CC=$SC/_ctrlcache/$N-$KEY
+  # W12 hx2 (harness review finding 6): the control's cached result depends on everything that makes the control run, not only its script and exe:
+  # the driver scripts, the memory helpers, the game-dir preparer, the Wine image (named in scen_play.sh), the pins and the run env.  Key format v2:
+  # every store of the older format is ignored from now on (they stay on disk unused; the "-v2-" in the dir name is the explicit invalidation).
+  CC=$SC/_ctrlcache/$N-v2-$(ctrl_key $W/script_ctrl.txt)
   INST=$R/../MashedGame/FullyLoaded/installed
   # SCEN_PIN=1 (TS W11): both runs get the d3d9 proxy with V2's determinism pins (wine-run/scen_pin.sh: alock, sound cursor snap, srand, state pins)
   python3 $T/prepare.py $INST $W/run_ours $EXE $XMAP > /dev/null || exit 1
@@ -123,9 +141,17 @@ if gs:      # GameState dumps (options_all, pause_all): byte compare with the co
     nd = [x for x in r if x[1] != "0"]
     print("GameState dumps ctrl vs ours differing bytes: %d dumps, %d differ%s" % (len(r), len(nd), "".join("  %s=%s" % x for x in nd)))
     if nd: bad.append("GameState differs")
-if not bad and not cached:
-    os.makedirs(CC, exist_ok=True); shutil.rmtree(CC + "/out_ctrl", ignore_errors=True); shutil.copytree(W + "/out_ctrl", CC + "/out_ctrl"); shutil.copy(W + "/rc_ctrl", CC + "/rc_ctrl")
-print("RESULT: " + ("FAIL (%s)" % "; ".join(bad) if bad else "PASS")); sys.exit(1 if bad else 0)
+print("RESULT: " + ("FAIL (%s)" % "; ".join(bad) if bad else "PASS")); sys.stdout.flush()      # W12 hx2 (finding 7): the verdict first, the store cannot cost it
+if not bad and not cached and not os.environ.get("NOCACHE"):      # NOCACHE runs (scenset _a/_b pairs) never store
+    tmp = "%s.tmp.%d" % (CC, os.getpid())
+    try:
+        os.makedirs(tmp); shutil.copytree(W + "/out_ctrl", tmp + "/out_ctrl"); shutil.copy(W + "/rc_ctrl", tmp + "/rc_ctrl")
+        os.rename(tmp, CC)      # atomic; a store by a parallel run of the same key already there -> keep that one
+    except OSError as e:
+        print("control store skipped (%s)" % e.__class__.__name__)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+sys.exit(1 if bad else 0)
 PY
   exit ${PIPESTATUS[0]}
 fi

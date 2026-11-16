@@ -172,8 +172,13 @@ def main():
             extra += ["--no-patch"]
         # object cache: key = source + all headers + flags; only the changed files are compiled, in ONE cl call (a docker/wine start costs ~8 s)
         flags = ["/nologo", "/c", "/O2", "/Gy"]
+        fixd_ = os.environ.get("MFL_FIX_DEFINES", "").split()      # MFL_FIX_* switches of a flag-on build (src/mfl_fix.h), e.g. /DMFL_FIX_DETERMINISTIC_AUDIO_RNG=1: on the cl line AND in every object's cache key (flags), so a flag-on object is never reused by the default build
+        known_ = set(re.findall(r"^\s*#\s*define\s+(MFL_FIX_\w+)", open(os.path.join(RECOMP, "mfl_fix.h")).read(), re.M))      # ASM: a misspelt switch would build "off" silently
+        bad_ = [x for x in fixd_ if not re.match(r"^/DMFL_FIX_[A-Z0-9_]+=[01]$", x) or x[2:].split("=")[0] not in known_]
+        if bad_: sys.exit("MFL_FIX_DEFINES: only /DMFL_FIX_<NAME>=0|1 entries of a switch src/mfl_fix.h defines, got %s" % bad_)
+        flags += fixd_
         hdr = hashlib.sha1()
-        LOCAL_H = ("mfl_video.h", "mfl_audio.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h", "rw37_slim.h", "mfl_fix.h")      # (mfl_fix.h: W11 B5) included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
+        LOCAL_H = ("mfl_video.h", "mfl_audio.h", "rwa.h", "rwaint.h", "rwa2.h", "rwaint2.h", "rw37_slim.h", "mfl_fix.h", "mfl_audio_rng.h")      # (mfl_fix.h: W11 B5; mfl_audio_rng.h: W12 rep4, only random_range.c names it) included by few files: hashed into their keys below, not into every object's (a new header must not rebuild the 3,600 objects)
         for h in sorted(glob.glob(os.path.join(work, "*.h"))):
             if os.path.basename(h) in LOCAL_H: continue
             hdr.update(open(h, "rb").read())

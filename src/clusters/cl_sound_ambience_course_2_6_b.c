@@ -1,4 +1,6 @@
 // cluster-entries: sound_ambience_course_2_6_b
+#define MFL_AUDIO_RNG_SITES      /* sound code: under MFL_FIX_DETERMINISTIC_AUDIO_RNG its random draws use the audio stream (mfl_fix.h) */
+#include "mfl_fix.h"
 /* Installed cluster sound_ambience_course_2_6_b (tools/cluster_install.py from output/cluster_pilot_zy/sound_ambience_course_2_6_b.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*006ad210*/ extern VoiceSlot g_voices[];

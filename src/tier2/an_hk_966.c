@@ -9,14 +9,14 @@
 /*006a07bc*/ extern undefined4 g_course_dem_6a07bc;
 /*006a07c0*/ extern undefined4 g_course_dem_6a07c0;
 static void course_dem_advance_r(int reg_edx, int stk0);
-extern void func_0x00452ee0(void);
+extern void course_dem_update(void);
 /* adapter for the register convention callee 0x00452ee0: edx = amount added to g_course_dem_6a07ac, stack argument = param_1 of course_dem_cb1 */
 __declspec(naked) void course_dem_advance_r(int reg_edx, int stk0)
 {
     __asm {
         mov edx, dword ptr [esp + 4]
         push dword ptr [esp + 8]
-        call func_0x00452ee0
+        call course_dem_update
         add esp, 4
         ret
     }

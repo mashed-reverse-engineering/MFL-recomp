@@ -1,0 +1,8 @@
+# RwMatrix instances whose pad words (+0x1c pad1, +0x2c pad2, +0x3c pad3) the rwpad compare mode may mask. Never flags (+0x0c), never floats.
+# va count symbol | evidence (count = consecutive 0x40-byte RwMatrix records)
+008c5a64 1 g_camera_records_8c5a1c+0x48 | gc (V2 W11): RW matrix copy 0x4d42ec/0x4d43c3 rep movsd 64 B into ebx=0x8c5a64; pad3 = stack residue in ctrl
+008c598c 1 g_car_8c5990-0x4 | gc2 (V2 W11): same copy, ebx=0x8c598c; pad3 residue
+008b1008 2 player_car_0__matrices_0_ | symbols.txt: matrices_3/19 (flags) referenced, matrices_7/11/15/23/27/31 (pads) never; W4 diff at +0x1c of cars 1-3
+008b1d0c 2 player_car_1__matrices_0_ | car stride 0xd04 (W4 diff 8b1d28 / 8b2a2c / 8b3730)
+008b2a10 2 player_car_2__matrices_0_ | car stride 0xd04
+008b3714 2 player_car_3__matrices_0_ | car stride 0xd04

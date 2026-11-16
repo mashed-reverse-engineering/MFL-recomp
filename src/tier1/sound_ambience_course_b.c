@@ -1,3 +1,5 @@
+#define MFL_AUDIO_RNG_SITES      /* sound code: under MFL_FIX_DETERMINISTIC_AUDIO_RNG its random draws use the audio stream (mfl_fix.h) */
+#include "mfl_fix.h"
 #include "mfl_tier2.h"
 /*006ad210*/ extern VoiceSlot g_voices[];
 /*008bd7b0*/ extern char *g_sound_groups;

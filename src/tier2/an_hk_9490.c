@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /* tree placement: the radius is a float argument (an implicit declaration would promote it to double) */
-extern void __cdecl func_0x0048db30(void *pos, int count, void *list, float radius);
+extern void __cdecl course_helper_48db30(void *pos, int count, void *list, float radius);
 extern char UNK_0045d5b0[];
 extern char UNK_005df51c[];
 /*0045c6b0*/ extern int course_atomics_clone_3();
@@ -63,17 +63,17 @@ void course_warzone_cb0(struct CourseWorld *course)
        object_frames_create_with_matrices(handle,course->mts_matrix_counts[6],COURSE_MTS_LIST(course, 6));
   src = (undefined4 *)&g_course_warzone_8bf060;
   do {
-    handle = func_0x0045d750(course->clumps[17],0x10);
+    handle = course_warzone_cb0_sub_45d750(course->clumps[17],0x10);
     *src = handle;
     src = src + 1;
   } while ((LONG_PTR)src < (LONG_PTR)&g_course_warzone_8bf060 + 0x20);
-  g_course_warzone_8bf044 = func_0x0045d6b0(course->mts_matrix_counts[4],COURSE_MTS_LIST(course, 4));
-  func_0x0045dc10(course);
+  g_course_warzone_8bf044 = course_warzone_cb0_sub_45d6b0(course->mts_matrix_counts[4],COURSE_MTS_LIST(course, 4));
+  course_warzone_cb0_sub_45dc10(course);
   v.pos_x = ((RwMatrix *)course->mts_matrices)->pos.x;
   v.pos_z = ((RwMatrix *)course->mts_matrices)->pos.z;
   v.pos_y = ((RwMatrix *)course->mts_matrices)->pos.y + k_f_0_75;
   tree_tex = RwTexDictionaryFindNamedTexture(COURSE_TEXDICT(course),"OakTreeSprite");
-  func_0x0048d900(tree_tex);
+  course_helper_48d900(tree_tex);
   i = 0;
   if (0 < COURSE_FX_SOURCE_COUNT(course, 1)) {
     tree_rec = (RwV3d *)(COURSE_MTS_LIST(course, 2) + 0x20);
@@ -82,7 +82,7 @@ void course_warzone_cb0(struct CourseWorld *course)
       v.pos_y = tree_rec[1].z;
       v.pos_z = tree_rec[2].x;
       tree_radius = RwV3dLength(tree_rec);
-      func_0x0048db30(&v,course->mts_matrix_counts[1],COURSE_MTS_LIST(course, 1),tree_radius);
+      course_helper_48db30(&v,course->mts_matrix_counts[1],COURSE_MTS_LIST(course, 1),tree_radius);
       g_course_warzone_8bf040 = g_course_warzone_8bf040 + 1;
       i = i + 1;
       tree_rec = (RwV3d *)&tree_rec[5].y;
@@ -96,7 +96,7 @@ void course_warzone_cb0(struct CourseWorld *course)
       v.pos_y = tree_rec[1].z;
       v.pos_z = tree_rec[2].x;
       tree_radius = RwV3dLength(tree_rec);
-      func_0x0048db30(&v,course->mts_matrix_counts[1],COURSE_MTS_LIST(course, 1),tree_radius);
+      course_helper_48db30(&v,course->mts_matrix_counts[1],COURSE_MTS_LIST(course, 1),tree_radius);
       g_course_warzone_8bf040 = g_course_warzone_8bf040 + 1;
       i = i + 1;
       tree_rec = (RwV3d *)&tree_rec[5].y;
@@ -105,7 +105,7 @@ void course_warzone_cb0(struct CourseWorld *course)
   FID_conflict__wprintf("Created %d trees\n",g_course_warzone_8bf040);
   g_course_60d9c8 = rwp_object_find_index_by_id(1000);
   g_course_60d9cc = rwp_object_find_index_by_id(2000);
-  func_0x0045ca50(&g_course_6a2888,course->clumps[1],
+  course_warzone_cb0_sub_45ca50(&g_course_6a2888,course->clumps[1],
                   *(undefined4 *)((char *)course + 0xc9b0));
   anim_set_callback(&g_course_6a2888,&UNK_0045d5b0);
   src = (undefined4 *)rwp_object_get_matrix(g_course_60d9c8);
@@ -125,7 +125,7 @@ void course_warzone_cb0(struct CourseWorld *course)
   }
   rwp_object_set_active(g_course_60d9c8,0);
   rwp_object_set_active(g_course_60d9cc,0);
-  g_course_warzone_6a27a0 = func_0x004849e0(&UNK_005df51c,course->texture_dictionary);
+  g_course_warzone_6a27a0 = course_helper_4849e0(&UNK_005df51c,course->texture_dictionary);
   return;
 }
 

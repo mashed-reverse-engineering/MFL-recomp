@@ -1,3 +1,5 @@
+#define MFL_AUDIO_RNG_SITES      /* sound code: under MFL_FIX_DETERMINISTIC_AUDIO_RNG its random draws use the audio stream (mfl_fix.h) */
+#include "mfl_fix.h"
 #include "mfl_tier2.h"
 extern struct VoiceSlot g_voices[210];
 /*0040fdc0*/ extern int race_get_phase();
@@ -163,7 +165,11 @@ set_engine_freq_base_high:
     wave_level = (double)random_range(0,FREQ_JITTER_NARROW);
     phase_value = *(float *)((char *)&g_sound_car_629248 + ((int *)&g_sound_car_6ae15c)[car_index] * 4);
     *(undefined4 *)((char *)((undefined *)&g_sound_8d9960) + car_index * 4) = 0;
-    *engine_freq = (float)((double)frame.car_speed * (double)phase_value + wave_level + (double)k_f_1000);
+    {
+      /* the original adds (speed * phase + jitter) first, then 1000; a float temporary keeps cl from reassociating to (speed * phase + 1000) + jitter */
+      float freq_jittered = (float)((double)frame.car_speed * (double)phase_value + wave_level);
+      *engine_freq = (float)((double)freq_jittered + (double)k_f_1000);
+    }
     break;
   case 1:
     /* spelled !(a > b): with `a <= b` the compiler emits the other NaN form */

@@ -4,7 +4,7 @@
 /*0049da30*/ extern undefined __cdecl fx_floating_text_spawn(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*0049dba0*/ extern int fx_floating_text_update();
 /*004b2b48*/ extern int _ftol();
-/*004c40c0*/ extern char *FUN_004c40c0(undefined4 p0);
+/*004c40c0*/ extern char *atomic_first_material(undefined4 p0);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*00555220*/ extern void * __cdecl RpMorphAtomicSetTime(void * p0, RwReal p1);
 /*005dd330*/ extern float float_1_0;
@@ -108,7 +108,7 @@ void fx_pickup_sparkle_update(void)
         *morph_time = scratch_f + *morph_time;
         fade_alpha = ((int)(rec[-4] * SPARKLE_ALPHA_SCALE));
         draw.colour = CONCAT13(-1 - fade_alpha,(undefined3)draw.colour);
-        atomic_material = FUN_004c40c0(*(int *)&morph_time[-0x14]);
+        atomic_material = atomic_first_material(*(int *)&morph_time[-0x14]);
         morph_time = morph_time + 1;
         atomics_left = atomics_left + -1;
         *(undefined4 *)(atomic_material + 4) = draw.colour;

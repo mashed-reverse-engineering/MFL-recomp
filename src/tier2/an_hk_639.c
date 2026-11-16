@@ -3,7 +3,7 @@
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
 /*004c3b70*/ extern int stream_read_file();
 /*004c3d80*/ extern int texdict_load_file(char * p0, int p1, int p2);
-/*004c3e40*/ extern int FUN_004c3e40(void *p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004c3e40*/ extern int clump_read_from_memory(void *p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004c6730*/ extern int piz_find_entry_size_004c6a70();
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
@@ -46,12 +46,12 @@ void powerups_init(void)
   result = piz_find_entry_size_004c6a70("IconCube.dff");
   stream_read_file("IconCube.dff",read_buffer,result);
   /* walk the 25 slots backwards, 0x50 bytes (struct Powerup) per pass:
-     the clump from FUN_004c3e40 goes to slot offset 0, and 1.0f / 0 / 1.0f / 0
+     the clump from clump_read_from_memory goes to slot offset 0, and 1.0f / 0 / 1.0f / 0
      go to slot offsets 8..20, which the dossier lists as unnamed padding (inferred) */
   cursor = (undefined4 *)&g_powerups_init_6a9398;
   do {
     next_cursor = cursor + -0x14;
-    result = FUN_004c3e40(read_buffer,READ_BUFFER_SIZE,0,0);
+    result = clump_read_from_memory(read_buffer,READ_BUFFER_SIZE,0,0);
     cursor[-0x16] = result;
     *next_cursor = FLOAT_ONE_BITS;
     cursor[-0x13] = 0;

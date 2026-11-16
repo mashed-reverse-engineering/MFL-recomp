@@ -7,15 +7,19 @@ my $scale = 1; my $ls = 0;
 sub lscale { return if time - $ls < 2; $ls = time; if (open(my $l, "</proc/loadavg")) { my ($a) = split ' ', <$l>; close $l; $scale = $a / 4; $scale = 1 if $scale < 1; my $cap = $ENV{LOADCAP} || 4; $scale = $cap if $scale > $cap; } }
 my $neg = ($val =~ s/^!//);     # '!V' waits until the value is NOT V
 sub ok { my $v = shift; my $want = ($val =~ /^0x/) ? hex($val) : $val; return $neg ? ($v != $want) : ($v == $want); }
-open(M, "</proc/$pid/mem") or die;
+open(M, "</proc/$pid/mem") or do { open(O, ">>$ENV{OUT}/waitmem.txt"); printf O "waitmem %s==%s process gone (no /proc/%s/mem)\n", $ad, $val, $pid; exit 2; };
 my $t0 = time; my $v; my $lastp = 0; my ($pv, $tc) = (undef, time);
 while (1) {
     lscale();
-    sysseek(M, hex($ad), 0); sysread(M, my $b, 4); $v = unpack("V", $b);
+    sysseek(M, hex($ad), 0); my $n = sysread(M, my $b, 4);
+    if (!defined $n || $n != 4) {                   # W12 (harness review): the process is gone; undef == 0 was true, so `waitmem ADDR 0` passed on a dead game
+        open(O, ">>$ENV{OUT}/waitmem.txt"); printf O "waitmem %s==%s process gone after %.2fs\n", $ad, $val, time - $t0; exit 2;
+    }
+    $v = unpack("V", $b);
     last if ok($v) || time - $t0 >= $to * $scale;
     last if -e "$ENV{OUT}/crashed";                 # the game crashed (play_inner.sh watches wine.log): do not wait for the timeout
     my $pvv = $v;
-    if ($pad) { sysseek(M, hex($pad), 0); sysread(M, my $pb, 4); $pvv = unpack("V", $pb); }
+    if ($pad) { sysseek(M, hex($pad), 0); my $pn = sysread(M, my $pb, 4); $pvv = (defined $pn && $pn == 4) ? unpack("V", $pb) : $pv; }
     if (!defined $pv || $pvv != $pv) { $pv = $pvv; $tc = time; }
     last if $stall && time - $tc >= $stall * $scale;
     if ($to >= 1 && time - $lastp >= 0.4) {       # live progress for live.sh / LIVE.md: "<unix time> <addr> <wanted> <current value> <timeout> <waited>"

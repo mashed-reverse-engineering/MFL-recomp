@@ -13,7 +13,7 @@ typedef int CourseId;
 /*004682c0*/ extern int __cdecl rocket_surface_hit_test(float *hit, float *position);
 /*004866d0*/ extern int fx_emitter_spawn_b_default(float *position, void *style, undefined4 size, float speed);
 /*004c45e0*/ extern float rp_random_float_range(undefined4 p0, undefined4 p1);
-/*004c4c70*/ extern int FUN_004c4c70(undefined4 rw_object, float *position, float *hit);
+/*004c4c70*/ extern int world_sphere_first_hit(undefined4 rw_object, float *position, float *hit);
 /*0060dc3c*/ extern void *weapon_descriptor_update_callbacks;
 /*0060dc5c*/ extern undefined g_weapons_update_60dc5c;
 /*0060de60*/ extern undefined4 weapon_descriptor_count;
@@ -108,7 +108,7 @@ void weapons_update_frame(void)
           *(undefined4 *)(slot + SLOT_AIM) = *(undefined4 *)(slot + SLOT_POSITION);
           *(undefined4 *)(slot + SLOT_AIM + 4) = *(undefined4 *)(slot + SLOT_POSITION + 4);
           *(undefined4 *)(slot + SLOT_AIM + 8) = *(undefined4 *)(slot + SLOT_POSITION + 8);
-          hit = FUN_004c4c70(weapon_get_rw_801b14(),(float *)(slot + SLOT_AIM),hit_record);
+          hit = world_sphere_first_hit(weapon_get_rw_801b14(),(float *)(slot + SLOT_AIM),hit_record);
           if ((hit != 0) && (rocket_surface_hit_test(hit_record,(float *)(slot + SLOT_AIM)) == 0)) {
             player_unequip_weapon_r((int)slot);
             fx_emitter_spawn_b_default((float *)(slot + SLOT_AIM),&g_car_62ac74,0x43b40000,

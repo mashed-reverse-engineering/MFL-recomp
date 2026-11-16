@@ -43,6 +43,8 @@ def summary(out, run=None):
     if s["row"] is not None and s["row"] < 15 and os.path.exists(g):
         d = open(g, "rb").read(); o = 4 * (s["row"] * 18 + 17)
         if len(d) >= o + 4: s["done"] = struct.unpack_from("<I", d, o)[0] == 2
+    m = os.path.join(out, "missed.txt")      # W12 hx5a: training_tt's trainloop hit its safety cap (or the game went away) before the done word
+    s["miss"] = [l.strip() for l in open(m, errors="replace") if l.startswith("MISS trainloop")] if os.path.exists(m) else []
     if run: s["trap"] = bool(glob.glob(os.path.join(run, "run_%s" % os.path.basename(out)[4:], "App_Executables", "mfl_trap.log")))
     return s
 
@@ -58,7 +60,7 @@ def crashed(run):
 def judge(ctrls, ours, noise):
     """ctrls / ours: summaries; noise: set of GameState byte offsets that differ between controls (None = unknown). -> (verdict, reasons)"""
     c0 = ctrls[0]
-    if not c0["done"]: return "UNJUDGED", ["control did not complete the lesson"]
+    if not c0["done"]: return "UNJUDGED", ["control did not complete the lesson"] + ["control: " + x for x in c0.get("miss", [])]
     bad = []
     for c in ctrls[1:]:
         if (c["done"], c["path"]) != (c0["done"], c0["path"]): bad.append("controls disagree (done / progression): no verdict on ours")
@@ -67,6 +69,7 @@ def judge(ctrls, ours, noise):
         tag = os.path.basename(os.path.dirname(o["dir"])) + "/" + os.path.basename(o["dir"])
         if o.get("crash"): bad.append("%s crashed" % tag)
         if o["done"] != c0["done"]: bad.append("%s lesson done %s, control %s" % (tag, o["done"], c0["done"]))
+        for x in o.get("miss", []): bad.append("%s %s (lesson not finished within the safety cap)" % (tag, x))
         if o["path"] != c0["path"]: bad.append("%s progression %s, control %s" % (tag, pfmt(o["path"]), pfmt(c0["path"])))
         if o["trap"]: bad.append("%s mfl_trap.log" % tag)
         d = o.get("gsdiff")
@@ -96,6 +99,7 @@ def main(runs):
     for o in ours: o["gsdiff"] = gsdiff(cg[0], os.path.join(o["dir"], "gs_end.bin"))
     for s in ctrls + ours:
         print("%-40s lesson %s row %s done %s retries %d trap %s\n    raw steps %s texts [%s]\n    progression %s" % (s["dir"][-40:], s["lesson"], s["row"], s["done"], s["retries"], s["trap"], s["steps"], fmt(s["texts"]), pfmt(s["path"])))
+        for x in s["miss"]: print("    " + x)
     print("GameState control noise: %d bytes (%d controls)" % (len(noise), len(ctrls)))
     v, why = judge(ctrls, ours, noise)
     for w in why: print("  " + w)
@@ -118,6 +122,10 @@ def selftest():
     assert judge([c], [dict(o, trap=True)], set())[0] == "FAIL"
     assert judge([dict(c, done=False)], [o], set())[0] == "UNJUDGED"
     assert judge([c, dict(c, path=po[:3])], [o], set())[0] == "UNJUDGED"
+    v, why = judge([c], [dict(o, done=False, miss=["MISS trainloop 0x7eecdc==2: safety timeout 600s"])], set())      # W12 hx5a: the cap is named
+    assert v == "FAIL" and any("safety cap" in w for w in why), why
+    v, why = judge([dict(c, done=False, miss=["MISS trainloop x: safety timeout 600s"])], [o], set())
+    assert v == "UNJUDGED" and any("safety timeout" in w for w in why), why
     print("selftest ok"); return 0
 
 if __name__ == "__main__":

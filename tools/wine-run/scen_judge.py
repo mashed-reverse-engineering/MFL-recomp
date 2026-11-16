@@ -40,6 +40,11 @@ def judge(A, B, shots="final", thr=30.0):
             ok, line = run_state(run, k)
             if not ok: (unj if k == "ctrl" else bad).append("%s %s" % (os.path.basename(run), line))
         if glob.glob(os.path.join(run, "run_ours", "App_Executables", "mfl_trap.log")): bad.append("%s mfl_trap.log" % os.path.basename(run))
+    for run in (A, B):      # W12 hx3: a REQUIRED end event (scenset.sh `pressuntil ... end`) that timed out: ours -> FAIL, control -> UNJUDGED
+        for k in ("ctrl", "ours"):
+            m = os.path.join(run, "out_" + k, "missed.txt")
+            for l in (open(m, errors="replace").read().splitlines() if os.path.exists(m) else []):
+                if l.startswith("MISS end"): (unj if k == "ctrl" else bad).append("%s %s missed its end event: %s" % (os.path.basename(run), k, l[9:]))
     ca, cb = os.path.join(A, "out_ctrl"), os.path.join(B, "out_ctrl")
     for run in (A, B):      # scenset.sh dumps gs_end at its end event: a side without it never got there (a pass on no evidence otherwise)
         for k in ("ctrl", "ours"):
@@ -108,6 +113,12 @@ def selftest():
     for r in (j, k):
         for s in ("ctrl", "ours"): os.remove(os.path.join(r, "out_" + s, "gs_end.bin"))
     assert judge(j, k)[0] != "PASS"                                      # no dumps anywhere: never a PASS
+    l = mk(t, "l"); open(os.path.join(l, "out_ours", "missed.txt"), "w").write("MISS end pressuntil Return 0x69c9c8==6 after 150s (load-scaled)\n")
+    assert judge(a, l)[0] == "FAIL"                                      # W12 hx3: ours missed the required end event (gs_end still dumped)
+    m = mk(t, "m"); open(os.path.join(m, "out_ctrl", "missed.txt"), "w").write("MISS end pressuntil Return 0x652f68==10 after 150s (load-scaled)\n")
+    assert judge(a, m)[0] == "UNJUDGED"                                  # the control missed it: no verdict
+    n = mk(t, "n"); open(os.path.join(n, "out_ours", "missed.txt"), "w").write("MISS other pressuntil x\n")
+    assert judge(a, n)[0] == "PASS"                                      # only the `end` tag is required
     shutil.rmtree(t); print("selftest ok"); return 0
 
 if __name__ == "__main__":

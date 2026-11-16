@@ -3,9 +3,9 @@
   dshow_drop.py closure [exe]   writes dshow_dead.txt (`va size name`): the functions of the movie code pool that nothing outside the pool references
                                 (call / jmp rel32, push / mov imm32 in code).  Data pointers (vtables, EH tables, the 12 XCU entries) do not count: globgen zeroes them.
   dshow_drop.py pool <work>     S3: writes rw_dead.txt = dead RenderWare/D3DX library pool code (reachability from the live code, see pool()); `explain <work> <fn>...` prints why a function is live.
-                                Applied with DROP_RW=1 (mkobj fills, globgen zeroes pointers, default off).  <work> = a link_ours.sh dir with LIB_RW etc. set like the link that will use the list; DROP_DSHOW=1 in the env.
+                                Applied with DROP_RW=1 (mkobj fills, globgen zeroes pointers, default off).  <work> = a link_ours.sh dir with LIB_RW etc. set like the link that will use the list.
   dshow_drop.py filter <work>   drops the objects of <work>/objs_local.txt that define a dead function (their C replaces dead code); prints them.
-mkobj.py (DROP_DSHOW=1) fills the dead functions with int3 (like dead_tables.txt), globgen.py (DROP_DSHOW=1) writes 0 for pointer words into them, link_ours.sh wires it up.
+mkobj.py fills the dead functions with int3 (like dead_tables.txt), globgen.py (env DROP_DSHOW, exported by link_ours.sh) writes 0 for pointer words into them, link_ours.sh wires it up (every link, no off switch).
 The pool: the RwaDS renderer class and its adjustor thunks (0x4a30b0-0x4a3420, 0x4a3780-0x4a37f0, 0x4a3910, 0x4a3d80), the movie filters 0x4ac4f0-0x4b2a60 (crt starts there), EH funclets / XCU
 initialisers 0x5db530-0x5dbb20.  The movie functions the game still has (movie_renderer_create/poll/release/stop, sound_volume_to_directsound_db, video_play_loop) call mfl_video instead (src/video)."""
 import bisect, collections, csv, os, re, struct, subprocess, sys, tempfile
@@ -106,9 +106,8 @@ def pool(W, out=RWDEAD):
     for r in csv.DictReader(open(os.path.join(W, "mfl.obj.dropapp.csv"))):
         if r["status"] == "dropped": gone.add(int(r["va"], 16))
         if r["status"] in ("dropped", "partial"): FILL.append((int(r["va"], 16), int(r["va"], 16) + int(r["size"])))
-    if os.environ.get("DROP_DSHOW"):
-        gone |= set(dead_set())
-        FILL += [(int(l.split()[0], 16), int(l.split()[0], 16) + int(l.split()[1])) for l in open(DEAD) if l.strip() and not l.startswith("#")]
+    gone |= set(dead_set())
+    FILL += [(int(l.split()[0], 16), int(l.split()[0], 16) + int(l.split()[1])) for l in open(DEAD) if l.strip() and not l.startswith("#")]
     import glob      # source-built libs (LIB_LUA/QHULL/ZLIB=src) and split CRT members: their original bytes are filled (origbytes.py does the same)
     fr = []
     for f_ in glob.glob(os.path.join(W, "lib", "*", "items.csv")):

@@ -149,24 +149,24 @@ find_run_end:
                 t_cu = walk.t * t_sq;
                 /* point[0..2] is colour, point[4..5] size, point[0x10..0x11] the next point's size
                    (dword indices); the size lerps from this point to the next by t */
-                emit.pos_x = (*ctrl_cur + *ctrl_cur +
-                           (*ctrl_next - *ctrl_prev) * walk.t +
-                           (((*ctrl_cur * k_f_3 - *ctrl_prev) - *ctrl_next * k_f_3) + *ctrl_next2) * t_cu +
-                           ((*ctrl_next * k_f_4 + ((*ctrl_prev + *ctrl_prev) - *ctrl_cur * float_5_0)) -
-                           *ctrl_next2) * t_sq) * k_f_0_5;
-                emit.pos_y = (ctrl_cur[1] + ctrl_cur[1] +
-                           (ctrl_next[1] - ctrl_prev[1]) * walk.t +
-                           (((ctrl_cur[1] * k_f_3 - ctrl_prev[1]) - ctrl_next[1] * k_f_3) + ctrl_next2[1]) *
-                           t_cu + ((ctrl_next[1] * k_f_4 +
-                                    ((ctrl_prev[1] + ctrl_prev[1]) - ctrl_cur[1] * float_5_0)) -
-                                   ctrl_next2[1]) * t_sq) * k_f_0_5;
+                /* the original adds the terms in this order: (t^2 term + t^3 term) + t term, then 2 * cur
+                   (x87 at 24-bit precision rounds every step, so the order changes the last bit) */
+                emit.pos_x = ((((*ctrl_next * k_f_4 + ((*ctrl_prev + *ctrl_prev) - *ctrl_cur * float_5_0)) -
+                             *ctrl_next2) * t_sq +
+                            (((*ctrl_cur * k_f_3 - *ctrl_prev) - *ctrl_next * k_f_3) + *ctrl_next2) * t_cu +
+                            (*ctrl_next - *ctrl_prev) * walk.t) +
+                           (*ctrl_cur + *ctrl_cur)) * k_f_0_5;
+                emit.pos_y = ((((ctrl_next[1] * k_f_4 + ((ctrl_prev[1] + ctrl_prev[1]) - ctrl_cur[1] * float_5_0)) -
+                             ctrl_next2[1]) * t_sq +
+                            (((ctrl_cur[1] * k_f_3 - ctrl_prev[1]) - ctrl_next[1] * k_f_3) + ctrl_next2[1]) * t_cu +
+                            (ctrl_next[1] - ctrl_prev[1]) * walk.t) +
+                           (ctrl_cur[1] + ctrl_cur[1])) * k_f_0_5;
                 point = (undefined4 *)(point_off + *ribbon);
-                emit.pos_z = (ctrl_cur[2] + ctrl_cur[2] +
-                          (ctrl_next[2] - ctrl_prev[2]) * walk.t +
-                          (((ctrl_cur[2] * k_f_3 - ctrl_prev[2]) - ctrl_next[2] * k_f_3) + ctrl_next2[2]) *
-                          t_cu + ((ctrl_next[2] * k_f_4 +
-                                   ((ctrl_prev[2] + ctrl_prev[2]) - ctrl_cur[2] * float_5_0)) -
-                                  ctrl_next2[2]) * t_sq) * k_f_0_5;
+                emit.pos_z = ((((ctrl_next[2] * k_f_4 + ((ctrl_prev[2] + ctrl_prev[2]) - ctrl_cur[2] * float_5_0)) -
+                             ctrl_next2[2]) * t_sq +
+                            (((ctrl_cur[2] * k_f_3 - ctrl_prev[2]) - ctrl_next[2] * k_f_3) + ctrl_next2[2]) * t_cu +
+                            (ctrl_next[2] - ctrl_prev[2]) * walk.t) +
+                           (ctrl_cur[2] + ctrl_cur[2])) * k_f_0_5;
                 emit.color = *point;
                 emit.size_x = *(float *)&point[4] - (*(float *)&point[4] - *(float *)&point[0x10]) * walk.t;
                 emit.size_y = *(float *)&point[5] - (*(float *)&point[5] - *(float *)&point[0x11]) * walk.t;

@@ -1,0 +1,16 @@
+# pins_never.txt: words mkpinfile.sh never pins (excluded from pinall.py), <va-lo>-<va-hi> | reason.  A pin writes the reference run's value into a
+# live process: a window handle from another run would be a wrong handle in this one, so handle copies stay unpinned (they differ per process, harmlessly).
+770f68-770f6c | g_app_770f68: HWND copy (value 0x2004e in c7np_1; differs per process)
+7d2234-7d2238 | WindowHandle: HWND
+7e7704-7e7708 | g_app_7e7704: HWND copy
+7e7720-7e7724 | g_pump_windows_7e7720: HWND copy
+94775c-947760 | g_data_94775c: HWND copy
+7ef814-7ef81c | g_app_frame_7ef814 / g_last_frame_ticks: clock values (tick counts 0x163xxxxx); the course-0 load list excludes clock words too
+8d8c80-8d8c84 | g_player_8d8c80: player 0 start time (clock base, set in the menus); never auto-pinned; course 7 pins it as a reviewed hand row (state_pins_c7_head.txt)
+8d8f94-8d8f98 | g_race_start_8d8f8c+0x8: tick count (clock)
+8d92a0-8d92a4 | g_race_start_8d8f8c+0x314: tick count (clock)
+8d95ac-8d95b0 | g_race_start_8d8f8c+0x620: tick count (clock)
+76e824-76e830 | g_app_state_76e824..2c: timer values near 0x1e4c0 (clock)
+76e838-76e83c | g_app_state_76e838: timer value (clock)
+7dab90-7dab98 | g_data_7dab90 / 7dab94: timer values (clock)
+8c5900-8c8000 | camera record region: pinned by its own block at countdown start (phase 5), never at loading start

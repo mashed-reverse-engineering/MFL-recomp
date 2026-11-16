@@ -91,7 +91,7 @@ def main(argv):
     bl = ROOT + "/output/portsyntax_baseline.txt"
     base = ""
     if os.path.exists(bl):
-        m = re.search(r"ok (\d+) total (\d+)", open(bl).read())
+        m = re.search(r"^ok (\d+) total (\d+)", open(bl).read(), re.M)      # W12: the data line only (the comment's W10 figure was read before)
         if m:
             base = "  baseline ok %s of %s (%+d)" % (m.group(1), m.group(2), ok_n - int(m.group(1)))
     nonasm = sum(1 for x in res if not x[2] and not x[3])

@@ -6,8 +6,8 @@
 /*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056cb10*/ extern void FUN_0056cb10(undefined4 p0, undefined4 p1);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
-/*0058c990*/ extern char *FUN_0058c990(void *p0);
+/*0058c8b0*/ extern void rwp_atomic_set_object(undefined4 p0, void *p1);
+/*0058c990*/ extern char *rwp_object_create(void *p0);
 /*0058cb90*/ extern void * rwp_body_create(void);
 /*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
@@ -62,14 +62,14 @@ void rwp_objects_create_sphere_group(int count,char *param_2,undefined4 rw_list,
      store its shatter velocity squared */
   if (0 < count) {
     do {
-      body = FUN_0058c990(group);
+      body = rwp_object_create(group);
       slot = g_rw_6fa7d0;
       (&g_rw_6fa4b0)[g_rw_6fa7d0] = g_rwp_objects[object_index].base_label + body_index;
       (&g_rw_6fd0f8)[slot] = object_index;
       (&g_rw_6fa858)[slot] = 1;
       handle = object_atomic_create((&g_rw_6fa7d8)[g_rw_701c94],body_index);
       (&g_rw_6fab78)[g_rw_6fa7d0] = handle;
-      FUN_0058c8b0(handle,body);
+      rwp_atomic_set_object(handle,body);
       /* clear the flag bits outside BODY_FLAGS_KEEP_MASK (inferred) */
       *(uint *)(body + 8) = *(uint *)(body + 8) & BODY_FLAGS_KEEP_MASK;
       handle = rw_first_field(rw_list);

@@ -2,7 +2,7 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; none of its machine code is taken from the original executable any more (0 of 1,945 KB, measured 2026-11-15 on the standalone and the release build): it comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. The build contains no original resources either: the dialogs, texts and pictures are read at runtime from your own copy of `MFL.exe` (measured 2026-11-15: 0 B of resources in the exe). Not covered by these statements: library tables copied from the original (87,212 B of initialised data, plus 1,408 B of padding between data rows; measured 2026-11-16) are still copied bytes; the library variables (.bss) are already named C definitions, and the tables are planned to become typed C too. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
+**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; none of its machine code is taken from the original executable any more (0 of 1,945 KB, measured 2026-11-15 on the standalone and the release build): it comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. The build contains no original resources either: the dialogs, texts and pictures are read at runtime from your own copy of `MFL.exe` (measured 2026-11-15: 0 B of resources in the exe). Not covered by these statements: library tables copied from the original (79,872 B of initialised data, plus 1,408 B of padding between data rows; measured 2026-11-16) are still copied bytes; the library variables (.bss) are already named C definitions, and the tables are planned to become typed C too. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
 
 ## What this project is
 
@@ -26,7 +26,7 @@ To run a build, put a copy of your original `MFL.exe` next to the game exe as `M
 | Rewrite the RenderWare physics plugin (rwp) as verified C | **done**; no original code left |
 | Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | **done** for code: no original RenderWare or D3DX code is left (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit, particle tank, vertex shader cache, vertex shader generator and render callback groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); the last nine functions (vector math helpers, pipeline building, a dictionary destructor) are C since 2026-11-15 |
 | Replace the streaming audio library, add a real video backend | audio done for code (from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
-| Zero original code | **done** 2026-11-15 (code; resources are read at runtime from your `MFL.exe`; library tables are still copied: 88,620 B on 2026-11-16, down from 134,233 B) |
+| Zero original code | **done** 2026-11-15 (code; resources are read at runtime from your `MFL.exe`; library tables are still copied: 81,280 B on 2026-11-16, down from 134,233 B) |
 | Readability and bug fixing, then the Switch/ARM port | next |
 
 ## How each part is produced
@@ -58,7 +58,7 @@ Original machine code still linked into the standalone build (the number we driv
 | Game code | 0 KB | done |
 | **Total** | **0 KB** | of about 1,945 KB |
 
-Still copied from the original executable, and not part of the zero above: library tables (87,212 B of initialised data on 2026-11-16: D3DX 64 KB, C runtime 10 KB, RenderWare 4.3 KB, audio 4.2 KB, physics 3.1 KB, the rest qhull and Lua; plus 1,408 B of padding between data rows); they are planned to become typed C. Since 2026-11-16 the library variables (.bss, 41.5 KB) are named zero definitions in C, and the Lua tables are gone (the Lua built from source brings its own), which took the copied data from 134,233 B to 88,620 B. The resources (710,568 B) are no longer in the exe: they are read at runtime from your own `MFL.exe`.
+Still copied from the original executable, and not part of the zero above: library tables (79,872 B of initialised data on 2026-11-16: D3DX 64 KB, RenderWare 4.3 KB, audio 4.2 KB, physics 3.1 KB, C runtime 3.0 KB, the rest qhull and Lua; plus 1,408 B of padding between data rows); they are planned to become typed C. Since 2026-11-16 the library variables (.bss, 41.5 KB) are named zero definitions in C, the Lua tables are gone (the Lua built from source brings its own), and the C runtime's data-only members (math tables, time zone and day tables) are linked from libcmt instead of copied, which took the copied data from 134,233 B to 81,280 B. The resources (710,568 B) are no longer in the exe: they are read at runtime from your own `MFL.exe`.
 
 How the total moved (code only; data is tracked separately):
 
@@ -99,9 +99,9 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | | Functions | |
 |---|---:|:---|
 | Named | 2,696 | `███████████████████░` 96% |
-| Replaced by C | 2,735 | `████████████████████` 98% |
+| Replaced by C | 2,664 | `███████████████████░` 95% |
 | of these byte identical to the original compiler output | 1,387 | `██████████░░░░░░░░░░` 50% |
-| of these behaviour verified (differential test, not byte identical) | 1,184 | `████████░░░░░░░░░░░░` 42% |
+| of these behaviour verified (differential test, not byte identical) | 1,113 | `████████░░░░░░░░░░░░` 40% |
 | of these only weakly verified | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 
 <details><summary>Function level detail, tiers and how the numbers are counted</summary>
@@ -111,24 +111,24 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | Stage | Functions | Progress |
 |---|---:|:---|
 | Named | 2,696 | `███████████████████░` 96% |
-| Replaced by recompiled C (all tiers, each function once) | 2,735 | `████████████████████` 98% |
+| Replaced by recompiled C (all tiers, each function once) | 2,664 | `███████████████████░` 95% |
 | ...verified byte identical | 1,387 | `██████████░░░░░░░░░░` 50% |
 | ...share of the code bytes that is byte identical | 93,054 B | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,184 | `████████░░░░░░░░░░░░` 42% |
+| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,113 | `████████░░░░░░░░░░░░` 40% |
 | ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
-| ...share of the code bytes | 678,488 B | `████████████████████` 99% |
-| ...of these register-argument clusters | 677 | `█████░░░░░░░░░░░░░░░` 24% |
-| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,192 | `███████████████████████` 114% |
-| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,776 | `█████████████░░░░░░░` 64% |
-| ...tier 1, `src/tier1` (1935 files) | 1,428 | `██████████░░░░░░░░░░` 51% |
+| ...share of the code bytes | 670,469 B | `████████████████████` 98% |
+| ...of these register-argument clusters | 606 | `████░░░░░░░░░░░░░░░░` 22% |
+| **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,123 | `██████████████████████` 112% |
+| ...byte identical (tier 1, automatch, hand-written `MATCH`) | 1,778 | `█████████████░░░░░░░` 64% |
+| ...tier 1, `src/tier1` (1935 files) | 1,430 | `██████████░░░░░░░░░░` 51% |
 | ...automatch, `src/automatch` (5 files) | 5 | `░░░░░░░░░░░░░░░░░░░░` 0% |
 | ...hand-written, `src/*.c` (`manifest.txt`) | 381 | `███░░░░░░░░░░░░░░░░░` 14% |
 | ...tier 2, `src/tier2` (1492 files) | 720 | `█████░░░░░░░░░░░░░░░` 26% |
-| ...clusters, `src/clusters` (682 files) | 745 | `█████░░░░░░░░░░░░░░░` 27% |
+| ...clusters, `src/clusters` (611 files) | 674 | `█████░░░░░░░░░░░░░░░` 24% |
 | ...plus linked library code (VA >= 0x4B0000), not in the percentages | 1760 | |
 | ...functions present in two kinds (counted once above) | 87 | |
 
-**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (682 cluster files give 745 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
+**What the numbers mean.** A function is one VA below 0x4B0000; every row counts each function once, however many files or tiers mention it. A cluster file (`src/clusters/cl_*.c`) can hold several entry functions (`// cluster-entries:`), so *files* and *functions* differ (611 cluster files give 674 functions). *Byte identical* = ledger authority `bytes-reloc`: the original compiler turns the C into the original bytes (relocations checked). *Behaviour verified* = not byte identical, but a differential run against the original code in an emulator (diffemu) ended EQUAL with at least 20 cases and coverage of at least 0.8 on both sides, no unresolved DIFF; the evidence per function is `data/behaviour_evidence.csv` (source, cases, coverage, flags). Rows with the flags `STDIND` (only verified by a sweep whose stack-pop heuristic is known to misbehave) or `LADDER` (a weaker harness setting was needed) are still counted, see the flag counts in `progress/progress.json`. It is NOT a statement that the whole game is verified, and the share of *bytes* that is byte identical is far lower than the share of *functions*.
 
 **Layers.** All rows here are application code (VA < 0x4B0000). The library layers are in the table above; see [docs/RW_LIBRARY_LAYER.md](docs/RW_LIBRARY_LAYER.md), [docs/CRT_LAYER.md](docs/CRT_LAYER.md) and [docs/VIDEO_INTERFACE.md](docs/VIDEO_INTERFACE.md).
 
@@ -141,7 +141,7 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 |---|---:|---:|---:|
 | agent | 109 | 8,446 | 109 |
 | bridge | 4 | 1,643 | 0 |
-| cluster (not in ledger) | 589 | 334,378 | 0 |
+| cluster (not in ledger) | 518 | 326,359 | 0 |
 | hand | 381 | 14,744 | 344 |
 | tier1 | 934 | 71,946 | 934 |
 | tier2 | 718 | 247,331 | 0 |

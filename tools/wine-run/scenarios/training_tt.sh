@@ -7,9 +7,12 @@
 # Probe (out/probe.txt, every 0.25 s): 6 columns "t lesson step dialog text_id race_phase" and 3 columns "t menu_depth career_row".
 # End: dumps gs_end (GameState: lesson done = progress[row*18+17] == 2; scenario.sh compares gs_*.bin ctrl vs ours) and row (g_career_row).
 # Q1 (e0/e3, DRIVE 63): bit 32 ends the round at race frame ~40 (phase 7 standings) before any lesson step: useless. Default 287 needs bit 256.
+# W12 hx5a (G6a lesson 3: the fixed ~238 s loop ran out while ours retried 3 sub-steps): the lesson ends on the game event, its done word
+# progress[row*18+17] (GameState 0x7eebc0; unlock_all sets it to 1, the game sets 2 when the lesson is complete), via the inner command trainloop;
+# SCEN_SECS is only the safety cap (default 600 s); a run that hits it has a MISS line in out_*/missed.txt and tt_check says so.
 SCEN_DRIVE=${SCEN_DRIVE-287}
 scenario() {
-  local s=${SCEN_SECS:-120} i
+  local s=${SCEN_SECS:-600} i
   to_single; unlock_all
   echo "key Return"; echo "wait 2"
   echo "keywait Return $CUR 5 3"; echo "waitframes 0x$(mapva frames_total) 40"
@@ -20,6 +23,7 @@ scenario() {
   echo "key Return"; echo "wait 2"
   race_go 150; echo "shot race_start"
   # Return also on the round end screens (phase > 6, "Current Standings / Continue"): f0 (DRIVE 287) won its point at race second ~4 and waited there 180 s
-  for i in $(seq 1 $s); do echo "keyunless Return 0x69d2d8 0"; echo "keyabove Return $PHASE 6"; echo "wait 1"; [ $((i % 30)) = 0 ] && echo "shot t$i"; done
+  echo "trainloop 0x$(printf %x $((0x7eebc0 + 4 * (${SCEN_ROW:-0} * 18 + 17)))) 0x69d2d8 $PHASE $s"
+  echo "waitframes 0x$(mapva frames_total) 60"; echo "shot lesson_end"
   echo "dump row $ROW 4"; echo "dump gs_end 0x7eebc0 0xb64"
 }

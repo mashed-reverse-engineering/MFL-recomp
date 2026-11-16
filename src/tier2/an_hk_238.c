@@ -31,6 +31,7 @@ void camera_path_sample(char *path,int index,float t,float *out)
   int point_count;
   float t_clamped;
   float t_sq;
+  float t_cu;
 
   /* step back one point and wrap a negative index to the end of the ring (inferred) */
   index = index + -1;
@@ -65,18 +66,19 @@ void camera_path_sample(char *path,int index,float t,float *out)
   t_sq = t_clamped * t_clamped;
   after_pt_y = (float *)(path + PATH_POINT_Y_OFFSET + index * PATH_POINT_STRIDE);
   /* cubic blend of the four points, scaled by k_f_0_5 (0.5 inferred): x component (out[0]) */
-  *out = (*cur_pt + *cur_pt +
-             (*next_pt - *prev_pt) * t_clamped +
-             (((*cur_pt * k_f_3 - *prev_pt) - *next_pt * k_f_3) + *(float *)(path + index * PATH_POINT_STRIDE)) *
-             t_sq * t_clamped +
-             ((*next_pt * k_f_4 + ((*prev_pt + *prev_pt) - *cur_pt * float_5_0)) -
-             *(float *)(path + index * PATH_POINT_STRIDE)) * t_sq) * k_f_0_5;
+  /* the original adds in this order: (t^2 term + t^3 term) + t term, then 2 * cur, with t^3 = t^2 * t computed once; written as
+     `C * t_sq * t`, cl factored t_sq out ((A + C * t) * t_sq), which rounds differently at 24-bit precision */
+  t_cu = t_sq * t_clamped;
+  *out = ((((*next_pt * k_f_4 + ((*prev_pt + *prev_pt) - *cur_pt * float_5_0)) -
+             *(float *)(path + index * PATH_POINT_STRIDE)) * t_sq +
+            (((*cur_pt * k_f_3 - *prev_pt) - *next_pt * k_f_3) + *(float *)(path + index * PATH_POINT_STRIDE)) * t_cu +
+            (*next_pt - *prev_pt) * t_clamped) +
+           (*cur_pt + *cur_pt)) * k_f_0_5;
   /* same blend for the y component (out[1]) */
-  out[1] = (cur_pt[1] + cur_pt[1] +
-               (next_pt[1] - prev_pt[1]) * t_clamped +
-               (((cur_pt[1] * k_f_3 - prev_pt[1]) - next_pt[1] * k_f_3) + *after_pt_y) * t_sq * t_clamped +
-               ((next_pt[1] * k_f_4 + ((prev_pt[1] + prev_pt[1]) - cur_pt[1] * float_5_0)) - *after_pt_y)
-               * t_sq) * k_f_0_5;
+  out[1] = ((((next_pt[1] * k_f_4 + ((prev_pt[1] + prev_pt[1]) - cur_pt[1] * float_5_0)) - *after_pt_y) * t_sq +
+              (((cur_pt[1] * k_f_3 - prev_pt[1]) - next_pt[1] * k_f_3) + *after_pt_y) * t_cu +
+              (next_pt[1] - prev_pt[1]) * t_clamped) +
+             (cur_pt[1] + cur_pt[1])) * k_f_0_5;
   return;
 }
 

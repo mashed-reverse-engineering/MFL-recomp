@@ -1,4 +1,6 @@
 // cluster-entries: voice_queue_update
+#define MFL_AUDIO_RNG_SITES      /* sound code: under MFL_FIX_DETERMINISTIC_AUDIO_RNG its random draws use the audio stream (mfl_fix.h) */
+#include "mfl_fix.h"
 /* Installed cluster voice_queue_update (tools/cluster_install.py from output/cluster_pilot_uc3/voice_queue_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
 /*00468690*/ extern void voice_queue_assign_slot(int queue, int first);

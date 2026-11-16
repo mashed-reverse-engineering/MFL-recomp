@@ -4,7 +4,7 @@
 /*00486a60*/ extern int ptank_set_colour();
 /*00486b00*/ extern int ptank_set_blend_modes();
 /*00486f10*/ extern undefined __cdecl particle_system_setup_ptank(uint *p0, uint p1, uint p2, struct RwTexture *p3);
-/*004c3bf0*/ extern void * FUN_004c3bf0(void *p0, undefined4 p1, undefined4 p2);
+/*004c3bf0*/ extern void * clump_read_from_file(void *p0, undefined4 p1, undefined4 p2);
 /*004c3d80*/ extern int texdict_load_file(char * p0, int p1, int p2);
 /*004d4e70*/ extern RwMatrix * RwMatrixCreate();
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
@@ -80,7 +80,7 @@ void headlight_lazer_init(void)
     *(undefined4 *)(*lazer + 0x34) = 0;
     *(undefined4 *)(*lazer + 0x30) = 0;
     *(uint *)(*lazer + 0xc) = *(uint *)(*lazer + 0xc) | 0x20003;
-    clump = (RpClump *)FUN_004c3bf0("lazer.dff",0,0);
+    clump = (RpClump *)clump_read_from_file("lazer.dff",0,0);
     lazer_end[-0xf] = (int)clump;
     clump_set_flag_on_atomics(clump, 0x0);
     lazer_end[-0x24] = lazer_index;

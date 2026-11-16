@@ -3,7 +3,7 @@
 /*004682c0*/ extern int __cdecl rocket_surface_hit_test(void *p0, void *p1);
 /*00499100*/ extern int fx_spawn_from_matrix_2();
 /*004c4720*/ extern void vec3_lerp(void *p0, void *p1, void *p2, undefined4 p3);
-/*004c4c30*/ extern int FUN_004c4c30(undefined4 p0, void *p1, void *p2);
+/*004c4c30*/ extern int world_line_first_hit(undefined4 p0, void *p1, void *p2);
 /*004c51a0*/ extern void rwmatrix_from_three_points(void *p0, void *p1, void *p2);
 /*005dd628*/ extern float k_f_0_25;
 /*005ddafc*/ extern float k_f_0_05;
@@ -57,7 +57,7 @@ undefined4 explosion_decal(undefined4 *explosion_pos,undefined4 fx_param)
   hit_normal = &frame.hit_normal_x;
   probe_top = &frame.top_x;
   weapon_rw = weapon_get_rw_801b14();
-  hit = FUN_004c4c30(weapon_rw,probe_top,hit_normal);
+  hit = world_line_first_hit(weapon_rw,probe_top,hit_normal);
   if (hit != 0) {
     /* probe hit: decide whether to place a decal */
     hit = rocket_surface_hit_test(&frame.hit_normal_x,explosion_pos);

@@ -1390,7 +1390,7 @@ course_collision_objects_build,0048d6c0,tier2,compiled+diffemu-EQUAL+shadow-neve
 course_collision_objects_cull,0048d730,agent,bytes-standalone+8853051f40e8,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_collision_tables_clear,0048d680,agent,bytes-standalone+20c299d6875b,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_content_path_build,0042fa80,tier1,bytes,bytes-reloc,dd767ef91ae2,33bf93632a05,8fa44e7939e1,0,0.00,0,0
-course_dem_cb1,00453420,tier2,compiled+shadow-never,static,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
+course_dem_cb1,00453420,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
 course_dem_cb2,00452e10,tier1,bytes,bytes-reloc,76bba4a070d8,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_dem_state_reset,00452ea0,hand,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_destroy_extra_clumps,0042a110,hand,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
@@ -1469,7 +1469,7 @@ course_helper_49c880,0049c880,tier1,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e
 course_helper_4a5d50,004a5d50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
 course_highway_cb11,0045a9a0,tier1,bytes,bytes-reloc,70abff9e98fa,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_highway_cb1_sub_453bf0,00453bf0,tier1,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
-course_highway_cb2,00459560,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,147,1.00,0,0
+course_highway_cb2,00459560,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,148,1.00,0,0
 course_highway_cb2_sub_42b900,0042b900,tier1,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_highway_cb2_sub_42b910,0042b910,tier1,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_highway_cb2_sub_453c00,00453c00,tier1,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
@@ -1488,7 +1488,7 @@ course_hook7,0042b120,tier1,bytes,bytes-reloc,736cead64607,33bf93632a05,8fa44e79
 course_hook8,0042b180,tier1,bytes,bytes-reloc,3ca5908a7b79,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_hook9,0042b160,tier1,bytes,bytes-reloc,f5bfaceada0e,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_is_outdoor,0042a450,tier1,bytes,bytes-reloc,530c9e84eedb,33bf93632a05,8fa44e7939e1,0,0.00,0,0
-course_keys_cb0,004541d0,tier2,compiled+shadow-never,static,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
+course_keys_cb0,004541d0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
 course_keys_cb1,00454220,agent,bytes-standalone+74d26a872f4d,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_keys_cb2,00454270,tier1,bytes,bytes-reloc,efc280eb000b,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 course_keys_cb5,00454300,hand,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
@@ -2537,6 +2537,8 @@ message_replace_if_changed,004381d0,tier1,bytes,bytes-reloc,6dceda53d699,33bf936
 message_show,004311b0,tier1,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 message_show_controller_missing,00431ae0,hand,bytes,bytes-reloc,-,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 message_show_now,00431130,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
+mfl_audio_random_range,?,tier1,bytes,bytes-reloc,c630b12348d4,33bf93632a05,8fa44e7939e1,0,0.00,0,0
+mfl_audio_rp_random_int_range,?,tier1,bytes,bytes-reloc,fc19c5acf8a0,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 mine_load_assets,004640a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
 missile_load_assets,00460d40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
 mortar_load_assets,0045e480,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,1.00,0,0
@@ -3627,7 +3629,7 @@ rwp_object_type_sync_matrix,0058cc30,tier2,compiled+diffemu-EQUAL+shadow-never,d
 rwp_objects_create_box_group,004916a0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,88,1.00,0,0
 rwp_objects_create_capsule_group,00491960,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,110,1.00,0,0
 rwp_objects_create_cylinder_group,004913f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,88,1.00,0,0
-rwp_objects_create_sphere_group,00491820,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,931fb4691d72,33bf93632a05,8fa44e7939e1,104,1.00,0,0
+rwp_objects_create_sphere_group,00491820,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,4a1dc1311ab2,33bf93632a05,8fa44e7939e1,104,1.00,0,0
 rwp_objects_cull_and_register_triggers,00493600,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,200,0.34,0,0
 rwp_objects_destroy_all,00490db0,tier1,bytes,bytes-reloc,f2d8b7ec587f,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 rwp_objects_destroy_all_cars,0048e8d0,tier1,bytes,bytes-reloc,15e92e5c4074,33bf93632a05,8fa44e7939e1,0,0.00,0,0
@@ -4304,7 +4306,7 @@ weapons_effects_render_all,00467820,tier1,bytes,bytes-reloc,3372dbf37fec,33bf936
 weapons_race_start_dispatch,00467d50,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,33bf93632a05,8fa44e7939e1,15,1.00,0,0
 weapons_reset_all_dispatch,00467860,tier1,bytes,bytes-reloc,8ffc7fb365ec,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 weapons_unequip_all_a,00467d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,26,1.00,0,0
-weapons_update_frame,00467a60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,57,0.33,0,0
+weapons_update_frame,00467a60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,8fa44e7939e1,55,0.33,0,0
 window_create,004a9c90,tier1,bytes,bytes-reloc,f79c9ba86afc,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 window_destroy,004a9810,tier1,bytes,bytes-reloc,ae28468a48e2,33bf93632a05,8fa44e7939e1,0,0.00,0,0
 window_show,004a9360,tier1,bytes,bytes-reloc,8c8d5052b133,33bf93632a05,8fa44e7939e1,0,0.00,0,0

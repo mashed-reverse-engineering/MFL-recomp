@@ -359,9 +359,8 @@ if "--drop-app" in opt:
     _dtf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dead_tables.txt")
     for l_ in (open(_dtf) if os.path.exists(_dtf) else []):
         if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), l_.split(None, 2)[2].strip() if len(l_.split(None, 2)) > 2 else ""))
-    if os.environ.get("DROP_DSHOW"):      # A7: the DirectShow movie code is dead (dshow_drop.py closure): filled like a dead table, its objects are not linked
-        for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "dshow_dead.txt")):
-            if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "dshow " + l_.split()[2]))
+    for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "dshow_dead.txt")):      # A7: the DirectShow movie code is dead (dshow_drop.py closure): filled like a dead table, its objects are not linked (always, W12 DS2)
+        if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "dshow " + l_.split()[2]))
     if os.environ.get("DROP_RW"):      # S3: dead RenderWare/D3DX pool code (dshow_drop.py pool -> tools/delink/rw_dead.txt), same treatment
         for l_ in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rw_dead.txt")):
             if l_.strip() and not l_.startswith("#"): DEAD.append((int(l_.split()[0], 16), int(l_.split()[1]), "rwpool " + l_.split()[2]))

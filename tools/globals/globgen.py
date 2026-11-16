@@ -37,6 +37,11 @@ def u32(va): return struct.unpack("<I", rd(va, 4))[0]
 
 # --- sections of the generator -----------------------------------------------------------------------------------------------------------
 SECT = {"rdata": (0x5dd000, 0x5dd000 + 0x1d5c8, ".rdata"), "data": (0x5fb000, 0x64d000, ".data"), "bss": (0x64d000, 0x949d64, ".bss")}
+# W12 Z2: the CRT initialiser tables (.CRT$XCA..XTZ of the original link: __xc_a .. __xt_z, walked by _cinit / doexit through those names) hold only
+# function pointers and zero markers: no library bytes, emitted as _PVFV arrays named by their markers (the PTR_* labels inside stay aliases).
+# Z2T_PUTBACK=1 (zneg.sh crtinit): the bad case, the table stays a library blob.
+CRT_TABLES = (0x5fb000, 0x5fb074)
+CRT_MARK = re.compile(r"__x[cipt]_[az]$")
 
 
 def pe_spans():
@@ -89,7 +94,7 @@ def lib_spans():
     COMDAT rows owned 'shared' (constants, string pool) are app data and cut out of the library block (F3)."""
     pe = merge(pe_spans())
     pe = merge(pe + [(y, x2) for (x, y), (x2, y2) in zip(pe, pe[1:]) if 0 < x2 - y < 16])    # tiny holes between import tables are DLL name strings of ordinal-only imports
-    sp = {"rdata": [(0x5e2670, 0x5f8e30)], "data": [(0x5fb000, 0x5fb074), (0x62c5d8, 0x64c274)], "bss": [(0x771ac0, 0x771f78), (0x7d1fa0, 0x7daa1c), (0x7dc298, 0x7dc2c4)]}
+    sp = {"rdata": [(0x5e2670, 0x5f8e30)], "data": [CRT_TABLES, (0x62c5d8, 0x64c274)] if os.environ.get("Z2T_PUTBACK") else [(0x62c5d8, 0x64c274)], "bss": [(0x771ac0, 0x771f78), (0x7d1fa0, 0x7daa1c), (0x7dc298, 0x7dc2c4)]}
     rows, shared = [], []
     for r in csv.DictReader(open(os.path.join(G, "output/delink_sdk/ownership.csv"))):
         lo, hi = int(r["lo"], 16), int(r["hi"], 16)
@@ -298,7 +303,7 @@ def main(out):
     for r in csv.DictReader(open(os.path.join(G, "output/delink_relocs.csv"))):
         if r["kind"] in ("const", "header", "rel32"): continue
         relocs[int(r["site"], 16)] = (int(r["target"], 16), r["kind"], r["confidence"], r["why"])
-    for env_, f_ in (("DROP_DSHOW", "dshow_dead.txt"), ("DROP_RW", "rw_dead.txt")):      # A7 / S3: pointers into dead code (DirectShow movie code, RenderWare/D3DX pool) become 0 (vtables, EH tables, XCU entries; _initterm skips NULL)
+    for env_, f_ in (("DROP_DSHOW", "dshow_dead.txt"), ("DROP_RW", "rw_dead.txt")):      # A7 / S3: pointers into dead code (DirectShow movie code, RenderWare/D3DX pool) become 0 (vtables, EH tables, XCU entries; _initterm skips NULL).  DROP_DSHOW is set by link_ours.sh in every link (W12 DS2); globals/check.sh leaves it unset (no dead-code model)
         if not os.environ.get(env_): continue
         dead = sorted((int(l.split()[0], 16), int(l.split()[0], 16) + int(l.split()[1])) for l in open(os.path.join(G, "tools/delink", f_)) if l.strip() and not l.startswith("#"))
         dst = [x[0] for x in dead]; nz = 0
@@ -316,7 +321,7 @@ def main(out):
     carved = 0
     for sec, (lo, hi, _) in SECT.items():
         sp = spans[sec]
-        bounds = {lo, hi} | {x for a, b, c in sp for x in (a, b)} | {a for a in names if lo <= a < hi} | {x for x in LIBSRC_DEAD if lo <= x < hi}
+        bounds = {lo, hi} | {x for a, b, c in sp for x in (a, b)} | {a for a in names if lo <= a < hi and (os.environ.get("Z2T_PUTBACK") or not CRT_TABLES[0] <= a < CRT_TABLES[1] or any(CRT_MARK.match(n) for n in names[a]))} | {x for x in LIBSRC_DEAD | set(CRT_TABLES) if lo <= x < hi}
         bs = sorted(bounds)
         its = []
         for a0, b0 in zip(bs, bs[1:]):
@@ -553,6 +558,12 @@ def main(out):
             z1src[nm] = "fallback: z1_types.txt %s%s is %d B align %d, extent %d at %08x" % (ty_, suf_, sz_, al_, e, a)
         b = rd(a, e) if sec != "bss" else bytes(e)
         ps = item_ptrs(it, sec) if sec != "bss" else []
+        if it["kind"] == "app" and CRT_TABLES[0] <= a < CRT_TABLES[1] and e % 4 == 0:      # Z2: initialiser table -> _PVFV array (every word a pointer or 0)
+            pp = {p[0] - a: p for p in ps}
+            if all(i in pp or not any(b[i:i + 4]) for i in range(0, e, 4)):
+                stat["Z2 _PVFV table"] += 1
+                fx = lambda x: "(_PVFV)" + x[8:] if x.startswith("(void *)") else "(_PVFV)(%s)" % x
+                return None, "_PVFV", "[%d]" % (e // 4), "{" + ", ".join(fx(pexpr(sec, pp[i], cur)) if i in pp else "0" for i in range(0, e, 4)) + "}"
         const = "const " if sec == "rdata" else ""
         zero = not any(b) and not ps
         if ps:
@@ -610,14 +621,14 @@ def main(out):
         extern_names = set()
         for it, r in rendered:
             if r is None: continue
-            for m in re.finditer(r"\((?:void \*|char \*)\)(\w+)", r[3]): extern_names.add(m.group(1))
+            for m in re.finditer(r"\((?:void \*|char \*|_PVFV)\)\(?(\w+)", r[3]): extern_names.add(m.group(1))
         extern_names -= {it["name"] for it in its}
         for n in sorted(extern_names):
             if n in CONV: pre.append("extern void %s %s(%s);" % (CONV[n][0], n, ",".join("double" if x == 8 else "int" for x in CONV[n][1]) or "void"))   # F1: the prototype gives the decorated link name
             else: pre.append("extern char %s[];" % n)
         f = open(os.path.join(out, sec + ".c"), "w")
         f.write(hdr % (sec, "".join(" *   %08x-%08x\n" % (x, y) for x, y, c in spans[sec] if c == "pe")))
-        if sec == "data": f.write('#pragma data_seg(".data")\n')
+        if sec == "data": f.write('#pragma data_seg(".data")\ntypedef void (__cdecl *_PVFV)(void);      /* Z2: CRT initialiser table entry */\n')
         zh = os.path.join(os.path.dirname(os.path.abspath(__file__)), "z1_types.h")
         if sec == "bss" and os.path.exists(zh): f.write(open(zh).read() + "\n")      # Z1: the struct types of z1_types.txt (declarations only, no storage)
         f.write("\n".join(pre) + "\n\n")

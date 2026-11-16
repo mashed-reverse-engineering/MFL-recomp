@@ -17,7 +17,7 @@
 /*00561b70*/ extern RwBool RpUVAnimPluginAttach();
 /*00567e70*/ extern RwBool __cdecl RpLODAtomicPluginAttach(void);
 /*005738e0*/ extern int FUN_005738e0(void);
-/*0058c900*/ extern int FUN_0058c900(void);
+/*0058c900*/ extern int rwp_atomic_plugin_attach(void);
 /* rw_plugins_attach */
 
 /* "RpWorld / UserData / MatFX / Collision / PVS plugin attach" */
@@ -62,11 +62,11 @@ bool rw_plugins_attach(void)
                           if (ok != 0) {
                             rw_ok = RpUVAnimPluginAttach();
                             if (rw_ok != 0) {
-                              /* anim init, then material, FUN_0058c900, FUN_005738e0 and atomic plugins (inferred) */
+                              /* anim init, then material, rwp_atomic_plugin_attach, FUN_005738e0 and atomic plugins (inferred) */
                               RtAnimInitialize();
                               ok = material_plugin_register();
                               if (ok != 0) {
-                                ok = FUN_0058c900();
+                                ok = rwp_atomic_plugin_attach();
                                 if (ok != 0) {
                                   ok = FUN_005738e0();
                                   if (ok != 0) {

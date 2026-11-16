@@ -5,7 +5,7 @@
 /*00573f10*/ extern int FUN_00573f10(undefined4 p0, undefined4 p1);
 /*00573f70*/ extern void FUN_00573f70(void *p0);
 /*00573fd0*/ extern void FUN_00573fd0(void *p0, undefined4 p1);
-/*0058cb40*/ extern void FUN_0058cb40(void *p0, undefined4 p1, undefined4 p2);
+/*0058cb40*/ extern void rwp_world_sizes_add_body(void *p0, undefined4 p1, undefined4 p2);
 /*006fa858*/ extern undefined4 g_rw_6fa858[0x1000];
 /*0088a840*/ extern undefined4 g_rwp_world_88a840;
 
@@ -59,7 +59,7 @@ undefined4 rwp_world_create(undefined4 parent)
   frame.bounds_min_y = FLOAT_NEG_1000_BITS;
   frame.bounds_min_z = FLOAT_NEG_1000_BITS;
   FUN_00573f70(frame.world_buf);
-  FUN_0058cb40(frame.world_buf,WORLD_MAX_OBJECTS,WORLD_MAX_CONTACTS);
+  rwp_world_sizes_add_body(frame.world_buf,WORLD_MAX_OBJECTS,WORLD_MAX_CONTACTS);
   FUN_00573fd0(frame.world_buf,0x20);
   rwp_handle = FUN_0056e250(frame.world_buf,parent,&frame.bounds_max_x);
   g_rwp_world_88a840 = FUN_00573f10(10,10);

@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
-/*004c4120*/ extern void FUN_004c4120(undefined4 p0, undefined4 p1);
+/*004c4120*/ extern void patchmesh_fill_prelit(undefined4 p0, undefined4 p1);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004f6ae0*/ extern struct RpAtomic * RpAtomicClone(struct RpAtomic *p0);
@@ -76,14 +76,14 @@ void shockwave_load_models(void)
   g_gfx_6c5df8 = clump_load_by_name("shockwave.dff",load_arg_1,load_arg_2);
   g_shockwave_load_6c5e00 = (RpAtomic *)clump_first_atomic(g_gfx_6c5df8);
   g_load_6c5e08 = FUN_00559a00(g_shockwave_load_6c5e00);
-  FUN_004c4120(g_shockwave_load_6c5e00,0);
+  patchmesh_fill_prelit(g_shockwave_load_6c5e00,0);
   load_arg_2 = 0;
   load_arg_1 = 0;
   model_name = "hemisphere.dff";
   g_load_6c5dfc = clump_load_by_name("hemisphere.dff",load_arg_1,load_arg_2);
   g_shockwave_load_6c5e04 = (RpAtomic *)clump_first_atomic(g_load_6c5dfc);
   g_load_6c5e0c = FUN_00559a00(g_shockwave_load_6c5e04);
-  FUN_004c4120(g_shockwave_load_6c5e04,0);
+  patchmesh_fill_prelit(g_shockwave_load_6c5e04,0);
   /* reset globals used by the effect: 0x20003 OR'd into one flag word (meaning unknown),
      float 1.0 in three scale/alpha globals (inferred), zero in the rest */
   g_shockwave_load_6c57c4 = g_shockwave_load_6c57c4 | 0x20003;

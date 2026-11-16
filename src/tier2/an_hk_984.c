@@ -14,9 +14,9 @@ void course_keys_cb0(char *param_1)
 {
   RwTexture *texture_dict;
   
-  g_course_keys_8c5724 = func_0x004849e0(&UNK_005df51c,*(undefined4 *)(param_1 + 0xc9d0));
+  g_course_keys_8c5724 = course_helper_4849e0(&UNK_005df51c,*(undefined4 *)(param_1 + 0xc9d0));
   texture_dict = (RwTexture *)find_texture_dict_b("shine");
   course_sky_atomic_create(texture_dict,0x3f800000,0xc0000000);
-  func_0x00449b50();      /* tail call: fills the random sky direction table at 0x69f6e0 and sets the sky atomic flags */
+  sky_directions_init();      /* tail call: fills the random sky direction table at 0x69f6e0 and sets the sky atomic flags */
   return;
 }

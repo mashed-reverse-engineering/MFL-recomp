@@ -19,7 +19,7 @@
 /* course_effect_spawn_at */
 
 /* "(object): shaking + sfx 0x12 / 0x15 at the object position" */
-/* Effect for object `obj` (struct base pointer; its position is at obj+0x3c). Shakes it (func_0x0045c8f0, inferred),
+/* Effect for object `obj` (struct base pointer; its position is at obj+0x3c). Shakes it (course_effect_spawn_at_helper_45c8f0, inferred),
    plays sfx 0x12 and 0x15 and the player-set sfx at the position, and spawns the default emitter at obj+0x48.
    Then it writes SPAWN_DIR_COUNT random unit directions into the RwV3d array at obj+0x18 and, for each, spawns
    SPAWN_PARTICLES_PER_DIR burst particles around the position (dir_vec[3]). Parameters 2-5 are unused.
@@ -42,7 +42,7 @@ void __cdecl course_effect_spawn_at(int obj,undefined4 unused_2,undefined4 unuse
     float dir[3];
   } frame;
   iVar1 = obj + 0x3c;
-  func_0x0045c8f0(iVar1,0x41f00000);
+  course_effect_spawn_at_helper_45c8f0(iVar1,0x41f00000);
   sfx_play_at(0x12,iVar1);
   sfx_play_at(0x15,iVar1);
   sfx_play_player_set_at(iVar1);

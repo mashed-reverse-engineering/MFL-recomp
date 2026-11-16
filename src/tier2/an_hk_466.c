@@ -1,7 +1,7 @@
 #include "mfl_tier2.h"
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*004c52f0*/ extern void clump_collect_atomics_by_id(undefined4 p0, void *p1, undefined4 p2, undefined4 p3, undefined4 p4);
-/*004c5410*/ extern void FUN_004c5410(undefined4 p0, undefined4 p1, undefined4 p2);
+/*004c5410*/ extern void atomic_set_geometry_flags(undefined4 p0, undefined4 p1, undefined4 p2);
 /*004c66a0*/ extern void * mem_zero(void * p0, int p1);
 /*004d0c50*/ extern struct RwFrame * RwFrameCreate();
 /*004d1160*/ extern struct RwFrame * RwFrameAddChild(struct RwFrame *p0, struct RwFrame *p1);
@@ -75,11 +75,11 @@ void load_stopclock(void)
   g_load_659ce0 = *(RwFrame **)(clump + 4);
   g_game_659cdc = clump;
   clump_collect_atomics_by_id(clump,&g_load_659c38,0x20,0,0);
-  /* walk the slot table g_load_659c38 up to g_game_659cb8; for each non-null slot call FUN_004c5410 (inferred: per-atomic setup) */
+  /* walk the slot table g_load_659c38 up to g_game_659cb8; for each non-null slot call atomic_set_geometry_flags (inferred: per-atomic setup) */
   slot_ptr = &g_load_659c38;
   do {
     if (*slot_ptr != 0) {
-      FUN_004c5410(*slot_ptr,0x40,1);
+      atomic_set_geometry_flags(*slot_ptr,0x40,1);
     }
     slot_ptr = slot_ptr + 1;
   } while ((LONG_PTR)slot_ptr < ((LONG_PTR)&g_game_659cb8));

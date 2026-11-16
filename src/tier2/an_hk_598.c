@@ -6,8 +6,8 @@
 /*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056fe40*/ extern void FUN_0056fe40(undefined4 p0, undefined4 p1, undefined4 p2);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
-/*0058c990*/ extern char *FUN_0058c990(void *p0);
+/*0058c8b0*/ extern void rwp_atomic_set_object(undefined4 p0, void *p1);
+/*0058c990*/ extern char *rwp_object_create(void *p0);
 /*0058cb90*/ extern void * rwp_body_create(void);
 /*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
@@ -61,13 +61,13 @@ void __cdecl rwp_objects_create_cylinder_group(int count,char *unused_2,undefine
     /* one iteration per object: create it, register it in the g_rw_* tables,
        clear flag bits 2-3 of its entry (inferred), then store its shatter velocity squared */
     do {
-      entry = FUN_0058c990(body);
+      entry = rwp_object_create(body);
       handle = object_atomic_create((&g_rw_6fa7d8)[g_rw_701c94],group_index);
       slot = g_rw_6fa7d0;
       (&g_rw_6fa4b0)[g_rw_6fa7d0] = g_rwp_objects[type].base_label + group_index;
       (&g_rw_6fab78)[slot] = handle;
       (&g_rw_6fd0f8)[slot] = type;
-      FUN_0058c8b0(handle,entry);
+      rwp_atomic_set_object(handle,entry);
       *(uint *)(entry + 8) = *(uint *)(entry + 8) & 0xfffffff3;
       handle = rw_first_field(object_list);
       rwp_world_activate_object(handle, entry, 0xffffffff, 2);

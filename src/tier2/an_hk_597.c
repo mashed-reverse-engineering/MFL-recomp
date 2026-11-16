@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-extern char LAB_00477170[];
+extern char car_wheel_contact_update_cb_477170[];
 /*0047b900*/ extern int car_resolve_triangle_contacts();
 /*00492100*/ extern int rwp_car_apply_forces();
 /*004d5670*/ extern struct RwV3d * RwV3dTransformPoints(struct RwV3d *p0, struct RwV3d *p1, RwInt32 p2, RwMatrix *p3);
@@ -105,7 +105,7 @@ undefined4 car_world_collision_query(int car_index,int collision_ctx)
   /* collect every track triangle the sphere touches, then resolve the contacts for this car */
   g_car_8bd794 = collision_ctx;
   RpCollisionWorldForAllIntersections
-            (*(undefined4 *)(collision_ctx + 8),&query.sphere_x,&LAB_00477170,&g_collision_triangles);
+            (*(undefined4 *)(collision_ctx + 8),&query.sphere_x,&car_wheel_contact_update_cb_477170,&g_collision_triangles);
   contact_result = car_resolve_triangle_contacts(player_car + car_index,&g_collision_triangles);
   rwp_car_apply_forces(car_index,8);
   return contact_result;

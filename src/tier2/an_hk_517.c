@@ -92,8 +92,8 @@ void course_highway_cb5(void)
     group = group + GROUP_STRIDE_INTS;
   } while ((LONG_PTR)group < ((LONG_PTR)&g_course_highway_8c3fc4));
   /* Two unnamed helpers run after the groups are gone (purpose not known). */
-  func_0x004541b0();
-  func_0x00453c10();
+  course_highway_cb5_sub_4541b0();
+  course_highway_cb5_sub_453c10();
   /* Particle system cleanup belongs to Highway only. */
   current_course = current_course_id();
   if (current_course == COURSE_HIGHWAYN) {

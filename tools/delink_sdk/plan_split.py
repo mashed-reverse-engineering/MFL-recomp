@@ -17,6 +17,64 @@ for f in cfg[LIB]["members"].split():
     for l in open(os.path.join(G, f)):
         p = l.split(None, 1)
         if len(p) == 2 and not any(fnmatch.fnmatch(p[1].strip(), x) for x in ex) and fnmatch.fnmatch(p[1].strip(), FILT) and (ONLY is None or p[1].strip() in ONLY): objof[p[1].strip()] = os.path.join(MDIR, p[0])
+# W12 Z2: libs.cfg `datamembers` = globs of libcmt.lib members the exe holds as data only (no code: timeset, atan_table, constpow ...; the member lists
+# above hold members with matched code, so these were never candidates).  Each section is located from the member's external symbols (lib_names.txt) and
+# must equal the image (a relocation word: the image word = VA of the symbol + addend where that VA is known); then the member splits like any other: its
+# data rows are dead (EXT rows), its object is linked.  Its .rdata is renamed .ldat in the written object (the .rdata group must not grow: the .data
+# start and the harness DELTA stay).  A member that fails gets a "datamember" line in blockers.txt.  DM_PUTBACK=1 (zneg.sh crtdata): none is taken.
+DM_EXT, DM_SYMS, DM_BLOCK, DM_KEYS = [], collections.defaultdict(list), [], []
+if cfg[LIB].get("datamembers") and not os.environ.get("DM_PUTBACK"):
+    _src = open(os.path.join(G, "tools", "libmatch_lib.py")).read().replace("\nmain()\n", "\n"); _ns = {"__file__": os.path.join(G, "tools", "libmatch_lib.py"), "__name__": "x"}
+    exec(compile(_src, "libmatch_lib", "exec"), _ns)
+    _X = open(os.path.join(G, "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe"), "rb").read()
+    _pe = struct.unpack_from("<I", _X, 0x3c)[0]; _xs = []
+    for k in range(struct.unpack_from("<H", _X, _pe + 6)[0]):
+        h = _pe + 24 + struct.unpack_from("<H", _X, _pe + 20)[0] + 40 * k; vs, va, rs, rp = struct.unpack_from("<IIII", _X, h + 8); _xs.append((0x400000 + va, vs, _X[rp:rp + rs]))
+    def _xb(va, n):
+        for a, vs, raw in _xs:
+            if a <= va < a + vs: return (raw[va - a:va - a + n] + bytes(n))[:n]
+    _va = {}
+    for l in open(os.path.join(O, "delink_sdk", "lib_names.txt")):
+        q = l.split()
+        if len(q) >= 2: _va.setdefault(q[0], int(q[1], 16))
+    _cn = lambda n: n[1:] if n.startswith("_") else n
+    for mem, body in _ns["members"](os.path.join(G, "toolchain", "vc7", "Vc7", "lib", "libcmt.lib")):
+        key = "libcmt.lib:" + mem
+        if key in objof or not any(fnmatch.fnmatch(key, x) for x in cfg[LIB]["datamembers"].split()): continue
+        d = bytearray(body); n, so, nsy = struct.unpack_from("<H", d, 2)[0], *struct.unpack_from("<II", d, 8); opt = struct.unpack_from("<H", d, 16)[0]; st = so + nsy * 18
+        syms = {}; i = 0
+        while i < nsy:
+            o = so + i * 18; raw = bytes(d[o:o + 8])
+            nm = d[st + struct.unpack_from("<I", raw, 4)[0]:d.index(b"\0", st + struct.unpack_from("<I", raw, 4)[0])].decode("latin1") if raw[:4] == b"\0\0\0\0" else raw.rstrip(b"\0").decode("latin1")
+            syms[i] = (nm,) + struct.unpack_from("<IhHBB", d, o + 8)[:4]; i += 1 + d[o + 17]
+        rows, why, base_of = [], [], {}
+        for k in range(1, n + 1):
+            h = 20 + opt + (k - 1) * 40; sn = bytes(d[h:h + 8]).rstrip(b"\0").decode("latin1"); sz, ptr, rel = struct.unpack_from("<III", d, h + 16); nrel = struct.unpack_from("<H", d, h + 32)[0]; fl = struct.unpack_from("<I", d, h + 36)[0]
+            if sn.startswith((".debug", ".drectve")) or not sz: continue
+            if fl & 0x20: why.append("code section %s" % sn); continue
+            kind = "bss" if fl & 0x80 else "data" if fl & 0x80000000 else "rdata"
+            loc = collections.Counter(_va[_cn(s[0])] - s[1] for s in syms.values() if s[2] == k and s[4] == 2 and _cn(s[0]) in _va)
+            if len(loc) != 1: why.append("%s not located (%s)" % (sn, dict(loc) or "no symbol in lib_names")); continue
+            base = next(iter(loc)); base_of[k] = base
+            if kind != "bss":
+                img = _xb(base, sz); raw = bytearray(d[ptr:ptr + sz])
+                for j in range(nrel):
+                    off, si, ty = struct.unpack_from("<IIH", d, rel + j * 10); s = syms[si]
+                    tv = _va.get(_cn(s[0])) if s[4] == 2 else None
+                    if tv is not None and ty == 6 and struct.unpack_from("<I", img, off)[0] != (tv + struct.unpack_from("<I", raw, off)[0]) & 0xffffffff: why.append("%s+%x relocation to %s differs" % (sn, off, s[0]))
+                    raw[off:off + 4] = img[off:off + 4]
+                if raw != img: why.append("%s bytes differ" % sn)
+            if kind == "rdata": d[h:h + 8] = b".ldat\0\0\0"; struct.pack_into("<I", d, h + 36, fl | 0x80000000)      # behind .bss with the other lib data
+            hi = base + sz + (-(base + sz) % 4 if kind != "bss" and not any(_xb(base + sz, -(base + sz) % 4)) else 0)      # zero alignment padding behind the section goes with it (globgen folds it into the row)
+            rows.append({"lo": "%08x" % base, "hi": "%08x" % hi, "kind": kind, "owner": LIB, "member": key, "name": sn})
+        if why or not rows: DM_BLOCK.append("datamember: drop %s: %s" % (key, "; ".join(why[:4]) or "no data")); continue
+        for k, base in base_of.items():
+            ss = sorted((s[1], s[0]) for s in syms.values() if s[2] == k and s[4] == 2)
+            hi = next(int(r["hi"], 16) for r in rows if int(r["lo"], 16) == base)
+            for j, (v, nm) in enumerate(ss): DM_SYMS[key].append((base + v, (ss[j + 1][0] if j + 1 < len(ss) else hi - base) - v, nm))
+        p = os.path.join(MDIR, re.sub(r"[\\/:.]", "_", key[:-4]) + ".obj"); open(p, "wb").write(bytes(d))
+        objof[key] = p; DM_EXT += rows; DM_KEYS.append(key)
+    print("datamembers: %d taken (%d bytes), %d dropped" % (len(DM_KEYS), sum(int(r["hi"], 16) - int(r["lo"], 16) for r in DM_EXT), len(DM_BLOCK)))
 def extnames(path, undef=False, d=None):    # external symbols defined (or referenced, undef=True) by an object (decorated)
     d = d or open(path, "rb").read(); n, so, ns = struct.unpack_from("<H", d, 2)[0], *struct.unpack_from("<II", d, 8); st = so + ns * 18; out = set(); i = 0
     while i < ns:
@@ -41,7 +99,7 @@ def codesize(path):
     return sum(struct.unpack_from("<I", d, 20 + opt + k * 40 + 16)[0] for k in range(n) if struct.unpack_from("<I", d, 20 + opt + k * 40 + 36)[0] & 0x20)
 _all = list(csv.DictReader(open(os.environ.get("ITEMS_IN") or os.path.join(O, "delink_sdk", "ownership_items.csv"))))      # ITEMS_IN: items.csv of the source libs (link_ours chain)
 _code = sorted(((int(r["lo"], 16), int(r["hi"], 16), r) for r in _all if r["kind"] == "code"), key=lambda x: x[:2])
-EXT = []; ANCH = {}
+EXT = list(DM_EXT); ANCH = {}      # W12 Z2: the data rows of the datamembers first
 def fnsyms(path):      # offset -> external function name of an object with ONE code section (static pieces of a member get the name its object gives that offset)
     d = open(path, "rb").read(); n, so, ns = struct.unpack_from("<H", d, 2)[0], *struct.unpack_from("<II", d, 8); opt = struct.unpack_from("<H", d, 16)[0]; st = so + ns * 18
     cs = [k + 1 for k in range(n) if struct.unpack_from("<I", d, 20 + opt + k * 40 + 36)[0] & 0x20]
@@ -166,6 +224,7 @@ def one_past_end(s, t, member):      # `cmp reg, offset _table + size` of ANOTHE
 dsyms = collections.defaultdict(list)
 for r in csv.DictReader(open(os.path.join(O, "delink_sdk", "symbols.csv"))):
     if r["addr"] and r["member"] in objof and r["binding"] in ("ext", "common"): dsyms[r["member"]].append((int(r["addr"], 16), max(1, int(r["size"] or 1)), r["symbol"]))
+for k_, v_ in DM_SYMS.items(): dsyms[k_] += [(a, max(1, n), s) for a, n, s in v_]      # W12 Z2: the datamembers' external symbols (located above)
 refs = []                      # site, target, how
 for r in csv.DictReader(open(os.path.join(O, "delink_relocs.csv"))):
     if r["kind"] not in ("const", "header", "rsrc", "import"): refs.append((int(r["site"], 16), int(r["target"], 16), "abs"))
@@ -206,7 +265,7 @@ def users(path, secnos):                   # functions of the object that refere
             _, si, _ = struct.unpack_from("<IIH", d, relptr + j * 10)
             if si in sy and sy[si][1] in secnos and (k + 1) in fnof: out.add(fnof[k + 1].lstrip("_"))
     return out
-pre = []; open(os.path.join(OUT, "blockers.txt"), "w").close()
+pre = []; open(os.path.join(OUT, "blockers.txt"), "w").write("".join(l + "\n" for l in DM_BLOCK))
 for m in sorted(objof):      # libs.cfg nosplit: members whose static data our C objects reference by address (g_* of src/automatch_agent) stay in the image
     if any(fnmatch.fnmatch(m, x) for x in cfg[LIB].get("nosplit", "").split()): pre.append(m); open(os.path.join(OUT, "blockers.txt"), "a").write("nosplit (libs.cfg): drop %s\n" % m)
 for m in sorted(objof):
@@ -313,8 +372,9 @@ open(os.path.join(OUT, "selftables.txt"), "w").write("".join("%08x %08x\n" % (a,
 open(os.path.join(OUT, "members.txt"), "w").write("".join(m + "\n" for m in sorted(M)))
 os.makedirs(os.path.join(OUT, "pulled"), exist_ok=True)
 for i, k in enumerate(sorted(pulled)): open(os.path.join(OUT, "pulled", "p%d.obj" % i), "wb").write(libbody[k])
-open(os.path.join(OUT, "extra_objs.txt"), "w").write("".join("lib:%s %s\n" % (m.replace(" ", "_"), objof[m]) for m in sorted(M)) +
-    "".join("pull:%s %s\n" % (k.replace(" ", "_"), os.path.join(OUT, "pulled", "p%d.obj" % i)) for i, k in enumerate(sorted(pulled))))
+open(os.path.join(OUT, "extra_objs.txt"), "w").write("".join("lib:%s %s\n" % (m.replace(" ", "_"), objof[m]) for m in sorted(M) if m not in DM_KEYS) +
+    "".join("pull:%s %s\n" % (k.replace(" ", "_"), os.path.join(OUT, "pulled", "p%d.obj" % i)) for i, k in enumerate(sorted(pulled))) +
+    "".join("lib:%s %s\n" % (m.replace(" ", "_"), objof[m]) for m in sorted(M) if m in DM_KEYS))      # W12 Z2: datamembers last (their .ldat behind every other lib object's: nothing else moves)
 cb = sum(int(r["hi"], 16) - int(r["lo"], 16) for r in items if r["member"] in M and r["kind"] == "code")
 db = sum(int(r["hi"], 16) - int(r["lo"], 16) for r in items if r["member"] in M and r["kind"] != "code")
 print("%s: %d of %d members splittable (code %d bytes, data %d bytes leave the image); symbol references %s" % (LIB, len(M), len(objof), cb, db, dict(nsym)))

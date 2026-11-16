@@ -13,8 +13,9 @@ scenario() {
   [ -n "$SCEN_ENDPROBE" ] && echo "probe $SCEN_ENDPROBE $PHASE $CUR $MSG"
   base_scenario
   case ${SCEN_END:-now} in
-    menu:*) echo "pressuntil Return $CUR ${SCEN_END#menu:} 150 1.0"; echo "wait 1.5"; echo "shot end_page";;
-    phase:*) echo "pressuntil Return $PHASE ${SCEN_END#phase:} 150 1.0"; echo "wait 1.5"; echo "shot end_page";;
+    # W12 hx3: the end event is REQUIRED (tag `end`): a timeout writes MISS end to out/missed.txt; scen_judge: ours -> FAIL, control -> UNJUDGED
+    menu:*) echo "pressuntil Return $CUR ${SCEN_END#menu:} 150 1.0 end"; echo "wait 1.5"; echo "shot end_page";;
+    phase:*) echo "pressuntil Return $PHASE ${SCEN_END#phase:} 150 1.0 end"; echo "wait 1.5"; echo "shot end_page";;
     freeze:*) race_freeze ${SCEN_END#freeze:};;
   esac
   echo "dump gs_end 0x7eebc0 0xb64"

@@ -33,7 +33,7 @@ void course_neustein_cb0_sub_454650(undefined4 *msg)
   owner_b = rwp_owner_object_get(msg[1]);
   owner_a = course_neustein_cb0_sub_454460(owner_a,owner_b,&probe.extent_x,&probe.offset_x);
   msg[2] = owner_a;
-  func_0x0056a5c0(first_field,owner_a,0xffffffff);
+  rwp_world_add_joint(first_field,owner_a,0xffffffff);
   return;
 }
 

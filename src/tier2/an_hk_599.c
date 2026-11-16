@@ -11,8 +11,8 @@
 /*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
 /*0056cdf0*/ extern void FUN_0056cdf0(undefined4 p0, undefined4 p1);
-/*0058c8b0*/ extern void FUN_0058c8b0(undefined4 p0, void *p1);
-/*0058c990*/ extern char *FUN_0058c990(void *p0);
+/*0058c8b0*/ extern void rwp_atomic_set_object(undefined4 p0, void *p1);
+/*0058c990*/ extern char *rwp_object_create(void *p0);
 /*0058cb90*/ extern void * rwp_body_create(void);
 /*0058cbe0*/ extern void rwp_body_destroy(void *p0);
 /*005dd378*/ extern float k_f_0_1;
@@ -67,7 +67,7 @@ int rwp_object_create_from_atomic(RpAtomic *atomic,undefined4 setting_a,float bo
   rwp_shape_set_property_c(handle,setting_c);
   FUN_0056c080(handle,(scaled_size = box_size * k_f_0_1, *(int *)&scaled_size));
   FUN_0056bf10(body,mass,0);
-  phys_handle = FUN_0058c990(body);
+  phys_handle = rwp_object_create(body);
   slot = g_rw_6fa7d0;
   (&g_rw_6fa4b0)[g_rw_6fa7d0] = user_id;
   (&g_rw_6fd0f8)[slot] = 0;
@@ -84,7 +84,7 @@ int rwp_object_create_from_atomic(RpAtomic *atomic,undefined4 setting_a,float bo
   (&g_rw_6fab78)[g_rw_6fa7d0] = clone;
   frame = RwFrameCreate();
   RpAtomicSetFrame((RpAtomic *)(&g_rw_6fab78)[g_rw_6fa7d0],frame);
-  FUN_0058c8b0((&g_rw_6fab78)[g_rw_6fa7d0],phys_handle);
+  rwp_atomic_set_object((&g_rw_6fab78)[g_rw_6fa7d0],phys_handle);
   clone = (RpAtomic *)(&g_rw_6fab78)[g_rw_6fa7d0];
   world = (RpWorld *)course_get_rpworld();
   RpWorldAddAtomic(world,clone);

@@ -41,7 +41,7 @@ typedef struct TriHit {
 /*006642f0*/ extern unsigned char *g_game_6642f0;             /* camera object (position at +0x30) */
 /*005e64a4*/ extern float k_f_0;
 /*00481e80*/ extern int player_marker_get_colour(int player);
-/*00487ee0*/ extern void __cdecl triangle_normal_cross(RwV3d *normal, float *p0, float *p1, float *p2);
+/*00487ee0*/ extern void __cdecl triangle_normal_cross(RwV3d *normal, float *p0, float *p1, float *p2);      /* also stores the plane distance at normal + 0xc */
 /*00487fd0*/ extern int plane_classify_point(RwV3d *normal, float *point, float *distance);
 /*004c4be0*/ extern int world_collect_triangles(void *query, float *pos, TriHit *hits, int max);
 /*004d5670*/ extern RwV3d *RwV3dTransformPoints(RwV3d *out, RwV3d *in, int count, RwMatrix *matrix);
@@ -51,7 +51,8 @@ void vehicle_tyre_marks_collect_triangles(int index, float *obj, void *query, fl
     TyreMarkSet *set = &g_game_6605a0[index];
     RwMatrix view;
     TriHit hits[64];
-    RwV3d normal, out[3];
+    struct { RwV3d normal; float distance; } plane;      /* triangle_normal_cross writes 4 floats: the normal and the plane distance at +0xc */
+    RwV3d out[3];
     float dist, new_x, new_y, dx, dy;
     double offset, half, new_z, dz, scaled;
     int *last = (int *)g_vehicle_render_660570[index];
@@ -100,8 +101,8 @@ void vehicle_tyre_marks_collect_triangles(int index, float *obj, void *query, fl
         if (colour == player_marker_get_colour(3)) continue;
         if (colour == player_marker_get_colour(4)) continue;
         if (hit->facing < 0.75f) continue;
-        triangle_normal_cross(&normal, hit->corner[0], hit->corner[1], hit->corner[2]);
-        k = plane_classify_point(&normal, obj + 12, &dist);
+        triangle_normal_cross(&plane.normal, hit->corner[0], hit->corner[1], hit->corner[2]);
+        k = plane_classify_point(&plane.normal, obj + 12, &dist);
         if (k == 0) { if (dist > 1.0f) continue; }
         else if (k == 2) { if (dist > 0.1f) continue; }
         {

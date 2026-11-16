@@ -17,6 +17,8 @@ per-word table, VERDICT line.
 | `mkptr.sh`, `mkmask.sh`, `mkpinfile.sh` | regenerate the three data lists below from reference control runs |
 | `data/state_ptrwords.txt` | words that only ever hold pointers (heap / image); compared via pointer translation |
 | `data/state_mask.txt` | masked words (profiling counters, RW dyn VB ring, audio-thread words, stale menu residue ...), each row with evidence; masks on car/vehicle/AI/physics/transform/camera names or dump ranges are refused by statecmp |
+| `data/state_rwpad.txt` | RwMatrix instances for `statecmp --rwpad` (compare mode "rwpad", off by default): only their pad1 / pad2 / pad3 words are skipped; read-checked instances only |
+| `data/state_sound.txt` | sound-timing words for `statecmp --sound` (off by default): shown on a SOUND line, never a failure; gameplay names / ranges are refused |
 | `data/state_pins.txt` | determinism pins for the proxy: counters / menu residue at loading start, camera record region at countdown start (course 0 reference values) |
 | `data/*_head.txt`, `data/pins_load.txt` | hand-written head rows and loading residue pins, inputs of mkmask.sh / mkpinfile.sh |
 
@@ -40,8 +42,12 @@ thread and drags weapons/fx/particles along.
 ## Determinism pinning (control and ours alike)
 `vsnap=2` (vclock jumps to the next whole second at each race-phase change, frames start on a 50 ms grid); `srand=3:<va>:1` (CRT srand at loading start;
 rand() state is per-thread, menus consume it, the countdown camera uses it); `pin=` rows of `state_pins.txt`. Control vs control is 0 words for frames 0-221
-(race frames 0-109) with 21-32 masked words. Limits: the pins hold course-0 values; other courses need their own pin set (the `course:4` menu script
-landed on courses 4/5/6, so course 4 is not calibrated).
+(race frames 0-109) with 21-32 masked words. Limits: the pins hold course-0 values; other courses need their own pin set: `mkpinfile.sh <course>`
+writes data/state_pins_c<course>.txt from unpinned reference runs (see the script), and one.sh then uses it for that course (data/pins_never.txt:
+handles and clock words are never pinned). W12: `course:N` now presses Down until g_career_row is N (before, N keychange presses landed on
+different courses under load). Course 7 (data/state_pins_c7.txt, with scen_flags 2048 = the intro fly-over runs to its natural end): two pinned
+control runs differ in 3 words over 304 frames (CurrentBaseIndex3D, g_player_8d8c80, g_player_time_8d8c88: time / ring residue, not classified yet);
+without bit 2048 a late harness key cut the fly-over short (8 to 39 frames) and the race time base differed.
 
 ## Fixture results (course 0, DRIVE=31)
 * Car poke (`SH_POKE=<frame>:<va>:<xor>`): diverges at the next frame, first word `player_car[0].matrices[12]` (pos.x).
@@ -67,6 +73,8 @@ Not 0 yet. Classification (nothing traced to a defect in one of our functions):
 The bisect scratch tools (restore_va.py, patchcall.py, xref.py ...) were not packaged; they live in the scratch dir `p6b`.
 
 ## Regenerating the data lists
+The public repository does not carry the machine-generated lists (data/state_ptrwords.txt, data/state_pins.txt, data/state_pins_c<course>.txt, about
+2.9 MB): they are calibration data of our own control runs; regenerate them as below from two control runs of your own.
 `mkptr.sh <runA> <runB>` (two control runs of one course), `mkmask.sh sp2 sp3 sp4 sp5` (control pairs `<tag>_1/<tag>_2` made with `cc.sh`), `mkpinfile.sh`
 (needs reference runs `ph3_1` and `sp3_1`; `pins_load.txt` comes from `pinall.py <cc_ph3 report> <ph3_1 statehash.bin> 0 3 pins_load.txt`).
 

@@ -1,3 +1,5 @@
+#define MFL_AUDIO_RNG_SITES      /* sound code: under MFL_FIX_DETERMINISTIC_AUDIO_RNG its random draws use the audio stream (mfl_fix.h) */
+#include "mfl_fix.h"
 #include "mfl_tier2.h"
 extern struct VoiceSlot g_voices[210];
 /*0046a0c0*/ extern int voice_set_volume(int param_2, float param_3);
