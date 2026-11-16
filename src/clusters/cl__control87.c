@@ -25,6 +25,12 @@ static const unsigned int exception_bits[6][2] = {
 static const unsigned int pc_abstract[4] = { 0x20000, 0, 0x10000, 0 };
 static const unsigned int pc_hardware[4] = { 3, 2, 0, 0 };      /* indexed by abstract PC >> 16: _PC_64, _PC_53, _PC_24, invalid */
 
+#if defined(NOASM)
+/* Port note: no x87 control word off x86; the NOASM branch tracks the value only (as mfl_x87_cw_r in an_rwd3d9_fpu.c).  0x27f = the x87 reset
+   value with the exceptions masked and 53 bit precision.  On ARM the rounding bits (0xc00) must be mapped to FPCR RMode by the port. */
+static unsigned short soft_cw = 0x27f;
+#endif
+
 /* get / set the floating point control word: bits of `newctrl` under `mask` replace the current ones; returns the new abstract word */
 unsigned int __cdecl _control87(unsigned int newctrl, unsigned int mask)
 {
@@ -32,7 +38,11 @@ unsigned int __cdecl _control87(unsigned int newctrl, unsigned int mask)
     unsigned int abstr, hw;
     int i;
 
+#if defined(NOASM)
+    cw = soft_cw;
+#else
     __asm fstcw cw
+#endif
     abstr = 0;
     for (i = 0; i < 6; i++)
         if (cw & exception_bits[i][0])
@@ -53,7 +63,11 @@ unsigned int __cdecl _control87(unsigned int newctrl, unsigned int mask)
     if (abstr & IC_AFFINE)
         hw |= X87_IC;
     cw = (unsigned short)hw;
+#if defined(NOASM)
+    soft_cw = cw;
+#else
     __asm fldcw cw
+#endif
     return abstr;
 }
 

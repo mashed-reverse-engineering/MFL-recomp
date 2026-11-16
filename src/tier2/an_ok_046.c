@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+extern uint course_get_rpworld_00467e90(void);      /* declared before its first use (was an implicit int() declaration; the same line follows below) */
 /*00408ea0*/ extern int player_record_get_8d8ca0();
 /*0040fbf0*/ extern int race_get_focus_player();
 /*0042a3f0*/ extern int course_get_rpworld();

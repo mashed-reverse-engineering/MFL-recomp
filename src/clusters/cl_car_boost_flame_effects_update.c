@@ -4,7 +4,7 @@
 typedef int CourseId;
 /*00422320*/ extern int vehicle_get_matrix_local();
 /*00422350*/ extern int vehicle_part_ltm();
-/*0042b110*/ extern enum CourseId current_course_id();
+/*0042b110*/ extern CourseId current_course_id();
 /*0047ac90*/ extern int car_get_int_from_float_field();
 /*0047b360*/ extern int car_wheel_get_field_88_a();
 /*0047b720*/ extern int car_get_field_b0c();

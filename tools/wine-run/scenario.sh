@@ -8,6 +8,7 @@
 #   - verdict: a Wine "Unhandled" in out_ovl/wine.log = CRASH (the function is named by crashfn.py); the control must not crash; the final screenshots (taken by the script as `final`)
 #     differ by imgdiff.py mean (< 30 = same scene; menus are deterministic, races are not: use SCEN_IMGTHRESH=n to change the limit, SCEN_IMGTHRESH=off to skip it for race scenarios).
 # SCEN_EXE=<ours.exe> SCEN_DELTA=<hex> [SCEN_RWDLL=..] [NOCACHE=1]: run on a standalone link instead (see the SCEN_EXE block below); control cached in output/scenario/_ctrlcache/.
+#   SCEN_PIN=1 [SCEN_PIN_DLL=<proxy build>]: both sides run with the d3d9 proxy and the determinism pins (scen_pin.sh); part of the control cache key.
 # Env: NOCTRL=1 (skip the control run: coverage only), REBUILD=1 (rebuild the cached exes in output/scenario/_build), NEVER=file (list of names to report on, default output/never_exec.txt),
 #      GDB_EXTRA="course_unload race_load_course_0042fad0" (also break on these original functions),
 #      NOGDB=1 (no gdb breakpoints: crash / timing check without the debugger, coverage = counters only),
@@ -20,6 +21,27 @@ export MASHED_ROOT=${MASHED_ROOT:-$(readlink -f $R/..)}
 EXTRA_OVL=${EXTRA_OVL- --automatch --automatch-near --bridges --clusters}
 OVL_ARGS="--count$EXTRA_OVL"; SC=${SCEN_OUT:-$R/output/scenario}; B=$SC/_build; W=$SC/$N${SCEN_TAG:+_$SCEN_TAG}; mkdir -p $B $W
 SLOT=${SLOT:-1}; NEVER=${NEVER:-output/never_exec.txt}
+# W11 B3: ctrl.exe is (re)built when it is missing or REBUILD=1 is set, and in the tree's own build dir (no SCEN_OUT) also when its ctrl.exe.build.json source
+# hashes are not the tree's harness sources (a harness change no longer needs REBUILD=1 by hand).  A ctrl.exe in a lane's SCEN_OUT may be built from other
+# sources on purpose (a staged freeze.c): it is never replaced automatically, only a note is printed (W11 lesson: Q3 ran on a silently rebuilt control).
+# Built in a private dir and moved in, so parallel calls never run a half-written exe.  Returns 1 = rebuilt, 0 = kept, 2 = build failed.
+ctrl_srcs_equal() {      # 0 when every source in ctrl.exe.build.json has the tree's content (sha1, 12 hex, as build_overlay.py writes it)
+  python3 - $B/ctrl.exe.build.json $R/src <<'PY'
+import hashlib, json, os, sys
+try: s = json.load(open(sys.argv[1])).get("sources") or {}
+except (OSError, ValueError): sys.exit(1)
+sys.exit(0 if s and all(os.path.isfile(os.path.join(sys.argv[2], k)) and hashlib.sha1(open(os.path.join(sys.argv[2], k), "rb").read()).hexdigest()[:12] == v for k, v in s.items()) else 1)
+PY
+}
+ctrl_build() {
+  if [ -f $B/ctrl.exe ] && [ -z "$REBUILD" ]; then
+    ctrl_srcs_equal && return 0
+    [ -n "$SCEN_OUT" ] && { echo "note: $B/ctrl.exe was not built from this tree's harness sources (ctrl.exe.build.json): kept (lane build; REBUILD=1 rebuilds it)" >&2; return 0; }
+  fi
+  local t=$B/.ctrl.$$; rm -rf $t; mkdir -p $t
+  python3 $R/tools/build_overlay.py $t/ctrl.exe --no-recomp --harness > $B/build_ctrl.log 2>&1 || { rm -rf $t; return 2; }
+  for f in ctrl.exe.map ctrl.exe.build.json ctrl.exe; do [ -f $t/$f ] && mv -f $t/$f $B/$f; done; rm -rf $t; echo "ctrl.exe rebuilt ($B)" >&2; return 1
+}
 # ---- SCEN_EXE mode: run the scenario on a standalone link (delink gate link/ours.exe) instead of the overlay build.
 #   SCEN_EXE=<ours.exe> SCEN_DELTA=<hex> [SCEN_RWDLL=<mflrw.dll to copy next to the exe, default: the link's own game/App_Executables/mflrw.dll>] scenario.sh <name>
 #   Script addresses: literals in 0x5dd000..0x9f9000 moved by DELTA (addrmove.py, like race_relinked.sh); harness symbols (scen_flags, fast_menu_scale, frames_total...) from <exe>.map minus DELTA
@@ -29,7 +51,7 @@ if [ -n "$SCEN_EXE" ]; then
   [ -n "$SCEN_DELTA" ] || { echo "SCEN_EXE needs SCEN_DELTA=<hex>"; exit 2; }
   EXE=$(readlink -f $SCEN_EXE); XMAP=${EXE%.exe}.map; [ -f "$EXE" ] && [ -f "$XMAP" ] || { echo "missing $EXE or $XMAP"; exit 2; }
   W=$SC/${N}_sa${SCEN_TAG:+_$SCEN_TAG}; rm -rf $W; mkdir -p $W $SC/_ctrlcache
-  if [ ! -f $B/ctrl.exe ] || [ -n "$REBUILD" ]; then python3 $R/tools/build_overlay.py $B/ctrl.exe --no-recomp --harness > $B/build_ctrl.log 2>&1 || { echo "ctrl build failed"; exit 1; }; fi
+  ctrl_build; [ $? = 2 ] && { echo "ctrl build failed"; exit 1; }
   . $T/scenarios/lib.sh; . $T/scenarios/$N.sh
   # standalone mapva: link-map address minus DELTA (the common addrmove then moves it back); the counter dump of the default footer does not exist in a linked exe
   CMAP=$B/ctrl.exe.map; MAP=$CMAP; export MAP
@@ -38,10 +60,13 @@ if [ -n "$SCEN_EXE" ]; then
   declare -f scenario_footer | grep -q count_table && scenario_footer() { echo "wait ${SCEN_END_WAIT:-1}"; echo "shot final"; }
   { scenario_header; scenario; scenario_footer; } 2>$W/gen.err | python3 $T/addrmove.py $SCEN_DELTA > $W/script_ours.txt
   grep -q "not in" $W/gen.err && { cat $W/gen.err; echo "RESULT: FAIL (harness symbols missing)"; exit 1; }
-  KEY=$( (cat $W/script_ctrl.txt; md5sum < $B/ctrl.exe) | sha1sum | cut -c1-16 ); CC=$SC/_ctrlcache/$N-$KEY
+  KEY=$( (cat $W/script_ctrl.txt; md5sum < $B/ctrl.exe; [ -n "$SCEN_PIN" ] && cat $T/scen_pin.sh ${SCEN_PIN_DLL:-$T/../d3dtrace/d3d9.dll}) | sha1sum | cut -c1-16 ); CC=$SC/_ctrlcache/$N-$KEY
   INST=$R/../MashedGame/FullyLoaded/installed
+  # SCEN_PIN=1 (TS W11): both runs get the d3d9 proxy with V2's determinism pins (wine-run/scen_pin.sh: alock, sound cursor snap, srand, state pins)
   python3 $T/prepare.py $INST $W/run_ours $EXE $XMAP > /dev/null || exit 1
   RW=${SCEN_RWDLL:-$(dirname $EXE)/game/App_Executables/mflrw.dll}; [ -f "$RW" ] && cp -f $RW $W/run_ours/App_Executables/mflrw.dll
+  # (ASM review: after the mflrw.dll copy, so scen_pin.sh also renames the DLL's own d3d9 import; before it, the DLL created the device without the proxy)
+  [ -n "$SCEN_PIN" ] && { $T/scen_pin.sh $W/run_ours/App_Executables $SCEN_DELTA $(awk '$2=="_srand"{print $3; exit}' $XMAP) || exit 1; }
   rm -rf $W/out_ours; export LOADMAX=${LOADMAX:-40}
   LD=$(cut -d' ' -f1 /proc/loadavg); RT=$(awk -v t=${RUN_TIMEOUT:-300} -v l=$LD 'BEGIN{s=l/4; if(s<1)s=1; if(s>3)s=3; print int(t*s)}')
   runx() {  # runx <run dir> <script> <out dir> <slot> <rc file>
@@ -51,6 +76,7 @@ if [ -n "$SCEN_EXE" ]; then
   if [ -f $CC/rc_ctrl ] && [ -z "$NOCACHE" ] && { ! grep -q "^dump cars" $W/script_ctrl.txt || [ -f $CC/out_ctrl/cars.bin ]; }; then echo "control: cached ($CC)"; CACHED=1
   else
     $T/mkpfx.sh $((SLOT+1)); python3 $T/prepare.py $INST $W/run_ctrl $B/ctrl.exe > /dev/null || exit 1; rm -rf $W/out_ctrl
+    [ -n "$SCEN_PIN" ] && { $T/scen_pin.sh $W/run_ctrl/App_Executables 0 5d365e || exit 1; }
     runx $W/run_ours $W/script_ours.txt $W/out_ours $SLOT $W/rc_ours & P1=$!
     runx $W/run_ctrl $W/script_ctrl.txt $W/out_ctrl $((SLOT+1)) $W/rc_ctrl & P2=$!; wait $P1 $P2
     CACHED=
@@ -103,8 +129,8 @@ print("RESULT: " + ("FAIL (%s)" % "; ".join(bad) if bad else "PASS")); sys.exit(
 PY
   exit ${PIPESTATUS[0]}
 fi
-if [ ! -f $B/ovl.exe ] || [ ! -f $B/ctrl.exe ] || [ -n "$REBUILD" ]; then
-  python3 $R/tools/build_overlay.py $B/ctrl.exe --no-recomp --harness > $B/build_ctrl.log 2>&1 || { echo "ctrl build failed"; exit 1; }
+ctrl_build; cb=$?; [ $cb = 2 ] && { echo "ctrl build failed"; exit 1; }
+if [ ! -f $B/ovl.exe ] || [ $cb = 1 ] || [ -n "$REBUILD" ]; then
   python3 $R/tools/build_overlay.py $B/ovl.exe --harness $OVL_ARGS > $B/build_ovl.log 2>&1 || { echo "ovl build failed"; exit 1; }
 fi
 cp -f $B/ctrl.exe $W/ctrl.exe; cp -f $B/ovl.exe $W/ovl.exe; cp -f $B/ctrl.exe.map $W/ctrl.exe.map; cp -f $B/ovl.exe.map $W/ovl.exe.map

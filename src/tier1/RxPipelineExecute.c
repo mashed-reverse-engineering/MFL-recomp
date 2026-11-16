@@ -493,7 +493,7 @@ struct RxPipeline
     RwUInt32                   pluginId;              /**< If required, the Id of the plugin owning this pipeline, or 0 */
     RwUInt32                   pluginData;            /**< Rights callback extra data */
 };
-extern RxHeap      *
+static RxHeap      *
 RxHeapGetGlobalHeap(void);
 extern RxPipeline *
 RxPipelineExecute(RxPipeline  * pipeline,

@@ -1,0 +1,5 @@
+# tools/globals/z1_types.txt (W11 Z1): name | C type | declarator suffix | size | alignment | evidence.  Struct types: z1_types.h.
+# globgen uses a type only when size == the row's extent and the address is a multiple of the alignment; else the row is a sized array (z1_rows.csv says why).
+# Only types from our own sources: RenderWare SDK structs (e.g. the free lists) stay sized arrays under their names (export deny rule, clean-room).
+VertexShaderCache | mfl_vertex_shader_cache_entry | [256] | 5120 | 4 | librw-mfl capi/d3d9vs.cpp: 256 entries of 0x14 B
+D3D9NumConstantsEffect | unsigned int | [64] | 256 | 4 | librw-mfl capi/d3d9vs.cpp: 64 dwords

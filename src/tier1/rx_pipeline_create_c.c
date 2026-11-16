@@ -3,7 +3,7 @@
 /*004def80*/ extern struct RxPipeline * RxPipelineCreate();
 /*004e64f0*/ extern struct RxPipeline * RxLockedPipeUnlock(RxLockedPipe *p0);
 /*004e6f40*/ extern RxLockedPipe * RxPipelineLock(struct RxPipeline *p0);
-/*004e7100*/ extern RxLockedPipe * RxLockedPipeAddFragment(RxLockedPipe *p0, RwUInt32 *p1, struct RxNodeDefinition *p2);
+/*004e7100*/ extern RxLockedPipe * RxLockedPipeAddFragment(RxLockedPipe *p0, RwUInt32 *p1, struct RxNodeDefinition *p2, ...);
 
 
 /* rx_pipeline_create_c */

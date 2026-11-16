@@ -103,7 +103,7 @@ js = {"date": DATE, "code": {L: dict(code[L]) for L in LAYERS}, "data_by_section
       "resources": res}
 corig = sum(c["original"] for c in code.values()); cfill = sum(c["filled"] for c in code.values()); cstub = sum(c["stub"] for c in code.values())
 dorig = sum(sum(c.values()) for c in dlib.values())
-dapp = sum(c["app"] + c["gap"] for c in data.values()); dpe = sum(c["pe"] for c in data.values())
+dapp = sum(c["app"] + c["gap"] + c["libz"] for c in data.values()); dpe = sum(c["pe"] for c in data.values())
 js["totals"] = {"code_original": corig, "code_filled": cfill, "code_stub": cstub, "data_original_lib": dorig, "data_generated_c": dapp, "data_linker": dpe,
                 "app_code_original": code["app"]["original"], "all_original": corig + dorig + RSRC}
 os.makedirs(OUT, exist_ok=True)
@@ -120,15 +120,16 @@ md = ["# Original bytes still in the linked exe (%s)" % DATE, "",
       "| ...entry stubs to our C | %s |" % format(cstub, ","),
       "| data (.rdata/.data/.bss) total | %s |" % format(sum(sum(c.values()) for c in data.values()), ","),
       "| ...library data rows, bytes from the original image (layers below) | %s |" % format(dorig, ","),
-      "| ...app data generated as C (`gen`: app + gap rows) | %s |" % format(dapp, ","),
+      "| ...app data generated as C (`gen`: app + gap rows, + libz = named library .bss zero definitions) | %s |" % format(dapp, ","),
       "| ...linker generated (IAT, imports) | %s |" % format(dpe, ","),
       "| resources (.rsrc in the linked exe: output/res/mfl.res = rc.exe output, entries byte-identical to the original game data; 0 = read at run time from the user's MFL.exe) | %s |" % format(RSRC, ","), "",
       "## Code per layer", "", "| Layer | Original | Filled | Stub | Total |", "|---|---:|---:|---:|---:|"]
 for L in LAYERS:
     c = code[L]; md.append("| %s | %s | %s | %s | %s |" % (L, format(c["original"], ","), format(c["filled"], ","), format(c["stub"], ","), format(tot(c), ",")))
-md += ["", "## Data per section", "", "| Section | app | gap | lib | pe |", "|---|---:|---:|---:|---:|"]
+md += ["", "## Data per section", "", "libz = library .bss rows emitted as named, typed zero definitions (W11 Z1; no image content, not original).", "",
+       "| Section | app | gap | libz | lib | pe |", "|---|---:|---:|---:|---:|---:|"]
 for s in ("rdata", "data", "bss"):
-    c = data[s]; md.append("| .%s | %s | %s | %s | %s |" % (s, format(c["app"], ","), format(c["gap"], ","), format(c["lib"], ","), format(c["pe"], ",")))
+    c = data[s]; md.append("| .%s | %s | %s | %s | %s | %s |" % (s, format(c["app"], ","), format(c["gap"], ","), format(c["libz"], ","), format(c["lib"], ","), format(c["pe"], ",")))
 md += ["", "## Library data (original bytes) per layer", "", "| Layer | .rdata | .data | .bss |", "|---|---:|---:|---:|"]
 for L in LAYERS:
     if L in dlib: md.append("| %s | %s | %s | %s |" % (L, *(format(dlib[L].get(s, 0), ",") for s in ("rdata", "data", "bss"))))

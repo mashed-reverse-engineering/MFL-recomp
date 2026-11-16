@@ -2,7 +2,7 @@
 #define ATOMIC_PLUGIN_FLAG_NO_INSTANCE 4 /* unknown exact flag name */
 
 /*004817c0*/ extern undefined __cdecl atomic_plugin_get_flags(void *p0);
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004f7f90*/ extern RwBool __cdecl RpAtomicInstance(struct RpAtomic *p0);
 
 

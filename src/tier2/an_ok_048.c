@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+extern undefined4 __cdecl player_voice_progress_gap_check(char *str);      /* declared before its first use (was an implicit int() declaration; the same line follows below) */
 /*00409f30*/ extern double player_progress_b();
 /*0040fdc0*/ extern int race_get_phase();
 /*0040ff00*/ extern int race_get_race_652dec();

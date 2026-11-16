@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+extern uint course_get_rpworld_00467e90(void);      /* declared before its first use (was an implicit int() declaration; the same line follows below) */
 /*00472890*/ extern int sfx_play_voice_at();
 /*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0, int p1);      /* diffemu: the original takes (clump, flag), the flag is read from the stack slot */
 /*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);

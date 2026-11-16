@@ -23,7 +23,7 @@ typedef struct RwpBody {
    the other shape; otherwise the direction n from rwp_gjk_separating_direction is searched for the contact distance with at most four rounds of
    bracketing (t between lo and hi) around rwp_gjk_closest_simplex.  *pa receives the mid point and *pb the distance (both relative to the radii).
    Returns 0 when no contact was found, 1 otherwise. */
-/* TIER2: unvalidated 2026-10-31 authority=diffemu */
+/* TIER2: unvalidated 2026-11-16 authority=static */
 int rwp_gjk_separation_query(int unused, RwpBody **pair, float margin, float *dir, float *pa, float *pb, float step)
 {
   double acc0;

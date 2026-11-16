@@ -1329,4 +1329,9 @@ rwaASSERT(rwaStreamVoiceState__sizeof, sizeof(rwaStreamVoiceState) == 0x298);
     (_format)->extra = NULL; \
     (_format)->extraSize = 0
 
+#ifndef _MSC_VER      /* mingw defines __forceinline as `extern inline ...`, which clashes with `static __forceinline` in the codfh sources */
+#undef __forceinline
+#define __forceinline inline
+#endif
+
 #endif /* RWAINT_H */

@@ -82,8 +82,10 @@ if [ -n "$DROP_DINPUT" ]; then
   mkdir -p $W/dinput; i686-w64-mingw32-gcc -c -O1 -fno-ident -o $W/dinput/dinput_formats.obj $G/src/dinput/dinput_formats.c || exit 1
   { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "dinput:formats $W/dinput/dinput_formats.obj"; } > $W/dinput/extra_objs.txt; EXTRA_OBJS=$W/dinput/extra_objs.txt; export DROP_DINPUT
 fi
-: > $W/objs_local.txt; n=0
-while read -r src obj; do n=$((n+1)); cp $obj $W/o/$n.obj; echo "$src $W/o/$n.obj" >> $W/objs_local.txt; done < <(cat $W/objs.txt ${EXTRA_OBJS:-})      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
+# W11 B2: stable object names o/<name>.obj (tools/delink/objnames.py: our C by file name, extra objects by their tag; a duplicate stops the link), not o/<n>.obj
+python3 $T/objnames.py $W/objs.txt ${EXTRA_OBJS:-} > $W/objnames.txt || exit 1
+: > $W/objs_local.txt
+while read -r src obj nm; do cp $obj $W/o/$nm; echo "$src $W/o/$nm" >> $W/objs_local.txt; done < $W/objnames.txt      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)
 # DROP_DSHOW=1 (A7): the DirectShow movie code is dead (the game plays movies through src/video/mfl_video): its objects leave the link, mkobj fills the functions, globgen zeroes the pointers to them
 [ -n "$DROP_DSHOW" ] && { python3 $T/dshow_drop.py filter $W; export DROP_DSHOW; }
@@ -129,7 +131,7 @@ python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt
 MFLOBJ=mfl.obj
 [ -n "$MKRANGE" ] && { python3 $T/mkrange.py $W/mfl.obj $W/layers > $W/mkrange.log || { tail -3 $W/mkrange.log; exit 1; }; python3 $T/mkrange.py --rename-text $W/o/*.obj
   MFLOBJ="layers/rest.obj $(cd $W && ls layers/*.obj | grep -v rest.obj | tr '\n' ' ')"; }
-(cd $W && ls o/*.obj) > $W/link.rsp
+python3 $T/objnames.py --rsp $W/objs_local.txt > $W/link.rsp      # W11 B2: our C by name (byte order), then the extra objects in chain order (was `ls o/*.obj`: locale order of numbers)
 # LIB_RW: the thunk object goes FIRST so its definition wins over our own C definition of the same function (link.exe keeps the first one; LNK4006 "second definition ignored" otherwise depends on the file name sort)
 [ -n "$LIB_RW" ] && { T1=$(awk '$1=="rw:thunks"{print $2}' $W/objs_local.txt); T1=${T1#$W/}; { echo $T1; grep -vxF $T1 $W/link.rsp; } > $W/link.rsp.new && mv $W/link.rsp.new $W/link.rsp; }
 VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:$ENTRY /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true

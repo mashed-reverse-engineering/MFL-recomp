@@ -447,7 +447,7 @@ extern void _rpDestroyPlatformMaterialPipelines(void);
 extern void _rpDestroyPlatformAtomicPipelines(void);
 extern void _rpDestroyPlatformWorldSectorPipelines(void);
 extern RwBool _rpWorldPipelineOpen( void);
-extern void   _rpWorldPipelineClose(void);
+static void   _rpWorldPipelineClose(void);
 static void
 _rpWorldPipelineClose(void)
 {

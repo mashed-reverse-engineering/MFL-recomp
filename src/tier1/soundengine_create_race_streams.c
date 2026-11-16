@@ -1,6 +1,6 @@
 #include "mfl_tier2.h"
 /*0046ef30*/ extern int sound_stub_return_0();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*005b8600*/ extern int FUN_005b8600(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*005b8b30*/ extern void FUN_005b8b30(undefined4 p0, void *p1);
 /*00617958*/ extern undefined4 g_soundengine_617958;

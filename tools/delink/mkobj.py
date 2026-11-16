@@ -49,7 +49,7 @@ IMPUSED = set()
 IMPSYM = {}      # --imports-as-symbols <dir of the <dll>.def files of tools/mk_importlibs.py>: IAT slot VA -> `_Name@N`; the 856 import sites then reference `__imp__Name@N` (the import libs define it), the original IAT and import tables are zero filled and the linker builds the import table
 if "--imports-as-symbols" in opt:
     _dec = {}
-    for _f in os.listdir(opt["--imports-as-symbols"]):
+    for _f in sorted(os.listdir(opt["--imports-as-symbols"])):      # W11 B1: a name in two .def files: the last one wins, in name order (listdir order is the file system's)
         if _f.endswith(".def"):
             for _l in open(os.path.join(opt["--imports-as-symbols"], _f)):
                 _m = re.match(r"(\w+)@(\d+)$", _l.strip())
@@ -260,7 +260,8 @@ if "--objs" in opt:
     if missing: print("not found:", " ".join(sorted(missing)[:40]), file=sys.stderr)
 if DROP:
     norm = lambda n: n if n.startswith("?") else n.lstrip("_@").split("@")[0]
-    ndefs = {k: {norm(n): n for n in v} for k, v in memdefs.items()}
+    # W11 B1: two names of one member can share a norm() key (_exit / __exit, _tolower / __tolower, _toupper / __toupper, ___tzset / __tzset); the
+    # name symfor() bound used to follow the set's iteration order (hash seed).  Now pick() decides by VA, as for DROPNAMES above (_nd = every candidate).
     dsym = collections.defaultdict(list)
     _dmem = {x[2]["member"] for x in DROP}
     for r in csv.DictReader(open(os.path.join(G, "output", "delink_sdk", "symbols.csv"))):
@@ -269,7 +270,8 @@ if DROP:
     def symfor(t):
         d_ = dropped(t); r = d_[2]; key = r["member"].replace(" ", "_")
         if r["kind"] == "code":
-            n_ = ndefs.get(key, {}).get(norm(r["name"]))
+            c_ = _nd.get(key, {}).get(norm(r["name"])) if memdefs else None      # memdefs is empty without --objs (then _nd does not exist)
+            n_ = pick(c_, d_[0])[0] if c_ else None
             return (n_, t - d_[0]) if n_ and t == d_[0] else (None, "%s %s+0x%x" % ("static function" if t == d_[0] else "interior", r["name"], t - d_[0]))
         for a_, n_, nm_ in dsym[r["member"]]:
             if a_ <= t < a_ + n_ and nm_ in memdefs.get(key, ()): return nm_, t - a_

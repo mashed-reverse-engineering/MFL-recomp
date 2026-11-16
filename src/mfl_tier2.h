@@ -66,7 +66,11 @@ typedef void code();            /* an untyped code address: called as ((code *)p
    incomplete on purpose (handles); the one line structs are the plain records used by value (vectors, matrix, vertices,
    RECT, LARGE_INTEGER); enums carry the library's values; callbacks are the function pointer types of library calls ---- */
 typedef unsigned __int64 GUID;
+#ifdef _MSC_VER      /* other compilers (mingw, clang) bring their own wchar_t: <stddef.h> defines it, a second typedef clashes with their headers */
 typedef short wchar_t;
+#else
+#include <stddef.h>
+#endif
 typedef ulong DWORD;
 typedef uint UINT;
 typedef long LONG;
@@ -417,8 +421,6 @@ typedef enum RwRasterFlipMode {
 } RwRasterFlipMode;
 
 typedef struct RwRect { int x, y, w, h; } RwRect;
-typedef struct RwVideoMode { int width, height, depth; enum RwVideoModeFlag flags; int refRate, format; } RwVideoMode;
-
 typedef enum RwVideoModeFlag {
     rwVIDEOMODEFLAGFORCEENUMSIZEINT=-1,
     rwVIDEOMODEEXCLUSIVE=1,
@@ -431,6 +433,8 @@ typedef enum RwVideoModeFlag {
     rwVIDEOMODE_XBOX_FIELD=1024,
     rwVIDEOMODE_XBOX_10X11PIXELASPECT=2048
 } RwVideoModeFlag;
+
+typedef struct RwVideoMode { int width, height, depth; enum RwVideoModeFlag flags; int refRate, format; } RwVideoMode;
 
 typedef void (*RxD3D9AllInOneRenderCallBack)(struct RwResEntry *, void *, RwUInt8, RwUInt32);
 typedef struct RxPipeline RxLockedPipe;

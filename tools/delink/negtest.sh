@@ -4,7 +4,7 @@
 #   render  d3dtrace/drawcmp.py with the gate's course:0 limits (tools/d3dtrace/render_limits.txt; 0 1 0 without it) on frames 0-2 of kept traces (tools/d3dtrace/ref/neg_*.d3d.gz):
 #           neg_tp18 = link 1556 (DrawIndexedPrimitive Base/MinVertexIndex swapped), neg_tp19 = link 2152 (timer_ticks high dword), neg_good = gate 1103_0951 ours, neg_ctrl = its control
 #   scen    the verdict() function of sa_oracles.sh (extracted, not copied) on saved scenario logs tools/negtests/scen/*.log (crash = link 1228 T-P17)
-#   DLL groups (from collis on): docker, ~30 min; skipped with NEGTEST_SKIP_DLL=1
+#   DLL groups (from collis on): docker, ~82 min one after another (gate 1115_1427), ~22 min with NEGTEST_PAR=4 (the default since W11); skipped with NEGTEST_SKIP_DLL=1
 #   lints   defectlint.py --selftest, stack_lint.py --selftest, harness_drift.py --selftest (M4; skipped without a standalone link under output/gate), trapcheck.py --selftest on the baseline link
 # Exit 1 on the first oracle that does not behave.
 T=$(dirname "$(readlink -f "$0")"); G=$(readlink -f $T/../..); N=$G/tools/negtests; O=$(mktemp -d); rc=0
@@ -39,36 +39,47 @@ python3 $T/../clean_scan.py --selftest > $O/cs.txt 2>&1 && ok "$(tail -1 $O/cs.t
 V=~/.cache/mfl_diffemu_venv/bin/python; if [ -x $V ]; then $V $T/sse_align_check.py --selftest > $O/sa.txt 2>&1 && ok "sse_align selftest: $(grep -c ' ok  ' $O/sa.txt) fixtures" || bad "sse_align selftest: $(grep FAIL $O/sa.txt | head -2)"; else echo "negtest note: no diffemu venv, sse_align selftest skipped"; fi
 # ---- everything below is the DLL groups (docker, ~30 min).  NEGTEST_SKIP_DLL=1 (check_all.sh, cache HIT of tools/negtest_key.py) skips them; the fast part above always runs
 if [ "${NEGTEST_SKIP_DLL:-0}" = 1 ]; then echo "negtest note: DLL groups skipped (check_all cache HIT, tools/negtest_key.py)"; else
+# W11 B10: the DLL groups run side by side, NEGTEST_PAR at a time (default 4, 1 = one after another).  Each group writes $O/g<N>.out; the files are
+# printed in group order after the last one ends, so negtest.txt has the same lines in the same order as a serial run; a `negtest FAIL` line in any of them sets rc.
+# The check scripts are independent: every call has its own OUT dir and a fresh `docker run --rm` container.
+RD=$G/output/librw/mflrw.dll; NG=0; PAR=${NEGTEST_PAR:-4}
+throttle() { while [ $(jobs -rp | wc -l) -ge $PAR ]; do wait -n; done; }
+NG=$((NG+1)); (
 # collis (D1): rw_collis_check.sh must FAIL on the line-flip fixture (the DLL's line entries get start/end swapped) and pass without it; ~30 s, docker
 RD=$G/output/librw/mflrw.dll; CL=WorldForAllTriIntsecLine,GeometryForAllTriIntsecLine
 if ! grep -q mflrw_collis_bind $RD 2>/dev/null; then echo "negtest note: $RD has no collis exports, collis fixture skipped"; else
   OUT=$O/cg $T/rw_collis_check.sh $RD 2000 $CL > $O/cg.txt 2>&1 && ok "collis good: $(grep -c EQUAL $O/cg.txt) line entries EQUAL" || bad "collis good rejected: $(grep -E 'DIFF|MISSING' $O/cg.txt | head -2)"
   OUT=$O/cn $T/rw_collis_check.sh $RD 2000 $CL neg > $O/cn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/cn.txt) = 2 ] && ok "collis line-flip: both line entries DIFF" || bad "collis line-flip fixture not caught: $(grep -E 'finite cases' $O/cn.txt | head -2)"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # splanim (D1b): rw_splanim_check.sh must FAIL on the path-swap fixture (the DLL's FindPosition / FindMatrix get path 10 <-> 11) and pass without it; ~30 s, docker
 RD=$G/output/librw/mflrw.dll; SL=RpSplineFindPosition,RpSplineFindMatrix
 if ! grep -q mflrw_splanim_bind $RD 2>/dev/null; then echo "negtest note: $RD has no splanim exports, splanim fixture skipped"; else
   OUT=$O/sg $T/rw_splanim_check.sh $RD 2000 $SL > $O/sg.txt 2>&1 && ok "splanim good: $(grep -c EQUAL $O/sg.txt) spline entries EQUAL" || bad "splanim good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/sg.txt | head -2)"
   OUT=$O/sn $T/rw_splanim_check.sh $RD 2000 $SL neg > $O/sn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/sn.txt) = 2 ] && ok "splanim path-swap: both spline entries DIFF" || bad "splanim path-swap fixture not caught: $(grep -E 'finite cases' $O/sn.txt | head -2)"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # bezpat (D1c): rw_bezpat_check.sh must FAIL on the step-swap fixture (the DLL's OriginDifference3d / 4d get stepU <-> stepV) and pass without it; ~20 s, docker
 RD=$G/output/librw/mflrw.dll; BL=RtBezierQuadOriginDifference3d,RtBezierQuadOriginDifference4d
 if ! grep -q rw37_RtBezierQuadOriginDifference4d $RD 2>/dev/null; then echo "negtest note: $RD has no bezpat exports, bezpat fixture skipped"; else
   OUT=$O/bg $T/rw_bezpat_check.sh $RD 2000 $BL > $O/bg.txt 2>&1 && ok "bezpat good: $(grep -c EQUAL $O/bg.txt) entries EQUAL" || bad "bezpat good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/bg.txt | head -2)"
   OUT=$O/bn $T/rw_bezpat_check.sh $RD 2000 $BL neg > $O/bn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/bn.txt) = 2 ] && ok "bezpat step-swap: both entries DIFF" || bad "bezpat step-swap fixture not caught: $(grep -E 'finite cases' $O/bn.txt | head -2)"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vd: rw_d3d9vd_check.sh must FAIL on the component-swap fixture (the DLL's InstV3d / InstV2d read x <-> y swapped) and pass without it; ~20 s, docker
 RD=$G/output/librw/mflrw.dll; VL=InstV3d,InstV2d
 if ! grep -q rw37__rpD3D9VertexDeclarationInstV3d $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vd exports, d3d9vd fixture skipped"; else
   OUT=$O/vg $T/rw_d3d9vd_check.sh $RD 2000 $VL > $O/vg.txt 2>&1 && ok "d3d9vd good: $(grep -c EQUAL $O/vg.txt) entries EQUAL" || bad "d3d9vd good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/vg.txt | head -2)"
   OUT=$O/vn $T/rw_d3d9vd_check.sh $RD 2000 $VL neg > $O/vn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/vn.txt) = 2 ] && ok "d3d9vd component-swap: both entries DIFF" || bad "d3d9vd component-swap fixture not caught: $(grep -E 'finite cases' $O/vn.txt | head -2)"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # hanimcam (L6): rw_hanimcam_check.sh must FAIL on the swap fixture (the DLL side gets near <-> far and the first keyframe quat x <-> y, inputs restored after the call) and pass without it; ~20 s, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_hanimcam_bind $RD 2>/dev/null; then echo "negtest note: $RD has no hanimcam exports, hanimcam fixture skipped"; else
   OUT=$O/hg $T/rw_hanimcam_check.sh $RD 2000 > $O/hg.txt 2>&1 && ok "hanimcam good: $(grep -c EQUAL $O/hg.txt) entries EQUAL" || bad "hanimcam good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/hg.txt | head -2)"
   OUT=$O/hn $T/rw_hanimcam_check.sh $RD 2000 all neg > $O/hn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/hn.txt) = 3 ] && ok "hanimcam swap: all three entries DIFF" || bad "hanimcam swap fixture not caught: $(grep -E 'finite cases' $O/hn.txt | head -3)"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # rwmath (rw4): rw_rwmath_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~60 s, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_rwmath_bind $RD 2>/dev/null; then echo "negtest note: $RD has no rwmath exports, rwmath fixture skipped"; else
@@ -76,20 +87,23 @@ if ! grep -q mflrw_rwmath_bind $RD 2>/dev/null; then echo "negtest note: $RD has
   OUT=$O/rwn $T/rw_rwmath_check.sh $RD 2000 all neg > $O/rwn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/rwn.txt) = 26 ] && ok "rwmath swap: all 26 entries DIFF" || bad "rwmath swap fixture not caught: $(grep -c 'finite cases DIFF' $O/rwn.txt) of 26 DIFF"
   # R1: planted unbalanced fld1 in front of each DLL entry: the callee-saved / x87 TOP + tag check must give REGDIFF on all 26
   OUT=$O/rwf $T/rw_rwmath_check.sh $RD 2000 all fld > $O/rwf.txt 2>&1; [ $(grep -c 'regs/x87 REGDIFF' $O/rwf.txt) = 26 ] && ok "rwmath fld plant: all 26 entries REGDIFF" || bad "rwmath fld plant not caught: $(grep -c 'regs/x87 REGDIFF' $O/rwf.txt) of 26 REGDIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # rt2d (R2): rw_rt2d_check.sh must FAIL on the input-change fixture (DIFF on all 9) and the planted unbalanced fld (REGDIFF on all 9) and pass without them; ~40 s, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_rt2d_bind $RD 2>/dev/null; then echo "negtest note: $RD has no rt2d exports, rt2d fixture skipped"; else
   OUT=$O/r2g $T/rw_rt2d_check.sh $RD 2000 > $O/r2g.txt 2>&1 && ok "rt2d good: $(grep -c 'finite cases EQUAL' $O/r2g.txt) entries EQUAL" || bad "rt2d good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/r2g.txt | head -2)"
   OUT=$O/r2n $T/rw_rt2d_check.sh $RD 2000 all neg > $O/r2n.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/r2n.txt) = 9 ] && ok "rt2d input fixture: all 9 entries DIFF" || bad "rt2d input fixture not caught: $(grep -c 'finite cases DIFF' $O/r2n.txt) of 9 DIFF"
   OUT=$O/r2f $T/rw_rt2d_check.sh $RD 2000 all fld > $O/r2f.txt 2>&1; [ $(grep -c 'regs/x87 REGDIFF' $O/r2f.txt) = 9 ] && ok "rt2d fld plant: all 9 entries REGDIFF" || bad "rt2d fld plant not caught: $(grep -c 'regs/x87 REGDIFF' $O/r2f.txt) of 9 REGDIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # pngread (R3): rw_pngread_check.sh must pass on the game's PNGs + corrupt variants and FAIL on the IHDR fixture; ~3 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_pngread_bind $RD 2>/dev/null; then echo "negtest note: $RD has no pngread exports, pngread fixture skipped"; else
   OUT=$O/pgg $T/rw_pngread_check.sh $RD 10 > $O/pgg.txt 2>&1 && ok "pngread good: $(grep -c 'B  EQUAL' $O/pgg.txt) files EQUAL" || bad "pngread good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/pgg.txt | head -2)"
   OUT=$O/pgn $T/rw_pngread_check.sh $RD 0 neg > $O/pgn.txt 2>&1; [ $(grep -c 'B  DIFF' $O/pgn.txt) = $(grep -c 'B  EQUAL' $O/pgg.txt) ] && ok "pngread IHDR fixture: every file DIFF" || bad "pngread IHDR fixture not caught: $(grep -c 'B  DIFF' $O/pgn.txt) files DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # lod (R4): rw_lod_check.sh must FAIL on the input fixture (DIFF on all 4), the fld plant (REGDIFF on all 4) and the lrintf fixture DLL (DIFF on the selector); ~40 s, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_lod_bind $RD 2>/dev/null; then echo "negtest note: $RD has no lod exports, lod fixture skipped"; else
@@ -97,91 +111,106 @@ if ! grep -q mflrw_lod_bind $RD 2>/dev/null; then echo "negtest note: $RD has no
   OUT=$O/ln $T/rw_lod_check.sh $RD 2000 all neg > $O/ln.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/ln.txt) = 4 ] && ok "lod input fixture: all 4 entries DIFF" || bad "lod input fixture not caught: $(grep -c 'finite cases DIFF' $O/ln.txt) of 4 DIFF"
   OUT=$O/lf $T/rw_lod_check.sh $RD 2000 all fld > $O/lf.txt 2>&1; [ $(grep -c 'regs/x87 REGDIFF' $O/lf.txt) = 4 ] && ok "lod fld plant: all 4 entries REGDIFF" || bad "lod fld plant not caught: $(grep -c 'regs/x87 REGDIFF' $O/lf.txt) of 4 REGDIFF"
   OUT=$O/lr $T/rw_lod_check.sh lrintf 2000 > $O/lr.txt 2>&1; grep -q 'LODAtomicCallBackSelectLOD .*finite cases DIFF' $O/lr.txt && ok "lod lrintf fixture: selector DIFF" || bad "lod lrintf fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # pixfmt (rw4): rw_pixfmt_check.sh must FAIL on the swap fixture (input bytes 0 <-> 2 swapped on the DLL side, inputs restored after the call) and pass without it; ~60 s, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_pixfmt_bind $RD 2>/dev/null; then echo "negtest note: $RD has no pixfmt exports, pixfmt fixture skipped"; else
   OUT=$O/pig $T/rw_pixfmt_check.sh $RD 2000 > $O/pig.txt 2>&1 && ok "pixfmt good: $(grep -c EQUAL $O/pig.txt) entries EQUAL" || bad "pixfmt good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/pig.txt | head -2)"
   OUT=$O/pin $T/rw_pixfmt_check.sh $RD 2000 all neg > $O/pin.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/pin.txt) = 8 ] && ok "pixfmt swap: all 8 entries DIFF" || bad "pixfmt swap fixture not caught: $(grep -c 'finite cases DIFF' $O/pin.txt) of 8 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3dconv (engine switch X1): rw_d3dconv_check.sh must FAIL on the channel swap fixture (bytes 1 <-> 3 of the DLL's pixel / palette inputs) on all 11 pixel
 # entries and pass without it; ~10 s, docker
 if ! grep -q mflrw_d3dconv_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dconv exports, d3dconv fixture skipped"; else
   OUT=$O/dcg $T/rw_d3dconv_check.sh $RD 2000 > $O/dcg.txt 2>&1 && ok "d3dconv good: $(grep -c EQUAL $O/dcg.txt) entries EQUAL" || bad "d3dconv good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/dcg.txt | head -2)"
   OUT=$O/dcn $T/rw_d3dconv_check.sh $RD 2000 all neg > $O/dcn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/dcn.txt) = 11 ] && ok "d3dconv swap: all 11 pixel entries DIFF" || bad "d3dconv swap fixture not caught: $(grep -c 'finite cases DIFF' $O/dcn.txt) of 11 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # tristrip (rw5): rw_tristrip_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~2 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_tristrip_bind $RD 2>/dev/null; then echo "negtest note: $RD has no tristrip exports, tristrip fixture skipped"; else
   OUT=$O/trxg $T/rw_tristrip_check.sh $RD 2000 > $O/trxg.txt 2>&1 && ok "tristrip good: $(grep -c EQUAL $O/trxg.txt) entries EQUAL" || bad "tristrip good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/trxg.txt | head -2)"
   OUT=$O/trxn $T/rw_tristrip_check.sh $RD 2000 all neg > $O/trxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/trxn.txt) = 8 ] && ok "tristrip swap: all 8 entries DIFF" || bad "tristrip swap fixture not caught: $(grep -c 'finite cases DIFF' $O/trxn.txt) of 8 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # colltree (rw5): rw_colltree_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~2 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_colltree_bind $RD 2>/dev/null; then echo "negtest note: $RD has no colltree exports, colltree fixture skipped"; else
   OUT=$O/coxg $T/rw_colltree_check.sh $RD 2000 > $O/coxg.txt 2>&1 && ok "colltree good: $(grep -c EQUAL $O/coxg.txt) entries EQUAL" || bad "colltree good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/coxg.txt | head -2)"
   OUT=$O/coxn $T/rw_colltree_check.sh $RD 2000 all neg > $O/coxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/coxn.txt) = 13 ] && ok "colltree swap: all 13 entries DIFF" || bad "colltree swap fixture not caught: $(grep -c 'finite cases DIFF' $O/coxn.txt) of 13 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # image (rw5): rw_image_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~2 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_image_bind $RD 2>/dev/null; then echo "negtest note: $RD has no image exports, image fixture skipped"; else
   OUT=$O/imxg $T/rw_image_check.sh $RD 2000 > $O/imxg.txt 2>&1 && ok "image good: $(grep -c EQUAL $O/imxg.txt) entries EQUAL" || bad "image good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/imxg.txt | head -2)"
   OUT=$O/imxn $T/rw_image_check.sh $RD 2000 all neg > $O/imxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/imxn.txt) = 6 ] && ok "image swap: all 6 entries DIFF" || bad "image swap fixture not caught: $(grep -c 'finite cases DIFF' $O/imxn.txt) of 6 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # resample (rw5): rw_resample_check.sh must FAIL on the swap fixture (two source pixels swapped on the DLL side, inputs restored after the call) and pass without it; ~2 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q rw37_ImageResampleGetSpan $RD 2>/dev/null; then echo "negtest note: $RD has no resample exports, resample fixture skipped"; else
   OUT=$O/rexg $T/rw_resample_check.sh $RD 2000 > $O/rexg.txt 2>&1 && ok "resample good: $(grep -c EQUAL $O/rexg.txt) entries EQUAL" || bad "resample good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/rexg.txt | head -2)"
   OUT=$O/rexn $T/rw_resample_check.sh $RD 2000 all neg > $O/rexn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/rexn.txt) = 2 ] && ok "resample swap: all 2 entries DIFF" || bad "resample swap fixture not caught: $(grep -c 'finite cases DIFF' $O/rexn.txt) of 2 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # sortcmp (rw6): rw_sortcmp_check.sh must FAIL on the swap fixture (the two comparator arguments swapped on the DLL side, inputs restored after the call) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q rw37_TriStripSortCompare $RD 2>/dev/null; then echo "negtest note: $RD has no sortcmp exports, sortcmp fixture skipped"; else
   OUT=$O/soxg $T/rw_sortcmp_check.sh $RD 2000 > $O/soxg.txt 2>&1 && ok "sortcmp good: $(grep -c EQUAL $O/soxg.txt) entries EQUAL" || bad "sortcmp good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/soxg.txt | head -2)"
   OUT=$O/soxn $T/rw_sortcmp_check.sh $RD 2000 all neg > $O/soxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/soxn.txt) = 2 ] && ok "sortcmp swap: all 2 entries DIFF" || bad "sortcmp swap fixture not caught: $(grep -c 'finite cases DIFF' $O/soxn.txt) of 2 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # uvanim (rw6): rw_uvanim_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_uvanim_bind $RD 2>/dev/null; then echo "negtest note: $RD has no uvanim exports, uvanim fixture skipped"; else
   OUT=$O/uvxg $T/rw_uvanim_check.sh $RD 2000 > $O/uvxg.txt 2>&1 && ok "uvanim good: $(grep -c EQUAL $O/uvxg.txt) entries EQUAL" || bad "uvanim good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/uvxg.txt | head -2)"
   OUT=$O/uvxn $T/rw_uvanim_check.sh $RD 2000 all neg > $O/uvxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/uvxn.txt) = 4 ] && ok "uvanim swap: all 4 entries DIFF" || bad "uvanim swap fixture not caught: $(grep -c 'finite cases DIFF' $O/uvxn.txt) of 4 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # camsync (rw6): rw_camsync_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_camsync_bind $RD 2>/dev/null; then echo "negtest note: $RD has no camsync exports, camsync fixture skipped"; else
   OUT=$O/caxg $T/rw_camsync_check.sh $RD 2000 > $O/caxg.txt 2>&1 && ok "camsync good: $(grep -c EQUAL $O/caxg.txt) entries EQUAL" || bad "camsync good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/caxg.txt | head -2)"
   OUT=$O/caxn $T/rw_camsync_check.sh $RD 2000 all neg > $O/caxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/caxn.txt) = 1 ] && ok "camsync swap: all 1 entries DIFF" || bad "camsync swap fixture not caught: $(grep -c 'finite cases DIFF' $O/caxn.txt) of 1 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # rwleaf (rw6): rw_rwleaf_check.sh must FAIL on the swap fixture (two input words swapped on the DLL side, inputs restored after the call) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_rwleaf_bind $RD 2>/dev/null; then echo "negtest note: $RD has no rwleaf exports, rwleaf fixture skipped"; else
   OUT=$O/rwxg $T/rw_rwleaf_check.sh $RD 2000 > $O/rwxg.txt 2>&1 && ok "rwleaf good: $(grep -c EQUAL $O/rwxg.txt) entries EQUAL" || bad "rwleaf good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/rwxg.txt | head -2)"
   OUT=$O/rwxn $T/rw_rwleaf_check.sh $RD 2000 all neg > $O/rwxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/rwxn.txt) = 5 ] && ok "rwleaf swap: all 5 entries DIFF" || bad "rwleaf swap fixture not caught: $(grep -c 'finite cases DIFF' $O/rwxn.txt) of 5 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vc (rw7): rw_d3d9vc_check.sh must FAIL on the swap fixture (the DLL reads bytes x and y of every normal swapped) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q rw37__rpD3D9VertexDeclarationInstV3dComp $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vc exports, d3d9vc fixture skipped"; else
   OUT=$O/d3vcxg $T/rw_d3d9vc_check.sh $RD 2000 > $O/d3vcxg.txt 2>&1 && ok "d3d9vc good: $(grep -c EQUAL $O/d3vcxg.txt) entries EQUAL" || bad "d3d9vc good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/d3vcxg.txt | head -2)"
   OUT=$O/d3vcxn $T/rw_d3d9vc_check.sh $RD 2000 all neg > $O/d3vcxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/d3vcxn.txt) = 1 ] && ok "d3d9vc swap: all 1 entries DIFF" || bad "d3d9vc swap fixture not caught: $(grep -c 'finite cases DIFF' $O/d3vcxn.txt) of 1 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # rwleaf2 (rw7): rw_rwleaf2_check.sh must FAIL on the swap fixture (a changed input on the DLL side) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_rwleaf2_bind $RD 2>/dev/null; then echo "negtest note: $RD has no rwleaf2 exports, rwleaf2 fixture skipped"; else
   OUT=$O/rwf2xg $T/rw_rwleaf2_check.sh $RD 2000 > $O/rwf2xg.txt 2>&1 && ok "rwleaf2 good: $(grep -c EQUAL $O/rwf2xg.txt) entries EQUAL" || bad "rwleaf2 good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/rwf2xg.txt | head -2)"
   OUT=$O/rwf2xn $T/rw_rwleaf2_check.sh $RD 2000 all neg > $O/rwf2xn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/rwf2xn.txt) = 5 ] && ok "rwleaf2 swap: all 5 entries DIFF" || bad "rwleaf2 swap fixture not caught: $(grep -c 'finite cases DIFF' $O/rwf2xn.txt) of 5 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # splopen (rw7): rw_splopen_check.sh must FAIL on the swap fixture (a changed input on the DLL side) and pass without it; ~1 min, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_splopen_bind $RD 2>/dev/null; then echo "negtest note: $RD has no splopen exports, splopen fixture skipped"; else
   OUT=$O/spenxg $T/rw_splopen_check.sh $RD 2000 > $O/spenxg.txt 2>&1 && ok "splopen good: $(grep -c EQUAL $O/spenxg.txt) entries EQUAL" || bad "splopen good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/spenxg.txt | head -2)"
   OUT=$O/spenxn $T/rw_splopen_check.sh $RD 2000 all neg > $O/spenxn.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/spenxn.txt) = 3 ] && ok "splopen swap: all 3 entries DIFF" || bad "splopen swap fixture not caught: $(grep -c 'finite cases DIFF' $O/spenxn.txt) of 3 DIFF"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # imgread (L3c): rw_imgread_check.sh must FAIL on the swap fixture (the DLL reads two distinct pixel bytes swapped) and pass without it; ~30 s, docker
 RD=$G/output/librw/mflrw.dll
 if ! grep -q mflrw_imgread_bind $RD 2>/dev/null; then echo "negtest note: $RD has no imgread exports, imgread fixture skipped"; else
   OUT=$O/ig $T/rw_imgread_check.sh $RD 20000 > $O/ig.txt 2>&1 && ok "imgread good: $(grep -c EQUAL $O/ig.txt) entries EQUAL" || bad "imgread good rejected: $(grep -E 'DIFF|MISSING|TIMEOUT|CRASH' $O/ig.txt | head -2)"
   OUT=$O/in $T/rw_imgread_check.sh $RD 20000 all neg > $O/in.txt 2>&1; [ $(grep -c 'finite cases DIFF' $O/in.txt) = 1 ] && ok "imgread swap: the entry DIFF" || bad "imgread swap fixture not caught: $(grep -E 'finite cases' $O/in.txt | head -2)"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3drs (engine switch D1): rw_d3drs_check.sh must pass and DIFF on two mutations of the original: (a) FlushCache skips its redundant-state compare
 # (je 0x4e3b5e -> nop nop: an extra device SetRenderState), (b) the stencil-enable setter drops its dirty-list append (inc eax 0x4e5996 -> nop); ~1 min, docker
 RD=$G/output/librw/mflrw.dll
@@ -189,14 +218,16 @@ if ! grep -q mflrw_d3d_bind $RD 2>/dev/null; then echo "negtest note: $RD has no
   OUT=$O/d3rg $T/rw_d3drs_check.sh $RD 10 1000 > $O/d3rg.txt 2>&1 && ok "d3drs good: $(grep -c EQUAL $O/d3rg.txt) run EQUAL" || bad "d3drs good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d3rg.txt | head -2)"
   OUT=$O/d3ra $T/rw_d3drs_check.sh $RD 10 1000 4e3b5e:90 4e3b5f:90 > $O/d3ra.txt 2>&1; grep -q 'compared; DIFF' $O/d3ra.txt && ok "d3drs redundant-compare skip: DIFF" || bad "d3drs redundant-compare fixture not caught"
   OUT=$O/d3rb $T/rw_d3drs_check.sh $RD 10 1000 4e5996:90 > $O/d3rb.txt 2>&1; grep -q 'compared; DIFF' $O/d3rb.txt && ok "d3drs dropped dirty append: DIFF" || bad "d3drs dirty-append fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3dim2d (engine switch D2): rw_d3dim2d_check.sh must pass and DIFF on two mutations of the original: (a) the dynamic ring lock appends with DISCARD instead of
 # NOOVERWRITE (push 0x1800 -> 0x2800 at 0x4ecdfc: a wrong discard flag), (b) ForceDiscard wraps the ring after 3 slots (cmp eax,4 -> 3 at 0x4ec9de); ~1 min, docker
 if ! grep -q mflrw_d3dim2d_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dim2d exports, d3dim2d fixtures skipped"; else
   OUT=$O/d2g $T/rw_d3dim2d_check.sh $RD 10 1000 > $O/d2g.txt 2>&1 && ok "d3dim2d good: $(grep -c EQUAL $O/d2g.txt) run EQUAL" || bad "d3dim2d good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d2g.txt | head -2)"
   OUT=$O/d2a $T/rw_d3dim2d_check.sh $RD 10 1000 4ecdfc:28 > $O/d2a.txt 2>&1; grep -q 'compared; DIFF' $O/d2a.txt && ok "d3dim2d discard flag: DIFF" || bad "d3dim2d discard-flag fixture not caught"
   OUT=$O/d2b $T/rw_d3dim2d_check.sh $RD 10 1000 4ec9de:03 > $O/d2b.txt 2>&1; grep -q 'compared; DIFF' $O/d2b.txt && ok "d3dim2d ring wrap: DIFF" || bad "d3dim2d ring-wrap fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3dras (engine switch window 2, X2): rw_d3dras_check.sh must pass and DIFF on two mutations of the original: (a) a palettised PAL8 raster with a given colour format gets
 # depth 4 instead of 8 (mov [esi+0x14],8 -> 4 at 0x4e2284 in _rwD3D9RasterCreate), (b) CreateTextureRaster drops the mip count (levels = 0 always: and esi,1 -> 0 at
 # 0x4e28f7); ~1 min, docker
@@ -211,7 +242,8 @@ if ! grep -q mflrw_d3dras2_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/xrg $T/rw_d3dras_check.sh $RD 10 1000 > $O/xrg.txt 2>&1 && ok "d3dras good: $(grep -c EQUAL $O/xrg.txt) run EQUAL" || bad "d3dras good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/xrg.txt | head -2)"
   OUT=$O/xra $T/rw_d3dras_check.sh $RD 10 1000 4e2284:04 > $O/xra.txt 2>&1; grep -q 'compared; DIFF' $O/xra.txt && ok "d3dras palettised depth 8 -> 4: DIFF" || bad "d3dras palettised-depth fixture not caught"
   OUT=$O/xrb $T/rw_d3dras_check.sh $RD 10 1000 4e28f7:00 > $O/xrb.txt 2>&1; grep -q 'compared; DIFF' $O/xrb.txt && ok "d3dras mip count dropped: DIFF" || bad "d3dras mip-count fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3dlights (engine switch window 2, D3): rw_d3dlights_check.sh must pass and DIFF on two mutations of the original: (a) LightsEnable drops the LightEnable(FALSE) of a
 # light gone since the last frame (call 0x4db830 at 0x505b77 -> 5 nops), (b) RwD3D9SetLight skips the LightsEqual compare (jne at 0x4db7eb -> 2 nops: an unchanged
 # light is sent again); ~1 min, docker
@@ -219,14 +251,16 @@ if ! grep -q mflrw_d3dlights_bind $RD 2>/dev/null; then echo "negtest note: $RD 
   OUT=$O/d3g $T/rw_d3dlights_check.sh $RD 10 1000 > $O/d3g.txt 2>&1 && ok "d3dlights good: $(grep -c EQUAL $O/d3g.txt) run EQUAL" || bad "d3dlights good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d3g.txt | head -2)"
   OUT=$O/d3a $T/rw_d3dlights_check.sh $RD 10 1000 505b77:90 505b78:90 505b79:90 505b7a:90 505b7b:90 > $O/d3a.txt 2>&1; grep -q 'compared; DIFF' $O/d3a.txt && ok "d3dlights dropped LightEnable(FALSE): DIFF" || bad "d3dlights LightEnable(FALSE) fixture not caught"
   OUT=$O/d3b $T/rw_d3dlights_check.sh $RD 10 1000 4db7eb:90 4db7ec:90 > $O/d3b.txt 2>&1; grep -q 'compared; DIFF' $O/d3b.txt && ok "d3dlights LightsEqual compare skipped: DIFF" || bad "d3dlights LightsEqual fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3dxform (engine switch window 2, D4): rw_d3dxform_check.sh must pass and DIFF on two mutations of the original: (a) RwD3D9SetTransform drops the cache compare
 # (jne -> jmp at 0x4db4a1: an unchanged matrix is sent again), (b) _rwD3D9SetStreams passes a wrong stride (push edx -> push ecx at 0x4db31b); ~1 min, docker
 if ! grep -q mflrw_d3dxform_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3dxform exports, d3dxform fixtures skipped"; else
   OUT=$O/d4g $T/rw_d3dxform_check.sh $RD 10 1000 > $O/d4g.txt 2>&1 && ok "d3dxform good: $(grep -c EQUAL $O/d4g.txt) run EQUAL" || bad "d3dxform good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d4g.txt | head -2)"
   OUT=$O/d4a $T/rw_d3dxform_check.sh $RD 10 1000 4db4a1:eb > $O/d4a.txt 2>&1; grep -q 'compared; DIFF' $O/d4a.txt && ok "d3dxform transform cache compare dropped: DIFF" || bad "d3dxform transform-cache fixture not caught"
   OUT=$O/d4b $T/rw_d3dxform_check.sh $RD 10 1000 4db31b:51 > $O/d4b.txt 2>&1; grep -q 'compared; DIFF' $O/d4b.txt && ok "d3dxform wrong stream stride: DIFF" || bad "d3dxform stream-stride fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9pipe (engine switch window 3, D5): rw_d3d9pipe_check.sh must pass and DIFF on three mutations of the original: (a) InstanceDataDestroy drops the owner type 8
 # test (jne -> nops at 0x4fa97f: the atomic's geometry is not looked up), (b) rxD3D9Instance sorts on primitive type 5 instead of 4 (0x4fad10 04 -> 05),
 # (c) rxD3D9DefaultRenderCallback resets stage 1 on the wrong condition (jne -> je at 0x4fb364); ~1 min, docker
@@ -235,21 +269,24 @@ if ! grep -q mflrw_d3d9pipe_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/d5a $T/rw_d3d9pipe_check.sh $RD 10 1000 4fa97f:90 4fa980:90 > $O/d5a.txt 2>&1; grep -q 'compared; DIFF' $O/d5a.txt && ok "d3d9pipe destroy owner type test dropped: DIFF" || bad "d3d9pipe destroy-owner fixture not caught"
   OUT=$O/d5b $T/rw_d3d9pipe_check.sh $RD 10 1000 4fad10:05 > $O/d5b.txt 2>&1; grep -q 'compared; DIFF' $O/d5b.txt && ok "d3d9pipe instance sort on wrong primitive type: DIFF" || bad "d3d9pipe instance-sort fixture not caught"
   OUT=$O/d5c $T/rw_d3d9pipe_check.sh $RD 10 1000 4fb364:74 > $O/d5c.txt 2>&1; grep -q 'compared; DIFF' $O/d5c.txt && ok "d3d9pipe render stage-1 reset inverted: DIFF" || bad "d3d9pipe render-stage fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9texdic (engine switch window 3, D6): rw_d3d9texdic_check.sh must pass and DIFF on two mutations of the original: (a) NativeTextureRead steps the cube face index
 # by 2 (0x4edd09 10 -> 20), (b) NativeTextureGetSize counts a PAL4 header one byte too big (0x4ed2a6 e4 -> e5); ~1 min, docker
 if ! grep -q mflrw_d3d9texdic_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9texdic exports, d3d9texdic fixtures skipped"; else
   OUT=$O/d6g $T/rw_d3d9texdic_check.sh $RD 10 1000 > $O/d6g.txt 2>&1 && ok "d3d9texdic good: $(grep -c EQUAL $O/d6g.txt) run EQUAL" || bad "d3d9texdic good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d6g.txt | head -2)"
   OUT=$O/d6a $T/rw_d3d9texdic_check.sh $RD 10 1000 4edd09:20 > $O/d6a.txt 2>&1; grep -q 'compared; DIFF' $O/d6a.txt && ok "d3d9texdic cube face step wrong: DIFF" || bad "d3d9texdic face-step fixture not caught"
   OUT=$O/d6b $T/rw_d3d9texdic_check.sh $RD 10 1000 4ed2a6:e5 > $O/d6b.txt 2>&1; grep -q 'compared; DIFF' $O/d6b.txt && ok "d3d9texdic PAL4 header size wrong: DIFF" || bad "d3d9texdic header-size fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vdtan (engine switch window 3, D6): rw_d3d9vdtan_check.sh must pass and DIFF on two mutations of the original FUN_00508600: (a) the tangent cosine merge test
 # inverted (jne -> je at 0x508b51), (b) the x determinant test inverted (jne -> je at 0x508805); ~1 min, docker
 if ! grep -q mflrw_d3d9vdtan_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vdtan exports, d3d9vdtan fixtures skipped"; else
   OUT=$O/d7g $T/rw_d3d9vdtan_check.sh $RD 10 1000 > $O/d7g.txt 2>&1 && ok "d3d9vdtan good: $(grep -c EQUAL $O/d7g.txt) run EQUAL" || bad "d3d9vdtan good rejected: $(grep -E 'DIFF|MISSING|TRAP|TIMEOUT|CRASH' $O/d7g.txt | head -2)"
   OUT=$O/d7a $T/rw_d3d9vdtan_check.sh $RD 10 1000 508b51:74 > $O/d7a.txt 2>&1; grep -q 'compared; DIFF' $O/d7a.txt && ok "d3d9vdtan tangent merge test inverted: DIFF" || bad "d3d9vdtan merge fixture not caught"
   OUT=$O/d7b $T/rw_d3d9vdtan_check.sh $RD 10 1000 508805:74 > $O/d7b.txt 2>&1; grep -q 'compared; DIFF' $O/d7b.txt && ok "d3d9vdtan det test inverted: DIFF" || bad "d3d9vdtan det fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # texread (engine switch window 5, lane K): rw_texread_check.sh must DIFF on four mutations of the original: (a) RwImageRead searches for '\\' instead of '/' (push imm 0x2f -> 0x5c
 # at 0x4ddc6a), (b) RwImageStreamRead takes the stride-equal branch the other way (jne -> je at 0x4de7e4), (c) TextureDefaultFind folds 'z' wrongly (cmp al, 0x7a -> 0x79 at 0x4d7674),
 # (d) RwTextureStreamRead leaves filter 4 out of the mipmapped set (cmp esi, 4 -> 7 at 0x4df3fc); ~1 min each, docker.  The good run is the texread2 one below (a superset).
@@ -258,7 +295,8 @@ if ! grep -q mflrw_texread_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/e1b $T/rw_texread_check.sh $RD 20 300 4de7e4:74 > $O/e1b.txt 2>&1; grep -q 'compared; DIFF' $O/e1b.txt && ok "texread image stream stride test inverted: DIFF" || bad "texread image-stream fixture not caught"
   OUT=$O/e1c $T/rw_texread_check.sh $RD 20 300 4d7674:79 > $O/e1c.txt 2>&1; grep -q 'compared; DIFF' $O/e1c.txt && ok "texread default find folds z wrongly: DIFF" || bad "texread default-find fixture not caught"
   OUT=$O/e1d $T/rw_texread_check.sh $RD 20 300 4df3fc:07 > $O/e1d.txt 2>&1; grep -q 'compared; DIFF' $O/e1d.txt && ok "texread stream filter 4 not mipmapped: DIFF" || bad "texread texture-stream fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # texread2 (window 5, lane K batches 2 / 3): rw_texread2_check.sh (re-runs the texread rows too) must pass and DIFF on (e) RwImageSetGamma loop bound (cmp esi, 0x100 -> 0 at 0x4deb3e),
 # (f) rwTextureOpen stores a wrong default read callback (0x4d6340 -> 0x4d6341 at 0x4d6277), (g) PalettizeMipmaps shared palette test inverted (jne -> je at 0x4d67af),
 # (h) TextureRasterDefaultBuildMipmaps lock mode (push 2 -> 3 at 0x4d7469); ~1 min each, docker
@@ -268,7 +306,8 @@ if ! grep -q mflrw_texread2_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/e2f $T/rw_texread2_check.sh $RD 20 300 4d6277:41 > $O/e2f.txt 2>&1; grep -q 'compared; DIFF' $O/e2f.txt && ok "texread2 texture open callback wrong: DIFF" || bad "texread2 texture-open fixture not caught"
   OUT=$O/e2g2 $T/rw_texread2_check.sh $RD 20 300 4d67af:74 > $O/e2g2.txt 2>&1; grep -q 'compared; DIFF' $O/e2g2.txt && ok "texread2 palettize shared-palette test inverted: DIFF" || bad "texread2 palettize fixture not caught"
   OUT=$O/e2h $T/rw_texread2_check.sh $RD 20 300 4d7469:03 > $O/e2h.txt 2>&1; grep -q 'compared; DIFF' $O/e2h.txt && ok "texread2 build mipmaps lock mode wrong: DIFF" || bad "texread2 build-mipmaps fixture not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # matfx (window 5, lane K batches 2 / 3): rw_matfx_check.sh must pass and DIFF on (a) user data array element size (mov eax, 4 -> 8 at 0x554210), (b) atomic instance callback
 # material type test (sub eax, 2 -> 1 at 0x553f11), (c) world sector instance callback, same test (0x553f89), (d) bump map texture compression test inverted (jne -> je at 0x5540e2),
 # (e) render callback type range (cmp edx, 5 -> 4 at 0x553bfc), (f) DefaultRender lit pass flag test (0x5508de 84 -> 80), (g) env map projection constant (0x55211e 03 -> 04),
@@ -290,7 +329,8 @@ if ! grep -q mflrw_matfx_bind $RD 2>/dev/null; then echo "negtest note: $RD has 
   OUT=$O/e3l $T/rw_matfx_check.sh $RD 20 300 551ed3:3d > $O/e3l.txt 2>&1; grep -q 'compared; DIFF' $O/e3l.txt && ok "matfx env render texture factor state wrong: DIFF" || bad "matfx env-render fixture l not caught"
   OUT=$O/e3m $T/rw_matfx_check.sh $RD 20 300 55234d:53 > $O/e3m.txt 2>&1; grep -q 'compared; DIFF' $O/e3m.txt && ok "matfx bump render FVF wrong: DIFF" || bad "matfx bump-render fixture m not caught"
   OUT=$O/e3n $T/rw_matfx_check.sh $RD 20 300 552314:2d > $O/e3n.txt 2>&1; grep -q 'compared; DIFF' $O/e3n.txt && ok "matfx bump render lock stride wrong: DIFF" || bad "matfx bump-render fixture n not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # matfx2 (window 5, lane K batch 4): rw_matfx2_check.sh must pass and DIFF on mutations of the original:
 # DualPass: (a) source blend test 9 -> 10 (cmp eax, 9 at 0x550cd1), (c) (5,6) case source test 5 -> 6 (0x550e61).  CalculatePerturbedUVs: (e) vertex tangent path reads the wrong
 # light component (fld [esp+0xd0] disp at 0x552d33), (h) uv scale (fmul [esp+0x70] disp at 0x552e87), (j) tristrip first two vertices test 2 -> 3 (0x552fbd).
@@ -301,7 +341,8 @@ if ! grep -q mflrw_matfx2_bind $RD 2>/dev/null; then echo "negtest note: $RD has
   OUT=$O/e4e $T/rw_matfx2_check.sh $RD 20 300 552d33:d4 > $O/e4e.txt 2>&1; grep -q 'compared; DIFF' $O/e4e.txt && ok "matfx2 perturbed uv light component wrong: DIFF" || bad "matfx2 perturbed-uv fixture e not caught"
   OUT=$O/e4h $T/rw_matfx2_check.sh $RD 20 300 552e87:74 > $O/e4h.txt 2>&1; grep -q 'compared; DIFF' $O/e4h.txt && ok "matfx2 perturbed uv scale wrong: DIFF" || bad "matfx2 perturbed-uv fixture h not caught"
   OUT=$O/e4j $T/rw_matfx2_check.sh $RD 20 300 552fbd:03 > $O/e4j.txt 2>&1; grep -q 'compared; DIFF' $O/e4j.txt && ok "matfx2 perturbed uv tristrip start wrong: DIFF" || bad "matfx2 perturbed-uv fixture j not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9dev (window 5, lane K batch 4): rw_d3d9dev_check.sh must pass and DIFF on (a) _rwD3D9SetRenderTarget cache hit test inverted (je -> jne at 0x4d7bbf), (c) RwD3D9SetRenderTarget
 # cube face shift 4 -> 5 (0x4db141), (e) RwD3D9EngineSetRefreshRate rate compare jae -> jb (0x4da09f), (g) rwD3D9CameraEndUpdate cType test 5 -> 6 (0x4dac94), (i) device state reset
 # matrix cache loop bound 0x410 -> 0x40c (0x4db07a).
@@ -312,7 +353,8 @@ if ! grep -q mflrw_d3d9dev_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/e5e $T/rw_d3d9dev_check.sh $RD 20 300 4da09f:72 > $O/e5e.txt 2>&1; grep -q 'compared; DIFF' $O/e5e.txt && ok "d3d9dev refresh rate compare wrong: DIFF" || bad "d3d9dev fixture e not caught"
   OUT=$O/e5g2 $T/rw_d3d9dev_check.sh $RD 20 300 4dac94:06 > $O/e5g2.txt 2>&1; grep -q 'compared; DIFF' $O/e5g2.txt && ok "d3d9dev camera end update raster type wrong: DIFF" || bad "d3d9dev fixture g not caught"
   OUT=$O/e5i $T/rw_d3d9dev_check.sh $RD 20 300 4db07a:0c > $O/e5i.txt 2>&1; grep -q 'compared; DIFF' $O/e5i.txt && ok "d3d9dev state reset matrix loop wrong: DIFF" || bad "d3d9dev fixture i not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9dev2 (window 5, lane K batch 5): rw_d3d9dev2_check.sh must pass and DIFF on mutations of the original (one per function family):
 # (a) CreateVertexDeclaration element count compare jne -> je (4dba19), (b) CameraAttachWindow raster flags 0x82 -> 0x83 (4da1e5),
 # (c) D3D9DeviceSystemStop matrix cache loop bound 0x410 -> 0x40c (4d8e82), (d) rwD3D9BeginScene reset-failed constant 0x8876086c -> 0x8876086d (4d9e96), (e) ReleaseVideoMemory matrix loop bound
@@ -334,7 +376,8 @@ if ! grep -q mflrw_d3d9dev2_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/e5kk $T/rw_d3d9dev2_check.sh $RD 20 300 4e032d:10 > $O/e5kk.txt 2>&1; grep -q 'compared; DIFF' $O/e5kk.txt && ok "d3d9dev2 palette lock flag wrong: DIFF" || bad "d3d9dev2 fixture k not caught"
   OUT=$O/e5kl $T/rw_d3d9dev2_check.sh $RD 20 300 4e0442:04 > $O/e5kl.txt 2>&1; grep -q 'compared; DIFF' $O/e5kl.txt && ok "d3d9dev2 render generic source type wrong: DIFF" || bad "d3d9dev2 fixture l not caught"
   OUT=$O/e5km $T/rw_d3d9dev2_check.sh $RD 20 300 4e3abb:05 > $O/e5km.txt 2>&1; grep -q 'compared; DIFF' $O/e5km.txt && ok "d3d9dev2 convert to non palettized format class wrong: DIFF" || bad "d3d9dev2 fixture m not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9rasq / d3d9sys / noded3d9 groups (window 5, lane K batch 6): the three checks must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; the full
 # list is in agents/k6_w5/notes.md; the blocks below take one or two per function).
 # d3d9rasq: (a) plugin attach 8888 format constant 0x500 -> 0x600 (4df81a), (b) render quad u divisor width -> height (4e0717), (c) render quad StretchRect filter 2 -> 3 (4e0a39),
@@ -353,7 +396,8 @@ if ! grep -q mflrw_d3d9rasq_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/e6rh $T/rw_d3d9rasq_check.sh $RD 20 300 4e1326:03 > $O/e6rh.txt 2>&1; grep -q 'compared; DIFF' $O/e6rh.txt && ok "d3d9rasq clear generic z clear flags wrong: DIFF" || bad "d3d9rasq fixture h not caught"
   OUT=$O/e6ri $T/rw_d3d9rasq_check.sh $RD 20 300 4dfbd8:7e > $O/e6ri.txt 2>&1; grep -q 'compared; DIFF' $O/e6ri.txt && ok "d3d9rasq raster open list count wrong: DIFF" || bad "d3d9rasq fixture i not caught"
   OUT=$O/e6rj $T/rw_d3d9rasq_check.sh $RD 20 300 4e03f9:00 > $O/e6rj.txt 2>&1; grep -q 'compared; DIFF' $O/e6rj.txt && ok "d3d9rasq raster render argument wrong: DIFF" || bad "d3d9rasq fixture j not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9sys: (a) request range 0x16 -> 0x15 (4d7c0c), (b) use mode 32 bit depth constant 0x20 -> 0x21 (4d7ca1), (c) multisampling loop bound 0x10 -> 0x0f (4d7d12), (d) mode info
 # 8888 format 0x500 -> 0x600 (4d7e5a), (e) register: device block copy count 14 -> 13 words (4d7f63), (f) Direct3DCreate9 SDK version 0x1f -> 0x20 (4d7f93), (g) open: caps result
 # test inverted (4d8014), (h) start: behaviour flag 0x20 -> 0x40 (4d83f1), (i) finalize start: MXCSR bit 0x8000 -> 0x4000 (4d85e2), (j) max texture size compare jb -> ja (4d86a2),
@@ -371,7 +415,8 @@ if ! grep -q mflrw_d3d9sys_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/e6si $T/rw_d3d9sys_check.sh $RD 20 300 4d85e2:40 > $O/e6si.txt 2>&1; grep -q 'compared; DIFF' $O/e6si.txt && ok "d3d9sys finalize start MXCSR bit wrong: DIFF" || bad "d3d9sys fixture i not caught"
   OUT=$O/e6sj $T/rw_d3d9sys_check.sh $RD 20 300 4d86a2:77 > $O/e6sj.txt 2>&1; grep -q 'compared; DIFF' $O/e6sj.txt && ok "d3d9sys max texture size compare wrong: DIFF" || bad "d3d9sys fixture j not caught"
   OUT=$O/e6sk $T/rw_d3d9sys_check.sh $RD 20 300 4d7f28:05 > $O/e6sk.txt 2>&1; grep -q 'compared; DIFF' $O/e6sk.txt && ok "d3d9sys focus ShowWindow command wrong: DIFF" || bad "d3d9sys fixture k not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # noded3d9: (a) world sector init instance callback address (500519), (b) atomic init lighting callback address (4ff967), (c) sort compare stream test inverted (500326), (d) world
 # sector lighting world flag 0x20 -> 0x10 (50054b), (e) reinstance lock bits 6 -> 4 (500363), (f) world sector node flag 0x1000000 -> 0x2000000 (50040c), (g) world sector node
 # render state 0x8f -> 0x8e (5004de), (h) atomic node morph target compare 1 -> 2 (4ff6f7), (i) atomic node row length upper bound 1.1 -> 1.006 (4ff884), (j) atomic lighting
@@ -392,7 +437,8 @@ if ! grep -q mflrw_noded3d9_bind $RD 2>/dev/null; then echo "negtest note: $RD h
   OUT=$O/e6nk $T/rw_noded3d9_check.sh $RD 20 300 4ff64c:01 > $O/e6nk.txt 2>&1; grep -q 'compared; DIFF' $O/e6nk.txt && ok "noded3d9 atomic lighting sphere compare wrong: DIFF" || bad "noded3d9 fixture k not caught"
   OUT=$O/e6nl $T/rw_noded3d9_check.sh $RD 20 300 4ff88c:70 > $O/e6nl.txt 2>&1; grep -q 'compared; DIFF' $O/e6nl.txt && ok "noded3d9 atomic node row length lower bound wrong: DIFF" || bad "noded3d9 fixture l not caught"
   OUT=$O/e6nm $T/rw_noded3d9_check.sh $RD 20 300 4ff8b9:00 > $O/e6nm.txt 2>&1; grep -q 'compared; DIFF' $O/e6nm.txt && ok "noded3d9 atomic node second row operand wrong: DIFF" || bad "noded3d9 fixture m not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # noded3d9i group (window 6, lane K1): the check must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; full lists agents/k1_w6/
 # mut_ws/summary.txt 145 DIFF, mut_at/summary.txt 323 DIFF; the lines below take the constants a port most easily gets wrong).
 # World sector callback: (a) normals world flag 0x10 -> 0x11 (5005fa), (b) compressed normal declaration type 0xe -> 0xf (500642), (c) texture set 0 flag mask 0x84 -> 0x85
@@ -414,7 +460,8 @@ if ! grep -q mflrw_noded3d9i_bind $RD 2>/dev/null; then echo "negtest note: $RD 
   OUT=$O/e7ij $T/rw_noded3d9i_check.sh $RD 20 300 4ffe97:01 > $O/e7ij.txt 2>&1; grep -q 'compared; DIFF' $O/e7ij.txt && ok "noded3d9i atomic dynamic lock flags wrong: DIFF" || bad "noded3d9i fixture j not caught"
   OUT=$O/e7ik $T/rw_noded3d9i_check.sh $RD 20 300 4fff0f:45 > $O/e7ik.txt 2>&1; grep -q 'compared; DIFF' $O/e7ik.txt && ok "noded3d9i atomic morph scale test wrong: DIFF" || bad "noded3d9i fixture k not caught"
   OUT=$O/e7il $T/rw_noded3d9i_check.sh $RD 20 300 4fffd0:1c 4fffd1:64 > $O/e7il.txt 2>&1; grep -q 'compared; DIFF' $O/e7il.txt && ok "noded3d9i atomic morph writer call wrong: DIFF" || bad "noded3d9i fixture l not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9submit group (window 6, lane K1): the check must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; full lists agents/k1_w6/
 # mut_imm / mut_close / mut_open / mut_submit summary.txt).
 # (a) ImmInstanceNode return 1 -> 0 (4f1397), (b) RenderClose old declaration address 0x7d5240 -> 0x7d5241 (4f0a19), (c) RenderOpen index buffer size 0x1fffe -> 0x1ffff
@@ -435,7 +482,8 @@ if ! grep -q mflrw_d3d9submit_bind $RD 2>/dev/null; then echo "negtest note: $RD
   OUT=$O/e7sj $T/rw_d3d9submit_check.sh $RD 20 300 4f108a:01 > $O/e7sj.txt 2>&1; grep -q 'compared; DIFF' $O/e7sj.txt && ok "d3d9submit append lock flags wrong: DIFF" || bad "d3d9submit fixture j not caught"
   OUT=$O/e7sk $T/rw_d3d9submit_check.sh $RD 20 300 4f11ca:64 > $O/e7sk.txt 2>&1; grep -q 'compared; DIFF' $O/e7sk.txt && ok "d3d9submit UP index format wrong: DIFF" || bad "d3d9submit fixture k not caught"
   OUT=$O/e7sl $T/rw_d3d9submit_check.sh $RD 20 300 4f134a:25 > $O/e7sl.txt 2>&1; grep -q 'compared; DIFF' $O/e7sl.txt && ok "d3d9submit UP stride wrong: DIFF" || bad "d3d9submit fixture l not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9patch group (lane K2 window 6): the check must pass and DIFF on mutations of the original (all DIFF at 20 seeds x 300 steps; verified with agents/k2_w6/mut_a.sh /
 # mut_b.sh, full lists in agents/k2_w6/notes.md; the block takes five per function).  Insert after the noded3d9 block of tools/delink/negtest.sh; $RD must be a DLL built
 # with d3d9patch.cpp (the bind export).  va:byte list (each must give DIFF):
@@ -455,7 +503,8 @@ if ! grep -q mflrw_d3d9patch_bind $RD 2>/dev/null; then echo "negtest note: $RD 
   OUT=$O/e7ph $T/rw_d3d9patch_check.sh $RD 20 300 55b495:72 > $O/e7ph.txt 2>&1; grep -q 'compared; DIFF' $O/e7ph.txt && ok "d3d9patch node 32 bit index limit wrong: DIFF" || bad "d3d9patch fixture h not caught"
   OUT=$O/e7pi $T/rw_d3d9patch_check.sh $RD 20 300 55b4e9:04 > $O/e7pi.txt 2>&1; grep -q 'compared; DIFF' $O/e7pi.txt && ok "d3d9patch node primitive type wrong: DIFF" || bad "d3d9patch fixture i not caught"
   OUT=$O/e7pj $T/rw_d3d9patch_check.sh $RD 20 300 55b8a2:80 > $O/e7pj.txt 2>&1; grep -q 'compared; DIFF' $O/e7pj.txt && ok "d3d9patch node row length bound wrong: DIFF" || bad "d3d9patch fixture j not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9ptank group (lane K2 window 6): the check must pass and DIFF on mutations of the original (20 seeds x 300 steps; verified with agents/k2_w6/mut_c.sh, full
 # list agents/k2_w6/mut_d3d9ptank.txt, results agents/k2_w6/mut_c/result.txt).  $RD must be a DLL built with d3d9ptank.cpp (the bind export).  va:byte list:
 # (a) InsEnding unlocks block word +4 instead of the vertex buffer (545f51:c4), (b) InsSetup base vertex size 12 -> 16 (545fc8:10), (c) InsSetup rotated up axis uses
@@ -477,7 +526,8 @@ if ! grep -q mflrw_d3d9ptank_bind $RD 2>/dev/null; then echo "negtest note: $RD 
   OUT=$O/e7tj $T/rw_d3d9ptank_check.sh $RD 20 300 5464f0:70 > $O/e7tj.txt 2>&1; grep -q 'compared; DIFF' $O/e7tj.txt && ok "d3d9ptank render SetFVF slot wrong: DIFF" || bad "d3d9ptank fixture j not caught"
   OUT=$O/e7tk $T/rw_d3d9ptank_check.sh $RD 20 300 546659:fe > $O/e7tk.txt 2>&1; grep -q 'compared; DIFF' $O/e7tk.txt && ok "d3d9ptank render point run limit wrong: DIFF" || bad "d3d9ptank fixture k not caught"
   OUT=$O/e7tl $T/rw_d3d9ptank_check.sh $RD 20 300 5466e7:f8 > $O/e7tl.txt 2>&1; grep -q 'compared; DIFF' $O/e7tl.txt && ok "d3d9ptank render indexed run limit wrong: DIFF" || bad "d3d9ptank fixture l not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vsu group (lane K3 window 7): vertex shader utilities _rwD3D9VSGetNormal / Point / RadiusInLocalSpace.  The check must pass and DIFF on mutations of the original
 # (20 seeds x 300 steps; full list and results agents/k3_w7/mut_vsu_*.txt, mut_vsu/result.txt: 89 DIFF + 14 crash by construction of 103).  Five per row, va:byte.
 if ! grep -q mflrw_d3d9vsu_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vsu exports, d3d9vsu fixtures skipped"; else
@@ -497,7 +547,8 @@ if ! grep -q mflrw_d3d9vsu_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/e7vm $T/rw_d3d9vsu_check.sh $RD 20 300 50c41a:ad > $O/e7vm.txt 2>&1; grep -q 'compared; DIFF' $O/e7vm.txt && ok "d3d9vsu mutation 50c41a:ad: DIFF" || bad "d3d9vsu fixture 50c41a:ad not caught"
   OUT=$O/e7vn $T/rw_d3d9vsu_check.sh $RD 20 300 50c437:35 > $O/e7vn.txt 2>&1; grep -q 'compared; DIFF' $O/e7vn.txt && ok "d3d9vsu mutation 50c437:35: DIFF" || bad "d3d9vsu fixture 50c437:35 not caught"
   OUT=$O/e7vo $T/rw_d3d9vsu_check.sh $RD 20 300 50c447:3b > $O/e7vo.txt 2>&1; grep -q 'compared; DIFF' $O/e7vo.txt && ok "d3d9vsu mutation 50c447:3b: DIFF" || bad "d3d9vsu fixture 50c447:3b not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vs group (lane K3 window 7): vertex shader cache open / purge, rpD3D9GetVertexShader (incl. eviction: 50978e), GetMaterialShaderCallBack (a tail call of it).
 # Mutation results agents/k3_w7/mut_vs/result.txt, mut_vs2/result.txt (73 DIFF + 12 crash / hang + 8 classified of 93).  Five per row (cache open, purge, get).
 if ! grep -q mflrw_d3d9vs_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vs exports, d3d9vs fixtures skipped"; else
@@ -517,7 +568,8 @@ if ! grep -q mflrw_d3d9vs_bind $RD 2>/dev/null; then echo "negtest note: $RD has
   OUT=$O/e7wm $T/rw_d3d9vs_check.sh $RD 20 300 509716:09 > $O/e7wm.txt 2>&1; grep -q 'compared; DIFF' $O/e7wm.txt && ok "d3d9vs mutation 509716:09: DIFF" || bad "d3d9vs fixture 509716:09 not caught"
   OUT=$O/e7wn $T/rw_d3d9vs_check.sh $RD 20 300 50974b:74 > $O/e7wn.txt 2>&1; grep -q 'compared; DIFF' $O/e7wn.txt && ok "d3d9vs mutation 50974b:74: DIFF" || bad "d3d9vs fixture 50974b:74 not caught"
   OUT=$O/e7wo $T/rw_d3d9vs_check.sh $RD 20 300 50978e:72 > $O/e7wo.txt 2>&1; grep -q 'compared; DIFF' $O/e7wo.txt && ok "d3d9vs mutation 50978e:72: DIFF" || bad "d3d9vs fixture 50978e:72 not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vsgen group (lane K3b window 8): the vertex shader generator rpD3D9GenerateVertexShader (assembly text + D3DX args compared).  Mutation results
 # agents/k3b_w8/mut_main, mut_r2, mut_eng (630: 578 DIFF + 52 classified).  Five: vs_1_1 version compare, first light constant, directional base, tangent oT2, effect 3.
 if ! grep -q mflrw_d3d9vsgen_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vsgen exports, d3d9vsgen fixtures skipped"; else
@@ -527,7 +579,8 @@ if ! grep -q mflrw_d3d9vsgen_bind $RD 2>/dev/null; then echo "negtest note: $RD 
   OUT=$O/e8gc $T/rw_d3d9vsgen_check.sh $RD 20 300 50a32c:07 > $O/e8gc.txt 2>&1; grep -q 'compared; DIFF' $O/e8gc.txt && ok "d3d9vsgen mutation 50a32c:07: DIFF" || bad "d3d9vsgen fixture 50a32c:07 not caught"
   OUT=$O/e8gd $T/rw_d3d9vsgen_check.sh $RD 20 300 50ac89:ed > $O/e8gd.txt 2>&1; grep -q 'compared; DIFF' $O/e8gd.txt && ok "d3d9vsgen mutation 50ac89:ed: DIFF" || bad "d3d9vsgen fixture 50ac89:ed not caught"
   OUT=$O/e8ge $T/rw_d3d9vsgen_check.sh $RD 20 300 50b006:03 > $O/e8ge.txt 2>&1; grep -q 'compared; DIFF' $O/e8ge.txt && ok "d3d9vsgen mutation 50b006:03: DIFF" || bad "d3d9vsgen fixture 50b006:03 not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9nat group (lane K4 window 8): _rpD3D9UsageFlagPluginAttach, _rpGeometryNativeSize, _rpWorldSectorNativeSize, RpBuildMeshGenerateDefaultTriStrip.
 # Mutation results agents/k4_w8/mut_nat/result.txt (56: 50 DIFF + 6 crash by construction).  Three for the attach, two per other row.
 if ! grep -q mflrw_d3d9nat_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9nat exports, d3d9nat fixtures skipped"; else
@@ -541,7 +594,8 @@ if ! grep -q mflrw_d3d9nat_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/e8ng $T/rw_d3d9nat_check.sh $RD 20 300 502190:f9 > $O/e8ng.txt 2>&1; grep -q 'compared; DIFF' $O/e8ng.txt && ok "d3d9nat mutation 502190:f9: DIFF" || bad "d3d9nat fixture 502190:f9 not caught"
   OUT=$O/e8nh $T/rw_d3d9nat_check.sh $RD 20 300 5021c5:00 > $O/e8nh.txt 2>&1; grep -q 'compared; DIFF' $O/e8nh.txt && ok "d3d9nat mutation 5021c5:00: DIFF" || bad "d3d9nat fixture 5021c5:00 not caught"
   OUT=$O/e8ni $T/rw_d3d9nat_check.sh $RD 20 300 5021c7:01 > $O/e8ni.txt 2>&1; grep -q 'compared; DIFF' $O/e8ni.txt && ok "d3d9nat mutation 5021c7:01: DIFF" || bad "d3d9nat fixture 5021c7:01 not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+NG=$((NG+1)); (
 # d3d9vs2 group (lane K4 window 8): rxD3D9VertexShaderDefaultMeshRenderCallBack, LightingCallBack (x87 incl. fcos).  Mutation results agents/k4_w8/mut_vs2,
 # mut_vs2b result.txt (279: 241 DIFF + 38 crash / hang by construction).  Five per row; 50b82d / 50bc33 need the dense mode of fixture round 2.
 if ! grep -q mflrw_d3d9vs2_bind $RD 2>/dev/null; then echo "negtest note: $RD has no d3d9vs2 exports, d3d9vs2 fixtures skipped"; else
@@ -556,7 +610,9 @@ if ! grep -q mflrw_d3d9vs2_bind $RD 2>/dev/null; then echo "negtest note: $RD ha
   OUT=$O/e8sh $T/rw_d3d9vs2_check.sh $RD 20 300 50b9b4:cd > $O/e8sh.txt 2>&1; grep -q 'compared; DIFF' $O/e8sh.txt && ok "d3d9vs2 mutation 50b9b4:cd: DIFF" || bad "d3d9vs2 fixture 50b9b4:cd not caught"
   OUT=$O/e8si $T/rw_d3d9vs2_check.sh $RD 20 300 50b82d:0e > $O/e8si.txt 2>&1; grep -q 'compared; DIFF' $O/e8si.txt && ok "d3d9vs2 mutation 50b82d:0e: DIFF" || bad "d3d9vs2 fixture 50b82d:0e not caught"
   OUT=$O/e8sj $T/rw_d3d9vs2_check.sh $RD 20 300 50bc33:01 > $O/e8sj.txt 2>&1; grep -q 'compared; DIFF' $O/e8sj.txt && ok "d3d9vs2 mutation 50bc33:01: DIFF" || bad "d3d9vs2 fixture 50bc33:01 not caught"
-fi
+fi ) > $O/g$NG.out 2>&1 & throttle
+wait
+for ((i=1; i<=NG; i++)); do cat $O/g$i.out; grep -q "^negtest FAIL" $O/g$i.out && rc=1; done
 fi      # NEGTEST_SKIP_DLL
 rm -r $O
 exit $rc

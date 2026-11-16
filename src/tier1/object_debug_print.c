@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /* course_sands_cb1 */
 /* course_sands_cb2 */
 /* course_sands_cb5 */

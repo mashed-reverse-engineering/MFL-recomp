@@ -1,6 +1,7 @@
 # trapcheck.py 2026-11-03: removed DefaultGeomAnimCB, PVSWorldSectorNodeFn, RpLODAtomicSetCurrentLOD, RpLODAtomicUnHookRender, RpMatFXMaterialSetEnvMapTexture, RpSplineDestroy, RtAnimInterpolatorSubAnimTime, RtBMPImageWrite, RtCharsetPrintBuffered, RtPNGImageWrite (referenced by installed C, see tools/trapcheck.py)
 # window 5 G1/G2 2026-11-10: removed CollisionDataStreamWrite, _rpCollTreeStreamWrite, UserDataObjectStreamWrite, UserDataObjectGetSize, Rt2dPathUnlock, rpPTankGENInsPosCCPSNR, rpPTankGENInsPosCCPM, rpPTankGENInsUV4C, rpPTankGENInsNormals (installed as C, codfh rows) and RwStreamWriteReal (called by the installed UserDataObjectStreamWrite)
 # window 5 fable_rows 2026-11-11: removed rpPTankGENInsPosCCPSNR, rpPTankGENInsPosCCPM again (installed as C, codfh rows; the HS DIFF of G2 1110_1633 was a harness artefact, hs spec s_codfh_fable_w5.py)
+# window 11 NCC: removed rpPTankGENInsPosCCCSNR, rpPTankGENInsPosNCCSPR, rpPTankGENInsPosCCCSPR (installed as C, codfh rows; NCCSPR is the air strike smoke trail path, TS a7 class 2, hs spec s_codfh_ncc_w11.py); rpPTankGENInsPosCCPSPR stays (HS 1 ulp DIFF after 2 attempts)
 # va size name: S5 trap-fill candidates: live original RenderWare code with 0 executions in 33 coverage runs (gdbcov, link 1102_2152 + T-A2), plugin/tool
 # libraries only (rwcore/rpworld except palquant excluded), *PluginAttach kept original. NOT wired into any default (see ROADMAP lane E / S5).
 004e7520 784 RwPalQuantAddImage
@@ -60,9 +61,6 @@
 00546b30 125 rpPTankD3D9InsPosCCPSNR_spr
 00546bb0 57 rpPTankD3D9InsNormals_spr
 00546bf0 72 rpPTankD3D9InsColor_spr
-005470e0 440 rpPTankGENInsPosCCCSNR
-005472a0 503 rpPTankGENInsPosNCCSPR
-00547800 619 rpPTankGENInsPosCCCSPR
 00547c20 632 rpPTankGENInsPosCCPSPR
 00548190 190 rpPTankGENInsColorPV
 00548250 215 rpPTankGENInsColorPVC

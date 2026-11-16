@@ -71,7 +71,7 @@ extern float *rwp_constraint_rows_two_body(float *row, float *n, float *r_a, flo
 extern void rwp_constraint_store(MflConstraintStream *s, float *c);
 extern void rwp_constraints_0057f750(MflConstraintStream *s);
 
-/* TIER2: unvalidated 2026-11-02 authority=diffemu */
+/* TIER2: unvalidated 2026-11-16 authority=static */
 void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, float dt)
 {
   MflObj *A, *B;

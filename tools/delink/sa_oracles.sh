@@ -1,5 +1,5 @@
 #!/bin/bash
-# sa_oracles.sh <data|render|scen|sweep|training> <link dir> <delta> <out dir>: whole-program oracles of `gate.sh standalone` (plan 2026-11-03 lane A). Exit 0 = ok.
+# sa_oracles.sh <data|render|scen|sweep|training|scenset> <link dir> <delta> <out dir>: whole-program oracles of `gate.sh standalone` (plan 2026-11-03 lane A). Exit 0 = ok.
 #   data    <link dir>/ours.map: .data length must be 00052000H.  An initialised writable static in a new object grows .data and shifts the original bss
 #           that original-byte code addresses absolutely (T-P15: 00052004H, every course crashed).  Change DATA_LEN only when the DELTA contract changes.
 #   render  d3dtrace of every RENDER_TARGETS (default: the targets of tools/d3dtrace/render_limits.txt, course:0 course:7 course:12 title; races DRIVE=31,
@@ -17,6 +17,11 @@
 #   training training lessons played to the end (scenarios/training_tt.sh, SCEN_DRIVE 287), TT_P parallel (default 2), TT_SECS (default 200).  Judged rows (TT_ROWS,
 #           default 0 2 3): scenario.sh RESULT + wine-run/tt_check.py (done mark, retry-free step / text-id progression, GameState; UNJUDGED fails).
 #           Crash-only rows (TT_CRASHONLY, default 5: its outcome is noise in the control too): Wine crash / rc only.
+#   scenset  (TS W11, not a gate step in W11) the judged scenario set: each entry of SS (menus, options pages, load / save, pause, arcade / cup win and lose,
+#           time trial, multi standard / team, load icon, two races) runs twice with a fresh control (scenarios/scenset.sh wraps the base scenario and dumps
+#           GameState at an end event); wine-run/scen_judge.py on the pair: controls agree, ours equals, no crash, no mfl_trap.log.  SS_P parallel
+#           scenario.sh (default 2 = 4 game processes), SS_ONLY="<tags>" a subset, SS_MIN judged PASSes needed (default 12).  The race entries whose
+#           controls differ without it run with SCEN_PIN=1 (wine-run/scen_pin.sh: d3d9 proxy + V2's pins; needs the b8snd proxy with vdssnap).
 # scen / sweep / training: a crash fails at once, any other failure is retried once; a PASS on the retry is appended to output/scenario/flaky.tsv (the flaky ledger, shared with
 # wine-run/sasweep.py; FLAKY_TSV overrides).  Wine kinds refuse to start while a gate holds gate.lock, unless the gate calls them (MFL_IN_GATE).  The control exe
 # output/scenario/_build/ctrl.exe is built once here when missing or REBUILD=1 (then REBUILD is dropped: parallel scenario.sh runs would all rebuild the same file).
@@ -38,7 +43,7 @@ report() {    # report <name>: verdict line, FAIL line -> rc 1
 scenlinks() { mkdir -p $O/scen; for x in _build _ctrlcache; do [ -e $O/scen/$x ] || ln -s $R/output/scenario/$x $O/scen/$x; done
   local B=$R/output/scenario/_build; if [ ! -f $B/ctrl.exe ] || [ -n "$REBUILD" ]; then mkdir -p $B
     python3 $R/tools/build_overlay.py $B/ctrl.exe --no-recomp --harness > $B/build_ctrl.log 2>&1 || { echo "ctrl build failed ($B/build_ctrl.log)"; exit 1; }; fi; unset REBUILD; }
-case $K in render|scen|sweep|training) [ -n "$MFL_IN_GATE" ] || flock -s -n ${GATE_LOCK:-/tmp/claude-$(id -u)/gate.lock} true || { echo "sa_oracles.sh: REFUSED: a gate is running (gate.lock held)"; exit 2; };; esac
+case $K in render|scen|sweep|training|scenset) [ -n "$MFL_IN_GATE" ] || flock -s -n ${GATE_LOCK:-/tmp/claude-$(id -u)/gate.lock} true || { echo "sa_oracles.sh: REFUSED: a gate is running (gate.lock held)"; exit 2; };; esac
 case $K in
   data) n=$(awk '$3==".data" && $4 ~ /^DATA/ {print $2; exit}' $L/ours.map); echo ".data length ${n:-missing} (want ${DATA_LEN:-00052000H})"; [ "$n" = "${DATA_LEN:-00052000H}" ];;
   render)
@@ -78,5 +83,20 @@ case $K in
       python3 -I $R/tools/wine-run/tt_check.py $O/scen/training_tt_sa_tt$r > $O/tt$r.check 2>&1; echo "training row $r: $(tail -1 $O/tt$r.check)"
       grep -q "^TT: PASS" $O/tt$r.check || { grep -E "^  [^ ]" $O/tt$r.check | head -3; rc=1; }; done
     exit $rc;;
-  *) sed -n 2,22p $0; exit 2;;
+  scenset)
+    scenlinks; rc=0; np=0; nj=0
+    SS=("ss_menus all SCEN_BASE=menus_main" "ss_options all SCEN_BASE=options" "ss_optall all SCEN_BASE=options_all" "ss_optsave all SCEN_BASE=options_save"
+        "ss_pause none SCEN_BASE=pause_all SCEN_MODE=training" "ss_arc_c0 none SCEN_PIN=1 SCEN_BASE=arcade SCEN_DRIVE=31"
+        "ss_arc_win none SCEN_BASE=arcade SCEN_DRIVE=41 SCEN_AFTER=win SCEN_END=menu:6" "ss_arc_lose none SCEN_BASE=arcade SCEN_DRIVE=73 SCEN_AFTER=end SCEN_END=phase:10"
+        "ss_cup_win none SCEN_BASE=cup SCEN_DRIVE=33 SCEN_AFTER=end SCEN_END=phase:10" "ss_cup_lose none SCEN_BASE=cup SCEN_DRIVE=65 SCEN_AFTER=win SCEN_END=menu:5"
+        "ss_tt none SCEN_PIN=1 SCEN_BASE=timetrial SCEN_SECS=1 SCEN_END=freeze:900" "ss_multi none SCEN_PIN=1 SCEN_BASE=multi" "ss_team none SCEN_BASE=multi SCEN_TEAM=1"
+        "ss_loadicon none SCEN_BASE=load_icon SCEN_NOLIMIT=0" "ss_tworaces none SCEN_PIN=1 SCEN_BASE=tworaces")
+    [ -n "$SS_ONLY" ] && { X=(); for e in "${SS[@]}"; do case " $SS_ONLY " in *" ${e%% *} "*) X+=("$e");; esac; done; SS=("${X[@]}"); }
+    for e in "${SS[@]}"; do set -- $e; for h in a b; do while [ $(jobs -rp | wc -l) -ge ${SS_P:-2} ]; do wait -n; done
+      $S $A NOCACHE=1 SCEN_IMGTHRESH=off SCEN_TAG=$1_$h "${@:3}" scenset > $O/$1_$h.log 2>&1 & done; done; wait
+    for e in "${SS[@]}"; do set -- $e; nj=$((nj+1))
+      python3 -I $R/tools/wine-run/scen_judge.py --shots $2 $O/scen/scenset_sa_$1_a $O/scen/scenset_sa_$1_b > $O/$1.judge 2>&1
+      echo "scenset $1: $(tail -1 $O/$1.judge)"; if grep -q ": PASS$" $O/$1.judge; then np=$((np+1)); else grep "^  " $O/$1.judge | head -3; fi; done
+    echo "scenset: $np of $nj judged scenarios passed (want ${SS_MIN:-12})"; [ $np -ge ${SS_MIN:-12} ] || rc=1; exit $rc;;
+  *) sed -n 2,27p $0; exit 2;;
 esac

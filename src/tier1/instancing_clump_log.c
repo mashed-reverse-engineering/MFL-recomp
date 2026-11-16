@@ -1,5 +1,5 @@
 #include "mfl_tier2.h"
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004f6810*/ extern struct RpClump * RpClumpForAllAtomics(struct RpClump *p0, RpAtomicCallBack p1, void *p2);
 /*00668c18*/ extern struct CourseWorld g_course_world;
 extern RpAtomic * atomic_log_not_instancing(RpAtomic *atomic,int *param_2);

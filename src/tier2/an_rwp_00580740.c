@@ -96,7 +96,7 @@ extern float rwp_cylinder_0056fd20(float *out, float *in);
       (row).ang2[1] = (r)[0] * (rb)[2] - (r)[2] * (rb)[0]; \
       (row).ang2[2] = (r)[1] * (rb)[0] - (r)[0] * (rb)[1]; } } while (0)
 
-/* TIER2: unvalidated 2026-11-01 authority=diffemu */
+/* TIER2: unvalidated 2026-11-16 authority=static */
 void rwp_constraint_linear_row_axis(MflSolver *s, MflJoint *p, float rate, float dt)
 {
   MflRow row, row2, row3;

@@ -11,7 +11,7 @@ for l in open(os.path.join(HERE, "..", "names", "MFL_import_protos.txt")):
     m = re.search(r"__stdcall (\w+)\((.*)\);", l)
     if m: nargs[m.group(1)] = 0 if m.group(2).strip() in ("", "void") else len(m.group(2).split(","))
 import glob, re as _re
-for lib in glob.glob(os.path.join(HERE, "..", "toolchain", "rwsdk", "lib", "d3d9", "release", "*.lib")):      # the SDK libs (cl 12) carry the exact decorated import names `__imp__Name@N` they use
+for lib in sorted(glob.glob(os.path.join(HERE, "..", "toolchain", "rwsdk", "lib", "d3d9", "release", "*.lib"))):      # (W11 B1: sorted, the last lib wins for a name in two) the SDK libs (cl 12) carry the exact decorated import names `__imp__Name@N` they use
     for m in _re.finditer(rb"__imp__([A-Za-z0-9_]+)@(\d+)", open(lib, "rb").read()): nargs[m.group(1).decode()] = int(m.group(2)) // 4      # authoritative (the real decorated name), overrides the push count heuristic
 if os.environ.get("OBJLIST"):      # our objects (tools/delink/link_ours.sh objs_local.txt: "src obj" per line) name the decorated imports they use: authoritative over the push count
     for l in open(os.environ["OBJLIST"]):

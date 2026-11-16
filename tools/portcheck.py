@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""portcheck.py [--update-baseline] [--quiet]: portability gate v0 for the all-C / Switch (AArch64 LP64, 8 byte pointers) build.  Warning gate: exit 1 only when a GATED class (cc_int2ptr, cc_ptr2int, x87_intrin, asm_naked) grows past
+"""portcheck.py [--update-baseline] [--quiet] [--extended]: portability gate v0 for the all-C / Switch (AArch64 LP64, 8 byte pointers) build.  Warning gate: exit 1 only when a GATED class (cc_int2ptr, cc_ptr2int, x87_intrin, asm_naked) grows past
 output/portcheck_baseline.txt (rewritten ONLY by --update-baseline).  Output: output/portcheck.csv (file, function, class, count, note) + summary.
 Scope: src/tier1, src/automatch_agent, src/automatch_near, hand src/*.c (not bridges*, not harness*); PORT_CANDIDATES=1 adds output/tier2_candidates*/ (informational, never part of the baseline).  __declspec(naked) functions are bridge asm: class asm_naked, nothing else is scanned in them.
 Compiler classes (cc_*): clang --target=aarch64-linux-gnu if installed, else native `gcc -m64` (LP64 like AArch64; same two cast warnings), -fsyntax-only with tools/port/msvc_shim.h.
@@ -9,6 +9,7 @@ Heuristic classes (Ghidra style, text based, per function; declared pointer / in
   h_int_to_ptr   `*(T*)(i + 0xNN)` / `(T*)i` with i a declared int / undefined4     h_int_field_ptr  `(T*)s.field_0x..` (generic int typed field holding a pointer; name based)
   h_stride       line with a pointer cast and a `* 4` / `* 0x78` / `<< 2` constant stride    layout_assert  sizeof()== / C_ASSERT (struct size fixed by the original layout)
   asm_inline     `__asm`        x87_intrin  `_ftol` / `_CI*` / float10      asm_naked  __declspec(naked) functions
+--extended (W11 PP): clusters/enabled.txt + src/bridges/*.c join the scope; REPORT ONLY: exit 0, baseline not read or written, csv in the scratch dir (PORTCHECK_OUT overrides).
 Environment (run.py preflight): PORTCHECK_OUT=<csv> writes the csv there instead of the tracked output/portcheck.csv; PORT_EXTRA=<a.c,b.c> adds files to the scope (replacing a tree file of the same name).
 A function is `portable as is` when no class (compiler or heuristic, naked included) is hit in it.  Float results are not bit-exact across x87 / SSE / NEON (diffemu needs a tolerance mode there)."""
 import csv, glob, os, re, shutil, subprocess, sys, tempfile
@@ -16,7 +17,9 @@ from concurrent.futures import ThreadPoolExecutor
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..")); sys.path.insert(0, H)
 import rawaddr, incexpand
 SHIM = os.path.join(H, "port", "msvc_shim.h")
-CSV = os.environ.get("PORTCHECK_OUT") or os.path.join(G, "output", "portcheck.csv"); BASE = os.path.join(G, "output", "portcheck_baseline.txt")
+T0 = __import__("time").time()
+EXT = "--extended" in sys.argv     # W11 PP: clusters + bridges join the scope, REPORT ONLY (no gate, no baseline, csv never the tracked one)
+CSV = os.environ.get("PORTCHECK_OUT") or ("/tmp/claude-%d/portcheck_extended.csv" % os.getuid() if EXT else os.path.join(G, "output", "portcheck.csv")); BASE = os.path.join(G, "output", "portcheck_baseline.txt")
 CLASSES = ["cc_int2ptr", "cc_ptr2int", "cc_error", "h_addr_cast", "h_ptr_to_int", "h_int_to_ptr", "h_int_field_ptr", "h_stride", "layout_assert", "asm_inline", "x87_intrin", "asm_naked"]
 GATED = ["cc_int2ptr", "cc_ptr2int", "x87_intrin", "asm_naked"]      # classes that fail the gate (and have a baseline row); the other CLASSES are only reported (csv + summary): heuristics / counts of the original layout that no port step depends on
 INTT = r"(?:unsigned\s+)?(?:int|uint|undefined4|dword|ulong|long|short|DWORD|LONG|undefined)"
@@ -36,6 +39,9 @@ def scope():
     r = os.path.join(G, "src"); fl = []
     for d in ("tier1", "automatch_agent", "automatch_near"): fl += glob.glob(os.path.join(r, d, "*.c"))
     fl += glob.glob(os.path.join(r, "*.c"))
+    if EXT:      # the enabled clusters and the bridge files (b00x.c): about 40 % of the link's code that the own scope leaves out (W10 PT: 4,609 files, cc_int2ptr 3,920, x87_intrin 517, asm_naked 978)
+        fl += [os.path.join(r, "clusters", "cl_%s.c" % l.strip()) for l in open(os.path.join(r, "clusters", "enabled.txt")) if l.strip() and not l.startswith("#")]
+        fl += glob.glob(os.path.join(r, "bridges", "*.c"))
     if os.environ.get("PORT_CANDIDATES"): fl += glob.glob(os.path.join(G, "output", "tier2_candidates", "*.c")) + glob.glob(os.path.join(G, "output", "tier2_candidates2", "*.c"))      # informational only: candidates are not part of the build, so they must not move the gate baseline
     ex = [x for x in os.environ.get("PORT_EXTRA", "").split(",") if x]      # run.py preflight: a lane's files join the scope (a tree file of the same name is replaced), so the verdict is the gate's verdict after the install
     fl = [f for f in fl if os.path.basename(f) not in {os.path.basename(x) for x in ex}] + ex
@@ -111,6 +117,10 @@ def main(argv):
     if not q:
         print(sumline); [print("  %-16s %6d" % (k, tot[k])) for k in CLASSES]
         print("top files:"); [print("  %6d %s" % (v, k)) for k, v in sorted(per.items(), key=lambda x: -x[1])[:10]]
+    if EXT:      # report only: counts per class, exit 0 whatever they are, the baseline is neither read nor written
+        if "--update-baseline" in argv: print("portcheck: --extended never writes the baseline"); return 2
+        if q: print(sumline.replace("portcheck (", "portcheck extended (", 1))
+        print("portcheck extended: " + ", ".join("%s %d" % (k, tot[k]) for k in GATED) + " (report only, csv %s, %.0f s)" % (CSV, __import__("time").time() - T0)); return 0
     if "--update-baseline" in argv:
         with open(BASE, "w") as o:
             o.write("# tools/portcheck.py baseline: a class count above this fails the gate; only `portcheck.py --update-baseline` rewrites it\n# %s\n" % sumline)

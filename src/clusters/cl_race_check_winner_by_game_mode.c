@@ -7,7 +7,7 @@ typedef int CourseId;
 /*0040fdb0*/ extern int get_player_count();
 /*0040fdd0*/ extern int race_set_phase();
 /*0041a380*/ extern int ai_ftol_noop_wrapper();
-/*0042b110*/ extern enum CourseId current_course_id();
+/*0042b110*/ extern CourseId current_course_id();
 /*00434a10*/ extern int is_team_mode();
 /*00434bb0*/ extern int get_event_type();
 /*00451c50*/ extern int camera_records_warmup();

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040d0d0*/ extern int __cdecl find_texture_dict_b(RwChar *p0);
 /*004846b0*/ extern int alloc_zeroed();
 /*00484830*/ extern undefined __cdecl material_uv_anim_check(struct RpMaterial *p0, undefined4 *p1);
@@ -448,7 +449,7 @@ int effect_slot_alloc(void)
    strip vertices (NULL uses the default g_gfx_6294a8). width: strip width, half of it on each side of the point.
    max_dist: the point is refused when it is further than this from the previous one. Returns slot_id on success,
    0 when the slot is not in use, the trail is full or the point is too far (inferred). */
-/* TIER2: validated 2026-11-10 authority=diffemu */
+/* TIER2: unvalidated 2026-11-16 authority=diffemu */
 int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,float max_dist)
 {
   int slot_index;
@@ -474,7 +475,7 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
   slot_offset = slot_index * TRAIL_SLOT_BYTES;
   /* trail not full: record the point */
   if ((&g_gfx_6c60d0)[slot_index * EFFECT_SLOT_STRIDE] != TRAIL_MAX_POINTS) {
-#ifdef MFL_FIX_TRAIL_NAN
+#if MFL_FIX_TRAIL_NAN
     /* MFL_FIX_TRAIL_NAN (default off, differs from the original): a NaN / infinite point is refused. The original stores it, the strip then holds
        NaN vertices and the next distance test is false for NaN, so every following point is accepted into the corrupt trail too.
        (x + y + z) - (x + y + z) is 0 for a finite sum, NaN for NaN / inf. */
@@ -496,7 +497,7 @@ int effect_trail_add_point(int slot_id,float *point,float *side_vec,float width,
       work_vec.z = *(float *)((char *)&g_gfx_6c60c8 + slot_offset) - point[2];
       segment_len = RwV3dLength(&work_vec);
       /* too far from the last point */
-#ifdef MFL_FIX_TRAIL_NAN
+#if MFL_FIX_TRAIL_NAN
       if (!(segment_len <= max_dist)) {      /* MFL_FIX_TRAIL_NAN: a NaN length (stored last point is NaN) is refused too */
         return 0;
       }

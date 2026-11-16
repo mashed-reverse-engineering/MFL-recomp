@@ -7,6 +7,8 @@ import bisect, collections, csv, os, re, struct, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cdecls
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "delink"))
+import layers      # W11 Z1: ownership item + layer of a .bss address (the split origbytes.py uses)
 
 G = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 BASE = 0x400000
@@ -117,7 +119,12 @@ def lib_spans():
 # --- names ----------------------------------------------------------------------------------------------------------------------------------
 # dead lib data (zero fill): the source-built lib has its own data.  (section, lo, hi): qhull 0x63a610-0x649138; zlib/PNG (A5): rtpng.lib's .rdata (png, pngerror, deflate, crc32, trees, infblock, inftrees) and
 # .data (pngwrite .. infutil, without the rtpng.obj wrapper data at 0x6373b4); only rows of kind lib inside are zeroed (the libpng strings are app rows)
-LIBSRC_DEAD_RANGES = [("data", 0x63a610, 0x649138)] * ("qhull" in os.environ.get("LIBSRC", "")) + [("rdata", 0x5f4700, 0x5f4880), ("rdata", 0x5f48b8, 0x5f5a18), ("data", 0x6373bc, 0x63a194)] * ("zlib" in os.environ.get("LIBSRC", "").split())
+# W11 Z3 (LIBSRC lua): the Lua 4.0 data the source-built Lua objects bring themselves (relocation targets of Lua code only; qhull's 0x62d994 sites are filled code too):
+# .rdata 0x5e9c88-0x5ea034 (lua_ident "$Lua: Lua 4.0 Copyright", type / token / event name tables, luaL_reg lists, lmathlib constants), .data 0x62d894-0x62d914
+# (lauxlib / ldo strings) and 0x62d91c-0x62e514 (Lua strings).  Not Lua: the rwFILTER / rpSTRING strings 0x5e9a58-0x5e9c80 (app table 0x62d81c), RenderWare
+# 0x5ea038- ("Core built at", hex digits) and 0x62d914-0x62d91c, 0x62e514- (RenderWare / Audio / CRT rows).  Evidence: agents/l3_w11/refs.py, luamap.py, notes "Z3".
+# Z3_PUTBACK=1 (zneg.sh lua): the bad case, the Lua rows stay library bytes.
+LIBSRC_DEAD_RANGES = [("rdata", 0x5e9c88, 0x5ea034), ("data", 0x62d894, 0x62d914), ("data", 0x62d91c, 0x62e514)] * ("lua" in os.environ.get("LIBSRC", "").split() and not os.environ.get("Z3_PUTBACK")) +[("data", 0x63a610, 0x649138)] * ("qhull" in os.environ.get("LIBSRC", "")) + [("rdata", 0x5f4700, 0x5f4880), ("rdata", 0x5f48b8, 0x5f5a18), ("data", 0x6373bc, 0x63a194)] * ("zlib" in os.environ.get("LIBSRC", "").split())
 CRT_SPLIT = os.environ.get("CRT_SPLIT")      # B5 LIB_CRT=libcmt: dir of plan_split.py crt output; the data (rdata / data / bss) of its split members is dead here (libcmt objects bring their own), the rest of the CRT data keeps its bytes and gets the lib's names
 def _selftables():
     f = os.path.join(CRT_SPLIT or "", "selftables.txt")
@@ -139,7 +146,44 @@ def _crt_dead():
     return out
 LIBSRC_DEAD_RANGES = LIBSRC_DEAD_RANGES + _crt_dead()
 LIBSRC_DEAD = {x for _, a, b in LIBSRC_DEAD_RANGES for x in (a, b)}      # range edges stay item edges
-def libsrc_dead(sec, it): return any(s_ == sec and a <= it["va"] and it["va"] + it["ext"] <= b for s_, a, b in LIBSRC_DEAD_RANGES)
+def libsrc_dead(sec, it): return any(s_ == sec and a <= it["va"] and it["va"] + it["ext"] <= b + (3 if sec == "bss" and it.get("folded") else 0) for s_, a, b in LIBSRC_DEAD_RANGES)      # Z1b: a dead .bss row keeps the <4 B alignment padding folded behind it (stdargv, mbctype: 261 + 3 B)
+
+
+# W11 Z1: the library .bss rows of these layers are not byte blobs (g_libspan_<va>) but named zero definitions, kind `libz` (no image content):
+# one definition per name (names.get), the unnamed bytes behind a name belong to it up to the next name or the end of the owning object's .bss;
+# an unnamed head is named after the owning object (<object>_bss[_<hex offset in it>]).  Types: tools/globals/z1_types.txt, else a sized array /
+# scalar under the name (listed in z1_rows.csv).  Every definition carries a size assert.  Z1_PUTBACK=1 (zneg.sh bss): the first such row stays a blob.
+Z1_LAYERS = None      # Z1b: every layer (Z1a was {"RenderWare"}); the bss gap rows too (z1_gapname)
+def z1_owner(a):
+    """-> (member, member lo) when the .bss byte a belongs to a Z1 layer (origbytes.py's split: owner crt/rw items by layer()), else None;
+    ("", None) = no owner item (padding between objects, the CRT span's own bytes)"""
+    if any(s_ == "bss" and x <= a < y for s_, x, y in LIBSRC_DEAD_RANGES): return None
+    it = layers.item_at(a)
+    if it and it[3] in ("crt", "rw", "crt?", "rw?"): return (it[4], it[0]) if Z1_LAYERS is None or layers.layer(a, it[3], it[4]) in Z1_LAYERS else None
+    L = "CRT" if 0x771ac0 <= a < 0x771f78 and not it else layers.other_layer(a, "data")
+    return ("", None) if Z1_LAYERS is None or L in Z1_LAYERS else None
+def z1_gapname(a):
+    """an unnamed .bss piece with no owner and no Z1 row in front: <layer>_bss_<va> (no better evidence; listed in z1_rows.csv)"""
+    L = "CRT" if 0x771ac0 <= a < 0x771f78 else layers.other_layer(a, "data")
+    return re.sub(r"\W", "_", L.lower()) + "_bss_%x" % a
+def z1_cuts(a, b):
+    """ownership item edges inside [a, b) -> sub-pieces"""
+    xs = sorted({a, b} | {x for lo_, hi_, k_, o_, m_ in layers.items if k_ in ("bss", "common") for x in (lo_, hi_) if a < x < b})
+    return list(zip(xs, xs[1:]))
+def z1_hex(n): return re.search(r"_[0-9a-f]{6,8}$", n) is not None      # a Ghidra / lane label named by its address (g_rw_7d2814)
+def z1_name(nm):
+    """readable name first, then <prefix>_<hex> names, g_data_<hex> last"""
+    return sorted(nm, key=lambda n: (z1_hex(n), n.startswith("g_data_")))[0]
+def z1_member_name(member, off):
+    base = re.sub(r"\W", "_", member.replace("\\", "/").split("/")[-1].lower().replace(".obj", ""))
+    return base + "_bss" + ("_%x" % off if off else "")
+Z1_TYPES = {}      # name -> (C type, declarator suffix, size, alignment, evidence); struct definitions in z1_types.h (pasted into bss.c)
+_zt = os.path.join(os.path.dirname(os.path.abspath(__file__)), "z1_types.txt")
+if os.path.exists(_zt):
+    for l in open(_zt):
+        if l.strip() and l[0] != "#":
+            p = [x.strip() for x in l.split("|")]
+            Z1_TYPES[p[0]] = (p[1], p[2], int(p[3]), int(p[4]), p[5])
 
 
 def load_names():
@@ -275,19 +319,34 @@ def main(out):
         bounds = {lo, hi} | {x for a, b, c in sp for x in (a, b)} | {a for a in names if lo <= a < hi} | {x for x in LIBSRC_DEAD if lo <= x < hi}
         bs = sorted(bounds)
         its = []
-        for a, b in zip(bs, bs[1:]):
-            cls = next((c for x, y, c in sp if x <= a < y), None)
-            nm = names.get(a, [])
-            if cls == "lib" and any(n in used for n in nm): cls = None; carved += 1      # F3: a name our C uses is app data, also inside a library span
-            if cls:
-                if its and its[-1]["kind"] == cls and its[-1]["va"] + its[-1]["ext"] == a and a not in LIBSRC_DEAD:      # LIBSRC_DEAD: the edges of the dead qhull data stay item edges
-                    its[-1]["ext"] += b - a
+        for a0, b0 in zip(bs, bs[1:]):
+            cls0 = next((c for x, y, c in sp if x <= a0 < y), None)
+            nm0 = names.get(a0, [])
+            if cls0 == "lib" and any(n in used for n in nm0): cls0 = None; carved += 1      # F3: a name our C uses is app data, also inside a library span
+            for a, b in (z1_cuts(a0, b0) if cls0 == "lib" and sec == "bss" else [(a0, b0)]):      # Z1: a .bss library piece is cut at its owners' edges
+                cls, nm = cls0, (nm0 if a == a0 else [])
+                own = z1_owner(a) if cls == "lib" and sec == "bss" else None
+                if own and own[0] == "" and Z1_LAYERS is not None and (nm or not (its and its[-1]["kind"] == "libz" and its[-1]["va"] + its[-1]["ext"] == a)): own = None      # Z1a: padding joins only an unnamed tail of a Z1 row
+                if not own and cls is None and not nm and sec == "bss" and Z1_LAYERS is None: own = ("", None)      # Z1b: a bss gap row (no name, no owner) is a Z1 row too
+                if own:      # Z1: named zero definition
+                    p_ = its[-1] if its and its[-1]["kind"] == "libz" and its[-1]["va"] + its[-1]["ext"] == a else None
+                    if nm and p_ and p_["readable"] and p_["member"] == own[0] and all(z1_hex(n) for n in nm) and a < p_["va"] + Z1_TYPES.get(p_["name"], ("", "", 1 << 30))[2]:
+                        p_["ext"] += b - a; continue      # a <prefix>_<hex> access label inside a readably named object (up to its z1_types size): interior label (alias)
+                    if nm: its.append(dict(va=a, ext=b - a, kind="libz", names=nm, name=z1_name(nm), member=own[0], mlo=own[1], readable=not z1_hex(z1_name(nm)))); continue
+                    if its and its[-1]["kind"] == "libz" and its[-1]["va"] + its[-1]["ext"] == a and own[0] in (its[-1]["member"], ""): its[-1]["ext"] += b - a; continue
+                    its.append(dict(va=a, ext=b - a, kind="libz", names=[], name=z1_member_name(own[0], a - own[1]) if own[0] else z1_gapname(a), member=own[0], mlo=own[1], readable=False)); continue
+                if cls:
+                    if its and its[-1]["kind"] == cls and its[-1]["va"] + its[-1]["ext"] == a and a not in LIBSRC_DEAD:      # LIBSRC_DEAD: the edges of the dead qhull data stay item edges
+                        its[-1]["ext"] += b - a
+                        continue
+                    its.append(dict(va=a, ext=b - a, kind=cls, names=[], name=("g_libspan_%08x" if cls == "lib" else "g_pespan_%08x") % a))
                     continue
-                its.append(dict(va=a, ext=b - a, kind=cls, names=[], name=("g_libspan_%08x" if cls == "lib" else "g_pespan_%08x") % a))
-                continue
-            prim = next((n for n in nm if n in used), nm[0] if nm else None)
-            its.append(dict(va=a, ext=b - a, kind="app" if nm else "gap", names=nm, name=prim or "g_gap_%08x" % a))
+                prim = next((n for n in nm if n in used), nm[0] if nm else None)
+                its.append(dict(va=a, ext=b - a, kind="app" if nm else "gap", names=nm, name=prim or "g_gap_%08x" % a))
         items[sec] = its
+    if os.environ.get("Z1_PUTBACK"):      # zneg.sh bss: the bad case, chosen at run time (the first Z1 row)
+        z = next((it for it in items["bss"] if it["kind"] == "libz"), None)
+        if z: z.update(kind="lib", names=[], name="g_libspan_%08x" % z["va"]); print("Z1_PUTBACK: %08x +%d stays a library blob" % (z["va"], z["ext"]))
     FILL = ("lib", "pe")
 
     # alignment fold: interior labels
@@ -298,9 +357,9 @@ def main(out):
         res = []
         pre = []
         for it in its:       # a library item that starts at an unaligned address gives only its head (up to the next 4-boundary) to the fold below, the rest stays a library item
-            if it["kind"] == "lib" and it["va"] % 4 and it["ext"] > 4:
+            if it["kind"] in ("lib", "libz") and it["va"] % 4 and it["ext"] > 4:      # Z1: a libz item the same way, its rest is named after the owning object
                 h = 4 - it["va"] % 4
-                pre += [dict(it, ext=h), dict(it, va=it["va"] + h, ext=it["ext"] - h, name="g_libspan_%08x" % (it["va"] + h))]
+                pre += [dict(it, ext=h), dict(it, va=it["va"] + h, ext=it["ext"] - h, names=[], name="g_libspan_%08x" % (it["va"] + h) if it["kind"] == "lib" else z1_member_name(it["member"], it["va"] + h - it["mlo"]) if it["member"] else z1_gapname(it["va"] + h))]
             else: pre.append(it)
         for it in pre:
             if it["kind"] == "pe": res.append(it); continue
@@ -441,6 +500,7 @@ def main(out):
             else: ref = nm + "__fwd"; fwd[nm] = 1
         return "(void *)%s" % ref if off == 0 else "(char *)%s + %d" % (ref, off)
 
+    z1src = {}      # Z1 definition name -> where its type came from / why it fell back to a sized array
     tsrc, tdown = {}, {}       # item name -> evidence source of a typed scalar / reason of a downgrade (types_chosen.csv)
     gfloat = set()      # T2 secondary evidence: Ghidra data type float (output/decls.h) and the float overrides of names/MFL_global_types.txt
     for l in open(os.path.join(G, "output/decls.h"), errors="replace"):
@@ -487,6 +547,10 @@ def main(out):
     def render(it, sec, cur):
         """-> (struct_def or None, decl_type, declarator suffix, initialiser) for the definition"""
         a, e, nm = it["va"], it["ext"], it["name"]
+        if it["kind"] == "libz" and nm in Z1_TYPES:      # Z1: the type of z1_types.txt only when its size is the extent and its alignment fits the address
+            ty_, suf_, sz_, al_, ev_ = Z1_TYPES[nm]
+            if sz_ == e and a % al_ == 0: z1src[nm] = "typed: " + ev_; return None, ty_, suf_, "{0}"
+            z1src[nm] = "fallback: z1_types.txt %s%s is %d B align %d, extent %d at %08x" % (ty_, suf_, sz_, al_, e, a)
         b = rd(a, e) if sec != "bss" else bytes(e)
         ps = item_ptrs(it, sec) if sec != "bss" else []
         const = "const " if sec == "rdata" else ""
@@ -534,6 +598,9 @@ def main(out):
     # --- emit ------------------------------------------------------------------------------------------------------------------------------
     lay = open(os.path.join(out, "globals_layout.csv"), "w")
     lay.write("va,size,section,name,kind,folded_labels\n")
+    z1rows = []
+    _dn = collections.Counter(it["name"] for its in items.values() for it in its)
+    assert not [n for n, c in _dn.items() if c > 1], "globgen: a definition name twice: %s" % [n for n, c in _dn.items() if c > 1][:5]      # Z1 object names must not collide
     cnt = collections.Counter()
     hdr = "/* Generated by tools/globals/globgen.py. Do not edit. Pinned layout: address order, extent = gap to next name.\n * Linker generated spans (zero fillers g_pespan_<va>) in %s:\n%s */\n"
     for sec, its in items.items():
@@ -551,6 +618,8 @@ def main(out):
         f = open(os.path.join(out, sec + ".c"), "w")
         f.write(hdr % (sec, "".join(" *   %08x-%08x\n" % (x, y) for x, y, c in spans[sec] if c == "pe")))
         if sec == "data": f.write('#pragma data_seg(".data")\n')
+        zh = os.path.join(os.path.dirname(os.path.abspath(__file__)), "z1_types.h")
+        if sec == "bss" and os.path.exists(zh): f.write(open(zh).read() + "\n")      # Z1: the struct types of z1_types.txt (declarations only, no storage)
         f.write("\n".join(pre) + "\n\n")
         for it, r in rendered:
             if r is not None and it["kind"] == "lib" and libsrc_dead(sec, it):
@@ -564,11 +633,17 @@ def main(out):
             sd, ty, suf, ini = r
             if sd: f.write(sd)
             f.write("/*%08x*/ %s %s%s = %s;\n" % (it["va"], ty, it["name"], suf, ini))
+            if it["kind"] == "libz":      # Z1: size assert (cl 13 has no _Static_assert: a negative array size fails the compile)
+                f.write("typedef char z1_size_%s[sizeof(%s) == %d ? 1 : -1];\n" % (it["name"], it["name"], it["ext"]))
+                z1rows.append((it["va"], it["ext"], it["name"], it.get("member", ""), "%s %s%s" % (ty, it["name"], suf), z1src.get(it["name"], "sized array / scalar (no type in z1_types.txt)")))
             lay.write("%08x,%d,%s,%s,%s,%s\n" % (it["va"], it["ext"], sec, it["name"], it["kind"], " ".join("%x" % x for x in it.get("folded", []))))
             cnt[sec + " " + it["kind"]] += 1
             cnt[sec + " " + it["kind"] + " bytes"] += it["ext"]
         f.close()
     lay.close()
+    with open(os.path.join(out, "z1_rows.csv"), "w") as f:      # Z1: every named zero definition, its type and the type's source (sized-array fall-backs listed)
+        f.write("va,size,name,member,decl,type_source\n")
+        for r in z1rows: f.write("%08x,%d,%s,%s,%s,%s\n" % (r[0], r[1], r[2], r[3], r[4], r[5].replace(",", ";")))
     # F4: every reloc site inside a generated item is either a pointer (ptrs.csv) or listed in raw.csv with a reason; count the rest
     for s in sorted(relocs):
         i = bisect.bisect_right(starts, s) - 1

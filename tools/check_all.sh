@@ -12,6 +12,8 @@ trap 'kill $(jobs -p) 2>/dev/null' EXIT      # a failing check leaves no strict 
 $T/provenance.sh $W
 # ---- seconds-long checks, static FAIL classes first
 python3 $T/cheatgrep.py | tail -5; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "cheatgrep: forbidden constructs (src/cheat_allow.txt for legitimate ones)"; exit 1; }
+# W11 B5: MFL_FIX_* switches: included header, only names it defines, `#if` not #ifdef, equal header copies (tools/fixlint.py)
+python3 $T/fixlint.py | tail -4; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "fixlint: MFL_FIX_ switch misuse (src/mfl_fix.h)"; exit 1; }
 # bind tables (W6 T6): no 0 slot in a mflrw.dll bind table of an_hk_612.c / an_hk_612_*.inc unless src/automatch_near/bind_zero_allow.txt lists it with a reason (a trap row's slot is its trap stub)
 python3 $T/bindzero.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "bindzero: a bind table slot is 0 (tools/bindzero.py)"; exit 1; }
 # W7 T8: every bind / LIB_RW export the exe asks for is in the pinned DLL, every installed tier 2 / LIB_RW row has an fnsizes row (tools/rowcheck_allow.txt for exceptions)
@@ -24,6 +26,9 @@ python3 $T/declcheck.py > $W/declcheck.txt; [ $? -eq 0 ] || { grep HARD $W/declc
 echo "declcheck clean"
 # portability gate v0 (AArch64 LP64 / Switch): pointer<->int casts, x87 / asm, strides; fails only when a class count grows past output/portcheck_baseline.txt (`portcheck.py --update-baseline` is the only writer)
 python3 $T/portcheck.py --quiet 2>&1 | tail -2 | sed 's/^/WARNING /'; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "portcheck: a class grew past the baseline (output/portcheck.csv, README 'Portability gate')"; exit 1; }
+# W11 PP (report only, never fails; csv in /tmp, not the tracked one): portcheck over the clusters + bridges too (about 100 s), and the mingw -DNOASM syntax run over the link's source set (about 25 s, needs batch pp3's tools/portsyntax.py)
+python3 $T/portcheck.py --quiet --extended 2>&1 | tail -2 | sed 's/^/REPORT /'
+python3 $T/portsyntax.py 2>&1 | tail -1 | sed 's/^/REPORT /'
 # aliascheck (2026-11-03): an alias that gives a lib_names/symbols name another address moves the library forwarder jmp (RwFclose 005bfbf0 hung the standalone exe on an uninitialised lock)
 python3 $T/aliascheck.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "aliascheck: an alias shadows a library name (src/aliascheck_known.txt for deliberate ones)"; exit 1; }
 # ---- lints (before the strict builds since window 5: their FAIL classes are cheaper than a build); stack_lint (~60 s) runs beside rawaddr + defectlint (~90 s)

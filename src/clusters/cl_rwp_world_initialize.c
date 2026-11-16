@@ -15,7 +15,7 @@
 /*00491960*/ extern undefined __cdecl rwp_objects_create_capsule_group(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5);
 /*00492e00*/ extern int rwp_objects_reset_all();
 /*004a5cd0*/ extern int object_frames_create_forward();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*004c3f20*/ extern int FUN_004c3f20(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004c3f60*/ extern RpAtomic * clump_first_atomic(RpClump * p0);
 /*0051be9c*/ extern int __stdcall Initialize(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5);

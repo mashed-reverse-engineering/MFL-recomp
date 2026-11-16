@@ -67,9 +67,6 @@ RpPatchPluginAttach 0x559c70 rpPatchGeometryGetSize # original pushes 0x55a6a0 a
 RpPatchPluginAttach 0x559c70 rpPatchGeometryWrite # original pushes 0x55a700 at 0x559d05 (RpGeometryRegisterPluginStream write callback); stays trapped
 rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsSetup # original stores 0x5485c0 at 0x546d9d (insSetupCB); address store only, callback stays trapped
 rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsEnding # original stores 0x548910 at 0x546f2d (insEndingCB)
-rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosCCCSNR # original stores 0x5470e0 at 0x546e65 (insPosCB)
-rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosCCCSPR # original stores 0x547800 at 0x546e21 (insPosCB)
-rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosNCCSPR # original stores 0x5472a0 at 0x546e2a (insPosCB)
 rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsPosCCPSPR # original stores 0x547c20 at 0x546e08 (insPosCB)
 rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsColorPV # original stores 0x548190 at 0x546f02 (insColorsCB)
 rpPTankGENInstanceSelectCB 0x546d90 rpPTankGENInsColorPVC # original stores 0x548250 at 0x546f17 (insColorsCB)

@@ -12,6 +12,7 @@
  *   max_frames=<n>        stop after n logged Presents (0 = unlimited)
  *   geom=1                hash vertex/index buffer contents at Unlock (default 1)
  *   alock=1               worker threads in lockstep with the main thread (V6, see alock_step; default off)
+ *   vds=1                 virtual DirectSound play cursor (V8, see h_dsb_GetCurrentPosition; default off, use with alock=1)
  *   statehash=1 sh_delta=<hex> [sh_base= sh_end= sh_out= sh_poke=<frame>:<va>:<xor>]   N1 per-frame state pages (see statehash_frame)
  * Everything printed is deterministic: ids are creation order, floats %.9g, no pointers, no times.
  * Build: make (i686-w64-mingw32-gcc). */
@@ -226,6 +227,11 @@ static int cfg_sh, cfg_poke_frame = -1; static u32 cfg_sh_base = 0x5fb000, cfg_s
 static char cfg_sh_out[260] = "statehash.bin";
 static int is_main(void); static int cfg_vsnap;
 static int cfg_alock, ato; static volatile LONG nth; static void alock_step(int settle);
+#ifndef VDSSNAP_DEF
+#define VDSSNAP_DEF 0
+#endif
+static int cfg_vdssnap = VDSSNAP_DEF; static volatile LONG nvds_snap; static void vds_snap(DWORD ph);   /* lane v2_w11 pin 1, see vds_snap */
+static volatile LONG nrd, npend, nst_get, nst_play, nst_stop, nst_lock, nst_lockwc;static int cfg_vds, cfg_apoll, nvds_buf; static volatile LONG npres, nvds_read, nvds_step;     /* vds=1 (V8): Present count (all frames), cursor reads, fixed steps */
 static void statehash_frame(int fr, DWORD ph, DWORD rf) {
     static unsigned char *shadow; static FILE *f; static u32 reg[2 * 4096], idx[4096];
     u32 n = cfg_sh_end - cfg_sh_base, np = (n + 4095) / 4096, nr = 0, nc = 0, hd[10];
@@ -253,7 +259,12 @@ static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, c
     DWORD ph = 0, rf = 0;
     if (!IsBadReadPtr((void *)(uintptr_t)cfg_phase_addr, 4)) ph = *(DWORD *)(uintptr_t)cfg_phase_addr;
     if (cfg_racef_addr && !IsBadReadPtr((void *)(uintptr_t)cfg_racef_addr, 4)) rf = *(DWORD *)(uintptr_t)cfg_racef_addr;
+    InterlockedIncrement(&npres);      /* before alock_step: the workers it releases see the new frame's cursor */
+    if (cfg_vds && cfg_vdssnap && is_main()) vds_snap(ph);
+    if (cfg_vdssnap && active && nframes % 100 == 0) L("VDSSNAP snaps=%d\n", (int)nvds_snap);
     if (cfg_alock && is_main()) { alock_step(1); if (active && nframes % 100 == 0) L("ALOCK threads=%d timeouts=%d\n", (int)nth, ato); }
+    if (cfg_vds && active && nframes % 100 == 0) L("VDS buffers=%d reads=%d steps=%d readfile=%d pending=%d getstatus=%d play=%d stop=%d lock=%d lockwc=%d\n", nvds_buf, (int)nvds_read, (int)nvds_step, (int)nrd, (int)npend,
+        (int)nst_get, (int)nst_play, (int)nst_stop, (int)nst_lock, (int)nst_lockwc);
     if (active) statehash_frame(nframes, ph, rf);      /* before the real Present: the state the frame was drawn from */
     if (cfg_vclock && cfg_vsnap >= 2 && is_main()) vt_us = (vt_us / 50000 + 1) * 50000;   /* vsnap=2: every frame starts on a 50 ms grid, a clock-call count that differs inside one frame does not carry over */
     HRESULT r = C(HRESULT (WINAPI *)(void *, const RECT *, const RECT *, HWND, const RGNDATA *), 17, d, a, b, w, c);
@@ -509,6 +520,13 @@ static DWORD await(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) {    /* non-ma
     int i = th_slot(); DWORD r = n ? WaitForMultipleObjects(n, hs, all, 0) : WAIT_TIMEOUT;
     if (i < 0) { if (!n) { Sleep(ms); return 0; } return r != WAIT_TIMEOUT ? r : WaitForMultipleObjects(n, hs, all, ms); }   /* registry full: unchanged */
     if (r != WAIT_TIMEOUT || (n && ms == 0)) return r;
+    if (cfg_apoll) {    /* apoll=1 (lane v_w10): never block in the kernel; the wait is re-checked only when main releases the thread, so a wake-up happens at a step point, not when the signal lands */
+        for (;;) {
+            th[i].st = 1; WaitForSingleObject(th[i].ev, INFINITE); th[i].st = 0;
+            r = n ? WaitForMultipleObjects(n, hs, all, 0) : WAIT_TIMEOUT;
+            if (r != WAIT_TIMEOUT || ms != INFINITE) return r;
+        }
+    }
     if (all || ms == INFINITE || n >= MAXIMUM_WAIT_OBJECTS) { th[i].st = 2; r = WaitForMultipleObjects(n, hs, all, ms); th[i].st = 0; return r; }
     HANDLE h2[MAXIMUM_WAIT_OBJECTS]; memcpy(h2, hs, n * sizeof *hs); h2[n] = th[i].ev;
     th[i].st = 1; r = WaitForMultipleObjects(n + 1, h2, FALSE, INFINITE);
@@ -527,17 +545,187 @@ static DWORD mwait(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) {    /* main t
 static DWORD WINAPI v_WaitForMultipleObjects(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) { return !cfg_alock ? WaitForMultipleObjects(n, hs, all, ms) : is_main() ? mwait(n, hs, all, ms) : await(n, hs, all, ms); }
 static DWORD WINAPI v_WaitForSingleObject(HANDLE h, DWORD ms) { return !cfg_alock ? WaitForSingleObject(h, ms) : v_WaitForMultipleObjects(1, &h, FALSE, ms); }
 static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { vt_us += (LONGLONG)ms * 1000; if (cfg_alock) alock_step(0); Sleep(0); } else if (cfg_alock) await(0, NULL, FALSE, ms); else Sleep(ms); }
+/* vds=1 (V8, harness only, default off, use with alock=1): Wine's dsound mixer advances the play cursor in real time, so how far the RWA thread
+ * streams per frame (voice queue, then everything downstream) differs run to run.  With vds the exe's DirectSoundCreate / DirectSoundCreate8
+ * (DSOUND IAT, ordinal 1 / 11 or by name) are wrapped, IDirectSound::CreateSoundBuffer patches the buffer vtables and
+ * IDirectSoundBuffer::GetCurrentPosition returns a virtual cursor: play = (Presents since the buffer's first read) x nAvgBytesPerSec / 60
+ * + VDS_STEP_DIV-th of a second for every read with no Present since the previous read (a poll loop while loading cannot hang; per call, so
+ * deterministic), plus SetCurrentPosition's offset, block aligned, mod buffer size; write = play + the real write lead at the first read.
+ * Wine still mixes the real buffer (audio output unchanged apart from where the game writes). */
+#define VDS_STEP_DIV 600
+#define NDSB 128
+typedef struct { WORD tag, ch; DWORD sps, bps; WORD align, bits, cb; } VWFX;
+static struct { void **vt; void *o[24]; } dvt[16]; static int ndvt;
+static struct { void *b; DWORD size, bps, align, lead; LONG base, last; ULONGLONG extra, pos0; } dsb[NDSB];
+static void *orig_dsc, *orig_dsc8;
+static void **dvt_orig(void *obj) { void **vt = *(void ***)obj; for (int k = 0; k < ndvt; k++) if (dvt[k].vt == vt) return dvt[k].o; return NULL; }
+static void dvt_hook(void *obj, int i, void *fn) {     /* patch slot i of obj's vtable once; dvt_orig(obj)[i] = the original */
+    EnterCriticalSection(&acs); void **vt = *(void ***)obj; int k;
+    for (k = 0; k < ndvt && dvt[k].vt != vt; k++) ;
+    if (k == ndvt && k < 16) { dvt[k].vt = vt; memcpy(dvt[k].o, vt, 6 * sizeof(void *)); ndvt++; }
+    if (k < ndvt && vt[i] != fn) vt_patch(vt, i, fn, &dvt[k].o[i]);
+    LeaveCriticalSection(&acs);
+}
+static int dsb_slot(void *b, int fresh) {    /* the buffer's cursor state, set up at its first read; fresh: just (re)created at this address, forget it */
+    EnterCriticalSection(&acs); int i, f = -1;
+    for (i = 0; i < NDSB; i++) { if (dsb[i].b == b) break; if (!dsb[i].b && f < 0) f = i; }
+    if (fresh) { if (i < NDSB) dsb[i].b = NULL; LeaveCriticalSection(&acs); return -1; }
+    if (i == NDSB) i = f;
+    if (i >= 0 && dsb[i].b != b) {
+        void **o = dvt_orig(b); DWORD caps[5] = {sizeof caps}, w = 0, p = 0, wr = 0; VWFX fx = {0};
+        ((HRESULT (WINAPI *)(void *, DWORD *))o[3])(b, caps);
+        ((HRESULT (WINAPI *)(void *, VWFX *, DWORD, DWORD *))o[5])(b, &fx, sizeof fx, &w);
+        ((HRESULT (WINAPI *)(void *, DWORD *, DWORD *))o[4])(b, &p, &wr);
+        memset(&dsb[i], 0, sizeof dsb[i]); dsb[i].b = b; dsb[i].size = caps[2] ? caps[2] : 1; dsb[i].bps = fx.bps; dsb[i].align = fx.align ? fx.align : 1;
+        dsb[i].lead = caps[2] ? (wr + caps[2] - p) % caps[2] : 0; dsb[i].base = npres; dsb[i].last = -1; nvds_buf++;
+        if (lg) L("VDS buffer %d size=%u bps=%u align=%u lead=%u\n", i, dsb[i].size, dsb[i].bps, dsb[i].align, dsb[i].lead);
+    }
+    LeaveCriticalSection(&acs); return i;
+}
+static HRESULT WINAPI h_dsb_GetCurrentPosition(void *b, DWORD *play, DWORD *write) {
+    int i = dsb_slot(b, 0);
+    if (i < 0) return ((HRESULT (WINAPI *)(void *, DWORD *, DWORD *))dvt_orig(b)[4])(b, play, write);
+    LONG n = npres; InterlockedIncrement(&nvds_read);
+    if (dsb[i].last == n) { dsb[i].extra += dsb[i].bps / VDS_STEP_DIV; InterlockedIncrement(&nvds_step); }
+    dsb[i].last = n;
+    ULONGLONG a = dsb[i].pos0 + (ULONGLONG)(n - dsb[i].base) * dsb[i].bps / 60 + dsb[i].extra;
+    DWORD p = (DWORD)(a % dsb[i].size); p -= p % dsb[i].align;
+    if (play) *play = p;
+    if (write) *write = (p + dsb[i].lead) % dsb[i].size;
+    return 0;
+}
+/* vdssnap=1 (lane v2_w11 pin 1): called by the main thread's Present with the race phase; on a phase change every set-up virtual cursor
+ * moves forward to the next whole buffer, counted from this Present, so the cursor's phase against the RWA mixer's 20 ms block grid no longer
+ * depends on the number of menu / loading frames before it. */
+/* vds=1, ours (ASM W11, TS Q4): the linked exe has no DirectSound; its audio device is recomp/audio/mfl_audio_null.c, a thread that pulls the RWA mixer
+ * once per period of QueryPerformanceCounter time, fetched with GetProcAddress(kernel32) past the import table (so the game's vclock does not speed it up).
+ * With vds the exe's GetProcAddress hands out dev_QPC instead for that name: the device clock is (Presents since its first read) x 1/60 s + 1/VDS_STEP_DIV s
+ * per read without a Present between (a poll loop cannot hang), the same rule as the virtual DirectSound cursor; vdssnap moves it to the next whole 160 ms
+ * (= the original's 2-period buffer) counted from its first value at every race-phase change. */
+static struct { int init; LONG base, last; LONGLONG v0, pos0, extra; } dev;
+static LONGLONG dev_now(LONG n) { return dev.pos0 + (LONGLONG)(n - dev.base) * qpf / 60 + dev.extra; }
+static BOOL WINAPI dev_QPC(LARGE_INTEGER *c) {
+    EnterCriticalSection(&acs); LONG n = npres;
+    if (!dev.init) { dev.init = 1; dev.base = n; dev.last = -1; dev.pos0 = dev.v0 = qpf * 1000; if (lg) L("VDS device clock: ours (mfl_audio_null via GetProcAddress)\n"); }
+    if (dev.last == n) { dev.extra += qpf / VDS_STEP_DIV; InterlockedIncrement(&nvds_step); }
+    dev.last = n; InterlockedIncrement(&nvds_read);
+    c->QuadPart = dev_now(n); LeaveCriticalSection(&acs); return TRUE;
+}
+static FARPROC WINAPI v_GetProcAddress(HMODULE m, LPCSTR name) {
+    if (cfg_vds && (uintptr_t)name > 0xffff && !strcmp(name, "QueryPerformanceCounter")) return (FARPROC)dev_QPC;
+    return GetProcAddress(m, name);
+}
+static void vds_snap(DWORD ph) {
+    static DWORD last_ph = 0xFFFFFFFF;
+    if (ph == last_ph) return;
+    last_ph = ph;
+    EnterCriticalSection(&acs); LONG n = npres;
+    if (dev.init) { LONGLONG g = qpf * 160 / 1000, a = dev_now(n); dev.pos0 = dev.v0 + ((a - dev.v0) / g + 1) * g; dev.base = n; dev.extra = 0; dev.last = -1; InterlockedIncrement(&nvds_snap); }
+    for (int i = 0; i < NDSB; i++) if (dsb[i].b) {
+        ULONGLONG a = dsb[i].pos0 + (ULONGLONG)(n - dsb[i].base) * dsb[i].bps / 60 + dsb[i].extra;
+        dsb[i].pos0 = (a / dsb[i].size + 1) * dsb[i].size; dsb[i].base = n; dsb[i].extra = 0; dsb[i].last = -1; InterlockedIncrement(&nvds_snap);
+    }
+    LeaveCriticalSection(&acs);
+}
+static HRESULT WINAPI h_dsb_SetCurrentPosition(void *b, DWORD pos) {
+    HRESULT r = ((HRESULT (WINAPI *)(void *, DWORD))dvt_orig(b)[13])(b, pos);
+    int i = dsb_slot(b, 0);
+    if (r == 0 && i >= 0) { dsb[i].pos0 = pos; dsb[i].base = npres; dsb[i].extra = 0; }
+    return r;
+}
+/* vst=1 (lane v_w10 attempt 3, default 0, with vds): IDirectSoundBuffer::GetStatus answers from the game's own Play / Stop calls
+ * (PLAYING, + LOOPING for DSBPLAY_LOOPING; never BUFFERLOST), not from Wine's mixer state; counters for Play / Stop / Lock / GetStatus */
+#ifndef VST_DEF
+#define VST_DEF 0
+#endif
+static int cfg_vst = VST_DEF;
+static struct { void *b; int play, loop; } vst[NDSB];
+static int vst_of(void *b, int fresh) {
+    EnterCriticalSection(&acs); int i, f = -1;
+    for (i = 0; i < NDSB; i++) { if (vst[i].b == b) break; if (!vst[i].b && f < 0) f = i; }
+    if (i == NDSB) i = f;
+    if (i >= 0 && (fresh || vst[i].b != b)) { vst[i].b = b; vst[i].play = vst[i].loop = 0; }
+    LeaveCriticalSection(&acs); return i;
+}
+static HRESULT WINAPI h_dsb_GetStatus(void *b, DWORD *st) {
+    int i = vst_of(b, 0); InterlockedIncrement(&nst_get);
+    if (i < 0 || !st) return ((HRESULT (WINAPI *)(void *, DWORD *))dvt_orig(b)[9])(b, st);
+    *st = vst[i].play ? (1 | (vst[i].loop ? 4 : 0)) : 0;     /* DSBSTATUS_PLAYING / LOOPING */
+    return 0;
+}
+static HRESULT WINAPI h_dsb_Play(void *b, DWORD r1, DWORD prio, DWORD fl) {
+    HRESULT r = ((HRESULT (WINAPI *)(void *, DWORD, DWORD, DWORD))dvt_orig(b)[12])(b, r1, prio, fl);
+    int i = vst_of(b, 0); InterlockedIncrement(&nst_play);
+    if (r == 0 && i >= 0) { vst[i].play = 1; vst[i].loop = fl & 1; }
+    return r;
+}
+static HRESULT WINAPI h_dsb_Stop(void *b) {
+    HRESULT r = ((HRESULT (WINAPI *)(void *))dvt_orig(b)[18])(b);
+    int i = vst_of(b, 0); InterlockedIncrement(&nst_stop);
+    if (r == 0 && i >= 0) vst[i].play = 0;
+    return r;
+}
+static HRESULT WINAPI h_dsb_Lock(void *b, DWORD ofs, DWORD n, void **p1, DWORD *n1, void **p2, DWORD *n2, DWORD fl) {
+    InterlockedIncrement(&nst_lock);
+    if (fl & 1) { DWORD pw = 0; h_dsb_GetCurrentPosition(b, NULL, &pw); ofs = pw; fl &= ~1u; InterlockedIncrement(&nst_lockwc); }  /* DSBLOCK_FROMWRITECURSOR: the virtual write cursor */
+    return ((HRESULT (WINAPI *)(void *, DWORD, DWORD, void **, DWORD *, void **, DWORD *, DWORD))dvt_orig(b)[11])(b, ofs, n, p1, n1, p2, n2, fl);
+}
+static HRESULT WINAPI h_ds_CreateSoundBuffer(void *ds, const void *desc, void **o, void *outer) {
+    HRESULT r = ((HRESULT (WINAPI *)(void *, const void *, void **, void *))dvt_orig(ds)[3])(ds, desc, o, outer);
+    if (r == 0 && o && *o) {
+        dvt_hook(*o, 4, h_dsb_GetCurrentPosition); dvt_hook(*o, 13, h_dsb_SetCurrentPosition); dsb_slot(*o, 1);
+        if (cfg_vst) { dvt_hook(*o, 9, h_dsb_GetStatus); dvt_hook(*o, 12, h_dsb_Play); dvt_hook(*o, 18, h_dsb_Stop); dvt_hook(*o, 11, h_dsb_Lock); vst_of(*o, 1); }
+    }
+    return r;
+}
+static HRESULT WINAPI v_DirectSoundCreate(const GUID *g, void **o, void *outer) {
+    HRESULT r = ((HRESULT (WINAPI *)(const GUID *, void **, void *))orig_dsc)(g, o, outer);
+    if (r == 0 && o && *o) dvt_hook(*o, 3, h_ds_CreateSoundBuffer);
+    return r;
+}
+static HRESULT WINAPI v_DirectSoundCreate8(const GUID *g, void **o, void *outer) {
+    HRESULT r = ((HRESULT (WINAPI *)(const GUID *, void **, void *))orig_dsc8)(g, o, outer);
+    if (r == 0 && o && *o) dvt_hook(*o, 3, h_ds_CreateSoundBuffer);
+    return r;
+}
+/* aio=1 (lane v_w10 attempt 2, default 0): an overlapped ReadFile that goes pending is waited for here, then still reported as pending
+ * (FALSE + ERROR_IO_PENDING): the game's own path is unchanged, but the completion (event, Internal) is in place before the caller looks at it,
+ * so HasOverlappedIoCompleted polls and timed waits no longer depend on when Wine finishes the read */
+#ifndef AIO_DEF
+#define AIO_DEF 0
+#endif
+static int cfg_aio = AIO_DEF;
+static BOOL WINAPI v_ReadFile(HANDLE h, void *buf, DWORD n, DWORD *got, OVERLAPPED *ov) {
+    BOOL r = ReadFile(h, buf, n, got, ov); InterlockedIncrement(&nrd);
+    if (!r && ov && cfg_aio && GetLastError() == ERROR_IO_PENDING) {
+        InterlockedIncrement(&npend);
+        while (ov->Internal == 0x103) Sleep(0);      /* STATUS_PENDING */
+        if (ov->hEvent) { WaitForSingleObject(ov->hEvent, INFINITE); SetEvent(ov->hEvent); }   /* event in place; re-set so an auto-reset event is not eaten */
+        SetLastError(ERROR_IO_PENDING);
+    }
+    return r;
+}
+static void iat_set(IMAGE_THUNK_DATA *ft, void *fn, void **save) {
+    DWORD old; VirtualProtect(&ft->u1.Function, 4, PAGE_READWRITE, &old); if (save) *save = (void *)(uintptr_t)ft->u1.Function; ft->u1.Function = (DWORD)(uintptr_t)fn; VirtualProtect(&ft->u1.Function, 4, old, &old);
+}
 static void patch_iat(HMODULE m) {
     unsigned char *b = (unsigned char *)m; IMAGE_DOS_HEADER *dh = (void *)b; IMAGE_NT_HEADERS *nt = (void *)(b + dh->e_lfanew);
     IMAGE_DATA_DIRECTORY *dd = &nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
     struct { const char *name; void *fn; } hk[] = { {"QueryPerformanceCounter", v_QPC}, {"GetTickCount", v_GetTickCount}, {"timeGetTime", v_timeGetTime}, {"GetSystemTimeAsFileTime", v_GetSystemTimeAsFileTime}, {"Sleep", v_Sleep},
-                                                    {"WaitForSingleObject", v_WaitForSingleObject}, {"WaitForMultipleObjects", v_WaitForMultipleObjects} };
+                                                    {"WaitForSingleObject", v_WaitForSingleObject}, {"WaitForMultipleObjects", v_WaitForMultipleObjects}, {"ReadFile", v_ReadFile}, {"GetProcAddress", v_GetProcAddress} };
     for (IMAGE_IMPORT_DESCRIPTOR *d = (void *)(b + dd->VirtualAddress); dd->VirtualAddress && d->Name; d++) {
         IMAGE_THUNK_DATA *ot = (void *)(b + (d->OriginalFirstThunk ? d->OriginalFirstThunk : d->FirstThunk)), *ft = (void *)(b + d->FirstThunk);
+        int ds = cfg_vds && !_stricmp((const char *)(b + d->Name), "dsound.dll");
         for (; ot->u1.AddressOfData; ot++, ft++) {
-            if (ot->u1.Ordinal & 0x80000000) continue;
+            if (ot->u1.Ordinal & 0x80000000) {
+                if (ds && (ot->u1.Ordinal & 0xffff) == 1) iat_set(ft, v_DirectSoundCreate, &orig_dsc);
+                if (ds && (ot->u1.Ordinal & 0xffff) == 11) iat_set(ft, v_DirectSoundCreate8, &orig_dsc8);
+                continue;
+            }
             const char *n = (const char *)((IMAGE_IMPORT_BY_NAME *)(b + ot->u1.AddressOfData))->Name;
-            for (unsigned i = 0; i < sizeof hk / sizeof *hk; i++) if (!strcmp(n, hk[i].name)) { DWORD old; VirtualProtect(&ft->u1.Function, 4, PAGE_READWRITE, &old); ft->u1.Function = (DWORD)(uintptr_t)hk[i].fn; VirtualProtect(&ft->u1.Function, 4, old, &old); }
+            if (ds && !strcmp(n, "DirectSoundCreate")) iat_set(ft, v_DirectSoundCreate, &orig_dsc);
+            if (ds && !strcmp(n, "DirectSoundCreate8")) iat_set(ft, v_DirectSoundCreate8, &orig_dsc8);
+            for (unsigned i = 0; i < sizeof hk / sizeof *hk; i++) if (!strcmp(n, hk[i].name)) iat_set(ft, hk[i].fn, NULL);
         }
     }
 }
@@ -566,6 +754,11 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "statehash")) cfg_sh = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "vsnap")) cfg_vsnap = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "alock")) cfg_alock = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "vds")) cfg_vds = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "vdssnap")) cfg_vdssnap = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "apoll")) cfg_apoll = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "aio")) cfg_aio = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "vst")) cfg_vst = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "srand")) sscanf(e, "%u:%x:%u", &cfg_srand_ph, &cfg_srand_va, &cfg_srand_seed);
         else if (!strcmp(ln, "pin") && npin < NPIN && sscanf(e, "%u:%x:%x", &pins[npin].ph, &pins[npin].va, &pins[npin].v) == 3) npin++;
         else if (!strcmp(ln, "sh_base")) cfg_sh_base = (u32)strtoul(e, 0, 16);

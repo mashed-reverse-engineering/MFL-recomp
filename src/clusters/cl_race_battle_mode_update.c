@@ -14,7 +14,7 @@
 /*004379b0*/ extern int menu_bot_skill_a_get();
 /*0047a780*/ extern int car_add_field_b10();
 /*0047a830*/ extern int car_is_active();
-/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0);
+/*004b2bbd*/ extern int __cdecl FID_conflict__wprintf(char *p0, ...);
 /*005dd62c*/ extern float k_f_100;
 /*005dd7f4*/ extern float k_f_80;
 /*005ddea0*/ extern float k_f_20;
