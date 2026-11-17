@@ -16,17 +16,31 @@ to_single() { echo "keywait Return $MSG 2 4"; echo "pressuntil Return $CUR 3 20 
 to_main() { echo "keychange Escape $CUR 3"; echo "wait 1"; }
 # n x key with a wait after each
 keys() { local w=$1; shift; for k in "$@"; do echo "key $k"; echo "wait $w"; done; }
+# W13 hx5: n x key, each followed by 4 game frames (frames_total) instead of a fixed time (slider / list moves inside a page)
+keysf() { for k in "$@"; do echo "key $k"; echo "waitframes 0x$(mapva frames_total) 4"; done; }
+# W13 hx5: a key that opens / closes a menu page: sent until the menu depth changes (keychange, one repeat), then 40 game frames for the
+# page's fade-in, so a shot never samples the transition.  Only for keys that change the depth (probe of options_all / multi_pages, C3 notes).
+pagekey() { echo "keychange $1 $CUR 3"; echo "waitframes 0x$(mapva frames_total) 40"; }
+# W13 hx5: wait for the round to end (race phase leaves 6); a miss is a missed required event (tag end)
+race_end() { echo "waitevent $PHASE !6 ${SCEN_RACECAP:-180} end"; echo "shot race_end"; }
 # ---- race helpers
 unlock_all() { echo "fill32 0x7eebc0 270 0x1"; echo "fill32 0x7ef598 68 0x01010101"; }      # all courses / events open in the live GameState (like COURSE=n of race_script.sh)
 # from the loading / Press START screens to race phase 6 (racing): Return is harmless in all of them (Press START, tutorial boxes)
 race_go() { echo "pressuntil Return $PHASE 6 ${1:-120} 0.7"; }
 # pause menu "Transmission Interrupted": Continue / Options / Restart Race / Quit Race / Quit Game.  race_pause <downs> <yes 0|1>: Escape, Down x n, Return, [confirm]
-race_pause() { echo "key Escape"; echo "wait 1.2"; echo "shot pause_$RANDOM"; for i in $(seq 1 ${1:-3}); do echo "key Down"; echo "wait 0.5"; done; echo "key Return"; echo "wait 1.8"; [ "${2:-1}" = 1 ] && { echo "key Return"; echo "wait 4"; }; }
+race_pause() { echo "key Escape"; echo "wait 1.2"; echo "shot pause_d${1:-3}"; for i in $(seq 1 ${1:-3}); do echo "key Down"; echo "wait 0.5"; done; echo "key Return"; echo "wait 1.8"; [ "${2:-1}" = 1 ] && { echo "key Return"; echo "wait 4"; }; }
 race_quit() { race_pause 3 1; echo "shot after_quit"; }
 race_restart() { race_pause 2 1; echo "wait 8"; echo "shot after_restart"; }
 # round end screens (Current Standings, Point Winner, next round): Return only while the race phase is above 6
-end_screens() { for n in $(seq 1 ${1:-8}); do echo "wait 6"; echo "shot after$n"; echo "keyabove Return $PHASE 6"; done; }
+# W13 hx5: end_screens <menu depth>: Return on the end screens (only while the phase is above 6) until the menu depth is back at <depth>
+# (arcade: 6 = course page, cup: 5); was 8 / 10 x `wait 6` + keyabove.  A miss (cap 300 s) is a missed required event.
+end_screens() { echo "returnloop $CUR ${1:-6} $PHASE 300 end"; echo "shot results_done"; }
+# the old timed form, kept for the arcade Quick Battle win only: its multi-round end (first to 8 points) never reached menu depth 6 with
+# returnloop in C3 runs 1 and 2 (both sides; the shot after the cap is a Current Standings screen) - a probe of that flow is W14 work
+end_screens_timed() { for n in $(seq 1 ${1:-8}); do echo "wait 6"; echo "shot after$n"; echo "keyabove Return $PHASE 6"; done; }
 # main menu (depth 2) -> last entry "Exit To Windows" -> Yes: runs the shutdown code, the process ends
 exit_windows() { keys 0.7 Down Down Down; echo "shot exit_sel"; echo "key Return"; echo "wait 1.5"; echo "shot exit_box"; echo "key Return"; echo "wait 4"; }
 # freeze both builds at the same race frame (harness freeze_target, like regress.sh) so the final screenshot and the car dump are comparable; the game does not advance afterwards
-race_freeze() { echo "poke 0x$(mapva freeze_target) ${1:-300}"; echo "waitmem 0x$(mapva frozen) 1 $((30 + ${1:-300} / 20)) 8 0x$(mapva race_frames)"; echo "dump cars 0x8B06E0 0xD040"; }
+# W13 hx5 (finding 25): freeze.c sets frozen = 1 at the target frame, 2 when the round ended before it; both end the wait (waitmem.txt
+# records the value).  Not a required `== 1` event: the DRIVE=31 sweep rows end their round before frame 300 on both sides (gate 1117_0021).
+race_freeze() { echo "poke 0x$(mapva freeze_target) ${1:-300}"; echo "waitmem 0x$(mapva frozen) !0 $((30 + ${1:-300} / 20)) 8 0x$(mapva race_frames)"; echo "dump cars 0x8B06E0 0xD040"; }

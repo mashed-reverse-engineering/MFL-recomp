@@ -38,7 +38,7 @@ scenario() {
   # (the pause Options page has the same 3 entries as the main menu: Sound (4 rows), Gamma Correction, Load / Save)
   pause_open; echo "key Down"; echo "wait 0.6"; echo "key Return"; echo "wait 2"; echo "shot pause_options"
   echo "key Return"; echo "wait 2"; echo "shot pause_sound"
-  for r in 1 2 3 4; do keys 0.3 Left Left Left Right Right Right Right Right Right; echo "shot sound_row$r"; echo "key Down"; echo "wait 0.5"; done
+  for r in 1 2 3 4; do keys 0.3 Left Left Left Right Right Right Right Right Right; echo "shot sound_row$r"; echo "key Down"; echo "wait 0.5"; done      # (W13 hx5: keysf tried and reverted: inside the race's pause menu 4 frames per key lost presses, two controls ended on different volumes)
   echo "key Escape"; echo "wait 1.5"
   echo "key Down"; echo "wait 0.6"; echo "key Return"; echo "wait 2"; echo "shot pause_gamma"; keys 0.3 Left Left Left Right Right Right Right Right Right; echo "shot gamma_row"
   echo "key Escape"; echo "wait 1.5"

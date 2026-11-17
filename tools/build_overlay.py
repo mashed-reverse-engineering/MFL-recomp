@@ -143,6 +143,10 @@ def main():
                 off = [x for x in off if x not in cl_entries]      # a disabled bridge stub of a cluster root is stripped below, the cluster thunk is patched in
                 if off: extra += ["--skip", ",".join(off)]
         if "--shadow" in extra:          # src/bridges_shadow (bridgegen.py --shadow) + the shadow test runtime: every bridged function compares the original with the C version
+            # W13 LAY: a shadow bridge defines the function under its own name (the shadow wrapper); a tier 1 file of the same function would be a
+            # second definition (overlay.py stops on it), so the shadow build leaves those tier 1 files out
+            sh_ = {l.strip() for l in open(os.path.join(RECOMP, "bridges_shadow", "shadow_names.txt")) if l.strip()}
+            srcs = [x for x in srcs if not (os.path.basename(os.path.dirname(x)) == "tier1" and os.path.basename(x)[:-2] in sh_)]
             srcs += sorted(glob.glob(os.path.join(RECOMP, "bridges_shadow", "*.c"))) + [os.path.join(RECOMP, "harness_shadow", "shadow.c")]
             for h in glob.glob(os.path.join(RECOMP, "bridges_shadow", "*.h")):
                 copy_hdr(h, work)

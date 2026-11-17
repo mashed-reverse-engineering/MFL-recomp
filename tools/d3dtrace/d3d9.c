@@ -9,7 +9,8 @@
  *   stop_racef=<n>        log only while the race frame counter < n (0 = off)
  *   stop_phase=<n>        log only while the race phase < n (6 = countdown segment only)
  *   vclock=1 step_us=20 anchor_phase=3   virtual clock for the main thread (see below)
- *   max_frames=<n>        stop after n logged Presents (0 = unlimited)
+ *   max_frames=<n>        stop after n logged Presents (0 = unlimited; also stops statehash, which records only while logging is active)
+ *   trace=0               no draw / state records (W13 hx7, statehash runs): the active window, PRESENT lines and statehash stay; default 1
  *   geom=1                hash vertex/index buffer contents at Unlock (default 1)
  *   alock=1               worker threads in lockstep with the main thread (V6, see alock_step; default off)
  *   vds=1                 virtual DirectSound play cursor (V8, see h_dsb_GetCurrentPosition; default off, use with alock=1)
@@ -31,7 +32,7 @@ typedef uint32_t u32;
 
 static FILE *lg;
 static CRITICAL_SECTION cs;
-static int cfg_start_phase, cfg_stop_racef, cfg_max_frames, cfg_geom = 1, cfg_vclock = 1, cfg_step_us = 20, cfg_stop_phase;
+static int cfg_start_phase, cfg_stop_racef, cfg_max_frames, cfg_geom = 1, cfg_vclock = 1, cfg_step_us = 20, cfg_stop_phase, cfg_trace = 1;
 static u32 cfg_phase_addr = 0x652f68, cfg_racef_addr;
 static int active, nframes, ndraws, nunhooked;
 static char cfg_rwtap[260], cfg_rwtap_out[260] = "rwtap.log"; static unsigned cfg_rwtap_delta;   /* rwtap=<funcs.txt> rwtap_delta=<hex>: load mfltap.dll (tools/rwtap) next to the exe, log RW calls */
@@ -141,12 +142,12 @@ static void check_active(void) {
         if (cfg_stop_racef && (int)ph >= 5 && (int)rf >= cfg_stop_racef) on = 0;
     }
     if (cfg_max_frames && nframes >= cfg_max_frames) on = 0;
-    if (on && !active) { active = 1; dump_state(); }
+    if (on && !active) { active = 1; if (cfg_trace) dump_state(); }
     else if (!on && active) { active = 0; L("INACTIVE\n"); fflush(lg); }
 }
 
 /* ---- device hooks ------------------------------------------------------------------------------------------------------------ */
-#define ACT if (active)
+#define ACT if (active && cfg_trace)
 static HRESULT WINAPI h_SetRenderState(void *d, DWORD s, DWORD v) {
     if (s < 256 && (!rs_set[s] || rs[s] != v)) { rs[s] = v; rs_set[s] = 1; ACT e_rs(s); }
     return C(HRESULT (WINAPI *)(void *, DWORD, DWORD), 57, d, s, v);
@@ -512,7 +513,7 @@ static void alock_step(int settle) {
     for (int i = 0; i < nth; i++) {
         if (InterlockedCompareExchange(&th[i].st, 0, 1) != 1) continue;
         SetEvent(th[i].ev); DWORD t0 = GetTickCount();
-        while (th[i].st == 0) { if (GetTickCount() - t0 > 500) { ato++; break; } Sleep(0); }
+        while (th[i].st == 0) { if (GetTickCount() - t0 > 500) { ato++; if (lg) { L("ALOCK TIMEOUT frame=%ld thread=%d\n", (long)npres, i); fflush(lg); } break; } Sleep(0); }   /* W13 hx7: every event, active or not (statecmp / scen_judge: UNJUDGED) */
     }
     if (settle) { DWORD t0 = GetTickCount(); for (int i = 0; i < nth; i++) while (th[i].st == 0 && GetTickCount() - t0 < 50) Sleep(0); }   /* threads woken by another one */
 }
@@ -793,6 +794,7 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "rwtap_out")) strncpy(cfg_rwtap_out, e, 259);
         else if (!strcmp(ln, "rwtap_delta")) cfg_rwtap_delta = (unsigned)strtoul(e, 0, 16);
         else if (!strcmp(ln, "geom")) cfg_geom = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "trace")) cfg_trace = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "statehash")) cfg_sh = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "vsnap")) cfg_vsnap = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "alock")) cfg_alock = (int)strtol(e, 0, 0);
@@ -825,7 +827,7 @@ __declspec(dllexport) IDirect3D9 *WINAPI Direct3DCreate9(UINT ver) {
         char ob[512]; const char *out; read_cfg(&out, ob);
         lg = fopen(out, "wb"); if (!lg) return NULL;
         setvbuf(lg, NULL, _IOFBF, 1 << 20);
-        L("TRACE d3dtrace 1 sdk=%u start_phase=%d stop_racef=%d geom=%d\n", ver, cfg_start_phase, cfg_stop_racef, cfg_geom);
+        L("TRACE d3dtrace 1 sdk=%u start_phase=%d stop_racef=%d geom=%d trace=%d\n", ver, cfg_start_phase, cfg_stop_racef, cfg_geom, cfg_trace);
         if (cfg_audiorng) L("AUDIORNG patched %d of %d sites%s\n", ar_ok, ar_total, ar_bad1 >= 0 ? " (some refused)" : "");
         if (cfg_audiorng && ar_bad1 >= 0) L("AUDIORNG first refused site %x\n", (unsigned)ar_bad1);
         if (!cfg_start_phase && !cfg_stop_racef && !cfg_stop_phase) { active = 1; }

@@ -122,7 +122,7 @@ void __cdecl fx_particle_spawn_from_style(float *style_inst)
           (double)*style_inst;
   frame.size_x = (float)rnd;
   frame.size_y = (float)rnd;
-  if (g_tick_number % 3 == 0) {
+  if ((int)g_tick_number % 3 == 0) {      /* signed, as the original (cdq; idiv) */
     frame.flags = 2;
   }
   frame.vel_x = style_inst[3];

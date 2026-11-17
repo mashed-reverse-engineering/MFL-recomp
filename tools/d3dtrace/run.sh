@@ -8,13 +8,14 @@
 #      ALOCK=1 (worker threads in lockstep, d3d9.c alock), SNDPIN=1 (with ALOCK=1: virtual dsound cursor snapped at race-phase changes + apoll/aio/vst,
 #      control vs control 0 diff over a race, lane v2_w11), D3DP_DLL (proxy build to use instead of d3d9.dll here),
 #      MFL_INSTALL (install dir with App_Executables), MAX_FRAMES, RUN_TIMEOUT (s, default 240), TMPDIR (scratch mounted into the containers),
-#      AUDIORNG=1 (control only, test only: sound code draws from its own random stream, d3d9.c audiorng).
+#      AUDIORNG=1 (control only, test only: sound code draws from its own random stream, d3d9.c audiorng),
+#      TRACE=1 (with STATEHASH=1: also record and normalise the draw trace; without it a statehash run has no trace.d3d.gz).
 # SA_EXE=<link dir>/ours.exe SA_DELTA=<hex> (e.g. <link dir>/ours.exe, 112000): record the standalone link (game dir <link dir>/game, harness addresses from ours.map) instead of the ctrl build.
 # Result: <out dir>/trace.raw (change stream), <out dir>/run.txt (params, exit code), screenshots (wine-run shots) when taken.  Then: normalise.py trace.raw.
 T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f "$T/../.."); WR=$(readlink -f "$T/../wine-run")
 # N1: STATEHASH=1 -> statehash=1 in the cfg (sh_delta = SA_DELTA), result <out dir>/statehash.bin (tools/d3dtrace/statecmp.py); SH_POKE=<frame>:<va>:<xor> perturbs one dword
 # gate exclusion: refuse while a gate holds the gate lock file (as run.py does for tools/wine-run)
-[ -n "$MFL_IN_GATE" ] || flock -s -n ${GATE_LOCK:-/tmp/claude-$(id -u)/gate.lock} true || { echo "run.sh: REFUSED: a gate is running (gate.lock held)"; exit 2; }
+. "$(dirname "$(readlink -f "$0")")/../wine-run/winelock.sh"      # W13 hx6: shared gate lock for the whole run (was: refuse while a gate runs); waits for a running gate
 SC=${1:?scenario}; OUT=$(readlink -f "${2:?out dir}"); FR=${3:-120}
 export TMPDIR=${TMPDIR:-/tmp/claude-$(id -u)}; export MASHED_ROOT=${MASHED_ROOT:-$(readlink -f "$R/..")}
 MFL_INSTALL=${MFL_INSTALL:-$R/../MashedGame/FullyLoaded/installed}
@@ -59,7 +60,9 @@ case $SC in menu|title|mainmenu) START=0; RF=0;; *) STOP=$FR;; esac
 # AUDIORNG=1 alone also defaults STEP_US to 0.  An explicit STEP_US wins.
 [ -n "$SPLIT" ] && [ -z "$SA_EXE" ] && AUDIORNG=1
 [ -n "$SPLIT$AUDIORNG" ] && STEP_US=${STEP_US:-0}
-{ echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-3}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; [ -n "$VDUMP" ] && echo "vdump=1"; [ -n "$STATEHASH" ] && { echo "statehash=1"; echo "sh_delta=${SA_DELTA:-0}"; echo "vsnap=${VSNAP:-2}"; [ "${SRAND:-1}" != 0 ] && echo "srand=3:$([ -n "$SA_EXE" ] && awk '$2=="_srand"{print $3; exit}' ${SA_EXE%.exe}.map || echo 5d365e):1"; for p in $PINS $([ -n "$PINFILE" ] && grep -v '^#' $PINFILE | cut -d' ' -f1); do echo "pin=$p"; done; }; [ -n "$SH_POKE" ] && echo "sh_poke=$SH_POKE"; [ -n "$ALOCK" ] && echo "alock=$ALOCK"; [ -n "$SNDPIN" ] && printf 'vds=1\napoll=1\naio=1\nvst=1\nvdssnap=1\n'; [ -n "$STEP_US" ] && echo "step_us=$STEP_US"; } > $AE/d3dtrace.cfg
+{ echo "out=d3dtrace.log"; echo "start_phase=$START"; echo "racef_addr=$RF"; echo "stop_racef=$STOP"; echo "stop_phase=$STOPPH"; echo "geom=${GEOM:-1}"; [ -n "$PHA" ] && { echo "phase_addr=$PHA"; echo "anchor_phase=${ANCHOR:-3}"; }; [ -n "$MAX_FRAMES" ] && echo "max_frames=$MAX_FRAMES"; [ -n "$VDUMP" ] && echo "vdump=1"; [ -n "$STATEHASH" ] && { echo "statehash=1"; echo "sh_delta=${SA_DELTA:-0}"; echo "vsnap=${VSNAP:-2}"; [ "${SRAND:-1}" != 0 ] && echo "srand=3:$([ -n "$SA_EXE" ] && awk '$2=="_srand"{print $3; exit}' ${SA_EXE%.exe}.map || echo 5d365e):1"; for p in $PINS $([ -n "$PINFILE" ] && grep -v '^#' $PINFILE | cut -d' ' -f1); do echo "pin=$p"; done; }; [ -n "$SH_POKE" ] && echo "sh_poke=$SH_POKE"; [ -n "$ALOCK" ] && echo "alock=$ALOCK"; [ -n "$SNDPIN" ] && printf 'vds=1\napoll=1\naio=1\nvst=1\nvdssnap=1\n'; [ -n "$STEP_US" ] && echo "step_us=$STEP_US"; [ -n "$STATEHASH" ] && [ -z "$TRACE" ] && echo "trace=0"; } > $AE/d3dtrace.cfg
+# W13 hx7 (harness review finding 16): a STATEHASH run without TRACE=1 records no draw / state lines (d3d9.c trace=0; the PRESENT lines, the
+# ALOCK TIMEOUT lines and statehash.bin stay) and skips normalise.  Not max_frames=1: that also ends the state hash (d3d9.c records it only while active).
 # RWTAP=1: also hook the RW layer (tools/rwtap, mfltap.dll + funcs.txt next to the exe), log -> $OUT/rwtap.log (standalone: the hooks get the link delta)
 RT_=$(readlink -f $T/../rwtap); [ -n "$RWTAP" ] && { [ -f $RT_/mfltap.dll ] || make -C $RT_ >/dev/null || exit 1; cp $RT_/mfltap.dll $RT_/funcs.txt $AE/; echo "rwtap=funcs.txt" >> $AE/d3dtrace.cfg; [ -n "$SA_DELTA" ] && echo "rwtap_delta=$SA_DELTA" >> $AE/d3dtrace.cfg; }
 # AUDIORNG=1 (TEST ONLY, control build only; output/determinism_2026-11-16.md): d3d9.c audiorng, the sound code's random draws go to the sound
@@ -91,4 +94,6 @@ PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT 
 cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$STATEHASH" ] && mv $AE/statehash.bin $OUT/statehash.bin;[ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null
 { echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $DLL | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; } | tee $OUT/run.txt
 [ -s $OUT/trace.raw ] || { echo "NO TRACE (override not active or game failed): see $OUT/game/wine.log"; exit 1; }
+grep "^ALOCK TIMEOUT" $OUT/trace.raw | head -3      # W13 hx7 (finding 17): lockstep lost in this run; statecmp.py says UNJUDGED for it
+[ -n "$STATEHASH" ] && [ -z "$TRACE" ] && exit 0
 python3 $T/normalise.py $OUT/trace.raw $OUT/trace.d3d.gz

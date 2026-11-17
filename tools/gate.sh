@@ -24,6 +24,7 @@
 export LC_ALL=C
 export MFL_IN_GATE=1   # tools/d3dtrace/run.sh refuses to start while a gate holds gate.lock, unless it is called by the gate itself
 T=$(dirname "$(readlink -f "$0")"); R=$T/..; W=$T/wine-run
+. $W/loadscale.sh      # W13 C4: lscale / loadnow, the one load rule (courses WALL, step timeouts)
 DRY=; [ "$1" = --dry-run ] && { DRY=1; shift; }
 KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat "${x:1}")) || NAMES+=("$x"); done
 case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|standalone|full) ;; *) sed -n 2,3p "$0"; exit 2;; esac
@@ -36,7 +37,7 @@ NK=$(python3 $T/negtest_key.py --check 2>/dev/null); NK=${NK:-MISS error}
 NW=
 if [ "${NK%% *}" != HIT ] || [ $KIND = full ]; then NL=$(python3 $T/negtest_key.py --miss-limit "${NK#* }" 2>/dev/null) || NL="120 negtest_key --miss-limit failed"; NL=${NL:-120 no output}
   [ "${STEP_TIMEOUT:-0}" -lt "${NL%% *}" ] && STEP_TIMEOUT=${NL%% *}; NW=" (MISS limit ${NL})"; fi
-TOLINE="negtest key ${NK:0:14}, kind $KIND -> step limit ${STEP_TIMEOUT:-3x estimate + 5} min (x load/4, 1..2)$NW"
+TOLINE="negtest key ${NK:0:14}, kind $KIND -> step limit ${STEP_TIMEOUT:-3x estimate + 5} min (x load/4, 1..${LOADCAP:-3}: wine-run/loadscale.sh)$NW"
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)
@@ -122,7 +123,7 @@ courses() {       # courses <tag> '<list>' [ENV=..]...: one courses.sh call per 
 }
 sweep() {         # sweep <tag> <a> <b> [ENV=..]...: courses_par.sh P=2 (2 x PAR 2 game processes), progress lines polled from the part logs
   local tag=$1 a=$2 b=$3; shift 3; local seen=0 n
-  env EXTRA_OVL="$EXTRA" "$@" WALL=${WALL:-$(awk -v l=$(cut -d" " -f1 /proc/loadavg) "BEGIN{s=l/4; if(s<1)s=1; if(s>3)s=3; print int(2400*s)}")} $W/courses_par.sh $D/$tag 2 $a $b 90 > $D/$tag.log 2>&1 & CHILD=$!
+  env EXTRA_OVL="$EXTRA" "$@" WALL=${WALL:-$(lscale 2400)} $W/courses_par.sh $D/$tag 2 $a $b 90 > $D/$tag.log 2>&1 & CHILD=$!
   while kill -0 $CHILD 2>/dev/null; do sleep 15; n=$(grep -h "^course" $D/$tag/p*.log 2>/dev/null | wc -l)
     [ $n -gt $seen ] && { echo "[$(date +%H:%M)] $tag: $n/$((b-a+1)) courses done"; seen=$n; }; done
   wait $CHILD; CHILD=; cat $D/$tag.log | cut -c1-200
@@ -213,7 +214,7 @@ bridgeshadow() {  # bridgeshadow '<courses>' names...: the bridged functions as 
   local f ok=0; for f in $D/bridge_shadow/c*/out_ovl_1/shadowlog.bin; do python3 $W/shadow_report.py $f $R/src/bridges_shadow/shadow_names.txt | tee -a $D/bridge_shadow/report.txt | grep -iE "diff" | grep -E "$(IFS='|'; echo "$*")" && ok=1; done
   [ $ok = 0 ]
 }
-export LIB_RW RW_DLL; export -f standalone_link linkwait origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
+export LIB_RW RW_DLL; export -f lscale loadnow standalone_link linkwait origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
 if [ -n "$PARLINK" ]; then      # the link beside check_all (both need ~5 min); the link step later only waits for it (linkwait)
   echo "=== [$(date +%H:%M)] link started in the background beside check_all (load $L1 < 8; log $D/link_bg.log)"
   timeout -k 10 $((STEP_TIMEOUT * 120)) bash -c "standalone_link > $D/link_bg.log 2>&1; echo \$? > $D/link.rc" & LPID=$!; export LPID
@@ -221,7 +222,7 @@ fi
 i=0
 for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"
   echo "=== [$(date +%H:%M)] step $i/${#PLAN[@]}: $l"
-  timeout -k 10 $(awk -v l=$(cut -d" " -f1 /proc/loadavg) "BEGIN{s=l/4; if(s<1)s=1; if(s>2)s=2; print int(${STEP_TIMEOUT:-$(awk "BEGIN{print 3*$m+5}")}*60*s)}") bash -c "$c" & CHILD=$!; wait $CHILD; rc=$?; CHILD=
+  timeout -k 10 $(lscale $(awk "BEGIN{print int(${STEP_TIMEOUT:-$(awk "BEGIN{print 3*$m+5}")}*60)}")) bash -c "$c" & CHILD=$!; wait $CHILD; rc=$?; CHILD=      # W13 C4: loadscale.sh (cap 3, was 2 here)
   [ $rc = 0 ] || { [ "$l" = check_all ] && { echo "check_all failing check (last 12 log lines; the failing check prints its own name and reason last):"; grep -v "^===" $D/gate.log | tail -12; }; echo "GATE FAILED at step $i ($l), exit $rc; logs in $D"; echo "  next: groupsearch only on the failing course (wine-run/percourse.sh / groupsearch.py)"; exit 1; }
   [ -z "$TCH" ] && [ "$(treesig)" != "$SIG0" ] && { TCH="after step $i ($l): start $SIG0, now $(treesig)"; echo "TREE CHANGED $TCH (a commit or a tracked edit outside output/ during the gate)"; git -C $R status --porcelain --untracked-files=no -- . ':!output' | head -5; }
 done

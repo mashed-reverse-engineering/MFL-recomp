@@ -28,7 +28,7 @@ trap 'echo "crash: aborted" >> $OUT/steps.txt; cleanup; exit 3' TERM
 T_START=$(date +%s.%N)
 n=0; until PID=$(pgrep -n -f '(^|\\)MFL.exe'); [ -n "$PID" ]; do sleep 0.2; n=$((n+1)); [ $n -ge 150 ] && { echo "crash: game process not started after 30 s" >> $OUT/steps.txt; cleanup; exit 3; }; done
 echo "process up after $(echo "$(date +%s.%N) $T_START" | awk "{printf \"%.1f\", \$1-\$2}")s (after xvfb)" >> $OUT/timing.txt
-lsc() { awk -v t=$1 '{s=$1/4; if(s<1)s=1; if(s>4)s=4; printf "%d", t*s+0.999}' /proc/loadavg; }      # timeout scaled by the load (x1 up to load 4, max x4)
+. $TOOLS/loadscale.sh; lsc() { lscale "$1"; }      # W13 C4: timeout scaled by the load, the one rule of loadscale.sh (was its own copy with cap 4)
 while read -r cmd a b c d e f; do
   case "$cmd" in
     wait) sleep $a ;;
@@ -55,6 +55,20 @@ while read -r cmd a b c d e f; do
     waitmem) perl $TOOLS/memwait.pl $PID $a $b ${c:-30} $d $e
       # W12 hx4 (finding 3 follow-up): memwait exit 2 = the game process is gone: stop the script instead of running the rest blind
       [ $? = 2 ] && { echo "game gone: script stopped at waitmem $a $b" >> $OUT/steps.txt; break; } ;;
+    waitevent)      # waitevent ADDR VALUE|!VALUE CAPSECS TAG (W13 hx5): waitmem whose timeout is a missed event: `MISS TAG waitmem ...` in missed.txt (tag end = required, scen_judge)
+      perl $TOOLS/memwait.pl $PID $a $b ${c:-30}; r=$?
+      [ $r = 2 ] && { echo "game gone: script stopped at waitevent $a $b" >> $OUT/steps.txt; break; }
+      [ $r != 0 ] && echo "MISS ${d:-event} waitmem $a==$b after ${c:-30}s (load-scaled)" >> $OUT/missed.txt ;;
+    returnloop)     # returnloop ADDR VALUE PHASEADDR CAPSECS TAG (W13 hx5): Return once a second unless the race phase is 6 (Return pauses a running
+      # race; the end screens, the next round's loading / Press START screens and the countdown all take it, as race_go) until the 32 bit value at ADDR
+      # is VALUE (e.g. menu depth 6 = back on the course page).  Cap (not load-scaled) -> MISS TAG.  (First form pressed only above 6 and stuck on the
+      # next round's Press START screen: ss_arc_win both sides, C3 run 1.)
+      end=$(( $(date +%s) + ${d:-300} ))
+      until [ "$(perl $TOOLS/memread.pl $PID $a)" = "$((b))" ]; do
+        kill -0 $PID 2>/dev/null || { echo "MISS ${e:-event} returnloop $a==$b: game gone" >> $OUT/missed.txt; break; }
+        [ $(date +%s) -ge $end ] && { echo "MISS ${e:-event} returnloop $a==$b: safety cap ${d:-300}s" >> $OUT/missed.txt; break; }
+        [ "$(perl $TOOLS/memread.pl $PID $c)" != 6 ] && xdotool key --delay 150 Return
+        sleep 1; done ;;
     trainloop)      # trainloop DONEADDR DIALOGADDR PHASEADDR CAPSECS (W12 hx5a): Return while a lesson dialog is up (DIALOGADDR != 0) or on a round end
       # screen (PHASEADDR > 6), once a second, until the lesson's done word DONEADDR is 2 (the game event).  CAPSECS is a safety net only, not
       # load-scaled: hitting it (or the game exiting) writes a MISS line to $OUT/missed.txt, which tt_check reports.

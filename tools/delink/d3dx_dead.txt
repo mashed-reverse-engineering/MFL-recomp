@@ -1,0 +1,40 @@
+# W13 Z6: dead D3DX library data rows (zero fill in the generated data, layout unchanged), read by tools/globals/globgen.py.
+# <va> <size> <name> <step>.  Plan and evidence: output/plan_z6_d3dx_2026-11-17.md (Z6P closure: no C token, no pointer from a root row, every
+# original reader rw_dead / rw_trap) + agents/l3_w13/notes.md "Z6 S1" (absolute-word scan of the link, objects in front).
+# Z6_PUTBACK=<step> keeps a step's rows as library bytes (zneg.sh d3dx<step>).
+# Step 1: math constants (9,872 B).  0x5ec460-0x5ec4a0 (D3D9IdentityMatrix, 64 B) is NOT dead: an_hk_612_d3d9vsu.inc passes it to mflrw.dll.
+005ea310 8224 d3dxmath_perlin_tables 1
+005ec458 8 d3dx_pad_5ec458 1
+005ec4a0 288 d3dxmathx3d_constants 1
+005ec930 8 x3d_quat_neg_quarters 1
+005efa2c 4 d3dxtrigsse_pad 1
+005efa30 256 d3dxtrigsse_constants 1
+005efb30 448 d3dxtrigsse2_constants 1
+0062efc0 4 cpudetect_is_mmx 1
+00631090 112 float16_sse_masks 1
+00631100 128 d3dxmathsse_hermite_catmullrom 1
+006312b0 112 float162_sse_masks 1
+00632a30 40 amdmath_consts_a 1
+00632aa0 56 amdmath_consts_b 1
+00632adc 12 amdmath_consts_c 1
+00632aec 172 amdmath_consts_d 1
+# Step 2: HLSL / assembler compiler .rdata (25,723 B): d3dx9shader targets, cassembler opcode / register tables, semantic names, the cparse
+# HLSL intrinsics block (0x5efe70, 13,448 B), the unowned record tables, cshaderprogram pattern tables.  Their only pointer referrers are
+# step 3 rows (0x6371c4 name array) or rows of this step; every original reader is rw_dead.
+005ec5e0 456 d3dx9shader_targets 2
+005ecf5b 5 d3dx_pad_5ecf5b 2
+005ecf60 7368 cassembler_opcode_register_tables 2
+005eef6c 20 d3dx_semantic_names 2
+005efe70 13448 cparse_hlsl_intrinsics 2
+005f3596 3202 hlsl_record_tables 2
+005f4220 1224 cshaderprogram_pattern_tables 2
+# Step 3: HLSL / assembler compiler .data (23,724 B): preprocessor / assembler parse tables + 3DNow / SSE constants (0x631320), the cparse
+# yacc tables (0x632b98, 17,964 B; their "pointer-like" words are 16 bit table pairs), the name pointer array 0x6371c4 (reached by nothing live).
+# Needs z5v first: the only edge into 0x632b98 from a live row was the glyph word 0x5f6300 of g_rt_5f5dd0.
+00631320 5264 d3dx_parse_tables_and_simd_consts 3
+00632b98 17964 cparse_yacc_tables 3
+006371c4 496 hlsl_name_pointer_array 3
+# Step 5: d3dxmathx86.obj _invSqrtTab (512 float pairs) + _a1 / _a2 (4,104 B).  Reader x86_D3DXVec3Normalize is rw_dead; the only pointer chain
+# (five 0x630200 words in rwp shape-ops rows) is value-only since Z4v / Z6 S0.  The D3D9 matrices in front (D3D9InverseTransform 0x62ff90,
+# D3D9InverseNormalizedTransform 0x62ffd0, passed to mflrw.dll by an_hk_612_d3d9vsu.inc) are 64 B each and end at 0x630010.
+00630050 4104 d3dxmathx86_inv_sqrt_table 5

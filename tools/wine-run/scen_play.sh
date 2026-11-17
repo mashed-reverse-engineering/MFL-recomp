@@ -14,6 +14,7 @@
 #                waitframes 0xADDR N [TIMEOUT=5] (wait until the 32 bit counter at ADDR (harness frames_total) grew by N: animations are per frame, a fixed time is not reproducible under load)
 #                waitmem 0xADDR VALUE TIMEOUT [STALL [PROGRESS_ADDR]] (STALL: give up when the value (or the value at PROGRESS_ADDR) did not change for that many seconds; poll the live process until the 32 bit value equals VALUE; logs the wait to out/waitmem.txt)
 [ -n "$GAMESLOT_HELD" ] || exec "$(dirname "$(readlink -f "$0")")/gameslot.sh" "$0" "$@"      # global limit of concurrent game containers
+. "$(dirname "$(readlink -f "$0")")/winelock.sh"      # W13 hx6: shared gate lock for the life of this run (the exec'd docker client keeps it)
 GAME=$(readlink -f "$1"); SCRIPT=$(readlink -f "$2"); OUT=$(readlink -f "$3")
 mkdir -p "$OUT"
 # callers name their container / prefix by a LOCAL index (regress.sh: slot1.., two parallel sweeps both use slot1): two games in one container (wineserver -k, pgrep MFL.exe) kill each other.

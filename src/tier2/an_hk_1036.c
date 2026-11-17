@@ -45,7 +45,7 @@ undefined4 course_neustein_cb0_sub_454460(undefined4 param_1,undefined4 param_2,
   FUN_0056e7c0(channel_item,0x358637bd);
   func_0x0056e7d0(channel_item,0x38d1b717);
   rwp_param_set_z(channel_item,0x7f7fffff);
-  channel_item = func_0x0056e810(channel);
+  channel_item = rwp_obj_vec_at_20(channel);
   FUN_0056e7c0(channel_item,0x358637bd);
   func_0x0056e7d0(channel_item,0x38d1b717);
   rwp_param_set_z(channel_item,0x7f7fffff);

@@ -8,7 +8,13 @@
 # FORCE_NEGTEST=1 always runs them (gate.sh exports it for kind full); any error in the key tool is a MISS.
 # The game gates are separate: tools/wine-run/courses.sh (union sweep), DRIVE=31 crash check, shadow sweep.
 T=$(dirname "$(readlink -f "$0")"); W=${1:-$(mktemp -d)}; mkdir -p $W
-trap 'kill $(jobs -p) 2>/dev/null' EXIT      # a failing check leaves no strict build running
+# W13 C6 (harness review finding 23): every output line gets a [HH:MM:SS] prefix (the step was one opaque block of up to 70 min in gate.log).
+# At exit an end marker line ends the filter, then check_all waits for it, so gate.sh's tail of gate.log (the failing check's reason) sees the
+# last line.  Not EOF: any child that inherited stdout and outlives check_all would keep the pipe open.  The G1+G3 hang (1116_2329, exit 124
+# after trapcheck) was a bare `wait` below (strict builds): bash 5.2 also waits for this process substitution there - jobs are waited by pid.
+TSMARK="__check_all_end_$$__"
+exec > >(while IFS= read -r l; do [ "$l" = "$TSMARK" ] && break; printf '[%(%H:%M:%S)T] %s\n' -1 "$l"; done) 2>&1; TSPID=$!
+trap 'kill $(jobs -p) 2>/dev/null; echo "$TSMARK"; exec >&- 2>&-; wait $TSPID 2>/dev/null' EXIT      # a failing check leaves no strict build running
 $T/provenance.sh $W
 # ---- seconds-long checks, static FAIL classes first
 python3 $T/cheatgrep.py | tail -5; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "cheatgrep: forbidden constructs (src/cheat_allow.txt for legitimate ones)"; exit 1; }
@@ -94,7 +100,7 @@ python3 $T/trapcheck.py --objs $W/b$N/objs.txt --list $T/delink/rw_trap.txt --li
 [ -z "$SKIP" ] && [ -z "$BG" ] && for ((i=1; i<N; i++)); do build $i "${FL[$((i-1))]}"; done
 # ---- the other strict builds' verdicts; the key of a full pass (computed again: an edit during the builds must not be recorded as passed)
 if [ -z "$SKIP" ]; then
-  wait; for ((i=1; i<N; i++)); do cat $W/b$i.log; done; grep -q "^FAILED" $W/b?.log && { echo FAILED; exit 1; }
+  for j in $(jobs -p); do wait $j; done; for ((i=1; i<N; i++)); do cat $W/b$i.log; done;      # W13 C6: not a bare `wait`: bash 5.2 then also waits for the prefix filter (process substitution, ends only at EOF of check_all's own stdout) = the 1116_2329 hang after trapcheck grep -q "^FAILED" $W/b?.log && { echo FAILED; exit 1; }
   [ "$(python3 $T/strict_key.py "${FL[@]}")" = "$KEY" ] && { mkdir -p $(dirname $KF); cp $W/b$N/objs.txt $KO; echo $KEY > $KF; }
 fi
 # ---- ledgers

@@ -86,9 +86,14 @@ if [ -n "$SCEN_EXE" ]; then
   # (ASM review: after the mflrw.dll copy, so scen_pin.sh also renames the DLL's own d3d9 import; before it, the DLL created the device without the proxy)
   [ -n "$SCEN_PIN" ] && { $T/scen_pin.sh $W/run_ours/App_Executables $SCEN_DELTA $(awk '$2=="_srand"{print $3; exit}' $XMAP) || exit 1; }
   rm -rf $W/out_ours; export LOADMAX=${LOADMAX:-40}
-  LD=$(cut -d' ' -f1 /proc/loadavg); RT=$(awk -v t=${RUN_TIMEOUT:-300} -v l=$LD 'BEGIN{s=l/4; if(s<1)s=1; if(s>3)s=3; print int(t*s)}')
+  # W13 C4 (finding 9): outer timeout = the script's own limits (the longer of ours / control), load-scaled by the one rule (loadscale.sh), + 90 s
+  # for start and shutdown; RUN_TIMEOUT is only a floor now.  It can no longer end a run whose waits are still inside their limits.
+  . $T/loadscale.sh; SL=$(script_limit $W/script_ours.txt); SC_=$(script_limit $W/script_ctrl.txt); [ $SC_ -gt $SL ] && SL=$SC_; [ ${RUN_TIMEOUT:-0} -gt $SL ] && SL=$RUN_TIMEOUT
+  RT=$(( $(lscale $SL) + 90 )); echo "run limit: ${RT}s (script limits ${SL}s, load factor from $(loadnow))"
   runx() {  # runx <run dir> <script> <out dir> <slot> <rc file>
-    PFX=wine_pfx_$4 PERSIST=slot$4 NOSHOW=${NOSHOW-} $T/gameslot.sh timeout -k 5 $RT $T/scen_play.sh $1 $2 $3 > /dev/null 2>&1; echo $? > $5; }
+    PFX=wine_pfx_$4 PERSIST=slot$4 NOSHOW=${NOSHOW-} $T/gameslot.sh timeout -k 5 $RT $T/scen_play.sh $1 $2 $3 > /dev/null 2>&1; echo $? > $5
+    # W13 hx7 (finding 17): SCEN_PIN runs log `ALOCK TIMEOUT` in the proxy log; into missed.txt, scen_judge says UNJUDGED for that run
+    L=$1/App_Executables/d3dtrace.log; grep -q "^ALOCK TIMEOUT" $L 2>/dev/null && { mkdir -p $3; grep "^ALOCK TIMEOUT" $L >> $3/missed.txt; }; }
   $T/mkpfx.sh $SLOT
   # a cached control of a race_freeze scenario without cars.bin is a stalled run stored by an older script: ignore it
   if [ -f $CC/rc_ctrl ] && [ -z "$NOCACHE" ] && { ! grep -q "^dump cars" $W/script_ctrl.txt || [ -f $CC/out_ctrl/cars.bin ]; }; then echo "control: cached ($CC)"; CACHED=1
@@ -121,6 +126,10 @@ if co: bad.append("ours crashed")
 if rc("ours") != "0": bad.append("ours rc %s" % rc("ours"))
 if not title("ours"): bad.append("title waitmem not reached (wrong DELTA / harness address?)")
 if cc or rc("ctrl") != "0" or not title("ctrl"): bad.append("control unhealthy (not cached)")
+for k_ in ("ours", "ctrl"):      # W13 hx5 (rule 29): a required end event (tag end) that timed out is a MISS: ours FAIL, a control that missed it is no control
+    m_ = "%s/out_%s/missed.txt" % (W, k_)
+    for l_ in (open(m_, errors="replace").read().splitlines() if os.path.exists(m_) else []):
+        if l_.startswith("MISS end"): bad.append("%s missed its end event (%s)" % ("ours" if k_ == "ours" else "control", l_[9:]))
 if "dump cars" in open(W + "/script_ctrl.txt").read():      # race_freeze scenario: each side must have reached the freeze (cars.bin), else a stalled run (lost keys) passes
     for k in ("ctrl", "ours"):
         if not os.path.exists("%s/out_%s/cars.bin" % (W, k)): bad.append("%s did not reach the race freeze (no cars.bin, stalled)" % k)
@@ -170,7 +179,7 @@ cp $W/gdbcov_names.txt $W/run_ovl/gdbcov_names.txt
 . $T/scenarios/lib.sh; . $T/scenarios/$N.sh
 { scenario_header; scenario; scenario_footer; } > $W/script_ctrl.txt
 { [ -n "$NOGDB" ] || echo "gdbcov gdbcov_names.txt"; [ -n "$GDBCRASH" ] && echo "gdbfault 8"; cat $W/script_ctrl.txt; } > $W/script_ovl.txt
-LD=$(cut -d' ' -f1 /proc/loadavg); RT=$(awk -v t=${RUN_TIMEOUT:-300} -v l=$LD 'BEGIN{s=l/4; if(s<1)s=1; if(s>3)s=3; print int(t*s)}')
+. $T/loadscale.sh; SL=$(script_limit $W/script_ovl.txt); [ ${RUN_TIMEOUT:-0} -gt $SL ] && SL=$RUN_TIMEOUT; RT=$(( $(lscale $SL) + 90 ))      # W13 C4: as in the standalone path
 run() {  # run <k> <slot>
   PFX=wine_pfx_$2 PERSIST=slot$2 NOSHOW=${NOSHOW-} $T/gameslot.sh timeout -k 5 $RT $T/scen_play.sh $W/run_$1 $W/script_$1.txt $W/out_$1 > /dev/null 2>&1; echo $? > $W/rc_$1
 }

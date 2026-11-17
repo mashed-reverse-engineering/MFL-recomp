@@ -90,7 +90,7 @@ if [ -n "$QUIT" ]; then
   exit 0
 fi
 echo "poke $FT $FR"
-echo "waitmem 0x$(mapva frozen) 1 $((20 + FR / 30)) 5 $RF"   # frozen at frame $FR or when the race ended; gives up after 5 s without progress of the race frame counter ($RF), 20 s at most
+echo "waitmem 0x$(mapva frozen) !0 $((20 + FR / 30)) 5 $RF"   # frozen at frame $FR (frozen 1) or when the race ended (2, W13 hx5); gives up after 5 s without progress of the race frame counter ($RF), 20 s at most
 echo "shot end"
 echo "dump cars 0x8B06E0 0xD040"
 echo "dump vehicles 0x659f00 0xAB0"

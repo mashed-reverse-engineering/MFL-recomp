@@ -103,7 +103,7 @@ js = {"date": DATE, "code": {L: dict(code[L]) for L in LAYERS}, "data_by_section
       "resources": res}
 corig = sum(c["original"] for c in code.values()); cfill = sum(c["filled"] for c in code.values()); cstub = sum(c["stub"] for c in code.values())
 dorig = sum(sum(c.values()) for c in dlib.values())
-dapp = sum(c["app"] + c["gap"] + c["libz"] for c in data.values()); dpe = sum(c["pe"] for c in data.values())
+dapp = sum(c["app"] + c["gap"] + c["libz"] + c["libt"] for c in data.values()); dpe = sum(c["pe"] for c in data.values())      # W13 Z4: libt = library rows emitted as typed definitions
 js["totals"] = {"code_original": corig, "code_filled": cfill, "code_stub": cstub, "data_original_lib": dorig, "data_generated_c": dapp, "data_linker": dpe,
                 "app_code_original": code["app"]["original"], "all_original": corig + dorig + RSRC}
 os.makedirs(OUT, exist_ok=True)
@@ -126,10 +126,10 @@ md = ["# Original bytes still in the linked exe (%s)" % DATE, "",
       "## Code per layer", "", "| Layer | Original | Filled | Stub | Total |", "|---|---:|---:|---:|---:|"]
 for L in LAYERS:
     c = code[L]; md.append("| %s | %s | %s | %s | %s |" % (L, format(c["original"], ","), format(c["filled"], ","), format(c["stub"], ","), format(tot(c), ",")))
-md += ["", "## Data per section", "", "libz = library .bss rows emitted as named, typed zero definitions (W11 Z1; no image content, not original).", "",
-       "| Section | app | gap | libz | lib | pe |", "|---|---:|---:|---:|---:|---:|"]
+md += ["", "## Data per section", "", "libz = library .bss rows emitted as named, typed zero definitions (W11 Z1; no image content, not original). libt = library rows emitted as named, typed definitions (W13 Z4, tools/globals/z4_types.txt; values extracted from the image like the app rows).", "",
+       "| Section | app | gap | libz | libt | lib | pe |", "|---|---:|---:|---:|---:|---:|---:|"]
 for s in ("rdata", "data", "bss"):
-    c = data[s]; md.append("| .%s | %s | %s | %s | %s | %s |" % (s, format(c["app"], ","), format(c["gap"], ","), format(c["libz"], ","), format(c["lib"], ","), format(c["pe"], ",")))
+    c = data[s]; md.append("| .%s | %s | %s | %s | %s | %s | %s |" % (s, format(c["app"], ","), format(c["gap"], ","), format(c["libz"], ","), format(c["libt"], ","), format(c["lib"], ","), format(c["pe"], ",")))
 md += ["", "## Library data (original bytes) per layer", "", "| Layer | .rdata | .data | .bss |", "|---|---:|---:|---:|"]
 for L in LAYERS:
     if L in dlib: md.append("| %s | %s | %s | %s |" % (L, *(format(dlib[L].get(s, 0), ",") for s in ("rdata", "data", "bss"))))

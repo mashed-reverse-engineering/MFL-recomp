@@ -84,10 +84,10 @@ void fx_trail_particle_spawn_interpolated(float *template_particle,float interp_
     new_particle[0xb] = src_particle[0xb];
     new_particle[4] = src_particle[4];
     new_particle[5] = src_particle[5];
-    /* spawn_x is reused here as a temporary for the template's float slot 3. */
-    spawn_x = src_particle[3];
     new_particle[0x12] = extra_float;
-    new_particle[3] = spawn_x;
+    /* Slot 3 is the packed RGBA colour, not a float: copy its bits (the original uses integer moves). Through the x87 a colour
+       such as 0xff8dbfff (a signalling-NaN pattern) would come out quieted as 0xffcdbfff. */
+    *(unsigned int *)&new_particle[3] = *(unsigned int *)&src_particle[3];
     new_particle[0xf] = g_particles_7519ac;
     /* Byte 0x44 gets bit 11 of the flags word at float slot 0x10 (inferred meaning). */
     *(byte *)(new_particle + 0x11) = (byte)(*(int *)&new_particle[0x10] >> 0xb) & 1;

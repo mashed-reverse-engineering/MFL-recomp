@@ -53,7 +53,7 @@ void vehicle_tyre_marks_collect_triangles(int index, float *obj, void *query, fl
     TriHit hits[64];
     struct { RwV3d normal; float distance; } plane;      /* triangle_normal_cross writes 4 floats: the normal and the plane distance at +0xc */
     RwV3d out[3];
-    float dist, new_x, new_y, dx, dy;
+    float dist, new_x, new_y, dx, dy, dot_xy;
     double offset, half, new_z, dz, scaled;
     int *last = (int *)g_vehicle_render_660570[index];
     int n, i, k, cam_x, cam_y, cam_z, colour, sum;
@@ -68,7 +68,10 @@ void vehicle_tyre_marks_collect_triangles(int index, float *obj, void *query, fl
     cam_x = ((int *)cam)[0];
     cam_y = ((int *)cam)[1];
     cam_z = ((int *)cam)[2];
-    offset = cam[1] * obj[5] + obj[4] * cam[0] + cam[2] * obj[6] + 1.0f;
+    /* the original adds y, then x, then z (x87 0x42604b..0x426070); cl reassociated the one-line sum to (y + z) + x, 1 ulp off
+       (REP W13 round 2, frame 254). The partial sum in a float of its own keeps the order; at the game's 24-bit precision it is exact. */
+    dot_xy = cam[1] * obj[5] + obj[4] * cam[0];
+    offset = dot_xy + cam[2] * obj[6] + 1.0f;
     scaled = offset * set->base_width;      /* computed first so that offset stays in the x87 register (cl spills it as a double otherwise); a separate statement: cl would factor base_width out of the sum (different sign of zero) */
     set->width = (float)(scaled * 1.5f + set->base_width);
     half = 0.5f * offset;

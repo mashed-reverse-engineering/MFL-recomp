@@ -1,0 +1,466 @@
+# W13 Z4: the library rows of the Audio (streaming audio, RWA) and rwp (RenderWare physics) data layers as named, typed definitions; read by
+# tools/globals/globgen.py (format and type grammar there).  <va> | <size> | <name> | <type> | <group> | <evidence>
+# Groups: audio, rwp (zneg.sh cases of the same names, Z4_PUTBACK=<group>).  Names: a readable label of recomp/symbols.txt / aliases.txt where
+# one exists; else rcsid_<source file> (the "@(#)$Id: ... $" version strings of the library sources), rwa_uuid_<va> (16 B GUIDs of the RWA
+# module / parameter tables) or <layer>_tbl / _word / _str / _bytes_<va> = an address-label row (no better evidence; counted as such).
+# Drafted by agents/l3_w13/z4draft.py from the row list of origbytes' layer split (agents/l3_w13/rows.py) + hand entries (z4_overrides.txt).
+005f6494 | 4 | k_f_4_1887903 | f4 | rwp | float constant (k_f_ label); labels k_f_4_1887903
+005f6498 | 72 | rcsid_rwpbox | str | rwp | rcsid string
+005f6548 | 4 | k_f_2_6666667 | f4 | rwp | float constant (k_f_ label); labels k_f_2_6666667
+005f654c | 4 | k_f_0_5235988 | f4 | rwp | float constant (k_f_ label); labels k_f_0_5235988
+005f65e8 | 8 | k_f_3_689349e19_5f65e8 | f8 | rwp | float constant (k_f_ label); labels k_f_3_689349e19_5f65e8
+005f65f0 | 72 | rcsid_rwpjoint | str | rwp | rcsid string
+005f6638 | 72 | rcsid_rwprefpair | str | rwp | rcsid string
+005f6680 | 72 | rcsid_rwpmath | str | rwp | rcsid string
+005f66c8 | 8 | rwp_tbl_5f66c8 | u4[2] | rwp | table
+005f66d0 | 8 | k_f_1_44en14 | {f4 value; u4 pad} | rwp | table; labels k_f_1_44en14
+005f66d8 | 72 | rcsid_rwpcylinder | str | rwp | rcsid string
+005f6764 | 4 | k_f_0_70710677 | f4 | rwp | float constant (k_f_ label); labels k_f_0_70710677
+005f6768 | 72 | rcsid_rwppipeline | str | rwp | rcsid string
+005f67b0 | 4 | k_f_n1_1754944en38 | f4 | rwp | float constant (k_f_ label); labels k_f_n1_1754944en38
+005f67b4 | 4 | k_f_n0_99 | f4 | rwp | float constant (k_f_ label); labels k_f_n0_99
+005f67b8 | 72 | rcsid_rwptrilist | str | rwp | rcsid string
+005f68d4 | 4 | k_f_0_67082 | f4 | rwp | float constant (k_f_ label); labels k_f_0_67082
+005f68d8 | 72 | rcsid_rwpconvexhull | str | rwp | rcsid string
+005f6920 | 8 | rwp_tbl_5f6920 | u4[2] | rwp | table
+005f6928 | 72 | rcsid_rwpfarfield | str | rwp | rcsid string
+005f6970 | 8 | k_f_0_39999998 | {f4 value; u4 pad} | rwp | table; labels k_f_0_39999998
+005f6978 | 72 | rcsid_rwpgrid | str | rwp | rcsid string
+005f69c0 | 72 | rwp_grid_shape_ops | {u4 shape_type; fptr op1; fptr op2; fptr op3; fptr op4; fptr op5; fptr op6; fptr op7; fptr op8; fptr op9; fptr op10; u4 f2c; u4 f30; ptr name; vu2[4] f38_shorts; u4 f40; u4 f44} | rwp | shape type 10 (RwpGrid.c rcsid in front) method table, same form as the app row g_rwp_cylinder_shape_ops; slots = rwp_grid_* / stub_return_zero. Z4v: +0x38..+0x3f = four 16 bit values 0x200 0x63 0x63 0x63 (value only, globals_reloc_allow.txt site 5f69f8 = heuristic; the +0x3c half 0x630063 is a raw low site already; same words in every rwp shape-ops table)
+005f6a08 | 80 | rcsid_rwpvolumeutils | str | rwp | rcsid string
+005f6a58 | 80 | rcsid_rwppartition | str | rwp | rcsid string
+005f6aa8 | 72 | rcsid_rwpbatch | str | rwp | rcsid string
+005f6af0 | 80 | rcsid_rwpmatrixcap | str | rwp | rcsid string
+005f6b40 | 80 | rcsid_rwpfixedvolume | str | rwp | rcsid string
+005f6b90 | 88 | rcsid_rwpintegrate_vanilla | str | rwp | rcsid string
+005f6be8 | 80 | rcsid_rwpconstraints | str | rwp | rcsid string
+005f6c3c | 4 | rwp_word_5f6c3c | u4 | rwp | table; labels g_data_5f6c3c
+005f6c40 | 100 | rwp_tbl_5f6c40 | {u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; u4; f4; u4; u4} | rwp | table
+005f6cc8 | 4 | k_f_0_5f6cc8 | f4 | rwp | float constant (k_f_ label); labels k_f_0_5f6cc8
+005f6ccc | 4 | k_f_0_5f6ccc | f4 | rwp | float constant (k_f_ label); labels k_f_0_5f6ccc
+005f6cd4 | 4 | k_f_1_5f6cd4 | f4 | rwp | float constant (k_f_ label); labels k_f_1_5f6cd4
+005f6cd8 | 4 | k_f_0_5f6cd8 | f4 | rwp | float constant (k_f_ label); labels k_f_0_5f6cd8
+005f6cdc | 4 | k_f_n0_9 | f4 | rwp | float constant (k_f_ label); labels k_f_n0_9
+005f6ce0 | 64 | rcsid_rwpbatch_2 | str | rwp | rcsid string
+005f6d20 | 88 | rcsid_rwpconvexhullmassprops | str | rwp | rcsid string
+005f6d78 | 8 | k_f_1_1443742en28 | f8 | rwp | float constant (k_f_ label); labels k_f_1_1443742en28
+005f6d80 | 8 | k_f_1_1443742en28_5f6d80 | f8 | rwp | float constant (k_f_ label); labels k_f_1_1443742en28_5f6d80
+005f6d88 | 8 | k_f_1_4660155e13_5f6d88 | f8 | rwp | float constant (k_f_ label); labels k_f_1_4660155e13_5f6d88
+005f6d90 | 8 | k_f_n1_5881868en23_5f6d90 | f8 | rwp | float constant (k_f_ label); labels k_f_n1_5881868en23_5f6d90
+005f6d98 | 8 | k_f_1_4660155e13_5f6d98 | f8 | rwp | float constant (k_f_ label); labels k_f_1_4660155e13_5f6d98
+005f6da0 | 8 | k_f_1_4660155e13_5f6da0 | f8 | rwp | float constant (k_f_ label); labels k_f_1_4660155e13_5f6da0
+005f6da8 | 8 | k_f_1_4660155e13_5f6da8 | f8 | rwp | float constant (k_f_ label); labels k_f_1_4660155e13_5f6da8
+005f6db0 | 8 | k_f_1_4660155e13_5f6db0 | f8 | rwp | float constant (k_f_ label); labels k_f_1_4660155e13_5f6db0
+005f6db8 | 72 | rcsid_rwpaggregate | str | rwp | rcsid string
+005f6e00 | 72 | rwp_aggregate_shape_ops | {u4 shape_type; fptr op1; fptr op2; fptr op3; fptr op4; fptr op5; fptr op6; fptr op7; fptr op8; fptr op9; u4 f28; u4 f2c; u4 f30; ptr name; vu2[4] f38_shorts; u4 f40; u4 f44} | rwp | shape type 8 (RwpAggregate.c rcsid in front) method table; slots = rwp_aggregate_* / stub_return_zero / rwp_convex_op7. Z4v: +0x38..+0x3f value only as in rwp_grid_shape_ops (site 5f6e38)
+005f6e48 | 16 | rwp_simd_probe_scopetable_584fc0 | {i4 enclosing_level; fptr filter; fptr handler; u4 pad} | rwp | SEH scope table pushed only by the cpuid probe 0x584fc0 (rw_trap S w6 (a)); labels g_data_5f6e48
+005f6e58 | 12 | rwp_simd_probe_scopetable_585050 | {i4 enclosing_level; fptr filter; fptr handler} | rwp | SEH scope table pushed only by the cpuid probe 0x585050 (rw_trap S w6 (a)); labels g_data_5f6e58
+005f6e64 | 60 | rcsid_rwpbatch_3 | str | rwp | rcsid string
+005f6ea0 | 128 | rcsid_rwpbatch_4_5 | {str[60] rcsid_4; str[68] rcsid_5} | rwp | two rcsid strings in one record: the second (68 B) starts 4 mod 8, where cl would not place a char[68]
+005f6f20 | 16 | rwp_tbl_5f6f20 | f4[4] | rwp | table; labels g_data_5f6f20
+005f6f30 | 16 | rwp_tbl_5f6f30 | f4[4] | rwp | table; labels g_data_5f6f30
+005f6f40 | 32 | rwp_tbl_5f6f40 | f4[8] | rwp | table; labels g_data_5f6f40
+005f6f60 | 16 | rwp_tbl_5f6f60 | u4[4] | rwp | table; labels g_data_5f6f60
+005f6f70 | 144 | rwp_tbl_5f6f70 | u4[36] | rwp | table; labels g_data_5f6f70
+005f7000 | 80 | rcsid_rwpgeneralprimitive | str | rwp | rcsid string
+005f7050 | 76 | rcsid_rwpaggchildren | str | rwp | rcsid string
+005f709c | 60 | rcsid_rwpbatch_6 | str | rwp | rcsid string
+005f70d8 | 72 | rcsid_rwpgjk | str | rwp | rcsid string
+005f7120 | 8 | rwp_tbl_5f7120 | u4[2] | rwp | table; labels g_data_5f7120
+005f7128 | 8 | rwp_tbl_5f7128 | u4[2] | rwp | table; labels g_data_5f7128
+005f7130 | 8 | rwp_tbl_5f7130 | u4[2] | rwp | table; labels g_data_5f7130
+005f7138 | 16 | rwp_tbl_5f7138 | u4[4] | rwp | table; labels g_data_5f7138
+005f7148 | 8 | rwp_tbl_5f7148 | u4[2] | rwp | table; labels g_data_5f7148
+005f7150 | 16 | rwp_tbl_5f7150 | u4[4] | rwp | table; labels g_data_5f7150
+005f7160 | 16 | rwp_tbl_5f7160 | u4[4] | rwp | table; labels g_data_5f7160
+005f7170 | 32 | rwp_tbl_5f7170 | u4[8] | rwp | table; labels g_data_5f7170
+005f7190 | 8 | rwp_tbl_5f7190 | u4[2] | rwp | table; labels g_data_5f7190
+005f7198 | 16 | rwp_tbl_5f7198 | u4[4] | rwp | table; labels g_data_5f7198
+005f71a8 | 16 | rwp_tbl_5f71a8 | u4[4] | rwp | table; labels g_data_5f71a8
+005f71b8 | 32 | rwp_tbl_5f71b8 | u4[8] | rwp | table; labels g_data_5f71b8
+005f71d8 | 16 | rwp_tbl_5f71d8 | u4[4] | rwp | table; labels g_data_5f71d8
+005f71e8 | 32 | rwp_tbl_5f71e8 | u4[8] | rwp | table; labels g_data_5f71e8
+005f7208 | 32 | rwp_tbl_5f7208 | u4[8] | rwp | table; labels g_data_5f7208
+005f7228 | 64 | rwp_tbl_5f7228 | u4[16] | rwp | table; labels g_data_5f7228
+005f7268 | 72 | rcsid_rwptriangle | str | rwp | rcsid string
+005f72fe | 1 | rwp_bytes_5f72fe | u1 | rwp | table; labels g_data_5f72fe
+005f72ff | 1 | rwp_bytes_5f72ff | u1 | rwp | table
+005f7300 | 4 | k_f_n0_7071 | f4 | rwp | float constant (k_f_ label); labels k_f_n0_7071
+005f7304 | 4 | k_f_0_7071 | f4 | rwp | float constant (k_f_ label); labels k_f_0_7071
+005f7308 | 72 | rcsid_rwpnull | str | rwp | rcsid string
+005f768c | 4 | k_f_340 | f4 | audio | float constant (k_f_ label); labels k_f_340
+005f7690 | 4 | k_f_n150 | f4 | audio | float constant (k_f_ label); labels k_f_n150
+005f7864 | 16 | rwa_uuid_5f7864 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7864
+005f7874 | 16 | rwa_uuid_5f7874 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7874
+005f7884 | 16 | rwa_uuid_5f7884 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7894 | 16 | rwa_uuid_5f7894 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f78a4 | 16 | rwa_uuid_5f78a4 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f78b4 | 16 | rwa_uuid_5f78b4 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f78c4 | 16 | rwa_uuid_5f78c4 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f78d4 | 16 | rwa_uuid_5f78d4 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f78e4 | 16 | rwa_uuid_5f78e4 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f78f4 | 16 | rwa_uuid_5f78f4 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7904 | 16 | rwa_uuid_5f7904 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7964 | 16 | rwa_uuid_5f7964 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7964
+005f79c4 | 8 | k_f_7_111111 | {f4; u4} | audio | table; labels k_f_7_111111
+005f79cc | 16 | rwa_uuid_5f79cc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f79cc
+005f79dc | 16 | rwa_uuid_5f79dc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f79ec | 16 | rwa_uuid_5f79ec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f79fc | 16 | rwa_uuid_5f79fc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7a0c | 16 | rwa_uuid_5f7a0c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7a1c | 16 | rwa_uuid_5f7a1c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7a1c
+005f7a2c | 16 | rwa_uuid_5f7a2c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7a3c | 16 | rwa_uuid_5f7a3c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7a4c | 16 | rwa_uuid_5f7a4c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7a5c | 16 | rwa_uuid_5f7a5c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7a5c
+005f7a6c | 16 | rwa_uuid_5f7a6c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7a6c
+005f7a7c | 16 | rwa_uuid_5f7a7c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7a7c
+005f7a8c | 16 | rwa_uuid_5f7a8c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7a8c
+005f7a9c | 16 | rwa_uuid_5f7a9c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7a9c
+005f7aac | 16 | rwa_uuid_5f7aac | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7aac
+005f7abc | 16 | rwa_uuid_5f7abc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7acc | 16 | rwa_uuid_5f7acc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7aec | 16 | rwa_uuid_5f7aec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7aec
+005f7afc | 16 | rwa_uuid_5f7afc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7afc
+005f7b0c | 16 | rwa_uuid_5f7b0c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7b1c | 16 | rwa_uuid_5f7b1c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7b3c | 16 | rwa_uuid_5f7b3c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7b3c
+005f7b4c | 16 | rwa_uuid_5f7b4c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7b4c
+005f7b5c | 16 | rwa_uuid_5f7b5c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7b6c | 16 | rwa_uuid_5f7b6c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7b7c | 16 | rwa_uuid_5f7b7c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7b8c | 16 | rwa_uuid_5f7b8c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7b9c | 16 | rwa_uuid_5f7b9c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7bac | 16 | rwa_uuid_5f7bac | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7bbc | 16 | rwa_uuid_5f7bbc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7bcc | 16 | rwa_uuid_5f7bcc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7bdc | 16 | rwa_uuid_5f7bdc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7bec | 16 | rwa_uuid_5f7bec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7bfc | 16 | rwa_uuid_5f7bfc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7c0c | 16 | rwa_uuid_5f7c0c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7c1c | 16 | rwa_uuid_5f7c1c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7c48 | 16 | rwa_uuid_5f7c48 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7c48
+005f7c58 | 16 | rwa_uuid_5f7c58 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f7c58
+005f7c68 | 16 | rwa_uuid_5f7c68 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7c78 | 16 | rwa_uuid_5f7c78 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7c88 | 16 | rwa_uuid_5f7c88 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7c98 | 16 | rwa_uuid_5f7c98 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7ca8 | 16 | rwa_uuid_5f7ca8 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7cb8 | 16 | rwa_uuid_5f7cb8 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7cc8 | 16 | rwa_uuid_5f7cc8 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7cd8 | 16 | rwa_uuid_5f7cd8 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7ce8 | 16 | rwa_uuid_5f7ce8 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7cf8 | 16 | rwa_uuid_5f7cf8 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7d08 | 16 | rwa_uuid_5f7d08 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7d18 | 16 | rwa_uuid_5f7d18 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7d28 | 16 | rwa_uuid_5f7d28 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7d38 | 16 | rwa_uuid_5f7d38 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7d48 | 16 | rwa_uuid_5f7d48 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f7d58 | 20 | rwa_tbl_5f7d58 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7d58 _imp__g_data_5f7924
+005f7d6c | 20 | rwa_tbl_5f7d6c | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7d6c _imp__g_data_5f7924
+005f7d80 | 20 | rwa_tbl_5f7d80 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7d80 _imp__g_data_5f7924
+005f7d94 | 20 | rwa_tbl_5f7d94 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7d94 _imp__g_data_5f7924
+005f7da8 | 20 | rwa_tbl_5f7da8 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7da8 _imp__g_data_5f7924
+005f7dd0 | 20 | rwa_tbl_5f7dd0 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7dd0 _imp__g_data_5f7924
+005f7df8 | 20 | rwa_tbl_5f7df8 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7df8 _imp__g_data_5f7924
+005f7e0c | 20 | rwa_tbl_5f7e0c | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_005f7e0c _imp__g_data_5f7924
+005f7e20 | 20 | rwa_tbl_5f7e20 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7934_005f7e20 _imp__g_data_5f7934
+005f7e34 | 40 | rwa_tbl_5f7e34 | {ptr; u4; u4; u4; u4}[2] | audio | pointer table (relocations); labels PTR_g_data_5f7914_005f7e34 _imp__g_data_5f7914
+005f7e5c | 20 | rwa_tbl_5f7e5c | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7954_005f7e5c _imp__g_data_5f7954
+005f7e70 | 80 | rwa_tbl_5f7e70 | {ptr; u4; u4; u4; u4}[4] | audio | pointer table (relocations); labels PTR_g_data_5f7954_005f7e70 _imp__g_data_5f7954
+005f7ec0 | 140 | rwa_tbl_5f7ec0 | {ptr; u4; u4; u4; u4}[7] | audio | pointer table (relocations); labels PTR_g_data_5f7944_005f7ec0 _imp__g_data_5f7944
+005f7f4c | 20 | rwa_tbl_5f7f4c | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f79b4_005f7f4c _imp__g_data_5f79b4
+005f7f60 | 20 | rwa_tbl_5f7f60 | {ptr; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f79b4_005f7f60 _imp__g_data_5f79b4
+005f7f74 | 4 | rwa_word_5f7f74 | ptr | audio | pointer table (relocations); labels PTR_PTR_005f7f74 _imp__PTR
+005f7f78 | 4 | rwa_word_5f7f78 | ptr | audio | pointer table (relocations); labels PTR_PTR_005f7f78 _imp__PTR
+005f7f7c | 4 | rwa_word_5f7f7c | u4 | audio | table; labels g_data_5f7f7c
+005f7f80 | 4 | rwa_word_5f7f80 | ptr | audio | pointer table (relocations); labels PTR_PTR_005f7f80 _imp__PTR
+005f7f84 | 4 | rwa_word_5f7f84 | ptr | audio | pointer table (relocations); labels PTR_PTR_005f7f84 _imp__PTR
+005f7f88 | 4 | rwa_word_5f7f88 | u4 | audio | table; labels g_data_5f7f88
+005f7f8c | 12 | rwa_tbl_5f7f8c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7f8c _imp__PTR
+005f7f98 | 12 | rwa_tbl_5f7f98 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7f98 _imp__PTR
+005f7fa4 | 12 | rwa_tbl_5f7fa4 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fa4 _imp__PTR
+005f7fb0 | 12 | rwa_tbl_5f7fb0 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fb0 _imp__PTR
+005f7fbc | 12 | rwa_tbl_5f7fbc | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fbc _imp__PTR
+005f7fc8 | 12 | rwa_tbl_5f7fc8 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fc8 _imp__PTR
+005f7fd4 | 12 | rwa_tbl_5f7fd4 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fd4 _imp__PTR
+005f7fe0 | 12 | rwa_tbl_5f7fe0 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fe0 _imp__PTR
+005f7fec | 12 | rwa_tbl_5f7fec | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7fec _imp__PTR
+005f7ff8 | 12 | rwa_tbl_5f7ff8 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f7ff8 _imp__PTR
+005f8004 | 12 | rwa_tbl_5f8004 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8004 _imp__PTR
+005f8010 | 12 | rwa_tbl_5f8010 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8010 _imp__PTR
+005f801c | 12 | rwa_tbl_5f801c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f801c _imp__PTR
+005f8028 | 12 | rwa_tbl_5f8028 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8028 _imp__PTR
+005f8034 | 12 | rwa_tbl_5f8034 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8034 _imp__PTR
+005f8040 | 12 | rwa_tbl_5f8040 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8040 _imp__PTR
+005f804c | 12 | rwa_tbl_5f804c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f804c _imp__PTR
+005f8058 | 12 | rwa_tbl_5f8058 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8058 _imp__PTR
+005f8064 | 12 | rwa_tbl_5f8064 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8064 _imp__PTR
+005f8070 | 12 | rwa_tbl_5f8070 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8070 _imp__PTR
+005f807c | 12 | rwa_tbl_5f807c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f807c _imp__PTR
+005f8088 | 12 | rwa_tbl_5f8088 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8088 _imp__PTR
+005f8094 | 12 | rwa_tbl_5f8094 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8094 _imp__PTR
+005f80a0 | 12 | rwa_tbl_5f80a0 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80a0 _imp__PTR
+005f80ac | 12 | rwa_tbl_5f80ac | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80ac _imp__PTR
+005f80b8 | 12 | rwa_tbl_5f80b8 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80b8 _imp__PTR
+005f80c4 | 12 | rwa_tbl_5f80c4 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80c4 _imp__PTR
+005f80d0 | 12 | rwa_tbl_5f80d0 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80d0 _imp__PTR
+005f80dc | 12 | rwa_tbl_5f80dc | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80dc _imp__PTR
+005f80e8 | 12 | rwa_tbl_5f80e8 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80e8 _imp__PTR
+005f80f4 | 12 | rwa_tbl_5f80f4 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f80f4 _imp__PTR
+005f8100 | 12 | rwa_tbl_5f8100 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8100 _imp__PTR
+005f810c | 12 | rwa_tbl_5f810c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f810c _imp__PTR
+005f8118 | 12 | rwa_tbl_5f8118 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8118 _imp__PTR
+005f8124 | 12 | rwa_tbl_5f8124 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8124 _imp__PTR
+005f8130 | 12 | rwa_tbl_5f8130 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8130 _imp__PTR
+005f813c | 12 | rwa_tbl_5f813c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f813c _imp__PTR
+005f8148 | 12 | rwa_tbl_5f8148 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8148 _imp__PTR
+005f8154 | 12 | rwa_tbl_5f8154 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8154 _imp__PTR
+005f8160 | 12 | rwa_tbl_5f8160 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8160 _imp__PTR
+005f816c | 12 | rwa_tbl_5f816c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f816c _imp__PTR
+005f8178 | 12 | rwa_tbl_5f8178 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8178 _imp__PTR
+005f8184 | 12 | rwa_tbl_5f8184 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8184 _imp__PTR
+005f8190 | 12 | rwa_tbl_5f8190 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f8190 _imp__PTR
+005f819c | 12 | rwa_tbl_5f819c | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f819c _imp__PTR
+005f81a8 | 12 | rwa_tbl_5f81a8 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f81a8 _imp__PTR
+005f81b4 | 12 | rwa_tbl_5f81b4 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f81b4 _imp__PTR
+005f81c0 | 12 | rwa_tbl_5f81c0 | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f81c0 _imp__PTR
+005f81cc | 12 | rwa_tbl_5f81cc | {ptr; ptr; u4} | audio | pointer table (relocations); labels PTR_PTR_005f81cc _imp__PTR
+005f81d8 | 4 | k_f_0_0038757324 | f4 | audio | float constant (k_f_ label); labels k_f_0_0038757324
+005f81dc | 4 | k_f_0_0038909912 | f4 | audio | float constant (k_f_ label); labels k_f_0_0038909912
+005f81e0 | 4 | k_f_255_99219 | f4 | audio | float constant (k_f_ label); labels k_f_255_99219
+005f81e4 | 4 | k_f_255_9961 | f4 | audio | float constant (k_f_ label); labels k_f_255_9961
+005f81e8 | 4 | k_f_2048 | f4 | audio | float constant (k_f_ label); labels k_f_2048
+005f820c | 16 | rwa_uuid_5f820c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f820c
+005f821c | 16 | rwa_uuid_5f821c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f821c
+005f822c | 16 | rwa_uuid_5f822c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f823c | 16 | rwa_uuid_5f823c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f824c | 16 | rwa_uuid_5f824c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f827c | 16 | rwa_uuid_5f827c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f827c
+005f828c | 16 | rwa_uuid_5f828c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f82ac | 16 | rwa_uuid_5f82ac | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f82ac
+005f82bc | 16 | rwa_uuid_5f82bc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f82bc
+005f82cc | 16 | rwa_uuid_5f82cc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f82dc | 16 | rwa_uuid_5f82dc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f82fc | 16 | rwa_uuid_5f82fc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f82fc
+005f830c | 16 | rwa_uuid_5f830c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f831c | 16 | rwa_uuid_5f831c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f831c
+005f832c | 16 | rwa_uuid_5f832c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f833c | 16 | rwa_uuid_5f833c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f838c | 16 | rwa_uuid_5f838c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f838c
+005f839c | 16 | rwa_uuid_5f839c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f839c
+005f83ac | 16 | rwa_uuid_5f83ac | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f83bc | 16 | rwa_uuid_5f83bc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f83cc | 16 | rwa_uuid_5f83cc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f83dc | 16 | rwa_uuid_5f83dc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f83ec | 16 | rwa_uuid_5f83ec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f83fc | 16 | rwa_uuid_5f83fc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f840c | 16 | rwa_uuid_5f840c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f841c | 16 | rwa_uuid_5f841c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f842c | 16 | rwa_uuid_5f842c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f843c | 16 | rwa_uuid_5f843c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f844c | 16 | rwa_uuid_5f844c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f845c | 16 | rwa_uuid_5f845c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f846c | 16 | rwa_uuid_5f846c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f847c | 16 | rwa_uuid_5f847c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f848c | 16 | rwa_uuid_5f848c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f849c | 16 | rwa_uuid_5f849c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f84ac | 16 | rwa_uuid_5f84ac | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f84bc | 16 | rwa_uuid_5f84bc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f84cc | 16 | rwa_uuid_5f84cc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f84dc | 16 | rwa_uuid_5f84dc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f84ec | 16 | rwa_uuid_5f84ec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f84fc | 16 | rwa_uuid_5f84fc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f850c | 16 | rwa_uuid_5f850c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f851c | 16 | rwa_uuid_5f851c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f852c | 16 | rwa_uuid_5f852c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f853c | 16 | rwa_uuid_5f853c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f854c | 16 | rwa_uuid_5f854c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f855c | 16 | rwa_uuid_5f855c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f856c | 16 | rwa_uuid_5f856c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f857c | 16 | rwa_uuid_5f857c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f858c | 16 | rwa_uuid_5f858c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f858c
+005f85cc | 16 | rwa_uuid_5f85cc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f85cc
+005f85ec | 16 | rwa_uuid_5f85ec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f85ec
+005f861c | 4 | k_f_4_4 | f4 | audio | float constant (k_f_ label); labels k_f_4_4
+005f8620 | 4 | k_f_3_95 | f4 | audio | float constant (k_f_ label); labels k_f_3_95
+005f8624 | 4 | k_f_2_8 | f4 | audio | float constant (k_f_ label); labels k_f_2_8
+005f8628 | 4 | k_f_0_68 | f4 | audio | float constant (k_f_ label); labels k_f_0_68
+005f862c | 4 | k_f_0_22 | f4 | audio | float constant (k_f_ label); labels k_f_0_22
+005f8630 | 4 | k_f_0_51 | f4 | audio | float constant (k_f_ label); labels k_f_0_51
+005f8634 | 4 | k_f_0_17 | f4 | audio | float constant (k_f_ label); labels k_f_0_17
+005f8638 | 4 | k_f_1_66 | f4 | audio | float constant (k_f_ label); labels k_f_1_66
+005f865c | 16 | rwa_uuid_5f865c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f865c
+005f866c | 16 | rwa_uuid_5f866c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f866c
+005f867c | 16 | rwa_uuid_5f867c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f867c
+005f868c | 16 | rwa_uuid_5f868c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f868c
+005f869c | 16 | rwa_uuid_5f869c | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f86ac | 16 | rwa_uuid_5f86ac | guid | audio | GUID (16 B stride of the table, readers at 16 B steps); labels g_data_5f86ac
+005f86bc | 16 | rwa_uuid_5f86bc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f86cc | 16 | rwa_uuid_5f86cc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f86dc | 16 | rwa_uuid_5f86dc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f86ec | 16 | rwa_uuid_5f86ec | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f86fc | 16 | rwa_uuid_5f86fc | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+005f870c | 4 | rwa_word_5f870c | u4 | audio | table
+0062e9d4 | 16 | s_AuthenticAMD_0062e9d4 | str | rwp | text; labels s_AuthenticAMD_0062e9d4
+0062e9e4 | 16 | s_GenuineIntel_0062e9e4 | str | rwp | text; labels s_GenuineIntel_0062e9e4
+0062eae3 | 1 | rwp_bytes_62eae3 | u1 | rwp | table
+006491b0 | 4 | rwa_word_6491b0 | fptr | audio | pointer table (relocations); labels PTR__rwaObjHandleOpenModule_006491b0 _imp__LAB PTR_LAB_006491b0
+006491b4 | 4 | rwa_word_6491b4 | fptr | audio | pointer table (relocations); labels PTR__rwaObjHandleCloseModule_006491b4 _imp__FUN PTR_FUN_006491b4
+006491b8 | 4 | rwa_word_6491b8 | fptr | audio | pointer table (relocations); labels PTR_FUN_006491b8 _imp__FUN
+006491bc | 4 | rwa_word_6491bc | fptr | audio | pointer table (relocations); labels PTR_FUN_006491bc _imp__FUN
+00649c10 | 56 | rwa_tbl_649c10 | {ptr; ptr; ptr; ptr; ptr; ptr; ptr; ptr; u4; u4; u4; u4; u4; u4} | audio | pointer table (relocations); labels PTR_g_data_5f7924_00649c10 _imp__g_data_5f7924
+00649c48 | 56 | rwa_tbl_649c48 | u4[14] | audio | table; labels g_data_649c48
+00649c80 | 8 | rwa_tbl_649c80 | u4[2] | audio | table; labels g_data_649c80
+00649c88 | 8 | rwa_tbl_649c88 | u4[2] | audio | table; labels g_data_649c88
+00649c94 | 4 | rwa_word_649c94 | u4 | audio | table; labels g_data_649c94
+00649c98 | 4 | rwa_word_649c98 | ptr | audio | pointer table (relocations); labels PTR_g_data_7dbb3c_00649c98 _imp__g_data_7dbb3c
+00649c9c | 12 | rwa_tbl_649c9c | {u4; ptr; u4} | audio | pointer table (relocations); labels g_data_649c9c
+00649ca8 | 8 | rwa_tbl_649ca8 | {ptr; u4} | audio | pointer table (relocations); labels PTR_g_data_7dbb18_00649ca8 _imp__g_data_7dbb18
+00649cb0 | 8 | rwa_tbl_649cb0 | {ptr; u4} | audio | pointer table (relocations); labels PTR_g_data_7db81c_00649cb0 _imp__g_data_7db81c
+0064a970 | 4 | rwa_word_64a970 | u4 | audio | table; labels g_data_64a970
+0064a974 | 36 | rwa_tbl_64a974 | {u4; f4; u4; f4; f4; f4; f4; f4; f4} | audio | table; labels g_data_64a974
+0064a9c4 | 4 | rwa_word_64a9c4 | u4 | audio | table; labels g_data_64a9c4
+0064a9c8 | 4 | rwa_word_64a9c8 | f4 | audio | table; labels g_data_64a9c8
+0064a9cc | 52 | rwa_tbl_64a9cc | {u4; f4; f4; f4; f4; f4; f4; u4; f4; u4; f4; u4; f4} | audio | table; labels g_data_64a9cc
+0064aa1e | 1 | rwa_bytes_64aa1e | u1 | audio | table; labels g_data_64aa1e
+0064aa1f | 1 | rwa_bytes_64aa1f | u1 | audio | table
+0064aae0 | 400 | rwa_tbl_64aae0 | {ptr; fptr}[50] | audio | pointer table (relocations); labels PTR_PTR_0064aae0 _imp__PTR
+0064bda4 | 28 | u_RwaDSRenderer_0064bda4 | wstr | audio | text; labels u_RwaDSRenderer_0064bda4
+0064bdc0 | 24 | u_RwaDSSource_0064bdc0 | wstr | audio | text; labels u_RwaDSSource_0064bdc0
+0064bdd8 | 24 | rwa_tbl_64bdd8 | fptr[6] | audio | pointer table (relocations); labels PTR__rwaDSDMOBufferQueryInterface_0064bdd8 _imp__FUN PTR_FUN_0064bdd8
+0064bdf0 | 8 | rwa_tbl_64bdf0 | fptr[2] | audio | pointer table (relocations); labels PTR__rwaDSFilterQueryInterface_0064bdf0 _imp__FUN PTR_FUN_0064bdf0
+0064bdf8 | 52 | rwa_tbl_64bdf8 | fptr[13] | audio | pointer table (relocations); labels PTR__rwaDSSourceRelease_0064bdf8 _imp__FUN PTR_FUN_0064bdf8
+0064be2c | 44 | rwa_tbl_64be2c | fptr[11] | audio | pointer table (relocations); labels PTR_LAB_0064be2c _imp__LAB
+0064be58 | 16 | rwa_tbl_64be58 | u4[4] | audio | table; labels PTR_g_data_75004f_0064be58 _imp__g_data_75004f
+0064be68 | 28 | rwa_tbl_64be68 | fptr[7] | audio | pointer table (relocations); labels PTR__rwaDSEnumPinsQueryInterface_0064be68 _imp__FUN PTR_FUN_0064be68
+0064be84 | 60 | rwa_tbl_64be84 | fptr[15] | audio | pointer table (relocations); labels PTR__rwaDSFilterQueryInterface_0064be84 _imp__FUN PTR_FUN_0064be84
+0064bec0 | 16 | rwa_uuid_64bec0 | guid | audio | GUID (16 B stride of the table, readers at 16 B steps)
+# W13 Z4d: dead rows (zero fill), group dshow (counted CRT by the layer split, DirectShow rwaDS tables in fact)
+0064bef8 | 184 | PTR__rwaDSFilterQueryInterface_0064bef8 | dead | dshow | DirectShow rwaDS filter vtables + L"Input": no absolute word of the link names them (agents/l3_w13/deadscan.py); the original reader FUN_005d05a0 is an rw_trap AU2 row; the object in front (PTR_g_data_720043_0064bed0, 40 B vtable) ends here, the row starts with its own QueryInterface slot
+0064bfc0 | 464 | rwa_ds_pin_vtables_64bfc0 | dead | dshow | DirectShow rwaDS pin / enum / allocator / media-sample vtables: no absolute word of the link names them (deadscan.py); original readers FUN_005d0a80 / 5d1070 / 5d14b0 / 5d1f80 / 5d21d0 / 5d27f0 are rw_trap AU2 rows; the object in front (g_rwa_ds_unknown_vtbl, 16 B, 4 slots) ends here
+# W13 Z5: RenderWare data layer, group rw: the live rows (read through the mflrw bind tables of rw_engine_init or through an object in front). Left as library blobs until the librw-mfl bind enums are read: 0x5ec388, 0x5ec3e8, 0x5f5a18, 0x5f632c/0x5f6330, 0x5f8cf0, 0x631058 (dead candidates), 0x62eec4 (starts inside a mixed library item). Draft: agents/l3_w13/z4draft.py --bare --nofloat (+ z5_overrides.txt).
+005ea094 | 60 | g_rw_5ea094 | u4[15] | rw | table; labels g_rw_5ea094
+005ea0d0 | 32 | rw_tbl_5ea0d0 | u4[8] | rw | table; labels g_data_5ea0d0
+005ea0f4 | 4 | g_rw_5ea0f4 | u1[4] | rw | bytes of the raster conversion table behind _rwRasterConvTable (0x5ea0f0, read through it); labels g_rw_5ea0f4 g_rw_5ea0f5
+005ea0f8 | 80 | rw_raster_conv_bytes_5ea0f8 | u1[80] | rw | rest of the raster conversion table behind _rwRasterConvTable (a 4 B head of its own: cl 8-aligns an aggregate >= 64 B)
+005ea154 | 16 | _RwD3D9FogConvTable | u4[4] | rw | table; labels _RwD3D9FogConvTable g_rw_5ea154
+005ea194 | 20 | _RwD3D9AddressConvTable | u4[5] | rw | table; labels _RwD3D9AddressConvTable g_rw_5ea194
+005ea1a8 | 4 | _RwD3D9FilterModeConvTable | u4 | rw | table; labels _RwD3D9FilterModeConvTable g_rw_5ea1a8
+005ea1ac | 4 | g_rw_5ea1ac | u4 | rw | table; labels g_rw_5ea1ac
+005ea1b0 | 104 | rw_tbl_5ea1b0 | u4[26] | rw | table
+005ea218 | 16 | _RwD3D9CullModeConvTable | u4[4] | rw | table; labels _RwD3D9CullModeConvTable g_rw_5ea218
+005ea228 | 36 | _RwD3D9StencilOpConvTable | u4[9] | rw | table; labels _RwD3D9StencilOpConvTable g_rw_5ea228
+005ea24c | 36 | _RwD3D9CmpFuncConvTable | u4[9] | rw | table; labels _RwD3D9CmpFuncConvTable g_rw_5ea24c
+005ea2f4 | 28 | g_rw_5ea2f4 | u4[7] | rw | table; labels g_rw_5ea2f4
+005f5a80 | 96 | dwBumpMapPixelShader | u4[24] | rw | table; labels dwBumpMapPixelShader g_rp_5f5a80
+005f5ae0 | 80 | dwEnvMapPixelShader | u4[20] | rw | table; labels dwEnvMapPixelShader g_rp_5f5ae0
+005f5b30 | 64 | dwEnvMapNoBaseTexturePixelShader | u4[16] | rw | table; labels dwEnvMapNoBaseTexturePixelShader g_rp_5f5b30
+005f5b70 | 136 | dwBumpEnvMapPixelShader | u4[34] | rw | table; labels dwBumpEnvMapPixelShader g_rp_5f5b70
+005f5bf8 | 176 | dwBumpModulatedEnvMapPixelShader | u4[44] | rw | table; labels dwBumpModulatedEnvMapPixelShader g_rp_5f5bf8
+005f5ca8 | 160 | dwBumpModulatedEnvMapNoAlphaPixelShader | u4[40] | rw | table; labels dwBumpModulatedEnvMapNoAlphaPixelShader g_rp_5f5ca8
+005f5d48 | 64 | rw_tbl_5f5d48 | u4[16] | rw | table; labels g_data_5f5d48
+005f5dac | 36 | rw_tbl_5f5dac | u4[9] | rw | table
+005f5dd0 | 1368 | g_rt_5f5dd0 | vu4[342] | rw | RtCharset Atari font glyph rows (8 x 14 + border bytes; read by _rtCharsetAtariFontGet, whose C keeps its own copy of the glyphs: recomp/tier1/_rtCharsetAtariFontGet.c charSetBits).  Z5v: value only; the four E5 low "pointers" at +0x9c / +0x1ac / +0x29c / +0x530 (sites 5f5e6c 5f5f7c 5f606c 5f6300) are glyph bytes (5f5e68: 00 00 66 3c ff 3c 66 00 = the '*' glyph of charSetBits); labels g_rt_5f5dd0
+0062e700 | 4 | _rwTextureFreeListBlockSize | u4 | rw | table; labels g_data_62e700 _rwTextureFreeListBlockSize
+0062e704 | 4 | _rwTextureFreeListPreallocBlocks | u4 | rw | table; labels g_data_62e704 _rwTextureFreeListPreallocBlocks
+0062e708 | 4 | _rwTexDictionaryFreeListBlockSize | u4 | rw | table; labels g_data_62e708 _rwTexDictionaryFreeListBlockSize
+0062e70c | 4 | _rwTexDictionaryFreeListPreallocBlocks | u4 | rw | table; labels g_data_62e70c _rwTexDictionaryFreeListPreallocBlocks
+0062e730 | 4 | _rwRasterFreeListBlockSize | u4 | rw | table; labels _rwRasterFreeListBlockSize g_data_62e730
+0062e734 | 4 | _rwRasterFreeListPreallocBlocks | u4 | rw | table; labels _rwRasterFreeListPreallocBlocks g_data_62e734
+0062e738 | 4 | AmbientSaturated | u4 | rw | table; labels AmbientSaturated g_rw_62e738
+0062e73c | 4 | g_rw_62e73c | u4 | rw | table; labels g_rw_62e73c
+0062e740 | 4 | g_rw_62e740 | u4 | rw | table; labels g_rw_62e740
+0062e744 | 4 | g_rw_62e744 | u4 | rw | table; labels g_rw_62e744
+0062e74c | 4 | MaxMultisamplingLevels | u4 | rw | table; labels MaxMultisamplingLevels g_d3d9calculatemaxmultisamplinglevels_62e74c
+0062e750 | 4 | SelectedMultisamplingLevels | u4 | rw | table; labels SelectedMultisamplingLevels g_d3d9calculatemaxmultisamplinglevels_62e750
+0062e754 | 4 | MaxMultisamplingLevelsNonMask | u4 | rw | table; labels MaxMultisamplingLevelsNonMask g_d3d9calculatemaxmultisamplinglevels_62e754
+0062e758 | 4 | SelectedMultisamplingLevelsNonMask | u4 | rw | table; labels SelectedMultisamplingLevelsNonMask g_d3d9calculatemaxmultisamplinglevels_62e758
+0062e75c | 4 | FullScreenRefreshRateInHz | u4 | rw | table; labels FullScreenRefreshRateInHz g_rw_62e75c
+0062e778 | 20 | _RwD3D9D3D9ProjTransform | u4[5] | rw | table; labels _RwD3D9D3D9ProjTransform g_rw_62e778
+0062e78c | 12 | rw_tbl_62e78c | u4[3] | rw | table; labels g_data_62e78c
+0062e798 | 4 | rw_word_62e798 | u4 | rw | table; labels g_data_62e798
+0062e79c | 4 | rw_word_62e79c | u4 | rw | table; labels g_data_62e79c
+0062e7a0 | 4 | rw_word_62e7a0 | u4 | rw | table; labels g_data_62e7a0
+0062e7a4 | 4 | rw_word_62e7a4 | u4 | rw | table; labels g_data_62e7a4
+0062e7a8 | 4 | rw_word_62e7a8 | u4 | rw | table; labels g_data_62e7a8
+0062e7ac | 4 | rw_word_62e7ac | u4 | rw | table; labels g_data_62e7ac
+0062e7b0 | 4 | rw_word_62e7b0 | u4 | rw | table; labels g_data_62e7b0
+0062e7b4 | 4 | rw_word_62e7b4 | u4 | rw | table; labels g_data_62e7b4
+0062e7bc | 52 | rw_tbl_62e7bc | {fptr; u4[2]; fptr[6]; u4[4]} | rw | pointer table (relocations); labels PTR_LAB_0062e7bc _imp__LAB
+0062e7f4 | 4 | g_rw_62e7f4 | u4 | rw | table; labels g_rw_62e7f4
+0062e7f8 | 8 | g_rw_62e7f8 | u4[2] | rw | table; labels g_rw_62e7f8
+0062e800 | 4 | g_rw_62e800 | u4 | rw | table; labels g_rw_62e800
+0062e804 | 4 | g_rw_62e804 | u4 | rw | table; labels g_rw_62e804
+0062e808 | 8 | g_rw_62e808 | u4[2] | rw | table; labels g_rw_62e808
+0062e810 | 4 | g_rw_62e810 | u4 | rw | table; labels g_rw_62e810
+0062e814 | 4 | g_rw_62e814 | u4 | rw | table; labels g_rw_62e814
+0062e818 | 8 | g_rw_62e818 | u4[2] | rw | table; labels g_rw_62e818
+0062e820 | 4 | g_rw_62e820 | u4 | rw | table; labels g_rw_62e820
+0062e824 | 4 | g_rw_62e824 | u4 | rw | table; labels g_rw_62e824
+0062e828 | 8 | g_rw_62e828 | u4[2] | rw | table; labels g_rw_62e828
+0062e830 | 8 | rw_tbl_62e830 | u4[2] | rw | table; labels g_data_62e830
+0062e847 | 1 | rw_bytes_62e847 | u1 | rw | table
+0062e860 | 4 | _rwImageFreeListBlockSize | u4 | rw | table; labels _rwImageFreeListBlockSize g_data_62e860
+0062e864 | 8 | _rwImageFreeListPreallocBlocks | u4[2] | rw | table; labels _rwImageFreeListPreallocBlocks g_data_62e864
+0062e86c | 4 | _rwImageFormatFreeListPreallocBlocks | u4 | rw | table; labels _rwImageFormatFreeListPreallocBlocks g_data_62e86c
+0062e9b6 | 1 | rw_bytes_62e9b6 | u1 | rw | table
+0062e9b7 | 1 | rw_bytes_62e9b7 | u1 | rw | table
+0062e9b8 | 4 | QuantDepth | u4 | rw | table; labels QuantDepth g_rw_62e9b8
+0062eae4 | 4 | rw_word_62eae4 | u4 | rw | table
+0062eae8 | 16 | s_ImmInstance_csl_0062eae8 | str | rw | text; labels s_ImmInstance_csl_0062eae8
+0062eb38 | 32 | s_nodeD3D9SubmitNoLight_csl_0062eb38 | str | rw | text; labels s_nodeD3D9SubmitNoLight_csl_0062eb38
+0062ec60 | 4 | g_rp_62ec60 | u4 | rw | table; labels g_rp_62ec60
+0062ec64 | 4 | g_rp_62ec64 | u4 | rw | table; labels g_rp_62ec64
+0062ef28 | 32 | s_nodeD3D9WorldSectorAllInOne_csl_0062ef28 | str | rw | text; labels s_nodeD3D9WorldSectorAllInOne_csl_0062ef28
+0062efa0 | 4 | g_rp_62efa0 | u4 | rw | table; labels g_rp_62efa0
+0062efb4 | 4 | rw_word_62efb4 | fptr | rw | pointer table (relocations); labels PTR_RpBuildMeshGenerateDefaultTriStrip_0062efb4 _imp__RpBuildMeshGenerateDefaultTriStrip
+0062efb8 | 8 | g_rp_62efb8 | u4[2] | rw | table; labels g_rp_62efb8
+0062ff50 | 4 | D3D9Transform | u4 | rw | table; labels D3D9Transform g_rw_62ff50
+0062ff54 | 4 | g_rw_62ff54 | u4 | rw | table; labels g_rw_62ff54
+0062ff58 | 8 | g_rw_62ff58 | u4[2] | rw | table; labels g_rw_62ff58
+0062ff60 | 4 | g_rw_62ff60 | u4 | rw | table; labels g_rw_62ff60
+0062ff64 | 4 | g_rw_62ff64 | u4 | rw | table; labels g_rw_62ff64
+0062ff68 | 8 | g_rw_62ff68 | u4[2] | rw | table; labels g_rw_62ff68
+0062ff70 | 4 | g_rw_62ff70 | u4 | rw | table; labels g_rw_62ff70
+0062ff74 | 4 | g_rw_62ff74 | u4 | rw | table; labels g_rw_62ff74
+0062ff78 | 8 | g_rw_62ff78 | u4[2] | rw | table; labels g_rw_62ff78
+0062ff80 | 4 | g_rw_62ff80 | u4 | rw | table; labels g_rw_62ff80
+0062ff84 | 4 | g_rw_62ff84 | u4 | rw | table; labels g_rw_62ff84
+0062ff88 | 8 | g_rw_62ff88 | u4[2] | rw | table; labels g_rw_62ff88
+0062ff90 | 4 | D3D9InverseTransform | u4 | rw | table; labels D3D9InverseTransform g_rw_62ff90
+0062ff94 | 8 | g_rw_62ff94 | u4[2] | rw | table; labels g_rw_62ff94
+0062ff9c | 16 | g_rw_62ff9c | u4[4] | rw | table; labels g_rw_62ff9c
+0062ffac | 16 | g_rw_62ffac | u4[4] | rw | table; labels g_rw_62ffac
+0062ffbc | 16 | g_rw_62ffbc | u4[4] | rw | table; labels g_rw_62ffbc
+0062ffcc | 4 | g_rw_62ffcc | u4 | rw | table; labels g_rw_62ffcc
+0062ffd0 | 12 | D3D9InverseNormalizedTransform | u4[3] | rw | table; labels D3D9InverseNormalizedTransform g_rw_62ffd0
+0062ffdc | 16 | g_rw_62ffdc | u4[4] | rw | table; labels g_rw_62ffdc
+0062ffec | 16 | g_rw_62ffec | u4[4] | rw | table; labels g_rw_62ffec
+0062fffc | 16 | g_rw_62fffc | u4[4] | rw | table; labels g_rw_62fffc
+0063000c | 4 | g_rw_63000c | u4 | rw | table; labels g_rw_63000c
+00630010 | 64 | rw_tbl_630010 | u4[16] | rw | table
+0063a1a8 | 32 | s_nodeD3D9SkinAtomicAllInOne_csl_0063a1a8 | str | rw | text; labels s_nodeD3D9SkinAtomicAllInOne_csl_0063a1a8
+0063a2c8 | 4 | NeedToValidateModulate2X | u4 | rw | table; labels NeedToValidateModulate2X g_rp_63a2c8
+0063a2cc | 4 | NeedToValidateDiffuseInStage0 | u4 | rw | table; labels NeedToValidateDiffuseInStage0 g_rp_63a2cc
+0063a2d0 | 4 | g_rp_63a2d0 | u4 | rw | table; labels g_rp_63a2d0
+0063a2d4 | 12 | g_rp_63a2d4 | u4[3] | rw | table; labels g_rp_63a2d4
+0063a2e0 | 4 | g_rp_63a2e0 | u4 | rw | table; labels g_rp_63a2e0
+0063a2e4 | 12 | g_rp_63a2e4 | u4[3] | rw | table; labels g_rp_63a2e4
+0063a2f0 | 4 | g_rp_63a2f0 | u4 | rw | table; labels g_rp_63a2f0
+0063a2f4 | 28 | g_rp_63a2f4 | u4[7] | rw | table; labels g_rp_63a2f4
+0063a320 | 16 | s_PatchAtomic_csl_0063a320 | str | rw | text; labels s_PatchAtomic_csl_0063a320
+0063a370 | 4 | rw_word_63a370 | u4 | rw | table; labels g_data_63a370
+0063a374 | 4 | rw_word_63a374 | u4 | rw | table; labels g_data_63a374
+0063a378 | 4 | rw_word_63a378 | u4 | rw | table; labels g_data_63a378
+0063a37c | 4 | rw_word_63a37c | u4 | rw | table; labels g_data_63a37c
+0063a427 | 1 | rw_bytes_63a427 | u1 | rw | table
+0063a502 | 1 | rw_bytes_63a502 | u1 | rw | table
+0063a503 | 1 | rw_bytes_63a503 | u1 | rw | table
+# W13 Z6 S4: the two 71-slot D3DX dispatch tables (live 0x62ec88, default 0x62eda8; slot 0 of each is the app row in front) as typed rows, group d3dx4 (zneg.sh d3dx4); plus the 36 B RenderWare remainder 0x62eec4 that shared the D3DX item.
+0062ec8c | 4 | d3dx_dispatch_live_slot1 | fptr | d3dx4 | slot 1 of the live D3DX dispatch table 0x62ec88 (D3DXCpuOptimizations copies the default table here, the sse2 installer fills slots 3 4 6 10; d3dx_* public stubs call [slot]); a 4 B head of its own because cl 8-aligns aggregates >= 64 B
+0062ec90 | 280 | d3dx_dispatch_live_slots2_71 | fptr[70] | d3dx4 | slots 2..71 of the live D3DX dispatch table 0x62ec88: code pointers (init stubs; the delay-load slots of recomp/globals_code_words.txt E7; a slot pointing into dead code is 0 in the link, DROP_RW)
+0062edac | 4 | d3dx_dispatch_default_slot1 | fptr | d3dx4 | slot 1 of the default C-math D3DX dispatch table 0x62eda8; labels PTR_LAB_0062edac _imp__LAB
+0062edb0 | 276 | d3dx_dispatch_default_slots2_70 | fptr[69] | d3dx4 | slots 2..70 of the default C-math D3DX dispatch table 0x62eda8 (copied into the live table by D3DXCpuOptimizations, recomp/d3dx_dispatch.c)
+0062eec4 | 4 | rw_word_62eec4 | u4 | d3dx4 | (group d3dx4, not rw: it shares the library item 0x62edb0 with the default table and must go back with it) Z5 remainder (the row started inside the D3DX item; typed with S4, which now ends that item here)
+0062eec8 | 32 | s_nodeD3D9AtomicAllInOne_csl_0062eec8 | str | d3dx4 | node definition name, pointed at by the gen row PTR_s_nodeD3D9AtomicAllInOne_csl_0062eee8; labels s_nodeD3D9AtomicAllInOne_csl_0062eec8

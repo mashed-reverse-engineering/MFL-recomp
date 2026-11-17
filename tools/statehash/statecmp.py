@@ -324,10 +324,24 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
         print("SOUND: %d sound-timing words differ%s (report only, never fails)" % (len(snd), ", first frame %d" % min(r[0] for r in snd.values()) if snd else ""), file=out)
         for va, (f0, k) in sorted(snd.items(), key=lambda x: (x[1][0], x[0]))[:show]:
             print("  sound %08x %-44s first %4d frames %4d" % (va, syms.name(va), f0, k), file=out)
+    to = alock_timeouts(fa) + alock_timeouts(fb)
+    for l in to[:6]:
+        print("ALOCK: %s" % l, file=out)
     print("VERDICT: %s over %d frames (first divergent frame %s; masked words %d, pointer-normalised words %d, dead-layer words %d%s%s)" % (
+        ("UNJUDGED (%d ALOCK TIMEOUT lines: lockstep lost), compare says %s" % (len(to), "DIVERGENT" if first else "IDENTICAL")) if to else
         "IDENTICAL" if not first else "DIVERGENT", nfr, first[0] if first else "-", tot_mask, tot_ptr, tot_dead, " [%s]" % dead if dead else "",
         "; mode rwpad: %d RwMatrix pad words skipped" % tot_pad if rwpad else ""), file=out)
     return first[0] if first else -1
+
+
+def alock_timeouts(fpath):
+    """W13 hx7 (harness review finding 17): `ALOCK TIMEOUT frame=N thread=i` lines of the run's trace.raw (d3d9.c logs each event): a worker
+    missed lockstep in that run, so its compare carries no verdict (UNJUDGED, exit 3)"""
+    t = os.path.join(os.path.dirname(os.path.abspath(fpath)), "trace.raw")
+    if not os.path.exists(t):
+        return []
+    return ["%s: %s" % (t, l.strip()) for l in open(t, errors="replace")      # (+ the older proxy's 100-frame count line with a count > 0)
+            if l.startswith("ALOCK TIMEOUT") or re.match(r"ALOCK threads=\d+ timeouts=[1-9]", l)]
 
 
 def writes(fpath, vas, frames=0):
@@ -450,6 +464,11 @@ def selftest():
     assert compare(d + "/m0", d + "/s1", out=null) == 0
     wr(d + "/s2", [{0: z, 1: bytes(a ^ b for a, b in zip(one(0x30, 0x3f800000), one(0x108, 1)))}])
     assert compare(d + "/m0", d + "/s2", sound=d + "/sound", out=null) == 0
+    # W13 hx7: an ALOCK TIMEOUT line in a run's trace.raw -> UNJUDGED (identical pages or not)
+    os.makedirs(d + "/to"); wr(d + "/to/statehash.bin", [{0: z, 1: one(0x30, 0x3f800000)}])
+    open(d + "/to/trace.raw", "w").write("TRACE d3dtrace 1\nALOCK TIMEOUT frame=17 thread=2\nPRESENT 0\n")
+    buf = io.StringIO(); compare(d + "/m0", d + "/to/statehash.bin", out=buf)
+    assert "VERDICT: UNJUDGED (1 ALOCK TIMEOUT" in buf.getvalue() and alock_timeouts(d + "/m0") == [], buf.getvalue()
     open(d + "/sound_bad", "w").write("008b1038 1 player_car_0__matrices_12_ | must be refused\n")
     try:
         read_sound(d + "/sound_bad", Syms())
@@ -483,4 +502,4 @@ if __name__ == "__main__":
         if len(pos) != 2:
             sys.exit(__doc__)
         r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"), rwpad=opt.get("rwpad"), sound=opt.get("sound"))
-        sys.exit(0 if r < 0 else 1)
+        sys.exit(3 if alock_timeouts(pos[0]) + alock_timeouts(pos[1]) else 0 if r < 0 else 1)

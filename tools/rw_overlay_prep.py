@@ -15,7 +15,10 @@ for f_ in ("rw_overlay_members.txt", "crt_overlay_members.txt"):
 LIBDIRS = [os.path.join(HERE, "..", "toolchain", "rwsdk", "lib", "d3d9", "release"),
            os.path.join(HERE, "..", "toolchain", "vc7", "Vc7", "lib")]
 n = 0; defined = set()
-libs_ = [(os.path.join(d_, lib), lib) for d_ in LIBDIRS for lib in sorted(os.listdir(d_)) if lib in ("libcmt.lib",) or (d_ == LIBDIRS[0] and lib.endswith(".lib"))]
+# W13 BLD: the RenderWare SDK is optional (a public build has none: RenderWare comes from librw-mfl); its members are then simply not extracted
+for d_ in LIBDIRS:
+    if not os.path.isdir(d_): print("rw_overlay_prep: %s absent, its members are not extracted" % os.path.normpath(d_), file=sys.stderr)
+libs_ = [(os.path.join(d_, lib), lib) for d_ in LIBDIRS if os.path.isdir(d_) for lib in sorted(os.listdir(d_)) if lib in ("libcmt.lib",) or (d_ == LIBDIRS[0] and lib.endswith(".lib"))]
 for libpath, lib in libs_:
     for mem, body in ns["members"](libpath):
         key = lib + ":" + mem

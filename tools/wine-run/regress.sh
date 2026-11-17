@@ -107,13 +107,13 @@ done; done
 wait $PIDS
 kill $LP 2>/dev/null; echo 'runs finished, comparing' > $W/stage.txt; ONCE=1 live_loop
 ts runs
-CTRL_OK=1; for r in $(seq 1 $RUNS); do tail -1 $W/out_ctrl_$r/waitmem.txt 2>/dev/null | grep -q "==1 waited [0-9.]*s (value 1)" || CTRL_OK=0; done
+CTRL_OK=1; for r in $(seq 1 $RUNS); do tail -1 $W/out_ctrl_$r/waitmem.txt 2>/dev/null | grep -q -E "waited [0-9.]*s \(value [12]\)" || CTRL_OK=0; done      # W13 hx5: race_script waits for frozen != 0 (1 or 2)
 if [ ! -d $CC ] && [ $CTRL_OK = 1 ]; then mkdir -p $CC; for r in $(seq 1 $RUNS); do cp -r $W/out_ctrl_$r $CC/; done; fi
 echo "screenshot: ctrl1-ctrl2 $(cmp -l $W/out_ctrl_1/end.ppm $W/out_ctrl_2/end.ppm 2>/dev/null | wc -l) ctrl1-ovl1 $(cmp -l $W/out_ctrl_1/end.ppm $W/out_ovl_1/end.ppm 2>/dev/null | wc -l) (differing bytes of the 640x480 frame)"
 # a run that never reached the freeze frame (waitmem timed out; the game stalled or crashed in the race) makes every diff meaningless
 INVALID=0
 for f in $W/out_*_*/waitmem.txt; do
-  tail -1 $f | grep -q "==1 waited [0-9.]*s (value 1)" || { echo "WARNING: $(dirname $f) did not freeze (race frame $FR or end of race): $(tail -1 $f)" >&2; INVALID=1; }
+  tail -1 $f | grep -q -E "waited [0-9.]*s \(value [12]\)"      # W13 hx5: frozen 1 = target frame, 2 = the race ended first (race_script waits for !0) || { echo "WARNING: $(dirname $f) did not freeze (race frame $FR or end of race): $(tail -1 $f)" >&2; INVALID=1; }
 done
 exec > >(tee $W/result.txt) 2>&1
 # fields that are not game behaviour (heap pointers, real time ticks, matrix padding) are ignored, see cmpdump.py

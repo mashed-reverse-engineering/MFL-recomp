@@ -150,6 +150,15 @@ def _crt_dead():
             if a_ <= lo < b_: out.append((k_, lo, min(hi, b_)))
     return out
 LIBSRC_DEAD_RANGES = LIBSRC_DEAD_RANGES + _crt_dead()
+# W13 Z6 (plan_z6_d3dx_2026-11-17.md section 5): dead D3DX library rows, tools/delink/d3dx_dead.txt "<va> <size> <name> <step>"; zero fill, range
+# edges stay item edges.  Z6_PUTBACK=<step>[,<step>] (zneg.sh d3dx1 ..): the bad case, that step's rows stay library bytes.
+_Z6P = set(filter(None, os.environ.get("Z6_PUTBACK", "").split(",")))
+_d3f = os.path.join(G, "tools", "delink", "d3dx_dead.txt")
+for _l in (open(_d3f) if os.path.exists(_d3f) else []):
+    _p = _l.split()
+    if not _p or _l[0] == "#": continue
+    if _p[3] in _Z6P: print("Z6_PUTBACK: %s +%s %s (step %s) stays library bytes" % tuple(_p[:4])); continue
+    _a = int(_p[0], 16); LIBSRC_DEAD_RANGES.append((next(k for k, (x, y, _n) in SECT.items() if x <= _a < y), _a, _a + int(_p[1])))
 LIBSRC_DEAD = {x for _, a, b in LIBSRC_DEAD_RANGES for x in (a, b)}      # range edges stay item edges
 def libsrc_dead(sec, it): return any(s_ == sec and a <= it["va"] and it["va"] + it["ext"] <= b + (3 if sec == "bss" and it.get("folded") else 0) for s_, a, b in LIBSRC_DEAD_RANGES)      # Z1b: a dead .bss row keeps the <4 B alignment padding folded behind it (stdargv, mbctype: 261 + 3 B)
 
@@ -189,6 +198,48 @@ if os.path.exists(_zt):
         if l.strip() and l[0] != "#":
             p = [x.strip() for x in l.split("|")]
             Z1_TYPES[p[0]] = (p[1], p[2], int(p[3]), int(p[4]), p[5])
+# W13 Z4: library .rdata / .data rows as named, typed definitions (kind `libt`; the bytes are the image's, the form is typed C) or dead rows
+# (type `dead`: zero fill, nothing in the link reads them).  tools/globals/z4_types.txt, one definition per line:
+#   <va> | <size> | <name> | <type> | <group> | <evidence>
+# type: base [N] | {field; field; ...}[N] | dead;  field: base[N] [name];  base: f4 f8 u1 u2 u4 i4 ptr fptr guid str wstr
+# (str / wstr at the top level take the whole size).  The entries must tile whole library items (a head + __t split pair counts as two items).
+# Z4_PUTBACK=<group>[,<group>] (zneg.sh audio / rwp / dshow): the bad case, that group's rows stay library blobs.
+Z4 = {}      # sec -> {va: entry}
+Z4_PUTBACK = set(filter(None, os.environ.get("Z4_PUTBACK", "").split(",")))
+Z4_BASE = {"f4": ("float", 4), "f8": ("double", 8), "u1": ("unsigned char", 1), "u2": ("unsigned short", 2), "u4": ("unsigned int", 4),
+           "i4": ("int", 4), "ptr": ("void *", 4), "fptr": ("z4_fn", 4), "guid": ("struct mfl_guid", 16), "str": ("char", 1), "wstr": ("unsigned short", 2),
+           "vu2": ("unsigned short", 2), "vu4": ("unsigned int", 4)}      # vu2 / vu4: value-only words (a relocation site inside is NOT relocated: the image value)
+def z4_field(s, whole=None):
+    """'base[N] name' -> (base, n or None, name or None, size)"""
+    m = re.fullmatch(r"(\w+)(?:\[(\d+)\])?(?:\s+(\w+))?", s.strip())
+    if not m or m.group(1) not in Z4_BASE: raise ValueError("z4 field %r" % s)
+    n = int(m.group(2)) if m.group(2) else (whole // Z4_BASE[m.group(1)][1] if whole and m.group(1) in ("str", "wstr") else None)
+    return m.group(1), n, m.group(3), Z4_BASE[m.group(1)][1] * (n or 1)
+def z4_parse(t, size):
+    """-> dict(fields=[...] | None for a plain base, base, n, struct) ; checks the size"""
+    t = t.strip()
+    if t == "dead": return dict(dead=True)
+    m = re.fullmatch(r"\{(.*)\}(?:\[(\d+)\])?", t)
+    if m:
+        fs = [z4_field(x) for x in m.group(1).split(";") if x.strip()]
+        n = int(m.group(2)) if m.group(2) else None
+        sz = sum(f[3] for f in fs) * (n or 1)
+        r = dict(fields=fs, n=n)
+    else:
+        b, n, _, sz = z4_field(t, size)
+        r = dict(fields=None, base=b, n=n)
+    if sz != size: raise ValueError("z4 type %r is %d B, the row %d B" % (t, sz, size))
+    return r
+_z4f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "z4_types.txt")
+if os.path.exists(_z4f):
+    for _l in open(_z4f):
+        if not _l.strip() or _l[0] == "#": continue
+        _p = [x.strip() for x in _l.split("|")]
+        _va, _sz = int(_p[0], 16), int(_p[1])
+        _sec = next(k for k, (a, b, _n) in SECT.items() if a <= _va < b)
+        _e = dict(va=_va, size=_sz, name=_p[2], type=_p[3], group=_p[4], evidence=_p[5] if len(_p) > 5 else "", sec=_sec, **z4_parse(_p[3], _sz))
+        if _va in Z4.setdefault(_sec, {}): sys.exit("globgen Z4: %08x twice in z4_types.txt" % _va)
+        Z4[_sec][_va] = _e
 
 
 def load_names():
@@ -405,6 +456,39 @@ def main(out):
                     continue
             out2.append(it)
         items[sec] = out2
+    # W13 Z4: library items replaced by the typed / dead definitions of z4_types.txt (entries must tile whole library items)
+    z4used, z4n = set(), collections.Counter()
+    byname = {n: a for a, ns in names.items() for n in ns}
+    for sec, its in items.items():
+        ents = Z4.get(sec, {})
+        if not ents: continue
+        out3, i = [], 0
+        while i < len(its):
+            it = its[i]
+            if it["kind"] != "lib" or it["va"] not in ents or ents[it["va"]]["group"] in Z4_PUTBACK:
+                out3.append(it); i += 1; continue
+            pos, end = it["va"], it["va"] + it["ext"]; i += 1; new = []; rest = None
+            while True:
+                en = ents.get(pos)
+                if new and en is None and pos % 4 == 0 and not any(pos < x < end for x in ents):      # the entries end inside a longer library item (check build without the CRT split): the rest stays a library blob
+                    rest = dict(it, va=pos, ext=end - pos, names=[], name="g_libspan_%08x" % pos, folded=[]); break
+                if en is None or en["group"] in Z4_PUTBACK: sys.exit("globgen Z4: no entry at %08x inside the library item run from %08x (entries must tile it)" % (pos, it["va"]))
+                new.append(en); pos += en["size"]
+                while pos > end:      # the entry runs on into the next item: a library item that starts there
+                    if i >= len(its) or its[i]["va"] != end or its[i]["kind"] != "lib": sys.exit("globgen Z4: entry %08x +%d runs past the library items (to %08x)" % (en["va"], en["size"], end))
+                    end += its[i]["ext"]; i += 1
+                if pos == end: break
+            for en in new:
+                if en["name"] in byname and byname[en["name"]] != en["va"]: sys.exit("globgen Z4: name %s is a label at %08x, the entry is at %08x" % (en["name"], byname[en["name"]], en["va"]))
+                if not en.get("dead") and ((en["size"] >= 64 and (en["va"] - SECT[sec][0]) % 8) or (en.get("base") == "f8" and en["va"] % 8)):
+                    sys.exit("globgen Z4: %08x +%d %s: cl places it 8-aligned (>= 64 B aggregate or double): split it" % (en["va"], en["size"], en["name"]))
+                z4used.add((sec, en["va"])); z4n["dead" if en.get("dead") else "libt"] += en["size"]
+                out3.append(dict(va=en["va"], ext=en["size"], kind="lib" if en.get("dead") else "libt", z4dead=bool(en.get("dead")), names=[], name=en["name"], z4=en, folded=[]))
+            if rest: out3.append(rest)
+        items[sec] = out3
+    z4miss = [(s, a) for s, e in Z4.items() for a in e if (s, a) not in z4used and e[a]["group"] not in Z4_PUTBACK]
+    if z4miss: sys.exit("globgen Z4: %d entries of z4_types.txt match no library item: %s" % (len(z4miss), " ".join("%08x" % a for s, a in z4miss[:8])))
+    for g in sorted(Z4_PUTBACK): print("Z4_PUTBACK: group %s: %s stay library blobs" % (g, " ".join("%08x+%d" % (a, e[a]["size"]) for s, e in Z4.items() for a in sorted(e) if e[a]["group"] == g)))
     # every name inside an item other than the item's own definition becomes an alias (objcopy): interior labels, second names, library labels
     nm_all = sorted(a for a in names if SECT["rdata"][0] <= a < SECT["bss"][1])
     aliases = []
@@ -456,12 +540,13 @@ def main(out):
         return ("raw", None, 0, None)
 
     ptrs = []             # site, symbol, link symbol, addend, original value, conf
-    def item_ptrs(it, sec):
+    def item_ptrs(it, sec, valonly=()):
         a, e = it["va"], it["ext"]
         out = []
         for s in range(a, a + e - 3):
             r = relocs.get(s)
             if r is None: continue
+            if s in valonly: stat["Z4 value-only word (not relocated)"] += 1; rawsites[s] = "z4 value-only"; continue      # W13 Z4: a vu2 / vu4 field: the image value, never a pointer
             v = u32(s)
             if v != r[0]: stat["reloc value mismatch"] += 1; rawsites[s] = "value mismatch"; continue
             if any(s < o + 4 and o < s + 4 for o, *_ in out): stat["overlapping reloc"] += 1; rawsites[s] = "overlap"; continue
@@ -549,9 +634,72 @@ def main(out):
         stat["T2 " + ty] += 1
         return ty, "%d" % v
 
+    def z4_value(base, b, o, s, pp, sec, cur, nm):
+        """initialiser of one base value at byte offset o of the item (s = its address); pp: {offset: pointer} of the item"""
+        sz = Z4_BASE[base][1]
+        if base in ("ptr", "fptr"):
+            if o in pp:
+                x = pexpr(sec, pp[o], cur); return x if base == "ptr" else "(z4_fn)" + x if x.startswith("(void *)") else "(z4_fn)(%s)" % x
+            if not any(b[o:o + 4]): return "0"
+            sys.exit("globgen Z4: %s +%x: a %s word 0x%x without a relocation (type it u4)" % (nm, o, base, int.from_bytes(b[o:o + 4], "little")))
+        if any(q in pp for q in range(o - 3, o + sz)): sys.exit("globgen Z4: %s +%x: a relocated word inside a %s field (type it ptr / fptr)" % (nm, o, base))
+        v = int.from_bytes(b[o:o + sz], "little")
+        if base in ("f4", "f8"):
+            fmt, rng, bits = ("<f", range(6, 10), 23) if base == "f4" else ("<d", range(15, 18), 52)
+            ex = (v >> bits) & (0xff if base == "f4" else 0x7ff)
+            if v == 0: return "0.0f" if base == "f4" else "0.0"
+            if v == 1 << (8 * sz - 1): return "-0.0f" if base == "f4" else "-0.0"
+            if ex in (0, 0xff if base == "f4" else 0x7ff): sys.exit("globgen Z4: %s +%x: %s 0x%x is not a finite normal number (type it u4)" % (nm, o, base, v))
+            x = struct.unpack(fmt, b[o:o + sz])[0]
+            for k in rng:
+                t = "%.*g" % (k, x)
+                if struct.pack(fmt, float(t)) == b[o:o + sz]: break
+            else: sys.exit("globgen Z4: %s +%x: no exact decimal" % (nm, o))
+            if not re.search(r"[.e]", t): t += ".0"
+            return t + ("f" if base == "f4" else "")
+        if base == "guid": return "{0x%08x, 0x%04x, 0x%04x, {%s}}" % (v & 0xffffffff, (v >> 32) & 0xffff, (v >> 48) & 0xffff, ", ".join("0x%02x" % c for c in b[o + 8:o + 16]))
+        if base == "i4": return "%d" % (v - (1 << 32) if v >> 31 else v) if v != 0x80000000 else "(-2147483647-1)"
+        return "0x%x" % v
+    def z4_init(base, n, b, o, pp, s, sec, cur, nm):
+        """initialiser of base[n] (n None = scalar) at offset o"""
+        if base in ("str", "wstr") and any(q in pp for q in range(o - 3, o + n * Z4_BASE[base][1])): sys.exit("globgen Z4: %s +%x: a relocated word inside a %s field" % (nm, o, base))
+        if base == "str":
+            return cstr(b[o:o + n].rstrip(b"\0"))
+        if base == "wstr":
+            q = [int.from_bytes(b[o + 2 * k:o + 2 * k + 2], "little") for k in range(n)]
+            while q and q[-1] == 0: q.pop()
+            return "{" + ", ".join(("'%s'" % ("\\'" if c == 39 else "\\\\" if c == 92 else chr(c))) if 32 <= c < 127 else "%d" % c for c in q) + "}" if q else "{0}"
+        if n is None: return z4_value(base, b, o, s, pp, sec, cur, nm)
+        w = Z4_BASE[base][1]
+        return "{" + ", ".join(z4_value(base, b, o + k * w, s, pp, sec, cur, nm) for k in range(n)) + "}"
+    def render_z4(it, sec, cur):
+        """W13 Z4: the typed definition of a z4_types.txt entry, same bytes as the image row"""
+        en, a, e, nm = it["z4"], it["va"], it["ext"], it["name"]
+        b = rd(a, e)
+        vo, o = set(), 0      # sites covered by vu2 / vu4 fields
+        for base, n, fn, fsz in ((en["fields"] or [(en["base"], en["n"], None, e)]) * ((en.get("n") or 1) if en["fields"] else 1)):
+            if base in ("vu2", "vu4"): vo |= set(range(a + o, a + o + fsz))
+            o += fsz
+        pp = {p[0] - a: p for p in item_ptrs(it, sec, vo)}
+        const = "const " if sec == "rdata" else ""
+        stat["Z4 typed"] += 1
+        if en["fields"] is None:      # `const void *` would be a pointer to const in .data: the object itself is const (void *const)
+            return None, ("void *" + const.strip() if en["base"] == "ptr" and const else const + Z4_BASE[en["base"]][0]),"" if en["n"] is None else "[%d]" % en["n"], z4_init(en["base"], en["n"], b, 0, pp, a, sec, cur, nm)
+        fs, recs = en["fields"], []
+        rs = sum(f[3] for f in fs)
+        for r in range(en["n"] or 1):
+            o, vals = r * rs, []
+            for k, (base, n, fn, fsz) in enumerate(fs):
+                vals.append(z4_init(base, n, b, o, pp, a, sec, cur, nm)); o += fsz
+            recs.append("{" + ", ".join(vals) + "}")
+        mem = " ".join("%s %s%s;" % (Z4_BASE[base][0], fn or "f%x" % sum(f[3] for f in fs[:k]), "[%d]" % n if n is not None else "") for k, (base, n, fn, fsz) in enumerate(fs))
+        sd = "#pragma pack(push,1)\nstruct %s_t { %s };\n#pragma pack(pop)\n" % (nm, mem)
+        return sd, "%sstruct %s_t" % (const, nm), "" if en["n"] is None else "[%d]" % en["n"], recs[0] if en["n"] is None else "{" + ", ".join(recs) + "}"
+
     def render(it, sec, cur):
         """-> (struct_def or None, decl_type, declarator suffix, initialiser) for the definition"""
         a, e, nm = it["va"], it["ext"], it["name"]
+        if it["kind"] == "libt": return render_z4(it, sec, cur)
         if it["kind"] == "libz" and nm in Z1_TYPES:      # Z1: the type of z1_types.txt only when its size is the extent and its alignment fits the address
             ty_, suf_, sz_, al_, ev_ = Z1_TYPES[nm]
             if sz_ == e and a % al_ == 0: z1src[nm] = "typed: " + ev_; return None, ty_, suf_, "{0}"
@@ -629,11 +777,14 @@ def main(out):
         f = open(os.path.join(out, sec + ".c"), "w")
         f.write(hdr % (sec, "".join(" *   %08x-%08x\n" % (x, y) for x, y, c in spans[sec] if c == "pe")))
         if sec == "data": f.write('#pragma data_seg(".data")\ntypedef void (__cdecl *_PVFV)(void);      /* Z2: CRT initialiser table entry */\n')
+        if any(it["kind"] == "libt" for it in its):      # W13 Z4: the types of the typed library rows
+            f.write("typedef void (__cdecl *z4_fn)(void);      /* Z4: code pointer of a library table (vtable / method slot) */\n"
+                    "struct mfl_guid { unsigned long d1; unsigned short d2; unsigned short d3; unsigned char d4[8]; };      /* Z4: a 16 byte GUID / UUID */\n")
         zh = os.path.join(os.path.dirname(os.path.abspath(__file__)), "z1_types.h")
         if sec == "bss" and os.path.exists(zh): f.write(open(zh).read() + "\n")      # Z1: the struct types of z1_types.txt (declarations only, no storage)
         f.write("\n".join(pre) + "\n\n")
         for it, r in rendered:
-            if r is not None and it["kind"] == "lib" and libsrc_dead(sec, it):
+            if r is not None and it["kind"] == "lib" and (libsrc_dead(sec, it) or it.get("z4dead")):      # W13 Z4: a `dead` row of z4_types.txt the same way
                 r = None; it["kind"] = "dead"      # LIBSRC=qhull (A4): the lib is compiled from source with its own data, its old data rows are zero fill
             if r is None:
                 ext = it["ext"]
@@ -647,6 +798,8 @@ def main(out):
             if it["kind"] == "libz":      # Z1: size assert (cl 13 has no _Static_assert: a negative array size fails the compile)
                 f.write("typedef char z1_size_%s[sizeof(%s) == %d ? 1 : -1];\n" % (it["name"], it["name"], it["ext"]))
                 z1rows.append((it["va"], it["ext"], it["name"], it.get("member", ""), "%s %s%s" % (ty, it["name"], suf), z1src.get(it["name"], "sized array / scalar (no type in z1_types.txt)")))
+            if it["kind"] == "libt":      # W13 Z4: size assert per typed library definition
+                f.write("typedef char z4_size_%s[sizeof(%s) == %d ? 1 : -1];\n" % (it["name"], it["name"], it["ext"]))
             lay.write("%08x,%d,%s,%s,%s,%s\n" % (it["va"], it["ext"], sec, it["name"], it["kind"], " ".join("%x" % x for x in it.get("folded", []))))
             cnt[sec + " " + it["kind"]] += 1
             cnt[sec + " " + it["kind"] + " bytes"] += it["ext"]
@@ -722,6 +875,7 @@ def main(out):
     for k, v in sorted(cnt.items()): rep.write("%s: %d\n" % (k, v))
     for k, v in sorted(stat.items()): rep.write("%s: %d\n" % (k, v))
     rep.write("carved out of library spans (names our C uses): %d\naliases at an offset inside an item (interior and library labels): %d\naliases at the item start (second names): %d\nmisaligned items (no parent): %d\nbytes folded into an item of another class: %d %s\nitems split 4+tail (>=64 B at 4 mod 8): %d (unsplittable: %d)\ncode stubs: %d\nnon-zero bytes absorbed into pe fillers: %s\n" % (carved, nint, nsame, misaligned, absorbed, dict(absmix), split, splitbad, len(codefns), [hex(x) for x in pe_nonzero]))
+    rep.write("W13 Z4 (z4_types.txt): typed library bytes %d, dead rows %d B, put back: %s\n" % (z4n["libt"], z4n["dead"], ",".join(sorted(Z4_PUTBACK)) or "-"))
     rep.write("reloc sites staying raw: %d (raw.csv); by reason: %s\n" % (len(rawsites), dict(collections.Counter(rawsites.values()))))
     rep.write("function targets with decorated names (F1): %d, ret-N verification failures: %d %s (tail-jump thunks not comparable: %d); targets our C DEFINES as cdecl although the original returns with ret N: %d %s; names with conflicting conv: %s; stdcall declared only (legacy, undecorated): %d\n" % (sum(1 for n in codefns if n in CONV), len(bad), bad, len(tailjmp), len(ret_imm_unknown), ret_imm_unknown[:10], sorted(conv_conflict)[:10], len(conv_decl_only)))
     rep.close()

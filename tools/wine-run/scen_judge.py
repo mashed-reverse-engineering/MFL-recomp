@@ -45,6 +45,7 @@ def judge(A, B, shots="final", thr=30.0):
             m = os.path.join(run, "out_" + k, "missed.txt")
             for l in (open(m, errors="replace").read().splitlines() if os.path.exists(m) else []):
                 if l.startswith("MISS end"): (unj if k == "ctrl" else bad).append("%s %s missed its end event: %s" % (os.path.basename(run), k, l[9:]))
+                if l.startswith("ALOCK TIMEOUT"): unj.append("%s %s lost lockstep: %s" % (os.path.basename(run), k, l.strip()))   # W13 hx7: either side -> no verdict
     ca, cb = os.path.join(A, "out_ctrl"), os.path.join(B, "out_ctrl")
     for run in (A, B):      # scenset.sh dumps gs_end at its end event: a side without it never got there (a pass on no evidence otherwise)
         for k in ("ctrl", "ours"):
@@ -119,6 +120,9 @@ def selftest():
     assert judge(a, m)[0] == "UNJUDGED"                                  # the control missed it: no verdict
     n = mk(t, "n"); open(os.path.join(n, "out_ours", "missed.txt"), "w").write("MISS other pressuntil x\n")
     assert judge(a, n)[0] == "PASS"                                      # only the `end` tag is required
+    for s in ("ours", "ctrl"):                                           # W13 hx7: an ALOCK TIMEOUT on either side -> UNJUDGED
+        o = mk(t, "o" + s); open(os.path.join(o, "out_" + s, "missed.txt"), "w").write("ALOCK TIMEOUT frame=40 thread=1\n")
+        assert judge(a, o)[0] == "UNJUDGED", s
     shutil.rmtree(t); print("selftest ok"); return 0
 
 if __name__ == "__main__":

@@ -26,7 +26,8 @@ def mv(m):
     return '0x%x' % (v + d) if 0x5dd000 <= v < 0x9f9000 else m.group(0)
 for l in sys.stdin: sys.stdout.write(re.sub(r'0x[0-9a-fA-F]+', mv, l))" > $W/script_lnk_c$C.txt
 grep -E "^(poke|waitmem 0x[0-9a-f]{8} 1 )" $W/script_lnk_c$C.txt | head -8
-waitload() { while [ $(cut -d' ' -f1 /proc/loadavg | cut -d. -f1) -ge ${LOADMAX:-6} ]; do echo "load high, waiting" >&2; sleep 15; done; }
+. $WR/loadscale.sh      # W13 C4: the one load measure (loadnow = max(load1, running tasks))
+waitload() { while [ $(loadnow | cut -d. -f1) -ge ${LOADMAX:-6} ]; do echo "load high, waiting" >&2; sleep 15; done; }
 valid() { python3 -c "import struct,sys; d=open(sys.argv[1],'rb').read(); sys.exit(0 if len(d)>8 and struct.unpack_from('<I',d,4)[0]==1 else 1)" $1 2>/dev/null; }
 job() {  # job <k> <run> <slot>
   local k=$1 r=$2 s=$3

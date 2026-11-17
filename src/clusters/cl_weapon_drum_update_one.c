@@ -64,9 +64,14 @@ void weapon_drum_update_one(undefined4 *drum)
   float *hit_ptr;
   RwV3d np; /* new position */
   RwUInt32 particle_colour;
-  RwMatrix particle_mtx;
-  undefined4 particle_kind;
-  undefined1 particle_flag;
+  struct { /* particle template for fx_trail_particle_spawn_interpolated, which reads past the matrix: kind at +0x40, flag byte at +0x45
+              (original frame: matrix at esp+0x28, kind at +0x68, flag at +0x6d) */
+    RwMatrix mtx;
+    undefined4 kind;
+    undefined1 pad_44;
+    undefined1 flag;
+    undefined1 pad_46[2];
+  } particle;
   struct { /* movement segment: old position -> new position (RwV3d, RwV3d), also the line handed to the world intersection */
     RwV3d from;
     RwV3d to;
@@ -126,17 +131,17 @@ void weapon_drum_update_one(undefined4 *drum)
           trigger.callback = weapon_drum_update_one_cb_45fad0;
           trigger_sphere_register(&trigger);
           src_matrix = (RwReal *)(drum[0xd] + 0x10);
-          matrix_ptr = &particle_mtx;
+          matrix_ptr = &particle.mtx;
           for (state = 0x10; state != 0; state = state + -1) {
             (matrix_ptr->right).x = *src_matrix;
             src_matrix = src_matrix + 1;
             matrix_ptr = (RwMatrix *)&(matrix_ptr->right).y;
           }
-          particle_mtx.pos.x = np.x;
-          particle_mtx.pos.y = np.y;
-          particle_mtx.pos.z = np.z;
-          RwMatrixUpdate(&particle_mtx);
-          RwFrameTransform((RwFrame *)drum[0xd],&particle_mtx,rwCOMBINEREPLACE);
+          particle.mtx.pos.x = np.x;
+          particle.mtx.pos.y = np.y;
+          particle.mtx.pos.z = np.z;
+          RwMatrixUpdate(&particle.mtx);
+          RwFrameTransform((RwFrame *)drum[0xd],&particle.mtx,rwCOMBINEREPLACE);
           vel_x_k = k_f_0_5df72c;
           *pos_ptr = np.x;
           *(float *)&drum[5] = np.y;
@@ -155,14 +160,14 @@ void weapon_drum_update_one(undefined4 *drum)
           np.x = hit.nx * k_f_0_05 + np.x;
           np.y = hit.ny * k_f_0_05 + np.y;
           np.z = hit.nz * k_f_0_05 + np.z;
-          rwmatrix_from_three_points(&particle_mtx,hit.bc,&np);
-          effect_sprite_spawn(1,&particle_mtx,&particle_colour,0x40000000,0x40000000);
-          effect_sprite_spawn(0,&particle_mtx,&particle_colour,0x40400000,0x40000000);
+          rwmatrix_from_three_points(&particle.mtx,hit.bc,&np);
+          effect_sprite_spawn(1,&particle.mtx,&particle_colour,0x40000000,0x40000000);
+          effect_sprite_spawn(0,&particle.mtx,&particle_colour,0x40400000,0x40000000);
           scale_vec.y = 2.0;
           scale_vec.x = 2.0;
           scale_vec.z = 1.0;
-          RwMatrixScale(&particle_mtx,&scale_vec,rwCOMBINEPRECONCAT);
-          particle_pool_find_oldest_or_free(0,&particle_mtx,0);
+          RwMatrixScale(&particle.mtx,&scale_vec,rwCOMBINEPRECONCAT);
+          particle_pool_find_oldest_or_free(0,&particle.mtx,0);
           drum[0xb] = 3;
         }
         particle_colour = 0x40c8c8c8;
@@ -170,28 +175,28 @@ void weapon_drum_update_one(undefined4 *drum)
         target_obj = drum[0xd];
         np.x = *(float *)(target_obj + 0x10) * k_f_0_125 + *(float *)(target_obj + 0x40);
         np.y = *(float *)(target_obj + 0x14) * k_f_0_125 + *(float *)(target_obj + 0x44);
-        particle_flag = 6;
+        particle.flag = 6;
         np.z = *(float *)(target_obj + 0x18) * k_f_0_125 + *(float *)(target_obj + 0x48);
-        particle_mtx.pos.x = 2.5;
-        particle_mtx.flags = particle_colour;
-        particle_mtx.up.x = (RwReal)rnd;
-        particle_kind = 0x1120;
-        particle_mtx.up.y = (RwReal)rnd;
-        particle_mtx.pos.z = 1.0;
-        particle_mtx.right.x = np.x;
-        particle_mtx.right.y = np.y;
-        particle_mtx.right.z = np.z;
+        particle.mtx.pos.x = 2.5;
+        particle.mtx.flags = particle_colour;
+        particle.mtx.up.x = (RwReal)rnd;
+        particle.kind = 0x1120;
+        particle.mtx.up.y = (RwReal)rnd;
+        particle.mtx.pos.z = 1.0;
+        particle.mtx.right.x = np.x;
+        particle.mtx.right.y = np.y;
+        particle.mtx.right.z = np.z;
         rnd = (float10)rp_random_float_range(0xbe19999a,0x3e19999a);
-        particle_mtx.up.z = (RwReal)rnd;
+        particle.mtx.up.z = (RwReal)rnd;
         rnd = (float10)rp_random_float_range(0xbe19999a,0x3e19999a);
         fbits3 = (float)rnd;
-        particle_mtx.pad1 = *(RwUInt32 *)&fbits3;
+        particle.mtx.pad1 = *(RwUInt32 *)&fbits3;
         rnd = (float10)rp_random_float_range(0xbe19999a,0x3e19999a);
-        particle_mtx.at.x = (RwReal)rnd;
-        particle_mtx.at.y = 0.0;
-        particle_mtx.at.z = 0.0;
-        particle_mtx.pad2 = 0;
-        fx_trail_particle_spawn_interpolated(&particle_mtx,0,0,0);
+        particle.mtx.at.x = (RwReal)rnd;
+        particle.mtx.at.y = 0.0;
+        particle.mtx.at.z = 0.0;
+        particle.mtx.pad2 = 0;
+        fx_trail_particle_spawn_interpolated(&particle.mtx,0,0,0);
         return;
       }
       drum[0xb] = 3;

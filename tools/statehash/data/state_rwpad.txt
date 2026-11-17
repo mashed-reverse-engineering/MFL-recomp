@@ -6,3 +6,6 @@
 008b1d0c 2 player_car_1__matrices_0_ | car stride 0xd04 (W4 diff 8b1d28 / 8b2a2c / 8b3730)
 008b2a10 2 player_car_2__matrices_0_ | car stride 0xd04
 008b3714 2 player_car_3__matrices_0_ | car stride 0xd04
+00948178 1 g_rt_948178 | REP W13: Rt2d CTM matrix; all refs to 0x948100-0x9482ff are Rt2d functions (rangerefs); rw4_ctrl awatch on its pads, 400 hits race frames 0-90: only rep movsd 64-byte copies (_rt2dCTMGet 0x563530, RwMatrixMultiply identity copy 0x4d3d1e) and the harness statehash page copy (d3d9.c:248, pc 0x77e134eb); no arithmetic read
+009481f8 1 g_rt_9481f8 | REP W13: Rt2d device matrix (RwMatrixMultiply output of _rt2dCTMGet 0x56355b); rw5_ctrl awatch on its pads, 400 hits race frames 0-101: only RwMatrixMultiply's rep movsd copy (0x4d3d1e) and the statehash page copy; no arithmetic read
+00659e00 4 g_vehicle_setup_659e00 | REP W13: only vehicle_setup_references touches 0x659e00-0x659eff (4 operands, no data pointer: rangerefs + dwordscan); it reads pos +0x30..+0x38 and writes the record by rep movsd 0x423acd from player_car_k matrices_0 (rw2 esi 0x8b1d2c); no pad read (rw2's memcpy = statehash page copy d3d9.c:248); pad1 source written by RW RwMatrixRotateOneMinusCosineSine 0x4d43c1 rep movsd from its stack temp (w2_ctrl), never by ours (w2_ours)

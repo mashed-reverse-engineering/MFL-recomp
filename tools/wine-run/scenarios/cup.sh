@@ -10,6 +10,7 @@ scenario() {
   echo "shot challenge_page"
   echo "key Return"; echo "wait 2"; echo "shot intro"
   race_go 150; echo "shot race_start"
-  if [ ${SCEN_AFTER:-none} = none ]; then race_freeze ${SCEN_FRAMES:-300}; else echo "wait ${SCEN_SECS:-25}"; echo "shot race_mid"; fi
-  case ${SCEN_AFTER:-none} in quit) race_quit;; restart) race_restart;; win) end_screens 10;; esac
+  # W13 hx5: win / end wait for the round end (race_end); quit / restart still pause after SCEN_SECS of race (no event: any mid-race point)
+  case ${SCEN_AFTER:-none} in none) race_freeze ${SCEN_FRAMES:-300};; win|end) race_end;; *) echo "wait ${SCEN_SECS:-25}"; echo "shot race_mid";; esac
+  case ${SCEN_AFTER:-none} in quit) race_quit;; restart) race_restart;; win) end_screens 5;; esac
 }

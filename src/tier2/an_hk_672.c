@@ -28,7 +28,6 @@ void particle_pool_find_oldest_or_free(int pool_index,RwReal *src_matrix,RwReal 
   int *alive_count_ptr;
   float oldest_age;
   int pool_capacity;
-  RwReal particle_value;
   int iVar5;
   RwReal *age_cursor;
   float *tail_age_ptr;
@@ -113,9 +112,10 @@ void particle_pool_find_oldest_or_free(int pool_index,RwReal *src_matrix,RwReal 
     scale.x = fabs(scale.x);
     scale.y = scale.x;
     RwMatrixScale(pool,&scale,rwCOMBINEPRECONCAT);
-    particle_value = *params;
+    /* params is a packed 4-byte word (byte 3 = flags, below): copy its bits as the original does (integer moves), never through
+       the x87, which would quiet a signalling-NaN bit pattern. */
     pool[1].right.y = 0.0;
-    pool[1].right.x = particle_value;
+    *(unsigned int *)&pool[1].right.x = *(unsigned int *)params;
     *(int *)&pool[1].right.z = 1;
     *(ushort *)&pool[1].flags = (ushort)*(byte *)((char *)params + PARAM_FLAGS_BYTE_OFFSET);
     iVar5 = g_gfx_6c40b8;

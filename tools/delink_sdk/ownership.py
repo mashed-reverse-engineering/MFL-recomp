@@ -58,8 +58,12 @@ for lib in cfg.sections():
             for r in csv.reader(open(f)):
                 try: srcnames[int(r[0], 16)] = (lib, r[1])
                 except (ValueError, IndexError): pass
+# game functions whose few bytes equal a library function (the 0x4b0000 floor below does not cover the Rwp block): owner game, and a border
+# for the "<lib>?" inference like the false match was.  0x56e810 = rwp_obj_vec_at_20, 8 bytes = libcmt __tolower (W13 LAY L1).
+NOTLIB = {0x56e810}
 def code_owner(i):
     a, n, nm = fns[i]
+    if a in NOTLIB: return "game", nm
     if a in srcnames: return srcnames[a][0], "source match"
     c = cand.get(a, set())
     if len(c) == 1 and a >= 0x4b0000:      # byte matches below 0x4b0000 (game code) are short false positives

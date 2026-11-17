@@ -2,9 +2,9 @@
 # memwait.pl <pid> <hex addr> <value|!value> <timeout s>   poll (0.1 s) until the 32 bit value equals <value> (or differs from it with '!'); logs the wait to /out/waitmem.txt
 use Time::HiRes qw(time sleep);
 my ($pid, $ad, $val, $to, $stall, $pad) = @ARGV;     # $pad: hex address whose changes count as progress for the stall check (default: the watched address itself)     # optional $stall: give up when the value has not changed for that many seconds (frame counters)
-# adaptive deadline: the game slows under load, so timeout and stall limit are multiplied by max(1, load1/4) (cap LOADCAP, default 4), re-read every ~2 s.
+# adaptive deadline: the game slows under load, so timeout and stall limit are multiplied by max(1, load/4) (load = max(load1, running tasks), cap LOADCAP, default 3: tools/wine-run/loadscale.sh), re-read every ~2 s.
 my $scale = 1; my $ls = 0;
-sub lscale { return if time - $ls < 2; $ls = time; if (open(my $l, "</proc/loadavg")) { my ($a) = split ' ', <$l>; close $l; $scale = $a / 4; $scale = 1 if $scale < 1; my $cap = $ENV{LOADCAP} || 4; $scale = $cap if $scale > $cap; } }
+sub lscale { return if time - $ls < 2; $ls = time; if (open(my $l, "</proc/loadavg")) { my ($a, undef, undef, $rt) = split ' ', <$l>; close $l; my ($run) = split '/', $rt; $a = $run if $run > $a; $scale = $a / 4; $scale = 1 if $scale < 1; my $cap = $ENV{LOADCAP} || 3; $scale = $cap if $scale > $cap; } }      # W13 C4: the rule of loadscale.sh (max(load1, running tasks) / 4, cap LOADCAP default 3)
 my $neg = ($val =~ s/^!//);     # '!V' waits until the value is NOT V
 sub ok { my $v = shift; my $want = ($val =~ /^0x/) ? hex($val) : $val; return $neg ? ($v != $want) : ($v == $want); }
 open(M, "</proc/$pid/mem") or do { open(O, ">>$ENV{OUT}/waitmem.txt"); printf O "waitmem %s==%s process gone (no /proc/%s/mem)\n", $ad, $val, $pid; exit 2; };

@@ -12,9 +12,16 @@ W = sys.argv[1]
 rs = list(csv.DictReader(open(os.path.join(W, "low_pointers.csv"))))
 nl = {int(r["target"], 16) for r in csv.DictReader(open(os.path.join(G, "output/delink_relocs.csv"))) if r["confidence"] != "low" and r["kind"] not in ("const", "header")}
 lowc = collections.Counter(int(r["value"], 16) for r in rs)
+# W13 Z6 S0 (L3): value-only words the rules above would allow.  The rwp shape-ops tables (type word, method slots, +0x34 name string) hold at
+# +0x38..+0x3f four 16 bit values 0x200 0x63 0x63 0x63 (bytes 00 02 63 00 63 00 63 00); the +0x3c half 0x630063 is a raw low word already.
+# Cylinder (type 6) 0x5f6720, trilist (9) 0x5f6800, convex (7) 0x5f8e78; grid / aggregate (0x5f69f8 / 0x5f6e38) are typed vu2 in z4_types.txt.
+# W13 Z5v: the RtCharset Atari font glyph table 0x5f5dd0 (g_rt_5f5dd0): four glyph-byte words (e.g. 5f5e68: 00 00 66 3c ff 3c 66 00, the '*'
+# glyph of src/tier1/_rtCharsetAtariFontGet.c charSetBits) that the E5 rule took for pointers.
+VALUE_ONLY = {0x5f6758, 0x5f6838, 0x5f69f8, 0x5f6e38, 0x5f8eb0, 0x5f5e6c, 0x5f5f7c, 0x5f606c, 0x5f6300}
 ok, rest = [], collections.Counter()
 for r in rs:
     v = int(r["value"], 16)
+    if int(r["site"], 16) in VALUE_ONLY: rest["value only (listed)"] += 1; continue
     if r["reloc_kind"] == "code_interior": rest["code_interior"] += 1; continue
     if r["kind"] == "raw": rest["unresolved"] += 1; continue
     if r["item"].startswith("g_libspan_"): ok.append((r, ["E5"])); continue          # library spans: the delinker (mkobj) moved every such word and 15/15 courses ran; a stride-16 table of qhull / D3DX node pointers stayed raw and crashed (T-E3)
