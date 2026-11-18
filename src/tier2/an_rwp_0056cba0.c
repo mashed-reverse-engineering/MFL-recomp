@@ -2,9 +2,9 @@
 #include "mfl_tier2.h"
 
 /* Sphere radius at +0x4c; `frame` (optional) is a matrix whose position row is at +0x30.  box[0..2] = max corner, box[4..6] = min
-   corner.  Without a frame the box is centred on the origin.  The third vtable argument is not used by spheres. */
+   corner.  Without a frame the box is centred on the origin.  The third vtable argument is not used by spheres.  Returns box. */
 /* TIER2: unvalidated 2026-11-05 authority=diffemu */
-void rwp_sphere_0056cba0(float *sphere, float *frame, void *unused, float *box)
+float *rwp_sphere_0056cba0(float *sphere, float *frame, void *unused, float *box)
 {
   float ext[3];
 
@@ -26,4 +26,5 @@ void rwp_sphere_0056cba0(float *sphere, float *frame, void *unused, float *box)
     box[1] = ext[1];
     box[2] = ext[2];
   }
+  return box;
 }

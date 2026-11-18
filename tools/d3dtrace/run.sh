@@ -88,7 +88,7 @@ case $SC in menu|title|mainmenu) ;; *) echo "dump course $(printf 0x%x $((0x69cf
 # every run starts from the same snapshot (the game rewrites its saves): warm prefix marker as in regress.sh
 [ -f $HOME/.cache/mfl_warm_done ] || { printf 'wait 14\nkey Return\nwait 2\n' > $W/warm.txt; PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 90 $WR/play.sh $W/run $W/warm.txt $W/out_warm >/dev/null 2>&1; touch $HOME/.cache/mfl_warm_done; }
 $WR/mkpfx.sh ${SLOT:-1}
-RT=$(awk -v t=${RUN_TIMEOUT:-240} -v l=$(cut -d" " -f1 /proc/loadavg) 'BEGIN{s=l/4; if(s<1)s=1; if(s>3)s=3; print int(t*s)}')
+. $WR/loadscale.sh; RT=$(lscale ${RUN_TIMEOUT:-240}); echo "run limit: ${RT}s (RUN_TIMEOUT ${RUN_TIMEOUT:-240}s, load $(loadnow), cap ${LOADCAP:-3})"      # W14 A2: the one load rule (wine-run/loadscale.sh), was its own awk copy (load1 only)
 T0=$(date +%s)
 PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT $WR/play.sh $W/run $W/script.txt $OUT/game >/dev/null 2>&1; RC=$?
 cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$STATEHASH" ] && mv $AE/statehash.bin $OUT/statehash.bin;[ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null

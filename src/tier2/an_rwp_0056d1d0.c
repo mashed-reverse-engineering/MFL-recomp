@@ -3,9 +3,10 @@
 
 /* Box half sizes at +0x40/+0x44/+0x48, margin at +0x4c.  `frame` (optional) is the box matrix (rows at +0, +0x10, +0x20, position
    +0x30): the world half extent along each axis is sum |R[k][i]| * half[k], grown by the margin.  out[0..2] = max corner,
-   out[4..6] = min corner; without a frame the box is centred on the origin. */
+   out[4..6] = min corner; without a frame the box is centred on the origin.  Returns out (rwp_sphere_0056c350 and
+   rwp_world_activate_object use the return value as the box). */
 /* TIER2: unvalidated 2026-11-05 authority=diffemu */
-void rwp_box_0056d1d0(float *box, float *frame, void *unused, float *out)
+float *rwp_box_0056d1d0(float *box, float *frame, void *unused, float *out)
 {
   float m[3], h[3];
   float sum_x, sum_y, sum_z;
@@ -43,4 +44,5 @@ void rwp_box_0056d1d0(float *box, float *frame, void *unused, float *out)
     out[5] = -sum_y;
     out[6] = -sum_z;
   }
+  return out;
 }

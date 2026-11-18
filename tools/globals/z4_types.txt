@@ -353,6 +353,7 @@
 005ea228 | 36 | _RwD3D9StencilOpConvTable | u4[9] | rw | table; labels _RwD3D9StencilOpConvTable g_rw_5ea228
 005ea24c | 36 | _RwD3D9CmpFuncConvTable | u4[9] | rw | table; labels _RwD3D9CmpFuncConvTable g_rw_5ea24c
 005ea2f4 | 28 | g_rw_5ea2f4 | u4[7] | rw | table; labels g_rw_5ea2f4
+005ec460 | 64 | D3D9IdentityMatrix | u4[16] | rw | W14 L3 D1b: the d3d9vertexshaderutils identity RwMatrix (right 1,0,0 + flags 0x00020003, up, at, pos; pads 0 / 1.0), passed to mflrw.dll as the identity marker by an_hk_612_d3d9vsu.inc (d3d9vsu.cpp enum U); u4 because +0xc is the flags word; labels D3D9IdentityMatrix g_rw_5ec460 g_rw_5ec464
 005f5a80 | 96 | dwBumpMapPixelShader | u4[24] | rw | table; labels dwBumpMapPixelShader g_rp_5f5a80
 005f5ae0 | 80 | dwEnvMapPixelShader | u4[20] | rw | table; labels dwEnvMapPixelShader g_rp_5f5ae0
 005f5b30 | 64 | dwEnvMapNoBaseTexturePixelShader | u4[16] | rw | table; labels dwEnvMapNoBaseTexturePixelShader g_rp_5f5b30

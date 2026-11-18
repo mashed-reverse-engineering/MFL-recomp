@@ -79,6 +79,7 @@ def main():
     _en_b = {l.strip() for l in open(os.path.join(RECOMP, "bridges", "enabled.txt")) if l.strip()} if os.path.exists(os.path.join(RECOMP, "bridges", "enabled.txt")) else set()
     _nn = os.path.join(RECOMP, "automatch_near_names.txt")
     t2near_off = {l.split()[1] for l in open(_nn) if len(l.split()) >= 2} - _en_b if os.path.exists(_nn) else set()
+    t2near_off |= {os.path.basename(f)[:-2] for f in glob.glob(os.path.join(RECOMP, "tier1", "*.c"))} - _en_b      # W14 B0 F9: a tier 1 file (one per function) owns its name too; the export drops names.txt rows of removed tier 2 files (sphere_vs_box_test: b004 body + tier1 = two definitions)
     skip = set()
     p = os.path.join(RECOMP, "skip_build.txt")
     if os.path.exists(p):
@@ -88,8 +89,8 @@ def main():
     try:
         for h in glob.glob(os.path.join(RECOMP, "*.h")) + glob.glob(os.path.join(RECOMP, "tier1", "*.h")):      # tier1/*.h: library headers of tier 1 sources (rwa.h / rwaint.h: RenderWare Audio, codfh-win32)
             copy_hdr(h, work)
-        for h in ("ghidra_types.h", "prelude.h"):
-            shutil.copy(os.path.join(RECOMP, "auto", h), work)
+        for h in ("ghidra_types.h", "prelude.h"):      # W14 B1: only where they exist (the private tree: bridges_shadow, --auto); the public export has no src/auto/ and no source includes them
+            if os.path.exists(os.path.join(RECOMP, "auto", h)): shutil.copy(os.path.join(RECOMP, "auto", h), work)
         objs = []
         srcs = sorted(glob.glob(os.path.join(RECOMP, "*.c"))) + sorted(glob.glob(os.path.join(RECOMP, "video", "*.c")))      # src/video: mfl_video backend dispatcher + null backend
         srcs += glob.glob(os.path.join(RECOMP, "audio", "mfl_audio_null.c"))      # src/audio: only the mfl_audio dispatcher + null backend go into the exe (miniaudio = optional DLL, tests = host builds)

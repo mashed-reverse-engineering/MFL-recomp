@@ -3,7 +3,7 @@ extern char LAB_00491280[];
 /*00490f70*/ extern int rwp_world_create();
 /*005543d0*/ extern int rw_first_field(int * p0);
 /*005543e0*/ extern int rw_second_field(int * p0);
-/*0056c090*/ extern void FUN_0056c090(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, undefined4 p8, undefined4 p9, void *p10, undefined4 p11, undefined4 p12);
+/*0056c090*/ extern void FUN_0056c090(void *o, short v);      /* stores v at o+0x5a (recomp/tier1/FUN_0056c090.c) */
 /*0056ca60*/ extern void FUN_0056ca60();
 /*0056ca70*/ extern void rwp_shape_set_property_c(undefined4 p0, undefined4 p1);
 /*0056cac0*/ extern void rwp_shape_set_property_b(undefined4 p0, undefined4 p1);
@@ -35,15 +35,7 @@ int rwp_world_create_once(int default_value,int value)
   undefined4 handle;
   int world;
   undefined4 *cursor;
-  undefined4 one_f;
-  undefined4 point_one_f;
-  int world_copy;
-  undefined4 handle_copy_a;
-  undefined4 zero_1;
-  undefined4 handle_copy_b;
-  undefined1 *label;
   undefined4 scratch;
-  undefined4 zero_2;
   struct {
     undefined4 local_c;
     undefined4 local_8;
@@ -80,24 +72,14 @@ int rwp_world_create_once(int default_value,int value)
     if (value == 0) {
       value = default_value;
     }
-    zero_2 = 0;
     /* get the handle for value, then run the setup calls on it (inferred) */
     handle = FUN_00573ff0(value, 0x0);
-    label = &LAB_00491280;
-    handle_copy_b = handle;
     FUN_0056ca60(handle, 0x491280);
-    zero_1 = 0;
-    world_copy = world;
-    handle_copy_a = handle;
     FUN_0056e3b0(world, handle, 0x0);
-    point_one_f = 0x3dcccccd;
-    scratch = handle;
     rwp_shape_set_property_b(handle, 0x3dcccccd);
-    one_f = 0x3f800000;
-    field_value = handle;
     rwp_shape_set_property_c(handle, 0x3f800000);
-    /* final setup call on the handle; most arguments are copies of handle (inferred) */
-    FUN_0056c090(handle,1,field_value,one_f,scratch,point_one_f,world_copy,handle_copy_a,zero_1,handle_copy_b,label,value,zero_2);
+    /* original 0x4913d1: push 1; push edi; call 0x56c090 (two args; Ghidra had folded the earlier calls' unpopped cdecl args in) */
+    FUN_0056c090((void *)handle, 1);
     g_car_888620 = 0x7b;
   }
   return world;

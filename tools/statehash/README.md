@@ -1,7 +1,8 @@
 # tools/statehash: N1 per-frame state hash (control vs ours)
 
 The d3d9 proxy (`tools/d3dtrace`, cfg `statehash=1`) writes, at every logged Present, the changed 4 KB pages of the game's writable image
-(0x5fb000-0x949d64, + `sh_delta` in the standalone link) plus the committed private (heap) ranges into `statehash.bin` (~43 MB per 232 frames, ~22 s run).
+(0x5fb000-0x949d64, + `sh_delta` in the standalone link) into `statehash.bin` (~43 MB per 232 frames, ~22 s run).  Heap, stack and other
+committed private memory are NOT hashed: each frame record holds only the list of those regions (base, size; d3d9.c statehash_frame), not their contents.
 `statecmp.py` rebuilds both runs frame by frame and compares them word by word: first divergent frame, its words (symbol, values, float view, ulp),
 per-word table, VERDICT line.
 

@@ -40,6 +40,8 @@ void car_wheels_vs_triangles(int *car,float *tri)
   float ny;
   float nz;
   float px_or_dist;
+  double edge2_yz;
+  double dist_yz;
   float py;
   uint tri_mark;
   float pz;
@@ -89,10 +91,11 @@ void car_wheels_vs_triangles(int *car,float *tri)
                         (py - v0y) * tri[0x1c] + (px_or_dist - v0x) * tri[0x1b]) &&
              (k_f_0 <= (pz - v1z) * tri[0x20] +
                        (py - v1y) * tri[0x1f] + (px_or_dist - v1x) * tri[0x1e])) {
-            if ((k_f_0 <= (pz - v2z) * tri[0x23] +
-                          (py - v2y) * tri[0x22] + (px_or_dist - v2x) * tri[0x21]) &&
-               (!((px_or_dist = (pz - v2z) * nz +
-                           (py - v2y) * ny + (px_or_dist - v2x) * nx) < k_f_n0_25) &&
+            /* the original adds (y + z) + x for the edge-2 test and the wheel distance; double temporaries keep that order */
+            edge2_yz = (py - v2y) * tri[0x22] + (pz - v2z) * tri[0x23];
+            dist_yz = (py - v2y) * ny + (pz - v2z) * nz;
+            if ((k_f_0 <= edge2_yz + (px_or_dist - v2x) * tri[0x21]) &&
+               (!((px_or_dist = dist_yz + (px_or_dist - v2x) * nx) < k_f_n0_25) &&
                  (px_or_dist < k_f_0_25) &&
                 (k_f_0_3 < nz * *(float *)&car[0x274] +
                            ny * *(float *)&car[0x273] + nx * *(float *)&car[0x272]))) {

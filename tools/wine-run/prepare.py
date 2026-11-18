@@ -12,7 +12,10 @@ The VA -> file offset mapping of MFL.exe .text is VA - 0x400000."""
 import os, shutil, struct, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "MashedFormats"))
-import mashed_config as mc
+try:
+    import mashed_config as mc
+except ImportError:      # W14 B0 F8: the public build (tools/build_mflng.sh) has no MashedFormats beside it and only needs the exe; Wine runs need the videocfg.bin below
+    mc = None
 
 def recomp_sites(data, va):
     """the C replacement of the function at va in an overlay exe: the entry is `jmp` into the .recomp section, possibly via a --count thunk
@@ -90,6 +93,9 @@ def main(src, dst, exe_src=None, map_path=None):
         p = os.path.join(dst, "App_Executables", f)
         if os.path.exists(p):
             os.unlink(p)
+    if mc is None:
+        print("prepare.py: MashedFormats/mashed_config.py not found: no videocfg.bin written (the exe is complete; a Wine run needs it)", file=sys.stderr)
+        print("prepared", dst); return
     v = mc.VideoCfg(bytearray(0x200))
     v.version = 5; v.width = 640; v.height = 480; v.depth = 32; v.fullscreen = 1; v.mode_index = 2
     v.subsystem = "NVIDIA GeForce GTX 470"; v.mode_name = "640 x 480 x 32"

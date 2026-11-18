@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00403930*/ extern int hud_flash_text_overlay();
 /*00404c90*/ extern int viewport_set_view_window_game_mode_9();
 /*0040f810*/ extern undefined __cdecl camera_save(struct RwCamera *p0);
@@ -49,6 +50,114 @@
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*00883ea0*/ extern undefined g_app_state_883ea0[0x1000];
 /*00885820*/ extern char g_app_885820[];
+
+#if MFL_FIX_WIDESCREEN
+/* Step 3: the frontend / options / message box passes (640x480 virtual space) keep their 4:3 proportions, centred on a wide screen.
+   Their two kinds of drawing are squeezed about the screen centre by k = (4/3 * H) / W:
+   - Im2D quads, rects and sprites (pixel coordinates from screen_width() / 640): x' = W/2 + (x - W/2) * k, in a copy of the vertices
+     (callers reuse static vertex arrays), through wrappers put into the engine's Im2D entries for the pass only;
+   - Rt2d text and Im3D items (camera space): the camera's view window is widened by 1 / k for the pass.
+   Full-screen backgrounds drawn in these passes get side bars (the camera clear colour). At 4:3 nothing changes (k = 1). */
+/*004a8830*/ extern int app_get_app_62c5c8(void);
+#define MFL_WS2D_MAX_VERTS 1024      /* ponytail: a larger Im2D batch is drawn unsqueezed; raise if a menu ever draws more in one call */
+static RwIm2DRenderLineFunction mfl_ws2d_line;
+static RwIm2DRenderTriangleFunction mfl_ws2d_triangle;
+static RwIm2DRenderPrimitiveFunction mfl_ws2d_primitive;
+static RwIm2DRenderIndexedPrimitiveFunction mfl_ws2d_indexed;
+static RwCamera *mfl_ws2d_camera;      /* non-NULL while a pass is squeezed */
+static RwV2d mfl_ws2d_saved_window;
+static float mfl_ws2d_k, mfl_ws2d_cx;
+static RwIm2DVertex mfl_ws2d_verts[MFL_WS2D_MAX_VERTS];
+
+static RwIm2DVertex *mfl_ws2d_squeeze(RwIm2DVertex *verts, RwInt32 count)
+{
+  RwInt32 i;
+
+  if (count > MFL_WS2D_MAX_VERTS)
+    return verts;
+  for (i = 0; i < count; i++) {
+    mfl_ws2d_verts[i] = verts[i];
+    mfl_ws2d_verts[i].x = mfl_ws2d_cx + (verts[i].x - mfl_ws2d_cx) * mfl_ws2d_k;
+  }
+  return mfl_ws2d_verts;
+}
+
+static RwBool mfl_ws2d_line_w(RwIm2DVertex *verts, RwInt32 count, RwInt32 v1, RwInt32 v2)
+{
+  return mfl_ws2d_line(mfl_ws2d_squeeze(verts, count), count, v1, v2);
+}
+
+static RwBool mfl_ws2d_triangle_w(RwIm2DVertex *verts, RwInt32 count, RwInt32 v1, RwInt32 v2, RwInt32 v3)
+{
+  return mfl_ws2d_triangle(mfl_ws2d_squeeze(verts, count), count, v1, v2, v3);
+}
+
+static RwBool mfl_ws2d_primitive_w(enum RwPrimitiveType type, RwIm2DVertex *verts, RwInt32 count)
+{
+  return mfl_ws2d_primitive(type, mfl_ws2d_squeeze(verts, count), count);
+}
+
+static RwBool mfl_ws2d_indexed_w(enum RwPrimitiveType type, RwIm2DVertex *verts, RwInt32 count, RwImVertexIndex *indices, RwInt32 nindices)
+{
+  return mfl_ws2d_indexed(type, mfl_ws2d_squeeze(verts, count), count, indices, nindices);
+}
+
+/* end of a squeezed pass: the engine's Im2D entries and the camera window back; a no-op when no pass is squeezed */
+static void mfl_ws2d_end(void)
+{
+  if (mfl_ws2d_camera == NULL)
+    return;
+  RwIm2DRenderLine = mfl_ws2d_line;
+  RwIm2DRenderTriangle = mfl_ws2d_triangle;
+  RwIm2DRenderPrimitive = mfl_ws2d_primitive;
+  RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed;
+  RwCameraSetViewWindow(mfl_ws2d_camera, &mfl_ws2d_saved_window);
+  mfl_ws2d_camera = NULL;
+}
+
+/* start of a squeezed pass on camera (call before its RwCameraBeginUpdate, after its window is set) */
+static void mfl_ws2d_begin(RwCamera *camera)
+{
+  RwV2d wide;
+  int width = app_get_app_62c5c8();
+
+  mfl_ws2d_end();
+  mfl_ws2d_k = mfl_widescreen_fov_factor() / 0.75f;
+  if (camera == NULL || width <= 0 || !(mfl_ws2d_k < 1.0f))
+    return;
+  mfl_ws2d_cx = (float)width * 0.5f;
+  mfl_ws2d_camera = camera;
+  mfl_ws2d_saved_window = RwCamera_viewWindow(camera);
+  wide.x = mfl_ws2d_saved_window.x / mfl_ws2d_k;
+  wide.y = mfl_ws2d_saved_window.y;
+  RwCameraSetViewWindow(camera, &wide);
+  mfl_ws2d_line = RwIm2DRenderLine;
+  mfl_ws2d_triangle = RwIm2DRenderTriangle;
+  mfl_ws2d_primitive = RwIm2DRenderPrimitive;
+  mfl_ws2d_indexed = RwIm2DRenderIndexedPrimitive;
+  RwIm2DRenderLine = mfl_ws2d_line_w;
+  RwIm2DRenderTriangle = mfl_ws2d_triangle_w;
+  RwIm2DRenderPrimitive = mfl_ws2d_primitive_w;
+  RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed_w;
+}
+
+/* a pass that resets its camera window inside a squeezed pass (message_box_draw: camera_set_default_view_window between End / BeginUpdate)
+   widens it again here; the camera's window from that reset is the one restored at the end of the pass */
+void mfl_widescreen_2d_rewiden(void *camera)
+{
+  RwV2d wide;
+
+  if (mfl_ws2d_camera == NULL || camera == NULL)
+    return;
+  if ((RwCamera *)camera != mfl_ws2d_camera)
+    RwCameraSetViewWindow(mfl_ws2d_camera, &mfl_ws2d_saved_window);
+  mfl_ws2d_camera = (RwCamera *)camera;
+  mfl_ws2d_saved_window = RwCamera_viewWindow(mfl_ws2d_camera);
+  wide.x = mfl_ws2d_saved_window.x / mfl_ws2d_k;
+  wide.y = mfl_ws2d_saved_window.y;
+  RwCameraSetViewWindow(mfl_ws2d_camera, &wide);
+}
+#endif
 
 #define TIMER_TICKS_PER_STEP (3000) /* (inferred) timer ticks per step */
 #define FPS_WINDOW_STEPS (1000) /* (inferred) length of the frame-count window, in steps */
@@ -143,6 +252,9 @@ undefined4 app_state_menu_render(void)
       RwCameraSetViewWindow(cam,view_window);
       camera_set_default_view_window();
       viewport_cam = get_viewport_camera(0xffffffff);
+#if MFL_FIX_WIDESCREEN      /* frontend pass squeezed to 4:3 */
+      mfl_ws2d_begin((RwCamera *)viewport_cam);
+#endif
       check_result = RwCameraBeginUpdate(viewport_cam);
       if (check_result != 0) {
         frontend_draw();
@@ -152,6 +264,9 @@ undefined4 app_state_menu_render(void)
         viewport_cam = get_viewport_camera(0xffffffff);
         RwCameraEndUpdate(viewport_cam);
       }
+#if MFL_FIX_WIDESCREEN
+      mfl_ws2d_end();
+#endif
       if (((last_result == 3) && (check_result = ui_camera_update_view_rect(), check_result != 0)) &&
          (check_result = ui_get_menu_69cc48(), check_result < 3)) {
         course_race_start();
@@ -171,6 +286,9 @@ undefined4 app_state_menu_render(void)
         course_camera_remove_from_collision_world(cam);
       }
       viewport_cam = get_viewport_camera(0xffffffff);
+#if MFL_FIX_WIDESCREEN      /* message box pass squeezed to 4:3 (ended after the switch) */
+      mfl_ws2d_begin((RwCamera *)viewport_cam);
+#endif
       last_result = RwCameraBeginUpdate(viewport_cam);
       if (last_result == 0) break;
       message_box_draw();
@@ -200,6 +318,9 @@ undefined4 app_state_menu_render(void)
       camera_save(cam);
       viewport_cam = car_get_car_6c2944();
       Rt2dDeviceSetCamera(viewport_cam);
+#if MFL_FIX_WIDESCREEN      /* HUD camera window for the mode's ratio (after Rt2dDeviceSetCamera: the Rt2d layer keeps its 4:3 space, drawn unstretched) */
+      mfl_widescreen_hud_camera((void *)car_get_car_6c2944());
+#endif
       viewport_cam = car_get_car_6c2944();
       last_result = RwCameraBeginUpdate(viewport_cam);
       if (last_result != 0) {
@@ -236,6 +357,9 @@ undefined4 app_state_menu_render(void)
       break;
     }
     viewport_cam = get_viewport_camera(0);
+#if MFL_FIX_WIDESCREEN      /* race message box pass squeezed to 4:3 (ended after the switch) */
+    mfl_ws2d_begin((RwCamera *)viewport_cam);
+#endif
     last_result = RwCameraBeginUpdate(viewport_cam);
     if (last_result == 0) break;
     goto draw_message_box;
@@ -243,6 +367,9 @@ undefined4 app_state_menu_render(void)
   case APP_STATE_MENU:
     camera_set_default_view_window();
     viewport_cam = get_viewport_camera(0);
+#if MFL_FIX_WIDESCREEN      /* frontend / options / message box pass squeezed to 4:3 (ended after the switch) */
+    mfl_ws2d_begin((RwCamera *)viewport_cam);
+#endif
     last_result = RwCameraBeginUpdate(viewport_cam);
     if (last_result == 0) break;
     frontend_draw();
@@ -272,6 +399,9 @@ end_camera_update:
       }
       cam = (RwCamera *)car_get_car_6c2944();
       camera_save(cam);
+#if MFL_FIX_WIDESCREEN      /* HUD camera window for the mode's ratio */
+      mfl_widescreen_hud_camera(cam);
+#endif
       viewport_cam = car_get_car_6c2944();
       last_result = RwCameraBeginUpdate(viewport_cam);
       if (last_result != 0) {
@@ -296,6 +426,9 @@ end_camera_update:
       course_camera_remove_from_collision_world(cam);
     }
   }
+#if MFL_FIX_WIDESCREEN
+  mfl_ws2d_end();
+#endif
   g_app_state_76e838 = timer_ticks();
   g_app_state_76e838 = g_app_state_76e838 - stopwatch_ticks;
   stopwatch_ticks = timer_ticks();

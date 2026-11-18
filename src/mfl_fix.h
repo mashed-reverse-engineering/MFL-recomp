@@ -15,6 +15,26 @@
 #define MFL_FIX_DETERMINISTIC_AUDIO_RNG 0
 #endif
 
+#ifndef MFL_FIX_EQUIP_FLUSH      /* the equip functions of mines, drum, flashbang and shotgun first release their records whose release is pending,
+                                    so a drop + equip in one frame cannot run past the 4 records (output/weapons_equip_sweep_2026-11-17.md;
+                                    automatch_near/an_ok_042.c drum, an_ok_044.c mines + flashbang, an_ok_046.c shotgun) */
+#define MFL_FIX_EQUIP_FLUSH 0
+#endif
+
+#ifndef MFL_FIX_WIDESCREEN      /* step 1: the 3D camera aspect factor is height / width of the video mode instead of the fixed 0.75 (4:3), so a wide
+                                   mode shows more to the sides instead of a stretched picture; step 2: the in-race HUD keeps its proportions and its
+                                   side panels move to the screen edges; menus and the 640-space 2D passes stay stretched
+                                   (output/widescreen_study_2026-11-17.md; automatch_near/an_hk_824.c holds the helpers) */
+#define MFL_FIX_WIDESCREEN 0
+#endif
+#if MFL_FIX_WIDESCREEN      /* helpers in automatch_near/an_hk_824.c; step 2 = in-race HUD at the screen edges (void * so this header needs no RenderWare type) */
+float mfl_widescreen_fov_factor(void);
+void mfl_widescreen_hud_camera(void *camera);
+float mfl_widescreen_hud_scale(void);
+void *mfl_widescreen_hud_translate(void *matrix, const void *origin, int combine);
+void mfl_widescreen_2d_rewiden(void *camera);      /* automatch_near/an_hk_611.c: menu pass camera window widened again after a reset */
+#endif
+
 /* The files of the sound functions with random-draw sites (agents/rep_w12/audio_rng_sites.txt) define MFL_AUDIO_RNG_SITES before including this
    header as their first lines; with the switch on, their wrapper calls (both spellings of the names) go to the audio-stream copies. */
 #if MFL_FIX_DETERMINISTIC_AUDIO_RNG

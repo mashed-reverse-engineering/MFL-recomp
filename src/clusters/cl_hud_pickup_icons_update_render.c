@@ -1,6 +1,7 @@
 // cluster-entries: hud_pickup_icons_update_render
 /* Installed cluster hud_pickup_icons_update_render (tools/cluster_install.py from output/cluster_pilot_dtrig/hud_pickup_icons_update_render.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004d53a0*/ extern RwReal RwV3dLength(RwV3d *v);
 extern double sin(double);
 extern double cos(double);
@@ -109,8 +110,13 @@ void hud_pickup_icons_update_render(void)
                 rotation = rotation + PICKUP_BOOST_ROTATION;
                 scale = scale * PICKUP_BOOST_SIZE_SCALE;
             }
+#if MFL_FIX_WIDESCREEN      /* the view window x is wider by 0.75 / factor at a wide mode: undo that, so the icons keep their 4:3 size */
+            size[0] = (float)(scale * (VIEWPORT_CAMERA_SCALE(camera) * mfl_widescreen_fov_factor() / 0.75f) * PICKUP_SIZE_PER_DISTANCE
+                              + wobble_cos * wobble_sin * PICKUP_SIZE_WOBBLE);
+#else
             size[0] = (float)(scale * VIEWPORT_CAMERA_SCALE(camera) * PICKUP_SIZE_PER_DISTANCE
                               + wobble_cos * wobble_sin * PICKUP_SIZE_WOBBLE);
+#endif
             size[1] = size[0];
 
             particles_set_position(position);

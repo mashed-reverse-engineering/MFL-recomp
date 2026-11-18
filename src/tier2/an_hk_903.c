@@ -313,7 +313,7 @@ warzone_override:
     if (k_f_6 < bot->leader_distance) {
       controls[5] = 0x40;
     }
-    if ((g_race_clock_b / BLINK_DIVISOR & BLINK_BIT) != 0) {
+    if (((int)g_race_clock_b / BLINK_DIVISOR & BLINK_BIT) != 0) {      /* signed divide as the original (0x41b3ad); W14 classsweep div */
       *controls = 0xff;
       goto catchup_scaling;
     }

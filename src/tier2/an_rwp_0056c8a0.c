@@ -19,14 +19,19 @@ int rwp_shape_interval_along_dir(MflShape *shape, float *xf, float *dir, float *
   float local[3];
   float *d;
   int r;
+  double xy;      /* the original adds (x + y) + z; cl reorders the one-expression form, the temporaries keep the order */
 
   shift[0] = 0.0f;
   d = dir;
   if (xf) {
-    shift[0] = xf[13] * dir[1] + xf[12] * dir[0] + xf[14] * dir[2];
-    local[0] = xf[1] * dir[1] + xf[0] * dir[0] + xf[2] * dir[2];
-    local[1] = xf[5] * dir[1] + xf[4] * dir[0] + xf[6] * dir[2];
-    local[2] = xf[9] * dir[1] + xf[8] * dir[0] + xf[10] * dir[2];
+    xy = xf[12] * dir[0] + xf[13] * dir[1];
+    shift[0] = xy + xf[14] * dir[2];
+    xy = xf[0] * dir[0] + xf[1] * dir[1];
+    local[0] = xy + xf[2] * dir[2];
+    xy = xf[4] * dir[0] + xf[5] * dir[1];
+    local[1] = xy + xf[6] * dir[2];
+    xy = xf[8] * dir[0] + xf[9] * dir[1];
+    local[2] = xy + xf[10] * dir[2];
     d = local;
   }
   r = shape->ops->support_interval(shape, d, lo, hi);

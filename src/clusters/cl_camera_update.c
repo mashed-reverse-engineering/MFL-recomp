@@ -1,6 +1,7 @@
 // cluster-entries: camera_update
 /* Installed cluster camera_update (tools/cluster_install.py from output/cluster_pilot_md/camera_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 #define SECOND_CAR_MAX_GAP 0.03 /* a car counts as the runner-up only when it is less than this much lap counter behind the best car */
 #define HARE_MIN_FOLLOW_DISTANCE 8.0 /* follow distance used when the focused car is the hare and the computed distance is below 1 */
 typedef int CourseId;
@@ -196,7 +197,11 @@ void __cdecl camera_update(int *camera,int force_snap)
   for (i2 = 0; (int)i2 < 4; i2 = i2 + 1) {
     vehicle_set_field_198(i2, 0x0);
   }
+#if MFL_FIX_WIDESCREEN
+  *(float *)&camera[9] = mfl_widescreen_fov_factor();
+#else
   *(float *)&camera[9] = g_camera_fov_factor;
+#endif
   camera_records_init_for_course();
   phase_value = race_get_phase();
   if ((game_mode == 5) && (iVar3 = fx_objects_all_exploded(), iVar3 != 0)) {

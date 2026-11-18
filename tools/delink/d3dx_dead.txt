@@ -38,3 +38,31 @@
 # (five 0x630200 words in rwp shape-ops rows) is value-only since Z4v / Z6 S0.  The D3D9 matrices in front (D3D9InverseTransform 0x62ff90,
 # D3D9InverseNormalizedTransform 0x62ffd0, passed to mflrw.dll by an_hk_612_d3d9vsu.inc) are 64 B each and end at 0x630010.
 00630050 4104 d3dxmathx86_inv_sqrt_table 5
+# Step 6 (W14 L3 D1): RenderWare library rows whose readers are all gone from the link (LIB_RW / DROP_RW): D3D9VertexTypeSize (readers the
+# _rpD3D9VertexDeclarationInst* functions), d3d9vertexshader table (rpD3D9GenerateVertexShader), skin / matfx constants 0x5f5a18, the Rwp37
+# "@(#)$Id" version strings 0x5f6330 (+ the word in front), d3d9dxttex DDSPF_* pixel formats, 8 B .data 0x631058.  No .inc bind table names or
+# points into them: d3dx_closure.py on the HEAD scratch link agents/l3_w14/lk_hd, 0 of 6 FAIL; the only object in front with a bind (the
+# d3d9vdtan constants 0x5ec3cc..0x5ec3e4, librw-mfl capi/d3d9vdtan.cpp enum B: floats and one double at 0x5ec3d8) ends before 0x5ec3e8.
+005ec388 68 D3D9VertexTypeSize 6
+005ec3e8 104 d3d9vertexshader_tables 6
+005f5a18 92 rw_skin_matfx_consts_5f5a18 6
+005f632c 292 rwp_version_strings 6
+005f8cf0 320 d3d9dxttex_ddspf_formats 6
+00631058 8 rw_data_631058 6
+# Step 7 (W14 L3 D5): the 14 globgen gap rows (kind gap: bytes no label names, between library objects; .rdata 1,344 + .data 64 = 1,408 B).
+# globgen zero-fills a gap row inside a dead range like a lib row.  d3dx_closure.py (gap rows inside a range are not roots): 0 of 14 FAIL; the
+# objects in front end before their gap (4 B scalars 0x5e2624 / 0x5e2634, rwa GUIDs 16 B, _rwFrameListDirtyListUpdate 4 B, __xt_z 4 B).
+005e2654 4 g_gap_005e2654 7
+005e2664 12 g_gap_005e2664 7
+005e6888 152 g_gap_005e6888 7
+005e6944 4 g_gap_005e6944 7
+005e6a3c 644 g_gap_005e6a3c 7
+005e7244 4 g_gap_005e7244 7
+005e7254 4 g_gap_005e7254 7
+005ec450 4 g_gap_005ec450 7
+005ec7a8 132 g_gap_005ec7a8 7
+005eec28 96 g_gap_005eec28 7
+005f8794 4 g_gap_005f8794 7
+005f8e30 284 g_gap_005f8e30 7
+005fb074 36 g_gap_005fb074 7
+0064c274 28 g_gap_0064c274 7

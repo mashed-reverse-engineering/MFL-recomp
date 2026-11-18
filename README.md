@@ -2,91 +2,56 @@
 
 A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
 
-**Status:** work in progress. A Windows x86 build made from this source starts and runs all 15 courses in the regression runs; none of its machine code is taken from the original executable any more (0 of 1,945 KB, measured 2026-11-15 on the standalone and the release build): it comes from the C in this repository, from open-source libraries, or has been removed after proving it is never used. The build contains no original resources either: the dialogs, texts and pictures are read at runtime from your own copy of `MFL.exe` (measured 2026-11-15: 0 B of resources in the exe). Not covered by these statements: library tables copied from the original (4,466 B of initialised data, plus 1,408 B of padding between data rows; measured 2026-11-17) are still copied bytes; the library variables (.bss) are already named C definitions, and most tables are typed C or removed as unused since 2026-11-17. [Follow the progress](#follow-the-progress) below shows the numbers per layer and how they moved.
+## Status
+
+- A Windows x86 build made from this source starts and runs all 15 courses in the regression runs.
+- None of its machine code is taken from the original executable any more: 0 of 1,945 KB (measured 2026-11-15 on the standalone and the release build). The code comes from the C in this repository, from open-source libraries, or was removed after proving it is never used.
+- The build contains no original resources (0 B, measured 2026-11-15). Dialogs, texts and pictures are read at runtime from your own copy of `MFL.exe`.
+- Not covered by the two points above: library tables copied from the original are still copied bytes (4,466 B of initialised data plus 1,408 B of padding between data rows, measured 2026-11-17). The library variables (.bss) are already named C definitions.
+- The source is not yet pleasant to read in all places: it still carries scaffolding from the byte-matching work (see [docs/ROADMAP.md](docs/ROADMAP.md)).
+- Numbers per layer and how they moved: [docs/PROGRESS_HISTORY.md](docs/PROGRESS_HISTORY.md).
 
 ## What this project is
 
-The goal is a playable recompilation with **readable, maintainable source** that can take bug fixes and enhancements, and later be ported (a Switch/ARM port is the long term target).
+The goal is a playable recompilation with **readable, maintainable source** that can take bug fixes and enhancements, and later be ported (a Switch homebrew port via libnx is the long term target).
 To get there safely, every function is checked against the original: a function is either *byte identical* to what the original compiler (MSVC 13.00.9466, Visual C++ .NET 2002) produces, or *behaviour verified* by running it side by side with the original code in an emulator (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). This checking is scaffolding; the deliverable is the readable source.
+
+Anything that changes the original behaviour sits behind a switch that is off by default: [docs/MFL_FIX_FLAGS.md](docs/MFL_FIX_FLAGS.md).
+
+## No game files, and how to build
 
 **No game files are included.** You need your own copy of the game; see [docs/LEGAL.md](docs/LEGAL.md).
 Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6d052707188e2c6d065f41766` (`python3 tools/check_exe.py path/to/MFL.exe`).
-To run a build, put a copy of your original `MFL.exe` next to the game exe as `MFL_original.exe` (or leave the original `MFL.exe` there and give the build another name): the build reads its resources from that file and shows a message box naming the expected place when no original is found.
-Drop-in build: `tools/build_mflng.sh <your MFL.exe> <out dir>` makes `MFLng.exe` (original behaviour, the build the regression gate checks) and `MFLng_fixes.exe` (every `MFL_FIX_*` switch on; **not gated**). Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` and `mflrw.dll` beside it. Prerequisites, in order: [docs/BUILDING.md](docs/BUILDING.md#drop-in-executable-toolsbuild_mflngsh).
 
-**Note on the earlier release:** the source drop 4c1168d (2026-11-15) could produce links with two library calls bound to the wrong C runtime function (`exit` to `_exit`, and a vector helper to `tolower`), because our object writer chose between two similarly named runtime functions in hash order. The choice now follows the original address, and links are reproducible.
+Drop-in build: `tools/build_mflng.sh <your MFL.exe> <out dir>` makes `MFLng.exe` (original behaviour, the build the regression gate checks) and `MFLng_fixes.exe` (every `MFL_FIX_*` switch on; **not gated**).
+Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` and `mflrw.dll` beside it. The build reads its resources from `MFL_original.exe` and shows a message box naming the expected place when no original is found.
+Prerequisites, in order: [docs/BUILDING.md](docs/BUILDING.md#drop-in-executable-toolsbuild_mflngsh).
 
-## Roadmap
+## Milestones
 
 | Milestone | State |
 |---|---|
 | Name functions, globals and structs of the game code | done for about 96% of the game functions |
-| Recompile the game code as C (byte identical or behaviour verified) | about 98% of the game functions; the rest are tiny stubs |
-| Build a standalone executable from the C (jump stubs only for game code), with Lua, qhull and zlib/libpng built from open-source, no DirectShow | **done**, passes the 15-course regression runs |
-| Replace the C runtime (libcmt) | **done** for code: the start-up is libcmt's own (`WinMainCRTStartup`); its data tables are still copied |
-| Rewrite the RenderWare physics plugin (rwp) as verified C | **done**; no original code left |
-| Replace RenderWare with a clean-room library (`librw-mfl`), then D3DX | **done** for code: no original RenderWare or D3DX code is left (math, streaming, collision, spline/animation, bezier/patch, vertex-declaration, mesh building, image, PNG reading, 2D, LOD, D3D9 render-state, image conversion, 2D renderer, light, transform, raster, world pipeline, native texture, texture reading, material effects, D3D9 device, pipeline node, patch, submit, particle tank, vertex shader cache, vertex shader generator and render callback groups are swapped bit-exactly, never-used code is removed; RenderWare memory now comes from the game's heap); the last nine functions (vector math helpers, pipeline building, a dictionary destructor) are C since 2026-11-15 |
-| Replace the streaming audio library, add a real video backend | audio done for code (from 101 KB: the DirectSound output sits behind a small audio interface, the DirectShow/codec path is removed, voices, mixer and converters are C); the FFmpeg video backend (separate DLL) plays the intro and menu movies under Wine in our test runs, but is not shipped in this repository |
-| Zero original code | **done** 2026-11-15 (code; resources are read at runtime from your `MFL.exe`; library tables are still copied: 5,874 B on 2026-11-17, down from 134,233 B) |
-| Readability and bug fixing, then the Switch/ARM port | next |
+| Recompile the game code as C (byte identical or behaviour verified) | done for about 98% of the game functions; the rest are tiny stubs |
+| Standalone executable from the C (Lua, qhull, zlib/libpng from open source, no DirectShow) | done; passes the 15-course regression runs |
+| Replace the C runtime, the RenderWare physics plugin, RenderWare and D3DX, the streaming audio library | done for code (`librw-mfl`, a clean-room library, is the RenderWare and D3DX replacement) |
+| Zero original code | done 2026-11-15 |
+| Library data as typed C (copied data to 0 B) | in progress: 5,874 B left on 2026-11-17, down from 134,233 B |
+| Self-contained build from the public repository | in progress: the drop-in script exists; the build from an export tree in a clean container is being proven |
+| Deterministic replays over whole races | in progress: a race diverges between two runs of the original; the cause is under investigation |
+| Readability (module layout, plain calling conventions) | next |
+| Bug fixes and quality-of-life options behind switches | started: two switches implemented, more planned |
+| Renderers beyond Direct3D 9, Linux build, Switch homebrew port | planned |
 
-## How each part is produced
+## Open
 
-| Part | Approach |
-|---|---|
-| Game code, byte-identical (tier 1, automatch, hand-written, agent) | **Byte matching** with the original compiler (MSVC .NET 2002, 13.00.9466), checked function by function with a relocation-aware compare. This is scaffolding: it decides which functions are trusted fully. |
-| Game code, behaviour-verified (tier 2) | **Differential testing**: the original bytes and our compiled C run side by side in an emulator on the same inputs. |
-| Game code with register arguments (clusters) | Readable C behind a small entry stub, checked by a cluster sweep. |
-| Lua, qhull, zlib, libpng, TIFF | **Open source**, built from source. |
-| C runtime | Microsoft's VC7 `libcmt` for now; the libc step comes with the port. |
-| Movie playback | The DirectShow code is dropped; the game calls a small video interface (blank backend, a real one later). |
-| RenderWare physics plugin | Our hand-written C, differentially tested. |
-| RenderWare graphics and D3DX | `librw-mfl` (our fork of the MIT-licensed [librw](https://github.com/aap/librw)) as `mflrw.dll`: math, streaming, object groups and the D3DX math entry points are swapped in. The rest is planned as a clean-room reimplementation. |
-| Audio (RenderWare Audio) | Functions byte-identical to the public [codfh-win32](https://github.com/L2KSolkov/codfh-win32) decompilation, used with attribution; the PC-only DirectShow/DXAudio backend is planned as a platform layer over a swappable audio library. |
-| Test harness | Our own code, for tests only; it is not part of the game. |
+- Copied library data is not yet 0 B (5,874 B).
+- Two runs of the same race are not identical, so a whole race cannot yet be used as a regression test. The first difference lies in car physics floats at about 2.4 s of race time.
+- Source layout still follows how each function was matched, not the game's modules.
+- No controller support beyond DirectInput, no widescreen, no in-game settings menu.
+- The build runs from the maintainers' private layout and from the drop-in script; building from a clean checkout of this repository is not yet proven end to end.
 
-## Follow the progress
-
-Original machine code still linked into the standalone build (the number we drive to zero), measured with `tools/delink/origbytes.py` at each full regression gate:
-
-| Layer | 2026-11-15 | What is left |
-|---|---:|---|
-| RenderWare (graphics, world, camera, D3D9) | 0 KB | done |
-| Audio (RenderWare Audio) | 0 KB | done |
-| rwp (RenderWare physics) | 0 KB | done |
-| D3DX | 0 KB | done |
-| C runtime | 0 KB | done |
-| Game code | 0 KB | done |
-| **Total** | **0 KB** | of about 1,945 KB |
-
-Still copied from the original executable, and not part of the zero above: library tables (4,466 B of initialised data on 2026-11-17: C runtime 2,422 B, RenderWare 948 B, Lua 657 B, qhull 432 B, 7 B in two rows without an owner layer; plus 1,408 B of padding between data rows). On 2026-11-17 the audio, physics and live RenderWare tables and the D3DX dispatch tables became typed C definitions, and the unused D3DX math constants, HLSL / shader-assembler tables and the inverse square root table were removed after a static reference check (81,280 -> 5,874 B). Since 2026-11-16 the library variables (.bss, 41.5 KB) are named zero definitions in C, the Lua tables are gone (the Lua built from source brings its own), and the C runtime's data-only members (math tables, time zone and day tables) are linked from libcmt instead of copied, which took the copied data from 134,233 B to 81,280 B. The resources (710,568 B) are no longer in the exe: they are read at runtime from your own `MFL.exe`.
-
-How the total moved (code only; data is tracked separately):
-
-| Date | Original code | What moved it |
-|---|---:|---|
-| 2026-11-03 | 485.0 KB | |
-| 2026-11-04 | 459.3 KB | last exe-side RenderWare replacements |
-| 2026-11-05 | 273.0 KB | about 120 new `librw-mfl` entry points in 18 groups (collision, spline/animation, bezier/patch, vertex declarations, mesh building, image, camera and others); D3DX CPU variants removed; audio output layer, mixer, voices and wave code; rwp and C runtime rewrites |
-| 2026-11-06 | 246.4 KB | about 40 more audio functions as C; never-run RenderWare stream writers, legacy-format and skin readers removed (each proven unused by 172 coverage runs, an asset format scan and a call-graph check); D3DX half-float code removed; a BMP image reader in `librw-mfl`; RenderWare allocations now come from the game's own heap (a step toward the engine switch) |
-| 2026-11-07 | 233.7 KB | 31 more audio functions as C (21 tier 2, 10 register clusters); `librw-mfl` groups for 2D path/brush kernels, PNG reading (libpng inside the DLL) and LOD; five x87 math routines; 179 RenderWare gap functions named so their bodies can be removed; the CRT `raise` function as C (with an exception-frame model in the checker); a few more never-run writers removed with proofs |
-| 2026-11-08 | 209.7 KB | three D3D9 driver groups in `librw-mfl` (render state, image/raster conversion, 2D renderer with the dynamic vertex buffer ring; 51 functions, 24.0 KB), run on the game's own engine state and checked op for op against the original under Wine; the draw comparison now normalises the dynamic vertex buffer ring |
-| 2026-11-08 (second run) | 196.3 KB | three more D3D9 groups in `librw-mfl` (lights, transforms, raster creation and conversion; 26 functions, 12.3 KB) and a first small batch of string/stream helpers adapted from codfh-win32 (1.4 KB) |
-| 2026-11-09 | 174.3 KB | four more D3D9 groups in `librw-mfl` (world pipeline, the rest of raster creation, native texture reading, tangent instancing; about 10 KB); 48 more RenderWare core functions adapted from codfh-win32 (memory, streams, errors, dictionaries, matrix/vector, file system, charset, 2D fonts; about 10.5 KB); 1.7 KB of byte-identical RenderWare bodies that only lacked size rows |
-| 2026-11-10 | 152.9 KB | 76 more RenderWare functions adapted from codfh-win32 (plugin callbacks, stream readers, frame/world/geometry/material lifecycle, particle tank, material effects setters; 19.3 KB of RenderWare code in total); 10 more audio functions as C plus 4 register clusters (2.1 KB) |
-| 2026-11-12 | 104.6 KB | nine more groups in `librw-mfl` (texture and image reading, material effects, D3D9 device and device system, raster quads, the all-in-one pipeline nodes; 94 functions), checked against the original with a fake Direct3D device; 17 more RenderWare functions adapted from codfh-win32 (collision and user data plugins, particle tank, 2D font); 48.4 KB of RenderWare code in total |
-| 2026-11-13 | 61.1 KB | four more D3D9 groups in `librw-mfl` (patch, default instance callbacks, submit and immediate-mode nodes, particle tank; 12 functions, about 13 KB); 68 more RenderWare functions adapted from codfh-win32 (pipelines, world, material effects, UV animation, 2D; about 11.5 KB) and 8 Windows file system functions; 18 more audio functions as C, 36 never-run DirectShow COM methods removed (2.9 KB); CPU feature probes as C for one CPU class (SSE2, no 3DNow); never-used physics convex code removed; padding behind removed bodies is now removed with them |
-| 2026-11-13 (second run) | 28.4 KB | 59 more RenderWare functions adapted from codfh-win32 (engine start/stop, clump/world/light lifecycle, pipeline building, heaps, user data, material effects, HAnim, 2D outline drawing; about 19 KB); about 25 patch-mesh functions and the Windows file system init written by hand from the disassembly; two vertex shader cache groups in `librw-mfl`; about 15 more audio functions as C plus 6 register clusters; the last rwp and D3DX stubs; a few more never-reached functions trapped after a static proof |
-| 2026-11-14 | 3.3 KB | the D3D9 vertex shader generator (7.3 KB), the vertex shader render and lighting callbacks and the native size / usage-flag functions in `librw-mfl` (checked against the original on the full descriptor space); about 65 more RenderWare functions adapted from codfh-win32 or written from the disassembly (stream readers, plugin attach functions, 2D path and font reading, skin and material effects pipelines); the audio async I/O thread, codec registration and the soft output sites as C plus 2 register clusters; the x87 control-word helpers; two call targets in game code corrected to the original's |
-| 2026-11-15 | 0 KB | the last nine RenderWare functions (vector math helpers built with the original's float consistency flag, a stream writer, two pipeline building functions, a dynamic geometry helper, a dictionary destructor), the last two audio functions (one as a register cluster), and the C runtime start-up taken from libcmt itself; four functions whose differential tests had shown differences were re-checked, one of them corrected to the original's evaluation order |
-
-Roughly 35 KB of the 2026-11-05 drop is code removed rather than rewritten (DirectShow, unused CPU variants, never-used wave converters): it is proven unused by coverage runs, an asset format scan and a call-graph closure proof, and every removal sits in a list that can be reverted on its own. Treat that part as the least certain. Every `librw-mfl` entry point is checked bit-exact against the original code on at least 100,000 random inputs, with negative tests that must fail.
-
-Where to look:
-- [`progress/progress.json`](progress/progress.json) and the generated tables below: function counts per tier, regenerated with every source drop. A function counts as game code or library code by its address in `data/fnsizes.txt`, so a new row there can move a function from the game count to the library count (six RenderWare / rwp functions moved this way in November 2026: tier 1 1435 -> 1429).
-- The git log of this repository: one commit per source drop, with the number of published functions.
-- [docs/VERIFICATION.md](docs/VERIFICATION.md): what "verified" means and where it stops. Nothing here claims the whole game is verified.
-- Next steps, in order: library data as typed C, deterministic replays over whole races as a test, readability (module layout, plain calling conventions instead of the matching scaffolding), then bug fixing behind switches that are off by default, then the Switch/ARM port.
+Details and the full list: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Progress (generated)
 
@@ -159,9 +124,20 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by the scripts below. |
 | `scripts/` | Ghidra headless scripts (`RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`, ...). |
 | `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
-| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier1/` and `src/automatch/`: byte-identical functions, one per file. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. How "verified" is established and where it stops: [docs/VERIFICATION.md](docs/VERIFICATION.md). |
+| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier1/` and `src/automatch/`: byte-identical functions, one per file. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
-| `docs/` | Building, naming workflow, toolchain, verification, enum constants, legal note. Start here to understand the game: [docs/GAME_STRUCTURE.md](docs/GAME_STRUCTURE.md) (main loop, race phases, cars, camera, course loading, menus, weapons, effects, audio) and [docs/STRUCTS.md](docs/STRUCTS.md) (record layouts). |
+| `docs/` | See the table below. |
+
+| Document | What |
+|---|---|
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Milestones and open work, grouped, each marked done / in progress / planned. |
+| [docs/MFL_FIX_FLAGS.md](docs/MFL_FIX_FLAGS.md) | Every `MFL_FIX_*` switch: what it changes, status, how to turn it on, how to add one. |
+| [docs/PROGRESS_HISTORY.md](docs/PROGRESS_HISTORY.md) | Original code left per layer, dated history, how each part is produced. |
+| [docs/BUILDING.md](docs/BUILDING.md), [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md) | Build prerequisites and the tools. |
+| [docs/VERIFICATION.md](docs/VERIFICATION.md) | What "verified" means and where it stops. Nothing here claims the whole game is verified. |
+| [docs/GAME_STRUCTURE.md](docs/GAME_STRUCTURE.md), [docs/STRUCTS.md](docs/STRUCTS.md) | Start here to understand the game: main loop, race phases, cars, camera, course loading, menus, weapons, effects, audio; record layouts. |
+| [docs/NAMING.md](docs/NAMING.md), [docs/ENUMS.md](docs/ENUMS.md) | Naming workflow, enum constants. |
+| [docs/LEGAL.md](docs/LEGAL.md) | What is and is not included. |
 
 ## Acknowledgements
 

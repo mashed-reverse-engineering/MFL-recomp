@@ -2,7 +2,7 @@
 """check_one.py <file.c> <function> [flags=/O2 ...]: compile file.c (headers next to it are copied), compare ONE function with the original code of MFL.exe.
 Exit 0 = byte identical (relocation fields masked); 1 = differs (prints an assembly diff, ours '+' vs original '-'); 2 = compile error / function missing.
 Meant for matching work (also by agents): edit the C of the function, run again.  Address and flags come from src/symbols.txt (override: VA=0x... env)."""
-import difflib, os, re, subprocess, sys, tempfile
+import difflib, os, re, shutil, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cmpfn
 src, fn = sys.argv[1], sys.argv[2]
@@ -20,7 +20,17 @@ else:
                 if len(q) == 2 and q[0] == fn: va = int(q[1], 16); break
         if va: break
 if va is None: sys.exit("no address for %s (set VA=0x...)" % fn)
-r = cmpfn.check(src, [(fn, va)], flags)
+# headers as tools/build_overlay.py sees them: src/*.h and src/tier1/*.h, then the ones next to the source (they win).
+# W14 b1fix: the ag_ files include mfl_tier2.h, which is not in src/automatch_agent/ (cmpfn.check copies only the source's own dir).
+_R = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src")
+os.makedirs(cmpfn.WORKROOT, exist_ok=True)
+_hd = tempfile.mkdtemp(prefix="check_one_", dir=cmpfn.WORKROOT)
+for _d in (_R, os.path.join(_R, "tier1"), os.path.dirname(os.path.abspath(src))):
+    for _h in os.listdir(_d):
+        if _h.endswith(".h"): shutil.copy(os.path.join(_d, _h), _hd)
+shutil.copy(src, os.path.join(_hd, os.path.basename(src)))
+try: r = cmpfn.check(os.path.join(_hd, os.path.basename(src)), [(fn, va)], flags)
+finally: shutil.rmtree(_hd, ignore_errors=True)
 ok, det = r[fn]
 if det.startswith("compile error") or "not found" in det:
     print(det); sys.exit(2)

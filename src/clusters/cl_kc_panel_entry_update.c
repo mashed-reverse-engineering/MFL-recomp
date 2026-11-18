@@ -1,6 +1,7 @@
 // cluster-entries: kc_panel_entry_update
 /* Installed cluster kc_panel_entry_update (tools/cluster_install.py from output/cluster_pilot_h2/kc_panel_entry_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040c9b0*/ extern int player_get_points_change_visual();
 /*0040cc60*/ extern int player_get_points();
 /*0040ce30*/ extern int score_target_a();
@@ -236,7 +237,11 @@ LAB_0041f76a:
   frame.mtx.pos.z = 0.0;
   frame.mtx.pos.y = 0.0;
   frame.mtx.pos.x = 0.0;
+#if MFL_FIX_WIDESCREEN      /* side panels follow the screen edge */
+  mfl_widescreen_hud_translate(&frame.mtx,(RwV3d *)((char *)&g_kc_panel_origin_table + slot_index * 12),rwCOMBINEREPLACE);
+#else
   RwMatrixTranslate(&frame.mtx,(RwV3d *)((char *)&g_kc_panel_origin_table + slot_index * 12),rwCOMBINEREPLACE);
+#endif
   RwFrameTransform(entry->frame,&frame.mtx,rwCOMBINEREPLACE);
   frame.scale.x = frame.scale.x * k_f_1_125;
   frame.scale.y = frame.scale.y * k_f_1_125;

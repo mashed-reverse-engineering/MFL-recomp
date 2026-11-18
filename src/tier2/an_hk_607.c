@@ -15,8 +15,9 @@
  * any other id just returns its own cell. The gate column for an event is event_id - 9
  * (inferred: 12 -> column 3, 13 -> column 4, 14 -> column 5). Parameter: event_id, the row of
  * progress[] (0 locked, 1 open, 2 done per the struct comment).
+ * Returns int (0 / 1 in all of eax): the original's callers test eax, so a bool (al only) return is not enough.
  */
-bool __cdecl career_progress_event_unlocked(int event_id)
+int __cdecl career_progress_event_unlocked(int event_id)
 
 {
   bool prerequisite_missing;

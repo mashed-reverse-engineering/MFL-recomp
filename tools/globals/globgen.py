@@ -275,7 +275,7 @@ def used_idents():
     s = set()
     for root, _, fs in os.walk(os.path.join(G, "src")):
         for f in fs:
-            if f.endswith(".c") or f.endswith(".h"):
+            if f.endswith((".c", ".h", ".inc")):      # W14 L3 (ASM A6): .inc tables (an_hk_612_*.inc bind tables) name data too
                 s.update(re.findall(r"[A-Za-z_]\w*", open(os.path.join(root, f), errors="replace").read()))
     return s
 
@@ -378,7 +378,7 @@ def main(out):
         for a0, b0 in zip(bs, bs[1:]):
             cls0 = next((c for x, y, c in sp if x <= a0 < y), None)
             nm0 = names.get(a0, [])
-            if cls0 == "lib" and any(n in used for n in nm0): cls0 = None; carved += 1      # F3: a name our C uses is app data, also inside a library span
+            if cls0 == "lib" and any(n in used for n in nm0) and a0 not in Z4.get(sec, {}): cls0 = None; carved += 1      # F3: a name our C uses is app data, also inside a library span (W14 L3: a z4_types.txt entry keeps its own typed / dead row)
             for a, b in (z1_cuts(a0, b0) if cls0 == "lib" and sec == "bss" else [(a0, b0)]):      # Z1: a .bss library piece is cut at its owners' edges
                 cls, nm = cls0, (nm0 if a == a0 else [])
                 own = z1_owner(a) if cls == "lib" and sec == "bss" else None
@@ -784,7 +784,7 @@ def main(out):
         if sec == "bss" and os.path.exists(zh): f.write(open(zh).read() + "\n")      # Z1: the struct types of z1_types.txt (declarations only, no storage)
         f.write("\n".join(pre) + "\n\n")
         for it, r in rendered:
-            if r is not None and it["kind"] == "lib" and (libsrc_dead(sec, it) or it.get("z4dead")):      # W13 Z4: a `dead` row of z4_types.txt the same way
+            if r is not None and (it["kind"] == "lib" and (libsrc_dead(sec, it) or it.get("z4dead")) or it["kind"] == "gap" and libsrc_dead(sec, it)):      # W13 Z4: a `dead` row of z4_types.txt the same way; W14 L3 D5: a gap row inside a dead range too
                 r = None; it["kind"] = "dead"      # LIBSRC=qhull (A4): the lib is compiled from source with its own data, its old data rows are zero fill
             if r is None:
                 ext = it["ext"]

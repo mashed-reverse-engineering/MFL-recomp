@@ -1,6 +1,7 @@
 // cluster-entries: team_panel_entry_update
 /* Installed cluster team_panel_entry_update (tools/cluster_install.py from output/cluster_pilot7/team_panel_entry_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040cc60*/ extern int player_get_points();
 /*0040ce30*/ extern int score_target_a();
 /*004d1500*/ extern struct RwFrame * RwFrameScale(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
@@ -200,7 +201,11 @@ LAB_0041ea18:
       frame.mtx.pos.z = 0.0;
       frame.mtx.pos.y = 0.0;
       frame.mtx.pos.x = 0.0;
+#if MFL_FIX_WIDESCREEN      /* side panels follow the screen edge */
+      mfl_widescreen_hud_translate(&frame.mtx,&panel->origin,rwCOMBINEREPLACE);
+#else
       RwMatrixTranslate(&frame.mtx,&panel->origin,rwCOMBINEREPLACE);
+#endif
       RwFrameTransform((RwFrame *)panel->frame,&frame.mtx,rwCOMBINEREPLACE);
       RwFrameScale((RwFrame *)panel->frame,&frame.unit_scale,rwCOMBINEPRECONCAT);
       points = player_get_points(panel->player[0]);

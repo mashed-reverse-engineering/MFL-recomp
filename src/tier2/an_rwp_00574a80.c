@@ -2,9 +2,9 @@
 #include "mfl_tier2.h"
 
 /* Capsule half length at +0x40 (along the local z axis), radius at +0x4c.  `frame` (optional) is a matrix: at axis row +0x20, position
-   row +0x30.  box[0..2] = max corner, box[4..6] = min corner. */
+   row +0x30.  box[0..2] = max corner, box[4..6] = min corner.  Returns box. */
 /* TIER2: unvalidated 2026-11-05 authority=diffemu */
-void rwp_capsule_00574a80(float *cap, float *frame, void *unused, float *box)
+float *rwp_capsule_00574a80(float *cap, float *frame, void *unused, float *box)
 {
   float h, ex, ey, ez;
 
@@ -27,4 +27,5 @@ void rwp_capsule_00574a80(float *cap, float *frame, void *unused, float *box)
     box[5] = -box[1];
     box[6] = -box[2];
   }
+  return box;
 }

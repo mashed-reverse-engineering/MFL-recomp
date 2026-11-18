@@ -2,7 +2,7 @@
 /*004062a0*/ extern int scene_object_select_is_active();
 /*0040fdc0*/ extern int race_get_phase();
 /*0044a0f0*/ extern int __cdecl camera_debug_adjust_scale(RwCamera *param_2);
-/*00451850*/ extern undefined __cdecl camera_race_setup(struct RwCamera *p0, undefined4 p1, undefined4 p2);
+/*00451850*/ extern undefined __cdecl camera_race_setup(struct RwCamera *p0, undefined4 *p1, undefined4 p2);
 /*00475730*/ extern int get_viewport_camera();
 /*0047b520*/ extern int car_current_matrix();
 /*005dd364*/ extern float k_f_n1;
@@ -44,7 +44,7 @@ void race_update_cameras(undefined4 camera_arg)
 setup_race_camera:
       car_matrix_array = frame.car_matrix_by_player;
       camera = (RwCamera *)get_viewport_camera(0);
-      camera_race_setup((struct RwCamera *)camera,(undefined4)car_matrix_array,camera_arg);
+      camera_race_setup((struct RwCamera *)camera,car_matrix_array,camera_arg);
       goto apply_mirror_flip;
     }
     g_race_652f64 = 1;

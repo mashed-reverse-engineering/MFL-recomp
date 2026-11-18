@@ -83,6 +83,7 @@ case $KIND in
              if [ -n "$PARLINK" ]; then step "MKRANGE GEN_DATA IMPLIBS HARNESS link (started beside check_all, load $L1 < 8)" 3 "linkwait"
              else step "MKRANGE GEN_DATA IMPLIBS HARNESS link (sequential, load $L1 >= 8)" 6 "standalone_link"; fi
              step "origbytes vs baseline" 1 "origcheck"
+             step "classsweep (report-only): div / fpucopy / x87 order candidates vs the original" 0.5 "~/.cache/mfl_diffemu_venv/bin/python $T/delink/classsweep.py run $D/link $D/classsweep.csv"      # W14 A4: exit 0 unless the tool breaks; rows = compile-proof candidates, never a verdict
              [ $KIND = full ] && step "crash-only 15 courses on the linked exe" 6 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
              step "mini sweep: arcade + cup rows 0-14 through the menus, DRIVE=31" 5 "$T/delink/sa_oracles.sh sweep $D/link \$(cat $D/delta.txt) $D/minisweep"
              step "DRIVE=31 course 0 state compare" 2 "statecheck"
@@ -175,6 +176,7 @@ origcheck() {      # .data length of ours.map (T-P15) + origbytes of the link vs
   $T/delink/sa_oracles.sh data $D/link $(cat $D/delta.txt) $D || return 1
   python3 $T/trapcheck.py --selftest $D/link || return 1      # the trap fixture on this gate's own link (negtest inside check_all runs before the link exists)
   python3 $T/delink/origbytes.py $D/link --out $D > $D/origbytes.log 2>&1 || { tail -5 $D/origbytes.log; return 1; }
+  python3 $T/delink/d3dx_closure.py $D/link --selftest > $D/d3dx_closure.log 2>&1; c=$?; tail -2 $D/d3dx_closure.log; [ $c = 0 ] || { grep -A3 "^FAIL" $D/d3dx_closure.log | head -12; return 1; }      # W14 A6: d3dx_dead.txt ranges unreached (names incl. .inc, pointer closure, absolute words) + run-time negative case
   python3 -I - $D/zero_original_bytes.json $R/output/zero_original_baseline.txt ${GATE_BASELINE_WRITE:-0} $(readlink -f $D/link) <<'PY'
 import json, os, sys
 j = json.load(open(sys.argv[1])); bf, wr = sys.argv[2], sys.argv[3] == "1"

@@ -1,6 +1,7 @@
 // cluster-entries: hudpanel_marker_place
 /* Installed cluster hudpanel_marker_place (tools/cluster_install.py from output/cluster_pilot_uc3/hudpanel_marker_place.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004c5380*/ extern void FUN_004c5380(undefined4 p0, undefined4 p1);
 /*004d1460*/ extern struct RwFrame * RwFrameTranslate(struct RwFrame *p0, struct RwV3d *p1, enum RwOpCombineType p2);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
@@ -127,7 +128,11 @@ LAB_0041c171:
   frame.mtx.up.x = 0.0;
   frame.mtx.right.z = 0.0;
   frame.mtx.right.y = 0.0;
+#if MFL_FIX_WIDESCREEN      /* the marker tracks its car across the whole (wider) screen */
+  frame.translate_vec.x = marker_x_f32 * k_f_1_2 * mfl_widescreen_hud_scale();
+#else
   frame.translate_vec.x = marker_x_f32 * k_f_1_2;
+#endif
   frame.translate_vec.y = (((float_1_0 - rec_ptr[1]) + (float_1_0 - rec_ptr[1])) - float_1_0) * k_f_0_5 *
                k_f_0_9;
   frame.mtx.at.y = 0.0;

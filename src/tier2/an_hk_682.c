@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
-extern char PTR_s_Training1_00607d00[];
-extern char PTR_s_Egypt1_00608390[];
-extern char PTR_s_Neustein1_006083b8[];
-extern char PTR_s_Tierra_PiedraNight1_006083e0[];
-extern char PTR_s_Training1_00608228[];
+extern RwChar *PTR_s_Training1_00607d00[];
+extern RwChar *PTR_s_Egypt1_00608390[];
+extern RwChar *PTR_s_Neustein1_006083b8[];
+extern RwChar *PTR_s_Tierra_PiedraNight1_006083e0[];
+extern RwChar *PTR_s_Training1_00608228[];
 /*0040d110*/ extern RwTexture *__cdecl find_texture_dict_d(RwChar *p0);
 /*00434bb0*/ extern int get_event_type();
 /*00607adc*/ extern undefined g_menu_texture_607adc;
@@ -33,12 +33,12 @@ RwTexture *menu_texture_dict_load(int item_index)
   if (((g_menu_event_column == 3) || (g_menu_event_column == 4)) || (g_menu_event_column == 5)) {
     texture_index = item_index + g_career_row * 2;
     if (g_menu_event_column == 5) {
-      return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00607d00)[item_index + TEXTURE_SET_B_OFFSET +g_career_row * 2]));
+      return find_texture_dict_d(PTR_s_Training1_00607d00[item_index + TEXTURE_SET_B_OFFSET +g_career_row * 2]);
     }
     if (g_menu_event_column == 4) {
       texture_index = item_index + TEXTURE_SET_A_OFFSET +g_career_row * 2;
     }
-    return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00607d00)[texture_index]));
+    return find_texture_dict_d(PTR_s_Training1_00607d00[texture_index]);
   }
   /* Other columns: if get_event_type() == EVENT_TRAINING, item 0 gets the first texture and the others the second. */
   texture_index = get_event_type();
@@ -51,18 +51,18 @@ RwTexture *menu_texture_dict_load(int item_index)
   /* Columns 0xe, 0xf, 0x10: one fixed texture table each, indexed by item_index + g_career_row * 2. */
   texture_index = item_index + g_career_row * 2;
   if (event_column == 0xe) {
-    return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Egypt1_00608390)[texture_index]));
+    return find_texture_dict_d(PTR_s_Egypt1_00608390[texture_index]);
   }
   if (event_column == 0xf) {
-    return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Neustein1_006083b8)[texture_index]));
+    return find_texture_dict_d(PTR_s_Neustein1_006083b8[texture_index]);
   }
   if (event_column == 0x10) {
-    return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Tierra_PiedraNight1_006083e0)[texture_index]));
+    return find_texture_dict_d(PTR_s_Tierra_PiedraNight1_006083e0[texture_index]);
   }
   /* Columns 8, 0xd, 2 (goto texture_set_b): PTR_s_Training1_00608228 with TEXTURE_SET_B_OFFSET. */
   if (event_column == 8) {
 texture_set_b:
-    return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00608228)[item_index + TEXTURE_SET_B_OFFSET +g_career_row * 2]));
+    return find_texture_dict_d(PTR_s_Training1_00608228[item_index + TEXTURE_SET_B_OFFSET +g_career_row * 2]);
   }
   /* Columns 1, 7, 0xc: TEXTURE_SET_A_OFFSET. Columns 6, 0xb and all others: no offset (goto texture_lookup). */
   if (event_column != 7) {
@@ -76,7 +76,7 @@ texture_set_b:
   }
   texture_index = item_index + TEXTURE_SET_A_OFFSET +g_career_row * 2;
 texture_lookup:
-  return find_texture_dict_d((RwChar *)(((undefined4 *)PTR_s_Training1_00608228)[texture_index]));
+  return find_texture_dict_d(PTR_s_Training1_00608228[texture_index]);
 }
 
 

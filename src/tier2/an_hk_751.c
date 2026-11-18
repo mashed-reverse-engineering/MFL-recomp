@@ -11,7 +11,7 @@
 /*004882d0*/ extern undefined __cdecl course_ribbons_render(void *p0);
 /*00488d80*/ extern undefined __cdecl particle_system_set_current_forward(void *p0, undefined4 p1, undefined4 p2);
 /*004a07d0*/ extern int rain_render();
-/*004a1880*/ extern int game_get_62ad2c();
+/*004a1880*/ extern byte *game_get_62ad2c();
 /*004f5780*/ extern struct RpWorld * RpWorldRender(struct RpWorld *p0);
 /*00668c18*/ extern struct CourseWorld g_course_world;
 /*00675668*/ extern struct CourseLap g_course_lap_data;
@@ -39,6 +39,7 @@ void course_render_cb3_dispatch(undefined4 select_arg)
   RwDevice *open_device;
   int scratch;
   byte *fog_color_ptr;
+  byte *fog_color_src;
   undefined4 viewport_camera;
   undefined4 particle_forward_arg;
 
@@ -63,14 +64,14 @@ void course_render_cb3_dispatch(undefined4 select_arg)
     RwRenderStateSet(rwRENDERSTATEFOGENABLE,(void *)0x1);
     /* fog colour: bytes 0, 1, 2 of game_get_62ad2c() are red, green, blue (inferred); packed as 0x40RRGGBB */
     open_device = &RwGlobalsRelease_dOpenDevice(RwEngineInstance);
-    fog_color_ptr = (byte *)game_get_62ad2c();
-    scratch = game_get_62ad2c();
-    fog_green = *(byte *)(scratch + 1);
+    fog_color_ptr = game_get_62ad2c();
+    fog_color_src = game_get_62ad2c();
+    fog_green = fog_color_src[1];
     fog_red = *fog_color_ptr;
-    scratch = game_get_62ad2c();
+    fog_color_src = game_get_62ad2c();
     (*RwDevice_fpRenderStateSet(open_device))
               (rwRENDERSTATEFOGCOLOR,
-               (void *)(((uint)fog_green | (fog_red | FOG_COLOR_RED_FLAG) << 8) << 8 | (uint)*(byte *)(scratch + 2)));
+               (void *)(((uint)fog_green | (fog_red | FOG_COLOR_RED_FLAG) << 8) << 8 | (uint)fog_color_src[2]));
     RwRenderStateSet(rwRENDERSTATEFOGTYPE,(void *)0x1);
     /* split_sectors[7] == 0: set particle forward from the viewport camera; otherwise render collision_bsps[0] world */
     if (g_course_lap_data.split_sectors[7] == 0) {

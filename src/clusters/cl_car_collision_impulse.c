@@ -33,6 +33,7 @@ car_collision_impulse(int car_index,RwBBox *obstacle_box,RwMatrix *box_matrix,fl
   double len_other;
   double dot, t, X2, Y2, Z2, px, py, pz;
   float len_v;
+  float dot_yx;
   struct {
     RwMatrix *car_matrix_ptr [2];
     float box_center_x;
@@ -66,9 +67,11 @@ car_collision_impulse(int car_index,RwBBox *obstacle_box,RwMatrix *box_matrix,fl
     frame.dir_car_to_contact.y = frame.contact_point.y - car_pos[1];
     frame.dir_car_to_contact.z = frame.contact_point.z - car_pos[2];
     RwV3dNormalize(&frame.dir_car_to_contact,&frame.dir_car_to_contact);
-    if (!(frame.dir_car_to_contact.z * player_car[car_index].velocity[2] +
-          frame.dir_car_to_contact.x * player_car[car_index].velocity[0] +
-          frame.dir_car_to_contact.y * player_car[car_index].velocity[1] < k_f_0)) {      /* NaN enters the branch (original: test ah,5; jnp) */
+    /* the original adds y*vy + x*vx first, then z*vz (0x47e733..0x47e753); the partial sum is a float
+       temporary so cl does not reassociate it (it stays in the x87 register) */
+    dot_yx = frame.dir_car_to_contact.y * player_car[car_index].velocity[1] +
+             frame.dir_car_to_contact.x * player_car[car_index].velocity[0];
+    if (!(dot_yx + frame.dir_car_to_contact.z * player_car[car_index].velocity[2] < k_f_0)) {      /* NaN enters the branch (original: test ah,5; jnp) */
       frame.dir_center_to_contact.x = frame.contact_point.x - frame.box_center_x;
       frame.dir_center_to_contact.y = frame.contact_point.y - frame.box_center_y;
       frame.dir_center_to_contact.z = frame.contact_point.z - frame.box_center_z;

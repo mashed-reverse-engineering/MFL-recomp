@@ -16,14 +16,17 @@ typedef struct MflShape {
 void rwp_shape_interval_from_support_points(MflShape *shape, float *dir, float *lo, float *hi)
 {
   float sup[3], neg[3];
+  double xy;      /* the original adds (x + y) + z; cl reorders the one-expression form, the temporary keeps the order */
 
   if (shape->ops->support_point(shape, dir, sup) != 0) {
-    hi[0] = dir[1] * sup[1] + sup[0] * dir[0] + dir[2] * sup[2];
+    xy = dir[0] * sup[0] + dir[1] * sup[1];
+    hi[0] = xy + dir[2] * sup[2];
     neg[0] = dir[0] * -1.0f;
     neg[1] = dir[1] * -1.0f;
     neg[2] = dir[2] * -1.0f;
     if (shape->ops->support_point(shape, neg, sup) != 0) {
-      lo[0] = dir[1] * sup[1] + sup[0] * dir[0] + dir[2] * sup[2];
+      xy = dir[0] * sup[0] + dir[1] * sup[1];
+      lo[0] = xy + dir[2] * sup[2];
     }
   }
 }

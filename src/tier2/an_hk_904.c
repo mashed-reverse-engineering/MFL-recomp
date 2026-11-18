@@ -304,7 +304,7 @@ warzone_override:
     if (k_f_6 < bot->leader_distance) {
       inputs[5] = INPUT_PARTIAL;
     }
-    if ((g_race_clock_b / BLINK_DIVISOR & BLINK_BIT) != 0) {
+    if (((int)g_race_clock_b / BLINK_DIVISOR & BLINK_BIT) != 0) {      /* signed divide as the original (0x419bad); W14 classsweep div */
       *inputs = INPUT_MAX;
       goto catchup_scaling;
     }

@@ -7,7 +7,7 @@
 /*006c3eac*/ extern undefined4 g_gfx_6c3eac;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*0089de08*/ extern int (__cdecl *g_gfx_89de08)();
-/*0089de0c*/ extern undefined4 g_gfx_89de0c;
+/*0089de0c*/ extern char *g_gfx_89de0c;
 /* gfx_render_state_probe */
 /* compile: /GS */
 
@@ -23,7 +23,7 @@ void gfx_render_state_probe(void)
   int *slot;
   int j_next4;
   int j;
-  int base;
+  char *base;
   int index;
   union {
     char gs_buf[16];

@@ -103,7 +103,12 @@ int rwp_aggregate_00588cb0(void *a1, MflPairBody **pair, float t, float *dir, fl
           c[0] = eb[j][2] * ea[i][1] - eb[j][1] * ea[i][2];
           c[1] = eb[j][0] * ea[i][2] - ea[i][0] * eb[j][2];
           c[2] = eb[j][1] * ea[i][0] - eb[j][0] * ea[i][1];
-          len2 = c[1] * c[1] + c[0] * c[0] + c[2] * c[2];
+          {
+            /* the original (0x58902e..0x589048): (c1^2 + c0^2) + c2^2; cl compiled the one-expression form as (c2^2 + c1^2) + c0^2,
+               the temporary keeps the order */
+            double yx = c[1] * c[1] + c[0] * c[0];
+            len2 = yx + c[2] * c[2];
+          }
           if (len2 > 9.999999974752427e-07f) {
             inv = 1.0f / sqrt(len2);
             c[0] = c[0] * inv;

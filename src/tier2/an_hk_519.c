@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
 /*0040fdb0*/ extern int get_player_count();
-/*0042a3f0*/ extern void * course_get_rpworld();
+/*0042a3f0*/ extern RpWorld * course_get_rpworld();
 /*00452b90*/ extern undefined __cdecl viewport_camera_sync_to_main(undefined4 p0, void *p1, void *p2);
 /*00475730*/ extern int get_viewport_camera();
-/*00495c30*/ extern int viewport_get_camera();
+/*00495c30*/ extern RwCamera * viewport_get_camera();
 /*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
 /*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
 /*004f4440*/ extern struct RpWorld * RpWorldAddCamera(struct RpWorld *p0, struct RwCamera *p1);
@@ -37,7 +37,8 @@ void course_superg_cb4(char *param_1)
   RwV2d *view_window;
   RwCamera *viewport_camera;
   RpWorld *course_world;
-  undefined4 scratch; /* reused: viewport camera, begin/end update arg, player count */
+  undefined4 scratch; /* reused: player count */
+  RwCamera *update_camera;
   RwRGBA *clear_color;
   RwInt32 clear_flags;
   RwRGBA white_color;
@@ -48,18 +49,18 @@ void course_superg_cb4(char *param_1)
   white_color.alpha = WHITE_CHANNEL;
   camera = get_viewport_camera(0);
   view_window = (RwV2d *)(camera + CAMERA_VIEW_WINDOW_OFFSET);
-  viewport_camera = (RwCamera *)viewport_get_camera(0);
+  viewport_camera = viewport_get_camera(0);
   RwCameraSetViewWindow(viewport_camera,view_window);
   viewport_camera_sync_to_main(0,viewport_camera,view_window);
   clear_color = &white_color;
   clear_flags = CAMERA_CLEAR_IMAGE_AND_Z;
-  viewport_camera = (RwCamera *)viewport_get_camera(0);
+  viewport_camera = viewport_get_camera(0);
   RwCameraClear(viewport_camera,clear_color,clear_flags);
-  viewport_camera = (RwCamera *)viewport_get_camera(0);
-  course_world = (RpWorld *)course_get_rpworld();
+  viewport_camera = viewport_get_camera(0);
+  course_world = course_get_rpworld();
   RpWorldAddCamera(course_world,viewport_camera);
-  scratch = viewport_get_camera(0);
-  camera = RwCameraBeginUpdate(scratch);
+  update_camera = viewport_get_camera(0);
+  camera = RwCameraBeginUpdate(update_camera);
   /* only render when the camera update started */
   if (camera != 0) {
     /* fog on, colour packed from the three fog bytes in the render state */
@@ -83,13 +84,13 @@ void course_superg_cb4(char *param_1)
     }
     /* fog off, end the camera update */
     RwRenderStateSet(rwRENDERSTATEFOGENABLE,(void *)0x0);
-    scratch = viewport_get_camera(0);
-    RwCameraEndUpdate(scratch);
+    update_camera = viewport_get_camera(0);
+    RwCameraEndUpdate(update_camera);
   }
   /* detach the camera from the course world and clear Z only */
   clear_color = &white_color;
-  viewport_camera = (RwCamera *)viewport_get_camera(0);
-  course_world = (RpWorld *)course_get_rpworld();
+  viewport_camera = viewport_get_camera(0);
+  course_world = course_get_rpworld();
   RpWorldRemoveCamera(course_world,viewport_camera);
   clear_flags = CAMERA_CLEAR_Z_ONLY;
   viewport_camera = (RwCamera *)get_viewport_camera(0);

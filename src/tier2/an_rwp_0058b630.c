@@ -40,9 +40,16 @@ float *rwp_triangle_support_vertex(float *s, float *dir, float *out)
   float *v;
   int sh;
 
-  d0 = -(s[0] * dir[0] + s[1] * dir[1] + s[2] * dir[2]);
-  d1 = -(s[4] * dir[0] + s[5] * dir[1] + s[6] * dir[2]);
-  d2 = -(s[8] * dir[0] + s[9] * dir[1] + s[10] * dir[2]);
+  {
+    /* the original adds (x + y) + z for each vertex (0x58b5xx); cl reordered the one-expression form, the temporaries keep the order */
+    double xy;
+    xy = s[0] * dir[0] + s[1] * dir[1];
+    d0 = -(xy + s[2] * dir[2]);
+    xy = s[4] * dir[0] + s[5] * dir[1];
+    d1 = -(xy + s[6] * dir[2]);
+    xy = s[8] * dir[0] + s[9] * dir[1];
+    d2 = -(xy + s[10] * dir[2]);
+  }
   sh = ((((d0 > d1) << 1 | (d0 > d2)) << 1) | (d1 > d2)) << 2;
   v = s + ((0x21312300 >> sh) & 3) * 4;
   out[0] = v[0];
@@ -289,9 +296,16 @@ int rwp_triangle_interval(float *s, float *dir, float *lo, float *hi)
   float d[3];
   int sh;
 
-  d[0] = s[0] * dir[0] + s[1] * dir[1] + s[2] * dir[2];
-  d[1] = s[4] * dir[0] + s[5] * dir[1] + s[6] * dir[2];
-  d[2] = s[8] * dir[0] + s[9] * dir[1] + s[10] * dir[2];
+  {
+    /* the original adds (x + y) + z for each vertex; cl reordered the one-expression form, the temporaries keep the order */
+    double xy;
+    xy = s[0] * dir[0] + s[1] * dir[1];
+    d[0] = xy + s[2] * dir[2];
+    xy = s[4] * dir[0] + s[5] * dir[1];
+    d[1] = xy + s[6] * dir[2];
+    xy = s[8] * dir[0] + s[9] * dir[1];
+    d[2] = xy + s[10] * dir[2];
+  }
   sh = ((((d[0] > d[1]) << 1 | (d[0] > d[2])) << 1) | (d[1] > d[2])) << 2;
   *(int *)lo = ((int *)d)[(0x21312300 >> sh) & 3];
   *(int *)hi = ((int *)d)[(0x321312 >> sh) & 3];

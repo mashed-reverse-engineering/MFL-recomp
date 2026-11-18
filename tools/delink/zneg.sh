@@ -49,7 +49,7 @@ import json, sys
 j = json.load(open(sys.argv[1]))
 cur = {"rsrc": j["resources"]["rsrc_original_bytes"]} if sys.argv[3] == "rsrc" else {"data:bss:lib": j["data_by_section"]["bss"].get("lib", 0)} if sys.argv[3] == "bss" else {"data:%s:lib" % s: j["data_by_section"][s].get("lib", 0) for s in ("data", "rdata")} if sys.argv[3] in ("lua", "crt") else {"code:" + L: v.get("original", 0) for L, v in j["code"].items()}
 if sys.argv[3] in ("audio", "rwp", "dshow", "rw") or sys.argv[3].startswith("d3dx"):      # W13 Z4: the data lines and the per-layer library data lines
-    cur = {"data:%s:lib" % s: j["data_by_section"][s].get("lib", 0) for s in ("data", "rdata")}
+    cur = {"data:%s:%s" % (s, k): j["data_by_section"][s].get(k, 0) for s in ("data", "rdata") for k in ("lib", "gap")}      # W14 L3 D5: gap rows (d3dx7)
     cur.update({"datalib:%s:%s" % (L, s): n for L, ss in j["data_lib_by_layer"].items() for s, n in ss.items()})
 old = {}
 for l in open(sys.argv[2]):

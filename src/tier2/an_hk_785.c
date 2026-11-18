@@ -30,6 +30,7 @@ void fx_trail_particle_spawn_interpolated(float *template_particle,float interp_
   float delta_x;
   float delta_y;
   float delta_z;
+  double dist_xy;
   float *src_particle;
   int emit_offset;
   float *new_particle;
@@ -55,7 +56,8 @@ void fx_trail_particle_spawn_interpolated(float *template_particle,float interp_
     }
     else {
       /* Too far from the stored point (squared distance): skip this spawn entirely. */
-      if (k_f_0_80999994 < delta_z * delta_z + delta_x * delta_x + delta_y * delta_y) {
+      dist_xy = delta_x * delta_x + delta_y * delta_y;      /* the original adds (x + y) + z */
+      if (k_f_0_80999994 < dist_xy + delta_z * delta_z) {
         return;
       }
       /* Lerp the spawn point toward the stored emission point by interp_t. */

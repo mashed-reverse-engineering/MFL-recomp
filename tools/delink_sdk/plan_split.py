@@ -309,12 +309,13 @@ src = open(os.path.join(G, "tools", "libmatch_lib.py")).read().replace("\nmain()
 exec(compile(src, "libmatch_lib", "exec"), ns_)
 RWLIB = os.path.join(G, "toolchain", "rwsdk", "lib", "d3d9", "release")
 VC7LIB = os.path.join(G, "toolchain", "vc7", "Vc7", "lib")
+if not os.path.isdir(RWLIB): print("plan_split: %s absent, its members are not in the closure (W14 B0 F2, as rw_overlay_prep)" % RWLIB, file=sys.stderr)
 inexe = set()
 for lib_ in cfg.sections():
     for f in cfg[lib_].get("members", "").split():
         inexe |= {l.split(None, 1)[1].strip() for l in open(os.path.join(G, f)) if len(l.split(None, 1)) == 2}
 libdef = {}; libund = {}; libdefs_of = {}; libbody = {}
-for dd, libs in ((RWLIB, sorted(x for x in os.listdir(RWLIB) if x.endswith(".lib"))), (VC7LIB, ["libcmt.lib"])):
+for dd, libs in ((RWLIB, sorted(x for x in os.listdir(RWLIB) if x.endswith(".lib")) if os.path.isdir(RWLIB) else []), (VC7LIB, ["libcmt.lib"])):
     for lb in libs:
         for mem, body in ns_["members"](os.path.join(dd, lb)):
             key = lb + ":" + mem

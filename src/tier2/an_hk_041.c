@@ -1,9 +1,9 @@
 #include "mfl_tier2.h"
-/*0042a3f0*/ extern void * course_get_rpworld();
+/*0042a3f0*/ extern RpWorld * course_get_rpworld();
 /*00452b90*/ extern undefined __cdecl viewport_camera_sync_to_main(undefined4 p0, void *p1, void *p2);
 /*00452bc0*/ extern int course_arctic_camera_relative_update();
 /*00475730*/ extern int get_viewport_camera();
-/*00495c30*/ extern int viewport_get_camera();
+/*00495c30*/ extern RwCamera * viewport_get_camera();
 /*0049b700*/ extern int fx_ptank_render_b();
 /*004d1d40*/ extern struct RwCamera * RwCameraClear(struct RwCamera *p0, struct RwRGBA *p1, RwInt32 p2);
 /*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
@@ -32,7 +32,7 @@ void course_arctic_cb4(char *course_state)
   RwV2d *view_window;
   RwCamera *cam;
   RpWorld *world;
-  undefined4 viewport_camera;
+  RwCamera *viewport_camera;
   RwRGBA *clear_colour_ptr;
   RwInt32 clear_mode;
   RwRGBA clear_colour;
@@ -46,17 +46,17 @@ void course_arctic_cb4(char *course_state)
      the same local is reused for the BeginUpdate result below */
   camera = get_viewport_camera(0);
   view_window = (RwV2d *)(camera + 0x68);
-  cam = (RwCamera *)viewport_get_camera(0);
+  cam = viewport_get_camera(0);
   RwCameraSetViewWindow(cam,view_window);
   viewport_camera_sync_to_main(0,cam,view_window);
   /* clear the colour buffer with the colour above */
   clear_mode = rwCAMERACLEARIMAGE;
   clear_colour_ptr = &clear_colour;
-  cam = (RwCamera *)viewport_get_camera(0);
+  cam = viewport_get_camera(0);
   RwCameraClear(cam,clear_colour_ptr,clear_mode);
   /* add the camera to the course world and update it */
-  cam = (RwCamera *)viewport_get_camera(0);
-  world = (RpWorld *)course_get_rpworld();
+  cam = viewport_get_camera(0);
+  world = course_get_rpworld();
   RpWorldAddCamera(world,cam);
   course_arctic_camera_relative_update(course_state);
   /* draw only between BeginUpdate and EndUpdate, and only if BeginUpdate succeeded */
@@ -85,8 +85,8 @@ void course_arctic_cb4(char *course_state)
     viewport_camera = viewport_get_camera(0);
     RwCameraEndUpdate(viewport_camera);
   }
-  cam = (RwCamera *)viewport_get_camera(0);
-  world = (RpWorld *)course_get_rpworld();
+  cam = viewport_get_camera(0);
+  world = course_get_rpworld();
   RpWorldRemoveCamera(world,cam);
   return;
 }

@@ -1,5 +1,5 @@
 # loadscale.sh (W13 C4, harness review finding 9): the one load rule of the run tools, sourced by scenario.sh, scen_inner.sh, gate.sh and
-# delink/state_compare.sh; memwait.pl (perl) computes the same factor with the same default cap.
+# delink/state_compare.sh and (W14 A2) d3dtrace/run.sh; memwait.pl (perl) computes the same factor with the same default cap.
 #   load:    max(1-minute load average, tasks running right now) (/proc/loadavg fields 1 and 4): the running count follows a burst of
 #            game starts at once, the average lags it by a minute
 #   factor:  load / 4, at least 1, at most LOADCAP (default 3)

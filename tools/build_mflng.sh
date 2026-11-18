@@ -19,10 +19,14 @@ need() { [ -e "$2" ] || { echo "MISSING $1: $2"; miss=1; }; }
 cmd() { command -v "$1" > /dev/null || { echo "MISSING command $1 ($2)"; miss=1; }; }
 cmd python3 "Python 3"; cmd docker "Docker"; cmd i686-w64-mingw32-gcc "mingw-w64 (dinput tables, RenderWare thunks)"; cmd i686-w64-mingw32-as "mingw-w64 binutils"
 cmd objcopy "binutils"; cmd objdump "binutils"; cmd nm "binutils"
-VC7=$(readlink -f "${VC7_ROOT:-$G/toolchain/vc7}")
+[ -n "$VC7_ROOT" ] && { echo "build_mflng: unset VC7_ROOT (tools/vc7.sh would take it for the cl 13.10 files too); put the compilers at toolchain/vc7 and toolchain/vc71 (symlinks are fine)"; exit 2; }
+VC7=$(readlink -f "$G/toolchain/vc7")
 need "Visual C++ .NET 2002 compiler (cl 13.00.9466)" "$VC7/Vc7/bin/cl.exe"
 need "Visual C++ .NET 2002 linker" "$VC7/Vc7/bin/link.exe"
 need "VC7 libcmt.lib (C runtime members linked from it)" "$VC7/Vc7/lib/libcmt.lib"
+# W14 B0 F4: 16 tier 1 files carry `/* compile: cl1310 */` (cl 13.10, Visual C++ Toolkit 2003; build_overlay.py VC7_CL=1310); without it a cold
+# object cache ends in wine's "Can't recognize 'cl.exe ...'"
+need "Visual C++ Toolkit 2003 compiler (cl 13.10, for the files marked compile: cl1310)" "$G/toolchain/vc71/Vc7/bin/cl.exe"
 INST=$G/../MashedGame/FullyLoaded/installed
 need "the game install the link reads (MFL.exe at the tree's install path)" "$INST/App_Executables/MFL.exe"
 REF=${MFL_REFS:-$G/../references}
@@ -36,6 +40,8 @@ if command -v docker > /dev/null && ! docker image inspect tianon/wine@sha256:87
   echo "MISSING docker image tianon/wine@sha256:878222fe... (docker pull tianon/wine@sha256:878222fee186d28e06b6c34996590e786d5d073de24b8ee5ac4bcb9cddb18497)"; miss=1; fi
 [ -f "$INST/App_Executables/MFL.exe" ] && ! cmp -s "$EXE" "$INST/App_Executables/MFL.exe" && { echo "build_mflng: $EXE differs from $INST/App_Executables/MFL.exe"; exit 2; }
 [ $miss = 0 ] || { echo "build_mflng: prerequisites missing (see BUILDING.md)"; exit 2; }
+# W14 B0 F10: the link's tools (globgen.py, cmpfn.py, ...) read game/MFL.exe
+if [ -e "$G/game/MFL.exe" ]; then cmp -s "$EXE" "$G/game/MFL.exe" || { echo "build_mflng: $G/game/MFL.exe differs from $EXE"; exit 2; }; else mkdir -p "$G/game"; ln -s "$(readlink -f "$EXE")" "$G/game/MFL.exe"; fi
 
 # ---- switch list from src/mfl_fix.h (one place; a pair marked "excludes" there ends the fixes build)
 FIXES=$(sed -n 's/^#define \(MFL_FIX_[A-Z0-9_]*\) 0$/\1/p' "$G/src/mfl_fix.h")

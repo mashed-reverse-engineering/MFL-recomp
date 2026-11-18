@@ -24,7 +24,11 @@ float rwp_axis_separation_a(MflBodyRef **pair, MflAxis *axis, float *out_n, floa
   MflBodyRef *b2 = pair[1];
   float centre, near_end, far_end, overlap;
 
-  centre = xf[13] * axis->n[1] + xf[12] * axis->n[0] + xf[14] * axis->n[2];
+  {
+    /* the original adds (x + y) + z (0x589270); cl compiled the one-expression form as (x + z) + y, the temporary keeps the order */
+    double xy = xf[12] * axis->n[0] + xf[13] * axis->n[1];
+    centre = xy + xf[14] * axis->n[2];
+  }
   fv[0] = centre + axis->lo;
   fv[1] = centre + axis->hi;
   rwp_shape_interval_along_dir(b2->shape, b2->xf, axis, &far_end, &near_end);

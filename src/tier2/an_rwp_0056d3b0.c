@@ -131,6 +131,10 @@ MflSupportFace *rwp_box_0056d3b0(float *box, int flip, MflV3 *dir, MflSupportFac
     face->n.y = (float)(row[1] * g);
     face->n.z = (float)(row[2] * g);
   }
-  face->d = face->pts[0].y * face->n.y + face->pts[0].x * face->n.x + face->pts[0].z * face->n.z;
+  {
+    /* the original adds (x + y) + z (0x56d3b0 tail); in one expression cl moved z before x, the temporary keeps the order */
+    float dxy = face->pts[0].x * face->n.x + face->pts[0].y * face->n.y;
+    face->d = dxy + face->pts[0].z * face->n.z;
+  }
   return face;
 }

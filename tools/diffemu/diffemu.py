@@ -42,8 +42,12 @@ def index():
     return idx
 
 def compile_obj(src):
-    """object of a whole C file (headers next to it), cached by source + headers + flags (like build_overlay.py)"""
-    d = os.path.dirname(src); h = sha(*[open(os.path.join(d, x), "rb").read() for x in sorted(os.listdir(d)) if x.endswith(".h")])
+    """object of a whole C file (headers as build_overlay.py sees them), cached by source + headers + flags (like build_overlay.py)"""
+    d = os.path.dirname(src); R = os.path.join(ROOT, "src"); hs = {}
+    for hd in (R, os.path.join(R, "tier1"), d):      # W14 DT (= check_one.py b1fix c4f47234): src/*.h, src/tier1/*.h, then the source dir's .h / .inc (they win); the ag_ files include mfl_tier2.h, which is not in src/automatch_agent/
+        for x in os.listdir(hd):
+            if x.endswith(".h") or hd == d and x.endswith(".inc"): hs[x] = os.path.join(hd, x)
+    h = sha(*[open(hs[x], "rb").read() for x in sorted(hs) if x.endswith(".h")])      # ponytail: every src/*.h is in every key (a header edit reruns all rows); per-file include scan if that gets costly
     gs = [] if b"compile: /GS" not in open(src, "rb").read() else ["/GS"]      # per-file opt-in for /GS stack-cookie functions (tools/gsfix.py)
     FLAGS_ = FLAGS + gs + (["/G5"] if b"compile: /G5" in open(src, "rb").read() else []) + (["/Op"] if b"compile: /Op" in open(src, "rb").read() else []) + (["/DMFL_DIFFEMU"] if b"diffemu-define: MFL_DIFFEMU" in open(src, "rb").read() else [])      # MFL_DIFFEMU: the diffemu object leaves out code that is not in MFL.exe (mflrw bind)      # VC6-built RenderWare functions (build_overlay.py)
     _m = open(src, "rb").read(); cc = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant (vc7.sh VC7_CL), same rule as tools/cmpfn.py / build_overlay.py
@@ -53,8 +57,7 @@ def compile_obj(src):
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True)
     w = tempfile.mkdtemp(prefix="dx_", dir=core.cmpfn.WORKROOT)
     try:
-        for x in os.listdir(d):
-            if x.endswith((".h", ".inc")): shutil.copy(os.path.join(d, x), w)
+        for p in hs.values(): shutil.copy(p, w)
         shutil.copy(src, os.path.join(w, "f.c"))
         r = subprocess.run([core.cmpfn.VC7, w, "cl.exe"] + FLAGS_ + ["f.c"], capture_output=True, text=True, timeout=300, env=dict(os.environ, VC7_CL=cc))
         if not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("compile error: " + (r.stdout + r.stderr)[-300:])
@@ -214,10 +217,10 @@ def main():
         o = srcs[idx[n][0]]
         if isinstance(o, Exception):
             res[n] = dict(name=n, va="%08x" % min(T().sym[n]), verdict="INCONCLUSIVE", cases=0, coverage_orig="0.00", coverage_ours="0.00", note=str(o)[:200]); continue
-        key = sha(o[1], n, cases, seeds, TOOLHASH, T().hash)
+        key = sha(o[1], n, cases, seeds, TOOLHASH, T().hash, "eax32" if core.eax_read(n) else "")      # eax32: the full-eax compare (core.eax_readers / DIFFEMU_VOID_EAX) is part of the verdict
         if not force and n in cache and cache[n]["key"] == key: res[n] = cache[n]; res[n]["cached"] = 1
         else: todo.append((n, idx[n][0], o[0], cases, seeds, budget)); cache.pop(n, None); res.setdefault(n, None); keys = None
-    keyof = {n: sha(srcs[idx[n][0]][1], n, cases, seeds, TOOLHASH, T().hash) for n in names if not isinstance(srcs[idx[n][0]], Exception)}
+    keyof = {n: sha(srcs[idx[n][0]][1], n, cases, seeds, TOOLHASH, T().hash, "eax32" if core.eax_read(n) else "") for n in names if not isinstance(srcs[idx[n][0]], Exception)}
     print("%d functions, %d to run (%d cached), compile %.0fs" % (len(names), len(todo), len(names) - len(todo), time.time() - t0)); sys.stdout.flush()
     with Pool(min(jobs, max(1, len(todo)))) as p:
         for row in p.imap_unordered(job, todo):

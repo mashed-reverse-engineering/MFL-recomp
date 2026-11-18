@@ -30,27 +30,28 @@ int random_int_range(int lo, int hi)
 }
 
 // FUNCTION: MFL 0x0040d0d0
-void find_texture_dict_b(const char *name)
+/* The four lookups return the texture (callers use eax). */
+int find_texture_dict_b(const char *name)
 {
-    RwTexDictionaryFindNamedTexture(g_load_652dd8, name);
+    return RwTexDictionaryFindNamedTexture(g_load_652dd8, name);
 }
 
 // FUNCTION: MFL 0x0040d0f0
-void find_texture_dict_c(const char *name)
+int find_texture_dict_c(const char *name)
 {
-    RwTexDictionaryFindNamedTexture(g_effects_652ddc, name);
+    return RwTexDictionaryFindNamedTexture(g_effects_652ddc, name);
 }
 
 // FUNCTION: MFL 0x0040d110
-void find_texture_dict_d(const char *name)
+int find_texture_dict_d(const char *name)
 {
-    RwTexDictionaryFindNamedTexture(g_effects_652de0, name);
+    return RwTexDictionaryFindNamedTexture(g_effects_652de0, name);
 }
 
 // FUNCTION: MFL 0x0040d130
-void find_texture_a(const char *name)
+int find_texture_a(const char *name)
 {
-    RwTexDictionaryFindNamedTexture(g_effects_652de4, name);
+    return RwTexDictionaryFindNamedTexture(g_effects_652de4, name);
 }
 
 // FUNCTION: MFL 0x00409210

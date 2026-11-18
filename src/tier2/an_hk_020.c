@@ -456,8 +456,10 @@ extern char g_game_state_records_3_[];
 
 /* "false for event 0xE, else depends on ui_fn_435ec0 (event type is a career event)" */
 
+/* Returns int, not bool: the original sets all of eax and its callers (menu_draw_event_descriptions 0x4408c0) test eax; a bool return set
+   only al (`xor al, al`), leaving the upper bytes of eax undefined. */
 /* TIER2: validated 2026-10-19 authority=diffemu */
-bool __cdecl menu_event_is_selectable(int event_row)
+int __cdecl menu_event_is_selectable(int event_row)
 {
   int uses_menu_or_count;
   uint completed_count;

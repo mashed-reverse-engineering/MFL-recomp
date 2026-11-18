@@ -41,6 +41,10 @@ void car_points_vs_triangles(int *car,int triangles)
   float *tri_next;
   RwV3d *contact;
   RwReal spin_len;
+  double yz;
+  double edge1_yz;
+  double xy;
+  double spin_scale;
   struct {
     RwV3d spin_vel;
     float *tri;
@@ -98,15 +102,15 @@ void car_points_vs_triangles(int *car,int triangles)
             frame.px = frame.point[-1];
             frame.py = *frame.point;
             frame.pz = frame.point[1];
-            frame.depth = (frame.px - frame.v0x) * frame.nx +
-                       (frame.py - frame.v0y) * frame.ny + frame.nz * (frame.pz - frame.v0z);
+            /* the original adds y + z first, then x (depth and edge 1); double temporaries keep that order */
+            yz = (frame.py - frame.v0y) * frame.ny + frame.nz * (frame.pz - frame.v0z);
+            frame.depth = yz + (frame.px - frame.v0x) * frame.nx;
+            edge1_yz = (frame.py - frame.v1y) * tri_next[0x1d] + (frame.pz - frame.v1z) * tri_next[0x1e];
             if ((frame.depth < k_f_0) &&
                ((((k_f_0 <= (frame.pz - frame.v0z) * tri_next[0x1b] +
                             (frame.px - frame.v0x) * tri_next[0x19] +
                             (frame.py - frame.v0y) * tri_next[0x1a] &&
-                  (k_f_0 <= (frame.px - frame.v1x) * tri_next[0x1c] +
-                            (frame.py - frame.v1y) * tri_next[0x1d] +
-                            (frame.pz - frame.v1z) * tri_next[0x1e])) &&
+                  (k_f_0 <= edge1_yz + (frame.px - frame.v1x) * tri_next[0x1c])) &&
                  (k_f_0 <= (frame.px - frame.v2x) * tri_next[0x1f] +
                            (frame.py - frame.v2y) * tri_next[0x20] +
                            (frame.pz - frame.v2z) * tri_next[0x21])) && !(k_f_n0_1 > frame.depth)))) {
@@ -127,7 +131,10 @@ void car_points_vs_triangles(int *car,int triangles)
                 RwV3dTransformVectors(&frame.spin_vel,(RwV3d *)&contact[1].z,1,&frame.spin_matrix);
                 RwV3dNormalize(&frame.spin_vel,&frame.spin_vel);
                 spin_len = RwV3dLength((RwV3d *)(car + 0x26f));
-                cos_in = spin_len * k_f_360 * contact[-1].z * k_f_0_2777778;
+                /* the original multiplies ((len * 360) * lever) * (1 / 3.6) in this order */
+                spin_scale = spin_len * k_f_360;
+                spin_scale = spin_scale * contact[-1].z;
+                cos_in = spin_scale * k_f_0_2777778;
                 frame.spin_vel.x = frame.spin_vel.x * cos_in;
                 frame.spin_vel.y = frame.spin_vel.y * cos_in;
                 frame.spin_vel.z = frame.spin_vel.z * cos_in;
@@ -140,7 +147,8 @@ void car_points_vs_triangles(int *car,int triangles)
               if (k_f_1_0en4 < frame.speed) {
                 RwV3dNormalize(contact,contact);
                 tri_cur = frame.tri;
-                cos_in = contact->y * frame.tri[8] + contact->x * frame.tri[7] + frame.tri[9] * contact->z;      /* the original adds y, x, z contact this order */
+                xy = contact->x * frame.tri[7] + contact->y * frame.tri[8];      /* the original adds (x + y) + z */
+                cos_in = xy + contact->z * frame.tri[9];
                 tri_next = frame.tri;
                 if (cos_in < k_f_0) {
                   if (cos_in < k_f_n1) {

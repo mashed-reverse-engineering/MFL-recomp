@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040fdb0*/ extern int get_player_count();
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0041b810*/ extern int race_mark_ai_slots();
@@ -130,9 +131,15 @@ void __cdecl vehicle_skidmarks_render(int slot_index)
   if (segment_count != 0) {
     g_vehicle_render_7ef74c = g_vehicle_render_7ef74c + float_1_0;
     g_vehicle_render_7ef750 = (float)segment_count;
+#if MFL_FIX_WIDESCREEN      /* the view window x is wider by 0.75 / factor at a wide mode: use the 4:3 value, so the skid value stays as before */
+    *(float *)((char *)&g_game_65d810 + record_offset) =
+         ((float_1_0 - *(float *)(*(char **)&RwCameraGetCurrentCamera() + 0x68) * mfl_widescreen_fov_factor() / 0.75f) + float_1_0) *
+         k_f_0_02;
+#else
     *(float *)((char *)&g_game_65d810 + record_offset) =
          ((float_1_0 - *(float *)(*(char **)&RwCameraGetCurrentCamera() + 0x68)) + float_1_0) *
          k_f_0_02;
+#endif
     if (0 < segment_count) {
       segment_count = *(int *)((char *)&g_game_65d80c + record_offset);
       src_segment = (undefined4 *)((char *)&g_vehicle_render_65c90c + record_offset);

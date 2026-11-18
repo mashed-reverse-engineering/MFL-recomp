@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """statecmp.py: N1 per-frame state compare of two statehash.bin files (d3d9 proxy, cfg statehash=1, run.sh STATEHASH=1).
 The file holds, per Present, the changed 4 KB pages of the game's writable image (.data + .bss, original VA 0x5fb000-0x949d64, + sh_delta in the
-standalone link) and the committed private memory ranges (heap).  Both sides are reconstructed frame by frame and compared word by word.
+standalone link) and the LIST of committed private memory ranges (base, size; used for the heap-pointer test, their contents are not hashed).  Both sides are reconstructed frame by frame and compared word by word.
 
   statecmp.py A.bin B.bin [--map-b ours.map] [--ptr state_ptrwords.txt] [--mask state_mask.txt] [--frames N] [--show K] [--rwpad state_rwpad.txt]
       A = control.  B = control again (determinism) or ours (--map-b: the link map, pointers in B are translated to original VAs).

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004089e0*/ extern int fx_object_get_rwp_id();
 /*0040fdc0*/ extern int race_get_phase();
 /*0040fe20*/ extern int __cdecl race_setup_slot_used(undefined4 p0);
@@ -204,6 +205,17 @@ undefined * weapon_flashbang_equip(WeaponSlot *slot)
   int record_index;
   RpClump *clump;
 
+#if MFL_FIX_EQUIP_FLUSH
+  extern void weapon_fx_clump_remove_a_n(int in_esi);      /* the cluster's natural C form (clusters/cl_weapon_fx_clump_remove_a.c) */
+  /* MFL_FIX_EQUIP_FLUSH (default off, differs from the original): an unequip only sets the record state (+0xc) to 5; weapon_flashbang_update
+     (weapon_flashbang_state_step) releases it later in the frame.  A drop + equip before that found no free record and wrote a fifth one
+     at 0x6A5DC8.  Release the pending records here: state 5 -> 0 plus weapon_fx_clump_remove_a, which itself zeroes +0x8 and +0xc. */
+  for (record = &g_weapon_flashbang_6a5d84; (LONG_PTR)record < FLASHBANG_RECORDS_END; record = record + FLASHBANG_RECORD_DWORDS) {
+    if (*record == 5) {
+      weapon_fx_clump_remove_a_n((int)record - 0xc);
+    }
+  }
+#endif
   /* find the first record whose in-use flag is clear */
   record_index = 0;
   record = &g_weapon_flashbang_6a5d84;
@@ -413,7 +425,18 @@ undefined * weapon_mines_equip(WeaponSlot *weapon_slot)
   int record_index;
   int attached_count;
   RpClump *clump;
-  
+
+#if MFL_FIX_EQUIP_FLUSH
+  extern void weapon_fx_pool_clear_b_n(int in_edi);      /* the cluster's natural C form (clusters/cl_weapon_fx_pool_clear_b.c) */
+  /* MFL_FIX_EQUIP_FLUSH (default off, differs from the original): an unequip only marks its record state 2; weapon_mines_update
+     (pass 1) releases it later in the frame.  A drop + equip before that (MashedTrainer, 3-4 mine holders) found no free record and
+     wrote the fifth one at 0x6A8B58 (over the Mine.dff / MineDropper.dff templates).  Release the pending records here, the same call. */
+  for (record = &g_weapon_6a8af8; record < &g_weapon_6a8af8 + 4 * MINE_EQUIP_RECORD_BYTES; record = record + MINE_EQUIP_RECORD_BYTES) {
+    if (*(int *)(record + 0x10) == 2) {
+      weapon_fx_pool_clear_b_n((int)record);
+    }
+  }
+#endif
   /* find the first unused equip record; record_index is its index (inferred) */
   record_index = 0;
   flag_ptr = &g_weapon_mines_6a8b08;

@@ -38,6 +38,7 @@ void car_ground_contact_forces_n(Car *car)
   float *contact;
   int wheels_touching;
   RwReal vec_len;
+  double up_yx;
   struct {
     float pad_bot;
     float tangent_force_sum;
@@ -139,7 +140,8 @@ void car_ground_contact_forces_n(Car *car)
       frame.total_force_z = frame.extra_force.z + frame.total_force_z;
       if (3 < contact_index) {
         RwV3dNormalize(&frame.normal_dir,(RwV3d *)(contact + 8));
-        tmp_f = frame.normal_dir.x * contact[-1] + frame.normal_dir.y * *contact + frame.normal_dir.z * contact[1];
+        up_yx = frame.normal_dir.x * contact[-1] + frame.normal_dir.y * *contact;      /* the original adds (x + y) + z */
+        tmp_f = up_yx + frame.normal_dir.z * contact[1];
         vec_len = RwV3dLength(&frame.contact_force);
         tmp_f = vec_len * tmp_f;
         frame.normal_part_x = frame.normal_dir.x * tmp_f;
@@ -151,8 +153,8 @@ void car_ground_contact_forces_n(Car *car)
         frame.torque_axis.x = frame.tangent_z * frame.normal_part_y - frame.tangent_y * tmp_f;
         frame.torque_axis.y = frame.tangent_x * tmp_f - frame.tangent_z * frame.normal_part_x;
         frame.torque_axis.z = frame.tangent_y * frame.normal_part_x - frame.tangent_x * frame.normal_part_y;
-        if (k_f_0 < contact[10] * frame.contact_force.z +
-                    frame.contact_force.x * ((RwV3d *)(contact + 8))->x + contact[9] * frame.contact_force.y) {
+        up_yx = contact[9] * frame.contact_force.y + frame.contact_force.x * ((RwV3d *)(contact + 8))->x;      /* original (y + x) + z */
+        if (k_f_0 < up_yx + contact[10] * frame.contact_force.z) {
           frame.torque_axis.x = -frame.torque_axis.x;
           frame.torque_axis.y = -frame.torque_axis.y;
           frame.torque_axis.z = -frame.torque_axis.z;
@@ -232,7 +234,9 @@ void car_ground_contact_forces_n(Car *car)
   car->velocity[1] = vel_y_new;
   vel_z_new = frame.net_force.z + car->velocity[2];
   car->velocity[2] = vel_z_new;
-  if (*(int *)&contact[-2] != -1) {
+  /* the original compares the last contact record's triangle with -2 (cmp ecx, -2 at 0x47d731), not -1: the damping applies
+     whenever that record is not -2, i.e. also when contact 17 touches nothing (-1) */
+  if (*(int *)&contact[-2] != -2) {
     damp = frame.grip_factor * k_f_3;
     if (k_f_0_9 < frame.grip_factor * k_f_3) {
       damp = k_f_0_9;
@@ -244,7 +248,8 @@ void car_ground_contact_forces_n(Car *car)
   if ((*(int *)&car->wheels_in_contact == 0x40800000) && (vec_len = RwV3dLength((RwV3d *)contact_next), k_f_1_0en4 < vec_len))
   {
     RwV3dNormalize(&frame.extra_force,(RwV3d *)contact_next);
-    tmp_f = (frame.extra_force.z * car->up[2] + frame.extra_force.x * car->up[0] + frame.extra_force.y * car->up[1]) * k_f_0_1;
+    up_yx = frame.extra_force.y * car->up[1] + frame.extra_force.x * car->up[0];      /* the original adds (y + x) + z */
+    tmp_f = (up_yx + frame.extra_force.z * car->up[2]) * k_f_0_1;
     frame.extra_force.z = tmp_f * vec_len;
     frame.extra_force.x = frame.extra_force.z * car->up[0];
     frame.extra_force.y = frame.extra_force.z * car->up[1];

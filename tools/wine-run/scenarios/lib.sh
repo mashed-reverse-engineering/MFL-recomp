@@ -35,9 +35,12 @@ race_restart() { race_pause 2 1; echo "wait 8"; echo "shot after_restart"; }
 # W13 hx5: end_screens <menu depth>: Return on the end screens (only while the phase is above 6) until the menu depth is back at <depth>
 # (arcade: 6 = course page, cup: 5); was 8 / 10 x `wait 6` + keyabove.  A miss (cap 300 s) is a missed required event.
 end_screens() { echo "returnloop $CUR ${1:-6} $PHASE 300 end"; echo "shot results_done"; }
-# the old timed form, kept for the arcade Quick Battle win only: its multi-round end (first to 8 points) never reached menu depth 6 with
-# returnloop in C3 runs 1 and 2 (both sides; the shot after the cap is a Current Standings screen) - a probe of that flow is W14 work
-end_screens_timed() { for n in $(seq 1 ${1:-8}); do echo "wait 6"; echo "shot after$n"; echo "keyabove Return $PHASE 6"; done; }
+# W14 A1: arcade Quick Battle end (probes agents/asm_w14 a1probe, a1probe2, a1probe3).  Round end phase 7 (Current Standings, "Continue")
+# and battle end phase 11 (race camera, cars stopped) each wait for Return; 11 -> 9 -> 10 Race Results follows by itself.  returnloop:
+# Return once a second unless phase 6 (a running round), until phase 10 = the required end event (tag end), as ss_arc_lose ends.
+# Not used: the way from the results page back to the menus.  Its depth word moves 1 -> 2 -> 3 on Return (3 = race again); Escape at
+# depth 1 and Down + Return at depth 2 left nothing within 30 s (a1probe3, both sides): a later probe item, not a guess here.
+arc_results() { echo "returnloop $PHASE 10 $PHASE ${SCEN_RACECAP:-300} end"; echo "waitframes 0x$(mapva frames_total) 40"; echo "shot results_done"; }
 # main menu (depth 2) -> last entry "Exit To Windows" -> Yes: runs the shutdown code, the process ends
 exit_windows() { keys 0.7 Down Down Down; echo "shot exit_sel"; echo "key Return"; echo "wait 1.5"; echo "shot exit_box"; echo "key Return"; echo "wait 4"; }
 # freeze both builds at the same race frame (harness freeze_target, like regress.sh) so the final screenshot and the car dump are comparable; the game does not advance afterwards

@@ -36,7 +36,18 @@ void rwp_face_direction(RwpFaceOwner *o, RwpFaceOwner *other, float *dir, unsign
     if (!(*kind & 1)) {
       rwp_shape_interval_along_dir(*(void **)((char *)other + 8), *(void **)((char *)other + 0x10), dir, &hi, &lo);
       m = o->xf;
-      if ((f->n[0] * f->p[0] + f->n[1] * f->p[1] + f->n[2] * f->p[2] + (m[13] * dir[1] + m[12] * dir[0] + m[14] * dir[2]) - hi) > (lo - (f->n[0] * f->p[0] + f->n[1] * f->p[1] + f->n[2] * f->p[2] + (m[13] * dir[1] + m[12] * dir[0] + m[14] * dir[2])))) {
+      /* the original: s = ((m12 d0 + m13 d1) + m14 d2) + ((n0 p0 + n1 p1) + n2 p2), each sum in that order; cl flattened and
+         reordered the one-expression form, the temporaries keep the order */
+      {
+        double t, np, s;
+        t = m[12] * dir[0] + m[13] * dir[1];
+        t = t + m[14] * dir[2];
+        np = f->n[0] * f->p[0] + f->n[1] * f->p[1];
+        np = np + f->n[2] * f->p[2];
+        s = t + np;
+        acc = s;
+      }
+      if ((acc - hi) > (lo - acc)) {
         dir[0] = -dir[0];
         dir[1] = -dir[1];
         dir[2] = -dir[2];

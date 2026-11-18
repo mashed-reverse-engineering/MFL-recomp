@@ -1,13 +1,25 @@
 #include "mfl_tier2.h"
 /*00494630*/ extern undefined4 hermite_interpolate(float p0, void *p1, void *p2, void *p3, void *p4, void *p5);
 /*004c5b10*/ extern void im3d_draw_line(void *p0, void *p1, void *p2);
-/*004c5c40*/ extern void im3d_draw_matrix_axes(undefined4 p0, void *p1, undefined4 p2);
+/*004c5c40*/ extern void im3d_draw_matrix_axes(void *p0, void *p1, undefined4 p2);
 /*005dd378*/ extern float k_f_0_1;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 
 #define HERMITE_SEGMENTS (10)
 #define FLOAT_0_25_BITS (0x3e800000)
 
+/* one 0x40-byte frame matrix of the ghost block; only its position (+0x30) is read here, copied as raw words */
+typedef struct GhostMatrix {
+  char unknown_00[0x30];
+  undefined4 pos[3];
+  char unknown_3c[4];
+} GhostMatrix;
+
+/* ghost car data block: the five frame matrices drawn as axes start at +0x28 */
+typedef struct GhostBlock {
+  char unknown_00[0x28];
+  GhostMatrix matrix[5];
+} GhostBlock;
 
 /* ghost_draw_markers */
 
@@ -15,14 +27,14 @@
 
 /*
  * Draws the ghost car's wire markers as Im3D lines (inferred from the render calls).
- * ghost_base: address of the ghost car's data block (uint, not a pointer). The same
- * variable is reused as the segment index for the hermite loop further down.
+ * ghost: the ghost car's data block.
  * Returns nothing; leaves the z-test render state enabled again.
  */
 
-void ghost_draw_markers(uint ghost_base)
+void ghost_draw_markers(GhostBlock *ghost)
 
 {
+  uint segment;
   uint next_segment;
   undefined1 colours[20];       /* 5 RGBA colours in one frame object: im3d_draw_matrix_axes reads 4 bytes through each pointer */
   undefined4 marker_vecs[18];       /* six 3-float vectors in one frame object, passed by address */
@@ -51,41 +63,41 @@ void ghost_draw_markers(uint ghost_base)
   /* turn z-test off so the markers draw on top of the scene (inferred) */
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
   /* five marker sets (inferred): the calls below pass a 0.25f size for each */
-  im3d_draw_matrix_axes(ghost_base + 0x68,0,FLOAT_0_25_BITS);
-  im3d_draw_matrix_axes(ghost_base + 0xa8,0,FLOAT_0_25_BITS);
-  im3d_draw_matrix_axes(ghost_base + 0x28,colours,FLOAT_0_25_BITS);
-  im3d_draw_matrix_axes(ghost_base + 0xe8,colours + 4,FLOAT_0_25_BITS);
-  im3d_draw_matrix_axes(ghost_base + 0x128,colours + 8,FLOAT_0_25_BITS);
-  marker_vecs[3] = *(undefined4 *)(ghost_base + 0x98);
-  marker_vecs[4] = *(undefined4 *)(ghost_base + 0x9c);
-  marker_vecs[5] = *(undefined4 *)(ghost_base + 0xa0);
-  marker_vecs[0] = *(undefined4 *)(ghost_base + 0xd8);
-  marker_vecs[1] = *(undefined4 *)(ghost_base + 0xdc);
-  marker_vecs[2] = *(undefined4 *)(ghost_base + 0xe0);
+  im3d_draw_matrix_axes(&ghost->matrix[1],0,FLOAT_0_25_BITS);
+  im3d_draw_matrix_axes(&ghost->matrix[2],0,FLOAT_0_25_BITS);
+  im3d_draw_matrix_axes(&ghost->matrix[0],colours,FLOAT_0_25_BITS);
+  im3d_draw_matrix_axes(&ghost->matrix[3],colours + 4,FLOAT_0_25_BITS);
+  im3d_draw_matrix_axes(&ghost->matrix[4],colours + 8,FLOAT_0_25_BITS);
+  marker_vecs[3] = ghost->matrix[1].pos[0];
+  marker_vecs[4] = ghost->matrix[1].pos[1];
+  marker_vecs[5] = ghost->matrix[1].pos[2];
+  marker_vecs[0] = ghost->matrix[2].pos[0];
+  marker_vecs[1] = ghost->matrix[2].pos[1];
+  marker_vecs[2] = ghost->matrix[2].pos[2];
   im3d_draw_line(marker_vecs + 3,marker_vecs,0);
-  marker_vecs[15] = *(undefined4 *)(ghost_base + 0x158);
-  marker_vecs[16] = *(undefined4 *)(ghost_base + 0x15c);
-  marker_vecs[17] = *(undefined4 *)(ghost_base + 0x160);
-  marker_vecs[12] = *(undefined4 *)(ghost_base + 0x98);
-  marker_vecs[13] = *(undefined4 *)(ghost_base + 0x9c);
-  marker_vecs[14] = *(undefined4 *)(ghost_base + 0xa0);
-  marker_vecs[9] = *(undefined4 *)(ghost_base + 0xd8);
-  marker_vecs[10] = *(undefined4 *)(ghost_base + 0xdc);
-  marker_vecs[11] = *(undefined4 *)(ghost_base + 0xe0);
-  marker_vecs[6] = *(undefined4 *)(ghost_base + 0x118);
-  marker_vecs[7] = *(undefined4 *)(ghost_base + 0x11c);
-  marker_vecs[8] = *(undefined4 *)(ghost_base + 0x120);
+  marker_vecs[15] = ghost->matrix[4].pos[0];
+  marker_vecs[16] = ghost->matrix[4].pos[1];
+  marker_vecs[17] = ghost->matrix[4].pos[2];
+  marker_vecs[12] = ghost->matrix[1].pos[0];
+  marker_vecs[13] = ghost->matrix[1].pos[1];
+  marker_vecs[14] = ghost->matrix[1].pos[2];
+  marker_vecs[9] = ghost->matrix[2].pos[0];
+  marker_vecs[10] = ghost->matrix[2].pos[1];
+  marker_vecs[11] = ghost->matrix[2].pos[2];
+  marker_vecs[6] = ghost->matrix[3].pos[0];
+  marker_vecs[7] = ghost->matrix[3].pos[1];
+  marker_vecs[8] = ghost->matrix[3].pos[2];
   /* walk HERMITE_SEGMENTS segments along the curve; each segment is one line between two
      interpolated points, coloured from the colour table by segment parity (inferred) */
-  ghost_base = 0;
+  segment = 0;
   do {
-    hermite_interpolate((float)(int)ghost_base * k_f_0_1,marker_vecs + 3,marker_vecs + 15,marker_vecs + 12,marker_vecs + 9,
+    hermite_interpolate((float)(int)segment * k_f_0_1,marker_vecs + 3,marker_vecs + 15,marker_vecs + 12,marker_vecs + 9,
                         marker_vecs + 6);
-    next_segment = ghost_base + 1;
+    next_segment = segment + 1;
     hermite_interpolate((float)(int)next_segment * k_f_0_1,marker_vecs,marker_vecs + 15,marker_vecs + 12,marker_vecs + 9,
                         marker_vecs + 6);
-    im3d_draw_line(marker_vecs + 3,marker_vecs,colours + 12 + (ghost_base & 1) * 4);
-    ghost_base = next_segment;
+    im3d_draw_line(marker_vecs + 3,marker_vecs,colours + 12 + (segment & 1) * 4);
+    segment = next_segment;
   } while ((int)next_segment < HERMITE_SEGMENTS);
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
   return;

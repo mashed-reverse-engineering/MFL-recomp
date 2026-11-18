@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0042be50*/ extern undefined __cdecl ui_text_draw_a(undefined4 p0, undefined4 p1, undefined4 p2);
 /*0042bfd0*/ extern undefined __cdecl ui_text_draw_boxed(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4, undefined4 p5, undefined4 p6, undefined4 p7, void *p8, undefined4 p9, undefined4 p10);
 /*0042c220*/ extern int ui_text_draw_wide_a(undefined1 *text, undefined4 colour, undefined4 scale);
@@ -80,6 +81,9 @@ void message_box_draw(void)
   RwCameraEndUpdate(scratch);
   camera_set_default_view_window();
   scratch = get_viewport_camera(0xffffffff);
+#if MFL_FIX_WIDESCREEN      /* the reset above undid the squeezed window of the menu pass: widen it again, so the box text stays with the box */
+  mfl_widescreen_2d_rewiden((void *)scratch);
+#endif
   RwCameraBeginUpdate(scratch);
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x0);

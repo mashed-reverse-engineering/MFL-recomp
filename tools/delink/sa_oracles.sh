@@ -90,7 +90,7 @@ case $K in
     scenlinks; rc=0; np=0; nj=0
     SS=("ss_menus all SCEN_BASE=menus_main" "ss_options all SCEN_BASE=options" "ss_optall all SCEN_BASE=options_all" "ss_optsave all SCEN_BASE=options_save"
         "ss_pause none SCEN_BASE=pause_all SCEN_MODE=training" "ss_arc_c0 none SCEN_PIN=1 SCEN_BASE=arcade SCEN_DRIVE=31"
-        "ss_arc_win none SCEN_BASE=arcade SCEN_DRIVE=41 SCEN_AFTER=win SCEN_END=menu:6" "ss_arc_lose none SCEN_BASE=arcade SCEN_DRIVE=73 SCEN_AFTER=end SCEN_END=phase:10"
+        "ss_arc_win none SCEN_BASE=arcade SCEN_DRIVE=41 SCEN_AFTER=win SCEN_END=now" "ss_arc_lose none SCEN_BASE=arcade SCEN_DRIVE=73 SCEN_AFTER=end SCEN_END=phase:10"
         "ss_cup_win none SCEN_BASE=cup SCEN_DRIVE=33 SCEN_AFTER=end SCEN_END=phase:10" "ss_cup_lose none SCEN_BASE=cup SCEN_DRIVE=65 SCEN_AFTER=win SCEN_END=menu:5"
         "ss_tt none SCEN_PIN=1 SCEN_BASE=timetrial SCEN_SECS=1 SCEN_END=freeze:900" "ss_multi none SCEN_PIN=1 SCEN_BASE=multi" "ss_team none SCEN_BASE=multi SCEN_TEAM=1"
         "ss_loadicon none SCEN_BASE=load_icon SCEN_NOLIMIT=0" "ss_tworaces none SCEN_PIN=1 SCEN_BASE=tworaces"
@@ -99,7 +99,7 @@ case $K in
         "ss_arcpages all SCEN_BASE=arcade_pages SCEN_ROW=2 SCEN_RIGHT=1" "ss_cuppages all SCEN_BASE=cup_pages SCEN_ROW=1 SCEN_RIGHT=1"
         "ss_multipages all SCEN_BASE=multi_pages" "ss_teampages all SCEN_BASE=multi_pages SCEN_TEAM=1" "ss_anims none SCEN_BASE=menus_anims")
     # W12 TS2: SS_SET=gate = the stable race-free subset (about 30 min at SS_P=2); the full set (26 entries, about 65 min) runs at the freeze
-    [ "$SS_SET" = gate ] && [ -z "$SS_ONLY" ] && SS_ONLY="ss_menus ss_options ss_optsave ss_pause ss_team ss_loadicon ss_les0 ss_les2 ss_les3 ss_arcpages ss_cuppages ss_multipages ss_teampages"      # ss_arc_win / ss_cup_lose out until hx3's missed-end-event marks exist (they may pass without reaching their end event)
+    [ "$SS_SET" = gate ] && [ -z "$SS_ONLY" ] && SS_ONLY="ss_menus ss_options ss_optsave ss_pause ss_team ss_loadicon ss_les0 ss_les2 ss_les3 ss_arcpages ss_cuppages ss_multipages ss_teampages ss_arc_win"      # W14 A1: ss_arc_win back (end event phase 10 + the results-page key, arc_results in lib.sh); ss_cup_lose still out
     [ -n "$SS_ONLY" ] && { X=(); for e in "${SS[@]}"; do case " $SS_ONLY " in *" ${e%% *} "*) X+=("$e");; esac; done; SS=("${X[@]}"); }
     for e in "${SS[@]}"; do set -- $e; for h in a b; do while [ $(jobs -rp | wc -l) -ge ${SS_P:-2} ]; do wait -n; done
       $S $A NOCACHE=1 SCEN_IMGTHRESH=off SCEN_TAG=$1_$h "${@:3}" scenset > $O/$1_$h.log 2>&1 & done; done; wait

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """evidence_ledger.py: output/behaviour_evidence.csv = one row per replaced application function (VA < 0x4B0000) that is NOT byte identical, with the diffemu evidence behind it.
 Sources, highest precedence first: cluster_sweep (clsweep ladder), weak_evidence tweak (hand spec), hs_sweep (HS seeds, ran with STDCALL_IND=1), weak_evidence osweep, tier_ledger (tier 2 diffemu),
-cluster_pilot*/results.csv (cluster install runs, newest file wins).  verified = EQUAL, >= 20 cases, both coverages >= 0.8 (VERIFICATION.md).
+cluster_pilot*/results.csv (cluster install runs, newest file wins).  output/f2_cluster_only.csv (column name; W14): for those names hs_sweep / weak_tweak / weak_osweep / ledger observations are ignored (their tier-2 C is deleted), so cluster_sweep / pilot decide.  verified = EQUAL, >= 20 cases, both coverages >= 0.8 (VERIFICATION.md).
 The primary observation is the highest source that qualifies, else the highest source with any result.  A DIFF from the hs-seeded tools is not outvoted by a plain ledger/pilot EQUAL (flag CONFLICT, not verified).
 flags: LOWCOV DIFF INCONCLUSIVE NOEVID CONFLICT STDIND (verified only by hs_sweep, STDCALL_IND=1 mis-pops batched cdecl cleanup: re-run without) LADDER (cluster_sweep via != hs) OVERRIDDEN_DIFF (output/ladder_overridden_diffs.csv)
 usage: evidence_ledger.py [--check]   (progress.py imports evidence())"""
@@ -26,8 +26,12 @@ def evidence():
     va_of = {n: "%08x" % int(v, 16) for v, n, _ in fn}; name_of = {v: n for n, v in va_of.items()}
     inr = lambda v: int(v, 16) < GAME_END
     O = {}                                                    # va -> [obs]
+    gone = set()                                              # W14 DS2: names whose tier-2 C file was deleted (the cluster C is the only source): sweeps of that C are no evidence for the shipped code
+    q = find("f2_cluster_only.csv")
+    if q: gone = {r["name"] for r in csv.DictReader(open(q))}
     def add(name, va, o):
-        v = (va or "").lower().zfill(8) if va and re.fullmatch(r"[0-9a-fA-F]{1,8}", va) else va_of.get(name)
+        if name in gone and o["src"] in ("hs_sweep", "weak_tweak", "weak_osweep", "ledger"): return
+        v =(va or "").lower().zfill(8) if va and re.fullmatch(r"[0-9a-fA-F]{1,8}", va) else va_of.get(name)
         if v: O.setdefault(v, []).append(o)
     led = {}
     for r in csv.DictReader(open(find("tier_ledger.csv"))):

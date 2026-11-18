@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00405e50*/ extern int __cdecl spline_tween_a(RwMatrix *p1, int p2, float p3);
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d1e10*/ extern struct RwCamera * RwCameraSetViewWindow(struct RwCamera *p0, struct RwV2d *p1);
@@ -41,7 +42,11 @@ undefined4 __cdecl camera_path_update(int time_step)
   
   if ((g_scene_selected_object != 0) && (g_scene_select_param != (RwCamera *)0x0)) {
     /* set the view window every call: width scales with the camera FOV factor, height is fixed */
+#if MFL_FIX_WIDESCREEN
+    path_scratch.view_window.x = k_f_0_75 / mfl_widescreen_fov_factor();
+#else
     path_scratch.view_window.x = k_f_0_75 / g_camera_fov_factor;
+#endif
     path_scratch.view_window.y = 0.75;
     RwCameraSetViewWindow(g_scene_select_param,&path_scratch.view_window);
     camera_frame = RwCamera_object_object_parent(g_scene_select_param);

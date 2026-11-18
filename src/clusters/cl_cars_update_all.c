@@ -55,6 +55,7 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
   uint cur_matrix;
   uint prev_matrix;
   float collision_range;
+  float dist_zy;
   bool no_collision;
   int race_phase;
   int num_players;
@@ -128,10 +129,11 @@ void __cdecl cars_update_all(float dt,undefined4 param_2)
                       player_car[frame.car_index].bounds_radius) * k_f_0_75;
               /* bounding sphere test: squared distance of the two car positions against
                  (sum of the two bounds radii * 0.75)^2; then the hit must be in a race phase
-                 with car vs car collisions (6, 7, 10, 11) */
-              if (((*own_pos - *other_pos) * (*own_pos - *other_pos) +
-                   (own_pos[1] - other_pos[1]) * (own_pos[1] - other_pos[1]) +
-                   (own_pos[2] - other_pos[2]) * (own_pos[2] - other_pos[2]) < collision_range * collision_range) &&
+                 with car vs car collisions (6, 7, 10, 11).  The original adds z^2 + y^2 first,
+                 then x^2 (0x47f216..0x47f228); written in that order so cl does not reassociate */
+              dist_zy = (own_pos[2] - other_pos[2]) * (own_pos[2] - other_pos[2]) +
+                        (own_pos[1] - other_pos[1]) * (own_pos[1] - other_pos[1]);
+              if ((dist_zy + (*own_pos - *other_pos) * (*own_pos - *other_pos) < collision_range * collision_range) &&
                  (((((race_phase == 6 || (race_phase == 7)) || (race_phase == RACE_PHASE_WINNER_DONE)) ||
                    (race_phase == 0xb)) &&
                   (collided = car_car_collision_r(car,(int)player_car[0].effect_level + other_offset + -0x20,

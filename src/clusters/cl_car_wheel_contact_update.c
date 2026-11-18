@@ -56,6 +56,7 @@ void car_wheel_contact_update_n(void *world, Car *car, int limit_angle)
   float angle, inv;
   double cosine, cosine_clamped;       /* stays an unrounded x87 value in the original */
   float speed_dot;
+  double speed_xy;
   Wheel *w;
   volatile float push[3];      /* stored float temporaries of the original */
   volatile float side_z;       /* a stored float in the original: the z component is rounded before it is scaled */
@@ -114,7 +115,8 @@ void car_wheel_contact_update_n(void *world, Car *car, int limit_angle)
     if (w->in_contact == 0) {
       if (-2.0f < d && d <= 0.0f) {
         w->in_contact = 2;
-        speed_dot = (car->forward[2] * car->velocity[2] + car->forward[0] * car->velocity[0] + car->forward[1] * car->velocity[1]) / car->speed;
+        speed_xy = car->velocity[0] * car->forward[0] + car->velocity[1] * car->forward[1];      /* the original adds (x + y) + z */
+        speed_dot = (speed_xy + car->velocity[2] * car->forward[2]) / car->speed;
         if (speed_dot != 0.0f && (-0.1f < speed_dot && speed_dot < 0.1f)) {
           w->in_contact = 2;
         }

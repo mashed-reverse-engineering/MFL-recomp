@@ -77,7 +77,7 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
   MflObj *A, *B;
   float *posA, *posB;
   float F0, limit_f;
-  double z, xx, yy, zz, ss;
+  double z, xx, yy, zz, ss, zy2;
   float p[3], cross_z;
   float dA[3], dB[3], rA[3], rB[3], w[3], t[3], u[3], v[3];
   float c[30];      /* 57f8a0 stores 27 words; the original frame leaves 120 bytes behind c */
@@ -131,7 +131,9 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
     c[21] = 3.4028235e38f;
     c[20] = 0;
     {
-      float dot = blk->normal[1] * w[1] + w[0] * blk->normal[0] + blk->normal[2] * w[2];
+      /* the original adds (x + y) + z; in one expression cl added y + z first, the temporary keeps the order */
+      float dot_xy = blk->normal[0] * w[0] + blk->normal[1] * w[1];
+      float dot = dot_xy + blk->normal[2] * w[2];
       if (dot < dt * -0.001f) c[17] = -(dot * damp_f);
       else c[17] = 0;
     }
@@ -149,7 +151,8 @@ void rwp_constraints_0057fa00(MflConstraintStream *s, MflContactBlock *blk, floa
       v[0] = blk->normal[1] * w[2] - blk->normal[2] * w[1];
       v[1] = blk->normal[2] * w[0] - w[2] * blk->normal[0];
       z = w[1] * blk->normal[0] - blk->normal[1] * w[0];
-      if (z * z + v[1] * v[1] + v[0] * v[0] < 0.0001f) {
+      zy2 = z * z + v[1] * v[1];      /* the original: (z^2 + y^2) + x^2; cl reordered the one-expression form */
+      if (zy2 + v[0] * v[0] < 0.0001f) {
         v[0] = AXIS(blk)[2] * blk->normal[1] - AXIS(blk)[1] * blk->normal[2];
         v[1] = blk->normal[2] * AXIS(blk)[0] - AXIS(blk)[2] * blk->normal[0];
         z = AXIS(blk)[1] * blk->normal[0] - blk->normal[1] * AXIS(blk)[0];

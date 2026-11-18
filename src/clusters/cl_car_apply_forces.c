@@ -76,6 +76,7 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
 {
   uint matrix_slot;
   float tmp_f;
+  double dot_xy;
   float slip;
   uint index_tmp;
   int other_car_off;
@@ -174,8 +175,8 @@ void car_apply_forces_n(Car *self_car, float dt, RwMatrix *car_matrix)
       if (!(k_f_1_0en4 > other_speed)) {
         RwV3dNormalize(&frame.other_vel,&frame.other_vel);
         RwV3dNormalize(&frame.dir_to_other,&frame.rel_pos);
-        if (((k_f_0_99 < frame.dir_to_other.z * frame.other_vel.z + frame.dir_to_other.x * frame.other_vel.x + frame.dir_to_other.y * frame.other_vel.y
-             ) && (other_speed = RwV3dLength(&frame.rel_pos), other_speed < k_f_6)) &&
+        dot_xy = frame.dir_to_other.x * frame.other_vel.x + frame.dir_to_other.y * frame.other_vel.y;      /* the original adds (x + y) + z */
+        if (((k_f_0_99 < dot_xy + frame.dir_to_other.z * frame.other_vel.z) &&(other_speed = RwV3dLength(&frame.rel_pos), other_speed < k_f_6)) &&
            (tmp_f = float_1_0 - (k_f_6 - other_speed) * k_f_0_125, tmp_f < frame.proximity_factor)) {
           frame.proximity_factor = tmp_f;
         }

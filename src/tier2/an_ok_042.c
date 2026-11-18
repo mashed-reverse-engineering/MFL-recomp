@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040fdb0*/ extern int get_player_count();
 /*0042a3f0*/ extern int course_get_rpworld();
 /*00452b90*/ extern undefined __cdecl viewport_camera_sync_to_main(undefined4 p0, undefined4 p1, undefined4 p2);
@@ -283,7 +284,18 @@ undefined * weapon_drum_equip(WeaponSlot *weapon_slot)
   undefined *drum_slot;
   RpClump *clump;
   RpAtomic *atomic;
-  
+
+#if MFL_FIX_EQUIP_FLUSH
+  extern void weapon_fx_explosion_pool_clear_n(int in_edi);      /* the cluster's natural C form (clusters/cl_weapon_fx_explosion_pool_clear.c) */
+  /* MFL_FIX_EQUIP_FLUSH (default off, differs from the original): an unequip (weapon_drum_unequip, shared with mines) only sets the slot
+     state (+0x10) to 2; weapon_drum_update (pass 1) releases it later in the frame.  A drop + equip before that found no free slot and
+     wrote a fifth one at 0x6A5D10.  Release the pending slots here, the same call (frees both parts, zeroes the state and the countdowns). */
+  for (cursor = &g_weapon_drum_6a5c70; (LONG_PTR)cursor < DRUM_TABLE_END; cursor = cursor + DRUM_SLOT_WORDS) {
+    if (*cursor == 2) {
+      weapon_fx_explosion_pool_clear_n((int)cursor - 0x10);
+    }
+  }
+#endif
   /* find the first free drum slot (in-use flag at slot +0x10) */
   drum_index = 0;
   cursor = &g_weapon_drum_6a5c70;

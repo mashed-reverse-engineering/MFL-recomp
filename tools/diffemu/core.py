@@ -1365,6 +1365,16 @@ def frame_allow():
         _FA.append(s)
     return _FA[0]
 
+_ER = []
+def eax_readers():
+    """src/diffemu_eax_readers.txt: `function reason` rows whose ORIGINAL callers read eax after the call (agents/rep_w14/voideax.py: void
+    with a proven reader, or a 1/2 byte return read as 32 bits): compare() checks the full eax for them.  DIFFEMU_VOID_EAX=1: every row."""
+    if not _ER:
+        try: _ER.append({l.split()[0] for l in open(os.path.join(ROOT, "src", "diffemu_eax_readers.txt")) if l.strip() and not l.startswith("#")})
+        except OSError: _ER.append(set())
+    return _ER[0]
+def eax_read(name): return bool(os.environ.get("DIFFEMU_VOID_EAX")) or name in eax_readers()
+
 HALFARGS = {"FUN_00575a30": (1,), "FUN_00576b10": (3,), "FUN_00576b50": (2,), "FUN_00576f40": (1,), "FUN_00576c50": (1,), "rwp_hull_alloc": (0, 2)}      # rwp_hull_alloc: 58d0c0 pushes the 16 bit qh num_vertices / num_facets from eax / edx (stale upper halves), the callee uses only the low 16 bits (masked / short stores; lv 2026-11-05)      # 576f40 / 576c50: `and reg, 0xffff` on argument 1 (DEEP 2026-11-03: the real 57be50 callees push it from a register with a stale upper half)      # 575a30 (adjacent ids of a node) uses arg 1 only as a 16 bit id (`and 0xffff`, `cmp cx,bp`); 56af70 pushes bp with the stale upper half of ebp
 FNMASK = {"car_wheels_vs_triangles": [(0x7eab64, 0x7eab64 + 256 * 0x40)]}      # B3: g_event_log_data (256 x 0x40) holds 0x40 byte copies of uninitialised locals of the event record; never compared for this function
 def compare(fn, mo, ro, mu, ru, case=None):
@@ -1388,8 +1398,9 @@ def compare(fn, mo, ro, mu, ru, case=None):
         k0 = 1 if sg.ret in ("f", "d") else 0
         xo, xu = ro.get("xs", [])[k0:], ru.get("xs", [])[k0:]
         if xo != xu and len(xo) == len(xu): d.append("stale x87 stack entry %d orig %s ours %s" % (k0 + next(i for i in range(len(xo)) if xo[i] != xu[i]), *[x[next(i for i in range(len(xo)) if xo[i] != xu[i])].hex() for x in (xo, xu)]))
-    if sg.ret not in ("f", "d") and (sg.ret != "v" or os.environ.get("DIFFEMU_VOID_EAX")) and not exited:      # (was an elif behind `if not exited` since 7b60423ed: the eax/edx compare never ran, fixed 2026-11-03) DIFFEMU_VOID_EAX=1: also compare EAX of void functions (the original may leave a live result there: sweep-only functions have no caller to prove it)
-        mask = {"i1": 0xff, "i2": 0xffff}.get(sg.ret, 0xffffffff)
+    rd = eax_read(fn.name)      # W14 DT: a row whose original callers read eax (src/diffemu_eax_readers.txt) gets the full eax compared, void and 1/2 byte returns included
+    if sg.ret not in ("f", "d") and (sg.ret != "v" or rd) and not exited:      # (was an elif behind `if not exited` since 7b60423ed: the eax/edx compare never ran, fixed 2026-11-03) DIFFEMU_VOID_EAX=1: every row counts as read (the original may leave a live result there: sweep-only functions have no caller to prove it)
+        mask = 0xffffffff if rd else {"i1": 0xff, "i2": 0xffff}.get(sg.ret, 0xffffffff)
         if ro["eax"] & mask != ru["eax"] & mask: d.append("eax orig %08x ours %08x" % (ro["eax"], ru["eax"]))
         if sg.ret == "ll" and ro["edx"] != ru["edx"]: d.append("edx orig %08x ours %08x" % (ro["edx"], ru["edx"]))
     a = [t for t in ro["trace"]]; b = [t for t in ru["trace"]]

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern uint course_get_rpworld_00467e90(void);      /* declared before its first use (was an implicit int() declaration; the same line follows below) */
 /*00408ea0*/ extern int player_record_get_8d8ca0();
 /*0040fbf0*/ extern int race_get_focus_player();
@@ -384,6 +385,17 @@ undefined * weapon_shotgun_equip(WeaponSlot *slot)
   int record_index;
   RpClump *clump;
 
+#if MFL_FIX_EQUIP_FLUSH
+  extern void weapon_fx_clump_remove_c_n(int in_esi);      /* the cluster's natural C form (clusters/cl_weapon_fx_clump_remove_c.c) */
+  /* MFL_FIX_EQUIP_FLUSH (default off, differs from the original): an unequip only sets the record state (+0x18) to 2; weapon_shotgun_update
+     releases it later in the frame.  A drop + equip before that found no free record and wrote a fifth one at 0x6AAC10 (over
+     g_player_status[2..3]).  Release the pending records here, the same call (zeroes +0xc..+0x18, the fade counter included). */
+  for (record_state = &g_weapon_shotgun_6aab98; (LONG_PTR)record_state < SHOTGUN_STATE_SCAN_END; record_state = record_state + SHOTGUN_RECORD_STRIDE_DWORDS) {
+    if (*record_state == 2) {
+      weapon_fx_clump_remove_c_n((int)record_state - 0x18);
+    }
+  }
+#endif
   /* find the first record whose state is 0 (free); record_index ends on that record */
   record_index = 0;
   record_state = &g_weapon_shotgun_6aab98;

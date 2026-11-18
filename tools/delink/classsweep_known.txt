@@ -1,0 +1,11 @@
+# classsweep.py known: recompilation defects of a class, with the stored gate link before the fix and one after (paths under ghidra/).
+# <class> <function> <pre-fix link dir> <post-fix link dir> <tag>.  `classsweep.py known` wants more rows on the pre link than on the post link.
+x87 fx_ribbon_flush_spline output/gate/1116_0948_standalone/link output/gate/1116_1023_standalone/link W12-b1
+x87 sound_car_engine_update output/gate/1116_1513_standalone/link output/gate/1116_1551_standalone/link W12-b5
+x87 camera_path_sample output/gate/1116_1513_standalone/link output/gate/1116_1551_standalone/link W12-b6
+div fx_particle_spawn_from_style output/gate/1116_1944_standalone/link output/gate/1116_2046_standalone/link W13-b8
+fpucopy fx_trail_particle_spawn_interpolated output/gate/1116_2118_standalone/link output/gate/1117_0049_standalone/link W13-b9
+fpucopy particle_pool_find_oldest_or_free output/gate/1116_2118_standalone/link output/gate/1117_0049_standalone/link W13-b9
+x87 vehicle_tyre_marks_collect_triangles output/gate/1117_0251_standalone/link output/gate/1117_0413_standalone/link W13-b12
+x87 cars_update_all output/gate/1117_0631_full/link agents/asm_w14/w/flag_on_b1314/link W14-b13
+x87 car_collision_impulse output/gate/1117_0631_full/link agents/asm_w14/w/flag_on_b1314/link W14-b14
