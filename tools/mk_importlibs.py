@@ -37,7 +37,11 @@ for l in txt.splitlines():
     if m and dll: imports[dll].append("Ordinal_" + m.group(1))
 RW = set()      # LIB_RW (L2, tools/delink/link_ours.sh): mflrw.dll = the librw facade DLL, C ABI (cdecl, undecorated exports): data imports `__imp__Name` only (NAME_NO_PREFIX strips the `_`), the code thunk `_Name` is link_ours.sh's own object (a lib thunk of the same name would clash with the exe function)
 if os.environ.get("RW_DLL"):
-    RW = {m.group(1) for m in (re.match(r"\t\[\s*\d+\] (\S+)\s*$", l) for l in subprocess.run(["i686-w64-mingw32-objdump", "-p", os.environ["RW_DLL"]], capture_output=True, text=True).stdout.splitlines()) if m}
+    # W16 CIN cin7: the export names from the PE itself (tools/ci/rw_stub_guard.parse_pe), not from `objdump -p` text: the runner's newer
+    # binutils prints the export table in another format and the regex took 0 names (run 44622403960: 372 unresolved __imp__ in rw__thunks.obj)
+    sys.path.insert(0, os.path.join(HERE, "ci")); import rw_stub_guard
+    RW = set(rw_stub_guard.parse_pe(open(os.environ["RW_DLL"], "rb").read())["exports"])
+    if not RW: sys.exit("mk_importlibs: RW_DLL %s exports no names" % os.environ["RW_DLL"])
     imports["mflrw.dll"] = sorted(RW)
 extra = os.environ.get("EXTRA_USER32", "")      # imports used by the SDK libs but not by the game exe (comma list): added to user32
 if extra: imports.setdefault("USER32.dll", []).extend(extra.split(","))

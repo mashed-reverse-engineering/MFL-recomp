@@ -158,6 +158,17 @@ jobs:
         with:
           path: .objcache
           key: objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-${{ github.run_id }}
+      - name: import-lib diagnostics (run 44622403960 had 372 unresolved __imp__ of mflrw.dll names)
+        if: failure()
+        run: |
+          echo "--- objdump -p export table format of the CI mflrw.dll (mk_importlibs.py parses it with r'\t\[\s*\d+\] (\S+)\s*$')"
+          i686-w64-mingw32-objdump --version | head -1
+          i686-w64-mingw32-objdump -p build/rw/mflrw.dll | grep -A4 'Ordinal/Name Pointer' || true
+          echo "--- names the regex takes / the PE export table holds"
+          python3 -c "import re,subprocess,sys; sys.path.insert(0,'tools/ci'); import rw_stub_guard as g; o=subprocess.run(['i686-w64-mingw32-objdump','-p','build/rw/mflrw.dll'],capture_output=True,text=True).stdout; print(len({m.group(1) for m in (re.match(r'\t\[\s*\d+\] (\S+)\s*$',l) for l in o.splitlines()) if m}), len(g.parse_pe(open('build/rw/mflrw.dll','rb').read())['exports']))"
+          for d in off fixes; do [ -d build/$d/imp ] || continue; echo "--- build/$d/imp"; ls -la build/$d/imp; grep -c . build/$d/imp/mflrw.def || true
+            (cd build/$d/imp && MSYS2_ARG_CONV_EXCL='*' lib.exe /nologo /list mflrw.lib | head -5) || true; done
+          grep -h "dshow_drop:\|undup:\|v143 link:\|^link:" build/logs/link_*.log || true      # local twin: 54 removed, 125 renamed, 85 lines, 0 errors
       - name: failure tails (last 40 lines of every tool log of the links)
         if: failure()
         run: |
