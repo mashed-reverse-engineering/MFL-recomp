@@ -93,18 +93,41 @@ jobs:
           for t in objcopy objdump nm; do [ "$(command -v $t)" = "$B/$t" ] || { echo "$t resolves to $(command -v $t), not $B/$t"; exit 1; }; done
           [ "$(command -v python3)" = /usr/bin/python3 ] || { echo "python3 is $(command -v python3), not msys2's (subprocess of .sh scripts needs it)"; exit 1; }
           objcopy --help | grep -q set-section-alignment
+      # Every long step tees its output into build/logs/ (artifact mflng-logs, uploaded also on failure); the step `failure tails` prints
+      # the last 40 lines of each tool log the links write (build/<off|fixes>/*.log, lib/src.log, gen/cl.log, v143/cl.log ...).
       - name: private path layout (output/..., src/automatch_near/... copies of the exported files)
-        run: python3 tools/ci/private_layout.py .
+        run: |
+          set -o pipefail
+          mkdir -p build/logs
+          python3 tools/ci/private_layout.py . 2>&1 | tee build/logs/private_layout.log
       - name: mflrw.dll at the pin
-        run: sh librw-mfl/tools/build_mflrw.sh "$PWD/build/rw"
+        run: |
+          set -o pipefail
+          sh librw-mfl/tools/build_mflrw.sh "$PWD/build/rw" 2>&1 | tee build/logs/mflrw.log
       - name: mfl_audio_miniaudio.dll
-        run: sh tools/ci/build_audio_dll.sh "$PWD/build/audio"
+        run: |
+          set -o pipefail
+          sh tools/ci/build_audio_dll.sh "$PWD/build/audio" 2>&1 | tee build/logs/audio.log
+      # v143 object cache of tools/build_overlay.py (OBJCACHE; the file name is the hash of source + headers + flags + compiler, so a stale
+      # restore can never be reused wrongly); the fixes link has its own keys (MFL_FIX defines are in the flags).  Saved also after a failed
+      # run (cache/save, if: always()), one entry per run, so a run that dies late still warms the next one.
+      - uses: actions/cache/restore@v4
+        with:
+          path: .objcache
+          key: objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-${{ github.run_id }}
+          restore-keys: |
+            objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-
+            objcache-v143-
       - name: link MFLng.exe (switches off)
-        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1' }
-        run: RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/off
+        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1', JOBS: '4' }
+        run: |
+          set -o pipefail
+          OBJCACHE=$PWD/.objcache RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/off 2>&1 | tee build/logs/link_off.log
       - name: link MFLng_fixes.exe (every MFL_FIX_* on)
-        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', FIXES: all, LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1' }
-        run: RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/fixes
+        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', FIXES: all, LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1', JOBS: '4' }
+        run: |
+          set -o pipefail
+          OBJCACHE=$PWD/.objcache RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/fixes 2>&1 | tee build/logs/link_fixes.log
       - name: collect mflng-out
         run: |
           set -e
@@ -116,12 +139,37 @@ jobs:
             echo "MFL_FIX on in MFLng_fixes.exe: $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
       - name: checks (stub guard, pe_check, no_original)
         run: |
+          set -o pipefail
           git config --global --add safe.directory '*'      # msys2 git has its own HOME; no_original.py runs git ls-files on the checkout
-          PY=python3 tools/ci/ci_checks.sh out librw-mfl
+          PY=python3 tools/ci/ci_checks.sh out librw-mfl 2>&1 | tee build/logs/ci_checks.log
       - name: test_g0 on the built DLL (report only)
         continue-on-error: true
-        run: build/rw/test_g0.exe build/rw/mflrw.dll
+        timeout-minutes: 5
+        run: |
+          set -o pipefail
+          build/rw/test_g0.exe build/rw/mflrw.dll 2>&1 | tee build/logs/test_g0.log
       - uses: actions/upload-artifact@v4
         with:
           name: mflng-out
           path: out/
+      - uses: actions/cache/save@v4
+        if: always()
+        continue-on-error: true      # no .objcache yet (the job died before the links) must not hide the real failure
+        with:
+          path: .objcache
+          key: objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-${{ github.run_id }}
+      - name: failure tails (last 40 lines of every tool log of the links)
+        if: failure()
+        run: |
+          for f in build/logs/*.log build/*/*.log build/*/*/*.log; do [ -f "$f" ] || continue; echo "=== $f"; tail -40 "$f"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mflng-logs
+          if-no-files-found: ignore
+          path: |
+            build/logs/
+            build/*/*.log
+            build/*/*/*.log
+            build/*/v143/lnk_pairs.txt
+            build/*/mkobj.err
