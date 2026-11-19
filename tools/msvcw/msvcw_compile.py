@@ -14,8 +14,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 # /O2 /Gy as build_overlay.py; /arch:IA32 x87 code (v143 x86 default is SSE2); /GS- because the original has no cookies outside the
 # files marked `compile: /GS`; /Zl: no default-lib records (the link layer chooses the CRT); /RTC is off unless asked (command-line default).
+# /MD (W16 V143 item 1): the CC=v143 variant links the DLL CRT first (_DLL set, CRT functions dllimport); /MT is V143 item 4.
 # Dropped markers: /G5 and /Op no longer exist in v143 (D9002 if passed); `compile: cl1310` has no meaning for a modern compiler.
-BASE = ["/nologo", "/c", "/TC", "/O2", "/Gy", "/arch:IA32", "/GS-", "/Zl", "/W3", "/diagnostics:classic",
+BASE = ["/nologo", "/c", "/TC", "/O2", "/Gy", "/arch:IA32", "/GS-", "/MD", "/Zl", "/W3", "/diagnostics:classic",
         "/D_CRT_SECURE_NO_WARNINGS", "/D_CRT_NONSTDC_NO_DEPRECATE"]
 DIAG = re.compile(r"^(.*?)\((\d+)(?:,\d+)?\)\s*:\s*(?:fatal )?error (C\d+):\s*(.*)$")
 GLOBAL_ERR = re.compile(r"^(cl|LINK)\s*:\s*.*(error|Command line error) [CDL]\d+")

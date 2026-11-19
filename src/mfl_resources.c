@@ -45,6 +45,35 @@ static char *path_in_dir(char *path, unsigned long dir_len, const char *name)
   return path;
 }
 
+#if _MSC_VER >= 1900
+/* CC=v143 only (W16 DS; VC7 cl 13 = 1300 never sees this): the held-back data rows (media-like: sky texture, image rows, D3D9 shader
+ * bytecode; data/link/gen/held_fill.inc) are {0} in this build.  Each is read from the original exe just found, at file offset
+ * va - 0x400000 (.rdata / .data of the retail MFL.exe: raw offset = RVA).  Their users (shader creation, sky, image load) run after this. */
+extern __declspec(dllimport) void *__stdcall CreateFileA(const char *path, unsigned long access, unsigned long share, void *security,
+                                                        unsigned long creation, unsigned long flags, void *template_file);
+extern __declspec(dllimport) int __stdcall ReadFile(void *file, void *data, unsigned long size, unsigned long *done, void *overlapped);
+extern __declspec(dllimport) int __stdcall CloseHandle(void *handle);
+extern __declspec(dllimport) unsigned long __stdcall SetFilePointer(void *file, long distance, long *high, unsigned long method);
+extern __declspec(dllimport) int __stdcall VirtualProtect(void *at, unsigned long size, unsigned long protect, unsigned long *old);
+struct mfl_held_row { const void *at; unsigned long va, size; };
+extern const struct mfl_held_row mfl_held[];      /* ends with a size 0 row */
+
+static void held_fill(const char *exe)
+{
+  void *file = CreateFileA(exe, 0x80000000UL /* GENERIC_READ */, 1 /* FILE_SHARE_READ */, 0, 3 /* OPEN_EXISTING */, 0, 0);
+  unsigned long done, old;
+  int n;
+  if (file == (void *)-1) return;      /* ponytail: rows stay zero (exe just opened as a module, so not expected); a message box if it ever shows */
+  for (n = 0; mfl_held[n].size != 0; n++) {
+    VirtualProtect((void *)mfl_held[n].at, mfl_held[n].size, 0x04 /* PAGE_READWRITE */, &old);      /* the shader rows are const (.rdata) */
+    SetFilePointer(file, (long)(mfl_held[n].va - 0x400000UL), 0, 0 /* FILE_BEGIN */);
+    ReadFile(file, (void *)mfl_held[n].at, mfl_held[n].size, &done, 0);
+    VirtualProtect((void *)mfl_held[n].at, mfl_held[n].size, old, &old);
+  }
+  CloseHandle(file);
+}
+#endif
+
 void mfl_resources_attach(void)
 {
   static char path[PATH_SIZE];
@@ -64,6 +93,9 @@ void mfl_resources_attach(void)
     if (module == 0) continue;
     if (FindResourceA(module, VIDEO_DIALOG_ID, RT_DIALOG) != 0) {
       g_app_7e7700 = module;
+#if _MSC_VER >= 1900
+      held_fill(path);
+#endif
       return;
     }
     FreeLibrary(module);      /* our own exe (no .rsrc) or another file */

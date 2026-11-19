@@ -1,0 +1,10 @@
+miniaudio (https://miniaud.io) by David Reid.
+
+miniaudio is not vendored in this repository. The release build fetches miniaudio.h
+(version recorded in tools/audio/SOURCES, checked by sha256) and builds mfl_audio_miniaudio.dll from it.
+
+miniaudio is dual-licensed; you may choose either of:
+  - Public domain (Unlicense, https://unlicense.org)
+  - MIT No Attribution (MIT-0)
+
+The full license texts are at the end of miniaudio.h.

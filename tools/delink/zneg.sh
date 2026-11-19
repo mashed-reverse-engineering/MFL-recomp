@@ -12,7 +12,7 @@
 # data:rdata:lib would FAIL.
 # W12 Z2: `zneg.sh <work dir> crt` = the CRT data case: plan_split takes no datamember (DM_PUTBACK=1) and globgen keeps the initialiser tables as a
 # library blob (Z2T_PUTBACK=1); PASS when data:data:lib or data:rdata:lib would FAIL.
-# W13 Z4 / Z5: `zneg.sh <work dir> audio|rwp|dshow|rw` = the typed / dead library rows of tools/globals/z4_types.txt: globgen keeps that group's rows as
+# W13 Z4 / Z5 / W16 D0: `zneg.sh <work dir> audio|rwp|dshow|rw|d0` =the typed / dead library rows of tools/globals/z4_types.txt: globgen keeps that group's rows as
 # library blobs (Z4_PUTBACK=<group>, the rows are named in gen/globgen.log); PASS when a data:*:lib or datalib:* line would FAIL.
 # W13 Z6: `zneg.sh <work dir> d3dx<step>` = the dead D3DX rows of tools/delink/d3dx_dead.txt: globgen keeps that step's rows as library bytes
 # (Z6_PUTBACK=<step>, named in gen/globgen.log); PASS as above.
@@ -21,10 +21,10 @@ T=$(dirname "$(readlink -f "$0")"); G=$(readlink -f $T/../..); W=${1:?work dir};
 # W11 freeze lesson: `zneg.sh <dir> code` linked with SKIP_FILES=code = nothing left out, and the case "failed".  `code` now names the default code case;
 # any other argument must be a case name or a compiled .c basename, and the left-out file must really be gone from objs.txt after the link.
 [ "$F" = code ] && F=an_ok_002.c
-case $F in rsrc|bss|lua|crt|audio|rwp|dshow|rw|d3dx[1-9]) ;; *.c) [ -n "$(find $G/src -name "$F" -print -quit)" ] || { echo "zneg: $F is no file under src/ (cases: code rsrc bss lua crt audio rwp dshow rw d3dx<step>, or a .c basename)"; exit 2; };;
-  *) echo "zneg: unknown case $F (cases: code rsrc bss lua crt audio rwp dshow rw d3dx<step>, or a .c basename)"; exit 2;; esac
+case $F in rsrc|bss|lua|crt|audio|rwp|dshow|rw|d0|d3dx[1-9]) ;; *.c) [ -n "$(find $G/src -name "$F" -print -quit)" ] || { echo "zneg: $F is no file under src/ (cases: code rsrc bss lua crt audio rwp dshow rw d0 d3dx<step>, or a .c basename)"; exit 2; };;
+  *) echo "zneg: unknown case $F (cases: code rsrc bss lua crt audio rwp dshow rw d0 d3dx<step>, or a .c basename)"; exit 2;; esac
 SK=$F; RS=${RES:-}; PB=; PL=; PC=; P4=; P6=; [ "$F" = rsrc ] && { SK=; RS=$G/output/res/mfl.res; }; [ "$F" = bss ] && { SK=; PB=1; }; [ "$F" = lua ] && { SK=; PL=1; }; [ "$F" = crt ] && { SK=; PC=1; }
-case $F in audio|rwp|dshow|rw) SK=; P4=$F; grep -q "| $F |" $G/tools/globals/z4_types.txt || { echo "zneg: no row of group $F in tools/globals/z4_types.txt"; exit 1; };; esac
+case $F in audio|rwp|dshow|rw|d0) SK=; P4=$F; grep -q "| $F |" $G/tools/globals/z4_types.txt || { echo "zneg: no row of group $F in tools/globals/z4_types.txt"; exit 1; };; esac
 case $F in d3dx[1-9]) SK=; P6=${F#d3dx}; P4=$F      # a step's rows are dead rows (d3dx_dead.txt step) or typed rows (z4_types.txt group d3dx<step>, Z6 S4)
   grep -q " $P6\$" $G/tools/delink/d3dx_dead.txt || grep -q "| $F |" $G/tools/globals/z4_types.txt || { echo "zneg: no row of step $P6 in tools/delink/d3dx_dead.txt or group $F in tools/globals/z4_types.txt"; exit 1; };; esac
 lr=$(grep -o 'lr=${LIB_RW-librw:[^}]*' $T/../gate.sh | head -1); lr=${lr#*LIB_RW-}
@@ -48,7 +48,7 @@ python3 -I - $W/zero_original_bytes.json $G/output/zero_original_baseline.txt "$
 import json, sys
 j = json.load(open(sys.argv[1]))
 cur = {"rsrc": j["resources"]["rsrc_original_bytes"]} if sys.argv[3] == "rsrc" else {"data:bss:lib": j["data_by_section"]["bss"].get("lib", 0)} if sys.argv[3] == "bss" else {"data:%s:lib" % s: j["data_by_section"][s].get("lib", 0) for s in ("data", "rdata")} if sys.argv[3] in ("lua", "crt") else {"code:" + L: v.get("original", 0) for L, v in j["code"].items()}
-if sys.argv[3] in ("audio", "rwp", "dshow", "rw") or sys.argv[3].startswith("d3dx"):      # W13 Z4: the data lines and the per-layer library data lines
+if sys.argv[3] in ("audio", "rwp", "dshow", "rw", "d0") or sys.argv[3].startswith("d3dx"):      # W13 Z4: the data lines and the per-layer library data lines
     cur = {"data:%s:%s" % (s, k): j["data_by_section"][s].get(k, 0) for s in ("data", "rdata") for k in ("lib", "gap")}      # W14 L3 D5: gap rows (d3dx7)
     cur.update({"datalib:%s:%s" % (L, s): n for L, ss in j["data_lib_by_layer"].items() for s, n in ss.items()})
 old = {}
@@ -59,7 +59,7 @@ grown = [(k, old.get(k), cur[k]) for k in sorted(cur) if cur[k] > old.get(k, 0)]
 for k, o, c in grown: print("GROWN %s %s -> %d" % (k, o, c))
 if grown: print("zneg: PASS, the baseline compare FAILS without %s (%d layer(s) grew)" % (sys.argv[3], len(grown))); sys.exit(0)
 if sys.argv[3] == "bss": sys.exit("zneg: FAIL, data:bss:lib %d is not above the baseline's %s: the bss line would not notice a library blob put back" % (cur["data:bss:lib"], old.get("data:bss:lib")))
-if sys.argv[3] in ("lua", "crt", "audio", "rwp", "dshow", "rw") or sys.argv[3].startswith("d3dx"): sys.exit("zneg: FAIL, data:data:lib / data:rdata:lib %s not above the baseline's: the data lines would not notice the %s rows put back" % (cur, sys.argv[3]))
+if sys.argv[3] in ("lua", "crt", "audio", "rwp", "dshow", "rw", "d0") or sys.argv[3].startswith("d3dx"): sys.exit("zneg: FAIL, data:data:lib / data:rdata:lib %s not above the baseline's: the data lines would not notice the %s rows put back" % (cur, sys.argv[3]))
 if sys.argv[3] == "rsrc": sys.exit("zneg: FAIL, rsrc %d is not above the baseline's %s: the rsrc line would not notice linked resources (expected while the baseline line is still 710568)" % (cur["rsrc"], old.get("rsrc")))
 sys.exit("zneg: FAIL, no code layer grew without %s: the zero line would not notice a dropped row" % sys.argv[3])
 PY

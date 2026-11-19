@@ -206,6 +206,11 @@ if os.path.exists(_zt):
 # Z4_PUTBACK=<group>[,<group>] (zneg.sh audio / rwp / dshow): the bad case, that group's rows stay library blobs.
 Z4 = {}      # sec -> {va: entry}
 Z4_PUTBACK = set(filter(None, os.environ.get("Z4_PUTBACK", "").split(",")))
+# W16 D0: in a put-back form (zneg.sh: library rows kept as blobs) library items can merge across z4 entries; those entries then stay blobs (Z4_MERGED in
+# globgen.log) instead of stopping the link.  Never set in a VC7 gate or release link (no *_PUTBACK there): a non-tiling entry stays an error.
+# W16 V143c3: also under LIB_CRT=v143md (no CRT split: no selftables / CRT dead edges, so library items merge across z4 entries, e.g. the SEH
+# scope tables 0x5e6484 / 0x5e6494 of group d0); the image keeps the VC7 CRT bytes there anyway.
+Z4_MERGED_OK = any(os.environ.get(v) for v in ("Z1_PUTBACK", "Z3_PUTBACK", "DM_PUTBACK", "Z2T_PUTBACK", "Z4_PUTBACK", "Z6_PUTBACK")) or os.environ.get("LIB_CRT") == "v143md"
 Z4_BASE = {"f4": ("float", 4), "f8": ("double", 8), "u1": ("unsigned char", 1), "u2": ("unsigned short", 2), "u4": ("unsigned int", 4),
            "i4": ("int", 4), "ptr": ("void *", 4), "fptr": ("z4_fn", 4), "guid": ("struct mfl_guid", 16), "str": ("char", 1), "wstr": ("unsigned short", 2),
            "vu2": ("unsigned short", 2), "vu4": ("unsigned int", 4)}      # vu2 / vu4: value-only words (a relocation site inside is NOT relocated: the image value)
@@ -268,6 +273,8 @@ def load_names():
     if CRT_SPLIT:      # the split members define these symbols themselves (_iob, __d_inf, ...): a name here would win the link and bring the zero-filled dead row
         _cd = list(_crt_dead())      # once: calling _crt_dead() per name re-read the CRT csv ~60k times (15 min of every libcmt link, found 2026-11-03)
         for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _cd)]: names[a] = []
+    if os.environ.get("LIB_CRT") == "v143md":      # W16 V143c7: msvcrt.lib(initializers.obj) defines the initialiser bounds; the image's VC7 table must not take
+        for a in names: names[a] = [n for n in names[a] if n not in ("__xc_a", "__xc_z", "__xi_a", "__xi_z")]      # the names (else _initterm walks the VC7 table, not .CRT$XCU of crt_xcu.c)
     return {a: v for a, v in names.items() if v}
 
 
@@ -457,7 +464,7 @@ def main(out):
             out2.append(it)
         items[sec] = out2
     # W13 Z4: library items replaced by the typed / dead definitions of z4_types.txt (entries must tile whole library items)
-    z4used, z4n = set(), collections.Counter()
+    z4used, z4n, z4merged = set(), collections.Counter(), set()
     byname = {n: a for a, ns in names.items() for n in ns}
     for sec, its in items.items():
         ents = Z4.get(sec, {})
@@ -467,17 +474,23 @@ def main(out):
             it = its[i]
             if it["kind"] != "lib" or it["va"] not in ents or ents[it["va"]]["group"] in Z4_PUTBACK:
                 out3.append(it); i += 1; continue
-            pos, end = it["va"], it["va"] + it["ext"]; i += 1; new = []; rest = None
+            pos, end = it["va"], it["va"] + it["ext"]; i0 = i; i += 1; new = []; rest = None
             while True:
                 en = ents.get(pos)
                 if new and en is None and pos % 4 == 0 and not any(pos < x < end for x in ents):      # the entries end inside a longer library item (check build without the CRT split): the rest stays a library blob
                     rest = dict(it, va=pos, ext=end - pos, names=[], name="g_libspan_%08x" % pos, folded=[]); break
-                if en is None or en["group"] in Z4_PUTBACK: sys.exit("globgen Z4: no entry at %08x inside the library item run from %08x (entries must tile it)" % (pos, it["va"]))
+                if en is None or en["group"] in Z4_PUTBACK:
+                    if Z4_MERGED_OK: new = None; break
+                    sys.exit("globgen Z4: no entry at %08x inside the library item run from %08x (entries must tile it)" % (pos, it["va"]))
                 new.append(en); pos += en["size"]
                 while pos > end:      # the entry runs on into the next item: a library item that starts there
-                    if i >= len(its) or its[i]["va"] != end or its[i]["kind"] != "lib": sys.exit("globgen Z4: entry %08x +%d runs past the library items (to %08x)" % (en["va"], en["size"], end))
+                    if i >= len(its) or its[i]["va"] != end or its[i]["kind"] != "lib":
+                        if Z4_MERGED_OK: new = None; break
+                        sys.exit("globgen Z4: entry %08x +%d runs past the library items (to %08x)" % (en["va"], en["size"], end))
                     end += its[i]["ext"]; i += 1
-                if pos == end: break
+                if new is None or pos == end: break
+            if new is None:      # W16 D0: a put-back form (zneg) merged this library item with rows no entry covers: the whole item stays a library blob, its entries with it
+                out3.append(it); i = i0 + 1; z4merged.update((sec, x) for x in ents if it["va"] <= x < it["va"] + it["ext"]); continue
             for en in new:
                 if en["name"] in byname and byname[en["name"]] != en["va"]: sys.exit("globgen Z4: name %s is a label at %08x, the entry is at %08x" % (en["name"], byname[en["name"]], en["va"]))
                 if not en.get("dead") and ((en["size"] >= 64 and (en["va"] - SECT[sec][0]) % 8) or (en.get("base") == "f8" and en["va"] % 8)):
@@ -486,7 +499,10 @@ def main(out):
                 out3.append(dict(va=en["va"], ext=en["size"], kind="lib" if en.get("dead") else "libt", z4dead=bool(en.get("dead")), names=[], name=en["name"], z4=en, folded=[]))
             if rest: out3.append(rest)
         items[sec] = out3
-    z4miss = [(s, a) for s, e in Z4.items() for a in e if (s, a) not in z4used and e[a]["group"] not in Z4_PUTBACK]
+    z4miss = [(s, a) for s, e in Z4.items() for a in e if (s, a) not in z4used | z4merged and e[a]["group"] not in Z4_PUTBACK]
+    if z4merged: print("Z4_MERGED: %d entries inside library items a put-back form merged stay library blobs: %s" % (len(z4merged), " ".join("%08x" % a for s, a in sorted(z4merged))))
+    if z4miss and os.environ.get("LIB_CRT") == "v143md":      # W16 V143c4: the z4 rows tile the VC7 (libcmt split) items; v143md keeps the CRT data as library blobs, these entries with it
+        print("Z4_V143MD: %d entries of z4_types.txt match no library item, stay inside library blobs: %s" % (len(z4miss), " ".join("%08x" % a for s, a in sorted(z4miss)))); z4miss = []
     if z4miss: sys.exit("globgen Z4: %d entries of z4_types.txt match no library item: %s" % (len(z4miss), " ".join("%08x" % a for s, a in z4miss[:8])))
     for g in sorted(Z4_PUTBACK): print("Z4_PUTBACK: group %s: %s stay library blobs" % (g, " ".join("%08x+%d" % (a, e[a]["size"]) for s, e in Z4.items() for a in sorted(e) if e[a]["group"] == g)))
     # every name inside an item other than the item's own definition becomes an alias (objcopy): interior labels, second names, library labels

@@ -1,0 +1,15 @@
+0x4a15fd=freeze_hook
+0x4a1602=frame_end_ticks
+0x4a235e=begin_update_hook
+0x4a23a7=begin_update_hook
+0x4a2410=begin_update_hook
+0x4a2445=begin_update_hook
+0x4a24a5=begin_update_hook
+0x4a24eb=begin_update_hook
+0x4a257b=begin_update_hook
+0x4a25af=begin_update_hook
+0x4a25e3=begin_update_hook
+0x4a2614=begin_update_hook
+0x4a2676=begin_update_hook
+0x4a26b0=begin_update_hook
+0x4a15e9=input_hook

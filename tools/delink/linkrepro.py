@@ -36,8 +36,16 @@ def link(form, seed, w):
     return None
 
 def exe_masked(p):
-    b = bytearray(open(p, "rb").read()); pe = struct.unpack_from("<I", b, 0x3c)[0]
+    b = bytearray(open(p, "rb").read()); pe = struct.unpack_from("<I", b, 0x3c)[0]; ts = b[pe + 8:pe + 12]
     b[pe + 8:pe + 12] = bytes(4)      # IMAGE_FILE_HEADER.TimeDateStamp
+    # SK2 W16: link 14.x copies it into each debug directory entry (v143 exe: one POGO entry); VC7 link.exe writes no debug directory (no-op)
+    ns, osz = struct.unpack_from("<H", b, pe + 6)[0], struct.unpack_from("<H", b, pe + 20)[0]
+    rva, sz = struct.unpack_from("<II", b, pe + 24 + 96 + 48) if osz >= 96 + 56 else (0, 0)
+    for k in range(ns if sz else 0):
+        va, rs, rp = struct.unpack_from("<III", b, pe + 24 + osz + 40 * k + 12)
+        if va <= rva < va + rs:
+            for o in range(rp + rva - va + 4, rp + rva - va + sz, 28):
+                if b[o:o + 4] == ts: b[o:o + 4] = bytes(4)      # only a copy of the header stamp
     return bytes(b)
 
 def map_masked(p):
@@ -69,7 +77,15 @@ def selftest():
     assert compare(w + "/a", w + "/b") == [], compare(w + "/a", w + "/b")
     assert len(compare(w + "/a", w + "/c")) == 1 and "ours.exe" in compare(w + "/a", w + "/c")[0]
     assert len(compare(w + "/a", w + "/d")) == 1 and "ours.map" in compare(w + "/a", w + "/d")[0]
-    print("linkrepro selftest: ok (timestamp-only pair EQUAL, code byte DIFF, map line DIFF)")
+    def dbg(d, ts, ets):      # SK2: one section at rva 0x1000 (file 0x1c0) holding a debug directory entry whose stamp is ets
+        mk(d, ts, 0x90, "_f"); b = bytearray(open(d + "/ours.exe", "rb").read())
+        struct.pack_into("<H", b, 0x86, 1); struct.pack_into("<H", b, 0x94, 0xe0); struct.pack_into("<II", b, 0x80 + 24 + 96 + 48, 0x1000, 28)
+        struct.pack_into("<III", b, 0x80 + 24 + 0xe0 + 12, 0x1000, 0x40, 0x1c0); struct.pack_into("<I", b, 0x1c4, ets)
+        open(d + "/ours.exe", "wb").write(b)
+    dbg(w + "/e", 1, 1); dbg(w + "/f", 2, 2); dbg(w + "/g", 2, 3)
+    assert compare(w + "/e", w + "/f") == [], compare(w + "/e", w + "/f")
+    assert len(compare(w + "/e", w + "/g")) == 1, "a debug stamp that is not the header stamp must count"
+    print("linkrepro selftest: ok (timestamp-only pair EQUAL incl. debug directory copy, code byte DIFF, other debug stamp DIFF, map line DIFF)")
 
 def main(a):
     if a[:1] == ["--selftest"]: return selftest()

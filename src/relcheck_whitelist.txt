@@ -1,0 +1,2 @@
+# functions whose relocated fields use the same addresses as the original in another order, checked by hand (load -> store pairs identical): name  sha1-prefix-of-our-code  reason
+player_stats_copy_to_totals  b29497f0f234  independent load/store pairs scheduled differently; pairs compared 2026-10-09

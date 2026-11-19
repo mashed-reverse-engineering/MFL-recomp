@@ -51,7 +51,8 @@ def filt(W):
     dead = dead_set(); fn, st = fns(); byname = {}
     for a, n, z in fn: byname.setdefault(n, []).append(a)
     loc = [l.split() for l in open(os.path.join(W, "objs_local.txt"))]
-    out = subprocess.run(["objdump", "-t"] + [o for s, o in loc], capture_output=True, text=True).stdout
+    rel = lambda o: os.path.relpath(o, W)      # W16 CIN: names relative to W, 100 objects per call: the CI runner's native objdump has the Windows command line limit and sees msys2-rewritten absolute paths
+    out = "".join(subprocess.run(["objdump", "-t"] + [rel(o) for s, o in loc[i:i + 100]], cwd=W, capture_output=True, text=True).stdout for i in range(0, len(loc), 100))
     cur, defs = None, {}
     for l in out.splitlines():
         m = re.match(r"^(\S+\.obj):", l)
@@ -60,7 +61,7 @@ def filt(W):
         if m and int(m.group(1)) > 0: defs.setdefault(cur, []).append(re.sub(r"@\d+$", "", m.group(2).lstrip("_@")))
     keep, drop = [], []
     for s, o in loc:
-        vs = [a for n in defs.get(o, []) for a in byname.get(n, [])]
+        vs = [a for n in defs.get(rel(o), []) for a in byname.get(n, [])]
         nd = [a for a in vs if a in dead]
         if nd and len(nd) == len({a for a in vs}): drop.append(s); os.remove(o)      # link.rsp is `ls o/*.obj`: the object must leave the work dir too
         else:

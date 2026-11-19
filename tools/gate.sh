@@ -83,6 +83,7 @@ case $KIND in
              if [ -n "$PARLINK" ]; then step "MKRANGE GEN_DATA IMPLIBS HARNESS link (started beside check_all, load $L1 < 8)" 3 "linkwait"
              else step "MKRANGE GEN_DATA IMPLIBS HARNESS link (sequential, load $L1 >= 8)" 6 "standalone_link"; fi
              step "origbytes vs baseline" 1 "origcheck"
+             step "DS drift: generated data == committed data/link/gen" 0.1 "python3 -I $T/globals/dsform.py check $D/link/gen $R/data/link/gen"      # W16 DS (additive): refresh = dsform.py split <gen> data/link/gen at the freeze
              step "classsweep (report-only): div / fpucopy / x87 order candidates vs the original" 0.5 "~/.cache/mfl_diffemu_venv/bin/python $T/delink/classsweep.py run $D/link $D/classsweep.csv"      # W14 A4: exit 0 unless the tool breaks; rows = compile-proof candidates, never a verdict
              [ $KIND = full ] && step "crash-only 15 courses on the linked exe" 6 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
              step "mini sweep: arcade + cup rows 0-14 through the menus, DRIVE=31" 5 "$T/delink/sa_oracles.sh sweep $D/link \$(cat $D/delta.txt) $D/minisweep"

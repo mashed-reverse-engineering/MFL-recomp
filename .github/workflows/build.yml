@@ -1,0 +1,115 @@
+# Exported by export_public.py stage 1 (W16 CI); release.yml calls it (workflow_call) and downloads artifact `mflng-out` of job `link`.
+# msvc-x86-compile: modern-compiler check of the published sources (Visual Studio 2022 MSVC v143, x86, /arch:IA32, compile only); locally
+# under msvc-wine: python3 tools/run.py docker msvcw-compile <out dir>.
+# link (W16 CIN): MFLng.exe (every MFL_FIX_* off) and MFLng_fixes.exe (every `#define MFL_FIX_X 0` switch on) from this tree only:
+# tools/delink/link_ci.sh CC=v143 in its self-contained form (committed tables in data/link), mflrw.dll from librw-mfl at
+# data/link/mflrw_pin.txt, mfl_audio_miniaudio.dll (tools/ci/build_audio_dll.sh).  The local twin of this job is the same link_ci.sh with
+# MSVCW_NATIVE unset (cl / link / lib in the msvc-wine image, tools/msvcw/msvcw_sh.sh).
+# No original game data, no MFL.exe, no copied bytes are used or needed by either job.
+name: build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  msvc-x86-compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      # x64-hosted cross compiler to x86 = the Hostx64/x86 cl that msvc-wine installs; vsversion 2022 fails loudly if the image moves past VS 2022
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64_x86
+          vsversion: '2022'
+      - name: toolset version (compare with cl_version.txt of the local msvc-wine cache)
+        shell: cmd
+        run: cl 2>&1 | findstr /C:"Version"
+      - name: compile the C set (report only, exit 0 while files still fail; see msvcw_files.csv)
+        run: python tools/msvcw/msvcw_compile.py --cl cl --out build/msvcw
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: msvcw-${{ github.sha }}
+          path: |
+            build/msvcw/msvcw_files.csv
+            build/msvcw/msvcw_classes.csv
+            build/msvcw/cl.log
+
+  link:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - name: librw-mfl pin
+        id: pin
+        shell: bash
+        run: echo "sha=$(grep -m1 '^commit ' data/link/mflrw_pin.txt | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: mashed-reverse-engineering/librw-mfl
+          ref: ${{ steps.pin.outputs.sha }}
+          path: librw-mfl
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64_x86
+          vsversion: '2022'
+          toolset: '14.44'
+      - name: manifest resource (rc; the link runs with /manifest:no, pe_check wants the committed bytes)
+        shell: cmd
+        run: |
+          mkdir build
+          echo 1 24 "%GITHUB_WORKSPACE:\=/%/data/link/MFLng.manifest" > build\mflng.rc
+          rc /nologo /fo build\mflng.res build\mflng.rc
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: false
+          path-type: inherit          # keeps cl / link / lib / rc and LIB / INCLUDE / WindowsSdkDir of msvc-dev-cmd
+          install: >-
+            git python diffutils gawk grep coreutils curl
+            mingw-w64-i686-binutils mingw-w64-i686-gcc
+      - name: toolset versions (FAIL unless cl 19.44)
+        run: |
+          set -e
+          cl.exe 2>&1 | head -1 | tee build/cl_version.txt
+          grep -q 'Version 19\.44\.' build/cl_version.txt
+          i686-w64-mingw32-gcc --version | head -1 | tee build/gcc_version.txt
+          python3 --version
+          # link_ours.sh / mk_importlibs.py / build_audio_dll.sh call the triplet names of the cross binutils; MINGW32 ships the plain ones
+          for t in as objdump; do command -v i686-w64-mingw32-$t || cp "$(command -v $t)" "$(dirname "$(command -v $t)")/i686-w64-mingw32-$t.exe"; done
+      - name: private path layout (output/..., src/automatch_near/... copies of the exported files)
+        run: python3 tools/ci/private_layout.py .
+      - name: mflrw.dll at the pin
+        run: sh librw-mfl/tools/build_mflrw.sh "$PWD/build/rw"
+      - name: mfl_audio_miniaudio.dll
+        run: sh tools/ci/build_audio_dll.sh "$PWD/build/audio"
+      - name: link MFLng.exe (switches off)
+        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1' }
+        run: RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/off
+      - name: link MFLng_fixes.exe (every MFL_FIX_* on)
+        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', FIXES: all, LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1' }
+        run: RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/fixes
+      - name: collect mflng-out
+        run: |
+          set -e
+          mkdir -p out
+          cp build/off/ours.exe out/MFLng.exe; cp build/off/ours.map out/MFLng.map
+          cp build/fixes/ours.exe out/MFLng_fixes.exe; cp build/fixes/ours.map out/MFLng_fixes.map
+          cp build/rw/mflrw.dll build/audio/mfl_audio_miniaudio.dll out/
+          { echo "cl $(grep -o 'Version [0-9.]*' build/cl_version.txt | cut -d' ' -f2)"; echo "gcc $(cat build/gcc_version.txt)"; echo "runner windows-2022 $ImageVersion"
+            echo "MFL_FIX on in MFLng_fixes.exe: $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
+      - name: checks (stub guard, pe_check, no_original)
+        run: PY=python3 tools/ci/ci_checks.sh out librw-mfl
+      - name: test_g0 on the built DLL (report only)
+        continue-on-error: true
+        run: build/rw/test_g0.exe build/rw/mflrw.dll
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mflng-out
+          path: out/

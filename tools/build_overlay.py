@@ -9,6 +9,27 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(HERE); import incexpand
 RECOMP = os.path.join(HERE, "..", "src")
 EXE = os.path.join(HERE, "..", "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe")
+V143 = os.environ.get("CC") == "v143"      # W16 V143 item 2: the CC=v143 variant compiles with MSVC v143 /MD (msvc-wine); unset = VC7 cl 13.00, unchanged
+
+
+def v143_compile(work, todo, fix, gs_files, ob0_files):
+    """CC=v143: compile `todo` in `work` with MSVC v143 (tools/msvcw/msvcw_compile.py BASE flags: /O2 /Gy /arch:IA32 /GS- /MD /Zl), /GS and /Ob0 per
+    file as the VC7 build, the compile: markers /G5 /Op / cl1310 dropped (no meaning for v143).  One container (tools/msvcw/msvcw_sh.sh), the first
+    cl call alone (prefix start), then the rest in parallel.  -> cl output text (objects land in `work`)"""
+    sys.path.append(os.path.join(HERE, "msvcw")); import msvcw_compile
+    par = max(1, int(os.environ.get("JOBS", os.cpu_count() or 1)))
+    jobs = []
+    for g in (0, 1):
+        for o in (0, 1):
+            fl = [x for x in todo if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o)]
+            for i in range(0, len(fl), max(1, -(-len(fl) // par))):
+                rsp = "v143_%d.rsp" % len(jobs)
+                open(os.path.join(work, rsp), "w").write("\n".join(msvcw_compile.BASE + fix + (["/GS"] if g else []) + (["/Ob0"] if o else []) + fl[i:i + max(1, -(-len(fl) // par))]) + "\n")
+                jobs.append(rsp)
+    cl = "/opt/msvc/bin/x86/cl"
+    cmd = " ".join(["%s @%s > %s.log 2>&1;" % (cl, jobs[0], jobs[0])] + ["%s @%s > %s.log 2>&1 &" % (cl, j, j) for j in jobs[1:]] + ["wait"])
+    r = subprocess.run([os.path.join(HERE, "msvcw", "msvcw_sh.sh"), work, cmd], capture_output=True, text=True)
+    return r.stdout + r.stderr + "".join(open(os.path.join(work, j + ".log"), errors="replace").read() for j in jobs if os.path.exists(os.path.join(work, j + ".log")))
 
 
 def copy_hdr(h, work):
@@ -212,15 +233,15 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + inc_(os.path.join(work, nm)) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else []) + (["/Op"] if nm in op_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
+            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + inc_(os.path.join(work, nm)) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else []) + (["/Op"] if nm in op_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"") + (b" cc=v143" if V143 else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
         print("objects: %d from the cache, %d to compile%s" % (len(keyed) - len(todo), len(todo), " (/Op: %s)" % ",".join(sorted(op_files)) if op_files else ""), file=sys.stderr)      # W9 T-OP test: an unmarked file's key is unchanged = cache hit
         if todo:
             # one container, several wine cl processes in parallel (same prefix/wineserver); 1 file per cl would waste the 8 s start per process
-            out_ = ""
-            for cv_ in sorted(set(ccv[x] for x in todo)):      # one vc7.sh call per compiler variant (each has its own toolchain root / container)
+            out_ = v143_compile(work, todo, flags[4:], gs_files, ob0_files) if V143 else ""
+            for cv_ in ([] if V143 else sorted(set(ccv[x] for x in todo))):      # one vc7.sh call per compiler variant (each has its own toolchain root / container)
                 todo_ = [x for x in todo if ccv[x] == cv_]
                 par_ = int(os.environ.get("JOBS", os.cpu_count() or 1))
                 # W11 B3 (lane PP's finding): a long cl line under `wine cmd /c` is cut, so a full cache miss with JOBS=4 (1,150 files per cl line) failed with a
@@ -237,6 +258,14 @@ def main():
                     cmd = " ".join('wine cmd /c "set TMP=%%CD%%\\cltmp%d&&set TEMP=%%CD%%\\cltmp%d&&cl.exe %s %s" &' % (j_, j_, fl_, fs_) for j_, (fl_, fs_) in list(enumerate(jobs_))[w_:w_ + max(par_, 1)]) + " wait"
                     r = subprocess.run([os.path.join(HERE, "vc7.sh"), work, cmd], capture_output=True, text=True, env=dict(os.environ, VC7_SHELL="1", VC7_CL=cv_))
                     out_ += r.stdout + r.stderr
+            miss_ = [nm for nm in todo if not os.path.exists(os.path.join(work, nm[:-2] + ".obj"))] if V143 else []
+            if miss_:      # CC=v143: every file without an object, each with its own cl error lines (the ERRLEN tail below shows another file's output)
+                for nm in miss_:
+                    print("compile error in", nm, *[l for l in out_.splitlines() if l.startswith(nm + "(") and " error " in l][:5], sep="\n  ", file=sys.stderr)
+                for nm, cp in keyed:      # keep the good objects: the next run compiles only the failed files (a full v143 compile is > 30 min)
+                    if nm in todo and nm not in miss_:
+                        tmp_ = "%s.%d.tmp" % (cp, os.getpid()); shutil.copy(os.path.join(work, nm[:-2] + ".obj"), tmp_); os.replace(tmp_, cp)
+                sys.exit("v143: %d files without an object" % len(miss_))
             for nm in todo:
                 o = os.path.join(work, nm[:-2] + ".obj")
                 if not os.path.exists(o):
@@ -254,6 +283,7 @@ def main():
         if os.environ.get("OBJLIST"):      # tools/delink: the cached objects (source name, object path) for linking with the delinked image instead of overlaying
             with open(os.environ["OBJLIST"], "w") as f:
                 for nm, cp in keyed: f.write("%s %s\n" % (nm, cp))
+            if os.environ.get("OBJLIST_ONLY"): return      # SK W16 NOEXE link (link_ci.sh): objects only, no overlay exe (overlay.py reads MFL.exe)
         hk = os.path.join(RECOMP, "harness", "hooks.txt")
         if any(os.sep + "harness" + os.sep in x for x in srcs) and os.path.exists(hk):
             for l in open(hk):

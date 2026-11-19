@@ -1,0 +1,15 @@
+# Operands that read g_frame_seconds (0x7EF7EC) in the front end: message_box_update, menu_update, menu_items_animate_update.
+# Redirected to fast_ui_seconds (freeze.c) so only menu / message box animations can be sped up; the key repeat timers in
+# menu_up/down_pressed_any and everything in the race keep the real value.
+0x445bf9=fast_ui_seconds
+0x445eeb=fast_ui_seconds
+0x44646f=fast_ui_seconds
+0x4464b8=fast_ui_seconds
+0x446511=fast_ui_seconds
+0x4490e2=fast_ui_seconds
+0x44912a=fast_ui_seconds
+0x4383d0=fast_ui_seconds
+0x438404=fast_ui_seconds
+0x4384d3=fast_ui_seconds
+0x43850a=fast_ui_seconds
+0x43851d=fast_ui_seconds

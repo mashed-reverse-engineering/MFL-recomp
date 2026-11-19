@@ -1,0 +1,13 @@
+# __xc_a..__xc_z slots of MFL.exe without zero / __security_init_cookie (tools/ci/link_tables.py)
+005db8e0
+005db900
+005db920
+005db940
+005db960
+005db980
+005db9a0
+005db9c0
+005db9e0
+005dba00
+005dba20
+005dba40

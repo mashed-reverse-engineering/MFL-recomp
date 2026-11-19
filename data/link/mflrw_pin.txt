@@ -1,0 +1,6 @@
+# librw-mfl commit the pinned mflrw.dll is built from (CI checks out exactly this). Written by M.
+commit aeda9cca361c49f0f1bb4139d136123998cc3d02 [U]
+# evidence: output/librw/mflrw.dll mtime 2026-11-14 10:18:39; commit aeda9cc (last capi change) dated 10:18:45, 6 s later.
+# unproven: the DLL's own bytes were built from the working tree just before that commit; later commits (to 5fd5029) touch only
+# .github/workflows and src/ps2/ps2types.h. sha256 of the local pinned DLL (not replaced): 823852f1ea1bae289f8489d524a4a6a06bd8607f0c392b052e588e68b1182e7a
+# proof step (M, once, local): build aeda9cc with tools/build_mflrw.sh (no GEN=) and compare sha256 to the line above; mark [P] if equal.

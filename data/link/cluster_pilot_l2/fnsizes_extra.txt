@@ -1,0 +1,11 @@
+005bab40 rwa_obj_init_header_005bab40 206
+005bb0a0 rwa_obj_create_005bb0a0 573
+005b78a0 rwa_voice_manager_stop_voice_005b78a0 180
+005b7bb0 rwa_voice_manager_update_005b7bb0 669
+005b7960 rwa_voice_manager_prioritize_005b7960 591
+005b7e60 rwa_voice_manager_play_voice_005b7e60 70
+005b7eb0 rwa_voice_manager_control_005b7eb0 51
+005c20a0 rwa_stream_source_free_005c20a0 199
+005c2170 rwa_stream_source_destroy_005c2170 12
+005c40d0 rwa_stream_source_init_005c40d0 622
+005c34f0 rwa_stream_source_read_callback_005c34f0 2493

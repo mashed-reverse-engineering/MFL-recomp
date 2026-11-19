@@ -1,0 +1,22 @@
+# gate.sh standalone: original bytes per layer of the MKRANGE harness link, 2026-11-19; a layer that grows fails the gate (GATE_BASELINE_WRITE=1 rewrites after a deliberate change)
+# link output/gate/1119_1709_standalone/link
+code:Audio 0
+code:CRT 0
+code:D3DX 0
+code:DirectShow 0
+code:Lua 0
+code:RenderWare 0
+code:app 0
+code:other 0
+code:qhull 0
+code:rwp 0
+code:zlib/PNG/TIFF 0
+data:bss:gap 0
+data:bss:lib 0
+data:data:gap 0
+data:data:lib 0
+data:rdata:gap 0
+data:rdata:lib 0
+rsrc 0
+state cars 1
+state vehicles 19

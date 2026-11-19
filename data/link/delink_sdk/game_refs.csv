@@ -1,0 +1,662 @@
+target,symbol,member,nsites,sites
+005dd32c,__real@40400000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,103,00401291 00401297 004049ab 00404c23 004050b9 004050d1 004079a5 00408625
+005dd330,__real@3f800000,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/collquery.obj,728,0040128b 004012e7 004022e3 004024e9 00402501 00402512 004025a4 004025c3
+005dd338,__real@3c23d70a,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/babinfrm.obj,63,0040137c 004070ca 00407946 0041a4f1 0041c847 0041c85f 00424412 0042644c
+005dd33c,__real@40800000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,109,00401cfb 00414e12 00417569 00417c39 00417c41 00418c8e 00418c98 0041942c
+005dd340,__real@3f000000,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/ctbuild.obj,433,00402294 004022a6 004022b8 00402669 00402673 00402681 00404938 00404bea
+005dd364,__real@bf800000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,246,0040172d 00401742 00401755 00401837 00401847 00401856 004022f4 00402300
+005dd410,__real@c0000000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,12,00406a57 0045c196 004689b9 004689d0 0047dab7 00497c2d 00582959 00590366
+005dd41c,__real@40a00000,rpworld.lib:obj\i386\d3dxmath.obj,46,00408064 004085e6 00414897 00414969 00414e51 00414e60 00424574 0043b8d1
+005dd57c,??_C@_01LFCBOECM@?4?$AA@,libcmt.lib:build\intel\mt_obj\setlocal.obj,1,0040374b
+005dd5a2,??_C@_00CNPNBAHC@?$AA@,rpworld.lib:obj\i386\cassembler.obj,14,004035da 00403670 0042350a 0042a51c 0042b532 0042c9e1 0042ca51 00469e71
+005dd618,??_C@_02DKCKIIND@?$CFs?$AA@,rpworld.lib:obj\i386\cpreprocessor.obj,5,004034d3 00403533 004035b9 004035e3 00403655
+005dd61c,__real@3a83126f,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,51,00404bcd 0040e0b2 0040e0bf 0040e0d2 00414e37 00414e49 00416f34 00449cb0
+005dd620,__real@41200000,rplodatm.lib:c:/daily/rwsdk/plugin/lodatm/obj/d3d9r/rplodatm.obj,87,00407bc5 0041340d 0041552f 00416bca 00417e9d 00419385 00419ad0 00419f78
+005dd628,__real@3e800000,rpworld.lib:obj\i386\d3dxquatsse2.obj,57,00405081 0041651b 0041652c 00416735 00417b14 00418968 00418d36 0041a78b
+005dd634,__real@40000000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,123,00403b83 00403bbf 00403bfb 00403c37 00403c73 00403caf 00403ceb 00403d27
+005dd814,__real@40c00000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,22,004050bf 00417553 00419443 00419b93 0041a909 0041a91b 0041b393 0043a392
+005dd9ac,__real@437f0000,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,83,00405c4b 00405c5a 00415484 00415576 004164d1 004164e0 004191fd 0041920c
+005dd9c8,__real@3e2aaaab,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,11,00406037 0040607c 0041a722 00440146 00443092 004591a2 004805d3 00484e25
+005dd9cc,__real@3c088889,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,6,0040602f 00406074 00484e1d 00484e62 00494bfb 00494c40
+005dd9d0,__real@39500d01,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,6,00406027 0040606c 00484e15 00484e5a 00494bf3 00494c38
+005dd9d4,__real@3638ef1b,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,6,0040601f 00406064 00484e0d 00484e52 00494beb 00494c30
+005dd9d8,__real@32d72f34,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,6,00406017 0040605c 00484e05 00484e4a 00494be3 00494c28
+005dd9dc,__real@2f2ec9d3,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,6,0040600f 00406054 00484dfd 00484e42 00494bdb 00494c20
+005dda20,__real@4f800000,rpworld.lib:obj\i386\float162.obj,82,00406388 00409ac8 00409af2 00409b06 00410269 00411de5 00411edc 004138ae
+005ddaec,__real@42652ee1,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/bamatrix.obj,10,00406ed6 0040a04e 004655c7 004656ed 0047e119 0048515c 00485166 0048516f
+005ddaf0,__real@3727c5ac,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/pngrutil.obj,20,00406ea2 00407e92 0040d595 0040d5d2 0040d633 004648ff 0046558d 004656b3
+005ddb10,__real@3f7d70a4,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/babinfrm.obj,18,00407653 0040765f 0040766b 0040c5d8 0040c5f9 00456885 00456891 004568ad
+005ddc1c,__real@3eaaaaab,rpworld.lib:obj\i386\psgpmesh.obj,24,0040ab25 0041785a 0041a751 00420ecc 0044113c 0044f021 0044f938 0045ecc5
+005de19c,__real@38d1b717,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/ctbuild.obj,26,00414cfa 0044a358 0044a3cf 0044fb23 0044fd94 0044fdab 00460faf 004611bb
+005de1e8,__real@3fe0000000000000,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/pngwutil.obj,8,004166e4 0044fb34 0045228d 0049aeb5 0049aedf 0058444b 005af4bb 005b1c30
+005de1f0,__real@3ff0000000000000,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/pngwutil.obj,32,004166de 00449b24 00452413 0046b243 0046b867 004705ea 004885d4 0049aeaf
+005de1f8,__real@40490fdb,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,12,004166d6 0045b7cf 0045e68e 0045f0ef 00464eca 00493996 00493a59 0049d8d9
+005de274,__real@42652ee0,rpuvanim.lib:c:/daily/rwsdk/plugin/uvanim/obj/d3d9r/rpuvanim.obj,1,0041bb7c
+005de27c,__real@3fc90fdb,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,2,0041bebc 00453a23
+005de290,__real@42480000,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/ctbuild.obj,19,0041cc87 0041ccaf 0041cccd 0041ccf5 00423fec 0042eefc 0042f531 0043b337
+005de430,__real@40c90fdb,rpuvanim.lib:c:/daily/rwsdk/plugin/uvanim/obj/d3d9r/param.obj,5,00424529 004939e7 0056d008 0056d0aa 0056d145
+005de47c,__real@be800000,rpworld.lib:obj\i386\d3dxmath.obj,12,00424fef 00425001 00425013 0044b355 0047ae4f 0047ba5a 004862dd 00486305
+005de6a8,__real@bf000000,rpworld.lib:obj\i386\d3dxmath.obj,12,0042ae78 00453ec9 00457225 00457341 00457384 00457397 00461a0b 0047918d
+005de98c,??_C@_01KBJDNOO@i?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00430f8b
+005de9c4,__real@3c8efa35,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/bamatrix.obj,5,0043405c 00465059 00484766 00486057 0049d0a6
+005dec98,??_C@_02FENABIDK@vs?$AA@,rpworld.lib:obj\i386\d3dx9shader.obj,12,0043eb47 0043efa8 0043f0f9 0043f211 0043f2f5 0043f448 0043f64c 0043f9b7
+005df83c,__real@358637bd,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/collquery.obj,11,00464239 004642fc 00465e83 004821fd 005876e3 00587962 00588bc8 00588c44
+005dfd0c,__real@3b004020,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexdeclaration.obj,3,004752b3 004752f8 00475334
+005dfd10,__real@43ff8000,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexdeclaration.obj,2,0047498a 0047499e
+005dfd40,__real@b727c5ac,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/collquery.obj,4,00476562 00476590 004765b6 0058a3c6
+005dfd44,__real@43800000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,1,0047654e
+005dfd84,__real@47800000,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/baresamp.obj,1,0047cade
+005dfda8,__real@3f7fbe77,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/stdkey.obj,2,0047df81 0050bc2c
+005dfdb4,__real@3b800000,rpspline.lib:c:/daily/rwsdk/plugin/spline/obj/d3d9r/rpspline.obj,2,0047ee57 0047ef1a
+005dfdf4,__real@00800000,rpworld.lib:obj\i386\d3dxmath.obj,12,0056bf58 0056c039 0056f2b7 0056fd44 0057297c 0057ef45 0057efa7 005833f9
+005dfdf8,__real@7f7fffff,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/ctbuild.obj,11,0056c049 00580aa1 00585642 00587fb0 005a2edf 005a80b2 005b47f5 005d7c1c
+005dff00,__real@3b808081,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,6,0048934a 0048935b 00489366 004a40c1 004a584d 004a585d
+005e1208,__real@477fff00,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexdeclaration.obj,1,004a40d5
+005e12dc,??_C@_01GFHCPBMG@C?$AA@,rpworld.lib:obj\i386\cpreprocessor.obj,2,00519224 005192bd
+005e24f8,__real@0000000000000000,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/pngwutil.obj,25,004b1d72 004b1fc2 004c7252 004c925f 004c92be 004d0816 0058e434 0058f980
+005e63c8,__real@4000000000000000,rppvs.lib:c:/daily/rwsdk/plugin/pvs/obj/d3d9r/rppvs.obj,1,0059994c
+005e64a4,__real@00000000,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/collquery.obj,1010,00401a7e 00401aa9 00404329 004043e3 00404b83 00404bac 00404f55 00404fda
+005e6d72,.rdata,libcmt.lib:build\intel\mt_obj\ctype.obj,1,0062d13c
+005e6f7a,.rdata,libcmt.lib:build\intel\mt_obj\ctype.obj,1,0062d140
+005e99d4,.rdata,libcmt.lib:build\intel\mt_obj\commit.obj,1,004cac79
+005ea080,_BackBufferFormats,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d804b 004d8207
+005ea08c,.rdata,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d8071 004d822d
+005ea154,__RwD3D9FogConvTable,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5d04 004e5d74
+005ea194,__RwD3D9AddressConvTable,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,6,004e560f 004e5652 004e5e1d 004e5e54 004e5e92 004e5ecc
+005ea1a8,__RwD3D9FilterModeConvTable,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e56d8
+005ea1ac,.rdata,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e56ea
+005ea24c,__RwD3D9CmpFuncConvTable,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e615d
+005ea284,_nullString,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/rwstring.obj,2,004ea44c 004ea457
+005ea2a8,__RwD3D9PrimConv,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/nodeD3D9SubmitNoLight.obj,1,004f0e05
+005ea2f4,__RwD3D9PrimConvTable,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9pipe.obj,1,004fabbe
+005ec388,_D3D9VertexTypeSize,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexdeclaration.obj,1,00505c37
+005ec3cc,__real@46fffe00,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexdeclaration.obj,7,005c63dc 005c6428 005c6474 005c64c0 005c650c 005c6558 005c65a4
+005ec3d0,__real@3c000000,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexdeclaration.obj,6,00508a95 00508aab 00508ab9 00508aca 00508adc 00508ae6
+005ec3e8,?elements@?1??_rpD3D9GenerateVertexShader@@9@9,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,28,00509dd4 00509e0b 00509e23 00509e42 00509ebb 00509ede 00509f00 00509f15
+005ec3fc,?replicateelements@?1??_rpD3D9GenerateVertexShader@@9@9,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,0050a3d6 0050a59b 0050a7eb
+005ec450,__real@4479ffff,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050bc5a
+005eeee0,??_C@_06CLEKFGNM@SAMPLE?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00637398
+005eeee8,??_C@_05NCPPINNM@DEPTH?$AA@,rpworld.lib:obj\i386\cassembler.obj,3,006371d0 006372d0 00637394
+005eeef0,??_C@_03KEDKDEDN@FOG?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00637390
+005eeef4,??_C@_05DPNLPLKI@COLOR?$AA@,rpworld.lib:obj\i386\cassembler.obj,4,006371cc 006372cc 0063738c 006373a0
+005eef08,??_C@_0L@PPFCHDAK@TESSFACTOR?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00637384
+005eef14,??_C@_08DDEDFEDO@BINORMAL?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00637380
+005eef20,??_C@_07HOFFNMLH@TANGENT?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,0063737c
+005eef28,??_C@_08CMDKBPJM@TEXCOORD?$AA@,rpworld.lib:obj\i386\cassembler.obj,3,006371d4 006372d4 00637378
+005eef34,??_C@_05DHDJOECB@PSIZE?$AA@,rpworld.lib:obj\i386\cassembler.obj,2,00637374 006373a8
+005eef3c,??_C@_06IOJAGNKJ@NORMAL?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00637370
+005eef44,??_C@_0N@DBILKEJG@BLENDINDICES?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,0063736c
+005eef54,??_C@_0M@NKNBBMD@BLENDWEIGHT?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,00637368
+005eef60,??_C@_08JPMAAECC@POSITION?$AA@,rpworld.lib:obj\i386\cassembler.obj,2,00637364 006373a4
+005ef690,??_C@_04NBAGBPGE@bias?$AA@,rpworld.lib:obj\i386\cassembler.obj,1,006372c0
+005efa10,??_7CBuffer@D3DXCore@@6B@,rpworld.lib:obj\i386\cbuffer.obj,2,00520755 00520837
+005efcf0,??_7CNode@D3DXShader@@6B@,rpworld.lib:obj\i386\cnode.obj,2,00521a02 00521a16
+005efd00,??_7CNodeList@D3DXShader@@6B@,rpworld.lib:obj\i386\cnode.obj,3,00521adb 00521b00 00522233
+005efd10,??_7CNodeToken@D3DXShader@@6B@,rpworld.lib:obj\i386\cnode.obj,3,00521cc5 00521ce9 00522255
+005efd20,??_7CNodeType@D3DXShader@@6B@,rpworld.lib:obj\i386\cnode.obj,4,00521d58 00521da1 00521dae 00522277
+005efd30,??_7CNodeVariable@D3DXShader@@6B@,rpworld.lib:obj\i386\cnode.obj,2,00521e4a 00521e7a
+005efd40,??_7CNodeValue@D3DXShader@@6B@,rpworld.lib:obj\i386\cnode.obj,4,00522074 005220c0 005220f8 0052211a
+005efe44,??_7CNodeAsmInstruction@D3DXShader@@6B@,rpworld.lib:obj\i386\cnodeasm.obj,3,00522ab9 00522ae9 00522b2d
+005efe54,??_7CNodeAsmRegister@D3DXShader@@6B@,rpworld.lib:obj\i386\cnodeasm.obj,3,00522c49 00522c8c 00522caf
+005f4880,__real@3fa999999999999a,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/pngrtran.obj,3,0058446e 005a2b3e 005a2c00
+005f4d70,_extra_lbits,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,1,0053aad5
+005f4de8,_extra_dbits,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,1,0053ac11
+005f4eac,_bl_order,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,3,00539975 00539cbb 00539d22
+005f4ec0,_static_ltree,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,1,00539a74
+005f5340,_static_dtree,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,1,00539a6f
+005f53b8,__dist_code,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,3,005324f5 00532ae5 0053ab65
+005f54b8,.rdata,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,3,00532509 00532af9 0053ab74
+005f55b8,__length_code,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,3,005324d3 00532ac3 0053aa27
+005f56b8,_base_length,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,1,0053aae0
+005f5730,_base_dist,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/trees.obj,1,0053ac20
+005f5a20,__RwD3D9PrimConvTable,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9instance.obj,1,00540926
+005f5a40,_One,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/ssematbl.obj,2,0054272f 00542a1f
+005f5a44,_Zero,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/ssematbl.obj,2,00542899 005428ed
+005f5d48,?texMat@?1??ApplyEnvMapTextureMatrix@@9@9,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,2,0055224f 005522ae
+0062c5d8,___security_cookie,libcmt.lib:build\intel\mt_obj\seccook.obj,87,00401007 00401f87 00403457 00403932 00403a44 004065c4 00406694 00408c67
+0062c5f0,__half,libcmt.lib:..\build\intel\mt_obj\pow.obj,1,004b2ea2
+0062c5f8,POW_name,libcmt.lib:..\build\intel\mt_obj\pow.obj,1,004b2d54
+0062c6b0,.data,libcmt.lib:build\intel\mt_obj\_file.obj,2,004b2c14 0058cc82
+0062c6d0,.data,libcmt.lib:build\intel\mt_obj\_file.obj,2,004c75ff 0058cca6
+0062c970,__indefinite,libcmt.lib:..\build\intel\mt_obj\87disp.obj,1,004b2e84
+0062c984,One,libcmt.lib:..\build\intel\mt_obj\87disp.obj,1,004b6f88
+0062d914,??_C@_01LHO@r?$AA@,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/font.obj,1,00560d50
+0062e514,_frameTKList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/baframe.obj,1,005d5a75
+0062e534,_cameraTKList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/bacamera.obj,2,004d1e6a 005d5935
+0062e590,__rwMsbBit,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/badevice.obj,74,005b6fad 005b6fc7 005b7008 005b7020 005b7099 005b70ad 005b70ec 005b9222
+0062e591,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/badevice.obj,2,005ba886 005ce260
+0062e594,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/badevice.obj,1,005baee6
+0062e6d0,_textureTKList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,4,004d5f4a 004d6111 004df271 004df32d
+0062e6e8,_texDictTKList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,2,004d603e 004d6156
+0062e700,__rwTextureFreeListBlockSize,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,1,004d60fc
+0062e704,__rwTextureFreeListPreallocBlocks,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,1,004d60f6
+0062e708,__rwTexDictionaryFreeListBlockSize,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,1,004d6150
+0062e70c,__rwTexDictionaryFreeListPreallocBlocks,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,1,004d614b
+0062e718,_rasterTKList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/baraster.obj,1,004d783a
+0062e738,_AmbientSaturated,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,005055b6 0050571f 00505728
+0062e73c,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,005055bc 0050572e 00505737
+0062e740,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,005055c2 0050573d 00505746
+0062e744,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,005055ac
+0062e748,__RwD3DAdapterType,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,21,004d7cf3 004d7d30 004d7fee 004d7ffc 004d8297 004d82d4 004d836d 004d843a
+0062e74c,_MaxMultisamplingLevels,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,8,004d7cc5 004d7d0b 004d7d4a 004d7d59 004d8269 004d82af 004d82f2 004d8305
+0062e750,_SelectedMultisamplingLevels,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d7ccb 004d826f 004d8d02 004d8d51
+0062e754,_MaxMultisamplingLevelsNonMask,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d7cd1 004d7d52 004d8275 004d82fa
+0062e758,_SelectedMultisamplingLevelsNonMask,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d7cd7 004d827b 004d8d0c 004d8db4
+0062e75c,_FullScreenRefreshRateInHz,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d89ab
+0062e760,__rwD3D9LastFVFUsed,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,9,004a651d 004a9ea9 004a9ec1 004aa06f 004f0dad 004faf76 0053fd5f 005464cf
+0062e764,__rwD3D9LastVertexDeclarationUsed,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,12,004a6506 004a6512 004a9ec7 004aa058 004aa064 004f0d9a 004f0da7 004faf5f
+0062e768,__rwD3D9LastVertexShaderUsed,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,18,004a62bf 004a62cb 004a63cf 004a63db 004aa125 004aa131 004f0dc1 004f0dce
+0062e76c,__rwD3D9LastPixelShaderUsed,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,16,004a62e2 004a62f3 004a63f2 004a6403 004aa147 004aa158 004f0dde 004f0deb
+0062e770,__rwD3D9LastIndexBufferUsed,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,10,004a64c2 004a64de 004aa024 004aa030 004faf30 004faf37 0053fd19 0053fd20
+0062e778,__RwD3D9D3D9ProjTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da33e 004da3da
+0062e78c,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da347
+0062e798,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da353
+0062e79c,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da35f
+0062e7a0,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da3c9 004da3cf
+0062e7a4,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da399 004da3b5
+0062e7a8,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da36d
+0062e7ac,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da37b
+0062e7b0,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da3e4
+0062e7b4,.data,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da3a3 004da3bf
+0062e7b8,?rwD3D9DriverDevice@?1??_rwDeviceGetHandle@@9@9,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d7f68 004dafd1
+0062e9bc,_FreeListsEnabled,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/bamemory.obj,1,004e90a5
+0062eaf8,?nodeImmInstanceCSL@?1??RxNodeDefinitionGetD3D9ImmInstance@@9@9,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/nodeD3D9SubmitNoLight.obj,1,004f13b1
+0062eb58,?nodeD3D9SubmitNoLight@?1??RxNodeDefinitionGetD3D9SubmitNoLight@@9@9,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/nodeD3D9SubmitNoLight.obj,1,004f13c1
+0062ebcc,_lightTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/balight.obj,2,004f4d0a 004f4d35
+0062ebec,_worldTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/baworld.obj,2,004f5e8a 004f5eb5
+0062ec04,_atomicTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/baclump.obj,3,004f6cfd 004f7e9a 004f7ef5
+0062ec1c,_clumpTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/baclump.obj,4,004f6c23 004f6d81 004f6e27 004f7eca
+0062ec44,_materialTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bamateri.obj,4,004f827a 004f82a5 004f8624 004f86da
+0062ec70,_geometryTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bageomet.obj,5,004f87a8 004f912a 004f9155 004f9261 004f94d5
+0062ec88,?g_D3DXFastTable@@3UD3DXFASTTABLE@@A,rpworld.lib:obj\i386\d3dxmath.obj,2,004fb817 004fb81d
+0062ec8c,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbaf5
+0062ec90,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fc183
+0062ec94,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fc3d6 004fc3dc
+0062ec98,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fc69f 004fc6a5
+0062ec9c,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fb85f 004fb865
+0062eca0,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fbc6f 004fbc75
+0062eca4,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fb883 004fb889
+0062eca8,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbeb8
+0062ecac,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fb83b 004fb841
+0062ecb0,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fbc45 004fbc4b
+0062ecb4,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fc2ff
+0062ecb8,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdd1e
+0062ecbc,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdd63
+0062ecc0,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbd7b
+0062ecc4,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbd9d
+0062ecc8,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbdbb
+0062ecd0,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fc8e8 004fc8ee
+0062ecd4,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fd5fc 004fd602
+0062ecd8,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd6a5
+0062ecdc,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fdbbb 004fdbc1
+0062ece0,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdc6f
+0062ece4,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd2f0
+0062ece8,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd332
+0062ecec,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd516
+0062ecf4,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd2d6
+0062ecf8,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd2e3
+0062ed10,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fde12
+0062ed14,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd982
+0062ed18,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdb22
+0062ed1c,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fc61f 004fc625
+0062ed20,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fd095 004fd09b
+0062ed24,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fd1bc
+0062ed38,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fd768 004fd76e
+0062ed3c,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdaf7
+0062ed40,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fb607
+0062ed4c,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fb8af
+0062ed58,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbede
+0062ed64,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fd82c 004fd832
+0062ed68,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fd8ba 004fd8c0
+0062ed70,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fb555
+0062ed78,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fb852
+0062ed7c,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fb876
+0062ed80,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbb91
+0062ed84,.data,rpworld.lib:obj\i386\d3dxmath.obj,2,004fbc5c 004fbc62
+0062ed88,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbcec
+0062ed8c,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fc233
+0062ed90,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbd8c
+0062ed94,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fbdae
+0062ed98,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdec2
+0062ed9c,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdf92
+0062eda0,.data,rpworld.lib:obj\i386\d3dxmath.obj,1,004fdfa3
+0062eee8,?nodeD3D9AtomicAllInOneCSL@?1??RxNodeDefinitionGetD3D9AtomicAllInOne@@9@9,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/nodeD3D9AtomicAllInOne.obj,1,005003b1
+0062ef48,?nodeD3D9WorldSectorAllInOneCSL@?1??RxNodeDefinitionGetD3D9WorldSectorAllInOne@@9@9,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/nodeD3D9WorldSectorAllInOne.obj,1,005009c1
+0062ef88,_sectorTKList,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/basector.obj,2,00500b5a 00500b85
+0062efa0,_Id,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/native.obj,2,00501445 00501b74
+0062efec,??_C@_0BC@BEBD@mov?5oT?$CFu?4xy?0?5v?$CFu?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050b3eb 0050b427
+0062f298,??_C@_0BG@BFPN@mul?5r1?4xyz?0?5r1?0?5r9?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050af05
+0062f2b0,??_C@_0BI@NINH@max?5r9?4w?0?5r9?4w?0?5c?$FL5?$FN?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ae63
+0062f2c8,??_C@_0CI@LPKE@mad?5r9?4w?0?5r9?4w?0?5c?$FL3?5?$CL?55?$FN?4x?0?5c?$FL3?5@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ae12
+0062f2f0,??_C@_0BI@NELN@dp3?5r9?4w?0?5r7?0?5c?$FL2?5?$CL?55?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050adfe
+0062f308,??_C@_0CB@LJEM@mad?5oD0?4xyz?0?5r1?0?5c?$FL5?$FN?4z?0?5c?$FL5?$FN?4z?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ad91 0050af5d
+0062f32c,??_C@_0CB@EBC@mad?5oD1?4xyz?0?5r1?0?5c?$FL5?$FN?4z?0?5c?$FL5?$FN?4z?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ad7b 0050af3b
+0062f350,??_C@_0BA@LOGH@mov?5oT1?4xy?0?5v5?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ad34
+0062f360,??_C@_0BB@CDNM@mov?5oT0?4xy?0?5v?$CFd?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ad20
+0062f374,??_C@_0BG@CAJP@dp3?5oT3?4z?0?5c?$FL?$CFd?$FN?0?5?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050acfa
+0062f38c,??_C@_0BG@HFIH@dp3?5oT3?4y?0?5c?$FL?$CFd?$FN?0?5r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ace1
+0062f3a4,??_C@_0BG@FDBF@dp3?5oT3?4x?0?5c?$FL?$CFd?$FN?0?5r4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050accd
+0062f3bc,??_C@_0BG@OCDP@dp3?5oT2?4z?0?5c?$FL?$CFd?$FN?0?5?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050acb7
+0062f3d4,??_C@_0BG@LHCH@dp3?5oT2?4y?0?5c?$FL?$CFd?$FN?0?5r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ac9d
+0062f3ec,??_C@_0BG@JBLF@dp3?5oT2?4x?0?5c?$FL?$CFd?$FN?0?5r4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ac89
+0062f404,??_C@_0CB@OICE@mad?5oT2?4xyz?0?5r1?0?5c?$FL5?$FN?4z?0?5c?$FL5?$FN?4z?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ac55 0050af24
+0062f428,??_C@_0BG@OAIB@mul?5r1?4xyz?0?5r1?0?5r7?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ac37 0050aef1
+0062f440,??_C@_0BC@NCEB@dp3?5r1?4z?0?5r7?0?5?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050abe8 0050ae9f
+0062f454,??_C@_0BC@OEKJ@dp3?5r1?4y?0?5r7?0?5r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050abd4 0050ae8b
+0062f468,??_C@_0BC@BMJE@dp3?5r1?4x?0?5r7?0?5r4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050abbd 0050ae77
+0062f47c,??_C@_0BI@IGF@max?5r7?4w?0?5r7?4w?0?5c?$FL5?$FN?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050aba9 0050ae50
+0062f494,??_C@_0CA@LDEO@mad?5r7?4w?0?5r7?4w?0?5c?$FL5?$FN?4x?0?5c?$FL5?$FN?4y?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ab96 0050ae39
+0062f4b4,??_C@_0BA@FPAB@rcp?5r7?4w?0?5r7?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ab82 0050ae25
+0062f4c4,??_C@_0BG@JEOJ@mul?5r7?4xyz?0?5r7?0?5r7?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ab6e 0050adea
+0062f4dc,??_C@_0BA@LHK@rsq?5r7?4w?0?5r7?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ab5b 0050add7
+0062f4ec,??_C@_0BC@JKEJ@dp3?5r7?4w?0?5r7?0?5r7?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ab47 0050adc3
+0062f500,??_C@_0CD@MPP@add?5r7?4xyz?0?5c?$FL1?5?$CL?55?$FN?4xyz?0?5?9?$CFs?4xy@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050ab33 0050adaf
+0062f524,??_C@_0CB@IOMB@mad?5oD0?4xyz?0?5r1?0?5c?$FL5?$FN?4w?0?5c?$FL5?$FN?4w?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ab17
+0062f548,??_C@_0CB@DDJP@mad?5oD1?4xyz?0?5r1?0?5c?$FL5?$FN?4w?0?5c?$FL5?$FN?4w?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050ab01
+0062f56c,??_C@_0CB@NPKJ@mad?5oT2?4xyz?0?5r1?0?5c?$FL5?$FN?4w?0?5c?$FL5?$FN?4w?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aaec
+0062f590,??_C@_0BG@DPGN@mul?5r1?4xyz?0?5r1?0?5r1?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,0050aad2 0050ac23 0050aed5
+0062f5a8,??_C@_0BA@PEBL@rsq?5r1?4w?0?5r1?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,0050aabe 0050ac10 0050aec7
+0062f5b8,??_C@_0BC@PMAJ@dp3?5r1?4w?0?5r1?0?5r1?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,0050aaab 0050abfc 0050aeb3
+0062f5cc,??_C@_0BE@KAIP@dp3?5r1?4z?0?5c?$FL5?$FN?0?5?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa97
+0062f5e0,??_C@_0BE@LABO@dp3?5r1?4y?0?5c?$FL5?$FN?0?5r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa82
+0062f5f4,??_C@_0BE@KKAL@dp3?5r1?4x?0?5c?$FL5?$FN?0?5r4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa6f
+0062f608,??_C@_0N@FLEI@mov?5oD0?0?5v4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa4e
+0062f618,??_C@_0BG@OKKP@mul?5r2?4xyz?0?5r2?0?5r2?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa31
+0062f630,??_C@_0BA@LKL@rsq?5r2?4w?0?5r2?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa1e
+0062f640,??_C@_0BC@MPCJ@dp3?5r2?4w?0?5r2?0?5r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050aa0a
+0062f654,??_C@_0BP@HELI@mad?5r2?0?5r4?4yzxw?0?5?$CFs?4zxyw?0?5?9r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a9eb
+0062f674,??_C@_0BK@CLJO@mul?5r2?0?5r4?4zxyw?0?5?$CFs?4yzxw?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a9d7
+0062f690,??_C@_0BA@NCA@mov?5?$CFs?4w?0?5v3?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a9bf
+0062f6a0,??_C@_0N@MKCN@mov?5r4?0?5v13?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a999
+0062f6b0,??_C@_0BI@JGAH@slt?5r4?4w?0?5v13?4w?0?5v13?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a986
+0062f6c8,??_C@_0BG@EBCL@mul?5r4?4xyz?0?5r4?0?5r4?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a96f
+0062f6e0,??_C@_0BA@PEMK@rsq?5r4?4w?0?5r4?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a95b
+0062f6f0,??_C@_0BC@KJGJ@dp3?5r4?4w?0?5r4?0?5r4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a948
+0062f704,??_C@_0BG@KMFN@m3x3?5r4?4xyz?0?5v13?0?5r8?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a929
+0062f71c,??_C@_0CA@GBCP@m3x3?5r4?4xyz?0?5v13?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a912
+0062f73c,??_C@_0P@IFDI@mov?5oD0?0?5c?$FL4?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a8eb
+0062f74c,??_C@_0BD@IBEK@add?5oD0?0?5v4?0?5c?$FL4?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a8d1
+0062f760,??_C@_0BF@KEKN@mul?5oD0?0?5r11?0?5c?$FL?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a858 0050a8b3
+0062f778,??_C@_0BJ@EBHG@mul?5r6?4?$CFs?0?5r6?4?$CFs?0?5r9?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a7a0
+0062f794,??_C@_0BO@KPBM@max?5r9?4?$CFs?0?5c?$FL?$CFd?$FN?4wwww?0?5r9?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a73d
+0062f7b4,??_C@_0CD@GKGN@mad?5r9?4?$CFc?0?5r7?4w?0?5c?$FL?$CFd?$FN?4x?0?5c?$FL?$CFd?$FN?4@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a6f4
+0062f7d8,??_C@_0BF@CHEE@dp3?5r7?4w?0?5r7?0?5c?$FL?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a6d6
+0062f7f0,??_C@_0BL@LOKM@mul?5r7?4xyz?0?5r7?4xyz?0?5r1?4?$CFc?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a6bc
+0062f80c,??_C@_0BJ@OBFD@mul?5r6?4?$CFs?0?5r6?4?$CFs?0?5r8?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a551 0050a78a
+0062f828,??_C@_0BN@CIBJ@add?5r8?4?$CFs?0?5?9c?$FL?$CFd?$FN?4?$CFs?0?5r8?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a537 0050a773
+0062f848,??_C@_0BP@MMD@max?5r6?4?$CFs?0?5c?$FL?$CFd?$FN?4wwww?0?5?9r6?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a51f 0050a754
+0062f868,??_C@_0BM@JILE@max?5r8?4?$CFs?0?5c?$FL?$CFd?$FN?4?$CFs?0?5r1?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a506 0050a725
+0062f884,??_C@_0BD@GDCA@dp3?5r6?4?$CFc?0?5?$CFs?0?5r7?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a4d8 0050a6a0
+0062f898,??_C@_0BC@JCDH@rsq?5r1?4?$CFc?0?5r1?4?$CFc?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a4b8 0050a67f
+0062f8ac,??_C@_0BD@GOHC@dp3?5r1?4?$CFc?0?5r7?0?5r7?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a49c 0050a662
+0062f8c0,??_C@_0CA@FIMM@add?5r7?4xyz?0?5?9c?$FL?$CFd?$FN?4xyz?0?5?$CFs?4xyz?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a480 0050a646
+0062f8e0,??_C@_0CI@NFFI@mad?5r11?4xyz?0?5c?$FL?$CFd?$FN?4xyz?0?5r6?4?$CFs?0?5r@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,0050a3e3 0050a5a8 0050a7f8
+0062f908,??_C@_0BM@IKEN@mad?5oD0?0?5c?$FL?$CFd?$FN?0?5r6?4?$CFc?0?5r11?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,0050a3c6 0050a58b 0050a7db
+0062f924,??_C@_0BL@OFMN@max?5r6?4?$CFs?0?5c?$FL5?$FN?4w?0?5?9r6?4?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a38e
+0062f940,??_C@_0BG@DFNA@dp3?5r6?4?$CFc?0?5c?$FL?$CFd?$FN?0?5?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a366
+0062f958,??_C@_0P@MLAP@mov?5r11?0?5c?$FL4?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a2f5 0050a894
+0062f968,??_C@_0BD@LOOK@add?5r11?0?5v4?0?5c?$FL4?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a2e1 0050a881
+0062f97c,??_C@_0BG@EPKG@mul?5r5?4xyz?0?5?$CFs?0?5r5?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a27e
+0062f994,??_C@_0BA@FOFK@rsq?5r5?4w?0?5r5?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a269
+0062f9a4,??_C@_0BC@BAGB@dp3?5r5?4w?0?5?$CFs?0?5?$CFs?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a256
+0062f9b8,??_C@_0CC@IEKP@mad?5oFog?0?5r0?4w?0?5c?$FL?$CFd?$FN?4x?0?5c?$FL?$CFd?$FN?4y@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a22d
+0062f9dc,??_C@_0BA@LABK@rcp?5oFog?0?5r0?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a1cd 0050a210
+0062f9ec,??_C@_0BB@JBGD@expp?5r0?4w?0?5r0?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a1b9 0050a1fd
+0062fa00,??_C@_0BG@NLOI@mul?5r0?4w?0?5r0?4w?0?5r0?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a1a5
+0062fa18,??_C@_0BJ@CFPK@mul?5r0?4w?0?5r0?4w?0?5c?$FL?$CFd?$FN?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a192 0050a1e9
+0062fa34,??_C@_0BE@CFJO@dp4?5r0?4w?0?5?$CFs?0?5c?$FL3?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a158
+0062fa48,??_C@_0BE@NMIA@dp4?5oFog?0?5?$CFs?0?5c?$FL3?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a136
+0062fa5c,??_C@_0BK@LPKA@m4x4?5oPos?4xyzw?0?5r3?0?5c?$FL0?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a0fe
+0062fa78,??_C@_0BA@MOH@mov?5r3?4w?0?5v0?4w?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a0eb
+0062fa88,??_C@_02MDFA@r5?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a0e0 0050a28a
+0062fa8c,??_C@_0BP@ENKG@m4x3?5r5?4xyz?0?5?$CFs?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a07e
+0062faac,??_C@_0CD@MOAM@mad?5r3?4xyz?0?5v1?4?$CFc?0?5r5?4xyz?0?5r3?4xy@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a038 0050a0b7
+0062fad0,??_C@_0BL@NIMI@mul?5r3?4xyz?0?5v1?4?$CFc?0?5r5?4xyz?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,0050a01d 0050a09b
+0062faec,??_C@_0CA@FAHN@m4x3?5r5?4xyz?0?5?$CFs?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,0050a000
+0062fb0c,??_C@_0BF@FHMD@m3x3?5r5?4xyz?0?5?$CFs?0?5r8?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509fa6
+0062fb24,??_C@_0BF@GMEN@m4x3?5r3?4xyz?0?5?$CFs?0?5r8?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509f8d
+0062fb3c,??_C@_0BO@DDIM@mul?5r10?0?5v1?4?$CFc?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509f5b
+0062fb5c,??_C@_0BN@DBHB@mul?5r9?0?5v1?4?$CFc?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509f47
+0062fb7c,??_C@_0BN@NCKL@mul?5r8?0?5v1?4?$CFc?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509f30
+0062fb9c,??_C@_0CD@ILDL@mad?5r10?0?5v1?4?$CFc?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?0?5r1@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509f21
+0062fbc0,??_C@_0CB@PCHD@mad?5r9?0?5v1?4?$CFc?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?0?5r9?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509f07
+0062fbe4,??_C@_0CB@OGGE@mad?5r8?0?5v1?4?$CFc?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?0?5r8?6@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509eea
+0062fc08,??_C@_0BB@OCIK@mov?5a0?4x?0?5v2?4?$CFc?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,00509ec6 0050a064
+0062fc1c,??_C@_0BP@FNAD@mul?5r10?0?5v1?4?$CFc?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509e83
+0062fc3c,??_C@_0BO@KGAB@mul?5r9?0?5v1?4?$CFc?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509e6d
+0062fc5c,??_C@_0BO@DEOC@mul?5r8?0?5v1?4?$CFc?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509e55
+0062fc7c,??_C@_0CE@JACJ@mad?5r10?0?5v1?4?$CFc?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?0?5r@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509e4a
+0062fca0,??_C@_0CC@HCFG@mad?5r9?0?5v1?4?$CFc?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?0?5r9@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509e2f
+0062fcc4,??_C@_0CC@JAPO@mad?5r8?0?5v1?4?$CFc?0?5c?$FLa0?4?$CFc?5?$CL?5?$CFd?$FN?0?5r8@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509e12
+0062fce8,??_C@_0BA@PGKJ@mova?5a0?4?$CFs?0?5v2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,00509de0 00509fd2
+0062fcf8,??_C@_0BP@IKGK@m3x3?5r5?4xyz?0?5?$CFs?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509da2
+0062fd18,??_C@_0BP@CDOO@m4x3?5r3?4xyz?0?5?$CFs?0?5c?$FLa0?4x?5?$CL?5?$CFd?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509d79
+0062fd38,??_C@_0BB@EOKH@mova?5a0?4x?0?5v2?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509d5d
+0062fd4c,??_C@_0BA@CMNF@mov?5a0?4x?0?5v2?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509d49
+0062fd5c,??_C@_02GJMH@r4?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509d29
+0062fd60,??_C@_0BK@DLGA@mad?5r4?0?5v15?0?5c?$FL?$CFd?$FN?4y?0?5r4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509d15
+0062fd7c,??_C@_0BF@CLAA@mul?5r4?0?5v3?0?5c?$FL?$CFd?$FN?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509d00
+0062fd94,??_C@_02JGLF@r2?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509cf0
+0062fd98,??_C@_0BK@GDL@mad?5r2?0?5v14?0?5c?$FL?$CFd?$FN?4y?0?5r2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509cd8
+0062fdb4,??_C@_0BF@JLFB@mul?5r2?0?5v0?0?5c?$FL?$CFd?$FN?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509cc4
+0062fdcc,??_C@_0BK@GODE@mad?5r5?0?5v15?0?5c?$FL?$CFd?$FN?4y?0?5r5?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509ca8
+0062fde8,??_C@_0BF@OJKA@mul?5r5?0?5v3?0?5c?$FL?$CFd?$FN?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509c93
+0062fe00,??_C@_02DMCC@r3?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,00509c80 0050a0d4
+0062fe04,??_C@_0BK@FDGP@mad?5r3?0?5v14?0?5c?$FL?$CFd?$FN?4y?0?5r3?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509c68
+0062fe20,??_C@_0BF@FJPB@mul?5r3?0?5v0?0?5c?$FL?$CFd?$FN?4x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509c53
+0062fe38,??_C@_0BK@GOPD@m4x4?5oPos?4xyzw?0?5v0?0?5c?$FL0?$FN?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509c21
+0062fe54,??_C@_02GGII@v3?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509bfd
+0062fe58,??_C@_02JJDB@v0?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509bf4
+0062fe5c,??_C@_0BB@LAJK@dcl_normal1?5v15?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509bdc
+0062fe70,??_C@_0BD@OBON@dcl_position1?5v14?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509bbd
+0062fe84,??_C@_0BE@INHL@dcl_texcoord?$CFu?5v?$CFu?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509b8b
+0062fe98,??_C@_0BC@POKH@dcl_texcoord1?5v6?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509b5c
+0062feac,??_C@_0BC@GFHN@dcl_texcoord0?5v5?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509b38
+0062fec0,??_C@_0BC@PHCC@dcl_tangent0?5v13?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509aff
+0062fed4,??_C@_0BA@HLBM@dcl_normal0?5v3?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509adc
+0062fee4,??_C@_0P@JLMO@dcl_color0?5v4?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509aba
+0062fef4,??_C@_0BG@NBLH@dcl_blendindices0?5v2?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509a99
+0062ff0c,??_C@_0BF@DMDG@dcl_blendweight0?5v1?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509a82
+0062ff24,??_C@_0BC@JNLK@dcl_position0?5v0?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509a63
+0062ff38,??_C@_07NDCH@vs_1_1?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509a42
+0062ff40,??_C@_07KKHL@vs_2_0?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509a2a
+0062ff48,??_C@_07LFIK@vs_2_x?6?$AA@,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,00509a13
+00630200,.data,rpworld.lib:obj\i386\d3dxmathx86.obj,5,005f6758 005f6838 005f69f8 005f6e38 005f8eb0
+00632a40,PMOne,rpworld.lib:obj\i386\amdmath.obj,1,00521297
+00632a48,HalfVal,rpworld.lib:obj\i386\amdmath.obj,1,005212a1
+00632a58,ones,rpworld.lib:obj\i386\amdmath.obj,3,00521211 00521259 005215f2
+00632a68,pinfs,rpworld.lib:obj\i386\amdmath.obj,2,0052128d 00521318
+00632a70,smh_masks,rpworld.lib:obj\i386\amdmath.obj,2,00521283 005212d7
+00632a78,sign_mask,rpworld.lib:obj\i386\amdmath.obj,3,005211e3 005212c6 00521383
+00632a80,sh_masks,rpworld.lib:obj\i386\amdmath.obj,2,00521206 00521311
+00632a88,two_126s,rpworld.lib:obj\i386\amdmath.obj,1,005212ab
+00632aa0,pio4ht,rpworld.lib:obj\i386\amdmath.obj,1,005215cd
+00632aa8,mo56_42,rpworld.lib:obj\i386\amdmath.obj,1,005215d8
+00632ab0,pio4s,rpworld.lib:obj\i386\amdmath.obj,1,005215fd
+00632ab8,mo30_20,rpworld.lib:obj\i386\amdmath.obj,1,005215e8
+00632ac0,mo12_6,rpworld.lib:obj\i386\amdmath.obj,1,00521632
+00632ac8,mo2s,rpworld.lib:obj\i386\amdmath.obj,1,00521656
+00632ad8,sgn,rpworld.lib:obj\i386\amdmath.obj,3,00520c03 00520ec3 005210f7
+00632adc,mabs,rpworld.lib:obj\i386\amdmath.obj,3,00520c0a 00520eca 005215a6
+00632ae0,mant,rpworld.lib:obj\i386\amdmath.obj,2,00520fc3 005216d1
+00632ae4,expo,rpworld.lib:obj\i386\amdmath.obj,2,00520fcd 005216db
+00632ae8,one,rpworld.lib:obj\i386\amdmath.obj,8,00520c14 00520edb 00520fd7 0052100f 0052118a 005216e5 00521723 0052180d
+00632aec,half,rpworld.lib:obj\i386\amdmath.obj,2,00520ed1 00521106
+00632af0,two,rpworld.lib:obj\i386\amdmath.obj,1,005217f2
+00632af4,oob,rpworld.lib:obj\i386\amdmath.obj,1,00520f79
+00632afc,n0,rpworld.lib:obj\i386\amdmath.obj,1,0052116b
+00632b00,n1,rpworld.lib:obj\i386\amdmath.obj,1,0052114b
+00632b04,d0,rpworld.lib:obj\i386\amdmath.obj,1,00521140
+00632b08,qq0,rpworld.lib:obj\i386\amdmath.obj,1,00520c76
+00632b0c,qq1,rpworld.lib:obj\i386\amdmath.obj,1,00520c58
+00632b10,qq2,rpworld.lib:obj\i386\amdmath.obj,1,00520c2c
+00632b14,pp0,rpworld.lib:obj\i386\amdmath.obj,1,00520c67
+00632b18,pp1,rpworld.lib:obj\i386\amdmath.obj,1,00520c49
+00632b1c,pp2,rpworld.lib:obj\i386\amdmath.obj,1,00520c37
+00632b20,bnd,rpworld.lib:obj\i386\amdmath.obj,1,00520ef2
+00632b24,asp0,rpworld.lib:obj\i386\amdmath.obj,1,00520f38
+00632b28,asp1,rpworld.lib:obj\i386\amdmath.obj,1,00520f27
+00632b2c,asq0,rpworld.lib:obj\i386\amdmath.obj,1,00520f4b
+00632b30,asq1,rpworld.lib:obj\i386\amdmath.obj,1,00520f0f
+00632b34,pio2,rpworld.lib:obj\i386\amdmath.obj,2,00520c95 00520f6e
+00632b3c,ooln2,rpworld.lib:obj\i386\amdmath.obj,1,005210e3
+00632b40,upper,rpworld.lib:obj\i386\amdmath.obj,1,005210ed
+00632b44,lower,rpworld.lib:obj\i386\amdmath.obj,1,00521110
+00632b48,ln2hi,rpworld.lib:obj\i386\amdmath.obj,2,00521036 0052111a
+00632b4c,ln2lo,rpworld.lib:obj\i386\amdmath.obj,2,0052102b 00521125
+00632b50,rt2,rpworld.lib:obj\i386\amdmath.obj,2,00520fe4 005216f2
+00632b54,edec,rpworld.lib:obj\i386\amdmath.obj,2,00520ff5 00521709
+00632b58,bias,rpworld.lib:obj\i386\amdmath.obj,2,00521005 00521716
+00632b5c,c2,rpworld.lib:obj\i386\amdmath.obj,2,00521049 00521735
+00632b60,c1,rpworld.lib:obj\i386\amdmath.obj,2,00521054 00521769
+00632b64,c0,rpworld.lib:obj\i386\amdmath.obj,2,00521071 00521774
+00632b68,tl2e,rpworld.lib:obj\i386\amdmath.obj,1,0052175e
+00632b6c,maxn,rpworld.lib:obj\i386\amdmath.obj,2,00521080 00521787
+00632b70,q1,rpworld.lib:obj\i386\amdmath.obj,1,005217b5
+00632b74,p1,rpworld.lib:obj\i386\amdmath.obj,1,005217c7
+00632b78,q0,rpworld.lib:obj\i386\amdmath.obj,1,005217e7
+00632b7c,p0,rpworld.lib:obj\i386\amdmath.obj,1,005217dc
+00632b80,mine,rpworld.lib:obj\i386\amdmath.obj,1,00521820
+00632b84,maxe,rpworld.lib:obj\i386\amdmath.obj,1,0052182b
+00632b88,max,rpworld.lib:obj\i386\amdmath.obj,2,0052119d 00521841
+00632b8c,rle10,rpworld.lib:obj\i386\amdmath.obj,1,005210c8
+00632b90,fouropi,rpworld.lib:obj\i386\amdmath.obj,1,005215bf
+006381f0,??_C@_0BA@FKCH@need?5dictionary?$AA@,rtpng.lib:c:/daily/rwsdk/tool/png/obj/d3d9r/inflate.obj,1,00638dd8
+0063a220,_rpTankD3D9VideoCardMaxPointSize,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,2,005465e6 005467bc
+0063a2c8,_NeedToValidateModulate2X,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,2,00551111 005511d2
+0063a2d0,?texMat@?1??ApplyAnimTextureMatrix@@9@9,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,6,00550c5a 00550c5f 00551214 0055121a 00551590 00551595
+0063a2d4,.data,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,3,00550c68 00551223 0055159e
+0063a2e0,.data,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,3,00550c71 0055122b 005515a7
+0063a2e4,.data,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,3,00550c79 00551234 005515af
+0063a2f0,.data,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,3,00550c82 0055123d 005515b8
+0063a2f4,.data,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,3,00550c8d 00551247 005515c3
+0063a38c,__rpUVAnimDictSchema,rpuvanim.lib:c:/daily/rwsdk/plugin/uvanim/obj/d3d9r/rpuvanim.obj,6,0042ac58 0042f97b 0045c4be 0048979a 004897d7 00489bdf
+0063a48c,??_C@_02MECO@?$CFd?$AA@,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/font.obj,7,00566c9a 005af3ef 005af8fa 005afb9e 005b583f 005b5c40 005b5cc0
+0063a49c,??_C@_06EFAM@?$CFs?5?$CFs?6?$AA@,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/font.obj,1,00566b7c
+0063a4ec,??_C@_04NBKL@end?6?$AA@,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/font.obj,3,005b1ac8 005b1af9 005b52ce
+00771ac0,___fastflag,libcmt.lib:..\build\intel\mt_obj\fpinit.obj,1,004b2d47
+00771ac4,__adjust_fdiv,libcmt.lib:..\build\intel\mt_obj\fpinit.obj,1,004b6c74
+007d1f9c,??_C@_00A@?$AA@,rtpitexd.lib:c:/daily/rwsdk/tool/pitexd/obj/d3d9r/rtpitexd.obj,38,004c970f 004c98f6 004cc0e3 004cdf3b 0058d274 0058dd4d 0058dd7c 0058e6be
+007d2124,_engineInstancesOpened,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/badevice.obj,1,004d2f01
+007d2128,_RwEngineInstance,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/badevice.obj,1255,00401411 00401452 0040145e 00401477 00401483 004018f9 00401906 00401912
+007d2160,__rwTexDictionaryFreeList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,1,004d6160
+007d2184,_textureModule,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,28,004d5f97 004d5faf 004d5fc7 004d5fd7 004d6060 004d6080 004d609c 004d60ae
+007d2188,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,4,004d60d4 004d60db 004d61c7 004d61cd
+007d218c,__rwTextureFreeList,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,1,004d6107
+007d21b0,_dummyTexDict,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,3,004d5ffd 004d607a 004d61e3
+007d21e0,_DesktopDisplayMode,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d80d8
+007d21e4,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d80e3
+007d21e8,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d80e8
+007d21ec,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d80ee
+007d2230,__RwD3D9CurrentModeIndex,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d7c4e 004d7ee8 004d80f4
+007d2234,_WindowHandle,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,16,004d7f23 004d7f40 004d7f97 004d8358 004d8432 004d8479 004d89fa 004da537
+007d2238,__RwDirect3DObject,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,35,004d7ce3 004d7d1a 004d7fa3 004d7fcf 004d7ff6 004d8027 004d8035 004d8052
+007d223c,__RwD3DAdapterIndex,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,31,004d7cf9 004d7d37 004d7fe8 004d8010 004d801a 004d8059 004d8084 004d81dc
+007d2240,__RwD3DDevice,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,99,004a62d3 004a62eb 004a637c 004a63e3 004a63fb 004a648c 004a64e6 004a6517
+007d2244,__RwD3D9DepthStencilSurface,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,10,004d84c5 004d84d3 004da601 004da60f 004da7cb 004da7d9 004da9b1 004daa05
+007d2248,__RwD3D9RenderSurface,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,10,004d84a6 004d84b5 004da5e1 004da5f1 004da7ab 004da7bb 004da981 004da9df
+007d224c,_NeedToCopyFromBackBuffer,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da98f
+007d2250,_SystemStarted,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d7c1e 004d8452 004d8544
+007d2254,__RwHasStencilBuffer,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,5,004d8b3d 004d8bac 004d8c64 004d8cc3 004d8ce7
+007d2258,_NumDisplayModes,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d7c3d 004d7d80 004d7db6 004d8155
+007d2260,_DisplayModes,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,11,004d7c49 004d7d6a 004d7d96 004d7dc2 004d7dda 004d7de7 004d7e1b 004d7e28
+007d2264,_EnableMultithreadSafe,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d83d1 004da0e5
+007d2268,_EnableSoftwareVertexProcessing,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d83e2
+007d226c,_InsideScene,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d8352 004d845f 004d8a5f 004d8cec
+007d2270,_NumVertexDeclarations,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,5,004dac00 004dac1e 004dac27 004dac33 004dac3c
+007d2280,_LastWorldMatrixUsedIdentity,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da3f4
+007d269c,_MaxNumLights,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,7,004d850e 004da631 004da671 004da7fb 004da83b 004dab92 004dabd2
+007d26a0,_LightsCache,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,8,004d8508 004d8527 004da63f 004da657 004da809 004da821 004daba0 004dabb8
+007d26a4,_CurrentDepthStencilSurface,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,13,004d84e1 004da4e4 004da4f7 004da50b 004da51e 004da92b 004da93a 004da962
+007d26a8,_CurrentRenderSurface,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,9,004d84e7 004da4b4 004da4c3 004da8d8 004da8e7 004da987 004da9a0 004da9e5
+007d26ac,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d84ed
+007d26b0,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d84f3
+007d26b4,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d84f9
+007d26b8,__rwD3D9CPUSupportsMMX,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d8103
+007d26bc,__rwD3D9CPUSupportsSSE,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d810d 004d85cd 004d85f9 0053fa18
+007d26c0,__rwD3D9CPUSupportsSSE2,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d8117 004d8606
+007d26c4,__rwD3D9CPUSupports3DNow,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d8121 004d860e
+007d26c8,_D3D9ReleaseDeviceCallback,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004dbda5 004dbdb1
+007d26cc,_D3D9RestoreDeviceCallback,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,5,004da69d 004da85a 004dabf1 004dbdc5 004dbdd1
+007d2778,__rxHeapGlobal,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/p2core.obj,2,004deed1 004f1d4a
+007d3054,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e561b 004e5e2f 004e5e98
+007d3058,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e565e 004e5e5b 004e5ed2
+007d3060,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e606a
+007d3064,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e5726 004e573a 004e5760
+007d3068,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5702 004e5749
+007d306c,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e5779
+007d3078,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e56af
+007d3258,_RenderStateChanges,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,14,004e57e3 004e581a 004e5c3a 004e5c74 004e5cbc 004e5d20 004e5d63 004e5d93
+007d3920,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5f34 004e5fa1
+007d3924,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,4,004e5f2e 004e5f43 004e5f9b 004e5fb0
+007d3958,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5f5f 004e5fcc
+007d395c,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,4,004e5f59 004e5f6e 004e5fc6 004e5fdb
+007d3960,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e57f3 004e5800
+007d3964,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e57fa 004e580f
+007d39b0,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e6162
+007d39b4,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e6167 004e6176
+007d39c0,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e57c9 004e6134
+007d39c4,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e57c3 004e57d8
+007d39c8,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5c24 004e5c5e
+007d39cc,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,4,004e5c1e 004e5c33 004e5c58 004e5c6d
+007d39f8,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e5ca6
+007d39fc,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5ca0 004e5cb5
+007d3a00,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e5d0c 004e5d40 004e5d4d
+007d3a04,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,4,004e5cfd 004e5d19 004e5d47 004e5d5c
+007d3a18,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e5dcf
+007d3a1c,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5dd4 004e5de3
+007d3d48,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e5d30 004e5d38 004e5d79
+007d3d4c,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5d7f 004e5d8c
+007d4bd8,__RwD3D9StateCache,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e5f17 004e5f85 004e5ff2
+007d4bdc,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5f27 004e5f94
+007d4c00,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e57b4 004e5951
+007d4c04,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e57ad 004e57ba
+007d4c0c,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,3,004e5c07 004e5c4a 004e5c84
+007d4c10,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5cda 004e5da3
+007d4c14,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5dc1 004e5dfe
+007d4c18,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e5c92 004e5ccc
+007d4c20,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e582e 004e5837
+007d4c24,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,6,004e55f4 004e5608 004e5e08 004e5e2a 004e5e77 004e5e8b
+007d4c28,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,6,004e5634 004e564b 004e5e40 004e5e4d 004e5eb2 004e5ec5
+007d4c2c,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e56cb 004e56e3
+007d4c30,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e6051 004e6065
+007d4c34,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e568b 004e56a6
+007d4ce8,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,2,004e6125 004e613f
+007d4cec,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e6149
+007d4d00,_D3D9AnisotTextureOffset,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,1,004e5676
+007d4d04,_NumRenderStateChanges,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,28,004e57d2 004e57ed 004e5809 004e5824 004e5c2d 004e5c44 004e5c67 004e5c7e
+007d5190,.bss,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/baerr.obj,2,004ea151 004ea157
+007d522c,__rwD3D9ImmPool,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/nodeD3D9SubmitNoLight.obj,3,004f0c94 004f0dfe 004f139d
+007d5244,_VertexDeclIm3D,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/nodeD3D9SubmitNoLight.obj,1,004f0cb0
+007d5248,_VertexDeclIm3DNoTex,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/nodeD3D9SubmitNoLight.obj,1,004f0cc8
+007d5330,_clumpModule,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/baclump.obj,2,004f6d30 004f6e04
+007d5360,__rpClumpLightExtOffset,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/baclump.obj,2,004f6c61 004f6dbb
+007d539c,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bageomet.obj,2,004f8721 004f8727
+007d53b4,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/babinwor.obj,4,004fa6e1 004fa6e7 004fa6f1 004fa6f7
+007d53bc,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/basector.obj,4,00500b11 00500b17 00500b21 00500b27
+007d5438,_DirectionalLight,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,00505670
+007d543c,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,00505644
+007d5440,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,0050564d
+007d5444,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,00505656
+007d5478,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,0050566b
+007d547c,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,00505679
+007d5480,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,00505681
+007d54a0,_D3D9LightOffset,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,005055fe
+007d54a8,_NumLightIndexFree,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,2,0050560e 0050561f
+007d54b0,_MaxLightIndex,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,3,0050562c 00505634 0050563b
+007d54b4,_LightIndexFree,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,1,00505618
+007d54b8,_LightsToEnable,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,4,005056a3 005056dd 005056ec 00505704
+007d54bc,_NumLightsToEnable,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,4,00505694 00505709 00505711 00505717
+007d54c0,_MaxLightsToEnable,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/D3D9lights.obj,4,0050568e 005056b2 005056e2 005056fa
+007d54d4,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9usage.obj,4,00509511 00509517 00509521 00509527
+007d54e0,_VertexShaderCache,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,6,005096d6 00509700 00509745 0050977a 005097f2 00509813
+007d54f4,.bss,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,2,00509781 005097f9
+007d68e0,?TextArray@?1??_rpD3D9GenerateVertexShader@@9@9,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,4,00509a18 00509a2f 00509a47 00509a5e
+007d78e0,_D3D9NumConstantsEffect,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,005099d0
+007d79e0,_NumShadersInCache,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,4,005096a8 00509768 00509854 0050985a
+007d79e4,_LastVertexShaderDesc,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,10,00509691 00509705 0050971d 00509733 005097ce 00509818 00509827 00509836
+007d79e8,_D3D9UseVersion,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,3,005099ef 00509d3c 00509dbe
+007d79ec,__rwD3D9VertexShaderMaxConstants,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/d3d9vertexshader.obj,1,005099de
+007d9e40,__rpD3D9SkinVertexShaderConstants,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,3,0053fcac 0053fccc 0053fcda
+007d9e80,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,1,0053fcbb
+007da644,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,2,0053f486 0053f89a
+007da648,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,3,0053f894 00540446 00540be1
+007da64c,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,6,0053fce8 00542357 005424c8 00542531 00542571 00542e54
+007da674,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,6,0053f4a3 0053f4d8 00542301 005424af 005424e1 0054255a
+007da678,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,6,0053f4b3 0053f4eb 00542325 005424b9 00542501 00542564
+007da67c,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,6,0053f4c5 0053f4f4 00542336 005424c2 0054250b 0054256c
+007da680,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,1,005401db
+007da684,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,1,00542d08
+007da688,.bss,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,1,00540ebe
+007da6bc,__rpPTankAtomicDataOffset,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/rpptank.obj,135,00449783 004497a9 004497c5 004497ed 0044982c 00449a1c 00449a51 00449a69
+007da6c4,_rpTankD3D9IndexBuffer,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,6,005466b0 0054686d 00546894 005468a0 005468b9 00546928
+007da6c8,_rpTankD3D9MaxIndex,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,2,0054687b 005468a8
+007da6cc,_rpTankD3D9DynamicVertexBuffer,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,4,00545f51 0054615a 0054624a 00546585
+007da6d0,_rpTankD3D9BaseIndex,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,4,00546154 00546244 00546646 005466bc
+007da6d4,_rpTankD3D9VideoCardSizePerParticle,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,1,005467df
+007da6d8,_rpTankD3D9UsePointSprites,rpptank.lib:c:/daily/rwsdk/plugin/ptank/obj/d3d9r/ptankd3d9.obj,5,005461c5 005461d3 005462a7 00546323 00546593
+007da6e4,__rpCollisionNumInstances,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/colldata.obj,2,0054d801 0054d807
+007da6f4,__rpCollisionWorldSectorDataOffset,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/colldata.obj,1,005745a6
+007da71c,_MatFXMaterialDataOffset,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/rpmatfx.obj,1,00550b70
+007da754,_VideoCardSupportsMultitexture,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,1,00550cbc
+007da758,_VideoCardSupportsMultiplyAdd,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,1,005512f6
+007da75c,_VideoCardSupportsModulate2X,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,2,00550fef 00551151
+007da764,_VideoCardMaxTextureBlendStages,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,4,00550d02 00550e7c 0055102d 005513e3
+007da864,.bss,rppatch.lib:c:/daily/rwsdk/plugin/patch/obj/d3d9r/patchd3d9.obj,1,0055b080
+007da890,.bss,rppatch.lib:c:/daily/rwsdk/plugin/patch/obj/d3d9r/patchd3d9.obj,1,0055b489
+007da894,_fsm,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,3,00560ca1 00560deb 005610a2
+007da89c,.bss,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,2,00560daf 00561061
+007da8a0,.bss,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,1,005609c2
+007da8a8,.bss,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,2,00560e31 005610e4
+007da8ac,_defaultFileSystem,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,4,00560cf5 00560d01 00560e28 005610db
+007daa18,_rpDMorphGeometryDataOffset,rpdmorph.lib:c:/daily/rwsdk/plugin/dmorph/obj/d3d9r/dmphgeom.obj,2,0058c8b1 0058c91c
+00947120,__rxExecCtxGlobal,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/p2altmdl.obj,1,00549127
+00947128,common:__rxExecCtxGlobal,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/p2altmdl.obj,2,00549121 00549156
+00947130,common:__rxExecCtxGlobal,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/p2altmdl.obj,1,00549146
+00947138,_resourcesModule,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/baresour.obj,25,004ea974 004ea995 004ea9df 004eaa56 004eaa89 004eaa97 004eaaaa 004eaabf
+00947144,__RwD3D9RasterExtOffset,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9raster.obj,6,004a2d34 004da3ee 004da4a1 004da4db 004da902 004ed4c0
+00947360,__rwIm3DModule,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/baim3d.obj,2,004dcdd7 004dcdef
+00947380,__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004da2c1 004da2cc 004da2d4 004da303
+0094738c,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da30b
+00947390,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da2da 004da2e2
+0094739c,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da315
+009473a0,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da2e8 004da2f0
+009473ac,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da31f
+009473b0,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004da2f6 004da2fe
+009473bc,common:__RwD3D9D3D9ViewTransform,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da329
+009473c0,_dgGGlobals,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004da2b2
+009473c4,common:_dgGGlobals,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d7f7e
+009473e0,__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d7fc4
+009475e0,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,6,004d8046 004d8066 004d8077 004d8202 004d8222 004d8233
+009475e4,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,10,004d7c5e 004d8089 004d80cd 004d8245 004d8347 004d8496 004da579 004da6c8
+009475e8,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,7,004d7c67 004d80c3 004d849c 004da587 004da6c2 004da706 004da875
+009475ec,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d7c70 004d80dd
+009475f0,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,7,004d7c79 004d7cea 004d7d25 004d8096 004d828e 004d82c9 004daaed
+009475f4,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d7cb6 004d80c8 004dab1e
+009475f8,common:__RwD3D9AdapterInformation,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d7c82 004d80d3 004d8257 004d8340
+009475fc,__RwD3D9ZBufferDepth,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d8ad9 004d8b43 004d8cce
+00947600,__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d8001 004d837f 004dbca1
+0094761c,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d83ea 004d83fa 004ffa4f
+00947624,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004e5c13 004e5cec 005099a6 0050a120
+00947640,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004e5714
+00947658,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d8696
+0094765c,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d869c
+009476d4,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d83c4 004d83cb 004ffd0f 004ffd51
+009476ec,common:__RwD3D9DeviceCaps,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,5,004d8400 004ffb17 004ffc52 0050062c 00500735
+00947740,_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,10,004d8334 004d842c 004d89df 004d8a53 004da5ba 004da5c9 004da6d8 004da6dd
+00947744,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d89e8 004d8a59 004da5bf 004da6cd
+00947748,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,9,004d8a6e 004d8b08 004d8b77 004d8bda 004d8c33 004d8c92 004d8d2a 004d8d8a
+0094774c,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d89ba 004d8a0c
+00947750,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,4,004d8cf2 004d8d58 004d8d63 004d8dc5
+00947754,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d8cfa 004d8d5d 004d8dd1
+00947758,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,5,004d89ee 004d8a3a 004d8a67 004d8d6b 004d8dcb
+0094775c,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d8367
+00947760,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,9,004d7f0e 004d89b4 004d8a06 004d8a96 004d8d1f 004d8d82 004da5a8 004da6b5
+00947764,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d8a7a
+00947768,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,6,004d8b33 004d8ba2 004d8c01 004d8c5a 004d8cb9 004d8cdd
+0094776c,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,1,004d8375
+00947770,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,3,004d89c5 004d89cd 004d8a12
+00947774,common:_Present,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,2,004d89d3 004d8a18
+00947778,_meshModule,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bamesh.obj,3,004fab10 004faba4 00540908
+00947ac8,_RpHAnimAtomicGlobals,rphanim.lib:c:/daily/rwsdk/plugin/hanim/obj/d3d9r/rphanim.obj,2,005443eb 00544446
+00947ae0,_rpPVSGlobals,rppvs.lib:c:/daily/rwsdk/plugin/pvs/obj/d3d9r/rppvs.obj,1,005490b6
+00947ae4,common:_rpPVSGlobals,rppvs.lib:c:/daily/rwsdk/plugin/pvs/obj/d3d9r/rppvs.obj,1,005490bc
+00947ae8,common:_rpPVSGlobals,rppvs.lib:c:/daily/rwsdk/plugin/pvs/obj/d3d9r/rppvs.obj,1,005490c5
+00947b1c,common:_userDataModule,rpusrdat.lib:c:/daily/rwsdk/plugin/userdata/obj/d3d9r/rpusrdat.obj,4,005546e1 005546e7 005546f1 005546f7
+00947b24,common:_morphModule,rpmorph.lib:c:/daily/rwsdk/plugin/morph/obj/d3d9r/rpmorph.obj,4,005553f1 005553f7 00555401 00555407
+00947b58,_RpUVAnimMaterialGlobals,rpuvanim.lib:c:/daily/rwsdk/plugin/uvanim/obj/d3d9r/rpuvanim.obj,1,00561e19
+0094806c,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,1,00566ba3
+00948080,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,2,00566ab7 00567785
+00948084,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,1,005647a0
+009482b8,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,1,00563122
+0094886c,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,2,00566b76 00566bd2
+009488bc,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,3,00566af7 0056701b 0056720d
+009488c0,common:_Rt2dGlobals,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/gstate.obj,5,00566f8e 00566fb8 00566fcd 0056700d 0056721a
+0062c910,__infinity,libcmt.lib:..\build\intel\mt_obj\87tran.obj,8,004b2e3f 004b6cbe 004b6d31 004b6d68 004b6d85 004b6d99 005d53d8 005d53e5
+0062c91a,__minfinity,libcmt.lib:..\build\intel\mt_obj\87tran.obj,1,004b6cef
+0062c92e,_log2max,libcmt.lib:..\build\intel\mt_obj\87tran.obj,1,004b6da4
+0062c942,_half,libcmt.lib:..\build\intel\mt_obj\87tran.obj,1,004b6df1
+0064c200,_tanhmaxarg,libcmt.lib:..\build\intel\mt_obj\87trigh.obj,1,005d537f
+0064c20a,__OP_SINHjmptab,libcmt.lib:..\build\intel\mt_obj\87trigh.obj,1,005d3c09
+0064c22a,__OP_COSHjmptab,libcmt.lib:..\build\intel\mt_obj\87trigh.obj,1,005d3c13
+0064c24a,__OP_TANHjmptab,libcmt.lib:..\build\intel\mt_obj\87trigh.obj,1,005d3c1a

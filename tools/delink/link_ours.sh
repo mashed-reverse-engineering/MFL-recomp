@@ -9,16 +9,32 @@ T=$(dirname "$(readlink -f "$0")"); G=$T/../..; W=$(readlink -f "$1"); B=${2:-0x
 mkdir -p $W/o
 # an_hk_975 (FUN_004acca0, DirectShow) writes the fs:0 pseudo global ExceptionList: it stays original in a linked build (the movie code is stubbed anyway)
 export SKIP_FILES=an_hk_975.c${SKIP_FILES:+,$SKIP_FILES}
+# CC=v143 (W16 V143 item 2, only with LIB_CRT=v143md): our C, Lua / qhull / zlib, the shim and the link by MSVC v143 /MD (tools/msvcw/msvcw_sh.sh,
+# msvc-wine); CC unset = the VC7 link, unchanged.  Our VC7 CRT bodies whose names the v143 CRT supplies leave the build (INV 6): raise (_getptd),
+# i10_output, amsg_exit, mlock, heap thunks, memcpy / memmove, _control87 / _controlfp.
+V143=
+if [ "$CC" = v143 ]; then
+  [ "$LIB_CRT" = v143md ] || { echo "CC=v143 needs LIB_CRT=v143md"; exit 1; }      # SK2 W16: NOEXE too (link_ci.sh with no ref dir: data/link/*_v143 tables)
+  V143=1; export SKIP_FILES=an_crt_raise.c,an_crt_i10_output.c,an_crt_amsg_exit.c,an_crt_mlock.c,an_crt_heap_thunks.c,an_crt_memcpy.c,cl__control87.c,$SKIP_FILES
+elif [ "$LIB_CRT" = v143md ]; then echo "LIB_CRT=v143md needs CC=v143"; exit 1; fi
 # LIB_ZLIB=src (A5): zlib 1.1.3 + libpng 1.0.12 (RenderWare rtpng.lib members, not the rtpng.obj wrapper), same mechanism.
 # LIB_LUA=src LIB_QHULL=src (A4, MKRANGE/GEN_DATA builds): Lua 4.0 / qhull 2002.1 come from upstream source (output/libmatch2/build_libs.sh, cl 13.00 /G5 /O2 /Ob0), the exe's code range of the lib is dropped
 # (tools/delink_sdk/plan_srclib.py, libs.cfg) and the lib's old data rows are not emitted (LIBSRC=1 for globgen/origbytes).  Without them the image keeps the original bytes of the lib.
 LSRC=; for L in lua qhull zlib; do eval "v=\$LIB_$(echo $L | tr a-z A-Z)"; [ "$v" = src ] && LSRC="$LSRC $L"; done
 if [ -n "$LSRC" ]; then
   export LIBSRC="${LSRC# }"; mkdir -p $W/lib; ITEMS=
+  # W16 CIN cin3: MFL_REFS on the command line: the docker form passes no environment into the container (an export tree's default
+  # <tree>/../upstream does not exist; link_ci.sh sets MFL_REFS=<tree>/third_party)
+  if [ -n "$V143" ]; then $G/tools/msvcw/msvcw_sh.sh $W "CC=v143 MSVC_BIN=/opt/msvc/bin/x86 ${MFL_REFS:+MFL_REFS=$MFL_REFS }bash $G/output/libmatch2/build_libs.sh $W/lib/src $LSRC" > $W/lib/src.log 2>&1 || { tail -3 $W/lib/src.log; exit 1; }
+  else
   VC7_CONTAINER=libsrc $G/output/libmatch2/build_libs.sh $W/lib/src $LSRC > $W/lib/src.log 2>&1 || { tail -3 $W/lib/src.log; exit 1; }
+  fi
   : > $W/lib/extra_objs.txt; : > $W/lib/members.txt
   for L in $LSRC; do python3 $G/tools/delink_sdk/plan_srclib.py $L $W/lib/src/$L/_o $W/lib/$L $ITEMS | tail -1; cat $W/lib/$L/extra_objs.txt >> $W/lib/extra_objs.txt; cat $W/lib/$L/members.txt >> $W/lib/members.txt; ITEMS=$W/lib/$L/items.csv; done
-  cp $G/tools/delink_sdk/stubs.c $W/lib/; VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt      # stdio the exe does not link (dead in Lua / qhull), IID_IUnknown, errno
+  cp $G/tools/delink_sdk/stubs.c $W/lib/
+  if [ -n "$V143" ]; then $G/tools/msvcw/msvcw_sh.sh $W/lib "/opt/msvc/bin/x86/cl /nologo /c /O2 /arch:IA32 /GS- /MD /Zl stubs.c" > $W/lib/stubs.log 2>&1 || { tail -3 $W/lib/stubs.log; exit 1; }      # W16 CIN: no VC7 step in the v143 path
+  else VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; fi
+  echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt      # stdio the exe does not link (dead in Lua / qhull), IID_IUnknown, errno
   EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt --drop-items $ITEMS"; export LIBSRC_ITEMS=$ITEMS
 fi
 # LIB_CRT=libcmt (B5, D3: VC7 libcmt now): the libcmt.lib members that plan_split.py can split out WITH their data (libs.cfg [crt], tools/delink_sdk/ownership.py with the wide-twin fix) replace the exe's CRT code and
@@ -28,8 +44,11 @@ fi
 CRTSPLIT=; ENTRY=entry
 if [ "$LIB_CRT" = libcmt ]; then
   CRTSPLIT=1; export CRT_SPLIT=$W/lib/crt; mkdir -p $W/lib; [ -s $W/lib/extra_objs.txt ] || { : > $W/lib/extra_objs.txt; : > $W/lib/members.txt; }
+  if [ -n "$NOEXE" ]; then cp -r $REF/lib/crt $W/lib/crt      # SK W16 NOEXE (link_ci.sh): plan_split.py reads MFL.exe; the split plan of a normal link of the same HEAD (its object paths stay REF's)
+  else
   python3 $G/tools/rw_overlay_prep.py $W/lib/obj > /dev/null || { echo "rw_overlay_prep failed"; exit 1; }
   ITEMS_IN=$ITEMS python3 $G/tools/delink_sdk/plan_split.py crt $W/lib/obj $W/lib/crt | tail -1
+  fi
   if [ -s $W/lib/crt/items.csv ]; then      # B7: + the static code pieces of split members (chains after the source libs' items.csv)
     [ -n "$ITEMS" ] && { old_="--drop-items $ITEMS"; MKOBJ_ARGS="${MKOBJ_ARGS/"$old_"/--drop-items $W/lib/crt/items.csv}"; }; ITEMS=$W/lib/crt/items.csv
   fi
@@ -60,9 +79,24 @@ import sys
 x = {l.split()[0] for l in open(sys.argv[2]) if l.strip() and not l.startswith('#')} - {'app_main_loop', 'message_box_update'}
 print(','.join(n for n in (l.strip() for l in open(sys.argv[1])) if n and not n.startswith('#') and n not in x))" $G/src/clusters/enabled.txt $G/src/harness/cluster_exclude.txt)
 set -- "$@" ; [ $# -eq 0 ] && set -- $FULL; set -- "$@" --src=$W/harness/freeze.c; HMK="--hook-calls $G/src/harness/hooks.txt --dwords $G/src/harness/dwords.txt"; fi
-JOBS=${JOBS:-4} OBJLIST=$W/objs.txt TMPDIR=$W python3 $G/tools/build_overlay.py $W/ovl.exe ${@:-$FULL} > $W/build_overlay.log 2>&1
+JOBS=${JOBS:-4} OBJLIST=$W/objs.txt OBJLIST_ONLY=$NOEXE$V143 TMPDIR=$W python3 $G/tools/build_overlay.py $W/ovl.exe ${@:-$FULL} > $W/build_overlay.log 2>&1
+# NOEXE=1 REF=<normal link dir of the same HEAD> TABLE=<objtable.py emit> (SK W16, link_ci.sh): no MFL.exe and no install are opened; what still needs the exe comes from REF
+# SK2 W16, CC=v143 NOEXE with no REF: LINKDATA (crt_xcu.txt) + IMPTAB + TABLE + DSDATA = data/link tables (tools/ci/link_tables.py); v143md_plan.py is skipped (it only feeds mkobj options, --table ignores them)
+if [ -z "$NOEXE" ]; then
 python3 $G/tools/wine-run/prepare.py $INST $W/game >/dev/null
 cp $W/game/App_Executables/MFL.exe $W/mfl_patched.exe
+fi
+# CC=v143 LIB_CRT=v143md: no libcmt split (the image keeps the VC7 CRT bytes; nothing of ours calls them, v143md_plan.py lists the exceptions;
+# V143e1: the VC7 CRT entries with a v143 counterpart jmp to it, v143/crt_redirect.txt, the rest + the EH helpers stay VC7: crt_redirect_skip.txt);
+# entry = msvcrt.lib's WinMainCRTStartup; the game's 12 initialisers as .CRT$XCU in table order (crt_xcu.py) + v143md_shim.c, both by v143
+if [ -n "$V143" ]; then
+  mkdir -p $W/v143; ENTRY=WinMainCRTStartup
+  XCU=$W/mfl_patched.exe; [ -n "$NOEXE" ] && XCU=$LINKDATA/crt_xcu.txt      # SK2: NOEXE reads the 12 committed slot values (tools/ci/link_tables.py)
+  python3 $G/tools/msvcw/crt_xcu.py $XCU $W/v143/crt_xcu.c || exit 1
+  cp $G/tools/msvcw/v143md_shim.c $W/v143/
+  $G/tools/msvcw/msvcw_sh.sh $W/v143 "/opt/msvc/bin/x86/cl /nologo /c /O2 /arch:IA32 /GS- /MD /Zl crt_xcu.c v143md_shim.c" > $W/v143/cl.log 2>&1 || { tail -5 $W/v143/cl.log; exit 1; }
+  { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "v143:crt_xcu $W/v143/crt_xcu.obj"; echo "v143:shim $W/v143/v143md_shim.obj"; } > $W/v143/extra_objs.txt; EXTRA_OBJS=$W/v143/extra_objs.txt
+fi
 # LIB_RW=librw:<group> (L2, plan_librw_integration 2.3; needs IMPLIBS=1 and RW_DLL=<mflrw.dll>): the functions named in tools/delink/rw_<group>.txt (g0 = stateless math) come from the librw facade DLL.  A thunk object (gas) defines
 # each under the exe function's own name (`_Name: jmp *__imp__Name`), so mkobj puts its usual 5 byte entry jmp at the original address like for any object of ours; mk_importlibs.py builds mflrw.lib from the DLL's exports.
 # Without LIB_RW nothing changes (the A/B reference).  The DLL is copied next to ours.exe at the end.
@@ -109,13 +143,35 @@ python3 $T/dshow_drop.py filter $W; export DROP_DSHOW=1      # the env var is on
 [ -n "$LSRC$CRTSPLIT" ] && while read -r src obj; do case $src in lib:*|stub:*|pull:*) objcopy --rename-section .data=.ldat $obj;; esac; done < $W/objs_local.txt
 # IMPLIBS=1 (S2): the import table is built by the linker from generated import libs (tools/mk_importlibs.py): every import site references __imp__Name@N, the original IAT and import tables are dropped
 IMPLIBS_ARG=; IMPLIBS_LNK=
-[ -n "$IMPLIBS" ] && { OBJLIST=$W/objs_local.txt python3 $G/tools/mk_importlibs.py $W/imp > $W/mk_importlibs.log 2>&1; IMPLIBS_ARG="--imports-as-symbols $W/imp"; IMPLIBS_LNK="/libpath:imp $(cd $W && ls imp/*.lib | tr '\n' ' ')"; }
+if [ -n "$IMPLIBS" ]; then
+  if [ -n "$NOEXE" ] && [ -z "$IMPTAB" ]; then cp -r $REF/imp $W/imp      # mk_importlibs.py reads MFL.exe's import table: REF's libs
+  else OBJLIST=$W/objs_local.txt python3 $G/tools/mk_importlibs.py $W/imp ${IMPTAB:+--table $IMPTAB} > $W/mk_importlibs.log 2>&1; fi      # SK2: IMPTAB = committed .def table, no exe
+  IMPLIBS_ARG="--imports-as-symbols $W/imp"; IMPLIBS_LNK="/libpath:imp $(cd $W && ls imp/*.lib | tr '\n' ' ')"
+fi
 # GEN_DATA=1 (S5, needs IMPLIBS=1): the data layout comes from tools/globals/globgen.py (app data and library spans as generated C), mkobj --drop-app removes .rdata/.data/.bss and the replaced function bodies from the image object
 GEN_ARG=; GEN_OBJ=
 if [ -n "$GEN_DATA" ]; then
-  mkdir -p $W/gen; python3 -I $G/tools/globals/globgen.py $W/gen > $W/gen/globgen.log 2>&1 || { tail -5 $W/gen/globgen.log; exit 1; }
+  mkdir -p $W/gen
+  if [ -n "$NOEXE" ] && [ -z "$DSDATA" ]; then cp $REF/gen/rdata.obj $REF/gen/data.obj $REF/gen/bss.obj $W/gen/      # globgen.py reads MFL.exe: the data objects of REF (no committed data given)
+  else
+  if [ -n "$NOEXE" ]; then python3 -I $G/tools/globals/dsform.py join $DSDATA $W/gen ${V143:+--held-zero} || exit 1      # W16 DS: the committed data (data/link/gen) = globgen's exact text
+  else
+  python3 -I $G/tools/globals/globgen.py $W/gen > $W/gen/globgen.log 2>&1 || { tail -5 $W/gen/globgen.log; exit 1; }
+  [ -n "$V143" ] && { python3 -I $G/tools/globals/dsform.py split $W/gen $W/ds && python3 -I $G/tools/globals/dsform.py join $W/ds $W/gen --held-zero || exit 1; }      # CC=v143: held rows {0} as in CI
+  fi
+  # W16 CIN cin2: v143 cl orders and pads the generated definitions differently (gen .rdata rotated, .data +8 B, .bss +38 B; link FAIL "not 0 mod 16"),
+  # so the pinned data layout is compiled by mingw gcc in source order (-fno-toplevel-reorder, ABI alignment only, zero rows kept in .data / .rdata),
+  # section alignment set to the VC7 objects' (16 / 8 / 8).  agents/cin_w16/gensec.py: bytes, relocations and symbols SAME as the VC7-compiled objects.
+  if [ -n "$V143" ]; then
+  GCCF="-c -O0 -w -fpermissive -fno-toplevel-reorder -fno-common -malign-data=abi -fno-ident -fno-asynchronous-unwind-tables"
+  (cd $W/gen && for x in rdata data bss; do i686-w64-mingw32-gcc $GCCF $([ $x = bss ] || echo -fno-zero-initialized-in-bss) -o $x.obj $x.c > cl_$x.log 2>&1 || cat cl_$x.log >> cl.log; done)
+  (cd $W/gen && for x in rdata data bss; do al=".$x=8"; [ $x = rdata ] && al=".rdata=16"; [ $x = data ] && al=".data=8 --set-section-alignment .rdata=8"
+    objcopy @objcopy_$x.txt --set-section-alignment $al $x.obj $x.o2 && mv $x.o2 $x.obj; done)      # @file: 2,268 options exceed the Windows command line on the runner
+  else
   (cd $W/gen && VC7_CONTAINER=ac $G/tools/vc7.sh $W/gen cl.exe /nologo /c /Od /Zl rdata.c data.c bss.c > cl.log 2>&1; for x in rdata data bss; do objcopy $(tr '\n' ' ' < objcopy_$x.txt) $x.obj $x.o2 && mv $x.o2 $x.obj; done)
+  fi
   [ -f $W/gen/bss.obj ] || { echo "gen compile failed"; tail -5 $W/gen/cl.log; exit 1; }
+  fi
   GEN_ARG="--drop-app $W/gen"; GEN_OBJ="gen/rdata.obj gen/data.obj gen/bss.obj"
 fi
 # S3: the resources come from output/res/mfl.res (tools/res/build_res.sh) on the link line, pefix appends no .rsrc.  RES=<path> overrides, RES=0 keeps the old pefix .rsrc
@@ -124,7 +180,9 @@ fi
 RESF=; [ -z "$RES" ] && [ -n "$GEN_DATA" ] && RES=none
 [ "$RES" = none ] && { RES=; export NO_RSRC=1; }
 [ "$RES" = 0 ] && RES=; [ -n "$RES" ] && { cp $RES $W/mfl.res; RESF=mfl.res; export NO_RSRC=1; }
-python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $GEN_ARG $MKOBJ_ARGS 2> $W/mkobj.err | tee $W/mkobj.log | head -12
+# W16 DS2: _mfl_held (held-row table, dsform join --held-zero -> gen/data.obj) is in no symbols.txt and mkobj counts no gen definition as defined: leave it to the linker
+[ -n "$V143" ] && [ -z "$NOEXE" ] && { python3 $G/tools/msvcw/v143md_plan.py $W | tail -1; echo _mfl_held >> $W/v143/crt_extern.txt; MKOBJ_ARGS="$MKOBJ_ARGS --crt-extern $W/v143/crt_extern.txt --crt-names $W/v143/crt_names.txt --crt-redirect $W/v143/crt_redirect.txt"; }      # CRT names -> the v143 CRT libs (V143c8: the image's labels of CRT names get _vc7; V143e1: the image's VC7 CRT entries jmp to them)
+python3 $T/mkobj.py $W/mfl.obj --exe $W/mfl_patched.exe --objs $W/objs_local.txt ${PAD:+--pad $PAD} $HMK $IMPLIBS_ARG $GEN_ARG $MKOBJ_ARGS ${NOEXE:+--table $TABLE} 2> $W/mkobj.err | tee $W/mkobj.log | head -12
 [ -n "$LSRC$CRTSPLIT" ] && python3 $G/tools/delink_sdk/undup.py $W/objs_local.txt      # A5: library functions our C defines as well get another name after mkobj (it resolves the references to dropped lib code by the lib objects' names), so no LNK4006
 # MKRANGE=1 (Brief G): the code of the image goes into one object per layer (mkrange.py: RenderWare.obj, app.obj, ...), blocks `.text$NNNNN` that link.exe sorts into address order; our own plain `.text`
 # must sort behind them (.text$zz)
@@ -134,16 +192,34 @@ MFLOBJ=mfl.obj
 python3 $T/objnames.py --rsp $W/objs_local.txt > $W/link.rsp      # W11 B2: our C by name (byte order), then the extra objects in chain order (was `ls o/*.obj`: locale order of numbers)
 # LIB_RW: the thunk object goes FIRST so its definition wins over our own C definition of the same function (link.exe keeps the first one; LNK4006 "second definition ignored" otherwise depends on the file name sort)
 [ -n "$LIB_RW" ] && { T1=$(awk '$1=="rw:thunks"{print $2}' $W/objs_local.txt); T1=${T1#$W/}; { echo $T1; grep -vxF $T1 $W/link.rsp; } > $W/link.rsp.new && mv $W/link.rsp.new $W/link.rsp; }
+if [ -n "$V143" ]; then      # MSVC 14.44 link, same layout switches (+ the v143 defaults that /fixed and the VC7 objects need off); CRT = msvcrt (start-up) + vcruntime
+  # + ucrt (+ legacy_stdio_definitions: printf / scanf family for our own prototypes, oldnames); SDK import libs AFTER ours: only the start-up's extra kernel32 names
+  # V143c5: the SDK libs by absolute path (a bare kernel32.lib finds /libpath:imp first = our own import lib again, so the SDK was never read);
+  # (the 11 ___vcrt_* / ___acrt_* / __is_c_termination_complete start-up names: tools/msvcw/v143md_shim.c, V143c6); legacy_stdio_wide_specifiers.lib: legacy_stdio_definitions /include:s its symbol
+  # (VC7 wide printf semantics, %s = wide string in the w-functions)
+  if [ -n "$MSVCW_NATIVE" ]; then      # W16 CIN, CI runner: the SDK of the VS environment (WindowsSdkDir has spaces): the 4 libs copied below the work dir, a relative path on the link line
+    mkdir -p $W/v143/um; for l in kernel32 user32 gdi32 advapi32; do cp "$(cygpath -u "$WindowsSdkDir")Lib/${WindowsSDKLibVersion%\\}/um/x86/$l.lib" $W/v143/um/ || exit 1; done; UM=v143/um
+  else
+  UM=/opt/msvc/kits/10/Lib/$(cd $HOME/.cache/mfl/msvc-wine/msvc/kits/10/Lib && ls -d */ | tail -1)um/x86
+  fi
+  $G/tools/msvcw/msvcw_sh.sh $W "/opt/msvc/bin/x86/link /nologo /machine:x86 /subsystem:windows /entry:$ENTRY /fixed /base:$B /nodefaultlib /force:multiple /dynamicbase:no /safeseh:no /opt:noicf $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK msvcrt.lib vcruntime.lib ucrt.lib legacy_stdio_definitions.lib legacy_stdio_wide_specifiers.lib oldnames.lib $UM/kernel32.lib $UM/user32.lib $UM/gdi32.lib $UM/advapi32.lib $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts)" > $W/link.log 2>&1 || true
+  grep -E "LNK(4006|2005|2001|2019|4217|4286)" $W/link.log > $W/v143/lnk_pairs.txt || true
+  echo "v143 link: $(grep -c . $W/v143/lnk_pairs.txt) LNK4006/2005/2001/2019/4217/4286 lines -> $W/v143/lnk_pairs.txt"
+else
 VC7_CONTAINER=ac $G/tools/vc7.sh $W link.exe /nologo /machine:ix86 /subsystem:windows /entry:$ENTRY /fixed /base:$B /nodefaultlib /force:multiple $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts) > $W/link.log 2>&1 || true
+fi
 echo "link: $(grep -c -E "error" $W/link.log || true) errors, $(grep -c LNK4006 $W/link.log || true) LNK4006"; grep -E "error" $W/link.log | head -8
 grep -q "^not found:" $W/mkobj.err && { grep -h "^not found:" $W/mkobj.err | head -5; echo "mkobj: references not found"; exit 1; }
 [ -f $W/ours.exe ] || { echo "link failed"; exit 1; }
 # the generated .rdata (first symbol g_pespan_005dd000) must start 0 mod 16: SSE tables (_pow_pentium4 movapd) fault otherwise (T-N11)
 [ -n "$GEN_DATA" ] && { A=$(awk '$2=="_g_pespan_005dd000"{print $3}' $W/ours.map); [ -n "$A" ] && [ $((0x$A % 16)) -eq 0 ] || { echo "FAIL: generated .rdata starts at 0x$A, not 0 mod 16"; exit 1; }; }
+[ -n "$V143" ] && awk '$2=="__rng_00401000"{print "v143 layout: first image block at " $3 " (pinned = 00401000)"}' $W/ours.map
+if [ -z "$NOEXE" ]; then      # NOEXE: pefix is a no-op in the release form (IMPLIBS + NO_RSRC; link_ci.sh's cmp proves it), no install clone
 python3 $T/pefix.py $W/ours.exe $W/mfl_patched.exe >/dev/null
 python3 $G/tools/wine-run/prepare.py $INST $W/game $W/ours.exe $W/ours.map >/dev/null      # movie stubs also at our C copies (found through the link map)
 [ -n "$LIB_RW" ] && cp $RW_DLL $W/game/App_Executables/mflrw.dll      # next to ours.exe (Wine loads it from the exe's directory)
 [ -f $W/game/App_Executables/MFL_original.exe ] || { echo "FAIL: no MFL_original.exe beside the exe in $W/game/App_Executables (prepare.py; the resources are read from it at run time)"; exit 1; }
+fi
 D=$(objdump -h $W/ours.exe | python3 -c "import sys; print('%x' % next(int(l.split()[3], 16) - 0x5fb000 for l in sys.stdin if len(l.split()) > 3 and l.split()[1] == '.data'))")
 echo "linked: $W/ours.exe (.data moved by 0x$D: the script delta)"
 [ -n "$HARNESS" ] && [ "$D" != "${DELTA:-b000}" ] && { echo "DELTA mismatch: rerun with DELTA=$D"; exit 2; }

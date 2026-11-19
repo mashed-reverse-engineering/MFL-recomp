@@ -1,0 +1,120 @@
+#include "mfl_tier2.h"
+/*006a942c*/ extern undefined4 g_weapon_6a942c;
+/*00408ea0*/ extern int player_record_get_8d8ca0();
+/*0040fbf0*/ extern int race_get_focus_player();
+/*0040fdc0*/ extern int race_get_phase();
+/*0040ff00*/ extern int race_get_race_652dec();
+/*0042a3f0*/ extern int course_get_rpworld();
+/*0042b110*/ extern int current_course_id();
+/*00458170*/ extern int __cdecl course_point_in_water_box_test(struct RwV3d *p0);
+/*0045d590*/ extern int course_zone_contains_matrix_in_zone_6a2888();
+/*00467eb0*/ extern int __cdecl player_has_no_weapon(undefined4 p0);
+/*00468ac0*/ extern int voice_queue_add();
+/*00468b80*/ extern int voice_queue_remove();
+/*00472890*/ extern int sfx_play_voice_at();
+/*00472bb0*/ extern int sfx_voice_stop();
+/*0047a5b0*/ extern int car_add_velocity();
+/*0047abb0*/ extern int car_get_velocity_any_mode();
+/*00481ed0*/ extern int __cdecl table_get_6c3f38(undefined4 p0);
+/*00481fd0*/ extern double random_range();
+/*00484660*/ extern undefined __cdecl clump_set_flag_on_atomics(struct RpClump *p0);
+/*00484680*/ extern int object_set_flag_4();
+/*0049bd90*/ extern int fx_system_destroy();
+/*0049bdd0*/ extern int fx_system_render();
+/*004b4ba7*/ extern int entry();
+/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
+/*004d4870*/ extern RwMatrix * RwMatrixTranslate(RwMatrix *p0, struct RwV3d *p1, enum RwOpCombineType p2);
+/*004f4570*/ extern struct RpWorld * RpWorldAddClump(struct RpWorld *p0, struct RpClump *p1);
+/*004f46d0*/ extern struct RpWorld * RpWorldRemoveClump(struct RpWorld *p0, struct RpClump *p1);
+/*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
+/*005dd330*/ extern float float_1_0;
+/*005dd33c*/ extern float k_f_4;
+/*005dd374*/ extern float k_f_0_2;
+/*005dd410*/ extern float k_f_n2;
+/*005dd7f8*/ extern float k_f_110;
+/*005ddb5c*/ extern float k_f_n4;
+/*005ddc1c*/ extern float k_f_0_33333334;
+/*005e64a4*/ extern float k_f_0;
+/*005de294*/ extern float k_f_n0_125;
+/*005de2fc*/ extern float k_f_0_04;
+/*005df7e8*/ extern float k_f_n0_02;
+/*00610dfc*/ extern undefined g_weapon_610dfc;
+/*00611418*/ extern undefined g_sound_frame_611418;
+/*006124f0*/ extern undefined g_sound_frame_6124f0;
+/*006135c8*/ extern undefined g_sound_frame_6135c8;
+/*006146a0*/ extern undefined g_sound_frame_6146a0;
+/*00615778*/ extern undefined g_sound_frame_615778;
+/*00616850*/ extern undefined g_sound_frame_616850;
+/*00668c18*/ extern struct CourseWorld g_course_world;
+/*006a9428*/ extern undefined4 g_weapon_6a9428;
+/*006a942c*/ extern undefined4 g_weapon_6a942c;
+/*006a9588*/ extern undefined g_weapon_6a9588;
+/*006a958c*/ extern undefined g_weapon_flamethrower_6a958c;
+/*006a9590*/ extern undefined g_weapon_flamethrower_6a9590;
+/*006a9598*/ extern undefined4 g_weapon_flamethrower_6a9598;
+/*006a959c*/ extern undefined g_weapon_flamethrower_6a959c;
+/*006a95a0*/ extern undefined g_weapon_flamethrower_6a95a0;
+/*006a95a4*/ extern undefined g_weapon_flamethrower_6a95a4;
+/*006a95a8*/ extern undefined4 g_weapon_flamethrower_6a95a8;
+/*006a95ac*/ extern undefined g_weapon_flamethrower_6a95ac;
+/*006a9728*/ extern undefined4 g_weapon_6a9728;
+/*006a972c*/ extern undefined4 g_weapon_flamethrower_6a972c;
+/*006a9730*/ extern undefined4 g_weapon_flamethrower_6a9730;
+/*006a9734*/ extern undefined4 g_weapon_flamethrower_6a9734;
+/*006a9738*/ extern undefined4 g_weapon_flamethrower_6a9738;
+/*006a973c*/ extern undefined4 g_weapon_flamethrower_6a973c;
+/*006a974c*/ extern undefined g_weapon_flamethrower_6a974c;
+/*006a9750*/ extern undefined4 g_weapon_flamethrower_6a9750;
+/*006a9758*/ extern undefined4 g_weapon_flamethrower_6a9758;
+/*006a9d44*/ extern undefined g_weapon_fx_6a9d44;
+/*006aab80*/ extern undefined g_weapon_shotgun_6aab80;
+/*006aab84*/ extern undefined4 g_weapon_shotgun_6aab84;
+/*006aab94*/ extern undefined4 g_weapon_shotgun_6aab94;
+/*006aab98*/ extern undefined4 g_weapon_shotgun_6aab98;
+/*006aab9c*/ extern undefined4 g_weapon_shotgun_6aab9c;
+/*006aaba0*/ extern undefined4 g_weapon_shotgun_6aaba0;
+/*006aac18*/ extern undefined g_player_status;
+/*006aaf74*/ extern undefined4 g_weapon_6aaf74;
+/*006ab194*/ extern undefined g_weapon_fx_6ab194;
+/*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
+/*007e7f60*/ extern undefined4 g_event_log_head;
+/*007e7f64*/ extern undefined4 g_event_log_type;
+/*007e8364*/ extern undefined4 g_event_log_time;
+/*007e8764*/ extern undefined4 g_event_log_param;
+/*007e8b64*/ extern undefined4 g_car_7e8b64;
+/*007ef818*/ extern undefined4 g_last_frame_ticks;
+/*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
+/*00801b14*/ extern undefined4 g_rw_801b14;
+/*008bd7bc*/ extern undefined4 g_weapon_ai_8bd7bc;
+/*008bd7c0*/ extern undefined g_weapon_ai_8bd7c0;
+/*008bdcc0*/ extern undefined4 g_weapon_ai_8bdcc0;
+/*008bdce0*/ extern undefined g_weapon_ai_8bdce0;
+/*008be1e0*/ extern undefined4 g_weapon_8be1e0;
+/*008be1e4*/ extern undefined4 g_weapon_8be1e4;
+/*008be1e8*/ extern undefined4 g_weapon_ai_8be1e8;
+/*008be1ec*/ extern undefined4 g_weapon_ai_8be1ec;
+/*008be1f0*/ extern undefined4 g_weapon_ai_8be1f0;
+/*008be220*/ extern undefined g_weapon_ai_8be220;
+/*008be720*/ extern undefined4 g_weapon_8be720;
+/*008be7c0*/ extern undefined4 g_sound_stream_slots;
+/*008be7f0*/ extern undefined4 g_weapon_ai_8be7f0;
+/*008be800*/ extern undefined g_weapon_ai_8be800;
+/*008bed00*/ extern undefined4 g_sound_frame_8bed00;
+/*008bed04*/ extern undefined4 g_voice_queue_count_ptr;
+/*008bed08*/ extern undefined4 g_voice_queue_entries_ptr;
+/*008d9940*/ extern undefined4 g_sound_8d9940;
+/*008d9944*/ extern undefined4 g_weapon_8d9944;
+/*008d9948*/ extern undefined4 g_weapon_ai_8d9948;
+/*008d994c*/ extern undefined4 g_weapon_ai_8d994c;
+/* weapon_effect_get_slot_value_a */
+
+/* "(player 0..3): g_weapon_6a942c[player * 0x58] or -1" */
+
+undefined4 weapon_effect_get_slot_value_a(int player)
+
+{
+  if ((player >= 0) && (player < 4)) {
+    return (&g_weapon_6a942c)[player * 0x16];
+  }
+  return 0xffffffff;
+}

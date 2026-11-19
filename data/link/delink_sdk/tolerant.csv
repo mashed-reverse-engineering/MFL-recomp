@@ -1,0 +1,44 @@
+addr,size,member,name,differing bytes
+004d5f90,352,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,rwTextureClose,8
+004df250,256,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/babintex.obj,RwTextureStreamWrite,2
+004ea440,112,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/rwstring.obj,rwStringStreamWrite,1
+004ed400,896,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9texdic.obj,rwD3D9NativeTextureWrite,1
+004f2060,208,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batkbin.obj,rwPluginRegistryWriteDataChunks,2
+004f6bf0,592,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/baclump.obj,RpClumpClone,4
+004f8600,256,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bamateri.obj,RpMaterialStreamWrite,2
+004f9240,688,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bageomet.obj,RpGeometryStreamWrite,2
+00501380,640,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/native.obj,rpGeometryNativeWrite,1
+00501aa0,656,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/native.obj,rpWorldSectorNativeWrite,1
+00503f70,336,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/bamatlst.obj,rpMaterialListStreamWrite,2
+0053e230,192,rtanim.lib:c:/daily/rwsdk/tool/anim/obj/d3d9r/rtanim.obj,RtAnimAnimationStreamWrite,1
+00540400,112,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9.obj,rpSkinGeometryNativeWrite,1
+0054dce0,352,rpcollis.lib:c:/daily/rwsdk/plugin/collis/obj/d3d9r/ctdata.obj,rpCollTreeStreamWrite,2
+005520e0,496,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,ApplyEnvMapTextureMatrix,6
+00560eb0,48,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,RwFwrite,1
+00561170,32,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfswin.obj,TkWinFSGetFileObject,1
+00561860,32,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfswin.obj,TkWinFSClose,1
+00561e10,176,rpuvanim.lib:c:/daily/rwsdk/plugin/uvanim/obj/d3d9r/rpuvanim.obj,UVAnimWrite,1
+005681c0,112,rplodatm.lib:c:/daily/rwsdk/plugin/lodatm/obj/d3d9r/rplodatm.obj,LODAtomicCallBackWriteChunk,1
+004b6109,2861,libcmt.lib:..\build\intel\mt_obj\pow_pentium4.obj,CIpow_pentium4,similarity 0.93
+004b8a6e,718,libcmt.lib:..\build\intel\mt_obj\atan_pentium4.obj,CIatan_pentium4,similarity 0.82
+004d60f0,480,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/batextur.obj,rwTextureOpen,similarity 0.62
+004d7c00,3040,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,D3D9System,similarity 0.69
+004d8990,1098,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,D3D9SetPresentParameters,similarity 0.69
+004da2a0,2512,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9device.obj,rwD3D9CameraBeginUpdate,similarity 0.74
+004e55d0,656,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,RwD3D9SetTexture,similarity 0.65
+004e5be0,1480,rwcore.lib:C:/daily/rwsdk/src/obj/d3d9r/d3d9rendst.obj,rwD3D9RWSetRenderState,similarity 0.49
+004ff980,2448,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/nodeD3D9AtomicAllInOne.obj,D3D9AtomicDefaultInstanceCallback,similarity 0.95
+005005b0,1040,rpworld.lib:C:/daily/rwsdk/world/obj/d3d9r/nodeD3D9WorldSectorAllInOne.obj,D3D9WorldSectorDefaultInstanceCallback,similarity 0.94
+00540bc0,1472,rpskin.lib:c:/daily/rwsdk/plugin/skin2/obj/d3d9r/skind3d9instance.obj,rpD3D9SkinGeometryReinstance,similarity 0.94
+00550b50,3339,rpmatfx.lib:c:/daily/rwsdk/plugin/matfx/obj/d3d9r/effectPipesD3D9.obj,rpMatFXD3D9AtomicMatFXDualPassRender,similarity 0.73
+00554ac0,592,rpusrdat.lib:c:/daily/rwsdk/plugin/userdata/obj/d3d9r/rpusrdat.obj,UserDataObjectStreamRead,similarity 0.58
+00554d10,528,rpusrdat.lib:c:/daily/rwsdk/plugin/userdata/obj/d3d9r/rpusrdat.obj,UserDataObjectStreamWrite,similarity 0.69
+00554f20,256,rpusrdat.lib:c:/daily/rwsdk/plugin/userdata/obj/d3d9r/rpusrdat.obj,UserDataObjectGetSize,similarity 0.65
+00560d10,352,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,RwFopen,similarity 0.72
+00560f80,208,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsmgr.obj,RwFgets,similarity 0.89
+00561190,336,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfswin.obj,TkWinFSystemFOpen,similarity 0.78
+00561300,384,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfswin.obj,TkWinFSystemFRead,similarity 0.80
+00561b20,80,rtfsyst.lib:c:/daily/rwsdk/tool/fsyst/obj/d3d9r/rtfsyst.obj,rtFSTriggerFileOustandingOpCallback,similarity 0.75
+00564720,176,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/path.obj,rt2dPathDestruct,similarity 0.69
+00566aa0,1952,rt2d.lib:c:/daily/rwsdk/tool/2d/obj/d3d9r/font.obj,FontReadMetrics2d2,similarity 0.85
+005d547e,639,libcmt.lib:..\build\intel\mt_obj\exp_pentium4.obj,CIexp_pentium4,similarity 0.88

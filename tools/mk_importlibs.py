@@ -6,19 +6,28 @@ import os, re, struct, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXE = os.path.join(HERE, "..", "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe")
 out = os.path.abspath(sys.argv[1]); os.makedirs(out, exist_ok=True)
+# SK2 W16 (NOEXE CI link): --table <file> = the .def files of a normal link's imp/ dir, concatenated without mflrw.def (tools/ci/link_tables.py emit):
+# the exe's import list with the final argument bytes; no MFL.exe, protos, SDK libs or objects are read.  mflrw.dll still comes from RW_DLL.
+TABLE = sys.argv[sys.argv.index("--table") + 1] if "--table" in sys.argv else None
 nargs = {}
-for l in open(os.path.join(HERE, "..", "names", "MFL_import_protos.txt")):
+for l in ([] if TABLE else open(os.path.join(HERE, "..", "names", "MFL_import_protos.txt"))):
     m = re.search(r"__stdcall (\w+)\((.*)\);", l)
     if m: nargs[m.group(1)] = 0 if m.group(2).strip() in ("", "void") else len(m.group(2).split(","))
 import glob, re as _re
-for lib in sorted(glob.glob(os.path.join(HERE, "..", "toolchain", "rwsdk", "lib", "d3d9", "release", "*.lib"))):      # (W11 B1: sorted, the last lib wins for a name in two) the SDK libs (cl 12) carry the exact decorated import names `__imp__Name@N` they use
+for lib in [] if TABLE else sorted(glob.glob(os.path.join(HERE, "..", "toolchain", "rwsdk", "lib", "d3d9", "release", "*.lib"))):      # (W11 B1: sorted, the last lib wins for a name in two) the SDK libs (cl 12) carry the exact decorated import names `__imp__Name@N` they use
     for m in _re.finditer(rb"__imp__([A-Za-z0-9_]+)@(\d+)", open(lib, "rb").read()): nargs[m.group(1).decode()] = int(m.group(2)) // 4      # authoritative (the real decorated name), overrides the push count heuristic
-if os.environ.get("OBJLIST"):      # our objects (tools/delink/link_ours.sh objs_local.txt: "src obj" per line) name the decorated imports they use: authoritative over the push count
+if os.environ.get("OBJLIST") and not TABLE:      # our objects (tools/delink/link_ours.sh objs_local.txt: "src obj" per line) name the decorated imports they use: authoritative over the push count
     for l in open(os.environ["OBJLIST"]):
         if l.strip():
             for m in re.finditer(r"__imp__([A-Za-z0-9_]+)@(\d+)", subprocess.run(["objdump", "-t", l.split()[-1]], capture_output=True, text=True).stdout): nargs[m.group(1)] = int(m.group(2)) // 4
-txt = subprocess.run(["objdump", "-p", EXE], capture_output=True, text=True).stdout
+txt = "" if TABLE else subprocess.run(["objdump", "-p", EXE], capture_output=True, text=True).stdout
 dll, imports = None, {}
+for l in open(TABLE) if TABLE else []:      # def lines: "LIBRARY <dll>", "Name@N", "Ordinal_<n> @<n> NONAME"
+    p = l.split()
+    if p[:1] == ["LIBRARY"]: dll = p[1]; imports[dll] = []
+    elif len(p) == 3 and p[0].startswith("Ordinal_"): imports[dll].append(p[0])
+    elif len(p) == 1 and "@" in p[0]: n, a = p[0].rsplit("@", 1); imports[dll].append(n); nargs[n] = int(a) // 4
+    elif p and p != ["EXPORTS"]: sys.exit("mk_importlibs: bad table line: " + l.strip())
 for l in txt.splitlines():
     m = re.match(r"\s*DLL Name: (\S+)", l)
     if m: dll = m.group(1); imports[dll] = []; continue
@@ -77,6 +86,9 @@ for d, names in imports.items():
     with open(os.path.join(out, base + ".def"), "w") as f:
         f.write("LIBRARY %s\nEXPORTS\n" % d)
         for n in sorted(set(names)): f.write(("%s @%s NONAME\n" % (n, n[8:])) if n.startswith("Ordinal_") else (n + "\n") if n in RW else ("%s@%d\n" % (n, 4 * nargs.get(n, 0))))      # decorated entry: the import is by the undecorated name (NAME_UNDECORATE)
-    subprocess.run([os.path.join(HERE, "vc7.sh"), out, "lib.exe", "/nologo", "/machine:ix86", "/def:%s.def" % base, "/out:%s.lib" % base], capture_output=True, text=True, env=dict(os.environ, VC7_CONTAINER=os.environ.get("VC7_CONTAINER", "ac")))
+    if os.environ.get("CC") == "v143":      # W16 CIN: the v143 lib.exe (msvc-wine, or native with MSVCW_NATIVE=1); no VC7 step in the v143 path
+        subprocess.run([os.path.join(HERE, "msvcw", "msvcw_sh.sh"), out, "/opt/msvc/bin/x86/lib /nologo /machine:x86 /def:%s.def /out:%s.lib" % (base, base)], capture_output=True, text=True)
+    else:
+        subprocess.run([os.path.join(HERE, "vc7.sh"), out, "lib.exe", "/nologo", "/machine:ix86", "/def:%s.def" % base, "/out:%s.lib" % base], capture_output=True, text=True, env=dict(os.environ, VC7_CONTAINER=os.environ.get("VC7_CONTAINER", "ac")))
     write_implib(os.path.join(out, base + ".lib"), d, sorted(set(names)), nargs)
     print("%-14s %4d imports  %s.lib" % (d, len(set(names)), base))

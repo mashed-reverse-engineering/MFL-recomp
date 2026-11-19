@@ -465,3 +465,63 @@
 0062edb0 | 276 | d3dx_dispatch_default_slots2_70 | fptr[69] | d3dx4 | slots 2..70 of the default C-math D3DX dispatch table 0x62eda8 (copied into the live table by D3DXCpuOptimizations, recomp/d3dx_dispatch.c)
 0062eec4 | 4 | rw_word_62eec4 | u4 | d3dx4 | (group d3dx4, not rw: it shares the library item 0x62edb0 with the default table and must go back with it) Z5 remainder (the row started inside the D3DX item; typed with S4, which now ends that item here)
 0062eec8 | 32 | s_nodeD3D9AtomicAllInOne_csl_0062eec8 | str | d3dx4 | node definition name, pointed at by the gen row PTR_s_nodeD3D9AtomicAllInOne_csl_0062eee8; labels s_nodeD3D9AtomicAllInOne_csl_0062eec8
+# W16 D0: the last 58 copied library rows (g_libspan_*, 3,514 B: CRT, RenderWare name strings / banner, RwpRagdoll constants, pad bytes) as typed rows, group d0 (zneg.sh d0).
+# One entry per layout row of the gate link (head + __t pairs and 1 B pairs stay two entries: same items, same layout).  Evidence: agents/d0_w16/rows_dump.txt.
+005e2790 | 92 | crt_output_lookuptable | u1[92] | d0 | output.obj .rdata: printf state / char class table (__lookuptable); labels __lookuptable g_data_5e2790
+005e63c4 | 4 | lib_word_5e63c4 | u4 | d0 | zero word between CRT rows
+005e6484 | 8 | lib_pair_5e6484 | i4[2] | d0 | {0, -1}: head of an SEH scope table (-1 = enclosing level; the filter / handler words behind are recomp/globals_code_words.txt E7 rows); labels g_data_5e6488 at +4
+005e6494 | 8 | lib_pair_5e6494 | i4[2] | d0 | {0, -1}: SEH scope table words as 0x5e6484; labels g_data_5e6498 at +4
+005e664f | 1 | lib_pad_5e664f | u1 | d0 | pad byte (behind the raw low word 0x5e664c)
+005e66d8 | 8 | lib_words_5e66d8 | u4[2] | d0 | zero words
+005e6a20 | 8 | lib_pair_5e6a20 | i4[2] | d0 | {-1, 0} pair; labels g_read_5e6a20
+005e6a30 | 8 | lib_pair_5e6a30 | i4[2] | d0 | {-1, 0} pair; labels g_write_5e6a30
+005e6d5a | 1 | lib_pad_5e6d5a | u1 | d0 | pad byte
+005e6d5b | 1 | lib_pad_5e6d5b | u1 | d0 | pad byte
+005e6d5c | 12 | lib_words_5e6d5c | i4[3] | d0 | {0, -1, 0}; labels g_lseek_5e6d60 at +4
+005e6d70 | 1036 | crt_ctype_tables | {u2[257] ctype; u2[3] pad; u2[258] wctype} | d0 | ctype.obj .rdata: _ctype (257 entries incl. EOF; _pctype 0x62d13c points at +2) and _wctype at +0x208 (0x62d140 points at +2)
+005e7264 | 4 | crt_lc_time_str_head | str | d0 | first 4 chars of "HH:mm:ss" (cl 8-aligns the 296 B rest, so the row is split); labels s_HH_mm_ss_005e7264
+005e7268 | 296 | crt_lc_time_strings | str | d0 | __lc_time_c strings (time / date formats, AM PM, month and day names), read through the pointer table 0x62d300; labels s_December_005e7298 .. s_Sunday_005e736c
+005e99ec | 36 | crt_fp_special_strings | str | d0 | "1#QNAN" "1#INF" "1#IND" "1#SNAN" (cfltcvt text of special doubles); labels s_1_QNAN_005e99ec ..
+005e9a58 | 560 | rw_blend_filter_names | str | d0 | RenderWare enum name strings rwFILTER* / rpMATFX* / rp*USERDATA / rwBLEND* + "piz:" "pzfs", read through the pointer table 0x62d81c
+005ea034 | 4 | rw_word_5ea034 | u4 | d0 | word in front of the RenderWare core build banner
+005ea038 | 72 | rw_core_build_banner | str | d0 | "\nCore built at Jun 23 2004 16:24:30\n" + hex digit string (rwcore.lib batextur.obj .rdata); labels s_0123456789abcdef_005ea060
+005ea084 | 12 | rw_d3d9device_words | u4[3] | d0 | rwcore.lib d3d9device.obj .rdata {0x16, 0x23, 0}; labels g_rw_5ea084 g_rw_5ea08c
+005f749c | 4 | lib_f_5f749c | f4 | d0 | float 1.7014117e38 (0x7effffff); labels k_f_1_7014117e38
+005f74a0 | 428 | rwp_ragdoll_rodata | {u4[44] consts; str[72] rcsid_ragdollobj; str[68] rcsid_ragdolldef; u2[22] tbl; str[68] rcsid_ragdollstd} | d0 | float / double constants (k_f_ labels; +0x20 = image base word, header relocation, value only) then the RwpRagdollObj.c / RwpRagdollDef.c rcsids, a 22 x u16 table, the RwpRagdollStd.c rcsid
+005f87a4 | 12 | lib_words_5f87a4 | u4[3] | d0 | zero words
+0062c5dc | 20 | crt_fp_init_table | {u4 f0; u4 f4; fptr fp_init; fptr fp_mtinit; fptr fp_mtterm} | d0 | crt0dat / thread .data: _FPinit (-> _fpmath), _FPmtinit, _FPmtterm (both 0x522211: zero in the DROP_RW link)
+0062c5fc | 4 | crt_word_62c5fc | u4 | d0 | zero word
+0062c608 | 8 | crt_words_62c608 | u4[2] | d0 | zero words
+0062c618 | 8 | crt_words_62c618 | u4[2] | d0 | zero words
+0062c624 | 12 | crt_words_62c624 | u4[3] | d0 | zero words
+0062c634 | 12 | crt_words_62c634 | u4[3] | d0 | zero words
+0062c648 | 8 | crt_words_62c648 | u4[2] | d0 | zero words
+0062c66c | 4 | crt_word_62c66c | u4 | d0 | zero word
+0062c96a | 1 | crt_pad_62c96a | u1 | d0 | pad byte
+0062c96b | 1 | crt_pad_62c96b | u1 | d0 | pad byte
+0062c96c | 4 | crt_word_62c96c | u4 | d0 | zero word
+0062c99c | 4 | crt_word_62c99c | u4 | d0 | zero word
+0062c9ac | 4 | crt_mlock_head | u4 | d0 | mlock.obj .data: first word (1) of the lock table (cl 8-aligns the 280 B rest); labels g_mtdeletelocks_62c9ac
+0062c9b0 | 280 | crt_mlock_locktable | u4[70] | d0 | mlock.obj .data: _locktable {lock, kind} words (kind 1 = preallocated); labels g_mtdeletelocks_62c9b0
+0062cc5b | 1 | crt_pad_62cc5b | u1 | d0 | pad byte
+0062cc5c | 4 | crt_word_62cc5c | u4 | d0 | zero word
+0062ccac | 44 | crt_fp_special_doubles | {u4 f0; u4[2] d_inf; u4[2] d_ind; u4[2] d_max; u4[2] d_min; u4[2] d_mzero} | d0 | the CRT special doubles as word pairs (+INF, NaN, DBL_MAX, DBL_MIN, -0.0; words, so no cl constant folding is involved); labels _d_inf _d_ind _d_max _d_mzero
+0062cdd8 | 4 | crt_unhandled_filter | fptr | d0 | code pointer -> _CxxUnhandledExceptionFilter
+0062cff8 | 8 | crt_words_62cff8 | u4[2] | d0 | {0x10, 0}
+0062d118 | 56 | crt_badioinfo_pctype | {u4[9] badioinfo; ptr pctype; ptr pwctype; u4[3] tail} | d0 | __badioinfo (36 B ioinfo: -1 handle, osfile 0x80, pipech 0x0a) then _pctype (-> _ctype+2) and _pwctype (-> _wctype+2); labels __badioinfo _pctype
+0062d18c | 4 | crt_word_62d18c | u4 | d0 | zero word
+0062d2f0 | 256 | crt_locale_data | {u4 matherr_flag; u4 lc_clike; ptr lc_time_curr; u4 pad0c; ptr[43] lc_time_c; u4 lc_time_lcid; u4 lc_time_refcount; u4 f_c4; u4 decimal_point_str; ptr[10] lconv_c; u1[8] lconv_chars; ptr lconv} | d0 | _matherr_flag, __lc_clike, __lc_time_curr (-> __lc_time_c), __lc_time_c (43 string pointers into 0x5e7264.., lcid 0x409), "." , __lconv_c (10 string pointers, 8 CHAR_MAX bytes), __lconv (-> __lconv_c)
+0062d4e8 | 8 | crt_words_62d4e8 | u4[2] | d0 | zero words; labels g_cvtdate_62d4ec at +4
+0062d558 | 8 | crt_words_62d558 | u4[2] | d0 | zero words
+0062d81c | 4 | rw_blend_filter_name_ptr0 | ptr | d0 | entry 0 of the name pointer table (-> "rwBLENDNABLEND"); cl 8-aligns the 108 B rest
+0062d820 | 108 | rw_blend_filter_name_ptrs | ptr[27] | d0 | pointers into rw_blend_filter_names (0x5e9a58), reverse order
+0062d91b | 1 | lib_pad_62d91b | u1 | d0 | pad byte
+0062e576 | 1 | lib_pad_62e576 | u1 | d0 | pad byte
+0062e577 | 1 | lib_pad_62e577 | u1 | d0 | pad byte
+0062e6aa | 1 | lib_pad_62e6aa | u1 | d0 | pad byte
+0062e6ab | 1 | lib_pad_62e6ab | u1 | d0 | pad byte
+0062e717 | 1 | lib_pad_62e717 | u1 | d0 | pad byte
+0064c1f4 | 12 | lib_words_64c1f4 | u4[3] | d0 | zero words
+0064c26a | 1 | lib_pad_64c26a | u1 | d0 | pad byte
+0064c26b | 1 | lib_pad_64c26b | u1 | d0 | pad byte
+0064c26c | 4 | lib_word_64c26c | u4 | d0 | zero word

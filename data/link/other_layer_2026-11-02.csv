@@ -1,0 +1,133 @@
+kind,lo,hi,bytes,section,layer,needs_C,evidence
+code,4ab230,4ac4f0,4800,text,other,n,"DirectInput c_rgodf* DIOBJECTDATAFORMAT tables (dinput8.lib data in .text): DirectX SDK lib, stays 'other' (S0: not D3DX); no callers, 2 CRT callees only"
+code,4b0b70,4b2a60,7920,text,DirectShow,n,"strmbase/movie filter islands: 6-21 external callers all DirectShow items, callees CRT/DirectShow, strings AMUnblock LoadRegTypeLib LoadTypeLib"
+code,4c3b70,4c6660,10992,text,app,y,"stream_read/write_file + RwStream wrappers (104-190 app callers, RenderWare callees), PIZ archive fs piz_* (rb fopen, 85 app callers), warzone cb helpers: game code, needs C"
+code,4c6660,4c66a0,64,text,CRT,n,"memset (VC7 rep stos, 58 B + padding): C runtime, not game code (A11 reclassification; 0x4c66a0 mem_zero is the game wrapper)"
+code,4c66a0,4c7150,2736,text,app,y,"stream_read/write_file + RwStream wrappers (104-190 app callers, RenderWare callees), PIZ archive fs piz_* (rb fopen, 85 app callers), warzone cb helpers: game code, needs C"
+code,4c9ae0,4c9c30,336,text,Lua,n,"3 fns between Lua items: 5 Lua callers, 2 Lua callees"
+code,56e7dc,56e890,180,text,app,y,"gaps inside the RW tail: callers are app only (6-7), no callees"
+code,5d2ada,5d2ba0,198,text,D3DX,n,tail of GetMaxNumAnimationSets (d3dx9 anim.obj) plus a function with D3DX callers/callees
+code,5d2ba0,5d2d00,352,text,CRT,n,"___mbtowc_mt/_mbtowc (CRT, symbol names) with D3DX/CRT callers"
+code,5d58e7,5d5950,105,text,CRT,n,"105 bytes with CRT callees x3 and CRT/RenderWare callers, after the D3DX block"
+code,5d6420,5d7c80,6240,text,RenderWare,n,no strings; callees rwp x13 (RW wrapper code between D3DX and D3DX objects); lower confidence
+code,5d7c80,5dc000,17280,text,Audio,n,"S0: semaphore/event code (ReleaseSemaphore x5, WaitForSingleObject x5), 159 calls into the Audio range 0x5b5eb0-0x5d09d0, 12 callers all Audio or 0x5d09d0-0x5d7c80, no external callers, no D3DX imports; was labelled D3DX (and the Audio range itself was)"
+code,5dc000,5dc451,1105,text,RenderWare,n,"RWC section (.rwcode, 1,105 B): RenderWare code section, no refs"
+data,005e278c,005e2790,4,rdata,,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e27e9,005e27ec,3,rdata,,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e2a4c,005e2a50,4,rdata,,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e63c4,005e63c8,4,rdata,,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e6484,005e64a4,32,rdata,CRT,n,referrer layers: CRT 2
+data,005e64cc,005e64d0,4,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e664f,005e6650,1,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e66d8,005e6888,432,rdata,CRT,n,referrer layers: CRT 35
+data,005e69c8,005e6a08,64,rdata,CRT,n,referrer layers: CRT 2
+data,005e6a1c,005e6a3c,32,rdata,CRT,n,referrer layers: CRT 2
+data,005e6d5a,005e6d5b,1,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e6d5b,005e6d5c,1,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e6d5c,005e6d60,4,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e6d60,005e717c,1052,rdata,CRT,n,referrer layers: CRT 6
+data,005e7264,005e7268,4,rdata,CRT,n,referrer layers: CRT 1
+data,005e7268,005e7390,296,rdata,CRT,n,referrer layers: CRT 42
+data,005e81bc,005e81c0,4,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005e81c0,005e99d0,6160,rdata,CRT,n,referrer layers: CRT 3
+data,005e99ec,005e9a10,36,rdata,CRT,n,referrer layers: CRT 4
+data,005e9a58,005ea164,1804,rdata,Lua,n,"referrer layers: Lua 43, RenderWare 40, CRT 30"
+data,005ec458,005ec5c0,360,rdata,D3DX,n,referrer layers: RenderWare 203 [S0 relabel]
+data,005ecf5b,005ecf5c,1,rdata,D3DX,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,005ecf5c,005ecf60,4,rdata,D3DX,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,005eef6c,005eef80,20,rdata,D3DX,n,referrer layers: RenderWare 5 [S0 relabel]
+data,005efa2c,005efa30,4,rdata,D3DX,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,005efe70,005f32f8,13448,rdata,D3DX,n,referrer layers: RenderWare 3 [S0 relabel]
+data,005f3596,005f3597,1,rdata,D3DX,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,005f3597,005f3598,1,rdata,D3DX,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,005f3598,005f4218,3200,rdata,D3DX,n,referrer layers: RenderWare 18 [S0 relabel]
+data,005f4220,005f46e8,1224,rdata,D3DX,n,referrer layers: RenderWare 1 [S0 relabel]
+data,005f487c,005f4880,4,rdata,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005f4d68,005f5a18,2744,rdata,zlib/PNG/TIFF,n,"referrer layers: zlib/PNG/TIFF 29, RenderWare 5, rwp 5"
+data,005f5a18,005f5a6c,84,rdata,RenderWare,n,"A5 manual: skin/matfx float constants after inftrees (0x5f5a20 rpskin items), referrers RenderWare"
+data,005f5a6c,005f5a74,8,rdata,rwp,n,A5 manual: referenced from rwp code 0x583372 0x587a24 0x587a3e
+data,005f5dac,005f5db0,4,rdata,RenderWare,n,A5 manual: 4 byte padding between rpmatfx lib rows
+data,005f5db0,005f6328,1400,rdata,RenderWare,n,referrer layers: RenderWare 1
+data,005f632c,005f6330,4,rdata,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005f6330,005f6450,288,rdata,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005f6494,005f6498,4,rdata,rwp,n,referrer layers: rwp 4
+data,005f6498,005f64e0,72,rdata,rwp,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005f6524,005f6550,44,rdata,rwp,n,referrer layers: rwp 11
+data,005f65e8,005f6720,312,rdata,rwp,n,referrer layers: rwp 2
+data,005f6764,005f6768,4,rdata,rwp,n,referrer layers: rwp 8
+data,005f6768,005f6800,152,rdata,rwp,n,referrer layers: rwp 3
+data,005f68d4,005f68d8,4,rdata,rwp,n,referrer layers: rwp 1
+data,005f68d8,005f6c38,864,rdata,rwp,n,referrer layers: rwp 18
+data,005f6c3c,005f6c40,4,rdata,rwp,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005f6c40,005f7350,1808,rdata,rwp,n,"referrer layers: rwp 46, qhull 16, app 1"
+data,005f749c,005f74a0,4,rdata,qhull,n,"referrer layers: qhull 57, rwp 2"
+data,005f74a0,005f765c,444,rdata,qhull,n,"referrer layers: qhull 39, rwp 1, D3DX 1"
+data,005f766c,005f7670,4,rdata,Audio,n,referrer layers: D3DX 1 [S0 relabel]
+data,005f7670,005f7914,676,rdata,Audio,n,referrer layers: D3DX 186 [S0 relabel]
+data,005f7964,005f7974,16,rdata,Audio,n,referrer layers: D3DX 4 [S0 relabel]
+data,005f7984,005f79b4,48,rdata,Audio,n,referrer layers: D3DX 6 [S0 relabel]
+data,005f79c4,005f79c8,4,rdata,Audio,n,referrer layers: D3DX 1 [S0 relabel]
+data,005f79c8,005f835c,2452,rdata,Audio,n,referrer layers: D3DX 607 [S0 relabel]
+data,005f836c,005f8370,4,rdata,Audio,n,referrer layers: D3DX 2 [S0 relabel]
+data,005f8370,005f8710,928,rdata,Audio,n,referrer layers: D3DX 92 [S0 relabel]
+data,005f873c,005f8740,4,rdata,Audio,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,005f87a4,005f87e0,60,rdata,CRT,n,referrer layers: CRT 6
+data,005f87ec,005f87f0,4,rdata,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,005fb000,005fb074,116,data,CRT,n,referrer layers: CRT 8
+data,0062c5dc,0062cc60,1668,data,CRT,n,"referrer layers: CRT 137, rwp 2, Lua 1"
+data,0062ccac,0062d914,3176,data,CRT,n,"referrer layers: CRT 206, Lua 32"
+data,0062d91b,0062d91c,1,data,CRT,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062d91c,0062d920,4,data,Lua,n,referrer layers: Lua 2
+data,0062d920,0062e514,3060,data,Lua,n,"referrer layers: Lua 191, qhull 143"
+data,0062e576,0062e577,1,data,Lua,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e577,0062e578,1,data,Lua,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e6aa,0062e6ab,1,data,Lua,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e6ab,0062e6ac,1,data,Lua,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e717,0062e718,1,data,Lua,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e830,0062e840,16,data,RenderWare,n,referrer layers: RenderWare 3
+data,0062e847,0062e848,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e9b6,0062e9b7,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e9b7,0062e9b8,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062e9d4,0062e9f4,32,data,rwp,n,referrer layers: rwp 2
+data,0062eae3,0062eae4,1,data,rwp,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0062eae4,0062eaf8,20,data,RenderWare,n,referrer layers: RenderWare 1
+data,0062eec4,0062eee8,36,data,RenderWare,n,referrer layers: RenderWare 1
+data,00631058,00631060,8,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,00631320,006327b0,5264,data,D3DX,n,referrer layers: RenderWare 69 [S0 relabel]
+data,00632a30,006373b4,18820,data,D3DX,n,referrer layers: RenderWare 133 [S0 relabel]
+data,00637b72,00637b73,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,00637b73,00637b74,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,00638150,00638178,40,data,RenderWare,n,referrer layers: RenderWare 1
+data,006381a2,006381a3,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,006381a3,006381a4,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,006381a4,006381cc,40,data,RenderWare,n,referrer layers: RenderWare 1
+data,006381eb,006381ec,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063825f,00638260,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063827f,00638280,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,00638dd8,00638eac,212,data,zlib/PNG/TIFF,n,referrer layers: zlib/PNG/TIFF 8
+data,00638f52,00638f53,1,data,zlib/PNG/TIFF,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,00638f53,00638f54,1,data,zlib/PNG/TIFF,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,00638f54,00638f58,4,data,zlib/PNG/TIFF,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063a1a4,0063a220,124,data,RenderWare,n,referrer layers: RenderWare 4
+data,0063a370,0063a38c,28,data,RenderWare,n,referrer layers: RenderWare 7
+data,0063a427,0063a428,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063a502,0063a503,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063a503,0063a504,1,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063a526,0063a548,34,data,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,0063a580,00649138,60344,data,qhull,n,"referrer layers: qhull 1466, rwp 83, D3DX 3"
+data,00649140,0064a998,6232,data,Audio,n,referrer layers: D3DX 64 [S0 relabel]
+data,0064a9c0,0064aa00,64,data,Audio,n,referrer layers: D3DX 19 [S0 relabel]
+data,0064aa1e,0064aa1f,1,data,Audio,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,0064aa1f,0064aa20,1,data,Audio,n,referrer layers: no refs (padding between lib rows): previous run's layer [S0 relabel]
+data,0064aad8,0064bed0,5112,data,Audio,n,referrer layers: D3DX 54 [S0 relabel]
+data,0064bef8,0064c274,892,data,CRT,n,"referrer layers: CRT 13, RenderWare 10, D3DX 5"
+data,00771b28,00771f78,1104,bss,CRT,n,referrer layers: CRT 284
+data,007d4d24,007d518c,1128,bss,RenderWare,n,referrer layers: RenderWare 77
+data,007d51c0,007d51c4,4,bss,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,007d7a40,007d7a44,4,bss,D3DX,n,referrer layers: RenderWare 1 [S0 relabel]
+data,007d7a44,007d9e18,9172,bss,D3DX,n,referrer layers: RenderWare 126 [S0 relabel]
+data,007daa08,007daa14,12,bss,rwp,n,referrer layers: rwp 8
+data,008d9aa1,008d9d10,623,bss,CRT,n,referrer layers: CRT 185
+data,00947730,00947778,72,bss,RenderWare,n,referrer layers: RenderWare 109
+data,00947b14,00947b1c,8,bss,RenderWare,n,referrer layers: no refs (padding between lib rows): previous run's layer
+data,009488c4,009488d4,16,bss,RenderWare,n,referrer layers: RenderWare 1

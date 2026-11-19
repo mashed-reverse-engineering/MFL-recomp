@@ -10,6 +10,9 @@ sys.argv, _a = sys.argv[:2], sys.argv[2:]
 H = os.path.dirname(os.path.abspath(__file__)); G = os.path.normpath(os.path.join(H, "..", ".."))
 OUT = sys.argv[1]
 opt = dict(zip([x for x in _a if x != "--pad-code"][::2], [x for x in _a if x != "--pad-code"][1::2]))
+if "--table" in opt:           # SK W16 NOEXE form: the image object from a table (objtable.py emit of a normal-form mfl.obj), no exe opened; every other option is ignored
+    sys.path.insert(0, H); import objtable
+    open(OUT, "wb").write(objtable.build(open(opt["--table"]).read())); print("%s: from table %s" % (OUT, opt["--table"])); sys.exit(0)
 MINC = {"high": 0, "medium": 1, "low": 2}[opt.get("--min-conf", "low")]
 DROP = set(opt.get("--drop-kinds", "header,rsrc,unknown,const").split(","))
 EXE = opt.get("--exe") or os.path.normpath(os.path.join(G, "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe"))
@@ -198,6 +201,17 @@ if "--objs" in opt:
         data[cs_][off:off + 5] = b"\xe9\0\0\0\0"
         rel[cs_].append((off + 1, nm_, 0x14)); undef_syms.append(nm_); redirected.add(u); redir_at[a] = u
     stat["functions redirected to our objects"] = len(redirected)
+    # --crt-redirect <file> (V143e1, CC=v143 LIB_CRT=v143md only; tools/msvcw/v143md_plan.py crt_redirect.txt): "va name" = the image's VC7 CRT function at va
+    # gets the same 5 byte entry jmp, to the v143 CRT function `name` (undefined here, the v143 libs define it), so every image call and pointer
+    # reaches the v143 CRT (v143j: the VC7 _control87 ran and hit its int3-filled helper _abstract_cw); the VC7 body behind the jmp is dead
+    for l in (open(opt["--crt-redirect"]) if "--crt-redirect" in opt else []):
+        if not l.strip(): continue
+        a = int(l.split()[0], 16); nm_ = l.split()[1]
+        if a in redir_at or sec_index(a) not in CSECS or dropped(a): stat["crt-redirect: skipped (ours / not code / split)"] += 1; continue
+        cs_ = sec_index(a); off = a - secs[cs_][1]
+        rel[cs_] = [r_ for r_ in rel[cs_] if not off - 3 <= r_[0] < off + 5]
+        data[cs_][off:off + 5] = b"\xe9\0\0\0\0"
+        rel[cs_].append((off + 1, nm_, 0x14)); undef_syms.append(nm_); redir_at[a] = undecorate(nm_); stat["crt-redirect: VC7 CRT entries -> v143 CRT"] += 1
     byu = {undecorate(n_): n_ for n_ in objdef}
     for fk, ty_ in (("--hook-calls", 0x14), ("--dwords", 0x6)):      # harness lists "<VA>=<symbol>": retarget a 5 byte E8 call (REL32) / store the symbol's address in a 4 byte operand (DIR32)
         if fk not in opt: continue
@@ -240,7 +254,13 @@ if "--objs" in opt:
                     if ev_ and lo_ not in DROPNAMES: print("alias pick %08x %s -> %s: %s" % (lo_, r["name"], n_, ev_), file=sys.stderr)
                     DROPNAMES.setdefault(lo_, n_)
     alt = []                         # /alternatename pairs: our C names an address by its Ghidra name, the split member defines it by the lib name
+    # --crt-extern <file> (W16 V143, only CC=v143 LIB_CRT=v143md passes it; tools/msvcw/v143md_plan.py): "name" = not defined here, the v143 CRT
+    # libs define it; "name=crt" = weak external to that CRT name (our C calls a CRT function by its Ghidra spelling, e.g. __fclose -> _fclose)
+    CRTX = dict((l.split("=") + [""])[:2] for l in (x.strip() for x in open(opt["--crt-extern"])) if l) if "--crt-extern" in opt else {}
     for nm_ in sorted(objundef - set(objdef) - commons):
+        if nm_ in CRTX:
+            if CRTX[nm_]: alt.append((nm_, CRTX[nm_]))
+            continue
         if nm_.startswith("__imp_") and IMPSYM: continue          # S2: defined by the import libs
         if nm_.startswith("__imp_"):
             u = undecorate(nm_[6:])
@@ -451,6 +471,7 @@ if "--drop-app" in opt:
     reason = dict(legacy)
     def live(s_):              # a site is dead when it lies in the entry jmp or the filled part of a candidate (all of it is replaced)
         if s_ == 0: return True
+        if s_ in _deadset: return False      # W16 TAIL: a site inside a filled dead row (rwtrap rwD3D9SkinPrepareMatrix 0x54251d -> 0x542e30) is int3, it keeps nothing alive
         i = bisect.bisect_right(_cl, s_) - 1
         return not (i >= 0 and _cl[i] <= s_ < keep_from[_cl[i]])
     changed = True
@@ -545,6 +566,11 @@ REN = dict(l.split()[:2] for l in open(opt["--rename"]) if l.strip() and not l.s
 ext = [("_" + REN[n[1:]], a) if n[1:] in REN else (n, a) for n, a in ext]
 ext = [(n + "_orig", a) if n in objdef else (n, a) for n, a in ext]       # the object's definition wins, the original stays reachable as name_orig
 ext += [(n, a) for n, a in aliases if n not in {x for x, _ in ext}]
+# --crt-names <file> (W16 V143c8, CC=v143 LIB_CRT=v143md only; v143md_plan.py): every name the v143 CRT libs define. The image's VC7 label of such a
+# name gets a _vc7 suffix, so the v143 CRT definition wins at link time (before: CRT.obj came first and _srand / _exit / _toupper ... bound to
+# VC7 bodies whose VC7 state - heap, per-thread data, locale - is never initialised).  References inside the image are section relative: unchanged.
+CRTN = {l.strip() for l in open(opt["--crt-names"]) if l.strip()} if "--crt-names" in opt else set()
+ext = [(n + "_vc7", a) if n in CRTN else (n, a) for n, a in ext]
 nsym_ext = 0
 for n, a in ext:
     i = sec_index(a)

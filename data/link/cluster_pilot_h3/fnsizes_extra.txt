@@ -1,0 +1,12 @@
+004acfc0 gap_4acfc0 11
+004aef90 gap_4aef90 4
+004ac7f0 gap_4ac7f0 63
+004aede0 gap_4aede0 62
+004ac6c0 gap_4ac6c0 92
+004adfb0 gap_4adfb0 37
+00459f00 gap_459f00 98
+00454020 gap_454020 294
+004ace00 gap_4ace00 40
+004ad010 gap_4ad010 268
+00453aa0 gap_453aa0 318
+004af5c0 gap_4af5c0 42

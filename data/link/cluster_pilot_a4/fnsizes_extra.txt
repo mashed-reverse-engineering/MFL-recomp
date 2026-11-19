@@ -1,0 +1,7 @@
+005b9150 rwa_stream_register_common_005b9150 744
+005b9440 rwa_stream_register_005b9440 62
+005bee60 rwa_free_list_destroy_005bee60 82
+005beee0 rwa_free_list_module_close_005beee0 94
+005c0780 rwa_stream_container_node_create_005c0780 109
+005c7280 rwa_wave_conv_vag_gcnadpcm_005c7280 143
+005c0aa0 _RwaStreamContainerPreinstanceCodecs 587

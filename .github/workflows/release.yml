@@ -1,0 +1,86 @@
+# Release of the CI build (MSVC 2022 v143, plan W16 section 4).  Runs when the publish of a gated tree changed data/release_stamp.txt
+# (written by the private publish step only after a passed full gate of the VC7 build), or by hand.
+# Ships CI-built files only: no original bytes, no MFL.exe, no Microsoft DLL.  The tag and the release are made here (GITHUB_TOKEN).
+# Always a GitHub pre-release (user decision 2026-11-19, no promotion); data/link/smoke_ok.txt (`<cl version> <date> <run>` after a Wine
+# menu boot) is only quoted in the notes.  The notes carry a changelog: commit subjects since the previous r* tag.
+# Contract with build.yml (job `link`, plan 2.7 step 2): artifact `mflng-out` = MFLng.exe, MFLng_fixes.exe, MFLng.map, MFLng_fixes.map,
+# mflrw.dll, mfl_audio_miniaudio.dll, BUILDINFO.txt (one line `cl <version>`); ci_checks.sh has passed on it.
+name: release
+on:
+  push:
+    branches: [master]
+    paths: [data/release_stamp.txt]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: mflng-out
+          path: out
+      - name: assemble
+        run: |
+          set -eu
+          D=$(sed -n 's/^date //p' data/release_stamp.txt 2>/dev/null || true); D=${D:-$(date -u +%F)}
+          CL=$(sed -n 's/^cl //p' out/BUILDINFO.txt | head -1); [ -n "$CL" ] || { echo "BUILDINFO.txt has no cl line"; exit 1; }
+          TAG=r$(echo "$D" | tr -d -)-${GITHUB_SHA::7}
+          mkdir -p pkg/LICENSES maps
+          cp out/MFLng.exe out/MFLng_fixes.exe out/mflrw.dll out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/
+          cp out/*.map maps/
+          ls third_party/LICENSES/*.txt >/dev/null || { echo "third_party/LICENSES/*.txt missing: no release without licence files"; exit 1; }
+          cp third_party/LICENSES/*.txt pkg/LICENSES/
+          { echo "public commit $GITHUB_SHA"; echo "librw-mfl $(sed -n 's/^commit //p' data/link/mflrw_pin.txt)"; cat data/release_stamp.txt 2>/dev/null || echo "stamp: none (manual run)"; } >> pkg/BUILDINFO.txt
+          cat > pkg/INSTALL.txt <<'EOF'
+          MFLng: a rebuilt executable for your own installed copy of the PC game. It contains no game data and is not affiliated with the publisher.
+          Needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), from Microsoft.
+          1. In the game folder, rename MFL.exe to MFL_original.exe (MFLng reads its resources from that file at start-up).
+          2. Copy MFLng.exe, MFLng_fixes.exe, mflrw.dll and mfl_audio_miniaudio.dll into the game folder.
+          3. Start MFLng.exe (original behaviour) or MFLng_fixes.exe (every MFL_FIX_* bug fix on).
+          The DLLs are loaded from the game folder; keep only trusted files there.
+          EOF
+          (cd pkg && sha256sum MFLng.exe MFLng_fixes.exe mflrw.dll mfl_audio_miniaudio.dll > SHA256SUMS)
+          echo "TAG=$TAG" >> "$GITHUB_ENV"; echo "D=$D" >> "$GITHUB_ENV"; echo "CL=$CL" >> "$GITHUB_ENV"
+      - name: no-original guard (blocks the release)
+        run: python3 tools/ci/no_original.py . --release pkg
+      - name: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          (cd pkg && zip -qr "../MFLng-$TAG.zip" .); (cd maps && zip -qr "../MFLng-$TAG-maps.zip" .)
+          SMOKE=$(grep "^$CL " data/link/smoke_ok.txt 2>/dev/null | tail -1 || true)
+          PREV=$(git tag -l 'r*' --sort=-creatordate | head -1)
+          ALL=$(git log --oneline --no-merges -n 200 ${PREV:+$PREV..}HEAD)
+          CHG=$(echo "$ALL" | grep -v '^[0-9a-f]* Update source and progress' || true)
+          [ -n "$CHG" ] || CHG="only automated source and progress updates ($(echo "$ALL" | grep -c . || true) commits), newest: $(echo "$ALL" | head -1 | cut -d' ' -f2-)"
+          {
+            echo "CI build: it proves that MFLng builds from this public tree with no original input. It claims nothing about behaviour; the behaviour proofs run on the private pinned VC7 build."
+            echo
+            echo "You need your own copy of the game. Not affiliated with the game's publisher or developer."
+            echo "MFLng.exe: original behaviour. MFLng_fixes.exe: every MFL_FIX_* switch on. Install: INSTALL.txt in the zip."
+            echo "Checks: rw_stub_guard is static (a RenderWare stub reached through a function pointer is not seen). Sound (miniaudio device backend) is not tested in CI."
+            echo "Pre-release, always. Boot to the main menu under Wine for cl $CL: ${SMOKE:-not recorded}"
+            echo
+            echo "## Changes since ${PREV:-the start (last 200 commits)}"
+            echo "$CHG" | sed 's/^/- /'
+            echo
+            echo "## BUILDINFO"
+            echo '```'
+            cat pkg/BUILDINFO.txt
+            echo '```'
+          } > notes.md
+          gh release create "$TAG" "MFLng-$TAG.zip" "MFLng-$TAG-maps.zip" --target "$GITHUB_SHA" --title "MFLng $D (CI build, MSVC $CL)" --notes-file notes.md --prerelease

@@ -1,0 +1,3 @@
+# clusters left out of --harness builds: the harness hooks (hooks.txt) patch call sites inside the original body
+app_main_loop   # hooks 0x4a15fd freeze_hook (app_frame_wait call) and 0x4a1602 frame_end_ticks (timer_ticks call) lie inside the original loop
+message_box_update   # dwords.txt redirects the g_frame_seconds reads at 0x445bf9 / 0x445eeb inside the original body (fast_menu_scale for test runs)
