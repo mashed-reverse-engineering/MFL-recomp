@@ -111,7 +111,7 @@ i=0; for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"; echo 
 # ---- guards
 WIP=$(git -C $R status --porcelain --untracked-files=all -- recomp); [ -n "$WIP" ] && { echo "src/ has uncommitted / untracked files (lane WIP belongs in agents/<lane>/ or a scratch dir, linked via T2_SHADOW_DIR / --src); not starting:"; echo "$WIP"; exit 2; }      # window 4: a stray WIP file cost a 25-min check_all (cheatgrep)
 L=$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1); [ $L -gt ${LOADMAX:-6} ] && { echo "load $L too high (LOADMAX ${LOADMAX:-6}), not starting"; exit 1; }
-mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; exec > >(tee -a $D/gate.log) 2>&1; echo "$TOLINE"; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
+mkdir -p $D; $T/provenance.sh $D; $T/tree_hash.sh > $D/tree.txt; git -C $R rev-parse HEAD > $D/head.txt; exec > >(tee -a $D/gate.log) 2>&1; echo "$TOLINE"; [ $NF != - ] && printf "%s\n" "${NAMES[@]}" > $NF; CHILD=; LPID=; trap '[ -n "$CHILD" ] && kill -TERM $CHILD 2>/dev/null; echo "gate interrupted"; exit 130' INT TERM
 trap '[ -n "$LPID" ] && kill -TERM $LPID 2>/dev/null' EXIT      # a background link (PARLINK) never outlives the gate (timeout relays the TERM to its process group)
 # W10 tree guard (agent_rules 17): HEAD + every tracked path outside output/ (the gate itself rewrites ledgers there) must not change while the gate runs.
 # Checked after every step; a change prints TREE CHANGED once; kind full then ends with GATE FAILED (publish.sh needs the start tree), the other kinds only warn.

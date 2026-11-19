@@ -16,7 +16,7 @@ permissions:
   contents: read
 jobs:
   msvc-x86-compile:
-    runs-on: windows-latest
+    runs-on: windows-2022      # windows-latest has no VS 2022 (run 44619496443: msvc-dev-cmd "Microsoft Visual Studio not found")
     steps:
       - uses: actions/checkout@v4
       # x64-hosted cross compiler to x86 = the Hostx64/x86 cl that msvc-wine installs; vsversion 2022 fails loudly if the image moves past VS 2022
@@ -81,8 +81,18 @@ jobs:
           grep -q 'Version 19\.44\.' build/cl_version.txt
           i686-w64-mingw32-gcc --version | head -1 | tee build/gcc_version.txt
           python3 --version
-          # link_ours.sh / mk_importlibs.py / build_audio_dll.sh call the triplet names of the cross binutils; MINGW32 ships the plain ones
-          for t in as objdump; do command -v i686-w64-mingw32-$t || cp "$(command -v $t)" "$(dirname "$(command -v $t)")/i686-w64-mingw32-$t.exe"; done
+      - name: cross tool names (the scripts call i686-w64-mingw32-<tool>, MINGW32 ships most binutils unprefixed; run 44619496443 died on -strip)
+        run: |
+          set -e
+          B=$MSYSTEM_PREFIX/bin
+          for t in gcc g++ as ld ar nm objcopy objdump strip ranlib dlltool windres; do
+            [ -x $B/i686-w64-mingw32-$t.exe ] || cp $B/$t.exe $B/i686-w64-mingw32-$t.exe
+            echo "i686-w64-mingw32-$t -> $(command -v i686-w64-mingw32-$t): $(i686-w64-mingw32-$t --version | head -1)"
+          done
+          # the unprefixed names the scripts call must be the 32-bit MINGW32 ones, not C:\mingw64\bin or Git\usr\bin (PATH is inherited)
+          for t in objcopy objdump nm; do [ "$(command -v $t)" = "$B/$t" ] || { echo "$t resolves to $(command -v $t), not $B/$t"; exit 1; }; done
+          [ "$(command -v python3)" = /usr/bin/python3 ] || { echo "python3 is $(command -v python3), not msys2's (subprocess of .sh scripts needs it)"; exit 1; }
+          objcopy --help | grep -q set-section-alignment
       - name: private path layout (output/..., src/automatch_near/... copies of the exported files)
         run: python3 tools/ci/private_layout.py .
       - name: mflrw.dll at the pin
@@ -105,7 +115,9 @@ jobs:
           { echo "cl $(grep -o 'Version [0-9.]*' build/cl_version.txt | cut -d' ' -f2)"; echo "gcc $(cat build/gcc_version.txt)"; echo "runner windows-2022 $ImageVersion"
             echo "MFL_FIX on in MFLng_fixes.exe: $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
       - name: checks (stub guard, pe_check, no_original)
-        run: PY=python3 tools/ci/ci_checks.sh out librw-mfl
+        run: |
+          git config --global --add safe.directory '*'      # msys2 git has its own HOME; no_original.py runs git ls-files on the checkout
+          PY=python3 tools/ci/ci_checks.sh out librw-mfl
       - name: test_g0 on the built DLL (report only)
         continue-on-error: true
         run: build/rw/test_g0.exe build/rw/mflrw.dll
