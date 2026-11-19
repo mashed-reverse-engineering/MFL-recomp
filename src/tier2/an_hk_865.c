@@ -64,6 +64,7 @@ undefined4 __cdecl ai_bot_stuck_check(undefined4 unused_1,undefined4 unused_2,un
   float *route_record;
   int tmp_b;
   double roll_or_dist;
+  double dot_xy;
   struct {
     char *player0_matrix;
     char *bot_matrix;
@@ -246,7 +247,9 @@ fire_shotgun:
       frame.to_player0_length = RwV3dLength(&frame.to_player0);
       RwV3dNormalize(&frame.to_player0_dir,&frame.to_player0);
       route_record = (float *)player_route_get_record_ptr(iBot);
-      route_offset = -((route_record[2] * frame.to_player0_dir.z + frame.to_player0_dir.x * *route_record + route_record[1] * frame.to_player0_dir.y) * frame.to_player0_length);
+      /* the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+      dot_xy = frame.to_player0_dir.x * *route_record + route_record[1] * frame.to_player0_dir.y;
+      route_offset = -((dot_xy +route_record[2] * frame.to_player0_dir.z) * frame.to_player0_length);
       if ((k_f_n0_75 < route_offset) && (route_offset < k_f_0_75)) {
         roll_or_dist = (double)random_range(0,FLOAT_ONE_BITS);
         if (!(roll_or_dist < (double)k_f_0_9)) goto fire_delay_default;

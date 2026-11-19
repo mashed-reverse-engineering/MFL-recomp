@@ -324,7 +324,9 @@ warzone_override:
     if (frame.steer_mode != STEER_MODE_TARGET_B) goto catchup_scaling;
     route_record = (float *)player_route_get_record_ptr(car_index);
     car_get_forward(&frame.car_fwd_x,car_index);
-    route_dot = route_record[1] * frame.car_fwd_y + frame.car_fwd_x * *route_record + frame.car_fwd_z * route_record[2];
+    /* the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+    route_dot = frame.car_fwd_x * *route_record + route_record[1] * frame.car_fwd_y;
+    route_dot = route_dot + frame.car_fwd_z * route_record[2];
     frame.route_angle = (float)route_dot;
     route_cross = frame.car_fwd_x * route_record[2] - frame.car_fwd_z * *route_record;
     if (route_dot < k_f_0) {

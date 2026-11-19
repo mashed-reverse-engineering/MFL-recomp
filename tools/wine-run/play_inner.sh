@@ -13,14 +13,19 @@ if [ -n "$DBG" ]; then printf "cont\nbt\ninfo reg\nquit\n" > /tmp/dbg.cmd; [ -f 
   wine winedbg --file /tmp/dbg.cmd Z:$GAME/App_Executables/MFL.exe -VS0 -CS0 -L0 </dev/null >$OUT/dbg.txt 2>&1 &
 else wine MFL.exe -VS0 -CS0 -L0 >$OUT/wine.log 2>&1 & fi
 # wait for the game process (no fixed sleep); scripts use waitmem to wait for the title screen
-rm -f $OUT/crashed $OUT/done
+rm -f $OUT/crashed $OUT/done $OUT/notup
 # crash watcher: Wine logs "Unhandled ..." the moment the game faults; the run is then aborted at once (a crashing build used to wait out every timeout of the script, ~65 s)
 ( until grep -q "Unhandled" $OUT/wine.log 2>/dev/null || [ -f $OUT/done ]; do sleep 0.25; done; [ -f $OUT/done ] || { sleep ${CRASHWAIT:-0}; touch $OUT/crashed; kill -TERM $$ 2>/dev/null; } ) &   # CRASHWAIT=s: let winedbg --auto write the crash dump to wine.log first
 WATCH=$!
 cleanup() { kill $WATCH 2>/dev/null; wineserver -k >/dev/null 2>&1; while pgrep -f '(^|\\)MFL.exe' >/dev/null; do sleep 0.1; done; }
 trap 'echo "crash: aborted" >> $OUT/steps.txt; cleanup; exit 3' TERM
 T_START=$(date +%s.%N)
-until PID=$(pgrep -n -f '(^|\\)MFL.exe'); [ -n "$PID" ]; do sleep 0.2; done
+# UPWAIT=<s> (HARN2 W15, set by d3dtrace/run.sh for FRAMED runs only): give up when the game process is not up after that many seconds (exit 4 +
+# $OUT/notup; the caller retries once).  Unset = wait without limit (the outer timeout of the caller ends it), as before.
+UPEND=$(( $(date +%s) + ${UPWAIT:-0} ))
+until PID=$(pgrep -n -f '(^|\\)MFL.exe'); [ -n "$PID" ]; do
+  [ -n "$UPWAIT" ] && [ $(date +%s) -ge $UPEND ] && { echo "process not up after ${UPWAIT}s" >> $OUT/timing.txt; touch $OUT/notup $OUT/done; cleanup; exit 4; }
+  sleep 0.2; done
 echo "process up after $(echo "$(date +%s.%N) $T_START" | awk "{printf \"%.1f\", \$1-\$2}")s (after xvfb)" >> $OUT/timing.txt
 lsc() { awk -v t=$1 '{s=$1/4; if(s<1)s=1; if(s>4)s=4; printf "%d", t*s+0.999}' /proc/loadavg; }      # timeout scaled by the load (x1 up to load 4, max x4)
 while read -r cmd a b c d e f; do

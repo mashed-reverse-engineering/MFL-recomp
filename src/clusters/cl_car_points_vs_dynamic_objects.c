@@ -44,6 +44,7 @@ void car_points_vs_dynamic_objects(float *car)
     float ex, ey, ez, ux, uy, uz;
     float v0x, v0y, v0z, v1x, v1y, v1z, v2x, v2y, v2z, nx, ny, nz;
     float ex2, ey2, ez2, tmp;
+    double edge_ab;
 
     body_matrix = (RwMatrix *)(car + (int)car[0x26b] * 0x10 + 0x24a);
     tri = smplfzx_get_71c1e0();
@@ -66,13 +67,18 @@ void car_points_vs_dynamic_objects(float *car)
                         if (depth < k_f_0) {
                             ex = ny * (v1z - v0z) - (v1y - v0y) * nz;
                             ey = (v1x - v0x) * nz - (v1z - v0z) * nx;
-                            if (k_f_0 <= (py - v0y) * ey + (px - v0x) * ex + (pz - v0z) * ((v1y - v0y) * nx - (v1x - v0x) * ny)) {
+                            /* edge 0 / edge 1 / cos_in: the original's add order ((x + z) + y, (y + z) + x, (x + y) + z); cl
+                               reorders the one-expression form, the double temporary keeps the order */
+                            edge_ab = (px - v0x) * ex + (pz - v0z) * ((v1y - v0y) * nx - (v1x - v0x) * ny);
+                            if (k_f_0 <= edge_ab + (py - v0y) * ey) {
                                 ex = ny * (v2z - v1z) - (v2y - v1y) * nz;
                                 ey = (v2x - v1x) * nz - (v2z - v1z) * nx;
-                                if (k_f_0 <= (px - v1x) * ex + (py - v1y) * ey + (pz - v1z) * ((v2y - v1y) * nx - (v2x - v1x) * ny)) {
+                                edge_ab = (py - v1y) * ey + (pz - v1z) * ((v2y - v1y) * nx - (v2x - v1x) * ny);
+                                if (k_f_0 <= edge_ab + (px - v1x) * ex) {
                                     ex = ny * (v0z - v2z) - (v0y - v2y) * nz;
                                     ey = (v0x - v2x) * nz - (v0z - v2z) * nx;
-                                    if ((k_f_0 <= (px - v2x) * ex + (py - v2y) * ey + (pz - v2z) * ((v0y - v2y) * nx - (v0x - v2x) * ny)) && !(k_f_n0_4 > depth)) {
+                                    edge_ab = (py - v2y) * ey + (pz - v2z) * ((v0y - v2y) * nx - (v0x - v2x) * ny);      /* edge 2: (y + z) + x */
+                                    if ((k_f_0 <= edge_ab + (px - v2x) * ex) && !(k_f_n0_4 > depth)) {
                                         contact[1].x = -depth;
                                         spin_vel.x = (point[-0x268] - car[0x57]) * k_f_3_6;
                                         spin_vel.y = (point[-0x267] - car[0x58]) * k_f_3_6;
@@ -87,7 +93,8 @@ void car_points_vs_dynamic_objects(float *car)
                                         speed = RwV3dLength(contact);
                                         if (!(speed > k_f_1_0en4)) goto no_slip;
                                         RwV3dNormalize(contact, contact);
-                                        cos_in = tri->normal[2] * contact->z + contact->y * tri->normal[1] + tri->normal[0] * contact->x;
+                                        edge_ab = tri->normal[0] * contact->x + contact->y * tri->normal[1];
+                                        cos_in = edge_ab + tri->normal[2] * contact->z;
                                         if (!(k_f_0 > cos_in)) goto no_slip;
                                         if (cos_in < k_f_n1) cos_in = k_f_n1;
                                         ((float *)contact)[8] = speed * cos_in;

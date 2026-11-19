@@ -91,8 +91,9 @@ car_collision_impulse(int car_index,RwBBox *obstacle_box,RwMatrix *box_matrix,fl
       len_v = RwV3dLength(&frame.car_momentum);
       len_other = RwV3dLength(&frame.other_momentum);       /* stays in the x87 stack (not rounded) in the original */
       if (len_v != k_f_0) {
-        dot = (double)frame.other_momentum.y * frame.car_momentum.y + (double)frame.other_momentum.x * frame.car_momentum.x
-            + (double)frame.other_momentum.z * frame.car_momentum.z;
+        /* momentum dots: the original adds (x + y) + z; the split keeps cl from reordering the one-expression form */
+        dot = (double)frame.other_momentum.x * frame.car_momentum.x + (double)frame.other_momentum.y * frame.car_momentum.y;
+        dot = dot + (double)frame.other_momentum.z * frame.car_momentum.z;
         t = dot * ((double)float_1_0 / len_v);
         if (len_other != k_f_0) {
           t = t / len_other;
@@ -111,8 +112,8 @@ car_collision_impulse(int car_index,RwBBox *obstacle_box,RwMatrix *box_matrix,fl
         frame.impulse_car.z = -frame.impulse_other.z;
       }
       if (len_other != k_f_0) {
-        dot = (double)frame.other_momentum.y * frame.car_momentum.y + (double)frame.other_momentum.x * frame.car_momentum.x
-            + (double)frame.other_momentum.z * frame.car_momentum.z;
+        dot = (double)frame.other_momentum.x * frame.car_momentum.x + (double)frame.other_momentum.y * frame.car_momentum.y;
+        dot = dot + (double)frame.other_momentum.z * frame.car_momentum.z;
         t = dot * ((double)float_1_0 / len_other);
         if (len_v != k_f_0) {
           t = t / len_v;

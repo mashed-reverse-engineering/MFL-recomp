@@ -85,6 +85,7 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
     float vel_z;
   } frame_obj;
   float delta_x;
+  double dist_xy;
   float angle_deg;
   
   vehicle_index = *(int *)&index_or_morph;
@@ -116,7 +117,9 @@ void vehicle_setup_references(float index_or_morph,int wheel_spin_arg,RwMatrix *
   delta_x = (vehicle_transform->pos).x - *(float *)((char *)&g_vehicle_setup_659e30 + setup_offset);
   delta_y = (vehicle_transform->pos).y - *(float *)((char *)&g_vehicle_setup_659e34 + setup_offset);
   delta_z = (vehicle_transform->pos).z - *(float *)((char *)&g_vehicle_setup_659e38 + setup_offset);
-  index_or_morph = (delta_z * delta_z + delta_x * delta_x + delta_y * delta_y) * k_f_25;
+  /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+  dist_xy = delta_x * delta_x + delta_y * delta_y;
+  index_or_morph = (dist_xy + delta_z * delta_z) * k_f_25;
   if ((float_1_0 <= index_or_morph) || (k_f_0 <= index_or_morph)) {
     if (float_1_0 <= index_or_morph) {
       index_or_morph = 1.0;

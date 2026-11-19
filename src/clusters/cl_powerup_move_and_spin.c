@@ -32,6 +32,7 @@ void powerup_move_and_spin_n(PowerupBody *powerup)
     } frame;
     RwFrame *rwframe = powerup->object->frame;
     float distance;
+    double speed_xy;
 
     powerup->position.x = powerup->velocity.x + powerup->position.x;
     powerup->position.y = powerup->velocity.y + powerup->position.y;
@@ -43,7 +44,9 @@ void powerup_move_and_spin_n(PowerupBody *powerup)
     frame.angle = powerup->spin + powerup->angle;
     powerup->angle = frame.angle;
     RwFrameRotate(rwframe, &powerup->axis, frame.angle, rwCOMBINEPRECONCAT);
-    if (powerup->velocity.z * powerup->velocity.z + powerup->velocity.x * powerup->velocity.x + powerup->velocity.y * powerup->velocity.y < k_f_1_0en5) {
+    /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+    speed_xy = powerup->velocity.x * powerup->velocity.x + powerup->velocity.y * powerup->velocity.y;
+    if (speed_xy + powerup->velocity.z * powerup->velocity.z < k_f_1_0en5) {
         distance = powerup_direction_and_distance_r(powerup, &frame.direction) * k_f_0_05;
         powerup->velocity.x = frame.direction.x * distance;
         powerup->velocity.y = frame.direction.y * distance;

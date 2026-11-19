@@ -272,7 +272,8 @@ ai_bot_weapon_logic(int bot,float *bot_pos_xz,char *unused_3,float *target_pos_x
   int phase_or_event;
   RwV3d to_target;
   RwV3d forward;
-  
+  double dot_yx;
+
   phase_or_event = race_get_phase();
   if (phase_or_event != 0xb) {
     phase_or_event = race_get_phase();
@@ -287,7 +288,9 @@ ai_bot_weapon_logic(int bot,float *bot_pos_xz,char *unused_3,float *target_pos_x
           to_target.z = target_pos_xz[1] - bot_pos_xz[1];
           RwV3dNormalize(&forward,&forward);
           RwV3dNormalize(&to_target,&to_target);
-          if (k_f_0_866 < forward.z * to_target.z + to_target.y * forward.y + forward.x * to_target.x)
+          /* the original adds (y + x) + z; cl reorders the one-expression form, the double temporary keeps the order */
+          dot_yx = to_target.y * forward.y + forward.x * to_target.x;
+          if (k_f_0_866 < dot_yx + forward.z * to_target.z)
           {
             *out_target_xz = *target_pos_xz;
             out_target_xz[1] = target_pos_xz[1];

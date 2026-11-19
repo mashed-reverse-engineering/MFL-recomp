@@ -48,8 +48,9 @@ void car_air_control_n(Car *car, RwMatrix *matrix, float dt)
       RwMatrixRotate(matrix,(RwV3d *)&g_car_62ac68,
                      (float)(((float10)(90.0) - angle * (float10)(57.295799255371094)) * (float10)step),
                      rwCOMBINEPRECONCAT);
-      dot_a = (matrix->right).z * g_car_62ac7c +
-              g_car_62ac74 * (matrix->right).x + (matrix->right).y * g_car_62ac78;
+      /* the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+      dot_a = g_car_62ac74 * (matrix->right).x + (matrix->right).y * g_car_62ac78;
+      dot_a = dot_a + (matrix->right).z * g_car_62ac7c;
       dot_clamped = dot_a;      /* clamp to -1..1; NaN passes unchanged (original: fcom / test ah,5 / jp, fcom / test ah,0x41 / jne) */
       if (dot_a < k_f_n1) {
         dot_clamped = k_f_n1;

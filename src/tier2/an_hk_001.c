@@ -172,6 +172,7 @@ int car_resolve_triangle_contacts(char *car,char *triangles)
   float point_y;
   float point_z;
   float *tri;
+  double dot_yz;
   float *body_point;
   int contact_count;
   int *point_hit;
@@ -212,10 +213,12 @@ int car_resolve_triangle_contacts(char *car,char *triangles)
                        (point_y - v1_y) * tri[TRI_EDGE_NORMAL_1 + 1] + (point_z - v1_z) * tri[TRI_EDGE_NORMAL_1 + 2])) {
             /* point_x is reused for the plane distance (inferred): within [-0.25, 0.05) of the triangle plane,
                and the triangle normal points up relative to the car (dot with car up > 0.3) */
-            if ((k_f_0 <= (point_x - v2_x) * tri[TRI_EDGE_NORMAL_2] +
-                          (point_y - v2_y) * tri[TRI_EDGE_NORMAL_2 + 1] + (point_z - v2_z) * tri[TRI_EDGE_NORMAL_2 + 2]) &&
-               (((point_x = (point_x - v2_x) * n_x +
-                           (point_y - v2_y) * n_y + (point_z - v2_z) * n_z,
+            /* edge 2 and the plane distance: the original adds (y + z) + x; cl reorders the one-expression form, the double
+               temporary keeps the order */
+            dot_yz = (point_y - v2_y) * tri[TRI_EDGE_NORMAL_2 + 1] + (point_z - v2_z) * tri[TRI_EDGE_NORMAL_2 + 2];
+            if ((k_f_0 <= dot_yz + (point_x - v2_x) * tri[TRI_EDGE_NORMAL_2]) &&
+               (((dot_yz = (point_y - v2_y) * n_y + (point_z - v2_z) * n_z,
+                  point_x = dot_yz + (point_x - v2_x) * n_x,
                  !(k_f_n0_25 > point_x) && (point_x < k_f_0_05)) &&
                 (k_f_0_3 < n_x * *(float *)(car + CAR_UP_OFFSET) +
                            n_y * *(float *)(car + CAR_UP_OFFSET + 4) +

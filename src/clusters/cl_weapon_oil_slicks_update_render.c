@@ -192,7 +192,8 @@ LAB_00463233:
           double dx = (double)*(float *)(cam_matrix + 0x30) - (double)frame.slick_matrix.pos.x;
           double dy = (double)*(float *)(cam_matrix + 0x34) - (double)frame.slick_matrix.pos.y;
           double dz = (double)*(float *)(cam_matrix + 0x38) - (double)frame.slick_matrix.pos.z;
-          double dd = dy * dy + dx * dx + dz * dz;
+          double dd = dx * dx + dy * dy;      /* the original adds (x*x + y*y) + z*z; the temporary keeps cl from reordering it */
+          dd = dd + dz * dz;
           if (dd > (double)k_f_81) dd = (double)k_f_81;
           frame.decal_color_a = (byte)(int)(dd * k_f_0_012345679 * k_f_128 + k_f_15);
         }

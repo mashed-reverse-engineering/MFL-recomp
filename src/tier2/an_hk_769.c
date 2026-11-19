@@ -50,6 +50,7 @@ void weapon_oil_fire(WeaponSlot *slot)
   int scratch_int; /* reused: player byte offset, then world_intersect_line / surface check result */
   char *world;
   double random_value;
+  double dist_xy;
   float *ray_start;
   float *muzzle_or_ray_end; /* reused: muzzle pointer, then the ray end point */
   RwOpCombineType combine_op;
@@ -85,7 +86,9 @@ void weapon_oil_fire(WeaponSlot *slot)
   delta_y = slot->muzzle_position[1] - *(float *)((char *)&g_weapon_6a7cbc + scratch_int);
   delta_z = slot->muzzle_position[2] - *(float *)((char *)&g_weapon_oil_6a7cc0 + scratch_int);
   /* Only act when the muzzle moved far enough since the last sample */
-  if (!(delta_z * delta_z + delta_x * delta_x + delta_y * delta_y < k_f_0_1)) {      /* NaN enters the body in the original (test ah,5; jnp) */
+  /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+  dist_xy = delta_x * delta_x + delta_y * delta_y;
+  if (!(dist_xy + delta_z * delta_z < k_f_0_1)) {      /* NaN enters the body in the original (test ah,5; jnp) */
     *(float *)((char *)&g_weapon_6a7cb8 + scratch_int) = *muzzle_or_ray_end;
     *(float *)((char *)&g_weapon_6a7cbc + scratch_int) = slot->muzzle_position[1];
     *(float *)((char *)&g_weapon_oil_6a7cc0 + scratch_int) = slot->muzzle_position[2];

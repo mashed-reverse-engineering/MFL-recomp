@@ -30,6 +30,7 @@ void __cdecl rwp_object_debris_expire_check(int slot)
   char *object_handle;
   int *pos_ref;
   float dist_sq;
+  double dist_xy;
   char *owner;
   float *pos_entry;
   struct {
@@ -51,7 +52,9 @@ void __cdecl rwp_object_debris_expire_check(int slot)
     burst_pos.y = pos_entry[1];
     burst_pos.z = pos_entry[2];
     /* squared distance from the origin; the body has moved too far if it exceeds the limit */
-    dist_sq = burst_pos.z * burst_pos.z + burst_pos.x * burst_pos.x + burst_pos.y * burst_pos.y;
+    /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+    dist_xy = burst_pos.x * burst_pos.x + burst_pos.y * burst_pos.y;
+    dist_sq = dist_xy + burst_pos.z * burst_pos.z;
     /* too far from the origin: flag it */
     if (k_f_1_0en5 < dist_sq) {
       (&g_rw_6fcdd8)[slot] = (&g_rw_6fcdd8)[slot] | FLAG_MOVED_TOO_FAR;

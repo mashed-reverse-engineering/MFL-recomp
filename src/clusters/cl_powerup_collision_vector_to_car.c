@@ -24,6 +24,7 @@ float powerup_collision_vector_to_car_n(int car, RwV3d *out, PowerupObject *powe
         float powerup_pos[3];  /* S+0x14 */
     } frame;
     float *pos;
+    double len_xy;
 
     frame.length = 0.0f;
     car_current_matrix(&frame.car_matrix, car);
@@ -38,7 +39,9 @@ float powerup_collision_vector_to_car_n(int car, RwV3d *out, PowerupObject *powe
     out->x = frame.car_pos[0] - frame.powerup_pos[0];
     out->y = frame.car_pos[1] - frame.powerup_pos[1];
     out->z = frame.car_pos[2] - frame.powerup_pos[2];
-    if (out->z * out->z + out->x * out->x + out->y * out->y > k_f_1_0en6) {
+    /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+    len_xy = out->x * out->x + out->y * out->y;
+    if (len_xy + out->z * out->z > k_f_1_0en6) {
         frame.length = RwV3dLength(out);
         RwV3dNormalize(out, out);
     }

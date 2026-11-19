@@ -6,3 +6,5 @@
 007e7704 1 g_app_7e7704 | HWND copy (same source; pins_never.txt), writes 0
 007e7720 1 g_pump_windows_7e7720 | HWND copy (same source; pins_never.txt), writes 0
 0094775c 1 g_data_94775c | HWND copy (same source; pins_never.txt), writes 0
+007dac08 1 g_data_7dac08 | RwaThread handle (RWA stream thread HANDLE, _beginthread in _RwaThreadStart 005c4400; writer rwa_stream_register_common_005b9150 at audio open): f_c2_ctrl_1 f8 vs f_c2_ctrl_2 fc, writes 0 (W15 DAT, agents/dat_w15/notes.md Q1)
+007daca4 1 g_data_7daca4 | RWA stream thread exit semaphore HANDLE (CreateSemaphore via RwaSemaphoreCreate, same writer): f_c2_ctrl_1 f4 vs f_c2_ctrl_2 f8, writes 0 (W15 DAT)

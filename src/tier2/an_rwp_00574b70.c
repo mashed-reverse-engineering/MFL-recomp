@@ -18,6 +18,7 @@ typedef struct MflSupportFace {
 MflSupportFace *rwp_capsule_00574b70(float *cap, void *unused, MflV3 *dir, MflSupportFace *face)
 {
   float dz, h, s;
+  double xy;      /* face->d: the original adds (x + y) + z; cl reorders the one-expression form, the temporary keeps the order */
   int segment = 0;
 
   face->pts = face->pt_store;
@@ -44,6 +45,7 @@ MflSupportFace *rwp_capsule_00574b70(float *cap, void *unused, MflV3 *dir, MflSu
     face->npts = 1;
     face->n = *dir;
   }
-  face->d = face->pts[0].y * face->n.y + face->pts[0].x * face->n.x + face->pts[0].z * face->n.z;
+  xy = face->pts[0].x * face->n.x + face->pts[0].y * face->n.y;
+  face->d = xy + face->pts[0].z * face->n.z;
   return face;
 }

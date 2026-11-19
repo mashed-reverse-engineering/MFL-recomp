@@ -58,6 +58,7 @@ void course_rotating_object_update(int *obj,int ticks)
   /* sin_phase / cos_phase: trig terms used for the wobble */
   double sin_phase;
   double cos_phase;
+  double shade_xy;
   /* scratch: temporary vectors. up_x/y/z hold the up vector (0, 1.0f, 0) as raw int bits */
   struct {
     RwV3d pivot_shift;
@@ -166,10 +167,9 @@ void course_rotating_object_update(int *obj,int ticks)
   /* Shade: dot(light at, at_dir) mapped from [-1, 1] to [3.5, 8.0] (inferred), stored in both shade slots */
   frame_ptr = course_get_directional_light();
   frame_ptr = *(char **)(frame_ptr + 4);
-  time_s = (*(float *)(frame_ptr + 0x38) * scratch.at_dir.z +
-           scratch.at_dir.x * *(float *)(frame_ptr + 0x30) +
-           *(float *)(frame_ptr + 0x34) * scratch.at_dir.y + float_1_0) * k_f_1_5 * k_f_1_5 +
-          k_f_3_5;
+  /* the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+  shade_xy = scratch.at_dir.x * *(float *)(frame_ptr + 0x30) + *(float *)(frame_ptr + 0x34) * scratch.at_dir.y;
+  time_s = (shade_xy + *(float *)(frame_ptr + 0x38) * scratch.at_dir.z + float_1_0) * k_f_1_5 * k_f_1_5 + k_f_3_5;
   *(float *)&obj[SHADE_A_SLOT] = time_s;
   *(float *)&obj[SHADE_B_SLOT] = time_s;
   return;

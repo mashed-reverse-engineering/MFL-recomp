@@ -60,6 +60,7 @@ void event_log_dispatch_n(int log_index)
   int car_index;
   float *pt_in;
   float10 rand_val;
+  double len_xy;
   RwReal speed;
   struct {
     RwV3d vec_a;
@@ -113,18 +114,23 @@ void event_log_dispatch_n(int log_index)
     if (k_f_70 < g_event_log_data[log_index].w00) {
       RwV3dLength(&frame.vec_a);
       car_get_velocity(&frame.vec_a,car_index);
-      if (k_f_1_0en5 < frame.vec_a.z * frame.vec_a.z + frame.vec_a.x * frame.vec_a.x + frame.vec_a.y * frame.vec_a.y)
+      /* the three squared lengths: the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double
+         temporary keeps the order */
+      len_xy = frame.vec_a.x * frame.vec_a.x + frame.vec_a.y * frame.vec_a.y;
+      if (k_f_1_0en5 < len_xy + frame.vec_a.z * frame.vec_a.z)
       {
         RwV3dNormalize(&frame.burst_dir,&frame.vec_a);
       }
-      if (k_f_1_0en5 < frame.vec_b.z * frame.vec_b.z + frame.vec_b.x * frame.vec_b.x + frame.vec_b.y * frame.vec_b.y)
+      len_xy = frame.vec_b.x * frame.vec_b.x + frame.vec_b.y * frame.vec_b.y;
+      if (k_f_1_0en5 < len_xy + frame.vec_b.z * frame.vec_b.z)
       {
         RwV3dNormalize(&frame.vec_b,&frame.vec_b);
       }
       frame.burst_dir.x = frame.burst_dir.x + frame.vec_b.x;
       frame.burst_dir.y = frame.burst_dir.y + frame.vec_b.y;
       frame.burst_dir.z = frame.burst_dir.z + frame.vec_b.z;
-      if (k_f_1_0en5 < frame.burst_dir.z * frame.burst_dir.z + frame.burst_dir.x * frame.burst_dir.x + frame.burst_dir.y * frame.burst_dir.y)
+      len_xy = frame.burst_dir.x * frame.burst_dir.x + frame.burst_dir.y * frame.burst_dir.y;
+      if (k_f_1_0en5 < len_xy + frame.burst_dir.z * frame.burst_dir.z)
       {
         RwV3dNormalize(&frame.burst_dir,&frame.burst_dir);
       }
@@ -273,9 +279,8 @@ void event_log_dispatch_n(int log_index)
   /* multi-point impact (arg0 points): burst at every point and between neighbouring points */
   case 0xc:
     event_arg2 = 0;
-    if (!(k_f_85 > EVLOG_F(log_index, 0x38) * EVLOG_F(log_index, 0x38) +
-                  EVLOG_F(log_index, 0x30) * EVLOG_F(log_index, 0x30) +
-                  EVLOG_F(log_index, 0x34) * EVLOG_F(log_index, 0x34))) {
+    len_xy = EVLOG_F(log_index, 0x30) * EVLOG_F(log_index, 0x30) + EVLOG_F(log_index, 0x34) * EVLOG_F(log_index, 0x34);
+    if (!(k_f_85 > len_xy + EVLOG_F(log_index, 0x38) * EVLOG_F(log_index, 0x38))) {      /* (x*x + y*y) + z*z as above */
       frame.burst_pos_x = (float)(int)g_event_log_args[log_index].arg2 * k_f_n0_001;
       frame.burst_pos_y = (float)(int)g_event_log_args[log_index].w0c * k_f_n0_001;
       frame.burst_pos_z = (float)(int)g_event_log_args[log_index].w10 * k_f_n0_001;

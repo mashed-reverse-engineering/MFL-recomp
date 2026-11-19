@@ -144,8 +144,9 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
       frame_obj.delta_vec.y = 0.0;
       frame_obj.delta_vec.z = frame_obj.target_pos.z - origin[2];
       frame_obj.dist_to_target = RwV3dLength(&frame_obj.delta_vec);
-      if (k_f_1_0en5 <
-          frame_obj.delta_vec.z * frame_obj.delta_vec.z + frame_obj.delta_vec.x * frame_obj.delta_vec.x + frame_obj.delta_vec.y * frame_obj.delta_vec.y) {
+      /* both passes: the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+      dd = frame_obj.delta_vec.x * frame_obj.delta_vec.x + frame_obj.delta_vec.y * frame_obj.delta_vec.y;
+      if (k_f_1_0en5 < dd + frame_obj.delta_vec.z * frame_obj.delta_vec.z) {
         RwV3dNormalize(&frame_obj.delta_vec,&frame_obj.delta_vec);
       }
       angle_deg = (float10)dot_product_3d_clamped
@@ -178,8 +179,8 @@ void weapon_find_targets_in_cone(int shooter_slot,float *origin,float range,floa
         frame_obj.delta_vec.y = 0.0;
         frame_obj.delta_vec.z = frame_obj.target_pos.z - origin[2];
         frame_obj.dist_to_target = RwV3dLength(&frame_obj.delta_vec);
-        if (k_f_1_0en5 <
-            frame_obj.delta_vec.z * frame_obj.delta_vec.z + frame_obj.delta_vec.x * frame_obj.delta_vec.x + frame_obj.delta_vec.y * frame_obj.delta_vec.y) {
+        dd = frame_obj.delta_vec.x * frame_obj.delta_vec.x + frame_obj.delta_vec.y * frame_obj.delta_vec.y;
+        if (k_f_1_0en5 < dd + frame_obj.delta_vec.z * frame_obj.delta_vec.z) {
           RwV3dNormalize(&frame_obj.delta_vec,&frame_obj.delta_vec);
         }
         angle_deg = (float10)dot_product_3d_clamped

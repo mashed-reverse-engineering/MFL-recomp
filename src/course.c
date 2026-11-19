@@ -84,7 +84,7 @@ __declspec(naked) void course_object_render_6a1f28_b(void)
 
 /* tail calls like course_object_render_6a1f28_b: the argument slot is replaced by the course object and the callee is jumped to */
 // FUNCTION: MFL 0x004558e0
-__declspec(naked) void course_object_destroy_frames_6a1f28(void)
+__declspec(naked) void course_object_destroy_frames_6a1f28(int object_slot)
 {
     __asm {
         mov eax, g_course_6a1f28

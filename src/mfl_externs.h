@@ -687,7 +687,7 @@ void course_load_time_report(void);
 void course_neustein_cb10(void);
 void course_neustein_cb5(void);
 void course_nt1_s_cb5(int w);
-void course_object_destroy_frames_6a1f28(void);
+void course_object_destroy_frames_6a1f28(int object_slot);
 void course_object_get_position(int i, struct V3i *out);
 int course_object_is_inactive(int i);
 void course_object_lists_reset(void);

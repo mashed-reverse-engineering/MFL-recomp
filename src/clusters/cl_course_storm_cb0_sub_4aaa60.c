@@ -26,6 +26,7 @@ void course_storm_cb0_sub_4aaa60(undefined4 *spline_obj)
   RwReal *corner_pos_ptr;
   RwReal dist;
   float max_radius;
+  double ends, inner;
   RwV3d to_corner;
   RwV3d up_axis;
   RwMatrix mat_start;
@@ -46,9 +47,17 @@ void course_storm_cb0_sub_4aaa60(undefined4 *spline_obj)
   RpSplineFindMatrix((RpSpline *)*spline_obj,10,*(float *)&spline_obj[2] - scratch_y,&up_axis,&mat_end_inner);
   corner_pos_ptr = &mat_start.pos.y;
   corners_left = 4;
-  center_x = (mat_end_inner.pos.x + mat_start_inner.pos.x + mat_end.pos.x + mat_start.pos.x) * k_f_0_25;
-  scratch_y = (mat_end_inner.pos.y + mat_start_inner.pos.y + mat_end.pos.y + mat_start.pos.y) * k_f_0_25;
-  scratch_z = (mat_end_inner.pos.z + mat_start_inner.pos.z + mat_end.pos.z + mat_start.pos.z) * k_f_0_25;
+  /* the original adds the pairs first: ((start + end) + (start_inner + end_inner)); cl flattens the one-expression form into
+     a chain, the double temporaries keep the pairs */
+  ends = mat_start.pos.x + mat_end.pos.x;
+  inner = mat_start_inner.pos.x + mat_end_inner.pos.x;
+  center_x = (ends + inner) * k_f_0_25;
+  ends = mat_start.pos.y + mat_end.pos.y;
+  inner = mat_start_inner.pos.y + mat_end_inner.pos.y;
+  scratch_y = (ends + inner) * k_f_0_25;
+  ends = mat_start.pos.z + mat_end.pos.z;
+  inner = mat_start_inner.pos.z + mat_end_inner.pos.z;
+  scratch_z = (ends + inner) * k_f_0_25;
   do {
     to_corner.x = center_x - ((RwV3d *)(corner_pos_ptr + -1))->x;
     to_corner.y = scratch_y - *corner_pos_ptr;

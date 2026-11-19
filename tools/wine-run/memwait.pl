@@ -6,7 +6,8 @@ my ($pid, $ad, $val, $to, $stall, $pad) = @ARGV;     # $pad: hex address whose c
 my $scale = 1; my $ls = 0;
 sub lscale { return if time - $ls < 2; $ls = time; if (open(my $l, "</proc/loadavg")) { my ($a, undef, undef, $rt) = split ' ', <$l>; close $l; my ($run) = split '/', $rt; $a = $run if $run > $a; $scale = $a / 4; $scale = 1 if $scale < 1; my $cap = $ENV{LOADCAP} || 3; $scale = $cap if $scale > $cap; } }      # W13 C4: the rule of loadscale.sh (max(load1, running tasks) / 4, cap LOADCAP default 3)
 my $neg = ($val =~ s/^!//);     # '!V' waits until the value is NOT V
-sub ok { my $v = shift; my $want = ($val =~ /^0x/) ? hex($val) : $val; return $neg ? ($v != $want) : ($v == $want); }
+my $gt = ($val =~ s/^>//);      # '>V' waits until the value is above V (HARN2 W15: FRAMED end-of-race wait, race phase > 5)
+sub ok { my $v = shift; my $want = ($val =~ /^0x/) ? hex($val) : $val; return $gt ? ($v > $want) : $neg ? ($v != $want) : ($v == $want); }
 open(M, "</proc/$pid/mem") or do { open(O, ">>$ENV{OUT}/waitmem.txt"); printf O "waitmem %s==%s process gone (no /proc/%s/mem)\n", $ad, $val, $pid; exit 2; };
 my $t0 = time; my $v; my $lastp = 0; my ($pv, $tc) = (undef, time);
 while (1) {
@@ -24,7 +25,7 @@ while (1) {
     last if $stall && time - $tc >= $stall * $scale;
     if ($to >= 1 && time - $lastp >= 0.4) {       # live progress for live.sh / LIVE.md: "<unix time> <addr> <wanted> <current value> <timeout> <waited>"
         $lastp = time;
-        if (open(P, ">$ENV{OUT}/progress.txt")) { printf P "%.1f %s %s %u %s %.1f\n", time, $ad, ($neg ? "!" : "") . $val, $v, $to, time - $t0; close(P); }
+        if (open(P, ">$ENV{OUT}/progress.txt")) { printf P "%.1f %s %s %u %s %.1f\n", time, $ad, ($neg ? "!" : $gt ? ">" : "") . $val, $v, $to, time - $t0; close(P); }
     }
     sleep 0.1;
 }

@@ -3,11 +3,11 @@
 /*006c51b0*/ extern undefined g_gfx_6c51b0;
 /*006c57b0*/ extern undefined4 g_gfx_6c57b0;
 /*006c57f8*/ extern undefined g_gfx_6c57f8;
-static int effect_sprite_update_r(int reg_esi);
+static int effect_sprite_update_r(undefined *sprite, int bit_mask);
 extern void effect_sprite_update(void);
 extern char g_gfx_6c5df8[];
 #define EFFECT_SPRITE_STRIDE (0x60)
-__declspec(naked) int effect_sprite_update_r(int reg_esi)
+__declspec(naked) int effect_sprite_update_r(undefined *sprite, int bit_mask)
 {
     __asm {
         push esi

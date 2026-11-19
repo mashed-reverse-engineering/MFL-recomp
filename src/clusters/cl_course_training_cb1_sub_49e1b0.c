@@ -116,8 +116,9 @@ void course_training_cb1_sub_49e1b0(int beam_owner)
   target_pos.y = g_data_62ac1c * *(float *)(scene + 0x34) + *(float *)(scene + 0x44);
   target_pos.z = g_data_62ac1c * *(float *)(scene + 0x38) + *(float *)(scene + 0x48);
   /* how much the light faces the scene node: the x87 keeps the whole chain in extended precision, only the final square is stored as a float */
-  facing = (light_dir.z * *(float *)(scene + 0x38) +
-           light_dir.x * *(float *)(scene + 0x30) + light_dir.y * *(float *)(scene + 0x34)) * k_f_n1;
+  /* the original adds (x + y) + z; cl reorders the one-expression form, the split (double) keeps the order */
+  facing = light_dir.x * *(float *)(scene + 0x30) + light_dir.y * *(float *)(scene + 0x34);
+  facing = (facing + light_dir.z * *(float *)(scene + 0x38)) * k_f_n1;
   clamped = k_f_0;
   if (!(k_f_0 > facing)) {
     clamped = facing;

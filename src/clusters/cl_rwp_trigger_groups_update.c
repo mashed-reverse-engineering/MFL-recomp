@@ -25,6 +25,7 @@ void rwp_trigger_groups_update(undefined4 platform_update_arg, char *param_2, ch
   float vec_y;
   float vec_x;
   float vec_z;
+  double vec_xy;      /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the temporary keeps the order */
   undefined4 object;
   int *owner_ref;
   int focus_record_or_i;
@@ -105,7 +106,8 @@ LAB_00480d8f:
                              vec_y = *(float *)(owner_ref[1] * 0x20 + 4 + rwp_handle),
                              vec = (float *)(owner_ref[1] * 0x20 + rwp_handle), vec_x = *vec,
                              vec_z = vec[2],
-                             !(vec_z * vec_z + vec_y * vec_y + vec_x * vec_x > k_f_0_001)))))
+                             vec_xy = vec_x * vec_x + vec_y * vec_y,
+                             !(vec_xy + vec_z * vec_z > k_f_0_001)))))
                       goto LAB_00480daf;
                     }
                     group[0x22] = 1;

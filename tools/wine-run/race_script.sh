@@ -40,7 +40,9 @@ if [ "$FRAMED" = 1 ] && [ "$FAST" = fast ] && [ -z "$MULTI" ]; then
   done
   echo "mstep=k:0x1c:0x652f68:!0"          # game mode page -> Press START (phase 1)
   echo "mstep=k:0x1c:0x652f68:!1"          # Press START -> loading (phase 3)
-  echo "waitmem $CUR 1 20"; echo "waitmem 0x652f68 6 120"      # the proxy walks the menus (MSTEP lines in trace.raw) and the race starts
+  # HARN2 W15: one wait for race phase > 5 (6 racing, 7 race over): the proxy walks the menus (MSTEP lines in trace.raw) without host latency, and
+  # the first host poll often already sees phase 7 (dat_w15 finding 6: the old waits for depth ==1 and phase ==6 then ran to their caps, rc=124)
+  echo "waitmem 0x652f68 >5 120"
   FAST=framed      # no host pokes / keys below
 fi
 if [ "$FAST" = fast ]; then
@@ -98,7 +100,7 @@ echo "keywait Return 0x652f68 !1 6"     # Press START -> loading (phase 3)
 fi
 [ "$SHOTS" != 0 ] && echo "shot loading"
 [ "$SHOTS" != 0 ] && echo "waitmem 0x652f68 5 30" && echo "shot countdown"
-echo "waitmem 0x652f68 6 30"
+[ "$FAST" = framed ] || echo "waitmem 0x652f68 6 30"      # FRAMED: phase > 5 was waited for above
 echo "shot race_start"
 SE=$(mapva shadow_enabled); [ -n "$SE" ] && echo "poke 0x$SE 1"      # shadow build: start the tests when the race runs
 if [ -n "$QUIT" ]; then

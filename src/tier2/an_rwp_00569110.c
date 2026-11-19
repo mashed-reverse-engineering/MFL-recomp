@@ -10,6 +10,7 @@ int RtLineSphereIntersectionTest(float *line, float *sphere, float *dist)
 {
   float d[3];
   float len, rr, cx, cy, cz, b, cc;
+  double xy;      /* the original adds the first two products first, then the third; cl reorders the one-expression form */
 
   d[0] = line[3] - line[0];
   d[1] = line[4] - line[1];
@@ -19,8 +20,10 @@ int RtLineSphereIntersectionTest(float *line, float *sphere, float *dist)
   cx = sphere[0] - line[0];
   cy = sphere[1] - line[1];
   cz = sphere[2] - line[2];
-  b = cy * d[1] + cx * d[0] + cz * d[2];
-  cc = cy * cy + cx * cx + cz * cz;
+  xy = cy * d[1] + cx * d[0];
+  b = xy + cz * d[2];
+  xy = cy * cy + cx * cx;
+  cc = xy + cz * cz;
   if (cc < rr) {
     *dist = b * len;
     return 1;

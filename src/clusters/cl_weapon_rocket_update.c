@@ -47,6 +47,7 @@ void weapon_rocket_update(void)
 {
   int *rocket_pos;
   float tmp_f;
+  double len_xy;
   char smoke_jitter;
   undefined4 rw_world;
   int rnd_or_result;
@@ -133,9 +134,12 @@ void weapon_rocket_update(void)
         if (tick_is_even) {
           hit_buf_ptr = frame2.hit_buf;
           sphere_ptr = &frame.sphere_x;
-          frame.sphere_radius = (*(float *)&rocket_cursor[-0x27] * *(float *)&rocket_cursor[-0x27] +
-                      *(float *)&rocket_cursor[-0x28] * *(float *)&rocket_cursor[-0x28] +
-                      *(float *)&rocket_cursor[-0x29] * *(float *)&rocket_cursor[-0x29]) * k_f_1_5 + frame.sphere_radius;
+          /* the original adds (x*x + y*y) + z*z ([-0x29], [-0x28], [-0x27]); cl reorders the one-expression form, the double
+             temporary keeps the order */
+          len_xy = *(float *)&rocket_cursor[-0x29] * *(float *)&rocket_cursor[-0x29] +
+                   *(float *)&rocket_cursor[-0x28] * *(float *)&rocket_cursor[-0x28];
+          frame.sphere_radius = (len_xy + *(float *)&rocket_cursor[-0x27] * *(float *)&rocket_cursor[-0x27]) * k_f_1_5 +
+                                frame.sphere_radius;
           rw_world = weapon_get_rw_801b14();
           rnd_or_result = FUN_004c4e20(rw_world,(undefined4)sphere_ptr,(undefined4)hit_buf_ptr);
           if (rnd_or_result != 0) {

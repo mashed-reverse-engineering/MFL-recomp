@@ -13,12 +13,15 @@ int car_get_drift_angle(float *angle, unsigned int index)
 {
   float dir[3];
   float cos_a;
+  double cos_xy;
 
   *angle = 0.0f;
   if (index < MAX_CARS) {
     if (player_car[index].velocity[0] != 0.0f || player_car[index].velocity[1] != 0.0f || player_car[index].velocity[2] != 0.0f) {
       RwV3dNormalize((struct RwV3d *)dir, (struct RwV3d *)player_car[index].velocity);
-      cos_a = player_car[index].forward[1] * dir[1] + player_car[index].forward[0] * dir[0] + player_car[index].forward[2] * dir[2];
+      /* the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+      cos_xy = player_car[index].forward[0] * dir[0] + player_car[index].forward[1] * dir[1];
+      cos_a = cos_xy + player_car[index].forward[2] * dir[2];
       if (cos_a < k_f_n1) {
         cos_a = k_f_n1;
       } else if (cos_a > float_1_0) {

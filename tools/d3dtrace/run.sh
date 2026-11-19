@@ -92,9 +92,15 @@ case $SC in menu|title|mainmenu) ;; *) echo "dump course $(printf 0x%x $((0x69cf
 $WR/mkpfx.sh ${SLOT:-1}
 . $WR/loadscale.sh; RT=$(lscale ${RUN_TIMEOUT:-240}); echo "run limit: ${RT}s (RUN_TIMEOUT ${RUN_TIMEOUT:-240}s, load $(loadnow), cap ${LOADCAP:-3})"      # W14 A2: the one load rule (wine-run/loadscale.sh), was its own awk copy (load1 only)
 T0=$(date +%s)
+FRM=; grep -q '^mstep=' $AE/d3dtrace.cfg && { FRM=1; export UPWAIT=${UPWAIT:-120}; }      # HARN2 W15: FRAMED run: play_inner.sh gives up when the game is not up after UPWAIT s
 PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT $WR/play.sh $W/run $W/script.txt $OUT/game >/dev/null 2>&1; RC=$?
+RETRY=; if [ -n "$FRM" ] && [ -f $OUT/game/notup ]; then      # one retry (the stall was Wine start under load, dat_w15 finding 6: f_c2_ours_1 up after 721 s); first try kept in game_try1
+  RETRY="RETRY: process not up after ${UPWAIT}s (first try rc=$RC, kept in game_try1)"; echo "$RETRY"
+  rm -rf $OUT/game_try1; mv $OUT/game $OUT/game_try1; rm -f $AE/d3dtrace.log $AE/statehash.bin
+  PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT $WR/play.sh $W/run $W/script.txt $OUT/game >/dev/null 2>&1; RC=$?
+fi
 cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$STATEHASH" ] && mv $AE/statehash.bin $OUT/statehash.bin;[ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null
-{ echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $DLL | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; } | tee $OUT/run.txt
+{ echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $DLL | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; [ -n "$RETRY" ] && echo "$RETRY"; } | tee $OUT/run.txt
 [ -s $OUT/trace.raw ] || { echo "NO TRACE (override not active or game failed): see $OUT/game/wine.log"; exit 1; }
 grep "^ALOCK TIMEOUT" $OUT/trace.raw | head -3      # W13 hx7 (finding 17): lockstep lost in this run; statecmp.py says UNJUDGED for it
 [ -n "$STATEHASH" ] && [ -z "$TRACE" ] && exit 0

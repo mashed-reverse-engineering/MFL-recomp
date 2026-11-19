@@ -56,6 +56,7 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
   int car_index;
   float *route_dir;
   double rank_gap;
+  double dot_xy;
   struct {
     char *matrix_addr;
     float candidate_value;
@@ -159,8 +160,9 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
       if (target_is_behind) {
         RwV3dNormalize(&frame.unit_dir,&frame.direction);
         route_dir = (float *)player_route_get_record_ptr(best_car);
-        frame.route_error = -((route_dir[2] * frame.unit_dir.z + frame.unit_dir.x * *route_dir + route_dir[1] * frame.unit_dir.y) *
-                    frame.search_gap);
+        /* the route dots here: the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+        dot_xy = frame.unit_dir.x * *route_dir + route_dir[1] * frame.unit_dir.y;
+        frame.route_error = -((dot_xy + route_dir[2] * frame.unit_dir.z) * frame.search_gap);
         car_get_speed(&frame.candidate_value,best_car);
         /* bot_index is reused as a float scratch here (|speed difference|); the index is not
            read again on this path (self_car keeps it) */
@@ -193,17 +195,19 @@ undefined4 __cdecl ai_find_target_b(undefined4 unused_1,undefined4 unused_2,unde
       frame.search_gap = RwV3dLength(&frame.direction);
       RwV3dNormalize(&frame.unit_dir,&frame.direction);
       route_dir = (float *)player_route_get_record_ptr(best_car);
-      if (k_f_0_75 <
-          -((route_dir[2] * frame.unit_dir.z + frame.unit_dir.x * *route_dir + route_dir[1] * frame.unit_dir.y) * frame.search_gap)) {
+      dot_xy = frame.unit_dir.x * *route_dir + route_dir[1] * frame.unit_dir.y;
+      if (k_f_0_75 < -((dot_xy + route_dir[2] * frame.unit_dir.z) * frame.search_gap)) {
         g_ai_bots[*(int *)&bot_index].target_valid = 0;
       }
       car_get_forward(&frame.direction,g_ai_bots[*(int *)&bot_index].target_car);
       route_dir = (float *)player_route_get_record_ptr(g_ai_bots[*(int *)&bot_index].target_car);
-      frame.candidate_value = route_dir[2] * frame.direction.z + frame.direction.x * *route_dir + route_dir[1] * frame.direction.y;
+      dot_xy = frame.direction.x * *route_dir + route_dir[1] * frame.direction.y;
+      frame.candidate_value = dot_xy + route_dir[2] * frame.direction.z;
       car_get_forward(&frame.direction,*(int *)&bot_index);
       route_dir = (float *)player_route_get_record_ptr(*(int *)&bot_index);
       if ((frame.candidate_value < k_f_0_2) ||
-         (route_dir[2] * frame.direction.z + frame.direction.x * *route_dir + route_dir[1] * frame.direction.y < k_f_0_2)) {
+         (dot_xy = frame.direction.x * *route_dir + route_dir[1] * frame.direction.y,
+          dot_xy + route_dir[2] * frame.direction.z < k_f_0_2)) {
         g_ai_bots[*(int *)&bot_index].target_valid = 0;
         return 0;
       }

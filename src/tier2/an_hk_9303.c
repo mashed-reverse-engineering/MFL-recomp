@@ -59,6 +59,7 @@ void rwp_objects_cull_and_register_triggers(void)
   uint obj;
   bool test_this_frame;
   double shadow_angle;
+  double dist_xy;      /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the temporary keeps the order */
   float *trigger_ptr;
   struct {
     RwMatrix *obj_mtx;
@@ -123,7 +124,8 @@ void rwp_objects_cull_and_register_triggers(void)
           frame.to_cam_y = frame.sphere.center.y - *(float *)(cam_mtx_or_stamp + 0x34);
           cam_mtx_or_stamp = get_viewport_camera_matrix(0);
           to_cam_z = frame.sphere.center.z - *(float *)(cam_mtx_or_stamp + 0x38);
-          if (to_cam_z * to_cam_z + frame.to_cam_x * frame.to_cam_x + frame.to_cam_y * frame.to_cam_y < k_f_2500) {
+          dist_xy = frame.to_cam_x * frame.to_cam_x + frame.to_cam_y * frame.to_cam_y;
+          if (dist_xy + to_cam_z * to_cam_z < k_f_2500) {
             (&g_rw_6f6950)[obj] = (&g_rw_6f6c70)[obj];
             if (test_this_frame) {
               sphere_ptr = &frame.sphere;

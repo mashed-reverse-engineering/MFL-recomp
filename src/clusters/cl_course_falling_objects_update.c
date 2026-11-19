@@ -49,6 +49,7 @@ void course_falling_objects_update(void)
   float dx;
   float age;
   float dz_cam;
+  double dist_xy;
   float dy_cam;
   char random_int;
   float *cam_pos;
@@ -152,7 +153,9 @@ void course_falling_objects_update(void)
               dx = *cam_pos - obj_pos->x;
               dy_cam = cam_pos[1] - RwFrame_modelling(frame).pos.y;
               dz_cam = cam_pos[2] - RwFrame_modelling(frame).pos.z;
-              if (float_5_0 < dz_cam * dz_cam + dx * dx + dy_cam * dy_cam) {
+              /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the double temporary keeps the order */
+              dist_xy = dx * dx + dy_cam * dy_cam;
+              if (float_5_0 < dist_xy + dz_cam * dz_cam) {
                 rwframe_look_at((undefined4)frame,(undefined4)cam_pos,(undefined4)&g_car_62ac74);
                 random_int = random_int_range(0,0x19);
                 frame_obj.burst_r = frame_obj.burst_r - random_int;

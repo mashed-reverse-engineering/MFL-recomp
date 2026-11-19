@@ -12,6 +12,7 @@ undefined4 __cdecl vec3_is_valid_small(float *vec)
 
 {
   float length_sq;
+  double xy;      /* the original adds (x*x + y*y) + z*z; cl reorders the one-expression form, the temporary keeps the order */
   int is_finite;
 
   /* every component must be finite */
@@ -23,7 +24,7 @@ undefined4 __cdecl vec3_is_valid_small(float *vec)
       /* squared length must be > 1e-6: (length_sq < k) == (length_sq == k) is true for
          length_sq > k and for NaN (unordered), false for length_sq <= k */
       if ((is_finite != 0) &&
-         (length_sq = vec[2] * vec[2] + *vec * *vec + vec[1] * vec[1],
+         (xy = *vec * *vec + vec[1] * vec[1], length_sq = xy + vec[2] * vec[2],
          !(length_sq <= k_f_1_0en6))) {
         return 1;
       }

@@ -32,6 +32,7 @@ undefined4 __cdecl course_edge_side_test(char *edge_block,int edge_index,float *
   float *normal_b;
   float dot_a;
   float dot_b;
+  double xy;
   uint start_vertex;
   RwV3d dir;
 
@@ -45,8 +46,11 @@ undefined4 __cdecl course_edge_side_test(char *edge_block,int edge_index,float *
   /* project the direction onto both edge normals */
   normal_a = (float *)(edge_block + (uint)*(byte *)(edge_block + EDGE_NORMAL_A_OFFSET + edge_index * EDGE_ENTRY_SIZE) * VEC3_SIZE);
   normal_b = (float *)(edge_block + (uint)*(byte *)(edge_block + EDGE_NORMAL_B_OFFSET + edge_index * EDGE_ENTRY_SIZE) * VEC3_SIZE);
-  dot_a = normal_a[2] * dir.z + dir.x * *normal_a + normal_a[1] * dir.y;
-  dot_b = normal_b[2] * dir.z + dir.x * *normal_b + normal_b[1] * dir.y;
+  /* the original adds (x + y) + z; cl reorders the one-expression form, the double temporary keeps the order */
+  xy = dir.x * *normal_a + normal_a[1] * dir.y;
+  dot_a = xy + normal_a[2] * dir.z;
+  xy = dir.x * *normal_b + normal_b[1] * dir.y;
+  dot_b = xy + normal_b[2] * dir.z;
   /* optional output: 1 if dot_a <= dot_b, else 0 */
   if (out_side != (uint *)0x0) {
     *out_side = (uint)!(dot_a > dot_b);
