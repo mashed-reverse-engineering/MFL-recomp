@@ -1,0 +1,8 @@
+# state_env.txt: statecmp --env (compare mode "env", user decision W15 option 1): per-process environment words.  NOT a mask: their
+# differences are printed on the ENV line (first frame, both values) and stay outside the verdict and the divergence counts.
+# Rows: <va> <nwords> <symbol> | <evidence>; car / physics / transform names and the car / vehicle / AI ranges are refused.
+00770f68 1 g_app_770f68 | HWND copy (Wine window handle, per process; data/pins_never.txt): f_c1_ctrl_1 0002004e vs f_c1_ctrl_2 0001005e, writes 0 in the window (W15 REP4, agents/rep4_w15/notes.md)
+007d2234 1 WindowHandle | HWND (same source as g_app_770f68; pins_never.txt), writes 0
+007e7704 1 g_app_7e7704 | HWND copy (same source; pins_never.txt), writes 0
+007e7720 1 g_pump_windows_7e7720 | HWND copy (same source; pins_never.txt), writes 0
+0094775c 1 g_data_94775c | HWND copy (same source; pins_never.txt), writes 0

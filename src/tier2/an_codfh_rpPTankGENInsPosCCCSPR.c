@@ -59,7 +59,7 @@ extern double cos(double);
 #define SINCOS(angle, sine, cosine) __asm fld dword ptr angle __asm fsincos __asm fstp dword ptr cosine __asm fstp dword ptr sine
 #endif
 
-/* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-18 authority=diffemu */
 void rpPTankGENInsPosCCCSPR(RpPTankLockStruct *dstCluster, RwV3d *right, RwV3d *up, RwInt32 pCount, RpPTankData *ptankGlobal)
 {
     const RwReal sizeX = ptankGlobal->cSize.x * 0.5f;

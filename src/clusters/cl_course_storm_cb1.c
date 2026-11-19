@@ -1,6 +1,10 @@
 // cluster-entries: course_storm_cb1
 /* Installed cluster course_storm_cb1 (tools/cluster_install.py from output/cluster_pilot_uc3/course_storm_cb1.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern int mfl_widescreen_frustum_test_sphere_43(void *camera, void *sphere);      /* an_hk_824.c */
+#endif
 extern int g_course_storm_6a2640;
 extern int g_course_storm_8c53c0;
 extern char g_course_storm_8c5280[];
@@ -30,7 +34,11 @@ void course_storm_cb1(int unused, unsigned int elapsed_ms)
   int random_cell;
 
   random_cell = (int)random_range(0.0f, (float)g_course_storm_6a2640);
+#if MFL_FIX_WIDESCREEN      /* the 4:3 frustum of the original */
+  if (mfl_widescreen_frustum_test_sphere_43(get_viewport_camera(0), &g_storm_cells[random_cell].sphere) != rwSPHEREOUTSIDE) {
+#else
   if (RwCameraFrustumTestSphere(get_viewport_camera(0), &g_storm_cells[random_cell].sphere) != rwSPHEREOUTSIDE) {
+#endif
     SUB_004ab160(&g_storm_cells[random_cell], (float)elapsed_ms * 0.00033333333f);
     SUB_00471eb0(&g_storm_cells[random_cell].sphere);
   }

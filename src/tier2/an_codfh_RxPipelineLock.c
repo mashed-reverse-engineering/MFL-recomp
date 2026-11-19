@@ -74,7 +74,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, sizeof(RxPipelineNodeTopSortData) == 12);      /* M
 #define CalcNodeOutputsTopSortDataUnCompactedMemSize() (sizeof(RxPipelineNode )*RXPIPELINEGLOBAL(maxNodesPerPipe) + sizeof(RwUInt32)*RXNODEMAXOUTPUTS*RXPIPELINEGLOBAL(maxNodesPerPipe) + CalcTopSortDataMemSize() )
 extern RwBool ReallocAndFixupSuperBlock(RxPipeline *pipeline, RwUInt32 newSize);
 extern RwBool LockPipelineExpandData(RxPipeline *dstPipe, RxPipeline *srcPipe);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RxPipeline * RxPipelineLock(RxPipeline * pipeline)
 {

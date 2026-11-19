@@ -32,7 +32,6 @@ static const RwInt32 datasize[] =
     2*sizeof(RwTexCoords),
     4*sizeof(RwTexCoords)
 };
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool rpPTankAStructAlloc(RpPTankAtomicExtPrv *ptankGlobal, RwUInt32 dataFlags,RwUInt32 platFlags __RWUNUSED__)
 {

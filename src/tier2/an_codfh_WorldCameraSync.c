@@ -178,7 +178,6 @@ struct RpWorldCameraExt
 extern RwInt32      cameraExtOffset;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldCameraExt, space) == 4 && RW_OFFSETOF(RpWorldCameraExt, position) == 8 && RW_OFFSETOF(RpWorldCameraExt, world) == 0xc && RW_OFFSETOF(RpWorldCameraExt, oldSync) == 0x18);      /* MFL.exe 0x4f39d8 call [esi+0x18] (oldSync), 0x4f39e6 world [esi+0xc], 0x4f3aee space [ebp+4], 0x4f3be2 position [ebp+8], 0x4f3b41 frustumSectors [ebp+0] */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwObjectHasFrame * WorldCameraSync(RwObjectHasFrame * object)
 {

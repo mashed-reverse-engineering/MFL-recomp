@@ -45,7 +45,6 @@ struct rt2dPathNode
 /*005d6080*/ extern void * _rwSListToArray(struct RwSList *p0);
 Rt2dPath * Rt2dPathUnlock(Rt2dPath *path);      /* self-recursive: prototype before the definition (recur_check) */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-12 authority=diffemu */
 Rt2dPath * Rt2dPathUnlock(Rt2dPath *path)
 {

@@ -98,7 +98,6 @@ extern RpHAnimAtomicGlobalVars RpHAnimAtomicGlobals;
 extern RwInt32 _rpHAnimHierarchyFreeListBlockSize;
 extern RwInt32 _rpHAnimHierarchyFreeListPreallocBlocks;
 extern RwFreeList _rpHAnimHierarchyFreeList;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * HAnimOpen(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size)
 {

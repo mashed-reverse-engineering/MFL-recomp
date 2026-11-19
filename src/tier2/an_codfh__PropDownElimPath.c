@@ -91,7 +91,6 @@ struct RwReqEntry
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwReqEntry) == 0x24 && RW_OFFSETOF(RwReqEntry, inputs) == 8);      /* MFL.exe 0x4f2672 reqentries [ecx+0xc], 0x4f2687 stride 0x24, 0x4f2695 --inputs [edi+8], 0x4f26bd 9-dword entry copy */
 
 extern void _PropDownElimPath(RxPipeline * pipeline, RxPipelineNode * node, RxClusterDefinition * clusterDef);      /* recursive: declared for the gate's shadow build */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 void _PropDownElimPath(RxPipeline * pipeline, RxPipelineNode * node, RxClusterDefinition * clusterDef)
 {

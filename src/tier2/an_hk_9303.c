@@ -1,4 +1,8 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern int mfl_widescreen_frustum_test_sphere_43(void *camera, void *sphere);      /* an_hk_824.c */
+#endif
 extern char LAB_00408ad0[];
 /*0042a450*/ extern int course_is_outdoor();
 /*00475730*/ extern char *get_viewport_camera();
@@ -124,7 +128,11 @@ void rwp_objects_cull_and_register_triggers(void)
             if (test_this_frame) {
               sphere_ptr = &frame.sphere;
               camera = (RwCamera *)get_viewport_camera(0);
+#if MFL_FIX_WIDESCREEN      /* trigger spheres (car contact) for the objects the original saw at 4:3 */
+              frustum_result = (RwFrustumTestResult)mfl_widescreen_frustum_test_sphere_43(camera,sphere_ptr);
+#else
               frustum_result = RwCameraFrustumTestSphere(camera,sphere_ptr);
+#endif
               (&g_rw_6f6c70)[obj] = frustum_result;
             }
             if (((&g_rw_6f6c70)[obj] == 2) || ((&g_rw_6f6c70)[obj] == 1)) {

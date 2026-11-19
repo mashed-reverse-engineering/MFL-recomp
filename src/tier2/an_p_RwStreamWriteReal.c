@@ -8,7 +8,6 @@ extern RwStream *RwStreamWrite(RwStream *stream, const void *buffer, RwUInt32 le
 
 #define rwSTREAMWRITEREALCHUNK 256
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 RwStream * RwStreamWriteReal(RwStream *stream, const RwReal *reals, RwUInt32 numBytes)
 {

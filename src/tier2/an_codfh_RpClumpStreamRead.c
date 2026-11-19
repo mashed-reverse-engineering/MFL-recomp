@@ -420,7 +420,6 @@ MACRO_STOP
 
 extern RpAtomic * ClumpAtomicStreamRead(RwStream * stream, rwFrameList * fl, rpGeometryList * gl);
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RpClump * RpClumpStreamRead(RwStream * stream)
 {

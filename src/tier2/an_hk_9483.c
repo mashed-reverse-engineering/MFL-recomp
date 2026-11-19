@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00406cf0*/ extern int fx_objects_all_exploded();
 /*0040f700*/ extern float intro_banner_get_x(void);
 /*0040fdc0*/ extern int race_get_phase();
@@ -84,6 +85,9 @@ void race_status_messages_draw(void)
     view_window_new.x = 0.800000012f;
     view_window_new.y = 0.800000012f;
     RwCameraSetViewWindow(camera,&view_window_new);
+#if MFL_FIX_WIDESCREEN      /* text 4:3 in the middle; the 640-wide banner bars stay full width */
+  mfl_widescreen_2d_pass(camera, 0);
+#endif
     clear_flags = 2;
     clear_colour_ptr = &frame.clear_colour;
     clear_camera = (RwCamera *)get_viewport_camera(0);
@@ -96,6 +100,9 @@ void race_status_messages_draw(void)
     ui_rt2d_text_draw(599, 323.0f, 128.0f, shadow_colour, 1.0f, 2);
     ui_rt2d_text_draw(599, 320.0f, 125.0f, *(int *)&text_colour, 1.0f, 2);
     RwCameraEndUpdate(camera);
+#if MFL_FIX_WIDESCREEN
+    mfl_widescreen_2d_pass_end();
+#endif
     RwCameraSetViewWindow(camera,&view_window_saved);
     RwCameraBeginUpdate(camera);
   }
@@ -109,6 +116,9 @@ void race_status_messages_draw(void)
       view_window_new.x = 0.800000012f;
       view_window_new.y = 0.800000012f;
       RwCameraSetViewWindow(camera,&view_window_new);
+#if MFL_FIX_WIDESCREEN      /* text 4:3 in the middle; the 640-wide banner bars stay full width */
+  mfl_widescreen_2d_pass(camera, 0);
+#endif
       clear_flags = 2;
       clear_colour_ptr = &frame.clear_colour;
       clear_camera = (RwCamera *)get_viewport_camera(0);
@@ -145,6 +155,9 @@ void race_status_messages_draw(void)
       }
       RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
       RwCameraEndUpdate(camera);
+#if MFL_FIX_WIDESCREEN
+      mfl_widescreen_2d_pass_end();
+#endif
       RwCameraSetViewWindow(camera,&view_window_saved);
       RwCameraBeginUpdate(camera);
     }
@@ -168,6 +181,9 @@ void race_status_messages_draw(void)
   view_window_new.x = 0.800000012f;
   view_window_new.y = 0.800000012f;
   RwCameraSetViewWindow(camera,&view_window_new);
+#if MFL_FIX_WIDESCREEN      /* text 4:3 in the middle; the 640-wide banner bars stay full width */
+  mfl_widescreen_2d_pass(camera, 0);
+#endif
   clear_flags = 2;
   clear_colour_ptr = &frame.clear_colour;
   clear_camera = (RwCamera *)get_viewport_camera(0);
@@ -225,6 +241,9 @@ draw_winner_banner:
   intro_banner_draw_team_text(&frame.colour_white,draw_team_text);
 restore_view_window:
   RwCameraEndUpdate(camera);
+#if MFL_FIX_WIDESCREEN
+  mfl_widescreen_2d_pass_end();
+#endif
   RwCameraSetViewWindow(camera,&view_window_saved);
   RwCameraBeginUpdate(camera);
   return;

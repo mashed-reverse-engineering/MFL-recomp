@@ -13,6 +13,7 @@ per-word table, VERDICT line.
 | `one.sh <tag> <course> [frames]` | one STATEHASH run through `tools/d3dtrace/run.sh` (Wine) -> `$SH_WORK/runs/<tag>/statehash.bin` |
 | `cc.sh <tag> <course> [frames]` | determinism baseline: two control runs + statecmp of the pair -> `$SH_WORK/cc_<tag>.txt` |
 | `cmp.sh <A> <B> <out> [opts]` | statecmp of two finished runs + `groups.py` grouped summary (no Wine) |
+| `gatestep.py <out dir>` | gate step (standalone / full, report only, no Wine): statecmp of the stored pairs in `data/gate_pair.txt`, one `course N` block each (ctrl vs ctrl2, ctrl vs ours; --ptr --mask --rwpad --sound --uninit --env) -> per course VERDICT / SOUND / UNINIT / ENV lines, ours-only words, one `STATEHASH course N:` line (UNJUDGED when the control pair differs outside the ENV words; CONTROL PAIR ONLY for a block without ours); exit 1 only on a missing input |
 | `groups.py`, `series.py` | group a statecmp report by symbol; per-frame values of chosen words in both runs |
 | `mkpins.py`, `pinall.py` | write pin rows (phase:va:value) from a reference run / from a statecmp report |
 | `mkptr.sh`, `mkmask.sh`, `mkpinfile.sh` | regenerate the three data lists below from reference control runs |
@@ -20,6 +21,8 @@ per-word table, VERDICT line.
 | `data/state_mask.txt` | masked words (profiling counters, RW dyn VB ring, audio-thread words, stale menu residue ...), each row with evidence; masks on car/vehicle/AI/physics/transform/camera names or dump ranges are refused by statecmp |
 | `data/state_rwpad.txt` | RwMatrix instances for `statecmp --rwpad` (compare mode "rwpad", off by default): only their pad1 / pad2 / pad3 words are skipped; read-checked instances only |
 | `data/state_sound.txt` | sound-timing words for `statecmp --sound` (off by default): shown on a SOUND line, never a failure; gameplay names / ranges are refused |
+| `data/state_uninit.txt` | words the original fills from uninitialised stack, for `statecmp --uninit` (off by default): listed on an UNINIT line, never a failure; one row per word with its reader check (W15 R3: 587 type-6 event-arg words, NO_READER) |
+| `data/state_env.txt` | per-process environment words for `statecmp --env` (off by default; W15 user decision, option 1): the 5 HWND copies (data/pins_never.txt), never written by the game. NOT masked: shown on an ENV line with first differing frame and both values, outside the verdict and the divergence counts; same refusals as state_sound |
 | `data/state_pins.txt` | determinism pins for the proxy: counters / menu residue at loading start, camera record region at countdown start (course 0 reference values) |
 | `data/*_head.txt`, `data/pins_load.txt` | hand-written head rows and loading residue pins, inputs of mkmask.sh / mkpinfile.sh |
 

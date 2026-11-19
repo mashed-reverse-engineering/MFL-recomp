@@ -206,7 +206,6 @@ struct binMesh
 typedef RwUInt32    RpIndexBuffer[RWINDEXBUFFERSIZE];
 RW_LAYOUT_ASSERT(rw37_priv_0, sizeof(binMeshHeader) == 0xc);      /* an_codfh_rpMeshRead.c */
 RW_LAYOUT_ASSERT(rw37_priv_1, sizeof(binMesh) == 8);      /* an_codfh_rpMeshRead.c */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * rpMeshWrite(const RpMeshHeader *meshHeader, const void *object, RwStream *stream, const RpMaterialList *matList)
 {

@@ -1,6 +1,10 @@
 // cluster-entries: course_dem_update
 /* Installed cluster course_dem_update (tools/cluster_install.py from output/cluster_pilot_te5c/course_dem_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern int mfl_widescreen_frustum_test_sphere_43(void *camera, void *sphere);      /* an_hk_824.c */
+#endif
 /*004222e0*/ extern void __cdecl vehicle_get_matrix_ltm_b(int car, RwMatrix *matrix);
 /*004727a0*/ extern void __cdecl sfx_play_group_at(int group, int position);
 /*00475730*/ extern void *__cdecl get_viewport_camera(int index);
@@ -157,7 +161,11 @@ void course_dem_update_n(unsigned int ticks, unsigned char *world)
       frame.w.sphere[1] = ((float *)position)[1];
       frame.w.sphere[2] = ((float *)position)[2];
       frame.w.sphere[3] = frame.b.random_b;
+#if MFL_FIX_WIDESCREEN      /* the 4:3 frustum of the original */
+      if (mfl_widescreen_frustum_test_sphere_43((void *)get_viewport_camera(0), frame.w.sphere) != 0) {
+#else
       if (RwCameraFrustumTestSphere(get_viewport_camera(0), frame.w.sphere) != 0) {
+#endif
         fx_emitter_spawn_c((float *)position, frame.v.direction, 360.0f, frame.a.random_a, frame.b.random_b);
       }
     }

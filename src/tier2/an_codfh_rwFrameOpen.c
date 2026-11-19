@@ -121,7 +121,6 @@ extern RwPluginRegistry    frameTKList;
 extern RwModuleInfo frameModule;
 extern RwInt32 _rwFrameFreeListBlockSize;
 extern RwInt32 _rwFrameFreeListPreallocBlocks;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * rwFrameOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {
@@ -150,7 +149,6 @@ void * rwFrameOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 }
 
 /* rwFrameClose (MFL.exe 004d0950), the module close next to it: written from the MFL.exe disassembly in the same form */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * rwFrameClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size)
 {

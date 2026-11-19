@@ -20,7 +20,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, RW_OFFSETOF(RxHeap, freeBlocks) == 0xc && RW_OFFSET
 /* ---- end of the generated declarations ---- */
 
 extern RwBool HeapSuperBlockReset(rxHeapSuperBlockDescriptor * superBlock, rxHeapSuperBlockDescriptor * attach2SuperBlock, RxHeap * heap);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rxHeapReset(RxHeap * heap)
 {

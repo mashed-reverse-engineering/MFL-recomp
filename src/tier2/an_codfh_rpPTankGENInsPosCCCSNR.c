@@ -41,7 +41,7 @@ RW_LAYOUT_ASSERT(rw_assert_ptank_csize, RW_OFFSETOF(RpPTankData, cSize) == 0x70)
 
 #define RPPTANKSIZEPOSITION 0
 
-/* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-18 authority=static */
 void rpPTankGENInsPosCCCSNR(RpPTankLockStruct *dstCluster, RwV3d *right, RwV3d *up, RwInt32 pCount, RpPTankData *ptankGlobal)
 {
     RwInt32 i;

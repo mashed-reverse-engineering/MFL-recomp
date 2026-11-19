@@ -16,7 +16,6 @@ extern RwBool
 _rpMatFXPipelinesDestroy(void);
 extern RwMatFXInfo MatFXInfo;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RwMatFXInfo, MaterialData) == 8);      /* MFL.exe 0x54f23c (MatFXOpen): the free list goes to 0x7da728; MatFXInfo is at 0x7da720, numInstances at 0x7da724 */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * MatFXClose(void *instance, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

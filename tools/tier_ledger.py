@@ -109,9 +109,11 @@ with open(statep, "w") as o:
 def authority(n, t, ev):
     if n in auth: return auth[n]
     return ("bytes-reloc" if any(e in ("bytes", "bytes-standalone") for e in ev) else "none" if t in ("bridge", "agent") else "static", 0, 0.0, 0, False)
-TAG = re.compile(r"^/\* TIER2: (\w+) (\S+) authority=(\S+) \*/$")
-def retag(write):
-    """tier 2 functions get `/* TIER2: unvalidated|validated YYYY-MM-DD authority=... */` above the signature (date kept while status + authority are unchanged); -> number of drifted tags"""
+TAG = re.compile(r"^/\* TIER2: (\w+) (?:(\d{4}-\d\d-\d\d) )?authority=(\S+) \*/$")      # W15 F2: the date is optional (tools/codfh_loop.py writes `/* TIER2: unvalidated authority=diffemu */`)
+def retag(write, downgrade=False):
+    """tier 2 functions get ONE `/* TIER2: unvalidated|validated YYYY-MM-DD authority=... */` line above the signature (date kept while status + authority are unchanged);
+    every tag line stacked above it (dated or not) is folded into that one line.  A validated -> unvalidated change is written only with --downgrade
+    (W15 F3: rerun the evidence first); without it the old tag stays and the row is listed.  -> number of drifted tags"""
     drift = 0; today = datetime.date.today().isoformat()
     for f in sorted(glob.glob(os.path.join(NEAR, "an_*.c"))):
         L = open(f, errors="surrogateescape").read().split("\n"); out = []; ch = False
@@ -119,15 +121,21 @@ def retag(write):
             m = shadow_cache.DEF.match(l)
             if m and i + 1 < len(L) and L[i + 1].startswith("{") and m.group(2) in auth:
                 a = auth[m.group(2)]; st = "validated" if a[4] else "unvalidated"
-                old = TAG.match(out[-1]) if out else None
-                if not (old and old.group(1) == st and old.group(3) == a[0]):
-                    drift += 1; ch = True; tag = "/* TIER2: %s %s authority=%s */" % (st, today, a[0])
-                    if old: out[-1] = tag
-                    else: out.append(tag)
+                k = len(out)
+                while k and TAG.match(out[k - 1]): k -= 1
+                olds = out[k:]; old = TAG.match(olds[-1]) if olds else None      # the line next to the signature is the current tag
+                held = old and old.group(1) == "validated" and st == "unvalidated" and not downgrade
+                if held or old and old.group(1) == st and old.group(3) == a[0] and old.group(2): tag = olds[-1]
+                else: tag = "/* TIER2: %s %s authority=%s */" % (st, today, a[0])
+                if held:      # still a drift (the warning stays); only a stack above it is folded
+                    drift += 1
+                    if write: print("downgrade NOT written (--downgrade): %s %s" % (m.group(2), os.path.basename(f)))
+                elif olds != [tag]: drift += 1
+                if olds != [tag]: ch = True; out[k:] = [tag]
             out.append(l)
         if ch and write: open(f, "w", errors="surrogateescape").write("\n".join(out))
     return drift
-if "--retag" in sys.argv: print("retag: %d tag(s) written" % retag(True))
+if "--retag" in sys.argv: print("retag: %d drifted tag(s) handled (withheld downgrades listed above)" % retag(True, "--downgrade" in sys.argv))
 else:
     d = retag(False)
     if d: print("WARNING tier 2 source tags drifted: %d (python3 tools/tier_ledger.py --retag)" % d)

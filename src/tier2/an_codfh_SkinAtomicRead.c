@@ -112,7 +112,6 @@ RW_LAYOUT_ASSERT(rw37_priv_5, sizeof(RpSkin) == 0x40);      /* installed an_codf
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(SkinGlobals, geometryOffset) == 8 && RW_OFFSETOF(RpSkin, vertexMaps.maxWeights) == 0x10 && RW_OFFSETOF(RpSkin, vertexMaps.matrixIndices) == 0x14 && RW_OFFSETOF(RpSkin, vertexMaps.matrixWeights) == 0x18 && RW_OFFSETOF(RpSkin, boneData.invBoneToSkinMat) == 0xc);      /* MFL.exe 0x53f1cd geometryOffset 0x7da648 (_rpSkinGlobals 0x7da640); 0x53f34e maxWeights [esi+0x10], 0x53f2bd indices [esi+0x14], 0x53f2e1 weights [esi+0x18], 0x53f320 inverse matrices [esi+0xc] */
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(SkinBoneData) == 0x10 && sizeof(SkinVertexMaps) == 0xc && sizeof(SkinPlatformData) == 8 && sizeof(SkinSplitData) == 0x18 && sizeof(SkinMatrixCache) == 8 && sizeof(SkinGlobalPlatform) == 4);      /* RpSkin 0x40 = boneData 0x10 + vertexMaps 0xc (0x10..0x1b) + platformData 8 (0x1c) + skinSplitData 0x18 (0x24) + unaligned (0x3c); SkinGlobals freeList 0x18 = 3 offsets + matrixCache 8 + numMatrices 4 */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * SkinAtomicRead(RwStream *stream, RwInt32 binaryLength __RWUNUSED__, void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject)
 {

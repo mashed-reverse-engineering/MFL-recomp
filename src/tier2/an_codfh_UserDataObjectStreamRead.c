@@ -44,7 +44,6 @@ RW_LAYOUT_ASSERT(rw37_priv_0, sizeof(RpUserDataArray) == 0x10);      /* an_codfh
 RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(RpUserDataArray, data) == 0xc);      /* an_codfh_rpusrdat.c */
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpUserDataArray, format) == 4 && RW_OFFSETOF(RpUserDataArray, numElements) == 8 && RW_OFFSETOF(RpUserDataList, userData) == 4);      /* MFL.exe 0x554b8d &format [esi+4], 0x554ba4 &numElements [esi+8]; 0x554b15 list->userData [list+4], 0x554b04 numElements [list+0] */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * UserDataObjectStreamRead(RwStream * stream, RwInt32 __RWUNUSED__ binaryLength, void *object, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {

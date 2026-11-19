@@ -89,7 +89,6 @@ extern RpAtomic *rpSkinPipelinesAttach(RpAtomic *atomic, RpSkinType type);
     }
 RW_LAYOUT_ASSERT(rw37_priv_0, RW_OFFSETOF(SkinGlobals, freeList) == 0x18);      /* an_codfh_rpskin.c */
 RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(SkinGlobals, module) == 0x1c);      /* an_codfh_rpskin.c */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool SkinAtomicRights(void *object, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__, RwUInt32 extraData)
 {

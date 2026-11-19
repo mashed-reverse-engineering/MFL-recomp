@@ -252,7 +252,6 @@ extern RwFreeList *_rpUVAnimCustomDataFreeList;
 extern RtAnimAnimation *RtAnimAnimationDestroy(RtAnimAnimation *animation);
 RW_LAYOUT_ASSERT(rw37_own_0, sizeof(struct RpUVAnimMaterialGlobalVars) == 4);      /* MFL.exe 0x561ec7: RpUVAnimMaterialGlobals.engineOffset at 0x947b58 is the only member read */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * UVAnimRead(RwStream * stream, RwInt32 binaryLength __RWUNUSED__, void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__)
 {

@@ -17,7 +17,6 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldAtomicExt, oldSync) == 4);      
 #define ATOMICEXTFROMATOMIC(atomic) ((RpWorldAtomicExt *)(((RwUInt8 *)(atomic)) + atomicExtOffset))
 extern RwInt32      atomicExtOffset;
 extern RwObjectHasFrame * WorldAtomicSync(RwObjectHasFrame * type);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * WorldInitAtomicExt(void *object, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

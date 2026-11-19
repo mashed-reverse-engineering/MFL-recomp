@@ -146,7 +146,6 @@ RW_LAYOUT_ASSERT(rw37_priv_4, sizeof(rpMatFXMaterialData) == 0x34);      /* exe:
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(MatFXBumpMapData) == 0x14 && sizeof(MatFXDualData) <= 0x14 && sizeof(MatFXUVAnimData) <= 0x14);      /* members of the 0x14 byte union MatFXEffectUnion (flag at +0x14, stride 0x18: 0x55037a) */
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(MatFXEnvMapData, texture) == 4 && RW_OFFSETOF(MatFXEnvMapData, useFrameBufferAlpha) == 0xc);      /* MFL.exe 0x550398 texture [esi+4], 0x550406 frame [eax], 0x550459 useFrameBufferAlpha [eax+0xc], 0x55048e coef [eax+8] */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RpMaterial * RpMatFXMaterialSetupEnvMap(RpMaterial * material, RwTexture * texture, RwFrame * frame, RwBool useFrameBufferAlpha, RwReal coef)
 {

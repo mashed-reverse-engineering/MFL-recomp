@@ -149,7 +149,6 @@ RW_LAYOUT_ASSERT(rw37_own_0, sizeof(rpMaterialGlobals) == 4);      /* MFL.exe 0x
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(rpClumpGlobals) == 8);      /* MFL.exe 0x4f5f26: push 0x8 (rwID_CLUMPMODULE 0x504) */
 RW_LAYOUT_ASSERT(rw37_own_2, sizeof(rpLightGlobals) == 4);      /* MFL.exe 0x4f5f43: push 0x4 (rwID_LIGHTMODULE 0x505) */
 RW_LAYOUT_ASSERT(rw37_own_3, sizeof(rpWorldGlobals) == 0xc);      /* MFL.exe 0x4f5f71: push 0xc (rwID_WORLDMODULE 0x507) */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpWorldPluginAttach(void)
 {

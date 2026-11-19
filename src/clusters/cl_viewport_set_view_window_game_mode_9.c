@@ -1,6 +1,7 @@
 // cluster-entries: viewport_set_view_window_game_mode_9
 /* Installed cluster viewport_set_view_window_game_mode_9 (tools/cluster_install.py from output/cluster_pilot_zx/viewport_set_view_window_game_mode_9.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /* DECLS-BEGIN */
 /* DECLS-END */
 /*004045d0*/ extern int training_text_box_b();
@@ -52,6 +53,9 @@ void viewport_set_view_window_game_mode_9(void)
     new_view_window.x = VIEW_WINDOW_SIZE;
     new_view_window.y = VIEW_WINDOW_SIZE;
     RwCameraSetViewWindow(camera,&new_view_window);
+#if MFL_FIX_WIDESCREEN      /* drawn 4:3 in the middle */
+    mfl_widescreen_2d_pass(camera, 1);
+#endif
     race_phase = RwCameraBeginUpdate(camera);
     if (race_phase == 0) {
       return;
@@ -77,6 +81,9 @@ void viewport_set_view_window_game_mode_9(void)
           new_view_window.x = VIEW_WINDOW_SIZE;
           new_view_window.y = VIEW_WINDOW_SIZE;
           RwCameraSetViewWindow(camera,&new_view_window);
+#if MFL_FIX_WIDESCREEN      /* drawn 4:3 in the middle */
+    mfl_widescreen_2d_pass(camera, 1);
+#endif
           race_phase_2 = RwCameraBeginUpdate(camera);
           if (race_phase_2 != 0) {
             RwRenderStateSet
@@ -107,6 +114,9 @@ void viewport_set_view_window_game_mode_9(void)
             RwRenderStateSet
                       (rwRENDERSTATEZWRITEENABLE,(void *)0x1);
             RwCameraEndUpdate(camera);
+#if MFL_FIX_WIDESCREEN
+            mfl_widescreen_2d_pass_end();
+#endif
             RwCameraSetViewWindow(camera,&saved_view_window);
             RwCameraBeginUpdate(camera);
           }
@@ -120,6 +130,9 @@ void viewport_set_view_window_game_mode_9(void)
       new_view_window.x = VIEW_WINDOW_SIZE;
       new_view_window.y = VIEW_WINDOW_SIZE;
       RwCameraSetViewWindow(camera,&new_view_window);
+#if MFL_FIX_WIDESCREEN      /* drawn 4:3 in the middle */
+    mfl_widescreen_2d_pass(camera, 1);
+#endif
       race_phase = RwCameraBeginUpdate(camera);
       if (race_phase == 0) {
         return;
@@ -140,6 +153,9 @@ void viewport_set_view_window_game_mode_9(void)
     new_view_window.x = VIEW_WINDOW_SIZE;
     new_view_window.y = VIEW_WINDOW_SIZE;
     RwCameraSetViewWindow(camera,&new_view_window);
+#if MFL_FIX_WIDESCREEN      /* drawn 4:3 in the middle */
+    mfl_widescreen_2d_pass(camera, 1);
+#endif
     race_phase = RwCameraBeginUpdate(camera);
     if (race_phase == 0) {
       return;
@@ -162,6 +178,9 @@ LAB_00404d2e:
   RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
   RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
   RwCameraEndUpdate(camera);
+#if MFL_FIX_WIDESCREEN
+  mfl_widescreen_2d_pass_end();
+#endif
   RwCameraSetViewWindow(camera,&saved_view_window);
   RwCameraBeginUpdate(camera);
   return;

@@ -26,7 +26,6 @@ struct tagTopSortData
 };
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(TopSortData, nodesArraySlot) == 4 && sizeof(struct tagTopSortData) == 8);      /* MFL.exe 0x4e6d6f data->nodesArraySlot [ebx+4], 0x4e6d7e data->pipeline [ebx] */
 extern void PipelineTopSort(TopSortData *data, RwUInt32 nodeIndex);      /* recursive: declared for the gate's shadow build (shadowgen2 renames the definition) */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=shadow */
 void PipelineTopSort(TopSortData *data, RwUInt32 nodeIndex)
 {

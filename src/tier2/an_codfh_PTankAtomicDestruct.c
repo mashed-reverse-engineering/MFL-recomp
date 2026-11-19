@@ -12,7 +12,6 @@ extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture
 #define RpPTankAtomicSetTexture(atm_,tex_) RpPTankAtomicSetTextureMacro(atm_,tex_)
 /* ---- end of the generated declarations ---- */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * PTankAtomicDestruct(void *object, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size)
 {

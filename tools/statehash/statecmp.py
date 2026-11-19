@@ -3,7 +3,7 @@
 The file holds, per Present, the changed 4 KB pages of the game's writable image (.data + .bss, original VA 0x5fb000-0x949d64, + sh_delta in the
 standalone link) and the LIST of committed private memory ranges (base, size; used for the heap-pointer test, their contents are not hashed).  Both sides are reconstructed frame by frame and compared word by word.
 
-  statecmp.py A.bin B.bin [--map-b ours.map] [--ptr state_ptrwords.txt] [--mask state_mask.txt] [--frames N] [--show K] [--rwpad state_rwpad.txt]
+  statecmp.py A.bin B.bin [--map-b ours.map] [--ptr state_ptrwords.txt] [--mask state_mask.txt] [--frames N] [--show K] [--rwpad state_rwpad.txt] [--sound f] [--uninit f] [--env state_env.txt]
       A = control.  B = control again (determinism) or ours (--map-b: the link map, pointers in B are translated to original VAs).
       A word counts as equal when the values are equal, or the word is listed in --ptr and both values are heap pointers of their own run
       or B's value translates (ours.map) to A's value, or the word is listed in --mask (reported as masked, never silently).
@@ -14,7 +14,15 @@ standalone link) and the LIST of committed private memory ranges (base, size; us
       --sound (compare mode "sound", off by default; user decision 2026-11-16): rows `<va> <nwords> <symbol> | <evidence>` (state_sound.txt) name
       sound-timing words (voice queue, voice slots, sound frame records).  Their differences are printed on a SOUND line (shown, never a failure);
       every other word must still be identical.  Rows on car / physics / transform names or the car / vehicle / AI ranges are refused.
-  statecmp.py --mkptr A.bin [A2.bin ...] > state_ptrwords.txt     words whose every non-zero value in every frame is a pointer (image or heap)
+      --uninit (compare mode "uninit", off by default; user decision W15): rows `<va> <nwords> <symbol> | <evidence>` (state_uninit.txt) name
+      words that the ORIGINAL fills from uninitialised stack (4th dwords of 16-byte records, raw spin_matrix words of type-6 events), each
+      with its reader check (agents/rep_w15/uninit_readers.csv).  Their differences go on an UNINIT line (listed, never a failure).  Rows
+      without evidence are refused.
+      --env (compare mode "env", off by default; user decision W15, option 1): rows `<va> <nwords> <symbol> | <evidence>` (state_env.txt)
+      name words that hold per-process environment values the game never writes in the window (the 5 HWND copies, pins_never.txt).  Not
+      masked: their differences go on an ENV line with the first differing frame and both values (report only, outside the verdict and the
+      divergence counts).  Same refusals as --sound (car / physics / transform names and ranges, rows without evidence).
+  statecmp.py --mkptr A.bin [A2.bin ...] > state_ptrwords.txt    words whose every non-zero value in every frame is a pointer (image or heap)
   statecmp.py --mkstale A.bin A2.bin state_ptrwords.txt <tag>     mask rows for stale menu residue (differs at frame 0, never written in the window)
   statecmp.py --peek A.bin <frame> <va> [n]                         n dwords at an original VA at that frame (e.g. a car's matrix_current)
   statecmp.py --selftest
@@ -172,8 +180,8 @@ def read_rwpad(path):
     return out
 
 
-def read_sound(path, syms):
-    """--sound file (rows as --mask: `<va> <nwords> <symbol> | <evidence>`) -> {va: row}: sound-timing words (voice queue, voice slots, sound
+def read_sound(path, syms, kind="sound"):
+    """--sound / --env file (rows as --mask: `<va> <nwords> <symbol> | <evidence>`) -> {va: row}: sound-timing words (voice queue, voice slots, sound
     frame records) whose differences go on the SOUND line instead of the VERDICT. Same refusals as masks (car / physics / transform names and
     the car / vehicle / AI dump ranges, rows without evidence): gameplay state can never be listed here."""
     m = read_words(path)
@@ -184,7 +192,17 @@ def read_sound(path, syms):
            or (DENY_NAME.search(syms.name(va)) and "misnamed:" not in row)
            or "|" not in row or not row.split("|", 1)[1].strip()]
     if bad:
-        sys.exit("statecmp: REFUSED sound rows (gameplay names / ranges, or no evidence):\n  " + "\n  ".join(bad))
+        sys.exit("statecmp: REFUSED " + kind + " rows (gameplay names / ranges, or no evidence):\n  " + "\n  ".join(bad))
+    return m
+
+
+def read_uninit(path):
+    """--uninit file -> {va: row}; every row needs an evidence column (the reader check); no name refusal: the listed words sit inside
+    car / collision records by nature, and the list is per word, never a range mask"""
+    m = read_words(path)
+    bad = ["%08x" % va for va, row in sorted(m.items()) if "|" not in row or not row.split("|", 1)[1].strip()]
+    if bad:
+        sys.exit("statecmp: REFUSED uninit rows (no evidence column):\n  " + "\n  ".join(bad))
     return m
 
 
@@ -204,8 +222,12 @@ def dead_layer_fn(names):
     return f
 
 
-def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.stdout, dead=None, rwpad=None, sound=None):
+def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.stdout, dead=None, rwpad=None, sound=None, uninit=None, env=None):
     syms = Syms()
+    envw = read_sound(env, syms, "env") if env else {}
+    envd = {}           # va -> [first frame, frames differing, A, B at first]: per-process environment words, ENV line, never a divergence
+    uninitw = read_uninit(uninit) if uninit else {}
+    uni = {}            # va -> [first frame, frames differing]: listed uninitialised words, UNINIT line, never a divergence
     padw = read_rwpad(rwpad) if rwpad else {}
     tot_pad = 0
     soundw = read_sound(sound, syms) if sound else {}
@@ -265,7 +287,7 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
                 continue
             wa = struct.unpack("<1024I", A)
             wb = struct.unpack("<1024I", B)
-            dl, ml, np_, nd, npad, sl = [], [], 0, 0, 0, []
+            dl, ml, np_, nd, npad, sl, ul, el = [], [], 0, 0, 0, [], [], []
             for w in range(1024):
                 c, o = wa[w], wb[w]
                 if c == o:
@@ -284,14 +306,26 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
                 if va in soundw:
                     sl.append(va)
                     continue
+                if va in uninitw:
+                    ul.append(va)
+                    continue
+                if va in envw:
+                    el.append((va, c, o))
+                    continue
                 if deadf and (deadf(va) or (o == 0 and va in stale0)):
                     nd += 1
                     continue
                 dl.append((va, c, o))
-            cache[p] = (dl, ml, np_, nd, npad, sl)
+            cache[p] = (dl, ml, np_, nd, npad, sl, ul, el)
         fd = [x for p in sorted(cache) for x in cache[p][0]]
         for va in (x for p in cache for x in cache[p][5]):
             r = snd.setdefault(va, [nfr, 0])
+            r[1] += 1
+        for va in (x for p in cache for x in cache[p][6]):
+            r = uni.setdefault(va, [nfr, 0])
+            r[1] += 1
+        for va, c, o in (x for p in cache for x in cache[p][7]):
+            r = envd.setdefault(va, [nfr, 0, c, o])
             r[1] += 1
         fm = sum(len(cache[p][1]) for p in cache)
         tot_pad = max(tot_pad, sum(cache[p][4] for p in cache))
@@ -324,6 +358,14 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
         print("SOUND: %d sound-timing words differ%s (report only, never fails)" % (len(snd), ", first frame %d" % min(r[0] for r in snd.values()) if snd else ""), file=out)
         for va, (f0, k) in sorted(snd.items(), key=lambda x: (x[1][0], x[0]))[:show]:
             print("  sound %08x %-44s first %4d frames %4d" % (va, syms.name(va), f0, k), file=out)
+    if uninit:      # listed, never a failure (user decision W15)
+        print("UNINIT: %d listed uninitialised words differ%s (accepted, report only)" % (len(uni), ", first frame %d" % min(r[0] for r in uni.values()) if uni else ""), file=out)
+        for va, (f0, k) in sorted(uni.items(), key=lambda x: (x[1][0], x[0]))[:show]:
+            print("  uninit %08x %-44s first %4d frames %4d" % (va, syms.name(va), f0, k), file=out)
+    if env:         # shown, never masked, never a divergence (user decision W15 option 1)
+        print("ENV: %d per-process environment words differ%s (report only, outside the verdict)" % (len(envd), ", first frame %d" % min(r[0] for r in envd.values()) if envd else ""), file=out)
+        for va, (f0, k, c, o) in sorted(envd.items(), key=lambda x: (x[1][0], x[0]))[:show]:
+            print("  env %08x %-44s first %4d frames %4d A %08x B %08x" % (va, syms.name(va), f0, k, c, o), file=out)
     to = alock_timeouts(fa) + alock_timeouts(fb)
     for l in to[:6]:
         print("ALOCK: %s" % l, file=out)
@@ -464,6 +506,29 @@ def selftest():
     assert compare(d + "/m0", d + "/s1", out=null) == 0
     wr(d + "/s2", [{0: z, 1: bytes(a ^ b for a, b in zip(one(0x30, 0x3f800000), one(0x108, 1)))}])
     assert compare(d + "/m0", d + "/s2", sound=d + "/sound", out=null) == 0
+    # uninit mode: a listed word differs -> IDENTICAL + UNINIT line; the unlisted neighbour -> DIVERGENT; a row without evidence is refused
+    open(d + "/uninit", "w").write("005fc204 1 test_record_pad | selftest\n")
+    buf = io.StringIO()
+    assert compare(d + "/m0", d + "/s1", uninit=d + "/uninit", out=buf) == -1 and "UNINIT: 1 listed uninitialised words differ" in buf.getvalue()
+    assert compare(d + "/m0", d + "/s2", uninit=d + "/uninit", out=null) == 0
+    open(d + "/uninit_bad", "w").write("005fc104 1 test_record_pad\n")
+    try:
+        read_uninit(d + "/uninit_bad")
+        assert False, "row without evidence accepted"
+    except SystemExit:
+        pass
+    # env mode: a listed word differs -> IDENTICAL + ENV line with first frame and values; the unlisted neighbour -> DIVERGENT; car row refused
+    open(d + "/env", "w").write("005fc204 1 test_hwnd | selftest\n")
+    buf = io.StringIO()
+    assert compare(d + "/m0", d + "/s1", env=d + "/env", out=buf) == -1 and "ENV: 1 per-process environment words differ, first frame 0" in buf.getvalue() \
+        and "env 005fc204" in buf.getvalue() and "words that ever differ" not in buf.getvalue(), buf.getvalue()
+    assert compare(d + "/m0", d + "/s2", env=d + "/env", out=null) == 0
+    open(d + "/env_bad", "w").write("008b1038 1 player_car_0__matrices_12_ | must be refused\n")
+    try:
+        read_sound(d + "/env_bad", Syms(), "env")
+        assert False, "car env row accepted"
+    except SystemExit:
+        pass
     # W13 hx7: an ALOCK TIMEOUT line in a run's trace.raw -> UNJUDGED (identical pages or not)
     os.makedirs(d + "/to"); wr(d + "/to/statehash.bin", [{0: z, 1: one(0x30, 0x3f800000)}])
     open(d + "/to/trace.raw", "w").write("TRACE d3dtrace 1\nALOCK TIMEOUT frame=17 thread=2\nPRESENT 0\n")
@@ -501,5 +566,5 @@ if __name__ == "__main__":
                 i += 1
         if len(pos) != 2:
             sys.exit(__doc__)
-        r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"), rwpad=opt.get("rwpad"), sound=opt.get("sound"))
+        r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"), rwpad=opt.get("rwpad"), sound=opt.get("sound"), uninit=opt.get("uninit"), env=opt.get("env"))
         sys.exit(3 if alock_timeouts(pos[0]) + alock_timeouts(pos[1]) else 0 if r < 0 else 1)

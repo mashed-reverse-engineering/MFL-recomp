@@ -106,7 +106,6 @@ RW_LAYOUT_ASSERT(rw37_row_14, sizeof(RpWorldSector) == 0x88);      /* exe: exe s
 /* MFL.exe inlines RpWorldForAllWorldSectors and the WorldSectorInstance callback (BSP walk with a 64 entry stack in the frame):
  * the walk is written out here in the same form */
 #define rpWORLDINSTANCESTACK 64
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool RpWorldInstance(RpWorld *world)
 {

@@ -133,7 +133,6 @@ struct _rpLODAtomicCache
     RpGeometry         *lodGeometry[RPLODATOMICMAXLOD];
 };
 #define RPLODOFFSET(_ptr,_offset) (*(RpLODAtomicCache **)(((char *)(_ptr)) + _offset))
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * LODAtomicCallBackWriteChunk(RwStream * stream, RwInt32 __RWUNUSED__ len, RpAtomic * atomic, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {
@@ -166,7 +165,6 @@ RwStream * LODAtomicCallBackWriteChunk(RwStream * stream, RwInt32 __RWUNUSED__ l
  * written from the MFL.exe disassembly in the same form: the struct chunk (header + cache) plus a geometry chunk per written LOD */
 extern RwInt32 RpGeometryStreamGetSize(const RpGeometry *geometry);
 #define LODCHUNKHEADERSIZE 12      /* rwCHUNKHEADERSIZE: type, size, version words */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 LODAtomicCallBackGetChunkSize(const RpAtomic * atomic, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {

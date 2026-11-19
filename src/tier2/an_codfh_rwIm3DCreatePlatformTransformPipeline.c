@@ -29,7 +29,6 @@ extern RxPipeline *RwIm3DSetTransformPipeline(RxPipeline *pipeline);
  * "ImmInstance.csl" (lane alias RxNodeDefinitionGetImmInstance); the codfh file is the Xbox one */
 extern RxNodeDefinition *RxNodeDefinitionGetImmInstance(void);
 #define RxNodeDefinitionGetXboxImmInstance RxNodeDefinitionGetImmInstance
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rwIm3DCreatePlatformTransformPipeline(RxPipeline **globalPipe)
 {

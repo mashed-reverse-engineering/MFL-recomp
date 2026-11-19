@@ -13,7 +13,6 @@ struct rpGeometryList
 };
 RW_LAYOUT_ASSERT(p_gl_0, sizeof(rpGeometryList) == 8 && RW_OFFSETOF(rpGeometryList, numGeoms) == 4);      /* MFL.exe 0x4f7158 [esi+4] count, 0x4f715f [esi] array */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 rpGeometryList * GeometryListDeinitialize(rpGeometryList * geomList)
 {

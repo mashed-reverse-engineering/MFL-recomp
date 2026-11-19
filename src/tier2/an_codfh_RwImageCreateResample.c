@@ -37,7 +37,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, RW_OFFSETOF(RwImage, palette) == 0x18);      /* an_
 RW_LAYOUT_ASSERT(rw37_row_1, sizeof(RwImage) == 0x1c);      /* exe: exe static imageTKList.sizeOfStruct at 0x0062e848 */
 /* ---- end of the generated declarations ---- */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwImage * RwImageCreateResample(const RwImage * srcImage, RwInt32 width, RwInt32 height)
 {

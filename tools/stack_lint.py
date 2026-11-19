@@ -219,7 +219,7 @@ def frame_ref(a, frames):
     size, mem = frames[m.group(1)]
     if m.group(2) not in mem: return None
     off, msz, es, isarr, ty = mem[m.group(2)]
-    if not addr and not isarr: return None      # a member value, not a pointer
+    if not addr and (not isarr or m.group(4)): return None      # a member value (also an array ELEMENT `frame.arr[0]`, W15 F6: car_collision_impulse), not a pointer
     sub = [x for x in m.group(3).split(".") if x]
     if sub and ty in RW_SUB and sub[0] in dict(RW_SUB[ty]) and len(sub) == 1: off += dict(RW_SUB[ty])[sub[0]]
     elif sub: return None
@@ -407,9 +407,11 @@ void good(int car)
   struct {
     int a;
     RwV3d v;
+    RwV3d *p [1];
   } frame;
 
   car_get_forward(&frame.v,car);
+  car_get_forward(frame.p[0],car);
 }
 """
 def selftest():

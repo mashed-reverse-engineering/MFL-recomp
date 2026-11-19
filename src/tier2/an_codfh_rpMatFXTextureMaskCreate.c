@@ -147,7 +147,6 @@ RW_LAYOUT_ASSERT(rw37_row_6, sizeof(RwRaster) == 0x34);      /* exe: exe static 
 RW_LAYOUT_ASSERT(rw37_row_7, sizeof(RwImage) == 0x1c);      /* exe: exe static imageTKList.sizeOfStruct at 0x0062e848 */
 /* ---- end of the generated declarations ---- */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwTexture * rpMatFXTextureMaskCreate(const RwTexture * baseTexture, const RwTexture * maskTexture)
 {

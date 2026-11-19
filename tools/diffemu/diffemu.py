@@ -26,6 +26,9 @@ OBJCACHE = os.environ.get("DIFFEMU_OBJ", os.path.expanduser("~/.cache/mfl_diffem
 FLAGS = ["/nologo", "/c", "/Gy", "/O2", "/Ob0"]      # exactly the flags build_overlay.py uses for clusters / tier 2 (it adds /Ob0 for those since 2026-10-24: the verified object is the shipped one): a callee defined in the same chunk is called (hooked at its original address like every callee), not inlined; the original calls it, and the call trace must be comparable
 COLS = ["name", "va", "verdict", "cases", "coverage_orig", "coverage_ours", "note"]
 TOOLHASH = sha(*[open(os.path.join(core.HERE, f), "rb").read() for f in ("core.py", "diffemu.py", "seed.py")], open(os.path.join(core.TOOLS, "cmpfn.py"), "rb").read())
+def cache_key(objkey, n, cases, seeds):
+    """the one cache key of a verdict (diffemu and tools/t2_auto.py, W15 F4); eax32: the full-eax compare (core.eax_readers / DIFFEMU_VOID_EAX) is part of the verdict"""
+    return sha(objkey, n, cases, seeds, TOOLHASH, T().hash, "eax32" if core.eax_read(n) else "")
 MIN_CASES = 20
 
 
@@ -217,10 +220,10 @@ def main():
         o = srcs[idx[n][0]]
         if isinstance(o, Exception):
             res[n] = dict(name=n, va="%08x" % min(T().sym[n]), verdict="INCONCLUSIVE", cases=0, coverage_orig="0.00", coverage_ours="0.00", note=str(o)[:200]); continue
-        key = sha(o[1], n, cases, seeds, TOOLHASH, T().hash, "eax32" if core.eax_read(n) else "")      # eax32: the full-eax compare (core.eax_readers / DIFFEMU_VOID_EAX) is part of the verdict
+        key = cache_key(o[1], n, cases, seeds)
         if not force and n in cache and cache[n]["key"] == key: res[n] = cache[n]; res[n]["cached"] = 1
         else: todo.append((n, idx[n][0], o[0], cases, seeds, budget)); cache.pop(n, None); res.setdefault(n, None); keys = None
-    keyof = {n: sha(srcs[idx[n][0]][1], n, cases, seeds, TOOLHASH, T().hash, "eax32" if core.eax_read(n) else "") for n in names if not isinstance(srcs[idx[n][0]], Exception)}
+    keyof = {n: cache_key(srcs[idx[n][0]][1], n, cases, seeds) for n in names if not isinstance(srcs[idx[n][0]], Exception)}
     print("%d functions, %d to run (%d cached), compile %.0fs" % (len(names), len(todo), len(names) - len(todo), time.time() - t0)); sys.stdout.flush()
     with Pool(min(jobs, max(1, len(todo)))) as p:
         for row in p.imap_unordered(job, todo):

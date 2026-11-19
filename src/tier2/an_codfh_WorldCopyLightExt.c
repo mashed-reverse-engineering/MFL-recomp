@@ -96,7 +96,6 @@ extern RwInt32      lightExtOffset;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldLightExt, oldSync) == 4);      /* MFL.exe 0x4f41fb src ext->world [ext+0]; 0x4f3ff8 (WorldLightSync) call [ext+4] = oldSync */
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(RpWorld, lightList) == 0x34 && RW_OFFSETOF(RpWorld, directionalLightList) == 0x3c && RW_OFFSETOF(RpLight, inWorld) == 0x34);      /* MFL.exe 0x4f4210 world + 0x3c (directional), 0x4f4225 world + 0x34, 0x4f422a light->inWorld [esi+0x34] */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * WorldCopyLightExt(void *dstObject, const void *srcObject, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

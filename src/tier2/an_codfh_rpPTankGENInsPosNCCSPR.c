@@ -68,7 +68,7 @@ static void rpPTankSinCos_r(float angle, float *sine, float *cosine)
 #endif
 }
 
-/* TIER2: unvalidated authority=diffemu */
+/* TIER2: unvalidated 2026-11-18 authority=diffemu */
 void rpPTankGENInsPosNCCSPR(RpPTankLockStruct *dstCluster, RwV3d *right, RwV3d *up, RwInt32 pCount, RpPTankData *ptankGlobal)
 {
     const RwReal sizeX = ptankGlobal->cSize.x * 0.5f;

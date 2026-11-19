@@ -256,8 +256,10 @@ static void statehash_frame(int fr, DWORD ph, DWORD rf) {
     fflush(f);
     if (fr == cfg_poke_frame) { DWORD *p = (DWORD *)(uintptr_t)(cfg_poke_va + cfg_sh_delta); DWORD old; VirtualProtect(p, 4, PAGE_READWRITE, &old); *p ^= cfg_poke_xor; L("POKE frame=%d va=%x xor=%x\n", fr, cfg_poke_va, cfg_poke_xor); }
 }
+static void mstep_frame(void);
 static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, const RGNDATA *c) {
     DWORD ph = 0, rf = 0;
+    if (is_main()) mstep_frame();
     if (!IsBadReadPtr((void *)(uintptr_t)cfg_phase_addr, 4)) ph = *(DWORD *)(uintptr_t)cfg_phase_addr;
     if (cfg_racef_addr && !IsBadReadPtr((void *)(uintptr_t)cfg_racef_addr, 4)) rf = *(DWORD *)(uintptr_t)cfg_racef_addr;
     InterlockedIncrement(&npres);      /* before alock_step: the workers it releases see the new frame's cursor */
@@ -567,6 +569,39 @@ static void dvt_hook(void *obj, int i, void *fn) {     /* patch slot i of obj's 
     if (k < ndvt && vt[i] != fn) vt_patch(vt, i, fn, &dvt[k].o[i]);
     LeaveCriticalSection(&acs);
 }
+/* ---- framed menu input (HARN W15, cfg mkbd= + mstep= lines from race_script.sh FRAMED=1): the menu path is driven from here, frame by frame, instead of
+ * by xdotool keys in wall time, so the number of game frames (and with vsnap=2 the game clock) from process start to loading is the same in every run.
+ * mkbd=<va of the game's DirectInput keyboard device pointer> (g_app_770f70): its GetDeviceState(256) gets the injected key's 0x80 bit.
+ * mstep=k:<dik>:<va>:<=|!><value>  press <dik> (MS_HOLD frames) until the dword at va equals / differs (re-press after MS_RETRY frames, MS_TRIES max);
+ *                                   no press when it already holds after MS_SETTLE frames
+ * mstep=w:0:<va>:<=|!><value>       wait (no key) until it holds
+ * mstep=f:<count>:<va>:<value>      fill count dwords at va with value (the course unlock of race_script.sh), at that point of the path
+ * Every step is keyed to game state read at Present; a step logs "MSTEP i op frame=<Present count> vt=<virtual clock us> tries=n". */
+#define NMS 64
+#define MS_SETTLE 2
+#define MS_HOLD 2
+#define MS_RETRY 20
+#define MS_TRIES 40
+static struct { char op, cmp; int a; DWORD va, v; } ms[NMS]; static int nms, ms_i, ms_st, ms_t, ms_tries; static DWORD cfg_mkbd; static volatile DWORD ms_key; static void *ms_dev;
+static HRESULT WINAPI h_di_GetDeviceState(void *dev, DWORD n, void *buf) {
+    HRESULT r = ((HRESULT (WINAPI *)(void *, DWORD, void *))dvt_orig(dev)[9])(dev, n, buf);
+    if (dev == ms_dev && n == 256 && ms_key) { if (r < 0) { memset(buf, 0, 256); r = 0; } ((BYTE *)buf)[ms_key] |= 0x80; }
+    return r;
+}
+static void mstep_frame(void) {
+    if (ms_i >= nms) return;
+    if (!ms_dev && cfg_mkbd && !IsBadReadPtr((void *)(uintptr_t)cfg_mkbd, 4) && *(void **)(uintptr_t)cfg_mkbd) { ms_dev = *(void **)(uintptr_t)cfg_mkbd; dvt_hook(ms_dev, 9, h_di_GetDeviceState); L("MSTEP kbd %p\n", ms_dev); }
+    int i = ms_i, met = 0; DWORD *p = (DWORD *)(uintptr_t)ms[i].va;
+    if (ms[i].op == 'f') { for (int k = 0; k < ms[i].a; k++) p[k] = ms[i].v; met = 1; }
+    else if (!IsBadReadPtr(p, 4)) met = ms[i].cmp == '=' ? *p == ms[i].v : *p != ms[i].v;
+    if (ms[i].op == 'k' && !ms_dev) return;      /* no keyboard yet: nothing can be pressed */
+    if (ms_st == 0 && ms[i].op == 'k' && ++ms_t < MS_SETTLE) return;
+    if (ms_st == 1) { if (++ms_t >= MS_HOLD) { ms_key = 0; ms_st = 2; ms_t = 0; } return; }
+    if (met) { L("MSTEP %d %c frame=%d vt=%lld tries=%d\n", i, ms[i].op, (int)npres, (long long)vt_us, ms_tries); fflush(lg); ms_i++; ms_st = ms_t = ms_tries = 0; return; }
+    if (ms[i].op != 'k' || (ms_st == 2 && ++ms_t < MS_RETRY)) return;
+    if (++ms_tries > MS_TRIES) { L("MSTEP %d FAIL frame=%d\n", i, (int)npres); fflush(lg); ms_i = nms; ms_key = 0; return; }
+    ms_key = (DWORD)ms[i].a; ms_st = 1; ms_t = 0;
+}
 static int dsb_slot(void *b, int fresh) {    /* the buffer's cursor state, set up at its first read; fresh: just (re)created at this address, forget it */
     EnterCriticalSection(&acs); int i, f = -1;
     for (i = 0; i < NDSB; i++) { if (dsb[i].b == b) break; if (!dsb[i].b && f < 0) f = i; }
@@ -776,7 +811,7 @@ static void ar_patch(void) {
 /* ---- entry point -------------------------------------------------------------------------------------------------------------- */
 static void read_cfg(const char **outp, char *outbuf) {
     FILE *f = fopen("d3dtrace.cfg", "r"); char ln[512];
-    strcpy(outbuf, "d3dtrace.log"); npin = 0; n_ars = 0;
+    strcpy(outbuf, "d3dtrace.log"); npin = 0; n_ars = 0; nms = 0;
     while (f && fgets(ln, sizeof ln, f)) {
         char *e = strchr(ln, '='); if (!e) continue; *e++ = 0; e[strcspn(e, "\r\n")] = 0;
         if (!strcmp(ln, "out")) strncpy(outbuf, e, 500);
@@ -805,6 +840,10 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "vst")) cfg_vst = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "srand")) sscanf(e, "%u:%x:%u", &cfg_srand_ph, &cfg_srand_va, &cfg_srand_seed);
         else if (!strcmp(ln, "pin") && npin < NPIN && sscanf(e, "%u:%x:%x", &pins[npin].ph, &pins[npin].va, &pins[npin].v) == 3) npin++;
+        else if (!strcmp(ln, "mkbd")) cfg_mkbd = (DWORD)strtoul(e, 0, 0);
+        else if (!strcmp(ln, "mstep") && nms < NMS && e[0] && e[1] == ':') {      /* see mstep_frame */
+            char *q = e + 2; ms[nms].op = e[0]; ms[nms].a = (int)strtol(q, &q, 0); ms[nms].va = (DWORD)strtoul(q + (*q == ':'), &q, 0);
+            q += *q == ':'; ms[nms].cmp = '='; if (*q == '=' || *q == '!') ms[nms].cmp = *q++; ms[nms].v = (DWORD)strtoul(q, 0, 0); nms++; }
         else if (!strcmp(ln, "sh_base")) cfg_sh_base = (u32)strtoul(e, 0, 16);
         else if (!strcmp(ln, "sh_end")) cfg_sh_end = (u32)strtoul(e, 0, 16);
         else if (!strcmp(ln, "sh_delta")) cfg_sh_delta = (u32)strtoul(e, 0, 16);

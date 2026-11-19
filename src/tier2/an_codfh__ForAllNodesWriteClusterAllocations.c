@@ -107,7 +107,6 @@ StalacMiteAlloc(RwUInt32 size);
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwReqEntry) == 0x24 && RW_OFFSETOF(RwReqEntry, required) == 4 && RW_OFFSETOF(RwReqEntry, outbf) == 0x18 && RW_OFFSETOF(RwReqEntry, assignedslot) == 0x1c);      /* MFL.exe 0x4f2d38 reqentries [esi+0xc], stride 0x24 (0x4f2d50), required [eax+4] (0x4f2d41), outbf [eax+0x18] (0x4f2f26), assignedslot [eax+0x1c] (0x4f2f16) */
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(RwScopeTrace) == 0x10 && RW_OFFSETOF(RwScopeTrace, next) == 8);      /* MFL.exe 0x4f2d7b / 0x4f2d89 st->next [+8], st->head [+0] (0x4f2d71) */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=shadow */
 RwUInt32 _ForAllNodesWriteClusterAllocations(RxPipeline *pipeline, RwScopeTrace *stHead)
 {

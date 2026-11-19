@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040e610*/ extern int race_setup_use_0();
 /*00429680*/ extern int best_times_init_defaults();
 /*00437710*/ extern int option_slider_1_reset();
@@ -148,6 +149,9 @@ undefined4 game_options_reset(void)
   g_camera_fov_factor = CAMERA_FOV_FACTOR_DEFAULT;
   g_camera_7ef7d8 = 0;
   menu_options_defaults_reset();
+#if MFL_FIX_UNLOCK_ALL || MFL_FIX_PREFS
+  mfl_unlock_all_force();
+#endif
   return 1;
 }
 

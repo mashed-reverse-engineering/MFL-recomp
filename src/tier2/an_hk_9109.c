@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*007eebc0*/ extern struct GameState g_game_state;
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
 /*00801b44*/ extern undefined4 g_savegame_replay[0x1000];
@@ -30,5 +31,53 @@ void gamesave_apply(void)
   if (g_replay_buffer != 0) {
     memcpy((void *)g_replay_buffer, g_savegame_replay, 0x105e3 * 4);
   }
+#if MFL_FIX_UNLOCK_ALL || MFL_FIX_PREFS
+  mfl_unlock_all_force();
+#endif
   return;
 }
+
+#if MFL_FIX_UNLOCK_ALL || MFL_FIX_PREFS
+#define UNLOCK_PROGRESS_CELLS (270)
+#define UNLOCK_CELL_DONE (2)
+static uint real_progress[UNLOCK_PROGRESS_CELLS];   /* the words the save file gets while the switch forces the live ones */
+static uint real_bonus_entry;
+static int have_real;
+
+/* MFL_FIX_UNLOCK_ALL, called after the boot defaults (game_options_reset) and after a save load (gamesave_apply): keeps the real progress
+   words and the bonus menu flag, then sets what the game's own attract-screen code sequence sets (frontend_attract_menu_input).
+   Without the compile switch it acts only when the MFL_FIX_PREFS key unlock_all is 1. */
+void mfl_unlock_all_force(void)
+{
+  int i;
+
+#if !MFL_FIX_UNLOCK_ALL
+  if (!mfl_pref(MFL_PREF_UNLOCK_ALL)) {
+    return;
+  }
+#endif
+  for (i = 0; i < UNLOCK_PROGRESS_CELLS; i++) {
+    real_progress[i] = g_game_state.progress[i];
+    g_game_state.progress[i] = UNLOCK_CELL_DONE;
+  }
+  real_bonus_entry = g_game_state.option_flags[0];
+  g_game_state.option_flags[0] = 1;
+  have_real = 1;
+}
+
+/* MFL_FIX_UNLOCK_ALL, called by gamesave_gather after its block copy: the save block gets the real words back, so the user's save never holds
+   the forced state (career progress won while the switch is on is not saved; options, records and best times are). */
+void mfl_unlock_all_unforce(void *save_block)
+{
+  struct GameState *save = (struct GameState *)save_block;
+  int i;
+
+  if (!have_real) {
+    return;
+  }
+  for (i = 0; i < UNLOCK_PROGRESS_CELLS; i++) {
+    save->progress[i] = real_progress[i];
+  }
+  save->option_flags[0] = real_bonus_entry;
+}
+#endif

@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00405d80*/ extern int gamesave_gather();
 /*00405df0*/ extern int gamesave_write();
 /*0040afc0*/ extern void __cdecl gamesave_ui_autosave_done(int result_code);      /* step = 5, result code, closes the message */
@@ -63,7 +64,11 @@ void gamesave_autosave_state_machine(float delta_time)
     /* step 4: write the save; close the message after the 1.0s minimum wait */
     result = gamesave_write();
     if (result == 0) {
+#if MFL_FIX_PREFS
+      if (!mfl_pref(MFL_PREF_SKIP_SAVE_WAIT) && !(g_gamesave_wait_timer > float_1_0)) {      /* skip_save_wait=1: close when written */
+#else
       if (!(g_gamesave_wait_timer > float_1_0)) {
+#endif
         gamesave_poll_status(*(int *)&delta_time);
       }
       else {

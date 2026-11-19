@@ -346,7 +346,7 @@ def run_diffemu(items, cases, force):
     """items: [(name, src, obj, objkey)] -> {name: row}"""
     cache = {} if force else load_cache(); res = {}; todo = []
     for n, src, obj, ok_ in items:
-        key = core.sha(ok_, n, cases, 2, diffemu.TOOLHASH, core.T().hash)
+        key = diffemu.cache_key(ok_, n, cases, 2)      # W15 F4: the eax32 reader flag is part of the key (was missing here)
         if key in cache: res[n] = cache[key]
         else: todo.append((n, src, obj, cases, 2, 90, key))
     print("diffemu: %d functions, %d cached" % (len(items), len(items) - len(todo)), flush=True)

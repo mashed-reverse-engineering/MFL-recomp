@@ -1,6 +1,7 @@
 // cluster-entries: gamesave_update_sub_40bbd0
 /* Installed cluster gamesave_update_sub_40bbd0 (tools/cluster_install.py from output/cluster_pilot_k/gamesave_update_sub_40bbd0.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00405d80*/ extern int gamesave_gather();
 /*00405df0*/ extern int gamesave_write();
 /*00405e20*/ extern int __cdecl gamesave_exists(undefined4 p0);
@@ -96,7 +97,11 @@ void gamesave_update_sub_40bbd0(float dt)
   case 4:
     result = gamesave_write();
     if (result == 0) {
+#if MFL_FIX_PREFS
+      if (mfl_pref(MFL_PREF_SKIP_SAVE_WAIT) || float_1_0 < g_gamesave_wait_timer) {      /* skip_save_wait=1: close when written */
+#else
       if (float_1_0 < g_gamesave_wait_timer) {
+#endif
         message_close();
         g_gamesave_save_step = 5;
         goto LAB_0040be88;

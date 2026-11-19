@@ -41,7 +41,6 @@ RpUVAnimKeyFrameHeader * RpUVAnimKeyFrameInit(const RtAnimAnimation *animation, 
     return ((RpUVAnimKeyFrameHeader *)NULL);      /* MFL.exe returns 0 on every path (0x562908) */
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RtAnimAnimation * RpUVAnimKeyFrameStreamRead(RwStream *stream, RtAnimAnimation *animation)
 {

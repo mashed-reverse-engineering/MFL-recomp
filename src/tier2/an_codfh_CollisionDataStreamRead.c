@@ -233,7 +233,6 @@ _rpCollTreeStreamReadPre36001(RwStream *stream,
                               RwUInt32  numSplits,
                               RwBBox   *bbox,
                               RwBool   *failConv);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * CollisionDataStreamRead(RwStream *stream, RwInt32 __RWUNUSED__ binaryLength, void *object, RwInt32 offset, RwInt32 __RWUNUSED__ size)
 {

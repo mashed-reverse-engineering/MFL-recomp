@@ -32,7 +32,6 @@ RW_LAYOUT_ASSERT(rw37_row_1, sizeof(RxClusterRef) == 0xc);      /* MFL.exe 0x4e6
 
 extern RwUInt32
 PipelineCalcNumUniqueClusters(RxPipeline *pipe);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwUInt32 PipelineCalcNumUniqueClusters(RxPipeline *pipeline)
 {

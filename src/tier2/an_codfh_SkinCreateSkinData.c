@@ -60,7 +60,6 @@ struct RpSkin
 RW_LAYOUT_ASSERT(rw37_priv_2, RW_OFFSETOF(RpSkin, skinSplitData) == 0x24);      /* an_codfh_rpskin.c */
 RW_LAYOUT_ASSERT(rw37_priv_3, RW_OFFSETOF(RpSkin, unaligned) == 0x3c);      /* an_codfh_rpskin.c */
 RW_LAYOUT_ASSERT(rw37_priv_5, sizeof(RpSkin) == 0x40);      /* installed an_codfh_rpskin.c (rpSKINSIZE 0x40) */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool SkinCreateSkinData(RpSkin *skin, RwUInt32 numBones, RwUInt32 numUsedBones, RwUInt32 numVertices, RwUInt8 *usedBoneList, RwMatrixWeights *vertexWeights, RwUInt32 *vertexIndices, RwMatrix *inverseMatrices)
 {

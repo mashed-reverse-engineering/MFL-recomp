@@ -13,7 +13,6 @@ RtAnimInterpolatorCreate(RwInt32 numNodes,
 
 #define ROUNDUP16(x) (((mfl_uptr)(x) + 16 - 1) & ~(mfl_uptr)(16 - 1))
 extern RpHAnimAtomicGlobalVars RpHAnimAtomicGlobals;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpHAnimHierarchy * RpHAnimHierarchyCreate(RwInt32 numNodes, RwUInt32 *nodeFlags, RwInt32 *nodeIDs, RpHAnimHierarchyFlag flags, RwInt32 maxInterpKeyFrameSize)
 {

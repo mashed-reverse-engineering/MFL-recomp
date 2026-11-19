@@ -13,7 +13,6 @@
 #define THREADSAFE_CHECK_ISCALLEDMAIN() 
 /* ---- end of the generated declarations ---- */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpWorld * RpWorldForAllClumps(RpWorld * world, RpClumpCallBack fpCallBack, void *pData)
 {

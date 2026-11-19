@@ -13,7 +13,7 @@
 #   standalone   the per-commit standard tier (plan_speedup_2026-11-03 section 3, ~20 min): classify guard + fresh MKRANGE GEN_DATA IMPLIBS HARNESS link (target config LIB_LUA/QHULL/ZLIB=src LIB_CRT=libcmt by default (the DirectShow drop is always on),
 #                =orig / 0 for A/B; DELTA from output/gate/standalone_delta.txt, retried up to 4 links until stable; started in the background beside check_all when the 1-minute load is below 8, the gate fails
 #                when either fails) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + DRIVE=31 course 0 state compare (cars / vehicles masked
-#                diff <= max(control noise, baseline 'state' rows)) + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), mini course sweep through the menus (arcade + cup
+#                diff <= max(control noise, baseline 'state' rows)) + statehash compare of the stored course-0 pair (report only, tools/statehash/gatestep.py) + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), mini course sweep through the menus (arcade + cup
 #                rows 0-14, DRIVE=31, black-frame check), d3dtrace render compare of course:0 only (ours vs cached control + ours vs ours2), scenario smoke, training lessons 0 and 3 to the end (tt_check).  No 15-course crash sweep (the mini sweep covers all courses).
 #   full         standalone + crash-only 15 courses on the linked exe + render of all tools/d3dtrace/render_limits.txt targets (course:0 course:7 course:12 title) + training lessons 0 2 3 + lesson 5 crash-only + V7 last (tools/wine-run/release_v7.sh: release link, smoke title + race, no trap log, pcm_check2).  Nightly and before tools/publish.sh
 #                (publish.sh refuses unless the newest full gate in output/gate/ passed on the same tree hash).
@@ -87,6 +87,7 @@ case $KIND in
              [ $KIND = full ] && step "crash-only 15 courses on the linked exe" 6 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
              step "mini sweep: arcade + cup rows 0-14 through the menus, DRIVE=31" 5 "$T/delink/sa_oracles.sh sweep $D/link \$(cat $D/delta.txt) $D/minisweep"
              step "DRIVE=31 course 0 state compare" 2 "statecheck"
+             step "statehash compare (report-only): stored course-0 pair, --uninit / --sound lines" 0.3 "python3 $T/statehash/gatestep.py $D/statehash"      # W15 A5: no Wine (data/gate_pair.txt); exit 0 unless an input is missing / statecmp breaks
              if [ $KIND = full ]; then step "render oracle: d3dtrace course:0/7/12 + title vs cached control, ours vs ours" 3 "$T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"
              else step "render oracle: d3dtrace course:0 vs cached control, ours vs ours2" 1.5 "RENDER_TARGETS=course:0 $T/delink/sa_oracles.sh render $D/link \$(cat $D/delta.txt) $D/render"; fi
              step "scenario smoke (options_all, pause_all training, menus_main, arcade_win)" 5 "$T/delink/sa_oracles.sh scen $D/link \$(cat $D/delta.txt) $D/scen"

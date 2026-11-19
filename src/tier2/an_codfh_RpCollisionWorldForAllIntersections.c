@@ -57,7 +57,6 @@ typedef RpCollisionTriangle * (*RpIntersectionCallBackWorldTriangle)
 /*00549370*/ extern undefined __cdecl WorldForAllTriIntsecLine(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*0054a4d0*/ extern undefined WorldForAllTriIntsecSphere();
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-12 authority=diffemu */
 RpWorld * RpCollisionWorldForAllIntersections(RpWorld *world, RpIntersection *intersection, RpIntersectionCallBackWorldTriangle callBack, void *data)
 {

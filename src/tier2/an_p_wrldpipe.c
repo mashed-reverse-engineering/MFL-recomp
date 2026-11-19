@@ -47,7 +47,6 @@ extern RwFreeList *RwFreeListCreate(RwInt32 entrySize, RwInt32 entriesPerBlock, 
 #define rpWRLDPIPE_DYNGEOM_ALIGN 4            /* MFL.exe 0x504457 */
 #define rpWRLDPIPE_DYNGEOM_HINT (rwMEMHINTDUR_EVENT | 0x50d)      /* MFL.exe 0x504452 / 0x50446d: event duration, module id 0x50d */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 rpD3D9DynamicGeometry * _rpD3D9AddDynamicGeometry(void *object)
 {
@@ -78,7 +77,6 @@ rpD3D9DynamicGeometry * _rpD3D9AddDynamicGeometry(void *object)
     return (cur);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwFreeList * _rpD3D9RemoveDynamicGeometry(void *object)
 {
@@ -105,7 +103,6 @@ RwFreeList * _rpD3D9RemoveDynamicGeometry(void *object)
     return ((RwFreeList *)NULL);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool _rxWorldDevicePluginAttach(void)
 {
@@ -119,7 +116,6 @@ RwBool _rxWorldDevicePluginAttach(void)
     return (result);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool _rpCreatePlatformWorldSectorPipelines(void)
 {
@@ -144,7 +140,6 @@ RwBool _rpCreatePlatformWorldSectorPipelines(void)
     return (FALSE);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void _rpDestroyPlatformWorldSectorPipelines(void)
 {
@@ -156,7 +151,6 @@ void _rpDestroyPlatformWorldSectorPipelines(void)
     }
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool _rpCreatePlatformAtomicPipelines(void)
 {
@@ -185,7 +179,6 @@ RwBool _rpCreatePlatformAtomicPipelines(void)
     return (FALSE);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void _rpDestroyPlatformAtomicPipelines(void)
 {

@@ -30,7 +30,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, sizeof(RpHAnimKeyFrame) == 0x24 && RW_OFFSETOF(RpHA
 RW_LAYOUT_ASSERT(rw37_row_1, RW_OFFSETOF(RpHAnimKeyFrame, q) == 8 && sizeof(RtQuat) == 0x10 && RW_OFFSETOF(RtQuat, real) == 0xc);      /* MFL.exe 0x543a27..0x543a30 / 0x543a68 (RpHAnimKeyFrameMulRecip): q.imag at +8..+0x10, q.real at +0x14 of the start frame */
 /* ---- end of the generated declarations ---- */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void RpHAnimKeyFrameMulRecip(void *pVoidFrame, void *pVoidStart)
 {

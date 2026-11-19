@@ -51,7 +51,6 @@ static void rpPTankSinCos_r(float angle, float *sine, float *cosine)
 #endif
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-12 authority=diffemu */
 void rpPTankGENInsPosNCPSPR(RpPTankLockStruct *dstCluster, RwV3d *right, RwV3d *up, RwInt32 pCount, RpPTankData *ptankGlobal)
 {

@@ -14,14 +14,42 @@
 # (an earlier fixed 1.5 s script lost exactly this key).
 FT=$1; RF=$2; FR=$3; MAP=$4; FAST=$5
 mapva() { grep "^$1 " $MAP | cut -d' ' -f2; }
+CUR=0x69cbd0; MSG=0x69cfd0
+sel() { printf "0x%x" $((0x69d2e0 + $1 * 0x40 + 8)); }
+# FRAMED=1 (HARN W15, single player path with "fast" only): the same menu path as below, but as mkbd= / mstep= lines that tools/d3dtrace/run.sh moves
+# into d3dtrace.cfg: the d3d9 proxy presses the keys (DirectInput keyboard state) and does the pokes / fills frame by frame, keyed to the same game state
+# (d3d9.c mstep_frame), so process start -> loading takes the same number of frames (and game clock) in every run.  Host side: wait for the race.
+if [ "$FRAMED" = 1 ] && [ "$FAST" = fast ] && [ -z "$MULTI" ]; then
+  echo "mkbd=0x770f70"                     # g_app_770f70: the DirectInput keyboard device (keyboard_state_to_bits)
+  echo "mstep=f:1:0x$(mapva fast_menu_scale):6"
+  [ -n "$DRIVE" ] && echo "mstep=f:1:0x$(mapva scen_flags):$DRIVE"
+  [ "${NOLIMIT:-2}" != 0 ] && echo "mstep=f:1:0x$(mapva fast_nolimit):${NOLIMIT:-2}"
+  [ "$NOSHOW" = 1 ] && echo "mstep=f:1:0x$(mapva fast_noshow):1"
+  echo "mstep=w:0:$CUR:=1"; echo "mstep=w:0:0x69d1e4:=0"      # title up, fade-in finished
+  echo "mstep=k:0x1c:$MSG:=2"              # Return: title -> Autosave prompt
+  echo "mstep=k:0x1c:$CUR:=3"              # Return through the two boxes and the main menu -> Single Player
+  [ "${COURSE:-0}" != 0 ] && { echo "mstep=f:270:0x7eebc0:0x1"; echo "mstep=f:68:0x7ef598:0x01010101"; }
+  echo "mstep=k:0xd0:$(sel 3):=1"; echo "mstep=k:0xd0:$(sel 3):=2"; echo "mstep=k:0x1c:$CUR:=4"      # Down Down Return: Arcade Modes
+  for d in 5 6 7; do
+    echo "mstep=k:0x1c:$CUR:=$d"
+    [ $d = 6 ] && [ "${COURSE:-0}" != 0 ] && echo "mstep=k:0xd0:0x69d688:=$COURSE"     # Down until g_career_row is the course
+  done
+  for kv in $(echo "${VARIANT:-}" | tr ',' ' '); do
+    case ${kv%%=*} in pu) a=0x69cf90;; mk) a=0x69cf94;; skill) a=0x69cf98;; len) a=0x69cf9c;; mode) a=0x69cfa4;; *) continue;; esac
+    echo "mstep=f:1:$a:${kv#*=}"
+  done
+  echo "mstep=k:0x1c:0x652f68:!0"          # game mode page -> Press START (phase 1)
+  echo "mstep=k:0x1c:0x652f68:!1"          # Press START -> loading (phase 3)
+  echo "waitmem $CUR 1 20"; echo "waitmem 0x652f68 6 120"      # the proxy walks the menus (MSTEP lines in trace.raw) and the race starts
+  FAST=framed      # no host pokes / keys below
+fi
 if [ "$FAST" = fast ]; then
   echo "poke 0x$(mapva fast_menu_scale) 6"
   [ -n "$DRIVE" ] && echo "poke 0x$(mapva scen_flags) $DRIVE"   # DRIVE = scripted driving bit mask (see freeze.c scen_flags): 1 accelerate, 2 steer, 4 weapons, 8 opponents frozen, 16 countdown throttle
   [ "${NOLIMIT:-2}" != 0 ] && echo "poke 0x$(mapva fast_nolimit) ${NOLIMIT:-2}"   # NOLIMIT = bit mask of the phases without the 60 fps frame limiter: 1 menus/Press START, 2 loading, 4 race (see freeze.c); default 2 = only the loading phase is unlimited (menus + loading together made identical runs differ on course 3, either alone does not)
   [ "$NOSHOW" = 1 ] && echo "poke 0x$(mapva fast_noshow) 1"
 fi
-CUR=0x69cbd0; MSG=0x69cfd0
-sel() { printf "0x%x" $((0x69d2e0 + $1 * 0x40 + 8)); }
+if [ "$FAST" != framed ]; then
 echo "waitmem $CUR 1 20"
 echo "waitmem 0x69d1e4 0 5"             # title screen fade-in finished (g_menu_fade_alpha): the first key before this was lost
 [ "$SHOTS" != 0 ] && echo "shot title"
@@ -67,6 +95,7 @@ fi
 echo "keywait Return 0x652f68 !0 5"     # game mode page -> loading screen ("Press START button", phase 1)
 echo "shot press_start"
 echo "keywait Return 0x652f68 !1 6"     # Press START -> loading (phase 3)
+fi
 [ "$SHOTS" != 0 ] && echo "shot loading"
 [ "$SHOTS" != 0 ] && echo "waitmem 0x652f68 5 30" && echo "shot countdown"
 echo "waitmem 0x652f68 6 30"

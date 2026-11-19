@@ -42,7 +42,6 @@ struct RpPTankData
 };
 /*007d2128*/ extern void *RwEngineInstance;
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-12 authority=diffemu */
 void rpPTankGENInsPosCCPSNR(RpPTankLockStruct *dstCluster, RwV3d *right, RwV3d *up, RwInt32 pCount, RpPTankData *ptankGlobal)
 {

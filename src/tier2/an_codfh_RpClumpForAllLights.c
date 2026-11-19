@@ -81,7 +81,6 @@ typedef RpLight    *(*RpLightCallBack) (RpLight * light, void *data);
 
 /*007d5360*/ extern undefined4 _rpClumpLightExtOffset;
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-12 authority=diffemu */
 RpClump * RpClumpForAllLights(RpClump * clump, RpLightCallBack callback, void *pData)
 {

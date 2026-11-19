@@ -50,7 +50,6 @@ extern void * LODAtomicCallBackCopy(RpAtomic * dstAtomic, RpAtomic * srcAtomic, 
 extern void * LODAtomicCallBackDestructor(RpAtomic * atomic, RwInt32 offset, RwInt32 __RWUNUSED__ size);
 extern void * LODAtomicCallBackOpen(void *ptr, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size);
 extern void * LODAtomicCallBackClose(void *ptr, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpLODAtomicPluginAttach(void)
 {

@@ -21,7 +21,7 @@ Status words:
 - `tools/build_overlay.py` takes the defines from the environment variable `MFL_FIX_DEFINES`, for example `MFL_FIX_DEFINES=/DMFL_FIX_DETERMINISTIC_AUDIO_RNG=1`. The defines are part of the object cache key, so a switched object never replaces a default one.
 - `tools/build_mflng.sh` builds two executables: `MFLng.exe` (every switch off) and `MFLng_fixes.exe` (every switch on). `MFLng_fixes.exe` is **not gated**: no regression run checks it.
 - There is no umbrella switch `MFL_FIX_ALL`. It will be added when two switches have to be tested together.
-- A runtime configuration (an ini file or environment variables read at boot) is an option for later, behind its own switch; until then switches are compile-time only.
+- Bug fixes stay compile-time switches. Player preferences (things that are a matter of taste, not bugs) are keys of a settings file read at start, all behind the one switch `MFL_FIX_PREFS`.
 
 ## Implemented
 
@@ -54,10 +54,42 @@ Status words:
 - **Original problem:** the 3D camera always uses a 4:3 view, whatever video mode is chosen, so at a wide mode such as 1280x720 the picture is stretched sideways.
 - **Change:** the camera aspect factor is taken from the video mode (height / width) instead of the fixed 0.75. A wide mode shows more of the course at the sides; the view height stays as in 4:3. At 4:3 modes nothing changes. Two size readers of the view window (pickup icons above the cars, a skid-mark value) are corrected so they keep their 4:3 size.
 - **In-race HUD:** the HUD keeps its proportions; panels on the left or right (score, team, kill-count and endpoint panels) move out to the screen edges, centre items stay centred, player markers follow their cars over the whole width.
-- **Menus:** the frontend pages, the options menu and the message boxes keep their 4:3 proportions, centred, with plain side bars where a full-screen menu background would have been stretched.
-- **Not yet:** the in-race 640x480 2D passes (flash text, race messages, training boxes) and the menus drawn over a running race start (app states 5 / 6) are still stretched.
-- **Lives in:** `camera_update`, `camera_apply_rotation` (with the helpers `mfl_widescreen_*`), `camera_path_update`, `hud_pickup_icons_update_render`, `vehicle_skidmarks_render`, `app_state_menu_render`, `score_panel_entry_update`, `team_panel_entry_update`, `kc_panel_entry_update`, `endpoint_panel_entry_update`, `hudpanel_marker_place`.
+- **Menus:** the page backgrounds (the menu backdrop with its pictures and wave grid, the header and footer strips, the fade overlay) fill the whole width, stretched; the text and the menu elements (buttons, rows, icons, cursors, the race-results replay window) and the message boxes keep their 4:3 proportions, centred. The same holds for the pause page and the results page.
+- **Over the race:** the in-race 640x480 2D passes (flash text, race messages, intro / winner banners, training boxes, bomb timer text) are drawn 4:3 in the middle the same way; the black banner bars stay full width. The player-marker pass uses the HUD's widened window, so the markers keep their shape over their cars.
+- **Not yet:** movies; split-screen is not checked.
+- **Lives in:** `camera_update`, `camera_apply_rotation` (with the helpers `mfl_widescreen_*`), `camera_path_update`, `hud_pickup_icons_update_render`, `vehicle_skidmarks_render`, `app_state_menu_render`, `frontend_draw`, `credits_update_draw`, `menu_fade_overlay_draw`, `ui_camera_update_view_rect`, `score_panel_entry_update`, `team_panel_entry_update`, `kc_panel_entry_update`, `endpoint_panel_entry_update`, `hudpanel_marker_place`, `hudpanel_markers_render_all`, `viewport_set_view_window_080`, `viewport_set_view_window_game_mode_9`, `race_status_messages_draw`.
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_WIDESCREEN=1`, or use `MFLng_fixes.exe`.
+
+### MFL_FIX_UNLOCK_ALL
+- **Status:** staged, default off. A test / cheat switch: **not** part of `MFLng_fixes.exe` (its define line in `mfl_fix.h` ends in a comment, and `build_mflng.sh` turns on only the lines `#define MFL_FIX_<NAME> 0`). For players it is the key `unlock_all` of the settings file (`MFL_FIX_PREFS`, below); the compile switch forces it on whatever the key says.
+- **Changes:** everything that is locked at the start is open: the Bonus Features entry of the main menu, the three tournaments, every career event, course and arcade mode. The game already has a hidden code for this (a direction sequence on the attract screen) that sets all 270 career progress cells to "done" and the bonus menu flag; the switch sets the same state after the default settings are made at boot and after every save load.
+- **Your save stays as it was:** when the game saves, the real progress cells and the real bonus flag are written, not the forced ones. Career progress won while the switch is on is therefore not saved; options, records and best times are.
+- **Lives in:** `gamesave_apply` with the helpers `mfl_unlock_all_force` / `mfl_unlock_all_unforce` (`src/tier2/an_hk_9109.c`), `game_options_reset` (`src/tier2/an_hk_788.c`), `gamesave_gather` (`src/tier2/an_hk_967.c`).
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_UNLOCK_ALL=1`.
+- **Test harness:** scenario runs get the same state on both sides (original and ours) without the switch: `SCEN_UNLOCK=1` makes the harness write it in every front-end frame (scenario `unlock_all`).
+
+### MFL_FIX_PREFS
+- **Status:** staged, default off; on in `MFLng_fixes.exe`.
+- **Changes:** nothing by itself. With the switch on, the game reads `mflng_settings.cfg` from the folder of the exe once at start (no command line). Each line is `key=value` with the value `0` or `1`; unknown keys, comment lines (`#` or `;`) and other values are ignored. Every key's default is the original behaviour, so without the file (or with an empty one) the game plays exactly like the original.
+- **Keys:**
+
+  | Key | Default | Other value |
+  |---|---|---|
+  | `skip_intro` | `0` | `1`: the intro movies at start are not played. |
+  | `skip_save_wait` | `0` | `1`: the "saving" / "loading" message box closes as soon as the save or load is done, instead of staying at least one second (manual save, autosave, load). |
+  | `unlock_all` | `0` | `1`: everything is unlocked, as `MFL_FIX_UNLOCK_ALL` above (your save keeps its real progress; career progress won meanwhile is not saved). |
+  | `winner_cam_rotation` | `1` | `0`: at the end of a round the camera still moves in to the winning car but does not circle it. |
+
+  Example file:
+  ```
+  skip_intro=1
+  skip_save_wait=1
+  winner_cam_rotation=0
+  ```
+- **Not yet:** faster loading (load times are measured first); an in-game page that changes the keys and writes the file.
+- **Lives in:** the reader `mfl_pref` in `src/mfl_resources.c`; `app_boot_init` (skip_intro); `gamesave_update_sub_40bbd0`, `gamesave_autosave_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c` (skip_save_wait); `mfl_unlock_all_force` (unlock_all); `cup_scene_update_object` (winner_cam_rotation).
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PREFS=1`, or use `MFLng_fixes.exe`.
+- **Test harness:** `SCEN_PREFS=<file>` (scenario.sh, standalone runs) puts the file beside our exe; the control never has one.
 
 ## Planned
 
@@ -75,7 +107,6 @@ Status words:
 | Recording option (name not fixed) | Per-frame recording of inputs and a compact state snapshot for a community dataset. Opt-in, anonymous, never changes gameplay. | May be a build option instead of a game switch. |
 | `MFL_FIX_MINE_DROP_EMPTY` | `weapon_mine_drop` returns early when the equip record holds no mine, instead of reading a pointer at record-4. | Defence only; not reachable in the original flow. |
 | `MFL_FIX_MINE_MATRIX_INIT` | Zero the local matrix before building the mine matrix. | Determinism only, not a crash fix. |
-| `MFL_FIX_RUNTIME_CFG` | Read switch settings at boot from an ini file instead of compile time. | Only an option; the reader itself would sit behind this switch so the default build stays identical. |
 
 Not planned: a guard for the trainer's remote-thread races (a trainer problem, not a game bug).
 

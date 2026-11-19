@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*007eebc0*/ extern struct GameState g_game_state;
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
 /*00801b40*/ extern undefined4 g_savegame;
@@ -29,6 +30,9 @@ void gamesave_gather(void)
   } while ((char *)player_input_byte < (char *)&g_player_inputs + 0x3b4);
   *(Dw0x2d9 *)g_savegame_state = *(Dw0x2d9 *)&g_game_state;
   g_savegame_state[SAVE_FLAG_INDEX] = g_gamesave_flag_c0c;      /* after the block copy (the slot lies inside the copied block); written through the array so the compiler keeps the order */
+#if MFL_FIX_UNLOCK_ALL || MFL_FIX_PREFS
+  mfl_unlock_all_unforce(g_savegame_state);
+#endif
   if (g_replay_buffer != 0) {
     *(DwReplay *)g_savegame_replay = *(DwReplay *)g_replay_buffer;
   }

@@ -99,7 +99,6 @@ extern RwFreeList *RtAnimAnimationFreeList, RtAnimAnimationFreeListSpace;
 /* MFL.exe's version keeps the free list block size / prealloc count in variables (0x63a194 = 128, 0x63a198 = 1; the codfh source: macros) */
 extern RwInt32 _rtAnimAnimationFreeListBlockSize;
 extern RwInt32 _rtAnimAnimationFreeListPreallocBlocks;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * AnimOpen_53de60(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size)
 {

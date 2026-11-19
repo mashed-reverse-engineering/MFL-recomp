@@ -77,7 +77,6 @@ RW_LAYOUT_ASSERT(rw37_row_9, RW_OFFSETOF(RpIntersection, type) == 0x18 && sizeof
 extern void GeometryForAllTriIntsecLine(RpGeometry *geometry, RwLine *line, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data);
 extern void MorphGeomForAllTriIntsecLine(RpGeometry *geom, RpInterpolator *interp, RwLine *line, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data);
 extern void AtomicForAllTriIntsecSphere(RpAtomic *atomic, const RwSphere *sphere, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpAtomic * RpAtomicForAllIntersections(RpAtomic * atomic, RpIntersection * intersection, RpIntersectionCallBackGeometryTriangle callBack, void *data)
 {

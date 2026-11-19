@@ -73,7 +73,8 @@ void vehicle_get_matrix_local(int v, struct Mat16 *out)
 }
 
 // FUNCTION: MFL 0x00422350
-float *vehicle_part_ltm(int v, int part)      /* returns the LTM (callers use eax) */
+/* returns the LTM (callers use eax) */
+float *vehicle_part_ltm(int v, int part)
 {
     return RwFrameGetLTM(*(void **)(g_game_659f00[v * 0xab + part] + 4));
 }

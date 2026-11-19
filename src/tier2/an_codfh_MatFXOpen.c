@@ -91,7 +91,6 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(MatFXBumpMapData, bumpTexture) == 8);  
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(MatFXDualData, dstBlendMode) == 8);      /* MFL.exe 0x550836 / 0x550839 (RpMatFXMaterialSetDualBlendModes): src to [esi+0x4], dst to [esi+0x8] */
 RW_LAYOUT_ASSERT(rw37_own_2, RW_OFFSETOF(MatFXUVAnimData, dualTransform) == 4);      /* MFL.exe 0x54f30c / 0x54f30f (MatFXMaterialDataClean): baseTransform [esi-0x4] and dualTransform [esi] cleared */
 RW_LAYOUT_ASSERT(rw37_own_3, RW_OFFSETOF(RwMatFXInfo, MaterialData) == 8);      /* MFL.exe 0x54f23c: the free list goes to 0x7da728; MatFXInfo is at 0x7da720, numInstances at 0x7da724 */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * MatFXOpen(void *instance, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

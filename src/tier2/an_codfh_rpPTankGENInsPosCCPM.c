@@ -47,7 +47,6 @@ struct RpPTankData
 #define RwV3dSub(o, a, b)               RwV3dSubMacro(o, a, b)
 /*007d2128*/ extern void *RwEngineInstance;
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-12 authority=diffemu */
 void rpPTankGENInsPosCCPM(RpPTankLockStruct *dstCluster, RwV3d *_right __RWUNUSED__, RwV3d *_up __RWUNUSED__, RwInt32 pCount, RpPTankData *ptankGlobal)
 {

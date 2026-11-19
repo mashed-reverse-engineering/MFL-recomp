@@ -1,0 +1,26 @@
+# gatestep.py input (W15 A5): the stored statehash pairs the gate step compares (paths relative to ghidra/; no Wine in the step).
+# One block per course: `course N`, then ctrl / ctrl2 = two control runs of one control build (determinism), optional ours = a run of a linked
+# exe with map = that link's ours.map (a block without ours prints the control pair only).  A missing file FAILS the step (rule 30).
+# W15 ENV: FRAMED=1 runs (d3d9 proxy walks the menus by frame, commit 3f98e997; ctrl build 1117_0631_full, pins state_pins_c<N>.txt;
+# ours = rep_w14 flag_on_b27 link, exe f482cf705c66).  The 5 HWND words are on the ENV line (data/state_env.txt), never masked.
+# Previous pair: course 7 only (agents/rep_w15/sh/runs/c7_ctrl_a1/a2 + c7_ours_1, not framed).
+course 0
+ctrl  agents/rep4_w15/sh/runs/f_c0_ctrl_1/statehash.bin
+ctrl2 agents/rep4_w15/sh/runs/f_c0_ctrl_2/statehash.bin
+ours  agents/rep4_w15/sh/runs/f_c0_ours_1/statehash.bin
+map   agents/rep_w14/w/flag_on_b27/link/ours.map
+course 1
+ctrl  agents/harn_w15/sh/runs/f_c1_ctrl_1/statehash.bin
+ctrl2 agents/harn_w15/sh/runs/f_c1_ctrl_2/statehash.bin
+ours  agents/harn_w15/sh/runs/f_c1_ours_1/statehash.bin
+map   agents/rep_w14/w/flag_on_b27/link/ours.map
+course 2
+ctrl  agents/rep4_w15/sh/runs/f_c2_ctrl_1/statehash.bin
+ctrl2 agents/rep4_w15/sh/runs/f_c2_ctrl_2/statehash.bin
+ours  agents/rep4_w15/sh/runs/f_c2_ours_2/statehash.bin
+map   agents/rep_w14/w/flag_on_b27/link/ours.map
+course 7
+ctrl  agents/rep4_w15/sh/runs/f_c7_ctrl_1/statehash.bin
+ctrl2 agents/rep4_w15/sh/runs/f_c7_ctrl_2/statehash.bin
+ours  agents/rep4_w15/sh/runs/f_c7_ours_1/statehash.bin
+map   agents/rep_w14/w/flag_on_b27/link/ours.map

@@ -207,7 +207,6 @@ extern RwStream * MatFXWorldSectorStreamRead(RwStream *stream, RwInt32 binaryLen
 extern RwStream * MatFXWorldSectorStreamWrite(RwStream *stream, RwInt32 binaryLength, const void *object, RwInt32 offsetInObject, RwInt32 sizeInObject);
 extern RwInt32 MatFXWorldSectorStreamGetSize(const void *object, RwInt32 offsetInObject, RwInt32 sizeInObject);
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpMatFXPluginAttach(void)
 {

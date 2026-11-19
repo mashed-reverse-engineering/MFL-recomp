@@ -108,7 +108,6 @@ extern RwInt32 SkinAtomicGetSize( const void *object __RWUNUSED__, RwInt32 offse
 RW_LAYOUT_ASSERT(rw37_priv_0, RW_OFFSETOF(SkinGlobals, freeList) == 0x18);      /* an_codfh_rpskin.c */
 RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(SkinGlobals, module) == 0x1c);      /* an_codfh_rpskin.c */
 RW_LAYOUT_ASSERT(rw37_priv_4, sizeof(SkinAtomicData) == 4);      /* exe: RpSkinPluginAttach 0x0053e89a `push 0x4` (atomic plugin data size: no D3D9 atomic platform data) */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpSkinPluginAttach(void)
 {

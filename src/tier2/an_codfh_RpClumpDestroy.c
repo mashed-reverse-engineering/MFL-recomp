@@ -160,7 +160,6 @@ extern RwPluginRegistry atomicTKList;
 extern RpWorld *RpAtomicGetWorld(const RpAtomic *atomic);
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rpClumpGlobals, clumpFreeList) == 4 && RW_OFFSETOF(RpClumpLightExt, inClumpLink) == 4 && RW_OFFSETOF(RpClumpCameraExt, inClumpLink) == 4);      /* MFL.exe 0x4f6fcb atomic free list [globals+0], 0x4f70a1 clump free list [globals+4]; 0x4f6ffd / 0x4f704b: ext = link - offset - 4 */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=shadow */
 RwBool RpClumpDestroy(RpClump * clump)
 {

@@ -1,6 +1,7 @@
 // cluster-entries: frontend_draw
 /* Installed cluster frontend_draw (tools/cluster_install.py from output/cluster_pilot_uc3/frontend_draw.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /* DECLS-BEGIN */
 /*008c80a0*/ extern struct MenuItemAnim g_menu_item_anims[30];
 /*0060a320*/ extern undefined g_menu_page_06_challenge_select;
@@ -127,7 +128,13 @@ void frontend_draw(void)
   RwRenderStateSet(6, (void *)0);
   RwRenderStateSet(8, (void *)1);
   if (g_frontend_state < 5) {
+#if MFL_FIX_WIDESCREEN      /* the page background (movie, course pictures, wipe, wave grid) fills the whole width */
+    mfl_widescreen_2d_full(1);
     menu_layout_build_a(0);
+    mfl_widescreen_2d_full(0);
+#else
+    menu_layout_build_a(0);
+#endif
     credits_update_draw();
     if (ui_get_menu_69d1ec() != 0x21) {
       ui_rt2d_text_draw(0x42, 600.0f, 52.0f, 0xff000000, 0.8f, 1);

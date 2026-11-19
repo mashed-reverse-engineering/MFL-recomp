@@ -21,7 +21,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, sizeof(RxPipelineNodeTopSortData) == 12);      /* M
 
 extern RxPipelineNode *
 PipelineNodeDestroy(RxPipelineNode *node, RxPipeline *pipeline);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RxPipelineNode * PipelineNodeDestroy(RxPipelineNode * node, RxPipeline *pipeline)
 {

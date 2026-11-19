@@ -12,7 +12,6 @@ extern RwStream *RwStreamReadInt32(RwStream *stream, RwInt32 *ints,
 /* baclump.c's file statics, MFL.exe data at 0x7d532c / 0x7d5304 (rows_aliases.txt) */
 extern RwUInt32 lastSeenRightsPluginId;
 extern RwUInt32 lastSeenExtraData;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream* rpReadAtomicRights(RwStream *s, RwInt32 len, void *obj __RWUNUSED__, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

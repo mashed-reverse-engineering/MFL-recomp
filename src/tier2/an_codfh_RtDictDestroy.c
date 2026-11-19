@@ -85,7 +85,6 @@ struct Iterator
     void **cur;
     void **end;
 };
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 RwBool RtDictDestroy(RtDict *dict)
 {

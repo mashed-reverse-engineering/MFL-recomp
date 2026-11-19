@@ -23,7 +23,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, sizeof(RpHAnimFrameExtension) == 8 && RW_OFFSETOF(R
 #define RPHANIMFRAMEGETDATA(frame) ( (void *)(((RwUInt8 *)frame) + RpHAnimAtomicGlobals.engineOffset) )
 #define RPHANIMFRAMEGETCONSTDATA(frame) ( (const void *)(((const RwUInt8 *)frame) + RpHAnimAtomicGlobals.engineOffset) )
 extern RpHAnimAtomicGlobalVars RpHAnimAtomicGlobals;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * HAnimCopy(void *dstObject, const void * srcObject, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size)
 {

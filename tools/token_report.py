@@ -17,6 +17,9 @@ def scan(path):
             if name is None and '"type":"user"' in line[:200]:
                 m = re.search(r"Name yourself ([A-Za-z0-9-]+)", line)
                 if m: name = m.group(1)
+                else:
+                    m = re.search(r"(LANE [A-Za-z0-9_ -]{3,36})", line)   # W15 briefs start "LANE <name> W15"
+                    if m: name = m.group(1)
             if '"usage"' not in line: continue
             try: d = json.loads(line)
             except ValueError: continue
@@ -46,6 +49,9 @@ def snapshot(tot):
 
 def main():
     snap = "--snapshot" in sys.argv
+    since = ""
+    if "--since" in sys.argv:
+        i = sys.argv.index("--since"); since = sys.argv[i + 1]; del sys.argv[i:i + 2]
     sys.argv = [a for a in sys.argv if a != "--snapshot"]
     files = sys.argv[1:] or sorted(glob.glob(PROJ + "/*.jsonl"))
     rows = collections.defaultdict(lambda: [0, 0, 0, 0]); days = collections.defaultdict(lambda: [0, 0, 0, 0])
@@ -55,12 +61,13 @@ def main():
             name, tot = scan(q)
             lab = label or (name or "sub " + os.path.basename(q)[6:14])
             for day, v in tot.items():
+                if day < since: continue
                 for i in range(4): rows[lab][i] += v[i]; days[day][i] += v[i]
     for title, tab in (("per day", days), ("per agent (top 25 by output)", rows)):
-        print(f"\n{title}\n{'':26}{'out':>11}{'new in':>13}{'cache read':>15}{'msgs':>8}")
+        print(f"\n{title}\n{'':26}{'out':>11}{'new in':>13}{'cache read':>15}{'msgs':>8}{'cache/msg':>11}")
         items = sorted(tab.items(), key=lambda kv: kv[0] if title == "per day" else -kv[1][0])
         for k, v in items[:25 if title != "per day" else None]:
-            print(f"{k:26}{v[0]:>11,}{v[1]:>13,}{v[2]:>15,}{v[3]:>8,}")
+            print(f"{k:26}{v[0]:>11,}{v[1]:>13,}{v[2]:>15,}{v[3]:>8,}{v[2] // max(v[3], 1):>11,}")
     if snap: snapshot(tuple(sum(v[i] for v in days.values()) for i in range(3)))
 
 main()

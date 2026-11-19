@@ -106,6 +106,38 @@ void *mfl_widescreen_hud_translate(void *matrix, const void *origin, int combine
     v.x = v.x - shift;
   return RwMatrixTranslate((RwMatrix *)matrix, &v, (enum RwOpCombineType)combine);
 }
+
+/*004d0ff0*/ extern RwMatrix * RwFrameGetLTM(struct RwFrame *p0);
+/*004d1cd0*/ extern enum RwFrustumTestResult RwCameraFrustumTestSphere(struct RwCamera *p0, struct RwSphere *p1);
+#define MFL_WS_RWCAMERA_VIEW_WINDOW_X 0x68      /* RwCamera.viewWindow.x */
+
+/* Game logic (physics-object triggers, course events, bomb trails) frustum-tests spheres against the race camera; the switch
+   widens that camera's view window, the original tested the 4:3 one.  Same RW test, and a sphere that lies wholly outside one of
+   the two 4:3 side planes (only in the extra side strips) is outside, as in the original.  Callers only tell outside from
+   not outside.  Render culling keeps the wide test. */
+int mfl_widescreen_frustum_test_sphere_43(void *camera, void *sphere)
+{
+  const float *s = (const float *)sphere;      /* centre x y z, radius */
+  int result = RwCameraFrustumTestSphere((RwCamera *)camera, (RwSphere *)sphere);
+  RwMatrix *ltm;
+  float half_width, dx, dy, dz, side, depth, right_out, left_out, r2;
+
+  if (result == rwSPHEREOUTSIDE)
+    return result;
+  ltm = RwFrameGetLTM((RwFrame *)RwCamera_object_object_parent((RwCamera *)camera));
+  half_width = *(float *)((char *)camera + MFL_WS_RWCAMERA_VIEW_WINDOW_X) * mfl_widescreen_fov_factor() / 0.75f;
+  dx = s[0] - ltm->pos.x;
+  dy = s[1] - ltm->pos.y;
+  dz = s[2] - ltm->pos.z;
+  side = dx * ltm->right.x + dy * ltm->right.y + dz * ltm->right.z;
+  depth = dx * ltm->at.x + dy * ltm->at.y + dz * ltm->at.z;
+  right_out = side - half_width * depth;      /* > 0 past a side plane; its distance is this / sqrt(1 + half_width^2) */
+  left_out = -side - half_width * depth;
+  r2 = s[3] * s[3] * (1.0f + half_width * half_width);
+  if ((right_out > 0.0f && right_out * right_out > r2) || (left_out > 0.0f && left_out * left_out > r2))
+    return rwSPHEREOUTSIDE;
+  return result;
+}
 #endif
 
 

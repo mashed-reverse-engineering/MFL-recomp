@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00405cf0*/ extern int gamesave_load();
 /*00405d20*/ extern int gamesave_apply();
 /*00405d80*/ extern int gamesave_gather();
@@ -125,7 +126,11 @@ show_gamesave_message:
   case 0xd:
     result = gamesave_load();
     if (result == 0) {
+#if MFL_FIX_PREFS
+      if (mfl_pref(MFL_PREF_SKIP_SAVE_WAIT) || float_1_0 < g_gamesave_wait_timer) {      /* skip_save_wait=1: close when loaded */
+#else
       if (float_1_0 < g_gamesave_wait_timer) {
+#endif
         message_close();
         g_gamesave_format_step = 0xf;
         goto advance_wait_timer;
@@ -141,7 +146,11 @@ poll_gamesave_status:
   case 0xe:
     result = gamesave_write();
     if (result == 0) {
+#if MFL_FIX_PREFS
+      if (mfl_pref(MFL_PREF_SKIP_SAVE_WAIT) || float_1_0 < g_gamesave_wait_timer) {      /* skip_save_wait=1: close when written */
+#else
       if (float_1_0 < g_gamesave_wait_timer) {
+#endif
         message_close();
         g_gamesave_format_step = 0x10;
         goto advance_wait_timer;

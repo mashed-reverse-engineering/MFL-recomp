@@ -32,21 +32,18 @@ extern RwUInt32 lastSeenSectExtraData;
     }                                                                                  \
     return (s)
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream* _rpReadMaterialRights(RwStream *s, RwInt32 len, void *obj __RWUNUSED__, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {
     RIGHTSREAD(s, len, g_rp_7d538c, g_rp_7d5364);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream* _rpReadWorldRights(RwStream *s, RwInt32 len, void *obj __RWUNUSED__, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {
     RIGHTSREAD(s, len, lastSeenWorldRightsPluginId, lastSeenWorldExtraData);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream* _rpReadSectRights(RwStream *s, RwInt32 len, void *obj __RWUNUSED__, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

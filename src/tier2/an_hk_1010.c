@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004015b0*/ extern undefined __cdecl cup_scene_draw_team_overlay(undefined4 p0, undefined4 p1);
 /*004220f0*/ extern int vehicle_get_position_158();
 /*00422280*/ extern char *vehicle_part_frame();
@@ -90,6 +91,11 @@ void cup_scene_update_object(float blend,int car_index)
     angle_step = g_tick_seconds * g_cup_scene_64cb0c;
     angle_step = angle_step * g_cup_scene_64cb14;
     angle_step = angle_step * k_f_0_2;
+#if MFL_FIX_PREFS
+    if (!mfl_pref(MFL_PREF_WINNER_CAM_ROTATION)) {
+      angle_step = 0.0f;      /* winner_cam_rotation=0: the camera keeps its start angle to the car (no orbit; the zoom-in stays) */
+    }
+#endif
     g_cup_scene_64cb04 = g_cup_scene_64cb04 - angle_step;
     frame.target_pos.x = frame.car_mtx[4] * k_f_0_3 +
                  (float)((double)frame.car_pos_x +

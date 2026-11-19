@@ -52,7 +52,6 @@ struct RwScopeTrace
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwReqEntry) == 0x24 && RW_OFFSETOF(RwReqEntry, inputs) == 8 && RW_OFFSETOF(RwReqEntry, st) == 0xc && RW_OFFSETOF(RwReqEntry, next) == 0x10 && RW_OFFSETOF(RwReqEntry, req) == 0x14 && RW_OFFSETOF(RwReqEntry, outbf) == 0x18 && RW_OFFSETOF(RwReqEntry, assignedslot) == 0x1c && RW_OFFSETOF(RwReqEntry, originatingNode) == 0x20);      /* MFL.exe 0x4f25a0 reqentries [esi+0xc], 0x4f25b8 stride 0x24 (ecx*9*4), 0x4f25c9..0x4f25f4 the nine fields */
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(RwScopeTrace) == 0x10);      /* MFL.exe 0x4e65bb (RxLockedPipeUnlock): per node and cluster 0x24 + 0x10 */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwReqEntry * _ReqAddEntry(rxReq *req, RxClusterDefinition *clusterDef, RxClusterValidityReq required, RwUInt32 inputs, RxPipelineNode *originatingNode)
 {

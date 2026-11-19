@@ -6,6 +6,12 @@ output/fnsizes.txt).  W14 (M).  Three classes, one candidate row per function an
   fpucopy  a dword copied through the x87 (fld m32 directly followed by fstp m32) more often in ours than in the original (W13 b9: the
            original copies with mov; fld quiets a signalling-NaN bit pattern)
   x87      x87 operation order (W12 b1 / b5 / b6, W13 b12, W14 b13 / b14): tools/delink/x87ord.py events, a row = an event on one side only
+           column side: two (unmatched events on both sides = an order candidate), orig-only / ours-only (one side computes an expression
+           the other does not store: a spill, a common subexpression, or ours computes it in a static callee that the linear walk does
+           not enter, e.g. cl_spring_grid_update.c spring_node_step: then the order is NOT compared; W15b CLS-X87)
+Work items (column work = 1): race-reached rows that are order / sign / copy candidates: x87 side two, every div and fpucopy row.
+A cluster entry `X` is a naked adapter whose body is `X_n` in the same object: the body is compared (W15b; before, its x87 rows were all
+orig-only because the adapter has no x87 code).
 Usage (capstone: run.py venv):
   classsweep.py run <link dir> <out.csv> [cov.csv]   sweep; cov.csv (default agents/cov_w11/cov.csv) marks race-reached functions (status hit);
                                                     prints one summary line `classsweep: ...` (for gate.log).  Exit 0 (report-only).
@@ -58,14 +64,28 @@ def classify(orig, ov, on, ours, mv, mn):
     return rows
 
 
+def side(c, o, m):
+    """x87: two / orig-only / ours-only from the orig / ours columns ('N orig-only', 'M ours-only'); other classes '-'"""
+    if c != 'x87': return '-'
+    o, m = int(o.split()[0]), int(m.split()[0])
+    return 'two' if o and m else ('orig-only' if o else 'ours-only')
+
+
+def body(mt, nm):
+    """the map entry compared for name nm: the cluster body nm_n when it sits in the same object, else nm itself"""
+    b = mt.get(nm + '_n')
+    return b if b and b[2] == mt[nm][2] else mt[nm]
+
+
 def sweep(link):
     mp = os.path.join(link, 'ours.map')
     delta = next(int(l.split()[2], 16) - 0x752364 for l in open(mp) if ' _g_race_load_752364 ' in l)
     ours, orig = x87ord.Img(os.path.join(link, 'ours.exe'), delta), x87ord.Img(G + '/game/MFL.exe')
     ot, mt = x87ord.orig_table(), x87ord.ours_table(mp)
     out = []
-    for nm, (va, n, obj) in sorted(mt.items()):
+    for nm in sorted(mt):
         if nm in ot:
+            va, n, obj = body(mt, nm)
             out += [(r[0], nm, obj) + r[1:] for r in classify(orig, *ot[nm], ours, va, n)]
     return out, sum(1 for nm in mt if nm in ot)
 
@@ -76,10 +96,18 @@ def run(link, outcsv, covf):
     rows, nf = sweep(link)
     with open(outcsv, 'w', newline='') as f:
         w = csv.writer(f)
-        w.writerow(('class', 'function', 'obj', 'race_reached', 'orig', 'ours', 'detail'))
-        for c, nm, obj, o, m, d in rows: w.writerow((c, nm, obj, int(nm in hit), o, m, d))
+        w.writerow(('class', 'function', 'obj', 'race_reached', 'orig', 'ours', 'detail', 'side', 'work'))
+        for c, nm, obj, o, m, d in rows:
+            s = side(c, o, m)
+            w.writerow((c, nm, obj, int(nm in hit), o, m, d, s, int(nm in hit and s in ('two', '-'))))
     cnt = collections.Counter(r[0] for r in rows); rch = collections.Counter(r[0] for r in rows if r[1] in hit)
-    print('classsweep: %d functions compared; candidates %s; csv %s (report-only)' % (nf, ', '.join('%s %d (%d race-reached)' % (c, cnt[c], rch[c]) for c in ('div', 'fpucopy', 'x87')), outcsv) + ', %d s' % (time.time() - t0))
+    sd = collections.Counter((side(*r[:1] + r[3:5]), r[1] in hit) for r in rows if r[0] == 'x87')
+    work = sum(1 for r in rows if r[1] in hit and side(*r[:1] + r[3:5]) in ('two', '-'))
+    print('classsweep: %d functions compared; candidates %s; x87 two-sided %d (%d race-reached), one-sided orig %d ours %d (no order pair; callee code not walked); '
+          'work items %d (race-reached two-sided x87 + div + fpucopy); csv %s (report-only)' % (
+              nf, ', '.join('%s %d (%d race-reached)' % (c, cnt[c], rch[c]) for c in ('div', 'fpucopy', 'x87')),
+              sd[('two', True)] + sd[('two', False)], sd[('two', True)], sd[('orig-only', True)] + sd[('orig-only', False)],
+              sd[('ours-only', True)] + sd[('ours-only', False)], work, outcsv) + ', %d s' % (time.time() - t0))
     return 0
 
 
@@ -103,6 +131,12 @@ def selftest():
     for c, o, m, want in cases:
         got = c in [r[0] for r in classify(Fake(o), 0x1000, len(o), Fake(m), 0x1000, len(m))]
         print('selftest %-8s %-6s %s' % (c, 'bad' if want else 'equal', 'ok' if got == want else 'WRONG (row %s)' % got)); bad += got != want
+    for args, want in ((('x87', '2 orig-only', '1 ours-only'), 'two'), (('x87', '2 orig-only', '0 ours-only'), 'orig-only'),
+                       (('x87', '0 orig-only', '3 ours-only'), 'ours-only'), (('div', 'signed 1 unsigned 0', 'signed 0 unsigned 1'), '-')):
+        got = side(*args); print('selftest side %-9s %s' % (want, 'ok' if got == want else 'WRONG (%s)' % got)); bad += got != want
+    mt = {'e': (1, 5, 'cl_e.obj'), 'e_n': (9, 99, 'cl_e.obj'), 'f': (2, 5, 'a.obj'), 'f_n': (8, 99, 'b.obj')}   # cluster body / other object
+    for nm, want in (('e', 9), ('f', 2)):
+        got = body(mt, nm)[0]; print('selftest body %s %s' % (nm, 'ok' if got == want else 'WRONG (%s)' % got)); bad += got != want
     print('selftest %s' % ('PASS' if not bad else 'FAIL'))
     return 1 if bad else 0
 

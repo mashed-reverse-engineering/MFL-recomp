@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0042b920*/ extern int ui_draw_line(float param_2, float param_3, float param_4, float param_5, undefined1 *param_6);
 /*0042bf10*/ extern int ui_text_draw_b();
 /*0042c440*/ extern int ui_rt2d_text_draw();
@@ -90,6 +91,9 @@ void menu_draw_training_prompt(void)
     camera_or_colour = get_viewport_camera(0xffffffff);
     RwCameraEndUpdate(camera_or_colour);
     camera_set_default_view_window();
+#if MFL_FIX_WIDESCREEN      /* training panel and texts 4:3 in the middle (ended by app_state_menu_render after its EndUpdate) */
+    mfl_widescreen_2d_pass((void *)camera_or_colour, 1);
+#endif
     camera_or_colour = get_viewport_camera(0xffffffff);
     RwCameraBeginUpdate(camera_or_colour);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)RENDER_STATE_OFF);

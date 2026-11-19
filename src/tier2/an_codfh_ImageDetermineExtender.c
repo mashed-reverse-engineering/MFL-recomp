@@ -45,7 +45,6 @@ struct rwImageGlobals
  * RtFSManagerSyncAllFiles 0x561120), not through RWSRCGLOBAL(fileFuncs).rwfexist: the declaration above, no macro */
 #define RWIMAGEGLOBAL(var) (RWPLUGINOFFSET(rwImageGlobals, RwEngineInstance, imageModule.globalsOffset)->var)
 extern RwModuleInfo imageModule;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwChar * ImageDetermineExtender(RwChar * pathname, void *data)
 {

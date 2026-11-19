@@ -70,7 +70,6 @@ struct RpPVSGlobalVars
 extern RpPVSGlobalVars    rpPVSGlobals;
 RW_LAYOUT_ASSERT(rw37_priv_1, RW_OFFSETOF(RpPVSGlobalVars, InSector) == 0x20);      /* an_codfh_rppvs.c */
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpPVS, vismaplength) == 4 && RW_OFFSETOF(RpPVS, sampleKey) == 8 && RW_OFFSETOF(RpPVS, vismap) == 0xc);      /* MFL.exe 0x548f1d lea ebx,[esi+0x4]; 0x548f29 lea edx,[esi+0x8]; 0x548f52 mov [esi+0xc],eax (the RwMalloc result) */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwStream * PVSSectorReadChunk(RwStream * s, RwInt32 len __RWUNUSED__, RpWorldSector * spSect, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__)
 {

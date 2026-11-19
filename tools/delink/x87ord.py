@@ -14,7 +14,8 @@ a call). Stores to a stack slot are forwarded to later loads of the same slot (s
 (a swap of the two operands of one commutative op is ignored); a different association ((a+b)+c vs a+(b+c)) stays a difference.
 The two event multisets are compared: a row = an event present on one side only.
 ponytail: linear walk, the stack is reset at jmp/ret and underflow gives U leaves; esp tracking ignores stdcall callee cleanup; base
-registers of field loads are not tracked (a.x*b.x == a.x*a.x). Upgrade path: per basic block walk with the CFG if the false-row rate demands it.
+registers of field loads are not tracked (a.x*b.x == a.x*a.x). X87ORD_BB=1 (W15b CLS-X87 r2): per basic block walk over forward
+edges instead (events(bb=True), comment there); default stays linear so classsweep / known counts do not move without a decision.
 Needs capstone: run.py venv."""
 import collections, csv, os, re, struct, sys
 import capstone
@@ -23,6 +24,7 @@ from capstone import x86
 G = os.environ.get('MFL_GHIDRA') or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # tools/delink/x87ord.py -> ghidra/ (MFL_GHIDRA: a copy run from elsewhere)
 md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 md.detail = True
+BB, CAP = os.environ.get('X87ORD_BB') == '1', 16   # per basic block walk (events bb=); states walked per block at most
 
 
 class Img:
@@ -73,21 +75,43 @@ def node(op, a, b):
     return '%s(%s,%s)' % (op, a, b)
 
 
-def events(img, va, n, own=False):
-    """list of event strings of the function [va, va+n)"""
-    st, ev, slots, esp = [], [], {}, 0
+class Sites(list):
+    """bb mode: every event is kept with the address (site) that emits it"""
+    def __init__(self, cur):
+        list.__init__(self)
+        self.cur = cur
+
+    def append(self, e):
+        list.append(self, (self.cur[0], e))
+
+
+def events(img, va, n, own=False, bb=None):
+    """list of event strings of the function [va, va+n); bb (default: env X87ORD_BB=1) = per basic block walk"""
+    bb = BB if bb is None else bb
+    cur = [None]
+    st, ev, slots, esp = [], Sites(cur) if bb else [], {}, 0
+
+    def fill(i):
+        """bb: an access below the stack bottom reads the last call's st0 once ('ret', then it is on the stack), deeper ones U"""
+        while bb and len(st) <= i:
+            st.insert(0, 'ret' if called[0] else 'U')
+            called[0] = False
 
     def pop():
+        fill(0)
         return st.pop() if st else ('ret' if called[0] else 'U')
 
     def top():
+        fill(0)
         return st[-1] if st else ('ret' if called[0] else 'U')
 
     def sti(i):
+        fill(i)
         k = len(st) - 1 - i
         return st[k] if k >= 0 else 'U'
 
     def setsti(i, v):
+        fill(i)
         k = len(st) - 1 - i
         if k >= 0:
             st[k] = v
@@ -228,7 +252,8 @@ def events(img, va, n, own=False):
             return
         ev.append('%s <- %s%s' % (k, 'int ' if ints else '', v))
 
-    for i in md.disasm(img.rd(va, n), va):
+    def step(i):
+        nonlocal st, esp
         m, b = i.mnemonic, i.bytes
         if not m.startswith('f') and m not in ('call', 'jmp', 'ret', 'retn'):
             intop(i)
@@ -249,17 +274,18 @@ def events(img, va, n, own=False):
             st, called[0] = [], True
             for r in ('eax', 'ecx', 'edx'):
                 regs.pop(r, None)
-            continue
+            return
         elif m in ('jmp', 'ret', 'retn'):
             if m != 'jmp' and st:
                 ev.append('return <- %s' % st[-1])
-            st = []
-            continue
+            if not bb or m != 'jmp':   # bb: the stack at a jmp flows to its target
+                st = []
+            return
         k = 0
         while k < len(b) and b[k] in (0x66, 0x67, 0xf2, 0xf3, 0x2e, 0x3e, 0x26, 0x36, 0x64, 0x65, 0x9b):
             k += 1
         if k >= len(b) or not 0xd8 <= b[k] <= 0xdf or k + 1 >= len(b):
-            continue
+            return
         op, mr = b[k], b[k + 1]
         reg, ri = (mr >> 3) & 7, mr & 7
         memop = next((o for o in i.operands if o.type == x86.X86_OP_MEM), None)
@@ -296,7 +322,7 @@ def events(img, va, n, own=False):
                     st.append(load(memop, 2 if reg == 0 else 8, True))
                 elif reg in (2, 3, 7):
                     store(memop, 8 if reg == 7 else 2, top() if reg == 2 else pop(), True)
-            continue
+            return
         if op == 0xd8:   # st0 = st0 op st(i)
             if reg in OPS:
                 setsti(0, node(OPS[reg], top(), sti(ri)))
@@ -345,8 +371,79 @@ def events(img, va, n, own=False):
         elif op == 0xda and mr == 0xe9:
             a = pop()
             ev.append('cmp ' + node('add', a, pop()).replace('add', 'cmp', 1))
-    ev += ['local <- %s' % v for v in unread.values() if not v.startswith('int(')]
-    return ev
+    insns = list(md.disasm(img.rd(va, n), va))
+    if not bb:
+        for i in insns:
+            step(i)
+        ev += ['local <- %s' % v for v in unread.values() if not v.startswith('int(')]
+        return ev
+
+    # bb: per basic block walk.  Blocks in address order; a block is walked once per distinct state that reaches it over a forward
+    # edge (fall-through, jcc / jmp to a higher address); back edges are dropped.  A block no forward edge reaches (rotated loop
+    # body, switch case) gets the out-state of the block before it with an empty x87 stack (the linear walk's state there).
+    # Events are a set of (site, event): a site that sees one value on two paths counts once.
+    # ponytail: at most CAP states per block (later paths dropped), no loop-carried x87 values; a real fixpoint if rows need it.
+    def snap():
+        return (tuple(st), dict(slots), dict(regs), dict(islots), dict(fresh), dict(unread), esp, called[0])
+
+    def restore(s):
+        nonlocal st, esp
+        st = list(s[0])
+        for d, src in zip((slots, regs, islots, fresh, unread), s[1:6]):
+            d.clear()
+            d.update(src)
+        esp, called[0] = s[6], s[7]
+
+    def key(s):
+        return repr((s[0],) + tuple(sorted(d.items(), key=repr) for d in s[1:6]) + s[6:])
+
+    def leave():
+        for k, v in unread.items():
+            if not v.startswith('int('):
+                cur[0] = ('end', k)
+                ev.append('local <- %s' % v)
+
+    end = va + n
+    lead, tgt = {va}, {}
+    for i in insns:
+        if i.group(x86.X86_GRP_JUMP) or i.mnemonic in ('ret', 'retn'):
+            lead.add(i.address + i.size)
+            o = i.operands
+            if o and o[0].type == x86.X86_OP_IMM:
+                tgt[i.address] = o[0].imm
+                if va <= o[0].imm < end:
+                    lead.add(o[0].imm)
+    blocks = []
+    for i in insns:
+        if i.address in lead or not blocks:
+            blocks.append([])
+        blocks[-1].append(i)
+    inc, prev = collections.defaultdict(dict), snap()
+    for bi, blk in enumerate(blocks):
+        start, last = blk[0].address, blk[-1]
+        nxt = blocks[bi + 1][0].address if bi + 1 < len(blocks) else None
+        states = list(inc.pop(start, {}).values())[:CAP] or [((),) + prev[1:]]
+        for s in states:
+            restore(s)
+            for i in blk:
+                cur[0] = i.address
+                step(i)
+            m, t = last.mnemonic, tgt.get(last.address)
+            if m in ('ret', 'retn'):
+                leave()
+            elif last.group(x86.X86_GRP_JUMP):
+                if t is not None and start < t < end:
+                    inc[t].setdefault(key(snap()), snap())
+                elif t is None or not va <= t < end:
+                    leave()      # indirect jump (switch table) or tail jump out of the function
+                if m != 'jmp' and nxt is not None:
+                    inc[nxt].setdefault(key(snap()), snap())
+            elif nxt is not None:
+                inc[nxt].setdefault(key(snap()), snap())
+            else:
+                leave()
+            prev = snap()
+    return [e for s, e in sorted(set(ev), key=repr)]
 
 
 def diff(a, b):
@@ -402,6 +499,13 @@ def selftest():
     assert diff(ev['A'], ev['B']) != ([], []), 'fixture: swapped three-term sum must be a row'
     assert diff(ev['A'], ev['C']) == ([], []), 'commutative swap must not be a row'
     assert ev['D'] == ev['E'] == ['G20 <- sub(G10,G14)'], (ev['D'], ev['E'])
+    # bb: g20 = (x10 < x14 ? x18 : x1c) + x24, the x87 stack carried over the jmp; the linear walk loses the x18 path
+    F = bytes.fromhex('d90510000000' 'd81d14000000' 'dfe0' 'f6c401' '7508' 'd90518000000' 'eb06' 'd9051c000000'
+                      'd80524000000' 'd91d20000000')
+    ev['F'] = events(Fake(F), 0x1000, len(F), bb=True)
+    assert sorted(ev['F']) == ['G20 <- add(G18,G24)', 'G20 <- add(G1c,G24)', 'cmp cmp(G10,G14)'], ev['F']
+    assert events(Fake(F), 0x1000, len(F), bb=False) == ['cmp cmp(G10,G14)', 'G20 <- add(G1c,G24)']
+    assert all(events(Fake(v), 0x1000, len(v), bb=True) == ev[k] for k, v in dict(A=A, B=B, C=C, D=D).items())
     print('selftest PASS', ev)
 
 

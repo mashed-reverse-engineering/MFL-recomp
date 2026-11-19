@@ -28,7 +28,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, RW_OFFSETOF(rwIm3DRenderPipelines, polyLine) == 0x1
 /* the D3D9 driver's Im3D close (MFL.exe 0x4f09d0): the codfh source of this function is the Xbox im3dpipe.c, the D3D9 one of MFL.exe
  * calls it first */
 extern void _rwD3D9Im3DRenderClose(void);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void rwIm3DDestroyPlatformRenderPipelines(rwIm3DRenderPipelines *globalPipes)
 {

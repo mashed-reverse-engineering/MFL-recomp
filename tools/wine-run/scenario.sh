@@ -83,6 +83,8 @@ if [ -n "$SCEN_EXE" ]; then
   # SCEN_PIN=1 (TS W11): both runs get the d3d9 proxy with V2's determinism pins (wine-run/scen_pin.sh: alock, sound cursor snap, srand, state pins)
   python3 $T/prepare.py $INST $W/run_ours $EXE $XMAP > /dev/null || exit 1
   RW=${SCEN_RWDLL:-$(dirname $EXE)/game/App_Executables/mflrw.dll}; [ -f "$RW" ] && cp -f $RW $W/run_ours/App_Executables/mflrw.dll
+  # W15 PREF: SCEN_PREFS=<file> = the MFL_FIX_PREFS settings file of ours (beside its exe); the control never reads one
+  [ -n "$SCEN_PREFS" ] && { cp -f $SCEN_PREFS $W/run_ours/App_Executables/mflng_settings.cfg || exit 1; }
   # (ASM review: after the mflrw.dll copy, so scen_pin.sh also renames the DLL's own d3d9 import; before it, the DLL created the device without the proxy)
   [ -n "$SCEN_PIN" ] && { $T/scen_pin.sh $W/run_ours/App_Executables $SCEN_DELTA $(awk '$2=="_srand"{print $3; exit}' $XMAP) || exit 1; }
   rm -rf $W/out_ours; export LOADMAX=${LOADMAX:-40}

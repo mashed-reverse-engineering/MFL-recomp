@@ -84,6 +84,8 @@ case $SC in
   script:*) cp ${SC#script:} $W/script.txt ;;
   *) echo "unknown scenario $SC"; exit 2 ;;
 esac
+# FRAMED=1 (course:N): race_script.sh prints the menu path as mkbd= / mstep= lines for the proxy (d3d9.c mstep_frame): they go to the cfg, not to play.sh
+grep -E '^(mkbd|mstep)=' $W/script.txt >> $AE/d3dtrace.cfg; sed -i -E '/^(mkbd|mstep)=/d' $W/script.txt
 case $SC in menu|title|mainmenu) ;; *) echo "dump course $(printf 0x%x $((0x69cfb0 + 0x${SA_DELTA:-0}))) 4" >> $W/script.txt ;; esac     # g_menu_event_course_index -> game/course.bin (little endian dword)
 # every run starts from the same snapshot (the game rewrites its saves): warm prefix marker as in regress.sh
 [ -f $HOME/.cache/mfl_warm_done ] || { printf 'wait 14\nkey Return\nwait 2\n' > $W/warm.txt; PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 90 $WR/play.sh $W/run $W/warm.txt $W/out_warm >/dev/null 2>&1; touch $HOME/.cache/mfl_warm_done; }

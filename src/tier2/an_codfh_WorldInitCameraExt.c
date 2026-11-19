@@ -28,7 +28,6 @@ extern RwInt32      cameraExtOffset;
 extern RwCamera * WorldCameraBeginUpdate(RwCamera * camera);
 extern RwCamera * WorldCameraEndUpdate(RwCamera * camera);
 extern RwObjectHasFrame * WorldCameraSync(RwObjectHasFrame * object);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void * WorldInitCameraExt(void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__)
 {

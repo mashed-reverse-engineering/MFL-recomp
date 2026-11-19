@@ -44,7 +44,6 @@ extern RwPluginRegistry atomicTKList;
 extern RwModuleInfo clumpModule;
 extern RpWorld *RpAtomicGetWorld(const RpAtomic *atomic);
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rpClumpGlobals, clumpFreeList) == 4);      /* MFL.exe 0x4f6aca atomic free list [globals+0]; 0x4f70a1 (RpClumpDestroy) clump free list [globals+4] */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RwBool RpAtomicDestroy(RpAtomic * atomic)
 {

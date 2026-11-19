@@ -14,7 +14,6 @@ _rpPTankAtomicCreateCustom(RwInt32 maxParticleNum,
 
 extern RpPTankCallBacks defaultCB;
 #define FAVORITEORGANISATIONMODE (rpPTANKDFLAGARRAY)
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RpAtomic* RpPTankAtomicCreate(RwInt32 maxParticleNum, RwUInt32 dataFlags, RwUInt32 platFlags)
 {

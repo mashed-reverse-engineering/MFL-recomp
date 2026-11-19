@@ -76,7 +76,6 @@ RW_LAYOUT_ASSERT(rw37_priv_4, sizeof(rpMatFXMaterialData) == 0x34);      /* exe:
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(MatFXBumpMapData, bumpTexture) == 8);      /* MFL.exe 0x54f2e2 / 0x54f2f1 (MatFXMaterialDataClean, esi = &data[pass] + 4): texture at [esi], bumpTexture at [esi+0x4] */
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(MatFXDualData, dstBlendMode) == 8);      /* MFL.exe 0x550836 / 0x550839 (RpMatFXMaterialSetDualBlendModes): src to [esi+0x4], dst to [esi+0x8] */
 RW_LAYOUT_ASSERT(rw37_own_2, RW_OFFSETOF(MatFXUVAnimData, dualTransform) == 4);      /* MFL.exe 0x54f30c / 0x54f30f (MatFXMaterialDataClean): baseTransform [esi-0x4] and dualTransform [esi] cleared */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 MatFXEffectUnion * MatFXGetData(RpMaterial * material, RpMatFXMaterialFlags flags)
 {

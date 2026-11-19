@@ -23,7 +23,7 @@
 
 #ifndef MFL_FIX_WIDESCREEN      /* step 1: the 3D camera aspect factor is height / width of the video mode instead of the fixed 0.75 (4:3), so a wide
                                    mode shows more to the sides instead of a stretched picture; step 2: the in-race HUD keeps its proportions and its
-                                   side panels move to the screen edges; menus and the 640-space 2D passes stay stretched
+                                   side panels move to the screen edges; step 3: menu text / elements, message boxes and the in-race 640-space 2D passes are drawn 4:3 in the middle, page backgrounds full width
                                    (output/widescreen_study_2026-11-17.md; automatch_near/an_hk_824.c holds the helpers) */
 #define MFL_FIX_WIDESCREEN 0
 #endif
@@ -33,6 +33,36 @@ void mfl_widescreen_hud_camera(void *camera);
 float mfl_widescreen_hud_scale(void);
 void *mfl_widescreen_hud_translate(void *matrix, const void *origin, int combine);
 void mfl_widescreen_2d_rewiden(void *camera);      /* automatch_near/an_hk_611.c: menu pass camera window widened again after a reset */
+void mfl_widescreen_2d_pass(void *camera, int im2d);      /* an_hk_611.c: an in-race 0.8-window 2D pass squeezed to 4:3 (im2d 0 = text only) */
+void mfl_widescreen_2d_pass_end(void);
+void mfl_widescreen_2d_full(int on);      /* an_hk_611.c: 1 = a page background inside a squeezed menu pass drawn full width, 0 = squeeze back */
+#endif
+
+#ifndef MFL_FIX_UNLOCK_ALL      /* hidden "100 %" unlock: after the boot defaults and after a save load the progress table and the bonus menu entry
+                                   are set as the game's own attract-screen code sequence sets them (frontend_attract_menu_input); the save file
+                                   keeps the real words (automatch_near/an_hk_9109.c helpers, an_hk_788.c, an_hk_967.c). Test / cheat switch: the
+                                   define line ends in a comment so build_mflng.sh (lines `#define X 0` only) leaves it out of MFLng_fixes.exe */
+#define MFL_FIX_UNLOCK_ALL 0      /* not in MFLng_fixes.exe; there it is the MFL_FIX_PREFS key unlock_all */
+#endif
+#if MFL_FIX_UNLOCK_ALL || MFL_FIX_PREFS      /* with MFL_FIX_PREFS alone the helpers act only when the cfg key unlock_all is 1 */
+void mfl_unlock_all_force(void);
+void mfl_unlock_all_unforce(void *save_block);
+#endif
+
+#ifndef MFL_FIX_PREFS      /* player preferences read at start from mflng_settings.cfg beside the exe (key=value lines, no command line); every key's
+                              default is the original behaviour, so without the file the game plays as the original (recomp/mfl_resources.c reader;
+                              keys and sites: public/docs/MFL_FIX_FLAGS.md) */
+#define MFL_FIX_PREFS 0
+#endif
+#if MFL_FIX_PREFS
+enum mfl_pref_key {
+  MFL_PREF_SKIP_INTRO,            /* skip_intro=1: the intro movies are not played */
+  MFL_PREF_SKIP_SAVE_WAIT,        /* skip_save_wait=1: save / load message boxes close when the write is done, not after 1 s */
+  MFL_PREF_UNLOCK_ALL,            /* unlock_all=1: MFL_FIX_UNLOCK_ALL at run time */
+  MFL_PREF_WINNER_CAM_ROTATION,   /* winner_cam_rotation=0: the round-end camera zooms to the winning car without circling it */
+  MFL_PREF_COUNT
+};
+int mfl_pref(int key);      /* value of one key (the file is read on the first call) */
 #endif
 
 /* The files of the sound functions with random-draw sites (agents/rep_w12/audio_rng_sites.txt) define MFL_AUDIO_RNG_SITES before including this

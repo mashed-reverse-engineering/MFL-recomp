@@ -100,7 +100,6 @@ do {                                                                            
     }                                                                                             \
 } while (0)
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 RxPipeline * RxLockedPipeAddFragment(RxPipeline *pipeline, RwUInt32 *firstIndex, RxNodeDefinition *nodeDef0, ...)
 {

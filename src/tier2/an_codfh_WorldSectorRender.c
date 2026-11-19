@@ -188,7 +188,6 @@ static void WorldSectorRenderAtomics_codfh(RpWorldSector * worldSector)
     return;
 }
 #endif
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 RpWorldSector * WorldSectorRender(RpWorldSector * sector, void * pData __RWUNUSED__)
 {

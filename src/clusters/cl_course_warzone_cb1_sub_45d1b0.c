@@ -1,6 +1,10 @@
 // cluster-entries: course_warzone_cb1_sub_45d1b0
 /* Installed cluster course_warzone_cb1_sub_45d1b0 (tools/cluster_install.py from output/cluster_pilot_k/course_warzone_cb1_sub_45d1b0.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern int mfl_widescreen_frustum_test_sphere_43(void *camera, void *sphere);      /* an_hk_824.c */
+#endif
 /*0045cb40*/ extern int course_zone_players_transform_update();
 /*0045ce00*/ extern int course_zone_cars_check_and_push();
 /*0045cff0*/ extern int anim_stop();
@@ -200,7 +204,11 @@ void course_warzone_cb1_sub_45d1b0(WarzoneZone *zone, int ticks)
       zone_sphere.center.y = zone->center_y;
       sphere = &zone_sphere;
       camera = (RwCamera *)get_viewport_camera(0);
+#if MFL_FIX_WIDESCREEN      /* the 4:3 frustum of the original */
+      frustum_result = (RwFrustumTestResult)mfl_widescreen_frustum_test_sphere_43(camera,sphere);
+#else
       frustum_result = RwCameraFrustumTestSphere(camera,sphere);
+#endif
       if (frustum_result == rwSPHEREOUTSIDE) {
         anim_stop(zone);
         *(undefined4 *)&zone->anim_time = 0;

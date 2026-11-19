@@ -57,7 +57,8 @@
    - Im2D quads, rects and sprites (pixel coordinates from screen_width() / 640): x' = W/2 + (x - W/2) * k, in a copy of the vertices
      (callers reuse static vertex arrays), through wrappers put into the engine's Im2D entries for the pass only;
    - Rt2d text and Im3D items (camera space): the camera's view window is widened by 1 / k for the pass.
-   Full-screen backgrounds drawn in these passes get side bars (the camera clear colour). At 4:3 nothing changes (k = 1). */
+   The page backgrounds (menu_layout_build_a, the header / footer strips of credits_update_draw, the fade overlay) are drawn unsqueezed
+   between mfl_widescreen_2d_full(1) / (0), so they fill the whole width (stretched). At 4:3 nothing changes (k = 1). */
 /*004a8830*/ extern int app_get_app_62c5c8(void);
 #define MFL_WS2D_MAX_VERTS 1024      /* ponytail: a larger Im2D batch is drawn unsqueezed; raise if a menu ever draws more in one call */
 static RwIm2DRenderLineFunction mfl_ws2d_line;
@@ -102,17 +103,53 @@ static RwBool mfl_ws2d_indexed_w(enum RwPrimitiveType type, RwIm2DVertex *verts,
   return mfl_ws2d_indexed(type, mfl_ws2d_squeeze(verts, count), count, indices, nindices);
 }
 
+static int mfl_ws2d_pass_owned;      /* the running squeeze was begun by mfl_widescreen_2d_pass */
+
+static int mfl_ws2d_full_saved;      /* the squeeze wrappers were in the engine when mfl_widescreen_2d_full(1) took them out */
+
+static void mfl_ws2d_unhook(void)
+{
+  RwIm2DRenderLine = mfl_ws2d_line;
+  RwIm2DRenderTriangle = mfl_ws2d_triangle;
+  RwIm2DRenderPrimitive = mfl_ws2d_primitive;
+  RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed;
+}
+
+static void mfl_ws2d_hook(void)
+{
+  RwIm2DRenderLine = mfl_ws2d_line_w;
+  RwIm2DRenderTriangle = mfl_ws2d_triangle_w;
+  RwIm2DRenderPrimitive = mfl_ws2d_primitive_w;
+  RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed_w;
+}
+
+/* a page background inside a squeezed pass (all Im2D): on 1 = drawn unsqueezed, full width (stretched); on 0 = the squeeze back.
+   A no-op outside a squeezed pass or in a text-only pass (im2d 0). */
+void mfl_widescreen_2d_full(int on)
+{
+  if (mfl_ws2d_camera == NULL)
+    return;
+  if (on) {
+    mfl_ws2d_full_saved = (RwIm2DRenderPrimitive == mfl_ws2d_primitive_w);
+    if (mfl_ws2d_full_saved)
+      mfl_ws2d_unhook();
+  }
+  else if (mfl_ws2d_full_saved) {
+    mfl_ws2d_hook();
+    mfl_ws2d_full_saved = 0;
+  }
+}
+
 /* end of a squeezed pass: the engine's Im2D entries and the camera window back; a no-op when no pass is squeezed */
 static void mfl_ws2d_end(void)
 {
   if (mfl_ws2d_camera == NULL)
     return;
-  RwIm2DRenderLine = mfl_ws2d_line;
-  RwIm2DRenderTriangle = mfl_ws2d_triangle;
-  RwIm2DRenderPrimitive = mfl_ws2d_primitive;
-  RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed;
+  mfl_ws2d_unhook();
   RwCameraSetViewWindow(mfl_ws2d_camera, &mfl_ws2d_saved_window);
   mfl_ws2d_camera = NULL;
+  mfl_ws2d_pass_owned = 0;
+  mfl_ws2d_full_saved = 0;
 }
 
 /* start of a squeezed pass on camera (call before its RwCameraBeginUpdate, after its window is set) */
@@ -135,10 +172,7 @@ static void mfl_ws2d_begin(RwCamera *camera)
   mfl_ws2d_triangle = RwIm2DRenderTriangle;
   mfl_ws2d_primitive = RwIm2DRenderPrimitive;
   mfl_ws2d_indexed = RwIm2DRenderIndexedPrimitive;
-  RwIm2DRenderLine = mfl_ws2d_line_w;
-  RwIm2DRenderTriangle = mfl_ws2d_triangle_w;
-  RwIm2DRenderPrimitive = mfl_ws2d_primitive_w;
-  RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed_w;
+  mfl_ws2d_hook();
 }
 
 /* a pass that resets its camera window inside a squeezed pass (message_box_draw: camera_set_default_view_window between End / BeginUpdate)
@@ -156,6 +190,30 @@ void mfl_widescreen_2d_rewiden(void *camera)
   wide.x = mfl_ws2d_saved_window.x / mfl_ws2d_k;
   wide.y = mfl_ws2d_saved_window.y;
   RwCameraSetViewWindow(mfl_ws2d_camera, &wide);
+}
+
+/* W15: the in-race 2D passes (fixed 0.8 window between End / BeginUpdate: flash text, race messages and banners, training boxes,
+   bomb timer text) squeezed like the menus.  Call right after the pass sets its 0.8 window; im2d 0 = text only (full-width Im2D
+   bars stay full width).  Inside a squeezed pass it only widens again.  mfl_widescreen_2d_pass_end goes after the pass's
+   EndUpdate and before it puts its saved window back; it ends only a squeeze this call began. */
+void mfl_widescreen_2d_pass(void *camera, int im2d)
+{
+  if (mfl_ws2d_camera != NULL) {
+    mfl_widescreen_2d_rewiden(camera);
+    return;
+  }
+  mfl_ws2d_begin((RwCamera *)camera);
+  if (mfl_ws2d_camera == NULL)
+    return;
+  mfl_ws2d_pass_owned = 1;
+  if (!im2d)
+    mfl_ws2d_unhook();
+}
+
+void mfl_widescreen_2d_pass_end(void)
+{
+  if (mfl_ws2d_pass_owned)
+    mfl_ws2d_end();
 }
 #endif
 
@@ -348,6 +406,9 @@ undefined4 app_state_menu_render(void)
           menu_draw_training_prompt();
           viewport_cam = get_viewport_camera(0);
           RwCameraEndUpdate(viewport_cam);
+#if MFL_FIX_WIDESCREEN
+          mfl_widescreen_2d_pass_end();
+#endif
         }
       }
       if (g_app_state != APP_STATE_RACE_MESSAGE) break;
@@ -416,6 +477,9 @@ end_camera_update:
       cam = (RwCamera *)car_get_car_6c2944();
       camera_restore(cam);
       viewport_cam = get_viewport_camera(0);
+#if MFL_FIX_WIDESCREEN      /* frontend over the race squeezed to 4:3 (ended after the switch) */
+      mfl_ws2d_begin((RwCamera *)viewport_cam);
+#endif
       last_result = RwCameraBeginUpdate(viewport_cam);
       if (last_result != 0) {
         frontend_draw();

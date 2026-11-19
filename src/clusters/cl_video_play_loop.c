@@ -1,6 +1,7 @@
 // cluster-entries: video_play_loop
 /* Installed cluster video_play_loop (tools/cluster_install.py from output/cluster_pilot_kc/video_play_loop.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern __declspec(dllimport) int __stdcall Sleep(int);
 /*00475730*/ extern int get_viewport_camera();
 /*004a20d0*/ extern int input_update();
@@ -50,8 +51,13 @@ void video_play_loop(void)
   
   movie_index = 0;
   frame.clear_colour.red = '\0';
+#if MFL_FIX_WIDESCREEN      /* black pillarbox bars (a full-screen movie hides the teal clear) */
+  frame.clear_colour.green = 0;
+  frame.clear_colour.blue = 0;
+#else
   frame.clear_colour.green = 0x80;
   frame.clear_colour.blue = 0x80;
+#endif
   frame.clear_colour.alpha = 0xff;
   frame.movie_ids[0] = 1;
   frame.movie_ids[1] = 2;
@@ -83,6 +89,15 @@ void video_play_loop(void)
         frame.rect_max_x = 0x3f800000;
         frame.rect_max_y = 0x3f800000;
         frame.ratio_y = frame.size_a_h / frame.size_b_h;
+#if MFL_FIX_WIDESCREEN      /* pillarbox: the movie keeps its own aspect (size_a = movie size), centred at full height */
+        if (frame.size_a_h > 0.0f) {
+          float k = frame.size_a_w * mfl_widescreen_fov_factor() / frame.size_a_h;      /* movie width / screen width at the same height */
+          if (k < 1.0f) {
+            *(float *)&frame.rect_min_x = (1.0f - k) * 0.5f;
+            *(float *)&frame.rect_max_x = (1.0f + k) * 0.5f;
+          }
+        }
+#endif
         texture_arg = app_get_app_76e8a4(*(int *)&frame.ratio_x,*(int *)&frame.ratio_y);
         video_draw_textured_quad(camera,&frame.rect_min_x,&frame.rect_max_x,0,texture_arg,frame.ratio_x,frame.ratio_y);
         RwCameraEndUpdate(camera);

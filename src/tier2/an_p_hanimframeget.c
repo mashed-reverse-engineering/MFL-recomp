@@ -16,7 +16,6 @@ RW_LAYOUT_ASSERT(p_hfx_0, RW_OFFSETOF(rpHAnimFrameExtension, hierarchy) == 4);  
 extern RwInt32 RpHAnimAtomicGlobals;
 #define RPHANIMFRAMEGETEXT(frame) ((rpHAnimFrameExtension *)(((RwUInt8 *)(frame)) + RpHAnimAtomicGlobals))
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpHAnimHierarchy * rwframe_plugin_object_get(RwFrame *frame)
 {

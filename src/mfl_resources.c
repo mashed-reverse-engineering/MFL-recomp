@@ -8,7 +8,9 @@
  * or ours under another name beside the untouched MFL.exe.  A candidate counts only when it holds the video dialog
  * (our own exe has no .rsrc).  None found: message box naming the expected path, exit.
  * Only names the original exe imports have import libs (tools/mk_importlibs.py): LoadLibraryExA comes through GetProcAddress (as in recomp/release/mfl_trap.c).
- * Port note: without Win32 a small PE .rsrc reader of the same file replaces this. */
+ * Port note: without Win32 a small PE .rsrc reader of the same file replaces this.
+ * With MFL_FIX_PREFS the settings file beside the exe is read here too (mfl_pref, end of file). */
+#include "mfl_fix.h"
 extern __declspec(dllimport) void *__stdcall GetModuleHandleA(const char *name);
 extern __declspec(dllimport) void *__stdcall GetProcAddress(void *module, const char *name);
 extern __declspec(dllimport) unsigned long __stdcall GetModuleFileNameA(void *module, char *path, unsigned long size);
@@ -80,3 +82,76 @@ void mfl_resources_attach(void)
   }
   ExitProcess(1);
 }
+
+#if MFL_FIX_PREFS
+/* MFL_FIX_PREFS: mflng_settings.cfg beside the exe.  One `key=value` per line (spaces around `=` allowed); the value is 0 or 1.
+ * Unknown keys, comment lines (# or ;) and any other value are ignored, so the key keeps its default; no file = every default.
+ * Every default is the original behaviour.  Read once, on the first mfl_pref call; nothing writes the file yet (W16: menu page). */
+extern __declspec(dllimport) void *__stdcall CreateFileA(const char *path, unsigned long access, unsigned long share, void *security,
+                                                        unsigned long creation, unsigned long flags, void *template_file);
+extern __declspec(dllimport) int __stdcall ReadFile(void *file, void *data, unsigned long size, unsigned long *done, void *overlapped);
+extern __declspec(dllimport) int __stdcall CloseHandle(void *handle);
+
+#define GENERIC_READ 0x80000000UL
+#define FILE_SHARE_READ 1
+#define OPEN_EXISTING 3
+#define INVALID_HANDLE ((void *)-1)
+#define PREFS_FILE_MAX 4096      /* a longer file is read up to here */
+
+static const struct { const char *name; int fallback; } k_prefs[MFL_PREF_COUNT] = {      /* order = enum mfl_pref_key (mfl_fix.h) */
+  { "skip_intro", 0 },
+  { "skip_save_wait", 0 },
+  { "unlock_all", 0 },
+  { "winner_cam_rotation", 1 },
+};
+int mfl_prefs[MFL_PREF_COUNT];      /* the values in force (a global, so a test run can read them by the map) */
+
+static int is_blank(char c) { return c == ' ' || c == '\t' || c == '\r'; }
+
+/* one line [line, end): a known key followed by `=` and a lone 0 or 1 sets that key */
+static void prefs_parse_line(const char *line, const char *end)
+{
+  const char *p;
+  int k, n;
+
+  while (line < end && is_blank(line[0])) line++;
+  while (end > line && is_blank(end[-1])) end--;
+  for (k = 0; k < MFL_PREF_COUNT; k++) {
+    for (n = 0, p = line; k_prefs[k].name[n] != '\0' && p < end && *p == k_prefs[k].name[n]; n++, p++) ;
+    if (k_prefs[k].name[n] != '\0') continue;
+    while (p < end && is_blank(*p)) p++;
+    if (p == end || *p++ != '=') continue;
+    while (p < end && is_blank(*p)) p++;
+    if (end - p == 1 && (*p == '0' || *p == '1')) mfl_prefs[k] = *p - '0';
+    return;
+  }
+}
+
+int mfl_pref(int key)
+{
+  static int read_done;
+  static char path[PATH_SIZE];
+  static char text[PREFS_FILE_MAX];
+  unsigned long dir_len, size = 0;
+  const char *line, *end;
+  void *file;
+  int k;
+
+  if (!read_done) {
+    read_done = 1;
+    for (k = 0; k < MFL_PREF_COUNT; k++) mfl_prefs[k] = k_prefs[k].fallback;
+    dir_len = GetModuleFileNameA(0, path, PATH_SIZE);
+    while (dir_len != 0 && path[dir_len - 1] != '\\') dir_len--;
+    file = CreateFileA(path_in_dir(path, dir_len, "mflng_settings.cfg"), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    if (file != INVALID_HANDLE) {
+      if (!ReadFile(file, text, PREFS_FILE_MAX, &size, 0)) size = 0;
+      CloseHandle(file);
+    }
+    for (line = text; line < text + size; line = end + 1) {
+      for (end = line; end < text + size && *end != '\n'; end++) ;
+      prefs_parse_line(line, end);
+    }
+  }
+  return mfl_prefs[key];
+}
+#endif

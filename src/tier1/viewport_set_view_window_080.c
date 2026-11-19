@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00403890*/ extern int hud_flash_text();
 /*0042cdd0*/ extern int ui_draw_texture_640_default();
 /*00475730*/ extern char *get_viewport_camera();
@@ -26,6 +27,9 @@ void viewport_set_view_window_080(void)
   vw[1].x = RwCamera_viewWindow(camera).x;
   vw[1].y = RwCamera_viewWindow(camera).y;
   RwCameraSetViewWindow(camera,&vw[0]);
+#if MFL_FIX_WIDESCREEN      /* flash text and the 640-space texture drawn 4:3 in the middle */
+  mfl_widescreen_2d_pass(camera, 1);
+#endif
   began = RwCameraBeginUpdate(camera);
   if (began != 0) {
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);
@@ -38,6 +42,9 @@ void viewport_set_view_window_080(void)
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,(void *)0x1);
     RwCameraEndUpdate(camera);
   }
+#if MFL_FIX_WIDESCREEN
+  mfl_widescreen_2d_pass_end();
+#endif
   RwCameraSetViewWindow(camera,&vw[1]);
   RwCameraBeginUpdate(camera);
   return;

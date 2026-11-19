@@ -9,7 +9,6 @@
 /* ---- end of the generated declarations ---- */
 
 #define rwPLUGIN_ID rwID_GPVSPLUGIN
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpWorldSector * PVSGetNumSectors(RpWorldSector * worldSector, void *pData)
 {

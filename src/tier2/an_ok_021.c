@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*0040ff40*/ extern int race_setup_set_slot_type();
 /*0042bd00*/ extern void * dat_get_string();
@@ -738,6 +739,9 @@ void credits_update_draw(void)
     g_credits_update_69d0fc = 0;
   }
   /* two full-width background panels (inferred), then two white top/bottom bars (inferred) */
+#if MFL_FIX_WIDESCREEN      /* the header / footer strips are page background: full width (the credits text above stays squeezed) */
+  mfl_widescreen_2d_full(1);
+#endif
   gfx_draw_rect_2d_flat_a(0,0,RECT_WIDTH_640,0x42800000,RECT_COLOUR_DIM);
   gfx_draw_rect_2d_flat_b(0,0x43d00000,RECT_WIDTH_640,0x42800000,RECT_COLOUR_DIM);
   draw_rect(0,0x43d00000,RECT_WIDTH_640,0x3f800000,COLOUR_WHITE_ARGB);
@@ -749,6 +753,9 @@ void credits_update_draw(void)
     draw_rect(0,0x43ce8000,RECT_WIDTH_640,0x40400000,0x80f7941d);
     draw_rect(0,0x43cd0000,RECT_WIDTH_640,0x40400000,0x40f7941d);
   }
+#if MFL_FIX_WIDESCREEN
+  mfl_widescreen_2d_full(0);
+#endif
   return;
 }
 

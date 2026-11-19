@@ -40,7 +40,6 @@ RW_LAYOUT_ASSERT(rw37_row_0, RW_OFFSETOF(rwIm3DRenderPipelines, polyLine) == 0x1
 extern RxNodeDefinition *RxNodeDefinitionGetD3D9SubmitNoLight(void);      /* MFL.exe 0x4f13c0: returns the node definition at 0x62eb58, "nodeD3D9SubmitNoLight.csl" (the codfh source has the Xbox one) */
 extern RwBool _rwD3D9Im3DRenderOpen(void);
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwBool rwIm3DCreatePlatformRenderPipelines(rwIm3DRenderPipelines *globalPipes)
 {

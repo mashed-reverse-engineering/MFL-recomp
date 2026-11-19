@@ -144,7 +144,6 @@ RW_LAYOUT_ASSERT(rw37_row_9, RW_OFFSETOF(RpCollSectorBBoxIt, clipBBox) == 0x1c &
 #define SphereBBoxTestMacro(_result,_sph,_bb,_distSq) MACRO_START { RwReal dist; dist = IntervalDistMacro((_sph)->center.x, (_bb)->inf.x, (_bb)->sup.x); *(_distSq) = dist*dist; dist = IntervalDistMacro((_sph)->center.y, (_bb)->inf.y, (_bb)->sup.y); *(_distSq) += dist*dist; dist = IntervalDistMacro((_sph)->center.z, (_bb)->inf.z, (_bb)->sup.z); *(_distSq) += dist*dist; (_result) = (*(_distSq) <= ((_sph)->radius * (_sph)->radius)); } MACRO_STOP
 #define SphereBBoxMacro(_bb,_center,_rad) MACRO_START { (_bb)->inf = (_bb)->sup = *(_center); (_bb)->inf.x -= (_rad); (_bb)->inf.y -= (_rad); (_bb)->inf.z -= (_rad); (_bb)->sup.x += (_rad); (_bb)->sup.y += (_rad); (_bb)->sup.z += (_rad); } MACRO_STOP
 #define TriangleNormalMacro(_normal,_v0,_v1,_v2) MACRO_START { RwV3d vTmp, vTmp2; RwReal recipLength; RwReal lengthSq; RwV3dSubMacro(&vTmp, (_v1), (_v0)); RwV3dSubMacro(&vTmp2, (_v2), (_v0)); RwV3dCrossProductMacro((_normal), &vTmp, &vTmp2); lengthSq = RwV3dDotProduct((_normal), (_normal)); rwInvSqrtMacro(&recipLength, lengthSq); RwV3dScaleMacro((_normal), (_normal), recipLength); } MACRO_STOP
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void GeometryForAllTriIntsecSphere(RpGeometry *geometry, const RwSphere *sphere, RpIntersection *is, RpIntersectionCallBackGeometryTriangle callBack, void *data)
 {

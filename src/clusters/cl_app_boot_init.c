@@ -1,6 +1,7 @@
 // cluster-entries: app_boot_init
 /* Installed cluster app_boot_init (tools/cluster_install.py from output/cluster_pilot_ql1/app_boot_init.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a5b60*/ extern int d3d9_pipeline_create_default(void);
 /*004a5530*/ extern void __cdecl log_print(const char *text);
 /*004c66c0*/ extern void __cdecl piz_fs_create_004c67c0(int use_fast_path);
@@ -132,6 +133,9 @@ int app_boot_init(void)
   app_get_app_62c5c8();
   app_get_app_62c5cc();
   log_print("Calling HardwareShowIntroVideo\n");
+#if MFL_FIX_PREFS
+  if (!mfl_pref(MFL_PREF_SKIP_INTRO))      /* skip_intro=1: no intro movies */
+#endif
   video_play_loop();
   game_open_piz("d:\\toastart\\common\\font36.piz");
   speaker_mode_names();

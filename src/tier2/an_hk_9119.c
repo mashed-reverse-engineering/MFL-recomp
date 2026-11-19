@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00430ab0*/ extern int screen_width();
 /*00430ac0*/ extern int screen_height();
 /*00475730*/ extern int get_viewport_camera();
@@ -23,9 +24,19 @@ undefined4 ui_camera_update_view_rect(void)
   int view_w;
   RwRect *rect_ptr;
   RwRect view_rect;
-  
+#if MFL_FIX_WIDESCREEN
+  float k;
+#endif
+
   screen_dim = screen_width();
+#if MFL_FIX_WIDESCREEN      /* the replay window is a page element: squeezed to 4:3 about the screen centre like its frame (menu pass) */
+  k = mfl_widescreen_fov_factor() / 0.75f;
+  if (!(k < 1.0f))
+    k = 1.0f;
+  raw_val = (int)((float)screen_dim * (320.0f + ((float)((int)g_tutorial_69d2c8 - 0x127) - 320.0f) * k) / 640.0f) + 2;
+#else
   raw_val = ((int)screen_dim * ((int)g_tutorial_69d2c8 - 0x127)) / 0x280 + 2;
+#endif
   clamped_x = raw_val;
   view_w = 0;
   if (raw_val < 0) {
@@ -37,7 +48,11 @@ undefined4 ui_camera_update_view_rect(void)
   raw_val = (screen_dim * 100) / 0x1e0 + 2;
   view_rect.y = raw_val;
   screen_dim = screen_width();
+#if MFL_FIX_WIDESCREEN
+  view_w = (int)((float)screen_dim * (float)(view_w + 0x100) * k / 640.0f) + -4;
+#else
   view_w = ((int)screen_dim * (view_w + 0x100)) / 0x280 + -4;
+#endif
   if (view_w < 1) {
     return 0;
   }

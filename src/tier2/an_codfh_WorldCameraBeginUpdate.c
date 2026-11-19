@@ -24,7 +24,6 @@ RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpWorldCameraExt, world) == 0xc);      
 RW_LAYOUT_ASSERT(rw37_own_1, RW_OFFSETOF(RpWorldCameraExt, oldBeginUpdate) == 0x10);      /* MFL.exe 0x4f3997: jmp [eax+0x10] */
 #define WORLDCAMERAEXTFROMCAMERA(camera) ((RpWorldCameraExt *)(((RwUInt8 *)(camera)) + cameraExtOffset))
 extern RwInt32      cameraExtOffset;
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwCamera * WorldCameraBeginUpdate(RwCamera * camera)
 {

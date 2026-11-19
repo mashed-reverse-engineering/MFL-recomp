@@ -25,7 +25,6 @@ RwStream * readGeometryNative(RwStream *stream, RwInt32 binaryLength __RWUNUSED_
     return (_rpGeometryNativeRead(stream, object) ? stream : (RwStream *)NULL);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 sizeGeometryNative(const void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__)
 {
@@ -46,7 +45,6 @@ RwStream * readWorldSectorNative(RwStream *stream, RwInt32 binaryLength __RWUNUS
     return (_rpWorldSectorNativeRead(stream, object) ? stream : (RwStream *)NULL);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwInt32 sizeWorldSectorNative(const void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__)
 {

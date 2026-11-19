@@ -7,6 +7,7 @@ scenario_header() {   # fast menus (6x) like regress.sh fast mode; SCEN_DRIVE = 
   [ -n "$SCEN_DRIVE" ] && echo "poke 0x$(mapva scen_flags) $SCEN_DRIVE"
   echo "poke 0x$(mapva fast_nolimit) ${SCEN_NOLIMIT:-2}"
   [ -n "$SCEN_NOSHOW" ] && echo "poke 0x$(mapva fast_noshow) 1"
+  [ -n "$SCEN_UNLOCK" ] && echo "poke 0x$(mapva unlock_all) 1"      # W15 UNL: freeze.c unlock_all (the game's 100 % state in every front-end frame, bonus menu included)
   echo "waitmem $CUR 1 30"; echo "waitmem 0x69d1e4 0 8"          # title screen faded in
 }
 scenario_footer() { echo "wait ${SCEN_END_WAIT:-1}"; echo "shot final"; CT=$(mapva count_table); CB=$(mapva count_bytes); echo "dump counters 0x$CT 0x$CB"; }

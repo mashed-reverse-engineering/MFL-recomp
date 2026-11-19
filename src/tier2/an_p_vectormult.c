@@ -46,7 +46,6 @@ RwV3d * VectorMultPoint(RwV3d *pointOut, const RwV3d *pointIn, const RwMatrix *m
     return (pointOut);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwV3d * VectorMultPoints(RwV3d *pointsOut, const RwV3d *pointsIn, RwInt32 numPoints, const RwMatrix *matrix)
 {
@@ -68,7 +67,6 @@ RwV3d * VectorMultVector(RwV3d *vectorOut, const RwV3d *vectorIn, const RwMatrix
     return (vectorOut);
 }
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RwV3d * VectorMultVectors(RwV3d *vectorsOut, const RwV3d *vectorsIn, RwInt32 numPoints, const RwMatrix *matrix)
 {

@@ -184,7 +184,6 @@ RW_LAYOUT_ASSERT(rw37_priv_15, RW_OFFSETOF(Rt2dGlobalVars, uCharIndexSize) == 0x
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(Rt2dGlobalVars, ctm) == 0x584 && RW_OFFSETOF(Rt2dGlobalVars, mtos) == 0x604 && RW_OFFSETOF(Rt2dGlobalVars, triIdxCache) == 0xd04 && RW_OFFSETOF(Rt2dGlobalVars, triIdxCacheSize) == 0xd08);      /* MFL.exe 0x563161 / 0x56318b / 0x563186 / 0x5631b3 (Rt2dClose): ctm 0x9480e4..0x948164, mtos 0x948164, triIdxCache 0x948864, triIdxCacheSize 0x948868; Rt2dGlobals is at 0x947b60 */
 RW_LAYOUT_ASSERT(rw37_own_1, sizeof(_rt2dTriIndex) == 8);      /* derived: currFontTexDictionary 0x520 and layerDepth 0x6e0 (an_codfh_rt2dfont.c) leave 8 bytes for triVertIndex */
 RW_LAYOUT_ASSERT(rw37_own_2, sizeof(Rt2dStrBuffer) == 0x408);      /* derived: layerDepth 0x6e0 and fontReadFunc 0xc00 (an_codfh_rt2dfont.c) hold with six 16 byte cluster definitions and this size */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 void Rt2dClose(void)
 {

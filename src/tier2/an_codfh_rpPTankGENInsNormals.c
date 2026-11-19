@@ -49,7 +49,6 @@ struct RpPTankData
 
 
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-12 authority=diffemu */
 void rpPTankGENInsNormals(RpPTankLockStruct *dstCluster, RwInt32 pCount, RpPTankData *ptankGlobal)
 {

@@ -20,7 +20,6 @@ struct RpClumpLightExt
 #define CLUMPLIGHTEXTFROMCONSTLIGHT(light) ((const RpClumpLightExt *)(((const RwUInt8 *)(light)) + _rpClumpLightExtOffset))
 extern RwInt32  _rpClumpLightExtOffset;
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(RpClumpLightExt, inClumpLink) == 4 && sizeof(RpClumpLightExt) == 0xc);      /* MFL.exe 0x4f6e4d..0x4f6e66: link at ext+4 (next) / ext+8 (prev) unlinked and cleared, ext->clump [ext+0] cleared */
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RpLight * DestroyClumpLight(RpLight *light, void *data __RWUNUSED__)
 {

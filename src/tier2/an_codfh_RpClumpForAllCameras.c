@@ -144,7 +144,6 @@ struct RpClumpCameraExt
 
 /*007d535c*/ extern undefined4 _rpClumpCameraExtOffset;
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-12 authority=diffemu */
 RpClump * RpClumpForAllCameras(RpClump * clump, RwCameraCallBack callback, void *pData)
 {

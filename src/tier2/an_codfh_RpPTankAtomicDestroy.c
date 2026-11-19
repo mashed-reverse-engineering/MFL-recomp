@@ -6,7 +6,6 @@
 
 /*004f6a60*/ extern RwBool RpAtomicDestroy(struct RpAtomic *p0);
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-12 authority=diffemu */
 void RpPTankAtomicDestroy(RpAtomic *ptank)
 {

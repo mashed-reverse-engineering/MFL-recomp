@@ -1,6 +1,7 @@
 // cluster-entries: menu_fade_overlay_draw
 /* Installed cluster menu_fade_overlay_draw (tools/cluster_install.py from output/cluster_pilot_zy/menu_fade_overlay_draw.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
 /*0069d168*/ extern RwIm2DVertex g_course_69d168[4];
 /*0069d1e4*/ extern unsigned int g_menu_fade_alpha;
@@ -38,7 +39,13 @@ void menu_fade_overlay_draw(int unused)
   v[2].emissiveColor = g_menu_fade_alpha << 0x18;
   v[3].emissiveColor = g_menu_fade_alpha << 0x18;
   if (g_menu_fade_alpha != 0) {
+#if MFL_FIX_WIDESCREEN      /* the fade covers the whole width */
+    mfl_widescreen_2d_full(1);
     RwIm2DRenderPrimitive(rwPRIMTYPETRISTRIP, v, 4);
+    mfl_widescreen_2d_full(0);
+#else
+    RwIm2DRenderPrimitive(rwPRIMTYPETRISTRIP, v, 4);
+#endif
   }
 }
 

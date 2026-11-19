@@ -96,7 +96,6 @@ RW_LAYOUT_ASSERT(rw37_own_1, sizeof(MatFXBumpMapData) == 0x14 && sizeof(MatFXUVA
 extern RwInt32 stub_return_one(void *data, RwInt32 state);
 #define _rpMatFXSetupDualRenderState(dualData, state) stub_return_one((dualData), (state))
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: validated 2026-11-14 authority=diffemu */
 RpMaterial * RpMatFXMaterialSetEffects(RpMaterial * material, RpMatFXMaterialFlags flags)
 {

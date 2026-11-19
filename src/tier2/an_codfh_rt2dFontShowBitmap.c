@@ -241,7 +241,6 @@ static RwUInt32 RwFastRealToUInt32_r(RwReal x)
         RwIm3DVertexSetColor(vtx, (RwUInt8)red, (RwUInt8)green, (RwUInt8)blue, (RwUInt8)alpha); \
     } while (0)
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 Rt2dFont *rt2dFontShowBitmap(Rt2dFont *font, const RwChar *string, RwReal height, RwV2d *anchor, Rt2dBrush *brush)
 {

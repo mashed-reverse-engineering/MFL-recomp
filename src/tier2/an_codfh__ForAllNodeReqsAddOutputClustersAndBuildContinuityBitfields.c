@@ -259,7 +259,6 @@ MACRO_STOP
 #define E_RX_DEP_SUCCESS 0
 RW_LAYOUT_ASSERT(rw37_own_0, RW_OFFSETOF(rxReq, reqentries) == 0xc && sizeof(RwReqEntry) == 0x24 && RW_OFFSETOF(RwReqEntry, outbf) == 0x18 && RW_OFFSETOF(RwReqEntry, originatingNode) == 0x20);      /* MFL.exe 0x4f27bb reqentries [edx+0xc], 0x4f27cc stride 0x24, 0x4f2951 outbf [eax+0x18], 0x4f2805 originatingNode [eax+0x20] */
 
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=static */
 RwUInt32 _ForAllNodeReqsAddOutputClustersAndBuildContinuityBitfields(RxPipeline * pipeline)
 {

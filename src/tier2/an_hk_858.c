@@ -1,4 +1,8 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern int mfl_widescreen_frustum_test_sphere_43(void *camera, void *sphere);      /* an_hk_824.c */
+#endif
 /*00409eb0*/ extern double player_rank_key();
 /*0040fdc0*/ extern int race_get_phase();
 /*004146a0*/ extern int trail_get_value();
@@ -163,7 +167,11 @@ void bomb_update(void)
         sphere = &frame.sphere;
         frame.sphere.radius = 0.2;
         camera = (RwCamera *)get_viewport_camera(0);
+#if MFL_FIX_WIDESCREEN      /* the 4:3 frustum of the original */
+        frustum_result = (RwFrustumTestResult)mfl_widescreen_frustum_test_sphere_43(camera,sphere);
+#else
         frustum_result = RwCameraFrustumTestSphere(camera,sphere);
+#endif
         if (frustum_result == rwSPHEREOUTSIDE) {
           any_outside_frustum = true;
           rwp_object_set_user_data(trail_object, frustum_result);

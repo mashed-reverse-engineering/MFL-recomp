@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0041bd90*/ extern int hudpanel_render_all_slots();
 /*0041bf10*/ extern int marker_particles_render();
 /*00475730*/ extern void * get_viewport_camera();
@@ -113,6 +114,9 @@ void hudpanel_markers_render_all(void)
     identity_matrix.pos.x = 0.0;
     RwFrameTransform(camera_frame,&identity_matrix,rwCOMBINEREPLACE);
     RwCameraSetViewWindow(camera,&hud_view_window);
+#if MFL_FIX_WIDESCREEN      /* the HUD window of the mode's ratio, as the HUD camera: markers placed by hudpanel_marker_place (x scaled) keep their shape */
+    mfl_widescreen_hud_camera(camera);
+#endif
     RwCameraSetProjection(camera,rwPARALLEL);
     RwCameraBeginUpdate(camera);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x0);

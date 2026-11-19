@@ -67,7 +67,6 @@ extern const RtGlyphRow *_rtCharsetAtariFontGet(RtCharsetDesc * desc,
                                                 RwInt32 * rasSize);
 #define GETCHARSETBITS(_desc_ptr,rasSizePtr) _rtCharsetAtariFontGet((_desc_ptr), (rasSizePtr))
 extern RwInt32 CharsetProcessString(const RwChar * string, RwUInt32 length, RtCharset * charSet, RwInt32 x, RwInt32 y, RwIm2DVertex * vertices, RwImVertexIndex * indices, RwImVertexIndex indexOffset, RwBool hideSpaces);
-/* TIER2: unvalidated authority=diffemu */
 /* TIER2: unvalidated 2026-11-14 authority=diffemu */
 RtCharset * RtCharsetPrintBuffered(RtCharset * charSet, const RwChar * string, RwInt32 x, RwInt32 y, RwBool hideSpaces)
 {

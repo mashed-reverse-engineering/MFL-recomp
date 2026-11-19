@@ -480,7 +480,7 @@ results_screen_draw,0043abd0,cluster,pilot,EQUAL,578,0.98,1,,pilot:EQUAL,
 menu_texture_dict_load,0043cda0,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 menu_layout_build_a,0043cee0,cluster,pilot,EQUAL,200,1.00,1,,pilot:EQUAL,
 menu_layout_draw_b,0043d1e0,tier2,hs_sweep,EQUAL,1737,1.00,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-menu_event_is_selectable,0043d7b0,tier2,hs_sweep,EQUAL,1600,0.99,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-STALE
+menu_event_is_selectable,0043d7b0,tier2,hs_sweep,EQUAL,1600,0.99,1,,hs_sweep:EQUAL|weak_osweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 menu_draw_event_select,0043d9e0,cluster,pilot,EQUAL,1800,0.98,1,,pilot:EQUAL,
 menu_find_texture_by_slot,00440850,cluster,-,-,0,0,0,NOEVID,,
 menu_draw_event_descriptions,004408c0,cluster,cluster_sweep,EQUAL,174,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:EQUAL,
@@ -711,7 +711,7 @@ weapon_oil_course_2_update,004632b0,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:E
 oil_load_assets,00463350,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
 weapon_oil_pick_slot_forward,00463450,tier2,hs_sweep,EQUAL,1600,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
 weapon_oil_fire,00463460,tier2,hs_sweep,EQUAL,1935,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
-weapon_mines_equip,00463690,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-STALE
+weapon_mines_equip,00463690,tier2,hs_sweep,EQUAL,2079,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-OK
 weapon_fx_slot_clear_b,004637e0,cluster,-,-,0,0,0,NOEVID,,
 weapon_mine_drop,00463850,cluster,pilot,EQUAL,800,1.00,1,,pilot:DIFF|pilot:EQUAL,
 weapon_mine_update_one_cb_463a50,00463a50,cluster,pilot,EQUAL,400,1.00,1,,pilot:EQUAL,
