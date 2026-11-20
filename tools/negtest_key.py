@@ -12,13 +12,14 @@ output/gate/negtest_ok.key (written only after all groups passed).  Inputs, by c
   image    every `<image> wine /t/` reference in the rw_*_check.sh (the pinned Wine image)
   compiler `i686-w64-mingw32-gcc --version` and g++ (the harness exes are built by the host compiler on every run)
 --key prints the key (nothing and exit 1 on any error), --check prints `HIT <key>` or `MISS <key>` (`MISS error` on any error: fail-open),
---store writes the key file.
+--store KEY [DIR] writes the key file and, beside it, negtest_ok.dir = the gate / check_all dir whose run proved the key (W16 GATE).
+--proof prints "<age of the key file in days> <proving dir|unknown>" ("none -" without a key file); gate.sh: FORCE_NEGTEST after 7 days.
 W9 T-STEP2 (step limit after a MISS):
   --store-time MINUTES   after a timed MISS run of the staged fixtures in a scratch tree (check_all with the negtest groups, wall minutes):
                          write "<current key> <minutes>" to output/gate/negtest_miss_time.txt (scratch output/gate = the real directory)
   --miss-limit KEY       print "<limit> <why>": a timing for KEY -> max(90, ceil(minutes x 1.3)); none -> 120 (plan W9 timeout rule)
   NEGTEST_TIME_FILE overrides the timing file (tests)."""
-import glob, hashlib, os, re, subprocess, sys
+import glob, hashlib, os, re, subprocess, sys, time
 
 T = os.path.dirname(os.path.abspath(__file__))
 if os.path.basename(os.path.dirname(T)) == "agents":
@@ -177,6 +178,17 @@ if __name__ == "__main__":
     if a == ["--miss-limit"]:
         print("%d %s" % miss_limit(TF, sys.argv[2] if len(sys.argv) > 2 else "error"))
         sys.exit(0)
+    if a == ["--proof"]:      # W16 GATE: no key computation (cheap); the age decides the forced rerun, the dir is named in the HIT line
+        try:
+            age = "%.1f" % ((time.time() - os.path.getmtime(KF)) / 86400)
+        except OSError:
+            print("none -"); sys.exit(0)
+        try:
+            d = rd(KF[:-4] + ".dir").decode().strip() or "unknown"
+        except OSError:
+            d = "unknown"
+        print(age, d)
+        sys.exit(0)
     try:
         k = key(items())
     except Exception as e:      # fail-open: the caller runs negtest
@@ -192,6 +204,7 @@ if __name__ == "__main__":
     elif a == ["--store"] and re.fullmatch(r"[0-9a-f]{64}", sys.argv[2] if len(sys.argv) > 2 else ""):
         os.makedirs(os.path.dirname(KF), exist_ok=True)
         open(KF, "w").write(sys.argv[2] + "\n")
+        open(KF[:-4] + ".dir", "w").write((sys.argv[3] if len(sys.argv) > 3 else "unknown") + "\n")
     elif a == ["--store-time"] and re.fullmatch(r"\d+(\.\d+)?", sys.argv[2] if len(sys.argv) > 2 else ""):
         os.makedirs(os.path.dirname(TF), exist_ok=True)
         open(TF, "w").write("%s %s\n" % (k, sys.argv[2]))

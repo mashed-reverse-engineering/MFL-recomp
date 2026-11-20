@@ -88,6 +88,19 @@ void mfl_widescreen_hud_camera(void *camera)
   RwCameraSetViewWindow((RwCamera *)camera, &view_window);
 }
 
+/* Race phase 7 (standings, winner camera): camera_race_setup does not run camera_update, so the viewport camera keeps the 0.8 x 0.8 window
+   that camera_set_default_view_window left after the HUD pass (app_state_menu_render) and the original draws the winner car with it.
+   Same window at 4:3, wider by 0.75 / factor at a wide mode (Hor+), so the car keeps its 4:3 look. */
+#define MFL_WS_DEFAULT_WINDOW 0.8f
+void mfl_widescreen_standings_window(void *camera)
+{
+  RwV2d view_window;
+
+  view_window.x = MFL_WS_DEFAULT_WINDOW * 0.75f / mfl_widescreen_fov_factor();
+  view_window.y = MFL_WS_DEFAULT_WINDOW;
+  RwCameraSetViewWindow((RwCamera *)camera, &view_window);
+}
+
 /* screen-tracking HUD items (player markers): their 4:3 x range +-0.6 becomes the full width */
 float mfl_widescreen_hud_scale(void)
 {

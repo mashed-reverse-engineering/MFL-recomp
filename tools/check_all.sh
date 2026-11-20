@@ -5,7 +5,8 @@
 # Strict builds: BUILD_PAR=1 serial, otherwise (default 4) all side by side (the object cache writes are atomic since 2026-11-03).  They are skipped when tools/strict_key.py equals
 # output/gate/strict_ok.key (written after all builds passed; objscan / trapcheck then use the stored object list output/gate/strict_ok.objs.txt); FORCE_STRICT=1 always builds.
 # negtest's DLL groups (docker, ~30 min) are skipped when tools/negtest_key.py equals output/gate/negtest_ok.key (written after all groups passed; log line `negtest: cache HIT|MISS key=<8 hex>`);
-# FORCE_NEGTEST=1 always runs them (gate.sh exports it for kind full); any error in the key tool is a MISS.
+# FORCE_NEGTEST=1 always runs them (gate.sh exports it for kind full only at the freeze (GATE_FREEZE=1), on a key file older than 7 days, or when set by hand); any error in the key tool is a MISS.
+# --store also writes output/gate/negtest_ok.dir (the check dir of the run that proved the key); the HIT line names it.
 # The game gates are separate: tools/wine-run/courses.sh (union sweep), DRIVE=31 crash check, shadow sweep.
 T=$(dirname "$(readlink -f "$0")"); W=${1:-$(mktemp -d)}; mkdir -p $W
 # W13 C6 (harness review finding 23): every output line gets a [HH:MM:SS] prefix (the step was one opaque block of up to 70 min in gate.log).
@@ -69,12 +70,13 @@ $SAPY $T/delink/sse_align_check.py || { echo "sse_align: aligned SSE operand in 
 # the DLL groups after it (docker, ~30 min) only on a cache MISS (tools/negtest_key.py: the DLL, the exe, negtest.sh, every rw_*_check.sh + the harness sources they compile, the fixtures, the pinned image, the host compiler)
 NR=$(python3 $T/negtest_key.py --check 2>/dev/null) || NR="MISS error"; NS=${NR%% *}; NKEY=${NR#* }      # fail-open: any error is a MISS
 [ "${FORCE_NEGTEST:-0}" = 1 ] && NS=MISS
-echo "negtest: cache $NS key=${NKEY:0:8}$([ "${FORCE_NEGTEST:-0}" = 1 ] && echo ' (FORCE_NEGTEST=1)')"
+NP=$(python3 $T/negtest_key.py --proof 2>/dev/null); NP=${NP:-? unknown}      # W16 GATE (user decision A): a HIT names the run that proved the key and the key file's age
+echo "negtest: cache $NS key=${NKEY:0:8}$([ "${FORCE_NEGTEST:-0}" = 1 ] && echo ' (FORCE_NEGTEST=1)')$([ $NS = HIT ] && echo " (DLL groups not run: proved by ${NP#* }, key file ${NP%% *} days old)")"
 if [ $NS = HIT ]; then export NEGTEST_SKIP_DLL=1; else unset NEGTEST_SKIP_DLL; fi
 $T/delink/negtest.sh > $W/negtest.txt 2>&1 || { grep -E "FAIL" $W/negtest.txt | head -8; echo "negtest: an oracle no longer fires on its negative fixture ($W/negtest.txt)"; exit 1; }
 echo "negtest: $(grep -c '^negtest ok' $W/negtest.txt) negative / positive fixtures behave"
 # all groups passed on a MISS: record the key (computed again: an edit during the run must not be recorded as passed)
-[ $NS = HIT ] || { NK2=$(python3 $T/negtest_key.py --key 2>/dev/null); [ -n "$NK2" ] && [ "$NK2" = "$NKEY" ] && python3 $T/negtest_key.py --store $NK2; }
+[ $NS = HIT ] || { NK2=$(python3 $T/negtest_key.py --key 2>/dev/null); [ -n "$NK2" ] && [ "$NK2" = "$NKEY" ] && python3 $T/negtest_key.py --store $NK2 "$(readlink -f $W)"; }
 # ---- strict builds (independent of each other; compile jobs inside build_overlay are parallel as well)
 FL=("" "--automatch --bridges" "--automatch --automatch-near --bridges")
 [ -s $T/../src/clusters/enabled.txt ] && FL+=("--automatch --automatch-near --bridges --clusters")      # installed clusters (tools/cluster_install.py): a 4th strict build, only when some are enabled

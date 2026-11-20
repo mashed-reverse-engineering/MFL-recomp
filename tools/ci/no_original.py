@@ -19,7 +19,7 @@ BAD_TEXT = [r"/ho" r"me/", r"/tmp/claude-[0-9]", r"reference" r"s/sdk", r"rwsd" 
 CODFH_HDR = re.compile(r"Adapted from codfh-win32 by L2KSolkov, https://github\.com/L2KSolkov/codfh-win32, \S+ @[0-9a-f]{7,}")
 MAX_FILE, MAX_TOTAL = 2_000_000, 60_000_000
 TP_TEXT = [r"\b(thunk_FUN|FUN|DAT|LAB|PTR)_00[0-9a-fA-F]{6}\b"]      # third_party/: the email rule is off, every other rule on, plus this
-RELEASE_OK = ["MFLng.exe", "MFLng_fixes.exe", "mflrw.dll", "mfl_audio_miniaudio.dll", "INSTALL.txt", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt", "*.map"]
+RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll","mfl_audio_miniaudio.dll", "INSTALL.txt", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt", "*.map"]
 ROW = re.compile(r"^(code:\S+|data:\S+|rsrc) (\d+)$")
 
 
@@ -103,8 +103,8 @@ def selftest():
         assert release(r, m) == [], release(r, m)
         put("rel/vcruntime140.dll", make_pe({"kernel32.dll": ["A"]})); assert [f for f, _ in release(r, m)] == ["vcruntime140.dll"], "Microsoft DLL not caught"
         os.remove(os.path.join(r, "vcruntime140.dll"))
-        put("rel/MFLng_fixes.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: b"icon"})); assert [f for f, _ in release(r, m)] == ["MFLng_fixes.exe"], "extra resource not caught"
-        put("rel/MFLng_fixes.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m + b" "})); assert [f for f, _ in release(r, m)] == ["MFLng_fixes.exe"], "changed manifest not caught"
+        put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: b"icon"})); assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "extra resource not caught"
+        put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m + b" "})); assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "changed manifest not caught"
     finally:
         shutil.rmtree(d)
     ep = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "export_public.py")

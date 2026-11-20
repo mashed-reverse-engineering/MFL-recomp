@@ -8,10 +8,9 @@ extern __declspec(dllimport) int __stdcall CoCreateInstance(int, int, int, int, 
  * Creates an in-process COM object (inferred) via CoCreateInstance: the class id is
  * g_data_5e210c and the interface id is g_data_5e200c, both globals. No outer
  * aggregate (NULL). The created interface pointer is written to instance_out.
- * Return value is ignored (the HRESULT is dropped).
+ * Returns the HRESULT; the caller at 0x4afac2 keeps it (VOID_w16: was void).
  */
-void __stdcall FUN_004aebb0(LPVOID *instance_out)
+int __stdcall FUN_004aebb0(LPVOID *instance_out)
 {
-  CoCreateInstance((IID *)&g_data_5e210c,(LPUNKNOWN)0x0,CLSCTX_INPROC_SERVER,(IID *)&g_data_5e200c,instance_out);
-  return;
+  return CoCreateInstance((IID *)&g_data_5e210c,(LPUNKNOWN)0x0,CLSCTX_INPROC_SERVER,(IID *)&g_data_5e200c,instance_out);
 }

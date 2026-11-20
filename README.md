@@ -23,9 +23,16 @@ Anything that changes the original behaviour sits behind a switch that is off by
 **No game files are included.** You need your own copy of the game; see [docs/LEGAL.md](docs/LEGAL.md).
 Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6d052707188e2c6d065f41766` (`python3 tools/check_exe.py path/to/MFL.exe`).
 
-Drop-in build: `tools/build_mflng.sh <your MFL.exe> <out dir>` makes `MFLng.exe` (original behaviour, the build the regression gate checks) and `MFLng_fixes.exe` (every `MFL_FIX_*` switch on; **not gated**).
-Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` and `mflrw.dll` beside it. The build reads its resources from `MFL_original.exe` and shows a message box naming the expected place when no original is found.
+Drop-in build: `tools/build_mflng.sh <your MFL.exe> <out dir>` makes `MFLng.nofix.exe` (original behaviour, the build the regression gate checks) and `MFLng.exe` (every `MFL_FIX_*` switch on; **not gated**).
+Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` (or `MFLng.nofix.exe`) and `mflrw.dll` beside it. The build reads its resources from `MFL_original.exe` and shows a message box naming the expected place when no original is found.
 Prerequisites, in order: [docs/BUILDING.md](docs/BUILDING.md#drop-in-executable-toolsbuild_mflngsh).
+
+Launcher (optional): `MFLng-launch.exe` from the release zip goes into the same folder.
+- It shows the picture of the game's own launcher, which it reads at run time from your `launch.exe`.
+- It starts `MFLng.exe` or `MFLng.nofix.exe`.
+- It can update both, and itself, from the GitHub releases. The update channel is either releases only or releases plus pre-releases.
+
+Source, settings and the update steps: [launcher/README.md](launcher/README.md).
 
 ## Milestones
 
@@ -126,6 +133,7 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
 | `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier1/` and `src/automatch/`: byte-identical functions, one per file. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
+| `launcher/` | `MFLng-launch.exe`: C + Win32 launcher and updater (see its README). |
 | `docs/` | See the table below. |
 
 | Document | What |

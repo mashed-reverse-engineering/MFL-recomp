@@ -34,7 +34,7 @@ else
 fi
 export TABLE=$(readlink -f $TABLE)
 # W16 CIN (the GitHub link job): MFL_REFS defaults to the vendored third_party/ (Lua / qhull / zlib / libpng for output/libmatch2/build_libs.sh);
-# FIXES=all = MFLng_fixes.exe: every `#define MFL_FIX_X 0` line of src/mfl_fix.h on (the build_mflng.sh rule; a define with a comment, UNLOCK_ALL, stays off);
+# FIXES=all = MFLng.exe (the released fixes build; MFLng.nofix.exe = FIXES empty): every `#define MFL_FIX_X 0` line of src/mfl_fix.h on (the build_mflng.sh rule; a define with a comment, UNLOCK_ALL, stays off);
 # AUDIO_DLL=1 = mfl_audio_null.c with MFL_AUDIO_DLL (loads mfl_audio_miniaudio.dll), as link_release.sh.  All unset = the link as before.
 [ -z "$MFL_REFS" ] && [ -d $G/third_party/lua ] && export MFL_REFS=$(readlink -f $G/third_party)
 [ "$FIXES" = all ] && export MFL_FIX_DEFINES="$(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_[A-Z0-9_]+$/ && $3=="0" {printf "/D%s=1 ", $2}' $G/src/mfl_fix.h)" RELCHECK=warn      # HEAD: TRAIL_NAN DETERMINISTIC_AUDIO_RNG EQUIP_FLUSH WIDESCREEN PREFS

@@ -10,13 +10,12 @@
  * Builds the file name "map_<map_id>.dff" and hands it to FUN_004c3bf0
  * (inferred: the map model loader; the two trailing arguments are 0, 0).
  * map_id: map number, printed with %d into the file name.
- * Returns nothing.
+ * Returns the loader's result (cup_scene_load_models 0x402f62 stores it; VOID_w16: was void, v143 left garbage).
  */
-void __cdecl load_map_model(undefined4 map_id)
+int __cdecl load_map_model(undefined4 map_id)
 {
   undefined1 filename [MAP_FILENAME_BUFFER_SIZE];
 
   sprintf(filename,"map_%d.dff",map_id);
-  FUN_004c3bf0(filename,0,0);
-  return;
+  return FUN_004c3bf0(filename,0,0);
 }

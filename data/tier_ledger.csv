@@ -84,7 +84,7 @@ FUN_004ad8f0,004ad8f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93
 FUN_004ad970,004ad970,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,21c16ef58358,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 FUN_004ad9e0,004ad9e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,196,1.00,0,0
 FUN_004ae050,004ae050,tier1,bytes,bytes-reloc,c7c5ced53635,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-FUN_004aebb0,004aebb0,tier1,bytes,bytes-reloc,e874e70f8c4d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+FUN_004aebb0,004aebb0,tier1,bytes,bytes-reloc,921338378dd9,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004aebd0,004aebd0,tier2,compiled+shadow-never,static,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004aee20,004aee20,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004af0f0,004af0f0,tier1,bytes,bytes-reloc,284f29ed0012,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -94,7 +94,7 @@ FUN_004af860,004af860,tier1,bytes,bytes-reloc,ed89a8aa9b60,33bf93632a05,7bb9ffc2
 FUN_004afe30,004afe30,tier1,bytes,bytes-reloc,da071a293021,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004afe60,004afe60,tier1,bytes,bytes-reloc,3fa6b2bc0eac,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004b0580,004b0580,tier1,bytes,bytes-reloc,23528add1844,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-FUN_004b0f30,004b0f30,tier1,bytes,bytes-reloc,5a7f0383f9b9,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+FUN_004b0f30,004b0f30,tier1,bytes,bytes-reloc,d743a58b4095,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004b1000,004b1000,tier1,bytes,bytes-reloc,a9acf4ce899b,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004b1090,004b1090,tier1,bytes,bytes-reloc,9970e732f4e8,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004b10c0,004b10c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,197,1.00,0,0
@@ -118,7 +118,7 @@ FUN_004c6740,004c6740,tier1,bytes,bytes-reloc,3fea832fda67,33bf93632a05,7bb9ffc2
 FUN_004c6760,004c6760,tier1,bytes,bytes-reloc,dc0eb081e450,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004c6880,004c6880,agent,bytes-standalone+2e44888bd0ab,bytes-reloc,eb7483d3e185,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004c6a60,004c6a60,agent,bytes-standalone+5e6a991cb557,bytes-reloc,1e5418eddeab,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-FUN_004cfbf0,004cfbf0,agent,bytes-standalone+31296c703805,bytes-reloc,b4ec9872f34f,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+FUN_004cfbf0,004cfbf0,agent,bytes-standalone+958de7c94a2a,bytes-reloc,98953a32b6f7,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004d2f00,004d2f00,agent,bytes-standalone+fa46119bd349,bytes-reloc,45e84edac7ae,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004d5f30,004d5f30,tier1,bytes,bytes-reloc,141e06b9fdfc,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_004da0e0,004da0e0,agent,bytes-standalone+6a086814b4d8,bytes-reloc,c25c2948308e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -168,7 +168,7 @@ FUN_0056c060,0056c060,tier1,bytes,bytes-reloc,2d085400b4bd,33bf93632a05,7bb9ffc2
 FUN_0056c080,0056c080,tier1,bytes,bytes-reloc,606cae1ace4e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_0056c090,0056c090,tier1,bytes,bytes-reloc,a87a56c5e60e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_0056c0a0,0056c0a0,tier1,bytes,bytes-reloc,c8e99f89eac9,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-FUN_0056c340,0056c340,tier1,bytes,bytes-reloc,24e5798a6ee2,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+FUN_0056c340,0056c340,tier1,bytes,bytes-reloc,a1d43c6e76f3,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_0056ca60,0056ca60,tier1,bytes,bytes-reloc,41aa1aa9af90,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_0056cb10,0056cb10,tier1,bytes,bytes-reloc,664f370e91e7,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_0056cdf0,0056cdf0,tier1,bytes,bytes-reloc,89722342baf6,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -239,7 +239,7 @@ FUN_005c1ad0,005c1ad0,tier1,bytes,bytes-reloc,2e2a9e8fefdb,33bf93632a05,7bb9ffc2
 FUN_005c1b00,005c1b00,tier1,bytes,bytes-reloc,afb0988af274,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c1bf0,005c1bf0,tier1,bytes,bytes-reloc,0067126dc578,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c1dc0,005c1dc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
-FUN_005c1e60,005c1e60,tier1,bytes,bytes-reloc,1013a67c7c2a,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+FUN_005c1e60,005c1e60,tier1,bytes,bytes-reloc,0f791868ea0d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c1e80,005c1e80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 FUN_005c1eb0,005c1eb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 FUN_005c1f60,005c1f60,tier1,bytes,bytes-reloc,074d5ab03d81,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -516,7 +516,7 @@ RpWorldRender,004f5780,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.0
 RpWorldSectorGetWorld,004f56f0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,70,1.00,0,0
 RpWorldSectorRegisterPlugin,00500b40,tier1,bytes,bytes-reloc,5fdcaf34bdfa,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RpWorldSectorRegisterPluginStream,00500b70,tier1,bytes,bytes-reloc,c38057e47a85,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-RpWorldSectorRender,00500b30,tier1,bytes,bytes-reloc,c0db73d28e28,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+RpWorldSectorRender,00500b30,tier1,bytes,bytes-reloc,708725a236c3,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RpWorldSetDefaultSectorPipeline,005009d0,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RpWorldSetSectorRenderCallBack,004f5940,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RpWorldStreamRead,004f9bd0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,0086c8ae0691,33bf93632a05,7bb9ffc2481e,200,0.07,0,1
@@ -579,7 +579,7 @@ RtWinFSystemInit,005616f0,tier2,compiled+diffemu-DIFF+shadow-never,static,77bbf3
 RwBBoxAddPoint,004d19d0,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwBBoxCalculate,004d18d0,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwBBoxInitialize,004d1990,tier1,bytes,bytes-reloc,45ffdd63dce3,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-RwCameraBeginUpdate,004d1b90,tier1,bytes,bytes-reloc,27b97e4e0eda,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+RwCameraBeginUpdate,004d1b90,tier1,bytes,bytes-reloc,60dc11f06f74,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwCameraCalcPixelRay,005698c0,tier2,compiled+diffemu-EQUAL+shadow-STALE,diffemu,d9021c191bd6,33bf93632a05,7bb9ffc2481e,200,1.00,1,0
 RwCameraClear,004d1d40,tier1,bytes,bytes-reloc,32544f5eed4e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwCameraClone,004d2d80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,726428e02e78,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
@@ -624,7 +624,7 @@ RwEngineStop,004d30f0,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,1f086
 RwEngineTerm,004d3400,tier2,compiled+diffemu-EQUAL+shadow-UNTESTED,diffemu,cd80b6c9bac9,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 RwErrorGet,004ea1c0,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwErrorSet,004ea160,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,603890bea152,33bf93632a05,7bb9ffc2481e,200,0.25,0,1
-RwFeof,00561050,tier1,bytes,bytes-reloc,84b7717c6dfc,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+RwFeof,00561050,tier1,bytes,bytes-reloc,6ea1ef101940,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwFrameAddChild,004d1160,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 RwFrameAddChildNoUpdate,004d1020,tier2,compiled+diffemu-INCONCLUSIVE+shadow-never,static,-,33bf93632a05,7bb9ffc2481e,1,0.19,0,0
 RwFrameCreate,004d0c50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,199,1.00,0,0
@@ -1677,7 +1677,7 @@ course_world_ray_hit_light_forward,0042b2e0,tier1,bytes,bytes-reloc,-,33bf93632a
 course_world_uva_dicts_set_ranks,0042a6d0,tier1,bytes,bytes-reloc,9b502ec3c5da,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 course_zone_cars_check_and_push,0045ce00,tier2,compiled+diffemu-DIFF+shadow-never,static,-,33bf93632a05,7bb9ffc2481e,1,0.76,0,0
 course_zone_contains_matrix,0045ccb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
-course_zone_contains_matrix_in_zone_6a2888,0045d590,tier1,bytes,bytes-reloc,bff9dda3ac3a,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+course_zone_contains_matrix_in_zone_6a2888,0045d590,tier1,bytes,bytes-reloc,a6930ca5826e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 course_zone_corners_to_world,0045d010,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 course_zone_players_transform_update,0045cb40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 course_zone_read_frame_state,0045d110,tier1,bytes,bytes-reloc,ae659544cac2,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -2196,7 +2196,7 @@ gap_5d9a20,005d9a20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf9363
 gap_5d9a90,005d9a90,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 gap_5d9ab0,005d9ab0,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 gap_5da4b0,005da4b0,tier1,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-gap_5da500,005da500,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
+gap_5da500,005da500,tier2,compiled+diffemu-STALE+shadow-never,static,fcc937b5c5fd,33bf93632a05,7bb9ffc2481e,0,0.00,1,0
 gatling_load_models,00462350,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 geometry_build_arrow,00402930,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 geometry_build_pointer,00402bf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
@@ -2352,7 +2352,7 @@ load_headlight,00453cb0,tier1,bytes,bytes-reloc,a1e207513e1b,33bf93632a05,7bb9ff
 load_ingame_font,0047fb10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 load_kc_panel,0041f180,tier1,bytes,bytes-reloc,4a8a44fd4cfb,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 load_lazer_model,004144d0,tier1,bytes,bytes-reloc,9fc76b50cf94,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-load_map_model,00401f80,tier1,bytes,bytes-reloc,480004cad195,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+load_map_model,00401f80,tier1,bytes,bytes-reloc,2f8d3069c2e8,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 load_scorch_decal,00499ae0,tier1,bytes,bytes-reloc,88246f892120,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 load_shadow_models,00457620,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,251e5687493a,33bf93632a05,7bb9ffc2481e,200,1.00,0,1
 load_shadow_models_cb_456540,00456540,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
@@ -2445,7 +2445,7 @@ lua_register_course_functions,004492b0,tier1,bytes,bytes-reloc,26cc7252c84e,33bf
 lua_register_function,0048cf50,agent,bytes-standalone+ab1875ad6118,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 lua_run_buffer_ok,0048ce70,tier1,bytes,bytes-reloc,c64810d362cf,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 lua_run_course_script,0048b5f0,tier1,bytes,bytes-reloc,91e3c9b1e3cf,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-lua_run_piz_script,0048cea0,tier1,bytes,bytes-reloc,4358fec139f3,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+lua_run_piz_script,0048cea0,tier1,bytes,bytes-reloc,e8e9449d16b0,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 lua_run_script_file,0048cf80,tier1,bytes,bytes-reloc,9ad982f9589a,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 lua_state_close,0048ce50,tier1,bytes,bytes-reloc,517b8b670452,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 machinegun_states_clear,004628c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
@@ -2496,7 +2496,7 @@ menu_event_type_switch_c,00436460,tier2,compiled+shadow-never,static,-,33bf93632
 menu_get_69cfc4,00437760,tier1,bytes,bytes-reloc,89e0f27d05b6,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 menu_get_69d1e4,0042fbf0,tier1,bytes,bytes-reloc,6a89d43134cb,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 menu_icon_texture_dict_lookup,004340c0,tier1,bytes,bytes-reloc,e19d254fb5da,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-menu_icon_texture_lookup,00434100,tier1,bytes,bytes-reloc,d3ba8171392f,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+menu_icon_texture_lookup,00434100,tier1,bytes,bytes-reloc,fa3957517c44,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 menu_input_next_pressed,00430970,tier1,bytes,bytes-reloc,352076f68fa7,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 menu_is_page_13_selected_1,00437e80,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 menu_is_page_13_selected_2,00437eb0,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -2936,8 +2936,8 @@ rpLightClose,004f4f80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,4cee5f03
 rpLightOpen,004f5020,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,c467f163297e,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 rpLightTieDestroy,004f34e0,tier1,bytes,bytes-reloc,533514adfdb0,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rpLtMapSampleMapDestroy,0056e750,tier1,bytes,bytes-reloc,539d64c17847,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-rpMatFXPipelineAtomicSetup,005540a0,tier1,bytes,bytes-reloc,4dec845023eb,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-rpMatFXPipelineWorldSectorSetup,005540b0,tier1,bytes,bytes-reloc,209324fe678e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+rpMatFXPipelineAtomicSetup,005540a0,tier1,bytes,bytes-reloc,9bc1227348de,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+rpMatFXPipelineWorldSectorSetup,005540b0,tier1,bytes,bytes-reloc,a8ca02dc6ab6,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rpMatFXTextureMaskCreate,0054ee50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,2490516b3211,33bf93632a05,7bb9ffc2481e,200,0.84,0,0
 rpMaterialClose,004f8100,tier1,bytes,bytes-reloc,a9fc2a545e36,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rpMaterialListFindMaterialIndex,00503ee0,tier1,bytes,bytes-reloc,463e464baf2e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -2982,7 +2982,7 @@ rpPatchGeometryConstructor,0055a610,tier1,bytes,bytes-reloc,3b59ac73211f,33bf936
 rpPatchGeometryDestructor,0055a630,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,a734148a4f4f,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 rpPatchGeometryRead,0055a6c0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,8cc5f9054c26,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 rpPatchLODAtomicDefaultSelectLOD,00559e70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,436a3aae9826,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
-rpPatchMeshAddRef,00559c30,tier1,bytes,bytes-reloc,5e063b12a414,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+rpPatchMeshAddRef,00559c30,tier1,bytes,bytes-reloc,e4229b37bf4a,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rpPatchMeshDestroy,00559bb0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,231b6a9ef3e7,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 rpPatchPipelinesAttach,0055a0c0,tier1,bytes,bytes-reloc,b236ebc501d4,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rpPatchPipelinesDestroy,0055a020,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,53494e913d0b,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
@@ -3750,7 +3750,7 @@ rwp_volume_0056b1d0,0056b1d0,tier1,bytes,bytes-reloc,85e918a64ac9,33bf93632a05,7
 rwp_volume_0056b220,0056b220,tier1,bytes,bytes-reloc,3050ed3a1df2,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_volume_0056b300,0056b300,tier1,bytes,bytes-reloc,a6ef14a40839,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_volume_0056b3b0,0056b3b0,tier1,bytes,bytes-reloc,3b64a8393a3d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-rwp_volume_0056b420,0056b420,tier1,bytes,bytes-reloc,3d3f60ad29fd,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+rwp_volume_0056b420,0056b420,tier1,bytes,bytes-reloc,606ced6d44f5,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_volume_0056b440,0056b440,tier1,bytes,bytes-reloc,aec532c1662f,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_volume_0056b590,0056b590,tier1,bytes,bytes-reloc,38e3faf7efa1,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_world_activate_object,0056a210,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,a17624b75367,33bf93632a05,7bb9ffc2481e,199,0.70,0,1
@@ -4120,7 +4120,7 @@ vehicle_part_frame,00422280,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0
 vehicle_part_id_has_damage_model,00422440,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 vehicle_part_ltm,00422350,hand,registers-only,static,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 vehicle_part_matrix,004222a0,hand,near-regress-only,static,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-vehicle_part_set_effect,004223a0,tier1,bytes,bytes-reloc,10d02b76544c,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+vehicle_part_set_effect,004223a0,tier1,bytes,bytes-reloc,655ff17a450e,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 vehicle_particles_render,00421ca0,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 vehicle_prepare_clear_660568,00425ce0,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 vehicle_prepare_parts,00421d50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0

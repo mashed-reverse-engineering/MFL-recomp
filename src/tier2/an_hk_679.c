@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*00402830*/ extern undefined __cdecl cup_scene_render_with_overlay(undefined4 p0);
 /*00410090*/ extern int race_get_course_id();
 /*0042c440*/ extern int ui_rt2d_text_draw();
@@ -84,6 +85,9 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
   frame.local_8.y = 0.8;
   viewport_camera = (RwCamera *)get_viewport_camera(0);
   RwCameraSetViewWindow(viewport_camera,viewWindow);
+#if MFL_FIX_WIDESCREEN      /* the screen (640-space 2D and the spinning cup clump) 4:3 in the middle; the top / bottom bars full width */
+  mfl_widescreen_2d_pass(viewport_camera,1);
+#endif
   /* clear image and Z (rwCAMERACLEARIMAGE | rwCAMERACLEARZ) to black */
   clear_mode = (rwCAMERACLEARIMAGE | rwCAMERACLEARZ);
   colour = &frame.local_20;
@@ -124,6 +128,9 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     frame.uStack_18 = 0;
     build_info_display_draw_wave_grid(0,0,0x44000000,0x44000000,0,0,0x40840000,0,0x407e0000,0,0xff);
     /* translucent flat bars along the top (x 0..640, y 0..64, inferred) and bottom (y 416..480) */
+#if MFL_FIX_WIDESCREEN
+    mfl_widescreen_2d_full(1);
+#endif
     frame.uStack_c = 0x42800000;
     frame.uStack_10 = 0x44200000;
     frame.uStack_14 = 0;
@@ -140,6 +147,9 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     draw_rect(0,0x43d00000,0x44200000,FLOAT_ONE_BITS,COLOUR_WHITE_ARGB);
     frame.uStack_14 = 0x42800000;
     draw_rect(0,0x42800000,frame.uStack_10,FLOAT_ONE_BITS,COLOUR_WHITE_ARGB);
+#if MFL_FIX_WIDESCREEN
+    mfl_widescreen_2d_full(0);
+#endif
     frame.uStack_18 = 0x44100000;
     frame.uStack_14 = 0;
     frame.uStack_10 = 0x3f800000;
@@ -198,6 +208,9 @@ void __cdecl build_info_display_draw_frame(char *unused_arg_1,char *unused_arg_2
     scratch_handle = get_viewport_camera(0);
     RwCameraEndUpdate(scratch_handle);
   }
+#if MFL_FIX_WIDESCREEN
+  mfl_widescreen_2d_pass_end();
+#endif
   /* present the frame */
   show_flags = rwRASTERFLIPWAITVSYNC;
   window_handle = (void *)0x0;

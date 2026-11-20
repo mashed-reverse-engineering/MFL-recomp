@@ -14,11 +14,11 @@
 /* Reads a whole .piz file into a stack buffer and runs its contents as a Lua buffer.
  * piz_path: file name, opened by thunk_FUN_00560d10 with the mode in g_piz_5e0450 (inferred: fopen-style open).
  * lua_state: passed unchanged to lua_run_buffer_ok as its third argument (inferred: Lua state).
- * Returns nothing; lua_run_buffer_ok's result is ignored.
+ * Returns lua_run_buffer_ok's result (lua_run_script_file 0x48cf9c keeps it; VOID_w16: was void).
  * No bound check: a file larger than PIZ_SCRIPT_BUF_SIZE bytes overflows script_buf (inferred from the code, not verified in disassembly).
  * (was: "reads the script tail from a piz file and runs it through the Lua state" - it reads the whole file, not a tail)
  */
-void __cdecl lua_run_piz_script(undefined4 piz_path,undefined4 lua_state)
+int __cdecl lua_run_piz_script(undefined4 piz_path,undefined4 lua_state)
 {
   void *piz_file;
   size_t script_len;
@@ -37,6 +37,5 @@ void __cdecl lua_run_piz_script(undefined4 piz_path,undefined4 lua_state)
   script_len = RwFwrite_00560eb0(script_buf,1,script_len,piz_file);
   RwFclose_00560e70(piz_file);
   /* Run the buffer as Lua code; script_len is the byte count. */
-  lua_run_buffer_ok(script_buf,script_len,lua_state);
-  return;
+  return lua_run_buffer_ok(script_buf,script_len,lua_state);
 }

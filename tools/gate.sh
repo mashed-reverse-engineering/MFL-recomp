@@ -29,15 +29,26 @@ DRY=; [ "$1" = --dry-run ] && { DRY=1; shift; }
 KIND=$1; shift; NAMES=(); for x in "$@"; do [ "${x:0:1}" = @ ] && NAMES+=($(cat "${x:1}")) || NAMES+=("$x"); done
 case $KIND in readability|tier1|header|infra|tier2|bridge|cluster|milestone|standalone|full) ;; *) sed -n 2,3p "$0"; exit 2;; esac
 SA=; [ $KIND = standalone -o $KIND = full ] && SA=1
-if [ $KIND = full ]; then export FORCE_NEGTEST=1; fi      # kind full never uses the negtest DLL-group cache (check_all.sh, tools/negtest_key.py)
 [ -n "$SA" ] && : ${STEP_TIMEOUT:=60}      # a cold-delta link (up to 4 links of the DELTA retry) outlasts the 3x estimate
-# W7 T-STEP: a negtest key MISS (or `MISS error`) means check_all runs the docker negtest groups (~30+ min), and kind full always does (FORCE_NEGTEST): step limit at least 90 min then
+# W7 T-STEP: a negtest key MISS (or `MISS error`) means check_all runs the docker negtest groups (~30+ min), and so does FORCE_NEGTEST: step limit at least 90 min then
 NK=$(python3 $T/negtest_key.py --check 2>/dev/null); NK=${NK:-MISS error}
+# W16 GATE (user decision A, 2026-11-20): kind full honours the negtest key HIT (the fast negative fixtures run every time).  It forces the DLL groups only at the freeze
+# (GATE_FREEZE=1), when the key file is older than 7 days or names no proving run, or by hand (FORCE_NEGTEST=1).  The reason is printed in gate.log (rule 30).
+NP=$(python3 $T/negtest_key.py --proof 2>/dev/null); NP=${NP:-none -}; NF_WHY=
+if [ $KIND = full ]; then
+  [ "${FORCE_NEGTEST:-0}" = 1 ] && NF_WHY="FORCE_NEGTEST=1 set by hand"
+  [ "${GATE_FREEZE:-0}" = 1 ] && NF_WHY="freeze gate (GATE_FREEZE=1)"
+  [ "${NK%% *}" = HIT ] && [ -z "$NF_WHY" ] && { [ "${NP#* }" = unknown ] || [ "${NP#* }" = - ]; } && NF_WHY="key file names no proving run"
+  [ "${NK%% *}" = HIT ] && [ -z "$NF_WHY" ] && awk "BEGIN{exit !(${NP%% *} > 7)}" 2>/dev/null && NF_WHY="key file ${NP%% *} days old (> 7)"
+  [ -n "$NF_WHY" ] && export FORCE_NEGTEST=1
+  NFLINE="negtest DLL groups (kind full): $([ -n "$NF_WHY" ] && echo "FORCED ($NF_WHY)" || { [ "${NK%% *}" = HIT ] && echo "key HIT, not rerun: proved by ${NP#* }, key file ${NP%% *} days old" || echo "key ${NK%% *}: run"; })"
+fi
 # W9 T-STEP2: the limit then follows the timed scratch MISS run of the same key (negtest_key.py --store-time / --miss-limit: x 1.3, floor 90; no timing: 120)
 NW=
-if [ "${NK%% *}" != HIT ] || [ $KIND = full ]; then NL=$(python3 $T/negtest_key.py --miss-limit "${NK#* }" 2>/dev/null) || NL="120 negtest_key --miss-limit failed"; NL=${NL:-120 no output}
+if [ "${NK%% *}" != HIT ] || [ "${FORCE_NEGTEST:-0}" = 1 ]; then NL=$(python3 $T/negtest_key.py --miss-limit "${NK#* }" 2>/dev/null) || NL="120 negtest_key --miss-limit failed"; NL=${NL:-120 no output}
   [ "${STEP_TIMEOUT:-0}" -lt "${NL%% *}" ] && STEP_TIMEOUT=${NL%% *}; NW=" (MISS limit ${NL})"; fi
 TOLINE="negtest key ${NK:0:14}, kind $KIND -> step limit ${STEP_TIMEOUT:-3x estimate + 5} min (x load/4, 1..${LOADCAP:-3}: wine-run/loadscale.sh)$NW"
+[ -n "$NFLINE" ] && TOLINE="$TOLINE"$'\n'"$NFLINE"
 D=${GATE_DIR:-$R/output/gate/$(date +%m%d_%H%M)_$KIND}
 EXTRA="--automatch --automatch-near --bridges"
 [ $KIND != cluster ] && [ -s $R/src/clusters/enabled.txt ] && EXTRA="$EXTRA --clusters"      # the shipped configuration: installed clusters own their entries (the older tier 2 definitions of the same functions are only stripped when --clusters is on); without it these gates tested a build nobody ships (2026-10-18)

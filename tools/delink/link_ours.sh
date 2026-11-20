@@ -168,6 +168,12 @@ if [ -n "$GEN_DATA" ]; then
   (cd $W/gen && for x in rdata data bss; do i686-w64-mingw32-gcc $GCCF $([ $x = bss ] || echo -fno-zero-initialized-in-bss) -o $x.obj $x.c > cl_$x.log 2>&1 || cat cl_$x.log >> cl.log; done)
   (cd $W/gen && for x in rdata data bss; do al=".$x=8"; [ $x = rdata ] && al=".rdata=16"; [ $x = data ] && al=".data=8 --set-section-alignment .rdata=8"
     objcopy @objcopy_$x.txt --set-section-alignment $al $x.obj $x.o2 && mv $x.o2 $x.obj; done)      # @file: 2,268 options exceed the Windows command line on the runner
+  # W16 MT2: the image's .data and .bss are one span (g_cup_64cbe8, 31 x 0x68 B cup scene entries, runs 0x64cbe8..0x64d880 across the
+  # 0x64d000 boundary).  .data$zz sorts data.obj behind every other .data contribution, so bss.obj follows it with no gap.  Without it the
+  # CRT .data sat in that gap and cup_scene_compute_bounds wrote floats over it: /MT 0xb40 B (__acrt_initial_locale_data: UCRT page fault),
+  # /MD 0xa0 B (msvcrt.lib __security_cookie_complement, __isa_enabled ...).  Both CRT forms (v143md and v143mt).
+  # Page aligned as in the image (its size is 0x52000): the end is page aligned too, so bss.obj's .bss starts right at it.
+  objcopy --set-section-alignment .data=4096 --rename-section '.data=.data$zz' $W/gen/data.obj $W/gen/data.o2 && mv $W/gen/data.o2 $W/gen/data.obj || exit 1
   else
   (cd $W/gen && VC7_CONTAINER=ac $G/tools/vc7.sh $W/gen cl.exe /nologo /c /Od /Zl rdata.c data.c bss.c > cl.log 2>&1; for x in rdata data bss; do objcopy $(tr '\n' ' ' < objcopy_$x.txt) $x.obj $x.o2 && mv $x.o2 $x.obj; done)
   fi
@@ -227,6 +233,7 @@ python3 $G/tools/wine-run/prepare.py $INST $W/game $W/ours.exe $W/ours.map >/dev
 [ -f $W/game/App_Executables/MFL_original.exe ] || { echo "FAIL: no MFL_original.exe beside the exe in $W/game/App_Executables (prepare.py; the resources are read from it at run time)"; exit 1; }
 fi
 D=$(objdump -h $W/ours.exe | python3 -c "import sys; print('%x' % next(int(l.split()[3], 16) - 0x5fb000 for l in sys.stdin if len(l.split()) > 3 and l.split()[1] == '.data'))")
+[ -n "$V143" ] && D=$(python3 -c "import sys; print(next('%x' % (int(l.split()[2], 16) - 0x5fb03c) for l in open(sys.argv[1]) if l.split()[1:2] == ['_g_data_5fb03c']))" $W/ours.map)      # W16 MT2: data.obj sits behind the CRT .data, not at the section start
 echo "linked: $W/ours.exe (.data moved by 0x$D: the script delta)"
 [ -n "$HARNESS" ] && [ "$D" != "${DELTA:-b000}" ] && { echo "DELTA mismatch: rerun with DELTA=$D"; exit 2; }
 [ -n "$RUN" ] && $T/race_relinked.sh $W/game $W/r ${D} ${COURSE:-0}

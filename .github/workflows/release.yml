@@ -3,8 +3,8 @@
 # Ships CI-built files only: no original bytes, no MFL.exe, no Microsoft DLL.  The tag and the release are made here (GITHUB_TOKEN).
 # Always a GitHub pre-release (user decision 2026-11-19, no promotion); data/link/smoke_ok.txt (`<cl version> <date> <run>` after a Wine
 # menu boot) is only quoted in the notes.  The notes carry a changelog: commit subjects since the previous r* tag.
-# Contract with build.yml (job `link`, plan 2.7 step 2): artifact `mflng-out` = MFLng.exe, MFLng_fixes.exe, MFLng.map, MFLng_fixes.map,
-# mflrw.dll, mfl_audio_miniaudio.dll, BUILDINFO.txt (one line `cl <version>`); ci_checks.sh has passed on it.
+# Contract with build.yml (job `link`, plan 2.7 step 2): artifact `mflng-out` = MFLng.exe (every MFL_FIX_* on), MFLng.nofix.exe (original behaviour), MFLng.map, MFLng.nofix.map,
+# mflrw.dll, mfl_audio_miniaudio.dll, MFLng-launch.exe, BUILDINFO.txt (one line `cl <version>`); ci_checks.sh has passed on it.
 name: release
 on:
   push:
@@ -39,20 +39,23 @@ jobs:
           CL=$(sed -n 's/^cl //p' out/BUILDINFO.txt | head -1); [ -n "$CL" ] || { echo "BUILDINFO.txt has no cl line"; exit 1; }
           TAG=r$(echo "$D" | tr -d -)-${GITHUB_SHA::7}
           mkdir -p pkg/LICENSES maps
-          cp out/MFLng.exe out/MFLng_fixes.exe out/mflrw.dll out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/
+          cp out/MFLng.exe out/MFLng.nofix.exe out/MFLng-launch.exe out/mflrw.dll out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/
           cp out/*.map maps/
           ls third_party/LICENSES/*.txt >/dev/null || { echo "third_party/LICENSES/*.txt missing: no release without licence files"; exit 1; }
           cp third_party/LICENSES/*.txt pkg/LICENSES/
-          { echo "public commit $GITHUB_SHA"; echo "librw-mfl $(sed -n 's/^commit //p' data/link/mflrw_pin.txt)"; cat data/release_stamp.txt 2>/dev/null || echo "stamp: none (manual run)"; } >> pkg/BUILDINFO.txt
+          # `release <tag> prerelease`: the launcher's installed version and its default update channel (every release here is a pre-release)
+          { echo "release $TAG prerelease"; echo "public commit $GITHUB_SHA"; echo "librw-mfl $(sed -n 's/^commit //p' data/link/mflrw_pin.txt)"; cat data/release_stamp.txt 2>/dev/null || echo "stamp: none (manual run)"; } >> pkg/BUILDINFO.txt
           cat > pkg/INSTALL.txt <<'EOF'
           MFLng: a rebuilt executable for your own installed copy of the PC game. It contains no game data and is not affiliated with the publisher.
           Needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), from Microsoft.
           1. In the game folder, rename MFL.exe to MFL_original.exe (MFLng reads its resources from that file at start-up).
-          2. Copy MFLng.exe, MFLng_fixes.exe, mflrw.dll and mfl_audio_miniaudio.dll into the game folder.
-          3. Start MFLng.exe (original behaviour) or MFLng_fixes.exe (every MFL_FIX_* bug fix on).
+          2. Copy MFLng.exe, MFLng.nofix.exe, mflrw.dll and mfl_audio_miniaudio.dll into the game folder.
+          3. Start MFLng.exe (every MFL_FIX_* bug fix on) or MFLng.nofix.exe (original behaviour).
+          Optional: copy MFLng-launch.exe there too. It shows your game's launcher picture, starts MFLng.exe or MFLng.nofix.exe and updates them from the GitHub releases (static C runtime, no redistributable).
           The DLLs are loaded from the game folder; keep only trusted files there.
           EOF
-          (cd pkg && sha256sum MFLng.exe MFLng_fixes.exe mflrw.dll mfl_audio_miniaudio.dll > SHA256SUMS)
+          # every file of the zip (the launcher's updater checks .exe / .dll always and every other file it finds listed)
+          (cd pkg && find . -type f ! -name SHA256SUMS | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum > SHA256SUMS)
           echo "TAG=$TAG" >> "$GITHUB_ENV"; echo "D=$D" >> "$GITHUB_ENV"; echo "CL=$CL" >> "$GITHUB_ENV"
       - name: no-original guard (blocks the release)
         run: python3 tools/ci/no_original.py . --release pkg
@@ -74,7 +77,7 @@ jobs:
             echo "CI build: it proves that MFLng builds from this public tree with no original input. It claims nothing about behaviour; the behaviour proofs run on the private pinned VC7 build."
             echo
             echo "You need your own copy of the game. Not affiliated with the game's publisher or developer."
-            echo "MFLng.exe: original behaviour. MFLng_fixes.exe: every MFL_FIX_* switch on. Install: INSTALL.txt in the zip."
+            echo "MFLng.exe: every MFL_FIX_* switch on. MFLng.nofix.exe: original behaviour. Install: INSTALL.txt in the zip."
             echo "Checks: rw_stub_guard is static (a RenderWare stub reached through a function pointer is not seen). Sound (miniaudio device backend) is not tested in CI."
             echo "Pre-release, always. Boot to the main menu under Wine for cl $CL: ${SMOKE:-not recorded}"
             echo

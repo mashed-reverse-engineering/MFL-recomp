@@ -2,6 +2,10 @@
 /* Installed cluster camera_race_setup (tools/cluster_install.py from output/cluster_pilot_ql3/camera_race_setup.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 /* compile: /GS */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern void mfl_widescreen_standings_window(void *camera);      /* an_hk_824.c */
+#endif
 #pragma auto_inline(off)      /* the verified (diffemu, /Ob0) and the shipped (/O2) code must have the same call structure */
 /*0044a6a0*/ extern int camera_editor_setup_parallel(void *camera_record);
 /*004d1da0*/ extern void *RwCameraSetProjection(void *camera, int projection);
@@ -206,6 +210,9 @@ int camera_race_setup(void *camera, int unused, int arg)
     }
   } else {
     if (phase == RACE_PHASE_STANDINGS) {
+#if MFL_FIX_WIDESCREEN      /* the winner camera keeps the 0.8 x 0.8 window of the last race pass: widen it to the mode's ratio */
+      mfl_widescreen_standings_window(camera);
+#endif
       return race_code_generate();
     }
     if (phase != RACE_PHASE_NONE) {

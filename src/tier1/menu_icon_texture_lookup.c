@@ -9,25 +9,22 @@ extern char PTR_g_data_656369_005de9f8[];
 /* Looks up the menu icon texture for icon_variant (inferred: menu icon style selector)
  * and passes the texture name to find_texture_a. Variant 0 passes the global string
  * PTR_g_data_656369_005de9f8, the others pass a fixed name. Unknown variants do nothing.
- * Returns nothing; the result of find_texture_a is discarded. */
-void __cdecl menu_icon_texture_lookup(int icon_variant)
+ * Returns find_texture_a's result (the texture; the menu draw code at 0x43d660 uses it, VOID_w16: was void).
+ * Unknown variants return whatever EAX holds (the compare value), as the original does; no caller passes one. */
+int __cdecl menu_icon_texture_lookup(int icon_variant)
 {
   /* Variant 0: texture name comes from the global string pointer. */
   if (icon_variant == 0) {
-    find_texture_a((RwChar *)&PTR_g_data_656369_005de9f8);
-    return;
+    return find_texture_a((RwChar *)&PTR_g_data_656369_005de9f8);
   }
   if (icon_variant == ICON_VARIANT_NIGHT) {
-    find_texture_a("night");
-    return;
+    return find_texture_a("night");
   }
   if (icon_variant == ICON_VARIANT_REVERSED) {
-    find_texture_a("reversed");
-    return;
+    return find_texture_a("reversed");
   }
   if (icon_variant == ICON_VARIANT_FLIP) {
-    find_texture_a("flip");
-    return;
+    return find_texture_a("flip");
   }
-  return;
+  return icon_variant;
 }

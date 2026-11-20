@@ -1,8 +1,8 @@
 #!/bin/bash
 # build_mflng.sh <path to your MFL.exe> <out dir>: drop-in builds of Mashed: Fully Loaded from this repository's C.
-#   <out dir>/MFLng.exe        every MFL_FIX_* switch at its default (off) = original behaviour; the release link the regression gate checks
-#   <out dir>/MFLng_fixes.exe  every MFL_FIX_* switch on (src/mfl_fix.h); NOT gated
-# Install: rename the game's MFL.exe to MFL_original.exe (the build reads its resources from it at run time) and copy MFLng.exe beside it;
+#   <out dir>/MFLng.nofix.exe  every MFL_FIX_* switch at its default (off) = original behaviour; the release link the regression gate checks
+#   <out dir>/MFLng.exe        every MFL_FIX_* switch on (src/mfl_fix.h); NOT gated
+# Install: rename the game's MFL.exe to MFL_original.exe (the build reads its resources from it at run time) and copy MFLng.exe (or MFLng.nofix.exe) beside it;
 # copy mflrw.dll from <out dir> beside it as well.  The copied library tables still come from your MFL.exe (README).
 # The script holds no source file list: it calls tools/delink/link_release.sh (the gate's release form), twice.
 # Exit 2: wrong or missing MFL.exe, or a missing prerequisite (one line per missing item).
@@ -54,9 +54,9 @@ mkdir -p "$OUT"; OUT=$(readlink -f "$OUT"); W=$OUT/work
 mkdir -p "$W"      # link_release.sh resolves its work dir with readlink -f: the parent must exist
 # 1. default build: the gate's release form
 RW_DLL=$RWD bash "$T/delink/link_release.sh" "$W/default" > "$OUT/default.log" 2>&1 || { tail -5 "$OUT/default.log"; echo "build_mflng: default link failed ($OUT/default.log)"; exit 1; }
-cp "$W/default/game/App_Executables/MFL.exe" "$OUT/MFLng.exe"; cp "$W/default/game/App_Executables/MFL.map" "$OUT/MFLng.map"
+cp "$W/default/game/App_Executables/MFL.exe" "$OUT/MFLng.nofix.exe"; cp "$W/default/game/App_Executables/MFL.map" "$OUT/MFLng.nofix.map"
 cp "$RWD" "$OUT/mflrw.dll"
 # 2. fixes build: every switch on; the switched call sites differ by design (RELCHECK=warn)
 MFL_FIX_DEFINES="$DEFS" RELCHECK=warn RW_DLL=$RWD bash "$T/delink/link_release.sh" "$W/fixes" > "$OUT/fixes.log" 2>&1 || { tail -5 "$OUT/fixes.log"; echo "build_mflng: fixes link failed ($OUT/fixes.log)"; exit 1; }
-cp "$W/fixes/game/App_Executables/MFL.exe" "$OUT/MFLng_fixes.exe"; cp "$W/fixes/game/App_Executables/MFL.map" "$OUT/MFLng_fixes.map"
-echo "build_mflng: $OUT/MFLng.exe (switches off) and $OUT/MFLng_fixes.exe (on: $FIXES; not gated); copy them and mflrw.dll beside MFL_original.exe"
+cp "$W/fixes/game/App_Executables/MFL.exe" "$OUT/MFLng.exe"; cp "$W/fixes/game/App_Executables/MFL.map" "$OUT/MFLng.map"
+echo "build_mflng: $OUT/MFLng.nofix.exe (switches off) and $OUT/MFLng.exe (on: $FIXES; not gated); copy them and mflrw.dll beside MFL_original.exe"

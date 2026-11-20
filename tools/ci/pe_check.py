@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """pe_check.py: structural check of a built exe (or --dll: mflrw.dll) before anything reaches Wine.
-usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] [--static-crt] | --dll <mflrw.dll> | --selftest
+usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] [--static-crt] | --dll <mflrw.dll>
+       | --launcher <MFLng-launch.exe> [--manifest <file>] | --selftest
 --static-crt (W16 MT, LIB_CRT=v143mt exes): ucrtbase / vcruntime140 / api-ms-win-crt-* leave the allow-list.
+--launcher (W16 LAUNCH): its own list of Windows system DLLs (kernel32 user32 gdi32 shell32 advapi32 winhttp), static CRT (no CRT DLL),
+     no mflrw.dll; resources and --manifest as for the game exes.  The game exes' list is unchanged.
 exe: PE32 i386; imports only from the allow-list; every mflrw.dll import is exported by --rwdll; resources only RT_MANIFEST (24);
      --manifest: exactly one RT_MANIFEST, byte-equal to the file (embed it with rc `1 24 "MFLng.manifest"` + /manifest:no:
      link /manifest:embed /manifestinput rewrites the XML and fails this compare).
@@ -15,13 +18,14 @@ CRT_DLLS = ["ucrtbase.dll", "vcruntime140.dll", "api-ms-win-crt-*.dll"]
 EXE_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "advapi32.dll", "ole32.dll", "d3d9.dll", "dinput8.dll",
           "winmm.dll", "mflrw.dll"] + CRT_DLLS
 DLL_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "d3d9.dll", "msvcrt.dll"]
+LAUNCHER_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "shell32.dll", "advapi32.dll", "winhttp.dll"]      # system DLLs only, static CRT
 
 
-def check(data, dll=False, rwdata=None, manifest=None, static_crt=False):
+def check(data, dll=False, rwdata=None, manifest=None, static_crt=False, launcher=False):
     p, bad = parse_pe(data), []
     if p["machine"] != 0x14C or p["magic"] != 0x10B:
         return ["not PE32 i386 (machine 0x%x magic 0x%x)" % (p["machine"], p["magic"])]
-    ok = DLL_OK if dll else [a for a in EXE_OK if not (static_crt and a in CRT_DLLS)]      # W16 MT --static-crt: no redistributable DLL
+    ok = DLL_OK if dll else LAUNCHER_OK if launcher else [a for a in EXE_OK if not (static_crt and a in CRT_DLLS)]      # W16 MT --static-crt: no redistributable DLL
     for d in p["imports"]:
         if not any(fnmatch.fnmatch(d, a) for a in ok):
             bad.append("import from %s not in allow-list" % d)
@@ -54,6 +58,12 @@ def selftest():
     assert check(make_pe({"kernel32.dll": ["A"], "mflrw.dll": ["RwA"]}), rwdata=rw, static_crt=True) == []
     assert check(make_pe({"msvcrt.dll": ["a"], "d3d9.dll": ["b"]}), dll=True) == []
     assert check(make_pe({"libgcc_s_dw2-1.dll": ["a"]}), dll=True), "dll allow-list not enforced"
+    la = {"kernel32.dll": ["A"], "user32.dll": ["B"], "shell32.dll": ["C"], "advapi32.dll": ["D"], "winhttp.dll": ["E"]}
+    assert check(make_pe(la, res={24: m}), manifest=m, launcher=True) == []
+    assert check(make_pe(dict(la, **{"vcruntime140.dll": ["x"]}), res={24: m}), launcher=True), "--launcher: CRT DLL not caught"
+    assert check(make_pe(dict(la, **{"mflrw.dll": ["RwA"]}), res={24: m}), launcher=True), "--launcher: mflrw.dll not caught"
+    assert check(make_pe(la, res={24: m, 3: b"i"}), launcher=True), "--launcher: extra resource not caught"
+    assert check(make_pe({"winhttp.dll": ["E"]}), launcher=False), "game exe list must not take winhttp.dll"
     print("pe_check selftest OK")
 
 
@@ -64,14 +74,15 @@ def main(a):
     if dll:
         a = a[1:]
     st = "--static-crt" in a
-    a = [x for x in a if x != "--static-crt"]
+    la = "--launcher" in a
+    a = [x for x in a if x not in ("--static-crt", "--launcher")]
     opt = {}
     for k in ("--rwdll", "--manifest"):
         if k in a:
             i = a.index(k); opt[k] = open(a[i + 1], "rb").read(); a = a[:i] + a[i + 2:]
     if len(a) != 1:
         sys.exit(__doc__)
-    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st)
+    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st, la)
     for b in bad:
         print("FAIL: " + b)
     if bad:

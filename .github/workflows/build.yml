@@ -1,10 +1,10 @@
 # Exported by export_public.py stage 1 (W16 CI); release.yml calls it (workflow_call) and downloads artifact `mflng-out` of job `collect`.
 # msvc-x86-compile: modern-compiler check of the published sources (Visual Studio 2022 MSVC v143, x86, /arch:IA32, compile only); locally
 # under msvc-wine: python3 tools/run.py docker msvcw-compile <out dir>.
-# link (W16 CIN, matrix of two parallel jobs): MFLng.exe (variant off: every MFL_FIX_* off) and MFLng_fixes.exe (variant fixes: every
+# link (W16 CIN, matrix of two parallel jobs): MFLng.nofix.exe (variant off: every MFL_FIX_* off) and MFLng.exe (variant fixes: every
 # `#define MFL_FIX_X 0` switch on) from this tree only: tools/delink/link_ci.sh CC=v143 in its self-contained form (committed tables in
 # data/link), mflrw.dll from librw-mfl at data/link/mflrw_pin.txt, mfl_audio_miniaudio.dll (tools/ci/build_audio_dll.sh).  Every run
-# (push, pull request, dispatch, release.yml) builds both in parallel.  collect: ci_checks.sh
+# (push, pull request, dispatch, release.yml) builds both in parallel; the off job also builds MFLng-launch.exe (launcher/build.sh msvc).  collect: ci_checks.sh
 # over the outputs of both jobs, artifact `mflng-out`.  The local twin of the link is the same link_ci.sh with MSVCW_NATIVE unset (cl /
 # link / lib in the msvc-wine image, tools/msvcw/msvcw_sh.sh).
 # No original game data, no MFL.exe, no copied bytes are used or needed by any job.
@@ -16,7 +16,7 @@ on:
   workflow_call:
     inputs:
       both:
-        description: build MFLng_fixes.exe as well (release.yml needs both)
+        description: build MFLng.exe (the fixes variant) as well (release.yml needs both)
         type: boolean
         default: true
 permissions:
@@ -150,16 +150,25 @@ jobs:
         run: |
           set -o pipefail
           OBJCACHE=$PWD/.objcache RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/${{ matrix.variant }} 2>&1 | gawk '{ print strftime("%H:%M:%S"), $0; fflush() }' | tee build/logs/link_${{ matrix.variant }}.log
+      # W16 LAUNCH: MFLng-launch.exe (launcher/, C + Win32, cl /MT: no redistributable), once, in the off job; its only resource is the
+      # committed manifest (build.sh takes it from git).  pe_check --launcher: system DLLs only (its own list), static CRT, that manifest only.
+      - name: MFLng-launch.exe
+        if: matrix.variant == 'off'
+        env: { MSVCW_NATIVE: '1' }
+        run: |
+          set -o pipefail
+          bash launcher/build.sh msvc build/launcher "${GITHUB_SHA::7}" 2>&1 | tee build/logs/launcher.log
+          python3 tools/ci/pe_check.py --launcher build/launcher/MFLng-launch.exe --manifest build/launcher/mflng.manifest
       - name: outputs of this variant
         run: |
           set -e
-          V=${{ matrix.variant }}; E=MFLng; [ $V = off ] || E=MFLng_fixes
+          V=${{ matrix.variant }}; E=MFLng; [ $V = fixes ] || E=MFLng.nofix
           mkdir -p out
           cp build/$V/ours.exe out/$E.exe; cp build/$V/ours.map out/$E.map
           [ $V = off ] || exit 0
-          cp build/rw/mflrw.dll build/audio/mfl_audio_miniaudio.dll out/
+          cp build/rw/mflrw.dll build/audio/mfl_audio_miniaudio.dll build/launcher/MFLng-launch.exe out/
           { echo "cl $(grep -o 'Version [0-9.]*' build/cl_version.txt | cut -d' ' -f2)"; echo "gcc $(cat build/gcc_version.txt)"; echo "runner windows-2022 $ImageVersion"
-            echo "MFL_FIX on in MFLng_fixes.exe: $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
+            echo "MFL_FIX on in MFLng.exe (MFLng.nofix.exe has none): $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
       - uses: actions/upload-artifact@v4
         with:
           name: link-${{ matrix.variant }}

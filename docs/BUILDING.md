@@ -10,7 +10,7 @@ Nothing here builds without a game copy.
 
 ## Drop-in executable (`tools/build_mflng.sh`)
 
-`tools/build_mflng.sh <your MFL.exe> <out dir>` builds `MFLng.exe` (every `MFL_FIX_*` switch off: original behaviour, the build the regression gate checks) and `MFLng_fixes.exe` (every switch in `src/mfl_fix.h` on; not gated; the switches are listed in [MFL_FIX_FLAGS.md](MFL_FIX_FLAGS.md)). Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` and `mflrw.dll` beside it: the resources and the library tables are read from your original at run time. The script checks these prerequisites first and prints one line per missing item:
+`tools/build_mflng.sh <your MFL.exe> <out dir>` builds `MFLng.nofix.exe` (every `MFL_FIX_*` switch off: original behaviour, the build the regression gate checks) and `MFLng.exe` (every switch in `src/mfl_fix.h` on; not gated; the switches are listed in [MFL_FIX_FLAGS.md](MFL_FIX_FLAGS.md)). Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` (or `MFLng.nofix.exe`) and `mflrw.dll` beside it: the resources and the library tables are read from your original at run time. The script checks these prerequisites first and prints one line per missing item:
 
 1. Your `MFL.exe` (checked with `tools/check_exe.py`) inside the game install (the build reads the install's other files too).
 2. Docker with `tianon/wine` at the digest pinned in `tools/vc7.sh`.

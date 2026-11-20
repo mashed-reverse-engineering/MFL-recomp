@@ -19,7 +19,7 @@ Status words:
 - Default is `0`: original behaviour. Turn a switch on with `/DMFL_FIX_<NAME>=1` on the compiler command line.
 - Test a switch with `#if MFL_FIX_X`, never with `#ifdef`: the header defines every switch, so `#ifdef` would always be true.
 - `tools/build_overlay.py` takes the defines from the environment variable `MFL_FIX_DEFINES`, for example `MFL_FIX_DEFINES=/DMFL_FIX_DETERMINISTIC_AUDIO_RNG=1`. The defines are part of the object cache key, so a switched object never replaces a default one.
-- `tools/build_mflng.sh` builds two executables: `MFLng.exe` (every switch off) and `MFLng_fixes.exe` (every switch on). `MFLng_fixes.exe` is **not gated**: no regression run checks it.
+- `tools/build_mflng.sh` builds two executables: `MFLng.nofix.exe` (every switch off) and `MFLng.exe` (every switch on). `MFLng.exe` is **not gated**: no regression run checks it.
 - There is no umbrella switch `MFL_FIX_ALL`. It will be added when two switches have to be tested together.
 - Bug fixes stay compile-time switches. Player preferences (things that are a matter of taste, not bugs) are keys of a settings file read at start, all behind the one switch `MFL_FIX_PREFS`.
 
@@ -29,7 +29,7 @@ Status words:
 - **Status:** implemented, default off.
 - **Changes:** the tyre / trail strip refuses points that are NaN or infinite, instead of adding them to the strip.
 - **Lives in:** `src/tier2/an_ok_055.c` (private tree: `automatch_near/an_ok_055.c`).
-- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_TRAIL_NAN=1`, or use `MFLng_fixes.exe`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_TRAIL_NAN=1`, or use `MFLng.exe`.
 
 ### MFL_FIX_DETERMINISTIC_AUDIO_RNG
 - **Status:** implemented, default off.
@@ -47,7 +47,7 @@ Status words:
 - **Change:** at the top of each of the four equip functions, every record of that weapon that is marked for release is released first, with the same call the per-frame update makes.
 - **Verified:** mines under Wine: with the switch on there is no write to the fifth record and no crash; in the original the write happens and a page fault follows.
 - **Lives in:** `weapon_mines_equip`, `weapon_flashbang_equip` (`src/tier2/an_ok_044.c`), `weapon_drum_equip` (`src/tier2/an_ok_042.c`), `weapon_shotgun_equip` (`src/tier2/an_ok_046.c`).
-- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_EQUIP_FLUSH=1`, or use `MFLng_fixes.exe`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_EQUIP_FLUSH=1`, or use `MFLng.exe`.
 
 ### MFL_FIX_WIDESCREEN
 - **Status:** staged, default off.
@@ -58,10 +58,10 @@ Status words:
 - **Over the race:** the in-race 640x480 2D passes (flash text, race messages, intro / winner banners, training boxes, bomb timer text) are drawn 4:3 in the middle the same way; the black banner bars stay full width. The player-marker pass uses the HUD's widened window, so the markers keep their shape over their cars.
 - **Not yet:** movies; split-screen is not checked.
 - **Lives in:** `camera_update`, `camera_apply_rotation` (with the helpers `mfl_widescreen_*`), `camera_path_update`, `hud_pickup_icons_update_render`, `vehicle_skidmarks_render`, `app_state_menu_render`, `frontend_draw`, `credits_update_draw`, `menu_fade_overlay_draw`, `ui_camera_update_view_rect`, `score_panel_entry_update`, `team_panel_entry_update`, `kc_panel_entry_update`, `endpoint_panel_entry_update`, `hudpanel_marker_place`, `hudpanel_markers_render_all`, `viewport_set_view_window_080`, `viewport_set_view_window_game_mode_9`, `race_status_messages_draw`.
-- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_WIDESCREEN=1`, or use `MFLng_fixes.exe`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_WIDESCREEN=1`, or use `MFLng.exe`.
 
 ### MFL_FIX_UNLOCK_ALL
-- **Status:** staged, default off. A test / cheat switch: **not** part of `MFLng_fixes.exe` (its define line in `mfl_fix.h` ends in a comment, and `build_mflng.sh` turns on only the lines `#define MFL_FIX_<NAME> 0`). For players it is the key `unlock_all` of the settings file (`MFL_FIX_PREFS`, below); the compile switch forces it on whatever the key says.
+- **Status:** staged, default off. A test / cheat switch: **not** part of `MFLng.exe` (its define line in `mfl_fix.h` ends in a comment, and `build_mflng.sh` turns on only the lines `#define MFL_FIX_<NAME> 0`). For players it is the key `unlock_all` of the settings file (`MFL_FIX_PREFS`, below); the compile switch forces it on whatever the key says.
 - **Changes:** everything that is locked at the start is open: the Bonus Features entry of the main menu, the three tournaments, every career event, course and arcade mode. The game already has a hidden code for this (a direction sequence on the attract screen) that sets all 270 career progress cells to "done" and the bonus menu flag; the switch sets the same state after the default settings are made at boot and after every save load.
 - **Your save stays as it was:** when the game saves, the real progress cells and the real bonus flag are written, not the forced ones. Career progress won while the switch is on is therefore not saved; options, records and best times are.
 - **Lives in:** `gamesave_apply` with the helpers `mfl_unlock_all_force` / `mfl_unlock_all_unforce` (`src/tier2/an_hk_9109.c`), `game_options_reset` (`src/tier2/an_hk_788.c`), `gamesave_gather` (`src/tier2/an_hk_967.c`).
@@ -69,7 +69,7 @@ Status words:
 - **Test harness:** scenario runs get the same state on both sides (original and ours) without the switch: `SCEN_UNLOCK=1` makes the harness write it in every front-end frame (scenario `unlock_all`).
 
 ### MFL_FIX_PREFS
-- **Status:** staged, default off; on in `MFLng_fixes.exe`.
+- **Status:** staged, default off; on in `MFLng.exe`.
 - **Changes:** nothing by itself. With the switch on, the game reads `mflng_settings.cfg` from the folder of the exe once at start (no command line). Each line is `key=value` with the value `0` or `1`; unknown keys, comment lines (`#` or `;`) and other values are ignored. Every key's default is the original behaviour, so without the file (or with an empty one) the game plays exactly like the original.
 - **Keys:**
 
@@ -88,7 +88,7 @@ Status words:
   ```
 - **Not yet:** faster loading (load times are measured first); an in-game page that changes the keys and writes the file.
 - **Lives in:** the reader `mfl_pref` in `src/mfl_resources.c`; `app_boot_init` (skip_intro); `gamesave_update_sub_40bbd0`, `gamesave_autosave_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c` (skip_save_wait); `mfl_unlock_all_force` (unlock_all); `cup_scene_update_object` (winner_cam_rotation).
-- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PREFS=1`, or use `MFLng_fixes.exe`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PREFS=1`, or use `MFLng.exe`.
 - **Test harness:** `SCEN_PREFS=<file>` (scenario.sh, standalone runs) puts the file beside our exe; the control never has one.
 
 ## Planned

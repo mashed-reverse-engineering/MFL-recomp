@@ -22,7 +22,7 @@ if [ -n "$AUDIO_DLL" ]; then { echo "#define MFL_AUDIO_DLL"; cat $G/src/audio/mf
 [ "$REL_CLUSTERS" = harness ] && export CLUSTER_ENABLED=$(grep -v '^#' $G/src/clusters/enabled.txt | awk 'NF{print $1}' | grep -v -x -F -f <(grep -v '^#' $G/src/harness/cluster_exclude.txt | awk 'NF{print $1}' | grep -v -x -e app_main_loop -e message_box_update) | paste -sd,)
 $T/link_ours.sh $W 0x400000 $ARGS
 A=$W/game/App_Executables
-objdump -h $W/ours.exe | python3 -c "import sys; print('%x' % next(int(l.split()[3], 16) - 0x5fb000 for l in sys.stdin if len(l.split()) > 3 and l.split()[1] == '.data'))" > $W/delta.txt
+python3 -c "import sys; print(next('%x' % (int(l.split()[2], 16) - 0x5fb03c) for l in open(sys.argv[1]) if l.split()[1:2] == ['_g_data_5fb03c']))" $W/ours.map > $W/delta.txt      # W16 MT3: from the map (CC=v143: data.obj sits behind the CRT .data, not at the section start; VC7: same value as the section start)
 cp $W/ours.map $A/MFL.map
 for f in $DLLS; do cp $f $A/; done
 cmp -s $W/ours.exe $A/MFL.exe && echo "release exe = ours.exe (prepare.py patched nothing)" || echo "WARNING: prepare.py patched the exe copy (an original movie function is still linked): list it in the notes"

@@ -26,7 +26,7 @@
 /*00485240*/ extern RwBool RwTexDictionaryDestroy_004d5ac0(struct RwTexDictionary *p0);
 /*004882d0*/ extern undefined __cdecl course_ribbons_render(undefined4 p0);
 /*00488d80*/ extern undefined __cdecl particle_system_set_current_forward(undefined4 p0, undefined4 p1, undefined4 p2);
-/*004891b0*/ extern undefined __cdecl course_world_ray_hit_light_sample(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
+/*004891b0*/ extern undefined4 __cdecl course_world_ray_hit_light_sample(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3);
 /*004a07d0*/ extern int rain_render();
 /*004a1880*/ extern int game_get_62ad2c();
 /*004a5550*/ extern int log_printf();
@@ -131,12 +131,12 @@ extern void course_sky_clumps_render(void);
 /* course_world_ray_hit_light_forward */
 
 /* "forwards to course_world_ray_hit_light_sample on g_course_world" */
+/* Returns the sample's hit result; vehicle_ground_probe_update 0x42278f tests it (VOID_w16: was void). */
 
-void __cdecl
+undefined4 __cdecl
 course_world_ray_hit_light_forward(undefined4 param_1,undefined4 param_2,undefined4 param_3)
 {
-  course_world_ray_hit_light_sample(&g_course_world,param_1,param_2,param_3);
-  return;
+  return course_world_ray_hit_light_sample(&g_course_world,param_1,param_2,param_3);
 }
 
 

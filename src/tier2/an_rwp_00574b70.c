@@ -14,7 +14,7 @@ typedef struct MflSupportFace {
 /* Capsule half length at +0x40 along local z.  A direction pointing mostly along -z gives the bottom end point; mostly along +z
    (or NaN) the top end point; in between (and for a positive half length) the face is the segment between both end points, with
    the normal = direction projected onto the xy plane and normalised.  Returns `face`. */
-/* TIER2: unvalidated 2026-11-05 authority=diffemu */
+/* TIER2: unvalidated 2026-11-20 authority=static */
 MflSupportFace *rwp_capsule_00574b70(float *cap, void *unused, MflV3 *dir, MflSupportFace *face)
 {
   float dz, h, s;

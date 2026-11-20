@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """smoke_release.py <release dir> <maps dir> <game dir> <work dir> [--run ID] [--check-only]: Wine title smoke of a CI release.
-<release dir>: the unpacked MFLng-<tag>.zip (MFLng.exe, MFLng_fixes.exe, mflrw.dll, mfl_audio_miniaudio.dll, BUILDINFO.txt);
-<maps dir>: the unpacked MFLng-<tag>-maps.zip (MFLng.map, MFLng_fixes.map).
+<release dir>: the unpacked MFLng-<tag>.zip (MFLng.exe = fixes, MFLng.nofix.exe = original behaviour, mflrw.dll, mfl_audio_miniaudio.dll, BUILDINFO.txt);
+<maps dir>: the unpacked MFLng-<tag>-maps.zip (MFLng.map, MFLng.nofix.map).
 <game dir>: a prepared install, made once with `python3 tools/wine-run/prepare.py <install dir> <game dir>` (private tree: `run.py clone
 <game dir>`): App_Executables/MFL_original.exe, videocfg.bin, data hardlinked to ~/.cache/mfl_base; must be on the work dir's filesystem. It is never written: each exe gets <work dir>/<exe stem>/game, a hardlink farm of it
 with fresh copies of the exe (as MFL.exe) and the two DLLs, and delta.txt for tools/wine-run/release_smoke.sh.
-The delta (exe address of _g_menu_current - 0x69cbd0) comes from the exe's OWN map (rule 41; the fixes exe's .data/.bss sit 0x1000 higher
-than the off exe's): the map must be <exe stem>.map, carry the exe's PE TimeDateStamp, give one delta for both words release_smoke waits on,
+The delta (exe address of _g_menu_current - 0x69cbd0) comes from the exe's OWN map (rule 41; the fixes exe's (MFLng.exe) .data/.bss sit 0x1000 higher
+than the off exe's (MFLng.nofix.exe)): the map must be <exe stem>.map, carry the exe's PE TimeDateStamp, give one delta for both words release_smoke waits on,
 and the exe must reference that address. Otherwise the exe is refused (FAIL, no Wine run).
 Prints one line per exe and, when both reach the title, the line for data/link/smoke_ok.txt (`<cl version> <date> <run>`, release.yml);
 --run = the GitHub run id of the release workflow that built the zip (`gh run list --workflow release`). Writes no tracked file.
@@ -16,7 +16,7 @@ import datetime, os, shutil, struct, subprocess, sys
 R = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SMOKE = os.path.join(R, "tools", "wine-run", "release_smoke.sh")
 WANT = {"_g_menu_current": 0x69cbd0, "_g_menu_fade_alpha": 0x69d1e4}
-EXES = ("MFLng.exe", "MFLng_fixes.exe")
+EXES = ("MFLng.nofix.exe", "MFLng.exe")
 DLLS = ("mflrw.dll", "mfl_audio_miniaudio.dll")
 
 
