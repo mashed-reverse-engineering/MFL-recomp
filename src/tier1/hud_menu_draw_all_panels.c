@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004345d0*/ extern int hud_arrow_draw();
 /*00435100*/ extern int menu_panel_draw_69c9b8();
 /*00435420*/ extern int menu_panel_draw_69c9e0();
@@ -82,5 +83,8 @@ void hud_menu_draw_all_panels(void)
   if (g_menu_panel_state_69c988 != 0) {
     menu_draw_event_descriptions(0);
   }
+#if MFL_FIX_PREFS
+  mfl_prefs_menu_draw();      /* the values of the Preferences page rows (mfl_settings_menu.c) */
+#endif
   return;
 }

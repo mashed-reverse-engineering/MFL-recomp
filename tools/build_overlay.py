@@ -108,6 +108,7 @@ def main():
         skip = {l.split()[0] for l in open(p) if l.strip() and not l.startswith("#")}
     skip |= {x for x in os.environ.get("SKIP_FILES", "").split(",") if x}   # e.g. SKIP_FILES=batch7.c,batch8.c (bisecting)
     if not (V143 and "/DMFL_FIX_CRASHLOG=1" in os.environ.get("MFL_FIX_DEFINES", "").split()): skip.add("mfl_crashlog.c")      # W16 CRASHLOG: v143 + switch on only, so the VC7 and every off build keep their object list
+    if "/DMFL_FIX_PREFS=1" not in os.environ.get("MFL_FIX_DEFINES", "").split(): skip.add("mfl_settings_menu.c")      # W17 PREF: the Preferences page only with its switch (off builds keep their object list)
     work = tempfile.mkdtemp(prefix="overlay_", dir=os.environ.get("TMPDIR", "/tmp/claude-%d" % os.getuid()))
     try:
         for h in glob.glob(os.path.join(RECOMP, "*.h")) + glob.glob(os.path.join(RECOMP, "tier1", "*.h")):      # tier1/*.h: library headers of tier 1 sources (rwa.h / rwaint.h: RenderWare Audio, codfh-win32)

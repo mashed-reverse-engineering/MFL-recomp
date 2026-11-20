@@ -1,6 +1,7 @@
 // cluster-entries: race_phase_3_update
 /* Installed cluster race_phase_3_update (tools/cluster_install.py from output/cluster_pilot9/race_phase_3_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004062d0*/ extern int __cdecl camera_path_update(undefined4 p0);
 /*0040fdd0*/ extern int race_set_phase();
 /*004103d0*/ extern int race_spawn_cars();
@@ -44,6 +45,14 @@ void race_phase_3_update_n(int in_ebx)
     iVar1 = iVar1 + 1;
   } while (event_type < 200);
   g_phase_timer = g_phase_timer - (uint)(in_ebx * 0x44c) / 0x3c;
+#if MFL_FIX_PREFS
+  if (mfl_pref(MFL_PREF_SKIP_FLYOVER)) {      /* skip_flyover=1: no camera path, and the camera's flight to the car ends at once (as the
+                                                 original's Return during that flight, camera_chase_update): phase 4 (countdown) next frame */
+    menu_set_car_8c7460_and_reset(0);
+    event_type = 0;
+  }
+  else
+#endif
   event_type = camera_path_update(in_ebx);
   if (event_type == 0) {
     event_type = camera_get_car_8c7460();

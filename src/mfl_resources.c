@@ -121,7 +121,7 @@ void mfl_resources_attach(void)
  * fullscreen / windowed / borderless.  Unknown keys, comment lines (# or ;) and any other value are ignored, so the key keeps its
  * default; no file = every default.  Every default is the original behaviour, except the MFL_FIX_LANG keys (read only in that
  * build) and display_mode (borderless).  Read once, on the first
- * mfl_pref call; mfl_settings_set_language rewrites the file (PREF page). */
+ * mfl_pref call; mfl_settings_save rewrites the file (the Preferences page, recomp/mfl_settings_menu.c). */
 extern __declspec(dllimport) void *__stdcall CreateFileA(const char *path, unsigned long access, unsigned long share, void *security,
                                                         unsigned long creation, unsigned long flags, void *template_file);
 extern __declspec(dllimport) int __stdcall ReadFile(void *file, void *data, unsigned long size, unsigned long *done, void *overlapped);
@@ -143,6 +143,7 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "language", -1, 5 },      /* -1 = auto */
   { "setup_dialogs", 0, 1 },
   { "display_mode", MFL_DISPLAY_BORDERLESS, 2 },      /* plan W17 F3: the fixes exe starts borderless */
+  { "skip_flyover", 0, 1 },
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
 int mfl_prefs[MFL_PREF_COUNT];      /* the values in force (a global, so a test run can read them by the map) */
@@ -220,32 +221,38 @@ int mfl_pref(int key)
   return mfl_prefs[key];
 }
 
-/* language = -1 (auto) or 0..5: the file is written again with every other line as it was and `language=<value>` last */
-void mfl_settings_set_language(int language)
+/* the Preferences page: the file is written again with every line that is not one of the keys as it was (comments, unknown keys), then
+ * `key=value` for every key (display_mode as its word, language -1 as auto) */
+void mfl_settings_save(const int *values)
 {
-  static char out[PREFS_FILE_MAX + 32];
+  static char out[PREFS_FILE_MAX + 32 * MFL_PREF_COUNT];
   unsigned long size, n = 0, written;
-  const char *line, *end;
+  const char *line, *end, *w;
   void *file;
+  int k, known;
 
-  if (language < -1 || language > 5) return;
-  mfl_pref(0);      /* the file's values are in force before this one changes */
-  mfl_prefs[MFL_PREF_LANGUAGE] = language;
+  mfl_pref(0);      /* prefs_path is set */
   size = prefs_read();
   for (line = prefs_text; line < prefs_text + size; line = end + 1) {
     for (end = line; end < prefs_text + size && *end != '\n'; end++) ;
-    if (key_value(line, end, "language") != 0) continue;
+    for (k = 0, known = 0; k < MFL_PREF_COUNT; k++) known |= key_value(line, end, k_prefs[k].name) != 0;
+    if (known) continue;
     while (line < end) out[n++] = *line++;
     if (end < prefs_text + size) out[n++] = '\n';
-    else { out[n++] = '\r'; out[n++] = '\n'; }
+    else if (n != 0 && out[n - 1] != '\n') { out[n++] = '\r'; out[n++] = '\n'; }
   }
-  for (line = "language="; *line != '\0'; line++) out[n++] = *line;
-  if (language < 0) { out[n++] = 'a'; out[n++] = 'u'; out[n++] = 't'; out[n++] = 'o'; }
-  else out[n++] = (char)('0' + language);
-  out[n++] = '\r';
-  out[n++] = '\n';
+  for (k = 0; k < MFL_PREF_COUNT; k++) {
+    for (w = k_prefs[k].name; *w != '\0'; w++) out[n++] = *w;
+    out[n++] = '=';
+    if (k == MFL_PREF_DISPLAY_MODE && values[k] >= 0 && values[k] <= 2) w = k_display_names[values[k]];
+    else if (values[k] < 0) w = "auto";
+    else { out[n++] = (char)('0' + values[k]); w = ""; }
+    while (*w != '\0') out[n++] = *w++;
+    out[n++] = '\r';
+    out[n++] = '\n';
+  }
   file = CreateFileA(prefs_path, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-  if (file == INVALID_HANDLE) return;      /* read-only install folder: the choice holds for this run only */
+  if (file == INVALID_HANDLE) return;      /* read-only install folder: the choices hold for this run only */
   WriteFile(file, out, n, &written, 0);
   CloseHandle(file);
 }
@@ -288,18 +295,25 @@ static int option_given(const char *cmd, const char *option)
   return 0;
 }
 
-/* the game language of the Windows UI language when its speech folder is installed, else 0 (English).  The path is relative
- * to the current folder, as the game's own loads (sound_language_path). */
+/* 1 when the speech folder of game language id 1..4 is installed; the others (auto, English, USA) use the English speech.  The path is
+ * relative to the current folder, as the game's own loads (sound_language_path).  Also the Preferences page's Language row filter. */
+int mfl_lang_available(int language)
+{
+  unsigned long attr;
+
+  if (language < 1 || language >= LANGUAGES_WITH_SPEECH) return 1;
+  attr = GetFileAttributesA(k_speech_dir[language]);
+  return attr != 0xffffffffUL && (attr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+}
+
+/* the game language of the Windows UI language when its speech folder is installed, else 0 (English) */
 static int language_detect(void)
 {
   get_ui_language_fn get_ui = (get_ui_language_fn)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetUserDefaultUILanguage");
-  unsigned long attr;
   int primary = get_ui != 0 ? get_ui() & 0x3ff : 0x09, n;
 
   for (n = 1; n < LANGUAGES_WITH_SPEECH; n++) {
-    if (k_primary_langid[n] != primary) continue;
-    attr = GetFileAttributesA(k_speech_dir[n]);
-    if (attr != 0xffffffffUL && (attr & FILE_ATTRIBUTE_DIRECTORY) != 0) return n;
+    if (k_primary_langid[n] == primary && mfl_lang_available(n)) return n;
   }
   return 0;
 }

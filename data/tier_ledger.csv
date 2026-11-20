@@ -1727,7 +1727,7 @@ d3dx_init_MatrixMultiplyTranspose,004fc696,tier2,compiled+diffemu-EQUAL+shadow-n
 d3dx_init_MatrixTranspose,004fc616,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,6d8fef957894,33bf93632a05,7bb9ffc2481e,22,1.00,0,0
 d3dx_init_Vec3TransformCoord,004fbc3c,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,24e5a28058e2,33bf93632a05,7bb9ffc2481e,22,1.00,0,0
 d3dx_init_Vec3TransformNormal,004fbc66,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,d08a5a8ef105,33bf93632a05,7bb9ffc2481e,24,1.00,0,0
-dat_get_string,0042bd00,tier1,bytes,bytes-reloc,1b8b3b2a5919,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+dat_get_string,0042bd00,tier1,bytes,bytes-reloc,92947723b74d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 dat_load_language,0042ba20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 debris_any_active_all_vehicles,004254c0,tier1,bytes,bytes-reloc,23eb3a1da914,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 debris_apply_velocity_a,00424880,tier1,bytes,bytes-reloc,b88903ec8016,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
@@ -2250,7 +2250,7 @@ hud_labels_age_and_fade,0047fda0,tier2,compiled+diffemu-EQUAL+shadow-OK,diffemu,
 hud_labels_clear,0047fe10,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 hud_labels_render_all,0047fe30,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 hud_marker_get_distance,004221e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
-hud_menu_draw_all_panels,00443820,tier1,bytes,bytes-reloc,d501272630cb,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+hud_menu_draw_all_panels,00443820,tier1,bytes,bytes-reloc,5aa1094872e4,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 hud_player_marker_position_calc,004154b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 hud_player_marker_position_calc_with_facing,00415370,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 hud_player_markers_update,004155b0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,0.84,0,0

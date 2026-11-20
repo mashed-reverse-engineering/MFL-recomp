@@ -82,6 +82,9 @@ Status words:
   | `display_mode` | `borderless` (`2`) | `fullscreen` (`0`): the video mode chosen in the setup dialog / `videocfg.bin`, exclusive full screen as the original. `windowed` (`1`): a framed window with the chosen resolution (made smaller when the frame would not fit the screen), centred. `borderless`: a frameless window over the whole primary desktop at the desktop resolution, no mode switch (Alt+Tab is instant). |
   | `language` | `auto` | Read only with `MFL_FIX_LANG` (below). `0` English, `1` French, `2` German, `3` Spanish, `4` Italian, `5` USA. |
   | `setup_dialogs` | `0` | Read only with `MFL_FIX_LANG`. `1`: a start without options shows the video and controller setup dialogs again. |
+  | `skip_flyover` | `0` | `1`: a race starts without the course fly-over camera; the countdown begins at once (the same end as pressing Return during the original's camera flight to the car). |
+
+  **In the game:** Options, fourth row *Preferences* (main menu and pause menu). Left / Right change the selected row (Return steps it like Right), Escape goes back and writes the file (lines that are not one of these keys stay as they were). Rows: Display (fullscreen / windowed / borderless), Language (auto or one of the six whose speech is installed; only with `MFL_FIX_LANG`), Intro movies (`skip_intro`), Save delay (`skip_save_wait`), Course fly-over (`skip_flyover`), Winner cam spin (`winner_cam_rotation`), Unlock all (cheat) (`unlock_all`). Display, language, intro movies and unlock all apply at the next start (the page says so under the rows); the other three at once. The page's own texts are ours (English, French, German, Spanish, Italian; the On / Off values are the game's texts); the game's text files are not changed.
 
   Example file:
   ```
@@ -89,15 +92,15 @@ Status words:
   skip_save_wait=1
   winner_cam_rotation=0
   ```
-- **Not yet:** faster loading (load times are measured first); an in-game page that changes the keys and writes the file.
-- **Lives in:** the reader `mfl_pref` in `src/mfl_resources.c`; `app_boot_init` (skip_intro); `gamesave_update_sub_40bbd0`, `gamesave_autosave_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c` (skip_save_wait); `mfl_unlock_all_force` (unlock_all); `cup_scene_update_object` (winner_cam_rotation); `video_config_dialog` (display_mode).
+- **Not yet:** faster loading (measured: a course loads in 0.3 s, nothing to gain); a menu speed row.
+- **Lives in:** the reader `mfl_pref` and the writer `mfl_settings_save` in `src/mfl_resources.c`; the page in `src/mfl_settings_menu.c` (hooks: `menu_update`, `hud_menu_draw_all_panels`, `dat_get_string`); `race_phase_3_update` (skip_flyover); `app_boot_init` (skip_intro); `gamesave_update_sub_40bbd0`, `gamesave_autosave_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c` (skip_save_wait); `mfl_unlock_all_force` (unlock_all); `cup_scene_update_object` (winner_cam_rotation); `video_config_dialog` (display_mode).
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PREFS=1`, or use `MFLng.exe`.
 - **Test harness:** `SCEN_PREFS=<file>` (scenario.sh, standalone runs) puts the file beside our exe; the control never has one.
 
 ### MFL_FIX_LANG
 - **Status:** staged, default off; on in `MFLng.exe`.
 - **Original:** `launch.exe` starts the game as `MFL.exe -VS0 -CS0 -L<n>`, n = the language the installer stored in the registry (`HKLM\Software\Empire Interactive\MFL`, value `language`); its "Setup Video Mode" / "Setup Controllers" buttons start `-CS0 -VS1` / `-CS1 -VS0`. Started directly without options, the game shows both setup dialogs and runs in English.
-- **Changes:** when the command line has no `-vs`, `-cs` or `-l` option, the game acts as if `-VS0 -CS0 -L<n>` had been given: no setup dialogs (the saved `videocfg.bin` / `contcfg<n>.bin` are used; without them the game's own defaults: the first full-screen mode of at least 640x480, which it then saves, and pads first, keyboard after), and n = the Windows display language when the game has speech for it (`toastaudio\pc\audio\pcdics\<language>` exists), else English. An option given on the command line always wins, so the launcher and the test harness behave as before. With `MFL_FIX_PREFS`, the keys `language` and `setup_dialogs` (above) override; `mfl_settings_set_language` writes `language=` (for the coming options page; applies at the next start).
+- **Changes:** when the command line has no `-vs`, `-cs` or `-l` option, the game acts as if `-VS0 -CS0 -L<n>` had been given: no setup dialogs (the saved `videocfg.bin` / `contcfg<n>.bin` are used; without them the game's own defaults: the first full-screen mode of at least 640x480, which it then saves, and pads first, keyboard after), and n = the Windows display language when the game has speech for it (`toastaudio\pc\audio\pcdics\<language>` exists), else English. An option given on the command line always wins, so the launcher and the test harness behave as before. With `MFL_FIX_PREFS`, the keys `language` and `setup_dialogs` (above) override; the Preferences page sets `language` (applies at the next start).
 - **Lives in:** `mfl_lang_apply` in `src/mfl_resources.c`, called from `app_initialise_on_bootup` right after `app_parse_command_line`.
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_LANG=1`, or use `MFLng.exe`.
 

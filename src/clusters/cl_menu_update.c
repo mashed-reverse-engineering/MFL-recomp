@@ -1,6 +1,7 @@
 // cluster-entries: menu_update
 /* Installed cluster menu_update (tools/cluster_install.py from output/cluster_pilot_uc3/menu_update.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern undefined4 g_menu_update_8c8770;
 extern undefined4 g_ai_editor_view_origin_z;
 extern undefined4 g_hud_69cab8;
@@ -1650,6 +1651,9 @@ LAB_0044820b:
         }
       }
 LAB_00448214:
+#if MFL_FIX_PREFS
+      mfl_prefs_menu_update();      /* the Preferences page (mfl_settings_menu.c): Left / Right change its rows, Escape writes the settings file */
+#endif
       /* back: restore what the leaving page edited (option sliders / flags / rumble / widescreen saved copies), per-page cleanup, then return to the pause page */
       if (((back_enabled) && (team_mode = menu_back_pressed_any(), team_mode != 0)) &&
          (g_menu_select_pressed == 0)) {

@@ -51,7 +51,7 @@ void mfl_unlock_all_unforce(void *save_block);
 
 #ifndef MFL_FIX_PREFS      /* player preferences read at start from mflng_settings.cfg beside the exe (key=value lines, no command line); every key's
                               default is the original behaviour except display_mode (borderless, plan W17 F3; this switch is on only in MFLng.exe) (recomp/mfl_resources.c reader;
-                              keys and sites: public/docs/MFL_FIX_FLAGS.md) */
+                              keys and sites: public/docs/MFL_FIX_FLAGS.md); the in-game Preferences page under Options changes them (recomp/mfl_settings_menu.c) */
 #define MFL_FIX_PREFS 0
 #endif
 #if MFL_FIX_PREFS
@@ -63,13 +63,22 @@ enum mfl_pref_key {
   MFL_PREF_LANGUAGE,              /* MFL_FIX_LANG: language=auto (-1, default) or a game language id 0..5 (see MFL_FIX_LANG) */
   MFL_PREF_SETUP_DIALOGS,         /* MFL_FIX_LANG: setup_dialogs=1: a start without options shows the video / controller dialogs (default 0) */
   MFL_PREF_DISPLAY_MODE,          /* display_mode=fullscreen|windowed|borderless (or 0/1/2): MFL_DISPLAY_* below; default borderless */
+  MFL_PREF_SKIP_FLYOVER,          /* skip_flyover=1: race start without the course fly-over camera (race phase 3 ends in its first frame) */
   MFL_PREF_COUNT
 };
 #define MFL_DISPLAY_FULLSCREEN 0      /* the video mode as videocfg.bin / the setup dialog chose it (the original) */
 #define MFL_DISPLAY_WINDOWED 1        /* a framed window of the chosen size (clusters/cl_video_config_dialog.c) */
 #define MFL_DISPLAY_BORDERLESS 2      /* a frameless window over the whole desktop, no mode switch */
 int mfl_pref(int key);      /* value of one key (the file is read on the first call) */
-void mfl_settings_set_language(int language);      /* -1 = auto or 0..5: writes language= into the settings file (other lines kept); applies at the next start */
+extern int mfl_prefs[MFL_PREF_COUNT];      /* the values in force (the Preferences page changes the ones that apply at once) */
+void mfl_settings_save(const int *values);      /* values[MFL_PREF_COUNT] -> every key written into the settings file (other lines kept) */
+/* The Preferences page (recomp/mfl_settings_menu.c, page id MFL_PAGE_PREFS, a fourth row of the Options page); its texts are dat_get_string ids
+   from MFL_TEXT_FIRST on (the game's tables end at 834) */
+#define MFL_PAGE_PREFS 0x1b      /* the empty slot of g_menu_page_item_lists */
+#define MFL_TEXT_FIRST 0x1000
+void mfl_prefs_menu_update(void);      /* menu_update, input part: Left / Right change the selected row, Back writes the file */
+void mfl_prefs_menu_draw(void);        /* hud_menu_draw_all_panels: the value beside each row */
+const unsigned short *mfl_prefs_text(int id);      /* dat_get_string for ids >= MFL_TEXT_FIRST: length-prefixed UTF-16 */
 #endif
 
 #ifndef MFL_FIX_LANG      /* a start without -vs / -cs / -l options (the exe run directly, not through launch.exe) acts as launch.exe's
@@ -82,6 +91,7 @@ void mfl_settings_set_language(int language);      /* -1 = auto or 0..5: writes 
 #endif
 #if MFL_FIX_LANG
 void mfl_lang_apply(void);
+int mfl_lang_available(int language);      /* 1 when the game can play that language id: -1 (auto), 0 and 5 always, 1..4 when its speech folder exists */
 #endif
 
 #ifndef MFL_FIX_ALT_TAB      /* the window counts as active again when it is activated by a click or while minimised (WM_ACTIVATE low word), so after
