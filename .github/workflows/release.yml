@@ -4,7 +4,8 @@
 # Always a GitHub pre-release (user decision 2026-11-19, no promotion); data/link/smoke_ok.txt (`<cl version> <date> <run>` after a Wine
 # menu boot) is only quoted in the notes.  The notes carry a changelog: commit subjects since the previous r* tag.
 # Contract with build.yml (job `link`, plan 2.7 step 2): artifact `mflng-out` = MFLng.exe (every MFL_FIX_* on), MFLng.nofix.exe (original behaviour), MFLng.map, MFLng.nofix.map,
-# mflrw.dll, mfl_audio_miniaudio.dll, MFLng-launch.exe, BUILDINFO.txt (one line `cl <version>`); ci_checks.sh has passed on it.
+# mflrw.dll, mfl_audio_miniaudio.dll, MFLng-launch.exe, BUILDINFO.txt (one line `cl <version>`), and from job video mfl_video_ffmpeg.dll +
+# avformat/avcodec/avutil/swscale-NN.dll; ci_checks.sh has passed on it.
 name: release
 on:
   push:
@@ -40,6 +41,9 @@ jobs:
           TAG=r$(echo "$D" | tr -d -)-${GITHUB_SHA::7}
           mkdir -p pkg/LICENSES maps
           cp out/MFLng.exe out/MFLng.nofix.exe out/MFLng-launch.exe out/mflrw.dll out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/
+          # W16 VIDCI: movies + menu music (mfl_video_ffmpeg.dll and the shared LGPL FFmpeg DLLs it imports; LICENSES/ffmpeg.txt)
+          cp out/mfl_video_ffmpeg.dll out/avformat-*.dll out/avcodec-*.dll out/avutil-*.dll out/swscale-*.dll pkg/
+          [ -f third_party/LICENSES/ffmpeg.txt ] || { echo "LICENSES/ffmpeg.txt missing: no FFmpeg DLLs without it"; exit 1; }
           cp out/*.map maps/
           ls third_party/LICENSES/*.txt >/dev/null || { echo "third_party/LICENSES/*.txt missing: no release without licence files"; exit 1; }
           cp third_party/LICENSES/*.txt pkg/LICENSES/
@@ -49,10 +53,13 @@ jobs:
           MFLng: a rebuilt executable for your own installed copy of the PC game. It contains no game data and is not affiliated with the publisher.
           Needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), from Microsoft.
           1. In the game folder, rename MFL.exe to MFL_original.exe (MFLng reads its resources from that file at start-up).
-          2. Copy MFLng.exe, MFLng.nofix.exe, mflrw.dll and mfl_audio_miniaudio.dll into the game folder.
+          2. Copy MFLng.exe, MFLng.nofix.exe and every .dll of this zip (mflrw.dll, mfl_audio_miniaudio.dll, mfl_video_ffmpeg.dll,
+             avformat-*.dll, avcodec-*.dll, avutil-*.dll, swscale-*.dll) into the game folder. Without the video DLLs the game runs with
+             no intro movies, no menu backdrop movie and no menu music.
           3. Start MFLng.exe (every MFL_FIX_* bug fix on) or MFLng.nofix.exe (original behaviour).
           Optional: copy MFLng-launch.exe there too. It shows your game's launcher picture, starts MFLng.exe or MFLng.nofix.exe and updates them from the GitHub releases (static C runtime, no redistributable).
           The DLLs are loaded from the game folder; keep only trusted files there.
+          Movies use FFmpeg 7.1 (LGPL 2.1, unmodified, shared DLLs you may replace): see LICENSES/ffmpeg.txt.
           EOF
           # every file of the zip (the launcher's updater checks .exe / .dll always and every other file it finds listed)
           (cd pkg && find . -type f ! -name SHA256SUMS | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum > SHA256SUMS)

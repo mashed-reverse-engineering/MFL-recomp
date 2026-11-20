@@ -5,7 +5,7 @@
 # `#define MFL_FIX_X 0` switch on) from this tree only: tools/delink/link_ci.sh CC=v143 in its self-contained form (committed tables in
 # data/link), mflrw.dll from librw-mfl at data/link/mflrw_pin.txt, mfl_audio_miniaudio.dll (tools/ci/build_audio_dll.sh).  Every run
 # (push, pull request, dispatch, release.yml) builds both in parallel; the off job also builds MFLng-launch.exe (launcher/build.sh msvc).  collect: ci_checks.sh
-# over the outputs of both jobs, artifact `mflng-out`.  The local twin of the link is the same link_ci.sh with MSVCW_NATIVE unset (cl /
+# over the outputs of both jobs and of job video (mfl_video_ffmpeg.dll + shared LGPL FFmpeg DLLs), artifact `mflng-out`.  The local twin of the link is the same link_ci.sh with MSVCW_NATIVE unset (cl /
 # link / lib in the msvc-wine image, tools/msvcw/msvcw_sh.sh).
 # No original game data, no MFL.exe, no copied bytes are used or needed by any job.
 name: build
@@ -195,8 +195,53 @@ jobs:
             build/*/v143/lnk_pairs.txt
             build/*/mkobj.err
 
+  # W16 VIDCI: the movie set (intro / backdrop movies and the menu music = the frontend.mpg sound track): mfl_video_ffmpeg.dll + the
+  # shared LGPL FFmpeg DLLs (avformat/avcodec/avutil/swscale; tools/video/SOURCES, third_party/LICENSES/ffmpeg.txt).  Own job, in
+  # parallel with the links.  FFmpeg prefix cached under the hash of build_ffmpeg.sh (holds VER, SHA256 and the configure line):
+  # cold ~10 min (local cross build 40 s), cache hit skips it.  Artifact link-video, so collect's link-* download picks it up.
+  video:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: false
+          install: >-
+            python make diffutils coreutils grep gawk tar xz curl
+            mingw-w64-i686-binutils mingw-w64-i686-gcc
+      - name: cross tool names (as in job link)
+        run: |
+          set -e
+          B=$MSYSTEM_PREFIX/bin
+          for t in gcc as ld ar nm objdump strip ranlib dlltool windres; do
+            [ -x $B/i686-w64-mingw32-$t.exe ] || cp $B/$t.exe $B/i686-w64-mingw32-$t.exe
+          done
+      - uses: actions/cache@v4
+        with:
+          path: build/video/video_work/prefix/win32
+          key: ffmpeg-win32-${{ hashFiles('tools/video/build_ffmpeg.sh') }}
+      - name: mfl_video_ffmpeg.dll + FFmpeg DLLs
+        run: |
+          set -o pipefail
+          mkdir -p build/logs out
+          sh tools/ci/build_video_dll.sh "$PWD/build/video" 2>&1 | gawk '{ print strftime("%H:%M:%S"), $0; fflush() }' | tee build/logs/video.log
+          for f in build/video/*.dll; do python3 tools/ci/pe_check.py --video "$f"; cp "$f" out/; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: link-video
+          path: out/
+      - name: failure tails
+        if: failure()
+        run: |
+          for f in build/video/video_work/build/win32/*.log build/video/video_work/build/win32/ffbuild/config.log; do [ -f "$f" ] || continue; echo "=== $f"; tail -40 "$f"; done
+
   collect:
-    needs: link
+    needs: [link, video]
     runs-on: ubuntu-24.04      # the checks are plain python + git
     steps:
       - uses: actions/checkout@v4

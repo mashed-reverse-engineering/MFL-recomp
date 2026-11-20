@@ -122,6 +122,8 @@ int main(int argc, char **argv)
 
     CHECK(name_allowed("MFLng.exe") && name_allowed("MFLng.nofix.exe") && name_allowed("MFLng-launch.exe") && name_allowed("mflrw.dll") && name_allowed("LICENSES/zlib.txt"));
     CHECK(!name_allowed("MFL.exe") && !name_allowed("MFL_original.exe") && !name_allowed("launch.exe") && !name_allowed("../MFLng.exe"));
+    CHECK(name_allowed("mfl_video_ffmpeg.dll") && name_allowed("avformat-61.dll") && name_allowed("avcodec-61.dll") && name_allowed("avutil-59.dll") && name_allowed("swscale-8.dll"));
+    CHECK(!name_allowed("avcodec-61.exe") && !name_allowed("avcodec.lib") && !name_allowed("postproc-58.dll") && !name_allowed("d3d9.dll"));
     CHECK(!name_allowed("LICENSES/../x.txt") && !name_allowed("a/b.txt") && !name_allowed("LICENSES/") && !name_allowed("videocfg.bin") && !name_allowed("C:\\x.txt"));
     CHECK(!sums_lookup(sums, "MFLng-launch.exe", want));      /* the r20261120 zip predates the launcher */
 

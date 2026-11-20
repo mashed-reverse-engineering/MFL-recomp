@@ -19,7 +19,9 @@ BAD_TEXT = [r"/ho" r"me/", r"/tmp/claude-[0-9]", r"reference" r"s/sdk", r"rwsd" 
 CODFH_HDR = re.compile(r"Adapted from codfh-win32 by L2KSolkov, https://github\.com/L2KSolkov/codfh-win32, \S+ @[0-9a-f]{7,}")
 MAX_FILE, MAX_TOTAL = 2_000_000, 60_000_000
 TP_TEXT = [r"\b(thunk_FUN|FUN|DAT|LAB|PTR)_00[0-9a-fA-F]{6}\b"]      # third_party/: the email rule is off, every other rule on, plus this
-RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll","mfl_audio_miniaudio.dll", "INSTALL.txt", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt", "*.map"]
+# W16 VIDCI: + the movie backend and the shared LGPL FFmpeg DLLs it imports
+RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll","mfl_audio_miniaudio.dll",
+              "mfl_video_ffmpeg.dll", "avformat-*.dll", "avcodec-*.dll", "avutil-*.dll", "swscale-*.dll", "INSTALL.txt", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt", "*.map"]
 ROW = re.compile(r"^(code:\S+|data:\S+|rsrc) (\d+)$")
 
 
@@ -100,7 +102,10 @@ def selftest():
         os.remove(os.path.join(d, "data/zero_original_baseline.txt")); assert baseline(d), "missing baseline not caught"
         m = b"<assembly/>"; r = os.path.join(d, "rel")
         put("rel/MFLng.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m})); put("rel/mflrw.dll", make_pe({"kernel32.dll": ["A"]})); put("rel/LICENSES/zlib.txt", b"z")
+        put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
         assert release(r, m) == [], release(r, m)
+        put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}, res=[16])); assert [f for f, _ in release(r, m)] == ["avcodec-61.dll"], "DLL resource not caught"
+        put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
         put("rel/vcruntime140.dll", make_pe({"kernel32.dll": ["A"]})); assert [f for f, _ in release(r, m)] == ["vcruntime140.dll"], "Microsoft DLL not caught"
         os.remove(os.path.join(r, "vcruntime140.dll"))
         put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: b"icon"})); assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "extra resource not caught"

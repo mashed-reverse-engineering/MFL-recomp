@@ -21,19 +21,21 @@
 #endif
 #define W_(s) L##s
 #define WSTR(s) W_(s)
-#define CREDIT L"MFL-recomp by SciLor and contributors. Thanks to L2KSolkov (codfh-win32) and tgsm (pbg)."
+#define CREDIT_SHORT L"MFL-recomp by SciLor and contributors"      /* project credit: public/.github/FUNDING.yml (the user confirms the wording) */
+#define CREDIT_THANKS L"Thanks to L2KSolkov (codfh-win32) and tgsm (pbg)."      /* public/README.md Acknowledgements */
 #define NOTICE L"You need your own copy of the game. Not affiliated with the game's publisher or developer."
 #define WFMT(b, ...) (_snwprintf(b, sizeof(b) / sizeof(WCHAR) - 1, __VA_ARGS__), b[sizeof(b) / sizeof(WCHAR) - 1] = 0)
 #define MAXF 48
-enum { ID_PLAY = 100, ID_NOFIX, ID_CHECK, ID_UPDATE, ID_EXIT, ID_AUTO, ID_CHAN, ID_WEB, WM_CHECKED = WM_APP, WM_STAGED };
-enum { PIC_W = 640, PIC_H = 480, PANEL_H = 206 };
+enum { ID_PLAY = 100, ID_NOFIX, ID_EXIT, ID_MIN, ID_CLOSE, ID_STATUS, ID_AUTO, ID_CHAN, ID_CHECK, ID_WEB, ID_ABOUT, ID_OV_UPDATE, ID_OV_CLOSE,
+       WM_CHECKED = WM_APP, WM_STAGED };
+enum { PIC_W = 640, PIC_H = 480 };      /* the original launcher's picture and window size (96 dpi; scaled by the system DPI) */
+enum { SK_BUSY, SK_INFO, SK_ERR, SK_UPD };
 
-static WCHAR g_exe[MAX_PATH], g_dir[MAX_PATH], g_data[MAX_PATH], g_ini[MAX_PATH], g_testzip[MAX_PATH], g_err[512];
-static HWND g_wnd, h_play, h_nofix, h_check, h_update, h_auto, h_chan, h_status, h_log;
-static HBRUSH g_dark;
+static WCHAR g_exe[MAX_PATH], g_dir[MAX_PATH], g_data[MAX_PATH], g_ini[MAX_PATH], g_testzip[MAX_PATH], g_err[512], g_stat[200], *g_body;
+static HWND g_wnd;
 static unsigned char *g_pic; static const BITMAPINFO *g_bi; static const unsigned char *g_bits;
 static Installed g_inst;
-static int g_auto, g_pre, g_force_elev, g_nrel, g_busy;
+static int g_auto, g_pre, g_force_elev, g_nrel, g_busy, g_upd, g_stat_kind;
 static Release g_rel[30];
 static const Release *g_new;
 
@@ -195,7 +197,10 @@ static DWORD WINAPI check_thread(LPVOID unused)
     PostMessageW(g_wnd, WM_CHECKED, (WPARAM)k, 0);
     return 0;
 }
-static void status(const WCHAR *fmt, ...) { WCHAR b[600]; va_list a; va_start(a, fmt); _vsnwprintf(b, 599, fmt, a); va_end(a); b[599] = 0; SetWindowTextW(h_status, b); }
+/* the status line at the bottom edge: SK_INFO / SK_ERR click = changelog or a new check, SK_UPD = accent colour, SK_BUSY = not clickable */
+static void status_v(int kind, const WCHAR *fmt, va_list a) { _vsnwprintf(g_stat, 199, fmt, a); g_stat[199] = 0; g_stat_kind = kind; if (g_wnd) InvalidateRect(g_wnd, NULL, FALSE); }
+static void status_k(int kind, const WCHAR *fmt, ...) { va_list a; va_start(a, fmt); status_v(kind, fmt, a); va_end(a); }
+static void status(const WCHAR *fmt, ...) { va_list a; va_start(a, fmt); status_v(SK_ERR, fmt, a); va_end(a); }
 static void installed_name(WCHAR *o, size_t cap)
 {
     if (g_inst.tag[0]) _snwprintf(o, cap - 1, L"%hs", g_inst.tag); else wcsncpy(o, L"unknown build", cap - 1);
@@ -203,30 +208,23 @@ static void installed_name(WCHAR *o, size_t cap)
 }
 static void show_state(void)
 {
-    WCHAR inst[80], *body, *crlf, *o, *i; int st;
+    WCHAR inst[80]; int st;
     installed_name(inst, 80);
-    g_new = pick_newest(g_rel, g_nrel, g_pre);
-    EnableWindow(h_update, FALSE);
-    SetWindowTextW(h_log, L"");
-    if (!g_new) { status(L"No release found on the %s channel. Installed: %s.", g_pre ? L"pre-release" : L"release", inst); return; }
+    g_new = pick_newest(g_rel, g_nrel, g_pre); g_upd = 0;
+    free(g_body); g_body = NULL;
+    if (!g_new) { status(L"No %s found (installed: %s). Click to check again.", g_pre ? L"pre-release" : L"release", inst); return; }
+    g_body = wide(g_new->body ? g_new->body : "");
     st = update_state(&g_inst, g_new->tag);
-    if (st == ST_UPTODATE) status(L"Up to date: %hs%s.", g_new->tag, g_new->pre ? L" (pre-release)" : L"");
-    else if (st == ST_NEWER_INSTALLED) status(L"Installed %s is newer than %hs.", inst, g_new->tag);
-    else { status(L"Update available: %hs%s. Installed: %s.", g_new->tag, g_new->pre ? L" (pre-release)" : L"", inst); EnableWindow(h_update, TRUE); }
-    if (!(body = wide(g_new->body ? g_new->body : ""))) return;
-    if ((crlf = o = (WCHAR *)calloc(wcslen(body) * 2 + 1, sizeof(WCHAR)))) {      /* the edit control wants \r\n */
-        for (i = body; *i; i++) { if (*i == '\n' && (i == body || i[-1] != '\r')) *o++ = '\r'; *o++ = *i; }
-        SetWindowTextW(h_log, crlf);
-    }
-    free(crlf); free(body);
+    if (st == ST_UPTODATE) status_k(SK_INFO, L"Up to date: %hs. Click for the release notes.", g_new->tag);
+    else if (st == ST_NEWER_INSTALLED) status_k(SK_INFO, L"Installed %s is newer than %hs.", inst, g_new->tag);
+    else { g_upd = 1; status_k(SK_UPD, L"Update available: %hs - click to update", g_new->tag); }
 }
 static void start_check(void)
 {
     HANDLE t;
     if (g_busy) return;
-    g_busy = 1; EnableWindow(h_check, FALSE); EnableWindow(h_update, FALSE);
-    status(L"Checking GitHub for updates...");
-    if ((t = CreateThread(NULL, 0, check_thread, NULL, 0, NULL))) CloseHandle(t); else { g_busy = 0; EnableWindow(h_check, TRUE); }
+    g_busy = 1; status_k(SK_BUSY, L"Checking GitHub for updates...");
+    if ((t = CreateThread(NULL, 0, check_thread, NULL, 0, NULL))) CloseHandle(t); else g_busy = 0;
 }
 
 /* ---- download + verify + stage (thread) ---- */
@@ -405,7 +403,18 @@ static void load_picture(void)
     }
 }
 
-/* ---- window ---- */
+/* ---- window: borderless like the original launch.exe, everything drawn over the picture ----
+   The original (VB6 form in launch.exe) puts its menu as transparent labels in a right-aligned column over the sky: Arial Bold 8.25 pt,
+   black, right edge x = 622, rows y = 80 (Play) ... 250 (Exit), 34 px apart (twips / 15 from the form data).  The extras sit as small
+   shadowed text lines on the dark bottom edge; changelog and About open in a translucent overlay. */
+enum { K_COL, K_LINE, K_BTN, K_OV };
+typedef struct { int id, kind; RECT r; WCHAR text[200]; } Item;
+static Item g_it[24]; static int g_nit;
+static int g_dpi = 96, g_hover, g_down, g_focus = ID_PLAY, g_kbd, g_ov, g_ovscroll, g_ovh;
+static HFONT f_col, f_line, f_body, f_title, f_big;
+static int S(int v) { return MulDiv(v, g_dpi, 96); }
+static int have(const WCHAR *name) { WCHAR p[MAX_PATH]; pj(p, g_dir, name); return exists(p); }
+
 static void play(const WCHAR *name)
 {
     WCHAR p[MAX_PATH], cmd[MAX_PATH + 4]; STARTUPINFOW si; PROCESS_INFORMATION pi;
@@ -413,83 +422,209 @@ static void play(const WCHAR *name)
     if (CreateProcessW(p, cmd, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { CloseHandle(pi.hThread); CloseHandle(pi.hProcess); DestroyWindow(g_wnd); }
     else status(L"Cannot start %s (error %lu).", name, GetLastError());
 }
-static HWND ctl(const WCHAR *cls, const WCHAR *text, DWORD style, int x, int y, int w, int h, int id)
-{
-    HWND c = CreateWindowExW(0, cls, text, WS_CHILD | WS_VISIBLE | style, x, PIC_H + y, w, h, g_wnd, (HMENU)(INT_PTR)id, GetModuleHandleW(NULL), NULL);
-    SendMessageW(c, WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), FALSE);
-    return c;
-}
 static void save_settings(void)
 {
     WritePrivateProfileStringW(L"launcher", L"update_at_startup", g_auto ? L"on" : L"off", g_ini);
     WritePrivateProfileStringW(L"launcher", L"channel", g_pre ? L"prerelease" : L"release", g_ini);
 }
+
+/* item at (x, y) of picture coordinates (right-aligned when x < 0: right edge = -x); width from the text */
+static void add(HDC dc, int id, int kind, int x, int y, const WCHAR *text)
+{
+    Item *it = &g_it[g_nit++]; SIZE sz;
+    it->id = id; it->kind = kind; wcsncpy(it->text, text, 199); it->text[199] = 0;
+    SelectObject(dc, kind == K_COL ? f_col : f_line);
+    GetTextExtentPoint32W(dc, text, (int)wcslen(text), &sz);
+    if (kind == K_BTN) sz.cx = S(18), sz.cy = S(16);
+    it->r.left = x < 0 ? S(-x) - sz.cx : S(x); it->r.top = S(y); it->r.right = it->r.left + sz.cx; it->r.bottom = it->r.top + sz.cy;
+}
+static int line_x(void) { return g_nit ? MulDiv(g_it[g_nit - 1].r.right, 96, g_dpi) + 18 : 10; }
+static void build_items(HDC dc)
+{
+    WCHAR b[200]; int y;
+    g_nit = 0;
+    add(dc, ID_MIN, K_BTN, 598, 4, L"");
+    add(dc, ID_CLOSE, K_BTN, 618, 4, L"");
+    if (g_ov) {      /* overlay links, bottom right of the panel */
+        add(dc, ID_OV_CLOSE, K_OV, -584, 384, L"Close");
+        if (g_ov == 1 && g_upd && !g_busy) add(dc, ID_OV_UPDATE, K_OV, -(MulDiv(g_it[g_nit - 1].r.left, 96, g_dpi) - 24), 384, L"Update now");
+        return;
+    }
+    y = 80;      /* the original's menu rows: 34 px apart from y 80 */
+    if (have(L"MFLng.exe")) { add(dc, ID_PLAY, K_COL, -622, y, L"Play"); y += 34; }
+    if (have(L"MFLng.nofix.exe")) { add(dc, ID_NOFIX, K_COL, -622, y, L"Play original behaviour"); y += 34; }
+    add(dc, ID_EXIT, K_COL, -622, y, L"Exit");
+    if (!g_busy) add(dc, ID_STATUS, K_LINE, 10, 424, g_stat);
+    add(dc, ID_AUTO, K_LINE, 10, 440, g_auto ? L"[x] Check for updates at start-up" : L"[  ] Check for updates at start-up");
+    add(dc, ID_CHAN, K_LINE, line_x(), 440, g_pre ? L"Channel: Pre-releases" : L"Channel: Releases");
+    if (!g_busy) add(dc, ID_CHECK, K_LINE, line_x(), 440, L"Check now");
+    WFMT(b, L"%s - github.com/mashed-reverse-engineering/MFL-recomp", CREDIT_SHORT);
+    add(dc, ID_WEB, K_LINE, 10, 456, b);
+    add(dc, ID_ABOUT, K_LINE, line_x(), 456, L"About");
+}
+static int hit(int x, int y)
+{
+    int i; POINT pt; pt.x = x; pt.y = y;
+    for (i = 0; i < g_nit; i++) { RECT r = g_it[i].r; InflateRect(&r, S(3), S(2)); if (PtInRect(&r, pt)) return g_it[i].id; }
+    return 0;
+}
+static void text_at(HDC dc, const RECT *r, const WCHAR *s, COLORREF c, int shadow, UINT fl)
+{
+    RECT t = *r;
+    if (shadow) { OffsetRect(&t, 1, 1); SetTextColor(dc, RGB(0, 0, 0)); DrawTextW(dc, s, -1, &t, fl); t = *r; }
+    SetTextColor(dc, c); DrawTextW(dc, s, -1, &t, fl);
+}
+static void darken(unsigned char *bits, int w, RECT r)
+{
+    int x, y;
+    for (y = r.top; y < r.bottom; y++) for (x = r.left; x < r.right; x++) {
+        unsigned char *p = bits + ((size_t)y * w + x) * 4; p[0] = (unsigned char)(p[0] / 5 + 8); p[1] = (unsigned char)(p[1] / 5 + 8); p[2] = (unsigned char)(p[2] / 5 + 10);
+    }
+}
+static void ov_text(WCHAR *o, size_t cap, WCHAR *title, size_t tcap)
+{
+    if (g_ov == 1) {
+        _snwprintf(title, tcap - 1, L"%hs%s", g_new ? g_new->tag : "", g_new && g_new->pre ? L" (pre-release)" : L"");
+        _snwprintf(o, cap - 1, L"%s", g_body ? g_body : L"(no release notes)");
+    } else {
+        _snwprintf(title, tcap - 1, L"MFLng-launch " WSTR(LAUNCHER_VERSION));
+        _snwprintf(o, cap - 1, L"%s.\n%s\n\nLicences: see the LICENSES folder next to this program.\n\n%s\n\n" WSTR(REPO_URL), CREDIT_SHORT, CREDIT_THANKS, NOTICE);
+    }
+    o[cap - 1] = 0; title[tcap - 1] = 0;
+}
+static void paint(HDC dc)
+{
+    int W = S(PIC_W), H = S(PIC_H), i; HDC m = CreateCompatibleDC(dc); BITMAPINFO bi; void *bits; HBITMAP hb, ob; RECT r;
+    memset(&bi, 0, sizeof bi); bi.bmiHeader.biSize = sizeof bi.bmiHeader; bi.bmiHeader.biWidth = W; bi.bmiHeader.biHeight = -H;
+    bi.bmiHeader.biPlanes = 1; bi.bmiHeader.biBitCount = 32; bi.bmiHeader.biCompression = BI_RGB;
+    hb = CreateDIBSection(dc, &bi, DIB_RGB_COLORS, &bits, NULL, 0); ob = (HBITMAP)SelectObject(m, hb);
+    SetBkMode(m, TRANSPARENT);
+    if (g_bi) { SetStretchBltMode(m, HALFTONE); SetBrushOrgEx(m, 0, 0, NULL); StretchDIBits(m, 0, 0, W, H, 0, 0, g_bi->bmiHeader.biWidth, g_bi->bmiHeader.biHeight, g_bits, g_bi, DIB_RGB_COLORS, SRCCOPY); }
+    else {      /* no launch.exe / Setup.bmp: the same layout on a dark background */
+        HBRUSH br = CreateSolidBrush(RGB(18, 18, 22)); RECT a = {0, 0, 0, 0}; a.right = W; a.bottom = H; FillRect(m, &a, br); DeleteObject(br);
+        a.left = S(24); a.top = S(18); SelectObject(m, f_big); text_at(m, &a, L"MASHED", RGB(225, 225, 225), 0, DT_NOCLIP);
+        a.left = S(30); a.top = S(84); SelectObject(m, f_title); text_at(m, &a, L"FULLY LOADED", RGB(230, 150, 50), 0, DT_NOCLIP);
+    }
+    build_items(m);
+    if (g_ov) {
+        WCHAR body[8192], title[160]; RECT pr, br2;
+        pr.left = S(40); pr.top = S(60); pr.right = S(600); pr.bottom = S(410);
+        GdiFlush(); darken((unsigned char *)bits, W, pr);
+        { HBRUSH fr = CreateSolidBrush(RGB(110, 110, 110)); FrameRect(m, &pr, fr); DeleteObject(fr); }
+        ov_text(body, 8192, title, 160);
+        r = pr; InflateRect(&r, -S(16), -S(12)); SelectObject(m, f_title); text_at(m, &r, title, RGB(240, 240, 240), 0, DT_SINGLELINE | DT_NOPREFIX);
+        br2 = pr; InflateRect(&br2, -S(16), 0); br2.top = pr.top + S(40); br2.bottom = pr.bottom - S(34);
+        SelectObject(m, f_body);
+        r = br2; DrawTextW(m, body, -1, &r, DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX); g_ovh = r.bottom - r.top;
+        if (g_ovscroll > g_ovh - (br2.bottom - br2.top)) g_ovscroll = g_ovh - (br2.bottom - br2.top);
+        if (g_ovscroll < 0) g_ovscroll = 0;
+        SaveDC(m); IntersectClipRect(m, br2.left, br2.top, br2.right, br2.bottom);
+        r = br2; r.top -= g_ovscroll; r.bottom = r.top + g_ovh; text_at(m, &r, body, RGB(215, 215, 215), 0, DT_WORDBREAK | DT_NOPREFIX);
+        RestoreDC(m, -1);
+        if (g_ovh > br2.bottom - br2.top) { r = pr; r.left += S(16); r.top = pr.bottom - S(26); SelectObject(m, f_line);
+            text_at(m, &r, L"Mouse wheel / arrow keys: scroll", RGB(140, 140, 140), 0, DT_SINGLELINE | DT_NOPREFIX); }
+    }
+    for (i = 0; i < g_nit; i++) {
+        Item *it = &g_it[i]; int hov = it->id == g_hover, foc = g_kbd && it->id == g_focus; COLORREF c;
+        if (it->kind == K_BTN) {      /* flat minimize / close glyphs over the checkered corner */
+            HPEN pen = CreatePen(PS_SOLID, S(1) < 1 ? 1 : S(1), hov ? RGB(255, 255, 255) : RGB(200, 200, 200)), op; RECT b = it->r; int cx = (b.left + b.right) / 2, cy = (b.top + b.bottom) / 2, d = S(4);
+            if (hov || foc) { HBRUSH hbr = CreateSolidBrush(it->id == ID_CLOSE ? RGB(160, 28, 28) : RGB(60, 60, 64)); FillRect(m, &b, hbr); DeleteObject(hbr); }
+            op = (HPEN)SelectObject(m, pen);
+            if (it->id == ID_MIN) { MoveToEx(m, cx - d, cy + d / 2, NULL); LineTo(m, cx + d + 1, cy + d / 2); }
+            else { MoveToEx(m, cx - d, cy - d, NULL); LineTo(m, cx + d + 1, cy + d + 1); MoveToEx(m, cx + d, cy - d, NULL); LineTo(m, cx - d - 1, cy + d + 1); }
+            SelectObject(m, op); DeleteObject(pen);
+            continue;
+        }
+        SelectObject(m, it->kind == K_COL ? f_col : f_line);
+        if (it->kind == K_COL) c = !g_bi ? (hov ? RGB(255, 255, 255) : RGB(190, 190, 190)) : hov ? RGB(170, 22, 22) : RGB(0, 0, 0);      /* original: black over the sky */
+        else if (it->id == ID_STATUS && g_stat_kind == SK_UPD) c = hov ? RGB(255, 210, 120) : RGB(255, 170, 60);
+        else if (it->id == ID_WEB || it->id == ID_ABOUT) c = hov ? RGB(235, 235, 235) : RGB(150, 150, 150);
+        else c = hov ? RGB(255, 255, 255) : RGB(205, 205, 205);
+        text_at(m, &it->r, it->text, c, it->kind != K_COL, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+        if (hov || foc) { HPEN pen = CreatePen(PS_SOLID, 1, c), op = (HPEN)SelectObject(m, pen); MoveToEx(m, it->r.left, it->r.bottom, NULL); LineTo(m, it->r.right, it->r.bottom); SelectObject(m, op); DeleteObject(pen); }
+    }
+    if (g_busy) { r.left = S(10); r.top = S(424); r.right = S(630); r.bottom = S(440); SelectObject(m, f_line); text_at(m, &r, g_stat, RGB(205, 205, 205), 1, DT_SINGLELINE | DT_NOPREFIX); }
+    BitBlt(dc, 0, 0, W, H, m, 0, 0, SRCCOPY);
+    SelectObject(m, ob); DeleteObject(hb); DeleteDC(m);
+}
+static void ov_open(int which) { g_ov = which; g_ovscroll = 0; g_focus = which == 1 && g_upd && !g_busy ? ID_OV_UPDATE : ID_OV_CLOSE; InvalidateRect(g_wnd, NULL, FALSE); }
+static void ov_close(void) { g_ov = 0; g_focus = ID_PLAY; InvalidateRect(g_wnd, NULL, FALSE); }
+static void start_update(void)
+{
+    HANDLE t;
+    if (g_busy || !g_new) return;
+    g_busy = 1; ov_close(); status_k(SK_BUSY, L"Downloading and checking %hs...", g_new->tag);
+    if ((t = CreateThread(NULL, 0, stage_thread, NULL, 0, NULL))) CloseHandle(t); else g_busy = 0;
+}
+static void activate(int id)
+{
+    switch (id) {
+    case ID_PLAY: play(L"MFLng.exe"); break;
+    case ID_NOFIX: play(L"MFLng.nofix.exe"); break;
+    case ID_EXIT: case ID_CLOSE: DestroyWindow(g_wnd); break;
+    case ID_MIN: ShowWindow(g_wnd, SW_MINIMIZE); break;
+    case ID_STATUS: if (g_new) ov_open(1); else start_check(); break;
+    case ID_AUTO: g_auto = !g_auto; save_settings(); break;
+    case ID_CHAN: g_pre = !g_pre; save_settings(); if (g_nrel) show_state(); break;
+    case ID_CHECK: start_check(); break;
+    case ID_WEB: ShellExecuteW(g_wnd, L"open", WSTR(REPO_URL), NULL, NULL, SW_SHOWNORMAL); break;
+    case ID_ABOUT: ov_open(2); break;
+    case ID_OV_UPDATE: start_update(); break;
+    case ID_OV_CLOSE: ov_close(); break;
+    }
+    InvalidateRect(g_wnd, NULL, FALSE);
+}
+static void set_hover(int id) { if (id != g_hover) { g_hover = id; InvalidateRect(g_wnd, NULL, FALSE); } }
 static LRESULT CALLBACK wndproc(HWND w, UINT m, WPARAM wp, LPARAM lp)
 {
     switch (m) {
-    case WM_CREATE: {
-        WCHAR p[MAX_PATH];
+    case WM_CREATE:
         g_wnd = w;
-        h_play = ctl(L"BUTTON", L"Play", BS_DEFPUSHBUTTON, 10, 10, 110, 30, ID_PLAY);
-        h_nofix = ctl(L"BUTTON", L"Play (original behaviour)", 0, 125, 10, 170, 30, ID_NOFIX);
-        h_check = ctl(L"BUTTON", L"Check for updates", 0, 300, 10, 130, 30, ID_CHECK);
-        h_update = ctl(L"BUTTON", L"Update", WS_DISABLED, 435, 10, 90, 30, ID_UPDATE);
-        ctl(L"BUTTON", L"Exit", 0, 530, 10, 100, 30, ID_EXIT);
-        h_auto = ctl(L"BUTTON", L"Check for updates at start-up", BS_AUTOCHECKBOX, 10, 50, 220, 20, ID_AUTO);
-        ctl(L"STATIC", L"Update channel:", 0, 240, 53, 90, 18, 0);
-        h_chan = ctl(L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_VSCROLL, 330, 49, 130, 100, ID_CHAN);
-        ctl(L"BUTTON", L"GitHub repository", 0, 490, 48, 140, 24, ID_WEB);
-        h_status = ctl(L"STATIC", L"", SS_LEFTNOWORDWRAP, 10, 80, 620, 18, 0);
-        h_log = ctl(L"EDIT", L"", WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL, 10, 100, 340, 100, 0);
-        ctl(L"STATIC", L"MFLng-launch " WSTR(LAUNCHER_VERSION) L"\n" CREDIT L"\nLicences: see the LICENSES folder.\n" NOTICE, 0, 360, 100, 270, 100, 0);
-        SendMessageW(h_chan, CB_ADDSTRING, 0, (LPARAM)L"Releases"); SendMessageW(h_chan, CB_ADDSTRING, 0, (LPARAM)L"Pre-releases");
-        SendMessageW(h_chan, CB_SETCURSEL, (WPARAM)g_pre, 0);
-        SendMessageW(h_auto, BM_SETCHECK, g_auto ? BST_CHECKED : BST_UNCHECKED, 0);
-        pj(p, g_dir, L"MFLng.exe"); EnableWindow(h_play, exists(p));
-        pj(p, g_dir, L"MFLng.nofix.exe"); EnableWindow(h_nofix, exists(p));
-        { WCHAR inst[80]; installed_name(inst, 80); status(L"Installed: %s.", inst); }
+        f_col = CreateFontW(-S(11), 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
+        f_line = CreateFontW(-S(11), 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
+        f_body = CreateFontW(-S(13), 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
+        f_title = CreateFontW(-S(15), 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
+        f_big = CreateFontW(-S(64), 0, 0, 0, FW_HEAVY, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
+        { WCHAR inst[80]; installed_name(inst, 80); status(L"Installed: %s. Click to check for updates.", inst); }
         if (g_auto || g_testzip[0]) start_check();
-        return 0; }
-    case WM_ERASEBKGND: return 1;
-    case WM_PAINT: {
-        PAINTSTRUCT ps; HDC dc = BeginPaint(w, &ps); RECT r = {0, 0, PIC_W, PIC_H + PANEL_H};
-        FillRect(dc, &r, g_dark);
-        if (g_bi) { SetStretchBltMode(dc, HALFTONE); StretchDIBits(dc, 0, 0, PIC_W, PIC_H, 0, 0, g_bi->bmiHeader.biWidth, g_bi->bmiHeader.biHeight, g_bits, g_bi, DIB_RGB_COLORS, SRCCOPY); }
-        else {      /* no launch.exe / Setup.bmp beside the launcher: plain dark window with the name */
-            HFONT f = CreateFontW(56, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial"), o = (HFONT)SelectObject(dc, f);
-            RECT t = {0, 170, PIC_W, 300};
-            SetBkMode(dc, TRANSPARENT); SetTextColor(dc, RGB(240, 240, 240));
-            DrawTextW(dc, L"Mashed: Fully Loaded\nMFLng", -1, &t, DT_CENTER);
-            SelectObject(dc, o); DeleteObject(f);
-        }
-        EndPaint(w, &ps); return 0; }
-    case WM_CTLCOLORSTATIC: case WM_CTLCOLORBTN:
-        SetTextColor((HDC)wp, RGB(230, 230, 230)); SetBkColor((HDC)wp, RGB(24, 24, 28)); return (LRESULT)g_dark;
-    case WM_COMMAND:
-        switch (LOWORD(wp)) {
-        case ID_PLAY: play(L"MFLng.exe"); break;
-        case ID_NOFIX: play(L"MFLng.nofix.exe"); break;
-        case ID_CHECK: start_check(); break;
-        case ID_EXIT: DestroyWindow(w); break;
-        case ID_WEB: ShellExecuteW(w, L"open", WSTR(REPO_URL), NULL, NULL, SW_SHOWNORMAL); break;
-        case ID_AUTO: g_auto = SendMessageW(h_auto, BM_GETCHECK, 0, 0) == BST_CHECKED; save_settings(); break;
-        case ID_CHAN: if (HIWORD(wp) == CBN_SELCHANGE) { g_pre = (int)SendMessageW(h_chan, CB_GETCURSEL, 0, 0) == 1; save_settings(); if (g_nrel) show_state(); } break;
-        case ID_UPDATE: {
-            HANDLE t;
-            if (g_busy || !g_new) break;
-            g_busy = 1; EnableWindow(h_update, FALSE); EnableWindow(h_check, FALSE);
-            status(L"Downloading and checking %hs...", g_new->tag);
-            if ((t = CreateThread(NULL, 0, stage_thread, NULL, 0, NULL))) CloseHandle(t); else g_busy = 0;
-            break; }
-        }
         return 0;
+    case WM_ERASEBKGND: return 1;
+    case WM_PAINT: { PAINTSTRUCT ps; HDC dc = BeginPaint(w, &ps); paint(dc); EndPaint(w, &ps); return 0; }
+    case WM_NCHITTEST: {
+        POINT pt; pt.x = (short)LOWORD(lp); pt.y = (short)HIWORD(lp); ScreenToClient(w, &pt);
+        return g_ov || hit(pt.x, pt.y) ? HTCLIENT : HTCAPTION; }      /* the picture drags the window */
+    case WM_SETCURSOR:
+        if (LOWORD(lp) == HTCLIENT && g_hover) { SetCursor(LoadCursor(NULL, IDC_HAND)); return TRUE; }
+        break;
+    case WM_MOUSEMOVE: {
+        TRACKMOUSEEVENT t; t.cbSize = sizeof t; t.dwFlags = TME_LEAVE; t.hwndTrack = w; t.dwHoverTime = 0; TrackMouseEvent(&t);
+        set_hover(hit((short)LOWORD(lp), (short)HIWORD(lp))); return 0; }
+    case WM_MOUSELEAVE: case WM_NCMOUSEMOVE: set_hover(0); break;
+    case WM_LBUTTONDOWN: g_down = hit((short)LOWORD(lp), (short)HIWORD(lp)); SetCapture(w); return 0;
+    case WM_LBUTTONUP: {
+        int id = hit((short)LOWORD(lp), (short)HIWORD(lp)); ReleaseCapture();
+        if (id && id == g_down) activate(id); else if (g_ov && !g_down) ov_close();
+        g_down = 0; return 0; }
+    case WM_MOUSEWHEEL: if (g_ov) { g_ovscroll -= GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA * S(40); InvalidateRect(w, NULL, FALSE); } return 0;
+    case WM_KEYDOWN: {
+        int i, n = g_nit, cur = -1;
+        if (wp == VK_ESCAPE) { if (g_ov) ov_close(); else DestroyWindow(w); return 0; }
+        if (wp == VK_RETURN || wp == VK_SPACE) { for (i = 0; i < n && g_it[i].id != g_focus; i++); activate(i < n ? g_focus : ID_PLAY); return 0; }      /* Enter = Play unless a link has the focus */
+        if (g_ov && (wp == VK_UP || wp == VK_DOWN || wp == VK_PRIOR || wp == VK_NEXT)) {
+            g_ovscroll += (wp == VK_UP ? -S(20) : wp == VK_DOWN ? S(20) : wp == VK_PRIOR ? -S(200) : S(200)); InvalidateRect(w, NULL, FALSE); return 0; }
+        if (wp == VK_TAB && n) {      /* Tab / Shift+Tab through the links in drawing order (window buttons last) */
+            int back = GetKeyState(VK_SHIFT) < 0;
+            for (i = 0; i < n; i++) if (g_it[i].id == g_focus) cur = i;
+            cur = cur < 0 ? 0 : (cur + (back ? n - 1 : 1)) % n;
+            g_focus = g_it[cur].id; g_kbd = 1; InvalidateRect(w, NULL, FALSE); return 0; }
+        break; }
     case WM_CHECKED:
-        g_busy = 0; EnableWindow(h_check, TRUE);
-        if ((int)wp >= 0) { g_nrel = (int)wp; show_state(); } else status(L"%s", g_err);
+        g_busy = 0;
+        if ((int)wp >= 0) { g_nrel = (int)wp; show_state(); } else status(L"%s Click to retry.", g_err);
         return 0;
     case WM_STAGED:
-        g_busy = 0; EnableWindow(h_check, TRUE);
-        if (wp) { status(L"Verified. Installing..."); start_apply(); } else { status(L"Update failed: %s Nothing was changed.", g_err); EnableWindow(h_update, TRUE); }
+        g_busy = 0;
+        if (wp) { status_k(SK_BUSY, L"Verified. Installing..."); start_apply(); } else status(L"Update failed: %s Nothing was changed.", g_err);
         return 0;
     case WM_DESTROY: PostQuitMessage(0); return 0;
     }
@@ -508,7 +643,7 @@ static DWORD WINAPI cleanup_thread(LPVOID unused)      /* leftovers of the last 
 
 int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
 {
-    int argc, i; WCHAR **argv = CommandLineToArgvW(GetCommandLineW(), &argc), p[MAX_PATH], v[32], base[MAX_PATH]; WNDCLASSW wc; MSG msg; RECT r; HANDLE t;
+    int argc, i; WCHAR **argv = CommandLineToArgvW(GetCommandLineW(), &argc), p[MAX_PATH], v[32], base[MAX_PATH]; WNDCLASSW wc; MSG msg; HANDLE t;
     char *bi;
     (void)prev; (void)cl;
     GetModuleFileNameW(NULL, g_exe, MAX_PATH);
@@ -533,17 +668,16 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
     GetPrivateProfileStringW(L"launcher", L"channel", L"", v, 32, g_ini);
     g_pre = !_wcsicmp(v, L"prerelease") ? 1 : !_wcsicmp(v, L"release") ? 0 : default_channel_pre(&g_inst);
     load_picture();
-    g_dark = CreateSolidBrush(RGB(24, 24, 28));
+    { HDC sc = GetDC(NULL); g_dpi = GetDeviceCaps(sc, LOGPIXELSX); ReleaseDC(NULL, sc); if (g_dpi < 96) g_dpi = 96; }      /* manifest: system DPI aware */
     memset(&wc, 0, sizeof wc);
-    wc.lpfnWndProc = wndproc; wc.hInstance = hi; wc.hCursor = LoadCursor(NULL, IDC_ARROW); wc.lpszClassName = L"MFLngLauncher"; wc.hbrBackground = g_dark;
+    wc.lpfnWndProc = wndproc; wc.hInstance = hi; wc.hCursor = LoadCursor(NULL, IDC_ARROW); wc.lpszClassName = L"MFLngLauncher";
     wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     RegisterClassW(&wc);
-    r.left = r.top = 0; r.right = PIC_W; r.bottom = PIC_H + PANEL_H;
-    AdjustWindowRect(&r, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
-    CreateWindowW(L"MFLngLauncher", L"Mashed: Fully Loaded - MFLng-launch " WSTR(LAUNCHER_VERSION), WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
-                  CW_USEDEFAULT, CW_USEDEFAULT, r.right - r.left, r.bottom - r.top, NULL, NULL, hi, NULL);
+    /* borderless and centred, the picture is the window (WS_MINIMIZEBOX | WS_SYSMENU: taskbar minimize and close) */
+    CreateWindowExW(0, L"MFLngLauncher", L"Mashed: Fully Loaded - MFLng-launch " WSTR(LAUNCHER_VERSION), WS_POPUP | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE,
+                    (GetSystemMetrics(SM_CXSCREEN) - S(PIC_W)) / 2, (GetSystemMetrics(SM_CYSCREEN) - S(PIC_H)) / 2, S(PIC_W), S(PIC_H), NULL, NULL, hi, NULL);
     (void)show;
-    while (GetMessageW(&msg, NULL, 0, 0) > 0) { if (!IsDialogMessageW(g_wnd, &msg)) { TranslateMessage(&msg); DispatchMessageW(&msg); } }
+    while (GetMessageW(&msg, NULL, 0, 0) > 0) { TranslateMessage(&msg); DispatchMessageW(&msg); }
     LocalFree(argv);
     return 0;
 }

@@ -65,6 +65,12 @@ enum mfl_pref_key {
 int mfl_pref(int key);      /* value of one key (the file is read on the first call) */
 #endif
 
+#ifndef MFL_FIX_CRASHLOG      /* v143 builds only: an abnormal end (unhandled / fatal exception, CRT abort / invalid parameter / pure call, exit or ExitProcess
+                                 with a code other than 0) appends a report to mflng-crash.txt beside the game's files (recomp/mfl_crashlog.c, installed
+                                 from .CRT$XIB; build_overlay.py leaves the file out of every build without this switch) */
+#define MFL_FIX_CRASHLOG 0
+#endif
+
 /* The files of the sound functions with random-draw sites (agents/rep_w12/audio_rng_sites.txt) define MFL_AUDIO_RNG_SITES before including this
    header as their first lines; with the switch on, their wrapper calls (both spellings of the names) go to the audio-stream copies. */
 #if MFL_FIX_DETERMINISTIC_AUDIO_RNG

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """pe_check.py: structural check of a built exe (or --dll: mflrw.dll) before anything reaches Wine.
 usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] [--static-crt] | --dll <mflrw.dll>
-       | --launcher <MFLng-launch.exe> [--manifest <file>] | --selftest
+       | --launcher <MFLng-launch.exe> [--manifest <file>] | --video <dll> | --selftest
 --static-crt (W16 MT, LIB_CRT=v143mt exes): ucrtbase / vcruntime140 / api-ms-win-crt-* leave the allow-list.
 --launcher (W16 LAUNCH): its own list of Windows system DLLs (kernel32 user32 gdi32 shell32 advapi32 winhttp), static CRT (no CRT DLL),
      no mflrw.dll; resources and --manifest as for the game exes.  The game exes' list is unchanged.
 exe: PE32 i386; imports only from the allow-list; every mflrw.dll import is exported by --rwdll; resources only RT_MANIFEST (24);
      --manifest: exactly one RT_MANIFEST, byte-equal to the file (embed it with rc `1 24 "MFLng.manifest"` + /manifest:no:
      link /manifest:embed /manifestinput rewrites the XML and fails this compare).
-dll: PE32 i386; imports only kernel32/user32/gdi32/d3d9/msvcrt (mingw build, static libgcc/libstdc++)."""
+dll: PE32 i386; imports only kernel32/user32/gdi32/d3d9/msvcrt (mingw build, static libgcc/libstdc++).
+--video (W16 VIDCI): mfl_video_ffmpeg.dll or one of the shared LGPL FFmpeg DLLs beside it: PE32 i386, no resources, imports only
+     the system DLLs of VIDEO_OK plus each other (avformat/avcodec/avutil/swscale-NN.dll); no libgcc/libwinpthread, no GPL postproc."""
 import fnmatch, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rw_stub_guard import parse_pe, make_pe
@@ -19,17 +21,20 @@ EXE_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "advapi32.dll", "ole32.dll"
           "winmm.dll", "mflrw.dll"] + CRT_DLLS
 DLL_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "d3d9.dll", "msvcrt.dll"]
 LAUNCHER_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "shell32.dll", "advapi32.dll", "winhttp.dll"]      # system DLLs only, static CRT
+VIDEO_OK = ["kernel32.dll", "user32.dll", "msvcrt.dll", "bcrypt.dll", "ole32.dll", "avformat-*.dll", "avcodec-*.dll", "avutil-*.dll", "swscale-*.dll"]
 
 
-def check(data, dll=False, rwdata=None, manifest=None, static_crt=False, launcher=False):
+def check(data, dll=False, rwdata=None, manifest=None, static_crt=False, launcher=False, video=False):
     p, bad = parse_pe(data), []
     if p["machine"] != 0x14C or p["magic"] != 0x10B:
         return ["not PE32 i386 (machine 0x%x magic 0x%x)" % (p["machine"], p["magic"])]
-    ok = DLL_OK if dll else LAUNCHER_OK if launcher else [a for a in EXE_OK if not (static_crt and a in CRT_DLLS)]      # W16 MT --static-crt: no redistributable DLL
+    if video and p["res_types"]:
+        bad.append("resources in a video DLL: %s" % p["res_types"])
+    ok = VIDEO_OK if video else DLL_OK if dll else LAUNCHER_OK if launcher else [a for a in EXE_OK if not (static_crt and a in CRT_DLLS)]      # W16 MT --static-crt: no redistributable DLL
     for d in p["imports"]:
         if not any(fnmatch.fnmatch(d, a) for a in ok):
             bad.append("import from %s not in allow-list" % d)
-    if not dll:
+    if not (dll or video):
         if rwdata is not None and "mflrw.dll" in p["imports"]:
             have = set(parse_pe(rwdata)["exports"])
             miss = [n for n in p["imports"]["mflrw.dll"] if n not in have]
@@ -64,6 +69,12 @@ def selftest():
     assert check(make_pe(dict(la, **{"mflrw.dll": ["RwA"]}), res={24: m}), launcher=True), "--launcher: mflrw.dll not caught"
     assert check(make_pe(la, res={24: m, 3: b"i"}), launcher=True), "--launcher: extra resource not caught"
     assert check(make_pe({"winhttp.dll": ["E"]}), launcher=False), "game exe list must not take winhttp.dll"
+    v = {"kernel32.dll": ["A"], "msvcrt.dll": ["B"], "bcrypt.dll": ["C"], "avcodec-61.dll": ["D"], "avutil-59.dll": ["E"]}
+    assert check(make_pe(v), video=True) == []
+    assert check(make_pe(dict(v, **{"libwinpthread-1.dll": ["x"]})), video=True), "--video: libwinpthread not caught"
+    assert check(make_pe(dict(v, **{"postproc-58.dll": ["x"]})), video=True), "--video: GPL postproc not caught"
+    assert check(make_pe(v, res=[16]), video=True), "--video: resource not caught"
+    assert check(make_pe({"avcodec-61.dll": ["D"]})), "game exe list must not take FFmpeg DLLs"
     print("pe_check selftest OK")
 
 
@@ -71,7 +82,8 @@ def main(a):
     if a[:1] == ["--selftest"]:
         return selftest()
     dll = a[:1] == ["--dll"]
-    if dll:
+    video = a[:1] == ["--video"]
+    if dll or video:
         a = a[1:]
     st = "--static-crt" in a
     la = "--launcher" in a
@@ -82,7 +94,7 @@ def main(a):
             i = a.index(k); opt[k] = open(a[i + 1], "rb").read(); a = a[:i] + a[i + 2:]
     if len(a) != 1:
         sys.exit(__doc__)
-    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st, la)
+    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st, la, video)
     for b in bad:
         print("FAIL: " + b)
     if bad:

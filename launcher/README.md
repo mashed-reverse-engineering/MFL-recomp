@@ -2,13 +2,27 @@
 
 `MFLng-launch.exe`: a small Windows launcher for MFLng. It goes in the game folder next to `MFLng.exe`.
 
-- **Look**: it shows the picture of the game's own launcher. The picture is read at run time from your installed `launch.exe` (the 640x480 bitmap in its form data). If that file is missing it uses `TOASTART\PC\Setup.bmp`. If neither is there, it shows a plain dark window with the name. The picture is never copied into this repository or into a release.
-- **Play**: *Play* starts `MFLng.exe` (the fixes build). *Play (original behaviour)* starts `MFLng.nofix.exe`; that button is greyed out when the file is missing. Both start in the launcher's folder with no arguments. The launcher has no game options.
+- **Look**: it copies the original launcher.
+  - A borderless window, centred on the screen. Drag it by its picture.
+  - The picture is read at run time from your installed `launch.exe`: the 640x480 bitmap in its VB6 form data. If that file is missing it uses `TOASTART\PC\Setup.bmp`. The picture is never copied into this repository or into a release.
+  - The menu sits where the original's does, measured from launch.exe's form data (twips / 15): transparent labels in Arial Bold 8.25 pt, black over the sky, right-aligned at x 622, rows 34 px apart from y 80. On hover the text turns dark red and is underlined.
+  - Two small flat buttons in the top-right corner minimise and close the window.
+  - Without the picture, the same layout is drawn on a dark background.
+  - The window is scaled for the system DPI (the manifest makes it DPI aware).
+- **Play**: *Play* starts `MFLng.exe`, the fixes build. *Play original behaviour* starts `MFLng.nofix.exe` and is shown only when that file exists. Both start in the launcher's folder with no arguments. The launcher has no game options.
+- **Bottom edge**: small shadowed text lines.
+  - The update status. *Update available: <tag> - click to update* opens the release notes in a translucent overlay, which has an *Update now* link.
+  - The two settings as click-to-switch text: *[x] Check for updates at start-up* and *Channel: Releases / Pre-releases*. Next to them, *Check now*.
+  - The credit line with the repository link, and *About*, which opens the overlay with the credits, licence note and notice.
+- **Keyboard**:
+  - Enter = Play, or the link that has the focus.
+  - Tab / Shift+Tab move through the links.
+  - Esc closes the overlay, or the launcher when no overlay is open.
+  - Arrow keys, PgUp / PgDn and the mouse wheel scroll the overlay.
 - **Updates**: the launcher reads the GitHub releases of `mashed-reverse-engineering/MFL-recomp` (public API, no token, WinHTTP).
   - The check runs in a background thread, so start-up never waits for it.
   - Connect, send and receive time out after 3 s each (5 s for the API answer).
-  - Offline, the rate limit and other HTTP errors each show one status line.
-- **About**: credits, the link to the repository, the licence note and the notice that you need your own copy of the game.
+  - Offline, the rate limit and other HTTP errors each show one status line; click it to retry.
 
 ## Settings (`mflng-launch.ini`, plain text)
 

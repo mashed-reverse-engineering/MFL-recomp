@@ -91,6 +91,14 @@ Status words:
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PREFS=1`, or use `MFLng.exe`.
 - **Test harness:** `SCEN_PREFS=<file>` (scenario.sh, standalone runs) puts the file beside our exe; the control never has one.
 
+### MFL_FIX_CRASHLOG
+- **Status:** staged, default off; on in `MFLng.exe`. Built only by MSVC v143 (the CI exe); `tools/build_overlay.py` leaves the file out of every other build.
+- **What it changes:** nothing in the game. When the game ends abnormally (an unhandled exception, stack overflow, heap corruption, a CRT invalid-parameter stop, a pure virtual call, `abort()`, or `exit` / `ExitProcess` with a code other than 0), one report is appended to `mflng-crash.txt` in the folder where the game keeps `gamesave.bin` and `mashed.log` (the current folder; else the exe's folder, else `%TEMP%`). A normal quit writes nothing. The process then ends exactly as it would have without the switch, so Windows Error Reporting still sees the crash. The file is kept below 64 KB (one older copy: `mflng-crash.old.txt`).
+- **Report:** time (UTC), the exe's time stamp (matches its `.map`), reason, exception code and address as module+offset (look the address up in `MFLng.map`), registers, stack words, return addresses, race / menu state, command line, Windows version.
+- **Not caught:** `__fastfail` itself (Windows hands it straight to error reporting; see the Event Viewer).
+- **Lives in:** `src/mfl_crashlog.c`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_CRASHLOG=1` with `CC=v143`, or use `MFLng.exe`.
+
 ## Planned
 
 | Switch | What it would change | Notes |

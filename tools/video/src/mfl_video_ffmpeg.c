@@ -1,16 +1,32 @@
 /* mfl_video_ffmpeg.c - FFmpeg backend of recomp/mfl_video.h (public/docs/VIDEO_INTERFACE.md).
  * Built with i686 mingw into mfl_video_ffmpeg.dll (static minimal LGPL FFmpeg inside); the exe's dispatcher (recomp/video/mfl_video_null.c)
  * loads it with LoadLibrary and takes the plain cdecl exports below as its backend, so no mingw runtime enters the MSVC link.
- * Video only: the mp2 track is ignored (movie sound stays silent until the audio backend), set_volume is a no-op.
- * Single threaded: FFmpeg is built without thread support; call it from the game thread only.
+ * Sound (MENU W16): the mp2 track (frontend.mpg = the main-menu music, the intro movies' sound) is decoded on the game thread together with
+ * the video packets into a ring buffer and played by an own miniaudio device (miniaudio converts the movie rate to the device rate); the
+ * original played it through DirectShow.  set_volume maps like the original sound_volume_to_directsound_db (1/100 dB, see movie_gain).
+ * Env MFL_VIDEO_AUDIO_DUMP=<file>: every frame handed to the device, appended raw s16 stereo at the movie rate (test evidence, as MFL_AUDIO_DUMP).
+ * -DMFL_AUDIO_MA_NULL: miniaudio null device (Wine runs, no sound card).  FFmpeg calls stay on the game thread (built without threads);
+ * the device thread only reads the ring.
  * Also builds natively (test/harness.c) for the offline determinism check. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <math.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 #include <libavutil/time.h>
+#define MINIAUDIO_IMPLEMENTATION
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+#define MA_NO_GENERATION
+#define MA_NO_RESOURCE_MANAGER
+#define MA_NO_NODE_GRAPH
+#define MA_NO_ENGINE
+#include "miniaudio.h"
 #include "mfl_video.h"
+
+#define RING_FRAMES (1 << 17)      /* stereo frames, 2.7 s at 48 kHz: the demuxer reads audio at most a few video frames ahead */
 
 #ifdef _WIN32
 #define EXPORT __declspec(dllexport)
@@ -36,7 +52,98 @@ struct mfl_video {
     int64_t next_us, show_us;      /* presentation times relative to the first frame, us */
     int64_t frame_dur_us;
     int64_t ndecoded;
+    /* sound: game thread writes ring/wr, device thread reads ring/rd (single producer, single consumer) */
+    AVCodecContext *adec;
+    AVFrame *af;
+    int astream;                   /* -1 = no sound */
+    int dev_live;
+    ma_device dev;
+    FILE *dump;
+    volatile float gain;
+    volatile uint32_t rd, wr;      /* frame counters, ring index = counter % RING_FRAMES */
+    int16_t ring[RING_FRAMES * 2];
 };
+
+/* device thread: copy what the game thread decoded, silence on underrun */
+static void audio_cb(ma_device *d, void *out, const void *in, ma_uint32 n)
+{
+    mfl_video *v = d->pUserData;
+    int16_t *o = out;
+    uint32_t rd = v->rd, have = __atomic_load_n(&v->wr, __ATOMIC_ACQUIRE) - rd, i;
+    float g = v->gain;
+    (void)in;
+    for (i = 0; i < n; i++, o += 2) {
+        if (i < have) {
+            const int16_t *s = &v->ring[((rd + i) % RING_FRAMES) * 2];
+            o[0] = (int16_t)(s[0] * g); o[1] = (int16_t)(s[1] * g);
+        } else o[0] = o[1] = 0;
+    }
+    __atomic_store_n(&v->rd, rd + (have < n ? have : n), __ATOMIC_RELEASE);
+    if (v->dump) { fwrite(out, 4, n, v->dump); fflush(v->dump); }   /* flush: the harness kills the process */
+}
+
+/* game thread: decode one audio packet into the ring (frames that do not fit are dropped) */
+static void audio_feed(mfl_video *v, const AVPacket *pkt)
+{
+    if (avcodec_send_packet(v->adec, pkt) < 0) return;
+    while (avcodec_receive_frame(v->adec, v->af) == 0) {
+        int n = v->af->nb_samples, ch = v->af->ch_layout.nb_channels, planar = av_sample_fmt_is_planar(v->af->format), i;
+        uint32_t wr = v->wr, room = RING_FRAMES - (wr - __atomic_load_n(&v->rd, __ATOMIC_ACQUIRE));
+        const int16_t *l = (const int16_t *)v->af->extended_data[0], *r = planar && ch > 1 ? (const int16_t *)v->af->extended_data[1] : l;
+        if (v->af->format != AV_SAMPLE_FMT_S16 && v->af->format != AV_SAMPLE_FMT_S16P) { av_frame_unref(v->af); continue; }
+        if ((uint32_t)n > room) n = (int)room;
+        for (i = 0; i < n; i++) {
+            int16_t *d = &v->ring[((wr + i) % RING_FRAMES) * 2];
+            if (planar) { d[0] = l[i]; d[1] = r[i]; }
+            else { d[0] = l[i * ch]; d[1] = l[i * ch + (ch > 1)]; }
+        }
+        __atomic_store_n(&v->wr, wr + n, __ATOMIC_RELEASE);
+        av_frame_unref(v->af);
+    }
+}
+
+/* opens the mp2 decoder of the movie's audio track; any failure = a silent movie (as before) */
+static void audio_open(mfl_video *v)
+{
+    const AVCodec *codec = NULL;
+    v->astream = av_find_best_stream(v->fmt, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+    if (v->astream < 0 || !codec) { v->astream = -1; return; }
+    v->adec = avcodec_alloc_context3(codec);
+    v->af = av_frame_alloc();
+    if (!v->adec || !v->af || avcodec_parameters_to_context(v->adec, v->fmt->streams[v->astream]->codecpar) < 0 ||
+        avcodec_open2(v->adec, codec, NULL) < 0 || v->adec->sample_rate <= 0) v->astream = -1;
+}
+
+static void audio_start(mfl_video *v)
+{
+#ifdef MFL_AUDIO_MA_NULL
+    ma_backend only[1] = { ma_backend_null };
+    ma_context_config cc = ma_context_config_init();
+    static ma_context ctx; static int ctx_ok;
+    if (!ctx_ok) ctx_ok = ma_context_init(only, 1, &cc, &ctx) == MA_SUCCESS;
+    ma_context *pctx = ctx_ok ? &ctx : NULL;
+#else
+    ma_context *pctx = NULL;
+#endif
+    ma_device_config cfg;
+    const char *p;
+    if (v->astream < 0 || v->dev_live) return;
+    cfg = ma_device_config_init(ma_device_type_playback);
+    cfg.playback.format = ma_format_s16;
+    cfg.playback.channels = 2;
+    cfg.sampleRate = (ma_uint32)v->adec->sample_rate;
+    cfg.dataCallback = audio_cb;
+    cfg.pUserData = v;
+    p = getenv("MFL_VIDEO_AUDIO_DUMP");
+    v->dump = p && *p ? fopen(p, "ab") : NULL;
+    if (ma_device_init(pctx, &cfg, &v->dev) != MA_SUCCESS) goto fail;
+    v->dev_live = 1;
+    if (ma_device_start(&v->dev) == MA_SUCCESS) return;
+    ma_device_uninit(&v->dev);
+    v->dev_live = 0;
+fail:
+    if (v->dump) { fclose(v->dump); v->dump = NULL; }
+}
 
 /* Decodes the next video frame into v->next. 1 = frame, 0 = end of stream (sets ended). */
 static int decode(mfl_video *v)
@@ -63,6 +170,7 @@ static int decode(mfl_video *v)
         r = av_read_frame(v->fmt, v->pkt);
         if (r < 0) { v->eof = 1; avcodec_send_packet(v->dec, NULL); continue; }   /* drain the decoder */
         if (v->pkt->stream_index == v->stream) avcodec_send_packet(v->dec, v->pkt);
+        else if (v->pkt->stream_index == v->astream) audio_feed(v, v->pkt);
         av_packet_unref(v->pkt);
     }
 }
@@ -84,6 +192,10 @@ EXPORT int mfl_video_ffmpeg_next(mfl_video *v)
 EXPORT void mfl_video_close(mfl_video *v)
 {
     if (!v) return;
+    if (v->dev_live) ma_device_uninit(&v->dev);   /* stops and waits for the device thread: no audio_cb after this */
+    if (v->dump) fclose(v->dump);
+    av_frame_free(&v->af);
+    avcodec_free_context(&v->adec);
     sws_freeContext(v->sws);
     av_free(v->bgra);
     av_frame_free(&v->next);
@@ -103,6 +215,8 @@ EXPORT mfl_video *mfl_video_open(const char *path, int loop)
     if (!v) return NULL;
     v->t0 = -1;
     v->pts0 = AV_NOPTS_VALUE;
+    v->astream = -1;               /* set before the first decode(): open reads packets */
+    v->gain = 1.0f;
     av_log_set_level(AV_LOG_QUIET);
     if (avformat_open_input(&v->fmt, path, NULL, NULL) < 0) { free(v); return NULL; }
     if (avformat_find_stream_info(v->fmt, NULL) < 0) goto fail;
@@ -123,6 +237,7 @@ EXPORT mfl_video *mfl_video_open(const char *path, int loop)
     v->show = av_frame_alloc();
     v->bgra = av_malloc((size_t)v->w * v->h * 4);
     if (!v->pkt || !v->next || !v->show || !v->bgra || v->w <= 0 || v->h <= 0) goto fail;
+    audio_open(v);
     v->sws = sws_getContext(v->w, v->h, v->dec->pix_fmt, v->w, v->h, AV_PIX_FMT_BGRA,
                             SWS_BILINEAR | SWS_BITEXACT | SWS_ACCURATE_RND, NULL, NULL, NULL);
     if (!v->sws || !decode(v)) goto fail;   /* a stream without a frame fails open */
@@ -135,6 +250,7 @@ fail:
 EXPORT int mfl_video_start(mfl_video *v)
 {
     if (v->t0 < 0) v->t0 = av_gettime_relative();
+    audio_start(v);
     return 1;
 }
 
@@ -168,4 +284,12 @@ EXPORT int mfl_video_acquire_frame(mfl_video *v, mfl_video_frame *out)
 
 EXPORT int mfl_video_finished(const mfl_video *v) { return v->finished; }
 EXPORT void mfl_video_get_size(const mfl_video *v, int *w, int *h) { *w = v->w; *h = v->h; }
-EXPORT void mfl_video_set_volume(mfl_video *v, float linear) { (void)v; (void)linear; }
+/* the original's mapping (sound_volume_to_directsound_db 0x4a3930): IBasicAudio volume in 1/100 dB = -2000 + 2000 * x from x = 0.1 up,
+   -10000 + 10000 * x below; amplitude = 10^(dB/20) */
+static float movie_gain(float x)
+{
+    float cdb = x >= 0.1f ? -2000.0f + 2000.0f * x : -10000.0f + 10000.0f * x;
+    return x <= 0.0f ? 0.0f : cdb >= 0.0f ? 1.0f : powf(10.0f, cdb / 2000.0f);
+}
+
+EXPORT void mfl_video_set_volume(mfl_video *v, float linear) { v->gain = movie_gain(linear); }
