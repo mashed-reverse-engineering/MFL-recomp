@@ -16,8 +16,10 @@ MA=${MA_DIR:-$HERE/../audio/work}
 [ -f "$MA/miniaudio.h" ] || { echo "no $MA/miniaudio.h: run tools/audio/build_dll.sh first"; exit 1; }
 mkdir -p "$O"
 LIBS="-lavformat -lavcodec -lswscale -lavutil"
-i686-w64-mingw32-gcc -O2 -Wall -shared $VCFLAGS -o "$O/mfl_video_ffmpeg.dll" "$HERE/src/mfl_video_ffmpeg.c" -I"$INC" -I"$MA" -I"$W/include" -L"$W/lib" \
-  $LIBS -lm -luser32 -lbcrypt -lole32 -static-libgcc -Wl,--no-insert-timestamp -Wl,--out-implib,"$O/libmfl_video_ffmpeg.dll.a"
+# FFCC as in build_ffmpeg.sh (local posix-thread test only). -l:libwinpthread.a: MSYS2's posix-model gcc would import libwinpthread-1.dll
+# for clock_gettime / nanosleep style calls (CI run 44774403393, avutil); the static archive keeps every DLL on system imports.
+${FFCC:-i686-w64-mingw32-gcc} -O2 -Wall -shared $VCFLAGS -o "$O/mfl_video_ffmpeg.dll" "$HERE/src/mfl_video_ffmpeg.c" -I"$INC" -I"$MA" -I"$W/include" -L"$W/lib" \
+  $LIBS -lm -luser32 -lbcrypt -lole32 -static-libgcc -l:libwinpthread.a -Wl,--no-insert-timestamp -Wl,--out-implib,"$O/libmfl_video_ffmpeg.dll.a"
 i686-w64-mingw32-strip "$O/mfl_video_ffmpeg.dll"
 cp "$W"/bin/*.dll "$O/"
 i686-w64-mingw32-gcc -O2 -Wall -o "$O/harness.exe" "$HERE/src/harness.c" -I"$INC" -static-libgcc

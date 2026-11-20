@@ -26,6 +26,7 @@ Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6
 Drop-in build: `tools/build_mflng.sh <your MFL.exe> <out dir>` makes `MFLng.nofix.exe` (original behaviour, the build the regression gate checks) and `MFLng.exe` (every `MFL_FIX_*` switch on; **not gated**).
 Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` (or `MFLng.nofix.exe`) and `mflrw.dll` beside it. The build reads its resources from `MFL_original.exe` and shows a message box naming the expected place when no original is found.
 Movies and menu music: the release zip also ships `mfl_video_ffmpeg.dll` and the FFmpeg DLLs it uses (`avformat-*`, `avcodec-*`, `avutil-*`, `swscale-*.dll`: FFmpeg 7.1, LGPL 2.1, unmodified shared libraries, built by `tools/video/build_ffmpeg.sh`; notice and source in `LICENSES/ffmpeg.txt` / `tools/video/SOURCES`). Copy them beside the exe too; without them there are no intro movies, no menu backdrop movie and no menu music.
+Third-party notices of the release are in its `LICENSES/` folder (from `third_party/LICENSES/`), among them `winpthreads.txt`: mingw-w64 winpthreads is linked statically into `mflrw.dll` and `avutil-59.dll` by the CI toolchain.
 Prerequisites, in order: [docs/BUILDING.md](docs/BUILDING.md#drop-in-executable-toolsbuild_mflngsh).
 
 Launcher (optional): `MFLng-launch.exe` from the release zip goes into the same folder.

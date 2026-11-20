@@ -19,6 +19,9 @@ Build       tools/video/build_ffmpeg.sh win32 in this project's public repositor
   --enable-decoder=mpeg1video,mp2 --enable-swscale
   --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-
   --enable-shared --disable-static --windres=none --extra-ldflags=-static-libgcc --extra-ldflags=-Wl,--no-insert-timestamp
+  --extra-libs=-l:libwinpthread.a
+            avutil-59.dll also contains the time functions of mingw-w64 winpthreads (static archive of the MSYS2 toolchain;
+            licence: MIT-style, copyright the mingw-w64 project; https://www.mingw-w64.org).
 Licence     LGPL version 2.1 or later (configure output). No GPL, version3 or nonfree part and no external library is enabled.
             The corresponding source is the tarball above; the build scripts are in tools/video/ of the public repository.
 

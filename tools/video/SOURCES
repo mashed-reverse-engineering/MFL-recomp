@@ -21,6 +21,8 @@ configure flags (build_ffmpeg.sh)
   --enable-decoder=mpeg1video,mp2 --enable-swscale
   win32 target (shipped) adds: --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-
        --enable-shared --disable-static --windres=none --extra-ldflags=-static-libgcc --extra-ldflags=-Wl,--no-insert-timestamp
+       --extra-libs=-l:libwinpthread.a   (mingw-w64 winpthreads, MIT/BSD-style licence, linked statically for clock_gettime/nanosleep under
+                                          MSYS2's posix-thread gcc; no FFmpeg threading is enabled)
   native target adds: --enable-pic --enable-static --disable-shared (offline test harness only, not shipped)
   NOT given: --enable-gpl, --enable-version3, --enable-nonfree, any external library (--enable-libx264 etc.); postproc (GPL) disabled.
   configure prints "License: LGPL version 2.1 or later"; build_ffmpeg.sh refuses to continue if it does not.

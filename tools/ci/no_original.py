@@ -22,6 +22,9 @@ TP_TEXT = [r"\b(thunk_FUN|FUN|DAT|LAB|PTR)_00[0-9a-fA-F]{6}\b"]      # third_par
 # W16 VIDCI: + the movie backend and the shared LGPL FFmpeg DLLs it imports
 RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll","mfl_audio_miniaudio.dll",
               "mfl_video_ffmpeg.dll", "avformat-*.dll", "avcodec-*.dll", "avutil-*.dll", "swscale-*.dll", "INSTALL.txt", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt", "*.map"]
+# W16 VIDCI vd3: a shipped file needs the licence notices of the third-party code inside it (static winpthreads: CI's -static / -l:libwinpthread.a)
+NEEDS_LICENSE = [("mflrw.dll", ["winpthreads.txt"]), ("avutil-*.dll", ["ffmpeg.txt", "winpthreads.txt"]), ("av*-*.dll", ["ffmpeg.txt"]),
+                 ("swscale-*.dll", ["ffmpeg.txt"]), ("mfl_video_ffmpeg.dll", ["ffmpeg.txt", "winpthreads.txt"])]
 ROW = re.compile(r"^(code:\S+|data:\S+|rsrc) (\d+)$")
 
 
@@ -67,6 +70,9 @@ def release(d, manifest):
                 want = ([24], [manifest]) if rel.endswith(".exe") else ([], [])
                 if (p["res_types"], p["manifests"]) != want:
                     bad.append((rel, "resources %s / manifest sizes %s, want %s" % (p["res_types"], [len(m) for m in p["manifests"]], "the committed manifest only" if want[0] else "none")))
+            for pat, lic in NEEDS_LICENSE:
+                if fnmatch.fnmatch(rel, pat):
+                    bad += [(rel, "needs LICENSES/" + l) for l in lic if not os.path.exists(os.path.join(d, "LICENSES", l))]
     return bad
 
 
@@ -103,6 +109,8 @@ def selftest():
         m = b"<assembly/>"; r = os.path.join(d, "rel")
         put("rel/MFLng.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m})); put("rel/mflrw.dll", make_pe({"kernel32.dll": ["A"]})); put("rel/LICENSES/zlib.txt", b"z")
         put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
+        assert sorted(w for _, w in release(r, m)) == ["needs LICENSES/ffmpeg.txt", "needs LICENSES/winpthreads.txt"], "missing licence not caught"
+        put("rel/LICENSES/ffmpeg.txt", b"f"); put("rel/LICENSES/winpthreads.txt", b"w")
         assert release(r, m) == [], release(r, m)
         put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}, res=[16])); assert [f for f, _ in release(r, m)] == ["avcodec-61.dll"], "DLL resource not caught"
         put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
