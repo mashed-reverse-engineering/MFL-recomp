@@ -75,7 +75,9 @@ jobs:
         shell: cmd
         run: |
           mkdir build
-          echo 1 24 "%GITHUB_WORKSPACE:\=/%/data/link/MFLng.manifest" > build\mflng.rc
+          rem the Windows checkout converts LF to CRLF (1073 B, run 44683535178); take the committed bytes from git
+          git show HEAD:data/link/MFLng.manifest > build\mflng.manifest
+          echo 1 24 "%GITHUB_WORKSPACE:\=/%/build/mflng.manifest" > build\mflng.rc
           rc /nologo /fo build\mflng.res build\mflng.rc
       - uses: msys2/setup-msys2@v2
         with:
