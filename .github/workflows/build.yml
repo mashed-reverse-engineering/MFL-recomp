@@ -1,17 +1,24 @@
-# Exported by export_public.py stage 1 (W16 CI); release.yml calls it (workflow_call) and downloads artifact `mflng-out` of job `link`.
+# Exported by export_public.py stage 1 (W16 CI); release.yml calls it (workflow_call) and downloads artifact `mflng-out` of job `collect`.
 # msvc-x86-compile: modern-compiler check of the published sources (Visual Studio 2022 MSVC v143, x86, /arch:IA32, compile only); locally
 # under msvc-wine: python3 tools/run.py docker msvcw-compile <out dir>.
-# link (W16 CIN): MFLng.exe (every MFL_FIX_* off) and MFLng_fixes.exe (every `#define MFL_FIX_X 0` switch on) from this tree only:
-# tools/delink/link_ci.sh CC=v143 in its self-contained form (committed tables in data/link), mflrw.dll from librw-mfl at
-# data/link/mflrw_pin.txt, mfl_audio_miniaudio.dll (tools/ci/build_audio_dll.sh).  The local twin of this job is the same link_ci.sh with
-# MSVCW_NATIVE unset (cl / link / lib in the msvc-wine image, tools/msvcw/msvcw_sh.sh).
-# No original game data, no MFL.exe, no copied bytes are used or needed by either job.
+# link (W16 CIN, matrix of two parallel jobs): MFLng.exe (variant off: every MFL_FIX_* off) and MFLng_fixes.exe (variant fixes: every
+# `#define MFL_FIX_X 0` switch on) from this tree only: tools/delink/link_ci.sh CC=v143 in its self-contained form (committed tables in
+# data/link), mflrw.dll from librw-mfl at data/link/mflrw_pin.txt, mfl_audio_miniaudio.dll (tools/ci/build_audio_dll.sh).  A push or pull
+# request builds only `off`; workflow_dispatch and workflow_call (release.yml, i.e. the release stamp) build both.  collect: ci_checks.sh
+# over the outputs of both jobs, artifact `mflng-out`.  The local twin of the link is the same link_ci.sh with MSVCW_NATIVE unset (cl /
+# link / lib in the msvc-wine image, tools/msvcw/msvcw_sh.sh).
+# No original game data, no MFL.exe, no copied bytes are used or needed by any job.
 name: build
 on:
   push:
   pull_request:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      both:
+        description: build MFLng_fixes.exe as well (release.yml needs both)
+        type: boolean
+        default: true
 permissions:
   contents: read
 jobs:
@@ -41,6 +48,10 @@ jobs:
   link:
     runs-on: windows-2022
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON((inputs.both || github.event_name == 'workflow_dispatch') && '["off","fixes"]' || '["off"]') }}
     defaults:
       run:
         shell: msys2 {0}
@@ -80,6 +91,7 @@ jobs:
           cl.exe 2>&1 | head -1 | tee build/cl_version.txt
           grep -q 'Version 19\.44\.' build/cl_version.txt
           i686-w64-mingw32-gcc --version | head -1 | tee build/gcc_version.txt
+          i686-w64-mingw32-gcc -v 2>&1 | grep 'Thread model'      # posix here (libwinpthread), win32 in the local Debian mingw
           python3 --version
       - name: cross tool names (the scripts call i686-w64-mingw32-<tool>, MINGW32 ships most binutils unprefixed; run 44619496443 died on -strip)
         run: |
@@ -93,90 +105,75 @@ jobs:
           for t in objcopy objdump nm; do [ "$(command -v $t)" = "$B/$t" ] || { echo "$t resolves to $(command -v $t), not $B/$t"; exit 1; }; done
           [ "$(command -v python3)" = /usr/bin/python3 ] || { echo "python3 is $(command -v python3), not msys2's (subprocess of .sh scripts needs it)"; exit 1; }
           objcopy --help | grep -q set-section-alignment
-      # Every long step tees its output into build/logs/ (artifact mflng-logs, uploaded also on failure); the step `failure tails` prints
-      # the last 40 lines of each tool log the links write (build/<off|fixes>/*.log, lib/src.log, gen/cl.log, v143/cl.log ...).
+      # Every long step tees its output, each line prefixed with the wall time (gawk strftime), into build/logs/ (artifact
+      # mflng-logs-<variant>, uploaded also on failure); the step `failure tails` prints the last 40 lines of each tool log of the link.
       - name: private path layout (output/..., src/automatch_near/... copies of the exported files)
         run: |
           set -o pipefail
           mkdir -p build/logs
           python3 tools/ci/private_layout.py . 2>&1 | tee build/logs/private_layout.log
+      # CXX -static: MSYS2's mingw gcc has the posix thread model, so -static-libgcc -static-libstdc++ alone left an import of
+      # libwinpthread-1.dll (run 44625600150, pe_check --dll); -static links libwinpthread.a too.  build_mflrw.sh expands $CXX unquoted.
       - name: mflrw.dll at the pin
+        env: { CXX: 'i686-w64-mingw32-g++ -static' }
         run: |
           set -o pipefail
-          sh librw-mfl/tools/build_mflrw.sh "$PWD/build/rw" 2>&1 | tee build/logs/mflrw.log
+          sh librw-mfl/tools/build_mflrw.sh "$PWD/build/rw" 2>&1 | gawk '{ print strftime("%H:%M:%S"), $0; fflush() }' | tee build/logs/mflrw.log
+          python3 tools/ci/pe_check.py --dll build/rw/mflrw.dll
       - name: mfl_audio_miniaudio.dll
         run: |
           set -o pipefail
           sh tools/ci/build_audio_dll.sh "$PWD/build/audio" 2>&1 | tee build/logs/audio.log
-      # v143 object cache of tools/build_overlay.py (OBJCACHE; the file name is the hash of source + headers + flags + compiler, so a stale
-      # restore can never be reused wrongly); the fixes link has its own keys (MFL_FIX defines are in the flags).  Saved also after a failed
-      # run (cache/save, if: always()), one entry per run, so a run that dies late still warms the next one.
-      - uses: actions/cache/restore@v4
-        with:
-          path: .objcache
-          key: objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-${{ github.run_id }}
-          restore-keys: |
-            objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-
-            objcache-v143-
-      - name: link MFLng.exe (switches off)
-        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1', JOBS: '4' }
-        run: |
-          set -o pipefail
-          OBJCACHE=$PWD/.objcache RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/off 2>&1 | tee build/logs/link_off.log
-      - name: link MFLng_fixes.exe (every MFL_FIX_* on)
-        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', FIXES: all, LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1', JOBS: '4' }
-        run: |
-          set -o pipefail
-          OBJCACHE=$PWD/.objcache RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/fixes 2>&1 | tee build/logs/link_fixes.log
-      - name: collect mflng-out
-        run: |
-          set -e
-          mkdir -p out
-          cp build/off/ours.exe out/MFLng.exe; cp build/off/ours.map out/MFLng.map
-          cp build/fixes/ours.exe out/MFLng_fixes.exe; cp build/fixes/ours.map out/MFLng_fixes.map
-          cp build/rw/mflrw.dll build/audio/mfl_audio_miniaudio.dll out/
-          { echo "cl $(grep -o 'Version [0-9.]*' build/cl_version.txt | cut -d' ' -f2)"; echo "gcc $(cat build/gcc_version.txt)"; echo "runner windows-2022 $ImageVersion"
-            echo "MFL_FIX on in MFLng_fixes.exe: $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
-      - name: checks (stub guard, pe_check, no_original)
-        run: |
-          set -o pipefail
-          git config --global --add safe.directory '*'      # msys2 git has its own HOME; no_original.py runs git ls-files on the checkout
-          PY=python3 tools/ci/ci_checks.sh out librw-mfl 2>&1 | tee build/logs/ci_checks.log
       - name: test_g0 on the built DLL (report only)
+        if: matrix.variant == 'off'
         continue-on-error: true
         timeout-minutes: 5
         run: |
           set -o pipefail
           build/rw/test_g0.exe build/rw/mflrw.dll 2>&1 | tee build/logs/test_g0.log
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mflng-out
-          path: out/
-      - uses: actions/cache/save@v4
-        if: always()
-        continue-on-error: true      # no .objcache yet (the job died before the links) must not hide the real failure
+      # v143 object cache of tools/build_overlay.py (OBJCACHE: flat dir, file name = hash of source + headers + flags + compiler, so any
+      # restored entry is safe).  One key per variant (the MFL_FIX defines are in every object's flags) and source hash: a push with
+      # unchanged sources restores its exact entry and saves nothing; a changed tree restores the newest entry of its variant (prefix) and
+      # saves a new one after a passed link.  Run 44625600150: off 4226 of 4226 objects from the cache, fixes 0 (compile ~20 s of the 5 min).
+      - uses: actions/cache/restore@v4
+        id: objc
         with:
           path: .objcache
-          key: objcache-v143-${{ hashFiles('src/**', 'tools/build_overlay.py', 'tools/msvcw/msvcw_compile.py') }}-${{ github.run_id }}
-      - name: import-lib diagnostics (run 44622403960 had 372 unresolved __imp__ of mflrw.dll names)
-        if: failure()
+          key: objcache-v143-${{ matrix.variant }}-${{ hashFiles('src/**', 'third_party/**', 'tools/build_overlay.py', 'tools/delink/**', 'tools/msvcw/**', 'data/link/**') }}
+          restore-keys: objcache-v143-${{ matrix.variant }}-
+      - name: link (${{ matrix.variant }})
+        env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1', JOBS: '4', FIXES: "${{ matrix.variant == 'fixes' && 'all' || '' }}" }
         run: |
-          echo "--- objdump -p export table format of the CI mflrw.dll (mk_importlibs.py parses it with r'\t\[\s*\d+\] (\S+)\s*$')"
-          i686-w64-mingw32-objdump --version | head -1
-          i686-w64-mingw32-objdump -p build/rw/mflrw.dll | grep -A4 'Ordinal/Name Pointer' || true
-          echo "--- names the regex takes / the PE export table holds"
-          python3 -c "import re,subprocess,sys; sys.path.insert(0,'tools/ci'); import rw_stub_guard as g; o=subprocess.run(['i686-w64-mingw32-objdump','-p','build/rw/mflrw.dll'],capture_output=True,text=True).stdout; print(len({m.group(1) for m in (re.match(r'\t\[\s*\d+\] (\S+)\s*$',l) for l in o.splitlines()) if m}), len(g.parse_pe(open('build/rw/mflrw.dll','rb').read())['exports']))"
-          for d in off fixes; do [ -d build/$d/imp ] || continue; echo "--- build/$d/imp"; ls -la build/$d/imp; grep -c . build/$d/imp/mflrw.def || true
-            (cd build/$d/imp && MSYS2_ARG_CONV_EXCL='*' lib.exe /nologo /list mflrw.lib | head -5) || true; done
-          grep -h "dshow_drop:\|undup:\|v143 link:\|^link:" build/logs/link_*.log || true      # local twin: 54 removed, 125 renamed, 85 lines, 0 errors
-      - name: failure tails (last 40 lines of every tool log of the links)
+          set -o pipefail
+          OBJCACHE=$PWD/.objcache RW_DLL=$PWD/build/rw/mflrw.dll RES=$PWD/build/mflng.res tools/delink/link_ci.sh build/${{ matrix.variant }} 2>&1 | gawk '{ print strftime("%H:%M:%S"), $0; fflush() }' | tee build/logs/link_${{ matrix.variant }}.log
+      - name: outputs of this variant
+        run: |
+          set -e
+          V=${{ matrix.variant }}; E=MFLng; [ $V = off ] || E=MFLng_fixes
+          mkdir -p out
+          cp build/$V/ours.exe out/$E.exe; cp build/$V/ours.map out/$E.map
+          [ $V = off ] || exit 0
+          cp build/rw/mflrw.dll build/audio/mfl_audio_miniaudio.dll out/
+          { echo "cl $(grep -o 'Version [0-9.]*' build/cl_version.txt | cut -d' ' -f2)"; echo "gcc $(cat build/gcc_version.txt)"; echo "runner windows-2022 $ImageVersion"
+            echo "MFL_FIX on in MFLng_fixes.exe: $(awk 'NF==3 && $1=="#define" && $2~/^MFL_FIX_/ && $3=="0" {printf "%s ", $2}' src/mfl_fix.h)"; } > out/BUILDINFO.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: link-${{ matrix.variant }}
+          path: out/
+      - uses: actions/cache/save@v4
+        if: steps.objc.outputs.cache-hit != 'true'
+        continue-on-error: true
+        with:
+          path: .objcache
+          key: ${{ steps.objc.outputs.cache-primary-key }}
+      - name: failure tails (last 40 lines of every tool log of the link)
         if: failure()
         run: |
           for f in build/logs/*.log build/*/*.log build/*/*/*.log; do [ -f "$f" ] || continue; echo "=== $f"; tail -40 "$f"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: mflng-logs
+          name: mflng-logs-${{ matrix.variant }}
           if-no-files-found: ignore
           path: |
             build/logs/
@@ -184,3 +181,33 @@ jobs:
             build/*/*/*.log
             build/*/v143/lnk_pairs.txt
             build/*/mkobj.err
+
+  collect:
+    needs: link
+    runs-on: ubuntu-24.04      # the checks are plain python + git
+    steps:
+      - uses: actions/checkout@v4
+      - name: librw-mfl pin
+        id: pin
+        run: echo "sha=$(grep -m1 '^commit ' data/link/mflrw_pin.txt | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: mashed-reverse-engineering/librw-mfl
+          ref: ${{ steps.pin.outputs.sha }}
+          path: librw-mfl
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: link-*
+          merge-multiple: true
+          path: out
+      - name: checks (stub guard, pe_check, no_original)
+        run: |
+          set -eo pipefail
+          # ponytail: a push builds only MFLng.exe; ci_checks.sh wants both names, so the off exe stands in for the fixes one in chk/ (not in mflng-out).
+          # Upgrade: ci_checks.sh checks the exes that exist.
+          cp -r out chk; [ -f chk/MFLng_fixes.exe ] || cp out/MFLng.exe chk/MFLng_fixes.exe
+          PY=python3 bash tools/ci/ci_checks.sh chk librw-mfl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mflng-out
+          path: out/
