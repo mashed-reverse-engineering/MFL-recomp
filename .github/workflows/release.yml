@@ -66,7 +66,10 @@ jobs:
           PREV=$(git tag -l 'r*' --sort=-creatordate | head -1)
           ALL=$(git log --oneline --no-merges -n 200 ${PREV:+$PREV..}HEAD)
           CHG=$(echo "$ALL" | grep -v '^[0-9a-f]* Update source and progress' || true)
-          [ -n "$CHG" ] || CHG="only automated source and progress updates ($(echo "$ALL" | grep -c . || true) commits), newest: $(echo "$ALL" | head -1 | cut -d' ' -f2-)"
+          # the publish commits carry the changes as their body lines (one private commit subject each, see tools/publish.sh)
+          BODY=$(git log --no-merges --format=%b -n 200 ${PREV:+$PREV..}HEAD | grep -v '^$' | awk '!seen[$0]++' || true)
+          CHG=$(printf '%s\n%s\n' "$CHG" "$BODY" | grep -v '^$' || true)
+          [ -n "$CHG" ] || CHG="only automated source and progress updates ($(echo "$ALL" | grep -c . || true) commits)"
           {
             echo "CI build: it proves that MFLng builds from this public tree with no original input. It claims nothing about behaviour; the behaviour proofs run on the private pinned VC7 build."
             echo
