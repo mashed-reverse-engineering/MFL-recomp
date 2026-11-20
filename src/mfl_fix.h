@@ -50,7 +50,7 @@ void mfl_unlock_all_unforce(void *save_block);
 #endif
 
 #ifndef MFL_FIX_PREFS      /* player preferences read at start from mflng_settings.cfg beside the exe (key=value lines, no command line); every key's
-                              default is the original behaviour, so without the file the game plays as the original (recomp/mfl_resources.c reader;
+                              default is the original behaviour except display_mode (borderless, plan W17 F3; this switch is on only in MFLng.exe) (recomp/mfl_resources.c reader;
                               keys and sites: public/docs/MFL_FIX_FLAGS.md) */
 #define MFL_FIX_PREFS 0
 #endif
@@ -60,12 +60,37 @@ enum mfl_pref_key {
   MFL_PREF_SKIP_SAVE_WAIT,        /* skip_save_wait=1: save / load message boxes close when the write is done, not after 1 s */
   MFL_PREF_UNLOCK_ALL,            /* unlock_all=1: MFL_FIX_UNLOCK_ALL at run time */
   MFL_PREF_WINNER_CAM_ROTATION,   /* winner_cam_rotation=0: the round-end camera zooms to the winning car without circling it */
+  MFL_PREF_LANGUAGE,              /* MFL_FIX_LANG: language=auto (-1, default) or a game language id 0..5 (see MFL_FIX_LANG) */
+  MFL_PREF_SETUP_DIALOGS,         /* MFL_FIX_LANG: setup_dialogs=1: a start without options shows the video / controller dialogs (default 0) */
+  MFL_PREF_DISPLAY_MODE,          /* display_mode=fullscreen|windowed|borderless (or 0/1/2): MFL_DISPLAY_* below; default borderless */
   MFL_PREF_COUNT
 };
+#define MFL_DISPLAY_FULLSCREEN 0      /* the video mode as videocfg.bin / the setup dialog chose it (the original) */
+#define MFL_DISPLAY_WINDOWED 1        /* a framed window of the chosen size (clusters/cl_video_config_dialog.c) */
+#define MFL_DISPLAY_BORDERLESS 2      /* a frameless window over the whole desktop, no mode switch */
 int mfl_pref(int key);      /* value of one key (the file is read on the first call) */
+void mfl_settings_set_language(int language);      /* -1 = auto or 0..5: writes language= into the settings file (other lines kept); applies at the next start */
 #endif
 
-#ifndef MFL_FIX_CRASHLOG      /* v143 builds only: an abnormal end (unhandled / fatal exception, CRT abort / invalid parameter / pure call, exit or ExitProcess
+#ifndef MFL_FIX_LANG      /* a start without -vs / -cs / -l options (the exe run directly, not through launch.exe) acts as launch.exe's
+                             `-VS0 -CS0 -L<n>`: no video / controller setup dialog (the game's own -VS0 -CS0 path: saved videocfg.bin /
+                             contcfg%d.bin, else its defaults) and n = the Windows UI language (GetUserDefaultUILanguage) when its speech folder
+                             toastaudio\pc\audio\pcdics\<name> is installed, else English.  Game language ids: 0 English, 1 French, 2 German,
+                             3 Spanish, 4 Italian, 5 USA.  An option given on the command line wins; with MFL_FIX_PREFS the keys language and
+                             setup_dialogs override (recomp/mfl_resources.c, called from app_initialise_on_bootup in automatch_near/an_hk_916.c) */
+#define MFL_FIX_LANG 0
+#endif
+#if MFL_FIX_LANG
+void mfl_lang_apply(void);
+#endif
+
+#ifndef MFL_FIX_ALT_TAB      /* the window counts as active again when it is activated by a click or while minimised (WM_ACTIVATE low word), so after
+                                Alt+Tab / the Windows key back into the game it runs and reads keys again; the original compared the whole wparam with
+                                WA_ACTIVE and stayed paused (clusters/cl_window_create_cb_4a9830.c; agents/gfx_w17/notes.md) */
+#define MFL_FIX_ALT_TAB 0
+#endif
+
+#ifndef MFL_FIX_CRASHLOG     /* v143 builds only: an abnormal end (unhandled / fatal exception, CRT abort / invalid parameter / pure call, exit or ExitProcess
                                  with a code other than 0) appends a report to mflng-crash.txt beside the game's files (recomp/mfl_crashlog.c, installed
                                  from .CRT$XIB; build_overlay.py leaves the file out of every build without this switch) */
 #define MFL_FIX_CRASHLOG 0

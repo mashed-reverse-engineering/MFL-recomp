@@ -1,6 +1,7 @@
 // cluster-entries: window_create_cb_4a9830
 /* Installed cluster window_create_cb_4a9830 (tools/cluster_install.py from output/cluster_pilot_kg/window_create_cb_4a9830.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern __declspec(dllimport) int __stdcall GetMenu(int hwnd);
 extern __declspec(dllimport) int __stdcall CheckMenuItem(int hmenu, unsigned int id, unsigned int flags);
 extern __declspec(dllimport) int __stdcall SetCapture(int hwnd);
@@ -146,7 +147,11 @@ int window_create_cb_4a9830_n(int hwnd, unsigned int msg, unsigned int wparam, i
       return 0;
     }
     if (msg == WM_ACTIVATE) {
+#if MFL_FIX_ALT_TAB      /* WA_ACTIVE or WA_CLICKACTIVE, minimised flag (high word) or not: back from Alt+Tab the game runs again */
+      g_pump_windows_771a1c = ((wparam & 0xffff) != 0);
+#else
       g_pump_windows_771a1c = (wparam == 1);
+#endif
       keyboard_acquire_release(g_pump_windows_771a1c);
       return 0;
     }

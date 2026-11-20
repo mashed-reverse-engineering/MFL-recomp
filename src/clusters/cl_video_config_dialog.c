@@ -1,6 +1,7 @@
 // cluster-entries: video_config_dialog
 /* Installed cluster video_config_dialog (tools/cluster_install.py from output/cluster_pilot_uc3/video_config_dialog.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern __declspec(dllimport) int __stdcall DialogBoxParamA(int, int, int, int, int);
 extern __declspec(dllimport) int __stdcall SetWindowLongA(int, int, int);
 extern __declspec(dllimport) int __stdcall SetWindowPos(int, int, int, int, int, int, int);
@@ -48,6 +49,57 @@ extern char LAB_004a8e60[];
 /* Select the video subsystem/mode: log all subsystems and modes, load saved config (or show the settings dialog when show_dialog != 0), apply it to RenderWare, set window style for fullscreen modes, and copy quality options into game globals; returns 0 if the dialog was cancelled, else 1 (inferred). */
 static int video_mode_name_format_004a8670_r(int p0, undefined4 p1);
 extern void video_mode_name_format_004a8670(void);
+#if MFL_FIX_PREFS
+extern __declspec(dllimport) int __stdcall AdjustWindowRect(int, int, int);
+extern __declspec(dllimport) int __stdcall ShowCursor(int);
+#define GWL_STYLE (-0x10)
+#define STYLE_POPUP (-0x80000000)      /* WS_POPUP, as the exclusive branch below */
+#define STYLE_FRAMED (0xcf0000)        /* WS_OVERLAPPEDWINDOW, window_create's style */
+#define SWP_NOZORDER (0x4)
+#define SWP_FRAMECHANGED (0x20)
+/* display_mode=windowed / borderless (mflng_settings.cfg): RenderWare mode 0 = the desktop mode with a windowed device (its back buffer is the
+   window's client area when RwEngineStart creates the device) instead of the chosen mode.  windowed: framed window, client = the chosen mode's
+   size, centred on the desktop; borderless: frameless window over the whole (primary) desktop, cursor hidden.  fullscreen: the chosen mode (the
+   original).  The video cfg already saved keeps the chosen mode.  ponytail: borderless renders at the desktop size; a smaller back buffer
+   stretched to the screen needs the present parameters in mflrw.dll. */
+static void display_mode_apply(void)
+{
+  int display_mode = mfl_pref(MFL_PREF_DISPLAY_MODE);
+  struct RwVideoMode chosen;
+  struct RwVideoMode desktop;
+  int rect[4];
+  int x;
+  int y;
+
+  if (display_mode == MFL_DISPLAY_FULLSCREEN) return;
+  RwEngineGetVideoModeInfo(&desktop, 0);
+  if ((desktop.flags & 1) != 0) return;      /* the desktop format has no windowed entry 0: stay with the chosen mode */
+  RwEngineGetVideoModeInfo(&chosen, g_video_7712f0);
+  g_video_7712f0 = 0;
+  if (display_mode == MFL_DISPLAY_BORDERLESS) {
+    chosen.width = desktop.width;
+    chosen.height = desktop.height;
+    SetWindowLongA(g_app_7e7704, GWL_STYLE, STYLE_POPUP);
+    SetWindowPos(g_app_7e7704, 0, 0, 0, desktop.width, desktop.height, SWP_NOZORDER | SWP_FRAMECHANGED);
+    ShowCursor(0);
+  }
+  else {
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = chosen.width;
+    rect[3] = chosen.height;
+    AdjustWindowRect((int)rect, STYLE_FRAMED, 0);
+    x = rect[2] - rect[0] - chosen.width;      /* frame width / height */
+    y = rect[3] - rect[1] - chosen.height;
+    if (chosen.width + x > desktop.width) chosen.width = desktop.width - x;      /* the framed window fits the desktop: a client larger than the */
+    if (chosen.height + y > desktop.height) chosen.height = desktop.height - y;  /* screen would be resized later, which resets the device */
+    SetWindowPos(g_app_7e7704, 0, (desktop.width - chosen.width - x) / 2, (desktop.height - chosen.height - y) / 2, chosen.width + x, chosen.height + y,
+                 SWP_NOZORDER);
+  }
+  g_app_62c5c8 = chosen.width;      /* the back buffer size, as the exclusive branch stores the mode size */
+  g_app_62c5cc = chosen.height;
+}
+#endif
 undefined4 __cdecl video_config_dialog(int show_dialog)
 
 {
@@ -121,6 +173,9 @@ undefined4 __cdecl video_config_dialog(int show_dialog)
   video_cfg_save();
 LAB_004a9200:
   RwEngineSetSubSystem(g_video_subsystem_index);
+#if MFL_FIX_PREFS
+  display_mode_apply();
+#endif
   RwEngineSetVideoMode(g_video_7712f0);
   log_printf("Current subsystem: %s\n",g_video_subsystem_index * VIDEO_SUBSYSTEM_NAME_STRIDE + g_video_7712ec);
   log_printf("Current mode: %d\n",g_video_7712f0);

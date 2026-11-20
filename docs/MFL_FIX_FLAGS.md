@@ -70,7 +70,7 @@ Status words:
 
 ### MFL_FIX_PREFS
 - **Status:** staged, default off; on in `MFLng.exe`.
-- **Changes:** nothing by itself. With the switch on, the game reads `mflng_settings.cfg` from the folder of the exe once at start (no command line). Each line is `key=value` with the value `0` or `1`; unknown keys, comment lines (`#` or `;`) and other values are ignored. Every key's default is the original behaviour, so without the file (or with an empty one) the game plays exactly like the original.
+- **Changes:** nothing by itself. With the switch on, the game reads `mflng_settings.cfg` from the folder of the exe once at start (no command line). Each line is `key=value` with the value `0` or `1`; unknown keys, comment lines (`#` or `;`) and other values are ignored. Every key's default is the original behaviour except `display_mode` (default borderless), so without the file (or with an empty one) the game plays like the original in a borderless window.
 - **Keys:**
 
   | Key | Default | Other value |
@@ -79,6 +79,9 @@ Status words:
   | `skip_save_wait` | `0` | `1`: the "saving" / "loading" message box closes as soon as the save or load is done, instead of staying at least one second (manual save, autosave, load). |
   | `unlock_all` | `0` | `1`: everything is unlocked, as `MFL_FIX_UNLOCK_ALL` above (your save keeps its real progress; career progress won meanwhile is not saved). |
   | `winner_cam_rotation` | `1` | `0`: at the end of a round the camera still moves in to the winning car but does not circle it. |
+  | `display_mode` | `borderless` (`2`) | `fullscreen` (`0`): the video mode chosen in the setup dialog / `videocfg.bin`, exclusive full screen as the original. `windowed` (`1`): a framed window with the chosen resolution (made smaller when the frame would not fit the screen), centred. `borderless`: a frameless window over the whole primary desktop at the desktop resolution, no mode switch (Alt+Tab is instant). |
+  | `language` | `auto` | Read only with `MFL_FIX_LANG` (below). `0` English, `1` French, `2` German, `3` Spanish, `4` Italian, `5` USA. |
+  | `setup_dialogs` | `0` | Read only with `MFL_FIX_LANG`. `1`: a start without options shows the video and controller setup dialogs again. |
 
   Example file:
   ```
@@ -87,9 +90,23 @@ Status words:
   winner_cam_rotation=0
   ```
 - **Not yet:** faster loading (load times are measured first); an in-game page that changes the keys and writes the file.
-- **Lives in:** the reader `mfl_pref` in `src/mfl_resources.c`; `app_boot_init` (skip_intro); `gamesave_update_sub_40bbd0`, `gamesave_autosave_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c` (skip_save_wait); `mfl_unlock_all_force` (unlock_all); `cup_scene_update_object` (winner_cam_rotation).
+- **Lives in:** the reader `mfl_pref` in `src/mfl_resources.c`; `app_boot_init` (skip_intro); `gamesave_update_sub_40bbd0`, `gamesave_autosave_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c` (skip_save_wait); `mfl_unlock_all_force` (unlock_all); `cup_scene_update_object` (winner_cam_rotation); `video_config_dialog` (display_mode).
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PREFS=1`, or use `MFLng.exe`.
 - **Test harness:** `SCEN_PREFS=<file>` (scenario.sh, standalone runs) puts the file beside our exe; the control never has one.
+
+### MFL_FIX_LANG
+- **Status:** staged, default off; on in `MFLng.exe`.
+- **Original:** `launch.exe` starts the game as `MFL.exe -VS0 -CS0 -L<n>`, n = the language the installer stored in the registry (`HKLM\Software\Empire Interactive\MFL`, value `language`); its "Setup Video Mode" / "Setup Controllers" buttons start `-CS0 -VS1` / `-CS1 -VS0`. Started directly without options, the game shows both setup dialogs and runs in English.
+- **Changes:** when the command line has no `-vs`, `-cs` or `-l` option, the game acts as if `-VS0 -CS0 -L<n>` had been given: no setup dialogs (the saved `videocfg.bin` / `contcfg<n>.bin` are used; without them the game's own defaults: the first full-screen mode of at least 640x480, which it then saves, and pads first, keyboard after), and n = the Windows display language when the game has speech for it (`toastaudio\pc\audio\pcdics\<language>` exists), else English. An option given on the command line always wins, so the launcher and the test harness behave as before. With `MFL_FIX_PREFS`, the keys `language` and `setup_dialogs` (above) override; `mfl_settings_set_language` writes `language=` (for the coming options page; applies at the next start).
+- **Lives in:** `mfl_lang_apply` in `src/mfl_resources.c`, called from `app_initialise_on_bootup` right after `app_parse_command_line`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_LANG=1`, or use `MFLng.exe`.
+
+### MFL_FIX_ALT_TAB
+- **Status:** staged, default off; on in `MFLng.exe`.
+- **Bug:** after Alt+Tab (or the Windows key) out of full screen and back, the game looked hung and ignored the keyboard. Its window procedure counted the window as active only when `WM_ACTIVATE` carried exactly `WA_ACTIVE`; coming back to the minimised full-screen window (Alt+Tab: `WA_ACTIVE` plus the minimised flag; taskbar click: `WA_CLICKACTIVE`) it stayed in its background pause, which advances one frame per window message.
+- **Fix:** any activation (low word of `wparam` not `WA_INACTIVE`) counts. The background pause and the keyboard release while another window is active stay as in the original; the lost Direct3D device is reset by the RenderWare code that was always there.
+- **Lives in:** the window procedure `window_create_cb_4a9830`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_ALT_TAB=1`, or use `MFLng.exe`. If exclusive full screen still misbehaves after Alt+Tab, use `display_mode=borderless` (`MFL_FIX_PREFS`, the default of `MFLng.exe`).
 
 ### MFL_FIX_CRASHLOG
 - **Status:** staged, default off; on in `MFLng.exe`. Built only by MSVC v143 (the CI exe); `tools/build_overlay.py` leaves the file out of every other build.

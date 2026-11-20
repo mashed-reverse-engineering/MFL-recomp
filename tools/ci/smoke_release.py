@@ -10,12 +10,16 @@ than the off exe's (MFLng.nofix.exe)): the map must be <exe stem>.map, carry the
 and the exe must reference that address. Otherwise the exe is refused (FAIL, no Wine run).
 Prints one line per exe and, when both reach the title, the line for data/link/smoke_ok.txt (`<cl version> <date> <run>`, release.yml);
 --run = the GitHub run id of the release workflow that built the zip (`gh run list --workflow release`). Writes no tracked file.
---check-only: map checks only, no Wine run."""
+--check-only: map checks only, no Wine run.
+--mode play (SMOKE W17): release_smoke.sh play instead of title: Quick Battle race, pause menu, Continue, race clock advances, Quit Game -> main menu.
+--heap: the run under WINEDEBUG=fixme-all,warn+heap; any warn:heap / err:heap line in wine.log is a FAIL (an interior free, r20261120-e2ddfb7).
+--exes A,B: other exe names (an older release: MFLng.exe,MFLng_fixes.exe).  The smoke_ok.txt line is printed for every mode."""
 import datetime, os, shutil, struct, subprocess, sys
 
 R = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SMOKE = os.path.join(R, "tools", "wine-run", "release_smoke.sh")
-WANT = {"_g_menu_current": 0x69cbd0, "_g_menu_fade_alpha": 0x69d1e4}
+WANT = {"_g_menu_current": 0x69cbd0, "_g_menu_fade_alpha": 0x69d1e4,      # every word release_smoke waits on: one delta for all
+        "_g_race_phase": 0x652f68, "_g_app_state": 0x76e7f4, "_g_race_clock_a": 0x7ef7dc}
 EXES = ("MFLng.nofix.exe", "MFLng.exe")
 DLLS = ("mflrw.dll", "mfl_audio_miniaudio.dll")
 
@@ -32,7 +36,7 @@ def delta(exe_path, map_path):
         if p[:2] == ["Timestamp", "is"] and mts is None: mts = int(p[2], 16)
         if len(p) >= 3 and p[1] in WANT and p[1] not in got: got[p[1]] = int(p[2], 16) - WANT[p[1]]
     if mts != ts: raise ValueError("map timestamp %s != exe TimeDateStamp %08x" % (mts and "%08x" % mts, ts))
-    if len(got) != 2 or len(set(got.values())) != 1: raise ValueError("no single .bss delta: %s" % {k: hex(v) for k, v in got.items()})
+    if len(got) != len(WANT) or len(set(got.values())) != 1: raise ValueError("no single .bss delta: %s" % {k: hex(v) for k, v in got.items()})
     d = got["_g_menu_current"]
     refs = exe.count(struct.pack("<I", WANT["_g_menu_current"] + d))
     if not refs: raise ValueError("exe never references g_menu_current at %x" % (WANT["_g_menu_current"] + d))
@@ -42,11 +46,15 @@ def delta(exe_path, map_path):
 def main(a):
     run = a[a.index("--run") + 1] if "--run" in a else "<run>"
     check = "--check-only" in a
+    mode = a[a.index("--mode") + 1] if "--mode" in a else "title"
+    if mode not in ("title", "play"): sys.exit("smoke_release: --mode title|play")
+    exes = a[a.index("--exes") + 1].split(",") if "--exes" in a else EXES
+    env = dict(os.environ, WDBG="fixme-all,warn+heap") if "--heap" in a else None
     rel, maps, game, work = [os.path.abspath(x) for x in a[:4]]
     if not os.path.exists(os.path.join(game, "App_Executables", "MFL_original.exe")):
         sys.exit("smoke_release: %s has no App_Executables/MFL_original.exe (run.py clone it first)" % game)
     ok = 0
-    for x in EXES:
+    for x in exes:
         stem = os.path.splitext(x)[0]
         try:
             d, refs = delta(os.path.join(rel, x), os.path.join(maps, stem + ".map"))
@@ -64,14 +72,14 @@ def main(a):
             if os.path.lexists(p): os.unlink(p)      # unlink first: never write through a hardlink into the game dir
             shutil.copy2(os.path.join(rel, src), p)
         open(os.path.join(L, "delta.txt"), "w").write("%x\n" % d)
-        r = subprocess.run(["bash", SMOKE, L, os.path.join(L, "out"), "title"], capture_output=True, text=True)
+        r = subprocess.run(["bash", SMOKE, L, os.path.join(L, "out"), mode], capture_output=True, text=True, env=env)
         last = (r.stdout.strip().splitlines() or ["release_smoke: no output (exit %d)" % r.returncode])[-1]
-        print(tag, last, "(out %s/out)" % L)
-        ok += r.returncode == 0 and last == "release_smoke title: ok"
-    if ok == len(EXES) and not check:
+        print(tag, last, "(out %s/out)" % L, flush=True)
+        ok += r.returncode == 0 and last.startswith("release_smoke %s: ok" % mode)
+    if ok == len(exes) and not check:
         cl = [l.split()[1] for l in open(os.path.join(rel, "BUILDINFO.txt")) if l.startswith("cl ")][0]
         print("smoke_ok.txt line: %s %s %s" % (cl, datetime.date.today().isoformat(), run))
-    return 0 if ok == len(EXES) else 1
+    return 0 if ok == len(exes) else 1
 
 
 if __name__ == "__main__":
