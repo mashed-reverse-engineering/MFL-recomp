@@ -1,0 +1,88 @@
+# ret_allow.txt: rows of tools/gate/ret_scan.py (FAIL / FPTR) that do not fail the gate.  `<function name> <reason>`, one per line.
+# Section 1 = justified (evidence named).  Section 2 = BASELINE W17 (a ratchet: probable type bugs found when the scanner was introduced,
+# fix pending in the RET lane; a row removed from here must come back clean, a NEW row fails the gate).  Never add a row without evidence.
+
+# ---- 1. justified
+menu_get_69d1e4 ORIGINAL QUIRK: original body `mov al,[69d1e4]; ret`, its original caller 4a22e0 `cmp eax,0xc8` reads stale upper bits too (void_w16/classify.md)
+ui_state_is_0 NARROW bool read as int: v143 `cmp; sete al` without xor; the caller's EAX upper bits come from small values (pause_w16/notes.md narrowret); fix = int def (plan W17 4.8 step 3)
+ui_state_is_2 NARROW, as ui_state_is_0
+ui_state_is_5 NARROW, as ui_state_is_0
+fx_trail_particle_spawn_interpolated the reading caller course_animated_objects_update (an_hk_9480.c:101) keeps it in path_or_tmp and returns it; no caller of course_animated_objects_update reads EAX (ret_scan --fn course_animated_objects_update: need 0); original: TAIL->NONE (classify.md)
+course_keys_cb0 course record callback: the course_call_cbN dispatchers drop EAX at their callers (classify.md, course cb rows); v143 EAX equals the original's today (tail:449b50)
+course_warzone_cb6 course record callback, as course_keys_cb0 (tail:45c7c0)
+
+# ---- 2. BASELINE W17 (unproven impact; the original dispatcher reads EAX for some slot of the same offset, the v143 value differs on most)
+# RWA property get/set callbacks (record {0, type, 1, fn, name, 0}, 0x18 stride, tables 0x6493xx-0x64b5xx): the original returns the object
+# (arg@4); RWA dispatch sites `call [reg+0xc]; test eax,eax` (0x5cd15a, 0x5ce625 ...) treat NULL as failure; v143 returns the out pointer
+# (non-NULL, works) or the stored value (0 = "failed").  Fix = return the object.
+gap_5700b0 baseline W17 RWA/rwp property callback
+gap_5b6d20 baseline W17 RWA property callback
+gap_5b6df0 baseline W17 RWA property callback
+gap_5b9a40 baseline W17 RWA property callback
+gap_5b9a90 baseline W17 RWA property callback
+gap_5b9ae0 baseline W17 RWA property callback
+gap_5b9b90 baseline W17 RWA property callback
+gap_5b9c10 baseline W17 RWA property callback
+gap_5b9c70 baseline W17 RWA property callback (v143 EAX equals the original's)
+gap_5b9c90 baseline W17 RWA property callback (v143 EAX equals the original's)
+gap_5c8ca0 baseline W17 RWA property callback
+gap_5c8ce0 baseline W17 RWA property callback
+gap_5ca940 baseline W17 RWA property callback
+gap_5ca9a0 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5ca9e0 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5caad0 baseline W17 RWA property callback
+gap_5caaf0 baseline W17 RWA property callback
+gap_5cab50 baseline W17 RWA property callback
+gap_5cac50 baseline W17 RWA property callback
+gap_5cad10 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cad40 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cad70 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cada0 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cadd0 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cae50 baseline W17 RWA property callback
+gap_5caeb0 baseline W17 RWA property callback
+gap_5caf10 baseline W17 RWA property callback
+gap_5caf80 baseline W17 RWA property callback (v143 EAX equals the original's)
+gap_5cafd0 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cb000 baseline W17 RWA property callback (v143 returns the stored value)
+gap_5cb0d0 baseline W17 RWA property callback
+gap_5cb130 baseline W17 RWA property callback (v143 returns the stored value)
+obj_get_off120_5b90a0 baseline W17 RWA property callback
+obj_get_off174_5c8d00 baseline W17 RWA property callback
+obj_get_off2c_5caff0 baseline W17 RWA property callback
+obj_get_off30_5cb020 baseline W17 RWA property callback
+obj_get_off34_5cb150 baseline W17 RWA property callback
+obj_get_off38_5ccaf0 baseline W17 RWA property callback
+obj_get_off3c_5b6c90 baseline W17 RWA property callback
+obj_get_off3c_5ccb20 baseline W17 RWA property callback
+obj_get_off40_5b6cd0 baseline W17 RWA property callback
+obj_get_off44_5b6e70 baseline W17 RWA property callback
+obj_get_off50_5b6e30 baseline W17 RWA property callback
+obj_get_off70_5b6c10 baseline W17 RWA property callback
+obj_get_off70_5cad30 baseline W17 RWA property callback
+obj_get_off74_5b6c50 baseline W17 RWA property callback
+obj_get_off74_5cad60 baseline W17 RWA property callback
+obj_get_off78_5b6af0 baseline W17 RWA property callback
+obj_get_off78_5cad90 baseline W17 RWA property callback
+obj_get_off7c_5b6b10 baseline W17 RWA property callback
+obj_get_off7c_5cadc0 baseline W17 RWA property callback
+obj_get_off80_5cadf0 baseline W17 RWA property callback
+obj_get_off84_5cb110 baseline W17 RWA property callback
+obj_get_off88_5b6ec0 baseline W17 RWA property callback
+obj_get_off88_5cb090 baseline W17 RWA property callback
+obj_get_off98_5caf60 baseline W17 RWA property callback
+obj_get_offb8_5ca9c0 baseline W17 RWA property callback
+obj_get_offbc_5caa00 baseline W17 RWA property callback
+obj_get_offd4_5cafb0 baseline W17 RWA property callback
+obj_get_offd6c_5b8f70 baseline W17 RWA property callback
+obj_get_offd70_5b8f90 baseline W17 RWA property callback
+obj_get_offd74_5b8fb0 baseline W17 RWA property callback
+rwa_dxaudio_voice_set_macro_fx_gain_005caa80 baseline W17 RWA property callback (v143 EAX equals the original's)
+# weapon table slots (0x60dc70 ...): the `call [edi]` weapon dispatchers 0x467840 ... drop EAX (CLOB), two other sites read
+# (0x467c29 `[edx+0xc]`, 0x467e75 `[eax+0x4]`); which slot these are was not proven.
+weapon_drum_unequip baseline W17 weapon table slot
+weapon_flamethrower_fire baseline W17 weapon table slot
+weapon_flashbang_unequip baseline W17 weapon table slot
+weapon_shotgun_unequip baseline W17 weapon table slot
+# NOT listed (real, staged fix det2): rwp_sphere_0056cb30, rwp_cylinder_0056fe70 (shape vtable +0x8; 0x56c0b0 / v143 0x651410 test the
+# result and read the bounding sphere through it).

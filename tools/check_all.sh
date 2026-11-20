@@ -38,6 +38,10 @@ python3 $T/portcheck.py --quiet --extended 2>&1 | tail -2 | sed 's/^/REPORT /'
 python3 $T/portsyntax.py 2>&1 | tail -1 | sed 's/^/REPORT /'
 # aliascheck (2026-11-03): an alias that gives a lib_names/symbols name another address moves the library forwarder jmp (RwFclose 005bfbf0 hung the standalone exe on an uninitialised lock)
 python3 $T/aliascheck.py | tail -6; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "aliascheck: an alias shadows a library name (src/aliascheck_known.txt for deliberate ones)"; exit 1; }
+# W17 DET (plan W17 4.8 / 4.9): the RET and TAIL detectors' planted-bug selftests, then the TAIL scan (~5 s): an original tail call after an argument-slot store whose recomp body
+# passes fewer arguments (pre-pse1 gap_5da500 freed the wave: 0xc0000374 on Windows).  The RET scan itself needs a v143 link: gate.sh standalone / full (tools/gate/v143_ret.sh)
+python3 -I $T/gate/ret_scan.py --selftest && python3 -I $T/gate/tailarg_scan.py --selftest || { echo "DET selftest: a planted RET / TAIL bug is no longer flagged (tools/gate/)"; exit 1; }
+python3 -I $T/gate/tailarg_scan.py --out $W/tailarg.txt | tail -2; [ ${PIPESTATUS[0]} -eq 0 ] || { echo "tailarg_scan: a recomp body drops the rewritten argument of an original tail call ($W/tailarg.txt)"; exit 1; }
 # ---- lints (before the strict builds since window 5: their FAIL classes are cheaper than a build); stack_lint (~60 s) runs beside rawaddr + defectlint (~90 s)
 # stack / call-boundary blind spots of diffemu (frame overflow by a callee's store extent, stack address in a value slot, calls with fewer arguments than the callee's original reads, interior register callees, float literals, cluster register+stack arity): installed code only, warning (output/stack_lint.csv, README 'stack_lint')
 python3 $T/stack_lint.py --csv $W/stack_lint.csv src/automatch_near src/clusters src/bridges src/tier1 > $W/stack_lint.txt 2>&1 & SLP=$!

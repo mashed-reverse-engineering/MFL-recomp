@@ -15,7 +15,8 @@
 #                when either fails) + origbytes vs output/zero_original_baseline.txt (a layer that GROWS fails; GATE_BASELINE_WRITE=1 writes the baseline) + DRIVE=31 course 0 state compare (cars / vehicles masked
 #                diff <= max(control noise, baseline 'state' rows)) + statehash compare of the stored course-0 pair (report only, tools/statehash/gatestep.py) + whole-program oracles (tools/delink/sa_oracles.sh): .data length 00052000H (in origcheck), mini course sweep through the menus (arcade + cup
 #                rows 0-14, DRIVE=31, black-frame check), d3dtrace render compare of course:0 only (ours vs cached control + ours vs ours2), scenario smoke, training lessons 0 and 3 to the end (tt_check).  No 15-course crash sweep (the mini sweep covers all courses).
-#   full         standalone + crash-only 15 courses on the linked exe + render of all tools/d3dtrace/render_limits.txt targets (course:0 course:7 course:12 title) + training lessons 0 2 3 + lesson 5 crash-only + V7 last (tools/wine-run/release_v7.sh: release link, smoke title + race, no trap log, pcm_check2).  Nightly and before tools/publish.sh
+#                + RET scan (W17 DET): v143 FIXES=all link (background after the harness link) + tools/gate/ret_scan.py vs the original (allow-list tools/gate/ret_allow.txt)
+#   full         standalone + crash-only 15 courses on the linked exe + render of all tools/d3dtrace/render_limits.txt targets (course:0 course:7 course:12 title) + training lessons 0 2 3 + lesson 5 crash-only + V8 (tools/wine-run/release_v8.sh: play smoke of the RET step's v143 link = MFLng.exe under WINEDEBUG warn+heap) + V7 last (tools/wine-run/release_v7.sh: release link, smoke title + race, no trap log, pcm_check2).  Nightly and before tools/publish.sh
 #                (publish.sh refuses unless the newest full gate in output/gate/ passed on the same tree hash).
 # Game checks are crash-only (RUNS=1, SHOTS_RUNS=0, THRESH=100000: a run that does not freeze at the race frame / a stall / crash fails). Refuses to start at load > LOADMAX (default 6),
 # every step has a hard timeout (STEP_TIMEOUT minutes, default 3x the estimate), one progress line per course, results in $GATE_DIR (default output/gate/<time>_<kind>).
@@ -96,6 +97,9 @@ case $KIND in
              step "origbytes vs baseline" 1 "origcheck"
              step "DS drift: generated data == committed data/link/gen" 0.1 "python3 -I $T/globals/dsform.py check $D/link/gen $R/data/link/gen"      # W16 DS (additive): refresh = dsform.py split <gen> data/link/gen at the freeze
              step "classsweep (report-only): div / fpucopy / x87 order candidates vs the original" 0.5 "~/.cache/mfl_diffemu_venv/bin/python $T/delink/classsweep.py run $D/link $D/classsweep.csv"      # W14 A4: exit 0 unless the tool breaks; rows = compile-proof candidates, never a verdict
+             # W17 DET: RET scan of a v143 link (FIXES=all) vs the original: a function the callers read EAX / AX / ST0 of that does not give it (_RwaThreadCreate, rwp_sphere, vr1); allow-list tools/gate/ret_allow.txt
+             if [ -n "$PARLINK" ]; then step "RET scan: v143 link (background, after the harness link) + tools/gate/ret_scan.py" 0.5 "v143wait"
+             else step "RET scan: v143 link (sequential) + tools/gate/ret_scan.py" 4.5 "v143wait"; fi
              [ $KIND = full ] && step "crash-only 15 courses on the linked exe" 6 "$T/delink/sweep.sh $D/link/ours.exe \$(cat $D/delta.txt) $D/sweep '$(seq -s' ' 0 14)' 2 | tee $D/sweep.log; [ \$(grep -c ': ok' $D/sweep.log) = 15 ] && python3 -I $T/delink/colorcheck.py $D/sweep"
              step "mini sweep: arcade + cup rows 0-14 through the menus, DRIVE=31" 5 "$T/delink/sa_oracles.sh sweep $D/link \$(cat $D/delta.txt) $D/minisweep"
              step "DRIVE=31 course 0 state compare" 2 "statecheck"
@@ -106,6 +110,8 @@ case $KIND in
              if [ $KIND = full ]; then step "training: lessons 0 2 3 to the end (tt_check) + lesson 5 crash-only" 9 "$T/delink/sa_oracles.sh training $D/link \$(cat $D/delta.txt) $D/training"
              else step "training: lessons 0 and 3 to the end (tt_check)" 5 "TT_ROWS='0 3' TT_CRASHONLY= $T/delink/sa_oracles.sh training $D/link \$(cat $D/delta.txt) $D/training"; fi
              # V7 (plan W6 section 4, T9): release link + release_smoke title/race, MFL_TRAP_NOBOX=1, no mfl_trap.log, pcm_check2 on the dump; hard 30 min
+             # V8 (plan W17 4.10, HEAP): play smoke (race, pause, Continue, Quit Game) of the RET step's v143 link ($D/v143/lnk = MFLng.exe, FIXES=all) with WINEDEBUG=fixme-all,warn+heap; no link of its own (the RET step already waited for it and failed the gate on a bad link)
+             [ $KIND = full ] && step "V8 v143 play smoke under warn+heap: race, pause, Continue, Quit Game" 1 "$W/release_v8.sh $D/v143/lnk $D/v8"
              [ $KIND = full ] && step "V7 release smoke: link_release + title + race, no trap log, pcm_check2" 12 "timeout -k 10 1800 $W/release_v7.sh $D/v7";;
   milestone) step "full sweep 0-14 RUNS=2 --count" 12 "sweep full 0 14 RUNS=2 SHOTS_RUNS=1 COURSE_TIMEOUT=420 COUNT=--count"
              step "fn_courses refresh" 0.1 "python3 $T/fn_courses.py build $D/full"
@@ -185,6 +191,12 @@ linkwait() {      # the link step of a PARLINK gate: wait for the background sta
   while [ ! -f $D/link.rc ] && kill -0 $LPID 2>/dev/null; do sleep 10; done
   cat $D/link_bg.log; [ -f $D/link.rc ] || { echo "background link ended without a result (timeout / killed)"; return 1; }; return $(cat $D/link.rc)
 }
+v143wait() {      # W17 DET: the RET step; with PARLINK its v143 link runs in the background after the harness link (started below), else here
+  if [ -n "$LPID" ]; then while [ ! -f $D/v143/link.rc ] && kill -0 $LPID 2>/dev/null; do sleep 10; done
+  else $T/gate/v143_ret.sh link $D/v143; fi
+  [ "$(cat $D/v143/link.rc 2>/dev/null)" = 0 ] || { tail -5 $D/v143/link.log 2>/dev/null; echo "RET: FAIL v143 link (log $D/v143/link.log)"; return 1; }
+  $T/gate/v143_ret.sh scan $D/v143
+}
 origcheck() {      # .data length of ours.map (T-P15) + origbytes of the link vs output/zero_original_baseline.txt ("key bytes" lines); GATE_BASELINE_WRITE=1 writes it
   $T/delink/sa_oracles.sh data $D/link $(cat $D/delta.txt) $D || return 1
   python3 $T/trapcheck.py --selftest $D/link || return 1      # the trap fixture on this gate's own link (negtest inside check_all runs before the link exists)
@@ -229,10 +241,10 @@ bridgeshadow() {  # bridgeshadow '<courses>' names...: the bridged functions as 
   local f ok=0; for f in $D/bridge_shadow/c*/out_ovl_1/shadowlog.bin; do python3 $W/shadow_report.py $f $R/src/bridges_shadow/shadow_names.txt | tee -a $D/bridge_shadow/report.txt | grep -iE "diff" | grep -E "$(IFS='|'; echo "$*")" && ok=1; done
   [ $ok = 0 ]
 }
-export LIB_RW RW_DLL; export -f lscale loadnow standalone_link linkwait origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
+export LIB_RW RW_DLL; export -f lscale loadnow standalone_link linkwait v143wait origcheck statecheck courses sweep shadow diffemu bridgeshadow failcheck nc scen_check; export T R W D CRASH EXTRA
 if [ -n "$PARLINK" ]; then      # the link beside check_all (both need ~5 min); the link step later only waits for it (linkwait)
   echo "=== [$(date +%H:%M)] link started in the background beside check_all (load $L1 < 8; log $D/link_bg.log)"
-  timeout -k 10 $((STEP_TIMEOUT * 120)) bash -c "standalone_link > $D/link_bg.log 2>&1; echo \$? > $D/link.rc" & LPID=$!; export LPID
+  timeout -k 10 $((STEP_TIMEOUT * 120)) bash -c "standalone_link > $D/link_bg.log 2>&1; echo \$? > $D/link.rc; [ \$(cat $D/link.rc) = 0 ] || exit 0; echo \"=== [\$(date +%H:%M:%S)] v143 link for the RET scan started in the background\"; $T/gate/v143_ret.sh link $D/v143; echo \"=== [\$(date +%H:%M:%S)] v143 link ended, exit \$(cat $D/v143/link.rc)\"" & LPID=$!; export LPID      # W17 DET: the v143 link follows the harness link (CPU only; no third parallel job)
 fi
 i=0
 for p in "${PLAN[@]}"; do i=$((i+1)); IFS='|' read -r l m c <<< "$p"

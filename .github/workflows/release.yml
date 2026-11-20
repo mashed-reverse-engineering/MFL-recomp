@@ -38,7 +38,8 @@ jobs:
           set -eu
           D=$(sed -n 's/^date //p' data/release_stamp.txt 2>/dev/null || true); D=${D:-$(date -u +%F)}
           CL=$(sed -n 's/^cl //p' out/BUILDINFO.txt | head -1); [ -n "$CL" ] || { echo "BUILDINFO.txt has no cl line"; exit 1; }
-          TAG=r$(echo "$D" | tr -d -)-${GITHUB_SHA::7}
+          # tag = r<UTC date>-<UTC hhmm>-<commit>: GitHub lists releases by NAME, so the time in the name keeps the newest on top (the stamp date D is the gate date)
+          TAG=r$(date -u +%Y%m%d-%H%M)-${GITHUB_SHA::7}
           mkdir -p pkg/LICENSES maps
           cp out/MFLng.exe out/MFLng.nofix.exe out/MFLng-launch.exe out/mflrw.dll out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/
           # W16 VIDCI: movies + menu music (mfl_video_ffmpeg.dll and the shared LGPL FFmpeg DLLs it imports; LICENSES/ffmpeg.txt)
