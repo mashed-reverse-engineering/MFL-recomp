@@ -46,6 +46,12 @@ def selftest():
 if __name__ == "__main__":
     a = sys.argv[1:]
     if a == ["--selftest"]: selftest(); sys.exit(0)
+    if a[:1] == ["--copy"]:      # W16 SPD: --copy <W> <objnames.txt>: copy each object to <W>/o/<name>, print the objs_local.txt lines (was a bash cp loop: one process per object, ~4,200 on the CI runner)
+        import shutil
+        for l in open(a[2]):
+            if not l.strip(): continue
+            s, o, n = l.split(None, 2); n = n.strip(); shutil.copy(o, os.path.join(a[1], "o", n)); print("%s %s/o/%s" % (s, a[1], n))
+        sys.exit(0)
     if a[:1] == ["--rsp"]:
         print("\n".join(rsp([l.split(None, 1) for l in (x.strip() for x in open(a[1])) if l]))); sys.exit(0)
     lines = [l.split(None, 1) for f in a for l in (x.strip() for x in open(f)) if l]

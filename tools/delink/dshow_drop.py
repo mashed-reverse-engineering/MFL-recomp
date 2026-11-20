@@ -47,21 +47,28 @@ def closure(exe):
     print("%d dead functions, %d bytes" % (len(cand), sum(min(fn[i+1][0], 0x5dbb20) - fn[i][0] for i in cand)))
 def dead_set():
     return {int(l.split()[0], 16): l.split()[2] for l in open(DEAD) if l.strip() and not l.startswith("#")}
+def coff_defs(p):
+    """names of the external functions a COFF object defines (section > 0, type 0x20, class 2), in symbol table order"""
+    d = open(p, "rb").read()
+    mach, nsec, _, sym, nsym = struct.unpack_from("<HHIII", d, 0)
+    assert not (mach == 0 and nsec == 0xffff), "bigobj COFF not handled: " + p
+    strt, out, i = sym + 18 * nsym, [], 0
+    while i < nsym:
+        nm, _, sec, ty, scl, aux = struct.unpack_from("<8sIhHBB", d, sym + 18 * i)
+        if sec > 0 and ty == 0x20 and scl == 2:
+            if nm[:4] == b"\0\0\0\0": o = strt + struct.unpack_from("<I", nm, 4)[0]; nm = d[o:d.index(b"\0", o)]
+            out.append(nm.rstrip(b"\0").decode("latin-1"))
+        i += 1 + aux
+    return out
 def filt(W):
     dead = dead_set(); fn, st = fns(); byname = {}
     for a, n, z in fn: byname.setdefault(n, []).append(a)
     loc = [l.split() for l in open(os.path.join(W, "objs_local.txt"))]
-    rel = lambda o: os.path.relpath(o, W)      # W16 CIN: names relative to W, 100 objects per call: the CI runner's native objdump has the Windows command line limit and sees msys2-rewritten absolute paths
-    out = "".join(subprocess.run(["objdump", "-t"] + [rel(o) for s, o in loc[i:i + 100]], cwd=W, capture_output=True, text=True).stdout for i in range(0, len(loc), 100))
-    cur, defs = None, {}
-    for l in out.splitlines():
-        m = re.match(r"^(\S+\.obj):", l)
-        if m: cur = m.group(1); continue
-        m = re.match(r"^\[\s*\d+\]\(sec\s+(\d+)\)\(fl 0x00\)\(ty\s+20\)\(scl\s+2\)\s+\(nx \d\) 0x[0-9a-f]+ (\S+)", l)
-        if m and int(m.group(1)) > 0: defs.setdefault(cur, []).append(re.sub(r"@\d+$", "", m.group(2).lstrip("_@")))
+    # W16 SPD: the symbol tables are read here (was objdump -t, 100 objects per call: ~70 s on the CI runner); agents/spd_w16/defs_check.py: same names as the objdump parse
+    defs = {o: [re.sub(r"@\d+$", "", n.lstrip("_@")) for n in coff_defs(o)] for s, o in loc}
     keep, drop = [], []
     for s, o in loc:
-        vs = [a for n in defs.get(rel(o), []) for a in byname.get(n, [])]
+        vs = [a for n in defs[o] for a in byname.get(n, [])]
         nd = [a for a in vs if a in dead]
         if nd and len(nd) == len({a for a in vs}): drop.append(s); os.remove(o)      # link.rsp is `ls o/*.obj`: the object must leave the work dir too
         else:

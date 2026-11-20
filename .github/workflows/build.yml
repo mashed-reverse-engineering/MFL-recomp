@@ -142,7 +142,9 @@ jobs:
         with:
           path: .objcache
           key: objcache-v143-${{ matrix.variant }}-${{ hashFiles('src/**', 'third_party/**', 'tools/build_overlay.py', 'tools/delink/**', 'tools/msvcw/**', 'data/link/**') }}
-          restore-keys: objcache-v143-${{ matrix.variant }}-
+          restore-keys: |
+            objcache-v143-${{ matrix.variant }}-
+            objcache-v143-
       - name: link (${{ matrix.variant }})
         env: { CC: v143, LIB_CRT: v143md, MSVCW_NATIVE: '1', AUDIO_DLL: '1', LINKFLAGS: '/manifest:no', PYTHONHASHSEED: '1', JOBS: '4', FIXES: "${{ matrix.variant == 'fixes' && 'all' || '' }}" }
         run: |

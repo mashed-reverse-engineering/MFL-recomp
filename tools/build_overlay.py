@@ -10,6 +10,7 @@ sys.path.append(HERE); import incexpand
 RECOMP = os.path.join(HERE, "..", "src")
 EXE = os.path.join(HERE, "..", "..", "MashedGame", "FullyLoaded", "installed", "App_Executables", "MFL.exe")
 V143 = os.environ.get("CC") == "v143"      # W16 V143 item 2: the CC=v143 variant compiles with MSVC v143 /MD (msvc-wine); unset = VC7 cl 13.00, unchanged
+MT = V143 and os.environ.get("LIB_CRT") == "v143mt"      # W16 MT (V143 item 4): /MT instead of /MD (static CRT, no CRT dllimport); own cache keys
 
 
 def v143_compile(work, todo, fix, gs_files, ob0_files):
@@ -24,7 +25,7 @@ def v143_compile(work, todo, fix, gs_files, ob0_files):
             fl = [x for x in todo if (x in gs_files) == bool(g) and (x in ob0_files) == bool(o)]
             for i in range(0, len(fl), max(1, -(-len(fl) // par))):
                 rsp = "v143_%d.rsp" % len(jobs)
-                open(os.path.join(work, rsp), "w").write("\n".join(msvcw_compile.BASE + fix + (["/GS"] if g else []) + (["/Ob0"] if o else []) + fl[i:i + max(1, -(-len(fl) // par))]) + "\n")
+                open(os.path.join(work, rsp), "w").write("\n".join([("/MT" if MT and x == "/MD" else x) for x in msvcw_compile.BASE] + fix + (["/GS"] if g else []) + (["/Ob0"] if o else []) + fl[i:i + max(1, -(-len(fl) // par))]) + "\n")
                 jobs.append(rsp)
     cl = "/opt/msvc/bin/x86/cl"
     cmd = " ".join(["%s @%s > %s.log 2>&1;" % (cl, jobs[0], jobs[0])] + ["%s @%s > %s.log 2>&1 &" % (cl, j, j) for j in jobs[1:]] + ["wait"])
@@ -211,6 +212,12 @@ def main():
         lh_ = {n_: open(os.path.join(work, n_), "rb").read() for n_ in LOCAL_H if os.path.exists(os.path.join(work, n_))}
         vh_ = lambda src_: b"".join(v_ for n_, v_ in sorted(lh_.items()) if n_.encode() in src_)
         inc_ = lambda p_: incexpand.read_expanded(p_).encode("utf-8") if incexpand.incs(open(p_, errors="replace").read()) else b""      # a source with .inc includes: the inlined text joins its key (others: key unchanged)
+        # W16 SPD (CC=v143 only): the MFL_FIX defines join the key only of a file that can see them (its text or .inc text names MFL_FIX_, or a local header that does);
+        # any other file has the same object with and without them (agents/spd_w16/notes.md), so the flag-on build reuses the default build's objects
+        fixh_ = []; sees_ = lambda t_: b"MFL_FIX_" in t_ or any(n_ in t_ for n_ in fixh_)
+        for _ in LOCAL_H: fixh_ = [n_.encode() for n_, v_ in lh_.items() if sees_(v_)]      # local headers that see them, also through each other
+        fixall_ = any(sees_(open(h, "rb").read()) for h in glob.glob(os.path.join(work, "*.h")) if os.path.basename(h) not in LOCAL_H)      # a shared header that can see them: every file keyed with them
+        kflags_ = lambda t_: flags if not (V143 and fixd_) or fixall_ or sees_(t_) else flags[:4]
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
         todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set(); op_files = set(); ccv = {}
@@ -233,7 +240,8 @@ def main():
             if os.sep + "bridges" + os.sep in c and "bridge_sel" not in nm:      # a bridge that moved to tier 2 (automatch_near, bridge disabled): its stub / C body definitions are dropped, the tier 2 function owns the symbol
                 t_ = open(os.path.join(work, nm), errors="replace").read(); t2_ = cl_strip(t_, [n_ for n_ in t2near_off if re.search(r"\b%s\b" % n_, t_)])
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
-            key = hashlib.sha1(open(os.path.join(work, nm), "rb").read() + hdr.digest() + vh_(open(os.path.join(work, nm), "rb").read()) + inc_(os.path.join(work, nm)) + " ".join(flags + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else []) + (["/Op"] if nm in op_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"") + (b" cc=v143" if V143 else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
+            t_ = open(os.path.join(work, nm), "rb").read(); i_ = inc_(os.path.join(work, nm))
+            key = hashlib.sha1(t_ + hdr.digest() + vh_(t_) + i_ + " ".join(kflags_(t_ + i_) + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else []) + (["/Op"] if nm in op_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"") + (b" cc=v143" if V143 else b"") + (b" crt=mt" if MT else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)

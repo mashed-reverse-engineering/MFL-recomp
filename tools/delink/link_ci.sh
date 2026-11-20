@@ -8,6 +8,7 @@
 # SK2 W16, no <ref dir> (CC=v143 only; the self-contained CI link): every input from the committed tables in LINKDATA (default data/link), written
 # by tools/ci/link_tables.py emit from a normal CC=v143 release link: mfl_image_v143.txt (TABLE), imports_v143.txt (IMPTAB, mk_importlibs --table),
 # crt_xcu.txt (crt_xcu.py), gen_v143/ (DSDATA, joined with the held rows zero).  No compare (nothing to compare with).
+# W16 MT: LIB_CRT=v143mt (static CRT) uses the same tables: mfl.obj of a normal v143mt link is byte-identical to the v143md one.
 set -e
 T=$(dirname "$(readlink -f "$0")"); G=$T/../..
 [ $# -eq 1 ] || { [ $# -eq 2 ] && [ -f "$2/ours.exe" ]; } || { echo "usage: link_ci.sh <new work dir> [<normal release link dir of the same HEAD>]"; exit 1; }

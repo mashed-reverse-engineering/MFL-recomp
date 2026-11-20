@@ -210,7 +210,7 @@ Z4_PUTBACK = set(filter(None, os.environ.get("Z4_PUTBACK", "").split(",")))
 # globgen.log) instead of stopping the link.  Never set in a VC7 gate or release link (no *_PUTBACK there): a non-tiling entry stays an error.
 # W16 V143c3: also under LIB_CRT=v143md (no CRT split: no selftables / CRT dead edges, so library items merge across z4 entries, e.g. the SEH
 # scope tables 0x5e6484 / 0x5e6494 of group d0); the image keeps the VC7 CRT bytes there anyway.
-Z4_MERGED_OK = any(os.environ.get(v) for v in ("Z1_PUTBACK", "Z3_PUTBACK", "DM_PUTBACK", "Z2T_PUTBACK", "Z4_PUTBACK", "Z6_PUTBACK")) or os.environ.get("LIB_CRT") == "v143md"
+Z4_MERGED_OK = any(os.environ.get(v) for v in ("Z1_PUTBACK", "Z3_PUTBACK", "DM_PUTBACK", "Z2T_PUTBACK", "Z4_PUTBACK", "Z6_PUTBACK")) or os.environ.get("LIB_CRT") in ("v143md", "v143mt")
 Z4_BASE = {"f4": ("float", 4), "f8": ("double", 8), "u1": ("unsigned char", 1), "u2": ("unsigned short", 2), "u4": ("unsigned int", 4),
            "i4": ("int", 4), "ptr": ("void *", 4), "fptr": ("z4_fn", 4), "guid": ("struct mfl_guid", 16), "str": ("char", 1), "wstr": ("unsigned short", 2),
            "vu2": ("unsigned short", 2), "vu4": ("unsigned int", 4)}      # vu2 / vu4: value-only words (a relocation site inside is NOT relocated: the image value)
@@ -273,7 +273,7 @@ def load_names():
     if CRT_SPLIT:      # the split members define these symbols themselves (_iob, __d_inf, ...): a name here would win the link and bring the zero-filled dead row
         _cd = list(_crt_dead())      # once: calling _crt_dead() per name re-read the CRT csv ~60k times (15 min of every libcmt link, found 2026-11-03)
         for a in [a for a in names if any(s_ <= a < e_ for k_, s_, e_ in _cd)]: names[a] = []
-    if os.environ.get("LIB_CRT") == "v143md":      # W16 V143c7: msvcrt.lib(initializers.obj) defines the initialiser bounds; the image's VC7 table must not take
+    if os.environ.get("LIB_CRT") in ("v143md", "v143mt"):      # W16 V143c7 (MT: libcmt.lib(initializers.obj) the same): msvcrt.lib(initializers.obj) defines the initialiser bounds; the image's VC7 table must not take
         for a in names: names[a] = [n for n in names[a] if n not in ("__xc_a", "__xc_z", "__xi_a", "__xi_z")]      # the names (else _initterm walks the VC7 table, not .CRT$XCU of crt_xcu.c)
     return {a: v for a, v in names.items() if v}
 
@@ -501,7 +501,7 @@ def main(out):
         items[sec] = out3
     z4miss = [(s, a) for s, e in Z4.items() for a in e if (s, a) not in z4used | z4merged and e[a]["group"] not in Z4_PUTBACK]
     if z4merged: print("Z4_MERGED: %d entries inside library items a put-back form merged stay library blobs: %s" % (len(z4merged), " ".join("%08x" % a for s, a in sorted(z4merged))))
-    if z4miss and os.environ.get("LIB_CRT") == "v143md":      # W16 V143c4: the z4 rows tile the VC7 (libcmt split) items; v143md keeps the CRT data as library blobs, these entries with it
+    if z4miss and os.environ.get("LIB_CRT") in ("v143md", "v143mt"):      # W16 V143c4: the z4 rows tile the VC7 (libcmt split) items; v143md keeps the CRT data as library blobs, these entries with it
         print("Z4_V143MD: %d entries of z4_types.txt match no library item, stay inside library blobs: %s" % (len(z4miss), " ".join("%08x" % a for s, a in sorted(z4miss)))); z4miss = []
     if z4miss: sys.exit("globgen Z4: %d entries of z4_types.txt match no library item: %s" % (len(z4miss), " ".join("%08x" % a for s, a in z4miss[:8])))
     for g in sorted(Z4_PUTBACK): print("Z4_PUTBACK: group %s: %s stay library blobs" % (g, " ".join("%08x+%d" % (a, e[a]["size"]) for s, e in Z4.items() for a in sorted(e) if e[a]["group"] == g)))

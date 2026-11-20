@@ -12,11 +12,13 @@ export SKIP_FILES=an_hk_975.c${SKIP_FILES:+,$SKIP_FILES}
 # CC=v143 (W16 V143 item 2, only with LIB_CRT=v143md): our C, Lua / qhull / zlib, the shim and the link by MSVC v143 /MD (tools/msvcw/msvcw_sh.sh,
 # msvc-wine); CC unset = the VC7 link, unchanged.  Our VC7 CRT bodies whose names the v143 CRT supplies leave the build (INV 6): raise (_getptd),
 # i10_output, amsg_exit, mlock, heap thunks, memcpy / memmove, _control87 / _controlfp.
-V143=
+# W16 MT (V143 item 4): LIB_CRT=v143mt = the same with the static CRT (/MT, libcmt + libvcruntime + libucrt): no vcruntime140 / ucrtbase /
+# api-ms-win-crt-* import, runs without the VC++ redistributable.  CRTF / CRTL: the cl switch and the CRT libs of the link line.
+V143=; CRTF=/MD; CRTL="msvcrt.lib vcruntime.lib ucrt.lib"
 if [ "$CC" = v143 ]; then
-  [ "$LIB_CRT" = v143md ] || { echo "CC=v143 needs LIB_CRT=v143md"; exit 1; }      # SK2 W16: NOEXE too (link_ci.sh with no ref dir: data/link/*_v143 tables)
+  case $LIB_CRT in v143md) ;; v143mt) CRTF=/MT; CRTL="libcmt.lib libvcruntime.lib libucrt.lib";; *) echo "CC=v143 needs LIB_CRT=v143md or v143mt"; exit 1;; esac      # SK2 W16: NOEXE too (link_ci.sh with no ref dir: data/link/*_v143 tables)
   V143=1; export SKIP_FILES=an_crt_raise.c,an_crt_i10_output.c,an_crt_amsg_exit.c,an_crt_mlock.c,an_crt_heap_thunks.c,an_crt_memcpy.c,cl__control87.c,$SKIP_FILES
-elif [ "$LIB_CRT" = v143md ]; then echo "LIB_CRT=v143md needs CC=v143"; exit 1; fi
+elif [ "${LIB_CRT#v143}" != "$LIB_CRT" ]; then echo "LIB_CRT=$LIB_CRT needs CC=v143"; exit 1; fi
 # LIB_ZLIB=src (A5): zlib 1.1.3 + libpng 1.0.12 (RenderWare rtpng.lib members, not the rtpng.obj wrapper), same mechanism.
 # LIB_LUA=src LIB_QHULL=src (A4, MKRANGE/GEN_DATA builds): Lua 4.0 / qhull 2002.1 come from upstream source (output/libmatch2/build_libs.sh, cl 13.00 /G5 /O2 /Ob0), the exe's code range of the lib is dropped
 # (tools/delink_sdk/plan_srclib.py, libs.cfg) and the lib's old data rows are not emitted (LIBSRC=1 for globgen/origbytes).  Without them the image keeps the original bytes of the lib.
@@ -25,14 +27,14 @@ if [ -n "$LSRC" ]; then
   export LIBSRC="${LSRC# }"; mkdir -p $W/lib; ITEMS=
   # W16 CIN cin3: MFL_REFS on the command line: the docker form passes no environment into the container (an export tree's default
   # <tree>/../upstream does not exist; link_ci.sh sets MFL_REFS=<tree>/third_party)
-  if [ -n "$V143" ]; then $G/tools/msvcw/msvcw_sh.sh $W "CC=v143 MSVC_BIN=/opt/msvc/bin/x86 ${MFL_REFS:+MFL_REFS=$MFL_REFS }bash $G/output/libmatch2/build_libs.sh $W/lib/src $LSRC" > $W/lib/src.log 2>&1 || { tail -3 $W/lib/src.log; exit 1; }
+  if [ -n "$V143" ]; then $G/tools/msvcw/msvcw_sh.sh $W "CC=v143 V143_CRT=$CRTF MSVC_BIN=/opt/msvc/bin/x86 ${MFL_REFS:+MFL_REFS=$MFL_REFS }bash $G/output/libmatch2/build_libs.sh $W/lib/src $LSRC" > $W/lib/src.log 2>&1 || { tail -3 $W/lib/src.log; exit 1; }
   else
   VC7_CONTAINER=libsrc $G/output/libmatch2/build_libs.sh $W/lib/src $LSRC > $W/lib/src.log 2>&1 || { tail -3 $W/lib/src.log; exit 1; }
   fi
   : > $W/lib/extra_objs.txt; : > $W/lib/members.txt
   for L in $LSRC; do python3 $G/tools/delink_sdk/plan_srclib.py $L $W/lib/src/$L/_o $W/lib/$L $ITEMS | tail -1; cat $W/lib/$L/extra_objs.txt >> $W/lib/extra_objs.txt; cat $W/lib/$L/members.txt >> $W/lib/members.txt; ITEMS=$W/lib/$L/items.csv; done
   cp $G/tools/delink_sdk/stubs.c $W/lib/
-  if [ -n "$V143" ]; then $G/tools/msvcw/msvcw_sh.sh $W/lib "/opt/msvc/bin/x86/cl /nologo /c /O2 /arch:IA32 /GS- /MD /Zl stubs.c" > $W/lib/stubs.log 2>&1 || { tail -3 $W/lib/stubs.log; exit 1; }      # W16 CIN: no VC7 step in the v143 path
+  if [ -n "$V143" ]; then $G/tools/msvcw/msvcw_sh.sh $W/lib "/opt/msvc/bin/x86/cl /nologo /c /O2 /arch:IA32 /GS- $CRTF /Zl stubs.c" > $W/lib/stubs.log 2>&1 || { tail -3 $W/lib/stubs.log; exit 1; }      # W16 CIN: no VC7 step in the v143 path
   else VC7_CONTAINER=ac $G/tools/vc7.sh $W/lib cl.exe /nologo /c /O2 stubs.c > /dev/null; fi
   echo "stub:stubs $W/lib/stubs.obj" >> $W/lib/extra_objs.txt      # stdio the exe does not link (dead in Lua / qhull), IID_IUnknown, errno
   EXTRA_OBJS=$W/lib/extra_objs.txt; MKOBJ_ARGS="$MKOBJ_ARGS --drop-members $W/lib/members.txt --drop-items $ITEMS"; export LIBSRC_ITEMS=$ITEMS
@@ -94,7 +96,7 @@ if [ -n "$V143" ]; then
   XCU=$W/mfl_patched.exe; [ -n "$NOEXE" ] && XCU=$LINKDATA/crt_xcu.txt      # SK2: NOEXE reads the 12 committed slot values (tools/ci/link_tables.py)
   python3 $G/tools/msvcw/crt_xcu.py $XCU $W/v143/crt_xcu.c || exit 1
   cp $G/tools/msvcw/v143md_shim.c $W/v143/
-  $G/tools/msvcw/msvcw_sh.sh $W/v143 "/opt/msvc/bin/x86/cl /nologo /c /O2 /arch:IA32 /GS- /MD /Zl crt_xcu.c v143md_shim.c" > $W/v143/cl.log 2>&1 || { tail -5 $W/v143/cl.log; exit 1; }
+  $G/tools/msvcw/msvcw_sh.sh $W/v143 "/opt/msvc/bin/x86/cl /nologo /c /O2 /arch:IA32 /GS- $CRTF $([ $CRTF = /MT ] && echo /DMFL_V143MT) /Zl crt_xcu.c v143md_shim.c" > $W/v143/cl.log 2>&1 || { tail -5 $W/v143/cl.log; exit 1; }
   { [ -n "${EXTRA_OBJS:-}" ] && cat $EXTRA_OBJS; echo "v143:crt_xcu $W/v143/crt_xcu.obj"; echo "v143:shim $W/v143/v143md_shim.obj"; } > $W/v143/extra_objs.txt; EXTRA_OBJS=$W/v143/extra_objs.txt
 fi
 # LIB_RW=librw:<group> (L2, plan_librw_integration 2.3; needs IMPLIBS=1 and RW_DLL=<mflrw.dll>): the functions named in tools/delink/rw_<group>.txt (g0 = stateless math) come from the librw facade DLL.  A thunk object (gas) defines
@@ -118,8 +120,7 @@ if [ -n "$DROP_DINPUT" ]; then
 fi
 # W11 B2: stable object names o/<name>.obj (tools/delink/objnames.py: our C by file name, extra objects by their tag; a duplicate stops the link), not o/<n>.obj
 python3 $T/objnames.py $W/objs.txt ${EXTRA_OBJS:-} > $W/objnames.txt || exit 1
-: > $W/objs_local.txt
-while read -r src obj nm; do cp $obj $W/o/$nm; echo "$src $W/o/$nm" >> $W/objs_local.txt; done < $W/objnames.txt      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step)
+python3 $T/objnames.py --copy $W $W/objnames.txt > $W/objs_local.txt      # EXTRA_OBJS=<file "src obj" per line>: more objects, e.g. SDK lib members (M2 lib step); W16 SPD: one process, not one cp per object
 # LITRELOC (T-E6): raw code addresses in the recompiled objects (tools/delink/code_literals.txt) become relocations against func_0x<va> (the copies in $W/o; the sources stay)
 # A7 (always, W12 DS2: the DROP_DSHOW=0 form is gone): the DirectShow movie code is dead (the game plays movies through src/video/mfl_video): its objects leave the link, mkobj fills the functions, globgen zeroes the pointers to them
 python3 $T/dshow_drop.py filter $W; export DROP_DSHOW=1      # the env var is only the channel to mkobj.py / globgen.py
@@ -202,7 +203,12 @@ if [ -n "$V143" ]; then      # MSVC 14.44 link, same layout switches (+ the v143
   else
   UM=/opt/msvc/kits/10/Lib/$(cd $HOME/.cache/mfl/msvc-wine/msvc/kits/10/Lib && ls -d */ | tail -1)um/x86
   fi
-  $G/tools/msvcw/msvcw_sh.sh $W "/opt/msvc/bin/x86/link /nologo /machine:x86 /subsystem:windows /entry:$ENTRY /fixed /base:$B /nodefaultlib /force:multiple /dynamicbase:no /safeseh:no /opt:noicf $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK msvcrt.lib vcruntime.lib ucrt.lib legacy_stdio_definitions.lib legacy_stdio_wide_specifiers.lib oldnames.lib $UM/kernel32.lib $UM/user32.lib $UM/gdi32.lib $UM/advapi32.lib $([ -s $W/mfl.obj.linkopts ] && echo @mfl.obj.linkopts)" > $W/link.log 2>&1 || true
+  LO=; [ -s $W/mfl.obj.linkopts ] && LO=@mfl.obj.linkopts      # (a failing $(...) inside an assignment would stop set -e)
+  LNKCMD="/opt/msvc/bin/x86/link /nologo /machine:x86 /subsystem:windows /entry:$ENTRY /fixed /base:$B /nodefaultlib /force:multiple /dynamicbase:no /safeseh:no /opt:noicf $LINKFLAGS /map:ours.map /out:ours.exe $MFLOBJ $GEN_OBJ $RESF @link.rsp $IMPLIBS_LNK $CRTL legacy_stdio_definitions.lib legacy_stdio_wide_specifiers.lib oldnames.lib $UM/kernel32.lib $UM/user32.lib $UM/gdi32.lib $UM/advapi32.lib $LO"
+  $G/tools/msvcw/msvcw_sh.sh $W "$LNKCMD" > $W/link.log 2>&1 || true
+  # W16 MT: names a libucrt / libvcruntime member defines as well as ours (VC7 CRT data of gen/, image labels) -> ours renamed _vc7, link again
+  if [ $CRTF = /MT ]; then cp $W/link.log $W/v143/link_pass1.log; python3 $G/tools/msvcw/v143mt_dups.py $W || exit 1; $G/tools/msvcw/msvcw_sh.sh $W "$LNKCMD" > $W/link.log 2>&1 || true
+    python3 $G/tools/msvcw/v143mt_dups.py --check $W || exit 1; fi
   grep -E "LNK(4006|2005|2001|2019|4217|4286)" $W/link.log > $W/v143/lnk_pairs.txt || true
   echo "v143 link: $(grep -c . $W/v143/lnk_pairs.txt) LNK4006/2005/2001/2019/4217/4286 lines -> $W/v143/lnk_pairs.txt"
 else

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """pe_check.py: structural check of a built exe (or --dll: mflrw.dll) before anything reaches Wine.
-usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] | --dll <mflrw.dll> | --selftest
+usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] [--static-crt] | --dll <mflrw.dll> | --selftest
+--static-crt (W16 MT, LIB_CRT=v143mt exes): ucrtbase / vcruntime140 / api-ms-win-crt-* leave the allow-list.
 exe: PE32 i386; imports only from the allow-list; every mflrw.dll import is exported by --rwdll; resources only RT_MANIFEST (24);
      --manifest: exactly one RT_MANIFEST, byte-equal to the file (embed it with rc `1 24 "MFLng.manifest"` + /manifest:no:
      link /manifest:embed /manifestinput rewrites the XML and fails this compare).
@@ -10,16 +11,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rw_stub_guard import parse_pe, make_pe
 
 # INV 5 item 3 (VC7 exe) + v143 /MD additions
+CRT_DLLS = ["ucrtbase.dll", "vcruntime140.dll", "api-ms-win-crt-*.dll"]
 EXE_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "advapi32.dll", "ole32.dll", "d3d9.dll", "dinput8.dll",
-          "winmm.dll", "mflrw.dll", "ucrtbase.dll", "vcruntime140.dll", "api-ms-win-crt-*.dll"]
+          "winmm.dll", "mflrw.dll"] + CRT_DLLS
 DLL_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "d3d9.dll", "msvcrt.dll"]
 
 
-def check(data, dll=False, rwdata=None, manifest=None):
+def check(data, dll=False, rwdata=None, manifest=None, static_crt=False):
     p, bad = parse_pe(data), []
     if p["machine"] != 0x14C or p["magic"] != 0x10B:
         return ["not PE32 i386 (machine 0x%x magic 0x%x)" % (p["machine"], p["magic"])]
-    ok = DLL_OK if dll else EXE_OK
+    ok = DLL_OK if dll else [a for a in EXE_OK if not (static_crt and a in CRT_DLLS)]      # W16 MT --static-crt: no redistributable DLL
     for d in p["imports"]:
         if not any(fnmatch.fnmatch(d, a) for a in ok):
             bad.append("import from %s not in allow-list" % d)
@@ -48,6 +50,8 @@ def selftest():
     assert check(make_pe({"kernel32.dll": ["A"]}, res={24: m}), manifest=m) == []
     assert check(make_pe({"kernel32.dll": ["A"]}, res={24: m + b" "}), manifest=m), "changed manifest not caught"
     assert check(make_pe({"kernel32.dll": ["A"]}), manifest=m), "missing manifest not caught"
+    assert check(good, rwdata=rw, static_crt=True), "--static-crt: CRT DLL import not caught"
+    assert check(make_pe({"kernel32.dll": ["A"], "mflrw.dll": ["RwA"]}), rwdata=rw, static_crt=True) == []
     assert check(make_pe({"msvcrt.dll": ["a"], "d3d9.dll": ["b"]}), dll=True) == []
     assert check(make_pe({"libgcc_s_dw2-1.dll": ["a"]}), dll=True), "dll allow-list not enforced"
     print("pe_check selftest OK")
@@ -59,13 +63,15 @@ def main(a):
     dll = a[:1] == ["--dll"]
     if dll:
         a = a[1:]
+    st = "--static-crt" in a
+    a = [x for x in a if x != "--static-crt"]
     opt = {}
     for k in ("--rwdll", "--manifest"):
         if k in a:
             i = a.index(k); opt[k] = open(a[i + 1], "rb").read(); a = a[:i] + a[i + 2:]
     if len(a) != 1:
         sys.exit(__doc__)
-    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"))
+    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st)
     for b in bad:
         print("FAIL: " + b)
     if bad:

@@ -25,7 +25,10 @@ unsigned int __cdecl _fwrite(const void *p, unsigned int size, unsigned int n, F
    DllMain), so the exe's start-up only gets stubs: msvcrt.lib(ucrt_stubs.obj) __scrt_stub_for_acrt_* return true and
    __scrt_stub_for_is_c_termination_complete returns 0; utility.obj maps the 11 names to them with /alternatename (the ___vcrt_* ones to
    the acrt stubs), which this link does not resolve (V143c5: /include of the stubs loaded them, still LNK2019).  Same bodies here.
-   bool = unsigned char (cl x86 returns it in al). */
+   bool = unsigned char (cl x86 returns it in al).
+   W16 MT (LIB_CRT=v143mt, compiled with /DMFL_V143MT): libcmt.lib's start-up initialises the static libvcruntime / libucrt, which define
+   these names themselves: no stubs (with /force:multiple a stub would win and the static CRT would never be initialised). */
+#ifndef MFL_V143MT
 typedef unsigned char mfl_bool;
 mfl_bool __cdecl __vcrt_initialize(void) { return 1; }
 mfl_bool __cdecl __vcrt_uninitialize(mfl_bool terminating) { (void)terminating; return 1; }
@@ -38,6 +41,7 @@ mfl_bool __cdecl __acrt_uninitialize_critical(mfl_bool terminating) { (void)term
 mfl_bool __cdecl __acrt_thread_attach(void) { return 1; }
 mfl_bool __cdecl __acrt_thread_detach(void) { return 1; }
 int __cdecl _is_c_termination_complete(void) { return 0; }
+#endif
 
 /* V143d1: the image's library code (RenderWare, D3DX, zlib/png, piz file I/O) still calls the VC7 CRT bodies section relative, and those
    use VC7 state that only the VC7 WinMainCRTStartup set up (heap, TLS + locks, lowio, stdio, fp conversion, the __xi table): left zero,

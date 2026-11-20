@@ -1,7 +1,8 @@
 #!/bin/bash
 # Build Lua 4.0, qhull 2002.1 and zlib 1.1.3 from upstream source with the game's compiler (cl 13.00.9466) into
 # lua40.lib / qhull2002.lib / zlib113.lib, one COMDAT per function (/Gy).  Usage: build_libs.sh <outdir below $TMPDIR (mounted into the compiler container)> [lua|qhull|zlib ...]
-# CC=v143 (W16): build the same libraries with MSVC v143 /MD instead (CI variant; tools/run.py docker msvcw-libs <out dir> runs it under msvc-wine).
+# CC=v143 (W16): build the same libraries with MSVC v143 /MD instead (CI variant; tools/run.py docker msvcw-libs <out dir> runs it under msvc-wine);
+# V143_CRT=/MT: static CRT (link_ours.sh LIB_CRT=v143mt).
 # Needs: ghidra/tools/vc7.sh (docker + wine image), VC7_CONTAINER set below (own container, never a mfl_slot*).
 # MFL_REFS: directory with the upstream sources (lua/src40, qhull/blender240, zlib/src, libpng/src); default: upstream/ beside the ghidra tree.
 set -e
@@ -24,7 +25,7 @@ if [ "${CC:-}" = v143 ]; then  # W16 V143 (CI variant only; unset CC = the VC7 c
   cc() {
     local d=$1; shift; local fl=(); while [ "$1" != "--" ]; do [ "$1" = /G5 ] || fl+=("$1"); shift; done; shift
     mkdir -p "$d/_o"
-    (cd "$d" && "${MSVC_BIN:+$MSVC_BIN/}cl" /nologo /c /Gy "${fl[@]}" /arch:IA32 /GS- /MD /Zl /D_CRT_SECURE_NO_WARNINGS '/Fo_o\' "$@")
+    (cd "$d" && "${MSVC_BIN:+$MSVC_BIN/}cl" /nologo /c /Gy "${fl[@]}" /arch:IA32 /GS- ${V143_CRT:-/MD} /Zl /D_CRT_SECURE_NO_WARNINGS '/Fo_o\' "$@")
   }
   mklib() { local d=$1 name=$2; shift 2; rm -f "$d/$name"; (cd "$d" && "${MSVC_BIN:+$MSVC_BIN/}lib" /nologo "/OUT:$name" "$@"); }
 fi
