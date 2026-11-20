@@ -249,7 +249,7 @@ FUN_005c2180,005c2180,tier1,bytes,bytes-reloc,80e7288c1750,33bf93632a05,7bb9ffc2
 FUN_005c21e0,005c21e0,tier1,bytes,bytes-reloc,7de6bdea51f3,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c30c0,005c30c0,tier1,bytes,bytes-reloc,b80de74ad591,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c4340,005c4340,tier1,bytes,bytes-reloc,5e749399c542,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-FUN_005c43a0,005c43a0,tier1,bytes,bytes-reloc,00fc4bbd4c31,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+FUN_005c43a0,005c43a0,tier1,bytes,bytes-reloc,1265761b570d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c4440,005c4440,tier1,bytes,bytes-reloc,7f9fdcd19f8d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 FUN_005c4590,005c4590,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,0.80,0,0
 FUN_005c4610,005c4610,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,67,0.88,0,0
@@ -3710,8 +3710,8 @@ rwp_sphere_0056ca70,0056ca70,tier1,bytes,bytes-reloc,f3f1e06fa82e,33bf93632a05,7
 rwp_sphere_0056cac0,0056cac0,tier1,bytes,bytes-reloc,688500c3a920,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_sphere_0056cb30,0056cb30,tier1,bytes,bytes-reloc,0554867cd796,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_sphere_0056cba0,0056cba0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,7073c6e89a49,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
-rwp_sphere_0056cc40,0056cc40,tier1,bytes,bytes-reloc,e11cf4dce4bf,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
-rwp_sphere_0056cc50,0056cc50,tier1,bytes,bytes-reloc,e042a2deed10,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+rwp_sphere_0056cc40,0056cc40,tier1,bytes,bytes-reloc,49eba80fb429,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+rwp_sphere_0056cc50,0056cc50,tier1,bytes,bytes-reloc,02406121238b,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_sphere_0056cca0,0056cca0,tier1,bytes,bytes-reloc,6a59c180a006,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 rwp_sphere_0056ccc0,0056ccc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,28b5b0acebee,33bf93632a05,7bb9ffc2481e,200,0.80,0,0
 rwp_sphere_mass_props,0056cb50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,cf1c33dbd370,33bf93632a05,7bb9ffc2481e,169,1.00,0,0
