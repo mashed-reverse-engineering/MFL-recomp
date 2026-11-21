@@ -38,6 +38,14 @@ void gamesave_load_state_machine(float delta_time)
     gamesave_poll_status();
     return;
   case 1:
+#if MFL_FIX_LOAD_SAVE_EARLY
+    if (mfl_save_loaded_at_boot) {      /* already read and applied at boot (an_hk_9109.c): nothing to ask, nothing to wait for; used once, a later load (pause menu) reads the file again */
+      mfl_save_loaded_at_boot = 0;
+      g_gamesave_result_code = 0;
+      g_gamesave_load_step = 6;
+      return;
+    }
+#endif
     result = stub_return_zero();
     if (result == 0) {
       g_gamesave_status_poll_count = g_gamesave_status_poll_count + 1;
@@ -49,8 +57,12 @@ void gamesave_load_state_machine(float delta_time)
         nop_stub();
         message_close();
       }
+#if MFL_FIX_LOAD_SAVE_EARLY
+      g_gamesave_load_step = 2;      /* no confirm box: go on as its "yes" does (gamesave_cb_load_state: step 7 -> 2) */
+#else
       message_show(0x21a,MESSAGE_CODE_FF46,2,0x2f,0x30,0);
       g_gamesave_load_step = 7;
+#endif
     }
     FID_conflict__wprintf("Waiting for load status\n");
     return;
@@ -74,7 +86,9 @@ void gamesave_load_state_machine(float delta_time)
     return;
   case 3:
     g_gamesave_load_failed = 0;
+#if !MFL_FIX_LOAD_SAVE_EARLY      /* no "Loading" box */
     message_show(0x236,MESSAGE_CODE_FF46,0,0,0,0);
+#endif
     g_gamesave_wait_timer = 0.0;
     g_gamesave_load_step = 4;
     gamesave_set_result_code(5);
@@ -85,7 +99,9 @@ void gamesave_load_state_machine(float delta_time)
   case 5:
     switch(g_gamesave_result_code) {
     case 0:
+#if !MFL_FIX_LOAD_SAVE_EARLY      /* no "Load successful" box (so no OK to press) */
       message_show(0x1c1,MESSAGE_CODE_FF46,0xb,0x2e,0,0);
+#endif
       gamesave_apply();
       g_gamesave_load_step = 6;
       return;
@@ -111,12 +127,16 @@ void gamesave_load_state_machine(float delta_time)
   }
   result = gamesave_load();
   if (result == 0) {
-#if MFL_FIX_PREFS
+#if MFL_FIX_LOAD_SAVE_EARLY
+    if (1) {      /* no 1 s wait on the load side */
+#elif MFL_FIX_PREFS
     if (mfl_pref(MFL_PREF_SKIP_SAVE_WAIT) || float_1_0 < g_gamesave_wait_timer) {      /* skip_save_wait=1: close when loaded */
 #else
     if (float_1_0 < g_gamesave_wait_timer) {
 #endif
+#if !MFL_FIX_LOAD_SAVE_EARLY      /* no box of ours to close (message_close would close any box in state 2) */
       message_close();
+#endif
       g_gamesave_load_step = 5;
       goto LAB_0040b8d2;
     }

@@ -37,6 +37,23 @@ void gamesave_apply(void)
   return;
 }
 
+#if MFL_FIX_LOAD_SAVE_EARLY
+/*00405cf0*/ extern int gamesave_load();
+/*00405e20*/ extern int __cdecl gamesave_exists(int slot);
+int mfl_save_loaded_at_boot;
+
+/* MFL_FIX_LOAD_SAVE_EARLY, called at the end of app_boot_init (replay buffer allocated, boot defaults done): reads gamesave.bin and applies it as the
+   original's load state machines do, without any message box.  No file = nothing happens (the later load paths then behave as without the
+   switch).  The read is synchronous (0x42334 bytes, stream_read_file). */
+void mfl_load_save_at_boot(void)
+{
+  if (gamesave_exists(0) != 0 && gamesave_load() == 0) {
+    gamesave_apply();
+    mfl_save_loaded_at_boot = 1;
+  }
+}
+#endif
+
 #if MFL_FIX_UNLOCK_ALL || MFL_FIX_PREFS
 #define UNLOCK_PROGRESS_CELLS (270)
 #define UNLOCK_CELL_DONE (2)

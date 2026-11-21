@@ -115,7 +115,19 @@ int mfl_lang_available(int language);      /* 1 when the game can play that lang
 #define MFL_FIX_ALT_TAB 0
 #endif
 
-#ifndef MFL_FIX_CRASHLOG     /* v143 builds only: an abnormal end (unhandled / fatal exception, CRT abort / invalid parameter / pure call, exit or ExitProcess
+#ifndef MFL_FIX_LOAD_SAVE_EARLY      /* the game save is read and applied at the end of app_boot_init (the boot loading screen, its spinning CD, still shows), and the
+                                   load paths (title Load: state machine 2, return to the main menu: state machine 1) show no confirm box ("0x21a"), no
+                                   "Loading" box with its 1 s wait and no "Load successful" box; the save side (write, autosave) is unchanged and the
+                                   MFL_FIX_PREFS key skip_save_wait stays as it is (clusters/cl_app_boot_init.c, cl_gamesave_load_state_machine.c,
+                                   automatch_near/an_hk_907.c, an_hk_9109.c; output/save_early_study_2026-11-21.md) */
+#define MFL_FIX_LOAD_SAVE_EARLY 0
+#endif
+#if MFL_FIX_LOAD_SAVE_EARLY
+extern int mfl_save_loaded_at_boot;      /* an_hk_9109.c: 1 after the boot-time load found and applied the save file */
+void mfl_load_save_at_boot(void);      /* an_hk_9109.c: gamesave_exists, gamesave_load, gamesave_apply once; no message boxes */
+#endif
+
+#ifndef MFL_FIX_CRASHLOG    /* v143 builds only: an abnormal end (unhandled / fatal exception, CRT abort / invalid parameter / pure call, exit or ExitProcess
                                  with a code other than 0) appends a report to mflng-crash.txt beside the game's files (recomp/mfl_crashlog.c, installed
                                  from .CRT$XIB; build_overlay.py leaves the file out of every build without this switch) */
 #define MFL_FIX_CRASHLOG 0

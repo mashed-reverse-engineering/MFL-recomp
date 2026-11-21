@@ -22,7 +22,15 @@ standalone link) and the LIST of committed private memory ranges (base, size; us
       name words that hold per-process environment values the game never writes in the window (the 5 HWND copies, pins_never.txt).  Not
       masked: their differences go on an ENV line with the first differing frame and both values (report only, outside the verdict and the
       divergence counts).  Same refusals as --sound (car / physics / transform names and ranges, rows without evidence).
-  statecmp.py --mkptr A.bin [A2.bin ...] > state_ptrwords.txt    words whose every non-zero value in every frame is a pointer (image or heap)
+      --map-a ours.map (RPL-T rp2): link map of A, A's pointers are translated to original VAs too (VC7-ours vs v143-ours; with --map-b the two
+      translated values must meet).
+      --ftol U[,A][;cars=U,A][;vehicles=U,A][;aibots=U,A] (float band): words that are float in A (normal float or 0 in every frame of A and
+      changing in >= 2 frames; computed from A alone) pass when ulp(a,b) <= U or |a-b| <= A (A default 0); every other word stays exact.  The band
+      is per class (cars / vehicles / aibots = DENY_RANGES, else "other").  Extra output: `T1 BAND maxulp per class`, `T1 DISCRETE first=<frame> ..`,
+      `T1 FLOAT first=<frame> maxulp=<n> ..` (a float outside the band).  Band-covered differences never count as divergence.
+      --tick <va|symbol> (e.g. g_tick_number): align A and B by that tick word instead of by Present index (fixed-step builds); records are skipped
+      on the side that is behind, and their pages are merged into the compared set.
+  statecmp.py --mkptr A.bin [A2.bin ...] > state_ptrwords.txt   words whose every non-zero value in every frame is a pointer (image or heap)
   statecmp.py --mkstale A.bin A2.bin state_ptrwords.txt <tag>     mask rows for stale menu residue (differs at frame 0, never written in the window)
   statecmp.py --peek A.bin <frame> <va> [n]                         n dwords at an original VA at that frame (e.g. a car's matrix_current)
   statecmp.py --selftest
@@ -31,6 +39,8 @@ import bisect, os, re, struct, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GH = os.environ.get("MFL_GHIDRA") or os.path.abspath(os.path.join(HERE, "..", ".."))   # repo root (ghidra/); needs src/symbols.txt
+while not os.path.exists(GH + "/src/symbols.txt") and os.path.dirname(GH) != GH:      # run from a stage / scratch copy: climb to the real tree
+    GH = os.path.dirname(GH)
 PAGE = 4096
 # no mask may cover these (plan v2 item 5): car array, vehicles, AI bots (race_script.sh dump ranges) and anything named like physics / transforms
 DENY_RANGES = [(0x8B06E0, 0x8B06E0 + 0xD040, "cars"), (0x659f00, 0x659f00 + 0xAB0, "vehicles"), (0x8c9ae0, 0x8c9ae0 + 0x1e0, "aibots")]
@@ -125,6 +135,55 @@ def ulp(a, b):
         return None
     k = lambda x: (x & 0x7FFFFFFF) if not x >> 31 else -(x & 0x7FFFFFFF)
     return abs(k(a) - k(b))
+
+
+def isfloat(x):
+    """a word that holds a normal game float (or 0): exponent 1..254 and 1e-20 <= |f| <= 1e20"""
+    if x == 0:
+        return True
+    e = (x >> 23) & 0xFF
+    return 0 < e < 255 and 1e-20 <= abs(fl(x)) <= 1e20
+
+
+def floatclass(path, frames=0):
+    """set of VAs that are floats in this run: every value ever seen is a float (or 0) and the word changes in >= 2 frames.  Discrete = everything else.
+    ponytail: heuristic (Q6, 0x40000000 = 2.0f looks float); a --floats override file if the C3 hand check finds misfits"""
+    bad = cnt = base = None
+    last = {}
+    for h, _, pages in records(path):
+        if frames and h["frame"] >= frames:
+            break
+        if bad is None:
+            base, bad, cnt = h["base"], bytearray(PAGE // 4 * len(pages)), bytearray(PAGE // 4 * len(pages))
+        for p, d in pages.items():
+            w, old = struct.unpack("<1024I", d), last.get(p)
+            for i in range(1024):
+                if old is not None and w[i] == old[i]:
+                    continue
+                k = p * 1024 + i
+                if not bad[k] and not isfloat(w[i]):
+                    bad[k] = 1
+                if old is not None and cnt[k] < 2:
+                    cnt[k] += 1
+            last[p] = w
+    return {base + 4 * k for k in range(len(bad or ())) if cnt[k] >= 2 and not bad[k]}
+
+
+def parse_ftol(s):
+    """'4,1e-6;cars=8,0' -> {'other': (U, A), 'cars': (8, 0.0), ...}"""
+    out = {}
+    for i, part in enumerate(s.split(";")):
+        name, _, v = part.rpartition("=") if "=" in part else ("other" if i == 0 else None, "", part)
+        if name is None:
+            sys.exit("--ftol: only the first part may omit class=")
+        u, _, a = v.partition(",")
+        out[name] = (int(u), float(a or 0))
+    out.setdefault("other", out.get("other", (0, 0.0)))
+    return out
+
+
+def word_class(va):
+    return next((d for lo, hi, d in DENY_RANGES if lo <= va < hi), "other")
 
 
 def read_words(path):
@@ -222,8 +281,13 @@ def dead_layer_fn(names):
     return f
 
 
-def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.stdout, dead=None, rwpad=None, sound=None, uninit=None, env=None):
+def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.stdout, dead=None, rwpad=None, sound=None, uninit=None, env=None, mapa=None, ftol=None, tick=None):
     syms = Syms()
+    tol = parse_ftol(ftol) if ftol else None
+    floatw = floatclass(fa, frames) if tol else set()
+    band = {}           # class -> [max ulp inside the band, differing word observations]
+    firstk = {}         # "FLOAT" / "DISCRETE" -> (frame, va) of the first failing word
+    tickva = (syms.byname[tick] if tick in syms.byname else int(tick, 16)) if tick else None
     envw = read_sound(env, syms, "env") if env else {}
     envd = {}           # va -> [first frame, frames differing, A, B at first]: per-process environment words, ENV line, never a divergence
     uninitw = read_uninit(uninit) if uninit else {}
@@ -246,6 +310,7 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
         wa_, wb_ = writes(fa, cand, frames), writes(fb, cand, frames)
         stale0 = {v for v in cand if not wa_.get(v) and not wb_.get(v)}
     xl = MapXlat(mapb, syms) if mapb else None
+    xla = MapXlat(mapa, syms) if mapa else None
     ptrw = read_words(ptr)
     maskw = read_mask(mask, syms) if mask else {}
     ga, gb = records(fa), records(fb)
@@ -272,10 +337,26 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
         for m, pg in ((mem[0], pa), (mem[1], pb)):
             for i, d in pg.items():
                 m[i * PAGE:(i + 1) * PAGE] = d
+        extra = set()
+        if tickva:      # align by tick word; ponytail: several Presents per tick pair up in order, a tick that never appears on one side ends the compare
+            tk = lambda s: struct.unpack_from("<I", mem[s], tickva - base)[0]
+            try:
+                while tk(0) != tk(1):
+                    s = 0 if tk(0) < tk(1) else 1
+                    r = next((ga, gb)[s])
+                    for i, d in r[2].items():
+                        mem[s][i * PAGE:(i + 1) * PAGE] = d
+                    extra |= set(r[2])
+                    if s == 0:
+                        ha, rga = r[0], r[1]
+                    else:
+                        hb, rgb = r[0], r[1]
+            except StopIteration:
+                break
         if (ha["phase"], ha["racef"]) != (hb["phase"], hb["racef"]):
             misalign += 1
         imga, imgb = ha["img"], hb["img"]
-        touched = set(pa) | set(pb)
+        touched = set(pa) | set(pb) | extra
         if nfr == 0:
             touched = set(range(len(mem[0]) // PAGE))
         # heap pointer test depends on the frame's regions: re-check every cached page that has ptr-normalised words (cheap: few)
@@ -294,7 +375,7 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
                     continue
                 va = base + p * PAGE + 4 * w
                 if va in ptrw:
-                    if (in_regs(c, rga) and in_regs(o, rgb)) or (xl and c in (xl(o) or ())) or (not xl and imga[0] <= c < imga[1] and imgb[0] <= o < imgb[1] and c - imga[0] == o - imgb[0]):
+                    if (in_regs(c, rga) and in_regs(o, rgb)) or ((xl or xla) and ((xla(c) if xla else {c}) or set()) & ((xl(o) if xl else {o}) or set())) or (not xla and not xl and imga[0] <= c < imga[1] and imgb[0] <= o < imgb[1] and c - imga[0] == o - imgb[0]):
                         np_ += 1
                         continue
                 if va in maskw:
@@ -315,6 +396,14 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
                 if deadf and (deadf(va) or (o == 0 and va in stale0)):
                     nd += 1
                     continue
+                if va in floatw:        # float class: inside the band = accepted (BAND line), outside = a divergence like any other
+                    cl = word_class(va)
+                    U, A = tol.get(cl, tol["other"])
+                    u = ulp(c, o)
+                    if (u is not None and u <= U) or abs(fl(c) - fl(o)) <= A:
+                        b = band.setdefault(cl, [0, 0])
+                        b[0], b[1] = max(b[0], u or 0), b[1] + 1
+                        continue
                 dl.append((va, c, o))
             cache[p] = (dl, ml, np_, nd, npad, sl, ul, el)
         fd = [x for p in sorted(cache) for x in cache[p][0]]
@@ -338,6 +427,7 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
             r[1] += 1
             u = ulp(c, o)
             r[4] = max(r[4], u if u is not None else 1 << 31)
+            firstk.setdefault("FLOAT" if va in floatw else "DISCRETE", (nfr, va))
         if fd and first is None:
             first = (nfr, ha, fd)
         nfr += 1
@@ -366,6 +456,13 @@ def compare(fa, fb, mapb=None, ptr=None, mask=None, frames=0, show=12, out=sys.s
         print("ENV: %d per-process environment words differ%s (report only, outside the verdict)" % (len(envd), ", first frame %d" % min(r[0] for r in envd.values()) if envd else ""), file=out)
         for va, (f0, k, c, o) in sorted(envd.items(), key=lambda x: (x[1][0], x[0]))[:show]:
             print("  env %08x %-44s first %4d frames %4d A %08x B %08x" % (va, syms.name(va), f0, k, c, o), file=out)
+    if tol:
+        print("T1 BAND maxulp per class: %s (float words %d)" % (" ".join("%s=%d(%d obs)" % (k, v[0], v[1]) for k, v in sorted(band.items())) or "none", len(floatw)), file=out)
+        for k in ("DISCRETE", "FLOAT"):
+            if k in firstk:
+                f0, va = firstk[k]
+                mu = per_word[va][4]
+                print("T1 %s first=%d %08x %s%s" % (k, f0, va, syms.name(va), " maxulp=%s" % (mu if mu < 1 << 31 else "-") if k == "FLOAT" else ""), file=out)
     to = alock_timeouts(fa) + alock_timeouts(fb)
     for l in to[:6]:
         print("ALOCK: %s" % l, file=out)
@@ -540,6 +637,36 @@ def selftest():
         assert False, "car row accepted"
     except SystemExit:
         pass
+    # RPL-T rp2: float band (--ftol), discrete words exact, --tick alignment, --map-a; no Wine involved
+    def pg(f, dsc=5, t=0):
+        q = bytearray(PAGE); struct.pack_into("<3I", q, 0x40, f, dsc, 0); struct.pack_into("<I", q, 0x80, t)
+        return bytes(q)
+    FL = [0x3f800000, 0x3fc00000, 0x40000000, 0x40200000]
+    def run(fl_, dsc=lambda i: 5, ticks=None, **kw):
+        ticks = ticks or range(len(fl_))
+        wr(d + "/t_b", [{0: z, 1: pg(f, dsc(i), t)} if i == 0 else {1: pg(f, dsc(i), t)} for i, (f, t) in enumerate(zip(fl_, ticks))])
+        buf = io.StringIO()
+        return compare(d + "/t_a", d + "/t_b", out=buf, **kw), buf.getvalue()
+    wr(d + "/t_a", [{0: z, 1: pg(f, 5, i)} if i == 0 else {1: pg(f, 5, i)} for i, f in enumerate(FL)])
+    r, o = run(FL, ftol="2")                                    # identical
+    assert r == -1 and "T1 BAND maxulp per class: none" in o and "IDENTICAL" in o, o
+    r, o = run([f + 1 for f in FL], ftol="2")                   # 1 ulp: inside the band
+    assert r == -1 and "other=1(" in o and "T1 FLOAT" not in o and "IDENTICAL" in o, o
+    assert run([f + 1 for f in FL])[0] == 0                     # no --ftol: exact compare, as before
+    r, o = run([f + 1 for f in FL], ftol="0")                   # band 0: 1 ulp is a FLOAT failure
+    assert r == 0 and "T1 FLOAT first=0" in o and "maxulp=1" in o, o
+    r, o = run([f + 100 for f in FL], ftol="2")                 # 100 ulp: outside
+    assert r == 0 and "T1 FLOAT first=0" in o and "maxulp=100" in o, o
+    r, o = run([f + 1 for f in FL], ftol="0;other=2,0")         # per-class override (other)
+    assert r == -1, o
+    r, o = run(FL, dsc=lambda i: 6 if i == 2 else 5, ftol="1000")        # discrete word: exact whatever the band
+    assert r == 2 and "T1 DISCRETE first=2" in o and "T1 FLOAT" not in o, o
+    r, o = run([FL[0], FL[1], FL[1], FL[2], FL[3]], ticks=[0, 1, 1, 2, 3], tick="5fc080")     # B has a duplicate Present: aligned by tick
+    assert r == -1 and "compared 4 frames" in o, o
+    assert run([FL[0], FL[1], FL[1], FL[2], FL[3]], ticks=[0, 1, 1, 2, 3])[0] != -1            # by index it is divergent
+    open(d + "/map", "w").write("0001:00000000 _x 00100000\n")
+    r, o = run(FL, mapa=d + "/map")                             # --map-a loads and does not disturb an identical pair
+    assert r == -1, o
     print("selftest ok")
 
 
@@ -566,5 +693,5 @@ if __name__ == "__main__":
                 i += 1
         if len(pos) != 2:
             sys.exit(__doc__)
-        r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"), rwpad=opt.get("rwpad"), sound=opt.get("sound"), uninit=opt.get("uninit"), env=opt.get("env"))
+        r = compare(pos[0], pos[1], mapb=opt.get("map-b"), ptr=opt.get("ptr"), mask=opt.get("mask"), frames=int(opt.get("frames", 0)), show=int(opt.get("show", 12)), dead=opt.get("dead-layers"), rwpad=opt.get("rwpad"), sound=opt.get("sound"), uninit=opt.get("uninit"), env=opt.get("env"), mapa=opt.get("map-a"), ftol=opt.get("ftol"), tick=opt.get("tick"))
         sys.exit(3 if alock_timeouts(pos[0]) + alock_timeouts(pos[1]) else 0 if r < 0 else 1)

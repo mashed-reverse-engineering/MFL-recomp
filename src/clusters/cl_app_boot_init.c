@@ -202,6 +202,9 @@ int app_boot_init(void)
   build_info_set_page(INFO_PAGE_BOOT);
   noise_table_init();
   cup_scene_clear_screen(CLEAR_SCREEN_MODE_BOOT);
+#if MFL_FIX_LOAD_SAVE_EARLY
+  mfl_load_save_at_boot();      /* the save is read here, while the boot loading screen is the last thing shown */
+#endif
   return 1;
 }
 
