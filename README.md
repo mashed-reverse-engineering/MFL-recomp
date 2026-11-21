@@ -7,9 +7,7 @@ A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004) tha
 ## Play it
 
 1. Download the newest zip from the [Releases](../../releases) page. Every release is a **pre-release**: it builds automatically, and it is tested by hand only on a few machines. Please report what you find.
-2. Unpack it into your game folder (the one with `MFL.exe`).
-3. Rename the game's `MFL.exe` to `MFL_original.exe`.
-4. Start `MFLng-launch.exe` (or `MFLng.exe` directly).
+2. Unpack it into your game folder (the one with `MFL.exe`).3. Start `MFLng-launch.exe` (or `MFLng.exe` directly).
 
 `INSTALL.txt` in the zip has the same steps. You need the Microsoft Visual C++ 2015-2022 Redistributable (x86) once; the launcher itself does not.
 
@@ -20,9 +18,12 @@ What is in the zip:
 | `MFLng.exe` | The game with the bug fixes and improvements below. |
 | `MFLng.nofix.exe` | The same rebuild with the original behaviour, for comparing. |
 | `MFLng-launch.exe` | Optional launcher with the look of the original one. It starts either exe and updates the game and itself from the GitHub releases (releases only, or including pre-releases). |
-| `mflrw.dll`, `mfl_audio_miniaudio.dll` | Graphics/physics library and sound output. Required. |
-| `mfl_video_ffmpeg.dll`, `av*.dll`, `swscale-*.dll` | Intro movies, the menu backdrop movie and menu music (FFmpeg, LGPL). Without them the game runs silent in the menus and shows no movies. |
-| `LICENSES/` | Third-party notices. |
+| `mflrw.dll` | Graphics and physics library. Required, beside the exes. |
+| `mflng\mfl_audio_miniaudio.dll` | Sound output. Required. |
+| `mflng\mfl_video_ffmpeg.dll`, `av*.dll`, `swscale-*.dll` | Intro movies, the menu backdrop movie and menu music (FFmpeg, LGPL). Without them the game runs silent in the menus and shows no movies. |
+| `mflng\LICENSES\` | Third-party notices. |
+
+The zip adds only the exes, `mflrw.dll`, `INSTALL.txt` and one folder, `mflng`, to your game folder; the other DLLs and notices live in that folder.
 
 ## What MFLng.exe does better than the original
 
@@ -148,4 +149,4 @@ Many thanks to **L2KSolkov** and the contributors of [codfh-win32](https://githu
 
 Many thanks to **tgsm** and the contributors of [pbg](https://github.com/tgsm/pbg), the CC0-licensed decompilation of Piglet's Big Game. The RWA headers `src/tier1/rwa.h` and `src/tier1/rwaint.h` take the basic RenderWare types, `RwLLLink`, `RwV3d`, `RwaUUID`, `RwaLLNode`, `RwaParamType`, `RwaParamTypeHandle` and `RwaType` from its `include/rwsdk` and `include/rwa` headers; the other structures there hold only the members our sources use, at the offsets measured in `MFL.exe`.
 
-The movie and menu-music DLL uses [FFmpeg](https://ffmpeg.org) (LGPL 2.1), and sound output uses [miniaudio](https://miniaud.io) (public domain / MIT-0); notices are in `LICENSES/` in each release.
+The movie and menu-music DLL uses [FFmpeg](https://ffmpeg.org) (LGPL 2.1), and sound output uses [miniaudio](https://miniaud.io) (public domain / MIT-0); notices are in `mflng\LICENSES\` in each release.

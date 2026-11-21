@@ -149,7 +149,7 @@ static const mfl_audio_backend *g_backend_set;
 #define B (g_backend_set ? g_backend_set : &g_null_backend)
 
 #ifdef MFL_AUDIO_DLL
-extern __declspec(dllimport) void *__stdcall LoadLibraryA(const char *name);
+extern void *mfl_load_backend_dll(const char *name);      /* recomp/video/mfl_video_null.c (always in the exe): <exe folder>\mflng\<name>, else <name> beside the exe */
 extern __declspec(dllimport) void *__stdcall GetProcAddress(void *module, const char *name);
 static const char k_dll_name[] = "mfl_audio_miniaudio.dll";
 static const char k_export[] = "mfl_audio_backend_miniaudio";
@@ -158,7 +158,7 @@ static void dll_backend_load(void)
 {
     void *dll;
     g_dll_tried = 1;
-    dll = LoadLibraryA(k_dll_name);
+    dll = mfl_load_backend_dll(k_dll_name);
     if (dll) g_backend_set = (const mfl_audio_backend *)GetProcAddress(dll, k_export);   /* NULL = stay null */
 }
 #define DLL_BACKEND_LOAD() do { if (!g_dll_tried && !g_backend_set) dll_backend_load(); } while (0)

@@ -13,7 +13,13 @@ Prints one line per exe and, when both reach the title, the line for data/link/s
 --check-only: map checks only, no Wine run.
 --mode play (SMOKE W17): release_smoke.sh play instead of title: Quick Battle race, pause menu, Continue, race clock advances, Quit Game -> main menu.
 --heap: the run under WINEDEBUG=fixme-all,warn+heap; any warn:heap / err:heap line in wine.log is a FAIL (an interior free, r20261120-e2ddfb7).
---exes A,B: other exe names (an older release: MFLng.exe,MFLng_fixes.exe).  The smoke_ok.txt line is printed for every mode."""
+--exes A,B: other exe names (an older release: MFLng.exe,MFLng_fixes.exe).  The smoke_ok.txt line is printed for every mode.
+Layout (W17 LAYOUT C), taken from the release dir: with a folder <release dir>/mflng (the zip since then: exes + mflrw.dll at the top, the
+backend DLLs and BUILDINFO.txt in mflng/) the farm gets the exe (as MFL.exe) and mflrw.dll in App_Executables/ and EVERY .dll of mflng/ in
+App_Executables/mflng/.  A backend DLL that is not found is silent (no sound, blank movies), so after the run loaded.maps (release_smoke.sh)
+must name mflng/<dll> for each of them, else FAIL: the exe loaded them from the sub folder, FFmpeg's own DLLs included.  With a video DLL in
+the set the title timeout is BOOT_S=150 (intro.mpg) unless BOOT_S is set.
+Without that folder: the flat layout of the older zips (exe + the two DLLs in App_Executables/), as before, no maps check."""
 import datetime, os, shutil, struct, subprocess, sys
 
 R = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -49,8 +55,12 @@ def main(a):
     mode = a[a.index("--mode") + 1] if "--mode" in a else "title"
     if mode not in ("title", "play"): sys.exit("smoke_release: --mode title|play")
     exes = a[a.index("--exes") + 1].split(",") if "--exes" in a else EXES
-    env = dict(os.environ, WDBG="fixme-all,warn+heap") if "--heap" in a else None
+    env = dict(os.environ, WDBG="fixme-all,warn+heap") if "--heap" in a else dict(os.environ)
     rel, maps, game, work = [os.path.abspath(x) for x in a[:4]]
+    sub = os.path.join(rel, "mflng") if os.path.isdir(os.path.join(rel, "mflng")) else None      # layout C: the backend DLLs' folder
+    subdlls = sorted(f for f in os.listdir(sub) if f.lower().endswith(".dll")) if sub else []
+    if sub and "mfl_video_ffmpeg.dll" in subdlls: env.setdefault("BOOT_S", "150")
+    info = sub or rel      # where BUILDINFO.txt lies
     if not os.path.exists(os.path.join(game, "App_Executables", "MFL_original.exe")):
         sys.exit("smoke_release: %s has no App_Executables/MFL_original.exe (run.py clone it first)" % game)
     ok = 0
@@ -67,17 +77,25 @@ def main(a):
         if os.path.exists(L): shutil.rmtree(L)      # our own work dir; the game dir is only hardlinked from, never written
         shutil.copytree(game, os.path.join(L, "game"), copy_function=os.link)
         A = os.path.join(L, "game", "App_Executables")
-        for src, dst in [(x, "MFL.exe")] + [(f, f) for f in DLLS]:
+        for src, dst in [(x, "MFL.exe")] + [(f, f) for f in DLLS if not (sub and f in subdlls)]:
             p = os.path.join(A, dst)
             if os.path.lexists(p): os.unlink(p)      # unlink first: never write through a hardlink into the game dir
             shutil.copy2(os.path.join(rel, src), p)
+        if sub:
+            os.mkdir(os.path.join(A, "mflng"))
+            for f in subdlls: shutil.copy2(os.path.join(sub, f), os.path.join(A, "mflng", f))
         open(os.path.join(L, "delta.txt"), "w").write("%x\n" % d)
         r = subprocess.run(["bash", SMOKE, L, os.path.join(L, "out"), mode], capture_output=True, text=True, env=env)
         last = (r.stdout.strip().splitlines() or ["release_smoke: no output (exit %d)" % r.returncode])[-1]
+        if sub and r.returncode == 0:      # every DLL of mflng/ must be mapped from there
+            mp = os.path.join(L, "out", "run", "loaded.maps")
+            m = open(mp, errors="replace").read().lower() if os.path.exists(mp) else ""
+            miss = [f for f in subdlls if "/mflng/" + f.lower() not in m]
+            if miss: last = "release_smoke %s: FAIL not loaded from mflng/: %s (%s)" % (mode, " ".join(miss), mp if m else "no loaded.maps")
         print(tag, last, "(out %s/out)" % L, flush=True)
         ok += r.returncode == 0 and last.startswith("release_smoke %s: ok" % mode)
     if ok == len(exes) and not check:
-        cl = [l.split()[1] for l in open(os.path.join(rel, "BUILDINFO.txt")) if l.startswith("cl ")][0]
+        cl = [l.split()[1] for l in open(os.path.join(info, "BUILDINFO.txt")) if l.startswith("cl ")][0]
         print("smoke_ok.txt line: %s %s %s" % (cl, datetime.date.today().isoformat(), run))
     return 0 if ok == len(exes) else 1
 

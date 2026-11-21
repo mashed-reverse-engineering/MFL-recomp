@@ -14,6 +14,8 @@
 # Every play verdict fails on a crash line in wine.log ("Unhandled", "page fault"), on warn:heap / err:heap lines (WDBG=fixme-all,warn+heap,
 # the heap check run; plain warn+heap lets the d3d fixme "Unhandled usage flags" trip the crash watcher) and on mflng-crash.txt.
 # WDBG: leave it at the default (-all) for title/race. Any setting that enables fixme (err, err+all) lets the d3d fixme "Unhandled usage flags" trip play_inner's crash watcher (greps wine.log for "Unhandled") and aborts the run at once.
+# title and play also write <out dir>/run/loaded.maps (play_inner `maps`: the process's mappings once the title is up / the race runs, i.e. after
+# the audio device and the intro movie were opened): tools/ci/smoke_release.py reads from it which folder the backend DLLs came from (W17 LAYOUT C).
 # Prints "release_smoke <mode>: ok" or "release_smoke <mode>: FAIL <why>".
 WR=$(dirname "$(readlink -f "$0")"); L=$(readlink -f "$1"); OUT=$(readlink -f "$2"); M=${3:-title}; D=$(cat $L/delta.txt); B=${BOOT_S:-90}
 mkdir -p $OUT
@@ -22,7 +24,7 @@ va() { printf "0x%x" $(($1 + 0x$D)); }      # an original data address in this l
 if [ "$M" = play ]; then
   PH=0x652f68; APP=0x76e7f4; CLK=0x7ef7dc; MSG=0x69cfd0; SEL1=0x69d328      # SEL1 = g_menu_records[1].selected (0x69d2e0 + 0x40 + 8)
   { COURSE=0 SHOTS=0 $WR/race_script.sh 0 0 0 /dev/null | sed '/^shot race_start/q'
-    printf '%s\n' "probe 120 $PH 0x69cbd0 $APP $CLK $MSG $SEL1" "wait 1" "waitmem $PH 6 1" \
+    printf '%s\n' "probe 120 $PH 0x69cbd0 $APP $CLK $MSG $SEL1" "maps loaded" "wait 1" "waitmem $PH 6 1" \
       "key Escape" "waitmem $APP 4 5" "wait 1" "shot pause" "dump clk_p1 $CLK 4" "wait 2" "dump clk_p2 $CLK 4" "waitmem $APP 4 1" \
       "key Return" "waitmem $APP 3 10" "dump clk_r1 $CLK 4" "wait 1" "dump clk_r2 $CLK 4" "shot resumed" \
       "key Escape" "waitmem $APP 4 5" "pressuntil Down $SEL1 4 10 0.6" "waitmem $SEL1 4 1" "shot quit_row" "key Return" \
@@ -44,7 +46,7 @@ if [ "$M" = play ]; then
   else echo "release_smoke play: ok (paused clock $(u4 clk_p1) -> $(u4 clk_p2), resumed $(u4 clk_r1) -> $(u4 clk_r2), Quit Game -> main menu)"; exit 0; fi
   echo "release_smoke play: FAIL $why"; exit 1
 fi
-printf 'waitmem 0x69cbd0 1 %s\nwaitmem 0x69d1e4 0 10\nwait 2\nshot title\n' $B | python3 $WR/addrmove.py $D > $OUT/script.txt
+printf 'waitmem 0x69cbd0 1 %s\nwaitmem 0x69d1e4 0 10\nwait 2\nshot title\nmaps loaded\n' $B | python3 $WR/addrmove.py $D > $OUT/script.txt
 $WR/gameslot.sh timeout -k 10 $((B + 60)) $WR/play.sh $L/game $OUT/script.txt $OUT/run > $OUT/play.log 2>&1
 cr=$(grep -a -i -E "Unhandled exception|unimplemented function" $OUT/run/wine.log 2>/dev/null | head -1)
 if [ -n "$cr" ]; then echo "release_smoke title: FAIL $cr"; exit 1; fi

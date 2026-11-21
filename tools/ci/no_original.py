@@ -22,8 +22,13 @@ CODFH_HDR = re.compile(r"Adapted from codfh-win32 by L2KSolkov, https://github\.
 MAX_FILE, MAX_TOTAL = 2_000_000, 60_000_000
 TP_TEXT = [r"\b(thunk_FUN|FUN|DAT|LAB|PTR)_00[0-9a-fA-F]{6}\b"]      # third_party/: the email rule is off, every other rule on, plus this
 # W16 VIDCI: + the movie backend and the shared LGPL FFmpeg DLLs it imports
-RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll","mfl_audio_miniaudio.dll",
-              "mfl_video_ffmpeg.dll", "avformat-*.dll", "avcodec-*.dll", "avutil-*.dll", "swscale-*.dll", "INSTALL.txt", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt", "*.map"]
+# W17 LAYOUT C: the zip is unpacked into the user's game folder.  Its top level holds only the exes, mflrw.dll (the exes' static import: the
+# Windows loader wants it beside them) and INSTALL.txt; any other file there = FAIL (the game folder stays clean).  The DLLs the exe loads
+# itself (src/video/mfl_video_null.c mfl_load_backend_dll) and the notices lie in mflng/.  A `*` never crosses a `/` (release(): same depth).
+RELEASE_SUB = "mflng/"
+RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll", "INSTALL.txt"] + [RELEASE_SUB + n for n in [
+              "mfl_audio_miniaudio.dll", "mfl_video_ffmpeg.dll", "avformat-*.dll", "avcodec-*.dll", "avutil-*.dll", "swscale-*.dll",
+              "BUILDINFO.txt", "SHA256SUMS", "LICENSES/*.txt"]]
 # W16 VIDCI vd3: a shipped file needs the licence notices of the third-party code inside it (static winpthreads: CI's -static / -l:libwinpthread.a)
 NEEDS_LICENSE = [("mflrw.dll", ["winpthreads.txt"]), ("avutil-*.dll", ["ffmpeg.txt", "winpthreads.txt"]), ("av*-*.dll", ["ffmpeg.txt"]),
                  ("swscale-*.dll", ["ffmpeg.txt"]), ("mfl_video_ffmpeg.dll", ["ffmpeg.txt", "winpthreads.txt"])]
@@ -66,8 +71,8 @@ def release(d, manifest, icon=None):
     for top, _, fs in os.walk(d):
         for f in fs:
             rel = os.path.relpath(os.path.join(top, f), d).replace(os.sep, "/")
-            if not any(fnmatch.fnmatch(rel, a) for a in RELEASE_OK):
-                bad.append((rel, "not an allowed release file")); continue
+            if not any(fnmatch.fnmatch(rel, a) and rel.count("/") == a.count("/") for a in RELEASE_OK):
+                bad.append((rel, "not an allowed release file" + ("" if "/" in rel else " (the top level = the user's game folder: the exes, mflrw.dll and INSTALL.txt only)"))); continue
             if rel.endswith((".exe", ".dll")):
                 p = parse_pe(open(os.path.join(d, rel), "rb").read())
                 want = ([24], [manifest]) if rel.endswith(".exe") else ([], [])
@@ -77,8 +82,8 @@ def release(d, manifest, icon=None):
                 if (p["res_types"], p["manifests"]) != want:
                     bad.append((rel, "resources %s / manifest sizes %s, want %s" % (p["res_types"], [len(m) for m in p["manifests"]], "the committed manifest only" if want[0] else "none")))
             for pat, lic in NEEDS_LICENSE:
-                if fnmatch.fnmatch(rel, pat):
-                    bad += [(rel, "needs LICENSES/" + l) for l in lic if not os.path.exists(os.path.join(d, "LICENSES", l))]
+                if fnmatch.fnmatch(os.path.basename(rel), pat):      # at the top (mflrw.dll) or in mflng/
+                    bad += [(rel, "needs %sLICENSES/%s" % (RELEASE_SUB, l)) for l in lic if not os.path.exists(os.path.join(d, RELEASE_SUB + "LICENSES", l))]
     return bad
 
 
@@ -114,15 +119,22 @@ def selftest():
         assert [w for _, w in baseline(d)] == ["data:data:lib = 12 original bytes"], "planted non-zero row not caught"
         os.remove(os.path.join(d, "data/zero_original_baseline.txt")); assert baseline(d), "missing baseline not caught"
         m = b"<assembly/>"; r = os.path.join(d, "rel")
-        put("rel/MFLng.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m})); put("rel/mflrw.dll", make_pe({"kernel32.dll": ["A"]})); put("rel/LICENSES/zlib.txt", b"z")
-        put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
-        assert sorted(w for _, w in release(r, m)) == ["needs LICENSES/ffmpeg.txt", "needs LICENSES/winpthreads.txt"], "missing licence not caught"
-        put("rel/LICENSES/ffmpeg.txt", b"f"); put("rel/LICENSES/winpthreads.txt", b"w")
+        S = "rel/" + RELEASE_SUB      # W17 LAYOUT C: the backend DLLs and the notices in mflng/
+        put("rel/MFLng.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m})); put("rel/mflrw.dll", make_pe({"kernel32.dll": ["A"]})); put(S + "LICENSES/zlib.txt", b"z")
+        put(S + "avcodec-61.dll", make_pe({"kernel32.dll": ["A"]})); put("rel/INSTALL.txt", b"i")
+        assert sorted(w for _, w in release(r, m)) == ["needs mflng/LICENSES/ffmpeg.txt", "needs mflng/LICENSES/winpthreads.txt"], "missing licence not caught"
+        put(S + "LICENSES/ffmpeg.txt", b"f"); put(S + "LICENSES/winpthreads.txt", b"w")
         assert release(r, m) == [], release(r, m)
-        put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}, res=[16])); assert [f for f, _ in release(r, m)] == ["avcodec-61.dll"], "DLL resource not caught"
-        put("rel/avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
+        for stray in ["avcodec-61.dll", "mfl_audio_miniaudio.dll", "BUILDINFO.txt", "SHA256SUMS", "LICENSES/zlib.txt", "MFLng.map",      # the old flat places
+                      "mflng/MFLng.exe", "mflng/mflrw.dll", "mflng/LICENSES/sub/x.txt", "mflng/x/avcodec-61.dll"]:
+            put("rel/" + stray, b"x"); assert [f for f, _ in release(r, m)] == [stray], "stray release file %s not caught" % stray
+            os.remove(os.path.join(r, stray))
+        put(S + "avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}, res=[16])); assert [f for f, _ in release(r, m)] == ["mflng/avcodec-61.dll"], "DLL resource not caught"
+        put(S + "avcodec-61.dll", make_pe({"kernel32.dll": ["A"]}))
         put("rel/vcruntime140.dll", make_pe({"kernel32.dll": ["A"]})); assert [f for f, _ in release(r, m)] == ["vcruntime140.dll"], "Microsoft DLL not caught"
         os.remove(os.path.join(r, "vcruntime140.dll"))
+        put(S + "vcruntime140.dll", make_pe({"kernel32.dll": ["A"]})); assert [f for f, _ in release(r, m)] == ["mflng/vcruntime140.dll"], "Microsoft DLL in mflng/ not caught"
+        os.remove(os.path.join(r, RELEASE_SUB + "vcruntime140.dll"))
         put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: b"icon"})); assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "extra resource not caught"
         img = b"PNGx"; ico = struct.pack("<HHH", 0, 1, 1) + struct.pack("<BBBBHHII", 16, 16, 0, 0, 1, 32, len(img), 22) + img      # our own icon is the one extra allowed
         put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: img, 14: b"g"})); assert [f for f, _ in release(r, m, ico)] == ["MFLng.exe"], "own icon refused (MFLng.exe has none: caught)"

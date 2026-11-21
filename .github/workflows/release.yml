@@ -6,6 +6,10 @@
 # Contract with build.yml (job `link`, plan 2.7 step 2): artifact `mflng-out` = MFLng.exe (every MFL_FIX_* on), MFLng.nofix.exe (original behaviour), MFLng.map, MFLng.nofix.map,
 # mflrw.dll, mfl_audio_miniaudio.dll, MFLng-launch.exe, BUILDINFO.txt (one line `cl <version>`), and from job video mfl_video_ffmpeg.dll +
 # avformat/avcodec/avutil/swscale-NN.dll; ci_checks.sh has passed on it.
+# Zip layout (W17 LAYOUT C; the zip is unpacked into the user's game folder): the three exes, mflrw.dll (their static import) and INSTALL.txt
+# at the top; mfl_audio_miniaudio.dll, mfl_video_ffmpeg.dll, the FFmpeg DLLs, BUILDINFO.txt, SHA256SUMS (zip names) and LICENSES/ in mflng/.
+# The exe loads the DLLs of mflng/ itself (src/video/mfl_video_null.c mfl_load_backend_dll).  tools/ci/no_original.py --release fails on any
+# other top-level file; the launcher's updater (launcher/logic.c name_allowed) installs these names.  The build artifact `mflng-out` stays flat.
 name: release
 on:
   push:
@@ -40,30 +44,33 @@ jobs:
           CL=$(sed -n 's/^cl //p' out/BUILDINFO.txt | head -1); [ -n "$CL" ] || { echo "BUILDINFO.txt has no cl line"; exit 1; }
           # tag = r<UTC date>-<UTC hhmm>-<commit>: GitHub lists releases by NAME, so the time in the name keeps the newest on top (the stamp date D is the gate date)
           TAG=r$(date -u +%Y%m%d-%H%M)-${GITHUB_SHA::7}
-          mkdir -p pkg/LICENSES maps
-          cp out/MFLng.exe out/MFLng.nofix.exe out/MFLng-launch.exe out/mflrw.dll out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/
+          mkdir -p pkg/mflng/LICENSES maps
+          cp out/MFLng.exe out/MFLng.nofix.exe out/MFLng-launch.exe out/mflrw.dll pkg/
+          cp out/mfl_audio_miniaudio.dll out/BUILDINFO.txt pkg/mflng/
           # W16 VIDCI: movies + menu music (mfl_video_ffmpeg.dll and the shared LGPL FFmpeg DLLs it imports; LICENSES/ffmpeg.txt)
-          cp out/mfl_video_ffmpeg.dll out/avformat-*.dll out/avcodec-*.dll out/avutil-*.dll out/swscale-*.dll pkg/
+          cp out/mfl_video_ffmpeg.dll out/avformat-*.dll out/avcodec-*.dll out/avutil-*.dll out/swscale-*.dll pkg/mflng/
           [ -f third_party/LICENSES/ffmpeg.txt ] || { echo "LICENSES/ffmpeg.txt missing: no FFmpeg DLLs without it"; exit 1; }
           cp out/*.map maps/
           ls third_party/LICENSES/*.txt >/dev/null || { echo "third_party/LICENSES/*.txt missing: no release without licence files"; exit 1; }
-          cp third_party/LICENSES/*.txt pkg/LICENSES/
+          cp third_party/LICENSES/*.txt pkg/mflng/LICENSES/
           # `release <tag> prerelease`: the launcher's installed version and its default update channel (every release here is a pre-release)
-          { echo "release $TAG prerelease"; echo "public commit $GITHUB_SHA"; echo "librw-mfl $(sed -n 's/^commit //p' data/link/mflrw_pin.txt)"; cat data/release_stamp.txt 2>/dev/null || echo "stamp: none (manual run)"; } >> pkg/BUILDINFO.txt
+          { echo "release $TAG prerelease"; echo "public commit $GITHUB_SHA"; echo "librw-mfl $(sed -n 's/^commit //p' data/link/mflrw_pin.txt)"; cat data/release_stamp.txt 2>/dev/null || echo "stamp: none (manual run)"; } >> pkg/mflng/BUILDINFO.txt
           cat > pkg/INSTALL.txt <<'EOF'
           MFLng: a rebuilt executable for your own installed copy of the PC game. It contains no game data and is not affiliated with the publisher.
           Needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), from Microsoft.
-          1. In the game folder, rename MFL.exe to MFL_original.exe (MFLng reads its resources from that file at start-up).
-          2. Copy MFLng.exe, MFLng.nofix.exe and every .dll of this zip (mflrw.dll, mfl_audio_miniaudio.dll, mfl_video_ffmpeg.dll,
-             avformat-*.dll, avcodec-*.dll, avutil-*.dll, swscale-*.dll) into the game folder. Without the video DLLs the game runs with
-             no intro movies, no menu backdrop movie and no menu music.
-          3. Start MFLng.exe (every MFL_FIX_* bug fix on) or MFLng.nofix.exe (original behaviour).
-          Optional: copy MFLng-launch.exe there too. It shows your game's launcher picture, starts MFLng.exe or MFLng.nofix.exe and updates them from the GitHub releases (static C runtime, no redistributable).
-          The DLLs are loaded from the game folder; keep only trusted files there.
-          Movies use FFmpeg 7.1 (LGPL 2.1, unmodified, shared DLLs you may replace): see LICENSES/ffmpeg.txt.
+          1. Unpack everything into the game folder (the folder with MFL.exe). This adds MFLng.exe, MFLng.nofix.exe, MFLng-launch.exe,
+             mflrw.dll, this file and a folder mflng. MFLng reads its pictures and texts from your MFL.exe at start-up.
+          2. Start MFLng-launch.exe, or MFLng.exe (every MFL_FIX_* bug fix on) or MFLng.nofix.exe (original behaviour) directly.
+             The launcher shows your game's launcher picture, starts the two exes and updates MFLng from the GitHub releases
+             (static C runtime, no redistributable).
+          Keep the folder mflng beside the exes: it holds the sound and movie DLLs (mfl_audio_miniaudio.dll, mfl_video_ffmpeg.dll,
+          avformat-*.dll, avcodec-*.dll, avutil-*.dll, swscale-*.dll), the licences (LICENSES) and the build information. Without the
+          video DLLs the game runs with no intro movies, no menu backdrop movie and no menu music. mflrw.dll must stay beside the exes.
+          The DLLs are loaded from the folder mflng and from the game folder; keep only trusted files there.
+          Movies use FFmpeg 7.1 (LGPL 2.1, unmodified, shared DLLs you may replace): see mflng\LICENSES\ffmpeg.txt.
           EOF
-          # every file of the zip (the launcher's updater checks .exe / .dll always and every other file it finds listed)
-          (cd pkg && find . -type f ! -name SHA256SUMS | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum > SHA256SUMS)
+          # every file of the zip, by its zip name (the launcher's updater checks .exe / .dll always and every other file it finds listed)
+          (cd pkg && find . -type f ! -name SHA256SUMS | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum > mflng/SHA256SUMS)
           echo "TAG=$TAG" >> "$GITHUB_ENV"; echo "D=$D" >> "$GITHUB_ENV"; echo "CL=$CL" >> "$GITHUB_ENV"
       - name: no-original guard (blocks the release)
         run: python3 tools/ci/no_original.py . --release pkg
@@ -86,10 +93,9 @@ jobs:
           {
             echo "## MFLng $D (pre-release)"
             echo
-            echo "**New here? Three steps:**"
-            echo "1. Download \`MFLng-$TAG.zip\` from the **Assets** list below and unpack it into your game folder (the one with \`MFL.exe\`)."
-            echo "2. Rename the game's \`MFL.exe\` to \`MFL_original.exe\`."
-            echo "3. Start \`MFLng-launch.exe\` (or \`MFLng.exe\`)."
+            echo "**New here? Two steps:**"
+            echo "1. Download \`MFLng-$TAG.zip\` from the **Assets** list below and unpack it into your game folder (the one with \`MFL.exe\`). It adds \`MFLng.exe\`, \`MFLng.nofix.exe\`, \`MFLng-launch.exe\`, \`mflrw.dll\`, \`INSTALL.txt\` and a folder \`mflng\`."
+            echo "2. Start \`MFLng-launch.exe\` (or \`MFLng.exe\`)."
             echo
             echo "You need your own copy of the game. This contains no game files and is not affiliated with the game's publisher or developer. The zip has an \`INSTALL.txt\`; it also needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), once."
             echo
@@ -100,14 +106,14 @@ jobs:
             echo "### Good to know"
             echo "- This is a **pre-release**: built automatically and tested by hand on only a few machines. Bug reports are welcome; if the game crashes, attach \`mflng-crash.txt\` from the game folder."
             echo "- \`MFLng.exe\` has the fixes and options turned on. \`MFLng.nofix.exe\` behaves like the original, for comparing."
-            echo "- Keep the \`.dll\` files beside the exe. Without the video DLLs there are no intro movies and no menu music."
+            echo "- Keep \`mflrw.dll\` and the folder \`mflng\` (sound and movie DLLs, licences) beside the exe. Without the video DLLs there are no intro movies and no menu music."
             echo "- The launcher can update the game and itself from these releases."
             echo "- Automatic checks: it builds from the public sources with no original input, and boots to the main menu under Wine (cl $CL: ${SMOKE:-not recorded}). Sound is not tested in CI; behaviour proofs run on a separate pinned build."
             echo
             echo "<details><summary>Build details</summary>"
             echo
             echo '```'
-            cat pkg/BUILDINFO.txt
+            cat pkg/mflng/BUILDINFO.txt
             echo '```'
             echo
             echo "</details>"

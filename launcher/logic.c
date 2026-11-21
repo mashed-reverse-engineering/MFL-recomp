@@ -399,13 +399,15 @@ unsigned char *zip_get(const ZipEntry *e)
 
 static int plain(const char *s) { for (; *s; s++) if (!(isalnum((unsigned char)*s) || *s == '.' || *s == '_' || *s == '-')) return 0; return 1; }
 static int ends(const char *s, const char *x) { size_t a = strlen(s), b = strlen(x); return a >= b && !strcmp(s + a - b, x); }
-/* MFLng*.exe, mfl*.dll, the shared FFmpeg DLLs (avformat-/avcodec-/avutil-/swscale-NN.dll), *.txt, SHA256SUMS at the top,
-   LICENSES/<x>.txt: never MFL.exe, MFL_original.exe, launch.exe or a game file */
+/* zip name = path under the game folder.  MFLng*.exe, mfl*.dll, the shared FFmpeg DLLs (avformat-/avcodec-/avutil-/swscale-NN.dll), *.txt,
+   SHA256SUMS at the top or in mflng/ (W17 LAYOUT C: the zip has the exes, mflrw.dll and INSTALL.txt at the top and the rest in mflng/; a
+   DLL may change its place without a new launcher), and mflng/LICENSES/<x>.txt: never MFL.exe, MFL_original.exe, launch.exe or a game file */
 int name_allowed(const char *n)
 {
     static const char *const ff[] = { "avformat-", "avcodec-", "avutil-", "swscale-" };
-    int i;
-    if (!strncmp(n, "LICENSES/", 9)) return plain(n + 9) && ends(n + 9, ".txt") && n[9] != '.';
+    int i, sub = !strncmp(n, "mflng/", 6);
+    if (sub) n += 6;
+    if (sub && !strncmp(n, "LICENSES/", 9)) return plain(n + 9) && ends(n + 9, ".txt") && n[9] != '.';
     if (!plain(n) || n[0] == '.') return 0;
     for (i = 0; i < 4; i++) if (!strncmp(n, ff[i], strlen(ff[i])) && ends(n, ".dll")) return 1;
     return (!strncmp(n, "MFLng", 5) && ends(n, ".exe")) || (!strncmp(n, "mfl", 3) && ends(n, ".dll")) || ends(n, ".txt") || !strcmp(n, "SHA256SUMS");

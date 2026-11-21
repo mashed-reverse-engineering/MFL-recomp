@@ -1,5 +1,7 @@
 /* launcher.c: MFLng-launch.exe.  Shows the original launcher picture (read at run time from the user's own launch.exe), starts
    MFLng.exe / MFLng.nofix.exe, checks the GitHub releases and updates the MFLng files (and itself) through an apply step (the same exe in --apply-update mode).
+   Install layout (W17 LAYOUT C): the exes, mflrw.dll and INSTALL.txt in the game folder beside this exe; the backend DLLs, BUILDINFO.txt,
+   SHA256SUMS and LICENSES\ in its sub folder mflng\.  The updater's trees (install, staging, backup) are these three folders.
    Win32 only (user32, gdi32, shell32, advapi32, winhttp, kernel32).  Layout of the files it creates: README.md. */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -79,19 +81,24 @@ static void logf_(const WCHAR *fmt, ...)      /* <data>\update.log, UTF-8 */
     h = CreateFileW(p, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, 0, NULL);
     if (h != INVALID_HANDLE_VALUE) { if (n > 0) WriteFile(h, u, (DWORD)n, &put, NULL); CloseHandle(h); }
 }
-/* delete the files of <dir> and <dir>\LICENSES (one level each); olds: only `<allowed release name>.old` (left by an update), else all */
+/* the three folders of an install, staging or backup tree (parents first) and their zip name prefixes */
+enum { NDIRS = 3 };
+static const WCHAR *const k_dirs[NDIRS] = { L"", L"mflng", L"mflng\\LICENSES" };
+static const char *const k_zdirs[NDIRS] = { "", "mflng/", "mflng/LICENSES/" };
+static void tree_dir(WCHAR *o, const WCHAR *dir, int i) { if (i) pj(o, dir, k_dirs[i]); else { wcsncpy(o, dir, MAX_PATH - 1); o[MAX_PATH - 1] = 0; } }
+static void make_tree(const WCHAR *dir) { WCHAR d[MAX_PATH]; int i; for (i = 0; i < NDIRS; i++) { tree_dir(d, dir, i); CreateDirectoryW(d, NULL); } }
+/* delete the files of the three folders of <dir> (one level each); olds: only `<allowed release name>.old` (left by an update), else all */
 static int del_files(const WCHAR *dir, int olds)
 {
-    WCHAR pat[MAX_PATH], p[MAX_PATH], sub[MAX_PATH]; WIN32_FIND_DATAW f; HANDLE h; int pass, left = 0;
-    pj(sub, dir, L"LICENSES");
-    for (pass = 0; pass < 2; pass++) {
-        const WCHAR *d = pass ? dir : sub;
+    WCHAR pat[MAX_PATH], p[MAX_PATH], d[MAX_PATH]; WIN32_FIND_DATAW f; HANDLE h; int pass, left = 0;
+    for (pass = 0; pass < NDIRS; pass++) {
+        tree_dir(d, dir, pass);
         pj(pat, d, olds ? L"*.old" : L"*");
         if ((h = FindFirstFileW(pat, &f)) == INVALID_HANDLE_VALUE) continue;
         do {
             char nm[140]; size_t l;
             if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
-            _snprintf(nm, 20, "%s", pass ? "" : "LICENSES/"); nm[20] = 0;
+            _snprintf(nm, 20, "%s", k_zdirs[pass]); nm[20] = 0;
             if (olds && (!WideCharToMultiByte(CP_UTF8, 0, f.cFileName, -1, nm + strlen(nm), 110, NULL, NULL) || (l = strlen(nm)) < 5
                          || strcmp(nm + l - 4, ".old") || (nm[l - 4] = 0, !name_allowed(nm)))) continue;
             pj(p, d, f.cFileName);
@@ -103,21 +110,22 @@ static int del_files(const WCHAR *dir, int olds)
 }
 static void clear_tree(const WCHAR *dir)      /* only the staging / backup trees under <data> */
 {
-    WCHAR sub[MAX_PATH];
-    del_files(dir, 0); pj(sub, dir, L"LICENSES"); RemoveDirectoryW(sub); RemoveDirectoryW(dir);
+    WCHAR d[MAX_PATH]; int i;
+    del_files(dir, 0);
+    for (i = NDIRS - 1; i >= 0; i--) { tree_dir(d, dir, i); RemoveDirectoryW(d); }      /* deepest first */
 }
-/* staged / installable names under <dir>: allowed top files + LICENSES\*.txt, as zip names ("LICENSES/x.txt") */
+/* staged / installable names under <dir>: the allowed files of its three folders, as zip names ("mflng/LICENSES/x.txt") */
 static int list_names(const WCHAR *dir, char names[][128], int max)
 {
-    WCHAR pat[MAX_PATH], sub[MAX_PATH]; WIN32_FIND_DATAW f; HANDLE h; int n = 0, pass;
-    pj(sub, dir, L"LICENSES");
-    for (pass = 0; pass < 2; pass++) {
-        pj(pat, pass ? sub : dir, L"*");
+    WCHAR pat[MAX_PATH], d[MAX_PATH]; WIN32_FIND_DATAW f; HANDLE h; int n = 0, pass;
+    for (pass = 0; pass < NDIRS; pass++) {
+        tree_dir(d, dir, pass);
+        pj(pat, d, L"*");
         if ((h = FindFirstFileW(pat, &f)) == INVALID_HANDLE_VALUE) continue;
         do {
             char nm[128];
             if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY || n >= max) continue;
-            _snprintf(nm, 127, "%s", pass ? "LICENSES/" : ""); nm[127] = 0;
+            _snprintf(nm, 127, "%s", k_zdirs[pass]); nm[127] = 0;
             if (!WideCharToMultiByte(CP_UTF8, 0, f.cFileName, -1, nm + strlen(nm), 100, NULL, NULL)) continue;
             if (name_allowed(nm)) strcpy(names[n++], nm);
         } while (FindNextFileW(h, &f));
@@ -181,13 +189,13 @@ static DWORD WINAPI check_thread(LPVOID unused)
     if (g_testzip[0]) {      /* --test-update-zip: one fake release built from the zip's BUILDINFO.txt, no network */
         unsigned char *z = read_file(g_testzip, &n); ZipEntry e[MAXF]; int i, m = z ? zip_list(z, n, e, MAXF) : -1;
         memset(g_rel, 0, sizeof g_rel); k = 0;
-        for (i = 0; i < m; i++) if (!strcmp(e[i].name, "BUILDINFO.txt")) {
+        for (i = 0; i < m; i++) if (!strcmp(e[i].name, "mflng/BUILDINFO.txt")) {
             char *t = (char *)zip_get(&e[i]); Installed in;
             if (t) { t[e[i].usize] = 0; parse_buildinfo(t, &in); free(t);
                      strcpy(g_rel[0].tag, in.tag); g_rel[0].pre = in.pre; strcpy(g_rel[0].url, "test"); g_rel[0].body = _strdup("Test update from a local zip (--test-update-zip)."); k = 1; }
         }
         free(z);
-        if (!k) WFMT(g_err, L"test zip has no BUILDINFO.txt release line");
+        if (!k) WFMT(g_err, L"test zip has no mflng/BUILDINFO.txt release line");
     } else if (http_get(WSTR(REPO_API), &j, &n, 5000)) {
         free_releases(g_rel, g_nrel); g_nrel = 0;
         k = parse_releases(j, g_rel, 30);
@@ -240,10 +248,10 @@ static DWORD WINAPI stage_thread(LPVOID unused)
     }
     if (!z) { if (!g_err[0]) WFMT(g_err, L"Download failed."); goto out; }
     if ((m = zip_list(z, n, e, MAXF)) <= 0) { WFMT(g_err, L"The download is not a valid zip."); goto out; }
-    for (i = 0; i < m; i++) if (!strcmp(e[i].name, "SHA256SUMS") && (sums = (char *)zip_get(&e[i]))) sums[e[i].usize] = 0;
-    if (!sums) { WFMT(g_err, L"The zip has no SHA256SUMS."); goto out; }
+    for (i = 0; i < m; i++) if (!strcmp(e[i].name, "mflng/SHA256SUMS") && (sums = (char *)zip_get(&e[i]))) sums[e[i].usize] = 0;      /* its names are zip names */
+    if (!sums) { WFMT(g_err, L"The zip has no mflng/SHA256SUMS."); goto out; }
     pj(st, g_data, L"update"); clear_tree(st);
-    CreateDirectoryW(g_data, NULL); CreateDirectoryW(st, NULL); pj(p, st, L"LICENSES"); CreateDirectoryW(p, NULL);
+    CreateDirectoryW(g_data, NULL); make_tree(st);
     for (i = 0; i < m; i++) {
         unsigned char *d; int listed;
         if (!name_allowed(e[i].name)) continue;
@@ -323,7 +331,7 @@ static int apply_update(DWORD pid, int elevated)
         if (w == WAIT_TIMEOUT) { logf_(L"FAIL: the launcher (pid %lu) did not exit within 15 s", pid); goto end; }
     }
     n = list_names(st, names, MAXF);
-    pj(p, st, L"SHA256SUMS");
+    pj(p, st, L"mflng\\SHA256SUMS");
     if (!(sums = (char *)read_file(p, NULL))) { logf_(L"FAIL: no staged SHA256SUMS"); goto end; }
     for (i = 0; i < n; i++) {      /* verify everything before touching the install dir */
         int listed;
@@ -331,14 +339,14 @@ static int apply_update(DWORD pid, int elevated)
         if (!(data[i] = read_file(p, &len[i]))) { logf_(L"FAIL: cannot read %s", p); goto end; }
         sha256(data[i], len[i], h); hex32(h, hx); listed = sums_lookup(sums, names[i], want);
         if ((needs_hash(names[i]) && !listed) || (listed && strcmp(hx, want))) { logf_(L"FAIL: %hs does not match SHA256SUMS", names[i]); goto end; }    }
-    pj(p, g_dir, L"LICENSES"); CreateDirectoryW(p, NULL);
+    make_tree(g_dir);      /* mflng\ and mflng\LICENSES\ (the game folder itself exists) */
     for (i = 0; i < n; i++) {      /* phase 1: <name>.new beside each target */
         wname(p, g_dir, names[i]); wcscat(p, L".new");
         if (!write_file(p, data[i], len[i])) { logf_(L"FAIL: cannot write %s (error %lu)", p, GetLastError()); goto rollback; }
     }
     clear_tree(bp);      /* one backup level: the last one waits in backup.prev until this update has succeeded */
     if (exists(bk) && !(rotated = MoveFileExW(bk, bp, 0))) { logf_(L"FAIL: cannot move %s to %s (error %lu)", bk, bp, GetLastError()); goto rollback; }
-    CreateDirectoryW(bk, NULL); pj(p, bk, L"LICENSES"); CreateDirectoryW(p, NULL);
+    make_tree(bk);
     for (k = 0; k < n; k++) {      /* phase 2: copy old -> backup, old -> <name>.old (works for a running exe), .new -> name */
         wname(p, g_dir, names[k]); wname(q, bk, names[k]); wcscpy(o, p); wcscat(o, L".old");
         if ((had[k] = exists(p))) {
@@ -488,7 +496,7 @@ static void ov_text(WCHAR *o, size_t cap, WCHAR *title, size_t tcap)
         _snwprintf(o, cap - 1, L"%s", g_body ? g_body : L"(no release notes)");
     } else {
         _snwprintf(title, tcap - 1, L"MFLng-launch " WSTR(LAUNCHER_VERSION));
-        _snwprintf(o, cap - 1, L"%s.\n%s\n\nLicences: see the LICENSES folder next to this program.\n\n%s\n\n" WSTR(REPO_URL), CREDIT_SHORT, CREDIT_THANKS, NOTICE);
+        _snwprintf(o, cap - 1, L"%s.\n%s\n\nLicences: see the folder mflng\\LICENSES next to this program.\n\n%s\n\n" WSTR(REPO_URL), CREDIT_SHORT, CREDIT_THANKS, NOTICE);
     }
     o[cap - 1] = 0; title[tcap - 1] = 0;
 }
@@ -656,14 +664,15 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
         if (!wcscmp(argv[i], L"--test-update-zip") && i + 1 < argc) GetFullPathNameW(argv[++i], MAX_PATH, g_testzip, NULL);
         else if (!wcscmp(argv[i], L"--test-force-elevate")) g_force_elev = 1;
     }
-    /* data dir: %LOCALAPPDATA%\mflng-launch (MFL keeps its own files beside the exe, a folder that may be protected); portable.txt -> <exe dir>\mflng-launch */
+    /* data dir: %LOCALAPPDATA%\mflng-launch (the game folder may be protected); portable.txt beside this exe -> <exe dir>\mflng\mflng-launch
+       (W17 LAYOUT C: inside the MFLng sub folder, so the game folder gets nothing more) */
     pj(p, g_dir, L"portable.txt");
-    if (exists(p) || !GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH)) pj(g_data, g_dir, L"mflng-launch");
+    if (exists(p) || !GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH)) { pj(p, g_dir, L"mflng"); CreateDirectoryW(p, NULL); pj(g_data, p, L"mflng-launch"); }
     else pj(g_data, base, L"mflng-launch");
     CreateDirectoryW(g_data, NULL);
     pj(g_ini, g_data, L"mflng-launch.ini");
     if ((t = CreateThread(NULL, 0, cleanup_thread, NULL, 0, NULL))) CloseHandle(t);
-    pj(p, g_dir, L"BUILDINFO.txt"); bi = (char *)read_file(p, NULL); parse_buildinfo(bi, &g_inst); free(bi);
+    pj(p, g_dir, L"mflng\\BUILDINFO.txt"); bi = (char *)read_file(p, NULL); parse_buildinfo(bi, &g_inst); free(bi);
     GetPrivateProfileStringW(L"launcher", L"update_at_startup", L"on", v, 32, g_ini); g_auto = _wcsicmp(v, L"off") != 0;
     GetPrivateProfileStringW(L"launcher", L"channel", L"", v, 32, g_ini);
     g_pre = !_wcsicmp(v, L"prerelease") ? 1 : !_wcsicmp(v, L"release") ? 0 : default_channel_pre(&g_inst);

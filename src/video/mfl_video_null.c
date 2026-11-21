@@ -8,7 +8,11 @@
  *
  * DLL backend (Windows builds): at the first mfl_video_open with no backend registered, mfl_video_ffmpeg.dll (FFmpeg, built with mingw,
  * p8 package) is loaded with LoadLibrary and its plain cdecl exports (same names and signatures as mfl_video.h) become the backend.
- * No DLL or a missing export: the blank backend stays (behaviour unchanged). */
+ * No DLL or a missing export: the blank backend stays (behaviour unchanged).
+ *
+ * Where the backend DLLs lie (W17 LAYOUT C, mfl_load_backend_dll below; the audio dispatcher recomp/audio/mfl_audio_null.c uses it too):
+ * <exe folder>\mflng\<name> first, the release zip's layout; else <name> by the normal search (beside the exe: test harness, local builds).
+ * mflrw.dll is not loaded here: it is a static import of the exe and lies beside it. */
 #include "mfl_video.h"
 
 mfl_video *g_movie_video;                       /* the one movie the game plays at a time (NULL = none) */
@@ -44,13 +48,44 @@ static const char k_exports[] = "mfl_video_open\0mfl_video_start\0mfl_video_upda
 static mfl_video_backend g_dll_backend;
 static int g_dll_tried;
 
+/* A backend DLL of ours by file name: <exe folder>\mflng\<name>, else <name> as before.
+ * The first try gives LoadLibraryExA the absolute path with LOAD_WITH_ALTERED_SEARCH_PATH: the DLL's own imports (mfl_video_ffmpeg.dll ->
+ * avformat / avcodec / avutil / swscale) are then searched in ITS folder first; with a plain LoadLibrary of the path they would be searched
+ * beside the exe and the load would fail.  The flag needs an absolute path.  LoadLibraryExA comes through GetProcAddress: the original exe
+ * does not import it, so there is no import lib for it (as in recomp/mfl_resources.c). */
+extern __declspec(dllimport) void *__stdcall GetModuleHandleA(const char *name);
+extern __declspec(dllimport) unsigned long __stdcall GetModuleFileNameA(void *module, char *path, unsigned long size);
+typedef void *(__stdcall *load_library_ex_fn)(const char *path, void *file, unsigned long flags);
+#define LOAD_WITH_ALTERED_SEARCH_PATH 0x00000008
+#define DLL_PATH_SIZE 260
+static const char k_kernel32[] = "kernel32.dll";
+static const char k_load_library_ex[] = "LoadLibraryExA";
+static const char k_dll_dir[] = "mflng\\";
+
+void *mfl_load_backend_dll(const char *name)
+{
+    char path[DLL_PATH_SIZE];
+    load_library_ex_fn load_library_ex = (load_library_ex_fn)GetProcAddress(GetModuleHandleA(k_kernel32), k_load_library_ex);
+    unsigned long n = GetModuleFileNameA(0, path, DLL_PATH_SIZE), i;
+    void *dll = 0;
+
+    while (n != 0 && path[n - 1] != '\\') n--;
+    if (load_library_ex != 0 && n != 0) {
+        for (i = 0; k_dll_dir[i] != '\0' && n < DLL_PATH_SIZE - 1; i++) path[n++] = k_dll_dir[i];
+        for (i = 0; name[i] != '\0' && n < DLL_PATH_SIZE - 1; i++) path[n++] = name[i];
+        path[n] = '\0';
+        if (name[i] == '\0') dll = load_library_ex(path, 0, LOAD_WITH_ALTERED_SEARCH_PATH);      /* a cut path is not tried */
+    }
+    return dll != 0 ? dll : LoadLibraryA(name);
+}
+
 static void dll_backend_load(void)
 {
     void *dll;
     void **slot = (void **)&g_dll_backend.open;
     const char *name = k_exports;
     g_dll_tried = 1;
-    dll = LoadLibraryA(k_dll_name);
+    dll = mfl_load_backend_dll(k_dll_name);
     if (dll == 0) return;
     for (; *name; slot++) {
         *slot = GetProcAddress(dll, name);

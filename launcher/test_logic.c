@@ -1,5 +1,7 @@
 /* test_logic.c <releases.json> <MFLng-<tag>.zip> <tag of that zip>: native check of logic.c (build.sh test).
-   releases.json = a saved answer of the GitHub releases API; the zip = the real release asset of <tag>. */
+   releases.json = an answer of the GitHub releases API; the zip = the release asset of <tag> in the mflng/ sub folder layout (W17 LAYOUT C).
+   Fixture pair without a download: launcher/mk_test_fixture.py <dir> (prints the three arguments); a real release of that layout works too.
+   The flat zips before it (r20261120 ...) do not: their SHA256SUMS and BUILDINFO.txt are not in mflng/. */
 #include "logic.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,8 +96,8 @@ int main(int argc, char **argv)
     nz =zip_list(z, zn, ze, 64);
     CHECK(nz > 5);
     for (i = 0; i < nz; i++)      /* zip_get leaves room for a terminator */
-        if (!strcmp(ze[i].name, "SHA256SUMS") && (sums = (char *)zip_get(&ze[i]))) sums[ze[i].usize] = 0;
-        else if (!strcmp(ze[i].name, "BUILDINFO.txt") && (bi = (char *)zip_get(&ze[i]))) bi[ze[i].usize] = 0;
+        if (!strcmp(ze[i].name, "mflng/SHA256SUMS") && (sums = (char *)zip_get(&ze[i]))) sums[ze[i].usize] = 0;
+        else if (!strcmp(ze[i].name, "mflng/BUILDINFO.txt") && (bi = (char *)zip_get(&ze[i]))) bi[ze[i].usize] = 0;
     CHECK(sums && bi);
     if (!sums || !bi) return 1;
     for (i = 0; i < nz; i++) {
@@ -111,8 +113,8 @@ int main(int argc, char **argv)
     }
     CHECK(hashed >= 4);
     parse_buildinfo(bi, &in);
-    /* this zip predates the `release` line: treated like any build without one (no legacy matching) */
-    CHECK(!in.tag[0] && update_state(&in, argv[3]) == ST_UPDATE && !default_channel_pre(&in));
+    /* the `release <tag> prerelease` line release.yml writes: installed = this tag, channel prerelease */
+    CHECK(!strcmp(in.tag, argv[3]) && update_state(&in, argv[3]) == ST_UPTODATE && default_channel_pre(&in));
     printf("zip BUILDINFO: tag '%s' -> default channel %s\n", in.tag, default_channel_pre(&in) ? "prerelease" : "release");
     for (i = 0; i < nz; i++) if (needs_hash(ze[i].name) && ze[i].csize > 100) {      /* a flipped byte must fail (crc or inflate) */
         unsigned char *d, keep = ze[i].data[50]; ((unsigned char *)ze[i].data)[50] ^= 0x55;
@@ -120,12 +122,22 @@ int main(int argc, char **argv)
     }
     CHECK(zip_list(z, 100, ze, 64) == -1);
 
-    CHECK(name_allowed("MFLng.exe") && name_allowed("MFLng.nofix.exe") && name_allowed("MFLng-launch.exe") && name_allowed("mflrw.dll") && name_allowed("LICENSES/zlib.txt"));
+    /* W17 LAYOUT C: the exes, mflrw.dll and INSTALL.txt at the top; the backend DLLs, BUILDINFO.txt, SHA256SUMS, LICENSES/ in mflng/ */
+    CHECK(name_allowed("MFLng.exe") && name_allowed("MFLng.nofix.exe") && name_allowed("MFLng-launch.exe") && name_allowed("mflrw.dll") && name_allowed("INSTALL.txt"));
+    CHECK(name_allowed("mflng/mfl_audio_miniaudio.dll") && name_allowed("mflng/LICENSES/zlib.txt") && name_allowed("mflng/BUILDINFO.txt") && name_allowed("mflng/SHA256SUMS"));
+    CHECK(name_allowed("mflng/mfl_video_ffmpeg.dll") && name_allowed("mflng/avformat-61.dll") && name_allowed("mflng/avcodec-61.dll") && name_allowed("mflng/avutil-59.dll") && name_allowed("mflng/swscale-8.dll"));
+    /* a DLL may lie in either place (one that does not load from mflng/ goes back beside the exes without a new launcher) */
+    CHECK(name_allowed("mfl_video_ffmpeg.dll") && name_allowed("avcodec-61.dll") && name_allowed("mflng/mflrw.dll"));
+    /* LICENSES/ only inside mflng/; no other folder, no second level */
+    CHECK(!name_allowed("LICENSES/zlib.txt") && !name_allowed("mflng") && !name_allowed("mflng/mflng/mflrw.dll") && !name_allowed("videocfg.bin"));
     CHECK(!name_allowed("MFL.exe") && !name_allowed("MFL_original.exe") && !name_allowed("launch.exe") && !name_allowed("../MFLng.exe"));
-    CHECK(name_allowed("mfl_video_ffmpeg.dll") && name_allowed("avformat-61.dll") && name_allowed("avcodec-61.dll") && name_allowed("avutil-59.dll") && name_allowed("swscale-8.dll"));
     CHECK(!name_allowed("avcodec-61.exe") && !name_allowed("avcodec.lib") && !name_allowed("postproc-58.dll") && !name_allowed("d3d9.dll"));
-    CHECK(!name_allowed("LICENSES/../x.txt") && !name_allowed("a/b.txt") && !name_allowed("LICENSES/") && !name_allowed("videocfg.bin") && !name_allowed("C:\\x.txt"));
-    CHECK(!sums_lookup(sums, "MFLng-launch.exe", want));      /* the r20261120 zip predates the launcher */
+    CHECK(!name_allowed("mflng/MFL.exe") && !name_allowed("mflng/MFL_original.exe") && !name_allowed("mflng/launch.exe") && !name_allowed("mflng/../MFLng.exe") && !name_allowed("mflng/"));
+    CHECK(!name_allowed("mflng/avcodec-61.exe") && !name_allowed("mflng/avcodec.lib") && !name_allowed("mflng/postproc-58.dll") && !name_allowed("mflng/d3d9.dll"));
+    CHECK(!name_allowed("mflng/LICENSES/../x.txt") && !name_allowed("mflng/a/b.txt") && !name_allowed("mflng/LICENSES/") && !name_allowed("mflng/videocfg.bin") && !name_allowed("mflng/gamesave.bin"));
+    CHECK(!name_allowed("C:\\x.txt") && !name_allowed("mflng\\MFLng.exe") && !name_allowed("mflng/LICENSES/a/b.txt") && !name_allowed("mflng/.x.txt"));
+    /* SHA256SUMS lists zip names */
+    CHECK(sums_lookup(sums, "MFLng-launch.exe", want) && sums_lookup(sums, "mflrw.dll", want) && sums_lookup(sums, "mflng/mfl_video_ffmpeg.dll", want) && !sums_lookup(sums, "mfl_video_ffmpeg.dll", want));
 
     free(z); free(sums); free(bi);
     printf(fails ? "test_logic: %d FAILED\n" : "test_logic: all passed\n", fails);
