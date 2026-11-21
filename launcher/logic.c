@@ -658,3 +658,13 @@ end:
     free(it); free(names); free(sums); upd_clear(st);
     return r;
 }
+
+/* the name of one install: FNV-1a of the folder, case folded (ASCII), '/' = '\\', no trailing separator.
+   ponytail: ASCII fold only (a folder that differs by non-ASCII case counts as another install) */
+void inst_key(char *out, const char *dir)
+{
+    unsigned long long h = 14695981039346656037ULL; size_t n = strlen(dir);
+    while (n && (dir[n - 1] == '/' || dir[n - 1] == '\\')) n--;
+    for (; n; n--, dir++) { unsigned char c = (unsigned char)*dir; if (c == '/') c = '\\'; h = (h ^ (unsigned char)tolower(c)) * 1099511628211ULL; }
+    sprintf(out, "%08lx%08lx", (unsigned long)(h >> 32), (unsigned long)(h & 0xffffffffUL));
+}

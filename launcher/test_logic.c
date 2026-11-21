@@ -539,6 +539,12 @@ int main(int argc, char **argv)
     sha256((const unsigned char *)"", 0, h); hex32(h, hx);
     CHECK(!strcmp(hx, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
 
+    { char a[17], b[17], c[17];      /* single-instance key: one install = one name */
+      inst_key(a, "C:\\Games\\Mashed"); inst_key(b, "c:\\games\\MASHED\\"); inst_key(c, "C:\\Games\\Mashed2");
+      CHECK(!strcmp(a, b) && strcmp(a, c) && strlen(a) == 16);
+      inst_key(b, "C:/Games/Mashed"); CHECK(!strcmp(a, b));
+      inst_key(b, "D:\\Games\\Mashed"); CHECK(strcmp(a, b)); }
+
     /* the real API answer */
     js = slurp(argv[1], NULL); n = parse_releases(js, r, 40); free(js);
     printf("releases: %d, first %s pre=%d url=%s digest=%.12s...\n", n, n > 0 ? r[0].tag : "-", n > 0 ? r[0].pre : -1, n > 0 ? r[0].url : "-", n > 0 ? r[0].digest : "-");

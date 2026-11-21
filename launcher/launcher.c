@@ -617,11 +617,34 @@ static void activate(int id)
     InvalidateRect(g_wnd, NULL, FALSE);
 }
 static void set_hover(int id) { if (id != g_hover) { g_hover = id; InvalidateRect(g_wnd, NULL, FALSE); } }
+/* one launcher per install folder: a Local\ mutex and a registered window message, both named by the folder (inst_key).  A second start
+   tells the first to come forward (restore, foreground) and exits; the apply step and the finish-swap step never come here. */
+enum { SHOW_OK = 0x4D464C };
+static UINT g_show; static WCHAR g_mxname[64];
+static int first_instance(void)      /* 1 = this one runs; 0 = the launcher of this install was told and this one goes */
+{
+    char k[17]; WCHAR kw[17], n[64]; HANDLE mx; HWND w; DWORD_PTR r; int i;
+    inst_key(k, g_dir8); for (i = 0; i < 17; i++) kw[i] = (WCHAR)k[i];
+    WFMT(g_mxname, L"Local\\MFLngLauncher-%s", kw); WFMT(n, L"MFLngLauncherShow-%s", kw); g_show = RegisterWindowMessageW(n);
+    for (i = 0; i < 30; i++) {      /* up to 3 s: the one before may still be on its way out (it releases the mutex when it ends) */
+        mx = CreateMutexW(NULL, FALSE, g_mxname);      /* NULL + access denied: made by an elevated launcher, it exists all the same */
+        if (mx && ((r = WaitForSingleObject(mx, 0)) == WAIT_OBJECT_0 || r == WAIT_ABANDONED)) return 1;      /* kept until the process ends */
+        if (mx) CloseHandle(mx);
+        AllowSetForegroundWindow(ASFW_ANY);      /* this start has the user's input: let the first one take the foreground */
+        for (w = NULL; (w = FindWindowExW(NULL, w, L"MFLngLauncher", NULL)) != NULL;)      /* other installs ignore this message */
+            if (SendMessageTimeoutW(w, g_show, 0, 0, SMTO_ABORTIFHUNG, 1000, &r) && r == SHOW_OK) return 0;
+        Sleep(100);      /* window not made yet (or hung / unreachable through UIPI): try again, then run anyway */
+    }
+    return 1;
+}
 static LRESULT CALLBACK wndproc(HWND w, UINT m, WPARAM wp, LPARAM lp)
 {
+    if (m == g_show && m) { ShowWindow(w, IsIconic(w) ? SW_RESTORE : SW_SHOW); SetForegroundWindow(w); os_log("second instance: brought to foreground"); return SHOW_OK; }
     switch (m) {
     case WM_CREATE:
         g_wnd = w;
+        { BOOL (WINAPI *f)(HWND, UINT, DWORD, void *) = (BOOL (WINAPI *)(HWND, UINT, DWORD, void *))GetProcAddress(GetModuleHandleW(L"user32.dll"), "ChangeWindowMessageFilterEx");
+          if (f) f(w, g_show, 1 /* MSGFLT_ALLOW */, NULL); }      /* an elevated launcher: the unelevated second start may message it (UIPI) */
         f_col = CreateFontW(-S(11), 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
         f_line = CreateFontW(-S(11), 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
         f_body = CreateFontW(-S(13), 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, 0, 0, ANTIALIASED_QUALITY, 0, L"Arial");
@@ -717,6 +740,7 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
         else if (!wcscmp(argv[i], L"--test-apply-in-place")) g_inplace = 1;
         else if (!wcscmp(argv[i], L"--no-swap")) noswap = 1;
     }
+    if (!first_instance()) return 0;
     /* data dir: %LOCALAPPDATA%\mflng-launch (the game folder may be protected); portable.txt beside this exe -> <exe dir>\mflng\mflng-launch
        (W17 LAYOUT C: inside the MFLng sub folder, so the game folder gets nothing more) */
     pj(p, g_dir, L"portable.txt");

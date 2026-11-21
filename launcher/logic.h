@@ -69,4 +69,5 @@ int upd_stage(const unsigned char *zip, size_t n, const char *stage, const char 
    1 = installed; 2 = installed, but the launcher exe is in use and could not be moved: the new one lies beside it as <name>.new.exe
    for the next start; 0 = failed, the game folder is as before; -1 = failed and not everything could be put back (<data>/backup has the files) */
 int upd_apply(const char *install, const char *data, const char *self);
+void inst_key(char *out, const char *dir);                    /* out[17]: the same for one install folder whatever its case / trailing separator; other folders differ */
 #endif

@@ -74,6 +74,10 @@ The launcher creates nothing in `%TEMP%`. During an update the data folder also 
 
 With `portable.txt` the data folder lies in the game folder. If that folder is protected (`C:\Program Files`), the launcher cannot write there and no update can be staged: use `portable.txt` only in a folder you can write to.
 
+## One launcher per install
+
+Only one launcher window runs per game folder. A second start finds the first (mutex `Local\MFLngLauncher-<key>` and the registered window message `MFLngLauncherShow-<key>`, `<key>` = FNV-1a of the lower-cased folder of the exe without a trailing separator: `inst_key` in `logic.c`), the first restores itself if minimised and takes the foreground (even while it downloads or installs), logs `second instance: brought to foreground` to `update.log`, and the new one exits 0 without a window. Two different game folders each get their own launcher. The mutex is per user session (`Local\`) and goes with the process, so a crashed launcher blocks nothing. A start tries for up to 3 s (the launcher before it may still be ending, or its window not made yet); if the first one cannot be reached in that time (hung, or elevated: the window of an elevated launcher allows the message through `ChangeWindowMessageFilterEx`, the mutex of one may refuse an unelevated open) it runs anyway. The apply step (`--apply-update`) and `--finish-swap` take no part in this: they run before the check and use their own mutex. The foreground switch depends on Windows letting the old window take it (`AllowSetForegroundWindow` from the new start); if it refuses, the taskbar button flashes.
+
 ## Update path
 
 1. **Download and check.** The launcher downloads `MFLng-<tag>.zip` into memory. It checks the zip against the SHA-256 that the GitHub API gives for the asset (`digest`).
