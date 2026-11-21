@@ -9,7 +9,7 @@ A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004) tha
 1. Download the newest zip from the [Releases](../../releases) page. Every release is a **pre-release**: it builds automatically, and it is tested by hand only on a few machines. Please report what you find.
 2. Unpack it into your game folder (the one with `MFL.exe`).3. Start `MFLng-launch.exe` (or `MFLng.exe` directly).
 
-`INSTALL.txt` in the zip has the same steps. You need the Microsoft Visual C++ 2015-2022 Redistributable (x86) once; the launcher itself does not.
+`mflng\INSTALL.txt` in the zip has the same steps. You need the Microsoft Visual C++ 2015-2022 Redistributable (x86) once; the launcher itself does not.
 
 What is in the zip:
 
@@ -23,7 +23,7 @@ What is in the zip:
 | `mflng\mfl_video_ffmpeg.dll`, `av*.dll`, `swscale-*.dll` | Intro movies, the menu backdrop movie and menu music (FFmpeg, LGPL). Without them the game runs silent in the menus and shows no movies. |
 | `mflng\LICENSES\` | Third-party notices. |
 
-The zip adds only the exes, `mflrw.dll`, `INSTALL.txt` and one folder, `mflng`, to your game folder; the other DLLs and notices live in that folder.
+The zip adds only the exes, `mflrw.dll` and one folder, `mflng`, to your game folder; the other DLLs, the install text and the notices live in that folder.
 
 ## What MFLng.exe does better than the original
 

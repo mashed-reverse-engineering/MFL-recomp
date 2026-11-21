@@ -6,8 +6,8 @@
 # Contract with build.yml (job `link`, plan 2.7 step 2): artifact `mflng-out` = MFLng.exe (every MFL_FIX_* on), MFLng.nofix.exe (original behaviour), MFLng.map, MFLng.nofix.map,
 # mflrw.dll, mfl_audio_miniaudio.dll, MFLng-launch.exe, BUILDINFO.txt (one line `cl <version>`), and from job video mfl_video_ffmpeg.dll +
 # avformat/avcodec/avutil/swscale-NN.dll; ci_checks.sh has passed on it.
-# Zip layout (W17 LAYOUT C; the zip is unpacked into the user's game folder): the three exes, mflrw.dll (their static import) and INSTALL.txt
-# at the top; mfl_audio_miniaudio.dll, mfl_video_ffmpeg.dll, the FFmpeg DLLs, BUILDINFO.txt, SHA256SUMS (zip names) and LICENSES/ in mflng/.
+# Zip layout (W17 LAYOUT C; the zip is unpacked into the user's game folder): the three exes and mflrw.dll (their static import) at the top;
+# mfl_audio_miniaudio.dll, mfl_video_ffmpeg.dll, the FFmpeg DLLs, INSTALL.txt, BUILDINFO.txt, SHA256SUMS (zip names) and LICENSES/ in mflng/.
 # The exe loads the DLLs of mflng/ itself (src/video/mfl_video_null.c mfl_load_backend_dll).  tools/ci/no_original.py --release fails on any
 # other top-level file; the launcher's updater (launcher/logic.c name_allowed) installs these names.  The build artifact `mflng-out` stays flat.
 name: release
@@ -55,11 +55,11 @@ jobs:
           cp third_party/LICENSES/*.txt pkg/mflng/LICENSES/
           # `release <tag> prerelease`: the launcher's installed version and its default update channel (every release here is a pre-release)
           { echo "release $TAG prerelease"; echo "public commit $GITHUB_SHA"; echo "librw-mfl $(sed -n 's/^commit //p' data/link/mflrw_pin.txt)"; cat data/release_stamp.txt 2>/dev/null || echo "stamp: none (manual run)"; } >> pkg/mflng/BUILDINFO.txt
-          cat > pkg/INSTALL.txt <<'EOF'
+          cat > pkg/mflng/INSTALL.txt <<'EOF'
           MFLng: a rebuilt executable for your own installed copy of the PC game. It contains no game data and is not affiliated with the publisher.
           Needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), from Microsoft.
           1. Unpack everything into the game folder (the folder with MFL.exe). This adds MFLng.exe, MFLng.nofix.exe, MFLng-launch.exe,
-             mflrw.dll, this file and a folder mflng. MFLng reads its pictures and texts from your MFL.exe at start-up.
+             mflrw.dll and a folder mflng (with this file). MFLng reads its pictures and texts from your MFL.exe at start-up.
           2. Start MFLng-launch.exe, or MFLng.exe (every MFL_FIX_* bug fix on) or MFLng.nofix.exe (original behaviour) directly.
              The launcher shows your game's launcher picture, starts the two exes and updates MFLng from the GitHub releases
              (static C runtime, no redistributable).
@@ -94,10 +94,10 @@ jobs:
             echo "## MFLng $D (pre-release)"
             echo
             echo "**New here? Two steps:**"
-            echo "1. Download \`MFLng-$TAG.zip\` from the **Assets** list below and unpack it into your game folder (the one with \`MFL.exe\`). It adds \`MFLng.exe\`, \`MFLng.nofix.exe\`, \`MFLng-launch.exe\`, \`mflrw.dll\`, \`INSTALL.txt\` and a folder \`mflng\`."
+            echo "1. Download \`MFLng-$TAG.zip\` from the **Assets** list below and unpack it into your game folder (the one with \`MFL.exe\`). It adds \`MFLng.exe\`, \`MFLng.nofix.exe\`, \`MFLng-launch.exe\`, \`mflrw.dll\` and a folder \`mflng\`."
             echo "2. Start \`MFLng-launch.exe\` (or \`MFLng.exe\`)."
             echo
-            echo "You need your own copy of the game. This contains no game files and is not affiliated with the game's publisher or developer. The zip has an \`INSTALL.txt\`; it also needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), once."
+            echo "You need your own copy of the game. This contains no game files and is not affiliated with the game's publisher or developer. The folder \`mflng\` has an \`INSTALL.txt\`; it also needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), once."
             echo
             echo "### What is new"
             echo "$CHG" | sed 's/^/- /'

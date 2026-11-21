@@ -1,5 +1,6 @@
 /* logic.c: see logic.h.  Plain C, no library beyond the C runtime (own inflate and CRC-32 below: the game's zlib 1.1.3 is not used here). */
 #include "logic.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -214,18 +215,22 @@ void sha256(const unsigned char *p, size_t n, unsigned char out[32])
 }
 void hex32(const unsigned char h[32], char out[65]) { int i; for (i = 0; i < 32; i++) { out[2 * i] = "0123456789abcdef"[h[i] >> 4]; out[2 * i + 1] = "0123456789abcdef"[h[i] & 15]; } out[64] = 0; }
 
-int sums_lookup(const char *s, const char *name, char hex[65])      /* `<64 hex>  <name>` lines (sha256sum format, '*' = binary mode) */
+/* one `<64 hex>  <name>` line at s (sha256sum format, '*' = binary mode) -> the next line, NULL after the last; name[0] = 0: no such line */
+static const char *sums_line(const char *s, char name[128], char hex[65])
 {
-    size_t nl = strlen(name);
-    while (s && *s) {
-        const char *e = strchr(s, '\n'), *f = s + 64;
-        size_t len = e ? (size_t)(e - s) : strlen(s);
-        if (len > 66 && f[0] == ' ' && (f[1] == ' ' || f[1] == '*')) {
-            size_t fl = len - 66; while (fl && (f[2 + fl - 1] == '\r' || f[2 + fl - 1] == ' ')) fl--;
-            if (fl == nl && !memcmp(f + 2, name, nl)) { int i; for (i = 0; i < 64; i++) hex[i] = (char)tolower((unsigned char)s[i]); hex[64] = 0; return 1; }
-        }
-        s = e ? e + 1 : NULL;
+    const char *e = strchr(s, '\n'); size_t len = e ? (size_t)(e - s) : strlen(s);
+    name[0] = 0;
+    if (len > 66 && s[64] == ' ' && (s[65] == ' ' || s[65] == '*')) {
+        size_t fl = len - 66; int i;
+        while (fl && (s[66 + fl - 1] == '\r' || s[66 + fl - 1] == ' ')) fl--;
+        if (fl < 128) { memcpy(name, s + 66, fl); name[fl] = 0; for (i = 0; i < 64; i++) hex[i] = (char)tolower((unsigned char)s[i]); hex[64] = 0; }
     }
+    return e ? e + 1 : NULL;
+}
+int sums_lookup(const char *s, const char *name, char hex[65])
+{
+    char nm[128], hx[65];
+    while (s && *s) { s = sums_line(s, nm, hx); if (nm[0] && !strcmp(nm, name)) { memcpy(hex, hx, 65); return 1; } }
     return 0;
 }
 
@@ -242,7 +247,8 @@ int zip_list(const unsigned char *z, size_t n, ZipEntry *out, int max)
         if (i == 0 || n - i > 65557) return -1;
     }
     cnt = rd16(z + i + 10); cd = rd32(z + i + 16);
-    for (k = 0; k < cnt && (int)k < max; k++) {
+    if (cnt > (size_t)max) return -1;      /* never a part of a zip: an update would install half a release */
+    for (k = 0; k < cnt; k++) {
         ZipEntry *e = &out[k]; size_t nl, el, cl, lo, ld;
         if (cd + 46 > n || rd32(z + cd) != 0x02014b50UL) return -1;
         nl = rd16(z + cd + 28); el = rd16(z + cd + 30); cl = rd16(z + cd + 32);
@@ -397,19 +403,232 @@ unsigned char *zip_get(const ZipEntry *e)
     return o;
 }
 
-static int plain(const char *s) { for (; *s; s++) if (!(isalnum((unsigned char)*s) || *s == '.' || *s == '_' || *s == '-')) return 0; return 1; }
+/* one path part of letters, digits, '.', '_', '-' (so no '/', '\', ':', space or '..' part can pass), not starting with '.', and not a
+   Windows device name (CON.txt, nul.txt, COM1.x ...: Windows would open the device, not a file) */
+static int plain(const char *s)
+{
+    static const char *const dv[] = { "con", "prn", "aux", "nul", "com", "lpt" };
+    size_t stem = strcspn(s, "."); int i;
+    if (s[0] == '.') return 0;
+    for (i = 0; i < 6; i++)
+        if (stem == (size_t)(i < 4 ? 3 : 4) && tolower((unsigned char)s[0]) == dv[i][0] && tolower((unsigned char)s[1]) == dv[i][1]
+            && tolower((unsigned char)s[2]) == dv[i][2] && (i < 4 || isdigit((unsigned char)s[3]))) return 0;
+    for (; *s; s++) if (!(isalnum((unsigned char)*s) || *s == '.' || *s == '_' || *s == '-')) return 0;
+    return 1;
+}
 static int ends(const char *s, const char *x) { size_t a = strlen(s), b = strlen(x); return a >= b && !strcmp(s + a - b, x); }
-/* zip name = path under the game folder.  MFLng*.exe, mfl*.dll, the shared FFmpeg DLLs (avformat-/avcodec-/avutil-/swscale-NN.dll), *.txt,
-   SHA256SUMS at the top or in mflng/ (W17 LAYOUT C: the zip has the exes, mflrw.dll and INSTALL.txt at the top and the rest in mflng/; a
-   DLL may change its place without a new launcher), and mflng/LICENSES/<x>.txt: never MFL.exe, MFL_original.exe, launch.exe or a game file */
+/* zip name = path under the game folder (W17 LAYOUT C).  At the top and in mflng/: MFLng*.exe, mfl*.dll and the shared FFmpeg DLLs
+   (avformat-/avcodec-/avutil-/swscale-NN.dll): a program file may change its place without a new launcher.  Only in mflng/: *.txt
+   (INSTALL.txt, BUILDINFO.txt) and SHA256SUMS, and mflng/LICENSES/<x>.txt.  Never MFL.exe, MFL_original.exe, launch.exe or a game file;
+   no text file at the top (the game folder has its own). */
 int name_allowed(const char *n)
 {
     static const char *const ff[] = { "avformat-", "avcodec-", "avutil-", "swscale-" };
     int i, sub = !strncmp(n, "mflng/", 6);
     if (sub) n += 6;
-    if (sub && !strncmp(n, "LICENSES/", 9)) return plain(n + 9) && ends(n + 9, ".txt") && n[9] != '.';
-    if (!plain(n) || n[0] == '.') return 0;
+    if (sub && !strncmp(n, "LICENSES/", 9)) return plain(n + 9) && ends(n + 9, ".txt");
+    if (!plain(n)) return 0;
     for (i = 0; i < 4; i++) if (!strncmp(n, ff[i], strlen(ff[i])) && ends(n, ".dll")) return 1;
-    return (!strncmp(n, "MFLng", 5) && ends(n, ".exe")) || (!strncmp(n, "mfl", 3) && ends(n, ".dll")) || ends(n, ".txt") || !strcmp(n, "SHA256SUMS");
+    if ((!strncmp(n, "MFLng", 5) && ends(n, ".exe")) || (!strncmp(n, "mfl", 3) && ends(n, ".dll"))) return 1;
+    return sub && (ends(n, ".txt") || !strcmp(n, "SHA256SUMS"));
+}
+/* + what the layouts before put beside the exes: <x>.txt and SHA256SUMS at the top, LICENSES/<x>.txt.  Only for removing a file that
+   the installed SHA256SUMS lists with the hash it still has (upd_apply): never a reason to write one. */
+int name_ours(const char *n)
+{
+    const char *t = !strncmp(n, "LICENSES/", 9) ? n + 9 : n;
+    return name_allowed(n) || (plain(t) && (ends(t, ".txt") || (t == n && !strcmp(t, "SHA256SUMS"))));
 }
 int needs_hash(const char *n) { return ends(n, ".exe") || ends(n, ".dll"); }
+
+/* ---- the update: stage a zip, apply the staged tree (file layer os_*: logic.h) ---- */
+#ifdef _WIN32
+#define SEP '\\'
+#else
+#define SEP '/'
+#endif
+/* the folders of an install, staging or backup tree as zip name prefixes, parents first.  LICENSES/ at the top is the flat layout
+   before W17: nothing is installed there, an update only removes that layout's files from it. */
+enum { NDIRS = 4, W_NAMES = 0, W_ALL, W_LEFT };
+static const char *const k_dirs[NDIRS] = { "", "mflng/", "mflng/LICENSES/", "LICENSES/" };
+typedef struct { const char *root; int dir, mode, n, max, left; char (*names)[128]; } Walk;
+typedef struct { char name[128]; unsigned char *data; size_t len; char had, aside, placed; } Item;
+
+static int icmp(const char *a, const char *b)      /* Windows file names: ASCII case does not count */
+{
+    for (; *a && tolower((unsigned char)*a) == tolower((unsigned char)*b); a++, b++);
+    return tolower((unsigned char)*a) - tolower((unsigned char)*b);
+}
+void upd_path(char *o, const char *dir, const char *name)
+{
+    size_t i = strlen(dir);
+    snprintf(o, UPD_PATH, "%s%c%s", dir, SEP, name);
+    if (i >= UPD_PATH) i = UPD_PATH - 1;
+    for (; o[i]; i++) if (o[i] == '/') o[i] = SEP;
+    if (i > 1 && o[i - 1] == SEP) o[i - 1] = 0;      /* a folder: no separator at the end */
+}
+static void sfx(char *o, const char *p, const char *s) { snprintf(o, UPD_PATH, "%s%s", p, s); }
+static int mk_dirs(const char *root, const char *name)      /* the folders of <root> that <name> lies in -> bit i: k_dirs[i] was created now */
+{
+    char p[UPD_PATH]; int i, made = 0;
+    for (i = 1; i < NDIRS; i++) if (!strncmp(name, k_dirs[i], strlen(k_dirs[i]))) { upd_path(p, root, k_dirs[i]); if (os_mkdir(p)) made |= 1 << i; }
+    return made;
+}
+static void walk_f(const char *fn, void *ctx)
+{
+    Walk *w = (Walk *)ctx; char nm[640], p[UPD_PATH]; size_t l;
+    snprintf(nm, sizeof nm, "%s%.600s", k_dirs[w->dir], fn); l = strlen(nm);
+    upd_path(p, w->root, nm);
+    if (w->mode == W_ALL) w->left += !os_delete(p);
+    else if (w->mode == W_LEFT) {      /* <release file>.old / .new: left by an update that was cut off, or still in use when it ended */
+        if (l > 4 && (!strcmp(nm + l - 4, ".old") || !strcmp(nm + l - 4, ".new")) && (nm[l - 4] = 0, name_allowed(nm))) w->left += !os_delete(p);
+    } else if (l < 128 && name_allowed(nm)) { if (w->n < w->max) strcpy(w->names[w->n], nm); w->n++; }
+}
+static int walk(const char *root, int mode, char names[][128], int max)
+{
+    Walk w; char d[UPD_PATH];
+    memset(&w, 0, sizeof w); w.root = root; w.mode = mode; w.names = names; w.max = max;
+    for (w.dir = 0; w.dir < NDIRS; w.dir++) { upd_path(d, root, k_dirs[w.dir]); os_list(d, walk_f, &w); }
+    return mode == W_NAMES ? w.n : w.left;
+}
+int upd_staged(const char *st, char names[][128], int max) { return walk(st, W_NAMES, names, max); }      /* > max: more than fit */
+int upd_clean(const char *inst) { return walk(inst, W_LEFT, NULL, 0); }
+void upd_clear(const char *dir)
+{
+    char d[UPD_PATH]; int i;
+    walk(dir, W_ALL, NULL, 0);
+    for (i = NDIRS - 1; i >= 0; i--) { upd_path(d, dir, k_dirs[i]); os_rmdir(d); }      /* deepest first; a folder with anything else in it stays */
+}
+
+int upd_stage(const unsigned char *z, size_t n, const char *st, const char *tag, char *err, size_t cap)
+{
+    ZipEntry *e = (ZipEntry *)malloc(UPD_MAXF * sizeof *e); unsigned char h[32], *d; char hx[65], want[65], p[UPD_PATH], *sums = NULL, *bi = NULL;
+    Installed in; int m = 0, i, k, ok = 0, bins = 0, listed;
+    err[0] = 0;
+    if (!e || (m = zip_list(z, n, e, UPD_MAXF)) <= 0) { m = 0; snprintf(err, cap, "The download is not a valid zip."); goto out; }
+    /* first everything that needs no disk.  A file the launcher does not install refuses the whole zip: leaving it out would install
+       half a release (a zip of another layout, or one that needs a newer launcher). */
+    for (i = 0; i < m; i++) {
+        size_t l = strlen(e[i].name);
+        if (l && e[i].name[l - 1] == '/') { e[i].name[0] = 0; continue; }      /* a folder entry: nothing to install */
+        if (!name_allowed(e[i].name)) { snprintf(err, cap, "This launcher does not install '%s': unpack the release by hand.", e[i].name); goto out; }
+        for (k = 0; k < i; k++) if (!icmp(e[k].name, e[i].name)) { snprintf(err, cap, "The zip holds '%s' twice.", e[i].name); goto out; }
+        if (!strcmp(e[i].name, "mflng/SHA256SUMS") && (sums = (char *)zip_get(&e[i]))) sums[e[i].usize] = 0;      /* zip_get leaves room for it */
+        if (!strcmp(e[i].name, "mflng/BUILDINFO.txt") && (bi = (char *)zip_get(&e[i]))) bi[e[i].usize] = 0;
+    }
+    if (!sums) { snprintf(err, cap, "The zip has no mflng/SHA256SUMS."); goto out; }
+    parse_buildinfo(bi, &in);
+    /* without the tag the launcher would offer this update again after every install */
+    if (!in.tag[0]) { snprintf(err, cap, "The zip's mflng/BUILDINFO.txt has no release line."); goto out; }
+    if (tag && strcmp(tag, in.tag)) { snprintf(err, cap, "The zip is release %s, not %s.", in.tag, tag); goto out; }
+    upd_clear(st); os_mkdir(st);
+    for (i = 0; i < m; i++) {
+        if (!e[i].name[0]) continue;
+        if (!(d = zip_get(&e[i]))) { snprintf(err, cap, "%s: damaged in the zip.", e[i].name); goto out; }
+        sha256(d, e[i].usize, h); hex32(h, hx); listed = sums_lookup(sums, e[i].name, want);
+        if ((needs_hash(e[i].name) && !listed) || (listed && strcmp(hx, want))) { free(d); snprintf(err, cap, "%s: SHA-256 does not match SHA256SUMS.", e[i].name); goto out; }
+        bins += needs_hash(e[i].name);
+        mk_dirs(st, e[i].name); upd_path(p, st, e[i].name);
+        k = os_write(p, d, e[i].usize); free(d);
+        if (!k) { snprintf(err, cap, "Cannot write %s.", p); goto out; }
+    }
+    if (!bins) { snprintf(err, cap, "The zip holds no program files."); goto out; }
+    ok = 1;
+out:
+    if (!ok) upd_clear(st);
+    free(e); free(sums); free(bi);
+    return ok;
+}
+
+static int find(const Item *it, int n, const char *name) { int i; for (i = 0; i < n; i++) if (!icmp(it[i].name, name)) return i; return -1; }
+static void tag_of(const char *dir, const char *name, Installed *in) { char p[UPD_PATH], *t; upd_path(p, dir, name); t = (char *)os_read(p, NULL); parse_buildinfo(t, in); free(t); }
+
+int upd_apply(const char *inst, const char *data, const char *self)
+{
+    Item *it = (Item *)calloc(UPD_MAXF, sizeof *it); char (*names)[128] = (char (*)[128])malloc(UPD_MAXF * 128);
+    char st[UPD_PATH], bk[UPD_PATH], bp[UPD_PATH], p[UPD_PATH], q[UPD_PATH], o[UPD_PATH], hx[65], want[65], nm[128], *sums = NULL, *old;
+    unsigned char h[32], *d; const char *s; size_t len; Installed was, now;
+    int n = 0, nt, i, k, r = 0, rotated = 0, mine = 0, made = 0, bad = 0, gone = 0, flat = 0, listed;
+    upd_path(st, data, "update"); upd_path(bk, data, "backup"); upd_path(bp, data, "backup.prev");
+    if (!it || !names) { os_log("FAIL: out of memory"); goto end; }
+    n = upd_staged(st, names, UPD_MAXF);
+    if (n <= 0 || n > UPD_MAXF) { os_log(n ? "FAIL: more than %d staged files" : "FAIL: nothing is staged", UPD_MAXF); n = 0; goto end; }
+    upd_path(p, st, "mflng/SHA256SUMS");
+    if (!(sums = (char *)os_read(p, NULL))) { os_log("FAIL: no staged SHA256SUMS"); goto end; }
+    for (i = 0; i < n; i++) {      /* verify everything before touching the game folder; what is installed is this buffer */
+        strcpy(it[i].name, names[i]); upd_path(p, st, names[i]);
+        if (!(it[i].data = os_read(p, &it[i].len))) { os_log("FAIL: cannot read %s", p); goto end; }
+        sha256(it[i].data, it[i].len, h); hex32(h, hx); listed = sums_lookup(sums, names[i], want);
+        if ((needs_hash(names[i]) && !listed) || (listed && strcmp(hx, want))) { os_log("FAIL: %s does not match SHA256SUMS", names[i]); goto end; }
+    }
+    /* files to remove: listed by the installed SHA256SUMS (mflng/, or the flat layout's at the top) or by the one in the backup (the
+       release before the installed one: what a launcher without this step left behind), not in this release, and still the bytes
+       that release installed.  So only what an MFLng release put there, never a game file or a file the user changed. */
+    nt = n;
+    for (k = 0; k < 3; k++) {
+        upd_path(p, k < 2 ? inst : bk, k == 1 ? "SHA256SUMS" : "mflng/SHA256SUMS");
+        if (!(old = (char *)os_read(p, NULL))) continue;
+        for (s = old; s && *s;) {
+            s = sums_line(s, nm, want);
+            if (!nm[0] || !name_ours(nm) || !icmp(nm, self) || find(it, nt, nm) >= 0) continue;
+            upd_path(p, inst, nm);
+            if (!(d = os_read(p, &len))) continue;      /* not there any more */
+            sha256(d, len, h); hex32(h, hx); free(d);
+            if (strcmp(hx, want)) { os_log("kept %s (not in this release, but changed since it was installed)", nm); continue; }
+            if (nt < UPD_MAXF) strcpy(it[nt++].name, nm);
+        }
+        if (k == 1 && sums_lookup(old, "MFLng.exe", want) && find(it, nt, "SHA256SUMS") < 0 && nt < UPD_MAXF) strcpy(it[nt++].name, "SHA256SUMS");      /* the flat layout's list itself */
+        free(old);
+    }
+    tag_of(inst, "mflng/BUILDINFO.txt", &was); if (!was.tag[0]) tag_of(inst, "BUILDINFO.txt", &was);
+    tag_of(st, "mflng/BUILDINFO.txt", &now);
+    os_log("update %s -> %s: %d files, %d older files to remove", was.tag[0] ? was.tag : "(unknown build)", now.tag, n, nt - n);
+    for (i = 0; i < n; i++) made |= mk_dirs(inst, it[i].name);
+    for (i = 0; i < n; i++) {      /* phase 1: <name>.new beside each target */
+        upd_path(q, inst, it[i].name); sfx(p, q, ".new");
+        if (!os_write(p, it[i].data, it[i].len)) { os_log("FAIL: cannot write %s (error %ld)", p, os_err()); goto rollback; }
+    }
+    upd_clear(bp);      /* one backup level: the last one waits in backup.prev until this update has succeeded */
+    if (os_exists(bk) && !(rotated = os_rename(bk, bp))) { os_log("FAIL: cannot move %s to %s (error %ld)", bk, bp, os_err()); goto rollback; }
+    os_mkdir(bk); mine = 1;
+    for (k = 0; k < nt; k++) {      /* phase 2: copy old -> backup, old -> <name>.old (works for a running exe or a loaded DLL), .new -> name */
+        Item *t = &it[k];
+        upd_path(p, inst, t->name); upd_path(q, bk, t->name); sfx(o, p, ".old");
+        if ((t->had = (char)(os_exists(p) != 0))) {
+            mk_dirs(bk, t->name);
+            if (!os_copy(p, q)) { os_log("FAIL: cannot copy %s to the backup (error %ld)", p, os_err()); goto rollback; }
+            if (!(t->aside = (char)(os_rename(p, o) != 0))) { os_log("FAIL: cannot rename %s (error %ld)", p, os_err()); goto rollback; }
+        }
+        if (k >= n) {
+            if (t->had) { gone++; flat |= !strncmp(t->name, "LICENSES/", 9); os_log("removed %s (not in this release; a copy is in the backup)", t->name); }
+            continue;
+        }
+        sfx(q, p, ".new");
+        if (!(t->placed = (char)(os_rename(q, p) != 0))) { os_log("FAIL: cannot rename %s (error %ld)", q, os_err()); goto rollback; }
+        os_log("replaced %s%s", t->name, t->had ? "" : " (new file)");
+    }
+    r = 1; upd_clear(bp);
+    for (k = 0; k < nt; k++) if (it[k].aside) { upd_path(p, inst, it[k].name); sfx(o, p, ".old"); os_delete(o); }      /* one still in use goes at the next start (upd_clean) */
+    if (flat) { upd_path(p, inst, "LICENSES"); os_rmdir(p); }
+    os_log("update applied: %d files installed, %d removed; the previous files are in %s", n, gone, bk);
+    goto end;
+rollback:
+    for (k = 0; k < nt; k++) {
+        Item *t = &it[k];
+        upd_path(p, inst, t->name); upd_path(q, bk, t->name); sfx(o, p, ".old");
+        if (t->placed) os_delete(p);
+        if (t->aside && !os_rename(o, p) && !os_copy(q, p)) { bad = 1; os_log("ROLLBACK FAILED for %s (error %ld): copy it back from %s", p, os_err(), q); }
+        if (k < n) { sfx(q, p, ".new"); os_delete(q); }
+    }
+    for (i = NDIRS - 1; i > 0; i--) if (made >> i & 1) { upd_path(p, inst, k_dirs[i]); os_rmdir(p); }      /* the folders this update created */
+    if (bad) { r = -1; os_log("rollback incomplete: the files of the previous version are in %s", bk); }
+    else {
+        if (mine) upd_clear(bk);      /* this update's own backup only: one that failed before it began keeps the level before */
+        if (rotated) os_rename(bp, bk);
+        os_log("rolled back; the previous version stays");
+    }
+end:
+    for (i = 0; it && i < UPD_MAXF; i++) free(it[i].data);
+    free(it); free(names); free(sums); upd_clear(st);
+    return r;
+}

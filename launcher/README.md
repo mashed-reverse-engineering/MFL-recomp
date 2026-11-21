@@ -7,10 +7,9 @@
   MFL.exe, launch.exe, ...                         the game, untouched
   MFLng.exe  MFLng.nofix.exe  MFLng-launch.exe
   mflrw.dll                                        the exes import it directly, so it must lie beside them
-  INSTALL.txt
   mflng\
     mfl_audio_miniaudio.dll  mfl_video_ffmpeg.dll  avformat-*.dll  avcodec-*.dll  avutil-*.dll  swscale-*.dll
-    BUILDINFO.txt  SHA256SUMS  LICENSES\
+    INSTALL.txt  BUILDINFO.txt  SHA256SUMS  LICENSES\
 ```
 
 The release zip has this shape: unzip it into the game folder. The game exe loads the sound and movie DLLs from `mflng\` itself (and from its own folder if they are not there).
@@ -71,28 +70,44 @@ mflng-launch\
   update.log           log of the last update; update.prev.log = the one before
 ```
 
-The launcher creates nothing in `%TEMP%` and no helper file anywhere. In the game folder and in `mflng\` it leaves only the replaced files. An update briefly creates `<name>.new` and `<name>.old` beside each of them. The `.old` of the running launcher exe is deleted at the next start; after an elevated update in a protected folder it is deleted at the next reboot instead.
+The launcher creates nothing in `%TEMP%` and no helper file anywhere. In the game folder and in `mflng\` it leaves only the files of the release. An update briefly creates `<name>.new` and `<name>.old` beside each of them. The `.old` of the running launcher exe is deleted at the next start; after an elevated update in a protected folder it is deleted at the next reboot instead. A start of the launcher also deletes `<release file>.old` and `.new` that an update left behind when it was cut off.
+
+With `portable.txt` the data folder lies in the game folder. If that folder is protected (`C:\Program Files`), the launcher cannot write there and no update can be staged: use `portable.txt` only in a folder you can write to.
 
 ## Update path
 
 1. **Download and check.** The launcher downloads `MFLng-<tag>.zip` into memory. It checks the zip against the SHA-256 that the GitHub API gives for the asset (`digest`).
 2. **Extract.** It reads the zip itself: a central directory reader, its own raw DEFLATE decoder (`logic.c`, in the style of zlib's `puff`, every read and write bounds-checked) and a CRC-32 check. The game's zlib 1.1.3 is not used.
-3. **Install list.** A zip name is the path under the game folder. Only these are installed, at the top or in `mflng/`: `MFLng*.exe`, `mfl*.dll`, the FFmpeg DLLs `avformat-*.dll`, `avcodec-*.dll`, `avutil-*.dll`, `swscale-*.dll`, `*.txt` and `SHA256SUMS`; and `mflng/LICENSES/*.txt`. The zip decides the place of each file (today: the exes, `mflrw.dll` and `INSTALL.txt` at the top, the rest in `mflng/`). Game files (`MFL.exe`, `MFL_original.exe`, `launch.exe`, saves, configs) are never touched. A zip of the older flat layout is refused (it has no `mflng/SHA256SUMS`), and nothing changes.
+3. **Install list.** A zip name is the path under the game folder. The launcher installs only these:
+   - at the top or in `mflng/`: `MFLng*.exe`, `mfl*.dll` and the FFmpeg DLLs `avformat-*.dll`, `avcodec-*.dll`, `avutil-*.dll`, `swscale-*.dll`. The zip decides the place of each (today: the exes and `mflrw.dll` at the top, the other DLLs in `mflng/`), so a DLL can change its place without a new launcher;
+   - only in `mflng/`: `*.txt` (`INSTALL.txt`, `BUILDINFO.txt`) and `SHA256SUMS`;
+   - `mflng/LICENSES/*.txt`.
+
+   A name is letters, digits, `.`, `_` and `-` only, so no path out of the game folder, no drive letter and no alternate data stream can pass; Windows device names (`nul.txt`) are refused too. Game files (`MFL.exe`, `MFL_original.exe`, `launch.exe`, saves, configs) and text files beside the exes are never written.
+   **A zip with any other file is refused as a whole, and nothing changes**: installing the rest would leave half a release. This covers a top-level `INSTALL.txt` or `SHA256SUMS`, a zip of the older flat layout, and a later layout this launcher does not know (the message says to unpack that release by hand once). The zip must also have `mflng/SHA256SUMS`, a `mflng/BUILDINFO.txt` that names the release that was offered, at least one program file, no name twice, and at most 96 entries.
 4. **Verify.** Every `.exe` and `.dll` must be listed in the zip's `mflng/SHA256SUMS` (it lists zip names) and must match it. Other files must match it if they are listed.
-5. **Stage.** The verified files go to `update\`.
+5. **Stage.** The verified files go to `update\`. Nothing is written before every name has passed step 3.
 6. **Writability check.** The launcher creates and deletes a test file in the game folder, and checks that no target file is read-only.
    - Writable: it starts its own exe again with `--apply-update <pid> <data dir>` and exits.
    - Not writable (access denied): it asks *"The install folder needs administrator rights to update. Continue with administrator rights?"*. On *Yes* it starts the same installed exe with the verb `runas` and `--elevated`. That exe lies in the protected folder, so a process without admin rights cannot have swapped it. If you cancel the UAC prompt, the staging is deleted and nothing changes.
 7. **Apply step** (the launcher exe itself, in apply mode):
-   1. Waits up to 15 s for the first launcher to exit.
-   2. Reads every staged file into memory and checks it against the staged `SHA256SUMS` again. It writes from that same buffer, so a file swapped in the user-writable staging folder after the check is never what lands in the game folder.
-   3. Writes every file as `<name>.new` next to its target.
-   4. Renames `backup\` to `backup.prev\`.
-   5. For each file: copies the old file to `backup\`, renames it to `<name>.old` (Windows allows this for a running exe: this is how the launcher replaces itself), and renames `<name>.new` into place.
-   6. On success: deletes `backup.prev\` and the `.old` files.
-   7. On any failure: puts every `.old` back (or copies the file from `backup\`), deletes the `.new` files, renames `backup.prev\` back to `backup\`, and shows an error naming `update.log`.
-   8. Deletes the staging folder and starts the launcher again. After an elevated update the restart goes through `explorer.exe`, so the new launcher runs as the normal user.
+   1. Waits up to 15 s for the first launcher to exit. Only one apply step runs at a time.
+   2. With administrator rights: stops if the data folder or one of its `update\`, `backup\`, `backup.prev\` folders is a link (junction) instead of a folder.
+   3. Stops if `MFLng.exe` or `MFLng.nofix.exe` is running: *"The game is running. Close it and update again."* Nothing is changed.
+   4. Reads every staged file into memory and checks it against the staged `SHA256SUMS` again. It writes from that same buffer, so a file swapped in the user-writable staging folder after the check is never what lands in the game folder. A file that someone put into the staging folder is not installed.
+   5. Lists the **files to remove**: the names in the installed `mflng\SHA256SUMS` (the release that is installed now) that the new release no longer has, for example a DLL that moved between the game folder and `mflng\`, or an FFmpeg DLL with a new version number. The `SHA256SUMS` in `backup\` (the release before that) is read as well, for what an older launcher left behind. A file is removed only if it still has the SHA-256 that list gives. So the launcher removes only what an MFLng release put there, unchanged: never a game file, never a file of yours in `mflng\`, never a release file you replaced, and never the running launcher. (An install of the flat layout before `mflng\` has its `SHA256SUMS` beside the exes; that list is read the same way, so its `mfl_*.dll`, FFmpeg DLLs, `BUILDINFO.txt`, `INSTALL.txt`, `LICENSES\*.txt` and the list itself go with the first update.)
+   6. Creates `mflng\` and `mflng\LICENSES\` if the release needs them, and writes every file as `<name>.new` next to its target.
+   7. Renames `backup\` to `backup.prev\`.
+   8. For each file: copies the old file to `backup\`, renames it to `<name>.old` (Windows allows this for a running exe and a loaded DLL: this is how the launcher replaces itself), and renames `<name>.new` into place. A file to remove is copied to `backup\` and renamed to `<name>.old` in the same way.
+   9. On success: deletes `backup.prev\` and the `.old` files.
+   10. On any failure: puts every `.old` back (or copies the file from `backup\`), deletes the `.new` files and the folders this update created, renames `backup.prev\` back to `backup\`, and shows an error naming `update.log`. The game folder is then exactly as before. If a file cannot be put back either, `backup\` is kept (it holds the previous files) and the error says so.
+   11. Deletes the staging folder and starts the launcher again. After an elevated update the restart goes through `explorer.exe`, so the new launcher runs as the normal user.
+
+`update.log` has one line per step: the versions (`update <installed tag> -> <new tag>`), `replaced <name>` (with `(new file)`), `removed <name>`, `kept <name>` for a dropped file you changed, and every failure with the Windows error code.
+
 Rollback by hand: copy the content of `backup\` back into the game folder (it has the same shape as the install).
+
+The elevated apply step works for the user who confirmed the administrator question: it installs what that user's launcher staged, checked only against the `SHA256SUMS` staged with it. It can only write release file names into the game folder.
 
 ## Build
 
@@ -103,6 +118,8 @@ launcher/build.sh test  <out dir>             # native test_logic with ASan/UBSa
                                               # <out>/test_logic <releases.json> <MFLng-<tag>.zip> <tag> [deflate vectors]
 python3 launcher/mk_test_fixture.py <out dir> # writes a fixture zip + releases.json in the release layout and prints those three arguments
 ```
+
+`test_logic` also runs the update itself on folder trees (in `<folder of the zip>/upd_work`). The staging, apply and rollback code is `logic.c` (`upd_stage`, `upd_apply`) over a small file layer: `launcher.c` implements it with Win32, the test with POSIX calls and injected failures. Each scenario compares the complete game folder and data folder with the expected trees: first install, replaced files, new / removed / moved files in `mflng\`, your own files, refused zips (33 names that must not pass), a changed staging folder, one failure at every write / rename / copy / mkdir / delete of an update (it completes or the trees are exactly as before), a rollback that fails too, the flat layout, `portable.txt`, leftovers. What needs Windows is not in it: the Win32 file layer, elevation, a running game, the launcher replacing its own running exe.
 
 Imports: kernel32, user32, gdi32, shell32, advapi32, winhttp; `tools/ci/pe_check.py --launcher` checks this list. Static CRT, so no redistributable is needed. Its resources are the RT_MANIFEST `data/link/MFLng.manifest` (asInvoker) and the application icon `assets/icon/mflng.ico` (our own drawing, `mflng.svg` beside it). The launcher uses no third-party code.
 

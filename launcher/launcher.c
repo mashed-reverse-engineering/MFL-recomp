@@ -1,7 +1,8 @@
 /* launcher.c: MFLng-launch.exe.  Shows the original launcher picture (read at run time from the user's own launch.exe), starts
    MFLng.exe / MFLng.nofix.exe, checks the GitHub releases and updates the MFLng files (and itself) through an apply step (the same exe in --apply-update mode).
-   Install layout (W17 LAYOUT C): the exes, mflrw.dll and INSTALL.txt in the game folder beside this exe; the backend DLLs, BUILDINFO.txt,
-   SHA256SUMS and LICENSES\ in its sub folder mflng\.  The updater's trees (install, staging, backup) are these three folders.
+   Install layout (W17 LAYOUT C): the exes and mflrw.dll in the game folder beside this exe; the backend DLLs, INSTALL.txt, BUILDINFO.txt,
+   SHA256SUMS and LICENSES\ in its sub folder mflng\.  The update itself (staging, applying, rollback) is logic.c (upd_*), which the
+   native tests run; this file gives it its file layer (os_*) and does what needs Windows: download, elevation, restart.
    Win32 only (user32, gdi32, shell32, advapi32, winhttp, kernel32).  Layout of the files it creates: README.md. */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -27,7 +28,6 @@
 #define CREDIT_THANKS L"Thanks to L2KSolkov (codfh-win32) and tgsm (pbg)."      /* public/README.md Acknowledgements */
 #define NOTICE L"You need your own copy of the game. Not affiliated with the game's publisher or developer."
 #define WFMT(b, ...) (_snwprintf(b, sizeof(b) / sizeof(WCHAR) - 1, __VA_ARGS__), b[sizeof(b) / sizeof(WCHAR) - 1] = 0)
-#define MAXF 48
 enum { ID_PLAY = 100, ID_NOFIX, ID_EXIT, ID_MIN, ID_CLOSE, ID_STATUS, ID_AUTO, ID_CHAN, ID_CHECK, ID_WEB, ID_ABOUT, ID_OV_UPDATE, ID_OV_CLOSE,
        WM_CHECKED = WM_APP, WM_STAGED };
 enum { PIC_W = 640, PIC_H = 480 };      /* the original launcher's picture and window size (96 dpi; scaled by the system DPI) */
@@ -70,73 +70,49 @@ static int write_file(const WCHAR *p, const void *b, size_t n)      /* complete 
     if (!ok) DeleteFileW(p);
     return ok;
 }
-static void logf_(const WCHAR *fmt, ...)      /* <data>\update.log, UTF-8 */
+/* ---- the file layer of the update code (logic.h os_*): UTF-8 paths in, Win32 out ---- */
+static char g_dir8[UPD_PATH], g_data8[UPD_PATH]; static int g_elev;
+static WCHAR *wp(const char *s, WCHAR *w) { if (!MultiByteToWideChar(CP_UTF8, 0, s, -1, w, UPD_PATH)) w[0] = 0; return w; }
+static void u8(const WCHAR *w, char *o) { if (!WideCharToMultiByte(CP_UTF8, 0, w, -1, o, UPD_PATH, NULL, NULL)) o[0] = 0; }
+unsigned char *os_read(const char *p, size_t *n) { WCHAR w[UPD_PATH]; return read_file(wp(p, w), n); }
+int os_write(const char *p, const void *b, size_t n) { WCHAR w[UPD_PATH]; return write_file(wp(p, w), b, n); }
+int os_exists(const char *p) { WCHAR w[UPD_PATH]; return exists(wp(p, w)); }
+int os_copy(const char *a, const char *b) { WCHAR x[UPD_PATH], y[UPD_PATH]; return CopyFileW(wp(a, x), wp(b, y), FALSE) != 0; }
+int os_mkdir(const char *p) { WCHAR w[UPD_PATH]; return CreateDirectoryW(wp(p, w), NULL) != 0; }
+int os_rmdir(const char *p) { WCHAR w[UPD_PATH]; return RemoveDirectoryW(wp(p, w)) != 0; }
+long os_err(void) { return (long)GetLastError(); }
+int os_rename(const char *a, const char *b)      /* Windows allows it for a running exe and a loaded DLL: this is how the launcher replaces itself */
 {
-    WCHAR w[1024], p[MAX_PATH]; char u[3072]; va_list a; SYSTEMTIME t; HANDLE h; DWORD put; int n;
+    WCHAR x[UPD_PATH], y[UPD_PATH]; wp(a, x); wp(b, y);
+    return MoveFileExW(x, y, MOVEFILE_WRITE_THROUGH) || MoveFileExW(x, y, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);      /* the second form is for files only */
+}
+int os_delete(const char *p)
+{
+    WCHAR w[UPD_PATH]; size_t l; DWORD e;
+    if (DeleteFileW(wp(p, w)) || (e = GetLastError()) == ERROR_FILE_NOT_FOUND || e == ERROR_PATH_NOT_FOUND) return 1;
+    l = wcslen(w);      /* <name>.old still in use (the launcher that ran this update): the next start deletes it; in a protected folder the reboot does */
+    if (g_elev && l > 4 && !wcscmp(w + l - 4, L".old")) MoveFileExW(w, NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+    return 0;
+}
+void os_list(const char *dir, void (*f)(const char *name, void *ctx), void *ctx)
+{
+    WCHAR w[UPD_PATH]; char nm[800]; WIN32_FIND_DATAW fd; HANDLE h; size_t l;
+    l = wcslen(wp(dir, w));
+    if (!l || l + 3 > UPD_PATH) return;
+    wcscpy(w + l, L"\\*");
+    if ((h = FindFirstFileW(w, &fd)) == INVALID_HANDLE_VALUE) return;
+    do { if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && WideCharToMultiByte(CP_UTF8, 0, fd.cFileName, -1, nm, sizeof nm, NULL, NULL)) f(nm, ctx); } while (FindNextFileW(h, &fd));
+    FindClose(h);
+}
+void os_log(const char *fmt, ...)      /* <data>\update.log, UTF-8 */
+{
+    char u[3072], p[UPD_PATH]; WCHAR w[UPD_PATH]; va_list a; SYSTEMTIME t; HANDLE h; DWORD put; int n;
     GetLocalTime(&t);
-    n = _snwprintf(w, 32, L"%04u-%02u-%02u %02u:%02u:%02u ", t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond);
-    va_start(a, fmt); _vsnwprintf(w + n, 1000 - n, fmt, a); va_end(a); w[1020] = 0; wcscat(w, L"\r\n");
-    n = WideCharToMultiByte(CP_UTF8, 0, w, -1, u, sizeof u, NULL, NULL) - 1;
-    pj(p, g_data, L"update.log");
-    h = CreateFileW(p, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, 0, NULL);
-    if (h != INVALID_HANDLE_VALUE) { if (n > 0) WriteFile(h, u, (DWORD)n, &put, NULL); CloseHandle(h); }
-}
-/* the three folders of an install, staging or backup tree (parents first) and their zip name prefixes */
-enum { NDIRS = 3 };
-static const WCHAR *const k_dirs[NDIRS] = { L"", L"mflng", L"mflng\\LICENSES" };
-static const char *const k_zdirs[NDIRS] = { "", "mflng/", "mflng/LICENSES/" };
-static void tree_dir(WCHAR *o, const WCHAR *dir, int i) { if (i) pj(o, dir, k_dirs[i]); else { wcsncpy(o, dir, MAX_PATH - 1); o[MAX_PATH - 1] = 0; } }
-static void make_tree(const WCHAR *dir) { WCHAR d[MAX_PATH]; int i; for (i = 0; i < NDIRS; i++) { tree_dir(d, dir, i); CreateDirectoryW(d, NULL); } }
-/* delete the files of the three folders of <dir> (one level each); olds: only `<allowed release name>.old` (left by an update), else all */
-static int del_files(const WCHAR *dir, int olds)
-{
-    WCHAR pat[MAX_PATH], p[MAX_PATH], d[MAX_PATH]; WIN32_FIND_DATAW f; HANDLE h; int pass, left = 0;
-    for (pass = 0; pass < NDIRS; pass++) {
-        tree_dir(d, dir, pass);
-        pj(pat, d, olds ? L"*.old" : L"*");
-        if ((h = FindFirstFileW(pat, &f)) == INVALID_HANDLE_VALUE) continue;
-        do {
-            char nm[140]; size_t l;
-            if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
-            _snprintf(nm, 20, "%s", k_zdirs[pass]); nm[20] = 0;
-            if (olds && (!WideCharToMultiByte(CP_UTF8, 0, f.cFileName, -1, nm + strlen(nm), 110, NULL, NULL) || (l = strlen(nm)) < 5
-                         || strcmp(nm + l - 4, ".old") || (nm[l - 4] = 0, !name_allowed(nm)))) continue;
-            pj(p, d, f.cFileName);
-            if (!DeleteFileW(p)) left++;
-        } while (FindNextFileW(h, &f));
-        FindClose(h);
-    }
-    return left;
-}
-static void clear_tree(const WCHAR *dir)      /* only the staging / backup trees under <data> */
-{
-    WCHAR d[MAX_PATH]; int i;
-    del_files(dir, 0);
-    for (i = NDIRS - 1; i >= 0; i--) { tree_dir(d, dir, i); RemoveDirectoryW(d); }      /* deepest first */
-}
-/* staged / installable names under <dir>: the allowed files of its three folders, as zip names ("mflng/LICENSES/x.txt") */
-static int list_names(const WCHAR *dir, char names[][128], int max)
-{
-    WCHAR pat[MAX_PATH], d[MAX_PATH]; WIN32_FIND_DATAW f; HANDLE h; int n = 0, pass;
-    for (pass = 0; pass < NDIRS; pass++) {
-        tree_dir(d, dir, pass);
-        pj(pat, d, L"*");
-        if ((h = FindFirstFileW(pat, &f)) == INVALID_HANDLE_VALUE) continue;
-        do {
-            char nm[128];
-            if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY || n >= max) continue;
-            _snprintf(nm, 127, "%s", k_zdirs[pass]); nm[127] = 0;
-            if (!WideCharToMultiByte(CP_UTF8, 0, f.cFileName, -1, nm + strlen(nm), 100, NULL, NULL)) continue;
-            if (name_allowed(nm)) strcpy(names[n++], nm);
-        } while (FindNextFileW(h, &f));
-        FindClose(h);
-    }
-    return n;
-}
-static void wname(WCHAR *o, const WCHAR *dir, const char *name)      /* <dir>\<zip name with '\'> */
-{
-    WCHAR *w = wide(name), *c; for (c = w; c && *c; c++) if (*c == '/') *c = '\\';
-    pj(o, dir, w ? w : L"?"); free(w);
+    n = _snprintf(u, 32, "%04u-%02u-%02u %02u:%02u:%02u ", t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond);
+    va_start(a, fmt); _vsnprintf(u + n, sizeof u - n - 3, fmt, a); va_end(a); u[sizeof u - 3] = 0; strcat(u, "\r\n");
+    upd_path(p, g_data8, "update.log");
+    h = CreateFileW(wp(p, w), FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, 0, NULL);
+    if (h != INVALID_HANDLE_VALUE) { WriteFile(h, u, (DWORD)strlen(u), &put, NULL); CloseHandle(h); }
 }
 
 /* ---- HTTPS GET (WinHTTP) ---- */
@@ -187,7 +163,7 @@ static DWORD WINAPI check_thread(LPVOID unused)
     char *j = NULL; size_t n = 0; int k = -2;
     (void)unused;
     if (g_testzip[0]) {      /* --test-update-zip: one fake release built from the zip's BUILDINFO.txt, no network */
-        unsigned char *z = read_file(g_testzip, &n); ZipEntry e[MAXF]; int i, m = z ? zip_list(z, n, e, MAXF) : -1;
+        unsigned char *z = read_file(g_testzip, &n); ZipEntry e[UPD_MAXF]; int i, m = z ? zip_list(z, n, e, UPD_MAXF) : -1;
         memset(g_rel, 0, sizeof g_rel); k = 0;
         for (i = 0; i < m; i++) if (!strcmp(e[i].name, "mflng/BUILDINFO.txt")) {
             char *t = (char *)zip_get(&e[i]); Installed in;
@@ -238,8 +214,7 @@ static void start_check(void)
 /* ---- download + verify + stage (thread) ---- */
 static DWORD WINAPI stage_thread(LPVOID unused)
 {
-    unsigned char *z = NULL, h[32]; char hx[65], want[65], *sums = NULL; size_t n = 0; ZipEntry e[MAXF]; int m, i, ok = 0, bins = 0;
-    WCHAR st[MAX_PATH], p[MAX_PATH], *url = NULL;
+    unsigned char *z = NULL, h[32]; char hx[65], st[UPD_PATH], err[300]; size_t n = 0; int ok = 0; WCHAR *url = NULL;
     (void)unused; g_err[0] = 0;
     if (g_testzip[0]) z = read_file(g_testzip, &n);
     else if ((url = wide(g_new->url)) && http_get(url, (char **)&z, &n, 30000)) {
@@ -247,27 +222,10 @@ static DWORD WINAPI stage_thread(LPVOID unused)
         if (g_new->digest[0] && strcmp(hx, g_new->digest)) { WFMT(g_err, L"The download does not match GitHub's SHA-256 of the asset."); goto out; }
     }
     if (!z) { if (!g_err[0]) WFMT(g_err, L"Download failed."); goto out; }
-    if ((m = zip_list(z, n, e, MAXF)) <= 0) { WFMT(g_err, L"The download is not a valid zip."); goto out; }
-    for (i = 0; i < m; i++) if (!strcmp(e[i].name, "mflng/SHA256SUMS") && (sums = (char *)zip_get(&e[i]))) sums[e[i].usize] = 0;      /* its names are zip names */
-    if (!sums) { WFMT(g_err, L"The zip has no mflng/SHA256SUMS."); goto out; }
-    pj(st, g_data, L"update"); clear_tree(st);
-    CreateDirectoryW(g_data, NULL); make_tree(st);
-    for (i = 0; i < m; i++) {
-        unsigned char *d; int listed;
-        if (!name_allowed(e[i].name)) continue;
-        if (!(d = zip_get(&e[i]))) { WFMT(g_err, L"%hs: damaged in the zip.", e[i].name); goto out; }
-        sha256(d, e[i].usize, h); hex32(h, hx); listed = sums_lookup(sums, e[i].name, want);
-        if ((needs_hash(e[i].name) && !listed) || (listed && strcmp(hx, want))) { free(d); WFMT(g_err, L"%hs: SHA-256 does not match SHA256SUMS.", e[i].name); goto out; }
-        bins += needs_hash(e[i].name);
-        wname(p, st, e[i].name);
-        if (!write_file(p, d, e[i].usize)) { free(d); WFMT(g_err, L"Cannot write %s.", p); goto out; }
-        free(d);
-    }
-    if (!bins) { WFMT(g_err, L"The zip holds no program files."); goto out; }
-    ok = 1;
+    CreateDirectoryW(g_data, NULL); upd_path(st, g_data8, "update");
+    if (!(ok = upd_stage(z, n, st, g_new->tag, err, sizeof err))) WFMT(g_err, L"%hs", err);      /* every check of the zip: logic.c */
 out:
-    if (!ok) { pj(st, g_data, L"update"); clear_tree(st); }
-    free(z); free(sums); free(url);
+    free(z); free(url);
     PostMessageW(g_wnd, WM_STAGED, (WPARAM)ok, 0);
     return 0;
 }
@@ -277,28 +235,28 @@ out:
    Elevated, the started exe is the INSTALLED one in the protected folder, which a non-admin process cannot have swapped. */
 static void start_apply(void)
 {
-    WCHAR st[MAX_PATH], t[MAX_PATH], args[MAX_PATH + 64]; char names[MAXF][128];
+    WCHAR t[UPD_PATH], args[MAX_PATH + 64]; char st[UPD_PATH], p[UPD_PATH], names[UPD_MAXF][128];
     HANDLE h; DWORD err = 0; int i, n, elev = 0;
-    pj(st, g_data, L"update");
+    upd_path(st, g_data8, "update");
     pj(t, g_dir, L"mflng-write-test.tmp");
     h = CreateFileW(t, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, NULL);
     if (h == INVALID_HANDLE_VALUE) err = GetLastError(); else CloseHandle(h);
     if (err == ERROR_ACCESS_DENIED || g_force_elev) elev = 1;
-    else if (err) { status(L"Cannot write to the install folder (error %lu). Nothing was changed.", err); clear_tree(st); return; }
-    n = list_names(st, names, MAXF);
-    for (i = 0; i < n; i++) {
-        DWORD a; wname(t, g_dir, names[i]); a = GetFileAttributesW(t);
-        if (a != INVALID_FILE_ATTRIBUTES && (a & FILE_ATTRIBUTE_READONLY)) { status(L"%s is read-only. Nothing was changed.", t); clear_tree(st); return; }
+    else if (err) { status(L"Cannot write to the install folder (error %lu). Nothing was changed.", err); upd_clear(st); return; }
+    n = upd_staged(st, names, UPD_MAXF);
+    for (i = 0; i < n && i < UPD_MAXF; i++) {
+        DWORD a; upd_path(p, g_dir8, names[i]); a = GetFileAttributesW(wp(p, t));
+        if (a != INVALID_FILE_ATTRIBUTES && (a & FILE_ATTRIBUTE_READONLY)) { status(L"%s is read-only. Nothing was changed.", t); upd_clear(st); return; }
     }
     if (elev && MessageBoxW(g_wnd, L"The install folder needs administrator rights to update. Continue with administrator rights?", L"MFLng update", MB_YESNO | MB_ICONQUESTION) != IDYES) {
-        status(L"Update cancelled. Nothing was changed."); clear_tree(st); return;
+        status(L"Update cancelled. Nothing was changed."); upd_clear(st); return;
     }
     WFMT(args, L"--apply-update %lu \"%s\"%s", GetCurrentProcessId(), g_data, elev ? L" --elevated" : L"");
     if (elev) {
         SHELLEXECUTEINFOW se; memset(&se, 0, sizeof se); se.cbSize = sizeof se; se.fMask = SEE_MASK_NOASYNC; se.hwnd = g_wnd;
         se.lpVerb = L"runas"; se.lpFile = g_exe; se.lpParameters = args; se.lpDirectory = g_dir; se.nShow = SW_SHOWNORMAL;
         if (!ShellExecuteExW(&se)) {
-            err = GetLastError(); clear_tree(st);
+            err = GetLastError(); upd_clear(st);
             if (err == ERROR_CANCELLED) status(L"Administrator rights were not granted. Nothing was changed.");
             else status(L"Cannot start the update step (error %lu). Nothing was changed.", err);
             return;
@@ -306,83 +264,64 @@ static void start_apply(void)
     } else {
         STARTUPINFOW si; PROCESS_INFORMATION pi; WCHAR cmd[2 * MAX_PATH + 64];
         memset(&si, 0, sizeof si); si.cb = sizeof si; WFMT(cmd, L"\"%s\" %s", g_exe, args);
-        if (!CreateProcessW(g_exe, cmd, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { status(L"Cannot start the update step (error %lu).", GetLastError()); clear_tree(st); return; }
+        if (!CreateProcessW(g_exe, cmd, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { status(L"Cannot start the update step (error %lu).", GetLastError()); upd_clear(st); return; }
         CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
     }
     DestroyWindow(g_wnd);      /* the apply step waits for this process to end */
 }
 
 /* ---- apply step: <launcher exe> --apply-update <pid> <data dir> [--elevated] ----
-   Touches only the install dir (the allowed release names and their .new / .old), <data>\update, <data>\backup, <data>\backup.prev and
-   <data>\update*.log.  Each staged file is read into memory, checked against the staged SHA256SUMS, and written from that same buffer:
-   a file swapped in the user-writable staging dir after the check is never what lands in the install dir. */
+   The work is upd_apply (logic.c): it touches only the game folder (release file names and their .new / .old), <data>\update,
+   <data>\backup, <data>\backup.prev and <data>\update*.log.  Each staged file is read into memory, checked against the staged
+   SHA256SUMS, and written from that same buffer.  Here: what needs Windows before and after it. */
+static int reparse(const WCHAR *p) { DWORD a = GetFileAttributesW(p); return a != INVALID_FILE_ATTRIBUTES && (a & FILE_ATTRIBUTE_REPARSE_POINT); }
 static int apply_update(DWORD pid, int elevated)
 {
-    WCHAR st[MAX_PATH], bk[MAX_PATH], bp[MAX_PATH], p[MAX_PATH], q[MAX_PATH], o[MAX_PATH], lg[MAX_PATH], lg1[MAX_PATH], *self = wcsrchr(g_exe, L'\\') + 1;
-    char names[MAXF][128], hx[65], want[65], *sums = NULL; unsigned char *data[MAXF], h[32]; size_t len[MAXF];
-    int n = 0, i, k, ok = 0, rotated = 0, had[MAXF], copied[MAXF], aside[MAXF], placed[MAXF]; HANDLE pr, mx;
-    mx = CreateMutexW(NULL, FALSE, L"MFLngLauncherUpdate");      /* a launcher started meanwhile leaves the staging dir alone */
-    memset(data, 0, sizeof data); memset(had, 0, sizeof had); memset(copied, 0, sizeof copied); memset(aside, 0, sizeof aside); memset(placed, 0, sizeof placed);
-    pj(st, g_data, L"update"); pj(bk, g_data, L"backup"); pj(bp, g_data, L"backup.prev"); pj(lg, g_data, L"update.log"); pj(lg1, g_data, L"update.prev.log");
+    static const WCHAR *const tree[] = { L"", L"\\update", L"\\backup", L"\\backup.prev" }, *const sub[] = { L"", L"\\mflng", L"\\mflng\\LICENSES", L"\\LICENSES" };
+    static const WCHAR *const game[] = { L"MFLng.exe", L"MFLng.nofix.exe" };
+    const WCHAR *why = L"The update failed and nothing was changed (the previous version stays).";
+    WCHAR p[UPD_PATH], q[MAX_PATH + 4], lg[MAX_PATH], lg1[MAX_PATH], m[2 * MAX_PATH + 200], *self = wcsrchr(g_exe, L'\\') + 1;
+    char self8[UPD_PATH], p8[UPD_PATH], st[UPD_PATH]; int r = 0, i, k; HANDLE pr, mx, h; DWORD w;
+    /* a launcher started meanwhile leaves the staging dir alone while this mutex exists; a second apply step does not get it and goes */
+    mx = CreateMutexW(NULL, FALSE, L"MFLngLauncherUpdate");
+    if (mx && WaitForSingleObject(mx, 0) == WAIT_TIMEOUT) { CloseHandle(mx); return 1; }
+    g_elev = elevated; u8(self, self8); upd_path(st, g_data8, "update");
+    pj(lg, g_data, L"update.log"); pj(lg1, g_data, L"update.prev.log");
     MoveFileExW(lg, lg1, MOVEFILE_REPLACE_EXISTING);      /* keep the previous log only */
-    logf_(L"apply %hs (%s): pid %lu, install dir %s, data dir %s, elevated %d", LAUNCHER_VERSION, self, pid, g_dir, g_data, elevated);
+    os_log("apply %s (%s): pid %lu, install dir %s, data dir %s, elevated %d", LAUNCHER_VERSION, self8, (unsigned long)pid, g_dir8, g_data8, elevated);
     if ((pr = OpenProcess(SYNCHRONIZE, FALSE, pid))) {
-        DWORD w = WaitForSingleObject(pr, 15000); CloseHandle(pr);
-        if (w == WAIT_TIMEOUT) { logf_(L"FAIL: the launcher (pid %lu) did not exit within 15 s", pid); goto end; }
+        w = WaitForSingleObject(pr, 15000); CloseHandle(pr);
+        if (w == WAIT_TIMEOUT) { os_log("FAIL: the launcher (pid %lu) did not exit within 15 s", (unsigned long)pid); goto end; }
     }
-    n = list_names(st, names, MAXF);
-    pj(p, st, L"mflng\\SHA256SUMS");
-    if (!(sums = (char *)read_file(p, NULL))) { logf_(L"FAIL: no staged SHA256SUMS"); goto end; }
-    for (i = 0; i < n; i++) {      /* verify everything before touching the install dir */
-        int listed;
-        wname(p, st, names[i]);
-        if (!(data[i] = read_file(p, &len[i]))) { logf_(L"FAIL: cannot read %s", p); goto end; }
-        sha256(data[i], len[i], h); hex32(h, hx); listed = sums_lookup(sums, names[i], want);
-        if ((needs_hash(names[i]) && !listed) || (listed && strcmp(hx, want))) { logf_(L"FAIL: %hs does not match SHA256SUMS", names[i]); goto end; }    }
-    make_tree(g_dir);      /* mflng\ and mflng\LICENSES\ (the game folder itself exists) */
-    for (i = 0; i < n; i++) {      /* phase 1: <name>.new beside each target */
-        wname(p, g_dir, names[i]); wcscat(p, L".new");
-        if (!write_file(p, data[i], len[i])) { logf_(L"FAIL: cannot write %s (error %lu)", p, GetLastError()); goto rollback; }
+    /* with administrator rights: follow no link out of the data folder (the folder is the user's; a junction there would aim the
+       deletes and the backup copies at another folder).  A check before the work, not a lock: it stops a link that lies there, not a race. */
+    for (i = 0; elevated && i < 4; i++) for (k = 0; k < 4; k++) {
+        WFMT(p, L"%s%s%s", g_data, tree[i], sub[k]);
+        if (reparse(p)) { u8(p, p8); os_log("FAIL: %s is a link, not a folder", p8); goto end; }
     }
-    clear_tree(bp);      /* one backup level: the last one waits in backup.prev until this update has succeeded */
-    if (exists(bk) && !(rotated = MoveFileExW(bk, bp, 0))) { logf_(L"FAIL: cannot move %s to %s (error %lu)", bk, bp, GetLastError()); goto rollback; }
-    make_tree(bk);
-    for (k = 0; k < n; k++) {      /* phase 2: copy old -> backup, old -> <name>.old (works for a running exe), .new -> name */
-        wname(p, g_dir, names[k]); wname(q, bk, names[k]); wcscpy(o, p); wcscat(o, L".old");
-        if ((had[k] = exists(p))) {
-            if (!(copied[k] = CopyFileW(p, q, FALSE))) { logf_(L"FAIL: cannot copy %s to the backup (error %lu)", p, GetLastError()); goto rollback; }
-            if (!(aside[k] = MoveFileExW(p, o, MOVEFILE_REPLACE_EXISTING))) { logf_(L"FAIL: cannot rename %s (error %lu)", p, GetLastError()); goto rollback; }
+    /* a running game keeps its exe open: no update under it (it would go on with old code and load new DLLs) */
+    for (i = 0; i < 2; i++) {
+        pj(p, g_dir, game[i]);
+        h = CreateFileW(p, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        else if ((w = GetLastError()) == ERROR_SHARING_VIOLATION || w == ERROR_USER_MAPPED_FILE) {
+            os_log("FAIL: %s is running; close the game and update again", i ? "MFLng.nofix.exe" : "MFLng.exe");
+            why = L"The game is running. Close it and update again. Nothing was changed."; goto end;
         }
-        wcscpy(q, p); wcscat(q, L".new");
-        if (!(placed[k] = MoveFileExW(q, p, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))) { logf_(L"FAIL: cannot rename %s (error %lu)", q, GetLastError()); goto rollback; }
-        logf_(L"replaced %hs%s", names[k], had[k] ? L"" : L" (new file)");
     }
-    ok = 1; clear_tree(bp);
-    for (k = 0; k < n; k++) if (aside[k]) {      /* the running exe's .old goes at the next start (or at reboot when elevated) */
-        wname(o, g_dir, names[k]); wcscat(o, L".old");
-        if (!DeleteFileW(o) && elevated) MoveFileExW(o, NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
-    }
-    logf_(L"update applied: %d files; previous files in %s", n, bk);    goto end;
-rollback:
-    for (k = 0; k < n; k++) {
-        wname(p, g_dir, names[k]); wcscpy(o, p); wcscat(o, L".old"); wname(q, bk, names[k]);
-        if (placed[k]) DeleteFileW(p);
-        if (aside[k] && !MoveFileExW(o, p, MOVEFILE_REPLACE_EXISTING) && !CopyFileW(q, p, FALSE)) logf_(L"ROLLBACK FAILED for %s (error %lu): copy it back from %s", p, GetLastError(), q);
-        wcscat(p, L".new"); DeleteFileW(p);
-    }
-    clear_tree(bk);
-    if (rotated) MoveFileExW(bp, bk, 0);      /* the backup of the update before stays the one level */
-    logf_(L"rolled back; the previous version stays");
+    r = upd_apply(g_dir8, g_data8, self8);
+    if (r < 0) why = L"The update failed and not every file could be put back. The files of the previous version are in the backup folder (see the log).";
 end:
-    for (i = 0; i < MAXF; i++) free(data[i]);
-    free(sums); clear_tree(st);
-    if (!ok) { WCHAR m[MAX_PATH + 96]; WFMT(m, L"The update failed and nothing was changed (the previous version stays).\nDetails: %s", lg); MessageBoxW(NULL, m, L"MFLng update", MB_OK | MB_ICONERROR); }
-    wcscpy(p, g_exe);      /* the path this process started from: now the new (or the restored) launcher */
-    if (mx) CloseHandle(mx);
-    if (elevated) ShellExecuteW(NULL, L"open", L"explorer.exe", p, NULL, SW_SHOWNORMAL);      /* explorer starts it unelevated (the user's shell) */
-    else { STARTUPINFOW si; PROCESS_INFORMATION pi; WFMT(q, L"\"%s\"", p); memset(&si, 0, sizeof si); si.cb = sizeof si;
-           if (CreateProcessW(p, q, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { CloseHandle(pi.hThread); CloseHandle(pi.hProcess); } }
-    return ok ? 0 : 1;
+    if (r != 1) {
+        upd_clear(st);
+        WFMT(m, L"%s\nDetails: %s", why, lg); MessageBoxW(NULL, m, L"MFLng update", MB_OK | MB_ICONERROR);
+    }
+    if (mx) { ReleaseMutex(mx); CloseHandle(mx); }
+    /* g_exe = the path this process started from: now the new (or the restored) launcher */
+    if (elevated) ShellExecuteW(NULL, L"open", L"explorer.exe", g_exe, NULL, SW_SHOWNORMAL);      /* explorer starts it unelevated (the user's shell) */
+    else { STARTUPINFOW si; PROCESS_INFORMATION pi; WFMT(q, L"\"%s\"", g_exe); memset(&si, 0, sizeof si); si.cb = sizeof si;
+           if (CreateProcessW(g_exe, q, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { CloseHandle(pi.hThread); CloseHandle(pi.hProcess); } }
+    return r == 1 ? 0 : 1;
 }
 
 /* ---- picture: the 24/32-bit BMP inside the user's launch.exe (VB form data), else TOASTART\PC\Setup.bmp ---- */
@@ -641,11 +580,13 @@ static LRESULT CALLBACK wndproc(HWND w, UINT m, WPARAM wp, LPARAM lp)
 
 static DWORD WINAPI cleanup_thread(LPVOID unused)      /* leftovers of the last update: the apply step that started us may still be exiting */
 {
-    WCHAR st[MAX_PATH]; HANDLE mx; int i;
-    (void)unused; pj(st, g_data, L"update");
-    for (i = 0; i < 30 && del_files(g_dir, 1); i++) Sleep(100);      /* <name>.old of the files it replaced (a protected dir: the reboot does it) */
-    if ((mx = OpenMutexW(SYNCHRONIZE, FALSE, L"MFLngLauncherUpdate"))) { CloseHandle(mx); return 0; }      /* an update is being applied */
-    clear_tree(st);      /* a staging dir left by a crash or a closed launcher */
+    char st[UPD_PATH]; HANDLE mx; int i;
+    (void)unused; upd_path(st, g_data8, "update");
+    /* an update is being applied: its .old files are its way back, leave everything (a mutex made with administrator rights may
+       refuse to open: it exists all the same).  The apply step lets go of it before it starts us. */
+    if ((mx = OpenMutexW(SYNCHRONIZE, FALSE, L"MFLngLauncherUpdate")) || GetLastError() == ERROR_ACCESS_DENIED) { if (mx) CloseHandle(mx); return 0; }
+    for (i = 0; i < 30 && upd_clean(g_dir8); i++) Sleep(100);      /* <name>.old / .new of release files (a protected dir: the reboot does it) */
+    upd_clear(st);      /* a staging dir left by a crash or a closed launcher */
     return 0;
 }
 
@@ -655,9 +596,9 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
     char *bi;
     (void)prev; (void)cl;
     GetModuleFileNameW(NULL, g_exe, MAX_PATH);
-    wcscpy(g_dir, g_exe); *wcsrchr(g_dir, L'\\') = 0;
+    wcscpy(g_dir, g_exe); *wcsrchr(g_dir, L'\\') = 0; u8(g_dir, g_dir8);
     if (argc >= 4 && !wcscmp(argv[1], L"--apply-update")) {
-        wcsncpy(g_data, argv[3], MAX_PATH - 1);
+        wcsncpy(g_data, argv[3], MAX_PATH - 1); u8(g_data, g_data8);
         return apply_update(wcstoul(argv[2], NULL, 10), argc > 4 && !wcscmp(argv[4], L"--elevated"));
     }
     for (i = 1; i < argc; i++) {
@@ -669,10 +610,13 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
     pj(p, g_dir, L"portable.txt");
     if (exists(p) || !GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH)) { pj(p, g_dir, L"mflng"); CreateDirectoryW(p, NULL); pj(g_data, p, L"mflng-launch"); }
     else pj(g_data, base, L"mflng-launch");
-    CreateDirectoryW(g_data, NULL);
+    CreateDirectoryW(g_data, NULL); u8(g_data, g_data8);
     pj(g_ini, g_data, L"mflng-launch.ini");
     if ((t = CreateThread(NULL, 0, cleanup_thread, NULL, 0, NULL))) CloseHandle(t);
     pj(p, g_dir, L"mflng\\BUILDINFO.txt"); bi = (char *)read_file(p, NULL); parse_buildinfo(bi, &g_inst); free(bi);
+    /* an install of the flat layout before mflng\ has it beside the exes: without it the build is "unknown", the channel falls to
+       Releases and a pre-release is never offered */
+    if (!g_inst.tag[0]) { pj(p, g_dir, L"BUILDINFO.txt"); bi = (char *)read_file(p, NULL); parse_buildinfo(bi, &g_inst); free(bi); }
     GetPrivateProfileStringW(L"launcher", L"update_at_startup", L"on", v, 32, g_ini); g_auto = _wcsicmp(v, L"off") != 0;
     GetPrivateProfileStringW(L"launcher", L"channel", L"", v, 32, g_ini);
     g_pre = !_wcsicmp(v, L"prerelease") ? 1 : !_wcsicmp(v, L"release") ? 0 : default_channel_pre(&g_inst);
