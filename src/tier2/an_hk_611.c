@@ -123,6 +123,18 @@ static void mfl_ws2d_hook(void)
   RwIm2DRenderIndexedPrimitive = mfl_ws2d_indexed_w;
 }
 
+/* W16 WS2: width factor for a 2D item that must keep its 4:3 shape where it stands (the spinning load CD, ui_draw_pulsing_texture):
+   1 inside a squeezed Im2D pass (the hook squeezes it already), else (4/3 * H) / W, at most 1 */
+float mfl_widescreen_2d_width_k(void)
+{
+  float k;
+
+  if (RwIm2DRenderPrimitive == mfl_ws2d_primitive_w)
+    return 1.0f;
+  k = mfl_widescreen_fov_factor() / 0.75f;
+  return k < 1.0f ? k : 1.0f;
+}
+
 /* a page background inside a squeezed pass (all Im2D): on 1 = drawn unsqueezed, full width (stretched); on 0 = the squeeze back.
    A no-op outside a squeezed pass or in a text-only pass (im2d 0). */
 void mfl_widescreen_2d_full(int on)

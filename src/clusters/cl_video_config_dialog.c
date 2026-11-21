@@ -57,47 +57,162 @@ extern __declspec(dllimport) int __stdcall ShowCursor(int);
 #define STYLE_FRAMED (0xcf0000)        /* WS_OVERLAPPEDWINDOW, window_create's style */
 #define SWP_NOZORDER (0x4)
 #define SWP_FRAMECHANGED (0x20)
-/* display_mode=windowed / borderless (mflng_settings.cfg): RenderWare mode 0 = the desktop mode with a windowed device (its back buffer is the
-   window's client area when RwEngineStart creates the device) instead of the chosen mode.  windowed: framed window, client = the chosen mode's
-   size, centred on the desktop; borderless: frameless window over the whole (primary) desktop, cursor hidden.  fullscreen: the chosen mode (the
-   original).  The video cfg already saved keeps the chosen mode.  ponytail: borderless renders at the desktop size; a smaller back buffer
-   stretched to the screen needs the present parameters in mflrw.dll. */
-static void display_mode_apply(void)
+/*004d3030*/ extern RwInt32 RwEngineGetNumVideoModes(void);
+#define MODE_EXCLUSIVE (1)      /* rwVIDEOMODEEXCLUSIVE: a full-screen mode; RenderWare mode 0 = the desktop mode with a windowed device */
+#define MODE_LIST_MAX (32)
+int mfl_video_mode_list[MODE_LIST_MAX];      /* resolution values (W << 16) | H; [0] = -1 = Desktop (a global, so a test run can read it by the map) */
+static int mode_list_n;
+
+static int mode_value(const struct RwVideoMode *mode) { return (mode->width << 16) | mode->height; }
+
+/* the full-screen 32 bit mode of that size, else -1 */
+static int mode_find(int value)
 {
-  int display_mode = mfl_pref(MFL_PREF_DISPLAY_MODE);
-  struct RwVideoMode chosen;
-  struct RwVideoMode desktop;
+  struct RwVideoMode mode;
+  int i;
+  int n = RwEngineGetNumVideoModes();
+
+  for (i = 0; i < n; i++) {
+    RwEngineGetVideoModeInfo(&mode, i);
+    if ((mode.flags & MODE_EXCLUSIVE) != 0 && mode.depth == 32 && mode_value(&mode) == value) return i;
+  }
+  return -1;
+}
+
+/* mfl_video_modes_api (the Preferences page's Resolution row): count / name / current / choose over mfl_video_mode_list */
+static int modes_count(void)
+{
+  struct RwVideoMode mode;
+  int i;
+  int k;
+  int n;
+  int value;
+
+  if (mode_list_n == 0) {
+    mfl_video_mode_list[mode_list_n++] = -1;
+    n = RwEngineGetNumVideoModes();
+    for (i = 0; i < n && mode_list_n < MODE_LIST_MAX; i++) {
+      RwEngineGetVideoModeInfo(&mode, i);
+      if ((mode.flags & MODE_EXCLUSIVE) == 0 || mode.depth != 32 || mode.width < 640 || mode.height < 480 || mode.width * 3 < mode.height * 4) continue;
+      value = mode_value(&mode);
+      for (k = 1; k < mode_list_n && mfl_video_mode_list[k] != value; k++) ;
+      if (k == mode_list_n) mfl_video_mode_list[mode_list_n++] = value;
+    }
+  }
+  return mode_list_n;
+}
+
+static int modes_value(int i) { return i > 0 && i < modes_count() ? mfl_video_mode_list[i] : -1; }
+
+/* the entry of resolution=; 0 (Desktop) for auto or a size the display does not list */
+static int modes_current(void)
+{
+  int i;
+
+  for (i = modes_count() - 1; i > 0 && mfl_video_mode_list[i] != mfl_pref(MFL_PREF_RESOLUTION); i--) ;
+  return i;
+}
+
+/* applies at the next start: mfl_settings_save writes mfl_prefs[MFL_PREF_RESOLUTION] */
+static void modes_choose(int i) { mfl_pref(0); mfl_prefs[MFL_PREF_RESOLUTION] = modes_value(i); }
+
+/* "Desktop", "1280 x 720" */
+static const char *modes_name(int i)
+{
+  static char label[16];
+  int value = modes_value(i);
+  int n = 0;
+  int part;
+  int v;
+  int d;
+
+  if (value < 0) return "Desktop";
+  for (part = 0; part < 2; part++) {
+    v = part == 0 ? value >> 16 : value & 0xffff;
+    for (d = 10000; d > 1 && v < d; d /= 10) ;
+    for (; d != 0; d /= 10) label[n++] = (char)('0' + v / d % 10);
+    if (part == 0) { label[n++] = ' '; label[n++] = 'x'; label[n++] = ' '; }
+  }
+  label[n] = '\0';
+  return label;
+}
+
+static const struct mfl_video_modes k_modes = { modes_count, modes_name, modes_current, modes_choose };
+
+/* the game window: framed with a client of width x height (made smaller so the frame fits the desktop: a client larger than the screen would be
+   resized later, which resets the device), centred; or frameless over the whole desktop.  g_app_62c5c8 / cc = the back buffer size. */
+static void window_place(int borderless, int width, int height, const struct RwVideoMode *desktop)
+{
   int rect[4];
   int x;
   int y;
 
-  if (display_mode == MFL_DISPLAY_FULLSCREEN) return;
-  RwEngineGetVideoModeInfo(&desktop, 0);
-  if ((desktop.flags & 1) != 0) return;      /* the desktop format has no windowed entry 0: stay with the chosen mode */
-  RwEngineGetVideoModeInfo(&chosen, g_video_7712f0);
-  g_video_7712f0 = 0;
-  if (display_mode == MFL_DISPLAY_BORDERLESS) {
-    chosen.width = desktop.width;
-    chosen.height = desktop.height;
+  if (borderless) {
+    width = desktop->width;
+    height = desktop->height;
     SetWindowLongA(g_app_7e7704, GWL_STYLE, STYLE_POPUP);
-    SetWindowPos(g_app_7e7704, 0, 0, 0, desktop.width, desktop.height, SWP_NOZORDER | SWP_FRAMECHANGED);
-    ShowCursor(0);
+    SetWindowPos(g_app_7e7704, 0, 0, 0, width, height, SWP_NOZORDER | SWP_FRAMECHANGED);
   }
   else {
     rect[0] = 0;
     rect[1] = 0;
-    rect[2] = chosen.width;
-    rect[3] = chosen.height;
+    rect[2] = width;
+    rect[3] = height;
     AdjustWindowRect((int)rect, STYLE_FRAMED, 0);
-    x = rect[2] - rect[0] - chosen.width;      /* frame width / height */
-    y = rect[3] - rect[1] - chosen.height;
-    if (chosen.width + x > desktop.width) chosen.width = desktop.width - x;      /* the framed window fits the desktop: a client larger than the */
-    if (chosen.height + y > desktop.height) chosen.height = desktop.height - y;  /* screen would be resized later, which resets the device */
-    SetWindowPos(g_app_7e7704, 0, (desktop.width - chosen.width - x) / 2, (desktop.height - chosen.height - y) / 2, chosen.width + x, chosen.height + y,
-                 SWP_NOZORDER);
+    x = rect[2] - rect[0] - width;      /* frame width / height */
+    y = rect[3] - rect[1] - height;
+    if (width + x > desktop->width) width = desktop->width - x;
+    if (height + y > desktop->height) height = desktop->height - y;
+    SetWindowLongA(g_app_7e7704, GWL_STYLE, STYLE_FRAMED);
+    SetWindowPos(g_app_7e7704, 0, (desktop->width - width - x) / 2, (desktop->height - height - y) / 2, width + x, height + y, SWP_NOZORDER | SWP_FRAMECHANGED);
   }
-  g_app_62c5c8 = chosen.width;      /* the back buffer size, as the exclusive branch stores the mode size */
-  g_app_62c5cc = chosen.height;
+  g_app_62c5c8 = width;
+  g_app_62c5cc = height;
+}
+
+/* display_mode + resolution (mflng_settings.cfg), before RwEngineSetVideoMode.  resolution auto = the desktop size.
+   fullscreen: the full-screen 32 bit mode of that size; not listed (other monitor) -> the one of the desktop size, else the mode videocfg.bin /
+   the dialog chose (the original; without videocfg.bin that is the first mode of at least 640 x 480, often 16 bit).
+   windowed: RenderWare mode 0 (windowed device, back buffer = client area), framed window of that size.  borderless: mode 0, frameless window
+   over the whole (primary) desktop, cursor hidden; resolution is ignored.  The video cfg keeps the dialog's mode.
+   ponytail: borderless renders at the desktop size; a smaller back buffer stretched to the screen needs the present parameters in mflrw.dll. */
+static void display_mode_apply(void)
+{
+  int display_mode = mfl_pref(MFL_PREF_DISPLAY_MODE);
+  int size = mfl_pref(MFL_PREF_RESOLUTION);
+  struct RwVideoMode desktop;
+  int mode;
+
+  modes_count();      /* the Resolution row's list, built while no mode is set yet */
+  mfl_video_modes_api = &k_modes;
+  RwEngineGetVideoModeInfo(&desktop, 0);
+  if (size < 0 || display_mode == MFL_DISPLAY_BORDERLESS) size = mode_value(&desktop);
+  if (display_mode == MFL_DISPLAY_FULLSCREEN || (desktop.flags & MODE_EXCLUSIVE) != 0) {      /* no windowed entry 0 (desktop format): full screen */
+    mode = mode_find(size);
+    if (mode < 0) mode = mode_find(mode_value(&desktop));      /* not listed (other monitor): the desktop size */
+    if (mode >= 0) g_video_7712f0 = mode;
+    return;
+  }
+  g_video_7712f0 = 0;
+  window_place(display_mode == MFL_DISPLAY_BORDERLESS, size >> 16, size & 0xffff, &desktop);
+  if (display_mode == MFL_DISPLAY_BORDERLESS) ShowCursor(0);
+}
+
+/* rw_engine_init: RwEngineStart failed (the device refused the mode): once, a 640 x 480 window on the desktop mode, logged */
+int mfl_video_start_fallback(void)
+{
+  static int tried;
+  struct RwVideoMode desktop;
+
+  RwEngineGetVideoModeInfo(&desktop, 0);
+  if (tried || (desktop.flags & MODE_EXCLUSIVE) != 0) return 0;
+  tried = 1;
+  log_printf("RwEngineStart failed in video mode %d: trying a 640 x 480 window\n", g_video_7712f0);
+  g_video_7712f0 = 0;
+  g_app_7712f4 = 0;      /* not full screen */
+  RwEngineSetVideoMode(0);
+  window_place(0, 640, 480, &desktop);
+  return 1;
 }
 #endif
 undefined4 __cdecl video_config_dialog(int show_dialog)

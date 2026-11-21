@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004039b0*/ extern int attract_timer_update();
 /*00405e40*/ extern int stub_return_zero();
 /*004136d0*/ extern undefined __cdecl race_start_setup(undefined4 p0);
@@ -88,7 +89,11 @@ undefined4 app_state_frontend_frame(void)
     goto switchD_004a2102_default;
   }
   /* Shared tail for states 1, 5 and 6: menu_update(), then message_box_update() via the label below. */
+#if MFL_FIX_PREFS
+  mfl_menu_update_scaled();      /* menu_speed: menu_update with a scaled frame time in state 1 (the frontend); the pause menu (case 4) keeps its speed */
+#else
   menu_update();
+#endif
 switchD_004a2102_caseD_7:
   message_box_update();
 switchD_004a2102_caseD_2:

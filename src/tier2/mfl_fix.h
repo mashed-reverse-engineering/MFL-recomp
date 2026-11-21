@@ -50,7 +50,7 @@ void mfl_unlock_all_unforce(void *save_block);
 #endif
 
 #ifndef MFL_FIX_PREFS      /* player preferences read at start from mflng_settings.cfg beside the exe (key=value lines, no command line); every key's
-                              default is the original behaviour except display_mode (borderless, plan W17 F3; this switch is on only in MFLng.exe) (recomp/mfl_resources.c reader;
+                              default is the original behaviour except display_mode (borderless, plan W17 F3) and resolution (desktop; this switch is on only in MFLng.exe) (recomp/mfl_resources.c reader;
                               keys and sites: public/docs/MFL_FIX_FLAGS.md); the in-game Preferences page under Options changes them (recomp/mfl_settings_menu.c) */
 #define MFL_FIX_PREFS 0
 #endif
@@ -64,8 +64,12 @@ enum mfl_pref_key {
   MFL_PREF_SETUP_DIALOGS,         /* MFL_FIX_LANG: setup_dialogs=1: a start without options shows the video / controller dialogs (default 0) */
   MFL_PREF_DISPLAY_MODE,          /* display_mode=fullscreen|windowed|borderless (or 0/1/2): MFL_DISPLAY_* below; default borderless */
   MFL_PREF_SKIP_FLYOVER,          /* skip_flyover=1: race start without the course fly-over camera (race phase 3 ends in its first frame) */
+  MFL_PREF_MENU_SPEED,            /* menu_speed=1|2|4: the frontend menus (not the pause menu in a race) animate that many times faster */
+  MFL_PREF_RESOLUTION,            /* resolution=WxH or auto (-1, default = the desktop size); value (W << 16) | H; borderless ignores it.  The Resolution
+                                     row sets it through mfl_video_modes_api->choose, so mfl_settings_save writes mfl_prefs[] for this key, not values[] */
   MFL_PREF_COUNT
 };
+int mfl_video_start_fallback(void);      /* rw_engine_init: RwEngineStart failed: once, a 640 x 480 window on the desktop mode (logged); 0 = nothing to try */
 #define MFL_DISPLAY_FULLSCREEN 0      /* the video mode as videocfg.bin / the setup dialog chose it (the original) */
 #define MFL_DISPLAY_WINDOWED 1        /* a framed window of the chosen size (clusters/cl_video_config_dialog.c) */
 #define MFL_DISPLAY_BORDERLESS 2      /* a frameless window over the whole desktop, no mode switch */
@@ -77,7 +81,16 @@ void mfl_settings_save(const int *values);      /* values[MFL_PREF_COUNT] -> eve
 #define MFL_PAGE_PREFS 0x1b      /* the empty slot of g_menu_page_item_lists */
 #define MFL_TEXT_FIRST 0x1000
 void mfl_prefs_menu_update(void);      /* menu_update, input part: Left / Right change the selected row, Back writes the file */
-void mfl_prefs_menu_draw(void);        /* hud_menu_draw_all_panels: the value beside each row */
+void mfl_prefs_menu_draw(void);        /* hud_menu_draw_all_panels: the value beside each row and the description box */
+void mfl_menu_update_scaled(void);     /* app_state_frontend_frame: menu_update with g_frame_seconds x menu_speed in the frontend state */
+struct mfl_video_modes {      /* the Resolution row's modes, registered at start by the video code (clusters/cl_video_config_dialog.c, display_mode_apply):
+                                 mode 0 = "Desktop" (resolution=auto), then the full-screen modes with 32 bit colour, >= 640 x 480, 4:3 or wider */
+  int (*count)(void);                  /* modes offered (0 = no row) */
+  const char *(*name)(int mode);       /* "1280x720" */
+  int (*current)(void);                /* the mode of the key resolution= (or the one in use) */
+  void (*choose)(int mode);            /* the page's choice: written as resolution= by mfl_settings_save, applies at the next start */
+};
+extern const struct mfl_video_modes *mfl_video_modes_api;
 const unsigned short *mfl_prefs_text(int id);      /* dat_get_string for ids >= MFL_TEXT_FIRST: length-prefixed UTF-16 */
 #endif
 

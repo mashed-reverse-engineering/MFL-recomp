@@ -1,6 +1,10 @@
 // cluster-entries: ui_draw_pulsing_texture
 /* Installed cluster ui_draw_pulsing_texture (tools/cluster_install.py from output/cluster_pilot_zy/ui_draw_pulsing_texture.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_WIDESCREEN
+extern float mfl_widescreen_2d_width_k(void);      /* an_hk_611.c */
+#endif
 /*00430ab0*/ extern short screen_width(void);
 /*00430ac0*/ extern short screen_height(void);
 /*005de7c0*/ extern float k_f_0_0015625;
@@ -44,8 +48,18 @@ void ui_draw_pulsing_texture(int x, int y, float scale)
   if (g_car_76e7ec != 0) {
     texture = *g_car_76e7ec;
   }
+#if MFL_FIX_WIDESCREEN      /* the spinning CD keeps its 4:3 shape: width * k about its own centre (the page around it may stay stretched) */
+  {
+    float k = mfl_widescreen_2d_width_k();
+    float w = sx * (pulse80 * scale);
+    float left_x = sx * ((k_f_512 - k_f_40 * scaled) + (float)x);
+
+    draw_textured_quad_uv(texture, left_x + w * 0.5f * (1.0f - k), sy * ((float)y + k_f_72), w * k, sy * (scale * k_f_80), 0xffffffff, uv);
+  }
+#else
   draw_textured_quad_uv(texture, sx * ((k_f_512 - k_f_40 * scaled) + (float)x), sy * ((float)y + k_f_72),
                         sx * (pulse80 * scale), sy * (scale * k_f_80), 0xffffffff, uv);
+#endif
   g_course_69bb44 = g_course_69bb44 + k_f_0_1;
 }
 

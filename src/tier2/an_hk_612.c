@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern char LAB_004a2b30[];
 extern char LAB_004a2b40[];
 /*00405e40*/ extern int stub_return_zero();
@@ -562,6 +563,9 @@ undefined4 __cdecl rw_engine_init(char *unused_arg)
         RwD3D9EngineSetRefreshRate(REFRESH_RATE_HZ);
         log_print("Calling RwEngineStart\n");
         ok = RwEngineStart();
+#if MFL_FIX_PREFS      /* the device refused the mode (cfg resolution / display_mode): a 640 x 480 window instead of no game */
+        if (ok == 0 && mfl_video_start_fallback()) ok = RwEngineStart();
+#endif
         if (ok != 0) {
           nop_stub();
           nop_stub();

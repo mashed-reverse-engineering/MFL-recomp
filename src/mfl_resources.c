@@ -118,7 +118,7 @@ void mfl_resources_attach(void)
 #if MFL_FIX_PREFS
 /* MFL_FIX_PREFS: mflng_settings.cfg beside the exe.  One `key=value` per line (spaces around `=` allowed); the value is one digit
  * 0..max of the key (0 or 1 for the switches), or `auto` for a key whose default is auto (-1); display_mode also takes
- * fullscreen / windowed / borderless.  Unknown keys, comment lines (# or ;) and any other value are ignored, so the key keeps its
+ * fullscreen / windowed / borderless, resolution takes WxH or auto.  Unknown keys, comment lines (# or ;) and any other value are ignored, so the key keeps its
  * default; no file = every default.  Every default is the original behaviour, except the MFL_FIX_LANG keys (read only in that
  * build) and display_mode (borderless).  Read once, on the first
  * mfl_pref call; mfl_settings_save rewrites the file (the Preferences page, recomp/mfl_settings_menu.c). */
@@ -144,6 +144,8 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "setup_dialogs", 0, 1 },
   { "display_mode", MFL_DISPLAY_BORDERLESS, 2 },      /* plan W17 F3: the fixes exe starts borderless */
   { "skip_flyover", 0, 1 },
+  { "menu_speed", 1, 4 },      /* the page writes 1, 2 or 4 */
+  { "resolution", -1, 0 },      /* -1 = auto (desktop size), else (W << 16) | H from `WxH` */
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
 int mfl_prefs[MFL_PREF_COUNT];      /* the values in force (a global, so a test run can read them by the map) */
@@ -181,6 +183,15 @@ static void prefs_parse_line(const char *line, const char *end)
     for (n = 0; k == MFL_PREF_DISPLAY_MODE && n < 3; n++) {
       for (q = p, w = k_display_names[n]; q < end && *w != '\0' && *q == *w; q++, w++) ;
       if (q == end && *w == '\0') mfl_prefs[k] = n;
+    }
+    if (k == MFL_PREF_RESOLUTION) {      /* WxH, each 1..32759 */
+      int dim[2] = { 0, 0 };
+      for (n = 0, q = p; q < end; q++) {
+        if (*q >= '0' && *q <= '9' && dim[n] < 3276) dim[n] = dim[n] * 10 + (*q - '0');
+        else if (*q == 'x' && n == 0 && dim[0] != 0) n = 1;
+        else break;
+      }
+      if (q == end && n == 1 && dim[1] != 0) mfl_prefs[k] = (dim[0] << 16) | dim[1];
     }
     return;
   }
@@ -221,6 +232,20 @@ int mfl_pref(int key)
   return mfl_prefs[key];
 }
 
+/* `WxH` of a resolution value (W << 16) | H at out; returns the length */
+static int prefs_put_size(char *out, int value)
+{
+  int n = 0, part, d, v;
+
+  for (part = 0; part < 2; part++) {
+    v = part == 0 ? value >> 16 : value & 0xffff;
+    for (d = 10000; d > 1 && v < d; d /= 10) ;
+    for (; d != 0; d /= 10) out[n++] = (char)('0' + v / d % 10);
+    if (part == 0) out[n++] = 'x';
+  }
+  return n;
+}
+
 /* the Preferences page: the file is written again with every line that is not one of the keys as it was (comments, unknown keys), then
  * `key=value` for every key (display_mode as its word, language -1 as auto) */
 void mfl_settings_save(const int *values)
@@ -244,7 +269,11 @@ void mfl_settings_save(const int *values)
   for (k = 0; k < MFL_PREF_COUNT; k++) {
     for (w = k_prefs[k].name; *w != '\0'; w++) out[n++] = *w;
     out[n++] = '=';
-    if (k == MFL_PREF_DISPLAY_MODE && values[k] >= 0 && values[k] <= 2) w = k_display_names[values[k]];
+    if (k == MFL_PREF_RESOLUTION) {      /* the Resolution row sets mfl_prefs[] (mfl_video_modes_api->choose), the page's values[] never */
+      if (mfl_prefs[k] < 0) w = "auto";
+      else { n += prefs_put_size(out + n, mfl_prefs[k]); w = ""; }
+    }
+    else if (k == MFL_PREF_DISPLAY_MODE && values[k] >= 0 && values[k] <= 2) w = k_display_names[values[k]];
     else if (values[k] < 0) w = "auto";
     else { out[n++] = (char)('0' + values[k]); w = ""; }
     while (*w != '\0') out[n++] = *w++;
