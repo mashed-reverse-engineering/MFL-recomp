@@ -5,21 +5,10 @@
 /*006597a8*/ extern undefined4 g_endpoint_panel_6597a8;
 /*006597b8*/ extern undefined g_endpoint_6597b8;
 /*00659a78*/ extern undefined4 g_endpoint_659a78;
-static int endpoint_panel_entry_update_r(int reg_esi);
-extern void endpoint_panel_entry_update(void);
+extern void endpoint_panel_entry_update_n(int *entry);
 
 #define ENDPOINT_ENTRY_STRIDE (0x160) /* bytes per endpoint entry in g_endpoint_6597b8 array */
 
-__declspec(naked) int endpoint_panel_entry_update_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call endpoint_panel_entry_update
-        pop esi
-        ret
-    }
-}
 
 /* endpoint_panel_update */
 
@@ -38,7 +27,7 @@ void endpoint_panel_update(void)
   /* walk the entry array one ENDPOINT_ENTRY_STRIDE at a time until the end address */
   entry = &g_endpoint_6597b8;
   do {
-    endpoint_panel_entry_update_r(entry);
+    endpoint_panel_entry_update_n((int *)entry);
     entry = entry + ENDPOINT_ENTRY_STRIDE;
   } while ((LONG_PTR)entry < ((LONG_PTR)&g_endpoint_659a78));
   /* (inferred) frame counter, incremented once per update after all entries are done */

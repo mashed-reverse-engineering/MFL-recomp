@@ -30,22 +30,13 @@
 /*006c5e04*/ extern undefined4 g_shockwave_load_6c5e04;
 /*006c5e08*/ extern undefined4 g_load_6c5e08;
 /*006c5e0c*/ extern undefined4 g_load_6c5e0c;
-static int effect_sprite_reset_r(undefined4 * reg_eax);
-extern void effect_sprite_reset(void);
+extern void effect_sprite_reset_n(undefined4 *sprite);
 extern char g_shockwave_load_6c57f4[];
 extern char g_shockwave_load_6c5e3c[];
 
 /* IEEE-754 bit pattern of 1.0f */
 /* dwords per entry in the two model tables (inferred: 96-byte entry) */
 #define ENTRY_STRIDE_DWORDS (0x18)
-__declspec(naked) int effect_sprite_reset_r(undefined4 * reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call effect_sprite_reset
-        ret
-    }
-}
 
 /* shockwave_load_models */
 
@@ -110,7 +101,7 @@ void shockwave_load_models(void)
     RpAtomicSetFrame((RpAtomic *)*entry,new_frame);
     entry[5] = entry_index;
     entry[6] = 0;
-    effect_sprite_reset_r(entry + -0x11);
+    effect_sprite_reset_n(entry + -0x11);
     entry = entry + ENTRY_STRIDE_DWORDS;
     entry_index = entry_index + 1;
   } while ((LONG_PTR)entry < ((LONG_PTR)&g_shockwave_load_6c5e3c));
@@ -124,7 +115,7 @@ void shockwave_load_models(void)
     RpAtomicSetFrame((RpAtomic *)*entry,new_frame);
     entry[5] = entry_index;
     entry[6] = 1;
-    effect_sprite_reset_r(entry + -0x11);
+    effect_sprite_reset_n(entry + -0x11);
     entry = entry + ENTRY_STRIDE_DWORDS;
     entry_index = entry_index + 1;
   } while ((LONG_PTR)entry < ((LONG_PTR)&g_shockwave_load_6c57f4));

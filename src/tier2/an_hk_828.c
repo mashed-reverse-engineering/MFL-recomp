@@ -4,8 +4,7 @@
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*004d1640*/ extern struct RwFrame * RwFrameRotate(struct RwFrame *p0, struct RwV3d *p1, RwReal p2, enum RwOpCombineType p3);
 /*006aaba0*/ extern undefined4 g_weapon_shotgun_6aaba0[0x1000];
-static int weapon_fx_clump_remove_c_r(void *reg_esi);
-extern void weapon_fx_clump_remove_c(void);
+extern void weapon_fx_clump_remove_c_n(int);
 extern char g_weapon_shotgun_6aac30[];
 #define SLOT_WORDS (9) /* 36-byte slot records: 0x6aac30 - 0x6aaba0 = 4 slots */
 #define SLOT_FADE_BYTES (0x14) /* byte distance back from slot to the fade counter slot[-5] */
@@ -13,16 +12,6 @@ extern char g_weapon_shotgun_6aac30[];
 #define SHOTGUN_FADE_STEP (0.125f) /* alpha fraction lost per fade frame, 1/8 (inferred) */
 #define ALPHA_MAX (255.0f)
 #define FX_TINT_WHITE_RGB (0xffffff)
-__declspec(naked) int weapon_fx_clump_remove_c_r(void *reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call weapon_fx_clump_remove_c
-        pop esi
-        ret
-    }
-}
 
 /* weapon_shotgun_update: per-frame update of the shotgun fx slot table.
  * Walks the 4 slots of SLOT_WORDS words each, from g_weapon_shotgun_6aaba0 up to
@@ -64,7 +53,7 @@ void weapon_shotgun_update(void)
       }
       /* state 2: remove the clump */
       else if (state == 2) {
-        weapon_fx_clump_remove_c_r((void *)(slot + -8));
+        weapon_fx_clump_remove_c_n((int)((void *)(slot + -8)));
       }
       /* fade: while the counter runs, spin both frames and tint both colour blocks */
       if (slot[-5] != 0) {

@@ -4,20 +4,10 @@
 /*005de838*/ extern float k_f_640;
 /*0069ba00*/ extern float g_ui_layout_scale_x;
 /*0069ba0c*/ extern char *g_ui_font;
-static int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ecx);
-extern void ui_rt2d_wide_string_copy(void);
+extern void ui_rt2d_wide_string_copy_n(byte *, ushort *);
 
 #define TEXT_BUFFER_BYTES (1024)
 
-__declspec(naked) int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ecx)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        mov ecx, dword ptr [esp + 8]
-        call ui_rt2d_wide_string_copy
-        ret
-    }
-}
 
 /* ui_rt2d_text_width */
 /* compile: /GS */
@@ -38,7 +28,7 @@ double ui_rt2d_text_width(undefined4 string_id,float size)
   double width;
   undefined1 text_buffer [TEXT_BUFFER_BYTES];
 
-  ui_rt2d_wide_string_copy_r(string_id,text_buffer);
+  ui_rt2d_wide_string_copy_n(string_id, text_buffer);
   width = (double)Rt2dFontGetStringWidth((void *)g_ui_font,text_buffer,size * k_f_0_0708);
   return (width / (double)g_ui_layout_scale_x) * (double)k_f_640;
 }

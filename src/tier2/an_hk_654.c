@@ -11,19 +11,7 @@
 /* size in bytes of the scratch buffer that receives the mapped text */
 #define MAPPED_TEXT_BYTES (1024)
 
-static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
-extern void ui_rt2d_text_map_special_chars(void);
-__declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx)
-{
-    __asm {
-        push ebx
-        mov eax, dword ptr [esp + 8]
-        mov ebx, dword ptr [esp + 12]
-        call ui_rt2d_text_map_special_chars
-        pop ebx
-        ret
-    }
-}
+extern void ui_rt2d_text_map_special_chars_n(ushort *text, short *out);
 
 /* ui_text_draw_b */
 /* compile: /GS */
@@ -44,7 +32,7 @@ void ui_text_draw_b(undefined4 string_id,undefined4 colour,float text_scale)
 
   /* look up the string and map its special characters into mapped_text */
   dat_string = dat_get_string(string_id);
-  ui_rt2d_text_map_special_chars_r((ushort *)dat_string,(short *)mapped_text);
+  ui_rt2d_text_map_special_chars_n((ushort *)dat_string, (short *)mapped_text);
   /* save the current transform, set the brush colour, and flow the text */
   Rt2dCTMPush();
   Rt2dBrushSetRGBA(g_ui_text_brush,&colour,&colour,&colour,&colour);

@@ -5,19 +5,10 @@ extern struct EventLogArgs g_event_log_args[256];
 /*007e8364*/ extern undefined4 g_event_log_time;
 /*007e8764*/ extern undefined4 g_event_log_param;
 /*007ef818*/ extern undefined4 g_last_frame_ticks;
-static int event_log_dispatch_r(int reg_eax);
-extern void event_log_dispatch(void);
+extern void event_log_dispatch_n(int log_index);
 #define EVENT_LOG_SIZE (256)
 #define EVENT_LOG_LAST_INDEX (0xff)
 #define EVENT_TYPE_COUNT (0xd)
-__declspec(naked) int event_log_dispatch_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call event_log_dispatch
-        ret
-    }
-}
 
 /*
  * event_log_flush_new
@@ -68,12 +59,12 @@ void event_log_flush_new(void)
           param = (&g_event_log_param)[entry];
           if (((g_event_log_args[entry].arg0 == 0xff0000ff) ||
               (g_event_log_args[entry].arg0 == 0xffff0080)) && (dispatched[param + -CAR_ID_BASE] == 0)) {
-            event_log_dispatch_r(entry);
+            event_log_dispatch_n(entry);
             dispatched[param + -CAR_ID_BASE] = 1;
           }
         }
         else {
-          event_log_dispatch_r(entry);
+          event_log_dispatch_n(entry);
         }
       }
     }

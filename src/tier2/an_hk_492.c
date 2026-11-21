@@ -8,26 +8,12 @@
 /*006c2940*/ extern undefined4 g_aux_camera;
 /*006c2944*/ extern undefined4 g_car_6c2944;
 /*006c2948*/ extern undefined4 g_aux_camera_6c2948;
-static RwCamera * aux_camera_create_r(RwInt32 reg_esi, RwInt32 reg_edi);
-extern void aux_camera_create(void);
+extern RwCamera * aux_camera_create_n(RwInt32 width, RwInt32 height);
 
 #define AUX_CAMERA_VIEW_WINDOW (0.8)
 #define AUX_CAMERA_NEAR_CLIP (0.5)
 #define AUX_CAMERA_FAR_CLIP (180.0)
 
-__declspec(naked) RwCamera * aux_camera_create_r(RwInt32 reg_esi, RwInt32 reg_edi)
-{
-    __asm {
-        push esi
-        push edi
-        mov esi, dword ptr [esp + 12]
-        mov edi, dword ptr [esp + 16]
-        call aux_camera_create
-        pop edi
-        pop esi
-        ret
-    }
-}
 
 /*
  * aux_camera_setup: creates the auxiliary camera, sets its view window
@@ -44,7 +30,7 @@ void aux_camera_setup(undefined4 edi_arg,undefined4 esi_arg)
 {
   RwV2d view_window;
 
-  aux_camera_create_r(esi_arg,edi_arg);
+  aux_camera_create_n(edi_arg, esi_arg);
   view_window.x = AUX_CAMERA_VIEW_WINDOW;
   view_window.y = AUX_CAMERA_VIEW_WINDOW;
   RwCameraSetViewWindow(g_aux_camera,&view_window);

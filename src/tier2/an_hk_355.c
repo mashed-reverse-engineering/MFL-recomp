@@ -3,24 +3,13 @@
 /*004d15a0*/ extern struct RwFrame * RwFrameTransform(struct RwFrame *p0, RwMatrix *p1, enum RwOpCombineType p2);
 /*006a5a40*/ extern undefined g_weapon_6a5a40;
 /*006a5c70*/ extern undefined4 g_weapon_drum_6a5c70;
-static int weapon_fx_explosion_pool_clear_r(int reg_edi);
-extern void weapon_fx_explosion_pool_clear(void);
+extern void weapon_fx_explosion_pool_clear_n(int);
 extern char g_weapon_6a5c60[];
 extern char g_weapon_drum_6a5d20[];
 #define DRUM_KIND_FRAME_TRANSFORM (1)
 #define DRUM_KIND_EXPLOSION_CLEAR (2)
 #define DRUM_SLOT_WORDS (0xb)
 #define WEAPON_RECORD_SIZE (0x44)
-__declspec(naked) int weapon_fx_explosion_pool_clear_r(int reg_edi)
-{
-    __asm {
-        push edi
-        mov edi, dword ptr [esp + 8]
-        call weapon_fx_explosion_pool_clear
-        pop edi
-        ret
-    }
-}
 
 /* weapon_drum_update
  *
@@ -50,7 +39,7 @@ void weapon_drum_update(void)
       }
       /* Kind 2: clear the explosion pool for this slot (inferred from callee name). */
       else if (kind == DRUM_KIND_EXPLOSION_CLEAR) {
-        weapon_fx_explosion_pool_clear_r(slot + -4);
+        weapon_fx_explosion_pool_clear_n(slot + -4);
       }
       /* Tick the countdowns down to zero, never below it. */
       if (slot[6] != 0) {

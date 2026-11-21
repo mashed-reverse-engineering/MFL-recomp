@@ -5,20 +5,9 @@
 /*00658dbc*/ extern undefined4 g_score_panel_658dbc;
 /*00658de4*/ extern undefined4 max_points_a;
 /*00658df0*/ extern undefined g_score_panel_658df0;
-static int score_panel_entry_init_r(int reg_esi);
-extern void score_panel_entry_init(void);
+extern void score_panel_entry_init_n(int);
 extern char g_score_panel_658fc0[];
 #define SCORE_PANEL_ENTRY_SIZE (0x74)
-__declspec(naked) int score_panel_entry_init_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call score_panel_entry_init
-        pop esi
-        ret
-    }
-}
 
 /* score_panel_init
  * Sets up the score panel at startup: stores the player count and the score
@@ -40,7 +29,7 @@ void score_panel_init(void)
   score_entry = &g_score_panel_658df0;
   /* walk the entry table, one SCORE_PANEL_ENTRY_SIZE block at a time, until the end address (inferred) */
   do {
-    score_panel_entry_init_r(score_entry);
+    score_panel_entry_init_n(score_entry);
     score_entry = score_entry + SCORE_PANEL_ENTRY_SIZE;
   } while ((LONG_PTR)score_entry < ((LONG_PTR)&g_score_panel_658fc0));
   return;

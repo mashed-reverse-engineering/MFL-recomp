@@ -4,24 +4,12 @@
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*00658da8*/ extern undefined4 g_score_panel_658da8;
 /*00658df0*/ extern undefined g_score_panel_658df0[0x1000];
-static int score_panel_attach_clump_r(int reg_eax, void *reg_ebx);
-extern void score_panel_attach_clump(void);
+extern void score_panel_attach_clump_n(int clump, int panel);
 extern char g_score_panel_658fc0[];
 
 #define PANEL_ENTRY_SIZE (0x74)
 #define PANEL_ENTRY_INDEX_OFFSET (100)
 
-__declspec(naked) int score_panel_attach_clump_r(int reg_eax, void *reg_ebx)
-{
-    __asm {
-        push ebx
-        mov eax, dword ptr [esp + 8]
-        mov ebx, dword ptr [esp + 12]
-        call score_panel_attach_clump
-        pop ebx
-        ret
-    }
-}
 
 /* score_panel_load */
 
@@ -57,7 +45,7 @@ void score_panel_load(void)
      g_score_panel_658df0 (inferred from the bound) */
   do {
     clump = clump_load_by_name(panel_names[panel_index], 0x0, 0x0);
-    score_panel_attach_clump_r(clump,(void *)entry);
+    score_panel_attach_clump_n(clump, (int)((void *)entry));
     *(int *)(entry + PANEL_ENTRY_INDEX_OFFSET) = panel_index;
     entry = entry + PANEL_ENTRY_SIZE;
     panel_index = panel_index + 1;

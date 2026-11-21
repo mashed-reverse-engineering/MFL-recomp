@@ -3,24 +3,13 @@
 /*0047b520*/ extern int car_current_matrix();
 /*005df5c0*/ extern float k_f_49;
 /*006a7d78*/ extern undefined4 g_weapon_mines_6a7d78;
-static int weapon_fx_slot_clear_b_r(undefined4 * reg_esi);
-extern void weapon_fx_slot_clear_b(void);
+extern void weapon_fx_slot_clear_b_n(undefined4 *fx_slot);
 extern char g_weapon_6a8af8[];
 #define RACE_SLOT_COUNT (4)
 #define MATRIX_TRANS_X (0x30)
 #define MATRIX_TRANS_Y (0x34)
 #define MATRIX_TRANS_Z (0x38)
 #define MINE_STRIDE (0x1b)
-__declspec(naked) int weapon_fx_slot_clear_b_r(undefined4 * reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call weapon_fx_slot_clear_b
-        pop esi
-        ret
-    }
-}
 
 /*
  * Clears the weapon mines that lie within radius 7 (squared distance below k_f_49) of the first
@@ -66,7 +55,7 @@ void weapon_mines_reset_all(void)
        ((mine[2] - car_z) * (mine[2] - car_z) +
         (*mine - car_x) * (*mine - car_x) +
         (mine[1] - car_y) * (mine[1] - car_y) < k_f_49)) {
-      weapon_fx_slot_clear_b_r(mine + -0x10);
+      weapon_fx_slot_clear_b_n(mine + -0x10);
     }
     mine = mine + MINE_STRIDE;
   } while ((LONG_PTR)mine < ((LONG_PTR)&g_weapon_6a8af8));

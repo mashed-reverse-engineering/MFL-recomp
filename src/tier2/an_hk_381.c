@@ -2,21 +2,10 @@
 extern char PTR_nop_stub_0060dc48[];
 /*0060de60*/ extern undefined4 weapon_descriptor_count;
 /*008bed20*/ extern struct WeaponSlot player_weapon_slots[4];
-static int weapon_fx_state_clear_r(int reg_esi);
-extern void weapon_fx_state_clear(void);
+extern void weapon_fx_state_clear_n(int *);
 extern char g_weapons_8beff0[];
 /* pointer-sized slots per weapon descriptor in PTR_nop_stub_0060dc48 (inferred) */
 #define WEAPON_DESCRIPTOR_STRIDE_SLOTS (0x10)
-__declspec(naked) int weapon_fx_state_clear_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call weapon_fx_state_clear
-        pop esi
-        ret
-    }
-}
 
 /* weapons_race_start_dispatch */
 
@@ -47,7 +36,7 @@ void weapons_race_start_dispatch(void)
   /* clear each player weapon slot; g_weapons_8beff0 is the end of the array (inferred) */
   weapon_slot = player_weapon_slots;
   do {
-    weapon_fx_state_clear_r(weapon_slot);
+    weapon_fx_state_clear_n((int *)weapon_slot);
     weapon_slot = weapon_slot + 1;
   } while ((LONG_PTR)weapon_slot < ((LONG_PTR)&g_weapons_8beff0));
   return;

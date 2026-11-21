@@ -5,21 +5,10 @@
 /*006a7d38*/ extern undefined g_weapon_6a7d38;
 /*006a8ab8*/ extern undefined g_weapon_6a8ab8;
 /*006a8b08*/ extern undefined4 g_weapon_mines_6a8b08;
-static int weapon_fx_pool_clear_b_r(int reg_edi);
-extern void weapon_fx_pool_clear_b(void);
+extern void weapon_fx_pool_clear_b_n(int);
 extern char g_weapon_6a8b68[];
 #define MINE_SLOT_WORDS (6)
 #define MINE_RECORD_SIZE (0x6c)
-__declspec(naked) int weapon_fx_pool_clear_b_r(int reg_edi)
-{
-    __asm {
-        push edi
-        mov edi, dword ptr [esp + 8]
-        call weapon_fx_pool_clear_b
-        pop edi
-        ret
-    }
-}
 
 /* Per-frame update of the weapon mines (inferred from the callees).
  * Takes no parameters and returns nothing.
@@ -46,7 +35,7 @@ void weapon_mines_update(void)
       }
       /* State 2: clear the FX pool (inferred). */
       else if (slot_state == 2) {
-        weapon_fx_pool_clear_b_r(mine_slot + -4);
+        weapon_fx_pool_clear_b_n(mine_slot + -4);
       }
     }
     mine_slot = mine_slot + MINE_SLOT_WORDS;

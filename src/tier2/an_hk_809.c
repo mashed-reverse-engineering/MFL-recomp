@@ -1,21 +1,10 @@
 #include "mfl_tier2.h"
-static int * weapon_find_descriptor_r(int reg_esi);
-extern void weapon_find_descriptor(void);
+extern int * weapon_find_descriptor_n(int);
 
 #define PLAYER_EQUIP_DESCRIPTOR_OFFSET (0xa8)
 #define PLAYER_EQUIP_RESULT_OFFSET (0xac)
 #define DESCRIPTOR_EQUIP_FN_OFFSET (4)
 
-__declspec(naked) int * weapon_find_descriptor_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call weapon_find_descriptor
-        pop esi
-        ret
-    }
-}
 
 /* player_equip_weapon */
 
@@ -33,7 +22,7 @@ void player_equip_weapon(char *player,undefined4 weapon_id)
   int descriptor;
   undefined4 equip_result;
 
-  descriptor = (int)(weapon_find_descriptor_r(weapon_id));
+  descriptor = (int)(weapon_find_descriptor_n(weapon_id));
   *(int *)(player + PLAYER_EQUIP_DESCRIPTOR_OFFSET) = descriptor;
   equip_result = (**(int (**)())(descriptor + DESCRIPTOR_EQUIP_FN_OFFSET))(player);
   *(undefined4 *)(player + PLAYER_EQUIP_RESULT_OFFSET) = equip_result;

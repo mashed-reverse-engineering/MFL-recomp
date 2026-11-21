@@ -316,6 +316,22 @@ def libsyms():
 
 def impstub(name): return IMPSTUB + 16 * sorted(T().iat).index(name)
 
+_NSH = {}
+def n_shim(root, at):
+    """code at `at` for a cdecl `X_n(p0, p1 ..)` call: loads the registers from the stack and calls the ORIGINAL X (stubbed like every callee: register inputs recorded
+    like on the original side).  Built from the ENTRY THUNK of src/clusters/cl_X.c (adapter_inline.index_dir: last `push reg` = _n parameter 0), never from the caller,
+    so a caller that passes the arguments in the wrong order is a DIFF.  None: X is not an enabled cluster root with a plain (registers only, `ret`) thunk.
+    ponytail: the thunk text is not in the cache key (TOOLHASH / T().hash); add src/clusters to it if thunks start to change under cached rows"""
+    if "idx" not in _NSH:
+        import adapter_inline; _NSH["idx"] = adapter_inline.index_dir(os.path.join(ROOT, "src", "clusters"))
+    th = _NSH["idx"].get(root)
+    if th is None: return None
+    rn = ["eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"]; order = th["push"][::-1]; sv = [r for r in order if r in ("ebx", "esi", "edi", "ebp")]
+    c = bytearray(0x50 + rn.index(r) for r in sv)                                                                          # push the callee-saved registers it loads
+    for i, r in enumerate(order): c += bytes([0x8b, 0x44 | rn.index(r) << 3, 0x24, 4 + 4 * len(sv) + 4 * i])            # mov r, [esp + ..]
+    c += b"\xe8" + struct.pack("<i", sorted(T().sym[root])[0] - (at + len(c) + 5))                                        # call X (original address)
+    return bytes(c + bytearray(0x58 + rn.index(r) for r in reversed(sv)) + b"\xc3")
+
 def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
     """-> (code relocated for OURS, literal / static blob for SCR, relocation targets): relocations resolved like cmpfn.reloc_targets (symbols.txt + aliases.txt, IAT, jump tables
     inside the function, literals / constants / file local data copied to SCR).  Raises Unresolved.
@@ -336,6 +352,13 @@ def our_code(obj, sym, base=OURS, extra=None, lits=None, lit_at=None):
             if un not in adp:
                 tail += b"\0" * ((-len(tail)) % 16); adp[un] = base + ((len(code) + 15) & ~15) + len(tail)
                 ac, _ = our_code(obj, un, adp[un], extra, lits, lit_at); tail += ac
+            t = adp[un] + add
+        elif sn == 0 and un.endswith("_n") and un not in tb.sym and "_" + un not in tb.sym and un[:-2] in tb.sym:      # direct call of a cluster's natural-C body X_n (tools/adapter_inline.py removed the caller's X_r adapter): the harness' own adapter (n_shim) calls the ORIGINAL X
+            if un not in adp:
+                tail += b"\0" * ((-len(tail)) % 16); adp[un] = base + ((len(code) + 15) & ~15) + len(tail)
+                sh = n_shim(un[:-2], adp[un])
+                if sh is None: raise Unresolved("symbol " + n + " (cluster root without a plain entry thunk)")
+                tail += sh
             t = adp[un] + add
         elif sn == fsn and sn > 0: t = base + (sval - fval) + add
         elif sn > 0 and not (co.secs[sn - 1][4] & 0x20) and (n.startswith(("??_C@", "_real@", "__real@", "__xmm@", "$S")) or (un not in tb.sym and "_" + un not in tb.sym)):

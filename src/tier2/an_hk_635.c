@@ -5,20 +5,8 @@
 /*005de838*/ extern float k_f_640;
 /*0069ba00*/ extern float g_ui_layout_scale_x;
 /*0069ba0c*/ extern char *g_ui_font;
-static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
-extern void ui_rt2d_text_map_special_chars(void);
+extern void ui_rt2d_text_map_special_chars_n(ushort *text, short *out);
 #define TEXT_BUFFER_SIZE (1024)
-__declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx)
-{
-    __asm {
-        push ebx
-        mov eax, dword ptr [esp + 8]
-        mov ebx, dword ptr [esp + 12]
-        call ui_rt2d_text_map_special_chars
-        pop ebx
-        ret
-    }
-}
 
 /* text_width */
 /* compile: /GS */
@@ -39,7 +27,7 @@ double text_width(undefined4 string_id,float font_size)
   undefined1 mapped_text [TEXT_BUFFER_SIZE];
 
   string_ptr = dat_get_string(string_id);
-  ui_rt2d_text_map_special_chars_r(string_ptr,mapped_text);
+  ui_rt2d_text_map_special_chars_n(string_ptr, mapped_text);
   raw_width = (double)Rt2dFontGetStringWidth((void *)g_ui_font,mapped_text,font_size * k_f_0_0708);
   return (raw_width / (double)g_ui_layout_scale_x) * (double)k_f_640;
 }

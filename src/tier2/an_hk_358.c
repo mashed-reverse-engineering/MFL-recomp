@@ -1,14 +1,5 @@
 #include "mfl_tier2.h"
-static int weapon_oil_pick_slot_r(int reg_eax);
-extern void weapon_oil_pick_slot(void);
-__declspec(naked) int weapon_oil_pick_slot_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call weapon_oil_pick_slot
-        ret
-    }
-}
+extern void weapon_oil_pick_slot_n(const int *matrix);
 
 /* weapon_oil_pick_slot_forward */
 
@@ -19,7 +10,7 @@ __declspec(naked) int weapon_oil_pick_slot_r(int reg_eax)
 void weapon_oil_pick_slot_forward(undefined4 slot_index)
 
 {
-  weapon_oil_pick_slot_r(slot_index);
+  weapon_oil_pick_slot_n((const int *)slot_index);
   return;
 }
 

@@ -2,21 +2,9 @@
 /*0042f780*/ extern int __cdecl clump_load_by_name(char *p0, undefined4 p1, undefined4 p2);
 /*004d5e10*/ extern struct RwTexDictionary * RwTexDictionarySetCurrent(struct RwTexDictionary *p0);
 /*00658fd8*/ extern undefined g_team_658fd8[0x1000];
-static int team_panel_load_parts_r(int reg_eax, void *reg_ebx);
-extern void team_panel_load_parts(void);
+extern void team_panel_load_parts_n(int clump, TeamPanelEntry *panel);
 extern char g_team_6592b0[];
 #define TEAM_PANEL_RECORD_SIZE (0x16c) /* stride between team panel records (inferred) */
-__declspec(naked) int team_panel_load_parts_r(int reg_eax, void *reg_ebx)
-{
-    __asm {
-        push ebx
-        mov eax, dword ptr [esp + 8]
-        mov ebx, dword ptr [esp + 12]
-        call team_panel_load_parts
-        pop ebx
-        ret
-    }
-}
 
 /* load_team_panels */
 
@@ -45,7 +33,7 @@ void load_team_panels(void)
      The loop ends at g_team_6592b0, the end of the two team records (inferred). */
   do {
     clump = clump_load_by_name(panel_names[team_index], 0x0, 0x0);
-    team_panel_load_parts_r(clump,(void *)team_panel);
+    team_panel_load_parts_n(clump, (TeamPanelEntry *)((void *)team_panel));
     ((TeamPanelEntry *)team_panel)->team = team_index;
     team_panel = team_panel + TEAM_PANEL_RECORD_SIZE;
     team_index = team_index + 1;

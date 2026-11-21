@@ -17,7 +17,8 @@ if not os.path.isdir(CL): CL = os.path.join(os.environ.get("MFL_GHIDRA", "."), "
 REGS = {"eax", "ebx", "ecx", "edx", "esi", "edi", "ebp"}
 SAVED = {"ebx", "esi", "edi", "ebp"}
 WIDE = re.compile(r"\b(float|double|__int64|longlong|ulonglong|undefined8|float10|long long)\b")
-INTS = {"int", "uint", "undefined4", "unsigned int", "long", "ulong", "DWORD", "BOOL", "undefined"}
+GNAME = re.compile(r"(in_|param_|local_|unaff_|extraout_|reg_)")
+INTS = {"int","uint", "undefined4", "unsigned int", "long", "ulong", "DWORD", "BOOL", "undefined"}
 THUNK = re.compile(r"^__declspec\(naked\) void (\w+)\(void\)\s*\n\{\s*\n\s*__asm \{\n(.*?)\n    \}\n\}", re.M | re.S)
 ADAPT = re.compile(r"^__declspec\(naked\) ([^\n(]*?)\b(\w+)_r\(([^)]*)\)\s*\n\{\s*\n\s*__asm \{\n(.*?)\n    \}\n\}\n", re.M | re.S)
 
@@ -142,7 +143,6 @@ def inline(text, idx):
         if len(r) == 2: rep.append(r); continue
         name, aret, aps, regmap, callee = r
         th = idx.get(callee)
-        if name != callee and callee != name: pass
         if th is None: rep.append((name, "callee %s is not an enabled cluster root with a plain entry thunk" % callee)); continue
         if callee != name: rep.append((name, "adapter name %s_r != callee %s" % (name, callee))); continue
         if th["edx_out"]: rep.append((name, "extraout_EDX in callee file (edx output)")); continue
@@ -173,7 +173,7 @@ def inline(text, idx):
         if bad: rep.append((name, bad)); continue
         body = out + body[pos:]
         if not is_comment_free(body, name + "_r"): rep.append((name, "%s_r used other than as a direct call" % name)); continue
-        ext = "extern %s %s(%s);\n" % (nret, th["n"], ", ".join(p[0] + ("" if p[0].endswith("*") else " ") + p[1] for p in nps) or "void")
+        ext = "extern %s %s(%s);\n" % (nret, th["n"], ", ".join(p[0] if GNAME.match(p[1]) else p[0] + ("" if p[0].endswith("*") else " ") + p[1] for p in nps) or "void")      # a decompiler placeholder name of the definition (in_eax) is not copied: type only
         decl = re.compile(r"^extern [\w \*]+\b%s\(void\);\n" % name, re.M)
         have = re.search(r"^[A-Za-z_][\w \*]*[ \*]%s\([^;{]*\)\s*[;{]" % th["n"], decl.sub("", body), re.M)      # _n already declared / defined in this TU
         body = decl.sub("" if have else ext, body, count=1) if decl.search(body) else (body if have else ext + body)
@@ -206,10 +206,31 @@ def selftest():
     bad = new.replace("foo_n(p->q, 1)", "foo_n(1, p->q)").replace("foo_n((Obj *)(p->q), 1)", "foo_n(1, (Obj *)(p->q))")
     assert verify(ad, bad, idx), "swapped arguments not caught"
     # rejects
-    for pat, why in [("float x", "float"), ]: pass
-    assert inline(ad.replace("int mode, Obj *o)\n{", "float mode, Obj *o)\n{").replace("foo_r(int mode, Obj *o);", "foo_r(float mode, Obj *o);"), idx)[1][0][1].startswith("float")
-    assert "unknown" in inline(ad.replace("call foo", "call dword ptr [eax]"), idx)[1][0][1] or True
-    assert "not loaded" in inline(ad.replace("        mov ecx, dword ptr [esp + 8]\n", ""), idx)[1][0][1] or "register set" in inline(ad.replace("        mov ecx, dword ptr [esp + 8]\n", ""), idx)[1][0][1]
+    assert "extern int foo_n(Obj *, int mode);" in inline(ad, index_text(cl.replace("Obj *o", "Obj *in_eax")))[0]      # placeholder name not copied into the declaration
+    why = lambda a, i=idx: inline(a, i)[1][0][1]
+    for t in ("float", "double", "__int64", "longlong", "undefined8"):      # float / 64-bit: adapter parameter, adapter return, _n return
+        assert why(ad.replace("int mode, Obj *o)\n{", t + " mode, Obj *o)\n{")) == "float / 64-bit type", t
+        assert why(ad.replace(") int foo_r(", ") %s foo_r(" % t)) == "float / 64-bit type", t
+        assert why(ad, index_text(cl.replace("int foo_n", t + " foo_n"))) == "float / 64-bit type", t
+    assert why(ad.replace("call foo\n", "call dword ptr [eax]\n")) == "unknown asm line: call dword ptr [eax]"      # indirect call
+    assert why(ad.replace("        call foo\n", "        push dword ptr [esp + 16]\n        call foo\n")) == "unknown asm line: push dword ptr [esp + 16]"      # adapter passes a stack argument
+    assert why(ad.replace("        call foo\n", "        call foo\n        add esp, 4\n")) == "unknown asm line: add esp, 4"
+    assert why(ad.replace("        pop esi\n", "")) == "unknown asm line: ret"      # ret with a saved register still on the stack
+    assert why(ad.replace("        call foo\n", "")).startswith("unknown asm line")      # no call at all
+    assert why(ad.replace("[esp + 8]", "[esp + 12]")).startswith("bad esp offset / reg loaded twice") or why(ad.replace("[esp + 8]", "[esp + 12]")).startswith("an adapter param is never loaded")      # two registers from one slot
+    assert why(ad.replace("[esp + 8]", "[esp + 20]")).startswith("bad esp offset")      # behind the last parameter
+    assert why(ad.replace("        mov ecx, dword ptr [esp + 8]\n", "")).startswith("register set adapter ['eax'] vs thunk ['ecx', 'eax']")
+    for bad in (thunk.replace("        ret\n", "        ret 8\n"),                                                 # ret N (stdcall-style entry)
+                thunk.replace("        push ecx\n", "        push dword ptr [esp + 4]\n"),                        # entry thunk forwards a stack argument
+                thunk.replace("add esp, 8", "add esp, 4"),                                                         # unbalanced
+                thunk.replace("        call foo_n\n", "        mov edx, eax\n        call foo_n\n"),             # any other instruction
+                thunk.replace("        ret\n", "        fstp st(0)\n        ret\n")):
+        assert bad != thunk and index_text(cl.replace(thunk, bad)) == {}, bad
+        assert why(ad, index_text(cl.replace(thunk, bad))) == "callee foo is not an enabled cluster root with a plain entry thunk"
+    assert why(ad, index_text(cl.replace("foo_n(Obj *o, int mode)", "foo_n(Obj *o, int mode, int extra)"))).startswith("register set adapter")      # _n arity != pushes
+    assert why(ad, index_text(cl.replace("int foo_n", "char foo_n"))) == "return type int vs char"
+    assert why(ad.replace("foo_r(1, p->q);", "g = foo_r;")) == "foo_r used other than as a direct call"
+    assert why(ad.replace("foo_r(1, p->q);", "foo_r(1);")) == "call with 1 args, adapter has 2"
     assert "edx" in inline(ad, index_text(cl + "/* extraout_EDX */"))[1][0][1]
     assert "not an enabled" in inline(ad, {})[1][0][1]
     assert "void callee" in inline(ad.replace("foo_r(1, p->q);", "x = foo_r(1, p->q);"), index_text(cl.replace("int foo_n", "void foo_n")))[1][0][1]

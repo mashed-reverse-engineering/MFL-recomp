@@ -6,18 +6,8 @@
 /*0069ba0c*/ extern char *g_ui_font;
 /*0069ba10*/ extern char *g_ui_text_brush;
 /*008c87a0*/ extern undefined4 g_course_8c87a0;
-static int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ecx);
-extern void ui_rt2d_wide_string_copy(void);
+extern void ui_rt2d_wide_string_copy_n(byte *, ushort *);
 #define TEXT_BUF_BYTES (1024)
-__declspec(naked) int ui_rt2d_wide_string_copy_r(byte * reg_eax, ushort * reg_ecx)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        mov ecx, dword ptr [esp + 8]
-        call ui_rt2d_wide_string_copy
-        ret
-    }
-}
 
 /* ui_text_draw_wide_a */
 /* compile: /GS */
@@ -39,7 +29,7 @@ void ui_text_draw_wide_a(char *wide_text,undefined4 colour,float text_scale)
   char text_buf[TEXT_BUF_BYTES];
 
   /* copy the wide string into the local buffer */
-  ui_rt2d_wide_string_copy_r((byte *)wide_text,(ushort *)text_buf);
+  ui_rt2d_wide_string_copy_n((byte *)wide_text, (ushort *)text_buf);
   /* save the transform, set the brush colour, draw, restore the transform */
   Rt2dCTMPush();
   Rt2dBrushSetRGBA(g_ui_text_brush,&colour,&colour,&colour,&colour);

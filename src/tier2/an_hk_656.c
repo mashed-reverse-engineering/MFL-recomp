@@ -11,20 +11,8 @@
 /*0069ba04*/ extern float g_ui_layout_scale_y;
 /*0069ba0c*/ extern char *g_ui_font;
 /*0069ba10*/ extern char *g_ui_text_brush;
-static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
-extern void ui_rt2d_text_map_special_chars(void);
+extern void ui_rt2d_text_map_special_chars_n(ushort *text, short *out);
 #define TEXT_BUF_SIZE (512)
-__declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx)
-{
-    __asm {
-        push ebx
-        mov eax, dword ptr [esp + 8]
-        mov ebx, dword ptr [esp + 12]
-        call ui_rt2d_text_map_special_chars
-        pop ebx
-        ret
-    }
-}
 
 /* text_draw_box */
 /* compile: /GS */
@@ -56,7 +44,7 @@ void text_draw_box(undefined4 string_id,float x,float y,float width,float height
   
   /* fetch the string and map its special characters into text_buf */
   text = dat_get_string(string_id);
-  ui_rt2d_text_map_special_chars_r((ushort *)text,(short *)frame.m.text_buf);
+  ui_rt2d_text_map_special_chars_n((ushort *)text, (short *)frame.m.text_buf);
   Rt2dCTMPush();
   Rt2dBrushSetRGBA(g_ui_text_brush,&colour_rgba,&colour_rgba,&colour_rgba,&colour_rgba);
   /* box rectangle: x and width scale by 1/640, y and height by 1/480; the bottom edge is 1 - y/480 - height */

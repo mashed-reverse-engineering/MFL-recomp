@@ -1,22 +1,11 @@
 #include "mfl_tier2.h"
 /*00484680*/ extern int object_set_flag_4();
 /*0075f828*/ extern undefined4 g_particles_75f828;
-static int fx_object_apply_transform_r(int * reg_esi);
-extern void fx_object_apply_transform(void);
+extern void fx_object_apply_transform_n(int *);
 extern char g_particles_769788[];
 #define POOL_COUNT_INDEX (0xcb)
 #define POOL_STRIDE_WORDS (0xcc)
 #define OBJECT_STRIDE_WORDS (0x14)
-__declspec(naked) int fx_object_apply_transform_r(int * reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call fx_object_apply_transform
-        pop esi
-        ret
-    }
-}
 
 /* fx_objects_reset_all */
 
@@ -40,7 +29,7 @@ void fx_objects_reset_all(void)
       obj = pool + object_count * OBJECT_STRIDE_WORDS + 3;
       do {
         obj = obj + -OBJECT_STRIDE_WORDS;
-        fx_object_apply_transform_r(obj);
+        fx_object_apply_transform_n(obj);
         object_set_flag_4(*obj,1);
         object_count = object_count + -1;
       } while (object_count != 0);

@@ -4,21 +4,10 @@
 /*0041da50*/ extern undefined __cdecl time_trial_panel_step_part_a(undefined4 p0, undefined4 p1);
 /*0041db40*/ extern int time_trial_panel_wheel_spin();
 /*00658d18*/ extern undefined4 g_hudpanel_658d18[0x1000];
-static int time_trial_panel_step_part_b_r(int reg_edi);
-extern void time_trial_panel_step_part_b(void);
+extern void time_trial_panel_step_part_b_n(int slots);
 extern char g_score_658d98[];
 #define PANEL_SLOT_DWORDS (0x10) /* dwords copied per HUD slot, one 4x4 matrix (inferred) */
 #define SLOT_PTR_BYTES (4) /* size of one slot matrix pointer in slot_matrix_table */
-__declspec(naked) int time_trial_panel_step_part_b_r(int reg_edi)
-{
-    __asm {
-        push edi
-        mov edi, dword ptr [esp + 8]
-        call time_trial_panel_step_part_b
-        pop edi
-        ret
-    }
-}
 
 /* time_trial_panel_update
  * Runs the time_trial_panel_wheel_spin, time_trial_panel_step_part_b and time_trial_panel_step_part_a
@@ -42,7 +31,7 @@ void __cdecl time_trial_panel_update(int slot_matrix_table,char *unused_arg)
 
   slot_index = slot_matrix_table;
   time_trial_panel_wheel_spin(slot_matrix_table);
-  time_trial_panel_step_part_b_r(slot_matrix_table);
+  time_trial_panel_step_part_b_n(slot_matrix_table);
   time_trial_panel_step_part_a(slot_matrix_table,slot_index);
   slot_index = 0;
   hud_dest = g_hudpanel_658d18;

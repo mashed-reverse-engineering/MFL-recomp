@@ -7,20 +7,8 @@
 /*0069ba0c*/ extern char *g_ui_font;
 /*0069ba10*/ extern char *g_ui_text_brush;
 /*008c87a0*/ extern undefined4 g_course_8c87a0;
-static int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx);
-extern void ui_rt2d_text_map_special_chars(void);
+extern void ui_rt2d_text_map_special_chars_n(ushort *text, short *out);
 #define UI_TEXT_BUFFER_SIZE (1024)
-__declspec(naked) int ui_rt2d_text_map_special_chars_r(ushort * reg_eax, short * reg_ebx)
-{
-    __asm {
-        push ebx
-        mov eax, dword ptr [esp + 8]
-        mov ebx, dword ptr [esp + 12]
-        call ui_rt2d_text_map_special_chars
-        pop ebx
-        ret
-    }
-}
 
 /* ui_text_draw_a */
 /* compile: /GS */
@@ -43,7 +31,7 @@ void __cdecl ui_text_draw_a(undefined4 string_id,undefined4 colour,float scale)
 
   /* Look up the string and map its special characters into text_buf. */
   string_ptr = dat_get_string(string_id);
-  ui_rt2d_text_map_special_chars_r((ushort *)string_ptr,(short *)text_buf);
+  ui_rt2d_text_map_special_chars_n((ushort *)string_ptr, (short *)text_buf);
   /* Push the transform, set the brush colour, draw the text, pop the transform. */
   Rt2dCTMPush();
   Rt2dBrushSetRGBA(g_ui_text_brush,&colour,&colour,&colour,&colour);

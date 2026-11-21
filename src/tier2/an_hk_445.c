@@ -1,19 +1,8 @@
 #include "mfl_tier2.h"
 /*006a60d0*/ extern struct MachinegunState MachinegunState_ARRAY_006a60d0[4];
 /*006a6230*/ extern undefined4 g_weapon_6a6230;
-static int machinegun_state_clear_r(undefined4 * reg_esi);
-extern void machinegun_state_clear(void);
+extern void machinegun_state_clear_n(undefined4 *);
 extern char g_weapon_6a61f0[];
-__declspec(naked) int machinegun_state_clear_r(undefined4 * reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call machinegun_state_clear
-        pop esi
-        ret
-    }
-}
 
 /* machinegun_states_clear */
 
@@ -33,7 +22,7 @@ void machinegun_states_clear(void)
      clearing each one through machinegun_state_clear_r. */
   state = MachinegunState_ARRAY_006a60d0;
   do {
-    machinegun_state_clear_r(state);
+    machinegun_state_clear_n(state);
     state = state + 1;
   } while ((LONG_PTR)state < ((LONG_PTR)&g_weapon_6a61f0));
   return;

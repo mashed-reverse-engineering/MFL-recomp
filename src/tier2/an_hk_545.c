@@ -11,19 +11,10 @@ extern char PTR_g_data_6c696f_005df7f0[];
 /*006a7c38*/ extern undefined g_weapon_6a7c38;
 /*006a7c84*/ extern undefined4 g_weapon_6a7c84;
 /*006a7ce8*/ extern undefined g_weapon_6a7ce8;
-static int weapon_fx_slot_clear_c_r(undefined4 * reg_eax);
-extern void weapon_fx_slot_clear_c(void);
+extern void weapon_fx_slot_clear_c_n(undefined4 *);
 extern char g_weapon_6a7cc4[];
 /* float 0.4f as raw bits; the value passed to load_shine_texture (inferred: shine strength) */
 #define SHINE_ARG_0_4F (0x3ecccccd)
-__declspec(naked) int weapon_fx_slot_clear_c_r(undefined4 * reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call weapon_fx_slot_clear_c
-        ret
-    }
-}
 
 /* oil_load_assets */
 
@@ -56,7 +47,7 @@ void oil_load_assets(void)
     slot_clump = (RpClump *)rpclump_clone(oilslicker_clump);
     *slot_ptr = slot_clump;
     load_shine_texture(slot_clump,SHINE_ARG_0_4F,0);
-    weapon_fx_slot_clear_c_r(slot_ptr + -3);
+    weapon_fx_slot_clear_c_n(slot_ptr + -3);
     clump_set_flag_on_atomics((RpClump *)*slot_ptr, 0x0);
     slot_ptr = slot_ptr + 4;
   } while ((LONG_PTR)slot_ptr < ((LONG_PTR)&g_weapon_6a7cc4));

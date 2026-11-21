@@ -9,19 +9,9 @@
 /*00658450*/ extern undefined g_hudpanel_658450;
 /*00658538*/ extern undefined g_hudpanel_658538;
 /*007d2128*/ extern struct RwGlobalsRelease *RwEngineInstance;
-static int hudpanel_marker_calc_pixel_ray_r(int reg_eax);
-extern void hudpanel_marker_calc_pixel_ray(void);
-__declspec(naked) int hudpanel_marker_calc_pixel_ray_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call hudpanel_marker_calc_pixel_ray
-        ret
-    }
-}
+extern void hudpanel_marker_calc_pixel_ray_n(int);
 
-static int hudpanel_render_parts_if_active_r(int * reg_eax);
-extern void hudpanel_render_parts_if_active(void);
+extern void hudpanel_render_parts_if_active_n(int *);
 extern char g_hudpanel_6584f8[];
 extern char g_load_6586e8[];
 
@@ -33,14 +23,6 @@ extern char g_load_6586e8[];
 #define HUD_VIEW_WINDOW_X (0.6)
 #define HUD_VIEW_WINDOW_Y (0.45)
 
-__declspec(naked) int hudpanel_render_parts_if_active_r(int * reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call hudpanel_render_parts_if_active
-        ret
-    }
-}
 
 /* hudpanel_markers_render_all */
 
@@ -79,7 +61,7 @@ void hudpanel_markers_render_all(void)
     entry = &g_hudpanel_658538;
     do {
       if (*(int *)(entry + MARKER_SLOT_ACTIVE_OFFSET) != 0) {
-        hudpanel_marker_calc_pixel_ray_r(entry);
+        hudpanel_marker_calc_pixel_ray_n(entry);
       }
       entry = entry + MARKER_SLOT_STRIDE;
     } while ((LONG_PTR)entry < ((LONG_PTR)&g_load_6586e8));
@@ -124,7 +106,7 @@ void hudpanel_markers_render_all(void)
     /* Walk the HUD part array; each part is passed to hudpanel_render_parts_if_active, which does the active check. */
     entry = &g_hudpanel_658450;
     do {
-      hudpanel_render_parts_if_active_r(entry);
+      hudpanel_render_parts_if_active_n(entry);
       entry = entry + HUD_PART_STRIDE;
     } while ((LONG_PTR)entry < ((LONG_PTR)&g_hudpanel_6584f8));
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE,(void *)0x1);
