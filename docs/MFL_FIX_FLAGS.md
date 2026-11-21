@@ -85,8 +85,10 @@ Status words:
   | `setup_dialogs` | `0` | Read only with `MFL_FIX_LANG`. `1`: a start without options shows the video and controller setup dialogs again. |
   | `skip_flyover` | `0` | `1`: a race starts without the course fly-over camera; the countdown begins at once (the same end as pressing Return during the original's camera flight to the car). |
   | `menu_speed` | `1` | `2` or `4`: the menus outside a race (page changes, fades, sliding buttons, the save message timer) run that many times faster. The pause menu in a race keeps its speed. |
+  | `fps_cap` | `60` | Read only with `MFL_FIX_FIXED_STEP` (opt-in, not in `MFLng.exe`) and `MFL_FIX_FPS_CAP`. `30`, or `0` = no limit (vsync or the graphics card sets the rate). The game speed stays the same at every frame rate. |
+  | `vsync` | `on` | `off`: the picture does not wait for the screen refresh (tearing possible). Applies at the next start. |
 
-  **In the game:** Options, first row *Preferences* (main menu and pause menu), then a category: *Graphics* (Display mode: fullscreen / windowed / borderless; Resolution once the video code offers its mode list), *Comfort* (Intro movies `skip_intro`, Course flyover `skip_flyover`, Winner camera spin `winner_cam_rotation`, Menu speed `menu_speed`), *Cheats* (Unlock all `unlock_all`), *Other* (Language, auto or one of the six whose speech is installed, only with `MFL_FIX_LANG`; Wait after saving `skip_save_wait`). Left / Right change the selected row (Return steps it like Right); a box on the right explains the selected row and says when it applies; Escape goes back one level and writes the file (lines that are not one of these keys stay as they were). Display, resolution, language, intro movies and unlock all apply at the next start, the others at once. The page's own texts are ours (English, French, German, Spanish, Italian; the On / Off values are the game's texts); the game's text files are not changed.
+  **In the game:** Options, first row *Preferences* (main menu and pause menu), then a category: *Graphics* (Display mode: fullscreen / windowed / borderless; Resolution once the video code offers its mode list; Frame rate limit `fps_cap` only in a build with `MFL_FIX_FIXED_STEP`, applies at once; Vsync `vsync`, next start), *Comfort* (Intro movies `skip_intro`, Course flyover `skip_flyover`, Winner camera spin `winner_cam_rotation`, Menu speed `menu_speed`), *Cheats* (Unlock all `unlock_all`), *Other* (Language, auto or one of the six whose speech is installed, only with `MFL_FIX_LANG`; Wait after saving `skip_save_wait`). Left / Right change the selected row (Return steps it like Right); a box on the right explains the selected row and says when it applies; Escape goes back one level and writes the file (lines that are not one of these keys stay as they were). Display, resolution, language, intro movies and unlock all apply at the next start, the others at once. The page's own texts are ours (English, French, German, Spanish, Italian; the On / Off values are the game's texts); the game's text files are not changed.
 
   Example file:
   ```
@@ -121,6 +123,21 @@ Status words:
 - **Lives in:** `src/mfl_crashlog.c`.
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_CRASHLOG=1` with `CC=v143`, or use `MFLng.exe`.
 
+### MFL_FIX_FPS_CAP
+- **Status:** staged, default off; on in `MFLng.exe`.
+- **Bug:** the game runs one 1/60 s simulation step per rendered frame, so the frame rate is the game speed. The main loop paced itself with one `Sleep` of whole milliseconds per frame; where `Sleep` oversleeps (Wine, a coarse Windows timer: the original raises the timer resolution only inside its movie player) the game ran at ~50 fps, i.e. ~84 % speed.
+- **Fix:** the loop waits for the next point of a fixed 60 Hz schedule in 1 ms sleeps (timer period 1 ms). A late frame is made up by the next one; a stall of more than one frame restarts the schedule. The rate stays 60 and the simulation is unchanged; vsync stays on.
+- **Lives in:** the main loop `app_main_loop`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_FPS_CAP=1`, or use `MFLng.exe`.
+
+### MFL_FIX_FIXED_STEP
+- **Status:** staged, default off, opt-in: NOT in `MFLng.exe` (like `MFL_FIX_UNLOCK_ALL`, its define line carries a comment, so the fixes build leaves it off). Build it yourself to try it.
+- **What it changes:** the game speed no longer depends on the frame rate. The original runs exactly one 1/60 s simulation step per rendered frame (a slow frame is slow motion). With the switch each frame runs as many steps as real time has passed (rounded, the rest carried to the next frame), through the step loop the game already has. A frame runs at most 8 steps (below 7.5 fps the game slows down instead of falling further behind); a frame longer than 250 ms (a debugger stop), and the first frame after a race-phase or game-state change (a course load, a race start), count as one step, so a load does not trigger catch-up steps. At a steady 60 fps every frame is one step, as in the original.
+- **Also per step:** button presses (a press during a frame without a step is kept for the next step, so a quick tap is neither lost nor seen twice), the sound frame (voice-queue timers), the game-time counter used by cameras and the race time.
+- **With `MFL_FIX_FPS_CAP` and `MFL_FIX_PREFS`:** the key `fps_cap` (60 / 30 / 0 = no limit) sets the frame limiter. Above 60 fps the picture still moves in 1/60 s steps (frames repeat); smooth motion above 60 needs render interpolation (planned).
+- **Lives in:** `app_frame_wait` (step count), `app_state_frontend_frame` and `tutorial_text_update` (steps with their input), `debug_keys_and_profile` (sound frame per step), `app_main_loop` (limiter).
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_FIXED_STEP=1` (with `/DMFL_FIX_FPS_CAP=1 /DMFL_FIX_PREFS=1` for the `fps_cap` key and the Frame rate limit row).
+
 ## Planned
 
 | Switch | What it would change | Notes |
@@ -130,7 +147,6 @@ Status words:
 | `MFL_FIX_REMAP_MENU` | An in-game page for controller bindings. | The original already reads `contcfg%d.bin` (0x200 bytes per controller), so an external tool can write bindings without a switch. |
 | `MFL_FIX_SETTINGS_MENU` | In-game settings pages next to (later in place of) the Windows setup dialogs. | A design exists. |
 | `MFL_FIX_VIDEOCFG_VALIDATE` | Clamp a bad video mode or adapter index loaded from a settings file. | Optional second switch of the settings menu design. |
-| `MFL_FIX_FIXED_STEP` | The frame timing writes the real frame delta into the tick count instead of the constant 50 units, so several 1/60 s simulation steps can run per frame; the 16.67 ms sleep cap is raised. | Needs input edges polled inside the tick loop. Smooth play above 60 fps needs render interpolation as well. |
 | `MFL_FIX_LOAD_*` (family) | Shorter load screens. | Load times are measured first; it is not known yet whether a fixed wait exists. |
 | `MFL_FIX_AI_*` (family) | Opponent AI changes, one switch each. | The original AI stays the default. First step is a read-only report. |
 | Graphics options (family, names not fixed) | Resolution and aspect, MSAA, anisotropic filtering, depth precision, shadow maps, per-pixel lighting, draw distance, render interpolation above 60 fps (the logic stays at a fixed 60 Hz). | Depends on the render-state layer in `librw-mfl`. |

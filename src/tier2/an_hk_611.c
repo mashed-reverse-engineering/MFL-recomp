@@ -512,6 +512,11 @@ end_camera_update:
   app_get_app_7712f4();
   /* Flip the raster to the screen, waiting for vsync. */
   show_flags = rwRASTERFLIPWAITVSYNC;
+#if MFL_FIX_PREFS
+  if (mfl_pref(MFL_PREF_VSYNC) == 0) {
+    show_flags = 0;      /* vsync=off: the device keeps the immediate interval it was created with (mflrw.dll rwD3D9RasterShowRaster) */
+  }
+#endif
   raster = (void *)0x0;
   cam = (RwCamera *)get_viewport_camera(0);
   RwCameraShowRaster(cam,raster,show_flags);

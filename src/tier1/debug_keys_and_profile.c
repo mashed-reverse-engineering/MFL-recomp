@@ -1,4 +1,8 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
+#if MFL_FIX_FIXED_STEP
+/*007ef7e8*/ extern undefined4 g_frame_ticks;
+#endif
 /*004693c0*/ extern int sound_streams_pause();
 /*00469400*/ extern int sound_streams_resume();
 /*00473550*/ extern undefined __cdecl sound_frame_begin(undefined4 p0);
@@ -39,7 +43,13 @@ void debug_keys_and_profile(void)
   }
   else if (g_debug_keys_62ad30 != 0) {
     sound_streams_pause(0x0);
+#if MFL_FIX_FIXED_STEP
+    for (result = 0; result < (int)g_frame_ticks / 50; result++) {      /* one sound frame per simulation step (voice-queue timers +1/60 s each) */
+      sound_frame_begin(0);
+    }
+#else
     sound_frame_begin(0);
+#endif
     sound_streams_resume();
   }
   result = timer_ticks();

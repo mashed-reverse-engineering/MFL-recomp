@@ -67,6 +67,8 @@ enum mfl_pref_key {
   MFL_PREF_MENU_SPEED,            /* menu_speed=1|2|4: the frontend menus (not the pause menu in a race) animate that many times faster */
   MFL_PREF_RESOLUTION,            /* resolution=WxH or auto (-1, default = the desktop size); value (W << 16) | H; borderless ignores it.  The Resolution
                                      row sets it through mfl_video_modes_api->choose, so mfl_settings_save writes mfl_prefs[] for this key, not values[] */
+  MFL_PREF_FPS_CAP,               /* MFL_FIX_FIXED_STEP: fps_cap=60|30|0 (0 = unlimited), kept as the index 0..2 of those words; default 60 */
+  MFL_PREF_VSYNC,                 /* vsync=on|off (1/0): the flip waits for the vertical blank (the original) or not; applies at the next start */
   MFL_PREF_COUNT
 };
 int mfl_video_start_fallback(void);      /* rw_engine_init: RwEngineStart failed: once, a 640 x 480 window on the desktop mode (logged); 0 = nothing to try */
@@ -117,6 +119,25 @@ int mfl_lang_available(int language);      /* 1 when the game can play that lang
                                  with a code other than 0) appends a report to mflng-crash.txt beside the game's files (recomp/mfl_crashlog.c, installed
                                  from .CRT$XIB; build_overlay.py leaves the file out of every build without this switch) */
 #define MFL_FIX_CRASHLOG 0
+#endif
+
+#ifndef MFL_FIX_FPS_CAP      /* the main loop waits out its 60 Hz frame budget against a fixed schedule in 1 ms Sleeps (timer period 1 ms), not in one
+                                Sleep of whole ms per frame, so Sleep granularity no longer slows the game (Wine: ~50 fps = 84 % game speed, the simulation
+                                is one 1/60 s tick per frame); the rate stays 60 (clusters/cl_app_main_loop.c; agents/fps_w17/notes.md) */
+#define MFL_FIX_FPS_CAP 0
+#endif
+
+#ifndef MFL_FIX_FIXED_STEP      /* game speed independent of the frame rate: each frame runs as many 1/60 s simulation steps as real time has passed
+                                   (round to nearest, the rest carried; at most 8 per frame; a frame over 250 ms or the first frame after a race-phase or app-state
+                                   change = 1 step), through the game's own step
+                                   loop; button presses are latched per step, the voice-queue timers / sound pump and the game-time counter run per
+                                   step; at a steady 60 fps every frame is one step as in the original.  With MFL_FIX_FPS_CAP + MFL_FIX_PREFS the key
+                                   fps_cap sets the limiter (automatch_near/an_hk_621.c, an_hk_789.c, an_hk_9223.c, tier1/debug_keys_and_profile.c,
+                                   clusters/cl_app_main_loop.c; agents/fps_w17/notes.md) */
+#define MFL_FIX_FIXED_STEP 0      /* opt-in, not in MFLng.exe (the comment keeps it out of build_mflng.sh / link_ci.sh FIXES=all) */
+#endif
+#if MFL_FIX_FIXED_STEP
+void mfl_race_steps_run(void);      /* an_hk_789.c: this frame's race_start_setup(50) steps with the input record of each step (also the tutorial loop) */
 #endif
 
 /* The files of the sound functions with random-draw sites (agents/rep_w12/audio_rng_sites.txt) define MFL_AUDIO_RNG_SITES before including this

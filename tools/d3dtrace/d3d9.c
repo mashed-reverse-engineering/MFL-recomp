@@ -9,6 +9,8 @@
  *   stop_racef=<n>        log only while the race frame counter < n (0 = off)
  *   stop_phase=<n>        log only while the race phase < n (6 = countdown segment only)
  *   vclock=1 step_us=20 anchor_phase=3   virtual clock for the main thread (see below)
+ *   vsnap=1|2|3          1: clock to the next second at a race-phase change; 2: + every frame starts on a 50 ms grid; 3: + 1/60 s grid and
+ *                        main-thread Sleeps do not move the clock (every frame exactly one step: statehash runs of MFL_FIX_FIXED_STEP builds)
  *   max_frames=<n>        stop after n logged Presents (0 = unlimited; also stops statehash, which records only while logging is active)
  *   trace=0               no draw / state records (W13 hx7, statehash runs): the active window, PRESENT lines and statehash stay; default 1
  *   geom=1                hash vertex/index buffer contents at Unlock (default 1)
@@ -269,7 +271,8 @@ static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, c
     if (cfg_vds && active && nframes % 100 == 0) L("VDS buffers=%d reads=%d steps=%d readfile=%d pending=%d getstatus=%d play=%d stop=%d lock=%d lockwc=%d\n", nvds_buf, (int)nvds_read, (int)nvds_step, (int)nrd, (int)npend,
         (int)nst_get, (int)nst_play, (int)nst_stop, (int)nst_lock, (int)nst_lockwc);
     if (active) statehash_frame(nframes, ph, rf);      /* before the real Present: the state the frame was drawn from */
-    if (cfg_vclock && cfg_vsnap >= 2 && is_main()) vt_us = (vt_us / 50000 + 1) * 50000;   /* vsnap=2: every frame starts on a 50 ms grid, a clock-call count that differs inside one frame does not carry over */
+    if (cfg_vclock && cfg_vsnap == 2 && is_main()) vt_us = (vt_us / 50000 + 1) * 50000;   /* vsnap=2: every frame starts on a 50 ms grid, a clock-call count that differs inside one frame does not carry over */
+    if (cfg_vclock && cfg_vsnap == 3 && is_main()) vt_us = (vt_us / 16667 + 1) * 16667;   /* vsnap=3 (FPS W17, MFL_FIX_FIXED_STEP runs): a 1/60 s grid and main-thread Sleeps do not move the clock, so every frame lasts exactly one step */
     HRESULT r = C(HRESULT (WINAPI *)(void *, const RECT *, const RECT *, HWND, const RGNDATA *), 17, d, a, b, w, c);
     if (active) { L("PRESENT %d phase=%u racef=%u draws=%d\n", nframes++, ph, rf, ndraws); fflush(lg); }
     return r;
@@ -547,7 +550,7 @@ static DWORD mwait(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) {    /* main t
 }
 static DWORD WINAPI v_WaitForMultipleObjects(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) { return !cfg_alock ? WaitForMultipleObjects(n, hs, all, ms) : is_main() ? mwait(n, hs, all, ms) : await(n, hs, all, ms); }
 static DWORD WINAPI v_WaitForSingleObject(HANDLE h, DWORD ms) { return !cfg_alock ? WaitForSingleObject(h, ms) : v_WaitForMultipleObjects(1, &h, FALSE, ms); }
-static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { vt_us += (LONGLONG)ms * 1000; if (cfg_alock) alock_step(0); Sleep(0); } else if (cfg_alock) await(0, NULL, FALSE, ms); else Sleep(ms); }
+static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { if (cfg_vsnap != 3) vt_us += (LONGLONG)ms * 1000; if (cfg_alock) alock_step(0); Sleep(0); } else if (cfg_alock) await(0, NULL, FALSE, ms); else Sleep(ms); }
 /* vds=1 (V8, harness only, default off, use with alock=1): Wine's dsound mixer advances the play cursor in real time, so how far the RWA thread
  * streams per frame (voice queue, then everything downstream) differs run to run.  With vds the exe's DirectSoundCreate / DirectSoundCreate8
  * (DSOUND IAT, ordinal 1 / 11 or by name) are wrapped, IDirectSound::CreateSoundBuffer patches the buffer vtables and

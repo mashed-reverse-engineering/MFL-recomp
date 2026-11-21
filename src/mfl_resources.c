@@ -146,8 +146,18 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "skip_flyover", 0, 1 },
   { "menu_speed", 1, 4 },      /* the page writes 1, 2 or 4 */
   { "resolution", -1, 0 },      /* -1 = auto (desktop size), else (W << 16) | H from `WxH` */
+  { "fps_cap", 0, -1 },        /* words only (k_words): 60 / 30 / 0 */
+  { "vsync", 1, 1 },
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
+static const char *const k_fps_cap_names[] = { "60", "30", "0" };      /* fps_cap words = index (cl_app_main_loop.c k_fps_cap) */
+static const char *const k_vsync_names[] = { "off", "on" };
+static const struct { int key, count; const char *const *names; } k_words[] = {      /* keys that also take (fps_cap: only take) words */
+  { MFL_PREF_DISPLAY_MODE, 3, k_display_names },
+  { MFL_PREF_FPS_CAP, 3, k_fps_cap_names },
+  { MFL_PREF_VSYNC, 2, k_vsync_names },
+};
+#define WORD_KEYS ((int)(sizeof k_words / sizeof k_words[0]))
 int mfl_prefs[MFL_PREF_COUNT];      /* the values in force (a global, so a test run can read them by the map) */
 static char prefs_path[PATH_SIZE];
 static char prefs_text[PREFS_FILE_MAX];
@@ -172,7 +182,7 @@ static const char *key_value(const char *line, const char *end, const char *name
 static void prefs_parse_line(const char *line, const char *end)
 {
   const char *p, *q, *w;
-  int k, n;
+  int k, n, i;
 
   while (end > line && is_blank(end[-1])) end--;
   for (k = 0; k < MFL_PREF_COUNT; k++) {
@@ -180,9 +190,11 @@ static void prefs_parse_line(const char *line, const char *end)
     if (p == 0) continue;
     if (end - p == 1 && *p >= '0' && *p <= '0' + k_prefs[k].max) mfl_prefs[k] = *p - '0';
     else if (k_prefs[k].fallback < 0 && end - p == 4 && p[0] == 'a' && p[1] == 'u' && p[2] == 't' && p[3] == 'o') mfl_prefs[k] = -1;
-    for (n = 0; k == MFL_PREF_DISPLAY_MODE && n < 3; n++) {
-      for (q = p, w = k_display_names[n]; q < end && *w != '\0' && *q == *w; q++, w++) ;
-      if (q == end && *w == '\0') mfl_prefs[k] = n;
+    for (i = 0; i < WORD_KEYS; i++) {
+      for (n = 0; k_words[i].key == k && n < k_words[i].count; n++) {
+        for (q = p, w = k_words[i].names[n]; q < end && *w != '\0' && *q == *w; q++, w++) ;
+        if (q == end && *w == '\0') mfl_prefs[k] = n;
+      }
     }
     if (k == MFL_PREF_RESOLUTION) {      /* WxH, each 1..32759 */
       int dim[2] = { 0, 0 };
@@ -254,7 +266,7 @@ void mfl_settings_save(const int *values)
   unsigned long size, n = 0, written;
   const char *line, *end, *w;
   void *file;
-  int k, known;
+  int k, known, i;
 
   mfl_pref(0);      /* prefs_path is set */
   size = prefs_read();
@@ -269,13 +281,14 @@ void mfl_settings_save(const int *values)
   for (k = 0; k < MFL_PREF_COUNT; k++) {
     for (w = k_prefs[k].name; *w != '\0'; w++) out[n++] = *w;
     out[n++] = '=';
+    for (i = 0, w = 0; i < WORD_KEYS; i++)
+      if (k_words[i].key == k && values[k] >= 0 && values[k] < k_words[i].count) w = k_words[i].names[values[k]];
     if (k == MFL_PREF_RESOLUTION) {      /* the Resolution row sets mfl_prefs[] (mfl_video_modes_api->choose), the page's values[] never */
       if (mfl_prefs[k] < 0) w = "auto";
       else { n += prefs_put_size(out + n, mfl_prefs[k]); w = ""; }
     }
-    else if (k == MFL_PREF_DISPLAY_MODE && values[k] >= 0 && values[k] <= 2) w = k_display_names[values[k]];
-    else if (values[k] < 0) w = "auto";
-    else { out[n++] = (char)('0' + values[k]); w = ""; }
+    else if (w == 0 && values[k] < 0) w = "auto";
+    else if (w == 0) { out[n++] = (char)('0' + values[k]); w = ""; }
     while (*w != '\0') out[n++] = *w++;
     out[n++] = '\r';
     out[n++] = '\n';

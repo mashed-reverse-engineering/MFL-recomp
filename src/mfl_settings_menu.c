@@ -63,8 +63,9 @@
 #define TEXT_ON 0x5d
 
 enum text {
-  T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_RESOLUTION, T_NEXT_START,
+  T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION, T_NEXT_START,
   T_AT_ONCE, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
+  T_FPS_60, T_FPS_30, T_FPS_UNLIMITED,
   T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_COUNT
 };
 #define T_LINE0 0x100      /* text ids T_LINE0.. = the word-wrapped lines of the description box (line_buf) */
@@ -84,6 +85,8 @@ static const char *const k_text[T_COUNT][5] = {
   { "Winner camera spin", "Cam\xe9ra du vainqueur", "Siegerkamera kreist", "Giro al ganador", "Giro sul vincitore" },
   { "Unlock all (cheat)", "Tout ouvrir (triche)", "Alles frei (Cheat)", "Todo abierto (truco)", "Sblocca tutto (trucco)" },
   { "Menu speed", "Vitesse des menus", "Men\xfc-Tempo", "Velocidad de men\xfas", "Velocit\xe0 dei menu" },
+  { "Frame rate limit", "Limite d'images", "Bildratenlimit", "L\xedmite de FPS", "Limite FPS" },
+  { "Vsync", "Synchro verticale", "VSync", "Sincronizaci\xf3n vertical", "Sincronia verticale" },
   { "Resolution", "R\xe9solution", "Aufl\xf6sung", "Resoluci\xf3n", "Risoluzione" },
   { "Applies at the next start.", "Effet au prochain d\xe9marrage.", "Gilt ab dem n\xe4" "chsten Start.", "Se aplica al reiniciar.",
     "Vale dal prossimo avvio." },
@@ -101,6 +104,9 @@ static const char *const k_text[T_COUNT][5] = {
   { "1x", "1x", "1x", "1x", "1x" },
   { "2x", "2x", "2x", "2x", "2x" },
   { "4x", "4x", "4x", "4x", "4x" },
+  { "60", "60", "60", "60", "60" },
+  { "30", "30", "30", "30", "30" },
+  { "Unlimited", "Illimit\xe9", "Unbegrenzt", "Sin l\xedmite", "Illimitato" },
   { "Graphics", "Graphismes", "Grafik", "Gr\xe1" "ficos", "Grafica" },
   { "Comfort", "Confort", "Komfort", "Comodidad", "Comfort" },
   { "Cheats", "Triches", "Cheats", "Trucos", "Trucchi" },
@@ -164,6 +170,19 @@ static const char *const k_desc[T_RESOLUTION - T_DISPLAY + 1][5] = {
     "Rapidez de los men\xfas: cambios de p\xe1gina, fundidos y botones que se deslizan. El men\xfa de pausa en carrera mantiene su "
     "velocidad normal.",
     "Velocit\xe0 dei menu: cambi di pagina, dissolvenze e pulsanti che scorrono. Il menu di pausa in gara resta alla velocit\xe0 normale." },
+  { "The most pictures per second. The game runs at the same speed at every frame rate.",
+    "Le nombre maximal d'images par seconde. Le jeu garde la m\xeame vitesse \xe0 chaque fr\xe9quence d'images.",
+    "Die h\xf6" "chste Zahl an Bildern pro Sekunde. Das Spiel l\xe4uft bei jeder Bildrate gleich schnell.",
+    "El m\xe1ximo de im\xe1genes por segundo. El juego va a la misma velocidad con cualquier tasa de im\xe1genes.",
+    "Il massimo di immagini al secondo. Il gioco va alla stessa velocit\xe0 con ogni frequenza di immagini." },
+  { "Each picture waits for the screen's refresh: no tearing. Off: the picture can tear, the frame rate limit alone sets the rate.",
+    "Chaque image attend le rafra\xee" "chissement de l'\xe9" "cran : pas de d\xe9" "chirure. Non : l'image peut se d\xe9" "chirer, seule la "
+    "limite d'images fixe la cadence.",
+    "Jedes Bild wartet auf den Bildaufbau des Monitors: kein Zerrei\xdf" "en. Aus: das Bild kann zerrei\xdf" "en, nur das Bildratenlimit "
+    "bestimmt das Tempo.",
+    "Cada imagen espera al refresco de la pantalla: sin cortes. No: la imagen puede cortarse, solo el l\xedmite de FPS fija la cadencia.",
+    "Ogni immagine attende l'aggiornamento dello schermo: niente strappi. No: l'immagine pu\xf2 strapparsi, solo il limite FPS decide il "
+    "ritmo." },
   { "The picture size in windowed and fullscreen mode. Borderless always uses the desktop size.",
     "La taille de l'image en mode fen\xeatr\xe9 et plein \xe9" "cran. Sans bordure utilise toujours la taille du bureau.",
     "Die Bildgr\xf6\xdf" "e im Fenster- und Vollbildmodus. Randlos nutzt immer die Desktopgr\xf6\xdf" "e.",
@@ -183,6 +202,10 @@ static const int k_cat_text[CATS] = { T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEAT
 static const struct { int cat, text, key, count, first, invert, live; } k_rows[] = {
   { CAT_GRAPHICS, T_DISPLAY, MFL_PREF_DISPLAY_MODE, 3, 0, 0, 0 },
   { CAT_GRAPHICS, T_RESOLUTION, KEY_RESOLUTION, 0, 0, 0, 0 },      /* shown only when the video code registered its mode list */
+#if MFL_FIX_FIXED_STEP && MFL_FIX_FPS_CAP
+  { CAT_GRAPHICS, T_FPS_CAP, MFL_PREF_FPS_CAP, 3, 0, 0, 1 },      /* values 60, 30, unlimited (cl_app_main_loop.c k_fps_cap) */
+#endif
+  { CAT_GRAPHICS, T_VSYNC, MFL_PREF_VSYNC, 2, 0, 0, 0 },
   { CAT_COMFORT, T_INTRO, MFL_PREF_SKIP_INTRO, 2, 0, 1, 0 },
   { CAT_COMFORT, T_FLYOVER, MFL_PREF_SKIP_FLYOVER, 2, 0, 1, 1 },
   { CAT_COMFORT, T_WINNER_CAM, MFL_PREF_WINNER_CAM_ROTATION, 2, 0, 0, 1 },
@@ -401,6 +424,7 @@ static int value_text(int k)
     return text_id(T_MODE_NAME);
   }
   if (k_rows[k].key == MFL_PREF_MENU_SPEED) return text_id(T_X1 + speed_index(v));
+  if (k_rows[k].key == MFL_PREF_FPS_CAP) return text_id(T_FPS_60 + v);
   if (k_rows[k].key == MFL_PREF_DISPLAY_MODE) return text_id(T_FULLSCREEN + v);
   if (k_rows[k].key == MFL_PREF_LANGUAGE) return text_id(v < 0 ? T_AUTO : T_ENGLISH + v);
   return (v != 0) != (k_rows[k].invert != 0) ? TEXT_ON : TEXT_OFF;

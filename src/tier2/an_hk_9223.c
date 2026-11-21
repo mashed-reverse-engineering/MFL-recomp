@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040c9f0*/ extern undefined __cdecl players_get_wins(void *p0);
 /*0040cad0*/ extern int players_get_points();
 /*0040cc40*/ extern int player_get_stat_8b90();
@@ -94,6 +95,9 @@ void tutorial_text_update(void)
     int rows_left;
   } frame;
   
+#if MFL_FIX_FIXED_STEP
+  mfl_race_steps_run();      /* the same steps with the input record of each step (an_hk_789.c) */
+#else
   if (0 < (int)g_frame_ticks) {
     opcode_or_text = (g_frame_ticks - 1U) / 0x32 + 1;
     do {
@@ -101,6 +105,7 @@ void tutorial_text_update(void)
       opcode_or_text = opcode_or_text + -1;
     } while (opcode_or_text != 0);
   }
+#endif
   if (g_menu_panel_state_69c998 == 1) {
     if (((g_event_type == EVENT_TIME_TRIAL_0) || (g_event_type == EVENT_TIME_TRIAL_1)) || (g_event_type == EVENT_TIME_TRIAL_2)) {
       intro_banner_set_active(0);
