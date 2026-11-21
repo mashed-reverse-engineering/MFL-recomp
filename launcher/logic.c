@@ -546,7 +546,7 @@ static void tag_of(const char *dir, const char *name, Installed *in) { char p[UP
 int upd_apply(const char *inst, const char *data, const char *self)
 {
     Item *it = (Item *)calloc(UPD_MAXF, sizeof *it); char (*names)[128] = (char (*)[128])malloc(UPD_MAXF * 128);
-    char st[UPD_PATH], bk[UPD_PATH], bp[UPD_PATH], p[UPD_PATH], q[UPD_PATH], o[UPD_PATH], hx[65], want[65], nm[128], *sums = NULL, *old;
+    char st[UPD_PATH], bk[UPD_PATH], bp[UPD_PATH], p[UPD_PATH], q[UPD_PATH], o[UPD_PATH], pend[UPD_PATH + 8] = "", hx[65], want[65], nm[128], *sums = NULL, *old;
     unsigned char h[32], *d; const char *s; size_t len; Installed was, now;
     int n = 0, nt, i, k, r = 0, rotated = 0, mine = 0, made = 0, bad = 0, gone = 0, flat = 0, listed;
     upd_path(st, data, "update"); upd_path(bk, data, "backup"); upd_path(bp, data, "backup.prev");
@@ -588,16 +588,41 @@ int upd_apply(const char *inst, const char *data, const char *self)
         upd_path(q, inst, it[i].name); sfx(p, q, ".new");
         if (!os_write(p, it[i].data, it[i].len)) { os_log("FAIL: cannot write %s (error %ld)", p, os_err()); goto rollback; }
     }
-    upd_clear(bp);      /* one backup level: the last one waits in backup.prev until this update has succeeded */
-    if (os_exists(bk) && !(rotated = os_rename(bk, bp))) { os_log("FAIL: cannot move %s to %s (error %ld)", bk, bp, os_err()); goto rollback; }
+    /* one backup level: the last one waits in backup.prev until this update has succeeded.  A backup.prev left by an update that was
+       cut off, or by an older launcher that did not know one of its folders (it then failed here with error 183), goes as a whole.
+       No backup of the build before is no reason to stop a good update: if the folder cannot be moved, its files go instead. */
+    upd_clear(bp); if (os_exists(bp)) os_rmtree(bp);
+    if (os_exists(bk) && !(rotated = os_rename(bk, bp))) {
+        os_log("note: cannot move %s to %s (error %ld): the older backup is dropped", bk, bp, os_err());
+        upd_clear(bk); if (os_exists(bk)) os_rmtree(bk);
+    }
     os_mkdir(bk); mine = 1;
-    for (k = 0; k < nt; k++) {      /* phase 2: copy old -> backup, old -> <name>.old (works for a running exe or a loaded DLL), .new -> name */
+    for (k = 0; k < nt; k++) {      /* phase 2: copy old -> backup, old -> <name>.old, .new -> name */
         Item *t = &it[k];
         upd_path(p, inst, t->name); upd_path(q, bk, t->name); sfx(o, p, ".old");
         if ((t->had = (char)(os_exists(p) != 0))) {
             mk_dirs(bk, t->name);
             if (!os_copy(p, q)) { os_log("FAIL: cannot copy %s to the backup (error %ld)", p, os_err()); goto rollback; }
-            if (!(t->aside = (char)(os_rename(p, o) != 0))) { os_log("FAIL: cannot rename %s (error %ld)", p, os_err()); goto rollback; }
+            if (os_rename(p, o)) t->aside = 1;
+            else {
+                /* Only the launcher exe gets another way (it is the one file that may be running, and a second launcher window, a
+                   virus scanner or a FAT volume can refuse the rename): write over it; if it is in use, leave it and put the new
+                   one beside it as <name>.new.exe, which the next start of the launcher swaps in.  Every other file: roll back. */
+                long e = os_err(); const char *x = strrchr(t->name, '.');
+                if (k >= n || icmp(t->name, self) || !x) { os_log("FAIL: cannot rename %s (error %ld)", p, e); goto rollback; }
+                sfx(q, p, ".new");
+                if (os_write(p, t->data, t->len)) {
+                    t->aside = 2; os_delete(q);
+                    os_log("replaced %s by writing over it (it could not be renamed: error %ld)", t->name, e); continue;
+                }
+                if (os_exists(p)) {
+                    snprintf(pend, sizeof pend, "%.*s.new%s", (int)(strlen(p) - strlen(x)), p, x);
+                    if (!os_rename(q, pend)) { pend[0] = 0; os_log("FAIL: cannot rename %s (error %ld)", p, e); goto rollback; }
+                    os_log("%s is in use and could not be renamed (error %ld): the new one waits beside it as .new%s and takes its place at the next start", t->name, e, x);
+                    continue;
+                }
+                t->aside = 2;      /* the failed write took the file away: the backup has it, and the name is free for the .new */
+            }
         }
         if (k >= n) {
             if (t->had) { gone++; flat |= !strncmp(t->name, "LICENSES/", 9); os_log("removed %s (not in this release; a copy is in the backup)", t->name); }
@@ -607,7 +632,7 @@ int upd_apply(const char *inst, const char *data, const char *self)
         if (!(t->placed = (char)(os_rename(q, p) != 0))) { os_log("FAIL: cannot rename %s (error %ld)", q, os_err()); goto rollback; }
         os_log("replaced %s%s", t->name, t->had ? "" : " (new file)");
     }
-    r = 1; upd_clear(bp);
+    r = pend[0] ? 2 : 1; upd_clear(bp);
     for (k = 0; k < nt; k++) if (it[k].aside) { upd_path(p, inst, it[k].name); sfx(o, p, ".old"); os_delete(o); }      /* one still in use goes at the next start (upd_clean) */
     if (flat) { upd_path(p, inst, "LICENSES"); os_rmdir(p); }
     os_log("update applied: %d files installed, %d removed; the previous files are in %s", n, gone, bk);
@@ -617,9 +642,10 @@ rollback:
         Item *t = &it[k];
         upd_path(p, inst, t->name); upd_path(q, bk, t->name); sfx(o, p, ".old");
         if (t->placed) os_delete(p);
-        if (t->aside && !os_rename(o, p) && !os_copy(q, p)) { bad = 1; os_log("ROLLBACK FAILED for %s (error %ld): copy it back from %s", p, os_err(), q); }
+        if (t->aside && !(t->aside == 1 && os_rename(o, p)) && !os_copy(q, p)) { bad = 1;      /* aside 2 = written over: only the backup has it */ os_log("ROLLBACK FAILED for %s (error %ld): copy it back from %s", p, os_err(), q); }
         if (k < n) { sfx(q, p, ".new"); os_delete(q); }
     }
+    if (pend[0]) os_delete(pend);
     for (i = NDIRS - 1; i > 0; i--) if (made >> i & 1) { upd_path(p, inst, k_dirs[i]); os_rmdir(p); }      /* the folders this update created */
     if (bad) { r = -1; os_log("rollback incomplete: the files of the previous version are in %s", bk); }
     else {

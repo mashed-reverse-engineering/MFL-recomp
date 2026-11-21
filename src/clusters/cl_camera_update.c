@@ -100,6 +100,9 @@ extern double atan(double);
 /*007ef7f4*/ extern float g_tick_seconds;
 /*007ef818*/ extern undefined4 g_last_frame_ticks;
 /*00801b2c*/ extern float g_camera_fov_factor;
+#if MFL_FIX_WIDESCREEN
+extern float mfl_widescreen_camera_factor(void);
+#endif
 /*008c7e0c*/ extern float g_camera_8c7e0c;
 /*0041a370*/ extern float ai_get_counter();
 #pragma optimize("g", off)   /* the original function is too large for cl's global optimizer: every temporary lives in a stack slot, divisions stay, sin / atan are CRT calls */
@@ -198,7 +201,7 @@ void __cdecl camera_update(int *camera,int force_snap)
     vehicle_set_field_198(i2, 0x0);
   }
 #if MFL_FIX_WIDESCREEN
-  *(float *)&camera[9] = mfl_widescreen_fov_factor();
+  *(float *)&camera[9] = mfl_widescreen_camera_factor();      /* an_hk_824.c: the results replay window keeps the 4:3 factor */
 #else
   *(float *)&camera[9] = g_camera_fov_factor;
 #endif

@@ -16,6 +16,10 @@
 #define CAMERA_ROLL_OFFSET (0x3c)
 #define CAMERA_TRANSLATE_OFFSET (0x40)
 
+#if MFL_FIX_WIDESCREEN
+float mfl_widescreen_camera_factor(void);
+#endif
+
 /* camera_apply_rotation */
 
 /* "sets fov, view window and rotates the camera frame by pitch / yaw" */
@@ -35,7 +39,7 @@ void camera_apply_rotation(char *camera)
 
   /* fov factor: float bits copied into the camera's fov slot */
 #if MFL_FIX_WIDESCREEN
-  *(float *)(camera + CAMERA_FOV_OFFSET) = mfl_widescreen_fov_factor();
+  *(float *)(camera + CAMERA_FOV_OFFSET) = mfl_widescreen_camera_factor();
 #else
   *(undefined4 *)(camera + CAMERA_FOV_OFFSET) = *(int *)&g_camera_fov_factor;
 #endif
@@ -67,6 +71,19 @@ float mfl_widescreen_fov_factor(void)
   if (width <= 0 || height <= 0)
     return g_camera_fov_factor;
   return (float)height / (float)width;
+}
+
+/* WSVID wv1: the camera aspect factor for a camera that renders into a page element. The race-results replay (app state 1, menu 3) draws the
+   course with the second camera into a 256 x 220 window that ui_camera_update_view_rect already keeps at its 4:3 shape (width squeezed by k);
+   a window widened to the mode's ratio would squeeze the picture again (a 16:9 view window into a 1.15:1 rect = 0.64 of the original width).
+   There the original 4:3 factor stays, so the picture is exactly the original one. Everywhere else = mfl_widescreen_fov_factor. */
+/*0076e7f4*/ extern undefined4 g_app_state;
+/*0069d1ec*/ extern int ui_get_menu_69d1ec(void);
+float mfl_widescreen_camera_factor(void)
+{
+  if (g_app_state == APP_STATE_MAIN_LOOP_INIT && ui_get_menu_69d1ec() == 3)
+    return g_camera_fov_factor;
+  return mfl_widescreen_fov_factor();
 }
 
 /* Step 2, the in-race HUD (EDGES layout). The HUD camera (camera_save: orthographic, view window 0.6 x 0.45 = 4:3) gets the mode's ratio,

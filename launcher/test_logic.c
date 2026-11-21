@@ -215,6 +215,7 @@ int os_copy(const char *a, const char *b)
 int os_delete(const char *p) { return !inj("delete", p, NULL) && (!unlink(p) || errno == ENOENT); }
 int os_mkdir(const char *p) { return !inj("mkdir", p, NULL) && !mkdir(p, 0777); }
 int os_rmdir(const char *p) { return !rmdir(p); }
+void os_rmtree(const char *p) { rm_rf(p); }
 long os_err(void) { return errno; }
 void os_list(const char *dir, void (*f)(const char *name, void *ctx), void *ctx)
 {
@@ -455,6 +456,48 @@ static void update_tests(const char *zip_path)
     CHECK(upd_clean(INST) == 0);
     want = both(G, "", v1); t_puts(want, "gamesave.bin.old", "mine"); t_puts(want, "MFL.exe.old", "mine"); t_puts(want, "Readme.txt.old", "mine"); t_puts(want, "notes.txt.new", "mine"); t_puts(want, "mflng/mods/a.dll.old", "mine");
     TREE(want, INST, "leftovers");
+
+    /* 11. the launcher exe cannot be renamed to .old (a user's report: Windows error 5, access denied).
+       a) the file can be written (the apply step runs from a copy, so the launcher is not running): it is written over */
+    fresh("self_rename");
+    v1 = relC(1); v2 = relC(2); unpack(INST, v1); puts_at(INST, SELF ".old", "left by an update before\n");
+    CHECK(stage(v2, NULL)); fail_on("rename", SELF ">", 0, 0);
+    CHECK(upd_apply(INST, DATA, SELF) == 1 && strstr(g_log, "replaced " SELF " by writing over it") && g_inj[0].fired); settle();
+    TREE(both(G, "", v2), INST, "launcher not renamable: written over"); TREE(both(INI, "backup/", v1), DATA, "launcher not renamable: backup = build 1");
+    /* b) it is in use as well (no rename, no write): everything else is installed, the new launcher waits as MFLng-launch.new.exe
+          (a start of the launcher swaps it in: launcher.c) and no cleanup takes it away */
+    fresh("self_busy");
+    v1 = relC(1); v2 = relC(2); unpack(INST, v1);
+    CHECK(stage(v2, NULL)); fail_on("rename", SELF ">", 0, 0); fail_on("write", "/game/" SELF ">", 0, 0);
+    CHECK(upd_apply(INST, DATA, SELF) == 2 && strstr(g_log, "takes its place at the next start")); settle();
+    want = both(G, "", v2); t_set(want, SELF, t_get(v1, SELF)->data, t_get(v1, SELF)->len); t_set(want, "MFLng-launch.new.exe", t_get(v2, SELF)->data, t_get(v2, SELF)->len);
+    TREE(want, INST, "launcher in use: the rest installed, the new launcher beside it"); TREE(both(INI, "backup/", v1), DATA, "launcher in use: backup = build 1");
+    /* c) and then another file fails: all of it goes back, the waiting launcher too (never half an update) */
+    fresh("self_busy_back");
+    v1 = relC(1); v2 = relC(2); unpack(INST, v1);
+    CHECK(stage(v2, NULL)); fail_on("rename", SELF ">", 0, 0); fail_on("write", "/game/" SELF ">", 0, 0); fail_on("rename", "dll.new>", 0, 0);
+    CHECK(upd_apply(INST, DATA, SELF) == 0); settle();
+    TREE(both(G, "", v1), INST, "launcher in use, then a failure: as before"); TREE(INI, DATA, "launcher in use, then a failure: data folder");
+    /* e) what an attempt before left behind (a user's report: error 183 at backup.prev, then error 5 at the launcher): a backup.prev
+          with folders this launcher does not know, .new files, a .old of the launcher.  The next update goes through and leaves none. */
+    fresh("stale");
+    v1 = relC(1); v2 = relC(2); unpack(INST, v1); unpack(DATA, both(t_new(), "backup/", relC(0)));
+    puts_at(DATA, "backup.prev/MFLng.exe", "older\n"); puts_at(DATA, "backup.prev/LICENSES/zlib.txt", "flat layout\n"); puts_at(DATA, "backup.prev/mods/deep/x.bin", "unknown folder\n");
+    puts_at(INST, SELF ".old", "stale\n"); puts_at(INST, SELF ".new", "stale\n"); puts_at(INST, "mflng/mfl_audio_miniaudio.dll.new", "stale\n"); puts_at(INST, "MFLng.exe.old", "stale\n");
+    CHECK(update(v2) == 1); settle();
+    TREE(both(G, "", v2), INST, "leftovers of an attempt before"); TREE(both(INI, "backup/", v1), DATA, "stale backup.prev: backup = build 1, one level");
+    /* the backup cannot be moved to backup.prev at all: the update goes on without the older backup */
+    fresh("no_rotate");
+    v1 = relC(1); v2 = relC(2); unpack(INST, v1); unpack(DATA, both(t_new(), "backup/", relC(0)));
+    CHECK(stage(v2, NULL)); fail_on("rename", "backup>", 0, 0);
+    CHECK(upd_apply(INST, DATA, SELF) == 1 && strstr(g_log, "the older backup is dropped")); settle();
+    TREE(both(G, "", v2), INST, "backup not movable"); TREE(both(INI, "backup/", v1), DATA, "backup not movable: backup = build 1");
+    /* d) any other file that cannot be renamed still rolls the update back */
+    fresh("other_rename");
+    v1 = relC(1); v2 = relC(2); unpack(INST, v1);
+    CHECK(stage(v2, NULL)); fail_on("rename", "mflrw.dll>", 0, 0);
+    CHECK(upd_apply(INST, DATA, SELF) == 0 && strstr(g_log, "FAIL: cannot rename")); settle();
+    TREE(both(G, "", v1), INST, "a DLL not renamable: rolled back");
 
     (void)v4;
     free(g_arena);

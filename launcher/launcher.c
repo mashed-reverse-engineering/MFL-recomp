@@ -33,7 +33,11 @@ enum { ID_PLAY = 100, ID_NOFIX, ID_EXIT, ID_MIN, ID_CLOSE, ID_STATUS, ID_AUTO, I
 enum { PIC_W = 640, PIC_H = 480 };      /* the original launcher's picture and window size (96 dpi; scaled by the system DPI) */
 enum { SK_BUSY, SK_INFO, SK_ERR, SK_UPD };
 
-static WCHAR g_exe[MAX_PATH], g_dir[MAX_PATH], g_data[MAX_PATH], g_ini[MAX_PATH], g_testzip[MAX_PATH], g_err[512], g_stat[200], *g_body;
+/* g_exe = the installed launcher; g_self = the file this process runs from (the same, but for an apply step that runs from a copy);
+   g_twin = <launcher>.new.exe once it has taken the launcher's place and can go */
+static WCHAR g_exe[MAX_PATH], g_self[MAX_PATH], g_twin[MAX_PATH + 8], g_dir[MAX_PATH], g_data[MAX_PATH], g_ini[MAX_PATH], g_testzip[MAX_PATH], g_err[512], g_stat[200], *g_body;
+static int g_inplace;
+#define BOX_FLAGS (MB_OK | MB_SETFOREGROUND | MB_TOPMOST)      /* a box of the apply step has no window to sit on: never behind others */
 static HWND g_wnd;
 static unsigned char *g_pic; static const BITMAPINFO *g_bi; static const unsigned char *g_bits;
 static Installed g_inst;
@@ -80,11 +84,64 @@ int os_exists(const char *p) { WCHAR w[UPD_PATH]; return exists(wp(p, w)); }
 int os_copy(const char *a, const char *b) { WCHAR x[UPD_PATH], y[UPD_PATH]; return CopyFileW(wp(a, x), wp(b, y), FALSE) != 0; }
 int os_mkdir(const char *p) { WCHAR w[UPD_PATH]; return CreateDirectoryW(wp(p, w), NULL) != 0; }
 int os_rmdir(const char *p) { WCHAR w[UPD_PATH]; return RemoveDirectoryW(wp(p, w)) != 0; }
-long os_err(void) { return (long)GetLastError(); }
-int os_rename(const char *a, const char *b)      /* Windows allows it for a running exe and a loaded DLL: this is how the launcher replaces itself */
+static void rmtree(WCHAR *w, size_t l)      /* w[UPD_PATH] holds the folder (l characters); a link (junction) is removed, never entered */
 {
-    WCHAR x[UPD_PATH], y[UPD_PATH]; wp(a, x); wp(b, y);
-    return MoveFileExW(x, y, MOVEFILE_WRITE_THROUGH) || MoveFileExW(x, y, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);      /* the second form is for files only */
+    WIN32_FIND_DATAW fd; HANDLE h; size_t n;
+    if (l + 2 < UPD_PATH && (wcscpy(w + l, L"\\*"), h = FindFirstFileW(w, &fd)) != INVALID_HANDLE_VALUE) {
+        do {
+            n = wcslen(fd.cFileName);
+            if (!wcscmp(fd.cFileName, L".") || !wcscmp(fd.cFileName, L"..") || l + 2 + n >= UPD_PATH) continue;
+            wcscpy(w + l + 1, fd.cFileName);
+            if (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) SetFileAttributesW(w, fd.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) DeleteFileW(w);
+            else if (fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) RemoveDirectoryW(w);
+            else rmtree(w, l + 1 + n);
+        } while (FindNextFileW(h, &fd));
+        FindClose(h);
+    }
+    w[l] = 0; RemoveDirectoryW(w);
+}
+void os_rmtree(const char *p) { WCHAR w[UPD_PATH]; size_t l = wcslen(wp(p, w)); if (l && !(GetFileAttributesW(w) & FILE_ATTRIBUTE_REPARSE_POINT)) rmtree(w, l); }
+long os_err(void) { return (long)GetLastError(); }
+/* a rename that failed for good: everything about it into the log, and the first one into the error box */
+static WCHAR g_fail[900];
+static void rename_failed(const WCHAR *x, const WCHAR *y, DWORD e)
+{
+    WCHAR msg[200] = L"", vol[MAX_PATH] = L"", fs[32] = L"unknown"; char x8[UPD_PATH], y8[UPD_PATH], m8[600], f8[100]; size_t l;
+    DWORD ax = GetFileAttributesW(x), ay = GetFileAttributesW(y);
+    FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, e, 0, msg, 199, NULL);
+    for (l = wcslen(msg); l && msg[l - 1] <= L' ';) msg[--l] = 0;
+    if (GetVolumePathNameW(x, vol, MAX_PATH)) GetVolumeInformationW(vol, NULL, 0, NULL, NULL, NULL, fs, 32);
+    u8(x, x8); u8(y, y8);
+    if (!WideCharToMultiByte(CP_UTF8, 0, msg, -1, m8, sizeof m8, NULL, NULL)) m8[0] = 0;
+    if (!WideCharToMultiByte(CP_UTF8, 0, fs, -1, f8, sizeof f8, NULL, NULL)) f8[0] = 0;
+    os_log("rename failed: %.900s -> %.900s: error %lu (%s); file system %s; source attributes 0x%lx; destination %s, attributes 0x%lx",
+           x8, y8, (unsigned long)e, m8, f8, (unsigned long)ax, ay == INVALID_FILE_ATTRIBUTES ? "does not exist" : "exists", (unsigned long)ay);
+    if (!g_fail[0]) WFMT(g_fail, L"Cannot rename %.300s (Windows error %lu: %s)\nDrive file system: %s.%s", x, e, msg, fs,
+                         e == ERROR_ACCESS_DENIED || e == ERROR_SHARING_VIOLATION ?
+                         L"\nA virus scanner or another program may hold the file, a second launcher window may be open, or the folder may be on a FAT/exFAT drive." : L"");
+}
+/* The plain move first (the only form for a folder), then over an existing file.  Access denied / in use: tried again for about 3 s
+   (a virus scanner lets go of a new file after its scan), and a read-only attribute is taken off. */
+int os_rename(const char *a, const char *b)
+{
+    WCHAR x[UPD_PATH], y[UPD_PATH]; DWORD e = 0, at; int i;
+    wp(a, x); wp(b, y);
+    for (i = 0; i < 12; i++) {
+        if (i) Sleep(250);
+        if (MoveFileExW(x, y, 0)) return 1;
+        e = GetLastError(); at = GetFileAttributesW(y);
+        if ((e == ERROR_ALREADY_EXISTS || e == ERROR_FILE_EXISTS) && at != INVALID_FILE_ATTRIBUTES && !(at & FILE_ATTRIBUTE_DIRECTORY)) {
+            if (at & FILE_ATTRIBUTE_READONLY) SetFileAttributesW(y, at & ~FILE_ATTRIBUTE_READONLY);
+            if (MoveFileExW(x, y, MOVEFILE_REPLACE_EXISTING)) return 1;
+            e = GetLastError();
+        }
+        if (e != ERROR_ACCESS_DENIED && e != ERROR_SHARING_VIOLATION) break;
+        at = GetFileAttributesW(x);
+        if (at != INVALID_FILE_ATTRIBUTES && (at & FILE_ATTRIBUTE_READONLY) && !(at & FILE_ATTRIBUTE_DIRECTORY)) SetFileAttributesW(x, at & ~FILE_ATTRIBUTE_READONLY);
+    }
+    rename_failed(x, y, e); SetLastError(e);
+    return 0;
 }
 int os_delete(const char *p)
 {
@@ -230,12 +287,16 @@ out:
     return 0;
 }
 
-/* staged tree ready: start this same exe again as the apply step (elevated only when the install dir is not writable) and exit.
-   No helper copy: the apply step renames the running launcher exe (Windows allows renaming a running image) and puts the new one in place.
-   Elevated, the started exe is the INSTALLED one in the protected folder, which a non-admin process cannot have swapped. */
+/* staged tree ready: start the apply step and exit.  The apply step is a COPY of this exe in the data folder (APPLY_EXE), so that
+   no process runs from MFLng-launch.exe while it is replaced: renaming a running image is not something every volume, virus scanner
+   or leftover <name>.old allows (a user's update stopped there with error 5).  If the copy cannot be made or started, and when the
+   folder needs administrator rights, the installed exe itself is the apply step: elevated, it must be the one in the protected
+   folder, which a process without those rights cannot have swapped; if the rename fails there, the new launcher waits as
+   <name>.new.exe for the next start (finish_swap). */
+#define APPLY_EXE L"mflng-apply.exe"
 static void start_apply(void)
 {
-    WCHAR t[UPD_PATH], args[MAX_PATH + 64]; char st[UPD_PATH], p[UPD_PATH], names[UPD_MAXF][128];
+    WCHAR t[UPD_PATH], args[2 * MAX_PATH + 96], hp[MAX_PATH]; char st[UPD_PATH], p[UPD_PATH], names[UPD_MAXF][128];
     HANDLE h; DWORD err = 0; int i, n, elev = 0;
     upd_path(st, g_data8, "update");
     pj(t, g_dir, L"mflng-write-test.tmp");
@@ -251,7 +312,8 @@ static void start_apply(void)
     if (elev && MessageBoxW(g_wnd, L"The install folder needs administrator rights to update. Continue with administrator rights?", L"MFLng update", MB_YESNO | MB_ICONQUESTION) != IDYES) {
         status(L"Update cancelled. Nothing was changed."); upd_clear(st); return;
     }
-    WFMT(args, L"--apply-update %lu \"%s\"%s", GetCurrentProcessId(), g_data, elev ? L" --elevated" : L"");
+    if (elev) WFMT(args, L"--apply-update %lu \"%s\" --elevated", GetCurrentProcessId(), g_data);
+    else WFMT(args, L"--apply-update %lu \"%s\" --for \"%s\"", GetCurrentProcessId(), g_data, g_exe);
     if (elev) {
         SHELLEXECUTEINFOW se; memset(&se, 0, sizeof se); se.cbSize = sizeof se; se.fMask = SEE_MASK_NOASYNC; se.hwnd = g_wnd;
         se.lpVerb = L"runas"; se.lpFile = g_exe; se.lpParameters = args; se.lpDirectory = g_dir; se.nShow = SW_SHOWNORMAL;
@@ -262,9 +324,14 @@ static void start_apply(void)
             return;
         }
     } else {
-        STARTUPINFOW si; PROCESS_INFORMATION pi; WCHAR cmd[2 * MAX_PATH + 64];
-        memset(&si, 0, sizeof si); si.cb = sizeof si; WFMT(cmd, L"\"%s\" %s", g_exe, args);
-        if (!CreateProcessW(g_exe, cmd, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { status(L"Cannot start the update step (error %lu).", GetLastError()); upd_clear(st); return; }
+        STARTUPINFOW si; PROCESS_INFORMATION pi; WCHAR cmd[3 * MAX_PATH + 128]; const WCHAR *run;
+        pj(hp, g_data, APPLY_EXE);
+        for (i = g_inplace || !CopyFileW(g_exe, hp, FALSE);; i++) {      /* the copy first; this exe itself if that does not start */
+            run = i ? g_exe : hp;
+            memset(&si, 0, sizeof si); si.cb = sizeof si; WFMT(cmd, L"\"%s\" %s", run, args);
+            if (CreateProcessW(run, cmd, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) break;
+            if (i) { status(L"Cannot start the update step (error %lu).", GetLastError()); upd_clear(st); return; }
+        }
         CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
     }
     DestroyWindow(g_wnd);      /* the apply step waits for this process to end */
@@ -280,15 +347,20 @@ static int apply_update(DWORD pid, int elevated)
     static const WCHAR *const tree[] = { L"", L"\\update", L"\\backup", L"\\backup.prev" }, *const sub[] = { L"", L"\\mflng", L"\\mflng\\LICENSES", L"\\LICENSES" };
     static const WCHAR *const game[] = { L"MFLng.exe", L"MFLng.nofix.exe" };
     const WCHAR *why = L"The update failed and nothing was changed (the previous version stays).";
-    WCHAR p[UPD_PATH], q[MAX_PATH + 4], lg[MAX_PATH], lg1[MAX_PATH], m[2 * MAX_PATH + 200], *self = wcsrchr(g_exe, L'\\') + 1;
+    WCHAR p[UPD_PATH], q[MAX_PATH + 4], lg[MAX_PATH], lg1[MAX_PATH], m[2 * MAX_PATH + 1400], *self = wcsrchr(g_exe, L'\\') + 1;
     char self8[UPD_PATH], p8[UPD_PATH], st[UPD_PATH]; int r = 0, i, k; HANDLE pr, mx, h; DWORD w;
     /* a launcher started meanwhile leaves the staging dir alone while this mutex exists; a second apply step does not get it and goes */
     mx = CreateMutexW(NULL, FALSE, L"MFLngLauncherUpdate");
-    if (mx && WaitForSingleObject(mx, 0) == WAIT_TIMEOUT) { CloseHandle(mx); return 1; }
+    if (mx && WaitForSingleObject(mx, 0) == WAIT_TIMEOUT) {
+        CloseHandle(mx);
+        MessageBoxW(NULL, L"Another update step is still running. Its message window may be open behind other windows: close it, then update again.", L"MFLng update", BOX_FLAGS | MB_ICONWARNING);
+        return 1;
+    }
     g_elev = elevated; u8(self, self8); upd_path(st, g_data8, "update");
     pj(lg, g_data, L"update.log"); pj(lg1, g_data, L"update.prev.log");
     MoveFileExW(lg, lg1, MOVEFILE_REPLACE_EXISTING);      /* keep the previous log only */
-    os_log("apply %s (%s): pid %lu, install dir %s, data dir %s, elevated %d", LAUNCHER_VERSION, self8, (unsigned long)pid, g_dir8, g_data8, elevated);
+    u8(g_self, p8);
+    os_log("apply %s (%s, this step runs from %s): pid %lu, install dir %s, data dir %s, elevated %d", LAUNCHER_VERSION, self8, p8, (unsigned long)pid, g_dir8, g_data8, elevated);
     if ((pr = OpenProcess(SYNCHRONIZE, FALSE, pid))) {
         w = WaitForSingleObject(pr, 15000); CloseHandle(pr);
         if (w == WAIT_TIMEOUT) { os_log("FAIL: the launcher (pid %lu) did not exit within 15 s", (unsigned long)pid); goto end; }
@@ -312,16 +384,39 @@ static int apply_update(DWORD pid, int elevated)
     r = upd_apply(g_dir8, g_data8, self8);
     if (r < 0) why = L"The update failed and not every file could be put back. The files of the previous version are in the backup folder (see the log).";
 end:
-    if (r != 1) {
+    if (r < 1) {
         upd_clear(st);
-        WFMT(m, L"%s\nDetails: %s", why, lg); MessageBoxW(NULL, m, L"MFLng update", MB_OK | MB_ICONERROR);
+        WFMT(m, L"%s\n\n%s%sDetails: %s", why, g_fail, g_fail[0] ? L"\n\n" : L"", lg); MessageBoxW(NULL, m, L"MFLng update", BOX_FLAGS | MB_ICONERROR);
     }
     if (mx) { ReleaseMutex(mx); CloseHandle(mx); }
-    /* g_exe = the path this process started from: now the new (or the restored) launcher */
+    /* g_exe = the installed launcher: now the new or the restored one, or (r 2) still the old one, whose start swaps the waiting
+       <name>.new.exe in (wWinMain) */
     if (elevated) ShellExecuteW(NULL, L"open", L"explorer.exe", g_exe, NULL, SW_SHOWNORMAL);      /* explorer starts it unelevated (the user's shell) */
     else { STARTUPINFOW si; PROCESS_INFORMATION pi; WFMT(q, L"\"%s\"", g_exe); memset(&si, 0, sizeof si); si.cb = sizeof si;
            if (CreateProcessW(g_exe, q, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { CloseHandle(pi.hThread); CloseHandle(pi.hProcess); } }
-    return r == 1 ? 0 : 1;
+    return r < 1;
+}
+
+/* ---- <name>.new.exe --finish-swap <pid> <launcher exe> <data dir>: an update could not replace the launcher exe while it ran and
+   left the new one beside it (upd_apply answer 2).  The launcher finds it at its start, starts it this way and exits; this (the new
+   exe, running from its own file) waits for that, takes the launcher's place and starts it.  The launcher then deletes the twin. */
+static int finish_swap(DWORD pid, const WCHAR *target)
+{
+    WCHAR o[MAX_PATH + 8], m[2 * MAX_PATH + 1400], q[MAX_PATH + 16]; char t8[UPD_PATH], o8[UPD_PATH], s8[UPD_PATH]; HANDLE pr; int ok;
+    STARTUPINFOW si; PROCESS_INFORMATION pi;
+    if ((pr = OpenProcess(SYNCHRONIZE, FALSE, pid))) { WaitForSingleObject(pr, 15000); CloseHandle(pr); }
+    WFMT(o, L"%s.old", target); u8(target, t8); u8(o, o8); u8(g_self, s8);
+    if (os_rename(t8, o8)) { if (!(ok = os_copy(s8, t8))) os_rename(o8, t8); }      /* the .old goes at the launcher's start (upd_clean) */
+    else ok = os_copy(s8, t8);
+    os_log(ok ? "launcher replaced by %s" : "FAIL: cannot replace the launcher by %s (error %ld)", s8, os_err());
+    if (!ok) {
+        WFMT(m, L"The new launcher could not take the place of\n%s\n\n%s%sThe update itself is installed. Close every launcher window and copy\n%s\nover it by hand.",
+             target, g_fail, g_fail[0] ? L"\n\n" : L"", g_self);
+        MessageBoxW(NULL, m, L"MFLng update", BOX_FLAGS | MB_ICONWARNING);
+    }
+    WFMT(q, L"\"%s\"%s", target, ok ? L"" : L" --no-swap"); memset(&si, 0, sizeof si); si.cb = sizeof si;
+    if (CreateProcessW(target, q, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) { CloseHandle(pi.hThread); CloseHandle(pi.hProcess); }
+    return !ok;
 }
 
 /* ---- picture: the 24/32-bit BMP inside the user's launch.exe (VB form data), else TOASTART\PC\Setup.bmp ---- */
@@ -580,30 +675,47 @@ static LRESULT CALLBACK wndproc(HWND w, UINT m, WPARAM wp, LPARAM lp)
 
 static DWORD WINAPI cleanup_thread(LPVOID unused)      /* leftovers of the last update: the apply step that started us may still be exiting */
 {
-    char st[UPD_PATH]; HANDLE mx; int i;
-    (void)unused; upd_path(st, g_data8, "update");
+    char st[UPD_PATH]; HANDLE mx; int i, left; WCHAR hp[MAX_PATH];
+    (void)unused; upd_path(st, g_data8, "update"); pj(hp, g_data, APPLY_EXE);
     /* an update is being applied: its .old files are its way back, leave everything (a mutex made with administrator rights may
        refuse to open: it exists all the same).  The apply step lets go of it before it starts us. */
     if ((mx = OpenMutexW(SYNCHRONIZE, FALSE, L"MFLngLauncherUpdate")) || GetLastError() == ERROR_ACCESS_DENIED) { if (mx) CloseHandle(mx); return 0; }
-    for (i = 0; i < 30 && upd_clean(g_dir8); i++) Sleep(100);      /* <name>.old / .new of release files (a protected dir: the reboot does it) */
+    for (i = 0; i < 30; i++) {      /* <name>.old / .new of release files (a protected dir: the reboot does it), the apply step's copy, the twin */
+        left = upd_clean(g_dir8);
+        left += !DeleteFileW(hp) && GetLastError() != ERROR_FILE_NOT_FOUND;
+        left += g_twin[0] && !DeleteFileW(g_twin) && GetLastError() != ERROR_FILE_NOT_FOUND;
+        if (!left) break;
+        Sleep(100);
+    }
     upd_clear(st);      /* a staging dir left by a crash or a closed launcher */
     return 0;
 }
 
 int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
 {
-    int argc, i; WCHAR **argv = CommandLineToArgvW(GetCommandLineW(), &argc), p[MAX_PATH], v[32], base[MAX_PATH]; WNDCLASSW wc; MSG msg; HANDLE t;
+    int argc, i, noswap = 0; WCHAR **argv = CommandLineToArgvW(GetCommandLineW(), &argc), p[MAX_PATH], v[32], base[MAX_PATH], *dot; WNDCLASSW wc; MSG msg; HANDLE t;
     char *bi;
     (void)prev; (void)cl;
-    GetModuleFileNameW(NULL, g_exe, MAX_PATH);
-    wcscpy(g_dir, g_exe); *wcsrchr(g_dir, L'\\') = 0; u8(g_dir, g_dir8);
+    GetModuleFileNameW(NULL, g_exe, MAX_PATH); wcscpy(g_self, g_exe);
     if (argc >= 4 && !wcscmp(argv[1], L"--apply-update")) {
+        int elev = argc > 4 && !wcscmp(argv[4], L"--elevated");
+        /* --for <launcher exe>: this is the copy in the data folder.  Never with administrator rights: there the step works on the
+           folder it lies in, and nobody can point it at another one. */
+        if (!elev && argc > 5 && !wcscmp(argv[4], L"--for") && wcsrchr(argv[5], L'\\')) { wcsncpy(g_exe, argv[5], MAX_PATH - 1); g_exe[MAX_PATH - 1] = 0; }
+        wcscpy(g_dir, g_exe); *wcsrchr(g_dir, L'\\') = 0; u8(g_dir, g_dir8);
         wcsncpy(g_data, argv[3], MAX_PATH - 1); u8(g_data, g_data8);
-        return apply_update(wcstoul(argv[2], NULL, 10), argc > 4 && !wcscmp(argv[4], L"--elevated"));
+        return apply_update(wcstoul(argv[2], NULL, 10), elev);
+    }
+    wcscpy(g_dir, g_exe); *wcsrchr(g_dir, L'\\') = 0; u8(g_dir, g_dir8);
+    if (argc >= 5 && !wcscmp(argv[1], L"--finish-swap")) {
+        wcsncpy(g_data, argv[4], MAX_PATH - 1); u8(g_data, g_data8);
+        return finish_swap(wcstoul(argv[2], NULL, 10), argv[3]);
     }
     for (i = 1; i < argc; i++) {
         if (!wcscmp(argv[i], L"--test-update-zip") && i + 1 < argc) GetFullPathNameW(argv[++i], MAX_PATH, g_testzip, NULL);
         else if (!wcscmp(argv[i], L"--test-force-elevate")) g_force_elev = 1;
+        else if (!wcscmp(argv[i], L"--test-apply-in-place")) g_inplace = 1;
+        else if (!wcscmp(argv[i], L"--no-swap")) noswap = 1;
     }
     /* data dir: %LOCALAPPDATA%\mflng-launch (the game folder may be protected); portable.txt beside this exe -> <exe dir>\mflng\mflng-launch
        (W17 LAYOUT C: inside the MFLng sub folder, so the game folder gets nothing more) */
@@ -612,6 +724,20 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE prev, LPWSTR cl, int show)
     else pj(g_data, base, L"mflng-launch");
     CreateDirectoryW(g_data, NULL); u8(g_data, g_data8);
     pj(g_ini, g_data, L"mflng-launch.ini");
+    /* <name>.new.exe beside this exe: a launcher an update could not put in place while this one ran.  The same bytes: done, it goes.
+       Else it takes this exe's place now (finish_swap), unless that just failed (--no-swap). */
+    if ((dot = wcsrchr(g_exe, L'.')) && dot > wcsrchr(g_exe, L'\\')) {
+        size_t a = 0, b = 0; unsigned char *x, *y;
+        WFMT(g_twin, L"%.*s.new%s", (int)(dot - g_exe), g_exe, dot);
+        x = read_file(g_exe, &a); y = read_file(g_twin, &b);
+        if (y && !(x && a == b && !memcmp(x, y, a))) {
+            STARTUPINFOW si; PROCESS_INFORMATION pi; WCHAR cmd[4 * MAX_PATH + 64];
+            g_twin[MAX_PATH - 1] = 0; WFMT(cmd, L"\"%s\" --finish-swap %lu \"%s\" \"%s\"", g_twin, GetCurrentProcessId(), g_exe, g_data); memset(&si, 0, sizeof si); si.cb = sizeof si;
+            if (!noswap && CreateProcessW(g_twin, cmd, NULL, NULL, FALSE, 0, NULL, g_dir, &si, &pi)) return 0;
+            g_twin[0] = 0;      /* not swapped: it stays for the next start */
+        } else if (!y) g_twin[0] = 0;
+        free(x); free(y);
+    }
     if ((t = CreateThread(NULL, 0, cleanup_thread, NULL, 0, NULL))) CloseHandle(t);
     pj(p, g_dir, L"mflng\\BUILDINFO.txt"); bi = (char *)read_file(p, NULL); parse_buildinfo(bi, &g_inst); free(bi);
     /* an install of the flat layout before mflng\ has it beside the exes: without it the build is "unknown", the channel falls to

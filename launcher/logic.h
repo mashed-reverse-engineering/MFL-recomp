@@ -54,6 +54,7 @@ int os_copy(const char *from, const char *to);
 int os_delete(const char *path);                              /* 1 = the file is gone */
 int os_mkdir(const char *path);                               /* 1 = created by this call */
 int os_rmdir(const char *path);                               /* an empty folder only */
+void os_rmtree(const char *path);                             /* a folder with all it holds; a link in it is removed, never followed (only <data>/backup*) */
 void os_list(const char *dir, void (*f)(const char *name, void *ctx), void *ctx);   /* the files of dir, no folders */
 long os_err(void);                                            /* error code of the last failed call, for the log */
 void os_log(const char *fmt, ...);                            /* one line of update.log */
@@ -65,6 +66,7 @@ int upd_clean(const char *install);                           /* delete <release
 /* zip -> <stage>: 1 = verified and staged; 0 = refused, err says why, nothing is left.  tag: the BUILDINFO release tag it must have (NULL = any) */
 int upd_stage(const unsigned char *zip, size_t n, const char *stage, const char *tag, char *err, size_t cap);
 /* <data>/update -> <install>, old files to <data>/backup.  self = file name of the running launcher (never removed).
-   1 = installed; 0 = failed, the game folder is as before; -1 = failed and not everything could be put back (<data>/backup has the files) */
+   1 = installed; 2 = installed, but the launcher exe is in use and could not be moved: the new one lies beside it as <name>.new.exe
+   for the next start; 0 = failed, the game folder is as before; -1 = failed and not everything could be put back (<data>/backup has the files) */
 int upd_apply(const char *install, const char *data, const char *self);
 #endif
