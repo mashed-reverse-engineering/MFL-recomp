@@ -65,18 +65,37 @@ static int mode_list_n;
 
 static int mode_value(const struct RwVideoMode *mode) { return (mode->width << 16) | mode->height; }
 
-/* the full-screen 32 bit mode of that size, else -1 */
+/* the full-screen 32 bit mode of that size, else -1; a plain one (flags == full screen only) before an interlaced / anti-aliased variant of it */
 static int mode_find(int value)
 {
   struct RwVideoMode mode;
   int i;
+  int first = -1;
   int n = RwEngineGetNumVideoModes();
 
   for (i = 0; i < n; i++) {
     RwEngineGetVideoModeInfo(&mode, i);
-    if ((mode.flags & MODE_EXCLUSIVE) != 0 && mode.depth == 32 && mode_value(&mode) == value) return i;
+    if ((mode.flags & MODE_EXCLUSIVE) == 0 || mode.depth != 32 || mode_value(&mode) != value) continue;
+    if (mode.flags == MODE_EXCLUSIVE) return i;
+    if (first < 0) first = i;
   }
-  return -1;
+  return first;
+}
+
+/* videocfg.bin as loaded: the adapter and mode indices must exist (the original takes them unchecked).  A file that fails is treated as absent
+   (the caller's defaults, then saved again); its option words are cleared to the no-file values.  The file version is not tested. */
+static int cfg_valid(void)
+{
+  int ok = g_video_cfg.subsystem_index < (unsigned int)g_app_771500 &&
+           g_video_cfg.mode_index < (unsigned int)*(int *)(g_video_mode_counts + (int)g_video_cfg.subsystem_index * 4);
+
+  if (!ok) {
+    g_video_cfg.no_multitexture = 0;
+    g_video_cfg.no_dynamic_shadows = 0;
+    g_video_cfg.trilinear = 0;
+    g_video_cfg.no_env_effects = 0;
+  }
+  return ok;
 }
 
 /* mfl_video_modes_api (the Preferences page's Resolution row): count / name / current / choose over mfl_video_mode_list */
@@ -259,6 +278,9 @@ undefined4 __cdecl video_config_dialog(int show_dialog)
   }
   if (show_dialog == 0) {
     subsystem = video_cfg_load();
+#if MFL_FIX_PREFS
+    if (subsystem != 0 && !cfg_valid()) subsystem = 0;
+#endif
     if (subsystem != 0) {
       g_video_subsystem_index = g_video_cfg.subsystem_index;
       g_video_7712f0 = g_video_cfg.mode_index;
@@ -266,9 +288,18 @@ undefined4 __cdecl video_config_dialog(int show_dialog)
     }
     g_video_subsystem_index = 0;
     g_video_7712f0 = video_mode_find_first_640x480_plus();
+#if MFL_FIX_PREFS
+    g_video_cfg.no_dynamic_shadows = 0;      /* no (valid) file: the setup dialog's own initial boxes (the original left them zero: trilinear off) */
+    g_video_cfg.trilinear = 1;
+    g_video_cfg.no_env_effects = 0;
+    g_video_cfg.no_multitexture = 0;
+#endif
   }
   else {
     subsystem = video_cfg_load();
+#if MFL_FIX_PREFS
+    if (subsystem != 0 && !cfg_valid()) subsystem = 0;
+#endif
     if (subsystem == 0) {
       g_video_cfg.no_dynamic_shadows = 0;
       g_video_cfg.trilinear = 1;

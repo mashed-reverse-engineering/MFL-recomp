@@ -4164,7 +4164,7 @@ video_raster_create_forward,0048cfd0,tier1,bytes,bytes-reloc,5cd7fc8ad387,33bf93
 video_raster_destroy,004a5f00,tier1,bytes,bytes-reloc,897f4bd44b6a,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 video_select_and_set_mode,004a4330,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,7bb9ffc2481e,200,1.00,0,0
 video_set_flag_771058_by_mode,004a6910,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,e5cf349db101,33bf93632a05,7bb9ffc2481e,200,1.00,0,1
-video_texture_setup,004a3fe0,tier1,bytes,bytes-reloc,7e95547fa358,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
+video_texture_setup,004a3fe0,tier1,bytes,bytes-reloc,e790ded7097d,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 video_texture_setup_004a4040,004a4040,tier1,bytes,bytes-reloc,48f493102dad,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 viewport_camera_sync_to_main,00452b90,hand,near-regress-only,static,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0
 viewport_get_camera,00495c30,hand,bytes,bytes-reloc,-,33bf93632a05,7bb9ffc2481e,0,0.00,0,0

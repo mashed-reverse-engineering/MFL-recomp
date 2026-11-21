@@ -18,7 +18,7 @@ typedef struct {
 } mfl_video_frame;
 
 /* Open and start paused-or-playing. path = game-relative path from the movie table
- * (e.g. "toastart\\pc\\movies\\frontend.mpg"). loop: 0 = play once (all current callers).
+ * (e.g. "toastart\\pc\\movies\\frontend.mpg"). loop: 0 = play once, 1 = restart at the end of the stream (the menu backdrop; finished() never turns 1).
  * Returns NULL on failure (original: message box "Could not ..." + HRESULT, see doc). */
 mfl_video *mfl_video_open(const char *path, int loop);
 

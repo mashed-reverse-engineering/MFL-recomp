@@ -11,6 +11,7 @@
 extern int g_movie_renderer_76e8a8;          /* the movie number */
 extern const char *PTR_s_toastart_pc_movies_frontend_mpg_0062ad3c[];   /* movie file names */
 extern mfl_video *g_movie_video;
+extern undefined4 g_app_76e894;                    /* keep-active flag of video_texture_setup (set before the open): 1 = the movie loops (menu backdrop) */
 extern RwRaster *g_app_76e8a4;               /* the movie raster (video_texture_setup creates a 0x0 placeholder) */
 extern float g_app_76e878, g_app_76e87c, g_app_76e880, g_app_76e884;     /* video size and texture size as floats (app_get_two_size_pairs) */
 
@@ -39,7 +40,7 @@ static void movie_raster_create(void)
 int movie_renderer_create(int movie)
 {
   g_movie_renderer_76e8a8 = movie;
-  g_movie_video = mfl_video_open(PTR_s_toastart_pc_movies_frontend_mpg_0062ad3c[movie], 0);
+  g_movie_video = mfl_video_open(PTR_s_toastart_pc_movies_frontend_mpg_0062ad3c[movie], g_app_76e894 != 0);
   if (g_movie_video == 0) return E_FAIL_HRESULT;
   if (!mfl_video_start(g_movie_video)) { mfl_video_close(g_movie_video); g_movie_video = 0; return E_FAIL_HRESULT; }
   movie_raster_create();

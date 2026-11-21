@@ -15,7 +15,9 @@ void video_texture_setup(undefined4 param_1_unused,undefined4 movie_resource_id,
   g_app_76e8a4 = RwRasterCreate(0,0,0,RWRASTER_FORMAT_DEFAULT_CAMERATEXTURE);
   /* Initialize the movie rendering pipeline using the provided movie identifier */
   /* active only when the movie player could open the movie (the null backend never does: the movie is skipped) */
-  g_app_76e890 = (movie_renderer_create(movie_resource_id) == 0);
+  /* the keep-active flag is set before the open: movie_renderer_create passes it as the backend's loop flag (the menu backdrop restarts at the
+     end of the stream, the original's EC_COMPLETE handler in movie_renderer_poll rewound it; the intro movies end) */
   g_app_76e894 = display_flag;
+  g_app_76e890 = (movie_renderer_create(movie_resource_id) == 0);
   return;
 }

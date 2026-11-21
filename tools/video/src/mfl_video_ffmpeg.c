@@ -47,7 +47,9 @@ struct mfl_video {
     int shown;                     /* show holds a frame */
     int dirty;                     /* show changed since the last acquire */
     int eof, ended, finished;
-    int64_t t0;                    /* av_gettime_relative() at start, -1 = not started */
+    int loop;                      /* open(loop != 0): at the end of the stream seek back to the start instead of ending (the menu backdrop) */
+    int64_t pass_start;            /* ndecoded when the current pass began (a pass without a frame ends the loop: no endless seek) */
+    int64_t t0;                   /* av_gettime_relative() at start, -1 = not started */
     int64_t pts0;                  /* pts of the first frame (AV_NOPTS_VALUE until seen) */
     int64_t next_us, show_us;      /* presentation times relative to the first frame, us */
     int64_t frame_dur_us;
@@ -145,6 +147,20 @@ fail:
     if (v->dump) { fclose(v->dump); v->dump = NULL; }
 }
 
+/* Loop: back to byte 0 (MPEG-PS, the original's EC_COMPLETE handler did put_CurrentPosition(0)), flush both decoders, and let the next frame
+ * continue the timeline one frame after the last one (decode(): expect = show_us + frame_dur_us once ndecoded > 0, pts0 re-derived).
+ * The audio packets keep flowing into the ring, so the sound loops without a gap. 1 = rewound, 0 = not looping / seek failed. */
+static int rewind_stream(mfl_video *v)
+{
+    if (!v->loop || v->ndecoded <= v->pass_start || av_seek_frame(v->fmt, -1, 0, AVSEEK_FLAG_BYTE) < 0) return 0;
+    avcodec_flush_buffers(v->dec);
+    if (v->adec) avcodec_flush_buffers(v->adec);
+    v->eof = 0;
+    v->pts0 = AV_NOPTS_VALUE;
+    v->pass_start = v->ndecoded;
+    return 1;
+}
+
 /* Decodes the next video frame into v->next. 1 = frame, 0 = end of stream (sets ended). */
 static int decode(mfl_video *v)
 {
@@ -165,8 +181,11 @@ static int decode(mfl_video *v)
             v->ndecoded++;
             return v->pending = 1;
         }
-        if (r != AVERROR(EAGAIN)) { v->ended = 1; return v->pending = 0; }   /* AVERROR_EOF after drain, or a decode error */
-        if (v->eof) { v->ended = 1; return v->pending = 0; }
+        if (r != AVERROR(EAGAIN) || v->eof) {   /* AVERROR_EOF after drain, or a decode error */
+            if (rewind_stream(v)) continue;
+            v->ended = 1;
+            return v->pending = 0;
+        }
         r = av_read_frame(v->fmt, v->pkt);
         if (r < 0) { v->eof = 1; avcodec_send_packet(v->dec, NULL); continue; }   /* drain the decoder */
         if (v->pkt->stream_index == v->stream) avcodec_send_packet(v->dec, v->pkt);
@@ -211,8 +230,8 @@ EXPORT mfl_video *mfl_video_open(const char *path, int loop)
     mfl_video *v = calloc(1, sizeof *v);
     const AVCodec *codec = NULL;
     AVRational fr;
-    (void)loop;   /* ponytail: every caller passes 0; seek to 0 on end when a looping caller appears */
     if (!v) return NULL;
+    v->loop = loop;
     v->t0 = -1;
     v->pts0 = AV_NOPTS_VALUE;
     v->astream = -1;               /* set before the first decode(): open reads packets */

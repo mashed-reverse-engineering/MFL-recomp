@@ -15,7 +15,9 @@
  *     (on the category list: the rows of the selected category).
  *   - mfl_menu_update_scaled (hook in app_state_frontend_frame): menu_speed.
  * Rows whose key is read only at start (display mode, language, intro movies, unlock all) change the file only; the others change
- * mfl_prefs at once too.  unlock_all is never switched live: mfl_unlock_all_force keeps the real save words only once per run. */
+ * mfl_prefs at once too.  The Performance category and the Display adapter row are the original setup dialog's controls: their values stay in
+ * videocfg.bin (g_video_cfg, written by the game's own video_cfg_save when the page is left), their captions are the dialog's own strings.
+ * unlock_all is never switched live: mfl_unlock_all_force keeps the real save words only once per run. */
 #include "mfl_fix.h"
 #if MFL_FIX_PREFS      /* (build_overlay.py leaves the file out without the switch; this keeps any other build of it empty) */
 #include "mfl_consts.h"
@@ -29,6 +31,18 @@
 /*0069d6a8*/ extern int g_menu_select_pressed;
 /*007ef7ec*/ extern float g_frame_seconds;
 /*0076e7f4*/ extern int g_app_state;
+/* the setup dialog's own state (clusters/cl_video_config_dialog.c): videocfg.bin as loaded, the adapter and mode lists */
+/*007712f8*/ extern struct VideoCfg g_video_cfg;
+/*00771500*/ extern int g_app_771500;               /* number of adapters */
+/*007712ec*/ extern char *g_video_7712ec;           /* adapter names, 0x50 bytes each */
+/*007712e8*/ extern int *g_video_mode_counts;       /* modes per adapter */
+/*007714f8*/ extern char **g_video_mode_lists;      /* per adapter, 0x18 bytes per mode: width, height, depth, flags, ... */
+/*007e7700*/ extern int g_app_7e7700;               /* resource module handle (the original exe's strings) */
+/*0064d8a0*/ extern int g_race_64d8a0;              /* environmental effects off (copied from videocfg.bin once at start) */
+/*0064d89c*/ extern int g_round_64d89c;
+/*005fb098*/ extern int g_course_5fb098;            /* trilinear (course texture format) */
+extern int video_cfg_save(void);                    /* the original's writer: g_video_cfg, 0x200 bytes */
+extern __declspec(dllimport) int __stdcall LoadStringA(int module, unsigned int id, char *text, int size);
 /*004463e0*/ extern void menu_update(void);
 /*004300b0*/ extern int menu_back_pressed_any(void);
 /*00430510*/ extern int menu_left_pressed_any(void);
@@ -63,13 +77,15 @@
 #define TEXT_ON 0x5d
 
 enum text {
-  T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION, T_NEXT_START,
-  T_AT_ONCE, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
+  T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION,
+  T_ADAPTER, T_SHADOWS, T_MULTITEX, T_TRILINEAR, T_ENV,      /* the rows' captions, in the order of k_desc */
+  T_NEXT_START, T_AT_ONCE, T_NEXT_RACE, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
   T_FPS_60, T_FPS_30, T_FPS_UNLIMITED,
-  T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_COUNT
+  T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_CAT_PERF, T_COUNT
 };
 #define T_LINE0 0x100      /* text ids T_LINE0.. = the word-wrapped lines of the description box (line_buf) */
 #define T_MODE_NAME 0x180  /* text id of the Resolution row's value (mode_buf) */
+#define T_ADAPTER_NAME 0x181  /* the Display adapter row's value (adapter_buf) */
 #define LINES 10
 #define LINE_CHARS 64
 
@@ -88,9 +104,17 @@ static const char *const k_text[T_COUNT][5] = {
   { "Frame rate limit", "Limite d'images", "Bildratenlimit", "L\xedmite de FPS", "Limite FPS" },
   { "Vsync", "Synchro verticale", "VSync", "Sincronizaci\xf3n vertical", "Sincronia verticale" },
   { "Resolution", "R\xe9solution", "Aufl\xf6sung", "Resoluci\xf3n", "Risoluzione" },
+  { "Display adapter", "Carte graphique", "Grafikkarte", "Tarjeta gr\xe1" "fica", "Scheda video" },
+  /* the next four are the original dialog's own strings at run time (k_orig); these are only the fallback when the resource is missing or too long */
+  { "Dynamic shadows", "Ombres dynamiques", "Dyn. Schatten", "Sombras", "Ombre" },
+  { "Multi-texturing", "Multi-texturage", "Multi-Texturing", "Multitexturas", "Multitexture" },
+  { "Trilinear filtering", "Filtrage trilin\xe9" "aire", "Trilinearer Filter", "Filtrado trilineal", "Filtro trilineare" },
+  { "Environment effects", "Effets du d\xe9" "cor", "Umgebungseffekte", "Efectos del entorno", "Effetti ambiente" },
   { "Applies at the next start.", "Effet au prochain d\xe9marrage.", "Gilt ab dem n\xe4" "chsten Start.", "Se aplica al reiniciar.",
     "Vale dal prossimo avvio." },
   { "Applies at once.", "Effet imm\xe9" "diat.", "Gilt sofort.", "Se aplica al momento.", "Vale subito." },
+  { "Applies from the next race.", "Effet d\xe8s la prochaine course.", "Gilt ab dem n\xe4" "chsten Rennen.", "Se aplica desde la pr\xf3xima carrera.",
+    "Vale dalla prossima gara." },
   { "Fullscreen", "Plein \xe9" "cran", "Vollbild", "Completa", "Schermo intero" },
   { "Windowed", "Fen\xeatr\xe9", "Fenster", "Ventana", "Finestra" },
   { "Borderless", "Sans bordure", "Randlos", "Sin bordes", "Senza bordi" },
@@ -111,10 +135,11 @@ static const char *const k_text[T_COUNT][5] = {
   { "Comfort", "Confort", "Komfort", "Comodidad", "Comfort" },
   { "Cheats", "Triches", "Cheats", "Trucos", "Trucchi" },
   { "Other", "Autres", "Sonstiges", "Otros", "Altro" },
+  { "Performance", "Performances", "Leistung", "Rendimiento", "Prestazioni" },      /* the original's string 2240 is used when it is short enough (k_orig) */
 };
 
 /* the description box text of each row (same order as the row captions T_DISPLAY..T_RESOLUTION); "Off" words = the game's own Off text */
-static const char *const k_desc[T_RESOLUTION - T_DISPLAY + 1][5] = {
+static const char *const k_desc[T_ENV - T_DISPLAY + 1][5] = {
   { "How the game is shown. Fullscreen: the video mode chosen in the setup. Windowed: a window on the desktop. "
     "Borderless: a window over the whole screen, quick Alt+Tab.",
     "Comment le jeu s'affiche. Plein \xe9" "cran : le mode vid\xe9o choisi \xe0 l'installation. Fen\xeatr\xe9 : une fen\xeatre "
@@ -188,14 +213,50 @@ static const char *const k_desc[T_RESOLUTION - T_DISPLAY + 1][5] = {
     "Die Bildgr\xf6\xdf" "e im Fenster- und Vollbildmodus. Randlos nutzt immer die Desktopgr\xf6\xdf" "e.",
     "El tama\xf1o de la imagen en ventana y pantalla completa. Sin bordes usa siempre el tama\xf1o del escritorio.",
     "La dimensione dell'immagine in finestra e a schermo intero. Senza bordi usa sempre la dimensione del desktop." },
+  /* the video options of videocfg.bin (the original setup dialog's boxes).  Translations: ours (need a native speaker's check) */
+  { "The graphics card the game uses. Listed only when the PC has more than one. The mode is reset to a full-screen mode of that card.",
+    "La carte graphique utilis\xe9" "e par le jeu. Propos\xe9" "e seulement s'il y en a plusieurs. Le mode repasse \xe0 un mode plein \xe9" "cran de cette carte.",
+    "Die vom Spiel benutzte Grafikkarte. Nur sichtbar, wenn der PC mehrere hat. Der Modus wird auf einen Vollbildmodus dieser Karte zur\xfc" "ckgesetzt.",
+    "La tarjeta gr\xe1" "fica que usa el juego. Solo aparece si el PC tiene varias. El modo vuelve a uno de pantalla completa de esa tarjeta.",
+    "La scheda video usata dal gioco. Compare solo se il PC ne ha pi\xf9 di una. La modalit\xe0 torna a una a schermo intero di quella scheda." },
+  { "The shadows under the cars. Off: no shadows, a little faster on old graphics cards.",
+    "Les ombres sous les voitures. Non : pas d'ombres, un peu plus rapide sur les anciennes cartes graphiques.",
+    "Die Schatten unter den Autos. Aus: keine Schatten, auf alten Grafikkarten etwas schneller.",
+    "Las sombras bajo los coches. No: sin sombras, algo m\xe1s r\xe1pido en tarjetas gr\xe1" "ficas antiguas.",
+    "Le ombre sotto le auto. No: niente ombre, un po' pi\xf9 veloce sulle vecchie schede video." },
+  { "Extra texture layers (shine and detail) on the course and the cars. Off: plain textures, a little faster on old graphics cards.",
+    "Couches de texture suppl\xe9" "mentaires (reflets et d\xe9" "tails) sur le circuit et les voitures. Non : textures simples, un peu plus rapide sur "
+    "les anciennes cartes.",
+    "Zus\xe4" "tzliche Texturebenen (Glanz und Details) auf Strecke und Autos. Aus: einfache Texturen, auf alten Grafikkarten etwas schneller.",
+    "Capas de textura extra (brillo y detalle) en el circuito y los coches. No: texturas simples, algo m\xe1s r\xe1pido en tarjetas gr\xe1" "ficas antiguas.",
+    "Livelli di texture aggiuntivi (lucentezza e dettagli) su pista e auto. No: texture semplici, un po' pi\xf9 veloce sulle vecchie schede video." },
+  { "How the course textures are stored and filtered. It is the Trilinear Filtering box of the original setup program.",
+    "Comment les textures du circuit sont stock\xe9" "es et filtr\xe9" "es. C'est la case Filtrage trilin\xe9" "aire du programme d'installation d'origine.",
+    "Wie die Streckentexturen gespeichert und gefiltert werden. Entspricht dem Kontrollk\xe4" "stchen Trilinearer Filter des urspr\xfc" "nglichen Setups.",
+    "C\xf3mo se guardan y filtran las texturas del circuito. Es la casilla Filtrado trilineal del programa de instalaci\xf3n original.",
+    "Come vengono memorizzate e filtrate le texture della pista. \xc8 la casella Filtering trilineare del programma di installazione originale." },
+  { "Environmental effects such as boost flames and wheel marks. Off: fewer effects.",
+    "Effets d'environnement comme les flammes du turbo et les traces de roues. Non : moins d'effets.",
+    "Umgebungseffekte wie Boost-Flammen und Radspuren. Aus: weniger Effekte.",
+    "Efectos ambientales como las llamas del turbo y las marcas de las ruedas. No: menos efectos.",
+    "Effetti ambientali come le fiamme del turbo e i segni delle ruote. No: meno effetti." },
 };
 
 /* The page tree: Options -> Preferences (category list) -> one sub-page per category.  All of them are page id MFL_PAGE_PREFS (the only
  * free slot of g_menu_page_item_lists): a menu record keeps its own item list, so the slot is pointed at the list the next Return will
  * open (sync_slot) and Escape pops back one level through the game's own back path. */
-enum category { CAT_GRAPHICS, CAT_COMFORT, CAT_CHEATS, CAT_OTHER, CATS };
-static const int k_cat_text[CATS] = { T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER };
+enum category { CAT_GRAPHICS, CAT_PERF, CAT_COMFORT, CAT_CHEATS, CAT_OTHER, CATS };
+static const int k_cat_text[CATS] = { T_CAT_GRAPHICS, T_CAT_PERF, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER };
 #define KEY_RESOLUTION (-1)      /* the Resolution row: values from mfl_video_modes_api (GFX), not a key of mfl_prefs */
+/* the rows of videocfg.bin (the original setup dialog's controls; the file stays the one home of these values, written by the game's own video_cfg_save) */
+#define KEY_ADAPTER (-2)         /* g_video_cfg.subsystem_index (shown only when the PC has more than one adapter) */
+#define KEY_VC_SHADOWS (-3)      /* no_dynamic_shadows (stored inverted) */
+#define KEY_VC_MULTITEX (-4)     /* no_multitexture (inverted) */
+#define KEY_VC_TRILINEAR (-5)    /* trilinear */
+#define KEY_VC_ENV (-6)          /* no_env_effects (inverted) */
+#define LIVE_START 0             /* the footer of a row: applies at the next start / at once / from the next race */
+#define LIVE_NOW 1
+#define LIVE_RACE 2
 
 /* the rows: category, caption (= description index), key, number of values, first value (language: -1 = auto), shown inverted (the key
  * says "skip", the row "on"), applies at once.  A new row = one line here (+ its texts); a new category = one enum value + its name. */
@@ -205,7 +266,12 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
 #if MFL_FIX_FIXED_STEP && MFL_FIX_FPS_CAP
   { CAT_GRAPHICS, T_FPS_CAP, MFL_PREF_FPS_CAP, 3, 0, 0, 1 },      /* values 60, 30, unlimited (cl_app_main_loop.c k_fps_cap) */
 #endif
+  { CAT_GRAPHICS, T_ADAPTER, KEY_ADAPTER, 0, 0, 0, LIVE_START },      /* shown only with more than one adapter */
   { CAT_GRAPHICS, T_VSYNC, MFL_PREF_VSYNC, 2, 0, 0, 0 },
+  { CAT_PERF, T_SHADOWS, KEY_VC_SHADOWS, 2, 0, 0, LIVE_START },      /* the shadow cameras are built once at boot (car_shadow_setup) */
+  { CAT_PERF, T_MULTITEX, KEY_VC_MULTITEX, 2, 0, 0, LIVE_START },    /* also read at start (an_ok_070) */
+  { CAT_PERF, T_TRILINEAR, KEY_VC_TRILINEAR, 2, 0, 0, LIVE_RACE },   /* read when a course loads */
+  { CAT_PERF, T_ENV, KEY_VC_ENV, 2, 0, 0, LIVE_RACE },               /* per-frame gates (boost flames, wheel marks): copied on leaving the page, not mid-race */
   { CAT_COMFORT, T_INTRO, MFL_PREF_SKIP_INTRO, 2, 0, 1, 0 },
   { CAT_COMFORT, T_FLYOVER, MFL_PREF_SKIP_FLYOVER, 2, 0, 1, 1 },
   { CAT_COMFORT, T_WINNER_CAM, MFL_PREF_WINNER_CAM_ROTATION, 2, 0, 0, 1 },
@@ -219,6 +285,7 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
 #define ROWS ((int)(sizeof k_rows / sizeof k_rows[0]))
 /* 640-space layout (the game's buttons are fixed at x 60..270 plus a gradient to 370; the widescreen fix centres this space 4:3) */
 #define ROW_SCALE 0.65f     /* our row captions (the game's rows: 0.8) */
+#define ROW_DEFAULT_SCALE 0.8f      /* menu_page_enter's row scale */
 #define VALUE_X 300.0f      /* the values, over the buttons' gradient strip */
 #define VALUE_SCALE 0.6f
 #define BOX_X 424.0f        /* the description box: x 424..632 */
@@ -238,20 +305,41 @@ static int values[MFL_PREF_COUNT];         /* the file's values as the page show
 static int installed, dirty;
 static unsigned short line_buf[LINES][LINE_CHARS + 1];      /* length-prefixed UTF-16 lines of the description box */
 static unsigned short mode_buf[24];         /* the Resolution row's value */
+static unsigned short adapter_buf[24];      /* the Display adapter row's value */
+static int quality_dirty;                   /* a videocfg.bin row changed: video_cfg_save on leaving the page */
 
 static int text_id(int t) { return MFL_TEXT_FIRST + t; }
 static int language(void) { return g_language_offset >= 1 && g_language_offset <= 4 ? g_language_offset : 0; }
+
+/* the captions the original setup dialog has: its string table id (+ g_language_offset, 6 languages) and the longest text that fits the row / button */
+static const struct { int text, base, max_chars; } k_orig[] = {
+  { T_CAT_PERF, 2240, 14 },      /* "Performance Settings": only where it is short enough for the category button (scale 0.8) */
+  { T_SHADOWS, 2250, 22 }, { T_MULTITEX, 2260, 22 }, { T_TRILINEAR, 2270, 22 }, { T_ENV, 2280, 22 },
+};
 
 const unsigned short *mfl_prefs_text(int id)
 {
   static unsigned short ring[4][48];      /* a few strings may be in use at once (draw + width) */
   static int next;
   unsigned short *s = ring[next++ & 3];
-  int n = 0;
+  int n = 0, k;
+  char original[48];
   const char *c;
 
   if (id - MFL_TEXT_FIRST == T_MODE_NAME) return mode_buf;
+  if (id - MFL_TEXT_FIRST == T_ADAPTER_NAME) return adapter_buf;
   if (id - MFL_TEXT_FIRST >= T_LINE0) return line_buf[(id - MFL_TEXT_FIRST - T_LINE0) % LINES];
+  for (k = 0; k < (int)(sizeof k_orig / sizeof k_orig[0]); k++) {      /* the game's own string, in its language (the original exe's resource) */
+    if (id - MFL_TEXT_FIRST != k_orig[k].text) continue;
+    n = LoadStringA(g_app_7e7700, k_orig[k].base + (g_language_offset >= 0 && g_language_offset <= 5 ? g_language_offset : 0), original, sizeof original);
+    if (n > 0 && n <= k_orig[k].max_chars) {
+      for (k = 0; k < n; k++) s[k + 1] = (unsigned char)original[k];
+      s[0] = (unsigned short)n;
+      return s;
+    }
+    n = 0;
+    break;
+  }
   c = id - MFL_TEXT_FIRST < T_COUNT ? k_text[id - MFL_TEXT_FIRST][language()] : "";
   while (c[n] != '\0' && n < 47) { s[n + 1] = (unsigned char)c[n]; n++; }
   s[0] = (unsigned short)n;      /* length first, as the .dat strings */
@@ -276,7 +364,52 @@ void mfl_menu_update_scaled(void)
 
 static int row_shown(int k)
 {
+  if (k_rows[k].key == KEY_ADAPTER) return g_app_771500 > 1;
   return k_rows[k].key != KEY_RESOLUTION || (mfl_video_modes_api != 0 && mfl_video_modes_api->count() > 0);
+}
+
+/* the videocfg.bin word of a quality row, and the row's On / Off (the words are stored "off" for shadows, multi-texturing and effects, "on" for trilinear) */
+static unsigned int *quality_word(int key)
+{
+  return key == KEY_VC_SHADOWS ? &g_video_cfg.no_dynamic_shadows : key == KEY_VC_MULTITEX ? &g_video_cfg.no_multitexture
+         : key == KEY_VC_TRILINEAR ? &g_video_cfg.trilinear : &g_video_cfg.no_env_effects;
+}
+
+static int quality_on(int key) { return (*quality_word(key) != 0) == (key == KEY_VC_TRILINEAR); }
+
+/* the mode record i of adapter sub: width, height, depth, flags (RwVideoMode) */
+static const int *adapter_mode_record(int sub, int i) { return (const int *)(g_video_mode_lists[sub] + i * 0x18); }
+
+/* the mode the original would start an adapter in: the first plain 32 bit full-screen mode of at least 640 x 480, else any such full-screen mode, else 0 */
+static int adapter_first_mode(int sub)
+{
+  int i, any = 0, found = 0;
+  const int *m;
+
+  for (i = 0; i < g_video_mode_counts[sub]; i++) {
+    m = adapter_mode_record(sub, i);
+    if ((m[3] & 1) == 0 || m[0] < 640 || m[1] < 480) continue;
+    if (m[3] == 1 && m[2] == 32) return i;
+    if (!found) { any = i; found = 1; }
+  }
+  return any;
+}
+
+/* a new adapter: its first mode (the dialog does the same), so the file never names a mode the adapter does not have */
+static void adapter_choose(int sub)
+{
+  const int *m;
+  int mode;
+
+  if (g_video_mode_counts[sub] <= 0) return;      /* an adapter without modes: not selectable */
+  mode = adapter_first_mode(sub);
+  m = adapter_mode_record(sub, mode);
+  g_video_cfg.subsystem_index = (unsigned int)sub;
+  g_video_cfg.mode_index = (unsigned int)mode;
+  g_video_cfg.width = (unsigned int)m[0];
+  g_video_cfg.height = (unsigned int)m[1];
+  g_video_cfg.depth = (unsigned int)m[2];
+  g_video_cfg.fullscreen = (unsigned int)(m[3] & 1);
 }
 
 /* list = frame (title), prompts, the Options page's layout words (src[4] up to its first row), rows, inputs */
@@ -360,8 +493,14 @@ static void row_scales(void)
 {
   int i;
 
-  for (i = 0; i < 30; i++)
-    if (anim_row(&g_menu_item_anims[i]) < ROWS) g_menu_item_anims[i].scale = ROW_SCALE;
+  for (i = 0; i < 30; i++) {
+    struct MenuItemAnim *it = &g_menu_item_anims[i];
+
+    if (anim_row(it) < ROWS) it->scale = ROW_SCALE;
+    /* a slot shows the old page's row text while it appears and the new page's once idle (one scale for both): when it changes
+     * from one of our rows to a row of another page (sub-page -> category list: the first rows) give it back the game's scale */
+    else if (it->item_id == (int)L_ROW && it->scale == ROW_SCALE) it->scale = ROW_DEFAULT_SCALE;
+  }
 }
 
 static void step(int k, int dir)
@@ -371,6 +510,16 @@ static void step(int k, int dir)
   if (key == KEY_RESOLUTION) {
     n = mfl_video_modes_api->count();
     mfl_video_modes_api->choose((mfl_video_modes_api->current() + dir + n) % n);
+    return;
+  }
+  if (key == KEY_ADAPTER) {
+    adapter_choose(((int)g_video_cfg.subsystem_index + dir + g_app_771500) % g_app_771500);
+    quality_dirty = 1;
+    return;
+  }
+  if (key <= KEY_VC_SHADOWS) {      /* a videocfg.bin box: a toggle of its word (any non-zero value counts as set) */
+    *quality_word(key) = *quality_word(key) == 0;
+    quality_dirty = 1;
     return;
   }
   if (key == MFL_PREF_MENU_SPEED) {
@@ -384,7 +533,20 @@ static void step(int k, int dir)
       break;
     }
   }
-  if (k_rows[k].live) mfl_prefs[key] = values[key];
+  if (k_rows[k].live == LIVE_NOW) mfl_prefs[key] = values[key];
+}
+
+/* leaving the page after a videocfg.bin row changed: the game's own writer saves g_video_cfg (the file the original dialog shares); the effects that only
+ * gate a course load or a frame are copied to their globals in the frontend (no race running), the others take the file at the next start */
+static void quality_save(void)
+{
+  if (g_app_state == APP_STATE_MAIN_LOOP_INIT) {
+    g_course_5fb098 = (int)g_video_cfg.trilinear;
+    g_race_64d8a0 = (int)g_video_cfg.no_env_effects;
+    g_round_64d89c = (int)g_video_cfg.no_env_effects;
+  }
+  video_cfg_save();
+  quality_dirty = 0;
 }
 
 void mfl_prefs_menu_update(void)
@@ -401,6 +563,7 @@ void mfl_prefs_menu_update(void)
   if (menu_back_pressed_any() && g_menu_select_pressed == 0 && dirty) {      /* the game's back block runs right after this */
     mfl_settings_save(values);
     dirty = 0;
+    if (quality_dirty) quality_save();
     return;
   }
   c = current_sub();
@@ -423,6 +586,12 @@ static int value_text(int k)
     mode_buf[0] = (unsigned short)n;
     return text_id(T_MODE_NAME);
   }
+  if (k_rows[k].key == KEY_ADAPTER) {      /* the adapter's name from the engine, cut to the value column */
+    for (s = g_video_7712ec + (int)g_video_cfg.subsystem_index % g_app_771500 * 0x50; s[n] != '\0' && n < 18; n++) adapter_buf[n + 1] = (unsigned char)s[n];
+    adapter_buf[0] = (unsigned short)n;
+    return text_id(T_ADAPTER_NAME);
+  }
+  if (k_rows[k].key <= KEY_VC_SHADOWS) return quality_on(k_rows[k].key) ? TEXT_ON : TEXT_OFF;
   if (k_rows[k].key == MFL_PREF_MENU_SPEED) return text_id(T_X1 + speed_index(v));
   if (k_rows[k].key == MFL_PREF_FPS_CAP) return text_id(T_FPS_60 + v);
   if (k_rows[k].key == MFL_PREF_DISPLAY_MODE) return text_id(T_FULLSCREEN + v);
@@ -508,7 +677,7 @@ void mfl_prefs_menu_draw(void)
   if (sel >= 0) {      /* a sub-page row: what it does and when it applies */
     n = wrap(k_desc[k_rows[sel].text - T_DISPLAY][language()], BOX_W - 2.0f * BOX_PAD);
     for (i = 0; i < n; i++) ids[i] = text_id(T_LINE0 + i);
-    box(k_rows[sel].text, n, ids, k_rows[sel].live ? T_AT_ONCE : T_NEXT_START);
+    box(k_rows[sel].text, n, ids, k_rows[sel].live == LIVE_NOW ? T_AT_ONCE : k_rows[sel].live == LIVE_RACE ? T_NEXT_RACE : T_NEXT_START);
   } else if (idle && SHOWS(rec, cat_list) && rec->selected >= 0 && rec->selected < CATS) {      /* the category list: its rows */
     for (n = 0; n < sub_count[rec->selected] && n < LINES; n++) ids[n] = text_id(k_rows[sub_rows[rec->selected][n]].text);
     box(k_cat_text[rec->selected], n, ids, -1);

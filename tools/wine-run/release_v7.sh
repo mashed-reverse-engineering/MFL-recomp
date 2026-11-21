@@ -6,10 +6,17 @@
 # Not checked: the trap exit code (unverified under gdb, W7).  Callers put a hard timeout around it (gate.sh: 1800 s).
 # Prints one "V7: PASS ..." or "V7: FAIL <why>" line last.  Exit 0 PASS, 1 FAIL.
 export LC_ALL=C      # awk printf would write "36,0" under a de_* locale (first proof run 2026-11-13)
+# W17 GATEFAST C: `release_v7.sh --link-only <out dir>` only links (exit status also in <out>/link.rc); gate.sh full starts it in the background at the end of the
+# harness / v143 links.  A later plain call finds link.rc and runs the Wine part on that link (a failed background link is reported as the FAIL), else it links itself.
+LO=; [ "$1" = --link-only ] && { LO=1; shift; }
 WR=$(dirname "$(readlink -f "$0")"); G=$WR/../..; O=$(readlink -f "$1"); mkdir -p $O
-# video: every DLL of tools/video/work/out (W16 VIDCI: mfl_video_ffmpeg.dll + the shared FFmpeg DLLs; the glob expands in link_release.sh's `for f in $DLLS`)
-AUDIO_DLL=1 TRAP=1 DLLS="$G/tools/audio/work/out/null/mfl_audio_miniaudio.dll $G/tools/video/work/out/*.dll" \
-  $G/tools/delink/link_release.sh $O/rel > $O/link.log 2>&1 || { tail -5 $O/link.log; echo "V7: FAIL release link (log $O/link.log)"; exit 1; }
+if [ -n "$LO" ] || [ ! -f $O/link.rc ]; then
+  # video: every DLL of tools/video/work/out (W16 VIDCI: mfl_video_ffmpeg.dll + the shared FFmpeg DLLs; the glob expands in link_release.sh's `for f in $DLLS`)
+  AUDIO_DLL=1 TRAP=1 DLLS="$G/tools/audio/work/out/null/mfl_audio_miniaudio.dll $G/tools/video/work/out/*.dll" \
+    $G/tools/delink/link_release.sh $O/rel > $O/link.log 2>&1; echo $? > $O/link.rc
+  [ -n "$LO" ] && exit $(cat $O/link.rc)
+else echo "V7: release link done before this run (--link-only, log $O/link.log)"; fi
+[ "$(cat $O/link.rc)" = 0 ] || { tail -5 $O/link.log; echo "V7: FAIL release link (log $O/link.log)"; exit 1; }
 A=$O/rel/game/App_Executables; rm -f $A/mfl_trap.log
 [ -f $A/MFL_original.exe ] || { echo "V7: FAIL no MFL_original.exe beside the release exe in $A (the resources are read from it at run time)"; exit 1; }
 export DENV="-e MFL_TRAP_NOBOX=1 -e MFL_AUDIO_DUMP=/out/audio.pcm"

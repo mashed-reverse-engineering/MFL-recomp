@@ -37,7 +37,7 @@ No asm (C paths: same pixels on every target), no threads (call only from the ga
 decoders (every movie of the game is MPEG-1 video + MP2 audio in an MPEG program stream, renderware.mpg a raw MPEG-1 video stream; movie
 sound since W16 mva1: own miniaudio device, `set_volume` = the original dB curve). `open` decodes the first frame (a file without video frame fails open);
 `update` shows every frame whose pts is due and returns 1 if the shown frame changed; `finished` = stream ended and the last frame was on screen for one
-frame duration; `acquire_frame` = swscale to BGRA, pitch w*4, valid until the next update/close; `loop` ignored (all callers pass 0). Frame time comes
+frame duration; `acquire_frame` = swscale to BGRA, pitch w*4, valid until the next update/close; `loop=1` (menu backdrop) seeks to byte 0 at the end of the stream, flushes the decoders and continues the timeline (finished never turns 1). Frame time comes
 from the sequence header (29.97 fps), not the pack header (25 fps).
 
 ## Acceptance state (offline, 2026-11-03)
@@ -48,5 +48,5 @@ NOT run: `harness.exe` + the DLL under Wine (expected output identical to the na
 ## Open
 * Exe side frame transfer is not written (`movie_poll_and_set_surface` TODO: acquire + copy into the RwRaster). With the DLL present the movies run for
   their real length (intro 63.7 s, renderware 8 s) with nothing drawn from them, instead of being skipped at once; scenarios that wait through the intros take longer.
-* Movie audio silent until the audio backend exists; `loop=1` not implemented (no caller).
+* Movie audio silent until the audio backend exists.
 * In-game check (intro reaches its end event) and Wine run of `harness.exe` belong to the Wine phase.
