@@ -3,12 +3,14 @@
 usage: no_original.py <checkout> [--release <dir>] [--manifest <file>] | --selftest
   1. every tracked file of <checkout> (git ls-files) passes the public export's deny rules: extension, name, size, binary, text patterns, total
   2. <checkout>/data/zero_original_baseline.txt exists and every code: / data: / rsrc row is 0 (original bytes per layer of the gated link)
-  3. --release <dir>: only the allow-listed release files (no MFL.exe, no Microsoft DLL); every .exe holds exactly one resource, the
-     RT_MANIFEST byte-equal to --manifest (default <checkout>/data/link/MFLng.manifest); every .dll holds no resource
+  3. --release <dir>: only the allow-listed release files (no MFL.exe, no Microsoft DLL); every .exe holds the RT_MANIFEST byte-equal to
+     --manifest (default <checkout>/data/link/MFLng.manifest) and, when <checkout>/assets/icon/mflng.ico exists, exactly the images of that
+     icon (RT_ICON / RT_GROUP_ICON, our own drawing) and nothing else; every .dll holds no resource
+     (assets/icon/mflng.ico is the one tracked binary file the deny rules let through)
 Static only: it cannot see original code bytes inside a CI-built exe (no MFL.exe in CI); the gated VC7 link proves those zero (item 2)."""
-import fnmatch, os, re, subprocess, sys
+import fnmatch, os, re, struct, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from rw_stub_guard import parse_pe, make_pe
+from rw_stub_guard import parse_pe, make_pe, icon_bad
 
 # the deny rules of the private tools/export_public.py (selftest compares them when that file is beside tools/ci); literals that would
 # match their own pattern are split so this file passes its own scan
@@ -25,6 +27,7 @@ RELEASE_OK = ["MFLng.exe", "MFLng.nofix.exe", "MFLng-launch.exe", "mflrw.dll","m
 # W16 VIDCI vd3: a shipped file needs the licence notices of the third-party code inside it (static winpthreads: CI's -static / -l:libwinpthread.a)
 NEEDS_LICENSE = [("mflrw.dll", ["winpthreads.txt"]), ("avutil-*.dll", ["ffmpeg.txt", "winpthreads.txt"]), ("av*-*.dll", ["ffmpeg.txt"]),
                  ("swscale-*.dll", ["ffmpeg.txt"]), ("mfl_video_ffmpeg.dll", ["ffmpeg.txt", "winpthreads.txt"])]
+ICON = "assets/icon/mflng.ico"
 ROW = re.compile(r"^(code:\S+|data:\S+|rsrc) (\d+)$")
 
 
@@ -37,7 +40,7 @@ def deny(root, files):
         if os.path.splitext(n)[1].lower() in BAD_EXT: bad.append((rel, "forbidden extension"))
         elif any(fnmatch.fnmatch(n, p) for p in BAD_NAME): bad.append((rel, "forbidden name"))
         elif len(b) > MAX_FILE: bad.append((rel, "over %d bytes" % MAX_FILE))
-        elif b"\0" in b[:8192]: bad.append((rel, "binary content"))
+        elif b"\0" in b[:8192] and rel != ICON: bad.append((rel, "binary content"))      # ICON: our own drawing (assets/icon/mflng.svg), the one binary file allowed
         else:
             t = b.decode("utf-8", "replace"); rs = tp if rel.startswith("third_party/") else rx
             for r in (rs if not CODFH_HDR.search(t[:2000]) else [r for r in rs if not r.pattern.startswith("^struct")]):
@@ -58,7 +61,7 @@ def baseline(root):
     return [("data/zero_original_baseline.txt", "%s = %s original bytes" % m.groups()) for m in rows if m.group(2) != "0"]
 
 
-def release(d, manifest):
+def release(d, manifest, icon=None):
     bad = []
     for top, _, fs in os.walk(d):
         for f in fs:
@@ -68,6 +71,9 @@ def release(d, manifest):
             if rel.endswith((".exe", ".dll")):
                 p = parse_pe(open(os.path.join(d, rel), "rb").read())
                 want = ([24], [manifest]) if rel.endswith(".exe") else ([], [])
+                if icon and rel.endswith(".exe"):      # our own icon (assets/icon/mflng.ico) beside the manifest: RT_ICON 3, RT_MANIFEST 24, RT_GROUP_ICON 14
+                    ib = icon_bad(p, icon); p = dict(p, res_types=[t for t in p["res_types"] if t not in (3, 14)])
+                    if ib: bad.append((rel, ib))
                 if (p["res_types"], p["manifests"]) != want:
                     bad.append((rel, "resources %s / manifest sizes %s, want %s" % (p["res_types"], [len(m) for m in p["manifests"]], "the committed manifest only" if want[0] else "none")))
             for pat, lic in NEEDS_LICENSE:
@@ -80,7 +86,8 @@ def run(root, rel_dir=None, manifest=None):
     files = [f for f in subprocess.run(["git", "-C", root, "ls-files", "-z"], capture_output=True, check=True).stdout.decode().split("\0") if f]
     bad = deny(root, files) + baseline(root)
     if rel_dir:
-        bad += release(rel_dir, open(manifest or os.path.join(root, "data/link/MFLng.manifest"), "rb").read())
+        ip = os.path.join(root, ICON)
+        bad += release(rel_dir, open(manifest or os.path.join(root, "data/link/MFLng.manifest"), "rb").read(), open(ip, "rb").read() if os.path.exists(ip) else None)
     for f, why in bad:
         print("FAIL %s - %s" % (f, why))
     print("no_original: %d tracked files, %d failures%s" % (len(files), len(bad), ", release dir " + rel_dir if rel_dir else ""))
@@ -117,6 +124,12 @@ def selftest():
         put("rel/vcruntime140.dll", make_pe({"kernel32.dll": ["A"]})); assert [f for f, _ in release(r, m)] == ["vcruntime140.dll"], "Microsoft DLL not caught"
         os.remove(os.path.join(r, "vcruntime140.dll"))
         put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: b"icon"})); assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "extra resource not caught"
+        img = b"PNGx"; ico = struct.pack("<HHH", 0, 1, 1) + struct.pack("<BBBBHHII", 16, 16, 0, 0, 1, 32, len(img), 22) + img      # our own icon is the one extra allowed
+        put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: img, 14: b"g"})); assert [f for f, _ in release(r, m, ico)] == ["MFLng.exe"], "own icon refused (MFLng.exe has none: caught)"
+        assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "icon accepted with no icon file given"
+        put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m, 3: img + b"y", 14: b"g"})); assert sorted(f for f, _ in release(r, m, ico)) == ["MFLng.exe", "MFLng.nofix.exe"], "foreign icon not caught"
+        put("data/ico.bin", b"\0\1"); assert [f for f, _ in deny(d, ["data/ico.bin"])] == ["data/ico.bin"], "binary elsewhere not caught"
+        put(ICON, b"\0\1"); assert deny(d, [ICON]) == [], "the icon is denied"
         put("rel/MFLng.nofix.exe", make_pe({"kernel32.dll": ["A"]}, res={24: m + b" "})); assert [f for f, _ in release(r, m)] == ["MFLng.nofix.exe"], "changed manifest not caught"
     finally:
         shutil.rmtree(d)

@@ -90,7 +90,7 @@ launcher/build.sh test  <out dir>             # native test_logic with ASan/UBSa
                                               # <out>/test_logic <releases.json> <MFLng-<tag>.zip> <tag> [deflate vectors]
 ```
 
-Imports: kernel32, user32, gdi32, shell32, advapi32, winhttp; `tools/ci/pe_check.py --launcher` checks this list. Static CRT, so no redistributable is needed. Its only resource is the RT_MANIFEST `data/link/MFLng.manifest` (asInvoker). The launcher uses no third-party code.
+Imports: kernel32, user32, gdi32, shell32, advapi32, winhttp; `tools/ci/pe_check.py --launcher` checks this list. Static CRT, so no redistributable is needed. Its resources are the RT_MANIFEST `data/link/MFLng.manifest` (asInvoker) and the application icon `assets/icon/mflng.ico` (our own drawing, `mflng.svg` beside it). The launcher uses no third-party code.
 
 Test options (hidden):
 - `--test-update-zip <zip>`: uses a local zip as the newest release, with no network.

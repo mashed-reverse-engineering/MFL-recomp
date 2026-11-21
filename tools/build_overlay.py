@@ -13,6 +13,44 @@ V143 = os.environ.get("CC") == "v143"      # W16 V143 item 2: the CC=v143 varian
 MT = V143 and os.environ.get("LIB_CRT") == "v143mt"      # W16 MT (V143 item 4): /MT instead of /MD (static CRT, no CRT dllimport); own cache keys
 
 
+# W17 CCSW: CC=gcc = the hybrid swap: ONLY the files listed in data/link/gcc_files.txt (one basename per line, # comments) are compiled by
+# i686-w64-mingw32-gcc (SSE2 float, float10 = float); every other file stays VC7 cl 13.00 exactly as before.  The gcc objects are plain COFF i386
+# objects with the same `_name` / `_name@N` decoration, so mkobj (entry jmp), the pinned data layout and link.exe take them like any cl object.
+# CC unset (or v143) = this block is inert: no list is read, no key changes.  The link scripts need no change (link_ours.sh only tests CC=v143).
+GCC = os.environ.get("CC") == "gcc"
+GCC_FLAGS = ["-c", "-w", "-std=gnu99", "-O2", "-msse2", "-mfpmath=sse", "-ffp-contract=off", "-fno-fast-math", "-fms-extensions", "-DNOASM", "-D__int64=long long",      # (mingw defines __int64 only in its own headers; the sources use no system header)
+             "-fno-ident", "-fno-asynchronous-unwind-tables"]      # last two: no .comment / .eh_frame sections in the objects (mkobj / mkrange expect .text .data .rdata .bss only)
+GCC_PHYSICS = re.compile(r"(^|_)(car|cars|aibot|rwp|vehicle)(_|\.)")      # x87 study (output/x87_sse2_experiment_2026-11-21.md): car / aibot / rwp physics stay on MSVC x87
+GCC_FLOAT10 = "typedef double float10;"      # src/mfl_tier2.h; the gcc copy of the header (never the tree file) says `float` so a PC=24 x87 temporary rounds per op like the original
+
+
+def gcc_list():
+    """basenames from data/link/gcc_files.txt; a physics file name stops the build"""
+    p = os.environ.get("GCC_FILES") or os.path.join(HERE, "..", "data", "link", "gcc_files.txt")      # GCC_FILES=<file>: another list (experiments)
+    names = [l.split()[0] for l in open(p) if l.strip() and not l.startswith("#")] if os.path.exists(p) else []
+    bad = [n for n in names if GCC_PHYSICS.search(n)]
+    if bad: sys.exit("CC=gcc: physics files stay on MSVC x87, remove from data/link/gcc_files.txt: " + " ".join(bad))
+    return set(names)
+
+
+def gcc_compile(work, todo, fix, keyed):
+    """CC=gcc: compile `todo` (allowlisted names, sources already in `work`) with mingw gcc in work/gcc (headers copied, mfl_tier2.h with float10 = float),
+    objects land in work/<name>.obj and go into the object cache like a cl object"""
+    g = os.path.join(work, "gcc"); os.makedirs(g, exist_ok=True)
+    for h in glob.glob(os.path.join(work, "*.h")) + glob.glob(os.path.join(work, "*.inc")): shutil.copy(h, g)
+    t = open(os.path.join(g, "mfl_tier2.h")).read()
+    if GCC_FLOAT10 not in t: sys.exit("CC=gcc: %r not found in mfl_tier2.h" % GCC_FLOAT10)
+    open(os.path.join(g, "mfl_tier2.h"), "w").write(t.replace(GCC_FLOAT10, "typedef float float10;"))
+    cp_ = dict(keyed)
+    for nm in todo:
+        shutil.copy(os.path.join(work, nm), os.path.join(g, nm))
+        o = os.path.join(work, nm[:-2] + ".obj")
+        r = subprocess.run(["i686-w64-mingw32-gcc"] + GCC_FLAGS + [x.replace("/D", "-D", 1) for x in fix] + ["-o", o, nm], cwd=g, capture_output=True, text=True)
+        if r.returncode or not os.path.exists(o):
+            print("compile error in", nm, "(gcc)", r.stderr[-600:], file=sys.stderr); sys.exit(1)
+        tmp_ = "%s.%d.tmp" % (cp_[nm], os.getpid()); shutil.copy(o, tmp_); os.replace(tmp_, cp_[nm])
+
+
 def v143_compile(work, todo, fix, gs_files, ob0_files):
     """CC=v143: compile `todo` in `work` with MSVC v143 (tools/msvcw/msvcw_compile.py BASE flags: /O2 /Gy /arch:IA32 /GS- /MD /Zl), /GS and /Ob0 per
     file as the VC7 build, the compile: markers /G5 /Op / cl1310 dropped (no meaning for v143).  One container (tools/msvcw/msvcw_sh.sh), the first
@@ -223,6 +261,8 @@ def main():
         cache = os.environ.get("OBJCACHE", os.path.expanduser("~/.cache/mfl_objcache"))
         os.makedirs(cache, exist_ok=True)
         todo, keyed = [], []; gs_files = set(); ob0_files = set(); g5_files = set(); op_files = set(); ccv = {}
+        gccn = gcc_list() if GCC else set()      # W17 CCSW: allowlisted files compiled by gcc (empty = nothing changes)
+        gccv = subprocess.run(["i686-w64-mingw32-gcc", "-dumpfullversion"], capture_output=True, text=True).stdout.strip().encode() if gccn else b""
         OB0 = ["/Ob0"]      # clusters / tier 2 replace functions that the original CALLS (tools/diffemu verifies them with /Ob0 and hooks every callee): no inlining of their static helpers, so the shipped object is the verified one (2026-10-24, F-o2). Tier 1 / automatch stay /O2: their byte identity was proven with inlining.
         for c in srcs:
             nm = os.path.basename(c)
@@ -244,10 +284,19 @@ def main():
                 if t2_ != t_: open(os.path.join(work, nm), "w").write(t2_)
             t_ = open(os.path.join(work, nm), "rb").read(); i_ = inc_(os.path.join(work, nm))
             key = hashlib.sha1(t_ + hdr.digest() + vh_(t_) + i_ + " ".join(kflags_(t_ + i_) + (["/GS"] if nm in gs_files else []) + (OB0 if nm in ob0_files else []) + (["/G5"] if nm in g5_files else []) + (["/Op"] if nm in op_files else [])).encode() + (b" cc=" + ccv[nm].encode() if ccv[nm] else b"") + (b" cc=v143" if V143 else b"") + (b" crt=mt" if MT else b"")).hexdigest()      # the compiler variant is part of the key (a cl 13.00 object of a cl1310 file must never be reused); default cl 13.00 keys unchanged
+            if nm in gccn: key = hashlib.sha1(t_ + hdr.digest() + vh_(t_) + i_ + " ".join(GCC_FLAGS + fixd_).encode() + b" cc=gcc " + gccv + b" float10=float").hexdigest()      # W17 CCSW: own key space (flags, gcc version); the VC7 keys above are untouched
             keyed.append((nm, os.path.join(cache, key + ".obj")))
             if not os.path.exists(keyed[-1][1]):
                 todo.append(nm)
         print("objects: %d from the cache, %d to compile%s" % (len(keyed) - len(todo), len(todo), " (/Op: %s)" % ",".join(sorted(op_files)) if op_files else ""), file=sys.stderr)      # W9 T-OP test: an unmarked file's key is unchanged = cache hit
+        if os.environ.get("CC_DRYRUN"):      # W17 CCSW: list what would be compiled and with what, compile / link nothing (same output with CC unset before and after this change = default builds unchanged)
+            for nm, cp in keyed: print("key", nm, os.path.basename(cp))
+            for nm in todo: print("compile", nm, "gcc" if nm in gccn else "cl " + ccv[nm] + (" /GS" if nm in gs_files else "") + (" /Ob0" if nm in ob0_files else "") + (" /G5" if nm in g5_files else "") + (" /Op" if nm in op_files else ""))
+            if gccn: print("gcc", " ".join(GCC_FLAGS + fixd_), "files:", " ".join(sorted(gccn)))
+            return
+        if any(x in gccn for x in todo):      # W17 CCSW: the allowlisted misses go to gcc, the rest to cl as before
+            gcc_compile(work, [x for x in todo if x in gccn], fixd_, keyed)
+            todo = [x for x in todo if x not in gccn]
         if todo:
             # one container, several wine cl processes in parallel (same prefix/wineserver); 1 file per cl would waste the 8 s start per process
             out_ = v143_compile(work, todo, flags[4:], gs_files, ob0_files) if V143 else ""

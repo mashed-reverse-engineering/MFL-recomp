@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MFLng application icon: our own drawing (a small car in front of an impact burst). Simple shapes only, flat colours.
+     assets/icon/build_ico.py turns it into mflng.ico (rsvg-convert + a stdlib packer); the .ico is committed. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="#1d2b4a"/>
+  <polygon points="128.0,10.0 152.1,53.8 197.4,32.5 191.1,82.2 240.2,91.5 206.0,128.0 240.2,164.5 191.1,173.8 197.4,223.5 152.1,202.2 128.0,246.0 103.9,202.2 58.6,223.5 64.9,173.8 15.8,164.5 50.0,128.0 15.8,91.5 64.9,82.2 58.6,32.5 103.9,53.8" fill="#ffc42e"/>
+  <polygon points="128.0,10.0 152.1,53.8 197.4,32.5 191.1,82.2 240.2,91.5 206.0,128.0 240.2,164.5 191.1,173.8 197.4,223.5 152.1,202.2 128.0,246.0 103.9,202.2 58.6,223.5 64.9,173.8 15.8,164.5 50.0,128.0 15.8,91.5 64.9,82.2 58.6,32.5 103.9,53.8" fill="#ff8a1f" transform="translate(128 128) scale(0.72) translate(-128 -128)"/>
+  <g transform="rotate(-24 128 134)">
+    <rect x="86" y="78" width="14" height="30" rx="4" fill="#10131c"/>
+    <rect x="156" y="78" width="14" height="30" rx="4" fill="#10131c"/>
+    <rect x="86" y="150" width="14" height="30" rx="4" fill="#10131c"/>
+    <rect x="156" y="150" width="14" height="30" rx="4" fill="#10131c"/>
+    <rect x="94" y="58" width="68" height="152" rx="30" fill="#d7263d"/>
+    <rect x="104" y="96" width="48" height="34" rx="9" fill="#1d2b4a"/>
+    <rect x="106" y="154" width="44" height="22" rx="8" fill="#1d2b4a"/>
+    <rect x="94" y="136" width="68" height="10" fill="#f4f4f4"/>
+  </g>
+</svg>

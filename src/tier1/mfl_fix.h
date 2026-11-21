@@ -115,6 +115,12 @@ int mfl_lang_available(int language);      /* 1 when the game can play that lang
 #define MFL_FIX_ALT_TAB 0
 #endif
 
+#ifndef MFL_FIX_WINDOW_ICON      /* the "DtS" window class gets the exe's own icon (icon group resource id 1, LoadIconA(hinstance, 1)) instead of none, so the title bar,
+                                    Alt+Tab and the taskbar show it; an exe without that resource (the pinned VC7 link has none) gets NULL from LoadIconA = the
+                                    original no-icon behaviour (tier1/window_create.c) */
+#define MFL_FIX_WINDOW_ICON 0
+#endif
+
 #ifndef MFL_FIX_LOAD_SAVE_EARLY      /* the game save is read and applied at the end of app_boot_init (the boot loading screen, its spinning CD, still shows), and the
                                    load paths (title Load: state machine 2, return to the main menu: state machine 1) show no confirm box ("0x21a"), no
                                    "Loading" box with its 1 s wait and no "Load successful" box; the save side (write, autosave) is unchanged and the

@@ -1,0 +1,6 @@
+# CC=gcc allowlist (tools/build_overlay.py, W17 CCSW): basenames of recomp files compiled by i686-w64-mingw32-gcc instead of cl.
+# One name per line.  Empty = CC=gcc builds exactly like the default.  Never list car / aibot / rwp / vehicle physics (x87 study: no-go).
+# Start set: trivial non-physics UI / menu files that compile with the gcc flags (tools/portsyntax.py passing set).
+menu_bot_skill_a_get.c
+menu_event_course_index_get.c
+ui_camera_create_main.c

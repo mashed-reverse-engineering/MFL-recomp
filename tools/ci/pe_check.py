@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """pe_check.py: structural check of a built exe (or --dll: mflrw.dll) before anything reaches Wine.
-usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] [--static-crt] | --dll <mflrw.dll>
-       | --launcher <MFLng-launch.exe> [--manifest <file>] | --video <dll> | --selftest
+usage: pe_check.py <exe> [--rwdll <mflrw.dll>] [--manifest <data/link/MFLng.manifest>] [--icon <assets/icon/mflng.ico>] [--static-crt] | --dll <mflrw.dll>
+       | --launcher <MFLng-launch.exe> [--manifest <file>] [--icon <file>] | --video <dll> | --selftest
+--icon: our own application icon is allowed as well (RT_ICON / RT_GROUP_ICON): exactly the images of that .ico (byte-equal), one group, nothing else.
 --static-crt (W16 MT, LIB_CRT=v143mt exes): ucrtbase / vcruntime140 / api-ms-win-crt-* leave the allow-list.
 --launcher (W16 LAUNCH): its own list of Windows system DLLs (kernel32 user32 gdi32 shell32 advapi32 winhttp), static CRT (no CRT DLL),
      no mflrw.dll; resources and --manifest as for the game exes.  The game exes' list is unchanged.
@@ -11,9 +12,9 @@ exe: PE32 i386; imports only from the allow-list; every mflrw.dll import is expo
 dll: PE32 i386; imports only kernel32/user32/gdi32/d3d9/msvcrt (mingw build, static libgcc/libstdc++).
 --video (W16 VIDCI): mfl_video_ffmpeg.dll or one of the shared LGPL FFmpeg DLLs beside it: PE32 i386, no resources, imports only
      the system DLLs of VIDEO_OK plus each other (avformat/avcodec/avutil/swscale-NN.dll); no libgcc/libwinpthread, no GPL postproc."""
-import fnmatch, os, sys
+import fnmatch, os, struct, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from rw_stub_guard import parse_pe, make_pe
+from rw_stub_guard import parse_pe, make_pe, icon_bad
 
 # INV 5 item 3 (VC7 exe) + v143 /MD additions
 CRT_DLLS = ["ucrtbase.dll", "vcruntime140.dll", "api-ms-win-crt-*.dll"]
@@ -24,7 +25,7 @@ LAUNCHER_OK = ["kernel32.dll", "user32.dll", "gdi32.dll", "shell32.dll", "advapi
 VIDEO_OK = ["kernel32.dll", "user32.dll", "msvcrt.dll", "bcrypt.dll", "ole32.dll", "avformat-*.dll", "avcodec-*.dll", "avutil-*.dll", "swscale-*.dll"]
 
 
-def check(data, dll=False, rwdata=None, manifest=None, static_crt=False, launcher=False, video=False):
+def check(data, dll=False, rwdata=None, manifest=None, static_crt=False, launcher=False, video=False, icon=None):
     p, bad = parse_pe(data), []
     if p["machine"] != 0x14C or p["magic"] != 0x10B:
         return ["not PE32 i386 (machine 0x%x magic 0x%x)" % (p["machine"], p["magic"])]
@@ -40,8 +41,10 @@ def check(data, dll=False, rwdata=None, manifest=None, static_crt=False, launche
             miss = [n for n in p["imports"]["mflrw.dll"] if n not in have]
             if miss:
                 bad.append("%d mflrw.dll imports not exported: %s" % (len(miss), " ".join(miss[:20])))
-        if [r for r in p["res_types"] if r != 24]:
-            bad.append("resource types besides RT_MANIFEST: %s" % p["res_types"])
+        if [r for r in p["res_types"] if r not in ((24, 3, 14) if icon is not None else (24,))]:      # --icon: our own RT_ICON (3) / RT_GROUP_ICON (14) too
+            bad.append("resource types besides RT_MANIFEST%s: %s" % (" and the icon" if icon is not None else "", p["res_types"]))
+        if icon is not None and icon_bad(p, icon):
+            bad.append(icon_bad(p, icon))
         if manifest is not None and p["manifests"] != [manifest]:
             bad.append("RT_MANIFEST is not the committed manifest (%d resources, sizes %s, want one of %d bytes)" % (len(p["manifests"]), [len(m) for m in p["manifests"]], len(manifest)))
     return bad
@@ -69,6 +72,14 @@ def selftest():
     assert check(make_pe(dict(la, **{"mflrw.dll": ["RwA"]}), res={24: m}), launcher=True), "--launcher: mflrw.dll not caught"
     assert check(make_pe(la, res={24: m, 3: b"i"}), launcher=True), "--launcher: extra resource not caught"
     assert check(make_pe({"winhttp.dll": ["E"]}), launcher=False), "game exe list must not take winhttp.dll"
+    img = b"\x89PNG-fake"; ico = struct.pack("<HHH", 0, 1, 1) + struct.pack("<BBBBHHII", 16, 16, 0, 0, 1, 32, len(img), 22) + img
+    ex = {"kernel32.dll": ["A"]}
+    assert check(make_pe(ex, res={24: m, 3: img, 14: b"g"}), manifest=m, icon=ico) == []
+    assert check(make_pe(ex, res={24: m, 3: img, 14: b"g"}), manifest=m), "icon resources without --icon not caught"
+    assert check(make_pe(ex, res={24: m, 3: img + b"x", 14: b"g"}), manifest=m, icon=ico), "changed icon image not caught"
+    assert check(make_pe(ex, res={24: m, 3: img}), manifest=m, icon=ico), "missing icon group not caught"
+    assert check(make_pe(ex, res={24: m, 3: img, 14: b"g", 16: b"v"}), manifest=m, icon=ico), "extra resource besides the icon not caught"
+    assert check(make_pe(ex, res={24: m}), manifest=m, icon=ico), "missing icon not caught"
     v = {"kernel32.dll": ["A"], "msvcrt.dll": ["B"], "bcrypt.dll": ["C"], "avcodec-61.dll": ["D"], "avutil-59.dll": ["E"]}
     assert check(make_pe(v), video=True) == []
     assert check(make_pe(dict(v, **{"libwinpthread-1.dll": ["x"]})), video=True), "--video: libwinpthread not caught"
@@ -89,12 +100,12 @@ def main(a):
     la = "--launcher" in a
     a = [x for x in a if x not in ("--static-crt", "--launcher")]
     opt = {}
-    for k in ("--rwdll", "--manifest"):
+    for k in ("--rwdll", "--manifest", "--icon"):
         if k in a:
             i = a.index(k); opt[k] = open(a[i + 1], "rb").read(); a = a[:i] + a[i + 2:]
     if len(a) != 1:
         sys.exit(__doc__)
-    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st, la, video)
+    bad = check(open(a[0], "rb").read(), dll, opt.get("--rwdll"), opt.get("--manifest"), st, la, video, opt.get("--icon"))
     for b in bad:
         print("FAIL: " + b)
     if bad:

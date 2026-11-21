@@ -23,16 +23,7 @@ extern char LAB_004a7fd0[];
 /*007711e8*/ extern undefined g_controller_dialog_7711e8;
 /*00771208*/ extern undefined4 g_controller_dialog_771208;
 /*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
-static undefined4 controller_cfg_load_r(int reg_eax);
-extern void controller_cfg_load(void);
-__declspec(naked) undefined4 controller_cfg_load_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call controller_cfg_load
-        ret
-    }
-}
+extern int controller_cfg_load_n(int slot_index);
 
 typedef struct { uint d[0x80]; } ControllerCfgWords;      /* the first 0x200 bytes of a controller config */
 extern __declspec(dllimport) int __stdcall LoadStringA(int, int, int, int);
@@ -130,7 +121,7 @@ void controller_dialog_run(int show_dialog,int bitmap_set)
   slot = g_controller_cfg;
   do {
     *(ControllerCfgWords *)&backup = *(ControllerCfgWords *)slot;
-    loaded = controller_cfg_load_r(slot_index);
+    loaded = controller_cfg_load_n(slot_index);
     if (loaded != 0) {
       /* keep the loaded config only when it is for the same device name */
       same = 0;

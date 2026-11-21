@@ -81,20 +81,35 @@ jobs:
           BODY=$(git log --no-merges --format=%b -n 200 ${PREV:+$PREV..}HEAD | grep -v '^$' | awk '!seen[$0]++' || true)
           CHG=$(printf '%s\n%s\n' "$CHG" "$BODY" | grep -v '^$' || true)
           [ -n "$CHG" ] || CHG="only automated source and progress updates ($(echo "$ALL" | grep -c . || true) commits)"
+          # readable list: no commit hash, no internal window prefix ("W17: "), no repeated line
+          CHG=$(echo "$CHG" | sed -E 's/^[0-9a-f]{7,40} //; s/^W[0-9]+[A-Za-z0-9 ]*: //' | awk '!seen[$0]++')
           {
-            echo "CI build: it proves that MFLng builds from this public tree with no original input. It claims nothing about behaviour; the behaviour proofs run on the private pinned VC7 build."
+            echo "## MFLng $D (pre-release)"
             echo
-            echo "You need your own copy of the game. Not affiliated with the game's publisher or developer."
-            echo "MFLng.exe: every MFL_FIX_* switch on. MFLng.nofix.exe: original behaviour. Install: INSTALL.txt in the zip."
-            echo "Checks: rw_stub_guard is static (a RenderWare stub reached through a function pointer is not seen). Sound (miniaudio device backend) is not tested in CI."
-            echo "Pre-release, always. Boot to the main menu under Wine for cl $CL: ${SMOKE:-not recorded}"
+            echo "**New here? Three steps:**"
+            echo "1. Download \`MFLng-$TAG.zip\` from the **Assets** list below and unpack it into your game folder (the one with \`MFL.exe\`)."
+            echo "2. Rename the game's \`MFL.exe\` to \`MFL_original.exe\`."
+            echo "3. Start \`MFLng-launch.exe\` (or \`MFLng.exe\`)."
             echo
-            echo "## Changes since ${PREV:-the start (last 200 commits)}"
+            echo "You need your own copy of the game. This contains no game files and is not affiliated with the game's publisher or developer. The zip has an \`INSTALL.txt\`; it also needs the Microsoft Visual C++ 2015-2022 Redistributable (x86), once."
+            echo
+            echo "### What is new"
             echo "$CHG" | sed 's/^/- /'
+            echo "Everything since ${PREV:-the start}."
             echo
-            echo "## BUILDINFO"
+            echo "### Good to know"
+            echo "- This is a **pre-release**: built automatically and tested by hand on only a few machines. Bug reports are welcome; if the game crashes, attach \`mflng-crash.txt\` from the game folder."
+            echo "- \`MFLng.exe\` has the fixes and options turned on. \`MFLng.nofix.exe\` behaves like the original, for comparing."
+            echo "- Keep the \`.dll\` files beside the exe. Without the video DLLs there are no intro movies and no menu music."
+            echo "- The launcher can update the game and itself from these releases."
+            echo "- Automatic checks: it builds from the public sources with no original input, and boots to the main menu under Wine (cl $CL: ${SMOKE:-not recorded}). Sound is not tested in CI; behaviour proofs run on a separate pinned build."
+            echo
+            echo "<details><summary>Build details</summary>"
+            echo
             echo '```'
             cat pkg/BUILDINFO.txt
             echo '```'
+            echo
+            echo "</details>"
           } > notes.md
           gh release create "$TAG" "MFLng-$TAG.zip" "MFLng-$TAG-maps.zip" --target "$GITHUB_SHA" --title "MFLng $D (CI build, MSVC $CL)" --notes-file notes.md --prerelease

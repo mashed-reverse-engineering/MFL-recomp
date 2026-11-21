@@ -2,36 +2,14 @@
 extern char PTR_nop_stub_0060dc4c[];
 /*0060de60*/ extern undefined4 weapon_descriptor_count;
 /*008bed20*/ extern struct WeaponSlot player_weapon_slots[4];
-static int player_unequip_weapon_r(int reg_esi);
-extern void player_unequip_weapon(void);
-__declspec(naked) int player_unequip_weapon_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call player_unequip_weapon
-        pop esi
-        ret
-    }
-}
+extern void player_unequip_weapon_n(WeaponSlot *weapon_slot);
 
-static int weapon_fx_state_clear_r(int reg_esi);
-extern void weapon_fx_state_clear(void);
+extern void weapon_fx_state_clear_n(int *weapon_slot);
 extern char g_weapons_8beff0[];
 
 /* Size of one PTR_nop_stub table entry, in undefined * elements (inferred: 16 pointers = 0x40 bytes per weapon descriptor). */
 #define WEAPON_CALLBACK_STRIDE (0x10)
 
-__declspec(naked) int weapon_fx_state_clear_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call weapon_fx_state_clear
-        pop esi
-        ret
-    }
-}
 
 /* weapons_unequip_all_a
  * Unequips every weapon currently held in the player weapon slots, then runs each
@@ -50,8 +28,8 @@ void weapons_unequip_all_a(void)
   weapon_slot = player_weapon_slots;
   do {
     if (weapon_slot->descriptor != 0) {
-      player_unequip_weapon_r(weapon_slot);
-      weapon_fx_state_clear_r(weapon_slot);
+      player_unequip_weapon_n((WeaponSlot *)weapon_slot);
+      weapon_fx_state_clear_n((int *)weapon_slot);
     }
     weapon_slot = weapon_slot + 1;
   } while ((LONG_PTR)weapon_slot < ((LONG_PTR)&g_weapons_8beff0));

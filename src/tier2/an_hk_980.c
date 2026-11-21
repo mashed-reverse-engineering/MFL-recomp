@@ -5,16 +5,7 @@ extern char LAB_004a7c40[];
 /*004a9390*/ extern int app_get_app_7e7700();
 /*007711a0*/ extern undefined4 g_controller_dialog_7711a0;
 /*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
-static undefined4 controller_cfg_save_r(int reg_eax);
-extern void controller_cfg_save(void);
-__declspec(naked) undefined4 controller_cfg_save_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call controller_cfg_save
-        ret
-    }
-}
+extern int controller_cfg_save_n(int controller_index);
 
 /* controller_dialog_close */
 /* compile: /GS */
@@ -46,7 +37,7 @@ int __cdecl controller_dialog_close(int controller_index)
   instance = app_get_app_7e7700();
   dialog_result = DialogBoxParamA(instance,0x68,hwnd,(int)&LAB_004a7c40,0);
   if (dialog_result == 1) {
-    controller_cfg_save_r(controller_index);
+    controller_cfg_save_n(controller_index);
   }
   else if (dialog_result == 0) {
     *(ControllerCfgWords *)cfg = *(ControllerCfgWords *)&backup;

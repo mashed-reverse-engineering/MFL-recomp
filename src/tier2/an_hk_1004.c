@@ -24,18 +24,7 @@ typedef int CourseId;
 /*007efce0*/ extern struct PlayerInput g_player_inputs_previous[12];
 /*007f01fc*/ extern struct PlayerSlot g_player_slots[4];
 /*008bed20*/ extern struct WeaponSlot player_weapon_slots[4];
-static int player_unequip_weapon_r(int reg_esi);
-extern void player_unequip_weapon(void);
-__declspec(naked) int player_unequip_weapon_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call player_unequip_weapon
-        pop esi
-        ret
-    }
-}
+extern void player_unequip_weapon_n(WeaponSlot *weapon_slot);
 
 /* offsets inside a 0xb4 byte weapon slot */
 #define SLOT_POSITION (0x30)      /* body position, written by vehicle_get_matrix_body(car, slot) */
@@ -99,7 +88,7 @@ void weapons_update_frame(void)
       if (((int *)&g_player_status)[slot_index] == 2) {
         ((int *)&g_player_status)[slot_index] = 3;
         if (*(int *)(slot + SLOT_DESCRIPTOR) != 0) {
-          player_unequip_weapon_r((int)slot);
+          player_unequip_weapon_n((WeaponSlot *)((int)slot));
         }
       }
       else if (((int *)&g_player_status)[slot_index] != 3) {
@@ -110,7 +99,7 @@ void weapons_update_frame(void)
           *(undefined4 *)(slot + SLOT_AIM + 8) = *(undefined4 *)(slot + SLOT_POSITION + 8);
           hit = world_sphere_first_hit(weapon_get_rw_801b14(),(float *)(slot + SLOT_AIM),hit_record);
           if ((hit != 0) && (rocket_surface_hit_test(hit_record,(float *)(slot + SLOT_AIM)) == 0)) {
-            player_unequip_weapon_r((int)slot);
+            player_unequip_weapon_n((WeaponSlot *)((int)slot));
             fx_emitter_spawn_b_default((float *)(slot + SLOT_AIM),&g_car_62ac74,0x43b40000,
                                        rp_random_float_range(0x3fa00000,0x3fe00000));
           }
@@ -126,7 +115,7 @@ void weapons_update_frame(void)
         else {
           descriptor = *(char **)(slot + SLOT_DESCRIPTOR);
           if ((*(int (__cdecl **)(char *))(descriptor + DESC_UPDATE))(slot) != 0) {
-            player_unequip_weapon_r((int)slot);
+            player_unequip_weapon_n((WeaponSlot *)((int)slot));
           }
           else {
             /* fire state: 3 held (no previous), 2 pressed, 1 released, 0 nothing */
@@ -146,7 +135,7 @@ void weapons_update_frame(void)
             }
             else if ((*((char *)&g_player_inputs[controller] + INPUT_DROP) != '\0') &&
                     (*((char *)&g_player_inputs_previous[controller] + INPUT_DROP) == '\0')) {
-              player_unequip_weapon_r((int)slot);
+              player_unequip_weapon_n((WeaponSlot *)((int)slot));
             }
           }
         }

@@ -5,18 +5,7 @@
 /*006c60d0*/ extern undefined4 g_gfx_6c60d0[0x1000];
 /*006f1e20*/ extern undefined1 g_gfx_6f1e20;
 /*007ef7f4*/ extern float g_tick_seconds;
-static int effect_slot_free_r(int reg_esi);
-extern void effect_slot_free(void);
-__declspec(naked) int effect_slot_free_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call effect_slot_free
-        pop esi
-        ret
-    }
-}
+extern void effect_slot_free_n(int slot);
 
 /* effect_trails_update_all */
 
@@ -41,13 +30,13 @@ void effect_trails_update_all(void)
       time = g_tick_seconds + *(float *)&trail[2];
       *(float *)&trail[2] = time;
       if ((count == 0) && (time > float_1_0)) {
-        effect_slot_free_r(slot);
+        effect_slot_free_n(slot);
       }
       else {
         /* from here the fraction of the lifetime replaces the elapsed time */
         time = time / *(float *)&trail[3];
         if (time > float_1_0) {
-          effect_slot_free_r(slot);
+          effect_slot_free_n(slot);
         }
         else if (((count != 0) && (*(float *)&trail[-1] != k_f_0)) && (index = 0, 0 < count)) {
           colour = ((int)((1.0f - time) * 48.0f)) << 0x18 | 0xffffff;

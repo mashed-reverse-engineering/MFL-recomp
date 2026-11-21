@@ -10,16 +10,7 @@
 /*004a4440*/ extern int game_close_piz();
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*007d2128*/ extern char *RwEngineInstance;
-static int course_place_powerups_from_clump_r(void *reg_ecx);
-extern void course_place_powerups_from_clump(void);
-__declspec(naked) int course_place_powerups_from_clump_r(void *reg_ecx)
-{
-    __asm {
-        mov ecx, dword ptr [esp + 4]
-        call course_place_powerups_from_clump
-        ret
-    }
-}
+extern void course_place_powerups_from_clump_n(undefined4 clump);
 
 /* course_load_powerups_gold */
 /* compile: /GS */
@@ -60,7 +51,7 @@ void course_load_powerups_gold(undefined4 course_id)
   game_open_piz(piz_path);
   clump = (RpClump *)clump_load_by_name("powerups_gold.dff", 0x0, 0x0);
   if (clump != (RpClump *)0x0) {
-    course_place_powerups_from_clump_r((void *)clump);
+    course_place_powerups_from_clump_n((undefined4)((void *)clump));
     RpClumpDestroy(clump);
   }
   else {

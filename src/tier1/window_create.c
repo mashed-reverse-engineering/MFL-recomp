@@ -1,8 +1,12 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern __declspec(dllimport) int __stdcall AdjustWindowRect(int, int, int);
 extern __declspec(dllimport) int __stdcall CoInitialize(int);
 extern __declspec(dllimport) int __stdcall CreateWindowExA(int, int, int, int, int, int, int, int, int, int, int, int);
 extern __declspec(dllimport) int __stdcall GetStockObject(int);
+#if MFL_FIX_WINDOW_ICON
+extern __declspec(dllimport) int __stdcall LoadIconA(int, int);
+#endif
 extern __declspec(dllimport) int __stdcall LoadCursorA(int, int);
 extern __declspec(dllimport) int __stdcall RegisterClassA(int);
 extern char LAB_004a9830[];
@@ -51,7 +55,12 @@ undefined4 window_create(HINSTANCE hinstance,char *unused_arg,char *app_name)
   wc.hInstance = hinstance;
   wc.lpszClassName = "DtS";
   wc.lpfnWndProc = (WNDPROC)&LAB_004a9830;
+#if MFL_FIX_WINDOW_ICON
+  /* the exe's own icon group (resource id 1); NULL (= no icon, as the original) when the exe has none. Windows takes the small icon from the group. */
+  wc.hIcon = (HICON)LoadIconA((int)hinstance,1);
+#else
   wc.hIcon = (HICON)0x0;
+#endif
   wc.hCursor = LoadCursorA((HINSTANCE)0x0,(LPCSTR)IDC_ARROW_ID);
   wc.lpszMenuName = (LPCSTR)0x0;
   wc.hbrBackground = GetStockObject(0);

@@ -71,13 +71,13 @@ jobs:
           arch: amd64_x86
           vsversion: '2022'
           toolset: '14.44'
-      - name: manifest resource (rc; the link runs with /manifest:no, pe_check wants the committed bytes)
+      - name: manifest + icon resources (rc; the link runs with /manifest:no, pe_check wants the committed bytes and assets/icon/mflng.ico)
         shell: cmd
         run: |
           mkdir build
           rem the Windows checkout converts LF to CRLF (1073 B, run 44683535178); take the committed bytes from git
           git show HEAD:data/link/MFLng.manifest > build\mflng.manifest
-          echo 1 24 "%GITHUB_WORKSPACE:\=/%/build/mflng.manifest" > build\mflng.rc
+          (echo 1 24 "%GITHUB_WORKSPACE:\=/%/build/mflng.manifest" & echo 1 ICON "%GITHUB_WORKSPACE:\=/%/assets/icon/mflng.ico") > build\mflng.rc
           rc /nologo /fo build\mflng.res build\mflng.rc
       - uses: msys2/setup-msys2@v2
         with:
@@ -158,7 +158,7 @@ jobs:
         run: |
           set -o pipefail
           bash launcher/build.sh msvc build/launcher "${GITHUB_SHA::7}" 2>&1 | tee build/logs/launcher.log
-          python3 tools/ci/pe_check.py --launcher build/launcher/MFLng-launch.exe --manifest build/launcher/mflng.manifest
+          python3 tools/ci/pe_check.py --launcher build/launcher/MFLng-launch.exe --manifest build/launcher/mflng.manifest --icon assets/icon/mflng.ico
       - name: outputs of this variant
         run: |
           set -e

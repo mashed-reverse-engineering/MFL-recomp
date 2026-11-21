@@ -115,6 +115,20 @@ Status words:
 - **Lives in:** the window procedure `window_create_cb_4a9830`.
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_ALT_TAB=1`, or use `MFLng.exe`. If exclusive full screen still misbehaves after Alt+Tab, use `display_mode=borderless` (`MFL_FIX_PREFS`, the default of `MFLng.exe`).
 
+### MFL_FIX_LOAD_SAVE_EARLY
+- **Status:** staged, default off; on in `MFLng.exe`.
+- **Changes:** the game save is read and applied once at the end of `app_boot_init`, while the boot loading screen (its spinning CD) still shows. The load paths (title Load, and the return to the main menu) then show no confirm box, no "Loading" box with its 1 s wait and no "Load successful" box. The boot-time load only reads and applies the save; it never writes. The save side (write, autosave) is unchanged, and the `skip_save_wait` key of `MFL_FIX_PREFS` stays as it is.
+- **Trade-off:** the original's confirm box with its "No" answer, which let the player decline the load (and so leave saving off), is gone.
+- **Lives in:** `app_boot_init` (with the helper `mfl_load_save_at_boot`, `src/tier2/an_hk_9109.c`), the load state machine `gamesave_load_state_machine` and the load / format state machine in `src/tier2/an_hk_907.c`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_LOAD_SAVE_EARLY=1`, or use `MFLng.exe`.
+
+### MFL_FIX_WINDOW_ICON
+- **Status:** staged, default off; on in `MFLng.exe`.
+- **Original:** the window class "DtS" is registered with no icon (`hIcon` is NULL), so the title bar, Alt+Tab and the taskbar show the system default.
+- **Change:** the class icon is `LoadIconA(hinstance, 1)`: the exe's own icon group resource with id 1 (the CI build links `1 ICON "mflng.ico"` into the exe). Windows takes the small icon from the same group, so no separate small icon is set. An exe without that resource (the pinned VC7 link has none) makes `LoadIconA` return NULL, which is the original behaviour.
+- **Lives in:** `window_create` (`src/tier1/window_create.c`; the switch-off code is the original statement, byte identical).
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_WINDOW_ICON=1`, or use `MFLng.exe`.
+
 ### MFL_FIX_CRASHLOG
 - **Status:** staged, default off; on in `MFLng.exe`. Built only by MSVC v143 (the CI exe); `tools/build_overlay.py` leaves the file out of every other build.
 - **What it changes:** nothing in the game. When the game ends abnormally (an unhandled exception, stack overflow, heap corruption, a CRT invalid-parameter stop, a pure virtual call, `abort()`, or `exit` / `ExitProcess` with a code other than 0), one report is appended to `mflng-crash.txt` in the folder where the game keeps `gamesave.bin` and `mashed.log` (the current folder; else the exe's folder, else `%TEMP%`). A normal quit writes nothing. The process then ends exactly as it would have without the switch, so Windows Error Reporting still sees the crash. The file is kept below 64 KB (one older copy: `mflng-crash.old.txt`).

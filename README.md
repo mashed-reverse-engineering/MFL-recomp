@@ -1,68 +1,67 @@
-# MFL-recomp
+# MFLng: Mashed: Fully Loaded, rebuilt
 
-A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004).
+A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004) that runs on Windows 10/11 (and under Wine) and fixes some of the old game's problems.
 
-## Status
+**You need your own copy of the game.** This project contains no game files, no original code and no original resources; it reads the game's pictures, texts and dialogs from your installed `MFL.exe` at start-up. Not affiliated with the game's publisher or developer ([docs/LEGAL.md](docs/LEGAL.md)).
 
-- A Windows x86 build made from this source starts and runs all 15 courses in the regression runs.
-- None of its machine code is taken from the original executable any more: 0 of 1,945 KB (measured 2026-11-15 on the standalone and the release build). The code comes from the C in this repository, from open-source libraries, or was removed after proving it is never used.
-- The build contains no original resources (0 B, measured 2026-11-15). Dialogs, texts and pictures are read at runtime from your own copy of `MFL.exe`.
-- Not covered by the two points above: library tables copied from the original are still copied bytes (4,466 B of initialised data plus 1,408 B of padding between data rows, measured 2026-11-17). The library variables (.bss) are already named C definitions.
-- The source is not yet pleasant to read in all places: it still carries scaffolding from the byte-matching work (see [docs/ROADMAP.md](docs/ROADMAP.md)).
-- Numbers per layer and how they moved: [docs/PROGRESS_HISTORY.md](docs/PROGRESS_HISTORY.md).
+## Play it
 
-## What this project is
+1. Download the newest zip from the [Releases](../../releases) page. Every release is a **pre-release**: it builds automatically, and it is tested by hand only on a few machines. Please report what you find.
+2. Unpack it into your game folder (the one with `MFL.exe`).
+3. Rename the game's `MFL.exe` to `MFL_original.exe`.
+4. Start `MFLng-launch.exe` (or `MFLng.exe` directly).
 
-The goal is a playable recompilation with **readable, maintainable source** that can take bug fixes and enhancements, and later be ported (a Switch homebrew port via libnx is the long term target).
-To get there safely, every function is checked against the original: a function is either *byte identical* to what the original compiler (MSVC 13.00.9466, Visual C++ .NET 2002) produces, or *behaviour verified* by running it side by side with the original code in an emulator (see [docs/VERIFICATION.md](docs/VERIFICATION.md)). This checking is scaffolding; the deliverable is the readable source.
+`INSTALL.txt` in the zip has the same steps. You need the Microsoft Visual C++ 2015-2022 Redistributable (x86) once; the launcher itself does not.
 
-Anything that changes the original behaviour sits behind a switch that is off by default: [docs/MFL_FIX_FLAGS.md](docs/MFL_FIX_FLAGS.md).
+What is in the zip:
 
-## No game files, and how to build
-
-**No game files are included.** You need your own copy of the game; see [docs/LEGAL.md](docs/LEGAL.md).
-Supported executable: `MFL.exe` of Mashed: Fully Loaded, SHA-1 `d52ca4a5995875b6d052707188e2c6d065f41766` (`python3 tools/check_exe.py path/to/MFL.exe`).
-
-Drop-in build: `tools/build_mflng.sh <your MFL.exe> <out dir>` makes `MFLng.nofix.exe` (original behaviour, the build the regression gate checks) and `MFLng.exe` (every `MFL_FIX_*` switch on; **not gated**).
-Rename the game's `MFL.exe` to `MFL_original.exe` and put `MFLng.exe` (or `MFLng.nofix.exe`) and `mflrw.dll` beside it. The build reads its resources from `MFL_original.exe` and shows a message box naming the expected place when no original is found.
-Movies and menu music: the release zip also ships `mfl_video_ffmpeg.dll` and the FFmpeg DLLs it uses (`avformat-*`, `avcodec-*`, `avutil-*`, `swscale-*.dll`: FFmpeg 7.1, LGPL 2.1, unmodified shared libraries, built by `tools/video/build_ffmpeg.sh`; notice and source in `LICENSES/ffmpeg.txt` / `tools/video/SOURCES`). Copy them beside the exe too; without them there are no intro movies, no menu backdrop movie and no menu music.
-Third-party notices of the release are in its `LICENSES/` folder (from `third_party/LICENSES/`), among them `winpthreads.txt`: mingw-w64 winpthreads is linked statically into `mflrw.dll` and `avutil-59.dll` by the CI toolchain.
-Prerequisites, in order: [docs/BUILDING.md](docs/BUILDING.md#drop-in-executable-toolsbuild_mflngsh).
-
-Launcher (optional): `MFLng-launch.exe` from the release zip goes into the same folder.
-- It shows the picture of the game's own launcher, which it reads at run time from your `launch.exe`.
-- It starts `MFLng.exe` or `MFLng.nofix.exe`.
-- It can update both, and itself, from the GitHub releases. The update channel is either releases only or releases plus pre-releases.
-
-Source, settings and the update steps: [launcher/README.md](launcher/README.md).
-
-## Milestones
-
-| Milestone | State |
+| File | What |
 |---|---|
-| Name functions, globals and structs of the game code | done for about 96% of the game functions |
-| Recompile the game code as C (byte identical or behaviour verified) | done for about 98% of the game functions; the rest are tiny stubs |
-| Standalone executable from the C (Lua, qhull, zlib/libpng from open source, no DirectShow) | done; passes the 15-course regression runs |
-| Replace the C runtime, the RenderWare physics plugin, RenderWare and D3DX, the streaming audio library | done for code (`librw-mfl`, a clean-room library, is the RenderWare and D3DX replacement) |
-| Zero original code | done 2026-11-15 |
-| Library data as typed C (copied data to 0 B) | in progress: 5,874 B left on 2026-11-17, down from 134,233 B |
-| Self-contained build from the public repository | in progress: the drop-in script exists; the build from an export tree in a clean container is being proven |
-| Deterministic replays over whole races | in progress: a race diverges between two runs of the original; the cause is under investigation |
-| Readability (module layout, plain calling conventions) | next |
-| Bug fixes and quality-of-life options behind switches | started: two switches implemented, more planned |
-| Renderers beyond Direct3D 9, Linux build, Switch homebrew port | planned |
+| `MFLng.exe` | The game with the bug fixes and improvements below. |
+| `MFLng.nofix.exe` | The same rebuild with the original behaviour, for comparing. |
+| `MFLng-launch.exe` | Optional launcher with the look of the original one. It starts either exe and updates the game and itself from the GitHub releases (releases only, or including pre-releases). |
+| `mflrw.dll`, `mfl_audio_miniaudio.dll` | Graphics/physics library and sound output. Required. |
+| `mfl_video_ffmpeg.dll`, `av*.dll`, `swscale-*.dll` | Intro movies, the menu backdrop movie and menu music (FFmpeg, LGPL). Without them the game runs silent in the menus and shows no movies. |
+| `LICENSES/` | Third-party notices. |
 
-## Open
+## What MFLng.exe does better than the original
 
-- Copied library data is not yet 0 B (5,874 B).
-- Two runs of the same race are not identical, so a whole race cannot yet be used as a regression test. The first difference lies in car physics floats at about 2.4 s of race time.
-- Source layout still follows how each function was matched, not the game's modules.
-- No controller support beyond DirectInput, no widescreen, no in-game settings menu.
-- The build runs from the maintainers' private layout and from the drop-in script; building from a clean checkout of this repository is not yet proven end to end.
+- **Widescreen.** The picture keeps its proportions at any window size; the Start screen, the winner camera and the spinning loading CD are no longer stretched.
+- **A Preferences page** in the Options menu (sub-menus Graphics, Comfort, Cheats and Other), with a description box:
+  - display mode (window, fullscreen, borderless) and resolution, language, menu speed;
+  - skip intro movies, skip the course fly-over, winner camera rotation, shorter save wait, unlock everything.
+  Settings are stored in `mflng_settings.cfg` next to the exe.
+- **Language** is chosen from your Windows language the first time (English, French, German, Spanish, Italian), and can be changed in Preferences.
+- **Alt-Tab** works; the game no longer closes without a message when you press Escape for the pause menu.
+- **Frame pacing:** a precise 60 Hz limiter; the frame rate cap and vsync are options.
+- **The save is loaded at start-up**, behind the loading screen, without the confirm and "Loading" boxes.
+- **A crash report** (`mflng-crash.txt`) is written next to the exe if the game ever crashes: please attach it to an issue.
+- Several crashes and glitches of the original are fixed (a hang after pressing Start, bounding-sphere and heap bugs, trail glitches).
 
-Details and the full list: [docs/ROADMAP.md](docs/ROADMAP.md).
+Each of these is a compile-time switch `MFL_FIX_*`, off in `MFLng.nofix.exe`: [docs/MFL_FIX_FLAGS.md](docs/MFL_FIX_FLAGS.md).
 
-## Progress (generated)
+## Known limits
+
+- Pre-releases: expect rough edges. Test on your machine and tell us.
+- Controller support is DirectInput only; there is no rebinding menu yet.
+- The number of players is as in the original; more players are only an idea so far.
+- The Preferences texts in French, German, Spanish and Italian have not been checked by native speakers yet.
+
+## For developers
+
+The goal is a playable recompilation with **readable, maintainable source** that takes bug fixes and enhancements, and is later ported (Linux first, then a Switch homebrew port).
+
+- None of the machine code is taken from the original executable (0 of 1,945 KB, measured 2026-11-15). The code comes from the C in this repository, from open-source libraries, or was removed after proving it is never used. The build contains no original resources (0 B).
+- Every function was checked against the original: either *byte identical* to what the original compiler (MSVC 13.00.9466, Visual C++ .NET 2002) produces, or *behaviour verified* by running it side by side with the original code in an emulator ([docs/VERIFICATION.md](docs/VERIFICATION.md)). This checking is scaffolding; the deliverable is the readable source.
+- The release zips are built by GitHub Actions with MSVC 2022 (x86) from this tree; the pinned VC7 build used for the proofs is a second variant.
+- Not finished: library tables copied from the original are still copied bytes (5,874 B left), the source layout still follows how each function was matched, and two runs of the same race are not yet identical, so a whole race cannot be a regression test yet.
+- Next: replay proofs, a compiler other than MSVC (GCC), then the Linux and Switch ports.
+
+Build it yourself: `tools/build_mflng.sh <your MFL.exe> <out dir>` ([docs/BUILDING.md](docs/BUILDING.md)). Supported executable: `MFL.exe`, SHA-1 `d52ca4a5995875b6d052707188e2c6d065f41766` (`python3 tools/check_exe.py path/to/MFL.exe`).
+
+Milestones and open work: [docs/ROADMAP.md](docs/ROADMAP.md). Numbers per layer and how they moved: [docs/PROGRESS_HISTORY.md](docs/PROGRESS_HISTORY.md).
+
+### Progress (generated)
 
 The numbers below are regenerated with every source drop by `tools/progress.py`.
 
@@ -126,28 +125,22 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 </details>
 <!-- progress:end -->
 
-## Contents
+### Contents
 
 | Path | What |
 |---|---|
-| `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by the scripts below. |
-| `scripts/` | Ghidra headless scripts (`RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`, ...). |
+| `names/` | Function, global and struct names for `MFL.exe` as CSV / struct files, applied to a Ghidra project by `scripts/` (Ghidra 12.1.4 headless: `RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`; see [docs/NAMING.md](docs/NAMING.md)). |
 | `tools/` | Compile / compare / hybrid-exe / regression tooling (Python, shell, Docker + Wine). See [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). |
-| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier1/` and `src/automatch/`: byte-identical functions, one per file. `src/tier2/`: behaviour-verified (not byte identical) functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. Only sources that use the curated headers `mfl_tier2.h` / `mfl_consts.h` are published. |
+| `src/` | Recompiled game code in C. `src/*.c` + `manifest.txt`: hand-written functions with address and status. `src/tier1/` and `src/automatch/`: byte-identical functions, one per file. `src/tier2/`: behaviour-verified functions, `names.txt` maps address to file. `src/clusters/`: verified register-argument clusters, `enabled.txt` lists the installed ones. |
 | `data/` | Small address tables the tools read (function sizes, library symbol tables). |
-| `launcher/` | `MFLng-launch.exe`: C + Win32 launcher and updater (see its README). |
-| `docs/` | See the table below. |
+| `launcher/` | `MFLng-launch.exe`: C + Win32 launcher and updater ([launcher/README.md](launcher/README.md)). |
+| `docs/` | Documentation: [GAME_STRUCTURE.md](docs/GAME_STRUCTURE.md) and [STRUCTS.md](docs/STRUCTS.md) (start here to understand the game), [MFL_FIX_FLAGS.md](docs/MFL_FIX_FLAGS.md), [BUILDING.md](docs/BUILDING.md), [TOOLCHAIN.md](docs/TOOLCHAIN.md), [VERIFICATION.md](docs/VERIFICATION.md), [NAMING.md](docs/NAMING.md), [ENUMS.md](docs/ENUMS.md), [ROADMAP.md](docs/ROADMAP.md), [LEGAL.md](docs/LEGAL.md). |
 
-| Document | What |
-|---|---|
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Milestones and open work, grouped, each marked done / in progress / planned. |
-| [docs/MFL_FIX_FLAGS.md](docs/MFL_FIX_FLAGS.md) | Every `MFL_FIX_*` switch: what it changes, status, how to turn it on, how to add one. |
-| [docs/PROGRESS_HISTORY.md](docs/PROGRESS_HISTORY.md) | Original code left per layer, dated history, how each part is produced. |
-| [docs/BUILDING.md](docs/BUILDING.md), [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md) | Build prerequisites and the tools. |
-| [docs/VERIFICATION.md](docs/VERIFICATION.md) | What "verified" means and where it stops. Nothing here claims the whole game is verified. |
-| [docs/GAME_STRUCTURE.md](docs/GAME_STRUCTURE.md), [docs/STRUCTS.md](docs/STRUCTS.md) | Start here to understand the game: main loop, race phases, cars, camera, course loading, menus, weapons, effects, audio; record layouts. |
-| [docs/NAMING.md](docs/NAMING.md), [docs/ENUMS.md](docs/ENUMS.md) | Naming workflow, enum constants. |
-| [docs/LEGAL.md](docs/LEGAL.md) | What is and is not included. |
+### Naming conventions in the source
+
+- `FUN_xxxxxxxx` is a function whose role is not known yet; the hex number is its address in `MFL.exe`. Once a role is found it gets a real name.
+- A name ending in an address (for example `shadow_project_to_ground_00499dc0`) is a named function whose address suffix keeps the name unique and ties it to the original.
+- A comment marked `(inferred)` is a guess from reading the code, not something confirmed by the original. Comments without the marker describe what the code visibly does.
 
 ## Acknowledgements
 
@@ -155,12 +148,4 @@ Many thanks to **L2KSolkov** and the contributors of [codfh-win32](https://githu
 
 Many thanks to **tgsm** and the contributors of [pbg](https://github.com/tgsm/pbg), the CC0-licensed decompilation of Piglet's Big Game. The RWA headers `src/tier1/rwa.h` and `src/tier1/rwaint.h` take the basic RenderWare types, `RwLLLink`, `RwV3d`, `RwaUUID`, `RwaLLNode`, `RwaParamType`, `RwaParamTypeHandle` and `RwaType` from its `include/rwsdk` and `include/rwa` headers; the other structures there hold only the members our sources use, at the offsets measured in `MFL.exe`.
 
-## Naming data
-
-Apply with Ghidra 12.1.4 (headless) in this order: `RenameFns.java`, `ApplyStructs.java`, `RenameVars.java`. Details: [docs/NAMING.md](docs/NAMING.md).
-
-## Naming conventions in the source
-
-- `FUN_xxxxxxxx` is a function whose role is not known yet; the hex number is its address in `MFL.exe`. It is the name the decompiler gave it, and the same name appears at the definition, so you can search for it. Once a role is found it gets a real name.
-- A name ending in an address (for example `shadow_project_to_ground_00499dc0`) is a named function whose address suffix keeps the name unique and ties it to the original.
-- A comment marked `(inferred)` is a guess from reading the code (what a value or call is for), not something confirmed by the original or by a debug symbol. Comments without the marker describe what the code visibly does.
+The movie and menu-music DLL uses [FFmpeg](https://ffmpeg.org) (LGPL 2.1), and sound output uses [miniaudio](https://miniaud.io) (public domain / MIT-0); notices are in `LICENSES/` in each release.

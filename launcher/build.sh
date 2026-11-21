@@ -3,14 +3,16 @@
 #   msvc  : cl 19.44 x86 /MT through tools/msvcw/msvcw_sh.sh: the msvc-wine image locally, MSVCW_NATIVE=1 = cl / rc / link from PATH (CI)
 #   mingw : i686-w64-mingw32-gcc (local check build, static libgcc)
 #   test  : native gcc build of test_logic with AddressSanitizer + UBSan; run it with <releases.json> <zip> <tag> [deflate vectors]
-# The exe holds exactly one resource: RT_MANIFEST = data/link/MFLng.manifest as committed (asInvoker; no_original.py --release wants it
-# byte-equal; a Windows checkout has it with CRLF, so the committed bytes come from git when there is one).
+# The exe holds two kinds of resource: RT_MANIFEST = data/link/MFLng.manifest as committed (asInvoker; no_original.py --release wants it
+# byte-equal; a Windows checkout has it with CRLF, so the committed bytes come from git when there is one) and our application icon
+# (RT_ICON / RT_GROUP_ICON from assets/icon/mflng.ico; pe_check.py --icon wants the images byte-equal).
 set -e
 M=$1 O=$(mkdir -p "$2" && cd "$2" && pwd) V=${3:-dev}
 case $V in *[!A-Za-z0-9._-]*) echo "build.sh: version '$V' may hold only A-Z a-z 0-9 . _ -"; exit 2 ;; esac
 L=$(cd "$(dirname "$0")" && pwd); R=$(dirname "$L")
 git -C "$R" show HEAD:data/link/MFLng.manifest > "$O/mflng.manifest" 2>/dev/null || cp "$R/data/link/MFLng.manifest" "$O/mflng.manifest"
-echo '1 24 "mflng.manifest"' > "$O/launcher.rc"
+cp "$R/assets/icon/mflng.ico" "$O/mflng.ico"
+printf '1 24 "mflng.manifest"\n1 ICON "mflng.ico"\n' > "$O/launcher.rc"      # the icon: our own drawing (assets/icon/), the exe's application icon
 LIBS="user32 gdi32 shell32 advapi32 winhttp kernel32"
 case $M in
   test)

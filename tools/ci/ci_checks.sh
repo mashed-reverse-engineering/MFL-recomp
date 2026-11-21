@@ -16,7 +16,7 @@ for f in "$O"/mfl_video_ffmpeg.dll "$O"/avformat-*.dll "$O"/avcodec-*.dll "$O"/a
 done
 for e in MFLng MFLng.nofix; do
   $PY "$C/rw_stub_guard.py" "$L/capi/stubs_gen.cpp" "$O/$e.exe"
-  $PY "$C/pe_check.py" "$O/$e.exe" --rwdll "$O/mflrw.dll" --manifest "$R/data/link/MFLng.manifest"
+  $PY "$C/pe_check.py" "$O/$e.exe" --rwdll "$O/mflrw.dll" --manifest "$R/data/link/MFLng.manifest" --icon "$R/assets/icon/mflng.ico"
 done
 $PY "$C/no_original.py" "$R"
 echo "ci_checks: all passed"

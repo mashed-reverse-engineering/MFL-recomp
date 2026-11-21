@@ -16,7 +16,7 @@ def parse_pe(data):
     machine, nsec, _, _, _, osz, _ = struct.unpack_from("<HHIIIHH", data, pe + 4)
     opt = pe + 24
     magic = struct.unpack_from("<H", data, opt)[0]
-    out = dict(machine=machine, magic=magic, imports={}, exports=[], res_types=[], manifests=[])
+    out = dict(machine=machine, magic=magic, imports={}, exports=[], res_types=[], manifests=[], icons=[], icon_groups=[])
     if magic != 0x10B:  # PE32 only past here
         return out
     dd = [struct.unpack_from("<II", data, opt + 96 + 8 * i) for i in range(16)]
@@ -70,7 +70,20 @@ def parse_pe(data):
             out["res_types"].append("name" if k & 0x80000000 else k)
             if k == 24:
                 out["manifests"] = leaves(v)
+            if k == 3:      # RT_ICON images (PNG / DIB data), RT_GROUP_ICON directories
+                out["icons"] = leaves(v)
+            if k == 14:
+                out["icon_groups"] = leaves(v)
     return out
+
+
+def icon_bad(p, ico):
+    """None when the exe's icon resources are exactly the images of the committed .ico (RT_ICON blobs equal, one RT_GROUP_ICON), else the reason."""
+    n = struct.unpack_from("<HHH", ico)[2]
+    want = sorted(ico[o:o + s] for s, o in (struct.unpack_from("<II", ico, 6 + 16 * i + 8) for i in range(n)))
+    if len(p["icon_groups"]) != 1 or sorted(p["icons"]) != want:
+        return "icon resources are not the committed mflng.ico (%d groups, %d images, want 1 / %d)" % (len(p["icon_groups"]), len(p["icons"]), n)
+    return None
 
 
 def make_pe(imports, exports=(), res=(), machine=0x14C):
