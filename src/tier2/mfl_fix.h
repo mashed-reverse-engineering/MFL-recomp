@@ -69,6 +69,10 @@ enum mfl_pref_key {
                                      row sets it through mfl_video_modes_api->choose, so mfl_settings_save writes mfl_prefs[] for this key, not values[] */
   MFL_PREF_FPS_CAP,               /* MFL_FIX_FIXED_STEP: fps_cap=60|30|0 (0 = unlimited), kept as the index 0..2 of those words; default 60 */
   MFL_PREF_VSYNC,                 /* vsync=on|off (1/0): the flip waits for the vertical blank (the original) or not; applies at the next start */
+  MFL_PREF_CONTROLLER_SETUP,      /* MFL_FIX_LANG: controller_setup=1: the next start without a -cs option shows the original controller setup dialog
+                                     once (the key is written back as 0 at that start), then the game starts */
+  MFL_PREF_PAD_DEADZONE,          /* MFL_FIX_CONTROLS: pad_deadzone=5|10|..|50 (percent of the stick travel, kept as the index 0..9 of those words);
+                                     default 35 = the original's 0.35 */
   MFL_PREF_COUNT
 };
 int mfl_video_start_fallback(void);      /* rw_engine_init: RwEngineStart failed: once, a 640 x 480 window on the desktop mode (logged); 0 = nothing to try */
@@ -109,7 +113,26 @@ void mfl_lang_apply(void);
 int mfl_lang_available(int language);      /* 1 when the game can play that language id: -1 (auto), 0 and 5 always, 1..4 when its speech folder exists */
 #endif
 
-#ifndef MFL_FIX_ALT_TAB      /* the window counts as active again when it is activated by a click or while minimised (WM_ACTIVATE low word), so after
+#ifndef MFL_FIX_CONTROLS      /* needs MFL_FIX_PREFS.  Preferences gets a category Controls: per player the device (none / keyboard / a detected
+                                 pad), every key or button of the 13 actions (Return on a row, then the new key; Escape cancels), reset to the
+                                 defaults, and the stick dead zone (key pad_deadzone).  It edits the game's own controller table and writes the
+                                 game's own contcfg<n>.bin (same format as the original setup dialog).  At start a saved file is also accepted
+                                 when it names the keyboard in another language or on another player, a pad on another player, or no device;
+                                 the original accepted only the default device of that player under its exact name (recomp/mfl_settings_menu.c,
+                                 called from controller_dialog_run in automatch_near/an_hk_999.c; output/controls_study_2026-11-22.md) */
+#define MFL_FIX_CONTROLS 0
+#endif
+#if MFL_FIX_CONTROLS && MFL_FIX_PREFS
+void mfl_controls_load(void);      /* controller_dialog_run, last step: contcfg<n>.bin by the wider rule, then the dead zone key */
+#endif
+
+#ifndef MFL_FIX_PAD_LIMIT      /* the game controller enumeration stops at 4 devices; the original took every attached one while its per-pad
+                                  button and axis tables hold 4, so a fifth device (virtual joysticks, wheels, pedals, some keyboards and mice
+                                  count) overran them (clusters/cl_joypads_search_cb_4a5030.c) */
+#define MFL_FIX_PAD_LIMIT 0
+#endif
+
+#ifndef MFL_FIX_ALT_TAB     /* the window counts as active again when it is activated by a click or while minimised (WM_ACTIVATE low word), so after
                                 Alt+Tab / the Windows key back into the game it runs and reads keys again; the original compared the whole wparam with
                                 WA_ACTIVE and stayed paused (clusters/cl_window_create_cb_4a9830.c; agents/gfx_w17/notes.md) */
 #define MFL_FIX_ALT_TAB 0

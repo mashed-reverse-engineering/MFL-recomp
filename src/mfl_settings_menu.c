@@ -17,7 +17,13 @@
  * Rows whose key is read only at start (display mode, language, intro movies, unlock all) change the file only; the others change
  * mfl_prefs at once too.  The Performance category and the Display adapter row are the original setup dialog's controls: their values stay in
  * videocfg.bin (g_video_cfg, written by the game's own video_cfg_save when the page is left), their captions are the dialog's own strings.
- * unlock_all is never switched live: mfl_unlock_all_force keeps the real save words only once per run. */
+ * unlock_all is never switched live: mfl_unlock_all_force keeps the real save words only once per run.
+ *
+ * MFL_FIX_CONTROLS: the category Controls.  Its rows show and change the game's own controller table g_controller_cfg[4] of the player
+ * chosen in the first row (the race and the menus read that table every frame, so a change is live) and write that player's
+ * contcfg<n>.bin at once with the game's own controller_cfg_save_n: the file format stays the original setup dialog's.  Two of its rows
+ * open a further page each (the 9 button actions, the 4 directions); Return on an action row waits for the next key or button
+ * (capture_run).  mfl_controls_load is the start-up loader with the wider acceptance rule; the dead zone row is the key pad_deadzone. */
 #include "mfl_fix.h"
 #if MFL_FIX_PREFS      /* (build_overlay.py leaves the file out without the switch; this keeps any other build of it empty) */
 #include "mfl_consts.h"
@@ -55,6 +61,23 @@ extern __declspec(dllimport) int __stdcall LoadStringA(int module, unsigned int 
 /*00483130*/ extern void draw_sprite(void *texture, float x, float y, float width, float height, unsigned int colour, int flags);
 /*004832d0*/ extern void draw_sprite_uv(void *texture, float x, float y, float width, float height, unsigned int colour, float z, float u_left, float v_top, float u_right, int a, int b);
 /*004824a0*/ extern int draw_rect(float x, float y, float w, float h, unsigned int colour);      /* 640-space, as frontend_draw's button faces */
+#if MFL_FIX_CONTROLS
+/*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
+/*007ef820*/ extern struct PlayerInput g_player_inputs[12];
+/*007711c4*/ extern unsigned char g_app_7711c4[];                /* pad button bits of this frame, 4 bytes per pad */
+/*0077122c*/ extern unsigned char g_app_77122c[];                /* key bits of this frame, by DirectInput key code (32 bytes) */
+/*00770f60*/ extern float g_app_770f60;                          /* stick dead zone (joypads_init: 0.35) */
+/*007711a4*/ extern char g_controller_dialog_7711a4[];           /* "Keyboard" in the game language (controller_dialog_run) */
+/*007711e8*/ extern char g_controller_dialog_7711e8[];           /* "No Controller" */
+/*004a48e0*/ extern int app_get_app_770f64(void);                /* number of pads found at start */
+/*004a4980*/ extern int controller_dialog_copy_name(int pad, char *name);      /* product name of a found pad */
+/*004a6e20*/ extern int controller_cfg_load_n(int slot);         /* contcfg<slot>.bin -> g_controller_cfg[slot]; 0 without a file */
+/*004a6ea0*/ extern int controller_cfg_save_n(int slot);
+/*0042bd00*/ extern unsigned char *dat_get_string(int index);    /* a text of the game's own table, in its language */
+extern __declspec(dllimport) void *__stdcall GetModuleHandleA(const char *name);
+extern __declspec(dllimport) void *__stdcall GetProcAddress(void *module, const char *name);
+typedef int (__stdcall *key_name_fn)(long key, char *text, int size);      /* GetKeyNameTextA (the original exe does not import it) */
+#endif
 
 /* item list words (the game's format, mfl_tier2.h MENU_ITEM_LIST_* / MENU_INPUT_*) */
 #define L_FRAME 0xff000000u      /* + title text id */
@@ -78,12 +101,16 @@ extern __declspec(dllimport) int __stdcall LoadStringA(int module, unsigned int 
 
 enum text {
   T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION,
-  T_ADAPTER, T_SHADOWS, T_MULTITEX, T_TRILINEAR, T_ENV,      /* the rows' captions, in the order of k_desc */
+  T_ADAPTER, T_SHADOWS, T_MULTITEX, T_TRILINEAR, T_ENV, T_CTL_SETUP,
+  T_CTL_PLAYER, T_CTL_DEVICE, T_CTL_BUTTONS, T_CTL_DIRECTIONS, T_CTL_RESET, T_DEADZONE,      /* the rows' captions, in the order of k_desc */
   T_NEXT_START, T_AT_ONCE, T_NEXT_RACE, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
   T_FPS_60, T_FPS_30, T_FPS_UNLIMITED,
-  T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_CAT_PERF, T_COUNT
+  T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_CAT_PERF, T_CAT_CONTROLS,
+  T_ACTION,      /* the 13 controller actions, in the order of ControllerCfg.bindings */
+  T_PRESS = T_ACTION + 13, T_STICK, T_BUTTON, T_COUNT
 };
 #define T_LINE0 0x100      /* text ids T_LINE0.. = the word-wrapped lines of the description box (line_buf) */
+#define T_ROW_VALUE 0x200  /* text ids T_ROW_VALUE + row = the value of a Controls row (row_buf) */
 #define T_MODE_NAME 0x180  /* text id of the Resolution row's value (mode_buf) */
 #define T_ADAPTER_NAME 0x181  /* the Display adapter row's value (adapter_buf) */
 #define LINES 10
@@ -110,6 +137,14 @@ static const char *const k_text[T_COUNT][5] = {
   { "Multi-texturing", "Multi-texturage", "Multi-Texturing", "Multitexturas", "Multitexture" },
   { "Trilinear filtering", "Filtrage trilin\xe9" "aire", "Trilinearer Filter", "Filtrado trilineal", "Filtro trilineare" },
   { "Environment effects", "Effets du d\xe9" "cor", "Umgebungseffekte", "Efectos del entorno", "Effetti ambiente" },
+  { "Controller setup", "Config. manettes", "Controller-Setup", "Config. de mandos", "Config. controller" },
+  /* MFL_FIX_CONTROLS.  French, German, Spanish, Italian: ours, NEED A NATIVE SPEAKER'S CHECK.  "Player" is the game's own text at run time (k_game_text) */
+  { "Player", "Joueur", "Spieler", "Jugador", "Giocatore" },
+  { "Device", "P\xe9riph\xe9rique", "Ger\xe4t", "Dispositivo", "Dispositivo" },
+  { "Keys and buttons", "Touches et boutons", "Tasten und Kn\xf6pfe", "Teclas y botones", "Tasti e pulsanti" },
+  { "Direction keys", "Touches de direction", "Richtungstasten", "Teclas de direcci\xf3n", "Tasti direzionali" },
+  { "Reset to defaults", "R\xe9initialiser", "Zur\xfc" "cksetzen", "Restablecer", "Ripristina" },
+  { "Stick dead zone", "Zone morte du stick", "Stick-Totzone", "Zona muerta del stick", "Zona morta dello stick" },
   { "Applies at the next start.", "Effet au prochain d\xe9marrage.", "Gilt ab dem n\xe4" "chsten Start.", "Se aplica al reiniciar.",
     "Vale dal prossimo avvio." },
   { "Applies at once.", "Effet imm\xe9" "diat.", "Gilt sofort.", "Se aplica al momento.", "Vale subito." },
@@ -136,10 +171,29 @@ static const char *const k_text[T_COUNT][5] = {
   { "Cheats", "Triches", "Cheats", "Trucos", "Trucchi" },
   { "Other", "Autres", "Sonstiges", "Otros", "Altro" },
   { "Performance", "Performances", "Leistung", "Rendimiento", "Prestazioni" },      /* the original's string 2240 is used when it is short enough (k_orig) */
+  /* MFL_FIX_CONTROLS.  French, German, Spanish, Italian: ours, NEED A NATIVE SPEAKER'S CHECK.  Where the game has the text (k_game_text:
+   * Controllers, Accelerate, Brake, Fire weapon, Drop weapon, Start/Pause, Insults) its own is shown and these are the fallback */
+  { "Controls", "Commandes", "Steuerung", "Controles", "Comandi" },
+  { "Accelerate", "Acc\xe9l\xe9rer", "Gas geben", "Acelerar", "Accelera" },
+  { "Brake", "Freiner", "Bremsen", "Frenar", "Frena" },
+  { "Fire weapon", "Tirer", "Waffe abfeuern", "Disparar arma", "Usa arma" },
+  { "Drop weapon", "L\xe2" "cher l'arme", "Waffe abwerfen", "Soltar arma", "Lascia arma" },
+  { "Menu: select", "Menu : valider", "Men\xfc: Ausw\xe4hlen", "Men\xfa: aceptar", "Menu: conferma" },
+  { "Menu: back", "Menu : retour", "Men\xfc: Zur\xfc" "ck", "Men\xfa: atr\xe1s", "Menu: indietro" },
+  { "Pause", "Pause", "Pause", "Pausa", "Pausa" },
+  { "Menu: next", "Menu : suivant", "Men\xfc: Weiter", "Men\xfa: siguiente", "Menu: avanti" },
+  { "Insult", "Insulte", "Beleidigung", "Insulto", "Insulto" },
+  { "Left", "Gauche", "Links", "Izquierda", "Sinistra" },
+  { "Right", "Droite", "Rechts", "Derecha", "Destra" },
+  { "Up", "Haut", "Oben", "Arriba", "Su" },
+  { "Down", "Bas", "Unten", "Abajo", "Gi\xf9" },
+  { "Press a key or button", "Appuie sur une touche", "Taste oder Knopf dr\xfc" "cken", "Pulsa una tecla o bot\xf3n", "Premi un tasto" },
+  { "Stick / D-pad", "Stick / croix", "Stick / Steuerkreuz", "Stick / cruceta", "Stick / croce" },
+  { "Button", "Bouton", "Knopf", "Bot\xf3n", "Pulsante" },      /* + the button's number as Windows counts it (from 1) */
 };
 
 /* the description box text of each row (same order as the row captions T_DISPLAY..T_RESOLUTION); "Off" words = the game's own Off text */
-static const char *const k_desc[T_ENV - T_DISPLAY + 1][5] = {
+static const char *const k_desc[T_DEADZONE - T_DISPLAY + 1][5] = {
   { "How the game is shown. Fullscreen: the video mode chosen in the setup. Windowed: a window on the desktop. "
     "Borderless: a window over the whole screen, quick Alt+Tab.",
     "Comment le jeu s'affiche. Plein \xe9" "cran : le mode vid\xe9o choisi \xe0 l'installation. Fen\xeatr\xe9 : une fen\xeatre "
@@ -240,13 +294,89 @@ static const char *const k_desc[T_ENV - T_DISPLAY + 1][5] = {
     "Umgebungseffekte wie Boost-Flammen und Radspuren. Aus: weniger Effekte.",
     "Efectos ambientales como las llamas del turbo y las marcas de las ruedas. No: menos efectos.",
     "Effetti ambientali come le fiamme del turbo e i segni delle ruote. No: meno effetti." },
+  /* the one-shot key controller_setup (mfl_lang_apply).  Translations: ours (need a native speaker's check) */
+  { "On: the next start opens the game's controller setup window once: choose keyboard or gamepad per player and change the keys and "
+    "buttons. Then the game starts.",
+    "Oui : le prochain d\xe9marrage ouvre une fois la fen\xeatre de configuration des manettes : clavier ou manette par joueur, touches "
+    "et boutons. Puis le jeu d\xe9marre.",
+    "Ein: der n\xe4" "chste Start \xf6" "ffnet einmal das Controller-Setup des Spiels: Tastatur oder Gamepad je Spieler w\xe4hlen, Tasten "
+    "und Kn\xf6pfe \xe4ndern. Danach startet das Spiel.",
+    "S\xed: el pr\xf3ximo inicio abre una vez la ventana de configuraci\xf3n de mandos: teclado o mando por jugador, teclas y botones. "
+    "Despu\xe9s empieza el juego.",
+    "S\xec: il prossimo avvio apre una volta la finestra di configurazione dei controller: tastiera o gamepad per giocatore, tasti e "
+    "pulsanti. Poi il gioco parte." },
+  /* MFL_FIX_CONTROLS: Player, Device, Keys and buttons (also shown on each of its action rows), Direction keys (the same), Reset, Stick dead
+   * zone.  French, German, Spanish, Italian: ours, NEED A NATIVE SPEAKER'S CHECK.  No percent sign: the game's texts never draw one */
+  { "The player whose controls the rows below show and change.",
+    "Le joueur dont les lignes ci-dessous montrent et changent les commandes.",
+    "Der Spieler, dessen Steuerung die Zeilen darunter zeigen und \xe4ndern.",
+    "El jugador cuyos controles muestran y cambian las filas de abajo.",
+    "Il giocatore di cui le righe sotto mostrano e cambiano i comandi." },
+  { "What this player plays with: nothing, the keyboard or a connected gamepad. A new device starts with its default keys or buttons. "
+    "Gamepads are found when the game starts.",
+    "Avec quoi ce joueur joue : rien, le clavier ou une manette branch\xe9" "e. Un nouveau p\xe9riph\xe9rique commence avec ses touches ou "
+    "boutons par d\xe9" "faut. Les manettes sont d\xe9tect\xe9" "es au lancement du jeu.",
+    "Womit dieser Spieler spielt: nichts, Tastatur oder ein angeschlossenes Gamepad. Ein neues Ger\xe4t beginnt mit seinen Standardtasten. "
+    "Gamepads werden beim Spielstart erkannt.",
+    "Con qu\xe9 juega este jugador: nada, el teclado o un mando conectado. Un dispositivo nuevo empieza con sus teclas o botones por "
+    "defecto. Los mandos se detectan al iniciar el juego.",
+    "Con cosa gioca questo giocatore: niente, la tastiera o un gamepad collegato. Un nuovo dispositivo parte con i tasti o pulsanti "
+    "predefiniti. I gamepad vengono rilevati all'avvio del gioco." },
+  { "The key or button of each action. Return on an action, then press the new key or button; Escape cancels. A key already in use "
+    "swaps with the old one.",
+    "La touche ou le bouton de chaque action. Entr\xe9" "e sur une action, puis la nouvelle touche ou le nouveau bouton ; \xc9" "chap "
+    "annule. Une touche d\xe9j\xe0 utilis\xe9" "e \xe9" "change avec l'ancienne.",
+    "Die Taste oder der Knopf jeder Aktion. Eingabe auf einer Aktion, dann die neue Taste oder den neuen Knopf dr\xfc" "cken; Esc bricht "
+    "ab. Eine schon benutzte Taste tauscht mit der alten.",
+    "La tecla o el bot\xf3n de cada acci\xf3n. Intro en una acci\xf3n y luego la tecla o el bot\xf3n nuevo; Esc cancela. Una tecla ya "
+    "usada se intercambia con la anterior.",
+    "Il tasto o il pulsante di ogni azione. Invio su un'azione, poi il nuovo tasto o pulsante; Esc annulla. Un tasto gi\xe0 usato si "
+    "scambia con il precedente." },
+  { "The keys for left, right, up and down: steering and the menus. Return on a row, then the new key; Escape cancels. A gamepad always "
+    "uses its stick or D-pad.",
+    "Les touches gauche, droite, haut et bas : direction et menus. Entr\xe9" "e sur une ligne, puis la nouvelle touche ; \xc9" "chap annule. "
+    "Une manette utilise toujours son stick ou sa croix.",
+    "Die Tasten f\xfcr links, rechts, oben und unten: Lenken und Men\xfcs. Eingabe auf einer Zeile, dann die neue Taste; Esc bricht ab. "
+    "Ein Gamepad benutzt immer Stick oder Steuerkreuz.",
+    "Las teclas de izquierda, derecha, arriba y abajo: direcci\xf3n y men\xfas. Intro en una fila y luego la tecla nueva; Esc cancela. "
+    "Un mando usa siempre su stick o su cruceta.",
+    "I tasti per sinistra, destra, su e gi\xf9: sterzo e menu. Invio su una riga, poi il nuovo tasto; Esc annulla. Un gamepad usa sempre "
+    "lo stick o la croce direzionale." },
+  { "Return: this player gets the device and the keys or buttons the game gives it by default.",
+    "Entr\xe9" "e : ce joueur reprend le p\xe9riph\xe9rique et les touches ou boutons que le jeu lui donne par d\xe9" "faut.",
+    "Eingabe: dieser Spieler bekommt wieder das Ger\xe4t und die Tasten, die das Spiel ihm standardm\xe4\xdfig gibt.",
+    "Intro: este jugador recupera el dispositivo y las teclas o botones que el juego le da por defecto.",
+    "Invio: questo giocatore riprende il dispositivo e i tasti o pulsanti che il gioco gli d\xe0 per impostazione predefinita." },
+  { "How far a gamepad stick must move before it counts, in percent, for all gamepads. 35 is the original. Smaller: more sensitive; "
+    "raise it if a car steers by itself.",
+    "De combien le stick d'une manette doit bouger avant de compter, en pour cent, pour toutes les manettes. 35 est la valeur d'origine. "
+    "Plus petit : plus sensible ; augmente-la si une voiture tourne toute seule.",
+    "Wie weit ein Gamepad-Stick bewegt werden muss, bevor er z\xe4hlt, in Prozent, f\xfcr alle Gamepads. 35 ist das Original. Kleiner: "
+    "empfindlicher; erh\xf6he den Wert, wenn ein Auto von selbst lenkt.",
+    "Cu\xe1nto debe moverse el stick de un mando para contar, en porcentaje, para todos los mandos. 35 es el original. Menor: m\xe1s "
+    "sensible; s\xfa" "belo si un coche gira solo.",
+    "Di quanto deve muoversi lo stick di un gamepad prima di contare, in percentuale, per tutti i gamepad. 35 \xe8 l'originale. Pi\xf9 "
+    "piccolo: pi\xf9 sensibile; aumentalo se un'auto sterza da sola." },
 };
 
 /* The page tree: Options -> Preferences (category list) -> one sub-page per category.  All of them are page id MFL_PAGE_PREFS (the only
  * free slot of g_menu_page_item_lists): a menu record keeps its own item list, so the slot is pointed at the list the next Return will
  * open (sync_slot) and Escape pops back one level through the game's own back path. */
-enum category { CAT_GRAPHICS, CAT_PERF, CAT_COMFORT, CAT_CHEATS, CAT_OTHER, CATS };
-static const int k_cat_text[CATS] = { T_CAT_GRAPHICS, T_CAT_PERF, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER };
+enum category {
+  CAT_GRAPHICS, CAT_PERF,
+#if MFL_FIX_CONTROLS
+  CAT_CONTROLS,
+#endif
+  CAT_COMFORT, CAT_CHEATS, CAT_OTHER, CATS,
+  PAGE_BUTTONS = CATS, PAGE_DIRECTIONS, PAGES      /* MFL_FIX_CONTROLS: the pages two rows of Controls open (not categories; empty without the switch) */
+};
+static const int k_cat_text[PAGES] = {      /* the title of each page */
+  T_CAT_GRAPHICS, T_CAT_PERF,
+#if MFL_FIX_CONTROLS
+  T_CAT_CONTROLS,
+#endif
+  T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_CTL_BUTTONS, T_CTL_DIRECTIONS
+};
 #define KEY_RESOLUTION (-1)      /* the Resolution row: values from mfl_video_modes_api (GFX), not a key of mfl_prefs */
 /* the rows of videocfg.bin (the original setup dialog's controls; the file stays the one home of these values, written by the game's own video_cfg_save) */
 #define KEY_ADAPTER (-2)         /* g_video_cfg.subsystem_index (shown only when the PC has more than one adapter) */
@@ -254,6 +384,13 @@ static const int k_cat_text[CATS] = { T_CAT_GRAPHICS, T_CAT_PERF, T_CAT_COMFORT,
 #define KEY_VC_MULTITEX (-4)     /* no_multitexture (inverted) */
 #define KEY_VC_TRILINEAR (-5)    /* trilinear */
 #define KEY_VC_ENV (-6)          /* no_env_effects (inverted) */
+/* the rows of Controls (MFL_FIX_CONTROLS): the game's controller table, not keys of mfl_prefs */
+#define KEY_CTL_PLAYER (-7)      /* which player the other rows show: 1..4 */
+#define KEY_CTL_DEVICE (-8)      /* ControllerCfg.device / joystick / name */
+#define KEY_CTL_BUTTONS (-9)     /* opens PAGE_BUTTONS */
+#define KEY_CTL_DIRECTIONS (-10) /* opens PAGE_DIRECTIONS */
+#define KEY_CTL_RESET (-11)
+#define KEY_BIND (-12)           /* KEY_BIND - action: ControllerCfg.bindings[action], Return = capture */
 #define LIVE_START 0             /* the footer of a row: applies at the next start / at once / from the next race */
 #define LIVE_NOW 1
 #define LIVE_RACE 2
@@ -279,10 +416,39 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
   { CAT_CHEATS, T_UNLOCK, MFL_PREF_UNLOCK_ALL, 2, 0, 0, 0 },
 #if MFL_FIX_LANG
   { CAT_OTHER, T_LANGUAGE, MFL_PREF_LANGUAGE, 7, -1, 0, 0 },
+  { CAT_OTHER, T_CTL_SETUP, MFL_PREF_CONTROLLER_SETUP, 2, 0, 0, 0 },      /* one shot: the original controller dialog at the next start */
 #endif
   { CAT_OTHER, T_SAVE_WAIT, MFL_PREF_SKIP_SAVE_WAIT, 2, 0, 1, 1 },
+#if MFL_FIX_CONTROLS
+  { CAT_CONTROLS, T_CTL_PLAYER, KEY_CTL_PLAYER, 0, 0, 0, LIVE_NOW },
+  { CAT_CONTROLS, T_CTL_DEVICE, KEY_CTL_DEVICE, 0, 0, 0, LIVE_NOW },
+  { CAT_CONTROLS, T_CTL_BUTTONS, KEY_CTL_BUTTONS, 0, 0, 0, LIVE_NOW },
+  { CAT_CONTROLS, T_CTL_DIRECTIONS, KEY_CTL_DIRECTIONS, 0, 0, 0, LIVE_NOW },
+  { CAT_CONTROLS, T_CTL_RESET, KEY_CTL_RESET, 0, 0, 0, LIVE_NOW },
+  { CAT_CONTROLS, T_DEADZONE, MFL_PREF_PAD_DEADZONE, 10, 0, 0, LIVE_NOW },      /* values 5 .. 50 (index 0..9) */
+  { PAGE_BUTTONS, T_ACTION + 0, KEY_BIND - 0, 0, 0, 0, LIVE_NOW },      /* accelerate, brake, fire, drop */
+  { PAGE_BUTTONS, T_ACTION + 1, KEY_BIND - 1, 0, 0, 0, LIVE_NOW },
+  { PAGE_BUTTONS, T_ACTION + 2, KEY_BIND - 2, 0, 0, 0, LIVE_NOW },
+  { PAGE_BUTTONS, T_ACTION + 3, KEY_BIND - 3, 0, 0, 0, LIVE_NOW },
+  { PAGE_BUTTONS, T_ACTION + 8, KEY_BIND - 8, 0, 0, 0, LIVE_NOW },      /* insult, pause, then the three menu buttons */
+  { PAGE_BUTTONS, T_ACTION + 6, KEY_BIND - 6, 0, 0, 0, LIVE_NOW },
+  { PAGE_BUTTONS, T_ACTION + 4, KEY_BIND - 4, 0, 0, 0, LIVE_NOW },
+  { PAGE_BUTTONS, T_ACTION + 5, KEY_BIND - 5, 0, 0, 0, LIVE_NOW },
+  { PAGE_BUTTONS, T_ACTION + 7, KEY_BIND - 7, 0, 0, 0, LIVE_NOW },
+  { PAGE_DIRECTIONS, T_ACTION + 9, KEY_BIND - 9, 0, 0, 0, LIVE_NOW },      /* left, right, up, down */
+  { PAGE_DIRECTIONS, T_ACTION + 10, KEY_BIND - 10, 0, 0, 0, LIVE_NOW },
+  { PAGE_DIRECTIONS, T_ACTION + 11, KEY_BIND - 11, 0, 0, 0, LIVE_NOW },
+  { PAGE_DIRECTIONS, T_ACTION + 12, KEY_BIND - 12, 0, 0, 0, LIVE_NOW },
+#endif
 };
 #define ROWS ((int)(sizeof k_rows / sizeof k_rows[0]))
+#if MFL_FIX_CONTROLS
+#define ROW_OPENS_PAGE(k) (k_rows[k].key == KEY_CTL_BUTTONS || k_rows[k].key == KEY_CTL_DIRECTIONS)
+#define ROW_STEPS(k) (k_rows[k].key > KEY_CTL_BUTTONS)      /* Left / Right change it: the value gets the arrows */
+#else
+#define ROW_OPENS_PAGE(k) 0
+#define ROW_STEPS(k) 1
+#endif
 /* 640-space layout (the game's buttons are fixed at x 60..270 plus a gradient to 370; the widescreen fix centres this space 4:3) */
 #define ROW_SCALE 0.65f     /* our row captions (the game's rows: 0.8) */
 #define ROW_DEFAULT_SCALE 0.8f      /* menu_page_enter's row scale */
@@ -299,14 +465,36 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
 const struct mfl_video_modes *mfl_video_modes_api;      /* set by the video code (GFX gf3) at start; 0 = no Resolution row */
 static unsigned int options_list[64];      /* the Options page list with the Preferences row first */
 static unsigned int cat_list[24 + 5 * CATS];
-static unsigned int sub_list[CATS][24 + 5 * ROWS];
-static int sub_rows[CATS][ROWS], sub_count[CATS];      /* k_rows index of each row of a sub-page */
+static unsigned int sub_list[PAGES][24 + 5 * ROWS];
+static int sub_rows[PAGES][ROWS], sub_count[PAGES];      /* k_rows index of each row of a sub-page */
 static int values[MFL_PREF_COUNT];         /* the file's values as the page shows them */
 static int installed, dirty;
 static unsigned short line_buf[LINES][LINE_CHARS + 1];      /* length-prefixed UTF-16 lines of the description box */
 static unsigned short mode_buf[24];         /* the Resolution row's value */
 static unsigned short adapter_buf[24];      /* the Display adapter row's value */
 static int quality_dirty;                   /* a videocfg.bin row changed: video_cfg_save on leaving the page */
+#if MFL_FIX_CONTROLS
+#define CONTROLLERS 4
+#define ACTIONS 13               /* ControllerCfg.bindings: 0..8 buttons, 9..12 left right up down */
+#define PAD_ACTIONS 9            /* a pad's directions are its stick: bindings 9..12 are not read */
+#define ACTION_LEFT 9
+#define DEVICE_NONE 0            /* ControllerCfg.device */
+#define DEVICE_PAD 1
+#define DEVICE_KEYBOARD 2
+#define CFG_VERSION 6
+#define PAD_BUTTONS 16           /* button bits the game reads per pad */
+#define KEY_ESCAPE 0x01          /* DirectInput key code */
+#define DEADZONE_ORIGINAL 6      /* index of 35 percent */
+#define VALUE_CHARS 13           /* a row value up to the description box ("No Controller"; a longer pad or key name is cut) */
+#define CAPTURE_SECONDS 10.0f    /* a capture ends by itself after this (a key that reads as stuck must not lock the menu) */
+enum { CAPTURE_OFF, CAPTURE_RELEASE_FIRST, CAPTURE_WAIT, CAPTURE_RELEASE_LAST };      /* Return up, the new key down, that key up */
+static unsigned short row_buf[ROWS][VALUE_CHARS + 6];      /* the Controls rows' values, length first */
+static int ctl_player;                       /* the player the Controls rows show, 0..3 */
+static int capture_phase, capture_action;
+static float capture_time;
+static struct ControllerCfg device_undo[CONTROLLERS];      /* the profile a player had before the Device row changed it ... */
+static int device_undo_set[CONTROLLERS];                   /* ... so stepping back to that device brings its keys back */
+#endif
 
 static int text_id(int t) { return MFL_TEXT_FIRST + t; }
 static int language(void) { return g_language_offset >= 1 && g_language_offset <= 4 ? g_language_offset : 0; }
@@ -316,6 +504,20 @@ static const struct { int text, base, max_chars; } k_orig[] = {
   { T_CAT_PERF, 2240, 14 },      /* "Performance Settings": only where it is short enough for the category button (scale 0.8) */
   { T_SHADOWS, 2250, 22 }, { T_MULTITEX, 2260, 22 }, { T_TRILINEAR, 2270, 22 }, { T_ENV, 2280, 22 },
 };
+
+#if MFL_FIX_CONTROLS
+/* the captions the game's own text table has (dat_get_string index, the same in every language) and the longest text that fits */
+static const struct { int text, dat, max_chars; } k_game_text[] = {
+  { T_CAT_CONTROLS, 570, 14 },      /* "Controllers" */
+  { T_CTL_PLAYER, 164, 22 },        /* "Player" */
+  { T_ACTION + 0, 548, 22 },        /* "Accelerate" */
+  { T_ACTION + 1, 549, 22 },        /* "Brake" */
+  { T_ACTION + 2, 668, 22 },        /* "Fire weapon" */
+  { T_ACTION + 3, 667, 22 },        /* "Drop weapon" */
+  { T_ACTION + 6, 546, 22 },        /* "Start/Pause" */
+  { T_ACTION + 8, 352, 22 },        /* "Insults" */
+};
+#endif
 
 const unsigned short *mfl_prefs_text(int id)
 {
@@ -328,6 +530,17 @@ const unsigned short *mfl_prefs_text(int id)
 
   if (id - MFL_TEXT_FIRST == T_MODE_NAME) return mode_buf;
   if (id - MFL_TEXT_FIRST == T_ADAPTER_NAME) return adapter_buf;
+#if MFL_FIX_CONTROLS
+  if (id - MFL_TEXT_FIRST >= T_ROW_VALUE) return row_buf[(id - MFL_TEXT_FIRST - T_ROW_VALUE) % ROWS];
+  for (k = 0; k < (int)(sizeof k_game_text / sizeof k_game_text[0]); k++) {      /* the game's own text when it fits the row */
+    const unsigned short *game;
+
+    if (id - MFL_TEXT_FIRST != k_game_text[k].text) continue;
+    game = (const unsigned short *)dat_get_string(k_game_text[k].dat);
+    if (game[0] != 0 && game[0] <= k_game_text[k].max_chars) return game;
+    break;
+  }
+#endif
   if (id - MFL_TEXT_FIRST >= T_LINE0) return line_buf[(id - MFL_TEXT_FIRST - T_LINE0) % LINES];
   for (k = 0; k < (int)(sizeof k_orig / sizeof k_orig[0]); k++) {      /* the game's own string, in its language (the original exe's resource) */
     if (id - MFL_TEXT_FIRST != k_orig[k].text) continue;
@@ -412,6 +625,228 @@ static void adapter_choose(int sub)
   g_video_cfg.fullscreen = (unsigned int)(m[3] & 1);
 }
 
+#if MFL_FIX_CONTROLS
+/* ---- MFL_FIX_CONTROLS: the game's controller table g_controller_cfg[4] and its files contcfg<n>.bin ---- */
+
+/* the defaults of controller_dialog_run (automatch_near/an_hk_999.c), by action: keys S X A D Return Escape Escape A C and the four
+ * arrows; pad buttons 0 1 2 3 0 1 4 2 5 (a pad's directions are its stick) */
+static const unsigned char k_default_keys[ACTIONS] = { 0x1f, 0x2d, 0x1e, 0x20, 0x1c, 0x01, 0x01, 0x1e, 0x2e, 0xcb, 0xcd, 0xc8, 0xd0 };
+static const unsigned char k_default_buttons[ACTIONS] = { 0, 1, 2, 3, 0, 1, 4, 2, 5, 0, 0, 0, 0 };
+
+static int same_text(const char *a, const char *b)
+{
+  while (*a != '\0' && *a == *b) { a++; b++; }
+  return *a == *b;
+}
+
+static int any_device(void)
+{
+  int slot, any = 0;
+
+  for (slot = 0; slot < CONTROLLERS; slot++) any |= g_controller_cfg[slot].device != DEVICE_NONE;
+  return any;
+}
+
+/* a player's slot filled as controller_dialog_run fills it: the device, its name (the acceptance key of the original's loader) and its
+ * default keys or buttons */
+static void slot_set(int slot, unsigned int device, int pad)
+{
+  static const struct ControllerCfg k_empty = { 0 };
+  struct ControllerCfg *cfg = &g_controller_cfg[slot];
+  const char *keyboard = g_controller_dialog_7711a4;
+  int k;
+
+  *cfg = k_empty;
+  cfg->version = CFG_VERSION;
+  cfg->device = device;
+  if (device == DEVICE_NONE) return;
+  if (device == DEVICE_PAD) {
+    cfg->joystick = (unsigned int)pad;
+    controller_dialog_copy_name(pad, cfg->name);
+  } else {
+    for (k = 0; keyboard[k] != '\0' && k < (int)sizeof cfg->name - 1; k++) cfg->name[k] = keyboard[k];
+  }
+  for (k = 0; k < ACTIONS; k++) cfg->bindings[k] = device == DEVICE_PAD ? k_default_buttons[k] : k_default_keys[k];
+}
+
+/* the key pad_deadzone into the game's dead zone (joypads_init set 0.35) */
+static void deadzone_apply(void)
+{
+  int index = mfl_pref(MFL_PREF_PAD_DEADZONE);
+
+  g_app_770f60 = index == DEADZONE_ORIGINAL ? 0.35f : (float)(index + 1) * 0.05f;      /* 35: the original's own constant, bit for bit */
+}
+
+/* Start (the last step of controller_dialog_run, which has made its defaults and kept the files its own rule accepts): every
+ * contcfg<n>.bin is read again and kept when it has version 6, key codes in range and a device that exists now: none, the keyboard
+ * (under any name: the original's rule dropped the profile when the game language, and so the word "Keyboard", changed), or a pad whose
+ * name is one of the pads found (the profile follows its pad when Windows lists the pads in another order).  The players without such
+ * a file get the devices left over in the original's order: the pads, then the keyboard, then none.  Without files that is exactly the
+ * original's table.  The original exe reads the same files with its stricter rule and falls back to its defaults where that fails. */
+void mfl_controls_load(void)
+{
+  int pads = app_get_app_770f64(), slot, pad, k, kept[CONTROLLERS], pads_used = 0, keyboard_used = 0;
+  struct ControllerCfg *cfg;
+  char name[sizeof cfg->name];
+
+  if (pads > CONTROLLERS) pads = CONTROLLERS;      /* the pad tables hold 4 (MFL_FIX_PAD_LIMIT stops the enumeration there) */
+  for (slot = 0; slot < CONTROLLERS; slot++) {
+    cfg = &g_controller_cfg[slot];
+    kept[slot] = controller_cfg_load_n(slot) != 0 && cfg->version == CFG_VERSION && cfg->device <= DEVICE_KEYBOARD;
+    cfg->name[sizeof cfg->name - 1] = '\0';
+    for (k = 0; k < ACTIONS; k++) kept[slot] &= cfg->bindings[k] < (cfg->device == DEVICE_PAD ? PAD_BUTTONS : 256u);
+    if (kept[slot] && cfg->device == DEVICE_PAD) {
+      /* the pad of that name: the file's own number first, else the first one no earlier player has */
+      for (k = -1, pad = cfg->joystick < (unsigned int)pads ? (int)cfg->joystick : 0; k < pads; pad = ++k) {
+        name[0] = '\0';
+        if (pad < pads && (pads_used >> pad & 1) == 0 && controller_dialog_copy_name(pad, name) && same_text(name, cfg->name)) break;
+      }
+      kept[slot] = k < pads;
+      if (kept[slot]) { cfg->joystick = (unsigned int)pad; pads_used |= 1 << pad; }
+    }
+    keyboard_used |= kept[slot] && cfg->device == DEVICE_KEYBOARD;
+  }
+  for (slot = 0; slot < CONTROLLERS; slot++) {
+    if (kept[slot]) continue;
+    for (pad = 0; pad < pads && (pads_used >> pad & 1) != 0; pad++) ;
+    if (pad < pads) { slot_set(slot, DEVICE_PAD, pad); pads_used |= 1 << pad; }
+    else if (!keyboard_used) { slot_set(slot, DEVICE_KEYBOARD, 0); keyboard_used = 1; }
+    else slot_set(slot, DEVICE_NONE, 0);
+  }
+  if (!any_device()) slot_set(0, DEVICE_KEYBOARD, 0);      /* four files that all say "none": never a game nobody can steer */
+  deadzone_apply();
+}
+
+/* ---- MFL_FIX_CONTROLS: the rows ---- */
+
+/* s (cut to the value column) as the value text of row k */
+static int row_value(int k, const char *s)
+{
+  int n;
+
+  for (n = 0; s[n] != '\0' && n < VALUE_CHARS; n++) row_buf[k][n + 1] = (unsigned char)s[n];
+  row_buf[k][0] = (unsigned short)n;
+  return text_id(T_ROW_VALUE + k);
+}
+
+/* the name of a key as Windows names it in the user's keyboard layout (DirectInput key codes are scan codes, bit 7 = extended key);
+ * without a name "Key" and the code */
+static void key_name(unsigned int code, char *out)
+{
+  static key_name_fn get_name;
+
+  if (get_name == 0) get_name = (key_name_fn)GetProcAddress(GetModuleHandleA("user32.dll"), "GetKeyNameTextA");
+  if (get_name != 0 && get_name((long)((code & 0x7f) << 16 | (code & 0x80) << 17), out, VALUE_CHARS + 1) > 0) return;
+  out[0] = 'K'; out[1] = 'e'; out[2] = 'y'; out[3] = ' ';
+  out[4] = "0123456789ABCDEF"[code >> 4 & 15]; out[5] = "0123456789ABCDEF"[code & 15]; out[6] = '\0';
+}
+
+static int ctl_value_text(int k)
+{
+  const struct ControllerCfg *cfg = &g_controller_cfg[ctl_player];
+  int key = k_rows[k].key, action = KEY_BIND - key, n, number;
+  char name[VALUE_CHARS + 8];
+  const char *s;
+
+  name[0] = (char)('1' + ctl_player); name[1] = '\0';
+  if (key == KEY_CTL_PLAYER) return row_value(k, name);
+  if (key == KEY_CTL_DEVICE)
+    return row_value(k, cfg->device == DEVICE_PAD ? cfg->name : cfg->device == DEVICE_KEYBOARD ? g_controller_dialog_7711a4 : g_controller_dialog_7711e8);
+  if (key > KEY_BIND) return row_value(k, "");      /* the rows that open a page, Reset */
+  if (capture_phase == CAPTURE_WAIT && action == capture_action) return row_value(k, "?");
+  if (cfg->device == DEVICE_NONE) return row_value(k, "-");
+  if (cfg->device == DEVICE_KEYBOARD) {
+    key_name(cfg->bindings[action], name);
+    return row_value(k, name);
+  }
+  if (action >= ACTION_LEFT) return text_id(T_STICK);
+  for (n = 0, s = k_text[T_BUTTON][language()]; s[n] != '\0'; n++) name[n] = s[n];
+  number = (int)cfg->bindings[action] + 1;      /* 1..16 */
+  name[n++] = ' ';
+  if (number >= 10) name[n++] = '1';
+  name[n++] = (char)('0' + number % 10);
+  name[n] = '\0';
+  return row_value(k, name);
+}
+
+/* the lowest set bit of a bit set, or -1 */
+static int first_bit(const unsigned char *bits, int count)
+{
+  int n;
+
+  for (n = 0; n < count && (bits[n >> 3] >> (n & 7) & 1) == 0; n++) ;
+  return n < count ? n : -1;
+}
+
+/* A capture in progress (Return on an action row started it): returns 1 while it owns the input.  The menu must not act on the keys
+ * of these frames (the Return that started it, the new key, Escape), so the menu fields of every player's input are cleared before
+ * menu_update's back / direction blocks read them, until all keys and buttons are up again.  The new key or button is the lowest one
+ * down on the player's device; an action that had it gets the old one of this action (nothing is left without a key).  Escape cancels. */
+static int capture_run(void)
+{
+  struct ControllerCfg *cfg = &g_controller_cfg[ctl_player];
+  int key = first_bit(g_app_77122c, 256), found = key, held = key >= 0, pad, k, count = ACTIONS;
+  unsigned int old;
+
+  if (capture_phase == CAPTURE_OFF) return 0;
+  for (k = 0; k < CONTROLLERS; k++) {
+    struct PlayerInput *in = &g_player_inputs[k];
+
+    in->menu_select = in->menu_back = in->menu_next = in->pause = 0;
+    in->direction_flags[0] = in->direction_flags[1] = in->direction_flags[2] = in->direction_flags[3] = 0;
+  }
+  for (pad = 0; pad < CONTROLLERS; pad++) held |= first_bit(g_app_7711c4 + pad * 4, PAD_BUTTONS) >= 0;
+  capture_time += g_frame_seconds;
+  if (capture_time > CAPTURE_SECONDS) capture_phase = CAPTURE_OFF;
+  else if (capture_phase != CAPTURE_WAIT) {      /* waiting for every key and button to be up */
+    if (!held) capture_phase = capture_phase == CAPTURE_RELEASE_FIRST ? CAPTURE_WAIT : CAPTURE_OFF;
+  } else if (held) {
+    if (cfg->device == DEVICE_PAD) { found = first_bit(g_app_7711c4 + cfg->joystick * 4, PAD_BUTTONS); count = PAD_ACTIONS; }
+    if (key != KEY_ESCAPE && found >= 0) {
+      old = cfg->bindings[capture_action];
+      for (k = 0; k < count; k++) if (cfg->bindings[k] == (unsigned int)found) cfg->bindings[k] = old;
+      cfg->bindings[capture_action] = (unsigned int)found;
+      device_undo_set[ctl_player] = 0;
+      controller_cfg_save_n(ctl_player);
+    }
+    if (key == KEY_ESCAPE || found >= 0) capture_phase = CAPTURE_RELEASE_LAST;
+  }
+  return 1;
+}
+
+/* Left / Right / Return on a Controls row (the dead zone row is an ordinary key of mfl_prefs).  A change is in force at once and
+ * the player's file is written at once. */
+static void ctl_step(int key, int dir)
+{
+  struct ControllerCfg *cfg = &g_controller_cfg[ctl_player];
+  int pads = app_get_app_770f64(), choice, action = KEY_BIND - key;
+
+  if (pads > CONTROLLERS) pads = CONTROLLERS;
+  if (key == KEY_CTL_PLAYER) { ctl_player = (ctl_player + dir + CONTROLLERS) % CONTROLLERS; return; }
+  if (key == KEY_CTL_DEVICE) {      /* none, keyboard, pad 0 .. */
+    if (!device_undo_set[ctl_player]) { device_undo[ctl_player] = *cfg; device_undo_set[ctl_player] = 1; }
+    choice = cfg->device == DEVICE_PAD ? 2 + (int)cfg->joystick : cfg->device == DEVICE_KEYBOARD ? 1 : 0;
+    choice = (choice + dir + pads + 2) % (pads + 2);
+    slot_set(ctl_player, choice == 0 ? DEVICE_NONE : choice == 1 ? DEVICE_KEYBOARD : DEVICE_PAD, choice - 2);
+    if (!any_device()) slot_set(ctl_player, DEVICE_KEYBOARD, 0);      /* the last device cannot be switched off: the menu would be dead */
+    if (cfg->device == device_undo[ctl_player].device && (cfg->device != DEVICE_PAD || cfg->joystick == device_undo[ctl_player].joystick))
+      *cfg = device_undo[ctl_player];      /* back on the device he had: with his keys */
+  } else if (key == KEY_CTL_RESET && g_menu_select_pressed == 1) {      /* the device and keys the game gives this player without a file */
+    slot_set(ctl_player, ctl_player < pads ? DEVICE_PAD : ctl_player == pads ? DEVICE_KEYBOARD : DEVICE_NONE, ctl_player);
+    if (!any_device()) slot_set(ctl_player, DEVICE_KEYBOARD, 0);
+    device_undo_set[ctl_player] = 0;
+  } else {
+    if (key <= KEY_BIND && g_menu_select_pressed == 1 && cfg->device != DEVICE_NONE && (cfg->device == DEVICE_KEYBOARD || action < ACTION_LEFT)) {
+      capture_action = action;
+      capture_phase = CAPTURE_RELEASE_FIRST;
+      capture_time = 0.0f;
+    }
+    return;
+  }
+  controller_cfg_save_n(ctl_player);
+}
+#endif
+
 /* list = frame (title), prompts, the Options page's layout words (src[4] up to its first row), rows, inputs */
 static int list_head(unsigned int *list, int title, int prompts, const unsigned int *src)
 {
@@ -443,13 +878,16 @@ static void install(void)
   }
   cat_list[n++] = L_INPUT_BEGIN; cat_list[n++] = L_UP; cat_list[n++] = L_DOWN; cat_list[n++] = L_SELECT; cat_list[n++] = L_BACK;
   cat_list[n++] = L_INPUT_END; cat_list[n] = L_END;
-  for (c = 0; c < CATS; c++) {
+  for (c = 0; c < PAGES; c++) {
     l = sub_list[c];
     n = list_head(l, k_cat_text[c], PROMPTS_LEFT_RIGHT, src);
     for (k = 0; k < ROWS; k++) {
       if (k_rows[k].cat != c || !row_shown(k)) continue;
       sub_rows[c][sub_count[c]++] = k;
-      l[n++] = L_ROW; l[n++] = text_id(k_rows[k].text); l[n++] = L_ACTION; l[n++] = 0xffffffffu; l[n++] = L_ITEM_END;
+      l[n++] = L_ROW; l[n++] = text_id(k_rows[k].text);
+      if (ROW_OPENS_PAGE(k)) { l[n++] = L_PAGE; l[n++] = MFL_PAGE_PREFS; }      /* the slot holds that row's page while it is selected (sync_slot) */
+      else { l[n++] = L_ACTION; l[n++] = 0xffffffffu; }
+      l[n++] = L_ITEM_END;
     }
     l[n++] = L_INPUT_BEGIN; l[n++] = L_UP; l[n++] = L_DOWN; l[n++] = L_LEFT; l[n++] = L_RIGHT;
     l[n++] = L_SELECT; l[n++] = L_BACK; l[n++] = L_INPUT_END; l[n] = L_END;
@@ -466,17 +904,27 @@ static int current_sub(void)
 {
   int c;
 
-  for (c = 0; c < CATS && !SHOWS(&g_menu_records[g_menu_current], sub_list[c]); c++) ;
-  return c < CATS ? c : -1;
+  for (c = 0; c < PAGES && !SHOWS(&g_menu_records[g_menu_current], sub_list[c]); c++) ;
+  return c < PAGES ? c : -1;
 }
 
-/* the page slot = the list the next Return opens: the selected category's rows on the category list, else the category list */
+/* the page slot = the list the next Return opens: the selected category's rows on the category list, the page of a Controls row that
+ * opens one, else the category list */
 static void sync_slot(void)
 {
   struct MenuRecord *rec = &g_menu_records[g_menu_current];
+  unsigned int *opens = cat_list;
 
-  g_menu_page_item_lists[MFL_PAGE_PREFS] = (char *)(SHOWS(rec, cat_list) && rec->selected >= 0 && rec->selected < CATS
-                                                    ? sub_list[rec->selected] : cat_list);
+  if (SHOWS(rec, cat_list) && rec->selected >= 0 && rec->selected < CATS) opens = sub_list[rec->selected];
+#if MFL_FIX_CONTROLS
+  else if (SHOWS(rec, sub_list[CAT_CONTROLS]) && rec->selected >= 0 && rec->selected < sub_count[CAT_CONTROLS]) {
+    int key = k_rows[sub_rows[CAT_CONTROLS][rec->selected]].key;
+
+    if (key == KEY_CTL_BUTTONS) opens = sub_list[PAGE_BUTTONS];
+    if (key == KEY_CTL_DIRECTIONS) opens = sub_list[PAGE_DIRECTIONS];
+  }
+#endif
+  g_menu_page_item_lists[MFL_PAGE_PREFS] = (char *)opens;
 }
 
 /* the row of button anim it (the text frontend_draw shows for it), or ROWS when it is not one of ours */
@@ -517,6 +965,12 @@ static void step(int k, int dir)
     quality_dirty = 1;
     return;
   }
+#if MFL_FIX_CONTROLS
+  if (key <= KEY_CTL_PLAYER) {
+    ctl_step(key, dir);
+    return;
+  }
+#endif
   if (key <= KEY_VC_SHADOWS) {      /* a videocfg.bin box: a toggle of its word (any non-zero value counts as set) */
     *quality_word(key) = *quality_word(key) == 0;
     quality_dirty = 1;
@@ -534,6 +988,9 @@ static void step(int k, int dir)
     }
   }
   if (k_rows[k].live == LIVE_NOW) mfl_prefs[key] = values[key];
+#if MFL_FIX_CONTROLS
+  if (key == MFL_PREF_PAD_DEADZONE) deadzone_apply();
+#endif
 }
 
 /* leaving the page after a videocfg.bin row changed: the game's own writer saves g_video_cfg (the file the original dialog shares); the effects that only
@@ -558,6 +1015,9 @@ void mfl_prefs_menu_update(void)
   if (!installed) install();
   sync_slot();
   row_scales();
+#if MFL_FIX_CONTROLS
+  if (capture_run()) return;      /* waiting for the new key of an action: the menu gets no input */
+#endif
   last_list = rec->item_list;
   if (rec->page_id != MFL_PAGE_PREFS || !was) return;
   if (menu_back_pressed_any() && g_menu_select_pressed == 0 && dirty) {      /* the game's back block runs right after this */
@@ -591,6 +1051,15 @@ static int value_text(int k)
     adapter_buf[0] = (unsigned short)n;
     return text_id(T_ADAPTER_NAME);
   }
+#if MFL_FIX_CONTROLS
+  if (k_rows[k].key <= KEY_CTL_PLAYER) return ctl_value_text(k);
+  if (k_rows[k].key == MFL_PREF_PAD_DEADZONE) {      /* 5 .. 50 */
+    char number[3];
+
+    number[0] = (char)('0' + (v + 1) / 2); number[1] = (char)('0' + (v + 1) % 2 * 5); number[2] = '\0';
+    return row_value(k, number + (v == 0));
+  }
+#endif
   if (k_rows[k].key <= KEY_VC_SHADOWS) return quality_on(k_rows[k].key) ? TEXT_ON : TEXT_OFF;
   if (k_rows[k].key == MFL_PREF_MENU_SPEED) return text_id(T_X1 + speed_index(v));
   if (k_rows[k].key == MFL_PREF_FPS_CAP) return text_id(T_FPS_60 + v);
@@ -659,7 +1128,7 @@ void mfl_prefs_menu_draw(void)
 {
   struct MenuRecord *rec = &g_menu_records[g_menu_current];
   struct MenuItemAnim *it;
-  int i, k, n, ids[LINES], sel = -1, idle = 0, c = installed ? current_sub() : -1;
+  int i, k, n, ids[LINES], sel = -1, idle = 0, c = installed ? current_sub() : -1, desc, heading;
 
   if (!installed) return;
   sync_slot();
@@ -670,14 +1139,21 @@ void mfl_prefs_menu_draw(void)
     if (k == ROWS) continue;
     ui_text_draw_fade_alpha(value_text(k), VALUE_X, it->y, 0xff000000u, VALUE_SCALE, 0, it->anim_counter);
     if (c >= 0 && it->state != 0 && it->state != 2 && rec->selected >= 0 && rec->selected < sub_count[c] && k == sub_rows[c][rec->selected]) {
-      arrows(value_text(k), it->y);
+      if (ROW_STEPS(k)) arrows(value_text(k), it->y);
       sel = k;
     }
   }
   if (sel >= 0) {      /* a sub-page row: what it does and when it applies */
-    n = wrap(k_desc[k_rows[sel].text - T_DISPLAY][language()], BOX_W - 2.0f * BOX_PAD);
+    desc = heading = k_rows[sel].text;
+#if MFL_FIX_CONTROLS
+    if (k_rows[sel].key <= KEY_BIND) {      /* an action row: the text of the row that opened its page; while it waits for the key, say so */
+      desc = k_cat_text[k_rows[sel].cat];
+      if (capture_phase == CAPTURE_WAIT) heading = T_PRESS;
+    }
+#endif
+    n = wrap(k_desc[desc - T_DISPLAY][language()], BOX_W - 2.0f * BOX_PAD);
     for (i = 0; i < n; i++) ids[i] = text_id(T_LINE0 + i);
-    box(k_rows[sel].text, n, ids, k_rows[sel].live == LIVE_NOW ? T_AT_ONCE : k_rows[sel].live == LIVE_RACE ? T_NEXT_RACE : T_NEXT_START);
+    box(heading, n, ids, k_rows[sel].live == LIVE_NOW ? T_AT_ONCE : k_rows[sel].live == LIVE_RACE ? T_NEXT_RACE : T_NEXT_START);
   } else if (idle && SHOWS(rec, cat_list) && rec->selected >= 0 && rec->selected < CATS) {      /* the category list: its rows */
     for (n = 0; n < sub_count[rec->selected] && n < LINES; n++) ids[n] = text_id(k_rows[sub_rows[rec->selected][n]].text);
     box(k_cat_text[rec->selected], n, ids, -1);

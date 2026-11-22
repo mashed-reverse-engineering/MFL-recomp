@@ -87,6 +87,8 @@ Status words:
   | `menu_speed` | `1` | `2` or `4`: the menus outside a race (page changes, fades, sliding buttons, the save message timer) run that many times faster. The pause menu in a race keeps its speed. |
   | `fps_cap` | `60` | Read only with `MFL_FIX_FIXED_STEP` (opt-in, not in `MFLng.exe`) and `MFL_FIX_FPS_CAP`. `30`, or `0` = no limit (vsync or the graphics card sets the rate). The game speed stays the same at every frame rate. |
   | `vsync` | `on` | `off`: the picture does not wait for the screen refresh (tearing possible). Applies at the next start. |
+  | `controller_setup` | `0` | Read only with `MFL_FIX_LANG`. `1`: the next start without a `-cs` option shows the original controller setup dialog once (device per player, "Reconfigure" = keys and buttons, saved as `contcfg<n>.bin`), then the game starts; the key is written back as `0` at that start. In the game: Preferences > Other > *Controller setup*. Without `MFLng.exe`'s page: `MFLng.exe -CS1` shows the same dialog and then exits, as the original launcher's "Setup Controllers" button does. |
+  | `pad_deadzone` | `35` | Used only with `MFL_FIX_CONTROLS` (below). `5`, `10`, ... `50`: how far a gamepad stick must move before it counts, in percent of its travel, for all gamepads. `35` is the original's value. Below about 13 the setting has no further effect, because the game reads the stick in 16 steps per axis. In the game: Preferences > Controls > *Stick dead zone*, applies at once. |
 
   **In the game:** Options, first row *Preferences* (main menu and pause menu), then a category: *Graphics* (Display mode: fullscreen / windowed / borderless; Resolution once the video code offers its mode list; Frame rate limit `fps_cap` only in a build with `MFL_FIX_FIXED_STEP`, applies at once; Vsync `vsync`, next start), *Comfort* (Intro movies `skip_intro`, Course flyover `skip_flyover`, Winner camera spin `winner_cam_rotation`, Menu speed `menu_speed`), *Cheats* (Unlock all `unlock_all`), *Other* (Language, auto or one of the six whose speech is installed, only with `MFL_FIX_LANG`; Wait after saving `skip_save_wait`). Left / Right change the selected row (Return steps it like Right); a box on the right explains the selected row and says when it applies; Escape goes back one level and writes the file (lines that are not one of these keys stay as they were). Display, resolution, language, intro movies and unlock all apply at the next start, the others at once. The page's own texts are ours (English, French, German, Spanish, Italian; the On / Off values are the game's texts); the game's text files are not changed.
 
@@ -109,6 +111,29 @@ Status words:
 - **Changes:** when the command line has no `-vs`, `-cs` or `-l` option, the game acts as if `-VS0 -CS0 -L<n>` had been given: no setup dialogs (the saved `videocfg.bin` / `contcfg<n>.bin` are used; without them the game's own defaults: the first full-screen mode of at least 640x480, which it then saves, and pads first, keyboard after), and n = the Windows display language when the game has speech for it (`toastaudio\pc\audio\pcdics\<language>` exists), else English. An option given on the command line always wins, so the launcher and the test harness behave as before. With `MFL_FIX_PREFS`, the keys `language` and `setup_dialogs` (above) override; the Preferences page sets `language` (applies at the next start).
 - **Lives in:** `mfl_lang_apply` in `src/mfl_resources.c`, called from `app_initialise_on_bootup` right after `app_parse_command_line`.
 - **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_LANG=1`, or use `MFLng.exe`.
+
+### MFL_FIX_CONTROLS
+- **Status:** staged, default off; on in `MFLng.exe`. Needs `MFL_FIX_PREFS`.
+- **Original:** keys and buttons can only be changed in a Windows dialog before the game starts (launcher button "Setup Controllers", `-CS1`). It offers 5 actions on the keyboard and 6 on a pad, never the steering keys; "No Controller" is not saved; each player can only have the device the game assigns (pads first, then one keyboard); there is no dead zone setting. A saved profile is dropped when its device name differs from the assigned one, which also happens to every keyboard profile when the game language changes (the name is the translated word "Keyboard").
+- **Changes:** Preferences gets a category *Controls* (the game's own text "Controllers" where it fits):
+  - *Player* 1 to 4: the player the rows below show.
+  - *Device*: none, the keyboard, or one of the gamepads found at start. A new device starts with the game's default keys or buttons; stepping back to the device the player had brings his keys back. The last device in use cannot be switched off.
+  - *Keys and buttons*: a page with the 9 button actions (accelerate, brake, fire weapon, drop weapon, insult, pause, menu select, menu back, menu next). Return on a row, then press the new key (keyboard player) or button (gamepad player); Escape cancels; after 10 seconds without a key the row is left as it was. If another action of that player already used the key, that action gets the old key, so no action is ever without one. Key names are the ones Windows gives in your keyboard layout.
+  - *Direction keys*: the same for left, right, up and down of a keyboard player. A gamepad always uses its stick or D-pad.
+  - *Reset to defaults*: the device and keys the game gives that player without a file.
+  - *Stick dead zone*: the key `pad_deadzone` (above).
+- **Applies:** at once, also in a running race (pause menu > Options > Preferences). Each change is written at once to that player's `contcfg<n>.bin` (n = 0..3) in the folder of the game's other files, with the game's own writer and in the original's format (0x200 bytes), so the original exe and its setup dialog read the same files.
+- **Loading:** at start a saved file is kept when it has the right version, key codes in range and a device that exists: none, the keyboard (under any name and on any player), or a gamepad whose name is one of the gamepads found (the profile follows its gamepad when Windows lists them in another order). Players without such a file get the remaining devices in the original's order: gamepads, then the keyboard, then none. Without files this is exactly the original's assignment. The original exe keeps its stricter rule: where it rejects one of these files (a keyboard on a player other than the assigned one, a moved gamepad, "none") it uses its defaults for that player and leaves the file alone.
+- **Limits:** gamepads are still found only at start (no hot-plug); two players can be given the same gamepad or the same keys (the page does not stop it); the texts that are ours exist in English, French, German, Spanish and Italian (the last four need a native speaker's check); a keyboard layout with letters outside Western European (Latin-1) may show wrong characters in key names. Tested under Wine with the keyboard and with simulated DirectInput gamepads; not yet on real Windows or with a real gamepad. Device and key names longer than 13 characters are cut on the page.
+- **Lives in:** `src/mfl_settings_menu.c` (rows, key capture `capture_run`, loader `mfl_controls_load`), called from `controller_dialog_run` (`src/tier2/an_hk_999.c`); the key in `src/mfl_resources.c`.
+- **Turn on:** `MFL_FIX_DEFINES="/DMFL_FIX_PREFS=1 /DMFL_FIX_CONTROLS=1"`, or use `MFLng.exe`.
+
+### MFL_FIX_PAD_LIMIT
+- **Status:** staged, default off; on in `MFLng.exe`.
+- **Bug:** at start the game takes every attached DirectInput game controller, however many there are, while its per-pad button and axis tables hold 4. A fifth device (virtual joysticks, wheels, pedals, flight stick parts, some keyboards and mice that register as a game controller) makes the per-frame poll write past those tables into the controller file path and the keyboard state. Found by reading the code.
+- **Fix:** the enumeration stops after the fourth device (checked under Wine with five simulated devices: four are taken).
+- **Lives in:** the enumeration callback `joypads_search_cb_4a5030`.
+- **Turn on:** `MFL_FIX_DEFINES=/DMFL_FIX_PAD_LIMIT=1`, or use `MFLng.exe`.
 
 ### MFL_FIX_ALT_TAB
 - **Status:** staged, default off; on in `MFLng.exe`.
@@ -160,7 +185,8 @@ Status words:
 |---|---|---|
 | `MFL_FIX_WIDESCREEN` step 2 | 2D HUD and menus keep their proportions instead of being stretched (the former `MFL_FIX_HUD_ASPECT`, now part of the same switch). | Design in the widescreen study; layout rule (centre or edges) still open. |
 | `MFL_FIX_INPUT_SDL` | Controller input through an SDL game-controller backend (hot-plug, Xbox, PlayStation and Switch pads, Steam Input, rumble, later gyro) instead of DirectInput. | Part of a small `mfl_input` interface with the DirectInput backend as default. Opt-in on Windows; the default input path on Linux and Switch. |
-| `MFL_FIX_REMAP_MENU` | An in-game page for controller bindings. | The original already reads `contcfg%d.bin` (0x200 bytes per controller), so an external tool can write bindings without a switch. |
+| `MFL_FIX_PAD_PRECISION` | The stick is read at full precision instead of 16 steps per axis. | Changes the steering feel; opt-in until judged in a race. |
+| `MFL_FIX_INPUT_XINPUT` | An XInput backend for Windows: triggers as buttons, Start as pause, rumble, hot-plug. | Needs a tester on real Windows with a gamepad. |
 | `MFL_FIX_SETTINGS_MENU` | In-game settings pages next to (later in place of) the Windows setup dialogs. | A design exists. |
 | `MFL_FIX_VIDEOCFG_VALIDATE` | Clamp a bad video mode or adapter index loaded from a settings file. | Optional second switch of the settings menu design. |
 | `MFL_FIX_LOAD_*` (family) | Shorter load screens. | Load times are measured first; it is not known yet whether a fixed wait exists. |

@@ -148,14 +148,18 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "resolution", -1, 0 },      /* -1 = auto (desktop size), else (W << 16) | H from `WxH` */
   { "fps_cap", 0, -1 },        /* words only (k_words): 60 / 30 / 0 */
   { "vsync", 1, 1 },
+  { "controller_setup", 0, 1 },      /* one shot: mfl_lang_apply writes it back as 0 */
+  { "pad_deadzone", 6, -1 },         /* words only (k_words): 5 .. 50 percent; index 6 = 35 = the original */
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
 static const char *const k_fps_cap_names[] = { "60", "30", "0" };      /* fps_cap words = index (cl_app_main_loop.c k_fps_cap) */
 static const char *const k_vsync_names[] = { "off", "on" };
+static const char *const k_deadzone_names[] = { "5", "10", "15", "20", "25", "30", "35", "40", "45", "50" };      /* pad_deadzone words = index (percent = 5 * (index + 1)) */
 static const struct { int key, count; const char *const *names; } k_words[] = {      /* keys that also take (fps_cap: only take) words */
   { MFL_PREF_DISPLAY_MODE, 3, k_display_names },
   { MFL_PREF_FPS_CAP, 3, k_fps_cap_names },
   { MFL_PREF_VSYNC, 2, k_vsync_names },
+  { MFL_PREF_PAD_DEADZONE, 10, k_deadzone_names },
 };
 #define WORD_KEYS ((int)(sizeof k_words / sizeof k_words[0]))
 int mfl_prefs[MFL_PREF_COUNT];      /* the values in force (a global, so a test run can read them by the map) */
@@ -363,14 +367,19 @@ static int language_detect(void)
 void mfl_lang_apply(void)
 {
   const char *cmd = app_get_71908();
-  int dialogs = 0, language = -1;
+  int dialogs = 0, language = -1, controllers = 0;
 
 #if MFL_FIX_PREFS
   dialogs = mfl_pref(MFL_PREF_SETUP_DIALOGS);
   language = mfl_pref(MFL_PREF_LANGUAGE);
+  if (!option_given(cmd, "-cs") && mfl_pref(MFL_PREF_CONTROLLER_SETUP) != 0) {      /* the Preferences row Controller setup: this start only */
+    controllers = 1;
+    mfl_prefs[MFL_PREF_CONTROLLER_SETUP] = 0;
+    mfl_settings_save(mfl_prefs);      /* a folder that cannot be written shows the dialog at every start until the row is switched off */
+  }
 #endif
   if (!option_given(cmd, "-vs")) g_app_62ad34 = dialogs;
-  if (!option_given(cmd, "-cs")) g_app_62ad38 = dialogs;
+  if (!option_given(cmd, "-cs")) g_app_62ad38 = dialogs | controllers;
   if (!option_given(cmd, "-l")) g_language_offset = language >= 0 ? language : language_detect();
 }
 #endif

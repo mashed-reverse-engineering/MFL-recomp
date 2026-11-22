@@ -31,6 +31,7 @@ lsc() { awk -v t=$1 '{s=$1/4; if(s<1)s=1; if(s>4)s=4; printf "%d", t*s+0.999}' /
 while read -r cmd a b c d e f; do
   case "$cmd" in
     wait) sleep $a ;;
+    pad) echo "$a $b $c $d $e" >> $GAME/App_Executables/padsim.live ;;   # pad CMD ARGS: a padsim command (button/press/axis/pov/plug, tools/padsim/README.md) for the next poll
     key) xdotool key --delay 150 $a $b $c ;;
     hold) xdotool keydown $a; sleep $b; xdotool keyup $a ;;
     shot) import -window root $OUT/$a.png 2>/dev/null; [ "$a" = end ] && import -window root PPM:$OUT/$a.ppm 2>/dev/null ;;

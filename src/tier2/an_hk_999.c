@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 extern __declspec(dllimport) int __stdcall DialogBoxParamA(int, int, int, int, int);
 extern char LAB_004a7fd0[];
 /*004a48e0*/ extern int app_get_app_770f64();
@@ -147,5 +148,8 @@ void controller_dialog_run(int show_dialog,int bitmap_set)
     hwnd = app_get_app_7e7704();
     DialogBoxParamA(app_get_app_7e7700(),0x67,hwnd,(int)&LAB_004a7fd0,0);
   }
+#if MFL_FIX_CONTROLS && MFL_FIX_PREFS
+  mfl_controls_load();      /* the Controls page's loader rule and the dead zone key (recomp/mfl_settings_menu.c), after the dialog's own saves */
+#endif
   return;
 }

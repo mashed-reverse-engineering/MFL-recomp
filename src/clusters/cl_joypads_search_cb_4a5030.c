@@ -1,6 +1,7 @@
 // cluster-entries: joypads_search_cb_4a5030
 /* Installed cluster joypads_search_cb_4a5030 (tools/cluster_install.py from output/cluster_pilot_md/joypads_search_cb_4a5030.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a4670*/ extern struct DInputObject * app_get_dinput_76ed10(void);
 /*004a8420*/ extern int __cdecl debug_printf(const char *format, ...);
 /*00770f68*/ extern void *g_app_770f68;
@@ -9,6 +10,7 @@
 
 #define JOYPAD_INFO_SIZE 0x244      /* sizeof(DIDEVICEINSTANCE) */
 #define DISCL_FOREGROUND_NONEXCLUSIVE 5   /* DISCL_FOREGROUND | DISCL_NONEXCLUSIVE */
+#define JOYPAD_TABLE_PADS 4               /* pads the button word table (0x7711c4) and the axis table (0x77120c) have room for */
 
 struct DInputDevice;
 
@@ -66,6 +68,9 @@ int joypads_search_cb_4a5030_n(const DeviceInstance *found, int *joypad_count)
   DInputDevice *device;
 
   index = *joypad_count;
+#if MFL_FIX_PAD_LIMIT      /* the per-pad button and axis tables hold 4 pads (the polls loop over the whole count): stop the enumeration there */
+  if (index >= JOYPAD_TABLE_PADS) return 0;      /* DIENUM_STOP */
+#endif
   joypad = &g_dinput_76ed20[index];
   object_vtbl = app_get_dinput_76ed10()->vtbl;
   if (object_vtbl->CreateDevice(app_get_dinput_76ed10(), found->guid_instance, &joypad->device, 0) >= 0) {
