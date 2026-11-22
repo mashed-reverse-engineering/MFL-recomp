@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a5530*/ extern undefined __cdecl log_print(char *p0);
 /*004b2a60*/ extern int sprintf();
 /*004b43a9*/ extern int _ctime64();
@@ -27,7 +28,11 @@ undefined4 log_open_write(void)
     char line [LOG_LINE_SIZE];        /* formatted line that gets logged */
   } log_entry;
 
+#if MFL_FIX_USER_DIR      /* the game folder cannot be written: %LOCALAPPDATA%\MFL\mashed.log */
+  g_log_770f74 = crt_fopen_body(mfl_user_path("mashed.log", 1),&g_log_open_5e13fc);
+#else
   g_log_770f74 = crt_fopen_body("mashed.log",&g_log_open_5e13fc);
+#endif
   /* open failed: nothing to log */
   if (g_log_770f74 == 0) {
     return 0;

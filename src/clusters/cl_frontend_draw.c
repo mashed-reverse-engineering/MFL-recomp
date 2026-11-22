@@ -143,6 +143,9 @@ void frontend_draw(void)
   }
   menu_fade_overlay_draw(1);
   if (g_frontend_state < 4) {
+#if MFL_FIX_PREFS
+    mfl_prefs_menu_scales();      /* the Preferences rows' caption scale, from the state the items are drawn with now (mfl_settings_menu.c) */
+#endif
     for (i = 0; i < 30; i++) {
       it = &g_menu_item_anims[i];
       id = it->item_id;

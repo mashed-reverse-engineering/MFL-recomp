@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a5550*/ extern int log_printf();
 /*004a8580*/ extern int video_cfg_path();
 /*004b4358*/ extern int __cdecl _fclose(FILE *p0);
@@ -19,6 +20,9 @@ undefined4 video_cfg_save(void)
 
   /* resolve the cfg file path and log it */
   cfg_path = video_cfg_path();
+#if MFL_FIX_USER_DIR      /* the game folder cannot be written: %LOCALAPPDATA%\MFL */
+  cfg_path = (undefined4)mfl_user_path((const char *)cfg_path, 1);
+#endif
   log_printf("Saving video cfg to %s\n",cfg_path);
   /* open the file for writing; the second argument is the open mode (inferred) */
   file = (FILE *)crt_fopen_body(cfg_path,&g_controller_5e14cc);

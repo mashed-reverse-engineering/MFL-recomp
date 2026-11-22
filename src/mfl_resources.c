@@ -115,6 +115,57 @@ void mfl_resources_attach(void)
   ExitProcess(1);
 }
 
+#if MFL_FIX_USER_DIR
+/* MFL_FIX_USER_DIR: where a file the game writes lives.  `path` is the name the game opens (relative to the current folder, or the settings
+ * file's full path); its copy in %LOCALAPPDATA%\MFL has the same file name.  Rule, for every file on its own:
+ *   the copy in %LOCALAPPDATA%\MFL exists                 -> that one (read and write);
+ *   reading                                               -> path;
+ *   writing: path can be opened for writing (tried here)  -> path;  else the %LOCALAPPDATA%\MFL one (the folder is made).
+ * So a writable game folder behaves as the original, and a file once written to the user folder stays the one in use.
+ * The result is a static buffer: open it before the next call (the game's file code runs on the main thread only).
+ * ponytail: no migration back when the game folder becomes writable later (delete the %LOCALAPPDATA%\MFL file by hand). */
+extern __declspec(dllimport) void *__stdcall CreateFileA(const char *path, unsigned long access, unsigned long share, void *security,
+                                                        unsigned long creation, unsigned long flags, void *template_file);
+extern __declspec(dllimport) int __stdcall CloseHandle(void *handle);
+extern __declspec(dllimport) unsigned long __stdcall GetFileAttributesA(const char *path);
+typedef int (__stdcall *create_directory_fn)(const char *path, void *security);
+
+const char *mfl_user_path(const char *path, int for_write)
+{
+  static char user[PATH_SIZE];
+  static unsigned long dir_len;      /* user[0..dir_len) = "<LOCALAPPDATA>\MFL\"; 0 = no such folder name (then every path stays as it is) */
+  static int asked;
+  void *kernel32 = GetModuleHandleA("kernel32.dll"), *file;
+  get_env_fn get_env;
+  create_directory_fn create_directory;
+  const char *name = path;
+  unsigned long i;
+
+  if (!asked) {
+    asked = 1;
+    get_env = (get_env_fn)GetProcAddress(kernel32, "GetEnvironmentVariableA");
+    i = get_env != 0 ? get_env("LOCALAPPDATA", user, PATH_SIZE - 64) : 0;
+    if (i != 0 && i < PATH_SIZE - 64) dir_len = i + 5;
+  }
+  if (dir_len == 0) return path;
+  path_in_dir(user, dir_len - 5, "\\MFL\\");
+  for (i = 0; path[i] != '\0'; i++) if (path[i] == '\\' || path[i] == '/') name = path + i + 1;
+  path_in_dir(user, dir_len, name);
+  if (GetFileAttributesA(user) != 0xffffffffUL) return user;
+  if (!for_write) return path;
+  file = CreateFileA(path, 0x40000000UL /* GENERIC_WRITE */, 3 /* share read + write */, 0, 4 /* OPEN_ALWAYS */, 0, 0);
+  if (file != (void *)-1) {
+    CloseHandle(file);
+    return path;
+  }
+  create_directory = (create_directory_fn)GetProcAddress(kernel32, "CreateDirectoryA");
+  user[dir_len - 1] = '\0';
+  if (create_directory != 0) create_directory(user, 0);
+  user[dir_len - 1] = '\\';
+  return user;
+}
+#endif
+
 #if MFL_FIX_PREFS
 /* MFL_FIX_PREFS: mflng_settings.cfg beside the exe.  One `key=value` per line (spaces around `=` allowed); the value is one digit
  * 0..max of the key (0 or 1 for the switches), or `auto` for a key whose default is auto (-1); display_mode also takes
@@ -148,7 +199,6 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "resolution", -1, 0 },      /* -1 = auto (desktop size), else (W << 16) | H from `WxH` */
   { "fps_cap", 0, -1 },        /* words only (k_words): 60 / 30 / 0 */
   { "vsync", 1, 1 },
-  { "controller_setup", 0, 1 },      /* one shot: mfl_lang_apply writes it back as 0 */
   { "pad_deadzone", 6, -1 },         /* words only (k_words): 5 .. 50 percent; index 6 = 35 = the original */
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
@@ -221,7 +271,11 @@ static unsigned long prefs_read(void)
 
   dir_len = GetModuleFileNameA(0, prefs_path, PATH_SIZE);
   while (dir_len != 0 && prefs_path[dir_len - 1] != '\\') dir_len--;
+#if MFL_FIX_USER_DIR
+  file = CreateFileA(mfl_user_path(path_in_dir(prefs_path, dir_len, "mflng_settings.cfg"), 0), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+#else
   file = CreateFileA(path_in_dir(prefs_path, dir_len, "mflng_settings.cfg"), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+#endif
   if (file != INVALID_HANDLE) {
     if (!ReadFile(file, prefs_text, PREFS_FILE_MAX, &size, 0)) size = 0;
     CloseHandle(file);
@@ -297,8 +351,12 @@ void mfl_settings_save(const int *values)
     out[n++] = '\r';
     out[n++] = '\n';
   }
+#if MFL_FIX_USER_DIR
+  file = CreateFileA(mfl_user_path(prefs_path, 1), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
+#else
   file = CreateFileA(prefs_path, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-  if (file == INVALID_HANDLE) return;      /* read-only install folder: the choices hold for this run only */
+#endif
+  if (file == INVALID_HANDLE) return;      /* read-only install folder (and no user folder): the choices hold for this run only */
   WriteFile(file, out, n, &written, 0);
   CloseHandle(file);
 }
@@ -367,19 +425,14 @@ static int language_detect(void)
 void mfl_lang_apply(void)
 {
   const char *cmd = app_get_71908();
-  int dialogs = 0, language = -1, controllers = 0;
+  int dialogs = 0, language = -1;
 
 #if MFL_FIX_PREFS
   dialogs = mfl_pref(MFL_PREF_SETUP_DIALOGS);
   language = mfl_pref(MFL_PREF_LANGUAGE);
-  if (!option_given(cmd, "-cs") && mfl_pref(MFL_PREF_CONTROLLER_SETUP) != 0) {      /* the Preferences row Controller setup: this start only */
-    controllers = 1;
-    mfl_prefs[MFL_PREF_CONTROLLER_SETUP] = 0;
-    mfl_settings_save(mfl_prefs);      /* a folder that cannot be written shows the dialog at every start until the row is switched off */
-  }
 #endif
   if (!option_given(cmd, "-vs")) g_app_62ad34 = dialogs;
-  if (!option_given(cmd, "-cs")) g_app_62ad38 = dialogs | controllers;
+  if (!option_given(cmd, "-cs")) g_app_62ad38 = dialogs;
   if (!option_given(cmd, "-l")) g_language_offset = language >= 0 ? language : language_detect();
 }
 #endif

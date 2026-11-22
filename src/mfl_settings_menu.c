@@ -23,7 +23,9 @@
  * chosen in the first row (the race and the menus read that table every frame, so a change is live) and write that player's
  * contcfg<n>.bin at once with the game's own controller_cfg_save_n: the file format stays the original setup dialog's.  Two of its rows
  * open a further page each (the 9 button actions, the 4 directions); Return on an action row waits for the next key or button
- * (capture_run).  mfl_controls_load is the start-up loader with the wider acceptance rule; the dead zone row is the key pad_deadzone. */
+ * (capture_run).  mfl_controls_load is the start-up loader with the wider acceptance rule; the dead zone row (on the directions page,
+ * beside the live direction preview) is the key pad_deadzone.  mfl_controls_menu_input (hook in controller_poll_player) keeps the
+ * Preferences pages steerable from the keyboard and every pad whatever the players' devices are. */
 #include "mfl_fix.h"
 #if MFL_FIX_PREFS      /* (build_overlay.py leaves the file out without the switch; this keeps any other build of it empty) */
 #include "mfl_consts.h"
@@ -64,6 +66,7 @@ extern __declspec(dllimport) int __stdcall LoadStringA(int module, unsigned int 
 #if MFL_FIX_CONTROLS
 /*007e7740*/ extern struct ControllerCfg g_controller_cfg[4];
 /*007ef820*/ extern struct PlayerInput g_player_inputs[12];
+/*007efce0*/ extern struct PlayerInput g_player_inputs_previous[12];
 /*007711c4*/ extern unsigned char g_app_7711c4[];                /* pad button bits of this frame, 4 bytes per pad */
 /*0077122c*/ extern unsigned char g_app_77122c[];                /* key bits of this frame, by DirectInput key code (32 bytes) */
 /*00770f60*/ extern float g_app_770f60;                          /* stick dead zone (joypads_init: 0.35) */
@@ -73,6 +76,8 @@ extern __declspec(dllimport) int __stdcall LoadStringA(int module, unsigned int 
 /*004a4980*/ extern int controller_dialog_copy_name(int pad, char *name);      /* product name of a found pad */
 /*004a6e20*/ extern int controller_cfg_load_n(int slot);         /* contcfg<slot>.bin -> g_controller_cfg[slot]; 0 without a file */
 /*004a6ea0*/ extern int controller_cfg_save_n(int slot);
+/*004a6f80*/ extern unsigned char controller_action_pressed(int player, int action);      /* the binding of g_controller_cfg[player] on its device, now */
+/*0069d1e0*/ extern int g_frontend_state;                        /* 0: no menu on screen */
 /*0042bd00*/ extern unsigned char *dat_get_string(int index);    /* a text of the game's own table, in its language */
 extern __declspec(dllimport) void *__stdcall GetModuleHandleA(const char *name);
 extern __declspec(dllimport) void *__stdcall GetProcAddress(void *module, const char *name);
@@ -101,9 +106,9 @@ typedef int (__stdcall *key_name_fn)(long key, char *text, int size);      /* Ge
 
 enum text {
   T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION,
-  T_ADAPTER, T_SHADOWS, T_MULTITEX, T_TRILINEAR, T_ENV, T_CTL_SETUP,
+  T_ADAPTER, T_SHADOWS, T_MULTITEX, T_TRILINEAR, T_ENV,
   T_CTL_PLAYER, T_CTL_DEVICE, T_CTL_BUTTONS, T_CTL_DIRECTIONS, T_CTL_RESET, T_DEADZONE,      /* the rows' captions, in the order of k_desc */
-  T_NEXT_START, T_AT_ONCE, T_NEXT_RACE, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
+  T_NEXT_START, T_AT_ONCE, T_NEXT_RACE, T_RESTART, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
   T_FPS_60, T_FPS_30, T_FPS_UNLIMITED,
   T_CAT_GRAPHICS, T_CAT_COMFORT, T_CAT_CHEATS, T_CAT_OTHER, T_CAT_PERF, T_CAT_CONTROLS,
   T_ACTION,      /* the 13 controller actions, in the order of ControllerCfg.bindings */
@@ -113,7 +118,7 @@ enum text {
 #define T_ROW_VALUE 0x200  /* text ids T_ROW_VALUE + row = the value of a Controls row (row_buf) */
 #define T_MODE_NAME 0x180  /* text id of the Resolution row's value (mode_buf) */
 #define T_ADAPTER_NAME 0x181  /* the Display adapter row's value (adapter_buf) */
-#define LINES 10
+#define LINES 16
 #define LINE_CHARS 64
 
 /* en, fr, de, es, it; Latin-1 escapes (the game's strings are UTF-16 with the same code points).  Translations: ours, not the game's
@@ -137,7 +142,6 @@ static const char *const k_text[T_COUNT][5] = {
   { "Multi-texturing", "Multi-texturage", "Multi-Texturing", "Multitexturas", "Multitexture" },
   { "Trilinear filtering", "Filtrage trilin\xe9" "aire", "Trilinearer Filter", "Filtrado trilineal", "Filtro trilineare" },
   { "Environment effects", "Effets du d\xe9" "cor", "Umgebungseffekte", "Efectos del entorno", "Effetti ambiente" },
-  { "Controller setup", "Config. manettes", "Controller-Setup", "Config. de mandos", "Config. controller" },
   /* MFL_FIX_CONTROLS.  French, German, Spanish, Italian: ours, NEED A NATIVE SPEAKER'S CHECK.  "Player" is the game's own text at run time (k_game_text) */
   { "Player", "Joueur", "Spieler", "Jugador", "Giocatore" },
   { "Device", "P\xe9riph\xe9rique", "Ger\xe4t", "Dispositivo", "Dispositivo" },
@@ -150,6 +154,9 @@ static const char *const k_text[T_COUNT][5] = {
   { "Applies at once.", "Effet imm\xe9" "diat.", "Gilt sofort.", "Se aplica al momento.", "Vale subito." },
   { "Applies from the next race.", "Effet d\xe8s la prochaine course.", "Gilt ab dem n\xe4" "chsten Rennen.", "Se aplica desde la pr\xf3xima carrera.",
     "Vale dalla prossima gara." },
+  /* shown on every Preferences page while a changed row waits for the next start.  Translations: ours (need a native speaker's check) */
+  { "Restart the game to apply.", "Red\xe9marre le jeu pour appliquer.", "Zum \xdc" "bernehmen Spiel neu starten.", "Reinicia el juego para aplicar.",
+    "Riavvia il gioco per applicare." },
   { "Fullscreen", "Plein \xe9" "cran", "Vollbild", "Completa", "Schermo intero" },
   { "Windowed", "Fen\xeatr\xe9", "Fenster", "Ventana", "Finestra" },
   { "Borderless", "Sans bordure", "Randlos", "Sin bordes", "Senza bordi" },
@@ -294,17 +301,6 @@ static const char *const k_desc[T_DEADZONE - T_DISPLAY + 1][5] = {
     "Umgebungseffekte wie Boost-Flammen und Radspuren. Aus: weniger Effekte.",
     "Efectos ambientales como las llamas del turbo y las marcas de las ruedas. No: menos efectos.",
     "Effetti ambientali come le fiamme del turbo e i segni delle ruote. No: meno effetti." },
-  /* the one-shot key controller_setup (mfl_lang_apply).  Translations: ours (need a native speaker's check) */
-  { "On: the next start opens the game's controller setup window once: choose keyboard or gamepad per player and change the keys and "
-    "buttons. Then the game starts.",
-    "Oui : le prochain d\xe9marrage ouvre une fois la fen\xeatre de configuration des manettes : clavier ou manette par joueur, touches "
-    "et boutons. Puis le jeu d\xe9marre.",
-    "Ein: der n\xe4" "chste Start \xf6" "ffnet einmal das Controller-Setup des Spiels: Tastatur oder Gamepad je Spieler w\xe4hlen, Tasten "
-    "und Kn\xf6pfe \xe4ndern. Danach startet das Spiel.",
-    "S\xed: el pr\xf3ximo inicio abre una vez la ventana de configuraci\xf3n de mandos: teclado o mando por jugador, teclas y botones. "
-    "Despu\xe9s empieza el juego.",
-    "S\xec: il prossimo avvio apre una volta la finestra di configurazione dei controller: tastiera o gamepad per giocatore, tasti e "
-    "pulsanti. Poi il gioco parte." },
   /* MFL_FIX_CONTROLS: Player, Device, Keys and buttons (also shown on each of its action rows), Direction keys (the same), Reset, Stick dead
    * zone.  French, German, Spanish, Italian: ours, NEED A NATIVE SPEAKER'S CHECK.  No percent sign: the game's texts never draw one */
   { "The player whose controls the rows below show and change.",
@@ -323,15 +319,18 @@ static const char *const k_desc[T_DEADZONE - T_DISPLAY + 1][5] = {
     "Con cosa gioca questo giocatore: niente, la tastiera o un gamepad collegato. Un nuovo dispositivo parte con i tasti o pulsanti "
     "predefiniti. I gamepad vengono rilevati all'avvio del gioco." },
   { "The key or button of each action. Return on an action, then press the new key or button; Escape cancels. A key already in use "
-    "swaps with the old one.",
+    "swaps with the old one. The three menu buttons are a group of their own: they may share a key with a race action.",
     "La touche ou le bouton de chaque action. Entr\xe9" "e sur une action, puis la nouvelle touche ou le nouveau bouton ; \xc9" "chap "
-    "annule. Une touche d\xe9j\xe0 utilis\xe9" "e \xe9" "change avec l'ancienne.",
+    "annule. Une touche d\xe9j\xe0 utilis\xe9" "e \xe9" "change avec l'ancienne. Les trois boutons de menu forment un groupe \xe0 part : "
+    "ils peuvent partager une touche avec une action de course.",
     "Die Taste oder der Knopf jeder Aktion. Eingabe auf einer Aktion, dann die neue Taste oder den neuen Knopf dr\xfc" "cken; Esc bricht "
-    "ab. Eine schon benutzte Taste tauscht mit der alten.",
+    "ab. Eine schon benutzte Taste tauscht mit der alten. Die drei Men\xfc-Tasten sind eine eigene Gruppe: sie d\xfcrfen dieselbe "
+    "Taste wie eine Rennaktion haben.",
     "La tecla o el bot\xf3n de cada acci\xf3n. Intro en una acci\xf3n y luego la tecla o el bot\xf3n nuevo; Esc cancela. Una tecla ya "
-    "usada se intercambia con la anterior.",
+    "usada se intercambia con la anterior. Los tres botones de men\xfa son un grupo aparte: pueden compartir tecla con una acci\xf3n "
+    "de carrera.",
     "Il tasto o il pulsante di ogni azione. Invio su un'azione, poi il nuovo tasto o pulsante; Esc annulla. Un tasto gi\xe0 usato si "
-    "scambia con il precedente." },
+    "scambia con il precedente. I tre pulsanti dei menu sono un gruppo a parte: possono condividere un tasto con un'azione di gara." },
   { "The keys for left, right, up and down: steering and the menus. Return on a row, then the new key; Escape cancels. A gamepad always "
     "uses its stick or D-pad.",
     "Les touches gauche, droite, haut et bas : direction et menus. Entr\xe9" "e sur une ligne, puis la nouvelle touche ; \xc9" "chap annule. "
@@ -416,7 +415,6 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
   { CAT_CHEATS, T_UNLOCK, MFL_PREF_UNLOCK_ALL, 2, 0, 0, 0 },
 #if MFL_FIX_LANG
   { CAT_OTHER, T_LANGUAGE, MFL_PREF_LANGUAGE, 7, -1, 0, 0 },
-  { CAT_OTHER, T_CTL_SETUP, MFL_PREF_CONTROLLER_SETUP, 2, 0, 0, 0 },      /* one shot: the original controller dialog at the next start */
 #endif
   { CAT_OTHER, T_SAVE_WAIT, MFL_PREF_SKIP_SAVE_WAIT, 2, 0, 1, 1 },
 #if MFL_FIX_CONTROLS
@@ -425,7 +423,6 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
   { CAT_CONTROLS, T_CTL_BUTTONS, KEY_CTL_BUTTONS, 0, 0, 0, LIVE_NOW },
   { CAT_CONTROLS, T_CTL_DIRECTIONS, KEY_CTL_DIRECTIONS, 0, 0, 0, LIVE_NOW },
   { CAT_CONTROLS, T_CTL_RESET, KEY_CTL_RESET, 0, 0, 0, LIVE_NOW },
-  { CAT_CONTROLS, T_DEADZONE, MFL_PREF_PAD_DEADZONE, 10, 0, 0, LIVE_NOW },      /* values 5 .. 50 (index 0..9) */
   { PAGE_BUTTONS, T_ACTION + 0, KEY_BIND - 0, 0, 0, 0, LIVE_NOW },      /* accelerate, brake, fire, drop */
   { PAGE_BUTTONS, T_ACTION + 1, KEY_BIND - 1, 0, 0, 0, LIVE_NOW },
   { PAGE_BUTTONS, T_ACTION + 2, KEY_BIND - 2, 0, 0, 0, LIVE_NOW },
@@ -439,6 +436,7 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
   { PAGE_DIRECTIONS, T_ACTION + 10, KEY_BIND - 10, 0, 0, 0, LIVE_NOW },
   { PAGE_DIRECTIONS, T_ACTION + 11, KEY_BIND - 11, 0, 0, 0, LIVE_NOW },
   { PAGE_DIRECTIONS, T_ACTION + 12, KEY_BIND - 12, 0, 0, 0, LIVE_NOW },
+  { PAGE_DIRECTIONS, T_DEADZONE, MFL_PREF_PAD_DEADZONE, 10, 0, 0, LIVE_NOW },      /* values 5 .. 50 (index 0..9); here because this page shows the live directions */
 #endif
 };
 #define ROWS ((int)(sizeof k_rows / sizeof k_rows[0]))
@@ -452,11 +450,12 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
 /* 640-space layout (the game's buttons are fixed at x 60..270 plus a gradient to 370; the widescreen fix centres this space 4:3) */
 #define ROW_SCALE 0.65f     /* our row captions (the game's rows: 0.8) */
 #define ROW_DEFAULT_SCALE 0.8f      /* menu_page_enter's row scale */
-#define VALUE_X 300.0f      /* the values, over the buttons' gradient strip */
+#define VALUE_X 300.0f      /* the values: at most here (over the buttons' gradient strip), else VALUE_GAP right of the page's widest caption */
+#define VALUE_GAP 30.0f     /* room for the left arrow (20) and air */
 #define VALUE_SCALE 0.6f
 #define BOX_X 424.0f        /* the description box: x 424..632 */
 #define BOX_W 208.0f
-#define BOX_Y 132.0f
+#define BOX_Y 100.0f
 #define BOX_PAD 8.0f
 #define BOX_SCALE 0.5f
 #define BOX_LINE 16.0f
@@ -469,6 +468,10 @@ static unsigned int sub_list[PAGES][24 + 5 * ROWS];
 static int sub_rows[PAGES][ROWS], sub_count[PAGES];      /* k_rows index of each row of a sub-page */
 static int values[MFL_PREF_COUNT];         /* the file's values as the page shows them */
 static int installed, dirty;
+static float caption_width[PAGES];         /* the widest row caption of each page (640-space, ROW_SCALE) */
+static float value_room;                   /* the width a value may take in the row being drawn (up to the description box) */
+static int start_values[MFL_PREF_COUNT], start_mode;      /* what this run started with: a LIVE_START row that differs = restart hint */
+static struct VideoCfg start_video;
 static unsigned short line_buf[LINES][LINE_CHARS + 1];      /* length-prefixed UTF-16 lines of the description box */
 static unsigned short mode_buf[24];         /* the Resolution row's value */
 static unsigned short adapter_buf[24];      /* the Display adapter row's value */
@@ -485,7 +488,8 @@ static int quality_dirty;                   /* a videocfg.bin row changed: video
 #define PAD_BUTTONS 16           /* button bits the game reads per pad */
 #define KEY_ESCAPE 0x01          /* DirectInput key code */
 #define DEADZONE_ORIGINAL 6      /* index of 35 percent */
-#define VALUE_CHARS 13           /* a row value up to the description box ("No Controller"; a longer pad or key name is cut) */
+#define VALUE_CHARS 31           /* a row value's buffer; on screen it is cut to value_room */
+#define MENU_ACTION(a) ((a) == 4 || (a) == 5 || (a) == 7)      /* menu select, back, next: their own group in the swap rule */
 #define CAPTURE_SECONDS 10.0f    /* a capture ends by itself after this (a key that reads as stuck must not lock the menu) */
 enum { CAPTURE_OFF, CAPTURE_RELEASE_FIRST, CAPTURE_WAIT, CAPTURE_RELEASE_LAST };      /* Return up, the new key down, that key up */
 static unsigned short row_buf[ROWS][VALUE_CHARS + 6];      /* the Controls rows' values, length first */
@@ -719,13 +723,14 @@ void mfl_controls_load(void)
 
 /* ---- MFL_FIX_CONTROLS: the rows ---- */
 
-/* s (cut to the value column) as the value text of row k */
+/* s (cut to the room between the value column and the description box) as the value text of row k */
 static int row_value(int k, const char *s)
 {
   int n;
 
   for (n = 0; s[n] != '\0' && n < VALUE_CHARS; n++) row_buf[k][n + 1] = (unsigned char)s[n];
   row_buf[k][0] = (unsigned short)n;
+  while (n > 1 && text_width(text_id(T_ROW_VALUE + k), VALUE_SCALE) > value_room) row_buf[k][0] = (unsigned short)--n;
   return text_id(T_ROW_VALUE + k);
 }
 
@@ -759,7 +764,7 @@ static int ctl_value_text(int k)
     key_name(cfg->bindings[action], name);
     return row_value(k, name);
   }
-  if (action >= ACTION_LEFT) return text_id(T_STICK);
+  if (action >= ACTION_LEFT) return row_value(k, k_text[T_STICK][language()]);
   for (n = 0, s = k_text[T_BUTTON][language()]; s[n] != '\0'; n++) name[n] = s[n];
   number = (int)cfg->bindings[action] + 1;      /* 1..16 */
   name[n++] = ' ';
@@ -804,7 +809,11 @@ static int capture_run(void)
     if (cfg->device == DEVICE_PAD) { found = first_bit(g_app_7711c4 + cfg->joystick * 4, PAD_BUTTONS); count = PAD_ACTIONS; }
     if (key != KEY_ESCAPE && found >= 0) {
       old = cfg->bindings[capture_action];
-      for (k = 0; k < count; k++) if (cfg->bindings[k] == (unsigned int)found) cfg->bindings[k] = old;
+      /* the swap, inside the action's group only: race actions and menu buttons may share a key (the defaults do: accelerate and
+       * select, brake and back, fire and next on a pad); a direction shares with nobody */
+      for (k = 0; k < count; k++)
+        if (cfg->bindings[k] == (unsigned int)found
+            && (k >= ACTION_LEFT || capture_action >= ACTION_LEFT || MENU_ACTION(k) == MENU_ACTION(capture_action))) cfg->bindings[k] = old;
       cfg->bindings[capture_action] = (unsigned int)found;
       device_undo_set[ctl_player] = 0;
       controller_cfg_save_n(ctl_player);
@@ -845,6 +854,49 @@ static void ctl_step(int key, int dir)
   }
   controller_cfg_save_n(ctl_player);
 }
+
+/* controller_poll_player, last step, while a Preferences page is on screen: the menu fields of the player's input also follow the
+ * keyboard's default keys (arrows, Return, Escape) and every found pad's stick and default buttons, whatever device and keys the
+ * players have.  The menus read only the players' own bindings, so the Device row could leave no player on the device in the user's
+ * hand (the keyboard went dead as soon as no player had it) and a rebound menu key could be forgotten: here that cannot lock the page.
+ * The game's own reader does the test, on the player's slot filled with each device's defaults for the moment. */
+void mfl_controls_menu_input(int player)
+{
+  static unsigned char last[CONTROLLERS][6];      /* the previous frame's result: select, back, left, right, up, down */
+  struct PlayerInput *in = &g_player_inputs[player], *before = &g_player_inputs_previous[player];
+  struct ControllerCfg saved;
+  unsigned char now[6] = { 0, 0, 0, 0, 0, 0 };
+  int pads = app_get_app_770f64(), device, d;
+
+  if (!installed || player < 0 || player >= CONTROLLERS || g_frontend_state == 0) return;
+  if (pads > CONTROLLERS) pads = CONTROLLERS;
+  saved = g_controller_cfg[player];
+  for (device = -1; device < pads; device++) {      /* -1: the keyboard */
+    slot_set(player, device < 0 ? DEVICE_KEYBOARD : DEVICE_PAD, device);
+    now[0] |= controller_action_pressed(player, 4);
+    now[1] |= controller_action_pressed(player, 5);
+    for (d = 0; d < 4; d++) if (controller_action_pressed(player, ACTION_LEFT + d) != 0) now[2 + d] = 0xff;
+  }
+  g_controller_cfg[player] = saved;
+  if (g_menu_records[g_menu_current].page_id == MFL_PAGE_PREFS) {
+    /* the previous frame's record gets the previous result too: the Return still held from opening the page is not a new press */
+    in->menu_select |= now[0]; before->menu_select |= last[player][0];
+    in->menu_back |= now[1]; before->menu_back |= last[player][1];
+    for (d = 0; d < 4; d++) { in->direction_flags[d] |= now[2 + d]; before->direction_flags[d] |= last[player][2 + d]; }
+  }
+  for (d = 0; d < 6; d++) last[player][d] = now[d];
+}
+
+/* the live directions of the shown player as the game reads them (a pad: after the dead zone): a cross of four squares, lit while held */
+static void direction_preview(float x, float y)
+{
+  static const float k_dx[4] = { -16.0f, 16.0f, 0.0f, 0.0f }, k_dy[4] = { 0.0f, 0.0f, -16.0f, 16.0f };      /* left, right, up, down */
+  int d;
+
+  for (d = 0; d < 4; d++)
+    draw_rect(x + 16.0f + k_dx[d], y + 16.0f + k_dy[d], 14.0f, 14.0f, controller_action_pressed(ctl_player, ACTION_LEFT + d) != 0 ? 0xff40c0ffu : 0x60ffffffu);
+}
+#define PREVIEW_LINES 3      /* the cross's height in box lines */
 #endif
 
 /* list = frame (title), prompts, the Options page's layout words (src[4] up to its first row), rows, inputs */
@@ -865,7 +917,9 @@ static void install(void)
 
   installed = 1;
   mfl_pref(0);
-  for (k = 0; k < MFL_PREF_COUNT; k++) values[k] = mfl_prefs[k];
+  for (k = 0; k < MFL_PREF_COUNT; k++) start_values[k] = values[k] = mfl_prefs[k];
+  start_video = g_video_cfg;
+  start_mode = mfl_video_modes_api != 0 ? mfl_video_modes_api->current() : 0;
   while (src[i] != L_ROW && n < 40) options_list[n++] = src[i++];      /* header, then our row first */
   options_list[n++] = L_ROW; options_list[n++] = text_id(T_TITLE); options_list[n++] = L_PAGE; options_list[n++] = MFL_PAGE_PREFS;
   options_list[n++] = L_ITEM_END;
@@ -884,6 +938,7 @@ static void install(void)
     for (k = 0; k < ROWS; k++) {
       if (k_rows[k].cat != c || !row_shown(k)) continue;
       sub_rows[c][sub_count[c]++] = k;
+      if ((float)text_width(text_id(k_rows[k].text), ROW_SCALE) > caption_width[c]) caption_width[c] = (float)text_width(text_id(k_rows[k].text), ROW_SCALE);
       l[n++] = L_ROW; l[n++] = text_id(k_rows[k].text);
       if (ROW_OPENS_PAGE(k)) { l[n++] = L_PAGE; l[n++] = MFL_PAGE_PREFS; }      /* the slot holds that row's page while it is selected (sync_slot) */
       else { l[n++] = L_ACTION; l[n++] = 0xffffffffu; }
@@ -936,11 +991,14 @@ static int anim_row(const struct MenuItemAnim *it)
   return r;
 }
 
-/* our captions are longer than the game's: smaller text in the same buttons (run before frontend_draw, in menu_update) */
-static void row_scales(void)
+/* our captions are longer than the game's: smaller text in the same buttons.  Hook at the start of frontend_draw's item loop, so the
+ * scale is set from the state the items are drawn with in this frame (set in menu_update or after the draw, it was one frame late
+ * when a slot went idle: the new page's caption flashed in the old page's size) */
+void mfl_prefs_menu_scales(void)
 {
   int i;
 
+  if (!installed) return;
   for (i = 0; i < 30; i++) {
     struct MenuItemAnim *it = &g_menu_item_anims[i];
 
@@ -951,10 +1009,15 @@ static void row_scales(void)
   }
 }
 
+/* the Resolution row while the page's Display mode is Borderless: that mode always has the desktop size (resolution= is ignored), so the row
+   shows "Desktop" in grey without arrows and does not step; the stored resolution is kept for the other modes */
+static int resolution_locked(int k) { return k_rows[k].key == KEY_RESOLUTION && values[MFL_PREF_DISPLAY_MODE] == MFL_DISPLAY_BORDERLESS; }
+
 static void step(int k, int dir)
 {
   int key = k_rows[k].key, n;
 
+  if (resolution_locked(k)) return;
   if (key == KEY_RESOLUTION) {
     n = mfl_video_modes_api->count();
     mfl_video_modes_api->choose((mfl_video_modes_api->current() + dir + n) % n);
@@ -1014,9 +1077,8 @@ void mfl_prefs_menu_update(void)
 
   if (!installed) install();
   sync_slot();
-  row_scales();
 #if MFL_FIX_CONTROLS
-  if (capture_run()) return;      /* waiting for the new key of an action: the menu gets no input */
+  if (capture_run()) return;     /* waiting for the new key of an action: the menu gets no input */
 #endif
   last_list = rec->item_list;
   if (rec->page_id != MFL_PAGE_PREFS || !was) return;
@@ -1042,7 +1104,7 @@ static int value_text(int k)
   const char *s;
 
   if (k_rows[k].key == KEY_RESOLUTION) {      /* "1280x720" from the video code */
-    for (s = mfl_video_modes_api->name(mfl_video_modes_api->current()); s[n] != '\0' && n < 23; n++) mode_buf[n + 1] = (unsigned char)s[n];
+    for (s = mfl_video_modes_api->name(resolution_locked(k) ? 0 : mfl_video_modes_api->current()); s[n] != '\0' && n < 23; n++) mode_buf[n + 1] = (unsigned char)s[n];
     mode_buf[0] = (unsigned short)n;
     return text_id(T_MODE_NAME);
   }
@@ -1069,23 +1131,38 @@ static int value_text(int k)
 }
 
 /* the arrows of menu_panel_draw (cl_menu_panel_draw_69ca08.c) left of the value at x - 20 and right after it */
-static void arrows(int text, float y_menu)
+static void arrows(int text, float x, float y_menu)
 {
   float sw = (float)screen_width(), sh = (float)screen_height();
   float y = (y_menu - 8.0f) * sh * (1.0f / 480.0f), w = sw * 0.025f, h = sh * (1.0f / 30.0f);
 
-  draw_sprite_uv(find_texture_dict_c("Arrow"), sw * (VALUE_X - 20.0f) * (1.0f / 640.0f), y, w, h, 0xff000000u, 0.9999f, 0.0f, 0.0f, 1.0f, 0, 0);
-  draw_sprite(find_texture_dict_c("Arrow"), sw * ((float)(int)text_width(text, VALUE_SCALE) + VALUE_X + 6.0f) * (1.0f / 640.0f), y, w, h, 0xff000000u, 1);
+  draw_sprite_uv(find_texture_dict_c("Arrow"), sw * (x - 20.0f) * (1.0f / 640.0f), y, w, h, 0xff000000u, 0.9999f, 0.0f, 0.0f, 1.0f, 0, 0);
+  draw_sprite(find_texture_dict_c("Arrow"), sw * ((float)(int)text_width(text, VALUE_SCALE) + x + 6.0f) * (1.0f / 640.0f), y, w, h, 0xff000000u, 1);
 }
 
-/* s word-wrapped into line_buf (greedy, by the game font's width at BOX_SCALE); returns the number of lines */
-static int wrap(const char *s, float width)
+/* a changed row that the running game does not follow before its next start (not Intro movies: they only play at a start anyway) */
+static int restart_needed(void)
+{
+  int k, key, need = start_video.subsystem_index != g_video_cfg.subsystem_index
+                     || (start_video.no_dynamic_shadows != 0) != (g_video_cfg.no_dynamic_shadows != 0)
+                     || (start_video.no_multitexture != 0) != (g_video_cfg.no_multitexture != 0)
+                     || (mfl_video_modes_api != 0 && mfl_video_modes_api->current() != start_mode);
+
+  for (k = 0; k < ROWS; k++) {
+    key = k_rows[k].key;
+    need |= key >= 0 && key != MFL_PREF_SKIP_INTRO && k_rows[k].live == LIVE_START && values[key] != start_values[key];
+  }
+  return need;
+}
+
+/* s word-wrapped into line_buf from `line` on (greedy, by the game font's width at BOX_SCALE); returns the line after the last one */
+static int wrap(const char *s, float width, int line)
 {
   const char *e, *p;
   unsigned short *b;
-  int line, n, len, k;
+  int n, len, k;
 
-  for (line = 0; line < LINES; line++) {
+  for (; line < LINES; line++) {
     while (*s == ' ') s++;
     if (*s == '\0') break;
     b = line_buf[line];
@@ -1110,25 +1187,36 @@ static int wrap(const char *s, float width)
   return line;
 }
 
-/* the box right of the rows (translucent dark panel): a heading, then `lines` text ids from first (step 1) or the given ids, then a footer */
-static void box(int heading, int lines, const int *ids, int footer)
+/* one box line, made smaller when it is wider than the box */
+static void box_line(int id, float y, unsigned int colour, float scale)
+{
+  float w = (float)text_width(id, scale);
+
+  if (w > BOX_W - 2.0f * BOX_PAD) scale *= (BOX_W - 2.0f * BOX_PAD) / w;
+  ui_text_draw_fade_alpha(id, BOX_X + BOX_PAD, y, colour, scale, 0, 0x1ff);
+}
+
+/* the box right of the rows (translucent dark panel): a heading, ids[0 .. lines) in white, after an empty line ids[lines .. lines + notes)
+ * (when the row applies), `extra` free lines for the caller (returns their top y) and, while a changed row waits for it, the restart hint */
+static float box(int heading, const int *ids, int lines, int notes, int extra)
 {
   float y = BOX_Y + BOX_PAD + BOX_LINE * 0.5f;
-  int i;
+  int i, body = 1 + lines + (notes != 0 ? notes + 1 : 0), restart = restart_needed();
 
-  draw_rect(BOX_X, BOX_Y, BOX_W, BOX_PAD * 2.0f + BOX_LINE * (float)(lines + (footer >= 0 ? 3 : 1)), 0xb0101010u);
-  ui_text_draw_fade_alpha(text_id(heading), BOX_X + BOX_PAD, y, 0xfff0b040u, 0.55f, 0, 0x1ff);
-  for (i = 0; i < lines; i++)
-    ui_text_draw_fade_alpha(ids[i], BOX_X + BOX_PAD, y + BOX_LINE * (float)(i + 1) + 4.0f, 0xffffffffu, BOX_SCALE, 0, 0x1ff);
-  if (footer >= 0)
-    ui_text_draw_fade_alpha(text_id(footer), BOX_X + BOX_PAD, y + BOX_LINE * (float)(lines + 2), 0xffa0d0ffu, BOX_SCALE, 0, 0x1ff);
+  draw_rect(BOX_X, BOX_Y, BOX_W, BOX_PAD * 2.0f + BOX_LINE * (float)(body + extra + (restart ? 2 : 0)), 0xb0101010u);
+  box_line(text_id(heading), y, 0xfff0b040u, 0.55f);
+  for (i = 0; i < lines; i++) box_line(ids[i], y + BOX_LINE * (float)(i + 1) + 4.0f, 0xffffffffu, BOX_SCALE);
+  for (; i < lines + notes; i++) box_line(ids[i], y + BOX_LINE * (float)(i + 2), 0xffa0d0ffu, BOX_SCALE);
+  if (restart) box_line(text_id(T_RESTART), y + BOX_LINE * (float)(body + extra + 1), 0xff4040ffu, BOX_SCALE);
+  return BOX_Y + BOX_PAD + BOX_LINE * (float)body;
 }
 
 void mfl_prefs_menu_draw(void)
 {
   struct MenuRecord *rec = &g_menu_records[g_menu_current];
   struct MenuItemAnim *it;
-  int i, k, n, ids[LINES], sel = -1, idle = 0, c = installed ? current_sub() : -1, desc, heading;
+  int i, k, n, ids[LINES], sel = -1, idle = 0, c = installed ? current_sub() : -1, desc, heading, notes, preview = 0;
+  float x, y;
 
   if (!installed) return;
   sync_slot();
@@ -1137,9 +1225,13 @@ void mfl_prefs_menu_draw(void)
     if (it->item_id == (int)L_ROW && it->state != 0 && it->state != 2) idle = 1;      /* the current page's buttons are in place */
     k = anim_row(it);
     if (k == ROWS) continue;
-    ui_text_draw_fade_alpha(value_text(k), VALUE_X, it->y, 0xff000000u, VALUE_SCALE, 0, it->anim_counter);
+    /* the value column of a page: right of its widest caption (the values get the room up to the description box), at most VALUE_X */
+    x = it->x + caption_width[k_rows[k].cat] + VALUE_GAP;
+    if (x > VALUE_X) x = VALUE_X;
+    value_room = BOX_X - 26.0f - x;      /* the right arrow (6 + 16) ends before the box */
+    ui_text_draw_fade_alpha(value_text(k), x, it->y, resolution_locked(k) ? 0xff808080u : 0xff000000u, VALUE_SCALE, 0, it->anim_counter);
     if (c >= 0 && it->state != 0 && it->state != 2 && rec->selected >= 0 && rec->selected < sub_count[c] && k == sub_rows[c][rec->selected]) {
-      if (ROW_STEPS(k)) arrows(value_text(k), it->y);
+      if (ROW_STEPS(k) && !resolution_locked(k)) arrows(value_text(k), x, it->y);
       sel = k;
     }
   }
@@ -1151,13 +1243,31 @@ void mfl_prefs_menu_draw(void)
       if (capture_phase == CAPTURE_WAIT) heading = T_PRESS;
     }
 #endif
-    n = wrap(k_desc[desc - T_DISPLAY][language()], BOX_W - 2.0f * BOX_PAD);
-    for (i = 0; i < n; i++) ids[i] = text_id(T_LINE0 + i);
-    box(heading, n, ids, k_rows[sel].live == LIVE_NOW ? T_AT_ONCE : k_rows[sel].live == LIVE_RACE ? T_NEXT_RACE : T_NEXT_START);
+    n = wrap(k_desc[desc - T_DISPLAY][language()], BOX_W - 2.0f * BOX_PAD, 0);
+#if MFL_FIX_CONTROLS
+    preview = k_rows[sel].key == KEY_CTL_DIRECTIONS || k_rows[sel].cat == PAGE_DIRECTIONS ? PREVIEW_LINES : 0;
+    if (k_rows[sel].key == KEY_CTL_DIRECTIONS && g_controller_cfg[ctl_player].device == DEVICE_KEYBOARD) {      /* the four keys: "Left: A" */
+      for (k = ACTION_LEFT; k < ACTIONS; k++) {
+        char line[64];
+        const char *s = k_text[T_ACTION + k][language()];
+
+        for (i = 0; s[i] != '\0'; i++) line[i] = s[i];
+        line[i++] = ':'; line[i++] = ' ';
+        key_name(g_controller_cfg[ctl_player].bindings[k], line + i);
+        n = wrap(line, BOX_W - 2.0f * BOX_PAD, n);
+      }
+    }
+#endif
+    notes = wrap(k_text[k_rows[sel].live == LIVE_NOW ? T_AT_ONCE : k_rows[sel].live == LIVE_RACE ? T_NEXT_RACE : T_NEXT_START][language()],
+                 BOX_W - 2.0f * BOX_PAD, n) - n;
+    for (i = 0; i < n + notes; i++) ids[i] = text_id(T_LINE0 + i);
+    y = box(heading, ids, n, notes, preview);
+#if MFL_FIX_CONTROLS
+    if (preview != 0) direction_preview(BOX_X + BOX_PAD, y);
+#endif
   } else if (idle && SHOWS(rec, cat_list) && rec->selected >= 0 && rec->selected < CATS) {      /* the category list: its rows */
     for (n = 0; n < sub_count[rec->selected] && n < LINES; n++) ids[n] = text_id(k_rows[sub_rows[rec->selected][n]].text);
-    box(k_cat_text[rec->selected], n, ids, -1);
+    box(k_cat_text[rec->selected], ids, n, 0, 0);
   }
-  row_scales();      /* rows that slide in while menu_update's input part does not run (from the next frame on) */
 }
 #endif

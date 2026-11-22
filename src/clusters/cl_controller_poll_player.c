@@ -1,6 +1,7 @@
 // cluster-entries: controller_poll_player
 /* Installed cluster controller_poll_player (tools/cluster_install.py from output/cluster_pilot8/controller_poll_player.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a48f0*/ extern int __cdecl joypad_get_axis_info(undefined4 p0, undefined4 p1, undefined4 p2, undefined4 p3, undefined4 p4);
 /*004a6f80*/ extern undefined __cdecl controller_action_pressed(int p0, int p1);
 /*004b2b48*/ extern int _ftol();
@@ -148,6 +149,9 @@ LAB_004a5867:
       g_controller_8c7e58.axes[3] = 0;
     }
   }
+#if MFL_FIX_CONTROLS && MFL_FIX_PREFS
+  mfl_controls_menu_input(player);      /* on a Preferences page the menu also obeys the keyboard's default keys and every pad (recomp/mfl_settings_menu.c) */
+#endif
   return;
 }
 

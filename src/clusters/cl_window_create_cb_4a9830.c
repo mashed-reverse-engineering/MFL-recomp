@@ -16,6 +16,9 @@ extern __declspec(dllimport) int __stdcall DefWindowProcA(int hwnd, unsigned int
 /*00771a14*/ extern float g_video_get_771a14;
 /*00771a18*/ extern int g_pump_windows_771a18;
 /*00771a1c*/ extern int g_pump_windows_771a1c;
+#if MFL_FIX_BACKGROUND_RUN
+/*007712f4*/ extern int g_app_7712f4;      /* 1 = exclusive full screen (video_config_dialog) */
+#endif
 /*00771a24*/ extern int g_video_get_771a24;
 /*00771a28*/ extern int g_video_get_771a28;
 /*00771a2c*/ extern int g_data_771a2c;
@@ -153,6 +156,12 @@ int window_create_cb_4a9830_n(int hwnd, unsigned int msg, unsigned int wparam, i
       g_pump_windows_771a1c = (wparam == 1);
 #endif
       keyboard_acquire_release(g_pump_windows_771a1c);
+#if MFL_FIX_BACKGROUND_RUN      /* inactive in a window (not exclusive full screen): 2 = keyboard released, but pump_windows_messages does not wait
+                                   (it tests for 0 only); app_main_loop does the wait of a running race */
+      if (g_pump_windows_771a1c == 0 && g_app_7712f4 == 0) {
+        g_pump_windows_771a1c = 2;
+      }
+#endif
       return 0;
     }
     if (msg == WM_CREATE) {

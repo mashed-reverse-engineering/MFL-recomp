@@ -2365,7 +2365,7 @@ load_team_panels,0041ef40,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33
 load_waterfall_fx,0049d1e0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,200,1.00,0,0
 loading_start_log,0040ae80,hand,bytes,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0
 log_file_close,004a55c0,tier1,bytes,bytes-reloc,498f08d1077e,33bf93632a05,e113226f1790,0,0.00,0,0
-log_open_write,004a55e0,tier1,bytes,bytes-reloc,1da2b87b07bf,33bf93632a05,e113226f1790,0,0.00,0,0
+log_open_write,004a55e0,tier1,bytes,bytes-reloc,e564c494507d,33bf93632a05,e113226f1790,0,0.00,0,0
 log_print,004a5530,tier1,bytes,bytes-reloc,cdac618adcaf,33bf93632a05,e113226f1790,0,0.00,0,0
 log_printf,004a5550,tier1,bytes,bytes-reloc,c77ee56d7d06,33bf93632a05,e113226f1790,0,0.00,0,0
 lua_AI_Bsp_Filename,0048b9d0,tier1,bytes,bytes-reloc,c0e3f6ce1e4e,33bf93632a05,e113226f1790,0,0.00,0,0
@@ -4147,9 +4147,9 @@ vehicle_tyre_marks_render,004263f0,tier2,compiled+diffemu-EQUAL+shadow-never,dif
 vehicles_any_active,0040e6a0,agent,bytes-standalone+06ea18c8562f,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0
 vehicles_prepare_all,00423110,tier1,bytes,bytes-reloc,81f48d3563d7,33bf93632a05,e113226f1790,0,0.00,0,0
 video_cfg_apply_selection,004a8b10,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,200,1.00,0,0
-video_cfg_load,004a85c0,tier1,bytes,bytes-reloc,70bf2190f0e2,33bf93632a05,e113226f1790,0,0.00,0,0
+video_cfg_load,004a85c0,tier1,bytes,bytes-reloc,5dc0c3ebb8cc,33bf93632a05,e113226f1790,0,0.00,0,0
 video_cfg_path,004a8580,tier1,bytes,bytes-reloc,cc27567f1a6e,33bf93632a05,e113226f1790,0,0.00,0,0
-video_cfg_save,004a8620,tier1,bytes,bytes-reloc,1f49eaacf509,33bf93632a05,e113226f1790,0,0.00,0,0
+video_cfg_save,004a8620,tier1,bytes,bytes-reloc,5b97de3b5385,33bf93632a05,e113226f1790,0,0.00,0,0
 video_dialog_free,004a87d0,tier1,bytes,bytes-reloc,9714256f156f,33bf93632a05,e113226f1790,0,0.00,0,0
 video_draw_textured_quad,004a3500,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,200,1.00,0,0
 video_get_default_mode,004a4070,agent,bytes-standalone+38423246727e,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0

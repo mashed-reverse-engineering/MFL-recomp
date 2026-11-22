@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a5530*/ extern undefined __cdecl log_print(char *p0);
 /*004a5550*/ extern int log_printf();
 /*004a8580*/ extern int video_cfg_path();
@@ -20,6 +21,9 @@ undefined4 video_cfg_load(void)
   FILE *cfg_file;
 
   cfg_path = video_cfg_path();
+#if MFL_FIX_USER_DIR      /* the copy in %LOCALAPPDATA%\MFL when there is one */
+  cfg_path = (undefined4)mfl_user_path((const char *)cfg_path, 0);
+#endif
   log_printf("Loading video cfg from %s\n",cfg_path);
   /* open the file (crt_fopen_body is the open call, inferred; g_piz_5e0450 is its mode string) */
   cfg_file = (FILE *)crt_fopen_body(cfg_path,&g_piz_5e0450);

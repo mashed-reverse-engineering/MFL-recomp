@@ -1,4 +1,5 @@
 #pragma auto_inline(off)
+#include "mfl_fix.h"
 /* MFL.exe small helpers, batch 4 (cup scene, movie texture, gamesave file io, fx objects, player records). */
 extern int game_mode;
 extern float k_f_0;
@@ -164,7 +165,11 @@ void clump_clear_atomic_plugin_flag_1(int clump)
 // FUNCTION: MFL 0x00405cf0
 int gamesave_load(void)
 {
+#if MFL_FIX_USER_DIR      /* the copy in %LOCALAPPDATA%\MFL when there is one */
+    stream_read_file((void *)mfl_user_path(g_gamesave_5dd9b4, 0), g_savegame, 0x42334);
+#else
     stream_read_file(g_gamesave_5dd9b4, g_savegame, 0x42334);
+#endif
     gamesave_set_result_code(0);
     return 0;
 }
@@ -172,7 +177,11 @@ int gamesave_load(void)
 // FUNCTION: MFL 0x00405df0
 int gamesave_write(void)
 {
+#if MFL_FIX_USER_DIR      /* the game folder cannot be written: %LOCALAPPDATA%\MFL */
+    stream_write_file((void *)mfl_user_path(g_gamesave_5dd9b4, 1), g_savegame, 0x42334);
+#else
     stream_write_file(g_gamesave_5dd9b4, g_savegame, 0x42334);
+#endif
     gamesave_set_result_code(0);
     return 0;
 }

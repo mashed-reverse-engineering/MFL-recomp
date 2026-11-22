@@ -1,6 +1,7 @@
 // cluster-entries: controller_cfg_save
 /* Installed cluster controller_cfg_save (tools/cluster_install.py from output/cluster_pilot11/controller_cfg_save.c); entries are patched at their original addresses by build_overlay.py --clusters. */
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004a5550*/ extern void log_printf(const char *fmt, ...);
 /*004b4531*/ extern FILE * crt_fopen_body(char *name, void *mode);
 /*004b4358*/ extern int __cdecl _fclose(FILE *p0);
@@ -20,6 +21,9 @@ int controller_cfg_save_n(int in_eax)
   FILE *file;
   
   cfg_path = controller_cfg_path_r(in_eax);
+#if MFL_FIX_USER_DIR      /* the game folder cannot be written: %LOCALAPPDATA%\MFL */
+  cfg_path = (char *)mfl_user_path(cfg_path, 1);
+#endif
   log_printf("Attempting to save controller config %s\n",cfg_path);
   file = crt_fopen_body(cfg_path,&g_controller_5e14cc);
   if (file != (FILE *)0x0) {

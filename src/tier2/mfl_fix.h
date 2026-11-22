@@ -69,8 +69,6 @@ enum mfl_pref_key {
                                      row sets it through mfl_video_modes_api->choose, so mfl_settings_save writes mfl_prefs[] for this key, not values[] */
   MFL_PREF_FPS_CAP,               /* MFL_FIX_FIXED_STEP: fps_cap=60|30|0 (0 = unlimited), kept as the index 0..2 of those words; default 60 */
   MFL_PREF_VSYNC,                 /* vsync=on|off (1/0): the flip waits for the vertical blank (the original) or not; applies at the next start */
-  MFL_PREF_CONTROLLER_SETUP,      /* MFL_FIX_LANG: controller_setup=1: the next start without a -cs option shows the original controller setup dialog
-                                     once (the key is written back as 0 at that start), then the game starts */
   MFL_PREF_PAD_DEADZONE,          /* MFL_FIX_CONTROLS: pad_deadzone=5|10|..|50 (percent of the stick travel, kept as the index 0..9 of those words);
                                      default 35 = the original's 0.35 */
   MFL_PREF_COUNT
@@ -88,6 +86,7 @@ void mfl_settings_save(const int *values);      /* values[MFL_PREF_COUNT] -> eve
 #define MFL_TEXT_FIRST 0x1000
 void mfl_prefs_menu_update(void);      /* menu_update, input part: Left / Right change the selected row, Back writes the file */
 void mfl_prefs_menu_draw(void);        /* hud_menu_draw_all_panels: the value beside each row and the description box */
+void mfl_prefs_menu_scales(void);      /* frontend_draw, before its items: the text scale of our rows' captions */
 void mfl_menu_update_scaled(void);     /* app_state_frontend_frame: menu_update with g_frame_seconds x menu_speed in the frontend state */
 struct mfl_video_modes {      /* the Resolution row's modes, registered at start by the video code (clusters/cl_video_config_dialog.c, display_mode_apply):
                                  mode 0 = "Desktop" (resolution=auto), then the full-screen modes with 32 bit colour, >= 640 x 480, 4:3 or wider */
@@ -115,7 +114,9 @@ int mfl_lang_available(int language);      /* 1 when the game can play that lang
 
 #ifndef MFL_FIX_CONTROLS      /* needs MFL_FIX_PREFS.  Preferences gets a category Controls: per player the device (none / keyboard / a detected
                                  pad), every key or button of the 13 actions (Return on a row, then the new key; Escape cancels), reset to the
-                                 defaults, and the stick dead zone (key pad_deadzone).  It edits the game's own controller table and writes the
+                                 defaults, and the stick dead zone (key pad_deadzone) beside a live preview of the directions.  The three menu
+                                 buttons may share a key with a race action; while a Preferences page is open the menu also obeys the
+                                 keyboard's default keys and every pad.  It edits the game's own controller table and writes the
                                  game's own contcfg<n>.bin (same format as the original setup dialog).  At start a saved file is also accepted
                                  when it names the keyboard in another language or on another player, a pad on another player, or no device;
                                  the original accepted only the default device of that player under its exact name (recomp/mfl_settings_menu.c,
@@ -124,6 +125,7 @@ int mfl_lang_available(int language);      /* 1 when the game can play that lang
 #endif
 #if MFL_FIX_CONTROLS && MFL_FIX_PREFS
 void mfl_controls_load(void);      /* controller_dialog_run, last step: contcfg<n>.bin by the wider rule, then the dead zone key */
+void mfl_controls_menu_input(int player);      /* controller_poll_player, last step: on a Preferences page the menu input of every device */
 #endif
 
 #ifndef MFL_FIX_PAD_LIMIT      /* the game controller enumeration stops at 4 devices; the original took every attached one while its per-pad
@@ -136,6 +138,24 @@ void mfl_controls_load(void);      /* controller_dialog_run, last step: contcfg<
                                 Alt+Tab / the Windows key back into the game it runs and reads keys again; the original compared the whole wparam with
                                 WA_ACTIVE and stayed paused (clusters/cl_window_create_cb_4a9830.c; agents/gfx_w17/notes.md) */
 #define MFL_FIX_ALT_TAB 0
+#endif
+
+#ifndef MFL_FIX_BACKGROUND_RUN      /* a game in a window (windowed or borderless, not exclusive full screen) keeps running while another window has the
+                                       focus, except during a running race; the original then ran one frame per window message (WaitMessage in
+                                       pump_windows_messages), which stutters the picture and starves the music stream.  The keyboard is still released
+                                       while inactive.  A running race (app state 3) and exclusive full screen keep the original wait
+                                       (clusters/cl_window_create_cb_4a9830.c, clusters/cl_app_main_loop.c; output/window_appdata_2026-11-22.md) */
+#define MFL_FIX_BACKGROUND_RUN 0
+#endif
+
+#ifndef MFL_FIX_USER_DIR      /* a file the game writes (mashed.log, videocfg.bin, contcfg<n>.bin, gamesave.bin, mflng_settings.cfg, mflng-crash.txt)
+                                 goes to %LOCALAPPDATA%\MFL when its own place (the game folder) cannot be opened for writing, e.g. an install under
+                                 Program Files; a file found in %LOCALAPPDATA%\MFL is the one read and written from then on, else the game folder's
+                                 (recomp/mfl_resources.c mfl_user_path and its callers; output/window_appdata_2026-11-22.md) */
+#define MFL_FIX_USER_DIR 0
+#endif
+#if MFL_FIX_USER_DIR
+const char *mfl_user_path(const char *path, int for_write);      /* the path to open instead of `path`; valid until the next call */
 #endif
 
 #ifndef MFL_FIX_WINDOW_ICON      /* the "DtS" window class gets the exe's own icon (icon group resource id 1, LoadIconA(hinstance, 1)) instead of none, so the title bar,

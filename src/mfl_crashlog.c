@@ -40,6 +40,10 @@ extern __declspec(dllimport) u32 __stdcall GetFileSize(void *h, u32 *high);
 extern __declspec(dllimport) int __stdcall MoveFileExW(const wchar_t *from, const wchar_t *to, u32 flags);
 extern __declspec(dllimport) u32 __stdcall GetModuleFileNameW(void *module, wchar_t *path, u32 size);
 extern __declspec(dllimport) u32 __stdcall GetTempPathW(u32 size, wchar_t *path);
+#if MFL_FIX_USER_DIR
+extern __declspec(dllimport) u32 __stdcall GetEnvironmentVariableW(const wchar_t *name, wchar_t *value, u32 size);
+extern __declspec(dllimport) int __stdcall CreateDirectoryW(const wchar_t *path, void *sa);
+#endif
 extern __declspec(dllimport) void *__stdcall GetModuleHandleW(const wchar_t *name);
 extern __declspec(dllimport) void *__stdcall GetProcAddress(void *module, const char *name);
 extern __declspec(dllimport) u32 __stdcall VirtualQuery(const void *at, struct meminfo *mi, u32 size);
@@ -132,6 +136,21 @@ static void write_report(void)
     for (done = 0; done < n; done++) g_old[done] = g_path[done];
     h = n != 0 ? open_in(n) : (void *)-1;
   }
+#if MFL_FIX_USER_DIR      /* then %LOCALAPPDATA%\MFL, where mfl_user_path (recomp/mfl_resources.c) puts the game's other files */
+  if (h == (void *)-1) {
+    static const wchar_t sub[] = L"\\MFL\\";
+    n = GetEnvironmentVariableW(L"LOCALAPPDATA", g_path, 240);
+    if (n != 0 && n < 240) {
+      for (done = 0; sub[done]; done++) g_path[n + done] = sub[done];
+      g_path[n + 4] = 0;
+      CreateDirectoryW(g_path, 0);
+      g_path[n + 4] = '\\';
+      n += 5;
+      for (done = 0; done < n; done++) g_old[done] = g_path[done];
+      h = open_in(n);
+    }
+  }
+#endif
   if (h == (void *)-1) {
     n = GetTempPathW(260, g_path);
     for (done = 0; done < n; done++) g_old[done] = g_path[done];

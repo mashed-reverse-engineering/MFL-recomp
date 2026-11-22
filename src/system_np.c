@@ -1,6 +1,7 @@
 /* MFL.exe system_np: functions moved verbatim from game_globals.c, game_misc.c, game_misc2.c, misc3.c by tools/reorg.py (shared declarations: mfl_externs.h). */
 #include "mfl_types.h"
 #include "mfl_externs.h"
+#include "mfl_fix.h"
 
 // FUNCTION: MFL 0x0040ae30
 void gamesave_request_load_slot1(void)
@@ -48,7 +49,12 @@ void gamesave_request_delete(void)
 // FUNCTION: MFL 0x00405e20
 int gamesave_exists(void)
 {
-    return FUN_00561060(g_gamesave_5dd9b4) != 0;
+#if MFL_FIX_USER_DIR      /* the copy in %LOCALAPPDATA%\MFL when there is one */
+    void *path = (void *)mfl_user_path(g_gamesave_5dd9b4, 0);
+#else
+    void *path = g_gamesave_5dd9b4;
+#endif
+    return FUN_00561060(path) != 0;
 }
 
 // FUNCTION: MFL 0x004316f0

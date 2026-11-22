@@ -18,6 +18,13 @@ extern __declspec(dllimport) void __stdcall Sleep(int milliseconds);
 /*004a1a70*/ extern void debug_keys_and_profile(void);
 /*004a2880*/ extern void app_frame_wait(void);
 
+#if MFL_FIX_BACKGROUND_RUN
+extern __declspec(dllimport) int __stdcall WaitMessage(void);
+/*00771a1c*/ extern int g_pump_windows_771a1c;      /* window active (WM_ACTIVATE); 2 = inactive but running (clusters/cl_window_create_cb_4a9830.c) */
+/*0076e7f4*/ extern int g_app_state;
+#define APP_STATE_RACE_RUNNING 3      /* APP_STATE_RACE */
+#endif
+
 #define FRAME_TICKS 50000
 #define TICKS_PER_MS 3000
 
@@ -70,6 +77,12 @@ int app_main_loop(void)
 
   main_loop_init();
   while (g_quit_requested == 0 && pump_windows_messages() == 0) {
+#if MFL_FIX_BACKGROUND_RUN      /* inactive in a window (the window procedure's 2): menus and loads run on; a running race waits as the original
+                                   ponytail: the race is held by the original's frame-per-message wait, not by the pause menu (its sound still stutters) */
+    if (g_pump_windows_771a1c == 2 && g_app_state == APP_STATE_RACE_RUNNING) {
+      WaitMessage();
+    }
+#endif
     start = timer_ticks();
     frontend_init_menus();
     input_update();
