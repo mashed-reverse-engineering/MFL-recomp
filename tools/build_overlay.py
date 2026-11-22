@@ -19,7 +19,13 @@ MT = V143 and os.environ.get("LIB_CRT") == "v143mt"      # W16 MT (V143 item 4):
 # CC unset (or v143) = this block is inert: no list is read, no key changes.  The link scripts need no change (link_ours.sh only tests CC=v143).
 GCC = os.environ.get("CC") == "gcc"
 GCC_FLAGS = ["-c", "-w", "-std=gnu99", "-O2", "-msse2", "-mfpmath=sse", "-ffp-contract=off", "-fno-fast-math", "-fms-extensions", "-DNOASM", "-D__int64=long long",      # (mingw defines __int64 only in its own headers; the sources use no system header)
-             "-fno-ident", "-fno-asynchronous-unwind-tables"]      # last two: no .comment / .eh_frame sections in the objects (mkobj / mkrange expect .text .data .rdata .bss only)
+             "-fno-ident", "-fno-asynchronous-unwind-tables",      # these two: no .comment / .eh_frame sections in the objects (mkobj / mkrange expect .text .data .rdata .bss only)
+             # W17 GCC1 (output/gcc_first_compile_2026-11-21.md): the sources are decompiler style C that cl 13 compiles literally; gcc -O2 must not use the
+             # undefined behaviour in it: type punning through casts (109 tier 2 files warn), signed / pointer wrap, loops that walk past a placeholder
+             # `g_x[0x1000]` extern into the next pinned global, reads through small absolute addresses
+             "-fno-strict-aliasing", "-fwrapv", "-fwrapv-pointer", "-fno-aggressive-loop-optimizations", "-fno-delete-null-pointer-checks",
+             "-mpreferred-stack-boundary=2",     # the cl ABI: the stack is 4 byte aligned at every call (gcc's default assumes 16 on entry: movaps on a stack slot would fault when cl code calls); gcc then realigns only a function that needs an aligned slot
+             "-fno-reorder-functions"]           # no .text.unlikely (cold functions): every function stays in .text
 GCC_PHYSICS = re.compile(r"(^|_)(car|cars|aibot|rwp|vehicle)(_|\.)")      # x87 study (output/x87_sse2_experiment_2026-11-21.md): car / aibot / rwp physics stay on MSVC x87
 GCC_FLOAT10 = "typedef double float10;"      # src/mfl_tier2.h; the gcc copy of the header (never the tree file) says `float` so a PC=24 x87 temporary rounds per op like the original
 
@@ -31,6 +37,24 @@ def gcc_list():
     bad = [n for n in names if GCC_PHYSICS.search(n)]
     if bad: sys.exit("CC=gcc: physics files stay on MSVC x87, remove from data/link/gcc_files.txt: " + " ".join(bad))
     return set(names)
+
+
+_LIBGCC = None
+
+
+def gcc_objcheck(o):
+    """-> reasons why gcc object `o` cannot be linked by link.exe next to the cl objects: an undefined symbol that only libgcc defines
+    (___chkstk_ms: a frame > 4 KiB, ___divdi3 / ___umoddi3: 64 bit division; cl calls __chkstk / __alldiv of the exe instead) or a non-empty
+    section other than .text / .data / .rdata / .bss (mkobj / mkrange place only these)"""
+    global _LIBGCC
+    nm_ = lambda *a: subprocess.run(["i686-w64-mingw32-nm"] + list(a), capture_output=True, text=True).stdout.splitlines()
+    if _LIBGCC is None:
+        lib = subprocess.run(["i686-w64-mingw32-gcc", "-print-libgcc-file-name"], capture_output=True, text=True).stdout.strip()
+        _LIBGCC = {l.split()[-1] for l in nm_("-g", "--defined-only", lib) if len(l.split()) == 3}
+    bad = ["libgcc symbol " + s for s in sorted({l.split()[-1] for l in nm_("-u", o) if l.split()} & _LIBGCC)]
+    hdr = subprocess.run(["i686-w64-mingw32-objdump", "-h", o], capture_output=True, text=True).stdout
+    bad += ["section " + s for s, z in re.findall(r"^\s*\d+ (\S+)\s+([0-9a-f]{8})", hdr, re.M) if int(z, 16) and s.split("$")[0] not in (".text", ".data", ".rdata", ".bss")]
+    return bad
 
 
 def gcc_compile(work, todo, fix, keyed):
@@ -48,6 +72,8 @@ def gcc_compile(work, todo, fix, keyed):
         r = subprocess.run(["i686-w64-mingw32-gcc"] + GCC_FLAGS + [x.replace("/D", "-D", 1) for x in fix] + ["-o", o, nm], cwd=g, capture_output=True, text=True)
         if r.returncode or not os.path.exists(o):
             print("compile error in", nm, "(gcc)", r.stderr[-600:], file=sys.stderr); sys.exit(1)
+        bad = gcc_objcheck(o)      # W17 GCC1: an object link.exe / mkobj cannot take stops here with its reason, not as an unresolved symbol later
+        if bad: sys.exit("CC=gcc: %s cannot join the link, remove it from data/link/gcc_files.txt: %s" % (nm, "; ".join(bad)))
         tmp_ = "%s.%d.tmp" % (cp_[nm], os.getpid()); shutil.copy(o, tmp_); os.replace(tmp_, cp_[nm])
 
 
