@@ -11,9 +11,12 @@
 # Present) and scen_flags bit 2048 (as one.sh's default: no host key can cut the intro fly-over short).
 T=$(dirname "$(readlink -f "$0")"); R=$(readlink -f "$T/../.."); W=${SH_WORK:-$R/output/statehash}
 D=${1:-31}; FR=${2:-400}
-export DRIVE=$((D | 2048)) ALOCK=1 SNDPIN=1 STEP_US=0 VSNAP=3 NOLIMIT=0
+# rp4 (lane replay_w17): FRAMED=1.  Without it the menus are walked in wall time, the number of menu frames differs per run, and under VSNAP=3
+# the RWA voice-manager time stamp g_data_7dab90 (sum of truncated 16.667 ms steps since audio start) starts the race with another constant
+# offset (307 ms between the two W17 control runs): the one word of the old DIVERGENT control verdict.  With the framed menu path it is equal.
+export DRIVE=$((D | 2048)) ALOCK=1 SNDPIN=1 STEP_US=0 VSNAP=3 NOLIMIT=0 FRAMED=1
 TAG=c1d$D
-CMP="--ptr $T/data/state_ptrwords.txt --mask $T/data/state_mask.txt"
+CMP="--ptr $T/data/state_ptrwords.txt --mask $T/data/state_mask.txt --env $T/data/state_env.txt"
 SH_POKE= "$T/one.sh" ${TAG}_ctl 0 $FR || exit 1
 SH_POKE= "$T/one.sh" ${TAG}_ctl2 0 $FR || exit 1
 python3 "$T/statecmp.py" "$W/runs/${TAG}_ctl/statehash.bin" "$W/runs/${TAG}_ctl2/statehash.bin" $CMP --ftol 0 --show 8 > "$W/runs/${TAG}_ctl2.cmp.txt"

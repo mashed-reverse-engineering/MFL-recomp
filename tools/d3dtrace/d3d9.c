@@ -17,6 +17,9 @@
  *   alock=1               worker threads in lockstep with the main thread (V6, see alock_step; default off)
  *   vds=1                 virtual DirectSound play cursor (V8, see h_dsb_GetCurrentPosition; default off, use with alock=1)
  *   statehash=1 sh_delta=<hex> [sh_base= sh_end= sh_out= sh_poke=<frame>:<va>:<xor>]   N1 per-frame state pages (see statehash_frame)
+ *   sh_seed=<A statehash.bin> sh_seed_k=<K> [sh_seed_from=<frame>] [sh_seed_range=<lo>:<hi>]... [sh_seed_skip=<file>]   mode B re-seed (see seed_frame)
+ *   rec=1 | play=<file>   replay file v1: keyboard state per Present + the determinism settings (see rp_step); needs mkbd=
+ *   pace=1                with vsnap=3: main-thread Sleeps really sleep (a person can play a recording run at about 60 fps); NOT tested
  * Everything printed is deterministic: ids are creation order, floats %.9g, no pointers, no times.
  * Build: make (i686-w64-mingw32-gcc). */
 #define WIN32_LEAN_AND_MEAN
@@ -235,6 +238,49 @@ static int cfg_alock, ato; static volatile LONG nth; static void alock_step(int 
 #endif
 static int cfg_vdssnap = VDSSNAP_DEF; static volatile LONG nvds_snap; static void vds_snap(DWORD ph);   /* lane v2_w11 pin 1, see vds_snap */
 static volatile LONG nrd, npend, nst_get, nst_play, nst_stop, nst_lock, nst_lockwc;static int cfg_vds, cfg_apoll, nvds_buf; static volatile LONG npres, nvds_read, nvds_step;     /* vds=1 (V8): Present count (all frames), cursor reads, fixed steps */
+/* sh_seed=<A's statehash.bin> sh_seed_k=<K> [sh_seed_from=<frame>] [sh_seed_range=<lo>:<hi> ...] [sh_seed_skip=<file>] (RPL-T mode B, lane replay_w17):
+ * every K frames (frame >= from, (frame - from) % K == 0), after this run's frame is recorded, the words of the seed ranges (original VAs; default
+ * cars, vehicles, aibots = statecmp DENY_RANGES) are set to run A's values of the same frame.  Words listed in the skip file (first token of a
+ * line = 8 hex digits: state_ptrwords.txt) are never written (pointers of A's heap / code layout).  So this run's record of a seed frame holds
+ * the drift of one window and the next window starts from A's state.  A is read as a stream, one record per frame; a frame whose phase / racef
+ * differ from A's is not seeded.  Heap contents are not in A's file: only image words can be seeded. */
+#define NSR 64
+static char cfg_seed[260], cfg_seed_skip[260]; static int cfg_seed_k, cfg_seed_from, nsr; static u32 sr[NSR][2];
+static char cfg_rec[260], cfg_play[260]; static int cfg_pace;      /* replay file, see rp_step */
+static void seed_frame(int fr, DWORD ph, DWORD rf) {
+    static unsigned char *img, *skip; static int next; static u32 aph, arf; static long off;
+    u32 n = cfg_sh_end - cfg_sh_base, np = (n + 4095) / 4096, hd[10], i;
+    if (!cfg_seed[0] || cfg_seed_k <= 0) return;
+    FILE *sf = fopen(cfg_seed, "rb");      /* opened and closed in every call: a handle held open would move the handle values the game stores later (state compare) */
+    if (!img) {
+        img = calloc(np, 4096); skip = calloc(np, 128);      /* skip: one bit per image word */
+        FILE *k = cfg_seed_skip[0] && skip ? fopen(cfg_seed_skip, "r") : NULL; char ln[256]; int ns = 0;
+        while (k && fgets(ln, sizeof ln, k)) { char *e; u32 va = strtoul(ln, &e, 16); if (e - ln == 8 && va >= cfg_sh_base && va < cfg_sh_end) { skip[(va - cfg_sh_base) >> 5] |= 1 << ((va - cfg_sh_base) >> 2 & 7); ns++; } }
+        if (k) fclose(k);
+        if (!nsr) { sr[0][0] = 0x8B06E0; sr[0][1] = 0x8B06E0 + 0xD040; sr[1][0] = 0x659f00; sr[1][1] = 0x659f00 + 0xAB0; sr[2][0] = 0x8c9ae0; sr[2][1] = 0x8c9ae0 + 0x1e0; nsr = 3; }
+        L("SEED file=%s open=%d k=%d from=%d ranges=%d skipwords=%d\n", cfg_seed, sf != NULL, cfg_seed_k, cfg_seed_from, nsr, ns);
+    }
+    if (!sf || !img || !skip) { cfg_seed[0] = 0; if (sf) fclose(sf); return; }
+    fseek(sf, off, SEEK_SET);
+    while (next <= fr) {
+        if (fread(hd, 4, 10, sf) != 10 || hd[0] != 0x31464853) { L("SEED A ends before frame %d\n", fr); cfg_seed[0] = 0; fclose(sf); return; }
+        fseek(sf, 8 * hd[5], SEEK_CUR);
+        for (u32 k = 0; k < hd[4]; k++) { if (fread(&i, 4, 1, sf) != 1) break; if (i < np) fread(img + i * 4096, 1, 4096, sf); else fseek(sf, 4096, SEEK_CUR); }
+        next = hd[1] + 1; aph = hd[2]; arf = hd[3];
+    }
+    off = ftell(sf); fclose(sf);
+    if (fr < cfg_seed_from || (fr - cfg_seed_from) % cfg_seed_k) return;
+    if (aph != ph || arf != rf) { L("SEED frame=%d NOT APPLIED: A phase=%u racef=%u, here phase=%u racef=%u\n", fr, aph, arf, ph, rf); return; }
+    int nw = 0, nk = 0;
+    for (int r = 0; r < nsr; r++) for (u32 va = sr[r][0] & ~3u; va + 4 <= sr[r][1] && va + 4 <= cfg_sh_end; va += 4) {
+        if (va < cfg_sh_base) continue;
+        u32 o = va - cfg_sh_base, a; memcpy(&a, img + o, 4); DWORD *p = (DWORD *)(uintptr_t)(va + cfg_sh_delta);
+        if (*p == a) continue;
+        if (skip[o >> 5] >> (o >> 2 & 7) & 1) { nk++; continue; }
+        *p = a; nw++;
+    }
+    L("SEED frame=%d phase=%u racef=%u written=%d ptrskip=%d\n", fr, ph, rf, nw, nk);
+}
 static void statehash_frame(int fr, DWORD ph, DWORD rf) {
     static unsigned char *shadow; static FILE *f; static u32 reg[2 * 4096], idx[4096];
     u32 n = cfg_sh_end - cfg_sh_base, np = (n + 4095) / 4096, nr = 0, nc = 0, hd[10];
@@ -257,6 +303,7 @@ static void statehash_frame(int fr, DWORD ph, DWORD rf) {
     for (u32 k = 0; k < nc; k++) { fwrite(&idx[k], 4, 1, f); fwrite(shadow + idx[k] * 4096, 1, 4096, f); }
     fflush(f);
     if (fr == cfg_poke_frame) { DWORD *p = (DWORD *)(uintptr_t)(cfg_poke_va + cfg_sh_delta); DWORD old; VirtualProtect(p, 4, PAGE_READWRITE, &old); *p ^= cfg_poke_xor; L("POKE frame=%d va=%x xor=%x\n", fr, cfg_poke_va, cfg_poke_xor); }
+    seed_frame(fr, ph, rf);
 }
 static void mstep_frame(void);
 static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, const RGNDATA *c) {
@@ -265,6 +312,7 @@ static HRESULT WINAPI h_Present(void *d, const RECT *a, const RECT *b, HWND w, c
     if (!IsBadReadPtr((void *)(uintptr_t)cfg_phase_addr, 4)) ph = *(DWORD *)(uintptr_t)cfg_phase_addr;
     if (cfg_racef_addr && !IsBadReadPtr((void *)(uintptr_t)cfg_racef_addr, 4)) rf = *(DWORD *)(uintptr_t)cfg_racef_addr;
     InterlockedIncrement(&npres);      /* before alock_step: the workers it releases see the new frame's cursor */
+    { static DWORD rp_ph = 0xFFFFFFFF; if (lg && cfg_rec[0] && ph != rp_ph && is_main()) { rp_ph = ph; L("RP P %ld %u\n", (long)npres, (unsigned)ph); } }
     if (cfg_vds && cfg_vdssnap && is_main()) vds_snap(ph);
     if (cfg_vdssnap && active && nframes % 100 == 0) L("VDSSNAP snaps=%d\n", (int)nvds_snap);
     if (cfg_alock && is_main()) { alock_step(1); if (active && nframes % 100 == 0) L("ALOCK threads=%d timeouts=%d\n", (int)nth, ato); }
@@ -550,7 +598,7 @@ static DWORD mwait(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) {    /* main t
 }
 static DWORD WINAPI v_WaitForMultipleObjects(DWORD n, const HANDLE *hs, BOOL all, DWORD ms) { return !cfg_alock ? WaitForMultipleObjects(n, hs, all, ms) : is_main() ? mwait(n, hs, all, ms) : await(n, hs, all, ms); }
 static DWORD WINAPI v_WaitForSingleObject(HANDLE h, DWORD ms) { return !cfg_alock ? WaitForSingleObject(h, ms) : v_WaitForMultipleObjects(1, &h, FALSE, ms); }
-static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { if (cfg_vsnap != 3) vt_us += (LONGLONG)ms * 1000; if (cfg_alock) alock_step(0); Sleep(0); } else if (cfg_alock) await(0, NULL, FALSE, ms); else Sleep(ms); }
+static void WINAPI v_Sleep(DWORD ms) { if (is_main()) { if (cfg_vsnap != 3) vt_us += (LONGLONG)ms * 1000; if (cfg_alock) alock_step(0); Sleep(cfg_pace ? ms : 0); } else if (cfg_alock) await(0, NULL, FALSE, ms); else Sleep(ms); }
 /* vds=1 (V8, harness only, default off, use with alock=1): Wine's dsound mixer advances the play cursor in real time, so how far the RWA thread
  * streams per frame (voice queue, then everything downstream) differs run to run.  With vds the exe's DirectSoundCreate / DirectSoundCreate8
  * (DSOUND IAT, ordinal 1 / 11 or by name) are wrapped, IDirectSound::CreateSoundBuffer patches the buffer vtables and
@@ -586,14 +634,46 @@ static void dvt_hook(void *obj, int i, void *fn) {     /* patch slot i of obj's 
 #define MS_RETRY 20
 #define MS_TRIES 40
 static struct { char op, cmp; int a; DWORD va, v; } ms[NMS]; static int nms, ms_i, ms_st, ms_t, ms_tries; static DWORD cfg_mkbd; static volatile DWORD ms_key; static void *ms_dev;
+/* rec=1 / play=<file> (replay file v1, lane replay_w17): the keyboard state the game reads (DirectInput GetDeviceState(256) of the mkbd
+ * device), keyed by the Present count since process start.  Text file: "MFLREPLAY 1"; "C <cfg line>" = the determinism settings of the recording
+ * run (clock, lockstep, sound pins, srand phase and seed, pin rows), read as cfg lines by a play run; "P <frame> <phase>" = race phase changes
+ * (information); "K <frame> [<dik hex> ...]" = the keys down from that frame on (at most 15).  rec writes a K line whenever the set changes
+ * (injected mstep keys included); play replaces the device state by the file's.  No file is held open in the game: rec writes its lines into
+ * the proxy log with the prefix "RP " (run.sh REPLAY_REC cuts them out), play loads the file while the cfg is read.  One more open handle moves
+ * the handle values the game stores (9 words of the state compare, measured).  Keyboard only: pads / mouse are not recorded (ponytail: add a
+ * device tag to the K line when a pad recording is needed). */
+#define NRK 32768
+static struct { long fr; BYTE n, k[15]; } rk[NRK]; static int nrk;
+static int cfg_aio, cfg_vst;
+static void rp_step(BYTE *buf) {
+    static BYTE keys[256]; static int cur, started; int i, ch = 0;
+    if (cfg_play[0]) {
+        for (; cur < nrk && rk[cur].fr <= npres; cur++) { memset(keys, 0, 256); for (i = 0; i < rk[cur].n; i++) keys[rk[cur].k[i]] = 0x80; }
+        memcpy(buf, keys, 256); return;
+    }
+    if (!lg) return;
+    if (!started) {
+        started = ch = 1;
+        L("RP MFLREPLAY 1\nRP C vclock=%d\nRP C step_us=%d\nRP C vsnap=%d\nRP C anchor_phase=%d\nRP C alock=%d\nRP C vds=%d\nRP C vdssnap=%d\nRP C apoll=%d\nRP C aio=%d\nRP C vst=%d\n", cfg_vclock, cfg_step_us, cfg_vsnap, cfg_anchor_phase, cfg_alock, cfg_vds, cfg_vdssnap, cfg_apoll, cfg_aio, cfg_vst);
+        if (cfg_srand_va) L("RP C srand=%u:0:%u\n", (unsigned)cfg_srand_ph, (unsigned)cfg_srand_seed);      /* va 0: the play run's own cfg names its _srand */
+        for (i = 0; i < npin; i++) L("RP C pin=%u:%x:%x\n", (unsigned)pins[i].ph, (unsigned)pins[i].va, (unsigned)pins[i].v);
+    }
+    for (i = 0; i < 256; i++) ch |= (buf[i] ^ keys[i]) & 0x80;
+    if (!ch) return;
+    L("RP K %ld", (long)npres);
+    for (i = 0; i < 256; i++) { keys[i] = buf[i] & 0x80; if (keys[i]) L(" %x", i); }
+    L("\n"); fflush(lg);
+}
 static HRESULT WINAPI h_di_GetDeviceState(void *dev, DWORD n, void *buf) {
     HRESULT r = ((HRESULT (WINAPI *)(void *, DWORD, void *))dvt_orig(dev)[9])(dev, n, buf);
     if (dev == ms_dev && n == 256 && ms_key) { if (r < 0) { memset(buf, 0, 256); r = 0; } ((BYTE *)buf)[ms_key] |= 0x80; }
+    if (dev == ms_dev && n == 256 && cfg_play[0]) { r = 0; rp_step(buf); }
+    else if (dev == ms_dev && n == 256 && cfg_rec[0] && r >= 0) rp_step(buf);
     return r;
 }
 static void mstep_frame(void) {
-    if (ms_i >= nms) return;
     if (!ms_dev && cfg_mkbd && !IsBadReadPtr((void *)(uintptr_t)cfg_mkbd, 4) && *(void **)(uintptr_t)cfg_mkbd) { ms_dev = *(void **)(uintptr_t)cfg_mkbd; dvt_hook(ms_dev, 9, h_di_GetDeviceState); L("MSTEP kbd %p\n", ms_dev); }
+    if (ms_i >= nms) return;
     int i = ms_i, met = 0; DWORD *p = (DWORD *)(uintptr_t)ms[i].va;
     if (ms[i].op == 'f') { for (int k = 0; k < ms[i].a; k++) p[k] = ms[i].v; met = 1; }
     else if (!IsBadReadPtr(p, 4)) met = ms[i].cmp == '=' ? *p == ms[i].v : *p != ms[i].v;
@@ -812,12 +892,30 @@ static void ar_patch(void) {
 }
 
 /* ---- entry point -------------------------------------------------------------------------------------------------------------- */
-static void read_cfg(const char **outp, char *outbuf) {
-    FILE *f = fopen("d3dtrace.cfg", "r"); char ln[512];
-    strcpy(outbuf, "d3dtrace.log"); npin = 0; n_ars = 0; nms = 0;
-    while (f && fgets(ln, sizeof ln, f)) {
-        char *e = strchr(ln, '='); if (!e) continue; *e++ = 0; e[strcspn(e, "\r\n")] = 0;
+static void cfg_line(char *ln, char *outbuf, int inc) {      /* inc: a "C " line of a replay file (play=) */
+    {
+        char *e = strchr(ln, '='); if (!e) return; *e++ = 0; e[strcspn(e, "\r\n")] = 0;
+        if (inc && (!strcmp(ln, "out") || !strcmp(ln, "play") || !strcmp(ln, "rec"))) return;
         if (!strcmp(ln, "out")) strncpy(outbuf, e, 500);
+        else if (!strcmp(ln, "play")) {      /* the file's C lines are settings: a cfg line after play= overrides them */
+            strncpy(cfg_play, e, 259); FILE *p = fopen(e, "r"); char l2[512]; nrk = 0;
+            while (p && fgets(l2, sizeof l2, p)) {
+                if (l2[0] == 'C' && l2[1] == ' ') cfg_line(l2 + 2, outbuf, 1);
+                else if (l2[0] == 'K' && nrk < NRK) {
+                    char *q = l2 + 1, *x; rk[nrk].fr = strtol(q, &q, 10); rk[nrk].n = 0;
+                    for (;;) { unsigned long d = strtoul(q, &x, 16); if (x == q) break; if (rk[nrk].n < 15) rk[nrk].k[rk[nrk].n++] = (BYTE)d; q = x; }
+                    nrk++;
+                }
+            }
+            if (p) fclose(p); else cfg_play[0] = 0;
+        }
+        else if (!strcmp(ln, "rec")) strncpy(cfg_rec, e, 259);
+        else if (!strcmp(ln, "pace")) cfg_pace = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "sh_seed")) strncpy(cfg_seed, e, 259);
+        else if (!strcmp(ln, "sh_seed_skip")) strncpy(cfg_seed_skip, e, 259);
+        else if (!strcmp(ln, "sh_seed_k")) cfg_seed_k = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "sh_seed_from")) cfg_seed_from = (int)strtol(e, 0, 0);
+        else if (!strcmp(ln, "sh_seed_range") && nsr < NSR && sscanf(e, "%x:%x", &sr[nsr][0], &sr[nsr][1]) == 2) nsr++;
         else if (!strcmp(ln, "start_phase")) cfg_start_phase = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "phase_addr")) cfg_phase_addr = (u32)strtoul(e, 0, 0);
         else if (!strcmp(ln, "racef_addr")) cfg_racef_addr = (u32)strtoul(e, 0, 0);
@@ -841,7 +939,7 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "apoll")) cfg_apoll = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "aio")) cfg_aio = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "vst")) cfg_vst = (int)strtol(e, 0, 0);
-        else if (!strcmp(ln, "srand")) sscanf(e, "%u:%x:%u", &cfg_srand_ph, &cfg_srand_va, &cfg_srand_seed);
+        else if (!strcmp(ln, "srand")) { unsigned va = 0; sscanf(e, "%u:%x:%u", &cfg_srand_ph, &va, &cfg_srand_seed); if (va) cfg_srand_va = va; }      /* va 0 (replay file): keep this run's _srand */
         else if (!strcmp(ln, "pin") && npin < NPIN && sscanf(e, "%u:%x:%x", &pins[npin].ph, &pins[npin].va, &pins[npin].v) == 3) npin++;
         else if (!strcmp(ln, "mkbd")) cfg_mkbd = (DWORD)strtoul(e, 0, 0);
         else if (!strcmp(ln, "mstep") && nms < NMS && e[0] && e[1] == ':') {      /* see mstep_frame */
@@ -855,6 +953,11 @@ static void read_cfg(const char **outp, char *outbuf) {
         else if (!strcmp(ln, "audiorng")) cfg_audiorng = (int)strtol(e, 0, 0);
         else if (!strcmp(ln, "audiorng_site") && n_ars < NARS && sscanf(e, "%x:%x", &ars_va[n_ars], &ars_to[n_ars]) == 2) n_ars++;
     }
+}
+static void read_cfg(const char **outp, char *outbuf) {
+    FILE *f = fopen("d3dtrace.cfg", "r"); char ln[512];
+    strcpy(outbuf, "d3dtrace.log"); npin = 0; n_ars = 0; nms = 0; nsr = 0;
+    while (f && fgets(ln, sizeof ln, f)) cfg_line(ln, outbuf, 0);
     if (f) fclose(f);
     *outp = outbuf;
 }

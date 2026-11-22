@@ -86,6 +86,16 @@ case $SC in
 esac
 # FRAMED=1 (course:N): race_script.sh prints the menu path as mkbd= / mstep= lines for the proxy (d3d9.c mstep_frame): they go to the cfg, not to play.sh
 grep -E '^(mkbd|mstep)=' $W/script.txt >> $AE/d3dtrace.cfg; sed -i -E '/^(mkbd|mstep)=/d' $W/script.txt
+# lane replay_w17 (rp4): SH_SEED=<run A's statehash.bin> SH_SEED_K=<K, default 30> [SH_SEED_FROM=<frame>] [SH_SEED_RANGES="lo:hi ..."] = mode B re-seed (d3d9.c seed_frame;
+# the pointer words of tools/statehash/data/state_ptrwords.txt are never written).  REPLAY_REC=1 -> <out dir>/replay.txt (replay file v1, d3d9.c rp_step).
+# REPLAY_PLAY=<replay file>: its K lines drive the keyboard, the FRAMED key steps become waits (their fills stay), its C lines are the settings
+# (play= is the last cfg line, so they win over the env of this run).  PACE=1: d3d9.c pace (untested).
+if [ -n "$SH_SEED" ]; then cp "$SH_SEED" $AE/seed.bin; grep -v '^#' $R/tools/statehash/data/state_ptrwords.txt > $AE/seed_skip.txt
+  { echo "sh_seed=seed.bin"; echo "sh_seed_skip=seed_skip.txt"; echo "sh_seed_k=${SH_SEED_K:-30}"; echo "sh_seed_from=${SH_SEED_FROM:-0}"; for r in $SH_SEED_RANGES; do echo "sh_seed_range=$r"; done; } >> $AE/d3dtrace.cfg; fi
+if [ -n "$REPLAY_REC$REPLAY_PLAY" ]; then grep -q '^mkbd=' $AE/d3dtrace.cfg || printf 'mkbd=0x%x\n' $((0x770f70 + 0x${SA_DELTA:-0})) >> $AE/d3dtrace.cfg; fi
+[ -n "$PACE" ] && echo "pace=$PACE" >> $AE/d3dtrace.cfg
+[ -n "$REPLAY_REC" ] && echo "rec=1" >> $AE/d3dtrace.cfg
+if [ -n "$REPLAY_PLAY" ]; then cp "$REPLAY_PLAY" $AE/replay.txt; sed -i -E 's/^mstep=k:[^:]*:/mstep=w:0:/' $AE/d3dtrace.cfg; echo "play=replay.txt" >> $AE/d3dtrace.cfg; fi
 case $SC in menu|title|mainmenu) ;; *) echo "dump course $(printf 0x%x $((0x69cfb0 + 0x${SA_DELTA:-0}))) 4" >> $W/script.txt ;; esac     # g_menu_event_course_index -> game/course.bin (little endian dword)
 # every run starts from the same snapshot (the game rewrites its saves): warm prefix marker as in regress.sh
 [ -f $HOME/.cache/mfl_warm_done ] || { printf 'wait 14\nkey Return\nwait 2\n' > $W/warm.txt; PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 90 $WR/play.sh $W/run $W/warm.txt $W/out_warm >/dev/null 2>&1; touch $HOME/.cache/mfl_warm_done; }
@@ -99,7 +109,7 @@ RETRY=; if [ -n "$FRM" ] && [ -f $OUT/game/notup ]; then      # one retry (the s
   rm -rf $OUT/game_try1; mv $OUT/game $OUT/game_try1; rm -f $AE/d3dtrace.log $AE/statehash.bin
   PFX=wine_pfx_${SLOT:-1} PERSIST=slot${SLOT:-1} $WR/gameslot.sh timeout -k 5 $RT $WR/play.sh $W/run $W/script.txt $OUT/game >/dev/null 2>&1; RC=$?
 fi
-cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$STATEHASH" ] && mv $AE/statehash.bin $OUT/statehash.bin;[ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null
+cp $AE/d3dtrace.log $OUT/trace.raw 2>/dev/null; [ -n "$STATEHASH" ] && mv $AE/statehash.bin $OUT/statehash.bin; [ -n "$REPLAY_REC" ] && sed -n 's/^RP //p' $AE/d3dtrace.log > $OUT/replay.txt; rm -f $AE/seed.bin; [ -n "$RWTAP" ] && cp $AE/rwtap.log $OUT/rwtap.log 2>/dev/null
 { echo "scenario=$SC frames=$FR drive=$DRIVE rc=$RC seconds=$(( $(date +%s) - T0 )) dll=$(md5sum < $DLL | cut -c1-12) exe=$(md5sum < ${SA_EXE:-$W/ctrl.exe} | cut -c1-12)"; grep -c . $OUT/trace.raw 2>/dev/null; [ -n "$RETRY" ] && echo "$RETRY"; } | tee $OUT/run.txt
 [ -s $OUT/trace.raw ] || { echo "NO TRACE (override not active or game failed): see $OUT/game/wine.log"; exit 1; }
 grep "^ALOCK TIMEOUT" $OUT/trace.raw | head -3      # W13 hx7 (finding 17): lockstep lost in this run; statecmp.py says UNJUDGED for it
