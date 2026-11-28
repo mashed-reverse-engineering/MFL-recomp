@@ -19,6 +19,9 @@ extern __declspec(dllimport) int __stdcall DefWindowProcA(int hwnd, unsigned int
 #if MFL_FIX_BACKGROUND_RUN
 /*007712f4*/ extern int g_app_7712f4;      /* 1 = exclusive full screen (video_config_dialog) */
 #endif
+#if MFL_FIX_PREFS
+extern void mfl_movie_mute_refresh(void);      /* clusters/cl_sound_volume_to_directsound_db.c: mute_unfocused for the movie sound */
+#endif
 /*00771a24*/ extern int g_video_get_771a24;
 /*00771a28*/ extern int g_video_get_771a28;
 /*00771a2c*/ extern int g_data_771a2c;
@@ -161,6 +164,9 @@ int window_create_cb_4a9830_n(int hwnd, unsigned int msg, unsigned int wparam, i
       if (g_pump_windows_771a1c == 0 && g_app_7712f4 == 0) {
         g_pump_windows_771a1c = 2;
       }
+#endif
+#if MFL_FIX_PREFS      /* mute_unfocused: movie sound off / back (the game sound follows the flag in the audio fill) */
+      mfl_movie_mute_refresh();
 #endif
       return 0;
     }

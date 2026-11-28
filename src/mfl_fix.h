@@ -71,6 +71,8 @@ enum mfl_pref_key {
   MFL_PREF_VSYNC,                 /* vsync=on|off (1/0): the flip waits for the vertical blank (the original) or not; applies at the next start */
   MFL_PREF_PAD_DEADZONE,          /* MFL_FIX_CONTROLS: pad_deadzone=5|10|..|50 (percent of the stick travel, kept as the index 0..9 of those words);
                                      default 35 = the original's 0.35 */
+  MFL_PREF_MUTE_UNFOCUSED,        /* mute_unfocused=1: game sound and menu music are silent while the window is not active (default 0 = the original);
+                                     read it as mfl_prefs[] (the Preferences row changes it at once), not through mfl_pref, from the audio thread */
   MFL_PREF_COUNT
 };
 int mfl_video_start_fallback(void);      /* rw_engine_init: RwEngineStart failed: once, a 640 x 480 window on the desktop mode (logged); 0 = nothing to try */
@@ -84,10 +86,14 @@ void mfl_settings_save(const int *values);      /* values[MFL_PREF_COUNT] -> eve
    from MFL_TEXT_FIRST on (the game's tables end at 834) */
 #define MFL_PAGE_PREFS 0x1b      /* the empty slot of g_menu_page_item_lists */
 #define MFL_TEXT_FIRST 0x1000
-void mfl_prefs_menu_update(void);      /* menu_update, input part: Left / Right change the selected row, Back writes the file */
+void mfl_prefs_menu_update(void);      /* menu_update, input part: Left / Right change the selected row, Return on a value row writes the file
+                                          and goes up one page, Back restores the page's values */
 void mfl_prefs_menu_draw(void);        /* hud_menu_draw_all_panels: the value beside each row and the description box */
 void mfl_prefs_menu_scales(void);      /* frontend_draw, before its items: the text scale of our rows' captions */
 void mfl_menu_update_scaled(void);     /* app_state_frontend_frame: menu_update with g_frame_seconds x menu_speed in the frontend state */
+extern float mfl_menu_real_seconds;    /* the frame time of that menu_update call before the menu_speed factor (for timers that must keep real time) */
+float mfl_prefs_row_shift(void);       /* how far left (640-space) the Preferences rows are drawn: mfl_prefs_menu_scales sets it->x = 64 - this for
+                                          their buttons and 64 for every other row (frontend_draw draws a button at 60 + it->x - 64) */
 struct mfl_video_modes {      /* the Resolution row's modes, registered at start by the video code (clusters/cl_video_config_dialog.c, display_mode_apply):
                                  mode 0 = "Desktop" (resolution=auto), then the full-screen modes with 32 bit colour, >= 640 x 480, 4:3 or wider */
   int (*count)(void);                  /* modes offered (0 = no row) */
@@ -162,6 +168,15 @@ const char *mfl_user_path(const char *path, int for_write);      /* the path to 
                                     Alt+Tab and the taskbar show it; an exe without that resource (the pinned VC7 link has none) gets NULL from LoadIconA = the
                                     original no-icon behaviour (tier1/window_create.c) */
 #define MFL_FIX_WINDOW_ICON 0
+#endif
+
+#ifndef MFL_FIX_WINDOW_TITLE      /* the window title is "Mashed: Fully Loaded - MFLng <tag>", the tag read from the line "release <tag>" of
+                                     mflng\BUILDINFO.txt beside the exe (written by the release build); no file or no such line = without the tag.
+                                     The original title is "Drive to Survive [D3D9] [Release]" (tier1/window_create.c, recomp/mfl_resources.c) */
+#define MFL_FIX_WINDOW_TITLE 0
+#endif
+#if MFL_FIX_WINDOW_TITLE
+void mfl_window_title(void *hwnd);      /* window_create, after CreateWindowExA: SetWindowTextA with the title above */
 #endif
 
 #ifndef MFL_FIX_LOAD_SAVE_EARLY      /* the game save is read and applied at the end of app_boot_init (the boot loading screen, its spinning CD, still shows), and the

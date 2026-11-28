@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*005dd36c*/ extern float k_f_0_4;
 /*0069cbd0*/ extern undefined4 g_menu_current;
@@ -70,7 +71,13 @@ check_down_held:
   /* Auto-repeat: while down is held on menu pages 6-7 (page_id strictly between 5 and 8),
      add the frame time to the hold timer; past k_f_0_4 fire a repeat and restart the timer */
   if (((5 < g_menu_records[g_menu_current].page_id) && (g_menu_records[g_menu_current].page_id < 8))
-     && (g_menu_down_69d6c0 = g_frame_seconds + g_menu_down_69d6c0, k_f_0_4 < g_menu_down_69d6c0)
+     && (g_menu_down_69d6c0 =
+#if MFL_FIX_PREFS
+         mfl_menu_real_seconds      /* menu_speed must not speed up the hold repeat */
+#else
+         g_frame_seconds
+#endif
+         + g_menu_down_69d6c0, k_f_0_4 < g_menu_down_69d6c0)
      ) {
     g_menu_down_69d6c0 = MENU_DOWN_REPEAT_RESET;
     return 1;

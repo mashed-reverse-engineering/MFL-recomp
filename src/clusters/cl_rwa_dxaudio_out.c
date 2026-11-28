@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "mfl_audio.h"
+#include "mfl_fix.h"
 
 #define DXOUT_HWREVERB     0x007   /* hardware I3DL2 / EAX property sets: never set here */
 #define DXOUT_SOFTMIXER    0x008   /* RWA mixes everything (RwaSoftOutput); DS got one stream + reverb DMO */
@@ -133,6 +134,32 @@ void _rwaDXAudioOutputGetFreeVoice(void *user, void *pcm, unsigned frames);
 
 /* I3DL2 defaults the output starts with (room -10000 mB = reverb inaudible until the game sets an environment) */
 static const RwaEnvironment k_default_env = { -10000, -10000, 0.0f, 1.49f, 0.83f, -2602, 0.007f, 200, 0.011f, 100.0f, 100.0f, 5000.0f };
+
+#if MFL_FIX_PREFS
+/*00771a1c*/ extern int g_pump_windows_771a1c;      /* window procedure: 1 = the game window is active */
+static int s_muted;      /* mute_unfocused: the last period ended silent (audio thread only) */
+
+/* mute_unfocused=1: the finished period is silent while the game window is not active; a change fades across this one
+ * period (80 ms, no click). Runs after the mix, so the mix call sequence (E2) is unchanged; with the key off the pcm is
+ * untouched. Integer gain, no x87. The two ints are read once per call without a lock (an int write is atomic on x86;
+ * a change seen one period late is harmless). ponytail: 16-bit only (the only format mfl_audio backends return). */
+static void mute_unfocused(short *pcm, unsigned bytes)
+{
+    int muted = mfl_prefs[MFL_PREF_MUTE_UNFOCUSED] && g_pump_windows_771a1c != 1;
+    int n = (int)(bytes / 4), i;                                        /* stereo frames */
+
+    if (muted == s_muted) {
+        if (muted) memset(pcm, 0, bytes);
+        return;
+    }
+    for (i = 0; i < n; i++) {
+        int g = muted ? n - i : i;                                      /* gain g / n */
+        pcm[2 * i] = (short)(pcm[2 * i] * g / n);
+        pcm[2 * i + 1] = (short)(pcm[2 * i + 1] * g / n);
+    }
+    s_muted = muted;
+}
+#endif
 
 /* ---- reverb DMO (rwadsound.c) -> mfl_audio_reverb_* ---- */
 
@@ -332,4 +359,7 @@ void _rwaDXAudioOutputGetFreeVoice(void *user, void *pcm, unsigned frames)
         FUN_005cc950((char *)pcm, dry, wet, s->periodBytes);
     } else
         memcpy(pcm, dry, s->periodBytes);
+#if MFL_FIX_PREFS
+    if (s->bitDepth == 16) mute_unfocused((short *)pcm, s->periodBytes);
+#endif
 }

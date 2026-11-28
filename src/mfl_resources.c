@@ -200,6 +200,7 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "fps_cap", 0, -1 },        /* words only (k_words): 60 / 30 / 0 */
   { "vsync", 1, 1 },
   { "pad_deadzone", 6, -1 },         /* words only (k_words): 5 .. 50 percent; index 6 = 35 = the original */
+  { "mute_unfocused", 0, 1 },
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
 static const char *const k_fps_cap_names[] = { "60", "30", "0" };      /* fps_cap words = index (cl_app_main_loop.c k_fps_cap) */
@@ -434,5 +435,43 @@ void mfl_lang_apply(void)
   if (!option_given(cmd, "-vs")) g_app_62ad34 = dialogs;
   if (!option_given(cmd, "-cs")) g_app_62ad38 = dialogs;
   if (!option_given(cmd, "-l")) g_language_offset = language >= 0 ? language : language_detect();
+}
+#endif
+
+#if MFL_FIX_WINDOW_TITLE
+/* MFL_FIX_WINDOW_TITLE: "Mashed: Fully Loaded - MFLng <tag>", the tag from the line "release <tag>" of <exe folder>\mflng\BUILDINFO.txt (the
+ * release build writes it; a local build has no such line = the title without a tag).  Read from the exe's folder, never the working folder. */
+extern __declspec(dllimport) void *__stdcall CreateFileA(const char *path, unsigned long access, unsigned long share, void *security,
+                                                        unsigned long creation, unsigned long flags, void *template_file);
+extern __declspec(dllimport) int __stdcall ReadFile(void *file, void *data, unsigned long size, unsigned long *done, void *overlapped);
+extern __declspec(dllimport) int __stdcall CloseHandle(void *handle);
+extern __declspec(dllimport) int __stdcall SetWindowTextA(void *window, const char *text);
+
+void mfl_window_title(void *hwnd)
+{
+  static const char k_title[] = "Mashed: Fully Loaded - MFLng", k_release[] = "release ";
+  char path[PATH_SIZE], text[512], title[sizeof k_title + 41];      /* the file is read up to 512 bytes, the tag kept up to 40 characters */
+  unsigned long dir_len, size = 0, i, k, n;
+  void *file;
+
+  dir_len = GetModuleFileNameA(0, path, PATH_SIZE);
+  while (dir_len != 0 && path[dir_len - 1] != '\\') dir_len--;
+  file = CreateFileA(path_in_dir(path, dir_len, "mflng\\BUILDINFO.txt"), 0x80000000UL /* GENERIC_READ */, 1 /* FILE_SHARE_READ */, 0,
+                     3 /* OPEN_EXISTING */, 0, 0);
+  if (file != (void *)-1) {
+    if (!ReadFile(file, text, sizeof text, &size, 0)) size = 0;
+    CloseHandle(file);
+  }
+  for (n = 0; k_title[n] != '\0'; n++) title[n] = k_title[n];
+  for (i = 0; i + sizeof k_release <= size; i++) {      /* "release " at a line start, then at least one character of the tag */
+    if (i != 0 && text[i - 1] != '\n') continue;
+    for (k = 0; k_release[k] != '\0' && text[i + k] == k_release[k]; k++) ;
+    if (k_release[k] != '\0' || text[i + k] <= ' ') continue;
+    title[n++] = ' ';
+    for (i += k; i < size && text[i] > ' ' && n < sizeof title - 1; i++) title[n++] = text[i];
+    break;
+  }
+  title[n] = '\0';
+  SetWindowTextA(hwnd, title);
 }
 #endif

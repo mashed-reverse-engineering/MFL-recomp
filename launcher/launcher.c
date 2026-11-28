@@ -28,7 +28,7 @@
 #define CREDIT_THANKS L"Thanks to L2KSolkov (codfh-win32) and tgsm (pbg)."      /* public/README.md Acknowledgements */
 #define NOTICE L"You need your own copy of the game. Not affiliated with the game's publisher or developer."
 #define WFMT(b, ...) (_snwprintf(b, sizeof(b) / sizeof(WCHAR) - 1, __VA_ARGS__), b[sizeof(b) / sizeof(WCHAR) - 1] = 0)
-enum { ID_PLAY = 100, ID_NOFIX, ID_EXIT, ID_MIN, ID_CLOSE, ID_STATUS, ID_AUTO, ID_CHAN, ID_CHECK, ID_WEB, ID_ABOUT, ID_OV_UPDATE, ID_OV_CLOSE,
+enum { ID_PLAY = 100, ID_NOFIX, ID_EXIT, ID_MIN, ID_CLOSE, ID_STATUS, ID_AUTO, ID_CHAN, ID_CHECK, ID_WEB, ID_ABOUT, ID_OV_UPDATE, ID_OV_CLOSE, ID_COPYVER,
        WM_CHECKED = WM_APP, WM_STAGED };
 enum { PIC_W = 640, PIC_H = 480 };      /* the original launcher's picture and window size (96 dpi; scaled by the system DPI) */
 enum { SK_BUSY, SK_INFO, SK_ERR, SK_UPD };
@@ -500,6 +500,7 @@ static void build_items(HDC dc)
     add(dc, ID_AUTO, K_LINE, 10, 440, g_auto ? L"[x] Check for updates at start-up" : L"[  ] Check for updates at start-up");
     add(dc, ID_CHAN, K_LINE, line_x(), 440, g_pre ? L"Channel: Pre-releases" : L"Channel: Releases");
     if (!g_busy) add(dc, ID_CHECK, K_LINE, line_x(), 440, L"Check now");
+    if (!g_busy) add(dc, ID_COPYVER, K_LINE, line_x(), 440, L"Copy version");      /* hidden while busy: it writes the status line */
     WFMT(b, L"%s - github.com/mashed-reverse-engineering/MFL-recomp", CREDIT_SHORT);
     add(dc, ID_WEB, K_LINE, 10, 456, b);
     add(dc, ID_ABOUT, K_LINE, line_x(), 456, L"About");
@@ -598,6 +599,22 @@ static void start_update(void)
     g_busy = 1; ov_close(); status_k(SK_BUSY, L"Downloading and checking %hs...", g_new->tag);
     if ((t = CreateThread(NULL, 0, stage_thread, NULL, 0, NULL))) CloseHandle(t); else g_busy = 0;
 }
+static void copy_version(void)      /* the installed build + this launcher, as CF_UNICODETEXT for bug reports */
+{
+    WCHAR b[200], inst[80], *p; HGLOBAL h; size_t n;
+    installed_name(inst, 80); WFMT(b, L"MFLng %s, launcher " WSTR(LAUNCHER_VERSION), inst);
+    n = (wcslen(b) + 1) * sizeof(WCHAR);
+    if (!(h = GlobalAlloc(GMEM_MOVEABLE, n))) goto fail;
+    if (!(p = (WCHAR *)GlobalLock(h))) { GlobalFree(h); goto fail; }
+    memcpy(p, b, n); GlobalUnlock(h);
+    if (!OpenClipboard(g_wnd) && (Sleep(50), !OpenClipboard(g_wnd))) { GlobalFree(h); status(L"Clipboard is busy."); return; }
+    EmptyClipboard();
+    if (!SetClipboardData(CF_UNICODETEXT, h)) { GlobalFree(h); CloseClipboard(); goto fail; }      /* on success the system owns h */
+    CloseClipboard(); status_k(SK_INFO, L"Version copied.");
+    return;
+fail:
+    status(L"Cannot copy the version (error %lu).", GetLastError());
+}
 static void activate(int id)
 {
     switch (id) {
@@ -609,6 +626,7 @@ static void activate(int id)
     case ID_AUTO: g_auto = !g_auto; save_settings(); break;
     case ID_CHAN: g_pre = !g_pre; save_settings(); if (g_nrel) show_state(); break;
     case ID_CHECK: start_check(); break;
+    case ID_COPYVER: copy_version(); break;
     case ID_WEB: ShellExecuteW(g_wnd, L"open", WSTR(REPO_URL), NULL, NULL, SW_SHOWNORMAL); break;
     case ID_ABOUT: ov_open(2); break;
     case ID_OV_UPDATE: start_update(); break;

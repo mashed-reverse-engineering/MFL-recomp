@@ -87,6 +87,9 @@ undefined4 window_create(HINSTANCE hinstance,char *unused_arg,char *app_name)
                                  -CREATE_USE_DEFAULT,window_rect.right - window_rect.left,
                                  window_rect.bottom - window_rect.top,(HWND)0x0,(HMENU)0x0,hinstance,
                                  (LPVOID)0x0);
+#if MFL_FIX_WINDOW_TITLE
+  mfl_window_title((void *)g_app_7e7704);      /* "Mashed: Fully Loaded - MFLng <release tag>" (recomp/mfl_resources.c) */
+#endif
   g_app_7e7700 = hinstance;
   os_version_log();
   return 1;

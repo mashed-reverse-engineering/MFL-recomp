@@ -55,7 +55,11 @@ static void button_border(ButtonGeom *g, unsigned int colour, int left_literal)
     gfx_draw_rect_2d_gradient_rgb(g->gx, g->gy, g->gw, g->gh, colour);
     g->y = g->y - m;
     g->w = 2.0f;
+#if MFL_FIX_PREFS
+    if (left_literal && g->x == 60.0f) {      /* a moved box takes its left edge from x */
+#else
     if (left_literal) {
+#endif
       g->x = 58.0f;
     }
     else {
@@ -191,6 +195,10 @@ button:
         g.gx = 270.0f;
         g.gw = 100.0f;
       }
+#if MFL_FIX_PREFS      /* the Preferences rows sit further left: mfl_prefs_menu_scales moves their anim x off the game's 64, the box follows */
+      g.x += it->x - 64.0f;
+      g.gx += it->x - 64.0f;
+#endif
       g.gh = 26.0f;
       g.h = 26.0f;
       if (it->anim_counter < 0x1ff) {

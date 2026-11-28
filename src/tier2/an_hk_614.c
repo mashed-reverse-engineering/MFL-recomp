@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*0040ff20*/ extern int race_setup_get_slot_type();
 /*005dd36c*/ extern float k_f_0_4;
 /*0069cbd0*/ extern undefined4 g_menu_current;
@@ -69,7 +70,13 @@ check_up_held:
   }
   /* Auto-repeat: on menu pages 6 and 7 (inferred), accumulate hold time; once it passes the threshold, fire and restart the interval. */
   if (((5 < g_menu_records[g_menu_current].page_id) && (g_menu_records[g_menu_current].page_id < 8))
-     && (g_menu_up_69d6bc = g_frame_seconds + g_menu_up_69d6bc, k_f_0_4 < g_menu_up_69d6bc)) {
+     && (g_menu_up_69d6bc =
+#if MFL_FIX_PREFS
+         mfl_menu_real_seconds      /* menu_speed must not speed up the hold repeat */
+#else
+         g_frame_seconds
+#endif
+         + g_menu_up_69d6bc, k_f_0_4 < g_menu_up_69d6bc)) {
     g_menu_up_69d6bc = MENU_REPEAT_INTERVAL;
     return 1;
   }

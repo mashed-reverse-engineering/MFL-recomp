@@ -4307,7 +4307,7 @@ weapons_race_start_dispatch,00467d50,tier2,compiled+diffemu-INCONCLUSIVE+shadow-
 weapons_reset_all_dispatch,00467860,tier1,bytes,bytes-reloc,8ffc7fb365ec,33bf93632a05,e113226f1790,0,0.00,0,0
 weapons_unequip_all_a,00467d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,24,1.00,0,0
 weapons_update_frame,00467a60,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,57,0.33,0,0
-window_create,004a9c90,tier1,bytes,bytes-reloc,e0d6e86e654b,33bf93632a05,e113226f1790,0,0.00,0,0
+window_create,004a9c90,tier1,bytes,bytes-reloc,cd3cbab0c2ba,33bf93632a05,e113226f1790,0,0.00,0,0
 window_destroy,004a9810,tier1,bytes,bytes-reloc,ae28468a48e2,33bf93632a05,e113226f1790,0,0.00,0,0
 window_show,004a9360,tier1,bytes,bytes-reloc,8c8d5052b133,33bf93632a05,e113226f1790,0,0.00,0,0
 world_closest_triangle_hit,004c4d90,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,80dc2aea3909,33bf93632a05,e113226f1790,200,1.00,0,0
