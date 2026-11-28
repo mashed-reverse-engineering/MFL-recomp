@@ -87,10 +87,12 @@ esac
 # FRAMED=1 (course:N): race_script.sh prints the menu path as mkbd= / mstep= lines for the proxy (d3d9.c mstep_frame): they go to the cfg, not to play.sh
 grep -E '^(mkbd|mstep)=' $W/script.txt >> $AE/d3dtrace.cfg; sed -i -E '/^(mkbd|mstep)=/d' $W/script.txt
 # lane replay_w17 (rp4): SH_SEED=<run A's statehash.bin> SH_SEED_K=<K, default 30> [SH_SEED_FROM=<frame>] [SH_SEED_RANGES="lo:hi ..."] = mode B re-seed (d3d9.c seed_frame;
+# SH_SEED_SKIP=<file> (lane replay2_w17, rp5): more words never written, e.g. agents/replay2_w17/xptr.py's cross-build pointer list for whole-image seeding;
 # the pointer words of tools/statehash/data/state_ptrwords.txt are never written).  REPLAY_REC=1 -> <out dir>/replay.txt (replay file v1, d3d9.c rp_step).
 # REPLAY_PLAY=<replay file>: its K lines drive the keyboard, the FRAMED key steps become waits (their fills stay), its C lines are the settings
 # (play= is the last cfg line, so they win over the env of this run).  PACE=1: d3d9.c pace (untested).
 if [ -n "$SH_SEED" ]; then cp "$SH_SEED" $AE/seed.bin; grep -v '^#' $R/tools/statehash/data/state_ptrwords.txt > $AE/seed_skip.txt
+  [ -n "$SH_SEED_SKIP" ] && { grep -v '^#' "$SH_SEED_SKIP" >> $AE/seed_skip.txt || exit 1; }
   { echo "sh_seed=seed.bin"; echo "sh_seed_skip=seed_skip.txt"; echo "sh_seed_k=${SH_SEED_K:-30}"; echo "sh_seed_from=${SH_SEED_FROM:-0}"; for r in $SH_SEED_RANGES; do echo "sh_seed_range=$r"; done; } >> $AE/d3dtrace.cfg; fi
 if [ -n "$REPLAY_REC$REPLAY_PLAY" ]; then grep -q '^mkbd=' $AE/d3dtrace.cfg || printf 'mkbd=0x%x\n' $((0x770f70 + 0x${SA_DELTA:-0})) >> $AE/d3dtrace.cfg; fi
 [ -n "$PACE" ] && echo "pace=$PACE" >> $AE/d3dtrace.cfg

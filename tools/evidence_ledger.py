@@ -3,7 +3,8 @@
 Sources, highest precedence first: cluster_sweep (clsweep ladder), weak_evidence tweak (hand spec), hs_sweep (HS seeds, ran with STDCALL_IND=1), weak_evidence osweep, tier_ledger (tier 2 diffemu),
 cluster_pilot*/results.csv (cluster install runs, newest file wins).  output/f2_cluster_only.csv (column name; W14): for those names hs_sweep / weak_tweak / weak_osweep / ledger observations are ignored (their tier-2 C is deleted), so cluster_sweep / pilot decide.  verified = EQUAL, >= 20 cases, both coverages >= 0.8 (VERIFICATION.md).
 The primary observation is the highest source that qualifies, else the highest source with any result.  A DIFF from the hs-seeded tools is not outvoted by a plain ledger/pilot EQUAL (flag CONFLICT, not verified).
-flags: LOWCOV DIFF INCONCLUSIVE NOEVID CONFLICT STDIND (verified only by hs_sweep, STDCALL_IND=1 mis-pops batched cdecl cleanup: re-run without) LADDER (cluster_sweep via != hs) OVERRIDDEN_DIFF (output/ladder_overridden_diffs.csv)
+output/rewritten_fns.csv: names whose current source is a rewrite, not a translation: every observation is dropped (it describes the deleted C): NOEVID + REWRITTEN, never verified.
+flags: REWRITTEN LOWCOV DIFF INCONCLUSIVE NOEVID CONFLICT STDIND (verified only by hs_sweep, STDCALL_IND=1 mis-pops batched cdecl cleanup: re-run without) LADDER (cluster_sweep via != hs) OVERRIDDEN_DIFF (output/ladder_overridden_diffs.csv)
 usage: evidence_ledger.py [--check]   (progress.py imports evidence())"""
 import csv, glob, os, re, sys
 G = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -59,6 +60,8 @@ def evidence():
     ovr = set()
     q = find("ladder_overridden_diffs.csv")
     if q: ovr = {r["root"] for r in csv.DictReader(open(q))}
+    q = find("rewritten_fns.csv")
+    rew = {r["name"] for r in csv.DictReader(open(q))} if q else set()
     # population: ledger rows that are not byte identical + enabled cluster entries
     pop = {}
     for v, r in led.items():
@@ -74,8 +77,8 @@ def evidence():
         break
     rows = []
     for v, (name, tier) in sorted(pop.items()):
-        os_ = sorted(O.get(v, []), key=lambda o: PREC.index(o["src"]) if o["src"] != "pilot" else 99)
-        fl = []
+        os_ = [] if name in rew else sorted(O.get(v, []), key=lambda o: PREC.index(o["src"]) if o["src"] != "pilot" else 99)
+        fl = ["REWRITTEN"] if name in rew else []
         good = [o for o in os_ if qual(o)]
         prim = good[0] if good else (os_[0] if os_ else None)
         if prim is None: fl.append("NOEVID"); rows.append([name, v, tier, "-", "-", 0, 0, 0, ";".join(fl), "", led.get(v, {}).get("evidence", "")]); continue

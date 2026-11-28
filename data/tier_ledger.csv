@@ -573,7 +573,7 @@ RtDictSchemaGetCurrentDict,005625a0,tier1,bytes,bytes-reloc,806366916a41,33bf936
 RtDictSchemaInit,00569220,tier1,bytes,bytes-reloc,d5ce4f211247,33bf93632a05,e113226f1790,0,0.00,0,0
 RtDictSchemaSetCurrentDict,00569270,tier1,bytes,bytes-reloc,a5a348db2138,33bf93632a05,e113226f1790,0,0.00,0,0
 RtDictSchemaStreamReadDict,005693c0,tier2,compiled+diffemu-EQUAL+shadow-CALLED,diffemu,61d61ddf5f53,33bf93632a05,e113226f1790,146,0.89,0,1
-RtLineSphereIntersectionTest,00569110,tier2,compiled+diffemu-STALE+shadow-never,static,db2282c400c8,33bf93632a05,e113226f1790,0,0.00,1,0
+RtLineSphereIntersectionTest,00569110,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,db2282c400c8,33bf93632a05,e113226f1790,200,1.00,0,0
 RtLtMapMaterialGetAreaLightColor,00559a00,tier1,bytes,bytes-reloc,d64f5fe2819d,33bf93632a05,e113226f1790,0,0.00,0,0
 RtWinFSystemInit,005616f0,tier2,compiled+diffemu-DIFF+shadow-never,static,77bbf386b55a,33bf93632a05,e113226f1790,0,0.50,0,0
 RwBBoxAddPoint,004d19d0,tier1,bytes,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0
@@ -2196,7 +2196,7 @@ gap_5d9a20,005d9a20,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf9363
 gap_5d9a90,005d9a90,tier1,bytes,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0
 gap_5d9ab0,005d9ab0,tier1,bytes,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0
 gap_5da4b0,005da4b0,tier1,bytes,bytes-reloc,-,33bf93632a05,e113226f1790,0,0.00,0,0
-gap_5da500,005da500,tier2,compiled+diffemu-STALE+shadow-never,static,fcc937b5c5fd,33bf93632a05,e113226f1790,0,0.00,1,0
+gap_5da500,005da500,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,fcc937b5c5fd,33bf93632a05,e113226f1790,200,1.00,0,0
 gatling_load_models,00462350,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,200,1.00,0,0
 geometry_build_arrow,00402930,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,200,1.00,0,0
 geometry_build_pointer,00402bf0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,-,33bf93632a05,e113226f1790,200,1.00,0,0
@@ -3482,7 +3482,7 @@ rwp_box_sweep_sphere,0056d910,tier2,compiled+shadow-never,static,924c96140ab0,33
 rwp_broadphase_pairs,0057be50,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,4bc7b6dc423f,33bf93632a05,e113226f1790,199,0.96,0,0
 rwp_camera_destroy_frame,00495af0,tier1,bytes,bytes-reloc,288df11e107b,33bf93632a05,e113226f1790,0,0.00,0,0
 rwp_capsule_00574a80,00574a80,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,f6e7a8fbb16f,33bf93632a05,e113226f1790,200,1.00,0,0
-rwp_capsule_00574b70,00574b70,tier2,compiled+diffemu-STALE+shadow-never,static,885ba3fd19ba,33bf93632a05,e113226f1790,0,0.00,1,0
+rwp_capsule_00574b70,00574b70,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,885ba3fd19ba,33bf93632a05,e113226f1790,200,1.00,0,0
 rwp_capsule_00574c60,00574c60,tier1,bytes,bytes-reloc,61e50ba19a90,33bf93632a05,e113226f1790,0,0.00,0,0
 rwp_capsule_00574cc0,00574cc0,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,52ccd8c4649f,33bf93632a05,e113226f1790,200,0.88,0,0
 rwp_capsule_00575670,00575670,tier2,compiled+diffemu-EQUAL+shadow-never,diffemu,1e1ba160ea55,33bf93632a05,e113226f1790,96,0.92,0,0

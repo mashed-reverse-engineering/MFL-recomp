@@ -113,8 +113,13 @@ void cup_scene_update_object(float blend,int car_index)
     frame.look_mtx.pos.y = frame.target_pos.y;
     frame.look_mtx.pos.z = frame.target_pos.z;
     RwMatrixUpdate(&frame.look_mtx);
-    matrix_interpolate_rotation_translation(&frame.blend_mtx, cam_mtx, &frame.look_mtx, *(int *)&g_cup_scene_64cb14, *(int *)&g_cup_scene_64cb14);
-    RwMatrixTransform(cam_mtx,&frame.blend_mtx,rwCOMBINEREPLACE);
+#if MFL_FIX_PREFS
+    if (mfl_pref(MFL_PREF_WINNER_CAM_ZOOM))      /* winner_cam_zoom=0: the viewport camera keeps the race view (race_render_viewport skips the cup scene) */
+#endif
+    {
+      matrix_interpolate_rotation_translation(&frame.blend_mtx, cam_mtx, &frame.look_mtx, *(int *)&g_cup_scene_64cb14, *(int *)&g_cup_scene_64cb14);
+      RwMatrixTransform(cam_mtx,&frame.blend_mtx,rwCOMBINEREPLACE);
+    }
     tick_masked = g_tick_number & 0x8000007f;
     on_period = tick_masked == 0;
     if ((int)tick_masked < 0) {

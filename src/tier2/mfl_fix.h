@@ -73,6 +73,7 @@ enum mfl_pref_key {
                                      default 35 = the original's 0.35 */
   MFL_PREF_MUTE_UNFOCUSED,        /* mute_unfocused=1: game sound and menu music are silent while the window is not active (default 0 = the original);
                                      read it as mfl_prefs[] (the Preferences row changes it at once), not through mfl_pref, from the audio thread */
+  MFL_PREF_WINNER_CAM_ZOOM,       /* winner_cam_zoom=0: no camera move to the winning car at the end of a round; the race view stays (GitHub issue #1) */
   MFL_PREF_COUNT
 };
 int mfl_video_start_fallback(void);      /* rw_engine_init: RwEngineStart failed: once, a 640 x 480 window on the desktop mode (logged); 0 = nothing to try */

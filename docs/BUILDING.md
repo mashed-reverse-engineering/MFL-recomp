@@ -21,4 +21,6 @@ Nothing here builds without a game copy.
 6. `mflrw.dll` from the companion repository librw-mfl, built with its `tools/build_mflrw.sh` (or `RW_DLL=<path>`).
 7. Upstream library sources in `MFL_REFS` (default: `upstream/` beside the repository): Lua 4.0 (`lua/src40`), qhull 2002.1 (`qhull/blender240`), zlib 1.1.3 (`zlib/src`), libpng 1.0.12 (`libpng/src`).
 
+The exe loads the sound and movie DLLs (`mfl_audio_miniaudio.dll`, `mfl_video_ffmpeg.dll` with the FFmpeg DLLs) from the folder `mflng\` beside the exe first, then from beside the exe. The release zips use `mflng\`. `tools/build_mflng.sh` does not build these DLLs or create the folder: to use them with your own build, copy the `mflng` folder from a release zip of the same source version.
+
 No DirectX SDK is needed (the import libraries are generated from `names/MFL_import_protos.txt`).

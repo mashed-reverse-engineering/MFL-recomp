@@ -109,7 +109,7 @@ typedef int (__stdcall *key_name_fn)(long key, char *text, int size);      /* Ge
 #define TEXT_ON 0x5d
 
 enum text {
-  T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION,
+  T_TITLE, T_DISPLAY, T_LANGUAGE, T_INTRO, T_SAVE_WAIT, T_FLYOVER, T_WINNER_CAM, T_WINNER_ZOOM, T_UNLOCK, T_MENU_SPEED, T_FPS_CAP, T_VSYNC, T_RESOLUTION,
   T_ADAPTER, T_SHADOWS, T_MULTITEX, T_TRILINEAR, T_ENV,
   T_CTL_PLAYER, T_CTL_DEVICE, T_CTL_BUTTONS, T_CTL_DIRECTIONS, T_CTL_RESET, T_DEADZONE, T_MUTE,      /* the rows' captions, in the order of k_desc */
   T_NEXT_START, T_AT_ONCE, T_NEXT_RACE, T_RESTART, T_FULLSCREEN, T_WINDOWED, T_BORDERLESS, T_AUTO, T_ENGLISH, T_FRENCH, T_GERMAN, T_SPANISH, T_ITALIAN, T_USA, T_X1, T_X2, T_X4,
@@ -136,6 +136,7 @@ static const char *const k_text[T_COUNT][5] = {
   { "Wait after saving", "Attente sauvegarde", "Warten beim Speichern", "Espera al guardar", "Attesa salvataggio" },
   { "Course flyover", "Survol avant course", "Kameraflug vor Rennen", "Vuelo de c\xe1mara", "Volo sul circuito" },
   { "Winner camera spin", "Cam\xe9ra du vainqueur", "Siegerkamera kreist", "Giro al ganador", "Giro sul vincitore" },
+  { "Zoom to winner", "Zoom sur le vainqueur", "Zoom auf Sieger", "Zoom al ganador", "Zoom sul vincitore" },      /* ours, NEED A NATIVE SPEAKER'S CHECK */
   { "Unlock all (cheat)", "Tout ouvrir (triche)", "Alles frei (Cheat)", "Todo abierto (truco)", "Sblocca tutto (trucco)" },
   { "Menu speed", "Vitesse des menus", "Men\xfc-Tempo", "Velocidad de men\xfas", "Velocit\xe0 dei menu" },
   { "Frame rate limit", "Limite d'images", "Bildratenlimit", "L\xedmite de FPS", "Limite FPS" },
@@ -247,6 +248,11 @@ static const char *const k_desc[T_MUTE - T_DISPLAY + 1][5] = {
     "Am Ende einer Runde kreist die Kamera langsam um das Siegerauto. Aus: sie f\xe4hrt nur heran und bleibt stehen.",
     "Al final de cada ronda la c\xe1mara gira despacio alrededor del coche ganador. No: se acerca al coche y se queda quieta.",
     "A fine round la telecamera gira lentamente intorno all'auto vincente. No: si avvicina all'auto e resta ferma." },
+  { "At the end of a round the camera moves in to the winning car. Off: the race view stays, the round goes on as usual.",
+    "En fin de manche, la cam\xe9ra s'approche de la voiture gagnante. Non : la vue de course reste, la manche continue normalement.",
+    "Am Ende einer Runde f\xe4hrt die Kamera an das Siegerauto heran. Aus: die Rennansicht bleibt, die Runde l\xe4uft normal weiter.",
+    "Al final de cada ronda la c\xe1mara se acerca al coche ganador. No: se queda la vista de carrera y la ronda sigue igual.",
+    "A fine round la telecamera si avvicina all'auto vincente. No: resta la vista di gara, il round prosegue come sempre." },
   { "Cheat: opens all cups, cars and bonus features. Your save keeps its real progress; progress won while this is on is not saved.",
     "Triche : ouvre toutes les coupes, voitures et bonus. La sauvegarde garde ta vraie progression ; ce que tu gagnes pendant ce temps "
     "n'est pas sauvegard\xe9.",
@@ -423,6 +429,7 @@ static const struct { int cat, text, key, count, first, invert, live; } k_rows[]
   { CAT_COMFORT, T_INTRO, MFL_PREF_SKIP_INTRO, 2, 0, 1, 0 },
   { CAT_COMFORT, T_FLYOVER, MFL_PREF_SKIP_FLYOVER, 2, 0, 1, 1 },
   { CAT_COMFORT, T_WINNER_CAM, MFL_PREF_WINNER_CAM_ROTATION, 2, 0, 0, 1 },
+  { CAT_COMFORT, T_WINNER_ZOOM, MFL_PREF_WINNER_CAM_ZOOM, 2, 0, 0, 1 },
   { CAT_COMFORT, T_MENU_SPEED, MFL_PREF_MENU_SPEED, 3, 0, 0, 1 },      /* values 1, 2, 4 (speed_index) */
   { CAT_CHEATS, T_UNLOCK, MFL_PREF_UNLOCK_ALL, 2, 0, 0, 0 },
 #if MFL_FIX_LANG

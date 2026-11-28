@@ -1,4 +1,5 @@
 #include "mfl_tier2.h"
+#include "mfl_fix.h"
 /*004016c0*/ extern int cup_scene_place_object();
 /*004019a0*/ extern int cup_scene_update_object();
 /*00401d90*/ extern int cup_scene_render();
@@ -83,6 +84,11 @@ scene_progress_scaled:
         scene_progress = 0.0;
       }
       cup_scene_update_object(*(int *)&scene_progress,camera);
+#if MFL_FIX_PREFS
+      if (!mfl_pref(MFL_PREF_WINNER_CAM_ZOOM)) {
+        scene_progress = 0.0f;      /* winner_cam_zoom=0: the world pass below keeps drawing the race view (no cup scene after 2 s) */
+      }
+#endif
       if (float_1_0 <= scene_progress) {
         cup_scene_place_object(*(int *)&scene_progress,g_game_state.mirror_mode,camera);
         cup_scene_render(*(int *)&scene_progress,camera);
@@ -168,6 +174,15 @@ scene_progress_scaled:
   if (race_phase != 7) goto present_mirror_frame;
   race_phase = race_get_last_active_player();
   if (race_phase == -1) goto present_mirror_frame;
+#if MFL_FIX_PREFS
+  if (!mfl_pref(MFL_PREF_WINNER_CAM_ZOOM)) {      /* winner_cam_zoom=0: no cup backdrop / car over the race view; the status text the cup
+                                                    branch draws after 2 s is drawn once here (the end draws it when split sector 8 is set) */
+    if (course_get_split_sector_8() == 0 && (double)float_1_0 <= (double)race_get_time_seconds() * (double)k_f_0_5) {
+      race_status_messages_draw();
+    }
+    goto present_mirror_frame;
+  }
+#endif
   camera = race_get_last_active_player();
   race_time = (double)race_get_time_seconds();
   if ((double)float_1_0 <= race_time * (double)k_f_0_5) {

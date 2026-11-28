@@ -5,7 +5,7 @@ extern float _rwV3dNormalize(float *out, float *in);
 /* RtLineSphereIntersectionTest: line = two points (start at 0..2, end at 3..5), sphere = centre (0..2) and radius (3).  The distance along the line
    (b * length of the segment, b = projection of the start-to-centre vector on the unit direction) is stored in *dist.  Succeeds when the start is inside
    the sphere, or the sphere lies ahead (b > 0) and the line reaches it (rr - (cc - b^2) >= 0).  Returns 1 / 0. */
-/* TIER2: unvalidated 2026-11-20 authority=static */
+/* TIER2: unvalidated 2026-11-28 authority=diffemu */
 int RtLineSphereIntersectionTest(float *line, float *sphere, float *dist)
 {
   float d[3];

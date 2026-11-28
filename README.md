@@ -7,7 +7,8 @@ A readable C recompilation of **Mashed: Fully Loaded** (`MFL.exe`, PC, 2004) tha
 ## Play it
 
 1. Download the newest zip from the [Releases](../../releases) page. Every release is a **pre-release**: it builds automatically, and it is tested by hand only on a few machines. Please report what you find.
-2. Unpack it into your game folder (the one with `MFL.exe`).3. Start `MFLng-launch.exe` (or `MFLng.exe` directly).
+2. Unpack it into your game folder (the one with `MFL.exe`).
+3. Start `MFLng-launch.exe` (or `MFLng.exe` directly).
 
 `mflng\INSTALL.txt` in the zip has the same steps. You need the Microsoft Visual C++ 2015-2022 Redistributable (x86) once; the launcher itself does not.
 
@@ -46,6 +47,7 @@ Each of these is a compile-time switch `MFL_FIX_*`, off in `MFLng.nofix.exe`: [d
 - Pre-releases: expect rough edges. Test on your machine and tell us.
 - Controller support is DirectInput only; there is no rebinding menu yet.
 - The number of players is as in the original; more players are only an idea so far.
+- There is no built-in online play. To play with friends online, the way to go is a tool that streams your screen and passes their controller input to your PC: Steam Remote Play, [Parsec](https://parsec.app) or [Sunshine](https://github.com/LizardByte/Sunshine) (with a Moonlight client). We have not tested any of them with MFLng; setup, delay and picture quality depend on the tool and on your connection.
 - The Preferences texts in French, German, Spanish and Italian have not been checked by native speakers yet.
 
 ## For developers
@@ -76,8 +78,8 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | Named | 2,696 | `███████████████████░` 96% |
 | Replaced by C | 2,664 | `███████████████████░` 95% |
 | of these byte identical to the original compiler output | 1,387 | `██████████░░░░░░░░░░` 50% |
-| of these behaviour verified (differential test, not byte identical) | 1,113 | `████████░░░░░░░░░░░░` 40% |
-| of these only weakly verified | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
+| of these behaviour verified (differential test, not byte identical) | 1,112 | `████████░░░░░░░░░░░░` 40% |
+| of these only weakly verified | 165 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 
 <details><summary>Function level detail, tiers and how the numbers are counted</summary>
 
@@ -89,8 +91,8 @@ The numbers below are regenerated with every source drop by `tools/progress.py`.
 | Replaced by recompiled C (all tiers, each function once) | 2,664 | `███████████████████░` 95% |
 | ...verified byte identical | 1,387 | `██████████░░░░░░░░░░` 50% |
 | ...share of the code bytes that is byte identical | 93,054 B | `███░░░░░░░░░░░░░░░░░` 14% |
-| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,113 | `████████░░░░░░░░░░░░` 40% |
-| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 164 | `█░░░░░░░░░░░░░░░░░░░` 6% |
+| ...behaviour verified, not byte identical (a diffemu EQUAL run on file: >= 20 cases, coverage >= 0.8) | 1,112 | `████████░░░░░░░░░░░░` 40% |
+| ...replaced but weakly verified or without evidence (low coverage, DIFF, inconclusive, no run on file; see `data/behaviour_evidence.csv`) | 165 | `█░░░░░░░░░░░░░░░░░░░` 6% |
 | ...share of the code bytes | 670,469 B | `████████████████████` 98% |
 | ...of these register-argument clusters | 606 | `████░░░░░░░░░░░░░░░░` 22% |
 | **Published in this repo** (`src/`: tier 1 + automatch + hand-written + tier 2 + clusters, each function once) | 3,123 | `██████████████████████` 112% |

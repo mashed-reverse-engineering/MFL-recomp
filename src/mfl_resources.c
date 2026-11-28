@@ -201,6 +201,7 @@ static const struct { const char *name; int fallback, max; } k_prefs[MFL_PREF_CO
   { "vsync", 1, 1 },
   { "pad_deadzone", 6, -1 },         /* words only (k_words): 5 .. 50 percent; index 6 = 35 = the original */
   { "mute_unfocused", 0, 1 },
+  { "winner_cam_zoom", 1, 1 },
 };
 static const char *const k_display_names[] = { "fullscreen", "windowed", "borderless" };      /* display_mode words = MFL_DISPLAY_* */
 static const char *const k_fps_cap_names[] = { "60", "30", "0" };      /* fps_cap words = index (cl_app_main_loop.c k_fps_cap) */

@@ -101,19 +101,20 @@
     "CONFLICT": 6,
     "DIFF": 1,
     "INCONCLUSIVE": 1,
-    "LADDER": 42,
-    "LOWCOV": 19,
-    "NOEVID": 137,
-    "OVERRIDDEN_DIFF": 8,
-    "STDIND": 42
+    "LADDER": 41,
+    "LOWCOV": 18,
+    "NOEVID": 139,
+    "OVERRIDDEN_DIFF": 7,
+    "REWRITTEN": 2,
+    "STDIND": 39
    },
    "rows": 1277,
    "unaccounted": 0,
-   "unverified": 164,
-   "verified": 1113,
-   "verified_bytes": 539172
+   "unverified": 165,
+   "verified": 1112,
+   "verified_bytes": 539064
   },
-  "behaviour_verified": 1113,
+  "behaviour_verified": 1112,
   "by_tier": {
    "agent": {
     "bytes": 8446,

@@ -29,7 +29,9 @@ undefined4 __stdcall app_initialise_on_bootup(undefined4 hinstance, undefined4 p
   undefined4 exit_code;
   
   window_create(hinstance,prev_instance,cmd_line,show_cmd);
+#ifndef MFL_DIFFEMU      /* diffemu-define: MFL_DIFFEMU (the verification object leaves this call out; it is not in MFL.exe) */
   mfl_resources_attach();      /* not in the original: g_app_7e7700 = the user's MFL.exe (resources), recomp/mfl_resources.c */
+#endif
   app_parse_command_line();
 #if MFL_FIX_LANG
   mfl_lang_apply();      /* no -vs / -cs / -l given: no setup dialogs, system language (recomp/mfl_resources.c) */

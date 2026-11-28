@@ -9,7 +9,7 @@
    stops the music stream; VC7's heap and Wine's ignore it). */
 
 /*005bf120*/ extern void FUN_005bf120(void *block);      /* RwaFree */
-/* TIER2: unvalidated 2026-11-20 authority=static */
+/* TIER2: unvalidated 2026-11-28 authority=diffemu */
 void gap_5da500(char *wave)
 {
   *(undefined4 *)(wave + 0x50) = 0;

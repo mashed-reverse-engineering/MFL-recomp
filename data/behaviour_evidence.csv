@@ -353,7 +353,7 @@ course_fog_apply,0042a290,tier2,hs_sweep,EQUAL,2033,1.00,1,,hs_sweep:EQUAL|ledge
 course_list_scan,0042a470,tier2,hs_sweep,EQUAL,2132,0.94,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-CALLED
 course_run_ktc_script,0042a7f0,tier2,hs_sweep,EQUAL,526,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-UNTESTED
 course_place_powerups_from_clump,0042a910,cluster,weak_tweak,EQUAL,3000,0.86,1,,weak_tweak:EQUAL|pilot:DIFF|pilot:EQUAL,
-course_load_powerups_gold,0042a980,tier2,hs_sweep,EQUAL,531,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
+course_load_powerups_gold,0042a980,tier2,hs_sweep,EQUAL,531,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_uv_anims_update,0042ac30,tier2,hs_sweep,EQUAL,3895,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 course_camera_roll_update,0042ace0,tier2,hs_sweep,EQUAL,2129,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
 course_get_record_point,0042b210,cluster,pilot,EQUAL,600,1.00,1,,pilot:EQUAL,
@@ -1184,9 +1184,9 @@ timer_select_implementation_cb_4a2f70,004a2f70,cluster,pilot,EQUAL,1200,1.00,1,,
 movie_guid_compare,004a3155,bridge,pilot,EQUAL,332,0.94,1,,pilot:EQUAL,enabled-list (game + shadow test results not recorded per function)
 video_draw_textured_quad,004a3500,tier2,hs_sweep,EQUAL,704,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 movie_renderer_poll,004a37f0,tier2,weak_tweak,EQUAL,377,1.00,1,,weak_tweak:EQUAL|hs_sweep:EQUAL|weak_osweep:EQUAL,compiled+shadow-never
-sound_volume_to_directsound_db,004a3930,cluster,cluster_sweep,EQUAL,265,0.83,1,LADDER,cluster_sweep:EQUAL|weak_tweak:EQUAL|pilot:EQUAL,
+sound_volume_to_directsound_db,004a3930,cluster,-,-,0,0,0,REWRITTEN;NOEVID,,
 video_state_clear,004a3a10,cluster,-,-,0,0,0,NOEVID,,
-movie_renderer_create,004a3a20,cluster,pilot,EQUAL,198,0.76,0,LOWCOV;OVERRIDDEN_DIFF,pilot:EQUAL,
+movie_renderer_create,004a3a20,cluster,-,-,0,0,0,REWRITTEN;NOEVID,,
 gamma_table_build,004a4080,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL|pilot:EQUAL,
 gamma_apply_via_device,004a4110,cluster,cluster_sweep,EQUAL,318,1.00,1,LADDER,cluster_sweep:EQUAL|pilot:DIFF|pilot:EQUAL,
 gamma_apply_via_device_scaled,004a41c0,tier2,hs_sweep,EQUAL,3000,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL|pilot:EQUAL,compiled+diffemu-EQUAL+shadow-never
@@ -1233,9 +1233,9 @@ controller_dialog_start_key_capture_cb_4a7310,004a7310,cluster,pilot,EQUAL,1200,
 controller_dialog_start_key_capture,004a7780,cluster,pilot,EQUAL,800,1.00,1,,pilot:EQUAL|pilot:EQUAL,
 controller_dialog_init,004a77d0,tier2,ledger,EQUAL,200,1.00,1,,ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 controller_dialog_close_cb_4a7c40,004a7c40,cluster,pilot,EQUAL,450,1.00,1,,pilot:EQUAL,
-controller_dialog_close,004a7f10,tier2,hs_sweep,EQUAL,2018,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
+controller_dialog_close,004a7f10,tier2,hs_sweep,EQUAL,2018,1.00,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 controller_dialog_run_cb_4a7fd0,004a7fd0,cluster,pilot,EQUAL,450,1.00,1,,pilot:EQUAL,
-controller_dialog_run,004a8180,tier2,hs_sweep,EQUAL,1600,0.92,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
+controller_dialog_run,004a8180,tier2,hs_sweep,EQUAL,1600,0.92,1,,hs_sweep:EQUAL|ledger:EQUAL,compiled+diffemu-EQUAL+shadow-never
 raster_write_image,004a8480,cluster,-,-,0,0,0,NOEVID,,
 video_mode_name_format,004a84d0,tier2,hs_sweep,EQUAL,755,1.00,1,STDIND,hs_sweep:EQUAL,compiled+shadow-never
 video_mode_name_format_004a8670,004a8670,cluster,pilot,EQUAL,1200,1.00,1,,pilot:DIFF|pilot:EQUAL,
