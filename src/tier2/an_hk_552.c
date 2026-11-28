@@ -11,20 +11,7 @@
 #define SUB_PUFFS_PER_SPAWN (4)
 /* Dwords of position data per slot: SUB_PUFFS_PER_SPAWN puffs x 3 floats (inferred). */
 #define PUFF_DWORDS_PER_SLOT (0xc)
-static undefined4 vehicle_part_position_by_index_r(int reg_eax, int reg_ecx, int reg_esi);
-extern void vehicle_part_position_by_index(void);
-__declspec(naked) undefined4 vehicle_part_position_by_index_r(int reg_eax, int reg_ecx, int reg_esi)
-{
-    __asm {
-        push esi
-        mov eax, dword ptr [esp + 8]
-        mov ecx, dword ptr [esp + 12]
-        mov esi, dword ptr [esp + 16]
-        call vehicle_part_position_by_index
-        pop esi
-        ret
-    }
-}
+extern int vehicle_part_position_by_index_n(void *, int, RwV3d *);
 
 /* fx_explosion_spawn */
 
@@ -57,7 +44,7 @@ void fx_explosion_spawn(int system_id,int slot_id,undefined4 param_3,undefined4 
   slot_byte_offset = slot_index * 4;
   if ((&g_effects_update_751b38)[slot_index] != 1) {
     /* read the slot's position into frame (3 dwords) */
-    vehicle_part_position_by_index_r(slot_id, system_id, &frame.slot_pos_x);
+    vehicle_part_position_by_index_n((void *)system_id, slot_id, (RwV3d *)(&frame.slot_pos_x));
     /* copy the position into every sub puff, walking backwards through the slot's block */
     puffs_left = SUB_PUFFS_PER_SPAWN;
     puff_ptr = &g_effects_update_751a18 + system_id * SLOTS_PER_SYSTEM + slot_id * PUFF_DWORDS_PER_SLOT;

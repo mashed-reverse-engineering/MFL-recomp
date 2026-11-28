@@ -19,7 +19,8 @@ import core, seed, incexpand
 from core import ROOT, T, sha
 
 OUT = os.path.join(ROOT, "output")
-DOUT = os.environ.get("DIFFEMU_OUT") or OUT      # DIFFEMU_OUT=<dir>: results / cache / diffs of this process go there (tools/t2_auto.py runs); the object cache (~/.cache, content addressed) stays shared
+GCC = os.environ.get("DIFFEMU_CC") == "gcc"      # W17 G-A: our side = the i686-w64-mingw32-gcc object of the CC=gcc hybrid (build_overlay.py GCC_FLAGS, mfl_tier2.h copy with float10 = float), own object keys
+DOUT = os.environ.get("DIFFEMU_OUT") or (os.path.join(OUT, "diffemu_gcc") if GCC else OUT)      # DIFFEMU_OUT=<dir>: results / cache / diffs of this process go there (tools/t2_auto.py runs); the object cache (~/.cache, content addressed) stays shared; gcc rows never land in the cl results
 os.makedirs(DOUT, exist_ok=True)
 RESULTS, CACHE, DIFFDIR = (os.path.join(DOUT, f) for f in ("diffemu_results.csv", "diffemu_cache.csv", "diffemu_diffs"))
 OBJCACHE = os.environ.get("DIFFEMU_OBJ", os.path.expanduser("~/.cache/mfl_diffemu_obj"))
@@ -55,6 +56,7 @@ def compile_obj(src):
     FLAGS_ = FLAGS + gs + (["/G5"] if b"compile: /G5" in open(src, "rb").read() else []) + (["/Op"] if b"compile: /Op" in open(src, "rb").read() else []) + (["/DMFL_DIFFEMU"] if b"diffemu-define: MFL_DIFFEMU" in open(src, "rb").read() else [])      # MFL_DIFFEMU: the diffemu object leaves out code that is not in MFL.exe (mflrw bind)      # VC6-built RenderWare functions (build_overlay.py)
     _m = open(src, "rb").read(); cc = "1310_3077" if b"compile: cl1310b" in _m else "1310" if b"compile: cl1310" in _m else os.environ.get("VC7_CL", "")      # compiler variant (vc7.sh VC7_CL), same rule as tools/cmpfn.py / build_overlay.py
     if incexpand.incs(open(src, errors="replace").read()): h = sha(h, incexpand.read_expanded(src).encode("utf-8"))      # an_hk_612_<grp>.inc: the inlined text joins the key (files without .inc: key unchanged)
+    if GCC: return compile_gcc(src, hs, h, FLAGS_)
     key = sha(open(src, "rb").read(), h," ".join(FLAGS_) + (" cc=" + cc if cc else "")); obj = os.path.join(OBJCACHE, key + ".obj")      # variant in the key: a cl 13.00 object of a cl1310 file is never reused; default keys unchanged
     if os.path.exists(obj): return obj, key
     os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True)
@@ -67,6 +69,54 @@ def compile_obj(src):
         shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp%d" % os.getpid()); os.replace(obj + ".tmp%d" % os.getpid(), obj)      # atomic (pid-unique tmp: two workers may compile the same source)
     finally: shutil.rmtree(w, ignore_errors=True)
     return obj, key
+
+_GF = {}
+def gcc_flags():
+    """GCC_FLAGS / GCC_FLOAT10 read from tools/build_overlay.py (one source of truth; the module runs main() on import) + the gcc version"""
+    if not _GF:      # built aside, then published in one step: the compile threads call this at the same time
+        import ast; g = {}
+        for n in ast.parse(open(os.path.join(core.TOOLS, "build_overlay.py")).read()).body:
+            if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name) and n.targets[0].id in ("GCC_FLAGS", "GCC_FLOAT10"): g[n.targets[0].id] = ast.literal_eval(n.value)
+        g["ver"] = subprocess.run(["i686-w64-mingw32-gcc", "-dumpfullversion"], capture_output=True, text=True).stdout.strip()
+        if not g["ver"] or len(g) != 3: raise RuntimeError("gcc flags / version not found: %r" % sorted(g))
+        _GF.update(g)
+    return _GF
+
+def compile_gcc(src, hs, h, FLAGS_):
+    """DIFFEMU_CC=gcc: the object build_overlay.gcc_compile makes of this file (same flags, same float10 = float header copy), cached under its own key"""
+    if "/GS" in FLAGS_: raise RuntimeError("compile: /GS file stays on cl (plan D2), no gcc object")
+    g = gcc_flags(); defs = ["-DMFL_DIFFEMU"] if "/DMFL_DIFFEMU" in FLAGS_ else []
+    key = sha(open(src, "rb").read(), h, " ".join(g["GCC_FLAGS"] + defs), "cc=gcc " + g["ver"], "float10=float"); obj = os.path.join(OBJCACHE, key + ".obj")
+    if not os.path.exists(obj):
+        os.makedirs(OBJCACHE, exist_ok=True); os.makedirs(core.cmpfn.WORKROOT, exist_ok=True); w = tempfile.mkdtemp(prefix="dxg_", dir=core.cmpfn.WORKROOT)
+        try:
+            for p in hs.values(): shutil.copy(p, w)
+            t = open(os.path.join(w, "mfl_tier2.h")).read()
+            if g["GCC_FLOAT10"] not in t: raise RuntimeError("%r not in mfl_tier2.h" % g["GCC_FLOAT10"])
+            open(os.path.join(w, "mfl_tier2.h"), "w").write(t.replace(g["GCC_FLOAT10"], "typedef float float10;"))
+            nm = os.path.basename(src); shutil.copy(src, os.path.join(w, nm))
+            r = subprocess.run(["i686-w64-mingw32-gcc"] + g["GCC_FLAGS"] + defs + ["-o", "f.obj", nm], cwd=w, capture_output=True, text=True, timeout=300)
+            if r.returncode or not os.path.exists(os.path.join(w, "f.obj")): raise RuntimeError("gcc compile error: " + (r.stdout + r.stderr)[-300:])
+            shutil.copy(os.path.join(w, "f.obj"), obj + ".tmp%d" % os.getpid()); os.replace(obj + ".tmp%d" % os.getpid(), obj)
+        finally: shutil.rmtree(w, ignore_errors=True)
+    co = COFF0(obj); n_ = Counter(sn for n, v, sn in co.syms.values() if sn > 0 and co.secs[sn - 1][4] & 0x20 and not n.startswith("."))
+    if max(n_.values(), default=0) > 1: raise RuntimeError("gcc object has a code section with %d functions: gas resolves the calls between them without a relocation, so the callee hooks do not apply (GCC_FLAGS lost -ffunction-sections?)" % max(n_.values()))
+    return obj, key
+
+
+class GccCoff(core.Coff):
+    """DIFFEMU_CC=gcc (-ffunction-sections): gas relocates a call to (or the address of) another function of the file against that function's section symbol
+    `.text$callee` + 0; such a symbol is named after the one function its section defines, so core.our_code resolves it like the cl call `_callee`: the
+    original address (callee hook), its own body for a recursive call, the same-object adapter for X_r.  A static function not inlined stays Unresolved."""
+    def __init__(s, path):
+        super().__init__(path)
+        fn = {}
+        for n, v, sn in s.syms.values():
+            if sn > 0 and s.secs[sn - 1][4] & 0x20 and not n.startswith("."): fn.setdefault(sn, []).append((v, n))
+        for i, (n, v, sn) in list(s.syms.items()):
+            if n.startswith(".text") and v == 0 and len(fn.get(sn, ())) == 1 and fn[sn][0][0] == 0: s.syms[i] = (fn[sn][0][1], 0, sn)
+COFF0 = core.Coff
+if GCC: core.Coff = GccCoff      # core.our_code builds its Coff by this global name (core.py itself unchanged, pinned)
 
 
 # ---------------------------------------------------------------------------------------------------------- one function

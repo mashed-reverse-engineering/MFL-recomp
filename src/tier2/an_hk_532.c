@@ -4,21 +4,12 @@
 /*004f6f40*/ extern RwBool RpClumpDestroy(struct RpClump *p0);
 /*004f7f70*/ extern struct RpAtomic * RpAtomicSetFrame(struct RpAtomic *p0, struct RwFrame *p1);
 /*0058ca00*/ extern void FUN_0058ca00(undefined4 p0);
-static int rwp_world_current_deactivate_r(int reg_eax);
-extern void rwp_world_current_deactivate(void);
+extern int rwp_world_current_deactivate_n(void *object);
 #define VEHICLE_SLOTS_OFFSET (0x10)
 #define VEHICLE_CLUMP_OFFSET (0x200)
 #define VEHICLE_SIZE (0x208)
 #define SLOT_GROUP_COUNT (2)
 #define SLOTS_PER_GROUP (10)
-__declspec(naked) int rwp_world_current_deactivate_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call rwp_world_current_deactivate
-        ret
-    }
-}
 
 /* debris_vehicle_destroy_all */
 
@@ -53,7 +44,7 @@ void debris_vehicle_destroy_all(char *vehicle)
       if (*slot != 0) {
         /* object flag at +0x24 set (inferred): deactivate it before releasing */
         if (*(int *)(*slot + 0x24) != 0) {
-          rwp_world_current_deactivate_r(*slot);
+          rwp_world_current_deactivate_n((void *)(*slot));
         }
         /* release the object (FUN_0058ca00, inferred) */
         FUN_0058ca00(*slot);

@@ -30,16 +30,7 @@
 /*005de3e4*/ extern float k_f_40;
 /*005de47c*/ extern float k_f_n0_25;
 /*005de480*/ extern float k_f_n0_4;
-static int rwp_world_current_activate_r(undefined4 reg_eax);
-extern void rwp_world_current_activate(void);
-__declspec(naked) int rwp_world_current_activate_r(undefined4 reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call rwp_world_current_activate
-        ret
-    }
-}
+extern void rwp_world_current_activate_n(undefined4);
 
 /* vehicle_smoke_emitters_spawn */
 #define DEBRIS_PIECE_COUNT (10) /* detachable pieces per debris set */
@@ -192,7 +183,7 @@ void vehicle_smoke_emitters_spawn(char *debris_set)
       piece[-1] = piece[-1] * k_f_0_25;
       *piece = *piece * k_f_0_25;
       RwFrameTranslate(*(RwFrame **)(emitter + 4),out,rwCOMBINEPOSTCONCAT);
-      rwp_world_current_activate_r(*(undefined4 *)&piece[2]);
+      rwp_world_current_activate_n(*(undefined4 *)&piece[2]);
       FUN_0056b440(*(undefined4 *)(*(int *)&piece[2] + 0x24),*(int *)&piece[2],6);
       owner_tmp = get_viewport_camera(0);
       owner_tmp = *(int *)(owner_tmp + 4);

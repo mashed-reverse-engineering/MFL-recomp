@@ -25,7 +25,10 @@ GCC_FLAGS = ["-c", "-w", "-std=gnu99", "-O2", "-msse2", "-mfpmath=sse", "-ffp-co
              # `g_x[0x1000]` extern into the next pinned global, reads through small absolute addresses
              "-fno-strict-aliasing", "-fwrapv", "-fwrapv-pointer", "-fno-aggressive-loop-optimizations", "-fno-delete-null-pointer-checks",
              "-mpreferred-stack-boundary=2",     # the cl ABI: the stack is 4 byte aligned at every call (gcc's default assumes 16 on entry: movaps on a stack slot would fault when cl code calls); gcc then realigns only a function that needs an aligned slot
-             "-fno-reorder-functions"]           # no .text.unlikely (cold functions): every function stays in .text
+             "-fno-reorder-functions",           # no .text.unlikely (cold functions)
+             # W17 G-A2 (agents/gcc2_w17/G-A2.md, probe ga2_probe.c): the original calls every function of a file; gcc must too, or diffemu's callee hooks miss the call
+             "-ffunction-sections",              # one .text$<name> per function: a call between two functions of the file gets a relocation (in one .text gas resolves it without one)
+             "-flive-patching=inline-only-static"]      # only static functions inline: no inlining of a global callee, no IPA-RA (caller relying on a callee's clobbers), no ICF folding (same_2 -> jmp same_1), no ipa-cp/sra clones
 GCC_PHYSICS = re.compile(r"(^|_)(car|cars|aibot|rwp|vehicle)(_|\.)")      # x87 study (output/x87_sse2_experiment_2026-11-21.md): car / aibot / rwp physics stay on MSVC x87
 GCC_FLOAT10 = "typedef double float10;"      # src/mfl_tier2.h; the gcc copy of the header (never the tree file) says `float` so a PC=24 x87 temporary rounds per op like the original
 

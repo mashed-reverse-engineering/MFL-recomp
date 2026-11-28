@@ -2,20 +2,11 @@
 /*00603f1c*/ extern undefined4 g_team_panel_origin_table;
 /*00658fd8*/ extern undefined g_team_658fd8;
 /*006592c0*/ extern undefined4 g_hudpanel_6592c0;
-static int team_panel_load_origin_r(int reg_ecx);
-extern void team_panel_load_origin(void);
+extern void team_panel_load_origin_n(TeamPanelEntry *panel);
 extern char g_team_6592b0[];
 
 #define RACE_START_COLOUR_FLOATS (6)
 #define TEAM_ENTRY_STRIDE (0x16c)
-__declspec(naked) int team_panel_load_origin_r(int reg_ecx)
-{
-    __asm {
-        mov ecx, dword ptr [esp + 4]
-        call team_panel_load_origin
-        ret
-    }
-}
 
 /* team_panel_origins_init */
 
@@ -52,7 +43,7 @@ void team_panel_origins_init(void)
   /* walk the team table, one TEAM_ENTRY_STRIDE-sized entry at a time, loading each team's origin */
   team_entry = &g_team_658fd8;
   do {
-    team_panel_load_origin_r(team_entry);
+    team_panel_load_origin_n((TeamPanelEntry *)team_entry);
     team_entry = team_entry + TEAM_ENTRY_STRIDE;
   } while ((LONG_PTR)team_entry < ((LONG_PTR)&g_team_6592b0));
   g_hudpanel_6592c0 = 0;

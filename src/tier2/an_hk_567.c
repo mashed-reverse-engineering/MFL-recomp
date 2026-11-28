@@ -8,19 +8,9 @@
 /*006a29bc*/ extern undefined4 g_weapon_mortar_6a29bc[0x1000];
 /*006a2a28*/ extern undefined g_weapon_6a2a28[0x1000];
 /*007ef7f4*/ extern float g_tick_seconds;
-static int weapon_mortar_register_trigger_r(int reg_eax);
-extern void weapon_mortar_register_trigger(void);
-__declspec(naked) int weapon_mortar_register_trigger_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call weapon_mortar_register_trigger
-        ret
-    }
-}
+extern void weapon_mortar_register_trigger_n(char *shell);
 
-static int weapon_mortar_shell_update_r(int reg_eax);
-extern void weapon_mortar_shell_update(void);
+extern void weapon_mortar_shell_update_n(undefined4 *shell);
 extern char g_explosion_queue[];
 extern char g_weapon_6a2a2c[];
 
@@ -28,14 +18,6 @@ extern char g_weapon_6a2a2c[];
 #define MATRIX_POS_OFFSET (0x30)
 #define MORTAR_SPIN_DEG (30.0)
 #define SHELL_STRIDE (0x110)
-__declspec(naked) int weapon_mortar_shell_update_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call weapon_mortar_shell_update
-        ret
-    }
-}
 
 /* weapon_mortar_update */
 /* Per-frame update of the mortar weapon (inferred).
@@ -80,8 +62,8 @@ void weapon_mortar_update(void)
   do {
     /* Active shell (word 1 non-zero). */
     if (*(int *)(shell_entry + 4) != 0) {
-      weapon_mortar_shell_update_r(shell_entry);
-      weapon_mortar_register_trigger_r(shell_entry);
+      weapon_mortar_shell_update_n((undefined4 *)shell_entry);
+      weapon_mortar_register_trigger_n((char *)shell_entry);
     }
     shell_entry = shell_entry + SHELL_STRIDE;
   } while ((LONG_PTR)shell_entry < ((LONG_PTR)&g_explosion_queue));

@@ -4929,6 +4929,7 @@ __crtInitCritSecAndSpinCount 004bf13f
 _errno 004bb0dd
 _amsg_exit 004b4b5e
 memcpy 004bbe90
+memset 004bbe30
 memmove 004bdba0
 _mtinitlocks 004b773d
 _mtdeletelocks 004b7786

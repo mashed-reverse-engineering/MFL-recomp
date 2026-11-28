@@ -23,16 +23,7 @@
 /*0069ba18*/ extern undefined4 g_ui_brush_transparent_black;
 /*0069ba1c*/ extern undefined4 g_ui_brush_white;
 #define COLOUR_CHANNEL_FULL (0xff)
-static undefined4 rt2d_font_load_r(int reg_eax);
-extern void rt2d_font_load(void);
-__declspec(naked) undefined4 rt2d_font_load_r(int reg_eax)
-{
-    __asm {
-        mov eax, dword ptr [esp + 4]
-        call rt2d_font_load
-        ret
-    }
-}
+extern int rt2d_font_load_n(void *);
 
 /* ui_rt2d_init */
 /* compile: /GS */
@@ -95,7 +86,7 @@ void ui_rt2d_init(void)
   g_ui_font_texdict = texdict_load_named_b(texdict_name,texdict_arg_1,texdict_arg_2);
   FUN_00567780(g_ui_font_texdict);
   /* Load the UI font from the packed setup block */
-  g_ui_font = rt2d_font_load_r(&font_setup.font_args);
+  g_ui_font = rt2d_font_load_n((void *)(&font_setup.font_args));
   /* Create the brushes: first gets the opaque black colour, white and text brush get white,
      brush_14 is created with no colour set */
   g_ui_brush_transparent_black = Rt2dBrushCreate();

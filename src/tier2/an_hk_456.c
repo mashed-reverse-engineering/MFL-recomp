@@ -1,20 +1,9 @@
 #include "mfl_tier2.h"
 /*0076ed20*/ extern undefined4 g_dinput_76ed20;
 /*00770f64*/ extern undefined4 g_app_770f64;
-static int joypad_device_setup_r(int reg_esi);
-extern void joypad_device_setup(void);
+extern void joypad_device_setup_n(undefined4 *pad);
 /* size of one joypad slot in g_dinput_76ed20, in undefined4 units (inferred) */
 #define JOYPAD_SLOT_STRIDE (0x112)
-__declspec(naked) int joypad_device_setup_r(int reg_esi)
-{
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        call joypad_device_setup
-        pop esi
-        ret
-    }
-}
 
 /* joypads_release_all */
 
@@ -33,7 +22,7 @@ void joypads_release_all(void)
   if (0 < (int)g_app_770f64) {
     joypad_slot = &g_dinput_76ed20;
     do {
-      joypad_device_setup_r(joypad_slot);
+      joypad_device_setup_n((undefined4 *)joypad_slot);
       joypad_index = joypad_index + 1;
       joypad_slot = joypad_slot + JOYPAD_SLOT_STRIDE;
     } while (joypad_index < (int)g_app_770f64);
